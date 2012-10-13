@@ -35,6 +35,8 @@ else
     exit 1
 fi
 
+[ -f $PCP_LIB_DIR/libpcp_trace.$DSO_VERSION ] || _notrun "No trace shared library available"
+
 status=1	# failure is the default!
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

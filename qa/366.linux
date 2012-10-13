@@ -2,7 +2,7 @@ QA output created by 366
 < #pmlogconf 1.0
 ---
 > #pmlogconf 2.0
-> #+ groupdir /var/lib/pcp/config/pmlogconf
+> #+ groupdir $PCP_VAR_DIR/config/pmlogconf
 > #
 < #+ I0:n:once:
 < ## hardware configuration [nodevis, osvis, oview, routervis,

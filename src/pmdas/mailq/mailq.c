@@ -18,7 +18,9 @@
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
+#ifdef HAVE_REGEX_H
 #include <regex.h>
+#endif
 #include <sys/stat.h>
 
 /*

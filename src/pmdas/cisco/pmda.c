@@ -51,20 +51,19 @@
 #include "./cisco.h"
 
 pmdaInstid	*_router;
-cisco_t		*cisco = NULL;
-int		n_cisco = 0;
-intf_t		*intf = NULL;
-int		n_intf = 0;
+cisco_t		*cisco;
+int		n_cisco;
+intf_t		*intf;
+int		n_intf;
 int		refreshdelay = 120;	/* default poll every two minutes */
-char		*username = NULL;	/* username */
-char		*passwd = NULL;		/* user-level password */
+char		*username;		/* username */
+char		*passwd;		/* user-level password */
 char		*prompt = ">";		/* command prompt */
 int		port = 23;
+int		parse_only;
 
 extern void	cisco_init(pmdaInterface *);
 extern void	cisco_done(void);
-
-int		parse_only = 0;
 
 int
 main(int argc, char **argv)
@@ -88,7 +87,7 @@ main(int argc, char **argv)
     snprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
-		"cisco.log", helptext);
+		"cisco.log", parse_only ? NULL : helptext);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "P:r:s:U:x:?", 
 			   &dispatch, &err)) != EOF) {
@@ -365,6 +364,9 @@ badintfspec:
 	exit(1);
     }
 
+#ifdef PARSE_ONLY
+    dispatch.version.two.text = NULL;
+#endif
 
     /* initialize */
     cisco_init(&dispatch);

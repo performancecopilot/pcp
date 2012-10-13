@@ -3,6 +3,7 @@
 #
 # exercise sar2pcp
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
@@ -13,19 +14,9 @@
 
 seq=`basename $0`
 
-if which sar >/dev/null 2>&1
-then
-    :
-else
-    _notrun "sar not installed"
-fi
-
-if which sadf >/dev/null 2>&1
-then
-    :
-else
-    _notrun "sadf not installed"
-fi
+which sar >/dev/null 2>&1 || _notrun "sar not installed"
+which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
+which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
 # assume 9.0.6.anything is really the same as 9.0.6, etc
 #
@@ -34,10 +25,8 @@ s/.* //
 s/\([^.]*\.[^.]*\.[^.]*\)\..*/\1/
 p
 }'`
-if [ ! -f src/sa-sysstat-$version ]
-then
+[ -f src/sa-sysstat-$version ] || \
     _notrun "no data file for sysstat version $version"
-fi
 
 rm -f $seq.out
 case "$version"
@@ -51,17 +40,13 @@ in
     10.0.1)
 	ln $seq.out.3 $seq.out || exit 1
 	;;
+    9.0.4)	# RHEL6
+	ln $seq.out.4 $seq.out || exit 1
+	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
 	;;
 esac
-
-if which sar2pcp >/dev/null 2>&1
-then
-    :
-else
-    _notrun "sar2pcp not installed"
-fi
 
 echo "QA output created by $seq"
 
@@ -140,7 +125,7 @@ p
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($5-$NF > 0.0001 || $5-$NF < -0.0001) print "[",NR,"] mismatch:",$1,$5,$NF }'
+{ if ($5-$NF > 0.001 || $5-$NF < -0.001) print "[",NR,"] mismatch:",$1,$5,$NF }'
 
 echo >>$seq.full
 # version 9.x output

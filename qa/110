@@ -84,6 +84,8 @@ _filter()
 	-e '/^pmda.c:$/d' \
 	-e '/^simple.c:$/d' \
 	-e '/make: Nothing to be done/d' \
+	-e '/In function .vpmprintf.:/d' \
+	-e '/warning: the use of .tempnam./d' \
 	-e 's/ or perl//' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \

@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.8
+Version: 3.6.9
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -394,6 +394,12 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+- Update to latest PCP sources.
+- Fix pmcd sigsegv in NUMA/CPU indom setup (BZ 858384)
+- Fix sar2pcp uninitialised perl variable warning (BZ 859117)
+- Fix pcp.py and pmcollectl with older python versions (BZ 852234)
+
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.
 

@@ -1,8 +1,9 @@
-pcp (3.6.8) unstable; urgency=low
+pcp (3.6.9) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Remove use of "restrict" keyword (closes: #689552)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 14 Sep 2012 21:59:32 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 12 Oct 2012 14:06:59 +1100
 
 pcp (3.6.6) unstable; urgency=low
 

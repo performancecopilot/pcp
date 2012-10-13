@@ -121,12 +121,33 @@ pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime,
     return units;
 }
 
+pmID
+pmiID(int domain, int cluster, int item)
+{
+    return pmid_build(domain, cluster, item);
+}
+
+pmInDom
+pmiInDom(int domain, int serial)
+{
+    return pmInDom_build(domain, serial);
+}
+
 const char *
 pmiErrStr(int sts)
 {
+    static char errmsg[PMI_MAXERRMSGLEN];
+    pmiErrStr_r(sts, errmsg, sizeof(errmsg));
+    return errmsg;
+}
+
+char *
+pmiErrStr_r(int code, char *buf, int buflen)
+{
     const char *msg;
-    if (sts == -1 && current != NULL) sts = current->last_sts;
-    switch (sts) {
+
+    if (code == -1 && current != NULL) code = current->last_sts;
+    switch (code) {
 	case PMI_ERR_DUPMETRICNAME:
 	    msg = "Metric name already defined";
 	    break;
@@ -161,10 +182,11 @@ pmiErrStr(int sts)
 	    msg = "No data to output";
 	    break;
 	default:
-	    msg = pmErrStr(sts);
-	    break;
+	    return pmErrStr_r(code, buf, buflen);
     }
-    return msg;
+    strncpy(buf, msg, buflen);
+    buf[buflen-1] = '\0';
+    return buf;
 }
 
 int
@@ -396,7 +418,7 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
     pmi_indom	*idp;
     const char	*p;
     char	*np;
-    int		ilen;
+    int		spaced;
     int		i;
     int		j;
 
@@ -429,10 +451,14 @@ pmiAddInstance(pmInDom indom, const char *instance, int inst)
      */
     for (p = instance; *p && *p != ' '; p++)
 	;
-    ilen = p - instance;
+    spaced = (*p == ' ') ? p - instance + 1: 0;	/* +1 => *must* compare the space too */
     for (j = 0; j < idp->ninstance; j++) {
-	if (strncmp(instance, idp->name[j], ilen) == 0) {
-	    return current->last_sts = PMI_ERR_DUPINSTNAME;
+	if (spaced) {
+	    if (strncmp(instance, idp->name[j], spaced) == 0)
+		return current->last_sts = PMI_ERR_DUPINSTNAME;
+	} else {
+	    if (strcmp(instance, idp->name[j]) == 0)
+		return current->last_sts = PMI_ERR_DUPINSTNAME;
 	}
 	if (inst == idp->inst[j]) {
 	    return current->last_sts = PMI_ERR_DUPINSTID;
@@ -472,7 +498,7 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
     int		m;
     int		i;
     int		j;
-    int		ilen;
+    int		spaced;
     const char	*p;
     pmi_indom	*idp;
 
@@ -511,10 +537,15 @@ make_handle(const char *name, const char *instance, pmi_handle *hp)
 
 	for (p = instance; *p && *p != ' '; p++)
 	    ;
-	ilen = p - instance;
+	spaced = (*p == ' ') ? p - instance + 1: 0;	/* +1 => *must* compare the space too */
 	for (j = 0; j < idp->ninstance; j++) {
-	    if (strncmp(instance, idp->name[j], ilen) == 0)
-		break;
+	    if (spaced) {
+		if (strncmp(instance, idp->name[j], spaced) == 0)
+		    break;
+	    } else {
+		if (strcmp(instance, idp->name[j]) == 0)
+		    break;
+	    }
 	}
 	if (j == idp->ninstance)
 	    return current->last_sts = PM_ERR_INST;

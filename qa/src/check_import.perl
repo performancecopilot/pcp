@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 #
 # Exercise libpcp_import ... Perl version of check_import.c
 #

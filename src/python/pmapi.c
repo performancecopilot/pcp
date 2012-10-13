@@ -1,40 +1,38 @@
+/*
+ * Copyright (C) 2012 Red Hat.
+ * Copyright (C) 2009-2012 Michael T. Werner
+ *
+ * This file is part of the "pcp" module, the python interfaces for the
+ * Performance Co-Pilot toolkit.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
 
 /****************************************************************************\
-**                                                                          **
-** pmapi.c                                                                  **
-**                                                                          **
-** Copyright (C) 2009-2012 Michael T. Werner				    **
-**                                                                          **
-** This file is part of pcp, the python extensions for SGI's Performance    **
-** Co-Pilot. 								    **
-**                                                                          **
-** This program is free software; you can redistribute it and/or modify it  **
-** under the terms of the GNU General Public License as published by the    **
-** Free Software Foundation; either version 2 of the License, or (at your   **
-** option) any later version.						    **
-** 									    **
-** This program is distributed in the hope that it will be useful, but	    **
-** WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY **
-** or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License **
-** for more details.							    **
-**									    **
-**             -----------------------------------------------              **
 **                                                                          **
 ** This C extension module mainly serves the purpose of loading constants   **
 ** from <pcp/pmapi.h> into the module dictionary. The PMAPI functions and   **
 ** data structures are wrapped in pcp.py, using ctypes.                     **
 **                                                                          **
-** The following constants and macros have not been wrapped.               **
+** The following constants and macros have not been wrapped.                **
 **    - PM_XTB_FLAG                                                         **
 **    - PM_XTB_SET()                                                        **
 **    - PM_XTB_GET()                                                        **
 **                                                                          **
 \****************************************************************************/
 
-
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
+#include <pcp/import.h>
 
 typedef union {
     int i;
@@ -87,26 +85,27 @@ void dict_add( PyObject *dict, char *sym, intu val, int type, PyObject *revD )
     }
 } 
 
-/* module initializer */
-void initpmapi( void );
-
 static PyMethodDef methods[] = {
     {NULL, NULL}
 };
 
-
 /* This function is called when the module is initialized. */ 
 
 void
-initpmapi() {
+initpmapi(void)
+{
     PyObject *module, *dict;
-    PyObject *pmErrSymD;
+    PyObject *pmiErrSymD, *pmErrSymD;
 
     module = Py_InitModule( "pmapi", methods );
 
     pmErrSymD = PyDict_New();
     Py_INCREF( pmErrSymD ); 
     PyModule_AddObject( module, "pmErrSymD", pmErrSymD ); 
+
+    pmiErrSymD = PyDict_New();
+    Py_INCREF( pmiErrSymD ); 
+    PyModule_AddObject( module, "pmiErrSymD", pmiErrSymD ); 
 
     dict = PyModule_GetDict( module );
 
@@ -125,7 +124,6 @@ initpmapi() {
     dict_add( dict, "PM_NS_DEFAULT",
                      (intu) PM_NS_DEFAULT, UNS_T, NULL );
 
-/* in pmapi.h, only LTOR is defined. RTOL is a gratuitous pedantic addition */
 #ifdef HAVE_BITFIELDS_LTOR
     dict_add( dict, "HAVE_BITFIELDS_LTOR",
               (intu) HAVE_BITFIELDS_LTOR, INT_T, NULL );
@@ -230,21 +228,15 @@ initpmapi() {
     dict_add( dict, "PM_LOG_VOL_TI",   (intu) PM_LOG_VOL_TI,   INT_T, NULL );
     dict_add( dict, "PM_LOG_VOL_META", (intu) PM_LOG_VOL_META, INT_T, NULL );
 
-
     dict_add( dict, "PM_MODE_LIVE",   (intu) PM_MODE_LIVE,   INT_T, NULL );
     dict_add( dict, "PM_MODE_INTERP", (intu) PM_MODE_INTERP, INT_T, NULL );
     dict_add( dict, "PM_MODE_FORW",   (intu) PM_MODE_FORW,   INT_T, NULL );
     dict_add( dict, "PM_MODE_BACK",   (intu) PM_MODE_BACK,   INT_T, NULL );
 
-
     dict_add( dict, "PM_TEXT_ONELINE", (intu) PM_TEXT_ONELINE, INT_T, NULL );
     dict_add( dict, "PM_TEXT_HELP",    (intu) PM_TEXT_HELP,    INT_T, NULL );
 
-
-    dict_add( dict, "PM_ERR_BASE2", (intu) PM_ERR_BASE2, INT_T, NULL );
-    dict_add( dict, "PM_ERR_BASE",  (intu) PM_ERR_BASE,  INT_T, NULL );
-
-
+    /* pmapi error codes */
     dict_add( dict, "PM_ERR_GENERIC",
               (intu) PM_ERR_GENERIC,      INT_T, pmErrSymD );
     dict_add( dict, "PM_ERR_PMNS",
@@ -346,11 +338,36 @@ initpmapi() {
     dict_add( dict, "PM_ERR_NYI",
               (intu) PM_ERR_NYI,          INT_T, pmErrSymD );
 
-    /* pmapi.h */
+
+    /* pmafm.h */
     dict_add( dict, "PM_REC_ON", (intu) PM_REC_ON, INT_T, NULL );
     dict_add( dict, "PM_REC_OFF", (intu) PM_REC_OFF, INT_T, NULL );
     dict_add( dict, "PM_REC_DETACH", (intu) PM_REC_DETACH, INT_T, NULL );
     dict_add( dict, "PM_REC_STATUS", (intu) PM_REC_STATUS, INT_T, NULL );
     dict_add( dict, "PM_REC_SETARG", (intu) PM_REC_SETARG, INT_T, NULL );
 
+
+    /* import.h */
+    dict_add( dict, "PMI_ERR_DUPMETRICNAME",
+              (intu) PMI_ERR_DUPMETRICNAME, INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_DUPMETRICID",
+              (intu) PMI_ERR_DUPMETRICID,   INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_DUPINSTNAME",
+              (intu) PMI_ERR_DUPINSTNAME,   INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_DUPINSTID",
+              (intu) PMI_ERR_DUPINSTID,     INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_INSTNOTNULL",
+              (intu) PMI_ERR_INSTNOTNULL,   INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_INSTNULL",
+              (intu) PMI_ERR_INSTNULL,      INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_BADHANDLE",
+              (intu) PMI_ERR_BADHANDLE,     INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_DUPVALUE",
+              (intu) PMI_ERR_DUPVALUE,      INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_BADTYPE",
+              (intu) PMI_ERR_BADTYPE,       INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_BADSEM",
+              (intu) PMI_ERR_BADSEM,        INT_T, pmiErrSymD );
+    dict_add( dict, "PMI_ERR_NODATA",
+              (intu) PMI_ERR_NODATA,        INT_T, pmiErrSymD );
 }

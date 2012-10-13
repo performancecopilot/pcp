@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 572
-# pmcd agent table rellocation and libpcp_pmda botch for PMDA_INTERFACE_3.
+# pmcd agent table relocation and libpcp_pmda botch for PMDA_INTERFACE_3.
 # linux PMDA returns no values after weblog Install was the original
 # observation.
 #
@@ -31,6 +31,14 @@ _cleanup()
 	$sudo rm -f $tmp.*
 	needclean=false
     fi
+}
+
+_filter_make()
+{
+    sed \
+	-e '/In function .vpmprintf./d' \
+	-e '/warning: the use of .tempnam./d' \
+	-e '/make: Nothing to be done/d'
 }
 
 status=1	# failure is the default!
@@ -103,6 +111,7 @@ do
 	$sudo ./Install </dev/null >/dev/null 2> $tmp.stderr
         # strip blank lines from stderr
         # strip cc warning messages (assumed to be 4 non-blanks long)
+	cat $tmp.stderr | _filter_make | \
         $PCP_AWK_PROG  '
             /^ *$/ {
                 next 
@@ -114,7 +123,7 @@ do
             {    
                 print
             }
-        ' < $tmp.stderr
+        '
     fi
     pmstore -n $tmp.pmns sample.string.write_me "$pmda"
     pminfo -n $tmp.pmns -f \

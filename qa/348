@@ -16,7 +16,7 @@ seq=`basename $0`
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 kvm_stats_path=/sys/kernel/debug/kvm
-$sudo [ ! -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
+$sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 
 rm -f $seq.out
 if [ $PCP_VER -lt 3600 ]

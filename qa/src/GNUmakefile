@@ -15,7 +15,7 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_gui/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR)
 
-LSRCFILES = $(MYFILES) $(MYSCRIPTS) GNUmakefile.install GNUlocaldefs
+LSRCFILES = $(MYFILES) $(MYSCRIPTS) $(PSCRIPTS) GNUmakefile.install GNUlocaldefs
 
 -include ../localconfig
 include GNUlocaldefs
@@ -25,7 +25,7 @@ localconfig.h:
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(TESTDIR)
+	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(PSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile

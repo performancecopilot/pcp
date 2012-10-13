@@ -47,6 +47,14 @@ $sudo make >/dev/null 2>&1
 
 unset ROOT
 
+_filter_make()
+{
+    sed \
+	-e '/In function .vpmprintf./d' \
+	-e '/warning: the use of .tempnam./d' \
+	-e '/make: Nothing to be done/d'
+}
+
 cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 foo
 both
@@ -69,7 +77,7 @@ sed <$tmp.out \
     -e '/.[0-9][0-9]* non-leaf nodes/d' \
     -e '/.[0-9][0-9]* bytes of symbol table/d' \
     -e '/Compiled PMNS contains/d' \
-    -e '/make: Nothing to be done/d'
+    | _filter_make
 
 echo "in \$PCP_PMCDCONF_PATH ..."
 sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
@@ -77,15 +85,15 @@ sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
 $sudo ./Remove
 
 echo
-if $sudo make >$tmp.tmp
+if $sudo make >$tmp.tmp 2>$tmp.err
 then
-    :
+    cat $tmp.err | _filter_make
 else
     cat $tmp.tmp
     echo "make prior to Install failed!"
 fi
-$sudo ./Install </dev/null \
-| grep 'Check'
+$sudo ./Install </dev/null >$tmp.out 2>&1
+grep 'Check' $tmp.out
 
 # success, all done
 status=0

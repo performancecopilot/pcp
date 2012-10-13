@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,12 +11,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef _IMPORT_H
 #define _IMPORT_H
 
@@ -23,8 +19,7 @@
 extern "C" {
 #endif
 
-// core libpcp_import API routines
-//
+/* core libpcp_import API routines */
 extern int pmiStart(const char *, int);
 extern int pmiUseContext(int);
 extern int pmiEnd(void);
@@ -38,15 +33,18 @@ extern int pmiPutValueHandle(int, const char *);
 extern int pmiWrite(int, int);
 extern int pmiPutResult(const pmResult *);
 
-// helper functions
-//
-extern void pmiDump(void);
+/* helper routines */
+extern pmID pmiID(int, int, int);
+extern pmInDom pmiInDom(int, int);
 extern pmUnits pmiUnits(int, int, int, int, int, int);
-extern const char *pmiErrStr(int);
 
-// libpcp_import error codes
-//
+/* diagnostic routines */
+#define PMI_MAXERRMSGLEN	128	/* safe size to accomodate any error message */
+extern char *pmiErrStr_r(int, char *, int);
+extern const char *pmiErrStr(int);	/* cannot ever be made thread-safe */
+extern void pmiDump(void);
 
+/* libpcp_import error codes */
 #define PMI_ERR_BASE 20000
 #define PMI_ERR_DUPMETRICNAME	(-PMI_ERR_BASE-1) /* Metric name already defined */
 #define PMI_ERR_DUPMETRICID	(-PMI_ERR_BASE-2) /* Metric pmID already defined */

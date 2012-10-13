@@ -112,7 +112,7 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     }
 
     if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
-        sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
+	sts = __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
     else
         sts = fdFlags;
 

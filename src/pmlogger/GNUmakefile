@@ -27,7 +27,7 @@ LSRCFILES = rc_pmlogger
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-LLDLIBS	= $(PCPLIB)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_PTHREADS)
 LDIRT	= *.log foo.* gram.h lex.c y.tab.? $(YFILES:%.y=%.tab.?) $(CMDTARGET)
 
 default:	$(CMDTARGET)

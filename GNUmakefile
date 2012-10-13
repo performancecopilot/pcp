@@ -37,7 +37,11 @@ LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
 
-SUBDIRS = src qa man build debian
+SUBDIRS = src
+ifneq ($(TARGET_OS),mingw)
+SUBDIRS += qa
+endif
+SUBDIRS += man build debian
 
 default :: default_pcp
 

@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 709
+# Exercise the python collectl implementation
+#
+# Copyright (c) 2012 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+remove_extra_whitespace() {
+sed -e 's/>>>.*<<<//g' -e 's/[0-9]/9/g' -e 's/9[9]*/9/g' -e 's/  *$//' -e '/^ *$/d' -e 's/  */ /g' -e 's/^ *//' -e 's/RECORD.*$/RECORD/'
+}
+
+# sed -e 's/ [a-zA-Z0-9]* *$//'
+remove_extra_columns() {
+sed -e 's/^ *//' -e 's/ [a-zA-Z0-9 ]* *$//'
+}
+
+# real QA test starts here
+
+#PYCOLLECTL=pmcollectl.py	# developer version
+PYCOLLECTL=pmcollectl		# installed version
+$PYCOLLECTL -sc -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sn -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sj -c2 | remove_extra_whitespace | remove_extra_columns | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sm -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sc -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sn -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sm -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# need a generic way to test this on any system
+# $PYCOLLECTL -sC -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL -sD -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL -sN -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL -sJ -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL -sCD -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -scd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -scd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+
+cat $tmp.out >>$here/$seq.full
+
+# success, all done
+status=0
+exit

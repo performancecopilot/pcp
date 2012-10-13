@@ -217,6 +217,26 @@ Options\n\
 			printf("delta: %.0f\n",
 			    cv - pv);
 		    }
+		    else if (type[j] == PM_TYPE_EVENT) {
+			pmResult **records;
+			int r, param;
+
+			printf("%d event records found\n", result->vset[j]->numval);
+			sts = pmUnpackEventRecords(result->vset[j], 0, &records);
+			if (sts < 0) {
+			    printf("event decode error: %s\n", pmErrStr(sts));
+			} else {
+			    for (r = 0; r < sts; r++) {
+				tdiff = records[r]->timestamp.tv_sec - prev->timestamp.tv_sec + (double)
+				    (records[r]->timestamp.tv_usec - prev->timestamp.tv_usec) / 1000000;
+				printf("\nevent %d, offset time=%.3f secs, param ids:", j+1, tdiff);
+				for (param = 0; param < records[r]->numpmid; param++)
+				    printf(" %s", pmIDStr(records[r]->vset[param]->pmid));
+			    }
+			    pmFreeEventResult(records);
+			    putchar('\n');
+			}
+		    }
 		    else
 			printf("don't know how to display type %d for PMID %s\n",
 			    type[j], pmIDStr(pmid[j]));

@@ -1,12 +1,10 @@
-
-##############################################################################
 #
 # pcpi.py
 #
 # Copyright (C) 2009-2012 Michael T. Werner
 #
-# This file is part of pcp, the python extensions for SGI's Performance
-# Co-Pilot.
+# This file is part of the "pcp" module, the python interfaces for the
+# Performance Co-Pilot toolkit.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,6 +15,7 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+#
 
 """Convenience classes building on the base pcp extension module
 
@@ -413,8 +412,3 @@ class MetricGroupManager( dict, MetricCache ):
             dict.__setitem__( self, attr, MetricGroup( self, inL=value ) )
     
 
-##############################################################################
-#
-# End of pcpi.py
-#
-##############################################################################
