@@ -192,6 +192,11 @@ void PmTimeArch::helpAbout()
     about.exec();
 }
 
+void PmTimeArch::helpAboutQt()
+{
+    QApplication::aboutQt();
+}
+
 void PmTimeArch::helpSeeAlso()
 {
     SeeAlsoDialog about(this);

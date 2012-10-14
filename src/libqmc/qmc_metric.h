@@ -40,11 +40,12 @@ public:
     double value(int inst) const;
     QString stringValue(int inst) const;
 
+    void summary(QString &os, int instID) const;
     void dump(QTextStream &os, int instID) const;
 
 private:
     struct {
-	pmID		pmid;	// pmid for a parameter to an event
+	pmID		pmid;	// pmid for the parameter to an event
 	QString		*name;	// direct pointer into external cache
 	QmcDesc		*desc;	// direct pointer into external cache
 	QmcIndom	*indom;	// direct pointer into external cache
@@ -72,7 +73,8 @@ public:
 
     QString parent() const;
     QString identifier() const;
-    QString parameterSummary() const;
+
+    void parameterSummary(QString &os, int instID) const;
     void dump(QTextStream &os, int instID, uint recordID) const;
 
     static pmID eventFlags();
@@ -158,6 +160,7 @@ public:
     ~QmcMetric();
 
     int status() const { return my.status; }
+    pmID metricID() const { return my.pmid; }
     const QString name() const { return my.name; }
     const char *nameAscii() const { return (const char *)my.name.toAscii(); }
     QmcContext *context() const

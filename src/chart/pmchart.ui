@@ -87,6 +87,7 @@
     <addaction name="helpManualAction" />
     <addaction name="separator" />
     <addaction name="helpAboutAction" />
+    <addaction name="helpAboutQtAction" />
     <addaction name="helpSeeAlsoAction" />
     <addaction name="separator" />
     <addaction name="helpWhatsThisAction" />
@@ -449,6 +450,14 @@
     <string/>
    </property>
   </action>
+  <action name="helpAboutQtAction" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+   <property name="iconText" >
+    <string>About Qt</string>
+   </property>
+  </action>
   <action name="helpSeeAlsoAction" >
    <property name="text" >
     <string>See Also</string>
@@ -621,6 +630,12 @@
      <y>20</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>helpAboutQtAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>helpAboutQt()</slot>
   </connection>
   <connection>
    <sender>helpSeeAlsoAction</sender>

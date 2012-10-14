@@ -127,6 +127,11 @@ void PmTimeLive::helpAbout()
     about.exec();
 }
 
+void PmTimeLive::helpAboutQt()
+{
+    QApplication::aboutQt();
+}
+
 void PmTimeLive::helpSeeAlso()
 {
     SeeAlsoDialog about(this);

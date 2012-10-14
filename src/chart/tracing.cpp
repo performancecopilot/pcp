@@ -90,14 +90,16 @@ TracingItem::curve(void)
     return my.pointCurve;
 }
 
-TracingEvent::TracingEvent(QmcEventRecord const &record)
+TracingEvent::TracingEvent(QmcEventRecord const &record, pmID pmid, int inst)
 {
     my.timestamp = tosec(*record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
+    my.pmid = pmid;
+    my.inst = inst;
     my.spanID = record.identifier();
     my.rootID = record.parent();
-    my.description = record.parameterSummary();
+    record.parameterSummary(my.description, inst);
 }
 
 TracingEvent::~TracingEvent()
@@ -289,7 +291,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
 
-	    my.events.append(TracingEvent(record));
+	    my.events.append(TracingEvent(record, metric->metricID(), index));
 	    TracingEvent &event = my.events.last();
 
 	    if (event.hasIdentifier() && name == QString::null) {
@@ -350,6 +352,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    // Could have a separate list of events? (render differently?)
 	}
     } else {
+#if DESPERATE
 	//
 	// TODO: need to track this failure point, and ensure that the
 	// begin/end spans do not cross this boundary.
@@ -357,6 +360,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	console->post(PmChart::DebugForce,
 		"TracingItem::updateEventRecords: NYI error path: %d (%s)",
 		metric->error(index), pmErrStr(metric->error(index)));
+#endif
     }
 }
 
@@ -532,11 +536,13 @@ TracingScaleDraw::label(double value) const
 #endif
 
     // ensure label is not too long to fit
-    if (label.length() > LABEL_CUTOFF)
-	label.remove(LABEL_CUTOFF);
+    label.truncate(LABEL_CUTOFF);
     // and only use up to the first space
     if ((slot = label.indexOf(' ')) >= 0)
-	label.remove(slot);
+	label.truncate(slot);
+
+    console->post(PmChart::DebugForce,
+		"TracingScaleDraw::label: final %d label is \"%s\"", slot, (const char *)label.toAscii());
     return label;
 }
 
@@ -615,10 +621,9 @@ void
 TracingEngine::addTraceSpan(const QString &spanID, int slot)
 {
     Q_ASSERT(spanID != QString::null && spanID != "");
-    Q_ASSERT(my.traceSpanMapping.size() == my.labelSpanMapping.size());
-
-    console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d total)",
-			(const char *)spanID.toAscii(), slot, my.traceSpanMapping.size());
+    console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d/%d span/label)",
+			(const char *)spanID.toAscii(), slot,
+			my.traceSpanMapping.size(), my.labelSpanMapping.size());
     my.traceSpanMapping.insert(spanID, slot);
     my.labelSpanMapping.insert(slot, spanID);
 }

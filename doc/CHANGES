@@ -3,9 +3,8 @@ pcp-gui 1.5.6 (12 October 2012)
     - Much work getting the QA suite stable and all tests passing.
     - Tutorials end up in -doc package, not the -gui runtime.
     - Move the fedora spec for pcp-gui under source control.
-    - Move up to the latest Qwt major release (6+), major API rework
-    - Updates toward supporting event record decoding and display in
-      pmchart.
+    - Move up to the latest Qwt major release (6+), major API rework.
+    - Initial support for pmchart event record decoding and display.
     - Increase the maximum number of displayed samples to cover a
       full days worth of data at a finer-grained interval.
     - Tweaks to desktop integration file to match current standards.

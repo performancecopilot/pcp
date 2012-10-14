@@ -19,11 +19,13 @@ uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -f
 uninstalld = cat debian/$(pcpdoc).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
 uninstallt = cat debian/$(pcpgui_testsuite).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
 
-build: built
-built: config
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp: config
 	@echo "== dpkg-buildpackage: build" 1>&2
 	$(MAKE) default
-	touch built
+	touch build-stamp
 
 config: .census
 .census:
@@ -35,14 +37,14 @@ config: .census
 clean:
 	@echo "== dpkg-buildpackage: clean" 1>&2
 	$(checkdir)
-	-rm -f built .census
+	-rm -f build-stamp .census
 	$(MAKE) distclean
 	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper
 
 binary-indep: binary-arch
 
-binary-arch: checkroot built
+binary-arch: checkroot build-stamp
 	@echo "== dpkg-buildpackage: binary-arch" 1>&2
 	$(checkdir)
 	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)

@@ -26,7 +26,7 @@ LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) 
 	  $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
-ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
+ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \
 	    document-close.png document-new.png document-open.png \
 	    document-print.png document-export.png document-properties.png \
 	    document-save.png emblem-system.png \
@@ -73,7 +73,6 @@ ifeq ($(WINDOW),win)
 endif
 ifeq ($(WINDOW),x11)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL) -S $(BINARY) $(PKG_BIN_DIR)/kmchart
 	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
 	$(INSTALL) -m 644 $(DESKTOP) $(PKG_DESKTOP_DIR)/$(DESKTOP)
 endif

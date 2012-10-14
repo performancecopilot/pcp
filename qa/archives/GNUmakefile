@@ -14,7 +14,7 @@ default setup:
 
 install:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 755 $(SRCARCH) $(SRCEXTRAS) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 644 $(SRCARCH) $(SRCEXTRAS) $(TESTDIR)
 
 include $(BUILDRULES)

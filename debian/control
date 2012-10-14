@@ -2,8 +2,8 @@ Source: pcp-gui
 Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqt4-opengl-dev, libqtassistantclient-dev | qt4-dev-tools
-Standards-Version: 3.9.1
+Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqtassistantclient-dev | qt4-dev-tools
+Standards-Version: 3.9.3
 
 Package: pcp-gui
 Provides: kmchart
@@ -38,3 +38,12 @@ Description: Documentation and tutorial for the Performance Co-Pilot
  and other detailed documentation about the internals of core
  PCP utilities and daemons, and the PCP graphical tools.
 
+Package: pcp-gui-testsuite
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp-gui (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) GUI Test Suite
+ Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
+ .
+ Provides a series of tests that exercise the utilities that are a
+ part of the PCP GUI package.  Regular users should never have any
+ need to install this package, it is for developers and testers.

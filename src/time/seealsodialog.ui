@@ -1,98 +1,96 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SeeAlsoDialog</class>
- <widget class="QDialog" name="SeeAlsoDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SeeAlsoDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>410</width>
-    <height>274</height>
+    <height>250</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy>
-    <hsizetype>0</hsizetype>
-    <vsizetype>0</vsizetype>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize" >
+  <property name="minimumSize">
    <size>
     <width>410</width>
-    <height>265</height>
+    <height>250</height>
    </size>
   </property>
-  <property name="windowTitle" >
-   <string>Acknowlegdements</string>
+  <property name="windowTitle">
+   <string>Acknowledgements</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
+  <property name="windowIcon">
+   <iconset resource="pmtime.qrc">
+    <normaloff>:/pmtime.png</normaloff>:/pmtime.png</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <property name="margin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>9</number>
    </property>
-   <property name="spacing" >
+   <property name="spacing">
     <number>6</number>
    </property>
-   <item row="0" column="0" >
-    <layout class="QVBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
+   <item row="0" column="0">
+    <layout class="QVBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
      <item>
-      <layout class="QHBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
         <number>6</number>
        </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
+        <layout class="QVBoxLayout">
+         <property name="spacing">
           <number>6</number>
          </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QLabel" name="seeAlsoPCPPixmapLabel" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>0</hsizetype>
-             <vsizetype>0</vsizetype>
+          <widget class="QLabel" name="seeAlsoPCPPixmapLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="minimumSize" >
+           <property name="minimumSize">
             <size>
              <width>76</width>
              <height>82</height>
             </size>
            </property>
-           <property name="pixmap" >
-            <pixmap resource="pmtime.qrc" >:/aboutpcp.png</pixmap>
+           <property name="pixmap">
+            <pixmap resource="pmtime.qrc">:/aboutpcp.png</pixmap>
            </property>
-           <property name="scaledContents" >
+           <property name="scaledContents">
             <bool>false</bool>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
           <spacer>
-           <property name="orientation" >
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>51</height>
@@ -100,109 +98,58 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QLabel" name="seeAlsoQtPixmapLabel" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>0</hsizetype>
-             <vsizetype>0</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>76</width>
-             <height>76</height>
-            </size>
-           </property>
-           <property name="pixmap" >
-            <pixmap resource="pmtime.qrc" >:/aboutqt.png</pixmap>
-           </property>
-           <property name="scaledContents" >
-            <bool>true</bool>
-           </property>
-           <property name="wordWrap" >
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
+        <layout class="QVBoxLayout">
+         <property name="spacing">
           <number>6</number>
          </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QLabel" name="versionPCPTextLabel" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>3</hsizetype>
-             <vsizetype>3</vsizetype>
+          <widget class="QLabel" name="versionPCPTextLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text" >
-            <string>&lt;b>&lt;i>Performance Co-Pilot (PCP)&lt;/i>&lt;/b>&lt;br>
-Copyright (c) 1995-2007 Silicon Graphics&lt;br>
-&lt;i>http://oss.sgi.com/projects/pcp&lt;/i></string>
+           <property name="text">
+            <string>&lt;b&gt;&lt;i&gt;Performance Co-Pilot (PCP)&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
+Copyright (c) 2010-2012 Red Hat&lt;br&gt;
+Copyright (c) 2006-2012 Aconex&lt;br&gt;
+Copyright (c) 1995-2007 SGI&lt;br&gt;
+... and many, many others!&lt;br&gt;
+&lt;i&gt;http://oss.sgi.com/projects/pcp&lt;/i&gt;</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="versionQwtTextLabel" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>3</hsizetype>
-             <vsizetype>3</vsizetype>
+          <widget class="QLabel" name="versionQwtTextLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text" >
-            <string>&lt;b>&lt;i>Qt Widgets for Technical Apps (Qwt)&lt;/i>&lt;/b>&lt;br>
-Copyright (c) 1997   Josef Wilgen&lt;br>
-Copyright (c) 2002   Uwe Rathmann&lt;br>
-&lt;i>http://qwt.sourceforge.net/&lt;/i></string>
+           <property name="text">
+            <string>&lt;b&gt;&lt;i&gt;Qt Widgets for Technical Apps (Qwt)&lt;/i&gt;&lt;/b&gt;&lt;br&gt;
+Copyright (c) 1997   Josef Wilgen&lt;br&gt;
+Copyright (c) 2002   Uwe Rathmann&lt;br&gt;
+&lt;i&gt;http://qwt.sourceforge.net/&lt;/i&gt;</string>
            </property>
-           <property name="alignment" >
+           <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
-           <property name="wordWrap" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="versionQtTextLabel" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>3</hsizetype>
-             <vsizetype>3</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text" >
-            <string>&lt;b>&lt;i>Qt Cross-Platform GUI Toolkit&lt;/i>&lt;/b>&lt;br>
-Copyright (c) 1994-2007 Trolltech&lt;br>
-&lt;i>http://www.trolltech.com/qt&lt;/i></string>
-           </property>
-           <property name="alignment" >
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
@@ -212,19 +159,19 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
-       </property>
-       <property name="spacing" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
         <number>6</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
        </property>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -233,24 +180,24 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="seeAlsoOKButton" >
-         <property name="focusPolicy" >
+        <widget class="QPushButton" name="seeAlsoOKButton">
+         <property name="focusPolicy">
           <enum>Qt::TabFocus</enum>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>OK</string>
          </property>
-         <property name="default" >
+         <property name="default">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -264,9 +211,8 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
  <resources>
-  <include location="pmtime.qrc" />
+  <include location="pmtime.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -275,11 +221,11 @@ Copyright (c) 1994-2007 Trolltech&lt;br>
    <receiver>SeeAlsoDialog</receiver>
    <slot>seeAlsoOKButton_clicked()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
