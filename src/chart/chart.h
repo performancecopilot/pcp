@@ -122,10 +122,13 @@ public:
     void addToTree(QTreeWidget *, QString, const QmcContext *,
 			  bool, QColor, QString);
 
-public slots:
+Q_SIGNALS:
+    void timeSelected(Gadget *, double);
+
+public Q_SLOTS:
     void replot(void);
 
-private slots:
+private Q_SLOTS:
     void selected(const QPointF &);
     void moved(const QPointF &);
     void selected(const QPolygon &);

@@ -13,9 +13,9 @@
  */
 #include "gadget.h"
 
-Gadget::Gadget()
+Gadget::Gadget(QWidget *widget)
 {
-    my.widget = NULL;
+    my.widget = widget;
 }
 
 QStringList Gadget::hosts()

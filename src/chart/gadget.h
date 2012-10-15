@@ -23,9 +23,8 @@
 class Gadget
 {
 public:
-    Gadget();
+    Gadget(QWidget *);
     virtual ~Gadget() { }
-    virtual void setWidget(QWidget *w) { my.widget = w; }
     virtual void setCurrent(bool) { }
     virtual void setScheme(QString &s) { my.scheme = s; }
     virtual QString scheme() const { return my.scheme; }
