@@ -1,3 +1,7 @@
+pcp-3.6.10 (16 November 2012)
+    - Add missing RPM spec dependency for python-ctypes.
+    - Remove unused python imports in QA tests.
+
 pcp-3.6.9 (12 October 2012)
     - Python wrapper for the pmimport API
     - Make sar2pcp work with the sysstat versions from RHEL5,

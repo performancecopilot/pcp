@@ -417,6 +417,11 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
+* Fri Nov 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
+- Currently under development.
+- Add Requires on python-ctypes for older pythons (BZ 867855)
+- Remove unused and python-version-dependent import (BZ 867914)
+
 * Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
 - Rebase for next DTS beta release (BZ 857773)

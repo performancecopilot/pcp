@@ -395,6 +395,9 @@ fi
 %defattr(-,root,root)
 
 %changelog
+* Fri Nov 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
+- Currently under development.
+
 * Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
 - Fix pmcd sigsegv in NUMA/CPU indom setup (BZ 858384)
