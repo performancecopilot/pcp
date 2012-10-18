@@ -16,7 +16,6 @@ import unittest
 import pmapi
 import time
 import sys
-import argparse
 from pcp import *
 from ctypes import *
 
