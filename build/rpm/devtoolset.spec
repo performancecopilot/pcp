@@ -21,7 +21,8 @@ BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
  
-Requires: bash gawk sed grep fileutils findutils initscripts perl python
+Requires: bash gawk sed grep fileutils findutils initscripts perl
+Requires: python python-ctypes
 Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
 Requires: %{?scl_prefix}python-pcp = %{version}-%{release}
 Requires: %{?scl_prefix}perl-PCP-PMDA = %{version}-%{release}

@@ -22,7 +22,8 @@ BuildRequires: initscripts man /bin/hostname
 Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep coreutils findutils perl python
+Requires: bash gawk sed grep fileutils findutils initscripts perl
+Requires: python python-ctypes
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %else
