@@ -87,7 +87,7 @@ __pmConnectTo(int fd, const __pmSockAddrIn *addr, int port)
 int
 __pmConnectCheckError(int fd)
 {
-    int	so_err;
+    int	so_err = 0;
     __pmSockLen	olen = sizeof(int);
     char errmsg[PM_MAXERRMSGLEN];
 
@@ -1152,13 +1152,13 @@ __pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
 int
 __pmIPAddrIsLoopBack(const __pmIPAddr *addr)
 {
-    return *addr == PR_INADDR_LOOPBACK;
+    return *addr == htonl(PR_INADDR_LOOPBACK);
 }
 
 __pmIPAddr
 __pmLoopbackAddress(void)
 {
-    return PR_INADDR_LOOPBACK;
+    return htonl(PR_INADDR_LOOPBACK);
 }
 
 __pmIPAddr
