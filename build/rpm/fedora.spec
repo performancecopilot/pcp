@@ -107,7 +107,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
+* Fri Oct 19 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
 - Update to latest sources, add testsuite sub-package
 
 * Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.5-2
