@@ -32,7 +32,7 @@
 
 #define DESPERATE 0
 
-Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
+Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 {
     my.tab = chartTab;
     my.title = NULL;
@@ -40,7 +40,6 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
     my.scheme = QString::null;
     my.sequence = 0;
 
-    Gadget::setWidget(this);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     plotLayout()->setCanvasMargin(0);
     plotLayout()->setAlignCanvasToScales(true);
@@ -66,6 +65,10 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget()
 			 SLOT(selected(const QPointF &)));
     connect(my.picker, SIGNAL(moved(const QPointF &)),
 			 SLOT(moved(const QPointF &)));
+
+    // feedback into the group about any selection
+    connect(this, SIGNAL(timeSelected(Gadget *, double)),
+	    my.tab->group(), SLOT(timeSelected(Gadget *, double)));
 
     console->post("Chart::ctor complete(%p)", this);
 }
@@ -531,8 +534,6 @@ Chart::moved(const QPointF &p)
 }
 
 
-#define	PICK_TOLERANCE	10	// #pixels tolerance
-
 void
 Chart::showPoint(const QPointF &p)
 {
@@ -562,9 +563,11 @@ Chart::showPoint(const QPointF &p)
 	ChartItem *item = my.items[i];
 
 	item->clearCursor();
-	if (item == selected && dist < PICK_TOLERANCE)
+	if (item == selected)
 	    item->updateCursor(p, index);
     }
+
+    emit timeSelected(this, p.x());
 }
 
 void

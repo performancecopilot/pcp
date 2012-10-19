@@ -49,7 +49,7 @@ public:
 public slots:
     void setCol(int h, int s);
 
-signals:
+Q_SIGNALS:
     void newCol(int h, int s);
 
 protected:
@@ -81,7 +81,7 @@ public slots:
     void setCol(int h, int s, int v);
     void setCol(int h, int s);
 
-signals:
+Q_SIGNALS:
     void newHsv(int h, int s, int v);
 
 protected:

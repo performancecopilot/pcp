@@ -166,6 +166,13 @@ GroupControl::timeState()
     return buf;
 }
 
+void
+GroupControl::timeSelected(Gadget *source, double timestamp)
+{
+    console->post(PmChart::DebugUi,
+		"GroupControl::timeSelected: time=%.2f", timestamp);
+}
+
 //
 // Drive all updates into each gadget (refresh the display)
 //

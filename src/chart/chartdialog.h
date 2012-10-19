@@ -88,7 +88,7 @@ public slots:
     virtual void plotLabelLineEdit_editingFinished();
     virtual void colorSchemeComboBox_currentIndexChanged(int);
 
-signals:
+Q_SIGNALS:
     void newCol(QRgb);
 
 protected slots:
