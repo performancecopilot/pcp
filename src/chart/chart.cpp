@@ -56,9 +56,9 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 		    SLOT(legendChecked(QwtPlotItem *, bool)));
 
     // setup a picker (all charts must have one)
-    my.picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-			QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff,
-			canvas());
+    my.picker = new ChartPicker(canvas());
+    connect(my.picker, SIGNAL(activated(bool)),
+			 SLOT(activated(bool)));
     connect(my.picker, SIGNAL(selected(const QPolygon &)),
 			 SLOT(selected(const QPolygon &)));
     connect(my.picker, SIGNAL(selected(const QPointF &)),
@@ -67,8 +67,12 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 			 SLOT(moved(const QPointF &)));
 
     // feedback into the group about any selection
-    connect(this, SIGNAL(timeSelected(Gadget *, double)),
-	    my.tab->group(), SLOT(timeSelected(Gadget *, double)));
+    connect(this, SIGNAL(timeSelectionActive(Gadget *, int)),
+	    my.tab->group(), SLOT(timeSelectionActive(Gadget *, int)));
+    connect(this, SIGNAL(timeSelectionReactive(Gadget *, int)),
+	    my.tab->group(), SLOT(timeSelectionReactive(Gadget *, int)));
+    connect(this, SIGNAL(timeSelectionInactive(Gadget *)),
+	    my.tab->group(), SLOT(timeSelectionInactive(Gadget *)));
 
     console->post("Chart::ctor complete(%p)", this);
 }
@@ -511,9 +515,18 @@ Chart::setYAxisTitle(const char *p)
 }
 
 void
+Chart::activated(bool on)
+{
+    if (on)
+	Q_EMIT timeSelectionActive(this,
+		canvas()->mapFromGlobal(QCursor::pos()).x());
+    else
+	Q_EMIT timeSelectionInactive(this);
+}
+
+void
 Chart::selected(const QPolygon &poly)
 {
-    console->post("Chart::selected(polygon) chart=%p npoints=%d", this, poly.size());
     my.engine->selected(poly);
     my.tab->setCurrent(this);
 }
@@ -521,7 +534,6 @@ Chart::selected(const QPolygon &poly)
 void
 Chart::selected(const QPointF &p)
 {
-    console->post("Chart::selected(point) chart=%p x=%f y=%f", this, p.x(), p.y());
     showPoint(p);
     my.tab->setCurrent(this);
 }
@@ -529,7 +541,8 @@ Chart::selected(const QPointF &p)
 void
 Chart::moved(const QPointF &p)
 {
-    console->post("Chart::moved(point) chart=%p x=%f y=%f", this, p.x(), p.y());
+    Q_EMIT timeSelectionReactive(this,
+		canvas()->mapFromGlobal(QCursor::pos()).x());
     my.engine->moved(p);
 }
 
@@ -544,7 +557,8 @@ Chart::showPoint(const QPointF &p)
     // pixel point
     QPoint pp = my.picker->transform(p);
 
-    console->post("Chart::showPoint p=%.2f,%.2f pixel=%d,%d", p.x(), p.y(), pp.x(), pp.y());
+    console->post("Chart::showPoint p=%.2f,%.2f pixel=%d,%d",
+		p.x(), p.y(), pp.x(), pp.y());
 
     // seek the closest curve to the point selected
     for (int i = 0; i < my.items.size(); i++) {
@@ -566,8 +580,33 @@ Chart::showPoint(const QPointF &p)
 	if (item == selected)
 	    item->updateCursor(p, index);
     }
+}
 
-    emit timeSelected(this, p.x());
+void
+Chart::activateTime(QMouseEvent *event)
+{
+    bool block = signalsBlocked();
+    blockSignals(true);
+    my.picker->widgetMousePressEvent(event);
+    blockSignals(block);
+}
+
+void
+Chart::reactivateTime(QMouseEvent *event)
+{
+    bool block = signalsBlocked();
+    blockSignals(true);
+    my.picker->widgetMouseMoveEvent(event);
+    blockSignals(block);
+}
+
+void
+Chart::deactivateTime(QMouseEvent *event)
+{
+    bool block = signalsBlocked();
+    blockSignals(true);
+    my.picker->widgetMouseReleaseEvent(event);
+    blockSignals(block);
 }
 
 void

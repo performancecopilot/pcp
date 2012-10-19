@@ -42,6 +42,10 @@ public:
     virtual int height() const { return my.widget->height(); }
     virtual QSize size() const { return my.widget->size(); }
 
+    virtual void activateTime(QMouseEvent *) { }
+    virtual void reactivateTime(QMouseEvent *) { }
+    virtual void deactivateTime(QMouseEvent *) { }
+
     virtual void save(FILE *, bool) { }
     virtual void print(QPainter *, QRect &, bool) { }
 

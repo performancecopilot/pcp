@@ -68,14 +68,14 @@ void QColorLuminancePicker::setVal(int v)
     val = qMax(0, qMin(v,255));
     delete pix; pix=0;
     repaint();
-    emit newHsv(hue, sat, val);
+    Q_EMIT newHsv(hue, sat, val);
 }
 
 //receives from a hue,sat chooser and relays.
 void QColorLuminancePicker::setCol(int h, int s)
 {
     setCol(h, s, val);
-    emit newHsv(h, s, val);
+    Q_EMIT newHsv(h, s, val);
 }
 
 void QColorLuminancePicker::paintEvent(QPaintEvent *)
@@ -178,14 +178,14 @@ void QColorPicker::mouseMoveEvent(QMouseEvent *m)
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol(p);
-    emit newCol(hue, sat);
+    Q_EMIT newCol(hue, sat);
 }
 
 void QColorPicker::mousePressEvent(QMouseEvent *m)
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol(p);
-    emit newCol(hue, sat);
+    Q_EMIT newCol(hue, sat);
 }
 
 void QColorPicker::paintEvent(QPaintEvent *e)
@@ -258,7 +258,7 @@ void QColorShowLabel::dropEvent(QDropEvent *e)
     if (color.isValid()) {
 	col = color;
 	repaint();
-	emit colorDropped(col.rgb());
+	Q_EMIT colorDropped(col.rgb());
 	e->accept();
     } else {
 	e->ignore();
@@ -285,7 +285,7 @@ void QColLineEdit::textEdited(const QString &text)
     c.setNamedColor(text);
     if (c.isValid()) {
 	setColor(c);
-	emit newColor(c);
+	Q_EMIT newColor(c);
     }
 }
 

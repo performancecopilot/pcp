@@ -62,7 +62,9 @@ public:
     void newButtonState(PmTime::State, PmTime::Mode, bool);
 
 public Q_SLOTS:
-    void timeSelected(Gadget *, double);
+    void timeSelectionActive(Gadget *, int);
+    void timeSelectionReactive(Gadget *, int);
+    void timeSelectionInactive(Gadget *);
 
 private:
     typedef enum {

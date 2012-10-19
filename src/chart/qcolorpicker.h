@@ -127,7 +127,7 @@ public slots:
     void setCol(int h, int s, int v);
     void textEdited(const QString &text);
 
-signals:
+Q_SIGNALS:
     void newColor(QColor c);
 
 private:
@@ -146,7 +146,7 @@ public:
     }
     void setColor(QColor c) { col = c; update(); }
 
-signals:
+Q_SIGNALS:
     void colorDropped(QRgb);
 
 protected:

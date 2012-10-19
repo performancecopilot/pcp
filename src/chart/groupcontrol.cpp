@@ -167,10 +167,42 @@ GroupControl::timeState()
 }
 
 void
-GroupControl::timeSelected(Gadget *source, double timestamp)
+GroupControl::timeSelectionActive(Gadget *source, int timestamp)
 {
-    console->post(PmChart::DebugUi,
-		"GroupControl::timeSelected: time=%.2f", timestamp);
+    QPoint point(timestamp, -1);
+    QMouseEvent pressed(QEvent::MouseButtonPress, point,
+			Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    for (int i = 0; i < gadgetCount(); i++) {
+	Gadget *gadget = my.gadgetsList.at(i);
+	if (source != gadget)
+	    gadget->activateTime(&pressed);
+    }
+}
+
+void
+GroupControl::timeSelectionReactive(Gadget *source, int timestamp)
+{
+    QPoint point(timestamp, -1);
+    QMouseEvent moved(QEvent::MouseMove, point,
+			Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    for (int i = 0; i < gadgetCount(); i++) {
+	Gadget *gadget = my.gadgetsList.at(i);
+	if (source != gadget)
+	    gadget->reactivateTime(&moved);
+    }
+}
+
+void
+GroupControl::timeSelectionInactive(Gadget *source)
+{
+    QPoint point(-1, -1);
+    QMouseEvent release(QEvent::MouseButtonRelease, point,
+			Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    for (int i = 0; i < gadgetCount(); i++) {
+	Gadget *gadget = my.gadgetsList.at(i);
+	if (source != gadget)
+	    gadget->deactivateTime(&release);
+    }
 }
 
 //

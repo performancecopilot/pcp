@@ -626,7 +626,7 @@ void ChartDialog::rgbEd()
     sEd->setValue(my.sat);
     vEd->setValue(my.val);
     showCurrentColor();
-    emit newCol(my.currentColor);
+    Q_EMIT newCol(my.currentColor);
 }
 
 void ChartDialog::hsvEd()
@@ -641,7 +641,7 @@ void ChartDialog::hsvEd()
     gEd->setValue(qGreen(my.currentColor));
     bEd->setValue(qBlue(my.currentColor));
     showCurrentColor();
-    emit newCol(my.currentColor);
+    Q_EMIT newCol(my.currentColor);
 }
 
 void ChartDialog::showCurrentColor()

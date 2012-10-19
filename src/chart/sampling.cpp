@@ -830,9 +830,9 @@ SamplingEngine::setScale(bool autoScale, double yMin, double yMax)
 }
 
 void
-SamplingEngine::selected(const QPolygon &poly)
+SamplingEngine::selected(const QPolygon &)
 {
-    my.chart->showPoint(poly.point(0));
+    // Nothing to do here.
 }
 
 void

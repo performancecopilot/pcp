@@ -29,6 +29,7 @@
 
 class Tab;
 class ChartItem;
+class ChartPicker;
 class ChartEngine;
 class TracingEngine;
 class SamplingEngine;
@@ -122,16 +123,23 @@ public:
     void addToTree(QTreeWidget *, QString, const QmcContext *,
 			  bool, QColor, QString);
 
+    void activateTime(QMouseEvent *);
+    void reactivateTime(QMouseEvent *);
+    void deactivateTime(QMouseEvent *);
+
 Q_SIGNALS:
-    void timeSelected(Gadget *, double);
+    void timeSelectionActive(Gadget *, int);
+    void timeSelectionReactive(Gadget *, int);
+    void timeSelectionInactive(Gadget *);
 
 public Q_SLOTS:
     void replot(void);
 
 private Q_SLOTS:
+    void activated(bool);
+    void selected(const QPolygon &);
     void selected(const QPointF &);
     void moved(const QPointF &);
-    void selected(const QPolygon &);
     void legendChecked(QwtPlotItem *, bool);
 
 private:
@@ -153,11 +161,30 @@ private:
 	Style style;
 
 	ChartEngine *engine;
-	QwtPlotPicker *picker;
+	ChartPicker *picker;
     } my;
 
     friend class TracingEngine;
     friend class SamplingEngine;
+};
+
+//
+// Wrapper class that simply allows us to call the mouse event handlers
+// for the picker class.  Helps implement the time axis picker extender.
+//
+class ChartPicker : public QwtPlotPicker
+{
+public:
+    ChartPicker(QwtPlotCanvas *canvas) :
+	QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+	QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff, canvas) { }
+
+    void widgetMousePressEvent(QMouseEvent *event)
+	{ QwtPlotPicker::widgetMousePressEvent(event); }
+    void widgetMouseReleaseEvent(QMouseEvent *event)
+	{ QwtPlotPicker::widgetMouseReleaseEvent(event); }
+    void widgetMouseMoveEvent(QMouseEvent *event)
+	{ QwtPlotPicker::widgetMouseMoveEvent(event); }
 };
 
 //
