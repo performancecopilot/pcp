@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-endian=`perl -MConfig -e 'print substr $Config{byteorder}, 0, 4'`
+endian=`perl -MConfig -e 'print $Config{byteorder}' | tr -d 5678`
 if [ "$endian" = "4321" ]
 then
     ln $seq.out.4321 $seq.out
