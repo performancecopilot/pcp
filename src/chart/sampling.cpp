@@ -115,7 +115,7 @@ SamplingItem::updateValues(bool forward,
     double	value;
     int		sz;
 
-    if (metric->error(0)) {
+    if (metric->numValues() < 1 || metric->error(0)) {
 	value = qQNaN();
     } else {
 	// convert raw value to current chart scale
