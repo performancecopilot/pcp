@@ -75,17 +75,35 @@ def get_atom_value (metric, atom1, atom2, desc, first):
     # value conversion and diff, if required
     type = desc.contents.type
     if type == pmapi.PM_TYPE_32:
-        return atom1.l - (atom2.l if not first else 0)
+        if first:
+            return atom1.l 
+        else:
+            return atom1.l - atom2.l
     elif type == pmapi.PM_TYPE_U32:
-        return atom1.ul - (atom2.ul if not first else 0)
+        if first:
+            return atom1.ul 
+        else:
+            return atom1.ul - atom2.ul
     elif type == pmapi.PM_TYPE_64:
-        return atom1.ll - (atom2.ll if not first else 0)
+        if first:
+            return atom1.ll 
+        else:
+            return atom1.ll - atom2.ll
     elif type == pmapi.PM_TYPE_U64:
-        return atom1.ull - (atom2.ull if not first else 0)
+        if first:
+            return atom1.ull 
+        else:
+            return atom1.ull - atom2.ull
     elif type == pmapi.PM_TYPE_FLOAT:
-        return atom1.f - (atom2.f if not first else 0)
+        if first:
+            return atom1.f 
+        else:
+            return atom1.f - atom2.f
     elif type == pmapi.PM_TYPE_DOUBLE:
-        return atom1.d - (atom2.d if not first else 0)
+        if first:
+            return atom1.d 
+        else:
+            return atom1.d - atom2.d
     else:
         return 0
 
@@ -122,9 +140,7 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
             value = []
             # metric may require a diff to get a per interval value
             for k in xrange(metric_result.contents.get_numval(j)):
-                if first:
-                    old_val = 0
-                elif type(old_metric_value[j]) == list_type:
+                if type(old_metric_value[j]) == list_type:
                     old_val = old_metric_value[j][k]
                 else:
                     old_val = old_metric_value[j]
@@ -436,43 +452,13 @@ class _cpu(_subsys):
 
 class _interrupt(_subsys):
     def __init__(self):
-        self.interrupt_metrics = ['kernel.percpu.interrupts.MCP',
-                                  'kernel.percpu.interrupts.MCE',
-                                  'kernel.percpu.interrupts.THR',
-                                  'kernel.percpu.interrupts.TRM',
-                                  'kernel.percpu.interrupts.TLB',
-                                  'kernel.percpu.interrupts.CAL',
-                                  'kernel.percpu.interrupts.RES',
-                                  'kernel.percpu.interrupts.RTR',
-                                  'kernel.percpu.interrupts.IWI',
-                                  'kernel.percpu.interrupts.PMI',
-                                  'kernel.percpu.interrupts.SPU',
-                                  'kernel.percpu.interrupts.LOC',
-                                  'kernel.percpu.interrupts.line48',
-                                  'kernel.percpu.interrupts.line47',
-                                  'kernel.percpu.interrupts.line46',
-                                  'kernel.percpu.interrupts.line45',
-                                  'kernel.percpu.interrupts.line44',
-                                  'kernel.percpu.interrupts.line43',
-                                  'kernel.percpu.interrupts.line42',
-                                  'kernel.percpu.interrupts.line41',
-                                  'kernel.percpu.interrupts.line40',
-                                  'kernel.percpu.interrupts.line23',
-                                  'kernel.percpu.interrupts.line22',
-                                  'kernel.percpu.interrupts.line21',
-                                  'kernel.percpu.interrupts.line20',
-                                  'kernel.percpu.interrupts.line19',
-                                  'kernel.percpu.interrupts.line18',
-                                  'kernel.percpu.interrupts.line17',
-                                  'kernel.percpu.interrupts.line16',
-                                  'kernel.percpu.interrupts.line12',
-                                  'kernel.percpu.interrupts.line9',
-                                  'kernel.percpu.interrupts.line8',
-                                  'kernel.percpu.interrupts.line1',
-                                  'kernel.percpu.interrupts.line0']
+        self.interrupt_metrics = []
 
 
     def setup_metrics(self,pm):
+        int_list = pm.pmGetChildren("kernel.percpu.interrupts")
+        for i in xrange(len(int_list)):
+            self.interrupt_metrics.append('kernel.percpu.interrupts.' + int_list[i])
         # remove any unsupported metrics
         for j in range(len(self.interrupt_metrics)-1, -1, -1):
             try:
@@ -536,7 +522,7 @@ class _interrupt(_subsys):
                 if not have_nonzero_value:
                     continue
                 # pcp does not give the interrupt # so print spaces
-                print "        ",
+                print "%-8s" % self.interrupt_metrics[j].split(".")[3],
                 for k in range(len(self.get_interrupt_metric_value('kernel.percpu.interrupts.MCP'))):
                     print "%4d " % (self.interrupt_metric_value[j][k]),
                 text = (pm.pmLookupText(self.int_metric_name[j], pmapi.PM_TEXT_ONELINE))
@@ -716,8 +702,6 @@ class _memory(_subsys):
         else:
             return 0
 
-    def print_header1_brief(self):
-            print '#<--Int--->'
     def print_header1_brief(self):
         print '#<-----------Memory----------->'
     def print_header1_verbose(self):
