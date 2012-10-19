@@ -551,14 +551,17 @@ GroupControl::setSampleHistory(int v)
     console->post("GroupControl::setSampleHistory (%d -> %d)", my.samples, v);
     if (my.samples != v) {
 	my.samples = v;
-	for (int i = 0; i < gadgetCount(); i++)
-	    for (int m = 0; m < my.gadgetsList.at(i)->metricCount(); m++)
-		my.gadgetsList.at(i)->resetValues(m, my.samples);
+
 	my.timeData = (double *)malloc(my.samples * sizeof(my.timeData[0]));
 	if (my.timeData == NULL)
 	    nomem();
-	for (int i = 0; i < my.samples; i++)
-	    my.timeData[i] = my.realPosition - (i * my.realDelta);
+
+	double right = my.realPosition;
+	for (v = 0; v < my.samples; v++)
+	    my.timeData[v] = my.realPosition - (v * my.realDelta);
+	double left = my.timeData[v-1];
+	for (v = 0; v < gadgetCount(); v++)
+	    my.gadgetsList.at(v)->resetValues(my.samples, left, right);
     }
 }
 

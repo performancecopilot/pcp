@@ -68,7 +68,7 @@ public:
 
     void preserveSample(int, int) { }
     void punchoutSample(int) { }
-    void resetValues(int);
+    void resetValues(int, double, double);
     void updateValues(TracingEngine *, double, double);
     void rescaleValues(double *, double *);
 

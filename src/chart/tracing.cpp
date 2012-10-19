@@ -203,9 +203,18 @@ TracingItem::cullOutlyingEvents(double left, double right)
 }
 
 void
-TracingItem::resetValues(int samples)
+TracingItem::resetValues(int, double left, double right)
 {
-    console->post(PmChart::DebugForce, "TracingItem::resetValues: sample count change: NYI: %d", samples);
+    cullOutlyingSpans(left, right);
+    cullOutlyingDrops(left, right);
+    cullOutlyingPoints(left, right);
+    cullOutlyingEvents(left, right);
+
+    // update the display
+    my.dropCurve->setSamples(my.drops);
+    my.spanCurve->setSamples(my.spans);
+    my.pointCurve->setSamples(my.points);
+    my.selectionCurve->setSamples(my.selections);
 }
 
 //

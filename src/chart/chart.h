@@ -100,7 +100,7 @@ public:
     virtual void print(QPainter *, QRect &, bool);
 
     virtual void updateValues(bool, bool, int, int, double, double, double);
-    virtual void resetValues(int m, int v);
+    virtual void resetValues(int, double, double);
     virtual void adjustValues();
 
     virtual void preserveSample(int, int);
@@ -237,7 +237,7 @@ public:
 
     virtual void preserveSample(int, int) = 0;
     virtual void punchoutSample(int) = 0;
-    virtual void resetValues(int) = 0;
+    virtual void resetValues(int, double, double) = 0;
 
     virtual void clearCursor() = 0;
     virtual bool containsPoint(const QRectF &, int) = 0;

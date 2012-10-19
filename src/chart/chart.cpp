@@ -234,7 +234,6 @@ Chart::legendChecked(QwtPlotItem *item, bool down)
 
     if (changed) {
 	item->setVisible(down == false);
-	my.engine->replot();
 	replot();
     }
 }
@@ -301,9 +300,11 @@ Chart::reviveItem(int index)
 }
 
 void
-Chart::resetValues(int i, int v)
+Chart::resetValues(int samples, double left, double right)
 {
-    my.items[i]->resetValues(v);
+    for (int i = 0; i < my.items.size(); i++)
+	my.items[i]->resetValues(samples, left, right);
+    replot();
 }
 
 int

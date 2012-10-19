@@ -33,7 +33,7 @@ SamplingItem::SamplingItem(Chart *parent,
     my.dataCount = 0;
     my.data = NULL;
     my.itemData = NULL;
-    resetValues(samples);
+    resetValues(samples, 0.0, 0.0);
 
     // set base scale, then tweak if value to plot is time / time
     my.scale = 1;
@@ -75,7 +75,7 @@ SamplingItem::curve(void)
 }
 
 void
-SamplingItem::resetValues(int values)
+SamplingItem::resetValues(int values, double, double)
 {
     size_t size;
 

@@ -47,7 +47,7 @@ public:
     void punchoutSample(int);
     void updateValues(bool, bool, pmUnits *, int, int, double, double, double);
     void rescaleValues(pmUnits *);
-    void resetValues(int);
+    void resetValues(int, double, double);
     void revive();
     void remove();
     void setStroke(Chart::Style, QColor, bool);

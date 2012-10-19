@@ -33,7 +33,7 @@ public:
     virtual void updateBackground(QColor) { }
     virtual void updateValues(bool, bool, int, int, double, double, double) { }
 
-    virtual void resetValues(int, int) { }
+    virtual void resetValues(int, double, double) { }
     virtual void adjustValues() { }
     virtual void preserveSample(int, int) { }
     virtual void punchoutSample(int) { }
