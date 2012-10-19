@@ -5,7 +5,7 @@
 Summary: System-level performance monitoring and performance management
 Name: %{?scl_prefix}pcp
 Version: 3.6.9
-%define buildversion 1
+%define buildversion 2
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
@@ -417,10 +417,10 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
-* Fri Nov 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
-- Currently under development.
+* Tue Oct 23 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-2
 - Add Requires on python-ctypes for older pythons (BZ 867855)
 - Remove unused and python-version-dependent import (BZ 867914)
+- Fix test 062 handling of 64bit big endian machines (BZ 868316)
 
 * Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
