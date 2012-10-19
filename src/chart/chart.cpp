@@ -573,11 +573,12 @@ Chart::showPoint(const QPointF &p)
     }
 
     // clear existing selections then show this one
+    bool update = (index >= 0 && pp.y() >= 0);
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
 
 	item->clearCursor();
-	if (item == selected && index >= 0)
+	if (update && item == selected)
 	    item->updateCursor(p, index);
     }
 }
@@ -652,6 +653,7 @@ Chart::showInfo(void)
 {
     QString info = QString::null;
 
+    pmchart->timeout();	// clear status bar
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
 	if (info != QString::null)
