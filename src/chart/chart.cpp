@@ -577,7 +577,7 @@ Chart::showPoint(const QPointF &p)
 	ChartItem *item = my.items[i];
 
 	item->clearCursor();
-	if (item == selected)
+	if (item == selected && index >= 0)
 	    item->updateCursor(p, index);
     }
 }
