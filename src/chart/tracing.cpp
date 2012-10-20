@@ -127,28 +127,20 @@ TracingItem::rescaleValues(double *minValue, double *maxValue)
 //   This is still true - events arrive in order - but we have
 //   to walk the entire list as these ranges can overlap.  But
 //   thats OK - we expect far fewer spans than total events.
-//   While we're at it, we can keep track of min/max span ID.
 //
 
 void
 TracingItem::cullOutlyingSpans(double left, double right)
 {
-    double minSpanID = 0.0, maxSpanID = 1.0;
-
     // Start from the end so that we can remove as we go
     // without interfering with the index we are using.
     for (int i = my.spans.size() - 1; i >= 0; i--) {
 	const QwtIntervalSample &span = my.spans.at(i);
 	if (span.interval.maxValue() >= left ||
-	    span.interval.minValue() <= right) {
-	    minSpanID = qMin(minSpanID, span.value);
-	    maxSpanID = qMax(maxSpanID, span.value);
-	} else {
-	    my.spans.remove(i);
-	}
+	    span.interval.minValue() <= right)
+	    continue;
+	my.spans.remove(i);
     }
-    my.minSpanID = minSpanID;
-    my.maxSpanID = maxSpanID;
 }
 
 void
@@ -254,7 +246,8 @@ TracingItem::updateValues(TracingEngine *engine, double left, double right)
     my.selectionCurve->setSamples(my.selections);
 }
 
-void TracingItem::updateEvents(TracingEngine *engine, QmcMetric *metric)
+void
+TracingItem::updateEvents(TracingEngine *engine, QmcMetric *metric)
 {
     if (metric->hasInstances() && !metric->explicitInsts()) {
 	for (int i = 0; i < metric->numInst(); i++)
@@ -295,7 +288,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	} else {
 	    name = metric->name();
 	}
-	engine->addTraceSpan(name, slot);
+	addTraceSpan(engine, name, slot);
 
 	for (int i = 0; i < records.size(); i++) {
 	    QmcEventRecord const &record = records.at(i);
@@ -304,7 +297,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    TracingEvent &event = my.events.last();
 
 	    if (event.hasIdentifier() && name == QString::null) {
-		engine->addTraceSpan(event.spanID(), slot);
+		addTraceSpan(engine, event.spanID(), slot);
 	    }
 
 	    // this adds the basic point (ellipse), all events get one
@@ -314,7 +307,7 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    if (event.hasParent()) {	// lookup parent in yMap
 		parentSlot = engine->getTraceSpan(event.rootID(), parentSlot);
 		if (parentSlot == -1)
-		    engine->addTraceSpan(event.rootID(), parentSlot);
+		    addTraceSpan(engine, event.rootID(), parentSlot);
 		// do this on start/end only?  (or if first?)
 		my.drops.append(QwtIntervalSample(event.timestamp(),
 				    QwtInterval(slot, parentSlot)));
@@ -371,6 +364,16 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 		metric->error(index), pmErrStr(metric->error(index)));
 #endif
     }
+}
+
+void
+TracingItem::addTraceSpan(TracingEngine *engine, const QString &span, int slot)
+{
+    double spanID = (double)slot;
+
+    my.minSpanID = qMin(my.minSpanID, spanID);
+    my.maxSpanID = qMax(my.maxSpanID, spanID);
+    engine->addTraceSpan(span, slot);
 }
 
 void
@@ -501,10 +504,33 @@ TracingScaleEngine::TracingScaleEngine(TracingEngine *engine) : QwtLinearScaleEn
 }
 
 void
+TracingScaleEngine::getScale(double *minValue, double *maxValue)
+{
+    *minValue = my.minSpanID;
+    *maxValue = my.maxSpanID;
+}
+
+void
 TracingScaleEngine::setScale(double minValue, double maxValue)
 {
     my.minSpanID = minValue;
     my.maxSpanID = maxValue;
+}
+
+bool
+TracingScaleEngine::updateScale(double minValue, double maxValue)
+{
+    bool changed = false;
+
+    if (minValue < my.minSpanID) {
+	my.minSpanID = minValue;
+	changed = true;
+    }
+    if (maxValue > my.maxSpanID) {
+	my.maxSpanID = maxValue;
+	changed = true;
+    }
+    return changed;
 }
 
 void
@@ -646,29 +672,30 @@ TracingEngine::getSpanLabel(int slot) const
 void
 TracingEngine::redoScale(void)
 {
-    double minValue = 0.0, maxValue = 1.0;
+    double minValue, maxValue;
+
+    my.scaleEngine->getScale(&minValue, &maxValue);
 
     for (int i = 0; i < my.chart->metricCount(); i++)
 	tracingItem(i)->rescaleValues(&minValue, &maxValue);
 
-    my.scaleEngine->setScale(minValue, maxValue);
-    my.scaleDraw->invalidate();
-    replot();
+    if (my.scaleEngine->updateScale(minValue, maxValue)) {
+	my.scaleDraw->invalidate();
+	replot();
+    }
 }
 
 bool
 TracingEngine::isCompatible(pmDesc &desc)
 {
-    console->post("TracingEngine::isCompatible type=%d", desc.type);
     return (desc.type == PM_TYPE_EVENT);
 }
 
 void
 TracingEngine::scale(bool *autoScale, double *yMin, double *yMax)
 {
-    *autoScale = false;
-    *yMin = 0.0;
-    *yMax = 1.0;
+    *autoScale = true;
+    my.scaleEngine->getScale(yMin, yMax);
 }
 
 void

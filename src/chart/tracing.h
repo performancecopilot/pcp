@@ -90,6 +90,7 @@ private:
 
     void updateEvents(TracingEngine *, QmcMetric *);
     void updateEventRecords(TracingEngine *, QmcMetric *, int);
+    void addTraceSpan(TracingEngine *, const QString &, int);
     void showEventInfo(bool, int);
 
     struct {
@@ -133,12 +134,14 @@ public:
     virtual QwtScaleDiv divideScale(double x1, double x2,
         int numMajorSteps, int numMinorSteps, double stepSize = 0.0) const;
 
+    void getScale(double *minSpanID, double *maxSpanID);
     void setScale(double minSpanID, double maxSpanID);
+    bool updateScale(double minSpanID, double maxSpanID);
 
 private:
     struct {
-	double	maxSpanID;
 	double	minSpanID;
+	double	maxSpanID;
 	TracingEngine *engine;
     } my;
 };
