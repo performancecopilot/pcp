@@ -167,6 +167,8 @@ public:
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const
 	{ return context()->desc(my.pmid); }
+    bool hasIndom() const
+	{ return desc().desc().indom != PM_INDOM_NULL; }
     bool hasInstances() const
 	{ return (my.status >= 0 && my.indomIndex < UINT_MAX); }
 

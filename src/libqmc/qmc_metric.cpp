@@ -177,7 +177,7 @@ QmcMetric::setupIndom(pmMetricSpec *metricSpec)
     int i, j;
     QmcIndom *indomPtr = indom();
     
-    if (desc().desc().indom == PM_INDOM_NULL) {
+    if (!hasIndom()) {
 	if (metricSpec->ninst > 0) {
 	    my.status = PM_ERR_INST;
 	    dumpErr(metricSpec->inst[0]);
@@ -623,7 +623,7 @@ QmcMetric::extractValues(pmValueSet const* set)
     Q_ASSERT(set->pmid == desc().id());
 
     if (set->numval > 0) {
-	if (hasInstances()) {
+	if (hasIndom()) {
 	    // If the number of instances are not the expected number
 	    // then mark the indom as changed
 	    if (!my.explicitInst && (my.values.size() != set->numval)) {
@@ -635,6 +635,7 @@ QmcMetric::extractValues(pmValueSet const* set)
 			 << endl;
 		}
 		indomPtr->hasChanged();
+		updateIndom();
 	    }
 
 	    for (i = 0; i < numInst(); i++) {
@@ -1120,7 +1121,7 @@ QmcMetric::updateIndom(void)
     int i = 0, j, oldNum = numInst(), newNum, newInst;
     QmcIndom *indomPtr = indom();
 
-    if (status() < 0 || !hasInstances())
+    if (status() < 0 || !hasIndom())
 	return false;
 
     if (indomPtr->changed())
