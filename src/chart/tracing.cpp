@@ -575,9 +575,6 @@ TracingScaleDraw::label(double value) const
     // and only use up to the first space
     if ((slot = label.indexOf(' ')) >= 0)
 	label.truncate(slot);
-
-    console->post(PmChart::DebugForce,
-		"TracingScaleDraw::label: final %d label is \"%s\"", slot, (const char *)label.toAscii());
     return label;
 }
 
