@@ -99,6 +99,17 @@ TracingEvent::TracingEvent(QmcEventRecord const &record, pmID pmid, int inst)
     my.inst = inst;
     my.spanID = record.identifier();
     my.rootID = record.parent();
+
+    // details displayed about this record (on selection)
+    my.description.append(timeHiResString(my.timestamp));
+    my.description.append(": flags=");
+    my.description.append(pmEventFlagsStr(record.flags()));
+    if (record.missed()> 0) {
+	my.description.append(" (");
+	my.description.append(QString::number(record.missed()));
+	my.description.append(" missed)");
+    }
+    my.description.append("\n");
     record.parameterSummary(my.description, inst);
 }
 
@@ -421,6 +432,7 @@ TracingItem::updateCursor(const QPointF &, int index)
     Q_ASSERT(index <= (int)my.pointCurve->dataSize());
 
     my.selections.append(my.points.at(index));
+    my.selectionInfo.append(my.events.at(index).description());
 
     // required for immediate chart update after selection
     QBrush pointBrush = my.pointSymbol->brush();
@@ -439,6 +451,7 @@ TracingItem::clearCursor(void)
 	directPainter.drawSeries(my.pointCurve, index, index);
     }
     my.selections.clear();
+    my.selectionInfo.clear();
 }
 
 //
@@ -447,16 +460,12 @@ TracingItem::clearCursor(void)
 const QString &
 TracingItem::cursorInfo(void)
 {
-    my.selectionInfo = QString::null;
-
-    for (int i = 0; i < my.selections.size(); i++) {
-	TracingEvent const &event = my.events.at(i);
-	double stamp = event.timestamp();
-	if (i)
-	    my.selectionInfo.append("\n");
-	my.selectionInfo.append(timeHiResString(stamp));
-	my.selectionInfo.append(": ");
-	my.selectionInfo.append(event.description());
+    if (my.selections.size() > 0) {
+	QString preamble = metricName();
+	if (metricHasInstances())
+	    preamble.append("[").append(metricInstance()).append("]");
+	preamble.append("\n");
+	my.selectionInfo.prepend(preamble);
     }
     return my.selectionInfo;
 }
