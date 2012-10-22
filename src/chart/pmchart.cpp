@@ -222,9 +222,7 @@ void PmChart::updateToolbarLocation()
 	addToolBar(Qt::RightToolBarArea, toolBar);
     else
 	addToolBar(Qt::TopToolBarArea, toolBar);
-#if QT_VERSION >= 0x040300
     setUnifiedTitleAndToolBarOnMac(globalSettings.nativeToolbar);
-#endif
 }
 
 void PmChart::updateToolbarOrientation(Qt::Orientation orientation)
