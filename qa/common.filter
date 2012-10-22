@@ -44,6 +44,7 @@ s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
 s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
 	-e '/^Performance Co-Pilot installing/s//Installing/' \
+        -e '/: pmlogger not running$/d' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
 	-e '/^Waiting for PMCD/{
