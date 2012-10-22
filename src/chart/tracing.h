@@ -116,7 +116,9 @@ private:
 
 	double minSpanID;
 	double maxSpanID;
-	double previousTimestamp;
+	double minSpanTime;
+	double maxSpanTime;
+
 	Chart *chart;
     } my;
 };

@@ -91,8 +91,7 @@ QmcSource::retryConnect(int type, QString &source)
 	    }
 	}
 	else {
-	    my.start.tv_sec = 0;
-	    my.start.tv_usec = 0;
+	    gettimeofday(&my.start, NULL);
 	    my.end = my.start;
 	}
 
@@ -371,8 +370,8 @@ QmcSource::dump(QTextStream &stream)
 	   << "  host = " << my.host << ", timezone = " << my.timezone
 	   << ", tz hndl = " << my.tz << endl;
     if (my.status >= 0)
-	stream << "  start = " << __pmtimevalToReal(&my.start) << ", end = "
-	       << __pmtimevalToReal(&my.end) << ", dupFlag = "
+	stream << "  start = " << timeString(&my.start) << ", end = "
+	       << timeString(&my.end) << ", dupFlag = "
 	       << (my.dupFlag == true ? "true" : "false") << endl << "  " 
 	       << my.handles.size() << " contexts: ";
     for (int i = 0; i < my.handles.size(); i++)

@@ -16,7 +16,6 @@
 #include <qwt_picker_machine.h>
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
-#include <values.h>
 #include "tracing.h"
 #include "main.h"
 
@@ -29,7 +28,8 @@ TracingItem::TracingItem(Chart *chart,
     my.chart = chart;
     my.minSpanID = 0;
     my.maxSpanID = 1;
-    my.previousTimestamp = 0.0;
+    my.minSpanTime = tosec(mp->context()->source().start());
+    my.maxSpanTime = my.minSpanTime * 1.1;	// seconds since the epoch
 
     my.spanSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.spanCurve = new QwtPlotIntervalCurve(label());
@@ -249,7 +249,7 @@ TracingItem::updateValues(TracingEngine *engine, double left, double right)
 void
 TracingItem::updateEvents(TracingEngine *engine, QmcMetric *metric)
 {
-    if (metric->hasInstances() && !metric->explicitInsts()) {
+    if (metric->hasIndom() && !metric->explicitInsts()) {
 	for (int i = 0; i < metric->numInst(); i++)
 	    updateEventRecords(engine, metric, i);
     } else {
@@ -314,40 +314,40 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    }
 
 #if DESPERATE
+	    QString timestamp = QmcSource::timeStringBrief(record.timestamp());
 	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
-		"[%.2f] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
-		event.timestamp() - my.previousTimestamp,
+		"[%s] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
+		(const char *)timestamp.toAscii(),
 		(const char *)event.spanID().toAscii(), slot,
 		event.hasIdentifier() ? "y" : "n",
 		(const char *)event.rootID().toAscii(), parentSlot,
 		event.hasParent() ? "y" : "n",
 		event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
 #endif
-	    my.previousTimestamp = event.timestamp();
 
 	    if (event.hasStartFlag()) {
 		if (!my.spans.isEmpty()) {
 		    QwtIntervalSample &active = my.spans.last();
 		    // did we get a start, then another start?
 		    // (if so, just end the previous span now)
-		    if (active.interval.maxValue() == DBL_MAX)
+		    if (active.interval.maxValue() == my.maxSpanTime)
 			active.interval.setMaxValue(event.timestamp());
 		}
 		// no matter what, we'll start a new span here
-		my.spans.append(QwtIntervalSample(index,
-				    QwtInterval(event.timestamp(), DBL_MAX)));
+		my.spans.append(QwtIntervalSample(slot,
+				    QwtInterval(event.timestamp(), my.maxSpanTime)));
 	    }
 	    if (event.hasEndFlag()) {
 		if (!my.spans.isEmpty()) {
 		    QwtIntervalSample &active = my.spans.last();
 		    // did we get an end, then another end?
 		    // (if so, move previous span end to now)
-		    if (active.interval.maxValue() != DBL_MAX)
+		    if (active.interval.maxValue() == my.maxSpanTime)
 			active.interval.setMaxValue(event.timestamp());
 		} else {
 		    // got an end, but we haven't seen a start
 		    my.spans.append(QwtIntervalSample(index,
-				    QwtInterval(DBL_MIN, event.timestamp())));
+				    QwtInterval(my.minSpanTime, event.timestamp())));
 		}
 	    }
 	    // Have not yet handled missed events (i.e. event.missed())

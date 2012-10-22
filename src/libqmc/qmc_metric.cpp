@@ -829,6 +829,12 @@ QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResu
 	    else
 		record.setParameter(p++, parameterID, context, valueSet);
 	}
+
+	if (pmDebug & DBG_TRACE_VALUE) {
+	    QTextStream cerr(stderr);
+	    pmValueSet *valueSet = result[r]->vset[0];
+	    record.dump(cerr, valueSet->vlist[0].inst, r);
+	}
     }
 }
 
