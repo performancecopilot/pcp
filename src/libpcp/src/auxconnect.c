@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -770,7 +770,7 @@ void
 __pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
 {
     /* We expect the address and port number to be on network byte order.
-       PR_InitializeNetAddr expected the port in host byte order.
+       PR_InitializeNetAddr expects the port in host byte order.
        The ip field of __pmSockAddrIn (PRNetAddr) must be in network byte order. */
   PRStatus prStatus = PR_InitializeNetAddr (PR_IpAddrNull, ntohs(port), addr);
   if (prStatus != PR_SUCCESS)
@@ -782,7 +782,14 @@ __pmInitSockAddr(__pmSockAddrIn *addr, int address, int port)
 void
 __pmSetSockAddr(__pmSockAddrIn *addr, __pmHostEnt *he)
 {
-    PR_EnumerateHostEnt(0, he, 0, addr);
+    PRUint16 port = 0;
+    /* The port in the address is in network byte forder, but PR_EnumerateHostEnt expects it
+       in host byte order. */
+    if (addr->raw.family == PR_AF_INET)
+        port = ntohs(addr->inet.port);
+    else if (addr->raw.family == PR_AF_INET6)
+        port = ntohs(addr->ipv6.port);
+    PR_EnumerateHostEnt(0, he, port, addr);
 }
 
 void
