@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -198,7 +199,9 @@ extract_interrupt_lines(char *buffer, int ncolumns, int nlines)
 static int
 extract_interrupt_errors(char *buffer)
 {
-    return sscanf(buffer, " ERR: %u", &irq_err_count) == 1;
+    return (sscanf(buffer, " ERR: %u", &irq_err_count) == 1 ||
+	    sscanf(buffer, "Err: %u", &irq_err_count) == 1  ||
+	    sscanf(buffer, "BAD: %u", &irq_err_count) == 1);
 }
 
 static int
