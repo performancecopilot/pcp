@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -73,8 +74,9 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct sockaddr_in	myAddr;
-    struct hostent*	servInfo;
+    __pmSockAddrIn	myAddr;
+    __pmHostEnt		servinfo;
+    char       *servbuf;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
@@ -131,31 +133,33 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
+    servbuf = __pmAllocHostEntBuffer();
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if ((servInfo = gethostbyname(hostname)) == NULL) {
+    if (__pmGetHostByName(hostname, &servinfo, servbuf) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeHostEntBuffer(servbuf);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeHostEntBuffer(servbuf);
 	return fd;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
-    myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    __pmInitSockAddr(&myAddr, 0, htons(*port));
+    __pmSetSockAddr(&myAddr, &servinfo);
     PM_UNLOCK(__pmLock_libpcp);
-    myAddr.sin_port = htons(*port);
+    __pmFreeHostEntBuffer(servbuf);
 
-    sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
+    sts = __pmConnect(fd, (__pmSockAddr *)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	sts = -neterror();
 	__pmCloseSocket(fd);
