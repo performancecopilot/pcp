@@ -23,18 +23,10 @@ _filter()
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
-    pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
-else
-    dsopmda=/var/pcp/lib/`pmobjstyle`.pmda_sample.so
-    pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
-fi
-
-[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
-[ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$pmda\" && exit 1
+dsopmda=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
+pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+[ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$dsopmda\"" && exit 1
 
 $sudo dbpmda -ie <<End-of-File 2>&1 | _filter
 open pipe $pipepmda -d 29
