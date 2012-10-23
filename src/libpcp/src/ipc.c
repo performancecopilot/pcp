@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
