@@ -911,6 +911,8 @@ Options:\n\
 		if (client_req()) {
 		    /* client closed connection */
 		    __pmFD_CLR(fd, &fds);
+		    __pmCloseSocket(clientfd);
+		    clientfd = -1;
 		    numfds = maxfd() + 1;
 		    qa_case = 0;
 		}
