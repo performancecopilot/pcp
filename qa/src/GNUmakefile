@@ -17,7 +17,6 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
 
 LSRCFILES = $(MYFILES) $(MYSCRIPTS) $(PSCRIPTS) GNUmakefile.install GNUlocaldefs
 
--include ../localconfig
 include GNUlocaldefs
 
 localconfig.h:
