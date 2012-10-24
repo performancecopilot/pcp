@@ -16,7 +16,7 @@ seq=`basename $0`
 rm -f $seq.out
 if [ -f /etc/redhat-release ]
 then
-    if grep 'CentOS release 5.6' </etc/redhat-release >/dev/null 2>&1
+    if egrep -q '^CentOS [^0-9]*5\.[0-9]|^Red Hat [^0-9]*5\.[0-9]' </etc/redhat-release
     then
 	# not all the snmp metrics are there ...
 	ln $seq.out.2 $seq.out

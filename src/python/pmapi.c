@@ -218,8 +218,9 @@ initpmapi(void)
     dict_add( dict, "PMCD_DROP_AGENT",
               (intu) PMCD_DROP_AGENT,    INT_T, NULL );
 
-    dict_add( dict, "PM_TZ_MAXLEN",
-              (intu) PM_TZ_MAXLEN, INT_T, NULL );
+    dict_add( dict, "PM_MAXERRMSGLEN", (intu) PM_MAXERRMSGLEN, INT_T, NULL );
+
+    dict_add( dict, "PM_TZ_MAXLEN",    (intu) PM_TZ_MAXLEN, INT_T, NULL );
 
     dict_add( dict, "PM_LOG_MAXHOSTLEN",
               (intu) PM_LOG_MAXHOSTLEN, INT_T, NULL );
@@ -348,6 +349,8 @@ initpmapi(void)
 
 
     /* import.h */
+    dict_add( dict, "PMI_MAXERRMSGLEN", (intu) PMI_MAXERRMSGLEN, INT_T, NULL );
+
     dict_add( dict, "PMI_ERR_DUPMETRICNAME",
               (intu) PMI_ERR_DUPMETRICNAME, INT_T, pmiErrSymD );
     dict_add( dict, "PMI_ERR_DUPMETRICID",

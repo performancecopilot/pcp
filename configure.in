@@ -59,12 +59,12 @@ else
     target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
     target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
-    target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]'`
+    target_cpu=`echo $target_cpu | sed '[s/i[3-6]86/i386/]' | sed '[s/powerpc/ppc/]'`
 
     build=`echo $build | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
     build_os=`echo $build_os | sed '[s/solaris2\..*/solaris/]'`
     build_os=`echo $build_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
-    build_cpu=`echo $build_cpu | sed '[s/i[3-6]86/i386/]'`
+    build_cpu=`echo $build_cpu | sed '[s/i[3-6]86/i386/]' | sed '[s/powerpc/ppc/]'`
 fi
 
 echo Building on $build for $target 
