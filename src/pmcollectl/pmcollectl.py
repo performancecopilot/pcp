@@ -118,12 +118,15 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
     try:
         (code, metric_result) = pm.pmFetch(metric_name)
         check_code (code)
-    except pmErr as e:
+    except pmErr, e:
         if str(e).find("PM_ERR_EOL") != -1:
             print "\nReached end of archive"
             sys.exit(1)
 
-    first = True if max(old_metric_value) == 0 else False
+    if max(old_metric_value) == 0:
+        first = True
+    else:
+        first =  False
     # list of metric names
     for i in xrange(len(metric)):
         # list of metric results, one per metric name
@@ -148,7 +151,10 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
 
             old_metric_value[j] = copy.copy(atomlist)
             if metric_result.contents.get_numval(j) == 1:
-                metric_value[j] = copy.copy(value[0]) if len(value) == 1 else 0
+                if len(value) == 1:
+                    metric_value[j] = copy.copy(value[0])
+                else:
+                    metric_value[j] = 0
             elif metric_result.contents.get_numval(j) > 1:
                 metric_value[j] = copy.copy(value)
 
@@ -315,7 +321,7 @@ class _cpu(_subsys):
             try:
 
                 (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics[j])
-            except pmErr as e:
+            except pmErr, e:
                 self.cpu_metrics.remove(self.cpu_metrics[j])
 
         self.cpu_metrics_dict=dict((i,self.cpu_metrics.index(i)) for i in self.cpu_metrics)
@@ -464,7 +470,7 @@ class _interrupt(_subsys):
             try:
 
                 (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics[j])
-            except pmErr as e:
+            except pmErr, e:
                 self.interrupt_metrics.remove(self.interrupt_metrics[j])
 
         self.interrupt_metrics_dict=dict((i,self.interrupt_metrics.index(i)) for i in self.interrupt_metrics)
@@ -553,7 +559,7 @@ class _disk(_subsys):
             try:
 
                 (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics[j])
-            except pmErr as e:
+            except pmErr, e:
                 self.disk_metrics.remove(self.disk_metrics[j])
 
         self.disk_metrics_dict=dict((i,self.disk_metrics.index(i)) for i in self.disk_metrics)
@@ -604,7 +610,7 @@ class _disk(_subsys):
             try:
                 (inst, iname) = pm.pmGetInDom(self.disk_metric_desc[j])
                 break
-            except pmErr as e:
+            except pmErr, e:
                 iname = iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
@@ -623,16 +629,20 @@ class _disk(_subsys):
 # ??? replace 0 with required fields
 
     def print_verbose(self):
+        avgrdsz = avgwrsz = 0
+        if self.get_disk_metric_value('disk.all.read') > 0:
+            avgrdsz = self.get_disk_metric_value('disk.all.read_bytes')
+            avgrdsz /= self.get_disk_metric_value('disk.all.read')
+        if self.get_disk_metric_value('disk.all.write') > 0:
+            avgwrsz = self.get_disk_metric_value('disk.all.write_bytes')
+            avgwrsz /= self.get_disk_metric_value('disk.all.write')
+
         print '%6d %6d %6d %6d %7d %8d %6d %6d' % (
-            0 if self.get_disk_metric_value('disk.all.read_bytes') == 0
-              else self.get_disk_metric_value('disk.all.read_bytes')/
-                   self.get_disk_metric_value('disk.all.read'),
+            avgrdsz,
             self.get_disk_metric_value('disk.all.read_merge'),
             self.get_disk_metric_value('disk.all.read'),
             0,
-            0 if self.get_disk_metric_value('disk.all.write_bytes') == 0
-              else self.get_disk_metric_value('disk.all.write_bytes')/
-                   self.get_disk_metric_value('disk.all.write'),
+            avgwrsz,
             self.get_disk_metric_value('disk.all.write_merge'),
             self.get_disk_metric_value('disk.all.write'),
             0)
@@ -675,7 +685,7 @@ class _memory(_subsys):
             try:
 
                 (code, self.memory_metric_name) = pm.pmLookupName(self.memory_metrics[j])
-            except pmErr as e:
+            except pmErr, e:
                 self.memory_metrics.remove(self.memory_metrics[j])
 
         self.memory_metrics_dict=dict((i,self.memory_metrics.index(i)) for i in self.memory_metrics)
@@ -767,7 +777,7 @@ class _net(_subsys):
             try:
 
                 (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics[j])
-            except pmErr as e:
+            except pmErr, e:
                 self.net_metrics.remove(self.net_metrics[j])
 
         self.net_metrics_dict=dict((i,self.net_metrics.index(i)) for i in self.net_metrics)
@@ -835,7 +845,7 @@ class _net(_subsys):
                 try:
                     (inst, iname) = pm.pmGetInDom(self.net_metric_desc[k])
                     break
-                except pmErr as e:
+                except pmErr, e:
                     iname = "X"
 
             print '%4d %-7s %6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (

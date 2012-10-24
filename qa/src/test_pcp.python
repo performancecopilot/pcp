@@ -33,12 +33,18 @@ def dump_seq (name_p, seq_p):
 def dump_array_ptrs (name_p, arr_p):
     print (name_p)
     for i in xrange(len(arr_p)):
-        print (" ") if (i > 0) else "", arr_p[i].contents
+        if (i > 0):
+            print (" "), arr_p[i].contents
+        else:
+            print (""), arr_p[i].contents
 
 def dump_array (name_p, arr_p):
     print (name_p)
     for i in xrange(len(arr_p)):
-        print (" ") if (i > 0) else "", hex(arr_p[i])
+        if (i > 0):
+            print (" "), hex(arr_p[i])
+        else:
+            print (""), hex(arr_p[i])
 
 archive = ""                    # For testing either localhost or archive
 
@@ -125,7 +131,7 @@ def test_pcp(self, context = 'local', path = ''):
     try:
         (code, badid) = pm.pmLookupName("A_BAD_METRIC")
         self.assertTrue(False)
-    except  pmErr as e:
+    except pmErr, e:
         print "pmLookupName:", e
         self.assertTrue(True)
     metrics = ("kernel.all.load", "kernel.percpu.cpu.user", "kernel.percpu.cpu.sys", "mem.freemem")
@@ -196,7 +202,7 @@ def test_pcp(self, context = 'local', path = ''):
         # pmLookupInDomText
         text = pm.pmLookupInDomText(descs[0])
         self.assertTrue(False)
-    except pmErr as e:
+    except pmErr, e:
         print "pmLookupInDomText:", e
         self.assertTrue(True)
         
@@ -209,7 +215,7 @@ def test_pcp(self, context = 'local', path = ''):
         # pmLookupInDom
         inst = pm.pmLookupInDom(descs[0], "gg minute")
         self.assertTrue(False)
-    except  pmErr as e:
+    except pmErr, e:
         print "pmLookupInDom:", e
         self.assertTrue(True)
         
@@ -240,7 +246,7 @@ def test_pcp(self, context = 'local', path = ''):
         # TODO Test a real use, pmUnLoadNameSpace
         inst = pm.pmLoadNameSpace("NoSuchFile")
         self.assertTrue(False)
-    except  pmErr as e:
+    except pmErr, e:
         print "pmLoadNameSpace:", e
         self.assertTrue(True)
 
@@ -258,7 +264,7 @@ def test_pcp(self, context = 'local', path = ''):
     try:
         code = pm.pmStore(results)
         self.assertTrue(False)
-    except pmErr as e:
+    except pmErr, e:
         print "pmStore: ", e
         self.assertTrue(True)
 
