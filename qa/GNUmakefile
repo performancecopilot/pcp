@@ -16,6 +16,10 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
 SUBDIRS = src pmdas cisco pconf sadist
 LCONFIG = localconfig
 
+# No implicit rules here, thank you
+#
+.SUFFIXES:
+
 default_pcp default: new remake check qa_outfiles $(OTHERS) $(SUBDIRS) $(LCONFIG)
 	$(SUBDIRS_MAKERULE)
 
