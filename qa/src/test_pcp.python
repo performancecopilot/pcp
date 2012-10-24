@@ -118,7 +118,7 @@ def test_pcp(self, context = 'local', path = ''):
     # pmGetPMNSLocation
     i = pm.pmGetPMNSLocation()
     print "pmGetPMNSLocation:", i
-    self.assertTrue(any((i==PMNS_ARCHIVE,i==PMNS_LOCAL,i==PMNS_REMOTE)))
+    self.assertTrue(i==PMNS_ARCHIVE or i==PMNS_LOCAL or i==PMNS_REMOTE)
 
     # pmTraversePMNS
     global traverse_callback_count
@@ -160,12 +160,12 @@ def test_pcp(self, context = 'local', path = ''):
         # pmGetInDom
         (inst, name) = pm.pmGetInDom(descs[1])
         print "pmGetInDom:", name
-        self.assertTrue(all((len(inst) >= 2, len(name) >= 2)))
+        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
     else:
         # pmGetInDomArchive
         (inst, name) = pm.pmGetInDomArchive(descs[1])
         print "pmGetInDomArchive:", name
-        self.assertTrue(all((len(inst) >= 2, len(name) >= 2)))
+        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
 
     # pmInDomStr
     x = pm.pmInDomStr(descs[0])
@@ -330,7 +330,7 @@ def test_pcp(self, context = 'local', path = ''):
         # pmGetArchiveLabel
         (code, loglabel) = pm.pmGetArchiveLabel()
         print "pmGetArchiveLabel", code
-        self.assertTrue (all((code >= 0, loglabel.pid_t > 0)))
+        self.assertTrue (code >= 0 and loglabel.pid_t > 0)
 
     # pmPrintValue XXX
     print "pmPrintValue: "
