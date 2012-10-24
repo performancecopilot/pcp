@@ -162,9 +162,9 @@ echo "== Building pcp, log is in $LOGF"
 
 if [ "$VERS" = MINGW ]
 then
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-ssp"
+    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
 else
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 fi
 
 echo "== Configuring pcp for vendor/distro installation ($configured)"
