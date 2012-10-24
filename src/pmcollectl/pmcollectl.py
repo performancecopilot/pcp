@@ -498,30 +498,48 @@ class _interrupt(_subsys):
             return 0
 
     def print_header1_brief(self):
-            print '#<--Int--->',
+            ndashes = (((len(self.interrupt_metric_value[0])) * 6) - 6) / 2
+            h = "#<"
+            for k in range(ndashes):
+                h += "-"
+            h += "Int"
+            for k in range(ndashes):
+                h += "-"
+            h += ">"
+            print h,
     def print_header1_detail(self):
             print '# INTERRUPT DETAILS'
-            print '# Int    Cpu0   Cpu1   Type            Device(s)'
+            print '# Int    ',
+            for k in range(len(self.interrupt_metric_value[0])):
+                print 'Cpu%d ' % k,
+            print 'Type            Device(s)'
     def print_header1_verbose(self):
             print '# INTERRUPT SUMMARY'
     def print_header2_brief(self):
-            print '#Cpu0 Cpu1',
+            for k in range(len(self.interrupt_metric_value[0])):
+                if k == 0:
+                    print '#Cpu%d ' % k,
+                else:
+                    print 'Cpu%d ' % k,
     def print_header2_verbose(self):
-            print '#    Cpu0   Cpu1'
+            print '#    ',
+            for k in range(len(self.interrupt_metric_value[0])):
+                print 'Cpu%d ' % k,
+            print
     def print_brief(self):
         int_count = []
         _=self.interrupt_metrics_dict
-        for k in range(len(self.get_interrupt_metric_value('kernel.percpu.interrupts.MCP'))):
+        for k in range(len(self.interrupt_metric_value[0])):
             int_count.append(0)
-            for j  in range(_['kernel.percpu.interrupts.MCP'], len(self.interrupt_metric_value)):
+            for j  in range(0, len(self.interrupt_metric_value)):
                 int_count[k] += self.interrupt_metric_value[j][k]
                 
-        for k in range(len(self.get_interrupt_metric_value('kernel.percpu.interrupts.MCP'))):
+        for k in range(len(self.interrupt_metric_value[0])):
             print "%4d " % (int_count[k]),
     def print_detail(self):
         _=self.interrupt_metrics_dict
-        for j  in range(_['kernel.percpu.interrupts.MCP'], len(self.interrupt_metrics_dict)):
-            for k in range(len(self.get_interrupt_metric_value('kernel.percpu.interrupts.MCP'))):
+        for j  in range(0, len(self.interrupt_metrics_dict)):
+            for k in range(len(self.interrupt_metric_value[0])):
                 have_nonzero_value = False
                 if self.interrupt_metric_value[j][k] != 0:
                     have_nonzero_value = True
@@ -529,7 +547,7 @@ class _interrupt(_subsys):
                     continue
                 # pcp does not give the interrupt # so print spaces
                 print "%-8s" % self.interrupt_metrics[j].split(".")[3],
-                for k in range(len(self.get_interrupt_metric_value('kernel.percpu.interrupts.MCP'))):
+                for k in range(len(self.interrupt_metric_value[0])):
                     print "%4d " % (self.interrupt_metric_value[j][k]),
                 text = (pm.pmLookupText(self.int_metric_name[j], pmapi.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
