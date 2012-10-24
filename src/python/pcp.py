@@ -167,7 +167,8 @@ class pmErr( Exception ):
         errNum = self.args[0]
         try:
             errSym = pmErrSymD[ errNum ]
-            errStr = libpcp.pmErrStr( errNum )
+            errStr = ctypes.create_string_buffer(PM_MAXERRMSGLEN)
+            errStr = libpcp.pmErrStr_r( errNum, errStr, PM_MAXERRMSGLEN )
         except KeyError:
             errSym = errStr = ""
 
@@ -184,7 +185,8 @@ class pmiErr( Exception ):
         errNum = self.args[0]
         try:
             errSym = pmiErrSymD[ errNum ]
-            errStr = libpcp_import.pmiErrStr( errNum )
+            errStr = ctypes.create_string_buffer(PMI_MAXERRMSGLEN)
+            errStr = libpcp_import.pmiErrStr_r( errNum, errStr, PMI_MAXERRMSGLEN )
         except KeyError:
             errSym = errStr = ""
         return "%s %s" % (errSym, errStr)
@@ -596,8 +598,8 @@ libpcp_import.pmiInDom.argtypes = [ c_int, c_int ]
 libpcp_import.pmiUnits.restype = pmUnits
 libpcp_import.pmiUnits.argtypes = [ c_int, c_int, c_int, c_int, c_int, c_int ]
 
-libpcp_import.pmiErrStr.restype = c_char_p
-libpcp_import.pmiErrStr.argtypes = [ c_int ]
+libpcp_import.pmiErrStr_r.restype = c_char_p
+libpcp_import.pmiErrStr_r.argtypes = [ c_int, c_char_p, c_int ]
 
 libpcp_import.pmiStart.restype = c_int
 libpcp_import.pmiStart.argtypes = [ c_char_p, c_int ]
@@ -714,7 +716,7 @@ libpcp.pmGetConfig.restype = c_char_p
 libpcp.pmGetConfig.argtypes = [ c_char_p ]
 
 libpcp.pmErrStr_r.restype = c_char_p
-libpcp.pmErrStr_r.argtypes = [ c_int ]
+libpcp.pmErrStr_r.argtypes = [ c_int, c_char_p, c_int ]
 
 libpcp.pmExtractValue.restype = c_int
 libpcp.pmExtractValue.argtypes = [
@@ -726,19 +728,19 @@ libpcp.pmConvScale.argtypes = [
            POINTER(pmAtomValue), POINTER(pmUnits)  ]
 
 libpcp.pmUnitsStr_r.restype = c_char_p
-libpcp.pmUnitsStr_r.argtypes = [ POINTER(pmUnits) ]
+libpcp.pmUnitsStr_r.argtypes = [ POINTER(pmUnits), c_char_p, c_int ]
 
 libpcp.pmIDStr_r.restype = c_char_p
-libpcp.pmIDStr_r.argtypes = [ c_uint ]
+libpcp.pmIDStr_r.argtypes = [ c_uint, c_char_p, c_int ]
 
 libpcp.pmInDomStr_r.restype = c_char_p
-libpcp.pmInDomStr_r.argtypes = [ c_uint ]
+libpcp.pmInDomStr_r.argtypes = [ c_uint, c_char_p, c_int ]
 
 libpcp.pmTypeStr_r.restype = c_char_p
-libpcp.pmTypeStr_r.argtypes = [ c_int ]
+libpcp.pmTypeStr_r.argtypes = [ c_int, c_char_p, c_int ]
 
 libpcp.pmAtomStr_r.restype = c_char_p
-libpcp.pmAtomStr_r.argtypes = [ POINTER(pmAtomValue), c_int ]
+libpcp.pmAtomStr_r.argtypes = [ POINTER(pmAtomValue), c_int, c_char_p, c_int ]
 
 libpcp.pmPrintValue.restype = None
 libpcp.pmPrintValue.argtypes=[c_void_p, c_int, c_int, POINTER(pmValue), c_int]
@@ -1473,7 +1475,8 @@ class pmContext( object ):
     def pmErrStr( self, code ):
         """PMAPI - Return value from environment or pcp config file
         """
-        x = str( libpcp.pmErrStr_r( code ) )
+        buffer = ctypes.create_string_buffer(PM_MAXERRMSGLEN)
+        x = str( libpcp.pmErrStr_r( code, buffer, PM_MAXERRMSGLEN ) )
         return x
 
     def pmExtractValue( self, valfmt, vlist, intype, outtype ):
@@ -1510,7 +1513,8 @@ class pmContext( object ):
     def pmUnitsStr( self, units ):
         """PMAPI - Convert units struct to a readable string
         """
-        x = str( libpcp.pmUnitsStr_r( units ) )
+        buffer = ctypes.create_string_buffer(64)
+        x = str( libpcp.pmUnitsStr_r( units, buffer, 64 ) )
         return x
 
     def pmIDStr( self, pmid ):
@@ -1518,7 +1522,8 @@ class pmContext( object ):
 
         pmIDStr(c_uint pmid)
         """
-        x = str( libpcp.pmIDStr_r( pmid ) )
+        buffer = ctypes.create_string_buffer(32)
+        x = str( libpcp.pmIDStr_r( pmid, buffer, 32 ) )
         return x
 
     def pmInDomStr( self, pmdescp ):
@@ -1526,21 +1531,24 @@ class pmContext( object ):
 
         "dom" =  pmGetInDom(pmDesc pmdesc)
         """
-        x = str( libpcp.pmInDomStr_r( get_indom (pmdescp) ))
+        buffer = ctypes.create_string_buffer(32)
+        x = str( libpcp.pmInDomStr_r( get_indom (pmdescp), buffer, 32 ))
         return x
 
     def pmTypeStr( self, type ):
         """PMAPI - Convert a performance metric type to a readable string
         "type" = pmTypeStr (pmapi.PM_TYPE_FLOAT)
         """
-        x = str( libpcp.pmTypeStr_r( type ) )
+        buffer = ctypes.create_string_buffer(32)
+        x = str( libpcp.pmTypeStr_r( type, buffer, 32 ) )
         return x
 
     def pmAtomStr( self, atom, type ):
         """PMAPI - Convert a value atom to a readable string
         "value" = pmAtomStr (atom, pmapi.PM_TYPE_U32)
         """
-        x = str( libpcp.pmAtomStr( byref(atom), type ) )
+        buffer = ctypes.create_string_buffer(96)
+        x = str( libpcp.pmAtomStr( byref(atom), type, buffer, 96 ) )
         return x
 
     def pmPrintValue( self, fileObj, result, ptype, vset_idx, vlist_idx, minWidth):
