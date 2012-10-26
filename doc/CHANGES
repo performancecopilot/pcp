@@ -1,4 +1,4 @@
-pcp-gui 1.5.6 (19 October 2012)
+pcp-gui 1.5.6 (26 October 2012)
     - Added the pcp-gui-testsuite package into the builds.
     - Much work getting the QA suite stable and all tests passing.
     - Tutorials end up in -doc package, not the -gui runtime.

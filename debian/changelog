@@ -3,7 +3,7 @@ pcp-gui (1.5.6) unstable; urgency=low
   * New pcp-gui release (see doc/CHANGES for details).
   * Minor packaging change - adds a new pcp-gui-testsuite package.
 
- -- Nathan Scott <nathans@debian.org>  Fri, 19 Aug 2012 15:54:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Fri, 26 Oct 2012 16:05:41 +1100
 
 pcp-gui (1.5.5) unstable; urgency=low
 

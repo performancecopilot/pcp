@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 SPEC = pcp-gui.spec
 LDIRT = *.rpm $(SPEC) rpmmacros
 
-LSRCFILES = macros.template $(SPEC).in
+LSRCFILES = macros.template fedora.spec $(SPEC).in
 
 default install install-dev install-lib:
 

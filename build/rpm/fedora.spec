@@ -11,13 +11,14 @@ Source0: pcp-gui-%{version}.src.tar.gz
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf, bison, flex, gawk
-BuildRequires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
+BuildRequires: pcp >= 2.0, pcp-libs-devel >= 2.0
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.2
 %if (0%{?fedora} > 12 || 0%{?rhel} > 5)
 BuildRequires: qt-assistant-adp-devel
 %endif
-Requires: pcp >= 3.5.0
+
+Requires: pcp
 
 %description
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -34,21 +35,7 @@ managed and maintained as a separate (source and binary) package
 to the core PCP infrastructure.
 
 #
-# pcp-gui-testsuite
-#
-%package testsuite
-License: GPLv2
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) GUI test suite
-URL: http://oss.sgi.com/projects/pcp/
-
-Requires: pcp-testsuite
-
-%description testsuite
-Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
-
-#
-# pcp-doc
+# pcp-doc package
 #
 %package -n pcp-doc
 Group: Documentation
@@ -65,6 +52,20 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+#
+# pcp-gui-testsuite
+#
+%package testsuite
+License: GPLv2
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) GUI test suite
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-gui = %{version}-%{release}
+Requires: pcp-testsuite
+
+%description testsuite
+Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
 
 %prep
 %setup -q
@@ -74,14 +75,12 @@ autoconf
 %configure
 make %{?_smp_mflags}
 
-
 %install
 rm -rf $RPM_BUILD_ROOT
 export DIST_ROOT=$RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -93,37 +92,37 @@ rm -rf $RPM_BUILD_ROOT
 %{_libexecdir}/*
 %{_localstatedir}/lib/pcp
 %{_mandir}/man1/*
+%{_datadir}/pcp
 %{_datadir}/pixmaps/*
-%{_datadir}/applications/*
-
-%files testsuite
-%defattr(-,root,root)
-%{_localstatedir}/lib/pcp-gui/testsuite
+%{_datadir}/applications/pmchart.desktop
 
 %files -n pcp-doc
 %defattr(-,root,root,-)
 %{_datadir}/doc/pcp-doc
-%{_datadir}/pcp/demos/tutorials
 
+%files testsuite
+%defattr(-,pcpqa,pcpqa)
+%{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
-* Fri Oct 19 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
-- Update to latest sources, add testsuite sub-package
+* Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
+- Update to latest PCP GUI sources.
+- Introduces new pcp-gui-testsuite sub-package.
 
 * Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
 * Fri Mar 23 2012 Mark Goodwin <mgoodwin@redhat.com> - 1.5.5-1
-- update to latest sources (rolls in desktop patch too)
+- Update to latest sources (rolls in desktop patch too)
 
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Fri Dec 02 2011 Mark Goodwin <mgoodwin@redhat.com> - 1.5.2-2
-- patched pmchart.desktop, needed for RHEL builds
+- Patched pmchart.desktop, needed for RHEL builds
 
 * Thu Dec 01 2011 Mark Goodwin <mgoodwin@redhat.com> - 1.5.2-1
-- fixed License and assorted minor rpmlint issues following review
+- Fixed License and assorted minor rpmlint issues following review
 
 * Mon Sep 19 2011 Harshula Jayasuriya <harshula@redhat.com> - 1.5.1-1
 - Initial Fedora release
