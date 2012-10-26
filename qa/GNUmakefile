@@ -25,6 +25,7 @@ default setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install: $(SUBDIRS)
+ifeq (, $(filter mingw darwin solaris, $(PKG_PLATFORM)))
 	$(INSTALL) -m 755 -d $(BASEDIR)
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 644 $(FOLIOS) $(VIEWS) group $(TESTDIR)
@@ -32,5 +33,6 @@ install: $(SUBDIRS)
 	$(INSTALL) -m 644 $(COMMONS) $(OUTFILES) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(SUBDIRS_MAKERULE)
+endif
 
 include $(BUILDRULES)
