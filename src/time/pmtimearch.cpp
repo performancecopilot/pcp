@@ -27,6 +27,10 @@
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 
+#if HAVE_QASSISTANTCLIENT
+#include <qassistantclient.h>
+#endif
+
 PmTimeArch::PmTimeArch() : QMainWindow(NULL)
 {
     setupUi(this);
@@ -182,8 +186,10 @@ void PmTimeArch::init()
 
 void PmTimeArch::quit()
 {
+#if HAVE_QASSISTANTCLIENT
     if (my.assistant)
 	my.assistant->closeAssistant();
+#endif
 }
 
 void PmTimeArch::helpAbout()
@@ -769,6 +775,7 @@ void PmTimeArch::assistantError(const QString &msg)
 
 void PmTimeArch::setupAssistant()
 {
+#if HAVE_QASSISTANTCLIENT
     if (my.assistant)
 	return;
     my.assistant = new QAssistantClient(
@@ -782,14 +789,17 @@ void PmTimeArch::setupAssistant()
     documents.append(separator).append("pcpdoc.adp");
     arguments << "-profile" << documents;
     my.assistant->setArguments(arguments);
+#endif
 }
 
 void PmTimeArch::helpManual()
 {
+#if HAVE_QASSISTANTCLIENT
     setupAssistant();
     QString documents = HTMLDIR;
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
     documents.append(separator).append("timecontrol.html");
     my.assistant->showPage(documents);
+#endif
 }

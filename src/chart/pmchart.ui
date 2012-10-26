@@ -520,7 +520,6 @@
   <include location="local" >settingsdialog.h</include>
   <include location="local" >qprinter.h</include>
   <include location="local" >qfiledialog.h</include>
-  <include location="local" >qassistantclient.h</include>
   <include location="local" >timeaxis.h</include>
   <include location="local" >timebutton.h</include>
   <include location="local" >timeaxis.h</include>

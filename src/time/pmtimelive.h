@@ -20,6 +20,8 @@
 #include "console.h"
 #include "timezone.h"
 
+class QAssistantClient;
+
 class PmTimeLive : public QMainWindow, public Ui::PmTimeLive
 {
     Q_OBJECT

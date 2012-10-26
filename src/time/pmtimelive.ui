@@ -621,7 +621,6 @@ Click this menu option to invoke a small question mark that is attached to the m
   <include location="local" >pmtime.h</include>
   <include location="local" >console.h</include>
   <include location="local" >timezone.h</include>
-  <include location="local" >qassistantclient.h</include>
  </includes>
  <resources>
   <include location="pmtime.qrc" />

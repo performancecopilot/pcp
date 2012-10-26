@@ -21,6 +21,8 @@
 #include "showboundsdialog.h"
 #include "timezone.h"
 
+class QAssistantClient;
+
 class PmTimeArch : public QMainWindow, public Ui::PmTimeArch
 {
     Q_OBJECT

@@ -37,6 +37,9 @@
 #include "tabdialog.h"
 #include "statusbar.h"
 #include "version.h"
+#if HAVE_QASSISTANTCLIENT
+#include <qassistantclient.h>
+#endif
 
 PmChart::PmChart() : QMainWindow(NULL)
 {
@@ -138,8 +141,10 @@ void PmChart::quit()
 	my.saveview->reject();
 	my.settings->reject();
     }
+#if HAVE_QASSISTANTCLIENT
     if (my.assistant)
 	my.assistant->closeAssistant();
+#endif
     if (pmtime)
 	pmtime->quit();
     pmflush();
@@ -395,6 +400,7 @@ void PmChart::assistantError(const QString &msg)
 
 void PmChart::setupAssistant()
 {
+#if HAVE_QASSISTANTCLIENT
     if (my.assistant)
 	return;
     my.assistant = new QAssistantClient(
@@ -410,16 +416,19 @@ void PmChart::setupAssistant()
     QStringList arguments;
     arguments << "-profile" << documents;
     my.assistant->setArguments(arguments);
+#endif
 }
 
 void PmChart::helpManual()
 {
+#if HAVE_QASSISTANTCLIENT
     setupAssistant();
     QString documents = HTMLDIR;
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
     documents.append(separator).append("index.html");
     my.assistant->showPage(documents);
+#endif
 }
 
 void PmChart::helpAbout()
