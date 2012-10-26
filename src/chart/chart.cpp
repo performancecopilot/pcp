@@ -661,7 +661,10 @@ Chart::showInfo(void)
 	info.append(item->cursorInfo());
     }
 
-    if (info != QString::null)
+    while (!info.isEmpty() && (info.at(info.length()-1) == '\n'))
+	info.chop(1);
+
+    if (!info.isEmpty())
 	QWhatsThis::showText(QCursor::pos(), info, this);
     else
 	QWhatsThis::hideText();
