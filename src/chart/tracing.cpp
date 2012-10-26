@@ -446,7 +446,7 @@ void
 TracingItem::clearCursor(void)
 {
     // immediately clear any current visible selections
-    for (int index = 0; index < my.points.size(); index++) {
+    for (int index = 0; index < my.selections.size(); index++) {
 	QwtPlotDirectPainter directPainter;
 	directPainter.drawSeries(my.pointCurve, index, index);
     }
