@@ -17,6 +17,10 @@ LSRCFILES = $(COMMONS) $(SCRIPTS) \
 
 LDIRT = check.log check.time pmlogger.log *.out.bad *.full
 
+# No implicit rules here, thank you
+#
+.SUFFIXES:
+
 default setup: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
