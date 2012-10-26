@@ -78,10 +78,17 @@ INSTALL_DIRECTORY_HIERARCHY=\
                 echo $$d; d=`dirname $$d`; done | sort | while read id; do \
                 $(INSTALL) -m 755 -d $$id || exit 1; done
 
-INSTALL_QT_CONF=\
+INSTALL_QT_RESOURCES=\
 	printf "[Paths]\nPlugins=/Library/PCP/Plugins\n\n" > qt.conf; \
 	$(INSTALL) -m 644 qt.conf $(1)/qt.conf; \
-	rm qt.conf
+	rm qt.conf; \
+	find frameworks -type d -name qt_menu.nib | while read nib; do \
+                $(INSTALL) -m 755 -d $(1)/qt_menu.nib || exit 1; \
+                find $$nib -type f | while read nibs; do \
+                        f=`basename $$nibs`; \
+                        $(INSTALL) -m 644 $$nibs $(1)/qt_menu.nib/$$f || exit 1; \
+                done; \
+        done
 
 MAC_APPSUPPORT_DIR=/Library/PCP
 MAC_FRAMEWORKS_DIR=$(MAC_APPSUPPORT_DIR)/Frameworks
@@ -110,9 +117,10 @@ INSTALL_QT_FRAMEWORKS=\
 	    (cd /Library/Frameworks/$$tdir; find Resources -type f) | \
 		while read rf; do \
 		    rfpath="$$tdir/$$rf"; rfd=`dirname $$rfpath`; \
-		    fwpath="frameworks/$$rfpath"; \
+		    fwpath="frameworks/$$rfpath"; brfd=`basename $$rfd`; \
 		    mkdir -p frameworks/$$rfd || exit 1; \
 		    cp /Library/Frameworks/$$rfpath $$fwpath || exit 1; \
+		    [ $$brfd != qt_menu.nib ] || continue;  \
 		    $(INSTALL) -d $(MAC_FRAMEWORKS_DIR)/$$rfd || exit 1; \
 		    $(INSTALL) $$fwpath $(MAC_FRAMEWORKS_DIR)/$$rfpath;\
 		done \

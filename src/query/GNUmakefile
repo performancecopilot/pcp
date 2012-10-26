@@ -58,5 +58,5 @@ ifeq ($(WINDOW),mac)
 	rm $(BINARY)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
-	$(call INSTALL_QT_CONF,$(PKG_MAC_DIR)/Resources)
+	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
 endif
