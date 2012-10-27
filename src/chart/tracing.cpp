@@ -29,7 +29,10 @@ TracingItem::TracingItem(Chart *chart,
     my.minSpanID = 0;
     my.maxSpanID = 1;
     my.minSpanTime = tosec(mp->context()->source().start());
-    my.maxSpanTime = my.minSpanTime * 1.1;	// seconds since the epoch
+    if (mp->context()->source().isArchive())
+	my.maxSpanTime = tosec(mp->context()->source().end());
+    else
+	my.maxSpanTime = my.minSpanTime * 1.1;
 
     my.spanSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Box);
     my.spanCurve = new QwtPlotIntervalCurve(label());
