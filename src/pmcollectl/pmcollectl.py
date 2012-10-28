@@ -960,7 +960,7 @@ if __name__ == '__main__':
         try:
             pm = pmContext()
         except pmErr, e:
-            print "pmcd is not running"
+            print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)
     else:
         # -f saves the metrics in a directory, so get the archive basename
@@ -977,7 +977,7 @@ if __name__ == '__main__':
         try:
             pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
         except pmErr, e:
-            print "pmcd is not running"
+            print "Cannot open PCP archive: %s" % archive
             sys.exit(1)
 
     if duration_arg != 0:
