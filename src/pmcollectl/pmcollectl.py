@@ -957,7 +957,11 @@ if __name__ == '__main__':
         map( lambda x: subsys.append(x) , (cpu, disk, net) )
 
     if input_file == "":
-        pm = pmContext()
+        try:
+            pm = pmContext()
+        except pmErr, e:
+            print "pmcd is not running"
+            sys.exit(1)
     else:
         # -f saves the metrics in a directory, so get the archive basename
         lol = []
@@ -970,10 +974,11 @@ if __name__ == '__main__':
         for line in open(input_file + "/" + me + ".pcp"):
             lol.append(line[:-1].split())
         archive = input_file + "/" + lol[len(lol)-1][2]
-
-        pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
-    if (pm < 0):
-        print "PCP is not running"
+        try:
+            pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
+        except pmErr, e:
+            print "pmcd is not running"
+            sys.exit(1)
 
     if duration_arg != 0:
         (code, timeval, errmsg) = pm.pmParseInterval(duration_arg)
