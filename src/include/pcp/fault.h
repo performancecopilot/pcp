@@ -30,10 +30,19 @@ extern void __pmFaultSummary(FILE *f);
 #ifdef PM_FAULT_INJECTION
 extern int __pmFault_arm;
 #define PM_FAULT_POINT(ident, class) __pmFaultInject(ident, class)
+#ifdef malloc
+#undef malloc
+#endif
 #define malloc(x) __pmFault_malloc(x)
 extern void *__pmFault_malloc(size_t);
+#ifdef realloc
+#undef realloc
+#endif
 #define realloc(x,y) __pmFault_realloc(x,y)
 extern void *__pmFault_realloc(void *, size_t);
+#ifdef strdup
+#undef strdup
+#endif
 #define strdup(x) __pmFault_strdup(x)
 extern char *__pmFault_strdup(const char *);
 #define PM_FAULT_CHECK(class) if (__pmFault_arm == PM_FAULT_PMAPI) { __pmFault_arm = 0; return PM_ERR_FAULT; }
