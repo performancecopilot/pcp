@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
 #
@@ -13,12 +13,8 @@
 # for more details.
 #
 
-# . $PCP_DIR/etc/pcp.sh
-
-. $PCP_DIR/etc/pcp.env
-. ./bashproc.sh
-
-pcp_trace on $@
+. $PCP_DIR/etc/pcp.sh
+pcp_trace on $0 $@
 
 tired()
 {
@@ -42,5 +38,4 @@ do
 done
 
 pcp_trace off
-
 exit 0
