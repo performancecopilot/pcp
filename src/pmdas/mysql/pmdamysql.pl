@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 use strict;
@@ -32,8 +29,8 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
     eval `cat $file` unless ! -f $file;
 }
 
-use vars qw( $pmda %status %variables @processes );
-use vars qw( $dbh $sth_variables $sth_status $sth_processes );
+use vars qw( $pmda %status %variables @processes %slave_status );
+use vars qw( $dbh $sth_variables $sth_status $sth_processes $sth_slave_status );
 my $process_indom = 0;
 my @process_instances;
 
@@ -48,6 +45,7 @@ sub mysql_connection_setup
 	    $sth_variables = $dbh->prepare('show variables');
 	    $sth_status = $dbh->prepare('show status');
 	    $sth_processes = $dbh->prepare('show processlist');
+	    $sth_slave_status = $dbh->prepare('show slave status');
 	}
     }
 }
@@ -101,6 +99,21 @@ sub mysql_process_refresh
     $pmda->replace_indom($process_indom, \@process_instances);
 }
 
+sub mysql_slave_status_refresh
+{
+    # $pmda->log("mysql_slave_status_refresh\n");
+
+    %slave_status = ();	# clear any previous contents
+    if (defined($dbh)) {
+	$sth_slave_status->execute();
+	my $result = $sth_slave_status->fetchall_arrayref();
+	for my $i (0 .. $#{$result}) {
+	    my $key = lc $result->[$i][0];
+	    $slave_status{$key} = $result->[$i][1];
+	}
+    }
+}
+
 sub mysql_refresh
 {
     my ($cluster) = @_;
@@ -109,6 +122,7 @@ sub mysql_refresh
     if ($cluster == 0)		{ mysql_status_refresh; }
     elsif ($cluster == 1)	{ mysql_variables_refresh; }
     elsif ($cluster == 2)	{ mysql_process_refresh; }
+    elsif ($cluster == 3)	{ mysql_slave_status_refresh; }
 }
 
 sub mysql_fetch_callback
@@ -142,6 +156,12 @@ sub mysql_fetch_callback
     elsif ($cluster == 1) {
 	$mysql_name =~ s/^mysql\.variables\.//;
 	$value = $variables{$mysql_name};
+	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
+	return ($value, 1);
+    }
+    elsif ($cluster == 3) {
+	$mysql_name =~ s/^mysql\.slave_status\.//;
+	$value = $slave_status{$mysql_name};
 	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
 	return ($value, 1);
     }
@@ -1631,6 +1651,10 @@ $pmda->add_metric(pmda_pmid(2,6), PM_TYPE_STRING, $process_indom,
 $pmda->add_metric(pmda_pmid(2,7), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.processlist.info', '', '');
+
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  'mysql.slave_status.seconds_behind_master', '', '');
 
 $pmda->add_indom($process_indom, \@process_instances,
 		 'Instance domain exporting each MySQL process', '');
