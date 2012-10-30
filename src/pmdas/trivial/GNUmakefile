@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2012 Red Hat.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +20,7 @@ DFILES 	= README
 CFILES	= trivial.c
 CMDTARGET = pmdatrivial$(EXECSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
-LCFLAGS = -I.
+LCFLAGS = -I. $(NSS_CFLAGS) $(NSPR_CFLAGS)
 LSRCFILES = Install Remove pmns help $(DFILES) root GNUmakefile.install
 
 IAM	= trivial

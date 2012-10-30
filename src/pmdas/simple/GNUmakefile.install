@@ -30,12 +30,12 @@ TMP             := $(CFLAGS:-I%=)
 ifdef PCP_DIR
 # put -Ipath and -Lpath back but use paths for run-time environment
 #
-CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/.. $(NSS_CFLAGS) $(NSPR_CFLAGS)
+CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/..
 LDFLAGS         = -L$(PCP_LIB_DIR)
 else
 CFLAGS          = $(TMP)
 endif
-
+CFLAGS += $(NSS_CFLAGS) $(NSPR_CFLAGS)
 
 IAM	= simple
 CFILES	= $(IAM).c
