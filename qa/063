@@ -32,5 +32,9 @@ main()
 }
 End-of-File
 
-cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -L$PCP_LIB_DIR -lpcp
+NSS_FLAGS=
+test -n "$PCP_NSS_INC_DIR" && NSS_FLAGS="-I$PCP_NSS_INC_DIR"
+test -n "$PCP_NSPR_INC_DIR" && NSS_FLAGS="$NSS_FLAGS -I$PCP_NSPR_INC_DIR"
+
+cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. $NSS_FLAGS -L$PCP_LIB_DIR -lpcp
 $tmp

@@ -603,6 +603,8 @@ ac_subst_vars='GIT
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+pcp_nspr_inc_dir
+pcp_nss_inc_dir
 lib_for_nspr
 lib_for_nss
 nspr_incflags
@@ -10777,6 +10779,8 @@ nss_incflags=
 nspr_incflags=
 lib_for_nss=
 lib_for_nspr=
+nss_inc_dir=
+nspr_inc_dir=
 if test "x$with_nss" != "xno"
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /usr/include/nss3" >&5
@@ -10863,8 +10867,10 @@ fi
 
     if test "x$nssdir" != "x" -a "x$nsprdir" != "x"
     then
-        nss_incflags="-I/usr/include/$nssdir"
-        nspr_incflags="-I/usr/include/$nsprdir"
+        nss_inc_dir=/usr/include/$nssdir
+	nspr_inc_dir=/usr/include/$nsprdir
+        nss_incflags="-I$nss_inc_dir"
+        nspr_incflags="-I$nspr_inc_dir"
 	save_CPPFLAGS="$CPPFLAGS"
         CPPFLAGS="$incflags $nss_incflags $nspr_incflags"
         have_nss_includes=yes
@@ -10997,6 +11003,10 @@ fi
 
 
 
+
+pcp_nss_inc_dir=`eval echo $nss_inc_dir`
+
+pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
 
 
 if test -f /usr/include/sn/arsess.h
