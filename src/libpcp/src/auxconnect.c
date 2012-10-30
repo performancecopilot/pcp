@@ -821,7 +821,7 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
     PRFileDesc *nsprFd = __pmNSPRFdIPC(fd);
     if (nsprFd) {
         PRFileDesc *newSocket;
-	newSocket = PR_Accept(nsprFd, (PRNetAddr *)addr, PR_INTERVAL_MIN);
+	newSocket = PR_Accept(nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT);
 	if (newSocket == NULL)
 	  return -1;
 	/* Add the accepted socket to the fd table. */
