@@ -19,10 +19,10 @@ AC_DEFUN([AC_PACKAGE_NEED_QT_VERSION4],
 	echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	exit 1
     fi
-    if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 2 ; then
+    if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
 	echo
 	echo FATAL ERROR: Qt version 4.$QT_MINOR is too old.
-	echo Qt version 4.2 or later is required.
+	echo Qt version 4.4 or later is required.
 	exit 1
     fi
     AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
