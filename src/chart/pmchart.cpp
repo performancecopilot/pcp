@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
@@ -12,8 +13,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <QtCore/QUrl>
 #include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
@@ -37,13 +40,9 @@
 #include "tabdialog.h"
 #include "statusbar.h"
 #include "version.h"
-#if HAVE_QASSISTANTCLIENT
-#include <qassistantclient.h>
-#endif
 
 PmChart::PmChart() : QMainWindow(NULL)
 {
-    my.assistant = NULL;
     my.dialogsSetup = false;
     setIconSize(QSize(22, 22));
 
@@ -141,10 +140,6 @@ void PmChart::quit()
 	my.saveview->reject();
 	my.settings->reject();
     }
-#if HAVE_QASSISTANTCLIENT
-    if (my.assistant)
-	my.assistant->closeAssistant();
-#endif
     if (pmtime)
 	pmtime->quit();
     pmflush();
@@ -393,42 +388,18 @@ void PmChart::fileQuit()
     QApplication::exit(0);
 }
 
-void PmChart::assistantError(const QString &msg)
-{
-    QMessageBox::warning(this, pmProgname, msg);
-}
-
-void PmChart::setupAssistant()
-{
-#if HAVE_QASSISTANTCLIENT
-    if (my.assistant)
-	return;
-    my.assistant = new QAssistantClient(
-		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    connect(my.assistant, SIGNAL(error(const QString &)),
-    		    this, SLOT(assistantError(const QString &)));
-
-    QString documents = HTMLDIR;
-    QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
-    documents.append(separator).append("pcpdoc.adp");
-
-    QStringList arguments;
-    arguments << "-profile" << documents;
-    my.assistant->setArguments(arguments);
-#endif
-}
-
 void PmChart::helpManual()
 {
-#if HAVE_QASSISTANTCLIENT
-    setupAssistant();
-    QString documents = HTMLDIR;
+    bool ok;
+    QString documents("file://" HTMLDIR);
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
     documents.append(separator).append("index.html");
-    my.assistant->showPage(documents);
-#endif
+    ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
+    if (!ok) {
+	documents.prepend("Failed to open:\n");
+	QMessageBox::warning(this, pmProgname, documents);
+    }
 }
 
 void PmChart::helpAbout()

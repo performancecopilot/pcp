@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -20,8 +21,6 @@
 #include "console.h"
 #include "timezone.h"
 
-class QAssistantClient;
-
 class PmTimeLive : public QMainWindow, public Ui::PmTimeLive
 {
     Q_OBJECT
@@ -37,7 +36,6 @@ public:
     virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
-    virtual void setupAssistant();
 
 public slots:
     virtual void setControl(PmTime::State newstate);
@@ -55,7 +53,6 @@ public slots:
     virtual void lineEditDelta_changed(const QString &s);
     virtual void lineEditDelta_validate();
     virtual void setTimezone(QAction * action);
-    virtual void assistantError(const QString &);
     virtual void helpManual();
     virtual void helpAbout();
     virtual void helpAboutQt();
@@ -80,7 +77,6 @@ private:
 	QTimer *timer;
 	QActionGroup *tzActions;
 	QList<TimeZone *> tzlist;
-	QAssistantClient *assistant;
     } my;
 };
 

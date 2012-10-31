@@ -5,7 +5,6 @@ AC_PACKAGE_GLOBALS(pcp-gui)
 AC_PACKAGE_UTILITIES(pcp-gui)
 AC_PACKAGE_NEED_QT_QMAKE
 AC_PACKAGE_NEED_QT_VERSION4
-AC_PACKAGE_NEED_QT_ASSISTANT
 
 dnl Debug/release style build? (non-debug by default)
 qt_release=release
@@ -43,5 +42,4 @@ AC_OUTPUT( \
 	src/chart/pmchart.pro \
 	src/time/pmtime.info \
 	src/time/pmtime.pro \
-	man/html/pcpdoc.adp \
 	pcp-gui.lsm )

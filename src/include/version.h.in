@@ -22,14 +22,6 @@
 #define VERSION "@pkg_version@"
 #define HTMLDIR "@pkg_html_dir@"
 
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN32)
-/* Avoid QtAssistant when no longer available */
-# define HAVE_QASSISTANTCLIENT (QT_VERSION < 0x040700)
-#else
-/* Linux creates a QtAssistant compat package */
-# define HAVE_QASSISTANTCLIENT 1
-#endif
-
 #define PM_USE_CONTEXT_LOCAL 1
 
 #define HAVE_PM_SET_PROGNAME @have_pm_set_progname@

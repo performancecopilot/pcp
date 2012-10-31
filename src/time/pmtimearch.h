@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -20,8 +21,6 @@
 #include "console.h"
 #include "showboundsdialog.h"
 #include "timezone.h"
-
-class QAssistantClient;
 
 class PmTimeArch : public QMainWindow, public Ui::PmTimeArch
 {
@@ -45,7 +44,6 @@ public:
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
     virtual void addBound(PmTime::Packet *k, char *tzdata);
-    virtual void setupAssistant();
 
 public slots:
     virtual void setControl(PmTime::State newstate, PmTime::Mode newmode);
@@ -76,7 +74,6 @@ public slots:
     virtual void lineEditCtime_validate();
     virtual void lineEditSpeed_validate();
     virtual void setTimezone(QAction *action);
-    virtual void assistantError(const QString &);
     virtual void helpManual();
     virtual void helpAbout();
     virtual void helpAboutQt();
@@ -109,7 +106,6 @@ private:
 	ShowBounds *bounds;
 	QActionGroup *tzActions;
 	QList<TimeZone*> tzlist;
-	QAssistantClient *assistant;
     } my;
 };
 

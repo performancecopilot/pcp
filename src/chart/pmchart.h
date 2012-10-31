@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +30,6 @@ class SamplesDialog;
 class OpenViewDialog;
 class SaveViewDialog;
 class SettingsDialog;
-class QAssistantClient;
 
 class PmChart : public QMainWindow, public Ui::PmChart
 {
@@ -71,7 +71,6 @@ public:
     virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
     virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
     virtual void setStyle(char *style);
-    virtual void setupAssistant();
     virtual void updateHeight(int);
     virtual void createNewChart();
     virtual void metricInfo(QString src, QString m, QString inst, int srcType);
@@ -113,7 +112,6 @@ public slots:
     virtual void acceptExport();
     virtual void filePrint();
     virtual void fileQuit();
-    virtual void assistantError(const QString &);
     virtual void helpManual();
     virtual void helpAbout();
     virtual void helpAboutQt();
@@ -169,8 +167,6 @@ private:
 	OpenViewDialog *openview;
 	SaveViewDialog *saveview;
 	SettingsDialog *settings;
-
-	QAssistantClient *assistant;
 
 	QList<QAction*> separatorsList;		// separator follow these
 	QList<QAction*> toolbarActionsList;	// all toolbar actions

@@ -2,13 +2,10 @@ Source: pcp-gui
 Section: utils
 Priority: extra
 Maintainer: Nathan Scott <nathans@debian.org>
-Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 2.7.4-20080507), libqt4-dev, libqtassistantclient-dev | qt4-dev-tools
+Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 3.5.0), libqt4-dev
 Standards-Version: 3.9.3
 
 Package: pcp-gui
-Provides: kmchart
-Replaces: kmchart
-Conflicts: kmchart
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xvfb, qt4-dev-tools
 Recommends: pcp, pcp-doc
@@ -28,7 +25,6 @@ Section: doc
 Depends: ${misc:Depends}
 Breaks: pcp-gui (<< 1.5.0)
 Replaces: pcp-gui (<< 1.5.0)
-Suggests: qt4-dev-tools
 Recommends: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot

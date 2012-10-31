@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -15,8 +16,10 @@
 #include "pmtimearch.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QUrl>
 #include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QValidator>
 #include <QtGui/QWhatsThis>
 #include <QtGui/QMessageBox>
@@ -26,10 +29,6 @@
 #include "version.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"
-
-#if HAVE_QASSISTANTCLIENT
-#include <qassistantclient.h>
-#endif
 
 PmTimeArch::PmTimeArch() : QMainWindow(NULL)
 {
@@ -139,7 +138,6 @@ void PmTimeArch::init()
     my.units = PmTime::Seconds;
     my.first = true;
     my.tzActions = NULL;
-    my.assistant = NULL;
 
     memset(&my.absoluteStart, 0, sizeof(struct timeval));
     memset(&my.absoluteEnd, 0, sizeof(struct timeval));
@@ -186,10 +184,7 @@ void PmTimeArch::init()
 
 void PmTimeArch::quit()
 {
-#if HAVE_QASSISTANTCLIENT
-    if (my.assistant)
-	my.assistant->closeAssistant();
-#endif
+    console->post("arch quit!\n");
 }
 
 void PmTimeArch::helpAbout()
@@ -768,38 +763,16 @@ void PmTimeArch::addBound(PmTime::Packet *k, char *tzdata)
 		my.pmtime.start.tv_sec, my.pmtime.start.tv_usec);
 }
 
-void PmTimeArch::assistantError(const QString &msg)
-{
-    QMessageBox::warning(this, pmProgname, msg);
-}
-
-void PmTimeArch::setupAssistant()
-{
-#if HAVE_QASSISTANTCLIENT
-    if (my.assistant)
-	return;
-    my.assistant = new QAssistantClient(
-		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    connect(my.assistant, SIGNAL(error(const QString &)),
-		    this, SLOT(assistantError(const QString &)));
-    QStringList arguments;
-    QString documents = HTMLDIR;
-    QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
-    documents.append(separator).append("pcpdoc.adp");
-    arguments << "-profile" << documents;
-    my.assistant->setArguments(arguments);
-#endif
-}
-
 void PmTimeArch::helpManual()
 {
-#if HAVE_QASSISTANTCLIENT
-    setupAssistant();
-    QString documents = HTMLDIR;
+    bool ok;
+    QString documents("file://" HTMLDIR);
     QString separator = QString(__pmPathSeparator());
     documents.append(separator).append("html");
     documents.append(separator).append("timecontrol.html");
-    my.assistant->showPage(documents);
-#endif
+    ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
+    if (!ok) {
+        documents.prepend("Failed to open:\n");
+        QMessageBox::warning(this, pmProgname, documents);
+    }
 }

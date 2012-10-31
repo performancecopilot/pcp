@@ -14,9 +14,6 @@ BuildRequires: autoconf, bison, flex, gawk
 BuildRequires: pcp >= 2.0, pcp-libs-devel >= 2.0
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.2
-%if (0%{?fedora} > 12 || 0%{?rhel} > 5)
-BuildRequires: qt-assistant-adp-devel
-%endif
 
 Requires: pcp
 
