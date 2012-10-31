@@ -180,8 +180,8 @@
    <addaction name="zoomOutAction" />
    <addaction name="separator" />
    <addaction name="fileExportAction" />
-   <addaction name="filePrintAction" />
    <addaction name="separator" />
+   <addaction name="timeControlAction" />
    <addaction name="newPmchartAction" />
   </widget>
   <action name="fileOpenViewAction" >

@@ -860,9 +860,9 @@ void PmChart::setupEnabledActionsList()
 				// separator
 			  << zoomInAction << zoomOutAction
 				// separator
-			  << fileExportAction << filePrintAction
+			  << fileExportAction
 				// separator
-			  << newPmchartAction;
+			  << timeControlAction << newPmchartAction;
 
     if (globalSettings.toolbarActions.size() > 0) {
 	setEnabledActionsList(globalSettings.toolbarActions, false);
