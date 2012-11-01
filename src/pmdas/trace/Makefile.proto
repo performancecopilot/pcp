@@ -29,6 +29,8 @@ F90DEMO	= fapp1.f90
 JDEMO	= japp1.class
 
 CFLAGS	= -DPMTRACE_DEBUG -I/usr/include/pcp
+NSS_CFLAGS = -I/usr/include/nss3
+NSPR_CFLAGS = -I/usr/include/nspr4
 FFLAGS	=
 JFLAGS	=
 
@@ -39,7 +41,7 @@ java:		$(JDEMO)
 
 pmtrace:	pmtrace.c
 	rm -f $@
-	$(CC) $(CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
+	$(CC) $(CFLAGS) $(NSS_CFLAGS) $(NSPR_CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
 
 app1:	app1.c
 	rm -f $@
