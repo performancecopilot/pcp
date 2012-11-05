@@ -385,6 +385,18 @@ __pmSetFileDescriptorFlags(int fd, int flags)
 }
 
 ssize_t
+__pmWrite(int socket, const void *buffer, size_t length)
+{
+    return write(socket, buffer, length);
+}
+
+ssize_t
+__pmRead(int socket, void *buffer, size_t length)
+{
+    return read(socket, buffer, length);
+}
+
+ssize_t
 __pmSend(int socket, const void *buffer, size_t length, int flags)
 {
     return send(socket, buffer, length, flags);
@@ -908,6 +920,30 @@ __pmSetFileDescriptorFlags(int fd, int flags)
         fd = PR_FileDesc2NativeHandle(nsprFd);
     }
     return fcntl(fd, F_SETFD, flags);
+}
+
+ssize_t
+__pmWrite(int socket, const void *buffer, size_t length)
+{
+    PRFileDesc *nsprFd = __pmNSPRFdIPC(socket);
+    if (nsprFd) {
+	return PR_Write (nsprFd, buffer, length);
+    }
+
+    /* We have a native fd */
+    return write(socket, buffer, length);
+}
+
+ssize_t
+__pmRead(int socket, void *buffer, size_t length)
+{
+    PRFileDesc *nsprFd = __pmNSPRFdIPC(socket);
+    if (nsprFd) {
+	return PR_Read (nsprFd, buffer, length);
+    }
+
+    /* We have a native fd */
+    return read(socket, buffer, length);
 }
 
 ssize_t

@@ -541,6 +541,8 @@ extern int __pmConnect(int, void *, __pmSockLen);
 extern int __pmBind(int, void *, __pmSockLen);
 extern int __pmListen(int, int);
 extern int __pmAccept(int, void *, __pmSockLen *);
+extern ssize_t __pmWrite(int, const void *, size_t);
+extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddrIn *, int);
