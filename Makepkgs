@@ -39,6 +39,7 @@ else
     export MAKE=$try
 fi
 
+configopts=
 for opt in $*
 do
     case "$opt" in
@@ -51,6 +52,8 @@ do
 	shift
 	;;
     *)
+	# Add remaining options to the ./configure command line, for example --without-nss
+	configopts="$configopts $opt"
 	break
 	;;
     esac
@@ -160,7 +163,7 @@ echo "== Building pcp, log is in $LOGF"
 
 . ./VERSION.pcp
 
-configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var$configopts"
 echo "== Configuring pcp for vendor/distro installation ($configured)"
 if $verbose ; then
     ./configure $configured 2>&1 | tee -a $LOGF || touch $tmp.failed

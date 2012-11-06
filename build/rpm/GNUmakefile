@@ -66,6 +66,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_run_dir@|$(PCP_RUN_DIR)|g' \
 	    -e's|@pcp_tmp_dir@|$(PCP_TMP_DIR)|g' \
+	    -e's|@nss_config_flags@|$(NSS_CONFIG_FLAGS)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' < $? > $@
 
 include $(BUILDRULES)

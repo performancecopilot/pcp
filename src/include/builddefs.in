@@ -109,6 +109,7 @@ ifeq "$(TARGET_OS)" "freebsd"
 DSOSUFFIX = so
 endif
 
+NSS_CONFIG_FLAGS = @nss_config_flags@
 NSS_CFLAGS = @nss_incflags@
 NSPR_CFLAGS = @nspr_incflags@
 

@@ -1831,12 +1831,13 @@ AC_ARG_WITH([nss],
     [Do not use NSS even if present]))
 
 have_nss=no
+nss_config_flags=
+nss_inc_dir=
+nspr_inc_dir=
 nss_incflags=
 nspr_incflags=
 lib_for_nss=
 lib_for_nspr=
-nss_inc_dir=
-nspr_inc_dir=
 if test "x$with_nss" != "xno"
 then
     AC_CHECK_FILE([/usr/include/nss3], nssdir=nss3, [
@@ -1849,10 +1850,8 @@ then
     then
         nss_inc_dir=/usr/include/$nssdir
 	nspr_inc_dir=/usr/include/$nsprdir
-        nss_incflags="-I$nss_inc_dir"
-        nspr_incflags="-I$nspr_inc_dir"
 	save_CPPFLAGS="$CPPFLAGS"
-        CPPFLAGS="$incflags $nss_incflags $nspr_incflags"
+        CPPFLAGS="$incflags -I$nss_inc_dir -I$nspr_inc_dir"
         have_nss_includes=yes
         AC_CHECK_HEADERS(["$nssdir/nss.h" "$nsprdir/nspr.h"], [], have_nss_includes=no)
         CPPFLAGS="$save_CPPFLAGS"
@@ -1877,17 +1876,22 @@ then
 fi
 if test $have_nss = yes
 then
+    nss_incflags="-I$nss_inc_dir"
+    nspr_incflags="-I$nspr_inc_dir"
+    pcp_nss_inc_dir=`eval echo $nss_inc_dir`
+    pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
     lib_for_nss=-l$nssdir
     lib_for_nspr=-l$nsprdir
     AC_DEFINE(HAVE_NSS)
+else
+    nss_config_flags="--without-nss"
 fi
+AC_SUBST(nss_config_flags)
 AC_SUBST(nss_incflags)
 AC_SUBST(nspr_incflags)
 AC_SUBST(lib_for_nss)
 AC_SUBST(lib_for_nspr)
-pcp_nss_inc_dir=`eval echo $nss_inc_dir`
 AC_SUBST(pcp_nss_inc_dir)
-pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
 AC_SUBST(pcp_nspr_inc_dir)
 
 dnl check for array sessions

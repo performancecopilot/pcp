@@ -609,6 +609,7 @@ lib_for_nspr
 lib_for_nss
 nspr_incflags
 nss_incflags
+nss_config_flags
 ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
@@ -10775,12 +10776,13 @@ fi
 
 
 have_nss=no
+nss_config_flags=
+nss_inc_dir=
+nspr_inc_dir=
 nss_incflags=
 nspr_incflags=
 lib_for_nss=
 lib_for_nspr=
-nss_inc_dir=
-nspr_inc_dir=
 if test "x$with_nss" != "xno"
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /usr/include/nss3" >&5
@@ -10869,10 +10871,8 @@ fi
     then
         nss_inc_dir=/usr/include/$nssdir
 	nspr_inc_dir=/usr/include/$nsprdir
-        nss_incflags="-I$nss_inc_dir"
-        nspr_incflags="-I$nspr_inc_dir"
 	save_CPPFLAGS="$CPPFLAGS"
-        CPPFLAGS="$incflags $nss_incflags $nspr_incflags"
+        CPPFLAGS="$incflags -I$nss_inc_dir -I$nspr_inc_dir"
         have_nss_includes=yes
         for ac_header in "$nssdir/nss.h" "$nsprdir/nspr.h"
 do :
@@ -10995,18 +10995,23 @@ $as_echo "$as_me: WARNING: NSS Libraries not found" >&2;}
 fi
 if test $have_nss = yes
 then
+    nss_incflags="-I$nss_inc_dir"
+    nspr_incflags="-I$nspr_inc_dir"
+    pcp_nss_inc_dir=`eval echo $nss_inc_dir`
+    pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
     lib_for_nss=-l$nssdir
     lib_for_nspr=-l$nsprdir
     $as_echo "#define HAVE_NSS 1" >>confdefs.h
 
+else
+    nss_config_flags="--without-nss"
 fi
 
 
 
 
-pcp_nss_inc_dir=`eval echo $nss_inc_dir`
 
-pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
+
 
 
 if test -f /usr/include/sn/arsess.h
