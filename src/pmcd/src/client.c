@@ -182,7 +182,6 @@ DeleteClient(ClientInfo *cp)
 	return;
     }
     if (cp->fd != -1) {
-	__pmResetIPC(cp->fd);
 	__pmFD_CLR(cp->fd, &clientFds);
 	__pmCloseSocket(cp->fd);
     }

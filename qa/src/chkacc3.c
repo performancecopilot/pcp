@@ -90,23 +90,19 @@ main()
 		for (ci = 0; ci < 4; ci++)
 		    for (di = 0; di < 4; di++) {
 			char	buf[20];
+			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
-#ifdef IS_MINGW
-			unsigned long in;
-			in = inet_addr(buf);
-			inaddr.s_addr = in;
-#else
-			inet_aton(buf, &inaddr);
-#endif
+			__pmStringToInAddr(buf, &inaddr);
 			ipaddr = __pmInAddrToIPAddr(&inaddr);
 			s = __pmAccAddClient(ipaddr, &perm);
+			host = __pmInAddrToString(&inaddr);
 			if (s < 0) {
-			    fprintf(stderr, "from %s error: %s\n",
-				    inet_ntoa(inaddr), pmErrStr(s));
+			    fprintf(stderr, "from %s error: %s\n", host, pmErrStr(s));
+			    free(host);
 			    continue;
 			}
-			fprintf(stderr, "got %03x for host %s\n",
-				perm, inet_ntoa(inaddr));
+			fprintf(stderr, "got %03x for host %s\n", perm, host);
+			free(host);
 		    }
     
     exit(0);

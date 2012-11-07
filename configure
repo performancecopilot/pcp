@@ -639,6 +639,13 @@ ac_subst_vars='GIT
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+pcp_nspr_inc_dir
+pcp_nss_inc_dir
+lib_for_nspr
+lib_for_nss
+nspr_incflags
+nss_incflags
+nss_config_flags
 ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
@@ -852,6 +859,7 @@ with_logdir
 with_rundir
 with_docdir
 with_demosdir
+with_nss
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1515,6 +1523,7 @@ Optional Packages:
   --with-rundir           run directory [LOCALSTATEDIR/run/pcp]
   --with-docdir           docs directory [DOCDIR/pcp-VERSION]
   --with-demosdir         run directory [DATADIR/pcp/demos]
+  --without-nss           Do not use NSS even if present
 
 Some influential environment variables:
   CC          C compiler command
@@ -17730,6 +17739,460 @@ fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
+
+
+# Check whether --with-nss was given.
+if test "${with_nss+set}" = set; then
+  withval=$with_nss;
+fi
+
+
+have_nss=no
+nss_config_flags=
+nss_inc_dir=
+nspr_inc_dir=
+nss_incflags=
+nspr_incflags=
+lib_for_nss=
+lib_for_nspr=
+if test "x$with_nss" != "xno"
+then
+    { $as_echo "$as_me:$LINENO: checking for /usr/include/nss3" >&5
+$as_echo_n "checking for /usr/include/nss3... " >&6; }
+if test "${ac_cv_file__usr_include_nss3+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  { { $as_echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+$as_echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "/usr/include/nss3"; then
+  ac_cv_file__usr_include_nss3=yes
+else
+  ac_cv_file__usr_include_nss3=no
+fi
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_file__usr_include_nss3" >&5
+$as_echo "$ac_cv_file__usr_include_nss3" >&6; }
+if test "x$ac_cv_file__usr_include_nss3" = x""yes; then
+  nssdir=nss3
+else
+
+        { $as_echo "$as_me:$LINENO: checking for /usr/include/nss" >&5
+$as_echo_n "checking for /usr/include/nss... " >&6; }
+if test "${ac_cv_file__usr_include_nss+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  { { $as_echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+$as_echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "/usr/include/nss"; then
+  ac_cv_file__usr_include_nss=yes
+else
+  ac_cv_file__usr_include_nss=no
+fi
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_file__usr_include_nss" >&5
+$as_echo "$ac_cv_file__usr_include_nss" >&6; }
+if test "x$ac_cv_file__usr_include_nss" = x""yes; then
+  nssdir=nss
+fi
+
+
+fi
+
+    { $as_echo "$as_me:$LINENO: checking for /usr/include/nspr4" >&5
+$as_echo_n "checking for /usr/include/nspr4... " >&6; }
+if test "${ac_cv_file__usr_include_nspr4+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  { { $as_echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+$as_echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "/usr/include/nspr4"; then
+  ac_cv_file__usr_include_nspr4=yes
+else
+  ac_cv_file__usr_include_nspr4=no
+fi
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_file__usr_include_nspr4" >&5
+$as_echo "$ac_cv_file__usr_include_nspr4" >&6; }
+if test "x$ac_cv_file__usr_include_nspr4" = x""yes; then
+  nsprdir=nspr4
+else
+
+        { $as_echo "$as_me:$LINENO: checking for /usr/include/nspr" >&5
+$as_echo_n "checking for /usr/include/nspr... " >&6; }
+if test "${ac_cv_file__usr_include_nspr+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  { { $as_echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+$as_echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "/usr/include/nspr"; then
+  ac_cv_file__usr_include_nspr=yes
+else
+  ac_cv_file__usr_include_nspr=no
+fi
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_file__usr_include_nspr" >&5
+$as_echo "$ac_cv_file__usr_include_nspr" >&6; }
+if test "x$ac_cv_file__usr_include_nspr" = x""yes; then
+  nsprdir=nspr
+fi
+
+
+fi
+
+    if test "x$nssdir" != "x" -a "x$nsprdir" != "x"
+    then
+        nss_inc_dir=/usr/include/$nssdir
+	nspr_inc_dir=/usr/include/$nsprdir
+	save_CPPFLAGS="$CPPFLAGS"
+        CPPFLAGS="$incflags -I$nss_inc_dir -I$nspr_inc_dir"
+        have_nss_includes=yes
+
+
+for ac_header in "$nssdir/nss.h" "$nsprdir/nspr.h"
+do
+as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  { $as_echo "$as_me:$LINENO: checking for $ac_header" >&5
+$as_echo_n "checking for $ac_header... " >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+fi
+ac_res=`eval 'as_val=${'$as_ac_Header'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+else
+  # Is the header compilable?
+{ $as_echo "$as_me:$LINENO: checking $ac_header usability" >&5
+$as_echo_n "checking $ac_header usability... " >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <$ac_header>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+$as_echo "$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ $as_echo "$as_me:$LINENO: checking $ac_header presence" >&5
+$as_echo_n "checking $ac_header presence... " >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$ac_header>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ $as_echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+$as_echo "$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&5
+$as_echo "$as_me: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the compiler's result" >&5
+$as_echo "$as_me: WARNING: $ac_header: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: present but cannot be compiled" >&5
+$as_echo "$as_me: WARNING: $ac_header: present but cannot be compiled" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header:     check for missing prerequisite headers?" >&5
+$as_echo "$as_me: WARNING: $ac_header:     check for missing prerequisite headers?" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: see the Autoconf documentation" >&5
+$as_echo "$as_me: WARNING: $ac_header: see the Autoconf documentation" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&5
+$as_echo "$as_me: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the preprocessor's result" >&5
+$as_echo "$as_me: WARNING: $ac_header: proceeding with the preprocessor's result" >&2;}
+    { $as_echo "$as_me:$LINENO: WARNING: $ac_header: in the future, the compiler will take precedence" >&5
+$as_echo "$as_me: WARNING: $ac_header: in the future, the compiler will take precedence" >&2;}
+
+    ;;
+esac
+{ $as_echo "$as_me:$LINENO: checking for $ac_header" >&5
+$as_echo_n "checking for $ac_header... " >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  eval "$as_ac_Header=\$ac_header_preproc"
+fi
+ac_res=`eval 'as_val=${'$as_ac_Header'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+
+fi
+as_val=`eval 'as_val=${'$as_ac_Header'}
+		 $as_echo "$as_val"'`
+   if test "x$as_val" = x""yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+else
+  have_nss_includes=no
+fi
+
+done
+
+        CPPFLAGS="$save_CPPFLAGS"
+        have_nss_libs=no
+        as_ac_Lib=`$as_echo "ac_cv_lib_$nssdir''_NSS_Init" | $as_tr_sh`
+{ $as_echo "$as_me:$LINENO: checking for NSS_Init in -l$nssdir" >&5
+$as_echo_n "checking for NSS_Init in -l$nssdir... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$nssdir  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char NSS_Init ();
+int
+main ()
+{
+return NSS_Init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  eval "$as_ac_Lib=yes"
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	eval "$as_ac_Lib=no"
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+ac_res=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+as_val=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+   if test "x$as_val" = x""yes; then
+
+            as_ac_Lib=`$as_echo "ac_cv_lib_$nsprdir''_PR_Init" | $as_tr_sh`
+{ $as_echo "$as_me:$LINENO: checking for PR_Init in -l$nsprdir" >&5
+$as_echo_n "checking for PR_Init in -l$nsprdir... " >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l$nsprdir  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PR_Init ();
+int
+main ()
+{
+return PR_Init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  eval "$as_ac_Lib=yes"
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	eval "$as_ac_Lib=no"
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+ac_res=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+as_val=`eval 'as_val=${'$as_ac_Lib'}
+		 $as_echo "$as_val"'`
+   if test "x$as_val" = x""yes; then
+  have_nss_libs=yes
+fi
+
+
+fi
+
+    fi
+    if test "x${have_nss_includes}${have_nss_libs}" = "xyesyes"
+    then
+        have_nss=yes
+           else
+        if test "x${have_nss_includes}" != "xyes"
+	then
+	    { $as_echo "$as_me:$LINENO: WARNING: NSS Headers not found" >&5
+$as_echo "$as_me: WARNING: NSS Headers not found" >&2;}
+	fi
+        if test "x${have_nss_libs}" != "xyes"
+	then
+	    { $as_echo "$as_me:$LINENO: WARNING: NSS Libraries not found" >&5
+$as_echo "$as_me: WARNING: NSS Libraries not found" >&2;}
+	fi
+    fi
+fi
+if test $have_nss = yes
+then
+    nss_incflags="-I$nss_inc_dir"
+    nspr_incflags="-I$nspr_inc_dir"
+    pcp_nss_inc_dir=`eval echo $nss_inc_dir`
+    pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
+    lib_for_nss=-l$nssdir
+    lib_for_nspr=-l$nsprdir
+    cat >>confdefs.h <<\_ACEOF
+#define HAVE_NSS 1
+_ACEOF
+
+else
+    nss_config_flags="--without-nss"
+fi
+
+
+
+
+
+
+
 
 if test -f /usr/include/sn/arsess.h
 then

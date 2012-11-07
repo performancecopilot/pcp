@@ -517,9 +517,10 @@ typedef PRNetAddr __pmInAddr;
 typedef unsigned long __pmIPAddr;
 typedef PRHostEnt __pmHostEnt;
 typedef struct {
-    int			num_native_fds;
     fd_set		native_set;
-    fd_set		indexed_set;
+    fd_set		nspr_set;
+    int			num_native_fds;
+    int			num_nspr_fds;
 } __pmFdSet;
 #else /* ! HAVE_NSS */
 typedef struct sockaddr __pmSockAddr;
@@ -540,6 +541,8 @@ extern int __pmConnect(int, void *, __pmSockLen);
 extern int __pmBind(int, void *, __pmSockLen);
 extern int __pmListen(int, int);
 extern int __pmAccept(int, void *, __pmSockLen *);
+extern ssize_t __pmWrite(int, const void *, size_t);
+extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddrIn *, int);
@@ -572,7 +575,9 @@ extern __pmIPAddr __pmLoopbackAddress(void);
 extern __pmIPAddr __pmSockAddrInToIPAddr(const __pmSockAddrIn *);
 extern __pmIPAddr __pmInAddrToIPAddr(const __pmInAddr *);
 extern int __pmIPAddrToInt(const __pmIPAddr *);
+extern char *__pmInAddrToString(__pmInAddr *);
 extern char *__pmSockAddrInToString(__pmSockAddrIn *);
+extern int __pmStringToInAddr(const char *, __pmInAddr *);
 
 extern char *__pmAllocHostEntBuffer (void);
 extern void __pmFreeHostEntBuffer (char *);
@@ -986,6 +991,10 @@ extern int __pmSocketIPC(int);
 extern void __pmOverrideLastFd(int);
 extern void __pmPrintIPC(void);
 extern void __pmResetIPC(int);
+#if defined(HAVE_NSS)
+extern int __pmSetNSPRFdIPC(int fd, PRFileDesc *);
+extern PRFileDesc *__pmNSPRFdIPC(int);
+#endif
 
 /* safely insert an atom value into a pmValue */
 extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);

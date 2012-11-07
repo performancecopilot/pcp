@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +43,7 @@ int		qa_case;		/* QA error injection state */
 char		*note = NULL;		/* note for port map file */
 
 static int 	    pmcdfd;		/* comms to pmcd */
-static fd_set	    fds;		/* file descriptors mask for select */
+static __pmFdSet    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
 static int	rsc_fd = -1;	/* recording session control see -x */
@@ -468,7 +469,7 @@ failed:
     if (cmd != '?') {
 	/* detach, silently go off to the races ... */
 	close(rsc_fd);
-	FD_CLR(rsc_fd, &fds);
+	__pmFD_CLR(rsc_fd, &fds);
 	rsc_fd = -1;
     }
 }
@@ -489,7 +490,7 @@ main(int argc, char **argv)
     int			i;
     task_t		*tp;
     optcost_t		ocp;
-    fd_set		readyfds;
+    __pmFdSet		readyfds;
     char		*p;
     char		*runtime = NULL;
     int	    		ctx;		/* handle correspondong to ctxp below */
@@ -857,13 +858,13 @@ Options:\n\
 
     /* set up control port */
     init_ports();
-    FD_ZERO(&fds);
-    FD_SET(ctlfd, &fds);
+    __pmFD_ZERO(&fds);
+    __pmFD_SET(ctlfd, &fds);
 #ifndef IS_MINGW
-    FD_SET(pmcdfd, &fds);
+    __pmFD_SET(pmcdfd, &fds);
 #endif
     if (rsc_fd != -1)
-	FD_SET(rsc_fd, &fds);
+	__pmFD_SET(rsc_fd, &fds);
     numfds = maxfd() + 1;
 
     if ((sts = do_preamble()) < 0)
@@ -877,9 +878,8 @@ Options:\n\
 
     for ( ; ; ) {
 	int		nready;
-
-	memcpy(&readyfds, &fds, sizeof(readyfds));
-	nready = select(numfds, &readyfds, NULL, NULL, NULL);
+	__pmFD_COPY(&readyfds, &fds);
+	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
 	if (wantflush) {
 	    /*
@@ -894,15 +894,15 @@ Options:\n\
 	    __pmAFblock();
 
 	    /* handle request on control port */
-	    if (FD_ISSET(ctlfd, &readyfds)) {
+	    if (__pmFD_ISSET(ctlfd, &readyfds)) {
 		if (control_req()) {
 		    /* new client has connected */
-		    FD_SET(clientfd, &fds);
+		    __pmFD_SET(clientfd, &fds);
 		    if (clientfd >= numfds)
 			numfds = clientfd + 1;
 		}
 	    }
-	    if (clientfd >= 0 && FD_ISSET(clientfd, &readyfds)) {
+	    if (clientfd >= 0 && __pmFD_ISSET(clientfd, &readyfds)) {
 		/* process request from client, save clientfd in case client
 		 * closes connection, resetting clientfd to -1
 		 */
@@ -910,13 +910,15 @@ Options:\n\
 
 		if (client_req()) {
 		    /* client closed connection */
-		    FD_CLR(fd, &fds);
+		    __pmFD_CLR(fd, &fds);
+		    __pmCloseSocket(clientfd);
+		    clientfd = -1;
 		    numfds = maxfd() + 1;
 		    qa_case = 0;
 		}
 	    }
 #ifndef IS_MINGW
-	    if (pmcdfd >= 0 && FD_ISSET(pmcdfd, &readyfds)) {
+	    if (pmcdfd >= 0 && __pmFD_ISSET(pmcdfd, &readyfds)) {
 		/*
 		 * do not expect this, given synchronous commumication with the
 		 * pmcd ... either pmcd has terminated, or bogus PDU ... or its
@@ -943,7 +945,7 @@ Options:\n\
 		    __pmUnpinPDUBuf(pb);
 	    }
 #endif
-	    if (rsc_fd >= 0 && FD_ISSET(rsc_fd, &readyfds)) {
+	    if (rsc_fd >= 0 && __pmFD_ISSET(rsc_fd, &readyfds)) {
 		/*
 		 * some action on the recording session control fd
 		 * end-of-file means launcher has quit, otherwise we
@@ -1116,7 +1118,7 @@ disconnect(int sts)
 	exit(1);
     }
     close(pmcdfd);
-    FD_CLR(pmcdfd, &fds);
+    __pmFD_CLR(pmcdfd, &fds);
     pmcdfd = -1;
     numfds = maxfd() + 1;
     if ((ctx = pmWhichContext()) >= 0)
@@ -1153,7 +1155,7 @@ reconnect(void)
 	fprintf(stderr, "%s: re-established connection to PMCD on \"%s\" at %s\n",
 		pmProgname, pmcd_host, ctime(&now));
 	pmcdfd = ctxp->c_pmcd->pc_fd;
-	FD_SET(pmcdfd, &fds);
+	__pmFD_SET(pmcdfd, &fds);
 	numfds = maxfd() + 1;
     }
     PM_UNLOCK(ctxp->c_lock);

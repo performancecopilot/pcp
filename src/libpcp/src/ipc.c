@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -29,10 +30,17 @@
  * connection, which is most important for the Windows port, as socket interfaces
  * are braindead and do not use the usual file descriptor read/write/close calls,
  * but must rather use recv/send/closesocket.
+ *
+ * If NSS/NSPR is available, then we also keep NSPR file descriptor information
+ * here. This allows us to handle NSPR sockets which in turn allows us to support
+ * SSL/TLS.
  */
 typedef struct {
     int		version;	/* one or two */
     int		socket;		/* true or false */
+#if defined(HAVE_NSS)
+    PRFileDesc *nsprFD;
+#endif
 } __pmIPC;
 
 static int	__pmLastUsedFd = -INT_MAX;
@@ -165,6 +173,50 @@ __pmSocketIPC(int fd)
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
+
+#if defined(HAVE_NSS)
+int
+__pmSetNSPRFdIPC(int fd, PRFileDesc *nsprFD)
+{
+    int sts;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if ((sts = __pmResizeIPC(fd)) < 0) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return sts;
+    }
+
+    __pmIPCTablePtr[fd].nsprFD = nsprFD;
+    __pmLastUsedFd = fd;
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	__pmPrintIPC();
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
+
+PRFileDesc *
+__pmNSPRFdIPC(int fd)
+{
+    PRFileDesc *sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (__pmIPCTablePtr == NULL || fd < 0 || fd >= ipctablesize) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return 0;
+    }
+    sts = __pmIPCTablePtr[fd].nsprFD;
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
+}
+#endif /* defined(HAVE_NSS) */
 
 /*
  * Called by log readers who need version info for result decode,

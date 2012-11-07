@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -331,7 +332,7 @@ Options:\n\
 	fprintf(stderr, "Warning: stop script returns %d\n", sts);
     sleep(10);
     _text = _indom_text = 0;
-    close(ctlport);
+    __pmCloseSocket(ctlport);
 
     err += exer(numpmid, pmidlist, 1);
 
@@ -365,7 +366,7 @@ Options:\n\
     sts = system(". $PCP_DIR/etc/pcp.env; path_opt=''; if [ $PCP_PLATFORM = linux ]; then path_opt=pmlogger/; fi; pmafm $PCP_LOG_DIR/$path_opt`hostname`/Latest remove 2>/dev/null | sh");
     if (sts != 0)
 	fprintf(stderr, "Warning: folio removal script %d\n", sts);
-    close(ctlport);
+    __pmCloseSocket(ctlport);
     sts = system(". $PCP_DIR/etc/pcp.env; $PCP_RC_DIR/pcp start");
     if (sts != 0)
 	fprintf(stderr, "Warning: stop script returns %d\n", sts);

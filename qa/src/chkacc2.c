@@ -48,13 +48,7 @@ main()
 	for (j = 0; j <= host; j++) {
 	    char	buf[20];
 	    sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
-#ifdef IS_MINGW
-	    unsigned long in;
-	    in = inet_addr(buf);
-	    inaddr.s_addr = in;
-#else
-	    inet_aton(buf, &inaddr);
-#endif
+	    __pmStringToInAddr(buf, &inaddr);
 	    ipaddr = __pmInAddrToIPAddr(&inaddr);
 	    sts = __pmAccAddClient(ipaddr, &i);
 	    if (sts < 0) {

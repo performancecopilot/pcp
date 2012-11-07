@@ -149,6 +149,14 @@ PCP_DOC_DIR=@pcp_doc_dir@
 # Subdirectories: assorted
 PCP_DEMOS_DIR=@pcp_demos_dir@
 
+# directory for NSS headers
+# Standard path: /usr/include/nss3
+PCP_NSS_INC_DIR=@pcp_nss_inc_dir@
+
+# directory for NSPR headers
+# Standard path: /usr/include/nspr4
+PCP_NSPR_INC_DIR=@pcp_nspr_inc_dir@
+
 # awk
 PCP_AWK_PROG="@awk@"
 

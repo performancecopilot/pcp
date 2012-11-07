@@ -1830,6 +1830,75 @@ then
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
+dnl check for NSS/NSPR
+AC_ARG_WITH([nss],
+  AS_HELP_STRING([--without-nss],
+    [Do not use NSS even if present]))
+
+have_nss=no
+nss_config_flags=
+nss_inc_dir=
+nspr_inc_dir=
+nss_incflags=
+nspr_incflags=
+lib_for_nss=
+lib_for_nspr=
+if test "x$with_nss" != "xno"
+then
+    AC_CHECK_FILE([/usr/include/nss3], nssdir=nss3, [
+        AC_CHECK_FILE([/usr/include/nss], nssdir=nss)
+    ])
+    AC_CHECK_FILE([/usr/include/nspr4], nsprdir=nspr4, [
+        AC_CHECK_FILE([/usr/include/nspr], nsprdir=nspr)
+    ])
+    if test "x$nssdir" != "x" -a "x$nsprdir" != "x"
+    then
+        nss_inc_dir=/usr/include/$nssdir
+	nspr_inc_dir=/usr/include/$nsprdir
+	save_CPPFLAGS="$CPPFLAGS"
+        CPPFLAGS="$incflags -I$nss_inc_dir -I$nspr_inc_dir"
+        have_nss_includes=yes
+        AC_CHECK_HEADERS(["$nssdir/nss.h" "$nsprdir/nspr.h"], [], have_nss_includes=no)
+        CPPFLAGS="$save_CPPFLAGS"
+        have_nss_libs=no
+        AC_CHECK_LIB($nssdir, NSS_Init, [
+            AC_CHECK_LIB($nsprdir, PR_Init, have_nss_libs=yes)
+        ])
+    fi
+    if test "x${have_nss_includes}${have_nss_libs}" = "xyesyes"
+    then
+        have_nss=yes
+           else
+        if test "x${have_nss_includes}" != "xyes"
+	then
+	    AC_MSG_WARN([NSS Headers not found])
+	fi
+        if test "x${have_nss_libs}" != "xyes"
+	then
+	    AC_MSG_WARN([NSS Libraries not found])
+	fi
+    fi
+fi
+if test $have_nss = yes
+then
+    nss_incflags="-I$nss_inc_dir"
+    nspr_incflags="-I$nspr_inc_dir"
+    pcp_nss_inc_dir=`eval echo $nss_inc_dir`
+    pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
+    lib_for_nss=-l$nssdir
+    lib_for_nspr=-l$nsprdir
+    AC_DEFINE(HAVE_NSS)
+else
+    nss_config_flags="--without-nss"
+fi
+AC_SUBST(nss_config_flags)
+AC_SUBST(nss_incflags)
+AC_SUBST(nspr_incflags)
+AC_SUBST(lib_for_nss)
+AC_SUBST(lib_for_nspr)
+AC_SUBST(pcp_nss_inc_dir)
+AC_SUBST(pcp_nspr_inc_dir)
+
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h
 then

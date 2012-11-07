@@ -255,6 +255,9 @@ extern "C" {
 #undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
 
+/* Do we have NSS/NSPR? */
+#undef HAVE_NSS
+
 /* if termio signals are supported */
 #ifdef HAVE_TERMIOS_H
 #ifdef HAVE_TCGETATTR

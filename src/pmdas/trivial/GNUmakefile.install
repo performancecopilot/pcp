@@ -33,6 +33,7 @@ LDFLAGS         = -L$(PCP_LIB_DIR)
 else
 CFLAGS          = $(TMP)
 endif
+CFLAGS += $(NSS_CFLAGS) $(NSPR_CFLAGS)
 
 IAM	= trivial
 CFILES	= $(IAM).c
