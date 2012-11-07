@@ -635,7 +635,8 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='GIT
+ac_subst_vars='PACKAGE_CONFIGURE
+GIT
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -645,7 +646,6 @@ lib_for_nspr
 lib_for_nss
 nspr_incflags
 nss_incflags
-nss_config_flags
 ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
@@ -1986,14 +1986,14 @@ unset ROOT TOOLROOT
 
 # Check whether --with-64bit was given.
 if test "${with_64bit+set}" = set; then
-  withval=$with_64bit; use_64bit=$withval
+  withval=$with_64bit; use_64bit=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-64bit=$withval"
 fi
 
 
 
 # Check whether --with-threads was given.
 if test "${with_threads+set}" = set; then
-  withval=$with_threads; do_threads=$withval
+  withval=$with_threads; do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"
 else
   do_threads=check
 fi
@@ -3322,7 +3322,7 @@ fi
 # Prevent shared libaries from being built for libpcp and other core libraries
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then
-  enableval=$enable_shared;
+  enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
 fi
 
 
@@ -17743,12 +17743,11 @@ fi
 
 # Check whether --with-nss was given.
 if test "${with_nss+set}" = set; then
-  withval=$with_nss;
+  withval=$with_nss; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --without-nss=$withval"
 fi
 
 
 have_nss=no
-nss_config_flags=
 nss_inc_dir=
 nspr_inc_dir=
 nss_incflags=
@@ -18183,10 +18182,7 @@ then
 #define HAVE_NSS 1
 _ACEOF
 
-else
-    nss_config_flags="--without-nss"
 fi
-
 
 
 
@@ -18743,6 +18739,8 @@ fi
 
   test -n "$GIT" && break
 done
+
+
 
 
 

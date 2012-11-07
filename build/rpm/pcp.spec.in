@@ -226,7 +226,7 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
-%configure --with-rcdir=/etc/rc.d/init.d @nss_config_flags@
+%configure @package_configure@ --with-rcdir=/etc/rc.d/init.d
 touch config.done
 
 %clean
