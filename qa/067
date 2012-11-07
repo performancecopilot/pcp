@@ -165,7 +165,6 @@ echo
 
 cp $config $oconfig
 $sudo mv $tmp $config
-$sudo cp -p $config /tmp/067.config
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
