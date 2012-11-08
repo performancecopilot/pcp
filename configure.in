@@ -1,7 +1,7 @@
 dnl
-dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
+dnl Copyright (c) 2012 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
-dnl Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
+dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
@@ -23,9 +23,8 @@ unset ROOT TOOLROOT
 
 AC_ARG_WITH(
     [64bit],
-    [AS_HELP_STRING(
-	    [--with-64bit],
-	    [turn on 64 bit compilation mode (default is platform dependent)])],
+    [AS_HELP_STRING([--with-64bit],
+		    [turn on 64 bit compilation mode (default is platform dependent)])],
     [use_64bit=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-64bit=$withval"])
 
 AC_ARG_WITH(
@@ -34,6 +33,13 @@ AC_ARG_WITH(
 		    [enable support for multiple threads (default is on)])],
     [do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"],
     [do_threads=check])
+
+AC_ARG_WITH(
+    [secure-sockets],
+    [AC_HELP_STRING([--with-secure-sockets],
+		    [enable support for secure sockets (default is on)])],
+    [do_secure=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-secure-sockets=$withval"],
+    [do_secure=check])
 
 #
 # Note: the following environment variables may be
@@ -1831,70 +1837,63 @@ then
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
-dnl check for NSS/NSPR
-AC_ARG_WITH([nss],
-  AS_HELP_STRING([--without-nss], [Do not use NSS even if present]),
-  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --without-nss=$withval"])
+dnl Check for Network Security Services
+if test "$do_secure" = "check" -o "$do_secure" = "yes"
+then
+    enable_secure=true
 
-have_nss=no
-nss_inc_dir=
-nspr_inc_dir=
-nss_incflags=
-nspr_incflags=
-lib_for_nss=
-lib_for_nspr=
-if test "x$with_nss" != "xno"
-then
-    AC_CHECK_FILE([/usr/include/nss3], nssdir=nss3, [
-        AC_CHECK_FILE([/usr/include/nss], nssdir=nss)
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -I/usr/include/nss -I/usr/include/nss3"
+    CFLAGS="$CFLAGS -I/usr/include/nspr -I/usr/include/nspr4"
+    AC_CHECK_HEADERS([nss/nss.h], [nss_inc_dir=/usr/include/nss], [
+	AC_CHECK_HEADERS([nss3/nss.h], [nss_inc_dir=/usr/include/nss3], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS header)
+	    fi
+	])
     ])
-    AC_CHECK_FILE([/usr/include/nspr4], nsprdir=nspr4, [
-        AC_CHECK_FILE([/usr/include/nspr], nsprdir=nspr)
+    AC_CHECK_HEADERS([nspr/nspr.h], [nspr_inc_dir=/usr/include/nspr], [
+	AC_CHECK_HEADERS([nspr4/nspr.h], [nspr_inc_dir=/usr/include/nspr4], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR header)
+	    fi
+	])
     ])
-    if test "x$nssdir" != "x" -a "x$nsprdir" != "x"
+    AC_SUBST(nspr_inc_dir)
+    AC_SUBST(nss_inc_dir)
+
+    AC_CHECK_LIB(nss, NSS_Init, [lib_for_nss="-lnss"], [
+	AC_CHECK_LIB(nss3, NSS_Init, [lib_for_nss="-lnss3"], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS library)
+	    fi
+	])
+    ])
+    AC_SUBST(lib_for_nss)
+
+    AC_CHECK_LIB(nspr, PR_Init, [lib_for_nspr="-lnspr"], [
+	AC_CHECK_LIB(nspr4, PR_Init, [lib_for_nspr="-lnspr4"], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR library)
+	    fi
+	])
+    ])
+    AC_SUBST(lib_for_nspr)
+
+    if test "$enable_secure" = "true"
     then
-        nss_inc_dir=/usr/include/$nssdir
-	nspr_inc_dir=/usr/include/$nsprdir
-	save_CPPFLAGS="$CPPFLAGS"
-        CPPFLAGS="$incflags -I$nss_inc_dir -I$nspr_inc_dir"
-        have_nss_includes=yes
-        AC_CHECK_HEADERS(["$nssdir/nss.h" "$nsprdir/nspr.h"], [], have_nss_includes=no)
-        CPPFLAGS="$save_CPPFLAGS"
-        have_nss_libs=no
-        AC_CHECK_LIB($nssdir, NSS_Init, [
-            AC_CHECK_LIB($nsprdir, PR_Init, have_nss_libs=yes)
-        ])
+	AC_DEFINE(HAVE_SECURE_SOCKETS)
     fi
-    if test "x${have_nss_includes}${have_nss_libs}" = "xyesyes"
-    then
-        have_nss=yes
-           else
-        if test "x${have_nss_includes}" != "xyes"
-	then
-	    AC_MSG_WARN([NSS Headers not found])
-	fi
-        if test "x${have_nss_libs}" != "xyes"
-	then
-	    AC_MSG_WARN([NSS Libraries not found])
-	fi
-    fi
+    CFLAGS="$saved_CFLAGS"
 fi
-if test $have_nss = yes
-then
-    nss_incflags="-I$nss_inc_dir"
-    nspr_incflags="-I$nspr_inc_dir"
-    pcp_nss_inc_dir=`eval echo $nss_inc_dir`
-    pcp_nspr_inc_dir=`eval echo $nspr_inc_dir`
-    lib_for_nss=-l$nssdir
-    lib_for_nspr=-l$nsprdir
-    AC_DEFINE(HAVE_NSS)
-fi
-AC_SUBST(nss_incflags)
-AC_SUBST(nspr_incflags)
-AC_SUBST(lib_for_nss)
-AC_SUBST(lib_for_nspr)
-AC_SUBST(pcp_nss_inc_dir)
-AC_SUBST(pcp_nspr_inc_dir)
 
 dnl check for array sessions
 if test -f /usr/include/sn/arsess.h

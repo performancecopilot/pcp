@@ -110,24 +110,23 @@ ifeq "$(TARGET_OS)" "freebsd"
 DSOSUFFIX = so
 endif
 
-NSS_CONFIG_FLAGS = @nss_config_flags@
-NSS_CFLAGS = @nss_incflags@
-NSPR_CFLAGS = @nspr_incflags@
-
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
 	-DPCP_VERSION=\"$(PCP_VERSION)\" \
-	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp $(NSS_CFLAGS) $(NSPR_CFLAGS)
+	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
+
+NSSCFLAGS = -I@nss_inc_dir@
+NSPRCFLAGS = -I@nspr_inc_dir@
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
 
-LDLIBS = $(LLDLIBS) $(PLDLIBS) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
+LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
 DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) \
 	$(LIBTARGET) $(STATICLIBTARGET) \

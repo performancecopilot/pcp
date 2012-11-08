@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -226,7 +226,7 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 {
     int			fd;
     int			sts;
-    __pmSockAddrIn	myAddr;
+    struct __pmSockAddrIn *myAddr;
     int			one = 1;
 
     fd = __pmCreateSocket();
@@ -268,14 +268,22 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
 	DontStart();
     }
 
-    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
-    sts = __pmBind(fd, (__pmSockAddr *)&myAddr, sizeof(myAddr));
-    if (sts < 0){
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
-			port, netstrerror());
-	__pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
+    myAddr = __pmAllocSockAddrIn();
+    if (myAddr == NULL) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) addr alloc failed\n",
+		port, ipAddr);
 	DontStart();
     }
+    __pmInitSockAddr(myAddr, ipAddr, htons(port));
+    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrInSize());
+    if (sts < 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
+			port, netstrerror());
+	if (neterror() == EADDRINUSE)
+	    __pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
+	DontStart();
+    }
+    __pmFreeSockAddrIn(myAddr);
 
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {

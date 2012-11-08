@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -188,7 +188,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     myaddr.sin_family = AF_INET;
     memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
     myaddr.sin_port = htons(port);
-    if (__pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
+    if (__pmConnect(fd, (void *)&myaddr, sizeof(myaddr)) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
 	exit(1);
     }
@@ -281,30 +281,33 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    __pmSockAddrIn myaddr;
-    __pmHostEnt servinfo;
-    char       *servbuf;
+    struct __pmSockAddrIn *myaddr = NULL;
+    struct __pmHostEnt *servinfo = NULL;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
-	return;
-    servbuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(file->me.sock.host, &servinfo, servbuf) == NULL) {
-	__pmFreeHostEntBuffer(servbuf);
-	return;
-    }
-    if ((fd = __pmCreateSocket()) < 0) {
-	__pmFreeHostEntBuffer(servbuf);
-	return;
-    }
-    __pmInitSockAddr(&myaddr, 0, htons(files->me.sock.port));
-    __pmSetSockAddr(&myaddr, &servinfo);
-    __pmFreeHostEntBuffer(servbuf);
-    if (__pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr)) < 0) {
+	goto done;
+    if ((myaddr = __pmAllocSockAddrIn()) == NULL)
+	goto done;
+    if ((servinfo = __pmAllocHostEnt()) == NULL)
+	goto done;
+    if (__pmGetHostByName(file->me.sock.host, servinfo) == NULL)
+	goto done;
+    if ((fd = __pmCreateSocket()) < 0)
+	goto done;
+    __pmInitSockAddr(myaddr, 0, htons(files->me.sock.port));
+    __pmSetSockAddr(myaddr, servinfo);
+    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrInSize()) < 0) {
 	__pmCloseSocket(fd);
-	return;
+	goto done;
     }
     files->fd = fd;
+
+done:
+    if (myaddr)
+	__pmFreeSockAddrIn(myaddr);
+    if (servinfo)
+	__pmFreeHostEnt(servinfo);
 }
 
 static void

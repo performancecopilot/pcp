@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,9 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- *
- * None of these routines are thread-safe ... they are intended for use
- * only from single-threaded applications.
  */
 
 #include <limits.h>
@@ -85,24 +82,29 @@ static char		myhostname[MAXHOSTNAMELEN+1];
 static int
 getmyhostid(void)
 {
-    __pmHostEnt	he;
-    char *hebuf;
+    struct __pmHostEnt	*host;
 
-    (void)gethostname(myhostname, MAXHOSTNAMELEN);
-    myhostname[MAXHOSTNAMELEN-1] = '\0';
-
-    PM_LOCK(__pmLock_libpcp);
-    hebuf = __pmAllocHostEntBuffer();
-    if (__pmGetHostByName(myhostname, &he, hebuf) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
-		     myhostname, hoststrerror());
-	__pmFreeHostEntBuffer(hebuf);
-	PM_UNLOCK(__pmLock_libpcp);
+    if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
+	__pmNotifyErr(LOG_ERR, "gethostname failure\n");
 	return -1;
     }
-    myhostid = __pmHostEntGetIPAddr(&he, 0);
-    __pmFreeHostEntBuffer(hebuf);
+    myhostname[MAXHOSTNAMELEN-1] = '\0';
+    if ((host = __pmAllocHostEnt()) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmAllocHostEnt failure\n");
+	return -1;
+    }
+
+    PM_LOCK(__pmLock_libpcp);
+    if (__pmGetHostByName(myhostname, host) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
+		     myhostname, hoststrerror());
+	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeHostEnt(host);
+	return -1;
+    }
+    myhostid = __pmHostEntGetIPAddr(host, 0);
     PM_UNLOCK(__pmLock_libpcp);
+    __pmFreeHostEnt(host);
     gotmyhostid = 1;
     return 0;
 }
@@ -228,8 +230,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     size_t		need;
     int			i, n, sts;
     unsigned int	ip, mask;
-    __pmHostEnt		he;
-    char *		hebuf;
+    struct __pmHostEnt	*host;
     int			level = 0;	/* Wildcarding level */
     __pmIPAddr		hostid, hostmask;
     const char		*p;
@@ -311,19 +312,23 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	}
 	else
 	    realname = name;
+
+	if ((host = __pmAllocHostEnt()) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmAllocHostEnt failure\n");
+	    return -ENOMEM;
+	}
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	hebuf = __pmAllocHostEntBuffer();
-	if (__pmGetHostByName(realname, &he, hebuf) == NULL) {
+	if (__pmGetHostByName(realname, host) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
 			 realname, hoststrerror());
-	    __pmFreeHostEntBuffer(hebuf);
 	    PM_UNLOCK(__pmLock_libpcp);
+	    __pmFreeHostEnt(host);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	hostid = __pmHostEntGetIPAddr(&he, 0);
-	__pmFreeHostEntBuffer(hebuf);
+	hostid = __pmHostEntGetIPAddr(host, 0);
 	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeHostEnt(host);
 	__pmSetIPAddr(&hostmask, 0xffffffff);
 	level = 0;
     }

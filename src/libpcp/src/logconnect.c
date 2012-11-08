@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -74,9 +74,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    __pmSockAddrIn	myAddr;
-    __pmHostEnt		servinfo;
-    char       *servbuf;
+    struct __pmSockAddrIn *myAddr;
+    struct __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
@@ -133,33 +132,45 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    servbuf = __pmAllocHostEntBuffer();
+    if ((servInfo = __pmAllocHostEnt()) == NULL) {
+	return -ENOMEM;
+    }
+    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
+	__pmFreeHostEnt(servInfo);
+	return -ENOMEM;
+    }
+
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmGetHostByName(hostname, &servinfo, servbuf) == NULL) {
+    if (__pmGetHostByName(hostname, servInfo) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEntBuffer(servbuf);
+	__pmFreeSockAddrIn(myAddr);
+	__pmFreeHostEnt(servInfo);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEntBuffer(servbuf);
+	__pmFreeSockAddrIn(myAddr);
+	__pmFreeHostEnt(servInfo);
 	return fd;
     }
 
-    __pmInitSockAddr(&myAddr, 0, htons(*port));
-    __pmSetSockAddr(&myAddr, &servinfo);
+    __pmInitSockAddr(myAddr, 0, htons(*port));
+    __pmSetSockAddr(myAddr, servInfo);
     PM_UNLOCK(__pmLock_libpcp);
-    __pmFreeHostEntBuffer(servbuf);
 
-    sts = __pmConnect(fd, (__pmSockAddr *)&myAddr, sizeof(myAddr));
+    sts = __pmConnect(fd, myAddr, __pmSockAddrInSize());
+
+    __pmFreeSockAddrIn(myAddr);
+    __pmFreeHostEnt(servInfo);
+
     if (sts < 0) {
 	sts = -neterror();
 	__pmCloseSocket(fd);
