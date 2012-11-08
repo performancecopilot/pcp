@@ -45,11 +45,11 @@ configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-r
 for opt in $*
 do
     case "$opt" in
-    -clean)
+    -clean|--clean)
 	clean=true
 	shift
 	;;
-    -verbose)
+    -verbose|--verbose)
 	verbose=true
 	shift
 	;;
