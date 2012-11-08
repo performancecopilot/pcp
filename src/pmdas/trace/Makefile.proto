@@ -36,7 +36,7 @@ java:		$(JDEMO)
 
 pmtrace:	pmtrace.c
 	rm -f $@
-	$(CC) $(CFLAGS) $(NSS_CFLAGS) $(NSPR_CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
+	$(CC) $(CFLAGS) -o $@ pmtrace.c -lpcp -lpcp_trace 
 
 app1:	app1.c
 	rm -f $@

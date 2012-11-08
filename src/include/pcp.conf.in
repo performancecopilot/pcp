@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # This file defines the directories and paths used by PCP
 # and is installed as the file /etc/pcp.conf for use at run-time.
 #
@@ -148,14 +144,6 @@ PCP_DOC_DIR=@pcp_doc_dir@
 # Standard path: /usr/share/pcp/demos
 # Subdirectories: assorted
 PCP_DEMOS_DIR=@pcp_demos_dir@
-
-# directory for NSS headers
-# Standard path: /usr/include/nss3
-PCP_NSS_INC_DIR=@pcp_nss_inc_dir@
-
-# directory for NSPR headers
-# Standard path: /usr/include/nspr4
-PCP_NSPR_INC_DIR=@pcp_nspr_inc_dir@
 
 # awk
 PCP_AWK_PROG="@awk@"

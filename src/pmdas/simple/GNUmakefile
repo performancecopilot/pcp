@@ -1,6 +1,6 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2012 Red Hat.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= simple.c
 CMDTARGET = pmdasimple$(EXECSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
-LCFLAGS = -I. $(NSS_CFLAGS) $(NSPR_CFLAGS)
+LCFLAGS = -I.
 DFILES	= README help
 LSRCFILES = Install Remove pmns root $(DFILES) pmdasimple.pl \
 	simple.conf GNUmakefile.install
