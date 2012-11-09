@@ -5,7 +5,7 @@
 Summary: System-level performance monitoring and performance management
 Name: %{?scl_prefix}pcp
 Version: 3.6.9
-%define buildversion 2
+%define buildversion 1
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
@@ -21,8 +21,7 @@ BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
  
-Requires: bash gawk sed grep fileutils findutils initscripts perl
-Requires: python python-ctypes
+Requires: bash gawk sed grep fileutils findutils initscripts perl python
 Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
 Requires: %{?scl_prefix}python-pcp = %{version}-%{release}
 Requires: %{?scl_prefix}perl-PCP-PMDA = %{version}-%{release}
@@ -372,6 +371,7 @@ exit 0
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
+%{_libdir}/lib*.so*
 
 %files libs-devel
 %defattr(-,root,root)
@@ -417,15 +417,11 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
-* Tue Oct 23 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-2
-- Add Requires on python-ctypes for older pythons (BZ 867855)
-- Remove unused and python-version-dependent import (BZ 867914)
-- Fix test 062 handling of 64bit big endian machines (BZ 868316)
-
-* Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
+* Mon Oct 15 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
 - Rebase for next DTS beta release (BZ 857773)
 - Remove unused pmcollectl arguments (BZ 863210)
+- Add back *.so* to -libs %files
 
 * Fri Sep 14 2012 Nathan Scott <nathans@redhat.com> - 3.6.8-1
 - Update to latest PCP sources.

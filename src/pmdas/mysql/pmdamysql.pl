@@ -1,4 +1,6 @@
 #
+# Copyright (c) 2012 Chandana De Silva.
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -10,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 use strict;
@@ -32,8 +30,8 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
     eval `cat $file` unless ! -f $file;
 }
 
-use vars qw( $pmda %status %variables @processes );
-use vars qw( $dbh $sth_variables $sth_status $sth_processes );
+use vars qw( $pmda %status %variables @processes %slave_status );
+use vars qw( $dbh $sth_variables $sth_status $sth_processes $sth_slave_status );
 my $process_indom = 0;
 my @process_instances;
 
@@ -48,6 +46,7 @@ sub mysql_connection_setup
 	    $sth_variables = $dbh->prepare('show variables');
 	    $sth_status = $dbh->prepare('show status');
 	    $sth_processes = $dbh->prepare('show processlist');
+	    $sth_slave_status = $dbh->prepare('show slave status');
 	}
     }
 }
@@ -101,6 +100,20 @@ sub mysql_process_refresh
     $pmda->replace_indom($process_indom, \@process_instances);
 }
 
+sub mysql_slave_status_refresh
+{
+    # $pmda->log("mysql_slave_status_refresh\n");
+
+    %slave_status = ();	# clear any previous contents
+    if (defined($dbh)) {
+	$sth_slave_status->execute();
+	my $result = $sth_slave_status->fetchrow_hashref();
+	while ( my ($key, $value) = each(%$result) ) {
+	    $slave_status{lc $key} = $value;
+	}
+    }
+}
+
 sub mysql_refresh
 {
     my ($cluster) = @_;
@@ -109,6 +122,7 @@ sub mysql_refresh
     if ($cluster == 0)		{ mysql_status_refresh; }
     elsif ($cluster == 1)	{ mysql_variables_refresh; }
     elsif ($cluster == 2)	{ mysql_process_refresh; }
+    elsif ($cluster == 3)	{ mysql_slave_status_refresh; }
 }
 
 sub mysql_fetch_callback
@@ -142,6 +156,12 @@ sub mysql_fetch_callback
     elsif ($cluster == 1) {
 	$mysql_name =~ s/^mysql\.variables\.//;
 	$value = $variables{$mysql_name};
+	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
+	return ($value, 1);
+    }
+    elsif ($cluster == 3) {
+	$mysql_name =~ s/^mysql\.slave_status\.//;
+	$value = $slave_status{$mysql_name};
 	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
 	return ($value, 1);
     }
@@ -904,10 +924,10 @@ $pmda->add_metric(pmda_pmid(0,250), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_running', '', '');
 $pmda->add_metric(pmda_pmid(0,251), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.uptime', '', '');
 $pmda->add_metric(pmda_pmid(0,252), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.uptime_since_flush_status', '', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
@@ -971,7 +991,7 @@ $pmda->add_metric(pmda_pmid(1,18), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.concurrent_insert', '', '');
 $pmda->add_metric(pmda_pmid(1,19), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.connect_timeout', '', '');
 $pmda->add_metric(pmda_pmid(1,20), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -992,7 +1012,7 @@ $pmda->add_metric(pmda_pmid(1,25), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.delayed_insert_limit', '', '');
 $pmda->add_metric(pmda_pmid(1,26), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.delayed_insert_timeout', '', '');
 $pmda->add_metric(pmda_pmid(1,27), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -1013,7 +1033,7 @@ $pmda->add_metric(pmda_pmid(1,32), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.flush', '', '');
 $pmda->add_metric(pmda_pmid(1,33), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.flush_time', '', '');
 $pmda->add_metric(pmda_pmid(1,34), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -1274,7 +1294,7 @@ $pmda->add_metric(pmda_pmid(1,117), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.log_warnings', '', '');
 $pmda->add_metric(pmda_pmid(1,118), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.long_query_time', '', '');
 $pmda->add_metric(pmda_pmid(1,119), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -1604,7 +1624,7 @@ $pmda->add_metric(pmda_pmid(1,225), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.variables.version_compile_os', '', '');
 $pmda->add_metric(pmda_pmid(1,226), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.variables.wait_timeout', '', '');
 
 $pmda->add_metric(pmda_pmid(2,0), PM_TYPE_U32, $process_indom,
@@ -1623,7 +1643,7 @@ $pmda->add_metric(pmda_pmid(2,4), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.processlist.command', '', '');
 $pmda->add_metric(pmda_pmid(2,5), PM_TYPE_U32, $process_indom,
-		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_TIME_SEC,0,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.processlist.time', '', '');
 $pmda->add_metric(pmda_pmid(2,6), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -1632,6 +1652,103 @@ $pmda->add_metric(pmda_pmid(2,7), PM_TYPE_STRING, $process_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.processlist.info', '', '');
 
+$pmda->add_metric(pmda_pmid(3,0), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.slave_io_state', '', '');
+$pmda->add_metric(pmda_pmid(3,1), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.slave_io_running', '', '');
+$pmda->add_metric(pmda_pmid(3,2), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.slave_sql_running', '', '');
+$pmda->add_metric(pmda_pmid(3,3), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'mysql.slave_status.seconds_behind_master', '', '');
+$pmda->add_metric(pmda_pmid(3,4), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_log_file', '', '');
+$pmda->add_metric(pmda_pmid(3,5), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE), 
+		  'mysql.slave_status.read_master_log_pos', '', '');
+$pmda->add_metric(pmda_pmid(3,6), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.relay_master_log_file', '', '');
+$pmda->add_metric(pmda_pmid(3,7), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mysql.slave_status.exec_master_log_pos', '', '');
+$pmda->add_metric(pmda_pmid(3,8),  PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.relay_log_file', '', '');
+$pmda->add_metric(pmda_pmid(3,9), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mysql.slave_status.relay_log_pos', '', '');
+$pmda->add_metric(pmda_pmid(3,10), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.until_log_file', '', '');
+$pmda->add_metric(pmda_pmid(3,11), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mysql.slave_status.until_log_pos', '', ''); 
+$pmda->add_metric(pmda_pmid(3,12), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_cipher', '', '');
+$pmda->add_metric(pmda_pmid(3,13), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_ca_file', '', '');
+$pmda->add_metric(pmda_pmid(3,14), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'mysql.slave_status.skip_counter', '', '');
+$pmda->add_metric(pmda_pmid(3,15), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'mysql.slave_status.relay_log_space', '', '');
+$pmda->add_metric(pmda_pmid(3,16), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.until_condition', '', '');
+$pmda->add_metric(pmda_pmid(3,17), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'mysql.slave_status.connect_retry', '', '');
+$pmda->add_metric(pmda_pmid(3,18), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_host', '', '');
+$pmda->add_metric(pmda_pmid(3,19), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.last_errno', '', '');
+$pmda->add_metric(pmda_pmid(3,20), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_cert', '', '');
+$pmda->add_metric(pmda_pmid(3,21), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_do_db', '', '');
+$pmda->add_metric(pmda_pmid(3,22), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_ignore_db', '', '');
+$pmda->add_metric(pmda_pmid(3,23), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_user', '', '');
+$pmda->add_metric(pmda_pmid(3,24), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_do_table', '', '');
+$pmda->add_metric(pmda_pmid(3,25), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_wild_do_table', '', '');
+$pmda->add_metric(pmda_pmid(3,26), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_wild_ignore_table', '', '');
+$pmda->add_metric(pmda_pmid(3,27), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.replicate_ignore_table', '', '');
+$pmda->add_metric(pmda_pmid(3,28), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_allowed', '', '');
+$pmda->add_metric(pmda_pmid(3,29), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_ca_path', '', '');
+$pmda->add_metric(pmda_pmid(3,30), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_port', '', '');
+$pmda->add_metric(pmda_pmid(3,31), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_key', '', '');
+		  
 $pmda->add_indom($process_indom, \@process_instances,
 		 'Instance domain exporting each MySQL process', '');
 
