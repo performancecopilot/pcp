@@ -11,9 +11,9 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
 
-[ -d "$PCP_PMDAS_DIR/logger" ] || _notrun "No pmdalogger installed"
-_notrun "Test $seq needs to be updated"
+[ $PCP_VER -ge 3610 ] || _notrun "Installed pmdalogger is too old"
 
 _cleanup()
 {
@@ -37,6 +37,15 @@ _filter()
 	-e "s,$tmp,TMPFILE,g" \
 	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_filter_dir()
+{
+    # size is filesystem and blocksize dependent
+    _filter | sed '/^logger\.perfile\.dir\.size$/ {
+N
+s:[0-9][0-9]*:SIZE:
+}'
 }
 
 iam=logger
@@ -124,7 +133,7 @@ pminfo -f logger.perfile.empty | _filter
 echo
 echo "=== 6. directory ==="
 echo -n "Check a directory"
-pminfo -f logger.perfile.dir | _filter
+pminfo -f logger.perfile.dir | _filter_dir
 
 echo
 echo "=== 7. command pipe ==="

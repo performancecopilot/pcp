@@ -24,18 +24,16 @@ pipe	n	TMPFILE.pipe|
 --------------- end PCP_VAR_DIR/config/logger/logger.conf ---------------
 
 Use this configuration file? [y] Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check logger metrics have appeared ... 7 warnings, 39 metrics and 32 values
+Check logger metrics have appeared ... 46 metrics and 39 values
 
 === 1. simple working case ===
 Checking initial data:
+logger.perfile.reg.queuemem
+    value 0
+
 logger.perfile.reg.records
 No value(s) available!
 
@@ -54,8 +52,11 @@ logger.perfile.reg.bytes
 logger.perfile.reg.count
     value 0
 Checking appended data:
+logger.perfile.reg.queuemem
+    value 0
+
 logger.perfile.reg.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.reg.numclients
     value 1
@@ -64,16 +65,19 @@ logger.perfile.reg.path
     value "TMPFILE.reg"
 
 logger.perfile.reg.size
-    value 112
-
-logger.perfile.reg.bytes
     value 56
 
+logger.perfile.reg.bytes
+    value 0
+
 logger.perfile.reg.count
-    value 1
+    value 0
 
 === 2. named pipe (fifo) ===
 Check initial pipe
+logger.perfile.fifo.queuemem
+    value 0
+
 logger.perfile.fifo.records
 No value(s) available!
 
@@ -92,8 +96,11 @@ logger.perfile.fifo.bytes
 logger.perfile.fifo.count
     value 0
 Checking new pipe data
+logger.perfile.fifo.queuemem
+    value 0
+
 logger.perfile.fifo.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.fifo.numclients
     value 1
@@ -105,13 +112,16 @@ logger.perfile.fifo.size
     value 0
 
 logger.perfile.fifo.bytes
-    value 56
+    value 0
 
 logger.perfile.fifo.count
-    value 1
+    value 0
 Unlink the fifo
+logger.perfile.fifo.queuemem
+    value 0
+
 logger.perfile.fifo.records
-Error: Try again. Information not currently available
+No value(s) available!
 
 logger.perfile.fifo.numclients
     value 1
@@ -123,33 +133,18 @@ logger.perfile.fifo.size
     value 0
 
 logger.perfile.fifo.bytes
-    value 56
+    value 0
 
 logger.perfile.fifo.count
-    value 1
+    value 0
 
 === 3. log file rotation ===
 Checking removed file
-logger.perfile.reg.records
-Error: Try again. Information not currently available
-
-logger.perfile.reg.numclients
-    value 1
-
-logger.perfile.reg.path
-    value "TMPFILE.reg"
-
-logger.perfile.reg.size
+logger.perfile.reg.queuemem
     value 0
 
-logger.perfile.reg.bytes
-    value 56
-
-logger.perfile.reg.count
-    value 1
-Checking new log file
 logger.perfile.reg.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.reg.numclients
     value 1
@@ -161,15 +156,39 @@ logger.perfile.reg.size
     value 56
 
 logger.perfile.reg.bytes
-    value 112
+    value 0
 
 logger.perfile.reg.count
-    value 2
+    value 0
+Checking new log file
+logger.perfile.reg.queuemem
+    value 0
+
+logger.perfile.reg.records
+No value(s) available!
+
+logger.perfile.reg.numclients
+    value 1
+
+logger.perfile.reg.path
+    value "TMPFILE.reg"
+
+logger.perfile.reg.size
+    value 56
+
+logger.perfile.reg.bytes
+    value 0
+
+logger.perfile.reg.count
+    value 0
 
 === 4. non-existant file ===
 Check a missing file
+logger.perfile.none.queuemem
+    value 0
+
 logger.perfile.none.records
-Error: Try again. Information not currently available
+No value(s) available!
 
 logger.perfile.none.numclients
     value 1
@@ -186,8 +205,11 @@ logger.perfile.none.bytes
 logger.perfile.none.count
     value 0
 Checking new log file
+logger.perfile.none.queuemem
+    value 0
+
 logger.perfile.none.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.none.numclients
     value 1
@@ -196,16 +218,19 @@ logger.perfile.none.path
     value "TMPFILE.none"
 
 logger.perfile.none.size
-    value 56
+    value 0
 
 logger.perfile.none.bytes
-    value 56
+    value 0
 
 logger.perfile.none.count
-    value 1
+    value 0
 
 === 5. empty file ===
 Check an empty file
+logger.perfile.empty.queuemem
+    value 0
+
 logger.perfile.empty.records
 No value(s) available!
 
@@ -224,8 +249,11 @@ logger.perfile.empty.bytes
 logger.perfile.empty.count
     value 0
 Checking new log file
+logger.perfile.empty.queuemem
+    value 0
+
 logger.perfile.empty.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.empty.numclients
     value 1
@@ -234,16 +262,19 @@ logger.perfile.empty.path
     value "TMPFILE.empty"
 
 logger.perfile.empty.size
-    value 56
+    value 0
 
 logger.perfile.empty.bytes
-    value 56
+    value 0
 
 logger.perfile.empty.count
-    value 1
+    value 0
 
 === 6. directory ===
 Check a directory
+logger.perfile.dir.queuemem
+    value 0
+
 logger.perfile.dir.records
 No value(s) available!
 
@@ -254,7 +285,7 @@ logger.perfile.dir.path
     value "TMPFILE.dir"
 
 logger.perfile.dir.size
-    value 6
+    value SIZE
 
 logger.perfile.dir.bytes
     value 0
@@ -264,6 +295,9 @@ logger.perfile.dir.count
 
 === 7. command pipe ===
 Check a piped command
+logger.perfile.pipe.queuemem
+    value 0
+
 logger.perfile.pipe.records
 No value(s) available!
 
@@ -282,8 +316,11 @@ logger.perfile.pipe.bytes
 logger.perfile.pipe.count
     value 0
 Signal the command
+logger.perfile.pipe.queuemem
+    value 0
+
 logger.perfile.pipe.records
-    value [1 event record timestamp TIMESTAMP]
+No value(s) available!
 
 logger.perfile.pipe.numclients
     value 1
@@ -295,7 +332,7 @@ logger.perfile.pipe.size
     value 0
 
 logger.perfile.pipe.bytes
-    value 6
+    value 0
 
 logger.perfile.pipe.count
-    value 1
+    value 0
