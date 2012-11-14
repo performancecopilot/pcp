@@ -33,6 +33,7 @@ _cleanup()
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+username=`id -u -n`
 host=`pmhostname`
 
 _filter()
@@ -63,9 +64,11 @@ sample.long.ten < 10 -> print "rule3: (BAD)" " %v < 10";
 sample.long.ten >= 10 -> print "rule4: (OK)" " %v >= 10";
 End-of-File
 
-pmie -v -t 1sec -T 4sec -b -l $tmp.out1 $tmp.conf &
+pmieopts="-v -b"
+id pcp >/dev/null 2>&1 && pmieopts="$pmieopts -U $username"
+pmie -t 1sec -T 4sec $pmieopts -l $tmp.out1 $tmp.conf &
 pid1=$!
-cat $tmp.conf | pmie -v -t 1sec -T 4sec -b -l $tmp.out2 &
+cat $tmp.conf | pmie -t 1sec -T 4sec $pmieopts -l $tmp.out2 &
 pid2=$!
 
 sleep 2

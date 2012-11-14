@@ -42,6 +42,9 @@ _filter()
 }
 
 # real QA test starts here
+username=`id -u -n`
+pipeargs="-d 29 -D appl1"
+id pcp >/dev/null 2>&1 && pipeargs="$pipeargs -U $username"
 for cmds in \
     close \
     'fetch sample.percontext.pdu;close' \
@@ -51,7 +54,7 @@ for cmds in \
     'fetch sample.percontext.pdu;fetch sample.percontext.pdu;fetch sample.percontext.pdu' \
 
 do
-    echo "open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log" >$tmp.cmd
+    echo "open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample $pipeargs -l $tmp.log" >$tmp.cmd
     echo "$cmds" | tr ';' '\012' >>$tmp.cmd
     rm -f $tmp.log
     dbpmda -ei <$tmp.cmd 2>&1 | _filter
