@@ -1,7 +1,7 @@
 /*
  * Event support for the Logger PMDA
  *
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011-2012 Red Hat.
  * Copyright (c) 2011 Nathan Scott.  All rights reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -300,11 +300,11 @@ multiread:
      * - we've got EOF (0 bytes read)
      * - EBADF (fd isn't valid - most likely a closed pipe)
      * - EAGAIN/EWOULDBLOCK (fd is marked nonblocking and read would block)
-     * - EISDIR (fd is a directory - (possibly temporary) config file botch)
+     * - EINVAL/EISDIR (fd is a directory - config file botch)
      */
     if (bytes == 0)
 	return 0;
-    if (bytes < 0 && (errno == EBADF || errno == EISDIR))
+    if (bytes < 0 && (errno == EBADF || errno == EISDIR || errno == EINVAL))
 	return 0;
     if (bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 	return 0;
