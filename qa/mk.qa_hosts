@@ -23,10 +23,13 @@ fi
 
 my_host=`hostname | sed -e 's/\..*//'`
 my_fqdn=`pmhostname`
-
-# default to Melbourne if no DNS
-#
-[ -z "$my_fqdn" ] && my_fqdn=$my_host".melbourne.sgi.com"
+if [ -z "$my_fqdn" -o "$my_host" = "$my_fqdn" ]; then
+    if [ -x /bin/domainname ]; then
+        my_domain=`domainname`
+        [ -z "$my_domain" ] || my_fqdn=${my_host}.${my_domain}
+    fi
+fi
+[ -z "$my_fqdn" -o "$my_host" = "$my_fqdn" ] && my_fqdn=$my_host".localdomain"
 
 rm -f qa_hosts
 grep "^#order" qa_hosts.master \
