@@ -47,8 +47,7 @@ deb32.bork.org
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
 #order	.sgi.com		.sgi.com
 # Nathans Section
-#order	.scott.net.au		.localdomain
-#order	.localdomain		.localdomain
+#order	.scott.net.au		.scott.net.au
 # Kenj Section
 #order	bozo			.localdomain
 #order	bozo-laptop		.localdomain
