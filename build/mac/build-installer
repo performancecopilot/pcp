@@ -33,16 +33,16 @@ HERE=`pwd`
 IDB=$HERE/$5
 
 prog=`basename $0`
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=1
-trap "rm -f $tmp.*; exit \$status" 0 1 2 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 15
 
 _do()
 {
-    if ! $* > $tmp.out 2>&1
+    if ! $* > $tmp/out 2>&1
     then
 	echo "$prog: Error: $*"
-	cat $tmp.out
+	cat $tmp/out
 	exit 1
     fi
 }

@@ -24,10 +24,10 @@ unset PCP_STDERR
 
 # constant setup
 #
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
-echo >$tmp.lock
-trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
+echo >$tmp/lock
+trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 if is_chkconfig_on pmlogger
@@ -227,13 +227,13 @@ _report()
 {
     echo "$prog: $1: $2"
     echo "[$CONTROL:$line] ... logging for host \"$host\" unchanged"
-    touch $tmp.err
+    touch $tmp/err
 }
 
 _unlock()
 {
     rm -f lock
-    echo >$tmp.lock
+    echo >$tmp/lock
 }
 
 # filter file names to leave those that look like PCP archives
@@ -277,7 +277,7 @@ then
     # preprocess to provide a common date separator - if new date stamps are
     # ever introduced into the NOTICES file, massage them first...
     # 
-    rm -f $tmp.pcp
+    rm -f $tmp/pcp
     $PCP_AWK_PROG '
 /^Started/	{ print "DATE:",$4,$5,$6,$7,$9; next }
 		{ print }
@@ -287,19 +287,19 @@ $1 == "DATE" && $3 == mt && $4 == dt && $8 == yt { tday = 1; print; next }
 $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	{ if ( tday || (yday && $1 > Hy) || (yday && $1 == Hy && $2 >= My) )
 	    print
-	}' >$tmp.pcp
+	}' >$tmp/pcp
 
-    if [ -s $tmp.pcp ]
+    if [ -s $tmp/pcp ]
     then
 	if [ ! -z "$MAIL" ]
 	then
-	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp.pcp
+	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp/pcp
 	else
 	    echo "$prog: Warning: cannot find a mail agent to send mail ..."
 	    echo "PCP NOTICES summary for $LOCALHOST"
-	    cat $tmp.pcp
+	    cat $tmp/pcp
 	fi
-        [ -w `dirname $NOTICES` ] && mv $tmp.pcp $MAILFILE
+        [ -w `dirname $NOTICES` ] && mv $tmp/pcp $MAILFILE
     fi
 fi
 
@@ -336,7 +336,7 @@ fi
 #	the control file with a $version=1.1 line (see below)
 #
 
-rm -f $tmp.err
+rm -f $tmp/err
 line=0
 version=''
 cat $CONTROL \
@@ -435,20 +435,20 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# demand mutual exclusion
 	#
 	fail=true
-	rm -f $tmp.stamp
+	rm -f $tmp/stamp
 	for try in 1 2 3 4
 	do
-	    if pmlock -v lock >$tmp.out
+	    if pmlock -v lock >$tmp/out
 	    then
-		echo $dir/lock >$tmp.lock
+		echo $dir/lock >$tmp/lock
 		fail=false
 		break
 	    else
-		if [ ! -f $tmp.stamp ]
+		if [ ! -f $tmp/stamp ]
 		then
-		    touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
+		    touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
 		fi
-		if [ ! -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
+		if [ ! -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
 		then
 		    :
 		else
@@ -469,7 +469,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		echo "$prog: Warning: is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l $dir/lock
 	    else
-		echo "$prog: `cat $tmp.out`"
+		echo "$prog: `cat $tmp/out`"
 	    fi
 	    _warning "failed to acquire exclusive lock ($dir/lock) ..."
 	    continue
@@ -568,7 +568,7 @@ END							{ print m }'`
 	    :
 	else
 	    _error "problems executing pmnewlog for host \"$host\""
-	    touch $tmp.err
+	    touch $tmp/err
 	fi
     fi
     $VERBOSE && echo
@@ -614,7 +614,7 @@ END							{ print m }'`
 	    sub(/\..*/, "", lastdate)
 	  }
 	}
-END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
+END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 
     if $OFLAG
     then
@@ -624,8 +624,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	#
 	now_hr=`pmdate %H`
 	hr=`expr 12 + $now_hr`
-	grep "^[0-9]*`pmdate -${hr}H %y%m%d` " $tmp.list >$tmp.tmp
-	mv $tmp.tmp $tmp.list
+	grep "^[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
+	mv $tmp/tmp $tmp/list
     fi
 
     # pmlogrewrite if no -r on command line and
@@ -659,8 +659,8 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    done
 	fi
     fi
-    rm -f $tmp.skip
-    if [ ! -s $tmp.list ]
+    rm -f $tmp/skip
+    if [ ! -s $tmp/list ]
     then
 	if $VERBOSE
 	then
@@ -668,14 +668,14 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	    $VERY_VERBOSE && ls -l
 	fi
     else
-	cat $tmp.list \
+	cat $tmp/list \
 	| while read outfile inlist
 	do
 	    if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
 	    then
 		echo "$prog: Warning: output archive ($outfile) already exists"
 		echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
-		touch $tmp.skip
+		touch $tmp/skip
 		break
 	    else
 		if [ -n "$rewrite" ]
@@ -689,7 +689,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 			else
 			    echo "$prog: Warning: rewrite for $arch using -c $rewrite failed"
 			    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
-			    touch $tmp.skip
+			    touch $tmp/skip
 			    break
 			fi
 		    done
@@ -722,7 +722,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	done
     fi
 
-    if [ -f $tmp.skip ]
+    if [ -f $tmp/skip ]
     then
 	# this is sufficiently serious that we don't want to remove
 	# the lock file, so problems are not compounded the next time
@@ -737,19 +737,19 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
     then
 	find . -type f -mtime +$CULLAFTER \
 	| _filter_filename \
-	| sort >$tmp.list
-	if [ -s $tmp.list ]
+	| sort >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
 		echo "Archive files older than $CULLAFTER days being removed ..."
-		fmt <$tmp.list | sed -e 's/^/    /'
+		fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
 	    if $SHOWME
 	    then
-		cat $tmp.list | xargs echo + rm -f 
+		cat $tmp/list | xargs echo + rm -f 
 	    else
-		cat $tmp.list | xargs rm -f
+		cat $tmp/list | xargs rm -f
 	    fi
 	else
 	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to cull"
@@ -764,19 +764,19 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 	find . -type f -mtime +$COMPRESSAFTER \
 	| _filter_filename \
 	| egrep -v "$COMPRESSREGEX" \
-	| sort >$tmp.list
-	if [ -s $tmp.list ]
+	| sort >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
 		echo "Archive files older than $COMPRESSAFTER days being compressed ..."
-		fmt <$tmp.list | sed -e 's/^/    /'
+		fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
 	    if $SHOWME
 	    then
-		cat $tmp.list | xargs echo + $COMPRESS
+		cat $tmp/list | xargs echo + $COMPRESS
 	    else
-		cat $tmp.list | xargs $COMPRESS
+		cat $tmp/list | xargs $COMPRESS
 	    fi
 	else
 	    $VERY_VERBOSE && echo "$prog: Warning: no archive files found to compress"
@@ -789,19 +789,19 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
     then
 	find $PCP_LOG_DIR/pmlogger -type f -mtime +$TRACE \
 	| sed -n -e '/pmlogger\/daily\..*\.trace/p' \
-	| sort >$tmp.list
-	if [ -s $tmp.list ]
+	| sort >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
 		echo "Trace files older than $TRACE days being removed ..."
-		fmt <$tmp.list | sed -e 's/^/    /'
+		fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
 	    if $SHOWME
 	    then
-		cat $tmp.list | xargs echo + rm -f
+		cat $tmp/list | xargs echo + rm -f
 	    else
-		cat $tmp.list | xargs rm -f
+		cat $tmp/list | xargs rm -f
 	    fi
 	else
 	    $VERY_VERBOSE && echo "$prog: Warning: no trace files found to cull"
@@ -812,5 +812,5 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp.list
 
 done
 
-[ -f $tmp.err ] && status=1
+[ -f $tmp/err ] && status=1
 exit

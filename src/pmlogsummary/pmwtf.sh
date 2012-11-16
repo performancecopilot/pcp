@@ -14,10 +14,9 @@
 # 
 # Compare two PCP archives and report significant differences
 #
-tmp=/var/tmp/$$
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
-rm -f $tmp.*
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 _usage()
 {
@@ -43,11 +42,11 @@ _usage()
 _fix()
 {
     sed -e 's/  *\([0-9][0-9.]*\)\([^"]*\)$/|\1/' \
-    | egrep -v -f $tmp.exclude \
+    | egrep -v -f $tmp/exclude \
     | sort -t\| -k1,1
 }
 
-cat <<'End-of-File' >$tmp.exclude
+cat <<'End-of-File' >$tmp/exclude
 ^pmcd.pmlogger.port 
 End-of-File
 
@@ -66,7 +65,9 @@ do
 	    trap "exit \$sts" 0 1 2 3 15
 	    otmp="$tmp"
 	    tmp=`pwd`/tmp
-	    mv $otmp.exclude $tmp.exclude
+	    mkdir $tmp || exit 1
+	    mv $otmp/exclude $tmp/exclude
+	    rmdir $otmp
 	    ;;
 	p)
 	    precision="$OPTARG"
@@ -88,10 +89,10 @@ do
 	    finish2="$OPTARG"
 	    ;;
 	x)
-	    echo "$OPTARG" >>$tmp.exclude
+	    echo "$OPTARG" >>$tmp/exclude
 	    ;;
 	X)
-	    cat "$OPTARG" >>$tmp.exclude
+	    cat "$OPTARG" >>$tmp/exclude
 	    ;;
 	z)
 	    opts="$opts -z"
@@ -115,7 +116,7 @@ fi
 
 echo "Directory: `pwd`"
 echo "Excluded metrics:"
-sed -e 's/^/    /' <$tmp.exclude
+sed -e 's/^/    /' <$tmp/exclude
 echo
 
 options="$opts"
@@ -125,11 +126,11 @@ fi
 if [ "X$finish1" != X ]; then
     options="$options -T $finish1"
 fi
-pmlogsummary -N $options $1 2>$tmp.err | _fix >$tmp.1
-if [ -s $tmp.err ]
+pmlogsummary -N $options $1 2>$tmp/err | _fix >$tmp/1
+if [ -s $tmp/err ]
 then
     echo "Warnings from pmlogsummary ... $1"
-    cat $tmp.err
+    cat $tmp/err
     echo
 fi
 
@@ -144,27 +145,27 @@ if [ "X$finish2" != X ]; then
 elif [ "X$finish1" != X ]; then
     options="$options -T $finish1"
 fi
-pmlogsummary -N $options $2 2>$tmp.err | _fix >$tmp.2
-if [ -s $tmp.err ]
+pmlogsummary -N $options $2 2>$tmp/err | _fix >$tmp/2
+if [ -s $tmp/err ]
 then
     echo "Warnings from pmlogsummary ... $2"
-    cat $tmp.err
+    cat $tmp/err
     echo
 fi
 
-join -t\| -v 2 $tmp.1 $tmp.2 >$tmp.tmp
-if [ -s $tmp.tmp ]
+join -t\| -v 2 $tmp/1 $tmp/2 >$tmp/tmp
+if [ -s $tmp/tmp ]
 then
     echo "Missing from $1 (not compared) ..."
-    sed <$tmp.tmp -e 's/|.*//' -e 's/^/    /'
+    sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
     echo
 fi
 
-join -t\| -v 1 $tmp.1 $tmp.2 >$tmp.tmp
-if [ -s $tmp.tmp ]
+join -t\| -v 1 $tmp/1 $tmp/2 >$tmp/tmp
+if [ -s $tmp/tmp ]
 then
     echo "Missing from $2 (not compared) ..."
-    sed <$tmp.tmp -e 's/|.*//' -e 's/^/    /'
+    sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
     echo
 fi
 
@@ -173,7 +174,7 @@ a2=`basename "$2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
       printf "%12s %12s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
-join -t\| $tmp.1 $tmp.2 \
+join -t\| $tmp/1 $tmp/2 \
 | awk -F\| '
 function doval(v)
 {

@@ -23,9 +23,9 @@
 . $PCP_DIR/etc/pcp.env
 
 exitsts=1
-tmp=$PCP_TMP_DIR/$$
+tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
 prog=`basename $0`
-trap "rm -f $tmp.*; exit \$exitsts" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$exitsts" 0 1 2 3 15
 
 _usage()
 {
@@ -83,20 +83,20 @@ then
     # PMNS contains 'root {' already, so just use that without any need
     # to construct the upper levels of the PMNS
     #
-    cp "$1" $tmp.tmp
+    cp "$1" $tmp/tmp
 else
     # Normal case ... find PMNS pathname for base of new subtree
     # (subroot), construct upper levels of PMNS as required and hand-off
     # to pmnsmerge
     #
     subroot=`$PCP_AWK_PROG <"$1" 'NF >= 2 && $2 == "{" { print $1 ; exit }'`
-    echo 'root {' >$tmp.tmp
+    echo 'root {' >$tmp/tmp
     path=""
     for name in `echo "$subroot" | tr '.' ' '`
     do
-	[ ! -z "$path" ] && echo "$path {" >>$tmp.tmp
-	echo "	$name" >>$tmp.tmp
-	echo "}" >>$tmp.tmp
+	[ ! -z "$path" ] && echo "$path {" >>$tmp/tmp
+	echo "	$name" >>$tmp/tmp
+	echo "}" >>$tmp/tmp
 	if [ -z "$path" ]
 	then
 	    path="$name"
@@ -104,7 +104,7 @@ else
 	    path="$path.$name"
 	fi
     done
-    cat "$1" >>$tmp.tmp
+    cat "$1" >>$tmp/tmp
 fi
 
 # try to preserve mode, owner and group for the new output files
@@ -112,7 +112,7 @@ fi
 rm -f $namespace.new
 [ -f $namespace ] && cp -p $namespace $namespace.new
 
-$PCP_BINADM_DIR/pmnsmerge -f $dupok $namespace $tmp.tmp $namespace.new
+$PCP_BINADM_DIR/pmnsmerge -f $dupok $namespace $tmp/tmp $namespace.new
 exitsts=$?
 
 # from here on, ignore SIGINT, SIGHUP and SIGTERM to protect

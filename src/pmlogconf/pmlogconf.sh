@@ -96,26 +96,25 @@ fi
 
 config=$1
 
-tmp=/var/tmp/$$
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp
-rm -f $tmp.*
 
-# split $tmp.ctl at the line containing the unprocessed tag to
+# split $tmp/ctl at the line containing the unprocessed tag to
 # produce
-# 	$tmp.head
-# 	$tmp.tag	- one line
-# 	$tmp.tail
+# 	$tmp/head
+# 	$tmp/tag	- one line
+# 	$tmp/tail
 #
 _split()
 {
-    rm -f $tmp.head $tmp.tag $tmp.tail
-    $PCP_AWK_PROG <$tmp.ctl '
-BEGIN						{ out = "'"$tmp.head"'" }
+    rm -f $tmp/head $tmp/tag $tmp/tail
+    $PCP_AWK_PROG <$tmp/ctl '
+BEGIN						{ out = "'"$tmp/head"'" }
 /DO NOT UPDATE THE FILE ABOVE/			{ seen = 1 }
-seen == 0 && /^\#\? [^:]*:[ynx]:/		{ print >"'"$tmp.tag"'"
-						  out = "'"$tmp.tail"'"
+seen == 0 && /^\#\? [^:]*:[ynx]:/		{ print >"'"$tmp/tag"'"
+						  out = "'"$tmp/tail"'"
 						  seen = 1
 						  next
 						}
@@ -130,7 +129,7 @@ _update()
     # and the control lines
     #
 
-    $PCP_AWK_PROG <$tmp.in >$tmp.ctl '
+    $PCP_AWK_PROG <$tmp/in >$tmp/ctl '
 /DO NOT UPDATE THE FILE ABOVE/	{ tail = 1 }
 tail == 1			{ print; next }
 /^\#\+ [^:]*:[ynx]:/		{ sub(/\+/, "?", $1); print; skip = 1; next }
@@ -140,7 +139,7 @@ skip == 1			{ next }
 
     # now need to be a little smarter ... tags may have appeared or
     # disappeared from the shipped defaults, so need to munge the contents
-    # of $tmp.ctl to reflect this
+    # of $tmp/ctl to reflect this
     #
     find $BASE -type f \
     | sed \
@@ -156,59 +155,59 @@ skip == 1			{ next }
 	    # not one of our group files, skip it ...
 	    continue
 	fi
-	if grep "^#? $tag:" $tmp.ctl >/dev/null
+	if grep "^#? $tag:" $tmp/ctl >/dev/null
 	then
 	    :
 	else
 	    $verbose && echo "need to add new group tag=$tag"
-	    rm -f $tmp.pre $tmp.post
-	    $PCP_AWK_PROG <$tmp.ctl '
-BEGIN						{ out = "'"$tmp.pre"'" }
-/DO NOT UPDATE THE FILE ABOVE/			{ out = "'"$tmp.post"'" }
+	    rm -f $tmp/pre $tmp/post
+	    $PCP_AWK_PROG <$tmp/ctl '
+BEGIN						{ out = "'"$tmp/pre"'" }
+/DO NOT UPDATE THE FILE ABOVE/			{ out = "'"$tmp/post"'" }
 						{ print >out }'
-	    mv $tmp.pre $tmp.ctl
+	    mv $tmp/pre $tmp/ctl
 	    [ -z "$HOST" ] && HOST=localhost
-	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err >$tmp.out
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
 	    else
 		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
 		sts=1
 	    fi
-	    sed -e "s;$BASE/;;" <$tmp.out >$tmp.tmp
-	    [ -s $tmp.err ] && cat $tmp.err
-	    sed -e '/^#+/s/+/?/' <$tmp.tmp >>$tmp.ctl
-	    cat $tmp.post >>$tmp.ctl
+	    sed -e "s;$BASE/;;" <$tmp/out >$tmp/tmp
+	    [ -s $tmp/err ] && cat $tmp/err
+	    sed -e '/^#+/s/+/?/' <$tmp/tmp >>$tmp/ctl
+	    cat $tmp/post >>$tmp/ctl
 	fi
     done
 
     while true
     do
 	_split
-	[ ! -s $tmp.tag ] && break
-	eval `sed <$tmp.tag -e 's/^#? /tag="/' -e 's/:/" onoff="/' -e 's/:/" delta="/' -e 's/:.*/"/'`
+	[ ! -s $tmp/tag ] && break
+	eval `sed <$tmp/tag -e 's/^#? /tag="/' -e 's/:/" onoff="/' -e 's/:/" delta="/' -e 's/:.*/"/'`
 	[ -z "$delta" ] && delta=default
 
 	if $reprobe
 	then
 	    [ -z "$HOST" ] && HOST=localhost
-	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp.err >$tmp.out
+	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
 	    else
 		echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
 		sts=1
 	    fi
-	    sed -e "s;$BASE/;;" <$tmp.out >$tmp.tmp
-	    [ -s $tmp.err ] && cat $tmp.err
-	    if [ -s $tmp.tmp ]
+	    sed -e "s;$BASE/;;" <$tmp/out >$tmp/tmp
+	    [ -s $tmp/err ] && cat $tmp/err
+	    if [ -s $tmp/tmp ]
 	    then
-		eval `sed <$tmp.tmp -e 's/^#+ /tag_r="/' -e 's/:/" onoff_r="/' -e 's/:/" delta_r="/' -e 's/:.*/"/'`
+		eval `sed <$tmp/tmp -e 's/^#+ /tag_r="/' -e 's/:/" onoff_r="/' -e 's/:/" delta_r="/' -e 's/:.*/"/'`
 		[ -z "$delta_r" ] && delta_r=default
 		if [ "$tag" != "$tag_r" ]
 		then
 		    echo "Botch: reprobe for $tag found new tag ${tag_r}, no change"
-		    cat $tmp.tmp
+		    cat $tmp/tmp
 		else
 		    if [ "$onoff" = y ]
 		    then
@@ -229,10 +228,10 @@ BEGIN						{ out = "'"$tmp.pre"'" }
 	in
 	    y|n)    ;;
 	    x)      # excluded group from setup
-		    cat $tmp.head >$tmp.ctl
-		    echo "#+ $tag:x::" >>$tmp.ctl
-		    echo "#----" >>$tmp.ctl
-		    cat $tmp.tail >>$tmp.ctl
+		    cat $tmp/head >$tmp/ctl
+		    echo "#+ $tag:x::" >>$tmp/ctl
+		    echo "#----" >>$tmp/ctl
+		    cat $tmp/tail >>$tmp/ctl
 		    continue
 		    ;;
 	    *)	echo "Warning: tag=$tag onoff is illegal ($onoff) ... setting to \"n\""
@@ -253,7 +252,7 @@ $1 == "ident"	{ if (desc != "") desc = desc "\n"
 		}
 END		{ printf "desc='"'"'%s'"'"'\n",desc }'`
 
-	    sed -n <$BASE/$tag >$tmp.metrics \
+	    sed -n <$BASE/$tag >$tmp/metrics \
 		-e '/^[ 	]/s/[ 	]*//p'
 	    #debug# echo $tag:
 	    #debug# echo "desc: $desc"
@@ -267,12 +266,12 @@ END		{ printf "desc='"'"'%s'"'"'\n",desc }'`
 			echo "Warning: cannot find group file ($tag) ... no change is possible"
 			;;
 	    esac
-	    $PCP_AWK_PROG <"$config" >>$tmp.head '
+	    $PCP_AWK_PROG <"$config" >>$tmp/head '
 BEGIN			{ tag="'"$tag"'" }
 $1 == "#+" && $2 ~ tag	{ want = 1 }
 want == 1		{ print }
 want == 1 && /^#----/	{ exit }'
-	    cat $tmp.head $tmp.tail >$tmp.ctl
+	    cat $tmp/head $tmp/tail >$tmp/ctl
 	    continue
 	fi
 
@@ -283,7 +282,7 @@ want == 1 && /^#----/	{ exit }'
 		pat=''
 		prompt=true
 	    fi
-	    if grep "$pat" $tmp.metrics >/dev/null
+	    if grep "$pat" $tmp/metrics >/dev/null
 	    then
 		pat=''
 		prompt=true
@@ -314,7 +313,7 @@ y         log this group
 		if [ "$ans" = m ]
 		then
 		    echo "Metrics in this group ($tag):"
-		    sed -e 's/^/    /' $tmp.metrics
+		    sed -e 's/^/    /' $tmp/metrics
 		    continue
 		fi
 		if [ "$ans" = q ]
@@ -398,19 +397,19 @@ y         log this group
 	    $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
 	fi
 
-	echo "#+ $tag:$onoff:$delta:" >>$tmp.head
-	echo "$desc" | fmt | sed -e 's/^/## /' >>$tmp.head
+	echo "#+ $tag:$onoff:$delta:" >>$tmp/head
+	echo "$desc" | fmt | sed -e 's/^/## /' >>$tmp/head
 	if [ "$onoff" = y ]
 	then
-	    if [ -s $tmp.metrics ]
+	    if [ -s $tmp/metrics ]
 	    then
-		echo "log advisory on $delta {" >>$tmp.head
-		sed -e 's/^/	/' <$tmp.metrics >>$tmp.head
-		echo "}" >>$tmp.head
+		echo "log advisory on $delta {" >>$tmp/head
+		sed -e 's/^/	/' <$tmp/metrics >>$tmp/head
+		echo "}" >>$tmp/head
 	    fi
 	fi
-	echo "#----" >>$tmp.head
-	cat $tmp.head $tmp.tail >$tmp.ctl
+	echo "#----" >>$tmp/head
+	cat $tmp/head $tmp/tail >$tmp/ctl
 
     done
 }
@@ -433,7 +432,7 @@ then
     [ -z "$HOST" ] && HOST=localhost
     [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
 
-    cat <<End-of-File >$tmp.in
+    cat <<End-of-File >$tmp/in
 #pmlogconf 2.0
 #
 # pmlogger(1) config file created and updated by pmlogconf
@@ -459,19 +458,19 @@ End-of-File
 	    # not one of our group files, skip it ...
 	    continue
 	fi
-	if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp.err >$tmp.out
+	if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags "$tag" 2>$tmp/err >$tmp/out
 	then
 	    :
 	else
 	    echo "$prog: Warning: $BASE/$tag: pmlogconf-setup failed"
-	    [ -s $tmp.err ] && cat $tmp.err
+	    [ -s $tmp/err ] && cat $tmp/err
 	    sts=1
 	fi
-	sed -e "s;$BASE/;;" <$tmp.out >>$tmp.in
-	[ -s $tmp.err ] && cat $tmp.err
+	sed -e "s;$BASE/;;" <$tmp/out >>$tmp/in
+	[ -s $tmp/err ] && cat $tmp/err
     done
 
-    cat <<End-of-File >>$tmp.in
+    cat <<End-of-File >>$tmp/in
 
 # DO NOT UPDATE THE FILE ABOVE THIS LINE
 # Otherwise any changes may be lost the next time pmlogconf is
@@ -494,7 +493,7 @@ else
 	then
 	    echo "$prog: migrating \"$config\" from version 1.0 to 2.0 ..."
 	    [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
-	    sed <"$config" >$tmp.in \
+	    sed <"$config" >$tmp/in \
 		-e '1s/1\.0/2.0/' \
 		-e "/# on this file./a\\
 #\\
@@ -561,7 +560,7 @@ s; S2:; networking/rpc:;
 	then
 	    # start with existing config file
 	    #
-	    cp "$config" $tmp.in
+	    cp "$config" $tmp/in
 	else
 	    echo "$prog: Error: existing config file \"$config\" is wrong version ($version)"
 	    sts=1
@@ -581,7 +580,7 @@ s; S2:; networking/rpc:;
 
     [ -n "$HOST" ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"
 
-    CBASE=`sed -n -e '/^#+ groupdir /s///p' <$tmp.in`
+    CBASE=`sed -n -e '/^#+ groupdir /s///p' <$tmp/in`
     if [ -z "$BASE" ]
     then
 	BASE="$CBASE"
@@ -608,7 +607,7 @@ do
 	[ "$ans" = y -o "$ans" = n ] && break
 	echo "Error: you must answer \"y\" or \"n\" ... try again"
     done
-    mv $tmp.ctl $tmp.in
+    mv $tmp/ctl $tmp/in
     if [ "$ans" = n ]
     then
 	pat=''
@@ -621,15 +620,15 @@ done
 if $new
 then
     echo
-    cp $tmp.ctl "$config"
+    cp $tmp/ctl "$config"
 else
     echo
-    if diff "$config" $tmp.ctl >/dev/null
+    if diff "$config" $tmp/ctl >/dev/null
     then
 	echo "No changes"
     else
 	echo "Differences ..."
-	${DIFF-diff} -c "$config" $tmp.ctl
+	${DIFF-diff} -c "$config" $tmp/ctl
 	while true
 	do
 	    $PCP_ECHO_PROG $PCP_ECHO_N "Keep changes? [y] ""$PCP_ECHO_C"
@@ -638,7 +637,7 @@ else
 	    [ "$ans" = y -o "$ans" = n ] && break
 	    echo "Error: you must answer \"y\" or \"n\" ... try again"
 	done
-	[ "$ans" = y ] && cp $tmp.ctl "$config"
+	[ "$ans" = y ] && cp $tmp/ctl "$config"
     fi
 fi
 

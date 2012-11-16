@@ -51,8 +51,8 @@ echo "======================"
 
 domain=30
 SYMDOM=SAMPLEDSO
-sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$tmp.pmns
-pmns_source=$tmp.pmns
+sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$tmp/pmns
+pmns_source=$tmp/pmns
 pmns_name=sampledso
 
 if $do_pmda

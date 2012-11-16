@@ -5,9 +5,8 @@
 #
 
 sts=0
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
-rm -f $tmp.*
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 # Note
 #    Really want to make this run on as many platforms as possible ...
@@ -31,7 +30,7 @@ esac
 obj=''
 cat <<End-of-File \
 | sed -e 's/[ 	]*#.*//' \
-      -e '/^$/d' >$tmp.ctl
+      -e '/^$/d' >$tmp/ctl
 # Format for the control file ...
 # All text after a # is treated as a comment
 #
@@ -296,18 +295,18 @@ End-of-File
 
 for file in *.o
 do
-    if grep "^?*$file\$" $tmp.ctl >/dev/null 2>&1
+    if grep "^?*$file\$" $tmp/ctl >/dev/null 2>&1
     then
 	:
     else
 	echo "$file: Error: object file not mentioned in control file"
-	touch $tmp.fail
+	touch $tmp/fail
     fi
 done
 
 skip_file=false
 
-cat $tmp.ctl \
+cat $tmp/ctl \
 | while read type name
 do
     if [ -z "$name" ]
@@ -315,13 +314,13 @@ do
 	# one word on a line, this is the name of a new object code file
 	if [ -n "$obj" ]
 	then
-	    if [ -s $tmp.out ]
+	    if [ -s $tmp/out ]
 	    then
 		# extras from the last object code file
-		sed <$tmp.out \
+		sed <$tmp/out \
 		    -e 's/^[^ ]* //' \
 		    -e "s/^\(.\) \(.*\)/$obj: \1 \2 : Error: additional symbol/"
-		touch $tmp.fail
+		touch $tmp/fail
 	    fi
 	fi
 	if [ "$type" != END ]
@@ -344,7 +343,7 @@ do
 		#
 		skip_file=false
 		nm $type \
-		| sed -n >$tmp.out \
+		| sed -n >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
@@ -372,7 +371,7 @@ do
 			;;
 		    *)
 			echo "$type: Error: object file in control file but not found"
-			touch $tmp.fail
+			touch $tmp/fail
 		esac
 	    fi
 	fi
@@ -385,19 +384,19 @@ do
     # Note some nm output prefixes the name with _, hence the two
     #      sed lines below
     #
-    sed <$tmp.out >$tmp.tmp \
+    sed <$tmp/out >$tmp/tmp \
 	-e "/ $type $name\$/d" \
 	-e "/ $type _$name\$/d"
-    if cmp -s $tmp.out $tmp.tmp
+    if cmp -s $tmp/out $tmp/tmp
     then
 	if [ "$opt" != "?" ]
 	then
 	    echo "$obj: $name: Warning: exceptioned symbol (type=$type) no longer present"
 	fi
     else
-	mv $tmp.tmp $tmp.out
+	mv $tmp/tmp $tmp/out
     fi
 done
 
-[ -f $tmp.fail ] && sts=1
+[ -f $tmp/fail ] && sts=1
 
