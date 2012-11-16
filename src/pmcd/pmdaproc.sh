@@ -148,6 +148,8 @@ socket_opt=$default_socket_opt
 socket_inet_def=''
 #	IPC Protocol for daemon (binary only now)
 ipc_prot=binary
+#	Need to force a restart of pmcd?
+forced_restart=true
 #	Delay after install before checking (sec)
 check_delay=3
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
@@ -423,9 +425,9 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     #
     pmpost "PMDA add: to $PCP_PMCDCONF_PATH: $1"
 
-    # signal pmcd if it is running, else start it
+    # signal pmcd if it is running (and ok to do so), else start it
     #
-    if pminfo -v pmcd.version >/dev/null 2>&1
+    if ! $forced_restart && pminfo -v pmcd.version >/dev/null 2>&1
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status

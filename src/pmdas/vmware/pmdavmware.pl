@@ -1,4 +1,5 @@
 # 
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 use strict;
@@ -377,6 +374,7 @@ $pmda->add_metric(pmda_pmid(5,19), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->set_fetch(\&vmware_fetch);
 $pmda->set_fetch_callback(\&vmware_fetch_callback);
 $pmda->add_timer(5, \&vmware_timer_callback, 0);
+$pmda->set_user('pcp');
 $pmda->run;
 vmware_disconnect();
 

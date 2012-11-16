@@ -149,6 +149,7 @@ main(int argc, char **argv)
 #else
     /* force errors from here on into the log */
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
 #endif
 
     /*

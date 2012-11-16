@@ -448,7 +448,7 @@ case "$1" in
 Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		exit
 	    fi
-	    [ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
+	    [ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR" && chown pcp:pcp "$RUNDIR"
 	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any PMCD and PMDA logfiles

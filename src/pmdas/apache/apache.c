@@ -510,6 +510,8 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&pmda);
+    __pmSetProcessIdentity("pcp");
+
     apache_init(&pmda);
     pmdaConnect(&pmda);
     pmdaMain(&pmda);

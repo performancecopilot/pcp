@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Example administrative script to check pmlogger instances are alive,
 # and restart as required.
 #
@@ -385,6 +381,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     dir=`$PWDCMND`
     $SHOWME && echo "+ cd $dir"
 
+    # ensure pcp user will be able write there
+    #
+    ( id pcp && chown -R pcp:pcp $dir ) >/dev/null 2>&1
     if [ ! -w $dir ]
     then
         echo "$prog: Warning: no write access in $dir, skip lock file processing"
@@ -610,6 +609,7 @@ END							{ print m }'`
 	then
 	    $VERBOSE && echo "Latest folio created for $LOGNAME"
             mkaf $LOGNAME.0 >Latest
+            ( id pcp && chown pcp:pcp Latest ) >/dev/null 2>&1
 	else
 	    logdir=`dirname $LOGNAME`
 	    if $TERSE

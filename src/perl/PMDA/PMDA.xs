@@ -816,7 +816,7 @@ set_user(self,username)
 	pmdaInterface *self
 	char * username
     CODE:
-	RETVAL = local_user(username);
+	RETVAL = __pmSetProcessIdentity(username);
     OUTPUT:
 	RETVAL
 

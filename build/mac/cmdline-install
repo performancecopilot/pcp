@@ -17,7 +17,7 @@ fi
 n=`echo "$disk_image" | wc -w | sed -e 's/ //'`
 if [ "$n" -gt 1 ]
 then
-    echo "Error: more than 1 .dmg file: $disk_image"
+    echo "Error: more than one .dmg file: $disk_image"
     exit
 fi
 
@@ -27,7 +27,7 @@ then
     :
 else
     cat $tmp.out
-    echo "Error: hdutil attach failed"
+    echo "Error: hdiutil attach failed"
     exit
 fi
 
@@ -51,7 +51,7 @@ then
     :
 else
     cat $tmp.out
-    echo "Error: hdutil detach failed"
+    echo "Error: hdiutil detach failed"
     sts=1
     exit
 fi

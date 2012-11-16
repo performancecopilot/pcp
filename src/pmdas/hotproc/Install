@@ -12,30 +12,18 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Install the hotproc PMDA and/or PMNS
 #
 tmp=/tmp/$$
 status=1	# failure is the default!
 trap "cd /; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-# source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA for sample
-#
 iam=hotproc
-
-# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
-#
 pmda_interface=2
+forced_restart=false
 
 pmdaSetup
 
@@ -48,7 +36,6 @@ socket_opt=false	# no socket IPC
 # these would present a security problem
 #
 umask 022
-
 
 # PMDA variables
 #

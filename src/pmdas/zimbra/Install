@@ -21,10 +21,11 @@
 iam=zimbra
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -d /opt/zimbra/zmstat ; then
     echo "Zimbra does not appear to be installed (no /opt/zimbra/zmstat)"
-    echo "Pushing on regardless, but no metric values may appear."
+    echo "Pushing on regardless, but no metric values exist initially."
 fi
 
 pmdaSetup

@@ -21,6 +21,7 @@ iam=mmv
 dso_opt=true
 socket_opt=true
 socket_inet_def=2081
+forced_restart=false
 pmda_interface=4
 pmns_source=root_mmv
 

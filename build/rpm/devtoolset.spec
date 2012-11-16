@@ -287,7 +287,6 @@ then
     /sbin/service %{?scl_prefix}pmlogger stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmie stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmproxy stop >/dev/null 2>&1
-    /sbin/service %{?scl_prefix}pcp stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del %{?scl_prefix}pcp >/dev/null 2>&1
@@ -298,6 +297,7 @@ then
 fi
 
 %post %{?scl:scl-initscripts}
+chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
 /sbin/chkconfig --add %{?scl_prefix}pmcd >/dev/null 2>&1
 /sbin/service %{?scl_prefix}pmcd condrestart
 /sbin/chkconfig --add %{?scl_prefix}pmlogger >/dev/null 2>&1
@@ -313,6 +313,16 @@ fi
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+exit 0
+
+%post testsuite
+chown -R pcpqa:pcpqa %{_localstatedir}/lib/pcp/testsuite 2>/dev/null
+exit 0
+
+%pre
+getent group pcp >/dev/null || groupadd -r pcp
+getent passwd pcp >/dev/null || \
+  useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 exit 0
 
 %files testsuite

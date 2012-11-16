@@ -409,6 +409,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     mounts_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

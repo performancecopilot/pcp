@@ -5733,6 +5733,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     linux_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

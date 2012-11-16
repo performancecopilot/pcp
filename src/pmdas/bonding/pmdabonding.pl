@@ -99,7 +99,7 @@ $pmda->add_indom(0, [], '', '');
 $pmda->set_fetch(\&bonding_interface_check);
 $pmda->set_instance(\&bonding_interface_check);
 $pmda->set_fetch_callback(\&bonding_fetch_callback);
-$pmda->set_user('nobody');
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +18,7 @@ use warnings;
 use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('rsyslog', 107);
-my $statsfile = '/var/log/pcp/rsyslog/stats';
+my $statsfile = pmda_config('PCP_LOG_DIR') . '/rsyslog/stats';
 my ($es_connfail, $es_submits, $es_failed, $es_success) = (0,0,0,0);
 my ($ux_submitted, $ux_discarded, $ux_ratelimiters) = (0,0,0);
 my ($interval, $lasttime) = (0,0);
@@ -174,7 +175,7 @@ $pmda->add_indom($queue_indom, \@queue_insts,
 
 $pmda->add_tail($statsfile, \&rsyslog_parser, 0);
 $pmda->set_fetch_callback(\&rsyslog_fetch_callback);
-$pmda->set_user('nobody');
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

@@ -36,6 +36,11 @@ then
     done
 fi
 
+getent group pcp >/dev/null || groupadd -r pcp
+getent passwd pcp >/dev/null || \
+  useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/bin/false pcp
+chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
+
 svccfg import /var/svc/manifest/application/pcp.xml
 
 # only needed if you're making changes to the namespace for the

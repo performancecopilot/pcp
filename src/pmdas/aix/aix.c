@@ -65,7 +65,7 @@ aix_init(pmdaInterface *dp)
 {
     if (_isDSO) {
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "aix" "%c" help",
+	snprintf(mypath, sizeof(mypath), "%s%c" "aix" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "AIX DSO", mypath);
     }
@@ -113,6 +113,8 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     aix_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

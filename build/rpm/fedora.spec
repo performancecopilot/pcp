@@ -250,6 +250,16 @@ getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
+%post testsuite
+chown -R pcpqa:pcpqa %{_testsdir}
+exit 0
+
+%pre
+getent group pcp >/dev/null || groupadd -r pcp
+getent passwd pcp >/dev/null || \
+  useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
+exit 0
+
 %preun
 if [ "$1" -eq 0 ]
 then
@@ -259,7 +269,6 @@ then
     /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
-    /sbin/service pcp stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
@@ -270,6 +279,7 @@ then
 fi
 
 %post
+chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1

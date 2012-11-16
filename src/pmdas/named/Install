@@ -21,6 +21,7 @@
 iam=named
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -d /var/named/data -a ! -d /var/named/chroot/var/named/data; then
     echo "named does not appear to be exporting statistics"

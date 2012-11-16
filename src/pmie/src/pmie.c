@@ -58,6 +58,7 @@ char	*clientid;
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
 static char perffile[PMIE_PATHSIZE];	/* /var/tmp/<pid> file name */
+static char *username = "pcp";
 
 static char menu[] =
 "pmie debugger commands\n\n"
@@ -91,6 +92,7 @@ static char usage[] =
     "  -S starttime start of the time window\n"
     "  -T endtime   end of the time window\n"
     "  -t interval  sample interval [default 10 seconds]\n"
+    "  -U username  in daemon mode, run as named user [default pcp]\n"
     "  -V           verbose mode, annotated expression values printed\n"
     "  -v           verbose mode, expression values printed\n"
     "  -W           verbose mode, satisfying expression values printed\n"
@@ -479,7 +481,7 @@ getargs(int argc, char *argv[])
     memset(&tv2, 0, sizeof(tv2));
     dstructInit();
 
-    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:vVWXxzZ:?")) != EOF) {
+    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?")) != EOF) {
         switch (c) {
 
 	case 'a':			/* archives */
@@ -615,6 +617,11 @@ getargs(int argc, char *argv[])
 	    stopFlag = optarg;
 	    break;
 
+	case 'U': 			/* run as named user */
+	    username = optarg;
+	    isdaemon = 1;
+	    break;
+
 	case 'v': 			/* print values */
 	    verbose = 1;
 	    break;
@@ -682,6 +689,9 @@ getargs(int argc, char *argv[])
 	perf = &instrument;
 
     if (isdaemon) {			/* daemon mode */
+	/* done before opening log to get permissions right */
+	__pmSetProcessIdentity(username);
+
 #if defined(HAVE_TERMIO_SIGNALS)
 	signal(SIGTTOU, SIG_IGN);
 	signal(SIGTTIN, SIG_IGN);

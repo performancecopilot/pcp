@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -88,7 +89,7 @@ die "Cannot find a valid named statistics file\n" unless -f $statsfile;
 
 $pmda->add_tail($statsfile, \&named_parser, 0);
 $pmda->set_fetch_callback(\&named_fetch_callback);
-$pmda->set_user('nobody');
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

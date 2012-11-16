@@ -1253,6 +1253,8 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     darwin_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

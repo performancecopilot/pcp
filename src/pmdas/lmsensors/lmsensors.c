@@ -947,6 +947,8 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     lmsensors_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

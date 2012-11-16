@@ -22,6 +22,7 @@ iam=bash
 dso_opt=true
 socket_opt=true
 socket_inet_def=2082
+forced_restart=false
 pmda_interface=5
 
 if [ ! -e "$PCP_TMP_DIR/pmdabash" ]
