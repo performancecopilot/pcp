@@ -90,9 +90,9 @@ _reboot_setup()
 {
     # base directories and house-keeping for pmie instances
     #
-    if [ ! -d $PCP_TMP_DIR/pmie ]
+    if [ ! -d "$PCP_TMP_DIR/pmie" ]
     then
-	mkdir -p $PCP_TMP_DIR/pmie
+	mkdir -p -m "1777 $PCP_TMP_DIR/pmie"
     else
 	rm -rf $tmp.ent $tmp.pid
 	here=`pwd`
@@ -105,9 +105,8 @@ _reboot_setup()
 	rm -f $tmp.ent $tmp.pid
 	cd "$here"
     fi
-    chmod 1777 $PCP_TMP_DIR/pmie
 
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
 }
 
 _start_pmie()

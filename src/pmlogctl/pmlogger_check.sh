@@ -363,6 +363,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	else
 	    _warning "creating directory ($dir) for PCP archive files"
 	fi
+	chown pcp:pcp $dir 2>/dev/null
     fi
 
     [ ! -d $dir ] && continue
