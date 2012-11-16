@@ -35,7 +35,7 @@ IDB=$HERE/$5
 prog=`basename $0`
 tmp=/tmp/$$
 status=1
-trap "rm -f $tmp.* exit \$status" 0 1 2 15
+trap "rm -f $tmp.*; exit \$status" 0 1 2 15
 
 _do()
 {
