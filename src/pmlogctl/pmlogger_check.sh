@@ -455,7 +455,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	if test -L /var/tmp/pmlogger/primary
+	if test -L $PCP_TMP_DIR/pmlogger/primary
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
 	    pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's,.*/,,'`
