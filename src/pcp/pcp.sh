@@ -148,7 +148,7 @@ function quoted()
 function inst()
 {
     if (count == 0)
-	file=sprintf("%s.%s", out, quote)
+	file=sprintf("%s/%s", out, quote)
     if (NF == 0) {
 	mode = 0
 	printf "%s=%d\n", quote, count
