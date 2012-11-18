@@ -109,14 +109,7 @@ do
 done
 
 shift `expr $OPTIND - 1`
-[ $# -gt 1 ] && _usage "$prog: too many arguments"
-if [ $# -eq 1 ]
-then
-    [ $hflag = true ] && _usage "$prog: host argument and -h mutually exclusive"
-    [ $aflag = true ] && _usage "$prog: host argument and -a mutually exclusive"
-    opts="$opts -h $1"
-    host=$1
-fi
+[ $# -ge 1 ] && _usage "$prog: too many arguments"
 
 if eval pminfo $opts -f $metrics > $tmp.metrics 2>&1
 then
@@ -280,9 +273,14 @@ END		{ print count }'`
     $PCP_AWK_PROG < $tmp.log > $tmp.loggers '
 BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
-$3 == primary	{ offset = match($3, "/pcplog/")
-		  if (offset != 0)
-		    $3=substr($3, offset+8, length($3))
+$3 == primary	{ offset = match($3, "/pmlogger/")
+		  if (offset != 0) {
+		    $3=substr($3, offset+10, length($3))
+		  } else {
+		    offset = match($3, "/pcplog/")
+		    if (offset != 0)
+		      $3=substr($3, offset+8, length($3))
+		  }
 		  printf "primary logger: %s\n\n",$3; exit }'
 
     $PCP_AWK_PROG < $tmp.log >> $tmp.loggers '
@@ -290,9 +288,14 @@ BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
 $1 == "1"	{ next }
 $3 == primary	{ next }
-	{ offset = match($3, "/pcplog/")
-		  if (offset != 0)
-		    $3=substr($3, offset+8, length($3))
+	{ offset = match($3, "/pmlogger/")
+		  if (offset != 0) {
+		    $3=substr($3, offset+10, length($3))
+		  } else {
+		    offset = match($3, "/pcplog/")
+		    if (offset != 0)
+		      $3=substr($3, offset+8, length($3))
+		  }
 		  printf "%s: %s\n\n",$2,$3 }'
 else
     numloggers=0
