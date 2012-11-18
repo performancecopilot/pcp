@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-files="/var/tmp/mmv/test$$ /var/tmp/mmv/notest$$"
+files="$PCP_TMP_DIR/mmv/test$$ $PCP_TMP_DIR/mmv/notest$$"
 $sudo rm -rf $tmp.* $files
 trap "rm -f $tmp.*; $sudo rm -f $files; exit \$status" 0 1 2 3 15
 
