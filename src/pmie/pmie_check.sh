@@ -438,6 +438,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    cat $tmp/err
 	    _error "cannot create directory ($dir) for pmie log file"
 	fi
+	chown pcp:pcp $dir 2>/dev/null
     fi
     [ ! -d $dir ] && continue
 

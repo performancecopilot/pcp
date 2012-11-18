@@ -128,7 +128,7 @@ $sudo touch $LOGGING_DIR/$LOCALHOST/lock
 $sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
 | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
-/-r.-r.-r.-/	{ $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
+/-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
 		{ print }'
 
 echo
@@ -138,7 +138,7 @@ $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
 $sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
 | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
-/-r.-r.-r.-/	{ $4 = "GROUP" }
+/-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP" }
 		{ print }'
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 

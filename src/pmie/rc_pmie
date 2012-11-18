@@ -106,7 +106,7 @@ _reboot_setup()
 	cd "$here"
     fi
 
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
 }
 
 _start_pmie()
