@@ -42,10 +42,11 @@ install::	default
 	$(INSTALL) -m 644 stomp.install $(CFG_DIR)/stomp
 	$(INSTALL) -m 644 crontab.install $(CFG_DIR)/crontab
 	$(INSTALL) -m 644 config.default.install $(CFG_DIR)/config.default
-	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
+	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
+	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
 
 include $(BUILDRULES)
 

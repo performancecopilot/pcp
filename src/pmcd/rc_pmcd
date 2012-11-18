@@ -98,8 +98,7 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_RUN_DIR" ]
     then
-	mkdir -p "$PCP_RUN_DIR"
-	chmod 755 "$PCP_RUN_DIR"
+	mkdir -p -m 755 "$PCP_RUN_DIR"
     fi
 
     # setup and clean up base directories and house-keeping for tracking
@@ -109,7 +108,7 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
     then
-	mkdir -p "$PCP_TMP_DIR/pmlogger"
+	mkdir -p -m 1777 "$PCP_TMP_DIR/pmlogger"
     else
 	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
@@ -124,14 +123,12 @@ _reboot_setup()
 	rm -f $tmp/ent $tmp/pid
 	cd "$here"
     fi
-    chmod 1777 "$PCP_TMP_DIR/pmlogger"
 
     # base directory for Memory Mapped Value PMDA and clients
     #
     if [ ! -d "$PCP_TMP_DIR/mmv" ]
     then
-	mkdir -p "$PCP_TMP_DIR/mmv"
-	chmod 1777 "$PCP_TMP_DIR/mmv"
+	mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
     fi
 
     # Rebuild PMNS?

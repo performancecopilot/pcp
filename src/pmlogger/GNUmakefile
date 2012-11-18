@@ -37,6 +37,7 @@ include $(BUILDRULES)
 install:	$(CMDTARGET) $(OTHERS)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
+	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
 
 YFLAGS += -v
 gram.tab.h gram.tab.c:	gram.y
