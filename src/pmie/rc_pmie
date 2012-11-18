@@ -92,7 +92,7 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmie" ]
     then
-	mkdir -p -m "1777 $PCP_TMP_DIR/pmie"
+	mkdir -p -m 1777 "$PCP_TMP_DIR/pmie"
     else
 	rm -rf $tmp.ent $tmp.pid
 	here=`pwd`
