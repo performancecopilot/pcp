@@ -13,8 +13,11 @@
 # -D N
 # -f
 
-# Restricting incoming PDU size to prevent DOS attacks
+# maximum incoming PDU size (default 64KB)
 # -L 16384 
+
+# assume identity of some user other than "pcp"
+# -U root
 
 # enable event tracing bit fields
 #   1	trace connections

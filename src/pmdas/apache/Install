@@ -21,6 +21,7 @@
 
 iam=apache
 pmda_interface=3
+forced_restart=false
 
 # Override interactive dialog from pmdaSetup in pmdaproc.sh
 __choose_mode()

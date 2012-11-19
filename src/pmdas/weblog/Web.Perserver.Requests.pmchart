@@ -2,14 +2,14 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
-echo "/\"/s///g" >$tmp.sed
+echo "/\"/s///g" >$tmp/sed
 
-pmprobe -I $* web.perserver.bytes.cached.total web.perserver.bytes.total > $tmp.pmprobe
-l1=`head -n 1 $tmp.pmprobe`
-l2=`tail -n 1 $tmp.pmprobe`
+pmprobe -I $* web.perserver.bytes.cached.total web.perserver.bytes.total > $tmp/pmprobe
+l1=`head -n 1 $tmp/pmprobe`
+l2=`tail -n 1 $tmp/pmprobe`
 
 num_caches=`echo $l1 | cut -f2 -d\ `
 num_servers=`echo $l2 | cut -f2 -d\ `
@@ -61,7 +61,7 @@ fi
 
 # chart preamble
 #
-cat > $tmp <<End-of-File
+cat > $tmp/base <<End-of-File
 #pmchart
 Version 2.0 host dynamic
 
@@ -74,18 +74,18 @@ server=`echo $servers | cut -f$i -d\ `
 echo $caches | grep $server >/dev/null
 if [ $? -eq 0 ]
 then
-    j=`echo $server | sed -f $tmp.sed`
-    echo Chart Title \"Requests satisfied by $j\" Style stacking Legend $legendp >> $tmp
-    echo   Plot Color \#FFFF30 Host \* Metric web.perserver.requests.client.total Instance $j >> $tmp
-    echo   Plot Color \#3030FF Host \* Metric web.perserver.requests.cached.total Instance $j >> $tmp
-    echo   Plot Color \#FF3030 Host \* Metric web.perserver.requests.uncached.total Instance $j >> $tmp
+    j=`echo $server | sed -f $tmp/sed`
+    echo Chart Title \"Requests satisfied by $j\" Style stacking Legend $legendp >> $tmp/base
+    echo   Plot Color \#FFFF30 Host \* Metric web.perserver.requests.client.total Instance $j >> $tmp/base
+    echo   Plot Color \#3030FF Host \* Metric web.perserver.requests.cached.total Instance $j >> $tmp/base
+    echo   Plot Color \#FF3030 Host \* Metric web.perserver.requests.uncached.total Instance $j >> $tmp/base
 else
-    j=`echo $server | sed -f $tmp.sed`
-    echo Chart Title \"Total Requests satisfied by $j\" Style bars Legend off>> $tmp
-    echo   Plot Color \#FF3030 Host \* Metric web.perserver.requests.total Instance $j >> $tmp
+    j=`echo $server | sed -f $tmp/sed`
+    echo Chart Title \"Total Requests satisfied by $j\" Style bars Legend off>> $tmp/base
+    echo   Plot Color \#FF3030 Host \* Metric web.perserver.requests.total Instance $j >> $tmp/base
 fi
 i=`expr $i + 1`
 done
 
-cat $tmp
-rm -f $tmp $tmp.*
+cat $tmp/base
+rm -rf $tmp

@@ -59,10 +59,9 @@ then
 fi
 
 sts=1
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp-setup
-rm -f $tmp.*
 
 # find "probe metric [condition] [state_rule]" line to determine action
 # or
@@ -103,7 +102,7 @@ fi
 
 $verbose && [ -n "$metric" ] && $PCP_ECHO_PROG $PCP_ECHO_N "probe $metric $options""$PCP_ECHO_C" >&2
 $verbose && [ -n "$force" ] && $PCP_ECHO_PROG $PCP_ECHO_N "force $force""$PCP_ECHO_C" >&2
-rm -f $tmp.err
+rm -f $tmp/err
 if [ -n "$metric" ]
 then
     # probe
@@ -161,10 +160,10 @@ NR == 1 && $1 == "force" && NF == 2 {
 		}
 	      }
 	      if (action == -1) {
-		print "force state \"" $2 "\" not recognized" >"'$tmp.err'"
+		print "force state \"" $2 "\" not recognized" >"'$tmp/err'"
 		exit
 	      }
-	      printf "probe=1 action=%d\n",action >>"'$tmp.out'"
+	      printf "probe=1 action=%d\n",action >>"'$tmp/out'"
 	      exit
 	    }
 NR == 1		{
@@ -183,7 +182,7 @@ NR == 1		{
 		    }
 		}
 		if (have_condition == 0 && $1 != "?") {
-		    print "condition operator \"" $1 "\" not recognized" >"'$tmp.err'"
+		    print "condition operator \"" $1 "\" not recognized" >"'$tmp/err'"
 		    exit
 		}
 		if (op == exists || op == values) {
@@ -194,7 +193,7 @@ NR == 1		{
 		}
 		else {
 		    if (NF < 2) {
-			print "missing condition operand after " condition[op] " operator" >"'$tmp.err'"
+			print "missing condition operand after " condition[op] " operator" >"'$tmp/err'"
 			exit
 		    }
 		    oprnd = $2
@@ -206,15 +205,15 @@ NR == 1		{
 		    str = str " " $i
 		}
 		if (NF >= actarg && $actarg != "?") {
-		    print "expected \"?\" after condition, found \"" str "\"" >"'$tmp.err'"
+		    print "expected \"?\" after condition, found \"" str "\"" >"'$tmp/err'"
 		    exit
 		}
 		if (NF >= actarg && NF < actarg+3) {
-		    print "missing state rule components: \"" str "\"" >"'$tmp.err'"
+		    print "missing state rule components: \"" str "\"" >"'$tmp/err'"
 		    exit
 		}
 		if (NF >= actarg && NF > actarg+3) {
-		    print "extra state rule components: \"" str "\"" >"'$tmp.err'"
+		    print "extra state rule components: \"" str "\"" >"'$tmp/err'"
 		    exit
 		}
 		actarg++
@@ -226,12 +225,12 @@ NR == 1		{
 		    }
 		}
 		if (yes == -1) {
-		    print "sucess state \"" $actarg "\" not recognized" >"'$tmp.err'"
+		    print "sucess state \"" $actarg "\" not recognized" >"'$tmp/err'"
 		    exit
 		}
 		actarg++
 		if ($actarg != ":") {
-		    print "expected \":\" in state rule, found \"" $actarg "\"" >"'$tmp.err'"
+		    print "expected \":\" in state rule, found \"" $actarg "\"" >"'$tmp/err'"
 		    exit
 		}
 		actarg++
@@ -243,7 +242,7 @@ NR == 1		{
 		    }
 		}
 		if (no == -1) {
-		    print "failure state \"" $actarg "\" not recognized" >"'$tmp.err'"
+		    print "failure state \"" $actarg "\" not recognized" >"'$tmp/err'"
 		    exit
 		}
 	      } 
@@ -331,18 +330,18 @@ NR == 2		{
 		action = yes
 	      else
 		action = no
-	      printf "probe=%d action=%d\n",probe,action >>"'$tmp.out'"
+	      printf "probe=%d action=%d\n",probe,action >>"'$tmp/out'"
 	    }'
 
-if [ -f $tmp.err ]
+if [ -f $tmp/err ]
 then
     $verbose && $PCP_ECHO_PROG >&2
-    $PCP_ECHO_PROG "$1: Error: `cat $tmp.err`" >&2
-elif [ -f $tmp.out ]
+    $PCP_ECHO_PROG "$1: Error: `cat $tmp/err`" >&2
+elif [ -f $tmp/out ]
 then
     probe=''
     action=''
-    eval `cat $tmp.out`
+    eval `cat $tmp/out`
     if $verbose
     then
 	case $probe

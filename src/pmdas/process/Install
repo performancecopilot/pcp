@@ -1,9 +1,7 @@
 #! /bin/sh
 #
-#  Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
-#  for the portions of the code supporting the initial agent functionality.
-#  All rights reserved. 
-# Copyright (c)  2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2001 Alan Bailey.  All Rights Reserved.
+# Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,31 +13,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Install the process PMDA and/or PMNS
 #
 
-# source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=process
-
-# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
-#
 pmda_interface=2
+forced_restart=false
 
-# Do it
-#
 pmdaSetup
 pmdaInstall
-
 exit 0

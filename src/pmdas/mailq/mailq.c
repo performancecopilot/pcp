@@ -377,6 +377,8 @@ main(int argc, char **argv)
     indomtab[DELAY_INDOM].it_set = _delay;
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     mailq_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

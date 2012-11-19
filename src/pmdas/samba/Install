@@ -21,6 +21,7 @@
 iam=samba
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -x /usr/sbin/smbd; then
     echo "Samba \"smbd\" daemon is not installed" && exit 1

@@ -47,6 +47,7 @@ install:	default
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 bashproc.sh $(PCP_SHARE_DIR)/lib/bashproc.sh
 	$(INSTALL) -m 644 pcp.sh $(PCP_ETC_DIR)/pcp.sh
+	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
 endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)

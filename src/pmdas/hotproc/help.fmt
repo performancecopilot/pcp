@@ -6,10 +6,10 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=/tmp/$$
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
-$PCP_AWK_PROG -v tmpfile=$tmp.fmt '
+$PCP_AWK_PROG -v tmpfile=$tmp/fmt '
   function fmt_line(l) {
 	print l > tmpfile
 	system("fmt -78 < " tmpfile) # format line(s)

@@ -1755,6 +1755,7 @@ $pmda->add_indom($process_indom, \@process_instances,
 $pmda->set_fetch_callback(\&mysql_fetch_callback);
 $pmda->set_fetch(\&mysql_connection_setup);
 $pmda->set_refresh(\&mysql_refresh);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

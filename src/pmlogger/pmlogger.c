@@ -39,7 +39,7 @@ int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
-char		*note = NULL;		/* note for port map file */
+char		*note;			/* note for port map file */
 
 static int 	    pmcdfd;		/* comms to pmcd */
 static fd_set	    fds;		/* file descriptors mask for select */
@@ -481,8 +481,10 @@ main(int argc, char **argv)
     int			sts;
     int			sep = __pmPathSeparator();
     int			errflag = 0;
+    int			isdaemon = 0;
     char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
+    char		*username = "pcp";
     char		*logfile = "pmlogger.log";
 				    /* default log (not archive) file name */
     char		*endnum;
@@ -503,7 +505,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uv:V:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -552,6 +554,7 @@ main(int argc, char **argv)
 
 	case 'm':		/* note for port map file */
 	    note = optarg;
+	    isdaemon = (strcmp(note, "pmlogger_check") == 0);
 	    break;
 
 	case 'n':		/* alternative name space file */
@@ -560,6 +563,7 @@ main(int argc, char **argv)
 
 	case 'P':		/* this is the primary pmlogger */
 	    primary = 1;
+	    isdaemon = 1;
 	    break;
 
 	case 'r':		/* report sizes of pmResult records */
@@ -589,6 +593,11 @@ main(int argc, char **argv)
 		free(p);
 		errflag++;
 	    }
+	    break;
+
+	case 'U':		/* run as named user */
+	    username = optarg;
+	    isdaemon = 1;
 	    break;
 
 	case 'u':		/* flush output buffers after each fetch */
@@ -652,6 +661,7 @@ Options:\n\
   -t interval   default logging interval [default 60.0 seconds]\n\
   -T endtime	terminate at given time\n\
   -u		output is unbuffered\n\
+  -U username   in daemon mode, run as named user [default pcp]\n\
   -v volsize	switch log volumes after volsize has been accumulated\n\
   -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
@@ -671,6 +681,10 @@ Options:\n\
 	snprintf(xnote, sizeof(xnote), "-x %d", rsc_fd);
 	note = xnote;
     }
+
+    /* if we are running as a daemon, change user early */
+    if (isdaemon)
+	__pmSetProcessIdentity(username);
 
     __pmOpenLog("pmlogger", logfile, stderr, &sts);
 

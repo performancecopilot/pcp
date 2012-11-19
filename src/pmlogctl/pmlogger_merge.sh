@@ -28,10 +28,9 @@
 
 
 prog=`basename $0`
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-rm -f $tmp.*
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 force=false
 VERBOSE=false
@@ -103,20 +102,20 @@ rmlist=""
 # handle dupicate-breaking name form of the base name
 # i.e. YYYYMMDD.HH.MM-seq# and ensure no duplicates
 #
-rm -f $tmp.input
-echo >$tmp.input
+rm -f $tmp/input
+echo >$tmp/input
 for try in $trylist
 do
-    grep "^$try\$" $tmp.input >/dev/null || echo "$try" >>$tmp.input
+    grep "^$try\$" $tmp/input >/dev/null || echo "$try" >>$tmp/input
     for xxx in $try-*.index
     do
 	[ "$xxx" = "$try-*.index" ] && continue
 	tie=`basename $xxx .index`
-	grep "^$tie\$" $tmp.input >/dev/null || echo "$tie" >>$tmp.input
+	grep "^$tie\$" $tmp/input >/dev/null || echo "$tie" >>$tmp/input
     done
 done
 
-for input in `cat $tmp.input`
+for input in `cat $tmp/input`
 do
     for file in $input.index
     do
@@ -192,8 +191,8 @@ else
 		# output = 108 file descriptors which should be well below any
 		# shell-imposed or system-imposed limits
 		#
-		$VERBOSE && echo "		-> partial merge to $tmp.$part"
-		cmd="pmlogextract $list $tmp.$part"
+		$VERBOSE && echo "		-> partial merge to $tmp/$part"
+		cmd="pmlogextract $list $tmp/$part"
 		if $SHOWME
 		then
 		    echo "+ $cmd"
@@ -202,13 +201,13 @@ else
 		    then
 			:
 		    else
-			$VERBOSE || echo "		-> partial merge to $tmp.$part"
+			$VERBOSE || echo "		-> partial merge to $tmp/$part"
 			echo "$prog: Directory: `pwd`"
-			echo "$prog: Failed: pmlogextract $list $tmp.$part"
+			echo "$prog: Failed: pmlogextract $list $tmp/$part"
 			_warning
 		    fi
 		fi
-		list=$tmp.$part
+		list=$tmp/$part
 		part=`expr $part + 1`
 		i=0
 	    fi

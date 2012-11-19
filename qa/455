@@ -84,9 +84,9 @@ echo "\
 2011-05-11T08:18:07.423713+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
 2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: main Q: size=1 enqueued=1183 full=0 maxqsize=1182" > $tmp.stats
 
-$sudo sh -c "cat $tmp.stats >> /var/log/pcp/rsyslog/stats"
+$sudo sh -c "cat $tmp.stats >> $PCP_LOG_DIR/rsyslog/stats"
 sleep 2	# give some time for pmdarsyslog to be told
-$sudo sh -c "cat $tmp.stats >> /var/log/pcp/rsyslog/stats"
+$sudo sh -c "cat $tmp.stats >> $PCP_LOG_DIR/rsyslog/stats"
 sleep 2	# give more time for pmdarsyslog to be told
 pminfo -f rsyslog \
 | _val_filter

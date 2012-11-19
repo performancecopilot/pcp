@@ -27,9 +27,9 @@
 #
 unset PCP_STDERR
 
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 VERBOSE=false
@@ -137,7 +137,7 @@ _check_logger()
     done
     $VERBOSE || _message restart
     echo " timed out waiting!"
-    sed -e 's/^/	/' $tmp.out
+    sed -e 's/^/	/' $tmp/out
     _check_logfile
     return 1
 }
@@ -292,13 +292,13 @@ then
     grep 'pmlogger .*-P' | grep -v grep
 else
     $PCP_AWK_PROG '$2 == '"$pid"' && /pmlogger/ { print }'
-fi >$tmp.out
+fi >$tmp/out
 
-if [ -s $tmp.out ]
+if [ -s $tmp/out ]
 then
     $VERBOSE && echo " found"
-    $VERBOSE && cat $tmp.out
-    pid=`$PCP_AWK_PROG '{ print $2 }' <$tmp.out`
+    $VERBOSE && cat $tmp/out
+    pid=`$PCP_AWK_PROG '{ print $2 }' <$tmp/out`
 else
     if $VERBOSE
     then
@@ -331,28 +331,28 @@ else
     trap "echo; echo $prog:' Interrupt! ... I am talking to pmlogger, please wait ...'" 1 2 3 15
     $VERBOSE && _message get_host
 
-    _do_cmd "( echo 'connect $connect' ; echo status ) | pmlc 2>$tmp.err >$tmp.out"
+    _do_cmd "( echo 'connect $connect' ; echo status ) | pmlc 2>$tmp/err >$tmp/out"
 
     # end critical section
     #
-    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+    trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-    if $SHOWME || [ ! -s $tmp.err ]
+    if $SHOWME || [ ! -s $tmp/err ]
     then
 	$VERBOSE && echo " done"
     else
-	if grep "Unable to connect" $tmp.err >/dev/null
+	if grep "Unable to connect" $tmp/err >/dev/null
 	then
 	    $VERBOSE || _message get_host
 	    echo " failed to connect"
 	    echo
-	    sed -e 's/^/	/' $tmp.err
+	    sed -e 's/^/	/' $tmp/err
 	    _abandon
 	else
 	    $VERBOSE || _message get_host
 	    echo
 	    echo "$prog: Warning: errors from talking to $myname via pmlc"
-	    sed -e 's/^/	/' $tmp.err
+	    sed -e 's/^/	/' $tmp/err
 	    echo
 	    echo "continuing ..."
 	fi
@@ -362,13 +362,13 @@ else
     then
 	host=somehost
     else
-	host=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp.out`
+	host=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp/out`
 	if [ "X$host" = X ]
 	then
 	    echo "$prog: Error: failed to get host name from $myname"
 	    echo "This is what was collected from $myname."
 	    echo
-	    sed -e 's/^/	/' $tmp.out
+	    sed -e 's/^/	/' $tmp/out
 	    _abandon
 	fi
 	args="$args-h $host "
@@ -400,38 +400,38 @@ then
 		echo "query $top"
 	    done \
 	) \
-	| pmlc $namespace 2>$tmp.err \
-	| $PCP_AWK_PROG >$tmp.out '
+	| pmlc $namespace 2>$tmp/err \
+	| $PCP_AWK_PROG >$tmp/out '
 /^[^ ]/						{ metric = $1; next }
 $1 == "mand" || ( $1 == "adv" && $2 == "on" ) 	{ print $0 " " metric }'
     fi
 
     # end critical section
     #
-    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+    trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-    if $SHOWME || [ ! -s $tmp.err ]
+    if $SHOWME || [ ! -s $tmp/err ]
     then
 	$VERBOSE && echo " done"
     else
-	if grep "Unable to connect" $tmp.err >/dev/null
+	if grep "Unable to connect" $tmp/err >/dev/null
 	then
 	    $VERBOSE || _message get_state
 	    echo " failed to connect"
 	    echo
-	    sed -e 's/^/	/' $tmp.err
+	    sed -e 's/^/	/' $tmp/err
 	    _abandon
 	else
 	    $VERBOSE || _message get_state
 	    echo
 	    echo "$prog: Warning: errors from talking to $myname via pmlc"
-	    sed -e 's/^/	/' $tmp.err
+	    sed -e 's/^/	/' $tmp/err
 	    echo
 	    echo "continuing ..."
 	fi
     fi
 
-    if [ ! -s $tmp.out ]
+    if [ ! -s $tmp/out ]
     then
 	if $SHOWME
 	then
@@ -449,7 +449,7 @@ $1 == "mand" || ( $1 == "adv" && $2 == "on" ) 	{ print $0 " " metric }'
     then
 	echo "+ create new pmlogger config file ..."
     else
-	sed <$tmp.out >$tmp.config \
+	sed <$tmp/out >$tmp/config \
 	    -e 's/ on  nl/ on/' \
 	    -e 's/ off nl/ off/'\
 	    -e 's/  *mand  *\(o[nf]*\) /log mandatory \1 /' \
@@ -458,16 +458,16 @@ $1 == "mand" || ( $1 == "adv" && $2 == "on" ) 	{ print $0 " " metric }'
 	    -e 's/\(\[[^]]*]\) \([^ ]*\)/\2 \1/' \
 	    -e 's/   */ /g'
 
-	if [ ! -s $tmp.config ]
+	if [ ! -s $tmp/config ]
 	then
 	    echo "$prog: Error: failed to generate a pmlogger configuration file for pmlogger"
 	    echo "This is what was collected from $myname."
 	    echo
-	    sed -e 's/^/	/' $tmp.out
+	    sed -e 's/^/	/' $tmp/out
 	    _abandon
 	fi
     fi
-    config=$tmp.config
+    config=$tmp/config
 fi
 
 # optionally append access control specifications
@@ -601,8 +601,8 @@ then
     do
 	if $SHOWME || [ -f $archive.0 -a -f $archive.meta -a $archive.index ]
 	then
-	    _do_cmd "mkaf $archive.0 >Latest" 2>$tmp.err
-	    if [ -s $tmp.err ]
+	    _do_cmd "mkaf $archive.0 >Latest" 2>$tmp/err
+	    if [ -s $tmp/err ]
 	    then
 		# errors from mkaf typically result from race conditions
 		# at the start of pmlogger, e.g.
@@ -623,10 +623,10 @@ then
     then
 	ELAPSED=`expr $STALL_TIME + $WAIT_TIME`
 	echo "Warning: pmlogger [pid=$new_pid host=$host] failed to create archive files within $ELAPSED seconds"
-	if [ -f $tmp.err ]
+	if [ -f $tmp/err ]
 	then
 	    echo "Warnings/errors from mkaf ..."
-	    cat $tmp.err
+	    cat $tmp/err
 	fi
     fi
 else

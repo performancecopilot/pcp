@@ -290,6 +290,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     lustrecomm_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

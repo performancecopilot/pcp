@@ -21,6 +21,7 @@
 iam=netfilter
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -d /proc/sys/net/ipv4/netfilter; then
     echo "IP connection tracking not enabled in your kernel"

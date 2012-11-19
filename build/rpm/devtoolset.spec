@@ -5,13 +5,26 @@
 Summary: System-level performance monitoring and performance management
 Name: %{?scl_prefix}pcp
 Version: 3.6.9
-%define buildversion 1
+%define buildversion 3
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 Patch0: pcpqa_service_prefix.patch
+Patch1: bz868316.patch
+Patch2: bz867937.patch
+Patch3: bz867855.patch
+Patch4: bz867862.patch
+Patch5: bz869262.patch
+Patch6: bz869310.patch
+Patch7: bz867961.patch
+Patch8: bz867914.patch
+Patch9: bz876533.patch
+Patch10: bz870472.patch
+Patch11: bz873751.patch
+Patch12: bz872230.patch
+Patch13: specfile.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps bison flex
@@ -21,12 +34,14 @@ BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
  
-Requires: bash gawk sed grep fileutils findutils initscripts perl python
+Requires: bash gawk sed grep fileutils findutils initscripts perl
+Requires: python python-ctypes
 Requires: %{?scl_prefix}pcp-libs = %{version}-%{release}
 Requires: %{?scl_prefix}python-pcp = %{version}-%{release}
 Requires: %{?scl_prefix}perl-PCP-PMDA = %{version}-%{release}
 %{?scl:Requires:%scl_runtime}
 
+%define _mytmpdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
 
@@ -220,13 +235,26 @@ Software Collection-compatible initscript wrappers for PCP daemons.
 %prep
 %setup -q %{?scl:-n %{pkg_name}-%{version}}
 %patch0 -p1 -b .pcpqa
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
 
 %build
 # TODO: --disable-shared (847911, 856651)
-%configure --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version}
+%configure --with-rcdir=%{_sysconfdir}/rc.d/init.d --with-docdir=%{_docdir}/%{name}-%{version} --with-tmpdir=%{_mytmpdir)
 make default_pcp
 
 %install
@@ -287,7 +315,6 @@ then
     /sbin/service %{?scl_prefix}pmlogger stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmie stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmproxy stop >/dev/null 2>&1
-    /sbin/service %{?scl_prefix}pcp stop >/dev/null 2>&1
     /sbin/service %{?scl_prefix}pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del %{?scl_prefix}pcp >/dev/null 2>&1
@@ -313,6 +340,10 @@ fi
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+exit 0
+
+%post testsuite
+chown -R pcpqa:pcpqa %{_localstatedir}/lib/pcp/testsuite 2>/dev/null
 exit 0
 
 %files testsuite
@@ -417,6 +448,22 @@ exit 0
 %defattr(-,root,root)
 
 %changelog
+* Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-3
+- Resolve tmpfile security flaws (BZ 876533)
+- Improve pmcollectl diagnostics (BZ 870472)
+- Fix test qa/707 core numbering issue (BZ 873751)
+- Fix test qa/709 pmcollect formatting (BZ 872230)
+
+* Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-2
+- Fix test 062 handling of 64bit big endian machines (BZ 868316)
+- Fix test cases using python scripts with argparse (BZ 867937)
+- Add Requires on python-ctypes for older pythons (BZ 867855)
+- Fix pmcollectl use of new python language features (BZ 867862)
+- Fix test 126 which was misdetecting RHEL5 platform (BZ 869262)
+- Fix test 147 double-quote abuse in test diagnostics (BZ 869310)
+- Fix test 707 python PMAPI string buffering mismatch (BZ 867961)
+- Fix pmcollectl interrupt handling on powerpc[64] (BZ 867914)
+
 * Mon Oct 15 2012 Frank Ch. Eigler <fche@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
 - Rebase for next DTS beta release (BZ 857773)

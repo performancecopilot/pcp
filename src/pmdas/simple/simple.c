@@ -500,6 +500,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     simple_init(&dispatch);
     simple_timenow_check();
     pmdaConnect(&dispatch);

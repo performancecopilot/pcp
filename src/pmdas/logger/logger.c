@@ -569,6 +569,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     logger_init(&desc, argv[optind]);
     pmdaConnect(&desc);
     loggerMain(&desc);

@@ -51,30 +51,6 @@ local_strdup_prefix(const char *prefix, const char *string)
 }
 
 int
-local_user(const char *username)
-{
-#ifdef HAVE_GETPWNAM
-    /* lose root privileges if we have them */
-    struct passwd *pw;
-
-    if ((pw = getpwnam(username)) == 0) {
-	__pmNotifyErr(LOG_WARNING,
-			"cannot find the user %s to switch to\n", username);
-	return -1;
-    }
-    if (setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0) {
-	__pmNotifyErr(LOG_WARNING,
-			"cannot switch to uid/gid of user %s\n", username);
-	return -1;
-    }
-    return 0;
-#else
-    __pmNotifyErr(LOG_WARNING, "cannot switch to user %s\n", username);
-    return -1;
-#endif
-}
-
-int
 local_timer(double timeout, scalar_t *callback, int cookie)
 {
     int size = sizeof(*timers) * (ntimers + 1);

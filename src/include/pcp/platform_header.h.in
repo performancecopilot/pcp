@@ -219,6 +219,7 @@ extern "C" {
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP
 #undef HAVE_GETPWNAM
+#undef HAVE_GETPWNAM_R
 
 #undef HAVE_BRK
 #undef HAVE_SBRK

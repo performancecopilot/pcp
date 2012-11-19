@@ -131,8 +131,8 @@ do
     fi
 done
 
-tmp=/tmp/$$
-trap "rm -f $tmp; exit" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 # check for magic numbers in a file that indicate it is a PCP archive
 #
@@ -148,7 +148,7 @@ _check_file()
 {
     if [ ! -f "$1" ]
     then
-	echo "No such file: $1" >>$tmp
+	echo "No such file: $1" >>$tmp/base
     else
 	dd ibs=1 count=7 if="$1" 2>/dev/null | od -X | $PCP_AWK_PROG '
 BEGIN						{ sts = 1 }
@@ -159,7 +159,7 @@ NR == 1 && NF == 3 && $2 == "84000000" && $3 == "00260550" { sts = 0 }
 END						{ exit sts }'
 	if [ $? -eq 1 ]
 	then
-	    echo "Not a PCP archive file: $1" >>$tmp
+	    echo "Not a PCP archive file: $1" >>$tmp/base
 	fi
     fi
 }
@@ -169,22 +169,22 @@ _check()
     sed -n '/^Archive:/p' <$_FOLIO \
     | while read xxx host arch
     do
-	rm -f $tmp
+	rm -f $tmp/base
 	path=`_fix_arch_path "" $arch`
 	$PCP_ECHO_PROG $PCP_ECHO_N "Archive: $path ... ""$PCP_ECHO_C"
 	_check_file $path.index
 	_check_file $path.meta
 	_check_file $path.0
-	if [ ! -s $tmp ]
+	if [ ! -s $tmp/base ]
 	then
 	    realhost=`pmdumplog -l $path | sed -n -e '/^Performance metrics/s/.* host //p'`
 	    [ "X$host" != "X$realhost" ] && \
-		echo "Hostname mismatch: folio=$host archive=$realhost" >>$tmp
+		echo "Hostname mismatch: folio=$host archive=$realhost" >>$tmp/base
 	fi
-	if [ -s $tmp ]
+	if [ -s $tmp/base ]
 	then
 	    echo "Errors"
-	    sed -e 's/^/	/' $tmp
+	    sed -e 's/^/	/' $tmp/base
 	else
 		echo "OK"
 	fi

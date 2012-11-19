@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
 use strict;
@@ -85,6 +82,7 @@ $pmda->add_indom($probe_indom, \@probe_instances,
 
 $pmda->set_fetch_callback(\&systemtap_fetch_callback);
 $pmda->add_pipe($probe_command, \&systemtap_input_callback, 0);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod
