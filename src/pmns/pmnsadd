@@ -22,6 +22,7 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
+umask 22		# anything else is pretty silly
 exitsts=1
 tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
 prog=`basename $0`
@@ -34,7 +35,6 @@ _usage()
 
 namespace=${PMNS_DEFAULT-$PCP_VAR_DIR/pmns/root}
 dupok=""
-umask 22		# anything else is pretty silly
 
 while getopts dn:\? c
 do
