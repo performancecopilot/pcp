@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.6.9
+Version: 3.6.10
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -212,7 +212,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=/etc/rc.d/init.d
+%configure --with-rcdir=/etc/rc.d/init.d --with-tmpdir=/var/lib/pcp/tmp
 make default_pcp
 
 %install
@@ -251,7 +251,7 @@ getent passwd pcpqa >/dev/null || \
 exit 0
 
 %post testsuite
-chown -R pcpqa:pcpqa %{_testsdir}
+chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %pre
@@ -405,8 +405,10 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/n
 %defattr(-,root,root)
 
 %changelog
-* Fri Nov 16 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
-- Currently under development.
+* Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
+- Update to latest PCP sources.
+- Resolve tmpfile security flaws: CVE-2012-5530
+- Introduces new "pcp" user account for all daemons to use.
 
 * Fri Oct 12 2012 Nathan Scott <nathans@redhat.com> - 3.6.9-1
 - Update to latest PCP sources.
