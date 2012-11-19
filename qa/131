@@ -29,4 +29,5 @@ echo "The far host is $farhost" >$seq.full
 pminfo -f -h $farhost pmcd 2>&1 \
 | sed \
     -e "s/$farhost/HOST/g" \
-    -e 's/Operation timed out/Connection timed out/'
+    -e 's/Operation timed out/Connection timed out/' \
+    -e 's/Timeout waiting for a response from PMCD/Connection timed out/'

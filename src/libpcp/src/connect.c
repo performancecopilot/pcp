@@ -141,7 +141,7 @@ __pmConnectHandshake(int fd)
 	else
 	    sts = PM_ERR_IPC;
     }
-    else
+    else if (sts != PM_ERR_TIMEOUT)
 	sts = PM_ERR_IPC;
 
     if (pinpdu > 0)
