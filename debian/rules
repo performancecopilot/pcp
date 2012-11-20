@@ -78,7 +78,7 @@ pkgpcp_import_iostat = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
 pkgpcp_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_testsuite);
 pkgpcp_python = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_python);
 
-configure_tools = export DEBUG=-DNDEBUG AWK=gawk;
+configure_tools = export DEBUG=-DNDEBUG;
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
 
 checkdir = test -f debian/rules
