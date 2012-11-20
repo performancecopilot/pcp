@@ -190,7 +190,7 @@ then
     LOGF=`pwd`/$LOGF
 
     echo
-    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+    echo "== src-link-pcp, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
     SRCLINK_ROOT=`pwd`/pcp-$VERSION
