@@ -1,9 +1,10 @@
 pcp (3.6.10) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Resolves CVE-2012-5530 - insecure tmpfile flaws
   * Remove use of "restrict" keyword (closes: #689552)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 16 Nov 2012 14:06:59 +1100
+ -- Nathan Scott <nathans@debian.org>  Mon, 19 Nov 2012 10:48:01 +1100
 
 pcp (3.6.6) unstable; urgency=low
 

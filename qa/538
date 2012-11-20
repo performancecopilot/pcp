@@ -21,6 +21,7 @@ _cleanup()
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+username=`id -u -n`
 sync
 pmstore sample.write_me 2 >/dev/null	# initialise value
 
@@ -29,7 +30,9 @@ cat <<End-of-File >$tmp.conf
 End-of-File
 
 # real QA test starts here
-pmie -t 0.5sec -b -l $tmp.out $tmp.conf &
+pmieopts="-b"
+id pcp >/dev/null 2>&1 && pmieopts="$pmieopts -U $username"
+pmie -t 0.5sec $pmieopts -l $tmp.out $tmp.conf &
 pid=$!
 
 sleep 2

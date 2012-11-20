@@ -127,6 +127,13 @@ sigterm_callback(int sig)
 }
 
 int
+__pmSetProcessIdentity(const char *username)
+{
+    (void)username;
+    return 0;	/* Not Yet Implemented */
+}
+
+int
 __pmSetProgname(const char *program)
 {
     int	sts1, sts2;

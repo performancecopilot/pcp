@@ -21,7 +21,6 @@ grundy.sgi.com
 # Nathans Section
 smash.scott.net.au
 verge.scott.net.au
-cloud.scott.net.au
 sweet.scott.net.au
 
 # Mort Section
@@ -48,8 +47,7 @@ deb32.bork.org
 #order	.americas.sgi.com	.americas.sgi.com	.engr.sgi.com	.melbourne.sgi
 #order	.sgi.com		.sgi.com
 # Nathans Section
-#order	.scott.net.au		.localdomain
-#order	.localdomain		.localdomain
+#order	.scott.net.au		.scott.net.au
 # Kenj Section
 #order	bozo			.localdomain
 #order	bozo-laptop		.localdomain

@@ -505,6 +505,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     sendmail_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

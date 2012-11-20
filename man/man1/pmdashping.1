@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -23,6 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-I\f1 \f2interval\f1]
 [\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
 \f2configfile\f1
 .br
 .SH DESCRIPTION
@@ -100,13 +102,17 @@ Amount of time (in seconds) between subsequent executions of the list of
 commands provided via the configuration file
 .IR configfile .
 The default is 2 minutes.
-.PP
 .TP 5
 .B \-t
 Amount of time (in seconds) to wait before timing out awaiting a response
 for a command from
 .IR configfile .
 The default is 20 seconds.
+.TP 5
+.B \-U
+User account under which to run the agent and all commands.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .PP
 The required
 .IR configfile

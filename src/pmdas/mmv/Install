@@ -21,14 +21,14 @@ iam=mmv
 dso_opt=true
 socket_opt=true
 socket_inet_def=2081
+forced_restart=false
 pmda_interface=4
 pmns_source=root_mmv
 
 if [ ! -e "$PCP_TMP_DIR/mmv" ]
 then
     echo "creating $PCP_TMP_DIR/mmv"
-    mkdir -p "$PCP_TMP_DIR/mmv"
-    chmod 1777 "$PCP_TMP_DIR/mmv"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
 fi
 
 pmdaSetup

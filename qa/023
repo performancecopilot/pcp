@@ -192,10 +192,10 @@ PATH=$PATH:$here/src
 export PMCD_PORT PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
-if [ -d /var/run/pcp ]
+if [ -d $PCP_RUN_DIR ]
 then
     echo "$pmcd" >$tmp.tmp
-    $sudo cp $tmp.tmp /var/run/pcp/pmcd.pid
+    $sudo cp $tmp.tmp $PCP_RUN_DIR/pmcd.pid
 fi
 
 # Sleep 3 sec for each fake pmda

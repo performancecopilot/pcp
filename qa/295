@@ -24,6 +24,7 @@ fi
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
+username=`id -u -n`
 $sudo rm -rf $tmp.*
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -47,7 +48,9 @@ _check()
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-pmproxy -Dcontext -l $tmp.log 2>&1 | _filter_pmproxy
+proxyargs="-Dcontext"
+id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
+$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
 PMPROXY_HOST=localhost
 export PMPROXY_HOST

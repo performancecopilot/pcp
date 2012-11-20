@@ -45,6 +45,9 @@
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
+#if defined(HAVE_PWD_H)
+#include <pwd.h>
+#endif
 
 static FILE	**filelog;
 static int	nfilelog;
@@ -1520,6 +1523,47 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	exit(1);
     }
     return pid;
+}
+
+int
+__pmSetProcessIdentity(const char *username)
+{
+    gid_t gid;
+    uid_t uid;
+    struct passwd *pw;
+
+#if defined(HAVE_GETPWNAM_R)	/* thread-safe variant first */
+    struct passwd pwd;
+    char buf[16*1024];
+    int sts;
+
+    sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
+    if (pw == NULL) {
+	__pmNotifyErr(LOG_WARNING,
+		"cannot find the %s user to switch to\n", username);
+	return (sts == 0) ? -ESRCH : -oserror();
+    }
+    uid = pwd.pw_uid;
+    gid = pwd.pw_gid;
+#elif defined(HAVE_GETPWNAM)
+    if ((pw = getpwnam(username)) == 0) {
+	__pmNotifyErr(LOG_WARNING,
+		"cannot find the %s user to switch to\n", username);
+	return -oserror();
+    }
+    uid = pw->pw_uid;
+    gid = pw->pw_gid;
+#else
+!bozo!
+#endif
+
+    if (setgid(gid) < 0 || setuid(uid) < 0) {
+	__pmNotifyErr(LOG_WARNING,
+		"cannot switch to uid/gid of %s user (%d/%d)\n", username, uid, gid);
+	return -oserror();
+    }
+
+    return 0;
 }
 
 int

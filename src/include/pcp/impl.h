@@ -1151,6 +1151,7 @@ extern int __pmProcessTerminate(pid_t, int);
 extern pid_t __pmProcessCreate(char **, int *, int *);
 extern int __pmProcessDataSize(unsigned long *);
 extern int __pmProcessRunTimes(double *, double *);
+extern int __pmSetProcessIdentity(const char *);
 
 /*
  * platform independent memory mapped file handling

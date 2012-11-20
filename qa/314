@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "rm -fr $tmp.* /tmp/$seq; exit \$status" 0 1 2 3 15
+trap "rm -fr $tmp.*; $sudo rm -fr /tmp/$seq; exit \$status" 0 1 2 3 15
 
 # create a pmie config file, causing frequent output (to log)
 cat > $tmp.config << EOF1
@@ -39,7 +39,8 @@ cat $tmp.control >>$seq.full
 
 # real QA test starts here
 $sudo $signal -a -s TERM pmie 2>/dev/null
-rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
+$sudo rm -fr /tmp/$seq && mkdir /tmp/$seq || exit 1
+id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp /tmp/$seq
 pmstore simple.numfetch 0 >/dev/null
 
 # fire em all up

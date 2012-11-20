@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Post installation/upgrade script for PCP
 #
 
@@ -94,5 +90,31 @@ then
 	fi
     done
 fi
+
+# create the user/group account that PCP daemons will use
+#
+userid=432
+groupid=432
+
+if dscl . -list /Groups | grep -q '^pcp$' 
+then
+    dscl . -create /Groups/pcp
+    dscl . -create /Groups/pcp PrimaryGroupID $groupid
+    dscl . -create /Groups/pcp Password \*
+fi
+
+if dscl . -list /Users | grep -q '^pcp$' 
+then
+    dscl . -create /Users/pcp
+    dscl . -create /Users/pcp UniqueID $userid
+    dscl . -create /Users/pcp UserShell /usr/bin/false
+    dscl . -create /Users/pcp RealName 'Performance Co-Pilot'
+    dscl . -create /Users/pcp NFSHomeDirectory /var/lib/pcp
+    dscl . -create /Users/pcp PrimaryGroupID $groupid
+    dscl . -create /Users/pcp Password \*
+    dscl . append /Groups/pcp GroupMembership pcp
+fi
+
+chown -R pcp:pcp /var/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
 
 status=0

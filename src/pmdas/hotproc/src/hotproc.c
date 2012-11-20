@@ -1505,6 +1505,7 @@ main(int argc, char **argv)
 
     if (!parse_only) {
 	pmdaOpenLog(&dispatch);
+	__pmSetProcessIdentity("pcp");
 	log = dispatch.version.two.ext->e_logfile;
     }
 

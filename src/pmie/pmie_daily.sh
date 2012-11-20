@@ -41,10 +41,10 @@ unset PCP_STDERR
 
 # constant setup
 #
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
-echo >$tmp.lock
-trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
+echo >$tmp/lock
+trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 if is_chkconfig_on pmie
@@ -207,13 +207,13 @@ _report()
 {
     echo "$prog: $1: $2"
     echo "[$CONTROL:$line] ... inference engine for host \"$host\" unchanged"
-    touch $tmp.err
+    touch $tmp/err
 }
 
 _unlock()
 {
     rm -f lock
-    echo >$tmp.lock
+    echo >$tmp/lock
 }
 
 # filter for pmie log files in working directory -
@@ -228,34 +228,34 @@ _date_filter()
     # the PCP pmie log file management scripts ... this list may be
     # reduced by the sed filtering later on
     #
-    ls | sed -n >$tmp.in -e '/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/p'
+    ls | sed -n >$tmp/in -e '/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/p'
 
     i=0
     while [ $i -le $1 ]
     do
 	dmax=`expr $i + 200`
 	[ $dmax -gt $1 ] && dmax=$1
-	echo "/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/{" >$tmp.sed1
+	echo "/[-.][12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]/{" >$tmp/sed1
 	while [ $i -le $dmax ]
 	do
 	    x=`pmdate -${i}d %Y%m%d`
-	    echo "/[-.]$x/d" >>$tmp.sed1
+	    echo "/[-.]$x/d" >>$tmp/sed1
 	    i=`expr $i + 1`
 	done
-	echo "p" >>$tmp.sed1
-	echo "}" >>$tmp.sed1
+	echo "p" >>$tmp/sed1
+	echo "}" >>$tmp/sed1
 
 	# cull file names with matching dates, keep other file names
 	#
-	sed -n -f $tmp.sed1 <$tmp.in >$tmp.tmp
-	mv $tmp.tmp $tmp.in
+	sed -n -f $tmp/sed1 <$tmp/in >$tmp/tmp
+	mv $tmp/tmp $tmp/in
     done
 
-    cat $tmp.in
+    cat $tmp/in
 }
 
 
-rm -f $tmp.err $tmp.mail
+rm -f $tmp/err $tmp/mail
 line=0
 version=''
 cat $CONTROL \
@@ -342,20 +342,20 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# demand mutual exclusion
 	#
 	fail=true
-	rm -f $tmp.stamp
+	rm -f $tmp/stamp
 	for try in 1 2 3 4
 	do
-	    if pmlock -v lock >$tmp.out
+	    if pmlock -v lock >$tmp/out
 	    then
-		echo $dir/lock >$tmp.lock
+		echo $dir/lock >$tmp/lock
 		fail=false
 		break
 	    else
-		if [ ! -f $tmp.stamp ]
+		if [ ! -f $tmp/stamp ]
 		then
-		    touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
+		    touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
 		fi
-		if [ ! -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
+		if [ ! -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
 		then
 		    :
 		else
@@ -376,7 +376,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		echo "$prog: Warning: is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l $dir/lock
 	    else
-		echo "$prog: `cat $tmp.out`"
+		echo "$prog: `cat $tmp/out`"
 	    fi
 	    _warning "failed to acquire exclusive lock ($dir/lock) ..."
 	    continue
@@ -440,10 +440,10 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	then
 	    $VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
 	    eval $KILL -s HUP $pid
-	    echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp.mail
+	    echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp/mail
 	else
 	    _error "problems moving logfile \"$logfile\" for host \"$host\""
-	    touch $tmp.err
+	    touch $tmp/err
 	fi
     fi
 
@@ -451,19 +451,19 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
     #
     if [ X"$CULLAFTER" != X"forever" ]
     then
-	_date_filter $CULLAFTER >$tmp.list
-	if [ -s $tmp.list ]
+	_date_filter $CULLAFTER >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
 		echo "Log files older than $CULLAFTER days being removed ..."
-		fmt <$tmp.list | sed -e 's/^/    /'
+		fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
 	    if $SHOWME
 	    then
-		cat $tmp.list | xargs echo + rm -f
+		cat $tmp/list | xargs echo + rm -f
 	    else
-		cat $tmp.list | xargs rm -f
+		cat $tmp/list | xargs rm -f
 	    fi
 	fi
     fi
@@ -473,19 +473,19 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
     #
     if [ ! -z "$COMPRESSAFTER" ]
     then
-	_date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp.list
-	if [ -s $tmp.list ]
+	_date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
 		echo "Log files older than $COMPRESSAFTER days being compressed ..."
-		fmt <$tmp.list | sed -e 's/^/    /'
+		fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
 	    if $SHOWME
 	    then
-		cat $tmp.list | xargs echo + $COMPRESS
+		cat $tmp/list | xargs echo + $COMPRESS
 	    else
-		cat $tmp.list | xargs $COMPRESS
+		cat $tmp/list | xargs $COMPRESS
 	    fi
 	fi
     fi
@@ -494,15 +494,15 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 
 done
 
-if [ -n "$MAILME" -a -s $tmp.mail ]
+if [ -n "$MAILME" -a -s $tmp/mail ]
 then
     logs=""
-    for file in `cat $tmp.mail`
+    for file in `cat $tmp/mail`
     do
 	[ -f $file ] && logs="$logs $file"
     done
-    egrep -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp.logmail
-    if [ ! -s "$tmp.logmail" ]
+    egrep -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp/logmail
+    if [ ! -s "$tmp/logmail" ]
     then
 	:
     elif [ ! -z "$MAIL" ]
@@ -513,8 +513,8 @@ then
 	echo "$prog: PMIE summary for $LOCALHOSTNAME ..."
 	egrep -v '( OK | OK$|^$)' $logs
     fi
-    rm -f $tmp.mail $tmp.logmail
+    rm -f $tmp/mail $tmp/logmail
 fi
 
-[ -f $tmp.err ] && status=1
+[ -f $tmp/err ] && status=1
 exit

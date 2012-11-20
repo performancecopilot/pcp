@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -44,7 +45,7 @@ $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 		pmda_units(0,0,0,0,0,0), 'netfilter.ip_conntrack_count', '', '');
 
 $pmda->set_fetch_callback(\&netfilter_fetch_callback);
-$pmda->set_user('nobody');
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

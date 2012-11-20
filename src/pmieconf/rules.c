@@ -2288,20 +2288,25 @@ lookup_processes(int *count, char ***processes)
     pmiestats_t		*stats;
     struct dirent	*dp;
     struct stat		statbuf;
+    int			sep = __pmPathSeparator();
 
-    if ((dirp = opendir(PMIE_DIR)) == NULL) {
+    snprintf(proc, sizeof(proc), "%s%c%s",
+	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
+    if ((dirp = opendir(proc)) == NULL) {
 	snprintf(errmsg, sizeof(errmsg), "cannot opendir %s: %s",
-		PMIE_DIR, osstrerror());
+		 proc, osstrerror());
 	return NULL;
     }
     while ((dp = readdir(dirp)) != NULL) {
 	/* bunch of checks to find valid pmie data files... */
 	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 	    continue;
-	snprintf(proc, sizeof(proc), "%s/%s", PROC_DIR, dp->d_name);	/* check /proc */
+	snprintf(proc, sizeof(proc), "%s%c%s",
+		 PROC_DIR, sep, dp->d_name);	/* check /proc */
 	if (access(proc, F_OK) < 0)
 	    continue;	/* process has exited */
-	snprintf(proc, sizeof(proc), "%s/%s", PMIE_DIR, dp->d_name);
+	snprintf(proc, sizeof(proc), "%s%c%s%c%s",
+		 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep, dp->d_name);
 	if (stat(proc, &statbuf) < 0)
 	    continue;
 	if (statbuf.st_size != sizeof(pmiestats_t))

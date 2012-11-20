@@ -12,27 +12,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Install the cisco PMDA and/or PMNS
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=cisco
-
-# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
-#
 pmda_interface=2
+forced_restart=false
 
 # Do it
 #
@@ -85,7 +73,7 @@ A username and/or user-level password may be required for the Cisco
 	    echo "Probing Cisco for list of interfaces ..."
 	    for try in 1 2 3
 	    do
-		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$tmp.err`
+		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$tmp/err`
 		[ ! -z "$intf" ] && break
 		sleep 2
 	    done
@@ -94,7 +82,7 @@ A username and/or user-level password may be required for the Cisco
 		echo '
 There appears to be a problem ... after three attempts could not get
 interfaces.  Output at the last attempt was:'
-		sed -e 's/^/    /' <$tmp.err
+		sed -e 's/^/    /' <$tmp/err
 		echo '
 You may wish to try the following commands to identify the configured
 interfaces for this Cisco.

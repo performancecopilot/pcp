@@ -19,13 +19,11 @@
 #include <pwd.h>
 #endif
 
-int 		proxy_hi_openfds = -1;   /* Highest known file descriptor for pmproxy */
-
 static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
-static char	*username;
+static char	*username = "pcp";
 
 /*
  * For maintaining info about a request port that clients may connect to
@@ -172,7 +170,7 @@ ParseOptions(int argc, char *argv[])
 	    case 'L': /* Maximum size for PDUs from clients */
 		val = (int)strtol (optarg, NULL, 0);
 		if ( val <= 0 ) {
-		    fputs ("pmproxy: -L require a posivite value\n", stderr);
+		    fputs ("pmproxy: -L requires a positive value\n", stderr);
 		    errflag++;
 		} else {
 		    __pmSetPDUCeiling (val);

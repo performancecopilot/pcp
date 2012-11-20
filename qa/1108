@@ -62,6 +62,11 @@ echo "Files to be removed before we start ..." >>$seq.full
 ls -l $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.* >>$seq.full 2>&1
 $sudo rm -f $PCP_LOG_DIR/pmlogger/*/$SUMMARY_LOGNAME.*
 
+# create a temporary control file with well-known contents
+$sudo rm -f $tmp.control
+echo '$version=1.1' >> $tmp.control
+echo 'LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c config.default' >> $tmp.control
+
 # make sure  pmlogger_daily gets a timestamp that is at least
 # a minute after the previous primary logger was started to avoid
 # the collision on the timestamp and the extra 3 mv's needed to
@@ -92,6 +97,6 @@ done
 echo "done, now=$now" >>$seq.full
 
 # real QA test starts here
-pmlogger_daily $oflag -k 550 -N 2>&1 \
+pmlogger_daily $oflag -k 550 -N -c $tmp.control 2>&1 \
 | tee -a $seq.full \
 | _filter

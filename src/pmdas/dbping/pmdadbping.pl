@@ -102,6 +102,7 @@ $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->set_fetch_callback( \&dbping_fetch_callback );
 $pmda->set_store_callback( \&dbping_store_callback );
 $pmda->add_pipe( $dbprobe, \&dbping_probe_callback, 0 );
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

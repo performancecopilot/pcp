@@ -37,13 +37,14 @@ mkdir $tmp
 
 # need to handle diff-c lines like this
 # *** TMP.conf	2010-06-17 06:36:00.000000000 +1000
-# --- /var/tmp/26102.ctl	2010-06-17 06:36:01.000000000 +1000
+# --- /var/tmp/pcp.[a0Sg619P4/]ctl  2012-11-16 13:37:29.000000000 +0000
 #
 _filter()
 {
     sed \
 	-e "s;$tmp;TMP;g" \
 	-e '/^\*\*\* TMP\.conf/s/\.conf.*/.orig .../' \
+	-e '/^--- .*\/ctl/s/ .*/ TMP.new .../' \
 	-e '/^--- .*\.ctl/s/ .*/ TMP.new .../'
 }
 

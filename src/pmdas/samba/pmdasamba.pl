@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -120,6 +121,7 @@ close STATS;
 
 $pmda->set_fetch(\&samba_fetch);
 $pmda->set_fetch_callback(\&samba_fetch_callback);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

@@ -21,6 +21,7 @@
 iam=postgresql
 perl_opt=true
 daemon_opt=false
+forced_restart=true
 
 perl -e "use DBI" 2>/dev/null
 if test $? -ne 0; then

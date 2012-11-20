@@ -13,14 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ ! -f $PCP_BINADM_DIR/pmproxy ]
-then
-    echo "need $PCP_BINADM_DIR/pmproxy" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+[ -x $PCP_BINADM_DIR/pmproxy ] || \
+    _notrun "need $PCP_BINADM_DIR/pmproxy"
 
 hostname=`_get_fqdn`
+[ "$hostname" = "localhost" -o "$hostname" = "localhost.localdomain" ] && \
+    _notrun "need sensible setup, not simply hostname => localhost"
 
 _filter()
 {
@@ -31,6 +29,7 @@ _filter()
 }
 
 signal=$PCP_BINADM_DIR/pmsignal
+username=`id -u -n`
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -45,15 +44,16 @@ _cleanup()
 $sudo $signal -a pmproxy
 sleep 1
 
-PMPROXY_HOST=$hostname
-export PMPROXY_HOST
+export PMPROXY_HOST=$hostname
+proxyargs=""
+id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 
 echo "== pmproxy not running =="
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== simplest default case =="
-$PCP_BINADM_DIR/pmproxy
+$PCP_BINADM_DIR/pmproxy $proxyargs
 sleep 1
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
@@ -63,14 +63,13 @@ pmprobe -v -h localhost hinv.ncpu 2>&1 | _filter
 
 echo
 echo "== non-standard PMPROXY_PORT, expect failure =="
-PMPROXY_PORT=94322
-export PMPROXY_PORT
+export PMPROXY_PORT=94322
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== non-standard PMPROXY_PORT, expect success =="
 $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
-$PCP_BINADM_DIR/pmproxy
+$PCP_BINADM_DIR/pmproxy $proxyargs
 sleep 1
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
@@ -78,13 +77,13 @@ echo
 echo "== restricted interface for connections, expect failure =="
 unset PMPROXY_PORT
 $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
-$PCP_BINADM_DIR/pmproxy -i 127.0.0.1
+$PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs
 sleep 1
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== restricted interface for connections, expect success =="
-PMPROXY_HOST=localhost
+export PMPROXY_HOST=localhost
 pmprobe -v sample.long.hundred 2>&1 | _filter
 
 # success, all done

@@ -30,7 +30,7 @@ else
 fi
 
 rm -f $seq.out
-if $PCP_BINADM_DIR/pmlogger_check -x 2>&1 | grep NTV >/dev/null
+if grep ^TERSE= $PCP_BINADM_DIR/pmlogger_check >/dev/null
 then
     # new version with -T option
     #
@@ -113,6 +113,7 @@ cat $tmp.out >$seq.full
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
+id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp $LOGGING_DIR
 echo "+++ before pmcd start ..." >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
 echo "+++" >>$seq.full

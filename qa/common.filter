@@ -220,6 +220,7 @@ _filter_optional_pmdas()
 	-e '/pmdaoraping/d' \
 	-e '/pmdapdns/d' \
 	-e '/pmdapmcd/d' \
+	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
 	-e '/pmdarsyslog/d' \
 	-e '/pmdaroomtemp/d' \

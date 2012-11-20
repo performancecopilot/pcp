@@ -454,6 +454,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     bash_init(&desc);
     pmdaConnect(&desc);
     bash_main(&desc);

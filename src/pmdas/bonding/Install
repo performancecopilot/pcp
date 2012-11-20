@@ -25,6 +25,7 @@
 iam=bonding
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -d /sys/class/net; then
     echo "SYSFS not enabled in your kernel"

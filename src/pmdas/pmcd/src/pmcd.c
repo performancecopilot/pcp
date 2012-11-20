@@ -358,7 +358,7 @@ remove_pmie_indom(void)
     npmies = 0;
 }
 
-/* use a static timestamp, stat PMIE_DIR, if changed update "pmies" */
+/* use a static timestamp, stat PMIE_SUBDIR, if changed update "pmies" */
 static unsigned int
 refresh_pmie_indom(void)
 {
@@ -374,7 +374,9 @@ refresh_pmie_indom(void)
     int			fd;
     int			sep = __pmPathSeparator();
 
-    if (stat(PMIE_DIR, &statbuf) == 0) {
+    snprintf(fullpath, sizeof(fullpath), "%s%c%s",
+	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
+    if (stat(fullpath, &statbuf) == 0) {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
 	if (statbuf.st_mtime != lastsbuf.st_mtime)
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
@@ -394,9 +396,9 @@ refresh_pmie_indom(void)
 		remove_pmie_indom();
 
 	    /* open the directory iterate through mmaping as we go */
-	    if ((pmiedir = opendir(PMIE_DIR)) == NULL) {
+	    if ((pmiedir = opendir(fullpath)) == NULL) {
 		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
-				PMIE_DIR, osstrerror());
+				fullpath, osstrerror());
 		return 0;
 	    }
 	    /* NOTE:  all valid files are already mmapped by pmie */
@@ -407,7 +409,9 @@ refresh_pmie_indom(void)
 		    continue;
 		if (!__pmProcessExists(pmiepid))
 		    continue;
-		snprintf(fullpath, sizeof(fullpath), "%s%c%s", PMIE_DIR, sep, dp->d_name);
+		snprintf(fullpath, sizeof(fullpath), "%s%c%s%c%s",
+			 pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR, sep,
+			 dp->d_name);
 		if (stat(fullpath, &statbuf) < 0) {
 		    __pmNotifyErr(LOG_WARNING, "pmcd pmda cannot stat %s: %s",
 				fullpath, osstrerror());

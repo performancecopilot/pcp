@@ -256,6 +256,7 @@ $pmda->add_indom($gpsd_sat_indom, \@gpsd_sat_dom, '', '');
 $pmda->add_pipe($gpspipe, \&gpsd_pipe_callback, 0);
 
 $pmda->set_fetch_callback(\&gpsd_fetch_callback);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

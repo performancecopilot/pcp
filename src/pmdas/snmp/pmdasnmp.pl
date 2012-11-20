@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -349,6 +350,7 @@ if ($option->{debug}) {
     $pmda->log("db=".Dumper($db)."\n");
     $pmda->log("option=".Dumper($option)."\n");
 }
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

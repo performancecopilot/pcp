@@ -21,7 +21,8 @@
 #include <sys/types.h>
 #include <sys/param.h>
 
-#define PMIE_DIR	"/var/tmp/pmie"
+/* subdir nested under PCP_TMP_DIR */
+#define PMIE_SUBDIR	"pmie"
 
 /* pmie performance instrumentation */
 typedef struct {

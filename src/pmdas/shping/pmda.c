@@ -20,7 +20,7 @@
 
 __uint32_t	cycletime = 120;	/* default cycle time, 2 minutes */
 __uint32_t	timeout = 20;		/* response timeout in seconds */
-
+static char	*username = "pcp";	/* user account to run under */
 cmd_t		*cmdlist;
 
 #ifdef HAVE_SPROC
@@ -86,7 +86,8 @@ Options:\n\
                command [default 120 seconds]\n\
   -l logfile   write log into logfile rather than using the default log\n\
   -t timeout   time in seconds before aborting the wait for individual\n\
-               commands to complete [default 20 seconds]\n",
+               commands to complete [default 20 seconds]\n\
+  -U username  run the agent and commands as alternate user [default \"pcp\"]\n",
 	pmProgname);
     exit(1);
 }
@@ -117,7 +118,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SHPING, 
 		"shping.log", mypath);
 
-    while ((n = pmdaGetOpt(argc, argv,"CD:d:I:l:t:?",
+    while ((n = pmdaGetOpt(argc, argv,"CD:d:I:l:t:U:?",
 			&dispatch, &err)) != EOF) {
 	switch (n) {
 
@@ -143,6 +144,10 @@ main(int argc, char **argv)
 			    pmProgname);
 		    err++;
 		}
+		break;
+
+	    case 'U':
+		username = optarg;
 		break;
 
 	    case '?':
@@ -241,6 +246,8 @@ main(int argc, char **argv)
 #endif
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity(username);
+
     shping_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

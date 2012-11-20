@@ -220,8 +220,8 @@ class pmAtomValue(Union):
 
     Constants for specifying metric types are defined in module pmapi
     """
-    _fields_ = [ ("l", c_long),
-                 ("ul", c_ulong),
+    _fields_ = [ ("l", c_int),
+                 ("ul", c_uint),
                  ("ll", c_longlong),
                  ("ull", c_ulonglong),
                  ("f", c_float),
@@ -426,7 +426,7 @@ class pmLogLabel(Structure):
     """Label Record at the start of every log file - as exported above the PMAPI
     """
     _fields_ = [ ("magic", c_int),
-                 ("pid_t", c_long),
+                 ("pid_t", c_int),
                  ("start", timeval),
                  ("hostname", c_char * PM_LOG_MAXHOSTLEN),
                  ("tz", c_char * PM_TZ_MAXLEN) ]
@@ -438,7 +438,7 @@ class pmRecordHost(Structure):
     _fields_ = [ ("f_config", c_void_p),
                  ("fd_ipc", c_int),
                  ("logfile", c_char_p),
-                 ("pid", c_long),
+                 ("pid", c_int),
                  ("status", c_int) ]
 
 

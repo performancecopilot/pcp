@@ -1421,3 +1421,17 @@ _restore_pmda_install()
         fi
     fi
 }
+
+# find a local port that is not in use, optionally starting from a suggested port
+#
+_find_free_port()
+{
+    base=$1
+    [ -z "$base" ] && base=54321
+
+    while $PCP_BINADM_DIR/telnet-probe -c localhost $base
+    do
+	base=`expr $base + 1`
+    done
+    echo $base
+}
