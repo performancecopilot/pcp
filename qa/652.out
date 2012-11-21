@@ -1,0 +1,46 @@
+QA output created by 652
+Found journalctl
+Found recent enough journalctl
+You will need to choose an appropriate configuration for installation of
+the "systemd" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Install systemd as a daemon or dso agent? [daemon] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Check systemd metrics have appeared ... 7 metrics and 2 values
+
+=== 1. scalar metrics  ===
+
+systemd.numclients
+    value 1
+
+systemd.maxmem
+    value 2097152
+
+systemd.journal.cursor
+No value(s) available!
+
+systemd.journal.string
+No value(s) available!
+
+systemd.journal.blob
+No value(s) available!
+
+systemd.journal.records
+No value(s) available!
+
+systemd.journal.records_raw
+No value(s) available!
+
+=== 2. journald.records  ===
+    systemd.journal.string "MESSAGE=yo"
+
+=== 3. journald.records  ===
+    systemd.journal.blob [4d4553534147453d796f]
