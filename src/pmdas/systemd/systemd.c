@@ -223,9 +223,16 @@ systemd_journal_decoder(int eventarray, void *buffer, size_t size,
 
         /* Infer string upon absence of embedded \0's. */
         if (jfe == JFE_STRING_BLOB_AUTO && (memchr (data, '\0', data_len) == NULL)) {
-            atom.cp = (char *)data;
-            sts = pmdaEventAddParam(eventarray, METRICTAB_JOURNAL_STRING_PMID,
-                                    PM_TYPE_STRING, &atom);
+            /* Unfortunately, data may not be \0-terminated, so we can't simply pass
+               it to atom.cp.  We need to copy the bad boy first. */
+            atom.cp = strndup(data, data_len);
+            if (atom.cp == NULL)
+                sts = -ENOMEM;
+            else {
+                sts = pmdaEventAddParam(eventarray, METRICTAB_JOURNAL_STRING_PMID,
+                                        PM_TYPE_STRING, &atom);
+                free (atom.cp);
+            }
             /* NB: we assume libpcp_pmda will not free() the field. */
         } else {
             pmValueBlock *aggr = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + data_len);
