@@ -36,7 +36,7 @@ pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmi
 _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options] [host]
+    echo 1>&2 "Usage: $prog [options]
 
 Options:
   -a archive    metrics source is a PCP log archive
