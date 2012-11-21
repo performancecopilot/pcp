@@ -388,6 +388,11 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/^Waiting for PMCD/{
 s/PMCD/pmcd/
 s/\.\.\.[. ]*done/.../
+s/\.\.\.\.*/.../
+}' \
+	-e '/^Waiting for pmcd/{
+s/\.\.\.[. ]*done/.../
+s/\.\.\.\.*/.../
 }' \
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
@@ -403,6 +408,11 @@ _filter_pcp_stop()
 	-e '/^Waiting for PMCD/{
 s/\.\.\.[. ]*done/.../
 s/PMCD/pmcd/
+s/\.\.\.\.*/.../
+}' \
+	-e '/^Waiting for pmcd/{
+s/\.\.\.[. ]*done/.../
+s/\.\.\.\.*/.../
 }' \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
 	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
