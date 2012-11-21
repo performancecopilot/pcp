@@ -79,7 +79,7 @@ pkgpcp_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_testsuite);
 pkgpcp_python = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG AWK=gawk;
-configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
