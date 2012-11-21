@@ -137,6 +137,7 @@ s/     [12] dso/1-or-2 dso/
 s/lib=\/usr\//lib=\/usr-or-var\//
 s/lib=\/var\//lib=\/usr-or-var\//
 }' \
+    -e 's/__pmGetHostByName/gethostbyname/g' \
     -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
     -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
     -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
