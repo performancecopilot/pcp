@@ -135,7 +135,7 @@ binary-arch: checkroot build-stamp
 	dh_installchangelogs
 	dh_strip
 	dh_compress
-	dh_fixperms
+	dh_fixperms -X/tmp
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
