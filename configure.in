@@ -35,6 +35,14 @@ AC_ARG_WITH(
     [do_threads=$withval],
     [do_threads=check])
 
+AC_ARG_WITH(
+    [tmpdir],
+    [AS_HELP_STRING(
+	    [--with-tmpdir],
+	    [define a temporary directory])],
+    [with_tmpdir=$withval],
+    [with_tmpdir=default])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -1787,11 +1795,16 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
 dnl temp files; these can go into system /tmp independent of $prefix
-if test -d /var/tmp
+if test "$with_tmpdir" = default
 then
-    pcp_tmp_dir=/var/tmp
+    if test -d /var/tmp
+    then
+        pcp_tmp_dir=/var/tmp
+    else
+        pcp_tmp_dir=/tmp
+    fi
 else
-    pcp_tmp_dir=/tmp
+    pcp_tmp_dir=`eval echo $with_tmpdir`
 fi
 AC_SUBST(pcp_tmp_dir)
 

@@ -108,7 +108,6 @@ main(int argc, char **argv)
 	    archive = optarg;
 	    break;
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -119,7 +118,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
@@ -258,6 +256,8 @@ main(int argc, char **argv)
 	if ((sts = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
+	} else {
+	    pmFreeResult(resp);
 	}
 	when.tv_usec -= delta * 1000;
 	if (when.tv_usec < 0) {
@@ -290,11 +290,13 @@ main(int argc, char **argv)
 	    break;
 	}
 	cmpres(n, resvec[n], resp);
+	pmFreeResult(resvec[n]);
 	pmFreeResult(resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", n);
     fflush(stdout);
+    free(resvec);
 
     exit(0);
 }

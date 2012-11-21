@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 #DEBHELPER#
 touch /var/lib/pcp/pmns/.NeedRebuild
 chmod 644 /var/lib/pcp/pmns/.NeedRebuild

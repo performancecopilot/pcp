@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -653,6 +654,10 @@ shping_init(pmdaInterface *dp)
 	dp->status = 0;
         logmessage(LOG_INFO, "Started sproc (spid=%" FMT_PID ")\n", sprocpid);
     }
+
+    /* we're talking to pmcd ... no timeout's for us thanks */
+    signal(SIGALRM, SIG_IGN);
+
 #elif defined (HAVE_PTHREAD_H)
     {
 	int err = pthread_create(&sprocpid, NULL, (void (*))refresh, NULL);
@@ -662,15 +667,10 @@ shping_init(pmdaInterface *dp)
 	    dp->status = err;
 	} else {
 	    dp->status = 0;
-	    logmessage (LOG_INFO, "Started thread %" FMT_PTHREAD "\n", sprocpid);
+	    logmessage (LOG_INFO, "Started refresh thread\n");
 	}
     }
 #else
 #error "Need pthreads or sproc"
 #endif
-
-    /* we're talking to pmcd ... no timeout's for us thanks */
-    signal(SIGALRM, SIG_IGN);
-
-    return;
 }

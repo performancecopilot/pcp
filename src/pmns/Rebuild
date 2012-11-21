@@ -26,12 +26,11 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=./$$
+tmp=`mktemp -d ./pcp.XXXXXXXXX` || exit 1
 status=1
-rm -f $tmp.*
 
 $PCP_SHARE_DIR/lib/lockpmns root
-trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$PCP_SHARE_DIR/lib/unlockpmns root; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 _trace()
 {
@@ -43,7 +42,7 @@ _trace()
 	then
 	    echo "$*"
 	else
-	    echo "$*" >>$tmp.trace
+	    echo "$*" >>$tmp/trace
 	fi
     fi
 }
@@ -58,7 +57,7 @@ _trace_file()
 	then
 	    cat $1
 	else
-	    cat $1 >>$tmp.trace
+	    cat $1 >>$tmp/trace
 	fi
     fi
 }
@@ -71,7 +70,7 @@ _syslog()
 
 _die()
 {
-    [ -f $tmp.trace ] && cat $tmp.trace
+    [ -f $tmp/trace ] && cat $tmp/trace
     rm -f root.new
     exit
 }
@@ -103,7 +102,7 @@ _upgrade_root()
 {
     [ ! -f root ] && return
     _trace "Rebuild: PCP upgrade processing for \"root\" PMNS changes ..."
-    $nochanges && _trace "+ cull root_* names from PMNS ... <root >$tmp.root"
+    $nochanges && _trace "+ cull root_* names from PMNS ... <root >$tmp/root"
 
     # Cull root to remove all metrics from root_* files, so only metrics
     # for optional PMDAs remain
@@ -154,7 +153,7 @@ done`
 	_trace "`echo $EXCLUDE | fmt | sed -e 's/^/    /'`"
     fi
 
-    $PCP_AWK_PROG <root >$tmp.root '
+    $PCP_AWK_PROG <root >$tmp/root '
 BEGIN	{   # exclude these top-level names and all their descendents
 	    #
 	    n = split("'"$EXCLUDE"'", e)
@@ -177,13 +176,13 @@ $2 == "{"			{ n = split($1, name, ".")
 skip && $1 == "}"		{ skip = 0; next }
 skip				{ next }
 				{ print }'
-    if cmp -s root $tmp.root >/dev/null 2>&1
+    if cmp -s root $tmp/root >/dev/null 2>&1
     then
 	# no changes ... already been here?
 	:
     else
 	# we will usually end up here
-	root=$tmp.root
+	root=$tmp/root
 	root_updated=true
     fi
 }
@@ -285,7 +284,7 @@ else
     then
 	_trace "+ create empty root PMNS ..."
     else
-	root=$tmp.root
+	root=$tmp/root
 	cat <<EOFEOF >$root
 root {
 }
@@ -312,14 +311,14 @@ rm -f root.new
 eval $PMNSMERGE
 if $dupok
 then
-    pmnsmerge $verbose -d $root $mergelist root.new >$tmp.out 2>&1
+    pmnsmerge $verbose -d $root $mergelist root.new >$tmp/out 2>&1
 else
-    pmnsmerge $verbose $root $mergelist root.new >$tmp.out 2>&1
+    pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
 fi
 
 if [ $? != 0 ]
 then
-    cat $tmp.out
+    cat $tmp/out
     _syslog "$prog: pmnsmerge failed"
     _trace "         \"root\" has not been changed."
     _die
@@ -331,34 +330,34 @@ if [ -f root ]
 then
     if $dupok
     then
-	pminfo -m -N root 2>/dev/null | sort >$tmp.list.old
+	pminfo -m -N root 2>/dev/null | sort >$tmp/list.old
     else
-	pminfo -m -n root 2>/dev/null | sort >$tmp.list.old
+	pminfo -m -n root 2>/dev/null | sort >$tmp/list.old
     fi
 fi
-if [ ! -s $tmp.list.old ]
+if [ ! -s $tmp/list.old ]
 then
     if $dupok
     then
-	pminfo -m -N $root 2>/dev/null | sort >$tmp.list.old
+	pminfo -m -N $root 2>/dev/null | sort >$tmp/list.old
     else
-	pminfo -m -n $root 2>/dev/null | sort >$tmp.list.old
+	pminfo -m -n $root 2>/dev/null | sort >$tmp/list.old
     fi
 fi
 if $dupok
 then
-    pminfo -m -N root.new | sort >$tmp.list.new
+    pminfo -m -N root.new | sort >$tmp/list.new
 else
-    pminfo -m -n root.new | sort >$tmp.list.new
+    pminfo -m -n root.new | sort >$tmp/list.new
 fi
-if cmp -s $tmp.list.old $tmp.list.new > /dev/null 2>&1
+if cmp -s $tmp/list.old $tmp/list.new > /dev/null 2>&1
 then
     [ ! -f root ] && eval $MV root.new root
     _trace "$prog: PMNS is unchanged."
 else
     # Install the new root
     #
-    [ ! -z "$verbose" ] && _trace_file $tmp.out
+    [ ! -z "$verbose" ] && _trace_file $tmp/out
     if $haveroot
     then
 	_trace "$prog: PMNS \"$here/root\" updated."
@@ -376,12 +375,12 @@ else
     if [ ! -z "$verbose" ] && $haveroot
     then
 	_trace "+ PMNS differences ..."
-	diff -c $tmp.list.old $tmp.list.new >$tmp.diff
-	_trace_file $tmp.diff
+	diff -c $tmp/list.old $tmp/list.new >$tmp/diff
+	_trace_file $tmp/diff
 	_trace
 	_trace "+ root differences ..."
-	diff -c root.prev root >$tmp.diff
-	_trace_file $tmp.diff
+	diff -c root.prev root >$tmp/diff
+	_trace_file $tmp/diff
     fi
 fi
 rm -f root.new
@@ -390,7 +389,7 @@ rm -f root.new
 #
 [ -f Make.stdpmid ] && ./Make.stdpmid
 
-[ X"$verbose" = X-v -a -f $tmp.trace ] && cat $tmp.trace
+[ X"$verbose" = X-v -a -f $tmp/trace ] && cat $tmp/trace
 
 status=0
 exit

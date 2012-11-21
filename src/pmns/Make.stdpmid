@@ -22,20 +22,19 @@
 
 if [ -d $PCP_TMP_DIR ]
 then
-    tmp=$PCP_TMP_DIR/$$
+    tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
 else
     # if configure --prefix is used in a the build, then $PCP_TMP_DIR may
     # not yet exist ... /tmp is a safe bet
     #
-    tmp=/tmp/$$
+    tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 fi
 status=1
-rm -f $tmp.*
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 prog=`basename $0`
 OLD=stdpmid
-NEW=$tmp.new
+NEW=$tmp/new
 SOURCE=""
 for file in `echo stdpmid.*`
 do
@@ -73,9 +72,9 @@ do
 	-e '/^ASH /s/7/11/'
 done \
 | sort -n -k2,3 \
-| uniq >$tmp.tmp
+| uniq >$tmp/tmp
 
-if [ -s "$tmp.tmp" ]
+if [ -s "$tmp/tmp" ]
 then
     error=false
 else
@@ -85,7 +84,7 @@ fi
 
 # scan for duplicate domain name, but different domain number
 #
-$PCP_AWK_PROG '{ print $1 }' <$tmp.tmp \
+$PCP_AWK_PROG '{ print $1 }' <$tmp/tmp \
 | sort \
 | uniq -c \
 | while read cnt domain
@@ -98,7 +97,7 @@ done
 
 # scan for duplicate domain number, but different domain name
 #
-$PCP_AWK_PROG '{ print $2 }' <$tmp.tmp \
+$PCP_AWK_PROG '{ print $2 }' <$tmp/tmp \
 | sort \
 | uniq -c \
 | while read cnt number
@@ -150,7 +149,7 @@ cat <<'End-of-File' >$NEW
 
 End-of-File
 
-cat $tmp.tmp \
+cat $tmp/tmp \
 | while read domain number
 do
     echo "#define $domain	$number" >>$NEW

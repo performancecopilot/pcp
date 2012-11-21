@@ -3,9 +3,9 @@
 # install a PCP *.dmg package from the command line ...
 # run from the build/mac directory in a PCP build tree after Makepkgs
 #
-tmp=/var/tmp/$$
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 sts=1
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 disk_image=`echo pcp-*.dmg | sed -e 's/$/ /' -e 's/[^ ]*\.tmp\.dmg / /' -e 's/ $//'`
 if [ "$disk_image" = "pcp-*.dmg" ]
@@ -22,22 +22,22 @@ then
 fi
 
 base=`echo $disk_image | sed -e 's/\.dmg$//'`
-if hdiutil attach $disk_image >$tmp.out 2>&1
+if hdiutil attach $disk_image >$tmp/out 2>&1
 then
     :
 else
-    cat $tmp.out
+    cat $tmp/out
     echo "Error: hdiutil attach failed"
     exit
 fi
 
 if [ -d /Volumes/$base/$base.pkg ]
 then
-    if sudo installer -pkg /Volumes/$base/$base.pkg -target / >$tmp.out 2>&1
+    if sudo installer -pkg /Volumes/$base/$base.pkg -target / >$tmp/out 2>&1
     then
 	sts=0
     else
-	cat $tmp.out
+	cat $tmp/out
 	echo "Error: installer failed"
     fi
 else
@@ -46,11 +46,11 @@ else
     exit
 fi
 
-if hdiutil detach /Volumes/$base >$tmp.out 2>&1
+if hdiutil detach /Volumes/$base >$tmp/out 2>&1
 then
     :
 else
-    cat $tmp.out
+    cat $tmp/out
     echo "Error: hdiutil detach failed"
     sts=1
     exit

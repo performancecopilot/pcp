@@ -21,8 +21,8 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp; exit" 0 1 2 3 15
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _setup_platform()
 {
@@ -59,17 +59,17 @@ _setup_localhost()
 	# Larry Wall style hunt for the version of ping that is first
 	# on our path
 	#
-	ping --help >$tmp 2>&1
-	if grep '.-c count' $tmp >/dev/null 2>&1
+	ping --help >$tmp/hlp 2>&1
+	if grep '.-c count' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='-c 1 localhost'
-	elif grep '.-n count' $tmp >/dev/null 2>&1
+	elif grep '.-n count' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='-n 1 localhost'
-	elif grep 'host .*packetsize .*count' $tmp >/dev/null 2>&1
+	elif grep 'host .*packetsize .*count' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='localhost 56 1'
-	elif grep 'host .*data_size.*npackets' $tmp >/dev/null 2>&1
+	elif grep 'host .*data_size.*npackets' $tmp/hlp >/dev/null 2>&1
 	then
 	    __opt='localhost 56 1'
 	fi
@@ -77,7 +77,7 @@ _setup_localhost()
 	then
 	    echo "Warning: can't find a ping(1) that I understand ... pushing on"
 	else
-	    if ping $__opt >$tmp 2>&1
+	    if ping $__opt >$tmp/hlp 2>&1
 	    then
 		:
 	    else
@@ -99,7 +99,7 @@ _setup_localhost()
 
 _setup_localhost
 _setup_platform
-rm -f $tmp
+rm -rf $tmp
 
 # some useful common variables for Install/Remove scripts
 #
@@ -165,7 +165,7 @@ pmda_interface=1
 # Other variables and constants
 #
 prog=`basename $0`
-tmp=$PCP_TMP_DIR/$$
+tmp=`mktemp -d $PCP_TMP_DIR/pmdaproc.XXXXXXXXX` || exit 1
 do_pmda=true
 do_check=true
 __here=`pwd`
@@ -174,7 +174,7 @@ __echo=false
 __verbose=false
 __ns_opt=''
 
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 # Parse command line args
 #
@@ -267,7 +267,7 @@ __wait_for_pmcd()
 #
 __restore_pmcd()
 {
-    if [ -f $tmp.pmcd.conf.save ]
+    if [ -f $tmp/pmcd.conf.save ]
     then
 	__pmcd_is_dead=false
 	echo
@@ -275,10 +275,10 @@ __restore_pmcd()
 	rm -f $PCP_PMCDCONF_PATH.prev
 	mv $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.prev
 	echo "Restoring previous PMCD control file, and trying to restart PMCD ..."
-	cp $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
+	cp $tmp/pmcd.conf.save $PCP_PMCDCONF_PATH
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
-	rm -f $tmp.pmcd.conf.save
+	rm -f $tmp/pmcd.conf.save
 	$PCP_RC_DIR/pcp start
 	__wait_for_pmcd
     fi
@@ -316,7 +316,7 @@ __pmda_cull()
 
     # remove matching entry from $PCP_PMCDCONF_PATH if present
     #
-    $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >/tmp/$$.pmcd.conf '
+    $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >$tmp/pmcd.conf '
 BEGIN					{ status = 0 }
 $1 == "'"$1"'" && $2 == "'"$2"'" 	{ status = 1; next }
 					{ print }
@@ -334,8 +334,8 @@ END					{ exit status }'
 	# save pmcd.conf in case we encounter a problem, and then
 	# install updated $PCP_PMCDCONF_PATH
 	#
-	cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
-	cp /tmp/$$.pmcd.conf $PCP_PMCDCONF_PATH
+	cp $PCP_PMCDCONF_PATH $tmp/pmcd.conf.save
+	cp $tmp/pmcd.conf $PCP_PMCDCONF_PATH
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
@@ -356,7 +356,7 @@ END					{ exit status }'
 	    fi
 	fi
     fi
-    rm -f /tmp/$$.pmcd.conf
+    rm -f $tmp/pmcd.conf
 
     # stop any matching PMDA that is still running
     #
@@ -400,24 +400,24 @@ __pmda_add()
 
     # save pmcd.conf in case we encounter a problem
     #
-    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
+    cp $PCP_PMCDCONF_PATH $tmp/pmcd.conf.save
 
     myname=`echo $1 | $PCP_AWK_PROG '{print $1}'`
     mydomain=`echo $1 | $PCP_AWK_PROG '{print $2}'`
     # add entry to $PCP_PMCDCONF_PATH
     #
-    echo >/tmp/$$.pmcd.access
+    echo >$tmp/pmcd.access
     $PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
 NF==0					{ next }
 /^[      ]*\[[   ]*access[       ]*\]/	{ state = 2 }
-state == 2				{ print >"'/tmp/$$.pmcd.access'"; next }
+state == 2				{ print >"'$tmp/pmcd.access'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
-					{ print >"'/tmp/$$.pmcd.body'"; next }'
-    ( cat /tmp/$$.pmcd.body \
+					{ print >"'$tmp/pmcd.body'"; next }'
+    ( cat $tmp/pmcd.body \
       ; echo "$1" \
-      ; cat /tmp/$$.pmcd.access \
+      ; cat $tmp/pmcd.access \
     ) >$PCP_PMCDCONF_PATH
-    rm -f /tmp/$$.pmcd.access /tmp/$$.pmcd.body
+    rm -f $tmp/pmcd.access $tmp/pmcd.body
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH
 
@@ -1095,7 +1095,7 @@ _install()
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit" 0 1 2 3 15
 
     echo "Updating the Performance Metrics Name Space (PMNS) ..."
 
@@ -1107,22 +1107,22 @@ _install()
 	if pminfo $__ns_opt $__n >/dev/null 2>&1
 	then
             cd $PMNSDIR
-	    if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
+	    if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	    then
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 		# Make sure the PMNS timestamp will be different the next
 		# time the PMNS is updated (for Linux only 1 sec resolution)
 		sleep 2
 	    else
-		if grep 'Non-terminal "'"$__n"'" not found' $tmp >/dev/null
+		if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
 		then
 		    :
-		elif grep 'Error: metricpath "'"$__n"'" not defined' $tmp >/dev/null
+		elif grep 'Error: metricpath "'"$__n"'" not defined' $tmp/base >/dev/null
 		then
 		    :
 		else
 		    echo "$prog: failed to delete \"$__n\" from the PMNS"
-		    cat $tmp
+		    cat $tmp/base
 		    exit 1
 		fi
 	    fi
@@ -1162,7 +1162,7 @@ _install()
         cd $__here
     done
 
-    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    trap "rm -rf $tmp; exit" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 
     _install_views pmchart
@@ -1190,11 +1190,11 @@ _install()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
-		pmprobe -i $__ns_opt $__n | tee $tmp.verbose | __filter $__n
+		pmprobe -i $__ns_opt $__n | tee $tmp/verbose | __filter $__n
 		if $__verbose
 		then
 		    echo "pminfo output ..."
-		    cat $tmp.verbose
+		    cat $tmp/verbose
 		fi
 	    done
 	fi
@@ -1209,7 +1209,7 @@ _remove()
     #
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit" 0 1 2 3 15
 
     echo "Culling the Performance Metrics Name Space ..."
     cd $PMNSDIR
@@ -1217,22 +1217,22 @@ _remove()
     for __n in $pmns_name
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N "$__n ... ""$PCP_ECHO_C"
-	if pmnsdel -n $PMNSROOT $__n >$tmp 2>&1
+	if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    sleep 2
 	    echo "done"
 	else
-	    if grep 'Non-terminal "'"$__n"'" not found' $tmp >/dev/null
+	    if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
 	    then
 		echo "not found in Name Space, this is OK"
-	    elif grep 'Error: metricpath "'"$__n"'" not defined' $tmp >/dev/null
+	    elif grep 'Error: metricpath "'"$__n"'" not defined' $tmp/base >/dev/null
 	    then
 		echo "not found in Name Space, this is OK"
 	    else
 		echo "error"
-		cat $tmp
+		cat $tmp/base
 		exit
 	    fi
 	fi
@@ -1274,10 +1274,10 @@ _remove()
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have gone away ... ""$PCP_ECHO_C"
-		if pminfo -n $NAMESPACE -f $__n >$tmp 2>&1
+		if pminfo -n $NAMESPACE -f $__n >$tmp/base 2>&1
 		then
 		    echo "Arrgh, something has gone wrong!"
-		    cat $tmp
+		    cat $tmp/base
 		else
 		    echo "OK"
 		fi
@@ -1287,7 +1287,7 @@ _remove()
 	echo "Skipping PMDA removal and PMCD re-configuration"
     fi
 
-    trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+    trap "rm -rf $tmp; exit" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 }
 

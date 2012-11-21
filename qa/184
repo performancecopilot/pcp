@@ -55,6 +55,7 @@ _filter_newlog()
 	-e 's/ host [^ ]*/ host HOST/g' \
 	-e '/^Getting logged/s/host HOST/host name/' \
 	-e 's/ -h [^ ]*/ -h HOST/g' \
+	-e 's/ -c [^ ]*/ -c CONF/g' \
 	-e 's/ SIG.* done/ signal stuff ... done/' \
 	-e '/Error \[<stdin>,/d' \
 	-e '/Warning \[<stdin>,/d' \

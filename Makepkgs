@@ -59,9 +59,8 @@ done
 test ! -d $LOGDIR && mkdir $LOGDIR
 rm -rf $LOGDIR/* 
 
-tmp=/tmp/$$
-rm -f $tmp.failed
-trap "rm -f $tmp.*;" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
@@ -139,11 +138,11 @@ fi
 if $clean; then
     echo "== cleaning, log is in $LOGDIR/clean"
     if $verbose ; then
-	($MAKE -j 1 distclean 2>&1 || touch $tmp.failed )| tee $LOGDIR/clean
+	($MAKE -j 1 distclean 2>&1 || touch $tmp/failed )| tee $LOGDIR/clean
     else
-	$MAKE -j 1 distclean > $LOGDIR/clean 2>&1  || touch $tmp.failed
+	$MAKE -j 1 distclean > $LOGDIR/clean 2>&1  || touch $tmp/failed
     fi
-    if [ -f $tmp.failed ] ; then
+    if [ -f $tmp/failed ] ; then
 	if ! $verbose ; then
 	    echo \"$MAKE clean\" failed, see log in $LOGDIR/clean
 	    tail $LOGDIR/clean
@@ -162,9 +161,9 @@ echo "== Building pcp, log is in $LOGF"
 
 if [ "$VERS" = MINGW ]
 then
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
+    configured="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
 else
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+    configured="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 fi
 
 echo "== Configuring pcp for vendor/distro installation ($configured)"
@@ -191,7 +190,7 @@ then
     LOGF=`pwd`/$LOGF
 
     echo
-    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+    echo "== src-link-pcp, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
     SRCLINK_ROOT=`pwd`/pcp-$VERSION
@@ -235,11 +234,11 @@ rm -f files.rpm
 echo
 echo "== Packaging pcp, log is in $LOGF" | tee -a $LOGF
 if $verbose ; then
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) | tee -a $LOGF
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGF
 else
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp.failed) >> $LOGF
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGF
 fi
-if [ -f $tmp.failed ] ; then
+if [ -f $tmp/failed ] ; then
     if ! $verbose ; then
 	echo Packaging failed, see log in $LOGF
 	tail $LOGF
@@ -251,5 +250,5 @@ else
     fi
 fi
 
-rm -f $tmp.failed
+rm -f $tmp/failed
 exit 0

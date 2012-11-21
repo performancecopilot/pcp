@@ -28,8 +28,7 @@ pmns_source=root_mmv
 if [ ! -e "$PCP_TMP_DIR/mmv" ]
 then
     echo "creating $PCP_TMP_DIR/mmv"
-    mkdir -p "$PCP_TMP_DIR/mmv"
-    chmod 1777 "$PCP_TMP_DIR/mmv"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
 fi
 
 pmdaSetup

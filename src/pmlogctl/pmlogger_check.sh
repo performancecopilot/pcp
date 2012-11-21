@@ -30,10 +30,10 @@ unset PCP_STDERR
 
 # constant setup
 #
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
-echo >$tmp.lock
-trap "rm -f \`[ -f $tmp.lock ] && cat $tmp.lock\` $tmp.*; exit \$status" 0 1 2 3 15
+echo >$tmp/lock
+trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 # control file for pmlogger administration ... edit the entries in this
@@ -120,7 +120,7 @@ _error()
     echo "$prog: [$CONTROL:$line]"
     echo "Error: $1"
     echo "... logging for host \"$host\" unchanged"
-    touch $tmp.err
+    touch $tmp/err
 }
 
 _warning()
@@ -142,7 +142,7 @@ _message()
 _unlock()
 {
     rm -f lock
-    echo >$tmp.lock
+    echo >$tmp/lock
 }
 
 _get_logfile()
@@ -241,10 +241,10 @@ _check_logger()
 		else
 		    echo "$prog: Error: failed to restart pmlogger"
 		    echo "Current pmlogger processes:"
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | tee $tmp.tmp | sed -n -e 1p
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | tee $tmp/tmp | sed -n -e 1p
 		    for _p in `echo $_plist`
 		    do
-			sed -n -e "/^[ ]*[^ ]* [ ]*$_p /p" < $tmp.tmp
+			sed -n -e "/^[ ]*[^ ]* [ ]*$_p /p" < $tmp/tmp
 		    done 
 		    echo
 		fi
@@ -263,7 +263,7 @@ _check_logger()
     then
 	:
     else
-	sed -e 's/^/	/' $tmp.out
+	sed -e 's/^/	/' $tmp/out
     fi
     _check_logfile
     return 1
@@ -277,8 +277,8 @@ _check_logger()
 #
 version=''
 
-echo >$tmp.dir
-rm -f $tmp.err
+echo >$tmp/dir
+rm -f $tmp/err
 line=0
 cat $CONTROL \
  | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
@@ -355,26 +355,27 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     #
     if [ ! -d $dir ]
     then
-	mkdir -p $dir >$tmp.err 2>&1
+	mkdir -p $dir >$tmp/err 2>&1
 	if [ ! -d $dir ]
 	then
-	    cat $tmp.err
+	    cat $tmp/err
 	    _error "cannot create directory ($dir) for PCP archive files"
 	else
 	    _warning "creating directory ($dir) for PCP archive files"
 	fi
+	chown pcp:pcp $dir 2>/dev/null
     fi
 
     [ ! -d $dir ] && continue
 
     # check for directory duplicate entries
     #
-    if [ "`grep $dir $tmp.dir`" = "$dir" ]
+    if [ "`grep $dir $tmp/dir`" = "$dir" ]
     then
 	_error "Cannot start more than one pmlogger instance for archive directory \"$dir\""
 	continue
     else
-	echo "$dir" >>$tmp.dir
+	echo "$dir" >>$tmp/dir
     fi
 
     cd $dir
@@ -390,17 +391,17 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     else
 	# demand mutual exclusion
 	#
-	rm -f $tmp.stamp $tmp.out
+	rm -f $tmp/stamp $tmp/out
 	delay=200	# tenths of a second
 	while [ $delay -gt 0 ]
 	do
-	    if pmlock -v lock >>$tmp.out 2>&1
+	    if pmlock -v lock >>$tmp/out 2>&1
 	    then
-		echo $dir/lock >$tmp.lock
+		echo $dir/lock >$tmp/lock
 		break
 	    else
-		[ -f $tmp.stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp.stamp
-		if [ -z "`find lock -newer $tmp.stamp -print 2>/dev/null`" ]
+		[ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
+		if [ -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
 		then
 		    if [ -f lock ]
 		    then
@@ -429,7 +430,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
                 echo "$prog: Warning: is another PCP cron job running concurrently?"
 		LC_TIME=POSIX ls -l $dir/lock
 	    else
-		echo "$prog: `cat $tmp.out`"
+		echo "$prog: `cat $tmp/out`"
 	    fi
 	    _warning "failed to acquire exclusive lock ($dir/lock) ..."
 	    continue
@@ -455,7 +456,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	if test -L /var/tmp/pmlogger/primary
+	if test -L $PCP_TMP_DIR/pmlogger/primary
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
 	    pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's,.*/,,'`
@@ -595,7 +596,7 @@ END							{ print m }'`
 	    _unlock
 	    continue
 	else
-	    ${sock_me}pmlogger $args $LOGNAME >$tmp.out 2>&1 &
+	    ${sock_me}pmlogger $args $LOGNAME >$tmp/out 2>&1 &
 	    pid=$!
 	fi
 
@@ -627,5 +628,5 @@ END							{ print m }'`
 
 done
 
-[ -f $tmp.err ] && status=1
+[ -f $tmp/err ] && status=1
 exit

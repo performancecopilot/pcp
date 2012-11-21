@@ -69,7 +69,7 @@
 # Lines starting with '#' or empty lines are ignored.
 #
 
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 prog=`basename $0`
 status=1
 result=0	# non-fatal errors will set this to 1
@@ -77,7 +77,7 @@ now=`date`
 host=`hostname`
 dump_mesg=false
 
-trap "rm -f $tmp.*; exit \$status" 0 1 2 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 15
 
 MKDIR=/bin/mkdir
 CP=/bin/cp
@@ -334,10 +334,10 @@ _install_file()
 	then
 	    if [ ! -f $source ]
 	    then
-		echo "cwd=`pwd`" >$tmp.debug
-		echo "source dir=`dirname $source`" >>$tmp.debug
-		ls -l `dirname $source` >>$tmp.debug
-		_debug <$tmp.debug
+		echo "cwd=`pwd`" >$tmp/debug
+		echo "source dir=`dirname $source`" >>$tmp/debug
+		ls -l `dirname $source` >>$tmp/debug
+		_debug <$tmp/debug
 		_error "Unable to find file ($source) for $target"
 	    fi
 	    if [ -f $target ]
@@ -526,7 +526,7 @@ _remove()
     # If directory is not empty, default is to ignore and move on
     #
     sort -k1r,1 -k5r,5 $1 < $1 \
-    | $AWK >> $tmp.cmds '
+    | $AWK >> $tmp/cmds '
 $7 == "noupdate"	{ next }
 $1 == "d" 		{ printf("_remove_dir %s %s %s\n", $5, $8, $9); next }
 			{ printf("_remove_file %s %s %s\n", $5, $8, $9) }
@@ -539,7 +539,7 @@ _install()
     # Directories are installed before all files are installed
     # Links are installed after normal files
     #
-    sed < $tmp.idb >> $tmp.cmds -e 's/^/_install_file /'
+    sed < $tmp/idb >> $tmp/cmds -e 's/^/_install_file /'
 }
 
 show=false
@@ -550,7 +550,7 @@ upgrade=false
 verbose=false
 logfile=
 log=false
-mesg=$tmp.mesg
+mesg=$tmp/mesg
 root=
 collect_version=
 parse=false
@@ -646,7 +646,7 @@ then
     exit 1
 fi
 
-$AWK < $idb > $tmp.err -v prog=$prog -v idb=$idb '
+$AWK < $idb > $tmp/err -v prog=$prog -v idb=$idb '
 BEGIN	{ fail = 0; version = 0; entries = 0 }
 
 NR == 1 && ( NF != 3 || $1 != "#" || $2 != "Version" || $3 != "1" ) {
@@ -720,10 +720,10 @@ END	{
 }
 '
 
-if [ -s $tmp.err ]
+if [ -s $tmp/err ]
 then
     echo "$prog: Invalid IDB file detected:"
-    cat $tmp.err
+    cat $tmp/err
     exit 1
 elif $parse
 then
@@ -731,12 +731,12 @@ then
     exit
 fi
 
-$RM -f $tmp.dirs $tmp.cmds $tmp.files $tmp.idb $tmp.tidb
-touch $tmp.dirs $tmp.cmds $tmp.files
+$RM -f $tmp/dirs $tmp/cmds $tmp/files $tmp/idb $tmp/tidb
+touch $tmp/dirs $tmp/cmds $tmp/files
 
 sed < $idb -e '/^#/d' -e '/^$/d' \
 | $SORT -k1,1 -k5,5 \
-> $tmp.idb
+> $tmp/idb
 
 cat << EOF > $mesg
 
@@ -750,7 +750,7 @@ then
     _mesg_head "Removing all installed PCP files"
     _mesg_head "Date: "`date`
     _mesg_head "User: $USER"
-    _remove $tmp.idb
+    _remove $tmp/idb
 
 
 #
@@ -772,7 +772,7 @@ then
 	exit 1
     fi
 
-    $AWK < $tmp.idb > $tmp.cmds '
+    $AWK < $tmp/idb > $tmp/cmds '
 $1 == "f"	{ printf("_collect_file %s %s %s %s\n", $5, $6, $8, $9) }'
 
 #
@@ -802,13 +802,13 @@ then
     else
 	sed < $oidb -e '/^#/d' -e '/^$/d' \
 	| $SORT -k1,1 -k5,5 \
-	> $tmp.oidb
+	> $tmp/oidb
 
 	# explicity name all fields so that the extra os_version field doesnt confuse join
-	$JOIN -t' ' -v 2 -1 5 -2 5 $tmp.idb $tmp.oidb > $tmp.extra
-	if [ -s $tmp.extra ]
+	$JOIN -t' ' -v 2 -1 5 -2 5 $tmp/idb $tmp/oidb > $tmp/extra
+	if [ -s $tmp/extra ]
 	then
-	    _remove $tmp.extra
+	    _remove $tmp/extra
 	else
 	    _note "No files need to be removed before upgrade"
 	fi
@@ -822,10 +822,10 @@ fi
 
 if $show
 then
-    cat $tmp.cmds
+    cat $tmp/cmds
 else
-    $verbose && cat $tmp.cmds
-. $tmp.cmds
+    $verbose && cat $tmp/cmds
+. $tmp/cmds
 fi
 
 if $dump_mesg

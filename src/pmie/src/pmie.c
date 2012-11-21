@@ -48,7 +48,6 @@
 
 #define LINE_LENGTH	255		/* max length of command token */
 #define PROC_FNAMESIZE  20              /* from proc pmda - proc.h */
-#define PMIE_PATHSIZE   (sizeof(PMIE_DIR)+PROC_FNAMESIZE)
 
 static char *prompt = "pmie> ";
 static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
@@ -57,7 +56,7 @@ char	*clientid;
 
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
-static char perffile[PMIE_PATHSIZE];	/* /var/tmp/<pid> file name */
+static char perffile[MAXPATHLEN+1];	/* /var/tmp/<pid> file name */
 static char *username = "pcp";
 
 static char menu[] =
@@ -324,20 +323,23 @@ startmonitor(void)
     void		*ptr;
     int			fd;
     char		zero = '\0';
+    char		pmie_dir[MAXPATHLEN];
 
     /* try to create the port file directory. OK if it already exists */
-    if ( (mkdir2(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
+    snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
+	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
+    if ( (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
 	 (oserror() != EEXIST) ) {
 	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
-		pmProgname, PMIE_DIR, osstrerror());
+		pmProgname, pmie_dir, osstrerror());
 	exit(1);
     }
 
-    chmod(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
+    chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
-    sprintf(perffile, "%s%c%" FMT_PID, PMIE_DIR, __pmPathSeparator(), getpid());
+    sprintf(perffile, "%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
