@@ -18,6 +18,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname | sed -e 's/\..*//'`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
+rhost=`echo $remote | sed -e 's/\..*//'`
 if [ -z "$remote" ]
 then
     cat $tmp.out >$seq.notrun
@@ -47,6 +48,7 @@ _filter()
     sed \
 	-e "s/$$/PID/g" \
 	-e "s/$remote/REMOTEHOST/g" \
+	-e "s/$rhost/REMOTEHOST/g" \
 	-e "s/$host/LOCALHOST/g" \
 	-e "s/$lhost/LOCALHOST/g" \
 	-e "s;/private/tmp;/tmp;g"

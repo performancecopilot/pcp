@@ -17624,7 +17624,7 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 
 
-if test "x$with_tmpdir" = "x"
+if test "$with_tmpdir" = default
 then
     if test -d /var/tmp
     then

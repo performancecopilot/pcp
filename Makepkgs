@@ -40,7 +40,7 @@ fi
 # Command line can be used to extend this set, and any whacko
 # platform-specific requirements are also appended later on.
 #
-configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+configure_options="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 
 for opt in $*
 do
@@ -189,7 +189,7 @@ then
     LOGF=`pwd`/$LOGF
 
     echo
-    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+    echo "== src-link-pcp, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
     SRCLINK_ROOT=`pwd`/pcp-$VERSION

@@ -1801,7 +1801,7 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
 dnl temp files; these can go into system /tmp independent of $prefix
-if test "x$with_tmpdir" = "x"
+if test "$with_tmpdir" = default
 then
     if test -d /var/tmp
     then
