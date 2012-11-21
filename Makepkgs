@@ -161,9 +161,9 @@ echo "== Building pcp, log is in $LOGF"
 
 if [ "$VERS" = MINGW ]
 then
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
+    configured="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
 else
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+    configured="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 fi
 
 echo "== Configuring pcp for vendor/distro installation ($configured)"
@@ -190,7 +190,7 @@ then
     LOGF=`pwd`/$LOGF
 
     echo
-    echo "== src-link, log is in $LOGF" | tee -a $LOGF
+    echo "== src-link-pcp, log is in $LOGF" | tee -a $LOGF
 
     VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
     SRCLINK_ROOT=`pwd`/pcp-$VERSION

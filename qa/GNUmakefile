@@ -20,6 +20,10 @@ LCONFIG = localconfig
 #
 .SUFFIXES:
 
+# and do nothing if NNN.out is older than NNN
+#
+%.out: %
+
 default_pcp default: new remake check qa_outfiles $(OTHERS) $(SUBDIRS) $(LCONFIG)
 	$(SUBDIRS_MAKERULE)
 
