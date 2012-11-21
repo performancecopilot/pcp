@@ -132,7 +132,7 @@ $sudo kill -STOP $pid
 
 sleep 3		# make sure pmcd gets the SIGSTOP
 
-# this will hang, and then see an IPC failure when PMCD is
+# this will hang, and then see a timeout failure when PMCD is
 # killed off
 $sudo rm -f $tmp.tmp
 PMCD_CONNECT_TIMEOUT=1000
@@ -150,7 +150,7 @@ _filter_pcp_start <$tmp.one | _filter
 _filter <$tmp.two
 rm -f $tmp.out $tmp.err
 
-_expect "IPC protocol failure"
+_expect "Timeout waiting for a response from PMCD"
 _filter <$tmp.tmp
 rm -f $tmp.tmp
 

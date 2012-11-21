@@ -22,9 +22,9 @@ $PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
 Starting pmcd ... 
 Starting pmlogger ... 
 
-### Expect: IPC protocol failure ###
+### Expect: Timeout waiting for a response from PMCD ###
 
-pminfo: Cannot connect to PMCD on host SOMEHOST: IPC protocol failure
+pminfo: Cannot connect to PMCD on host SOMEHOST: Timeout waiting for a response from PMCD
 
 ### Expect: one million again ###
 
