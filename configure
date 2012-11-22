@@ -17769,8 +17769,12 @@ then
     enable_secure=true
 
     saved_CFLAGS="$CFLAGS"
-    CFLAGS="$CFLAGS -I/usr/include/nss -I/usr/include/nss3"
-    CFLAGS="$CFLAGS -I/usr/include/nspr -I/usr/include/nspr4"
+    saved_CPPFLAGS="$CPPFLAGS"
+    NSS_INC_DIRS="-I/usr/include/nss -I/usr/include/nss3"
+    NSPR_INC_DIRS="-I/usr/include/nspr -I/usr/include/nspr4"
+    CFLAGS="$CFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+    CPPFLAGS="$CPPFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+
 
 for ac_header in nss/nss.h
 do
@@ -18697,6 +18701,7 @@ fi
 _ACEOF
 
     fi
+    CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
 
