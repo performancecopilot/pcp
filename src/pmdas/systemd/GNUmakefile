@@ -19,7 +19,6 @@ CMDTARGET = pmdasystemd$(EXECSUFFIX)
 LIBTARGET = pmda_systemd.so
 DFILES 	= README
 CFILES	= systemd.c
-HFILES	= systemd.h
 LCFLAGS = $(SYSTEMD_CFLAGS)
 LLDLIBS = $(PCP_PMDALIB) $(SYSTEMD_LIBS)
 LSRCFILES = Install Remove pmns help $(DFILES) root
