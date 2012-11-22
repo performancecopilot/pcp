@@ -82,7 +82,7 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(2,0), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* systemd.records_raw */
+/* journal.records_raw */
 #define METRICTAB_JOURNAL_RECORDS_RAW_PMID metrictab[6].m_desc.pmid
     { NULL,
       { PMDA_PMID(2,1), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -432,7 +432,7 @@ systemd_init(pmdaInterface *dp)
     if (journal_fd < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_get_fd failure: %s",
                       strerror(-journal_fd));
-        /* NB: not a fatal error; the select() loop will stil time out and
+        /* NB: not a fatal error; the select() loop will still time out and
            periodically poll.  This makes it ok for sd_journal_reliable_fd()
            to be 0. */
     } else  {
@@ -440,9 +440,9 @@ systemd_init(pmdaInterface *dp)
         if (journal_fd > maxfd) maxfd = journal_fd;
     }
 
-    /* NB: One queue is used for both .entries and .entries_raw; they
+    /* NB: One queue is used for both .records and .records_raw; they
        just use different decoder callbacks. */
-    queue_entries = pmdaEventNewQueue("systemd.journal.entries", maxmem);
+    queue_entries = pmdaEventNewQueue("systemd", maxmem);
     if (queue_entries < 0)
         __pmNotifyErr(LOG_ERR, "pmdaEventNewQueue failure: %s",
                       pmErrStr(queue_entries));
