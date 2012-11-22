@@ -21,13 +21,15 @@ TOPDIR = .
 -include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-AUTOCONF_GENERATED = pcp.lsm $(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp/platform_defs.h
+CONFIGURE_GENERATED = pcp.lsm \
+	$(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp/platform_defs.h
 
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
-LSRCFILES = configure configure.in Makepkgs install-sh $(DOCFILES) $(LICFILES) \
-	    config.guess config.sub pcp.lsm.in
+LSRCFILES = aclocal.m4 configure config.guess config.sub \
+	    configure.in pcp.lsm.in Makepkgs install-sh \
+	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
@@ -47,7 +49,7 @@ default :: default_pcp
 
 pcp : default_pcp
 
-default_pcp : $(AUTOCONF_GENERATED)
+default_pcp : $(CONFIGURE_GENERATED)
 	@for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
