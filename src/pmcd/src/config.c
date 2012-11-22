@@ -2084,20 +2084,20 @@ ParseRestartAgents(char *fileName)
     AgentInfo	*oldAgent;
     int		oldNAgents;
     AgentInfo	*ap;
-    fd_set	fds;
+    __pmFdSet	fds;
 
     /* Clean up any deceased agents.  We haven't seen an agent's death unless
      * a PDU transfer involving the agent has occurred.  This cleans up others
      * as well.
      */
-    FD_ZERO(&fds);
+    __pmFD_ZERO(&fds);
     j = -1;
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
 	if (ap->status.connected &&
 	    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE)) {
 
-	    FD_SET(ap->outFd, &fds);
+	    __pmFD_SET(ap->outFd, &fds);
 	    if (ap->outFd > j)
 		j = ap->outFd;
 	}
@@ -2108,13 +2108,13 @@ ParseRestartAgents(char *fileName)
 	 */
 	struct timeval	timeout = {0, 0};
 
-	sts = select(j, &fds, NULL, NULL, &timeout);
+	sts = __pmSelectRead(j, &fds, &timeout);
 	if (sts > 0) {
 	    for (i = 0; i < nAgents; i++) {
 		ap = &agent[i];
 		if (ap->status.connected &&
 		    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE) &&
-		    FD_ISSET(ap->outFd, &fds)) {
+		    __pmFD_ISSET(ap->outFd, &fds)) {
 
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
