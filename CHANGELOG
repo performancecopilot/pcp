@@ -1,3 +1,8 @@
+pcp-3.6.11 (under development)
+    - pmdasystemd
+    - Fix issues with pmdashping timeouts
+    - Move debian tmpdir settings to match other distros.
+
 pcp-3.6.10 (19 November 2012)
     - Transition daemons to run under an unprivileged account.
     - Fixes for security advisory CVE-2012-5530: tmpfile flaws.
