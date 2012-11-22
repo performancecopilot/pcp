@@ -33,7 +33,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifneq "$(PMDA_SYSTEMD)" ""
 build-me: domain.h $(LIBTARGET) $(CMDTARGET)
 
 install:	default
