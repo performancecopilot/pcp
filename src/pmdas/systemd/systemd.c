@@ -381,8 +381,13 @@ systemd_init(pmdaInterface *dp)
         snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                  pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_5, "systemd DSO", helppath);
+        /* A user's own journal may be accessed without process
+           identity changes. */
+    } else {
+        /* The systemwide journal may be accessed by the adm user (group);
+           root access is not necessary. */
+        __pmSetProcessIdentity("adm");
     }
-
 
     dp->version.four.fetch = systemd_fetch;
     dp->version.four.store = systemd_store;
