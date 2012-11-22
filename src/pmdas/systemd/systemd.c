@@ -62,17 +62,17 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,0) }, },
-/* journal.cursor */
+/* journal.field.cursor */
 #define METRICTAB_JOURNAL_CURSOR_PMID metrictab[2].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* journal.string */
+/* journal.field.string */
 #define METRICTAB_JOURNAL_STRING_PMID metrictab[3].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* journal.blob */
+/* journal.field.blob */
 #define METRICTAB_JOURNAL_BLOB_PMID metrictab[4].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,2), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -381,8 +381,13 @@ systemd_init(pmdaInterface *dp)
         snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                  pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
         pmdaDSO(dp, PMDA_INTERFACE_5, "systemd DSO", helppath);
+        /* A user's own journal may be accessed without process
+           identity changes. */
+    } else {
+        /* The systemwide journal may be accessed by the adm user (group);
+           root access is not necessary. */
+        __pmSetProcessIdentity("adm");
     }
-
 
     dp->version.four.fetch = systemd_fetch;
     dp->version.four.store = systemd_store;
