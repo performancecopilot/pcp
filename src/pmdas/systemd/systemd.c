@@ -62,17 +62,17 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,0) }, },
-/* journal.cursor */
+/* journal.field.cursor */
 #define METRICTAB_JOURNAL_CURSOR_PMID metrictab[2].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* journal.string */
+/* journal.field.string */
 #define METRICTAB_JOURNAL_STRING_PMID metrictab[3].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* journal.blob */
+/* journal.field.blob */
 #define METRICTAB_JOURNAL_BLOB_PMID metrictab[4].m_desc.pmid
     { NULL,
       { PMDA_PMID(1,2), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT,

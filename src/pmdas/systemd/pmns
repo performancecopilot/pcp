@@ -21,11 +21,13 @@ systemd {
 }
 
 systemd.journal {
-    /* systemd.journal-fields */
-    cursor              SYSTEMD:1:0
-    string              SYSTEMD:1:1 /* pure ascii */
-    blob                SYSTEMD:1:2 /* not pure ascii */
-    /* the records themselves */
     records             SYSTEMD:2:0
     records_raw         SYSTEMD:2:1
+    field
+}
+
+systemd.journal.field {
+    cursor              SYSTEMD:1:0
+    string              SYSTEMD:1:1 /* possibly a string  */
+    blob                SYSTEMD:1:2 /* a binary blob */
 }
