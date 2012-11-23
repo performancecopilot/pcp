@@ -329,6 +329,7 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/n
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/config.default
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/crontab
+%config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/stomp
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/config.default
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/crontab
