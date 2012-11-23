@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -20,10 +21,11 @@
 \f3$PCP_PMDAS_DIR/cisco/pmdacisco\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
 [\f3\-P\f1 \f2password\f1]
 [\f3\-r\f1 \f2refresh\f1]
 [\f3\-s\f1 \f2prompt\f1]
-[\f3\-U\f1 \f2username\f1]
+[\f3\-M\f1 \f2username\f1]
 [\f3\-x\f1 \f2port\f1]
 \f2host:interface-spec\f1 [...]
 .br
@@ -115,6 +117,11 @@ option,
 .I username
 will be used as the default username login for all
 Ciscos.  See also the INTERFACE IDENTIFICATION section below.
+.TP 5
+.B \-M
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .TP 5
 .B \-x
 Connect to the Cisco via TCP port number

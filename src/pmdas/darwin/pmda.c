@@ -1,6 +1,8 @@
 /*
  * MacOS X kernel PMDA
  * "darwin" is easier to type than "macosx",  especially for Aussies. ;-)
+ *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,6 +37,7 @@
 
 static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
+static char			*username = "pcp";
 
 mach_port_t		mach_host = 0;
 vm_size_t		mach_page_size = 0;
@@ -1193,6 +1192,8 @@ darwin_init(pmdaInterface *dp)
 	sprintf(helppath, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_3, "darwin DSO", helppath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -1224,6 +1225,7 @@ usage(void)
     fputs("Options:\n"
 "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 "  -l logfile   write log into logfile rather than using default log name\n"
+"  -U username  user account to run under (default \"pcp\")\n"
 "\nExactly one of the following options may appear:\n"
 "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
@@ -1235,7 +1237,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
     int			errflag = 0;
     char		helppath[MAXPATHLEN];
 
@@ -1247,14 +1249,19 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, DARWIN, "darwin.log",
 		helppath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)
-	errflag++;
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?", &dispatch, &errflag)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    errflag++;
+	}
+    }
     if (errflag)
 	usage();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     darwin_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

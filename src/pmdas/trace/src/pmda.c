@@ -1,6 +1,7 @@
 /*
  * Trace PMDA - process level transaction monitoring for libpcp_trace processes
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1997-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <ctype.h>
@@ -37,6 +34,7 @@ int		ctlport	  = -1;
 char		*ctlsock;
 
 static char	mypath[MAXPATHLEN];
+static char	*username = "pcp";
 
 extern void traceInit(pmdaInterface *dispatch);
 extern void traceMain(pmdaInterface *dispatch);
@@ -55,6 +53,7 @@ Options:\n\
   -l logfile  write log into logfile rather than using default file\n\
   -A access   host based access control\n\
   -I port     expect programs to connect on given inet port (number/name)\n\
+  -M username user account to run under (default \"pcp\")\n\
   -N buckets  number of historical data buffers maintained\n\
   -T period   time over which samples are considered (default 60 seconds)\n\
   -U units    export observation values using the given units\n\
@@ -160,7 +159,7 @@ main(int argc, char **argv)
 		"trace.log", mypath);
 
     /* need - port, as well as time interval and time span for averaging */
-    while ((c = pmdaGetOpt(argc, argv, "A:D:d:I:l:T:N:U:V:?",
+    while ((c = pmdaGetOpt(argc, argv, "A:D:d:I:l:T:M:N:U:V:?",
 						&dispatch, &err)) != EOF) {
 	switch(c) {
 	case 'A':
@@ -172,6 +171,9 @@ main(int argc, char **argv)
 	    ctlport = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || ctlport < 0)
 		ctlsock = optarg;
+	    break;
+	case 'M':
+	    username = optarg;
 	    break;
 	case 'N':
 	    rbufsize = (int)strtol(optarg, &endnum, 10);
@@ -213,8 +215,7 @@ main(int argc, char **argv)
 #endif
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
+    __pmSetProcessIdentity(username);
     traceInit(&dispatch);
     pmdaConnect(&dispatch);
     traceMain(&dispatch);

@@ -78,6 +78,7 @@ static int 	hotproc_domain = 7; /* set in hotproc_init */
 static int	pred_testing = 0; /* just do predicate testing or not */
 static int	parse_only = 0; /* just parse config file and exit */
 static char*	testing_fname = NULL; /* filename root for testing */ 
+static char	*username = "pcp"; /* user account for pmda */
 
 /* handle on /proc */
 static DIR *procdir;
@@ -1358,6 +1359,8 @@ hotproc_init(pmdaInterface *dp)
 {
     int sts;
 
+    __pmSetProcessIdentity(username);
+
     dp->version.two.fetch    = hotproc_fetch;
     dp->version.two.store    = hotproc_store;
     dp->version.two.desc     = hotproc_desc;
@@ -1405,6 +1408,7 @@ usage(void)
     (void)fprintf(stderr, "Usage: %s [options] configfile\n\n", pmProgname);
     (void)fputs("Options:\n"
 	  "  -C           parse configfile and exit\n"
+	  "  -U username  user account to run under (default \"pcp\")\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
 	  "  -s           do NOT allow dynamic changes to the selection predicate\n"
@@ -1422,7 +1426,7 @@ get_options(int argc, char *argv[], pmdaInterface *dispatch)
     char *err_msg;
 
 
-    while ((n = pmdaGetOpt(argc, argv, "CD:d:l:t:xX:?s",
+    while ((n = pmdaGetOpt(argc, argv, "CD:d:l:t:U:xX:?s",
 			dispatch, &err)) != EOF) {
 	switch (n) {
 
@@ -1442,6 +1446,10 @@ get_options(int argc, char *argv[], pmdaInterface *dispatch)
 		    free(err_msg);
 		    err++;
 		}
+		break;
+
+	    case 'U':
+		username = optarg;
 		break;
 
 	    case 'x':
@@ -1505,7 +1513,6 @@ main(int argc, char **argv)
 
     if (!parse_only) {
 	pmdaOpenLog(&dispatch);
-	__pmSetProcessIdentity("pcp");
 	log = dispatch.version.two.ext->e_logfile;
     }
 

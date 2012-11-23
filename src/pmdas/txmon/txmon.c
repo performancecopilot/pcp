@@ -1,6 +1,7 @@
 /*
  * txmon PMDA
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -21,13 +22,7 @@
 #include <sys/shm.h>
 #include "domain.h"
 
-/*
- * there is no obvious way to deduce or determine this ...
- * <sys/sbd.h> gives MAX values for R4K and R10K as 128 ...
- * I know that for real IRIX, 32 is cool!
- */
 #define CACHELINE	32
-
 #define RND_TO_CACHE_LINE(x) (((x + CACHELINE - 1) / CACHELINE) * CACHELINE)
 
 /*
@@ -88,6 +83,7 @@ static pmdaMetric metrictab[] = {
 static int	shmid = -1;
 
 static char	mypath[MAXPATHLEN];
+static char	*username = "pcp";
 
 /*
  * callback provided to pmdaFetch
@@ -219,6 +215,8 @@ txmon_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+    __pmSetProcessIdentity(username);
+
     dp->version.two.store = txmon_store;
 
     pmdaSetFetchCallBack(dp, txmon_fetchCallBack);
@@ -243,7 +241,8 @@ usage(void)
     fputs(
 "Options:\n"
 "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-"  -l logfile   write log into logfile rather than using default log name\n",
+"  -l logfile   write log into logfile rather than using default log name\n"
+"  -U username  user account to run under (default \"pcp\")\n",
 	stderr);		
     exit(1);
 }
@@ -281,8 +280,15 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TXMON,
 		"txmon.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
-	err++;
+    while ((n = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch(n) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
 	usage();
 
@@ -366,16 +372,12 @@ main(int argc, char **argv)
 	tx_indom[n].i_name = sp->type;
     }
 
-
     /*
      * the real work is done below here ...
      */
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     txmon_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
     exit(0);
 }

@@ -1,10 +1,11 @@
 /*
  * Mounts, info on current mounts
  *
+ * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
  * for the portions of the code supporting the initial agent functionality.
  * All rights reserved. 
- * Copyright (c) 2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +16,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "pmapi.h"
 #include "impl.h"
@@ -90,6 +87,7 @@ static mountinfo *mount_list = NULL;
 static struct stat file_change;
 static int isDSO = 1;
 static char mypath[MAXPATHLEN];
+static char *username = "pcp";
 
 /* Routines in this file */
 static void mounts_clear_config_info(void);
@@ -356,11 +354,12 @@ mounts_init(pmdaInterface *dp)
       snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
       pmdaDSO(dp, PMDA_INTERFACE_2, "mounts DSO", mypath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
-    if (dp->status != 0) {
-      return;
-    }
+    if (dp->status != 0)
+        return;
 
     dp->version.two.fetch = mounts_fetch;
 
@@ -379,7 +378,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	      stderr);		
     exit(1);
 }
@@ -390,7 +390,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
     int			err = 0;
     pmdaInterface	desc;
 
@@ -402,18 +402,21 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, MOUNTS,
 		"mounts.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-   
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &desc, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     mounts_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);
-
     exit(0);
 }

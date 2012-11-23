@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -56,6 +57,7 @@ int		n_cisco;
 intf_t		*intf;
 int		n_intf;
 int		refreshdelay = 120;	/* default poll every two minutes */
+char		*pmdausername = "pcp";	/* username for the pmda */
 char		*username;		/* username */
 char		*passwd;		/* user-level password */
 char		*prompt = ">";		/* command prompt */
@@ -89,7 +91,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
 		"cisco.log", parse_only ? NULL : helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "P:r:s:U:x:?", 
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "M:P:r:s:U:x:?", 
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
 
@@ -110,7 +112,11 @@ main(int argc, char **argv)
 		prompt = optarg;
 		break;
 
-	    case 'U':		/* username */
+	    case 'M':		/* username (for the PMDA) */
+		pmdausername = optarg;
+		break;
+
+	    case 'U':		/* username (for the Cisco) */
 		username = optarg;
 		break;
 
@@ -136,6 +142,7 @@ main(int argc, char **argv)
 	fputs("Options:\n"
 	      "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	      "  -l logfile   redirect diagnostics and trace output to logfile\n"
+	      "  -M username  user account to run PMDA under (default \"pcp\")\n"
 	      "  -P password  default user-level Cisco password\n"
 	      "  -r refresh   update metrics every refresh seconds\n"
 	      "  -s prompt    Cisco command prompt [default >]\n"
@@ -149,7 +156,7 @@ main(int argc, char **argv)
 #else
     /* force errors from here on into the log */
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
+    __pmSetProcessIdentity(pmdausername);
 #endif
 
     /*

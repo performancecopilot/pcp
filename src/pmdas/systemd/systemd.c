@@ -1,7 +1,7 @@
 /*
  * systemd support for the systemd PMDA
  *
- * Copyright (c) 2012 Red Hat Inc.
+ * Copyright (c) 2012 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,8 +34,8 @@
 #include <ctype.h>
 
 
-
-int _isDSO = 1;
+static int _isDSO = 1;
+static char *username = "adm";
 
 #define DEFAULT_MAXMEM  (2 * 1024 * 1024)       /* 2 megabytes */
 long maxmem;
@@ -386,7 +386,7 @@ systemd_init(pmdaInterface *dp)
     } else {
         /* The systemwide journal may be accessed by the adm user (group);
            root access is not necessary. */
-        __pmSetProcessIdentity("adm");
+        __pmSetProcessIdentity(username);
     }
 
     dp->version.four.fetch = systemd_fetch;
@@ -526,14 +526,13 @@ usage(void)
             "Usage: %s [options]\n\n"
             "Options:\n"
             "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+            "  -l logfile   write log into logfile rather than using default log name\n"
             "  -m memory    maximum memory used per logfile (default %ld bytes)\n"
-            "  -s interval  default delay between iterations (default %d sec)\n",
+            "  -s interval  default delay between iterations (default %d sec)\n"
+            "  -U username  user account to run under (default \"pcp\")\n",
             pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }
-
-
-/* For use by the DSO invocation. */
 
 
 int
@@ -555,7 +554,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, SYSTEMD,
                 "systemd.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:?", &desc, &err)) != EOF) {
         switch (c) {
             case 'm':
                 maxmem = strtol(optarg, &endnum, 10);
@@ -575,6 +574,10 @@ main(int argc, char **argv)
                     free(endnum);
                     err++;
                 }
+                break;
+
+            case 'U':
+                username = optarg;
                 break;
 
             default:
