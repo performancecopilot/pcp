@@ -16,6 +16,9 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+BuildRequires: systemd-devel
+%endif
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python python-ctypes

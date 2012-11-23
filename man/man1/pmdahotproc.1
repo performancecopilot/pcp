@@ -9,6 +9,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-s\f1]
 [\f3\-t\f1 \f2interval\f1]
+[\f3\-U\f1 \f2username\f1]
 \f2configfile\f1
 .br
 .SH DESCRIPTION
@@ -88,6 +89,11 @@ described in
 The default
 .I interval
 is 60 seconds.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .SH CONFIGURATION
 The configuration file consists of one predicate used to determine if
 a process should be in the interesting set or not.

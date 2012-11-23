@@ -1,0 +1,5 @@
+QA output created by 653
+== failing case, should error out
+[TIMESTAMP] username(PID) Critical: cannot find the nosuchuser user to switch to
+== passing case, should be local user
+found: src/username as local user   

@@ -430,6 +430,11 @@ else
 PERL_INSTALL =
 endif
 
+SYSTEMD_CFLAGS=@SYSTEMD_CFLAGS@
+SYSTEMD_LIBS=@SYSTEMD_LIBS@
+PMDA_SYSTEMD=@PMDA_SYSTEMD@
+
+
 #
 # Python platform-specific installation quirks
 PYTHON=@PYTHON@
