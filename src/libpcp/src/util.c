@@ -1539,17 +1539,17 @@ __pmSetProcessIdentity(const char *username)
 
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
     if (pw == NULL) {
-	__pmNotifyErr(LOG_WARNING,
+	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
-	return (sts == 0) ? -ESRCH : -oserror();
+	exit(1);
     }
     uid = pwd.pw_uid;
     gid = pwd.pw_gid;
 #elif defined(HAVE_GETPWNAM)
     if ((pw = getpwnam(username)) == 0) {
-	__pmNotifyErr(LOG_WARNING,
+	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
-	return -oserror();
+	exit(1);
     }
     uid = pw->pw_uid;
     gid = pw->pw_gid;
@@ -1558,9 +1558,9 @@ __pmSetProcessIdentity(const char *username)
 #endif
 
     if (setgid(gid) < 0 || setuid(uid) < 0) {
-	__pmNotifyErr(LOG_WARNING,
+	__pmNotifyErr(LOG_CRIT,
 		"cannot switch to uid/gid of %s user (%d/%d)\n", username, uid, gid);
-	return -oserror();
+	exit(1);
     }
 
     return 0;

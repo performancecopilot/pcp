@@ -818,6 +818,7 @@ pmlogrewrite
 650 pmlogger local oss pmdumplog
 651 pmproxy local oss
 652 pmda.systemd event local oss
+653 libpcp local oss
 703 pcpweb local oss
 706 libpcp local oss
 707 pcp.py libpcp local oss

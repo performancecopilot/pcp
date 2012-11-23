@@ -212,6 +212,7 @@ truncbin.meta
 tstate
 tztest
 unpack
+username
 whichtimezone
 wrap_int
 write-bf
