@@ -1540,7 +1540,8 @@ __pmSetProcessIdentity(const char *username)
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
     if (pw == NULL) {
 	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
+		"cannot find the %s user to switch to: %s\n",
+		username, strerror_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pwd.pw_uid;
