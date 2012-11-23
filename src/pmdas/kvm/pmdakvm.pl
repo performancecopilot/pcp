@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -54,9 +55,8 @@ my @metrics = grep {
 closedir DIR;
 
 $pmda->set_fetch_callback(\&kvm_fetch_callback);
-# Don't lower permissions ... need to be root to read /sys/kernel/debug/kvm
-#
-# $pmda->set_user('nobody');
+# Careful with permissions - may need to be root to read /sys/kernel/debug/kvm
+$pmda->set_user('pcp') if -r $kvm_path;
 $pmda->run;
 
 =pod

@@ -1035,7 +1035,7 @@ main(int argc, char *argv[])
 		}
 
 		if (extra_cpu_stats) {
-		    if (i != 7 ) {
+		    if (i != 7 || dtot == 0) {
 			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
 				"?", "?", "?", "?", "?");
 		    } else {
@@ -1047,7 +1047,7 @@ main(int argc, char *argv[])
 			   (unsigned int)((100*diffs[5]+fill)/dtot),
 			   (unsigned int)((100*diffs[6]+fill)/dtot));
 		    }
-		} else if ( i != 7 ) {
+		} else if (i != 7 || dtot == 0) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
 		} else {
 		    unsigned long long fill = dtot/2;

@@ -877,6 +877,8 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     mmv_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

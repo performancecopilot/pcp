@@ -546,6 +546,7 @@ main(int argc, char **argv)
 	 * on into the logfile
 	 */
 	pmdaOpenLog(&desc);
+	__pmSetProcessIdentity("pcp");
     }
 
     /*

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -151,4 +152,5 @@ $pmda->set_fetch_callback( \&simple_fetch_callback );
 $pmda->set_store_callback( \&simple_store_callback );
 
 &simple_timenow_check;
+$pmda->set_user('pcp');
 $pmda->run;

@@ -113,6 +113,7 @@ _poke_pmcd()
 	-e 's/\(install the pcp.sw.base\) .*/\1 ... PCP 2.0 or later .../' \
 	-e 's/.*\(consult PMLOGGER.CHECK(1), else\)/        ... \1/' \
 	-e '/root.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
+	-e '/pcp.*.PCP_BINADM_DIR.pmcd/s/.*/-- ps output line --/' \
 	-e '/^failed (status=1)/d' \
 	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
 	-e '/^$/d'

@@ -75,7 +75,8 @@ usage(void)
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
-	  "  -u socket    expect PMCD to connect on given unix domain socket\n",
+	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
+	  "  -U username  run under specified user account\n",
 	  stderr);		
     exit(1);
 }
@@ -83,9 +84,10 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			errflag = 0;
+    int			c, errflag = 0;
     int			sep = __pmPathSeparator();
     char		helppath[MAXPATHLEN];
+    char		*username = "pcp";
     extern int		_isDSO;
 
     _isDSO = 0;
@@ -96,12 +98,23 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
 		"sample.log", helppath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &errflag) != EOF)
-	errflag++;
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?",
+				&dispatch, &errflag)) != EOF) {
+	switch (c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    errflag++;
+	    break;
+	}
+    }
     if (errflag)
 	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity(username);
+
     sample_init(&dispatch);
     pmdaSetCheckCallBack(&dispatch, check);
     pmdaSetDoneCallBack(&dispatch, done);

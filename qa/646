@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-files="/var/tmp/mmv/test$$ /var/tmp/mmv/notest$$"
+files="$PCP_TMP_DIR/mmv/test$$ $PCP_TMP_DIR/mmv/notest$$"
 $sudo rm -rf $tmp.* $files
 trap "rm -f $tmp.*; $sudo rm -f $files; exit \$status" 0 1 2 3 15
 
@@ -29,6 +29,7 @@ _filter_mmvdump()
 	-e "s,^Generated.*= [0-9][0-9]*,Generated  = TIMESTAMP,g" \
 	-e 's/interval = [0-9][0-9]*/interval = TIME/' \
 	-e 's/eggs"] = [0-9][0-9]* (value=[0-9][0-9]*/eggs"] = N (value=N/' \
+	-e "s,^MMV file.*= $PCP_TMP_DIR,MMV file   = \$PCP_TMP_DIR,g" \
 
 }
 

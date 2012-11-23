@@ -75,6 +75,7 @@ else
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
+	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/examples

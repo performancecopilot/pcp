@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 # Install the KVM PMDA
 #
 
@@ -25,6 +21,7 @@
 iam=kvm
 perl_opt=true
 daemon_opt=false
+forced_restart=false
 
 if ! test -d /sys/kernel/debug; then
     echo "DEBUGFS not enabled in your kernel"
@@ -33,6 +30,9 @@ fi
 if ! test -d /sys/kernel/debug/kvm; then
     echo "KVM statistics unavailable (load kvm module and mount debugfs)"
     exit 1
+fi
+if ! test -r /sys/kernel/debug/kvm; then
+    forced_restart=true
 fi
 
 pmdaSetup

@@ -35,19 +35,20 @@ static int	run_daemon = 1;		/* run as a daemon, see -f */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
-static int	dupok = 0;		/* set to 1 for -N pmnsfile */
+static char	*username = "pcp";
+static int	dupok;			/* set to 1 for -N pmnsfile */
 
 /*
  * Interfaces we're willing to listen for clients on, from -i
  */
-static int		nintf = 0;
-static char		**intflist = NULL;
+static int		nintf;
+static char		**intflist;
 
 /*
  * Ports we're willing to listen for clients on, from -p or $PMCD_PORT
  */
-static int		nport = 0;
-static int		*portlist = NULL;
+static int		nport;
+static int		*portlist;
 
 /*
  * For maintaining info about a request port that clients may connect to pmcd on
@@ -62,9 +63,9 @@ typedef struct {
 /*
  * A list of the ports that pmcd is listening for client connections on
  */
-static unsigned		nReqPorts = 0;	/* number of ports */
-static unsigned		szReqPorts = 0;	/* capacity of ports array */
-static ReqPortInfo	*reqPorts = NULL;	/* ports array */
+static unsigned		nReqPorts;	/* number of ports */
+static unsigned		szReqPorts;	/* capacity of ports array */
+static ReqPortInfo	*reqPorts;	/* ports array */
 int			maxReqPortFd = -1;	/* highest request port file descriptor */
 
 #ifdef HAVE_SA_SIGINFO
@@ -202,7 +203,7 @@ ParseOptions(int argc, char *argv[])
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:N:n:p:q:t:T:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "D:fi:l:L:N:n:p:q:t:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'D':	/* debug flag */
@@ -237,7 +238,7 @@ ParseOptions(int argc, char *argv[])
 	    case 'L': /* Maximum size for PDUs from clients */
 		val = (int)strtol (optarg, NULL, 0);
 		if ( val <= 0 ) {
-		    fputs ("pmcd: -L require a posivite value\n", stderr);
+		    fputs ("pmcd: -L requires a positive value\n", stderr);
 		    errflag++;
 		} else {
 		    __pmSetPDUCeiling (val);
@@ -312,6 +313,10 @@ ParseOptions(int argc, char *argv[])
 		    _pmcd_trace_mask = val;
 		break;
 
+	    case 'U':
+		username = optarg;
+		break;
+
 	    case 'x':
 		fatalfile = optarg;
 		break;
@@ -339,6 +344,7 @@ ParseOptions(int argc, char *argv[])
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
 "  -T traceflag    Event trace control\n"
 "  -t timeout      PMDA response timeout (seconds) [default 5]\n"
+"  -U username     in daemon mode, run as named user [default pcp]\n"
 "  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
 			pmProgname);
 	if (usage)
@@ -1143,8 +1149,12 @@ main(int argc, char *argv[])
 	DontStart();
     }
 
-    if (run_daemon && CreatePIDfile() < 0)
-	DontStart();
+    if (run_daemon) {
+	if (CreatePIDfile() < 0)
+	    DontStart();
+	if (__pmSetProcessIdentity(username) < 0)
+	    DontStart();
+    }
 
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);

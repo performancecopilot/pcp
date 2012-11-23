@@ -8,7 +8,7 @@ PCP_FILES = pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
 PCP_LINT = pcp.lintian 
 
 PCPTESTSUITE = pcp-testsuite
-PCPTESTSUITE_FILES = pcp-testsuite.dirs
+PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
 
 PCPIMPORTSAR = pcp-import-sar2pcp

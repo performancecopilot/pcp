@@ -124,6 +124,8 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
+    __pmSetProcessIdentity("pcp");
+
     trivial_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

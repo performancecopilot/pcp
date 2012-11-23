@@ -22,13 +22,13 @@ iam=bash
 dso_opt=true
 socket_opt=true
 socket_inet_def=2082
+forced_restart=false
 pmda_interface=5
 
 if [ ! -e "$PCP_TMP_DIR/pmdabash" ]
 then
     echo "creating $PCP_TMP_DIR/pmdabash"
-    mkdir -p "$PCP_TMP_DIR/pmdabash"
-    chmod 1777 "$PCP_TMP_DIR/pmdabash"
+    mkdir -p -m 1777 "$PCP_TMP_DIR/pmdabash"
 fi
 
 pmdaSetup

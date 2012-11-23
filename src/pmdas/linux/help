@@ -782,7 +782,7 @@ See also network.interface.speed for the Megabytes/second value.
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.
 @ hinv.ncpu number of CPUs in the system
-@ hinv.ndisk number of disks in the syste (excluding floppy drives)
+@ hinv.ndisk number of disks in the system
 @ hinv.nfilesys number of (local) file systems currently mounted
 @ hinv.map.scsi list of active SCSI devices
 There is one string value for each SCSI device active in the system,

@@ -35,6 +35,13 @@ AC_ARG_WITH(
     [do_threads=check])
 
 AC_ARG_WITH(
+    [tmpdir],
+    [AS_HELP_STRING([--with-tmpdir],
+		    [define a temporary directory (default is /var/tmp)])],
+    [with_tmpdir=$withval],
+    [with_tmpdir=default])
+
+AC_ARG_WITH(
     [secure-sockets],
     [AC_HELP_STRING([--with-secure-sockets],
 		    [enable support for secure sockets (default is on)])],
@@ -867,12 +874,12 @@ AC_CHECK_FUNCS(mktime nanosleep unsetenv)
 AC_CHECK_FUNCS(gethostname select socket)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
-AC_CHECK_FUNCS(chown getcwd scandir mkstemp getpwnam)
+AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
-AC_CHECK_FUNCS(sysinfo)
+AC_CHECK_FUNCS(sysinfo getpwnam getpwnam_r)
 AC_CHECK_FUNCS(backtrace)
 
 dnl only define readdir64 on non-linux platforms that support it
@@ -1794,11 +1801,16 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
 dnl temp files; these can go into system /tmp independent of $prefix
-if test -d /var/tmp
+if test "$with_tmpdir" = default
 then
-    pcp_tmp_dir=/var/tmp
+    if test -d /var/tmp
+    then
+        pcp_tmp_dir=/var/tmp
+    else
+        pcp_tmp_dir=/tmp
+    fi
 else
-    pcp_tmp_dir=/tmp
+    pcp_tmp_dir=`eval echo $with_tmpdir`
 fi
 AC_SUBST(pcp_tmp_dir)
 
@@ -1843,8 +1855,12 @@ then
     enable_secure=true
 
     saved_CFLAGS="$CFLAGS"
-    CFLAGS="$CFLAGS -I/usr/include/nss -I/usr/include/nss3"
-    CFLAGS="$CFLAGS -I/usr/include/nspr -I/usr/include/nspr4"
+    saved_CPPFLAGS="$CPPFLAGS"
+    NSS_INC_DIRS="-I/usr/include/nss -I/usr/include/nss3"
+    NSPR_INC_DIRS="-I/usr/include/nspr -I/usr/include/nspr4"
+    CFLAGS="$CFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+    CPPFLAGS="$CPPFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+
     AC_CHECK_HEADERS([nss/nss.h], [nss_inc_dir=/usr/include/nss], [
 	AC_CHECK_HEADERS([nss3/nss.h], [nss_inc_dir=/usr/include/nss3], [
 	    enable_secure=false
@@ -1892,6 +1908,7 @@ then
     then
 	AC_DEFINE(HAVE_SECURE_SOCKETS)
     fi
+    CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
 

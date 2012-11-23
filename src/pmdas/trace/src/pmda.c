@@ -213,6 +213,8 @@ main(int argc, char **argv)
 #endif
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     traceInit(&dispatch);
     pmdaConnect(&dispatch);
     traceMain(&dispatch);

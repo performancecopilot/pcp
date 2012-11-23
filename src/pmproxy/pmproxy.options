@@ -11,11 +11,11 @@
 # make log go someplace else
 # -l /some/place/else
 
-# restricting incomming PDU size to prevent DOS attacks
+# maximum incoming PDU size (default 64KB)
 # -L 16384 
 
-# assume identity of some user other than root
--U nobody
+# assume identity of some user other than "pcp"
+# -U nobody
 
 # emergency messages before logfile created
 # -x /tmp/desperate.log

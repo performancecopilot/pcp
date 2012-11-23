@@ -227,8 +227,8 @@ __choose_ipc()
 # Do it
 #
 pmdaSetup
-cat domain.h clusters.h pmns | \$PCP_BINADM_DIR/pmgcc -DPCP_PMNS >\$tmp.pmns
-pmns_source=\$tmp.pmns
+cat domain.h clusters.h pmns | \$PCP_BINADM_DIR/pmgcc -DPCP_PMNS >\$tmp/pmns
+pmns_source=\$tmp/pmns
 pmns_name=\$iam
 
 pmdaInstall

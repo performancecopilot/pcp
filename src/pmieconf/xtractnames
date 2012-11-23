@@ -29,8 +29,8 @@ do
     fi
 done
 
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _usage()
 {
@@ -52,8 +52,8 @@ shift `expr $OPTIND - 1`
 if [ $# -eq 0 ]
 then
     # no args, from stdin
-    cat >$tmp.in
-    set -- $tmp.in
+    cat >$tmp/in
+    set -- $tmp/in
 fi
 
 for file

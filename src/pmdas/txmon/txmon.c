@@ -371,6 +371,8 @@ main(int argc, char **argv)
      * the real work is done below here ...
      */
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity("pcp");
+
     txmon_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

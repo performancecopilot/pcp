@@ -24,7 +24,8 @@ _filter()
 	-e '/UNAME/d' \
 	-e '/USER/d' \
 	-e '/host/s/host "[^"]*"/host SOMEHOST/' \
-	-e 's/^ *root[^/]*\//    root ... \//' \
+	-e 's/^ *root[^/]*\//    USERNAME ... \//' \
+	-e 's/^ *pcp[^/]*\//    USERNAME ... \//' \
 	-e 's/pmcd -.*/pmcd/' \
 	-e '/__pmGetPDU:.*illegal PDU len=0/d' \
     | _filter_pcp_start

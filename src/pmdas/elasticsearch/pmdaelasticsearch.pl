@@ -20,7 +20,6 @@ use LWP::UserAgent;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
-my $es_user = 'nobody';
 use vars qw($pmda $http $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats);
 
 my $nodes_indom = 0;
@@ -715,7 +714,7 @@ $pmda->add_indom($search_indom, \@search_instances,
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);
-$pmda->set_user($es_user);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

@@ -17,6 +17,7 @@ _setenvironment()
 {
     MSGVERB="text:action"
     export MSGVERB
+    export PCP_BINADM_DIR
 }
 
 _log_fyi()

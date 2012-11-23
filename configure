@@ -843,6 +843,7 @@ ac_user_opts='
 enable_option_checking
 with_64bit
 with_threads
+with_tmpdir
 with_secure_sockets
 enable_ssp
 enable_pie
@@ -1509,6 +1510,7 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
   --with-threads          enable support for multiple threads (default is on)
+  --with-tmpdir           define a temporary directory (default is /var/tmp)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
@@ -1994,6 +1996,15 @@ if test "${with_threads+set}" = set; then
   withval=$with_threads; do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"
 else
   do_threads=check
+fi
+
+
+
+# Check whether --with-tmpdir was given.
+if test "${with_tmpdir+set}" = set; then
+  withval=$with_tmpdir; with_tmpdir=$withval
+else
+  with_tmpdir=default
 fi
 
 
@@ -11274,8 +11285,7 @@ done
 
 
 
-
-for ac_func in chown getcwd scandir mkstemp getpwnam
+for ac_func in chown getcwd scandir mkstemp
 do
 as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { $as_echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -11792,7 +11802,9 @@ fi
 done
 
 
-for ac_func in sysinfo
+
+
+for ac_func in sysinfo getpwnam getpwnam_r
 do
 as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { $as_echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -17612,11 +17624,16 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 
 
-if test -d /var/tmp
+if test "$with_tmpdir" = default
 then
-    pcp_tmp_dir=/var/tmp
+    if test -d /var/tmp
+    then
+        pcp_tmp_dir=/var/tmp
+    else
+        pcp_tmp_dir=/tmp
+    fi
 else
-    pcp_tmp_dir=/tmp
+    pcp_tmp_dir=`eval echo $with_tmpdir`
 fi
 
 
@@ -17752,8 +17769,12 @@ then
     enable_secure=true
 
     saved_CFLAGS="$CFLAGS"
-    CFLAGS="$CFLAGS -I/usr/include/nss -I/usr/include/nss3"
-    CFLAGS="$CFLAGS -I/usr/include/nspr -I/usr/include/nspr4"
+    saved_CPPFLAGS="$CPPFLAGS"
+    NSS_INC_DIRS="-I/usr/include/nss -I/usr/include/nss3"
+    NSPR_INC_DIRS="-I/usr/include/nspr -I/usr/include/nspr4"
+    CFLAGS="$CFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+    CPPFLAGS="$CPPFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
+
 
 for ac_header in nss/nss.h
 do
@@ -18680,6 +18701,7 @@ fi
 _ACEOF
 
     fi
+    CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
 

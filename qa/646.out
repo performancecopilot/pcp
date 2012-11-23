@@ -1,5 +1,5 @@
 QA output created by 646
-MMV file   = /var/tmp/mmv/testPID
+MMV file   = $PCP_TMP_DIR/mmv/testPID
 Version    = 1
 Generated  = TIMESTAMP
 TOC count  = 5
@@ -84,7 +84,7 @@ TOC[4]: offset 104, string offset 1528 (11 entries)
   [9/3576] Yes, this is a test string metric with instances
   [10/3832] We can be heroes
   [11/4088] We can be heroes, just for one day
-MMV file   = /var/tmp/mmv/notestPID
+MMV file   = $PCP_TMP_DIR/mmv/notestPID
 Version    = 1
 Generated  = TIMESTAMP
 TOC count  = 2

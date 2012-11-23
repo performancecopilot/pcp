@@ -1,6 +1,19 @@
-pcp-3.6.10 (16 November 2012)
+pcp-3.6.10 (19 November 2012)
+    - Transition daemons to run under an unprivileged account.
+    - Fixes for security advisory CVE-2012-5530: tmpfile flaws.
+    - Fix pcp(1) command short-form pmlogger reporting.
+    - Fix pmdalogger error handling for directory files.
+    - Fix pmstat handling of odd corner case in CPU metrics.
+    - Correct the python ctype used for pmAtomValue 32bit ints.
     - Add missing RPM spec dependency for python-ctypes.
-    - Remove unused python imports in QA tests.
+    - Corrections to pmdamysql metrics units.
+    - Add pmdamysql slave status metrics.
+    - Improve pmcollectl error messages.
+    - Parameterize pmcollectl CPU counts in interrupt subsys.
+    - Fix generic RPM packaging for powerpc builds.
+    - Fix python API use of reentrant libpcp string routines.
+    - Python code backporting for RHEL5 in qa and pmcollectl.
+    - Fix edge cases in capturing interrupt error counts.
 
 pcp-3.6.9 (12 October 2012)
     - Python wrapper for the pmimport API

@@ -60,13 +60,13 @@ file2="planning.html"
 file3="tasks.html"
 pfx="  "
 skipping="${pfx}skipping..."
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 # Duplicate entry check file
 #
-rm -f $tmp.dup
-touch $tmp.dup
+rm -f $tmp/dup
+touch $tmp/dup
 
 # pv 816562 - try to work around $PCP_DOC_DIR confusion
 [ ! -x $docsDir -a -x /usr/pcp/doc/pcpweb/ ] && docsDir=/usr/pcp/doc/pcpweb/
@@ -158,7 +158,7 @@ _getLogFiles()
 # 3: server description
 _addServer_check()
 {
-    if grep "$1" $tmp.dup > /dev/null 2>&1
+    if grep "$1" $tmp/dup > /dev/null 2>&1
     then
 	echo "${pfx}Error: already found a server with the name \"$1\""
 	if $do_auto
@@ -169,7 +169,7 @@ _addServer_check()
 	    read ans
 	    if [ -n "$ans" ]
 	    then
-		if grep "$ans" $tmp.dup > /dev/null 2>&1
+		if grep "$ans" $tmp/dup > /dev/null 2>&1
 		then
 		    echo "${pfx}Error: new server name already exists"
 		    echo "$skipping"
@@ -177,7 +177,7 @@ _addServer_check()
 		    echo >> $logFile
 		    echo "# $3." >> $logFile
 		    echo "server $ans $2" >> $logFile
-	 	    echo "$1" >> $tmp.dup
+		    echo "$1" >> $tmp/dup
 		fi
 	    else
 		echo "$skipping"
@@ -187,7 +187,7 @@ _addServer_check()
 	echo >> $logFile
 	echo "# $3." >> $logFile
 	echo "server $1 $2" >> $logFile
- 	echo "$1" >> $tmp.dup
+	echo "$1" >> $tmp/dup
     fi
 }
 
@@ -421,7 +421,7 @@ tolower($0) ~ /fn="document-root"/ || tolower($0) ~ /fn=document-root/	{
 _netscape_extract()
 {
     here=`pwd`
-    echo >$tmp.ns
+    echo >$tmp/ns
     for root in `echo "$NSROOTPATH" | sed -e 's/:/ /g'`
     do
 	for type in $NSTYPE
@@ -434,7 +434,7 @@ _netscape_extract()
 		    cd $dir
 		    check=`pwd`
 		    cd $here
-		    match=`grep "^$check " $tmp.ns`
+		    match=`grep "^$check " $tmp/ns`
 		    if [ ! -z "$match" ]
 		    then
 			echo "$match $dir" | $PCP_AWK_PROG '
@@ -453,7 +453,7 @@ _netscape_extract()
 		 	echo "$skipping"
 			continue
 		    fi
-		    echo "$check $dir" >>$tmp.ns
+		    echo "$check $dir" >>$tmp/ns
 		    access=
 		    errors=
 		    docs=
@@ -550,9 +550,9 @@ _zeus_extract()
     then
 	if [ -f $ZEUSPATH/server.ini ]
 	then
-	    rm -f $tmp.zeus
-	    touch $tmp.zeus
-	    $PCP_AWK_PROG < $ZEUSPATH/server.ini -v hostname=$LOCALHOSTNAME -v out=$tmp.zeus -v ini=$ZEUSPATH/server.ini -F'=' '
+	    rm -f $tmp/zeus
+	    touch $tmp/zeus
+	    $PCP_AWK_PROG < $ZEUSPATH/server.ini -v hostname=$LOCALHOSTNAME -v out=$tmp/zeus -v ini=$ZEUSPATH/server.ini -F'=' '
 BEGIN				{ mode = 0;
 				  port = 0;
 				  name = "";
@@ -602,17 +602,17 @@ END			{ if (mode == 2)
 			    printf("%s %s %s %d %s %s\n", name, access, errors, port, host, docs) > out;
 			}'
 
-	    if [ -f $tmp.zeus -a -s $tmp.zeus ]
+	    if [ -f $tmp/zeus -a -s $tmp/zeus ]
 	    then
 	    	accessRegex=CERN
 		errorRegex=CERN_err
 		serverPath=$ZEUSPATH
 		files="link"
-		lines=`wc -l $tmp.zeus | $PCP_AWK_PROG '{ print $1 }'`
+		lines=`wc -l $tmp/zeus | $PCP_AWK_PROG '{ print $1 }'`
 		count=1
 		while [ $count -le $lines ]
 		do
-		    eval `$PCP_AWK_PROG < $tmp.zeus -v line=$count '
+		    eval `$PCP_AWK_PROG < $tmp/zeus -v line=$count '
 NR == line 	{ printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%s\ndocs=%s\n", $1, $2, $3, $4, $5, $6); exit }'`
 
 		    serverDesc="Zeus Server $serverName"
@@ -669,9 +669,9 @@ _squid_extract()
     then
 	if [ -f $SQUIDPATH/etc/squid.conf ]
 	then
-	    rm -f $tmp.squid
-	    touch $tmp.squid
-	    $PCP_AWK_PROG < $SQUIDPATH/etc/squid.conf -v hostname=${LOCALHOSTNAME} -v out=$tmp.squid '
+	    rm -f $tmp/squid
+	    touch $tmp/squid
+	    $PCP_AWK_PROG < $SQUIDPATH/etc/squid.conf -v hostname=${LOCALHOSTNAME} -v out=$tmp/squid '
 BEGIN				{ port = 3128;
 				  name = hostname;
 				  access = "/usr/local/squid/logs/access.log";
@@ -694,9 +694,9 @@ END			  { if (mode == 0)
 			        printf("CERN %s %s %s %d %s\n", name, access, errors, port, host) > out;
 			  }'
 
-	    if [ -f $tmp.squid -a -s $tmp.squid ]
+	    if [ -f $tmp/squid -a -s $tmp/squid ]
 	    then
-	        grep CERN $tmp.squid >/dev/null
+	        grep CERN $tmp/squid >/dev/null
 		if [ $? -eq 0 ]
 		then
 	    	    accessRegex=CERN
@@ -706,7 +706,7 @@ END			  { if (mode == 0)
 		errorRegex=CERN_err
 		serverPath=$SQUIDPATH
 		files="skip"
-		eval `$PCP_AWK_PROG < $tmp.squid '
+		eval `$PCP_AWK_PROG < $tmp/squid '
 { printf("serverName=%s\naccess=%s\nerrors=%s\nserverPort=%d\nhttp=%s\n", $2, $3, $4, $5, $6); exit }'`
 
 		    serverDesc="Squid Server $serverName"

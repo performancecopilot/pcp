@@ -99,6 +99,7 @@ main(int argc, char **argv)
 
     /* force errors from here on into the log */
     pmdaOpenLog(& dispatch);
+    __pmSetProcessIdentity("pcp");
 
     /* initialize */
     summary_init(&dispatch);

@@ -48,7 +48,6 @@
 
 #define LINE_LENGTH	255		/* max length of command token */
 #define PROC_FNAMESIZE  20              /* from proc pmda - proc.h */
-#define PMIE_PATHSIZE   (sizeof(PMIE_DIR)+PROC_FNAMESIZE)
 
 static char *prompt = "pmie> ";
 static char *intro  = "Performance Co-Pilot Inference Engine (pmie), "
@@ -57,7 +56,8 @@ char	*clientid;
 
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
-static char perffile[PMIE_PATHSIZE];	/* /var/tmp/<pid> file name */
+static char perffile[MAXPATHLEN+1];	/* /var/tmp/<pid> file name */
+static char *username = "pcp";
 
 static char menu[] =
 "pmie debugger commands\n\n"
@@ -91,6 +91,7 @@ static char usage[] =
     "  -S starttime start of the time window\n"
     "  -T endtime   end of the time window\n"
     "  -t interval  sample interval [default 10 seconds]\n"
+    "  -U username  in daemon mode, run as named user [default pcp]\n"
     "  -V           verbose mode, annotated expression values printed\n"
     "  -v           verbose mode, expression values printed\n"
     "  -W           verbose mode, satisfying expression values printed\n"
@@ -322,20 +323,23 @@ startmonitor(void)
     void		*ptr;
     int			fd;
     char		zero = '\0';
+    char		pmie_dir[MAXPATHLEN];
 
     /* try to create the port file directory. OK if it already exists */
-    if ( (mkdir2(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
+    snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
+	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
+    if ( (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
 	 (oserror() != EEXIST) ) {
 	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
-		pmProgname, PMIE_DIR, osstrerror());
+		pmProgname, pmie_dir, osstrerror());
 	exit(1);
     }
 
-    chmod(PMIE_DIR, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
+    chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
-    sprintf(perffile, "%s%c%" FMT_PID, PMIE_DIR, __pmPathSeparator(), getpid());
+    sprintf(perffile, "%s%c%" FMT_PID, pmie_dir, __pmPathSeparator(), getpid());
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
@@ -479,7 +483,7 @@ getargs(int argc, char *argv[])
     memset(&tv2, 0, sizeof(tv2));
     dstructInit();
 
-    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:vVWXxzZ:?")) != EOF) {
+    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?")) != EOF) {
         switch (c) {
 
 	case 'a':			/* archives */
@@ -615,6 +619,11 @@ getargs(int argc, char *argv[])
 	    stopFlag = optarg;
 	    break;
 
+	case 'U': 			/* run as named user */
+	    username = optarg;
+	    isdaemon = 1;
+	    break;
+
 	case 'v': 			/* print values */
 	    verbose = 1;
 	    break;
@@ -682,6 +691,9 @@ getargs(int argc, char *argv[])
 	perf = &instrument;
 
     if (isdaemon) {			/* daemon mode */
+	/* done before opening log to get permissions right */
+	__pmSetProcessIdentity(username);
+
 #if defined(HAVE_TERMIO_SIGNALS)
 	signal(SIGTTOU, SIG_IGN);
 	signal(SIGTTIN, SIG_IGN);

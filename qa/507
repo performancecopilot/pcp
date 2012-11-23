@@ -73,8 +73,10 @@ do
     statusna=$?
     pcp -h $qahost | _filter > $tmp.local
     statusll=$?
-    pcp $host | _filter > $tmp.localnoh
+    export PMCD_HOST=$qahost
+    pcp | _filter > $tmp.localnoh
     statusln=$?
+    unset PMCD_HOST
     
     diff $tmp.noargs $tmp.local > $tmp.diffnoargslocal
     diff $tmp.noargs $tmp.localnoh > $tmp.noargslocalnoh

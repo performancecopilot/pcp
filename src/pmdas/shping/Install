@@ -12,28 +12,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Install the shping PMDA and/or PMNS
 #
 
-# Get standard environment
 . $PCP_DIR/etc/pcp.env
-
-
-# Get the common procedures and variable assignments
-#
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-# The name of the PMDA
-#
 iam=shping
-
-# Using libpcp_pmda.so.2 and PMDA_INTERFACE_2
-#
 pmda_interface=2
+forced_restart=false
 
 # Do it
 #
@@ -55,17 +42,17 @@ umask 022
 
 # PMDA variables
 #
-tmp=/tmp/$$
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 configfile=""
 cycle=120
 timeout=20
 debug=0
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _quit()
 {
-    rm -f $tmp*
+    rm -rf $tmp
     exit $1
 }
 
@@ -124,11 +111,11 @@ $1 == "'$iam'"	{ printf "%s",$6
 	else
 	    my_dns_server=`hostname`
 	fi
-	sed <$default_configfile >$tmp.tmp \
+	sed <$default_configfile >$tmp/tmp \
 	    -e '/CONFIGURE-ME-PLEASE/d' \
 	    -e "s@DEFAULT-DNS-SERVER@$my_dns_server@" \
 	    -e "s@NSLOOKUP@$nslookup@"
-	cp $tmp.tmp $default_configfile
+	cp $tmp/tmp $default_configfile
     fi
 
     # go figure out which configuration file to use ...

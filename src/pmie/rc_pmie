@@ -50,9 +50,9 @@ do
     fi
 done
 
-tmp=/var/tmp/$$
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
-trap "rm -f $tmp.* ; exit \$status" 0 1 2 3 15
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 if [ $pmprog = $prog ]
 then
@@ -90,24 +90,23 @@ _reboot_setup()
 {
     # base directories and house-keeping for pmie instances
     #
-    if [ ! -d $PCP_TMP_DIR/pmie ]
+    if [ ! -d "$PCP_TMP_DIR/pmie" ]
     then
-	mkdir -p $PCP_TMP_DIR/pmie
+	mkdir -p -m 1777 "$PCP_TMP_DIR/pmie"
     else
-	rm -rf $tmp.ent $tmp.pid
+	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
 	cd $PCP_TMP_DIR/pmie
-	_get_pids_by_name pmie | sort >$tmp.pid
+	_get_pids_by_name pmie | sort >$tmp/pid
 	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
-	    | sed -e 's/[ 	][ 	]*//g' | sort >$tmp.ent
+	    | sed -e 's/[ 	][ 	]*//g' | sort >$tmp/ent
 	# remove entries without a pmie process
-	rm -f `comm -23 $tmp.ent $tmp.pid`
-	rm -f $tmp.ent $tmp.pid
+	rm -f `comm -23 $tmp/ent $tmp/pid`
+	rm -f $tmp/ent $tmp/pid
 	cd "$here"
     fi
-    chmod 1777 $PCP_TMP_DIR/pmie
 
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
 }
 
 _start_pmie()
@@ -117,19 +116,19 @@ _start_pmie()
 
     if pmcd_wait $wait_option
     then
-	pmie_check >$tmp.pmie 2>&1
-	if [ -s $tmp.pmie ]
+	pmie_check >$tmp/pmie 2>&1
+	if [ -s $tmp/pmie ]
 	then
 	    pmpost "pmie_check start failed in $prog, mailing output to root"
 	    if [ ! -z "$MAIL" ]
 	    then
-		$MAIL -s "pmie_check start failed in $prog" root <$tmp.pmie >/dev/null 2>&1
+		$MAIL -s "pmie_check start failed in $prog" root <$tmp/pmie >/dev/null 2>&1
 	    else
 		echo "$prog: pmie_check start failed ..."
-		cat $tmp.pmie
+		cat $tmp/pmie
 	    fi
 	fi
-	rm -f $tmp.pmie
+	rm -f $tmp/pmie
     else
 	status=$?
 	pmpost "pmcd_wait failed in $prog: exit status: $status" 
@@ -145,8 +144,8 @@ _start_pmie()
 
 _shutdown()
 {
-    _get_pids_by_name pmie >$tmp.pmies 2>&1
-    if [ ! -s $tmp.pmies ]
+    _get_pids_by_name pmie >$tmp/pmies 2>&1
+    if [ ! -s $tmp/pmies ]
     then
 	[ "$1" = verbose ] && echo "$pmprog: PMIE not running"
 	return 0
@@ -154,22 +153,22 @@ _shutdown()
 
     $ECHO $PCP_ECHO_N "Waiting for PMIE process(es) to terminate ..." "$PCP_ECHO_C"
 
-    pmie_check -s >$tmp.pmie 2>&1
-    if [ -s $tmp.pmie ]
+    pmie_check -s >$tmp/pmie 2>&1
+    if [ -s $tmp/pmie ]
     then
 	pmpost "pmie_check stop failed in $prog, mailing output to root"
 	if [ ! -z "$MAIL" ]
 	then
-	    $MAIL -s "pmie_check stop failed in $prog" root <$tmp.pmie
+	    $MAIL -s "pmie_check stop failed in $prog" root <$tmp/pmie
 	else
 	    echo "$prog: pmie_check stop failed ..."
-	    cat $tmp.pmie
+	    cat $tmp/pmie
 	fi
     fi
 
     true
     $RC_STATUS -v
-    rm -fr $tmp.pmie $PCP_TMP_DIR/pmie
+    rm -fr $tmp/pmie $PCP_TMP_DIR/pmie
     pmpost "stop pmie from $pmprog"
 }
 

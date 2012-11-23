@@ -281,6 +281,7 @@ $pmda->add_tail($logfile, \&dtsrun_parser, 0);
 $pmda->set_fetch(\&dtsrun_instance);
 $pmda->set_instance(\&dtsrun_instance);
 $pmda->set_fetch_callback(\&dtsrun_fetch_callback);
+$pmda->set_user('pcp');
 $pmda->run;
 
 =pod

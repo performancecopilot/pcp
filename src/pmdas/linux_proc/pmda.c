@@ -1468,8 +1468,9 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
-	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile write log into logfile rather than using default log name\n",
+	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
+	  "  -l logfile  write log into logfile rather than using default log name\n"
+	  "  -U username account to run under (default is root, for proc.io metrics)\n",
 	  stderr);		
     exit(1);
 }
@@ -1486,6 +1487,7 @@ main(int argc, char **argv)
     int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
+    char		*username = "root";	/* proc.io.* require root! */
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -1494,13 +1496,22 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, PROC, "proc.log", helppath);
 
-    if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
-    	err++;
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch (c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+    	    err++;
+	}
+    }
 
     if (err)
     	usage();
 
     pmdaOpenLog(&dispatch);
+    __pmSetProcessIdentity(username);
+
     proc_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

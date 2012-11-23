@@ -109,20 +109,17 @@ _host_to_fqdn()
     fi
     if [ -z "$ans" ]
     then
+	if which domainname >/dev/null 2>&1
+	then
+	    ans=`domainname`
+	    [ -z "$ans" ] || ans="$1.$ans"
+	fi
+    fi
+    if [ -z "$ans" ]
+    then
 	# fake out localhost.localdomain if no working DNS
 	ans=localhost.localdomain
     fi
-#    if [ -z "$ans" ]
-#    then
-#	echo "_host_to_fqdn: cannot find FQDN" >&2
-#	echo "... hostname -f reports" >&2
-#	hostname -f >&2
-#	if which nslookup >/dev/null 2>&1
-#	then
-#	    echo "... nslookup $1 reports" >&2
-#	    nslookup $1 >&2
-#	fi
-#    fi
     echo "$ans"
 }
 
@@ -1420,4 +1417,18 @@ _restore_pmda_install()
             $sudo $signal -a -s HUP pmcd
         fi
     fi
+}
+
+# find a local port that is not in use, optionally starting from a suggested port
+#
+_find_free_port()
+{
+    base=$1
+    [ -z "$base" ] && base=54321
+
+    while $PCP_BINADM_DIR/telnet-probe -c localhost $base
+    do
+	base=`expr $base + 1`
+    done
+    echo $base
 }

@@ -7,20 +7,11 @@
 
 seq=`basename $0`
 
-. ./localconfig
-
 echo "QA output created by $seq"
-
-# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-#
-# Use a different port to avoid interference by remote monitors
-#
-PMCD_PORT=5432
-export PMCD_PORT
+. ./localconfig
 
 _filter_log()
 {
@@ -158,11 +149,15 @@ sed <$CONFIG \
     -e "s;$here/src/;;"
 echo '<END>'
 
+# Use a different port to avoid interference by remote monitors
+#
+port=`_find_free_port 5432`
+export PMCD_PORT=$port
+
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 # Sleep briefly to allow it time to start
 #
-PATH=$here/src:$PATH
-export PATH
+export PATH=$here/src:$PATH
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
 # complete V1 PMDA timeouts, then wait for pmcd

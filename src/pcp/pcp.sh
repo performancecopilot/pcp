@@ -18,9 +18,8 @@
 . $PCP_DIR/etc/pcp.env
 
 sts=2
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3  15
-rm -f $tmp.*
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
 
 errors=0
 prog=`basename $0`
@@ -37,7 +36,7 @@ pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmi
 _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options] [host]
+    echo 1>&2 "Usage: $prog [options]
 
 Options:
   -a archive    metrics source is a PCP log archive
@@ -109,29 +108,22 @@ do
 done
 
 shift `expr $OPTIND - 1`
-[ $# -gt 1 ] && _usage "$prog: too many arguments"
-if [ $# -eq 1 ]
-then
-    [ $hflag = true ] && _usage "$prog: host argument and -h mutually exclusive"
-    [ $aflag = true ] && _usage "$prog: host argument and -a mutually exclusive"
-    opts="$opts -h $1"
-    host=$1
-fi
+[ $# -ge 1 ] && _usage "$prog: too many arguments"
 
-if eval pminfo $opts -f $metrics > $tmp.metrics 2>&1
+if eval pminfo $opts -f $metrics > $tmp/metrics 2>&1
 then
     :
 else
-    if grep "^pminfo:" $tmp.metrics > /dev/null 2>&1
+    if grep "^pminfo:" $tmp/metrics > /dev/null 2>&1
     then
 	$PCP_ECHO_PROG $PCP_ECHO_N "$prog: ""$PCP_ECHO_C"
-	sed < $tmp.metrics -e 's/^pminfo: //g'
+	sed < $tmp/metrics -e 's/^pminfo: //g'
 	sts=1
 	exit
     fi
 fi
 
-eval `$PCP_AWK_PROG < $tmp.metrics -v out=$tmp '
+eval `$PCP_AWK_PROG < $tmp/metrics -v out=$tmp '
 BEGIN			{ mode = 0; count = 0; errors = 0; quote="" }
 
 function quoted()
@@ -149,7 +141,7 @@ function quoted()
 function inst()
 {
     if (count == 0)
-	file=sprintf("%s.%s", out, quote)
+	file=sprintf("%s/%s", out, quote)
     if (NF == 0) {
 	mode = 0
 	printf "%s=%d\n", quote, count
@@ -210,9 +202,9 @@ nrouter=`_plural $nrouter router`
 nxbow=`_plural $nxbow xbow`
 ncell=`_plural $ncell cell`
 
-if [ -f $tmp.status ]
+if [ -f $tmp/status ]
 then
-    agents=`$PCP_AWK_PROG < $tmp.status '
+    agents=`$PCP_AWK_PROG < $tmp/status '
 $3 == 0		{ printf "%s ",$2 }
 $3 != 0		{ printf "%s[%d] ",$2,$3 }' | _fmt`
 fi
@@ -253,9 +245,9 @@ fi
 if [ "$cputype" = $unknown ]
 then
     cputype=""
-elif [ -f $tmp.cputype ]
+elif [ -f $tmp/cputype ]
 then
-    cputype=`head -1 $tmp.cputype | sed -e 's/^.*"R/R/' -e 's/"$//g'`
+    cputype=`head -1 $tmp/cputype | sed -e 's/^.*"R/R/' -e 's/"$//g'`
 else
     cputype=""
 fi
@@ -264,68 +256,78 @@ ncpu=`_plural $ncpu "$cputype cpu"`
 
 hardware="${ncpu}${ndisk}${nnode}${nrouter}${nxbow}${ncell}$mem"
 
-if [ -f $tmp.log_archive -a -f $tmp.log_host ]
+if [ -f $tmp/log_archive -a -f $tmp/log_host ]
 then
-    sort $tmp.log_archive -o $tmp.log_archive
-    sort $tmp.log_host -o $tmp.log_host
+    sort $tmp/log_archive -o $tmp/log_archive
+    sort $tmp/log_host -o $tmp/log_host
 
-    numloggers=`join $tmp.log_host $tmp.log_archive | sort -n \
-	| sed -e 's/"//g' | tee $tmp.log | $PCP_AWK_PROG '
+    numloggers=`join $tmp/log_host $tmp/log_archive | sort -n \
+	| sed -e 's/"//g' | tee $tmp/log | $PCP_AWK_PROG '
 BEGIN		{ count = 0 }
 $1 == "0"	{ next }
 $1 == "1"	{ next }
 		{ count++ }
 END		{ print count }'`
 
-    $PCP_AWK_PROG < $tmp.log > $tmp.loggers '
+    $PCP_AWK_PROG < $tmp/log > $tmp/loggers '
 BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
-$3 == primary	{ offset = match($3, "/pcplog/")
-		  if (offset != 0)
-		    $3=substr($3, offset+8, length($3))
+$3 == primary	{ offset = match($3, "/pmlogger/")
+		  if (offset != 0) {
+		    $3=substr($3, offset+10, length($3))
+		  } else {
+		    offset = match($3, "/pcplog/")
+		    if (offset != 0)
+		      $3=substr($3, offset+8, length($3))
+		  }
 		  printf "primary logger: %s\n\n",$3; exit }'
 
-    $PCP_AWK_PROG < $tmp.log >> $tmp.loggers '
+    $PCP_AWK_PROG < $tmp/log >> $tmp/loggers '
 BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
 $1 == "1"	{ next }
 $3 == primary	{ next }
-	{ offset = match($3, "/pcplog/")
-		  if (offset != 0)
-		    $3=substr($3, offset+8, length($3))
+	{ offset = match($3, "/pmlogger/")
+		  if (offset != 0) {
+		    $3=substr($3, offset+10, length($3))
+		  } else {
+		    offset = match($3, "/pcplog/")
+		    if (offset != 0)
+		      $3=substr($3, offset+8, length($3))
+		  }
 		  printf "%s: %s\n\n",$2,$3 }'
 else
     numloggers=0
 fi
 
-if [ -f $tmp.ie_host -a -f $tmp.ie_config -a -f $tmp.ie_log -a -f $tmp.ie_numrules ]
+if [ -f $tmp/ie_host -a -f $tmp/ie_config -a -f $tmp/ie_log -a -f $tmp/ie_numrules ]
 then
-    sort $tmp.ie_log -o $tmp.ie_log
-    sort $tmp.ie_host -o $tmp.ie_host
-    sort $tmp.ie_config -o $tmp.ie_config
-    sort $tmp.ie_numrules -o $tmp.ie_numrules
+    sort $tmp/ie_log -o $tmp/ie_log
+    sort $tmp/ie_host -o $tmp/ie_host
+    sort $tmp/ie_config -o $tmp/ie_config
+    sort $tmp/ie_numrules -o $tmp/ie_numrules
     if [ $pflag = "true" ]; then
-	numpmies=`join $tmp.ie_host $tmp.ie_config | join - $tmp.ie_numrules \
-	    | sort -n | sed -e 's/"//g' | tee $tmp.pmie | wc -l | tr -d ' '`
+	numpmies=`join $tmp/ie_host $tmp/ie_config | join - $tmp/ie_numrules \
+	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
     else
-	numpmies=`join $tmp.ie_host $tmp.ie_log \
-	    | sort -n | sed -e 's/"//g' | tee $tmp.pmie | wc -l | tr -d ' '`
+	numpmies=`join $tmp/ie_host $tmp/ie_log \
+	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
     fi
 
-    if [ $pflag = "true" -a -f $tmp.ie_actions -a -f $tmp.ie_true -a \
-	-f $tmp.ie_false -a -f $tmp.ie_unknown -a -f $tmp.ie_expected ]
+    if [ $pflag = "true" -a -f $tmp/ie_actions -a -f $tmp/ie_true -a \
+	-f $tmp/ie_false -a -f $tmp/ie_unknown -a -f $tmp/ie_expected ]
     then
-	sort $tmp.ie_actions -o $tmp.ie_actions
-	sort $tmp.ie_true -o $tmp.ie_true
-	sort $tmp.ie_false -o $tmp.ie_false
-	sort $tmp.ie_unknown -o $tmp.ie_unknown
-	sort $tmp.ie_expected -o $tmp.ie_expected
-	join $tmp.pmie $tmp.ie_true | join - $tmp.ie_false \
-		| join - $tmp.ie_unknown | join - $tmp.ie_actions \
-		| join - $tmp.ie_expected > $tmp.pmie
+	sort $tmp/ie_actions -o $tmp/ie_actions
+	sort $tmp/ie_true -o $tmp/ie_true
+	sort $tmp/ie_false -o $tmp/ie_false
+	sort $tmp/ie_unknown -o $tmp/ie_unknown
+	sort $tmp/ie_expected -o $tmp/ie_expected
+	join $tmp/pmie $tmp/ie_true | join - $tmp/ie_false \
+		| join - $tmp/ie_unknown | join - $tmp/ie_actions \
+		| join - $tmp/ie_expected > $tmp/pmie
     fi
 
-    $PCP_AWK_PROG -v pflag=$pflag < $tmp.pmie '{
+    $PCP_AWK_PROG -v pflag=$pflag < $tmp/pmie '{
 	if (pflag == "true") {
 	    offset = match($3, "/pcp/config/")
 	    if (offset != 0)
@@ -336,7 +338,7 @@ then
 	} else {
 	    printf "%s: %s\n\n",$2,$3
 	}
-    }' > $tmp.pmies
+    }' > $tmp/pmies
 else
     numpmies=0
 fi
@@ -357,13 +359,13 @@ echo "     pmcd: ${version},${numagents}$numclients"
 if [ "$numloggers" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N " pmlogger: ""$PCP_ECHO_C"
-    _fmt < $tmp.loggers
+    _fmt < $tmp/loggers
 fi
 
 if [ "$numpmies" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "     pmie: ""$PCP_ECHO_C"
-    _fmt < $tmp.pmies
+    _fmt < $tmp/pmies
 fi
 
 sts=0
