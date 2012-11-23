@@ -1,6 +1,7 @@
 /*
  * Bash -x trace PMDA
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2012 Nathan Scott.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +23,8 @@ long bash_maxmem;
 
 static int bash_interval_expired;
 static struct timeval bash_interval = { 1, 0 };
+
+static char *username = "pcp";
 
 #define BASH_INDOM	0
 static pmdaIndom indoms[] = { { BASH_INDOM, 0, NULL } };
@@ -356,6 +359,8 @@ bash_main(pmdaInterface *dispatch)
 void 
 bash_init(pmdaInterface *dp)
 {
+    __pmSetProcessIdentity(username);
+
     if (dp->status != 0)
 	return;
 
@@ -401,7 +406,8 @@ usage(void)
 	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	"  -l logfile   write log into logfile rather than the default\n"
 	"  -m memory    maximum memory used per logfile (default %ld bytes)\n"
-	"  -s interval  default delay between iterations (default %d sec)\n",
+	"  -s interval  default delay between iterations (default %d sec)\n"
+	"  -U username  user account to run under (default \"pcp\")\n",
 		pmProgname, bash_maxmem, (int)bash_interval.tv_sec);
     exit(1);
 }
@@ -422,7 +428,7 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:?", &desc, &err)) != EOF) {
 	switch (c) {
 	    case 'm':
 		bash_maxmem = strtol(optarg, &endnum, 10);
@@ -444,6 +450,10 @@ main(int argc, char **argv)
 		}
 		break;
 
+	    case 'U':
+		username = optarg;
+		break;
+
 	    default:
 		err++;
 		break;
@@ -454,8 +464,6 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     bash_init(&desc);
     pmdaConnect(&desc);
     bash_main(&desc);

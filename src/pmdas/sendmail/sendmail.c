@@ -41,6 +41,7 @@ static pmdaIndom indomtab[] = {
 };
 
 static char		*statsfile = "/var/sendmail.st";
+static char		*username = "pcp";
 static int		nmailer;
 static void		*ptr;
 static struct stat	laststatbuf;
@@ -459,6 +460,8 @@ sendmail_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+    __pmSetProcessIdentity(username);
+
     do_sendmail_cf();
     map_stats();
 
@@ -476,7 +479,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	  stderr);		
     exit(1);
 }
@@ -487,7 +491,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
+    int			c, err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		mypath[MAXPATHLEN];
@@ -498,18 +502,21 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, SENDMAIL,
 		"sendmail.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
-    	err++;
-
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     sendmail_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
     exit(0);
 }

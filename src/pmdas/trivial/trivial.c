@@ -47,6 +47,7 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) } }
 };
 
+static char	*username = "pcp";
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* ==0 if I am a daemon */
 
@@ -78,6 +79,8 @@ trivial_init(pmdaInterface *dp)
 	snprintf(mypath, sizeof(mypath), "%s%c" "trivial" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "trivial DSO", mypath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -95,7 +98,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	      stderr);		
     exit(1);
 }
@@ -106,7 +110,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
+    int			c, err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
@@ -118,14 +122,19 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, TRIVIAL,
 		"trivial.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &desc, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     trivial_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);

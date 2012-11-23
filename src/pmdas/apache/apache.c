@@ -1,6 +1,7 @@
 /*
  * Apache PMDA
  *
+ * Copyright (C) 2012 Red Hat.
  * Copyright (C) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
  *
@@ -24,6 +25,8 @@
 
 static char url[256];
 static char uptime_s[64];
+static char *username = "pcp";
+
 static int http_port = 80;
 static char *http_server = "localhost";
 static char *http_path = "server-status";
@@ -449,6 +452,8 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void 
 apache_init(pmdaInterface *dp)
 {
+    __pmSetProcessIdentity(username);
+
     http_setTimeout(1);
     http_setUserAgent(pmProgname);
     snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
@@ -467,6 +472,7 @@ usage(void)
 "  -S server    use remote server, instead of localhost\n"
 "  -P port      use port on server, instead of port 80\n"
 "  -L location  use location on server, instead of 'server-status'\n"
+"  -U username  user account to run under (default \"pcp\")\n"
 "\nExactly one of the following options may appear:\n"
 "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
@@ -488,7 +494,7 @@ main(int argc, char **argv)
     pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:L:P:S:?", &pmda, &errflag)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:L:P:S:U:?", &pmda, &errflag)) != EOF) {
 	switch(c) {
 	case 'S':
 	    http_server = optarg;
@@ -501,6 +507,9 @@ main(int argc, char **argv)
 		optarg++;
 	    http_path = optarg;
 	    break;
+	case 'U':
+	    username = optarg;
+	    break;
 	default:
 	    errflag++;
 	}
@@ -510,8 +519,6 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&pmda);
-    __pmSetProcessIdentity("pcp");
-
     apache_init(&pmda);
     pmdaConnect(&pmda);
     pmdaMain(&pmda);

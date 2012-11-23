@@ -1,6 +1,7 @@
 /*
  * Simple, configurable PMDA
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <pcp/pmapi.h>
@@ -107,6 +104,7 @@ static int	red = 0;		/* current red value */
 static int	green = 100;		/* current green value */
 static int	blue = 200;		/* current blue value */
 static int	isDSO = 1;		/* =0 I am a daemon */
+static char	*username = "pcp";
 
 /* data and function prototypes for dynamic instance domain handling */
 static struct timeslice {
@@ -445,6 +443,8 @@ simple_init(pmdaInterface *dp)
 	snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "simple DSO", mypath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -467,6 +467,7 @@ usage(void)
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
@@ -481,7 +482,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
+    int			c, err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	dispatch;
 
@@ -493,15 +494,19 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
 		"simple.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &err) != EOF)
-    	err++;
-
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?", &dispatch, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     simple_init(&dispatch);
     simple_timenow_check();
     pmdaConnect(&dispatch);

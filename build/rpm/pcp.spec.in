@@ -18,6 +18,9 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 %if "%{_vendor}" == "redhat"
 BuildRequires: initscripts man /bin/hostname
 %endif
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+BuildRequires: systemd-devel
+%endif
 
 Conflicts: pcp-pro < 2.2
 

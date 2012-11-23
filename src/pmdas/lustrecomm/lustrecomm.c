@@ -1,9 +1,10 @@
 /*
  * Lustre common /proc PMDA
  *
- * Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Original author: Scott Emery <emery@sgi.com> 
  *
- * Author: Scott Emery <emery@sgi.com> 
+ * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,10 +15,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "libreadfiles.h"
@@ -123,6 +120,7 @@ struct file_state filestatetab[] = {
 
 static int	isDSO = 1;		/* =0 I am a daemon */
 static char	mypath[MAXPATHLEN];
+static char	*username = "pcp";
 
 /*
  * callback provided to pmdaFetch
@@ -244,6 +242,8 @@ lustrecomm_init(pmdaInterface *dp)
 	snprintf(mypath, sizeof(mypath), "%s%c" "lustrecomm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_2, "lustrecomm DSO", mypath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -261,7 +261,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	      stderr);		
     exit(1);
 }
@@ -272,7 +273,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
+    int			c, err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
@@ -283,18 +284,21 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LUSTRECOMM,
 		"lustrecomm.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-   
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &desc, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     lustrecomm_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);
-
     exit(0);
 }

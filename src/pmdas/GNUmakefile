@@ -16,16 +16,19 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pmcd linux solaris aix darwin windows etw \
+CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 	sample simple trivial sendmail mailq txmon \
 	cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
-	logger freebsd bash \
-	dbping memcache systemtap mysql vmware kvm \
-	bonding lustrecomm mmv netfilter zimbra \
-	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch postgresql snmp linux_proc
+	lustrecomm linux_proc mmv etw logger bash \
+	systemd
 
+PERLPMDAS = bonding netfilter zimbra postgresql \
+	dbping memcache systemtap mysql vmware kvm \
+	named news pdns samba dtsrun postfix gpsd \
+	rsyslog elasticsearch snmp
+
+SUBDIRS = $(CPMDAS) $(PERLPMDAS)
 LDIRT = pmcd.conf
 
 default :: default_pcp

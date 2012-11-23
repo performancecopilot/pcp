@@ -1,6 +1,7 @@
 /*
  * Web PMDA, based on generic driver for a daemon-based PMDA
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -84,6 +85,9 @@ char		*wl_logFile = "weblog.log";
 /* default path to help file */
 char		wl_helpFile[MAXPATHLEN];
 
+/* default user name for PMDA */
+char		*wl_username = "pcp";
+
 /*
  * Usage Information
  */
@@ -106,6 +110,7 @@ Options\n\
   -S num	number of web servers per sproc\n\
   -t delay	maximum number of seconds between reading weblog files\n\
   -u socket	expect PMCD to connect on given unix domain socket\n\
+  -U username   user account to run under (default \"pcp\")\n\
 \n\
 If none of the -i, -p or -u options are given, the configuration file is\n\
 checked and then %s terminates.\n", pmProgname, pmProgname);
@@ -477,7 +482,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
 		wl_logFile, wl_helpFile);
 
-    while ((n = pmdaGetOpt(argc, argv, "CD:d:h:i:l:n:pS:t:u:?", 
+    while ((n = pmdaGetOpt(argc, argv, "CD:d:h:i:l:n:pS:t:u:U:?", 
 			   &desc, &err)) != EOF) {
 	switch (n) {
 
@@ -520,6 +525,10 @@ main(int argc, char **argv)
 	    }
 	    break;
 
+	case 'U':
+	    wl_username = optarg;
+	    break;
+
 	default:
 	    fprintf(stderr, "%s: Unknown option \"-%c\"", pmProgname, (char)n);
 	    err++;
@@ -546,7 +555,7 @@ main(int argc, char **argv)
 	 * on into the logfile
 	 */
 	pmdaOpenLog(&desc);
-	__pmSetProcessIdentity("pcp");
+	__pmSetProcessIdentity(wl_username);
     }
 
     /*
