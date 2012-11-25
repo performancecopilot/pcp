@@ -5,8 +5,21 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-# generic initialization
 iam=mk.qa_hosts
+
+# Need to clear some environment variables so that behaviour is the same
+# when we're called via make from common.check, where the environment has
+# already been set in common.check and possibly modified in make to include
+# parenthesis around the value, e.g. PCP_AWK_PROG="/usr/bin/gawk --posix"
+# which blows up below otherwise.
+#
+# Unsetting PCP_ENV_DONE forces pcp.env to be sourced again, and unsetting
+# PCP_AWK_PROG allows it to be assigned a new value.
+#
+unset PCP_ENV_DONE
+unset PCP_AWK_PROG
+
+# generic initialization
 . ./common.rc
 
 if [ ! -f qa_hosts.master ]

@@ -136,14 +136,14 @@ cat $tmp.err >>$seq.full
 
 echo
 echo "SYSLOG ..."
-$sudo tail -100 $SYSLOG \
-| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+$sudo tail -100 $SYSLOG >$tmp.tmp
+sed <$tmp.tmp -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | LC_COLLATE=POSIX sort -u
 
 echo >>$seq.full
 echo "=== tail SYSLOG ===" >>$seq.full
-$sudo tail -100 $SYSLOG >>$seq.full
+cat $tmp.tmp SYSLOG >>$seq.full
 
 _check_core
 

@@ -1,0 +1,844 @@
+QA output created by 514
+Rule: expr_1
+Expr dump @ ADDR000
+  op=0 (->) arg1=ADDR001 arg2=ADDR002 parent=(nil)
+  eval=rule metrics=ADDR003 ring=ADDR004
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR001
+..   op=54 (some_inst) arg1=ADDR005 arg2=(nil) parent=ADDR000
+..   eval=cndSome_inst metrics=ADDR003 ring=ADDR006
+..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR005
+.. ..   op=34 (>) arg1=ADDR007 arg2=ADDR008 parent=ADDR001
+.. ..   eval=cndGt_n_1 metrics=ADDR003 ring=ADDR009
+.. ..   valid=0 cardinality[H,I,T]=[1,9,1] tspan=9
+.. ..   nsmpls=1 nvals=9 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR007
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR005
+.. .. ..   eval=cndFetch_all metrics=ADDR003 ring=ADDR010
+.. .. ..   valid=0 cardinality[H,I,T]=[1,9,1] tspan=9
+.. .. ..   nsmpls=1 nvals=9 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR008
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR005
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR011
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR011 500
+.. Expr dump @ ADDR002
+..   op=75 (print) arg1=ADDR012 arg2=(nil) parent=ADDR000
+..   eval=actPrint metrics=(nil) ring=ADDR013
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR012
+.. ..   op=76 (<action arg node>) arg1=ADDR014 arg2=(nil) parent=ADDR002
+.. ..   eval=actArg metrics=(nil) ring=ADDR015
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR014
+.. .. ..   op=80 (<nop node>) arg1=ADDR016 arg2=(nil) parent=ADDR012
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR017
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=10
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR017 "some > 500"
+.. .. .. .. Expr dump @ ADDR016
+.. .. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR014
+.. .. .. ..   eval=(nil)() metrics=(nil) ring=ADDR018
+.. .. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=3
+.. .. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. ..   smpls[0].ptr ADDR018 " %v"
+
+Rule: expr_2
+Expr dump @ ADDR019
+  op=0 (->) arg1=ADDR020 arg2=ADDR021 parent=(nil)
+  eval=rule metrics=ADDR022 ring=ADDR023
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR020
+..   op=51 (all_inst) arg1=ADDR024 arg2=(nil) parent=ADDR019
+..   eval=cndAll_inst metrics=ADDR022 ring=ADDR025
+..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR024
+.. ..   op=34 (>) arg1=ADDR026 arg2=ADDR027 parent=ADDR020
+.. ..   eval=cndGt_n_1 metrics=ADDR022 ring=ADDR028
+.. ..   valid=0 cardinality[H,I,T]=[1,9,1] tspan=9
+.. ..   nsmpls=1 nvals=9 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR026
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR024
+.. .. ..   eval=cndFetch_all metrics=ADDR022 ring=ADDR029
+.. .. ..   valid=0 cardinality[H,I,T]=[1,9,1] tspan=9
+.. .. ..   nsmpls=1 nvals=9 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR027
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR024
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR030
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR030 0
+.. Expr dump @ ADDR021
+..   op=72 (shell) arg1=ADDR031 arg2=(nil) parent=ADDR019
+..   eval=actShell metrics=(nil) ring=ADDR032
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR031
+.. ..   op=76 (<action arg node>) arg1=ADDR033 arg2=(nil) parent=ADDR021
+.. ..   eval=actArg metrics=(nil) ring=ADDR034
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR033
+.. .. ..   op=80 (<nop node>) arg1=ADDR035 arg2=(nil) parent=ADDR031
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR036
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=14
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR036 "echo 'all > 0'"
+.. .. .. .. Expr dump @ ADDR035
+.. .. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR033
+.. .. .. ..   eval=(nil)() metrics=(nil) ring=ADDR037
+.. .. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=3
+.. .. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. ..   smpls[0].ptr ADDR037 " %v"
+
+Rule: expr_3
+Expr dump @ ADDR038
+  op=0 (->) arg1=ADDR039 arg2=ADDR040 parent=(nil)
+  eval=rule metrics=ADDR041 ring=ADDR042
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR039
+..   op=55 (some_sample) arg1=ADDR043 arg2=(nil) parent=ADDR038
+..   eval=cndSome_time metrics=ADDR041 ring=ADDR044
+..   valid=0 cardinality[H,I,T]=[1,1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR043
+.. ..   op=30 (==) arg1=ADDR045 arg2=ADDR046 parent=ADDR039
+.. ..   eval=cndEq_1_1 metrics=ADDR041 ring=ADDR047
+.. ..   valid=0 cardinality[H,I,T]=[1,1,3] tspan=1
+.. ..   nsmpls=3 nvals=3 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR045
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR043
+.. .. ..   eval=cndFetch_1 metrics=ADDR041 ring=ADDR048
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,3] tspan=1
+.. .. ..   nsmpls=3 nvals=3 sem=DISCRETE units=
+.. .. .. Expr dump @ ADDR046
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR043
+.. .. ..   eval=cndFetch_1 metrics=ADDR049 ring=ADDR050
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=DISCRETE units=
+.. Expr dump @ ADDR040
+..   op=74 (syslog) arg1=ADDR051 arg2=ADDR052 parent=ADDR038
+..   eval=actSyslog metrics=(nil) ring=ADDR053
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR051
+.. ..   op=76 (<action arg node>) arg1=ADDR054 arg2=ADDR055 parent=ADDR040
+.. ..   eval=actArg metrics=(nil) ring=ADDR056
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR054
+.. .. ..   op=80 (<nop node>) arg1=ADDR057 arg2=(nil) parent=ADDR051
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR058
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=50
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR058 "PCP QA 514 - please ignore: some sample ncpu equal"
+.. .. .. .. Expr dump @ ADDR057
+.. .. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR054
+.. .. .. ..   eval=(nil)() metrics=(nil) ring=ADDR059
+.. .. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=3
+.. .. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. ..   smpls[0].ptr ADDR059 " %v"
+.. .. .. Expr dump @ ADDR055
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR051
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR060
+.. .. ..   valid=0 cardinality[H,I,T]=[0,0,0] tspan=0
+.. .. ..   nsmpls=0 nvals=0 sem=UNKNOWN units=
+.. .. Expr dump @ ADDR052
+.. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR040
+.. ..   eval=(nil)() metrics=(nil) ring=ADDR061
+.. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=NUMCONST units=sec
+.. ..   smpls[0].ptr ADDR061 10
+
+Rule: expr_4
+Expr dump @ ADDR062
+  op=0 (->) arg1=ADDR063 arg2=ADDR064 parent=(nil)
+  eval=rule metrics=ADDR065 ring=ADDR066
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR063
+..   op=35 (>=) arg1=ADDR067 arg2=ADDR068 parent=ADDR062
+..   eval=cndGte_1_1 metrics=ADDR065 ring=ADDR069
+..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR067
+.. ..   op=8 (/) arg1=ADDR070 arg2=ADDR071 parent=ADDR063
+.. ..   eval=cndDiv_1_1 metrics=ADDR065 ring=ADDR072
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR070
+.. .. ..   op=7 (*) arg1=ADDR073 arg2=ADDR074 parent=ADDR067
+.. .. ..   eval=cndMul_1_1 metrics=ADDR065 ring=ADDR075
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR073
+.. .. .. ..   op=6 (-) arg1=ADDR076 arg2=ADDR077 parent=ADDR070
+.. .. .. ..   eval=cndSub_1_1 metrics=ADDR065 ring=ADDR078
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR076
+.. .. .. .. ..   op=5 (+) arg1=ADDR079 arg2=ADDR080 parent=ADDR073
+.. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR065 ring=ADDR081
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR079
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR076
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR065 ring=ADDR082
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR080
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR076
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR083 ring=ADDR084
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR077
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR073
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR085 ring=ADDR086
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR074
+.. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR070
+.. .. .. ..   eval=cndFetch_1 metrics=ADDR087 ring=ADDR088
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR071
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR067
+.. .. ..   eval=cndFetch_1 metrics=ADDR089 ring=ADDR090
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. Expr dump @ ADDR068
+.. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR063
+.. ..   eval=(nil)() metrics=(nil) ring=ADDR091
+.. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. ..   smpls[0].ptr ADDR091 0
+.. Expr dump @ ADDR064
+..   op=75 (print) arg1=ADDR092 arg2=(nil) parent=ADDR062
+..   eval=actPrint metrics=(nil) ring=ADDR093
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR092
+.. ..   op=76 (<action arg node>) arg1=ADDR094 arg2=(nil) parent=ADDR064
+.. ..   eval=actArg metrics=(nil) ring=ADDR095
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR094
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR092
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR096
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=8
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR096 "arith %v"
+
+Rule: expr_5
+Expr dump @ ADDR097
+  op=0 (->) arg1=ADDR098 arg2=ADDR099 parent=(nil)
+  eval=rule metrics=ADDR100 ring=ADDR101
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR098
+..   op=43 (&&) arg1=ADDR102 arg2=ADDR103 parent=ADDR097
+..   eval=cndAnd_1_1 metrics=ADDR100 ring=ADDR104
+..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR102
+.. ..   op=31 (!=) arg1=ADDR105 arg2=ADDR106 parent=ADDR098
+.. ..   eval=cndNeq_1_1 metrics=ADDR100 ring=ADDR107
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR105
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR102
+.. .. ..   eval=cndFetch_1 metrics=ADDR100 ring=ADDR108
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR106
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR102
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR109
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR109 2
+.. .. Expr dump @ ADDR103
+.. ..   op=35 (>=) arg1=ADDR110 arg2=ADDR111 parent=ADDR098
+.. ..   eval=cndGte_1_1 metrics=ADDR112 ring=ADDR113
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR110
+.. .. ..   op=8 (/) arg1=ADDR114 arg2=ADDR115 parent=ADDR103
+.. .. ..   eval=cndDiv_1_1 metrics=ADDR112 ring=ADDR116
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR114
+.. .. .. ..   op=7 (*) arg1=ADDR117 arg2=ADDR118 parent=ADDR110
+.. .. .. ..   eval=cndMul_1_1 metrics=ADDR112 ring=ADDR119
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR117
+.. .. .. .. ..   op=6 (-) arg1=ADDR120 arg2=ADDR121 parent=ADDR114
+.. .. .. .. ..   eval=cndSub_1_1 metrics=ADDR112 ring=ADDR122
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR120
+.. .. .. .. .. ..   op=5 (+) arg1=ADDR123 arg2=ADDR124 parent=ADDR117
+.. .. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR112 ring=ADDR125
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR123
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR120
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR112 ring=ADDR126
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR124
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR120
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR127 ring=ADDR128
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR121
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR117
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR129 ring=ADDR130
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR118
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR114
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR131 ring=ADDR132
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR115
+.. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR110
+.. .. .. ..   eval=cndFetch_1 metrics=ADDR133 ring=ADDR134
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR111
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR103
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR135
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR135 0
+.. Expr dump @ ADDR099
+..   op=75 (print) arg1=ADDR136 arg2=(nil) parent=ADDR097
+..   eval=actPrint metrics=(nil) ring=ADDR137
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR136
+.. ..   op=76 (<action arg node>) arg1=ADDR138 arg2=(nil) parent=ADDR099
+.. ..   eval=actArg metrics=(nil) ring=ADDR139
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR138
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR136
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR140
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=11
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR140 "boolean1 %v"
+
+Rule: expr_6
+Expr dump @ ADDR141
+  op=0 (->) arg1=ADDR142 arg2=ADDR143 parent=(nil)
+  eval=rule metrics=ADDR144 ring=ADDR145
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR142
+..   op=43 (&&) arg1=ADDR146 arg2=ADDR147 parent=ADDR141
+..   eval=cndAnd_1_1 metrics=ADDR144 ring=ADDR148
+..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR146
+.. ..   op=33 (<=) arg1=ADDR149 arg2=ADDR150 parent=ADDR142
+.. ..   eval=cndLte_1_1 metrics=ADDR144 ring=ADDR151
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR149
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR146
+.. .. ..   eval=cndFetch_1 metrics=ADDR144 ring=ADDR152
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR150
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR146
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR153
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR153 0
+.. .. Expr dump @ ADDR147
+.. ..   op=35 (>=) arg1=ADDR154 arg2=ADDR155 parent=ADDR142
+.. ..   eval=cndGte_1_1 metrics=ADDR156 ring=ADDR157
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR154
+.. .. ..   op=8 (/) arg1=ADDR158 arg2=ADDR159 parent=ADDR147
+.. .. ..   eval=cndDiv_1_1 metrics=ADDR156 ring=ADDR160
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR158
+.. .. .. ..   op=7 (*) arg1=ADDR161 arg2=ADDR162 parent=ADDR154
+.. .. .. ..   eval=cndMul_1_1 metrics=ADDR156 ring=ADDR163
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR161
+.. .. .. .. ..   op=6 (-) arg1=ADDR164 arg2=ADDR165 parent=ADDR158
+.. .. .. .. ..   eval=cndSub_1_1 metrics=ADDR156 ring=ADDR166
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR164
+.. .. .. .. .. ..   op=5 (+) arg1=ADDR167 arg2=ADDR168 parent=ADDR161
+.. .. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR156 ring=ADDR169
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR167
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR164
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR156 ring=ADDR170
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR168
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR164
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR171 ring=ADDR172
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR165
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR161
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR173 ring=ADDR174
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR162
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR158
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR175 ring=ADDR176
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR159
+.. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR154
+.. .. .. ..   eval=cndFetch_1 metrics=ADDR177 ring=ADDR178
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR155
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR147
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR179
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR179 0
+.. Expr dump @ ADDR143
+..   op=75 (print) arg1=ADDR180 arg2=(nil) parent=ADDR141
+..   eval=actPrint metrics=(nil) ring=ADDR181
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR180
+.. ..   op=76 (<action arg node>) arg1=ADDR182 arg2=(nil) parent=ADDR143
+.. ..   eval=actArg metrics=(nil) ring=ADDR183
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR182
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR180
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR184
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=11
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR184 "boolean2 %v"
+
+Rule: expr_7
+Expr dump @ ADDR185
+  op=0 (->) arg1=ADDR186 arg2=ADDR187 parent=(nil)
+  eval=rule metrics=ADDR188 ring=ADDR189
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR186
+..   op=43 (&&) arg1=ADDR190 arg2=ADDR191 parent=ADDR185
+..   eval=cndAnd_1_1 metrics=ADDR188 ring=ADDR192
+..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR190
+.. ..   op=32 (<) arg1=ADDR193 arg2=ADDR194 parent=ADDR186
+.. ..   eval=cndLt_1_1 metrics=ADDR188 ring=ADDR195
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR193
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR190
+.. .. ..   eval=cndFetch_1 metrics=ADDR188 ring=ADDR196
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR194
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR190
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR197
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR197 9
+.. .. Expr dump @ ADDR191
+.. ..   op=40 (!) arg1=ADDR198 arg2=(nil) parent=ADDR186
+.. ..   eval=cndNot_1 metrics=ADDR199 ring=ADDR200
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR198
+.. .. ..   op=35 (>=) arg1=ADDR201 arg2=ADDR202 parent=ADDR191
+.. .. ..   eval=cndGte_1_1 metrics=ADDR199 ring=ADDR203
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. .. Expr dump @ ADDR201
+.. .. .. ..   op=8 (/) arg1=ADDR204 arg2=ADDR205 parent=ADDR198
+.. .. .. ..   eval=cndDiv_1_1 metrics=ADDR199 ring=ADDR206
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR204
+.. .. .. .. ..   op=7 (*) arg1=ADDR207 arg2=ADDR208 parent=ADDR201
+.. .. .. .. ..   eval=cndMul_1_1 metrics=ADDR199 ring=ADDR209
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR207
+.. .. .. .. .. ..   op=6 (-) arg1=ADDR210 arg2=ADDR211 parent=ADDR204
+.. .. .. .. .. ..   eval=cndSub_1_1 metrics=ADDR199 ring=ADDR212
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR210
+.. .. .. .. .. .. ..   op=5 (+) arg1=ADDR213 arg2=ADDR214 parent=ADDR207
+.. .. .. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR199 ring=ADDR215
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. .. Expr dump @ ADDR213
+.. .. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR210
+.. .. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR199 ring=ADDR216
+.. .. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. .. Expr dump @ ADDR214
+.. .. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR210
+.. .. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR217 ring=ADDR218
+.. .. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR211
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR207
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR219 ring=ADDR220
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR208
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR204
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR221 ring=ADDR222
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR205
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR201
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR223 ring=ADDR224
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR202
+.. .. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR198
+.. .. .. ..   eval=(nil)() metrics=(nil) ring=ADDR225
+.. .. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. .. ..   smpls[0].ptr ADDR225 0
+.. Expr dump @ ADDR187
+..   op=75 (print) arg1=ADDR226 arg2=(nil) parent=ADDR185
+..   eval=actPrint metrics=(nil) ring=ADDR227
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR226
+.. ..   op=76 (<action arg node>) arg1=ADDR228 arg2=(nil) parent=ADDR187
+.. ..   eval=actArg metrics=(nil) ring=ADDR229
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR228
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR226
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR230
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=11
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR230 "boolean3 %v"
+
+Rule: expr_8
+Expr dump @ ADDR231
+  op=0 (->) arg1=ADDR232 arg2=ADDR233 parent=(nil)
+  eval=rule metrics=ADDR234 ring=ADDR235
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR232
+..   op=43 (&&) arg1=ADDR236 arg2=ADDR237 parent=ADDR231
+..   eval=cndAnd_1_1 metrics=ADDR234 ring=ADDR238
+..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR236
+.. ..   op=32 (<) arg1=ADDR239 arg2=ADDR240 parent=ADDR232
+.. ..   eval=cndLt_1_1 metrics=ADDR234 ring=ADDR241
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR239
+.. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR236
+.. .. ..   eval=cndFetch_1 metrics=ADDR234 ring=ADDR242
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR240
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR236
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR243
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR243 1
+.. .. Expr dump @ ADDR237
+.. ..   op=40 (!) arg1=ADDR244 arg2=(nil) parent=ADDR232
+.. ..   eval=cndNot_1 metrics=ADDR245 ring=ADDR246
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR244
+.. .. ..   op=35 (>=) arg1=ADDR247 arg2=ADDR248 parent=ADDR237
+.. .. ..   eval=cndGte_1_1 metrics=ADDR245 ring=ADDR249
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. .. Expr dump @ ADDR247
+.. .. .. ..   op=8 (/) arg1=ADDR250 arg2=ADDR251 parent=ADDR244
+.. .. .. ..   eval=cndDiv_1_1 metrics=ADDR245 ring=ADDR252
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR250
+.. .. .. .. ..   op=7 (*) arg1=ADDR253 arg2=ADDR254 parent=ADDR247
+.. .. .. .. ..   eval=cndMul_1_1 metrics=ADDR245 ring=ADDR255
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR253
+.. .. .. .. .. ..   op=6 (-) arg1=ADDR256 arg2=ADDR257 parent=ADDR250
+.. .. .. .. .. ..   eval=cndSub_1_1 metrics=ADDR245 ring=ADDR258
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR256
+.. .. .. .. .. .. ..   op=5 (+) arg1=ADDR259 arg2=ADDR260 parent=ADDR253
+.. .. .. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR245 ring=ADDR261
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. .. Expr dump @ ADDR259
+.. .. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR256
+.. .. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR245 ring=ADDR262
+.. .. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. .. Expr dump @ ADDR260
+.. .. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR256
+.. .. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR263 ring=ADDR264
+.. .. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR257
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR253
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR265 ring=ADDR266
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR254
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR250
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR267 ring=ADDR268
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR251
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR247
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR269 ring=ADDR270
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR248
+.. .. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR244
+.. .. .. ..   eval=(nil)() metrics=(nil) ring=ADDR271
+.. .. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. .. ..   smpls[0].ptr ADDR271 0
+.. Expr dump @ ADDR233
+..   op=75 (print) arg1=ADDR272 arg2=(nil) parent=ADDR231
+..   eval=actPrint metrics=(nil) ring=ADDR273
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR272
+.. ..   op=76 (<action arg node>) arg1=ADDR274 arg2=(nil) parent=ADDR233
+.. ..   eval=actArg metrics=(nil) ring=ADDR275
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR274
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR272
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR276
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=11
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR276 "boolean4 %v"
+
+Rule: expr_9
+Expr dump @ ADDR277
+  op=0 (->) arg1=ADDR278 arg2=ADDR279 parent=(nil)
+  eval=rule metrics=ADDR280 ring=ADDR281
+  valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+  nsmpls=1 nvals=1 sem=TRUTH units=
+.. Expr dump @ ADDR278
+..   op=44 (||) arg1=ADDR282 arg2=ADDR283 parent=ADDR277
+..   eval=cndOr_n_1 metrics=ADDR280 ring=ADDR284
+..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR282
+.. ..   op=30 (==) arg1=ADDR285 arg2=ADDR286 parent=ADDR278
+.. ..   eval=cndEq_n_1 metrics=ADDR280 ring=ADDR287
+.. ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR285
+.. .. ..   op=20 (min_inst) arg1=ADDR288 arg2=(nil) parent=ADDR282
+.. .. ..   eval=cndMin_inst metrics=ADDR280 ring=ADDR289
+.. .. ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=UNKNOWN units=
+.. .. .. .. Expr dump @ ADDR288
+.. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR285
+.. .. .. ..   eval=cndFetch_1 metrics=ADDR280 ring=ADDR290
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=UNKNOWN units=
+.. .. .. Expr dump @ ADDR286
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR282
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR291
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR291 100
+.. .. Expr dump @ ADDR283
+.. ..   op=35 (>=) arg1=ADDR292 arg2=ADDR293 parent=ADDR278
+.. ..   eval=cndGte_1_1 metrics=ADDR294 ring=ADDR295
+.. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. .. Expr dump @ ADDR292
+.. .. ..   op=8 (/) arg1=ADDR296 arg2=ADDR297 parent=ADDR283
+.. .. ..   eval=cndDiv_1_1 metrics=ADDR294 ring=ADDR298
+.. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR296
+.. .. .. ..   op=7 (*) arg1=ADDR299 arg2=ADDR300 parent=ADDR292
+.. .. .. ..   eval=cndMul_1_1 metrics=ADDR294 ring=ADDR301
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR299
+.. .. .. .. ..   op=6 (-) arg1=ADDR302 arg2=ADDR303 parent=ADDR296
+.. .. .. .. ..   eval=cndSub_1_1 metrics=ADDR294 ring=ADDR304
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR302
+.. .. .. .. .. ..   op=5 (+) arg1=ADDR305 arg2=ADDR306 parent=ADDR299
+.. .. .. .. .. ..   eval=cndAdd_1_1 metrics=ADDR294 ring=ADDR307
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR305
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR302
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR294 ring=ADDR308
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. .. Expr dump @ ADDR306
+.. .. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR302
+.. .. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR309 ring=ADDR310
+.. .. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. .. Expr dump @ ADDR303
+.. .. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR299
+.. .. .. .. .. ..   eval=cndFetch_1 metrics=ADDR311 ring=ADDR312
+.. .. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. .. Expr dump @ ADDR300
+.. .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR296
+.. .. .. .. ..   eval=cndFetch_1 metrics=ADDR313 ring=ADDR314
+.. .. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. .. Expr dump @ ADDR297
+.. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR292
+.. .. .. ..   eval=cndFetch_1 metrics=ADDR315 ring=ADDR316
+.. .. .. ..   valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+.. .. .. ..   nsmpls=1 nvals=1 sem=INSTANT units=
+.. .. .. Expr dump @ ADDR293
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR283
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR317
+.. .. ..   valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+.. .. ..   nsmpls=1 nvals=1 sem=NUMCONST units=
+.. .. ..   smpls[0].ptr ADDR317 0
+.. Expr dump @ ADDR279
+..   op=75 (print) arg1=ADDR318 arg2=(nil) parent=ADDR277
+..   eval=actPrint metrics=(nil) ring=ADDR319
+..   valid=0 cardinality[H,I,T]=[-1,-1,-1] tspan=1
+..   nsmpls=1 nvals=1 sem=TRUTH units=
+.. .. Expr dump @ ADDR318
+.. ..   op=76 (<action arg node>) arg1=ADDR320 arg2=(nil) parent=ADDR279
+.. ..   eval=actArg metrics=(nil) ring=ADDR321
+.. ..   valid=0 cardinality[H,I,T]=[-1,1,-1] tspan=1
+.. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. .. Expr dump @ ADDR320
+.. .. ..   op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=ADDR318
+.. .. ..   eval=(nil)() metrics=(nil) ring=ADDR322
+.. .. ..   valid=1 cardinality[H,I,T]=[0,0,0] tspan=11
+.. .. ..   nsmpls=1 nvals=1 sem=CHAR units=
+.. .. ..   smpls[0].ptr ADDR322 "boolean5 %v"
+[DATE] pmie(PID) Info: evaluator exiting
+Performance Co-Pilot Inference Engine (pmie), Version ...
+
+pmie debugger commands
+
+  f [file-name]      - load expressions from given file or stdin
+  l [expr-name]      - list named expression or all expressions
+  r [interval]       - run for given or default interval
+  S time-spec        - set start time for run
+  T time-spec        - set default interval for run command
+  v [expr-name]      - print subexpression used for %h, %i and
+                       %v bindings
+  h or ?             - print this menu of commands
+  q                  - quit
+
+pmie> pmie> expr_1 =
+some_inst (sample.part_bin :LOCALHOST #bin-100 #bin-200 #bin-300 #bin-400 #bin-500 #bin-600 #bin-700 #bin-800 #bin-900 > 500) -> print "some > 500" " %v";
+
+expr_2 =
+all_inst (sample.part_bin :LOCALHOST #bin-100 #bin-200 #bin-300 #bin-400 #bin-500 #bin-600 #bin-700 #bin-800 #bin-900 > 0) -> shell "echo 'all > 0'" " %v";
+
+expr_3 =
+some_sample (hinv.ncpu :LOCALHOST @0..2 == hinv.ncpu :LOCALHOST) -> ([level=30 tag="pcp-pmie"] "PCP QA 514 - please ignore: some sample ncpu equal") syslog 10;
+
+expr_4 =
+((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0 -> print "arith %v";
+
+expr_5 =
+(sample.long.one :LOCALHOST != 2) && (((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0) -> print "boolean1 %v";
+
+expr_6 =
+(sample.long.one :LOCALHOST <= 0) && (((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0) -> print "boolean2 %v";
+
+expr_7 =
+(sample.long.one :LOCALHOST < 9) && (! (((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0)) -> print "boolean3 %v";
+
+expr_8 =
+(sample.long.one :LOCALHOST < 1) && (! (((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0)) -> print "boolean4 %v";
+
+expr_9 =
+((min_inst sample_part.bin :LOCALHOST) == 100) || (((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0) -> print "boolean5 %v";
+
+pmie> DATE: arith 9999910
+DATE: boolean1 1
+DATE: some > 500 700 900
+all > 0 100 300 500 700 900
+DATE: arith 9999910
+DATE: boolean1 1
+DATE: some > 500 700 900
+all > 0 100 300 500 700 900
+DATE: arith 9999910
+DATE: boolean1 1
+DATE: some > 500 700 900
+all > 0 100 300 500 700 900
+DATE: arith 9999910
+DATE: boolean1 1
+DATE: some > 500 700 900
+all > 0 100 300 500 700 900
+DATE: arith 9999910
+DATE: boolean1 1
+pmie> expr_1 (subexpression for %h, %i and %v bindings) =
+sample.part_bin :LOCALHOST #bin-100 #bin-300 #bin-500 #bin-700 #bin-900
+
+expr_2 (subexpression for %h, %i and %v bindings) =
+sample.part_bin :LOCALHOST #bin-100 #bin-300 #bin-500 #bin-700 #bin-900
+
+expr_3 (subexpression for %h, %i and %v bindings) =
+hinv.ncpu :LOCALHOST @0..2
+
+expr_4 (subexpression for %h, %i and %v bindings) =
+(((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST
+
+expr_5 (subexpression for %h, %i and %v bindings) =
+sample.long.one :LOCALHOST
+
+expr_6 (subexpression for %h, %i and %v bindings) =
+sample.long.one :LOCALHOST
+
+expr_7 (subexpression for %h, %i and %v bindings) =
+sample.long.one :LOCALHOST
+
+expr_8 (subexpression for %h, %i and %v bindings) =
+sample.long.one :LOCALHOST
+
+expr_9 (subexpression for %h, %i and %v bindings) =
+min_inst sample.part.bin :LOCALHOST
+
+pmie> 
+SYSLOG ...
+...: some sample ncpu equal N N N

@@ -284,6 +284,7 @@ pmcd/rc.local
 pmie/config.default
 pmie/control
 pmie/crontab
+pmie/stomp
 pmlogger/config.default
 pmlogger/control
 pmlogger/crontab

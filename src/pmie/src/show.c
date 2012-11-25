@@ -264,16 +264,18 @@ showTruth(Expr *x, int nth, size_t length, char **string)
 static size_t
 showString(Expr *x, size_t length, char **string)
 {
+    size_t	slen;
     size_t	tlen;
     char	*cat;
     char	*dog;
 
-    tlen = length + (x->nvals - 1) + 2;
+    slen = strlen((char *)x->smpls[0].ptr);
+    tlen = length + slen + 2;
     cat = (char *)ralloc(*string, tlen + 1);
     dog = cat + length;
     *dog++ = '"';
     strcpy(dog, (char *)x->smpls[0].ptr);
-    dog += x->nvals - 1;
+    dog += slen;
     *dog++ = '"';
     *dog = '\0';
 
@@ -366,8 +368,11 @@ showConst(Expr *x)
 		length = concat(" ", length, &string);
 	    if (x->sem == SEM_TRUTH)
 		length = showTruth(x, i, length, &string);
-	    else if (x->sem == SEM_CHAR)
+	    else if (x->sem == SEM_CHAR) {
 		length = showString(x, length, &string);
+		/* tspan is string length, not an iterator in this case */
+		break;
+	    }
 	    else
 		length = showNum(x, i, length, &string);
 	}
@@ -389,9 +394,10 @@ showSyn(FILE *f, Expr *x)
     Metric	*m;
     char	**n;
     int		i;
+    int		paren;
 
-    /* constant */
     if (x->op >= NOP) {
+	/* constant */
 	s = showConst(x);
 	if (s) {
 	    c = s;
@@ -401,9 +407,8 @@ showSyn(FILE *f, Expr *x)
 	    free(s);
 	}
     }
-
-    /* fetch expression (perhaps with delay) */
     else if ((x->op == CND_FETCH) || (x->op == CND_DELAY)) {
+	/* fetch expression (perhaps with delay) */
 	m = x->metrics;
 	fprintf(f, "%s", symName(m->mname));
 	for (i = 0; i < x->hdom; i++) {
@@ -419,21 +424,30 @@ showSyn(FILE *f, Expr *x)
 	    }
 	}
 	if (x->op == CND_FETCH) {
-	    if (x->tdom == 1) fprintf(f, " @0");
-	    else fprintf(f, " @0..%d", x->tdom - 1);
+	    if (x->tdom > 1)
+		fprintf(f, " @0..%d", x->tdom - 1);
 	}
 	else {
 	    if (x->tdom == x->arg1->tdom - 1) fprintf(f, " @%d", x->tdom);
 	    else fprintf(f, " @%d..%d", x->tdom, x->tdom + x->arg1->tdom - 1);
 	}
     }
-
-    /* binary operator */
     else if (x->arg1 && x->arg2) {
-	if (x->op >= ACT_SHELL && x->op < ACT_ARG) {
+	/* binary operator */
+	if (x->op == ACT_SHELL || x->op == ACT_ALARM || x->op == ACT_PRINT ||
+	    x->op == ACT_STOMP) {
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
 	    showSyn(f, x->arg2);
+	    fputc(' ', f);
+	    showSyn(f, x->arg1);
+	}
+	else if (x->op == ACT_ARG && x->parent->op == ACT_SYSLOG) {
+	    int		*ip;
+	    char	*cp;
+	    ip = x->arg2->ring;
+	    cp = (char *)&ip[1];
+	    fprintf(f, "[level=%d tag=\"%s\"]", *ip, cp);
 	    fputc(' ', f);
 	    showSyn(f, x->arg1);
 	}
@@ -451,37 +465,60 @@ showSyn(FILE *f, Expr *x)
 	    }
 	}
 	else {
-	    if (x->arg1->op >= NOP || x->arg1->op <= CND_DELAY)
-		showSyn(f, x->arg1);
-	    else {
+	    paren = 1 -
+		    (x->arg1->op >= NOP || x->arg1->op <= CND_DELAY ||
+		     x->op == RULE);
+	    if (paren)
 		fputc('(', f);
-		showSyn(f, x->arg1);
+	    showSyn(f, x->arg1);
+	    if (paren)
 		fputc(')', f);
-	    }
 	    fputc(' ', f);
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
-	    if (x->arg2->op >= NOP || x->arg2->op <= CND_DELAY)
-		showSyn(f, x->arg2);
-	    else {
+	    paren = 1 -
+		    (x->arg2->op >= NOP || x->arg2->op <= CND_DELAY ||
+		     x->op == RULE);
+	    if (paren)
 		fputc('(', f);
-		showSyn(f, x->arg2);
+	    showSyn(f, x->arg2);
+	    if (paren)
 		fputc(')', f);
-	    }
 	}
     }
-
-    /* unary operator */
     else {
+	/* unary operator */
 	assert(x->arg1 != NULL);
-	fputs(opStrings(x->op), f);
-	fputc(' ', f);
-	if (x->arg1->op >= ACT_ARG || x->arg1->op <= CND_DELAY)
-	    showSyn(f, x->arg1);
+	if (x->op == ACT_ARG) {
+	    /* parameters for an action */
+	    Expr	*y = x->arg1;
+	    while (y != NULL) {
+		if (y != x->arg1)
+		    fputc(' ', f);
+		showSyn(f, y);
+		// fprintf(f, "\"%s\"", (char *)y->smpls[0].ptr);
+		y = y->arg1;
+	    }
+	}
 	else {
-	    fputc('(', f);
+	    fputs(opStrings(x->op), f);
+	    fputc(' ', f);
+	    paren = 1 -
+		    (x->op == CND_SUM_HOST || x->op == CND_SUM_INST ||
+		     x->op == CND_SUM_TIME || x->op == CND_AVG_HOST ||
+		     x->op == CND_AVG_INST || x->op == CND_AVG_TIME ||
+		     x->op == CND_MAX_HOST || x->op == CND_MAX_INST ||
+		     x->op == CND_MAX_TIME || x->op == CND_MIN_HOST ||
+		     x->op == CND_MIN_INST || x->op == CND_MIN_TIME ||
+		     x->arg1->op == ACT_SEQ || x->arg1->op == ACT_ALT ||
+		     x->op == ACT_SHELL || x->op == ACT_ALARM ||
+		     x->op == ACT_SYSLOG || x->op == ACT_PRINT ||
+		     x->op == ACT_STOMP || x->op == CND_DELAY);
+	    if (paren)
+		fputc('(', f);
 	    showSyn(f, x->arg1);
-	    fputc(')', f);
+	    if (paren)
+		fputc(')', f);
 	}
     }
 }
@@ -785,9 +822,12 @@ showSatisfyingValue(FILE *f, Expr *x)
 }
 
 
-/* Instantiate format string for each satisfying binding and value
-   of the current rule.
-   WARNING: This is not thread safe, it dinks with the format string. */
+/*
+ * Instantiate format string for each satisfying binding and value
+ * of the current rule ... enumerate and insert %h, %v and %v values
+ *
+ * WARNING: This is not thread safe, it dinks with the format string.
+ */
 size_t	/* new length of string */
 formatSatisfyingValue(char *format, size_t length, char **string)
 {

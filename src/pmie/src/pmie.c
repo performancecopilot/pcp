@@ -869,6 +869,10 @@ interact(void)
 	    case 'f':
 		token = scanArg(finger);
 		load(token);
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL1)
+		    dumpRules();
+#endif
 		break;
 
 	    case 'l':

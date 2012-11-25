@@ -334,7 +334,7 @@ actStomp(Expr *x)
 
 
 /*
- * fake actions for archive mode
+ * action argument handling ... including %h, %v and %i substitution
  */
 void
 actArg(Expr *x)
