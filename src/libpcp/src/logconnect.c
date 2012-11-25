@@ -172,15 +172,40 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     __pmFreeHostEnt(servInfo);
 
     if (sts < 0) {
-	sts = -neterror();
-	__pmCloseSocket(fd);
+	sts = neterror();
+	if (sts == EINPROGRESS) {
+	  /* We're in progress - wait on select. */
+	  struct timeval stv = { 0, 000000 };
+	  struct timeval *pstv;
+	  __pmFdSet rfds;
+	  int rc;
+	  stv.tv_sec = __pmLoggerTimeout();
+	  pstv = stv.tv_sec ? &stv : NULL;
+
+	  __pmFD_ZERO(&rfds);
+	  __pmFD_SET(fd, &rfds);
+	  sts = 0;
+	  if ((rc = __pmSelectRead(fd+1, &rfds, pstv)) == 1) {
+	    sts = __pmConnectCheckError(fd);
+	  }
+	  else if (rc == 0) {
+	    sts = ETIMEDOUT;
+	  }
+	  else {
+	    sts = (rc < 0) ? neterror() : EINVAL;
+	  }
+	}
+	sts = -sts;
+	if (sts < 0) {
+	  __pmCloseSocket(fd);
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	  if (pmDebug & DBG_TRACE_CONTEXT) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
+	  }
 #endif
-	return sts;
+	  return sts;
+	}
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
