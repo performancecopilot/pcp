@@ -1,0 +1,36 @@
+QA output created by 041
+Waiting for pmcd to terminate ...
+
+### Expect: connection refused ###
+
+pminfo: Cannot connect to PMCD on host SOMEHOST: Connection refused
+
+### Expect: one million retrieved OK from sample.long.million ###
+
+
+sample.long.million
+    value 1000000
+
+### Expect: Starting, Waiting, Forcing termination and Starting again ###
+
+Starting pmcd ... 
+Starting pmlogger ... 
+Waiting for pmcd to terminate ...
+Process ...
+    USERNAME ... $PCP_BINADM_DIR/pmcd
+$PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
+Starting pmcd ... 
+Starting pmlogger ... 
+
+### Expect: IPC protocol failure ###
+
+pminfo: Cannot connect to PMCD on host SOMEHOST: IPC protocol failure
+
+### Expect: one million again ###
+
+
+sample.long.million
+    value 1000000
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
