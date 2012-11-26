@@ -1540,11 +1540,10 @@ __pmSetProcessIdentity(const char *username)
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
     if (pw == NULL) {
 	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n",
-		username, strerror_r(sts, buf, sizeof(buf)));
+		"cannot find the %s user to switch to\n", username);
 	exit(1);
     } else if (sts != 0) {
-	__pmNotifyErr(LOG_CRIT, "getpwnam_r failed: %s\n",
+	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
 		username, strerror_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
@@ -1559,7 +1558,7 @@ __pmSetProcessIdentity(const char *username)
 		"cannot find the %s user to switch to\n", username);
 	exit(1);
     } else if ((sts = oserror()) != 0) {
-	__pmNotifyErr(LOG_CRIT, "getpwnam failed: %s\n",
+	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, strerror_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
