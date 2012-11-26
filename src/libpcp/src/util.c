@@ -1528,28 +1528,39 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 int
 __pmSetProcessIdentity(const char *username)
 {
+    int sts;
     gid_t gid;
     uid_t uid;
+    char buf[16*1024];
     struct passwd *pw;
 
 #if defined(HAVE_GETPWNAM_R)	/* thread-safe variant first */
     struct passwd pwd;
-    char buf[16*1024];
-    int sts;
 
     sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
     if (pw == NULL) {
 	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to: %s\n",
+		"cannot find the %s user to switch to\n",
+		username, strerror_r(sts, buf, sizeof(buf)));
+	exit(1);
+    } else if (sts != 0) {
+	__pmNotifyErr(LOG_CRIT, "getpwnam_r failed: %s\n",
 		username, strerror_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pwd.pw_uid;
     gid = pwd.pw_gid;
 #elif defined(HAVE_GETPWNAM)
+    sts = 0;
+    setoserror(0);
+
     if ((pw = getpwnam(username)) == 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
+	exit(1);
+    } else if ((sts = oserror()) != 0) {
+	__pmNotifyErr(LOG_CRIT, "getpwnam failed: %s\n",
+		username, strerror_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pw->pw_uid;
