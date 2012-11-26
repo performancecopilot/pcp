@@ -142,8 +142,8 @@ sed <$tmp.tmp -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | LC_COLLATE=POSIX sort -u
 
 echo >>$seq.full
-echo "=== tail SYSLOG ===" >>$seq.full
-cat $tmp.tmp SYSLOG >>$seq.full
+echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+cat $tmp.tmp >>$seq.full
 
 _check_core
 
