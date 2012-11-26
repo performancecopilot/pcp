@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -21,11 +22,14 @@
 iam=named
 perl_opt=true
 daemon_opt=false
-forced_restart=false
+forced_restart=true
 
-if ! test -d /var/named/data -a ! -d /var/named/chroot/var/named/data; then
-    echo "named does not appear to be exporting statistics"
-    echo "Pushing on regardless, but no metric values may appear."
+d="/var/named/data"
+f="named_stats.txt"
+if test ! -f "$d/$f" -a ! -f "/var/named/chroot/$d/$f"
+then
+    echo "named does not appear to be exporting statistics (no $d/$f found)"
+    exit 1
 fi
 
 pmdaSetup
