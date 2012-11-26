@@ -40,7 +40,7 @@ fi
 # Command line can be used to extend this set, and any whacko
 # platform-specific requirements are also appended later on.
 #
-configure_options="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp"
+configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp"
 
 for opt in $*
 do
