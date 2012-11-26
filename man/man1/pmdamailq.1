@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -22,6 +23,7 @@
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-r\f1 \f2regex\f1]
+[\f3\-U\f1 \f2username\f1]
 [\f2queuedir\f1]
 .SH DESCRIPTION
 .B pmdamailq
@@ -97,6 +99,11 @@ The
 pattern specified should conform to the POSIX format described in
 .BR regex (3),
 and it describes file names that should be considered mail.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .PP
 The optional
 .I queuedir

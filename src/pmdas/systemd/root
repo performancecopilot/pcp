@@ -1,0 +1,11 @@
+#include <stdpmid>
+
+root {
+	systemd
+}
+
+#ifndef SYSTEMD
+#define SYSTEMD 114
+#endif
+
+#include "pmns"

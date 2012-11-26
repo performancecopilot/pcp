@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2012 Nathan Scott.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -23,6 +24,7 @@
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-I\f1 \f2interval\f1]
 [\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
 \f2configfile\f1
 .br
 .SH DESCRIPTION
@@ -80,6 +82,11 @@ The default is 2 seconds.
 .B \-m
 Maximum amount of memory to be allowed for each event queue (one per traced process).
 The default is 2 megabytes.
+.TP 5
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .PP
 .SH INSTALLATION
 In order for a host to export the names, help text and values for the bash

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
+ * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +33,7 @@
 #include <ctype.h>
 
 static int isDSO = 1;
+static char *username = "pcp";
 
 static pmdaMetric * metrics;
 static int mcnt;
@@ -794,6 +796,8 @@ mmv_init(pmdaInterface *dp)
 
     if (isDSO) {
 	pmdaDSO(dp, PMDA_INTERFACE_4, "mmv", NULL);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     pcptmpdir = pmGetConfig("PCP_TMP_DIR");
@@ -851,9 +855,9 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default "
-	  "log name\n",
+"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+"  -l logfile   write log into logfile rather than using default log name\n"
+"  -U username  user account to run under (default \"pcp\")\n",
 	  stderr);		
     exit(1);
 }
@@ -861,7 +865,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int		err = 0;
+    int		c, err = 0;
     char	logfile[32];
     pmdaInterface dispatch = { 0 };
 
@@ -872,13 +876,19 @@ main(int argc, char **argv)
     snprintf(logfile, sizeof(logfile), "%s.log", prefix);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, NULL);
 
-    if ((pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF) ||
-	err || argc != optind)
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
+    if (err)
 	usage();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     mmv_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

@@ -1,6 +1,7 @@
 /*
  * Mailq PMDA
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -42,6 +43,7 @@ static pmdaInstid *_delay;
 
 static char	*queuedir = "/var/spool/mqueue";
 static char	startdir[MAXPATHLEN];
+static char	*username = "pcp";
 
 static char	*regexstring;
 static regex_t	mq_regex;
@@ -209,10 +211,9 @@ mailq_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
+    __pmSetProcessIdentity(username);
     dp->version.two.fetch = mailq_fetch;
-
     pmdaSetFetchCallBack(dp, mailq_fetchCallBack);
-
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 	     sizeof(metrictab)/sizeof(metrictab[0]));
 }
@@ -226,7 +227,8 @@ usage(void)
 	  "               separated values in pmParseInterval(3) format\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -r regex     regular expression for matching mail file names\n",
+	  "  -r regex     regular expression for matching mail file names\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	  stderr);		
     exit(1);
 }
@@ -262,7 +264,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:r:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:r:U:?", &dispatch, &err)) != EOF) {
 	switch (c) {
 	    case 'b':
 		q = strtok(optarg, ",");
@@ -292,6 +294,10 @@ main(int argc, char **argv)
 				    mypath);
 		    exit(1);
 		}
+		break;
+
+	    case 'U':
+		username = optarg;
 		break;
 
 	    default:
@@ -377,8 +383,6 @@ main(int argc, char **argv)
     indomtab[DELAY_INDOM].it_set = _delay;
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     mailq_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

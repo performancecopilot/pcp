@@ -1,3 +1,11 @@
+/var/lib/pcp/config/pmcd/pmcd.conf
+/var/lib/pcp/config/pmcd/pmcd.options
+/var/lib/pcp/config/pmcd/rc.local
 /var/lib/pcp/config/pmie/config.default
+/var/lib/pcp/config/pmie/control
+/var/lib/pcp/config/pmie/crontab
+/var/lib/pcp/config/pmie/stomp
 /var/lib/pcp/config/pmlogger/config.default
+/var/lib/pcp/config/pmlogger/control
 /var/lib/pcp/config/pmlogger/crontab
+/var/lib/pcp/config/pmproxy/pmproxy.options

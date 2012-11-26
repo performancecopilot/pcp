@@ -12,84 +12,122 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# TODO: BIND 9.5 has more, different metrics.  We should probably
-# change this PMDA to be more like the KVM PMDA which configures
-# its namespace and metrics on-the-fly at Install time.
-#
 
 use strict;
 use warnings;
 use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('named', 100);
-my @files = ( '/var/named/data', '/var/named/chroot/var/named/data' );
+my @paths = ( '/var/named/chroot/var/named/data', '/var/named/data' );
+my $filename = 'named_stats.txt';
+my $statscmd = 'rdnc stats';	# writes to $paths/$filename
+my ( $statsdir, $statsfile );
+my $interval = 10;		# time (in seconds) between runs of $statscmd
+my %values;			# hash with all values mapped to metric names
 
-my ($success, $referral, $nxrrset, $nxdomain, $recursion, $failure) = (0,0,0,0,0,0);
-my ($timestamp_now, $timestamp_then) = (0,0);
+sub named_update
+{
+    #$pmda->log('Updating values in named statistics file');
+    system 'rndc', 'stats';
+}
+
+# Parser formats (PMDA internal numbering scheme):
+#  0: not yet known what ondisk format is
+#  1: bind 8,9.[0-4]   (<=rhel5.5)
+#  2: bind 9.5+        (>=rhel5.6)
+my $version = 0;
 
 sub named_parser
 {
     ( undef, $_ ) = @_;
 
     #$pmda->log("named_parser got line: $_");
-    if (m|^\+\+\+ Statistics Dump \+\+\+ \((\d+)\)$|) {
-	$timestamp_then = $timestamp_now;
-	$timestamp_now = $1;
+
+    if (m|^\+\+\+ Statistics Dump \+\+\+ \(\d+\)$|) {
+	$version = 1;	# all observed formats have this
+    } elsif (m|^\+\+ Incoming Requests \+\+$|) {
+	$version = 2;	# but, new format has this also.
     }
-    elsif (m|^success (\d+)$|)	{ $success = $1; }
-    elsif (m|^referral (\d+)$|)	{ $referral = $1; }
-    elsif (m|^nxrrset (\d+)$|)	{ $nxrrset = $1; }
-    elsif (m|^nxdomain (\d+)$|)	{ $nxdomain = $1; }
-    elsif (m|^recursion (\d+)$|){ $recursion = $1; }
-    elsif (m|^failure (\d+)$|)	{ $failure = $1; }
+
+    if ($version == 2) {
+	if      (m|^\s+(\d+) responses sent$|) {
+	    $values{'named.nameserver.responses.sent'} = $1;
+	} elsif (m|^\s+(\d+) IPv4 requests received$|) {
+	    $values{'named.nameserver.requests.IPv4'} = $1;
+	} elsif (m|^\s+(\d+) queries resulted in successful answer$|) {
+	    $values{'named.nameserver.queries.successful'} = $1;
+	} elsif (m|^\s+(\d+) queries resulted in authoritative answer$|) {
+	    $values{'named.nameserver.queries.authoritative'} = $1;
+	} elsif (m|^\s+(\d+) queries resulted in non authoritative answer$|) {
+	    $values{'named.nameserver.queries.non_authoritative'} = $1;
+	} elsif (m|^\s+(\d+) queries resulted in nxrrset$|) {
+	    $values{'named.nameserver.queries.nxrrset'} = $1;
+	} elsif (m|^\s+(\d+) queries resulted in NXDOMAIN$|) {
+	    $values{'named.nameserver.queries.nxdomain'} = $1;
+	} elsif (m|^\s+(\d+) queries caused recursion$|) {
+	    $values{'named.nameserver.queries.recursion'} = $1;
+	}
+    }
+    elsif ($version == 1) {
+	if    (m|^success (\d+)$|)	{ $values{'named.success'} = $1; }
+	elsif (m|^referral (\d+)$|)	{ $values{'named.referral'} = $1; }
+	elsif (m|^nxrrset (\d+)$|)	{ $values{'named.nxrrset'} = $1; }
+	elsif (m|^nxdomain (\d+)$|)	{ $values{'named.nxdomain'} = $1; }
+	elsif (m|^recursion (\d+)$|)	{ $values{'named.recursion'} = $1; }
+	elsif (m|^failure (\d+)$|)	{ $values{'named.failure'} = $1; }
+    }
+}
+
+sub named_metrics
+{
+    my $id = 0;
+
+    open STATS, $statsfile || die "Cannot open statistics file: $statsfile\n";
+    while (<STATS>) { named_parser(undef, $_); }
+    close STATS;
+
+    $pmda->add_metric(pmda_pmid(0,$id++), PM_TYPE_U32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		'named.interval',
+		'Time interval between invocations of rndc stats command', '');
+    foreach my $key (sort keys %values) {
+	$pmda->add_metric(pmda_pmid(0,$id++), PM_TYPE_U32, PM_INDOM_NULL,
+		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		$key, '', '');
+	#$pmda->log("named_metrics adding $key metric");
+    }
 }
 
 sub named_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    #$pmda->log("named_fetch_callback for PMID: $cluster.$item ($inst)");
     if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
     if ($cluster != 0)		{ return (PM_ERR_PMID, 0); }
+    if ($item == 0)		{ return ($interval, 1); }
 
-    if ($item == 0)	{ return ($success, 1); }
-    elsif ($item == 1)	{ return ($referral, 1); }
-    elsif ($item == 2)	{ return ($nxrrset, 1); }
-    elsif ($item == 3)	{ return ($nxdomain, 1); }
-    elsif ($item == 4)	{ return ($recursion, 1); }
-    elsif ($item == 5)	{ return ($failure, 1); }
-    elsif ($item == 6)	{
-	return (PM_ERR_AGAIN,0) unless ($timestamp_then != 0);
-	return ($timestamp_now - $timestamp_then, 1);
-    }
+    my $metric_name = pmda_pmid_name($cluster, $item);
+    my $value = $values{$metric_name};
+    #$pmda->log("named_fetch_callback for $metric_name: $cluster.$item");
+
+    return ($value, 1) if (defined($value));
     return (PM_ERR_PMID, 0);
 }
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.success', '', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.referral', '', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.nxrrset', '', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.nxdomain', '', '');
-$pmda->add_metric(pmda_pmid(0,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.recursion', '', '');
-$pmda->add_metric(pmda_pmid(0,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	pmda_units(0,0,1,0,0,PM_COUNT_ONE), 'named.failure', '', '');
-$pmda->add_metric(pmda_pmid(0,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-	pmda_units(0,0,0,0,0,0), 'named.interval', 'Time between samples', '');
-
-my ( $statsdir, $statsfile );
-foreach $statsdir ( @files ) {
-    $statsfile = $statsdir . "/named_stats.txt";
+# PMDA starts here
+foreach $statsdir ( @paths ) {
+    $statsfile = $statsdir . '/' . $filename;
     last if ( -f $statsfile );
 }
 die "Cannot find a valid named statistics file\n" unless -f $statsfile;
+named_update();		# push some values into the statistics file
 
-$pmda->add_tail($statsfile, \&named_parser, 0);
 $pmda->set_fetch_callback(\&named_fetch_callback);
-$pmda->set_user('pcp');
+$pmda->add_tail($statsfile, \&named_parser, 0);
+$pmda->add_timer($interval, \&named_update, 0);
+$pmda->set_user('named');
+
+named_metrics();	# fetch/parse the stats file, create metrics
 $pmda->run;
 
 =pod
@@ -103,7 +141,6 @@ pmdanamed - BIND (named) PMDA
 B<pmdanamed> is a Performance Metrics Domain Agent (PMDA) which
 exports metric values from the BIND DNS server.
 Further details on BIND can be found at http://isc.org/.
-Currently, only BIND version 9.4 is supported.
 
 =head1 INSTALLATION
 
@@ -126,11 +163,11 @@ the agent is installed or removed.
 
 =over
 
-=item /var/named/data
+=item /var/named/data/named_stats.txt
 
 statistics file showing values exported from named
 
-=item /var/named/chroot/var/named/data
+=item /var/named/chroot/var/named/data/named_stats.txt
 
 chroot variant of statistics file showing values exported from named
 
@@ -150,4 +187,4 @@ default log file for error messages from B<pmdanamed>
 
 =head1 SEE ALSO
 
-pmcd(1).
+pmcd(1), named.conf(5), named(8).

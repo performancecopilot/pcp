@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -39,6 +40,7 @@ main(int argc, char **argv)
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
+    char		*username = "pcp";
 
     __pmSetProgname(argv[0]);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
@@ -48,7 +50,7 @@ main(int argc, char **argv)
     pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
 		"summary.log", helpfile);
 
-    while ((c = pmdaGetOpt(argc, argv, "H:h:D:d:l:c:",
+    while ((c = pmdaGetOpt(argc, argv, "H:h:D:d:l:c:U:",
 			   &dispatch, &errflag)) != EOF) {
 	switch (c) {
 
@@ -58,6 +60,10 @@ main(int argc, char **argv)
 
 	    case 'H':		/* backwards compatibility, synonym for -h */
 		dispatch.version.two.ext->e_helptext = optarg;
+		break;
+
+	    case 'U':
+		username = optarg;
 		break;
 
 	    case '?':
@@ -92,14 +98,17 @@ main(int argc, char **argv)
 	      "  -h helpfile    help text file\n"
 	      "  -c configfile  load ASCII PDUs from config file on startup\n"
 	      "  -d domain      use domain (numeric) for metrics domain of PMDA\n"
-	      "  -l logfile     write log into logfile rather than using default log name\n",
+	      "  -l logfile     write log into logfile rather than using default log name\n"
+	      "  -U username    user account to run under (default \"pcp\")\n",
 	      stderr);		
 	exit(1);
     }
 
     /* force errors from here on into the log */
     pmdaOpenLog(& dispatch);
-    __pmSetProcessIdentity("pcp");
+
+    /* switch to alternate user account now */
+    __pmSetProcessIdentity(username);
 
     /* initialize */
     summary_init(&dispatch);

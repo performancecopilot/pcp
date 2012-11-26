@@ -16,6 +16,9 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+BuildRequires: systemd-devel
+%endif
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python python-ctypes
@@ -326,6 +329,7 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/n
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/config.default
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/crontab
+%config(noreplace) %{_localstatedir}/lib/pcp/config/pmie/stomp
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/config.default
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/control
 %config(noreplace) %{_localstatedir}/lib/pcp/config/pmlogger/crontab

@@ -1,9 +1,9 @@
 /*
  * Logger, a configurable log file monitoring PMDA
  *
- * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2011-2012 Red Hat.
  * Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
- * Copyright (c) 2011 Red Hat Inc.
+ * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,6 +49,7 @@ int maxfd;
 fd_set fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
+static char *username = "pcp";
 
 static int nummetrics;
 static __pmnsTree *pmns;
@@ -343,6 +344,8 @@ logger_init(pmdaInterface *dp, const char *configfile)
     char name[MAXPATHLEN * 2];
     dynamic_metric_info_t *pinfo;
 
+    __pmSetProcessIdentity(username);
+
     /* Read and parse config file. */
     if ((numloggers = event_config(configfile)) < 0)
 	return;
@@ -515,7 +518,8 @@ usage(void)
 	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	"  -l logfile   write log into logfile rather than the default\n"
 	"  -m memory    maximum memory used per logfile (default %ld bytes)\n"
-	"  -s interval  default delay between iterations (default %d sec)\n",
+	"  -s interval  default delay between iterations (default %d sec)\n"
+	"  -U username  user account to run under (default \"pcp\")\n",
 		pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }
@@ -537,7 +541,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,
 		"logger.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:?", &desc, &err)) != EOF) {
 	switch (c) {
 	    case 'm':
 		maxmem = strtol(optarg, &endnum, 10);
@@ -559,6 +563,10 @@ main(int argc, char **argv)
 		}
 		break;
 
+	    case 'U':
+		username = optarg;
+		break;
+
 	    default:
 		err++;
 		break;
@@ -569,8 +577,6 @@ main(int argc, char **argv)
     	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     logger_init(&desc, argv[optind]);
     pmdaConnect(&desc);
     loggerMain(&desc);

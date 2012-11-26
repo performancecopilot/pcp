@@ -1,0 +1,87 @@
+#! /bin/sh
+# PCP QA Test No. 652
+# checks basic pmdasystemd functionality
+#
+# Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+[ $PCP_VER -ge 3610 ] || _notrun "Installed pmdasystemd is too old"
+if which journalctl >/dev/null 2>&1
+then
+    echo Found journalctl
+else
+    _notrun no journalctl
+fi
+
+journal_version=`journalctl --version | grep ^systemd | awk '{print $2}'`
+if [ "$journal_version" -ge 193 ]; then
+    echo Found recent enough journalctl
+else
+    _notrun journalctl too old "$journal_version"
+fi
+
+_cleanup()
+{
+    _restore_pmda_install $iam
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMPFILE,g" \
+	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_filter_events()
+{
+    fgrep 'MESSAGE=yo'
+}
+
+_filter_events_raw()
+{
+    fgrep '4d4553534147453d796f'
+}
+
+iam=systemd
+status=1	# failure is the default!
+trap "_cleanup" 0 1 2 3 15
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+
+# real QA test starts here
+_prepare_pmda_install $iam
+
+# install PMDA accepting the defaults (esp config file)
+$sudo ./Remove < /dev/null >/dev/null 2>&1
+$sudo ./Install < /dev/null >$tmp.out 2>&1
+cat $tmp.out | _filter_pmda_install | _filter
+
+echo
+echo "=== 1. scalar metrics  ==="
+pminfo -f systemd | _filter
+
+echo
+echo "=== 2. journald.records  ==="
+(sleep 3; logger yo) &
+pmevent -T 10 systemd.journal.records | _filter_events
+
+echo
+echo "=== 3. journald.records  ==="
+(sleep 3; logger yo) &
+pmevent -T 10 systemd.journal.records_raw | _filter_events_raw
+
+status=0
+exit

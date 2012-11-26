@@ -13,6 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ $PCP_PLATFORM = mingw ] && _notrun "Process stop signal not available on Win32"
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3611 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 _filter()
 {
     tee -a $seq.full \
@@ -37,12 +47,6 @@ _expect()
     echo "### Expect: $* ###" | tee -a $seq.full
     echo "" | tee -a $seq.full
 }
-
-if test $PCP_PLATFORM = mingw
-then
-    echo "Process stop signal not available on Win32" > $seq.notrun
-    exit 1
-fi
 
 tmp=/var/tmp/qa041.$$
 _needclean=true

@@ -3,6 +3,7 @@
  *  
  * Original implementation by Troy Dawson (dawson@fnal.gov)
  *
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,10 +15,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */ 
 
 #include <stdlib.h>
@@ -32,6 +29,7 @@
 #include "domain.h"
 #include "lmsensors.h"
 
+static char *username = "pcp";
 static char buf[4096];
 static chips schips;
 
@@ -904,9 +902,10 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 void 
 lmsensors_init(pmdaInterface *dp)
 {
-	get_chips();
-    pmdaSetFetchCallBack(dp, lmsensors_fetchCallBack);
+    get_chips();
 
+    __pmSetProcessIdentity(username);
+    pmdaSetFetchCallBack(dp, lmsensors_fetchCallBack);
     pmdaInit(dp, NULL, 0, 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }
@@ -917,7 +916,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
+	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	      stderr);		
     exit(1);
 }
@@ -928,7 +928,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
     int			err = 0;
     pmdaInterface	desc;
     char		mypath[MAXPATHLEN];
@@ -940,18 +940,21 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LMSENSORS,
 		"lmsensors.log", mypath);
 
-    if ((pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err)) != EOF)
-	err++;
-   
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &desc, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
 	usage();
 
     pmdaOpenLog(&desc);
-    __pmSetProcessIdentity("pcp");
-
     lmsensors_init(&desc);
     pmdaConnect(&desc);
     pmdaMain(&desc);
-
     exit(0);
 }

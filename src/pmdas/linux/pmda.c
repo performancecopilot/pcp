@@ -94,6 +94,7 @@ static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
+static char		*username = "pcp";
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
@@ -5596,6 +5597,8 @@ linux_init(pmdaInterface *dp)
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -5702,7 +5705,8 @@ usage(void)
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
 	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile write log into logfile rather than using default log name\n",
+	  "  -l logfile write log into logfile rather than using default log name\n"
+	  "  -U username  user account to run under (default \"pcp\")\n",
 	  stderr);		
     exit(1);
 }
@@ -5727,18 +5731,21 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
 
-    if ((c = pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err)) != EOF)
-    	err++;
-
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch(c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
+    }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity("pcp");
-
     linux_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
     exit(0);
 }
