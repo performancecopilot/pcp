@@ -10,6 +10,9 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+_notrun "Temporarily disabled in dev branch - work in progress"
 
 _filter()
 {
