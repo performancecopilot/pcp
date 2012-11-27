@@ -34,13 +34,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-signal=$PCP_BINADM_DIR/pmsignal
+signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 
 _cleanup()
 {
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
     [ -z "$pmcd_pid" ] || $signal -s KILL $pmcd_pid
     unset PMCD_PORT
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -67,6 +67,11 @@ sleep 3
 
 rm -f $seq.full
 
+# figure out which user we will run pmcd and its pmdas as
+username=`id -u -n`
+sudoopts="-u $username"
+id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
+
 # real QA test starts here
 for pmcd_o in 1 2 3
 do
@@ -87,8 +92,14 @@ do
     echo
     echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ==="
     echo "=== PMCD_PORT=$PMCD_PORT pmcd_opt=$pmcd_opt ===" >>$seq.full
-    pmcd -f -l $tmp.log $pmcd_opt &
-    pmcd_pid=$!
+    cat >$tmp.sh <<END
+#!/bin/sh
+PATH=$PATH
+$PCP_PMCD_PROG -f -l $tmp.log $pmcd_opt &
+echo \$!
+END
+
+    pmcd_pid=`$sudo $sudoopts sh $tmp.sh`
     sleep 1
 
     for client_o in 1 2

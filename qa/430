@@ -27,7 +27,7 @@ else  #  includes Linux...
 fi
 #  assumed that no $seq.out file exists already
 
-signal=$PCP_BINADM_DIR/pmsignal
+signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`
 hostsfile="/etc/hosts"
@@ -50,7 +50,7 @@ _filter()
 
 _stop_loggers()
 {
-    $sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
+    $signal -a -s TERM pmlogger >/dev/null 2>&1
 }
 
 _cleanup()
@@ -66,8 +66,7 @@ _cleanup()
     _stop_loggers
 
     cd # get out of tmp directory so we can delete it
-    $sudo rm -rf $tmp
-    $sudo rm -rf $tmp.*
+    $sudo rm -rf $tmp $tmp.*
 
     $sudo $PCP_BINADM_DIR/pmlogger_check
 }
@@ -76,12 +75,10 @@ _setup()
 {
     _stop_loggers
     cd
-    rm -rf $logdir
-    rm -rf $logdir2
-    mkdir $logdir
-    mkdir $logdir2
+    $sudo rm -rf $logdir $logdir2
+    mkdir $logdir $logdir2
+    chmod ugo+w $logdir $logdir2
 }
-
 
 _update_hostsfile()
 {
@@ -227,7 +224,7 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
 done
 
 echo
@@ -243,7 +240,7 @@ do
     pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
     $signal -s TERM $pid
     echo "Check ..."
-    $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
     | sed -e '/^... try /d' \
     | _filter
 

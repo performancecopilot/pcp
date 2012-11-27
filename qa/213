@@ -24,6 +24,7 @@ fi
 echo "QA output created by $seq"
 
 status=0	# success is the default!
+username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -35,10 +36,13 @@ _filter()
 	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;" \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/dbpmda([0-9][0-9]*)/dbpmda(PID)/' \
+	-e "s/ -U $username//g" \
 	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
     | _filter_dumpresult
 }
 
+pipeargs=""
+id pcp >/dev/null 2>&1 && pipeargs="-U $username"
 
 # real QA test starts here
 echo "=== DSO PMDA test ==="
@@ -59,7 +63,7 @@ End-of-File
 echo
 echo "=== Daemon PMDA test ==="
 cat <<End-of-File | dbpmda -ei 2>&1 | _filter
-open pipe $PCP_PMDAS_DIR/sample/pmdasample 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs 29
 name 29.0.1001
 name 29.0.1007
 name 2.4.1
@@ -88,7 +92,7 @@ desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
 store mmv.reload "1"
-open pipe $PCP_PMDAS_DIR/mmv/pmdammv
+open pipe $PCP_PMDAS_DIR/mmv/pmdammv $pipeargs
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings

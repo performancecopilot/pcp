@@ -27,6 +27,7 @@
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-T\f1 \f2traceflag\f1]
 [\f3\-t\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
 .SH DESCRIPTION
 .B pmcd
@@ -251,6 +252,12 @@ In unbuffered mode,
 .B every
 event will be reported when it occurs.
 .RE
+.TP
+\f3\-U\f1 \f2username\f1
+User account under which to run
+.BR pmcd .
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
 .TP
 \f3\-x\f1 \f2file\f1
 Before the

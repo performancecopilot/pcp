@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "dbpmda.h"
@@ -21,12 +18,12 @@
 #include "gram.h"
 #include <ctype.h>
 
-char		*configfile = NULL;
+char		*configfile;
 __pmLogCtl	logctl;
-int		parse_done = 0;
-int		primary = 0;		/* Non-zero for primary pmlc */
+int		parse_done;
+int		primary;		/* Non-zero for primary pmlc */
 pid_t		pid = (pid_t) -1;
-int		zflag = 0;		/* for -z */
+int		zflag;
 char		*pmnsfile = PM_NS_DEFAULT;
 char		*cmd_namespace = NULL; /* namespace given from command */
 int             _creds_timeout = 3;     /* Timeout for agents credential PDU */
@@ -74,7 +71,7 @@ main(int argc, char **argv)
 
     iflag = isatty(0);
 
-    while ((c = getopt(argc, argv, "q:D:ein:?")) != EOF) {
+    while ((c = getopt(argc, argv, "q:D:ein:U:?")) != EOF) {
 	switch (c) {
 
 #ifdef PCP_DEBUG
@@ -103,18 +100,19 @@ main(int argc, char **argv)
 	    break;
 
 	case 'q':
-            {
-	        int val = (int)strtol(optarg, &endnum, 10);
-		if (*endnum != '\0' || val <= 0.0) {
-		    fprintf(stderr,
-			    "pmcd: -q requires a positive numeric argument\n");
-		    errflag++;
-		}
-		else
-		    _creds_timeout = val;
+	    sts = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || sts <= 0.0) {
+		fprintf(stderr,
+			"pmcd: -q requires a positive numeric argument\n");
+		errflag++;
+	    } else {
+		_creds_timeout = sts;
 	    }
 	    break;
 
+	case 'U':
+	    __pmSetProcessIdentity(optarg);
+	    break;
 
 	case '?':
 	default:
@@ -150,7 +148,8 @@ main(int argc, char **argv)
 		"  -i            be interactive and prompt\n"
 		"  -n pmnsfile   use an alternative PMNS\n"
 		"  -q timeout    PMDA initial negotiation timeout (seconds) "
-                                "[default 3]\n",
+                                "[default 3]\n"
+		"  -U username   run as named user [default pcp]",
 		pmProgname);
 	exit(1);
     }

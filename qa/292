@@ -22,12 +22,20 @@ _filter()
 	-e 's/^..:..:..\..../TIMESTAMP   /'
 }
 
-signal=$PCP_BINADM_DIR/pmsignal
+_cleanup()
+{
+    $signal -a -s TERM pmlogger >/dev/null 2>&1
+    cd $here
+    $sudo rm -rf $tmp
+}
+
+signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=0	# success is the default!
-trap "$signal -a -s TERM pmlogger >/dev/null 2>&1; cd; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 rm -rf $tmp
 mkdir $tmp
+chmod ugo+w $tmp
 cd $tmp
 
 echo >control '# PCP archive logging configuration/control - for qa/'$seq'
@@ -37,17 +45,20 @@ LOCALHOSTNAME	n   n	'`pwd`'	-c ./config'
 
 echo "log mandatory on once pmcd.control.debug" >config
 
+touch pmcheck.log
+chmod ugo+w pmcheck.log
+
 # real QA test starts here
 echo "start pmlogger ..."
-pmlogger_check -V -c control >pmcheck.log 2>&1
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
 
 for i in 1 2 3 4
 do
     echo "kill and restart pmlogger ..."
-    $sudo $signal -a -s TERM pmlogger
-    pmlogger_check -V -c control >>pmcheck.log 2>&1
+    $signal -a -s TERM pmlogger
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
 done
-$sudo $signal -a -s TERM pmlogger
+$signal -a -s TERM pmlogger
 
 echo
 echo "Checking ..."
@@ -75,7 +86,7 @@ fi
 
 echo
 echo "merge 'em together ..."
-pmlogextract *.0 out
+$sudo $PCP_BINADM_DIR/pmlogextract *.0 out
 pmval -U out pmcd.control.debug | _filter
 
 exit
