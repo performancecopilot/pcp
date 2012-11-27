@@ -24,6 +24,7 @@ fi
 echo "QA output created by $seq"
 
 status=0	# success is the default!
+username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -35,6 +36,7 @@ _filter()
 {
     sed \
 	-e 's/0x[0-9a-f][0-9a-f]*/ADDR/g' \
+	-e "s; -U $username;;" \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/PMNS Checksums/s/=[0-9a-f][0-9a-f]*/=CHECKSUM/g' \
 	-e '/Loaded Version 1 or 2/s/ent = [0-9][0-9]/ent = NN/' \
@@ -61,9 +63,12 @@ pminfo -D pmns -mf -c $tmp.def \
 _filter <$tmp.out
 _filter <$tmp.err
 
+pipeargs="-d 29"
+id pcp >/dev/null 2>&1 && pipeargs="$pipeargs -U $username"
+
 export PCP_DERIVED_CONFIG=$tmp.def
 cat <<End-of-File | dbpmda -D pmns -ie >$tmp.out 2>$tmp.err
-open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs
 fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
 End-of-File
 _filter <$tmp.out

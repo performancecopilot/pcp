@@ -76,7 +76,7 @@ CONFIGSAVE=$tmp/pmcd.conf.save
 	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
 LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
-signal=$PCP_BINADM_DIR/pmsignal
+signal="$sudo $PCP_BINADM_DIR/pmsignal"
 _needclean=true
 
 # for local PMNS to avoid conflict with pmcd tests
@@ -155,11 +155,20 @@ port=`_find_free_port 5432`
 export PMCD_PORT=$port
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
-# Sleep briefly to allow it time to start
+# Also figure out which user we will run pmcd and its pmdas as
 #
+username=`id -u -n`
+sudoopts="-u $username"
+id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
+
+cat >$tmp.sh <<END
+#!/bin/sh
 export PATH=$here/src:$PATH
 $PCP_PMCD_PROG -f -t 2 &
-pmcd=$!
+echo \$!
+END
+pmcd=`$sudo $sudoopts sh $tmp.sh`
+
 # complete V1 PMDA timeouts, then wait for pmcd
 #
 sleep 12
