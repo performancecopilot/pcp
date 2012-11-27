@@ -16,13 +16,12 @@
 .TH DBPMDA 1 "SGI" "Performance Co-Pilot"
 .SH NAME
 \f3dbpmda\f1 \- debugger for Performance Co-Pilot PMDAs
-.\" literals use .B or \f3
-.\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/dbpmda\f1
 [\f3\-ei\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
+[\f3\-U\f1 \f2username\f1]
 .SH DESCRIPTION
 .B dbpmda
 is an interactive interface to the interactions between a
@@ -102,13 +101,17 @@ but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
 zero) to be specified.  The unit of time is seconds.
+.TP
+\f3\-U\f1 \f2username\f1
+User account under which to run
+.BR dbpmda .
 .PP
 As there are no timeout constraints on a PMDA while using
 .B dbpmda
 (as compared to 
 .BR pmcd (1)),
 another debugger like
-.BR dbx (1)
+.BR gdb (1)
 can be used on the PMDA process once it has been attached to
 .BR dbpmda .
 .SH EXAMPLE
@@ -440,6 +443,7 @@ configuration file,
 as described in
 .BR pcp.conf (4).
 .SH SEE ALSO
+.BR gdb (1),
 .BR pmcd (1),
 .BR pmdbg (1),
 .BR exec (2),
