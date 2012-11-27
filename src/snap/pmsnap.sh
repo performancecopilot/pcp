@@ -20,8 +20,8 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit 0" 0 1 2 3 15
 prog=`basename $0`
 
 LOCALHOST=`pmhostname`
@@ -114,12 +114,12 @@ startXvfb()
     args="-nolisten tcp -screen 0 ${geom}x8"
     server=`serverId`
     cookie=`mcookie`
-    XAUTHORITY=$tmp.xauth xauth add ":$server" . "$cookie" >/dev/null 2>&1
-    XAUTHORITY=$tmp.xauth /usr/bin/Xvfb ":$server" $args >/dev/null 2>&1 &
+    XAUTHORITY=$tmp/xauth xauth add ":$server" . "$cookie" >/dev/null 2>&1
+    XAUTHORITY=$tmp/xauth /usr/bin/Xvfb ":$server" $args >/dev/null 2>&1 &
     pid=$?
     pmsleep 0.2
     kill -0 $pid 2>/dev/null || return
-    export XAUTHORITY=$tmp.xauth
+    export XAUTHORITY=$tmp/xauth
     export DISPLAY=":$server"
     echo $pid
 }
@@ -346,7 +346,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     f=$folio
     $SHOWME && echo "+ pmafm $f selection"
-    pmafm "$f" selection >$tmp.out 2>&1
+    pmafm "$f" selection >$tmp/out 2>&1
 
     if [ $? -ne 0 ]
     then
@@ -359,7 +359,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    contents=$folio
 	fi
     else
-	contents=`sed -n -e '/Archive:/s///gp' <$tmp.out`
+	contents=`sed -n -e '/Archive:/s///gp' <$tmp/out`
 	if [ -z "$contents" ]
 	then
 	    _warning "cannot determine archive name from PCP folio \"$folio\""
@@ -383,7 +383,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	    if [ ! -z "$host" -a ! -z "$port" ]
 	    then
-		echo "$host $port" >> $tmp.flush
+		echo "$host $port" >> $tmp/flush
 	    else
 		if $verbose
 		then
@@ -408,7 +408,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	continue
     fi
 
-    sort -u $tmp.flush | while read host port
+    sort -u $tmp/flush | while read host port
     do
 	eval $PMLC -h $host -p $port
     done
@@ -417,21 +417,21 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     then
 	echo "+ pmchart -c $view -o $name.$format -a $arch $commonargs $args"
     else
-	eval pmchart -c "$view" -o "$tmp.name.$format" -a "$arch" $commonargs $args > $tmp.err 2>&1
+	eval pmchart -c "$view" -o "$tmp/name.$format" -a "$arch" $commonargs $args > $tmp/err 2>&1
 	sts=$?
 
-	if [ $sts -eq 0 -a -f $tmp.name.$format ]
+	if [ $sts -eq 0 -a -f $tmp/name.$format ]
 	then
 	    # success, update the image
-	    mv $tmp.name.$format $name.$format
+	    mv $tmp/name.$format $name.$format
 	    $verbose && _debug "created \"$name.$format\""
-	    if [ -s "$tmp.err" ]
+	    if [ -s "$tmp/err" ]
 	    then
 		_warning "the output image \"$name.$format\" was created but there were warning messages from pmchart, as follows:"
-		cat $tmp.err
+		cat $tmp/err
 		echo "-------------"
 	    fi
-	elif grep 'too short to satisfy the requested starting alignment' $tmp.err >/dev/null
+	elif grep 'too short to satisfy the requested starting alignment' $tmp/err >/dev/null
 	then
 	    # archive's duration is too short for chart configuration ...
 	    # silently ignore this one, as we'll probably succeed next time
@@ -443,13 +443,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	else
 	    # failed, remove the image and report the error
 	    _warning "the output image \"$name.$format\" was not created. There were error messages from pmchart, as follows:"
-	    cat $tmp.err
+	    cat $tmp/err
 	    echo "-------------"
 	    rm -f $name.$format
 	fi
     fi
 
-    rm -f $tmp.err
+    rm -f $tmp/err
 done
 
 $SHOWME || stopXvfb "$xvfb"
