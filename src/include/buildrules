@@ -20,7 +20,6 @@ realclean distclean: clean
 	      $(TOPDIR)/src/query/pmquery.pro \
 	      $(TOPDIR)/src/chart/pmchart.pro \
 	      $(TOPDIR)/src/time/pmtime.pro \
-	      $(TOPDIR)/man/html/pcpdoc.adp \
 	rm -f $(TOPDIR)/pcp-gui.lsm $(TOPDIR)/configure
 
 
