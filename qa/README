@@ -1,5 +1,5 @@
-Open Source Release of the PCP QA Suite - Version 1.5 - September 2005
-======================================================================
+Notes on using the PCP QA Suite
+===============================
 
 Preliminaries
 -------------
@@ -10,29 +10,21 @@ Preliminaries
 Basic getting started
 ---------------------
 
-    Unpack the gzipped tarball into a directory.
-
     There is some local configuration needed ... check the file
     "common.config" ... this script uses heuristics to set a number of
     interesting variables, specifically:
 
     $PCPQA_CLOSE_X_SERVER
 	The $DISPLAY setting for an X server that is willing to accept
-	connections from X clients running on the local machine.  Not used
-	in the Open Source PCP QA tests.
+	connections from X clients running on the local machine.
 
     $PCPQA_FAR_PMCD
 	The hostname for a host running pmcd, but the host is preferably a
 	long way away (over a WAN) for timing test.
 
-	Test 131 is the only one that uses this variable.
-
     $PCPQA_HYPHEN_HOST
 	The hostname for a host running pmcd, with a hyphen (-) in the
 	hostname.
-
-	Test 116 is the only Open Source PCP QA test that uses this
-	variable.
 
     Next, mk.qa_hosts is a script that includes heuristics for selecting and
     sorting the list of potential remote PCP QA hosts (qa_hosts.master).
@@ -45,31 +37,33 @@ Basic getting started
     (b) pmcd(1) running,
     (c) a login for the user "pcpqa" needs to be created, and then set
         up in such a way that ssh/scp will work without the need for any
-	password, i.e. these sorts of commands
+        password, i.e. these sorts of commands
 	    $ ssh pcpqa@pcp-qa-host some-command
 	    $ scp some-file pcpqa@pcp-qa-host:some-dir
-	must work correctly when run from the local host.
+        must work correctly when run from the local host.
         The "pcpqa" user's environment must also be initialized 
         so that their shell's path includes all of the PCP binary
         directories, so that all PCP commands are executable without  
         full pathnames.  Of most concern would be auxilliary directory
-        (usually /usr/pcp/bin or /usr/share/pcp/bin) where commands like
-        pmlogger(1), pmhostname(1), mkaf(1), etc.) are installed.
+        (usually /usr/pcp/bin, /usr/share/pcp/bin or /usr/libexec/pcp/bin)
+        where commands like pmlogger(1), pmhostname(1), mkaf(1), etc.) are
+        installed.
 
     Once you've modified common.config and qa_hosts.master, then run
     "chk.setup" to validate the settings.
 
     For test 051 we need five local hostnames that are valid, although
-    PCP does not need to be installed there, nor pmcd(1) running.  Edit
-    051.hosts (the comments at the start of this file explain what is
-    required).
+    PCP does not need to be installed there, nor pmcd(1) running.  The
+    five hosts listed in 051.hosts (the comments at the start of this
+    file explain what is required) should suffice for most installations.
 
     The PCP QA tests are designed to be run by a non-root user.  Where
     root privileges are needed, e.g. to stop or start pmcd, install/remove
     PMDAs, etc. the "sudo" application is used.  When using sudo for QA,
     your local or pcpqa user needs to be able to execute commands as root
     without being prompted for a password.  This can be achieved by adding
-    the following line to the /etc/sudoers file:
+    the following line to the /etc/sudoers file (or in more recent versions
+    of sudo, a /etc/sudoers.d/pcpqa file):
 
 	pcpqa   ALL=(ALL) NOPASSWD: ALL
 
@@ -202,36 +196,6 @@ Make in the src Directory
        cp ../../src/include/trace_dev.h trace_dev.h
     4. make
 
-cisco PMDA Issues
------------------
-
-    The original PCP QA required the cisco PMDA to be installed as a
-    pre-condition to running any tests.  The issue here is that not everyone
-    has access to a Cisco and/or the necessary permissions to telnet to a
-    Cisco router and extract per-interface traffic metrics.
-
-    The current dependencies on the installation of the cisco PMDA are as
-    follows:
-
-    test 159
-	Exercises the installation and removal of the cisco PMDA.
-
-    test 212
-	Is a regression test for a problem in an earlier version of the
-	cisco PMDA.
-
-    there are other references to parts of the cisco PMDA configuration
-    files in other places, but none of these assume the PMDA is actually
-    installed and running.
-
-    If you are unable to install the cisco PMDA, then the workarounds are:
-
-    1. don't run tests 159 and 212, or
-    2. edit the "group" file to comment out the lines for tests 159 and 212, 
-       or
-    3. alway run tests using -x pmda.cisco with the "check" script (this
-       will exclude all of the pmda.cisco group, which is somewhat larger
-       than just tests 159 and 212).
 
 008 Issues
 ----------
@@ -244,6 +208,11 @@ cisco PMDA Issues
 	$ touch touch 008.out.`hostname`
 	$ remake 008
 	$ mv 008.out 008.out.`hostname`
+
+    Be aware that it can be adversely influenced by temporary disks like USB
+    sticks, mobile phones, or other transient storage that may come and go in
+    your test systems.
+
 
 Fixes
 -----
