@@ -54,24 +54,6 @@ _filter()
 	-e "s;/private/tmp;/tmp;g"
 }
 
-_filter_pmie_start()
-{
-    sed \
-	-e '/^Waiting for pmie process(es) to terminate/d' \
-	-e "s;$PCP_RC_DIR/pmie:;RC_SCRIPT;" \
-	-e '/RC_SCRIPT/d' \
-	-e '/(pmie) is disabled/d' \
-	-e '/To enable/d' \
-	-e '/\/sbin\/chkconfig pmie on/d' \
-	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
-        -e '/update-rc.d -f pmie defaults/d' \
-	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
-	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
-        -e '/^\.\.*done$/d' \
-        -e '/^\.\.*failed$/d' \
-	-e "s;/private/tmp;/tmp;g"
-}
-
 _count_pmies()
 {
     count=0

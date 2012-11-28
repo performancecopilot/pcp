@@ -5,6 +5,7 @@ pmie count at start of QA testing: 0
 pmie count after chkconfig pmie off: 0
 
 === check for missing control file ===
+$PCP_RC_DIR/pmie:
 Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).
 pmie count after attempt without control file: 0
@@ -34,3 +35,4 @@ No current pmie process exists for:
 Restarting pmie for host "LOCALHOST" ...
 + pmie -b -h LOCALHOST -l /tmp/PID.log0 /tmp/PID.conf
 
+$PCP_RC_DIR/pmie: PMIE not running

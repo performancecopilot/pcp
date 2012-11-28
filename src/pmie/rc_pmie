@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -109,37 +110,48 @@ _reboot_setup()
     [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
 }
 
+# Note: _start_pmie is running in the background, in parallel with
+# the rest of the script.  It might complete well after the caller
+# so tmpfile handling is especially problematic.  Goal is to speed
+# bootup by starting potentially slow (remote monitoring) processes
+# in the background.
+#
 _start_pmie()
 {
+    bgstatus=0
+    bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+    trap "rm -rf $bgtmp; exit \$bgstatus" 0 1 2 3 15
+
     wait_option=''
     [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
 
     if pmcd_wait $wait_option
     then
-	pmie_check >$tmp/pmie 2>&1
-	if [ -s $tmp/pmie ]
+	pmie_check >$bgtmp/pmie 2>&1
+	bgstatus=$?
+	if [ -s $bgtmp/pmie ]
 	then
 	    pmpost "pmie_check start failed in $prog, mailing output to root"
 	    if [ ! -z "$MAIL" ]
 	    then
-		$MAIL -s "pmie_check start failed in $prog" root <$tmp/pmie >/dev/null 2>&1
+		$MAIL -s "pmie_check start failed in $prog" root <$bgtmp/pmie >/dev/null 2>&1
 	    else
 		echo "$prog: pmie_check start failed ..."
-		cat $tmp/pmie
+		cat $bgtmp/pmie
 	    fi
 	fi
-	rm -f $tmp/pmie
     else
-	status=$?
-	pmpost "pmcd_wait failed in $prog: exit status: $status" 
+	bgstatus=$?
+	pmpost "pmcd_wait failed in $prog: exit status: $bgstatus" 
 	if [ ! -z "$MAIL" ]
 	then
-	    echo "pmcd_wait: exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
+	    echo "pmcd_wait: exit status: $bgstatus" | $MAIL -s "pmcd_wait failed in $prog" root
 	else
 	    echo "$prog: pmcd_wait failed ..."
-	    echo "pmcd_wait: exit status: $status"
+	    echo "pmcd_wait: exit status: $bgstatus"
 	fi
     fi
+    exit $bgstatus	# co-process is now complete
 }
 
 _shutdown()
