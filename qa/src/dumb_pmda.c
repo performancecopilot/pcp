@@ -63,7 +63,7 @@ main(int argc, char **argv)
      * ignore them, optionally execute an action and exit on end of file
      */
 
-    while ((sts = read(desc.version.two.ext->e_infd, &c, 1)) == 1) {
+    while ((sts = __pmRead(desc.version.two.ext->e_infd, &c, 1)) == 1) {
 	if (exit_action) exit(1);
     }
 
