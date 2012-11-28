@@ -422,6 +422,32 @@ s/\.\.\.\.*/.../
     | _filter_init_distro
 }
 
+_filter_pmie_start()
+{
+    sed \
+	-e '/^Waiting for pmie process(es) to terminate/d' \
+	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
+	-e '/(pmie) is disabled/d' \
+	-e '/To enable/d' \
+	-e '/\/sbin\/chkconfig pmie on/d' \
+	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
+        -e '/update-rc.d -f pmie defaults/d' \
+	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
+	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
+        -e '/^\.\.*done$/d' \
+	-e "s;/private/tmp;/tmp;g" \
+    | _filter_init_distro
+}
+
+_filter_pmie_stop()
+{
+    sed \
+	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
+	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
+	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
+    | _filter_init_distro
+}
+
 _filterall_pcp_start()
 {
     _filter_pcp_start \

@@ -26,14 +26,20 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
 
-mkPMIEConfig
-    cat >$tmp.rule <<EOF
+# shell functs for QA test
+
+mkPMIEConfig() {
+	cat >$tmp.rule <<EOF
 delta = 1 sec;
 one = 'sample.long.no-hyphen' :'$PCPQA_HYPHEN_HOST';
 EOF
+}
 
+
+# real QA test starts here
+
+mkPMIEConfig
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
 | sed \
     -e 's,/tmp/[0-9]*\.rule,TMPFILE,' \

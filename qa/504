@@ -62,20 +62,6 @@ _filter()
 	-e "s/$lhost/LOCALHOST/g"
 }
 
-
-_filter_pmie_start()
-{
-    $PCP_AWK_PROG '
-/^Waiting for pmie process\(es\) to terminate/ { next }
-/^Waiting for PMIE process\(es\) to terminate/ { next }
-/^\/etc.*\/init\.d\/pmie:/ { next }
-/\(pmie\) is disabled/ { next }
-/To enable/ { next }
-/\/sbin\/chkconfig pmie on/ { next }
-
-{ print }'
-}
-
 _count_pmies()
 {
     count=0

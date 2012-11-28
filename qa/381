@@ -7,20 +7,16 @@
 
 seq=`basename $0`
 
-rem_host=`./getpmcdhosts -L -n 1 -P 2>$seq.notrun`
-if [ -z "$rem_host" ]
-then
-    cat $seq.notrun
-    exit
-fi
-rm -f $seq.notrun
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
+
+rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$seq.notrun`
+[ -z "$rem_host" ] && _notrun `cat $seq.notrun`
+rm -f $seq.notrun
 
 _filter()
 {
