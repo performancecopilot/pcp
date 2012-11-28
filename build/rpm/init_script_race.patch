@@ -1,0 +1,313 @@
+commit 26129ab3fc91a77aefa3c2807c2b49dec4631036
+Author: Nathan Scott <nathans@redhat.com>
+Date:   Wed Nov 28 14:30:31 2012 +1100
+
+    Fix race conditions in pmie and pmlogger startup scripts
+    
+    Recent changes to tempfile handling has regressed the pmie and
+    pmlogger startup scripts.  Errors of the form:
+    /etc/rc.d/init.d/pmlogger: line 100: /var/tmp/pcp.5vfQsSHKo/pmcheck: No such file or directory
+    are now produced.
+    
+    Because sections of these two scripts are run in parallel with
+    the original script, we are open to race conditions where the
+    main script exits and removes the temporary directory before the
+    co-process has an opportunity to create its temporary file.  We
+    can resolve this using separate temporary dirs and trap handling
+    which thus no longer race.
+    
+    Worse still, QA failed to detect the problem.  At least one test
+    that should have found the problem trivially (575) failed to, as
+    a result of aggressively discarding stderr and stdout instead of
+    using filtering.  This has been rectified and common pmie filter
+    routines abstracted (from tests 115, 504 and 575) to simplify the
+    task for all current and future tests.
+
+diff --git a/qa/115 b/qa/115
+index 8a3f675..4be3323 100755
+--- a/qa/115
++++ b/qa/115
+@@ -54,24 +54,6 @@ _filter()
+ 	-e "s;/private/tmp;/tmp;g"
+ }
+ 
+-_filter_pmie_start()
+-{
+-    sed \
+-	-e '/^Waiting for pmie process(es) to terminate/d' \
+-	-e "s;$PCP_RC_DIR/pmie:;RC_SCRIPT;" \
+-	-e '/RC_SCRIPT/d' \
+-	-e '/(pmie) is disabled/d' \
+-	-e '/To enable/d' \
+-	-e '/\/sbin\/chkconfig pmie on/d' \
+-	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
+-        -e '/update-rc.d -f pmie defaults/d' \
+-	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
+-	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
+-        -e '/^\.\.*done$/d' \
+-        -e '/^\.\.*failed$/d' \
+-	-e "s;/private/tmp;/tmp;g"
+-}
+-
+ _count_pmies()
+ {
+     count=0
+diff --git a/qa/115.out b/qa/115.out
+index 0b8cfe6..7229a9e 100644
+--- a/qa/115.out
++++ b/qa/115.out
+@@ -5,6 +5,7 @@ pmie count at start of QA testing: 0
+ pmie count after chkconfig pmie off: 0
+ 
+ === check for missing control file ===
++$PCP_RC_DIR/pmie:
+ Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
+        is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+ pmie count after attempt without control file: 0
+@@ -34,3 +35,4 @@ No current pmie process exists for:
+ Restarting pmie for host "LOCALHOST" ...
+ + pmie -b -h LOCALHOST -l /tmp/PID.log0 /tmp/PID.conf
+ 
++$PCP_RC_DIR/pmie: PMIE not running
+diff --git a/qa/504 b/qa/504
+index c65df90..047b859 100755
+--- a/qa/504
++++ b/qa/504
+@@ -62,20 +62,6 @@ _filter()
+ 	-e "s/$lhost/LOCALHOST/g"
+ }
+ 
+-
+-_filter_pmie_start()
+-{
+-    $PCP_AWK_PROG '
+-/^Waiting for pmie process\(es\) to terminate/ { next }
+-/^Waiting for PMIE process\(es\) to terminate/ { next }
+-/^\/etc.*\/init\.d\/pmie:/ { next }
+-/\(pmie\) is disabled/ { next }
+-/To enable/ { next }
+-/\/sbin\/chkconfig pmie on/ { next }
+-
+-{ print }'
+-}
+-
+ _count_pmies()
+ {
+     count=0
+diff --git a/qa/575 b/qa/575
+index 785c034..41a6266 100755
+--- a/qa/575
++++ b/qa/575
+@@ -1,7 +1,7 @@
+ #! /bin/sh
+ # PCP QA Test No. 575
+-# exercise fix for bug #692244
+ #
++# Copyright (c) 2012 Red Hat.
+ # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ #
+ 
+@@ -13,18 +13,24 @@ echo "QA output created by $seq"
+ . ./common.filter
+ . ./common.check
+ 
++_cleanup()
++{
++    _change_config pmie off
++    rm -f $tmp.*
++}
++
+ signal=$PCP_BINADM_DIR/pmsignal
+ status=1	# failure is the default!
+-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
++trap "_cleanup; exit \$status" 0 1 2 3 15
+ 
+ # real QA test starts here
+ $sudo $signal -a pmie >/dev/null 2>&1
+ $sudo rm -fr $PCP_TMP_DIR/pmie
+-$sudo $PCP_RC_DIR/pmie stop \
+-| _filter_pcp_stop \
+-| sed -e "s;$PCP_RC_DIR;\$PCP_RC_DIR;g"
+ 
+-$sudo $PCP_RC_DIR/pmie start >/dev/null 2>&1
++_change_config pmie on
++$sudo $PCP_RC_DIR/pmie stop | _filter_pmie_stop
++$sudo $PCP_RC_DIR/pmie start | _filter_pmie_start
++
+ # success, all done
+ status=0
+ exit
+diff --git a/qa/575.out b/qa/575.out
+index 2842d31..3077d2a 100644
+--- a/qa/575.out
++++ b/qa/575.out
+@@ -1,2 +1,3 @@
+ QA output created by 575
+ $PCP_RC_DIR/pmie: PMIE not running
++Performance Co-Pilot starting inference engine(s) ... 
+diff --git a/qa/common.filter b/qa/common.filter
+index fbbdbfd..648e115 100644
+--- a/qa/common.filter
++++ b/qa/common.filter
+@@ -412,6 +412,32 @@ s/PMCD/pmcd/
+     | _filter_init_distro
+ }
+ 
++_filter_pmie_start()
++{
++    sed \
++	-e '/^Waiting for pmie process(es) to terminate/d' \
++	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
++	-e '/(pmie) is disabled/d' \
++	-e '/To enable/d' \
++	-e '/\/sbin\/chkconfig pmie on/d' \
++	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
++        -e '/update-rc.d -f pmie defaults/d' \
++	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
++	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
++        -e '/^\.\.*done$/d' \
++	-e "s;/private/tmp;/tmp;g" \
++    | _filter_init_distro
++}
++
++_filter_pmie_stop()
++{
++    sed \
++	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
++	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
++	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
++    | _filter_init_distro
++}
++
+ _filterall_pcp_start()
+ {
+     _filter_pcp_start \
+diff --git a/src/pmie/rc_pmie b/src/pmie/rc_pmie
+index bcb0ba7..698c45a 100644
+--- a/src/pmie/rc_pmie
++++ b/src/pmie/rc_pmie
+@@ -1,5 +1,6 @@
+ #!/bin/sh
+ #
++# Copyright (c) 2012 Red Hat.
+ # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+ # 
+ # This program is free software; you can redistribute it and/or modify it
+@@ -109,37 +110,48 @@ _reboot_setup()
+     [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
+ }
+ 
++# Note: _start_pmie is running in the background, in parallel with
++# the rest of the script.  It might complete well after the caller
++# so tmpfile handling is especially problematic.  Goal is to speed
++# bootup by starting potentially slow (remote monitoring) processes
++# in the background.
++#
+ _start_pmie()
+ {
++    bgstatus=0
++    bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
++    trap "rm -rf $bgtmp; exit \$bgstatus" 0 1 2 3 15
++
+     wait_option=''
+     [ ! -z "$PMCD_WAIT_TIMEOUT" ] && wait_option="-t $PMCD_WAIT_TIMEOUT" 
+ 
+     if pmcd_wait $wait_option
+     then
+-	pmie_check >$tmp/pmie 2>&1
+-	if [ -s $tmp/pmie ]
++	pmie_check >$bgtmp/pmie 2>&1
++	bgstatus=$?
++	if [ -s $bgtmp/pmie ]
+ 	then
+ 	    pmpost "pmie_check start failed in $prog, mailing output to root"
+ 	    if [ ! -z "$MAIL" ]
+ 	    then
+-		$MAIL -s "pmie_check start failed in $prog" root <$tmp/pmie >/dev/null 2>&1
++		$MAIL -s "pmie_check start failed in $prog" root <$bgtmp/pmie >/dev/null 2>&1
+ 	    else
+ 		echo "$prog: pmie_check start failed ..."
+-		cat $tmp/pmie
++		cat $bgtmp/pmie
+ 	    fi
+ 	fi
+-	rm -f $tmp/pmie
+     else
+-	status=$?
+-	pmpost "pmcd_wait failed in $prog: exit status: $status" 
++	bgstatus=$?
++	pmpost "pmcd_wait failed in $prog: exit status: $bgstatus" 
+ 	if [ ! -z "$MAIL" ]
+ 	then
+-	    echo "pmcd_wait: exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
++	    echo "pmcd_wait: exit status: $bgstatus" | $MAIL -s "pmcd_wait failed in $prog" root
+ 	else
+ 	    echo "$prog: pmcd_wait failed ..."
+-	    echo "pmcd_wait: exit status: $status"
++	    echo "pmcd_wait: exit status: $bgstatus"
+ 	fi
+     fi
++    exit $bgstatus	# co-process is now complete
+ }
+ 
+ _shutdown()
+diff --git a/src/pmlogger/rc_pmlogger b/src/pmlogger/rc_pmlogger
+index 6f9949f..84f3382 100644
+--- a/src/pmlogger/rc_pmlogger
++++ b/src/pmlogger/rc_pmlogger
+@@ -1,5 +1,6 @@
+ #!/bin/sh
+ #
++# Copyright (c) 2012 Red Hat.
+ # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ # 
+ # This program is free software; you can redistribute it and/or modify it
+@@ -12,10 +13,6 @@
+ # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ # for more details.
+ # 
+-# You should have received a copy of the GNU General Public License along
+-# with this program; if not, write to the Free Software Foundation, Inc.,
+-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+-# 
+ # Start or Stop the Performance Co-Pilot pmlogger processes.
+ #
+ # The following is for chkconfig on RedHat based systems
+@@ -95,21 +92,32 @@ in
+ 	;;
+ esac
+ 
++# Note: _start_pmcheck() runs in the background, in parallel with
++# the rest of the script.  It might complete well after the caller
++# so tmpfile handling is especially problematic.  Goal is to speed
++# bootup by starting potentially slow (remote monitoring) pmlogger
++# processes in the background.
++#
+ _start_pmcheck()
+ {
+-    pmlogger_check $VFLAG >$tmp/pmcheck 2>&1
+-    if [ -s $tmp/pmcheck ]
++    bgstatus=0
++    bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
++    trap "rm -rf $bgtmp; exit \$bgstatus" 0 1 2 3 15
++
++    pmlogger_check $VFLAG >$bgtmp/pmcheck 2>&1
++    bgstatus=$?
++    if [ -s $bgtmp/pmcheck ]
+     then
+ 	pmpost "pmlogger_check failed in $prog, mailing output to root"
+ 	if [ ! -z "$MAIL" ]
+ 	then
+-	    $MAIL -s "pmlogger_check failed in $prog" root <$tmp/pmcheck
++	    $MAIL -s "pmlogger_check failed in $prog" root <$bgtmp/pmcheck
+ 	else
+ 	    echo "$prog: pmlogger_check failed ..."
+-	    cat $tmp/pmcheck
++	    cat $bgtmp/pmcheck
+ 	fi
+     fi
+-    rm -f $tmp/pmcheck
++    exit $bgstatus	# co-process is now complete
+ }
+ 
+ _start_pmlogger()

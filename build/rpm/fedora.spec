@@ -1,13 +1,14 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.6.10
-%define buildversion 1
+%define buildversion 2
 
 Release: %{buildversion}%{?dist}
 License: GPLv2
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
+Patch0: init_script_race.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
@@ -27,6 +28,7 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
+%define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
 
@@ -210,12 +212,13 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
+%patch0 -p1 -b .pcp
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=/etc/rc.d/init.d --with-tmpdir=/var/lib/pcp/tmp
+%configure --with-rcdir=/etc/rc.d/init.d --with-tmpdir=%{_tempsdir}
 make default_pcp
 
 %install
@@ -309,6 +312,8 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/n
 %dir %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
+%dir %{_tempsdir}
+%attr(1777,root,root) %{_tempsdir}
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
@@ -409,6 +414,10 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/n
 %defattr(-,root,root)
 
 %changelog
+* Wed Nov 28 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-2
+- Ensure tmpfile directories created in %files section.
+- Resolve tmpfile create/teardown race conditions.
+
 * Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
 - Update to latest PCP sources.
 - Resolve tmpfile security flaws: CVE-2012-5530
