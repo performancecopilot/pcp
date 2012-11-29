@@ -186,7 +186,7 @@ PCP internet resources, and the pmchart utility.
    25,40   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
    5,55    *       *       *       *       $PCP_BINADM_DIR/pmie_check
 
-   The pmie (Performance Metrics Interfence Engine) daemon is _not_
+   The pmie (Performance Metrics Inference Engine) daemon is _not_
    configured to start by default. To enable it, you may want to (on
    Linux platforms with chkconfig).
 

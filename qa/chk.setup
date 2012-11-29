@@ -244,9 +244,7 @@ $fail && _fail_check
 # down to the common.config things ... these are the most contentious
 # and the ones that need local tuning ...
 #
-#	$PCPQA_CLOSE_X_SERVER is set here, but is not used in the open
-#	source version of the PCP QA and is hard to check, so skip that
-#	one.
+#   $PCPQA_CLOSE_X_SERVER is set here, but is hard to check so skip that one.
 #
 for var in PCPQA_FAR_PMCD PCPQA_HYPHEN_HOST
 do
