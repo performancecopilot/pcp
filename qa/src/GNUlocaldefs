@@ -103,6 +103,9 @@ ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # appears to have been installed (assumes PCP >= 3.5)
 #
 CFILES += check_fault_injection.c exercise_fault.c
+else
+MYFILES += check_fault_injection.c exercise_fault.c
+LDIRT += check_fault_injection exercise_fault
 endif
 
 POSIXFILES = \
