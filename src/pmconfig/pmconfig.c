@@ -59,7 +59,7 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a | -l      show all, unmodified format (default)\n\
-  -s           show all, quoted format for shall expansion\n",
+  -s           show all, quoted format for shell expansion\n",
 		pmProgname);
 	exit(1);
     }
