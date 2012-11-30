@@ -70,10 +70,15 @@ then
     exit 1
 fi
 
-if ${MAKE:-make} >$tmp.out 2>&1
+if [ -f GNUmakefile.install ]
 then
-    :
+    # running QA in the tree
+    ${MAKE:-make} -f GNUmakefile.install >$tmp.out 2>&1
 else
+    ${MAKE:-make} >$tmp.out 2>&1
+fi
+if [ $? -ne 0 ]
+then
     cat $tmp.out
     echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 fi
