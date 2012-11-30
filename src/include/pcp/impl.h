@@ -813,10 +813,20 @@ extern void __pmNoMem(const char *, size_t, int);
 #define PM_RECOV_ERR 0
 
 /*
- * program name, as used in __pmNotifyErr() ... default is "pcp"
+ * Startup handling:
+ * set program name, as used in __pmNotifyErr() ... default is "pcp"
  */
 EXTERN char *pmProgname;
 extern int __pmSetProgname(const char *);
+
+/*
+ * Cleanup handling:
+ * shutdown various components in libpcp, releasing all resources
+ * (local context PMDAs, any global NSS socket state, etc).
+ */
+extern int __pmShutdown(void);
+extern int __pmShutdownLocal(void);
+extern int __pmShutdownSockets(void);
 
 /* map Unix errno values to PMAPI errors */
 extern int __pmMapErrno(int);

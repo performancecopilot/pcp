@@ -370,6 +370,12 @@ __pmCloseSocket(int fd)
 }
 
 int
+__pmShutdownSockets(void)
+{
+    return 0;
+}
+
+int
 __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	       __pmSockLen option_len)
 {
@@ -684,6 +690,14 @@ freeNSPRHandle(int fd)
     PM_LOCK(__pmLock_libpcp);
     FD_CLR(fd - NSPR_HANDLE_BASE, &nsprFds);
     PM_UNLOCK(__pmLock_libpcp);
+}
+
+int
+__pmShutdownSockets(void)
+{
+    if (PR_Initialized())
+	PR_Cleanup();
+    return 0;
 }
 
 int

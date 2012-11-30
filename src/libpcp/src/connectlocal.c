@@ -199,7 +199,6 @@ __pmLookupDSO(int domain)
     return NULL;
 }
 
-#ifdef HAVE_ATEXIT
 static void
 EndLocalContext(void)
 {
@@ -229,7 +228,22 @@ EndLocalContext(void)
 	}
     }
 }
-#endif
+
+/*
+ * Note order is significant here.  Also EndLocalContext can be
+ * called from atexit handler (if previously registered), but if
+ * caller invokes shutdown beforehand, thats OK; EndLocalContext
+ * will safely do nothing on the second call.
+ */
+int
+__pmShutdownLocal(void)
+{
+    /* Call through to any PMDA termination callbacks */
+    EndLocalContext();
+
+    /* dso close and free up local memory allocations */
+    return __pmLocalPMDA(PM_LOCAL_CLEAR, 0, NULL, NULL);
+}
 
 int
 __pmConnectLocal(void)
@@ -403,8 +417,9 @@ __pmLocalPMDA(int op, int domain, const char *name, const char *init)
 #endif
 
     if (numdso == -1) {
-	sts = build_dsotab();
-	if (sts < 0) return sts;
+	if (op != PM_LOCAL_CLEAR)
+	    if ((sts = build_dsotab()) < 0)
+		return sts;
     }
 
     switch (op) {

@@ -1587,7 +1587,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 int
 __pmSetProgname(const char *program)
 {
-    char	*p;
+    char *p;
 
     /* Trim command name of leading directory components */
     if (program)
@@ -1597,6 +1597,18 @@ __pmSetProgname(const char *program)
 	    pmProgname = p+1;
     }
     return 0;
+}
+
+int
+__pmShutdown(void)
+{
+    int sts;
+
+    if ((sts = __pmShutdownLocal()) < 0)
+	return sts;
+    if ((sts = __pmShutdownSockets()) < 0)
+	return sts;
+    return sts;
 }
 
 void *
