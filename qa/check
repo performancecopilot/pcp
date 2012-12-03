@@ -209,13 +209,7 @@ _get_lock()
     	    break
     	fi
     done
-    $echomessage || ( echo "got it; proceeding:" ; echo $seq | $PCP_AWK_PROG '
-{
-    for ( x = 0; x < length; x++ ) {
-        printf " "
-    }
-}
-' )
+    $echomessage || echo "got it; proceeding: $seq"
 
     return 0
 }
