@@ -36,8 +36,6 @@
 #define MIN_AGENTS_ALLOC	3	/* Number to allocate first time */
 #define LINEBUF_SIZE 200
 
-extern int	_creds_timeout;
-
 /* Config file modification time */
 #if defined(HAVE_STAT_TIMESTRUC)
 static struct timestruc configFileTime;
@@ -51,20 +49,19 @@ static time_t   	configFileTime;
 !bozo!
 #endif
 
-int		szAgents = 0;		/* Number currently allocated */
+int		szAgents;		/* Number currently allocated */
 int		mapdom[MAXDOMID+2];	/* The DomainId-to-AgentIndex map */
 					/* Don't use it during parsing! */
 
-static FILE	*inputStream = NULL;    /* Input stream for scanner */
-static int	scanInit = 0;
-static int	scanError = 0;		/* Problem in scanner */
+static FILE	*inputStream;		/* Input stream for scanner */
+static int	scanInit;
+static int	scanError;		/* Problem in scanner */
 static char	*linebuf;		/* Buffer for input stream */
-static int	szLineBuf = 0;		/* Allocated size of linebuf */
-static char	*token = NULL;		/* Start of current token */
-static int	max_seen_fd = -1;	/* Larges fd we've seen */
-static char	*tokenend = NULL;	/* End of current token */
+static int	szLineBuf;		/* Allocated size of linebuf */
+static char	*token;			/* Start of current token */
+static char	*tokenend;		/* End of current token */
 static int	nLines;			/* Current line of config file */
-static int	linesize = 0;		/* Length of line in linebuf */
+static int	linesize;		/* Length of line in linebuf */
 
 /* Macro to compare a string with token.  The linebuf is always null terminated
  * so there are no nasty boundary conditions.
@@ -249,9 +246,9 @@ SkipWhitespace(void)
     }
 }
 
-static int	scanReadOnly = 0;	/* Set => don't modify input scanner */
-static int	doingAccess = 0;	/* Set => parsing [access] section */
-static int	tokenQuoted = 0;	/* True when token a quoted string */
+static int	scanReadOnly;	/* Set => don't modify input scanner */
+static int	doingAccess;	/* Set => parsing [access] section */
+static int	tokenQuoted;	/* True when token a quoted string */
 
 /* Print the current token on a given stream. */
 
@@ -1384,9 +1381,6 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	goto error;
     }
     aPtr->outFd = aPtr->inFd = fd;	/* Sockets are bi-directional */
-    if (fd > max_seen_fd)
-	max_seen_fd = fd;
-
     pmcd_openfds_sethi(fd);
 
     if ((sts = AgentNegotiate(aPtr)) < 0)
@@ -1429,9 +1423,6 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    close(inPipe[1]);
 	    return (pid_t)-1;
 	}
-	if (outPipe[1] > max_seen_fd)
-	    max_seen_fd = outPipe[1];
-	
 	pmcd_openfds_sethi(outPipe[1]);
     }
     else if (aPtr->ipcType == AGENT_SOCKET)
@@ -1480,7 +1471,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 		dup2(STDERR_FILENO, STDOUT_FILENO);
 	    }
 
-	    for (i = 0; i <= max_seen_fd; i++) {
+	    for (i = 0; i <= pmcd_hi_openfds; i++) {
 		/* Close all except std{in,out,err} */
 		if (i == STDIN_FILENO ||
 		    i == STDOUT_FILENO ||
@@ -1575,10 +1566,7 @@ CreateAgentWin32(AgentInfo *aPtr)
 
     aPtr->inFd = _open_osfhandle((intptr_t)hChildStdinRd, _O_WRONLY);
     aPtr->outFd = _open_osfhandle((intptr_t)hChildStdoutWr, _O_RDONLY);
-    if (aPtr->outFd > max_seen_fd) {
-	max_seen_fd = aPtr->outFd;
-	pmcd_openfds_sethi(aPtr->outFd);
-    }
+    pmcd_openfds_sethi(aPtr->outFd);
 
     CloseHandle(piProcInfo.hProcess);
     CloseHandle(piProcInfo.hThread);

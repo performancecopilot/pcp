@@ -151,6 +151,9 @@ extern void Shutdown(void);
 /* timeout to PMDAs (secs) */
 PMCD_EXTERN int	_pmcd_timeout;
 
+/* timeout for credentials */
+extern int	_creds_timeout;
+
 /* global PMCD PMDA variables */
 
 /*
