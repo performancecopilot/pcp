@@ -20,7 +20,7 @@ include $(TOPDIR)/src/include/builddefs
 SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
 
-SPECFILES = fedora.spec devtoolset.spec
+SPECFILES = fedora.spec
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
 LSRCFILES = macros.template pcp.spec.in $(PERLFILES) $(SPECFILES)
 
