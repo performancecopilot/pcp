@@ -28,7 +28,13 @@ rm -f src/descreqX2 src/torture_logmeta
 rm -f src/check_fault_injection src/exercise_fault
 
 cd src
-${MAKE:-make}
+if [ -f GNUmakefile.install ]
+then
+    # running QA in the tree
+    ${MAKE:-make} -f GNUmakefile.install
+else
+    ${MAKE:-make}
+fi
 cd $here
 
 echo "To check ..."

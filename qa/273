@@ -55,6 +55,12 @@ _filter2()
 	-e 's/Permission denied/No permission to perform requested operation/'
 }
 
+_filter3()
+{
+    sed \
+	-e 's/Connection timed out/No route to host/'
+}
+
 # simple PMDA is using PMDA_INTERFACE_2
 #
 if [ ! -f $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX ]
@@ -93,8 +99,8 @@ pminfo -f -h localhost:44321 sample.long.hundred
 pminfo -f -h localhost:1,44321 sample.long.hundred
 pminfo -f -h localhost: sample.long.hundred
 pminfo -f -h localhost:44321,1x3 sample.long.hundred
-pminfo -f -h localhost:44321@no-host sample.long.hundred
-pminfo -f -h localhost:44321@no-host:44322 sample.long.hundred
+pminfo -f -h localhost:44321@no-host sample.long.hundred 2>&1 | _filter3
+pminfo -f -h localhost:44321@no-host:44322 sample.long.hundred 2>&1 | _filter3
 pminfo -f -h localhost:44321@ sample.long.hundred
 
 # units.c

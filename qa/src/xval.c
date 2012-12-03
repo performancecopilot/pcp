@@ -90,7 +90,7 @@ main(int argc, char *argv[])
     pmAtomValue	iv;
     pmAtomValue	*ap;
     pmValueBlock	*vbp;
-    __int32_t	foo[7];		/* foo[0] = len/type, foo[1]... = vbuf */
+    __int32_t	*foo;
     int		valfmt;
     int		vflag = 0;	/* set to 1 to show all results */
     int		sgn = 1;	/* -u to force 64 unsigned from command line value */
@@ -102,7 +102,11 @@ main(int argc, char *argv[])
     vbp->vtype = PM_TYPE_EVENT;
     vbp->vlen = sizeof(ea);	/* not quite correct, but close enough */
 
-    vbp = (pmValueBlock *)&foo;
+    vbp = (pmValueBlock *)malloc(sizeof(pmValueBlock)+7*sizeof(int));
+    if (vbp == NULL) {
+	fprintf(stderr, "initial malloc failed!\n");
+	exit(1);
+    }
 
     while (argc > 1) {
 	argc--;
@@ -189,16 +193,16 @@ main(int argc, char *argv[])
 		case PM_TYPE_AGGREGATE:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vbp;
-		    /* foo[0] is for vlen/vtype */
 		    vbp->vlen = PM_VAL_HDR_SIZE + 3 * sizeof(foo[0]);
 		    vbp->vtype = PM_TYPE_AGGREGATE;
-		    foo[1] = foo[2] = foo[3] = llv;
-		    foo[1]--;
-		    foo[3]++;
+		    foo = (__int32_t *)vbp->vbuf;
+		    foo[0] = foo[1] = foo[2] = llv;
+		    foo[0]--;
+		    foo[2]++;
 		    /* remove endian diff in value dump output */
+		    foo[0] = htonl(foo[0]);
 		    foo[1] = htonl(foo[1]);
 		    foo[2] = htonl(foo[2]);
-		    foo[3] = htonl(foo[3]);
 		    ap = &bv;
 		    bv.vbp = vbp;
 		    break;

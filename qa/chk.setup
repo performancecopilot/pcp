@@ -115,7 +115,13 @@ then
     #
     if ./mk.localconfig
     then
-	${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
+	if [ -f GNUmakefile.install ]
+	then
+	    # running QA in the tree
+	    ${MAKE:-make} -f GNUmakefile.install setup | egrep -v 'Entering|Leaving|Nothing'
+	else
+	    ${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
+	fi
     else
 	echo "$0: Error: need to fix failure in mk.localconfig"
 	_fail_check
@@ -277,7 +283,13 @@ $fail && _fail_check
 
 # the other pmcd's we think we can talk to ...
 #
-${MAKE:-make} qa_hosts >/dev/null 2>&1
+if [ -f GNUmakefile.install ]
+then
+    # running QA in the tree
+    ${MAKE:-make} -f GNUmakefile.instll qa_hosts >/dev/null 2>&1
+else
+    ${MAKE:-make} qa_hosts >/dev/null 2>&1
+fi
 if [ ! -f qa_hosts ]
 then
     echo "$0: Error: ${MAKE:-make} failed to create the file \"qa_hosts\""

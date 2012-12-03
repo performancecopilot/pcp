@@ -643,7 +643,14 @@ if [ -z "$QA_HOSTS" ]
 then
     if [ ! -f $HOSTS ]
     then
-	if ${MAKE:-make} $HOSTS >$tmp.make.out 2>&1
+	if [ -f GNUmakefile.install ]
+	then
+	    # running QA in the tree
+	    ${MAKE:-make} -f GNUmakefile.install $HOSTS >$tmp.make.out 2>&1
+	else
+	    ${MAKE:-make} $HOSTS >$tmp.make.out 2>&1
+	fi
+	if [ $? -ne 0 ]
 	then
 	    :
 	else

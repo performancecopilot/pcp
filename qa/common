@@ -280,10 +280,15 @@ then
     then
 	:
     else
-	if ${MAKE:-make} >/tmp/$$.make 2>&1
+	if [ -f GNUmakefile.install ]
 	then
-	    :
+	    # running QA in the tree
+	    ${MAKE:-make} -f GNUmakefile.install >/tmp/$$.make 2>&1
 	else
+	    ${MAKE:-make} >/tmp/$$.make 2>&1
+	fi
+	if [ $? != 0 ]
+	then
 	    cat /tmp/$$.make
 	    echo "Warning: ${MAKE:-make} failed -- some tests may be missing"
 	    warn=1
@@ -630,5 +635,16 @@ else
     $OPTION_LOGGER && _havelogger
     $OPTION_PMCD_TRACE && _havepmcdtrace
 
-    ${MAKE:-make} setup
+    if [ -f GNUmakefile.install ]
+    then
+	# running QA in the tree
+	${MAKE:-make} -f GNUmakefile.install setup
+    else
+	${MAKE:-make} setup
+    fi
+    if [ $? != 0 ]
+    then
+	echo "Error: ${MAKE:-make} setup failed"
+	exit 1
+    fi
 fi
