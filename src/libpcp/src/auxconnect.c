@@ -482,6 +482,12 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
     return recv(socket, buffer, length, flags);
 }
 
+int
+__pmFD(int fd)
+{
+    return fd;
+}
+
 void
 __pmFD_CLR(int fd, __pmFdSet *set)
 {
@@ -1047,6 +1053,16 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 	return PR_Read(nsprFd, buffer, length);
     /* We have a native fd */
     return recv(socket, buffer, length, flags);
+}
+
+int
+__pmFD(int fd)
+{
+    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+
+    if (nsprFd)
+        return PR_FileDesc2NativeHandle(nsprFd);
+    return fd;
 }
 
 void

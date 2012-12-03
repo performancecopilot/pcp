@@ -107,7 +107,7 @@ AcceptNewClient(int reqfd)
     if (fd > maxClientFd)
 	maxClientFd = fd;
 
-    PMCD_OPENFDS_SETHI(fd);
+    pmcd_openfds_sethi(fd);
 
     __pmFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */

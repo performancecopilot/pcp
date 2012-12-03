@@ -1387,7 +1387,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
     if (fd > max_seen_fd)
 	max_seen_fd = fd;
 
-    PMCD_OPENFDS_SETHI(fd);
+    pmcd_openfds_sethi(fd);
 
     if ((sts = AgentNegotiate(aPtr)) < 0)
 	goto error;
@@ -1432,7 +1432,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	if (outPipe[1] > max_seen_fd)
 	    max_seen_fd = outPipe[1];
 	
-	PMCD_OPENFDS_SETHI(outPipe[1]);
+	pmcd_openfds_sethi(outPipe[1]);
     }
     else if (aPtr->ipcType == AGENT_SOCKET)
 	argv = aPtr->ipc.socket.argv;
@@ -1577,7 +1577,7 @@ CreateAgentWin32(AgentInfo *aPtr)
     aPtr->outFd = _open_osfhandle((intptr_t)hChildStdoutWr, _O_RDONLY);
     if (aPtr->outFd > max_seen_fd) {
 	max_seen_fd = aPtr->outFd;
-	PMCD_OPENFDS_SETHI(aPtr->outFd);
+	pmcd_openfds_sethi(aPtr->outFd);
     }
 
     CloseHandle(piProcInfo.hProcess);

@@ -541,6 +541,7 @@ extern int __pmSetFileStatusFlags(int, int);
 extern int __pmGetFileDescriptorFlags(int);
 extern int __pmSetFileDescriptorFlags(int, int);
 
+extern int  __pmFD(int);
 extern void __pmFD_CLR(int, __pmFdSet *);
 extern int  __pmFD_ISSET(int, __pmFdSet *);
 extern void __pmFD_SET(int, __pmFdSet *);

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -195,11 +196,10 @@ extern int pmcd_load_libpcp_pmda(void);
 extern void MarkStateChanges(int);
 
 /*
- * Keep the highest know file desriptor used for a Client or an Agent connection.
- * This is reported in the pmcd.openfds metric. See Bug #660497.
+ * Highest known file descriptor used for a Client or an Agent connection.
+ * This is reported in the pmcd.openfds metric.
  */
-PMCD_EXTERN int pmcd_hi_openfds;   /* Highest known file descriptor for pmcd */
-
-#define PMCD_OPENFDS_SETHI(x) if (x > pmcd_hi_openfds) pmcd_hi_openfds = x;
+PMCD_EXTERN int pmcd_hi_openfds;
+extern void pmcd_openfds_sethi(int fd);
 
 #endif /* _PMCD_H */
