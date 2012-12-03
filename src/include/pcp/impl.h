@@ -1187,6 +1187,13 @@ extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator();
 
 /*
+ * discover configurable features of the shared libraries
+ */
+typedef void (*__pmAPIConfigCallback)(const char *, const char *);
+extern void __pmAPIConfig(__pmAPIConfigCallback);
+extern const char *__pmGetAPIConfig(const char *);
+
+/*
  * AF - general purpose asynchronous event management routines
  */
 extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));

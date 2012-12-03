@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -11,16 +12,19 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
-.TH PMGETCONFIG 3 "SGI" "Performance Co-Pilot"
+.TH PMGETCONFIG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetConfig\f1 \- return Performance Co-Pilot configuration variable
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
-.sp
+.br
 char *pmGetConfig(const char *\fIvariable\fP);
+.sp
+#include <pcp/impl.h>
+.br
+char *__pmGetAPIConfig(const char *\fIfeature\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -47,6 +51,20 @@ in the environment to a new location,
 as described in
 .BR pcp.conf (4).
 .PP
+The internal
+.B __pmGetAPIConfig
+function reports on features of the PCP library.
+It can be used to query support for multi-threading, security extensions,
+and other features.
+.PP
+The
+.BR pmconfig (1)
+utility provides command line access to both of these interfaces, and also
+provides a mechanism for listing all available
+.B variables
+and
+.B features
+that are valid arguments to these routines.
 .SH "RETURN VALUE"
 If
 .I variable
@@ -59,13 +77,22 @@ then a fatal error message is printed and the process will
 Although this sounds drastic, it is the only course of action available
 because the PCP configuration/installation is fatally flawed.
 .PP
-If this function returns,
+If the
+.B pmGetConfig
+function returns,
 the returned value points to a string in the environment and so changing
 it is a bad idea.
 This function returns the same type as the 
 .BR getenv (3)
 function (which should probably be a
 .IR "const char *" ).
+.PP
+The
+.B __pmGetAPIConfig
+routine on the other hand returns NULL on failure to lookup the requested
+.IR feature .
+It does not modify the environment, and returns a pointer to a static
+read-only string which also should not be modified or freed by the caller.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -86,6 +113,7 @@ using the
 function.
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmconfig (1),
 .BR exit (2),
 .BR PMAPI (3),
 .BR getenv (3C),
