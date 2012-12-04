@@ -9,6 +9,10 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 
+#if PCP_VER < 3611
+#define __pmRead read
+#endif
+
 static void
 usage(void)
 {
