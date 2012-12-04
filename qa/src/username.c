@@ -6,6 +6,8 @@
 #include <pcp/impl.h>
 #include <unistd.h>
 
+#include "localconfig.h"
+
 #if PCP_VER < 3611
 #define __pmSetProcessIdentity(x) (exit(1), 1)
 #endif
