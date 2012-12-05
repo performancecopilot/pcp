@@ -453,7 +453,7 @@ SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
-SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
 endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
