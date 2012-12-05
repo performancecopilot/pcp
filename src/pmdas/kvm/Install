@@ -21,7 +21,7 @@
 iam=kvm
 perl_opt=true
 daemon_opt=false
-forced_restart=false
+forced_restart=true
 
 if ! test -d /sys/kernel/debug; then
     echo "DEBUGFS not enabled in your kernel"
