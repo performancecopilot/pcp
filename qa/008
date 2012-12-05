@@ -8,7 +8,7 @@
 #	This test depends on the the local hostname and the disk configuration.
 #	To generate a new validated output file ...
 #		$ touch 008.out.`hostname | sed -e 's/\..*//'`
-#		$ remake 008
+#		$ ./remake 008
 #		$ mv 008.out 008.out.`hostname | sed -e 's/\..*//'`
 #	and check that the comments and the output match up.
 #
