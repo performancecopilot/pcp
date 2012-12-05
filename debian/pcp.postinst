@@ -6,7 +6,10 @@ chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
-chown -R pcp:pcp /var/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
+for dir in pmcd pmlogger pmie pmproxy
+do
+    chown -R pcp:pcp /var/log/pcp/$dir 2>/dev/null
+done
 
 update-rc.d pmcd defaults >/dev/null
 update-rc.d pmlogger defaults >/dev/null
