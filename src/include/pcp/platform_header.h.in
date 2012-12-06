@@ -137,7 +137,6 @@ extern "C" {
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
 #undef HAVE_MACHINE_ENDIAN_H
-#undef HAVE_READLINE
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
@@ -190,7 +189,9 @@ extern "C" {
 #endif
 
 /* define which libraries are available */
+#undef HAVE_SECURE_SOCKETS
 #undef HAVE_LIBREGEX
+#undef HAVE_READLINE
 
 /* define which libc functions are available */
 #undef HAVE_WAIT3

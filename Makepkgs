@@ -2,6 +2,7 @@
 #
 # Make whichever packages the system supports
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -13,10 +14,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 LOGDIR=Logs
 
@@ -39,19 +36,27 @@ else
     export MAKE=$try
 fi
 
+# Bog-standard options suitable for a package on any platform.
+# Command line can be used to extend this set, and any whacko
+# platform-specific requirements are also appended later on.
+#
+configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+
 for opt in $*
 do
     case "$opt" in
-    -clean)
+    -clean|--clean)
 	clean=true
 	shift
 	;;
-    -verbose)
+    -verbose|--verbose)
 	verbose=true
 	shift
 	;;
     *)
-	break
+	# Add remaining options to the ./configure command line
+	configure_options="$configure_options $opt"
+	shift
 	;;
     esac
 done
@@ -64,6 +69,7 @@ trap "rm -rf $tmp" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
+[ "$VERS" = MINGW ] && configure_options="$configure_options --disable-ssp"
 
 # Sanity checks ... this is sick, but I'm really tired of QA failing
 # because of bad binaries being built from the Debian/Ubuntu toolchain
@@ -159,18 +165,11 @@ echo "== Building pcp, log is in $LOGF"
 
 . ./VERSION.pcp
 
-if [ "$VERS" = MINGW ]
-then
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp --disable-ssp"
-else
-    configured="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp"
-fi
-
-echo "== Configuring pcp for vendor/distro installation ($configured)"
+echo "== Configuring pcp for vendor/distro installation ($configure_options)"
 if $verbose ; then
-    ./configure $configured 2>&1 | tee -a $LOGF || touch $tmp.failed
+    ./configure $configure_options 2>&1 | tee -a $LOGF || touch $tmp.failed
 else
-    ./configure $configured >> $LOGF 2>&1 || touch $tmp.failed
+    ./configure $configure_options >> $LOGF 2>&1 || touch $tmp.failed
 fi
 if [ -f $tmp.failed ] ; then
     if ! $verbose ; then

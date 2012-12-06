@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 int		maxClientFd = -1;	/* largest fd for a client */
 __pmFdSet	clientFds;		/* for client select() */
 
-static int	clientSize = 0;
+static int	clientSize;
 
 extern void	Shutdown(void);
 
@@ -87,8 +87,8 @@ AcceptNewClient(int reqfd)
     struct timeval	now;
 
     i = NewClient();
-    addrlen = sizeof(client[i].addr);
-    fd = __pmAccept(reqfd, (__pmSockAddr *)&client[i].addr, &addrlen);
+    addrlen = __pmSockAddrInSize();
+    fd = __pmAccept(reqfd, (void *)client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
@@ -107,7 +107,7 @@ AcceptNewClient(int reqfd)
     if (fd > maxClientFd)
 	maxClientFd = fd;
 
-    PMCD_OPENFDS_SETHI(fd);
+    pmcd_openfds_sethi(fd);
 
     __pmFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
@@ -128,9 +128,15 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    pmcd_trace(TR_ADD_CLIENT, __pmSockAddrInToIPAddr(&client[i].addr), fd, client[i].seq);
+    pmcd_trace(TR_ADD_CLIENT, ClientIPAddr(&client[i]), fd, client[i].seq);
 
     return &client[i];
+}
+
+__pmIPAddr
+ClientIPAddr(ClientInfo *cp)
+{
+    return __pmSockAddrInToIPAddr(cp->addr);
 }
 
 int
@@ -143,18 +149,23 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
-	int	j;
+	char *baseaddr;
+	int j, sz;
+
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
-	client = (ClientInfo*)
-	    realloc(client, sizeof(ClientInfo) * clientSize);
+	sz = (sizeof(ClientInfo) + __pmSockAddrInSize()) * clientSize;
+	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
-	    __pmNoMem("NewClient", sizeof(ClientInfo) * clientSize, PM_RECOV_ERR);
+	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
+	baseaddr = (char *)client + (sizeof(ClientInfo) * clientSize);
 	for (j = i; j < clientSize; j++) {
+	    client[j].addr = (struct __pmSockAddrIn *)baseaddr;
 	    client[j].profile = NULL;
 	    client[j].szProfile = 0;
+	    baseaddr += __pmSockAddrInSize();
 	}
     }
     if (i >= nClients)
@@ -182,7 +193,6 @@ DeleteClient(ClientInfo *cp)
 	return;
     }
     if (cp->fd != -1) {
-	__pmResetIPC(cp->fd);
 	__pmFD_CLR(cp->fd, &clientFds);
 	__pmCloseSocket(cp->fd);
     }

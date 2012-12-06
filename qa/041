@@ -13,6 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ $PCP_PLATFORM = mingw ] && _notrun "Process stop signal not available on Win32"
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3611 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 _filter()
 {
     tee -a $seq.full \
@@ -28,10 +38,7 @@ _filter()
 	-e 's/^ *pcp[^/]*\//    USERNAME ... \//' \
 	-e 's/pmcd -.*/pmcd/' \
 	-e '/__pmGetPDU:.*illegal PDU len=0/d' \
-    | _filter_pcp_start \
-    | sed \
-	-e '/Waiting for pmcd to terminate/s/ \..*/ [dots]/'
-
+    | _filter_pcp_start
 }
 
 _expect()
@@ -40,12 +47,6 @@ _expect()
     echo "### Expect: $* ###" | tee -a $seq.full
     echo "" | tee -a $seq.full
 }
-
-if test $PCP_PLATFORM = mingw
-then
-    echo "Process stop signal not available on Win32" > $seq.notrun
-    exit 1
-fi
 
 tmp=/var/tmp/qa041.$$
 _needclean=true
@@ -136,7 +137,7 @@ $sudo kill -STOP $pid
 
 sleep 3		# make sure pmcd gets the SIGSTOP
 
-# this will hang, and then see an IPC failure when PMCD is
+# this will hang, and then see a timeout failure when PMCD is
 # killed off
 $sudo rm -f $tmp.tmp
 PMCD_CONNECT_TIMEOUT=1000
@@ -154,7 +155,7 @@ _filter_pcp_start <$tmp.one | _filter
 _filter <$tmp.two
 rm -f $tmp.out $tmp.err
 
-_expect "IPC protocol failure"
+_expect "Timeout waiting for a response from PMCD"
 _filter <$tmp.tmp
 rm -f $tmp.tmp
 

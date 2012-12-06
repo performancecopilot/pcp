@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,29 +11,26 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef _PROXY_H
 #define _PROXY_H
 
 #include "pmapi.h"
 #include "impl.h"
 
+typedef struct __pmSockAddrIn SockAddrIn;
+
 /* The table of clients, used by pmproxy */
 typedef struct {
     int			fd;		/* client socket descriptor */
     int			version;	/* proxy-client protocol version */
-    __pmSockAddrIn	addr;		/* address of client */
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
     } status;
     char		*pmcd_hostname;	/* PMCD hostname */
     int			pmcd_port;	/* PMCD port */
     int			pmcd_fd;	/* PMCD socket descriptor */
+    SockAddrIn		*addr;		/* address of client */
 } ClientInfo;
 
 extern ClientInfo	*client;		/* Array of clients */

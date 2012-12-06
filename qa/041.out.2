@@ -15,16 +15,16 @@ sample.long.million
 
 Starting pmcd ... 
 Starting pmlogger ... 
-Waiting for pmcd to terminate [dots]
+Waiting for pmcd to terminate ...
 Process ...
     USERNAME ... $PCP_BINADM_DIR/pmcd
 $PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
 Starting pmcd ... 
 Starting pmlogger ... 
 
-### Expect: IPC protocol failure ###
+### Expect: Timeout waiting for a response from PMCD ###
 
-pminfo: Cannot connect to PMCD on host SOMEHOST: IPC protocol failure
+pminfo: Cannot connect to PMCD on host SOMEHOST: Timeout waiting for a response from PMCD
 
 ### Expect: one million again ###
 

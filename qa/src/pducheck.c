@@ -1464,8 +1464,8 @@ main(int argc, char **argv)
     }
 
     if (standalone) {
-	close(fd[0]);
-	close(fd[1]);
+	__pmCloseSocket(fd[0]);
+	__pmCloseSocket(fd[1]);
     }
 
     exit(0);

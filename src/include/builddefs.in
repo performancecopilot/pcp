@@ -33,6 +33,7 @@ PACKAGE_MINOR ?= @PACKAGE_MINOR@
 PACKAGE_REVISION ?= @PACKAGE_REVISION@
 PACKAGE_BUILD ?= @PACKAGE_BUILD@
 PACKAGE_NAME ?= pcp
+PACKAGE_CONFIGURE ?= @PACKAGE_CONFIGURE@
 PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
@@ -117,6 +118,9 @@ CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
 
+NSSCFLAGS = -I@nss_inc_dir@
+NSPRCFLAGS = -I@nspr_inc_dir@
+
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
@@ -193,6 +197,8 @@ LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_NSS = @lib_for_nss@
+LIB_FOR_NSPR = @lib_for_nspr@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -351,6 +357,7 @@ endif
 
 PERL_MAKE_MAKEFILE = \
 	export PCP_TOPDIR=`cd $(TOPDIR) && pwd`; \
+	NSS_CFLAGS="$(NSS_CFLAGS)" NSPR_CFLAGS="$(NSPR_CFLAGS)" \
         TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
 # Collect files from a Perl "make -f Makefile install" below
@@ -446,7 +453,7 @@ SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
-SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
 endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)

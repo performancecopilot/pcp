@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2006 Aconex.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -48,7 +49,7 @@ pmServerExec(int fd, int livemode)
 static int
 pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
-    __pmSockAddrIn myaddr;
+    struct __pmSockAddrIn *myaddr;
     char buffer[4096];
     pmTime *ack;
     int sts;
@@ -57,11 +58,18 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
      * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
-    __pmInitSockAddr(&myaddr, htonl(INADDR_LOOPBACK), htons(port));
-    if ((sts = __pmConnect(fd, (__pmSockAddr *)&myaddr, sizeof(myaddr))) < 0) {
+    if ((myaddr = __pmAllocSockAddrIn()) == NULL) {
+	setoserror(ENOMEM);
+	goto error;
+    }
+
+    __pmInitSockAddr(myaddr, htonl(INADDR_LOOPBACK), htons(port));
+    if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrInSize())) < 0) {
 	setoserror(neterror());
 	goto error;
     }
+    __pmFreeSockAddrIn(myaddr);
+    myaddr = NULL;
 
     /*
      * Write the packet, then wait for an ACK.
@@ -92,6 +100,8 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
     return 0;
 
 error:
+    if (myaddr)
+	__pmFreeSockAddrIn(myaddr);
     __pmCloseSocket(fd);
     return -1;
 }

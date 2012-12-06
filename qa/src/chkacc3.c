@@ -20,7 +20,7 @@ main()
     unsigned int	perm;
     char		name[20];
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
-    __pmInAddr		inaddr;
+    struct __pmInAddr	*inaddr;
     __pmIPAddr		ipaddr;
 
     /* there are 10 ops numbered from 0 to 9 */
@@ -28,7 +28,7 @@ main()
     for (op = 0; op < 10; op++)
 	if ((s = __pmAccAddOp(1 << op)) < 0) {
 	    fprintf(stderr, "Bad op %d: %s\n", op, strerror(errno));
-	    sts = 1;
+	    sts = s;
 	}
 
     if (sts < 0)
@@ -73,13 +73,17 @@ main()
      */
     for (i = 0; i < 4; i++) {
 	if ((s = __pmAccAddHost(wnames[i], 0x300, (i << 8), 0)) < 0) {
-	    fprintf(stderr, "cant't add host for op%d: %s\n", i, strerror(s));
+	    fprintf(stderr, "cannot add host for op%d: %s\n", i, strerror(s));
 	    sts = s;
 	}
     }
     if (sts < 0)
 	exit(1);
 
+    if ((inaddr = __pmAllocInAddr()) == NULL) {
+	printf("insufficient memory\n");
+	exit(2);
+    }
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
@@ -90,24 +94,21 @@ main()
 		for (ci = 0; ci < 4; ci++)
 		    for (di = 0; di < 4; di++) {
 			char	buf[20];
+			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
-#ifdef IS_MINGW
-			unsigned long in;
-			in = inet_addr(buf);
-			inaddr.s_addr = in;
-#else
-			inet_aton(buf, &inaddr);
-#endif
-			ipaddr = __pmInAddrToIPAddr(&inaddr);
+			__pmStringToInAddr(buf, inaddr);
+			ipaddr = __pmInAddrToIPAddr(inaddr);
 			s = __pmAccAddClient(ipaddr, &perm);
+			host = __pmInAddrToString(inaddr);
 			if (s < 0) {
-			    fprintf(stderr, "from %s error: %s\n",
-				    inet_ntoa(inaddr), pmErrStr(s));
+			    fprintf(stderr, "from %s error: %s\n", host, pmErrStr(s));
+			    free(host);
 			    continue;
 			}
-			fprintf(stderr, "got %03x for host %s\n",
-				perm, inet_ntoa(inaddr));
+			fprintf(stderr, "got %03x for host %s\n", perm, host);
+			free(host);
 		    }
     
+    __pmFreeInAddr(inaddr);
     exit(0);
 }

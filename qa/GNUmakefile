@@ -44,14 +44,15 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 	  check-gitignore check-group chk.setup show-me disk-work \
 	  xlate_2_new_pmns common setup.051
 
-COMMON = common.check common.config common.filter common.install.cisco \
-	 common.pcpweb common.product common.rc common.setup
+COMMON_SCRIPTS = common.install.cisco common.pcpweb
+COMMON = common.check common.config common.filter \
+	 common.product common.rc common.setup
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 valgrind-suppress sanity.coverage
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9]*.full' | tee qa_outfiles)
-LSRCFILES = $(SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
+LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
@@ -68,7 +69,7 @@ localconfig:
 install_pcp install: $(SUBDIRS)
 ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 qa_outfiles $(DOTOUTFILES) $(TESTDIR)

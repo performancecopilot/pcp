@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -48,6 +49,15 @@ LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
+
+ifneq "$(LIB_FOR_NSS)" ""
+LCFLAGS += $(NSSCFLAGS)
+LLDLIBS += $(LIB_FOR_NSS)
+endif
+ifneq "$(LIB_FOR_NSPR)" ""
+LCFLAGS += $(NSPRCFLAGS)
+LLDLIBS += $(LIB_FOR_NSPR)
+endif
 
 DSOVERSION = 3
 STATICLIBTARGET = libpcp.a

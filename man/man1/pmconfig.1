@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,6 +19,7 @@
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmconfig\f1
 [\f3\-a\f1|\f3-l\f1]
+[\f3\-L\f1]
 [\f3\-s\f1]
 [\f2name ...\f1]
 .SH DESCRIPTION
@@ -25,10 +27,18 @@
 displays the values for some or all configuration parameters 
 of the local Performance Co-Pilot toolkit installation.
 .PP
-It is primarily used in conjunction with the
+The
+.B \-L
+option may be used to change the default reporting mode so that
+the capabilities of the PCP library are reported, rather than the
+PCP environment.
+.PP
+In the default operating mode,
+.B pmconfig
+is often used in conjunction with the
 .B $PCP_DIR
 environment variable to setup scripts running under the Windows
-operating system, where the filesystem hierarcy is very different
+operating system, where the filesystem hierarchy is very different
 to the of Linux/UNIX-based operating systems.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

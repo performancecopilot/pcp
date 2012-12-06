@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -119,7 +120,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
      */
     int				status = 0;
     int				have = 0;
-    fd_set			onefd;
+    __pmFdSet			onefd;
     static int			done_default = 0;
     static struct timeval	def_wait = { 10, 0 };
 
@@ -160,9 +161,9 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 	    }
 	    else
 		wait = def_wait;
-	    FD_ZERO(&onefd);
-	    FD_SET(fd, &onefd);
-	    status = select(fd+1, &onefd, NULL, NULL, &wait);
+	    __pmFD_ZERO(&onefd);
+	    __pmFD_SET(fd, &onefd);
+	    status = __pmSelectRead(fd+1, &onefd, &wait);
 	    if (status == 0)
 		return PMTRACE_ERR_TIMEOUT;
 	    else if (status < 0) {
@@ -170,7 +171,7 @@ pduread(int fd, char *buf, int len, int mode, int timeout)
 		return status;
 	    }
 	}
-	status = (int)read(fd, buf, len);
+	status = (int)__pmRead(fd, buf, len);
 	if (status <= 0) {	/* EOF or error */
 	    setoserror(neterror());
 	    return status;
@@ -241,7 +242,7 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
     php->len = htonl(php->len);
     php->from = htonl(php->from);
     php->type = htonl(php->type);
-    n = (int)write(fd, pdubuf, len);
+    n = (int)__pmWrite(fd, pdubuf, len);
     php->len = ntohl(php->len);
     php->from = ntohl(php->from);
     php->type = ntohl(php->type);

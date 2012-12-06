@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,8 +36,6 @@
 #define MIN_AGENTS_ALLOC	3	/* Number to allocate first time */
 #define LINEBUF_SIZE 200
 
-extern int	_creds_timeout;
-
 /* Config file modification time */
 #if defined(HAVE_STAT_TIMESTRUC)
 static struct timestruc configFileTime;
@@ -51,20 +49,19 @@ static time_t   	configFileTime;
 !bozo!
 #endif
 
-int		szAgents = 0;		/* Number currently allocated */
+int		szAgents;		/* Number currently allocated */
 int		mapdom[MAXDOMID+2];	/* The DomainId-to-AgentIndex map */
 					/* Don't use it during parsing! */
 
-static FILE	*inputStream = NULL;    /* Input stream for scanner */
-static int	scanInit = 0;
-static int	scanError = 0;		/* Problem in scanner */
+static FILE	*inputStream;		/* Input stream for scanner */
+static int	scanInit;
+static int	scanError;		/* Problem in scanner */
 static char	*linebuf;		/* Buffer for input stream */
-static int	szLineBuf = 0;		/* Allocated size of linebuf */
-static char	*token = NULL;		/* Start of current token */
-static int	max_seen_fd = -1;	/* Larges fd we've seen */
-static char	*tokenend = NULL;	/* End of current token */
+static int	szLineBuf;		/* Allocated size of linebuf */
+static char	*token;			/* Start of current token */
+static char	*tokenend;		/* End of current token */
 static int	nLines;			/* Current line of config file */
-static int	linesize = 0;		/* Length of line in linebuf */
+static int	linesize;		/* Length of line in linebuf */
 
 /* Macro to compare a string with token.  The linebuf is always null terminated
  * so there are no nasty boundary conditions.
@@ -249,9 +246,9 @@ SkipWhitespace(void)
     }
 }
 
-static int	scanReadOnly = 0;	/* Set => don't modify input scanner */
-static int	doingAccess = 0;	/* Set => parsing [access] section */
-static int	tokenQuoted = 0;	/* True when token a quoted string */
+static int	scanReadOnly;	/* Set => don't modify input scanner */
+static int	doingAccess;	/* Set => parsing [access] section */
+static int	tokenQuoted;	/* True when token a quoted string */
 
 /* Print the current token on a given stream. */
 
@@ -1321,27 +1318,39 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		fd = -1;	/* pander to gcc */
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	__pmSockAddrIn addr;
-	__pmHostEnt hostInfo;
-	char *hibuf;
+	struct __pmSockAddrIn *addr;
+	struct __pmHostEnt *host;
+
+	if ((host = __pmAllocHostEnt()) == NULL) {
+	    fputs("pmcd: Error allocing host entry\n", stderr);
+	    return -1;
+	}
+	if ((addr = __pmAllocSockAddrIn()) == NULL) {
+	    fputs("pmcd: Error allocing sock addr\n", stderr);
+	    __pmFreeHostEnt(host);
+	    return -1;
+	}
 
 	fd = __pmCreateSocket();
 	if (fd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
+	    __pmFreeSockAddrIn(addr);
+	    __pmFreeHostEnt(host);
 	    return -1;
 	}
-	hibuf = __pmAllocHostEntBuffer();
-	if (__pmGetHostByName("localhost", &hostInfo, hibuf) == NULL) {
+	if (__pmGetHostByName("localhost", host) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmFreeHostEntBuffer(hibuf);
+	    __pmFreeSockAddrIn(addr);
+	    __pmFreeHostEnt(host);
 	    goto error;
 	}
-	__pmInitSockAddr(&addr, 0, htons(aPtr->ipc.socket.port));
-	__pmSetSockAddr(&addr, &hostInfo);
-	__pmFreeHostEntBuffer(hibuf);
-	sts = __pmConnect(fd, (__pmSockAddr *) &addr, sizeof(addr));
+	__pmInitSockAddr(addr, 0, htons(aPtr->ipc.socket.port));
+	__pmSetSockAddr(addr, host);
+	sts = __pmConnect(fd, (void *)addr, __pmSockAddrInSize());
+	__pmFreeSockAddrIn(addr);
+	__pmFreeHostEnt(host);
     }
     else {
 #if defined(HAVE_SYS_UN_H)
@@ -1372,10 +1381,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	goto error;
     }
     aPtr->outFd = aPtr->inFd = fd;	/* Sockets are bi-directional */
-    if (fd > max_seen_fd)
-	max_seen_fd = fd;
-
-    PMCD_OPENFDS_SETHI(fd);
+    pmcd_openfds_sethi(fd);
 
     if ((sts = AgentNegotiate(aPtr)) < 0)
 	goto error;
@@ -1417,10 +1423,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 	    close(inPipe[1]);
 	    return (pid_t)-1;
 	}
-	if (outPipe[1] > max_seen_fd)
-	    max_seen_fd = outPipe[1];
-	
-	PMCD_OPENFDS_SETHI(outPipe[1]);
+	pmcd_openfds_sethi(outPipe[1]);
     }
     else if (aPtr->ipcType == AGENT_SOCKET)
 	argv = aPtr->ipc.socket.argv;
@@ -1468,7 +1471,7 @@ CreateAgentPOSIX(AgentInfo *aPtr)
 		dup2(STDERR_FILENO, STDOUT_FILENO);
 	    }
 
-	    for (i = 0; i <= max_seen_fd; i++) {
+	    for (i = 0; i <= pmcd_hi_openfds; i++) {
 		/* Close all except std{in,out,err} */
 		if (i == STDIN_FILENO ||
 		    i == STDOUT_FILENO ||
@@ -1563,10 +1566,7 @@ CreateAgentWin32(AgentInfo *aPtr)
 
     aPtr->inFd = _open_osfhandle((intptr_t)hChildStdinRd, _O_WRONLY);
     aPtr->outFd = _open_osfhandle((intptr_t)hChildStdoutWr, _O_RDONLY);
-    if (aPtr->outFd > max_seen_fd) {
-	max_seen_fd = aPtr->outFd;
-	PMCD_OPENFDS_SETHI(aPtr->outFd);
-    }
+    pmcd_openfds_sethi(aPtr->outFd);
 
     CloseHandle(piProcInfo.hProcess);
     CloseHandle(piProcInfo.hThread);
@@ -2072,20 +2072,20 @@ ParseRestartAgents(char *fileName)
     AgentInfo	*oldAgent;
     int		oldNAgents;
     AgentInfo	*ap;
-    fd_set	fds;
+    __pmFdSet	fds;
 
     /* Clean up any deceased agents.  We haven't seen an agent's death unless
      * a PDU transfer involving the agent has occurred.  This cleans up others
      * as well.
      */
-    FD_ZERO(&fds);
+    __pmFD_ZERO(&fds);
     j = -1;
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
 	if (ap->status.connected &&
 	    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE)) {
 
-	    FD_SET(ap->outFd, &fds);
+	    __pmFD_SET(ap->outFd, &fds);
 	    if (ap->outFd > j)
 		j = ap->outFd;
 	}
@@ -2096,13 +2096,13 @@ ParseRestartAgents(char *fileName)
 	 */
 	struct timeval	timeout = {0, 0};
 
-	sts = select(j, &fds, NULL, NULL, &timeout);
+	sts = __pmSelectRead(j, &fds, &timeout);
 	if (sts > 0) {
 	    for (i = 0; i < nAgents; i++) {
 		ap = &agent[i];
 		if (ap->status.connected &&
 		    (ap->ipcType == AGENT_SOCKET || ap->ipcType == AGENT_PIPE) &&
-		    FD_ISSET(ap->outFd, &fds)) {
+		    __pmFD_ISSET(ap->outFd, &fds)) {
 
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
@@ -2270,7 +2270,7 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps)) < 0) {
+	if ((s = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);

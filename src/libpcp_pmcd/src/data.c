@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmcd.h"
@@ -30,3 +27,16 @@ PMCD_INTERN int	_pmcd_timeout = 5;	/* Timeout for hung agents */
 PMCD_INTERN AgentInfo *agent;		/* Array of agent info structs */
 PMCD_INTERN int	nAgents;		/* Number of active agents */
 
+/*
+ * File descriptors are used as an internal index with the advent
+ * of NSPR in libpcp.  We (may) need to first decode the index to
+ * an internal representation and lookup the real file descriptor.
+ * Note the use of on-stack fd overwrite, avoiding local variable.
+ */
+
+void
+pmcd_openfds_sethi(int fd)
+{
+    if ((fd = __pmFD(fd)) > pmcd_hi_openfds)
+	pmcd_hi_openfds = fd;
+}

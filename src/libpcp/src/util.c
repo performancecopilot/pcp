@@ -1,8 +1,9 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -1544,7 +1545,7 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     } else if (sts != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
-		username, strerror_r(sts, buf, sizeof(buf)));
+		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pwd.pw_uid;
@@ -1559,7 +1560,7 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     } else if ((sts = oserror()) != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
-		username, strerror_r(sts, buf, sizeof(buf)));
+		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pw->pw_uid;
@@ -1587,7 +1588,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
 int
 __pmSetProgname(const char *program)
 {
-    char	*p;
+    char *p;
 
     /* Trim command name of leading directory components */
     if (program)
@@ -1597,6 +1598,18 @@ __pmSetProgname(const char *program)
 	    pmProgname = p+1;
     }
     return 0;
+}
+
+int
+__pmShutdown(void)
+{
+    int sts;
+
+    if ((sts = __pmShutdownLocal()) < 0)
+	return sts;
+    if ((sts = __pmShutdownSockets()) < 0)
+	return sts;
+    return sts;
 }
 
 void *

@@ -9,6 +9,8 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
+#include "localconfig.h"
+
 static int	vflag;
 static int	tflag;
 
@@ -132,6 +134,11 @@ main(int argc, char **argv)
     pmUnloadNameSpace();
 
     (void)pmDestroyContext(pmWhichContext());
+
+#if PCP_VER >= 3611
+    __pmShutdown();
+#endif
+
     exit(0);
 }
 

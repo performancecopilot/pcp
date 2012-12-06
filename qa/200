@@ -39,6 +39,7 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmSendCreds:/d' \
 	-e '/^__pmSetSocketIPC:/d' \
 	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
     | $PCP_AWK_PROG '
 /delay: 6 /	{ print "delay: 6-10 secs"; next }

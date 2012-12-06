@@ -13,14 +13,13 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 eval `grep PCP_PLATFORM= ../../include/pcp.conf`
 case "$PCP_PLATFORM"
 in
-    linux)
+    linux|darwin)
 	    # only works for some architectures ... and in particular not
 	    # Power PC!
 	    #
 	    arch=`uname -m 2>/dev/null`
 	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
 	    ;;
-    #darwin)
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
 	    exit 0
@@ -73,10 +72,12 @@ auxconnect.o
     d canwait			# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b ?nsprFds			# guarded by __pmLock_libpcp mutex
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const
     b state.[0-9]*		# guarded by __pmLock_libpcp mutex
+    [sd] ?features		# const
 connectlocal.o
     b atexit_installed.[0-9]*	# guarded by __pmLock_libpcp mutex
     b buffer.[0-9]*		# assert safe, see notes in connectlocal.c
@@ -90,7 +91,7 @@ connect.o
     b proxy.[0-9]*		# guarded by __pmLock_libpcp mutex
     d proxy_port.[0-9]*		# guarded by __pmLock_libpcp mutex
 context.o
-    d _mode			# const
+    [ds] _mode			# const
     d def_backoff		# guarded by __pmLock_libpcp mutex
     b backoff			# guarded by __pmLock_libpcp mutex
     b n_backoff			# guarded by __pmLock_libpcp mutex
@@ -104,9 +105,9 @@ derive.o
     [ds] ?func			# const
     [bd] ?init.[0-9]*		# local initialize_mutex mutex
     b ?done.[0-9]*		# guarded by local initialize_mutex mutex
-    d type_dbg			# const
+    [ds] type_dbg		# const
     s ?type_c			# const
-    d state_dbg			# const
+    [ds] state_dbg		# const
     s ?promote			# const
     s ?timefactor		# const
     d need_init			# guarded by registered.mutex
@@ -262,7 +263,7 @@ tz.o
     b tzbuffer.[0-9]*		# guarded by __pmLock_libpcp mutex
     r ?wildabbr.[0-9]*		# const (MinGW)
 units.o
-    d typename			# const
+    [ds] typename		# const
     b abuf.[0-9]*		# pmAtomStr deprecated by pmAtomStr_r
     b tbuf.[0-9]*		# pmTypeStr deprecated by pmTypeStr_r
     b ubuf.[0-9]*		# pmUnitsStr deprecated by pmUnitsStr_r
@@ -271,7 +272,7 @@ util.o
     b indombuf.[0-9]*		# pmInDomStr deprecated by pmInDomStr_r
     b ebuf.[0-9]*		# pmEventFlagsStr deprecated by pmEventFlagsStr_r
     b nbuf.[0-9]*		# pmNumberStr deprecated by pmNumberStr_r
-    d ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
+    [sd] ?unknownVal.[0-9]*	# const, variable may be optimized away by gcc
     [sd] debug_map		# const
     [rsd] ?num_debug		# const
     b pmState			# no unsafe side-effects, see notes in util.c

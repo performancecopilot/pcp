@@ -4,10 +4,15 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+
+#include "localconfig.h"
+
+#if PCP_VER < 3611
+#define __pmRead read
+#endif
 
 static void
 usage(void)
@@ -63,7 +68,7 @@ main(int argc, char **argv)
      * ignore them, optionally execute an action and exit on end of file
      */
 
-    while ((sts = read(desc.version.two.ext->e_infd, &c, 1)) == 1) {
+    while ((sts = __pmRead(desc.version.two.ext->e_infd, &c, 1)) == 1) {
 	if (exit_action) exit(1);
     }
 

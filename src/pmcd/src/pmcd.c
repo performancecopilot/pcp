@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -365,7 +365,7 @@ OpenRequestSocket(int port, int ipAddr)
 {
     int			fd;
     int			one, sts;
-    __pmSockAddrIn	myAddr;
+    struct __pmSockAddrIn *myAddr;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -406,9 +406,15 @@ OpenRequestSocket(int port, int ipAddr)
 	goto fail;
     }
 
-    __pmInitSockAddr(&myAddr, ipAddr, htons(port));
-
-    sts = __pmBind(fd, (__pmSockAddr*)&myAddr, sizeof(myAddr));
+    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, 0x%x) __pmAllocSockAddrIn: out of memory\n",
+		port, ipAddr);
+	goto fail;
+    }
+    __pmInitSockAddr(myAddr, ipAddr, htons(port));
+    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrInSize());
+    __pmFreeSockAddrIn(myAddr);
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmBind: %s\n",
@@ -831,7 +837,7 @@ ClientLoop(void)
 		    if (cp == NULL)
 		    	continue;
 
-		    sts = __pmAccAddClient(__pmSockAddrInToIPAddr(&cp->addr), &cp->denyOps);
+		    sts = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps);
 		    if (sts >= 0) {
 			cp->pduInfo.zero = 0;
 			cp->pduInfo.version = PDU_VERSION;
@@ -1187,7 +1193,7 @@ static int		 szBadHosts = 0;
 static __pmIPAddr	*badHost = NULL;
 
 static int
-AddBadHost(__pmSockAddrIn *hostId)
+AddBadHost(struct __pmSockAddrIn *hostId)
 {
     int		i, need;
 
@@ -1235,10 +1241,10 @@ CleanupClient(ClientInfo *cp, int sts)
 	 * been dinged for an access violation since startup or reconfiguration
 	 */
 	if (sts == PM_ERR_PERMISSION || sts == PM_ERR_CONNLIMIT) {
-	    if ( (msg = AddBadHost(&cp->addr)) ) {
-		caddr = __pmSockAddrInToString(&cp->addr);
+	    if ( (msg = AddBadHost(cp->addr)) ) {
+		caddr = __pmSockAddrInToString(cp->addr);
 		fprintf(stderr, "access violation from host %s:\n", caddr);
-		free(client);
+		free(caddr);
 	    }
 	}
 	else
@@ -1259,7 +1265,7 @@ CleanupClient(ClientInfo *cp, int sts)
      * count
      */
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
-        __pmAccDelClient(__pmSockAddrInToIPAddr(&cp->addr));
+        __pmAccDelClient(ClientIPAddr(cp));
 
     pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
     DeleteClient(cp);

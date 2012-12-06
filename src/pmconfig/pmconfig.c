@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +17,7 @@
 #include "impl.h"
 
 void
-formatter(char *var, char *prefix, char *val)
+env_formatter(char *var, char *prefix, char *val)
 {
     char *v;
 
@@ -28,23 +29,36 @@ formatter(char *var, char *prefix, char *val)
 	printf("%s=%s\n", var, v);
 }
 
+void
+api_formatter(const char *var, const char *val)
+{
+    if (!val || val[0] == '\0')
+	printf("%s=false\n", var);
+    else
+	printf("%s=%s\n", var, val);
+}
+
 int
 main(int argc, char **argv)
 {
     int		c;
     int		errflag = 0;
     int		sflag = 0;
+    int		Lflag = 0;
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "als")) != EOF) {
+    while ((c = getopt(argc, argv, "alLs")) != EOF) {
         switch (c) {
-        case 'a':       /* show all, defualt (unmodified) dump format */
+	case 'a':       /* show all, default (unmodified) list format */
 	case 'l':
 	    sflag = 0;
 	    break;
-        case 's':       /* show all, guarded format for shell expansion */
+	case 's':       /* show all, guarded format for shell expansion */
 	    sflag = 1;
+	    break;
+	case 'L':
+	    Lflag = 1;
 	    break;
 	case '?':
 	default:
@@ -59,7 +73,8 @@ main(int argc, char **argv)
 \n\
 Options:\n\
   -a | -l      show all, unmodified format (default)\n\
-  -s           show all, quoted format for shall expansion\n",
+  -L           show library features instead of environment\n\
+  -s           show all, quoted format for shell expansion\n",
 		pmProgname);
 	exit(1);
     }
@@ -67,17 +82,28 @@ Options:\n\
     if (optind >= argc) {
 	if (sflag)
 	    putenv("SHELL=/bin/sh");
-	__pmConfig(formatter);
+	if (Lflag)
+	    __pmAPIConfig(api_formatter);
+	else
+	    __pmConfig(env_formatter);
     }
     else if (sflag) {
 	putenv("SHELL=/bin/sh");
-	for (c = optind; c < argc; c++)
-	    printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
+	if (Lflag)
+	    for (c = optind; c < argc; c++)
+		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
+			__pmGetAPIConfig(argv[c]));
+	else
+	    for (c = optind; c < argc; c++)
+		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
 			pmGetConfig(argv[c]));
     }
-    else {
+    else if (Lflag)
+	for (c = optind; c < argc; c++)
+	    printf("%s=%s\n", argv[c], __pmGetAPIConfig(argv[c]));
+    else
 	for (c = optind; c < argc; c++)
 	    printf("%s=%s\n", argv[c], pmGetConfig(argv[c]));
-    }
+   
     exit(0);
 }

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1432,9 +1433,6 @@ client_req(void)
     if ((pinpdu = sts = __pmGetPDU(clientfd, ANY_SIZE, TIMEOUT_DEFAULT, &pb)) <= 0) {
 	if (sts != 0)
 	    fprintf(stderr, "client_req: %s\n", pmErrStr(sts));
-	__pmResetIPC(clientfd);
-	close(clientfd);
-	clientfd = -1;
 	return 1;
     }
     if (qa_case == QA_SLEEPY) {
@@ -1465,10 +1463,8 @@ client_req(void)
     if (sts >= 0)
 	return 0;
     else {
-	/* the client isn't playing by the rules; disconnect it */
+	/* the client isn't playing by the rules */
 	__pmSendError(clientfd, FROM_ANON, sts);
-	__pmCloseSocket(clientfd);
-	clientfd = -1;
 	return 1;
     }
 }

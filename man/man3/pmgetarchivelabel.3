@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMGETARCHIVELABEL 3 "SGI" "Performance Co-Pilot"
+.TH PMGETARCHIVELABEL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmGetArchiveLabel\f1 \- fetch the label record from a performance metrics archive log
 .SH "C SYNOPSIS"
@@ -84,9 +84,7 @@ which is less than
 .BR MAXHOSTNAMELEN
 (see
 .BR gethostbyname (3))
-in 
-.I IRIX6.5
-or later.
+on some platforms.
 These semantics are necessary to retain backwards compatibility with the
 PCP archive file format.
 .PP

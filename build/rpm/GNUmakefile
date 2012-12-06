@@ -58,6 +58,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_name@|$(PACKAGE_NAME)|g' \
 	    -e's|@package_version@|$(PACKAGE_VERSION)|g' \
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
+	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
 	    -e's|@package_builder@|$(PACKAGE_BUILDER)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \

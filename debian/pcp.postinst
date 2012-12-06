@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 #DEBHELPER#
 touch /var/lib/pcp/pmns/.NeedRebuild
 chmod 644 /var/lib/pcp/pmns/.NeedRebuild
@@ -6,10 +6,10 @@ chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
-for dir in pmcd pmlogger pmie pmproxy
-do
-    chown -R pcp:pcp /var/log/pcp/$dir 2>/dev/null
-done
+chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null || true
+chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null || true
+chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null || true
+chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null || true
 
 update-rc.d pmcd defaults >/dev/null
 update-rc.d pmlogger defaults >/dev/null

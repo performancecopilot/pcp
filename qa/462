@@ -42,8 +42,7 @@ _cleanup()
 _filter()
 {
     _filter_pcp_start \
-    | _filter_pcp_stop \
-    | sed -e 's/\.\.\.\.\.*/[dots]/'
+    | _filter_pcp_stop
 }
 
 _wait_filter()

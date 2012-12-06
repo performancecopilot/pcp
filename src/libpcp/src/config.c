@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -261,4 +262,61 @@ pmGetConfig(const char *name)
 
     PM_UNLOCK(__pmLock_libpcp);
     return val;
+}
+
+/*
+ * Details of runtime features available in the built libpcp
+ */
+
+#ifdef PM_MULTI_THREAD
+#define MULTI_THREAD_ENABLED	"true"
+#else
+#define MULTI_THREAD_ENABLED	"false"
+#endif
+#ifdef PM_FAULT_INJECTION
+#define FAULT_INJECTION_ENABLED	"true"
+#else
+#define FAULT_INJECTION_ENABLED	"false"
+#endif
+#if defined(HAVE_SECURE_SOCKETS)
+#define SECURE_SOCKETS_ENABLED	"true"
+#else
+#define SECURE_SOCKETS_ENABLED	"false"
+#endif
+
+#define STRINGIFY(s)		#s
+#define TO_STRING(s)		STRINGIFY(s)
+
+static const struct {
+	const char *		feature;
+	const char *		state;
+} features[] = {
+	{ "pmapi_version",	TO_STRING(PMAPI_VERSION) },
+	{ "multi_threaded",	MULTI_THREAD_ENABLED },
+	{ "fault_injection",	FAULT_INJECTION_ENABLED },
+	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
+};
+
+void
+__pmAPIConfig(__pmAPIConfigCallback formatter)
+{
+    int i;
+
+    for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
+	if (pmDebug & DBG_TRACE_CONFIG)
+	    fprintf(stderr, "__pmAPIConfig: %s=%s\n",
+		  features[i].feature, features[i].state);
+	formatter(features[i].feature, features[i].state);
+    }
+}
+
+const char *
+__pmGetAPIConfig(const char *name)
+{
+    int i;
+
+    for (i = 0; i < sizeof(features)/sizeof(features[0]); i++)
+        if (strcasecmp(name, features[i].feature) == 0)
+	    return features[i].state;
+    return NULL;
 }

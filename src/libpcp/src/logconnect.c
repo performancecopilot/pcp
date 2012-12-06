@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -73,8 +74,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct sockaddr_in	myAddr;
-    struct hostent*	servInfo;
+    struct __pmSockAddrIn *myAddr;
+    struct __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
@@ -131,41 +132,80 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
+    if ((servInfo = __pmAllocHostEnt()) == NULL) {
+	return -ENOMEM;
+    }
+    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
+	__pmFreeHostEnt(servInfo);
+	return -ENOMEM;
+    }
+
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if ((servInfo = gethostbyname(hostname)) == NULL) {
+    if (__pmGetHostByName(hostname, servInfo) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeSockAddrIn(myAddr);
+	__pmFreeHostEnt(servInfo);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
+	__pmFreeSockAddrIn(myAddr);
+	__pmFreeHostEnt(servInfo);
 	return fd;
     }
 
-    memset(&myAddr, 0, sizeof(myAddr));	/* Arrgh! &myAddr, not myAddr */
-    myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
+    __pmInitSockAddr(myAddr, 0, htons(*port));
+    __pmSetSockAddr(myAddr, servInfo);
     PM_UNLOCK(__pmLock_libpcp);
-    myAddr.sin_port = htons(*port);
 
-    sts = connect(fd, (struct sockaddr*) &myAddr, sizeof(myAddr));
+    sts = __pmConnect(fd, myAddr, __pmSockAddrInSize());
+
+    __pmFreeSockAddrIn(myAddr);
+    __pmFreeHostEnt(servInfo);
+
     if (sts < 0) {
-	sts = -neterror();
-	__pmCloseSocket(fd);
+	sts = neterror();
+	if (sts == EINPROGRESS) {
+	  /* We're in progress - wait on select. */
+	  struct timeval stv = { 0, 000000 };
+	  struct timeval *pstv;
+	  __pmFdSet rfds;
+	  int rc;
+	  stv.tv_sec = __pmLoggerTimeout();
+	  pstv = stv.tv_sec ? &stv : NULL;
+
+	  __pmFD_ZERO(&rfds);
+	  __pmFD_SET(fd, &rfds);
+	  sts = 0;
+	  if ((rc = __pmSelectRead(fd+1, &rfds, pstv)) == 1) {
+	    sts = __pmConnectCheckError(fd);
+	  }
+	  else if (rc == 0) {
+	    sts = ETIMEDOUT;
+	  }
+	  else {
+	    sts = (rc < 0) ? neterror() : EINVAL;
+	  }
+	}
+	sts = -sts;
+	if (sts < 0) {
+	  __pmCloseSocket(fd);
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	  if (pmDebug & DBG_TRACE_CONTEXT) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
+	  }
 #endif
-	return sts;
+	  return sts;
+	}
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */

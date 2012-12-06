@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
@@ -29,24 +25,27 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    __pmHostEnt		h;
-    char		*hbuf, *sbuf;
+    struct __pmHostEnt	*host;
+    char		*sbuf;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
-    hbuf = __pmAllocHostEntBuffer();
+    if ((host = __pmAllocHostEnt()) == NULL) {
+	fprintf(f, "ShowClients: out of memory\n");
+	return;
+    }
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected == 0)
 	    continue;
 
 	fprintf(f, "    %3d  ", client[i].fd);
 
-	if (__pmGetHostByAddr(&client[i].addr, &h, hbuf) == NULL) {
-	    sbuf = __pmSockAddrInToString(&client[i].addr);
+	if (__pmGetHostByAddr(client[i].addr, host) == NULL) {
+	    sbuf = __pmSockAddrInToString(client[i].addr);
 	    fprintf(f, "%s", sbuf);
 	    free(sbuf);
 	} else {
-	    fprintf(f, "%-40.40s", h.h_name);
+	    fprintf(f, "%-40.40s", __pmHostEntName(host));
 	}
 	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
 
@@ -60,6 +59,6 @@ ShowClients(FILE *f)
 
 	fputc('\n', f);
     }
-    __pmFreeHostEntBuffer(hbuf);
+    __pmFreeHostEnt(host);
     fputc('\n', f);
 }
