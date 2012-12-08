@@ -291,7 +291,7 @@ GetPort(char *file)
 
 /* Create the control port for this pmlogger and the file containing the port
  * number so that other programs know which port to connect to.
- * If this is the primary pmlogger, create the special symbolic link to the
+ * If this is the primary pmlogger, create the special link to the
  * control file.
  */
 void
@@ -372,7 +372,7 @@ init_ports(void)
     ctlfd = GetPort(ctlfile);
 
     /*
-     * If this is the primary logger, make the special symbolic link for
+     * If this is the primary logger, make the special link for
      * clients to connect specifically to it.
      */
     if (primary) {
@@ -384,7 +384,7 @@ init_ports(void)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
 #ifndef IS_MINGW
-	sts = symlink(ctlfile, linkfile);
+	sts = link(ctlfile, linkfile);
 #else
 	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
 #endif

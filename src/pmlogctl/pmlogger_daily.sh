@@ -251,6 +251,19 @@ _filter_filename()
 	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
 }
 
+_get_ino()
+{
+    # get inode number for $1
+    # throw away stderr (and return '') in case $1 has been removed by now
+    #
+    stat "$1" 2>/dev/null \
+    | sed -n '/Device:[ 	].*[ 	]Inode:/{
+s/Device:[ 	].*[ 	]Inode:[ 	]*//
+s/[ 	].*//
+p
+}'
+}
+
 # mails out any entries for the previous 24hrs from the PCP notices file
 # 
 if [ ! -z "$MAILME" ]
@@ -494,18 +507,44 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	test -e $PCP_TMP_DIR/pmlogger/primary
-
-        if [ $? -eq 0 ]
+	if test -f $PCP_TMP_DIR/pmlogger/primary
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
-	    pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's,.*/,,'`
-	    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
+	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
+	    $VERY_VERBOSE && echo primary_inode=$primary_inode
+	    pid=''
+	    for file in $PCP_TMP_DIR/pmlogger/*
+	    do
+		case "$file"
+		in
+		    */primary|*\*)
+			;;
+		    */[0-9]*)
+			inode=`_get_ino "$file"`
+			$VERY_VERBOSE && echo $file inode=$inode
+			if [ "$primary_inode" = "$inode" ]
+			then
+			    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
+			    break
+			fi
+			;;
+		esac
+	    done
+	    if [ -z "$pid" ]
 	    then
-		$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
+		if $VERY_VERBOSE
+		then
+		    echo "primary pmlogger process pid not found"
+		    ls -l $PCP_TMP_DIR/pmlogger
+		fi
 	    else
-		$VERY_VERBOSE && echo "pmlogger process $pid not running"
-		pid=``
+		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
+		then
+		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
+		else
+		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
+		    pid=``
+		fi
 	    fi
 	fi
     else

@@ -480,8 +480,8 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 
 	    _pmda_setup
 
-	    # force removal of primary pmlogger symlink ... if primary
-	    # pmlogger is started, this will re-create the symlink
+	    # force removal of primary pmlogger link ... if primary
+	    # pmlogger is started, this will re-create the link
 	    #
 	    rm -f $PCP_TMP_DIR/pmlogger/primary
 

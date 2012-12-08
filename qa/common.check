@@ -1432,3 +1432,41 @@ _find_free_port()
     done
     echo $base
 }
+
+_get_ino()
+{
+    # get inode number for $1
+    # throw away stderr (and return '') in case $1 has been removed by now
+    #
+    stat "$1" 2>/dev/null \
+    | sed -n '/Device:[ 	].*[ 	]Inode:/{
+s/Device:[ 	].*[ 	]Inode:[ 	]*//
+s/[ 	].*//
+p
+}'
+}
+
+_get_primary_logger_pid()
+{
+    # get pid for primary pmlogger
+    #
+    _primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
+    _pid=''
+    for _file in $PCP_TMP_DIR/pmlogger/*
+    do
+	case "$_file"
+	in
+	    */primary|*\*)
+		;;
+	    */[0-9]*)
+		_inode=`_get_ino "$_file"`
+		if [ "$_primary_inode" = "$_inode" ]
+		then
+		    _pid="`echo $_file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
+		    break
+		fi
+		;;
+	esac
+    done
+    echo $_pid
+}
