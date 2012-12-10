@@ -368,6 +368,10 @@ showConst(Expr *x)
 		length = concat(" ", length, &string);
 	    if (x->sem == SEM_TRUTH)
 		length = showTruth(x, i, length, &string);
+	    else if (x->sem == SEM_REGEX) {
+		/* regex is compiled, cannot recover original string */
+		length = concat("/<regex>/", length, &string);
+	    }
 	    else if (x->sem == SEM_CHAR) {
 		length = showString(x, length, &string);
 		/* tspan is string length, not an iterator in this case */
@@ -463,6 +467,15 @@ showSyn(FILE *f, Expr *x)
 		showSyn(f, x->arg1);
 		fputc(')', f);
 	    }
+	}
+	else if (x->op == CND_MATCH || x->op == CND_NOMATCH) {
+	    fputs(opStrings(x->op), f);
+	    fputc(' ', f);
+	    showSyn(f, x->arg2);
+	    fputc(' ', f);
+	    fputc('(', f);
+	    showSyn(f, x->arg1);
+	    fputc(')', f);
 	}
 	else {
 	    paren = 1 -
