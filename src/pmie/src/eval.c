@@ -718,7 +718,8 @@ findEval(Expr *x)
 
     /* patch in fake actions for archive mode */
     if (archives &&
-	((x->op >= ACT_SHELL && x->op <= ACT_PRINT) || x->op == ACT_STOMP)) {
+	(x->op == ACT_SHELL || x->op == ACT_ALARM || x->op == ACT_SYSLOG ||
+	 x->op == ACT_PRINT || x->op == ACT_STOMP)) {
 	x->eval = actFake;
     }
 }
