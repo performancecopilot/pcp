@@ -4,7 +4,6 @@
 \f3pmdasummary\f1 \- summary performance metrics domain agent (PMDA)
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/summary/pmdasummary\f1
-[\f3\-c\f1 \f2configfile\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-h\f1 \f2helpfile\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -34,16 +33,6 @@ and makes them available to the performance metrics collector daemon
 A brief description of the
 .B pmdasummary
 command line options follows:
-.TP 5
-.B \-c
-When used to summarize metrics from multiple hosts,
-.B pmdasummary
-reads host information from
-.IR configfile.
-This is a binary file produced by
-.BR $PCP_PMDAS_DIR/array/mkconfig ,
-and so this option may only be used if the
-add-on PCP for Arrays product is also installed.
 .TP 5
 .B \-d
 It is absolutely crucial that the performance metrics
