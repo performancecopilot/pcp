@@ -79,7 +79,7 @@ _proc_filter()
 	-e "s/\([^0-9]\)0*$cpid\([^0-9]\)/\1CPID\2/g" \
 	-e 's/^ //' \
 	-e 's/ $//' \
-	-e 's/fd=[0-9]/fd=N/g' \
+	-e 's/fd=[0-9][0-9]*/fd=N/g' \
 	-e 's/refcnt=[0-9]/refcnt=N/g' \
 	-e 's/inst \[.*\] value/inst [NNN] value/' \
 	-e '/value /{
