@@ -12,6 +12,20 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
+# special variant of SUBDIRS_MAKERULE for running QA in the tree
+#
+SUBDIRS_MAKERULE = \
+	@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		$(ECHO) === $$d ===; \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKEF) -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKEF) -C $$d $@ || exit $$?; \
+		fi; \
+	    fi; \
+	done
+
 SUBDIRS = broken bigun dynamic
 
 default default_pcp: $(SUBDIRS)
