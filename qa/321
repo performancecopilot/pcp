@@ -47,14 +47,20 @@ pmie -v -T 2sec <<'End-of-File' 2>&1 \
 | fgrep -v "evaluator exiting" \
 | _filter_pmie_log
 delta=3sec;
+some_inst sample.hordes.one > 249
+    -> print "HORDES > 249\n" "[%i] %v\n";
+
 count_inst (sample.hordes.one > 249) > 0
-    -> print "COUNT HORDES > 249\n" "[%i] %v\n";
+    -> print "COUNT HORDES > 249\n" "%v\n";
 
 50 %_inst (sample.hordes.one > 249)
     -> print "50% HORDES > 249: %v Ctns\n";
 
+some_inst sample.hordes.one <= 249
+    -> print "HORDES <= 249\n" "[%i] %v\n";
+
 count_inst (sample.hordes.one <= 249) > 0
-    -> print "COUNT HORDES <= 249\n" "[%i] %v\n";
+    -> print "COUNT HORDES <= 249\n" "%v\n";
 
 50 %_inst (sample.hordes.one <= 249)
     -> print "50% HORDES <= 249: %v Ctns\n";
