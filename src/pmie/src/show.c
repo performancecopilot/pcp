@@ -592,17 +592,24 @@ findBindings(Expr *x)
 	     * value, ... value you seek is right here
 	     */
 	    break;
-	if (x->arg1 && x->metrics == x->arg1->metrics)
+	if (x->arg1 && x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-	else if (x->arg2)
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findBindings: try x->arg1=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
+	else if (x->arg2) {
 	    x = x->arg2;
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findBindings: try x->arg2=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
 	else
 	    break;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "findBindings: try x=" PRINTF_P_PFX "%p\n", x);
-	}
-#endif
     }
     return x;
 }
@@ -619,15 +626,22 @@ findValues(Expr *x)
     }
 #endif
     while (x->sem == SEM_TRUTH && x->metrics) {
-	if (x->metrics == x->arg1->metrics)
+	if (x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-	else
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findValues: try x->arg1=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
+	else {
 	    x = x->arg2;
 #if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "findValues: try x=" PRINTF_P_PFX "%p\n", x);
-	}
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findValues: try x->arg2=" PRINTF_P_PFX "%p\n", x);
+	    }
 #endif
+	}
     }
     return x;
 }
@@ -869,6 +883,12 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     if ((sts1 = findFormat(format, &first)) == 0)
 	return concat(format, length, string);
 
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "formatSatisfyingValue: curr=" PRINTF_P_PFX "%p\n", curr);
+	dumpExpr(curr);
+    }
+#endif
     x1 = findBindings(curr);
     x2 = findValues(x1);
     if (!x1->valid)
