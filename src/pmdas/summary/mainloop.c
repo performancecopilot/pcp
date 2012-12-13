@@ -10,23 +10,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <syslog.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-
-#include "./summary.h"
+#include "summary.h"
 
 static void (*freeResultCallback)(pmResult *) = __pmFreeResultValues;
 
@@ -37,11 +26,10 @@ mainLoopFreeResultCallback(void (*callback)(pmResult *res))
 }
 
 void
-summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
+summaryMainLoop(char *pmdaname, int clientfd, pmdaInterface *dtp)
 {
     __pmPDU		*pb_pmcd;
     __pmPDU		*pb_client;
-    __pmPDU		*pb_config;
     int			sts;
     pmID		pmid;
     pmDesc		desc;
@@ -61,7 +49,7 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     __pmProfile		*saveprofile = NULL;
     static fd_set	readFds;
     int			maxfd;
-    int			configReady, clientReady, pmcdReady;
+    int			clientReady, pmcdReady;
     int infd, outfd;
 
     if (dtp->comm.pmda_interface != PMDA_INTERFACE_2) {
@@ -77,48 +65,22 @@ summaryMainLoop(char *pmdaname, int configfd, int clientfd, pmdaInterface *dtp)
     maxfd = infd+1;
     if (clientfd >= maxfd)
 	maxfd = clientfd+1;
-    if (configfd >= maxfd)
-	maxfd = configfd+1;
 
     for ( ;; ) {
 	FD_ZERO(&readFds);
 	FD_SET(infd, &readFds);
 	FD_SET(clientfd, &readFds);
-	if (configfd >= 0)
-	    FD_SET(configfd, &readFds);
 
 	/* select here : block if nothing to do */
 	sts = select(maxfd, &readFds, NULL, NULL, NULL);
 
 	clientReady = FD_ISSET(clientfd, &readFds);
 	pmcdReady = FD_ISSET(infd, &readFds);
-	if (configfd >= 0)
-	    configReady = FD_ISSET(configfd, &readFds);
-	else
-	    configReady = 0;
 
 	if (sts < 0)
 	    break;
 	if (sts == 0)
 	    continue;
-
-	if (configReady) {
-	    /*
-	     * Service the config
-	     */
-	    sts = __pmGetPDU(configfd, ANY_SIZE, TIMEOUT_NEVER, &pb_config);
-	    if (sts < 0)
-		__pmNotifyErr(LOG_ERR, "config __pmGetPDU: %s\n", pmErrStr(sts));
-	    if (sts <= 0) {
-		/* End of File or error. Just close the file or pipe */
-		close(configfd);
-		configfd = -1;
-	    }
-	    else {
-		service_config(pb_config);
-		__pmUnpinPDUBuf(pb_config);
-	    }
-	} 
 
 	if (clientReady) {
 	    /*
