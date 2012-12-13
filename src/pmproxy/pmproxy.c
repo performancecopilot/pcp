@@ -450,7 +450,6 @@ ClientLoop(void)
     int		i, sts;
     int		maxFd;
     __pmFdSet	readableFds;
-    int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
 
     for (;;) {

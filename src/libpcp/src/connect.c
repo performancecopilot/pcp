@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -86,8 +86,8 @@ negotiate_proxy(int fd, const char *hostname, int port)
 /*
  * client connects to pmcd handshake
  */
-int
-__pmConnectHandshake(int fd)
+static int
+__pmConnectHandshake(int fd, int ctxflags)
 {
     __pmPDU	*pb;
     int		ok;
@@ -107,9 +107,8 @@ __pmConnectHandshake(int fd)
 	 *  |  status  | challenge |
 	 *  :----------:-----------:
 	 *
-	 *   For a good connection, status is 0, else a PCP error code.
-	 *
-	 *   challenge was used for old PCP versions and can be ignored.
+	 *   For a good connection, status is 0, else a PCP error code;
+	 *   challenge contains server-side info (e.g. enabled features)
 	 */
 	version = __pmDecodeXtendError(pb, &sts, &challenge);
 	if (version < 0) {
@@ -122,21 +121,50 @@ __pmConnectHandshake(int fd)
 	}
 
 	if (version == PDU_VERSION2) {
-	    /*
-	     * negotiate connection version and credentials
-	     */
-	    __pmCred	handshake[2];
+	    __pmPDUInfo		pduinfo;
+	    __pmVersionCred	handshake;
+	    int			pduflags = 0;
 
+	    if (ctxflags) {
+		pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
+		/*
+		 * If an optional connection feature (e.g. encryption) is
+		 * desired, the pmcd that we're talking to must advertise
+		 * support for the feature.  And if it did, the client in
+		 * turn must request it be enabled (now, via pduflags).
+		 */
+		if (ctxflags & PM_CTXFLAG_SECURE) {
+		    if (pduinfo.features & PDU_FLAG_SECURE)
+			pduflags |= PDU_FLAG_SECURE;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
+	    }
+
+	    /*
+	     * Negotiate connection version and credentials
+	     */
 	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
 		__pmUnpinPDUBuf(pb);
 		return ok;
 	    }
 
-	    handshake[0].c_type = CVERSION;
-	    handshake[0].c_vala = PDU_VERSION;
-	    handshake[0].c_valb = 0;
-	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
+	    memset(&handshake, 0, sizeof(handshake));
+	    handshake.c_type = CVERSION;
+	    handshake.c_version = PDU_VERSION;
+	    handshake.c_flags = pduflags;
+
+	    sts = __pmSendCreds(fd, (int)getpid(), 1, (__pmCred *)&handshake);
+
+	    /*
+	     * At this point we know caller wants a secure channel and pmcd
+	     * supports it so go ahead and mark this socket as secure (this
+	     * completes the SSL handshake).
+	     */
+	    if (sts >= 0 && (ctxflags & PM_CTXFLAG_SECURE))
+		sts = __pmSetSecureClientIPC(fd);
 	}
 	else
 	    sts = PM_ERR_IPC;
@@ -217,7 +245,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 }
 
 int
-__pmConnectPMCD(pmHostSpec *hosts, int nhosts)
+__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 {
     int		sts = -1;
     int		fd = -1;	/* Fd for socket connection to pmcd */
@@ -286,7 +314,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
-		if ((sts = __pmConnectHandshake(fd)) < 0) {
+		if ((sts = __pmConnectHandshake(fd, ctxflags)) < 0) {
 		    __pmCloseSocket(fd);
 		}
 		else
@@ -346,7 +374,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    __pmCloseSocket(fd);
-	else if ((sts = __pmConnectHandshake(fd)) < 0)
+	else if ((sts = __pmConnectHandshake(fd, ctxflags)) < 0)
 	    __pmCloseSocket(fd);
 	else
 	    /* success */

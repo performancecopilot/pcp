@@ -778,7 +778,6 @@ ClientLoop(void)
     int		checkAgents;
     int		reload_ns = 0;
     __pmFdSet	readableFds;
-    int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
     __pmPDUInfo	xchallenge;
 
@@ -839,14 +838,14 @@ ClientLoop(void)
 
 		    sts = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps);
 		    if (sts >= 0) {
-			cp->pduInfo.zero = 0;
+			memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 			cp->pduInfo.version = PDU_VERSION;
 			cp->pduInfo.licensed = 1;
-			cp->pduInfo.authorize = 0;
+#ifdef HAVE_SECURE_SOCKETS
+			cp->pduInfo.features |= PDU_FLAG_SECURE;
+#endif
 			challenge = *(int*)(&cp->pduInfo);
 			sts = 0;
-			/* reset (no meaning, use fd table to version) */
-			cp->pduInfo.version = UNKNOWN_VERSION;
 		    }
 		    else {
 			/* __pmAccAddClient failed, this is grim! */
@@ -858,6 +857,10 @@ ClientLoop(void)
 			pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 		    xchallenge = *(__pmPDUInfo *)&challenge;
 		    xchallenge = __htonpmPDUInfo(xchallenge);
+
+		    /* reset (no meaning, use fd table to version) */
+		    cp->pduInfo.version = UNKNOWN_VERSION;
+
 		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
 		    if (s < 0) {
 			__pmNotifyErr(LOG_ERR,

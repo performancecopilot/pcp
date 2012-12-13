@@ -153,9 +153,10 @@ interp.o
     b nr_cache			# diag counters, no atomic updates
     b cache			# guarded by __pmLock_libpcp mutex
 ipc.o
-    b __pmIPCTablePtr		# guarded by __pmLock_libpcp mutex
+    b __pmIPCTable		# guarded by __pmLock_libpcp mutex
     d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
-    b ipctablesize		# guarded by __pmLock_libpcp mutex
+    b ipcentrysize		# guarded by __pmLock_libpcp mutex
+    b ipctablecount		# guarded by __pmLock_libpcp mutex
 lock.o
     [DC] __pmLock_libpcp	# the global libpcp mutex
     [bd] ?init.[0-9]*		# local __pmInitLocks mutex

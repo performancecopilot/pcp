@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1033,10 +1034,10 @@ done:
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
-    int			i, sts, credcount = 0;
-    int			version = UNKNOWN_VERSION;
+    int			i, sts, flags = 0, credcount = 0;
     int			sender = 0;
     __pmCred		*credlist = NULL;
+    __pmVersionCred	*vcp;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1047,13 +1048,15 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     for (i = 0; i < credcount; i++) {
 	switch(credlist[i].c_type) {
 	    case CVERSION:
-		version = credlist[i].c_vala;
-		sts = __pmSetVersionIPC(cp->fd, version);
+		vcp = (__pmVersionCred *)&credlist[i];
+		flags = vcp->c_flags;
+		sts = __pmSetVersionIPC(cp->fd, vcp->c_version);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: version cred (%u)\n", version);
+		    fprintf(stderr, "pmcd: version cred (%u)\n", vcp->c_version);
 #endif
 		break;
+
 	    default:
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
@@ -1062,10 +1065,14 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		sts = PM_ERR_IPC;
 		break;
 	}
-    }
 
+    }
     if (credlist != NULL)
 	free(credlist);
+
+    /* Feature test: has a secure (encrypted) connection been requested? */
+    if (sts >= 0 && (flags & PDU_FLAG_SECURE))
+	sts = __pmSetSecureServerIPC(cp->fd);
 
     return sts;
 }

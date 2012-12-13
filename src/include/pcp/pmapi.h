@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _PMAPI_H
@@ -312,6 +309,10 @@ extern int pmNewContext(int, const char *);
 #define PM_CONTEXT_HOST		1	/* host via pmcd */
 #define PM_CONTEXT_ARCHIVE	2	/* PCP archive */
 #define PM_CONTEXT_LOCAL	3	/* local host, no pmcd connection */
+#define PM_CONTEXT_TYPEMASK	0xff	/* mask to separate types / flags */
+/* #define PM_CTXFLAG_SHALLOW	(1U<<8)	-- don't actually connect to host */
+/* #define PM_CTXFLAG_EXCLUSIVE	(1U<<9)	-- don't share socket among ctxts */
+#define PM_CTXFLAG_SECURE	(1U<<10)/* encrypted socket comms channel */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
