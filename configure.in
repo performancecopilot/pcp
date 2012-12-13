@@ -1887,6 +1887,17 @@ then
     AC_SUBST(nspr_inc_dir)
     AC_SUBST(nss_inc_dir)
 
+    AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
+	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no SSL library)
+	    fi
+	])
+    ])
+    AC_SUBST(lib_for_ssl)
+
     AC_CHECK_LIB(nss, NSS_Init, [lib_for_nss="-lnss"], [
 	AC_CHECK_LIB(nss3, NSS_Init, [lib_for_nss="-lnss3"], [
 	    enable_secure=false
