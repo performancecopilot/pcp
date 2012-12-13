@@ -365,7 +365,7 @@ OpenRequestSocket(int port, int ipAddr)
 {
     int			fd;
     int			one, sts;
-    struct __pmSockAddrIn *myAddr;
+    struct __pmSockAddr *myAddr;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -406,15 +406,15 @@ OpenRequestSocket(int port, int ipAddr)
 	goto fail;
     }
 
-    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
+    if ((myAddr = __pmAllocSockAddr()) == NULL) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) __pmAllocSockAddrIn: out of memory\n",
+		"OpenRequestSocket(%d, 0x%x) __pmAllocSockAddr: out of memory\n",
 		port, ipAddr);
 	goto fail;
     }
     __pmInitSockAddr(myAddr, ipAddr, htons(port));
-    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrInSize());
-    __pmFreeSockAddrIn(myAddr);
+    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+    __pmFreeSockAddr(myAddr);
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmBind: %s\n",
@@ -837,7 +837,7 @@ ClientLoop(void)
 		    if (cp == NULL)
 		    	continue;
 
-		    sts = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps);
+		    sts = __pmAccAddClient(cp->addr, &cp->denyOps);
 		    if (sts >= 0) {
 			cp->pduInfo.zero = 0;
 			cp->pduInfo.version = PDU_VERSION;
@@ -1190,15 +1190,15 @@ main(int argc, char *argv[])
 
 static int		 nBadHosts = 0;
 static int		 szBadHosts = 0;
-static __pmIPAddr	*badHost = NULL;
+static __pmSockAddr	**badHost = NULL;
 
 static int
-AddBadHost(struct __pmSockAddrIn *hostId)
+AddBadHost(struct __pmSockAddr *hostId)
 {
     int		i, need;
 
     for (i = 0; i < nBadHosts; i++)
-        if (__pmSockAddrInToIPAddr(hostId) == badHost[i])
+        if (__pmCompareSockAddr(hostId, badHost[i]) == 0)
 	    /* already there */
 	    return 0;
 
@@ -1206,19 +1206,24 @@ AddBadHost(struct __pmSockAddrIn *hostId)
     if (nBadHosts == szBadHosts) {
 	szBadHosts += 8;
 	need = szBadHosts * (int)sizeof(badHost[0]);
-	if ((badHost = (__pmIPAddr *)realloc(badHost, need)) == NULL) {
+	if ((badHost = (__pmSockAddr **)realloc(badHost, need)) == NULL) {
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
 	}
     }
-    badHost[nBadHosts++] = __pmSockAddrInToIPAddr(hostId);
+    badHost[nBadHosts++] = __pmDupSockAddr(hostId);
     return 1;
 }
 
 void
 ResetBadHosts(void)
 {
-    if (szBadHosts)
+    if (szBadHosts) {
+        while (nBadHosts > 0) {
+	    --nBadHosts;
+	    free (badHost[nBadHosts]);
+	}
 	free(badHost);
+    }
     nBadHosts = 0;
     szBadHosts = 0;
 }
@@ -1242,7 +1247,7 @@ CleanupClient(ClientInfo *cp, int sts)
 	 */
 	if (sts == PM_ERR_PERMISSION || sts == PM_ERR_CONNLIMIT) {
 	    if ( (msg = AddBadHost(cp->addr)) ) {
-		caddr = __pmSockAddrInToString(cp->addr);
+		caddr = __pmSockAddrToString(cp->addr);
 		fprintf(stderr, "access violation from host %s:\n", caddr);
 		free(caddr);
 	    }
@@ -1265,7 +1270,7 @@ CleanupClient(ClientInfo *cp, int sts)
      * count
      */
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
-        __pmAccDelClient(ClientIPAddr(cp));
+        __pmAccDelClient(cp->addr);
 
     pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
     DeleteClient(cp);

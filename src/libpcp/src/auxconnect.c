@@ -16,30 +16,28 @@
 #include "pmapi.h"
 #include "impl.h"
 
+#ifdef HAVE_SECURE_SOCKETS
 /*
  * Network Security Services (NSS) support
  */
-#ifdef HAVE_SECURE_SOCKETS
 #include <nss.h>
 #include <nspr.h>
 #include <private/pprio.h>
 
-struct __pmSockAddrIn {
+struct __pmSockAddr {
     PRNetAddr		sockaddr;
-};
-struct __pmInAddr {
-    PRNetAddr		inaddr;
 };
 struct __pmHostEnt {
     PRHostEnt		hostent;
     char		buffer[PR_NETDB_BUF_SIZE];
 };
 #else /* ! HAVE_SECURE_SOCKETS */
-struct __pmSockAddrIn {
-    struct sockaddr_in	sockaddr;
-};
-struct __pmInAddr {
-    struct in_addr	inaddr;
+struct __pmSockAddr {
+    union {
+        __uint16_t		family;
+        struct sockaddr_in	inet;
+        struct sockaddr_in6	ipv6;
+    } sockaddr;
 };
 struct __pmHostEnt {
     struct hostent	hostent;
@@ -49,44 +47,41 @@ struct __pmHostEnt {
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
-struct __pmHostEnt *
+__pmHostEnt *
 __pmAllocHostEnt(void)
 {
-    return malloc(sizeof(struct __pmHostEnt));
+    return malloc(sizeof(__pmHostEnt));
 }
 
 void
-__pmFreeHostEnt(struct __pmHostEnt *hostent)
+__pmFreeHostEnt(__pmHostEnt *hostent)
 {
     free(hostent);
 }
 
-struct __pmInAddr *
-__pmAllocInAddr(void)
+__pmSockAddr *
+__pmAllocSockAddr(void)
 {
-    return malloc(sizeof(struct __pmInAddr));
+    return calloc(1, sizeof(__pmSockAddr));
 }
 
-void
-__pmFreeInAddr(struct __pmInAddr *inaddr)
+__pmSockAddr *
+__pmDupSockAddr(const __pmSockAddr *sockaddr)
 {
-    free(inaddr);
-}
-
-struct __pmSockAddrIn *
-__pmAllocSockAddrIn(void)
-{
-    return malloc(sizeof(struct __pmSockAddrIn));
+    __pmSockAddr *new = malloc(sizeof(__pmSockAddr));
+    if (new)
+      *new = *sockaddr;
+    return new;
 }
 
 size_t
-__pmSockAddrInSize(void)
+__pmSockAddrSize(void)
 {
-    return sizeof(struct __pmSockAddrIn);
+    return sizeof(__pmSockAddr);
 }
 
 void
-__pmFreeSockAddrIn(struct __pmSockAddrIn *sockaddr)
+__pmFreeSockAddr(__pmSockAddr *sockaddr)
 {
     free(sockaddr);
 }
@@ -124,10 +119,10 @@ __pmInitSocket(int fd)
 }
 
 int
-__pmConnectTo(int fd, const struct __pmSockAddrIn *addr, int port)
+__pmConnectTo(int fd, const __pmSockAddr *addr, int port)
 {
     int sts, fdFlags = __pmGetFileStatusFlags(fd);
-    struct __pmSockAddrIn myAddr;
+    __pmSockAddr myAddr;
 
     myAddr = *addr;
     __pmSetPort(&myAddr, port);
@@ -273,8 +268,8 @@ __pmAuxConnectPMCD(const char *hostname)
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    struct __pmSockAddrIn myAddr;
-    struct __pmHostEnt	*servInfo;
+    __pmSockAddr myAddr;
+    __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags;
@@ -390,24 +385,27 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 }
  
 void
-__pmInitSockAddr(struct __pmSockAddrIn *addr, int address, int port)
+__pmInitSockAddr(__pmSockAddr *addr, int address, int port)
 {
+    /* TODO: IPv6 */
     memset(addr, 0, sizeof(*addr));
-    addr->sockaddr.sin_family = AF_INET;
-    addr->sockaddr.sin_addr.s_addr = address;
-    addr->sockaddr.sin_port = port;
+    addr->sockaddr.inet.sin_family = AF_INET;
+    addr->sockaddr.inet.sin_addr.s_addr = address;
+    addr->sockaddr.inet.sin_port = port;
 }
 
 void
-__pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
+__pmSetSockAddr(__pmSockAddr *addr, __pmHostEnt *he)
 {
-    memcpy(&addr->sockaddr.sin_addr, he->hostent.h_addr, he->hostent.h_length);
+    /* TODO: IPv6 */
+    memcpy(&addr->sockaddr.inet.sin_addr, he->hostent.h_addr, he->hostent.h_length);
 }
 
 void
-__pmSetPort(struct __pmSockAddrIn *addr, int port)
+__pmSetPort(__pmSockAddr *addr, int port)
 {
-    addr->sockaddr.sin_port = htons(port);
+    /* TODO: IPv6 */
+    addr->sockaddr.inet.sin_port = htons(port);
 }
 
 int
@@ -417,21 +415,24 @@ __pmListen(int fd, int backlog)
 }
 
 int
-__pmAccept(int fd, void *addr, __pmSockLen *addrlen)
+__pmAccept(int fd, __pmSockAddr *addr, __pmSockLen *addrlen)
 {
-    return accept(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return accept(fd, (struct sockaddr *)&addr->sockaddr.inet, addrlen);
 }
 
 int
-__pmBind(int fd, void *addr, __pmSockLen addrlen)
+__pmBind(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
 {
-    return bind(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return bind(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
 }
 
 int
-__pmConnect(int fd, void *addr, __pmSockLen addrlen)
+__pmConnect(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
 {
-    return connect(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return connect(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
 }
 
 int
@@ -531,13 +532,13 @@ __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 }
 
 char *
-__pmHostEntName(const struct __pmHostEnt *hostEntry)
+__pmHostEntName(const __pmHostEnt *hostEntry)
 {
     return hostEntry->hostent.h_name;
 }
 
-struct __pmHostEnt *
-__pmGetHostByName(const char *hostName, struct __pmHostEnt *hostEntry)
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry)
 {
     struct hostent *he = gethostbyname(hostName);
 
@@ -547,70 +548,83 @@ __pmGetHostByName(const char *hostName, struct __pmHostEnt *hostEntry)
     return hostEntry;
 }
 
-struct __pmHostEnt *
-__pmGetHostByAddr(struct __pmSockAddrIn *address, struct __pmHostEnt *hostEntry)
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *hostEntry)
 {
-    struct hostent *he = gethostbyaddr((void *)&address->sockaddr.sin_addr.s_addr,
-					sizeof(address->sockaddr.sin_addr.s_addr), AF_INET);
+    /* TODO: IPv6 */
+    struct hostent *he = gethostbyaddr((void *)&address->sockaddr.inet.sin_addr.s_addr,
+					sizeof(address->sockaddr.inet.sin_addr.s_addr), AF_INET);
     if (he == NULL)
 	return NULL;
     memcpy(&hostEntry->hostent, he, sizeof(*he));
     return hostEntry;
 }
 
-__pmIPAddr
-__pmHostEntGetIPAddr(const struct __pmHostEnt *he, int ix)
+__pmSockAddr *
+__pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 {
-    return ((struct in_addr *)he->hostent.h_addr_list[ix])->s_addr;
+    /* TODO: IPv6 */
+    __pmSockAddr* addr = __pmAllocSockAddr();
+    if (addr) {
+        addr->sockaddr.inet.sin_family = he->hostent.h_addrtype;
+	addr->sockaddr.inet.sin_addr = *(struct in_addr *)he->hostent.h_addr_list[ix];
+    }
+    return addr;
 }
 
-void
-__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+const char *
+__pmHostEntGetName(const __pmHostEnt *he, int ix)
 {
-    *addr = a;
+    return he->hostent.h_name;
 }
 
-__pmIPAddr *
-__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
+__pmSockAddr *
+__pmMaskSockAddr(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    *addr &= *mask;
+    /* TODO: IPv6 */
+    addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
     return addr;
 }
 
 int
-__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+__pmCompareSockAddr(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    return *addr1 - *addr2;
+    /* TODO: IPv6 */
+    return addr1->sockaddr.inet.sin_addr.s_addr - addr2->sockaddr.inet.sin_addr.s_addr;
 }
 
 int
-__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
-    return *addr == htonl(INADDR_LOOPBACK);
+    /* TODO: IPv6 */
+    return addr->sockaddr.inet.sin_addr.s_addr == htonl(INADDR_LOOPBACK);
 }
 
-__pmIPAddr
+__pmSockAddr *
 __pmLoopbackAddress(void)
 {
-    return htonl(INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmSockAddrInToIPAddr(const struct __pmSockAddrIn *inaddr)
-{
-    return inaddr->sockaddr.sin_addr.s_addr;
-}
-
-__pmIPAddr
-__pmInAddrToIPAddr(const struct __pmInAddr *inaddr)
-{
-    return inaddr->inaddr.s_addr;
+    /* TODO: IPv6 */
+    __pmSockAddr* addr = __pmAllocSockAddr();
+    if (addr) {
+        addr->sockaddr.inet.sin_family = AF_INET;
+	addr->sockaddr.inet.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    }
+    return addr;
 }
 
 int
-__pmIPAddrToInt(const __pmIPAddr *addr)
+__pmStringToSockAddr(const char *cp, __pmSockAddr *inp)
 {
-    return *addr;
+    /* TODO: IPv6 */
+    inp->sockaddr.family = AF_INET;
+#ifdef IS_MINGW
+    unsigned long in;
+    in = inet_addr(cp);
+    inp->sockaddr.inet.inaddr.s_addr = in;
+    return in == INADDR_NONE ? 0 : 1;
+#else
+    return inet_aton(cp, &inp->sockaddr.inet.sin_addr);
+#endif
 }
 
 /*
@@ -618,32 +632,13 @@ __pmIPAddrToInt(const __pmIPAddr *addr)
  * The caller must free the buffer.
  */
 char *
-__pmInAddrToString(struct __pmInAddr *address)
+__pmSockAddrToString(__pmSockAddr *addr)
 {
-    char *buf = inet_ntoa(address->inaddr);
-
+    /* TODO: IPv6 */
+    char *buf = inet_ntoa(addr->sockaddr.inet.sin_addr);
     if (buf == NULL)
 	return NULL;
     return strdup(buf);
-}
-
-int
-__pmStringToInAddr(const char *cp, struct __pmInAddr *inp)
-{
-#ifdef IS_MINGW
-    unsigned long in;
-    in = inet_addr(buf);
-    inaddr.s_addr = in;
-    return in == INADDR_NONE ? 0 : 1;
-#else
-    return inet_aton(cp, &inp->inaddr);
-#endif
-}
-
-char *
-__pmSockAddrInToString(struct __pmSockAddrIn *address)
-{
-    return __pmInAddrToString((struct __pmInAddr *)&address->sockaddr.sin_addr);
 }
 
 #else	/* NSS */
@@ -862,21 +857,22 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 }
  
 void
-__pmInitSockAddr(struct __pmSockAddrIn *addr, int address, int port)
+__pmInitSockAddr(__pmSockAddr *addr, int address, int port)
 {
     /* We expect the address and port number to be on network byte order.
        PR_InitializeNetAddr expects the port in host byte order.
-       The ip field of __pmSockAddrIn (PRNetAddr) must be in network byte order. */
+       The ip field of PRNetAddr must be in network byte order. */
     PRStatus prStatus = PR_InitializeNetAddr (PR_IpAddrNull, ntohs(port), &addr->sockaddr);
 
     if (prStatus != PR_SUCCESS)
 	__pmNotifyErr(LOG_ERR,
 		"__pmInitSockAddr: PR_InitializeNetAddr failure: %d\n", PR_GetError());
+    /* TODO: IPv6 */
     addr->sockaddr.inet.ip = address;
 }
 
 void
-__pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
+__pmSetSockAddr(__pmSockAddr *addr, __pmHostEnt *he)
 {
     PRUint16 port = 0;
     /* The port in the address is in network byte forder, but PR_EnumerateHostEnt expects it
@@ -889,7 +885,7 @@ __pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
 }
 
 void
-__pmSetPort(struct __pmSockAddrIn *addr, int port)
+__pmSetPort(__pmSockAddr *addr, int port)
 {
     if (addr->sockaddr.raw.family == PR_AF_INET)
         addr->sockaddr.inet.port = htons(port);
@@ -913,12 +909,12 @@ __pmListen(int fd, int backlog)
 }
 
 int
-__pmAccept(int fd, void *addr, __pmSockLen *addrlen)
+__pmAccept(int fd, __pmSockAddr *addr, __pmSockLen *addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
     if (nsprFd) {
         PRFileDesc *newSocket;
-	newSocket = PR_Accept(nsprFd, addr, PR_INTERVAL_NO_TIMEOUT);
+	newSocket = PR_Accept(nsprFd, &addr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
 	if (newSocket == NULL)
 	    return -1;
 	/* Add the accepted socket to the fd table. */
@@ -928,36 +924,39 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
     }
 
     /* We have a native fd */
-    return accept(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return accept(fd, (struct sockaddr *)&addr->sockaddr.inet, addrlen);
 }
 
 int
-__pmBind(int fd, void *addr, __pmSockLen addrlen)
+__pmBind(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
 
     if (nsprFd) {
         PRStatus prStatus;
-	prStatus = PR_Bind(nsprFd, (PRNetAddr *)addr);
+	prStatus = PR_Bind(nsprFd, &addr->sockaddr);
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 
     /* We have a native fd */
-    return bind(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return bind(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
 }
 
 int
-__pmConnect(int fd, void *addr, __pmSockLen addrlen)
+__pmConnect(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
     if (nsprFd) {
         PRStatus prStatus;
-	prStatus = PR_Connect(nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT);
+	prStatus = PR_Connect(nsprFd, &addr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 
     /* We have a native fd */
-    return connect(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    return connect(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
 }
 
 int
@@ -1227,86 +1226,92 @@ __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 }
 
 char *
-__pmHostEntName(const struct __pmHostEnt *he)
+__pmHostEntName(const __pmHostEnt *he)
 {
     return he->hostent.h_name;
 }
 
-struct __pmHostEnt *
-__pmGetHostByName(const char *hostName, struct __pmHostEnt *he)
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *he)
 {
     PRStatus prStatus = PR_GetHostByName(hostName, &he->buffer[0],
 					 PR_NETDB_BUF_SIZE, &he->hostent);
     return prStatus == PR_SUCCESS ? he : NULL;
 }
 
-struct __pmHostEnt *
-__pmGetHostByAddr(struct __pmSockAddrIn *address, struct __pmHostEnt *he)
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *he)
 {
     PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
 					 PR_NETDB_BUF_SIZE, &he->hostent);
     return prStatus == PR_SUCCESS ? he : NULL;
 }
 
-__pmIPAddr
-__pmHostEntGetIPAddr(const struct __pmHostEnt *he, int ix)
+__pmSockAddr *
+__pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 {
-    PRNetAddr address;
-    PRIntn rc = PR_EnumerateHostEnt(0, &he->hostent, 0, &address);
-    if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "__pmHostEntGetIPAddr: unable to obtain host address\n");
-	return 0;
+    __pmSockAddr* addr = __pmAllocSockAddr();
+    if (addr) {
+        PRIntn rc = PR_EnumerateHostEnt(ix, &he->hostent, 0, &addr->sockaddr);
+	if (rc < 0) {
+	    __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: unable to obtain host address\n");
+	    return 0;
+	}
     }
-    return address.inet.ip;
+    return addr;
 }
 
-void
-__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+const char *
+__pmHostEntGetName(const __pmHostEnt *he, int ix)
 {
-    *addr = a;
+    __pmSockAddr dummy;
+    PRIntn rc = PR_EnumerateHostEnt(ix, &he->hostent, 0, &dummy.sockaddr);
+    if (rc < 0) {
+      __pmNotifyErr(LOG_ERR, "__pmHostEntGetName: unable to obtain host name\n");
+      return 0;
+    }
+    return he->hostent.h_name;
 }
 
-__pmIPAddr *
-__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
+__pmSockAddr *
+__pmMaskSockAddr(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    *addr &= *mask;
+    /* TODO: IPv6 */
+    addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
     return addr;
 }
 
 int
-__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+__pmCompareSockAddr(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    return *addr1 - *addr2;
+    /* TODO: IPv6 */
+    return addr1->sockaddr.inet.ip - addr2->sockaddr.inet.ip;
 }
 
 int
-__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
-    return *addr == htonl(PR_INADDR_LOOPBACK);
+    /* TODO: IPv6 */
+    return addr->sockaddr.inet.ip == htonl(PR_INADDR_LOOPBACK);
 }
 
-__pmIPAddr
+__pmSockAddr *
 __pmLoopbackAddress(void)
 {
-    return htonl(PR_INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmSockAddrInToIPAddr(const struct __pmSockAddrIn *inaddr)
-{
-    return inaddr->sockaddr.inet.ip;
-}
-
-__pmIPAddr
-__pmInAddrToIPAddr(const struct __pmInAddr *inaddr)
-{
-    return inaddr->inaddr.inet.ip;
+    /* TODO: IPv6 */
+    __pmSockAddr* addr = __pmAllocSockAddr();
+    if (addr) {
+        addr->sockaddr.inet.family = PR_AF_INET;
+	addr->sockaddr.inet.ip = htonl(PR_INADDR_LOOPBACK);
+    }
+    return addr;
 }
 
 int
-__pmIPAddrToInt(const __pmIPAddr *addr)
+__pmStringToSockAddr(const char *cp, __pmSockAddr *inp)
 {
-    return *addr;
+    PRStatus prStatus = PR_StringToNetAddr(cp, &inp->sockaddr);
+    return (prStatus == PR_SUCCESS);
 }
 
 /*
@@ -1316,32 +1321,19 @@ __pmIPAddrToInt(const __pmIPAddr *addr)
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
 
 char *
-__pmInAddrToString(struct __pmInAddr *address)
+__pmSockAddrToString(__pmSockAddr *addr)
 {
     PRStatus	prStatus;
     char	*buf = malloc(PM_NET_ADDR_STRING_SIZE);
 
     if (buf) {
-	prStatus = PR_NetAddrToString(&address->inaddr, buf, PM_NET_ADDR_STRING_SIZE);
+	prStatus = PR_NetAddrToString(&addr->sockaddr, buf, PM_NET_ADDR_STRING_SIZE);
 	if (prStatus != PR_SUCCESS) {
 	    free(buf);
 	    return NULL;
 	}
     }
     return buf;
-}
-
-int
-__pmStringToInAddr(const char *cp, struct __pmInAddr *inp)
-{
-    PRStatus prStatus = PR_StringToNetAddr(cp, &inp->inaddr);
-    return (prStatus == PR_SUCCESS);
-}
-
-char *
-__pmSockAddrInToString(struct __pmSockAddrIn *address)
-{
-    return __pmInAddrToString((struct __pmInAddr *)address);
 }
 
 #endif	/* HAVE_SECURE_SOCKETS */

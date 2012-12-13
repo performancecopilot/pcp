@@ -15,7 +15,7 @@
 #include "pthread_barrier.h"
 #endif
 
-__pmIPAddr addr;
+__pmSockAddr *addr;
 
 static pthread_barrier_t barrier;
 
@@ -183,5 +183,6 @@ main()
     pthread_join(tid2, (void *)&msg); 
     if (msg != NULL) printf("tid2: %s\n", msg);
 
+    __pmFreeSockAddr(addr);
     exit(0);
 }

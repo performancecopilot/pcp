@@ -183,7 +183,7 @@ GetPort(char *file)
     FILE		*mapstream;
     int			sts;
     static int		port_base = -1;
-    struct __pmSockAddrIn *myAddr;
+    struct __pmSockAddr *myAddr;
     struct __pmHostEnt	*host;
 
     fd = __pmCreateSocket();
@@ -216,13 +216,13 @@ GetPort(char *file)
      * try to allocate ports from port_base.  If port already in use, add one
      * and try again.
      */
-    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
-	fprintf(stderr, "GetPort: __pmAllocSockAddrIn out of memory\n");
+    if ((myAddr = __pmAllocSockAddr()) == NULL) {
+	fprintf(stderr, "GetPort: __pmAllocSockAddr out of memory\n");
 	exit(1);
     }
     for (ctlport = port_base; ; ctlport++) {
         __pmInitSockAddr(myAddr, htonl(INADDR_ANY), htons(ctlport));
-	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrInSize());
+	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
 		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
@@ -232,7 +232,7 @@ GetPort(char *file)
 	else
 	    break;
     }
-    __pmFreeSockAddrIn(myAddr);
+    __pmFreeSockAddr(myAddr);
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	fprintf(stderr, "__pmListen: %s\n", netstrerror());
@@ -412,12 +412,12 @@ int
 control_req(void)
 {
     int			fd, sts;
-    struct __pmSockAddrIn *addr;
+    struct __pmSockAddr *addr;
     struct __pmHostEnt	*host;
     char		*abuf;
     __pmSockLen		addrlen;
 
-    if ((addr = __pmAllocSockAddrIn()) == NULL) {
+    if ((addr = __pmAllocSockAddr()) == NULL) {
 	fputs("error allocating space for client sockaddr\n", stderr);
 	return 0;
     }
@@ -425,11 +425,11 @@ control_req(void)
 	fputs("error allocating space for client hostent\n", stderr);
 	return 0;
     }
-    addrlen = __pmSockAddrInSize();
+    addrlen = __pmSockAddrSize();
     fd = __pmAccept(ctlfd, (void *)addr, &addrlen);
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
-	__pmFreeSockAddrIn(addr);
+	__pmFreeSockAddr(addr);
 	__pmFreeHostEnt(host);
 	return 0;
     }
@@ -443,7 +443,7 @@ control_req(void)
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
-	__pmFreeSockAddrIn(addr);
+	__pmFreeSockAddr(addr);
 	__pmFreeHostEnt(host);
 	__pmCloseSocket(fd);
 	return 0;
@@ -453,14 +453,14 @@ control_req(void)
     if (sts < 0) {
 	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
-	__pmFreeSockAddrIn(addr);
+	__pmFreeSockAddr(addr);
 	__pmFreeHostEnt(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
 
     if (__pmGetHostByAddr(addr, host) == NULL || strlen(__pmHostEntName(host)) > MAXHOSTNAMELEN-1) {
-	abuf = __pmSockAddrInToString(addr);
+	abuf = __pmSockAddrToString(addr);
         sprintf(pmlc_host, "%s", abuf);
 	free(abuf);
     }
@@ -469,11 +469,11 @@ control_req(void)
 	strcpy(pmlc_host, __pmHostEntName(host));
     }
 
-    sts = __pmAccAddClient(__pmSockAddrInToIPAddr(addr), &clientops);
+    sts = __pmAccAddClient(addr, &clientops);
     if (sts < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    abuf = __pmSockAddrInToString(addr);
+	    abuf = __pmSockAddrToString(addr);
 	    fprintf(stderr, "client addr: %s\n", abuf);
 	    free(abuf);
 	    __pmAccDumpHosts(stderr);
@@ -485,12 +485,12 @@ control_req(void)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
-	__pmFreeSockAddrIn(addr);
+	__pmFreeSockAddr(addr);
 	__pmFreeHostEnt(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
-    __pmFreeSockAddrIn(addr);
+    __pmFreeSockAddr(addr);
     __pmFreeHostEnt(host);
 
     /*

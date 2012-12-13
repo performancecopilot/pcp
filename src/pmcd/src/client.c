@@ -87,7 +87,7 @@ AcceptNewClient(int reqfd)
     struct timeval	now;
 
     i = NewClient();
-    addrlen = __pmSockAddrInSize();
+    addrlen = __pmSockAddrSize();
     fd = __pmAccept(reqfd, (void *)client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
@@ -128,15 +128,11 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
+    /* TODO: IPv6 -- how to trace an ip address??
     pmcd_trace(TR_ADD_CLIENT, ClientIPAddr(&client[i]), fd, client[i].seq);
+    */
 
     return &client[i];
-}
-
-__pmIPAddr
-ClientIPAddr(ClientInfo *cp)
-{
-    return __pmSockAddrInToIPAddr(cp->addr);
 }
 
 int
@@ -153,7 +149,7 @@ NewClient(void)
 	int j, sz;
 
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
-	sz = (sizeof(ClientInfo) + __pmSockAddrInSize()) * clientSize;
+	sz = (sizeof(ClientInfo) + __pmSockAddrSize()) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
 	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
@@ -162,10 +158,10 @@ NewClient(void)
 	}
 	baseaddr = (char *)client + (sizeof(ClientInfo) * clientSize);
 	for (j = i; j < clientSize; j++) {
-	    client[j].addr = (struct __pmSockAddrIn *)baseaddr;
+	    client[j].addr = (struct __pmSockAddr *)baseaddr;
 	    client[j].profile = NULL;
 	    client[j].szProfile = 0;
-	    baseaddr += __pmSockAddrInSize();
+	    baseaddr += __pmSockAddrSize();
 	}
     }
     if (i >= nClients)

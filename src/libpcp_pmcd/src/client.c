@@ -41,7 +41,7 @@ ShowClients(FILE *f)
 	fprintf(f, "    %3d  ", client[i].fd);
 
 	if (__pmGetHostByAddr(client[i].addr, host) == NULL) {
-	    sbuf = __pmSockAddrInToString(client[i].addr);
+	    sbuf = __pmSockAddrToString(client[i].addr);
 	    fprintf(f, "%s", sbuf);
 	    free(sbuf);
 	} else {

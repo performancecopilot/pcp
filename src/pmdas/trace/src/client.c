@@ -116,30 +116,22 @@ deleteClient(client_t *cp)
 void
 showClients(void)
 {
-    struct hostent	*hp;
+    struct __pmHostEnt	*hp;
     int			i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
+    hp = __pmAllocHostEnt();
     for (i=0; i < nclients; i++) {
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	hp = gethostbyaddr((void *)&clients[i].addr.sin_addr.s_addr,
-			sizeof(clients[i].addr.sin_addr.s_addr), AF_INET);
-	if (hp == NULL) {
-	    char	*p = (char *)&clients[i].addr.sin_addr.s_addr;
-	    int		k;
-
-	    for (k=0; k < 4; k++) {
-		if (k > 0)
-		    fputc('.', stderr);
-		fprintf(stderr, "%d", p[k] & 0xff);
-	    }
+	if (__pmGetHostByAddr(clients[i].addr, hp) == NULL) {
+	    fprintf(stderr, "%s", __pmSockAddrToString(clients[i].addr));
 	}
 	else
-	    fprintf(stderr, "%-40.40s", hp->h_name);
+	  fprintf(stderr, "%-40.40s", __pmHostEntGetName(hp, 0));
 	if (clients[i].denyOps != 0) {
 	    fprintf(stderr, "  ");
 	    if (clients[i].denyOps & TR_OP_SEND)

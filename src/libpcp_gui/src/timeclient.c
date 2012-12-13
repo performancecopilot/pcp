@@ -49,7 +49,7 @@ pmServerExec(int fd, int livemode)
 static int
 pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
-    struct __pmSockAddrIn *myaddr;
+    struct __pmSockAddr *myaddr;
     char buffer[4096];
     pmTime *ack;
     int sts;
@@ -58,17 +58,17 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
      * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
-    if ((myaddr = __pmAllocSockAddrIn()) == NULL) {
+    if ((myaddr = __pmAllocSockAddr()) == NULL) {
 	setoserror(ENOMEM);
 	goto error;
     }
 
     __pmInitSockAddr(myaddr, htonl(INADDR_LOOPBACK), htons(port));
-    if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrInSize())) < 0) {
+    if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
 	setoserror(neterror());
 	goto error;
     }
-    __pmFreeSockAddrIn(myaddr);
+    __pmFreeSockAddr(myaddr);
     myaddr = NULL;
 
     /*
@@ -101,7 +101,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 
 error:
     if (myaddr)
-	__pmFreeSockAddrIn(myaddr);
+	__pmFreeSockAddr(myaddr);
     __pmCloseSocket(fd);
     return -1;
 }

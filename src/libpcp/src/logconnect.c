@@ -74,7 +74,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct __pmSockAddrIn *myAddr;
+    struct __pmSockAddr *myAddr;
     struct __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
@@ -135,7 +135,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     if ((servInfo = __pmAllocHostEnt()) == NULL) {
 	return -ENOMEM;
     }
-    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
+    if ((myAddr = __pmAllocSockAddr()) == NULL) {
 	__pmFreeHostEnt(servInfo);
 	return -ENOMEM;
     }
@@ -149,7 +149,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
+	__pmFreeSockAddr(myAddr);
 	__pmFreeHostEnt(servInfo);
 	return -ECONNREFUSED;
     }
@@ -157,7 +157,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
+	__pmFreeSockAddr(myAddr);
 	__pmFreeHostEnt(servInfo);
 	return fd;
     }
@@ -166,9 +166,9 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     __pmSetSockAddr(myAddr, servInfo);
     PM_UNLOCK(__pmLock_libpcp);
 
-    sts = __pmConnect(fd, myAddr, __pmSockAddrInSize());
+    sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
 
-    __pmFreeSockAddrIn(myAddr);
+    __pmFreeSockAddr(myAddr);
     __pmFreeHostEnt(servInfo);
 
     if (sts < 0) {

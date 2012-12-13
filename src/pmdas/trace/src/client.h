@@ -21,7 +21,7 @@
 
 typedef struct {
     int			fd;		/* socket descriptor  */
-    struct sockaddr_in	addr;		/* address of client  */
+    struct __pmSockAddr	*addr;		/* address of client  */
     struct {				/* connection status  */
 	unsigned int	connected : 1;	/* client connected   */
 	unsigned int	version   : 8;	/* client pdu version */

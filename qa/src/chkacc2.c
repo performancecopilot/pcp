@@ -16,8 +16,7 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
-    struct __pmInAddr	*inaddr;
-    __pmIPAddr		ipaddr;
+    struct __pmSockAddr	*inaddr;
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++)
@@ -39,7 +38,7 @@ main()
     if (sts < 0)
 	exit(1);
 
-    if ((inaddr = __pmAllocInAddr()) == NULL) {
+    if ((inaddr = __pmAllocSockAddr()) == NULL) {
 	printf("insufficient memory\n");
 	exit(2);
     }
@@ -52,9 +51,8 @@ main()
 	for (j = 0; j <= host; j++) {
 	    char	buf[20];
 	    sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
-	    __pmStringToInAddr(buf, inaddr);
-	    ipaddr = __pmInAddrToIPAddr(inaddr);
-	    sts = __pmAccAddClient(ipaddr, &i);
+	    __pmStringToSockAddr(buf, inaddr);
+	    sts = __pmAccAddClient(inaddr, &i);
 	    if (sts < 0) {
 		if (j == host && sts == PM_ERR_CONNLIMIT)
 		    continue;
@@ -70,7 +68,7 @@ main()
 
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
-    __pmFreeInAddr(inaddr);
+    __pmFreeSockAddr(inaddr);
 
     exit(0);
 }

@@ -18,7 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 
-typedef struct __pmSockAddrIn SockAddrIn;
+struct __pmSockAddr;
 
 /* The table of clients, used by pmproxy */
 typedef struct {
@@ -30,7 +30,7 @@ typedef struct {
     char		*pmcd_hostname;	/* PMCD hostname */
     int			pmcd_port;	/* PMCD port */
     int			pmcd_fd;	/* PMCD socket descriptor */
-    SockAddrIn		*addr;		/* address of client */
+    struct __pmSockAddr	*addr;		/* address of client */
 } ClientInfo;
 
 extern ClientInfo	*client;		/* Array of clients */

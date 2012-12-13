@@ -20,8 +20,7 @@ main()
     unsigned int	perm;
     char		name[20];
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
-    struct __pmInAddr	*inaddr;
-    __pmIPAddr		ipaddr;
+    struct __pmSockAddr	*inaddr;
 
     /* there are 10 ops numbered from 0 to 9 */
     sts = 0;
@@ -80,7 +79,7 @@ main()
     if (sts < 0)
 	exit(1);
 
-    if ((inaddr = __pmAllocInAddr()) == NULL) {
+    if ((inaddr = __pmAllocSockAddr()) == NULL) {
 	printf("insufficient memory\n");
 	exit(2);
     }
@@ -96,10 +95,9 @@ main()
 			char	buf[20];
 			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
-			__pmStringToInAddr(buf, inaddr);
-			ipaddr = __pmInAddrToIPAddr(inaddr);
-			s = __pmAccAddClient(ipaddr, &perm);
-			host = __pmInAddrToString(inaddr);
+			__pmStringToSockAddr(buf, inaddr);
+			s = __pmAccAddClient(inaddr, &perm);
+			host = __pmSockAddrToString(inaddr);
 			if (s < 0) {
 			    fprintf(stderr, "from %s error: %s\n", host, pmErrStr(s));
 			    free(host);
@@ -109,6 +107,6 @@ main()
 			free(host);
 		    }
     
-    __pmFreeInAddr(inaddr);
+    __pmFreeSockAddr(inaddr);
     exit(0);
 }

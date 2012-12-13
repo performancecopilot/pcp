@@ -257,13 +257,13 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    struct __pmSockAddrIn *myaddr = NULL;
+    struct __pmSockAddr *myaddr = NULL;
     struct __pmHostEnt *servinfo = NULL;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
-    if ((myaddr = __pmAllocSockAddrIn()) == NULL)
+    if ((myaddr = __pmAllocSockAddr()) == NULL)
 	goto done;
     if ((servinfo = __pmAllocHostEnt()) == NULL)
 	goto done;
@@ -273,7 +273,7 @@ local_reconnector(files_t *file)
 	goto done;
     __pmInitSockAddr(myaddr, 0, htons(files->me.sock.port));
     __pmSetSockAddr(myaddr, servinfo);
-    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrInSize()) < 0) {
+    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmCloseSocket(fd);
 	goto done;
     }
@@ -281,7 +281,7 @@ local_reconnector(files_t *file)
 
 done:
     if (myaddr)
-	__pmFreeSockAddrIn(myaddr);
+	__pmFreeSockAddr(myaddr);
     if (servinfo)
 	__pmFreeHostEnt(servinfo);
 }
