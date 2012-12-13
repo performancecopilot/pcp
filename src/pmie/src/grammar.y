@@ -150,8 +150,10 @@ stmnt	: /* empty */
 	| IDENT '=' exp
 		{   parse = statement($1, $3);
 		    if ((agent || applet) && $3 != NULL &&
-			($3->op == RULE ||
-			 ($3->op >= ACT_SEQ && $3->op < NOP))) {
+			($3->op == RULE || $3->op == ACT_SEQ ||
+			 $3->op == ACT_ALT || $3->op == ACT_SHELL ||
+			 $3->op == ACT_ALARM || $3->op == ACT_SYSLOG ||
+			 $3->op == ACT_PRINT || $3->op == ACT_STOMP)) {
 			synerr();
 			fprintf(stderr, "operator %s not allowed in agent "
 					"mode\n", opStrings($3->op));

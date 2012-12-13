@@ -274,6 +274,12 @@ end-of-file
     fi
 
     $sudo cp $tmp.latest $PCP_PMCDCONF_PATH
+    # after non-root pmcd changes, the log files may be owned by
+    # root.root or pcp.pcp depending on the pattern of installs and
+    # pmcd restarts ... to be sure we can write the log files, remove
+    # any old ones before signalling pmcd
+    #
+    $sudo rm -f $PCP_LOG_DIR/pmcd/simple.log* $PCP_LOG_DIR/pmcd/broken.log* 
     $sudo $signal -a -s HUP pmcd >/dev/null 2>&1
     sleep 4
     _wait_for_pmcd
@@ -349,7 +355,8 @@ _check_agent()
     cat $tmp.fetch
     if grep warnings $tmp.fetch > /dev/null 2>&1
     then
-	num_warn=`cut -d' ' -f1 < $tmp.fetch`
+	# 5 warnings, 5 metrics and 0 values
+	num_warn=`sed -n -e '/warnings/s/ .*//p' < $tmp.fetch`
 	if [ "$num_warn" -gt 0 ]
 	then
 	    echo "Warnings when fetching $agent metrics:"

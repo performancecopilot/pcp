@@ -368,6 +368,10 @@ showConst(Expr *x)
 		length = concat(" ", length, &string);
 	    if (x->sem == SEM_TRUTH)
 		length = showTruth(x, i, length, &string);
+	    else if (x->sem == SEM_REGEX) {
+		/* regex is compiled, cannot recover original string */
+		length = concat("/<regex>/", length, &string);
+	    }
 	    else if (x->sem == SEM_CHAR) {
 		length = showString(x, length, &string);
 		/* tspan is string length, not an iterator in this case */
@@ -451,12 +455,12 @@ showSyn(FILE *f, Expr *x)
 	    fputc(' ', f);
 	    showSyn(f, x->arg1);
 	}
-	else if (x->op >= CND_PCNT_HOST && x->op <= CND_PCNT_TIME) {
+	else if (x->op == CND_PCNT_HOST || x->op == CND_PCNT_INST || x->op == CND_PCNT_TIME) {
 	    showSyn(f, x->arg2);
 	    fputc(' ', f);
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
-	    if (x->arg1->op >= NOP || x->arg1->op <= CND_DELAY)
+	    if (x->arg1->op >= NOP || x->arg1->op == CND_DELAY || x->arg1->op == CND_FETCH)
 		showSyn(f, x->arg1);
 	    else {
 		fputc('(', f);
@@ -464,10 +468,19 @@ showSyn(FILE *f, Expr *x)
 		fputc(')', f);
 	    }
 	}
+	else if (x->op == CND_MATCH || x->op == CND_NOMATCH) {
+	    fputs(opStrings(x->op), f);
+	    fputc(' ', f);
+	    showSyn(f, x->arg2);
+	    fputc(' ', f);
+	    fputc('(', f);
+	    showSyn(f, x->arg1);
+	    fputc(')', f);
+	}
 	else {
 	    paren = 1 -
-		    (x->arg1->op >= NOP || x->arg1->op <= CND_DELAY ||
-		     x->op == RULE);
+		    (x->arg1->op >= NOP || x->arg1->op == CND_DELAY ||
+		     x->arg1->op == CND_FETCH || x->op == RULE);
 	    if (paren)
 		fputc('(', f);
 	    showSyn(f, x->arg1);
@@ -477,8 +490,8 @@ showSyn(FILE *f, Expr *x)
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
 	    paren = 1 -
-		    (x->arg2->op >= NOP || x->arg2->op <= CND_DELAY ||
-		     x->op == RULE);
+		    (x->arg2->op >= NOP || x->arg2->op == CND_DELAY ||
+		     x->arg2->op == CND_FETCH || x->op == RULE);
 	    if (paren)
 		fputc('(', f);
 	    showSyn(f, x->arg2);
@@ -572,23 +585,31 @@ findBindings(Expr *x)
 	if (x->op == CND_SUM_HOST || x->op == CND_SUM_INST || x->op == CND_SUM_TIME ||
 	    x->op == CND_AVG_HOST || x->op == CND_AVG_INST || x->op == CND_AVG_TIME ||
 	    x->op == CND_MAX_HOST || x->op == CND_MAX_INST || x->op == CND_MAX_TIME ||
-	    x->op == CND_MIN_HOST || x->op == CND_MIN_INST || x->op == CND_MIN_TIME)
+	    x->op == CND_MIN_HOST || x->op == CND_MIN_INST || x->op == CND_MIN_TIME ||
+	    x->op == CND_COUNT_HOST || x->op == CND_COUNT_INST || x->op == CND_COUNT_TIME)
 	    /*
 	     * don't descend below an aggregation operator with a singular
 	     * value, ... value you seek is right here
 	     */
 	    break;
-	if (x->arg1 && x->metrics == x->arg1->metrics)
+	if (x->arg1 && x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-	else if (x->arg2)
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findBindings: try x->arg1=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
+	else if (x->arg2) {
 	    x = x->arg2;
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findBindings: try x->arg2=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
 	else
 	    break;
-#if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "findBindings: try x=" PRINTF_P_PFX "%p\n", x);
-	}
-#endif
     }
     return x;
 }
@@ -605,15 +626,22 @@ findValues(Expr *x)
     }
 #endif
     while (x->sem == SEM_TRUTH && x->metrics) {
-	if (x->metrics == x->arg1->metrics)
+	if (x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
-	else
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findValues: try x->arg1=" PRINTF_P_PFX "%p\n", x);
+	    }
+#endif
+	}
+	else {
 	    x = x->arg2;
 #if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "findValues: try x=" PRINTF_P_PFX "%p\n", x);
-	}
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findValues: try x->arg2=" PRINTF_P_PFX "%p\n", x);
+	    }
 #endif
+	}
     }
     return x;
 }
@@ -791,10 +819,18 @@ showSatisfyingValue(FILE *f, Expr *x)
 
     x1 = findBindings(x);
     x2 = findValues(x1);
+    if (!x1->valid) {
+	/*
+	 * subexpression for %h, %i and %v is not valid but rule is
+	 * true, return string without substitution ... rare case
+	 * for <bad-or-not evaluated expr> || <true expr> rule
+	 */
+	concat(" <no bindings available>", length, &string);
+	goto done;
+    }
 
     /* construct string representation */
     for (i = 0; i < x1->tspan; i++) {
-	if (!x1->valid) continue;
 	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
 	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    length = concat("\n    ", length, &string);
@@ -814,6 +850,7 @@ showSatisfyingValue(FILE *f, Expr *x)
 	}
     }
 
+done:
     /* print string representation */
     if (string) {
 	fputs(string, f);
@@ -846,11 +883,23 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     if ((sts1 = findFormat(format, &first)) == 0)
 	return concat(format, length, string);
 
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "formatSatisfyingValue: curr=" PRINTF_P_PFX "%p\n", curr);
+	dumpExpr(curr);
+    }
+#endif
     x1 = findBindings(curr);
     x2 = findValues(x1);
+    if (!x1->valid)
+	/*
+	 * subexpression for %h, %i and %v is not valid but rule is
+	 * true, return string without substitution ... rare case
+	 * for <bad-or-not evaluated expr> || <true expr> rule
+	 */
+	return concat(format, length, string);
 
     for (i = 0; i < x1->tspan; i++) {
-	if (!x1->valid) continue;
 	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
 	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    prev = format;
@@ -867,13 +916,13 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 		    if (host)
 			length = concat(host, length, string);
 		    else
-			length = concat("??? unknown %h", length, string);
+			length = concat("<%h undefined>", length, string);
 		    break;
 		case 2:
 		    if (inst)
 			length = concat(inst, length, string);
 		    else
-			length = concat("??? unknown %i", length, string);
+			length = concat("<%i undefined>", length, string);
 		    break;
 		case 3:
 		    if (x2->sem == SEM_TRUTH)

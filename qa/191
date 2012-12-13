@@ -12,13 +12,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_notrun "Temporarily disabled in dev branch - work in progress"
-
 _filter()
 {
     tee $seq.full \
     | sed \
-	-e 's/ :[^ ]* @0/ :HOST @0/' \
+	-e 's/ :[^ ]* / :HOST /' \
+	-e 's/ :HOST @0/ :HOST /' \
 	-e '/(pmie)/s/pmie), .*/pmie), VERSION/' \
 	-e 's/pmie?/pmie>/g' \
 	-e '/^pmie> $/d'
