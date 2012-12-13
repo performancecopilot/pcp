@@ -51,16 +51,16 @@ delegates most of this request servicing to
 a collection of Performance Metrics Domain Agents 
 (or just agents), where each agent is responsible for a particular group of
 metrics, known as the domain of the agent.  For example the
-.B environ
+.B postgresql
 agent is responsible for
-reporting information relating to the environment of a Challenge
-system, such as the
-cabinet temperature and voltage levels of the power supply.
+reporting information relating to the PostgreSQL database,
+such as the transaction and query counts, indexing and replication statistics,
+and so on.
 .PP
 The agents may be processes started by
 .BR pmcd ,
 independent processes or Dynamic Shared Objects (DSOs, see
-.BR dso (5))
+.BR dlopen (3))
 attached to
 .BR pmcd 's
 address space.
