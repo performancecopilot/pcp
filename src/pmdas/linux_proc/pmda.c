@@ -515,15 +515,15 @@ pmdaMetric proc_metrictab[] = {
 /* proc.io.read_bytes */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,4), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 /* proc.io.write_bytes */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,5), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 /* proc.io.cancelled_write_bytes */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,6), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /*
  * proc.runq cluster
