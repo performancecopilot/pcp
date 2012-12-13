@@ -34,11 +34,6 @@ typedef struct {
     __pmPDUInfo		pduInfo;
     unsigned int	seq;		/* client sequence number */
     time_t		start;		/* time client connected */
-    /* There is an array of addresses appended to the clientinfo array,
-     * this pointer indicates the offset therein for each clients address.
-     * This allows a single contiguous client memory (re)allocation without
-     * knowing the size of __pmSockAddr in advance (depends on build options).
-     */
     struct __pmSockAddr	*addr;		/* Address of client */
 } ClientInfo;
 

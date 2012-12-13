@@ -145,7 +145,6 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
-	char *baseaddr;
 	int j, sz;
 
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
@@ -156,14 +155,13 @@ NewClient(void)
 	    Shutdown();
 	    exit(1);
 	}
-	baseaddr = (char *)client + (sizeof(ClientInfo) * clientSize);
 	for (j = i; j < clientSize; j++) {
-	    client[j].addr = (struct __pmSockAddr *)baseaddr;
+	    client[j].addr = NULL;
 	    client[j].profile = NULL;
 	    client[j].szProfile = 0;
-	    baseaddr += __pmSockAddrSize();
 	}
     }
+    client[i].addr = __pmAllocSockAddr();
     if (i >= nClients)
 	nClients = i + 1;
     return i;
@@ -211,6 +209,8 @@ DeleteClient(ClientInfo *cp)
 	    cp->profile[i] = NULL;
 	}
     }
+    __pmFreeSockAddr(cp->addr);
+    cp->addr = NULL;
     cp->status.connected = 0;
     cp->fd = -1;
 
