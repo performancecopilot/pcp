@@ -12,8 +12,6 @@
 
 seq=`basename $0`
 
-_notrun "Temporarily disabled in dev branch - work in progress"
-
 echo "QA output created by $seq"
 
 status=0	# success is the default!
@@ -22,8 +20,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 ./getpmcdhosts -L -v 'pcp>=2' -n 2 -a sample 2>$tmp.err \
 | sed >$tmp.config \
+    -e 's/^/ /' \
     -e "s/ \([^ ][^ ]*\)/ :'\1'/g" \
-    -e 's/^/hosts = "/' \
+    -e 's/^ /hosts = "/' \
     -e 's/$/";/'
 [ -s $tmp.err ] && _notrun `cat $tmp.err`
 
