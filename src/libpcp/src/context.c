@@ -583,7 +583,7 @@ pmDupContext(void)
 	goto done;
     }
     oldcon = contexts[old];
-    oldtype = oldcon->c_type & oldcon->c_flags;
+    oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
 	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
