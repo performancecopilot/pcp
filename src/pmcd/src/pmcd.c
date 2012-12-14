@@ -843,6 +843,7 @@ ClientLoop(void)
 			cp->pduInfo.licensed = 1;
 #ifdef HAVE_SECURE_SOCKETS
 			cp->pduInfo.features |= PDU_FLAG_SECURE;
+			cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 #endif
 			challenge = *(int*)(&cp->pduInfo);
 			sts = 0;

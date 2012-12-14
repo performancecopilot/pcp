@@ -141,6 +141,14 @@ __pmConnectHandshake(int fd, int ctxflags)
 			return -EOPNOTSUPP;
 		    }
 		}
+		if (ctxflags & PM_CTXFLAG_COMPRESS) {
+		    if (pduinfo.features & PDU_FLAG_COMPRESS)
+			pduflags |= PDU_FLAG_COMPRESS;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
 	    }
 
 	    /*
@@ -159,12 +167,12 @@ __pmConnectHandshake(int fd, int ctxflags)
 	    sts = __pmSendCreds(fd, (int)getpid(), 1, (__pmCred *)&handshake);
 
 	    /*
-	     * At this point we know caller wants a secure channel and pmcd
-	     * supports it so go ahead and mark this socket as secure (this
-	     * completes the SSL handshake).
+	     * At this point we know caller wants to set channel options and
+	     * pmcd supports them so go ahead and update the socket now (this
+	     * completes the SSL handshake in encrypting mode).
 	     */
-	    if (sts >= 0 && (ctxflags & PM_CTXFLAG_SECURE))
-		sts = __pmSetSecureClientIPC(fd);
+	    if (sts >= 0 && pduflags)
+		sts = __pmSetClientIPCFlags(fd, pduflags);
 	}
 	else
 	    sts = PM_ERR_IPC;

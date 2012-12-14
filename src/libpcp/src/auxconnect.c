@@ -790,7 +790,7 @@ __pmCloseSocket(int fd)
 }
 
 int
-__pmSetSecureClientIPC(int fd)
+__pmSetClientIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
@@ -801,17 +801,35 @@ __pmSetSecureClientIPC(int fd)
 	return -EOPNOTSUPP;
 
     if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "SecureClientIPC: importing socket into SSL");
+	__pmNotifyErr(LOG_ERR, "SetClientIPCFlags: importing socket into SSL");
 	return PM_ERR_IPC;
     }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureClientIPC: requesting SSL security");
-	return PM_ERR_IPC;
+
+    if ((flags & PDU_FLAG_SECURE) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetClientIPCFlags: requesting SSL security");
+	    return PM_ERR_IPC;
+	}
+	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetClientIPCFlags: setting server handshake");
+	    return PM_ERR_IPC;
+	}
     }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
+
+    if ((flags & PDU_FLAG_COMPRESS) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetClientIPCFlags: enabling compression");
+	    return PM_ERR_IPC;
+	}
+    }
+
+    /* Client responds to handshake now */
+    secsts = SSL_ForceHandshake(socket.sslFd);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: setting server handshake");
+	__pmNotifyErr(LOG_ERR, "SetClientIPCFlags: error forcing SSL handshake");
 	return PM_ERR_IPC;
     }
 
@@ -820,7 +838,7 @@ __pmSetSecureClientIPC(int fd)
 }
 
 int
-__pmSetSecureServerIPC(int fd)
+__pmSetServerIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
@@ -831,34 +849,51 @@ __pmSetSecureServerIPC(int fd)
 	return -EOPNOTSUPP;
 
     if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: importing socket into SSL");
+	__pmNotifyErr(LOG_ERR, "SetServerIPCFlags: importing socket into SSL");
 	return PM_ERR_IPC;
     }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+
+    secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: requesting SSL security");
+	__pmNotifyErr(LOG_ERR, "SetServerIPCFlags: disabling socket locking");
 	return PM_ERR_IPC;
     }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: setting server handshake");
-	return PM_ERR_IPC;
+
+    if ((flags & PDU_FLAG_SECURE) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: requesting SSL security");
+	    return PM_ERR_IPC;
+	}
+	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: setting server handshake");
+	    return PM_ERR_IPC;
+	}
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: unset server request cert");
+	    return PM_ERR_IPC;
+	}
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: unset server require cert");
+	    return PM_ERR_IPC;
+	}
     }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: unset client request cert");
-	return PM_ERR_IPC;
-    }
-    secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: unset server require cert");
-	return PM_ERR_IPC;
+
+    if ((flags & PDU_FLAG_COMPRESS) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	if (secsts != SECSuccess) {
+	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: enabling compression");
+	    return PM_ERR_IPC;
+	}
     }
 
     /* Server inititiates the handshake */
     secsts = SSL_ForceHandshake(socket.sslFd);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SecureServerIPC: error forcing SSL handshake");
+	__pmNotifyErr(LOG_ERR, "SetServerIPCFlags: error forcing SSL handshake");
 	return PM_ERR_IPC;
     }
 

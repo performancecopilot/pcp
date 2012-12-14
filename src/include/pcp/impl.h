@@ -502,8 +502,8 @@ extern void __pmConnectGetPorts(pmHostSpec *);
 /*
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
-extern int __pmSetSecureClientIPC(int);
-extern int __pmSetSecureServerIPC(int);
+extern int __pmSetClientIPCFlags(int, int);
+extern int __pmSetServerIPCFlags(int, int);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef unsigned long __pmIPAddr;
@@ -665,7 +665,8 @@ typedef struct {
 } __pmCred;
 
 /* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
-#define PDU_FLAG_SECURE	0x1
+#define PDU_FLAG_SECURE		(1U<<0)
+#define PDU_FLAG_COMPRESS	(1U<<1)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {

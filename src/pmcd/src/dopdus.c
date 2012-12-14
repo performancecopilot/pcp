@@ -1034,8 +1034,7 @@ done:
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
-    int			i, sts, flags = 0, credcount = 0;
-    int			sender = 0;
+    int			i, sts, flags = 0, version = 0, sender = 0, credcount = 0;
     __pmCred		*credlist = NULL;
     __pmVersionCred	*vcp;
 
@@ -1050,7 +1049,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	    case CVERSION:
 		vcp = (__pmVersionCred *)&credlist[i];
 		flags = vcp->c_flags;
-		sts = __pmSetVersionIPC(cp->fd, vcp->c_version);
+		version = vcp->c_version;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
 		    fprintf(stderr, "pmcd: version cred (%u)\n", vcp->c_version);
@@ -1065,14 +1064,14 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		sts = PM_ERR_IPC;
 		break;
 	}
-
     }
     if (credlist != NULL)
 	free(credlist);
 
-    /* Feature test: has a secure (encrypted) connection been requested? */
-    if (sts >= 0 && (flags & PDU_FLAG_SECURE))
-	sts = __pmSetSecureServerIPC(cp->fd);
+    if (sts >= 0 && version)
+	sts = __pmSetVersionIPC(cp->fd, version);
+    if (sts >= 0 && flags)
+	sts = __pmSetServerIPCFlags(cp->fd, flags);
 
     return sts;
 }
