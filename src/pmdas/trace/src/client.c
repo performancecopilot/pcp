@@ -36,8 +36,8 @@ acceptClient(int reqfd)
     __pmSockLen	addrlen;
 
     i = newClient();
-    addrlen = sizeof(clients[i].addr);
-    fd = accept(reqfd, (struct sockaddr *)&clients[i].addr, &addrlen);
+    addrlen = __pmSockAddrSize();
+    fd = __pmAccept(reqfd, clients[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "acceptClient(%d) accept: %s",
 		reqfd, netstrerror());
@@ -56,7 +56,7 @@ acceptClient(int reqfd)
 static int
 newClient(void)
 {
-    int	i;
+  int	i, j;
 
     for (i = 0; i < nclients; i++)
 	if (!clients[i].status.connected)
@@ -69,7 +69,10 @@ newClient(void)
 	    __pmNoMem("newClient", sizeof(client_t)*clientsize, PM_RECOV_ERR);
 	    exit(1);
 	}
+	for (j = i; j < clientsize; j++)
+	    clients[j].addr = NULL;
     }
+    clients[i].addr = __pmAllocSockAddr();
     if (i >= nclients)
 	nclients = i + 1;
     return i;
@@ -103,6 +106,8 @@ deleteClient(client_t *cp)
 	    if (clients[i].fd > maxfd)
 		maxfd = clients[i].fd;
     }
+    __pmFreeSockAddr(clients[i].addr);
+    clients[i].addr = NULL;
     cp->status.connected = 0;
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
