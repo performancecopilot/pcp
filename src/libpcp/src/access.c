@@ -280,10 +280,10 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    if (ipIx != 0) {
 	        ipIx += sprintf(ip + ipIx, ".");
 		maskIx += sprintf(mask + maskIx, ".");
-		--level;
 	    }
 	    ipIx += sprintf(ip + ipIx, "%d", n);
-	    maskIx += sprintf(mask + maskIx, "127");
+	    maskIx += sprintf(mask + maskIx, "255");
+	    --level;
 	}
 	/* Check the wildcard level, 0 is exact match, 4 is most general */
 	if (level < 1) {
@@ -545,11 +545,11 @@ __pmAccDumpHosts(FILE *stream)
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fprintf(stream, "%02d ", i);
-    fprintf(stream, "Cur/MaxCons host-spec host-mask lvl host-name\n");
+    fprintf(stream, "Cur/MaxCons host-spec       host-mask       lvl host-name\n");
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fputs("== ", stream);
-    fprintf(stream, "=========== ========= ========= === ==============\n");
+    fprintf(stream, "=========== =============== =============== === ==============\n");
     for (h = 0; h < nhosts; h++) {
 	hp = &hostlist[h];
 
@@ -563,7 +563,7 @@ __pmAccDumpHosts(FILE *stream)
 		}
 	    }
 	}
-	fprintf(stream, "%5d %5d  %s  %s %3d %s\n", hp->curcons, hp->maxcons,
+	fprintf(stream, "%5d %5d %-15s %-15s %3d %s\n", hp->curcons, hp->maxcons,
 		__pmSockAddrToString(hp->hostid), __pmSockAddrToString(hp->hostmask), hp->level, hp->hostspec);
     }
     putc('\n', stream);
