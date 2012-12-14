@@ -87,7 +87,12 @@ _filter_me()
 
 _filter_pmproxy()
 {
-    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^__pmSetDataIPC:/d' -e '/^IPC table fd/d'
+    sed \
+	-e '/^__pmSetSocketIPC: fd=/d' \
+	-e '/^__pmSetDataIPC:/d' \
+	-e '/^__pmDataIPC: /d' \
+	-e '/^IPC table fd/d' \
+
 }
 
 _do()

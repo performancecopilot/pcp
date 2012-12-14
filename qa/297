@@ -79,6 +79,7 @@ _filter_pmproxy()
 {
     sed -e '/^__pmSetSocketIPC: fd=/d' \
         -e '/^__pmSetDataIPC: fd=/d' \
+        -e '/^__pmDataIPC: fd=/d' \
         -e '/^IPC table fd/d' \
 	-e '/^__pmSetVersionIPC: fd=/d'
 }
