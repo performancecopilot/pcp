@@ -1,0 +1,40 @@
+QA output created by 517
+Usage cases ...
+Usage: _clean_config_dir [-v] new_dir old_dir ...
+Usage: _clean_config_dir [-v] new_dir old_dir ...
+Usage: _clean_config_dir [-v] new_dir old_dir ...
+
+No dirs exist
++ mkdir /TMP.new
+_clean_config_dir: Warning: dir argument old1 does not exist
+_clean_config_dir: Warning: dir argument old2 does not exist
+
+Empty new dir, harvest all, no name matches
++ cp -p /TMP.old1/foo /TMP.new/foo
++ cp -p /TMP.old1/bar /TMP.new/bar
++ cp -p /TMP.old2/fumble /TMP.new/fumble
++ cp -p /TMP.old2/stumble /TMP.new/stumble
++ cp -p /TMP.old2/mumble /TMP.new/mumble
+bar: bar
+foo: foo
+fumble: fumble
+mumble: mumble
+stumble: stumble
+
+All names match, some older files
++ cp -p /TMP.old2/mumble /TMP.new/mumble
+bar: newer bar
+foo: foo
+fumble: fumble
+mumble: newer mumble
+stumble: stumble
+
+Hybid cases
++ cp -p /TMP.old1/foo /TMP.new/foo
++ cp -p /TMP.old2/foo /TMP.new/foo
++ cp -p /TMP.old2/fumble /TMP.new/fumble
+bar: newer bar
+foo: foo
+fumble: fumble
+mumble: newer mumble
+stumble: stumble
