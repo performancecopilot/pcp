@@ -3,7 +3,7 @@
 # Test logic for config file migration, harvesting, cleanup as
 # part of a packaged install.
 #
-# Copyright (c) 2012 [who are you?].  All Rights Reserved.
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
 #
 
 # get standard environment, filters and checks
