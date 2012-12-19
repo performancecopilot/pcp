@@ -172,7 +172,7 @@ __pmConnectHandshake(int fd, int ctxflags)
 	     * completes the SSL handshake in encrypting mode).
 	     */
 	    if (sts >= 0 && pduflags)
-		sts = __pmSetClientIPCFlags(fd, pduflags);
+		sts = __pmSecureClientHandshake(fd, pduflags);
 	}
 	else
 	    sts = PM_ERR_IPC;

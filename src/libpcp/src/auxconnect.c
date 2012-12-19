@@ -385,12 +385,22 @@ __pmDataIPCSize(void)
 int
 __pmSetSecureClientIPC(int fd)
 {
+    (void)fd;
     return -EOPNOTSUPP;
 }
 
 int
 __pmSetSecureServerIPC(int fd)
 {
+    (void)fd;
+    return -EOPNOTSUPP;
+}
+
+int
+__pmSecureClientHandshake(int fd, int flags)
+{
+    (void)fd;
+    (void)flags;
     return -EOPNOTSUPP;
 }
 
@@ -826,15 +836,31 @@ __pmSetClientIPCFlags(int fd, int flags)
 	}
     }
 
-    /* Client responds to handshake now */
-    secsts = SSL_ForceHandshake(socket.sslFd);
+    /* save changes back into the IPC table (updates client sslFd) */
+    return __pmSetDataIPC(fd, (void *)&socket);
+}
+
+int
+__pmSecureClientHandshake(int fd, int flags)
+{
+    PRFileDesc *sslsocket;
+    SECStatus secsts;
+    int sts;
+
+    if ((sts = __pmSetClientIPCFlags(fd, flags)) < 0)
+	return sts;
+
+    sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
+    if (!sslsocket)
+	return -EINVAL;
+
+    secsts = SSL_ResetHandshake(sslsocket, PR_FALSE /*client*/);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SetClientIPCFlags: error forcing SSL handshake");
+	__pmNotifyErr(LOG_ERR, "SecureClientHandshake: SSL handshake reset");
 	return PM_ERR_IPC;
     }
 
-    /* save changes back into the IPC table (updates client sslFd) */
-    return __pmSetDataIPC(fd, (void *)&socket);
+    return 0;
 }
 
 void *
