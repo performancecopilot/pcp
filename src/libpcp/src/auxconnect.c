@@ -837,6 +837,16 @@ __pmSetClientIPCFlags(int fd, int flags)
     return __pmSetDataIPC(fd, (void *)&socket);
 }
 
+void *
+__pmGetSecureSocket(int fd)
+{
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) < 0)
+	return NULL;
+    return (void *)socket.sslFd;
+}
+
 int
 __pmSetServerIPCFlags(int fd, int flags)
 {
@@ -888,13 +898,6 @@ __pmSetServerIPCFlags(int fd, int flags)
 	    __pmNotifyErr(LOG_ERR, "SetServerIPCFlags: enabling compression");
 	    return PM_ERR_IPC;
 	}
-    }
-
-    /* Server inititiates the handshake */
-    secsts = SSL_ForceHandshake(socket.sslFd);
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "SetServerIPCFlags: error forcing SSL handshake");
-	return PM_ERR_IPC;
     }
 
     /* save changes back into the IPC table (updates server sslFd) */

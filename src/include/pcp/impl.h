@@ -504,6 +504,7 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  */
 extern int __pmSetClientIPCFlags(int, int);
 extern int __pmSetServerIPCFlags(int, int);
+extern void *__pmGetSecureSocket(int);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef unsigned long __pmIPAddr;

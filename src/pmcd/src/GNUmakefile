@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -16,13 +17,28 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmcd$(EXECSUFFIX)
-HFILES = client.h pmcd.h
+HFILES = client.h pmcd.h secure.h
 CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
 LCFLAGS += $(PIECFLAGS)
+
+ifneq "$(LIB_FOR_SSL)" ""
+CFILES += secure.c
+LLDLIBS += $(LIB_FOR_SSL)
+else
+LSRCFILES += secure.c
+endif
+ifneq "$(LIB_FOR_NSS)" ""
+LCFLAGS += $(NSSCFLAGS)
+LLDLIBS += $(LIB_FOR_NSS)
+endif
+ifneq "$(LIB_FOR_NSPR)" ""
+LCFLAGS += $(NSPRCFLAGS)
+LLDLIBS += $(LIB_FOR_NSPR)
+endif
 
 default:	$(CMDTARGET)
 

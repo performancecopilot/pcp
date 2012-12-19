@@ -60,15 +60,15 @@ typedef struct {
     int	  port;				/* Port number if an INET socket */
     char  *name;			/* Port name if supplied for INET */
 					/* or socket name for UNIX */
-    char  *commandLine;			/* Optinal command to start agent */
+    char  *commandLine;			/* Optional command to start agent */
     char* *argv;			/* Arg list built from commandLine */
-    pid_t agentPid;			/* Process is of agent if PMCD started */
+    pid_t agentPid;			/* Process ID of agent if PMCD started */
 } SocketInfo;
 
 typedef struct {
     char* commandLine;			/* Command line to use for child */
     char* *argv;			/* Arg list built from command line */
-    pid_t agentPid;			/* Process id of the agent */
+    pid_t agentPid;			/* Process ID of the agent */
 } PipeInfo;
 
 /* The agent table and its size. */

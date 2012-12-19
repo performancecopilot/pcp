@@ -13,9 +13,8 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "impl.h"
 #include "pmcd.h"
+#include "secure.h"
 
 /* Check returned error from a client.
  * If client returns ready/not_ready status change, check then update agent
@@ -1071,7 +1070,6 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
     if (sts >= 0 && flags)
-	sts = __pmSetServerIPCFlags(cp->fd, flags);
-
+	sts = __pmSecureServerHandshake(cp->fd, flags);
     return sts;
 }
