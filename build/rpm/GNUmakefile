@@ -70,7 +70,7 @@ pcp.spec.head: pcp.spec.head.in
 
 pcp.spec: pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail
 	rm -f $@
-	cat $? >$@
+	cat $^ >$@
 
 fedora.spec.head: fedora.spec.head.in
 	@echo Generating $@ from $?; \
@@ -79,7 +79,7 @@ fedora.spec.head: fedora.spec.head.in
 
 fedora.spec: fedora.spec.head ../../debian/cleanconfigs fedora.spec.tail
 	rm -f $@
-	cat $? >$@
+	cat $^ >$@
 
 include $(BUILDRULES)
 

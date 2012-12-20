@@ -218,4 +218,4 @@ endif
 
 pcp.preinst:	pcp.preinst.head cleanconfigs pcp.preinst.tail
 	rm -f $@
-	cat $? >$@
+	cat $^ >$@
