@@ -20,7 +20,7 @@ CFILES	= pmstat.c
 LSRCFILES = pmlogger.config
 LDIRT = $(CMDTARGET)
 
-PMLOGGERCONFIG = $(PCP_VAR_DIR)/config/pmlogger
+PMLOGGERCONFIG = $(PCP_SYSCONF_DIR)/pmlogger
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB)

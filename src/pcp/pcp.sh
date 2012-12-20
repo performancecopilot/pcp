@@ -327,6 +327,9 @@ then
 		| join - $tmp/ie_expected > $tmp/pmie
     fi
 
+    # TODO - this is broken, even before any PCP_VAR_DIR/config/pmie
+    # -> PCP_SYSCONF_DIR/pmie changes
+
     $PCP_AWK_PROG -v pflag=$pflag < $tmp/pmie '{
 	if (pflag == "true") {
 	    offset = match($3, "/pcp/config/")

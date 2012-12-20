@@ -53,7 +53,7 @@ _needclean=true
 TAG=000666000magic
 status=1
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 
 trap "_cleanup" 0 1 2 3 15
 

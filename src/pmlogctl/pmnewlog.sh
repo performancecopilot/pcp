@@ -229,9 +229,9 @@ do
 	c)	config="$OPTARG"
 		if [ ! -f $config ]
 		then
-		    if [ -f $PCP_VAR_DIR/config/pmlogger/$config ]
+		    if [ -f $PCP_SYSCONF_DIR/pmlogger/$config ]
 		    then
-			config="$PCP_VAR_DIR/config/pmlogger/$config"
+			config="$PCP_SYSCONF_DIR/pmlogger/$config"
 		    else
 			echo "$prog: Error: cannot find configfile ($config)"
 			_abandon

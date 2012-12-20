@@ -21,12 +21,15 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_clean_config_dir()
+# ... copied directly from ../debian/cleanconfigs
+#
+
+# Function to do all of the configuration file migration work
+#
+_clean_configs()
 {
-    # expect this to be included verbatim in the pre-install
-    # packaging script
     #
-    # Usage: _clean_config_dir [-v] new_dir old_dir ...
+    # Usage: _clean_configs [-v] new_dir old_dir ...
     #
     # Across all the files in the new_dir and old_dir args, match
     # names and pick the most recently modified version and leave
@@ -44,20 +47,21 @@ _clean_config_dir()
 
     if [ $# -lt 2 ]
     then
-	echo 2>&1 "Usage: _clean_config_dir [-v] new_dir old_dir ..."
+	echo >&2 "Usage: _clean_configs [-v] new_dir old_dir ..."
 	return
     fi
 
     _new="$1"
     if [ ! -d "$_new" ]
     then
-	$verbose && echo + mkdir "$_new"
-	mkdir "$_new"
+	$verbose && echo >&2 + mkdir -p "$_new"
+	mkdir -p "$_new"
     fi
 
     shift
     for _dir
     do
+	[ "$_dir" = "$_new" ] && continue
 	if [ -d "$_dir" ]
 	then
 	    ( cd "$_dir" ; find . -type f -print ) \
@@ -80,23 +84,23 @@ _clean_config_dir()
 		    _dest=`dirname $_new/$_file`
 		    if [ ! -d "$_dest" ]
 		    then
-			$verbose && echo + mkdir "$_dest"
+			$verbose && >&2 echo + mkdir "$_dest"
 			mkdir "$_dest"
 		    fi
-		    $_verbose && echo + cp -p "$_dir/$_file" "$_new/$_file"
+		    $_verbose && echo >&2 + cp -p "$_dir/$_file" "$_new/$_file"
 		    cp -p "$_dir/$_file" "$_new/$_file"
 		fi
 	    done
-	else
-	    $_verbose && echo 2>&1 "_clean_config_dir: Warning: dir argument $_dir does not exist"
 	fi
     done
 }
 
+
 _filter()
 {
     sed \
-	-e "s;$tmp;/TMP;g"
+	-e "s;$tmp;/TMP;g" \
+    | LC_COLLATE=POSIX sort
 }
 
 _show()
@@ -113,12 +117,12 @@ _show()
 
 # real QA test starts here
 echo "Usage cases ..."
-_clean_config_dir
-_clean_config_dir "one_arg"
-_clean_config_dir -v "-v+one_arg"
+_clean_configs
+_clean_configs "one_arg"
+_clean_configs -v "-v+one_arg"
 
 echo; echo "No dirs exist"
-_clean_config_dir -v $tmp.new old1 old2 2>&1 | _filter
+_clean_configs -v $tmp.new old1 old2 2>&1 | _filter
 
 echo; echo "Empty new dir, harvest all, no name matches"
 mkdir $tmp.old1
@@ -128,7 +132,7 @@ echo bar >$tmp.old1/bar
 echo mumble >$tmp.old2/mumble
 echo fumble >$tmp.old2/fumble
 echo stumble >$tmp.old2/stumble
-_clean_config_dir -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
+_clean_configs -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
 _show $tmp.new
 
 yesterday=`pmdate -1d %Y%m%d%H%M`
@@ -137,7 +141,7 @@ touch -t $yesterday $tmp.new/mumble
 echo "newer mumble" >$tmp.old2/mumble
 touch -t $yesterday $tmp.old1/bar
 echo "newer bar" >$tmp.new/bar
-_clean_config_dir -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
+_clean_configs -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
 _show $tmp.new
 
 echo; echo "Hybid cases"
@@ -148,7 +152,7 @@ echo "older foo" >$tmp.old1/foo
 touch -t $yesterday $tmp.old1/foo
 echo foo >$tmp.old2/foo
 rm $tmp.new/fumble
-_clean_config_dir -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
+_clean_configs -v $tmp.new $tmp.old1 $tmp.old2 2>&1 | _filter
 _show $tmp.new
 
 status=0

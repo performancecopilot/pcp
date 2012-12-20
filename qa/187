@@ -17,7 +17,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
 rm -f $seq.full
@@ -73,16 +74,24 @@ _check()
 
 otherhost=`./getpmcdhosts -L -n 1`
 [ -z "$otherhost" ] && _notrun "Cannot find a remote host running pmcd"
+echo "otherhost=$otherhost" >>$seq.full
 otherip=`_host_to_ipaddr $otherhost`
+if [ -z "$otherip" ]
+then
+    echo "Arrgh ... cannot get IP addr for otherhost=$otherhost"
+    sts=1
+    exit
+fi
+echo "otherip=$otherip" >>$seq.full
 
 # real QA test starts here
 pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1 &
 this_pid=$!
-echo "this logger pid=$this_pid" >$seq.full
+echo "this logger pid=$this_pid" >>$seq.full
 _wait_for_pmlogger $this_pid $tmp.log1
 mv $tmp.log1 $tmp.$this_pid
 
-trap "$signal -a pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$signal -a pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 _burn_pids
 

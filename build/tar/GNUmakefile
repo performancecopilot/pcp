@@ -20,11 +20,15 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-LSRCFILES = preinstall postinstall remove README
+LSRCFILES = preinstall.head.in preinstall.tail postinstall remove README
 
-LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src)
+LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) preinstall preinstall.head
 
-default install install_pcp default_pcp :
+default install install_pcp default_pcp : preinstall
+
+preinstall: preinstall.head ../../debian/cleanconfigs preinstall.tail
+	rm -f $@
+	cat $? >$@
 
 # Note on sed below
 # for f and l lines of manifest, want the last word (target name),

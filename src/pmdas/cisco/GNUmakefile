@@ -28,7 +28,7 @@ LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
-PMIE	= $(PCP_VAR_DIR)/config/pmie/$(IAM)
+PMIE	= $(PCP_SYSCONF_DIR)/pmie/$(IAM)
 
 LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out parse.? probe.o \
 	$(TARGETS)

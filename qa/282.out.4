@@ -3,10 +3,10 @@ QA output created by 282
 === expect error: no $PCP_PMCDCONF_PATH ===
 Waiting for pmcd to terminate ...
 $PCP_RC_DIR/pmcd:
-Warning: PMCD control file $PCP_VAR_DIR/config/pmcd/pmcd.conf is missing, cannot identify PMDAs
+Warning: PMCD control file $PCP_SYSCONF_DIR/pmcd/pmcd.conf is missing, cannot identify PMDAs
 	 to be terminated.
 $PCP_RC_DIR/pmcd:
-Error: PMCD control file $PCP_VAR_DIR/config/pmcd/pmcd.conf is missing, cannot start PMCD.
+Error: PMCD control file $PCP_SYSCONF_DIR/pmcd/pmcd.conf is missing, cannot start PMCD.
 === probe pmcd: pmprobe: Cannot connect to PMCD on host "HOST": Connection refused
 
 === simple case, no frills, no errors ===
@@ -61,7 +61,7 @@ failed (status=1)
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
-Error: PCP archive logger control file $PCP_VAR_DIR/config/pmlogger/control
+Error: PCP archive logger control file $PCP_SYSCONF_DIR/pmlogger/control
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 failed (status=1)
 === probe pmcd: OK

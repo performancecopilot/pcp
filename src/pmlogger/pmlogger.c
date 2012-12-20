@@ -514,14 +514,14 @@ main(int argc, char **argv)
 		configfile = optarg;
 	    else {
 		/* does not exist as given, try the standard place */
-		char *vardir = pmGetConfig("PCP_VAR_DIR");
-		int sz = strlen(vardir)+strlen("/config/pmlogger/")+strlen(optarg)+1;
+		char *sysconf = pmGetConfig("PCP_SYSCONF_DIR");
+		int sz = strlen(sysconf)+strlen("/pmlogger/")+strlen(optarg)+1;
 		if ( (configfile = (char *)malloc(sz)) == NULL ) {
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
 		}
 		sprintf(configfile,
-			"%s%c" "config" "%c" "pmlogger" "%c%s",
-			vardir, sep, sep, sep, optarg);
+			"%s%c" "pmlogger" "%c%s",
+			sysconf, sep, sep, optarg);
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);

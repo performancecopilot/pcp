@@ -1,0 +1,7 @@
+# migrate and clean configs
+echo >>$PCP_LOG_DIR/install.log
+date >>$PCP_LOG_DIR/install.log
+for base in pmcd pmie pmlogger pmproxy
+do
+    _clean_configs -v 2>>$PCP_LOG_DIR/install.log $PCP_SYSCONF_DIR/$base /var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
+done

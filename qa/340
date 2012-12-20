@@ -28,7 +28,7 @@ fi
 status=1	# failure is the default!
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 
 _filter_pminfo()
 {
