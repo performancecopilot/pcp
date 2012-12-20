@@ -62,16 +62,20 @@ __pmSecurityFileContents(const char *filename, char **passwd, size_t *length)
 	setoserror(E2BIG);
 	goto fail;
     }
-    if ((pass = (char *)PORT_Alloc(size)) == NULL) {
+    if ((pass = (char *)PORT_Alloc(stat.st_size)) == NULL) {
 	setoserror(ENOMEM);
 	goto fail;
     }
-    if (fread(pass, 1, stat.st_size, file) != 1) {
+    sts = fread(pass, 1, stat.st_size, file);
+    if (sts < 1) {
 	setoserror(EINVAL);
 	goto fail;
     }
-    *length = stat.st_size;
+    while (sts > 0 && (pass[sts-1] == '\r' || pass[sts-1] == '\n'))
+	pass[--sts] = '\0';
     *passwd = pass;
+    *length = sts;
+    fclose(file);
     return 0;
 
 fail:
