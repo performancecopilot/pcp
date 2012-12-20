@@ -14,7 +14,7 @@ if [ $PCP_PLATFORM = linux ]
 then
     if [ $PCP_VER -lt 3103 ]
     then
-	ln $seq.linux.1 $seq.out
+	ln $seq.linux.1 $seq.out || exit 1
     else
 	# proc metrics may not be available
 	#
@@ -30,10 +30,10 @@ p
 	    case "$type"
 	    in
 		0)  # DSO
-		    ln $seq.linux.2 $seq.out
+		    ln $seq.linux.2 $seq.out || exit 1
 		    ;;
 		2|4)# daemon
-		    ln $seq.linux.4 $seq.out
+		    ln $seq.linux.4 $seq.out || exit 1
 		    ;;
 		*)
 		    echo "Botch ... don't understand proc PMDA type ($type)"
@@ -42,15 +42,15 @@ p
 		    ;;
 	    esac
 	else
-	    ln $seq.linux.3 $seq.out
+	    ln $seq.linux.3 $seq.out || exit 1
 	fi
     fi
 elif [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin $seq.out
+    ln $seq.darwin $seq.out || exit 1
 elif [ $PCP_PLATFORM = solaris ]
 then
-    ln $seq.solaris $seq.out
+    ln $seq.solaris $seq.out || exit 1
 else
     echo "Error: no validated output for $PCP_PLATFORM"
     exit 1
