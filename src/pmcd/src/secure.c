@@ -281,18 +281,18 @@ __pmSecureServerHandshake(int fd, int flags)
 {
     PRFileDesc	*sslsocket;
     SECStatus	secsts;
-    int		sts, valid = (PDU_FLAG_SECURE|PDU_FLAG_COMPRESS);
+    int		sts, mask = ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS);
 
     /* Protect ourselves from unsupported requests from oddball clients */
-    if ((flags & valid) != valid)
-	return -EINVAL;
+    if ((flags & mask) != 0)
+	return PM_ERR_IPC;
 
     if ((sts = __pmSetServerIPCFlags(fd, flags)) < 0)
 	return sts;
 
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
     if (!sslsocket)
-	return -EINVAL;
+	return PM_ERR_IPC;
 
     secsts = SSL_ConfigSecureServer(sslsocket, certificate, private_key, certificate_KEA);
     if (secsts != SECSuccess)
@@ -302,7 +302,7 @@ __pmSecureServerHandshake(int fd, int flags)
     if (secsts != SECSuccess)
 	return PM_ERR_IPC;
 
-    /* Server inititiates the handshake */
+    /* Server initiates the handshake */
     secsts = SSL_ForceHandshake(sslsocket);
     if (secsts != SECSuccess)
 	return PM_ERR_IPC;
