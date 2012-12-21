@@ -27,8 +27,8 @@ LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) preinstall preinstall.head
 default install install_pcp default_pcp : preinstall
 
 preinstall: preinstall.head ../../debian/cleanconfigs preinstall.tail
-	rm -f $@
-	cat $^ >$@
+	rm -f preinstall
+	cat preinstall.head ../../debian/cleanconfigs preinstall.tail >preinstall
 
 # Note on sed below
 # for f and l lines of manifest, want the last word (target name),

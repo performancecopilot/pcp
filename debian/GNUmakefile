@@ -217,5 +217,5 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 
 pcp.preinst:	pcp.preinst.head cleanconfigs pcp.preinst.tail
-	rm -f $@
-	cat $^ >$@
+	rm -f pcp.preinst
+	cat pcp.preinst.head cleanconfigs pcp.preinst.tail >pcp.preinst

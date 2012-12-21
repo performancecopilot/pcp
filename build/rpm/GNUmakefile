@@ -69,8 +69,8 @@ pcp.spec.head: pcp.spec.head.in
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 
 pcp.spec: pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail
-	rm -f $@
-	cat $^ >$@
+	rm -f pcp.spec
+	cat pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail >pcp.spec
 
 fedora.spec.head: fedora.spec.head.in
 	@echo Generating $@ from $?; \
@@ -78,8 +78,8 @@ fedora.spec.head: fedora.spec.head.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' <$? >$@
 
 fedora.spec: fedora.spec.head ../../debian/cleanconfigs fedora.spec.tail
-	rm -f $@
-	cat $^ >$@
+	rm -f fedora.spec
+	cat fedora.spec.head ../../debian/cleanconfigs fedora.spec.tail >fedora.spec
 
 include $(BUILDRULES)
 
