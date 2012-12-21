@@ -261,7 +261,9 @@ then
     sort $tmp/log_archive -o $tmp/log_archive
     sort $tmp/log_host -o $tmp/log_host
 
-    numloggers=`join $tmp/log_host $tmp/log_archive | sort -n \
+    # need \n\n here to force line breaks when piped into fmt later
+    #
+    numloggers=`join $tmp/log_host $tmp/log_archive | sort \
 	| sed -e 's/"//g' | tee $tmp/log | $PCP_AWK_PROG '
 BEGIN		{ count = 0 }
 $1 == "0"	{ next }
@@ -324,20 +326,18 @@ then
 	sort $tmp/ie_expected -o $tmp/ie_expected
 	join $tmp/pmie $tmp/ie_true | join - $tmp/ie_false \
 		| join - $tmp/ie_unknown | join - $tmp/ie_actions \
-		| join - $tmp/ie_expected > $tmp/pmie
+		| join - $tmp/ie_expected > $tmp/tmp
+	mv $tmp/tmp $tmp/pmie
     fi
-
-    # TODO - this is broken, even before any PCP_VAR_DIR/config/pmie
-    # -> PCP_SYSCONF_DIR/pmie changes
 
     $PCP_AWK_PROG -v pflag=$pflag < $tmp/pmie '{
 	if (pflag == "true") {
-	    offset = match($3, "/pcp/config/")
+	    offset = match($3, "/pmie/")
 	    if (offset != 0)
-		$3=substr($3, offset+12, length($3))
-	    printf "%s: %s [%u]\n\n",$2,$3,$4
-	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)",$5,$6,$7,$8
-	    printf "\n\nexpected evaluation rate=%f/sec\n\n",$9
+		$3=substr($3, offset+6, length($3))
+	    printf "%s: %s (%u rules)\n\n",$2,$3,$4
+	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)\n\n",$5,$6,$7,$8
+	    printf "expected evaluation rate=%.2f rules/sec\n\n",$9
 	} else {
 	    printf "%s: %s\n\n",$2,$3
 	}
