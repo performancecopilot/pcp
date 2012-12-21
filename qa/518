@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 518
+# pcp -p workout
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+# test for-some-thing || _notrun No support for some-thing
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.pmie
+hinv.ncpu > 0 -> print "we have cpus, no surprise here!";
+hinv.ncpu < 0 -> print "whoa ... no cpus!";
+End-of-File
+
+# real QA test starts here
+pmie -t 1 -c $tmp.pmie 2>$tmp.err >$tmp.out &
+pid=$!
+
+sleep 2
+pcp -p \
+| tee -a $seq.full \
+| $PCP_AWK_PROG '
+/'$$.pmie'/	{ want=1 }
+want==1		{ print }' \
+| sed \
+    -e "s;$tmp;TMP;" \
+    -e '/TMP/{
+s/ (.*//
+s/.*:/HOST:/
+}'
+
+kill -TERM $pid
+wait
+
+cat $tmp.out >>$seq.full
+cat $tmp.err >>$seq.full
+
+status=0
+exit
