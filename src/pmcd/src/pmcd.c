@@ -634,7 +634,7 @@ Shutdown(void)
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
 	    __pmCloseSocket(fd);
-    __pmSecureServerShutdown();
+    pmcd_secure_server_shutdown();
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -858,9 +858,9 @@ ClientLoop(void)
 			memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 			cp->pduInfo.version = PDU_VERSION;
 			cp->pduInfo.licensed = 1;
-			if (__pmEncryptionEnabled())
+			if (pmcd_encryption_enabled())
 			    cp->pduInfo.features |= PDU_FLAG_SECURE;
-			if (__pmCompressionEnabled())
+			if (pmcd_compression_enabled())
 			    cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 			challenge = *(int*)(&cp->pduInfo);
 			sts = 0;
@@ -1177,7 +1177,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerSetup(credsdb, dbpassfile) < 0)
+    if (pmcd_secure_server_setup(credsdb, dbpassfile) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);

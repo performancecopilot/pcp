@@ -524,6 +524,9 @@ struct __pmInAddr;
 struct __pmHostEnt;
 struct __pmSockAddrIn;
 
+extern int __pmInitSecureSockets(void);
+extern int __pmInitCertificates(void);
+
 extern int __pmCreateSocket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
@@ -849,7 +852,8 @@ extern int __pmSetProgname(const char *);
  */
 extern int __pmShutdown(void);
 extern int __pmShutdownLocal(void);
-extern int __pmShutdownSockets(void);
+extern int __pmShutdownCertificates(void);
+extern int __pmShutdownSecureSockets(void);
 
 /* map Unix errno values to PMAPI errors */
 extern int __pmMapErrno(int);

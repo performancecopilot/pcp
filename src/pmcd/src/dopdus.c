@@ -1070,6 +1070,6 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
     if (sts >= 0 && flags)
-	sts = __pmSecureServerHandshake(cp->fd, flags);
+	sts = pmcd_secure_handshake(cp->fd, flags);
     return sts;
 }

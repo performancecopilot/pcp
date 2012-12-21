@@ -1603,13 +1603,15 @@ __pmSetProgname(const char *program)
 int
 __pmShutdown(void)
 {
-    int sts;
+    int code = 0, sts;
 
-    if ((sts = __pmShutdownLocal()) < 0)
-	return sts;
-    if ((sts = __pmShutdownSockets()) < 0)
-	return sts;
-    return sts;
+    if ((sts = __pmShutdownLocal()) < 0 && !code)
+	code = sts;
+    if ((sts = __pmShutdownCertificates()) < 0 && !code)
+	code = sts;
+    if ((sts = __pmShutdownSecureSockets()) < 0 && !code)
+	code = sts;
+    return code;
 }
 
 void *

@@ -16,17 +16,19 @@
 #define _SECURE_H
 
 #ifdef HAVE_SECURE_SOCKETS
-extern int __pmSecureServerSetup(const char *, const char *);
-extern void __pmSecureServerShutdown(void);
-extern int __pmSecureServerHandshake(int, int);
-extern int __pmEncryptionEnabled(void);
-extern int __pmCompressionEnabled(void);
+extern int pmcd_secure_server_setup(const char *, const char *);
+extern void pmcd_secure_server_shutdown(void);
+
+extern int pmcd_secure_handshake(int, int);
+extern int pmcd_encryption_enabled(void);
+extern int pmcd_compression_enabled(void);
 #else
-#define __pmSecureServerSetup()		0
-#define __pmSecureServerShutdown()	do { } while (0)
-#define __pmSecureServerHandshake(x,y)	(-EOPNOTSUPP)
-#define __pmEncryptionEnabled()		0	/* false */
-#define __pmCompressionEnabled()	0	/* false */
+#define pmcd_secure_server_setup(x,y)	0
+#define pmcd_secure_server_shutdown()	do { } while (0)
+
+#define pmcd_secure_handshake(x,y)	(-EOPNOTSUPP)
+#define pmcd_encryption_enabled()	0	/* false */
+#define pmcd_compression_enabled()	0	/* false */
 #endif
 
 #endif /* _SECURE_H */

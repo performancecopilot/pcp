@@ -371,6 +371,24 @@ __pmCloseSocket(int fd)
 }
 
 int
+__pmInitCertificates(void)
+{
+    return 0;
+}
+
+int
+__pmShutdownCertificates(void)
+{
+    return 0;
+}
+
+int
+__pmInitSecureSockets(void)
+{
+    return 0;
+}
+
+int
 __pmShutdownSockets(void)
 {
     return 0;
@@ -745,7 +763,16 @@ freeNSPRHandle(int fd)
 }
 
 int
-__pmShutdownSockets(void)
+__pmInitSecureSockets(void)
+{
+    /* Make sure that NSPR has been initialized */
+    if (PR_Initialized() != PR_TRUE)
+        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+    return 0;
+}
+
+int
+__pmShutdownSecureSockets(void)
 {
     if (PR_Initialized())
 	PR_Cleanup();
@@ -758,9 +785,7 @@ __pmCreateSocket(void)
     int fd, sts;
     __pmSecureSocket socket = { 0 };
 
-    /* Make sure that NSPR has been initialized */
-    if (PR_Initialized() != PR_TRUE)
-        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+    __pmInitSecureSockets();
 
     /* Open the socket, setup auxillary structs */
     if ((socket.nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
@@ -797,6 +822,62 @@ __pmCloseSocket(int fd)
 	close(fd);
 #endif
     }
+}
+
+static int
+__pmInitCertificateDB(const char *path)
+{
+    SECStatus secsts;
+
+    if (access(path, R_OK | X_OK) != 0)
+	return -ENOENT;
+    secsts = NSS_Init(path);
+    if (secsts != SECSuccess)
+	return -EINVAL;
+    NSS_SetExportPolicy();
+    if (secsts != SECSuccess)
+	return -EOPNOTSUPP;
+    SSL_ClearSessionCache();
+    return 0;
+}
+
+int
+__pmInitCertificates(void)
+{
+    int sts, sep = __pmPathSeparator();
+    char dbpath[MAXPATHLEN];
+    char *prefix;
+
+    /*
+     * Check for client certificate databases, in the following order:
+     *    $HOME/.pcp/ssl  
+     *    $PCP_VAR_DIR/config/ssl/monitor
+     */
+
+    prefix = getenv("HOME");
+    if (prefix) {
+	snprintf(dbpath, sizeof(dbpath), "%s%c" ".pcp%cssl",
+		prefix, sep, sep);
+	if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
+	    return sts;
+	/* Only continue on if no such database path existed */
+    }
+
+    snprintf(dbpath, sizeof(dbpath), "%s%c" "config%cssl%cmonitor",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
+    if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
+	return sts;
+
+    /* We're still good even if no certificate database paths existed */
+    return 0;
+}
+
+int
+__pmShutdownCertificates(void)
+{
+    if (NSS_Shutdown() != SECSuccess)
+	return -EINVAL;
+    return 0;
 }
 
 int
@@ -858,6 +939,12 @@ __pmSecureClientHandshake(int fd, int flags)
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "SecureClientHandshake: SSL handshake reset");
 	return PM_ERR_IPC;
+    }
+
+    secsts = SSL_ForceHandshake(sslsocket);
+    if (secsts != SECSuccess) {
+	__pmNotifyErr(LOG_ERR, "SecureClientHandshake: SSL handshake force");
+        return PM_ERR_IPC;
     }
 
     return 0;

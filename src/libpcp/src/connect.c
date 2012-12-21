@@ -195,7 +195,6 @@ load_pmcd_ports(void)
 {
     static int	first_time = 1;
 
-    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*envstr;
 	char	*endptr;
@@ -233,15 +232,62 @@ load_pmcd_ports(void)
 	    global_nports = sizeof(default_portlist) / sizeof(default_portlist[0]);
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
+}
+
+static void
+load_proxy_hostspec(pmHostSpec *proxy)
+{
+    static int	proxy_port;
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	*envstr;
+    char	*endptr;
+
+    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
+	proxy->name = strdup(envstr);
+	if (proxy->name == NULL) {
+	    __pmNotifyErr(LOG_WARNING,
+			  "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
+			  pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+	else {
+	    if ((envstr = getenv("PMPROXY_PORT")) != NULL) {
+		proxy_port = (int)strtol(envstr, &endptr, 0);
+		if (*endptr != '\0' || proxy_port < 0) {
+		    __pmNotifyErr(LOG_WARNING,
+			"__pmConnectPMCD: ignored bad PMPROXY_PORT = '%s'\n", envstr);
+		    proxy_port = PROXY_PORT;
+		}
+	    } else {
+		proxy_port = PROXY_PORT;
+	    }
+	    proxy->ports = &proxy_port;
+	    proxy->nports = 1;
+	}
+    }
+}
+
+static void
+load_certificate_database(void)
+{
+    /* Ensure correct security lib initialisation order */
+    __pmInitSecureSockets();
+
+    /*
+     * If secure sockets functionality available, iterate over the set of
+     * known locations for certificate databases and attempt to initialise
+     * one of them for our use.
+     */
+    if (__pmInitCertificates() < 0)
+	__pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
+		"certificate database exists, but failed initialization");
 }
 
 void
 __pmConnectGetPorts(pmHostSpec *host)
 {
-    load_pmcd_ports();
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
+    load_pmcd_ports();
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
 		"__pmConnectGetPorts: portlist dup failed, "
@@ -273,37 +319,15 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 	/*
 	 * One-trip check for use of pmproxy(1) in lieu of pmcd(1),
 	 * and to extract the optional environment variables ...
-	 * PMCD_PORT, PMPROXY_HOST and PMPROXY_PORT
+	 * PMCD_PORT, PMPROXY_HOST and PMPROXY_PORT.
+	 * We also check for the presense of a certificate database
+	 * and load it up if either a user or system (global) DB is
+	 * found.
 	 */
-	char	*envstr;
-	char	*endptr;
-
 	first_time = 0;
-
 	load_pmcd_ports();
-
-	if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
-	    proxy.name = strdup(envstr);
-	    if (proxy.name == NULL) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_WARNING,
-			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
-	    }
-	    else {
-		static int proxy_port = PROXY_PORT;
-		if ((envstr = getenv("PMPROXY_PORT")) != NULL) {
-		    proxy_port = (int)strtol(envstr, &endptr, 0);
-		    if (*endptr != '\0' || proxy_port < 0) {
-			__pmNotifyErr(LOG_WARNING,
-			    "__pmConnectPMCD: ignored bad PMPROXY_PORT = '%s'\n", envstr);
-			proxy_port = PROXY_PORT;
-		    }
-		}
-		proxy.ports = &proxy_port;
-		proxy.nports = 1;
-	    }
-	}
+	load_proxy_hostspec(&proxy);
+	load_certificate_database();
     }
 
     if (hosts[0].nports > 0) {

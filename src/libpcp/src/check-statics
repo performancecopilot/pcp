@@ -89,7 +89,7 @@ connect.o
     d default_portlist		# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b proxy.[0-9]*		# guarded by __pmLock_libpcp mutex
-    d proxy_port.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b proxy_port.[0-9]*		# guarded by __pmLock_libpcp mutex
 context.o
     [ds] _mode			# const
     d def_backoff		# guarded by __pmLock_libpcp mutex

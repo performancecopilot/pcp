@@ -34,19 +34,19 @@ static int			ssl_session_cache_setup;
 static char			database_path[MAXPATHLEN];
 
 int
-__pmEncryptionEnabled(void)
+pmcd_encryption_enabled(void)
 {
     return certificate_verified;
 }
 
 int
-__pmCompressionEnabled(void)
+pmcd_compression_enabled(void)
 {
     return 1;	/* Will need to check this, does it require cert/key? */
 }
 
-int
-__pmSecurityFileContents(const char *filename, char **passwd, size_t *length)
+static int
+secure_file_contents(const char *filename, char **passwd, size_t *length)
 {
     struct stat	stat;
     size_t	size = *length;
@@ -106,7 +106,7 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
 	return NULL;	/* no soup^Wretries for you */
     }
 
-    if ((sts = __pmSecurityFileContents(password_file, &password, &length)) < 0) {
+    if ((sts = secure_file_contents(password_file, &password, &length)) < 0) {
 	__pmNotifyErr(LOG_ERR, "Cannot read password file \"%s\": %s",
 		password_file, pmErrStr(sts));
 	return NULL;
@@ -114,7 +114,7 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
     return password;
 }
 
-int
+static int
 __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
 {
     PRExplodedTime exploded;
@@ -141,7 +141,7 @@ __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
     return 0;
 }
 
-void
+static void
 __pmDumpCertificate(const char *nickname, CERTCertificate *certificate)
 {
     CERTValidity *valid = &certificate->validity;
@@ -154,17 +154,17 @@ __pmDumpCertificate(const char *nickname, CERTCertificate *certificate)
 	fprintf(stderr, "  Not Valid After: %s UTC", tbuf);
 }
 
-int
+static int
 __pmValidCertificate(CERTCertDBHandle *handle, CERTCertificate *cert, PRTime stamp)
 {
-    SECCertificateUsage usage = certificateUsageSSLServer | certificateUsageObjectSigner;
+    SECCertificateUsage usage = certificateUsageSSLServer; /*|certificateUsageObjectSigner*/
     SECStatus secsts = CERT_VerifyCertificate(handle, cert, PR_TRUE, usage,
 						stamp, NULL, NULL, &usage);
     return (secsts == SECSuccess);
 }
 
 int
-__pmSecureServerSetup(const char *dbpath, const char *passwd)
+pmcd_secure_server_setup(const char *dbpath, const char *passwd)
 {
     SECStatus secsts;
 
@@ -263,7 +263,7 @@ __pmSecureServerSetup(const char *dbpath, const char *passwd)
 }
 
 void
-__pmSecureServerShutdown(void)
+pmcd_secure_server_shutdown(void)
 {
     if (certificate) {
 	CERT_DestroyCertificate(certificate);
@@ -281,7 +281,7 @@ __pmSecureServerShutdown(void)
 }
 
 int
-__pmSecureServerHandshake(int fd, int flags)
+pmcd_secure_handshake(int fd, int flags)
 {
     PRFileDesc	*sslsocket;
     SECStatus	secsts;
