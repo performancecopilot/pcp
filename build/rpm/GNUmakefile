@@ -17,8 +17,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SPEC = pcp.spec fedora.spec
-LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
+SPEC = pcp.spec
+LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros  pcp.spec.head fedora.spec.head
 
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
 LSRCFILES = macros.template \
@@ -26,7 +26,7 @@ LSRCFILES = macros.template \
 	    fedora.spec.head.in fedora.spec.tail \
 	    $(PERLFILES)
 
-default install install_pcp default_pcp : $(SPEC)
+default install install_pcp default_pcp :
 
 # Blow the spec away after rpm has finished its work - it IS
 # going to make sure it'll be rebuild next time we come here
