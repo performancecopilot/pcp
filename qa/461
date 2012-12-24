@@ -52,6 +52,7 @@ touch  $tmp.reg
 echo "
 reg	y	$tmp.reg
 " > $tmp.conf
+[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)

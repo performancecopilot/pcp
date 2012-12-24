@@ -79,6 +79,7 @@ empty	n	$tmp.empty
 dir	n	$tmp.dir
 pipe	n	$tmp.pipe|
 " > $tmp.conf
+[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)
