@@ -36,7 +36,8 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
-	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0
+	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
+	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0
 
 SRCARCHPART = ok-noti-bigbin.0 
 
