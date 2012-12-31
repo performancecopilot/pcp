@@ -24,6 +24,7 @@
 #include "dynamic.h"
 
 #include <ctype.h>
+#include <unistd.h>
 #include <sys/vfs.h>
 #include <sys/stat.h>
 #include <sys/times.h>
@@ -857,7 +858,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			*ip;
     proc_pid_entry_t	*entry;
     struct filesys	*fs;
-    static int		hz = -1;
+    static long		hz = -1;
+
+    if (hz == -1)
+    	hz = sysconf(_SC_CLK_TCK);
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -973,11 +977,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return PM_ERR_INST;
 
 		sscanf(f, "%lu", &ul);
-		if (hz == -1) {
-		    // TODO one trip initialization, same way
-		    // proc_stat.hz is set in the linux PMDA
-		    ;
-		}
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 		break;
 	    
