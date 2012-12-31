@@ -173,8 +173,9 @@ PCP internet resources, and the pmchart utility.
    to use it, you need to
 
    # determine which metrics to log and how often you need them
-   # edit /var/pcp/config/pmlogger/control
-   # edit /var/pcp/config/pmlogger/config.default  (and any others in same dir)
+   # edit $PCP_SYSCONF_DIR/pmlogger/control
+   # edit $PCP_SYSCONF_DIR/pmlogger/config.default
+   # (and any others in same dir)
    # as root, "crontab -e" and add something like:
 
    # -- typical PCP log management crontab entries
@@ -192,8 +193,8 @@ PCP internet resources, and the pmchart utility.
 
    # su root
    # chkconfig pmie on
-   # edit the pmie control file (usually below /var/pcp/config/pmie)
-   # edit the config file (usually /var/pcp/config/pmie/config.default)
+   # edit the pmie control file (usually below $PCP_SYSCONF_DIR/pmie)
+   # edit the config file (usually $PCP_SYSCONF_DIR/pmie/config.default)
    # set up cron scripts similar to those for pmlogger (see above)
 
 

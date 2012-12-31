@@ -24,7 +24,7 @@
 
 _usage()
 {
-    echo "Usage: $PCP_VAR_DIR/config/pmcd/rc.local [-v] {start|stop}"
+    echo "Usage: $PCP_SYSCONF_DIR/pmcd/rc.local [-v] {start|stop}"
 }
 
 # defaults

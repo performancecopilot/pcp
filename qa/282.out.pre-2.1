@@ -72,7 +72,7 @@ Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
 $PCP_RC_DIR/pmcd:
-Error: PCP archive logger control file $PCP_VAR_DIR/config/pmlogger/control
+Error: PCP archive logger control file $PCP_SYSCONF_DIR/pmlogger/control
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 === probe pmcd: OK
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
@@ -83,7 +83,7 @@ Starting pmcd ...
 Starting pmlogger ... 
 $PCP_RC_DIR/pmcd
 Info: Initializing default PCP archive logger control for the primary
-      logger in the file $PCP_VAR_DIR/config/pmlogger/control - see
+      logger in the file $PCP_SYSCONF_DIR/pmlogger/control - see
       PMLOGGER.CHECK(1) for details.
       This is a once only initialization after a PCP upgrade.
 === probe pmcd: OK
@@ -95,7 +95,7 @@ Starting pmcd ...
 Starting pmlogger ... 
 $PCP_RC_DIR/pmcd
 Info: Initializing default PCP archive logger control for the primary
-      logger in the file $PCP_VAR_DIR/config/pmlogger/control - see
+      logger in the file $PCP_SYSCONF_DIR/pmlogger/control - see
       PMLOGGER.CHECK(1) for details.
       This is a once only initialization after a PCP upgrade.
 Restarting primary pmlogger for host "HOST" ... process exited!
@@ -167,7 +167,7 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
 
 === expect error: pmlogger/control moved, so no pmlogger ===
 $PCP_RC_DIR/pmcd:
-Error: PCP archive logger control file $PCP_VAR_DIR/config/pmlogger/control
+Error: PCP archive logger control file $PCP_SYSCONF_DIR/pmlogger/control
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 === probe pmcd: OK
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
@@ -175,7 +175,7 @@ Error: PCP archive logger control file $PCP_VAR_DIR/config/pmlogger/control
 === expect warning: host not in pmlogger/control, so initialize ===
 $PCP_RC_DIR/pmcd
 Info: Initializing default PCP archive logger control for the primary
-      logger in the file $PCP_VAR_DIR/config/pmlogger/control - see
+      logger in the file $PCP_SYSCONF_DIR/pmlogger/control - see
       PMLOGGER.CHECK(1) for details.
       This is a once only initialization after a PCP upgrade.
 === probe pmcd: OK
@@ -184,7 +184,7 @@ Info: Initializing default PCP archive logger control for the primary
 === expect pmlogger connect failure: same case, but pmlogger.options is bogus ===
 $PCP_RC_DIR/pmcd
 Info: Initializing default PCP archive logger control for the primary
-      logger in the file $PCP_VAR_DIR/config/pmlogger/control - see
+      logger in the file $PCP_SYSCONF_DIR/pmlogger/control - see
       PMLOGGER.CHECK(1) for details.
       This is a once only initialization after a PCP upgrade.
 Restarting primary pmlogger for host "HOST" ... process exited!

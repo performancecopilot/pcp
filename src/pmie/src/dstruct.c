@@ -630,7 +630,6 @@ freeMetric(Metric *m)
     }
     if (numinst && m->iids) free(m->iids);
     if (m->vals) free(m->vals);
-    free(m);
 }
 
 
@@ -646,17 +645,13 @@ freeExpr(Expr *x)
 	if (x->arg2 && x->arg2->parent == x)
 	    freeExpr(x->arg2);
 	if (x->metrics && x->op == CND_FETCH) {
-	    if (x->hdom < 0) {
-		/*
-		 * no trips through the loop to call freeMetric(),
-		 * so free partially allocated structure
-		 */
-		free(x->metrics);
-	    }
-	    else {
-		for (m = x->metrics, i = 0; i < x->hdom; m++, i++)
-		    freeMetric(m);
-	    }
+	    for (m = x->metrics, i = 0; i < x->hdom; m++, i++)
+		freeMetric(m);
+	    /*
+	     * x->metrics allocated in a block, one element per host, so
+	     * free as one after all other freeing has been done.
+	     */
+	    free(x->metrics);
 	}
 	if (x->ring) free(x->ring);
 	free(x);

@@ -1633,6 +1633,23 @@ dnl
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
 AC_SUBST(pcp_etc_dir)
+pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
+pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
+AC_SUBST(pcp_sysconf_dir)
+pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
+pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
+pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
+pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
+pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
+pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+AC_SUBST(pcp_pmcdconf_path)
+AC_SUBST(pcp_pmcdoptions_path)
+AC_SUBST(pcp_pmcdrclocal_path)
+AC_SUBST(pcp_pmproxyoptions_path)
+AC_SUBST(pcp_pmiecontrol_path)
+AC_SUBST(pcp_pmsnapcontrol_path)
+AC_SUBST(pcp_pmloggercontrol_path)
 
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datarootdir/pcp`
@@ -1653,20 +1670,6 @@ dnl pmcd control and options files
 AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration directory [LOCALSTATEDIR/pcp/config]])],
                       [pcp_config_dir=$withval],
                       [pcp_config_dir=$pcp_var_dir/config])
-pcp_pmcdconf_path=$pcp_config_dir/pmcd/pmcd.conf
-pcp_pmcdrclocal_path=$pcp_config_dir/pmcd/rc.local
-pcp_pmcdoptions_path=$pcp_config_dir/pmcd/pmcd.options
-pcp_pmproxyoptions_path=$pcp_config_dir/pmproxy/pmproxy.options
-pcp_pmiecontrol_path=$pcp_config_dir/pmie/control
-pcp_pmsnapcontrol_path=$pcp_config_dir/pmsnap/control
-pcp_pmloggercontrol_path=$pcp_config_dir/pmlogger/control
-AC_SUBST(pcp_pmcdconf_path)
-AC_SUBST(pcp_pmcdoptions_path)
-AC_SUBST(pcp_pmcdrclocal_path)
-AC_SUBST(pcp_pmproxyoptions_path)
-AC_SUBST(pcp_pmiecontrol_path)
-AC_SUBST(pcp_pmsnapcontrol_path)
-AC_SUBST(pcp_pmloggercontrol_path)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
@@ -2019,4 +2022,8 @@ dnl   PCP paths and other defs
     src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
+dnl   preamble for Debian preinst script
+    debian/pcp.preinst.head
+dnl   preamble for tar preinstall script
+    build/tar/preinstall.head
 )

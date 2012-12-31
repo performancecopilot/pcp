@@ -352,7 +352,8 @@ chkconfig_on_msg()
 	    _start=`_runlevel_start $_flag`
 	    _stop=`_runlevel_stop $_flag`
 	    if [ -f /etc/debian_version ]; then
-	      echo "         update-rc.d -f $_flag defaults s$_start k$_stop"
+	      echo "         update-rc.d -f $_flag remove"
+	      echo "         update-rc.d $_flag defaults $_start $_stop"
 	    else
 	      for _r in `_runlevels $_flag`
 	      do

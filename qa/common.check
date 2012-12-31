@@ -80,7 +80,7 @@ _check_freespace()
 _host_to_ipaddr()
 {
     perl -MSocket -e '
-	my $packed_ip = gethostbyname('$1');
+	my $packed_ip = gethostbyname("'$1'");
 	if (defined $packed_ip) {
 	    my $ip_address = inet_ntoa($packed_ip);
 	    print $ip_address;
@@ -90,7 +90,7 @@ _host_to_ipaddr()
 _ipaddr_to_host()
 {
     perl -MSocket -e '
-	my $iaddr = inet_aton('$1');
+	my $iaddr = inet_aton("'$1'");
 	if (defined $iaddr) {
 	    my $name  = gethostbyaddr($iaddr, AF_INET);
 	    print $name;

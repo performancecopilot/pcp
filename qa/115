@@ -27,7 +27,7 @@ then
 fi
 needclean=false
 [ -z "$PCP_PMIECONTROL_PATH" ] && \
-	PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
+	PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
 control="$PCP_PMIECONTROL_PATH"
 
 _cleanup()

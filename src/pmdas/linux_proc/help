@@ -137,45 +137,45 @@ kernel threads
 @ proc.runq.kernel number of kernel threads
 Instantaneous number of processes with virtual size of zero (kernel threads)
 
-@ proc.io.rchar
+@ proc.io.rchar read(), readv() and sendfile() receive bytes
 Extended accounting information - count of the number of bytes that
 have passed over the read(2), readv(2) and sendfile(2) syscalls by
 each process.
 
-@ proc.io.wchar
+@ proc.io.wchar write(), writev() and sendfile() send bytes
 Extended accounting information - count of the number of bytes that
 have passed over the write(2), writev(2) and sendfile(2) syscalls by
 each process.
 
-@ proc.io.syscr
+@ proc.io.syscr read(), readv() and sendfile() receive system calls
 Extended accounting information - count of number of calls to the
 read(2), readv(2) and sendfile(2) syscalls by each process.
 
-@ proc.io.syscw
+@ proc.io.syscw write(), writev() and sendfile() send system calls
 Extended accounting information - count of number of calls to the
 write(2), writev(2) and sendfile(2) syscalls by each process.
 
-@ proc.io.read_bytes
+@ proc.io.read_bytes physical device read bytes
 Number of bytes physically read on by devices on behalf of this process.
-@ proc.io.write_bytes
+@ proc.io.write_bytes physical device write bytes
 Number of bytes physically written to devices on behalf of this process.
 This must be reduced by any truncated I/O (proc.io.cancelled_write_bytes).
-@ proc.io.cancelled_write_bytes
+@ proc.io.cancelled_write_bytes physical device write cancelled bytes
 Number of bytes cancelled via truncate by this process.  Actual physical
 writes for an individual process can be calculated as:
 	proc.io.write_bytes - proc.io.cancelled_write_bytes.
 
-@ proc.schedstat.cpu_time
+@ proc.schedstat.cpu_time runnable (scheduled) + run time
 Length of time in nanoseconds that a process has been running, including
 scheduling time.
-@ proc.schedstat.run_delay
+@ proc.schedstat.run_delay run queue time
 Length of time in nanoseconds that a process spent waiting to be scheduled
 to run in the run queue.
-@ proc.schedstat.pcount
+@ proc.schedstat.pcount number of times a process is allowed to run
 Number of times a process has been scheduled to run on a CPU (this is
 incremented when a task actually reaches a CPU to run on, not simply
 when it is added to the run queue).
 
-@ proc.fd.count
+@ proc.fd.count open file descriptors
 Number of file descriptors this process has open.
 
