@@ -42,6 +42,9 @@ sub mysql_connection_setup
     if (!defined($dbh)) {
 	$dbh = DBI->connect($database, $username, $password);
 	if (defined($dbh)) {
+	    # set the db handle to undef in case of any failure
+	    # this will force a database reconnect
+	    $dbh->{HandleError} = sub { $dbh = undef; };
 	    $pmda->log("MySQL connection established\n");
 	    $sth_variables = $dbh->prepare('show variables');
 	    $sth_status = $dbh->prepare('show status');
@@ -1838,3 +1841,4 @@ default log file for error messages from B<pmdamysql>
 =head1 SEE ALSO
 
 pmcd(1), pmdadbping.pl(1) and DBI(3).
+# vi: sw=4 ts=4 et
