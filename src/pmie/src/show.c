@@ -400,7 +400,7 @@ showSyn(FILE *f, Expr *x)
     int		i;
     int		paren;
 
-    if (x->op >= NOP) {
+    if (x->op == NOP) {
 	/* constant */
 	s = showConst(x);
 	if (s) {
@@ -456,11 +456,18 @@ showSyn(FILE *f, Expr *x)
 	    showSyn(f, x->arg1);
 	}
 	else if (x->op == CND_PCNT_HOST || x->op == CND_PCNT_INST || x->op == CND_PCNT_TIME) {
-	    showSyn(f, x->arg2);
-	    fputc(' ', f);
+	    int		pcnt;
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
-	    if (x->arg1->op >= NOP || x->arg1->op == CND_DELAY || x->arg1->op == CND_FETCH)
+	    /*
+	     * used to showSyn(f, x->arg2) here, but formatting is a little
+	     * better if we punt on there being a single double representation
+	     * of the % value at the end of arg2
+	     */
+	    pcnt = (int)(*((double *)x->arg2->smpls[0].ptr)*100);
+	    fprintf(f, "%d%%", pcnt);
+	    fputc(' ', f);
+	    if (x->arg1->op == NOP || x->arg1->op == CND_DELAY || x->arg1->op == CND_FETCH)
 		showSyn(f, x->arg1);
 	    else {
 		fputc('(', f);
@@ -479,8 +486,17 @@ showSyn(FILE *f, Expr *x)
 	}
 	else {
 	    paren = 1 -
-		    (x->arg1->op >= NOP || x->arg1->op == CND_DELAY ||
-		     x->arg1->op == CND_FETCH || x->op == RULE);
+		    (x->arg1->op == NOP || x->arg1->op == CND_DELAY ||
+		     x->arg1->op == CND_FETCH || x->arg1->op == CND_RATE ||
+		     x->arg1->op == CND_SUM_HOST || x->arg1->op == CND_SUM_INST ||
+		     x->arg1->op == CND_SUM_TIME || x->arg1->op == CND_AVG_HOST ||
+		     x->arg1->op == CND_AVG_INST || x->arg1->op == CND_AVG_TIME ||
+		     x->arg1->op == CND_MAX_HOST || x->arg1->op == CND_MAX_INST ||
+		     x->arg1->op == CND_MAX_TIME || x->arg1->op == CND_MIN_HOST ||
+		     x->arg1->op == CND_MIN_INST || x->arg1->op == CND_MIN_TIME ||
+		     x->arg1->op == CND_COUNT_HOST || x->arg1->op == CND_COUNT_INST ||
+		     x->arg1->op == CND_COUNT_TIME || x->arg1->op == CND_RATE ||
+		     x->op == RULE);
 	    if (paren)
 		fputc('(', f);
 	    showSyn(f, x->arg1);
@@ -490,8 +506,17 @@ showSyn(FILE *f, Expr *x)
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
 	    paren = 1 -
-		    (x->arg2->op >= NOP || x->arg2->op == CND_DELAY ||
-		     x->arg2->op == CND_FETCH || x->op == RULE);
+		    (x->arg2->op == NOP || x->arg2->op == CND_DELAY ||
+		     x->arg2->op == CND_FETCH || x->arg2->op == CND_RATE ||
+		     x->arg2->op == CND_SUM_HOST || x->arg2->op == CND_SUM_INST ||
+		     x->arg2->op == CND_SUM_TIME || x->arg2->op == CND_AVG_HOST ||
+		     x->arg2->op == CND_AVG_INST || x->arg2->op == CND_AVG_TIME ||
+		     x->arg2->op == CND_MAX_HOST || x->arg2->op == CND_MAX_INST ||
+		     x->arg2->op == CND_MAX_TIME || x->arg2->op == CND_MIN_HOST ||
+		     x->arg2->op == CND_MIN_INST || x->arg2->op == CND_MIN_TIME ||
+		     x->arg2->op == CND_COUNT_HOST || x->arg2->op == CND_COUNT_INST ||
+		     x->arg2->op == CND_COUNT_TIME || x->arg2->op == CND_RATE ||
+		     x->op == RULE);
 	    if (paren)
 		fputc('(', f);
 	    showSyn(f, x->arg2);
@@ -517,13 +542,7 @@ showSyn(FILE *f, Expr *x)
 	    fputs(opStrings(x->op), f);
 	    fputc(' ', f);
 	    paren = 1 -
-		    (x->op == CND_SUM_HOST || x->op == CND_SUM_INST ||
-		     x->op == CND_SUM_TIME || x->op == CND_AVG_HOST ||
-		     x->op == CND_AVG_INST || x->op == CND_AVG_TIME ||
-		     x->op == CND_MAX_HOST || x->op == CND_MAX_INST ||
-		     x->op == CND_MAX_TIME || x->op == CND_MIN_HOST ||
-		     x->op == CND_MIN_INST || x->op == CND_MIN_TIME ||
-		     x->arg1->op == ACT_SEQ || x->arg1->op == ACT_ALT ||
+		    (x->arg1->op == ACT_SEQ || x->arg1->op == ACT_ALT ||
 		     x->op == ACT_SHELL || x->op == ACT_ALARM ||
 		     x->op == ACT_SYSLOG || x->op == ACT_PRINT ||
 		     x->op == ACT_STOMP || x->op == CND_DELAY);
