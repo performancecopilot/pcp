@@ -103,7 +103,12 @@ _full()
     echo "--- pmcd.log ---" >>$here/$seq.full
     cat $PCP_PMCDLOG_PATH >>$here/$seq.full
     echo "--- simple.log ---" >>$here/$seq.full
-    cat $PMDA_LOG_PATH >>$here/$seq.full
+    if [ -f $PMDA_LOG_PATH ]
+    then
+	cat $PMDA_LOG_PATH >>$here/$seq.full
+    else
+	echo "$PMDA_LOG_PATH: file not found" >>$here/$seq.full
+    fi
     echo >>$here/$seq.full
 }
 
@@ -139,6 +144,7 @@ echo
 echo "=== pipe daemon agent ==="
 echo "=== pipe daemon agent ===" >>$here/$seq.full
 $sudo ./Remove >$tmp.out 2>&1
+$sudo rm -f $PMDA_LOG_PATH
 echo 'both
 daemon
 pipe' | $sudo ./Install -e >>$tmp.out 2>&1
@@ -162,6 +168,7 @@ daemon
 socket
 Unix
 '"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
+$sudo rm -f $PMDA_LOG_PATH
 echo 'both
 daemon
 socket
@@ -201,6 +208,7 @@ Internet
 # use next port this time
 port2=`expr $port1 + 1`
 
+$sudo rm -f $PMDA_LOG_PATH
 echo 'both
 daemon
 socket
@@ -223,6 +231,7 @@ echo "=== dso agent ===" >>$here/$seq.full
 $sudo ./Remove >$tmp.out 2>&1
 echo 'both
 dso' | $sudo ./Install -e >>$tmp.out 2>&1
+$sudo rm -f $PMDA_LOG_PATH
 echo 'both
 dso' | $sudo ./Install -e >>$tmp.out 2>&1
 _full

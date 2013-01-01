@@ -21,7 +21,7 @@ LLDLIBS	= $(PCPLIB)
 LDIRT	= pmnsmap.h mylog.* runme.sh
 LSRCFILES = README GNUmakefile.install pmlogger.config pmnsmap.spec
 
-PMLOGGERCONFIG=$(PCP_VAR_DIR)/config/pmlogger
+PMLOGGERCONFIG=$(PCP_SYSCONF_DIR)/pmlogger
 DEMODIR=$(PCP_DEMOS_DIR)/pmclient
 
 default:	$(CMDTARGET)

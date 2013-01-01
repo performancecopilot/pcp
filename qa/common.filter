@@ -371,6 +371,7 @@ s/ PMCD / pmcd /
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
+	-e "s;$PCP_SYSCONF_DIR/;\$PCP_SYSCONF_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
         -e '/^Starting PCP$/d' \

@@ -26,7 +26,7 @@ default:
 
 include $(BUILDRULES)
 
-CONFIGDIR = $(PCP_VAR_DIR)/config/pmlogger
+CONFIGDIR = $(PCP_SYSCONF_DIR)/pmlogger
 
 install: default
 	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)

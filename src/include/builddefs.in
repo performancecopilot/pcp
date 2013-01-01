@@ -463,7 +463,10 @@ endif
 ifeq "$(TARGET_OS)" "linux"
 PYTHON_INSTALL = \
 	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
-		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm
+		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
+	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
+	    touch $${DIST_ROOT-/}$$f; \
+	done
 else
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = macosx \

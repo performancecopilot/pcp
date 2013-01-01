@@ -678,6 +678,9 @@ perl_installdirs
 pcp_lib32_dir
 pcp_lib_dir
 pcp_pmdas_dir
+pcp_var_dir
+pcp_binadm_dir
+pcp_share_dir
 pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
@@ -685,9 +688,7 @@ pcp_pmproxyoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
-pcp_var_dir
-pcp_binadm_dir
-pcp_share_dir
+pcp_sysconf_dir
 pcp_etc_dir
 lib_for_math
 lib_for_dlopen
@@ -16219,6 +16220,23 @@ fi
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
 
+pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
+pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
+
+pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
+pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
+pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
+pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
+pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
+pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+
+
+
+
+
+
+
 
 pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
@@ -16239,20 +16257,6 @@ if test "${with_configdir+set}" = set; then
 else
   pcp_config_dir=$pcp_var_dir/config
 fi
-
-pcp_pmcdconf_path=$pcp_config_dir/pmcd/pmcd.conf
-pcp_pmcdrclocal_path=$pcp_config_dir/pmcd/rc.local
-pcp_pmcdoptions_path=$pcp_config_dir/pmcd/pmcd.options
-pcp_pmproxyoptions_path=$pcp_config_dir/pmproxy/pmproxy.options
-pcp_pmiecontrol_path=$pcp_config_dir/pmie/control
-pcp_pmsnapcontrol_path=$pcp_config_dir/pmsnap/control
-pcp_pmloggercontrol_path=$pcp_config_dir/pmlogger/control
-
-
-
-
-
-
 
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
@@ -19626,7 +19630,7 @@ done
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head build/tar/preinstall.head"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20226,6 +20230,8 @@ do
     "src/include/builddefs") CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
     "pcp.lsm") CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;
+    "debian/pcp.preinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.preinst.head" ;;
+    "build/tar/preinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/preinstall.head" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

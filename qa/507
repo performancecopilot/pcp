@@ -54,7 +54,7 @@ $NF == "RAM"	{ x = $(NF-1); x = ((int)(x/128)+1)*128; $(NF-1) = x }
 # 
 # real QA test starts here
 
-pmlogger -T 3sec -c $PCP_VAR_DIR/config/pmlogger/config.pcp $tmp.archive
+pmlogger -T 3sec -c $PCP_SYSCONF_DIR/pmlogger/config.pcp $tmp.archive
 echo pmlogger status=$?
 
 pcp -a $tmp.archive | _filter >$tmp.arch

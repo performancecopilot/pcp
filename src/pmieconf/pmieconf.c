@@ -646,8 +646,8 @@ command_quit(void)
 	    free(processes);
 	    pprintf("\n\
   o  Refer to pmie_check(1) for a convenient mechanism for restarting pmie\n\
-     daemons launched under the control of %s/config/pmie/control;\n\
-     e.g.\t%s/pmie_check -V\n", pmGetConfig("PCP_VAR_DIR"), pmGetConfig("PCP_BINADM_DIR"));
+     daemons launched under the control of %s/pmie/control;\n\
+     e.g.\t%s/pmie_check -V\n", pmGetConfig("PCP_SYSCONF_DIR"), pmGetConfig("PCP_BINADM_DIR"));
 	}
     }
 }

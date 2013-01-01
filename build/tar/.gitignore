@@ -1,2 +1,4 @@
 *.tar.gz
 pcp.md5sum.src
+preinstall.head
+preinstall

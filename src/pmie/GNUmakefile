@@ -25,7 +25,7 @@ LSRCFILES = control rc_pmie pmie_check.sh crontab config.default \
 	stomp.install pmie2col pmie_daily.sh
 LDIRT	= control.install config.default.install crontab.install
 
-CFG_DIR	= $(PCP_VAR_DIR)/config/pmie
+CFG_DIR	= $(PCP_SYSCONF_DIR)/pmie
 
 default:: control.install config.default.install crontab.install
 

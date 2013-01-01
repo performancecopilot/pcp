@@ -515,7 +515,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    #
 	    if [ ! -f "$configfile" -a "`basename $configfile`" = "$configfile" ]
 	    then
-		configfile="$PCP_VAR_DIR/config/pmie/$configfile"
+		configfile="$PCP_SYSCONF_DIR/pmie/$configfile"
 	    fi
 
 	    if [ -f $configfile ]

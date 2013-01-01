@@ -18,11 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SPEC = pcp.spec
-LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros 
+LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros  pcp.spec.head fedora.spec.head
 
-SPECFILES = fedora.spec
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
-LSRCFILES = macros.template pcp.spec.in $(PERLFILES) $(SPECFILES)
+LSRCFILES = macros.template \
+	    pcp.spec.head.in pcp.spec.tail \
+	    fedora.spec.head.in fedora.spec.tail \
+	    $(PERLFILES)
 
 default install install_pcp default_pcp :
 
@@ -48,9 +50,9 @@ rpmmacros : macros.template
 	    -e "s|@rpmsdir@|$${RPMDIR}|g" \
 	    -e "s|@srpmsdir@|$${SRPMDIR}|"g \
 	    -e '/^%/s/[ \t]*$$/'\''/' \
-	    -e '/^%/s/^%/--define '\''/' < $< > $@
+	    -e '/^%/s/^%/--define '\''/' <$< >$@
 
-pcp.spec: pcp.spec.in
+pcp.spec.head: pcp.spec.head.in
 	@echo Generating $@ from $?; \
 	sed -e's|@package_sgirelease@|$(SGIRELEASENUMBER)|g' \
 	    -e's|@sgi_chroot_build@|$(SGI_CHROOT_BUILD)|g' \
@@ -62,12 +64,22 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
 	    -e's|@package_builder@|$(PACKAGE_BUILDER)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
-	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
-	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \
+	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
-	    -e's|@pcp_run_dir@|$(PCP_RUN_DIR)|g' \
-	    -e's|@pcp_tmp_dir@|$(PCP_TMP_DIR)|g' \
-	    -e's|@make@|$(PCP_MAKE_PROG)|g' < $? > $@
+	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
+
+pcp.spec: pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail
+	rm -f pcp.spec
+	cat pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail >pcp.spec
+
+fedora.spec.head: fedora.spec.head.in
+	@echo Generating $@ from $?; \
+	sed -e's|@pcp_sysconf_dir@|$(PCP_SYSOCNF_DIR)|g' \
+	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' <$? >$@
+
+fedora.spec: fedora.spec.head ../../debian/cleanconfigs fedora.spec.tail
+	rm -f fedora.spec
+	cat fedora.spec.head ../../debian/cleanconfigs fedora.spec.tail >fedora.spec
 
 include $(BUILDRULES)
 
