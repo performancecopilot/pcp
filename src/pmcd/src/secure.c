@@ -46,6 +46,12 @@ pmcd_compression_enabled(void)
 }
 
 static int
+secure_server_error(void)
+{
+    return PM_ERR_NYI + PR_GetError();	/* returned value is negative */
+}
+
+static int
 secure_file_contents(const char *filename, char **passwd, size_t *length)
 {
     struct stat	stat;
@@ -91,7 +97,7 @@ static char *
 certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
 {
     size_t length = MAX_DATABASE_PASSWORD;
-    char *password;
+    char *password = NULL;
     int sts;
 
     (void)arg;
@@ -129,15 +135,15 @@ __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
 	secsts = DER_GeneralizedTimeToTime(&itime, vtime);
 	break;
     default:
-	return -1;
+	return -EINVAL;
     }
     if (secsts != SECSuccess)
-	return -1;
+	return secure_server_error();
 
     /* Convert to local time */
     PR_ExplodeTime(itime, PR_GMTParameters, &exploded);
     if (!PR_FormatTime(buffer, size, "%a %b %d %H:%M:%S %Y", &exploded))
-	return -1;
+	return secure_server_error();
     return 0;
 }
 
@@ -188,21 +194,23 @@ pmcd_secure_server_setup(const char *dbpath, const char *passwd)
     secsts = NSS_Init(database_path);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_INFO,
-		"Disabling encryption - cannot setup certificate DB path: %s",
-		database_path);
+		"Disabling encryption - cannot setup certificate DB (%s): %s",
+		database_path, pmErrStr(secure_server_error()));
 	return 0;
     }
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy");
+	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy: %s",
+		pmErrStr(secure_server_error()));
 	return -EINVAL;
     }
 
     /* Configure the SSL session cache for single process server, using defaults */
     secsts = SSL_ConfigServerSessionIDCache(0, 0, 0, NULL);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache");
+	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
+		pmErrStr(secure_server_error()));
 	return -EINVAL;
     } else {
 	ssl_session_cache_setup = 1;
@@ -299,17 +307,26 @@ pmcd_secure_handshake(int fd, int flags)
 	return PM_ERR_IPC;
 
     secsts = SSL_ConfigSecureServer(sslsocket, certificate, private_key, certificate_KEA);
-    if (secsts != SECSuccess)
+    if (secsts != SECSuccess) {
+	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
+			    pmErrStr(secure_server_error()));
 	return PM_ERR_IPC;
+    }
 
     secsts = SSL_ResetHandshake(sslsocket, PR_TRUE /*server*/);
-    if (secsts != SECSuccess)
+    if (secsts != SECSuccess) {
+	__pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
+			    pmErrStr(secure_server_error()));
 	return PM_ERR_IPC;
+    }
 
     /* Server initiates the handshake */
     secsts = SSL_ForceHandshake(sslsocket);
-    if (secsts != SECSuccess)
+    if (secsts != SECSuccess) {
+	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
+			    pmErrStr(secure_server_error()));
 	return PM_ERR_IPC;
+    }
 
     return 0;
 }

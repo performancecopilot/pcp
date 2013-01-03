@@ -193,7 +193,7 @@ typedef struct {
 
 #define PM_ERR_PMDAREADY	(-PM_ERR_BASE-1048) /* now ready to respond */
 #define PM_ERR_PMDANOTREADY	(-PM_ERR_BASE-1049) /* not yet ready to respond */
-#define PM_ERR_NYI		(-PM_ERR_BASE-8999) /* Functionality not yet implemented */
+#define PM_ERR_NYI		(-PM_ERR_BASE-8999) /* Functionality not yet implemented [end-of-range mark] */
 
 /*
  * Report PMAPI errors messages
