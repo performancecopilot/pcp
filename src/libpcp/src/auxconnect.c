@@ -401,14 +401,7 @@ __pmDataIPCSize(void)
 }
 
 int
-__pmSetSecureClientIPC(int fd)
-{
-    (void)fd;
-    return -EOPNOTSUPP;
-}
-
-int
-__pmSetSecureServerIPC(int fd)
+__pmSecureServerIPCFlags(int fd)
 {
     (void)fd;
     return -EOPNOTSUPP;
@@ -894,8 +887,8 @@ __pmShutdownCertificates(void)
     return 0;
 }
 
-int
-__pmSetClientIPCFlags(int fd, int flags)
+static int
+__pmSecureClientIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
@@ -906,7 +899,7 @@ __pmSetClientIPCFlags(int fd, int flags)
 	return -EOPNOTSUPP;
 
     if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "SetClientIPCFlags: importing socket into SSL");
+	__pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
 	return PM_ERR_IPC;
     }
 
@@ -936,7 +929,7 @@ __pmSecureClientHandshake(int fd, int flags)
     SECStatus secsts;
     int sts;
 
-    if ((sts = __pmSetClientIPCFlags(fd, flags)) < 0)
+    if ((sts = __pmSecureClientIPCFlags(fd, flags)) < 0)
 	return sts;
 
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
@@ -965,7 +958,7 @@ __pmGetSecureSocket(int fd)
 }
 
 int
-__pmSetServerIPCFlags(int fd, int flags)
+__pmSecureServerIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;

@@ -299,7 +299,7 @@ pmcd_secure_handshake(int fd, int flags)
     if ((flags & mask) != 0)
 	return PM_ERR_IPC;
 
-    if ((sts = __pmSetServerIPCFlags(fd, flags)) < 0)
+    if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
 	return sts;
 
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
@@ -320,7 +320,7 @@ pmcd_secure_handshake(int fd, int flags)
 	return PM_ERR_IPC;
     }
 
-    /* Server initiates the handshake */
+    /* Server initiates handshake now to get early visibility of errors */
     secsts = SSL_ForceHandshake(sslsocket);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
