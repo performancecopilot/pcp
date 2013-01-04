@@ -108,8 +108,6 @@ static LexEntry2 unitab[] = {
 	{"count",	EVENT_UNIT, 0},
 	{"Kcount",	EVENT_UNIT, 3},
 	{"Mcount",	EVENT_UNIT, 6},
-	{"Gcount",	EVENT_UNIT, 9},
-	{"Tcount",	EVENT_UNIT, 12},
         {"nanosec",	TIME_UNIT,  PM_TIME_NSEC},
         {"nanosecond",	TIME_UNIT,  PM_TIME_NSEC},
         {"microsec",	TIME_UNIT,  PM_TIME_USEC},
