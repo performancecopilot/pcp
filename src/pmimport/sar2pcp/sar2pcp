@@ -57,6 +57,16 @@ sub dodate($)
     return $fields[2] . '-' . $mm_map{$mm} . '-' . $fields[0];
 }
 
+sub dotime($)
+{
+    # convert time format HH-MM-SS from a few 10.x sysstat versions
+    # into the format HH:MM:SS that Date::Parse (reasonably) expects
+    #
+    my ($daytime) = @_;
+    $daytime =~ s/-/:/g;
+    return $daytime;
+}
+
 sub dovalue($)
 {
     # convert string to floating point value:  "0,00" / "0.00" / undef
@@ -259,7 +269,7 @@ pmiStart($ARGV[1], 0);
 while (defined(my $token = $parser->get_token())) {
     if ($token->is_start_tag) {
 	if ($token->tag eq 'timestamp') {
-	    $stamp = dodate($token->attr->{'date'}) . ' ' . $token->attr->{'time'};
+	    $stamp = dodate($token->attr->{'date'}) . ' ' . dotime($token->attr->{'time'});
 	    $sample++;
 	    $putsts = 0;
 	}
