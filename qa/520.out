@@ -537,29 +537,30 @@ avg_host (min_inst (sampledso.bin :vm00 :vm01 :vm02 :vm03 #bin-100 #bin-200 #bin
 expr_8 =
 count_host (some_inst (sampledso.part_bin :vm00 #bin-100 #bin-200 #bin-300 #bin-400 #bin-500 #bin-600 #bin-700 #bin-800 #bin-900 > 300)) > 0 -> print "count_host:" " @%h [%i] %v";
 
-pmie> print DATE: some_host: @vm00 114 @vm01 282 @vm02 78 @vm03 282
-print DATE: all_host: @vm00 1140 @vm01 2820 @vm02 780 @vm03 2820
+pmie> print DATE: some_host: @vm00 144 @vm01 57 @vm02 101 @vm03 125
+print DATE: all_host: @vm00 1440 @vm01 570 @vm02 1010 @vm03 1250
 print DATE: 25%_host: @vm03 995
 print DATE: min_host: @vm00 250609664
 print DATE: sum_host: @<%h undefined> 8
-print DATE: some_host: @vm00 129 @vm01 297 @vm02 29 @vm03 297
-print DATE: all_host: @vm00 1290 @vm01 2970 @vm02 290 @vm03 2970
+print DATE: count_host: @<%h undefined> [<%i undefined>] 1
+print DATE: some_host: @vm00 173 @vm01 50 @vm02 65 @vm03 170
+print DATE: all_host: @vm00 1730 @vm01 500 @vm02 650 @vm03 1700
 print DATE: 25%_host: @vm03 995
 print DATE: min_host: @vm00 250609664
 print DATE: max_host: @vm00 119
 print DATE: sum_host: @<%h undefined> 8
 print DATE: avg_host: @<%h undefined> [<%i undefined>] 100
 print DATE: count_host: @<%h undefined> [<%i undefined>] 1
-print DATE: some_host: @vm00 158 @vm01 288 @vm03 261
-print DATE: all_host: @vm00 1580 @vm01 2880 @vm02 0 @vm03 2610
+print DATE: some_host: @vm00 179 @vm01 18 @vm02 62 @vm03 183
+print DATE: all_host: @vm00 1790 @vm01 180 @vm02 620 @vm03 1830
 print DATE: 25%_host: @vm03 995
 print DATE: min_host: @vm00 250609664
-print DATE: max_host: @vm03 125
+print DATE: max_host: @vm00 122
 print DATE: sum_host: @<%h undefined> 8
 print DATE: avg_host: @<%h undefined> [<%i undefined>] 100
 print DATE: count_host: @<%h undefined> [<%i undefined>] 1
-print DATE: some_host: @vm00 139 @vm01 261 @vm03 261
-print DATE: all_host: @vm00 1390 @vm01 2610 @vm02 0 @vm03 2610
+print DATE: some_host: @vm00 218 @vm02 14 @vm03 197
+print DATE: all_host: @vm00 2180 @vm01 0 @vm02 140 @vm03 1970
 print DATE: 25%_host: @vm03 995
 print DATE: min_host: @vm00 250609664
 print DATE: max_host: @vm00 125
