@@ -8,7 +8,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config
-log mandatory on 2sec {
+log mandatory on default {
     hinv
     sampledso.colour
     sampledso.bin
@@ -40,9 +40,20 @@ then
     exit
 fi
 
+# randomize the pmcd's a little
+#
 for host
 do
-    pmlogger -l $tmp.$host -c $tmp.config -T10sec -h $host multi-$host &
+    rm -f $tmp.tmp.* $tmp.$host
+    date >/dev/null 2>&1 &
+    n=`echo $! | awk '{ srand($1); print int(rand()*5)+1 }'`
+    echo "$host: prime with $n samples"
+    pmlogger -t 100msec -s $n -l $tmp.$host -c $tmp.config -T10sec -h $host $tmp.tmp
+done
+
+for host
+do
+    pmlogger -t 2sec -l $tmp.$host -c $tmp.config -T10sec -h $host multi-$host &
 done
 
 wait
