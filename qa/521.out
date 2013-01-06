@@ -13,8 +13,7 @@ byte_Kbyte: true
 Mbyte_Gbyte: true
 Gbyte_Tbyte: true
 count_Kcount: true
-Mcount_Gcount: true
-Gcount_Tcount: true
+Kcount_Mcount: true
 minute_macro: true
 hour_macro: true
 day_macro: true
@@ -35,8 +34,7 @@ byte_Kbyte: true
 Mbyte_Gbyte: true
 Gbyte_Tbyte: true
 count_Kcount: true
-Mcount_Gcount: true
-Gcount_Tcount: true
+Kcount_Mcount: true
 minute_macro: true
 hour_macro: true
 day_macro: true
