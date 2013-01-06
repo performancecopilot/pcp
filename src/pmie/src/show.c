@@ -138,9 +138,13 @@ concat(char *string1, size_t pos, char **string2)
 static int
 lookupHostInst(Expr *x, int nth, char **host, char **inst)
 {
-    Metric	*m;
+    Metric	*m = NULL;
     int		mi;
     int		sts = 0;
+    int		pick = -1;
+    int		matchaggr = 0;
+    int		aggrop = NOP;
+    double      *aggrval = NULL;
 #if PCP_DEBUG
     static Expr	*lastx = NULL;
     int		dbg_dump = 0;
@@ -155,6 +159,24 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
 	}
     }
 #endif
+    if (x->op == CND_MIN_HOST || x->op == CND_MAX_HOST ||
+        x->op == CND_MIN_INST || x->op == CND_MAX_INST ||
+        x->op == CND_MIN_TIME || x->op == CND_MAX_TIME) {
+	/*
+	 * extrema operators ... value is here, but the host, instance, sample
+	 * context is in the child expression ... go one level deeper and try
+	 * to match the value
+	 */
+	aggrop = x->op;
+	aggrval = (double *)x->smpls[0].ptr;
+	matchaggr = 1;
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL2) {
+	    fprintf(stderr, "lookupHostInst look for extrema val=%f @ " PRINTF_P_PFX "%p\n", *aggrval, x);
+	}
+	x = x->arg1;
+#endif
+    }
 
     /* check for no host and instance available e.g. constant expression */
     if ((x->e_idom <= 0 && x->hdom <= 0) || ! x->metrics) {
@@ -169,31 +191,101 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
     }
 
     /* find Metric containing the nth instance */
-    mi = 0;
-    for (;;) {
-	m = &x->metrics[mi];
+    if (matchaggr == 0) {
+	pick = nth;
+	mi = 0;
+	for (;;) {
+	    m = &x->metrics[mi];
 #if PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
-	    fprintf(stderr, "lookupHostInst: metrics[%d]\n", mi);
-	    dumpMetric(m);
-	}
+	    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+		fprintf(stderr, "lookupHostInst: metrics[%d]\n", mi);
+		dumpMetric(m);
+	    }
 #endif
-	if (nth < m->m_idom)
-	    break;
-	if (m->m_idom > 0)
-	    nth -= m->m_idom;
-	mi++;
+	    if (pick < m->m_idom)
+		break;
+	    if (m->m_idom > 0)
+		pick -= m->m_idom;
+	    mi++;
+	}
+    }
+    else {
+	if (aggrop == CND_MIN_HOST || aggrop == CND_MAX_HOST) {
+	    int		k;
+#if PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+		fprintf(stderr, "lookupHostInst [extrema_host]:\n");
+	    }
+#endif
+	    for (k = 0; k < x->tspan; k++) {
+#if DESPERATE
+		fprintf(stderr, "smpls[0][%d]=%g\n", k, *((double *)x->smpls[0].ptr+k));
+#endif
+		if (*aggrval == *((double *)x->smpls[0].ptr+k)) {
+		    m = &x->metrics[k];
+		    goto done;
+		}
+	    }
+	    fprintf(stderr, "Internal error: LookupHostInst: %s\n", opStrings(aggrop));
+	}
+	else if (aggrop == CND_MIN_INST || aggrop == CND_MAX_INST) {
+	    int		k;
+	    for (k = 0; k < x->tspan; k++) {
+#if DESPERATE
+		fprintf(stderr, "smpls[0][%d]=%g\n", k, *((double *)x->smpls[0].ptr+k));
+#endif
+		if (*aggrval == *((double *)x->smpls[0].ptr+k)) {
+		    pick = k;
+		    m = &x->metrics[0];
+#if PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+			fprintf(stderr, "lookupHostInst [extrema_inst]:\n");
+			dumpMetric(m);
+		    }
+#endif
+		    goto done;
+		}
+	    }
+	    fprintf(stderr, "Internal error: LookupHostInst: %s\n", opStrings(aggrop));
+	}
+	else if (aggrop == CND_MIN_TIME || aggrop == CND_MAX_TIME) {
+	    int		k;
+	    for (k = 0; k < x->nsmpls; k++) {
+#if DESPERATE
+		fprintf(stderr, "smpls[%d][0]=%g\n", k, *((double *)x->smpls[k].ptr));
+#endif
+		if (*aggrval == *((double *)x->smpls[k].ptr)) {
+		    pick = nth;
+		    m = &x->metrics[0];
+#if PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_APPL2) && dbg_dump) {
+			fprintf(stderr, "lookupHostInst [extrema_sample]:\n");
+			dumpMetric(m);
+		    }
+#endif
+		    goto done;
+		}
+	    }
+	    fprintf(stderr, "Internal error: LookupHostInst: %s\n", opStrings(aggrop));
+	}
     }
 
+done:
     /* host and instance names */
-    *host = symName(m->hname);
-    sts++;
-    if (x->e_idom > 0 && m->inames) {
-	*inst = m->inames[nth];
-	sts++;
-    }
-    else
+    if (m == NULL) {
+	*host = NULL;
 	*inst = NULL;
+    }
+    else {
+	*host = symName(m->hname);
+	sts++;
+	if (pick >= 0 && x->e_idom > 0 && m->inames) {
+	    *inst = m->inames[pick];
+	    sts++;
+	}
+	else
+	    *inst = NULL;
+    }
 
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL2) {
@@ -464,7 +556,7 @@ showSyn(FILE *f, Expr *x)
 	     * better if we punt on there being a single double representation
 	     * of the % value at the end of arg2
 	     */
-	    pcnt = (int)(*((double *)x->arg2->smpls[0].ptr)*100);
+	    pcnt = (int)(*((double *)x->arg2->smpls[0].ptr)*100+0.5);
 	    fprintf(f, "%d%%", pcnt);
 	    fputc(' ', f);
 	    if (x->arg1->op == NOP || x->arg1->op == CND_DELAY || x->arg1->op == CND_FETCH)
@@ -605,12 +697,18 @@ findBindings(Expr *x)
 	    x->op == CND_AVG_HOST || x->op == CND_AVG_INST || x->op == CND_AVG_TIME ||
 	    x->op == CND_MAX_HOST || x->op == CND_MAX_INST || x->op == CND_MAX_TIME ||
 	    x->op == CND_MIN_HOST || x->op == CND_MIN_INST || x->op == CND_MIN_TIME ||
-	    x->op == CND_COUNT_HOST || x->op == CND_COUNT_INST || x->op == CND_COUNT_TIME)
+	    x->op == CND_COUNT_HOST || x->op == CND_COUNT_INST || x->op == CND_COUNT_TIME) {
 	    /*
 	     * don't descend below an aggregation operator with a singular
 	     * value, ... value you seek is right here
 	     */
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2) {
+		fprintf(stderr, "findBindings: found %s @ x=" PRINTF_P_PFX "%p\n", opStrings(x->op), x);
+	    }
+#endif
 	    break;
+	}
 	if (x->arg1 && x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
 #if PCP_DEBUG
@@ -630,6 +728,12 @@ findBindings(Expr *x)
 	else
 	    break;
     }
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "findBindings finish @ " PRINTF_P_PFX "%p\n", x);
+	dumpTree(x);
+    }
+#endif
     return x;
 }
 
@@ -662,6 +766,12 @@ findValues(Expr *x)
 #endif
 	}
     }
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "findValues finish @ " PRINTF_P_PFX "%p\n", x);
+	dumpTree(x);
+    }
+#endif
     return x;
 }
 
