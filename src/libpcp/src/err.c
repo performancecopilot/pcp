@@ -184,11 +184,9 @@ pmErrStr_r(int code, char *buf, int buflen)
 #define DECODE_SECURE_SOCKETS_ERROR(c)	((c) - PM_ERR_NYI)	/* negative */
 
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
-	if (IS_SEC_ERROR(error) || IS_SSL_ERROR(error)) {
-	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
-	    buf[buflen-1] = '\0';
-	    return buf;
-	}
+	strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
+	buf[buflen-1] = '\0';
+	return buf;
 #endif
     }
 
