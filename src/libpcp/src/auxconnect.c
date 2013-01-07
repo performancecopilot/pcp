@@ -902,6 +902,7 @@ __pmSecureClientIPCFlags(int fd, int flags)
 	__pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
 	return PM_ERR_IPC;
     }
+    socket.nsprFd = socket.sslFd;	/* TODO: remove seperate sslFd? */
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
 	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
@@ -970,6 +971,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 
     if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL)
 	return __pmSecureSocketsError();
+    socket.nsprFd = socket.sslFd;	/* TODO: remove seperate sslFd? */
 
     secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
     if (secsts != SECSuccess)
