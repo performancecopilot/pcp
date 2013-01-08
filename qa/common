@@ -654,17 +654,13 @@ else
     x=`pwd`
     while [ -n "$x" -a "$x" != / ]
     do
-	prot=`stat $x | sed -n -e '/Access.*Uid/{
-s/).*Uid.*//
-s/t$//
-s/.*\/d...//p
-}'`
+	prot=`ls -ld "$x" | sed -e 's/[ 	].*//'`
 	case $prot
 	in
-	    r?xr?x)
+	    dr?xr?xr?[xt]*)
 		;;
 	    *)
-		echo "Warning: parent directory $x not world readable and searchable"
+		echo "Warning: parent directory $x (mode=$prot) not world readable and searchable"
 		;;
 	esac
 	x=`dirname $x`
