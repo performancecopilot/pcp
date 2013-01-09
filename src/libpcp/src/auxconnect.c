@@ -24,6 +24,7 @@
 #include <ssl.h>
 #include <nspr.h>
 #include <private/pprio.h>
+#include <sslerr.h>
 
 struct __pmSockAddrIn {
     PRNetAddr		sockaddr;
@@ -225,7 +226,6 @@ __pmConnectTimeout(void)
 					 (double)canwait.tv_sec) * 1000000);
 	    }
 	}
-
     }
     PM_UNLOCK(__pmLock_libpcp);
     return (&canwait);
@@ -408,10 +408,11 @@ __pmSecureServerIPCFlags(int fd)
 }
 
 int
-__pmSecureClientHandshake(int fd, int flags)
+__pmSecureClientHandshake(int fd, int flags, const char *hostname)
 {
     (void)fd;
     (void)flags;
+    (void)hostname;
     return -EOPNOTSUPP;
 }
 
@@ -887,8 +888,66 @@ __pmShutdownCertificates(void)
     return 0;
 }
 
+static SECStatus
+badCert(void *arg, PRFileDesc *sslsocket)
+{
+    SECItem secitem = { 0 };
+    SECStatus secstatus = SECFailure;
+    PRArenaPool *arena = NULL;
+    CERTCertificate *servercert = NULL;
+    char *expected;
+
+    (void)arg;
+    switch (PR_GetError()) {
+    case SSL_ERROR_BAD_CERT_DOMAIN:
+	/*
+	 * Propogate a warning through to the client.  Show the expected
+	 * host, then list the DNS names from the server certificate.
+	 */
+	expected = SSL_RevealURL(sslsocket);
+	pmprintf("WARNING: "
+"The domain name %s does not match the DNS name(s) on the server certificate:\n",
+		expected);
+	PORT_Free(expected);
+
+	servercert = SSL_PeerCertificate(sslsocket);
+	secstatus = CERT_FindCertExtension(servercert,
+				SEC_OID_X509_SUBJECT_ALT_NAME, &secitem);
+	if (secstatus != SECSuccess || !secitem.data) {
+	    pmprintf("Unable to find alt name extension on the server certificate\n");
+	} else if ((arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE)) == NULL) {
+	    pmprintf("Out of memory while generating name list\n");
+	    SECITEM_FreeItem(&secitem, PR_FALSE);
+	} else {
+	    CERTGeneralName *namelist, *n;
+
+	    namelist = n = CERT_DecodeAltNameExtension(arena, &secitem);
+	    SECITEM_FreeItem(&secitem, PR_FALSE);
+	    if (!namelist) {
+		pmprintf("Unable to decode alt name extension on server certificate\n");
+	    } else {
+		do {
+		    if (n->type == certDNSName)
+			pmprintf("  %.*s\n", (int)n->name.other.len, n->name.other.data);
+		    n = CERT_GetNextGeneralName(n);
+		} while (n != namelist);
+	    }
+	}
+	if (arena)
+	    PORT_FreeArena(arena, PR_FALSE);
+	if (servercert)
+	    CERT_DestroyCertificate(servercert);
+	secstatus = SECSuccess;
+	pmflush();
+	break;
+    default:
+	break;
+    }
+    return secstatus;
+}
+
 static int
-__pmSecureClientIPCFlags(int fd, int flags)
+__pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
@@ -911,6 +970,12 @@ __pmSecureClientIPCFlags(int fd, int flags)
 	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError();
+	secsts = SSL_SetURL(socket.sslFd, hostname);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_BadCertHook(socket.sslFd, (SSLBadCertHandler)badCert, NULL);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
@@ -924,13 +989,13 @@ __pmSecureClientIPCFlags(int fd, int flags)
 }
 
 int
-__pmSecureClientHandshake(int fd, int flags)
+__pmSecureClientHandshake(int fd, int flags, const char *hostname)
 {
     PRFileDesc *sslsocket;
     SECStatus secsts;
     int sts;
 
-    if ((sts = __pmSecureClientIPCFlags(fd, flags)) < 0)
+    if ((sts = __pmSecureClientIPCFlags(fd, flags, hostname)) < 0)
 	return sts;
 
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);

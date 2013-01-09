@@ -65,11 +65,13 @@ do
 done
 
 qahost=`_get_fqdn`
+hostname=`hostname | sed -e 's/\..*//'`
 
 _filter_pminfo()
 {
     sed \
 	-e "s/$qahost/QAHOST/g" \
+	-e "s/$hostname/HOST/g" \
 	-e 's/value [0-9][0-9]*/value NUMBER/'
 }
 
@@ -86,9 +88,10 @@ $sudo certutil $certopts -S -x \
 	-n "CA certificate" -s "cn=Local PCP Installation, dc=pcp,dc=org"  \
 	-t "CT,,"  -m 1000 -v 120 -k rsa >> $seq.full 2>&1
 $sudo certutil $certopts -S \
-	-n "PCP Collector certificate" -s "cn=$qahost" \
+	-n "PCP Collector certificate" -s "cn=$qahost" -8 "$hostname" \
 	-c "CA certificate" \
 	-t "u,u,u" -m 1001 -v 120 -k rsa >> $seq.full 2>&1
+$sudo chown -R pcp:pcp $collectordb
 echo "== Certificate DB and local certificates created" | tee -a $seq.full
 
 # export ascii copy of the certificate for later use
@@ -123,8 +126,9 @@ pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 # make the new certificate visible to all local clients
 echo "checking client, site certificate only.  should pass..."
 $sudo rm -fr $usersdb $monitordb
-$sudo mkdir -m 0700 $monitordb
+$sudo mkdir -m 0755 $monitordb
 $sudo certutil -A -d $monitordb -n "CA certificate" -t "CT,," -a -i $tmp.cacert.asc
+$sudo chmod 0644 $monitordb/*
 pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 
 # make the new certificate visible to just this user

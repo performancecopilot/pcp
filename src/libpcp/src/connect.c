@@ -87,7 +87,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
  * client connects to pmcd handshake
  */
 static int
-__pmConnectHandshake(int fd, int ctxflags)
+__pmConnectHandshake(int fd, int ctxflags, const char *hostname)
 {
     __pmPDU	*pb;
     int		ok;
@@ -172,7 +172,7 @@ __pmConnectHandshake(int fd, int ctxflags)
 	     * completes the SSL handshake in encrypting mode).
 	     */
 	    if (sts >= 0 && pduflags)
-		sts = __pmSecureClientHandshake(fd, pduflags);
+		sts = __pmSecureClientHandshake(fd, pduflags, hostname);
 	}
 	else
 	    sts = PM_ERR_IPC;
@@ -340,13 +340,15 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
     }
 
     if (proxy.name == NULL && nhosts == 1) {
+	const char *name = (const char *)hosts[0].name;
+
 	/*
 	 * no proxy, connecting directly to pmcd
 	 */
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
-	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
-		if ((sts = __pmConnectHandshake(fd, ctxflags)) < 0) {
+	    if ((fd = __pmAuxConnectPMCDPort(name, ports[i])) >= 0) {
+		if ((sts = __pmConnectHandshake(fd, ctxflags, name)) < 0) {
 		    __pmCloseSocket(fd);
 		}
 		else
@@ -406,7 +408,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    __pmCloseSocket(fd);
-	else if ((sts = __pmConnectHandshake(fd, ctxflags)) < 0)
+	else if ((sts = __pmConnectHandshake(fd, ctxflags, proxyhost->name)) < 0)
 	    __pmCloseSocket(fd);
 	else
 	    /* success */

@@ -502,7 +502,7 @@ extern void __pmConnectGetPorts(pmHostSpec *);
 /*
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
-extern int __pmSecureClientHandshake(int, int);
+extern int __pmSecureClientHandshake(int, int, const char *);
 extern int __pmSecureServerIPCFlags(int, int);
 extern void *__pmGetSecureSocket(int);
 
