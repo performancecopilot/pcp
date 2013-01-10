@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,6 @@ static char	*username = "pcp";
 typedef struct {
     int		fd;		/* File descriptor */
     char*	ipSpec;		/* String used to specify IP addr (or NULL) */
-    __uint32_t	ipAddr;		/* IP address (network byte order) */
 } ReqPortInfo;
 
 /*
@@ -87,41 +86,20 @@ static int
 AddRequestPort(char *ipSpec)
 {
     ReqPortInfo		*rp;
-    char		*sp = ipSpec;
-    char		*endp;
-    u_long		addr = 0;
-    int			i;
 
     if (nReqPorts == szReqPorts)
 	GrowReqPorts();
     rp = &reqPorts[nReqPorts];
 
     rp->fd = -1;
-    if (ipSpec) {
-	for (i = 0; i < 4; i++) {
-	    unsigned long part = strtoul(sp, &endp, 10);
-
-	    if (*endp != ((i < 3) ? '.' : '\0'))
-		return 0;
-	    if (part > 255)
-		return 0;
-	    addr |= part << (8 * (3 - i));
-	    if (i < 3)
-		sp = endp + 1;
-	}
-    }
-    else {
+    if (ipSpec == NULL)
 	ipSpec = "INADDR_ANY";
-	addr = INADDR_ANY;
-    }
     rp->ipSpec = strdup(ipSpec);
-    rp->ipAddr = (__uint32_t)htonl(addr);
     nReqPorts++;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "AddRequestPort: %s -> %08lx -> %08x\n",
-		rp->ipSpec, addr, rp->ipAddr);
+	fprintf(stderr, "AddRequestPort: %s\n", rp->ipSpec);
 #endif
     return 1;	/* success */
 
@@ -217,10 +195,10 @@ ParseOptions(int argc, char *argv[])
  * clients to use.  Only returns if it succeeds (exits on failure).
  * ipAddr is the IP address that the port is advertised for (in network byte
  * order, see htonl(3N)).  To allow connections to all this host's IP addresses
- * from clients use ipAddr = htonl(INADDR_ANY).
+ * from clients use ipSpec = "INADDR_ANY".
  */
 static int
-OpenRequestSocket(int port, __uint32_t ipAddr)
+OpenRequestSocket(int port, const char * ipSpec)
 {
     int			fd;
     int			sts;
@@ -261,18 +239,25 @@ OpenRequestSocket(int port, __uint32_t ipAddr)
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, ipAddr, netstrerror());
+		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
+		port, ipSpec, netstrerror());
 	DontStart();
     }
 
+    /* Initialize the socket address */
     myAddr = __pmAllocSockAddr();
     if (myAddr == NULL) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) addr alloc failed\n",
-		port, ipAddr);
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) addr alloc failed\n",
+		port, ipSpec);
 	DontStart();
     }
-    __pmInitSockAddr(myAddr, ipAddr, htons(port));
+    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+		      port, ipSpec);
+	DontStart();
+    }
+    __pmSetPort(myAddr, port);
+
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
@@ -589,7 +574,7 @@ main(int argc, char *argv[])
 
     /* Open request ports for client connections */
     for (i = 0; i < nReqPorts; i++) {
-	int fd = OpenRequestSocket(port, reqPorts[i].ipAddr);
+	int fd = OpenRequestSocket(port, reqPorts[i].ipSpec);
 	if (fd != -1) {
 	    reqPorts[i].fd = fd;
 	    if (fd > maxReqPortFd)
@@ -613,13 +598,13 @@ main(int argc, char *argv[])
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
     fputs("pmproxy request port(s):\n"
-	  "  sts fd  IP addr\n"
-	  "  === === ========\n", stderr);
+	  "  sts fd   IP addr\n"
+	  "  === ==== ========\n", stderr);
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
-	fprintf(stderr, "  %s %3d %08x %s\n",
+	fprintf(stderr, "  %s %4d %s\n",
 		(rp->fd != -1) ? "ok " : "err",
-		rp->fd, rp->ipAddr,
+		rp->fd,
 		rp->ipSpec ? rp->ipSpec : "(any address)");
     }
     fflush(stderr);

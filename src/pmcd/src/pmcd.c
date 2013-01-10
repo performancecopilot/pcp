@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -57,7 +57,6 @@ typedef struct {
     int			fd;		/* File descriptor */
     int			port;		/* Listening port */
     char*		ipSpec;		/* String used to specify IP addr (or NULL) */
-    __uint32_t		ipAddr;		/* IP address (network byte order) */
 } ReqPortInfo;
 
 /*
@@ -136,43 +135,21 @@ static int
 AddRequestPort(char *ipSpec, int port)
 {
     ReqPortInfo		*rp;
-    u_long		addr = 0;
 
-    if (ipSpec) {
-	int		i;
-	char		*sp = ipSpec;
-	char		*endp;
-	unsigned long	part;
-
-	for (i = 0; i < 4; i++) {
-	    part = strtoul(sp, &endp, 10);
-	    if (*endp != ((i < 3) ? '.' : '\0'))
-		return 0;
-	    if (part > 255)
-		return 0;
-	    addr |= part << (8 * (3 - i));
-	    if (i < 3)
-		sp = endp + 1;
-	}
-    }
-    else {
+    if (ipSpec == NULL)
 	ipSpec = "INADDR_ANY";
-	addr = INADDR_ANY;
-    }
 
     if (nReqPorts == szReqPorts)
 	GrowReqPorts();
     rp = &reqPorts[nReqPorts];
     rp->fd = -1;
     rp->ipSpec = strdup(ipSpec);
-    rp->ipAddr = (__uint32_t)htonl(addr);
     rp->port = port;
     nReqPorts++;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "AddRequestPort: %s -> 0x%08lx -> 0x%08x port %d\n",
-		rp->ipSpec, addr, rp->ipAddr, rp->port);
+	fprintf(stderr, "AddRequestPort: %s port %d\n", rp->ipSpec, rp->port);
 #endif
 
     return 1;	/* success */
@@ -358,19 +335,19 @@ ParseOptions(int argc, char *argv[])
  * clients to use.  Returns -1 on failure.
  * ipAddr is the IP address that the port is advertised for (in network byte
  * order, see htonl(3N)).  To allow connections to all this host's IP addresses
- * from clients use ipAddr = htonl(INADDR_ANY).
+ * from clients use ipSpec = "INADDR_ANY".
  */
 static int
-OpenRequestSocket(int port, int ipAddr)
+OpenRequestSocket(int port, const char * ipSpec)
 {
     int			fd;
     int			one, sts;
-    struct __pmSockAddr *myAddr;
+    struct __pmSockAddr *myAddr = NULL;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) socket: %s\n",
-		port, ipAddr, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) socket: %s\n",
+		port, ipSpec, netstrerror());
 	return -1;
     }
     if (fd > maxClientFd)
@@ -383,16 +360,16 @@ OpenRequestSocket(int port, int ipAddr)
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		port, ipAddr, netstrerror());
+		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
+		port, ipSpec, netstrerror());
 	goto fail;
     }
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d,0x%x) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		port, ipAddr, netstrerror());
+		"OpenRequestSocket(%d,%s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
+		port, ipSpec, netstrerror());
 	goto fail;
     }
 #endif
@@ -401,24 +378,31 @@ OpenRequestSocket(int port, int ipAddr)
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, ipAddr, netstrerror());
+		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
+		port, ipSpec, netstrerror());
 	goto fail;
     }
 
+    /* Initialize the socket address */
     if ((myAddr = __pmAllocSockAddr()) == NULL) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, 0x%x) __pmAllocSockAddr: out of memory\n",
-		port, ipAddr);
+		"OpenRequestSocket(%d, %s) __pmAllocSockAddr: out of memory\n",
+		port, ipSpec);
 	goto fail;
     }
-    __pmInitSockAddr(myAddr, ipAddr, htons(port));
+    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+		      port, ipSpec);
+	goto fail;
+    }
+    __pmSetPort(myAddr, port);
+
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmFreeSockAddr(myAddr);
     if (sts < 0) {
 	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmBind: %s\n",
-		port, ipAddr, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",
+		port, ipSpec, netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmcd may already be running\n");
 	goto fail;
@@ -426,14 +410,16 @@ OpenRequestSocket(int port, int ipAddr)
 
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, 0x%x) __pmListen: %s\n",
-		port, ipAddr, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmListen: %s\n",
+		port, ipSpec, netstrerror());
 	goto fail;
     }
     return fd;
 
 fail:
     __pmCloseSocket(fd);
+    if (myAddr)
+        __pmFreeSockAddr(myAddr);
     return -1;
 }
 
@@ -1109,7 +1095,7 @@ main(int argc, char *argv[])
 
     /* Open request ports for client connections */
     for (i = 0; i < nReqPorts; i++) {
-	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipAddr);
+	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipSpec);
 	if (reqPorts[i].fd != -1) {
 	    if (reqPorts[i].fd > maxReqPortFd)
 		maxReqPortFd = reqPorts[i].fd;
@@ -1162,13 +1148,13 @@ main(int argc, char *argv[])
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
     fputc('\n', stderr);
     fputs("pmcd request port(s):\n"
-	  "  sts fd  port  IP addr\n"
-	  "  === === ===== ==========\n", stderr);
+	  "  sts fd   port  IP addr\n"
+	  "  === ==== ===== ==========\n", stderr);
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
-	fprintf(stderr, "  %s %3d %5d 0x%08x %s\n",
+	fprintf(stderr, "  %s %4d %5d %s\n",
 		(rp->fd != -1) ? "ok " : "err",
-		rp->fd, rp->port, rp->ipAddr,
+		rp->fd, rp->port,
 		rp->ipSpec ? rp->ipSpec : "(any address)");
     }
     fflush(stderr);

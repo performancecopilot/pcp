@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -83,7 +83,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: sock addr alloc failed\n");
 	exit(1);
     }
-    __pmInitSockAddr(myaddr, htonl(INADDR_ANY), htons(myport));
+    __pmInitSockAddr(myaddr, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
@@ -100,7 +100,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     from = myaddr;
     addrlen = __pmSockAddrSize();
     /* block here, waiting for a connection */
-    if ((*infd = __pmAccept(sfd, (void *)from, &addrlen)) < 0) {
+    if ((*infd = __pmAccept(sfd, from, &addrlen)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);

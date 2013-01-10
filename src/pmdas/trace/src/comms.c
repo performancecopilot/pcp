@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.  All Rights Reserved.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -262,7 +262,7 @@ getcport(void)
     }
 
     myAddr = __pmAllocSockAddr();
-    __pmInitSockAddr(myAddr, htonl(INADDR_ANY), htons(ctlport));
+    __pmInitSockAddr(myAddr, INADDR_ANY, ctlport);
 
     sts = __pmBind(fd, myAddr, sizeof(myAddr));
     if (sts < 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1346,8 +1346,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	    __pmFreeHostEnt(host);
 	    goto error;
 	}
-	__pmInitSockAddr(addr, 0, htons(aPtr->ipc.socket.port));
 	__pmSetSockAddr(addr, host);
+	__pmSetPort(addr, aPtr->ipc.socket.port);
 	sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
 	__pmFreeSockAddr(addr);
 	__pmFreeHostEnt(host);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2006 Aconex.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -63,7 +63,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 	goto error;
     }
 
-    __pmInitSockAddr(myaddr, htonl(INADDR_LOOPBACK), htons(port));
+    __pmInitSockAddr(myaddr, INADDR_LOOPBACK, port);
     if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
 	setoserror(neterror());
 	goto error;

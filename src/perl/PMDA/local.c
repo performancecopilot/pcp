@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -271,8 +271,8 @@ local_reconnector(files_t *file)
 	goto done;
     if ((fd = __pmCreateSocket()) < 0)
 	goto done;
-    __pmInitSockAddr(myaddr, 0, htons(files->me.sock.port));
     __pmSetSockAddr(myaddr, servinfo);
+    __pmSetPort(myaddr, files->me.sock.port);
     if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmCloseSocket(fd);
 	goto done;

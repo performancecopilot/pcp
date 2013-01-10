@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -162,8 +162,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	return fd;
     }
 
-    __pmInitSockAddr(myAddr, 0, htons(*port));
     __pmSetSockAddr(myAddr, servInfo);
+    __pmSetPort(myAddr, *port);
     PM_UNLOCK(__pmLock_libpcp);
 
     sts = __pmConnect(fd, myAddr, __pmSockAddrSize());

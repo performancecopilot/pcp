@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -520,10 +520,10 @@ extern void __pmCloseSocket(int);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
-extern int __pmConnect(int, __pmSockAddr *, __pmSockLen);
-extern int __pmBind(int, __pmSockAddr *, __pmSockLen);
+extern int __pmConnect(int, void *, __pmSockLen);
+extern int __pmBind(int, void *, __pmSockLen);
 extern int __pmListen(int, int);
-extern int __pmAccept(int, __pmSockAddr *, __pmSockLen *);
+extern int __pmAccept(int, void *, __pmSockLen *);
 extern ssize_t __pmWrite(int, const void *, size_t);
 extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
@@ -559,7 +559,7 @@ extern void __pmSetPort(__pmSockAddr *, int);
 extern __pmSockAddr *__pmMaskSockAddr(__pmSockAddr *, const __pmSockAddr *);
 extern int __pmCompareSockAddr (const __pmSockAddr *, const __pmSockAddr *);
 extern int __pmSockAddrIsLoopBack(const __pmSockAddr *);
-extern __pmSockAddr *__pmLoopbackAddress(void);
+extern __pmSockAddr *__pmLoopBackAddress(void);
 
 extern __pmHostEnt *__pmAllocHostEnt(void);
 extern void __pmFreeHostEnt(__pmHostEnt *);

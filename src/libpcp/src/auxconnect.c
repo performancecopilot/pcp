@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -299,7 +299,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	return fd;
     }
 
-    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), 0);
     __pmSetSockAddr(&myAddr, servInfo);
     __pmFreeHostEnt(servInfo);
     PM_UNLOCK(__pmLock_libpcp);
@@ -383,15 +382,17 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 {
     return getsockopt(socket, level, option_name, option_value, option_len);
 }
- 
+
+/* Initialize a socket address. The integral address must be INADDR_ANY or
+   INADDR_LOOPBACK in host byte order. */
 void
 __pmInitSockAddr(__pmSockAddr *addr, int address, int port)
 {
     /* TODO: IPv6 */
     memset(addr, 0, sizeof(*addr));
     addr->sockaddr.inet.sin_family = AF_INET;
-    addr->sockaddr.inet.sin_addr.s_addr = address;
-    addr->sockaddr.inet.sin_port = port;
+    addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
+    addr->sockaddr.inet.sin_port = htons(port);
 }
 
 void
@@ -417,8 +418,7 @@ __pmListen(int fd, int backlog)
 int
 __pmAccept(int fd, __pmSockAddr *addr, __pmSockLen *addrlen)
 {
-    /* TODO: IPv6 */
-    return accept(fd, (struct sockaddr *)&addr->sockaddr.inet, addrlen);
+    return accept(fd, (struct sockaddr *)&addr->sockaddr, addrlen);
 }
 
 int
@@ -601,7 +601,7 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 }
 
 __pmSockAddr *
-__pmLoopbackAddress(void)
+__pmLoopBackAddress(void)
 {
     /* TODO: IPv6 */
     __pmSockAddr* addr = __pmAllocSockAddr();
@@ -617,14 +617,20 @@ __pmStringToSockAddr(const char *cp, __pmSockAddr *inp)
 {
     /* TODO: IPv6 */
     inp->sockaddr.family = AF_INET;
+    if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
+        inp->sockaddr.inet.inaddr.s_addr = INADDR_ANY;
+	return 1; /* ok */
+    }
+    else {
 #ifdef IS_MINGW
-    unsigned long in;
-    in = inet_addr(cp);
-    inp->sockaddr.inet.inaddr.s_addr = in;
-    return in == INADDR_NONE ? 0 : 1;
+        unsigned long in;
+	in = inet_addr(cp);
+	inp->sockaddr.inet.inaddr.s_addr = in;
+	return in == INADDR_NONE ? 0 : 1;
 #else
-    return inet_aton(cp, &inp->sockaddr.inet.sin_addr);
+	return inet_aton(cp, &inp->sockaddr.inet.sin_addr);
 #endif
+    }
 }
 
 /*
@@ -856,19 +862,28 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
     return getsockopt(socket, level, option_name, option_value, option_len);
 }
  
+/* Initialize a socket address. The integral address must be INADDR_ANY or
+   INADDR_LOOPBACK in host byte order. */
 void
 __pmInitSockAddr(__pmSockAddr *addr, int address, int port)
 {
-    /* We expect the address and port number to be on network byte order.
-       PR_InitializeNetAddr expects the port in host byte order.
-       The ip field of PRNetAddr must be in network byte order. */
-    PRStatus prStatus = PR_InitializeNetAddr (PR_IpAddrNull, ntohs(port), &addr->sockaddr);
-
+    PRStatus prStatus;
+    switch(address) {
+    case INADDR_ANY:
+        prStatus = PR_InitializeNetAddr (PR_IpAddrAny, port, &addr->sockaddr);
+	break;
+    case INADDR_LOOPBACK:
+        prStatus = PR_InitializeNetAddr (PR_IpAddrLoopback, port, &addr->sockaddr);
+	break;
+    default:
+	__pmNotifyErr(LOG_ERR,
+		"__pmInitSockAddr: PR_InitializeNetAddr failure: Invalid address %d\n",
+		      address);
+	return;
+    }
     if (prStatus != PR_SUCCESS)
 	__pmNotifyErr(LOG_ERR,
 		"__pmInitSockAddr: PR_InitializeNetAddr failure: %d\n", PR_GetError());
-    /* TODO: IPv6 */
-    addr->sockaddr.inet.ip = address;
 }
 
 void
@@ -909,12 +924,13 @@ __pmListen(int fd, int backlog)
 }
 
 int
-__pmAccept(int fd, __pmSockAddr *addr, __pmSockLen *addrlen)
+__pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
     if (nsprFd) {
         PRFileDesc *newSocket;
-	newSocket = PR_Accept(nsprFd, &addr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
+	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	newSocket = PR_Accept(nsprFd, &nsprAddr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
 	if (newSocket == NULL)
 	    return -1;
 	/* Add the accepted socket to the fd table. */
@@ -923,40 +939,39 @@ __pmAccept(int fd, __pmSockAddr *addr, __pmSockLen *addrlen)
 	return fd;
     }
 
-    /* We have a native fd */
-    /* TODO: IPv6 */
-    return accept(fd, (struct sockaddr *)&addr->sockaddr.inet, addrlen);
+    /* We have a native fd. We therefore also have a native socket address and length. */
+    return accept(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
-__pmBind(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
+__pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
 
     if (nsprFd) {
         PRStatus prStatus;
-	prStatus = PR_Bind(nsprFd, &addr->sockaddr);
+	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	prStatus = PR_Bind(nsprFd, &nsprAddr->sockaddr);
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 
-    /* We have a native fd */
-    /* TODO: IPv6 */
-    return bind(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
+    /* We have a native fd. We therefore also have a native socket address and length. */
+    return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
-__pmConnect(int fd, __pmSockAddr *addr, __pmSockLen addrlen)
+__pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
     if (nsprFd) {
         PRStatus prStatus;
-	prStatus = PR_Connect(nsprFd, &addr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
+	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	prStatus = PR_Connect(nsprFd, &nsprAddr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
 
-    /* We have a native fd */
-    /* TODO: IPv6 */
-    return connect(fd, (struct sockaddr *)&addr->sockaddr.inet, sizeof(addr->sockaddr.inet));
+    /* We have a native fd. We therefore also have a native socket address and length. */
+    return connect(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
@@ -1276,46 +1291,66 @@ __pmHostEntGetName(const __pmHostEnt *he, int ix)
 __pmSockAddr *
 __pmMaskSockAddr(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    /* TODO: IPv6 */
-    addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
+    int i;
+    if (addr->sockaddr.raw.family == PR_AF_INET)
+        addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
+    else {
+      /* IPv6: Mask it byte by byte */
+      char *addrBytes = (char *)&addr->sockaddr.ipv6.ip;
+      const char *maskBytes = (const char *)&mask->sockaddr.ipv6.ip;
+      for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
+          addrBytes[i] &= maskBytes[i];
+    }
     return addr;
 }
 
 int
 __pmCompareSockAddr(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    /* TODO: IPv6 */
-    return addr1->sockaddr.inet.ip - addr2->sockaddr.inet.ip;
+    if (addr1->sockaddr.raw.family == PR_AF_INET)
+        return addr1->sockaddr.inet.ip - addr2->sockaddr.inet.ip;
+
+    /* IPv6: Compare it byte by byte */
+    return memcmp(&addr1->sockaddr.ipv6.ip, &addr2->sockaddr.ipv6.ip,
+		  sizeof(addr1->sockaddr.ipv6.ip));
 }
 
 int
 __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
-    /* TODO: IPv6 */
-    return addr->sockaddr.inet.ip == htonl(PR_INADDR_LOOPBACK);
+    int rc;
+    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
+    if (loopBackAddr == NULL)
+        return 0;
+    rc = memcmp (&addr->sockaddr, &loopBackAddr->sockaddr, sizeof(addr->sockaddr));
+    __pmFreeSockAddr(loopBackAddr);
+    return rc;
 }
 
 __pmSockAddr *
-__pmLoopbackAddress(void)
+__pmLoopBackAddress(void)
 {
-    /* TODO: IPv6 */
     __pmSockAddr* addr = __pmAllocSockAddr();
-    if (addr) {
-        addr->sockaddr.inet.family = PR_AF_INET;
-	addr->sockaddr.inet.ip = htonl(PR_INADDR_LOOPBACK);
-    }
+    if (addr != NULL)
+        __pmInitSockAddr(addr, INADDR_LOOPBACK, 0);
     return addr;
 }
 
 int
 __pmStringToSockAddr(const char *cp, __pmSockAddr *inp)
 {
-    PRStatus prStatus = PR_StringToNetAddr(cp, &inp->sockaddr);
+    PRStatus prStatus;
+
+    if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0)
+        prStatus = PR_InitializeNetAddr (PR_IpAddrAny, 0, &inp->sockaddr);
+    else
+        prStatus = PR_StringToNetAddr(cp, &inp->sockaddr);
+
     return (prStatus == PR_SUCCESS);
 }
 
 /*
- * Convert an address in network byte order to a string.
+ * Convert an address to a string.
  * The caller must free the buffer.
  */
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */

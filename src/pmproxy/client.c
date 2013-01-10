@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -77,7 +77,7 @@ AcceptNewClient(int reqfd)
 
     i = NewClient();
     addrlen = __pmSockAddrSize();
-    fd = __pmAccept(reqfd, (void *)client[i].addr, &addrlen);
+    fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
 			reqfd, netstrerror());

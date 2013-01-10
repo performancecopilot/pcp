@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -221,7 +221,7 @@ GetPort(char *file)
 	exit(1);
     }
     for (ctlport = port_base; ; ctlport++) {
-        __pmInitSockAddr(myAddr, htonl(INADDR_ANY), htons(ctlport));
+        __pmInitSockAddr(myAddr, INADDR_ANY, ctlport);
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
@@ -426,7 +426,7 @@ control_req(void)
 	return 0;
     }
     addrlen = __pmSockAddrSize();
-    fd = __pmAccept(ctlfd, (void *)addr, &addrlen);
+    fd = __pmAccept(ctlfd, addr, &addrlen);
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	__pmFreeSockAddr(addr);
