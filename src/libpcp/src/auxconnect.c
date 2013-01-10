@@ -991,9 +991,10 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
 int
 __pmSecureClientHandshake(int fd, int flags, const char *hostname)
 {
+    PRIntervalTime timer;
     PRFileDesc *sslsocket;
     SECStatus secsts;
-    int sts;
+    int msec, sts;
 
     if ((sts = __pmSecureClientIPCFlags(fd, flags, hostname)) < 0)
 	return sts;
@@ -1006,7 +1007,9 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname)
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError();
 
-    secsts = SSL_ForceHandshake(sslsocket);
+    msec = __pmConvertTimeout(TIMEOUT_DEFAULT);
+    timer = PR_MillisecondsToInterval(msec);
+    secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError();
 

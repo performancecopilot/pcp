@@ -185,7 +185,7 @@ pmWhichContext(void)
     return sts;
 }
 
-static int
+int
 __pmConvertTimeout(int timeo)
 {
     int tout_msec;

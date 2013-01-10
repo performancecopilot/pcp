@@ -698,6 +698,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2
+extern int __pmConvertTimeout(int);
 
 /* mode options for __pmGetPDU */
 #define ANY_SIZE	0	/* replacement for old PDU_BINARY */

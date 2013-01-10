@@ -291,12 +291,14 @@ pmcd_secure_server_shutdown(void)
 int
 pmcd_secure_handshake(int fd, int flags)
 {
+    PRIntervalTime timer;
     PRFileDesc	*sslsocket;
     SECStatus	secsts;
-    int		sts, mask = ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS);
+    int		msec;
+    int		sts;
 
     /* Protect ourselves from unsupported requests from oddball clients */
-    if ((flags & mask) != 0)
+    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS)) != 0)
 	return PM_ERR_IPC;
 
     if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
@@ -321,7 +323,9 @@ pmcd_secure_handshake(int fd, int flags)
     }
 
     /* Server initiates handshake now to get early visibility of errors */
-    secsts = SSL_ForceHandshake(sslsocket);
+    msec = __pmConvertTimeout(TIMEOUT_DEFAULT);
+    timer = PR_MillisecondsToInterval(msec);
+    secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
 			    pmErrStr(secure_server_error()));
