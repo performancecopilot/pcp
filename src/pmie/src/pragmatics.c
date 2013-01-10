@@ -362,10 +362,25 @@ findProfile(Fetch *f, Metric *m)
 		pmErrStr(sts));
 	exit(1);
     }
-    if (m->specinst == 0)
+
+    /*
+     * If any rule requires all instances, then ignore restricted
+     * instance lists from all other rules
+     */
+    if (m->specinst == 0 && p->need_all == 0) {
+	sts = pmDelProfile(p->indom, 0, (int *)0);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: pmDelProfile failed: %s\n", pmProgname,
+		    pmErrStr(sts));
+	    exit(1);
+	}
 	sts = pmAddProfile(p->indom, 0, (int *)0);
-    else
+	p->need_all = 1;
+    }
+    else if (m->specinst > 0 && p->need_all == 0)
 	sts = pmAddProfile(p->indom, m->m_idom, m->iids);
+    else
+	sts = 0;
 
     if (sts < 0) {
 	fprintf(stderr, "%s: pmAddProfile failed: %s\n", pmProgname,

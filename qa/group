@@ -755,7 +755,10 @@ pmlogrewrite
 517 other local oss
 518 other local oss
 519 pmie remote oss
+520 pmie local oss
+521 pmie local oss
 522 pmcd local oss
+523 pmie local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
 532 logutil pmlogextract local oss
