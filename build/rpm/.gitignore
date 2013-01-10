@@ -1,4 +1,5 @@
 *.rpm
+pcp.spec.head
 pcp.spec
 fedora.spec
 rpmmacros
