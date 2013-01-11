@@ -528,6 +528,7 @@ extern int __pmInitCertificates(void);
 extern int __pmCreateSocket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
+extern int __pmSocketClosed(void);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);

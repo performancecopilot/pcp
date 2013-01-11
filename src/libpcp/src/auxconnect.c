@@ -345,6 +345,57 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return fdFlags;
 }
 
+int
+__pmSocketClosed(void)
+{
+    int	error = oserror();
+
+    if (PM_ERR_NYI > -error)
+	error = -(error + PM_ERR_NYI);
+
+    switch (error) {
+	/*
+	 * Treat this like end of file on input.
+	 *
+	 * failed as a result of pmcd exiting and the connection
+	 * being reset, or as a result of the kernel ripping
+	 * down the connection (most likely because the host at
+	 * the other end just took a dive)
+	 *
+	 * from IRIX BDS kernel sources, seems like all of the
+	 * following are peers here:
+	 *  ECONNRESET (pmcd terminated?)
+	 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
+	 *  ECONNREFUSED
+	 * peers for BDS but not here:
+	 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
+	 *  ECONNABORTED (accept, user req only?)
+	 *  ENOTCONN (udp?)
+	 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
+	 */
+	case ECONNRESET:
+	case EPIPE:
+	case ETIMEDOUT:
+	case ENETDOWN:
+	case ENETUNREACH:
+	case EHOSTDOWN:
+	case EHOSTUNREACH:
+	case ECONNREFUSED:
+#ifdef HAVE_SECURE_SOCKETS
+	case PR_IO_TIMEOUT_ERROR:
+	case PR_NETWORK_UNREACHABLE_ERROR:
+	case PR_CONNECT_TIMEOUT_ERROR:
+	case PR_NOT_CONNECTED_ERROR:
+	case PR_CONNECT_RESET_ERROR:
+	case PR_PIPE_ERROR:
+	case PR_NETWORK_DOWN_ERROR:
+	case PR_SOCKET_SHUTDOWN_ERROR:
+	case PR_HOST_UNREACHABLE_ERROR:
+#endif
+	    return 1;
+    }
+    return 0;
+}
 #if !defined(HAVE_SECURE_SOCKETS)
 
 int

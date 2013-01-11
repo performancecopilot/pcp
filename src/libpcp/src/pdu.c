@@ -410,31 +410,9 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
 
     if (len < (int)sizeof(__pmPDUHdr)) {
 	if (len == -1) {
-	    if (oserror() == ECONNRESET || oserror() == EPIPE || 
-		oserror() == ETIMEDOUT || oserror() == ENETDOWN ||
-		oserror() == ENETUNREACH || oserror() == EHOSTDOWN ||
-		oserror() == EHOSTUNREACH || oserror() == ECONNREFUSED)
-		/*
-		 * Treat this like end of file on input.
-		 *
-		 * failed as a result of pmcd exiting and the connection
-		 * being reset, or as a result of the kernel ripping
-		 * down the connection (most likely because the host at
-		 * the other end just took a dive)
-		 *
-		 * from IRIX BDS kernel sources, seems like all of the
-		 * following are peers here:
-		 *  ECONNRESET (pmcd terminated?)
-		 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
-		 *  ECONNREFUSED
-		 * peers for BDS but not here:
-		 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
-		 *  ECONNABORTED (accept, user req only?)
-		 *  ENOTCONN (udp?)
-		 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
-		 */
+	    if (__pmSocketClosed()) {
 		len = 0;
-	    else {
+	    } else {
 		char	errmsg[PM_MAXERRMSGLEN];
 		__pmNotifyErr(LOG_ERR, "__pmGetPDU: fd=%d hdr read: len=%d: %s", fd, len, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
