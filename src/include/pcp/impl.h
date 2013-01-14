@@ -556,6 +556,7 @@ extern void __pmFD_ZERO(__pmFdSet *);
 extern void __pmFD_COPY(__pmFdSet *, const __pmFdSet *);
 extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
 extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
+extern int __pmSecureDataPending(int);
 
 extern struct __pmSockAddrIn *__pmAllocSockAddrIn(void);
 extern size_t __pmSockAddrInSize(void);

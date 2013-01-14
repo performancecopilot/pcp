@@ -575,6 +575,13 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 }
 
 int
+__pmSecureDataPending(int fd)
+{
+    (void)fd;
+    return 0;
+}
+
+int
 __pmFD(int fd)
 {
     return fd;
@@ -868,8 +875,6 @@ __pmCloseSocket(int fd)
     __pmResetIPC(fd);
 
     if (sts == 0) {
-	if (socket.sslFd)
-	    PR_Close(socket.sslFd);
 	if (socket.nsprFd) {
 	    freeNSPRHandle(fd);
 	    PR_Close(socket.nsprFd);
@@ -1441,6 +1446,16 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 	return size;
     }
     return recv(fd, buffer, length, flags);
+}
+
+int
+__pmSecureDataPending(int fd)
+{
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
+        return SSL_DataPending(socket.sslFd);
+    return 0;
 }
 
 int

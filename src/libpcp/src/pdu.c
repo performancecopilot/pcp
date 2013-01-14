@@ -100,7 +100,6 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			onetrip = 1;
     struct timeval	dead_hand;
     struct timeval	now;
-   __pmFdSet		onefd;
 
     while (len) {
 	if (timeout == GETPDU_ASYNC) {
@@ -191,15 +190,19 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		    }
 		    onetrip = 0;
 		}
-		__pmFD_ZERO(&onefd);
-		__pmFD_SET(fd, &onefd);
-		status = __pmSelectRead(fd+1, &onefd, &wait);
+		/* has SSL protocol buffering already snarfed this data!? */
+		if ((status = __pmSecureDataPending(fd)) <= 0) {
+		    __pmFdSet onefd;
+		    __pmFD_ZERO(&onefd);
+		    __pmFD_SET(fd, &onefd);
+		    status = __pmSelectRead(fd+1, &onefd, &wait);
+		}
 		if (status > 0) {
 		    gettimeofday(&now, NULL);
 		    if (now.tv_sec > dead_hand.tv_sec ||
 		        (now.tv_sec == dead_hand.tv_sec &&
 			 now.tv_usec > dead_hand.tv_usec))
-		    status = 0;
+			status = 0;
 		}
 		if (status == 0) {
 		    if (__pmGetInternalState() != PM_STATE_APPL) {
