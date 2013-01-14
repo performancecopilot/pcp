@@ -889,14 +889,7 @@ __pmInitSockAddr(__pmSockAddr *addr, int address, int port)
 void
 __pmSetSockAddr(__pmSockAddr *addr, __pmHostEnt *he)
 {
-    PRUint16 port = 0;
-    /* The port in the address is in network byte forder, but PR_EnumerateHostEnt expects it
-       in host byte order. */
-    if (addr->sockaddr.raw.family == PR_AF_INET)
-        port = ntohs(addr->sockaddr.inet.port);
-    else if (addr->sockaddr.raw.family == PR_AF_INET6)
-        port = ntohs(addr->sockaddr.ipv6.port);
-    PR_EnumerateHostEnt(0, &he->hostent, port, &addr->sockaddr);
+    PR_EnumerateHostEnt(0, &he->hostent, 0, &addr->sockaddr);
 }
 
 void
@@ -906,6 +899,9 @@ __pmSetPort(__pmSockAddr *addr, int port)
         addr->sockaddr.inet.port = htons(port);
     else if (addr->sockaddr.raw.family == PR_AF_INET6)
         addr->sockaddr.ipv6.port = htons(port);
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSetPort: Invalid address family: %d\n", addr->sockaddr.raw.family);
 }
 
 int
@@ -1292,27 +1288,44 @@ __pmSockAddr *
 __pmMaskSockAddr(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
     int i;
-    if (addr->sockaddr.raw.family == PR_AF_INET)
+    if (addr->sockaddr.raw.family != mask->sockaddr.raw.family) {
+	__pmNotifyErr(LOG_ERR,
+		"__pmMaskSockAddr: Address family of the address (%d) must match that of the mask (%d)\n",
+		addr->sockaddr.raw.family, mask->sockaddr.raw.family);
+    }
+    else if (addr->sockaddr.raw.family == PR_AF_INET)
         addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
-    else {
+    else if (addr->sockaddr.raw.family == PR_AF_INET6) {
       /* IPv6: Mask it byte by byte */
       char *addrBytes = (char *)&addr->sockaddr.ipv6.ip;
       const char *maskBytes = (const char *)&mask->sockaddr.ipv6.ip;
       for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
           addrBytes[i] &= maskBytes[i];
     }
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmMaskSockAddr: Invalid address family: %d\n", addr->sockaddr.raw.family);
     return addr;
 }
 
 int
 __pmCompareSockAddr(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
+    if (addr1->sockaddr.raw.family != addr2->sockaddr.raw.family)
+        return addr1->sockaddr.raw.family - addr2->sockaddr.raw.family;
+
     if (addr1->sockaddr.raw.family == PR_AF_INET)
         return addr1->sockaddr.inet.ip - addr2->sockaddr.inet.ip;
 
-    /* IPv6: Compare it byte by byte */
-    return memcmp(&addr1->sockaddr.ipv6.ip, &addr2->sockaddr.ipv6.ip,
-		  sizeof(addr1->sockaddr.ipv6.ip));
+    if (addr1->sockaddr.raw.family == PR_AF_INET6) {
+        /* IPv6: Compare it byte by byte */
+      return memcmp(&addr1->sockaddr.ipv6.ip, &addr2->sockaddr.ipv6.ip,
+		    sizeof(addr1->sockaddr.ipv6.ip));
+    }
+
+    __pmNotifyErr(LOG_ERR,
+		  "__pmCompareSockAddr: Invalid address family: %d\n", addr1->sockaddr.raw.family);
+    return 1; /* not equal */
 }
 
 int
