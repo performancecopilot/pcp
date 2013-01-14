@@ -128,9 +128,11 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    /* TODO: IPv6 -- how to trace an ip address??
+#if 0 /* TODO: IPv6 -- how to trace an ip address?? */
     pmcd_trace(TR_ADD_CLIENT, ClientIPAddr(&client[i]), fd, client[i].seq);
-    */
+#else /* For now so that the output is not completely missing. */
+    pmcd_trace(TR_ADD_CLIENT, 0, fd, client[i].seq);
+#endif
 
     return &client[i];
 }
@@ -148,7 +150,7 @@ NewClient(void)
 	int j, sz;
 
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
-	sz = (sizeof(ClientInfo) + __pmSockAddrSize()) * clientSize;
+	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
 	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
