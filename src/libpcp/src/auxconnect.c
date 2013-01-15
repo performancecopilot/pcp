@@ -1335,9 +1335,9 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
     __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
     if (loopBackAddr == NULL)
         return 0;
-    rc = memcmp (&addr->sockaddr, &loopBackAddr->sockaddr, sizeof(addr->sockaddr));
+    rc = __pmCompareSockAddr(addr, loopBackAddr);
     __pmFreeSockAddr(loopBackAddr);
-    return rc;
+    return rc == 0;
 }
 
 __pmSockAddr *
