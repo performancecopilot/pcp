@@ -143,8 +143,8 @@ void
 DisconnectLogger(void)
 {
     if (logger_fd != -1) {
+	__pmCloseSocket(logger_fd);
 	__pmResetIPC(logger_fd);
-	close(logger_fd);
 	logger_fd = -1;
 	sleep(1);
     }
