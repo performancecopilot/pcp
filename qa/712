@@ -46,7 +46,7 @@ _cleanup()
 	fi
     done
 
-    unset PCP_SECURE_CONTEXT
+    unset PCP_SECURE_SOCKETS
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -115,7 +115,7 @@ egrep 'Error:|Info:' $tmp.pmcd.log
 cat $tmp.pmcd.log >> $seq.full
 
 # all client connection attempts from here on must be encrypted
-export PCP_SECURE_CONTEXT=1
+export PCP_SECURE_SOCKETS=1
 
 # verify that local clients cannot establish a connection
 # without having a valid certificate database setup.

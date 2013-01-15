@@ -345,7 +345,7 @@ INIT_CONTEXT:
 	} else if (sts > 0) {
 	    /* upgrade API request to secure channel, as hostspec demands it */
 	    new->c_flags |= sts;
-	} else if (getenv("PCP_SECURE_CONTEXT") != NULL) {
+	} else if (getenv("PCP_SECURE_SOCKETS") != NULL) {
 	    /* upgrade API request to secure channel, if environ requests it */
 	    new->c_flags |= PM_CTXFLAG_SECURE;
 	}

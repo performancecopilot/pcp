@@ -431,9 +431,11 @@ case "$1" in
 	fi
 	_shutdown quietly
 
+	# Clean the environment for PMCD:
 	# PMCD and PMDA messages should go to stderr, not the GUI notifiers
+	# Clients in these scripts should test PMCD status without TLS/SSL.
 	#
-	unset PCP_STDERR
+	unset PCP_STDERR PCP_SECURE_SOCKETS
 
 	_reboot_setup
 

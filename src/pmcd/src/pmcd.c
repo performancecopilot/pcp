@@ -71,8 +71,8 @@ int			maxReqPortFd = -1;	/* highest request port file descriptor */
 /*
  * Optional security services information
  */
-static char		*credsdb;	/* credentials database path (NSS) */
-static char		*dbpassfile;	/* credentials database password file */
+static char		*certdb;	/* certificate database path (NSS) */
+static char		*dbpassfile;	/* certificate database password file */
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -212,8 +212,8 @@ ParseOptions(int argc, char *argv[])
     while ((c = getopt(argc, argv, "C:D:fi:l:L:N:n:p:P:q:t:T:U:x:?")) != EOF)
 	switch (c) {
 
-	    case 'C':	/* path to NSS credentials database */
-		credsdb = optarg;
+	    case 'C':	/* path to NSS certificate database */
+		certdb = optarg;
 		break;
 
 	    case 'D':	/* debug flag */
@@ -290,7 +290,7 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
-	    case 'P':	/* password file for credentials database access */
+	    case 'P':	/* password file for certificate database access */
 		dbpassfile = optarg;
 		break;
 
@@ -348,7 +348,7 @@ ParseOptions(int argc, char *argv[])
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
-"  -C dirname      path to NSS credentials database\n"
+"  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
@@ -356,7 +356,7 @@ ParseOptions(int argc, char *argv[])
 "  -n pmnsfile     use an alternative PMNS\n"
 "  -N pmnsfile     use an alternative PMNS (duplicate PMIDs are allowed)\n"
 "  -p port         accept connections on this port\n"
-"  -P passfile     password file for credentials database access\n"
+"  -P passfile     password file for certificate database access\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
 "  -T traceflag    Event trace control\n"
 "  -t timeout      PMDA response timeout (seconds) [default 5]\n"
@@ -1177,7 +1177,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (pmcd_secure_server_setup(credsdb, dbpassfile) < 0)
+    if (pmcd_secure_server_setup(certdb, dbpassfile) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);
