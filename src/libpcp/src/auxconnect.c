@@ -946,7 +946,18 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 
     if (nsprFd) {
         PRStatus prStatus;
+	PRSocketOptionData socketOption;
 	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+
+	/* Allow the socket address to be reused, in case we want the same port across a
+	   service restart. */
+	socketOption.option = PR_SockOpt_Reuseaddr;
+	socketOption.value.reuse_addr = PR_TRUE;
+	prStatus = PR_SetSocketOption (nsprFd, & socketOption);
+	/* Not a fatal error */
+	if (prStatus != PR_SUCCESS)
+	    __pmNotifyErr(LOG_ERR, "__pmBind: unable to set socket option PR_SockOpt_Reuseaddr\n");
+
 	prStatus = PR_Bind(nsprFd, &nsprAddr->sockaddr);
 	return prStatus == PR_SUCCESS ? 0 : -1;
     }
