@@ -21,7 +21,7 @@
 #include "dynamic.h"
 #include "pmdagfs2.h"
 
-static char *sysfsdir = "/sys/kernel/debug/gfs2";
+static char *gfs2_sysfsdir = "/sys/kernel/debug/gfs2";
 static pmdaIndom indomtable[] = { { .it_indom = GFS_FS_INDOM } };
 #define INDOM(x) (indomtable[x].it_indom)
 
@@ -98,17 +98,28 @@ metrictable_size(void)
  * with guarantees around consistent instance numbering in all of
  * those interesting corner cases.
  */
-static void
+static int
 gfs2_instance_refresh(void)
 {
-    int i, sts, count;
+    int i, sts, count, gfs2_status;
     struct dirent **files;
     pmInDom indom = INDOM(GFS_FS_INDOM);
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /* update indom cache based on scan of /sys/kernel/debug/gfs2 */
-    count = scandir(sysfsdir, &files, NULL, NULL);
+    count = scandir(gfs2_sysfsdir, &files, NULL, NULL);
+    if (count < 0) {	/* give some feedback as to GFS2 kernel state */
+	if (oserror() == EPERM)
+	    gfs2_status = PM_ERR_PERMISSION;
+	else if (oserror() == ENOENT)
+	    gfs2_status = PM_ERR_AGAIN;	/* we might see a mount later */
+	else
+	    gfs2_status = PM_ERR_APPVERSION;
+    } else {
+	gfs2_status = 0;	/* we possibly have stats available */
+    }
+
     for (i = 0; i < count; i++) {
 	struct gfs2_fs *fs;
 	const char *name = files[i]->d_name;
@@ -128,8 +139,9 @@ gfs2_instance_refresh(void)
 
     for (i = 0; i < count; i++)
 	free(files[i]);
-    if (count)
+    if (count > 0)
 	free(files);
+    return gfs2_status;
 }
 
 static int
@@ -139,33 +151,36 @@ gfs2_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
-static void
+static int
 gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 {
     pmInDom indom = INDOM(GFS_FS_INDOM);
     struct gfs2_fs *fs;
     char *name;
-    int i;
+    int i, sts;
 
-    gfs2_instance_refresh();
+    if ((sts = gfs2_instance_refresh()) < 0)
+	return sts;
+
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((i = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
 	if (!pmdaCacheLookup(indom, i, &name, (void **)&fs) || !fs)
 	    continue;
 	if (need_refresh[CLUSTER_GLOCKS])
-	    gfs2_refresh_glocks(sysfsdir, name, &fs->glocks);
+	    gfs2_refresh_glocks(gfs2_sysfsdir, name, &fs->glocks);
 #if 0
 	if (need_refresh[CLUSTER_SBSTATS])
-	    gfs2_refresh_sbstats(sysfsdir, name, &fs->sbstats);
+	    gfs2_refresh_sbstats(gfs2_sysfsdir, name, &fs->sbstats);
 #endif
     }
+    return sts;
 }
 
 static int
 gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int		i, need_refresh[NUM_CLUSTERS] = { 0 };
+    int		i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -173,7 +188,8 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[idp->cluster]++;
     }
 
-    gfs2_fetch_refresh(pmda, need_refresh);
+    if ((sts = gfs2_fetch_refresh(pmda, need_refresh)) < 0)
+	return sts;
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
