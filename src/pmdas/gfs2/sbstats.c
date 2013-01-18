@@ -138,11 +138,14 @@ static void
 add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
 {
     char entry[64];
-    pmID pmid = pmid_build(domain, cluster, stat * lock);
+    pmID pmid = pmid_build(domain, cluster, (lock * NUM_LOCKSTATS) + stat);
 
     snprintf(entry, sizeof(entry),
 	     "gfs2.sbstats.%s.%s", locktype[lock], stattype[stat]);
     __pmAddPMNSNode(tree, pmid, entry);
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "New PMNS node added %s (%s)", entry, pmIDStr(pmid));
 }
 
 static int
@@ -171,19 +174,21 @@ refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
  * Create a new metric table entry based on an existing one.
  */
 static void
-refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
+refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
 {
+    int item = pmid_item(source->m_desc.pmid);
     int domain = pmid_domain(source->m_desc.pmid);
     int cluster = pmid_cluster(source->m_desc.pmid);
 
     memcpy(dest, source, sizeof(pmdaMetric));
-    dest->m_desc.pmid = pmid_build(domain, cluster, id);
+    item += lock * NUM_LOCKSTATS;
+    dest->m_desc.pmid = pmid_build(domain, cluster, item);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "GFS2 sbstats refresh_metrictable: (%p -> %p) "
-			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
-			source, dest, domain, cluster,
-			pmid_item(source->m_desc.pmid), domain, cluster, id);
+			"metric ID dup: %s -> %s\n",
+			source, dest, pmIDStr(source->m_desc.pmid),
+			pmIDStr(dest->m_desc.pmid));
 }
 
 /*
