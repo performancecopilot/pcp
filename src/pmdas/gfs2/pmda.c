@@ -49,7 +49,6 @@ pmdaMetric metrictable[] = {
 	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_EXCLUSIVE),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-#if 0
     { .m_desc = {
 	PMDA_PMID(CLUSTER_SBSTATS, LOCKSTAT_SRTT),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
@@ -82,7 +81,6 @@ pmdaMetric metrictable[] = {
 	PMDA_PMID(CLUSTER_SBSTATS, LOCKSTAT_QCOUNT),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-#endif
 };
 
 int
@@ -169,10 +167,8 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    continue;
 	if (need_refresh[CLUSTER_GLOCKS])
 	    gfs2_refresh_glocks(gfs2_sysfsdir, name, &fs->glocks);
-#if 0
 	if (need_refresh[CLUSTER_SBSTATS])
 	    gfs2_refresh_sbstats(gfs2_sysfsdir, name, &fs->sbstats);
-#endif
     }
     return sts;
 }
@@ -213,13 +209,13 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_GLSTATS:
 	return PM_ERR_NYI;	/* Not Yet Implemented */
-#if 0
+
     case CLUSTER_SBSTATS:
 	sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
 	return gfs2_sbstats_fetch(idp->item, &fs->sbstats, atom);
-#endif
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -227,7 +223,6 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return 1;
 }
 
-#if 0
 static int
 gfs2_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
@@ -259,7 +254,6 @@ gfs2_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     __pmnsTree *tree = gfs2_dynamic_lookup_name(pmda, name);
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
-#endif
 
 /*
  * Initialise the agent (both daemon and DSO).
@@ -272,17 +266,13 @@ gfs2_init(pmdaInterface *dp)
 
     dp->version.four.instance = gfs2_instance;
     dp->version.four.fetch = gfs2_fetch;
-#if 0
     dp->version.four.text = gfs2_text;
     dp->version.four.pmid = gfs2_pmid;
     dp->version.four.name = gfs2_name;
     dp->version.four.children = gfs2_children;
-#endif
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
-#if 0
     gfs2_sbstats_init();
-#endif
     pmdaInit(dp, indomtable, sizeof(indomtable)/sizeof(indomtable[0]),
                  metrictable, sizeof(metrictable)/sizeof(metrictable[0]));
 }

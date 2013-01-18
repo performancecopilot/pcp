@@ -14,8 +14,7 @@
 
 gfs2 {
     glocks
-/*  sbstats		GFS2:*:*
- */
+    sbstats		GFS2:*:*
 }
 
 gfs2.glocks {

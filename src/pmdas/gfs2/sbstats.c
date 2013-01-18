@@ -193,8 +193,8 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 static void
 size_metrictable(int *total, int *trees)
 {
-    *total = 1;
-    *trees = SBSTATS_COUNT;
+    *total = NUM_LOCKSTATS;
+    *trees = NUM_LOCKTYPES;
 }
 
 static int
