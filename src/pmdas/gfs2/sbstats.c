@@ -103,18 +103,26 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	    break;
 
 	typestr = p;
-	for (typestr = p; isspace(*p); p++) {;}	/* skip lock type */
-	for (; !isspace(*p); p++) {;}		/* skip whitespace */
-	for (statstr = p; *p == ':'; p++) {;}	/* skip stat type */
+	for (typestr = p; !isspace(*p); p++) { }	/* skip lock type */
+	for (; isspace(*p); p++) { *p = '\0'; }		/* eat whitespace */
+	for (statstr = p; *p != ':'; p++) { }		/* skip stat type */
 	*p = '\0';
 
 	/* verify that the id we are up to matches what we see in the file */
-	unsigned int type = id / NUM_LOCKTYPES;
-	unsigned int stat = id % NUM_LOCKTYPES;
-	if (strcmp(typestr, locktype[type]) != 0)
+	unsigned int type = id / NUM_LOCKSTATS;
+	unsigned int stat = id % NUM_LOCKSTATS;
+	if (strcmp(typestr, locktype[type]) != 0) {
+	    __pmNotifyErr(LOG_ERR,
+			"unexpected sbstat type \"%s\" (want %s at line %u)",
+			typestr, locktype[type], id);
 	    break;	/* eh? */
-	if (strcmp(statstr, stattype[stat]) != 0)
+	}
+	if (strcmp(statstr, stattype[stat]) != 0) {
+	    __pmNotifyErr(LOG_ERR,
+			"unexpected sbstat stat \"%s\" (want %s at line %u)",
+			statstr, stattype[stat], id);
 	    break;	/* wha? */
+	}
 
 	/* decode all of the (per-CPU) values until the end of line */
 	for (p++; *p != '\0'; p++) {
@@ -126,6 +134,11 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	    sb->values[id] += value;
 	    p = end;
 	}
+
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_INFO,
+			"got expected sbstat type \"%s\", stat \"%s\" at line %u",
+			typestr, statstr, id);
 
 	/* now we can move on to the next metric (on the next line) */
 	id++;
@@ -144,8 +157,8 @@ add_pmns_node(__pmnsTree *tree, int domain, int cluster, int lock, int stat)
 	     "gfs2.sbstats.%s.%s", locktype[lock], stattype[stat]);
     __pmAddPMNSNode(tree, pmid, entry);
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-	fprintf(stderr, "New PMNS node added %s (%s)", entry, pmIDStr(pmid));
+    if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "GFS2 sbstats added %s (%s)", entry, pmIDStr(pmid));
 }
 
 static int
@@ -184,11 +197,11 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
     item += lock * NUM_LOCKSTATS;
     dest->m_desc.pmid = pmid_build(domain, cluster, item);
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+    if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "GFS2 sbstats refresh_metrictable: (%p -> %p) "
-			"metric ID dup: %s -> %s\n",
-			source, dest, pmIDStr(source->m_desc.pmid),
-			pmIDStr(dest->m_desc.pmid));
+			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
+			source, dest, domain, cluster,
+			pmid_item(source->m_desc.pmid), domain, cluster, item);
 }
 
 /*
