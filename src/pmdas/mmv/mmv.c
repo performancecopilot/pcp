@@ -425,7 +425,7 @@ map_stats(pmdaExt *pmda)
 
     for (i = 0; i < num; i++)
 	free(files[i]);
-    if (num)
+    if (num > 0)
 	free(files);
 
     for (i = 0; i < scnt; i++) {
