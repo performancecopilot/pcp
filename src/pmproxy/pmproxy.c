@@ -624,23 +624,8 @@ main(int argc, char *argv[])
     }
     fflush(stderr);
 
-#ifdef HAVE_GETPWNAM
     /* lose root privileges if we have them */
-    if (username) {
-	struct passwd	*pw;
-
-	if ((pw = getpwnam(username)) == 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			"cannot find the user %s to switch to\n", username);
-	    DontStart();
-	}
-	if (setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			"cannot switch to uid/gid of user %s\n", username);
-	    DontStart();
-	}
-    }
-#endif
+    __pmSetProcessIdentity(username);
 
     /* all the work is done here */
     ClientLoop();
