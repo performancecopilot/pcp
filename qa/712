@@ -29,21 +29,15 @@ _cleanup()
     # restore any modified pmcd configuration files
     for cf in $PCP_PMCDOPTIONS_PATH
     do
-	if test -f $cf.$seq
-	then
-	    $sudo rm -f $cf
-	    $sudo mv $cf.$seq $cf
-	fi
+	$sudo rm -f $cf
+	test -f $cf.$seq && $sudo mv $cf.$seq $cf
     done
 
     # restore certificate DBs from existing installation
     for db in $collectordb $monitordb $usersdb
     do
-	if test -d $db.$seq
-	then
-	    $sudo rm -fr $db
-	    $sudo mv $db.$seq $db
-	fi
+	$sudo rm -fr $db
+	test -d $db.$seq && $sudo mv $db.$seq $db
     done
 
     unset PCP_SECURE_SOCKETS
@@ -76,7 +70,7 @@ _filter_pminfo()
 }
 
 # prepare new locations for certificates
-$sudo mkdir -m 0700 $collectordb
+$sudo mkdir -p -m 0755 $collectordb
 echo "$seq.password" > $tmp.pass
 dd if=/dev/urandom of=$tmp.rand bs=1 count=10000 >/dev/null 2>&1
 certopts="-d $collectordb -f $tmp.pass -z $tmp.rand"
@@ -126,7 +120,7 @@ pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 # make the new certificate visible to all local clients
 echo "checking client, site certificate only.  should pass..."
 $sudo rm -fr $usersdb $monitordb
-$sudo mkdir -m 0755 $monitordb
+$sudo mkdir -p -m 0755 $monitordb
 $sudo certutil -A -d $monitordb -n "CA certificate" -t "CT,," -a -i $tmp.cacert.asc
 $sudo chmod 0644 $monitordb/*
 pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
@@ -134,7 +128,7 @@ pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 # make the new certificate visible to just this user
 echo "checking client, user certificate only.  should pass..."
 $sudo rm -fr $usersdb $monitordb
-mkdir -m 0700 $usersdb
+mkdir -p -m 0755 $usersdb
 certutil -A -d $usersdb -n "CA certificate" -t "CT,," -a -i $tmp.cacert.asc
 pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 
