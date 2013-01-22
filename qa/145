@@ -28,6 +28,7 @@ _filter()
 {
     # initial ones are regular stuff ...
     # later ones are for systems that are not network byte ordered
+    # also, deal with optional pmcd features (16 bits, error PDU).
     #
     sed \
 	-e 's/ fd=[0-9][0-9]*/ fd=<n>/' \
@@ -44,8 +45,10 @@ s/\(000:..............7001......... \)........ ......../\1    DATE    STAMP/
 	-e 's/ffffffff  a000000/ffffffff        a/' \
 	-e 's/ffffffff  3000000/ffffffff        3/' \
 	-e 's/  b004007/  740000b/' \
-	-e 's/      102/  2010000/' \
-	-e 's/      201/  1020000/'
+	-e 's/  201[0-9][0-9][0-9][0-9]/  2010000/' \
+	-e 's/  [0-9][0-9][0-9][0-9]102/  2010000/' \
+	-e 's/      201/  1020000/' \
+
 }
 
 # real QA test starts here
