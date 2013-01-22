@@ -1569,9 +1569,24 @@ __pmSetProcessIdentity(const char *username)
 !bozo!
 #endif
 
-    if (setgid(gid) < 0 || setuid(uid) < 0) {
+    if (setgid(gid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
-		"cannot switch to uid/gid of %s user (%d/%d)\n", username, uid, gid);
+		"setgid to gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
+	exit(1);
+    }
+
+    if (initgroups(username, gid) < 0) {
+	__pmNotifyErr(LOG_CRIT,
+		"initgroups with gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
+	exit(1);
+    }
+
+    if (setuid(uid) < 0) {
+	__pmNotifyErr(LOG_CRIT,
+		"setuid to uid of %s user (uid=%d): %s",
+		username, uid, osstrerror_r(buf, sizeof(buf)));
 	exit(1);
     }
 
