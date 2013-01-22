@@ -1571,18 +1571,22 @@ __pmSetProcessIdentity(const char *username)
 
     if (setgid(gid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
-		"setgid to gid of %s user (gid=%d)\n", username, gid);
+		"setgid to gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
 	exit(1);
     }
 
     if (initgroups(username, gid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
-		"initgroups with gid of %s user (gid=%d)\n", username, gid);
+		"initgroups with gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
 	exit(1);
     }
+
     if (setuid(uid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
-		"setuid to uid of %s user (uid=%d)\n", username, uid);
+		"setuid to uid of %s user (uid=%d): %s",
+		username, uid, osstrerror_r(buf, sizeof(buf)));
 	exit(1);
     }
 
