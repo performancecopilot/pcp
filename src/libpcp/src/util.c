@@ -49,6 +49,9 @@
 #if defined(HAVE_PWD_H)
 #include <pwd.h>
 #endif
+#if defined(HAVE_GRP_H)
+#include <grp.h>
+#endif
 
 static FILE	**filelog;
 static int	nfilelog;

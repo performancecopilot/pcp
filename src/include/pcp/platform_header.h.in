@@ -117,6 +117,7 @@ extern "C" {
 #undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
 #undef HAVE_PWD_H
+#undef HAVE_GRP_H
 #undef HAVE_REGEX_H
 #undef HAVE_TERMIO_H
 #undef HAVE_TERMIOS_H
