@@ -380,8 +380,11 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
     php->type = ntohl(php->type);
 
     if (off != len) {
-	if (socketipc)
+	if (socketipc) {
+	    if (__pmSocketClosed())
+		return PM_ERR_IPC;
 	    return neterror() ? -neterror() : PM_ERR_IPC;
+	}
 	return oserror() ? -oserror() : PM_ERR_IPC;
     }
 
