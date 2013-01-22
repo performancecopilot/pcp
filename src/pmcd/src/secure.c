@@ -191,6 +191,12 @@ pmcd_secure_server_setup(const char *dbpath, const char *passwd)
 	strncat(database_path, dbpath, MAXPATHLEN-2);
     }
 
+    if (access(database_path, R_OK) < 0 && oserror() == ENOENT) {
+	/* Handle the common case - pmcd supports secure sockets, */
+	/* but no configuration has been performed on the server. */
+	return 0;
+    }
+
     secsts = NSS_Init(database_path);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_INFO,
