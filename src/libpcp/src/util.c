@@ -1576,7 +1576,12 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     }
 
-    if (initgroups(username, gid) < 0) {
+    /*
+     * We must allow initgroups to fail with EPERM, as this
+     * is the behaviour when the parent process has already
+     * dropped privileges (e.g. pmcd receives SIGHUP).
+     */
+    if (initgroups(username, gid) < 0 && oserror() != EPERM) {
 	__pmNotifyErr(LOG_CRIT,
 		"initgroups with gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(buf, sizeof(buf)));
