@@ -632,8 +632,8 @@ __pmStringToInAddr(const char *cp, struct __pmInAddr *inp)
 {
 #ifdef IS_MINGW
     unsigned long in;
-    in = inet_addr(buf);
-    inaddr.s_addr = in;
+    in = inet_addr(cp);
+    inp->inaddr.s_addr = in;
     return in == INADDR_NONE ? 0 : 1;
 #else
     return inet_aton(cp, &inp->inaddr);
