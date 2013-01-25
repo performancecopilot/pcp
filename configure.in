@@ -189,7 +189,7 @@ in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     linux|kfreebsd)
 		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
+    mingw)	pcp_platform_paths='';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
     freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
