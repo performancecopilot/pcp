@@ -42,6 +42,8 @@ p
 		exit 1
 		;;
 	esac
+    else
+	ln $seq.out.2 $seq.out || exit 1
     fi
 elif [ $PCP_VER -ge 3600 ]
 then
