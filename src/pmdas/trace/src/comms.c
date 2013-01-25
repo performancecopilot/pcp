@@ -203,7 +203,7 @@ getcport(void)
 {
     int			fd;
     int			i=1, one=1, sts;
-    struct __pmSockAddr *myAddr;
+    struct sockaddr_in  myAddr;
     struct linger	noLinger = {1, 0};
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -261,22 +261,22 @@ getcport(void)
 	    ctlport = TRACE_PORT;
     }
 
-    myAddr = __pmAllocSockAddr();
-    __pmInitSockAddr(myAddr, INADDR_ANY, ctlport);
+    /* TODO: IPv6 */
+    memset(&myAddr, 0, sizeof(myAddr));
+    myAddr.sin_family = AF_INET;
+    myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    myAddr.sin_port = htons(ctlport);
 
-    sts = __pmBind(fd, myAddr, sizeof(myAddr));
+    sts = bind(fd, &myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
-	__pmFreeSockAddr(myAddr);
 	exit(1);
     }
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+    sts = listen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "listen: %s", netstrerror());
-	__pmFreeSockAddr(myAddr);
 	exit(1);
     }
 
-    __pmFreeSockAddr(myAddr);
     return fd;
 }
