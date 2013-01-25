@@ -71,7 +71,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.preinst pcp.preinst.head \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules \
-		pcp.preinst.head.in cleanconfigs pcp.preinst.tail \
+		pcp.preinst.head.in pcp.preinst.head cleanconfigs pcp.preinst.tail \
 		$(LINTIAN) $(PCP_LINT) \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
 		$(PCPTESTSUITE_FILES) \

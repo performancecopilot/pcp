@@ -20,7 +20,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-LSRCFILES = preinstall.head.in preinstall.tail postinstall remove README
+LSRCFILES = preinstall.head.in preinstall.head preinstall.tail postinstall remove README
 
 LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) preinstall preinstall.head
 
