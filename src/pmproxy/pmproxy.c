@@ -252,6 +252,7 @@ OpenRequestSocket(int port, const char * ipSpec)
 	DontStart();
     }
     if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
+        __pmFreeSockAddr(myAddr);
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 		      port, ipSpec);
 	DontStart();
@@ -259,6 +260,7 @@ OpenRequestSocket(int port, const char * ipSpec)
     __pmSetPort(myAddr, port);
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+    __pmFreeSockAddr(myAddr);
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
 			port, netstrerror());
@@ -266,7 +268,6 @@ OpenRequestSocket(int port, const char * ipSpec)
 	    __pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
     }
-    __pmFreeSockAddr(myAddr);
 
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {

@@ -37,7 +37,6 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     int			sts;
     int			sfd;
     struct __pmSockAddr *myaddr;
-    struct __pmSockAddr *from;
     struct servent	*service;
     __pmSockLen		addrlen;
     int			one = 1;
@@ -86,6 +85,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     __pmInitSockAddr(myaddr, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
+        __pmFreeSockAddr(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
@@ -93,14 +93,15 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 
     sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
+        __pmFreeSockAddr(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
     }
-    from = myaddr;
     addrlen = __pmSockAddrSize();
     /* block here, waiting for a connection */
-    if ((*infd = __pmAccept(sfd, from, &addrlen)) < 0) {
+    if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
+        __pmFreeSockAddr(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);

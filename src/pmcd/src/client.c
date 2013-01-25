@@ -164,6 +164,11 @@ NewClient(void)
 	}
     }
     client[i].addr = __pmAllocSockAddr();
+    if (client[i].addr == NULL) {
+        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+	Shutdown();
+	exit(1);
+    }
     if (i >= nClients)
 	nClients = i + 1;
     return i;

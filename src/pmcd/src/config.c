@@ -1321,30 +1321,26 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	struct __pmSockAddr *addr;
 	struct __pmHostEnt *host;
 
-	if ((host = __pmAllocHostEnt()) == NULL) {
-	    fputs("pmcd: Error allocing host entry\n", stderr);
-	    return -1;
-	}
-	if ((addr = __pmAllocSockAddr()) == NULL) {
-	    fputs("pmcd: Error allocing sock addr\n", stderr);
-	    __pmFreeHostEnt(host);
-	    return -1;
-	}
-
 	fd = __pmCreateSocket();
 	if (fd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
-	    __pmFreeSockAddr(addr);
-	    __pmFreeHostEnt(host);
+	    return -1;
+	}
+	if ((host = __pmAllocHostEnt()) == NULL) {
+	    fputs("pmcd: Error allocing host entry\n", stderr);
 	    return -1;
 	}
 	if (__pmGetHostByName("localhost", host) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmFreeSockAddr(addr);
 	    __pmFreeHostEnt(host);
 	    goto error;
+	}
+	if ((addr = __pmAllocSockAddr()) == NULL) {
+	    fputs("pmcd: Error allocing sock addr\n", stderr);
+	    __pmFreeHostEnt(host);
+	    return -1;
 	}
 	__pmSetSockAddr(addr, host);
 	__pmSetPort(addr, aPtr->ipc.socket.port);

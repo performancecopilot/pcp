@@ -225,7 +225,8 @@ GetPort(char *file)
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
-		fprintf(stderr, "bind(%d): %s\n", ctlport, netstrerror());
+	        __pmFreeSockAddr(myAddr);
+		fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
 		exit(1);
 	    }
 	}

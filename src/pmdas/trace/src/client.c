@@ -73,6 +73,10 @@ newClient(void)
 	    clients[j].addr = NULL;
     }
     clients[i].addr = __pmAllocSockAddr();
+    if (clients[i].addr == NULL) {
+      __pmNoMem("newClient", __pmSockAddrSize(), PM_RECOV_ERR);
+      exit(1);
+    }
     if (i >= nclients)
 	nclients = i + 1;
     return i;
@@ -106,8 +110,8 @@ deleteClient(client_t *cp)
 	    if (clients[i].fd > maxfd)
 		maxfd = clients[i].fd;
     }
-    __pmFreeSockAddr(clients[i].addr);
-    clients[i].addr = NULL;
+    __pmFreeSockAddr(cp->addr);
+    cp->addr = NULL;
     cp->status.connected = 0;
     cp->status.padding = 0;
     cp->status.protocol = 1;	/* sync */
