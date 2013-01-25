@@ -1,7 +1,8 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2008 Aconex, Inc.  All Rights Reserved.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -653,17 +654,46 @@ is the single character ``@'' then this refers to a
 .B PM_CONTEXT_LOCAL
 source, see
 .BR pmNewContext (3).
-.SH PMCD AND ARCHIVE VERSIONS
-Since PCP version 2, version information has been associated with
+.SH SECURE PMCD CONNECTIONS
+Since PCP version 3.6.11, a monitor can explicitly request
+a secure connection to
 .BR pmcd (1)
-and PCP archives. The version number is used in a number of ways,
-but most noticeably for the distributed
-.BR pmns (4).
+using the PM_CTXFLAG_SECURE context flag.
+If
+.B pmcd
+supports this feature, a TLS (Transport Layer Security) or SSL
+(Secure Sockets Layer) connection can be established which uses
+public key cryptography and related techniques.
+These features aim to prevent eavesdropping and data tampering
+from a malicious third party, as well as providing server-side
+authentication (confident identification of a server by a client)
+which can be used to guard against man-in-the-middle attacks.
+.PP
+A secure
+.B pmcd
+connection requires use of certificate-based authentication.
+The security features offered by
+.B pmcd
+are implemented using the Network Security Services (NSS) APIs and
+utilities.
+The NSS
+.BR certutil
+tool can be used to create certificates suitable for establishing
+trust between PCP monitor and collector hosts.
+.PP
+A complete description is beyond the scope of this document, refer
+to the
+.BR "PCP ENVIRONMENT" ,
+.B "FILES"
+and
+.B "SEE ALSO"
+sections for detailed information.
+This includes links to tutorials on the steps involved in setting up the
+available security features.
 .SH PMCD HOSTNAME SPECIFICATION
 Since PCP version 3, the
 .BR pmcd (1)
 hostname specification has been extended to allow an optional
-.B pmcd
 port number, and also optional
 .BR pmproxy (1)
 hostname and port number.
@@ -713,6 +743,11 @@ time a
 is called) or when requests are made against the PMNS.
 .RE
 .TP
+.B PCP_SECURE_SOCKETS
+When set, this variable forces any monitor tool connections to be
+established using the certificate-based secure sockets feature.
+If the connections cannot be established securely, they will fail.
+.TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
 .BR PCP_STDERR ,
@@ -737,18 +772,6 @@ If
 is set to any other value, the value is assumed to
 be a filename, and all messages will be written there.
 .RE
-.TP
-.B PCP_USE_STDERR
-This environment variable, previously used by
-.BR pmlaunch (5),
-.BR pmgsys (1),
-.BR pmview (1)
-and the
-.BR pmview (1)
-front-end scripts (such as
-.BR mpvis (1)),
-has been deprecated from the PCP 2.0 release onward and replaced by
-.BR PCP_STDERR .
 .TP
 .B PMCD_CONNECT_TIMEOUT
 When attempting to connect to a remote
@@ -1010,6 +1033,20 @@ Configuration file for the PCP runtime environment,
 see
 .BR pcp.conf (4).
 .TP
+.B $HOME/.pcp
+User-specific directories containing configuration files for
+customisation of the various monitor tools, such as
+.BR pmchart (1).
+.TP
+.B $HOME/.pcp/ssl
+A Network Security Services (NSS) database directory containing
+user-specific certificates identifying known valid remote
+.B pmcd
+hosts.
+The NSS
+.B certutil
+tool is one of several that can be used to maintain this database.
+.TP
 .B $PCP_RC_DIR/pcp
 Script for starting and stopping
 .BR pmcd (1).
@@ -1069,6 +1106,15 @@ PMDA starts, stops, additions and removals.
 .TP
 .B $PCP_VAR_DIR/config
 Contains directories of configuration files for several PCP tools.
+.TP
+.B $PCP_VAR_DIR/config/ssl/collector
+Optionally contains a Network Security Services database with a
+"PCP Collector" certificate identifying the host.
+.TP
+.B $PCP_VAR_DIR/config/ssl/monitor
+Optionally contains a Network Security Services database with
+"PCP Collector" certificates identifying remote hosts that all
+users running monitor tools on the localhost have access to.
 .TP
 .B $PCP_SYSCONF_DIR/pmcd/rc.local
 Local script for controlling PCP boot, shutdown and restart actions.
@@ -1144,6 +1190,15 @@ following entries are also relevant:
 .BR pmtime (1),
 and
 .BR pmdumptext (1).
+.PP
+If the secure sockets extensions have been enabled, then the
+following references are also relevant:
+.br
+.I "http://oss.sgi.com/projects/pcp/pcp-gui.git/man/html/index.html"
+.br
+.I "http://www.mozilla.org/projects/security/pki/nss/#documentation"
+.br
+.I "http://www.mozilla.org/projects/security/pki/nss/tools/certutil.html"
 .PP
 Also refer to the books
 .I "Performance Co-Pilot User's and Administrator's Guide"

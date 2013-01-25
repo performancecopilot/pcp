@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,9 +13,8 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "impl.h"
 #include "pmcd.h"
+#include "secure.h"
 
 /* Check returned error from a client.
  * If client returns ready/not_ready status change, check then update agent
@@ -1033,10 +1033,9 @@ done:
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
-    int			i, sts, credcount = 0;
-    int			version = UNKNOWN_VERSION;
-    int			sender = 0;
+    int			i, sts, flags = 0, version = 0, sender = 0, credcount = 0;
     __pmCred		*credlist = NULL;
+    __pmVersionCred	*vcp;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1047,13 +1046,15 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     for (i = 0; i < credcount; i++) {
 	switch(credlist[i].c_type) {
 	    case CVERSION:
-		version = credlist[i].c_vala;
-		sts = __pmSetVersionIPC(cp->fd, version);
+		vcp = (__pmVersionCred *)&credlist[i];
+		flags = vcp->c_flags;
+		version = vcp->c_version;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: version cred (%u)\n", version);
+		    fprintf(stderr, "pmcd: version cred (%u)\n", vcp->c_version);
 #endif
 		break;
+
 	    default:
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
@@ -1063,9 +1064,12 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		break;
 	}
     }
-
     if (credlist != NULL)
 	free(credlist);
 
+    if (sts >= 0 && version)
+	sts = __pmSetVersionIPC(cp->fd, version);
+    if (sts >= 0 && flags)
+	sts = pmcd_secure_handshake(cp->fd, flags);
     return sts;
 }

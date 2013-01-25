@@ -29,9 +29,12 @@ Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python python-ctypes
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
+%define _rcdir /etc/init.d
 %else
 Requires: initscripts
+%define _rcdir /etc/rc.d/init.d
 %endif
+%define _tmpdir %{_localstatedir}/lib/pcp/tmp
 
 Requires: pcp-libs = @package_version@
 Requires: python-pcp = @package_version@
@@ -229,7 +232,7 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
-%configure @package_configure@ --with-rcdir=/etc/rc.d/init.d --with-tmpdir=/var/lib/pcp/tmp
+%configure @package_configure@ --with-rcdir=%{_rcdir} --with-tmpdir=%{_tmpdir}
 touch config.done
 
 %clean

@@ -827,6 +827,7 @@ pmlogrewrite
 651 pmproxy local oss
 652 pmda.systemd event local oss
 653 libpcp local oss
+654 pmda.gfs2 local oss
 703 pcpweb local oss
 706 libpcp local oss
 707 pcp.py libpcp local oss
@@ -834,6 +835,7 @@ pmlogrewrite
 709 pcp.py local oss
 710 pcp.py pmimport local oss
 711 pmimport pmdumplog pmlogsummary perl local oss
+712 context libpcp pmcd local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -86,8 +86,8 @@ negotiate_proxy(int fd, const char *hostname, int port)
 /*
  * client connects to pmcd handshake
  */
-int
-__pmConnectHandshake(int fd)
+static int
+__pmConnectHandshake(int fd, int ctxflags, const char *hostname)
 {
     __pmPDU	*pb;
     int		ok;
@@ -107,9 +107,8 @@ __pmConnectHandshake(int fd)
 	 *  |  status  | challenge |
 	 *  :----------:-----------:
 	 *
-	 *   For a good connection, status is 0, else a PCP error code.
-	 *
-	 *   challenge was used for old PCP versions and can be ignored.
+	 *   For a good connection, status is 0, else a PCP error code;
+	 *   challenge contains server-side info (e.g. enabled features)
 	 */
 	version = __pmDecodeXtendError(pb, &sts, &challenge);
 	if (version < 0) {
@@ -122,21 +121,58 @@ __pmConnectHandshake(int fd)
 	}
 
 	if (version == PDU_VERSION2) {
-	    /*
-	     * negotiate connection version and credentials
-	     */
-	    __pmCred	handshake[2];
+	    __pmPDUInfo		pduinfo;
+	    __pmVersionCred	handshake;
+	    int			pduflags = 0;
 
+	    if (ctxflags) {
+		pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
+		/*
+		 * If an optional connection feature (e.g. encryption) is
+		 * desired, the pmcd that we're talking to must advertise
+		 * support for the feature.  And if it did, the client in
+		 * turn must request it be enabled (now, via pduflags).
+		 */
+		if (ctxflags & PM_CTXFLAG_SECURE) {
+		    if (pduinfo.features & PDU_FLAG_SECURE)
+			pduflags |= PDU_FLAG_SECURE;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
+		if (ctxflags & PM_CTXFLAG_COMPRESS) {
+		    if (pduinfo.features & PDU_FLAG_COMPRESS)
+			pduflags |= PDU_FLAG_COMPRESS;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
+	    }
+
+	    /*
+	     * Negotiate connection version and credentials
+	     */
 	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
 		__pmUnpinPDUBuf(pb);
 		return ok;
 	    }
 
-	    handshake[0].c_type = CVERSION;
-	    handshake[0].c_vala = PDU_VERSION;
-	    handshake[0].c_valb = 0;
-	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
+	    memset(&handshake, 0, sizeof(handshake));
+	    handshake.c_type = CVERSION;
+	    handshake.c_version = PDU_VERSION;
+	    handshake.c_flags = pduflags;
+
+	    sts = __pmSendCreds(fd, (int)getpid(), 1, (__pmCred *)&handshake);
+
+	    /*
+	     * At this point we know caller wants to set channel options and
+	     * pmcd supports them so go ahead and update the socket now (this
+	     * completes the SSL handshake in encrypting mode).
+	     */
+	    if (sts >= 0 && pduflags)
+		sts = __pmSecureClientHandshake(fd, pduflags, hostname);
 	}
 	else
 	    sts = PM_ERR_IPC;
@@ -159,7 +195,6 @@ load_pmcd_ports(void)
 {
     static int	first_time = 1;
 
-    PM_LOCK(__pmLock_libpcp);
     if (first_time) {
 	char	*envstr;
 	char	*endptr;
@@ -197,15 +232,62 @@ load_pmcd_ports(void)
 	    global_nports = sizeof(default_portlist) / sizeof(default_portlist[0]);
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
+}
+
+static void
+load_proxy_hostspec(pmHostSpec *proxy)
+{
+    static int	proxy_port;
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	*envstr;
+    char	*endptr;
+
+    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
+	proxy->name = strdup(envstr);
+	if (proxy->name == NULL) {
+	    __pmNotifyErr(LOG_WARNING,
+			  "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
+			  pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+	else {
+	    if ((envstr = getenv("PMPROXY_PORT")) != NULL) {
+		proxy_port = (int)strtol(envstr, &endptr, 0);
+		if (*endptr != '\0' || proxy_port < 0) {
+		    __pmNotifyErr(LOG_WARNING,
+			"__pmConnectPMCD: ignored bad PMPROXY_PORT = '%s'\n", envstr);
+		    proxy_port = PROXY_PORT;
+		}
+	    } else {
+		proxy_port = PROXY_PORT;
+	    }
+	    proxy->ports = &proxy_port;
+	    proxy->nports = 1;
+	}
+    }
+}
+
+static void
+load_certificate_database(void)
+{
+    /* Ensure correct security lib initialisation order */
+    __pmInitSecureSockets();
+
+    /*
+     * If secure sockets functionality available, iterate over the set of
+     * known locations for certificate databases and attempt to initialise
+     * one of them for our use.
+     */
+    if (__pmInitCertificates() < 0)
+	__pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
+		"certificate database exists, but failed initialization");
 }
 
 void
 __pmConnectGetPorts(pmHostSpec *host)
 {
-    load_pmcd_ports();
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
+    load_pmcd_ports();
     if (__pmAddHostPorts(host, global_portlist, global_nports) < 0) {
 	__pmNotifyErr(LOG_WARNING,
 		"__pmConnectGetPorts: portlist dup failed, "
@@ -217,7 +299,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 }
 
 int
-__pmConnectPMCD(pmHostSpec *hosts, int nhosts)
+__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 {
     int		sts = -1;
     int		fd = -1;	/* Fd for socket connection to pmcd */
@@ -237,37 +319,15 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	/*
 	 * One-trip check for use of pmproxy(1) in lieu of pmcd(1),
 	 * and to extract the optional environment variables ...
-	 * PMCD_PORT, PMPROXY_HOST and PMPROXY_PORT
+	 * PMCD_PORT, PMPROXY_HOST and PMPROXY_PORT.
+	 * We also check for the presense of a certificate database
+	 * and load it up if either a user or system (global) DB is
+	 * found.
 	 */
-	char	*envstr;
-	char	*endptr;
-
 	first_time = 0;
-
 	load_pmcd_ports();
-
-	if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
-	    proxy.name = strdup(envstr);
-	    if (proxy.name == NULL) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_WARNING,
-			     "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
-			     pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
-	    }
-	    else {
-		static int proxy_port = PROXY_PORT;
-		if ((envstr = getenv("PMPROXY_PORT")) != NULL) {
-		    proxy_port = (int)strtol(envstr, &endptr, 0);
-		    if (*endptr != '\0' || proxy_port < 0) {
-			__pmNotifyErr(LOG_WARNING,
-			    "__pmConnectPMCD: ignored bad PMPROXY_PORT = '%s'\n", envstr);
-			proxy_port = PROXY_PORT;
-		    }
-		}
-		proxy.ports = &proxy_port;
-		proxy.nports = 1;
-	    }
-	}
+	load_proxy_hostspec(&proxy);
+	load_certificate_database();
     }
 
     if (hosts[0].nports > 0) {
@@ -280,13 +340,15 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
     }
 
     if (proxy.name == NULL && nhosts == 1) {
+	const char *name = (const char *)hosts[0].name;
+
 	/*
 	 * no proxy, connecting directly to pmcd
 	 */
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
-	    if ((fd = __pmAuxConnectPMCDPort(hosts[0].name, ports[i])) >= 0) {
-		if ((sts = __pmConnectHandshake(fd)) < 0) {
+	    if ((fd = __pmAuxConnectPMCDPort(name, ports[i])) >= 0) {
+		if ((sts = __pmConnectHandshake(fd, ctxflags, name)) < 0) {
 		    __pmCloseSocket(fd);
 		}
 		else
@@ -346,7 +408,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    __pmCloseSocket(fd);
-	else if ((sts = __pmConnectHandshake(fd)) < 0)
+	else if ((sts = __pmConnectHandshake(fd, ctxflags, proxyhost->name)) < 0)
 	    __pmCloseSocket(fd);
 	else
 	    /* success */

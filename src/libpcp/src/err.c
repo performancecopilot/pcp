@@ -16,6 +16,11 @@
 #include "impl.h"
 #include "fault.h"
 #include <ctype.h>
+#ifdef HAVE_SECURE_SOCKETS
+#include "prerror.h"
+#include "secerr.h"
+#include "sslerr.h"
+#endif
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
 #endif
@@ -124,10 +129,12 @@ static const struct {
 	"Result size exceeded" },
     { PM_ERR_FAULT,		"PM_ERR_FAULT",
 	"QA fault injected" },
-    { PM_ERR_NYI,		"PM_ERR_NYI",
-	"Functionality not yet implemented" },
     { PM_ERR_THREAD,		"PM_ERR_THREAD",
         "Operation not supported for multi-threaded applications" },
+    /* insert new libpcp error codes here */
+    { PM_ERR_NYI,		"PM_ERR_NYI",
+	"Functionality not yet implemented" },
+    /* do not use values smaller than NYI */
     { 0,			"",
 	"" }
 };
@@ -171,6 +178,18 @@ pmErrStr_r(int code, char *buf, int buflen)
 	return buf;
     }
 
+    /* is the code from a library wrapped by libpcp?  (e.g. NSS/SSL) */
+    if (code < PM_ERR_NYI) {
+#ifdef HAVE_SECURE_SOCKETS
+#define DECODE_SECURE_SOCKETS_ERROR(c)	((c) - PM_ERR_NYI)	/* negative */
+
+	int error = DECODE_SECURE_SOCKETS_ERROR(code);
+	strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
+	buf[buflen-1] = '\0';
+	return buf;
+#endif
+    }
+
 #ifndef IS_MINGW
     if (first) {
 	/*
@@ -206,7 +225,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	first = 0;
     }
     if (code < 0 && code > -PM_ERR_BASE) {
-	/* intro(2) errors, maybe */
+	/* intro(2) / errno(3) errors, maybe */
 	strerror_x(-code, buf, buflen);
 	if (unknown == NULL) {
 	    if (buf[0] != '\0')

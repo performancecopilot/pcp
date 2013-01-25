@@ -2,11 +2,11 @@
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
-#include <pcp/platform_defs.h>
+
+#include "localconfig.h"
 
 int
 main()
@@ -101,7 +101,11 @@ main()
     pduinfo.zero = 0x1;
     pduinfo.version = 0x12 & 0x7f;
     pduinfo.licensed = 0x34;
+#if PCP_VER >= 3611
+    pduinfo.features = 0x5678;
+#else
     pduinfo.authorize = 0x5678;
+#endif
 
     if (*ip == 0x92345678)
 	printf("OK\n");

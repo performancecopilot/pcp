@@ -21,8 +21,10 @@
  */
 #ifdef HAVE_SECURE_SOCKETS
 #include <nss.h>
+#include <ssl.h>
 #include <nspr.h>
 #include <private/pprio.h>
+#include <sslerr.h>
 
 struct __pmSockAddrIn {
     PRNetAddr		sockaddr;
@@ -167,7 +169,7 @@ __pmConnectCheckError(int fd)
     return so_err;
 }
 
-int
+static int
 __pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;
@@ -224,7 +226,6 @@ __pmConnectTimeout(void)
 					 (double)canwait.tv_sec) * 1000000);
 	    }
 	}
-
     }
     PM_UNLOCK(__pmLock_libpcp);
     return (&canwait);
@@ -344,6 +345,57 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return fdFlags;
 }
 
+int
+__pmSocketClosed(void)
+{
+    int	error = oserror();
+
+    if (PM_ERR_NYI > -error)
+	error = -(error + PM_ERR_NYI);
+
+    switch (error) {
+	/*
+	 * Treat this like end of file on input.
+	 *
+	 * failed as a result of pmcd exiting and the connection
+	 * being reset, or as a result of the kernel ripping
+	 * down the connection (most likely because the host at
+	 * the other end just took a dive)
+	 *
+	 * from IRIX BDS kernel sources, seems like all of the
+	 * following are peers here:
+	 *  ECONNRESET (pmcd terminated?)
+	 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
+	 *  ECONNREFUSED
+	 * peers for BDS but not here:
+	 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
+	 *  ECONNABORTED (accept, user req only?)
+	 *  ENOTCONN (udp?)
+	 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
+	 */
+	case ECONNRESET:
+	case EPIPE:
+	case ETIMEDOUT:
+	case ENETDOWN:
+	case ENETUNREACH:
+	case EHOSTDOWN:
+	case EHOSTUNREACH:
+	case ECONNREFUSED:
+#ifdef HAVE_SECURE_SOCKETS
+	case PR_IO_TIMEOUT_ERROR:
+	case PR_NETWORK_UNREACHABLE_ERROR:
+	case PR_CONNECT_TIMEOUT_ERROR:
+	case PR_NOT_CONNECTED_ERROR:
+	case PR_CONNECT_RESET_ERROR:
+	case PR_PIPE_ERROR:
+	case PR_NETWORK_DOWN_ERROR:
+	case PR_SOCKET_SHUTDOWN_ERROR:
+	case PR_HOST_UNREACHABLE_ERROR:
+#endif
+	    return 1;
+    }
+    return 0;
+}
 #if !defined(HAVE_SECURE_SOCKETS)
 
 int
@@ -370,9 +422,49 @@ __pmCloseSocket(int fd)
 }
 
 int
+__pmInitCertificates(void)
+{
+    return 0;
+}
+
+int
+__pmShutdownCertificates(void)
+{
+    return 0;
+}
+
+int
+__pmInitSecureSockets(void)
+{
+    return 0;
+}
+
+int
 __pmShutdownSockets(void)
 {
     return 0;
+}
+
+int
+__pmDataIPCSize(void)
+{
+    return 0;
+}
+
+int
+__pmSecureServerIPCFlags(int fd)
+{
+    (void)fd;
+    return -EOPNOTSUPP;
+}
+
+int
+__pmSecureClientHandshake(int fd, int flags, const char *hostname)
+{
+    (void)fd;
+    (void)flags;
+    (void)hostname;
+    return -EOPNOTSUPP;
 }
 
 int
@@ -480,6 +572,13 @@ ssize_t
 __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
     return recv(socket, buffer, length, flags);
+}
+
+int
+__pmSecureDataPending(int fd)
+{
+    (void)fd;
+    return 0;
 }
 
 int
@@ -646,27 +745,58 @@ __pmSockAddrInToString(struct __pmSockAddrIn *address)
     return __pmInAddrToString((struct __pmInAddr *)&address->sockaddr.sin_addr);
 }
 
-#else	/* NSS */
-/* NSS/NSPR file descriptors are not integers, however, integral file descriptors are expected
-   in many parts of pcp. In order to deal with this assumption, when NSS/NSPR is available, we
-   maintain a set of available integral file descriptors. The file descriptor number returned by
-   __pmCreateSocket is a reference to this set and must be used for all further I/O operations
-   on that socket.
+#else	/* HAVE_SECURE_SOCKS */
+/*
+ * We shift NSS/SSL errors below the valid range for PCP error codes,
+ * in order to avoid conflicts.  pmErrStr can then detect and decode.
+ * PM_ERR_NYI is the PCP error code sentinel.
+ */
+#define ENCODE_SECURE_SOCKETS_ERROR()	(PM_ERR_NYI + PR_GetError())  /* negative */
+static int
+__pmSecureSocketsError()
+{
+    int code = ENCODE_SECURE_SOCKETS_ERROR();
+    setoserror(-code);
+    return code;
+}
 
-   Since some interfaces (e.g. the IPC table) will use a mix of native file descriptors
-   and NSPR ones, we need a way to distinguish them. Obtaining the hard max fd number using
-   getrlimit() was considered, but a sysadmin could change this limit arbitrarily while we are
-   running. We can't use negative values, since these indicate an error.
+/*
+ * For every connection when operating under secure socket mode, we need the following
+ * auxillary structure associated with the socket.  It holds critical information that
+ * each piece of the security pie can make use of (NSS/SSL/NSPR).  Allocated once when
+ * initial connection is being established.
+ */
+typedef struct { 
+    PRFileDesc	*nsprFd;
+    PRFileDesc	*sslFd;
+} __pmSecureSocket;
 
-   There is a limit on the range of fd's which can be passed to the fd_set API. It is FD_SETSIZE.
-   So, consider all fd's >= FD_SETSIZE to be ones which reference our set. Using this threshold will
-   also allow us to easily manage mixed sets of native and NSPR fds.
+int
+__pmDataIPCSize(void)
+{
+    return sizeof(__pmSecureSocket);
+}
 
-   NB: __pmLock_libpcp must be held when accessing this set, since another thread could modify it
-       at any time.
+/*
+ * NSS/NSPR file descriptors are not integers, however, integral file descriptors are expected
+ * in many parts of pcp. In order to deal with this assumption, when NSS/NSPR is available, we
+ * maintain a set of available integral file descriptors. The file descriptor number returned by
+ * __pmCreateSocket is a reference to this set and must be used for all further I/O operations
+ * on that socket.
+ *
+ * Since some interfaces (e.g. the IPC table) will use a mix of native file descriptors
+ * and NSPR ones, we need a way to distinguish them. Obtaining the hard max fd number using
+ * getrlimit() was considered, but a sysadmin could change this limit arbitrarily while we are
+ * running. We can't use negative values, since these indicate an error.
+ *
+ * There is a limit on the range of fd's which can be passed to the fd_set API. It is FD_SETSIZE.
+ * So, consider all fd's >= FD_SETSIZE to be ones which reference our set. Using this threshold will
+ * also allow us to easily manage mixed sets of native and NSPR fds.
+ *
+ * NB: __pmLock_libpcp must be held when accessing this set, since another thread could modify it
+ *     at any time.
  */
 static fd_set nsprFds;
-
 #define NSPR_HANDLE_BASE FD_SETSIZE
 
 static int
@@ -699,7 +829,16 @@ freeNSPRHandle(int fd)
 }
 
 int
-__pmShutdownSockets(void)
+__pmInitSecureSockets(void)
+{
+    /* Make sure that NSPR has been initialized */
+    if (PR_Initialized() != PR_TRUE)
+        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+    return 0;
+}
+
+int
+__pmShutdownSecureSockets(void)
 {
     if (PR_Initialized())
 	PR_Cleanup();
@@ -709,45 +848,282 @@ __pmShutdownSockets(void)
 int
 __pmCreateSocket(void)
 {
-    int sts;
-    int fd;
-    PRFileDesc *nsprFd;
+    int fd, sts;
+    __pmSecureSocket socket = { 0 };
 
-    /* Make sure that NSPR has been initialized */
-    if (PR_Initialized() != PR_TRUE)
-        PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+    __pmInitSecureSockets();
 
-    /* Open the socket */
-    if ((nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
+    /* Open the socket, setup auxillary structs */
+    if ((socket.nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
 	return -neterror();
-
     fd = newNSPRHandle();
-    __pmSetDataIPC(fd, nsprFd); /* Must be before __pmInitSocket */
+    /* Must set data before __pmInitSocket call */
+    __pmSetDataIPC(fd, (void *)&socket);
 
     if ((sts = __pmInitSocket(fd)) < 0)
         return sts;
-
     return fd;
 }
 
 void
 __pmCloseSocket(int fd)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
+    int sts;
+
+    sts = __pmDataIPC(fd, (void *)&socket);
     __pmResetIPC(fd);
 
-    if (nsprFd) {
-        freeNSPRHandle(fd);
-	PR_Close(nsprFd);
-	return;
+    if (sts == 0) {
+	if (socket.nsprFd) {
+	    freeNSPRHandle(fd);
+	    PR_Close(socket.nsprFd);
+	}
+    } else {
+#if defined(IS_MINGW)
+	closesocket(fd);
+#else
+	close(fd);
+#endif
+    }
+}
+
+static int
+__pmInitCertificateDB(const char *path)
+{
+    SECStatus secsts;
+
+    if (access(path, R_OK | X_OK) != 0)
+	return -ENOENT;
+    secsts = NSS_Init(path);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
+    secsts = NSS_SetExportPolicy();
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
+    SSL_ClearSessionCache();
+    return 0;
+}
+
+int
+__pmInitCertificates(void)
+{
+    int sts, sep = __pmPathSeparator();
+    char dbpath[MAXPATHLEN];
+    char *prefix;
+
+    /*
+     * Check for client certificate databases, in the following order:
+     *    $HOME/.pcp/ssl  
+     *    $PCP_VAR_DIR/config/ssl/monitor
+     */
+
+    prefix = getenv("HOME");
+    if (prefix) {
+	snprintf(dbpath, sizeof(dbpath), "%s%c" ".pcp%cssl",
+		prefix, sep, sep);
+	if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
+	    return sts;
+	/* Only continue on if no such database path existed */
     }
 
-    /* We have a native fd */
-#if defined(IS_MINGW)
-    closesocket(fd);
-#else
-    close(fd);
-#endif
+    snprintf(dbpath, sizeof(dbpath), "%s%c" "config%cssl%cmonitor",
+		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
+    if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
+	return sts;
+
+    /* We're still good even if no certificate database paths existed */
+    return 0;
+}
+
+int
+__pmShutdownCertificates(void)
+{
+    if (NSS_Shutdown() != SECSuccess)
+	return __pmSecureSocketsError();
+    return 0;
+}
+
+static SECStatus
+badCert(void *arg, PRFileDesc *sslsocket)
+{
+    SECItem secitem = { 0 };
+    SECStatus secstatus = SECFailure;
+    PRArenaPool *arena = NULL;
+    CERTCertificate *servercert = NULL;
+    char *expected;
+
+    (void)arg;
+    switch (PR_GetError()) {
+    case SSL_ERROR_BAD_CERT_DOMAIN:
+	/*
+	 * Propogate a warning through to the client.  Show the expected
+	 * host, then list the DNS names from the server certificate.
+	 */
+	expected = SSL_RevealURL(sslsocket);
+	pmprintf("WARNING: "
+"The domain name %s does not match the DNS name(s) on the server certificate:\n",
+		expected);
+	PORT_Free(expected);
+
+	servercert = SSL_PeerCertificate(sslsocket);
+	secstatus = CERT_FindCertExtension(servercert,
+				SEC_OID_X509_SUBJECT_ALT_NAME, &secitem);
+	if (secstatus != SECSuccess || !secitem.data) {
+	    pmprintf("Unable to find alt name extension on the server certificate\n");
+	} else if ((arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE)) == NULL) {
+	    pmprintf("Out of memory while generating name list\n");
+	    SECITEM_FreeItem(&secitem, PR_FALSE);
+	} else {
+	    CERTGeneralName *namelist, *n;
+
+	    namelist = n = CERT_DecodeAltNameExtension(arena, &secitem);
+	    SECITEM_FreeItem(&secitem, PR_FALSE);
+	    if (!namelist) {
+		pmprintf("Unable to decode alt name extension on server certificate\n");
+	    } else {
+		do {
+		    if (n->type == certDNSName)
+			pmprintf("  %.*s\n", (int)n->name.other.len, n->name.other.data);
+		    n = CERT_GetNextGeneralName(n);
+		} while (n != namelist);
+	    }
+	}
+	if (arena)
+	    PORT_FreeArena(arena, PR_FALSE);
+	if (servercert)
+	    CERT_DestroyCertificate(servercert);
+	secstatus = SECSuccess;
+	pmflush();
+	break;
+    default:
+	break;
+    }
+    return secstatus;
+}
+
+static int
+__pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
+{
+    __pmSecureSocket socket;
+    SECStatus secsts;
+
+    if (__pmDataIPC(fd, &socket) < 0)
+	return -EOPNOTSUPP;
+    if (socket.nsprFd == NULL)
+	return -EOPNOTSUPP;
+
+    if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
+	return PM_ERR_IPC;
+    }
+    socket.nsprFd = socket.sslFd;	/* TODO: remove seperate sslFd? */
+
+    if ((flags & PDU_FLAG_SECURE) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_SetURL(socket.sslFd, hostname);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_BadCertHook(socket.sslFd, (SSLBadCertHandler)badCert, NULL);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+    }
+
+    if ((flags & PDU_FLAG_COMPRESS) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+    }
+
+    /* save changes back into the IPC table (updates client sslFd) */
+    return __pmSetDataIPC(fd, (void *)&socket);
+}
+
+int
+__pmSecureClientHandshake(int fd, int flags, const char *hostname)
+{
+    PRIntervalTime timer;
+    PRFileDesc *sslsocket;
+    SECStatus secsts;
+    int msec, sts;
+
+    if ((sts = __pmSecureClientIPCFlags(fd, flags, hostname)) < 0)
+	return sts;
+
+    sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
+    if (!sslsocket)
+	return -EINVAL;
+
+    secsts = SSL_ResetHandshake(sslsocket, PR_FALSE /*client*/);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
+
+    msec = __pmConvertTimeout(TIMEOUT_DEFAULT);
+    timer = PR_MillisecondsToInterval(msec);
+    secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
+
+    return 0;
+}
+
+void *
+__pmGetSecureSocket(int fd)
+{
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) < 0)
+	return NULL;
+    return (void *)socket.sslFd;
+}
+
+int
+__pmSecureServerIPCFlags(int fd, int flags)
+{
+    __pmSecureSocket socket;
+    SECStatus secsts;
+
+    if (__pmDataIPC(fd, &socket) < 0)
+	return -EOPNOTSUPP;
+    if (socket.nsprFd == NULL)
+	return -EOPNOTSUPP;
+
+    if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL)
+	return __pmSecureSocketsError();
+    socket.nsprFd = socket.sslFd;	/* TODO: remove seperate sslFd? */
+
+    secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
+
+    if ((flags & PDU_FLAG_SECURE) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+    }
+
+    if ((flags & PDU_FLAG_COMPRESS) != 0) {
+	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError();
+    }
+
+    /* save changes back into the IPC table (updates server sslFd) */
+    return __pmSetDataIPC(fd, (void *)&socket);
 }
 
 static int
@@ -764,15 +1140,16 @@ sockOptValue(const void *option_value, __pmSockLen option_len)
 }
 
 int
-__pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
+__pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	       __pmSockLen option_len)
 {
     /* Map the request to the NSPR equivalent, if possible. */
-    PRSocketOptionData odata;
-    PRStatus prStatus;
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    PRSocketOptionData option_data;
+    PRStatus prsts;
 
-    if (nsprFd) {
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	switch(level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
@@ -780,24 +1157,24 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	    case SO_EXCLUSIVEADDRUSE: {
 		/* There is no direct mapping of this option in NSPR. The best we can do is to use
 		   the native handle and call setsockopt on that handle. */
-	        socket = PR_FileDesc2NativeHandle(nsprFd);
-		return setsockopt(socket, level, option_name, option_value, option_len);
+	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
 #endif
 	    case SO_KEEPALIVE:
-	        odata.option = PR_SockOpt_Keepalive;
-		odata.value.keep_alive = sockOptValue(option_value, option_len);
+	        option_data.option = PR_SockOpt_Keepalive;
+		option_data.value.keep_alive = sockOptValue(option_value, option_len);
 		break;
 	    case SO_LINGER: {
 	        struct linger *linger = (struct linger *)option_value;
-		odata.option = PR_SockOpt_Linger;
-		odata.value.linger.polarity = linger->l_onoff;
-		odata.value.linger.linger = linger->l_linger;
+		option_data.option = PR_SockOpt_Linger;
+		option_data.value.linger.polarity = linger->l_onoff;
+		option_data.value.linger.linger = linger->l_linger;
 		break;
 	    }
 	    case SO_REUSEADDR:
-	        odata.option = PR_SockOpt_Reuseaddr;
-		odata.value.reuse_addr = sockOptValue(option_value, option_len);
+	        option_data.option = PR_SockOpt_Reuseaddr;
+		option_data.value.reuse_addr = sockOptValue(option_value, option_len);
 		break;
 	    default:
 	        __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
@@ -807,8 +1184,8 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	    break;
 	case IPPROTO_TCP:
 	    if (option_name == TCP_NODELAY) {
-	        odata.option = PR_SockOpt_NoDelay;
-		odata.value.no_delay = sockOptValue(option_value, option_len);
+	        option_data.option = PR_SockOpt_NoDelay;
+		option_data.value.no_delay = sockOptValue(option_value, option_len);
 		break;
 	    }
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
@@ -819,37 +1196,41 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	    return -1;
 	}
 
-	prStatus = PR_SetSocketOption(nsprFd, &odata);
-	return prStatus == PR_SUCCESS ? 0 : -1;
+	prsts = PR_SetSocketOption(socket.nsprFd, &option_data);
+	return prsts == PR_SUCCESS ? 0 : -1;
     }
 
     /* We have a native socket. */
-    return setsockopt(socket, level, option_name, option_value, option_len);
+    return setsockopt(fd, level, option_name, option_value, option_len);
 }
 
 int
-__pmGetSockOpt(int socket, int level, int option_name, void *option_value,
+__pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 	       __pmSockLen *option_len)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    __pmSecureSocket socket;
 
     /* Map the request to the NSPR equivalent, if possible. */
-    if (nsprFd) {
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	switch (level) {
 	case SOL_SOCKET:
-	  switch(option_name) {
-	  case SO_ERROR: {
-	      /* There is no direct mapping of this option in NSPR. The best we can do is to use the
-		 native fd and call getsockopt on that handle. */
-	      socket = PR_FileDesc2NativeHandle(nsprFd);
-	      return getsockopt(socket, level, option_name, option_value, option_len);
+	    switch(option_name) {
+	    case SO_ERROR: {
+		/*
+		 * There is no direct mapping of this option in NSPR.
+		 * Best we can do is call getsockopt on the native fd.
+		 */
+	      fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+	      return getsockopt(fd, level, option_name, option_value, option_len);
 	  }
 	  default:
-	      __pmNotifyErr(LOG_ERR, "__pmGetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
-			  option_name);
+	      __pmNotifyErr(LOG_ERR,
+			"__pmGetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
+			option_name);
 	      return -1;
 	  }
 	  break;
+
 	default:
 	    __pmNotifyErr(LOG_ERR, "__pmGetSockOpt: unimplemented level: %d\n", level);
 	    break;
@@ -858,18 +1239,19 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
     }
 
     /* We have a native socket. */
-    return getsockopt(socket, level, option_name, option_value, option_len);
+    return getsockopt(fd, level, option_name, option_value, option_len);
 }
  
 void
 __pmInitSockAddr(struct __pmSockAddrIn *addr, int address, int port)
 {
-    /* We expect the address and port number to be on network byte order.
-       PR_InitializeNetAddr expects the port in host byte order.
-       The ip field of __pmSockAddrIn (PRNetAddr) must be in network byte order. */
-    PRStatus prStatus = PR_InitializeNetAddr (PR_IpAddrNull, ntohs(port), &addr->sockaddr);
-
-    if (prStatus != PR_SUCCESS)
+    /*
+     * We expect the address and port number to be on network byte order.
+     * PR_InitializeNetAddr expects the port in host byte order.
+     * The ip field of __pmSockAddrIn (PRNetAddr) must be in network byte order.
+     */
+    PRStatus prsts = PR_InitializeNetAddr(PR_IpAddrNull, ntohs(port), &addr->sockaddr);
+    if (prsts != PR_SUCCESS)
 	__pmNotifyErr(LOG_ERR,
 		"__pmInitSockAddr: PR_InitializeNetAddr failure: %d\n", PR_GetError());
     addr->sockaddr.inet.ip = address;
@@ -879,8 +1261,10 @@ void
 __pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
 {
     PRUint16 port = 0;
-    /* The port in the address is in network byte forder, but PR_EnumerateHostEnt expects it
-       in host byte order. */
+    /*
+     * The port in the address is in network byte forder, but PR_EnumerateHostEnt
+     * expects it in host byte order.
+     */
     if (addr->sockaddr.raw.family == PR_AF_INET)
         port = ntohs(addr->sockaddr.inet.port);
     else if (addr->sockaddr.raw.family == PR_AF_INET6)
@@ -900,75 +1284,65 @@ __pmSetPort(struct __pmSockAddrIn *addr, int port)
 int
 __pmListen(int fd, int backlog)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
-        PRStatus prStatus;
-	prStatus = PR_Listen(nsprFd, backlog);
-	return prStatus == PR_SUCCESS ? 0 : -1;
-    }
-
-    /* We have a native fd */
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
+        return PR_Listen(socket.nsprFd, backlog) == PR_SUCCESS ? 0 : -1;
     return listen(fd, backlog);
 }
 
 int
 __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
-    if (nsprFd) {
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
         PRFileDesc *newSocket;
-	newSocket = PR_Accept(nsprFd, addr, PR_INTERVAL_NO_TIMEOUT);
+
+	newSocket = PR_Accept(socket.nsprFd, addr, PR_INTERVAL_NO_TIMEOUT);
 	if (newSocket == NULL)
 	    return -1;
 	/* Add the accepted socket to the fd table. */
 	fd = newNSPRHandle();
-	__pmSetDataIPC(fd, newSocket);
+	socket.nsprFd = newSocket;
+	__pmSetDataIPC(fd, (void *)&socket);
 	return fd;
     }
-
-    /* We have a native fd */
     return accept(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
-        PRStatus prStatus;
-	prStatus = PR_Bind(nsprFd, (PRNetAddr *)addr);
-	return prStatus == PR_SUCCESS ? 0 : -1;
-    }
-
-    /* We have a native fd */
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
+        return PR_Bind(socket.nsprFd, (PRNetAddr *)addr) == PR_SUCCESS ? 0 : -1;
     return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
-    if (nsprFd) {
-        PRStatus prStatus;
-	prStatus = PR_Connect(nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT);
-	return prStatus == PR_SUCCESS ? 0 : -1;
-    }
+    __pmSecureSocket socket;
 
-    /* We have a native fd */
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
+	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT)
+		== PR_SUCCESS) ? 0 : -1;
     return connect(fd, (struct sockaddr *)addr, addrlen);
 }
 
 int
 __pmGetFileStatusFlags(int fd)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
-        /* There is no direct mapping of this function in NSPR. The best we can do is to use the
-	   native fd and call fcntl on that handle. */
-        fd = PR_FileDesc2NativeHandle(nsprFd);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	/*
+	 * There is no direct mapping of this function in NSPR.
+	 * Best we can do is to call fcntl on the native fd.
+	 */
+        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
     }
     return fcntl(fd, F_GETFL);
 }
@@ -976,12 +1350,14 @@ __pmGetFileStatusFlags(int fd)
 int
 __pmSetFileStatusFlags(int fd, int flags)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
-        /* There is no direct mapping of this function in NSPR. The best we can do is to use the
-	   native fd and call fcntl on that handle. */
-        fd = PR_FileDesc2NativeHandle(nsprFd);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	/*
+	 * There is no direct mapping of this function in NSPR.
+	 * Best we can do is to call fcntl on the native fd.
+	 */
+        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
     }
     return fcntl(fd, F_SETFL, flags);
 }
@@ -989,11 +1365,14 @@ __pmSetFileStatusFlags(int fd, int flags)
 int
 __pmGetFileDescriptorFlags(int fd)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
-    if (nsprFd) {
-        /* There is no direct mapping of this function in NSPR. The best we can do is to use the
-	   native fd and call fcntl on that handle. */
-        fd = PR_FileDesc2NativeHandle(nsprFd);
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	/*
+	 * There is no direct mapping of this function in NSPR.
+	 * Best we can do is to call fcntl on the native fd.
+	 */
+        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
     }
     return fcntl(fd, F_GETFD);
 }
@@ -1001,76 +1380,100 @@ __pmGetFileDescriptorFlags(int fd)
 int
 __pmSetFileDescriptorFlags(int fd, int flags)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
-        /* There is no direct mapping of this function in NSPR. The best we can do is to use the
-	   native fd and call fcntl on that handle. */
-        fd = PR_FileDesc2NativeHandle(nsprFd);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	/*
+	 * There is no direct mapping of this function in NSPR.
+	 * Best we can do is to call fcntl on the native fd.
+	 */
+        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
     }
     return fcntl(fd, F_SETFD, flags);
 }
 
 ssize_t
-__pmWrite(int socket, const void *buffer, size_t length)
+__pmWrite(int fd, const void *buffer, size_t length)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    __pmSecureSocket socket;
 
-    if (nsprFd)
-	return PR_Write(nsprFd, buffer, length);
-    /* We have a native fd */
-    return write(socket, buffer, length);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	ssize_t	size = PR_Write(socket.nsprFd, buffer, length);
+	if (size < 0)
+	    __pmSecureSocketsError();
+	return size;
+    }
+    return write(fd, buffer, length);
 }
 
 ssize_t
-__pmRead(int socket, void *buffer, size_t length)
+__pmRead(int fd, void *buffer, size_t length)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    __pmSecureSocket socket;
 
-    if (nsprFd)
-	return PR_Read(nsprFd, buffer, length);
-    /* We have a native fd */
-    return read(socket, buffer, length);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	ssize_t size = PR_Read(socket.nsprFd, buffer, length);
+	if (size < 0)
+	    __pmSecureSocketsError();
+	return size;
+    }
+    return read(fd, buffer, length);
 }
 
 ssize_t
-__pmSend(int socket, const void *buffer, size_t length, int flags)
+__pmSend(int fd, const void *buffer, size_t length, int flags)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    __pmSecureSocket socket;
 
-    if (nsprFd)
-	return PR_Write(nsprFd, buffer, length);
-    /* We have a native fd */
-    return send(socket, buffer, length, flags);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	ssize_t size = PR_Write(socket.nsprFd, buffer, length);
+	if (size < 0)
+	    __pmSecureSocketsError();
+	return size;
+    }
+    return send(fd, buffer, length, flags);
 }
 
 ssize_t
-__pmRecv(int socket, void *buffer, size_t length, int flags)
+__pmRecv(int fd, void *buffer, size_t length, int flags)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(socket);
+    __pmSecureSocket socket;
 
-    if (nsprFd)
-	return PR_Read(nsprFd, buffer, length);
-    /* We have a native fd */
-    return recv(socket, buffer, length, flags);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	ssize_t	size = PR_Read(socket.nsprFd, buffer, length);
+	if (size < 0)
+	    __pmSecureSocketsError();
+	return size;
+    }
+    return recv(fd, buffer, length, flags);
+}
+
+int
+__pmSecureDataPending(int fd)
+{
+    __pmSecureSocket socket;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
+        return SSL_DataPending(socket.sslFd);
+    return 0;
 }
 
 int
 __pmFD(int fd)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd)
-        return PR_FileDesc2NativeHandle(nsprFd);
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
+        return PR_FileDesc2NativeHandle(socket.nsprFd);
     return fd;
 }
 
 void
 __pmFD_CLR(int fd, __pmFdSet *set)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
         fd -= NSPR_HANDLE_BASE;
 	FD_CLR(fd, &set->nspr_set);
 	/* Reset the max fd, if necessary. */
@@ -1097,9 +1500,9 @@ __pmFD_CLR(int fd, __pmFdSet *set)
 int
 __pmFD_ISSET(int fd, __pmFdSet *set)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
         fd -= NSPR_HANDLE_BASE;
 	return FD_ISSET(fd, &set->nspr_set);
     }
@@ -1109,9 +1512,9 @@ __pmFD_ISSET(int fd, __pmFdSet *set)
 void
 __pmFD_SET(int fd, __pmFdSet *set)
 {
-    PRFileDesc *nsprFd = (PRFileDesc *)__pmDataIPC(fd);
+    __pmSecureSocket socket;
 
-    if (nsprFd) {
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
         fd -= NSPR_HANDLE_BASE;
 	FD_SET(fd, &set->nspr_set);
 	/* Reset the max fd, if necessary. */
@@ -1147,7 +1550,7 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
     int		numCombined;
     int		fd;
     int		nativeFD;
-    PRFileDesc *nsprFD;
+    __pmSecureSocket socket;
     int		ready;
     char	errmsg[PM_MAXERRMSGLEN];
 
@@ -1167,8 +1570,8 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
     /* Now add the native fds associated with the NSPR fds in nspr_set, if any. */
     for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
         if (FD_ISSET(fd, &fds->nspr_set)) {
-	    nsprFD = (PRFileDesc *)__pmDataIPC(NSPR_HANDLE_BASE + fd);
-	    nativeFD = PR_FileDesc2NativeHandle(nsprFD);
+	    __pmDataIPC(NSPR_HANDLE_BASE + fd, &socket);
+	    nativeFD = PR_FileDesc2NativeHandle(socket.nsprFd);
 	    FD_SET(nativeFD, &combined);
 	    if (nativeFD >= numCombined)
 		numCombined = nativeFD + 1;
@@ -1190,8 +1593,8 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
     /* Separate the results into their corresponding sets again. */
     for (fd = 0; fd < fds->num_nspr_fds; ++fd) {
         if (FD_ISSET(fd, &fds->nspr_set)) {
-	   nsprFD = (PRFileDesc *)__pmDataIPC(NSPR_HANDLE_BASE + fd);
-	   nativeFD = PR_FileDesc2NativeHandle(nsprFD);
+	   __pmDataIPC(NSPR_HANDLE_BASE + fd, &socket);
+	   nativeFD = PR_FileDesc2NativeHandle(socket.nsprFd);
 
 	   /* As we copy the result to the nspr set, make sure the bit is cleared in the
 	      combined set. That way we can simply copy the resulting combined set to the

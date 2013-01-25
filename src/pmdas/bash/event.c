@@ -392,6 +392,11 @@ event_refresh(pmInDom bash_indom)
 	/* check if process is running and generate end marker if not */
 	process_done(bp, files[i]->d_name);
     }
+
+    for (i = 0; i < num; i++)
+	free(files[i]);
+    if (num > 0)
+	free(files);
 }
 
 void

@@ -199,6 +199,7 @@ LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
 LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_SSL = @lib_for_ssl@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images

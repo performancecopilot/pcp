@@ -2,8 +2,8 @@ Source: pcp
 Section: utils
 Priority: optional
 Homepage: http://oss.sgi.com/projects/pcp
-Maintainer: Nathan Scott <nathans@debian.org>
-Uploaders: Anibal Monsalve Salazar <anibal@debian.org>
+Maintainer: PCP Development Team <pcp@oss.sgi.com>
+Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: bison, flex, gawk, procps, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python, libnspr4-dev, libnss3-dev
 Standards-Version: 3.9.3
 

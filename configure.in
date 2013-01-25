@@ -813,7 +813,7 @@ AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
-AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
+AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
@@ -1889,6 +1889,17 @@ then
     ])
     AC_SUBST(nspr_inc_dir)
     AC_SUBST(nss_inc_dir)
+
+    AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
+	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no SSL library)
+	    fi
+	])
+    ])
+    AC_SUBST(lib_for_ssl)
 
     AC_CHECK_LIB(nss, NSS_Init, [lib_for_nss="-lnss"], [
 	AC_CHECK_LIB(nss3, NSS_Init, [lib_for_nss="-lnss3"], [

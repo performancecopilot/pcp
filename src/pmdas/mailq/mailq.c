@@ -159,17 +159,17 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		p = list[i]->d_name;
 		/* only file names that match the regular expression */
 		if (regexstring && regexec(&mq_regex, list[i]->d_name, 0, NULL, 0))
-		    goto next;
+		    continue;
 		else if (!regexstring && (*p != 'd' || *(p+1) != 'f'))
-		    goto next;
+		    continue;
 		if (stat(p, &sbuf) != 0) {
 		    /*
 		     * ENOENT expected sometimes if sendmail is doing its job
 		     */
 		    if (oserror() == ENOENT)
-			goto next;
+			continue;
 		    fprintf(stderr, "stat(\"%s\"): %s\n", p, osstrerror());
-		    goto next;
+		    continue;
 		}
 		if (sbuf.st_size > 0 && S_ISREG(sbuf.st_mode)) {
 		    /* really in the queue */
@@ -188,10 +188,11 @@ mailq_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    }
 		    queue++;
 		}
-next:
-		free(list[i]);
 	    }
-	    free(list);
+	    for (i = 0; i < num; i++)
+		free(list[i]);
+	    if (num > 0)
+		free(list);
 	}
 	if (chdir(startdir) < 0) {
 	    __pmNotifyErr(LOG_ERR, "chdir(\"%s\") failed: %s\n",
