@@ -268,4 +268,5 @@ PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 # and same here ...
 #
 PCP_LOG_DIR=@pcp_log_dir@
+[ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
 
