@@ -440,6 +440,12 @@ __pmInitSecureSockets(void)
 }
 
 int
+__pmShutdownSecureSockets(void)
+{
+    return 0;
+}
+
+int
 __pmShutdownSockets(void)
 {
     return 0;
@@ -452,9 +458,10 @@ __pmDataIPCSize(void)
 }
 
 int
-__pmSecureServerIPCFlags(int fd)
+__pmSecureServerIPCFlags(int fd, int flags)
 {
     (void)fd;
+    (void)flags;
     return -EOPNOTSUPP;
 }
 
