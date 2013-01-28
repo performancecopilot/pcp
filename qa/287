@@ -22,16 +22,16 @@ else
 fi
 
 rm -f $seq.out
-case `uname -p`
+case "`uname -p`"
 in
-    i?86)
+    i?86|athlon)
 	ln $seq.out.i386 $seq.out || exit 1
 	;;
     x86_64)
 	ln $seq.out.x86_64 $seq.out || exit 1
 	;;
     *)
-	echo "Arrgh ... need qualified output for CPU type `uname -p`"
+	echo "Arrgh ... need qualified output for CPU type \"`uname -p`\""
 	exit 1
 	;;
 esac
