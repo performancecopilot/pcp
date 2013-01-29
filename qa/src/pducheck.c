@@ -1351,7 +1351,6 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		port = 4323;	/* default port for remote connection */
-    char	env[100];
     char	*endnum;
     __pmID_int	*pmidp;
 
