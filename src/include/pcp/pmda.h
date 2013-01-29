@@ -2,6 +2,7 @@
 #define _PMDA_H
 
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
