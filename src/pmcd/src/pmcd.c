@@ -54,10 +54,15 @@ static int		*portlist;
  * For maintaining info about a request port that clients may connect to pmcd on
  */
 typedef struct {
-    int			fd;		/* File descriptor */
+    int			fds[2];		/* inet and ipv6 File descriptors */
     int			port;		/* Listening port */
     char*		ipSpec;		/* String used to specify IP addr (or NULL) */
 } ReqPortInfo;
+/* These are for indexing, and interating over, the request port's fds. */
+#define INET_FD  0
+#define IPV6_FD  1
+#define FIRST_FD 0
+#define LAST_FD  1
 
 /*
  * A list of the ports that pmcd is listening for client connections on
@@ -142,7 +147,8 @@ AddRequestPort(char *ipSpec, int port)
     if (nReqPorts == szReqPorts)
 	GrowReqPorts();
     rp = &reqPorts[nReqPorts];
-    rp->fd = -1;
+    rp->fds[INET_FD] = -1;
+    rp->fds[IPV6_FD] = -1;
     rp->ipSpec = strdup(ipSpec);
     rp->port = port;
     nReqPorts++;
@@ -333,22 +339,52 @@ ParseOptions(int argc, char *argv[])
 
 /* Create socket for incoming connections and bind to it an address for
  * clients to use.  Returns -1 on failure.
- * ipAddr is the IP address that the port is advertised for (in network byte
- * order, see htonl(3N)).  To allow connections to all this host's IP addresses
- * from clients use ipSpec = "INADDR_ANY".
+ * ipSpec is a string representing the IP address that the port is advertised for.
+ * To allow connections to all this host's IP addresses from clients use ipSpec = "INADDR_ANY".
+ * On input, 'family' is a pointer to the address family to use (AF_INET or AF_INET6) if the spec is
+ * empty. If the spec is not empty then *family is ignored and is set to the actual address
+ * family used.
  */
 static int
-OpenRequestSocket(int port, const char * ipSpec)
+OpenRequestSocket(int port, const char * ipSpec, int *family)
 {
-    int			fd;
+    int			fd = -1;
     int			one, sts;
-    struct __pmSockAddr *myAddr = NULL;
+    struct __pmSockAddr *myAddr;
 
-    fd = __pmCreateSocket();
+    /* Initialize the socket address, sirst, so wwe know which address family we will be
+       using. */
+    if ((myAddr = __pmAllocSockAddr()) == NULL) {
+	__pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, %s) __pmAllocSockAddr: out of memory\n",
+		port, ipSpec);
+	goto fail;
+    }
+    __pmSetSockAddrFamily (myAddr, *family);
+    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+		      port, ipSpec);
+	goto fail;
+    }
+    /* Address family may have been reset by __pmStringToSockAddr. */
+    *family = __pmGetSockAddrFamily(myAddr);
+    __pmSetPort(myAddr, port);
+
+    /* Create the socket. */
+    if (*family == AF_INET)
+        fd = __pmCreateSocket();
+    else if (*family == AF_INET6)
+        fd = __pmCreateIPv6Socket();
+    else {
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address family: %d\n",
+		      port, ipSpec, *family);
+	goto fail;
+    }
+
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) socket: %s\n",
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmCreateSocket: %s\n",
 		port, ipSpec, netstrerror());
-	return -1;
+	goto fail;
     }
     if (fd > maxClientFd)
 	maxClientFd = fd;
@@ -383,20 +419,6 @@ OpenRequestSocket(int port, const char * ipSpec)
 	goto fail;
     }
 
-    /* Initialize the socket address */
-    if ((myAddr = __pmAllocSockAddr()) == NULL) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmAllocSockAddr: out of memory\n",
-		port, ipSpec);
-	goto fail;
-    }
-    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-		      port, ipSpec);
-	goto fail;
-    }
-    __pmSetPort(myAddr, port);
-
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmFreeSockAddr(myAddr);
     if (sts < 0) {
@@ -417,7 +439,8 @@ OpenRequestSocket(int port, const char * ipSpec)
     return fd;
 
 fail:
-    __pmCloseSocket(fd);
+    if (fd != -1)
+        __pmCloseSocket(fd);
     if (myAddr)
         __pmFreeSockAddr(myAddr);
     return -1;
@@ -599,11 +622,14 @@ Shutdown(void)
 	}
     }
     for (i = 0; i < nClients; i++)
-	if (client[i].status.connected)
+        if (client[i].status.connected)
 	    __pmCloseSocket(client[i].fd);
-    for (i = 0; i < nReqPorts; i++)
-	if ((fd = reqPorts[i].fd) != -1)
-	    __pmCloseSocket(fd);
+    for (i = 0; i < nReqPorts; i++) {
+	if ((fd = reqPorts[i].fds[INET_FD]) != -1)
+	    __pmCloseSocket(reqPorts[i].fds[INET_FD]);
+	if ((fd = reqPorts[i].fds[IPV6_FD]) != -1)
+	    __pmCloseSocket(reqPorts[i].fds[IPV6_FD]);
+    }
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -759,6 +785,7 @@ static void
 ClientLoop(void)
 {
     int		i, sts;
+    int         fdix;
     int		challenge;
     int		maxFd;
     int		checkAgents;
@@ -810,55 +837,58 @@ ClientLoop(void)
 #endif
 	    /* Accept any new client connections */
 	    for (i = 0; i < nReqPorts; i++) {
-		int rfd = reqPorts[i].fd;
-		if (rfd == -1)
-		    continue;
-		if (__pmFD_ISSET(rfd, &readableFds)) {
-		    int	sts, s;
-		    int	accepted = 1;
+	        /* Check both the inet and ipv6 fds. */
+	        for (fdix = FIRST_FD; fdix <= LAST_FD; ++fdix) {
+		    int rfd = reqPorts[i].fds[fdix];
+		    if (rfd == -1)
+		        continue;
+		    if (__pmFD_ISSET(rfd, &readableFds)) {
+		        int	sts, s;
+			int	accepted = 1;
 
-		    cp = AcceptNewClient(rfd);
+			cp = AcceptNewClient(rfd);
 
-		    /* Accept failed and no client added */
-		    if (cp == NULL)
-		    	continue;
+			/* Accept failed and no client added */
+			if (cp == NULL)
+			    continue;
 
-		    sts = __pmAccAddClient(cp->addr, &cp->denyOps);
-		    if (sts >= 0) {
-			cp->pduInfo.zero = 0;
-			cp->pduInfo.version = PDU_VERSION;
-			cp->pduInfo.licensed = 1;
-			cp->pduInfo.authorize = 0;
-			challenge = *(int*)(&cp->pduInfo);
-			sts = 0;
-			/* reset (no meaning, use fd table to version) */
-			cp->pduInfo.version = UNKNOWN_VERSION;
-		    }
-		    else {
-			/* __pmAccAddClient failed, this is grim! */
-			challenge = 0;
-			accepted = 0;
-		    }
+			sts = __pmAccAddClient(cp->addr, &cp->denyOps);
+			if (sts >= 0) {
+			    cp->pduInfo.zero = 0;
+			    cp->pduInfo.version = PDU_VERSION;
+			    cp->pduInfo.licensed = 1;
+			    cp->pduInfo.authorize = 0;
+			    challenge = *(int*)(&cp->pduInfo);
+			    sts = 0;
+			    /* reset (no meaning, use fd table to version) */
+			    cp->pduInfo.version = UNKNOWN_VERSION;
+			}
+			else {
+			    /* __pmAccAddClient failed, this is grim! */
+			    challenge = 0;
+			    accepted = 0;
+			}
 
-		    if (_pmcd_trace_mask)
-			pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-		    xchallenge = *(__pmPDUInfo *)&challenge;
-		    xchallenge = __htonpmPDUInfo(xchallenge);
-		    s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
-		    if (s < 0) {
-			__pmNotifyErr(LOG_ERR,
+			if (_pmcd_trace_mask)
+			    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+			xchallenge = *(__pmPDUInfo *)&challenge;
+			xchallenge = __htonpmPDUInfo(xchallenge);
+			s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
+			if (s < 0) {
+			    __pmNotifyErr(LOG_ERR,
 				"ClientLoop: error sending Conn ACK PDU to new client %s\n",
 				pmErrStr(s));
-			if (sts >= 0)
-			    /*
-			     * prefer earlier failure status if any, else
-			     * use the one from __pmSendXtendError()
-			     */
-			    sts = s;
-			accepted = 0;
+			    if (sts >= 0)
+			        /*
+				 * prefer earlier failure status if any, else
+				 * use the one from __pmSendXtendError()
+				 */
+			        sts = s;
+			    accepted = 0;
+			}
+			if (!accepted)
+			    CleanupClient(cp, sts);
 		    }
-		    if (!accepted)
-			CleanupClient(cp, sts);
 		}
 	    }
 
@@ -976,7 +1006,7 @@ void SigBad(int sig)
 int
 main(int argc, char *argv[])
 {
-    int		i;
+    int		i, j;
     int		n;
     int		sts;
     int		status;
@@ -1093,12 +1123,38 @@ main(int argc, char *argv[])
 	}
     }
 
-    /* Open request ports for client connections */
+    /* Open request ports for client connections. Open an inet and an IPv6 socket
+       for each client, if appropriate. */
     for (i = 0; i < nReqPorts; i++) {
-	reqPorts[i].fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipSpec);
-	if (reqPorts[i].fd != -1) {
-	    if (reqPorts[i].fd > maxReqPortFd)
-		maxReqPortFd = reqPorts[i].fd;
+      int family;
+      /* If he spec is NULL or "INADDR_ANY", then we open one socket for each address family
+	 (inet, IPv6). Oherwise, the address family will be determined by OpenRequestSocket. */
+	if (reqPorts[i].ipSpec == NULL || strcmp(reqPorts[i].ipSpec, "INADDR_ANY") == 0) {
+	    family = AF_INET;
+	    reqPorts[i].fds[INET_FD] =
+	      OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipSpec, &family);
+	    family = AF_INET6;
+	    reqPorts[i].fds[IPV6_FD] =
+	      OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipSpec, &family);
+	}
+	else {
+	    int fd = OpenRequestSocket(reqPorts[i].port, reqPorts[i].ipSpec, &family);
+	    if (family == AF_INET)
+	        reqPorts[i].fds[INET_FD] = fd;
+	    else if (family == AF_INET6)
+	        reqPorts[i].fds[IPV6_FD] = fd;
+	    else
+	        __pmNotifyErr(LOG_WARNING,
+			      "pmcd: invalid request socket spec: %s\n", reqPorts[i].ipSpec);
+	}
+	if (reqPorts[i].fds[INET_FD] != -1) {
+	    if (reqPorts[i].fds[INET_FD] > maxReqPortFd)
+	        maxReqPortFd = reqPorts[i].fds[INET_FD];
+	    nReqPortsOK++;
+	}
+	if (reqPorts[i].fds[IPV6_FD] != -1) {
+	    if (reqPorts[i].fds[IPV6_FD] > maxReqPortFd)
+	        maxReqPortFd = reqPorts[i].fds[IPV6_FD];
 	    nReqPortsOK++;
 	}
     }
@@ -1152,10 +1208,12 @@ main(int argc, char *argv[])
 	  "  === ==== ===== ==========\n", stderr);
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
-	fprintf(stderr, "  %s %4d %5d %s\n",
-		(rp->fd != -1) ? "ok " : "err",
-		rp->fd, rp->port,
-		rp->ipSpec ? rp->ipSpec : "(any address)");
+	for (j = FIRST_FD; j <= LAST_FD; ++j) {
+	    fprintf(stderr, "  %s %4d %5d %s\n",
+		    (rp->fds[j] != -1) ? "ok " : "err",
+		    rp->fds[j], rp->port - 1 + j/* IPv6 TESTING */,
+		    rp->ipSpec ? rp->ipSpec : "(any address)");
+	}
     }
     fflush(stderr);
 
@@ -1282,15 +1340,21 @@ FdToString(int fd)
     if (fd >= -1 && fd < 3)
 	return stdFds[fd + 1];
     for (i = 0; i < nReqPorts; i++) {
-	if (fd == reqPorts[i].fd) {
-	    sprintf(fdStr, "pmcd request socket %s", reqPorts[i].ipSpec);
+	if (fd == reqPorts[i].fds[INET_FD]) {
+	    sprintf(fdStr, "pmcd inet request socket %s", reqPorts[i].ipSpec);
+	    return fdStr;
+	}
+	if (fd == reqPorts[i].fds[IPV6_FD]) {
+	    sprintf(fdStr, "pmcd ipv6 request socket %s", reqPorts[i].ipSpec);
 	    return fdStr;
 	}
     }
     for (i = 0; i < nClients; i++)
-	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] input socket", i);
-	    return fdStr;
+        if (client[i].status.connected) {
+	    if (fd == client[i].fd) {
+	        sprintf(fdStr, "client[%d] input socket", i);
+		return fdStr;
+	    }
 	}
     for (i = 0; i < nAgents; i++)
 	if (agent[i].status.connected) {
