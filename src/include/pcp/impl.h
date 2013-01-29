@@ -515,6 +515,7 @@ typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
 
 extern int __pmCreateSocket(void);
+extern int __pmCreateIPv6Socket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
 
@@ -555,10 +556,14 @@ extern void __pmInitSockAddr(__pmSockAddr *, int, int);
 extern void __pmSetSockAddr(__pmSockAddr *, __pmHostEnt *);
 extern char *__pmSockAddrToString(__pmSockAddr *);
 extern int __pmStringToSockAddr(const char *, __pmSockAddr *);
+extern void __pmSetSockAddrFamily(__pmSockAddr *, int);
+extern int __pmGetSockAddrFamily(const __pmSockAddr *);
 extern void __pmSetPort(__pmSockAddr *, int);
 extern __pmSockAddr *__pmMaskSockAddr(__pmSockAddr *, const __pmSockAddr *);
 extern int __pmCompareSockAddr (const __pmSockAddr *, const __pmSockAddr *);
 extern int __pmSockAddrIsLoopBack(const __pmSockAddr *);
+extern int __pmSockAddrIsInet(const __pmSockAddr *);
+extern int __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern __pmSockAddr *__pmLoopBackAddress(void);
 
 extern __pmHostEnt *__pmAllocHostEnt(void);

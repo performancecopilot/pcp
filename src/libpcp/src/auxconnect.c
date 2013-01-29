@@ -340,16 +340,34 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
 #if !defined(HAVE_SECURE_SOCKETS)
 
-int
-__pmCreateSocket(void)
+static int
+createSocket(int family)
 {
     int sts, fd;
 
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((fd = socket(family, SOCK_STREAM, 0)) < 0)
 	return -neterror();
     if ((sts = __pmInitSocket(fd)) < 0)
         return sts;
     return fd;
+}
+
+int
+__pmCreateSocket(void)
+{
+  return createSocket(AF_INET);
+}
+
+int
+__pmCreateIPv6Socket(void)
+{
+  int one = 1;
+  int socket = createSocket(AF_INET6);
+  if (socket >= 0) {
+      /* Disable ipv4-mapped connections */
+      __pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+  }
+  return socket;
 }
 
 void
@@ -400,6 +418,18 @@ __pmSetSockAddr(__pmSockAddr *addr, __pmHostEnt *he)
 {
     /* TODO: IPv6 */
     memcpy(&addr->sockaddr.inet.sin_addr, he->hostent.h_addr, he->hostent.h_length);
+}
+
+void
+__pmSetSockAddrFamily(__pmSockAddr *addr, int family)
+{
+    addr->sockaddr.family = family;
+}
+
+int
+__pmGetSockAddrFamily(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.family;
 }
 
 void
@@ -600,6 +630,18 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
     return addr->sockaddr.inet.sin_addr.s_addr == htonl(INADDR_LOOPBACK);
 }
 
+int
+__pmSockAddrIsInet(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.family == AF_INET;
+}
+
+int
+__pmSockAddrIsIPv6(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.family == AF_INET6;
+}
+
 __pmSockAddr *
 __pmLoopBackAddress(void)
 {
@@ -707,8 +749,8 @@ __pmShutdownSockets(void)
     return 0;
 }
 
-int
-__pmCreateSocket(void)
+static int
+createSocket(PRIntn family)
 {
     int sts;
     int fd;
@@ -719,7 +761,7 @@ __pmCreateSocket(void)
         PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
 
     /* Open the socket */
-    if ((nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
+    if ((nsprFd = PR_OpenTCPSocket(family)) == NULL)
 	return -neterror();
 
     fd = newNSPRHandle();
@@ -729,6 +771,24 @@ __pmCreateSocket(void)
         return sts;
 
     return fd;
+}
+
+int
+__pmCreateSocket(void)
+{
+  return createSocket(PR_AF_INET);
+}
+
+int
+__pmCreateIPv6Socket(void)
+{
+  int one = 1;
+  int socket = createSocket(PR_AF_INET6);
+  if (socket >= 0) {
+      /* Disable ipv4-mapped connections */
+      __pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+  }
+  return socket;
 }
 
 void
@@ -815,6 +875,16 @@ __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
 			  option_name);
 	    return -1;
+	case IPPROTO_IPV6:
+	    if (option_name == IPV6_V6ONLY) {
+	        /* There is no direct mapping of this option in NSPR. The best we can do is to use
+		   the native handle and call setsockopt on that handle. */
+	        socket = PR_FileDesc2NativeHandle(nsprFd);
+		return setsockopt(socket, level, option_name, option_value, option_len);
+	    }
+	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
+			  option_name);
+	    return -1;
 	default:
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented level: %d\n", level);
 	    return -1;
@@ -890,6 +960,30 @@ void
 __pmSetSockAddr(__pmSockAddr *addr, __pmHostEnt *he)
 {
     PR_EnumerateHostEnt(0, &he->hostent, 0, &addr->sockaddr);
+}
+
+void
+__pmSetSockAddrFamily(__pmSockAddr *addr, int family)
+{
+    if (family == AF_INET)
+        addr->sockaddr.raw.family = PR_AF_INET;
+    else if (family == AF_INET6)
+        addr->sockaddr.raw.family = PR_AF_INET6;
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSetSockAddrFamily: Invalid address family: %d\n", family);
+}
+
+int
+__pmGetSockAddrFamily(const __pmSockAddr *addr)
+{
+    if (addr->sockaddr.raw.family == PR_AF_INET)
+        return AF_INET;
+    if (addr->sockaddr.raw.family == PR_AF_INET6)
+        return AF_INET6;
+    __pmNotifyErr(LOG_ERR, "__pmGetSockAddrFamily: Invalid address family: %d\n",
+		  addr->sockaddr.raw.family);
+    return AF_INET;
 }
 
 void
@@ -1351,6 +1445,18 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
     return rc == 0;
 }
 
+int
+__pmSockAddrIsInet(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.raw.family == PR_AF_INET;
+}
+
+int
+__pmSockAddrIsIPv6(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.raw.family == PR_AF_INET6;
+}
+
 __pmSockAddr *
 __pmLoopBackAddress(void)
 {
@@ -1365,8 +1471,12 @@ __pmStringToSockAddr(const char *cp, __pmSockAddr *inp)
 {
     PRStatus prStatus;
 
-    if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0)
+    if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
+        /* Preserve the existing address family */
+        PRUint16 family = inp->sockaddr.raw.family;
         prStatus = PR_InitializeNetAddr (PR_IpAddrAny, 0, &inp->sockaddr);
+        inp->sockaddr.raw.family = family;
+    }
     else
         prStatus = PR_StringToNetAddr(cp, &inp->sockaddr);
 
