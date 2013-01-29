@@ -193,9 +193,9 @@ ParseOptions(int argc, char *argv[])
 
 /* Create socket for incoming connections and bind to it an address for
  * clients to use.  Only returns if it succeeds (exits on failure).
- * ipAddr is the IP address that the port is advertised for (in network byte
- * order, see htonl(3N)).  To allow connections to all this host's IP addresses
- * from clients use ipSpec = "INADDR_ANY".
+ * ipSpec is the IP address that the port is advertised for.
+ * To allow connections to all this host's IP addresses from clients
+ * use ipSpec = "INADDR_ANY".
  */
 static int
 OpenRequestSocket(int port, const char * ipSpec)
@@ -251,6 +251,7 @@ OpenRequestSocket(int port, const char * ipSpec)
 		port, ipSpec);
 	DontStart();
     }
+    __pmSetSockAddrFamily (myAddr, AF_INET);
     if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
         __pmFreeSockAddr(myAddr);
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
