@@ -188,6 +188,7 @@ PCP_MAN_DIR = @pcp_man_dir@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 ENABLE_SHARED = @enable_shared@
+ENABLE_SECURE = @enable_secure@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@

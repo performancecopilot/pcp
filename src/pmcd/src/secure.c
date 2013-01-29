@@ -15,7 +15,6 @@
 #include "pmapi.h"
 #include "impl.h"
 
-#ifdef HAVE_SECURE_SOCKETS
 #include <nss.h>
 #include <ssl.h>
 #include <nspr.h>
@@ -342,4 +341,3 @@ pmcd_secure_handshake(int fd, int flags)
 
     return 0;
 }
-#endif

@@ -1927,6 +1927,8 @@ then
     then
 	AC_DEFINE(HAVE_SECURE_SOCKETS)
     fi
+    AC_SUBST(enable_secure)
+
     CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi

@@ -25,19 +25,12 @@ PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
 LCFLAGS += $(PIECFLAGS)
 
-ifneq "$(LIB_FOR_SSL)" ""
+ifeq "$(ENABLE_SECURE)" "true"
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
 CFILES += secure.c
-LLDLIBS += $(LIB_FOR_SSL)
 else
 LSRCFILES += secure.c
-endif
-ifneq "$(LIB_FOR_NSS)" ""
-LCFLAGS += $(NSSCFLAGS)
-LLDLIBS += $(LIB_FOR_NSS)
-endif
-ifneq "$(LIB_FOR_NSPR)" ""
-LCFLAGS += $(NSPRCFLAGS)
-LLDLIBS += $(LIB_FOR_NSPR)
 endif
 
 default:	$(CMDTARGET)

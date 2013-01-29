@@ -640,6 +640,7 @@ GIT
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+enable_secure
 lib_for_nspr
 lib_for_nss
 lib_for_ssl
@@ -19072,6 +19073,8 @@ fi
 _ACEOF
 
     fi
+
+
     CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
