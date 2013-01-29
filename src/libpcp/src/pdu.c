@@ -190,13 +190,8 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		    }
 		    onetrip = 0;
 		}
-		/* has SSL protocol buffering already snarfed this data!? */
-		if ((status = __pmSecureDataPending(fd)) <= 0) {
-		    __pmFdSet onefd;
-		    __pmFD_ZERO(&onefd);
-		    __pmFD_SET(fd, &onefd);
-		    status = __pmSelectRead(fd+1, &onefd, &wait);
-		}
+
+		status = __pmSocketReady(fd, &wait);
 		if (status > 0) {
 		    gettimeofday(&now, NULL);
 		    if (now.tv_sec > dead_hand.tv_sec ||

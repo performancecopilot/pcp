@@ -582,13 +582,6 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 }
 
 int
-__pmSecureDataPending(int fd)
-{
-    (void)fd;
-    return 0;
-}
-
-int
 __pmFD(int fd)
 {
     return fd;
@@ -634,6 +627,16 @@ int
 __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 {
     return select(nfds, NULL, writefds, NULL, timeout);
+}
+
+int
+__pmSocketReady(int fd, struct timeval *timeout)
+{
+    __pmFdSet	onefd;
+
+    FD_ZERO(&onefd);
+    FD_SET(fd, &onefd);
+    return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
 char *
@@ -1456,16 +1459,6 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 }
 
 int
-__pmSecureDataPending(int fd)
-{
-    __pmSecureSocket socket;
-
-    if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
-        return SSL_DataPending(socket.sslFd);
-    return 0;
-}
-
-int
 __pmFD(int fd)
 {
     __pmSecureSocket socket;
@@ -1565,7 +1558,7 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
        descriptors. We can't poll them separately, since one may block the other.
        We can either convert the native file descriptors to NSPR or vice-versa.
        The NSPR function PR_Poll does not seem to respond to SIGINT, so we will
-       convert the NSPR file descriptors to native ones and use select(3) to
+       convert the NSPR file descriptors to native ones and use select(2) to
        do the polling.
 
        First initialize our working set from the set of native file descriptors in
@@ -1585,7 +1578,7 @@ nsprSelect(int rwflag, __pmFdSet *fds, struct timeval *timeout)
 	}
     }
 
-    /* Use the select(3) function to do the polling. Ignore the nfds passed to us
+    /* Use the select(2) function to do the polling. Ignore the nfds passed to us
        and use the number that we have computed. */
     if (rwflag == PR_POLL_READ)
         ready = select(numCombined, &combined, NULL, NULL, timeout);
@@ -1634,6 +1627,32 @@ int
 __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 {
     return nsprSelect(PR_POLL_WRITE, writefds, timeout);
+}
+
+/*
+ * In certain situations, we need to allow access to previously-read
+ * data on a socket.  This is because, for example, the SSL protocol
+ * buffering may have already consumed data that we are now expecting
+ * (in this case, its buffered internally and a socket read will give
+ * up that data).
+ *
+ * PR_Poll does not seem to play well here and so we need to use the
+ * native select-based mechanism to block and/or query the state of
+ * pending data.
+ */
+int
+__pmSocketReady(int fd, struct timeval *timeout)
+{
+    __pmSecureSocket socket;
+    __pmFdSet onefd;
+
+    if (__pmDataIPC(fd, &socket) == 0 && socket.sslFd)
+        if (SSL_DataPending(socket.sslFd))
+	    return 1;	/* proceed without blocking */
+
+    __pmFD_ZERO(&onefd);
+    __pmFD_SET(fd, &onefd);
+    return nsprSelect(PR_POLL_READ, &onefd, timeout);
 }
 
 char *

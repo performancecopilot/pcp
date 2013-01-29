@@ -529,6 +529,7 @@ extern int __pmCreateSocket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
 extern int __pmSocketClosed(void);
+extern int __pmSocketReady(int, struct timeval *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
@@ -556,7 +557,6 @@ extern void __pmFD_ZERO(__pmFdSet *);
 extern void __pmFD_COPY(__pmFdSet *, const __pmFdSet *);
 extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
 extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
-extern int __pmSecureDataPending(int);
 
 extern struct __pmSockAddrIn *__pmAllocSockAddrIn(void);
 extern size_t __pmSockAddrInSize(void);
