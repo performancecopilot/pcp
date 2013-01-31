@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2013 Red Hat.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<TITLE>Secure Connections</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Secure Connections</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+certutil
+pmcd
+pminfo
+pmchart
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial covers setting up secure
+connections between PCP collector and monitor components.
+PCP network connections can be made secure against eavesdropping, data tampering
+and man-in-the-middle class attacks.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI>
+    <A HREF="#overview">Overview</A> 
+    <LI>
+    <A HREF="#recipe">Enabling TLS/SSL: Steps Involved</A> 
+    <LI>
+    <A HREF="#collector">Collector Setup</A> 
+    <LI>
+    <A HREF="#monitor">Monitor Setup</A> 
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The Performance Co-Pilot includes facilities for establishing secure
+connections between remote collector and monitoring components.</P>
+<P>All connections made to the PCP metrics collector daemon (<I>pmcd</I>)
+are made using the PCP protocol, which is TCP/IP based.  Traditionally, no
+functionality was available to secure connections between PCP collectors and
+monitors.  As PCP can now be used to export sensitive information, however
+(event trace parameters and detailed per-process statistics, for example)
+it has become necessary to provide safeguards against malicious behaviour.</P>
+<P>The cryptographic services used to augment the PCP protocol are provided
+by Network Security Services (NSS), a library implementing Transport Layer
+Security (TLS) and the Secure Sockets Layer (SSL) standards and base
+cryptographic functions.  NSS includes a software-based cryptographic token
+which is FIPS 140-2 certified.</P>
+<P>The <I>pmcd</I> daemon is capable of simultaneous TLS/SSL and non-SSL
+communications.  This means that you do not have to choose between TLS/SSL
+or non-SSL communications for the collector system; both can be used at the
+same time.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="recipe">Enabling TLS/SSL: Steps Involved</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Before the PCP Collector Server can be requested to communicate with TLS/SSL,
+server and CA certificates must be properly configured on the Collector Server
+host.</P>
+<P>This typically involves:</P>
+<OL>
+<LI>Obtain and install a certificate for the PCP Collector Server, and
+configure the Server to trust the certification authority's (CA's) certificate. 
+<LI>Turn on TLS/SSL in the <I>pmcd</I> daemon, by providing it with access to a
+certificate database, typically requiring provision of a password.
+<LI>Optionally, ensure that each user of the PCP Collector Server obtains and
+installs a personal certificate for all client tools that will communicate
+using TLS/SSL.<BR>
+Alternatively, set up host-wide databases on the monitoring machines for all
+client tools.
+</OL>
+<P>After the certificate request is generated, send it to a certificate
+authority (CA); the CA will generate and return a server certificate.</P>
+<P>After emailing the certificate request, wait for the CA to respond
+with the server certificate. Response time for requests varies. For
+example, if the CA is internal to the company, it may only take a day
+or two to respond to the request. If the selected CA is a third-party,
+it could take several weeks to respond to the request. </P>
+
+<P>After receiving the certificate, install it in the Collector Server's
+certificate database.
+When the CA sends a response, be sure to save the information in a text file.
+Keep backup of the certificate data in a safe location.</P>
+<P>Over time it may be necessary to renew the certificates, adjust the settings,
+or manage the security databases which store them.
+As with any issued identification — such as a drivers license — certificates
+are valid for a predefined period and then expire and must be renewed.
+To renew a certificate, regenerate a certificate request, using the same
+information that was used to create the original, submit the request to a CA,
+and re-install the renewed certificate, again using the instructions below.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="collector">Collector Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>All collector systems (servers) must have a valid certificate in order to
+participate in secure PCP protocol exchanges.
+Certificates are stored in a certificate database, and can be created using
+the <I>certutil</I> utility (an NSS tool).
+The certificate database should be protected, usually by a password.
+It is possible to store the certificate password in a password file.
+By placing the certificate database password in a file, the server can be started
+as a regular service (i.e. automatically at bootup or otherwise running unattended).</P>
+<P><B>NOTE:</B>
+<I> This password is stored in clear text within the password file, so its usage
+represents a significant security risk.</I>
+Do not use a password file if the server is running in an unsecured environment.</P>
+<P>Because this password is stored in plaintext, the password file should
+be owned by the user as which the PCP Collector Server runs, by default
+<I>"pcp"</I>.
+It must be set as read-only for this user and allow no access to others (mode 0400).
+It's a good idea to have a secure backup of this file.
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a suitably privileged (root) shell enter:<BR>
+<PRE><B>
+# source /etc/pcp.conf
+# pcp_ssl_home="${PCP_VAR_DIR}/config/ssl"
+# mkdir -p -m 0755 "$pcp_ssl_home"
+
+# certificates="${pcp_ssl_home}/collector"
+# mkdir -p -m 0700 "$certificates"
+
+# passwordfile="${certificates}/topsecret"
+# echo '<FONT COLOR="#cc0000">[YOUR SECRET PASSWORD]</FONT>' >"$passwordfile"
+# chmod 0400 "$passwordfile"
+
+# certutil -d "$certificates" -f "$passwordfile" -N
+# chown -R pcp:pcp "$pcp_ssl_home"
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<I>certutil</I> is part of many modern software distributions, and can also be
+downloaded from the
+<A HREF="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/">NSS</A>
+project.
+</P>
+<P>At this stage we have a valid (albeit empty) NSS database for our collector
+certificates, and everything setup with appropriate permissions for our needs.
+</P>
+<P>As described earlier, these certificates should be generated by a trusted
+certificate authority (CA).
+For the purposes of illustration, however, it is possible to generate
+a "self-signed" certificate as follows, using the <B>-x</B> option to <I>certutil</I>:
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject name (<B>-s</B>) and serial numbers (<B>-m</B>), enter:<BR>
+<PRE><B>
+# certutil -d "$certificates" -f "$passwordfile" -S -x \
+	-n "CA certificate" -s "cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>" \
+        -t "CT,," -m <FONT COLOR="#cc0000">1000</FONT> -v 120 -k rsa
+# certutil -d "$certificates" -f "$passwordfile" -S \
+	-n "PCP Collector certificate" -s "cn=<FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT>" -8 "<FONT COLOR="#cc0000">ALT.DNS.NAME</FONT>" \
+	-c "CA certificate" \
+	-t "u,u,u" -m <FONT COLOR="#cc0000">1001</FONT> -v 120 -k rsa
+# chown -R pcp:pcp "$certificates"
+</B></PRE>
+</TD></TR>
+</TABLE>
+</P>
+<P>Keep careful track on the numbers set with the <B>-m</B> option.
+This option sets the unique identifier for the server certificate, and a CA cannot
+issue two certificates with the same identifier.
+Keep a log of issued serial numbers so that no number is ever duplicated.</P>
+<P>At this stage, attempts to restart the PCP Collector infrastructure will
+begin to take notice of the certificate database.
+However, without knowledge of the database password we configured earlier,
+the daemon will be unable to access the database.</P>
+<P><B>NOTE:</B>
+<I>As a security precaution, once a database exists in the expected
+location, the server will always attempt to use it, and will fail to start if it
+cannot.</I>
+This is to prevent a false sense of security from a misconfigured database,
+expired certificate, or similar issue.
+Detailed diagnostics are always available in <I>$PCP_LOG_DIR/pmcd/pmcd.log</I>.
+</P>
+<P>So, we then configure <I>pmcd</I> with knowledge of the password file,
+and restart it as follows.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Continuing in the same shell enter:<BR>
+<PRE><B>
+# echo "# Certificate DB access" >> $PCP_PMCDOPTIONS_PATH
+# echo "-P $passwordfile" >> $PCP_PMCDOPTIONS_PATH
+# service pmcd restart
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="monitor">Monitor Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>PCP Monitoring (client) tools require the CA certificate to validate the server certificate in a TLS/SSL connection.
+The certificate can be installed in several locations such that the monitoring tools will automatically find and make use of it.</P>
+<P>Firstly, use <I>certutil</I> to export the CA certificate in ASCII format for the
+PCP Collector System we wish to monitor.
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using the above certificate database, in a shell enter:<BR>
+<PRE><B>
+# asciicertificate="/tmp/server.cert.asc"
+# certutil -d "$certificates" -f "$passwordfile" -L \
+	-n "CA certificate" -a > "$asciicertificate"
+# chmod ugo+r "$asciicertificate"
+</B></PRE>
+</TD></TR>
+</TABLE>
+An exported ASCII-format certificate is now available for use on PCP Monitor systems.
+</P>
+
+<P>Next, we create a client-side certificate database and import server certificates.
+This can be done either for one user, or for all users on a monitoring host.
+Below it is configured for all users, but if a certificate database is created at
+<I>$HOME/.pcp/ssl</I> then that will be used instead (requiring no additional privileges
+on the monitoring host).
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using the above certificate database, in a shell enter:<BR>
+<PRE><B>
+# pcp_ssl_home="${PCP_VAR_DIR}/config/ssl"
+# certificates="${pcp_ssl_home}/monitor"
+
+# mkdir -p -m 0755 "$certificates"
+# certutil -d "$certificates" -N
+
+# certutil -d "$certificates" -A \
+	-n "CA certificate" -t "CT,," -a -i "$asciicertificate"
+# chmod 0644 "$certificates"/*
+</B></PRE>
+</TD></TR>
+</TABLE>
+</P>
+
+<P>We are now ready to establish a secure connection between remote PCP Monitor
+and Collector hosts.
+This can be achieved by specifically requesting a secure connection for individual
+hosts, in tools that support this explictly (e.g. <I>pmchart</I>).
+Alternatively, an environment variable can be set to request that all client
+connections within that shell environment be made securely.
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;On suitably configured monitor and remote collector hosts:<BR>
+<PRE><B>
+# export PCP_SECURE_SOCKETS=1
+# pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
+
+kernel.all.load
+    inst [1 or "1 minute"] value 1.26
+    inst [5 or "5 minute"] value 1.29
+    inst [15 or "15 minute"] value 1.28
+</B></PRE>
+</TD></TR>
+</TABLE>
+</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2013 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
