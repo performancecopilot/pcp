@@ -1,7 +1,8 @@
 Source: pcp-gui
 Section: utils
 Priority: extra
-Maintainer: Nathan Scott <nathans@debian.org>
+Maintainer: PCP Development Team <pcp@oss.sgi.com>
+Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: autoconf, bison, flex, gawk, debhelper (>= 5), libpcp3-dev (>= 3.5.0), libqt4-dev
 Standards-Version: 3.9.3
 
