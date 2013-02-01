@@ -254,12 +254,12 @@ on the monitoring host).
 <P>We are now ready to establish a secure connection between remote PCP Monitor
 and Collector hosts.
 This can be achieved by specifically requesting a secure connection for individual
-hosts, in tools that support this explictly (e.g. <I>pmchart</I>).
+hosts, in tools that support this explictly (e.g. <I>pmchart</I> below).
 Alternatively, an environment variable can be set to request that all client
 connections within that shell environment be made securely.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;On suitably configured monitor and remote collector hosts:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;With suitably configured monitor and remote collector hosts:<BR>
 <PRE><B>
 # export PCP_SECURE_SOCKETS=1
 # pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
@@ -272,6 +272,19 @@ kernel.all.load
 </TD></TR>
 </TABLE>
 </P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+        <TR><TD WIDTH=600><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
+        <TD><BR><P>In the PCP strip chart utility <I>pmchart</I>, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
+        <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
+        <LI>Select the "Secure" check box.
+        <LI>Optionally enter an ASCII certificate for the remote PCP Collector system, if you do not already have one installed for the PCP Collector host.  This will be automatically added to your <I>$HOME/.pcp/ssl</I> certificate database (creating it if needed) using <I>certutil</I>.<BR>An ASCII certificate can be exported from the PCP Collector system certificate database using the <B>-A</B> option to <I>certutil</I> as described above.
+        <LI>Press "OK" to establish a new secure connection to the host.
+	</UL>
+	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established.
+	</P></TD>
+        </TR>
+</TABLE>
 
 <P><BR></P>
 <HR>
