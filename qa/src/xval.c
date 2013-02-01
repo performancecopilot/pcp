@@ -18,7 +18,7 @@ static char *name[] = {
  * ap may point into a vbuf[] and so is not necessarily aligned correctly
  */
 static void
-_y(pmAtomValue *ap, int type)
+_y(void *ap, int type)
 {
     int			i;
     int			vlen;
@@ -84,6 +84,7 @@ main(int argc, char *argv[])
     int		k;
     int		i;
     int		o;
+    void	*avp;
     pmValue	pv;
     pmAtomValue	av;
     pmAtomValue	bv;
@@ -146,40 +147,46 @@ main(int argc, char *argv[])
 		    pv.value.pval = vbp;
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__int64_t);
 		    vbp->vtype = PM_TYPE_64;
-		    ap = (pmAtomValue *)vbp->vbuf;
-		    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
+		    avp = (void *)vbp->vbuf;
+		    bv.ll = llv;
+		    memcpy(avp, (void *)&bv, sizeof(bv));
+		    ap = &bv;
 		    break;
 		case PM_TYPE_U64:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vbp;
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(__uint64_t);
 		    vbp->vtype = PM_TYPE_U64;
-		    ap = (pmAtomValue *)vbp->vbuf;
-		    memcpy((void *)&ap->ull, (void *)&llv, sizeof(llv));
+		    avp = (void *)vbp->vbuf;
+		    bv.ll = llv;
+		    memcpy(avp, (void *)&bv, sizeof(bv));
+		    ap = &bv;
 		    break;
 		case PM_TYPE_FLOAT:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vbp;
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(float);
 		    vbp->vtype = PM_TYPE_FLOAT;
-		    ap = (pmAtomValue *)vbp->vbuf;
+		    avp = (void *)vbp->vbuf;
 		    if (sgn)
 			bv.f = llv;
 		    else
 			bv.f = (unsigned long long)llv;
-		    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+		    memcpy(avp, (void *)&bv, sizeof(bv));
+		    ap = &bv;
 		    break;
 		case PM_TYPE_DOUBLE:
 		    valfmt = PM_VAL_SPTR;
 		    pv.value.pval = vbp;
 		    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(double);
 		    vbp->vtype = PM_TYPE_DOUBLE;
-		    ap = (pmAtomValue *)vbp->vbuf;
+		    avp = (void *)vbp->vbuf;
 		    if (sgn)
 			bv.d = llv;
 		    else
 			bv.d = (unsigned long long)llv;
-		    memcpy((void *)&ap->d, (void *)&bv.d, sizeof(double));
+		    memcpy(avp, (void *)&bv, sizeof(bv));
+		    ap = &bv;
 		    break;
 		case PM_TYPE_STRING:
 		    valfmt = PM_VAL_SPTR;
@@ -342,9 +349,9 @@ error_cases:
     /*
      * a series of error and odd cases driven by QA coverage analysis
      */
-    ap = (pmAtomValue *)&pv.value.lval;
+    avp = (void *)&pv.value.lval;
     bv.f = 123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> 32: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_32)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -352,7 +359,7 @@ error_cases:
 	printf("%d\n", av.l);
 
     bv.f = (float)0xf7777777;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> 32: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_32)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -360,7 +367,7 @@ error_cases:
 	printf("%d\n", av.l);
 
     bv.f = 123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> U32: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U32)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -368,7 +375,7 @@ error_cases:
 	printf("%u\n", av.ul);
 
     bv.f = (float)((unsigned)0xffffffff);
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> U32: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U32)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -376,7 +383,7 @@ error_cases:
 	printf("%u\n", av.ul);
 
     bv.f = -123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> U32: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U32)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -384,7 +391,7 @@ error_cases:
 	printf("%u\n", av.ul);
 
     bv.f = 123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> 64: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -392,7 +399,7 @@ error_cases:
 	printf("%lld\n", (long long)av.ll);
 
     bv.f = (float)0x7fffffffffffffffLL;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %22.1f -> 64: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -400,7 +407,7 @@ error_cases:
 	printf("%lld\n", (long long)av.ll);
 
     bv.f = 123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> U64: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -408,7 +415,7 @@ error_cases:
 	printf("%llu\n", (unsigned long long)av.ull);
 
     bv.f = (float)((unsigned long long)0xffffffffffffffffLL);
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %22.1f -> U64: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -416,7 +423,7 @@ error_cases:
 	printf("%llu\n", (unsigned long long)av.ull);
 
     bv.f = -123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.3f -> U64: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -424,7 +431,7 @@ error_cases:
 	printf("%llu\n", (unsigned long long)av.ull);
 
     bv.f = 123.45678;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.5f -> DOUBLE: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_DOUBLE)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -432,7 +439,7 @@ error_cases:
 	printf("%15.5f\n", av.d);
 
     bv.f = 123.45678;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("old FLOAT: %15.5f -> STRING: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_STRING)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -440,37 +447,37 @@ error_cases:
 	printf("%15.6f\n", av.d);
 
     pv.value.pval = vbp;
-    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->ll);
+    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.ll);
     vbp->vtype = PM_TYPE_NOSUPPORT;
-    ap = (pmAtomValue *)vbp->vbuf;
-    llv = 12345;
-    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
-    printf("bad 64: %12lld -> 64: ", (long long)llv);
+    avp = (void *)vbp->vbuf;
+    bv.ll = 12345;
+    memcpy(avp, (void *)&bv.ll, sizeof(bv.ll));
+    printf("bad 64: %12lld -> 64: ", (long long)bv.ll);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_64, &av, PM_TYPE_64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
 	printf("%12lld\n", (long long)av.ll);
 
-    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->ull);
-    memcpy((void *)&ap->ll, (void *)&llv, sizeof(llv));
-    printf("bad U64: %12llu -> U64: ", (unsigned long long)llv);
+    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.ull);
+    memcpy(avp, (void *)&bv.ull, sizeof(bv.ull));
+    printf("bad U64: %12llu -> U64: ", (unsigned long long)bv.ull);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_U64, &av, PM_TYPE_U64)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
 	printf("%12llu\n", (unsigned long long)av.ull);
 
-    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->f);
+    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.f);
     bv.f = 123.456;
-    memcpy((void *)&ap->f, (void *)&bv.f, sizeof(float));
+    memcpy(avp, (void *)&bv.f, sizeof(bv.f));
     printf("bad FLOAT: %15.3f -> FLOAT: ", bv.f);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_FLOAT)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
 	printf("%15.3f\n", av.f);
 
-    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(ap->d);
+    vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.d);
     bv.d = 123.456;
-    memcpy((void *)&ap->d, (void *)&bv.d, sizeof(double));
+    memcpy(avp, (void *)&bv.d, sizeof(bv.d));
     printf("bad DOUBLE: %15.3f -> DOUBLE: ", bv.d);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_DOUBLE, &av, PM_TYPE_DOUBLE)) < 0)
 	printf("%s\n", pmErrStr(e));
@@ -478,7 +485,7 @@ error_cases:
 	printf("%15.3f\n", av.d);
 
     bv.cp = "not me";
-    memcpy((void *)&ap->cp, (void *)&bv.cp, sizeof(char *));
+    memcpy(avp, (void *)&bv, sizeof(bv));
     vbp->vlen = PM_VAL_HDR_SIZE + strlen(bv.cp);
     printf("bad STRING: %s -> STRING: ", bv.cp);
     if ((e = pmExtractValue(PM_VAL_SPTR, &pv, PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
