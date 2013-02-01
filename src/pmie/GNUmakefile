@@ -46,6 +46,7 @@ install::	default
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
+	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmie
 ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
 	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
 endif
