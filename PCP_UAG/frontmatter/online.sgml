@@ -1,0 +1,24 @@
+<section id="Z825545916melby">
+<title>Online Information</title>
+<para>The following types of online information products are available  to Cray Research
+customers:<itemizedlist>
+<listitem><para>Cray DynaWeb server, which allows you to view documents online by
+using a World Wide Web (WWW) browser such as Netscape or Mosaic. To access the Cray
+DynaWeb server, see your Cray Research system administrator for the local URL.</para>
+</listitem>
+<listitem><para>Man pages, which describe a particular element of the operating system
+or a compatible product.  To see a detailed description of a particular command or
+routine, use  the <command>man</command>(1) command.</para>
+</listitem>
+<listitem><para>UNICOS message system, which provides explanations of  error messages.
+ To see an explanation of a message, use the  <command>explain</command>(1) command.
+</para>
+</listitem>
+<listitem><para>Cray Research online glossary, which explains the terms used  in a
+document.  To get a definition, use the <command>define</command>(1)  command.</para>
+</listitem>
+<listitem><para><command>xhelp</command> help facility.  This online help system is
+available  within tools such as the Program Browser (<command>xbrowse</command>) and
+the  MPP Apprentice tool.</para>
+</listitem></itemizedlist></para>
+</section><?Pub Caret1>

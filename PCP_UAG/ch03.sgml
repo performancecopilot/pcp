@@ -1,0 +1,810 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY disclaimer.sgml SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY o3000 SYSTEM "online/o3000.gif" NDATA gif>
+<!ENTITY figure5y SYSTEM "online/figure5y.gif" NDATA gif>
+<!ENTITY figure5x SYSTEM "online/figure5x.gif" NDATA gif>
+<!ENTITY mpivis SYSTEM "online/mpivis.gif" NDATA gif>
+<!ENTITY oview-tool.sgml SYSTEM "oview-tool.sgml">
+<!ENTITY glossary.sgml SYSTEM "glossary.sgml">
+<!ENTITY chap09.misc.sgml SYSTEM "chap09.misc.sgml">
+<!ENTITY chap08.pixie.sgml SYSTEM "chap08.pixie.sgml">
+<!ENTITY chap07.prof.sgml SYSTEM "chap07.prof.sgml">
+<!ENTITY chap06.ssrun.sgml SYSTEM "chap06.ssrun.sgml">
+<!ENTITY chap05.machuse.sgml SYSTEM "chap05.machuse.sgml">
+<!ENTITY chap04.exptypes.sgml SYSTEM "chap04.exptypes.sgml">
+<!ENTITY chap03.ftut.sgml SYSTEM "chap03.ftut.sgml">
+<!ENTITY chap02.ctut.sgml SYSTEM "chap02.ctut.sgml">
+<!ENTITY chap01.intro.sgml SYSTEM "chap01.intro.sgml">
+<!ENTITY whentouseidmap.sgml SYSTEM "whentouseidmap.sgml">
+<!ENTITY nfsintro.sgml SYSTEM "nfsintro.sgml">
+<!ENTITY idmapping.sgml SYSTEM "idmapping.sgml">
+<!ENTITY chapB.sgml SYSTEM "chapB.sgml">
+<!ENTITY chapC.sgml SYSTEM "chapC.sgml">
+<!ENTITY chapD.sgml SYSTEM "chapD.sgml">
+<!ENTITY chapE.sgml SYSTEM "chapE.sgml">
+<!ENTITY chapF.sgml SYSTEM "chapF.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY a12231 SYSTEM "online/a12231.gif" NDATA gif>
+<!ENTITY a12129 SYSTEM "online/a12129.gif" NDATA gif>
+<!ENTITY a11363 SYSTEM "online/a11363.gif" NDATA gif>
+<!ENTITY a11362 SYSTEM "online/a11362.gif" NDATA gif>
+<!ENTITY a10650 SYSTEM "online/a10650.gif" NDATA gif>
+<!ENTITY a10209 SYSTEM "online/a10209.gif" NDATA gif>
+<!ENTITY a10180 SYSTEM "online/a10180.gif" NDATA gif>
+<!ENTITY a10181 SYSTEM "online/a10181.gif" NDATA gif>
+<!ENTITY a10195 SYSTEM "online/a10195.gif" NDATA gif>
+<!ENTITY a10196 SYSTEM "online/a10196.gif" NDATA gif>
+<!ENTITY a10197 SYSTEM "online/a10197.gif" NDATA gif>
+<!ENTITY a10198 SYSTEM "online/a10198.gif" NDATA gif>
+<!ENTITY a10200 SYSTEM "online/a10200.gif" NDATA gif>
+<!ENTITY a10201 SYSTEM "online/a10201.gif" NDATA gif>
+<!ENTITY a10206 SYSTEM "online/a10206.gif" NDATA gif>
+<!ENTITY a10207 SYSTEM "online/a10207.gif" NDATA gif>
+<!ENTITY a10253 SYSTEM "online/a10253.gif" NDATA gif>
+<!ENTITY a10254 SYSTEM "online/a10254.gif" NDATA gif>
+<!ENTITY a10255 SYSTEM "online/a10255.gif" NDATA gif>
+<!ENTITY a10256 SYSTEM "online/a10256.gif" NDATA gif>
+<!ENTITY a10257 SYSTEM "online/a10257.gif" NDATA gif>
+<!ENTITY a10258 SYSTEM "online/a10258.gif" NDATA gif>
+<!ENTITY a10259 SYSTEM "online/a10259.gif" NDATA gif>
+<!ENTITY a11427 SYSTEM "online/a11427.gif" NDATA gif>
+<!ENTITY a11428 SYSTEM "online/a11428.gif" NDATA gif>
+<!ENTITY a11429 SYSTEM "online/a11429.gif" NDATA gif>
+<!ENTITY a11430 SYSTEM "online/a11430.gif" NDATA gif>
+<!ENTITY a11431 SYSTEM "online/a11431.gif" NDATA gif>
+<!ENTITY a11432 SYSTEM "online/a11432.gif" NDATA gif>
+<!ENTITY conventions.abbreviation SYSTEM "frontmatter/conventions.abbreviation.sgml">
+<!ENTITY collections SYSTEM "dwebcollections.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "INCLUDE">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY a12229 SYSTEM "online/a12229.gif" NDATA gif>
+<!ENTITY a12228 SYSTEM "online/a12228.gif" NDATA gif>
+<!ENTITY a12227 SYSTEM "online/a12227.gif" NDATA gif>
+<!ENTITY a12226 SYSTEM "online/a12226.gif" NDATA gif>
+<!ENTITY a12225 SYSTEM "online/a12225.gif" NDATA gif>
+<!ENTITY a12224 SYSTEM "online/a12224.gif" NDATA gif>
+<!ENTITY a12223 SYSTEM "online/a12223.gif" NDATA gif>
+<!ENTITY a12222 SYSTEM "online/a12222.gif" NDATA gif>
+<!ENTITY a12221 SYSTEM "online/a12221.gif" NDATA gif>
+<!ENTITY a12220 SYSTEM "online/a12220.gif" NDATA gif>
+<!ENTITY a12219 SYSTEM "online/a12219.gif" NDATA gif>
+<!ENTITY a12218 SYSTEM "online/a12218.gif" NDATA gif>
+<!ENTITY a12217 SYSTEM "online/a12217.gif" NDATA gif>
+<!ENTITY a12216 SYSTEM "online/a12216.gif" NDATA gif>
+<!ENTITY a12215 SYSTEM "online/a12215.gif" NDATA gif>
+<!ENTITY a12214 SYSTEM "online/a12214.gif" NDATA gif>
+<!ENTITY a12213 SYSTEM "online/a12213.gif" NDATA gif>
+<!ENTITY a12212 SYSTEM "online/a12212.gif" NDATA gif>
+<!ENTITY a12211 SYSTEM "online/a12211.gif" NDATA gif>
+<!ENTITY a12210 SYSTEM "online/a12210.gif" NDATA gif>
+<!ENTITY a12209 SYSTEM "online/a12209.gif" NDATA gif>
+<!ENTITY a12208 SYSTEM "online/a12208.gif" NDATA gif>
+<!ENTITY a12207 SYSTEM "online/a12207.gif" NDATA gif>
+<!ENTITY a12206 SYSTEM "online/a12206.gif" NDATA gif>
+<!ENTITY a12205 SYSTEM "online/a12205.gif" NDATA gif>
+<!ENTITY a12204 SYSTEM "online/a12204.gif" NDATA gif>
+<!ENTITY a12203 SYSTEM "online/a12203.gif" NDATA gif>
+<!ENTITY a12202 SYSTEM "online/a12202.gif" NDATA gif>
+<!ENTITY a12201 SYSTEM "online/a12201.gif" NDATA gif>
+<!ENTITY a12200 SYSTEM "online/a12200.gif" NDATA gif>
+<!ENTITY a12199 SYSTEM "online/a12199.gif" NDATA gif>
+<!ENTITY a12198 SYSTEM "online/a12198.gif" NDATA gif>
+<!ENTITY a12197 SYSTEM "online/a12197.gif" NDATA gif>
+<!ENTITY a12196 SYSTEM "online/a12196.gif" NDATA gif>
+<!ENTITY a12195 SYSTEM "online/a12195.gif" NDATA gif>
+<!ENTITY a12194 SYSTEM "online/a12194.gif" NDATA gif>
+<!ENTITY a12193 SYSTEM "online/a12193.gif" NDATA gif>
+<!ENTITY a12192 SYSTEM "online/a12192.gif" NDATA gif>
+<!ENTITY a12191 SYSTEM "online/a12191.gif" NDATA gif>
+<!ENTITY a12190 SYSTEM "online/a12190.gif" NDATA gif>
+<!ENTITY a12189 SYSTEM "online/a12189.gif" NDATA gif>
+<!ENTITY % IRIX.intros "IGNORE">
+<!ENTITY % UAG "INCLUDE">
+<!ENTITY ch01.sgml SYSTEM "ch01.sgml">
+<!ENTITY ch02.sgml SYSTEM "ch02.sgml">
+<!ENTITY ch04.sgml SYSTEM "ch04.sgml">
+<!ENTITY ch05.sgml SYSTEM "ch05.sgml">
+<!ENTITY ch06.sgml SYSTEM "ch06.sgml">
+<!ENTITY ch07.sgml SYSTEM "ch07.sgml">
+<!ENTITY ch08.sgml SYSTEM "ch08.sgml">
+<!ENTITY ch09.sgml SYSTEM "ch09.sgml">
+<!ENTITY chA.sgml SYSTEM "chA.sgml">
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+]>
+-->
+<?Pub UDT _bookmark _target>
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<?Pub Inc>
+<chapter id="LE94335-PARENT">
+<title id="LE94335-TITLE">Common Conventions and Arguments</title>
+<para><indexterm id="ITch03-0"><primary>PCP</primary><secondary>conventions
+</secondary></indexterm> <indexterm id="ITch03-1"><primary>conventions
+</primary></indexterm><indexterm id="Z1033415461tls"><primary>user interface
+components</primary></indexterm> This chapter deals with the user interface
+components that are common to most text-based utilities that make up the
+monitor portion of Performance Co-Pilot (PCP). These are the major sections
+in this chapter:</para>
+<itemizedlist>
+<listitem><para><xref linkend="LE85600-PARENT">, details some basic standards
+used in the development of PCP tools.</para>
+</listitem>
+<listitem><para><xref linkend="LE68596-PARENT">, details other options
+to use with PCP tools.</para>
+</listitem>
+<listitem><para><xref linkend="LE76997-PARENT">, describes the time control
+dialog and time-related command line options available for use with PCP
+tools.</para>
+</listitem>
+<listitem><para><xref linkend="LE61303-PARENT">, describes the environment
+variables supported by PCP tools.</para>
+</listitem>
+<listitem><para><xref linkend="LE12082-PARENT">, describes how to execute
+PCP tools that must retrieve performance data from the Performance Metrics
+Collection Daemon (PMCD) on the other side of a TCP/IP security firewall.
+</para>
+</listitem>
+<listitem><para><xref linkend="LE17322-PARENT">, covers some uncommon
+scenarios that may compromise performance metric integrity over the short
+term.</para>
+</listitem></itemizedlist>
+<para><indexterm id="ITch03-2"><primary>PCP</primary><secondary>naming
+conventions</secondary></indexterm>Many of the utilities provided with
+PCP conform to a common set of naming and syntactic conventions for command
+line arguments and options. This section outlines these conventions and
+their meaning. The options may be generally assumed to be honored for
+all utilities supporting the corresponding functionality.</para>
+<para>In all cases, the man pages for each utility fully describe the
+supported command arguments and options.</para>
+<para><indexterm><primary>pmrun tool</primary></indexterm>Command line
+options are also relevant when starting PCP applications from the desktop
+using the <keycap>Alt</keycap> double-click method. This technique launches
+the <command>pmrun</command> program to collect additional arguments to
+pass along when starting a PCP application.</para>
+<section id="LE85600-PARENT">
+<title id="LE85600-TITLE">Alternate Metrics Source Options</title>
+<para>The default source of performance metrics is from PMCD on the local
+host. This section describes how to obtain metrics from sources other
+than the default.</para>
+<section>
+<title>Fetching Metrics from Another Host</title>
+<para><indexterm id="ITch03-3"><primary>fetching metrics</primary></indexterm><indexterm>
+<primary>pmchart tool</primary><secondary>fetching metrics</secondary>
+</indexterm><indexterm><primary>dkvis tool</primary><secondary>fetching
+metrics</secondary></indexterm>The option <literal>-h </literal><replaceable>
+host</replaceable> directs any PCP utility (such as <literal>pmchart</literal>
+or <literal>dkvis</literal>) to make a connection with the PMCD instance
+running on <replaceable>host</replaceable>. Once established, this connection
+serves as the principal real-time source of performance metrics and metadata.
+</para>
+</section>
+<section>
+<title>Fetching Metrics from an Archive Log</title>
+<para><indexterm id="ITch03-6"><primary>fetching metrics</primary></indexterm><indexterm
+id="ITch03-5"><primary>archive logs</primary><secondary>fetching metrics
+</secondary></indexterm><indexterm id="ITch03-8"><primary>PCP</primary>
+<secondary>log file option</secondary></indexterm>The option <literal>
+-a </literal><replaceable>archive</replaceable> directs the utility to
+treat the PCP archive logs with base name <replaceable>archive</replaceable>
+as the principal source of performance metrics and metadata.</para>
+<para><indexterm><primary>pmlogger tool</primary><secondary>archive logs
+</secondary></indexterm>PCP archive logs are created with <command>pmlogger
+</command>. Most PCP utilities operate with equal facility for performance
+information coming from either a real-time feed via PMCD on some host,
+or for historical data from a PCP archive log. For more information on
+archive logs and their use, see <xref linkend="LE93354-PARENT">.</para>
+<para><indexterm id="ITch03-9"><primary>archive logs</primary><secondary>
+physical filenames</secondary></indexterm>The base name (<filename>archive
+</filename>) of the PCP archive log used with the <literal>-a</literal>
+option implies the existence of the files created automatically by <command>
+pmlogger</command>, as listed in <xref linkend="LE79560-TITLE">.</para>
+<table frame="topbot">
+<tbltitle id="LE79560-TITLE">Physical Filenames for Components of a PCP
+Archive Log</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="100*">
+<colspec colwidth="296*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Filename</para></entry>
+<entry align="left" valign="bottom"><para>Contents</para></entry></row>
+</thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><filename>archive.</filename><replaceable>
+index</replaceable><emphasis></emphasis></para></entry>
+<entry align="left" valign="top"><para>Temporal index for rapid access
+to archive contents</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><filename>archive.</filename><replaceable>
+meta</replaceable></para></entry>
+<entry align="left" valign="top"><para>Metadata descriptions for performance
+metrics and instance domains appearing in the archive</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><filename>archive.N</filename></para></entry>
+<entry align="left" valign="top"><para>Volumes of performance metrics
+values, for <filename>N</filename> = 0,1,2,...</para></entry></row></tbody>
+</tgroup></table>
+<para>Some tools are able to concurrently process multiple PCP archive
+logs (for example, for retrospective analysis of performance across multiple
+hosts), and accept either multiple <command>-a</command> options or a
+comma separated list of archive names following the <command>-a</command>
+option.</para>
+<note><para>The <command>-h</command> and <command>-a</command> options
+are mutually exclusive in all cases.</para>
+</note>
+</section>
+</section>
+<section id="LE68596-PARENT">
+<title id="LE68596-TITLE">General PCP Tool Options</title>
+<para><indexterm><primary>tool options</primary></indexterm>The following
+sections provide information relevant to most of the PCP tools. It is
+presented here in a single place for convenience.</para>
+<section>
+<title>Common Directories and File Locations</title>
+<para><indexterm><primary>common directories</primary></indexterm><indexterm>
+<primary>file locations</primary></indexterm>The following files and directories
+are used by the PCP tools as repositories for option and configuration
+files and for binaries:</para>
+<deflist termlength="wide">
+<deflistentry>
+<term><filename>/etc/pcp.env</filename></term>
+<listitem><para><indexterm><primary>/etc/pcp.env file</primary></indexterm>Script
+to set PCP run-time environment variables.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/etc/pcp.conf</filename></term>
+<listitem><para><indexterm><primary>/etc/pcp.conf file</primary></indexterm>PCP
+configuration and environment file.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp/config/pmcd/pmcd.conf</filename></term>
+<listitem><para><indexterm><primary>/var/pcp/config/pmcd/pmcd.conf file
+</primary></indexterm><indexterm><primary>PMCD</primary><secondary>/var/pcp/config/pmcd/pmcd.conf
+file</secondary></indexterm>Configuration file for Performance Metrics
+Collection Daemon (PMCD). Sets environment variables, including <literal>
+PATH</literal>.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp/bin/pmcd</filename></term>
+<listitem><para><indexterm><primary>/usr/share/pcp/bin/pmcd file</primary>
+</indexterm>The PMCD binary.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp/config/pmcd.options</filename></term>
+<listitem><para><indexterm><primary>/var/pcp/config/pmcd.options file
+</primary></indexterm>Command line options for PMCD.<newline></para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/etc/rc.d/init.d/pcp</filename></term>
+<listitem><para><indexterm><primary>/etc/rc.d/init.d/pcp file</primary>
+</indexterm>The PMCD startup script.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp/bin/<replaceable>pcptool</replaceable></filename></term>
+<listitem><para>Directory containing PCP tools such as <command>pmkstat
+</command>, <command>pminfo</command>, <command>pmlogger</command>, <command>
+pmnewlog</command>, <command>pmnsmerge</command>, <command>pmpost</command>,
+and so on.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp</filename></term>
+<listitem><para>Directory containing shareable PCP-specific files and
+repository directories such as <command>bin</command>,  <command>demos
+</command>,  <command>examples</command> and  <command>lib</command>.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp</filename></term>
+<listitem><para>Directory containing non-shareable (that is, per-host)
+PCP specific files and repository directories. There are some symbolic
+links from the <filename>/usr/share/pcp</filename> directory hierarchy
+pointing into the <filename>/var/pcp</filename> directory hierarchy.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp/bin/<replaceable>pcptool</replaceable></filename></term>
+<listitem><para>PCP tools that are typically not executed directly by
+the end user such as <command>pmbrand</command>, <command>pmnscomp</command>,
+and <command>pmlogger</command>.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp/lib/<replaceable>pcplib</replaceable></filename></term>
+<listitem><para>Miscellaneous PCP libraries and executables.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp/pmdas</filename></term>
+<listitem><para> Performance Metric Domain Agents (PMDAs), one directory
+per PMDA.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp/config</filename></term>
+<listitem><para>Configuration files for PCP tools, typically with one
+directory per tool.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/usr/share/pcp/demos</filename></term>
+<listitem><para>Demonstration data files and example programs.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/log/pcp</filename></term>
+<listitem><para>By default, diagnostic and trace log files generated by
+PMCD and PMDAs. Also, the PCP archive logs are managed in one directory
+per logged host below here.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><filename>/var/pcp/pmns</filename></term>
+<listitem><para>Files and scripts for the Performance Metrics Name Space
+(PMNS).</para>
+</listitem></deflistentry>
+</deflist>
+</section>
+<section>
+<title>Alternate Performance Metric Name Spaces</title>
+<para><indexterm id="ITch03-10"><primary>PMNS</primary><secondary>PMNS
+</secondary></indexterm>The Performance Metrics Name Space (PMNS) defines
+a mapping from a collection of external names for performance metrics
+(convenient to the user) into corresponding internal identifiers (convenient
+for the underlying implementation).</para>
+<para>The distributed PMNS used in PCP 2.x avoids most requirements for
+an alternate PMNS, because clients' PMNS operations are supported at the
+Performance Metrics Collection Daemon (PMCD) or by means of PMNS data
+in a PCP archive log. The distributed PMNS is the default, but alternates
+may be specified using the <command>-n </command><replaceable>namespace
+</replaceable> argument to the PCP tools. When a PMNS is maintained on
+a host, it is likely to reside in the <filename>/var/pcp/pmns</filename>
+directory.</para>
+<para><indexterm><primary>pmnscomp tool</primary><secondary>PMNS</secondary>
+</indexterm>Refer to the <command sectionref="4">pmns</command> and <command
+sectionref="1">pmnscomp</command> man pages for details of PMNS structure
+and creation.</para>
+</section>
+</section>
+<section id="LE76997-PARENT">
+<title id="LE76997-TITLE">Time Duration and Control</title>
+<para><indexterm><primary>time duration</primary></indexterm>The periodic
+nature of sampling performance metrics and refreshing the displays of
+the PCP tools makes specification and control of the temporal domain a
+common operation. In the following sections, the services and conventions
+for specifying time positions and intervals are described.</para>
+<section id="LE96583-PARENT">
+<title id="LE96583-TITLE">Performance Monitor Reporting Frequency and
+Duration</title>
+<para><indexterm><primary>reporting frequency</primary></indexterm><indexterm>
+<primary>duration</primary></indexterm>Many of the performance monitoring
+utilities have periodic reporting patterns. The <literal>-t </literal> <replaceable>
+interval</replaceable> and <literal>-s </literal><replaceable>samples
+</replaceable> options are used to control the sampling (reporting) interval,
+usually expressed as a real number of seconds (<replaceable>interval</replaceable>),
+and the number of <replaceable>samples</replaceable> to be reported, respectively.
+In the absence of the <literal>-s</literal> flag, the default behavior
+is for the performance monitoring utilities to run until they are explicitly
+stopped.</para>
+<para><indexterm><primary>PCPIntro command</primary></indexterm>The <replaceable>
+interval</replaceable> argument may also be expressed in terms of minutes,
+hours, or days, as described in the <command sectionref="1">PCPIntro</command>
+man page.</para>
+</section>
+<section id="LE14729-PARENT">
+<title id="LE14729-TITLE">Time Window Options</title>
+<para><indexterm><primary>time window options</primary></indexterm><indexterm>
+<primary>window options</primary></indexterm>The following options may
+be used with most PCP tools (typically when the source of the performance
+metrics is a PCP archive log) to tailor the beginning and end points of
+a display, the sample origin, and the sample time alignment to your convenience.
+</para>
+<para>The <literal>-S</literal>, <literal>-T</literal>, <literal>-O</literal>
+and <literal>-A</literal> command line options are used by PCP applications
+to define a time window of interest.</para>
+<deflist termlength="standard">
+<deflistentry>
+<term><literal>-S </literal> <replaceable>duration</replaceable></term>
+<listitem><para>The start option may be used to request that the display
+start at the nominated time. By default, the first sample of performance
+data is retrieved immediately in real-time mode, or coincides with the
+first sample of data in a PCP archive log in archive mode. For archive
+mode, the <literal>-S</literal> option may be used to specify a later
+time for the start of sampling. By default, if <replaceable>duration</replaceable>
+is an integer, the units are assumed to be seconds.</para>
+<para>To specify an offset from the beginning of a PCP archive (in archive
+mode) simply specify the offset as the <replaceable>duration</replaceable>.
+For example, the following entry retrieves the first sample of data at
+exactly 30 minutes from the beginning of a PCP archive.</para>
+<para><literallayout>-S 30min </literallayout></para>
+<para>To specify an offset from the end of a PCP archive, prefix the <replaceable>
+duration</replaceable> with a minus sign. In this case, the first sample
+time precedes the end of archived data by the given <replaceable>duration
+</replaceable>. For example, the following entry retrieves the first sample
+exactly one hour preceding the last sample in a PCP archive.</para>
+<para><literallayout>-S -1hour </literallayout></para>
+<para>To specify the calendar date and time (local time in the reporting
+timezone) for the first sample, use the <literal>ctime</literal> syntax
+preceded by an &ldquo;at&rdquo; sign (@). For example, the following entry
+specifies the date and time to be used.</para>
+<para><literallayout>-S '@ Mon Mar 4 13:07:47 1996' </literallayout></para>
+<para>Note that this format corresponds to the output format of the <command>
+date</command> command for easy &ldquo;cut and paste.&rdquo; However,
+be sure to enclose the string in quotes so it is preserved as a single
+argument for the PCP tool.</para>
+<para>For more complete information on the date and time syntax, see the <command
+sectionref="1">PCPIntro</command> man page.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>-T </literal> <replaceable>duration</replaceable> </term>
+<listitem><para>The terminate option may be used to request that the display
+stop at the time designated by <replaceable>duration</replaceable>. By
+default, the PCP tools keep sampling performance data indefinitely (in
+real-time mode) or until the end of a PCP archive (in archive mode). The <literal>
+-T</literal> option may be used to specify an earlier time to terminate
+sampling.</para>
+<para>The interpretation for the <replaceable>duration</replaceable> argument
+in a <literal>-T</literal> option is the same as for the <literal>-S</literal>
+option, except for an unsigned time interval that is interpreted as being
+an offset from the start of the time window as defined by the default
+(now for real time, else start of archive) or by a <literal>-S</literal>
+option. For example, these options define a time window that spans 45
+minutes, after an initial offset (or delay) of 1 hour:<literallayout>
+-S 1hour -T 45mins</literallayout></para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>-O </literal> <replaceable>duration</replaceable></term>
+<listitem><para>By default, samples are fetched from the start time (see
+the description of the <literal>-S</literal> option) to the terminate
+time (see the description of the <literal>-T</literal> option). The offset <literal>
+-O</literal> option allows the specification of a time between the start
+time and the terminate time where the tool should position its initial
+sample time. This option is useful when initial attention is focused at
+some point within a larger time window of interest, or when one PCP tool
+wishes to launch another PCP tool with a common current point of time
+within a shared time window.</para>
+<para>The <replaceable>duration</replaceable> argument accepted by <literal>
+-O</literal> conforms to the same syntax and semantics as the <replaceable>
+duration</replaceable> argument for <literal>-T</literal>. For example,
+these options specify that the initial position should be the end of the
+time window:<literallayout>-O -0 </literallayout></para>
+<para>This is most useful with the <command>pmchart</command> command
+to display the tail-end of the history up to the end of the time window.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>-A </literal> <replaceable>alignment</replaceable></term>
+<listitem><para>By default, performance data samples do not necessarily
+happen at any natural unit of measured time. The <literal>-A</literal>
+switch may be used to force the initial sample to be on the specified <replaceable>
+alignment</replaceable>. For example, these three options specify alignment
+on seconds, half hours, and whole hours:<literallayout>-A 1sec 
+-A 30min 
+-A 1hour</literallayout></para>
+<para>The <literal>-A</literal> option advances the time to achieve the
+desired alignment as soon as possible after the start of the time window,
+whether this is the default window, or one specified with some combination
+of <literal>-A</literal> and <literal>-O</literal> command line options.
+</para>
+</listitem></deflistentry>
+</deflist>
+<para>Obviously the time window may be overspecified by using multiple
+options from the set <literal>-t</literal>, <literal>-s</literal>, <literal>
+-S</literal>, <literal>-T</literal>, <literal>-A</literal>, and <literal>
+-O</literal>. Similarly, the time window may shrink to nothing by injudicious
+choice of options.</para>
+<para>In all cases, the parsing of these options applies heuristics guided
+by the principal of &ldquo;least surprise&rdquo;; the time window is always
+well-defined (with the end never earlier than the start), but may shrink
+to nothing in the extreme.</para>
+</section>
+<section>
+<title>Timezone Options</title>
+<para><indexterm id="ITch03-12"><primary>timezone options</primary></indexterm>All
+utilities that report time of day use the local timezone by default. The
+following timezone options are available:</para>
+<deflist>
+<deflistentry>
+<term><literal>-z</literal></term>
+<listitem><para>Forces times to be reported in the timezone of the host
+that provided the metric values (the PCP collector host). When used in
+conjunction with <literal>-a</literal> and multiple archives, the convention
+is to use the timezone from the first named archive.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>-Z </literal> <replaceable>timezone</replaceable> </term>
+<listitem><para><indexterm><primary>environ man page</primary></indexterm>Sets
+the TZ variable to a timezone string, as defined in <command sectionref="5">
+environ</command> , for example, <literal>-Z UTC</literal> for universal
+time.</para>
+</listitem></deflistentry>
+</deflist>
+</section>
+</section>
+<section id="LE61303-PARENT">
+<title id="LE61303-TITLE">PCP Environment Variables</title>
+<para><indexterm id="ITch03-14"><primary>PCP</primary><secondary>environment
+variables</secondary></indexterm><indexterm><primary>environment variables
+</primary></indexterm><indexterm><primary>/etc/pcp.conf file</primary>
+</indexterm><indexterm><primary>/etc/pcp.env file</primary></indexterm><indexterm>
+<primary>__pmGetConfig function</primary></indexterm>When you are using
+PCP tools and utilities and are calling PCP library functions, a standard
+set of defined environment variables are available in the <filename><?Pub _nolinebreak>/etc/pcp.conf<?Pub /_nolinebreak></filename>
+file.  These variables are generally used to specify the location of various
+PCP pieces in the file system and may be loaded into shell scripts by
+sourcing the <filename>/etc/pcp.env</filename> shell script. They may
+also be queried by C and C++ programs using the <command>__pmGetConfig
+</command> library function.  If a variable is already defined in the
+environment, the values in the <filename>pcp.conf</filename> file do not
+override those values; that is,  the values in <filename>pcp.conf</filename>
+serve only as installation defaults. For additional information, see the <command
+sectionref="4"><?Pub _nolinebreak>/etc/pcp.conf<?Pub /_nolinebreak></command>, <command
+sectionref="4">/etc/pcp.env</command>, and <command><?Pub _nolinebreak>__pmGetConfig<?Pub /_nolinebreak></command>
+man pages.</para>
+<para>The following environment variables are recognized by PCP (these
+definitions are also available on the <command sectionref="1">PCPIntro
+</command> man page):</para>
+<deflist termlength="nextline">
+<deflistentry>
+<term><literal>PCP_COUNTER_WRAP</literal></term>
+<listitem><para><indexterm id="ITch03-15"><primary>PCP_COUNTER_WRAP variable
+</primary></indexterm>Many of the performance metrics exported from PCP
+agents expect that counters increase monotonically. Under some circumstances,
+one value of a metric may be smaller than the previously fetched value.
+This can happen when a counter of finite precision overflows, when the
+PCP agent has been reset or restarted, or when the PCP agent exports values
+from an underlying instrumentation that is subject to asynchronous discontinuity.
+</para>
+<para>If set, the <literal>PCP_COUNTER_WRAP</literal> environment variable
+indicates that all such cases of a decreasing counter should be treated
+as a counter overflow; and hence the values are assumed to have wrapped
+once in the interval between consecutive samples. Counter wrapping was
+the default in versions before the PCP release 1.3.</para>
+</listitem></deflistentry>
+<deflistentry><?Pub Caret1>
+<term><literal>PCP_STDERR</literal></term>
+<listitem><para><indexterm id="ITch03-18"><primary>PCP_STDERR variable
+</primary></indexterm><indexterm><primary>pmprintf tool</primary></indexterm><indexterm>
+<primary>xconfirm command</primary><secondary>error messages</secondary>
+</indexterm>Specifies whether <command>pmprintf()</command> error messages
+are sent to standard error, an <literal>xconfirm</literal> dialog box,
+or to a named file; see the <command sectionref="3">pmprintf</command>
+man page. Messages go to standard error if <literal>PCP_STDERR</literal>
+is unset or set without a value. If this variable is set to <literal>
+DISPLAY</literal>, then messages go to an <literal>xconfirm</literal>
+dialog box; see the <command sectionref="1">xconfirm</command> man page.
+Otherwise, the value of <literal>PCP_STDERR</literal> is assumed to be
+the name of an output file.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PCP_TRACE_HOST</literal></term>
+<listitem><para><indexterm id="ITch03-19"><primary>PCP_TRACE_HOST variable
+</primary></indexterm><indexterm><primary>pmdatrace tool</primary></indexterm>The <command>
+pmdatrace</command> library routines use this variable when connecting
+to the <literal>trace</literal> PMDA to determine on which host it is
+running; see the <command sectionref="3">pmdatrace</command> man page.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PCP_TRACE_PORT</literal></term>
+<listitem><para><indexterm id="ITch03-20"><primary>PCP_TRACE_PORT variable
+</primary></indexterm>This variable is used by both the <literal>trace
+</literal> PMDA and client programs using the <filename>pmdatrace</filename>
+library to obtain the Internet port through which the client programs
+and the PMDA communicate; see the <command sectionref="3">pmdatrace</command>
+man page.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PCP_TRACE_TIMEOUT</literal></term>
+<listitem><para><indexterm id="ITch03-21"><primary>PCP_TRACE_TIMEOUT variable
+</primary></indexterm>When <filename>pmdatrace</filename> client programs
+are connecting to the <literal>trace</literal> PMDA, this variable can
+be set to specify how long the clients should wait before cancelling their
+attempt to connect with the PMDA; see the <command sectionref="3">pmdatrace
+</command> man page.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMCD_CONNECT_TIMEOUT</literal></term>
+<listitem><para><indexterm id="ITch03-22"><primary>PMCD_CONNECT_TIMEOUT
+variable</primary></indexterm><indexterm><primary>PMCD</primary><secondary>
+PMCD_CONNECT_TIMEOUT variable</secondary></indexterm>When attempting to
+connect to a remote PMCD on a system that is booting or at the other end
+of a slow network link, some PMAPI routines could potentially block for
+a long time until the remote system responds. These routines abort and
+return an error if the connection has not been established after some
+specified interval has elapsed. The default interval is 5 seconds. This
+may be modified by setting this variable in the environment to a larger
+number of seconds for the desired time out. This is most useful in cases
+where the remote host is at the end of a slow network, requiring longer
+latencies to establish the connection correctly.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMCD_PORT</literal></term>
+<listitem><para><indexterm id="ITch03-23"><primary>PMCD_PORT variable
+</primary></indexterm><indexterm><primary>PMCD</primary><secondary>PMCD_PORT
+variable</secondary></indexterm><indexterm><primary>TCP/IP</primary><secondary>
+sockets</secondary></indexterm>This TCP/IP port is used by PMCD to create
+the socket for incoming connections and requests. The default is port
+number 4321, which you may override by setting this variable to a different
+port number. If a non-default port is in effect when PMCD is started,
+then every monitoring application connecting to that PMCD must also have
+this variable set in its environment before attempting a connection.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMCD_RECONNECT_TIMEOUT</literal></term>
+<listitem><para><indexterm id="ITch03-24"><primary>PMCD_RECONNECT_TIMEOUT
+variable</primary></indexterm><indexterm><primary>PMCD</primary><secondary>
+PMCD_RECONNECT_TIMEOUT variable</secondary></indexterm>When a monitor
+or client application loses its connection to a PMCD, the connection may
+be reestablished by calling the <command>pmReconnectContext()</command>
+PMAPI function. However, attempts to reconnect are controlled by a back-off
+strategy to avoid flooding the network with reconnection requests. By
+default, the back-off delays are 5, 10, 20, 40, and 80 seconds for consecutive
+reconnection requests from a client (the last delay is repeated for any
+further attempts after the last delay in the list). Setting this environment
+variable to a comma-separated list of positive integers redefines the
+back-off delays. For example, setting the delays to <userinput>1,2</userinput>
+will back off for 1 second, then back off every 2 seconds thereafter.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMCD_REQUEST_TIMEOUT</literal></term>
+<listitem><para><indexterm id="ITch03-25"><primary>PMCD_REQUEST_TIMEOUT
+variable</primary></indexterm><indexterm><primary>PMCD</primary><secondary>
+PMCD_REQUEST_TIMEOUT variable</secondary></indexterm>For monitor or client
+applications connected to PMCD, there is a possibility of the application
+hanging on a request for performance metrics or metadata or help text.
+These delays may become severe if the system running PMCD crashes or the
+network connection is lost or the network link is very slow. By setting
+this environment variable to a real number of seconds, requests to PMCD
+timeout after the specified number of seconds. The default behavior is
+to wait 10 seconds for a response from every PMCD for all applications.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMDA_PATH</literal></term>
+<listitem><para><indexterm id="ITch03-28"><primary>PMDA_PATH variable
+</primary></indexterm>This environment variable may be used to modify
+the search path used by PMCD and <command>pmNewContext()</command> (for <literal>
+PM_CONTEXT_LOCAL</literal> contexts) when searching for a daemon or DSO
+PMDA. The syntax follows the syntax for shell <literal>PATH</literal>:
+a colon-separated list of directories. The default search path is <filename>
+/var/pcp/lib:/usr/pcp/lib</filename>.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMLOGGER_PORT</literal></term>
+<listitem><para><indexterm><primary>PMLOGGER_PORT variable</primary></indexterm><indexterm>
+<primary>pmlogger tool</primary></indexterm><indexterm><primary>pmlc tool
+</primary><secondary>PMLOGGER_PORT variable</secondary></indexterm>This
+environment variable may be used to change the base TCP/IP port number
+used by <command>pmlogger</command> to create the socket to which <command>
+pmlc</command> instances try to connect. The default base port number
+is 4330. If used, this variable should be set in the environment before <command>
+pmlogger</command> is executed. If <command>pmlc</command> and <command>
+pmlogger</command> are on different hosts, then obviously <literal>PMLOGGER_PORT
+</literal> must be set to the same value in both places.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PMNS_DEFAULT</literal></term>
+<listitem><para><indexterm id="ITch03-30"><primary>PMNS_DEFAULT variable
+</primary></indexterm><indexterm><primary>pmLoadNameSpace() default</primary>
+</indexterm><indexterm><primary>/var/pcp/pmns/root file</primary></indexterm>If
+set, this value is interpreted as the full pathname to be used as the
+default PMNS for <command>pmLoadNameSpace()</command>. Otherwise, the
+default PMNS is located at <filename>/var/pcp/pmns/root</filename> for
+base PCP installations.</para>
+</listitem></deflistentry>
+</deflist>
+</section>
+<section id="LE12082-PARENT">
+<title id="LE12082-TITLE">Running PCP Tools through a Firewall</title>
+<para><indexterm><primary>firewalls</primary></indexterm><indexterm><primary>
+TCP/IP</primary><secondary>collector and monitor hosts</secondary></indexterm>In
+some production environments, the Performance Co-Pilot (PCP) monitoring
+hosts are on one side of a TCP/IP firewall, and the PCP collector hosts
+may be on the other side.</para>
+<para><indexterm><primary>SOCKS protocols</primary></indexterm><indexterm>
+<primary>pmsocks tool</primary><secondary>TCP/IP firewall</secondary>
+</indexterm><indexterm><primary>PMCD</primary><secondary>TCP/IP firewall
+</secondary></indexterm><indexterm><primary>pmlogger tool</primary><secondary>
+TCP/IP firewall</secondary></indexterm><indexterm><primary>pmlc tool</primary>
+<secondary>TCP/IP firewall</secondary></indexterm><indexterm><primary>
+PMCD_PORT variable</primary></indexterm><indexterm><primary>PMLOGGER_PORT
+variable</primary></indexterm>If the firewall service is being provided
+by a product that supports the <literal>sockd</literal> (SOCKS) protocols
+for packet forwarding through the firewall, then the PCP tool <literal>
+pmsocks</literal> may be used; see the <command sectionref="1">pmsocks
+</command> man page. Otherwise, it is necessary to arrange for packet
+forwarding to be enabled for those TCP/IP ports used by PCP, namely 4321
+(or the value of the <literal>PMCD_PORT</literal> environment variable)
+for connections to PMCD and a finite range of consecutive port numbers
+starting at 4330 (or the value of the <literal>PMLOGGER_PORT</literal>
+environment variable) to allow <command>pmlc</command> connections to <command>
+pmlogger</command> instances.</para>
+<section>
+<title>The <command>pmsocks</command> Command</title>
+<para>The <command>pmsocks</command> command and its related files and
+scripts allow PCP clients running on hosts located on the internal side
+of a TCP/IP&ensp;<literal>sockd</literal> firewall system to monitor remote
+hosts on the other side of the firewall system. The basic syntax is as
+follows, where <replaceable>tool</replaceable> is an arbitrary PCP application,
+typically a monitoring tool:</para>
+<literallayout format="yes">pmsocks <replaceable>tool</replaceable> <replaceable>
+args</replaceable></literallayout>
+<para><indexterm><primary>dkvis tool</primary><secondary>pmsocks script
+</secondary></indexterm>The <command>pmsocks</command> script prepares
+the necessary environment variables and then executes the PCP tool specified
+in <replaceable>tool</replaceable> across the firewall. For example, this
+command runs <command>dkvis</command> with metrics fetched from <literal>
+remotehost</literal> on the other side of the firewall:</para>
+<literallayout>pmsocks dkvis -h remotehost </literallayout>
+<para><indexterm><primary>/etc/pcp_socks.conf file</primary></indexterm>The
+configuration file is <filename>/etc/pcp_socks.conf</filename>, and the
+network-specific information in this file is set to correspond with your
+network. Complete information on this customization can be found in the <command
+sectionref="1">pmsocks</command> man page.</para>
+</section>
+</section>
+<section id="LE17322-PARENT">
+<title id="LE17322-TITLE">Transient Problems with Performance Metric Values
+</title>
+<para><indexterm><primary>transient problems</primary></indexterm>Sometimes
+the values for a performance metric as reported by a PCP tool appear to
+be incorrect. This is typically caused by transient conditions such as
+metric wraparound or time skew, described below. These conditions result
+from design decisions that are biased in favor of lightweight protocols
+and minimal resource demands for PCP components.</para>
+<para>In all cases, these events are expected to occur infrequently, and
+should not persist beyond a few samples.</para>
+<section>
+<title>Performance Metric Wraparound</title>
+<para><indexterm id="ITch03-32"><primary>performance metric wraparound
+</primary></indexterm><indexterm><primary>PCP_COUNTER_WRAP variable</primary>
+</indexterm>Performance metrics are usually expressed as numbers with
+finite precision. For metrics that are cumulative counters of events or
+resource consumption, the value of the metric may occasionally overflow
+the specified range and wraparound to zero.</para>
+<para>Because the value of these counter metrics is computed from the
+rate of change with respect to the previous sample, this may result in
+a transient condition where the rate of change is an unknown value. If
+the <literal>PCP_COUNTER_WRAP</literal> environment variable is set, this
+condition is treated as an overflow, and speculative rate calculations
+are made. In either case, the correct rate calculation for the metric
+returns with the next sample.</para>
+</section>
+<section>
+<title>Time Dilation and Time Skew</title>
+<para><indexterm id="ITch03-33"><primary>time dilation</primary></indexterm>If
+a PMDA is tardy in returning results, or the PCP monitoring tool is connected
+to PMCD via a slow or congested network, an error might be introduced
+in rate calculations due to a difference between the time the metric was
+sampled and the time PMCD sends the result to the monitoring tool.</para>
+<para>In practice, these errors are usually so small as to be insignificant,
+and the errors are self-correcting (not cumulative) over consecutive samples.
+</para>
+<para>A related problem may occur when the system time is not synchronized
+between multiple hosts, and the time stamps for the results returned from
+PMCD reflect the skew in the system times. In this case, it is recommended
+that NTP be used to keep the system clocks on the collector systems synchronized;
+for information on <literal>ntp</literal>(1) see /<literal>usr/share/doc/ntp-4.1.1
+</literal>.</para>
+</section>
+</section>
+</chapter>
+<?Pub *0000045350>

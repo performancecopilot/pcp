@@ -1,0 +1,383 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type"><title>Chapter 8. Customizing and Extending PCP Services</title><meta name="generator" content="DocBook XSL Stylesheets V1.51.1"><meta name="generator" content="SGI XSL DocBook Customization Stylesheets V1.1"><link rel="home" href="index.html" title="Performance Co-Pilot&#8482; for IA-64 Linux User's and Administrator's
+Guide"><link rel="up" href="index.html" title="Performance Co-Pilot&#8482; for IA-64 Linux User's and Administrator's
+Guide"><link rel="previous" href="ch07.html" title="Chapter 7. Performance Co-Pilot Deployment Strategies"><link rel="next" href="apa.html" title="Appendix A. Acronyms"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 8. Customizing and Extending PCP Services</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch07.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="apa.html">Next</a></td></tr></table><hr></div><!--CONTENT_BEGIN--><a name="sgi_start_content"></a><div class="chapter"><div class="titlepage"><div><h2 class="title"><a name="LE62564-PARENT"></a>Chapter 8. Customizing and Extending PCP Services</h2></div></div>
+<p><a class="indexterm" name="IG31371888313"></a><a class="indexterm" name="IG31371888314"></a> Performance
+Co-Pilot (PCP) has been developed to be fully extensible. The following sections
+summarize the various facilities provided to allow you to extend and customize
+PCP for your site:</p>
+<div class="itemizedlist"><ul type="disc"><li><p><a href="ch08.html#LE61335-PARENT" title="8.1. PMDA Customization">Section 8.1</a>, describes the procedure for
+customizing the summary PMDA to export derived metrics formed by aggregation
+of base PCP metrics from one or more collector hosts.</p>
+</li>
+<li><p><a href="ch08.html#LE80685-PARENT" title="8.2. PCP Tool Customization">Section 8.2</a>, describes the various options
+available for customizing and extending the basic PCP tools.</p>
+</li>
+<li><p><a href="ch08.html#LE50224-PARENT" title="8.3. PMNS Management">Section 8.3</a>, covers the concepts and tools
+provided for updating the PMNS (Performance Metrics Name Space).</p>
+</li>
+<li><p><a href="ch08.html#LE10270-PARENT" title="8.4. PMDA Development">Section 8.4</a>, details where to find further
+information to assist in the development of new PMDAs to extend the range
+of performance metrics available through the PCP infrastructure.</p>
+</li>
+<li><p><a href="ch08.html#LE31248-PARENT" title="8.5. PCP Tool Development">Section 8.5</a>, outlines how new tools may
+be developed to process performance data from the PCP infrastructure.</p>
+</li>
+</ul></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE61335-PARENT"></a>8.1. PMDA Customization</h2></div></div>
+<p>The generic procedures for installing and activating the optional PMDAs
+have been described in <a href="ch02.html#LE43202-PARENT" title="2.3. Managing Optional PMDAs">Section 2.3</a><a href="ch02.html#LE43202-PARENT"> in Chapter 2</a>. In some cases, these
+procedures prompt the user for information based upon the local system or
+network configuration, application deployment, or processing profile to customize
+the PMDA and hence the performance metrics it exports.</p>
+<p>The summary PMDA is a special case that warrants further discussion.
+</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="LE43074-PARENT"></a>8.1.1. Customizing the Summary PMDA</h3></div></div>
+<p><a class="indexterm" name="ITch09-1"></a>The summary PMDA exports performance metrics derived
+from performance metrics made available by other PMDAs. It is described completely
+in the <tt>pmdasummary(1)</tt> man page.</p>
+<p>The summary PMDA consists of two processes:</p>
+<div class="variablelist"><table border="0" cellspacing="3"><tr valign="top"><td><span class="term"><tt>pmie</tt> process</span></td><td width="10"> </td><td><p>Periodically samples the base metrics and compute values for
+the derived metrics. This dedicated instance of the PCP <tt>pmie</tt>
+inference engine is launched with special command line arguments by the main
+process. See <a href="ch05.html#LE41170-PARENT" title="5.1. Introduction to pmie">Section 5.1</a><a href="ch05.html#LE41170-PARENT"> in Chapter 5</a>, for a complete discussion of
+the <tt>pmie</tt> feature set.</p>
+
+</td></tr><tr valign="top"><td><span class="term"><tt>main</tt> process</span></td><td width="10"> </td><td><p>Reads and buffers the values computed by the <tt>pmie
+</tt> process and makes them available to the Performance Metrics Collection
+Daemon (PMCD).</p>
+
+</td></tr></table></div><p>All of the metrics exported by the summary PMDA have a singular instance
+and the values are instantaneous; the exported value is the correct value
+as of the last time the corresponding expression was evaluated by the <tt>
+pmie</tt> process.</p>
+<p>The summary PMDA resides in the <tt>/var/pcp/pmdas/summary</tt>
+directory and may be installed with a default configuration by following the
+steps described in <a href="ch02.html#LE31599-PARENT" title="2.3.1. PMDA Installation on a PCP Collector Host">Section 2.3.1</a><a href="ch02.html#LE31599-PARENT"> in Chapter 2</a>.</p>
+<p>Alternatively, you may customize the summary PMDA to export your own
+derived performance metrics by following the steps in <a href="ch08.html#id5212322" title="Procedure 8-1. Customizing the Summary PMDA">Procedure 8-1</a>:
+</p>
+<div class="procedure"><a name="id5212322"></a><p><a name="id5212322"></a><b>Procedure 8-1. Customizing the Summary PMDA</b></p><div class="orderedlist"><ol type="1"><li><p>Check that the symbolic constant <tt>SYSSUMMARY</tt> is defined in the <tt>/var/pcp/pmns/stdpmid</tt>
+file. If it is not, perform the postinstall update of this file, as superuser:<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"># cd /var/pcp/pmns
+        # ./Make.stdpmid</pre></td></tr></table><br></p>
+</li>
+<li><p><a class="indexterm" name="IG31371888315"></a>Choose Performance Metric Name Space (PMNS) names
+for the new metrics. These must begin with <tt>summary</tt> and
+follow the rules described in the <tt>pmns(4)</tt> man
+page. For example, you might use <tt>summary.fs.cache_write</tt>
+and <tt>summary.fs.cache_hit</tt>.</p>
+</li>
+<li><p><a class="indexterm" name="IG31371888316"></a>Edit the <tt>pmns</tt> file in the <tt>/var/pcp/pmdas/summary</tt> directory to add the new metric names in
+the format described in the <tt>pmns(4)</tt> man page.
+You must choose a unique performance metric identifier (PMID) for each metric.
+In the <tt>pmns</tt> file, these appear as <tt>SYSSUMMARY:0:x</tt>. The value of <i>x</i> is arbitrary in the
+range 0 to 1023 and unique in this file. Refer to <a href="ch08.html#LE50224-PARENT" title="8.3. PMNS Management">Section 8.3</a>,
+for a further explanation of the rules governing PMNS updates.</p>
+<p>For example:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">summary {
+          cpu
+          disk
+          netif
+          fs              /*new*/
+}
+summary.fs {
+          cache_write     SYSSUMMARY:0:10
+          cache_hit       SYSSUMMARY:0:11
+}</pre></td></tr></table><br></li>
+<li><p>Use the local test PMNS <tt>root</tt>
+and validate that the PMNS changes are correct.</p>
+<p>For example, enter this command:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>pminfo -n root -m summary.fs</tt></b></pre></td></tr></table><p>You see output similar to the following:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">summary.fs.cache_write PMID: 27.0.10
+summary.fs.cache_hit PMID: 27.0.11</pre></td></tr></table><br></li>
+<li><p>Edit the <tt>/var/pcp/pmdas/summary/expr.pmie
+</tt> file to add new <tt>pmie</tt> expressions. If the name
+to the left of the assignment operator (=) is one of the PMNS names, then
+the <tt>pmie</tt> expression to the right will be evaluated and
+returned by the summary PMDA. The expression must return a numeric value.
+Additional description of the <tt>pmie</tt> expression syntax may
+be found in <a href="ch05.html#LE90227-PARENT" title="5.3. Specification Language for pmie">Section 5.3</a><a href="ch05.html#LE90227-PARENT"> in Chapter 5</a>.</p>
+<p>For example, consider this expression:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">// filesystem buffer cache hit percentages
+prefix = &quot;kernel.all.io&quot;;          // macro, not exported
+summary.fs.cache_write =
+                100 - 100 * $prefix.bwrite / $prefix.lwrite;
+summary.fs.cache_hit =
+                100 - 100 * $prefix.bread / $prefix.lread;</pre></td></tr></table><br></li>
+<li><p>Run <tt>pmie</tt> in debug mode to verify
+that the expressions are being evaluated correctly, and the values make sense.
+</p>
+<p>For example, enter this command:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>pmie -t 2sec -v expr.pmie</tt></b></pre></td></tr></table><p>You see output similar to the following:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">summary.fs.cache_write:      ?
+summary.fs.cache_hit:      ?
+summary.fs.cache_write:  45.83
+summary.fs.cache_hit:   83.2
+summary.fs.cache_write:  39.22
+summary.fs.cache_hit:  84.51</pre></td></tr></table><br></li>
+<li><p>Install the new PMDA.</p>
+<p>From the <tt>/var/pcp/pmdas/summary</tt> directory, use this
+command:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>./Install</tt></b></pre></td></tr></table><p>You see the following output:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">You need to choose an appropriate configuration for installation of
+the &#8220;summary&#8221; Performance Metrics Domain Agent (PMDA).
+
+collector collect performance statistics on this system
+monitor   allow this system to monitor local and/or remote systems
+both      collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] <b><tt>both</tt></b>
+Interval between summary expression evaluation (seconds)? [10] <b><tt>10</tt></b>
+Updating the Performance Metrics Name Space...
+Installing pmchart view(s) ...
+Terminate PMDA if already installed ...
+Installing files ..
+Updating the PMCD control file, and notifying PMCD ...
+Wait 15 seconds for the agent to initialize ...
+Check summary metrics have appeared ... 8 metrics and 8 values</pre></td></tr></table><br></li>
+<li><p>Check the metrics.</p>
+<p>For example, enter this command:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>pmval -t 5sec -s 8 summary.fs.cache_write</tt></b></pre></td></tr></table><p>You see a response similar to the following:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">metric:    summary.fs.cache_write
+host:      localhost
+semantics: instantaneous value
+units:     none
+samples:   8
+interval:  5.00 sec
+63.60132158590308
+62.71878646441073
+62.71878646441073
+58.73968492123031
+58.73968492123031
+65.33822758259046
+65.33822758259046
+72.6099706744868</pre></td></tr></table><p>Note that the values are being sampled here by <tt>pmval</tt>
+every 5 seconds, but <tt>pmie</tt> is passing only new values to
+the summary PMDA every 10 seconds. Both rates could be changed to suit the
+dynamics of your new metrics.</p>
+</li>
+<li><p>You may now create <tt>pmchart</tt> views, <tt>
+pmview</tt> scenes, and <tt>pmlogger</tt> configurations to
+monitor and archive your new performance metrics.</p>
+</li>
+</ol></div><ol type="1"></ol></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE80685-PARENT"></a>8.2. PCP Tool Customization</h2></div></div>
+<p><a class="indexterm" name="ITch09-2"></a><a class="indexterm" name="IG31371888317"></a>Performance
+Co-Pilot (PCP) has been designed and implemented with a philosophy that embraces
+the notion of toolkits and encourages extensibility.</p>
+<p>In most cases, the PCP tools provide orthogonal services, based on external
+configuration files. It is the creation of new and modified configuration
+files that enables PCP users to customize tools quickly and meet the needs
+of the local environment, in many cases allowing personal preferences to be
+established for individual users on the same PCP monitor system.</p>
+<p>The material in this section is intended to act as a checklist of pointers
+to detailed documentation found elsewhere in this guide, in the man pages,
+and in the files that are made available as part of the PCP installation.
+</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5212794"></a>8.2.1. Archive Logging Customization</h3></div></div>
+<p><a class="indexterm" name="IG31371888318"></a><a class="indexterm" name="IG31371888319"></a>The PCP archive logger is presented in <a href="ch06.html" title="Chapter 6. Archive Logging">Chapter 6, &#8220;Archive Logging&#8221;</a>,
+and documented in the <tt>pmlogger(1)</tt> man page.
+</p>
+<p>The following global files and directories influence the behavior of <tt>
+pmlogger</tt>:</p>
+<div class="variablelist"><a name="Z930367453sdc"></a><table border="0" cellspacing="3"><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Enable/disable state for the primary logger facility using
+this command:<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt><tt>chkconfig pmlogger on</tt></tt></b></pre></td></tr></table><br></p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/config.default</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>The default <tt>pmlogger</tt> configuration file
+that is used for the primary logger when this facility is enabled.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/config.view.*</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Every <tt>pmchart</tt> view also provides a <tt>
+pmlogger</tt> configuration file that includes each of the performance
+metrics used in the view, for example, <tt>/var/pcp/config/pmlogger/config.LoadAvg
+</tt> for the LoadAvg view.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/config.*</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Every PCP tool with a fixed group of performance metrics contributes
+a <tt>pmlogger</tt> configuration file that includes each of the
+performance metrics used in the tool, for example, <tt>/var/pcp/config/pmlogger/config.dkvis</tt>
+for <tt>dkvis</tt>.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/control</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Defines which PCP collector hosts require <tt>pmlogger
+</tt> to be launched on the local host, where the configuration file
+comes from, where the archive log files should be created, and <tt>pmlogger
+</tt> startup options.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/crontab</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Prototype <tt>crontab</tt> entries that may be merged
+with the <tt>crontab</tt> entries for <tt>root</tt> to
+schedule the periodic execution of the archive log management scripts, for
+example, <tt>pmlogger_daily</tt>.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/log/pcp/pmlogger/somehost</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>The default behavior of the archive log management scripts
+create archive log files for the host <i>somehost</i>
+in this directory.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/adm/pcplog/somehost/Latest</tt> </span></td></tr><tr valign="top"><td width="15%"> </td><td><p>A PCP archive folio for the most recent archive for the host <i>
+somehost</i>. This folio is created and maintained by the <tt>cron</tt>-driven periodic archive log management scripts, for example, <tt>pmlogger_check</tt>. Archive folios may be processed with the <tt>pmafm</tt> tool.</p>
+
+</td></tr></table></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5213167"></a>8.2.2. Inference Engine Customization</h3></div></div>
+<p><a class="indexterm" name="IG31371888320"></a><a class="indexterm" name="IG31371888321"></a>The
+PCP inference engine is presented in <a href="ch05.html" title="Chapter 5. Performance Metrics Inference Engine">Chapter 5, &#8220;Performance Metrics Inference Engine&#8221;</a>, and
+documented in the <tt>pmie(1)</tt> man page.</p>
+<p>The following global files and directories influence the behavior of <tt>
+pmie</tt>:</p>
+<div class="variablelist"><a name="Z930367570sdc"></a><table border="0" cellspacing="3"><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmie</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Controls the pmie daemon facility. Enable using this command:<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">chkconfig pmie on</pre></td></tr></table><br></p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/usr/share/pcp/pmie/*</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Example <tt>pmie</tt> rules that may be used as
+a basis for developing local rules.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmie/config.default</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>The <tt>pmie</tt> configuration file that is used
+for monitoring the local host when the <tt>pmie</tt> daemon facility
+is enabled in the default configuration. This file is created using <tt>
+pmieconf</tt> the first time the daemon facility is activated.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmieconf/*/*</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Each <tt>pmieconf</tt> rule definition can be found
+below one of these subdirectories.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmie/control</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Defines which PCP collector hosts require a daemon <tt>
+pmie</tt> to be launched on the local host, where the configuration file
+comes from, where the <tt>pmie</tt> log file should be created,
+and <tt>pmie</tt> startup options.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/pcp/config/pmlogger/crontab</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>Prototype <tt>crontab</tt> entries that may be merged
+with the <tt>crontab</tt> entries for root to schedule the periodic
+execution of the <tt>pmie_check</tt> script, for verifying that <tt>
+pmie</tt> instances are running.</p>
+
+</td></tr><tr valign="top"><td colspan="2"><span class="term"><tt>/var/adm/pmielog/</tt></span></td></tr><tr valign="top"><td width="15%"> </td><td><p>The default behavior of the <tt>/etc/rc.d/init.d/pmie
+</tt> startup scripts create <tt>pmie</tt> log files for the
+host in this directory.</p>
+
+</td></tr></table></div><p>The PMCD PMDA exports information about executing <tt>pmie</tt>
+instances and their progress in terms of rule evaluations and action execution
+rates.</p>
+<div class="variablelist"><a name="Z930367675sdc"></a><table border="0" cellspacing="3"><tr valign="top"><td><span class="term"><tt>pmie_check</tt></span></td><td width="10"> </td><td><p>This command is similar to the <tt>pmlogger</tt>
+support script, <tt>pmlogger_check</tt>.</p>
+
+</td></tr><tr valign="top"><td><span class="term"><tt>/etc/rc.d/init.d/pmie</tt></span></td><td width="10"> </td><td><p>This control file supports the starting and stopping of multiple <tt>
+pmie</tt> instances that are monitoring one or more hosts.</p>
+
+</td></tr><tr valign="top"><td><span class="term"><tt>/var/tmp/pmie</tt></span></td><td width="10"> </td><td><p>The statistics that <tt>pmie</tt> gathers are maintained
+in binary data structure files. These files are in the <tt>/var/tmp/pmie</tt>
+directory.</p>
+
+</td></tr><tr valign="top"><td><span class="term"><tt>pmcd.pmie</tt> metrics</span></td><td width="10"> </td><td><p>If <tt>pmie</tt> is running on a system with a PCP
+collector deployment, the <tt>pmcd</tt> PMDA exports these metrics
+via the <tt>pmcd.pmie</tt> group of metrics.</p>
+
+</td></tr></table></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE50224-PARENT"></a>8.3. PMNS Management</h2></div></div>
+<p><a class="indexterm" name="IG31371888322"></a>This section describes the syntax, semantics, and processing framework
+for the external specification of a Performance Metrics Name Space (PMNS)
+as it might be loaded by the PMAPI routine <tt>pmLoadNameSpace</tt>;
+see the <tt>pmLoadNameSpace(3)</tt> man page.</p>
+<p>The PMNS specification is a simple ASCII source file that can be edited
+easily. For reasons of efficiency, a binary format is also supported; the
+utility <tt>pmnscomp</tt> translates the ASCII source format into
+binary format; see the <tt>pmnscomp(1)</tt> man page.
+</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5213650"></a>8.3.1. PMNS Processing Framework</h3></div></div>
+<p>The PMNS specification is initially passed through <tt>cpp</tt>.
+This means the following facilities may be used in the specification:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>C-style comments</p>
+</li>
+<li><p><tt>#include</tt> directives</p>
+</li>
+<li><p><tt>#define</tt> directives and macro substitution
+</p>
+</li>
+<li><p>Conditional processing with <tt>#if</tt>, <tt>#endif</tt>, and so on</p>
+</li>
+</ul></div><p>When <tt>cpp</tt> is executed, the standard include directories
+are the current directory and <tt>/var/pcp/pmns</tt>, where some
+standard macros and default specifications may be found.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5213751"></a>8.3.2. PMNS Syntax</h3></div></div>
+<p><a class="indexterm" name="ITch09-4"></a><a class="indexterm" name="IG31371888323"></a>Every PMNS is
+tree structured. The paths to the leaf nodes are the performance metric names.
+The general syntax for a non-leaf node in PMNS is as follows:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">pathname {
+name	[pmid]
+...
+}</pre></td></tr></table><p>Here <tt>pathname</tt> is the full pathname from the root
+of the PMNS to this non-leaf node, with each component in the path separated
+by a period. The root node for the PMNS has the special name <tt>root</tt>, but the prefix string <tt>root.</tt> must be omitted
+from all other <tt>pathnames</tt>.</p>
+<p>For example, refer to the PMNS shown in <a href="ch08.html#id5213846" title="Figure 8-1. Small Performance Metrics Name Space (PMNS)">Figure 8-1</a>.
+The correct pathname for the rightmost non-leaf node is <tt>cpu.util</tt>, not <tt>root.cpu.util</tt>.</p>
+<div class="figure"><a name="id5213846"></a><p><a name="id5213846"></a><b>Figure 8-1. Small Performance Metrics Name Space (PMNS)</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12229.gif" alt="Small Performance Metrics Name Space (PMNS)" height="307" width="573"></td></tr></table></div></div><p>Each component in the pathname must begin with an alphabetic character
+and be followed by zero or more alphanumeric characters or the underscore
+(_) character. For alphabetic characters in a component, uppercase and lowercase
+are significant.</p>
+<p>Non-leaf nodes in the PMNS may be defined in any order desired. The
+descendent nodes are defined by the set of <tt>names</tt>, relative
+to the pathname of their parent non-leaf node. For descendent nodes, leaf
+nodes have a <tt>pmid</tt> specification, but non-leaf nodes do
+not.</p>
+<p>The syntax for the <tt>pmid</tt> specification was chosen
+to help manage the allocation of Performance Metric IDs (PMIDs) across disjoint
+and autonomous domains of administration and implementation. Each <tt>pmid</tt> consists of three integers separated by colons, for example, <tt>14:27:11</tt>. This is intended to mirror the implementation hierarchy
+of performance metrics. The first integer identifies the domain in which the
+performance metric lies. Within a domain, related metrics are often grouped
+into clusters. The second integer identifies the cluster, and the third integer,
+the metric within the cluster.</p>
+<p>The PMNS specification for <a href="ch08.html#id5213846" title="Figure 8-1. Small Performance Metrics Name Space (PMNS)">Figure 8-1</a> is shown in <a href="ch08.html#Z928447759sdc" title="Example 8-1. PMNS Specification">Example 8-1</a>:</p>
+<div class="example"><a name="Z928447759sdc"></a><p><a name="Z928447759sdc"></a><b>Example 8-1. PMNS Specification</b></p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout">/*
+* PMNS Specification
+*/
+#include &lt;stdpmid&gt;
+root {
+       network
+       cpu
+}
+#define NETWORK 26
+network {
+       intrate    `LINUX:NETWORK:1
+       packetrate
+}
+network.packetrate {
+       in     LINUX:NETWORK:35
+       out    LINUX:NETWORK:36
+}
+#define CPU 10
+cpu {
+       syscallrate    LINUX:CPU:10
+       util
+}
+#define USER 20
+#define KERNEL 21
+#define IDLE 22
+cpu.util {
+       user    LINUX:CPU:USER
+       sys     LINUX:CPU:KERNEL
+       idle    LINUX:CPU:IDLE
+}</pre></td></tr></table><br></div><p>For complete documentation of the PMNS and associated utilities, see
+the <tt>pmns(4)</tt>, <tt>pmnscomp
+(1)</tt>, <tt>pmnsadd(1)</tt>, <tt>
+pmnsdel(1)</tt>, and <tt>pmnsmerge(1)</tt> man pages.
+</p>
+</div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE10270-PARENT"></a>8.4. PMDA Development</h2></div></div>
+<p><a class="indexterm" name="ITch09-5"></a>Performance Co-Pilot (PCP) is designed to be extensible
+at the collector site.</p>
+<p>Application developers are encouraged to create new PMDAs to export
+performance metrics from the applications and service layers that are particularly
+relevant to a specific site, application suite, or processing environment.
+</p>
+<p>These PMDAs use the routines of the <tt>libpcp_pmda</tt> library,
+which is discussed in detail by the <i>
+Performance Co-Pilot Programmer's Guide</i>.</p>
+<p>Source code for several PMDAs (simple, trivial, and txmon) is provided
+in the <tt>pcp.sw.demo</tt> subsystem. When it is installed, all
+of the relevant files reside in directories (one per PMDA) below the <tt>
+/var/pcp/pmdas</tt> directory.</p>
+</div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE31248-PARENT"></a>8.5. PCP Tool Development</h2></div></div>
+<p><a class="indexterm" name="ITch09-6"></a><a class="indexterm" name="IG31371888324"></a>Performance
+Co-Pilot (PCP) is designed to be extensible at the monitor site.</p>
+<p>Application developers are encouraged to create new PCP client applications
+to monitor or display performance metrics in a manner that is particularly
+relevant to a specific site, application suite, or processing environment.
+</p>
+<p>Client applications use the routines of the PMAPI (performance metrics
+application programming interface) described in the <i>
+Performance Co-Pilot Programmer's Guide</i>.</p>
+<p>Source code for a sample PMAPI client (<tt>pmclient</tt>)
+is provided in the <tt>pcp.sw.demo</tt> subsystem, and when installed
+all of the relevant files reside in <tt>/usr/share/pcp/demos/pmclient</tt>.
+</p>
+</div></div><!--CONTENT_END--><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch07.html">Prev</a> </td><td width="20%" align="center"><a accesskey="h" href="index.html">Table of Contents</a></td><td width="40%" align="right"> <a accesskey="n" href="apa.html">Next</a></td></tr><tr><td width="40%" align="left">Chapter 7. Performance Co-Pilot Deployment Strategies </td><td width="20%" align="center"> </td><td width="40%" align="right">Appendix A. Acronyms </td></tr></table></div></body></html>

@@ -1,0 +1,1022 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY disclaimer.sgml SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY o3000 SYSTEM "online/o3000.gif" NDATA gif>
+<!ENTITY figure5y SYSTEM "online/figure5y.gif" NDATA gif>
+<!ENTITY figure5x SYSTEM "online/figure5x.gif" NDATA gif>
+<!ENTITY mpivis SYSTEM "online/mpivis.gif" NDATA gif>
+<!ENTITY oview-tool.sgml SYSTEM "oview-tool.sgml">
+<!ENTITY glossary.sgml SYSTEM "glossary.sgml">
+<!ENTITY chap09.misc.sgml SYSTEM "chap09.misc.sgml">
+<!ENTITY chap08.pixie.sgml SYSTEM "chap08.pixie.sgml">
+<!ENTITY chap07.prof.sgml SYSTEM "chap07.prof.sgml">
+<!ENTITY chap06.ssrun.sgml SYSTEM "chap06.ssrun.sgml">
+<!ENTITY chap05.machuse.sgml SYSTEM "chap05.machuse.sgml">
+<!ENTITY chap04.exptypes.sgml SYSTEM "chap04.exptypes.sgml">
+<!ENTITY chap03.ftut.sgml SYSTEM "chap03.ftut.sgml">
+<!ENTITY chap02.ctut.sgml SYSTEM "chap02.ctut.sgml">
+<!ENTITY chap01.intro.sgml SYSTEM "chap01.intro.sgml">
+<!ENTITY whentouseidmap.sgml SYSTEM "whentouseidmap.sgml">
+<!ENTITY nfsintro.sgml SYSTEM "nfsintro.sgml">
+<!ENTITY idmapping.sgml SYSTEM "idmapping.sgml">
+<!ENTITY chapB.sgml SYSTEM "chapB.sgml">
+<!ENTITY chapC.sgml SYSTEM "chapC.sgml">
+<!ENTITY chapD.sgml SYSTEM "chapD.sgml">
+<!ENTITY chapE.sgml SYSTEM "chapE.sgml">
+<!ENTITY chapF.sgml SYSTEM "chapF.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY a12231 SYSTEM "online/a12231.gif" NDATA gif>
+<!ENTITY a12129 SYSTEM "online/a12129.gif" NDATA gif>
+<!ENTITY a11363 SYSTEM "online/a11363.gif" NDATA gif>
+<!ENTITY a11362 SYSTEM "online/a11362.gif" NDATA gif>
+<!ENTITY a10650 SYSTEM "online/a10650.gif" NDATA gif>
+<!ENTITY a10209 SYSTEM "online/a10209.gif" NDATA gif>
+<!ENTITY a10180 SYSTEM "online/a10180.gif" NDATA gif>
+<!ENTITY a10181 SYSTEM "online/a10181.gif" NDATA gif>
+<!ENTITY a10195 SYSTEM "online/a10195.gif" NDATA gif>
+<!ENTITY a10196 SYSTEM "online/a10196.gif" NDATA gif>
+<!ENTITY a10197 SYSTEM "online/a10197.gif" NDATA gif>
+<!ENTITY a10198 SYSTEM "online/a10198.gif" NDATA gif>
+<!ENTITY a10200 SYSTEM "online/a10200.gif" NDATA gif>
+<!ENTITY a10201 SYSTEM "online/a10201.gif" NDATA gif>
+<!ENTITY a10206 SYSTEM "online/a10206.gif" NDATA gif>
+<!ENTITY a10207 SYSTEM "online/a10207.gif" NDATA gif>
+<!ENTITY a10253 SYSTEM "online/a10253.gif" NDATA gif>
+<!ENTITY a10254 SYSTEM "online/a10254.gif" NDATA gif>
+<!ENTITY a10255 SYSTEM "online/a10255.gif" NDATA gif>
+<!ENTITY a10256 SYSTEM "online/a10256.gif" NDATA gif>
+<!ENTITY a10257 SYSTEM "online/a10257.gif" NDATA gif>
+<!ENTITY a10258 SYSTEM "online/a10258.gif" NDATA gif>
+<!ENTITY a10259 SYSTEM "online/a10259.gif" NDATA gif>
+<!ENTITY a11427 SYSTEM "online/a11427.gif" NDATA gif>
+<!ENTITY a11428 SYSTEM "online/a11428.gif" NDATA gif>
+<!ENTITY a11429 SYSTEM "online/a11429.gif" NDATA gif>
+<!ENTITY a11430 SYSTEM "online/a11430.gif" NDATA gif>
+<!ENTITY a11431 SYSTEM "online/a11431.gif" NDATA gif>
+<!ENTITY a11432 SYSTEM "online/a11432.gif" NDATA gif>
+<!ENTITY conventions.abbreviation SYSTEM "frontmatter/conventions.abbreviation.sgml">
+<!ENTITY collections SYSTEM "dwebcollections.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "INCLUDE">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY a12229 SYSTEM "online/a12229.gif" NDATA gif>
+<!ENTITY a12228 SYSTEM "online/a12228.gif" NDATA gif>
+<!ENTITY a12227 SYSTEM "online/a12227.gif" NDATA gif>
+<!ENTITY a12226 SYSTEM "online/a12226.gif" NDATA gif>
+<!ENTITY a12225 SYSTEM "online/a12225.gif" NDATA gif>
+<!ENTITY a12224 SYSTEM "online/a12224.gif" NDATA gif>
+<!ENTITY a12223 SYSTEM "online/a12223.gif" NDATA gif>
+<!ENTITY a12222 SYSTEM "online/a12222.gif" NDATA gif>
+<!ENTITY a12221 SYSTEM "online/a12221.gif" NDATA gif>
+<!ENTITY a12220 SYSTEM "online/a12220.gif" NDATA gif>
+<!ENTITY a12219 SYSTEM "online/a12219.gif" NDATA gif>
+<!ENTITY a12218 SYSTEM "online/a12218.gif" NDATA gif>
+<!ENTITY a12217 SYSTEM "online/a12217.gif" NDATA gif>
+<!ENTITY a12216 SYSTEM "online/a12216.gif" NDATA gif>
+<!ENTITY a12215 SYSTEM "online/a12215.gif" NDATA gif>
+<!ENTITY a12214 SYSTEM "online/a12214.gif" NDATA gif>
+<!ENTITY a12213 SYSTEM "online/a12213.gif" NDATA gif>
+<!ENTITY a12212 SYSTEM "online/a12212.gif" NDATA gif>
+<!ENTITY a12211 SYSTEM "online/a12211.gif" NDATA gif>
+<!ENTITY a12210 SYSTEM "online/a12210.gif" NDATA gif>
+<!ENTITY a12209 SYSTEM "online/a12209.gif" NDATA gif>
+<!ENTITY a12208 SYSTEM "online/a12208.gif" NDATA gif>
+<!ENTITY a12207 SYSTEM "online/a12207.gif" NDATA gif>
+<!ENTITY a12206 SYSTEM "online/a12206.gif" NDATA gif>
+<!ENTITY a12205 SYSTEM "online/a12205.gif" NDATA gif>
+<!ENTITY a12204 SYSTEM "online/a12204.gif" NDATA gif>
+<!ENTITY a12203 SYSTEM "online/a12203.gif" NDATA gif>
+<!ENTITY a12202 SYSTEM "online/a12202.gif" NDATA gif>
+<!ENTITY a12201 SYSTEM "online/a12201.gif" NDATA gif>
+<!ENTITY a12200 SYSTEM "online/a12200.gif" NDATA gif>
+<!ENTITY a12199 SYSTEM "online/a12199.gif" NDATA gif>
+<!ENTITY a12198 SYSTEM "online/a12198.gif" NDATA gif>
+<!ENTITY a12197 SYSTEM "online/a12197.gif" NDATA gif>
+<!ENTITY a12196 SYSTEM "online/a12196.gif" NDATA gif>
+<!ENTITY a12195 SYSTEM "online/a12195.gif" NDATA gif>
+<!ENTITY a12194 SYSTEM "online/a12194.gif" NDATA gif>
+<!ENTITY a12193 SYSTEM "online/a12193.gif" NDATA gif>
+<!ENTITY a12192 SYSTEM "online/a12192.gif" NDATA gif>
+<!ENTITY a12191 SYSTEM "online/a12191.gif" NDATA gif>
+<!ENTITY a12190 SYSTEM "online/a12190.gif" NDATA gif>
+<!ENTITY a12189 SYSTEM "online/a12189.gif" NDATA gif>
+<!ENTITY % IRIX.intros "IGNORE">
+<!ENTITY % UAG "INCLUDE">
+<!ENTITY ch01.sgml SYSTEM "ch01.sgml">
+<!ENTITY ch02.sgml SYSTEM "ch02.sgml">
+<!ENTITY ch03.sgml SYSTEM "ch03.sgml">
+<!ENTITY ch04.sgml SYSTEM "ch04.sgml">
+<!ENTITY ch06.sgml SYSTEM "ch06.sgml">
+<!ENTITY ch07.sgml SYSTEM "ch07.sgml">
+<!ENTITY ch08.sgml SYSTEM "ch08.sgml">
+<!ENTITY ch09.sgml SYSTEM "ch09.sgml">
+<!ENTITY chA.sgml SYSTEM "chA.sgml">
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+]>
+-->
+<?Pub UDT _bookmark _target>
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<?Pub Inc>
+<chapter id="LE23279-PARENT"><?Pub Caret1>
+<title id="LE23279-TITLE">System Performance Visualization Tools</title>
+<para><indexterm><primary>man command</primary><secondary>pmview tool
+</secondary></indexterm><indexterm><primary>Open Inventor</primary></indexterm><indexterm>
+<primary>three-dimensional</primary><see>3D tools</see></indexterm><indexterm>
+<primary>3D tools</primary></indexterm>Several three-dimensional (3D)
+graphical tools are provided with Performance Co-Pilot (PCP) to assist
+you in visualizing performance on monitored systems. These tools are implemented
+with and require Open Inventor, a 3D graphics facility. Each tool is completely
+described by its own man page, accessible through the <command>man</command>
+command. For example, the man page for the <command>pmview</command> tool
+can be viewed by giving the following command:</para>
+<literallayout><userinput>man pmview</userinput>&ensp;</literallayout>
+<para>The following major sections are covered in this chapter:</para>
+<itemizedlist>
+<listitem><para><xref linkend="LE45679-PARENT">, describes the graphical
+disk activity visualization tool, <command>dkvis</command>.</para>
+</listitem>
+<listitem><para><indexterm><primary>mpvis tool</primary><secondary>brief
+description</secondary></indexterm><xref linkend="LE22641-PARENT">, describes
+the graphical multiprocessor visualization and comparison tool, <command>
+mpvis</command>.</para>
+</listitem>
+<listitem><para><indexterm><primary>osvis tool</primary><secondary>brief
+description</secondary></indexterm><xref linkend="LE68668-PARENT">, describes
+the operating system activity visualization tool, <command>osvis</command>.
+</para>
+</listitem>
+<listitem><para><indexterm><primary>nfsvis tool</primary><secondary>brief
+description</secondary></indexterm><xref linkend="LE64082-PARENT">, describes
+the graphical NFS activity visualization tool, <command>nfsvis</command>.
+</para>
+</listitem>
+<listitem><para><indexterm><primary>mpivis tool</primary><secondary>brief
+description</secondary></indexterm><xref linkend="Z979232675sdc">, describes
+the Message Passing Interface (MPI) visualization tool, <command>mpivis
+</command>.</para>
+</listitem>
+<listitem><para><indexterm><primary>weblogvis tool</primary></indexterm><xref
+linkend="Z979244628sdc">, describes the tool that displays data extracted
+from Web-server log files, <command>weblogvis</command>.</para>
+</listitem>
+<listitem><para><xref linkend="LE21680-PARENT">, describes the graphical
+performance visualization tool, <command>pmview</command>, on which the
+other visualization tools are based.</para>
+</listitem></itemizedlist>
+<para><indexterm><primary>pmview tool</primary><secondary>related tools
+</secondary></indexterm><indexterm><primary>arrayvis tool</primary></indexterm><indexterm>
+<primary>clustervis tool</primary></indexterm><indexterm><primary>nodevis
+tool</primary></indexterm><indexterm><primary>procvis tool</primary></indexterm><indexterm>
+<primary>routervis tool</primary><secondary>related tools</secondary>
+</indexterm><indexterm><primary>txmonvis tool</primary></indexterm><indexterm>
+<primary>weblogvis tool</primary></indexterm><indexterm><primary>webpingvis
+tool</primary></indexterm><indexterm><primary>webvis tool</primary></indexterm><indexterm>
+<primary>xbowvis tool</primary><secondary>related tools</secondary></indexterm>Other
+PCP visualization tools, such as <command>arrayvis</command>, <command>
+clustervis</command>, <command>nodevis</command>, <command>procvis</command>, <command>
+routervis</command>, <command>txmonvis</command>, <command>weblogvis</command>, <command>
+webpingvis</command>, <command>webvis</command>, and <command>xbowvis
+</command>, are not described in this chapter. See the <command sectionref="1">
+arrayvis</command>, <command sectionref="1">clustervis</command>, <command
+sectionref="1">nodevis</command>, <command sectionref="1">procvis</command>, <command
+sectionref="1">routervis</command>, <command sectionref="1">txmonvis</command>, <command
+sectionref="1">weblogvis</command>, <command sectionref="1">webpingvis
+</command>, <command sectionref="1">webvis</command>, and <command sectionref="1">
+xbowvis</command> man pages for information about these <command>pmview
+</command> based tools.</para>
+<section id="LE45679-PARENT">
+<title id="LE45679-TITLE">Overview of Visualization Tools</title>
+<para><indexterm><primary>pmie tool</primary><secondary>automated reasoning
+</secondary></indexterm>For the most interesting and complex problems
+in performance management, the volume of available information is daunting.
+One approach to dealing with the volume and complexity of the information
+is to employ automated reasoning. Refer to <xref linkend="LE21414-TITLE">
+for a complete description of the <command>pmie</command> tool that provides
+this capability. Another approach is to harness the considerable potential
+for human visual processing to absorb, analyze, and classify large amounts
+of information.</para>
+<para>PCP has been developed with an assumption that being able to draw
+three-dimension pictures of system performance is a critical monitoring
+requirement, and one that offers vast potential for increased insight
+and understanding for the person charged with some aspect of performance
+monitoring and management.</para>
+<para><indexterm><primary>OpenGL</primary></indexterm><indexterm><primary>
+Open Inventor</primary></indexterm>Building on SGI technologies of high-performance
+3D graphics at the workstation, OpenGL and Open Inventor, PCP delivers
+a range of utilities, services, and toolkits that are designed both to
+provide basic visualization tools and to foster the local customization
+of value-added tools to meet the needs of end-user application and operational
+environments.</para>
+<para>Key components to this performance visualization strategy are as
+follows:</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>time-series strip charts</primary>
+</indexterm><indexterm><primary>pmchart tool</primary><secondary>time-series
+strip charts</secondary></indexterm>Time-series strip charts with <command>
+pmchart</command> (described in <xref linkend="LE38515-TITLE">) that allow
+performance metrics from multiple hosts and multiple Performance Metric
+Domains (PMDs) to be concurrently displayed on a single correlated time
+axis.</para>
+<para>Predefined chart configurations for common performance scenarios
+are provided.</para>
+</listitem>
+<listitem><para>Basic three-dimension models for the following:</para>
+<itemizedlist><listitem><para>Per-processor CPU utilization with <command>
+mpvis</command></para>
+</listitem><listitem><para>Per-disk spindle activity with <command>dkvis
+</command></para>
+</listitem><listitem><para><indexterm><primary>nfsvis tool</primary><secondary>
+NFS request </secondary></indexterm>NFS request traffic with <command>
+nfsvis</command></para>
+</listitem><listitem><para>MPI function activity with <command>mpivis
+</command></para>
+</listitem></itemizedlist>
+</listitem>
+<listitem><para><indexterm><primary>pmview tool</primary><secondary>animated
+scenes</secondary></indexterm><indexterm><primary>pmview tool</primary>
+<secondary>related tools</secondary></indexterm>A generalized, three-dimension
+performance model viewer, <command>pmview</command>, that can easily be
+configured to draw scenes animated by the values of arbitrarily selected
+performance metrics. Tools like <command>dkvis</command>, <command>mpivis
+</command>, <command>mpvis</command>, and <command>nfsvis</command> are
+front-ends that create scene descriptions to be displayed and animated
+with <command>pmview</command>.</para>
+</listitem>
+<listitem><para><indexterm><primary>pmgadgets tool</primary><secondary>
+desktop panel</secondary></indexterm>Icon-sized stripcharts, meters, and
+indicator LEDs that may be combined into a desktop control and indicator
+panel using <command>pmgadgets</command>; see <xref linkend="LE44255-TITLE">.
+</para>
+<para><indexterm><primary>pmgsys tool</primary><secondary>standard layout
+</secondary></indexterm>The <command>pmgsys</command> command provides
+a standard layout for important Linux performance metrics using <command>
+pmgadgets</command>. The color or height of each gadget is modulated by
+user-selected performance metrics from one or more PCP sources.</para>
+</listitem></itemizedlist>
+<para>When combined with the VCR and PCP archive services, these visualization
+tools provide both real-time and retrospective analysis of system performance
+at many different levels of detail.</para>
+</section>
+<section id="LE17574-PARENT">
+<title id="LE17574-TITLE">The <command>dkvis</command> Disk Visualization
+Tool</title>
+<para><indexterm id="ITch05-3"><primary>dkvis tool</primary><secondary>
+description</secondary></indexterm><indexterm id="ITch05-4"><primary>
+disk use visualization</primary></indexterm>The <command>dkvis</command>
+tool is a graphical disk device utilization viewer, displaying a bar chart
+showing disk activity. When you give the <command>dkvis</command> command,
+you see a bar chart displaying activity on each disk on the monitored
+system. You see a <interface>Total Disk I/O Rate for Host <replaceable>
+host</replaceable></interface> window similar to the one shown in <xref
+linkend="LE58362-TITLE">.</para>
+<para><figure width="wide">
+<graphic entityref="a12210" scale="NO"></graphic>
+<title id="LE58362-TITLE"><command>dkvis</command> <interface>Total Disk
+I/O Rate </interface>Window</title>
+</figure></para>
+<para>Each row of blocks on the base plane represents the group of disks
+connected to a single disk controller (or host adaptor or SCSI bus). The
+label for each row is generated from the characters common to the names
+of all of the disks on the controller. For example, in <xref linkend="LE58362-TITLE">,
+the disks in the row labeled <literal>dks56</literal> (the same row as
+the selected block for <literal>dks56d2</literal>) are <literal>dks56d1
+</literal>, <literal>dks56d2</literal>, <literal>dks56d3</literal>, and <literal>
+dks56d4</literal>.</para>
+<para>The <command>dkvis</command> implementation uses the generalized
+3D performance viewer <command>pmview</command> as described in <xref
+linkend="LE21680-TITLE">. Hence, the command line options for <command>
+dkvis</command> include the common ones for <command>pmview</command>.
+</para>
+<para><command>dkvis</command> normally displays the total number of I/O
+operations per second (IOPS). The <literal>-r</literal> option may be
+used to restrict the display to just the read operations or <literal>
+-w</literal> may be specified for just the writes.</para>
+<para>The <command>dkvis</command> command expresses the utilizations
+in the information window as percentages of some maximum expected rate
+(clipped to 100%). The <literal>-m</literal> flag allows you to override
+the default maximum value. This is useful if all of the utilizations are
+small compared to the maximum. In such a situation, specifying a smaller
+maximum has the effect of magnifying the differences between the blocks.
+Similarly, if some of the blocks are almost always at full height, there
+is a good chance that they are being clipped.</para>
+<para>A suitable value for the <literal>-m</literal> option can be determined
+by clicking the blocks in question, observing the values displayed in
+the information window for a while, and adding about 10% to the highest
+value observed. Interactive adjustment of the block height is available
+via the scale thumb wheel in the <command>pmview</command> viewer.</para>
+<para><indexterm><primary>PCP Tutorial</primary><secondary>dkvis tool
+</secondary></indexterm>Complete information on the <command>dkvis</command>
+command is available in the <command sectionref="1">dkvis</command> man
+page. The <citetitle>PCP Tutorial</citetitle> contains additional examples
+on the use of <command>dkvis</command>.</para>
+</section>
+<section id="LE22641-PARENT">
+<title id="LE22641-TITLE">The <command>mpvis</command> Processor Visualization
+Tool</title>
+<para>The <command>mpvis</command> tool is a graphical multiprocessor
+activity viewer, displaying a bar chart that shows processor activity.
+When you enter the <command>mpvis</command> command, you see a bar chart
+displaying activity on each processor on the monitored system. You see
+a <interface>CPU Utilization for Host <replaceable>host</replaceable></interface>
+window similar to the one shown in <xref linkend="LE14959-TITLE">.<indexterm
+id="ITch05-8"><primary>CPU visualization tool</primary></indexterm><indexterm
+id="ITch05-6"><primary>mpvis tool</primary><secondary>description</secondary>
+</indexterm><indexterm id="ITch05-7"><primary>processor visualization
+tool</primary></indexterm></para>
+<figure width="wide">
+<graphic entityref="a12211" scale="NO"></graphic>
+<title id="LE14959-TITLE"><command>mpvis</command> <interface>CPU Utilization 
+</interface> Window</title>
+</figure>
+<para>This figure shows <command>mpvis</command> monitoring a machine
+with four CPUs. CPU is spending 80% of its time processing user code and
+about 20% of its time executing system code. Another CPU is executing
+user code for close to 90% of the time. The remaining two CPUs are idle.
+</para>
+<para>The display contains five labeled rows of blocks, which represent
+the breakdown of the activity of a single CPU into five states. There
+is one column of five blocks for each CPU on the system being monitored.
+These five states are as follows:</para>
+<deflist>
+<deflistentry>
+<term><interface>idle</interface></term>
+<listitem><para>No activity</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>wait</interface></term>
+<listitem><para>Like idle but waiting for I/O</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>intr</interface></term>
+<listitem><para>Processing an interrupt</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>sys</interface></term>
+<listitem><para>Executing in the Linux kernel</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>user</interface></term>
+<listitem><para>Executing user code</para>
+</listitem></deflistentry>
+</deflist>
+<para>The <command>mpvis</command> implementation uses the generalized
+3D performance viewer <command>pmview</command> as described in <xref
+linkend="LE21680-TITLE">. Hence, the command line options for <command>
+mpvis</command> include the common ones for <command>pmview</command>.
+</para>
+<para><indexterm><primary>PCP Tutorial</primary><secondary>mpvis tool
+</secondary></indexterm>Complete information on the <command>mpvis</command>
+command is available in the <command sectionref="1">mpvis</command> man
+page. The <citetitle>PCP Tutorial</citetitle> contains additional examples
+on the use of <command>mpvis</command>.</para>
+</section>
+<section id="LE68668-PARENT">
+<title id="LE68668-TITLE">The <command>osvis</command> System Visualization
+Tool</title>
+<para>The <command>osvis</command> tool displays a high-level overview
+of performance statistics collected from the PCP infrastructure. The display
+is modulated by the values of performance metrics retrieved from the target
+host or from the PCP archive log identified with the <literal>-a</literal>
+option. <xref linkend="LE78666-TITLE"> shows a sample <command>osvis</command> <interface>
+High-Level Activity for Host <replaceable>host</replaceable></interface>
+display.<indexterm id="ITch05-10"><primary>osvis tool</primary><secondary>
+description</secondary></indexterm></para>
+<figure width="wide">
+<graphic entityref="a12212" magnification="92" scale="NO"></graphic>
+<title id="LE78666-TITLE"><command>osvis</command> <interface>High-Level
+Activity </interface> Window</title>
+</figure>
+<para>As in all <command>pmview</command> scenes, when the mouse is moved
+over one of the bars, the current value and metric information for that
+bar are shown in the text box near the top of the display. The height
+and color of the bars is proportional to the performance metric values
+relative to the maximum expected activity.</para>
+<para>The bars in the <command>osvis</command> scene represent the following
+information:</para>
+<deflist>
+<deflistentry>
+<term><interface>Disk</interface></term>
+<listitem><para>The first stack is the rate of disk read and write operations
+aggregated over all disk spindles. The second bar is the average time
+the disks are busy, which approximates average time utilization of all
+disks.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Load</interface></term>
+<listitem><para>The three bars represent average load for the past 1,
+5, and 15 minutes, normalized by twice the number of CPUs on the machine.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Mem</interface></term>
+<listitem><para>The stack shows memory utilization by breaking down real
+memory into kernel, file system, and user usage. </para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>CPU</interface></term>
+<listitem><para>This bar shows CPU utilization, aggregated over all CPUs.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Disk Controllers</interface></term>
+<listitem><para>The average time the disks were busy on each disk controller,
+which approximates the average time utilization of all disks on each controller.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Network Input</interface></term>
+<listitem><para>The first two rows of bars show the input byte rate and
+the input packet rate for each network interface, except loopback and
+slip interfaces.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Network Output</interface></term>
+<listitem><para>The first two rows of bars show the output byte rate and
+the packet rate for each network interface, except loopback and slip interfaces.
+</para>
+</listitem></deflistentry>
+</deflist>
+</section>&oview-tool.sgml;
+<section id="LE64082-PARENT">
+<title id="LE64082-TITLE">The <command>nfsvis</command> NFS Activity Visualization
+Tool</title>
+<para><indexterm id="ITch05-13"><primary>nfsvis tool</primary><secondary>
+description</secondary></indexterm><indexterm id="ITch05-14"><primary>
+NFS</primary></indexterm>The <command>nfsvis</command> tool is a graphical
+NFS (Network File System) activity viewer, displaying a bar chart that
+shows NFS request activity on the monitored system. NFS is optional software,
+and may not be present on all systems or at all sites.</para>
+<para>When you run the <command>nfsvis</command> command, you see a bar
+chart displaying NFS load on the monitored system. You see a <interface>
+NFS Client V2 &amp; Server V2 Request Traffic for host <replaceable>host
+</replaceable></interface> window similar to the one shown in <xref linkend="LE28772-TITLE">.
+</para>
+<figure width="wide">
+<graphic entityref="a12213" scale="NO"></graphic>
+<title id="LE28772-TITLE"><command>nfsvis</command> <interface>NFS Client
+V2 &amp; Server V2 Request Traffic</interface> Window</title>
+</figure>
+<para>The statistics are broken into two groups:<deflist id="Z926978757sdc">
+<deflistentry>
+<term><interface>Client</interface></term>
+<listitem><para>Requests made by the monitored machine to NFS servers
+on other machines</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Server</interface></term>
+<listitem><para>Requests from other machines for the NFS server on the
+machine being monitored</para>
+</listitem></deflistentry>
+</deflist>The statistics in each of these two groups are the same, except
+that the client group is for outgoing requests and the server group is
+for incoming requests. Within each group, the requests are further broken
+down into three categories:</para>
+<itemizedlist>
+<listitem><para>Requests relating to data within files</para>
+</listitem>
+<listitem><para>Requests for directory operations (for example, to rename
+a file)</para>
+</listitem>
+<listitem><para>Requests involving other attributes of files</para>
+</listitem></itemizedlist>
+<para>The <command>nfsvis</command> implementation uses the generalized
+3D performance viewer <command>pmview</command> as described in <xref
+linkend="LE21680-TITLE">. Hence, the command line options for <command>
+nfsvis</command> include the common ones for <command>pmview</command>.
+</para>
+<para><indexterm><primary>PCP Tutorial</primary><secondary>nfsvis tool
+</secondary></indexterm>Complete information on the <command>nfsvis</command>
+command is available in the <command sectionref="1">nfsvis</command> man
+page. The <citetitle>PCP Tutorial</citetitle> contains additional examples
+on the use of <command>nfsvis</command>.</para>
+</section>
+<section id="Z979232675sdc">
+<title>The <command>mpivis</command> MPI Function Activity Visualization
+Tool</title>
+<para><indexterm><primary>mpivis tool</primary><secondary>description
+</secondary></indexterm>The <command>mpivis</command> tool displays a
+3D bar chart for the rate of elapsed  time used by a particular set of
+MPI functions for an MPI application. <xref linkend="Z979942892sdc"> shows
+a sample <command>mpivis</command> MPI Activity for ASH <replaceable>
+ash</replaceable> on Host <replaceable>host</replaceable> display.</para>
+<figure id="Z979942578sdc">
+<graphic entityref="mpivis"></graphic>
+<title id="Z979942892sdc">mpivis MPI Activity Window</title>
+</figure>
+<para>This <command>mpivis</command> display was produced with the following
+control file:</para>
+<programlisting># label     MPI function  color
+#
+send        MPI_Send      blue
+recv        MPI_Recv      orange
+bcast       MPI_Bcast     burlywood
+barrier     MPI_Barrier   violet
+allreduce   MPI_Allreduce turquoise
+
+</programlisting>
+<para>From <xref linkend="Z979942892sdc">, you can see that the MPI application
+has 4 ranks and that the <interface>MPI_Allreduce</interface> and <interface>
+MPI_Barrier</interface> functions have recently consumed some time, as
+opposed to <interface>MPI_Bcast</interface>, <interface>MPI_Recv</interface>,
+and <interface>MPI_Send</interface>. The <interface>other</interface>
+category, which is always yellow, shows that some other MPI functions
+are also active. Ranks 0 and 1 have consumed about half as much time in <interface>
+MPI_Allreduce</interface> and <interface>MPI_Barrier</interface> than
+ranks 2 and 3. The chart prisms of ranks 2 and 3 of <interface>MPI_Barrier
+</interface> have turned white. This indicates that they have surpassed
+the maximum default value of 300 milliseconds per second.</para>
+<para>The <interface>state</interface> row of cylinders at the back does
+not grow; its color changes to indicate the currently executing MPI function
+at the last update of the metrics. In <xref linkend="Z979942892sdc">,
+the state is green, which is a reserved color for applications.</para>
+</section>
+<section id="Z979244628sdc">
+<title>The <command>weblogvis</command> Visualization Tool</title>
+<para>The <command>weblogvis</command> tool displays a 3D bar chart of
+data extracted from Web-server log files.</para>
+<para>  For each server, <command>weblogvis</command> displays idle time,
+total activity, and the activity classified by the size of the resultant
+request. The activity is, by default, the request rate (requests per second)
+as shown in <xref linkend="Z979943865sdc">, but optionally a data rate
+(bytes per second) can be requested as shown in <xref linkend="Z979944518sdc">.
+If the server logs report caching statistics, the bar displays are shown
+as a stack of values representing cached and non-cached results.  Two
+examples of suitable caching log files are the Netscape common extended
+log format and the Squid default log file format.</para>
+<figure id="Z979943716sdc">
+<graphic entityref="figure5x"></graphic>
+<title id="Z979943865sdc"><command>weblogvis</command> Display of Request
+Rate Classified by Request Size</title>
+</figure>
+<para><xref linkend="Z979943865sdc"> shows a host with four servers, one
+without cache statistics, two using the common extended log format, and
+one Squid server. The scene is comprised of three objects:</para>
+<deflist>
+<deflistentry>
+<term>Idle time per server</term>
+<listitem><para>This is a single-value bar representing the number of
+seconds           that the log file has been unaltered.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>Total activity rates per server</term>
+<listitem><para>For servers that report extended statistics (<interface>
+local1</interface>, <interface>proxy1</interface>, and <interface>squid1
+</interface>), the total is composed of three stacked values representing
+the activity rates satisfied by the browser cache (yellow), by the proxy
+cache (blue) or by a remote server (red). For server logs without the
+extended data (<interface>cern1</interface>), the single value (red) represents
+the total activity rate.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>Activity rates per server classified by request size</term>
+<listitem><para>For servers that report extended statistics, each bar
+is composed of two stacked values, representing the activity rates for
+that request size, that are satisfied by the proxy cache (blue) or by
+a remote server (color coded based on the request size). For server logs
+without the extended data, the single color&ndash;coded value represents
+the activity rate for that request size.</para>
+</listitem></deflistentry>
+</deflist>
+<para><xref linkend="Z979944518sdc"> shows the same host with an alternate
+type of display. It shows the activity rates classified by the request
+type instead of the request size.</para>
+<figure id="Z979944365sdc">
+<graphic entityref="figure5y"></graphic>
+<title id="Z979944518sdc"><command>weblogvis</command> Display Request
+Rate Classified by Request Type</title>
+</figure>
+</section>
+<section id="LE21680-PARENT">
+<title id="LE21680-TITLE">The <command>pmview</command> Tool</title>
+<para><indexterm id="ITch05-18"><primary>pmview tool</primary><secondary>
+usage</secondary></indexterm><indexterm><primary>Open Inventor</primary>
+</indexterm><indexterm><primary>pmview tool</primary><secondary>related
+tools</secondary></indexterm><indexterm><primary>dkvis tool</primary>
+<secondary>pmview tool</secondary></indexterm><indexterm><primary>osvis
+tool</primary><secondary>pmview tool</secondary></indexterm><indexterm>
+<primary>nfsvis tool</primary><secondary>pmview tool</secondary></indexterm><indexterm>
+<primary>nodevis tool</primary></indexterm><indexterm><primary>procvis
+tool</primary></indexterm><indexterm><primary>routervis tool</primary>
+<secondary>pmview tool</secondary></indexterm><indexterm><primary>txmonvis
+tool</primary></indexterm><indexterm><primary>xbowvis tool</primary><secondary>
+pmview tool</secondary></indexterm><indexterm><primary>mpvis tool</primary>
+<secondary>pmview tool</secondary></indexterm><indexterm><primary>mpivis
+tool</primary><secondary>pmview tool</secondary></indexterm><indexterm>
+<primary>arrayvis tool</primary></indexterm><indexterm><primary>clustervis
+tool</primary></indexterm>The <command>pmview</command> tool is a generalized
+3D Open Inventor application that supports dynamic displays of clusters
+of related performance metrics as utilization blocks (or towers) on a
+common base plane. The <command>pmview</command> tool is the basis for <command>
+dkvis</command>, <command>mpvis</command>, <command>osvis</command>, <command>
+nfsvis</command>, <command>mpivis</command>, and <command>weblogvis</command>
+all discussed in this chapter, as well as <command>arrayvis</command>, <command>
+clustervis</command>, <command>nodevis</command>, <command>procvis</command>, <command>
+routervis</command>, <command>txmonvis</command>,  <command>webpingvis
+</command>, <command>webvis</command>, and <command>xbowvis</command>.
+The <command>pmview</command> tool may also be used to construct customized
+3D performance displays.</para>
+<para>A closely related tool to pmview is <command>pmview+</command>.
+It has the same capabilities as <command>pmview</command>, as well as
+the support for showing interconnects between the bases of <command>pmview
+</command> grids. It supports <command>oview</command> in its display
+of SGI SN-IA servers. </para>
+<para><indexterm id="ITch05-19"><primary>Open Inventor</primary></indexterm><indexterm>
+<primary>inventor_eoe.sw product image</primary></indexterm>Open Inventor
+is an object-oriented toolkit that simplifies and abstracts the task of
+writing graphics applications into a set of easy-to-use objects.</para>
+<para>The <command>pmview</command> command displays performance metrics
+as colored blocks arranged in a grid on a grey base plane. The height
+of each block changes as the value of its corresponding metric (or metric
+instance) changes. Labels may be added to the scene to help identify groups
+of metrics, as shown in <xref linkend="LE58362-TITLE">, <xref linkend="LE14959-TITLE">, <xref
+linkend="LE78666-TITLE">, and <xref linkend="LE28772-TITLE">.</para>
+<para>A configuration file is used to specify the position, color, and
+scale of metrics and metric instances in the scene. Metric values that
+exceed the associated scaling factor are displayed at the maximum height
+and change color to white. If a metric is unavailable, the bar height
+is minimized, and the bar color changes to grey.</para>
+<para><indexterm><primary>PMCD</primary><secondary>other Internet hosts
+</secondary></indexterm>Normally, <command>pmview</command> operates in
+live mode where performance metrics are fetched in real time. The user
+can view metrics from other accessible Internet hosts that are running
+the PCP collector daemon, <literal>pmcd</literal>. The <command>pmview
+</command> tool can also replay archives of performance metrics collected
+by <command>pmlogger</command>.</para>
+<para>All metrics in the PMNS with numeric value semantics from multiple
+hosts or archives may be visualized. The <command>pmview</command> tool
+examines the semantics of the metrics and, where sensible, converts the
+fetched metric values to a rate before scaling.</para>
+<para>The <command>pmview</command> tool window contains a menu bar, time
+and scale controls, metric and time values, and an <firstterm>examiner
+</firstterm> window; see the <command>ivview</command> command, which
+displays the 3D scene.</para>
+<para>The left, right, and bottom edges of the examiner viewer window
+contain a variety of thumb wheels and buttons that allow the user to adjust
+the visualization of the 3D scene. The <interface>Rotx</interface> and <interface>
+Roty</interface> thumb wheels allow the user to rotate the scene about
+the X and Y axes, respectively. The <interface>Dolly</interface> thumb
+wheel moves the virtual camera closer to or further from the scene, allowing
+the user to examine specific parts in detail or view the entire scene.
+</para>
+<para>On the right edge of the viewer are eight buttons that affect the
+way the user can interact with the scene:</para>
+<itemizedlist>
+<listitem><para>The <interface>pointer</interface> button changes the
+cursor to a pointer that allows blocks in the scene to be selected. The <keycap>
+Esc</keycap> key can also be used to toggle between the pointer and hand
+cursors.</para>
+</listitem>
+<listitem><para>The <interface>hand</interface> button changes the cursor
+to a hand that can be used to rotate, translate, and examine the scene
+via <interface>Dolly</interface>, using a combination of mouse buttons
+and movement.</para>
+<para>The left mouse button can be used to rotate the scene in the direction
+of the mouse. Releasing the mouse button before the mouse has stopped
+moving causes the scene to continue rotating until a mouse button is pressed
+again.</para>
+<para>The middle mouse button can be used to pan the scene. By pressing
+both left and middle buttons, the mouse can be used as a virtual camera.
+</para>
+</listitem>
+<listitem><para><indexterm><primary>inst command</primary></indexterm><indexterm>
+<primary>inventor_eoe.sw.help package</primary></indexterm><indexterm>
+<primary>release notes</primary></indexterm>The <interface>question mark
+</interface> button displays <interface>SGI Help</interface> for the examiner
+viewer.  See the Performance Co-Pilot release notes for more information
+on prerequisite subsystems.</para>
+</listitem>
+<listitem><para>The <interface>home</interface> button changes the scene
+back to its original position, or the position set by the <literal>home
+pointer</literal> button.</para>
+</listitem>
+<listitem><para>The <interface>home pointer</interface> button sets the
+new home position of the scene to be the scene currently in view.</para>
+</listitem>
+<listitem><para>The <interface>eye</interface> button resizes the scene
+so that it completely fits into the 3D viewing area.</para>
+</listitem>
+<listitem><para>The <interface>cross-hairs</interface> button moves the
+scene so that the object under the cursor is in the center of the viewing
+area. Change the hand cursor and press the <interface>cross-hairs</interface>
+button. The cursor changes to a target. Select the block to be centered
+and the scene rotates and translates appropriately.</para>
+</listitem>
+<listitem><para>The <interface>perspective box</interface> button switches
+between perspective and orthogonal projections.</para>
+</listitem></itemizedlist>
+<para>Pressing the right mouse button within the scene displays a menu
+of options that affect how the 3D scene is drawn. The options include
+drawing the blocks as wireframes and turning on stereo viewing.</para>
+<para>When the pointer cursor is active, more information about the 3D
+scene can be obtained. Text describing the metric represented by the block
+beneath the cursor displays in the top text box of the <command>pmview
+</command> window. This text displays the source, name, and instance of
+the performance metric, and the value, units, and percentage of the expected
+minimum the value represents.</para>
+<para>Clicking the left mouse button on a block highlights the block with
+a red wireframe, as shown in <xref linkend="LE22436-TITLE">. The metric
+description text box is now fixed on that metric and the values continue
+to be updated as new metrics are fetched. This allows other actions to
+be performed with the mouse while examining a single metric in detail
+at the same time. Click the left mouse button on the space surrounding
+the scene to remove the selection.</para>
+<figure width="wide">
+<graphic entityref="a12215" scale="NO"></graphic>
+<title id="LE22436-TITLE"><command>pmview</command> Window with a Block
+Selected</title>
+</figure>
+<para>Multiple blocks may also be selected by either Shift clicking with
+the left mouse button or by clicking on a base plane. Shift clicking toggles
+the selection status of a particular block and leaves the selection status
+of other blocks unaltered. Clicking on the base plane selects all blocks
+belonging to the base plane. Whenever multiple blocks are selected, no
+accompanying text is displayed in the text box. However, multiple block
+selection affects the launching of other tools because all metrics on
+the base plane are considered to be selected as a group.</para>
+<section>
+<title><command>pmview</command> Menus</title>
+<para><indexterm><primary>pmview tool</primary><secondary>menus</secondary>
+</indexterm>There are four menus in <command>pmview</command> tools: <deflist
+id="Z927235076sdc">
+<deflistentry>
+<term><interface>File</interface></term>
+<listitem><para><indexterm><primary>File menu</primary></indexterm>Records,
+saves, and prints scenes</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Options</interface></term>
+<listitem><para><indexterm><primary>Options menu</primary></indexterm>Accesses
+the time controls</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Launch</interface></term>
+<listitem><para><indexterm><primary>Launch menu</primary></indexterm>Starts
+other tools</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><interface>Help</interface></term>
+<listitem><para><indexterm><primary>Help menu</primary></indexterm>Obtains
+online help</para>
+</listitem></deflistentry>
+</deflist></para>
+<para>The <interface>Launch</interface> menu consists of a list of tools
+that operate on the current selection of metrics. How the tool is invoked
+depends on the type of tool. Tools that operate on any metric (such as <command>
+pmchart</command>, <command>pmval</command>, and <command>pmdumptext</command>)
+use the metrics selected directly as input. Thus <command>pmchart</command>
+displays all the selected metrics in a chart, <command>pmval</command>
+is invoked within <literal>winterm</literal> for each metric, and <command>
+pmdumptext</command> displays multiple metrics in one <literal>winterm
+</literal>. Other tools use what metrics are pertinent. If no metric is
+pertinent or selected, only the source of the metrics is used, that is,
+the monitored host or archive. For each <interface>Launch</interface>
+menu item there is an associated launch script. The launch scripts generally
+know the relationship between routers, nodes, and CPUs. Thus if CPUs are
+selected in <command>mpvis</command> and if <command>nodevis</command>
+is launched, only the nodes that have the selected CPUs attached are displayed.
+</para>
+<para>Some launchable tools are listed below:</para>
+<deflist>
+<deflistentry>
+<term><command>dkvis</command>, <command>mpvis</command>, <command>nfsvis
+</command>, and <command>osvis</command> </term>
+<listitem><para><indexterm><primary>mpvis tool</primary><secondary>Launch
+menu</secondary></indexterm><indexterm><primary>nfsvis tool</primary>
+<secondary>Launch menu</secondary></indexterm><indexterm><primary>osvis
+tool</primary><secondary>Launch menu</secondary></indexterm><command>
+pmview</command>-based tools for visualizing disk activity, CPUs, NFS,
+and the OS (operating system).</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><command>pcp</command></term>
+<listitem><para><indexterm><primary>pcp tool</primary></indexterm>Brings
+up a window that summarizes the PCP installation.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><command>pmdumptext</command></term>
+<listitem><para><indexterm><primary>pmdumptext tool</primary><secondary>
+Launch menu</secondary></indexterm>Brings up a window that shows the performance
+metrics as text.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><command>pmchart</command></term>
+<listitem><para><indexterm><primary>pmchart tool</primary><secondary>
+Launch menu</secondary></indexterm>A tool for graphically displaying and
+correlating time-series trends of performance metrics. See <xref linkend="LE45976-PARENT">,
+for details.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><command>pmgsys</command></term>
+<listitem><para><indexterm><primary>pmgsys tool</primary><secondary>Launch
+menu</secondary></indexterm>A miniature Linux performance metrics viewer,
+available only in live mode, not in archive mode.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>pmkstat</literal></term>
+<listitem><para><indexterm><primary>pmkstat tool</primary><secondary>
+Launch menu</secondary></indexterm>A text-based tool that displays, at
+intervals, a high-level summary of system performance.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><command>pmval</command></term>
+<listitem><para><indexterm><primary>pmval tool</primary><secondary>Launch
+menu</secondary></indexterm>A tool that displays the values of performance
+metrics textually. Only one metric (with one or more instances) may be
+selected to successfully launch this tool. See <xref linkend="LE35315-PARENT">,
+for details.</para>
+</listitem></deflistentry>
+</deflist>
+<para>In addition to the menu options for time controls, the current direction
+and mode of the time controls is shown in a button in the top-left corner
+of the <command>pmview</command> window (refer to <xref linkend="LE76997-TITLE">
+for a complete description of the time control services). Pressing this
+button displays the time control dialog.</para>
+<para>Below this button is a thumb wheel and an editable text box to specify
+a scale multiplier that is applied to all values in the scene. Spinning
+the thumb wheel to the right, or incrementing the value in the text field,
+increases the scaling and raises the height of the bars. Conversely, spinning
+the thumb wheel to the left or decrementing the text field decreases the
+scaling and lowers the height of the bars.</para>
+<para>The button beside the thumb wheel resets the scale to one. This
+is especially useful when the scale specified in the configuration file
+reduces the usefulness of the visualization as a consequence of the bars
+being either too low or beyond the maximum scale height.</para>
+</section>
+<section>
+<title>Creating Custom Visualization Tools with <command>pmview</command></title>
+<para><indexterm id="ITch05-22"><primary>pmview tool</primary><secondary>
+custom tools</secondary></indexterm>At startup time, a configuration file
+is read that specifies the following:</para>
+<itemizedlist>
+<listitem><para>Geometry for the scene to be displayed by <command>pmview
+</command></para>
+</listitem>
+<listitem><para>Associations between the visual appearance of &ldquo;blocks&rdquo;
+and performance metrics</para>
+</listitem></itemizedlist>
+<para>The scene is based on a grid that can contain a variety of objects
+and can resize itself to accommodate objects of varying sizes. To distinguish
+this configuration file format from an earlier (still supported) format,
+configuration files must begin with the following line:</para>
+<literallayout>pmview Version 2.1 </literallayout>
+<para>All lines beginning with a # character are treated as comments and
+ignored. Spaces, tabs, and newlines are treated as white space to allow
+multiple statements on the same line. The simplest configuration file
+consists of a single object that may represent one or more metrics and
+metric instances.</para>
+<para>The configuration file consists of two sections: global parameters
+and color lists, and the object definitions. The global parameters control
+the size of the objects in the scene. For example, a scaling factor of
+1.2 can be applied to all objects with the following line:</para>
+<literallayout>_scale 1.2</literallayout>
+<para>Groups of colors may be associated with a name and referenced later
+in the file. Colors may be <literal>X(1)</literal> color names, <literal>
+X(1)</literal> numerical colors, or three real values representing the
+saturation of red, green, and blue, respectively. The following color
+list contains three identical colors:</para>
+<literallayout>_colorlist cpu ( red rgbi:1.0/0.0/0.0 1.0 0.0 0.0 )</literallayout>
+<para><indexterm><primary>mpvis tool</primary><secondary> configuration
+file</secondary></indexterm>The <literal>mpvis</literal> configuration
+file (which can be generated with the <literal>-V</literal> option) looks
+like <xref linkend="Z984184672sdc">:</para>
+<example id="Z929140690sdc"><title id="Z984184672sdc"><literal>mpvis</literal>
+Configuration File </title>
+<literallayout width="wide">pmview Version 2.1 "mpvis" "-V" "-C"
+#
+# mpvis
+#
+# ncpus = 1
+# nrows = 1
+# ncols = 1
+#
+# List:
+# cpu0
+_gridSpace 120
+
+_colorlist cpu ( green2 cyan2 yellow2 red2 blue2 )
+_grid 0 0 _hide ( # outer grid
+        _baseLabel "SGI PCP : CPU Utilization for Host ha1.melbourne.sgi.com\ncpu0 only"
+        _bar _groupByInst (
+            _metrics (
+                kernel.percpu.cpu.idle[cpu0]        1000 "idle"
+                kernel.percpu.cpu.wait.total[cpu0]  1000 "wait"
+                kernel.percpu.cpu.intr[cpu0]        1000 "intr"
+                kernel.percpu.cpu.sys[cpu0]         1000 "sys"
+                kernel.percpu.cpu.user[cpu0]        1000 "user"
+            )
+            _colorlist cpu
+            _baseLabel "SGI PCP : CPU Utilization for Host ha1.melbourne.sgi.com\ncpu0 only"
+        )
+)</literallayout>
+</example>
+<para><indexterm><primary>_grid gadget</primary></indexterm><indexterm>
+<primary>_bar gadget</primary></indexterm>Multiple objects can be visualized
+using a <literal>_grid</literal> object, which may contain multiple objects
+(including more <literal>_grid</literal> objects). The <literal>_grid
+</literal> object resizes columns and rows to accommodate the largest
+contained object. Objects can occupy multiple grid squares and can be
+aligned with a particular edge or corner of a grid square. The <literal>
+_bar</literal> object has a single bar for each metric instance and labels
+for each metric. The scale height for each metric instance is 1000 in
+the units of the metric (milliseconds utilization per second).</para>
+<para>The specification file shown in <xref linkend="Z984413690sdc"> produces
+a scene like the one shown in <xref linkend="LE50462-TITLE">. The file
+has a grid, labels, bars, and a stack utilization object.</para>
+<example id="Z928438471sdc"><title id="Z984413690sdc">Specification File
+for <command>pmview</command></title>
+<literallayout width="wide">pmview Version 2.1
+_colorlist cpu_colors ( blue2 red2 yellow2 cyan2 green2 )
+_colorlist disk_colors ( purple2 yellow2 )
+_colorlist memory_colors ( rgbi:1.0/1.0/0.0 rgbi:0.0/1.0/1.0 rgbi:1.0/0.0/0.0
+                              rgbi:1.0/0.0/1.0 rgbi:0.0/0.0/1.0 rgbi:0.0/1.0/0.0 )
+_grid hide (
+_label 3 1 _west _down _large &ldquo;CPU&rdquo;
+       _stack 4 1 _west _utilmod (
+             _metrics (
+               kernel.all.cpu.user        1000
+               kernel.all.cpu.sys         1000
+               kernel.all.cpu.intr        1000
+               kernel.all.cpu.wait.total  1000
+               kernel.all.cpu.idle        1000
+           )
+           _colorlist cpu_colors
+           _baseLabel &ldquo;CPU Utilization&rdquo;
+       )
+_label 3 3 _west _down _large &ldquo;Load&rdquo;
+       _bar 4 3 2 1 _west (
+           _metrics (
+               kernel.all.load[15]    2
+               kernel.all.load[5]     2
+               kernel.all.load[1]     2
+           )
+           _metriclabels _away ( &ldquo;15&rdquo; &ldquo;5&rdquo; &ldquo;1&rdquo; )
+           _colorlist ( blue2 blue2 blue2 )
+_baseLabel &ldquo;Average System Load over last 1, 5 and 15 minutes\nNormalized to 2&rdquo;
+       )
+_label 0 1 _west _down _large &ldquo;Mem&rdquo;
+         _stack 1 1 _west _utilmod (
+           _metrics (
+               mem.util.kernel        1
+               mem.util.fs_ctl        1
+               mem.util.fs_dirty      1
+               mem.util.fs_clean      1
+               mem.util.user          1
+           )
+           _colorlist memory_colors
+           _baseLabel &ldquo;Physical Memory Utilization&rdquo;
+       )
+       _label 0 3 _down _large &ldquo;Disk&rdquo;
+       _stack 1 3 _west _cylinder (
+           _metrics (
+               disk.all.read          100
+               disk.all.write         100
+           )
+           _colorlist disk_colors
+           _baseLabel &ldquo;Disk Operations\nNormalized to 100 I/Os per second&rdquo;
+        )
+)</literallayout>
+</example>
+<figure width="wide">
+<graphic entityref="a12216" scale="NO"></graphic>
+<title id="LE50462-TITLE">Custom <command>pmview</command> Scene</title>
+</figure>
+<para><indexterm><primary>dkvis tool</primary><secondary>pmview tool</secondary>
+</indexterm><indexterm><primary>mpvis tool</primary><secondary>pmview
+tool</secondary></indexterm><indexterm><primary>nfsvis tool</primary>
+<secondary>pmview tool</secondary></indexterm><indexterm><primary>osvis
+tool</primary><secondary>pmview tool</secondary></indexterm><indexterm>
+<primary>/var/pcp/lib/pmview-args file</primary></indexterm>To assist
+in the creation of front-end tools, a file containing shell procedures
+for generating usage information and parsing <command>pmview</command>
+command line options is located at <filename>/usr/pcp/lib/pmview-args
+</filename>. The <command>dkvis</command>, <command>mpvis</command>, <command>
+nfsvis</command>, and <command>osvis</command> tools are all shell scripts
+that use these shell procedures to generate a configuration file for <command>
+pmview</command>.</para>
+</section>
+</section>
+</chapter>
+<?Pub *0000055333>

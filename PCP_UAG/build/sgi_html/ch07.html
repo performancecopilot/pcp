@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type"><title>Chapter 7. Performance Co-Pilot Deployment Strategies</title><meta name="generator" content="DocBook XSL Stylesheets V1.51.1"><meta name="generator" content="SGI XSL DocBook Customization Stylesheets V1.1"><link rel="home" href="index.html" title="Performance Co-Pilot&#8482; for IA-64 Linux User's and Administrator's
+Guide"><link rel="up" href="index.html" title="Performance Co-Pilot&#8482; for IA-64 Linux User's and Administrator's
+Guide"><link rel="previous" href="ch06.html" title="Chapter 6. Archive Logging"><link rel="next" href="ch08.html" title="Chapter 8. Customizing and Extending PCP Services"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 7. Performance Co-Pilot Deployment Strategies</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ch08.html">Next</a></td></tr></table><hr></div><!--CONTENT_BEGIN--><a name="sgi_start_content"></a><div class="chapter"><div class="titlepage"><div><h2 class="title"><a name="LE83321-PARENT"></a>Chapter 7. Performance Co-Pilot Deployment Strategies</h2></div></div>
+<p><a class="indexterm" name="IG31371888308"></a>Performance
+Co-Pilot (PCP) is a coordinated suite of tools and utilities allowing
+you to monitor performance and make automated judgments and initiate actions
+based on those judgments. PCP is designed to be fully configurable for
+custom implementation and deployed to meet specific needs in a variety
+of operational environments.</p>
+<p>Because each enterprise and site is different and PCP represents
+a new way of visualizing performance information, some discussion of deployment
+strategies is useful.</p>
+<p><a class="indexterm" name="IG31371888309"></a><a class="indexterm" name="IG31371888310"></a>The most common use of performance
+monitoring utilities is a scenario where the PCP tools are executed on
+a workstation (the PCP monitoring system), while the interesting performance
+data is collected on remote systems (PCP collector systems) by a number
+of processes, specifically the Performance Metrics Collection Daemon (PMCD)
+and the associated Performance Metrics Domain Agents (PMDAs). These processes
+can execute on both the monitoring system and one or more collector systems,
+or only on collector systems. However, collector systems are the real
+objects of performance investigations.</p>
+<p>The material in this chapter covers the following areas:</p>
+<div class="itemizedlist"><ul type="disc"><li><p><a href="ch07.html#LE85282-PARENT" title="7.1. Basic Deployment">Section 7.1</a>, presents the spectrum
+of deployment architectures at the highest level.</p>
+</li>
+<li><p><a href="ch07.html#LE69500-PARENT" title="7.2. PCP Collector Deployment">Section 7.2</a>, describes alternative
+deployments for PMCD and the PMDAs.</p>
+</li>
+<li><p><a href="ch07.html#LE56598-PARENT" title="7.3. PCP Archive Logger Deployment">Section 7.3</a>, covers alternative deployments
+for the <tt>pmlogger</tt> tool.</p>
+</li>
+<li><p><a href="ch07.html#LE62310-PARENT" title="7.4. PCP Inference Engine Deployment">Section 7.4</a>, presents the options
+that are available for deploying the <tt>pmie</tt> tool.</p>
+</li>
+</ul></div><p>The options shown in this chapter are merely suggestions. They are
+not comprehensive, and are intended to demonstrate some possible ways
+of deploying the PCP tools for specific network topologies and purposes.
+You are encouraged to use them as the basis for planning your own deployment,
+consistent with your needs.</p>
+<div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE85282-PARENT"></a>7.1. Basic Deployment</h2></div></div>
+<p>In the simplest PCP deployment, one system is configured as both
+a collector and a monitor, as shown in <a href="ch07.html#id5210776" title="Figure 7-1. PCP Deployment for a Single System">Figure 7-1</a>.
+Because the PCP monitor tools make extensive use of visualization, this
+suggests the single system would be configured with a graphics head.</p>
+<div class="figure"><a name="id5210776"></a><p><a name="id5210776"></a><b>Figure 7-1. PCP Deployment for a Single System</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12223.gif" alt="PCP Deployment for a Single System" height="300" width="299"></td></tr></table></div></div><p>However, most PCP deployments involve at least two systems. For
+example, the setup shown in <a href="ch07.html#id5210808" title="Figure 7-2. Basic PCP Deployment for Two Systems">Figure 7-2</a> would be representative
+of many common scenarios.</p>
+<div class="figure"><a name="id5210808"></a><p><a name="id5210808"></a><b>Figure 7-2. Basic PCP Deployment for Two Systems</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12224.gif" alt="Basic PCP Deployment for Two Systems" height="298" width="599"></td></tr></table></div></div><p>But the most common site configuration would include a mixture of
+systems configured as PCP collectors, as PCP monitors, and as both PCP
+monitors and collectors, as shown in <a href="ch07.html#id5210866" title="Figure 7-3. General PCP Deployment for Multiple Systems
+">Figure 7-3</a>.</p>
+<p>With one or more PCP collector systems and one or more PCP monitor
+systems, there are a number of decisions that need to be made regarding
+the deployment of PCP services across multiple hosts. For example, in <a href="ch07.html#id5210866" title="Figure 7-3. General PCP Deployment for Multiple Systems
+">Figure 7-3</a> there are several ways in which both the inference
+engine (<tt>pmie</tt>) and the PCP archive logger (<tt>
+pmlogger</tt>) could be deployed. These options are discussed in
+the following sections of this chapter.</p>
+<div class="figure"><a name="id5210866"></a><p><a name="id5210866"></a><b>Figure 7-3. General PCP Deployment for Multiple Systems
+</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12225.gif" alt="General PCP Deployment for Multiple Systems
+" height="390" width="604"></td></tr></table></div></div><br></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE69500-PARENT"></a>7.2. PCP Collector Deployment</h2></div></div>
+<p><a class="indexterm" name="ITch08-0"></a>Each PCP collector system must have
+an active <tt>pmcd</tt> and, typically, a number of PMDAs installed.
+</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5210938"></a>7.2.1. Principal Server Deployment</h3></div></div>
+<p>The first hosts selected as PCP collector systems are likely to
+provide some class of service deemed to be critical to the information
+processing activities of the enterprise. These hosts include the following:
+</p>
+<div class="itemizedlist"><ul type="disc"><li><p>A server running a DBMS</p>
+</li>
+<li><p>A World Wide Web server for an Internet or Intranet</p>
+</li>
+<li><p>An NFS file server</p>
+</li>
+<li><p>A video server</p>
+</li>
+<li><p>A supercomputing server</p>
+</li>
+<li><p>An infrastructure service provider, for example, print,
+Usenet news, DNS, gateway, firewall, packet router, or mail services</p>
+</li>
+<li><p>A system running a mission-critical application</p>
+</li>
+</ul></div><p>Your objective may be to improve quality of service on a system
+functioning as a server for many clients. You wish to identify and repair
+critical performance bottlenecks and deficiencies in order to maintain
+maximum performance for clients of the server.</p>
+<p>For some of these services, the PCP base product or the PCP add-on
+products provide the necessary collector components. Others would require
+customized PMDA development, as described in the companion <i>
+Performance Co-Pilot Programmer's Guide</i>.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211030"></a>7.2.2. Quality of Service Measurement</h3></div></div>
+<p><a class="indexterm" name="IG31371888311"></a>Applications
+and services with a client-server architecture need to monitor performance
+at both the server side and the client side.</p>
+<p>The arrangement in <a href="ch07.html#id5211102" title="Figure 7-4. PCP Deployment to Measure Client-Server Quality
+of Service">Figure 7-4</a> illustrates one
+way of measuring quality of service for client-server applications.</p>
+<div class="figure"><a name="id5211102"></a><p><a name="id5211102"></a><b>Figure 7-4. PCP Deployment to Measure Client-Server Quality
+of Service</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12226.gif" alt="PCP Deployment to Measure Client-Server Quality
+of Service" height="451" width="592"></td></tr></table></div></div><p>The configuration of the PCP collector components on the Application
+Server System is standard. The new facility is the deployment of some
+PCP collector components on the Application Client System; this uses a
+customized PMDA and a generalization of the ICMP &#8220;ping&#8221; tool
+as follows:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>The <tt>Client App</tt> is specially developed
+to periodically make typical requests of the <tt>App Server</tt>,
+and to measure the response time for these requests (this is an application-specific &#8220;ping&#8221;).
+</p>
+</li>
+<li><p>The PMDA on the Application Client System captures the
+response time measurements from the <tt>Client App</tt> and
+exports these into the PCP framework.</p>
+</li>
+</ul></div><p>At the PCP monitor system, the performance of the system running
+the <tt>App Server</tt> and the end-user quality of service
+measurements from the system where the <tt>Client App</tt> is
+running can be monitored concurrently.</p>
+<p>PCP add-on products implement a number of examples of this architecture,
+including the <tt>shping</tt> PMDA for IP-based services and
+the <tt>webping</tt> PMDA for Web servers.</p>
+<p>For each of these PMDAs, the full source code is distributed with
+the associated PCP product to encourage adaptation of the agents to the
+local application environment.</p>
+<p>It is possible to exploit this arrangement even further, with these
+methods:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>Creating new instances of the <tt>Client App</tt>
+and PMDA to measure service quality for your own mission-critical services.
+</p>
+</li>
+<li><p>Deploying the <tt>Client App</tt> and associated
+PCP collector components in a number of strategic hosts allows the quality
+of service over the enterprise's network to be monitored. For example,
+service can be monitored on the Application Server System, on the same
+LAN segment as the Application Server System, on the other side of a firewall
+system, or out in the WAN.</p>
+</li>
+</ul></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE56598-PARENT"></a>7.3. PCP Archive Logger Deployment</h2></div></div>
+<p><a class="indexterm" name="ITch08-3"></a>PCP archive logs are created
+by the <tt>pmlogger</tt> utility, as discussed in <a href="ch06.html" title="Chapter 6. Archive Logging">Chapter 6, &#8220;Archive Logging&#8221;</a>.
+They provide a critical capability to perform retrospective performance
+analysis, for example, to detect performance regressions, for problem
+analysis, or to support capacity planning. The following sections discuss
+the options and trade-offs for <tt>pmlogger</tt> deployment.
+</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211332"></a>7.3.1. Deployment Options</h3></div></div>
+<p>The issue is relatively simple and reduces to &#8220;On which host(s)
+should <tt>pmlogger</tt> be running?&#8221; The options are
+these:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>Run <tt>pmlogger</tt> on each PCP collector
+system to capture local performance data.</p>
+</li>
+<li><p>Run <tt>pmlogger</tt> on some of the PCP monitor
+systems to capture performance data from remote PCP collector systems.
+</p>
+</li>
+<li><p>As an extension of the previous option, designate one
+system to act as the PCP archive site to run all <tt>pmlogger</tt>
+instances. This arrangement is shown in <a href="ch07.html#id5211413" title="Figure 7-5. Designated PCP Archive Site">Figure 7-5</a>.
+</p>
+<div class="figure"><a name="id5211413"></a><p><a name="id5211413"></a><b>Figure 7-5. Designated PCP Archive Site</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12227.gif" alt="Designated PCP Archive Site" height="370" width="597"></td></tr></table></div></div><br></li>
+</ul></div></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211434"></a>7.3.2. Resource Demands for the Deployment Options</h3></div></div>
+<p>The <tt>pmlogger</tt> process is very lightweight in terms
+of computational demand; so most of the (small) CPU cost associated with
+extracting performance metrics at the PCP collector system involves PMCD
+and the PMDAs, which are independent of the host on which <tt>pmlogger
+</tt> is running.</p>
+<p>A local <tt>pmlogger</tt> consumes disk bandwidth and
+disk space on the PCP collector system. A remote <tt>pmlogger</tt>
+consumes disk space on the site where it is running and network bandwidth
+between that host and the PCP collector host.</p>
+<p>The archive logs typically grow at the rate of between 500 kilobytes
+(KB) and 10 megabytes (MB) per day, depending on how many performance
+metrics are logged and the choice of sampling frequencies. There are some
+advantages in minimizing the number of hosts over which the disk resources
+for PCP archive logs must be allocated; however, the aggregate requirement
+is independent of where the <tt>pmlogger</tt> instances are
+running.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211489"></a>7.3.3. Operational Management</h3></div></div>
+<p>There is an initial administrative cost associated with configuring
+each <tt>pmlogger</tt> instance, and an ongoing administrative
+investment to monitor these configurations, perform regular housekeeping
+(such as rotation, compression, and culling of PCP archive log files),
+and execute periodic tasks to process the archives (such as nightly performance
+regression checking with <tt>pmie</tt>).</p>
+<p>Many of these tasks are handled by the supplied <tt>pmlogger
+</tt> administrative tools and scripts, as described in <a href="ch06.html#LE92914-PARENT" title="6.2.3. Archive Log File Management">Section 6.2.3</a><a href="ch06.html#LE92914-PARENT"> in Chapter 6</a>.
+However, the necessity and importance of these tasks favor a centralized <tt>
+pmlogger</tt> deployment, as shown in <a href="ch07.html#id5211413" title="Figure 7-5. Designated PCP Archive Site">Figure 7-5</a>.
+</p>
+<div class="note"><hr noshade="noshade"><table border="0"><tr><td align="center" valign="top" width="25"><img src="figures/note.png" height="24" width="24"></td><td align="left" valign="top"><b>Note: </b>The <tt>pmlogger</tt> utility is not subject to
+any PCP license restrictions, and may be installed and used on any host.
+
+</td></tr></table><hr noshade="noshade"></div><br></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211573"></a>7.3.4. Exporting PCP Archive Logs</h3></div></div>
+<p><a class="indexterm" name="IG31371888312"></a>Collecting PCP archive logs is of little value unless the
+logs are processed as part of the ongoing performance monitoring and management
+functions. This processing typically involves the use of the tools on
+a PCP monitor system, and hence the archive logs may need to be read on
+a host different from the one they were created on.</p>
+<p>NFS mounting is obviously an option, but the PCP tools support random
+access and both forward and backward temporal motion within an archive
+log. If an archive is to be subjected to intensive and interactive processing,
+it may be more efficient to copy the files of the archive log to the PCP
+monitor system first.</p>
+<div class="note"><hr noshade="noshade"><table border="0"><tr><td align="center" valign="top" width="25"><img src="figures/note.png" height="24" width="24"></td><td align="left" valign="top"><b>Note: </b>Each PCP archive log consists of at least three separate files
+(see <a href="ch06.html#LE92914-PARENT" title="6.2.3. Archive Log File Management">Section 6.2.3</a><a href="ch06.html#LE92914-PARENT"> in Chapter 6</a> for details). You must have concurrent
+access to all of these files before a PCP tool is able to process an archive
+log correctly.
+</td></tr></table><hr noshade="noshade"></div><br></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="LE62310-PARENT"></a>7.4. PCP Inference Engine Deployment</h2></div></div>
+<p>The <tt>pmie</tt> utility supports automated reasoning
+about system performance, as discussed in <a href="ch05.html" title="Chapter 5. Performance Metrics Inference Engine">Chapter 5, &#8220;Performance Metrics Inference Engine&#8221;</a>,
+and plays a key role in monitoring system performance for both real-time
+and retrospective analysis, with the performance data being retrieved
+respectively from a PCP collector system and a PCP archive log.</p>
+<p>The following sections discuss the options and trade-offs for <tt>
+pmie</tt> deployment.</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211669"></a>7.4.1. Deployment Options</h3></div></div>
+<p>The issue is relatively simple and reduces to &#8220;On which host(s)
+should <tt>pmie</tt> be running?&#8221; You must consider both
+real-time and retrospective uses, and the options are as follows:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>For real-time analysis, run <tt>pmie</tt> on
+each PCP collector system to monitor local system performance.</p>
+</li>
+<li><p>For real-time analysis, run <tt>pmie</tt> on
+some of the PCP monitor systems to monitor the performance of remote PCP
+collector systems.</p>
+</li>
+<li><p>For retrospective analysis, run <tt>pmie</tt>
+on the systems where the PCP archive logs reside. The problem then reduces
+to <tt>pmlogger</tt> deployment as discussed in <a href="ch07.html#LE56598-PARENT" title="7.3. PCP Archive Logger Deployment">Section 7.3</a>.
+</p>
+</li>
+<li><p>As an example of the &#8220;distributed management with
+centralized control&#8221; philosophy, designate some system to act as
+the PCP Management Site to run all <tt>pmlogger</tt> and <tt>
+pmie</tt> instances. This arrangement is shown in <a href="ch07.html#id5211805" title="Figure 7-6. PCP Management Site Deployment">Figure 7-6</a>.
+</p>
+</li>
+</ul></div><p>One <tt>pmie</tt> instance is capable of monitoring multiple
+PCP collector systems; for example, to evaluate some universal rules that
+apply to all hosts. At the same time a single PCP collector system may
+be monitored by multiple <tt>pmie</tt> instances; for example,
+for site-specific and universal rule evaluation, or to support both tactical
+performance management (operations) and strategic performance management
+(capacity planning). Both situations are depicted in <a href="ch07.html#id5211805" title="Figure 7-6. PCP Management Site Deployment">Figure 7-6</a>.
+</p>
+<div class="figure"><a name="id5211805"></a><p><a name="id5211805"></a><b>Figure 7-6. PCP Management Site Deployment</b></p>
+<div class="mediaobject"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0"><tr><td><img src="figures/a12228.gif" alt="PCP Management Site Deployment" height="570" width="597"></td></tr></table></div></div><br></div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211825"></a>7.4.2. Resource Demands for the Deployment Options</h3></div></div>
+<p>Depending on the complexity of the rule sets, the number of hosts
+being monitored, and the evaluation frequency, <tt>pmie</tt>
+may consume CPU cycles significantly above the resources required to simply
+fetch the values of the performance metrics. If this becomes significant,
+then real-time deployment of <tt>pmie</tt> away from the PCP
+collector systems should be considered in order to avoid the &#8220;you're
+part of the problem, not the solution&#8221; scenario in terms of CPU
+utilization on a heavily loaded server.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5211850"></a>7.4.3. Operational Management</h3></div></div>
+<p>An initial administrative cost is associated with configuring each <tt>
+pmie</tt> instance, particularly in the development of the rule sets
+that accurately capture and classify &#8220;good&#8221; versus &#8220;bad&#8221;
+performance in your environment. These rule sets almost always involve
+some site-specific knowledge, particularly in respect to the &#8220;normal&#8221;
+levels of activity and resource consumption. The <tt>pmieconf</tt>
+tool (see <a href="ch05.html#Z927039566sdc" title="5.7. Creating pmie Rules with 
+pmieconf">Section 5.7</a><a href="ch05.html#Z927039566sdc"> in Chapter 5</a>) may be used to help develop
+localized rules based upon parameterized templates covering many common
+performance scenarios. In complex environments, customizing these rules
+may occur over an extended period and require considerable performance
+analysis insight.</p>
+<p>One of the functions of <tt>pmie</tt> provides for continual
+detection of adverse performance and the automatic generation of alarms
+(visible, audible, e-mail, pager, and so on). Uncontrolled deployment
+of this alarm initiating capability throughout the enterprise may cause
+havoc.</p>
+<p>These considerations favor a centralized <tt>pmie</tt>
+deployment at a small number of PCP monitor sites, or in a PCP Management
+Site as shown in <a href="ch07.html#id5211805" title="Figure 7-6. PCP Management Site Deployment">Figure 7-6</a>.</p>
+<p>However, it is most likely that knowledgeable users with specific
+needs may find a local deployment of <tt>pmie</tt> most useful
+to track some particular class of service difficulty or resource utilization.
+In these cases, the alarm propagation is unlikely to be required or is
+confined to the system on which <tt>pmie</tt> is running.</p>
+<p>Configuration and management of a number of <tt>pmie</tt>
+instances is made much easier with the scripts and control files described
+in <a href="ch05.html#Z927039824sdc" title="5.8. Management of pmie Processes">Section 5.8</a><a href="ch05.html#Z927039824sdc"> in Chapter 5</a>.</p>
+</div></div></div><!--CONTENT_END--><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td><td width="20%" align="center"><a accesskey="h" href="index.html">Table of Contents</a></td><td width="40%" align="right"> <a accesskey="n" href="ch08.html">Next</a></td></tr><tr><td width="40%" align="left">Chapter 6. Archive Logging </td><td width="20%" align="center"> </td><td width="40%" align="right">Chapter 8. Customizing and Extending PCP Services </td></tr></table></div></body></html>

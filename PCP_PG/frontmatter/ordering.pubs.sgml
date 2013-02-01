@@ -1,0 +1,14 @@
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<section>
+<title>Obtaining Publications</title>
+<para>You can obtain SGI documentation in the following ways:<itemizedlist>
+<listitem><para>See the SGI Technical Publications Library at: <link href="http://docs.sgi.com">http://docs.sgi.com</link>. Various formats are available. This library contains the most recent and most comprehensive set of online books, release notes, man pages, and other information.</para>
+</listitem>
+<listitem><para>If it is installed on your SGI system, you can use InfoSearch, an online tool that provides a more limited set of online books, release notes, and man pages. With an IRIX system, select <interface>Help</interface> from the Toolchest, and then select <interface>InfoSearch</interface>. Or you can type <command>infosearch</command> on a command line.</para>
+</listitem>
+<listitem><para>You can also view release notes by typing either <command>grelnotes</command> or <command>relnotes</command> on a command line.</para>
+</listitem>
+<listitem><para>You can also view man pages by typing <command>man</command> <replaceable>title</replaceable> on a command line.<?Pub Caret></para>
+</listitem></itemizedlist></para>
+</section>
+<?Pub *0000001291 0>

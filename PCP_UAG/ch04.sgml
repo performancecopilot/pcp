@@ -1,0 +1,637 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY disclaimer.sgml SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY o3000 SYSTEM "online/o3000.gif" NDATA gif>
+<!ENTITY figure5y SYSTEM "online/figure5y.gif" NDATA gif>
+<!ENTITY figure5x SYSTEM "online/figure5x.gif" NDATA gif>
+<!ENTITY mpivis SYSTEM "online/mpivis.gif" NDATA gif>
+<!ENTITY oview-tool.sgml SYSTEM "oview-tool.sgml">
+<!ENTITY glossary.sgml SYSTEM "glossary.sgml">
+<!ENTITY chap09.misc.sgml SYSTEM "chap09.misc.sgml">
+<!ENTITY chap08.pixie.sgml SYSTEM "chap08.pixie.sgml">
+<!ENTITY chap07.prof.sgml SYSTEM "chap07.prof.sgml">
+<!ENTITY chap06.ssrun.sgml SYSTEM "chap06.ssrun.sgml">
+<!ENTITY chap05.machuse.sgml SYSTEM "chap05.machuse.sgml">
+<!ENTITY chap04.exptypes.sgml SYSTEM "chap04.exptypes.sgml">
+<!ENTITY chap03.ftut.sgml SYSTEM "chap03.ftut.sgml">
+<!ENTITY chap02.ctut.sgml SYSTEM "chap02.ctut.sgml">
+<!ENTITY chap01.intro.sgml SYSTEM "chap01.intro.sgml">
+<!ENTITY whentouseidmap.sgml SYSTEM "whentouseidmap.sgml">
+<!ENTITY nfsintro.sgml SYSTEM "nfsintro.sgml">
+<!ENTITY idmapping.sgml SYSTEM "idmapping.sgml">
+<!ENTITY chapB.sgml SYSTEM "chapB.sgml">
+<!ENTITY chapC.sgml SYSTEM "chapC.sgml">
+<!ENTITY chapD.sgml SYSTEM "chapD.sgml">
+<!ENTITY chapE.sgml SYSTEM "chapE.sgml">
+<!ENTITY chapF.sgml SYSTEM "chapF.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY a12231 SYSTEM "online/a12231.gif" NDATA gif>
+<!ENTITY a12129 SYSTEM "online/a12129.gif" NDATA gif>
+<!ENTITY a11363 SYSTEM "online/a11363.gif" NDATA gif>
+<!ENTITY a11362 SYSTEM "online/a11362.gif" NDATA gif>
+<!ENTITY a10650 SYSTEM "online/a10650.gif" NDATA gif>
+<!ENTITY a10209 SYSTEM "online/a10209.gif" NDATA gif>
+<!ENTITY a10180 SYSTEM "online/a10180.gif" NDATA gif>
+<!ENTITY a10181 SYSTEM "online/a10181.gif" NDATA gif>
+<!ENTITY a10195 SYSTEM "online/a10195.gif" NDATA gif>
+<!ENTITY a10196 SYSTEM "online/a10196.gif" NDATA gif>
+<!ENTITY a10197 SYSTEM "online/a10197.gif" NDATA gif>
+<!ENTITY a10198 SYSTEM "online/a10198.gif" NDATA gif>
+<!ENTITY a10200 SYSTEM "online/a10200.gif" NDATA gif>
+<!ENTITY a10201 SYSTEM "online/a10201.gif" NDATA gif>
+<!ENTITY a10206 SYSTEM "online/a10206.gif" NDATA gif>
+<!ENTITY a10207 SYSTEM "online/a10207.gif" NDATA gif>
+<!ENTITY a10253 SYSTEM "online/a10253.gif" NDATA gif>
+<!ENTITY a10254 SYSTEM "online/a10254.gif" NDATA gif>
+<!ENTITY a10255 SYSTEM "online/a10255.gif" NDATA gif>
+<!ENTITY a10256 SYSTEM "online/a10256.gif" NDATA gif>
+<!ENTITY a10257 SYSTEM "online/a10257.gif" NDATA gif>
+<!ENTITY a10258 SYSTEM "online/a10258.gif" NDATA gif>
+<!ENTITY a10259 SYSTEM "online/a10259.gif" NDATA gif>
+<!ENTITY a11427 SYSTEM "online/a11427.gif" NDATA gif>
+<!ENTITY a11428 SYSTEM "online/a11428.gif" NDATA gif>
+<!ENTITY a11429 SYSTEM "online/a11429.gif" NDATA gif>
+<!ENTITY a11430 SYSTEM "online/a11430.gif" NDATA gif>
+<!ENTITY a11431 SYSTEM "online/a11431.gif" NDATA gif>
+<!ENTITY a11432 SYSTEM "online/a11432.gif" NDATA gif>
+<!ENTITY conventions.abbreviation SYSTEM "frontmatter/conventions.abbreviation.sgml">
+<!ENTITY collections SYSTEM "dwebcollections.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "INCLUDE">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY a12229 SYSTEM "online/a12229.gif" NDATA gif>
+<!ENTITY a12228 SYSTEM "online/a12228.gif" NDATA gif>
+<!ENTITY a12227 SYSTEM "online/a12227.gif" NDATA gif>
+<!ENTITY a12226 SYSTEM "online/a12226.gif" NDATA gif>
+<!ENTITY a12225 SYSTEM "online/a12225.gif" NDATA gif>
+<!ENTITY a12224 SYSTEM "online/a12224.gif" NDATA gif>
+<!ENTITY a12223 SYSTEM "online/a12223.gif" NDATA gif>
+<!ENTITY a12222 SYSTEM "online/a12222.gif" NDATA gif>
+<!ENTITY a12221 SYSTEM "online/a12221.gif" NDATA gif>
+<!ENTITY a12220 SYSTEM "online/a12220.gif" NDATA gif>
+<!ENTITY a12219 SYSTEM "online/a12219.gif" NDATA gif>
+<!ENTITY a12218 SYSTEM "online/a12218.gif" NDATA gif>
+<!ENTITY a12217 SYSTEM "online/a12217.gif" NDATA gif>
+<!ENTITY a12216 SYSTEM "online/a12216.gif" NDATA gif>
+<!ENTITY a12215 SYSTEM "online/a12215.gif" NDATA gif>
+<!ENTITY a12214 SYSTEM "online/a12214.gif" NDATA gif>
+<!ENTITY a12213 SYSTEM "online/a12213.gif" NDATA gif>
+<!ENTITY a12212 SYSTEM "online/a12212.gif" NDATA gif>
+<!ENTITY a12211 SYSTEM "online/a12211.gif" NDATA gif>
+<!ENTITY a12210 SYSTEM "online/a12210.gif" NDATA gif>
+<!ENTITY a12209 SYSTEM "online/a12209.gif" NDATA gif>
+<!ENTITY a12208 SYSTEM "online/a12208.gif" NDATA gif>
+<!ENTITY a12207 SYSTEM "online/a12207.gif" NDATA gif>
+<!ENTITY a12206 SYSTEM "online/a12206.gif" NDATA gif>
+<!ENTITY a12205 SYSTEM "online/a12205.gif" NDATA gif>
+<!ENTITY a12204 SYSTEM "online/a12204.gif" NDATA gif>
+<!ENTITY a12203 SYSTEM "online/a12203.gif" NDATA gif>
+<!ENTITY a12202 SYSTEM "online/a12202.gif" NDATA gif>
+<!ENTITY a12201 SYSTEM "online/a12201.gif" NDATA gif>
+<!ENTITY a12200 SYSTEM "online/a12200.gif" NDATA gif>
+<!ENTITY a12199 SYSTEM "online/a12199.gif" NDATA gif>
+<!ENTITY a12198 SYSTEM "online/a12198.gif" NDATA gif>
+<!ENTITY a12197 SYSTEM "online/a12197.gif" NDATA gif>
+<!ENTITY a12196 SYSTEM "online/a12196.gif" NDATA gif>
+<!ENTITY a12195 SYSTEM "online/a12195.gif" NDATA gif>
+<!ENTITY a12194 SYSTEM "online/a12194.gif" NDATA gif>
+<!ENTITY a12193 SYSTEM "online/a12193.gif" NDATA gif>
+<!ENTITY a12192 SYSTEM "online/a12192.gif" NDATA gif>
+<!ENTITY a12191 SYSTEM "online/a12191.gif" NDATA gif>
+<!ENTITY a12190 SYSTEM "online/a12190.gif" NDATA gif>
+<!ENTITY a12189 SYSTEM "online/a12189.gif" NDATA gif>
+<!ENTITY ch01.sgml SYSTEM "ch01.sgml">
+<!ENTITY ch02.sgml SYSTEM "ch02.sgml">
+<!ENTITY ch03.sgml SYSTEM "ch03.sgml">
+<!ENTITY ch05.sgml SYSTEM "ch05.sgml">
+<!ENTITY ch06.sgml SYSTEM "ch06.sgml">
+<!ENTITY ch07.sgml SYSTEM "ch07.sgml">
+<!ENTITY ch08.sgml SYSTEM "ch08.sgml">
+<!ENTITY ch09.sgml SYSTEM "ch09.sgml">
+<!ENTITY chA.sgml SYSTEM "chA.sgml">
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+]>
+-->
+<?Pub UDT _bookmark _target>
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<chapter id="LE38515-PARENT">
+<title id="LE38515-TITLE">Monitoring System Performance</title>
+<para><indexterm><primary>monitoring system performance</primary></indexterm><indexterm>
+<primary>performance monitoring</primary></indexterm><indexterm><primary>
+man command</primary><secondary>usage</secondary></indexterm><indexterm id="Z1033415772tls">
+<primary>pmchart tool</primary><secondary>man example</secondary></indexterm>This
+chapter describes the performance monitoring tools available in Performance
+Co-Pilot (PCP). This product provides a group of commands and tools for measuring
+system performance. Each tool is described completely by its own man page.
+The man pages are accessible through the <command>man</command> command. For
+example, the man page for the tool <command>pmdumptext</command> is viewed
+by entering the following command:</para>
+<literallayout><userinput>man pmdumptext</userinput></literallayout>
+<para>The following major sections are covered in this chapter:</para>
+<itemizedlist>
+<listitem id="Z930615099sdc"><para><xref linkend="LE91266-PARENT">, discusses <command>
+pmkstat</command>, a utility that provides a periodic one-line summary of
+system performance.</para>
+</listitem>
+<listitem><para><xref linkend="Z926977852sdc">, discusses <command>pmdumptext
+</command>, a utility that shows the current values for named performance
+metrics.</para>
+</listitem>
+<listitem><para><xref linkend="LE35315-PARENT">, describes <command>pmval
+</command>, a utility that displays performance metrics in ASCII tables.</para>
+</listitem>
+<listitem><para><xref linkend="LE60452-PARENT">, describes <command>pminfo
+</command>, a utility that displays information about performance metrics.
+</para>
+</listitem>
+<listitem><para><indexterm><primary>pmstore tool</primary><secondary>setting
+metric values</secondary></indexterm><xref linkend="LE10170-PARENT">, describes
+the use of the <command>pmstore</command> utility to arbitrarily set or reset
+selected performance metric values.</para>
+</listitem></itemizedlist>
+<para><indexterm><primary>text-based tools</primary></indexterm><indexterm>
+<primary>2D tools</primary></indexterm>The following sections describe the
+various graphical and text-based PCP tools used to monitor local or remote
+system performance.</para>
+<section id="LE91266-PARENT">
+<title id="LE91266-TITLE">The <command>pmkstat</command> Command</title>
+<para><indexterm id="ITch04-20"><primary>pmkstat tool</primary><secondary>
+description</secondary></indexterm> The <command>pmkstat</command> command
+provides a periodic, one-line summary of system performance. This command
+is intended to monitor system performance at the highest level, after which
+other tools may be used for examining subsystems to observe potential performance
+problems in greater detail. After entering the <command>pmkstat</command>
+command, you see output similar to the following, with successive lines appearing
+periodically:</para>
+<literallayout width="standard"><userinput>pmkstat</userinput>
+# <literal>hostname</literal> load avg: 0.26, interval: 5 sec, Thu Jan 19 12:30:13 2002
+runq    | memory    |      system      | disks|   cpu 
+mem swp | free page | scall ctxsw  intr| rd wr|usr sys idl wt
+0   0     16268 0     64    19     2396  0  0  0   1   99  0
+0   0     16264 0     142   45     2605  0  8  0   2   97  0
+0   0     16268 0     308   62     2532  0  1  1   1   98  0
+0   0     16268 0     423   88     2643  0  0  1   1   97  0</literallayout>
+<para>An additional line of output is added every five seconds. The update
+interval may be varied using the <literal>-t </literal><replaceable>interval
+</replaceable> option.</para>
+<para>The output from <command>pmkstat</command> is directed to standard output,
+and the columns in the report are interpreted as follows:</para>
+<deflist>
+<deflistentry>
+<term><literal>runq</literal></term>
+<listitem><para>Average number of runnable processes in main memory (<literal>
+mem</literal>) and in swap memory (<literal>swp</literal>) during the interval.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>memory</literal></term>
+<listitem><para>The free column indicates average <literal>free</literal>
+memory during the interval, in kilobytes. The <literal>page</literal> column
+is the average number of page-out operations per second during the interval.
+I/O operations caused by these page-out operations are included in the disk
+write I/O rate.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>system</literal></term>
+<listitem><para>System call rate (<literal>scall</literal>), context switch
+rate (<literal>ctxsw</literal>), and interrupt rate (<literal>intr</literal>).
+Rates are expressed as average operations per second during the interval.
+</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>disks</literal></term>
+<listitem><para>Aggregated physical read (<literal>rd</literal>) and write
+(<literal>wr</literal>) rates over all disks, expressed as physical I/O operations
+issued per second during the interval. These rates are independent of the
+I/O block size.</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>cpu</literal></term>
+<listitem><para>Percentage of CPU time spent executing user code (<literal>
+usr</literal>), system and interrupt code (<literal>sys</literal>), idle loop
+(<literal>idl</literal>) and idle waiting for resources (<literal>wt</literal>),
+typically disk I/O.</para>
+</listitem></deflistentry>
+</deflist>
+<para>As with most PCP utilities, real-time metric, and archive logs are interchangeable.
+</para>
+<para>For example, the following command uses the PCP archive log <replaceable>
+foo</replaceable> and the timezone of the host (<literal>tokyo</literal>)
+from which performance metrics in the archive were collected:</para>
+<literallayout format="yes"><userinput>pmkstat -a </userinput><replaceable>
+foo</replaceable> <userinput>-z</userinput>
+Note: timezone set to local timezone of host "tokyo"
+# tokyo load avg: 1.06, interval: 5 sec, Thu Feb  2 08:42:55 2002
+&ensp;runq  |     memory |     system       |  disks  |      cpu
+mem swp|   free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
+&ensp; 0   0    4316    0    195    64  2242   32   21   0   3   8  89
+&ensp; 0   0    3976    0    279    86  2143   50   17   0   5   8  87
+&ensp; 1   0    3448    0    186    63  2304   35   14   0   4   9  87
+&ensp; 0   0    4364    0    254    81  2385   35    0   0   4   9  87
+&ensp; 0   0    3696    0    266    92  2374   41    0   0   3   9  88
+&ensp; 0   0    2668   42    237    81  2400   44    2   1   4   7  89
+&ensp; 0   0    4644  100    206    68  2590   25    1   0   3   5  91
+&ensp; 0   0    5384    0    174    63  2296   32   22   0   2   8  89
+&ensp; 0   0    4736    0    189    65  2197   31   28   0   3   8  89
+pmFetch: End of PCP archive log</literallayout>
+<para>For complete information on <literal>pmkstat</literal> usage and command
+line options, see the <command sectionref="1">pmkstat</command> man page.
+</para>
+</section>
+<section id="Z926977852sdc">
+<title>The <command>pmdumptext</command> Command</title>
+<para><indexterm><primary>pmdumptext tool</primary><secondary>description
+</secondary></indexterm>The <command>pmdumptext</command> command displays
+performance metrics in ASCII tables, suitable for export into databases or
+report generators. It is a flexible command. For example, the following command
+provides continuous memory statistics on a host named <literal>serv</literal>:
+</para>
+<literallayout><userinput>pmdumptext -imu -h </userinput><userinput>serv</userinput><userinput>
+ -f `%H:%M:%S' mem.util</userinput>
+Metric        kernel  fs_ctl  _dirty  _clean    free    user 
+      Units             b       b       b       b       b       b 
+20:14:28        99.14M   6.03M   0.85M  98.42M   0.17G   0.16G </literallayout>
+<para>See the <command sectionref="1">pmdumptext</command> man page for more
+information.</para>
+</section>
+<section id="LE35315-PARENT">
+<title id="LE35315-TITLE">The <command>pmval</command> Command</title>
+<para><indexterm id="ITch04-23"><primary>pmval tool</primary><secondary>description
+</secondary></indexterm> The <command>pmval</command> command dumps the current
+values for the named performance metrics. For example, the following command
+reports the value of performance metric <literal>proc.nprocs</literal> once
+per second (by default), and produces output similar to this:</para>
+<literallayout><userinput>pmval proc.nprocs</userinput>
+etric:    proc.nprocs
+host:      localhost
+semantics: discrete instantaneous value
+units:     none
+samples:   all
+interval:  1.00 sec
+         81
+         81
+         81
+         81
+         81</literallayout>
+<para>In this example, the number of running processes was reported once per
+second.</para>
+<para>Where the semantics of the underlying performance metrics indicate that
+it would be sensible, <command>pmval</command> reports the rate of change
+or resource utilization.</para>
+<para>For example, the following command reports idle processor utilization
+for each of four CPUs on the remote host <literal>moomba</literal>, each five
+seconds apart, producing output of this form:</para>
+<literallayout><userinput>pmval -h dove -t 5sec -s 4 kernel.percpu.cpu.idle
+</userinput>
+metric:    kernel.percpu.cpu.idle
+host:      dove
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   4
+interval:  5.00 sec
+
+cpu:1.1.0.a cpu:1.1.0.c cpu:1.1.1.a cpu:1.1.1.c 
+     1.000       0.9998      0.9998      1.000  
+     1.000       0.9998      0.9998      1.000  
+     0.8989      0.9987      0.9997      0.9995 
+     0.9568      0.9998      0.9996      1.000  
+
+</literallayout>
+<para>Similarly, the following command reports disk I/O read rate every minute
+for just the disk <literal>/dev/dsk/dks0d1</literal>, and produces output
+similar to the following:</para>
+<literallayout><userinput>pmval -t 1min -i dks0d1 disk.dev.read</userinput>
+metric:    disk.dev.read
+host:      localhost
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   indefinite
+interval:  60.00 sec
+        dks0d1 
+         33.67 
+         48.71 
+         52.33 
+         11.33 
+         2.333 </literallayout>
+<para>The <literal>-r</literal> flag may be used to suppress the rate calculation
+(for metrics with counter semantics) and display the raw values of the metrics.
+</para>
+<para>In the example below, manipulation of the time within the archive is
+achieved by the exchange of time control messages between <command>pmval</command>
+and <command>pmtime</command>.</para>
+<literallayout><userinput>pmval -g -a /var/log/pcp/pmlogger/myserver/960801
+</userinput></literallayout>
+<para><indexterm><primary>PCP Tutorial</primary><secondary>pmval command</secondary>
+</indexterm>The <command>pmval</command> command is documented by the <command
+sectionref="1">pmval</command> man page, and annotated examples of the use
+of <command>pmval</command> are in the <citetitle>PCP Tutorial</citetitle>.
+</para>
+</section>
+<section id="LE60452-PARENT">
+<title id="LE60452-TITLE">The <command>pminfo</command> Command</title>
+<para><indexterm id="ITch04-25"><primary>pminfo tool</primary><secondary>
+description</secondary></indexterm>The <command>pminfo</command> command displays
+various types of information about performance metrics available through the
+Performance Co-Pilot (PCP) facilities.</para>
+<para>The <literal>-T</literal> option is extremely useful; it provides help
+text about performance metrics:</para>
+<literallayout><userinput>pminfo -T mem.util.fs_dirty</userinput>
+mem.util.fs_dirty
+Help:
+The amount of memory in Kbytes that is holding file system data.</literallayout>
+<para>The <literal>-t</literal> option displays the one-line help text associated
+with the selected metrics. The <literal>-T</literal> option prints more verbose
+help text.</para>
+<para>Without any options, <command>pminfo</command> verifies that the specified
+metrics exist in the Name Space, and echoes those names. Metrics may be specified
+as arguments to <command>pminfo</command> using their full metric names. For
+example, this command returns the following response:</para>
+<literallayout><userinput>pminfo hinv.ncpu network.interface.total.bytes</userinput>
+hinv.ncpu 
+network.interface.total.bytes </literallayout>
+<para>A group of related metrics in the Name Space may also be specified.
+For example, to list all of the <literal>hinv</literal> metrics you would
+use this command:</para>
+<literallayout><userinput>pminfo hinv</userinput>
+hinv.physmem
+hinv.pagesize
+hinv.ncpu
+hinv.ndisk
+hinv.nfilesys
+hinv.machine
+hinv.map.scsi
+hinv.map.cpu_num
+hinv.map.cpu
+hinv.map.disk
+hinv.map.node
+hinv.map.router
+hinv.map.routerport
+hinv.map.xbow
+hinv.cpu.clock
+hinv.cpu.vendor
+hinv.cpu.model
+hinv.cpu.stepping
+hinv.cpu.cache
+hinv.cpu.bogomips
+hinv.nnode
+hinv.nrouter
+hinv.nrouterport
+hinv.nxbow
+hinv.interconnect</literallayout>
+<para>If no metrics are specified, <command>pminfo</command> displays the
+entire collection of metrics. This can be useful for searching for metrics,
+when only part of the full name is known. For example, this command returns
+the following response:</para>
+<literallayout><userinput>pminfo | grep nfs</userinput>
+nfs.client.calls
+nfs.client.reqs
+nfs.server.calls
+nfs.server.reqs
+nfs3.client.calls
+nfs3.client.reqs
+nfs3.server.calls
+nfs3.server.reqs</literallayout>
+<para>The <literal>-d</literal> option causes <command>pminfo</command> to
+display descriptive information about metrics (refer to the <command sectionref="3">
+pmLookupDesc</command> man page for an explanation of this metadata information).
+The following command and response show use of the <literal>-d</literal> option:
+</para>
+<literallayout><userinput>pminfo -d proc.nprocs disk.dev.read filesys.free
+</userinput>
+proc.nprocs
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+disk.dev.read
+    Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
+    Semantics: counter  Units: count
+
+filesys.free
+    Data Type: 64-bit unsigned int  InDom: 60.5 0xf000005
+    Semantics: instant  Units: Kbyte</literallayout><?Pub Caret1>
+<para>The <literal>-f</literal> option to <command>pminfo</command> forces
+the current value of each named metric to be fetched and printed. In the example
+below, all metrics in the group <literal>hinv</literal> are selected:</para>
+<literallayout width="wide"><userinput>pminfo -f hinv</userinput>
+hinv.physmem
+    value 15701
+
+hinv.pagesize
+    value 16384
+
+hinv.ncpu
+    value 4
+
+hinv.ndisk
+    value 6
+
+hinv.nfilesys
+    value 2
+
+hinv.machine
+    value "IP35"
+
+hinv.map.scsi
+No value(s) available!
+
+hinv.map.cpu_num
+    inst [0 or "cpu:1.1.0.a"] value 0
+    inst [1 or "cpu:1.1.0.c"] value 1
+    inst [2 or "cpu:1.1.1.a"] value 2
+    inst [3 or "cpu:1.1.1.c"] value 3
+
+hinv.map.cpu
+    inst [0 or "cpu:1.1.0.a"] value "/dev/hw/module/001c01/slab/0/node/cpubus/0/a"
+    inst [1 or "cpu:1.1.0.c"] value "/dev/hw/module/001c01/slab/0/node/cpubus/0/c"
+    inst [2 or "cpu:1.1.1.a"] value "/dev/hw/module/001c01/slab/1/node/cpubus/0/a"
+    inst [3 or "cpu:1.1.1.c"] value "/dev/hw/module/001c01/slab/1/node/cpubus/0/c"
+hinv.map.disk
+No value(s) available!
+
+hinv.map.node
+    inst [0 or "node:1.1.0"] value "/dev/hw/module/001c01/slab/0/node"
+    inst [1 or "node:1.1.1"] value "/dev/hw/module/001c01/slab/1/node"
+
+hinv.map.router
+No value(s) available!
+
+hinv.map.routerport
+No value(s) available!
+
+hinv.map.xbow
+No value(s) available!
+
+hinv.cpu.clock
+    inst [0 or "cpu:1.1.0.a"] value 800
+    inst [1 or "cpu:1.1.0.c"] value 800
+    inst [2 or "cpu:1.1.1.a"] value 800
+    inst [3 or "cpu:1.1.1.c"] value 800
+
+hinv.cpu.vendor
+    inst [0 or "cpu:1.1.0.a"] value "GenuineIntel"
+    inst [1 or "cpu:1.1.0.c"] value "GenuineIntel"
+    inst [2 or "cpu:1.1.1.a"] value "GenuineIntel"
+    inst [3 or "cpu:1.1.1.c"] value "GenuineIntel"
+
+hinv.cpu.model
+    inst [0 or "cpu:1.1.0.a"] value "0"
+    inst [1 or "cpu:1.1.0.c"] value "0"
+    inst [2 or "cpu:1.1.1.a"] value "0"
+    inst [3 or "cpu:1.1.1.c"] value "0"
+
+hinv.cpu.stepping
+    inst [0 or "cpu:1.1.0.a"] value "6"
+    inst [1 or "cpu:1.1.0.c"] value "6"
+    inst [2 or "cpu:1.1.1.a"] value "6"
+    inst [3 or "cpu:1.1.1.c"] value "6"
+
+hinv.cpu.cache
+    inst [0 or "cpu:1.1.0.a"] value 0
+    inst [1 or "cpu:1.1.0.c"] value 0
+    inst [2 or "cpu:1.1.1.a"] value 0
+    inst [3 or "cpu:1.1.1.c"] value 0
+
+hinv.cpu.bogomips
+    inst [0 or "cpu:1.1.0.a"] value 1195.37
+    inst [1 or "cpu:1.1.0.c"] value 1195.37
+    inst [2 or "cpu:1.1.1.a"] value 1195.37
+    inst [3 or "cpu:1.1.1.c"] value 1195.37
+
+hinv.nnode
+    value 2
+
+hinv.nrouter
+    value 0
+
+hinv.nrouterport
+    value 0
+
+hinv.nxbow
+Error: Functionality not yet implemented
+
+hinv.interconnect
+No value(s) available!</literallayout>
+<para>The <literal>-h</literal> option directs <command>pminfo</command> to
+retrieve information from the specified host. If the metric has an instance
+domain, the value associated with each instance of the metric is printed:
+</para>
+<literallayout width="wide"><userinput>pminfo -h dove.americas.sgi.com -f filesys.mountdir
+</userinput>
+filesys.mountdir
+    inst [0 or "/dev/xscsi/pci00.01.0/target81/lun0/part3"] value "/"
+    inst [1 or "/dev/xscsi/pci00.01.0/target81/lun0/part1"] value "/boot/efi"
+</literallayout>
+<para><indexterm><primary>PMID</primary><secondary>printing</secondary></indexterm>The <literal>
+-m</literal> option prints the Performance Metric Identifiers (PMIDs) of the
+selected metrics. This is useful for finding out which PMDA supplies the metric.
+For example, the output below identifies the PMDA supporting domain 4 (the
+leftmost part of the PMID) as the one supplying information for the metric <literal>
+environ.extrema.mintemp</literal>:</para>
+<literallayout>pminfo -m environ.extrema.mintemp 
+environ.extrema.mintemp PMID: 4.0.3 </literallayout>
+<para>The <literal>-v</literal> option verifies that metric definitions in
+the PMNS correspond with supported metrics, and checks that a value is available
+for the metric. Descriptions and values are fetched, but not printed. Only
+errors are reported.</para>
+<para>Some instance domains are not enumerable. That is, it is not possible
+to ask for all of the instances at once. Only explicit instances may be fetched
+from such instance domains. This is because instances in such a domain may
+have a very short lifetime or the cost of obtaining all of the instances at
+once is very high. The <replaceable>proc</replaceable> metrics are an example
+of such an instance domain. The <literal>-f</literal> option is not able to
+fetch metrics with non-enumerable instance domains; however, the <literal>
+-F</literal> option tells <command>pminfo</command> to obtain a snapshot of
+all of the currently available instances in the instance domain and then to
+retrieve a value for each.</para>
+<para><indexterm><primary>pminfo tool</primary><secondary>PCP Tutorial</secondary>
+</indexterm><indexterm><primary>PCP Tutorial</primary><secondary>pminfo command
+</secondary></indexterm>Complete information on the <command>pminfo</command>
+command is found in the <command sectionref="1">pminfo</command> man page.
+There are examples of the use of <command>pminfo</command> in the <citetitle>
+PCP Tutorial</citetitle>.</para>
+</section>
+<section id="LE10170-PARENT">
+<title id="LE10170-TITLE">The <command>pmstore</command> Command</title>
+<para><indexterm id="ITch04-26"><primary>pmstore tool</primary><secondary>
+description</secondary></indexterm>From time to time you may wish to change
+the value of a particular metric. Some metrics are counters that may need
+to be reset, and some are simply control variables for agents that collect
+performance metrics. When you need to change the value of a metric for any
+reason, the command to use is <command>pmstore</command>.</para>
+<note><para>For obvious reasons, the ability to arbitrarily change the value
+of a performance metric is not supported. Rather, the PMCS selectively allows
+some metrics to be modified in a very controlled fashion.</para>
+</note>
+<para>The basic syntax of the command is as follows:</para>
+<literallayout format="yes">pmstore <replaceable>metricname</replaceable> <replaceable>
+value</replaceable>&ensp;</literallayout>
+<para>There are also command line flags to further specify the action. For
+example, the <literal>-i</literal> option restricts the change to one or more
+instances of the performance metric.</para>
+<para>The <replaceable>value</replaceable> may be in one of several forms,
+according to the following rules:</para>
+<orderedlist><listitem><para>If the metric has an integer type, then <replaceable>
+value</replaceable> should consist of an optional leading hyphen, followed
+either by decimal digits or &ldquo;0x&rdquo; and some hexadecimal digits; &ldquo;0X&rdquo;
+is also acceptable instead of &ldquo;0x.&rdquo;</para>
+</listitem><listitem><para>If the metric has a floating point type, then <replaceable>
+value</replaceable> should be in the form of an integer (described above),
+a fixed point number, or a number in scientific notation.</para>
+</listitem><listitem><para>If the metric has a string type, then <replaceable>
+value</replaceable> is interpreted as a literal string of ASCII characters.
+</para>
+</listitem><listitem><para>If the metric has an aggregate type, then an attempt
+is made to interpret <replaceable>value</replaceable> as an integer, a floating
+point number, or a string. In the first two cases, the minimal word length
+encoding is used; for example, &ldquo;123&rdquo; would be interpreted as a
+four-byte aggregate, and &ldquo;0x100000000&rdquo; would be interpreted as
+an eight-byte aggregate.</para>
+</listitem></orderedlist>
+<para>The following example illustrates the use of <command>pmstore</command>
+to enable performance metrics collection in the <literal>txmon</literal>&ensp;PMDA
+(see <literal>/var/pcp/pmdas/txmon</literal> for the source code of the txmon
+PMDA). When the metric <literal>txmon.control.level</literal> has the value
+0, no performance metrics are collected. Values greater than 0 enable progressively
+more verbose instrumentation.</para>
+<literallayout><userinput>pminfo -f txmon.count</userinput>
+txmon.count
+No value(s) available!
+<userinput>pmstore txmon.control.level 1</userinput>
+txmon.control.level old value=0 new value=1
+<userinput>pminfo -f txmon.count</userinput>
+txmon.count
+       inst [0 or "ord-entry"] value 23
+       inst [1 or "ord-enq"] value 11
+       inst [2 or "ord-ship"] value 10
+       inst [3 or "part-recv"] value 3
+       inst [4 or "part-enq"] value 2
+       inst [5 or "part-used"] value 1
+       inst [6 or "b-o-m"] value 0</literallayout>
+<para>For complete information on <command>pmstore</command> usage and syntax,
+see the <command sectionref="1">pmstore</command> man page.</para>
+</section>
+</chapter>
+<?Pub *0000030274 0>

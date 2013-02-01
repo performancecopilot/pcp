@@ -1,0 +1,321 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY c1pcp.sgml SYSTEM "c1pcp.sgml">
+<!ENTITY c2pmda.sgml SYSTEM "c2pmda.sgml">
+<!ENTITY c3pmapi.sgml SYSTEM "c3pmapi.sgml">
+<!ENTITY c4pmda.sgml SYSTEM "c4pmda.sgml">
+<!ENTITY appA.sgml SYSTEM "appA.sgml">
+<!ENTITY PCP_glob_process_architec SYSTEM "online/PCP_glob_process_architec.gif" NDATA gif>
+<!ENTITY process_struct_for_dist_op SYSTEM "online/process_struct_for_dist_op.gif" NDATA gif>
+<!ENTITY retrospect_analysis_architec SYSTEM "online/retrospect_analysis_architec.gif" NDATA gif>
+<!ENTITY struct_results_frm_pmFetch SYSTEM "online/struct_results_frm_pmFetch.gif" NDATA gif>
+<!ENTITY trace_1 SYSTEM "online/trace_1.gif" NDATA gif>
+<!ENTITY trace_buffer SYSTEM "online/trace_buffer.gif" NDATA gif>
+<!ENTITY trace_example SYSTEM "online/trace_example.gif" NDATA gif>
+<!ENTITY trace_libpcp SYSTEM "online/trace_libpcp.gif" NDATA gif>
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "IGNORE">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+]>
+-->
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<chapter id="LE25915-PARENT">
+<title id="LE25915-TITLE">Trace PMDA</title>
+<para><indexterm><primary>trace PMDA</primary><secondary>description</secondary></indexterm><indexterm><primary>PMDA</primary><secondary>trace</secondary></indexterm>This chapter provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA), in an effort to explain how to configure the agent optimally for a particular problem domain. This information supplements the functional coverage which the man pages provide to both the agent and the library interfaces.</para>
+<para> <indexterm><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> The chapter also includes information on how to use the trace PMDA and the associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs in IRIX are installed in <filename>/var/pcp/demos/trace</filename> from the <filename>pcp.sw.trace</filename> subsystem. On Linux, the trace PMDA exists in the <literal>pcp-2.3-<replaceable>rev</replaceable></literal> package at <filename>/usr/share/pcp/demo/trace</filename>.</para>
+<section>
+<title>Performance Instrumentation and Tracing</title>
+<para><indexterm><primary>pmdatrace man page</primary></indexterm><indexterm><primary>performance instrumentation</primary></indexterm><indexterm><primary>instrumentation</primary></indexterm>The <filename>pcp_trace</filename> library provides function calls for identifying sections of a program as transactions or events for examination by the trace PMDA, a user command called <command>pmdatrace</command>. The <filename>pcp_trace</filename> library is described in the <command sectionref="3">pmdatrace</command> man page</para>
+<para>The monitoring of transactions using the Performance Co-Pilot (PCP) infrastructure begins with a <command>pmtracebegin</command> call. Time is recorded from there to the corresponding <command>pmtraceend</command> call (with matching tag identifier). A transaction in progress can be cancelled by calling <command>pmtraceabort</command>.</para>
+<para>A second form of program instrumentation is available with the <command>pmtracepoint</command> function. This is a simpler form of monitoring that exports only the number of times a particular point in a program is passed. The <command>pmtraceobs</command> and pmtracecount functions have similar semantics, but allows an arbitrary numeric value to be passed to the trace PMDA.</para>
+<para><indexterm><primary>pmdatrace man page</primary></indexterm>The <command>pmdatrace</command> command is a PMDA that exports transaction performance metrics from application processes using the <filename>pcp_trace</filename> library; see the <command sectionref="1">pmdatrace</command> man page for details.</para>
+<para>For a complete introduction to performance tracing, refer to the Web-based <citetitle>PCP Tutorial</citetitle>, which contains the <filename>trace.html</filename> file covering this topic.</para>
+</section>
+<section>
+<title>Trace PMDA Design</title>
+<para><indexterm><primary>trace PMDA</primary><secondary>design</secondary></indexterm>Trace PMDA design covers application interaction, sampling techniques, and configuring the trace PMDA.</para>
+<section>
+<title>Application Interaction</title>
+<para><indexterm><primary>applications</primary><secondary>interaction</secondary></indexterm><xref linkend="LE18347-TITLE"> describes the general state maintained within the trace PMDA.</para>
+<para><figure>
+<graphic entityref="trace_1" scale="NO" location="INLINE"></graphic>
+<title id="LE18347-TITLE">Trace PMDA Overview</title></figure></para>
+<para><indexterm><primary>Application Programming Interface</primary></indexterm> <indexterm><primary> identification tags</primary></indexterm> <indexterm><primary>IPC</primary><secondary>trace API</secondary></indexterm>Applications that are linked with the <filename>libpcp_trace</filename> library make calls through the trace Application Programming Interface (API). These calls result in interprocess communication of trace data between the application and the trace PMDA. This data consists of an identification tag and the performance data associated with that particular tag. The trace PMDA aggregates the incoming information and periodically updates the exported summary information to describe activity in the recent past.</para>
+<para><indexterm><primary>PDU</primary></indexterm> <indexterm><primary>working buffers</primary></indexterm>As each protocol data unit (PDU) is received, its data is stored in the current working buffer. At the same time, the global counter associated with the particular tag contained within the PDU is incremented. The working buffer contains all performance data that has arrived since the previous time interval elapsed. For additional information about the working buffer, see <xref linkend="LE42586-TITLE">.</para>
+</section>
+<section>
+<title>Sampling Techniques</title>
+<para><indexterm><primary>rolling-window sampling</primary></indexterm> <indexterm><primary>sampling techniques</primary></indexterm>The trace PMDA employs a rolling-window periodic sampling technique. The arrival time of the data at the trace PMDA in conjunction with the length of the sampling period being maintained by the PMDA determines the recency of the data exported by the PMDA. Through the use of rolling-window sampling, the trace PMDA is able to present a more accurate representation of the available trace data at any given time than it could through use of simple periodic sampling.</para>
+<para> <indexterm><primary>trace.observe.rate metric</primary></indexterm> <indexterm><primary>trace.point.rate metric</primary></indexterm> <indexterm><primary>trace.transact.ave_time metric</primary></indexterm> <indexterm><primary>trace.transact.max_time metric</primary></indexterm> <indexterm><primary>trace.transact.min_time metric</primary></indexterm> <indexterm><primary>trace.transact.rate metric</primary></indexterm>The rolling-window sampling technique affects the metrics in <xref linkend="Z976568256sdc">:</para>
+<example id="Z976568222sdc"><title id="Z976568256sdc">Rolling-Window Sampling Technique</title>
+<literallayout>trace.observe.rate
+trace.counter.rate
+trace.point.rate
+trace.transact.ave_time
+trace.transact.max_time
+trace.transact.min_time
+trace.transact.rate</literallayout>
+</example>
+<para>The remaining metrics are either global counters, control metrics, or the last seen observation value. <xref linkend="LE26087-PARENT">, documents in more detail all metrics exported by the trace PMDA.</para>
+<section>
+<title>Simple Periodic Sampling</title>
+<para><indexterm><primary>periodic sampling</primary></indexterm><indexterm><primary>simple periodic sampling</primary></indexterm> <indexterm><primary>historical buffers</primary></indexterm>The simple periodic sampling technique uses a single historical buffer to store the history of events that have occurred over the sampling interval. As events occur, they are recorded in the working buffer. At the end of each sampling interval, the working buffer (which at that time holds the historical data for the sampling interval just finished) is copied into the historical buffer, and the working buffer is cleared. It is ready to hold new events from the sampling interval now starting.</para>
+</section>
+<section id="LE42586-PARENT">
+<title id="LE42586-TITLE">Rolling-Window Periodic Sampling</title>
+<para><indexterm><primary>rolling-window sampling</primary></indexterm>In contrast to simple periodic sampling with its single historical buffer, the rolling-window periodic sampling technique maintains a number of separate buffers. One buffer is marked as the current working buffer, and the remainder of the buffers hold historical data. As each event occurs, the current working buffer is updated to reflect it.</para>
+<para>At a specified interval, the current working buffer and the accumulated data that it holds is moved into the set of historical buffers, and a new working buffer is used. The specified interval is a function of the number of historical buffers maintained.</para>
+<para>The primary advantage of the rolling-window sampling technique is seen at the point where data is actually exported. At this point, the data has a higher probability of reflecting a more recent sampling period than the data exported using simple periodic sampling.</para>
+<para><indexterm><primary>sample duration</primary></indexterm>The data collected over each sample duration and exported using the rolling-window sampling technique provides a more up-to-date representation of the activity during the most recently completed sample duration than simple periodic sampling as shown in <xref linkend="LE41708-TITLE">.</para>
+<para><figure>
+<graphic entityref="trace_buffer" scale="NO" location="INLINE"></graphic>
+<title id="LE41708-TITLE">Sample Duration Comparison</title></figure></para>
+<para><indexterm><primary>ring buffers</primary></indexterm>The trace PMDA allows the length of the sample duration to be configured, as well as the number of historical buffers that are maintained. The rolling-window approach is implemented in the trace PMDA as a ring buffer (see <xref linkend="LE18347-TITLE">).</para>
+<para><indexterm><primary>working buffers</primary></indexterm> <indexterm><primary>historical buffers</primary></indexterm>When the current working buffer is moved into the set of historical buffers, the least recent historical buffer is cleared of data and becomes the new working buffer.</para>
+</section>
+<section>
+<title>Rolling-Window Periodic Sampling Example</title>
+<para><indexterm><primary>examples</primary><secondary>rolling-window sampling</secondary></indexterm>Consider the scenario where you want to know the rate of transactions over the last 10 seconds. You set the sampling rate for the trace PMDA to 10 seconds and fetch the metric <literal>trace.transact.rate</literal>. So if in the last 10 seconds, 8 transactions took place, the transaction rate would be 8/10 or 0.8 transactions per second.</para>
+<?Pub _newpage>
+<para>The trace PMDA does not actually do this. It instead does its calculations automatically at a subinterval of the sampling interval. Reconsider the 10-second scenario. It has a calculation subinterval of 2 seconds as shown in <xref linkend="LE13794-TITLE">.</para>
+<para><figure>
+<graphic entityref="trace_example" scale="NO" location="INLINE"></graphic>
+<title id="LE13794-TITLE">Sampling Intervals</title></figure></para>
+<para>If at 13.5 seconds, you request the transaction rate, you receive a value of 0.7 transactions per second. In actual fact, the transaction rate was 0.8, but the trace PMDA did its calculations on the sampling interval from 2 seconds to 12 seconds, and not from 3.5 seconds to 13.5 seconds. For efficiency, the trace PMDA calculates the metrics on the last 10 seconds every 2 seconds. As a result, the PMDA is not driven each time a fetch request is received to do a calculation.</para>
+</section>
+</section>
+<?Pub _newpage>
+<section>
+<title>Configuring the Trace PMDA</title>
+<para><indexterm><primary>trace PMDA</primary><secondary>command-line options</secondary></indexterm>The trace PMDA is configurable primarily through command-line options. The list of command-line options in <xref linkend="LE38782-TITLE"> is not exhaustive, but it identifies those options which are particularly relevant to tuning the manner in which performance data is collected.</para>
+<table frame="topbot">
+<tbltitle id="LE38782-TITLE">Selected Command-Line Options</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="149*">
+<colspec colwidth="247*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Option</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para>Access controls<indexterm><primary>access controls</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The trace PMDA offers host-based access control. This control allows and disallows connections from instrumented applications running on specified hosts or groups of hosts. Limits to the number of connections allowed from individual hosts can also be mandated.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>Sample duration<indexterm><primary>sample duration</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The interval over which metrics are to be maintained before being discarded is called the sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>Number of historical buffers<indexterm><primary>historical buffers</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The data maintained for the sample duration is held in a number of internal buffers within the trace PMDA. These are referred to as historical buffers. This number is configurable so that the rolling window effect can be tuned within the sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>Counter and observation metric units<indexterm><primary>observation metric units</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>pmchart command</primary></indexterm> Since the data being exported by the <literal>trace.observe.value</literal> and <literal>trace.counter.count</literal> metrics are user-defined, the trace PMDA by default exports these metrics with a type of &ldquo;none.&rdquo; A framework is provided that allows the user to make the type more specific (for example, bytes per second) and allows the exported values to be plotted along with other performance metrics of similar units by tools like <command>pmchart</command>.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>Instance domain refresh<indexterm><primary>instance domain refresh</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The set of instances exported for each of the <literal>trace</literal> metrics can be cleared through the storable <literal><indexterm><primary>trace.control.reset metric</primary></indexterm> trace.control.reset</literal> metric.</para></entry></row></tbody></tgroup></table>
+</section>
+</section>
+<section id="LE26087-PARENT">
+<title id="LE26087-TITLE">Trace API</title>
+<para><indexterm><primary>Application Programming Interface</primary></indexterm> <indexterm><primary>libpcp_trace library</primary><secondary>Application Programming Interface</secondary></indexterm>The <filename>libpcp_trace</filename> Application Programming Interface (API) is called from C, C++, Fortran, and Java. Each language has access to the complete set of functionality offered by <filename>libpcp_trace</filename>. In some cases, the calling conventions differ slightly between languages. This section presents an overview of each of the different tracing mechanisms offered by the API, as well as an explanation of their mappings to the actual performance metrics exported by the trace PMDA.</para>
+<section>
+<title>Transactions </title>
+<para><indexterm><primary>pmtracebegin function</primary></indexterm> <indexterm><primary>pmtracend function</primary></indexterm> <indexterm><primary>transactions</primary></indexterm> <indexterm><primary>pmtraceabort function</primary></indexterm>Paired calls to the <command>pmtracebegin</command> and <command>pmtraceend</command> API functions result in transaction data being sent to the trace PMDA with a measure of the time interval between the two calls. This interval is the transaction service time. Using the <command>pmtraceabort</command> call causes data for that particular transaction to be discarded. The trace PMDA exports transaction data through the following <literal>trace.transact</literal> metrics listed in <xref linkend="LE10870-TITLE">:</para>
+<table frame="topbot">
+<tbltitle id="LE10870-TITLE"><literal>trace.transact</literal> Metrics</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="174*">
+<colspec colwidth="222*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Metric</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.ave_time metric</primary></indexterm> trace.transact.ave_time</literal></para></entry>
+<entry align="left" valign="top"><para>The average service time per transaction type. This time is calculated over the last sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.count metric</primary></indexterm> trace.transact.count</literal></para></entry>
+<entry align="left" valign="top"><para>The running count for each transaction type seen since the trace PMDA started.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.max_time metric</primary></indexterm> trace.transact.max_time</literal></para><para><literal></literal></para></entry>
+<entry align="left" valign="top"><para>The maximum service time per transaction type within the last sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.min_time metric</primary></indexterm> trace.transact.min_time</literal></para></entry>
+<entry align="left" valign="top"><para>The minimum service time per transaction type within the last sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.rate metric</primary></indexterm> trace.transact.rate</literal></para><para></para></entry>
+<entry align="left" valign="top"><para>The average rate at which each transaction type is completed. The rate is calculated over the last sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal><indexterm><primary>trace.transact.total_time metric</primary></indexterm> trace.transact.total_time</literal></para></entry>
+<entry align="left" valign="top"><para>The cumulative time spent processing each transaction since the trace PMDA started running.</para></entry></row></tbody></tgroup></table>
+</section>
+<section>
+<title>Point Tracing </title>
+<para><indexterm><primary>point tracing</primary></indexterm> <indexterm><primary>pmtracepoint function</primary></indexterm>Point tracing allows the application programmer to export metrics related to salient events. The <command>pmtracepoint</command> function is most useful when start and end points are not well defined. For example, this function is useful when the code branches in such a way that a transaction cannot be clearly identified, or when processing does not follow a transactional model, or when the desired instrumentation is akin to event rates rather than event service times. This data is exported through the <literal>trace.point</literal> metrics listed in <xref linkend="LE36713-TITLE">:<table frame="topbot">
+<tbltitle id="LE36713-TITLE"><literal>trace.point</literal> Metrics</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="1">
+<colspec colwidth="149*">
+<colspec colwidth="247*">
+<thead>
+<row><entry align="left" valign="bottom"><para>Metric</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row rowsep="0">
+<entry align="left" valign="top"><para><literal>trace.point.count<indexterm><primary>trace.point.count metric</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para>Running count of point observations for each tag seen since the trace PMDA started.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>trace.point.rate<indexterm><primary>trace.point.rate metric</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para>The average rate at which observation points occur for each tag within the last sample duration.</para></entry></row></tbody></tgroup></table><?Pub Caret></para>
+</section>
+<section>
+<title>Observations and Counters</title>
+<para><indexterm><primary>pmtraceobs function</primary></indexterm> <indexterm><primary>pmtracepoint function</primary></indexterm> <indexterm><primary>trace.observe metrics</primary></indexterm>The <command>pmtraceobs</command> and <command>pmtracecount</command> functions have similar semantics to <command>pmtracepoint</command>, but also allow an arbitrary numeric value to be passed to the trace PMDA. The most recent value for each tag is then immediately available from the PMDA. Observation data is exported through the <literal>trace.observe</literal> metrics listed in <xref linkend="LE16019-TITLE">:</para>
+<table frame="topbot">
+<tbltitle id="LE16019-TITLE"><literal>trace.observe</literal> Metrics</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="149*">
+<colspec colwidth="247*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Metric</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><literal>trace.observe.count</literal></para></entry>
+<entry align="left" valign="top"><para>Running count of observations seen since the trace PMDA started.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>trace.observe.rate</literal></para></entry>
+<entry align="left" valign="top"><para>The average rate at which observations for each tag occur. This rate is calculated over the last sample duration.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>trace.observe.value</literal></para></entry>
+<entry align="left" valign="top"><para>The numeric value associated with the observation last seen by the trace PMDA.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>trace.counter</literal></para></entry>
+<entry align="left" valign="top"><para>Counter data is exported through the <literal>trace.counter</literal> metrics. The only difference between <literal>trace.counter</literal> and <literal>trace.observe</literal> metrics is that the numeric value of <literal>trace.counter</literal> must be a monotonic increasing count.</para></entry></row></tbody></tgroup></table>
+</section>
+<section>
+<title>Configuring the Trace Library</title>
+<para><indexterm><primary>configuration</primary></indexterm><indexterm><primary>environment variables</primary></indexterm> <indexterm><primary>state flags</primary></indexterm> <indexterm><primary>diagnostic output</primary></indexterm>The trace library is configurable through the use of environment variables listed in <xref linkend="LE38148-TITLE"> as well as through the state flags listed in <xref linkend="LE37818-TITLE">. Both provide diagnostic output and enable or disable the configurable functionality within the library.</para>
+<table frame="topbot">
+<tbltitle id="LE38148-TITLE">Environment Variables</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="149*">
+<colspec colwidth="247*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Name</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><literal>PCP_TRACE_HOST</literal><indexterm><primary>PCP_TRACE_HOST variable</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The name of the host where the trace PMDA is running.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PCP_TRACE_PORT</literal><indexterm><primary>PCP_TRACE_PORT variable</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>TCP/IP</primary></indexterm> TCP/IP port number on which the trace PMDA is accepting client connections.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PCP_TRACE_TIMEOUT</literal><indexterm><primary>PCP_TRACE_TIMEOUT variable</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>The number of seconds to wait until assuming that the initial connection is not going to be made, and timeout will occur. The default is three seconds.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PCP_TRACE_REQTIMEOUT</literal><indexterm><primary>PCP_TRACE_REQTIMEOUT variable</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>asynchronous trace protocol</primary></indexterm> The number of seconds to allow before timing out on awaiting acknowledgment from the trace PMDA after trace data has been sent to it. This variable has no effect in the asynchronous trace protocol (refer to <xref linkend="LE37818-TITLE">).</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PCP_TRACE_RECONNECT</literal><indexterm><primary>PCP_TRACE_RECONNECT variable</primary></indexterm></para></entry>
+<entry align="left" valign="top"><para>A list of values which represents the backoff approach that the <filename>libpcp_trace</filename> library routines take when attempting to reconnect to the trace PMDA after a connection has been lost. The list of values should be a positive number of seconds for the application to delay before making the next reconnection attempt. When the final value in the list is reached, that value is used for all subsequent reconnection attempts.</para></entry></row></tbody></tgroup></table>
+<para><indexterm><primary>state flags</primary></indexterm> <indexterm><primary>flags</primary><secondary>state</secondary></indexterm> <indexterm><primary>pmtracestate call</primary></indexterm> <indexterm><primary>libpcp_trace library</primary><secondary id="Z980104750sdc">functions</secondary></indexterm>The <xref linkend="LE37818-TITLE"> are used to customize the operation of the <filename>libpcp_trace</filename> routines. These are registered through the <command>pmtracestate</command> call, and they can be set either individually or together.</para>
+<table frame="topbot">
+<tbltitle id="LE37818-TITLE">State Flags</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="170*">
+<colspec colwidth="226*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Flag</para></entry><entry align="left" valign="bottom"><para>Description</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_NONE<indexterm><primary>PMTRACE_STATE_NONE flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>synchronous protocol</primary></indexterm> The default. No state flags have been set, the fault-tolerant, synchronous protocol is used for communicating with the trace PMDA, and no diagnostic messages are displayed by the <filename></filename><filename>libpcp_trace</filename> routines.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_API<indexterm><primary>PMTRACE_STATE_API flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para>High-level diagnostics. This flag simply displays entry into each of the API routines.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_COMMS<indexterm><primary>PMTRACE_STATE_COMMS flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para>Diagnostic messages related to establishing and maintaining the communication channel between application and PMDA.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_PDU<indexterm><primary>PMTRACE_STATE_PDU flag</primary></indexterm> <indexterm><primary>PMTRACE_STATE_PDUBUF flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>PDU</primary></indexterm> The low-level details of the trace protocol data units (PDU) is displayed as each PDU is transmitted or received.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_PDUBUF<indexterm><primary>PMTRACE_STATE_NOAGENT flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para>The full contents of the PDU buffers are dumped as PDUs are transmitted and received.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_NOAGENT<indexterm><primary>PMTRACE_STATE_NOAGENT flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>interprocess communication</primary><secondary>PMTRACE_STATE_NOAGENT flag</secondary></indexterm> <indexterm><primary>debugging and testing</primary></indexterm> Interprocess communication control. If this flag is set, it causes interprocess communication between the instrumented application and the trace PMDA to be skipped. This flag is a debugging aid for applications using <filename>libpcp_trace</filename>.</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>PMTRACE_STATE_ASYNC<indexterm><primary>PMTRACE_STATE_ASYNC flag</primary></indexterm></literal></para></entry>
+<entry align="left" valign="top"><para><indexterm><primary>asynchronous trace protocol</primary></indexterm> <indexterm><primary>libpcp_trace library</primary><secondary>entry points</secondary></indexterm> Asynchronous trace protocol. This flag enables the asynchronous trace protocol so that the application does not block awaiting acknowledgment PDUs from the trace PMDA. In order for the flag to be effective, it must be set before using the other <filename></filename><filename>libpcp_trace</filename> entry points.</para></entry></row></tbody></tgroup></table>
+</section>
+</section>
+<section>
+<title>Instrumenting Applications to Export Performance Data</title>
+<para><indexterm><primary>applications</primary><secondary>instrumentation</secondary></indexterm><indexterm><primary>instrumentation</primary></indexterm> <indexterm><primary>data export</primary></indexterm>The relationship between an application, the <filename>libpcp_trace</filename> library, the trace PMDA and the rest of the PCP infrastructure is shown in <xref linkend="LE19385-TITLE">:</para>
+<para><figure>
+<graphic entityref="trace_libpcp" scale="NO" location="INLINE"></graphic>
+<title id="LE19385-TITLE">Application and PCP Relationship</title></figure></para>
+<para><indexterm><primary>independent software vendors</primary></indexterm> <indexterm><primary>customers</primary></indexterm> <indexterm><primary>embedded calls</primary></indexterm>The <filename>libpcp_trace</filename> library is designed to encourage application developers (independent software vendors and end-user customers) to embed calls in their code that enable application performance data to be exported. When combined with system-level performance data, this feature allows total performance and resource demands of an application to be correlated with application activity.</para>
+<para>For example, developers can provide the following application performance metrics:</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>computation state</primary></indexterm>Computation state (especially for codes with major shifts in resource demands between phases of their execution)</para>
+</listitem>
+<listitem><para><indexterm><primary>parallelism</primary></indexterm>Problem size and parameters, that is, degree of parallelism throughput in terms of subproblems solved, iteration count, transactions, data sets inspected, and so on</para>
+</listitem>
+<listitem><para><indexterm><primary>service time</primary></indexterm>Service time by operation type</para>
+</listitem></itemizedlist>
+<para>The <filename>libpcp_trace</filename> library approach offers a number of attractive features:</para>
+<itemizedlist>
+<listitem><para>A simple API for inserting instrumentation calls into an application as shown in the following example:</para>
+<programlisting>pmtracebegin(&ldquo;pass 1&rdquo;);
+... 
+pmtraceend(&ldquo;pass 1&rdquo;); 
+...
+pmtraceobs(&ldquo;threads&rdquo;, N);</programlisting>
+</listitem>
+<listitem><para><indexterm><primary>languages</primary></indexterm>Trace routines that are called from C, C++, Fortran, and Java, and that are well suited to macro encapsulation for compile-time inclusion and exclusion.</para>
+</listitem>
+<listitem><para>Shipped source code for a stub version of the library that enables the following:</para>
+<itemizedlist><listitem><para>Replacement by private debugging or development versions</para>
+</listitem><listitem><para>Flexibility based on not being locked into a SGI program</para>
+</listitem><listitem><para>Added functionality on SGI platforms, when the PCP version of the library is present</para>
+</listitem></itemizedlist>
+</listitem>
+<listitem><para><indexterm><primary>environment variables</primary></indexterm>A PCP version of the library that allows numerical observations, measures time between matching begin-end calls, and so on to be shipped to a PCP agent and then exported into the PCP infrastructure. As exporting is controlled by environment variables, the overhead is very low if the metrics are not being exported.</para>
+</listitem></itemizedlist>
+<para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
+<itemizedlist>
+<listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity. <note><para>On Linux, visualization tools are not provided as part of the PCP for IA-64 Linux distribution.</para>
+</note></para>
+</listitem>
+<listitem><para><indexterm><primary>distributed performance management</primary><secondary>data transportation</secondary></indexterm>Transport of performance data over the network for distributed performance management.</para>
+</listitem>
+<listitem><para><indexterm><primary>archive logs</primary><secondary>performance management</secondary></indexterm>Archive logging for historical records of performance, most useful for problem diagnosis, postmortem analysis, performance regression testing, capacity planning, and benchmarking.</para>
+</listitem>
+<listitem><para><indexterm><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives.</para>
+</listitem>
+<listitem><para><indexterm><primary>toolkit approach</primary></indexterm><indexterm><primary>customization</primary></indexterm>A toolkit approach that encourages customization. For example, a complete PCP for XYZ package could be offered for performance monitoring of application XYZ on SGI and other Linux-based platforms.</para>
+</listitem></itemizedlist>
+</section>
+</chapter>
+<?Pub *0000037684 0>

@@ -1,0 +1,144 @@
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!--ArborText, Inc., 1988-1997, v.4001-->
+<!ENTITY a12189 SYSTEM "online/a12189.gif" NDATA gif>
+<!ENTITY c1pcp.sgml SYSTEM "c1pcp.sgml">
+<!ENTITY c2pmda.sgml SYSTEM "c2pmda.sgml">
+<!ENTITY c3pmapi.sgml SYSTEM "c3pmapi.sgml">
+<!ENTITY c4pmda.sgml SYSTEM "c4pmda.sgml">
+<!ENTITY appA.sgml SYSTEM "appA.sgml">
+<!ENTITY PCP_glob_process_architec SYSTEM "online/PCP_glob_process_architec.gif" NDATA gif>
+<!ENTITY process_struct_for_dist_op SYSTEM "online/process_struct_for_dist_op.gif" NDATA gif>
+<!ENTITY retrospect_analysis_architec SYSTEM "online/retrospect_analysis_architec.gif" NDATA gif>
+<!ENTITY struct_results_frm_pmFetch SYSTEM "online/struct_results_frm_pmFetch.gif" NDATA gif>
+<!ENTITY trace_1 SYSTEM "online/trace_1.gif" NDATA gif>
+<!ENTITY trace_buffer SYSTEM "online/trace_buffer.gif" NDATA gif>
+<!ENTITY trace_example SYSTEM "online/trace_example.gif" NDATA gif>
+<!ENTITY trace_libpcp SYSTEM "online/trace_libpcp.gif" NDATA gif>
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "IGNORE">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+]>
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<?Pub Inc>
+<sgidocbk>
+<book status="final" security="public">
+<bookinfo>
+<bookbiblio>
+<title><?Pub Caret>Performance Co-Pilot&trade; Programmer's Guide</title>
+<partnumber shorttitle="PCP_PG" bookshelf="sgi-developer"><classcode>007</classcode><base>3434</base><version>005</version></partnumber><edition>2.3</edition>
+</bookbiblio>
+<acknowledgements>
+<authorgroup>
+<title></title>
+<credit>Illustrated by Dany Galgani</credit>
+<credit>Edited by Susan Wilkening</credit>
+<credit>Production by Glen Traefald</credit>
+<credit>Engineering and written contributions by David Chatterton, Michael Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan Rayner, Terry Schultz, Nathan Scott, Timothy Shimmin, and Bill Tuthill</credit>
+</authorgroup>
+<!--The frontmatter contains many file entities. If you want to remove a file entity enter the following in the Command window: set showentities=none. Then highlight the file entity and cut it. To view full text again enter the command set showentities=file.-->
+<![ %public; [<legalnotice>
+<title>COPYRIGHT</title>
+<para>&copy; 1996&ndash;1999, 2001, 2002, Silicon Graphics, Inc. All rights reserved; provided portions  may be copyright in third parties, as indicated elsewhere herein. No permission is granted to copy, distribute, or create derivative works from the contents of this electronic documentation in any manner, in whole or in part, without the prior written permission of Silicon Graphics, Inc.</para>
+</legalnotice>]]><![ %private; [<legalnotice><title>SGI PRIVATE</title>
+<para>Copyright &copy; <replaceable>all years of publication</replaceable> Silicon Graphics,
+Inc. All Rights Reserved. 
+The contents of this document may not be copied or duplicated in 
+any manner, in whole or in part, without the prior written 
+permission of Silicon Graphics, Inc.
+</para>
+</legalnotice>]]><![ %proprietary; [<legalnotice><title>SGI PROPRIETARY</title>
+<para>Copyright &copy; <replaceable>all years of publication</replaceable> Silicon Graphics,
+Inc. All Rights Reserved. 
+The contents of this document may not be copied or duplicated in 
+any manner, in whole or in part, without the prior written 
+permission of Silicon Graphics, Inc.
+</para>
+</legalnotice>]]><![ %private; [<legalnotice>
+<para>This document contains information private to Silicon
+Graphics, Inc. It
+can be distributed to non-SGI personnel only with approval of the appropriate
+SGI manager.</para>
+</legalnotice>
+<legalnotice>
+<para>Restricted Rights Legend</para>
+<para>Use, duplication, or disclosure by the Government is subject to restrictions
+as set forth in the subparagraph [(c) (1) (ii)] of the rights in Technical
+Data and Computer Software clause at 52.227&ndash;7013. (October 1988)</para>
+<para>Cray Research, Inc. Unpublished Private Information - All Rights Reserved.
+</para>
+</legalnotice>]]><![ %proprietary; [<legalnotice>
+<para>Dissemination of this documentation to non-SGI personnel requires approval
+from the appropriate vice president and a nondisclosure agreement. Export
+of technical information in this category may require a Letter of Assurance.
+</para>
+<para>Restricted Rights Legend</para>
+<para>Use, duplication, or disclosure by the Government is subject to restrictions
+as set forth in the subparagraph [(c) (1) (ii)] of the rights in Technical
+Data and Computer Software clause at 52.227&ndash;7013. (October 1988)</para>
+<para>Silicon Graphics, Inc. Unpublished Private Information - All Rights Reserved.
+</para>
+</legalnotice>]]>&disclaimer;
+<legalnotice>
+<title>TRADEMARKS AND ATTRIBUTIONS</title>
+<para>Silicon Graphics, SGI, the SGI logo, IRIX are registered trademarks and Performance Co-Pilot is a trademark of Silicon Graphics, Inc. Cisco is a registered trademark of Cisco Systems, Inc. UNIX is a registered trademark of The Open Group.</para>
+<para>Cover design by Sarah Bolles, Sarah Bolles Design, and Dany Galgani, SGI Technical Publications.</para>
+</legalnotice>
+</acknowledgements>
+<newfeatures>
+<title>New Features in This Guide</title>
+<para>This manual has been updated with information to support  Performance Co-Pilot applications running on SGI IA-64 Linux machines.</para>
+<para>Corrected the Example 3&ndash;12, PMAPI Metrics Sevices, in <xref linkend="Z1034802678tls">.</para>
+<para>In addition, miscellaneous formatting and editing changes were made throughout the document.</para>
+</newfeatures>
+<revhistory>
+<title></title>
+<revision>
+<revnumber>003</revnumber><date>July 1999</date>
+<revremark>Revised to support the Performance Co-Pilot release 2.1 for SGI systems running the IRIX 6.2, 6.3, 6.4, and 6.5 operating systems.</revremark>
+</revision>
+<revision>
+<revnumber>004</revnumber><date>March 2001</date>
+<revremark>Revised to support the Performance Co-Pilot release 2.2 for SGI systems running the IRIX 6.2, 6.3, 6.4, and 6.5.11 and later operating systems.</revremark>
+</revision>
+<revision>
+<revnumber>005</revnumber><date>December 2002</date>
+<revremark>Revised to support the Performance Co-Pilot release 2.3 for SGI systems running the IRIX 6.5.18 and later operating systems or the SGI ProPack 2.1 for Linux or later operating systems.</revremark>
+</revision></revhistory>
+</bookinfo>
+<toc>
+<lof>
+<lot>
+<loe>
+<lop>&preface.sgml;
+&chap01.sgml;
+&chap02.sgml;
+&chap03.sgml;
+&chap04.sgml;
+&chapA.sgml;
+<index></index>
+</book></sgidocbk>
+<?Pub *0000008087 0>

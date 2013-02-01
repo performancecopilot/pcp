@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type"><title>About This Guide</title><meta name="generator" content="DocBook XSL Stylesheets V1.51.1"><meta name="generator" content="SGI XSL DocBook Customization Stylesheets V1.1"><link rel="home" href="index.html" title="Performance Co-Pilot&#8482; Programmer's Guide"><link rel="up" href="index.html" title="Performance Co-Pilot&#8482; Programmer's Guide"><link rel="previous" href="pr01.html" title="New Features in This Guide"><link rel="next" href="ch01.html" title="Chapter 1. Programming Performance Co-Pilot"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">About This Guide</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="pr01.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ch01.html">Next</a></td></tr></table><hr></div><!--CONTENT_BEGIN--><a name="sgi_start_content"></a><div class="preface"><div class="titlepage"><div><h2 class="title"><a name="id5178752"></a>About This Guide</h2></div></div>
+<p>This guide describes how to program Performance Co-Pilot (PCP), a software package of advanced performance management applications for the SGI family of graphical workstations and servers. PCP provides a systems-level suite of tools that cooperate to deliver distributed, integrated performance monitoring and performance management services spanning the hardware platform, the operating system, service layers, user applications, and distributed application architectures.</p>
+<div class="section"><div class="titlepage"><div><h2 class="title"><a name="id5178771"></a>1. What This Guide Contains</h2></div></div>
+<p>This guide contains the following chapters:</p>
+<div class="itemizedlist"><ul type="disc"><li><p><a href="ch01.html" title="Chapter 1. Programming Performance Co-Pilot">Chapter 1, &#8220;Programming Performance Co-Pilot&#8221;</a>, contains a thumbnail sketch of how to program the various PCP components.</p>
+</li>
+<li><p><a href="ch02.html" title="Chapter 2. Writing a PMDA">Chapter 2, &#8220;Writing a PMDA&#8221;</a>, describes how to write Performance Metrics Domain Agents (PMDAs) for PCP.</p>
+</li>
+<li><p><a href="ch03.html" title="Chapter 3. PMAPI--The Performance Metrics API">Chapter 3, &#8220;PMAPI--The Performance Metrics API&#8221;</a>, describes the interface that allows you to design custom performance monitoring tools.</p>
+</li>
+<li><p><a href="ch04.html" title="Chapter 4. Trace PMDA">Chapter 4, &#8220;Trace PMDA&#8221;</a>, provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA).</p>
+</li>
+<li><p><a href="apa.html" title="Appendix A. Acronyms">Appendix A, &#8220;Acronyms&#8221;</a>, provides a comprehensive list of the acronyms used in this guide, in the PCP man pages, and in the release notes.</p>
+</li>
+</ul></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="id5178891"></a>2. Audience for This Guide</h2></div></div>
+<p>The guide describes the programming interfaces to Performance Co-Pilot (PCP) for the following intended audience:</p>
+<div class="itemizedlist"><ul type="disc"><li><p>Performance analysts or system administrators who want to extend or customize performance monitoring tools available with PCP</p>
+</li>
+<li><p>Developers who need to integrate their applications into the PCP framework</p>
+</li>
+</ul></div><p>This book is written for those who are competent with the C programming language, the UNIX or the Linux operating systems, and the target domain from which the desired performance metrics are to be extracted. Familiarity with the PCP tool suite is assumed.</p>
+</div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="id5178933"></a>3. Related Resources</h2></div></div>
+<p>The <i>Performance Co-Pilot for IRIX Advanced User's and Administrator's Guide</i> and <i>Performance Co-Pilot for IA-64 Linux User's and Administrator's Guide</i>, which are companion documents to the <i>Performance Co-Pilot Programmer's Guide</i>, are intended for system administrators and performance analysts who are directly using and administering PCP applications.</p>
+<p>Additional resources include man pages, release notes (IRIX only), and SGI Web sites.</p>
+<div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5178968"></a>3.1. Man Pages</h3></div></div>
+<p>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, enter the following command:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>man -k performance</tt></b></pre></td></tr></table><p>To see a particular man page, supply its name to the <tt>man</tt> command, for example:</p>
+<table bgcolor="#E0E0E0" width="90%" border="1" cellpadding="10"><tr><td><pre class="literallayout"><b><tt>man pcp</tt></b></pre></td></tr></table><p>The man pages are divided into the following seven sections:</p>
+<div class="variablelist"><a name="Z927138113sdc"></a><table border="0" cellspacing="3"><tr valign="top"><td width="15%"><span class="term">(1)</span></td><td width="85%"><p>General commands</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(2)</span></td><td width="85%"><p>System calls and error numbers</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(3)</span></td><td width="85%"><p>Library subroutines</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(4)</span></td><td width="85%"><p>File formats</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(5)</span></td><td width="85%"><p>Miscellaneous</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(6)</span></td><td width="85%"><p>Demos and games</p>
+
+</td></tr><tr valign="top"><td width="15%"><span class="term">(7)</span></td><td width="85%"><p>Special files</p>
+
+</td></tr></table></div><p>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, <tt>pmda(3)</tt> refers to the man page in section 3 for the <tt>pmda</tt> command.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5179157"></a>3.2. Release Notes</h3></div></div>
+<p>Release notes provide specific information about the current product release, available online through the <tt>relnotes</tt> command. Exceptions to the printed and online documentation are found in the release notes. The <tt>grelnotes</tt> command provides a graphical interface to the release notes of all products installed on your system. For additional information, see the <tt>relnotes(1)</tt> and <tt>grelnotes(1)</tt> man pages. Release notes are not available on the Linux operating system.</p>
+</div><div class="section"><div class="titlepage"><div><h3 class="title"><a name="id5179196"></a>3.3. SGI Web Sites</h3></div></div>
+<p>The following Web sites are accessible to everyone with general Internet access:</p>
+<div class="variablelist"><table border="0" cellspacing="3"><tr valign="top"><td width="45%"><span class="term"><span class="bold"><b>URL</b></span></span></td><td width="55%"><p><span class="bold"><b>Description</b></span></p>
+
+</td></tr><tr valign="top"><td width="45%"><span class="term"><a href="http://www.sgi.com" target="_top">http://www.sgi.com</a></span></td><td width="55%"><p>The SGI general Web site, with search capability</p>
+
+</td></tr><tr valign="top"><td width="45%"><span class="term"><a href="http://www.sgi.com/software" target="_top">http://www.sgi.com/software</a></span></td><td width="55%"><p>Links to Performance Co-Pilot product information</p>
+
+</td></tr><tr valign="top"><td width="45%"><span class="term"><a href="http://oss.sgi.com/projects/pcp" target="_top">http://oss.sgi.com/projects/pcp</a></span></td><td width="55%"><p>Some parts of the PCP infrastructure that have also been released as open source</p>
+
+</td></tr></table></div></div></div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="id5179276"></a>4. Obtaining Publications</h2></div></div>
+<p>You can obtain SGI documentation in the following ways:<p><div class="itemizedlist"><ul type="disc"><li><p>See the SGI Technical Publications Library at: <a href="http://docs.sgi.com" target="_top">http://docs.sgi.com</a>. Various formats are available. This library contains the most recent and most comprehensive set of online books, release notes, man pages, and other information.</p>
+</li>
+<li><p>If it is installed on your SGI system, you can use InfoSearch, an online tool that provides a more limited set of online books, release notes, and man pages. With an IRIX system, select <b>Help</b> from the Toolchest, and then select <b>InfoSearch</b>. Or you can type <tt>infosearch</tt> on a command line.</p>
+</li>
+<li><p>You can also view release notes by typing either <tt>grelnotes</tt> or <tt>relnotes</tt> on a command line.</p>
+</li>
+<li><p>You can also view man pages by typing <tt>man</tt> <i>title</i> on a command line.</p>
+</li>
+</ul></div></p>
+</div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="Z825545312melby"></a>5. Conventions</h2></div></div>
+<p>The following conventions are used throughout this document:<div class="variablelist"><table border="0" cellspacing="3"><tr valign="top"><td><span class="term"><span class="bold"><b>Convention</b></span></span></td><td width="10"> </td><td><p><span class="bold"><b>Meaning</b></span></p>
+
+</td></tr><tr valign="top"><td><span class="term"><tt>command</tt></span></td><td width="10"> </td><td><p>This fixed-space font denotes literal  items such as commands,
+files, routines,  path names, signals, messages, and  programming language
+structures. </p>
+
+</td></tr><tr valign="top"><td><span class="term"><i>variable</i></span></td><td width="10"> </td><td><p>Italic typeface denotes variable entries  and words or concepts being
+defined.</p>
+
+</td></tr><tr valign="top"><td><span class="term"><b><tt>user input</tt></b></span></td><td width="10"> </td><td><p>This bold, fixed-space font denotes literal  items that the user enters in interactive  sessions.  (Output is shown in nonbold,  fixed-space font.)</p>
+
+</td></tr><tr valign="top"><td><span class="term">[ ]</span></td><td width="10"> </td><td><p>Brackets enclose optional portions of a  command or directive line.</p>
+
+</td></tr><tr valign="top"><td><span class="term">...</span></td><td width="10"> </td><td><p>Ellipses indicate that a preceding element can be repeated.</p>
+
+</td></tr><tr valign="top"><td><span class="term">ALL CAPS</span></td><td width="10"> </td><td><p>All capital letters denote environment variables, operator names, directives, defined constants, and macros in C programs.</p>
+
+</td></tr><tr valign="top"><td><span class="term">()</span></td><td width="10"> </td><td><p>Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow IRIX commands surround man page section numbers.</p>
+
+</td></tr></table></div></p>
+</div><div class="section"><div class="titlepage"><div><h2 class="title"><a name="z825546061melby"></a>6. Reader Comments</h2></div></div>
+<p>If you have comments about the technical accuracy, content, or organization of this document, contact SGI. Be sure to include the  title and document number of the manual with your comments. (Online,  the document number is located in the front matter of the manual.  In printed manuals, the document number is located at the bottom of each page.)</p>
+<p>You can contact SGI in any of the following ways:<p><div class="itemizedlist"><ul type="disc"><li><p>Send e-mail to the following address:</p>
+<p>techpubs@sgi.com</p>
+</li>
+<li><p>Use the Feedback option on the Technical Publications Library Web page:</p>
+<p><a href="http://docs.sgi.com" target="_top">http://docs.sgi.com</a></p>
+</li>
+<li><p>Contact your customer service representative and ask that an incident be filed in the SGI incident tracking system.</p>
+</li>
+<li><p>Send mail to the following address:<table class="simplelist" border="0" summary="Simple list"><tr><td>Technical Publications</td></tr><tr><td>SGI</td></tr><tr><td>1600 Amphitheatre Parkway, M/S 535</td></tr><tr><td>Mountain View, California 94043-1351</td></tr></table></p>
+</li>
+<li><p>Send a fax to the attention of &#8220;Technical Publications&#8221; at +1 650 932 0801.</p>
+</li>
+</ul></div></p>
+<p>SGI values your comments and will respond to them promptly.</p>
+</div></div><!--CONTENT_END--><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="pr01.html">Prev</a> </td><td width="20%" align="center"><a accesskey="h" href="index.html">Table of Contents</a></td><td width="40%" align="right"> <a accesskey="n" href="ch01.html">Next</a></td></tr><tr><td width="40%" align="left">New Features in This Guide </td><td width="20%" align="center"> </td><td width="40%" align="right">Chapter 1. Programming Performance Co-Pilot </td></tr></table></div></body></html>

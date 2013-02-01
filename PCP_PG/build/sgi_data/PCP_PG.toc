@@ -1,0 +1,262 @@
+# defaults |
+0|Performance Co-Pilot&#8482; Programmer's Guide|sgi_html/index.html
+1|Front Matter|sgi_html/front.html
+1|New Features in This Guide|sgi_html/pr01.html
+1|About This Guide|sgi_html/pr02.html
+2|1. What This Guide Contains|sgi_html/pr02.html#id5178771
+2|2. Audience for This Guide|sgi_html/pr02.html#id5178891
+2|3. Related Resources|sgi_html/pr02.html#id5178933
+3|3.1. Man Pages|sgi_html/pr02.html#id5178968
+3|3.2. Release Notes|sgi_html/pr02.html#id5179157
+3|3.3. SGI Web Sites|sgi_html/pr02.html#id5179196
+2|4. Obtaining Publications|sgi_html/pr02.html#id5179276
+2|5. Conventions|sgi_html/pr02.html#Z825545312melby
+2|6. Reader Comments|sgi_html/pr02.html#z825546061melby
+1|Chapter 1. Programming Performance Co-Pilot|sgi_html/ch01.html
+2|1.1. PCP Architecture|sgi_html/ch01.html#id5177140
+3|1.1.1. Distributed Collection|sgi_html/ch01.html#id5177343
+3|1.1.2. Name Space|sgi_html/ch01.html#id5177529
+3|1.1.3. Distributed PMNS|sgi_html/ch01.html#id5177616
+3|1.1.4. Retrospective Sources of Performance Metrics|sgi_html/ch01.html#id5177692
+2|1.2. Overview of Component Software|sgi_html/ch01.html#LE13618-PARENT
+3|1.2.1. Application and Agent Development|sgi_html/ch01.html#id5177879
+2|1.3. PMDA Development|sgi_html/ch01.html#LE16056-PARENT
+3|1.3.1. Overview|sgi_html/ch01.html#id5178205
+3|1.3.2. Building a PMDA|sgi_html/ch01.html#id5178242
+4|1.3.2.1. In-Process (DSO) Method|sgi_html/ch01.html#id5178295
+4|1.3.2.2. Daemon Process Method|sgi_html/ch01.html#id5178384
+4|1.3.2.3. Shell Process Method|sgi_html/ch01.html#id5178420
+2|1.4. Client Development and PMAPI|sgi_html/ch01.html#id5178467
+2|1.5. Library Reentrancy and Threaded Applications|sgi_html/ch01.html#id5187605
+1|Chapter 2. Writing a PMDA|sgi_html/ch02.html
+2|2.1. Implementing a PMDA|sgi_html/ch02.html#id5187772
+2|2.2. PMDA Architecture|sgi_html/ch02.html#id5188149
+3|2.2.1. Overview|sgi_html/ch02.html#id5188221
+3|2.2.2. DSO PMDA|sgi_html/ch02.html#LE82676-PARENT
+3|2.2.3. Daemon PMDA|sgi_html/ch02.html#id5188840
+3|2.2.4. Caching PMDA|sgi_html/ch02.html#id5189181
+2|2.3. Domains, Metrics, and Instances|sgi_html/ch02.html#LE97285-PARENT
+3|2.3.1. Overview|sgi_html/ch02.html#id5189300
+3|2.3.2. Domains|sgi_html/ch02.html#id5189538
+3|2.3.3. Metrics|sgi_html/ch02.html#LE98565-PARENT
+4|2.3.3.1. Data Structures|sgi_html/ch02.html#id5189689
+4|2.3.3.2. Semantics|sgi_html/ch02.html#id5190312
+3|2.3.4. Instances|sgi_html/ch02.html#id5190481
+4|2.3.4.1. N Dimensional Data|sgi_html/ch02.html#id5190506
+4|2.3.4.2. Data Structures|sgi_html/ch02.html#id5190626
+2|2.4. Other Issues|sgi_html/ch02.html#id5191164
+3|2.4.1. Extracting the Information|sgi_html/ch02.html#id5191177
+3|2.4.2. Latency and Threads of Control|sgi_html/ch02.html#id5191305
+3|2.4.3. Name Space|sgi_html/ch02.html#LE83854-PARENT
+3|2.4.4. PMDA Help Text|sgi_html/ch02.html#LE72473-PARENT
+3|2.4.5. Management of Evolution within a PMDA|sgi_html/ch02.html#id5191869
+2|2.5. DSO Interface|sgi_html/ch02.html#LE21831-PARENT
+3|2.5.1. Overview|sgi_html/ch02.html#id5192358
+4|2.5.1.1. Trivial PMDA|sgi_html/ch02.html#id5192570
+4|2.5.1.2. Simple PMDA|sgi_html/ch02.html#id5192681
+4|2.5.1.3. simple_store in the Simple PMDA|sgi_html/ch02.html#id5193108
+4|2.5.1.4. Return Codes for pmdaFetch Callbacks|sgi_html/ch02.html#id5193469
+3|2.5.2. PMDA Structures|sgi_html/ch02.html#id5193658
+2|2.6. Initializing a PMDA|sgi_html/ch02.html#LE19047-PARENT
+3|2.6.1. Overview|sgi_html/ch02.html#id5194056
+3|2.6.2. Common Initialization|sgi_html/ch02.html#id5194087
+4|2.6.2.1. Trivial PMDA|sgi_html/ch02.html#id5194313
+4|2.6.2.2. Simple PMDA|sgi_html/ch02.html#id5194416
+3|2.6.3. Daemon Initialization|sgi_html/ch02.html#id5194563
+2|2.7. Testing and Debugging a PMDA|sgi_html/ch02.html#id5194770
+3|2.7.1. Overview|sgi_html/ch02.html#id5194836
+3|2.7.2. Debugging Information|sgi_html/ch02.html#id5195016
+3|2.7.3. dbpmda Debug Utility|sgi_html/ch02.html#id5195283
+2|2.8. Integration of PMDA|sgi_html/ch02.html#id5195340
+3|2.8.1. Installing a PMDA|sgi_html/ch02.html#LE55181-PARENT
+3|2.8.2. Upgrading a PMNS to Include Metrics from a New PMDA|sgi_html/ch02.html#id5197100
+3|2.8.3. Removing a PMDA|sgi_html/ch02.html#Z976310185sdc
+3|2.8.4. Configuring PCP Tools|sgi_html/ch02.html#id5197301
+1|Chapter 3. PMAPI--The Performance Metrics API|sgi_html/ch03.html
+2|3.1. Naming and Identifying Performance Metrics|sgi_html/ch03.html#LE87626-PARENT
+2|3.2. Performance Metric Instances|sgi_html/ch03.html#id5197718
+2|3.3. Current PMAPI Context|sgi_html/ch03.html#id5198049
+2|3.4. Performance Metric Descriptions|sgi_html/ch03.html#LE11914-PARENT
+2|3.5. Performance Metrics Values|sgi_html/ch03.html#LE82331-PARENT
+2|3.6. PMAPI Programming Style and Interaction|sgi_html/ch03.html#id5199203
+3|3.6.1. Variable Length Argument and Results Lists|sgi_html/ch03.html#LE37655-PARENT
+3|3.6.2. PMAPI Error Handling|sgi_html/ch03.html#LE62826-PARENT
+2|3.7. PMAPI Procedural Interface|sgi_html/ch03.html#id5199561
+3|3.7.1. PMAPI Name Space Services|sgi_html/ch03.html#LE32034-PARENT
+4|3.7.1.1. pmGetChildren Function|sgi_html/ch03.html#id5199677
+4|3.7.1.2. pmGetChildrenStatus Function|sgi_html/ch03.html#id5199872
+4|3.7.1.3. pmGetPMNSLocation Function|sgi_html/ch03.html#id5200032
+4|3.7.1.4. pmLoadNameSpace Function|sgi_html/ch03.html#id5200074
+4|3.7.1.5. pmLoadASCIINameSpace Function|sgi_html/ch03.html#id5200158
+4|3.7.1.6. pmLookupName Function|sgi_html/ch03.html#id5200342
+4|3.7.1.7. pmNameAll Function|sgi_html/ch03.html#id5200423
+4|3.7.1.8. pmNameID Function|sgi_html/ch03.html#id5200532
+4|3.7.1.9. pmTraversePMNS Function|sgi_html/ch03.html#id5200683
+4|3.7.1.10. pmUnloadNameSpace Function|sgi_html/ch03.html#id5200806
+3|3.7.2. PMAPI Metrics Description Services|sgi_html/ch03.html#LE89521-PARENT
+4|3.7.2.1. pmLookupDesc Function|sgi_html/ch03.html#id5200868
+4|3.7.2.2. pmLookupInDomText Function|sgi_html/ch03.html#id5200999
+4|3.7.2.3. pmLookupText Function|sgi_html/ch03.html#id5201140
+3|3.7.3. PMAPI Instance Domain Services|sgi_html/ch03.html#LE27200-PARENT
+4|3.7.3.1. pmGetInDom Function|sgi_html/ch03.html#id5201278
+4|3.7.3.2. pmLookupInDom Function|sgi_html/ch03.html#id5201511
+4|3.7.3.3. pmNameInDom Function|sgi_html/ch03.html#id5201553
+3|3.7.4. PMAPI Context Services|sgi_html/ch03.html#LE94187-PARENT
+4|3.7.4.1. pmNewContext Function|sgi_html/ch03.html#id5203779
+4|3.7.4.2. pmDestroyContext Function|sgi_html/ch03.html#id5203964
+4|3.7.4.3. pmDupContext Function|sgi_html/ch03.html#id5204063
+4|3.7.4.4. pmUseContext Function|sgi_html/ch03.html#id5204116
+4|3.7.4.5. pmWhichContext Function|sgi_html/ch03.html#id5204177
+4|3.7.4.6. pmAddProfile Function|sgi_html/ch03.html#id5204210
+4|3.7.4.7. pmDelProfile Function|sgi_html/ch03.html#id5204360
+4|3.7.4.8. pmSetMode Function|sgi_html/ch03.html#id5204444
+4|3.7.4.9. pmReconnectContext Function|sgi_html/ch03.html#id5204926
+4|3.7.4.10. pmGetContextHostName Function|sgi_html/ch03.html#id5205074
+3|3.7.5. PMAPI Timezone Services|sgi_html/ch03.html#LE34685-PARENT
+4|3.7.5.1. pmNewContextZone Function|sgi_html/ch03.html#id5205140
+4|3.7.5.2. pmNewZone Function|sgi_html/ch03.html#id5205286
+4|3.7.5.3. pmUseZone Function|sgi_html/ch03.html#id5205362
+4|3.7.5.4. pmWhichZone Function|sgi_html/ch03.html#id5205444
+3|3.7.6. PMAPI Metrics Services|sgi_html/ch03.html#LE25844-PARENT
+4|3.7.6.1. pmFetch Function|sgi_html/ch03.html#Z1034802678tls
+4|3.7.6.2. pmFreeResult Function|sgi_html/ch03.html#id5205941
+4|3.7.6.3. pmStore Function|sgi_html/ch03.html#id5206030
+3|3.7.7. PMAPI Record-Mode Services|sgi_html/ch03.html#LE40692-PARENT
+4|3.7.7.1. pmRecordAddHost Function|sgi_html/ch03.html#LE13213-PARENT
+4|3.7.7.2. pmRecordControl Function|sgi_html/ch03.html#LE35969-PARENT
+4|3.7.7.3. pmRecordSetup Function|sgi_html/ch03.html#id5206798
+3|3.7.8. PMAPI Archive-Specific Services|sgi_html/ch03.html#LE85604-PARENT
+4|3.7.8.1. pmGetArchiveLabel Function|sgi_html/ch03.html#id5207510
+4|3.7.8.2. pmGetArchiveEnd Function|sgi_html/ch03.html#id5207673
+4|3.7.8.3. pmGetInDomArchive Function|sgi_html/ch03.html#id5207751
+4|3.7.8.4. pmLookupInDomArchive Function|sgi_html/ch03.html#id5207937
+4|3.7.8.5. pmNameInDomArchive Function|sgi_html/ch03.html#id5208032
+4|3.7.8.6. pmFetchArchive Function|sgi_html/ch03.html#id5208144
+3|3.7.9. PMAPI Time Control Services|sgi_html/ch03.html#LE73955-PARENT
+2|3.8. PMAPI Ancillary Support Services|sgi_html/ch03.html#LE44064-PARENT
+3|3.8.1. pmGetConfig Function|sgi_html/ch03.html#id5208965
+3|3.8.2. pmErrStr Function|sgi_html/ch03.html#id5209050
+3|3.8.3. pmExtractValue Function|sgi_html/ch03.html#id5209112
+3|3.8.4. pmConvScale Function|sgi_html/ch03.html#id5210752
+3|3.8.5. pmUnitsStr Function|sgi_html/ch03.html#id5210895
+3|3.8.6. pmIDStr Function|sgi_html/ch03.html#id5210994
+3|3.8.7. pmInDomStr Function|sgi_html/ch03.html#id5211046
+3|3.8.8. pmTypeStr Function|sgi_html/ch03.html#id5211095
+3|3.8.9. pmAtomStr Function|sgi_html/ch03.html#id5211169
+3|3.8.10. pmNumberStr Function|sgi_html/ch03.html#id5211303
+3|3.8.11. pmPrintValue Function|sgi_html/ch03.html#id5211350
+3|3.8.12. pmflush Function|sgi_html/ch03.html#id5211504
+3|3.8.13. pmprintf Function|sgi_html/ch03.html#id5211641
+3|3.8.14. pmSortInstances Function|sgi_html/ch03.html#id5211762
+3|3.8.15. pmParseInterval Function|sgi_html/ch03.html#id5211834
+3|3.8.16. pmParseMetricSpec Function|sgi_html/ch03.html#id5211943
+2|3.9. PMAPI Programming Issues and Examples|sgi_html/ch03.html#id5212196
+3|3.9.1. Symbolic Association between a Metric's Name and Value|sgi_html/ch03.html#id5212297
+3|3.9.2. Initializing New Metrics|sgi_html/ch03.html#id5212519
+3|3.9.3. Iterative Processing of Values|sgi_html/ch03.html#id5212595
+3|3.9.4. Accommodating Program Evolution|sgi_html/ch03.html#id5212682
+3|3.9.5. Handling PMAPI Errors|sgi_html/ch03.html#id5212805
+3|3.9.6. Compiling and Linking PMAPI Applications|sgi_html/ch03.html#id5212855
+1|Chapter 4. Trace PMDA|sgi_html/ch04.html
+2|4.1. Performance Instrumentation and Tracing|sgi_html/ch04.html#id5213106
+2|4.2. Trace PMDA Design|sgi_html/ch04.html#id5213287
+3|4.2.1. Application Interaction|sgi_html/ch04.html#id5213308
+3|4.2.2. Sampling Techniques|sgi_html/ch04.html#id5213449
+4|4.2.2.1. Simple Periodic Sampling|sgi_html/ch04.html#id5213576
+4|4.2.2.2. Rolling-Window Periodic Sampling|sgi_html/ch04.html#LE42586-PARENT
+4|4.2.2.3. Rolling-Window Periodic Sampling Example|sgi_html/ch04.html#id5213803
+3|4.2.3. Configuring the Trace PMDA|sgi_html/ch04.html#id5213903
+2|4.3. Trace API|sgi_html/ch04.html#LE26087-PARENT
+3|4.3.1. Transactions|sgi_html/ch04.html#id5214320
+3|4.3.2. Point Tracing|sgi_html/ch04.html#id5214714
+3|4.3.3. Observations and Counters|sgi_html/ch04.html#id5214931
+3|4.3.4. Configuring the Trace Library|sgi_html/ch04.html#id5215241
+2|4.4. Instrumenting Applications to Export Performance Data|sgi_html/ch04.html#id5216224
+1|Appendix A. Acronyms|sgi_html/apa.html
+1|Index|sgi_html/ix01.html
+# figures |
+3|Figure 1-1. PCP Global Process Architecture|sgi_html/ch01.html#id5177328
+4|Figure 1-2. Process Structure for Distributed Operation|sgi_html/ch01.html#id5177408
+4|Figure 1-3. Architecture for Retrospective Analysis|sgi_html/ch01.html#id5177742
+3|Figure 3-1. A Structured Result for Performance Metrics from pmFetch|sgi_html/ch03.html#id5198718
+4|Figure 4-1. Trace PMDA Overview|sgi_html/ch04.html#id5213335
+5|Figure 4-2. Sample Duration Comparison|sgi_html/ch04.html#id5213739
+5|Figure 4-3. Sampling Intervals|sgi_html/ch04.html#id5213848
+3|Figure 4-4. Application and PCP Relationship|sgi_html/ch04.html#id5216302
+# tables |
+4|Table 2-1. Variables to Control Behavior of Generic pmdaproc.sh Procedures|sgi_html/ch02.html#id5195779
+4|Table 3-1. Context Components of PMAPI Functions|sgi_html/ch03.html#id5201726
+4|Table 3-2. Time Control Functions in PMAPI|sgi_html/ch03.html#id5208351
+4|Table 3-3. PMAPI Type Conversion|sgi_html/ch03.html#id5209524
+4|Table 4-1. Selected Command-Line Options|sgi_html/ch04.html#id5213936
+4|Table 4-2. trace.transact Metrics|sgi_html/ch04.html#id5214410
+4|Table 4-3. trace.point Metrics|sgi_html/ch04.html#id5214762
+4|Table 4-4. trace.observe Metrics|sgi_html/ch04.html#id5215021
+4|Table 4-5. Environment Variables|sgi_html/ch04.html#id5215299
+4|Table 4-6. State Flags|sgi_html/ch04.html#id5215745
+2|Table A-1. Performance Co-Pilot Acronyms and Their Meanings|sgi_html/apa.html#id5216717
+# examples |
+4|Example 2-1. Simple IRIX PMDA as a DSO|sgi_html/ch02.html#Z963514088sdc
+4|Example 2-2. Simple Linux PMDA as a DSO|sgi_html/ch02.html#Z1033502809tls
+4|Example 2-3. Simple IRIX PMDA as a Daemon|sgi_html/ch02.html#Z963516216sdc
+4|Example 2-4. Simple Linux PMDA as a Daemon|sgi_html/ch02.html#Z1033576478tls
+5|Example 2-5. _pmID_int Structure in IRIX|sgi_html/ch02.html#Z975969343sdc
+5|Example 2-6. _pmID_int Structure in Linux|sgi_html/ch02.html#Z1033577630tls
+5|Example 2-7. pmdaMetric Structure|sgi_html/ch02.html#Z976036629sdc
+5|Example 2-8. Trivial PMDA|sgi_html/ch02.html#Z963521873sdc
+5|Example 2-9. Effect of Semantics on a Metric|sgi_html/ch02.html#Z963522765sdc
+5|Example 2-10. pmdaInstid Structure|sgi_html/ch02.html#Z975964618sdc
+5|Example 2-11. pmdaIndom Structure|sgi_html/ch02.html#Z975964773sdc
+5|Example 2-12. _pmInDom_int Structure in IRIX|sgi_html/ch02.html#Z975964872sdc
+5|Example 2-13. _pmInDom_int Structure in Linux|sgi_html/ch02.html#Z1033578294tls
+5|Example 2-14. Simple PMDA|sgi_html/ch02.html#Z963524114sdc
+4|Example 2-15. pmns File for the Simple PMDA|sgi_html/ch02.html#Z963526380sdc
+4|Example 2-16. Alternate pmns File for the Simple PMDA|sgi_html/ch02.html#Z976046292sdc
+4|Example 2-17. Help Text for the Simple PMDA|sgi_html/ch02.html#Z963526754sdc
+4|Example 2-18. Setting Values|sgi_html/ch02.html#Z976047129sdc
+5|Example 2-19. Request Handing Callbacks in the Trivial PMDA|sgi_html/ch02.html#Z964109292sdc
+5|Example 2-20. Request Handing Callbacks in the Simple PMDA|sgi_html/ch02.html#Z964110950sdc
+5|Example 2-21. simple.numfetch Metric|sgi_html/ch02.html#Z976306482sdc
+5|Example 2-22. simple.color Metric|sgi_html/ch02.html#Z976049747sdc
+5|Example 2-23. simple.time Metric|sgi_html/ch02.html#Z976049353sdc
+5|Example 2-24. simple.now Metric|sgi_html/ch02.html#Z976049020sdc
+5|Example 2-25. simple_store in the Simple PMDA|sgi_html/ch02.html#Z964111850sdc
+5|Example 2-26. simple.color and PM_ERR_INST Errors|sgi_html/ch02.html#Z976051081sdc
+5|Example 2-27. PM_ERR_PMID Errors|sgi_html/ch02.html#Z976307148sdc
+5|Example 2-28. -EACCES and PM_ERR_PMID Errors|sgi_html/ch02.html#Z976050822sdc
+4|Example 2-29. pmdaInterface Structure|sgi_html/ch02.html#Z964112160sdc
+4|Example 2-30. pmdaExt Stucture|sgi_html/ch02.html#Z964117744sdc
+5|Example 2-31. Initialization in the Trivial PMDA|sgi_html/ch02.html#Z976058585sdc
+5|Example 2-32. Initialization in the Simple PMDA|sgi_html/ch02.html#Z976058770sdc
+4|Example 2-33. main in the Simple PMDA|sgi_html/ch02.html#Z964110483sdc
+4|Example 2-34. simple.numfetch in the Simple PMDA|sgi_html/ch02.html#Z976060060sdc
+4|Example 2-35. Install Script for the Trivial PMDA|sgi_html/ch02.html#Z976309325sdc
+4|Example 2-36. Changing Variable Assignments|sgi_html/ch02.html#Z976309844sdc
+3|Example 3-1. Metrics Sharing the Same Instance Domain|sgi_html/ch03.html#Z976548024sdc
+3|Example 3-2. pmDesc Structure|sgi_html/ch03.html#Z976548425sdc
+3|Example 3-3. pmUnits and pmDesc IRIX Structures|sgi_html/ch03.html#Z976557554sdc
+3|Example 3-4. pmUnits and pmDesc Linux Structures|sgi_html/ch03.html#Z1034792511tls
+3|Example 3-5. pmValueBlock and pmValue Structures|sgi_html/ch03.html#Z976557818sdc
+3|Example 3-6. pmValueBlock Structure in IRIX|sgi_html/ch03.html#Z976812872sdc
+3|Example 3-7. pmValueBlock Structure in Linux|sgi_html/ch03.html#Z1034793414tls
+3|Example 3-8. pmValueSet Structure|sgi_html/ch03.html#Z976549488sdc
+3|Example 3-9. pmResult Structure|sgi_html/ch03.html#Z976549833sdc
+5|Example 3-10. Dumping Values in Temporal Sequence|sgi_html/ch03.html#Z976827209sdc
+5|Example 3-11. Replaying Interpolated Metrics|sgi_html/ch03.html#Z976827219sdc
+5|Example 3-12. PMAPI Metrics Services|sgi_html/ch03.html#Z976559487sdc
+5|Example 3-13. pmRecordHost Structure|sgi_html/ch03.html#Z976560662sdc
+5|Example 3-14. pmLogLabel Structure|sgi_html/ch03.html#Z976561683sdc
+4|Example 3-15. pmAtomValue Structure|sgi_html/ch03.html#Z976562908sdc
+4|Example 3-16. Using pmPrintValue to Print Values|sgi_html/ch03.html#Z976565414sdc
+4|Example 3-17. pmMetricSpec Structure|sgi_html/ch03.html#Z976566126sdc
+4|Example 3-18. C Code Produced by pmgenmap Input|sgi_html/ch03.html#Z976566536sdc
+4|Example 3-19. Initializing Metric Specifications|sgi_html/ch03.html#Z976566793sdc
+4|Example 3-20. Iterative Processing|sgi_html/ch03.html#Z976567058sdc
+4|Example 3-21. Adding a Metric|sgi_html/ch03.html#Z976567218sdc
+4|Example 3-22. PMAPI Error Handling|sgi_html/ch03.html#id5212839
+4|Example 4-1. Rolling-Window Sampling Technique|sgi_html/ch04.html#Z976568222sdc
+# procedures |
+3|Procedure 2-1. Creating a PMDA|sgi_html/ch02.html#id5187871
+5|Procedure 3-1. Creating a Recording Session|sgi_html/ch03.html#id5206969
+# helpids |
+

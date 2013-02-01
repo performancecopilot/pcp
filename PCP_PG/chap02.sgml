@@ -1,0 +1,1281 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY c1pcp.sgml SYSTEM "c1pcp.sgml">
+<!ENTITY c2pmda.sgml SYSTEM "c2pmda.sgml">
+<!ENTITY c3pmapi.sgml SYSTEM "c3pmapi.sgml">
+<!ENTITY c4pmda.sgml SYSTEM "c4pmda.sgml">
+<!ENTITY appA.sgml SYSTEM "appA.sgml">
+<!ENTITY PCP_glob_process_architec SYSTEM "online/PCP_glob_process_architec.gif" NDATA gif>
+<!ENTITY process_struct_for_dist_op SYSTEM "online/process_struct_for_dist_op.gif" NDATA gif>
+<!ENTITY retrospect_analysis_architec SYSTEM "online/retrospect_analysis_architec.gif" NDATA gif>
+<!ENTITY struct_results_frm_pmFetch SYSTEM "online/struct_results_frm_pmFetch.gif" NDATA gif>
+<!ENTITY trace_1 SYSTEM "online/trace_1.gif" NDATA gif>
+<!ENTITY trace_buffer SYSTEM "online/trace_buffer.gif" NDATA gif>
+<!ENTITY trace_example SYSTEM "online/trace_example.gif" NDATA gif>
+<!ENTITY trace_libpcp SYSTEM "online/trace_libpcp.gif" NDATA gif>
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY chapA.sgml SYSTEM "chapA.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "IGNORE">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+]>
+-->
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<?Pub Inc>
+<chapter id="LE98072-PARENT">
+<title id="LE98072-TITLE">Writing a PMDA</title>
+<para><indexterm><primary>PMDA</primary><secondary>writing</secondary></indexterm>This chapter constitutes a programmer's guide to writing a Performance Metrics Domain Agent (PMDA) for Performance Co-Pilot (PCP).</para>
+<para>The presentation assumes the developer is using the standard PCP <filename>libpcp_pmda</filename> library, as documented in the <command sectionref="3">pmda</command> and associated man pages.</para>
+<section>
+<title>Implementing a PMDA</title>
+<para><indexterm><primary>implementation</primary></indexterm><indexterm><primary>design requirements</primary></indexterm>The job of a PMDA is to gather performance data and report them to the  Performance Metrics Collection Daemon (PMCD) in response to requests from PCP monitoring tools routed to the PMDA via PMCD.</para>
+<para>An important  requirement for any PMDA is that it have low latency response to requests from PMCD. Either the PMDA must use a quick access method and a single thread of control, or it must have asynchronous refresh and two threads of control: one for communicating with PMCD, the other for updating the performance data.</para>
+<para><indexterm><primary>target domain</primary></indexterm><indexterm><primary>sequential log files</primary></indexterm><indexterm><primary>snapshot files</primary></indexterm><indexterm><primary>IPC</primary><secondary> PMDA</secondary></indexterm>The PMDA is typically acting as a gateway between the target domain (that is, the performance instrumentation in an application program or service) and the PCP framework. The PMDA may extract the information using one of a number of possible  export options that include a shared memory segment or <command>mmap</command> file; a sequential log  file (where the PMDA parses the tail of the log file to extract the information); a snapshot file (the PMDA rereads the file as required); or application-specific communication services  (IPC). The choice
+of export methodology is typically determined by the source of the instrumentation (the target domain) rather than by the PMDA.</para>
+<para><indexterm><primary>PMDA</primary><secondary> checklist</secondary></indexterm><xref linkend="Z975968207sdc"> describes the suggested steps for designing and implementing a PMDA:</para>
+<procedure><title id="Z975968207sdc">Creating a PMDA</title>
+<orderedlist><listitem><para>Determine how to extract the metrics from the target domain.</para>
+</listitem><listitem><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>sproc</command>).</para>
+</listitem><listitem><para>Define the metrics and instances that the PMDA will support.</para>
+</listitem><listitem><para>Implement the functionality to extract the metric values.</para>
+</listitem><listitem><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS).</para>
+</listitem><listitem><para><indexterm><primary>help text</primary><secondary>structure specification</secondary></indexterm>Specify the help file and control data structures for metrics and instances that are required by the standard PMDA implementation library functions.</para>
+</listitem><listitem><para>Write code to supply the metrics and associated information to PMCD.</para>
+</listitem><listitem><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para>
+</listitem><listitem><para><indexterm><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command sectionref="1">dbpmda</command> man page.</para>
+</listitem><listitem><para>Install and connect the PMDA to a running PMCD process; see the <command sectionref="1">pmcd</command> man page.</para>
+</listitem><listitem><para><indexterm><primary>pmchart command</primary></indexterm><indexterm><primary>pmgadgets command</primary></indexterm><indexterm><primary>pmview command</primary></indexterm><indexterm><primary>pmie command</primary></indexterm><indexterm><primary>pmieconf command</primary></indexterm><indexterm><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command sectionref="1">pmchart</command>, <command sectionref="1">pmgadgets</command>, and <command sectionref="1">pmview</command> man pages (IRIX only). For an examples of text-based tools, see the <command sectionref="1">
+pmval</command> and <command sectionref="1">pminfo</command> man pages. For examples of alarm tools, see the <command sectionref="1">pmie</command> and <command sectionref="1">pmieconf</command> man pages.</para>
+<para><indexterm><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configurations suitable for creating PCP archives containing the new metrics. For more information, see the <command sectionref="1">pmlogger</command> man page.</para>
+</listitem></orderedlist>
+</procedure>
+</section>
+<section>
+<title>PMDA Architecture</title>
+<para><indexterm><primary>architecture</primary></indexterm><indexterm><primary>PMDA</primary><secondary>architecture</secondary></indexterm> <indexterm><primary>DSO</primary><secondary>architecture</secondary></indexterm>This section discusses the two methods of connecting a PMDA to a PMCD process:<itemizedlist>
+<listitem><para>As a separate process using some interprocess communication (IPC) protocol.</para>
+</listitem>
+<listitem><para>As a dynamically attached library (that is, a dynamic shared object or DSO).</para>
+</listitem></itemizedlist></para>
+<section>
+<title>Overview</title>
+<para><indexterm><primary>PDU</primary></indexterm><indexterm><primary>protocol data units</primary><see>PDU</see></indexterm>All PMDAs are launched and controlled by the PMCD process on the local host. PMCD receives requests from the monitoring tools and forwards them to the PMDAs. Responses, when required, are returned through PMCD to the clients. The requests fall into a small number of categories, and the PMDA must handle each request type. For a DSO PMDA, each request type corresponds to a method in the agent. For a daemon PMDA, each request translates to a message or  protocol data unit (PDU) that may be sent to a PMDA from PMCD.</para>
+<para>For daemon PMDA, the following request PDUs must be supported:<deflist>
+<deflistentry>
+<term><literal>PDU_FETCH</literal></term>
+<listitem><para><indexterm><primary>pmFetch man page</primary></indexterm><indexterm><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command sectionref="3">pmFetch</command> man page.)</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PDU_PROFILE</literal></term>
+<listitem><para><indexterm><primary>pmAddProfile function</primary></indexterm><indexterm><primary>PDU_PROFILE</primary></indexterm>A list of instances required for the corresponding metrics in subsequent fetches (see the <command sectionref="3">pmAddProfile</command> man page).</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PDU_INSTANCE_REQ</literal></term>
+<listitem><para><indexterm><primary>pmGetInDom function</primary></indexterm><indexterm><primary>PDU_INSTANCE_REQ</primary></indexterm> Request for a particular instance domain for instance descriptions (see the <command sectionref="3">pmGetInDom</command> man page).</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PDU_DESC_REQ</literal></term>
+<listitem><para><indexterm><primary>pmLookupDesc function</primary></indexterm><indexterm><primary>PDU_DESC_REQ</primary></indexterm>Request for metadata describing metrics (see the <command sectionref="3">pmLookupDesc</command> man page).</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PDU_TEXT_REQ</literal></term>
+<listitem><para><indexterm><primary>pmLookupText function</primary></indexterm><indexterm><primary>PDU_TEXT_REQ</primary></indexterm><indexterm><primary>help text</primary><secondary>PDU_TEXT_REQ</secondary></indexterm>Request for metric help text (see the <command sectionref="3">pmLookupText</command> man page).</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>PDU_RESULT</literal></term>
+<listitem><para><indexterm><primary>pmstore function</primary></indexterm><indexterm><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command sectionref="3">pmStore</command> man page).</para>
+</listitem></deflistentry>
+</deflist></para>
+<para>Each PMDA is associated with a unique domain number that is encoded in the domain field of metric and instance identifiers, and PMCD uses the domain number to determine which PMDA can handle the components of any given client request.</para>
+</section>
+<section id="LE82676-PARENT">
+<title id="LE82676-TITLE">DSO PMDA</title>
+<para><indexterm><primary>DSO</primary><secondary>implementation</secondary></indexterm><indexterm><primary>dlopen man page</primary></indexterm>Each PMDA is required to implement a function that handles each of the request types. By implementing these functions as library functions, a PMDA can be implemented as a  dynamically shared object (DSO) and attached by PMCD at run time with the <command>dlopen</command> call; see the <command sectionref="3">dlopen</command> man page. This eliminates the need for an IPC layer (typically a UNIX pipe) between each PMDA and PMCD, because each request becomes a function call rather than a message exchange. The required library functions are detailed in <xref linkend="LE21831-PARENT">.</para>
+<para>A PMDA that interacts with PMCD in this fashion must abide by a formal initialization protocol so that PMCD can discover the location of the library functions that are subsequently called with function pointers. When a DSO PMDA is installed, the PMCD configuration file, <filename>/etc/pmcd.conf</filename> on IRIX; <filename>/var/pcp/config/pmcd/pmcd.conf</filename>, is updated to reflect the domain and name of the PMDA, the location of the shared object, and the name of the initialization function. The initialization sequence is discussed in <xref linkend="LE19047-PARENT">.</para>
+<para><indexterm><primary>simple PMDA</primary><secondary>DSO</secondary></indexterm>As superuser, install the simple PMDA as a DSO, as shown in <xref linkend="Z975967179sdc"> and <xref linkend="Z1033502809tls" pagnumber="no">, and observe the changes in the PMCD configuration file. The output may differ slightly depending on the other PMDAs you have installed.</para>
+<example id="Z963514088sdc"><title id="Z975967179sdc">Simple IRIX PMDA as a DSO</title>
+<programlisting># <userinput>cd /var/pcp/pmdas/simple</userinput>
+# <userinput>cat /etc/pmcd.conf</userinput>
+# Name  Id      IPC     IPC Params      File/Cmd 
+irix    1       dso     irix_init       libirixpmda.so 
+pmcd    2       dso     pmcd_init       pmda_pmcd.so 
+proc    3       dso     proc_init       pmda_proc.so 
+# <userinput>./Install</userinput>
+You will need to choose an appropriate configuration for installation 
+of the &ldquo;simple&rdquo; Performance Metrics Domain Agent (PMDA).
+collector   collect performance statistics on this system
+  monitor     allow this system to monitor local and/or remote systems
+  both         collector and monitor configuration for this system
+Please enter c(ollector) or m(onitor) or b(oth) [b] <userinput>both</userinput>
+
+Updating the Performance Metrics Name Space (PMNS) ... 
+Installing pmchart view(s) ...
+Install simple as a daemon or dso agent? [daemon] <userinput>dso</userinput>
+...
+Check simple metrics have appeared ... 5 metrics and 9 values
+# <userinput>cat /etc/pmcd.conf</userinput>
+# Name  Id      IPC     IPC Params      File/Cmd 
+irix    1       dso     irix_init       libirixpmda.so 
+pmcd    2       dso     pmcd_init       pmda_pmcd.so 
+proc    3       dso     proc_init       pmda_proc.so 
+simple  253     dso     simple_init     pmda_simple.so</programlisting>
+<para>As can be seen from the contents of <filename>/etc/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 253, as shown in the column headed <literal>Id</literal>.</para>
+</example>
+<para><example id="Z1033502809tls"><title>Simple Linux PMDA as a DSO</title>
+<programlisting width="wide"><userinput>cat /var/pcp/config/pmcd/pmcd.conf</userinput>
+# Performance Metrics Domain Specifications
+# 
+# This file is automatically generated during the build
+# Name  Id      IPC     IPC Params      File/Cmd
+pmcd    2       dso     pmcd_init       /var/pcp/pmdas/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      /var/pcp/pmdas/linux/pmda_linux.so
+
+snia 63 pipe binary /var/pcp/pmdas/snia/pmdasnia -d 63
+simple  254     dso     simple_init     pmda_simple.so</programlisting>
+</example></para>
+<para>As can be seen from the contents of <filename>/var/pcp/config/pmcd/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 254, as shown in the column headed <literal>Id</literal>.</para>
+</section>
+<section>
+<title>Daemon PMDA</title>
+<para><indexterm><primary>DSO</primary><secondary>disadvantages</secondary></indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some  disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
+<itemizedlist>
+<listitem><para>An error or bug that causes a DSO PMDA to exit also causes PMCD to exit.</para>
+</listitem>
+<listitem><para>There is only one thread of control in PMCD; as a result, a computationally expensive PMDA, or worse, a PMDA that blocks for I/O, adversely affects the performance of PMCD.</para>
+</listitem>
+<listitem><para>The PMCD runs as superuser; so any DSO PMDAs also run as superuser.</para>
+</listitem>
+<listitem><para>A memory leak in a DSO PMDA also causes a memory leak for PMCD.</para>
+</listitem></itemizedlist>
+<para>Consequently, many PMDAs are implemented as a daemon process.</para>
+<para>The <filename>libpcp_pmda</filename> library is designed to allow simple implementation of a PMDA that runs as a separate process. The library functions provide a message passing layer acting as a generic wrapper that accepts PDUs, makes library calls using the standard DSO PMDA interface, and sends PDUs. Therefore, you can implement a PMDA as a DSO and then install it as either a daemon or a DSO, depending on the presence or absence of the generic wrapper.</para>
+<para><indexterm><primary>fork system call</primary></indexterm><indexterm><primary>execv system call</primary></indexterm><indexterm><primary>pipe</primary></indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command>. You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using TCP/IP or UNIX domain sockets; see the <command sectionref="7">inet</command> or <command sectionref="7">unix</command> man page.</para>
+<para><indexterm><primary>pipe</primary></indexterm><indexterm><primary>simple PMDA</primary><secondary> as daemon</secondary></indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z975967689sdc"> for IRIX and <xref linkend="Z1033576478tls" pagnumber="no"> for Linux. As in <xref linkend="Z975967179sdc">, the output may differ due to other PMDAs already installed.</para>
+<example id="Z963516216sdc"><title id="Z975967689sdc">Simple IRIX PMDA as a Daemon</title>
+<para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>/var/pcp/pmdas/simple/pmdasimple</filename>, using domain number 253.</para>
+<programlisting># <userinput>cd /var/pcp/pmdas/simple</userinput>
+# <userinput>./Install</userinput>&ensp;
+... 
+Install simple as a daemon or dso agent? [daemon] daemon 
+PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
+...
+# cat /etc/pmcd.conf 
+# Name  Id   IPC     IPC Params File/Cmd 
+irix    1    dso     irix_init  libirixpmda.so 
+pmcd    2    dso     pmcd_init  pmda_pmcd.so 
+proc    3    dso     proc_init  pmda_proc.so 
+simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</programlisting>
+</example>
+<para><example id="Z1033576478tls"><title>Simple Linux PMDA as a Daemon</title>
+<para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>/var/pcp/pmdas/simple/pmdasimple</filename>, using domain number 253.<programlisting width="wide" format="no"># <userinput>cd /var/pcp/pmdas/simple</userinput>
+# <userinput>./Install</userinput>
+... 
+Install simple as a daemon or dso agent? [daemon] daemon 
+PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
+...
+# cat /var/pcp/config/pmcd/pmcd.conf 
+# Performance Metrics Domain Specifications
+# 
+# This file is automatically generated during the build
+# Name  Id      IPC     IPC Params      File/Cmd
+pmcd    2       dso     pmcd_init       /var/pcp/pmdas/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      /var/pcp/pmdas/linux/pmda_linux.so
+snia 63 pipe binary /var/pcp/pmdas/snia/pmdasnia -d 63 
+simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</programlisting></para>
+</example></para>
+</section>
+<section>
+<title>Caching PMDA</title>
+<para><indexterm><primary>caching PMDA</primary></indexterm>When either the cost or latency associated with collecting performance metrics is high, the PMDA implementer may choose to trade off the currency of the performance data to reduce the PMDA resource demands or the fetch latency time.</para>
+<para>One scheme for doing this is called a  caching PMDA, which periodically instantiates values for the performance metrics and responds to each request from PMCD with the most recently instantiated (or cached) values, as opposed to instantiating current values on demand when the PMCD asks for them.</para>
+<para><indexterm><primary>Cisco PMDA</primary></indexterm><indexterm><primary>pmdacisco man page</primary></indexterm>The Cisco PMDA is an example of a caching PMDA. For additional information, see the contents of the <filename>/var/pcp/pmdas/cisco</filename> directory and the <command sectionref="1">pmdacisco</command> man page.</para>
+</section>
+</section>
+<section id="LE97285-PARENT">
+<title id="LE97285-TITLE">Domains, Metrics, and Instances</title>
+<para>This section defines metrics and instances, discusses how they should be designed for a particular target domain, and shows how to implement support for them.</para>
+<para><indexterm><primary>examples</primary><secondary>simple and trivial PMDAs</secondary></indexterm>The examples in this section are drawn from the trivial and simple PMDAs, which are distributed in source format with PCP. Refer to the <filename>/var/pcp/pmdas/trivial</filename> and <filename>/var/pcp/pmdas/simple</filename> directories, respectively.</para>
+<section>
+<title>Overview</title>
+<para><indexterm><primary>domains</primary><secondary>definition</secondary></indexterm><indexterm><primary>metrics</primary><secondary>definition</secondary></indexterm><firstterm>Domains</firstterm> are autonomous performance areas, such as the operating system or a layered service or a particular application. <firstterm>Metrics</firstterm> are raw performance data for a domain, and typically quantify activity levels, resource utilization or quality of service. <firstterm>Instances</firstterm> are sets of related metrics, as for multiple processors, or multiple service classes, or multiple transaction types.</para>
+<para> PCP employs the following simple and uniform data model to accommodate the demands of performance metrics drawn from multiple domains:</para>
+<itemizedlist>
+<listitem><para>Each metric has an identifier that is unique across all metrics for all PMDAs on a particular host.</para>
+</listitem>
+<listitem><para>Externally, metrics are assigned names for user convenience&mdash;typically there is a 1:1 relationship between a metric name and a metric identifier.</para>
+</listitem>
+<listitem><para>The PMDA implementation determines if a particular metric has a singular value or a set of (zero or more) values. For instance, the metric <literal>hinv.ndisk</literal> counts the number of disks and has only one value on a host, whereas the metric <literal>disk.dev.total</literal> counts disk I/O operations and has one value for each disk on the host.</para>
+</listitem>
+<listitem><para>If a metric has a set of values, then members of the set are differentiated by instances. The set of instances associated with a metric is an <firstterm>instance domain</firstterm>. For example, the set of metrics <literal>disk.dev.total</literal> is defined over an instance domain that has one member per disk spindle.</para>
+</listitem></itemizedlist>
+<para><indexterm><primary>metrics and instances</primary></indexterm>The  selection of metrics and instances is an important design decision for a PMDA implementer. The metrics and instances for a target domain should have the following qualities:</para>
+<itemizedlist>
+<listitem><para>Obvious to a user</para>
+</listitem>
+<listitem><para>Consistent across the domain</para>
+</listitem>
+<listitem><para>Accurately representative of the operational and functional aspects of the domain</para>
+</listitem></itemizedlist>
+<para>For each metric, you should also consider these questions:</para>
+<itemizedlist>
+<listitem><para>How useful is this value?</para>
+</listitem>
+<listitem><para>What units give a good sense of scale?</para>
+</listitem>
+<listitem><para>What name gives a good description of the metric's meaning?</para>
+</listitem>
+<listitem><para>Can this metric be combined with another to convey the same useful information?</para>
+</listitem></itemizedlist>
+<para>As with all programming tasks, expect to refine the choice of metrics and instances several times during the development of the PMDA.</para>
+</section>
+<section>
+<title>Domains</title>
+<para>Each PMDA must be uniquely identified by PMCD so that requests from clients can be efficiently routed to the appropriate PMDA. The unique identifier, the PMDA's domain, is encoded within the metrics and instance domain identifiers so that they are associated with the correct PMDA, and so that they are unique, regardless of the number of PMDAs that are connected to the PMCD process.</para>
+<para><indexterm><primary>domains</primary><secondary>numbers</secondary></indexterm>The default  domain number for each PMDA is defined in <filename>/var/pcp/pmns/stdpmid</filename>. This file is a simple table of PMDA names and their corresponding domain number. However, a PMDA does not have to use this domain number&mdash;the file is only a guide to help avoid domain number clashes when PMDAs are installed and activated.</para>
+<para>The domain number a PMDA uses is passed to the PMDA by PMCD when the PMDA is launched. Therefore, any data structures that require the PMDA's domain number must be set up when the PMDA is initialized, rather than declared statically. The protocol for PMDA initialization provides a standard way for a PMDA to implement this run-time initialization.</para>
+<tip><para>Although uniqueness of the domain number in the <filename>/etc/pmcd.conf</filename> control file used by PMCD is all that is required for successful starting of PMCD and the associated PMDAs, the developer of a new PMDA is encouraged to add the default domain number for each new PMDA to the <filename>/var/pcp/pmns/stdpmid.local</filename> file and then to run the  <filename>Make.stdpmid</filename> script in <filename>/var/pcp/pmns</filename> to recreate <filename>/var/pcp/pmns/stdpmid</filename>; this file acts as a repository for documenting the known default domain numbers.</para>
+</tip>
+</section>
+<section id="LE98565-PARENT">
+<title id="LE98565-TITLE">Metrics</title>
+<para><indexterm><primary>metrics</primary><secondary>definition</secondary></indexterm><indexterm><primary>target domain</primary></indexterm>A PMDA provides support for a collection of metrics. In addition to the obvious performance metrics, and the measures of time, activity and resource utilization, the metrics should also describe how the target domain has been configured, as this can greatly affect the correct interpretation of the observed performance. For example, metrics that describe network transfer rates should also describe the number and type of network interfaces connected to the host.</para>
+<para><indexterm><primary>storage of metrics</primary></indexterm><indexterm><primary>pmstore function</primary></indexterm>In addition, the metrics should describe how the PMDA has been configured. For example, if the PMDA was periodically probing a system to measure quality of service, there should be metrics for the delay between probes, the number of probes attempted, plus probe success and failure counters. It may also be appropriate to allow values to be  stored (see the <command sectionref="1">pmstore</command> man page) into the delay metric, so that the delay used by the PMDA can be altered dynamically.</para>
+<section>
+<title>Data Structures</title>
+<para><indexterm><primary>data structures</primary></indexterm><indexterm><primary>pmDesc structure</primary></indexterm><indexterm><primary>pmLookupDesc function</primary></indexterm>Each metric must be described in a <filename>pmDesc</filename> structure; see the <command sectionref="3">pmLookupDesc</command> man page:</para>
+<programlisting>typedef struct { 
+    pmID        pmid;           /* unique identifier */ 
+    int         type;           /* base data type */ 
+    pmInDom     indom;          /* instance domain */ 
+    int         sem;            /* semantics of value */ 
+    pmUnits     units;          /* dimension and units */ 
+} pmDesc;</programlisting>
+<para>This structure contains the following fields:</para>
+<deflist termlength="narrow">
+<deflistentry>
+<term><literal>pmid</literal></term>
+<listitem><para>A unique identifier, Performance Metric Identifier (PMID), that differentiates this metric from other metrics across the union of all PMDAs</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>type</literal></term>
+<listitem><para>A data type indicator showing whether the format is an integer (32 or 64 bit, signed or unsigned); float; double; string; or arbitrary aggregate of binary data</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>indom</literal></term>
+<listitem><para>An instance domain identifier that links this metric to an instance domain</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>sem</literal></term>
+<listitem><para>An encoding of the value's semantics (counter, instantaneous, or discrete)</para>
+</listitem></deflistentry>
+<deflistentry>
+<term><literal>units</literal></term>
+<listitem><para>A description of the value's units based on dimension and scale in the three orthogonal dimensions of space, time, and count (or events)</para>
+</listitem></deflistentry>
+</deflist>
+<para><indexterm><primary>_pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>/usr/include/pcp/pmapi.h</filename> file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>_pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z975969348sdc"> for IRIX and <xref linkend="Z1033577630tls"> for Linux:</para>
+<example id="Z975969343sdc"><title id="Z975969348sdc"><filename>_pmID_int</filename> Structure in IRIX</title>
+<programlisting>typedef struct { 
+        int             pad:2; 
+        unsigned int    domain:8; 
+        unsigned int    cluster:12; 
+        unsigned int    item:10; 
+} _pmID_int;</programlisting>
+</example>
+<para><example id="Z1033577630tls"><title><filename>_pmID_int</filename> Structure in Linux</title>
+<programlisting>typedef struct { 
+        unsigned int    item:10; 
+        unsigned int    cluster:12; 
+        unsigned int    domain:8; 
+        int             pad:2; 
+} _pmID_int;</programlisting>
+</example></para>
+<para>For additional information, see the <filename>/usr/include/pcp/impl.h</filename> file.</para>
+<para><indexterm><primary>PMDA_PMID macro</primary></indexterm>The <literal>pad</literal> field should be ignored. The <literal>domain</literal> number should be set at run time when the PMDA is initialized. The <literal>PMDA_PMID</literal> macro defined in <filename>/usr/include/pcp/pmapi.h</filename> can be used to set the <literal>cluster</literal> and <literal>item</literal> fields at compile time, as these should always be known and fixed for a particular metric.</para>
+<note><para>The three components of the PMID should correspond exactly to the three-part definition of the PMID for the corresponding metric in the PMNS described in <xref linkend="LE83854-PARENT">.</para>
+</note>
+<para><indexterm><primary> pmdaMetric structure</primary></indexterm>A table of <filename>pmdaMetric</filename> structures should be defined within the PMDA, with one structure per metric as shown in <xref linkend="Z976036706sdc">. </para>
+<example id="Z976036629sdc"><title id="Z976036706sdc"><filename>pmdaMetric</filename> Structure</title>
+<programlisting>typedef struct { 
+    void        *m_user;        /* for users external use */ 
+    pmDesc      m_desc;         /* metric description */ 
+} pmdaMetric;</programlisting>
+</example>
+<para>This structure contains a <filename>pmDesc</filename> structure and a handle that allows PMDA-specific structures to be associated with each metric. For example, <literal>m_user</literal> could be a pointer to a global variable containing the metric value, or a pointer to a function that may be called to instantiate the metric's value.</para>
+<para><indexterm><primary>trivial PMDA</primary><secondary>singular metric</secondary></indexterm>The trivial PMDA, shown in <xref linkend="Z976036970sdc">, has only a singular metric (that is, no instance domains):</para>
+<?Pub _newpage>
+<example id="Z963521873sdc"><title id="Z976036970sdc">Trivial PMDA</title>
+<programlisting>static pmdaMetric metrictab[] = {
+/* time */ 
+ { (void *)0,  
+   { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
+     PMDA_PMUNITS (0, 1, 0, 0, PM_TIME_SEC, 0) ), ) 
+}; </programlisting>
+<para>This single metric (<literal>trivial.time</literal>) has the following:</para>
+<itemizedlist>
+<listitem><para>A PMID with a cluster of 0 and an item of 1</para>
+</listitem>
+<listitem><para>An unsigned 32-bit integer (<literal>PM_TYPE_U32</literal> )</para>
+</listitem>
+<listitem><para><indexterm><primary>PM_INDOM_NULL instance domain</primary><secondary>data structures</secondary></indexterm>A singular value and hence no instance domain (<literal>PM_INDOM_NULL</literal>)</para>
+</listitem>
+<listitem><para><indexterm><primary>PM_SEM_INSTANT semantic type</primary></indexterm>An instantaneous semantic value (<literal>PM_SEM_INSTANT</literal>)</para>
+</listitem>
+<listitem><para>Dimension &ldquo;time&rdquo; and the units &ldquo;seconds&rdquo;</para>
+</listitem></itemizedlist>
+</example>
+</section>
+<section>
+<title>Semantics</title>
+<para><indexterm><primary>semantic types</primary></indexterm>The metric's semantics describe how PCP tools should interpret the metric's value. The following are the possible  semantic types:</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>PM_SEM_COUNTER semantic type</primary></indexterm>Counter ( <literal>PM_SEM_COUNTER</literal>)</para>
+</listitem>
+<listitem><para><indexterm><primary>PM_SEM_INSTANT semantic type</primary></indexterm> Instantaneous value (<literal>PM_SEM_INSTANT</literal>)</para>
+</listitem>
+<listitem><para><indexterm><primary>PM_SEM_DISCRETE semantic type</primary></indexterm>Discrete value (<literal>PM_SEM_DISCRETE</literal>)</para>
+</listitem></itemizedlist>
+<para>A counter should be a value that monotonically increases (or monotonically decreases, which is less likely) with respect to time, so that the rate of change should be used in preference to the actual value. Rate conversion is not appropriate for metrics with instantaneous values, as the value is a snapshot and there is no basis for assuming any values that might have been observed between snapshots. Discrete is similar to instantaneous; however, once observed it is presumed the value will persist for an extended period (for example, system configuration, static tuning parameters and most metrics with nonnumeric values).</para>
+<para><indexterm><primary>counter semantics</primary></indexterm> <indexterm><primary> instantaneous semantics</primary></indexterm> <indexterm><primary>discrete semantics</primary></indexterm>For a given time interval covering six consecutive timestamps, each spanning two units of time, themetric values, in <xref linkend="Z976037414sdc">, are exported from a PMDA (&ldquo;N/A&rdquo; implies no value is available): </para>
+<example id="Z963522765sdc"><title id="Z976037414sdc">Effect of Semantics on a Metric</title>
+<programlisting>Timestamps:         1   3   5   7   9  11 
+Value:             10  30  60  80  90 N/A</programlisting>
+<para>The default display of the values would be as follows:</para>
+<programlisting>Timestamps:         1   3   5   7   9  11 
+Semantics: 
+Counter           N/A  10  15  10   5 N/A 
+Instantaneous      10  30  60  80  90 N/A 
+Discrete           10  30  60  80  90  90</programlisting>
+</example>
+</section>
+</section>
+<section>
+<title>Instances</title>
+<para>Singular metrics have only one value and no associated instance domain. Some metrics contain a set of values that share a common set of semantics for a specific instance, such as one value per processor, or one value per disk spindle, and so on.</para>
+<note><para>The PMDA implementation is solely responsible for choosing the instance identifiers that differentiate instances within the instance domain. The PMDA is also responsible for ensuring the uniqueness of instance identifiers in any instance domain.</para>
+</note>
+<section>
+<title>N Dimensional Data</title>
+<para><indexterm><primary>arrays</primary><secondary>N dimensional data</secondary></indexterm>Where the performance data can be represented as scalar values (singular metrics) or one-dimensional arrays or lists (metrics with an instance domain), the PCP framework is more than adequate. In the case of metrics with an instance domain, each array or list element is associated with an instance from the instance domain.</para>
+<para><indexterm><primary>two or three dimensional arrays</primary></indexterm><indexterm><primary> multidimensional arrays</primary></indexterm>To represent two or more dimensional arrays, the coordinates must be one of the following: </para>
+<itemizedlist>
+<listitem><para>Mapped onto one dimensional coordinates.</para>
+</listitem>
+<listitem><para>Enumerated into the Performance Metrics Name Space (PMNS).</para>
+</listitem></itemizedlist>
+<para>For example, this 2 x 3 array of values called M can be represented as instances 1,..., 6 for a metric M:</para>
+<programlisting>  M[1]   M[2]   M[3] 
+  M[4]   M[5]   M[6]</programlisting>
+<para>Or  they can be represented as instances 1, 2, 3 for metric M1 and instances 1, 2, 3 for metric M2:</para>
+<programlisting>  M1[1]  M1[2]  M1[3] 
+  M2[1]  M2[2]  M2[3]</programlisting>
+<para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP.</para>
+<para>In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the descriptor is <literal>PM_TYPE_AGGREGATE</literal>). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of the structure and interpretation of the binary data.</para>
+</section>
+<section>
+<title>Data Structures</title>
+<para><indexterm><primary>data structures</primary></indexterm><indexterm><primary>pmdaInstid structure</primary></indexterm>If the PMDA is required to support instance domains, then for each instance domain the unique internal instance identifier and external instance identifier should be defined using a <filename>pmdaInstid</filename> structure as shown in <xref linkend="Z975964729sdc">:</para>
+<example id="Z975964618sdc"><title id="Z975964729sdc"><filename>pmdaInstid</filename> Structure</title>
+<programlisting>typedef struct { 
+    int         i_inst;         /* internal instance identifier */ 
+    char        *i_name;        /* external instance identifier */ 
+} pmdaInstid;</programlisting>
+<para>The <literal>i_inst</literal> instance identifier  must be a unique integer within a particular instance domain.</para>
+</example>
+<para><indexterm><primary>pmdaIndom structure</primary></indexterm>The complete instance domain description is specified in a <filename>pmdaIndom</filename>  structure as shown in <xref linkend="Z975964832sdc">:</para>
+<example id="Z975964773sdc"><title id="Z975964832sdc"><filename>pmdaIndom</filename>  Structure</title>
+<programlisting>typedef struct { 
+    pmInDom     it_indom;       /* indom, filled in */ 
+    int         it_numinst;     /* number of instances */ 
+    pmdaInstid  *it_set;        /* instance identifiers */ 
+} pmdaIndom;</programlisting>
+</example>
+<para><indexterm><primary>arrays</primary><secondary>instance description</secondary></indexterm><indexterm><primary>_pmInDom_int structure</primary></indexterm>The <literal>it_indom</literal> element contains a <literal>pmInDom</literal> that must be unique across every PMDA. The other fields of the <filename>pmdaIndom</filename> structure are the number of instances in the instance domain and a pointer to an array of instance descriptions.</para>
+<para><xref linkend="Z975965113sdc"> for IRIX and  <xref linkend="Z1036087342tls"> for Linux shows that the <literal>pmInDom</literal> can be safely cast to <literal>_pmInDom_int</literal>, which specifies the PMDA's domain and the instance number  within the PMDA:</para>
+<example id="Z975964872sdc"><title id="Z975965113sdc"><literal>_pmInDom_int</literal> Structure in IRIX</title>
+<programlisting>typedef struct { 
+        int             pad:2; 
+        unsigned int    domain:8;   /* the administrative PMD */ 
+        unsigned int    serial:22;  /* unique within PMD */ 
+} _pmInDom_int;</programlisting>
+</example>
+<para><example id="Z1033578294tls"><title id="Z1036087342tls"><literal>_pmInDom_int</literal> Structure in Linux</title>
+<programlisting>typedef struct { 
+        unsigned int    serial:22;  /* unique within PMD */         
+        unsigned int    domain:8;   /* the administrative PMD */ 
+        int             pad:2;
+} _pmInDom_int;</programlisting>
+</example></para>
+<para>As with metrics, the PMDA domain number is not necessarily known until run time; so the <literal>domain</literal> field must be set up when the PMDA is initialized.</para>
+<para><indexterm><primary>pmdaInit man page</primary></indexterm>For information about how an instance domain may also be associated with more than one metric, see the <command sectionref="3">pmdaInit</command> man page.</para>
+<para>The  simple PMDA, shown in <xref linkend="Z975965484sdc">, has five metrics and two instance domains of three instances.</para>
+<example id="Z963524114sdc"><title id="Z975965484sdc">Simple PMDA</title>
+<programlisting>/* 
+ * list of instances 
+ */ 
+static pmdaInstid color[] = {
+    { 0, &ldquo;red&rdquo; }, { 1, &ldquo;green&rdquo; }, { 2, &ldquo;blue&rdquo; }
+};
+static pmdaInstid       *timenow = NULL;
+static unsigned int     timesize = 0;
+/*
+ * list of instance domains
+ */
+static pmdaIndom indomtab[] = {
+#define COLOR_INDOM     0
+    { COLOR_INDOM, 3, color },
+#define NOW_INDOM       1
+    { NOW_INDOM, 0, NULL },
+};
+/*
+ * all metrics supported in this PMDA - one table entry for each
+ */
+static pmdaMetric metrictab[] = {
+/* numfetch */
+    { NULL,
+      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+       PMDA_PMUNITS ( 0,0,0,0,0,0) }, },
+/* color */
+    { NULL,
+      { PMDA_PMID(0,1), PM_TYPE_32, COLOR_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS ( 0,0,0,0,0,0) }, },
+/* time.user */
+    { NULL,
+      { PMDA_PMID(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS ( 0, 1, 0, 0, PM_TIME_SEC, 0 ) }, },
+/* time.sys */
+    { NULL,
+      { PMDA_PMID(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS ( 0, 1, 0, 0, PM_TIME_SEC, 0 ) }, },
+/* now */
+    { NULL,
+      { PMDA_PMID(2,4), PM_TYPE_U32, NOW_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS { 0,0,0,0,0,0 } }, },
+};</programlisting>
+</example>
+<para><indexterm><primary>COLOR_INDOM</primary></indexterm>The metric <literal>simple.color</literal> is associated, via <literal>COLOR_INDOM</literal>,  with the first instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[0].it_indom</filename> and <filename>metrictab[1].m_desc.indom</filename>. This instance domain has three instances: red, green, and blue.</para>
+<para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal>, <indexterm><primary>NOW_INDOM</primary></indexterm> with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
+<para><indexterm><primary>PM_INDOM_NULL instance domain</primary><secondary>data structures</secondary></indexterm>All other metrics are singular, as specified by <literal>PM_INDOM_NULL</literal>.</para>
+<para>In some cases an instance domain may vary dynamically after PMDA initialization (for example, <literal>simple.now</literal>), and this requires some refinement of the default functions and data structures of the <filename>libpcp_pmda</filename> library. Briefly, this involves providing new functions that act as wrappers for <command>pmdaInstance</command> and <command>pmdaFetch</command> while understanding the dynamics of the instance domain, and then overriding the instance and fetch methods in the <filename>pmdaInterface</filename> structure during PMDA initialization.</para>
+<para>For the simple PMDA, the wrapper functions are <command>simple_fetch</command> and <command>simple_instance</command>, and defaults are over-ridden by the following assignments in the <command>simple_init</command> function:</para>
+<programlisting>dp->version.two.fetch = simple_fetch;
+dp->version.two.instance = simple_instance;</programlisting>
+</section>
+</section>
+</section>
+<section>
+<title>Other Issues</title>
+<para>Other issues include extracting the information, latency and threads of control, Name Space , PMDA help text, and management of evolution within a PMDA.</para>
+<section>
+<title>Extracting the Information</title>
+<para><indexterm><primary>information extraction</primary></indexterm>A suggested approach to writing a PMDA is to write a standalone program to extract the values from the target domain and then incorporate this program into the PMDA framework. This approach avoids concurrent debugging of two distinct problems:<itemizedlist>
+<listitem><para><indexterm><primary>exporting data</primary></indexterm> Extraction of the data</para>
+</listitem>
+<listitem><para>Communication with PMCD</para>
+</listitem></itemizedlist></para>
+<para><indexterm><primary>target domain</primary></indexterm>These are some possible ways of exporting the data from the target domain:</para>
+<itemizedlist>
+<listitem><para>Accumulate the performance data in a public shared memory segment.</para>
+</listitem>
+<listitem><para>Write the performance data to the end of a log file.</para>
+</listitem>
+<listitem><para>Periodically rewrite a file with the most recent values for the performance data.</para>
+</listitem>
+<listitem><para>Implement a protocol that allows a third party to connect to the target application, send a request, and receive new performance data.</para>
+</listitem>
+<listitem><para>For IRIX, if the data is in the operating system kernel, provide a system call (preferred) or global data (for a <filename>/dev/kmem</filename> reader) to export the performance data.</para>
+</listitem></itemizedlist>
+<para>Most of these approaches require some further data processing by the PMDA.</para>
+</section>
+<section>
+<title>Latency and Threads of Control</title>
+<para><indexterm><primary>latency</primary></indexterm><indexterm><primary>control threads</primary></indexterm><indexterm><primary>delays</primary></indexterm>The PCP protocols expect PMDAs to return the current values for performance metrics when requested, and with short delay (low latency). For some target domains, access to the underlying instrumentation may be costly or involve unpredictable  delays (for example, if the real performance data is stored on some remote host or network device). In these cases, it may be necessary to separate probing for new performance data from servicing PMCD requests.</para>
+<para><indexterm><primary>sproc man page</primary></indexterm>An architecture that has been used successfully for several PMDAs is to create one or more <command>sproc</command> child processes to  obtain information while the main process communicates with PMCD; see the <command sectionref="2">sproc</command> man page.<note><para>The <command sectionref="2">sproc</command> function is not available on Linux. You can use the <command sectionref="2">exec</command>/<command sectionref="2">fork</command> and <command sectionref="2">setgpid</command> calls as an alternative.</para>
+</note></para>
+<para>At the simplest deployment of this arrangement, the two processes may execute without synchronization. Pthreads have also been used as a more portable multithreading mechanism; see the <command sectionref="5">pthreads</command> man page.</para>
+<para>By contrast, a complex deployment would be one in which the refreshing of the metric values must be atomic, and this may require double buffering of the data structures. It also requires coordination between parent and child processes.</para>
+<tip><para>Since PMAPI is not thread-safe, only one PMDA process or thread of control should call any PMAPI functions, and this would typically be the thread servicing requests from the PMCD.</para>
+</tip>
+<para><indexterm><primary>caching PMDA</primary></indexterm>One caveat about this style of  caching PMDA&mdash;it is generally better if the PMDA converts counts to rates based upon consecutive periodic sampling from the underlying instrumentation. By exporting precomputed rate metrics with instantaneous semantics, the PMDA prevents the PCP monitor tools from computing their own rates upon consecutive PMCD fetches (which are likely to return identical values from a caching PMDA).</para>
+</section>
+<section id="LE83854-PARENT">
+<title id="LE83854-TITLE">Name Space</title>
+<para><indexterm><primary>pmns man page</primary></indexterm><indexterm><primary>name space</primary></indexterm>The PMNS file defines the name space of the PMDA. It is a simple text file that is used during installation to expand the Name Space of the PMCD process. The format of this file is described by the <command sectionref="4">pmns</command> man page.</para>
+<para>Client processes will not be able to access the PMDA metrics if the PMNS file is not installed as part of the PMDA installation procedure on the collector host. The installed list of metric names and their corresponding PMIDs can be found in <filename>/var/pcp/pmns/root</filename>.</para>
+<para><indexterm><primary>simple PMDA</primary><secondary> 2 branches, 4 metrics</secondary></indexterm><xref linkend="Z976040305sdc"> shows the simple PMDA, which has five metrics:<itemizedlist>
+<listitem><para>Three metrics immediately under the <literal>simple</literal> node</para>
+</listitem>
+<listitem><para>Two metrics under another non-terminal node called <literal>simple.time</literal></para>
+</listitem></itemizedlist></para>
+<example id="Z963526380sdc"><title id="Z976040305sdc"><filename>pmns</filename> File for the Simple PMDA</title>
+<programlisting>simple {
+    numfetch    SIMPLE:0:0
+    color       SIMPLE:0:1
+    time
+    now         SIMPLE:2:4
+}
+simple.time {
+    user        SIMPLE:1:2
+    sys         SIMPLE:1:3
+}</programlisting>
+</example>
+<para>Metrics that have different clusters do not have to be specified in different subtrees of the PMNS.  <xref linkend="Z976046346sdc"> shows an alternative PMNS for the simple PMDA:</para>
+<example id="Z976046292sdc"><title id="Z976046346sdc">Alternate <filename>pmns</filename> File for the Simple PMDA</title>
+<programlisting>simple { 
+    numfetch    SIMPLE:0:0 
+    color       SIMPLE:0:1 
+    usertime    SIMPLE:1:2 
+    systime     SIMPLE:1:3 
+}</programlisting>
+<para>In this example, the <literal>SIMPLE</literal> macro is replaced by the domain number listed in <filename>/var/pcp/pmns/stdpmid</filename> for the corresponding PMDA during installation (for the simple PMDA, this would normally be the value 253).</para>
+</example>
+</section>
+<section id="LE72473-PARENT">
+<title id="LE72473-TITLE">PMDA Help Text</title>
+<para><indexterm><primary>PMDA</primary><secondary>help text</secondary></indexterm><indexterm><primary>help text</primary><secondary>terse and extended descriptions</secondary></indexterm>For each metric defined within a PMDA, the PMDA developer is strongly encouraged to provide both terse and extended help text to describe the metric, and perhaps provide hints about the expected value ranges.</para>
+<para><indexterm><primary>newhelp man page</primary></indexterm>The help text is used to describe each metric in the visualization tools and <command>pminfo</command> with the <command>-T</command> option. The help text, such as the help text for the simple PMDA in <xref linkend="Z976046746sdc">, is specified in a specially formatted file, normally called <filename>help</filename>. This file is converted to the expected run-time format using the <command>newhelp</command> command; see the <command sectionref="1">newhelp</command> man page. Converted help text files are usually placed in the PMDA's directory below <filename>/var/pcp/pmdas</filename> as part of the PMDA installation procedure.</para>
+<example id="Z963526754sdc"><title id="Z976046746sdc">Help Text for the Simple PMDA</title>
+<para>The two instance domains and five metrics have a short and a verbose description. Each entry begins with a line that starts with the character &ldquo;@&rdquo; and is followed by either the metric name (<literal>simple.numfetch</literal>) or a symbolic reference to the instance domain number (<literal>SIMPLE.1</literal>), followed by the short description. The verbose description is on the following lines, terminated by the next line starting with &ldquo;@&rdquo; or end of file:</para>
+<programlisting width="wide">@ SIMPLE.1 Instance domain &ldquo;colour&rdquo; for simple PMDA
+Universally 3 instances, &ldquo;red&rdquo; (0), &ldquo;green&rdquo; (1) and &ldquo;blue&rdquo; (3).
+
+@ SIMPLE.2 Dynamic instance domain &ldquo;time&rdquo; for simple PMDA
+An instance domain is computed on-the-fly for exporting current time
+information. Refer to the help text for simple.now for more details.
+
+@ simple.numfetch Number of pmFetch operations.
+The cumulative number of pmFetch operations directed to &ldquo;simple&rdquo; PMDA.
+
+This counter may be modified with pmstore(1).
+
+@ simple.color Metrics which increment with each fetch
+This metric has 3 instances, designated &ldquo;red&rdquo;, &ldquo;green&rdquo; and &ldquo;blue&rdquo;.
+
+The value of the metric is monotonic increasing in the range 0 to
+255, then back to 0.  The different instances have different starting
+values, namely 0 (red), 100 (green) and 200 (blue).
+
+The metric values my be altered using pmstore(1).
+
+@ simple.time.user Time agent has spent executing user code
+The time in seconds that the CPU has spent executing agent user code.
+
+@ simple.time.sys Time agent has spent executing system code
+The time in seconds that the CPU has spent executing agent system code.
+
+@ simple.now Time of day with a configurable instance domain
+The value reflects the current time of day through a dynamically
+reconfigurable instance domain.  On each metric value fetch request,
+the agent checks to see whether the configuration file in
+/var/pcp/pmdas/simple/simple.conf has been modified - if it has then
+the file is re-parsed and the instance domain for this metric is again
+constructed according to its contents.
+
+This configuration file contains a single line of comma-separated time
+tokens from this set:
+  &ldquo;sec&rdquo;  (seconds after the minute),
+  &ldquo;min&rdquo;  (minutes after the hour),
+  &ldquo;hour&rdquo; (hour since midnight).
+
+An example configuration file could be:  sec,min,hour
+and in this case the simple.now metric would export values for the
+three instances &ldquo;sec&rdquo;, &ldquo;min&rdquo; and &ldquo;hour&rdquo; corresponding respectively to
+the components seconds, minutes and hours of the current time of day.
+
+The instance domain reflects each token present in the file, and the
+values reflect the time at which the PMDA processes the fetch.</programlisting>
+</example>
+</section>
+<section>
+<title>Management of Evolution within a PMDA</title>
+<para><indexterm><primary>new metrics</primary></indexterm><indexterm><primary>PMDA</primary><secondary>evolution</secondary></indexterm>Evolution of a PMDA, or more particularly the underlying instrumentation to which it provides access, over time naturally results in the appearance of new metrics and the disappearance of old metrics. This  creates potential problems for PMAPI clients and PCP tools that may be required to interact with both new and former versions of the PMDA.</para>
+<para>The following guidelines are intended to help reduce the complexity of implementing a PMDA in the face of evolutionary change, while maintaining predictability and semantic coherence for tools using the PMAPI, and for end users of those tools.</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>unavailable metrics support</primary></indexterm>Try to  support as full a range of metrics as possible in every version of the PMDA. In this context, <firstterm>support</firstterm> means responding sensibly to requests, even if the underlying instrumentation is not available.</para>
+</listitem>
+<listitem><para><indexterm><primary>pmLookupDesc function</primary></indexterm><indexterm><primary>pmDesc structure</primary></indexterm><indexterm><primary>PM_TYPE_NOSUPPORT value</primary></indexterm>If a metric is not supported in a given version of the underlying instrumentation, the PMDA should respond to <command>pmLookupDesc</command> requests with a <filename>pmDesc</filename> structure whose <literal>type</literal> field has the special value  <literal>PM_TYPE_NOSUPPORT</literal>. Values of fields other than <literal>pmid</literal> and <literal>type</literal> are immaterial, but <xref linkend="Z976047339sdc"> is typically benign:</para>
+<example id="Z976047129sdc"><title id="Z976047339sdc"> Setting Values</title>
+<programlisting>pmDesc dummy = { 
+     PMDA_PMID(3,0),        /* pmid, fill this in */
+     PM_TYPE_NOSUPPORT,     /* this is the important part */
+     PM_INDOM_NULL,         /* singular,causes no problems */
+    0,                     /* no semantics */
+     { 0, 0, 0, 0, 0, 0 }   /* no units */
+};</programlisting>
+</example>
+</listitem>
+<listitem><para><indexterm><primary>pmFetch man page</primary></indexterm><indexterm><primary>PM_ERR_PMID error code</primary></indexterm>If a metric lacks support in a particular version of the underlying instrumentation, the PMDA should respond to <command>pmFetch</command> requests with a <command>pmResult</command> in which no values are returned for the unsupported metric. This is marginally friendlier than the other semantically acceptable option of returning an illegal PMID error or <literal>PM_ERR_PMID</literal>.</para>
+</listitem>
+<listitem><para><indexterm><primary>pmLookupText function</primary></indexterm><indexterm><primary>help text</primary><secondary>pmLookupText function</secondary></indexterm>Help text should be updated with annotations to describe different versions of the underlying product, or product configuration options, for which a specific metric is available. This is so <command>pmLookupText</command> can always respond correctly.</para>
+</listitem>
+<listitem><para><indexterm><primary>type field</primary></indexterm><indexterm><primary>pmStore function</primary></indexterm>The <command>pmStore</command> operation should fail with return status of <literal>-EACCES</literal> if a user or application tries to amend the value of an unsupported metric.</para>
+</listitem>
+<listitem><para><indexterm><primary>pmExtractValue function</primary></indexterm><indexterm><primary>pmConvScale function</primary></indexterm><indexterm><primary>pmAtomStr function</primary></indexterm><indexterm><primary>pmTypeStr function</primary></indexterm><indexterm><primary>pmPrintValue function</primary></indexterm><indexterm><primary>PM_ERR_CONV error code</primary></indexterm> The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT
+</literal>.</para>
+<para>If performance tools take note of the <literal>type</literal> field in the <filename>pmDesc</filename> structure, they should not manipulate values for unsupported metrics. Even if tools ignore <literal>type</literal> in the metric's description, following these development guidelines ensures that no misleading value is ever returned; so there is no reason to call the extraction, conversion, and printing functions.</para>
+</listitem></itemizedlist>
+</section>
+</section>
+<section id="LE21831-PARENT">
+<title id="LE21831-TITLE">DSO Interface</title>
+<para><indexterm><primary>DSO</primary><secondary>interface</secondary></indexterm>This section describes an interface for the request handling callbacks in a PMDA. This interface is used by PMCD for communicating with DSO PMDAs, and can also be used by daemon PMDAs with <command>pmdaMain</command>.</para>
+<section>
+<title>Overview</title>
+<para>Both daemon and DSO PMDAs must handle multiple request types from PMCD. A daemon PMDA communicates with PMCD using the PDU protocol, while a DSO PMDA defines callbacks for each request type. To avoid duplicating this PDU processing (in the case of a PMDA that can be installed either as a daemon or as a DSO), and to allow a consistent framework, <command>pmdaMain</command> can be used by a daemon PMDA as a wrapper to handle the communication protocol using the same callbacks as a DSO PMDA. This allows a PMDA to be built as both a daemon and a DSO, and then to be installed as either.</para>
+<para>To further simplify matters, default callbacks are declared in <filename>/usr/include/pcp/pmda.h</filename>:</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>pmdaFetch callback</primary></indexterm><command>pmdaFetch</command></para>
+</listitem>
+<listitem><para><indexterm><primary>pmdaProfile callback</primary></indexterm><command>pmdaProfile</command></para>
+</listitem>
+<listitem><para><indexterm><primary>pmdaInstance callback</primary></indexterm> <command>pmdaInstance</command></para>
+</listitem>
+<listitem><para><indexterm><primary>pmdaDesc callback</primary></indexterm><command>pmdaDesc</command></para>
+</listitem>
+<listitem><para><indexterm><primary>pmdaText callback</primary></indexterm> <command>pmdaText</command></para>
+</listitem>
+<listitem><para><indexterm><primary>pmdaStore callback</primary></indexterm> <command>pmdaStore</command></para>
+</listitem></itemizedlist>
+<para><indexterm><primary>pmdaExt structure</primary></indexterm>Each callback takes a <filename>pmdaExt</filename> structure as its last argument. This structure contains all the information that is required by the default callbacks in most cases. The one exception is <command>pmdaFetch</command>, which needs an additional callback to instantiate the current value for each supported combination of a performance metric and an instance.</para>
+<para>Therefore, for most PMDAs all the communication with PMCD is automatically handled by functions in <filename>libpcp.so</filename> and <filename>libpcp_pmda.so</filename>.</para>
+<section>
+<title>Trivial PMDA</title>
+<para><indexterm><primary>trivial PMDA</primary><secondary>callbacks</secondary></indexterm>The trivial PMDA uses all of the default callbacks as shown in <xref linkend="Z976305887sdc">. The additional callback for <command>pmdaFetch</command> is defined as <command>trivial_fetchCallBack</command>:</para>
+<example id="Z964109292sdc"><title id="Z976305887sdc">Request Handing Callbacks in the Trivial PMDA</title>
+<programlisting width="wide">static int
+trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+   __pmID_int          *idp = (__pmID_int *)&amp;(mdesc->m_desc.pmid);
+   if (idp->cluster != 0 || idp->item != 0)
+       return PM_ERR_PMID;
+   else if (inst != PM_IN_NULL)
+       return PM_ERR_INST;
+   atom->l = time(NULL);
+   return 0;
+}</programlisting>
+<para><indexterm><primary>trivial_init function</primary></indexterm>This function checks that the PMID and instance are valid, and then places the metric value for the current time into the <filename>pmAtomValue</filename> structure. The callback is set up by a call to <command>pmdaSetFetchCallBack</command> in <command>trivial_init</command>.</para>
+</example>
+</section>
+<section>
+<title>Simple PMDA</title>
+<para><indexterm><primary>simple PMDA</primary><secondary>pmdaFetch callback</secondary></indexterm><indexterm><primary>simple_init function</primary></indexterm>The simple PMDA callback for <command>pmdaFetch</command> is more complicated because it must support more metrics, some metrics are instantiated with each fetch, and one instance domain is dynamic. The default <command>pmdaFetch</command> callback, shown in <xref linkend="Z976811470sdc">, is replaced by <command>simple_fetch</command> in <command>simple_init</command>, which increments the number of fetches and updates the instance domain for<literal>INDOM_NOW</literal> before calling <command>pmdaFetch</command>:</para>
+<example id="Z964110950sdc"><title id="Z976811470sdc">Request Handing Callbacks in the Simple PMDA</title>
+<programlisting width="wide">static int
+simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+{
+    numfetch++;
+    simple_timenow_check();
+    simple_timenow_refresh();
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+}</programlisting>
+</example>
+<para><indexterm><primary>pmAtomValue structure</primary></indexterm>The callback for <command>pmdaFetch</command> is defined as <command>simple_fetchCallBack</command>. The PMID is extracted from the <filename>pmdaMetric</filename> structure, and if valid, the appropriate field in the <filename>pmAtomValue</filename> structure is set.</para>
+<para>The <literal>simple.numfetch</literal> metric has no instance domain and is easily handled first as shown in <xref linkend="Z976306620sdc">:</para>
+<example id="Z976306482sdc"><title id="Z976306620sdc"><literal>simple.numfetch</literal> Metric</title>
+<programlisting width="wide">static int
+simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+   int                 i;
+   static int          oldfetch = 0;
+   static struct tms   tms;
+   __pmID_int          *idp = (__pmID_int *)&amp;(mdesc->m_desc.pmid);
+   if (inst != PM_IN_NULL &amp;&amp;
+       !(idp->cluster == 0 &amp;&amp; idp->item == 1) &amp;&amp;
+       !(idp->cluster == 2 &amp;&amp; idp->item == 4))
+       return PM_ERR_INST;
+   if (idp->cluster == 0) {
+       if (idp->item == 0) {                   /* simple.numfetch */
+           atom->l = numfetch;
+       }</programlisting>
+</example>
+<para><indexterm><primary>simple.color metric</primary></indexterm>In <xref linkend="Z976050105sdc">, the <literal>inst</literal> parameter is used to specify which instance is required for the <literal>simple.color</literal> metric:</para>
+<example id="Z976049747sdc"><title id="Z976050105sdc"><literal>simple.color</literal> Metric</title>
+<programlisting>       else if (idp->item == 1) {              /* simple.color */
+            switch (inst) {
+            case 0:                             /* red */
+                red = (red + 1) % 256;
+                atom->l = red;
+                break;
+            case 1:                             /* green */
+                green = (green + 1) % 256;
+                atom->l = green;
+                break;
+            case 2:                             /* blue */
+                blue = (blue + 1) % 256;
+                atom->l = blue;
+                break;
+            default:
+                return PM_ERR_INST;
+            }
+       }
+       else
+           return PM_ERR_PMID;</programlisting>
+</example>
+<para><indexterm><primary>simple.time metric</primary></indexterm>In <xref linkend="Z976049509sdc">, the <literal>simple.time</literal> metric is in a second cluster and has a simple optimization to reduce the overhead of calling <command>times</command> twice on the same fetch and return consistent values from a single call to <command>times</command> when both metrics <literal>simple.time.user</literal> and <literal>simple.time.sys</literal> are requested in a single <command>pmFetch</command>. The previous fetch count is used to determine if the <filename>tms</filename> structure should be updated:</para>
+<example id="Z976049353sdc"><title id="Z976049509sdc"><literal>simple.time</literal> Metric</title>
+<programlisting>   else if (idp->cluster == 1) {               /* simple.time */
+       if (oldfetch &lt; numfetch) {
+           times(&amp;tms);
+           oldfetch = numfetch;
+       }
+       if (idp->item == 2)                     /* simple.time.user */
+           atom->d = (tms.tms_utime / (double)CLK_TCK);
+       else if (idp->item == 3)                /* simple.time.sys */
+           atom->d = (tms.tms_stime / (double)CLK_TCK);
+       else
+           return PM_ERR_PMID;
+    }</programlisting>
+</example>
+<para><indexterm><primary>simple.now metric</primary></indexterm>In <xref linkend="Z976306786sdc">, the <literal>simple.now</literal> metric is in a third cluster and uses <literal>inst</literal> again to select a specific instance from the <literal>INDOM_NOW</literal> instance domain:</para>
+<example id="Z976049020sdc"><title id="Z976306786sdc"><literal>simple.now</literal> Metric</title>
+<programlisting>    else if (idp->cluster == 2) {
+        if (idp->item == 4) {                 /* simple.now */
+            /* this loop will always match one of the named */
+            /* time constants from the timeslices structure */
+            for (i = 0; i &lt; num_timeslices; i++) {
+                if (inst == timeslices[i].inst_id) {
+                    atom->l = timeslices[i].tm_field;
+                    break;
+                }
+            }
+            if (i == num_timeslices)
+                return PM_ERR_INST;
+        }
+        else 
+            return PM_ERR_PMID;
+    }</programlisting>
+</example>
+</section>
+<section>
+<title><literal>simple_store</literal> in the Simple PMDA</title>
+<para><indexterm><primary>simple.store metric</primary></indexterm><indexterm><primary id="Z980104423sdc">pmstore function</primary></indexterm>The simple PMDA permits some of the metrics it supports to be modified by <command>pmStore</command> as shown in <xref linkend="Z976050643sdc">. For additional information, see the <command sectionref="1">pmstore</command> man page.</para>
+<example id="Z964111850sdc"><title id="Z976050643sdc"><literal>simple_store</literal> in the Simple PMDA</title>
+<para><indexterm><primary>pmdaStore callback</primary></indexterm>The <command>pmdaStore</command> callback (which returns <literal>-EACCESS</literal> to indicate no metrics can be altered) is replaced by <command>simple_store</command> in <command>simple_init</command>. This replacement function must take the same arguments so that it can be assigned to the function pointer in the <filename>pmdaInterface</filename> structure.</para>
+<para>The function traverses the <literal>pmResult</literal> and checks the cluster and unit of each PMID to ensure that it corresponds to a metric that can be changed. Checks are made on the values to ensure they are within range before being assigned to variables in the PMDA that hold the current values for exported metrics:</para>
+<programlisting width="wide">static int
+simple_store(pmResult *result, pmdaExt *pmda)
+{
+   int         i, j, val, sts = 0;
+   pmAtomValue av;
+   pmValueSet  *vsp = NULL;
+   __pmID_int  *pmidp = NULL;
+   for (i = 0; i &lt; result->numpmid; i++) {
+       vsp = result->vset[i];
+       pmidp = (__pmID_int *)&amp;vsp->pmid;
+       if (pmidp->cluster == 0) {  /* storable metrics are cluster0 */
+           switch (pmidp->item) {
+               case 0:                           /* simple.numfetch */
+                   val = vsp->vlist[0].value.lval;
+                   if (val &lt; 0) {
+                       sts = PM_ERR_SIGN;
+                       val = 0;
+                   }
+                   numfetch = val;
+                   break;
+               case 1:                             /* simple.color */
+                   for (j = 0; j &lt; vsp->numval &amp;&amp; sts == 0; j++) {
+                       val = vsp->vlist[j].value.lval;
+                       if (val &lt; 0) {
+                           sts = PM_ERR_SIGN;
+                           val = 0;
+                       } if (val > 255) {
+                           sts = PM_ERR_CONV;
+                           val = 255;
+                       }</programlisting>
+</example>
+<para><indexterm><primary>PM_ERR_INST error code</primary></indexterm>The <literal>simple.color</literal> metric has an instance domain that must be searched because any or all instances may be specified. Any instances that are not supported in this instance domain should cause an error value of <literal>PM_ERR_INST</literal> to be returned as shown in <xref linkend="Z976811624sdc">:</para>
+<example id="Z976051081sdc"><title id="Z976811624sdc"><literal>simple.color</literal> and <literal>PM_ERR_INST</literal> Errors</title>
+<programlisting>                       switch (vsp->vlist[j].inst) {
+                           case 0:                         /* red */
+                               red = val;
+                               break;
+                           case 1:                         /* green */
+                               green = val;
+                               break;
+                           case 2:                         /* blue */
+                               blue = val;
+                               break;
+                           default:
+                               sts = PM_ERR_INST;
+                       }</programlisting>
+</example>
+<para><indexterm><primary>PM_ERR_PMID error code</primary></indexterm>Any other PMIDs in cluster 0 that are not supported by the simple PMDA should result in an error value  of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976811656sdc">:</para>
+<example id="Z976307148sdc"><title id="Z976811656sdc"><literal>PM_ERR_PMID</literal> Errors</title>
+<programlisting>               default:
+                   sts = PM_ERR_PMID;
+                   break;
+           }
+       }</programlisting>
+</example>
+<para>Any metrics that cannot be altered should generate an error value of <literal>-EACCES</literal>, and metrics not supported by the PMDA should result in an error value of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976307319sdc">:</para>
+<example id="Z976050822sdc"><title id="Z976307319sdc"><literal>-EACCES</literal> and <literal>PM_ERR_PMID</literal> Errors</title>
+<programlisting>       else if ((pmidp->cluster == 1 &amp;&amp;
+                (pmidp->item == 2 || pmidp->item == 3)) ||
+                (pmidp->cluster == 2 &amp;&amp; pmidp->item == 4)) {
+           sts = -EACCES;
+           break;
+       }
+       else {
+           sts = PM_ERR_PMID;
+           break;
+       }
+   }
+   return sts;
+}</programlisting>
+<para>The structure <filename>pmdaEx</filename><replaceable>t</replaceable> argument is not used by the <command>simple_store</command> function above.</para>
+</example>
+</section>
+<section>
+<title>Return Codes for <command>pmdaFetch</command> Callbacks</title>
+<para>In <literal>PMDA_INTERFACE_1</literal> and <literal>PMDA_INTERFACE_2</literal>, the return codes for the <command>pmdaFetch</command> callback function are defined:</para>
+<?Pub _newpage>
+<deflist><?Pub Caret1>
+<deflistentry>
+<term>Value</term>
+<listitem><para>Meaning</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>&lt; 0</term>
+<listitem><para>Error code (for example, <literal>PM_ERR_PMID</literal>, <literal>PM_ERR_INST</literal> or <literal>PM_ERR_AGAIN</literal>)</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>0</term>
+<listitem><para>Success</para>
+</listitem></deflistentry>
+</deflist>
+<para>In <literal>PMDA_INTERFACE_3</literal>, the return codes for the <command>pmdaFetch</command> callback function are defined:</para>
+<deflist>
+<deflistentry>
+<term>Value</term>
+<listitem><para>Meaning</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>&lt; 0</term>
+<listitem><para>Error code (for example, <literal>PM_ERR_PMID</literal>, <literal>PM_ERR_INST</literal>)</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>0</term>
+<listitem><para>Metric value not currently available</para>
+</listitem></deflistentry>
+<deflistentry>
+<term>> 0</term>
+<listitem><para>Success</para>
+</listitem></deflistentry>
+</deflist>
+</section>
+</section>
+<section>
+<title>PMDA Structures</title>
+<para><indexterm><primary>PMDA</primary><secondary>structures</secondary></indexterm>PMDA structures used with the <filename>pcp_pmda</filename> library are defined in <filename>/usr/include/pcp/pmda.h</filename>.  <xref linkend="Z976307465sdc"> and <xref linkend="Z976307498sdc"> describe the <literal>pmdaInterface</literal> and <literal>pmdaExt</literal> structures.</para>
+<example id="Z964112160sdc"><title id="Z976307465sdc"><literal>pmdaInterface</literal> Structure</title>
+<para><indexterm><primary>pmdaInterface structure</primary></indexterm>The callbacks must be specified in a <filename>pmdaInterface</filename> structure:</para>
+<programlisting>typedef struct {
+   int domain;     /* set/return performance metrics domain id here */
+   struct {
+       unsigned int pmda_interface : 8;  /* PMDA DSO version */
+       unsigned int pmapi_version : 8;   /* PMAPI version */
+       unsigned int flags : 16;          /* usage TBD */
+   } comm;             /* set/return communication and version info */
+   int status;         /* return initialization status here */
+   union {
+/* 
+* Interface Version 2 (PCP 2.0) or later 
+* PMDA_INTERFACE2, PMDA_INTERFACE3, ...
+*/ 
+       struct {
+           pmdaExt *ext;
+           int     (*profile)(__pmProfile *, pmdaExt *);
+           int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+           int     (*desc)(pmID, pmDesc *, pmdaExt *);
+           int     (*instance)(pmInDom, int, char *, __pmInResult **,
+                   pmdaExt *);
+           int     (*text)(int, int, char **, pmdaExt *);
+           int     (*store)(pmResult *, pmdaExt *);
+       } two;
+   } version;
+} pmdainterface;</programlisting>
+<para>This structure is passed by PMCD to a DSO PMDA as an argument to the initialization function. This structure supports two versions&mdash;the second version adds support for the <filename>pmdaExt</filename> structure. Protocol version one is for backwards compatibility only, and should not be used in any new PMDA.</para>
+</example>
+<example id="Z964117744sdc"><title id="Z976307498sdc"><literal>pmdaExt</literal> Stucture</title>
+<para><indexterm><primary>pmdaExt structure</primary></indexterm>Additional PMDA information must be specified in a <filename>pmdaExt</filename> structure:</para>
+<programlisting width="wide" id="Z964117899sdc">typedef struct {
+   unsigned int e_flags;       /* used internally within libpcp_pmda */
+   void        *e_ext;         /* used internally within libpcp_pmda */
+   char        *e_sockname;    /* socket name to pmcd */
+   char        *e_name;        /* name of this pmda */
+   char        *e_logfile;     /* path to log file */
+   char        *e_helptext;    /* path to help text */
+   int         e_status;       /* =0 is OK */
+   int         e_infd;         /* input file descriptor from pmcd */
+   int         e_outfd;        /* output file descriptor to pmcd */
+   int         e_port;         /* port to pmcd */
+   int         e_singular;     /* =0 for singular values */
+   int         e_ordinal;      /* >=0 for non-singular values */
+   int         e_direct;       /* =1 if pmid map to meta table */
+   int         e_domain;       /* metrics domain */
+   int         e_nmetrics;     /* number of metrics */
+   int         e_nindoms;      /* number of instance domains */
+   int         e_help;         /* help text comes via this handle */
+   __pmProfile *e_prof;        /* last received profile */
+   pmdaIoType  e_io;           /* connection type to pmcd */
+   pmdaIndom   *e_indoms;      /* instance domain table */
+   pmdaIndom   *e_idp;         /* instance domain expansion */
+   pmdaMetric  *e_metrics;     /* metric description table */
+   pmdaResultCallBack e_resultCallBack; /* to clean up pmResult after fetch */
+   pmdaFetchCallBack  e_fetchCallBack;  /* to assign metric values in fetch */
+   pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
+   pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU is processed */
+} pmdaExt;</programlisting>
+<para><indexterm><primary>pmdaConnect man page</primary></indexterm><indexterm><primary>pmdaDSO man page</primary></indexterm><indexterm><primary>pmdaDaemon man page</primary></indexterm><indexterm><primary>pmdaGetOpt man page</primary></indexterm><indexterm><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command sectionref="3">pmdaDaemon</command>, <command sectionref="3">pmdaDSO</command>, <command sectionref="3">pmdaGetOpt</command>, <command sectionref="3">
+pmdaInit</command>, and <command sectionref="3">pmdaConnect</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
+</example>
+</section>
+</section>
+<section id="LE19047-PARENT">
+<title id="LE19047-TITLE">Initializing a PMDA</title>
+<para> <indexterm><primary>PMDA</primary><secondary>initialization</secondary></indexterm>Several functions are provided to simplify the initialization of a PMDA. These functions, if used, must be called in a strict order so that the PMDA can operate correctly.</para>
+<section>
+<title>Overview</title>
+<para><indexterm><primary>pmdaInterface structure</primary></indexterm>The initialization process for a PMDA involves opening help text files, assigning callback function pointers, adjusting the metric and instance identifiers to the correct domains, and much more. The initialization of a daemon PMDA also differs significantly from a DSO PMDA, since the <literal>pmdaInterface</literal> structure is initialized by <command>main</command> or the PMCD process, respectively.</para>
+</section>
+<section>
+<title>Common Initialization</title>
+<para><indexterm><primary>DSO</primary><secondary>PMDA initialization</secondary></indexterm>As described in <xref linkend="LE82676-PARENT">, an initialization function is provided by a DSO&ensp;PMDA and called by PMCD. Using the standard PMDA wrappers, the same function can also be used as part of the daemon PMDA initialization. This PMDA initialization function performs the following tasks:</para>
+<itemizedlist>
+<listitem><para>Assigning callback functions to the function pointer interface of <filename>pmdaInterface</filename></para>
+</listitem>
+<listitem><para>Assigning pointers to the metric and instance tables from <filename>pmdaExt</filename></para>
+</listitem>
+<listitem><para><indexterm><primary>help text</primary><secondary>initialization</secondary></indexterm>Opening the help text files</para>
+</listitem>
+<listitem><para>Assigning the domain number to the instance domains</para>
+</listitem>
+<listitem><para>Correlating metrics with their instance domains</para>
+</listitem></itemizedlist>
+<para><indexterm><primary>pmdaInit man page</primary></indexterm><indexterm><primary>pmdaInit man page</primary></indexterm>If the PMDA uses the common data structures defined for the <filename>pcp_pmda</filename> library, most of these requirements can be handled by the default <command>pmdaInit</command> function; see the <command sectionref="3">pmdaInit</command> man page.</para>
+<para>Because the initialization function is the only initialization opportunity for a DSO PMDA, the common initialization function should also perform any DSO-specific functions that are required. A default implementation of this functionality is provided by the <command>pmdaDSO</command> function; see the <command sectionref="3">pmdaDSO</command> man page.</para>
+<section>
+<title>Trivial PMDA</title>
+<para><indexterm><primary>trivial PMDA</primary><secondary>initialization</secondary></indexterm><indexterm><primary>pmdaFetch callback</primary></indexterm><indexterm><primary>trivial_init function</primary></indexterm><xref linkend="Z976058643sdc"> shows the trivial PMDA, which has no instances (that is, all metrics have singular values) and a single callback. This callback is for the <command>pmdaFetch</command> function called <command>trivial_fetchCallBack</command>; see the <command sectionref="3">pmdaFetch</command> man page:</para>
+<example id="Z976058585sdc"><title id="Z976058643sdc">Initialization in the Trivial PMDA</title>
+<programlisting>void trivial_init(pmdaInterface *dp)
+{
+   pmdaSetFetchCallBack(dp, trivial_fetchCallBack);
+   pmdaInit(dp, NULL, 0,
+            metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+}</programlisting>
+</example>
+<para>The trivial PMDA is always installed as a daemon PMDA.</para>
+</section>
+<section>
+<title>Simple PMDA</title>
+<para><indexterm><primary>simple PMDA</primary><secondary>initialization</secondary></indexterm><indexterm><primary>simple_init function</primary></indexterm><indexterm><primary>PDU_RESULT</primary></indexterm><indexterm><primary>PDU_FETCH</primary></indexterm>In <xref linkend="Z976058776sdc">, the simple PMDA uses its own callbacks to handle <literal>PDU_FETCH</literal> and <literal>PDU_RESULT</literal> request PDUs (for <command>pmFetch</command> and <command>pmStore</command> operations respectively), as well as providing <command>pmdaFetch</command> with the callback <command>simple_fetchCallBack</command>.</para>
+<example id="Z976058770sdc"><title id="Z976058776sdc">Initialization in the Simple PMDA</title>
+<programlisting>static int      isDSO = 1;              /* =0 I am a daemon */
+void simple_init(pmdaInterface *dp)
+{
+   if (isDSO)
+       pmdaDSO(dp, PMDA_INTERFACE_2, &ldquo;simple DSO&rdquo;,
+               &ldquo;/var/pcp/pmdas/simple/help&rdquo;);
+   if (dp->status != 0)
+       return;
+   dp->version.two.fetch = simple_fetch;
+   dp->version.two.store = simple_store;
+   dp->version.two.instance = simple_instance;
+   pmdaSetFetchCallBack(dp, simple_fetchCallBack);
+   pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
+            metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+}</programlisting>
+</example>
+<para>The simple PMDA may be installed either as a daemon PMDA or a DSO PMDA. The static variable <replaceable>isDSO</replaceable> indicates whether the PMDA is running as a DSO or as a daemon. A daemon PMDA should change the value of this variable to 0 in <literal>main</literal>.</para>
+</section>
+</section>
+<section>
+<title>Daemon Initialization</title>
+<para>In addition to the initialization function that can be shared by a DSO and a daemon PMDA, a daemon PMDA must also meet the following requirements:</para>
+<itemizedlist>
+<listitem><para>Create the <filename>pmdaInterface</filename> structure that is passed to the initialization function</para>
+</listitem>
+<listitem><para>Parse any command-line arguments</para>
+</listitem>
+<listitem><para>Open a log file (a DSO PMDA uses PMCD's log file)</para>
+</listitem>
+<listitem><para>Set up the IPC connection between the PMDA and the PMCD process</para>
+</listitem>
+<listitem><para>Handle incoming PDUs</para>
+</listitem></itemizedlist>
+<para><indexterm><primary>pmdaDaemon man page</primary></indexterm><indexterm><primary>pmdaGetOpt man page</primary></indexterm><indexterm><primary>pmdaOpenLog man page</primary></indexterm><indexterm><primary>pmdaConnect man page</primary></indexterm><indexterm><primary>pmdaMain man page</primary></indexterm>All these requirements can be handled by default initialization functions in the <filename>pcp_pmda</filename> library; see the <command sectionref="3">pmdaDaemon</command>, <command sectionref="3">pmdaGetOpt</command>, <command sectionref="3">pmdaOpenLog</command>, <command sectionref="3">pmdaConnect</command>, and <command sectionref="3">pmdaMain</command> man pages.</para>
+<para><indexterm><primary>pmdaGetOpt man page</primary></indexterm>The simple PMDA requires no additional command-line arguments other than those handled by <command>pmdaGetOpt</command> as shown in <xref linkend="Z976308471sdc">. For additional information, see the <command sectionref="3">pmdaGetOpt</command> man page.</para>
+<example id="Z964110483sdc"><title id="Z976308471sdc"><literal>main</literal> in the Simple PMDA</title>
+<programlisting width="wide">int
+main(int argc, char **argv)
+{
+   int                 err = 0;
+   pmdaInterface       dispatch;
+   char                *p;
+   /* trim cmd name of leading directory components */
+   pmProgname = argv[0];
+   for (p = pmProgname; *p; p++) {
+       if (*p == `/')
+           pmProgname = p+1;
+   }
+   isDSO = 0;
+   pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
+              &ldquo;simple.log&rdquo;, &ldquo;/var/pcp/pmdas/simple/help&rdquo;);
+   if (pmdaGetOpt(argc, argv, &ldquo;D:d:i:l:pu:?&rdquo;, &amp;dispatch, &amp;err)) != EOF)
+       err++;
+   if (err)
+       usage();
+   pmdaOpenLog(&amp;dispatch);
+   simple_init(&amp;dispatch);
+   simple_timenow_check();
+   pmdaConnect(&amp;dispatch);
+   pmdaMain(&amp;dispatch);
+   exit(0);
+   /*NOTREACHED*/
+}</programlisting>
+</example>
+</section>
+</section>
+<section>
+<title>Testing and Debugging a PMDA</title>
+<para>Ensuring the correct operation of a PMDA can be difficult, because the responsibility of providing metrics to the requesting PMCD process and simultaneously retrieving values from the target domain requires nearly real-time communication with two modules beyond the PMDA's control. Some tools are available to assist in this important task. <indexterm><primary>testing and debugging</primary></indexterm> <indexterm><primary> debugging and testing</primary></indexterm></para>
+<section>
+<title>Overview</title>
+<para><indexterm><primary>dbx man page</primary></indexterm>Thoroughly testing a PMDA with PMCD is difficult, although testing a daemon PMDA is marginally simpler than testing a DSO PMDA. If a DSO PMDA exits, PMCD also exits because they share a single address space and control thread. If the PMDA dumps core, <command>dbx</command> and related tools on IRIX or <command sectionref="1">gdb</command> on Linux cannot reasonably explore the generated core image, which includes the PMCD image and any other active DSO PMDAs. For more information, see the <command sectionref="1">dbx</command> or <command sectionref="1">gdb</command>man page.</para>
+<para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/config/pmcd.options</filename> on IRIX or <filename>/var/pcp/config/pmcd/pmcd.options</filename> on Linux, attaching <command>dbx</command> or <command>gdb</command> to the PMDA process (or any other long delay) might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
+<para>If you suspect a PMDA has been terminated due to a timeout failure, check the PMCD log file, usually <filename>/var/adm/pcplog/pmcd.log</filename> for IRIX or <filename>/var/log/pcp/pmcd/pmcd.log</filename> for Linux.</para>
+<para><indexterm><primary>dbpmda man page</primary></indexterm>A more robust way of testing a PMDA is to use the <command>dbpmda</command> tool, which is similar to PMCD except that <command>dbpmda</command> provides complete control over the PDUs that are sent to the PMDA, and there are no time limits&mdash;it is essentially an interactive debugger for exercising a PMDA. See the <command sectionref="3">dbpmda</command> man page for details.</para>
+<para><indexterm><primary>pmdbg man page</primary></indexterm>In addition, careful use of PCP debugging flags can produce useful information concerning a PMDA's behavior; see the <command sectionref="3">pmapi</command> and <command sectionref="1">pmdbg</command> man pages for a discussion of the PCP debugging and tracing framework.</para>
+</section>
+<section>
+<title>Debugging Information</title>
+<para><indexterm><primary>pmdbg man page</primary></indexterm><indexterm><primary>debugging flags</primary><see>flags</see></indexterm><indexterm><primary>flags</primary><secondary>debugging</secondary></indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command sectionref="1">pmdbg</command> man page. Setting the debug flag for PMCD in <filename>/etc/config/pmcd.options</filename> on IRIX or <filename>/var/pcp/config/pmcd/pmcd.options</filename> on Linux might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
+<para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
+<programlisting># <emphasis>pmstore pmcd.control.debug 5</emphasis></programlisting>
+<para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command sectionref="3">pmda</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
+<para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required.</para>
+<para><indexterm><primary>simple_store function</primary></indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060271sdc">:</para>
+<example id="Z976060060sdc"><title id="Z976060271sdc"><literal>simple.numfetch</literal> in the Simple PMDA</title>
+<programlisting>   case 0: /* simple.numfetch */ 
+       val = vsp->vlist[0].value.lval; 
+       if (val &lt; 0) { 
+           sts = PM_ERR_SIGN; 
+           val = 0; 
+       } 
+#ifdef DEBUG 
+       if (pmDebug &amp; DBG_TRACE_APPL0) { 
+           fprintf(stderr,  
+                "simple: %d stored into numfetch", val); 
+       } 
+#endif 
+       numfetch = val; 
+       break;</programlisting>
+</example>
+<para><indexterm><primary>pmstore function</primary></indexterm>For a description of <command>pmstore</command>, see the <command sectionref="1">pmstore</command> man page.</para>
+</section>
+<section>
+<title><command>dbpmda</command> Debug Utility</title>
+<para><indexterm><primary>dbpmda man page</primary></indexterm>The <command>dbpmda</command> utility provides a simple interface to the PDU communication protocol. It allows daemon and DSO PMDAs to be tested with most request types, while the PMDA process may be monitored with <command>dbx</command>, <command>par</command> on IRIX or <command>gdb</command>, <command>strace</command> on Linux, and other diagnostic tools. The <command sectionref="1">dbpmda</command> man page contains a sample session with the <filename>simple</filename> PMDA.</para>
+</section>
+</section>
+<section>
+<title>Integration of PMDA</title>
+<para><indexterm><primary>PMDA</primary><secondary>integration</secondary></indexterm>Several steps are required to install (or remove) a PMDA from a production PMCD environment without affecting the operation of other PMDAs or related visualization and logging tools.<indexterm><primary>integrating a PMDA</primary></indexterm></para>
+<para>The PMDA typically would have its own directory below <filename>/var/pcp/pmdas</filename> into which several files would be installed. In the description in <xref linkend="LE55181-PARENT">, the PMDA of interest is assumed to be known by the name <filename>newbie</filename>, hence the PMDA directory would be <filename>/var/pcp/pmdas/newbie</filename>.</para>
+<note><para>Any installation or removal of a PMDA involves updating files and directories that are typically well protected. Hence the procedures described in this section must be executed as the superuser.</para>
+</note>
+<section id="LE55181-PARENT">
+<title id="LE55181-TITLE">Installing a PMDA</title>
+<para>A PMDA is fully installed when these tasks are completed:</para>
+<itemizedlist>
+<listitem><para><indexterm><primary>help text</primary><secondary>location</secondary></indexterm>Help text has been installed in a place where the PMDA can find it, usually in the PMDA directory <filename>/var/pcp/pmdas/newbie</filename>.</para>
+</listitem>
+<listitem><para>The name space has been updated in the <filename>/var/pcp/pmns</filename> directory.</para>
+</listitem>
+<listitem><para>The PMDA binary has been installed, usually in the directory <filename>/var/pcp/lib</filename> for a DSO PMDA, or in the PMDA directory <filename>/var/pcp/pmdas/newbie</filename> for a daemon PMDA.</para>
+</listitem>
+<listitem><para>The <filename>/etc/pmcd.conf</filename> file on IRIX or the <filename>/var/pcp/config/pmcd/pmcd.conf</filename> file on Linux has been updated.</para>
+</listitem>
+<listitem><para>The PMCD process has been restarted or notified (with a <literal>SIGHUP</literal> signal) that the new PMDA exists.</para>
+</listitem></itemizedlist>
+<para>The <filename>Makefile</filename> should include an <literal>install</literal> target to compile and link the PMDA (as a DSO, or a daemon or both) in the PMDA directory, and in the case of a DSO PMDA, install the shared library in <filename>/var/pcp/lib</filename> for IRIX and <filename>/usr/share/pcp/lib</filename> for Linux. The <literal>clobber</literal> target should remove any files created as a by-product of the <literal>install</literal> target.<indexterm><primary>PMDA</primary><secondary>Install script</secondary></indexterm></para>
+<para>You may wish to use <filename>/var/pcp/pmdas/simple/Makefile</filename> as a template for constructing a new PMDA <filename>Makefile</filename>; changing the assignment of <literal>IAM</literal> from <literal>simple</literal> to <literal>newbie</literal> would account for most of the required changes.</para>
+<para>Since the object format of a DSO PMDA must match the object format of PMCD, which in turn must match the object format of the booted operating system kernel, there might be multiple DSO targets in the <filename>Makefile</filename>. For an example on IRIX, see targets <literal>mips_o32.pmda_$(IAM).so</literal>, <literal>mips_n32.pmda_$(IAM).so</literal>, and <literal>mips_64.pmda_$(IAM).so</literal> for the simple PMDA.</para>
+<para>The <filename>Install</filename> script should make use of the generic procedures defined in the script <filename>/usr/pcp/lib/pmdaproc.sh</filename> on IRIX and <filename>/usr/share/pcp/lib/pmdaproc.sh</filename> on Linux, and may be as straightforward as the one used for the trivial PMDA, shown in <xref linkend="Z976812258sdc">:</para>
+<example id="Z976309325sdc"><title id="Z976812258sdc"><filename>Install</filename> Script for the Trivial PMDA</title>
+<programlisting># Get the common procedures and variable assignments
+#
+. /usr/pcp/lib/pmdaproc.sh
+# The name of the PMDA
+#
+iam=trivial
+# Do it
+#
+pmdaSetup
+pmdainstall
+exit 0</programlisting>
+</example>
+<para>The variables, shown in <xref linkend="Z976309417sdc">, may be assigned values to modify the behavior of the <literal>pmdaSetup</literal> and <literal>pmdainstall</literal> procedures from <filename>/usr/pcp/lib/pmdaproc.sh</filename> or  <filename>/usr/share/pcp/lib/pmdaproc.sh</filename> on Linux.</para>
+<table frame="topbot" pgwide="wide">
+<tbltitle id="Z976309417sdc">Variables to Control Behavior of Generic <filename>pmdaproc.sh</filename> Procedures</tbltitle>
+<tgroup cols="3" colsep="0" rowsep="0">
+<?PubTbl tgroup dispwid="5.50in">
+<colspec colwidth="113*">
+<colspec colwidth="213*">
+<colspec colwidth="67*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Shell Variable</para></entry><entry align="left" valign="bottom"><para>Use</para></entry><entry align="left" valign="bottom"><para>Default</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para><literal>$iam</literal></para></entry>
+<entry align="left" valign="top"><para>Name of the PMDA; assignment to this variable is mandatory.</para><para>Example: <literal>iam=newbie</literal></para></entry>
+<entry align="left" valign="top"><para></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$dso_opt</literal></para></entry>
+<entry align="left" valign="top"><para>Can this PMDA be installed as a DSO?</para></entry>
+<entry align="left" valign="top"><para><literal>false</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$daemon_opt</literal></para></entry>
+<entry align="left" valign="top"><para>Can this PMDA be installed as a daemon?</para></entry>
+<entry align="left" valign="top"><para><literal>true</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$pipe_opt</literal></para></entry>
+<entry align="left" valign="top"><para>If installed as a daemon PMDA, is the default IPC via pipes?</para></entry>
+<entry align="left" valign="top"><para><literal>true</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$socket_opt</literal></para></entry>
+<entry align="left" valign="top"><para>If installed as a daemon PMDA, is the default IPC via an Internet socket?</para></entry>
+<entry align="left" valign="top"><para><literal>false</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$socket_inet_def</literal></para></entry>
+<entry align="left" valign="top"><para>If installed as a daemon PMDA, and the IPC method uses an Internet socket, the default port number.</para></entry>
+<entry align="left" valign="top"><para></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$ipc_prot</literal></para></entry>
+<entry align="left" valign="top"><para>IPC style for PDU exchanges involving a daemon PMDA; <literal>binary</literal> or <literal>text</literal>.</para></entry>
+<entry align="left" valign="top"><para><literal>binary</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$check_delay</literal></para></entry>
+<entry align="left" valign="top"><para>Delay in seconds between installing PMDA and checking if metrics are available.</para></entry>
+<entry align="left" valign="top"><para><literal>3</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$args</literal></para></entry>
+<entry align="left" valign="top"><para>Additional command-line arguments passed to a daemon PMDA.</para></entry>
+<entry align="left" valign="top"><para></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$pmda_interface</literal></para></entry>
+<entry align="left" valign="top"><para>Version of the <filename>libpcp_pmda</filename> library required, used to determine the version for generating help text files.</para></entry>
+<entry align="left" valign="top"><para><literal>1</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$pmns_source</literal></para></entry>
+<entry align="left" valign="top"><para>The name of the PMNS file (by default relative to the PMDA directory).</para></entry>
+<entry align="left" valign="top"><para><literal>pmns</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$pmns_name</literal></para></entry>
+<entry align="left" valign="top"><para>First-level name for this PMDA's metrics in the PMNS.</para></entry>
+<entry align="left" valign="top"><para><literal>$iam</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$help_source</literal></para></entry>
+<entry align="left" valign="top"><para>The name of the help file (by default relative to the PMDA directory).</para></entry>
+<entry align="left" valign="top"><para><literal>help</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$pmda_name</literal></para></entry>
+<entry align="left" valign="top"><para>The name of the executable for a daemon PMDA.</para></entry>
+<entry align="left" valign="top"><para><literal>pmda$iam</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$dso_name</literal></para></entry>
+<entry align="left" valign="top"><para>The name of the shared library for a DSO PMDA.</para></entry>
+<entry align="left" valign="top"><para><literal>pmda$iam.so</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$dso_entry</literal></para></entry>
+<entry align="left" valign="top"><para>The name of the initialization function for a DSO PMDA.</para></entry>
+<entry align="left" valign="top"><para><literal>${iam}_init</literal></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$domain</literal></para></entry>
+<entry align="left" valign="top"><para>The numerical PMDA domain number (from <filename>domain.h</filename>).</para></entry>
+<entry align="left" valign="top"><para></para></entry></row>
+<row>
+<entry align="left" valign="top"><para><literal>$SYMDOM</literal></para></entry>
+<entry align="left" valign="top"><para>The symbolic name of the PMDA domain number (from <filename>domain.h</filename>).</para></entry>
+<entry align="left" valign="top"><para></para></entry></row></tbody></tgroup></table>
+<para>In addition, the variables <literal>do_pmda</literal> and <literal>do_check</literal> will be set to reflect the intention to install the PMDA (as opposed to install just the PMNS) and to check the availability of the metrics once the PMDA is installed. By default, each variable is <literal>true</literal>; however, the command-line options <literal>-N</literal> and <literal>-Q</literal> to <filename>Install</filename> may be used to set the variables to <literal>false</literal>, as follows: <literal>do_pmda</literal> (<command>-N</command>) and <literal>do_check</literal> (<literal>-N</literal> or <literal>-Q</literal>).</para>
+<para>The variables may also have their assignments changed by the user's response to the common prompt as shown in <xref linkend="Z976309949sdc">:</para>
+<example id="Z976309844sdc"><title id="Z976309949sdc">Changing Variable Assignments</title>
+<programlisting>You will need to choose an appropriate configuration for installation 
+of the ... Performance Metrics Domain Agent (PMDA).
+  collector   collect performance statistics on this system
+  monitor     allow this system to monitor local and/or remote systems
+  both        collector and monitor configuration for this system</programlisting>
+</example>
+<para>Obviously, for anything but the most trivial PMDA, after calling the <filename>pmdaSetup</filename> procedure, the <filename>Install</filename> script should also prompt for any PMDA-specific parameters, which are typically accumulated in the <replaceable>args</replaceable> variable and used by the <literal>pmdainstall</literal> procedure.</para>
+<para>The detailed operation of the <filename>pmdainstall</filename> procedure involves the following tasks:</para>
+<itemizedlist>
+<listitem><para>Using default assignments, and interaction where ambiguity exists, determine the PMDA type (DSO or daemon) and the IPC parameters, if any.</para>
+</listitem>
+<listitem><para>Copy the <filename>$pmns_source</filename> file, replacing symbolic references to <literal>SYMDOM</literal> by the desired numeric domain number from <literal>domain.</literal></para>
+</listitem>
+<listitem><para>Merge the PMDA's name space into the PCP name space at the non-leaf node identified by <filename>$pmns_name</filename>.</para>
+</listitem>
+<listitem><para>If any <command>pmchart</command> views can be found (files with names ending in &ldquo;.pmchart&rdquo;), copy these to the standard directory (<filename>/var/pcp/config/pmchart</filename>) with the &ldquo;.pmchart&rdquo; suffix removed.</para>
+</listitem>
+<listitem><para><indexterm><primary>help text</primary><secondary>creation</secondary></indexterm>Create new help files from <literal>$help_source</literal> after replacing symbolic references to <literal>SYMDOM</literal> by the desired numeric domain number from <literal>domain</literal>.</para>
+</listitem>
+<listitem><para>Terminate the old daemon PMDA, if any.</para>
+</listitem>
+<listitem><para>Use the <filename>Makefile</filename> to build the appropriate executables.</para>
+</listitem>
+<listitem><para>Add the PMDA specification to PMCD's configuration file (<filename>/etc/pmcd.conf</filename>).</para>
+</listitem>
+<listitem><para>Notify PMCD. To minimize the impact on the services PMCD provides, sending a <literal>SIGHUP</literal> to PMCD forces it to reread the configuration file and start, restart, or remove any PMDAs that have changed since the file was last read.</para>
+</listitem>
+<listitem><para>Check that the metrics from the new PMDA are available.</para>
+</listitem></itemizedlist>
+<para>There are some PMDA changes that may trick PMCD into thinking nothing has changed, and not restarting the PMDA. Most notable are changes to the PMDA executable. In these cases, you may need to explicitly remove the PMDA as described in <xref linkend="Z976310185sdc">, or more drastically, restart PMCD on IRIX as follows: <indexterm><primary>restarting pmcd</primary></indexterm></para>
+<literallayout># <userinput>/etc/init.d/pcp start</userinput></literallayout>
+<para>Restart PMCD on Linux as follows:<literallayout># <userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout></para>
+<para><indexterm><primary>examples</primary><secondary>Install script</secondary></indexterm>The files <filename>/var/pcp/pmdas/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA<filename>Install</filename> script.</para>
+</section>
+<section>
+<title>Upgrading a PMNS to Include Metrics from a New PMDA</title>
+<para><indexterm><primary>new PMDA</primary></indexterm><indexterm><primary>PMNS</primary><secondary>upgrade</secondary></indexterm><indexterm><primary>PMDA</primary><secondary> Install script</secondary></indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This is typically used on a monitoring system to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option also installs <command>pmchart</command> views useful on a monitoring system.</para>
+</section>
+<section id="Z976310185sdc">
+<title>Removing a PMDA</title>
+<para><indexterm><primary>PMDA</primary><secondary>removal</secondary></indexterm>The simplest way to stop a PMDA from running, apart from killing the process, is to remove the entry from <filename>/etc/pmcd.conf</filename> and signal PMCD (with <literal>SIGHUP</literal>) to reread its configuration file. To completely remove a PMDA requires the reverse process of the installation, including an update of the Performance Metrics Name Space (PMNS).</para>
+<para><indexterm><primary>removal script</primary></indexterm>This typically involves a <filename>Remove</filename> script in the PMDA directory that uses the same common procedures as the <filename>Install</filename> script described <xref linkend="LE55181-PARENT">.</para>
+<para><indexterm><primary>examples</primary><secondary>Remove script</secondary></indexterm>The <filename>/var/pcp/pmdas/*/Remove</filename> files provide a wealth of examples that may be used to construct a new PMDA <filename>Remove</filename> script.</para>
+</section>
+<section>
+<title>Configuring PCP Tools</title>
+<para><indexterm><primary>tool configuration</primary></indexterm><indexterm><primary>configuration</primary></indexterm>Most PCP tools have their own configuration file format for specifying which metrics to view or to log. By using canned configuration files that monitor key metrics of the new PMDA, users can quickly see the performance of the target system, as characterized by key metrics in the new PMDA. </para>
+<para>Any configuration files that are created should be kept with the PMDA and installed into the appropriate directories when the PMDA is installed.</para>
+<para>As with all PCP customization, some of the most valuable tools can be created by defining views, scenes, and control-panel layouts that combine related performance metrics from multiple PMDAs or multiple hosts.</para>
+<para><indexterm><primary>pmie command</primary></indexterm><indexterm><primary>pmieconf command</primary></indexterm>Parameterized alarm configurations can be created using the <command>pmieconf</command> facilities; see the <command sectionref="1">pmieconf</command> and <command sectionref="1">pmie</command> man pages. In addition, <command>pmie</command> rules involving metrics from the new PMDA may be created directly.</para>
+<para><indexterm><primary>pmlogger command</primary></indexterm><indexterm><primary>pmlogger_daily command</primary></indexterm>Daily logs can be specified in <command>pmlogger</command> configuration files, or with the <command>pmlogger_daily</command> mechanism; see the <command sectionref="1">pmlogger</command> and <command sectionref="1">pmlogger_daily</command> man pages. The services of <command>pmsnap</command> may be used to incorporate the new performance metrics into charts that may be periodically regenerated and published via a World Wide Web server.</para>
+</section>
+</section>
+</chapter>
+<?Pub *0000116066 0>

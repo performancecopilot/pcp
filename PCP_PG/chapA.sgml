@@ -1,0 +1,103 @@
+<!-- Fragment document type declaration subset:
+ArborText, Inc., 1988-1997, v.4001
+<!DOCTYPE SGIDOCBK PUBLIC "-//Silicon Graphics, Inc.//DTD DocBook V2.3-based Subset V1.5//EN" [
+<!ENTITY c1pcp.sgml SYSTEM "c1pcp.sgml">
+<!ENTITY c2pmda.sgml SYSTEM "c2pmda.sgml">
+<!ENTITY c3pmapi.sgml SYSTEM "c3pmapi.sgml">
+<!ENTITY c4pmda.sgml SYSTEM "c4pmda.sgml">
+<!ENTITY appA.sgml SYSTEM "appA.sgml">
+<!ENTITY PCP_glob_process_architec SYSTEM "online/PCP_glob_process_architec.gif" NDATA gif>
+<!ENTITY process_struct_for_dist_op SYSTEM "online/process_struct_for_dist_op.gif" NDATA gif>
+<!ENTITY retrospect_analysis_architec SYSTEM "online/retrospect_analysis_architec.gif" NDATA gif>
+<!ENTITY struct_results_frm_pmFetch SYSTEM "online/struct_results_frm_pmFetch.gif" NDATA gif>
+<!ENTITY trace_1 SYSTEM "online/trace_1.gif" NDATA gif>
+<!ENTITY trace_buffer SYSTEM "online/trace_buffer.gif" NDATA gif>
+<!ENTITY trace_example SYSTEM "online/trace_example.gif" NDATA gif>
+<!ENTITY trace_libpcp SYSTEM "online/trace_libpcp.gif" NDATA gif>
+<!ENTITY preface.sgml SYSTEM "preface.sgml">
+<!ENTITY chap01.sgml SYSTEM "chap01.sgml">
+<!ENTITY chap02.sgml SYSTEM "chap02.sgml">
+<!ENTITY chap03.sgml SYSTEM "chap03.sgml">
+<!ENTITY chap04.sgml SYSTEM "chap04.sgml">
+<!ENTITY % public.private "INCLUDE">
+<!ENTITY % proprietary "IGNORE">
+<!ENTITY % private "IGNORE">
+<!ENTITY % public "INCLUDE">
+<!ENTITY % craysoft "IGNORE">
+<!ENTITY standards SYSTEM "frontmatter/standards.sgml">
+<!ENTITY machines.allcraysystems SYSTEM "frontmatter/machines.allcraysystems.sgml">
+<!ENTITY machines.craympp SYSTEM "frontmatter/machines.craympp.sgml">
+<!ENTITY conventions.ellipses SYSTEM "frontmatter/conventions.ellipses.sgml">
+<!ENTITY conventions.brackets SYSTEM "frontmatter/conventions.brackets.sgml">
+<!ENTITY conventions.userinput SYSTEM "frontmatter/conventions.userinput.sgml">
+<!ENTITY conventions.variable SYSTEM "frontmatter/conventions.variable.sgml">
+<!ENTITY conventions.manpage SYSTEM "frontmatter/conventions.manpage.sgml">
+<!ENTITY conventions.command SYSTEM "frontmatter/conventions.command.sgml">
+<!ENTITY ordering.pubs SYSTEM "frontmatter/ordering.pubs.sgml">
+<!ENTITY reader.comments SYSTEM "frontmatter/reader.comments.sgml">
+<!ENTITY manpage.section SYSTEM "frontmatter/manpage.section.sgml">
+<!ENTITY unicos SYSTEM "frontmatter/unicos.sgml">
+<!ENTITY trademarks SYSTEM "frontmatter/trademarks.sgml">
+<!ENTITY disclaimer SYSTEM "frontmatter/disclaimer.sgml">
+<!ENTITY rights SYSTEM "frontmatter/rights.sgml">
+]>
+-->
+<?Pub UDT _nopagebreak _touchup KeepsKeep="yes" KeepsPrev="no" KeepsNext="no" KeepsBoundary="page">
+<appendix id="LE54271-PARENT">
+<title id="LE54270-TITLE">Acronyms</title>
+<para><xref linkend="LE14795-TITLE"> provides a glossary of the acronyms used in the Performance Co-Pilot (PCP) documentation, help cards, man pages, and user interface.<?Pub Caret><indexterm><primary>glossary</primary></indexterm><indexterm><primary>acronyms</primary></indexterm></para>
+<table frame="topbot">
+<tbltitle id="LE14795-TITLE">Performance Co-Pilot Acronyms and Their Meanings</tbltitle>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="92*">
+<colspec colwidth="304*">
+<thead>
+<row rowsep="1"><entry align="left" valign="bottom"><para>Acronym</para></entry><entry align="left" valign="bottom"><para>Meaning</para></entry></row></thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><para>API</para></entry>
+<entry align="left" valign="top"><para>Application Programming Interface</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>DBMS</para></entry>
+<entry align="left" valign="top"><para>Database Management System</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>DNS</primary></indexterm> DNS</para></entry>
+<entry align="left" valign="top"><para>Domain Name Service</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>DSO</primary></indexterm> DSO</para></entry>
+<entry align="left" valign="top"><para>Dynamic Shared Object</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>I/O</para></entry>
+<entry align="left" valign="top"><para>Input/Output</para></entry></row>
+<row>
+<entry align="left" valign="top"><para>IPC</para></entry>
+<entry align="left" valign="top"><para>Interprocess Communication</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PCP</primary><secondary>acronym</secondary></indexterm> PCP</para></entry>
+<entry align="left" valign="top"><para>Performance Co-Pilot</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PDU</primary></indexterm> PDU</para></entry>
+<entry align="left" valign="top"><para>Protocol data unit</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMAPI</primary><secondary>acronym</secondary></indexterm> PMAPI</para></entry>
+<entry align="left" valign="top"><para>Performance Metrics Application Programming Interface</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMCD</primary><secondary>acronym</secondary></indexterm> PMCD</para></entry>
+<entry align="left" valign="top"><para>Performance Metrics Collection Daemon</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMCS</primary></indexterm> PMCS</para></entry>
+<entry align="left" valign="top"><para>Performance Metrics Collection Subsystem</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMDA</primary><secondary>acronym</secondary></indexterm> PMDA</para></entry>
+<entry align="left" valign="top"><para>Performance Metrics Domain Agent</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMID</primary><secondary>acronym</secondary></indexterm> PMID</para></entry>
+<entry align="left" valign="top"><para>Performance Metric Identifier</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>PMNS</primary><secondary>acronym</secondary></indexterm> PMNS</para></entry>
+<entry align="left" valign="top"><para>Performance Metrics Name Space</para></entry></row>
+<row>
+<entry align="left" valign="top"><para><indexterm><primary>TCP/IP</primary></indexterm> TCP/IP</para></entry>
+<entry align="left" valign="top"><para>Transmission Control Protocol/Internet Protocol</para></entry></row></tbody></tgroup></table>
+</appendix>
+<?Pub *0000006422 0>
