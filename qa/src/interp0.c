@@ -208,12 +208,15 @@ Options\n\
 			    prev->vset[j]->vlist[0].value.lval);
 		    }
 		    else if (type[j] == PM_TYPE_DOUBLE) {
-			pmAtomValue	*cp = (pmAtomValue *)result->vset[j]->vlist[0].value.pval->vbuf;
-			pmAtomValue	*pp = (pmAtomValue *)prev->vset[j]->vlist[0].value.pval->vbuf;
-			double	cv, pv;
+			void		*cp = (void *)result->vset[j]->vlist[0].value.pval->vbuf;
+			void		*pp = (void *)prev->vset[j]->vlist[0].value.pval->vbuf;
+			double		cv, pv;
+			pmAtomValue	av;
 
-			memcpy((void *)&cv, (void *)&cp->d, sizeof(cv));
-			memcpy((void *)&pv, (void *)&pp->d, sizeof(pv));
+			memcpy((void *)&av, cp, sizeof(pmAtomValue));
+			cv = av.d;
+			memcpy((void *)&av, pp, sizeof(pmAtomValue));
+			pv = av.d;
 			printf("delta: %.0f\n",
 			    cv - pv);
 		    }

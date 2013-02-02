@@ -204,9 +204,16 @@ Options\n\
 			    prev->vset[j]->vlist[k].value.lval);
 		    }
 		    else if (type[j] == PM_TYPE_DOUBLE) {
-			pmAtomValue	*cp = (pmAtomValue *)result->vset[j]->vlist[k].value.pval->vbuf;
-			pmAtomValue	*pp = (pmAtomValue *)prev->vset[j]->vlist[k].value.pval->vbuf;
-			printf("delta[%d]: %.0f\n", k, cp->d - pp->d);
+			void		*cp = (void *)result->vset[j]->vlist[k].value.pval->vbuf;
+			void		*pp = (void *)prev->vset[j]->vlist[k].value.pval->vbuf;
+			double		cv, pv;
+			pmAtomValue	av;
+
+			memcpy((void *)&av, cp, sizeof(pmAtomValue));
+			cv = av.d;
+			memcpy((void *)&av, pp, sizeof(pmAtomValue));
+			pv = av.d;
+			printf("delta[%d]: %.0f\n", k, cv - pv);
 		    }
 		    else if (type[j] == PM_TYPE_STRING) {
 			printf("value[%d]: %s\n", k,
