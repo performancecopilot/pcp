@@ -18,6 +18,18 @@
  * values to be subject to possible (but unlikely) missed updates
  */
 
+/*
+ * Note: _FORTIFY_SOURCE cannot be set here because the calls to memcpy()
+ *       with vp->vbuf as the destination raise a warning that is not
+ *       correct as the allocation for a pmValueBlock always extends
+ *       vbuf[] to be the correct size, not the [1] as per the declaration
+ *       in pmapi.h
+ */
+#ifdef _FORTIFY_SOURCE
+#undef _FORTIFY_SOURCE
+#define _FORTIFY_SOURCE 0
+#endif
+
 #include <limits.h>
 #include <inttypes.h>
 #include <assert.h>
@@ -1239,13 +1251,15 @@ retry_forw:
 			    /* assume COUNTER */
 			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
 				pmAtomValue	av;
-				pmAtomValue	*avp_prior = (pmAtomValue *)icp->v_prior.pval->vbuf;
-				pmAtomValue	*avp_next = (pmAtomValue *)icp->v_next.pval->vbuf;
+				void		*avp_prior = icp->v_prior.pval->vbuf;
+				void		*avp_next = icp->v_next.pval->vbuf;
 				float	f_prior;
 				float	f_next;
 
-				memcpy((void *)&f_prior, (void *)&avp_prior->f, sizeof(float));
-				memcpy((void *)&f_next, (void *)&avp_next->f, sizeof(float));
+				memcpy((void *)&av.f, avp_prior, sizeof(av.f));
+				f_prior = av.f;
+				memcpy((void *)&av.f, avp_next, sizeof(av.f));
+				f_next = av.f;
 
 				av.f = f_prior + (t_req - icp->t_prior) *
 					(f_next - f_prior) /
@@ -1299,13 +1313,15 @@ retry_forw:
 			    /* assume COUNTER */
 			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
 				pmAtomValue	av;
-				pmAtomValue	*avp_prior = (pmAtomValue *)icp->v_prior.pval->vbuf;
-				pmAtomValue	*avp_next = (pmAtomValue *)icp->v_next.pval->vbuf;
+				void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
+				void		*avp_next = (void *)icp->v_next.pval->vbuf;
 				if (pcp->desc.type == PM_TYPE_64) {
 				    __int64_t	ll_prior;
 				    __int64_t	ll_next;
-				    memcpy(&ll_prior, &avp_prior->ll, sizeof(ll_prior));
-				    memcpy(&ll_next, &avp_next->ll, sizeof(ll_next));
+				    memcpy((void *)&av.ll, avp_prior, sizeof(av.ll));
+				    ll_prior = av.ll;
+				    memcpy((void *)&av.ll, avp_next, sizeof(av.ll));
+				    ll_next = av.ll;
 				    if (ll_next >= ll_prior || dowrap == 0)
 					av.ll = ll_next - ll_prior;
 				    else
@@ -1318,8 +1334,10 @@ retry_forw:
 				else {
 				    __int64_t	ull_prior;
 				    __int64_t	ull_next;
-				    memcpy(&ull_prior, &avp_prior->ull, sizeof(ull_prior));
-				    memcpy(&ull_next, &avp_next->ull, sizeof(ull_next));
+				    memcpy((void *)&av.ull, avp_prior, sizeof(av.ull));
+				    ull_prior = av.ull;
+				    memcpy((void *)&av.ull, avp_next, sizeof(av.ull));
+				    ull_next = av.ull;
 				    if (ull_next >= ull_prior) {
 					av.ull = ull_next - ull_prior;
 #if !defined(HAVE_CAST_U64_DOUBLE)
@@ -1435,14 +1453,14 @@ retry_forw:
 			    /* assume COUNTER */
 			    if (icp->t_prior >= 0 && icp->t_next >= 0) {
 				pmAtomValue	av;
-				pmAtomValue	*avp_prior = (pmAtomValue *)icp->v_prior.pval->vbuf;
-				pmAtomValue	*avp_next = (pmAtomValue *)icp->v_next.pval->vbuf;
+				void		*avp_prior = (void *)icp->v_prior.pval->vbuf;
+				void		*avp_next = (void *)icp->v_next.pval->vbuf;
 				double	d_prior;
 				double	d_next;
-
-				memcpy((void *)&d_prior, (void *)&avp_prior->d, sizeof(double));
-				memcpy((void *)&d_next, (void *)&avp_next->d, sizeof(double));
-
+				memcpy((void *)&av.d, avp_prior, sizeof(av.d));
+				d_prior = av.d;
+				memcpy((void *)&av.d, avp_next, sizeof(av.d));
+				d_next = av.d;
 				av.d = d_prior + (t_req - icp->t_prior) *
 					(d_next - d_prior) /
 					(icp->t_next - icp->t_prior);
