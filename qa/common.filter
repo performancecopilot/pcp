@@ -432,6 +432,8 @@ _filter_pmie_start()
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
 	-e '/To enable/d' \
+	-e '/update-rc.d -f pmie remove/d' \
+	-e '/update-rc.d pmie defaults/d' \
 	-e '/\/sbin\/chkconfig pmie on/d' \
 	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
         -e '/update-rc.d -f pmie defaults/d' \

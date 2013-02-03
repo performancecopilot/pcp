@@ -27,7 +27,7 @@ in
     i?86|athlon)
 	ln $seq.out.i386 $seq.out || exit 1
 	;;
-    x86_64)
+    x86_64|ia64)
 	ln $seq.out.x86_64 $seq.out || exit 1
 	;;
     *)

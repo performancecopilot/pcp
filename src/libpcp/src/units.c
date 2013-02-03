@@ -27,62 +27,63 @@
 #define SIGN_64_MASK 0x8000000000000000
 #endif
 
-/* pmAtomValue -> string, max length is 80 bytes */
+/*
+ * pmAtomValue -> string, max length is 80 bytes
+ *
+ * To avoid alignment problems, avp _must_ be aligned appropriately
+ * for a pmAtomValue pointer by the caller.
+ */
 char *
 pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 {
     int		i;
-    pmAtomValue	av;
     int		vlen;
     char	strbuf[40];
 
-    /* avoid alignment problems ... avp may be unaligned! */
-    memcpy((void *)&av, (void *)avp, sizeof(av));
-
     switch (type) {
 	case PM_TYPE_32:
-	    snprintf(buf, buflen, "%d", av.l);
+	    snprintf(buf, buflen, "%d", avp->l);
 	    break;
 	case PM_TYPE_U32:
-	    snprintf(buf, buflen, "%u", av.ul);
+	    snprintf(buf, buflen, "%u", avp->ul);
 	    break;
 	case PM_TYPE_64:
-	    snprintf(buf, buflen, "%"PRIi64, av.ll);
+	    snprintf(buf, buflen, "%"PRIi64, avp->ll);
 	    break;
 	case PM_TYPE_U64:
-	    snprintf(buf, buflen, "%"PRIu64, av.ull);
+	    snprintf(buf, buflen, "%"PRIu64, avp->ull);
 	    break;
 	case PM_TYPE_FLOAT:
-	    snprintf(buf, buflen, "%e", (double)av.f);
+	    snprintf(buf, buflen, "%e", (double)avp->f);
 	    break;
 	case PM_TYPE_DOUBLE:
-	    snprintf(buf, buflen, "%e", av.d);
+	    snprintf(buf, buflen, "%e", avp->d);
 	    break;
 	case PM_TYPE_STRING:
-	    if (av.cp == NULL)
+	    if (avp->cp == NULL)
 		snprintf(buf, buflen, "<null>");
 	    else {
-		i = (int)strlen(av.cp);
+		i = (int)strlen(avp->cp);
 		if (i < 38)
-		    snprintf(buf, buflen, "\"%s\"", av.cp);
+		    snprintf(buf, buflen, "\"%s\"", avp->cp);
 		else
-		    snprintf(buf, buflen, "\"%34.34s...\"", av.cp);
+		    snprintf(buf, buflen, "\"%34.34s...\"", avp->cp);
 	    }
 	    break;
 	case PM_TYPE_AGGREGATE:
 	case PM_TYPE_AGGREGATE_STATIC:
-	    if (av.vbp == NULL) {
+	    if (avp->vbp == NULL) {
 		snprintf(buf, buflen, "<null>");
 		break;
 	    }
-	    vlen = av.vbp->vlen - PM_VAL_HDR_SIZE;
+	    vlen = avp->vbp->vlen - PM_VAL_HDR_SIZE;
 	    if (vlen == 0)
-		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(av.vbp->vtype, strbuf, sizeof(strbuf)), vlen);
+		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(avp->vbp->vtype, strbuf, sizeof(strbuf)), vlen);
 	    else {
 		char	*cp;
 		char	*bp;
-		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(av.vbp->vtype, strbuf, sizeof(strbuf)), vlen);
-		cp = (char *)av.vbp->vbuf;
+		snprintf(buf, buflen, "[type=%s len=%d]", pmTypeStr_r(avp->vbp->vtype, strbuf, sizeof(strbuf)), vlen);
+		cp = (char *)avp->vbp->vbuf;
 		for (i = 0; i < vlen && i < 12; i++) {
 		    bp = &buf[strlen(buf)];
 		    if ((i % 4) == 0)
@@ -113,6 +114,10 @@ pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
     return buf;
 }
 
+/*
+ * To avoid alignment problems, avp _must_ be aligned appropriately
+ * for a pmAtomValue pointer by the caller.
+ */
 const char *
 pmAtomStr(const pmAtomValue *avp, int type)
 {
@@ -572,7 +577,7 @@ int
 pmExtractValue(int valfmt, const pmValue *ival, int itype,
 			   pmAtomValue *oval, int otype)
 {
-    pmAtomValue	*ap;
+    void	*avp;
     pmAtomValue	av;
     int		sts = 0;
     int		len;
@@ -738,14 +743,15 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		ap = (pmAtomValue *)&ival->value.pval->vbuf;
+		avp = (void *)&ival->value.pval->vbuf;
+		memcpy((void *)&av.ll, avp, sizeof(av.ll));
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
 		    char	strbuf[80];
-		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
 #endif
-		memcpy((void *)&src, (void *)ap, sizeof(src));
+		src = av.ll;
 		switch (otype) {
 		    case PM_TYPE_32:
 			if (src > 0x7fffffff)
@@ -788,14 +794,15 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		ap = (pmAtomValue *)&ival->value.pval->vbuf;
+		avp = (void *)&ival->value.pval->vbuf;
+		memcpy((void *)&av.ull, avp, sizeof(av.ull));
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
 		    char	strbuf[80];
-		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
 #endif
-		memcpy((void *)&usrc, (void *)ap, sizeof(usrc));
+		usrc = av.ull;
 		switch (otype) {
 		    case PM_TYPE_32:
 			if (usrc > 0x7fffffff)
@@ -855,14 +862,15 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		ap = (pmAtomValue *)&ival->value.pval->vbuf;
+		avp = (void *)&ival->value.pval->vbuf;
+		memcpy((void *)&av.d, avp, sizeof(av.d));
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
 		    char	strbuf[80];
-		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
 #endif
-		memcpy((void *)&dsrc, (void *)ap, sizeof(dsrc));
+		dsrc = av.d;
 		switch (otype) {
 		    case PM_TYPE_32:
 			if (ABS(dsrc) >= (double)0x7fffffff)
@@ -920,14 +928,15 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 		    sts = PM_ERR_CONV;
 		    break;
 		}
-		ap = (pmAtomValue *)&ival->value.pval->vbuf;
+		avp = (void *)&ival->value.pval->vbuf;
+		memcpy((void *)&av.f, avp, sizeof(av.f));
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_VALUE) {
 		    char	strbuf[80];
-		    vp = pmAtomStr_r(ap, itype, strbuf, sizeof(strbuf));
+		    vp = pmAtomStr_r(&av, itype, strbuf, sizeof(strbuf));
 		}
 #endif
-		memcpy((void *)&fsrc, (void *)ap, sizeof(fsrc));
+		fsrc = av.f;
 		switch (otype) {
 		    case PM_TYPE_32:
 			if ((float)ABS(fsrc) >= (float)0x7fffffff)
