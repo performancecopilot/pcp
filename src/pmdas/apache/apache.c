@@ -323,21 +323,27 @@ static int refreshData(time_t now)
 }
 
 static int
+apache_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+{
+    time_t	now = time(NULL);
+
+    if (now > data.timestamp && !refreshData(now + 1))
+	return PM_ERR_AGAIN;
+    if (data.timeout)
+	return PM_ERR_AGAIN;
+
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+}
+
+static int
 apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    time_t	now;
 
     if (idp->cluster != 0)
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
-
-    now = time(NULL);
-    if (now > data.timestamp && !refreshData(now + 1))
-	return PM_ERR_AGAIN;
-    if (data.timeout)
-	return PM_ERR_AGAIN;
 
     switch (idp->item) {
 	case 0:
@@ -458,6 +464,7 @@ apache_init(pmdaInterface *dp)
     http_setUserAgent(pmProgname);
     snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
 
+    dp->version.two.fetch = apache_fetch;
     pmdaSetFetchCallBack(dp, apache_fetchCallBack);
     pmdaInit(dp, NULL, 0, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }
