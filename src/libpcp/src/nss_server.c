@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
+ * Network Security Services (NSS) support.  Server side.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,42 +15,46 @@
 
 #include "pmapi.h"
 #include "impl.h"
-
-#include <nss.h>
-#include <ssl.h>
-#include <nspr.h>
+#define SOCKET_INTERNAL
+#include "internal.h"
 #include <keyhi.h>
 #include <secder.h>
 #include <pk11pub.h>
 #include <sys/stat.h>
 
-#define SERVER_CERTIFICATE_NICK	"PCP Collector certificate"
-#define MAX_DATABASE_PASSWORD	256
+#define SECURE_SERVER_CERTIFICATE	"PCP Collector certificate"
+#define MAX_NSSDB_PASSWORD_LENGTH	256
 
-static CERTCertificate		*certificate;
-static SECKEYPrivateKey		*private_key;
-static const char		*password_file;
-static SSLKEAType		certificate_KEA;
-static int			certificate_verified;
-static int			ssl_session_cache_setup;
-static char			database_path[MAXPATHLEN];
-
-int
-pmcd_encryption_enabled(void)
-{
-    return certificate_verified;
-}
+static struct {
+    CERTCertificate	*certificate;
+    SECKEYPrivateKey	*private_key;
+    const char		*password_file;
+    SSLKEAType		certificate_KEA;
+    unsigned int	certificate_verified : 1;
+    unsigned int	ssl_session_cache_setup : 1;
+    char		database_path[MAXPATHLEN];
+} nss_server;
 
 int
-pmcd_compression_enabled(void)
+__pmSecureServerHasFeature(__pmSecureServerFeature query)
 {
-    return 1;	/* Will need to check this, does it require cert/key? */
-}
+    int sts;
 
-static int
-secure_server_error(void)
-{
-    return PM_ERR_NYI + PR_GetError();	/* returned value is negative */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    switch (query) {
+    case PM_SERVER_FEATURE_SECURE:
+	sts = nss_server.certificate_verified;
+	break;
+    case PM_SERVER_FEATURE_COMPRESS:
+	sts = 1;
+	break;
+    default:
+	sts = 0;
+	break;
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 static int
@@ -97,14 +102,23 @@ fail:
 static char *
 certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
 {
-    size_t length = MAX_DATABASE_PASSWORD;
+    size_t length = MAX_NSSDB_PASSWORD_LENGTH;
     char *password = NULL;
+    char passfile[MAXPATHLEN];
     int sts;
 
     (void)arg;
     (void)info;
 
-    if (!password_file) {
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    passfile[0] = '\0';
+    if (nss_server.password_file)
+	strncpy(passfile, nss_server.password_file, MAXPATHLEN-1);
+    passfile[MAXPATHLEN-1] = '\0';
+    PM_UNLOCK(__pmLock_libpcp);
+
+    if (passfile[0] == '\0') {
 	__pmNotifyErr(LOG_ERR, "Password sought but no password file given");
 	return NULL;
     }
@@ -113,9 +127,10 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
 	return NULL;	/* no soup^Wretries for you */
     }
 
-    if ((sts = secure_file_contents(password_file, &password, &length)) < 0) {
+    sts = secure_file_contents(passfile, &password, &length);
+    if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "Cannot read password file \"%s\": %s",
-		password_file, pmErrStr(sts));
+			passfile, pmErrStr(sts));
 	return NULL;
     }
     return password;
@@ -139,164 +154,173 @@ __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
 	return -EINVAL;
     }
     if (secsts != SECSuccess)
-	return secure_server_error();
+	return __pmSecureSocketsError();
 
     /* Convert to local time */
     PR_ExplodeTime(itime, PR_GMTParameters, &exploded);
     if (!PR_FormatTime(buffer, size, "%a %b %d %H:%M:%S %Y", &exploded))
-	return secure_server_error();
+	return __pmSecureSocketsError();
     return 0;
 }
 
 static void
-__pmDumpCertificate(const char *nickname, CERTCertificate *certificate)
+__pmDumpCertificate(FILE *fp, const char *nickname, CERTCertificate *cert)
 {
-    CERTValidity *valid = &certificate->validity;
+    CERTValidity *valid = &cert->validity;
     char tbuf[256];
 
-    fprintf(stderr, "Certificate: %s", nickname);
+    fprintf(fp, "Certificate: %s", nickname);
     if (__pmCertificateTimestamp(&valid->notBefore, tbuf, sizeof(tbuf)) == 0)
-	fprintf(stderr, "  Not Valid Before: %s UTC", tbuf);
+	fprintf(fp, "  Not Valid Before: %s UTC", tbuf);
     if (__pmCertificateTimestamp(&valid->notAfter, tbuf, sizeof(tbuf)) == 0)
-	fprintf(stderr, "  Not Valid After: %s UTC", tbuf);
+	fprintf(fp, "  Not Valid After: %s UTC", tbuf);
 }
 
 static int
-__pmValidCertificate(CERTCertDBHandle *handle, CERTCertificate *cert, PRTime stamp)
+__pmValidCertificate(CERTCertDBHandle *db, CERTCertificate *cert, PRTime stamp)
 {
-    SECCertificateUsage usage = certificateUsageSSLServer; /*|certificateUsageObjectSigner*/
-    SECStatus secsts = CERT_VerifyCertificate(handle, cert, PR_TRUE, usage,
+    SECCertificateUsage usage = certificateUsageSSLServer;
+    SECStatus secsts = CERT_VerifyCertificate(db, cert, PR_TRUE, usage,
 						stamp, NULL, NULL, &usage);
     return (secsts == SECSuccess);
 }
 
 int
-pmcd_secure_server_setup(const char *dbpath, const char *passwd)
+__pmSecureServerSetup(const char *db, const char *passwd)
 {
+    const char *nickname = SECURE_SERVER_CERTIFICATE;
     SECStatus secsts;
+    int sts = -EINVAL;
 
     PR_Init(PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
     /* Configure optional (cmdline) password file in case DB locked */
-    password_file = passwd;
+    nss_server.password_file = passwd;
     PK11_SetPasswordFunc(certificate_database_password);
 
     /* Configure location of the database files with a sane default */
-    if (!dbpath) {
+    if (!db) {
 	int sep = __pmPathSeparator();
-	snprintf(database_path, sizeof(database_path),
+	snprintf(nss_server.database_path, MAXPATHLEN,
 		 "%s%c" "config" "%c" "ssl" "%c" "collector",
 		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
     } else {
 	/* -2 here ensures result is NULL terminated */
-	strncat(database_path, dbpath, MAXPATHLEN-2);
+	strncat(nss_server.database_path, db, MAXPATHLEN-2);
     }
 
-    if (access(database_path, R_OK) < 0 && oserror() == ENOENT) {
-	/* Handle the common case - pmcd supports secure sockets, */
+    if (access(nss_server.database_path, R_OK) < 0 && oserror() == ENOENT) {
+	/* Handle the common case: server supports secure sockets */
 	/* but no configuration has been performed on the server. */
-	return 0;
+	sts = 0;
+	goto done;
     }
 
-    secsts = NSS_Init(database_path);
+    secsts = NSS_Init(nss_server.database_path);
     if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_INFO,
-		"Disabling encryption - cannot setup certificate DB (%s): %s",
-		database_path, pmErrStr(secure_server_error()));
-	return 0;
+	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
+		nss_server.database_path, pmErrStr(__pmSecureSocketsError()));
+	goto done;
     }
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy: %s",
-		pmErrStr(secure_server_error()));
-	return -EINVAL;
+		pmErrStr(__pmSecureSocketsError()));
+	goto done;
     }
 
-    /* Configure the SSL session cache for single process server, using defaults */
-    secsts = SSL_ConfigServerSessionIDCache(0, 0, 0, NULL);
+    /* Configure SSL session cache for multi-process server, using defaults */
+    secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
-		pmErrStr(secure_server_error()));
-	return -EINVAL;
+		pmErrStr(__pmSecureSocketsError()));
+	goto done;
     } else {
-	ssl_session_cache_setup = 1;
+	nss_server.ssl_session_cache_setup = 1;
     }
 
-    /* Iterate over all certs for server nickname, ensuring one cert is valid. */
-    CERTCertificate *dbcert = PK11_FindCertFromNickname(SERVER_CERTIFICATE_NICK, NULL);
-    CERTCertDBHandle *dbhandle = CERT_GetDefaultCertDB();
+    /* Iterate over all certs for given nickname, ensuring one cert is valid */
     CERTCertList *certlist;
+    CERTCertDBHandle *nssdb = CERT_GetDefaultCertDB();
+    CERTCertificate *dbcert = PK11_FindCertFromNickname(nickname, NULL);
 
     if (dbcert) {
 	PRTime now = PR_Now();
 	SECItem *name = &dbcert->derSubject;
 	CERTCertListNode *node;
 
-	certlist = CERT_CreateSubjectCertList(NULL, dbhandle, name, now, PR_FALSE);
+	certlist = CERT_CreateSubjectCertList(NULL, nssdb, name, now, PR_FALSE);
 	if (certlist) {
 	    for (node = CERT_LIST_HEAD(certlist);
 		 !CERT_LIST_END(node, certlist);
 		 node = CERT_LIST_NEXT (node)) {
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    __pmDumpCertificate(SERVER_CERTIFICATE_NICK, node->cert);
-		if (!__pmValidCertificate(dbhandle, node->cert, now))
+		    __pmDumpCertificate(stderr, nickname, node->cert);
+		if (!__pmValidCertificate(nssdb, node->cert, now))
 		    continue;
-		certificate_verified = 1;
+		nss_server.certificate_verified = 1;
 		break;
 	    }
 	    CERT_DestroyCertList(certlist);
 	}
 
-	if (certificate_verified) {
-	    certificate_KEA = NSS_FindCertKEAType(dbcert);
-	    private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
-	    if (!private_key) {
+	if (nss_server.certificate_verified) {
+	    nss_server.certificate_KEA = NSS_FindCertKEAType(dbcert);
+	    nss_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
+	    if (!nss_server.private_key) {
 		__pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
-				SERVER_CERTIFICATE_NICK);
+				nickname);
 		CERT_DestroyCertificate(dbcert);
-		certificate_verified = 0;
-		return -EINVAL;
+		nss_server.certificate_verified = 0;
+		goto done;
 	    }
 	} else {
-	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s",
-			    SERVER_CERTIFICATE_NICK);
+	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
 	    CERT_DestroyCertificate(dbcert);
-	    return -EINVAL;
+	    goto done;
 	}
     }
 
-    if (certificate_verified) {
-	certificate = dbcert;
+    if (nss_server.certificate_verified) {
+	nss_server.certificate = dbcert;
     } else {
-	__pmNotifyErr(LOG_INFO,
-		"Disabling encryption - no valid \"%s\" in DB: %s",
-		SERVER_CERTIFICATE_NICK, database_path);
+	__pmNotifyErr(LOG_ERR, "No valid %s in DB: %s",
+		nickname, nss_server.database_path);
     }
+    sts = 0;
 
-    return 0;
+done:
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 void
-pmcd_secure_server_shutdown(void)
+__pmSecureServerShutdown(void)
 {
-    if (certificate) {
-	CERT_DestroyCertificate(certificate);
-	certificate = NULL;
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (nss_server.certificate) {
+	CERT_DestroyCertificate(nss_server.certificate);
+	nss_server.certificate = NULL;
     }
-    if (private_key) {
-	SECKEY_DestroyPrivateKey(private_key);
-	private_key = NULL;
+    if (nss_server.private_key) {
+	SECKEY_DestroyPrivateKey(nss_server.private_key);
+	nss_server.private_key = NULL;
     }
-    if (ssl_session_cache_setup) {
+    if (nss_server.ssl_session_cache_setup) {
 	SSL_ShutdownServerSessionIDCache();
-	ssl_session_cache_setup = 0;
+	nss_server.ssl_session_cache_setup = 0;
     }    
+    PM_UNLOCK(__pmLock_libpcp);
     NSS_Shutdown();
 }
 
 int
-pmcd_secure_handshake(int fd, int flags)
+__pmSecureServerHandshake(int fd, int flags)
 {
     PRIntervalTime timer;
     PRFileDesc	*sslsocket;
@@ -304,28 +328,39 @@ pmcd_secure_handshake(int fd, int flags)
     int		msec;
     int		sts;
 
-    /* Protect ourselves from unsupported requests from oddball clients */
+    /* protect from unsupported requests from future/oddball clients */
     if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS)) != 0)
 	return PM_ERR_IPC;
 
     if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
 	return sts;
 
+    /* if no request for TLS/SSL has been made, our work here is done */
+    if (!(flags & PDU_FLAG_SECURE))
+	return 0;
+
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
     if (!sslsocket)
 	return PM_ERR_IPC;
 
-    secsts = SSL_ConfigSecureServer(sslsocket, certificate, private_key, certificate_KEA);
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    secsts = SSL_ConfigSecureServer(sslsocket,
+			nss_server.certificate,
+			nss_server.private_key,
+			nss_server.certificate_KEA);
+    PM_UNLOCK(__pmLock_libpcp);
+
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
-			    pmErrStr(secure_server_error()));
+			    pmErrStr(__pmSecureSocketsError()));
 	return PM_ERR_IPC;
     }
 
     secsts = SSL_ResetHandshake(sslsocket, PR_TRUE /*server*/);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
-			    pmErrStr(secure_server_error()));
+			    pmErrStr(__pmSecureSocketsError()));
 	return PM_ERR_IPC;
     }
 
@@ -335,7 +370,7 @@ pmcd_secure_handshake(int fd, int flags)
     secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
-			    pmErrStr(secure_server_error()));
+			    pmErrStr(__pmSecureSocketsError()));
 	return PM_ERR_IPC;
     }
 

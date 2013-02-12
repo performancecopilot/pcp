@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,10 +19,12 @@
 \f3pmproxy\f1 \- proxy for performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmproxy\f1
+[\f3\-C\f1 \f2dirname\f1]
 [\f3\-f\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-P\f1 \f2passfile\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
 .SH DESCRIPTION
@@ -73,6 +76,18 @@ indirectly through the protocol proxy services of
 The options to
 .B pmproxy
 are as follows.
+.TP
+\f3\-C\f1 \f2dirname\f1
+Specify the path to the Network Security Services certificate database,
+for (optional) secure connections.
+The default is
+.BR $PCP_VAR_DIR/config/ssl/collector .
+Refer also to the \f3\-P\f1 option.
+This database can be created by the
+.B certutil
+utility and its creation and maintenance is further discussed in the
+.BR PCPIntro (1)
+manual page and online tutorials.
 .TP
 .B \-f
 By default
@@ -128,6 +143,17 @@ Service attacks.  The
 option may be used to change the maximum incoming 
 .I PDU 
 size.
+.TP
+\f3\-P\f1 \f2passfile\f1
+Specify the path to a file containing the Network Security Services certificate
+database password for (optional) secure connections, and for databases that are
+password protected.
+Refer also to the \f3\-C\f1 option.
+When using this option, great care should be exercised to ensure appropriate
+ownership ("pcp" user, typically) and permissions on this file (0400, so as to
+be unreadable by any user other than the user running the
+.B pmproxy
+process).
 .TP
 \f3\-U\f1 \f2username\f1
 Assume the identity of

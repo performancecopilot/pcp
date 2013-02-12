@@ -502,8 +502,11 @@ extern void __pmConnectGetPorts(pmHostSpec *);
 /*
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
-extern int __pmSecureClientHandshake(int, int, const char *);
+extern int __pmSecureServerSetup(const char *, const char *);
+extern int __pmSecureServerHandshake(int, int);
 extern int __pmSecureServerIPCFlags(int, int);
+extern void __pmSecureServerShutdown(void);
+extern int __pmSecureClientHandshake(int, int, const char *);
 extern void *__pmGetSecureSocket(int);
 
 #ifdef HAVE_SECURE_SOCKETS
@@ -585,6 +588,18 @@ extern char *__pmHostEntName(const struct __pmHostEnt *);
 extern struct __pmHostEnt *__pmGetHostByName(const char *, struct __pmHostEnt *);
 extern struct __pmHostEnt *__pmGetHostByAddr(struct __pmSockAddrIn *, struct __pmHostEnt *);
 extern __pmIPAddr __pmHostEntGetIPAddr(const struct __pmHostEnt *, int);
+
+/*
+ * Query server features - used for expressing protocol capabilities
+ */
+typedef enum {
+    PM_SERVER_FEATURE_SECURE = 1,
+    PM_SERVER_FEATURE_COMPRESS,
+    PM_SERVER_FEATURE_IPV6,
+    PM_SERVER_FEATURES
+} __pmSecureServerFeature;
+
+extern int __pmSecureServerHasFeature(__pmSecureServerFeature);
 
 /*
  * per context controls for archives and logs

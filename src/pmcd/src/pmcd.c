@@ -14,7 +14,6 @@
  */
 
 #include "pmcd.h"
-#include "secure.h"
 #include <sys/stat.h>
 #include <assert.h>
 
@@ -634,7 +633,7 @@ Shutdown(void)
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
 	    __pmCloseSocket(fd);
-    pmcd_secure_server_shutdown();
+    __pmSecureServerShutdown();
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
 }
@@ -858,9 +857,9 @@ ClientLoop(void)
 			memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 			cp->pduInfo.version = PDU_VERSION;
 			cp->pduInfo.licensed = 1;
-			if (pmcd_encryption_enabled())
+			if (__pmSecureServerHasFeature(PM_SERVER_FEATURE_SECURE))
 			    cp->pduInfo.features |= PDU_FLAG_SECURE;
-			if (pmcd_compression_enabled())
+			if (__pmSecureServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 			    cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 			challenge = *(int*)(&cp->pduInfo);
 			sts = 0;
@@ -1177,7 +1176,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (pmcd_secure_server_setup(certdb, dbpassfile) < 0)
+    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);

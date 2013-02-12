@@ -72,7 +72,6 @@ auxconnect.o
     d canwait			# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b ?nsprFds			# guarded by __pmLock_libpcp mutex
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const
@@ -181,6 +180,10 @@ logutil.o
     [sr] ?ncompress		# const
     [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
+nss_server.o
+    b nss_server		# guarded by __pmLock_libpcp mutex
+nss_connect.o
+    b ?nsprFds			# guarded by __pmLock_libpcp mutex
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
 p_creds.o
