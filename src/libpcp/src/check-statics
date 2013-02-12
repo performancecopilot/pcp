@@ -371,6 +371,10 @@ do
 	    else
 		case "$type"
 		in
+		    nss_*.o)
+			echo "$type: Info: NSS object file skipped, not configured"
+			skip_file=true
+			;;
 		    \?*)
 			skip_file=true
 			;;

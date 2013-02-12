@@ -413,11 +413,10 @@ __pmDataIPCSize(void)
 }
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd, const char *nickname)
+__pmSecureServerSetup(const char *db, const char *passwd)
 {
     (void)db;
     (void)passwd;
-    (void)nickname;
     return 0;
 }
 
