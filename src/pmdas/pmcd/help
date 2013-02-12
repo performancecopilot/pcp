@@ -504,3 +504,13 @@ pmcd.cputime.total divided by pmcd.pdu_in.total.
 Subsequent fetches by a PMAPI client will return the average CPU
 time per PDU received by pmcd (for all clients) since the last time
 the PMAPI client fetched this metric.
+
+@ pmcd.feature.secure status of secure_sockets protocol feature in pmcd
+A value of zero indicates no support, one indicates actively available
+(including configuration and validity of the server side certificates).
+
+@ pmcd.feature.compress status of protocol compression feature in pmcd
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.ipv6 status of Internet Protocol Version 6 support in pmcd
+A value of zero indicates no support, one indicates actively available.

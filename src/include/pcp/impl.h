@@ -593,7 +593,7 @@ extern __pmIPAddr __pmHostEntGetIPAddr(const struct __pmHostEnt *, int);
  * Query server features - used for expressing protocol capabilities
  */
 typedef enum {
-    PM_SERVER_FEATURE_SECURE = 1,
+    PM_SERVER_FEATURE_SECURE = 0,
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
     PM_SERVER_FEATURES

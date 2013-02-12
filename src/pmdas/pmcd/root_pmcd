@@ -32,6 +32,7 @@ pmcd {
     buf
     client
     cputime
+    feature
 }
 
 pmcd.control {
@@ -136,6 +137,10 @@ pmcd.cputime {
     per_pdu_in		PMCD:7:1
 }
 
-
+pmcd.feature {
+    secure		PMCD:8:0
+    compress		PMCD:8:1
+    ipv6		PMCD:8:2
+}
 
 #undef PMCD
