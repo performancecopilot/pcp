@@ -213,51 +213,33 @@ __pmCloseSocket(int fd)
     }
 }
 
-static int
-__pmInitCertificateDB(const char *path)
-{
-    SECStatus secsts;
-
-    if (access(path, R_OK | X_OK) != 0)
-	return -ENOENT;
-    secsts = NSS_Init(path);
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
-    secsts = NSS_SetExportPolicy();
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
-    SSL_ClearSessionCache();
-    return 0;
-}
-
 int
 __pmInitCertificates(void)
 {
-    int sts, sep = __pmPathSeparator();
+    int sep = __pmPathSeparator();
+    const char *empty_homedir = "";
+    char *homedir = getenv("HOME");
     char dbpath[MAXPATHLEN];
-    char *prefix;
+    SECStatus secsts;
 
+    if (homedir == NULL)
+	homedir = (char *)empty_homedir;
     /*
-     * Check for client certificate databases, in the following order:
-     *    $HOME/.pcp/ssl  
-     *    $PCP_VAR_DIR/config/ssl/monitor
+     * Check for client certificate databases.  We enforce use
+     * of the per-user shared NSS database at $HOME/.pki/nssdb
      */
+    snprintf(dbpath, sizeof(dbpath), "sql:" "%s" "%c" "pki" "%c" "nssdb",
+		homedir, sep, sep);
 
-    prefix = getenv("HOME");
-    if (prefix) {
-	snprintf(dbpath, sizeof(dbpath), "%s%c" ".pcp%cssl",
-		prefix, sep, sep);
-	if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
-	    return sts;
-	/* Only continue on if no such database path existed */
-    }
+    secsts = NSS_Init(dbpath);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
 
-    snprintf(dbpath, sizeof(dbpath), "%s%c" "config%cssl%cmonitor",
-		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
-    if ((sts = __pmInitCertificateDB(dbpath)) != -ENOENT)
-	return sts;
+    secsts = NSS_SetExportPolicy();
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError();
 
-    /* We're still good even if no certificate database paths existed */
+    SSL_ClearSessionCache();
     return 0;
 }
 

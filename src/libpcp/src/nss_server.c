@@ -201,12 +201,14 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     nss_server.password_file = passwd;
     PK11_SetPasswordFunc(certificate_database_password);
 
-    /* Configure location of the database files with a sane default */
+    /*
+     * Configure location of the NSS database with a sane default.
+     * For servers, we default to the shared (sql) system-wide database.
+     */
     if (!db) {
 	int sep = __pmPathSeparator();
 	snprintf(nss_server.database_path, MAXPATHLEN,
-		 "%s%c" "config" "%c" "ssl" "%c" "collector",
-		 pmGetConfig("PCP_VAR_DIR"), sep, sep, sep);
+		 "sql:" "%c" "etc" "%c" "pki" "%c" "nssdb", sep, sep, sep);
     } else {
 	/* -2 here ensures result is NULL terminated */
 	strncat(nss_server.database_path, db, MAXPATHLEN-2);
@@ -287,8 +289,8 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 
     if (nss_server.certificate_verified) {
 	nss_server.certificate = dbcert;
-    } else {
-	__pmNotifyErr(LOG_ERR, "No valid %s in DB: %s",
+    } else if (pmDebug & DBG_TRACE_CONTEXT) {
+	__pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
 		nickname, nss_server.database_path);
     }
     sts = 0;
