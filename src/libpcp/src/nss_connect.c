@@ -228,10 +228,9 @@ __pmInitCertificates(void)
      * Check for client certificate databases.  We enforce use
      * of the per-user shared NSS database at $HOME/.pki/nssdb
      */
-    snprintf(dbpath, sizeof(dbpath), "sql:" "%s" "%c" "pki" "%c" "nssdb",
+    snprintf(dbpath, sizeof(dbpath), "sql:" "%s" "%c" ".pki" "%c" "nssdb",
 		homedir, sep, sep);
-
-    secsts = NSS_Init(dbpath);
+    secsts = NSS_InitReadWrite(dbpath);
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError();
 
