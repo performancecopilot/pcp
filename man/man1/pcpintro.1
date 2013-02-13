@@ -656,14 +656,16 @@ source, see
 .BR pmNewContext (3).
 .SH SECURE PMCD CONNECTIONS
 Since PCP version 3.6.11, a monitor can explicitly request
-a secure connection to
+a secure connection to a collector host running
 .BR pmcd (1)
+or
+.BR pmproxy (1)
 using the PM_CTXFLAG_SECURE context flag.
-If
-.B pmcd
-supports this feature, a TLS (Transport Layer Security) or SSL
-(Secure Sockets Layer) connection can be established which uses
-public key cryptography and related techniques.
+If the PCP Collector host supports this feature - refer to the
+pmcd.feature.secure metric for confirmation of this - a TLS/SSL
+(Transport Layer Security or Secure Sockets Layer) connection
+can be established which uses public key cryptography and related
+techniques.
 These features aim to prevent eavesdropping and data tampering
 from a malicious third party, as well as providing server-side
 authentication (confident identification of a server by a client)
@@ -674,6 +676,8 @@ A secure
 connection requires use of certificate-based authentication.
 The security features offered by
 .B pmcd
+and
+.B pmproxy
 are implemented using the Network Security Services (NSS) APIs and
 utilities.
 The NSS
@@ -1033,16 +1037,21 @@ Configuration file for the PCP runtime environment,
 see
 .BR pcp.conf (4).
 .TP
+.B /etc/pki/nssdb
+Optionally contains a Network Security Services database with a
+"PCP Collector" certificate providing trusted identification for
+the collector host.
+.TP
 .B $HOME/.pcp
 User-specific directories containing configuration files for
 customisation of the various monitor tools, such as
 .BR pmchart (1).
 .TP
-.B $HOME/.pcp/ssl
-A Network Security Services (NSS) database directory containing
-user-specific certificates identifying known valid remote
+.B $HOME/.pki/nssdb
+A shared Network Security Services (NSS) database directory
+containing per-user certificates identifying known valid remote
 .B pmcd
-hosts.
+collector hosts.
 The NSS
 .B certutil
 tool is one of several that can be used to maintain this database.
@@ -1106,15 +1115,6 @@ PMDA starts, stops, additions and removals.
 .TP
 .B $PCP_VAR_DIR/config
 Contains directories of configuration files for several PCP tools.
-.TP
-.B $PCP_VAR_DIR/config/ssl/collector
-Optionally contains a Network Security Services database with a
-"PCP Collector" certificate identifying the host.
-.TP
-.B $PCP_VAR_DIR/config/ssl/monitor
-Optionally contains a Network Security Services database with
-"PCP Collector" certificates identifying remote hosts that all
-users running monitor tools on the localhost have access to.
 .TP
 .B $PCP_SYSCONF_DIR/pmcd/rc.local
 Local script for controlling PCP boot, shutdown and restart actions.

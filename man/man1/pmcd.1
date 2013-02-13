@@ -78,13 +78,15 @@ are as follows.
 Specify the path to the Network Security Services certificate database,
 for (optional) secure connections.
 The default is
-.BR $PCP_VAR_DIR/config/ssl/collector .
+.BR /etc/pki/nssdb .
 Refer also to the \f3\-P\f1 option.
-This database can be created by the
+If it does not already exist, this database can be created using the
 .B certutil
-utility and its creation and maintenance is further discussed in the
+utility.
+This process and other certificate database maintenance information
+is provided in the
 .BR PCPIntro (1)
-manual page and online tutorials.
+manual page and the online PCP tutorials.
 .TP
 .B \-f
 By default
@@ -1042,12 +1044,12 @@ contains an ascii decimal representation of the process ID of
 .br
 All messages and diagnostics are directed here
 .TP
-.B $PCP_VAR_DIR/config/ssl/collector
+.B /etc/pki/nssdb
 default Network Security Services (NSS) certificate database
 directory, used for optional Secure Socket Layer connections.
-This database can be created by the NSS
+This database can be created and queried using the NSS
 .B certutil
-tool, for example.
+tool, amongst others.
 .PD
 .SH ENVIRONMENT
 In addition to the PCP environment variables described in the
