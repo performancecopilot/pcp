@@ -58,17 +58,17 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
      * Connect to pmtime - pmtime guaranteed started by now, due to the
      * port number read(2) earlier, or -p option (so no race there).
      */
-    if ((myaddr = __pmAllocSockAddr()) == NULL) {
+    if ((myaddr = __pmSockAddrAlloc()) == NULL) {
 	setoserror(ENOMEM);
 	goto error;
     }
 
-    __pmInitSockAddr(myaddr, INADDR_LOOPBACK, port);
+    __pmSockAddrInit(myaddr, INADDR_LOOPBACK, port);
     if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
 	setoserror(neterror());
 	goto error;
     }
-    __pmFreeSockAddr(myaddr);
+    __pmSockAddrFree(myaddr);
     myaddr = NULL;
 
     /*
@@ -101,7 +101,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 
 error:
     if (myaddr)
-	__pmFreeSockAddr(myaddr);
+	__pmSockAddrFree(myaddr);
     __pmCloseSocket(fd);
     return -1;
 }

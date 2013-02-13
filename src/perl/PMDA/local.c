@@ -156,7 +156,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
 	goto error;
     }
-    if ((servinfo = __pmAllocHostEnt()) == NULL) {
+    if ((servinfo = __pmHostEntAlloc()) == NULL) {
         __pmNoMem("allocating socket address", __pmHostEntrSize(), PM_FATAL_ERR);
 	goto error;
     }
@@ -164,20 +164,18 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 	__pmNotifyErr(LOG_ERR, "__pmGetHostByName (%s): %s", host, netstrerror());
 	goto error;
     }
-    if ((myaddr = __pmAllocSockAddr()) == NULL) {
+    if ((myaddr = __pmHostEntGetSockAddr(servinfo, 0)) == NULL) {
         __pmNoMem("allocating socket address", __pmSockAddrSize(), PM_FATAL_ERR);
 	goto error;
     }
-
-    __pmSetSockAddr(myaddr, servinfo);
-    __pmFreeHostEnt(servinfo);
-    __pmSetPort(myaddr, port);
+    __pmHostEntFree(servinfo);
+    __pmSockAddrSetPort(myaddr, port);
 
     if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
 	goto error;
     }
-    __pmFreeSockAddr(myaddr);
+    __pmSockAddrFree(myaddr);
 
     me = local_file(FILE_SOCK, fd, callback, cookie);
     files[me].me.sock.host = strdup(host);
@@ -188,9 +186,9 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     if (fd >= 0)
         __pmCLoseSocket(fd);
     if (servinfo)
-        __pmFreeHostEnt(servinfo);
+        __pmHostEntFree(servinfo);
     if (myaddr)
-        __pmFreeSockAddr(myaddr);
+        __pmSockAddrFree(myaddr);
     exit(1);
 }
 
@@ -283,16 +281,15 @@ local_reconnector(files_t *file)
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
-    if ((myaddr = __pmAllocSockAddr()) == NULL)
-	goto done;
-    if ((servinfo = __pmAllocHostEnt()) == NULL)
+    if ((servinfo = __pmHostEntAlloc()) == NULL)
 	goto done;
     if (__pmGetHostByName(file->me.sock.host, servinfo) == NULL)
 	goto done;
     if ((fd = __pmCreateSocket()) < 0)
 	goto done;
-    __pmSetSockAddr(myaddr, servinfo);
-    __pmSetPort(myaddr, files->me.sock.port);
+    if ((myaddr = __pmHostEntGetSockAddr(servinfo, 0)) == NULL)
+      goto done;
+    __pmSockAddrSetPort(myaddr, files->me.sock.port);
     if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmCloseSocket(fd);
 	goto done;
@@ -301,9 +298,9 @@ local_reconnector(files_t *file)
 
 done:
     if (myaddr)
-	__pmFreeSockAddr(myaddr);
+	__pmSockAddrFree(myaddr);
     if (servinfo)
-	__pmFreeHostEnt(servinfo);
+	__pmHostEntFree(servinfo);
 }
 
 static void

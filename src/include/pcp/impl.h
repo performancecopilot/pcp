@@ -548,31 +548,31 @@ extern void __pmFD_COPY(__pmFdSet *, const __pmFdSet *);
 extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
 extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 
-extern __pmSockAddr *__pmAllocSockAddr(void);
-extern __pmSockAddr *__pmDupSockAddr(const __pmSockAddr *);
-extern void __pmFreeSockAddr(__pmSockAddr *);
-extern size_t __pmSockAddrSize(void);
-extern void __pmInitSockAddr(__pmSockAddr *, int, int);
-extern void __pmSetSockAddr(__pmSockAddr *, __pmHostEnt *);
-extern char *__pmSockAddrToString(__pmSockAddr *);
-extern int __pmStringToSockAddr(const char *, __pmSockAddr *);
-extern void __pmSetSockAddrFamily(__pmSockAddr *, int);
-extern int __pmGetSockAddrFamily(const __pmSockAddr *);
-extern void __pmSetPort(__pmSockAddr *, int);
-extern __pmSockAddr *__pmMaskSockAddr(__pmSockAddr *, const __pmSockAddr *);
-extern int __pmCompareSockAddr (const __pmSockAddr *, const __pmSockAddr *);
-extern int __pmSockAddrIsLoopBack(const __pmSockAddr *);
-extern int __pmSockAddrIsInet(const __pmSockAddr *);
-extern int __pmSockAddrIsIPv6(const __pmSockAddr *);
+extern __pmSockAddr *__pmSockAddrAlloc(void);
+extern void	     __pmSockAddrFree(__pmSockAddr *);
+extern size_t	     __pmSockAddrSize(void);
+extern void	     __pmSockAddrInit(__pmSockAddr *, int, int);
+extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
+extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
+extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
+extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
+extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
+extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
+extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
+extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
+extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
+extern char *	     __pmSockAddrToString(__pmSockAddr *);
+extern __pmSockAddr *__pmStringToSockAddr(const char *);
 extern __pmSockAddr *__pmLoopBackAddress(void);
 
-extern __pmHostEnt *__pmAllocHostEnt(void);
-extern void __pmFreeHostEnt(__pmHostEnt *);
-extern char *__pmHostEntName(const __pmHostEnt *);
-extern __pmHostEnt *__pmGetHostByName(const char *, __pmHostEnt *);
-extern __pmHostEnt *__pmGetHostByAddr(__pmSockAddr *, __pmHostEnt *);
+extern __pmHostEnt * __pmHostEntAlloc(void);
+extern void	     __pmHostEntFree(__pmHostEnt *);
 extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, int);
-extern const char *__pmHostEntGetName(const __pmHostEnt *, int);
+extern const char *  __pmHostEntGetName(const __pmHostEnt *);
+
+// Should be converted to __pmGetNameInfo, __pmGetAddrInfo???
+extern __pmHostEnt * __pmGetHostByName(const char *, __pmHostEnt *);
+extern __pmHostEnt * __pmGetHostByAddr(__pmSockAddr *, __pmHostEnt *);
 
 /*
  * per context controls for archives and logs

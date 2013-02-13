@@ -183,6 +183,6 @@ main()
     pthread_join(tid2, (void *)&msg); 
     if (msg != NULL) printf("tid2: %s\n", msg);
 
-    __pmFreeSockAddr(addr);
+    __pmSockAddrFree(addr);
     exit(0);
 }

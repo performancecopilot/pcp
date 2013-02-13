@@ -1328,25 +1328,24 @@ ConnectSocketAgent(AgentInfo *aPtr)
 		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
-	if ((host = __pmAllocHostEnt()) == NULL) {
+	if ((host = __pmHostEntAlloc()) == NULL) {
 	    fputs("pmcd: Error allocing host entry\n", stderr);
 	    return -1;
 	}
 	if (__pmGetHostByName("localhost", host) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmFreeHostEnt(host);
+	    __pmHostEntFree(host);
 	    goto error;
 	}
-	if ((addr = __pmAllocSockAddr()) == NULL) {
+	if ((addr = __pmHostEntGetSockAddr(host, 0)) == NULL) {
 	    fputs("pmcd: Error allocing sock addr\n", stderr);
-	    __pmFreeHostEnt(host);
+	    __pmHostEntFree(host);
 	    return -1;
 	}
-	__pmSetSockAddr(addr, host);
-	__pmSetPort(addr, aPtr->ipc.socket.port);
+	__pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
 	sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
-	__pmFreeSockAddr(addr);
-	__pmFreeHostEnt(host);
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
     }
     else {
 #if defined(HAVE_SYS_UN_H)

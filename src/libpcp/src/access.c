@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -89,8 +89,8 @@ getmyhostid(void)
 	return -1;
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
-    if ((host = __pmAllocHostEnt()) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmAllocHostEnt failure\n");
+    if ((host = __pmHostEntAlloc()) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmHostEntAlloc failure\n");
 	return -1;
     }
 
@@ -99,12 +99,12 @@ getmyhostid(void)
 	__pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
 		     myhostname, hoststrerror());
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEnt(host);
+	__pmHostEntFree(host);
 	return -1;
     }
     myhostid = __pmHostEntGetSockAddr(host, 0);
     PM_UNLOCK(__pmLock_libpcp);
-    __pmFreeHostEnt(host);
+    __pmHostEntFree(host);
     gotmyhostid = 1;
     return 0;
 }
@@ -301,10 +301,17 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    ipIx += sprintf(ip + ipIx, "0");
 	    maskIx += sprintf(mask + maskIx, "0");
 	}
-	hostid = __pmAllocSockAddr();
-	hostmask = __pmAllocSockAddr();
-	__pmStringToSockAddr(ip, hostid);
-	__pmStringToSockAddr(mask, hostmask);
+	hostid = __pmStringToSockAddr(ip);
+	if (hostid == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	    return -ENOMEM;
+	}
+	hostmask = __pmStringToSockAddr(mask);
+	if (hostmask == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	    __pmSockAddrFree(hostid);
+	    return -ENOMEM;
+	}
     }
     /* No asterisk: must be a specific host.
      * Map localhost to this host's specific IP address so that host access
@@ -329,8 +336,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	else
 	    realname = name;
 
-	if ((host = __pmAllocHostEnt()) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "__pmAllocHostEnt failure\n");
+	if ((host = __pmHostEntAlloc()) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmHostEntAlloc failure\n");
 	    return -ENOMEM;
 	}
 	PM_INIT_LOCKS();
@@ -339,15 +346,24 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    __pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
 			 realname, hoststrerror());
 	    PM_UNLOCK(__pmLock_libpcp);
-	    __pmFreeHostEnt(host);
+	    __pmHostEntFree(host);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
 	hostid = __pmHostEntGetSockAddr(host, 0);
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEnt(host);
+	__pmHostEntFree(host);
+
+	if (hostid == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	    return -ENOMEM;
+	}
 	/* TODO: IPv6 */
-	hostmask = __pmAllocSockAddr();
-	__pmStringToSockAddr("255.255.255.255", hostmask);
+	hostmask = __pmStringToSockAddr("255.255.255.255");
+	if (hostmask == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	    __pmSockAddrFree(hostid);
+	    return -ENOMEM;
+	}
 	level = 0;
     }
 
@@ -361,7 +377,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	 * addresses shouldn't have zero in last position but to deal with
 	 * them just in case.
 	 */
-	if (__pmCompareSockAddr(hostid, hostlist[i].hostid) == 0 &&
+	if (__pmSockAddrCompare(hostid, hostlist[i].hostid) == 0 &&
 	    level == hostlist[i].level) {
 	    sts = 1;
 	    break;
@@ -373,6 +389,9 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
      * match was found (sts == 1) otherwise insert a new entry in list.
      */
     if (sts == 1) {
+        __pmSockAddrFree(hostid);
+        __pmSockAddrFree(hostmask);
+
 	/* If the specified operations overlap, they must agree */
 	if ((hp->maxcons && maxcons && hp->maxcons != maxcons) ||
 	    ((hp->specOps & specOps) &&
@@ -453,14 +472,14 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 
     for (i = nhosts - 1; i >= 0; i--) {
 	hp = &hostlist[i];
-	maskedid = __pmDupSockAddr(clientid);
-	if (__pmCompareSockAddr(__pmMaskSockAddr(maskedid, hp->hostmask), hp->hostid) == 0) {
+	maskedid = __pmSockAddrDup(clientid);
+	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0) {
 	    /* Clobber specified ops then set. Leave unspecified ops alone. */
 	    *denyOpsResult &= ~hp->specOps;
 	    *denyOpsResult |= hp->denyOps;
 	    lastmatch = hp;
 	}
-	__pmFreeSockAddr(maskedid);
+	__pmSockAddrFree(maskedid);
     }
     /* no matching entry in hostlist => allow all */
 
@@ -482,11 +501,11 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
      */
     for (i = 0; i < nhosts; i++) {
 	hp = &hostlist[i];
-	maskedid = __pmDupSockAddr(clientid);
-	if (__pmCompareSockAddr(__pmMaskSockAddr(maskedid, hp->hostmask), hp->hostid) == 0)
+	maskedid = __pmSockAddrDup(clientid);
+	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
 	    if (hp->maxcons)
 		hp->curcons++;
-	__pmFreeSockAddr(maskedid);
+	__pmSockAddrFree(maskedid);
     }
 
     return 0;
@@ -508,11 +527,11 @@ __pmAccDelClient(__pmSockAddr *hostid)
      */
     for (i = 0; i < nhosts; i++) {
 	hp = &hostlist[i];
-	maskedid = __pmDupSockAddr(hostid);
-	if (__pmCompareSockAddr(__pmMaskSockAddr(maskedid, hp->hostmask), hp->hostid) == 0)
+	maskedid = __pmSockAddrDup(hostid);
+	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
  	    if (hp->maxcons)
 		hp->curcons--;
-	__pmFreeSockAddr(maskedid);
+	__pmSockAddrFree(maskedid);
     }
 }
 

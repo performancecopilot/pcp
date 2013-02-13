@@ -79,10 +79,6 @@ main()
     if (sts < 0)
 	exit(1);
 
-    if ((inaddr = __pmAllocSockAddr()) == NULL) {
-	printf("insufficient memory\n");
-	exit(2);
-    }
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
@@ -95,9 +91,13 @@ main()
 			char	buf[20];
 			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
-			__pmStringToSockAddr(buf, inaddr);
+			if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
+			  printf("insufficient memory\n");
+			  continue;
+			}
 			s = __pmAccAddClient(inaddr, &perm);
 			host = __pmSockAddrToString(inaddr);
+			__pmSockAddrFree(inaddr);
 			if (s < 0) {
 			    fprintf(stderr, "from %s error: %s\n", host, pmErrStr(s));
 			    free(host);
@@ -107,6 +107,5 @@ main()
 			free(host);
 		    }
     
-    __pmFreeSockAddr(inaddr);
     exit(0);
 }

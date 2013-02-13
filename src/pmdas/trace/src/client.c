@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +73,7 @@ newClient(void)
 	for (j = i; j < clientsize; j++)
 	    clients[j].addr = NULL;
     }
-    clients[i].addr = __pmAllocSockAddr();
+    clients[i].addr = __pmSockAddrAlloc();
     if (clients[i].addr == NULL) {
       __pmNoMem("newClient", __pmSockAddrSize(), PM_RECOV_ERR);
       exit(1);
@@ -110,7 +111,7 @@ deleteClient(client_t *cp)
 	    if (clients[i].fd > maxfd)
 		maxfd = clients[i].fd;
     }
-    __pmFreeSockAddr(cp->addr);
+    __pmSockAddrFree(cp->addr);
     cp->addr = NULL;
     cp->status.connected = 0;
     cp->status.padding = 0;
@@ -131,7 +132,7 @@ showClients(void)
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
-    hp = __pmAllocHostEnt();
+    hp = __pmHostEntAlloc();
     for (i=0; i < nclients; i++) {
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
@@ -140,7 +141,7 @@ showClients(void)
 	    fprintf(stderr, "%s", __pmSockAddrToString(clients[i].addr));
 	}
 	else
-	  fprintf(stderr, "%-40.40s", __pmHostEntGetName(hp, 0));
+	  fprintf(stderr, "%-40.40s", __pmHostEntGetName(hp));
 	if (clients[i].denyOps != 0) {
 	    fprintf(stderr, "  ");
 	    if (clients[i].denyOps & TR_OP_SEND)

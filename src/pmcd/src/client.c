@@ -163,7 +163,7 @@ NewClient(void)
 	    client[j].szProfile = 0;
 	}
     }
-    client[i].addr = __pmAllocSockAddr();
+    client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
         __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
 	Shutdown();
@@ -216,7 +216,7 @@ DeleteClient(ClientInfo *cp)
 	    cp->profile[i] = NULL;
 	}
     }
-    __pmFreeSockAddr(cp->addr);
+    __pmSockAddrFree(cp->addr);
     cp->addr = NULL;
     cp->status.connected = 0;
     cp->fd = -1;

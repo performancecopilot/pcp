@@ -78,14 +78,14 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 #endif
 
-    if ((myaddr =__pmAllocSockAddr()) == NULL) {
+    if ((myaddr =__pmSockAddrAlloc()) == NULL) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: sock addr alloc failed\n");
 	exit(1);
     }
-    __pmInitSockAddr(myaddr, INADDR_ANY, myport);
+    __pmSockAddrInit(myaddr, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
-        __pmFreeSockAddr(myaddr);
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
@@ -93,7 +93,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 
     sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
-        __pmFreeSockAddr(myaddr);
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
@@ -101,14 +101,14 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     addrlen = __pmSockAddrSize();
     /* block here, waiting for a connection */
     if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
-        __pmFreeSockAddr(myaddr);
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);
     }
     __pmCloseSocket(sfd);
     __pmSetSocketIPC(*infd);
-    __pmFreeSockAddr(myaddr);
+    __pmSockAddrFree(myaddr);
 
     *outfd = *infd;
 }

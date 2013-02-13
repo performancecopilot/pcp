@@ -216,16 +216,16 @@ GetPort(char *file)
      * try to allocate ports from port_base.  If port already in use, add one
      * and try again.
      */
-    if ((myAddr = __pmAllocSockAddr()) == NULL) {
-	fprintf(stderr, "GetPort: __pmAllocSockAddr out of memory\n");
+    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+	fprintf(stderr, "GetPort: __pmSockAddrAlloc out of memory\n");
 	exit(1);
     }
     for (ctlport = port_base; ; ctlport++) {
-        __pmInitSockAddr(myAddr, INADDR_ANY, ctlport);
+        __pmSockAddrInit(myAddr, INADDR_ANY, ctlport);
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
-	        __pmFreeSockAddr(myAddr);
+	        __pmSockAddrFree(myAddr);
 		fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
 		exit(1);
 	    }
@@ -233,7 +233,7 @@ GetPort(char *file)
 	else
 	    break;
     }
-    __pmFreeSockAddr(myAddr);
+    __pmSockAddrFree(myAddr);
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	fprintf(stderr, "__pmListen: %s\n", netstrerror());
@@ -258,14 +258,14 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    if ((host = __pmAllocHostEnt()) == NULL) {
-	fprintf(stderr, "GetPort: __pmAllocHostEnt out of memory\n");
+    if ((host = __pmHostEntAlloc()) == NULL) {
+	fprintf(stderr, "GetPort: __pmHostEntAlloc out of memory\n");
 	exit(1);
     }
     if (__pmGetHostByName(pmcd_host, host) != NULL)
-        fprintf(mapstream, "%s", __pmHostEntName(host));
+        fprintf(mapstream, "%s", __pmHostEntGetName(host));
     fprintf(mapstream, "\n");
-    __pmFreeHostEnt(host);
+    __pmHostEntFree(host);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
@@ -418,11 +418,11 @@ control_req(void)
     char		*abuf;
     __pmSockLen		addrlen;
 
-    if ((addr = __pmAllocSockAddr()) == NULL) {
+    if ((addr = __pmSockAddrAlloc()) == NULL) {
 	fputs("error allocating space for client sockaddr\n", stderr);
 	return 0;
     }
-    if ((host = __pmAllocHostEnt()) == NULL) {
+    if ((host = __pmHostEntAlloc()) == NULL) {
 	fputs("error allocating space for client hostent\n", stderr);
 	return 0;
     }
@@ -430,8 +430,8 @@ control_req(void)
     fd = __pmAccept(ctlfd, addr, &addrlen);
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
-	__pmFreeSockAddr(addr);
-	__pmFreeHostEnt(host);
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
 	return 0;
     }
     __pmSetSocketIPC(fd);
@@ -444,8 +444,8 @@ control_req(void)
 	if (sts < 0)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
-	__pmFreeSockAddr(addr);
-	__pmFreeHostEnt(host);
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
@@ -454,20 +454,20 @@ control_req(void)
     if (sts < 0) {
 	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
-	__pmFreeSockAddr(addr);
-	__pmFreeHostEnt(host);
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
 
-    if (__pmGetHostByAddr(addr, host) == NULL || strlen(__pmHostEntName(host)) > MAXHOSTNAMELEN-1) {
+    if (__pmGetHostByAddr(addr, host) == NULL || strlen(__pmHostEntGetName(host)) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
         sprintf(pmlc_host, "%s", abuf);
 	free(abuf);
     }
     else {
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, __pmHostEntName(host));
+	strcpy(pmlc_host, __pmHostEntGetName(host));
     }
 
     sts = __pmAccAddClient(addr, &clientops);
@@ -486,13 +486,13 @@ control_req(void)
 	    fprintf(stderr, "error sending connection access NACK to client: %s\n",
 			 pmErrStr(sts));
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
-	__pmFreeSockAddr(addr);
-	__pmFreeHostEnt(host);
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
-    __pmFreeSockAddr(addr);
-    __pmFreeHostEnt(host);
+    __pmSockAddrFree(addr);
+    __pmHostEntFree(host);
 
     /*
      * encode pdu version in the acknowledgement

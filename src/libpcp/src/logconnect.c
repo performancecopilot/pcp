@@ -132,7 +132,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    if ((servInfo = __pmAllocHostEnt()) == NULL) {
+    if ((servInfo = __pmHostEntAlloc()) == NULL) {
 	return -ENOMEM;
     }
 
@@ -145,30 +145,29 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	return fd;
     }
 
-    if ((myAddr = __pmAllocSockAddr()) == NULL) {
+    if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	return -ENOMEM;
     }
-    __pmSetSockAddr(myAddr, servInfo);
-    __pmSetPort(myAddr, *port);
+    __pmSockAddrSetPort(myAddr, *port);
     PM_UNLOCK(__pmLock_libpcp);
 
     sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
 
-    __pmFreeSockAddr(myAddr);
-    __pmFreeHostEnt(servInfo);
+    __pmSockAddrFree(myAddr);
+    __pmHostEntFree(servInfo);
 
     if (sts < 0) {
 	sts = neterror();

@@ -352,23 +352,19 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
     int			one, sts;
     struct __pmSockAddr *myAddr;
 
-    /* Initialize the socket address, sirst, so wwe know which address family we will be
-       using. */
-    if ((myAddr = __pmAllocSockAddr()) == NULL) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmAllocSockAddr: out of memory\n",
-		port, ipSpec);
-	goto fail;
-    }
-    __pmSetSockAddrFamily (myAddr, *family);
-    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
+    if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 		      port, ipSpec);
 	goto fail;
     }
-    /* Address family may have been reset by __pmStringToSockAddr. */
-    *family = __pmGetSockAddrFamily(myAddr);
-    __pmSetPort(myAddr, port);
+
+    /* If the family was set by __pmStringToSockAddr, then use it, otherwise, set it to the
+       family we were given. */
+    if (__pmSockAddrGetFamily(myAddr) == 0)
+        __pmSockAddrSetFamily (myAddr, *family);
+    else
+        *family = __pmSockAddrGetFamily(myAddr);
+    __pmSockAddrSetPort(myAddr, port);
 
     /* Create the socket. */
     if (*family == AF_INET)
@@ -420,7 +416,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
     }
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
-    __pmFreeSockAddr(myAddr);
+    __pmSockAddrFree(myAddr);
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",
@@ -442,7 +438,7 @@ fail:
     if (fd != -1)
         __pmCloseSocket(fd);
     if (myAddr)
-        __pmFreeSockAddr(myAddr);
+        __pmSockAddrFree(myAddr);
     return -1;
 }
 
@@ -1242,7 +1238,7 @@ AddBadHost(struct __pmSockAddr *hostId)
     int		i, need;
 
     for (i = 0; i < nBadHosts; i++)
-        if (__pmCompareSockAddr(hostId, badHost[i]) == 0)
+        if (__pmSockAddrCompare(hostId, badHost[i]) == 0)
 	    /* already there */
 	    return 0;
 
@@ -1254,7 +1250,7 @@ AddBadHost(struct __pmSockAddr *hostId)
 	    __pmNoMem("pmcd.AddBadHost", need, PM_FATAL_ERR);
 	}
     }
-    badHost[nBadHosts++] = __pmDupSockAddr(hostId);
+    badHost[nBadHosts++] = __pmSockAddrDup(hostId);
     return 1;
 }
 

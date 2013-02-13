@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -38,10 +38,6 @@ main()
     if (sts < 0)
 	exit(1);
 
-    if ((inaddr = __pmAllocSockAddr()) == NULL) {
-	printf("insufficient memory\n");
-	exit(2);
-    }
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
@@ -49,8 +45,12 @@ main()
 	char	buf[20];
 
 	sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
-	__pmStringToSockAddr(buf, inaddr);
+	if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
+	    printf("insufficient memory\n");
+	    continue;
+	}
 	sts = __pmAccAddClient(inaddr, &i);
+	__pmSockAddrFree(inaddr);
 	if (sts < 0) {
 	    printf("add client from host %d: %s\n", host, pmErrStr(sts));
 	    continue;
@@ -63,7 +63,6 @@ main()
     
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
-    __pmFreeSockAddr(inaddr);
 
     exit(0);
 }

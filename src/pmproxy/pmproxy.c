@@ -245,23 +245,15 @@ OpenRequestSocket(int port, const char * ipSpec)
     }
 
     /* Initialize the socket address */
-    myAddr = __pmAllocSockAddr();
-    if (myAddr == NULL) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) addr alloc failed\n",
-		port, ipSpec);
-	DontStart();
-    }
-    __pmSetSockAddrFamily (myAddr, AF_INET);
-    if (__pmStringToSockAddr(ipSpec, myAddr) == 0) {
-        __pmFreeSockAddr(myAddr);
+    if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 		      port, ipSpec);
 	DontStart();
     }
-    __pmSetPort(myAddr, port);
+    __pmSockAddrSetPort(myAddr, port);
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
-    __pmFreeSockAddr(myAddr);
+    __pmSockAddrFree(myAddr);
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
 			port, netstrerror());
