@@ -121,7 +121,6 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
-	$(pkgpcp_python) $(MAKE) -C src/python install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
@@ -130,6 +129,9 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
+	for V in $(shell pyversions -vr); do \
+	    $(pkgpcp_python) $(MAKE) PYTHON=python$(V) -C src/python install \
+	done
 
 	dh_installdocs
 	dh_installchangelogs
@@ -156,7 +158,7 @@ binary-arch: checkroot build-stamp
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
-	dh_python2 $(pcp_python)
+	dh_python2 --package $(pcp_python)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(libpcp_import_perl)
