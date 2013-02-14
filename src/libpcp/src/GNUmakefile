@@ -95,7 +95,8 @@ derive.o derive_fetch.o: derive.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
-context.o derive.o fetch.o fetch.o lock.o: internal.h
+auxconnect.o context.o derive.o fetch.o fetch.o lock.o: internal.h
+nss_server.o nss_connect.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
