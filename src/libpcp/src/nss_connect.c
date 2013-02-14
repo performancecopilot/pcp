@@ -17,7 +17,14 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#include <certdb.h>
+#include <secerr.h>
 #include <sslerr.h>
+#include <pk11pub.h>
+#include <sys/stat.h>
+#ifdef HAVE_SYS_TERMIOS_H
+#include <sys/termios.h>
+#endif
 
 /*
  * We shift NSS/SSL errors below the valid range for PCP error codes,
@@ -213,24 +220,68 @@ __pmCloseSocket(int fd)
     }
 }
 
-int
-__pmInitCertificates(void)
+static int
+mkpath(const char *dir, mode_t mode)
+{
+    char path[MAXPATHLEN], *p;
+    int sts;
+
+    sts = access(dir, R_OK|W_OK|X_OK);
+    if (sts == 0)
+	return 0;
+    if (sts < 0 && oserror() != ENOENT)
+	return -1;
+
+    strncpy(path, dir, sizeof(path));
+    path[sizeof(path)-1] = '\0';
+
+    for (p = path+1; *p != '\0'; p++) {
+	if (*p == __pmPathSeparator()) {
+	    *p = '\0';
+	    mkdir2(path, mode);
+	    *p = __pmPathSeparator();
+	}
+    }
+    return mkdir2(path, mode);
+}
+
+static char *
+dbpath(char *path, size_t size)
 {
     int sep = __pmPathSeparator();
     const char *empty_homedir = "";
     char *homedir = getenv("HOME");
-    char dbpath[MAXPATHLEN];
-    SECStatus secsts;
 
+    /*
+     * Fill in a buffer with the users NSS database specification.
+     * Return a pointer to the filesystem path component - without
+     * the sql:-prefix - for other helpers to work with.
+     */
     if (homedir == NULL)
 	homedir = (char *)empty_homedir;
+    snprintf(path, size, "sql:" "%s" "%c" ".pki" "%c" "nssdb",
+		homedir, sep, sep);
+    return path + 4;
+}
+
+int
+__pmInitCertificates(void)
+{
+    char nssdb[MAXPATHLEN];
+    SECStatus secsts;
+
     /*
      * Check for client certificate databases.  We enforce use
      * of the per-user shared NSS database at $HOME/.pki/nssdb
+     * For simplicity, we create this directory if we need to.
+     * If we cannot, we silently bail out so that users who're
+     * not using secure connections (initially everyone) don't
+     * have to diagnose / put up with spurious errors.
      */
-    snprintf(dbpath, sizeof(dbpath), "sql:" "%s" "%c" ".pki" "%c" "nssdb",
-		homedir, sep, sep);
-    secsts = NSS_InitReadWrite(dbpath);
+    if (mkpath(dbpath(nssdb, sizeof(nssdb)), 0700) < 0)
+	return 0;
+
+    secsts = NSS_InitReadWrite(nssdb);
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError();
 
@@ -250,62 +301,177 @@ __pmShutdownCertificates(void)
     return 0;
 }
 
-static SECStatus
-badCert(void *arg, PRFileDesc *sslsocket)
+static void
+saveUserCertificate(CERTCertificate *cert)
 {
+    SECStatus secsts;
+    PK11SlotInfo *slot = PK11_GetInternalKeySlot();
+    CERTCertTrust *trust = NULL;
+
+    secsts = PK11_ImportCert(slot, cert, CK_INVALID_HANDLE,
+				SECURE_SERVER_CERTIFICATE, PR_FALSE);
+    if (secsts != SECSuccess)
+	goto done;
+
+    trust = (CERTCertTrust *)PORT_ZAlloc(sizeof(CERTCertTrust));
+    if (!trust)
+	goto done;
+
+    secsts = CERT_DecodeTrustString(trust, "P,P,P");
+    if (secsts != SECSuccess)
+	goto done;
+
+    CERT_ChangeCertTrust(CERT_GetDefaultCertDB(), cert, trust);
+
+done:
+    if (slot)
+	PK11_FreeSlot(slot);
+    if (trust)
+	PORT_Free(trust);
+}
+
+#ifdef HAVE_SYS_TERMIOS_H
+static int
+queryCertificateOK(const char *message)
+{
+    int c, fd, sts = 0, count = 0;
+
+    fd = fileno(stdin);
+    /* if we cannot interact, simply assume the answer to be "no". */
+    if (!isatty(fd)) {
+	pmprintf(message);
+	pmprintf(" (no)\n");
+	pmflush();
+	return 0;
+    }
+
+    do {
+	struct termios saved, raw;
+
+	printf(message);
+	printf(" [y/n] ");
+	fflush(stdin);
+
+	/* save terminal state and temporarily enter raw terminal mode */
+	if (tcgetattr(fd, &saved) < 0)
+	    return 0;
+	cfmakeraw(&raw);
+	if (tcsetattr(fd, TCSAFLUSH, &raw) < 0)
+	    return 0;
+
+	c = getchar();
+	if (c == 'y' || c == 'Y')
+	    sts = 1;	/* yes */
+	else if (c == 'n' || c == 'N')
+	    sts = 0;	/* no */
+	else
+	    sts = -1;	/* dunno, try again (3x) */
+	tcsetattr(fd, TCSAFLUSH, &saved);
+	putchar('\n');
+    } while (sts == -1 && ++count < 3);
+    fflush(stdin);
+
+    return sts;
+}
+#else
+static int
+queryCertificateOK(const char *message)
+{
+    /* no way implemented to interact to query the user, so decline */
+    pmprintf(message);
+    pmprintf(" (no)\n");
+    pmflush();
+    return 0;
+}
+#endif
+
+static SECStatus
+queryCertificateAuthority(PRFileDesc *sslsocket)
+{
+    int sts;
+    char *result;
+
+    result = SSL_RevealURL(sslsocket);
+    pmprintf("WARNING: "
+	     "issuer of certificate received from host %s is not trusted.\n"
+	     "The certificate may be self-signed.  ", result);
+    PORT_Free(result);
+    pmflush();
+
+    sts = queryCertificateOK("Accept and save this certificate?");
+    if (sts == 1) {
+	saveUserCertificate(SSL_PeerCertificate(sslsocket));
+	return SECSuccess;
+    }
+    return SECFailure;
+}
+
+static SECStatus
+queryCertificateDomain(PRFileDesc *sslsocket)
+{
+    int sts;
+    char *result;
     SECItem secitem = { 0 };
     SECStatus secstatus = SECFailure;
     PRArenaPool *arena = NULL;
     CERTCertificate *servercert = NULL;
-    char *expected;
 
+    /*
+     * Propagate a warning through to the client.  Show the expected
+     * host, then list the DNS names from the server certificate.
+     */
+    result = SSL_RevealURL(sslsocket);
+    pmprintf("WARNING: "
+"The domain name %s does not match the DNS name(s) on the server certificate:\n",
+		result);
+    PORT_Free(result);
+
+    servercert = SSL_PeerCertificate(sslsocket);
+    secstatus = CERT_FindCertExtension(servercert,
+				SEC_OID_X509_SUBJECT_ALT_NAME, &secitem);
+    if (secstatus != SECSuccess || !secitem.data) {
+	pmprintf("Unable to find alt name extension on the server certificate\n");
+    } else if ((arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE)) == NULL) {
+	pmprintf("Out of memory while generating name list\n");
+	SECITEM_FreeItem(&secitem, PR_FALSE);
+    } else {
+	CERTGeneralName *namelist, *n;
+
+	namelist = n = CERT_DecodeAltNameExtension(arena, &secitem);
+	SECITEM_FreeItem(&secitem, PR_FALSE);
+	if (!namelist) {
+	    pmprintf("Unable to decode alt name extension on server certificate\n");
+	} else {
+	    do {
+		if (n->type == certDNSName)
+		    pmprintf("  %.*s\n", (int)n->name.other.len, n->name.other.data);
+		n = CERT_GetNextGeneralName(n);
+	    } while (n != namelist);
+	}
+    }
+    pmflush();
+    if (arena)
+	PORT_FreeArena(arena, PR_FALSE);
+    if (servercert)
+	CERT_DestroyCertificate(servercert);
+
+    sts = queryCertificateOK("Accept this certificate anyway?");
+    return (sts == 1) ? SECSuccess : SECFailure;
+}
+
+static SECStatus
+badCertificate(void *arg, PRFileDesc *sslsocket)
+{
     (void)arg;
     switch (PR_GetError()) {
     case SSL_ERROR_BAD_CERT_DOMAIN:
-	/*
-	 * Propogate a warning through to the client.  Show the expected
-	 * host, then list the DNS names from the server certificate.
-	 */
-	expected = SSL_RevealURL(sslsocket);
-	pmprintf("WARNING: "
-"The domain name %s does not match the DNS name(s) on the server certificate:\n",
-		expected);
-	PORT_Free(expected);
-
-	servercert = SSL_PeerCertificate(sslsocket);
-	secstatus = CERT_FindCertExtension(servercert,
-				SEC_OID_X509_SUBJECT_ALT_NAME, &secitem);
-	if (secstatus != SECSuccess || !secitem.data) {
-	    pmprintf("Unable to find alt name extension on the server certificate\n");
-	} else if ((arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE)) == NULL) {
-	    pmprintf("Out of memory while generating name list\n");
-	    SECITEM_FreeItem(&secitem, PR_FALSE);
-	} else {
-	    CERTGeneralName *namelist, *n;
-
-	    namelist = n = CERT_DecodeAltNameExtension(arena, &secitem);
-	    SECITEM_FreeItem(&secitem, PR_FALSE);
-	    if (!namelist) {
-		pmprintf("Unable to decode alt name extension on server certificate\n");
-	    } else {
-		do {
-		    if (n->type == certDNSName)
-			pmprintf("  %.*s\n", (int)n->name.other.len, n->name.other.data);
-		    n = CERT_GetNextGeneralName(n);
-		} while (n != namelist);
-	    }
-	}
-	if (arena)
-	    PORT_FreeArena(arena, PR_FALSE);
-	if (servercert)
-	    CERT_DestroyCertificate(servercert);
-	secstatus = SECSuccess;
-	pmflush();
-	break;
+	return queryCertificateDomain(sslsocket);
+    case SEC_ERROR_UNKNOWN_ISSUER:
+	return queryCertificateAuthority(sslsocket);
     default:
 	break;
     }
-    return secstatus;
+    return SECFailure;
 }
 
 static int
@@ -335,7 +501,8 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
 	secsts = SSL_SetURL(socket.sslFd, hostname);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError();
-	secsts = SSL_BadCertHook(socket.sslFd, (SSLBadCertHandler)badCert, NULL);
+	secsts = SSL_BadCertHook(socket.sslFd,
+				(SSLBadCertHandler)badCertificate, NULL);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError();
     }

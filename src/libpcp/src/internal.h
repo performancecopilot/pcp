@@ -64,6 +64,8 @@ __pmTPDGet(void)
 #include <nspr.h>
 #include <private/pprio.h>
 
+#define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
+
 struct __pmSockAddrIn {
     PRNetAddr		sockaddr;
 };

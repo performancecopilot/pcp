@@ -22,7 +22,6 @@
 #include <pk11pub.h>
 #include <sys/stat.h>
 
-#define SECURE_SERVER_CERTIFICATE	"PCP Collector certificate"
 #define MAX_NSSDB_PASSWORD_LENGTH	256
 
 static struct {
@@ -185,6 +184,21 @@ __pmValidCertificate(CERTCertDBHandle *db, CERTCertificate *cert, PRTime stamp)
     return (secsts == SECSuccess);
 }
 
+static char *
+serverdb(char *path, size_t size)
+{
+    int sep = __pmPathSeparator();
+
+    /*
+     * Fill in a buffer with the server NSS database specification.
+     * Return a pointer to the filesystem path component - without
+     * the sql:-prefix - for other routines to work with.
+     */
+    snprintf(path, size, "sql:" "%c" "etc" "%c" "pki" "%c" "nssdb",
+		sep, sep, sep);
+    return path + 4;
+}
+
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {
@@ -204,21 +218,24 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     /*
      * Configure location of the NSS database with a sane default.
      * For servers, we default to the shared (sql) system-wide database.
+     * If command line db specified, pass it directly through - allowing
+     * any old database format, at the users discretion.
      */
-    if (!db) {
-	int sep = __pmPathSeparator();
-	snprintf(nss_server.database_path, MAXPATHLEN,
-		 "sql:" "%c" "etc" "%c" "pki" "%c" "nssdb", sep, sep, sep);
-    } else {
-	/* -2 here ensures result is NULL terminated */
-	strncat(nss_server.database_path, db, MAXPATHLEN-2);
-    }
 
-    if (access(nss_server.database_path, R_OK) < 0 && oserror() == ENOENT) {
-	/* Handle the common case: server supports secure sockets */
-	/* but no configuration has been performed on the server. */
-	sts = 0;
-	goto done;
+    if (!db) {
+	char *path = serverdb(nss_server.database_path, MAXPATHLEN);
+
+	/* this is the default case on some platforms, so no log spam */
+	if (access(path, R_OK|X_OK) < 0 && oserror() == ENOENT) {
+	    if (pmDebug & DBG_TRACE_CONTEXT)
+		__pmNotifyErr(LOG_INFO, "No system security database: %s",
+				nss_server.database_path);
+	    sts = 0;	/* not fatal - just no secure connections */
+	    goto done;
+	}
+    } else {
+	/* shortened-buffer-size (-2) guarantees null-termination */
+	strncpy(nss_server.database_path, db, MAXPATHLEN-2);
     }
 
     secsts = NSS_Init(nss_server.database_path);
@@ -245,7 +262,11 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	nss_server.ssl_session_cache_setup = 1;
     }
 
-    /* Iterate over all certs for given nickname, ensuring one cert is valid */
+    /*
+     * Iterate over any/all PCP Collector nickname certificates,
+     * seeking one valid certificate.  No-such-nickname is not an
+     * error (not configured by admin at all) but anything else is.
+     */
     CERTCertList *certlist;
     CERTCertDBHandle *nssdb = CERT_GetDefaultCertDB();
     CERTCertificate *dbcert = PK11_FindCertFromNickname(nickname, NULL);
