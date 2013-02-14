@@ -9,7 +9,7 @@ Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, python-pcp
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, sysv-rc-conf, libpcp-pmda-perl, python-pcp, python
 Suggests: tsocks
 Conflicts: pgpool2
 Recommends: pcp-gui, libpcp-import-perl
@@ -200,6 +200,7 @@ Package: python-pcp
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version})
+Provides: ${python:Provides} 
 Description: Performance Co-Pilot Python PMAPI module
  The PCP Python module contains the language bindings for
  building Performance Metric API client tools using Python.
