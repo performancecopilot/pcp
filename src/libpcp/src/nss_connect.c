@@ -17,6 +17,7 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#include <hasht.h>
 #include <certdb.h>
 #include <secerr.h>
 #include <sslerr.h>
@@ -330,6 +331,15 @@ done:
 	PORT_Free(trust);
 }
 
+static int
+rejectUserCertificate(const char *message)
+{
+    pmprintf(message);
+    pmprintf("? (no)\n");
+    pmflush();
+    return 0;
+}
+
 #ifdef HAVE_SYS_TERMIOS_H
 static int
 queryCertificateOK(const char *message)
@@ -338,19 +348,15 @@ queryCertificateOK(const char *message)
 
     fd = fileno(stdin);
     /* if we cannot interact, simply assume the answer to be "no". */
-    if (!isatty(fd)) {
-	pmprintf(message);
-	pmprintf(" (no)\n");
-	pmflush();
-	return 0;
-    }
+    if (!isatty(fd))
+	return rejectUserCertificate(message);
 
     do {
 	struct termios saved, raw;
 
-	printf(message);
-	printf(" [y/n] ");
-	fflush(stdin);
+	pmprintf(message);
+	pmprintf(" (y/n)? ");
+	pmflush();
 
 	/* save terminal state and temporarily enter raw terminal mode */
 	if (tcgetattr(fd, &saved) < 0)
@@ -367,9 +373,9 @@ queryCertificateOK(const char *message)
 	else
 	    sts = -1;	/* dunno, try again (3x) */
 	tcsetattr(fd, TCSAFLUSH, &saved);
-	putchar('\n');
+	pmprintf("\n");
     } while (sts == -1 && ++count < 3);
-    fflush(stdin);
+    pmflush();
 
     return sts;
 }
@@ -378,32 +384,51 @@ static int
 queryCertificateOK(const char *message)
 {
     /* no way implemented to interact to query the user, so decline */
-    pmprintf(message);
-    pmprintf(" (no)\n");
-    pmflush();
-    return 0;
+    return rejectUserCertificate(message);
 }
 #endif
+
+static void
+reportFingerprint(SECItem *item)
+{
+    unsigned char fingerprint[SHA1_LENGTH] = { 0 };
+    SECItem fitem;
+    char *fstring;
+
+    PK11_HashBuf(SEC_OID_SHA1, fingerprint, item->data, item->len);
+    fitem.data = fingerprint;
+    fitem.len = SHA1_LENGTH;
+    fstring = CERT_Hexify(&fitem, 1);
+    pmprintf("SHA1 fingerprint is %s\n", fstring);
+    PORT_Free(fstring);
+}
 
 static SECStatus
 queryCertificateAuthority(PRFileDesc *sslsocket)
 {
     int sts;
+    int secsts = SECFailure;
     char *result;
+    CERTCertificate *servercert;
 
     result = SSL_RevealURL(sslsocket);
     pmprintf("WARNING: "
-	     "issuer of certificate received from host %s is not trusted.\n"
-	     "The certificate may be self-signed.  ", result);
+	     "issuer of certificate received from host %s is not trusted.\n",
+	     result);
     PORT_Free(result);
     pmflush();
 
-    sts = queryCertificateOK("Accept and save this certificate?");
-    if (sts == 1) {
-	saveUserCertificate(SSL_PeerCertificate(sslsocket));
-	return SECSuccess;
+    servercert = SSL_PeerCertificate(sslsocket);
+    if (servercert) {
+	reportFingerprint(&servercert->derCert);
+	sts = queryCertificateOK("Do you want to accept and save this certificate locally anyway");
+	if (sts == 1) {
+	    saveUserCertificate(servercert);
+	    secsts = SECSuccess;
+	}
+	CERT_DestroyCertificate(servercert);
     }
-    return SECFailure;
+    return secsts;
 }
 
 static SECStatus
@@ -455,7 +480,7 @@ queryCertificateDomain(PRFileDesc *sslsocket)
     if (servercert)
 	CERT_DestroyCertificate(servercert);
 
-    sts = queryCertificateOK("Accept this certificate anyway?");
+    sts = queryCertificateOK("Do you want to accept this certificate anyway");
     return (sts == 1) ? SECSuccess : SECFailure;
 }
 
