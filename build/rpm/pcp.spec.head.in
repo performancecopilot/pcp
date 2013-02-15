@@ -3,7 +3,7 @@ Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
 License: GPLv2
-Vendor: Silicon Graphics, Inc.
+Vendor: SGI
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
@@ -55,7 +55,7 @@ applications to easily retrieve and process any subset of that data.
 License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-Vendor: Silicon Graphics, Inc.
+Vendor: SGI
 URL: http://oss.sgi.com/projects/pcp/
 
 Obsoletes: pcp < 3.0
