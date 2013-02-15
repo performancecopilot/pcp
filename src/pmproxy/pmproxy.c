@@ -250,6 +250,7 @@ OpenRequestSocket(int port, const char * ipSpec)
 		      port, ipSpec);
 	DontStart();
     }
+    __pmSockAddrSetFamily(myAddr, AF_INET);
     __pmSockAddrSetPort(myAddr, port);
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());

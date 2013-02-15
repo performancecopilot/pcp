@@ -1446,7 +1446,8 @@ __pmStringToSockAddr(const char *cp)
     if (addr) {
         if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
 	    prStatus = PR_InitializeNetAddr (PR_IpAddrAny, 0, &addr->sockaddr);
-	    __pmSockAddrSetFamily(addr, 0);
+	    /* Set the address family to 0, meaning "not set". */
+	    addr->sockaddr.raw.family = 0;
 	}
 	else
 	    prStatus = PR_StringToNetAddr(cp, &addr->sockaddr);

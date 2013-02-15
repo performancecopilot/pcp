@@ -358,9 +358,9 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
 	goto fail;
     }
 
-    /* If the family was set by __pmStringToSockAddr, then use it, otherwise, set it to the
-       family we were given. */
-    if (__pmSockAddrGetFamily(myAddr) == 0)
+    /* If the address is unspecified, then use the address family we have been given,
+       otherwise the family will be determined by __pmStringToSockAddr. */
+    if (ipSpec == NULL || strcmp(ipSpec, "INADDR_ANY") == 0)
         __pmSockAddrSetFamily (myAddr, *family);
     else
         *family = __pmSockAddrGetFamily(myAddr);
