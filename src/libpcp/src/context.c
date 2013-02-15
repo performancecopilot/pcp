@@ -345,9 +345,19 @@ INIT_CONTEXT:
 	} else if (sts > 0) {
 	    /* upgrade API request to secure channel, as hostspec demands it */
 	    new->c_flags |= sts;
-	} else if (getenv("PCP_SECURE_SOCKETS") != NULL) {
+	} else {
 	    /* upgrade API request to secure channel, if environ requests it */
-	    new->c_flags |= PM_CTXFLAG_SECURE;
+	    char *secure = getenv("PCP_SECURE_SOCKETS");
+
+	    if (!secure) {
+		; /* leave secure connection flag as-is */
+	    } else if (secure[0] == '\0' ||
+	              (strcmp(secure, "1")) == 0 ||
+	              (strcmp(secure, "enforce")) == 0) {
+		new->c_flags |= PM_CTXFLAG_SECURE;
+	    } else if (strcmp(secure, "relaxed") == 0) {
+		new->c_flags |= PM_CTXFLAG_RELAXED;
+	    }
 	}
 
 	if (nhosts == 1) {

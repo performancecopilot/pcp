@@ -314,6 +314,7 @@ extern int pmNewContext(int, const char *);
 /* #define PM_CTXFLAG_EXCLUSIVE	(1U<<9)	-- don't share socket among ctxts */
 #define PM_CTXFLAG_SECURE	(1U<<10)/* encrypted socket comms channel */
 #define PM_CTXFLAG_COMPRESS	(1U<<11)/* compressed socket host channel */
+#define PM_CTXFLAG_RELAXED	(1U<<12)/* encrypted if possible else not */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
