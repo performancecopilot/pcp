@@ -12,6 +12,8 @@
 
 seq=`basename $0`
 
+_notrun "Tests needs updates for new NSS database locations"
+
 [ $PCP_VER -ge 3611 ] || _notrun "Installed pcp is too old"
 eval `pmconfig -L`
 [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
