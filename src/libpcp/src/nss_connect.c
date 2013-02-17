@@ -428,7 +428,6 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
 	     "issuer of certificate received from host %s is not trusted.\n",
 	     result);
     PORT_Free(result);
-    pmflush();
 
     servercert = SSL_PeerCertificate(sslsocket);
     if (servercert) {
@@ -439,6 +438,8 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
 	    secsts = SECSuccess;
 	}
 	CERT_DestroyCertificate(servercert);
+    } else {
+	pmflush();
     }
     return secsts;
 }
@@ -486,7 +487,6 @@ queryCertificateDomain(PRFileDesc *sslsocket)
 	    } while (n != namelist);
 	}
     }
-    pmflush();
     if (arena)
 	PORT_FreeArena(arena, PR_FALSE);
     if (servercert)
