@@ -56,213 +56,182 @@ connections between remote collector and monitoring components.</P>
 <P>All connections made to the PCP metrics collector daemon (<I>pmcd</I>)
 are made using the PCP protocol, which is TCP/IP based.  Traditionally, no
 functionality was available to secure connections between PCP collectors and
-monitors.  As PCP can now be used to export sensitive information, however
-(event trace parameters and detailed per-process statistics, for example)
-it has become necessary to provide safeguards against malicious behaviour.</P>
+monitors.  However, as PCP evolved to be able to export sensitive information
+(event trace parameters and detailed per-process statistics, for example),
+it became necessary to provide safeguards against malicious behaviour.</P>
 <P>The cryptographic services used to augment the PCP protocol are provided
 by Network Security Services (NSS), a library implementing Transport Layer
-Security (TLS) and the Secure Sockets Layer (SSL) standards and base
+Security (TLS) and the Secure Sockets Layer (SSL) standards, and base
 cryptographic functions.  NSS includes a software-based cryptographic token
 which is FIPS 140-2 certified.</P>
-<P>The <I>pmcd</I> daemon is capable of simultaneous TLS/SSL and non-SSL
-communications.  This means that you do not have to choose between TLS/SSL
-or non-SSL communications for the collector system; both can be used at the
-same time.</P>
+<P>Both the <I>pmcd</I> and <I>pmproxy</I> daemons are capable of simultaneous
+TLS/SSL and non-SSL communications.  This means that you do not have to choose
+between TLS/SSL or non-SSL communications for your PCP Collector systems; both
+can be used at the same time.</P>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="recipe">Enabling TLS/SSL: Steps Involved</A></B></FONT></P></TD></TR>
 </TABLE>
-<P>Before the PCP Collector Server can be requested to communicate with TLS/SSL,
-server and CA certificates must be properly configured on the Collector Server
-host.</P>
+<P>Before the PCP Collector system can be requested to communicate with TLS/SSL,
+certificates must be properly configured on the Collector Server host.</P>
 <P>This typically involves:</P>
 <OL>
-<LI>Obtain and install a certificate for the PCP Collector Server, and
-configure the Server to trust the certification authority's (CA's) certificate. 
-<LI>Turn on TLS/SSL in the <I>pmcd</I> daemon, by providing it with access to a
-certificate database, typically requiring provision of a password.
-<LI>Optionally, ensure that each user of the PCP Collector Server obtains and
-installs a personal certificate for all client tools that will communicate
-using TLS/SSL.<BR>
-Alternatively, set up host-wide databases on the monitoring machines for all
-client tools.
+<LI>Obtain and install certificates for your PCP Collector systems, and
+configure each system to trust the certification authority's (CA's) certificate.
+Alternatively, the less secure option of generating a self-signed certificate may
+be appropriate for installations where using trusted certificates is impractical.
+This tutorial uses the latter approach.
+<LI>Enable secure connections in the <I>pmcd</I> and <I>pmproxy</I> daemons by
+configuring the system certificate database with the PCP Collector certificate.
+<LI>Ensure that each user monitoring a PCP Collector system obtains and installs a
+personal certificate for the tools that will communicate with that collector.<BR>
+This can be done by manually updating a monitor-side certificate database, or
+automatically by reviewing and accepting the certificate delivered to the monitor
+tools during the first attempt to access the PCP Collector system.
 </OL>
-<P>After the certificate request is generated, send it to a certificate
-authority (CA); the CA will generate and return a server certificate.</P>
-<P>After emailing the certificate request, wait for the CA to respond
-with the server certificate. Response time for requests varies. For
-example, if the CA is internal to the company, it may only take a day
-or two to respond to the request. If the selected CA is a third-party,
-it could take several weeks to respond to the request. </P>
-
-<P>After receiving the certificate, install it in the Collector Server's
-certificate database.
-When the CA sends a response, be sure to save the information in a text file.
-Keep backup of the certificate data in a safe location.</P>
-<P>Over time it may be necessary to renew the certificates, adjust the settings,
-or manage the security databases which store them.
-As with any issued identification — such as a drivers license — certificates
-are valid for a predefined period and then expire and must be renewed.
-To renew a certificate, regenerate a certificate request, using the same
-information that was used to create the original, submit the request to a CA,
-and re-install the renewed certificate, again using the instructions below.</P>
+<P>The process of obtaining trusted certificates is beyond the scope of this
+document, and will differ depending on whether the certificate authority is
+internal or external to your organisation.
+Refer to the chapter titled <I>&quot;Requesting and Receiving Certificates&quot;</I> in the
+<A HREF="https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/">
+Certificate System Admin Guide</A>
+for details on managing trusted certificates from a certificate authority.</P>
+<P>However, at a high-level: a certificate request (CR) must be generated,
+then sent to the certificate authority (CA) you will be using.
+The CA will generate a new trusted certificate and send it to you.
+Once this certificate has been received install it in the system-wide
+certificate database as described below.</P>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="collector">Collector Setup</A></B></FONT></P></TD></TR>
 </TABLE>
-<P>All collector systems (servers) must have a valid certificate in order to
+<P>All PCP Collector systems must have a valid certificate in order to
 participate in secure PCP protocol exchanges.
 Certificates are stored in a certificate database, and can be created using
-the <I>certutil</I> utility (an NSS tool).
-The certificate database should be protected, usually by a password.
-It is possible to store the certificate password in a password file.
-By placing the certificate database password in a file, the server can be started
-as a regular service (i.e. automatically at bootup or otherwise running unattended).</P>
-<P><B>NOTE:</B>
-<I> This password is stored in clear text within the password file, so its usage
-represents a significant security risk.</I>
-Do not use a password file if the server is running in an unsecured environment.</P>
-<P>Because this password is stored in plaintext, the password file should
-be owned by the user as which the PCP Collector Server runs, by default
-<I>"pcp"</I>.
-It must be set as read-only for this user and allow no access to others (mode 0400).
-It's a good idea to have a secure backup of this file.
+<I>certutil</I> (an NSS tool).</P>
+<P>In some (non-default) configurations the system certificate database
+may be protected by a password.
+Should you choose to select this (non-default) option, by placing the
+certificate database password in a file the server can still be started
+as a regular service (i.e. automatically at bootup or otherwise running
+unattended).
+<I> This password is stored in clear text within the password file,
+so its usage represents a significant security risk.</I>
+Because this password is stored in plaintext, the password file should
+be owned by the user account under which the PCP Collector system runs.
+By default this is the <I>&quot;pcp&quot;</I> user.
+It must be set as read-only for this user and allow no access to others
+(mode 0400).</P>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a suitably privileged (root) shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a system-wide NSS database in a privileged (root) shell, <B><I>only if it does not exist already</I></B>:<BR>
 <PRE><B>
-# source /etc/pcp.conf
-# pcp_ssl_home="${PCP_VAR_DIR}/config/ssl"
-# mkdir -p -m 0755 "$pcp_ssl_home"
-
-# certificates="${pcp_ssl_home}/collector"
-# mkdir -p -m 0700 "$certificates"
-
-# passwordfile="${certificates}/topsecret"
-# echo '<FONT COLOR="#cc0000">[YOUR SECRET PASSWORD]</FONT>' >"$passwordfile"
-# chmod 0400 "$passwordfile"
-
-# certutil -d "$certificates" -f "$passwordfile" -N
-# chown -R pcp:pcp "$pcp_ssl_home"
+# ls /etc/pki/nssdb
+ls: cannot access /etc/pki/nssdb: No such file or directory
+# mkdir -p -m 0755 /etc/pki/nssdb
+# echo > /tmp/empty
+# certutil -d sql:/etc/pki/nssdb -N -f /tmp/empty
+# chmod 644 /etc/pki/nssdb/*
 </B></PRE>
 </TD></TR>
 </TABLE>
 
-<I>certutil</I> is part of many modern software distributions, and can also be
-downloaded from the
+<P><I>certutil</I> is part of many modern software distributions, and can also be
+downloaded from the Mozilla
 <A HREF="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/">NSS</A>
 project.
 </P>
-<P>At this stage we have a valid (albeit empty) NSS database for our collector
-certificates, and everything setup with appropriate permissions for our needs.
-</P>
-<P>As described earlier, these certificates should be generated by a trusted
-certificate authority (CA).
-For the purposes of illustration, however, it is possible to generate
-a "self-signed" certificate as follows, using the <B>-x</B> option to <I>certutil</I>:
+<P>At this stage we have a valid (possibly empty) NSS database for our collector
+certificate.  A list of all installed certificates can be obtained using the <B>-L</B>
+option to <I>certutil</I>, as follows.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject name (<B>-s</B>) and serial numbers (<B>-m</B>), enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;List certificates in system-wide NSS database:<BR>
 <PRE><B>
-# certutil -d "$certificates" -f "$passwordfile" -S -x \
-	-n "CA certificate" -s "cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>" \
-        -t "CT,," -m <FONT COLOR="#cc0000">1000</FONT> -v 120 -k rsa
-# certutil -d "$certificates" -f "$passwordfile" -S \
-	-n "PCP Collector certificate" -s "cn=<FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT>" -8 "<FONT COLOR="#cc0000">ALT.DNS.NAME</FONT>" \
-	-c "CA certificate" \
-	-t "u,u,u" -m <FONT COLOR="#cc0000">1001</FONT> -v 120 -k rsa
-# chown -R pcp:pcp "$certificates"
-</B></PRE>
+# certutil -d sql:/etc/pki/nssdb -L
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+</B><I>
+[...certificates list, possibly none at this stage...]</I>
+</PRE>
 </TD></TR>
 </TABLE>
-</P>
-<P>Keep careful track on the numbers set with the <B>-m</B> option.
-This option sets the unique identifier for the server certificate, and a CA cannot
-issue two certificates with the same identifier.
-Keep a log of issued serial numbers so that no number is ever duplicated.</P>
-<P>At this stage, attempts to restart the PCP Collector infrastructure will
-begin to take notice of the certificate database.
-However, without knowledge of the database password we configured earlier,
-the daemon will be unable to access the database.</P>
-<P><B>NOTE:</B>
-<I>As a security precaution, once a database exists in the expected
-location, the server will always attempt to use it, and will fail to start if it
-cannot.</I>
-This is to prevent a false sense of security from a misconfigured database,
-expired certificate, or similar issue.
-Detailed diagnostics are always available in <I>$PCP_LOG_DIR/pmcd/pmcd.log</I>.
-</P>
-<P>So, we then configure <I>pmcd</I> with knowledge of the password file,
-and restart it as follows.
+
+<P>Certificates should now be requested from your local trusted certificate authority (CA).
+Alternatively, it is possible to generate a &quot;self-signed&quot; certificate as follows,
+using the <B>-x</B> option to <I>certutil</I>.
+
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Continuing in the same shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> options below), enter:<BR>
 <PRE><B>
-# echo "# Certificate DB access" >> $PCP_PMCDOPTIONS_PATH
-# echo "-P $passwordfile" >> $PCP_PMCDOPTIONS_PATH
-# service pmcd restart
+# certutil -d sql:/etc/pki/nssdb -S -x \
+	-n &quot;dc=<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
+        -t &quot;CT,,&quot; -v 120 -k rsa
+# certutil -d sql:/etc/pki/nssdb -S \
+	-n &quot;PCP Collector certificate&quot; -s &quot;cn=<FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT>" -8 "<FONT COLOR="#cc0000">ALT.DNS.NAME</FONT>&quot; \
+	-c &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; \
+	-t &quot;u,u,u&quot; -v 120 -k rsa
 </B></PRE>
 </TD></TR>
 </TABLE>
+</P>
+<P>At this stage, attempts to restart the PCP Collector infrastructure will
+begin to take notice of the new contents in the certificate database.
+If we earlier chose to create the system-wide database in the non-default
+configuration of having a password, we must now configure <I>pmcd</I>
+and <I>pmproxy</I> to make use of it.
+This configuration must be performed in the <I>$PCP_PMCDOPTIONS_PATH</I> and
+<I>$PCP_PMPROXYOPTIONS_PATH</I> files, as recorded in <I>/etc/pcp.conf</I>,
+using the <B>-P &lt;path&gt;</B> option to these daemons.
+Detailed diagnostics are available in the daemon log files,
+located below <I>$PCP_LOG_DIR</I>.
+</P>
 
 <P><BR></P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="monitor">Monitor Setup</A></B></FONT></P></TD></TR>
 </TABLE>
-<P>PCP Monitoring (client) tools require the CA certificate to validate the server certificate in a TLS/SSL connection.
-The certificate can be installed in several locations such that the monitoring tools will automatically find and make use of it.</P>
-<P>Firstly, use <I>certutil</I> to export the CA certificate in ASCII format for the
-PCP Collector System we wish to monitor.
-
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using the above certificate database, in a shell enter:<BR>
-<PRE><B>
-# asciicertificate="/tmp/server.cert.asc"
-# certutil -d "$certificates" -f "$passwordfile" -L \
-	-n "CA certificate" -a > "$asciicertificate"
-# chmod ugo+r "$asciicertificate"
-</B></PRE>
-</TD></TR>
-</TABLE>
-An exported ASCII-format certificate is now available for use on PCP Monitor systems.
-</P>
-
-<P>Next, we create a client-side certificate database and import server certificates.
-This can be done either for one user, or for all users on a monitoring host.
-Below it is configured for all users, but if a certificate database is created at
-<I>$HOME/.pcp/ssl</I> then that will be used instead (requiring no additional privileges
-on the monitoring host).
-
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using the above certificate database, in a shell enter:<BR>
-<PRE><B>
-# pcp_ssl_home="${PCP_VAR_DIR}/config/ssl"
-# certificates="${pcp_ssl_home}/monitor"
-
-# mkdir -p -m 0755 "$certificates"
-# certutil -d "$certificates" -N
-
-# certutil -d "$certificates" -A \
-	-n "CA certificate" -t "CT,," -a -i "$asciicertificate"
-# chmod 0644 "$certificates"/*
-</B></PRE>
-</TD></TR>
-</TABLE>
-</P>
-
-<P>We are now ready to establish a secure connection between remote PCP Monitor
-and Collector hosts.
+<P>PCP Monitoring (client) tools require a trusted certificate to validate
+the server in a TLS/SSL connection.
+This certificate can be install beforehand or can be delivered via the
+TLS/SSL connection exchange.
+In the latter situation, the user is prompted as to whether the
+certificate is to be trusted (see example below).</P>
+<P>Once certificates are in place, we are ready to attempt to establish secure
+connections between remote PCP Monitor and Collector hosts.
 This can be achieved by specifically requesting a secure connection for individual
-hosts, in tools that support this explictly (e.g. <I>pmchart</I> below).
+host connections, in tools that support this explictly (e.g. <I>pmchart</I> below).
 Alternatively, an environment variable can be set to request that all client
 connections within that shell environment be made securely.
+This environment variable can have the value <I><B>enforce</B></I> meaning &quot;all
+connections must be secure, fail if this cannot be achieved&quot;,
+or <I><B>relaxed</B></I> meaning &quot;establish secure connections only for remote
+collector systems that are configured, fallback to insecure connections if not.&quot;.
+</P>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;With suitably configured monitor and remote collector hosts:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
 <PRE><B>
-# export PCP_SECURE_SOCKETS=1
-# pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
+$ ls $HOME/.pki/nssdb
+ls: cannot access .pki/nssdb: No such file or directory
+$ mkdir -p -m 0755 $HOME/.pki/nssdb
+$ certutil -d sql:$HOME/.pki/nssdb -N
+</B></PRE>
+</TD></TR>
+</TABLE>
+</P>
+<P>Using the approach of certificate delivery via the TLS/SSL protocol.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the server certificate as ASCII, in a shell enter:<BR>
+<PRE><B>
+$ export PCP_SECURE_SOCKETS=enforce
+$ pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
+WARNING: issuer of certificate received from host smash is not trusted.
+SHA1 fingerprint is <FONT COLOR="#000000">34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9:51:1E:B8:FA:CE:63:51</FONT>
+Do you want to accept and save this certificate locally anyway (y/n)? <FONT COLOR="#000000">y</FONT>
 
 kernel.all.load
     inst [1 or "1 minute"] value 1.26
@@ -273,15 +242,35 @@ kernel.all.load
 </TABLE>
 </P>
 
+<P>Using the manual approach, use <I>certutil</I> to export either the
+CA or the collector certificate in ASCII format, for the PCP Collector
+system we wish to monitor and import into the user database.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
+<PRE><B>
+$ certutil -d sql:/etc/pki/nssdb -L -n "CA certificate" -a > /tmp/ca-certificate.asc
+</B></PRE>
+</TD></TR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
+<PRE><B>
+$ certutil -d sql:$HOME/.pki/nssdb -A -n "CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
+</B></PRE>
+</TD></TR>
+Note: Cunning use of this trusted certificate could be used as the root certificate
+for many hosts in an environment, and a single certificate could then be installed
+on a monitor system allowing access to a group of hosts.
+</TABLE>
+</P>
+
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
         <TR><TD WIDTH=600><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
-        <TD><BR><P>In the PCP strip chart utility <I>pmchart</I>, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
+        <TD><BR><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
         <LI>Select the "Secure" check box.
-        <LI>Optionally enter an ASCII certificate for the remote PCP Collector system, if you do not already have one installed for the PCP Collector host.  This will be automatically added to your <I>$HOME/.pcp/ssl</I> certificate database (creating it if needed) using <I>certutil</I>.<BR>An ASCII certificate can be exported from the PCP Collector system certificate database using the <B>-A</B> option to <I>certutil</I> as described above.
+        <LI>Optionally enter an ASCII certificate for the remote PCP Collector system, if you do not already have one installed for the PCP Collector host.  This will be automatically added to your <I>$HOME/.pki/nssdb</I> certificate database (creating it if needed) using <I>certutil</I>.<BR>An ASCII certificate can be exported from the PCP Collector system certificate database using the <B>-A</B> option to <I>certutil</I> as described above.
         <LI>Press "OK" to establish a new secure connection to the host.
 	</UL>
-	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established.
+	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established by <I>pmchart</I> too.
 	</P></TD>
         </TR>
 </TABLE>
