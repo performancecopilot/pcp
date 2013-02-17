@@ -209,27 +209,17 @@ connections within that shell environment be made securely.
 This environment variable can have the value <I><B>enforce</B></I> meaning &quot;all
 connections must be secure, fail if this cannot be achieved&quot;,
 or <I><B>relaxed</B></I> meaning &quot;establish secure connections only for remote
-collector systems that are configured, fallback to insecure connections if not.&quot;.
+collector systems that are configured, fallback to insecure connections if not&quot;.
 </P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
-<PRE><B>
-$ ls $HOME/.pki/nssdb
-ls: cannot access .pki/nssdb: No such file or directory
-$ mkdir -p -m 0755 $HOME/.pki/nssdb
-$ certutil -d sql:$HOME/.pki/nssdb -N
-</B></PRE>
-</TD></TR>
-</TABLE>
-</P>
-<P>Using the approach of certificate delivery via the TLS/SSL protocol.
+<P>Using the approach of certificate delivery via the TLS/SSL protocol, the database
+and certificate will be automatically setup in the correct location on your behalf.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the server certificate as ASCII, in a shell enter:<BR>
 <PRE><B>
 $ export PCP_SECURE_SOCKETS=enforce
 $ pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
-WARNING: issuer of certificate received from host smash is not trusted.
+WARNING: issuer of certificate received from host <FONT COLOR="#000000">YOUR.HOST.NAME</FONT> is not trusted.
 SHA1 fingerprint is <FONT COLOR="#000000">34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9:51:1E:B8:FA:CE:63:51</FONT>
 Do you want to accept and save this certificate locally anyway (y/n)? <FONT COLOR="#000000">y</FONT>
 
@@ -242,16 +232,25 @@ kernel.all.load
 </TABLE>
 </P>
 
-<P>Using the manual approach, use <I>certutil</I> to export either the
-CA or the collector certificate in ASCII format, for the PCP Collector
-system we wish to monitor and import into the user database.
+<P>Using the manual approach, first use <I>certutil</I> to ensure a user
+database exists, then export either the CA or the collector certificate
+in ASCII format for the PCP Collector system we wish to monitor and
+finally import it into the user database.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 1: Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
+<PRE><B>
+$ ls $HOME/.pki/nssdb
+ls: cannot access .pki/nssdb: No such file or directory
+$ mkdir -p -m 0755 $HOME/.pki/nssdb
+$ certutil -d sql:$HOME/.pki/nssdb -N
+</B></PRE>
+</TD></TR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 2: To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on the <I>monitor</I> system, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
 </B></PRE>
@@ -260,8 +259,10 @@ Note: Cunning use of this trusted certificate could be used as the root certific
 for many hosts in an environment, and a single certificate could then be installed
 on a monitor system allowing access to a group of hosts.
 </TABLE>
+<BR>
 </P>
 
+<P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
         <TR><TD WIDTH=600><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
         <TD><BR><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
@@ -274,7 +275,7 @@ on a monitor system allowing access to a group of hosts.
 	</P></TD>
         </TR>
 </TABLE>
-
+</P>
 <P><BR></P>
 <HR>
 <CENTER>
