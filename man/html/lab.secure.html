@@ -248,12 +248,12 @@ system we wish to monitor and import into the user database.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
 <PRE><B>
-$ certutil -d sql:/etc/pki/nssdb -L -n "CA certificate" -a > /tmp/ca-certificate.asc
+$ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
 <PRE><B>
-$ certutil -d sql:$HOME/.pki/nssdb -A -n "CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
+$ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
 Note: Cunning use of this trusted certificate could be used as the root certificate
