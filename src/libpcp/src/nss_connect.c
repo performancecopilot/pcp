@@ -314,6 +314,7 @@ saveUserCertificate(CERTCertificate *cert)
     if (secsts != SECSuccess)
 	goto done;
 
+    secsts = SECFailure;
     trust = (CERTCertTrust *)PORT_ZAlloc(sizeof(CERTCertTrust));
     if (!trust)
 	goto done;
@@ -322,13 +323,24 @@ saveUserCertificate(CERTCertificate *cert)
     if (secsts != SECSuccess)
 	goto done;
 
-    CERT_ChangeCertTrust(CERT_GetDefaultCertDB(), cert, trust);
+    secsts = CERT_ChangeCertTrust(CERT_GetDefaultCertDB(), cert, trust);
 
 done:
     if (slot)
 	PK11_FreeSlot(slot);
     if (trust)
 	PORT_Free(trust);
+
+    /*
+     * Issue a warning only, but continue, if we fail to save certificate
+     * (this is not a fatal condition on setting up the secure socket).
+     */
+    if (secsts != SECSuccess) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("WARNING: Failed to save certificate locally: %s\n",
+		pmErrStr_r(__pmSecureSocketsError(), errmsg, sizeof(errmsg)));
+	pmflush();
+    }
 }
 
 static int
