@@ -90,7 +90,6 @@ _setup_certificates()
 	-n "PCP Collector certificate" -s "cn=$qahost" -8 "$hostname" \
 	-c "Local CA certificate" \
 	-t "u,u,u" -v 120 -k rsa >> $seq.full 2>&1
-    $sudo chown -R pcp:pcp $collectordb
     echo "== Certificate DB and local certificates created" | tee -a $seq.full
 
     # export ascii copy of the certificate for later use
@@ -102,8 +101,11 @@ _setup_collector()
     withcerts=$1
 
     # prepare new locations for certificates
-    echo "$seq.password" > $tmp.password
+    $sudo rm -fr $collectordb
     $sudo mkdir -p -m 0755 $collectordb
+
+    # prepare password file for certificates
+    echo "$seq.password" > $tmp.password
     $sudo mv $tmp.password $collectorpw
 
     echo "== Creating empty certificate DB" | tee -a $seq.full
@@ -111,7 +113,9 @@ _setup_collector()
 
     $withcerts && _setup_certificates
 
-    cat <<End-Of-File >>$tmp.options
+    $sudo chown -R pcp:pcp $collectordb
+
+    cat <<End-Of-File >$tmp.options
 # Dummy lines added by PCP QA test $seq
 #
 -l $tmp.pmcd.log
@@ -142,13 +146,12 @@ _setup_randomness
 # verify that local clients cannot establish a connection
 # without having a valid certificate database setup.
 
-# TODO
-#_setup_collector false
-#_setup_empty_userdb
-#echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
-#export PCP_SECURE_SOCKETS=1
-#yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
-#unset PCP_SECURE_SOCKETS
+_setup_collector false
+_setup_empty_userdb
+echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+unset PCP_SECURE_SOCKETS
 
 # verify that local clients are prompted to establish a connection
 # when a valid collectoer certificate exists but no client config.
