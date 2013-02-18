@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 712
 #
-# Exercise encrypted communications between pmcd/clients (local)
-# Copyright (c) 2012 Red Hat.
+# Exercise encrypted communications between pmcd/clients
+# Copyright (c) 2012-2013 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -12,8 +12,6 @@
 
 seq=`basename $0`
 
-_notrun "Tests needs updates for new NSS database locations"
-
 [ $PCP_VER -ge 3611 ] || _notrun "Installed pcp is too old"
 eval `pmconfig -L`
 [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
@@ -22,31 +20,35 @@ which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
 
 echo "QA output created by $seq"
 
-usersdb=${HOME}/.pcp/ssl
-monitordb=${PCP_VAR_DIR}/config/ssl/monitor
-collectordb=${PCP_VAR_DIR}/config/ssl/collector
+usersdb=${HOME}/.pki/nssdb
+collectordb=$tmp/pki/nssdb
+collectorpw=$tmp/pki/nssdb/pass
+certopts="-d sql:$collectordb -f $collectorpw -z $tmp.rand"
 
 _cleanup()
 {
-    # restore any modified pmcd configuration files
-    for cf in $PCP_PMCDOPTIONS_PATH
-    do
+    # restore any modified pmcd configuration file
+    cf=$PCP_PMCDOPTIONS_PATH
+    if test -f $cf.$seq
+    then
 	$sudo rm -f $cf
-	test -f $cf.$seq && $sudo mv $cf.$seq $cf
-    done
+	$sudo mv $cf.$seq $cf
+    fi
 
-    # restore certificate DBs from existing installation
-    for db in $collectordb $monitordb $usersdb
-    do
-	$sudo rm -fr $db
-	test -d $db.$seq && $sudo mv $db.$seq $db
-    done
+    # restore user certificate DB from existing installation
+    if test -d $usersdb.$seq
+    then
+	$sudo rm -fr $usersdb
+	$sudo mv $usersdb.$seq $usersdb
+    fi
 
     unset PCP_SECURE_SOCKETS
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+
     $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
 }
 
 status=1	# failure is the default!
@@ -55,7 +57,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # backup pmcd configuration and certificate DBs from existing installation
-for f in $PCP_PMCDOPTIONS_PATH $collectordb $monitordb $usersdb
+for f in $PCP_PMCDOPTIONS_PATH $usersdb
 do
     [ -e $f ] && $sudo mv $f $f.$seq
 done
@@ -68,71 +70,102 @@ _filter_pminfo()
     sed \
 	-e "s/$qahost/QAHOST/g" \
 	-e "s/$hostname/HOST/g" \
+	-e "/^SHA1 fingerprint is .*/d" \
 	-e 's/value [0-9][0-9]*/value NUMBER/'
 }
 
-# prepare new locations for certificates
-$sudo mkdir -p -m 0755 $collectordb
-echo "$seq.password" > $tmp.pass
-dd if=/dev/urandom of=$tmp.rand bs=1 count=10000 >/dev/null 2>&1
-certopts="-d $collectordb -f $tmp.pass -z $tmp.rand"
+_setup_randomness()
+{
+    dd if=/dev/urandom of=$tmp.rand bs=1 count=10000 >/dev/null 2>&1
+}
 
-# create a DB and self-signed (-x) server certificate locally
-echo "== Creating certificate DB and local certificates" | tee -a $seq.full
-$sudo certutil $certopts -N
-$sudo certutil $certopts -S -x \
-	-n "CA certificate" -s "cn=Local PCP Installation, dc=pcp,dc=org"  \
-	-t "CT,,"  -m 1000 -v 120 -k rsa >> $seq.full 2>&1
-$sudo certutil $certopts -S \
+_setup_certificates()
+{
+    # create self-signed (-x) server certificate locally
+    echo "== Creating local certificates" | tee -a $seq.full
+    $sudo certutil $certopts -S -x \
+	-n "Local CA certificate" -s "cn=Local PCP Installation, dc=pcp,dc=org"  \
+	-t "CT,,"  -v 120 -k rsa >> $seq.full 2>&1
+    $sudo certutil $certopts -S \
 	-n "PCP Collector certificate" -s "cn=$qahost" -8 "$hostname" \
-	-c "CA certificate" \
-	-t "u,u,u" -m 1001 -v 120 -k rsa >> $seq.full 2>&1
-$sudo chown -R pcp:pcp $collectordb
-echo "== Certificate DB and local certificates created" | tee -a $seq.full
+	-c "Local CA certificate" \
+	-t "u,u,u" -v 120 -k rsa >> $seq.full 2>&1
+    $sudo chown -R pcp:pcp $collectordb
+    echo "== Certificate DB and local certificates created" | tee -a $seq.full
 
-# export ascii copy of the certificate for later use
-$sudo certutil $certopts -L -n "CA certificate" -a > $tmp.cacert.asc
+    # export ascii copy of the certificate for later use
+    $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
+}
 
-# real QA test starts here
+_setup_collector()
+{
+    withcerts=$1
 
-cat <<End-Of-File >>$tmp.options
+    # prepare new locations for certificates
+    echo "$seq.password" > $tmp.password
+    $sudo mkdir -p -m 0755 $collectordb
+    $sudo mv $tmp.password $collectorpw
+
+    echo "== Creating empty certificate DB" | tee -a $seq.full
+    $sudo certutil $certopts -N
+
+    $withcerts && _setup_certificates
+
+    cat <<End-Of-File >>$tmp.options
 # Dummy lines added by PCP QA test $seq
 #
 -l $tmp.pmcd.log
--P $tmp.pass
+-C sql:$collectordb
+-P $collectorpw
 End-Of-File
-$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
-$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
-_wait_for_pmcd
-grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
-echo "Checking pmcd.log for unexpected messages" | tee -a $seq.full
-egrep 'Error:|Info:' $tmp.pmcd.log
-cat $tmp.pmcd.log >> $seq.full
+    $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
+    $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
+    _wait_for_pmcd
+    grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+    echo "Checking pmcd.log for unexpected messages" | tee -a $seq.full
+    egrep 'Error:|Info:' $tmp.pmcd.log
+    cat $tmp.pmcd.log >> $seq.full
+}
 
-# all client connection attempts from here on must be encrypted
-export PCP_SECURE_SOCKETS=1
+_setup_empty_userdb()
+{
+    $sudo rm -fr $usersdb
+    echo > $tmp.empty
+    mkdir -p -m 0755 $usersdb
+    certutil -N -d sql:$usersdb -f $tmp.empty
+}
+
+# real QA test starts here
+_setup_randomness
 
 # verify that local clients cannot establish a connection
 # without having a valid certificate database setup.
-$sudo rm -fr $usersdb $monitordb
-echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
-pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
 
-# make the new certificate visible to all local clients
-echo "checking client, site certificate only.  should pass..."
-$sudo rm -fr $usersdb $monitordb
-$sudo mkdir -p -m 0755 $monitordb
-$sudo certutil -A -d $monitordb -n "CA certificate" -t "CT,," -a -i $tmp.cacert.asc
-$sudo chmod 0644 $monitordb/*
-pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+# TODO
+#_setup_collector false
+#_setup_empty_userdb
+#echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
+#export PCP_SECURE_SOCKETS=1
+#yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+#unset PCP_SECURE_SOCKETS
+
+# verify that local clients are prompted to establish a connection
+# when a valid collectoer certificate exists but no client config.
+_setup_collector true
+_setup_empty_userdb
+echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+unset PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
 echo "checking client, user certificate only.  should pass..."
-$sudo rm -fr $usersdb $monitordb
-mkdir -p -m 0755 $usersdb
-certutil -A -d $usersdb -n "CA certificate" -t "CT,," -a -i $tmp.cacert.asc
-pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+_setup_empty_userdb
+certutil -A -d sql:$usersdb -n "Local CA certificate" -t "CT,," -a -i $tmp.cacert.asc
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | _filter_pminfo
+unset PCP_SECURE_SOCKETS
 
 # success, all done
 status=0
