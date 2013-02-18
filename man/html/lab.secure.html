@@ -168,7 +168,7 @@ using the <B>-x</B> option to <I>certutil</I>.
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> options below), enter:<BR>
 <PRE><B>
 # certutil -d sql:/etc/pki/nssdb -S -x \
-	-n &quot;dc=<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
+	-n &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
         -t &quot;CT,,&quot; -v 120 -k rsa
 # certutil -d sql:/etc/pki/nssdb -S \
 	-n &quot;PCP Collector certificate&quot; -s &quot;cn=<FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT>" -8 "<FONT COLOR="#cc0000">ALT.DNS.NAME</FONT>&quot; \
@@ -242,7 +242,8 @@ finally import it into the user database.
 $ ls $HOME/.pki/nssdb
 ls: cannot access .pki/nssdb: No such file or directory
 $ mkdir -p -m 0755 $HOME/.pki/nssdb
-$ certutil -d sql:$HOME/.pki/nssdb -N
+$ test -f /tmp/empty || echo > /tmp/empty
+$ certutil -d sql:$HOME/.pki/nssdb -N -f /tmp/empty
 </B></PRE>
 </TD></TR>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 2: To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
