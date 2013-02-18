@@ -226,10 +226,11 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	char *path = serverdb(nss_server.database_path, MAXPATHLEN);
 
 	/* this is the default case on some platforms, so no log spam */
-	if (access(path, R_OK|X_OK) < 0 && oserror() == ENOENT) {
+	if (access(path, R_OK|X_OK) < 0) {
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		__pmNotifyErr(LOG_INFO, "No system security database: %s",
-				nss_server.database_path);
+		__pmNotifyErr(LOG_INFO,
+			"Cannot access system security database: %s",
+			nss_server.database_path);
 	    sts = 0;	/* not fatal - just no secure connections */
 	    goto done;
 	}
