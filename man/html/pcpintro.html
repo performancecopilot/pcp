@@ -15,11 +15,10 @@
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>PCP Introduction</FONT></H1>
 <P>The Performance Co-Pilot (PCP) is an open source toolkit designed for monitoring and managing system-level performance.  These services are distributed and scalable to accommodate the most complex system configurations and performance problems.
-<P>PCP supports many different platforms, including (but not limited to) Linux, MacOSX, IRIX, Solaris and Cygwin.  From a high-level PCP can be considered to contain two classes of software utility:
-<UL> <LI><I>PCP Collectors</I>.  These are the parts of PCP that collect and extract performance data from various sources, e.g. the Linux /proc pseudo filesystem.  These are available under GPL/LPGL from <A HREF="http://oss.sgi.com/projects/pcp">http://oss.sgi.com/projects/pcp</A>.
-<P> <LI><I>PCP Monitors</I>.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.  Many monitor tools are available as part of PCP under GPL/LPGL.  Other monitoring tools are available separately, and many (such as pmchart) are also freely available under the terms of the GPL/LGPL.
+<P>PCP supports many different platforms, including (but not limited to) Linux, MacOSX, FreeBSD, IRIX, Solaris and Windows (Win32).  From a high-level PCP can be considered to contain two classes of software utility:
+<UL> <LI><I>PCP Collectors</I>.  These are the parts of PCP that collect and extract performance data from various sources, e.g. the kernel or a database.  These are available from <A HREF="http://oss.sgi.com/projects/pcp/">http://oss.sgi.com/projects/pcp/</A>.
+<P> <LI><I>PCP Monitors</I>.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.  Many monitor tools are available as part of PCP.  Other monitoring tools are available separately, such as pmchart, in layered packages that build on the core PCP functionality.
 </UL>
-<P>&nbsp;</P>
 <P>This document describes the high-level features and options common to most PCP utilities available on all platforms.
 <P>&nbsp;</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -27,13 +26,16 @@
 </TABLE>
 <P>The PCP architecture is distributed in the sense that any PCP tool may be executing remotely.  On the host (or hosts) being  monitored, each domain of performance metrics, whether the kernel, a service layer, a database, a web server, an application, etc. requires a Performance Metrics Domain Agent (PMDA) which is responsible for collecting performance measurements from that domain.  All PMDAs are controlled by the Performance Metrics Collector Daemon (<B>pmcd</B>(1)) on the same host.
 <P>Client applications (the monitoring tools) connect to <B>pmcd</B>(1), which acts as a router for requests, by forwarding requests to the appropriate PMDA and returning the responses to the clients.  Clients may also access performance data from a PCP archive (created using <B>pmlogger</B>(1)) for retrospective analysis.
-<P>The following performance monitoring applications are primarily console based, are typically run directly from the command line, and are all part of the base PCP package.
 <P>Each tool or command is documented completely in its own reference page.
+<P>The following performance monitoring applications are primarily console based, are typically run directly from the command line, and are all part of the base PCP package.
 <UL><LI><I>pmstat</I> - Outputs an ASCII high-level summary of system performance.
     <LI><I>pmie</I> - An inference engine that can evaluate predicate-action rules to perform alarms and automate system management tasks.
     <LI><I>pminfo</I> - Interrogate specific performance metrics and the meta data that describes them.
     <LI><I>pmlogger</I> - Generates PCP archives of performance metrics suitable for replay by most PCP tools.
     <LI><I>pmval</I> - Simple periodic reporting for some or all instances of a performance metric, with optional VCR time control.
+</UL>
+<P>Additional tools can be found in the layered PCP GUI package.
+<UL><LI><I>pmchart</I> - Strip charts for arbitrary combinations of performance metrics.
     <LI><I>pmdumptext</I> - Produce ASCII reports for arbitrary combinations of performance metrics.
 </UL>
 <P>&nbsp;</P>
