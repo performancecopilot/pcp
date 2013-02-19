@@ -1,0 +1,8 @@
+QA output created by 516
+summary.ncpu.sum: N
+summary.ncpu.avg: N
+summary.ncpu.sum: N
+summary.ncpu.avg: N
+pmie: syntax error - at end of file
+rule "summary.ncpu.sum" multiply defined
+pmie: note - evaluator exiting

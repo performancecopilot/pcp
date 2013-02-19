@@ -17,6 +17,7 @@
 seq=`basename $0`
 
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
+[ $PCP_VER -ge 3610 ] || _notrun "Installed sar2pcp is too old"
 
 echo "QA output created by $seq"
 
@@ -51,8 +52,13 @@ silence()
 # real QA test starts here
 cd $here
 rm -f $seq.full
-for safile in `ls -1 sadist/*.bin sadist/*.xml | LC_COLLATE=POSIX sort`
+
+for sadist in \
+	859117-rhel5.bin 859117-rhel5.xml f16-sa20.bin \
+	fche-csb6-rhel6.bin fche-csb6-rhel6.xml \
+	rhel5-sa20.bin smash-rhel5.xml smash-rhel6.xml
 do
+    safile="sadist/$sadist"
     echo "==> Checking $safile" | tee -a $seq.full
     pcplog=$tmp.pcplog
     sar2pcp $safile $pcplog > $tmp.out 2>&1
@@ -66,8 +72,14 @@ do
 	echo "$safile is not parsable by the installed sysutils" >>$seq.full
 	silence $safile
     else
-	[ $sts -eq 0 ] && echo "sar2pcp thinks $safile is going well so far"
-	logcheck $safile $pcplog
+	if [ $sts -eq 0 ]
+	then
+	    echo "sar2pcp thinks $safile is going well so far"
+	    logcheck $safile $pcplog
+	else
+	    echo "sar2pcp failed ..."
+	    cat $tmp.out
+	fi
     fi
     rm -f $tmp.pcplog.*
 done

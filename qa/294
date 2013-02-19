@@ -82,12 +82,17 @@ _filter_me()
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
 	-e "s#$tmp#TMP#g" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
-
+	-e "s#$PCP_SYSCONF_DIR#PCP_SYSCONF_DIR#g"
 }
 
 _filter_pmproxy()
 {
-    sed -e '/^__pmSetSocketIPC: fd=/d' -e '/^__pmSetDataIPC:/d' -e '/^IPC table fd/d'
+    sed \
+	-e '/^__pmSetSocketIPC: fd=/d' \
+	-e '/^__pmSetDataIPC:/d' \
+	-e '/^__pmDataIPC: /d' \
+	-e '/^IPC table fd/d' \
+
 }
 
 _do()
@@ -135,7 +140,7 @@ then
     : on Mac OS X and OpenSolaris
 else
     _do pmstat -t 0.5 -s 2
-    _do pmlogger -c $PCP_VAR_DIR/config/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+    _do pmlogger -c $PCP_SYSCONF_DIR/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
     _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
 fi
 

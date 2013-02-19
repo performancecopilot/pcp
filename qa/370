@@ -191,7 +191,8 @@ $PCP_AWK_PROG <$tmp.both '
 
 echo
 echo "full dump ..."
-pmdumplog -a -z $tmp
+pmdumplog -lm -z $tmp 2>&1 \
+| sed -e 's/245\.0\.[0-9][0-9]*/245.0.NN/g'
 
 # success, all done
 exit

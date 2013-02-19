@@ -12,7 +12,7 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
-    struct __pmSockAddr	*inaddr;
+    __pmSockAddr	*inaddr;
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++) {

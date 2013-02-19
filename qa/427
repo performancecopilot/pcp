@@ -25,7 +25,7 @@ status=1	# failure is the default!
 needclean=true
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 
 trap "_cleanup" 0 1 2 3 15
 

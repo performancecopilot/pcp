@@ -192,6 +192,13 @@ static pmDesc	desctab[] = {
 /* pmcd.cputime.per_pdu_in */
     { PMDA_PMID(7,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,-1,0,PM_TIME_USEC,PM_COUNT_ONE) },
 
+/* pmcd.feature.secure */
+    { PMDA_PMID(8,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.compress */
+    { PMDA_PMID(8,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.ipv6 */
+    { PMDA_PMID(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
 };
@@ -985,6 +992,15 @@ tzinfo(void)
 }
 
 static int
+fetch_feature(int item, pmAtomValue *avp)
+{
+    if (item < 0 || item >= PM_SERVER_FEATURES)
+	return PM_ERR_PMID;
+    avp->ul = __pmSecureServerHasFeature((__pmSecureServerFeature)item);
+    return 0;
+}
+
+static int
 fetch_cputime(int item, int ctx, pmAtomValue *avp)
 {
     double	usr, sys;
@@ -1479,6 +1495,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	    case 7:	/* cputime metrics */
 		sts = fetch_cputime(pmidp->item, pmda->e_context, &atom);
+		break;
+
+	    case 8:	/* feature metrics */
+		sts = fetch_feature(pmidp->item, &atom);
 		break;
 	}
 

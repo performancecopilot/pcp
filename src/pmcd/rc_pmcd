@@ -431,9 +431,11 @@ case "$1" in
 	fi
 	_shutdown quietly
 
+	# Clean the environment for PMCD:
 	# PMCD and PMDA messages should go to stderr, not the GUI notifiers
+	# Clients in these scripts should test PMCD status without TLS/SSL.
 	#
-	unset PCP_STDERR
+	unset PCP_STDERR PCP_SECURE_SOCKETS
 
 	_reboot_setup
 
@@ -480,8 +482,8 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 
 	    _pmda_setup
 
-	    # force removal of primary pmlogger symlink ... if primary
-	    # pmlogger is started, this will re-create the symlink
+	    # force removal of primary pmlogger link ... if primary
+	    # pmlogger is started, this will re-create the link
 	    #
 	    rm -f $PCP_TMP_DIR/pmlogger/primary
 

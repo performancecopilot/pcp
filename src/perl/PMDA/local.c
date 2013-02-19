@@ -275,8 +275,8 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    struct __pmSockAddr *myaddr = NULL;
-    struct __pmHostEnt *servinfo = NULL;
+    __pmSockAddr *myaddr = NULL;
+    __pmHostEnt *servinfo = NULL;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */

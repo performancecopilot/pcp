@@ -1233,9 +1233,9 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     int			sts = 0;
     int			credcount = 0;
     int			sender = 0;
-    int			vflag = 0;
     int			version = UNKNOWN_VERSION;
     __pmCred		*credlist = NULL;
+    __pmVersionCred	*vcp;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1245,9 +1245,8 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
     for (i = 0; i < credcount; i++) {
 	switch (credlist[i].c_type) {
 	case CVERSION:
-	    aPtr->pduVersion = credlist[i].c_vala;
-	    version = credlist[i].c_vala;
-	    vflag = 1;
+	    vcp = (__pmVersionCred *)&credlist[i];
+	    aPtr->pduVersion = version = vcp->c_version;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmcd: version cred (%u)\n", aPtr->pduVersion);
@@ -1263,14 +1262,14 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	((sts = __pmSetVersionIPC(aPtr->outFd, version)) < 0))
 	return sts;
 
-    if (vflag) {	/* complete the version exchange - respond to agent */
-        __pmCred	handshake[1];
+    if (version != UNKNOWN_VERSION) {	/* finish the version exchange */
+	__pmVersionCred	handshake;
+	__pmCred *cp = (__pmCred *)&handshake;
 
-	handshake[0].c_type = CVERSION;
-	handshake[0].c_vala = PDU_VERSION;
-	handshake[0].c_valb = 0;
-	handshake[0].c_valc = 0;
-	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, handshake)) < 0)
+	handshake.c_type = CVERSION;
+	handshake.c_version = PDU_VERSION;
+	handshake.c_flags = 0;
+	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
 	    return sts;
 	else if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
@@ -1318,8 +1317,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		fd = -1;	/* pander to gcc */
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	struct __pmSockAddr *addr;
-	struct __pmHostEnt *host;
+	__pmSockAddr	*addr;
+	__pmHostEnt	*host;
 
 	fd = __pmCreateSocket();
 	if (fd < 0) {

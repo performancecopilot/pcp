@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMDAOPENLOG 3 "SGI" "Performance Co-Pilot"
+.TH PMDAOPENLOG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaOpenLog\f1 \- redirect stderr to a logfile
 .SH "C SYNOPSIS"
@@ -50,15 +50,6 @@ or later, as specified in the call to
 .BR pmdaDSO (3)
 or 
 .BR pmdaDaemon (3).
-.PP
-A
-.BR PMDA (3)
-which uses at least one
-.BR sproc (2)
-may dump core on exit due to a race condition with
-.BR atexit (2)
-in some versions of IRIX.
-There is no known solution for this problem at this time.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

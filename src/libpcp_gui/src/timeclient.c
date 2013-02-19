@@ -49,7 +49,7 @@ pmServerExec(int fd, int livemode)
 static int
 pmConnectHandshake(int fd, int port, pmTime *pkt)
 {
-    struct __pmSockAddr *myaddr;
+    __pmSockAddr *myaddr;
     char buffer[4096];
     pmTime *ack;
     int sts;

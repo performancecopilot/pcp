@@ -1,0 +1,82 @@
+#!/bin/sh
+# PCP QA Test No. 515
+# pmie rising/falling test
+#
+# Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+#
+# Based on bug report http://oss.sgi.com/bugzilla/show_bug.cgi?id=936 
+# from azzurrow@gmail.com
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_err()
+{
+    sed \
+	-e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
+}
+
+_filter()
+{
+    _filter_pmie_log
+}
+
+cat <<'End-of-File' >$tmp.rules
+some_inst pmcd.control.register > 0 -> print "some_inst:" " control[%i]=%v";
+some_inst match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "some_inst match_inst:" " control[%i]=%v";
+some_inst rising pmcd.control.register > 0 -> print "some_inst rising:" " control[%i]=%v";
+some_inst rising match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "some_inst rising match_inst:" " control[%i]=%v";
+some_inst match_inst "^1[0-5]\$" rising pmcd.control.register > 0 -> print "some_inst match_inst rising:" " control[%i]=%v";
+some_inst falling pmcd.control.register > 0 -> print "some_inst falling:" " control[%i]=%v";
+some_inst falling match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "some_inst falling match_inst:" " control[%i]=%v";
+some_inst match_inst "^1[0-5]\$" falling pmcd.control.register > 0 -> print "some_inst match_inst falling:" " control[%i]=%v";
+rising some_inst pmcd.control.register > 0 -> print "rising some_inst:" " control[%i]=%v";
+rising some_inst match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "rising some_inst match_inst:" " control[%i]=%v";
+falling some_inst pmcd.control.register > 0 -> print "falling some_inst:" " control[%i]=%v";
+falling some_inst match_inst "^1[0-5]\$" pmcd.control.register > 0 -> print "falling some_inst match_inst:" " control[%i]=%v";
+End-of-File
+
+pmstore pmcd.control.register 0 >>$seq.full
+
+# real QA test starts here
+
+# duration has to be longer than the sum of the sleep's below
+# and sample frequency has to be small enough to ensure several evaluations
+# within each sleep period
+#
+pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
+
+sleep 2
+pmstore pmcd.control.register 1 >>$seq.full
+sleep 2
+pmstore pmcd.control.register 0 >>$seq.full
+sleep 2
+pmstore -i 8,9,10,11 pmcd.control.register 4 >>$seq.full
+sleep 2
+pmstore pmcd.control.register 0 >>$seq.full
+wait
+
+echo "=== stderr ===" | tee -a $seq.full
+cat $tmp.err >>$seq.full
+_filter_err <$tmp.err
+echo "=== stdout ===" | tee -a $seq.full
+cat $tmp.out >>$seq.full
+_filter <$tmp.out \
+| LC_COLLATE=POSIX sort \
+| uniq -c \
+| sed -e 's/  [456] DATE/4-6 DATE/'
+
+# success, all done
+status=0
+exit

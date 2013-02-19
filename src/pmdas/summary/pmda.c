@@ -17,8 +17,8 @@
 #include "impl.h"
 #include "pmda.h"
 #include <sys/stat.h>
-#include "./summary.h"
-#include "./domain.h"
+#include "summary.h"
+#include "domain.h"
 
 extern void	summary_init(pmdaInterface *);
 extern void	summary_done(void);
@@ -30,13 +30,11 @@ main(int argc, char **argv)
 {
     int			errflag = 0;
     int			sep = __pmPathSeparator();
-    char		*configFile = NULL;
     char		**commandArgv;
     pmdaInterface	dispatch;
     int			i;
     int			len, c;
     int			clientPipe[2];
-    int			configfd = -1;
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
@@ -50,13 +48,9 @@ main(int argc, char **argv)
     pmdaDaemon (&dispatch, PMDA_INTERFACE_2, pmProgname, SYSSUMMARY,
 		"summary.log", helpfile);
 
-    while ((c = pmdaGetOpt(argc, argv, "H:h:D:d:l:c:U:",
+    while ((c = pmdaGetOpt(argc, argv, "H:h:D:d:l:U:",
 			   &dispatch, &errflag)) != EOF) {
 	switch (c) {
-
-	    case 'c':
-		configFile = optarg;
-		break;
 
 	    case 'H':		/* backwards compatibility, synonym for -h */
 		dispatch.version.two.ext->e_helptext = optarg;
@@ -96,7 +90,6 @@ main(int argc, char **argv)
 		pmProgname);
 	fputs("Options:\n"
 	      "  -h helpfile    help text file\n"
-	      "  -c configfile  load ASCII PDUs from config file on startup\n"
 	      "  -d domain      use domain (numeric) for metrics domain of PMDA\n"
 	      "  -l logfile     write log into logfile rather than using default log name\n"
 	      "  -U username    user account to run under (default \"pcp\")\n",
@@ -113,17 +106,8 @@ main(int argc, char **argv)
     /* initialize */
     summary_init(&dispatch);
 
-    if (configFile) {
-	if ((configfd = open(configFile, O_RDONLY)) < 0) {
-	    fprintf(stderr, "%s: failed to open config file ", pmProgname);
-	    perror(configFile);
-	    exit(1);
-	}
-	__pmSetVersionIPC(configfd, PDU_VERSION2);
-    }
-
     pmdaConnect(&dispatch);
-    if ( dispatch.status ) {
+    if (dispatch.status) {
 	fprintf (stderr, "Cannot connect to pmcd: %s\n",
 		 pmErrStr(dispatch.status));
         exit (1); 
@@ -160,9 +144,8 @@ main(int argc, char **argv)
     cmdpipe = clientPipe[0]; /* parent/agent reads from here */
     __pmSetVersionIPC(cmdpipe, PDU_VERSION2);
 
-    summaryMainLoop(pmProgname, configfd, cmdpipe, &dispatch);
+    summaryMainLoop(pmProgname, cmdpipe, &dispatch);
 
     summary_done();
-
     exit(0);
 }

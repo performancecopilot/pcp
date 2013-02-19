@@ -189,7 +189,7 @@ in
     aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
     linux|kfreebsd)
 		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    mingw)	pcp_platform_paths='/mingw/bin:/perl/bin:/usr/local/bin';;
+    mingw)	pcp_platform_paths='';;
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
     freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
@@ -813,7 +813,7 @@ AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
 AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
-AC_CHECK_HEADERS(pwd.h regex.h sys/wait.h)
+AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
@@ -1633,6 +1633,23 @@ dnl
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
 AC_SUBST(pcp_etc_dir)
+pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
+pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
+AC_SUBST(pcp_sysconf_dir)
+pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
+pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
+pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
+pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
+pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
+pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+AC_SUBST(pcp_pmcdconf_path)
+AC_SUBST(pcp_pmcdoptions_path)
+AC_SUBST(pcp_pmcdrclocal_path)
+AC_SUBST(pcp_pmproxyoptions_path)
+AC_SUBST(pcp_pmiecontrol_path)
+AC_SUBST(pcp_pmsnapcontrol_path)
+AC_SUBST(pcp_pmloggercontrol_path)
 
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datarootdir/pcp`
@@ -1653,20 +1670,6 @@ dnl pmcd control and options files
 AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration directory [LOCALSTATEDIR/pcp/config]])],
                       [pcp_config_dir=$withval],
                       [pcp_config_dir=$pcp_var_dir/config])
-pcp_pmcdconf_path=$pcp_config_dir/pmcd/pmcd.conf
-pcp_pmcdrclocal_path=$pcp_config_dir/pmcd/rc.local
-pcp_pmcdoptions_path=$pcp_config_dir/pmcd/pmcd.options
-pcp_pmproxyoptions_path=$pcp_config_dir/pmproxy/pmproxy.options
-pcp_pmiecontrol_path=$pcp_config_dir/pmie/control
-pcp_pmsnapcontrol_path=$pcp_config_dir/pmsnap/control
-pcp_pmloggercontrol_path=$pcp_config_dir/pmlogger/control
-AC_SUBST(pcp_pmcdconf_path)
-AC_SUBST(pcp_pmcdoptions_path)
-AC_SUBST(pcp_pmcdrclocal_path)
-AC_SUBST(pcp_pmproxyoptions_path)
-AC_SUBST(pcp_pmiecontrol_path)
-AC_SUBST(pcp_pmsnapcontrol_path)
-AC_SUBST(pcp_pmloggercontrol_path)
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
@@ -1887,6 +1890,17 @@ then
     AC_SUBST(nspr_inc_dir)
     AC_SUBST(nss_inc_dir)
 
+    AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
+	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [
+	    enable_secure=false
+	    if test "$do_secure" = "yes"
+	    then
+		AC_MSG_ERROR(cannot enable secure sockets mode - no SSL library)
+	    fi
+	])
+    ])
+    AC_SUBST(lib_for_ssl)
+
     AC_CHECK_LIB(nss, NSS_Init, [lib_for_nss="-lnss"], [
 	AC_CHECK_LIB(nss3, NSS_Init, [lib_for_nss="-lnss3"], [
 	    enable_secure=false
@@ -1913,6 +1927,8 @@ then
     then
 	AC_DEFINE(HAVE_SECURE_SOCKETS)
     fi
+    AC_SUBST(enable_secure)
+
     CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
@@ -2019,4 +2035,8 @@ dnl   PCP paths and other defs
     src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
+dnl   preamble for Debian preinst script
+    debian/pcp.preinst.head
+dnl   preamble for tar preinstall script
+    build/tar/preinstall.head
 )

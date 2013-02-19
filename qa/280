@@ -23,7 +23,7 @@ fi
 _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
     PCP_PMLOGGERCONTROL_PATH=`dirname "$PCP_PMLOGGERCONTROL_PATH"`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
@@ -69,8 +69,7 @@ echo "Expect this should do nothing ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
-pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
-
+pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
 then
     echo "Error: cannot find PID for primary logger"
@@ -95,8 +94,7 @@ echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
-pid=`LC_TIME=POSIX ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null | sed -e 's/.*\/\([0-9][0-9]*\)$/\1/'`
-
+pid=`_get_primary_logger_pid`
 if [ -z "$pid" ]
 then
     echo "Error: cannot find PID for primary logger"

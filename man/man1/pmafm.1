@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMAFM 1 "SGI" "Performance Co-Pilot"
+.TH PMAFM 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmafm\f1 \- Performance Co-Pilot archive folio manager
 .SH SYNOPSIS
@@ -179,19 +179,19 @@ is ambiguous.
 .SH FILES
 .PD 0
 .TP 10
-.BI $PCP_VAR_DIR/config/pmafm/ *
+.BI $PCP_SYSCONF_DIR/pmafm/ *
 control files that define the behavior of each PCP tool
 known to
 .BR pmafm .
 This information may be customized or extended, see
-.I $PCP_VAR_DIR/config/pmafm/pcp
+.I $PCP_SYSCONF_DIR/pmafm/pcp
 for documentation of the syntax and semantics of these files.
 .TP
 .BI $HOME/.pcp/pmafm/ *
 User customization of the control files.  All files in this
 directory are treated in the same manner as control files in
 the
-.I $PCP_VAR_DIR/config/pmafm
+.I $PCP_SYSCONF_DIR/pmafm
 directory.
 .PD
 .SH "PCP ENVIRONMENT"

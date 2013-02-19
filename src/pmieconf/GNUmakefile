@@ -69,6 +69,6 @@ install: default_pcp $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
-	$(INSTALL) -m 644 pmlogger.config $(PCP_VAR_DIR)/config/pmlogger/config.pmieconf
+	$(INSTALL) -m 644 pmlogger.config $(PCP_SYSCONF_DIR)/pmlogger/config.pmieconf
 
 include $(BUILDRULES)

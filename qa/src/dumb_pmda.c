@@ -4,10 +4,15 @@
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
-#include <stdio.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+
+#include "localconfig.h"
+
+#if PCP_VER < 3611
+#define __pmRead read
+#endif
 
 static void
 usage(void)

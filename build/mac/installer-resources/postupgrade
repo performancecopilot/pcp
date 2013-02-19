@@ -96,14 +96,14 @@ fi
 userid=432
 groupid=432
 
-if dscl . -list /Groups | grep -q '^pcp$' 
+if ! dscl . -list /Groups | grep -q '^pcp$' 
 then
     dscl . -create /Groups/pcp
     dscl . -create /Groups/pcp PrimaryGroupID $groupid
     dscl . -create /Groups/pcp Password \*
 fi
 
-if dscl . -list /Users | grep -q '^pcp$' 
+if ! dscl . -list /Users | grep -q '^pcp$' 
 then
     dscl . -create /Users/pcp
     dscl . -create /Users/pcp UniqueID $userid

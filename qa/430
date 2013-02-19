@@ -19,13 +19,18 @@ echo "QA output created by $seq"
 
 #  Requires common.product and localconfig:
 . ./localconfig
+rm -f $seq.full $seq.out
 if [ "$PCP_PLATFORM" = irix -a $PCP_VER -lt 2200 ]
 then
-    rm -f $seq.out; ln $seq-pre2.2.out $seq.out
+    ln $seq-pre2.2.out $seq.out || exit 1
 else  #  includes Linux...
-    rm -f $seq.out; ln $seq-2.2post.out $seq.out
+    if [ $PCP_VER -lt 3611 ]
+    then
+	ln $seq-2.2post.out $seq.out || exit 1
+    else
+	ln $seq.3.out $seq.out || exit 1
+    fi
 fi
-#  assumed that no $seq.out file exists already
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
@@ -44,6 +49,7 @@ _filter()
 	-e "s;$tmp;TMP;g" \
 	-e '/Duplicate/d' \
 	-e 's/process [0-9][0-9]*/process PID/' \
+	-e '/[0-9] inode=/d' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
 	| _filter_cron_scripts
 }
@@ -93,6 +99,7 @@ _update_hostsfile()
     # add an entry for extra_hostname
     $PCP_AWK_PROG <$hostsfile >$tmp.etc.hosts \
 	-v realhost=$realhost -v extra_hostname=$extra_hostname '
+/^#/			{ print; next }
 $2 == realhost && gotit == 0 {  
 			   print
 			   printf("%s\t%s\n", $1, extra_hostname)
@@ -162,6 +169,11 @@ host2=$LOCALHOST"super"
 echo "host1=$host1" >>$here/$seq.full
 echo "host2=$host2" >>$here/$seq.full
 _update_hostsfile $host2
+echo "=== $hostsfile ===" >>$here/$seq.full
+cat $hostsfile >>$here/$seq.full
+echo "=== check pcp on $host2 ===" >>$here/$seq.full
+pcp -h $host2 >>$here/$seq.full
+
 logdir=$tmp
 logdir2="$tmp.subname"
 

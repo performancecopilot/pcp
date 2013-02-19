@@ -25,7 +25,7 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    struct __pmHostEnt	*host;
+    __pmHostEnt		*host;
     char		*sbuf;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");

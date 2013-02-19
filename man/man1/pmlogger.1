@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMLOGGER 1 "SGI" "Performance Co-Pilot"
+.TH PMLOGGER 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogger\f1 \- create archive log for performance metrics
 .SH SYNOPSIS
@@ -126,17 +126,17 @@ this
 instance is launched by 
 .BR $PCP_RC_DIR/pcp ,
 and is affected by the files
-.I /etc/config/pmlogger
+.I $PCP_SYSCONF_DIR/pmlogger
 (use
 .BR chkconfig (1M)
 to activate or disable the primary
 .B pmlogger 
 instance),
-.I /etc/config/pmlogger.options
+.I $PCP_SYSCONF_DIR/pmlogger/pmlogger.options
 (command line options passed to the primary
 .BR pmlogger )
 and
-.I $PCP_VAR_DIR/config/pmlogger/config.default
+.I $PCP_SYSCONF_DIR/pmlogger/config.default
 (the default initial configuration file for the primary
 .BR pmlogger ).
 .PP
@@ -391,17 +391,17 @@ input.
 If
 .I configfile
 does not exist, then a search is made in the directory
-.I $PCP_VAR_DIR/config/pmlogger
+.I $PCP_SYSCONF_DIR/pmlogger
 for a file of the same name, and if found that file is used,
 e.g. if 
 .I config.mumble
 does not exist in the current directory and
 the file
-.I $PCP_VAR_DIR/config/pmlogger/config.mumble
+.I $PCP_SYSCONF_DIR/pmlogger/config.mumble
 does exist, then
 .B "\-c config.mumble"
 and
-.B "\-c $PCP_VAR_DIR/config/pmlogger/config.mumble"
+.B "\-c $PCP_SYSCONF_DIR/pmlogger/config.mumble"
 are equivalent.
 .PP
 The syntax for the configuration file is as follows.
@@ -545,7 +545,7 @@ metrics used by the tool).
 For a tool named
 .I foo
 this configuration file is located in
-.IR $PCP_VAR_DIR/config/pmlogger/config.foo .
+.IR $PCP_SYSCONF_DIR/pmlogger/config.foo .
 .PP
 The following is a simple default configuration file for a primary
 .B pmlogger
@@ -682,25 +682,12 @@ each
 instance (as used by
 .BR pmlc (1))
 .TP
-.B /etc/config/pmlogger
-.BR chkconfig (1M)
-control flag, to control launching of
-.B pmlogger
-from
-.B $PCP_RC_DIR/pcp
-.TP
-.B /etc/config/pmlogger.options
-command line options to
-.B pmlogger
-when launched from
-.B $PCP_RC_DIR/pcp
-.TP
-.B $PCP_VAR_DIR/config/pmlogger/config.default
+.B $PCP_SYSCONF_DIR/pmlogger/config.default
 default configuration file for the primary logger instance
 launched from
 .B $PCP_RC_DIR/pcp
 .TP
-.BR $PCP_VAR_DIR/config/pmlogger/config. *
+.BR $PCP_SYSCONF_DIR/pmlogger/config. *
 assorted configuration files suitable for creating logs that may
 be subsequently replayed with the PCP visualization and monitoring
 tools

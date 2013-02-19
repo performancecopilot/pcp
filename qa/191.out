@@ -15,13 +15,13 @@ pmie debugger commands
   q                  - quit
 
 pmie> pmie> expr_1 =
-hinv.ncpu :HOST @0 > 0;
+hinv.ncpu :HOST > 0;
 
 pmie> expr_1 =
-hinv.ncpu :HOST @0 > 0;
+hinv.ncpu :HOST > 0;
 
 pmie> expr_1 =
-hinv.ncpu :HOST @0 > 0;
+hinv.ncpu :HOST > 0;
 
 
 === EOF test ===

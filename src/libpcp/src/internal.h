@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,13 +16,15 @@
 #ifndef _INTERNAL_H
 #define _INTERNAL_H
 
+/*
+ * Routines and data structures used within libpcp source files,
+ * but which we do not want to expose via impl.h or pmapi.h.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * routines used across libpcp source files, but not exposed in impl.h
- */
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
 #ifdef PM_MULTI_THREAD
@@ -52,6 +55,40 @@ __pmTPDGet(void)
 #else
 /* No threads - just access global variables as is */
 #define PM_TPD(x) x
+#endif
+
+#ifdef SOCKET_INTERNAL
+#ifdef HAVE_SECURE_SOCKETS
+#include <nss.h>
+#include <ssl.h>
+#include <nspr.h>
+#include <private/pprio.h>
+
+#define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
+
+struct __pmSockAddr {
+    PRNetAddr		sockaddr;
+};
+struct __pmHostEnt {
+    PRHostEnt		hostent;
+    char		buffer[PR_NETDB_BUF_SIZE];
+};
+
+/* internal NSS implementation details */
+extern int __pmSecureSocketsError(void);
+
+#else
+struct __pmSockAddr {
+    union {
+	__uint16_t		family;
+	struct sockaddr_in	inet;
+	struct sockaddr_in6	ipv6;
+    } sockaddr;
+};
+struct __pmHostEnt {
+    struct hostent	hostent;
+};
+#endif
 #endif
 
 #ifdef __cplusplus

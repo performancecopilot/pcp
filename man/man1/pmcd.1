@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2012 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -13,17 +14,19 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMCD 1 "SGI" "Performance Co-Pilot"
+.TH PMCD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
+[\f3\-C\f1 \f2dirname\f1]
 [\f3\-f\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
 [\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
+[\f3\-P\f1 \f2passfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-T\f1 \f2traceflag\f1]
 [\f3\-t\f1 \f2timeout\f1]
@@ -51,16 +54,16 @@ delegates most of this request servicing to
 a collection of Performance Metrics Domain Agents 
 (or just agents), where each agent is responsible for a particular group of
 metrics, known as the domain of the agent.  For example the
-.B environ
+.B postgresql
 agent is responsible for
-reporting information relating to the environment of a Challenge
-system, such as the
-cabinet temperature and voltage levels of the power supply.
+reporting information relating to the PostgreSQL database,
+such as the transaction and query counts, indexing and replication statistics,
+and so on.
 .PP
 The agents may be processes started by
 .BR pmcd ,
 independent processes or Dynamic Shared Objects (DSOs, see
-.BR dso (5))
+.BR dlopen (3))
 attached to
 .BR pmcd 's
 address space.
@@ -70,6 +73,20 @@ agents are specified.
 The options to
 .B pmcd
 are as follows.
+.TP
+\f3\-C\f1 \f2dirname\f1
+Specify the path to the Network Security Services certificate database,
+for (optional) secure connections.
+The default is
+.BR /etc/pki/nssdb .
+Refer also to the \f3\-P\f1 option.
+If it does not already exist, this database can be created using the
+.B certutil
+utility.
+This process and other certificate database maintenance information
+is provided in the
+.BR PCPIntro (1)
+manual page and the online PCP tutorials.
 .TP
 .B \-f
 By default
@@ -151,6 +168,17 @@ duplicate Performance Metric Identifiers (PMIDs) in
 .B \-N
 they are not allowed with
 .BR \-n .
+.TP
+\f3\-P\f1 \f2passfile\f1
+Specify the path to a file containing the Network Security Services certificate
+database password for (optional) secure connections, and for databases that are
+password protected.
+Refer also to the \f3\-C\f1 option.
+When using this option, great care should be exercised to ensure appropriate
+ownership ("pcp" user, typically) and permissions on this file (0400, so as to
+be unreadable by any user other than the user running the
+.B pmcd
+process).
 .TP
 \f3\-q\f1 \f2timeout\f1
 The pmcd to agent version exchange protocol (new in PCP 2.0 - introduced to
@@ -1015,6 +1043,13 @@ contains an ascii decimal representation of the process ID of
 , when it's running.
 .br
 All messages and diagnostics are directed here
+.TP
+.B /etc/pki/nssdb
+default Network Security Services (NSS) certificate database
+directory, used for optional Secure Socket Layer connections.
+This database can be created and queried using the NSS
+.B certutil
+tool, amongst others.
 .PD
 .SH ENVIRONMENT
 In addition to the PCP environment variables described in the

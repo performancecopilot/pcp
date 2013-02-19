@@ -193,6 +193,7 @@ _filter_optional_pmdas()
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
 	-e '/pmdaespping/d' \
+	-e '/pmdagfs2/d' \
 	-e '/pmdahippi/d' \
 	-e '/pmdahotproc/d' \
 	-e '/pmdainfmx7/d' \
@@ -268,6 +269,7 @@ _filter_top_pmns()
 	-e '/^    dmf /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
+	-e '/^    gfs2 /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
 	-e '/^    hw /d' \
@@ -371,6 +373,7 @@ s/ PMCD / pmcd /
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
+	-e "s;$PCP_SYSCONF_DIR/;\$PCP_SYSCONF_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
 	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
         -e '/^Starting PCP$/d' \
@@ -429,6 +432,8 @@ _filter_pmie_start()
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
 	-e '/To enable/d' \
+	-e '/update-rc.d -f pmie remove/d' \
+	-e '/update-rc.d pmie defaults/d' \
 	-e '/\/sbin\/chkconfig pmie on/d' \
 	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
         -e '/update-rc.d -f pmie defaults/d' \

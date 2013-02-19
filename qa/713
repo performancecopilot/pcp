@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 713
+#
+# Exercise encrypted communications between pmproxy/clients
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+. ./common.secure
+nss_notrun_checks
+
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    nss_cleanup
+
+    $sudo $signal -a pmproxy >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
+}
+
+status=1	# failure is the default!
+username=`id -u -n`
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# real QA test starts here
+nss_backup
+nss_setup_randomness
+nss_setup_collector true $qahost $hostname
+
+# pmcd is now secure.  next, pmproxy...
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $signal -a pmproxy >/dev/null 2>&1
+
+proxyargs="-C sql:$collectordb -P $collectorpw"
+id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
+$PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
+echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full
+egrep 'Error:|Info:' $tmp.log
+cat $tmp.log >> $seq.full
+
+# verify that local clients are prompted to establish a connection
+# when a valid collectoer certificate exists but no client config.
+nss_setup_empty_userdb
+echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
+export PMPROXY_HOST=$hostname
+export PCP_SECURE_SOCKETS=enforce
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PMPROXY_HOST PCP_SECURE_SOCKETS
+
+# make the new certificate visible to just this user
+echo "checking client, user certificate only.  should pass..."
+nss_setup_empty_userdb
+nss_import_cert_userdb
+export PMPROXY_HOST=$hostname
+export PCP_SECURE_SOCKETS=enforce
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PMPROXY_HOST PCP_SECURE_SOCKETS
+
+# success, all done
+status=0
+exit

@@ -60,3 +60,18 @@ include $(BUILDRULES)
 default_pcp:	default
 
 install_pcp:	install
+
+fun.h: andor.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o syntax.o syslog.o: dstruct.h
+dstruct.o eval.o pmie.o pragmatics.o syntax.o syslog.o: eval.h
+andor.o dstruct.o eval.o fun.o match_inst.o: fun.h
+lexicon.o syntax.o: grammar.h
+grammar.tab.o lexicon.o show.o syntax.o: lexicon.h
+syslog.o: logger.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o pmie.o pragmatics.o show.o syntax.o: pragmatics.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o match_inst.o pmie.o show.o syntax.o: show.h
+andor.o fun.o grammar.tab.o pmie.o stomp.o: stomp.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o symbol.o syntax.o syslog.o: symbol.h
+grammar.tab.o lexicon.o pmie.o syntax.o syslog.o: syntax.h
+fun.o grammar.tab.o syslog.o: syslog.h
+

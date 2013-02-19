@@ -14,25 +14,46 @@ if [ $PCP_PLATFORM = linux ]
 then
     if [ $PCP_VER -lt 3103 ]
     then
-	ln $seq.linux.1 $seq.out
+	ln $seq.linux.1 $seq.out || exit 1
     else
 	# proc metrics may not be available
 	#
 	if pminfo proc.nprocs >/dev/null 2>&1
 	then
-	    ln $seq.linux.2 $seq.out
+	    # available, but if not a DSO agent, then pminfo -L will
+	    # know about the metric, but not find the PMDA
+	    #
+	    type=`pminfo -f pmcd.agent.type | sed -n -e '/"proc"/{
+s/.*value //
+p
+}'`
+	    case "$type"
+	    in
+		0)  # DSO
+		    ln $seq.linux.2 $seq.out || exit 1
+		    ;;
+		2|4)# daemon
+		    ln $seq.linux.4 $seq.out || exit 1
+		    ;;
+		*)
+		    echo "Botch ... don't understand proc PMDA type ($type)"
+		    pminfo -f pmcd.agent.type
+		    exit 1
+		    ;;
+	    esac
 	else
-	    ln $seq.linux.3 $seq.out
+	    ln $seq.linux.3 $seq.out || exit 1
 	fi
     fi
 elif [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin $seq.out
+    ln $seq.darwin $seq.out || exit 1
 elif [ $PCP_PLATFORM = solaris ]
 then
-    ln $seq.solaris $seq.out
+    ln $seq.solaris $seq.out || exit 1
 else
-    echo "Warning: no validated output for $PCP_PLATFORM"
+    echo "Error: no validated output for $PCP_PLATFORM"
+    exit 1
 fi
 
 echo "QA output created by $seq"

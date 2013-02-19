@@ -80,7 +80,7 @@ _check_freespace()
 _host_to_ipaddr()
 {
     perl -MSocket -e '
-	my $packed_ip = gethostbyname('$1');
+	my $packed_ip = gethostbyname("'$1'");
 	if (defined $packed_ip) {
 	    my $ip_address = inet_ntoa($packed_ip);
 	    print $ip_address;
@@ -90,7 +90,7 @@ _host_to_ipaddr()
 _ipaddr_to_host()
 {
     perl -MSocket -e '
-	my $iaddr = inet_aton('$1');
+	my $iaddr = inet_aton("'$1'");
 	if (defined $iaddr) {
 	    my $name  = gethostbyaddr($iaddr, AF_INET);
 	    print $name;
@@ -1431,4 +1431,42 @@ _find_free_port()
 	base=`expr $base + 1`
     done
     echo $base
+}
+
+_get_ino()
+{
+    # get inode number for $1
+    # throw away stderr (and return '') in case $1 has been removed by now
+    #
+    stat "$1" 2>/dev/null \
+    | sed -n '/Device:[ 	].*[ 	]Inode:/{
+s/Device:[ 	].*[ 	]Inode:[ 	]*//
+s/[ 	].*//
+p
+}'
+}
+
+_get_primary_logger_pid()
+{
+    # get pid for primary pmlogger
+    #
+    _primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
+    _pid=''
+    for _file in $PCP_TMP_DIR/pmlogger/*
+    do
+	case "$_file"
+	in
+	    */primary|*\*)
+		;;
+	    */[0-9]*)
+		_inode=`_get_ino "$_file"`
+		if [ "$_primary_inode" = "$_inode" ]
+		then
+		    _pid="`echo $_file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
+		    break
+		fi
+		;;
+	esac
+    done
+    echo $_pid
 }

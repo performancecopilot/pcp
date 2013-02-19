@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  */
 
 /* Check access control wildcarding, bad ops etc. */
@@ -20,7 +20,7 @@ main()
     unsigned int	perm;
     char		name[20];
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
-    struct __pmSockAddr	*inaddr;
+    __pmSockAddr	*inaddr;
 
     /* there are 10 ops numbered from 0 to 9 */
     sts = 0;

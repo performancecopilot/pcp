@@ -749,8 +749,16 @@ pmlogrewrite
 511 pmimport pmdumplog pmlogsummary perl local oss
 512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
 513 libpcp pdu local oss
+514 pmie local oss
+515 pmie local oss
+516 pmie local oss
+517 other local oss
+518 other local oss
 519 pmie remote oss
+520 pmie local oss
+521 pmie local oss
 522 pmcd local oss
+523 pmie local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
 532 logutil pmlogextract local oss
@@ -819,12 +827,17 @@ pmlogrewrite
 651 pmproxy local oss
 652 pmda.systemd event local oss
 653 libpcp local oss
+654 pmda.gfs2 local oss
 703 pcpweb local oss
 706 libpcp local oss
 707 pcp.py libpcp local oss
 708 pcp.py pmimport local oss
 709 pcp.py local oss
 710 pcp.py pmimport local oss
+711 pmimport pmdumplog pmlogsummary perl local oss
+712 context libpcp pmcd local oss
+713 context libpcp pmproxy local oss
+714 context libpcp pmcd local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
@@ -833,4 +846,3 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-514 pmie local oss

@@ -28,11 +28,7 @@
 
 int			nmeta;
 meta_t			*meta;
-
 pmResult 		*cachedResult;
-pmResult 		*cachedConfigResult;
-char			*configfile;
-
 static int		*freeList;
 
 static int
@@ -166,35 +162,6 @@ service_client(__pmPDU *pb)
     }
 }
 
-void
-service_config(__pmPDU *pb)
-{
-    int		n;
-    __pmPDUHdr   *ph = (__pmPDUHdr *)pb;
-
-    switch (ph->type) {
-    case PDU_DESC:
-	service_client(pb); /* the code is identical */
-	break;
-
-    case PDU_RESULT:
-	if (cachedConfigResult != NULL)
-	    pmFreeResult(cachedConfigResult);
-	n = __pmDecodeResult(pb, &cachedConfigResult);
-	__pmPinPDUBuf(pb);
-	break;
-	    
-    case PDU_ERROR:
-	__pmDecodeError(pb, &n);
-	break;
-    
-    default:
-	n = PM_ERR_IPC;
-	break;
-    }
-
-}
-
 static int
 summary_profile(__pmProfile *prof, pmdaExt * ex)
 {
@@ -280,16 +247,6 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 	    for (j=0; j < cachedResult->numpmid; j++) {
 		if (pmid == cachedResult->vset[j]->pmid) {
 		    res->vset[i] = cachedResult->vset[j];
-		    freeList[i] = 0;
-		    break;
-		}
-	    }
-	}
-
-	if (validpmid && cachedConfigResult != NULL && res->vset[i] == NULL) {
-	    for (j=0; j < cachedConfigResult->numpmid; j++) {
-		if (pmid == cachedConfigResult->vset[j]->pmid) {
-		    res->vset[i] = cachedConfigResult->vset[j];
 		    freeList[i] = 0;
 		    break;
 		}

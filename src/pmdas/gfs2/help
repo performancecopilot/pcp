@@ -1,0 +1,55 @@
+#
+# Copyright (c) 2013 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# GFS2 PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ GFS2.0 Instance domain for mounted GFS2 filesystems
+
+@ gfs2.glocks.total Count of total observed incore GFS2 global locks
+Count of total incore GFS2 glock data structures based on parsing the
+contents of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
+
+@ gfs2.glocks.shared GFS2 global locks in shared state
+Count of incore GFS2 glock data structures in shared state, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
+value "SH".
+
+@ gfs2.glocks.unlocked GFS2 global locks in unlocked state
+Count of incore GFS2 glock data structures in unlocked state, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
+value "UN".
+
+@ gfs2.glocks.deferred GFS2 global locks in deferred state
+Count of incore GFS2 glock data structures in deferred state, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
+value "DF".
+
+@ gfs2.glocks.exclusive GFS2 global locks in exclusive state
+Count of incore GFS2 glock data structures in exclusive state, based on
+parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
+value "EX".
+
+# help text for gfs2.sbstats.*.* is generated dynamically

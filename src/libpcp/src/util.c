@@ -1,8 +1,9 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
+ * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -47,6 +48,9 @@
 #endif
 #if defined(HAVE_PWD_H)
 #include <pwd.h>
+#endif
+#if defined(HAVE_GRP_H)
+#include <grp.h>
 #endif
 
 static FILE	**filelog;
@@ -1544,7 +1548,7 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     } else if (sts != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
-		username, strerror_r(sts, buf, sizeof(buf)));
+		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pwd.pw_uid;
@@ -1559,7 +1563,7 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     } else if ((sts = oserror()) != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
-		username, strerror_r(sts, buf, sizeof(buf)));
+		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	exit(1);
     }
     uid = pw->pw_uid;
@@ -1568,9 +1572,29 @@ __pmSetProcessIdentity(const char *username)
 !bozo!
 #endif
 
-    if (setgid(gid) < 0 || setuid(uid) < 0) {
+    if (setgid(gid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
-		"cannot switch to uid/gid of %s user (%d/%d)\n", username, uid, gid);
+		"setgid to gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
+	exit(1);
+    }
+
+    /*
+     * We must allow initgroups to fail with EPERM, as this
+     * is the behaviour when the parent process has already
+     * dropped privileges (e.g. pmcd receives SIGHUP).
+     */
+    if (initgroups(username, gid) < 0 && oserror() != EPERM) {
+	__pmNotifyErr(LOG_CRIT,
+		"initgroups with gid of %s user (gid=%d): %s",
+		username, gid, osstrerror_r(buf, sizeof(buf)));
+	exit(1);
+    }
+
+    if (setuid(uid) < 0) {
+	__pmNotifyErr(LOG_CRIT,
+		"setuid to uid of %s user (uid=%d): %s",
+		username, uid, osstrerror_r(buf, sizeof(buf)));
 	exit(1);
     }
 
@@ -1602,13 +1626,15 @@ __pmSetProgname(const char *program)
 int
 __pmShutdown(void)
 {
-    int sts;
+    int code = 0, sts;
 
-    if ((sts = __pmShutdownLocal()) < 0)
-	return sts;
-    if ((sts = __pmShutdownSockets()) < 0)
-	return sts;
-    return sts;
+    if ((sts = __pmShutdownLocal()) < 0 && !code)
+	code = sts;
+    if ((sts = __pmShutdownCertificates()) < 0 && !code)
+	code = sts;
+    if ((sts = __pmShutdownSecureSockets()) < 0 && !code)
+	code = sts;
+    return code;
 }
 
 void *

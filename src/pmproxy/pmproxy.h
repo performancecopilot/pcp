@@ -18,19 +18,18 @@
 #include "pmapi.h"
 #include "impl.h"
 
-struct __pmSockAddr;
-
 /* The table of clients, used by pmproxy */
 typedef struct {
     int			fd;		/* client socket descriptor */
     int			version;	/* proxy-client protocol version */
     struct {				/* Status of connection to client */
-	unsigned int	connected : 1;	/* Client connected */
+	unsigned int	connected : 1;	/* Client connected, socket level */
+	unsigned int	allowed : 1;	/* Creds seen, OK to talk to pmcd */
     } status;
     char		*pmcd_hostname;	/* PMCD hostname */
     int			pmcd_port;	/* PMCD port */
-    int			pmcd_fd;	/* PMCD socket descriptor */
-    struct __pmSockAddr	*addr;		/* address of client */
+    int			pmcd_fd;	/* PMCD socket file descriptor */
+    __pmSockAddr	*addr;		/* address of client */
 } ClientInfo;
 
 extern ClientInfo	*client;		/* Array of clients */

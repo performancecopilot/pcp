@@ -158,7 +158,7 @@ shell Fri Mar  9 17:09:50 2007: echo app1 mel CON_USE OK 19 14 42 42 46 Ctns
 
 shell Fri Mar  9 17:10:00 2007: echo app1 mel CON_USE OK 19 19 14 42 42 Ctns
 
-DATE: COUNT HORDES > 249
+DATE: HORDES > 249
 [250] 250
 [251] 251
 [252] 252
@@ -409,6 +409,9 @@ DATE: COUNT HORDES > 249
 [497] 497
 [498] 498
 [499] 499
+
+DATE: COUNT HORDES > 249
+250
 
 DATE: 50% HORDES > 249: 250 Ctns
 50% HORDES > 249: 251 Ctns
@@ -661,7 +664,7 @@ DATE: 50% HORDES > 249: 250 Ctns
 50% HORDES > 249: 498 Ctns
 50% HORDES > 249: 499 Ctns
 
-DATE: COUNT HORDES <= 249
+DATE: HORDES <= 249
 [0] 0
 [1] 1
 [2] 2
@@ -912,6 +915,9 @@ DATE: COUNT HORDES <= 249
 [247] 247
 [248] 248
 [249] 249
+
+DATE: COUNT HORDES <= 249
+250
 
 DATE: 50% HORDES <= 249: 0 Ctns
 50% HORDES <= 249: 1 Ctns
@@ -1168,4 +1174,6 @@ expr_1: true
 expr_2: true
 expr_3: true
 expr_4: true
+expr_5: true
+expr_6: true
 

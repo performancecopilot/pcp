@@ -36,8 +36,8 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
-    struct __pmSockAddr *myaddr;
     struct servent	*service;
+    __pmSockAddr	*myaddr;
     __pmSockLen		addrlen;
     int			one = 1;
 

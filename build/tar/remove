@@ -46,7 +46,7 @@ fi
 sts=0
 
 tar tf pcp-*[0-9].tar.gz \
-| sed -e 's/^\.//' \
+| sed -e 's/^\.//' -e 's/^[^/]/\/&/' \
 | while read file
 do
     if [ -f $file -o -L $file ]

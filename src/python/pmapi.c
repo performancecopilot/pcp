@@ -184,13 +184,17 @@ initpmapi(void)
     dict_add( dict, "PMNS_NONLEAF_STATUS",
               (intu) PMNS_NONLEAF_STATUS, INT_T, NULL );
 
-    /* context type */
+    /* context types and flags */
     dict_add( dict, "PM_CONTEXT_ARCHIVE",
               (intu) PM_CONTEXT_ARCHIVE, INT_T, NULL );
     dict_add( dict, "PM_CONTEXT_LOCAL",
               (intu) PM_CONTEXT_LOCAL,   INT_T, NULL );
     dict_add( dict, "PM_CONTEXT_HOST",
               (intu) PM_CONTEXT_HOST,    INT_T, NULL );
+    dict_add( dict, "PM_CONTEXT_TYPEMASK",
+              (intu) PM_CONTEXT_TYPEMASK,INT_T, NULL );
+    dict_add( dict, "PM_CTXFLAG_SECURE",
+              (intu) PM_CTXFLAG_SECURE,  INT_T, NULL );
 
     /* event type */
     dict_add( dict, "PM_EVENT_FLAG_POINT",  (intu) PM_EVENT_FLAG_POINT, INT_T, NULL );

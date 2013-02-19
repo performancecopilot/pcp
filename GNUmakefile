@@ -77,7 +77,10 @@ else
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
+ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
 	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)
+endif
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/examples

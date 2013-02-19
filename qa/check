@@ -219,14 +219,14 @@ _make_checkfiles()
     if [ ! -f $tmp.checkfiles ]
     then
 	[ -z "$PCP_PMCDOPTIONS_PATH" ] && \
-		PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+		PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
 	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+		PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 	[ -z "$PCP_PMIECONTROL_PATH" ] && \
-		PCP_PMIECONTROL_PATH="$PCP_VAR_DIR/config/pmie/control"
+		PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
 	_checkfiles="$PCP_PMCDCONF_PATH \
 		$PCP_PMLOGGERCONTROL_PATH \
-		$PCP_VAR_DIR/config/pmlogger/config.default \
+		$PCP_SYSCONF_DIR/pmlogger/config.default \
 		$PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMCDOPTIONS_PATH \
 		$PCP_DIR/etc/init.d/pcp \

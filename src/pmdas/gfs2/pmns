@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2013 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+gfs2 {
+    glocks
+    sbstats		GFS2:*:*
+}
+
+gfs2.glocks {
+    total		GFS2:0:0
+    shared		GFS2:0:1
+    unlocked		GFS2:0:2
+    deferred		GFS2:0:3
+    exclusive		GFS2:0:4
+}

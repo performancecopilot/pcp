@@ -437,7 +437,7 @@ extern int __pmInProfile(pmInDom, const __pmProfile *, int);
 extern void __pmFreeInResult(__pmInResult *);
 
 /*
- * Version and authorisation info for PDU exchanges
+ * Version and capabilities information for PDU exchanges
  */
 
 #define UNKNOWN_VERSION	0
@@ -448,15 +448,15 @@ extern void __pmFreeInResult(__pmInResult *);
 
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-    unsigned int	zero : 1;	/* ensure first bit is zero for 1.x compatibility */
-    unsigned int	version : 7;	/* PDU_VERSION */
-    unsigned int	licensed : 8;
-    unsigned int	authorize : 16;
+    unsigned int	zero     : 1;	/* ensure this is zero for 1.x compatibility */
+    unsigned int	version  : 7;	/* PDU_VERSION collector protocol preference */
+    unsigned int	licensed : 8;	/* ensure this is one for 2.x compatibility */
+    unsigned int	features : 16;	/* advertised (enabled) collector features */
 #else
-    unsigned int	authorize : 16;
+    unsigned int	features : 16;
     unsigned int	licensed : 8;
-    unsigned int	version : 7;	/* PDU_VERSION */
-    unsigned int	zero : 1;	/* ensure first bit is zero for 1.x compatibility */
+    unsigned int	version  : 7;
+    unsigned int	zero     : 1;
 #endif
 } __pmPDUInfo;
 
@@ -491,7 +491,7 @@ typedef struct {
     time_t		pc_again;	/* time to try again */
 } __pmPMCDCtl;
 
-extern int __pmConnectPMCD(pmHostSpec *, int);
+extern int __pmConnectPMCD(pmHostSpec *, int, int);
 extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
@@ -500,8 +500,17 @@ extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);
 extern void __pmConnectGetPorts(pmHostSpec *);
 
+/*
+ * SSL/TLS/IPv6 support via NSS/NSPR.
+ */
+extern int __pmSecureServerSetup(const char *, const char *);
+extern int __pmSecureServerHandshake(int, int);
+extern int __pmSecureServerIPCFlags(int, int);
+extern void __pmSecureServerShutdown(void);
+extern int __pmSecureClientHandshake(int, int, const char *);
+extern void *__pmGetSecureSocket(int);
+
 #ifdef HAVE_SECURE_SOCKETS
-/* SSL/TLS/IPv6 support via NSS/NSPR. */
 typedef struct {
     fd_set		native_set;
     fd_set		nspr_set;
@@ -514,10 +523,15 @@ typedef fd_set __pmFdSet;
 typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
 
+extern int __pmInitSecureSockets(void);
+extern int __pmInitCertificates(void);
+
 extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
+extern int __pmSocketClosed(void);
+extern int __pmSocketReady(int, struct timeval *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
@@ -531,8 +545,6 @@ extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
 extern int __pmConnectCheckError(int);
-extern int __pmConnectRestoreFlags(int, int);
-extern int __pmConnectHandshake(int);
 
 extern int __pmGetFileStatusFlags(int);
 extern int __pmSetFileStatusFlags(int, int);
@@ -570,9 +582,21 @@ extern void	     __pmHostEntFree(__pmHostEnt *);
 extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, int);
 extern const char *  __pmHostEntGetName(const __pmHostEnt *);
 
-// Should be converted to __pmGetNameInfo, __pmGetAddrInfo???
+/* Should be converted to __pmGetNameInfo, __pmGetAddrInfo??? */
 extern __pmHostEnt * __pmGetHostByName(const char *, __pmHostEnt *);
 extern __pmHostEnt * __pmGetHostByAddr(__pmSockAddr *, __pmHostEnt *);
+
+/*
+ * Query server features - used for expressing protocol capabilities
+ */
+typedef enum {
+    PM_SERVER_FEATURE_SECURE = 0,
+    PM_SERVER_FEATURE_COMPRESS,
+    PM_SERVER_FEATURE_IPV6,
+    PM_SERVER_FEATURES
+} __pmSecureServerFeature;
+
+extern int __pmSecureServerHasFeature(__pmSecureServerFeature);
 
 /*
  * per context controls for archives and logs
@@ -596,7 +620,7 @@ typedef struct {
 #ifdef PM_MULTI_THREAD
     pthread_mutex_t	c_lock;		/* mutex for multi-thread access */
 #endif
-    int			c_type;		/* PM_CONTEXT_HOST, _ARCHIVE or _FREE */
+    int			c_type;		/* HOST, ARCHIVE, LOCAL or FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
@@ -605,6 +629,7 @@ typedef struct {
     int			c_sent;		/* profile has been sent to pmcd */
     __pmProfile		*c_instprof;	/* instance profile */
     void		*c_dm;		/* derived metrics, if any */
+    int			c_flags;	/* various context flags, e.g. SECURE */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
@@ -640,10 +665,12 @@ typedef __uint32_t	__pmPDU;
 #define PM_PDU_SIZE(x) (((x)+sizeof(__pmPDU)-1)/sizeof(__pmPDU))
 #define PM_PDU_SIZE_BYTES(x) (sizeof(__pmPDU)*PM_PDU_SIZE(x))
 
-/* Individual credential PDU elements look like this */
+/* Types of credential PDUs (c_type) */
+#define CVERSION        0x1
+
 typedef struct {
 #ifdef HAVE_BITFIELDS_LTOR
-    unsigned int	c_type: 8;
+    unsigned int	c_type: 8;	/* Credentials PDU type */
     unsigned int	c_vala: 8;
     unsigned int	c_valb: 8;
     unsigned int	c_valc: 8;
@@ -655,8 +682,22 @@ typedef struct {
 #endif
 } __pmCred;
 
-/* Types of credential PDUs */
-#define CVERSION        1
+/* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
+#define PDU_FLAG_SECURE		(1U<<0)
+#define PDU_FLAG_COMPRESS	(1U<<1)
+
+/* Credential CVERSION PDU elements look like this */
+typedef struct {
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	c_type: 8;	/* Credentials PDU type */
+    unsigned int	c_version: 8;	/* PCP protocol version */
+    unsigned int	c_flags: 16;	/* All feature requests */
+#else
+    unsigned int	c_flags: 16;
+    unsigned int	c_version: 8;
+    unsigned int	c_type: 8;
+#endif
+} __pmVersionCred;
 
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
@@ -671,6 +712,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define GETPDU_ASYNC	-2
+extern int __pmConvertTimeout(int);
 
 /* mode options for __pmGetPDU */
 #define ANY_SIZE	0	/* replacement for old PDU_BINARY */
@@ -823,7 +865,8 @@ extern int __pmSetProgname(const char *);
  */
 extern int __pmShutdown(void);
 extern int __pmShutdownLocal(void);
-extern int __pmShutdownSockets(void);
+extern int __pmShutdownCertificates(void);
+extern int __pmShutdownSecureSockets(void);
 
 /* map Unix errno values to PMAPI errors */
 extern int __pmMapErrno(int);
@@ -985,10 +1028,11 @@ typedef int (*__pmConnectHostType)(int, int);
 extern int __pmSetSocketIPC(int);
 extern int __pmSetVersionIPC(int, int);
 extern int __pmSetDataIPC(int, void *);
+extern int __pmDataIPCSize(void);
 extern int __pmLastVersionIPC();
 extern int __pmVersionIPC(int);
 extern int __pmSocketIPC(int);
-extern void *__pmDataIPC(int);
+extern int __pmDataIPC(int, void *);
 extern void __pmOverrideLastFd(int);
 extern void __pmPrintIPC(void);
 extern void __pmResetIPC(int);

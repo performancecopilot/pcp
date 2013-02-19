@@ -182,9 +182,9 @@ GetPort(char *file)
     int			mapfd;
     FILE		*mapstream;
     int			sts;
+    __pmSockAddr	*myAddr;
+    __pmHostEnt		*host;
     static int		port_base = -1;
-    struct __pmSockAddr *myAddr;
-    struct __pmHostEnt	*host;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
@@ -292,7 +292,7 @@ GetPort(char *file)
 
 /* Create the control port for this pmlogger and the file containing the port
  * number so that other programs know which port to connect to.
- * If this is the primary pmlogger, create the special symbolic link to the
+ * If this is the primary pmlogger, create the special link to the
  * control file.
  */
 void
@@ -373,7 +373,7 @@ init_ports(void)
     ctlfd = GetPort(ctlfile);
 
     /*
-     * If this is the primary logger, make the special symbolic link for
+     * If this is the primary logger, make the special link for
      * clients to connect specifically to it.
      */
     if (primary) {
@@ -385,7 +385,7 @@ init_ports(void)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
 #ifndef IS_MINGW
-	sts = symlink(ctlfile, linkfile);
+	sts = link(ctlfile, linkfile);
 #else
 	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
 #endif
@@ -413,9 +413,9 @@ int
 control_req(void)
 {
     int			fd, sts;
-    struct __pmSockAddr *addr;
-    struct __pmHostEnt	*host;
     char		*abuf;
+    __pmSockAddr	*addr;
+    __pmHostEnt		*host;
     __pmSockLen		addrlen;
 
     if ((addr = __pmSockAddrAlloc()) == NULL) {

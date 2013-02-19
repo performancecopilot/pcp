@@ -14,7 +14,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMIE 1 "SGI" "Performance Co-Pilot"
+.TH PMIE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
@@ -163,7 +163,7 @@ An alternative STOMP protocol configuration is loaded from
 If this option is not used, and the
 .I stomp
 action is used in any rule, the default location
-.I $PCP_VAR_DIR/pmie/config/stomp
+.I $PCP_SYSCONF_DIR/pmie/config/stomp
 will be used.
 .TP
 .B \-n
@@ -803,8 +803,7 @@ are constructed from the keywords:
 \f(CBmillisecond\fR, \f(CBmillisec\fR, \f(CBmsec\f1,
 \f(CBsecond\fR, \f(CBsec\fR, \f(CBminute\fR, \f(CBmin\fR, \f(CBhour\f1,
 \f(CBbyte\fR, \f(CBKbyte\fR, \f(CBMbyte\fR, \f(CBGbyte\fR, \f(CBTbyte\f1,
-\f(CBcount\fR, \f(CBKcount\fR, \f(CBMcount\fR, \f(CBGcount\fR
-and \f(CBTcount\f1,
+\f(CBcount\fR, \f(CBKcount\fR and \f(CBMcount\fR,
 and the operator \f(CW/\fR, for example ``\f(CBKbytes / hour\f1''.
 .SH MACROS
 Macros are defined using expressions of the form:
@@ -971,7 +970,7 @@ instances to start at boot time \- refer to
 .BR pmie_check (1)
 for details
 .TP
-.BI $PCP_VAR_DIR/config/pmie/ *
+.BI $PCP_SYSCONF_DIR/pmie/ *
 the predefined alarm action scripts (\c
 .BR email ,
 .BR log ,
@@ -1033,11 +1032,7 @@ For a more complete description of the
 .B pmie
 language, refer to the
 .BR "Performance Co-Pilot Users and Administrators Guide" .
-This is distributed in
-.BR insight (1)
-format as part of the
-.B pcp.books
-subsystem, or in HTML format from:
+This is available online from:
 .in +4n
 .nf
 http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?\e

@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMLOGGER_DAILY 1 "SGI" "Performance Co-Pilot"
+.TH PMLOGGER_DAILY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmlogger_daily\f1,
 \f3pmlogger_check\f1,
@@ -333,7 +333,7 @@ entries for periodic execution of
 and
 .B pmlogger_check
 are given in
-.BR $PCP_VAR_DIR/config/pmlogger/crontab
+.BR $PCP_SYSCONF_DIR/pmlogger/crontab
 and shown below.
 Due to the file permissions involved, these should be added to the
 .I crontab
@@ -431,7 +431,7 @@ is integrated with
 to allow optional and automatic rewriting of archives before merging.
 If there are global rewriting rules to be applied across all archives
 mentioned in the control file, then create the directory
-.B $PCP_VAR_DIR/config/pmlogrewrite
+.B $PCP_SYSCONF_DIR/pmlogrewrite
 and place any
 .BR pmlogrewrite (1)
 rewriting rules in this directory.
@@ -450,7 +450,7 @@ subdirectory.
 .B pmlogger_daily
 will choose rewriting rules from the archive directory if they
 exist, else rewriting rules from
-.B $PCP_VAR_DIR/config/pmlogrewrite
+.B $PCP_SYSCONF_DIR/pmlogrewrite
 if that directory exists, else no rewriting is attempted.
 .PP
 The
@@ -474,15 +474,15 @@ the PCP logger control file
 this file is a potential security risk and should not be writable by any user
 other than root.
 .TP
-.B $PCP_VAR_DIR/config/pmlogger/crontab
+.B $PCP_SYSCONF_DIR/pmlogger/crontab
 sample crontab for automated script execution by root
 .TP
-.B $PCP_VAR_DIR/config/pmlogger/config.default
+.B $PCP_SYSCONF_DIR/pmlogger/config.default
 default
 .B pmlogger
 configuration file for the local primary logger
 .TP
-.BI $PCP_VAR_DIR/config/pmlogger/ config.*
+.BI $PCP_SYSCONF_DIR/pmlogger/ config.*
 other
 .B pmlogger
 configuration files suited for particular PCP monitoring tools,

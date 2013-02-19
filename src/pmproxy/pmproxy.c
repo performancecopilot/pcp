@@ -24,6 +24,10 @@ static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username = "pcp";
+static char	*certdb;		/* certificate DB path (NSS) */
+static char	*dbpassfile;		/* certificate DB password file */
+static char	pmproxy_host[MAXHOSTNAMELEN];
+static int	pmproxy_port;
 
 /*
  * For maintaining info about a request port that clients may connect to
@@ -114,8 +118,12 @@ ParseOptions(int argc, char *argv[])
     int		usage = 0;
     int		val;
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "C:D:fi:l:L:P:U:x:?")) != EOF)
 	switch (c) {
+
+	    case 'C':	/* path to NSS certificate database */
+		certdb = optarg;
+		break;
 
 	    case 'D':	/* debug flag */
 		sts = __pmParseDebug(optarg);
@@ -155,6 +163,10 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
+	    case 'P':	/* password file for certificate database access */
+		dbpassfile = optarg;
+		break;
+
 	    case 'U':
 		/* run as user username */
 		username = optarg;
@@ -177,10 +189,12 @@ ParseOptions(int argc, char *argv[])
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
+"  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
+"  -P passfile     password file for certificate database access\n"
 "  -U username     assume identity of username (only when run as root)\n"
 "  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
 			pmProgname);
@@ -198,17 +212,17 @@ ParseOptions(int argc, char *argv[])
  * use ipSpec = "INADDR_ANY".
  */
 static int
-OpenRequestSocket(int port, const char * ipSpec)
+OpenRequestSocket(const char * ipSpec)
 {
     int			fd;
     int			sts;
-    struct __pmSockAddr *myAddr;
+    __pmSockAddr	*myAddr;
     int			one = 1;
 
     fd = __pmCreateSocket();
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
-			port, netstrerror());
+			pmproxy_port, netstrerror());
 	DontStart();
     }
     if (fd > maxSockFd)
@@ -221,7 +235,7 @@ OpenRequestSocket(int port, const char * ipSpec)
 			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d) __pmSetSockopt(SO_REUSEADDR): %s\n",
-		port, netstrerror());
+		pmproxy_port, netstrerror());
 	DontStart();
     }
 #else
@@ -230,7 +244,7 @@ OpenRequestSocket(int port, const char * ipSpec)
 			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d) __pmSetSockOpt(SO_EXCLUSIVEADDRUSE): %s\n",
-		port, netstrerror());
+		pmproxy_port, netstrerror());
 	DontStart();
     }
 #endif
@@ -240,24 +254,24 @@ OpenRequestSocket(int port, const char * ipSpec)
 			(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, ipSpec, netstrerror());
+		pmproxy_port, ipSpec, netstrerror());
 	DontStart();
     }
 
     /* Initialize the socket address */
     if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-		      port, ipSpec);
+		      pmproxy_port, ipSpec);
 	DontStart();
     }
     __pmSockAddrSetFamily(myAddr, AF_INET);
-    __pmSockAddrSetPort(myAddr, port);
+    __pmSockAddrSetPort(myAddr, pmproxy_port);
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmSockAddrFree(myAddr);
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
-			port, netstrerror());
+			pmproxy_port, netstrerror());
 	if (neterror() == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
 	DontStart();
@@ -266,7 +280,7 @@ OpenRequestSocket(int port, const char * ipSpec)
     sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmListen: %s\n",
-			port, netstrerror());
+			pmproxy_port, netstrerror());
 	DontStart();
     }
     return fd;
@@ -290,77 +304,108 @@ CleanupClient(ClientInfo *cp, int sts)
     DeleteClient(cp);
 }
 
+static int
+VerifyClient(ClientInfo *cp, __pmPDU *pb)
+{
+    int	i, sts, flags = 0, sender = 0, credcount = 0;
+    __pmPDUHdr *header = (__pmPDUHdr *)pb;
+    __pmCred *credlist;
+
+    /* first check that this is a credentials PDU */
+    if (header->type != PDU_CREDS)
+	return PM_ERR_IPC;
+
+    /* now decode it and if secure connection requested, set it up */
+    if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
+	return sts;
+
+    for (i = 0; i < credcount; i++) {
+	if (credlist[i].c_type == CVERSION) {
+	    __pmVersionCred *vcp = (__pmVersionCred *)&credlist[i];
+	    flags = vcp->c_flags;
+	    break;
+	}
+    }
+    if (credlist != NULL)
+	free(credlist);
+
+    /* need to ensure both the pmcd and client channel use flags */
+
+    if (sts >= 0 && flags)
+	sts = __pmSecureServerHandshake(cp->fd, flags);
+	
+    /* send credentials PDU through to pmcd now (order maintained) */
+    if (sts >= 0)
+	sts = __pmXmitPDU(cp->pmcd_fd, pb);
+
+    /* finally perform any additional handshaking needed with pmcd */
+    if (sts >= 0 && flags)
+	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, pmproxy_host);
+   
+    return sts;
+}
+
 /* Determine which clients (if any) have sent data to the server and handle it
  * as required.
  */
 void
 HandleInput(__pmFdSet *fdsPtr)
 {
-    int		ists;
-    int		osts;
-    int		i;
+    int		i, sts;
     __pmPDU	*pb;
     ClientInfo	*cp;
 
-    /* input from client */
+    /* input from clients */
     for (i = 0; i < nClients; i++) {
 	if (!client[i].status.connected || !__pmFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
 
-	/*
-	 * TODO new read logic
-	 *	- read len
-	 *	- read pdu body
-	 *	- forward
-	 * need pmcd fds in select mask
-	 * need to map in-fd to out-fd
-	 * handle any input here, not just clients ... or treat pmcd
-	 * connections as clients also?
-	 */
-	ists = __pmGetPDU(cp->fd, LIMIT_SIZE, 0, &pb);
-	if (ists <= 0) {
-	    CleanupClient(cp, ists);
+	sts = __pmGetPDU(cp->fd, LIMIT_SIZE, 0, &pb);
+	if (sts <= 0) {
+	    CleanupClient(cp, sts);
 	    continue;
 	}
 
-	osts = __pmXmitPDU(cp->pmcd_fd, pb);
+	/* We *must* see a credentials PDU as the first PDU */
+	if (!cp->status.allowed) {
+	    sts = VerifyClient(cp, pb);
+	    __pmUnpinPDUBuf(pb);
+	    if (sts < 0) {
+		CleanupClient(cp, sts);
+		continue;
+	    }
+	    cp->status.allowed = 1;
+	    continue;
+	}
+
+	sts = __pmXmitPDU(cp->pmcd_fd, pb);
 	__pmUnpinPDUBuf(pb);
-	if (osts <= 0) {
-	    CleanupClient(cp, osts);
+	if (sts <= 0) {
+	    CleanupClient(cp, sts);
 	    continue;
 	}
     }
 
-
-    /* input from pmcd */
+    /* input from pmcds */
     for (i = 0; i < nClients; i++) {
-	if (!client[i].status.connected || !__pmFD_ISSET(client[i].pmcd_fd, fdsPtr))
+	if (!client[i].status.connected ||
+	    !__pmFD_ISSET(client[i].pmcd_fd, fdsPtr))
 	    continue;
 
 	cp = &client[i];
 
-	/*
-	 * TODO new read logic
-	 *	- read len
-	 *	- read pdu body
-	 *	- forward
-	 * need pmcd fds in select mask
-	 * need to map in-fd to out-fd
-	 * handle any input here, not just clients ... or treat pmcd
-	 * connections as clients also?
-	 */
-	ists = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
-	if (ists <= 0) {
-	    CleanupClient(cp, ists);
+	sts = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
+	if (sts <= 0) {
+	    CleanupClient(cp, sts);
 	    continue;
 	}
 
-	osts = __pmXmitPDU(cp->fd, pb);
+	sts = __pmXmitPDU(cp->fd, pb);
 	__pmUnpinPDUBuf(pb);
-	if (osts <= 0) {
-	    CleanupClient(cp, osts);
+	if (sts <= 0) {
+	    CleanupClient(cp, sts);
 	    continue;
 	}
     }
@@ -380,6 +425,7 @@ Shutdown(void)
     for (i = 0; i < nReqPorts; i++)
 	if ((fd = reqPorts[i].fd) != -1)
 	    __pmCloseSocket(fd);
+    __pmSecureServerShutdown();
     __pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
 }
@@ -430,7 +476,6 @@ ClientLoop(void)
     int		i, sts;
     int		maxFd;
     __pmFdSet	readableFds;
-    int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
 
     for (;;) {
@@ -519,13 +564,46 @@ SigBad(int sig)
     abort();
 }
 
+/*
+ * extract runtime details:
+ * - any PMPROXY_PORT setting from the environment
+ * - hostname extracted and cached for later use during protocol negotiations
+ */
+static void
+ProxyEnvironment(void)
+{
+    struct hostent	*hep = NULL;
+    char		host[MAXHOSTNAMELEN];
+    char		*env_str;
+    char		*end_ptr;
+
+    if ((env_str = getenv("PMPROXY_PORT")) != NULL) {
+	pmproxy_port = (int)strtol(env_str, &end_ptr, 0);
+	if (*end_ptr != '\0' || pmproxy_port < 0) {
+	    __pmNotifyErr(LOG_WARNING,
+			 "main: ignored bad PMPROXY_PORT = '%s'\n", env_str);
+	    pmproxy_port = PROXY_PORT;
+	}
+    }
+    else
+	pmproxy_port = PROXY_PORT;
+
+    /* nathans TODO - fix this up - use newer APIs */
+    if (gethostname(host, MAXHOSTNAMELEN) < 0) {
+        __pmNotifyErr(LOG_ERR, "gethostname failure\n");
+        DontStart();
+    }
+    host[MAXHOSTNAMELEN-1] = '\0';
+    hep = gethostbyname(host);
+    strncpy(pmproxy_host, hep ? hep->h_name : host, MAXHOSTNAMELEN);
+    pmproxy_host[MAXHOSTNAMELEN-1] = '\0';
+}
+
 int
 main(int argc, char *argv[])
 {
     int		i;
     int		status;
-    char	*env_str;
-    int		port;
     unsigned	nReqPortsOK = 0;
 
     umask(022);
@@ -533,6 +611,7 @@ main(int argc, char *argv[])
     __pmSetInternalState(PM_STATE_PMCS);
 
     ParseOptions(argc, argv);
+    ProxyEnvironment();
 
     if (run_daemon) {
 	fflush(stderr);
@@ -545,31 +624,13 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
-    /*
-     * get optional stuff from environment ...
-     *	PMPROXY_PORT
-     * ... and create sockets
-     */
-    if ((env_str = getenv("PMPROXY_PORT")) != NULL) {
-	char	*end_ptr;
-
-	port = (int)strtol(env_str, &end_ptr, 0);
-	if (*end_ptr != '\0' || port < 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			 "main: ignored bad PMPROXY_PORT = '%s'\n", env_str);
-	    port = PROXY_PORT;
-	}
-    }
-    else
-	port = PROXY_PORT;
-
     /* If no -i IP_ADDR options specified, allow connections on any IP number */
     if (nReqPorts == 0)
 	AddRequestPort(NULL);
 
     /* Open request ports for client connections */
     for (i = 0; i < nReqPorts; i++) {
-	int fd = OpenRequestSocket(port, reqPorts[i].ipSpec);
+	int fd = OpenRequestSocket(reqPorts[i].ipSpec);
 	if (fd != -1) {
 	    reqPorts[i].fd = fd;
 	    if (fd > maxReqPortFd)
@@ -604,23 +665,11 @@ main(int argc, char *argv[])
     }
     fflush(stderr);
 
-#ifdef HAVE_GETPWNAM
     /* lose root privileges if we have them */
-    if (username) {
-	struct passwd	*pw;
+    __pmSetProcessIdentity(username);
 
-	if ((pw = getpwnam(username)) == 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			"cannot find the user %s to switch to\n", username);
-	    DontStart();
-	}
-	if (setgid(pw->pw_gid) < 0 || setuid(pw->pw_uid) < 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			"cannot switch to uid/gid of user %s\n", username);
-	    DontStart();
-	}
-    }
-#endif
+    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+	DontStart();
 
     /* all the work is done here */
     ClientLoop();

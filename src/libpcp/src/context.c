@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -184,8 +185,8 @@ pmWhichContext(void)
     return sts;
 }
 
-static int
-__pmConvertTimeout (int timeo)
+int
+__pmConvertTimeout(int timeo)
 {
     int tout_msec;
     const struct timeval *tv;
@@ -194,9 +195,9 @@ __pmConvertTimeout (int timeo)
     case TIMEOUT_NEVER:
         tout_msec = -1;
         break;
+
     case TIMEOUT_DEFAULT:
         tv = __pmDefaultRequestTimeout();
-
         tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
         break;
 
@@ -207,6 +208,61 @@ __pmConvertTimeout (int timeo)
 
     return tout_msec;
 }
+
+#ifdef PM_MULTI_THREAD
+static void
+__pmInitContextLock(pthread_mutex_t *lock)
+{
+    pthread_mutexattr_t	attr;
+    int			sts;
+    char		errmsg[PM_MAXERRMSGLEN];
+
+    /*
+     * Need context lock to be recursive as we sometimes call
+     * __pmHandleToPtr() while the current context is already
+     * locked
+     */
+    if ((sts = pthread_mutexattr_init(&attr)) != 0) {
+	strerror_r(sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d lock pthread_mutexattr_init failed: %s",
+		contexts_len-1, errmsg);
+	exit(4);
+    }
+    if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+	strerror_r(sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d lock pthread_mutexattr_settype failed: %s",
+		contexts_len-1, errmsg);
+	exit(4);
+    }
+    if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
+	strerror_r(sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d lock pthread_mutex_init failed: %s",
+		contexts_len-1, errmsg);
+	exit(4);
+    }
+}
+
+static void
+__pmInitChannelLock(pthread_mutex_t *lock)
+{
+    int		sts;
+    char	errmsg[PM_MAXERRMSGLEN];
+
+    if ((sts = pthread_mutex_init(lock, NULL)) != 0) {
+	strerror_r(sts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmNewContext: "
+		"context=%d pmcd channel lock pthread_mutex_init failed: %s",
+		contexts_len, errmsg);
+	exit(4);
+    }
+}
+#else
+#define __pmInitContextLock(x)	do { } while (1)
+#define __pmInitChannelLock(x)	do { } while (1)
+#endif
 
 int
 pmNewContext(int type, const char *name)
@@ -220,7 +276,8 @@ pmNewContext(int type, const char *name)
 
     PM_INIT_LOCKS();
 
-    if (type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+    if (PM_CONTEXT_LOCAL == (type & PM_CONTEXT_TYPEMASK) &&
+	PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
 	/* Local context requires single-threaded applications */
 	return PM_ERR_THREAD;
 
@@ -260,36 +317,10 @@ INIT_CONTEXT:
      * Set up the default state
      */
     memset(new, 0, sizeof(__pmContext));
-#ifdef PM_MULTI_THREAD
-    {
-	/*
-	 * Need context lock to be recursive as we sometimes call
-	 * __pmHandleToPtr() while the current context is already
-	 * locked
-	 */
-	pthread_mutexattr_t	attr;
-	int			psts;
-	char			errmsg[PM_MAXERRMSGLEN];
-
-	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_init failed: %s", contexts_len-1, errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutexattr_settype failed: %s", contexts_len-1, errmsg);
-	    exit(4);
-	}
-	if ((psts = pthread_mutex_init(&new->c_lock, &attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "pmNewContext: context=%d lock pthread_mutex_init failed: %s", contexts_len-1, errmsg);
-	    exit(4);
-	}
-    }
-#endif
-    new->c_type = type;
-    if ((new->c_instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL) {
+    __pmInitContextLock(&new->c_lock);
+    new->c_type = (type & PM_CONTEXT_TYPEMASK);
+    new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
+    if ((new->c_instprof = (__pmProfile *)calloc(1, sizeof(__pmProfile))) == NULL) {
 	/*
 	 * fail : nothing changed -- actually list is changed, but restoring
 	 * contexts_len should make it ok next time through
@@ -297,10 +328,7 @@ INIT_CONTEXT:
 	sts = -oserror();
 	goto FAILED;
     }
-    memset(new->c_instprof, 0, sizeof(__pmProfile));
     new->c_instprof->state = PM_PROFILE_INCLUDE;	/* default global state */
-    new->c_sent = 0;	/* profile not sent */
-    new->c_origin.tv_sec = new->c_origin.tv_usec = 0;	/* default time */
 
     if (new->c_type == PM_CONTEXT_HOST) {
 	pmHostSpec	*hosts;
@@ -314,13 +342,30 @@ INIT_CONTEXT:
 	    pmflush();
 	    free(errmsg);
 	    goto FAILED;
+	} else if (sts > 0) {
+	    /* upgrade API request to secure channel, as hostspec demands it */
+	    new->c_flags |= sts;
+	} else {
+	    /* upgrade API request to secure channel, if environ requests it */
+	    char *secure = getenv("PCP_SECURE_SOCKETS");
+
+	    if (!secure) {
+		; /* leave secure connection flag as-is */
+	    } else if (secure[0] == '\0' ||
+	              (strcmp(secure, "1")) == 0 ||
+	              (strcmp(secure, "enforce")) == 0) {
+		new->c_flags |= PM_CTXFLAG_SECURE;
+	    } else if (strcmp(secure, "relaxed") == 0) {
+		new->c_flags |= PM_CTXFLAG_RELAXED;
+	    }
 	}
 
 	if (nhosts == 1) {
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == PM_TPD(curcontext))
 		    continue;
-		if (contexts[i]->c_type == PM_CONTEXT_HOST &&
+		if (contexts[i]->c_type == new->c_type &&
+		    contexts[i]->c_flags == new->c_flags &&
 		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name,
 			    hosts[0].name) == 0) {
 		    new->c_pmcd = contexts[i]->c_pmcd;
@@ -333,8 +378,7 @@ INIT_CONTEXT:
 	     * If this fails, restore the original current context
 	     * and return an error.
 	     */
-	    sts = __pmConnectPMCD(hosts, nhosts);
-
+	    sts = __pmConnectPMCD(hosts, nhosts, new->c_flags);
 	    if (sts < 0) {
 		__pmFreeHostSpec(hosts, nhosts);
 		goto FAILED;
@@ -351,17 +395,7 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
-#ifdef PM_MULTI_THREAD
-	    {
-		int		psts;
-		char		errmsg[PM_MAXERRMSGLEN];
-		if ((psts = pthread_mutex_init(&new->c_pmcd->pc_lock, NULL)) != 0) {
-		    strerror_r(psts, errmsg, sizeof(errmsg));
-		    fprintf(stderr, "pmNewContext: context=%d pmcd channel lock pthread_mutex_init failed: %s", contexts_len, errmsg);
-		    exit(4);
-		}
-	    }
-#endif
+	    __pmInitChannelLock(&new->c_pmcd->pc_lock);
 	}
 	else {
 	    /* duplicate of an existing context, don't need the __pmHostSpec */
@@ -461,13 +495,12 @@ FAILED:
     return sts;
 }
 
-
 int
 pmReconnectContext(int handle)
 {
     __pmContext	*ctxp;
     __pmPMCDCtl	*ctl;
-    int		sts;
+    int		i, sts;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -501,12 +534,7 @@ pmReconnectContext(int handle)
 	    ctl->pc_fd = -1;
 	}
 
-	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts)) >= 0) {
-	    ctl->pc_fd = sts;
-	    ctxp->c_sent = 0;
-	}
-
-	if (sts < 0) {
+	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts, ctxp->c_flags)) < 0) {
 	    waitawhile(ctl);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
@@ -517,11 +545,11 @@ pmReconnectContext(int handle)
 	    return -ETIMEDOUT;
 	}
 	else {
-	    int		i;
-	    /*
-	     * mark profile as not sent for all contexts sharing this
-	     * socket
-	     */
+	    ctl->pc_fd = sts;
+	    ctl->pc_timeout = 0;
+	    ctxp->c_sent = 0;
+
+	    /* mark profile as not sent for all contexts sharing this socket */
 	    for (i = 0; i < contexts_len; i++) {
 		if (contexts[i]->c_type != PM_CONTEXT_FREE && contexts[i]->c_pmcd == ctl) {
 		    contexts[i]->c_sent = 0;
@@ -531,20 +559,10 @@ pmReconnectContext(int handle)
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmReconnectContext(%d), done\n", handle);
 #endif
-	    ctl->pc_timeout = 0;
 	}
     }
-    else {
-	/*
-	 * assume PM_CONTEXT_ARCHIVE or PM_CONTEXT_LOCAL reconnect,
-	 * this is a NOP in either case.
-	 */
-	;
-    }
 
-    /*
-     * clear any derived metrics and re-bind
-     */
+    /* clear any derived metrics and re-bind */
     __dmclosecontext(ctxp);
     __dmopencontext(ctxp);
 
@@ -560,7 +578,7 @@ pmReconnectContext(int handle)
 int
 pmDupContext(void)
 {
-    int			sts;
+    int			sts, oldtype;
     int			old, new = -1;
     char		hostspec[4096], *h;
     __pmContext		*newcon, *oldcon;
@@ -578,17 +596,18 @@ pmDupContext(void)
 	goto done;
     }
     oldcon = contexts[old];
+    oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
 	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, &h, sizeof(hostspec));
-	new = pmNewContext(oldcon->c_type, hostspec);
+	new = pmNewContext(oldtype, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
-	new = pmNewContext(oldcon->c_type, NULL);
+	new = pmNewContext(oldtype, NULL);
     else
 	/* assume PM_CONTEXT_ARCHIVE */
-	new = pmNewContext(oldcon->c_type, oldcon->c_archctl->ac_log->l_name);
+	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->l_name);
     if (new < 0) {
 	/* failed to connect or out of memory */
 	sts = new;
@@ -800,6 +819,8 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 		    con->c_sent ? "SENT" : "NOT_SENT",
 		    con->c_pmcd->pc_fd,
 		    con->c_pmcd->pc_refcnt);
+		if (con->c_flags)
+		    fprintf(f, " flags=%x", con->c_flags);
 	    }
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
 		fprintf(f, " standalone:");

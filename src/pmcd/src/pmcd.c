@@ -72,6 +72,12 @@ static unsigned		szReqPorts;	/* capacity of ports array */
 static ReqPortInfo	*reqPorts;	/* ports array */
 int			maxReqPortFd = -1;	/* highest request port file descriptor */
 
+/*
+ * Optional security services information
+ */
+static char		*certdb;	/* certificate database path (NSS) */
+static char		*dbpassfile;	/* certificate database password file */
+
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
 static uid_t	killer_uid;
@@ -186,8 +192,12 @@ ParseOptions(int argc, char *argv[])
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "D:fi:l:L:N:n:p:q:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "C:D:fi:l:L:N:n:p:P:q:t:T:U:x:?")) != EOF)
 	switch (c) {
+
+	    case 'C':	/* path to NSS certificate database */
+		certdb = optarg;
+		break;
 
 	    case 'D':	/* debug flag */
 		sts = __pmParseDebug(optarg);
@@ -263,6 +273,10 @@ ParseOptions(int argc, char *argv[])
 		}
 		break;
 
+	    case 'P':	/* password file for certificate database access */
+		dbpassfile = optarg;
+		break;
+
 	    case 'q':
 		val = (int)strtol(optarg, &endptr, 10);
 		if (*endptr != '\0' || val <= 0.0) {
@@ -317,6 +331,7 @@ ParseOptions(int argc, char *argv[])
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
+"  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
@@ -324,6 +339,7 @@ ParseOptions(int argc, char *argv[])
 "  -n pmnsfile     use an alternative PMNS\n"
 "  -N pmnsfile     use an alternative PMNS (duplicate PMIDs are allowed)\n"
 "  -p port         accept connections on this port\n"
+"  -P passfile     password file for certificate database access\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
 "  -T traceflag    Event trace control\n"
 "  -t timeout      PMDA response timeout (seconds) [default 5]\n"
@@ -350,7 +366,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
 {
     int			fd = -1;
     int			one, sts;
-    struct __pmSockAddr *myAddr;
+    __pmSockAddr	*myAddr;
 
     if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
@@ -358,8 +374,11 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
 	goto fail;
     }
 
-    /* If the address is unspecified, then use the address family we have been given,
-       otherwise the family will be determined by __pmStringToSockAddr. */
+    /*
+     * If the address is unspecified, then use the address family we
+     * have been given, otherwise the family will be determined by
+     * __pmStringToSockAddr.
+     */
     if (ipSpec == NULL || strcmp(ipSpec, "INADDR_ANY") == 0)
         __pmSockAddrSetFamily (myAddr, *family);
     else
@@ -787,7 +806,6 @@ ClientLoop(void)
     int		checkAgents;
     int		reload_ns = 0;
     __pmFdSet	readableFds;
-    int		CheckClientAccess(ClientInfo *);
     ClientInfo	*cp;
     __pmPDUInfo	xchallenge;
 
@@ -850,14 +868,15 @@ ClientLoop(void)
 
 			sts = __pmAccAddClient(cp->addr, &cp->denyOps);
 			if (sts >= 0) {
-			    cp->pduInfo.zero = 0;
+			    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 			    cp->pduInfo.version = PDU_VERSION;
 			    cp->pduInfo.licensed = 1;
-			    cp->pduInfo.authorize = 0;
+			    if (__pmSecureServerHasFeature(PM_SERVER_FEATURE_SECURE))
+				cp->pduInfo.features |= PDU_FLAG_SECURE;
+			    if (__pmSecureServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
+				cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 			    challenge = *(int*)(&cp->pduInfo);
 			    sts = 0;
-			    /* reset (no meaning, use fd table to version) */
-			    cp->pduInfo.version = UNKNOWN_VERSION;
 			}
 			else {
 			    /* __pmAccAddClient failed, this is grim! */
@@ -869,6 +888,10 @@ ClientLoop(void)
 			    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 			xchallenge = *(__pmPDUInfo *)&challenge;
 			xchallenge = __htonpmPDUInfo(xchallenge);
+
+			/* reset (no meaning, use fd table to version) */
+			cp->pduInfo.version = UNKNOWN_VERSION;
+
 			s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
 			if (s < 0) {
 			    __pmNotifyErr(LOG_ERR,
@@ -1119,12 +1142,18 @@ main(int argc, char *argv[])
 	}
     }
 
-    /* Open request ports for client connections. Open an inet and an IPv6 socket
-       for each client, if appropriate. */
+    /*
+     * Open request ports for client connections.
+     * Open an inet and an IPv6 socket for each client, if appropriate.
+     */
     for (i = 0; i < nReqPorts; i++) {
-      int family;
-      /* If he spec is NULL or "INADDR_ANY", then we open one socket for each address family
-	 (inet, IPv6). Oherwise, the address family will be determined by OpenRequestSocket. */
+	int family;
+
+	/*
+	 * If the spec is NULL or "INADDR_ANY", then we open one socket
+	 * for each address family (inet, IPv6).  Otherwise, the address
+	 * family will be determined by OpenRequestSocket.
+	 */
 	if (reqPorts[i].ipSpec == NULL || strcmp(reqPorts[i].ipSpec, "INADDR_ANY") == 0) {
 	    family = AF_INET;
 	    reqPorts[i].fds[INET_FD] =
@@ -1194,6 +1223,9 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
+    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+	DontStart();
+
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);
     fprintf(stderr, "\npmcd: PID = %" FMT_PID, getpid());
@@ -1228,9 +1260,9 @@ main(int argc, char *argv[])
  * The list is cleared when PMCD is reconfigured.
  */
 
-static int		 nBadHosts = 0;
-static int		 szBadHosts = 0;
-static __pmSockAddr	**badHost = NULL;
+static int		 nBadHosts;
+static int		 szBadHosts;
+static __pmSockAddr	**badHost;
 
 static int
 AddBadHost(struct __pmSockAddr *hostId)

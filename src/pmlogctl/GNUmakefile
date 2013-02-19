@@ -27,7 +27,7 @@ LSRCFILES = $(OTHERS) crontab.IN
 LDIRT	= crontab control.install
 
 # Beware ... spaces at the end of these lines cause the install lines to break
-_confdir = $(PCP_VAR_DIR)/config/pmlogger
+_confdir = $(PCP_SYSCONF_DIR)/pmlogger
 _bindir  = $(PCP_BINADM_DIR)
 
 default: $(OTHERS) crontab control.install GNUmakefile.install.xxx

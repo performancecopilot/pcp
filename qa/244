@@ -73,7 +73,7 @@ CONFIG=$PCP_PMCDCONF_PATH
 NEWCONFIG=$tmp/pmcd.conf
 CONFIGSAVE=$tmp/pmcd.conf.save
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
 signal="$sudo $PCP_BINADM_DIR/pmsignal"

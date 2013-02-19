@@ -188,6 +188,7 @@ PCP_MAN_DIR = @pcp_man_dir@
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 ENABLE_SHARED = @enable_shared@
+ENABLE_SECURE = @enable_secure@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -199,6 +200,7 @@ LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
 LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_SSL = @lib_for_ssl@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -453,7 +455,7 @@ SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
-SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
+SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
 endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
@@ -462,7 +464,10 @@ endif
 ifeq "$(TARGET_OS)" "linux"
 PYTHON_INSTALL = \
 	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
-		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm
+		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
+	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
+	    touch $${DIST_ROOT-/}$$f; \
+	done
 else
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = macosx \

@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
+[ -d $PCP_PMDAS_DIR/logger ] || _notrun "No pmdalogger installed"
 [ $PCP_VER -ge 3610 ] || _notrun "Installed pmdalogger is too old"
 
 _cleanup()
@@ -52,6 +53,7 @@ touch  $tmp.reg
 echo "
 reg	y	$tmp.reg
 " > $tmp.conf
+[ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)

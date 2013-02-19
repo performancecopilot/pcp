@@ -47,7 +47,7 @@ $sudo rm -rf $tmp.*
 status=1	# failure is the default!
 _needclean=true
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-	PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
 

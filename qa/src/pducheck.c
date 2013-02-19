@@ -1351,7 +1351,6 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		port = 4323;	/* default port for remote connection */
-    char	env[100];
     char	*endnum;
     __pmID_int	*pmidp;
 
@@ -1422,10 +1421,9 @@ main(int argc, char **argv)
     }
     else {
 	/* remote connection, use a TCP/IP socket */
-	sprintf(env, "PMCD_PORT=%d", port);
-	putenv(env);
-	if ((e = __pmAuxConnectPMCD(argv[optind])) < 0) {
-	    fprintf(stderr, "__pmAuxConnectPMCD(%s): %s\n", argv[optind], pmErrStr(e));
+	char *host = argv[optind];
+	if ((e = __pmAuxConnectPMCDPort(host, port)) < 0) {
+	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s,%d): %s\n", host, port, pmErrStr(e));
 	    exit(1);
 	}
 	fd[0] = fd[1] = e;

@@ -39,6 +39,7 @@ _filter()
 	-e '/^__pmDecodeXtendError: got error PDU/d' \
 	-e '/^pmWhichContext() -> /d' \
 	-e '/__pmSendCreds: #0/s/= 201/= 1020000/' \
+	-e '/^__pmDataIPC: /d' \
 	-e '/^__pmSetDataIPC/,+1d' \
 	-e 's/ [0-9][0-9]*(?)//g' \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \

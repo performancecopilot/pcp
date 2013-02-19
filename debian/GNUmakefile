@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 LINTIAN = source.lintian-overrides
 LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 
-PCP_FILES = pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
+PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
 PCP_LINT = pcp.lintian 
 
 PCPTESTSUITE = pcp-testsuite
@@ -64,12 +64,15 @@ LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
 SUBDIRS = source
-LDIRT = *.debhelper *.substvars *.log pcp files $(LIBPCPPCP) $(LIBPCPPCP)-dev \
+LDIRT = *.debhelper *.substvars *.log pcp files pcp.preinst pcp.preinst.head \
+	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
-LSRCFILES = changelog compat control copyright rules $(LINTIAN) $(PCP_LINT) \
+LSRCFILES = changelog compat control copyright rules \
+		pcp.preinst.head.in pcp.preinst.head cleanconfigs pcp.preinst.tail \
+		$(LINTIAN) $(PCP_LINT) \
 		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
 		$(PCPTESTSUITE_FILES) \
 		$(LIBGUI_FILES) $(DEVGUI_FILES) \
@@ -80,7 +83,7 @@ LSRCFILES = changelog compat control copyright rules $(LINTIAN) $(PCP_LINT) \
 		$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
 		$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
 
-default:
+default: pcp.preinst
 
 include $(BUILDRULES)
 
@@ -212,3 +215,7 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTIOSTAT_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTIOSTAT_DOC_DIR)/changelog.Debian
 endif
+
+pcp.preinst:	pcp.preinst.head cleanconfigs pcp.preinst.tail
+	rm -f pcp.preinst
+	cat pcp.preinst.head cleanconfigs pcp.preinst.tail >pcp.preinst

@@ -197,7 +197,7 @@ _havelogger()
 	echo "chkconfig pmlogger on, and restart PMCD"
 	_change_config pmlogger on
 	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+		PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 	if sed -e '/^#/d' "$PCP_PMLOGGERCONTROL_PATH" \
 	   | $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1 } END { exit 1-sts }'
 	then
@@ -252,7 +252,7 @@ _havepmcdtrace()
     then
 	echo "fix options, and restart PMCD"
 	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
-	      PCP_PMCDOPTIONS_PATH="$PCP_VAR_DIR/config/pmcd/pmcd.options"
+	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
 	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
 	sed <$PCPQA_PMCDOPTIONS >$tmp.tmp -e '/^-T/s/^/#/'
 	cat >>$tmp.tmp <<'End-of-File'
@@ -647,4 +647,22 @@ else
 	echo "Error: ${MAKE:-make} setup failed"
 	exit 1
     fi
+
+    # since pmcd no longer runs as root, normal users must be able
+    # to read all dirs on the path to the qa home ...
+    #
+    x=`pwd`
+    while [ -n "$x" -a "$x" != / ]
+    do
+	prot=`ls -ld "$x" | sed -e 's/[ 	].*//'`
+	case $prot
+	in
+	    dr?xr?xr?[xt]*)
+		;;
+	    *)
+		echo "Warning: parent directory $x (mode=$prot) not world readable and searchable"
+		;;
+	esac
+	x=`dirname $x`
+    done
 fi

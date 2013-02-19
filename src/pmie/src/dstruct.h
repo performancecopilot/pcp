@@ -173,6 +173,7 @@ typedef struct profile {
     struct profile  *next;	/* Profile list forward link */
     struct profile  *prev;	/* Profile list backward link */
     pmInDom         indom;	/* instance domain */
+    int		    need_all;	/* all instances required */
 } Profile;
 
 /* bundled fetch request for multiple metrics */

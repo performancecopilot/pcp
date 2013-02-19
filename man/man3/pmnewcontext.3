@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMNEWCONTEXT 3 "SGI" "Performance Co-Pilot"
+.TH PMNEWCONTEXT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmNewContext\f1 \- establish a new PMAPI context
 .SH "C SYNOPSIS"
@@ -130,9 +130,10 @@ the ``proc'', ``sample'' and ``ib'' PMDAs.
 .PP
 In the case where \f2type\fP is \f3PM_CONTEXT_HOST\fP, additional flags can
 be added to the \f2type\fP to indicate if the connection to \f3pmcd\fP(1)
-should be deferred (\f3PM_CTXFLAG_SHALLOW\fP) and if the file descriptor,
-used to communicate with \f3pmcd\fP(1), should not be shared across contexts
-(\f3PM_CTXFLAG_EXCLUSIVE\fP).
+should be encrypted (\f3PM_CTXFLAG_SECURE\fP), deferred (\f3PM_CTXFLAG_SHALLOW\fP)
+and if the file descriptor used to communicate with \f3pmcd\fP(1), should not be
+shared across contexts (\f3PM_CTXFLAG_EXCLUSIVE\fP).  These final two context
+flags are now deprecated and ignored.
 .PP
 The initial instance
 profile is set up to select all instances in all instance domains. 

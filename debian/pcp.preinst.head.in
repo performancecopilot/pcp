@@ -1,0 +1,15 @@
+#!/bin/sh -e
+#DEBHELPER#
+#
+# The goal here is to collect PCP configuration files from places
+# they may have been stashed away in previous versions
+#
+
+# The new place ... this should match the setting in /etc/pcp.conf
+#
+PCP_SYSCONF_DIR=@pcp_sysconf_dir@
+# and same here ...
+#
+PCP_LOG_DIR=@pcp_log_dir@
+[ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
+

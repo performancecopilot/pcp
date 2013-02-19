@@ -117,6 +117,7 @@ extern "C" {
 #undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
 #undef HAVE_PWD_H
+#undef HAVE_GRP_H
 #undef HAVE_REGEX_H
 #undef HAVE_TERMIO_H
 #undef HAVE_TERMIOS_H
@@ -443,11 +444,6 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a Linux box */
 #undef IS_LINUX
-#ifdef IS_LINUX
-#ifndef O_CLOEXEC
-#define O_CLOEXEC 02000000	/* set close_on_exec */
-#endif
-#endif
 
 /* Determine if we are on a Solaris box */
 #undef IS_SOLARIS
@@ -494,7 +490,6 @@ extern const char *wsastrerror(int);
 #define HAVE_FNDELAY
 
 #define MAP_FAILED	NULL
-#define FD_CLOEXEC	0
 #define O_NDELAY	0
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
@@ -577,6 +572,13 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define hoststrerror()	hstrerror(h_errno)
 #endif
 
+#ifndef O_CLOEXEC
+#define O_CLOEXEC	0
+#endif
+
+#ifndef FD_CLOEXEC
+#define FD_CLOEXEC	0
+#endif
 
 /*
  * run-time environment that is in libc for most platforms, but for some

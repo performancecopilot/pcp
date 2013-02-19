@@ -40,7 +40,7 @@ fi
 # Command line can be used to extend this set, and any whacko
 # platform-specific requirements are also appended later on.
 #
-configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-tmpdir=/var/lib/pcp/tmp"
+configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 
 for opt in $*
 do
@@ -69,7 +69,10 @@ trap "rm -rf $tmp" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
-[ "$VERS" = MINGW ] && configure_options="$configure_options --disable-ssp"
+if [ "$VERS" = MINGW ]
+then
+    configure_options="--prefix= --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
+fi
 
 # Sanity checks ... this is sick, but I'm really tired of QA failing
 # because of bad binaries being built from the Debian/Ubuntu toolchain

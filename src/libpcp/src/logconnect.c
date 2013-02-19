@@ -74,8 +74,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct __pmSockAddr *myAddr;
-    struct __pmHostEnt	*servInfo;
+    __pmSockAddr	 *myAddr;
+    __pmHostEnt		*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
