@@ -80,7 +80,7 @@ extern int __pmSecureSocketsError(void);
 #else
 struct __pmSockAddr {
     union {
-	__uint16_t		family;
+	struct sockaddr	        raw;
 	struct sockaddr_in	inet;
 	struct sockaddr_in6	ipv6;
     } sockaddr;
