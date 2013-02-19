@@ -402,13 +402,13 @@ __pmSockAddrInit(__pmSockAddr *addr, int address, int port)
 void
 __pmSockAddrSetFamily(__pmSockAddr *addr, int family)
 {
-    addr->sockaddr.family = family;
+    addr->sockaddr.raw.sa_family = family;
 }
 
 int
 __pmSockAddrGetFamily(const __pmSockAddr *addr)
 {
-    return addr->sockaddr.family;
+    return addr->sockaddr.raw.sa_family;
 }
 
 void
@@ -540,7 +540,7 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
     /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return accept(fd, (struct sockaddr *)&sock->sockaddr.inet, addrlen);
+    return accept(fd, &sock->sockaddr.raw, addrlen);
 }
 
 int
@@ -548,7 +548,7 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return bind(fd, (struct sockaddr *)&sock->sockaddr.inet, sizeof(sock->sockaddr.inet));
+    return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
 }
 
 int
@@ -556,7 +556,7 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return connect(fd, (struct sockaddr *)&sock->sockaddr.inet, sizeof(sock->sockaddr.inet));
+    return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
 }
 
 int
@@ -725,13 +725,13 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 int
 __pmSockAddrIsInet(const __pmSockAddr *addr)
 {
-    return addr->sockaddr.family == AF_INET;
+    return addr->sockaddr.raw.sa_family == AF_INET;
 }
 
 int
 __pmSockAddrIsIPv6(const __pmSockAddr *addr)
 {
-    return addr->sockaddr.family == AF_INET6;
+    return addr->sockaddr.raw.sa_family == AF_INET6;
 }
 
 __pmSockAddr *
@@ -753,7 +753,7 @@ __pmStringToSockAddr(const char *cp)
 
     if (addr) {
         /* TODO: IPv6 */
-        addr->sockaddr.family = AF_INET;
+        addr->sockaddr.inet.sin_family = AF_INET;
 	if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0)
 	    addr->sockaddr.inet.sin_addr.s_addr = INADDR_ANY;
 	else {
