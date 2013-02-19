@@ -64,7 +64,7 @@ do
     echo "=== iteration $i ===" >>$tmp.out
     ( $tmp.cmd & eval echo '$!' >$tmp.pid ) &
 
-    sleep 1
+    sleep 5
     pmlc_pid=`cat $tmp.pid`
     [ ! -z "$pmlc_pid" ] && _silent_kill $pmlc_pid
     sleep 2
