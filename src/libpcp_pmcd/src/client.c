@@ -25,27 +25,25 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    __pmHostEnt		*host;
     char		*sbuf;
+    char		*hostName;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
-    if ((host = __pmHostEntAlloc()) == NULL) {
-	fprintf(f, "ShowClients: out of memory\n");
-	return;
-    }
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected == 0)
 	    continue;
 
 	fprintf(f, "    %3d  ", client[i].fd);
 
-	if (__pmGetHostByAddr(client[i].addr, host) == NULL) {
+	hostName = __pmGetNameInfo(client[i].addr);
+	if (hostName == NULL) {
 	    sbuf = __pmSockAddrToString(client[i].addr);
 	    fprintf(f, "%s", sbuf);
 	    free(sbuf);
 	} else {
-	    fprintf(f, "%-40.40s", __pmHostEntGetName(host));
+	    fprintf(f, "%-40.40s", hostName);
+	    free(hostName);
 	}
 	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
 
@@ -59,6 +57,5 @@ ShowClients(FILE *f)
 
 	fputc('\n', f);
     }
-    __pmHostEntFree(host);
     fputc('\n', f);
 }

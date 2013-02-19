@@ -258,14 +258,15 @@ GetPort(char *file)
     fprintf(mapstream, "%d\n", ctlport);
 
     /* then the PMCD host */
-    if ((host = __pmHostEntAlloc()) == NULL) {
-	fprintf(stderr, "GetPort: __pmHostEntAlloc out of memory\n");
-	exit(1);
+    if ((host = __pmGetAddrInfo(pmcd_host)) != NULL) {
+        char *hostName = __pmHostEntGetName(host);
+	if (hostName != NULL) {
+	    fprintf(mapstream, "%s", hostName);
+	    free(hostName);
+	}
+	__pmHostEntFree(host);
     }
-    if (__pmGetHostByName(pmcd_host, host) != NULL)
-        fprintf(mapstream, "%s", __pmHostEntGetName(host));
     fprintf(mapstream, "\n");
-    __pmHostEntFree(host);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
@@ -414,16 +415,12 @@ control_req(void)
 {
     int			fd, sts;
     char		*abuf;
+    char		*hostName;
     __pmSockAddr	*addr;
-    __pmHostEnt		*host;
     __pmSockLen		addrlen;
 
     if ((addr = __pmSockAddrAlloc()) == NULL) {
 	fputs("error allocating space for client sockaddr\n", stderr);
-	return 0;
-    }
-    if ((host = __pmHostEntAlloc()) == NULL) {
-	fputs("error allocating space for client hostent\n", stderr);
 	return 0;
     }
     addrlen = __pmSockAddrSize();
@@ -431,7 +428,6 @@ control_req(void)
     if (fd == -1) {
 	fprintf(stderr, "error accepting client: %s\n", netstrerror());
 	__pmSockAddrFree(addr);
-	__pmHostEntFree(host);
 	return 0;
     }
     __pmSetSocketIPC(fd);
@@ -445,7 +441,6 @@ control_req(void)
 	    fprintf(stderr, "error sending connection NACK to client: %s\n",
 			 pmErrStr(sts));
 	__pmSockAddrFree(addr);
-	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
@@ -455,19 +450,20 @@ control_req(void)
 	__pmSendError(fd, FROM_ANON, sts);
 	fprintf(stderr, "error connecting to client: %s\n", pmErrStr(sts));
 	__pmSockAddrFree(addr);
-	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
 
-    if (__pmGetHostByAddr(addr, host) == NULL || strlen(__pmHostEntGetName(host)) > MAXHOSTNAMELEN-1) {
+    hostName = __pmGetNameInfo(addr);
+    if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
         sprintf(pmlc_host, "%s", abuf);
 	free(abuf);
     }
     else {
 	/* this is safe, due to strlen() test above */
-	strcpy(pmlc_host, __pmHostEntGetName(host));
+	strcpy(pmlc_host, hostName);
+	free(hostName);
     }
 
     sts = __pmAccAddClient(addr, &clientops);
@@ -487,12 +483,10 @@ control_req(void)
 			 pmErrStr(sts));
 	sleep(1);	/* QA 083 seems like there is a race w/out this delay */
 	__pmSockAddrFree(addr);
-	__pmHostEntFree(host);
 	__pmCloseSocket(fd);
 	return 0;
     }
     __pmSockAddrFree(addr);
-    __pmHostEntFree(host);
 
     /*
      * encode pdu version in the acknowledgement

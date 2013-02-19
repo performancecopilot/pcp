@@ -86,7 +86,8 @@ struct __pmSockAddr {
     } sockaddr;
 };
 struct __pmHostEnt {
-    struct hostent	hostent;
+    char			*name;
+    struct addrinfo		*addresses;
 };
 #endif
 #endif

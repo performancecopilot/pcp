@@ -1327,13 +1327,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 		     aPtr->pmDomainLabel, netstrerror());
 	    return -1;
 	}
-	if ((host = __pmHostEntAlloc()) == NULL) {
-	    fputs("pmcd: Error allocing host entry\n", stderr);
-	    return -1;
-	}
-	if (__pmGetHostByName("localhost", host) == NULL) {
+	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmHostEntFree(host);
 	    goto error;
 	}
 	if ((addr = __pmHostEntGetSockAddr(host, 0)) == NULL) {

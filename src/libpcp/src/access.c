@@ -89,17 +89,12 @@ getmyhostid(void)
 	return -1;
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
-    if ((host = __pmHostEntAlloc()) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmHostEntAlloc failure\n");
-	return -1;
-    }
 
     PM_LOCK(__pmLock_libpcp);
-    if (__pmGetHostByName(myhostname, host) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
+    if ((host = __pmGetAddrInfo(myhostname)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		     myhostname, hoststrerror());
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmHostEntFree(host);
 	return -1;
     }
     myhostid = __pmHostEntGetSockAddr(host, 0);
@@ -336,17 +331,12 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	else
 	    realname = name;
 
-	if ((host = __pmHostEntAlloc()) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "__pmHostEntAlloc failure\n");
-	    return -ENOMEM;
-	}
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	if (__pmGetHostByName(realname, host) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "__pmGetHostByName(%s), %s\n",
+	if ((host = __pmGetAddrInfo(realname)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 			 realname, hoststrerror());
 	    PM_UNLOCK(__pmLock_libpcp);
-	    __pmHostEntFree(host);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
 	hostid = __pmHostEntGetSockAddr(host, 0);

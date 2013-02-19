@@ -21,18 +21,6 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
-__pmHostEnt *
-__pmHostEntAlloc(void)
-{
-    return malloc(sizeof(__pmHostEnt));
-}
-
-void
-__pmHostEntFree(__pmHostEnt *hostent)
-{
-    free(hostent);
-}
-
 __pmSockAddr *
 __pmSockAddrAlloc(void)
 {
@@ -247,19 +235,15 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			sts;
     int			fdFlags;
 
-    if ((servInfo = __pmHostEntAlloc()) == NULL)
-	return -ENOMEM;
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmGetHostByName(hostname, servInfo) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
-	__pmHostEntFree(servInfo);
 	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
@@ -317,13 +301,23 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return fdFlags;
 }
 
-const char *
-__pmHostEntGetName(const __pmHostEnt *he)
+#if !defined(HAVE_SECURE_SOCKETS)
+
+__pmHostEnt *
+__pmHostEntAlloc(void)
 {
-    return he->hostent.h_name;
+    return calloc(1, sizeof(__pmHostEnt));
 }
 
-#if !defined(HAVE_SECURE_SOCKETS)
+void
+__pmHostEntFree(__pmHostEnt *hostent)
+{
+    if (hostent->name != NULL)
+        free(hostent->name);
+    if (hostent->addresses != NULL)
+        freeaddrinfo(hostent->addresses);
+    free(hostent);
+}
 
 static int
 createSocket(int family)
@@ -665,37 +659,68 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
-__pmHostEnt *
-__pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry)
+char *
+__pmGetNameInfo(__pmSockAddr *address)
 {
-    struct hostent *he = gethostbyname(hostName);
+    int sts;
+    char buf[NI_MAXHOST];
 
-    if (he == NULL)
-	return NULL;
-    memcpy(&hostEntry->hostent, he, sizeof(*he));
-    return hostEntry;
+    sts = getnameinfo(&address->sockaddr.raw, sizeof(address->sockaddr.raw),
+		      buf, sizeof(buf), NULL, 0, 0);
+    return sts == 0 ? strdup(buf) : NULL;
 }
 
 __pmHostEnt *
-__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *hostEntry)
+__pmGetAddrInfo(const char *hostName)
 {
-    /* TODO: IPv6 */
-    struct hostent *he = gethostbyaddr((void *)&address->sockaddr.inet.sin_addr.s_addr,
-					sizeof(address->sockaddr.inet.sin_addr.s_addr), AF_INET);
-    if (he == NULL)
-	return NULL;
-    memcpy(&hostEntry->hostent, he, sizeof(*he));
+    __pmSockAddr *addr;
+    __pmHostEnt *hostEntry;
+    struct addrinfo hints;
+    int sts;
+
+    hostEntry = __pmHostEntAlloc();
+    if (hostEntry != NULL) {
+        memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+	hints.ai_flags = AI_ADDRCONFIG; /* Only return configured address types */
+
+	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
+	if (sts != 0) {
+	    __pmHostEntFree(hostEntry);
+	    return NULL;
+	}
+
+	/* Try to reverse lookup the host name. */
+	addr = __pmHostEntGetSockAddr(hostEntry, 0);
+	if (addr != NULL)
+	  hostEntry->name = __pmGetNameInfo(addr);
+	else
+	  hostEntry->name = strdup(hostName);
+    }
     return hostEntry;
+}
+
+char *
+__pmHostEntGetName(const __pmHostEnt *he)
+{
+    return strdup(he->name);
 }
 
 __pmSockAddr *
 __pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 {
-    /* TODO: IPv6 */
     __pmSockAddr* addr = __pmSockAddrAlloc();
     if (addr) {
-        addr->sockaddr.inet.sin_family = he->hostent.h_addrtype;
-	addr->sockaddr.inet.sin_addr = *(struct in_addr *)he->hostent.h_addr_list[ix];
+        struct addrinfo *ai;
+        int i;
+	/* Make sure the given index references an actual address in the chain. */
+	for (i = 0, ai = he->addresses; i < ix && ai != NULL; ++i, ai = ai->ai_next)
+	    ;
+	if (i != ix || ai == NULL) {
+	    __pmSockAddrFree(addr);
+	    return NULL;
+	}
+	memcpy(&addr->sockaddr.raw, ai->ai_addr, ai->ai_addrlen);
     }
     return addr;
 }

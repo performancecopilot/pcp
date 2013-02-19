@@ -27,6 +27,18 @@
 #include <sys/termios.h>
 #endif
 
+__pmHostEnt *
+__pmHostEntAlloc(void)
+{
+    return malloc(sizeof(__pmHostEnt));
+}
+
+void
+__pmHostEntFree(__pmHostEnt *hostent)
+{
+    free(hostent);
+}
+
 /*
  * We shift NSS/SSL errors below the valid range for PCP error codes,
  * in order to avoid conflicts.  pmErrStr can then detect and decode.
@@ -1227,20 +1239,39 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return nsprSelect(PR_POLL_READ, &onefd, timeout);
 }
 
-__pmHostEnt *
-__pmGetHostByName(const char *hostName, __pmHostEnt *he)
+char *
+__pmGetNameInfo(__pmSockAddr *address)
 {
-    PRStatus prStatus = PR_GetHostByName(hostName, &he->buffer[0],
-					 PR_NETDB_BUF_SIZE, &he->hostent);
-    return prStatus == PR_SUCCESS ? he : NULL;
+    char *name = NULL;
+    __pmHostEnt *he = __pmHostEntAlloc();
+    if (he != NULL) {
+        PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
+					     sizeof(he->buffer), &he->hostent);
+	name = (prStatus == PR_SUCCESS ? strdup(he->hostent.h_name) : NULL);
+	__pmHostEntFree(he);
+    }
+    return name;
 }
 
 __pmHostEnt *
-__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *he)
+__pmGetAddrInfo(const char *hostName)
 {
-    PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
-					 PR_NETDB_BUF_SIZE, &he->hostent);
-    return prStatus == PR_SUCCESS ? he : NULL;
+    __pmHostEnt *he = __pmHostEntAlloc();
+    if (he != NULL) {
+        PRStatus prStatus = PR_GetHostByName(hostName, &he->buffer[0],
+					     PR_NETDB_BUF_SIZE, &he->hostent);
+	if (prStatus != PR_SUCCESS) {
+	    __pmHostEntFree(he);
+	    return NULL;
+	}
+    }
+    return he;
+}
+
+char *
+__pmHostEntGetName(const __pmHostEnt *he)
+{
+    return strdup(he->hostent.h_name);
 }
 
 __pmSockAddr *

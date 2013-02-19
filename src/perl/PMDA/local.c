@@ -156,12 +156,8 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
 	goto error;
     }
-    if ((servinfo = __pmHostEntAlloc()) == NULL) {
-        __pmNoMem("allocating socket address", __pmHostEntrSize(), PM_FATAL_ERR);
-	goto error;
-    }
-    if (__pmGetHostByName(host, servinfo) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetHostByName (%s): %s", host, netstrerror());
+    if ((servinfo = __pmGetAddrInfo(host)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
 	goto error;
     }
     if ((myaddr = __pmHostEntGetSockAddr(servinfo, 0)) == NULL) {
@@ -281,9 +277,7 @@ local_reconnector(files_t *file)
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
-    if ((servinfo = __pmHostEntAlloc()) == NULL)
-	goto done;
-    if (__pmGetHostByName(file->me.sock.host, servinfo) == NULL)
+    if ((servinfo = __pmGetAddrInfo(file->me.sock.host)) == NULL)
 	goto done;
     if ((fd = __pmCreateSocket()) < 0)
 	goto done;

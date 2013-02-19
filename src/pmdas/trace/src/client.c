@@ -126,22 +126,23 @@ deleteClient(client_t *cp)
 void
 showClients(void)
 {
-    struct __pmHostEnt	*hp;
     int			i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
-    hp = __pmHostEntAlloc();
     for (i=0; i < nclients; i++) {
+        char *hostName;
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
-	if (__pmGetHostByAddr(clients[i].addr, hp) == NULL) {
+	hostName = __pmGetNameInfo(clients[i].addr);
+	if (hostName == NULL)
 	    fprintf(stderr, "%s", __pmSockAddrToString(clients[i].addr));
+	else {
+	    fprintf(stderr, "%-40.40s", hostName);
+	    free(hostName);
 	}
-	else
-	  fprintf(stderr, "%-40.40s", __pmHostEntGetName(hp));
 	if (clients[i].denyOps != 0) {
 	    fprintf(stderr, "  ");
 	    if (clients[i].denyOps & TR_OP_SEND)

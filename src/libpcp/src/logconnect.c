@@ -132,20 +132,15 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    if ((servInfo = __pmHostEntAlloc()) == NULL) {
-	return -ENOMEM;
-    }
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmGetHostByName(hostname, servInfo) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmHostEntFree(servInfo);
 	return -ECONNREFUSED;
     }
 
