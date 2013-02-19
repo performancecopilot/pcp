@@ -46,7 +46,7 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
-	 common.product common.rc common.setup
+	 common.product common.rc common.setup common.secure
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 valgrind-suppress sanity.coverage
