@@ -837,6 +837,7 @@ pmlogrewrite
 711 pmimport pmdumplog pmlogsummary perl local oss
 712 context libpcp pmcd local oss
 713 context libpcp pmproxy local oss
+714 context libpcp pmcd local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
