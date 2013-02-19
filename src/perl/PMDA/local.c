@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -148,30 +148,48 @@ local_tail(char *file, scalar_t *callback, int cookie)
 int
 local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
+    __pmSockAddr *myaddr = NULL;
+    __pmHostEnt  *servinfo = NULL;
     int me, fd;
 
-    if ((servinfo = gethostbyname(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, netstrerror());
-	exit(1);
-    }
     if ((fd = __pmCreateSocket()) < 0) {
 	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
-	exit(1);
+	goto error;
     }
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(port);
-    if (__pmConnect(fd, (void *)&myaddr, sizeof(myaddr)) < 0) {
+    if ((servinfo = __pmHostEntAlloc()) == NULL) {
+        __pmNoMem("allocating socket address", __pmHostEntrSize(), PM_FATAL_ERR);
+	goto error;
+    }
+    if (__pmGetHostByName(host, servinfo) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetHostByName (%s): %s", host, netstrerror());
+	goto error;
+    }
+    if ((myaddr = __pmHostEntGetSockAddr(servinfo, 0)) == NULL) {
+        __pmNoMem("allocating socket address", __pmSockAddrSize(), PM_FATAL_ERR);
+	goto error;
+    }
+    __pmHostEntFree(servinfo);
+    __pmSockAddrSetPort(myaddr, port);
+
+    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
-	exit(1);
+	goto error;
     }
+    __pmSockAddrFree(myaddr);
+
     me = local_file(FILE_SOCK, fd, callback, cookie);
     files[me].me.sock.host = strdup(host);
     files[me].me.sock.port = port;
     return me;
+
+ error:
+    if (fd >= 0)
+        __pmCLoseSocket(fd);
+    if (servinfo)
+        __pmHostEntFree(servinfo);
+    if (myaddr)
+        __pmSockAddrFree(myaddr);
+    exit(1);
 }
 
 static char *
@@ -257,23 +275,22 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    struct __pmSockAddrIn *myaddr = NULL;
-    struct __pmHostEnt *servinfo = NULL;
+    __pmSockAddr *myaddr = NULL;
+    __pmHostEnt *servinfo = NULL;
     int fd;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
-    if ((myaddr = __pmAllocSockAddrIn()) == NULL)
-	goto done;
-    if ((servinfo = __pmAllocHostEnt()) == NULL)
+    if ((servinfo = __pmHostEntAlloc()) == NULL)
 	goto done;
     if (__pmGetHostByName(file->me.sock.host, servinfo) == NULL)
 	goto done;
     if ((fd = __pmCreateSocket()) < 0)
 	goto done;
-    __pmInitSockAddr(myaddr, 0, htons(files->me.sock.port));
-    __pmSetSockAddr(myaddr, servinfo);
-    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrInSize()) < 0) {
+    if ((myaddr = __pmHostEntGetSockAddr(servinfo, 0)) == NULL)
+      goto done;
+    __pmSockAddrSetPort(myaddr, files->me.sock.port);
+    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrSize()) < 0) {
 	__pmCloseSocket(fd);
 	goto done;
     }
@@ -281,9 +298,9 @@ local_reconnector(files_t *file)
 
 done:
     if (myaddr)
-	__pmFreeSockAddrIn(myaddr);
+	__pmSockAddrFree(myaddr);
     if (servinfo)
-	__pmFreeHostEnt(servinfo);
+	__pmHostEntFree(servinfo);
 }
 
 static void

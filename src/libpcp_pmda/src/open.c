@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -36,9 +36,8 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
-    struct __pmSockAddrIn *myaddr;
-    struct __pmSockAddrIn *from;
     struct servent	*service;
+    __pmSockAddr	*myaddr;
     __pmSockLen		addrlen;
     int			one = 1;
 
@@ -79,13 +78,14 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
     }
 #endif
 
-    if ((myaddr =__pmAllocSockAddrIn()) == NULL) {
+    if ((myaddr =__pmSockAddrAlloc()) == NULL) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: sock addr alloc failed\n");
 	exit(1);
     }
-    __pmInitSockAddr(myaddr, htonl(INADDR_ANY), htons(myport));
-    sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrInSize());
+    __pmSockAddrInit(myaddr, INADDR_ANY, myport);
+    sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet bind: %s\n",
 			netstrerror());
 	exit(1);
@@ -93,21 +93,22 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 
     sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet listen: %s\n",
 			netstrerror());
 	exit(1);
     }
-    from = myaddr;
-    addrlen = __pmSockAddrInSize();
+    addrlen = __pmSockAddrSize();
     /* block here, waiting for a connection */
-    if ((*infd = __pmAccept(sfd, (void *)from, &addrlen)) < 0) {
+    if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
+        __pmSockAddrFree(myaddr);
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: inet accept: %s\n",
 			netstrerror());
 	exit(1);
     }
     __pmCloseSocket(sfd);
     __pmSetSocketIPC(*infd);
-    __pmFreeSockAddrIn(myaddr);
+    __pmSockAddrFree(myaddr);
 
     *outfd = *infd;
 }

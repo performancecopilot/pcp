@@ -178,24 +178,43 @@ __pmShutdownSecureSockets(void)
     return 0;
 }
 
-int
-__pmCreateSocket(void)
+static int
+createSocket(PRIntn family)
 {
     int fd, sts;
     __pmSecureSocket socket = { 0 };
 
     __pmInitSecureSockets();
 
-    /* Open the socket, setup auxillary structs */
-    if ((socket.nsprFd = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
+    /* Open the socket */
+    if ((socket.nsprFd = PR_OpenTCPSocket(family)) == NULL)
 	return -neterror();
+
     fd = newNSPRHandle();
-    /* Must set data before __pmInitSocket call */
     __pmSetDataIPC(fd, (void *)&socket);
 
     if ((sts = __pmInitSocket(fd)) < 0)
         return sts;
     return fd;
+}
+
+int
+__pmCreateSocket(void)
+{
+    return createSocket(PR_AF_INET);
+}
+
+int
+__pmCreateIPv6Socket(void)
+{
+    int socket = createSocket(AF_INET6);
+
+    if (socket >= 0) {
+	/* Disable IPv4-mapped connections */
+	int one = 1;
+	__pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+    }
+    return socket;
 }
 
 void
@@ -655,8 +674,6 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 {
     /* Map the request to the NSPR equivalent, if possible. */
     PRSocketOptionData option_data;
-    PRStatus prsts;
-
     __pmSecureSocket socket;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
@@ -665,8 +682,11 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	    switch(option_name) {
 #ifdef IS_MINGW
 	    case SO_EXCLUSIVEADDRUSE: {
-		/* There is no direct mapping of this option in NSPR. The best we can do is to use
-		   the native handle and call setsockopt on that handle. */
+		/*
+		 * There is no direct mapping of this option in NSPR.
+		 * The best we can do is to use the native handle and
+		 * call setsockopt on that handle.
+		 */
 	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
@@ -701,13 +721,26 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
 			  option_name);
 	    return -1;
+	case IPPROTO_IPV6:
+	    if (option_name == IPV6_V6ONLY) {
+		/*
+		 * There is no direct mapping of this option in NSPR.
+		 * The best we can do is to use the native handle and
+		 * call setsockopt on that handle.
+		 */
+	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
+		return setsockopt(fd, level, option_name, option_value, option_len);
+	    }
+	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
+			  option_name);
+	    return -1;
 	default:
 	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented level: %d\n", level);
 	    return -1;
 	}
 
-	prsts = PR_SetSocketOption(socket.nsprFd, &option_data);
-	return prsts == PR_SUCCESS ? 0 : -1;
+	return (PR_SetSocketOption(socket.nsprFd, &option_data)
+		== PR_SUCCESS) ? 0 : -1;
     }
 
     /* We have a native socket. */
@@ -752,43 +785,66 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
     return getsockopt(fd, level, option_name, option_value, option_len);
 }
  
+/*
+ * Initialize a socket address.  The integral address must be INADDR_ANY or
+ * INADDR_LOOPBACK in host byte order.
+ */
 void
-__pmInitSockAddr(struct __pmSockAddrIn *addr, int address, int port)
+__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
 {
-    /*
-     * We expect the address and port number to be on network byte order.
-     * PR_InitializeNetAddr expects the port in host byte order.
-     * The ip field of __pmSockAddrIn (PRNetAddr) must be in network byte order.
-     */
-    PRStatus prsts = PR_InitializeNetAddr(PR_IpAddrNull, ntohs(port), &addr->sockaddr);
-    if (prsts != PR_SUCCESS)
+    PRStatus prStatus;
+    switch(address) {
+    case INADDR_ANY:
+        prStatus = PR_InitializeNetAddr(PR_IpAddrAny, port, &addr->sockaddr);
+	break;
+    case INADDR_LOOPBACK:
+        prStatus = PR_InitializeNetAddr(PR_IpAddrLoopback, port, &addr->sockaddr);
+	break;
+    default:
 	__pmNotifyErr(LOG_ERR,
-		"__pmInitSockAddr: PR_InitializeNetAddr failure: %d\n", PR_GetError());
-    addr->sockaddr.inet.ip = address;
+		"__pmSockAddrInit: PR_InitializeNetAddr failure: Invalid address %d\n",
+		      address);
+	return;
+    }
+    if (prStatus != PR_SUCCESS)
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrInit: PR_InitializeNetAddr failure: %d\n", PR_GetError());
 }
 
 void
-__pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
+__pmSockAddrSetFamily(__pmSockAddr *addr, int family)
 {
-    PRUint16 port = 0;
-    /*
-     * The port in the address is in network byte forder, but PR_EnumerateHostEnt
-     * expects it in host byte order.
-     */
+    if (family == AF_INET)
+        addr->sockaddr.raw.family = PR_AF_INET;
+    else if (family == AF_INET6)
+        addr->sockaddr.raw.family = PR_AF_INET6;
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrSetFamily: Invalid address family: %d\n", family);
+}
+
+int
+__pmSockAddrGetFamily(const __pmSockAddr *addr)
+{
     if (addr->sockaddr.raw.family == PR_AF_INET)
-        port = ntohs(addr->sockaddr.inet.port);
-    else if (addr->sockaddr.raw.family == PR_AF_INET6)
-        port = ntohs(addr->sockaddr.ipv6.port);
-    PR_EnumerateHostEnt(0, &he->hostent, port, &addr->sockaddr);
+        return AF_INET;
+    if (addr->sockaddr.raw.family == PR_AF_INET6)
+        return AF_INET6;
+    __pmNotifyErr(LOG_ERR, "__pmSockAddrGetFamily: Invalid address family: %d\n",
+		  addr->sockaddr.raw.family);
+    return AF_INET;
 }
 
 void
-__pmSetPort(struct __pmSockAddrIn *addr, int port)
+__pmSockAddrSetPort(__pmSockAddr *addr, int port)
 {
     if (addr->sockaddr.raw.family == PR_AF_INET)
         addr->sockaddr.inet.port = htons(port);
     else if (addr->sockaddr.raw.family == PR_AF_INET6)
         addr->sockaddr.ipv6.port = htons(port);
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.family);
 }
 
 int
@@ -807,14 +863,16 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
     __pmSecureSocket socket;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-        PRFileDesc *newSocket;
+	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	PRFileDesc *nsprFd;
 
-	newSocket = PR_Accept(socket.nsprFd, addr, PR_INTERVAL_NO_TIMEOUT);
-	if (newSocket == NULL)
+	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
+	if (nsprFd == NULL)
 	    return -1;
+
 	/* Add the accepted socket to the fd table. */
 	fd = newNSPRHandle();
-	socket.nsprFd = newSocket;
+	socket.nsprFd = nsprFd;
 	__pmSetDataIPC(fd, (void *)&socket);
 	return fd;
     }
@@ -826,8 +884,21 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSecureSocket socket;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
-        return PR_Bind(socket.nsprFd, (PRNetAddr *)addr) == PR_SUCCESS ? 0 : -1;
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	PRSocketOptionData socketOption;
+
+	/*
+	 * Allow the socket address to be reused, in case we want the
+	 * same port across a service restart.
+	 */
+	socketOption.option = PR_SockOpt_Reuseaddr;
+	socketOption.value.reuse_addr = PR_TRUE;
+	PR_SetSocketOption(socket.nsprFd, &socketOption);
+
+	return (PR_Bind(socket.nsprFd, &nsprAddr->sockaddr)
+		== PR_SUCCESS) ? 0 : -1;
+    }
     return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -1156,120 +1227,156 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return nsprSelect(PR_POLL_READ, &onefd, timeout);
 }
 
-char *
-__pmHostEntName(const struct __pmHostEnt *he)
-{
-    return he->hostent.h_name;
-}
-
-struct __pmHostEnt *
-__pmGetHostByName(const char *hostName, struct __pmHostEnt *he)
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *he)
 {
     PRStatus prStatus = PR_GetHostByName(hostName, &he->buffer[0],
 					 PR_NETDB_BUF_SIZE, &he->hostent);
     return prStatus == PR_SUCCESS ? he : NULL;
 }
 
-struct __pmHostEnt *
-__pmGetHostByAddr(struct __pmSockAddrIn *address, struct __pmHostEnt *he)
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *he)
 {
     PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
 					 PR_NETDB_BUF_SIZE, &he->hostent);
     return prStatus == PR_SUCCESS ? he : NULL;
 }
 
-__pmIPAddr
-__pmHostEntGetIPAddr(const struct __pmHostEnt *he, int ix)
+__pmSockAddr *
+__pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 {
-    PRNetAddr address;
-    PRIntn rc = PR_EnumerateHostEnt(0, &he->hostent, 0, &address);
-    if (rc < 0) {
-	__pmNotifyErr(LOG_ERR, "__pmHostEntGetIPAddr: unable to obtain host address\n");
-	return 0;
+    __pmSockAddr* addr = __pmSockAddrAlloc();
+    if (addr) {
+        PRIntn rc = PR_EnumerateHostEnt(ix, &he->hostent, 0, &addr->sockaddr);
+	if (rc < 0) {
+	    __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: unable to obtain host address\n");
+	    __pmSockAddrFree(addr);
+	    addr = NULL;
+	}
     }
-    return address.inet.ip;
+    return addr;
 }
 
-void
-__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+__pmSockAddr *
+__pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    *addr = a;
-}
-
-__pmIPAddr *
-__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
-{
-    *addr &= *mask;
+    int i;
+    if (addr->sockaddr.raw.family != mask->sockaddr.raw.family) {
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
+		addr->sockaddr.raw.family, mask->sockaddr.raw.family);
+    }
+    else if (addr->sockaddr.raw.family == PR_AF_INET)
+        addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
+    else if (addr->sockaddr.raw.family == PR_AF_INET6) {
+      /* IPv6: Mask it byte by byte */
+      char *addrBytes = (char *)&addr->sockaddr.ipv6.ip;
+      const char *maskBytes = (const char *)&mask->sockaddr.ipv6.ip;
+      for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
+          addrBytes[i] &= maskBytes[i];
+    }
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
     return addr;
 }
 
 int
-__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+__pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    return *addr1 - *addr2;
+    if (addr1->sockaddr.raw.family != addr2->sockaddr.raw.family)
+        return addr1->sockaddr.raw.family - addr2->sockaddr.raw.family;
+
+    if (addr1->sockaddr.raw.family == PR_AF_INET)
+        return addr1->sockaddr.inet.ip - addr2->sockaddr.inet.ip;
+
+    if (addr1->sockaddr.raw.family == PR_AF_INET6) {
+        /* IPv6: Compare it byte by byte */
+      return memcmp(&addr1->sockaddr.ipv6.ip, &addr2->sockaddr.ipv6.ip,
+		    sizeof(addr1->sockaddr.ipv6.ip));
+    }
+
+    __pmNotifyErr(LOG_ERR,
+		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.family);
+    return 1; /* not equal */
 }
 
 int
-__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
-    return *addr == htonl(PR_INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmLoopbackAddress(void)
-{
-    return htonl(PR_INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmSockAddrInToIPAddr(const struct __pmSockAddrIn *inaddr)
-{
-    return inaddr->sockaddr.inet.ip;
-}
-
-__pmIPAddr
-__pmInAddrToIPAddr(const struct __pmInAddr *inaddr)
-{
-    return inaddr->inaddr.inet.ip;
+    int rc;
+    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
+    if (loopBackAddr == NULL)
+        return 0;
+    rc = __pmSockAddrCompare(addr, loopBackAddr);
+    __pmSockAddrFree(loopBackAddr);
+    return rc == 0;
 }
 
 int
-__pmIPAddrToInt(const __pmIPAddr *addr)
+__pmSockAddrIsInet(const __pmSockAddr *addr)
 {
-    return *addr;
+    return addr->sockaddr.raw.family == PR_AF_INET;
+}
+
+int
+__pmSockAddrIsIPv6(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.raw.family == PR_AF_INET6;
+}
+
+__pmSockAddr *
+__pmLoopBackAddress(void)
+{
+    __pmSockAddr* addr = __pmSockAddrAlloc();
+    if (addr != NULL)
+        __pmSockAddrInit(addr, INADDR_LOOPBACK, 0);
+    return addr;
+}
+
+__pmSockAddr *
+__pmStringToSockAddr(const char *cp)
+{
+    PRStatus prStatus;
+    __pmSockAddr *addr = __pmSockAddrAlloc();
+
+    if (addr) {
+        if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
+	    prStatus = PR_InitializeNetAddr (PR_IpAddrAny, 0, &addr->sockaddr);
+	    /* Set the address family to 0, meaning "not set". */
+	    addr->sockaddr.raw.family = 0;
+	}
+	else
+	    prStatus = PR_StringToNetAddr(cp, &addr->sockaddr);
+
+	if (prStatus != PR_SUCCESS) {
+	    __pmSockAddrFree(addr);
+	    addr = NULL;
+	}
+    }
+
+    return addr;
 }
 
 /*
- * Convert an address in network byte order to a string.
+ * Convert an address to a string.
  * The caller must free the buffer.
  */
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
 
 char *
-__pmInAddrToString(struct __pmInAddr *address)
+__pmSockAddrToString(__pmSockAddr *addr)
 {
     PRStatus	prStatus;
     char	*buf = malloc(PM_NET_ADDR_STRING_SIZE);
 
     if (buf) {
-	prStatus = PR_NetAddrToString(&address->inaddr, buf, PM_NET_ADDR_STRING_SIZE);
+	prStatus = PR_NetAddrToString(&addr->sockaddr, buf, PM_NET_ADDR_STRING_SIZE);
 	if (prStatus != PR_SUCCESS) {
 	    free(buf);
 	    return NULL;
 	}
     }
     return buf;
-}
-
-int
-__pmStringToInAddr(const char *cp, struct __pmInAddr *inp)
-{
-    PRStatus prStatus = PR_StringToNetAddr(cp, &inp->inaddr);
-    return (prStatus == PR_SUCCESS);
-}
-
-char *
-__pmSockAddrInToString(struct __pmSockAddrIn *address)
-{
-    return __pmInAddrToString((struct __pmInAddr *)address);
 }

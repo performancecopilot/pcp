@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -74,8 +74,8 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct __pmSockAddrIn *myAddr;
-    struct __pmHostEnt	*servInfo;
+    __pmSockAddr	 *myAddr;
+    __pmHostEnt		*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
@@ -132,11 +132,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    if ((servInfo = __pmAllocHostEnt()) == NULL) {
-	return -ENOMEM;
-    }
-    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
-	__pmFreeHostEnt(servInfo);
+    if ((servInfo = __pmHostEntAlloc()) == NULL) {
 	return -ENOMEM;
     }
 
@@ -149,27 +145,29 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	return -ECONNREFUSED;
     }
 
     /* Create socket and attempt to connect to the pmlogger control port */
     if ((fd = __pmCreateSocket()) < 0) {
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	return fd;
     }
 
-    __pmInitSockAddr(myAddr, 0, htons(*port));
-    __pmSetSockAddr(myAddr, servInfo);
+    if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
+	PM_UNLOCK(__pmLock_libpcp);
+	__pmHostEntFree(servInfo);
+	return -ENOMEM;
+    }
+    __pmSockAddrSetPort(myAddr, *port);
     PM_UNLOCK(__pmLock_libpcp);
 
-    sts = __pmConnect(fd, myAddr, __pmSockAddrInSize());
+    sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
 
-    __pmFreeSockAddrIn(myAddr);
-    __pmFreeHostEnt(servInfo);
+    __pmSockAddrFree(myAddr);
+    __pmHostEntFree(servInfo);
 
     if (sts < 0) {
 	sts = neterror();

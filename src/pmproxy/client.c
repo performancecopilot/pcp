@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -36,22 +36,25 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
-	int j, allocSize;
-	char *baseaddr;
+	int j, sz;
 
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
-	allocSize = (sizeof(ClientInfo) + __pmSockAddrInSize()) * clientSize;
-	client = (ClientInfo *) realloc(client, allocSize);
+	sz = sizeof(ClientInfo) * clientSize;
+	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
-	    __pmNoMem("NewClient", allocSize, PM_RECOV_ERR);
+	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
-	baseaddr = (char *)client + (sizeof(ClientInfo) * clientSize);
 	for (j = i; j < clientSize; j++) {
-	    client[j].addr = (struct __pmSockAddrIn *)baseaddr;
-	    baseaddr += __pmSockAddrInSize();
+	    client[j].addr = NULL;
 	}
+    }
+    client[i].addr = __pmSockAddrAlloc();
+    if (client[i].addr == NULL) {
+        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+	Shutdown();
+	exit(1);
     }
     if (i >= nClients)
 	nClients = i + 1;
@@ -76,8 +79,8 @@ AcceptNewClient(int reqfd)
     char	*abufp;
 
     i = NewClient();
-    addrlen = __pmSockAddrInSize();
-    fd = __pmAccept(reqfd, (void *)client[i].addr, &addrlen);
+    addrlen = __pmSockAddrSize();
+    fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
 	__pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept failed: %s",
 			reqfd, netstrerror());
@@ -123,7 +126,7 @@ AcceptNewClient(int reqfd)
     }
 
     if (!ok) {
-	abufp = __pmSockAddrInToString(client[i].addr);
+	abufp = __pmSockAddrToString(client[i].addr);
 	__pmNotifyErr(LOG_WARNING, "Bad version string from client at %s", abufp);
 	free(abufp);
 	fprintf(stderr, "AcceptNewClient: bad version string was \"");
@@ -135,7 +138,7 @@ AcceptNewClient(int reqfd)
     }
 
     if (__pmSend(fd, MY_VERSION, strlen(MY_VERSION), 0) != strlen(MY_VERSION)) {
-	abufp = __pmSockAddrInToString(client[i].addr);
+	abufp = __pmSockAddrToString(client[i].addr);
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to send version "
 			"string (%s) to client at %s\n", MY_VERSION, abufp);
 	free(abufp);
@@ -167,7 +170,7 @@ AcceptNewClient(int reqfd)
 	    bp++;
 	    client[i].pmcd_port = (int)strtoul(bp, &endp, 10);
 	    if (*endp != '\0') {
-		abufp = __pmSockAddrInToString(client[i].addr);
+		abufp = __pmSockAddrToString(client[i].addr);
 		__pmNotifyErr(LOG_WARNING, "AcceptNewClient: bad pmcd port "
 				"\"%s\" from client at %s", bp, abufp);
 		free(abufp);
@@ -179,7 +182,7 @@ AcceptNewClient(int reqfd)
     }
 
     if (client[i].pmcd_hostname == NULL) {
-	abufp = __pmSockAddrInToString(client[i].addr);
+	abufp = __pmSockAddrToString(client[i].addr);
 	__pmNotifyErr(LOG_WARNING, "AcceptNewClient: failed to get PMCD "
 				"hostname (%s) from client at %s", buf, abufp);
 	free(abufp);
@@ -193,7 +196,7 @@ AcceptNewClient(int reqfd)
 	 * note error message gets appended to once pmcd connection is
 	 * made in ClientLoop()
 	 */
-	abufp = __pmSockAddrInToString(client[i].addr);
+	abufp = __pmSockAddrToString(client[i].addr);
 	fprintf(stderr, "AcceptNewClient [%d] fd=%d from %s to %s (port %s)",
 		i, fd, abufp, client[i].pmcd_hostname, bp);
 	free(abufp);
@@ -247,6 +250,8 @@ DeleteClient(ClientInfo *cp)
 		maxSockFd = client[i].pmcd_fd;
 	}
     }
+    __pmSockAddrFree(cp->addr);
+    cp->addr = NULL;
     cp->status.connected = 0;
     cp->fd = -1;
     cp->pmcd_fd = -1;

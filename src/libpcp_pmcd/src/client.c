@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,12 +25,12 @@ void
 ShowClients(FILE *f)
 {
     int			i;
-    struct __pmHostEnt	*host;
+    __pmHostEnt		*host;
     char		*sbuf;
 
     fprintf(f, "     fd  client connection from                    ipc ver  operations denied\n");
     fprintf(f, "     ==  ========================================  =======  =================\n");
-    if ((host = __pmAllocHostEnt()) == NULL) {
+    if ((host = __pmHostEntAlloc()) == NULL) {
 	fprintf(f, "ShowClients: out of memory\n");
 	return;
     }
@@ -41,11 +41,11 @@ ShowClients(FILE *f)
 	fprintf(f, "    %3d  ", client[i].fd);
 
 	if (__pmGetHostByAddr(client[i].addr, host) == NULL) {
-	    sbuf = __pmSockAddrInToString(client[i].addr);
+	    sbuf = __pmSockAddrToString(client[i].addr);
 	    fprintf(f, "%s", sbuf);
 	    free(sbuf);
 	} else {
-	    fprintf(f, "%-40.40s", __pmHostEntName(host));
+	    fprintf(f, "%-40.40s", __pmHostEntGetName(host));
 	}
 	fprintf(f, "  %7d", __pmVersionIPC(client[i].fd));
 
@@ -59,6 +59,6 @@ ShowClients(FILE *f)
 
 	fputc('\n', f);
     }
-    __pmFreeHostEnt(host);
+    __pmHostEntFree(host);
     fputc('\n', f);
 }

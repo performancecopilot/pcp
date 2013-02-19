@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  *
  * exercise multi-threaded checks for PM_SCOPE_AF and PM_SCOPE_ACL
@@ -15,7 +15,7 @@
 #include "pthread_barrier.h"
 #endif
 
-__pmIPAddr addr;
+__pmSockAddr *addr;
 
 static pthread_barrier_t barrier;
 
@@ -153,7 +153,7 @@ main()
     int		sts;
     char	*msg;
 
-    addr = __pmLoopbackAddress();
+    addr = __pmLoopBackAddress();
 
     sts = pthread_barrier_init(&barrier, NULL, 2);
     if (sts != 0) {
@@ -183,5 +183,6 @@ main()
     pthread_join(tid2, (void *)&msg); 
     if (msg != NULL) printf("tid2: %s\n", msg);
 
+    __pmSockAddrFree(addr);
     exit(0);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -493,6 +493,7 @@ typedef struct {
 
 extern int __pmConnectPMCD(pmHostSpec *, int, int);
 extern int __pmConnectLocal(void);
+extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
@@ -510,7 +511,6 @@ extern int __pmSecureClientHandshake(int, int, const char *);
 extern void *__pmGetSecureSocket(int);
 
 #ifdef HAVE_SECURE_SOCKETS
-typedef unsigned long __pmIPAddr;
 typedef struct {
     fd_set		native_set;
     fd_set		nspr_set;
@@ -518,17 +518,16 @@ typedef struct {
     int			num_nspr_fds;
 } __pmFdSet;
 #else
-typedef unsigned int __pmIPAddr;
 typedef fd_set __pmFdSet;
 #endif
-struct __pmInAddr;
-struct __pmHostEnt;
-struct __pmSockAddrIn;
+typedef struct __pmSockAddr __pmSockAddr;
+typedef struct __pmHostEnt __pmHostEnt;
 
 extern int __pmInitSecureSockets(void);
 extern int __pmInitCertificates(void);
 
 extern int __pmCreateSocket(void);
+extern int __pmCreateIPv6Socket(void);
 extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
 extern int __pmSocketClosed(void);
@@ -544,7 +543,7 @@ extern ssize_t __pmWrite(int, const void *, size_t);
 extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
-extern int __pmConnectTo(int, const struct __pmSockAddrIn *, int);
+extern int __pmConnectTo(int, const __pmSockAddr *, int);
 extern int __pmConnectCheckError(int);
 
 extern int __pmGetFileStatusFlags(int);
@@ -561,33 +560,31 @@ extern void __pmFD_COPY(__pmFdSet *, const __pmFdSet *);
 extern int __pmSelectRead(int, __pmFdSet *, struct timeval *);
 extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 
-extern struct __pmSockAddrIn *__pmAllocSockAddrIn(void);
-extern size_t __pmSockAddrInSize(void);
-extern void __pmFreeSockAddrIn(struct __pmSockAddrIn *);
-extern void __pmInitSockAddr(struct __pmSockAddrIn *, int, int);
-extern void __pmSetSockAddr(struct __pmSockAddrIn *, struct __pmHostEnt *);
-extern void __pmSetPort(struct __pmSockAddrIn *, int);
-extern void __pmSetIPAddr (__pmIPAddr *, unsigned int);
-extern __pmIPAddr *__pmMaskIPAddr(__pmIPAddr *, const __pmIPAddr *);
-extern int __pmCompareIPAddr (const __pmIPAddr *, const __pmIPAddr *);
-extern int __pmIPAddrIsLoopBack(const __pmIPAddr *);
-extern __pmIPAddr __pmLoopbackAddress(void);
+extern __pmSockAddr *__pmSockAddrAlloc(void);
+extern void	     __pmSockAddrFree(__pmSockAddr *);
+extern size_t	     __pmSockAddrSize(void);
+extern void	     __pmSockAddrInit(__pmSockAddr *, int, int);
+extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
+extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
+extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
+extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
+extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
+extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
+extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
+extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
+extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
+extern char *	     __pmSockAddrToString(__pmSockAddr *);
+extern __pmSockAddr *__pmStringToSockAddr(const char *);
+extern __pmSockAddr *__pmLoopBackAddress(void);
 
-extern struct __pmInAddr *__pmAllocInAddr(void);
-extern void __pmFreeInAddr(struct __pmInAddr *);
-extern __pmIPAddr __pmSockAddrInToIPAddr(const struct __pmSockAddrIn *);
-extern __pmIPAddr __pmInAddrToIPAddr(const struct __pmInAddr *);
-extern int __pmIPAddrToInt(const __pmIPAddr *);
-extern char *__pmInAddrToString(struct __pmInAddr *);
-extern char *__pmSockAddrInToString(struct __pmSockAddrIn *);
-extern int __pmStringToInAddr(const char *, struct __pmInAddr *);
+extern __pmHostEnt * __pmHostEntAlloc(void);
+extern void	     __pmHostEntFree(__pmHostEnt *);
+extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, int);
+extern const char *  __pmHostEntGetName(const __pmHostEnt *);
 
-extern struct __pmHostEnt *__pmAllocHostEnt(void);
-extern void __pmFreeHostEnt(struct __pmHostEnt *);
-extern char *__pmHostEntName(const struct __pmHostEnt *);
-extern struct __pmHostEnt *__pmGetHostByName(const char *, struct __pmHostEnt *);
-extern struct __pmHostEnt *__pmGetHostByAddr(struct __pmSockAddrIn *, struct __pmHostEnt *);
-extern __pmIPAddr __pmHostEntGetIPAddr(const struct __pmHostEnt *, int);
+/* Should be converted to __pmGetNameInfo, __pmGetAddrInfo??? */
+extern __pmHostEnt * __pmGetHostByName(const char *, __pmHostEnt *);
+extern __pmHostEnt * __pmGetHostByAddr(__pmSockAddr *, __pmHostEnt *);
 
 /*
  * Query server features - used for expressing protocol capabilities
@@ -1189,8 +1186,8 @@ extern void __htonll(char *);		/* 64bit int */
  */
 extern int __pmAccAddOp(unsigned int);
 extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
-extern int __pmAccAddClient(__pmIPAddr, unsigned int *);
-extern void __pmAccDelClient(__pmIPAddr);
+extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
+extern void __pmAccDelClient(__pmSockAddr *);
 
 extern void __pmAccDumpHosts(FILE *);
 extern int __pmAccSaveHosts(void);

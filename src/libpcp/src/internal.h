@@ -66,11 +66,8 @@ __pmTPDGet(void)
 
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
 
-struct __pmSockAddrIn {
+struct __pmSockAddr {
     PRNetAddr		sockaddr;
-};
-struct __pmInAddr {
-    PRNetAddr		inaddr;
 };
 struct __pmHostEnt {
     PRHostEnt		hostent;
@@ -81,11 +78,12 @@ struct __pmHostEnt {
 extern int __pmSecureSocketsError(void);
 
 #else
-struct __pmSockAddrIn {
-    struct sockaddr_in	sockaddr;
-};
-struct __pmInAddr {
-    struct in_addr	inaddr;
+struct __pmSockAddr {
+    union {
+	__uint16_t		family;
+	struct sockaddr_in	inet;
+	struct sockaddr_in6	ipv6;
+    } sockaddr;
 };
 struct __pmHostEnt {
     struct hostent	hostent;

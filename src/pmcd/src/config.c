@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1317,39 +1317,34 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		fd = -1;	/* pander to gcc */
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	struct __pmSockAddrIn *addr;
-	struct __pmHostEnt *host;
-
-	if ((host = __pmAllocHostEnt()) == NULL) {
-	    fputs("pmcd: Error allocing host entry\n", stderr);
-	    return -1;
-	}
-	if ((addr = __pmAllocSockAddrIn()) == NULL) {
-	    fputs("pmcd: Error allocing sock addr\n", stderr);
-	    __pmFreeHostEnt(host);
-	    return -1;
-	}
+	__pmSockAddr	*addr;
+	__pmHostEnt	*host;
 
 	fd = __pmCreateSocket();
 	if (fd < 0) {
 	    fprintf(stderr,
 		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
 		     aPtr->pmDomainLabel, netstrerror());
-	    __pmFreeSockAddrIn(addr);
-	    __pmFreeHostEnt(host);
+	    return -1;
+	}
+	if ((host = __pmHostEntAlloc()) == NULL) {
+	    fputs("pmcd: Error allocing host entry\n", stderr);
 	    return -1;
 	}
 	if (__pmGetHostByName("localhost", host) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmFreeSockAddrIn(addr);
-	    __pmFreeHostEnt(host);
+	    __pmHostEntFree(host);
 	    goto error;
 	}
-	__pmInitSockAddr(addr, 0, htons(aPtr->ipc.socket.port));
-	__pmSetSockAddr(addr, host);
-	sts = __pmConnect(fd, (void *)addr, __pmSockAddrInSize());
-	__pmFreeSockAddrIn(addr);
-	__pmFreeHostEnt(host);
+	if ((addr = __pmHostEntGetSockAddr(host, 0)) == NULL) {
+	    fputs("pmcd: Error allocing sock addr\n", stderr);
+	    __pmHostEntFree(host);
+	    return -1;
+	}
+	__pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
+	sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
+	__pmSockAddrFree(addr);
+	__pmHostEntFree(host);
     }
     else {
 #if defined(HAVE_SYS_UN_H)
@@ -2269,7 +2264,7 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps)) < 0) {
+	if ((s = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);

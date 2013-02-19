@@ -21,6 +21,45 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
+__pmHostEnt *
+__pmHostEntAlloc(void)
+{
+    return malloc(sizeof(__pmHostEnt));
+}
+
+void
+__pmHostEntFree(__pmHostEnt *hostent)
+{
+    free(hostent);
+}
+
+__pmSockAddr *
+__pmSockAddrAlloc(void)
+{
+    return calloc(1, sizeof(__pmSockAddr));
+}
+
+__pmSockAddr *
+__pmSockAddrDup(const __pmSockAddr *sockaddr)
+{
+    __pmSockAddr *new = malloc(sizeof(__pmSockAddr));
+    if (new)
+	*new = *sockaddr;
+    return new;
+}
+
+size_t
+__pmSockAddrSize(void)
+{
+    return sizeof(__pmSockAddr);
+}
+
+void
+__pmSockAddrFree(__pmSockAddr *sockaddr)
+{
+    free(sockaddr);
+}
+
 int
 __pmInitSocket(int fd)
 {
@@ -54,13 +93,13 @@ __pmInitSocket(int fd)
 }
 
 int
-__pmConnectTo(int fd, const struct __pmSockAddrIn *addr, int port)
+__pmConnectTo(int fd, const __pmSockAddr *addr, int port)
 {
     int sts, fdFlags = __pmGetFileStatusFlags(fd);
-    struct __pmSockAddrIn myAddr;
+    __pmSockAddr myAddr;
 
     myAddr = *addr;
-    __pmSetPort(&myAddr, port);
+    __pmSockAddrSetPort(&myAddr, port);
 
     if (__pmSetFileStatusFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -202,13 +241,13 @@ __pmAuxConnectPMCD(const char *hostname)
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    struct __pmSockAddrIn myAddr;
-    struct __pmHostEnt	*servInfo;
+    __pmSockAddr *myAddr;
+    __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags;
 
-    if ((servInfo = __pmAllocHostEnt()) == NULL)
+    if ((servInfo = __pmHostEntAlloc()) == NULL)
 	return -ENOMEM;
 
     PM_INIT_LOCKS();
@@ -220,7 +259,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
@@ -228,17 +267,21 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     __pmConnectTimeout();
 
     if ((fd = __pmCreateSocket()) < 0) {
-	__pmFreeHostEnt(servInfo);
+	__pmHostEntFree(servInfo);
 	PM_UNLOCK(__pmLock_libpcp);
 	return fd;
     }
 
-    __pmInitSockAddr(&myAddr, htonl(INADDR_ANY), 0);
-    __pmSetSockAddr(&myAddr, servInfo);
-    __pmFreeHostEnt(servInfo);
+    if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
+        __pmHostEntFree(servInfo);
+	return -ENOMEM;
+    }
+    __pmHostEntFree(servInfo);
     PM_UNLOCK(__pmLock_libpcp);
 
-    if ((fdFlags = __pmConnectTo(fd, &myAddr, pmcd_port)) >= 0) {
+    if ((fdFlags = __pmConnectTo(fd, myAddr, pmcd_port)) >= 0) {
+        __pmSockAddrFree(myAddr);
+
 	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
@@ -270,99 +313,47 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	 */
 	return __pmConnectRestoreFlags(fd, fdFlags);
     }
+    __pmSockAddrFree(myAddr);
     return fdFlags;
 }
 
-struct __pmHostEnt *
-__pmAllocHostEnt(void)
+const char *
+__pmHostEntGetName(const __pmHostEnt *he)
 {
-    return malloc(sizeof(struct __pmHostEnt));
+    return he->hostent.h_name;
 }
 
-void
-__pmFreeHostEnt(struct __pmHostEnt *hostent)
-{
-    free(hostent);
-}
+#if !defined(HAVE_SECURE_SOCKETS)
 
-struct __pmInAddr *
-__pmAllocInAddr(void)
+static int
+createSocket(int family)
 {
-    return malloc(sizeof(struct __pmInAddr));
-}
+    int sts, fd;
 
-void
-__pmFreeInAddr(struct __pmInAddr *inaddr)
-{
-    free(inaddr);
-}
-
-struct __pmSockAddrIn *
-__pmAllocSockAddrIn(void)
-{
-    return malloc(sizeof(struct __pmSockAddrIn));
-}
-
-size_t
-__pmSockAddrInSize(void)
-{
-    return sizeof(struct __pmSockAddrIn);
-}
-
-void
-__pmFreeSockAddrIn(struct __pmSockAddrIn *sockaddr)
-{
-    free(sockaddr);
-}
-
-#ifndef HAVE_SECURE_SOCKETS
-
-int
-__pmSocketClosed(void)
-{
-    switch (oserror()) {
-	/*
-	 * Treat this like end of file on input.
-	 *
-	 * failed as a result of pmcd exiting and the connection
-	 * being reset, or as a result of the kernel ripping
-	 * down the connection (most likely because the host at
-	 * the other end just took a dive)
-	 *
-	 * from IRIX BDS kernel sources, seems like all of the
-	 * following are peers here:
-	 *  ECONNRESET (pmcd terminated?)
-	 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
-	 *  ECONNREFUSED
-	 * peers for BDS but not here:
-	 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
-	 *  ECONNABORTED (accept, user req only?)
-	 *  ENOTCONN (udp?)
-	 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
-	 */
-	case ECONNRESET:
-	case EPIPE:
-	case ETIMEDOUT:
-	case ENETDOWN:
-	case ENETUNREACH:
-	case EHOSTDOWN:
-	case EHOSTUNREACH:
-	case ECONNREFUSED:
-	    return 1;
-    }
-    return 0;
+    if ((fd = socket(family, SOCK_STREAM, 0)) < 0)
+	return -neterror();
+    if ((sts = __pmInitSocket(fd)) < 0)
+        return sts;
+    return fd;
 }
 
 int
 __pmCreateSocket(void)
 {
-    int sts, fd;
+    return createSocket(AF_INET);
+}
 
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	return -neterror();
-    if ((sts = __pmInitSocket(fd)) < 0)
-        return sts;
-    return fd;
+int
+__pmCreateIPv6Socket(void)
+{
+    int socket = createSocket(AF_INET6);
+
+    if (socket >= 0) {
+	/* Disable IPv4-mapped connections */
+	int one = 1;
+	__pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+    }
+    return socket;
 }
 
 void
@@ -374,6 +365,57 @@ __pmCloseSocket(int fd)
 #else
     close(fd);
 #endif
+}
+
+int
+__pmShutdownSockets(void)
+{
+    return 0;
+}
+
+int
+__pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
+	       __pmSockLen option_len)
+{
+    return setsockopt(socket, level, option_name, option_value, option_len);
+}
+
+int
+__pmGetSockOpt(int socket, int level, int option_name, void *option_value,
+	       __pmSockLen *option_len)
+{
+    return getsockopt(socket, level, option_name, option_value, option_len);
+}
+
+/* Initialize a socket address. The integral address must be INADDR_ANY or
+   INADDR_LOOPBACK in host byte order. */
+void
+__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
+{
+    /* TODO: IPv6 */
+    memset(addr, 0, sizeof(*addr));
+    addr->sockaddr.inet.sin_family = AF_INET;
+    addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
+    addr->sockaddr.inet.sin_port = htons(port);
+}
+
+void
+__pmSockAddrSetFamily(__pmSockAddr *addr, int family)
+{
+    addr->sockaddr.family = family;
+}
+
+int
+__pmSockAddrGetFamily(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.family;
+}
+
+void
+__pmSockAddrSetPort(__pmSockAddr *addr, int port)
+{
+    /* TODO: IPv6 */
+    addr->sockaddr.inet.sin_port = htons(port);
 }
 
 int
@@ -396,12 +438,6 @@ __pmInitSecureSockets(void)
 
 int
 __pmShutdownSecureSockets(void)
-{
-    return 0;
-}
-
-int
-__pmShutdownSockets(void)
 {
     return 0;
 }
@@ -458,38 +494,39 @@ __pmSecureServerHasFeature(__pmSecureServerFeature query)
 }
 
 int
-__pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
-	       __pmSockLen option_len)
+__pmSocketClosed(void)
 {
-    return setsockopt(socket, level, option_name, option_value, option_len);
-}
-
-int
-__pmGetSockOpt(int socket, int level, int option_name, void *option_value,
-	       __pmSockLen *option_len)
-{
-    return getsockopt(socket, level, option_name, option_value, option_len);
-}
- 
-void
-__pmInitSockAddr(struct __pmSockAddrIn *addr, int address, int port)
-{
-    memset(addr, 0, sizeof(*addr));
-    addr->sockaddr.sin_family = AF_INET;
-    addr->sockaddr.sin_addr.s_addr = address;
-    addr->sockaddr.sin_port = port;
-}
-
-void
-__pmSetSockAddr(struct __pmSockAddrIn *addr, struct __pmHostEnt *he)
-{
-    memcpy(&addr->sockaddr.sin_addr, he->hostent.h_addr, he->hostent.h_length);
-}
-
-void
-__pmSetPort(struct __pmSockAddrIn *addr, int port)
-{
-    addr->sockaddr.sin_port = htons(port);
+    switch (oserror()) {
+	/*
+	 * Treat this like end of file on input.
+	 *
+	 * failed as a result of pmcd exiting and the connection
+	 * being reset, or as a result of the kernel ripping
+	 * down the connection (most likely because the host at
+	 * the other end just took a dive)
+	 *
+	 * from IRIX BDS kernel sources, seems like all of the
+	 * following are peers here:
+	 *  ECONNRESET (pmcd terminated?)
+	 *  ETIMEDOUT ENETDOWN ENETUNREACH EHOSTDOWN EHOSTUNREACH
+	 *  ECONNREFUSED
+	 * peers for BDS but not here:
+	 *  ENETRESET ENONET ESHUTDOWN (cache_fs only?)
+	 *  ECONNABORTED (accept, user req only?)
+	 *  ENOTCONN (udp?)
+	 *  EPIPE EAGAIN (nfs, bds & ..., but not ip or tcp?)
+	 */
+	case ECONNRESET:
+	case EPIPE:
+	case ETIMEDOUT:
+	case ENETDOWN:
+	case ENETUNREACH:
+	case EHOSTDOWN:
+	case EHOSTUNREACH:
+	case ECONNREFUSED:
+	    return 1;
+    }
+    return 0;
 }
 
 int
@@ -501,19 +538,25 @@ __pmListen(int fd, int backlog)
 int
 __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
-    return accept(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    __pmSockAddr *sock = (__pmSockAddr *)addr;
+    return accept(fd, (struct sockaddr *)&sock->sockaddr.inet, addrlen);
 }
 
 int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
-    return bind(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    __pmSockAddr *sock = (__pmSockAddr *)addr;
+    return bind(fd, (struct sockaddr *)&sock->sockaddr.inet, sizeof(sock->sockaddr.inet));
 }
 
 int
 __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
-    return connect(fd, (struct sockaddr *)addr, addrlen);
+    /* TODO: IPv6 */
+    __pmSockAddr *sock = (__pmSockAddr *)addr;
+    return connect(fd, (struct sockaddr *)&sock->sockaddr.inet, sizeof(sock->sockaddr.inet));
 }
 
 int
@@ -622,14 +665,8 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
-char *
-__pmHostEntName(const struct __pmHostEnt *hostEntry)
-{
-    return hostEntry->hostent.h_name;
-}
-
-struct __pmHostEnt *
-__pmGetHostByName(const char *hostName, struct __pmHostEnt *hostEntry)
+__pmHostEnt *
+__pmGetHostByName(const char *hostName, __pmHostEnt *hostEntry)
 {
     struct hostent *he = gethostbyname(hostName);
 
@@ -639,70 +676,97 @@ __pmGetHostByName(const char *hostName, struct __pmHostEnt *hostEntry)
     return hostEntry;
 }
 
-struct __pmHostEnt *
-__pmGetHostByAddr(struct __pmSockAddrIn *address, struct __pmHostEnt *hostEntry)
+__pmHostEnt *
+__pmGetHostByAddr(__pmSockAddr *address, __pmHostEnt *hostEntry)
 {
-    struct hostent *he = gethostbyaddr((void *)&address->sockaddr.sin_addr.s_addr,
-					sizeof(address->sockaddr.sin_addr.s_addr), AF_INET);
+    /* TODO: IPv6 */
+    struct hostent *he = gethostbyaddr((void *)&address->sockaddr.inet.sin_addr.s_addr,
+					sizeof(address->sockaddr.inet.sin_addr.s_addr), AF_INET);
     if (he == NULL)
 	return NULL;
     memcpy(&hostEntry->hostent, he, sizeof(*he));
     return hostEntry;
 }
 
-__pmIPAddr
-__pmHostEntGetIPAddr(const struct __pmHostEnt *he, int ix)
+__pmSockAddr *
+__pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 {
-    return ((struct in_addr *)he->hostent.h_addr_list[ix])->s_addr;
+    /* TODO: IPv6 */
+    __pmSockAddr* addr = __pmSockAddrAlloc();
+    if (addr) {
+        addr->sockaddr.inet.sin_family = he->hostent.h_addrtype;
+	addr->sockaddr.inet.sin_addr = *(struct in_addr *)he->hostent.h_addr_list[ix];
+    }
+    return addr;
 }
 
-void
-__pmSetIPAddr(__pmIPAddr *addr, unsigned int a)
+__pmSockAddr *
+__pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    *addr = a;
-}
-
-__pmIPAddr *
-__pmMaskIPAddr(__pmIPAddr *addr, const __pmIPAddr *mask)
-{
-    *addr &= *mask;
+    /* TODO: IPv6 */
+    addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
     return addr;
 }
 
 int
-__pmCompareIPAddr(const __pmIPAddr *addr1, const __pmIPAddr *addr2)
+__pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    return *addr1 - *addr2;
+    /* TODO: IPv6 */
+    return addr1->sockaddr.inet.sin_addr.s_addr - addr2->sockaddr.inet.sin_addr.s_addr;
 }
 
 int
-__pmIPAddrIsLoopBack(const __pmIPAddr *addr)
+__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
-    return *addr == htonl(INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmLoopbackAddress(void)
-{
-    return htonl(INADDR_LOOPBACK);
-}
-
-__pmIPAddr
-__pmSockAddrInToIPAddr(const struct __pmSockAddrIn *inaddr)
-{
-    return inaddr->sockaddr.sin_addr.s_addr;
-}
-
-__pmIPAddr
-__pmInAddrToIPAddr(const struct __pmInAddr *inaddr)
-{
-    return inaddr->inaddr.s_addr;
+    /* TODO: IPv6 */
+    return addr->sockaddr.inet.sin_addr.s_addr == htonl(INADDR_LOOPBACK);
 }
 
 int
-__pmIPAddrToInt(const __pmIPAddr *addr)
+__pmSockAddrIsInet(const __pmSockAddr *addr)
 {
-    return *addr;
+    return addr->sockaddr.family == AF_INET;
+}
+
+int
+__pmSockAddrIsIPv6(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.family == AF_INET6;
+}
+
+__pmSockAddr *
+__pmLoopBackAddress(void)
+{
+    /* TODO: IPv6 */
+    __pmSockAddr* addr = __pmSockAddrAlloc();
+    if (addr) {
+        addr->sockaddr.inet.sin_family = AF_INET;
+	addr->sockaddr.inet.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    }
+    return addr;
+}
+
+__pmSockAddr *
+__pmStringToSockAddr(const char *cp)
+{
+    __pmSockAddr *addr = __pmSockAddrAlloc();
+
+    if (addr) {
+        /* TODO: IPv6 */
+        addr->sockaddr.family = AF_INET;
+	if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0)
+	    addr->sockaddr.inet.sin_addr.s_addr = INADDR_ANY;
+	else {
+#ifdef IS_MINGW
+	    unsigned long in;
+	    in = inet_addr(cp);
+	    addr->sockaddr.inet.inaddr.s_addr = in;
+#else
+	    inet_aton(cp, &addr->sockaddr.inet.sin_addr);
+#endif
+	}
+    }
+    return addr;
 }
 
 /*
@@ -710,32 +774,13 @@ __pmIPAddrToInt(const __pmIPAddr *addr)
  * The caller must free the buffer.
  */
 char *
-__pmInAddrToString(struct __pmInAddr *address)
+__pmSockAddrToString(__pmSockAddr *addr)
 {
-    char *buf = inet_ntoa(address->inaddr);
-
+    /* TODO: IPv6 */
+    char *buf = inet_ntoa(addr->sockaddr.inet.sin_addr);
     if (buf == NULL)
 	return NULL;
     return strdup(buf);
 }
 
-int
-__pmStringToInAddr(const char *cp, struct __pmInAddr *inp)
-{
-#ifdef IS_MINGW
-    unsigned long in;
-    in = inet_addr(cp);
-    inp->inaddr.s_addr = in;
-    return in == INADDR_NONE ? 0 : 1;
-#else
-    return inet_aton(cp, &inp->inaddr);
-#endif
-}
-
-char *
-__pmSockAddrInToString(struct __pmSockAddrIn *address)
-{
-    return __pmInAddrToString((struct __pmInAddr *)&address->sockaddr.sin_addr);
-}
-
-#endif	/* !HAVE_SECURE_SOCKETS */
+#endif /* !HAVE_SECURE_SOCKETS */
