@@ -51,6 +51,7 @@ _filter_die_log()
     | _filter_hostnames \
     | sed \
 	-e 's/^$//' \
+	-e 's/__pmGetAddrInfo/gethostbyname/g' \
 	-e 's/__pmGetHostByName/gethostbyname/g' \
 	-e '/Permission clash/s/for .*/for .../' \
 	-e '/gethostbyname(/s/name([0-9.]*)/name(IPADDR)/' \
