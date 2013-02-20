@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.  All Rights Reserved.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,7 +93,7 @@ traceMain(pmdaInterface *dispatch)
 	/* handle request on control port */
 	if (FD_ISSET(ctlfd, &readyfds)) {
 	    if ((cp = acceptClient(ctlfd)) != NULL) {
-		sts = __pmAccAddClient(cp->addr.sin_addr.s_addr, &cp->denyOps);
+		sts = __pmAccAddClient(cp->addr, &cp->denyOps);
 		if (sts == PM_ERR_PERMISSION)
 		    sts = PMTRACE_ERR_PERMISSION;
 		else if (sts == PM_ERR_CONNLIMIT)
@@ -105,7 +105,7 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
-				 inet_ntoa(cp->addr.sin_addr),
+				 __pmSockAddrToString(cp->addr),
 				 cp->fd, cp->denyOps, pmtraceerrstr(sts));
 		    }
 #endif
@@ -115,7 +115,7 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
-				inet_ntoa(cp->addr.sin_addr),
+				 __pmSockAddrToString(cp->addr),
 				cp->fd, cp->denyOps);
 		    }
 #endif
@@ -130,12 +130,12 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
 		    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
-			    inet_ntoa(clients[i].addr.sin_addr),
+			    __pmSockAddrToString(clients[i].addr),
 			    clients[i].fd, clients[i].denyOps);
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
-		__pmAccDelClient(clients[i].addr.sin_addr.s_addr);
+		__pmAccDelClient(clients[i].addr);
 		deleteClient(&clients[i]);
 	    }
 	    else if (FD_ISSET(clients[i].fd, &readyfds)) {
@@ -145,11 +145,11 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL0) {
 			    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
-				inet_ntoa(clients[i].addr.sin_addr),
+				__pmSockAddrToString(clients[i].addr),
 				clients[i].fd);
 			}
 #endif
-			__pmAccDelClient(clients[i].addr.sin_addr.s_addr);
+			__pmAccDelClient(clients[i].addr);
 			deleteClient(&clients[i]);
 		    }
 		    else {
@@ -158,7 +158,7 @@ traceMain(pmdaInterface *dispatch)
 #ifdef PCP_DEBUG
 			    if (pmDebug & DBG_TRACE_APPL0)
 				__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
-				    inet_ntoa(clients[i].addr.sin_addr),
+				    __pmSockAddrToString(clients[i].addr),
 				    clients[i].fd,
 				    protocol ? "sending" : "no", pdutype);
 #endif
@@ -166,7 +166,7 @@ traceMain(pmdaInterface *dispatch)
 				sts = __pmtracesendack(clients[i].fd, pdutype);
 				if (sts < 0) {
 				    __pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
-					inet_ntoa(clients[i].addr.sin_addr),
+				        __pmSockAddrToString(clients[i].addr),
 					clients[i].fd,
 					pdutype, pmtraceerrstr(sts));
 				}
@@ -203,7 +203,7 @@ getcport(void)
 {
     int			fd;
     int			i=1, one=1, sts;
-    struct sockaddr_in	myAddr;
+    struct sockaddr_in  myAddr;
     struct linger	noLinger = {1, 0};
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -261,11 +261,13 @@ getcport(void)
 	    ctlport = TRACE_PORT;
     }
 
+    /* TODO: IPv6 */
     memset(&myAddr, 0, sizeof(myAddr));
     myAddr.sin_family = AF_INET;
     myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myAddr.sin_port = htons(ctlport);
-    sts = bind(fd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+
+    sts = bind(fd, &myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);

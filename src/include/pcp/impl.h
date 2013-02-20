@@ -580,11 +580,10 @@ extern __pmSockAddr *__pmLoopBackAddress(void);
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);
 extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, int);
-extern const char *  __pmHostEntGetName(const __pmHostEnt *);
+extern char *	     __pmHostEntGetName(const __pmHostEnt *);
 
-/* Should be converted to __pmGetNameInfo, __pmGetAddrInfo??? */
-extern __pmHostEnt * __pmGetHostByName(const char *, __pmHostEnt *);
-extern __pmHostEnt * __pmGetHostByAddr(__pmSockAddr *, __pmHostEnt *);
+extern __pmHostEnt * __pmGetAddrInfo(const char *);
+extern char *	     __pmGetNameInfo(__pmSockAddr *);
 
 /*
  * Query server features - used for expressing protocol capabilities
