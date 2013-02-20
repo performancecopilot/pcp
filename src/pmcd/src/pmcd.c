@@ -368,7 +368,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
     int			one, sts;
     __pmSockAddr	*myAddr;
 
-    if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
+    if ((myAddr = __pmStringToSockAddr(ipSpec)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 		      port, ipSpec);
 	goto fail;
@@ -380,7 +380,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
      * __pmStringToSockAddr.
      */
     if (ipSpec == NULL || strcmp(ipSpec, "INADDR_ANY") == 0)
-        __pmSockAddrSetFamily (myAddr, *family);
+        __pmSockAddrSetFamily(myAddr, *family);
     else
         *family = __pmSockAddrGetFamily(myAddr);
     __pmSockAddrSetPort(myAddr, port);
@@ -436,6 +436,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmSockAddrFree(myAddr);
+    myAddr = NULL;
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",
