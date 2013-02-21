@@ -12,6 +12,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta http-equiv="content-style-type" content="text/css">
 	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
 	<TITLE>Secure Connections</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
@@ -28,6 +29,7 @@ certutil
 pmcd
 pminfo
 pmchart
+pmproxy
 </PRE></TD></TR>
 </TABLE>
 <P>This chapter of the Performance Co-Pilot tutorial covers setting up secure
@@ -150,7 +152,7 @@ option to <I>certutil</I>, as follows.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;List certificates in system-wide NSS database:<BR>
 <PRE><B>
-# certutil -d sql:/etc/pki/nssdb -L
+$ certutil -d sql:/etc/pki/nssdb -L
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -165,18 +167,26 @@ Alternatively, it is possible to generate a &quot;self-signed&quot; certificate 
 using the <B>-x</B> option to <I>certutil</I>.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> options below), enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
 <PRE><B>
 # certutil -d sql:/etc/pki/nssdb -S -x \
-	-n &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#cc0000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
-        -t &quot;CT,,&quot; -v 120 -k rsa
+	-n &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#000000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
+	-t &quot;CT,,&quot; -v 120
+
 # certutil -d sql:/etc/pki/nssdb -S \
-	-n &quot;PCP Collector certificate&quot; -s &quot;cn=<FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT>" -8 "<FONT COLOR="#cc0000">ALT.DNS.NAME</FONT>&quot; \
 	-c &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; \
-	-t &quot;u,u,u&quot; -v 120 -k rsa
+	-n &quot;PCP Collector certificate&quot; -s &quot;PCP Collector&quot; -8 &quot;<FONT COLOR="#cc0000">YOUR.HOST.NAME,ALT.DNS.NAME,...</FONT>" \
+	-t &quot;P,,&quot; -v 120
 </B></PRE>
 </TD></TR>
 </TABLE>
+</P>
+<P>Note: You <B>must</B> customise the red parameters above in upper-case.
+If you are not using self-signed certificates, you will also need to
+customise the black parameters above to match certificate details provided
+by your CA.  Finally, you may also wish to change the <B>-v</B> setting,
+which sets the certificate expiry timeframe.  <I>certutil</I> defaults
+to 3 months, the example above sets expiry in 10 years (120 months).
 </P>
 <P>At this stage, attempts to restart the PCP Collector infrastructure will
 begin to take notice of the new contents in the certificate database.
@@ -215,7 +225,7 @@ collector systems that are configured, fallback to insecure connections if not&q
 <P>Using the approach of certificate delivery via the TLS/SSL protocol, the database
 and certificate will be automatically setup in the correct location on your behalf.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To export the server certificate as ASCII, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
 <PRE><B>
 $ export PCP_SECURE_SOCKETS=enforce
 $ pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
@@ -224,16 +234,38 @@ SHA1 fingerprint is <FONT COLOR="#000000">34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9
 Do you want to accept and save this certificate locally anyway (y/n)? <FONT COLOR="#000000">y</FONT>
 
 kernel.all.load
-    inst [1 or "1 minute"] value 1.26
-    inst [5 or "5 minute"] value 1.29
-    inst [15 or "15 minute"] value 1.28
+    inst [1 or "1 minute"] value <FONT COLOR="#000000">1.26</FONT>
+    inst [5 or "5 minute"] value <FONT COLOR="#000000">1.29</FONT>
+    inst [15 or "15 minute"] value <FONT COLOR="#000000">1.28</FONT>
 </B></PRE>
 </TD></TR>
 </TABLE>
 </P>
+<P>At any time, you can query the certificates you have installed locally
+for remote collector hosts.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To list the locally installed server certificates, in a shell enter:<BR>
+<PRE><B>
+$ certutil -d sql:$HOME/.pki/nssdb -L
 
-<P>Using the manual approach, first use <I>certutil</I> to ensure a user
-database exists, then export either the CA or the collector certificate
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+PCP Collector certificate                                    Pu,u,u
+PCP Collector certificate                                    Pu,u,u
+PCP Collector certificate                                    Pu,u,u
+PCP Collector certificate                                    Pu,u,u
+
+$ certutil -d sql:$HOME/.pki/nssdb -L -n 'PCP Collector certificate' | grep 'DNS name:'
+</B></PRE>
+</TD></TR>
+</TABLE>
+When listing by nickname, this provides a detailed certificate list, so using an
+output filter as shown above can be handy to report only the hostnames.
+</P>
+<BR>
+<P>Alternatively, using the manual approach, first use <I>certutil</I> to ensure
+a user database exists, then export either the CA or the collector certificate
 in ASCII format for the PCP Collector system we wish to monitor and
 finally import it into the user database.
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
@@ -251,25 +283,24 @@ $ certutil -d sql:$HOME/.pki/nssdb -N -f /tmp/empty
 $ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on the <I>monitor</I> system, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on a <I>monitor</I> system, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
+</TABLE>
 Note: Cunning use of this trusted certificate could be used as the root certificate
 for many hosts in an environment, and a single certificate could then be installed
 on a monitor system allowing access to a group of hosts.
-</TABLE>
 <BR>
 </P>
-
+<BR>
 <P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-        <TR><TD WIDTH=600><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
-        <TD><BR><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
+        <TR><TD WIDTH=500><P VALIGN=MIDDLE ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
+        <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
         <LI>Select the "Secure" check box.
-        <LI>Optionally enter an ASCII certificate for the remote PCP Collector system, if you do not already have one installed for the PCP Collector host.  This will be automatically added to your <I>$HOME/.pki/nssdb</I> certificate database (creating it if needed) using <I>certutil</I>.<BR>An ASCII certificate can be exported from the PCP Collector system certificate database using the <B>-A</B> option to <I>certutil</I> as described above.
         <LI>Press "OK" to establish a new secure connection to the host.
 	</UL>
 	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established by <I>pmchart</I> too.
