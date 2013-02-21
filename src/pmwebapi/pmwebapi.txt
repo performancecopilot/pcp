@@ -4,9 +4,9 @@ HTTP GET/POST URL patterns:
 
 * context creation: pmNewContext
 
-  /pmapi/context
-  /pmapi/context?hostname=STRING
-  /pmapi/context?archivefile=ARCHIVE
+  /pmapi/context                          [done]
+  /pmapi/context?hostname=STRING          [done]
+  /pmapi/context?archivefile=ARCHIVE      [done]
 
   The result, if successful, is a application/json form: 
      { "context": NNNN }
@@ -15,8 +15,8 @@ HTTP GET/POST URL patterns:
 
 * metric metadata/listing: pmLookupName/pmLookupDesc
 
-  /pmapi/NNNN/_metric
-  /pmapi/NNNN/_metric?prefix=NAME
+  /pmapi/NNNN/_metric                     [done]
+  /pmapi/NNNN/_metric?prefix=NAME         [done]
   /pmapi/NNNN/_metric?pmids=ID1,ID2
 
   The result, if successful, is a application/json form to provide full
@@ -37,7 +37,7 @@ HTTP GET/POST URL patterns:
   These calls use pmns/metric names (URL-encoded) and/or pmids.
 
   /pmapi/NNNN/_fetch?names=NAME1,NAME2
-  /pmapi/NNNN/_fetch?pmids=PPPP1,PPPP2
+  /pmapi/NNNN/_fetch?pmids=PPPP1,PPPP2     [done]
 
   The result, if successful, is a application/json form to provide metric
   { "timestamp": { "s":SEC, "us":USEC },
