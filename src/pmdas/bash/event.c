@@ -19,10 +19,6 @@
 #include "event.h"
 #include "pmda.h"
 
-#ifndef HAVE_MEMALIGN
-#define memalign(a,b) malloc(b)
-#endif
-
 static char *prefix = "pmdabash";
 static char *pcptmpdir;			/* probably /var/tmp */
 static char pidpath[MAXPATHLEN];
@@ -35,8 +31,18 @@ static char pidpath[MAXPATHLEN];
 void
 process_stat_timestamp(bash_process_t *process, struct timeval *timestamp)
 {
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+    timestamp->tv_sec = process->stat.st_mtime.tv_sec;
+    timestamp->tv_usec = process->stat.st_mtime.tv_nsec / 1000;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+    timestamp->tv_sec = process->stat.st_mtimespec.tv_sec;
+    timestamp->tv_usec = process->stat.st_mtimespec.tv_nsec / 1000;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
     timestamp->tv_sec = process->stat.st_mtim.tv_sec;
     timestamp->tv_usec = process->stat.st_mtim.tv_nsec / 1000;
+#else
+!bozo!
+#endif
 }
 
 /*
@@ -62,8 +68,18 @@ process_head_parser(bash_process_t *verify, const char *buffer, size_t size)
 	verify->starttime.tv_usec = 0;
     } else {
 	/* Use a timestamp from the header as a best-effort guess */
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+	verify->starttime.tv_sec = verify->stat.st_mtime.tv_sec;
+	verify->starttime.tv_usec = verify->stat.st_mtime.tv_nsec / 1000;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+	verify->starttime.tv_sec = verify->stat.st_mtimespec.tv_sec;
+	verify->starttime.tv_usec = verify->stat.st_mtimespec.tv_nsec / 1000;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	verify->starttime.tv_sec = verify->stat.st_mtim.tv_sec;
 	verify->starttime.tv_usec = verify->stat.st_mtim.tv_nsec / 1000;
+#else
+!bozo!
+#endif
     }
     verify->version = version;
 
@@ -243,9 +259,20 @@ process_read(bash_process_t *process)
      * need to keep something.
      */
     if (!buffer) {
+	int	sts = 0;
 	bufsize = 16 * getpagesize();
-	buffer = memalign(getpagesize(), bufsize);
-	if (!buffer) {
+#ifdef HAVE_POSIX_MEMALIGN
+	sts = posix_memalign((void **)&buffer, getpagesize(), bufsize);
+#else
+#ifdef HAVE_MEMALIGN
+	buffer = (char *)memalign(getpagesize(), bufsize);
+	if (buffer == NULL) sts = -1;
+#else
+	buffer = (char *)malloc(bufsize);
+	if (buffer == NULL) sts = -1;
+#endif
+#endif
+	if (sts != 0) {
 	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
 	    return -1;
 	}

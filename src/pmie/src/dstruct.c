@@ -35,9 +35,6 @@
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
-#ifndef HAVE_MEMALIGN
-#define memalign(a,b) malloc(b)
-#endif
 
 /***********************************************************************
  * constants
@@ -377,9 +374,20 @@ zalloc(size_t size)
 void *
 aalloc(size_t align, size_t size)
 {
-    void *p;
-
-    if ((p = memalign(align, size)) == NULL) {
+    void	*p;
+    int		sts = 0;
+#ifdef HAVE_POSIX_MEMALIGN
+    sts = posix_memalign(&p, align, size);
+#else
+#ifdef HAVE_MEMALIGN
+    p = memalign(align, size);
+    if (p == NULL) sts = -1;
+#else
+    p = malloc(size);
+    if (p == NULL) sts = -1;
+#endif
+#endif
+    if (sts != 0) {
 	__pmNoMem("pmie.aalloc", size, PM_FATAL_ERR);
     }
     return p;
