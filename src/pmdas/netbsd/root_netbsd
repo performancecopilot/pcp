@@ -1,0 +1,172 @@
+/*
+ * Metrics for NetBSD kernel PMDA
+ *
+ * Copyright (c) 2012 Ken McDonell  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+/*
+ * the domain for the NETBSD PMDA ...
+ */
+#ifndef NETBSD
+#define NETBSD 116
+#endif
+
+root {
+    hinv
+    kernel
+    disk
+    mem
+    network
+    swap
+}
+
+hinv {
+    ncpu	NETBSD:0:0
+    ndisk	NETBSD:1:0
+    physmem	NETBSD:0:1
+    pagesize	NETBSD:1:3
+    cpu
+}
+
+hinv.cpu {
+    vendor	NETBSD:0:15
+    model	NETBSD:0:16
+    arch	NETBSD:0:17
+}
+
+kernel {
+    all
+    percpu
+}
+
+kernel.all {
+    pswitch	NETBSD:0:22
+    syscall	NETBSD:0:23
+    intr	NETBSD:0:24
+    hz		NETBSD:0:13
+    load	NETBSD:0:2
+    cpu
+}
+
+kernel.all.cpu {
+    user	NETBSD:0:3
+    nice	NETBSD:0:4
+    sys		NETBSD:0:5
+    intr	NETBSD:0:6
+    idle	NETBSD:0:7
+}
+
+kernel.percpu {
+    cpu
+}
+
+kernel.percpu.cpu {
+    user	NETBSD:0:8
+    nice	NETBSD:0:9
+    sys		NETBSD:0:10
+    intr	NETBSD:0:11
+    idle	NETBSD:0:12
+}
+
+disk {
+    dev
+    all
+}
+
+disk.dev {
+    read	NETBSD:2:0
+    write	NETBSD:2:1
+    total	NETBSD:2:2
+    read_bytes	NETBSD:2:3
+    write_bytes	NETBSD:2:4
+    total_bytes	NETBSD:2:5
+    blkread	NETBSD:2:12
+    blkwrite	NETBSD:2:13
+    blktotal	NETBSD:2:14
+}
+
+disk.all {
+    read	NETBSD:2:6
+    write	NETBSD:2:7
+    total	NETBSD:2:8
+    read_bytes	NETBSD:2:9
+    write_bytes	NETBSD:2:10
+    total_bytes	NETBSD:2:11
+    blkread	NETBSD:2:15
+    blkwrite	NETBSD:2:16
+    blktotal	NETBSD:2:17
+}
+
+mem {
+    util
+}
+
+mem.util {
+    all		NETBSD:1:4
+    used	NETBSD:1:5
+    free	NETBSD:1:6
+    bufmem	NETBSD:1:7
+    cached	NETBSD:1:8
+    wired	NETBSD:1:9
+    active	NETBSD:1:10
+    inactive	NETBSD:1:11
+    avail	NETBSD:1:12
+}
+
+network {
+    interface
+}
+
+network.interface {
+    mtu		NETBSD:3:0
+    up		NETBSD:3:1
+    baudrate	NETBSD:3:2
+    in
+    out
+    total
+}
+
+network.interface.in {
+    bytes	NETBSD:3:3
+    packets	NETBSD:3:4
+    mcasts	NETBSD:3:5
+    errors	NETBSD:3:6
+    drops	NETBSD:3:7
+}
+
+network.interface.out {
+    bytes	NETBSD:3:8
+    packets	NETBSD:3:9
+    mcasts	NETBSD:3:10
+    errors	NETBSD:3:11
+    collisions	NETBSD:3:12
+}
+
+network.interface.total {
+    bytes	NETBSD:3:13
+    packets	NETBSD:3:14
+    mcasts	NETBSD:3:15
+    errors	NETBSD:3:16
+}
+
+swap {
+    pagesin	NETBSD:0:18
+    pagesout	NETBSD:0:19
+    in		NETBSD:0:20
+    out		NETBSD:0:21
+    length	NETBSD:0:25
+    used	NETBSD:0:26
+    free	NETBSD:1:1
+}
+
+#undef NETBSD
