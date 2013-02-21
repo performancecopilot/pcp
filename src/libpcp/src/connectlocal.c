@@ -119,32 +119,32 @@ build_dsotab(void)
 	    goto eatline;
 	}
 	/* skip the PMDA's name */
-	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	while (*p != '\0' && *p != '\n' && !isspace((int)*p))
 	    p++;
-	while (*p != '\0' && *p != '\n' && isspace(*p))
+	while (*p != '\0' && *p != '\n' && isspace((int)*p))
 	    p++;
 	/* extract domain number */
 	domain = (int)strtol(p, &q, 10);
 	p = q;
-	while (*p != '\0' && *p != '\n' && isspace(*p))
+	while (*p != '\0' && *p != '\n' && isspace((int)*p))
 	    p++;
 	/* only interested if the type is "dso" */
 	if (strncmp(p, "dso", 3) != 0)
 	    goto eatline;
 	p += 3;
-	while (*p != '\0' && *p != '\n' && isspace(*p))
+	while (*p != '\0' && *p != '\n' && isspace((int)*p))
 	    p++;
 	/* up to the init routine name */
 	init = p;
-	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	while (*p != '\0' && *p != '\n' && !isspace((int)*p))
 	    p++;
 	*p = '\0';
 	p++;
-	while (*p != '\0' && *p != '\n' && isspace(*p))
+	while (*p != '\0' && *p != '\n' && isspace((int)*p))
 	    p++;
 	/* up to the dso pathname */
 	name = p;
-	while (*p != '\0' && *p != '\n' && !isspace(*p))
+	while (*p != '\0' && *p != '\n' && !isspace((int)*p))
 	    p++;
 	peekc = *p;
 	*p = '\0';

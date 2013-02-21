@@ -447,7 +447,7 @@ __pmParseHostSpec(
 			    break;
 			continue;
 		    }
-		    if (isdigit(*s))
+		    if (isdigit((int)*s))
 			continue;
 		    hostError(spec, s, "non-numeric port", errmsg);
 		    sts = PM_ERR_GENERIC;

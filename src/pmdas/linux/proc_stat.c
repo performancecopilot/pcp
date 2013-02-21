@@ -88,7 +88,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 
 	/* scan ncpus */
 	for (i=0; i < nbufindex; i++) {
-	    if (strncmp("cpu", bufindex[i], 3) == 0 && isdigit(bufindex[i][3]))
+	    if (strncmp("cpu", bufindex[i], 3) == 0 && isdigit((int)bufindex[i][3]))
 	    	proc_stat->ncpu++;
 	}
 	if (proc_stat->ncpu == 0)
@@ -183,7 +183,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu");
 	for (i=0; i < proc_stat->ncpu; i++) {
 	    for (j=0; j < nbufindex; j++) {
-		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit(bufindex[j][3])) {
+		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit((int)bufindex[j][3])) {
 		    int c;
 		    int cpunum = atoi(&bufindex[j][3]);
 		    int node;

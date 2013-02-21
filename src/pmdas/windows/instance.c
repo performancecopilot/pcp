@@ -78,7 +78,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		     */
 		    return -1;
 		}
-		while (isascii(*p) && isdigit(*p)) p++;
+		while (isascii((int)*p) && isdigit((int)*p)) p++;
 		if (*p == ' ') {
 		    p++;
 		    q = strchr(p, ')');
@@ -213,7 +213,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		     */
 		    return -1;
 		}
-		while (isascii(*p) && isdigit(*p))
+		while (isascii((int)*p) && isdigit((int)*p))
 		    p++;
 		if (*p == ' ')
 		    p++;

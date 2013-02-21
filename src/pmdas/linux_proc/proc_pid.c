@@ -58,13 +58,13 @@ refresh_pidlist()
 
     allpids.count = 0;
     while ((dp = readdir(dirp)) != NULL) {
-	if (isdigit(dp->d_name[0])) {
+	if (isdigit((int)dp->d_name[0])) {
 	    pidlist_append(&allpids, dp->d_name);
 	    /* readdir on /proc ignores threads */ 
 	    sprintf(taskpath, "/proc/%s/task", dp->d_name);
 	    if ((taskdirp = opendir(taskpath)) != NULL) {
 		while ((tdp = readdir(taskdirp)) != NULL) {
-		    if (!isdigit(tdp->d_name[0]) || strcmp(dp->d_name, tdp->d_name) == 0)
+		    if (!isdigit((int)tdp->d_name[0]) || strcmp(dp->d_name, tdp->d_name) == 0)
 		    	continue;
 		    pidlist_append(&allpids, tdp->d_name);
 		}
@@ -700,15 +700,15 @@ _pm_getfield(char *buf, int field)
 
     for (p=buf, i=0; i < field; i++) {
 	/* skip to the next space */
-    	for (; *p && !isspace(*p); p++) {;}
+    	for (; *p && !isspace((int)*p); p++) {;}
 
 	/* skip to the next word */
-    	for (; *p && isspace(*p); p++) {;}
+    	for (; *p && isspace((int)*p); p++) {;}
     }
 
     /* return a null terminated copy of the field */
     for (i=0; ; i++) {
-	if (isspace(p[i]) || p[i] == '\0' || p[i] == '\n')
+	if (isspace((int)p[i]) || p[i] == '\0' || p[i] == '\n')
 	    break;
     }
 

@@ -103,8 +103,8 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	    break;
 
 	typestr = p;
-	for (typestr = p; !isspace(*p); p++) { }	/* skip lock type */
-	for (; isspace(*p); p++) { *p = '\0'; }		/* eat whitespace */
+	for (typestr = p; !isspace((int)*p); p++) { }	/* skip lock type */
+	for (; isspace((int)*p); p++) { *p = '\0'; }		/* eat whitespace */
 	for (statstr = p; *p != ':'; p++) { }		/* skip stat type */
 	*p = '\0';
 

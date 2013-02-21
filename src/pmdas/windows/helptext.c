@@ -30,11 +30,11 @@ windows_fmt(char *text)
     int		n;
 
     for (p = text, n = 0; p && *p != '\0'; p++, n++) {
-	if (!isprint(*p))		/* toss any dodgey characters */
+	if (!isprint((int)*p))		/* toss any dodgey characters */
 	    *p = '?';
 	else if (*p == '\r')		/* remove Windows line ending */
 	    *p = '\n';
-	if (n < 70 || !isspace(*p))	/* very simple line wrapping */
+	if (n < 70 || !isspace((int)*p))	/* very simple line wrapping */
 	    continue;
 	*p = '\n';
 	n = 0;

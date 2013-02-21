@@ -278,7 +278,7 @@ set_proc_fmt(void)
     struct dirent *directp;	/* go thru /proc directory */
 
     for (rewinddir(procdir); directp=readdir(procdir);) {
-	if (!isdigit(directp->d_name[0]))
+	if (!isdigit((int)directp->d_name[0]))
 	    continue;
 	proc_entry_len = (int)strlen(directp->d_name);
 	(void)sprintf(proc_fmt, "%%0%dd", proc_entry_len);
@@ -551,7 +551,7 @@ refresh_proc_list(void)
     (void)memset(&vars, 0, sizeof(config_vars));
 
     for (np = 0, rewinddir(procdir); directp=readdir(procdir);) {
-	if (!isdigit(directp->d_name[0]))
+	if (!isdigit((int)directp->d_name[0]))
 	    continue;
 	(void)sscanf(directp->d_name, proc_fmt, &pid);
 

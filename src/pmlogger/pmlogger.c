@@ -131,7 +131,7 @@ tolower_str(char *str)
 {
   char *s = str;
   while(*s){
-    *s = tolower(*s);
+    *s = tolower((int)*s);
     s++;
   }
 }

@@ -329,7 +329,7 @@ empty_string(char *s)
 {
     char	*str = s;
     while (*str != '\0') {
-	if (isgraph(*str))
+	if (isgraph((int)*str))
 	    return 0;
 	str++;
     }
@@ -384,7 +384,7 @@ string_token(char **scan, char *token)
     char	*s = *scan;
     char	*t = token;
 
-    while (! isgraph(*s) || *s == ',') {
+    while (! isgraph((int)*s) || *s == ',') {
 	if (*s == '\0')
 	    return 0;
 	s++;
@@ -402,7 +402,7 @@ string_token(char **scan, char *token)
 	*t++ = *s++;
     }
     else {      /* ordinary token */
-	while (isgraph(*s) && *s != ',')
+	while (isgraph((int)*s) && *s != ',')
 	    *t++ = *s++;
     }
 

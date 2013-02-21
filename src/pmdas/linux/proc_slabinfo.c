@@ -65,7 +65,7 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	if (strstr(buf, "slabinfo - version:")) {
 	    char *p;
 	    for (p=buf; *p; p++) {
-		if (isdigit(*p)) {
+		if (isdigit((int)*p)) {
 		    sscanf(p, "%d.%d", &major_version, &minor_version);
 		    break;
 		}
