@@ -95,17 +95,17 @@ __pmFaultInject(const char *ident, int class)
 			lp++;
 		    }
 		    lp = line;
-		    while (*lp && isspace(*lp)) lp++;
+		    while (*lp && isspace((int)*lp)) lp++;
 		    /* comment? */
 		    if (*lp == '#')
 			continue;
 		    sp = lp;
-		    while (*lp && !isspace(*lp)) lp++;
+		    while (*lp && !isspace((int)*lp)) lp++;
 		    /* empty line? */
 		    if (lp == sp)
 			continue;
 		    ep = lp;
-		    while (*lp && isspace(*lp)) lp++;
+		    while (*lp && isspace((int)*lp)) lp++;
 		    if (*lp == '\0') {
 			op = PM_FAULT_GT;
 			thres = 0;
@@ -144,9 +144,9 @@ __pmFaultInject(const char *ident, int class)
 			    continue;
 			}
 		    }
-		    while (*lp && isspace(*lp)) lp++;
+		    while (*lp && isspace((int)*lp)) lp++;
 		    thres = (int)strtol(lp, &lp, 10);
-		    while (*lp && isspace(*lp)) lp++;
+		    while (*lp && isspace((int)*lp)) lp++;
 		    if (*lp != '\0') {
 			fprintf(stderr, "Ignoring: %s[%d]: non-numeric threshold: %s\n", fname, lineno, line);
 			continue;

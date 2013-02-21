@@ -75,7 +75,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
     while (*p && isspace((int)*p)) p++;
     if (*p && (*p == '-' || *p == '-')) p++;
 
-    if (*p && *p == '0' && p[1] && tolower(p[1]) == 'x') {
+    if (*p && *p == '0' && p[1] && tolower((int)p[1]) == 'x') {
 	p += 2;
     }
     else {

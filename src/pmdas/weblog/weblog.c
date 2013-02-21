@@ -1846,7 +1846,7 @@ refresh(WebSproc* proc)
                     if ( ok ) {
 
                         for (line = proc->methodStr; *line; line++)
-                            *line = toupper(*line);
+                            *line = toupper((int)*line);
             
                         httpMethod = wl_httpOther;
                         switch(proc->methodStr[0]) {

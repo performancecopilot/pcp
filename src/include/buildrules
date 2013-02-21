@@ -29,7 +29,7 @@ $(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
 endif
 
 ifdef LIBTARGET
-ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
+ifneq (, $(filter linux kfreebsd netbsd, $(TARGET_OS)))
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), solaris)

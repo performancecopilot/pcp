@@ -246,7 +246,7 @@ read_ksyms(__psint_t *end_addr)
 	     */
 	    if (ip - tp + 1 >= 8) {
 		for (p = &ip[-8]; p < ip; p++) {
-		    if (!isxdigit(*p)) {
+		    if (!isxdigit((int)*p)) {
 			tp = sp;
 			break;
 		    }

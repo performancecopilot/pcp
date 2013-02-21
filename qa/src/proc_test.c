@@ -60,7 +60,11 @@
 #include <pcp/impl.h>
 
 #ifdef HAVE_PROCFS
+#ifdef IS_NETBSD
+#include <miscfs/procfs/procfs.h>
+#else
 #include <sys/procfs.h>
+#endif
 
 #define MAXMETRICS 1024
 
@@ -245,7 +249,7 @@ set_proc_fmt(void)
     }
     proc_entry_len = -1;
     for (rewinddir(procdir); (directp = readdir(procdir));) {
-	if (!isdigit(directp->d_name[0]))
+	if (!isdigit((int)directp->d_name[0]))
 	    continue;
 	ndigit = (int)strlen(directp->d_name);
 	if (proc_entry_len == -1) {

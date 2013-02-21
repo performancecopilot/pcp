@@ -276,7 +276,7 @@ lex(void)
     for ( ; ; ) {
 	c = get();
 	if (firstch) {
-	    if (isspace(c)) continue;
+	    if (isspace((int)c)) continue;
 	    this = &string[-1];
 	    firstch = 0;
 	}
@@ -310,9 +310,9 @@ lex(void)
 	*p++ = (char)c;
 
 	if (ltype == L_UNDEF) {
-	    if (isdigit(c))
+	    if (isdigit((int)c))
 		ltype = L_NUMBER;
-	    else if (isalpha(c))
+	    else if (isalpha((int)c))
 		ltype = L_NAME;
 	    else {
 		switch (c) {
@@ -354,14 +354,14 @@ lex(void)
 	}
 	else {
 	    if (ltype == L_NUMBER) {
-		if (!isdigit(c)) {
+		if (!isdigit((int)c)) {
 		    unget(c);
 		    p[-1] = '\0';
 		    return L_NUMBER;
 		}
 	    }
 	    else if (ltype == L_NAME) {
-		if (isalpha(c) || isdigit(c) || c == '_' || c == '.')
+		if (isalpha((int)c) || isdigit((int)c) || c == '_' || c == '.')
 		    continue;
 		if (c == '(') {
 		    /* check for functions ... */
@@ -1266,11 +1266,11 @@ checkname(char *p)
     for ( ; *p; p++) {
 	if (firstch) {
 	    firstch = 0;
-	    if (isalpha(*p)) continue;
+	    if (isalpha((int)*p)) continue;
 	    return -1;
 	}
 	else {
-	    if (isalpha(*p) || isdigit(*p) || *p == '_') continue;
+	    if (isalpha((int)*p) || isdigit((int)*p) || *p == '_') continue;
 	    if (*p == '.') {
 		firstch = 1;
 		continue;
@@ -1410,11 +1410,11 @@ pmLoadDerivedConfig(const char *fname)
 		}
 		/* trim white space from tail of metric name */
 		q = &np[eq-1];
-		while (q >= np && isspace(*q))
+		while (q >= np && isspace((int)*q))
 		    *q-- = '\0';
 		/* trim white space from head of metric name */
 		q = np;
-		while (*q && isspace(*q))
+		while (*q && isspace((int)*q))
 		    q++;
 		if (*q == '\0') {
 		    buf[eq] = '=';
@@ -1430,7 +1430,7 @@ pmLoadDerivedConfig(const char *fname)
 		    goto next_line;
 		}
 		ep = &buf[eq+1];
-		while (*ep != '\0' && isspace(*ep))
+		while (*ep != '\0' && isspace((int)*ep))
 		    ep++;
 		if (*ep == '\0') {
 		    buf[eq] = '=';
@@ -1445,7 +1445,7 @@ pmLoadDerivedConfig(const char *fname)
 		    pmprintf("%s\n", &buf[eq+1]);
 		    for (q = &buf[eq+1]; *q; q++) {
 			if (q == errp) *q = '^';
-			else if (!isspace(*q)) *q = ' ';
+			else if (!isspace((int)*q)) *q = ' ';
 		    }
 		    pmprintf("%s\n", &buf[eq+1]);
 		    q = pmDerivedErrStr();

@@ -185,7 +185,7 @@ static char *isspace_terminate(char *string)
 {
     int i = 0;
 
-    while (!isspace(string[i++])) /* do nothing */ ;
+    while (!isspace((int)string[i++])) /* do nothing */ ;
     if (i)
 	string[i-1] = '\0';
     return string;

@@ -32,7 +32,7 @@ get_ttyname_info(int pid, dev_t dev, char *ttyname)
     sprintf(procpath, "/proc/%d/fd", pid);
     if ((dir = opendir(procpath)) != NULL) {
 	while ((dp = readdir(dir)) != NULL) {
-	    if (!isdigit(dp->d_name[0]))
+	    if (!isdigit((int)dp->d_name[0]))
 	    	continue;
 	    sprintf(procpath, "/proc/%d/fd/%s", pid, dp->d_name);
 	    if (realpath(procpath, ttypath) == NULL || stat(ttypath, &sbuf) < 0)

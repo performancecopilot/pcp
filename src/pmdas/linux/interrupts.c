@@ -70,7 +70,7 @@ map_online_cpus(char *buffer)
     char *s, *end;
 
     for (s = buffer; *s != '\0'; s++) {
-	if (!isdigit(*s))
+	if (!isdigit((int)*s))
 	    continue;
 	cpuid = strtoul(s, &end, 10);
 	if (end == s)
@@ -119,13 +119,13 @@ oneline_reformat(char *buf)
 
     /* position end marker, and skip over whitespace at the start */
     for (start = end = buf; *end != '\n' && *end != '\0'; end++)
-	if (isspace(*start) && isspace(*end))
+	if (isspace((int)*start) && isspace((int)*end))
 	    start = end+1;
     *end = '\0';
 
     /* squash duplicate whitespace and remove trailing whitespace */
     for (result = start; *result != '\0'; result++) {
-	if (isspace(result[0]) && (isspace(result[1]) || result[1] == '\0')) {
+	if (isspace((int)result[0]) && (isspace((int)result[1]) || result[1] == '\0')) {
 	    memmove(&result[0], &result[1], end - &result[0]);
 	    result--;
 	}
@@ -169,9 +169,9 @@ extract_interrupt_name(char *buffer, char **suffix)
 {
     char *s = buffer, *end;
 
-    while (isspace(*s))		/* find start of name */
+    while (isspace((int)*s))		/* find start of name */
 	s++;
-    for (end = s; *end && isalnum(*end); end++) { }
+    for (end = s; *end && isalnum((int)*end); end++) { }
     *end = '\0';		/* mark end of name */
     *suffix = end + 1;		/* mark values start */
     return s;

@@ -1,0 +1,95 @@
+@ NETBSD.0 Instance domain for load average
+Universally 3 instances, "1 minute" (1), "5 minute" (5) and
+"15 minute" (15).
+
+@ NETBSD.1 CPU Instance domain for kernel.percpu metrics
+One instance for each physical CPU.
+
+@ NETBSD.2 DISK Instance domain for disk.dev metrics
+One instance for each physical "direct access" device.
+
+@ kernel.all.hz system hz rate
+Microseconds per "hz" tick.
+@ kernel.all.load 1, 5 and 15 minute load average
+@ kernel.all.pswitch count of context switches
+@ kernel.all.syscall count of system calls
+@ kernel.all.intr count of interrupts serviced
+@ kernel.all.cpu.user total user CPU time for all CPUs
+@ kernel.all.cpu.nice total nice user CPU time for all CPUs
+@ kernel.all.cpu.sys total sys CPU time for all CPUs
+@ kernel.all.cpu.intr total interrupt CPU time for all CPUs
+@ kernel.all.cpu.idle total idle CPU time for all CPUs
+@ kernel.percpu.cpu.user user CPU time for each CPU
+@ kernel.percpu.cpu.nice nice user CPU time for each CPU
+@ kernel.percpu.cpu.sys sys CPU time for each CPU
+@ kernel.percpu.cpu.intr interrupt CPU time for each CPU
+@ kernel.percpu.cpu.idle idle CPU time for each CPU
+
+@ hinv.ncpu number of CPUs in the system
+@ hinv.ndisk number of disks in the system
+@ hinv.physmem total system memory
+@ hinv.pagesize kernel page size
+@ hinv.cpu.vendor system's CPU vendor
+@ hinv.cpu.model system's CPU model
+@ hinv.cpu.arch system's machine dependent CPU architecture type
+
+@ swap.length total swap space size
+@ swap.used reserved (or allocated) swap space
+@ swap.free available swap space
+
+@ swap.pagesin pages read from external storage to service page faults
+@ swap.pagesout dirty pages written to swap devices
+When the rate of page writes is non-zero, this is the most useful
+indication severe demand for physical memory.
+@ swap.in number of swap in operations
+@ swap.out number of swap out operations
+
+@ disk.dev.read Count of read operations per disk
+@ disk.dev.write Count of write operations per disk
+@ disk.dev.total Count of read or write operations (IOPs) per disk
+@ disk.dev.read_bytes Count of bytes read from each disk
+@ disk.dev.write_bytes Count of bytes written to each disk
+@ disk.dev.total_bytes Count of bytes transferred to or from each disk
+@ disk.dev.blkread Count of blocks read from each disk
+@ disk.dev.blkwrite Count of blocks written to each disk
+@ disk.dev.blktotal Count of blocks transferred to or from each disk
+@ disk.all.read Count of read operations across all disks
+@ disk.all.write Count of write operations across all disks
+@ disk.all.total Count of read or write operations (IOPs) across all disks
+@ disk.all.read_bytes Count of bytes read from all disks
+@ disk.all.write_bytes Count of bytes written to all disks
+@ disk.all.total_bytes Count of bytes transferred to or from all disks
+@ disk.all.blkread Count of blocks read from all disks
+@ disk.all.blkwrite Count of blocks written to all disks
+@ disk.all.blktotal Count of blocks transferred to or from all disks
+
+@ mem.util.all Total memory managed by the system
+@ mem.util.used Memory that is actively in use
+Equals "all" minus "free" minus "inactive" minus "cached".
+@ mem.util.free Unallocated and free memory
+@ mem.util.bufmem Memory associated with active buffer I/O
+@ mem.util.cached Cached memory
+Unmodified (clean and cached) pages from files in filesystems.
+@ mem.util.wired Wired or pinned memory that cannot be paged out
+@ mem.util.active Recently accessed memory
+@ mem.util.inactive Memory that is in use, but has not be accessed recently
+@ mem.util.avail Available memory
+Free plus inactive plus cached.
+
+@ network.interface.mtu Maximum Transfer Unit for each network interface
+@ network.interface.up "UP" state for each network interface
+@ network.interface.baudrate Data baudrate for each network interface
+@ network.interface.in.bytes Bytes received on each network interface
+@ network.interface.in.packets Packets received on each network interface
+@ network.interface.in.mcasts Multicast packets received on each network interface
+@ network.interface.in.errors Input errors on each network interface
+@ network.interface.in.drops Dropped packets on each network interface
+@ network.interface.out.bytes Bytes transmitted on each network interface
+@ network.interface.out.packets Packets transmitted on each network interface
+@ network.interface.out.mcasts Multicast packets transmitted on each network interface
+@ network.interface.out.errors Output errors on each network interface
+@ network.interface.out.collisions Output collisions on each network interface
+@ network.interface.total.bytes Bytes received or transmitted on each network interface
+@ network.interface.total.packets Packets received or transmitted on each network interface
+@ network.interface.total.mcasts Multicast packets received or transmitted on each network interface
+@ network.interface.total.errors Input or output errors on each network interface

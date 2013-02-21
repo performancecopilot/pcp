@@ -167,7 +167,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 		continue;
 	    p = VMSTAT_OFFSET(i, proc_vmstat);
 	    for (bufp++; *bufp; bufp++) {
-	    	if (isdigit(*bufp)) {
+	    	if (isdigit((int)*bufp)) {
 		    sscanf(bufp, "%llu", (unsigned long long *)p);
 		    break;
 		}

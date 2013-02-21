@@ -304,7 +304,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 				}
 			charIndex += strlen("Location:");
             /* Skip any whitespace... */
-            while(*charIndex != '\0' && isspace(*charIndex))
+            while(*charIndex != '\0' && isspace((int)*charIndex))
                 charIndex++;
             if(*charIndex == '\0')
                 {
@@ -796,7 +796,7 @@ int makeSocket(const char *host)
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
 	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
-	if(ret == -1) { errorSource = ERRNO; return -1; }
+	if(ret == -1) { errorSource = ERRNO; close(sock); return -1; }
 
 	return sock;
 	}

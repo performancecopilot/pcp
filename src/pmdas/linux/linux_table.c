@@ -84,10 +84,10 @@ linux_table_scan(FILE *fp, struct linux_table *table)
 	    if ((p = strstr(buf, t->field)) != NULL) {
 		/* first digit after the matched field */
 		for (p += t->field_len; *p; p++) {
-		    if (isdigit(*p))
+		    if (isdigit((int)*p))
 			break;
 		}
-		if (isdigit(*p)) {
+		if (isdigit((int)*p)) {
 		    t->this = strtoul(p, NULL, 10);
 		    t->valid = LINUX_TABLE_VALID;
 		    ret++;
