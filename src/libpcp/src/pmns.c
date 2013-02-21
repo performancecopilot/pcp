@@ -2308,7 +2308,7 @@ try_derive:
 static int
 TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
-    int		sts;
+    int		sts = 0;
     int		nchildren;
     char	**enfants;
 
@@ -2346,7 +2346,6 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
 	    (*func)(name);
 	else
 	    (*func_r)(name, closure);
-	sts = 0;
     }
 
     return sts;
