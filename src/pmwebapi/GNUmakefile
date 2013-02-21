@@ -25,6 +25,7 @@ ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 LLDLIBS = -lpcp -lmicrohttpd $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS) $(LIB_FOR_MATH) $(LIB_FOR_RT)
 LCFLAGS += -Wextra
 CFILES	= main.c pmwebapi.c pmresapi.c
+HFILES = pmwebapi.h
 CMDTARGET = pmwebapi$(EXECSUFFIX)
 LDIRT = $(TARGET)
 
