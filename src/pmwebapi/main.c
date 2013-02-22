@@ -178,6 +178,10 @@ int main(int argc, char *argv[])
           __pmNotifyErr (LOG_ERR, "new context failed\n");
           exit(EXIT_FAILURE);
         }
+
+        if(verbosity)
+          __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n", 
+                         context-1, pcp_context, optarg);
       }
       break;
 
@@ -196,6 +200,10 @@ int main(int argc, char *argv[])
           __pmNotifyErr (LOG_ERR, "new context failed\n");
           exit(EXIT_FAILURE);
         }
+
+        if(verbosity)
+          __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n", 
+                         context-1, pcp_context, optarg);
       }
       break;
 
@@ -214,6 +222,10 @@ int main(int argc, char *argv[])
           __pmNotifyErr (LOG_ERR, "new context failed\n");
           exit(EXIT_FAILURE);
         }
+
+        if(verbosity)
+          __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n", 
+                         context-1, pcp_context);
       }
       break;
 
@@ -239,7 +251,7 @@ int main(int argc, char *argv[])
                        MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
                        MHD_OPTION_END);
   if (d == NULL) {
-    fprintf(stderr, "%s: error starting microhttpd thread\n", pmProgname);
+    __pmNotifyErr(LOG_ERR, "error starting microhttpd thread\n");
     exit(EXIT_FAILURE);
   }
 

@@ -54,7 +54,7 @@ pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
     {
       int rc;
       if (verbosity)
-        __pmNotifyErr (LOG_INFO, "context (%d=%d) expired.\n", kv->key, value->context);
+        __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) expired.\n", kv->key, value->context);
       rc = pmDestroyContext (value->context);
       if (rc)
         __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
@@ -200,7 +200,7 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
      periodic context GC will do it all. */
   
   if (verbosity)
-    pmweb_notify (LOG_INFO, connection, "context (%d=%d) created, expires in %us.\n",
+    pmweb_notify (LOG_INFO, connection, "context (web%d=pm%d) created, expires in %us.\n",
                    webapi_ctx, context, polltimeout);
   
   rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
