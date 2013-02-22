@@ -361,7 +361,7 @@ static mib_t map[] = {
 static int maplen = sizeof(map) / sizeof(map[0]);
 static mib_t bad_mib = { "bad.mib", "bad.mib", 0, NULL, 0, 0, NULL };
 
-static char	*username = "pcp";
+static char	*username;
 static int	isDSO = 1;	/* =0 I am a daemon */
 static int	cpuhz;		/* frequency for CPU time metrics */
 static int	ncpu;		/* number of cpus in kern.cp_times data */
@@ -959,6 +959,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

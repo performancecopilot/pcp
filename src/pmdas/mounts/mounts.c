@@ -87,7 +87,7 @@ static mountinfo *mount_list = NULL;
 static struct stat file_change;
 static int isDSO = 1;
 static char mypath[MAXPATHLEN];
-static char *username = "pcp";
+static char *username;
 
 /* Routines in this file */
 static void mounts_clear_config_info(void);
@@ -396,6 +396,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "mounts" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

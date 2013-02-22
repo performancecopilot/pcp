@@ -49,7 +49,7 @@ int maxfd;
 fd_set fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
-static char *username = "pcp";
+static char *username;
 
 static int nummetrics;
 static __pmnsTree *pmns;
@@ -533,9 +533,11 @@ main(int argc, char **argv)
     long		minmem;
     int			c, err = 0, sep = __pmPathSeparator();
 
+    __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "logger" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, LOGGER,

@@ -37,7 +37,7 @@
 
 static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
-static char			*username = "pcp";
+static char			*username;
 
 mach_port_t		mach_host = 0;
 vm_size_t		mach_page_size = 0;
@@ -1243,6 +1243,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     sprintf(helppath, "%s%c" "darwin" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

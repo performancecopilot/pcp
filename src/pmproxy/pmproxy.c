@@ -23,7 +23,7 @@ static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
-static char	*username = "pcp";
+static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
 static char	pmproxy_host[MAXHOSTNAMELEN];
@@ -608,6 +608,7 @@ main(int argc, char *argv[])
 
     umask(022);
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
 
     ParseOptions(argc, argv);

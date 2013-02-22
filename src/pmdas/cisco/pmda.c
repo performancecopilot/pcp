@@ -57,7 +57,7 @@ int		n_cisco;
 intf_t		*intf;
 int		n_intf;
 int		refreshdelay = 120;	/* default poll every two minutes */
-char		*pmdausername = "pcp";	/* username for the pmda */
+char		*pmdausername;		/* username for the pmda */
 char		*username;		/* username */
 char		*passwd;		/* user-level password */
 char		*prompt = ">";		/* command prompt */
@@ -80,6 +80,7 @@ main(int argc, char **argv)
     char		helptext[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&pmdausername);
 
 #ifdef PARSE_ONLY
     pmDebug = DBG_TRACE_APPL0;

@@ -529,7 +529,7 @@ usage(void)
             "  -l logfile   write log into logfile rather than using default log name\n"
             "  -m memory    maximum memory used per logfile (default %ld bytes)\n"
             "  -s interval  default delay between iterations (default %d sec)\n"
-            "  -U username  user account to run under (default \"pcp\")\n",
+            "  -U username  user account to run under (default \"adm\")\n",
             pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }

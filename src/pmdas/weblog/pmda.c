@@ -86,7 +86,7 @@ char		*wl_logFile = "weblog.log";
 char		wl_helpFile[MAXPATHLEN];
 
 /* default user name for PMDA */
-char		*wl_username = "pcp";
+char		*wl_username;
 
 /*
  * Usage Information
@@ -470,6 +470,7 @@ main(int argc, char **argv)
 #endif
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&wl_username);
 
 #ifdef PCP_DEBUG
     __pmtimevalNow(&start);

@@ -1645,6 +1645,18 @@ __pmSetProgname(const char *program)
 }
 
 int
+__pmGetUsername(char **username)
+{
+    char *user = pmGetConfig("PCP_USER");
+    if (user && user[0] != '\0') {
+	*username = user;
+	return 1;
+    }
+    *username = "pcp";
+    return 0;
+}
+
+int
 __pmShutdown(void)
 {
     int code = 0, sts;

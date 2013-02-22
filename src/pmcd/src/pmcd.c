@@ -35,7 +35,7 @@ static int	run_daemon = 1;		/* run as a daemon, see -f */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
-static char	*username = "pcp";
+static char	*username;
 static int	dupok;			/* set to 1 for -N pmnsfile */
 
 /*
@@ -180,6 +180,7 @@ ParseOptions(int argc, char *argv[])
     char	*p;
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
 

@@ -34,7 +34,7 @@ int		ctlport	  = -1;
 char		*ctlsock;
 
 static char	mypath[MAXPATHLEN];
-static char	*username = "pcp";
+static char	*username;
 
 extern void traceInit(pmdaInterface *dispatch);
 extern void traceMain(pmdaInterface *dispatch);
@@ -152,6 +152,7 @@ main(int argc, char **argv)
     int			c = 0;
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "trace" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

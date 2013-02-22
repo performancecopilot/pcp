@@ -38,7 +38,7 @@ AC_ARG_WITH(
     [tmpdir],
     [AS_HELP_STRING([--with-tmpdir],
 		    [define a temporary directory (default is /var/tmp)])],
-    [with_tmpdir=$withval],
+    [with_tmpdir=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tmpdir=$withval"],
     [with_tmpdir=default])
 
 AC_ARG_WITH(
@@ -47,6 +47,14 @@ AC_ARG_WITH(
 		    [enable support for secure sockets (default is on)])],
     [do_secure=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-secure-sockets=$withval"],
     [do_secure=check])
+
+AC_ARG_WITH(
+    [user-account],
+    [AS_HELP_STRING([--with-user-account],
+		    [user account under which daemons run (default is pcp)])],
+    [pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
+    [pcp_user=pcp])
+AC_SUBST(pcp_user)
 
 #
 # Note: the following environment variables may be

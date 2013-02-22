@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 static int isDSO = 1;
-static char *username = "pcp";
+static char *username;
 
 static pmdaMetric * metrics;
 static int mcnt;
@@ -871,6 +871,8 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
 	prefix = pmProgname + 4;
     snprintf(logfile, sizeof(logfile), "%s.log", prefix);

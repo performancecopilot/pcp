@@ -24,7 +24,7 @@ long bash_maxmem;
 static int bash_interval_expired;
 static struct timeval bash_interval = { 1, 0 };
 
-static char *username = "pcp";
+static char *username;
 
 #define BASH_INDOM	0
 static pmdaIndom indoms[] = { { BASH_INDOM, 0, NULL } };
@@ -421,9 +421,11 @@ main(int argc, char **argv)
     long		minmem;
     int			c, err = 0, sep = __pmPathSeparator();
 
+    __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     minmem = getpagesize();
     bash_maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "bash" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);

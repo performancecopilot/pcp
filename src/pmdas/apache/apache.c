@@ -25,7 +25,7 @@
 
 static char url[256];
 static char uptime_s[64];
-static char *username = "pcp";
+static char *username;
 
 static int http_port = 80;
 static char *http_server = "localhost";
@@ -496,6 +496,8 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     snprintf(helppath, sizeof(helppath), "%s%c" "apache" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",

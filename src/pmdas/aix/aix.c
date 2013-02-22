@@ -23,7 +23,7 @@
 
 static int	_isDSO = 1;
 static char	mypath[MAXPATHLEN];
-static char	*username = "pcp";
+static char	*username;
 
 /*
  * wrapper for pmdaFetch which primes the methods ready for
@@ -103,6 +103,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "aix" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

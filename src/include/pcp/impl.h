@@ -853,9 +853,11 @@ extern void __pmNoMem(const char *, size_t, int);
 /*
  * Startup handling:
  * set program name, as used in __pmNotifyErr() ... default is "pcp"
+ * set default user for __pmSetProcessIdentity() ... default is "pcp"
  */
 EXTERN char *pmProgname;
 extern int __pmSetProgname(const char *);
+extern int __pmGetUsername(char **);
 
 /*
  * Cleanup handling:
