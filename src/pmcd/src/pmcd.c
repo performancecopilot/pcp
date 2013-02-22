@@ -643,9 +643,9 @@ Shutdown(void)
 	    __pmCloseSocket(client[i].fd);
     for (i = 0; i < nReqPorts; i++) {
 	if ((fd = reqPorts[i].fds[INET_FD]) != -1)
-	    __pmCloseSocket(reqPorts[i].fds[INET_FD]);
+	    __pmCloseSocket(fd);
 	if ((fd = reqPorts[i].fds[IPV6_FD]) != -1)
-	    __pmCloseSocket(reqPorts[i].fds[IPV6_FD]);
+	    __pmCloseSocket(fd);
     }
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");
     fflush(stderr);
