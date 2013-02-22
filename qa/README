@@ -67,6 +67,11 @@ Basic getting started
 
 	pcpqa   ALL=(ALL) NOPASSWD: ALL
 
+    Some tests are graphical, and wish to make use of your display.
+    For authentication to success, you may find you need to perform
+    some access list updates, e.g. "xhost +local:" for such tests to
+    pass (e.g. test 325).
+ 
     You can now verify your QA setup, by running:
 
 	./check 000
