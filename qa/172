@@ -89,9 +89,10 @@ echo "... and netstat"
 netstat -an \
 | tee -a $seq.full \
 | sed -n -e '/4[23]000.*LISTEN/{
-s/0\.0\.0\.0/*/g
+s/0\.0\.0\.0/inet/g
+s/:::/inet6:/g
 s/:/./g
-s/.*\(\*.4[23]000\).*\(LISTEN\).*/... \1 ... \2/
+s/.*\(inet6*.4[23]000\).*\(LISTEN\).*/... \1 ... \2/
 p
 }' \
 | sort
