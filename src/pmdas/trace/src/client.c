@@ -57,7 +57,7 @@ acceptClient(int reqfd)
 static int
 newClient(void)
 {
-  int	i, j;
+    int i, j;
 
     for (i = 0; i < nclients; i++)
 	if (!clients[i].status.connected)
@@ -66,18 +66,14 @@ newClient(void)
     if (i == clientsize) {
 	clientsize = clientsize ? clientsize * 2 : MIN_CLIENTS_ALLOC;
 	clients = (client_t *) realloc(clients, sizeof(client_t)*clientsize);
-	if (clients == NULL) {
-	    __pmNoMem("newClient", sizeof(client_t)*clientsize, PM_RECOV_ERR);
-	    exit(1);
-	}
+	if (clients == NULL)
+	    __pmNoMem("newClient", sizeof(client_t)*clientsize, PM_FATAL_ERR);
 	for (j = i; j < clientsize; j++)
 	    clients[j].addr = NULL;
     }
     clients[i].addr = __pmSockAddrAlloc();
-    if (clients[i].addr == NULL) {
-      __pmNoMem("newClient", __pmSockAddrSize(), PM_RECOV_ERR);
-      exit(1);
-    }
+    if (clients[i].addr == NULL)
+	__pmNoMem("newClient", __pmSockAddrSize(), PM_FATAL_ERR);
     if (i >= nclients)
 	nclients = i + 1;
     return i;
@@ -126,20 +122,21 @@ deleteClient(client_t *cp)
 void
 showClients(void)
 {
-    int			i;
+    int i;
 
     fprintf(stderr, "%s: %d connected clients:\n", pmProgname, nclients);
     fprintf(stderr, "     fd  type   conn  client connection from\n"
 		    "     ==  =====  ====  ======================\n");
     for (i=0; i < nclients; i++) {
-        char *hostName;
+	char *hostName;
+
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
 	hostName = __pmGetNameInfo(clients[i].addr);
-	if (hostName == NULL)
+	if (hostName == NULL) {
 	    fprintf(stderr, "%s", __pmSockAddrToString(clients[i].addr));
-	else {
+	} else {
 	    fprintf(stderr, "%-40.40s", hostName);
 	    free(hostName);
 	}

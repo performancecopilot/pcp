@@ -47,7 +47,7 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) } }
 };
 
-static char	*username = "pcp";
+static char	*username;
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* ==0 if I am a daemon */
 
@@ -116,6 +116,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "trivial" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

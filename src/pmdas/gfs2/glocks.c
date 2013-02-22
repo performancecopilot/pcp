@@ -45,7 +45,7 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 	/* interested in glock lines only for now */
 	if (strncmp(p, "G:", 2) != 0)
 	    continue;
-	for (p += 2; isspace(*p); p++) {;}
+	for (p += 2; isspace((int)*p); p++) {;}
 
 	/* pick out the various state fields next */
 	if (strncmp(p, "s:SH", 4) == 0)
@@ -57,7 +57,7 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 	else if (strncmp(p, "s:EX", 4) == 0)
 	    glocks->values[GLOCKS_EXCLUSIVE]++;
 	glocks->values[GLOCKS_TOTAL]++;
-	for (p += 4; isspace(*p); p++) {;}
+	for (p += 4; isspace((int)*p); p++) {;}
 
 	/* [ extract any other field stats here ] */
     }

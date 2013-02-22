@@ -94,7 +94,7 @@ static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
-static char		*username = "pcp";
+static char		*username;
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
@@ -5726,6 +5726,7 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

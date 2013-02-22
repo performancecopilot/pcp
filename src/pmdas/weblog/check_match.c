@@ -207,10 +207,8 @@ main(int argc, char *argv[])
     }
 
     lno = 0;
-    if(common_extended_format || squid_format) {
     remote_fetches = proxy_cache_hits = client_cache_hits = 0;
     remote_bytes = proxy_bytes = 0.0;
-    }
     while (fgets(buf, sizeof(buf), stdin) != NULL) {
 	lno++;
 	if(regex_posix) {

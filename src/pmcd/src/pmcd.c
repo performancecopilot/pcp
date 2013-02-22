@@ -35,7 +35,7 @@ static int	run_daemon = 1;		/* run as a daemon, see -f */
 int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
-static char	*username = "pcp";
+static char	*username;
 static int	dupok;			/* set to 1 for -N pmnsfile */
 
 /*
@@ -180,6 +180,7 @@ ParseOptions(int argc, char *argv[])
     char	*p;
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
 
@@ -368,7 +369,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
     int			one, sts;
     __pmSockAddr	*myAddr;
 
-    if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
+    if ((myAddr = __pmStringToSockAddr(ipSpec)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 		      port, ipSpec);
 	goto fail;
@@ -380,7 +381,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
      * __pmStringToSockAddr.
      */
     if (ipSpec == NULL || strcmp(ipSpec, "INADDR_ANY") == 0)
-        __pmSockAddrSetFamily (myAddr, *family);
+        __pmSockAddrSetFamily(myAddr, *family);
     else
         *family = __pmSockAddrGetFamily(myAddr);
     __pmSockAddrSetPort(myAddr, port);
@@ -436,6 +437,7 @@ OpenRequestSocket(int port, const char * ipSpec, int *family)
 
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmSockAddrFree(myAddr);
+    myAddr = NULL;
     if (sts < 0) {
 	sts = neterror();
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",

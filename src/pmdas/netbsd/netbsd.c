@@ -1,8 +1,8 @@
 /*
- * FreeBSD Kernel PMDA
+ * NetBSD Kernel PMDA
  *
  * Copyright (c) 2012 Red Hat.
- * Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2012,2013 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,10 +25,10 @@
 #include <sys/sysctl.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-#include <vm/vm_param.h>
+#include <uvm/uvm_param.h>
 
 #include "domain.h"
-#include "freebsd.h"
+#include "netbsd.h"
 
 /* static instances */
 static pmdaInstid loadav_indom[] = {
@@ -332,30 +332,30 @@ static mib_t map[] = {
     { "kernel.all.load",	"vm.loadavg" },
     { "kernel.all.hz",		"kern.clockrate" },
     { "kernel.all.cpu.*",	"kern.cp_time" },
-    { "kernel.percpu.cpu.*",	"kern.cp_times" },
-    { "swap.pagesin",		"vm.stats.vm.v_swappgsin" },
-    { "swap.pagesout",		"vm.stats.vm.v_swappgsout" },
-    { "swap.in",		"vm.stats.vm.v_swapin" },
-    { "swap.out",		"vm.stats.vm.v_swapout" },
-    { "kernel.all.pswitch",	"vm.stats.sys.v_swtch" },
-    { "kernel.all.syscall",	"vm.stats.sys.v_syscall" },
-    { "kernel.all.intr",	"vm.stats.sys.v_intr" },
+    // need special logic for kern.cp_time.0 ? { "kernel.percpu.cpu.*",	"kern.cp_times." },
+    // not here? { "swap.pagesin",		"vm.stats.vm.v_swappgsin" },
+    // not here? { "swap.pagesout",		"vm.stats.vm.v_swappgsout" },
+    // not here? { "swap.in",		"vm.stats.vm.v_swapin" },
+    { "swap.out",		"vm.swapout" },
+    // not here? { "kernel.all.pswitch",	"vm.stats.sys.v_swtch" },
+    // not here? { "kernel.all.syscall",	"vm.stats.sys.v_syscall" },
+    // not here? { "kernel.all.intr",	"vm.stats.sys.v_intr" },
     { "mem.util.bufmem",	"vfs.bufspace" },
 /*
  * DO NOT MOVE next 2 entries ... see note above for swap.free
  */
-    { "swap.length",		"vm.swap_total" },
-    { "swap.used",		"vm.swap_reserved" },
+    // not here? { "swap.length",		"vm.swap_total" },
+    // not here? { "swap.used",		"vm.swap_reserved" },
 /*
  * DO NOT MOVE next 6 entries ... see note above for mem.util.avail
  * and mem.util.used
  */
-    { "mem.util.all",		"vm.stats.vm.v_page_count" },
-    { "mem.util.free",		"vm.stats.vm.v_free_count" },
-    { "mem.util.cached",	"vm.stats.vm.v_cache_count" },
-    { "mem.util.wired",		"vm.stats.vm.v_wire_count" },
-    { "mem.util.active",	"vm.stats.vm.v_active_count" },
-    { "mem.util.inactive",	"vm.stats.vm.v_inactive_count" },
+    // not here? { "mem.util.all",		"vm.stats.vm.v_page_count" },
+    // not here? { "mem.util.free",		"vm.stats.vm.v_free_count" },
+    // not here? { "mem.util.cached",	"vm.stats.vm.v_cache_count" },
+    // not here? { "mem.util.wired",		"vm.stats.vm.v_wire_count" },
+    // not here? { "mem.util.active",	"vm.stats.vm.v_active_count" },
+    // not here? { "mem.util.inactive",	"vm.stats.vm.v_inactive_count" },
 
 };
 static int maplen = sizeof(map) / sizeof(map[0]);
@@ -364,7 +364,7 @@ static mib_t bad_mib = { "bad.mib", "bad.mib", 0, NULL, 0, 0, NULL };
 static char	*username;
 static int	isDSO = 1;	/* =0 I am a daemon */
 static int	cpuhz;		/* frequency for CPU time metrics */
-static int	ncpu;		/* number of cpus in kern.cp_times data */
+static int	ncpu;		/* number of cpus in kern.cp_times.* data */
 static int	pagesize;	/* vm page size */
 
 /*
@@ -461,7 +461,7 @@ kmemread_init(void)
  * pair in each pmFetch().
  */
 static int
-freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     int			sts = PM_ERR_PMID;
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
@@ -701,7 +701,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * then do the fetch
  */
 static int
-freebsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+netbsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
     int		done_disk = 0;
@@ -733,7 +733,7 @@ freebsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * wrapper for pmdaInstance ... refresh required instance domain first
  */
 static int
-freebsd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
+netbsd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
     /*
      * indomtab[] instance names and ids are not used for some indoms,
@@ -781,7 +781,7 @@ matchname(const char *prefix, const char *name)
  * Initialize the kernel memory reader.
  */
 void 
-freebsd_init(pmdaInterface *dp)
+netbsd_init(pmdaInterface *dp)
 {
     int			i;
     int			m;
@@ -794,9 +794,9 @@ freebsd_init(pmdaInterface *dp)
     if (isDSO) {
 	char	mypath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
-	snprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
+	snprintf(mypath, sizeof(mypath), "%s%c" "netbsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_5, "freebsd DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_5, "netbsd DSO", mypath);
     } else {
 	__pmSetProcessIdentity(username);
     }
@@ -804,10 +804,10 @@ freebsd_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.four.fetch = freebsd_fetch;
-    dp->version.four.instance = freebsd_instance;
+    dp->version.four.fetch = netbsd_fetch;
+    dp->version.four.instance = netbsd_instance;
 
-    pmdaSetFetchCallBack(dp, freebsd_fetchCallBack);
+    pmdaSetFetchCallBack(dp, netbsd_fetchCallBack);
 
     pmdaInit(dp, indomtab, indomtablen, metrictab, metrictablen);
 
@@ -836,7 +836,7 @@ freebsd_init(pmdaInterface *dp)
 			map[i].m_mib = (int *)malloc(map[i].m_miblen*sizeof(map[i].m_mib[0]));
 			if (map[i].m_mib == NULL) {
 			    fprintf(stderr, "Error: %s (%s): failed mib alloc for sysctl metric \"%s\"\n", map[i].m_pcpname, pmIDStr(metrictab[m].m_desc.pmid), map[i].m_name);
-			    __pmNoMem("freebsd_init: mib", map[i].m_miblen*sizeof(map[i].m_mib[0]), PM_FATAL_ERR);
+			    __pmNoMem("netbsd_init: mib", map[i].m_miblen*sizeof(map[i].m_mib[0]), PM_FATAL_ERR);
 			    /*NOTREACHED*/
 			}
 			memcpy(map[i].m_mib, mib, map[i].m_miblen*sizeof(map[i].m_mib[0]));
@@ -882,16 +882,10 @@ freebsd_init(pmdaInterface *dp)
 	fprintf(stderr, "Info: CPU time \"hz\" = %d\n", cpuhz);
 #endif
 
-    sts = sysctlbyname("kern.cp_times", NULL, &sz, NULL, 0);
-    if (sts < 0) {
-	fprintf(stderr, "Fatal Error: sysctlbyname(\"kern.cp_times\", ...) failed: %s\n", pmErrStr(-errno));
-	exit(1);
-    }
-    /*
-     * see note below when fetching kernel.percpu.cpu.* metrics to
-     * explain this
-     */
-    ncpu = sz / (CPUSTATES * sizeof(__uint64_t));
+    mib[0] = CTL_HW;
+    mib[1] = HW_NCPU;
+    sz = sizeof(ncpu);
+    sts = sysctl(mib, 2, &ncpu, &sz, NULL, 0);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "Info: ncpu = %d\n", ncpu);
@@ -914,7 +908,7 @@ freebsd_init(pmdaInterface *dp)
     indomtab[CPU_INDOM].it_numinst = ncpu;
     indomtab[CPU_INDOM].it_set = (pmdaInstid *)malloc(ncpu * sizeof(pmdaInstid));
     if (indomtab[CPU_INDOM].it_set == NULL) {
-	__pmNoMem("freebsd_init: CPU_INDOM it_set", ncpu * sizeof(pmdaInstid), PM_FATAL_ERR);
+	__pmNoMem("netbsd_init: CPU_INDOM it_set", ncpu * sizeof(pmdaInstid), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
     for (i = 0; i < ncpu; i++) {
@@ -922,7 +916,7 @@ freebsd_init(pmdaInterface *dp)
 	snprintf(iname, sizeof(iname), "cpu%d", i);
 	indomtab[CPU_INDOM].it_set[i].i_name = strdup(iname);
 	if (indomtab[CPU_INDOM].it_set[i].i_name == NULL) {
-	    __pmNoMem("freebsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
+	    __pmNoMem("netbsd_init: CPU_INDOM strdup iname", strlen(iname), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
     }
@@ -961,10 +955,10 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(mypath, sizeof(mypath), "%s%c" "freebsd" "%c" "help",
+    snprintf(mypath, sizeof(mypath), "%s%c" "netbsd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, FREEBSD,
-		"freebsd.log", mypath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, NETBSD,
+		"netbsd.log", mypath);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?", &dispatch, &err)) != EOF) {
 	switch(c) {
@@ -979,7 +973,7 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&dispatch);
-    freebsd_init(&dispatch);
+    netbsd_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     exit(0);

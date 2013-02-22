@@ -1090,16 +1090,37 @@ vpmprintf(const char *msg, va_list arg)
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
 
+#if HAVE_MKSTEMP
+	char *tmpdir = pmGetConfig("PCP_TMP_DIR");
+	fname = (char *)malloc(MAXPATHLEN+1);
+	if (fname == NULL) goto fail;
+	snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX",
+		(tmpdir && tmpdir[0] != '\0') ? tmpdir : "/tmp");
+	fd = mkstemp(fname);
+#else
 	fname = tempnam(pmGetConfig("PCP_TMP_DIR"), "pcp-");
-	if (fname == NULL ||
-	    (fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600)) < 0 ||
-	    (fptr = fdopen(fd, "a")) == NULL) {
+	if (fname == NULL) goto fail;
+	fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
+#endif
+
+	if (fd < 0) goto fail;
+	if ((fptr = fdopen(fd, "a")) == NULL) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
+fail:
+	    if (fname != NULL) {
+		fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
+		    pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
+		unlink(fname);
+		free(fname);
+	    }
+	    else {
+		fprintf(stderr, "%s: vpmprintf: failed to create temporary file: %s\n",
+		    pmProgname, osstrerror_r(errmsg, sizeof(errmsg)));
+	    }
 	    fprintf(stderr, "vpmprintf msg:\n");
-	    if (fd != -1)
+	    if (fd >= 0)
 		close(fd);
+	    fptr = NULL;
 	    msgsize = -1;
 	}
     }
@@ -1620,6 +1641,18 @@ __pmSetProgname(const char *program)
 	if (*p == '/')
 	    pmProgname = p+1;
     }
+    return 0;
+}
+
+int
+__pmGetUsername(char **username)
+{
+    char *user = pmGetConfig("PCP_USER");
+    if (user && user[0] != '\0') {
+	*username = user;
+	return 1;
+    }
+    *username = "pcp";
     return 0;
 }
 

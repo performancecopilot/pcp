@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 static int isDSO = 1;
-static char *username = "pcp";
+static char *username;
 
 static pmdaMetric * metrics;
 static int mcnt;
@@ -185,13 +185,13 @@ verify_metric_name(const char *name, int pos, stats_t *s)
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "MMV: verify_metric_name: %s", name);
 
-    if (p == NULL || *p == '\0' || !isalpha(*p)) {
+    if (p == NULL || *p == '\0' || !isalpha((int)*p)) {
 	__pmNotifyErr(LOG_WARNING, "Invalid metric[%d] name start in %s, ignored",
 			pos, s->name);
 	return -EINVAL;
     }
     for (++p; (p != NULL && *p != '\0'); p++) {
-	if (isalnum(*p) || *p == '_' || *p == '.')
+	if (isalnum((int)*p) || *p == '_' || *p == '.')
 	    continue;
 	__pmNotifyErr(LOG_WARNING, "invalid metric[%d] name in %s (@%c), ignored",
 			    pos, s->name, *p);
@@ -871,6 +871,8 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     if (strncmp(pmProgname, "pmda", 4) == 0 && strlen(pmProgname) > 4)
 	prefix = pmProgname + 4;
     snprintf(logfile, sizeof(logfile), "%s.log", prefix);

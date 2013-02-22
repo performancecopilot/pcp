@@ -41,7 +41,7 @@ static pmdaIndom indomtab[] = {
 };
 
 static char		*statsfile = "/var/sendmail.st";
-static char		*username = "pcp";
+static char		*username;
 static int		nmailer;
 static void		*ptr;
 static struct stat	laststatbuf;
@@ -497,6 +497,8 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     snprintf(mypath, sizeof(mypath), "%s%c" "sendmail" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, SENDMAIL,

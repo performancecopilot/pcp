@@ -165,7 +165,7 @@ __pmLogRename(const char *old, const char *new)
 		want = 1;
 	    else if (strcmp(p, ".index") == 0)
 		want = 1;
-	    else if (*p == '.' && isdigit(p[1])) {
+	    else if (*p == '.' && isdigit((int)p[1])) {
 		char	*endp;
 		long	vol;
 		vol = strtol(&p[1], &endp, 10);
@@ -296,7 +296,7 @@ __pmLogRemove(const char *name)
 		want = 1;
 	    else if (strcmp(p, ".index") == 0)
 		want = 1;
-	    else if (*p == '.' && isdigit(p[1])) {
+	    else if (*p == '.' && isdigit((int)p[1])) {
 		char	*endp;
 		long	vol;
 		vol = strtol(&p[1], &endp, 10);

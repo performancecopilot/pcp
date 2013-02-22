@@ -76,7 +76,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
 else
-ifeq ($(shell cd ..; ( make localconfig >/dev/null && echo 1 )), 1)
+ifeq ($(shell cd ..; ( $(MAKE) localconfig >/dev/null && echo 1 )), 1)
 include ../localconfig
 else
 $(error Cannot make qa/localconfig)

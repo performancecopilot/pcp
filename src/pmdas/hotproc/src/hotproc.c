@@ -75,10 +75,10 @@ static int conf_gen = 1; /* configuration file generation number */
 static int allow_stores = 1; /* allow stores or not */
 
 static int 	hotproc_domain = 7; /* set in hotproc_init */
-static int	pred_testing = 0; /* just do predicate testing or not */
-static int	parse_only = 0; /* just parse config file and exit */
-static char*	testing_fname = NULL; /* filename root for testing */ 
-static char	*username = "pcp"; /* user account for pmda */
+static int	pred_testing; /* just do predicate testing or not */
+static int	parse_only; /* just parse config file and exit */
+static char*	testing_fname; /* filename root for testing */ 
+static char	*username; /* user account for pmda */
 
 /* handle on /proc */
 static DIR *procdir;
@@ -278,7 +278,7 @@ set_proc_fmt(void)
     struct dirent *directp;	/* go thru /proc directory */
 
     for (rewinddir(procdir); directp=readdir(procdir);) {
-	if (!isdigit(directp->d_name[0]))
+	if (!isdigit((int)directp->d_name[0]))
 	    continue;
 	proc_entry_len = (int)strlen(directp->d_name);
 	(void)sprintf(proc_fmt, "%%0%dd", proc_entry_len);
@@ -551,7 +551,7 @@ refresh_proc_list(void)
     (void)memset(&vars, 0, sizeof(config_vars));
 
     for (np = 0, rewinddir(procdir); directp=readdir(procdir);) {
-	if (!isdigit(directp->d_name[0]))
+	if (!isdigit((int)directp->d_name[0]))
 	    continue;
 	(void)sscanf(directp->d_name, proc_fmt, &pid);
 
@@ -1495,6 +1495,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     refresh_delta.tv_sec = 10;
     refresh_delta.tv_usec = 0;

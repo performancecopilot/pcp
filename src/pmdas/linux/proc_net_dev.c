@@ -120,7 +120,7 @@ Inter-|   Receive                                                |  Transmit
 	if ((p = v = strchr(buf, ':')) == NULL)
 	    continue;
 	*p = '\0';
-	for (p=buf; *p && isspace(*p); p++) {;}
+	for (p=buf; *p && isspace((int)*p); p++) {;}
 
 	sts = pmdaCacheLookupName(indom, p, NULL, (void **)&netip);
 	if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
@@ -163,7 +163,7 @@ Inter-|   Receive                                                |  Transmit
 	refresh_net_dev_ioctl(p, netip);
 
 	for (p=v, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
-	    for (; !isdigit(*p); p++) {;}
+	    for (; !isdigit((int)*p); p++) {;}
 	    sscanf(p, "%llu", &llval);
 	    if (llval >= netip->last_counters[j]) {
 		netip->counters[j] +=
@@ -175,7 +175,7 @@ Inter-|   Receive                                                |  Transmit
 		    llval + (UINT_MAX - netip->last_counters[j]);
 	    }
 	    netip->last_counters[j] = llval;
-	    for (; !isspace(*p); p++) {;}
+	    for (; !isspace((int)*p); p++) {;}
 	}
     }
 

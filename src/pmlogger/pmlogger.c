@@ -131,7 +131,7 @@ tolower_str(char *str)
 {
   char *s = str;
   while(*s){
-    *s = tolower(*s);
+    *s = tolower((int)*s);
     s++;
   }
 }
@@ -485,7 +485,7 @@ main(int argc, char **argv)
     int			isdaemon = 0;
     char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
-    char		*username = "pcp";
+    char		*username;
     char		*logfile = "pmlogger.log";
 				    /* default log (not archive) file name */
     char		*endnum;
@@ -499,6 +499,7 @@ main(int argc, char **argv)
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     /*
      * Warning:

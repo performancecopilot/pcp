@@ -83,7 +83,7 @@ static pmdaMetric metrictab[] = {
 static int	shmid = -1;
 
 static char	mypath[MAXPATHLEN];
-static char	*username = "pcp";
+static char	*username;
 
 /*
  * callback provided to pmdaFetch
@@ -274,6 +274,7 @@ main(int argc, char **argv)
     stat_t		*sp;
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "txmon" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

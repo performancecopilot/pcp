@@ -120,7 +120,7 @@ struct file_state filestatetab[] = {
 
 static int	isDSO = 1;		/* =0 I am a daemon */
 static char	mypath[MAXPATHLEN];
-static char	*username = "pcp";
+static char	*username;
 
 /*
  * callback provided to pmdaFetch
@@ -279,6 +279,8 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     snprintf(mypath, sizeof(mypath), "%s%c" "lustrecomm" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LUSTRECOMM,

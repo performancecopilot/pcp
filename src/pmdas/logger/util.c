@@ -36,7 +36,7 @@ rstrip(char *str)
      * string. */
     ptr = str + strlen(str) - 1;
     /* While trailing whitespace, move back. */
-    while (ptr >= str && isspace(*ptr)) {
+    while (ptr >= str && isspace((int)*ptr)) {
 	--ptr;
     }
     *(ptr+1) = '\0';	  /* Now set '\0' as terminal byte. */
@@ -47,7 +47,7 @@ lstrip(char *str)
 {
     /* While leading whitespace, move forward. */
     char *ptr = str;
-    while (*ptr != '\0' && isspace(*ptr)) {
+    while (*ptr != '\0' && isspace((int)*ptr)) {
 	ptr++;
     }
     return ptr;

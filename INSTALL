@@ -78,7 +78,8 @@ During the installation the following three services are registered
 with the Solaris' service management facility:
 
 	# svccfg list \*/pcp/\*
-	application/pcp/pcp
+	application/pcp/pmcd
+	application/pcp/pmlogger
 	application/pcp/pmie
 	application/pcp/pmproxy
 
@@ -87,7 +88,7 @@ from the previous version of PCP the state of the services is
 preserved.
 
 Use of 'svcadm' command to enable or disable is preferred over explicit
-invocation of /etc/init.d/pcp script.
+invocation of the pmcd start script.
 
 Use 'svcs' command to check the state of the services, e.g.:
 
@@ -129,8 +130,10 @@ PCP internet resources, and the pmchart utility.
        $ ./Makepkgs -verbose
 
 2. If you want to build the package and install it manually, use the
-   following steps:
+   following steps (use configure options to suit your preferences,
+   see also section D below for additional details):
 
+       $ ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
        $ make
        $ su root
        # make install
@@ -149,13 +152,15 @@ PCP internet resources, and the pmchart utility.
    You will need to start the PCP Collection Daemon (PMCD), as root:
 
    Linux, AIX:
-   # /etc/init.d/pcp start
+   # service pmcd start  (or...)
+   # /etc/init.d/pmcd start  (or...)
+   # /etc/rc.d/init.d/pmcd start
    Mac OS X:
-   # /Library/StartupItems/pcp/pcp start
+   # /Library/StartupItems/pcp/pmcd start
    Windows:
-   $PCP_DIR/etc/pcp start
+   $PCP_DIR/etc/pmcd start
    Solaris:
-   # svcadm enable application/pcp/pcp
+   # svcadm enable application/pcp/pmcd
 
    Once you have started the PMCD daemon, you can list all performance
    metrics using the pminfo(1) command, E.g.
@@ -223,16 +228,23 @@ PCP internet resources, and the pmchart utility.
 
      apache - monitor apache web server stats
      cisco - monitor Cisco router stats
+     dbping - query any database, extract response times
+     elasticsearch - monitor an elasticsearch cluster
+     kvm - monitor kernel-based virtual machine stats
      mailq - monitor the mail queue
+     memcache - monitor memcache server stats
+     mmv - export memory-mapped value stats from an application
      mounts - keep track of mounted file systems
-     news - experimental ascii protocol
+     mysql - monitor MySQL relational databases
+     postgres - monitor PostGreSQL relational databases
      process - keep an eye on critical processes/daemons
      roomtemp - monitor room temp (needs suitable probe)
+     rsyslog - monitor the reliable system log daemon
      sendmail - monitor sendmail statistics
-     shping - ping critical system services
+     shping - ping critical system services, extract response times
      trace - for instrumenting arbitrary applications, see pmtrace(1)
      txmon - transaction and QOS monitoring
-     news - monitor news traffic
+
      sample - for testing
      simple - example src code if you want to write a new PMDA
      trivial - even easier src code for a new PMDA.
@@ -241,7 +253,9 @@ PCP internet resources, and the pmchart utility.
    directory for the PMDA (usually below /var/lib/pcp/pmdas), and then
    run the ./Install script found therein. None of these PMDAs are
    configured by default - you choose the PMDAs you need and run the
-   Install script.
+   Install script.  Installation can be automated (defaults chosen) by
+   touching .NeedInstall in the appropriate pmdas directory and then
+   restarting the pmcd service via its startup script.
 
 == D. Non-default build, install and run
 

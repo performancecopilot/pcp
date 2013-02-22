@@ -29,7 +29,7 @@
 #include "domain.h"
 #include "lmsensors.h"
 
-static char *username = "pcp";
+static char *username;
 static char buf[4096];
 static chips schips;
 
@@ -934,6 +934,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "lmsensors" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+ *
+ * Copyright (c) 2012 Ken McDonell  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,23 +17,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef CLIENT_H
-#define CLIENT_H
+/*
+ * instance domains control
+ */
+#define LOADAV_INDOM	0
+#define CPU_INDOM	1
+#define DISK_INDOM	2
+#define NETIF_INDOM	3
+extern pmdaIndom indomtab[];
 
-typedef struct {
-    int			fd;		/* socket descriptor  */
-    __pmSockAddr	*addr;		/* address of client  */
-    struct {				/* connection status  */
-	unsigned int	connected : 1;	/* client connected   */
-	unsigned int	version   : 8;	/* client pdu version */
-	unsigned int	protocol  : 1;	/* synchronous or not */
-	unsigned int	padding   :22;	/* currently unused   */
-    } status;
-    unsigned int	denyOps;
-} client_t;
+extern void	refresh_disk_metrics(void);
+extern int	do_disk_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
-extern client_t *acceptClient(int);
-extern void deleteClient(client_t *);
-extern void showClients(void);
+extern void	refresh_netif_metrics(void);
+extern int	do_netif_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
-#endif	/* CLIENT_H */
+/*
+ * kernel memory reader pieces
+ */
+#include <kvm.h>
+#include <nlist.h>
+
+extern kvm_t	*kvmp;
+
+#define KERN_IFNET	0
+extern struct nlist	symbols[];

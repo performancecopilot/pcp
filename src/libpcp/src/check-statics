@@ -20,6 +20,8 @@ in
 	    arch=`uname -m 2>/dev/null`
 	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
 	    ;;
+    netbsd)
+	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
 	    exit 0
@@ -164,6 +166,8 @@ lock.o
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
     b ?hashctl.[0-9]*		# for lock debug tracing
+    B ?__pmTPDKey		# if don't have __thread support
+
 logconnect.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex

@@ -221,7 +221,7 @@ prepare_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 	if (endp == '\0' || endp == p)
 	    break;
 	p = endp;
-	while (p && isspace(*p))
+	while (p && isspace((int)*p))
 	    p++;
     }
 
@@ -269,7 +269,7 @@ prepare_named_ull(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 	p = offset;
 	value = strtoull(p, &endp, 0);
 	p = endp;
-	while (p && isspace(*p))
+	while (p && isspace((int)*p))
 	    p++;
 
 	for (i = 0; i < subsys->metric_count; i++) {
@@ -455,10 +455,10 @@ cgroup_find_subsys(pmInDom indom, const char *options)
 static int
 valid_pmns_name(char *name)
 {
-    if (!isalpha(name[0]))
+    if (!isalpha((int)name[0]))
 	return 0;
     for (; *name != '\0'; name++)
-	if (!isalnum(*name) && *name != '_')
+	if (!isalnum((int)*name) && *name != '_')
 	    return 0;
     return 1;
 }
