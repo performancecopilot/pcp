@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011-2013 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,7 @@ extern unsigned exit_p;               /* counted by SIG* handler */
 
 /* ------------------------------------------------------------------------ */
 
+extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
 extern int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                              const char* url, const char* method,
                              const char* upload_data, size_t *upload_data_size);

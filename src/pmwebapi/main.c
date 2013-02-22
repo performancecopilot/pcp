@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011-2013 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,7 +70,7 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
-static char *options = "p:n:K:t:a:r:h?v";
+static char *options = "p:n:K:t:a:r:h?vA:H:L";
 static char usage[] =
   "Usage: %s [options]\n\n"
   "Options:\n"
@@ -81,8 +81,12 @@ static char usage[] =
   "  -a prefix     serve API requests with given prefix, default /pmapi\n"
   "  -r resdir     serve non-API files from given directory, no default\n"
   "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
+  "  -H hostname   permanently bind next context to metrics on PMCD on host\n"
+  "  -A archive    permanently bind next context to metrics in archive\n"
+  "  -L            permanently bind next context to metrics in local PMDAs\n"
   "  -v            increase verbosity\n"
-  "  -h -?         help\n";
+  "  -h -?         help\n"
+;
 
 
 void handle_signals (int sig)
@@ -100,6 +104,7 @@ int main(int argc, char *argv[])
   int c;
   char *errmsg = NULL;
   unsigned errflag = 0;
+  unsigned context = 1; /* index=0 is invalid */
 
   __pmSetProgname(argv[0]);
 
@@ -156,6 +161,60 @@ int main(int argc, char *argv[])
 
     case 'v':
       verbosity ++;
+      break;
+
+    case 'H':
+      {
+        int pcp_context = pmNewContext (PM_CONTEXT_HOST, optarg);
+        int rc;
+
+        if (pcp_context < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+
+        rc = pmwebapi_bind_permanent (context++, pcp_context);
+        if (rc < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+      }
+      break;
+
+    case 'A':
+      {
+        int pcp_context = pmNewContext (PM_CONTEXT_ARCHIVE, optarg);
+        int rc;
+
+        if (pcp_context < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+
+        rc = pmwebapi_bind_permanent (context++, pcp_context);
+        if (rc < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+      }
+      break;
+
+    case 'L':
+      {
+        int pcp_context = pmNewContext (PM_CONTEXT_LOCAL, NULL);
+        int rc;
+
+        if (pcp_context < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+
+        rc = pmwebapi_bind_permanent (context++, pcp_context);
+        if (rc < 0) {
+          __pmNotifyErr (LOG_ERR, "new context failed\n");
+          exit(EXIT_FAILURE);
+        }
+      }
       break;
 
     default:

@@ -31,12 +31,11 @@
 #define JSON_MIMETYPE "application/json"
 
 
-
 struct webcontext {
   /* __pmHashNode key is     unique randomized web context key, [1,INT_MAX] */
   /* XXX: optionally bind session to a particular IP address? */
   unsigned  mypolltimeout;
-  time_t    expires;      /* poll timeout */
+  time_t    expires;      /* poll timeout, 0 if never expires */
   int       context;      /* PMAPI context handle, 0 if deleted/free */
 };
 
@@ -51,7 +50,7 @@ pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
   const struct webcontext *value = kv->data;
   time_t now = * (time_t *) cdata;
 
-  if (value->expires < now)
+  if (value->expires && value->expires < now)
     {
       int rc;
       if (verbosity)
@@ -79,6 +78,47 @@ void pmwebapi_gc ()
   __pmHashIter (& contexts, pmwebapi_gc_fn, & now);
   /* if-multithread: Unlock contexts. */
 }
+
+
+
+int webcontext_allocate (int webapi_ctx, struct webcontext** wc)
+{
+  if (__pmHashSearch (webapi_ctx, & contexts) != NULL)
+    return -EEXIST;
+  
+  /* Allocate & fill in our webapi context. */
+  assert (wc);
+  *wc = malloc(sizeof(struct webcontext));
+  if (! *wc)
+    return -ENOMEM;
+
+  int rc = __pmHashAdd(webapi_ctx, *wc, & contexts);
+  if (rc < 0) {
+    free (*wc);
+    return rc;
+  }
+
+  return 0;
+}
+
+
+int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
+{
+  struct webcontext* c;
+  int rc = webcontext_allocate (webapi_ctx, &c);
+
+  if (rc < 0)
+    return rc;
+
+  assert (c);
+  assert (pcp_context >= 0);
+  c->context = pcp_context;
+  c->mypolltimeout = ~0;
+  c->expires = 0;
+
+  return 0;
+}
+
 
 
 
@@ -127,9 +167,10 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     goto out;
   }
 
+  struct webcontext* c = NULL;
   /* Create a new context key for the webapi.  We just use a random integer within
      a reasonable range: 1..INT_MAX */
-  do {
+  while (1) {
     /* Preclude infinite looping here, for example due to a badly behaving
        random(3) implementation. */
     iterations ++;
@@ -142,29 +183,18 @@ int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     
     webapi_ctx = random(); /* we hope RAND_MAX is large enough */
     if (webapi_ctx <= 0 || webapi_ctx > INT_MAX) continue;
+
+    rc = webcontext_allocate (webapi_ctx, & c);
+    if (rc == 0)
+      break;
     /* This may already exist.  We loop in case the key id already exists. */
-  } while(__pmHashSearch (webapi_ctx, & contexts) != NULL);
-  
-  /* Allocate & fill in our webapi context. */
-  struct webcontext *c = malloc(sizeof(struct webcontext));
-  if (! c)
-    {
-      pmweb_notify (LOG_ERR, connection, "context malloc failed\n");
-      pmDestroyContext (context);
-      goto out;
-    }
+  }
+
+  assert (c);
   c->context = context;
   time (& c->expires);
   c->mypolltimeout = polltimeout;
   c->expires += c->mypolltimeout;
-  rc = __pmHashAdd(webapi_ctx, c, & contexts);
-  if (rc < 0)
-    {
-      pmweb_notify (LOG_ERR, connection, "pmHashAdd failed (%d)\n", rc);
-      free (c);
-      pmDestroyContext (context);
-      goto out;
-    }
   
   /* Errors beyond this point don't require instant cleanup; the
      periodic context GC will do it all. */
@@ -715,8 +745,10 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
   assert (c != NULL);
 
   /* Update last-use of this connection. */
-  time (& c->expires);
-  c->expires += c->mypolltimeout;
+  if (c->expires != 0) {
+    time (& c->expires);
+    c->expires += c->mypolltimeout;
+  }
 
   /* Switch to this context for subsequent operations. */
   /* if-multithreaded: watch out. */
