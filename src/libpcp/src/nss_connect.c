@@ -219,7 +219,7 @@ __pmCreateSocket(void)
 int
 __pmCreateIPv6Socket(void)
 {
-    int socket = createSocket(AF_INET6);
+    int socket = createSocket(PR_AF_INET6);
 
     if (socket >= 0) {
 	/* Disable IPv4-mapped connections */
@@ -1301,11 +1301,11 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
     else if (addr->sockaddr.raw.family == PR_AF_INET)
         addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
     else if (addr->sockaddr.raw.family == PR_AF_INET6) {
-      /* IPv6: Mask it byte by byte */
-      char *addrBytes = (char *)&addr->sockaddr.ipv6.ip;
-      const char *maskBytes = (const char *)&mask->sockaddr.ipv6.ip;
-      for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
-          addrBytes[i] &= maskBytes[i];
+        /* IPv6: Mask it byte by byte */
+        char *addrBytes = (char *)&addr->sockaddr.ipv6.ip;
+	const char *maskBytes = (const char *)&mask->sockaddr.ipv6.ip;
+	for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
+            addrBytes[i] &= maskBytes[i];
     }
     else
 	__pmNotifyErr(LOG_ERR,
@@ -1334,18 +1334,6 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 }
 
 int
-__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
-{
-    int rc;
-    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
-    if (loopBackAddr == NULL)
-        return 0;
-    rc = __pmSockAddrCompare(addr, loopBackAddr);
-    __pmSockAddrFree(loopBackAddr);
-    return rc == 0;
-}
-
-int
 __pmSockAddrIsInet(const __pmSockAddr *addr)
 {
     return addr->sockaddr.raw.family == PR_AF_INET;
@@ -1355,15 +1343,6 @@ int
 __pmSockAddrIsIPv6(const __pmSockAddr *addr)
 {
     return addr->sockaddr.raw.family == PR_AF_INET6;
-}
-
-__pmSockAddr *
-__pmLoopBackAddress(void)
-{
-    __pmSockAddr* addr = __pmSockAddrAlloc();
-    if (addr != NULL)
-        __pmSockAddrInit(addr, INADDR_LOOPBACK, 0);
-    return addr;
 }
 
 __pmSockAddr *
