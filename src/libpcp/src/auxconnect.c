@@ -42,10 +42,31 @@ __pmSockAddrSize(void)
     return sizeof(__pmSockAddr);
 }
 
+int
+__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
+{
+    int rc;
+    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
+    if (loopBackAddr == NULL)
+        return 0;
+    rc = __pmSockAddrCompare(addr, loopBackAddr);
+    __pmSockAddrFree(loopBackAddr);
+    return rc == 0;
+}
+
 void
 __pmSockAddrFree(__pmSockAddr *sockaddr)
 {
     free(sockaddr);
+}
+
+__pmSockAddr *
+__pmLoopBackAddress(void)
+{
+    __pmSockAddr* addr = __pmSockAddrAlloc();
+    if (addr != NULL)
+        __pmSockAddrInit(addr, INADDR_LOOPBACK, 0);
+    return addr;
 }
 
 int
@@ -250,17 +271,17 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     __pmConnectTimeout();
 
-    if ((fd = __pmCreateSocket()) < 0) {
-	__pmHostEntFree(servInfo);
-	PM_UNLOCK(__pmLock_libpcp);
-	return fd;
-    }
-
     if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
         __pmHostEntFree(servInfo);
 	return -ENOMEM;
     }
     __pmHostEntFree(servInfo);
+
+    if ((fd = __pmCreateSocket()) < 0) {
+        __pmSockAddrFree(myAddr);
+	PM_UNLOCK(__pmLock_libpcp);
+	return fd;
+    }
     PM_UNLOCK(__pmLock_libpcp);
 
     if ((fdFlags = __pmConnectTo(fd, myAddr, pmcd_port)) >= 0) {
@@ -362,12 +383,6 @@ __pmCloseSocket(int fd)
 }
 
 int
-__pmShutdownSockets(void)
-{
-    return 0;
-}
-
-int
 __pmSetSockOpt(int socket, int level, int option_name, const void *option_value,
 	       __pmSockLen option_len)
 {
@@ -386,7 +401,6 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 void
 __pmSockAddrInit(__pmSockAddr *addr, int address, int port)
 {
-    /* TODO: IPv6 */
     memset(addr, 0, sizeof(*addr));
     addr->sockaddr.inet.sin_family = AF_INET;
     addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
@@ -408,8 +422,13 @@ __pmSockAddrGetFamily(const __pmSockAddr *addr)
 void
 __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 {
-    /* TODO: IPv6 */
-    addr->sockaddr.inet.sin_port = htons(port);
+    if (addr->sockaddr.raw.sa_family == AF_INET)
+        addr->sockaddr.inet.sin_port = htons(port);
+    else if (addr->sockaddr.raw.sa_family == AF_INET6)
+        addr->sockaddr.ipv6.sin6_port = htons(port);
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
 }
 
 int
@@ -532,7 +551,6 @@ __pmListen(int fd, int backlog)
 int
 __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
-    /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
     return accept(fd, &sock->sockaddr.raw, addrlen);
 }
@@ -540,7 +558,6 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
-    /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
     return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
 }
@@ -548,7 +565,6 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 int
 __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
-    /* TODO: IPv6 */
     __pmSockAddr *sock = (__pmSockAddr *)addr;
     return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
 }
@@ -728,23 +744,46 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
 __pmSockAddr *
 __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 {
-    /* TODO: IPv6 */
-    addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
+    int i;
+    if (addr->sockaddr.raw.sa_family != mask->sockaddr.raw.sa_family) {
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
+		addr->sockaddr.raw.sa_family, mask->sockaddr.raw.sa_family);
+    }
+    else if (addr->sockaddr.raw.sa_family == AF_INET)
+        addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
+    else if (addr->sockaddr.raw.sa_family == AF_INET6) {
+        /* IPv6: Mask it byte by byte */
+        char *addrBytes = addr->sockaddr.ipv6.sin6_addr.s6_addr;
+	const char *maskBytes = mask->sockaddr.ipv6.sin6_addr.s6_addr;
+	for (i = 0; i < sizeof(addr->sockaddr.ipv6.sin6_addr.s6_addr); ++i)
+            addrBytes[i] &= maskBytes[i];
+    }
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
+
     return addr;
 }
 
 int
 __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 {
-    /* TODO: IPv6 */
-    return addr1->sockaddr.inet.sin_addr.s_addr - addr2->sockaddr.inet.sin_addr.s_addr;
-}
+    if (addr1->sockaddr.raw.sa_family != addr2->sockaddr.raw.sa_family)
+        return addr1->sockaddr.raw.sa_family - addr2->sockaddr.raw.sa_family;
 
-int
-__pmSockAddrIsLoopBack(const __pmSockAddr *addr)
-{
-    /* TODO: IPv6 */
-    return addr->sockaddr.inet.sin_addr.s_addr == htonl(INADDR_LOOPBACK);
+    if (addr1->sockaddr.raw.sa_family == PR_AF_INET)
+        return addr1->sockaddr.inet.sin_addr.s_addr - addr2->sockaddr.inet.sin_addr.s_addr;
+
+    if (addr1->sockaddr.raw.sa_family == PR_AF_INET6) {
+        /* IPv6: Compare it byte by byte */
+      return memcmp(&addr1->sockaddr.ipv6.sin6_addr.s6_addr, &addr2->sockaddr.ipv6.sin6_addr.s6_addr,
+		    sizeof(addr1->sockaddr.ipv6.sin6_addr.s6_addr));
+    }
+
+    __pmNotifyErr(LOG_ERR,
+		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.sa_family);
+    return 1; /* not equal */
 }
 
 int
@@ -760,34 +799,32 @@ __pmSockAddrIsIPv6(const __pmSockAddr *addr)
 }
 
 __pmSockAddr *
-__pmLoopBackAddress(void)
-{
-    /* TODO: IPv6 */
-    __pmSockAddr* addr = __pmSockAddrAlloc();
-    if (addr) {
-        addr->sockaddr.inet.sin_family = AF_INET;
-	addr->sockaddr.inet.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    }
-    return addr;
-}
-
-__pmSockAddr *
 __pmStringToSockAddr(const char *cp)
 {
     __pmSockAddr *addr = __pmSockAddrAlloc();
-
     if (addr) {
-        /* TODO: IPv6 */
-        addr->sockaddr.inet.sin_family = AF_INET;
-	if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0)
+        if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
 	    addr->sockaddr.inet.sin_addr.s_addr = INADDR_ANY;
+	    /* Set the address family to 0, meaning "not set". */
+	    addr->sockaddr.raw.family = 0;
+	}
 	else {
 #ifdef IS_MINGW
+	  /* TODO: IPv6: is inet_pton supported on MINGW?? */
 	    unsigned long in;
 	    in = inet_addr(cp);
 	    addr->sockaddr.inet.inaddr.s_addr = in;
 #else
-	    inet_aton(cp, &addr->sockaddr.inet.sin_addr);
+	    int domain = (strchr(cp, ':') == NULL) ? AF_INET : AF_INET6;
+	    int sts;
+	    if (domain == AF_INET)
+	      sts = inet_pton(domain, cp, &addr->inet.sin_addr);
+	    else
+	      sts = inet_pton(domain, cp, &addr->ipv6.sin6_addr);
+	    if (sts <= 0) {
+	        __pmSockAddrFree(addr);
+		addr = NULL;
+	    }
 #endif
 	}
     }
@@ -801,11 +838,19 @@ __pmStringToSockAddr(const char *cp)
 char *
 __pmSockAddrToString(__pmSockAddr *addr)
 {
-    /* TODO: IPv6 */
-    char *buf = inet_ntoa(addr->sockaddr.inet.sin_addr);
-    if (buf == NULL)
+    char str[INET6_ADDRSTRLEN];
+    int domain;
+    const char *sts;
+
+    domain = addr->raw.sa_family;
+    if (domain == AF_INET)
+      sts = inet_ntop(domain, &addr->inet.sin_addr, str, sizeof(str));
+    else
+      sts = inet_ntop(domain, &addr->ipv6.sin6_addr, str, sizeof(str));
+
+    if (sts == NULL)
 	return NULL;
-    return strdup(buf);
+    return strdup(str);
 }
 
 #endif /* !HAVE_SECURE_SOCKETS */
