@@ -621,6 +621,7 @@ _filter_torture_api()
 	-e '/^    dynamic /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
+	-e '/^    feature /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
 	-e '/^    ipc /d' \
