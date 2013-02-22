@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011-2013 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -451,7 +451,8 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
                                   struct webcontext *c)
 {
   const char* val;
- struct MHD_Response* resp;
+  const char* val2;
+  struct MHD_Response* resp;
   int rc;
   int max_num_metrics;
   int num_metrics;
@@ -463,14 +464,15 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 
   val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
   if (val == NULL) val = "";
-  /* XXX: also handle names= */
+  val2 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "names");
+  if (val2 == NULL) val2 = "";
 
   /* Pessimistically overestimate maximum number of pmID elements
      we'll need, to allocate the metrics[] array just once, and not have
      to range-check. */
-  max_num_metrics = strlen(val); /* The real minimum is actually
-                                    closer to strlen()/2, to account
-                                    for commas. */
+  max_num_metrics = strlen(val)+strlen(val2); /* The real minimum is actually
+                                                 closer to strlen()/2, to account
+                                                 for commas. */
   num_metrics = 0;
   metrics = calloc ((size_t) max_num_metrics, sizeof(pmID));
   if (metrics == NULL) {
@@ -478,8 +480,41 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     goto out;
   }
 
-  /* Loop over pmid numbers in val, collect them in metrics[]. */
-  while (1) {
+  /* Loop over names= names in val2, collect them in metrics[]. */
+  while (*val2 != '\0') {
+    char *name;
+    char *name_end = strchr (val2, ',');
+    char *names[1];
+    pmID found_pmid;
+    int num;
+
+    /* Ignore plain "," XXX: elsewhere too? */
+    if (*val2 == ',') {
+      val2 ++;
+      continue;
+    }
+      
+    /* Copy just this name piece. */
+    if (name_end) {
+      name = strndup (val2, (name_end - val2));
+      val2 = name_end + 1; /* skip past , */
+    } else {
+      name = strdup (val2);
+      val2 += strlen (val2); /* skip onto \0 */
+    }
+    names[0] = name;
+
+    num = pmLookupName (1, names, & found_pmid);
+
+    if (num == 1) {
+      assert (num_metrics < max_num_metrics);
+      metrics[num_metrics++] = found_pmid;
+    }      
+  }
+
+
+  /* Loop over pmids= numbers in val, append them to metrics[]. */
+  while (*val) {
     char *numend; 
     unsigned long pmid = strtoul (val, & numend, 10); /* matches pmid printing above */
     if (numend == val) break; /* invalid contents */
@@ -491,6 +526,8 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     if (*numend == ',')
       val = numend+1; /* advance to next string */
   }  
+
+  /* Time to fetch the metric values. */
   if (num_metrics == 0) {
     free (metrics);
     pmweb_notify (LOG_ERR, connection, "no metrics requested\n");

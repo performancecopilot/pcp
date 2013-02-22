@@ -36,7 +36,7 @@ HTTP GET/POST URL patterns:
 * metric value fetching: pmFetch
   These calls use pmns/metric names (URL-encoded) and/or pmids.
 
-  /pmapi/NNNN/_fetch?names=NAME1,NAME2
+  /pmapi/NNNN/_fetch?names=NAME1,NAME2     [done]
   /pmapi/NNNN/_fetch?pmids=PPPP1,PPPP2     [done]
 
   The result, if successful, is a application/json form to provide metric
