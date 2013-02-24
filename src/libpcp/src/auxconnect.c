@@ -503,6 +503,8 @@ __pmSecureServerHandshake(int fd, int flags)
 int
 __pmSecureServerHasFeature(__pmSecureServerFeature query)
 {
+    if (query == PM_SERVER_FEATURE_IPV6)
+	return 1;
     return 0;
 }
 
