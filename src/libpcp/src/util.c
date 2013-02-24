@@ -1089,37 +1089,45 @@ vpmprintf(const char *msg, va_list arg)
     PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
+	char	*tmpdir = pmGetConfig("PCP_TMP_DIR");
+
+	msgsize = -1;
+	if (tmpdir[0] != '\0') {
+	    /*
+	     * PCP_TMP_DIR found in the configuration/environment,
+	     * otherwise fall through to the stderr case
+	     */
 
 #if HAVE_MKSTEMP
-	fname = (char *)malloc(MAXPATHLEN+1);
-	if (fname == NULL) goto fail;
-	snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", pmGetConfig("PCP_TMP_DIR"));
-	fd = mkstemp(fname);
+	    fname = (char *)malloc(MAXPATHLEN+1);
+	    if (fname == NULL) goto fail;
+	    snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	    fd = mkstemp(fname);
 #else
-	fname = tempnam(pmGetConfig("PCP_TMP_DIR"), "pcp-");
-	if (fname == NULL) goto fail;
-	fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
+	    fname = tempnam(tmpdir, "pcp-");
+	    if (fname == NULL) goto fail;
+	    fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
 #endif
 
-	if (fd < 0) goto fail;
-	if ((fptr = fdopen(fd, "a")) == NULL) {
-	    char	errmsg[PM_MAXERRMSGLEN];
+	    if (fd < 0) goto fail;
+	    if ((fptr = fdopen(fd, "a")) == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
 fail:
-	    if (fname != NULL) {
-		fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
-		    pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
-		unlink(fname);
-		free(fname);
+		if (fname != NULL) {
+		    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
+			pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
+		    unlink(fname);
+		    free(fname);
+		}
+		else {
+		    fprintf(stderr, "%s: vpmprintf: failed to create temporary file: %s\n",
+			pmProgname, osstrerror_r(errmsg, sizeof(errmsg)));
+		}
+		fprintf(stderr, "vpmprintf msg:\n");
+		if (fd >= 0)
+		    close(fd);
+		fptr = NULL;
 	    }
-	    else {
-		fprintf(stderr, "%s: vpmprintf: failed to create temporary file: %s\n",
-		    pmProgname, osstrerror_r(errmsg, sizeof(errmsg)));
-	    }
-	    fprintf(stderr, "vpmprintf msg:\n");
-	    if (fd >= 0)
-		close(fd);
-	    fptr = NULL;
-	    msgsize = -1;
 	}
     }
 
