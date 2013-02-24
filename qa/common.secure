@@ -91,7 +91,7 @@ nss_setup_certificates()
 	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
 	-t "CT,,"  >> $seq.full 2>&1
     $sudo certutil $certopts -S \
-	-n "PCP Collector certificate" -s "PCP Collector" \
+	-n "PCP Collector certificate" -s "cn=PCP Collector" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
 	-t "P,," >> $seq.full 2>&1
     echo "== Certificate DB and local certificates created" | tee -a $seq.full
