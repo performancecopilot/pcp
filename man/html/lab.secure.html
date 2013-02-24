@@ -175,7 +175,7 @@ using the <B>-x</B> option to <I>certutil</I>.
 
 # certutil -d sql:/etc/pki/nssdb -S \
 	-c &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; \
-	-n &quot;PCP Collector certificate&quot; -s &quot;PCP Collector&quot; -8 &quot;<FONT COLOR="#cc0000">YOUR.HOST.NAME,ALT.DNS.NAME,...</FONT>" \
+	-n &quot;PCP Collector certificate&quot; -s &quot;cn=PCP Collector&quot; -8 &quot;<FONT COLOR="#cc0000">YOUR.HOST.NAME,ALT.DNS.NAME,...</FONT>" \
 	-t &quot;P,,&quot; -v 120
 </B></PRE>
 </TD></TR>
@@ -189,7 +189,7 @@ which sets the certificate expiry timeframe.  <I>certutil</I> defaults
 to 3 months, the example above sets expiry in 10 years (120 months).
 </P>
 <P>At this stage, attempts to restart the PCP Collector infrastructure will
-begin to take notice of the new contents in the certificate database.
+begin to take notice of the new contents of the certificate database.
 If we earlier chose to create the system-wide database in the non-default
 configuration of having a password, we must now configure <I>pmcd</I>
 and <I>pmproxy</I> to make use of it.
