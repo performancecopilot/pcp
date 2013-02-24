@@ -1091,11 +1091,9 @@ vpmprintf(const char *msg, va_list arg)
 	int	fd = -1;
 
 #if HAVE_MKSTEMP
-	char *tmpdir = pmGetConfig("PCP_TMP_DIR");
 	fname = (char *)malloc(MAXPATHLEN+1);
 	if (fname == NULL) goto fail;
-	snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX",
-		(tmpdir && tmpdir[0] != '\0') ? tmpdir : "/tmp");
+	snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", pmGetConfig("PCP_TMP_DIR"));
 	fd = mkstemp(fname);
 #else
 	fname = tempnam(pmGetConfig("PCP_TMP_DIR"), "pcp-");
