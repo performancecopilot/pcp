@@ -754,14 +754,14 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
         addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
     else if (addr->sockaddr.raw.sa_family == AF_INET6) {
         /* IPv6: Mask it byte by byte */
-        char *addrBytes = addr->sockaddr.ipv6.sin6_addr.s6_addr;
-	const char *maskBytes = mask->sockaddr.ipv6.sin6_addr.s6_addr;
+        unsigned char *addrBytes = addr->sockaddr.ipv6.sin6_addr.s6_addr;
+	const unsigned char *maskBytes = mask->sockaddr.ipv6.sin6_addr.s6_addr;
 	for (i = 0; i < sizeof(addr->sockaddr.ipv6.sin6_addr.s6_addr); ++i)
             addrBytes[i] &= maskBytes[i];
     }
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
+		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
 
     return addr;
 }
@@ -772,10 +772,10 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
     if (addr1->sockaddr.raw.sa_family != addr2->sockaddr.raw.sa_family)
         return addr1->sockaddr.raw.sa_family - addr2->sockaddr.raw.sa_family;
 
-    if (addr1->sockaddr.raw.sa_family == PR_AF_INET)
+    if (addr1->sockaddr.raw.sa_family == AF_INET)
         return addr1->sockaddr.inet.sin_addr.s_addr - addr2->sockaddr.inet.sin_addr.s_addr;
 
-    if (addr1->sockaddr.raw.sa_family == PR_AF_INET6) {
+    if (addr1->sockaddr.raw.sa_family == AF_INET6) {
         /* IPv6: Compare it byte by byte */
       return memcmp(&addr1->sockaddr.ipv6.sin6_addr.s6_addr, &addr2->sockaddr.ipv6.sin6_addr.s6_addr,
 		    sizeof(addr1->sockaddr.ipv6.sin6_addr.s6_addr));
@@ -806,26 +806,19 @@ __pmStringToSockAddr(const char *cp)
         if (cp == NULL || strcmp(cp, "INADDR_ANY") == 0) {
 	    addr->sockaddr.inet.sin_addr.s_addr = INADDR_ANY;
 	    /* Set the address family to 0, meaning "not set". */
-	    addr->sockaddr.raw.family = 0;
+	    addr->sockaddr.raw.sa_family = 0;
 	}
 	else {
-#ifdef IS_MINGW
-	  /* TODO: IPv6: is inet_pton supported on MINGW?? */
-	    unsigned long in;
-	    in = inet_addr(cp);
-	    addr->sockaddr.inet.inaddr.s_addr = in;
-#else
 	    int domain = (strchr(cp, ':') == NULL) ? AF_INET : AF_INET6;
 	    int sts;
 	    if (domain == AF_INET)
-	      sts = inet_pton(domain, cp, &addr->inet.sin_addr);
+	      sts = inet_pton(domain, cp, &addr->sockaddr.inet.sin_addr);
 	    else
-	      sts = inet_pton(domain, cp, &addr->ipv6.sin6_addr);
+	      sts = inet_pton(domain, cp, &addr->sockaddr.ipv6.sin6_addr);
 	    if (sts <= 0) {
 	        __pmSockAddrFree(addr);
 		addr = NULL;
 	    }
-#endif
 	}
     }
     return addr;
@@ -842,12 +835,11 @@ __pmSockAddrToString(__pmSockAddr *addr)
     int domain;
     const char *sts;
 
-    domain = addr->raw.sa_family;
+    domain = addr->sockaddr.raw.sa_family;
     if (domain == AF_INET)
-      sts = inet_ntop(domain, &addr->inet.sin_addr, str, sizeof(str));
+	sts = inet_ntop(domain, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
     else
-      sts = inet_ntop(domain, &addr->ipv6.sin6_addr, str, sizeof(str));
-
+	sts = inet_ntop(domain, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
     if (sts == NULL)
 	return NULL;
     return strdup(str);
