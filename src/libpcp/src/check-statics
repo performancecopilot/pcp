@@ -298,6 +298,9 @@ util.o
     d first.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b last.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b sum.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+    r ?bp			# const
+    r ?dp_h			# const
+    r ?dp_l			# const
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
