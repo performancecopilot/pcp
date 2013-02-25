@@ -1241,7 +1241,7 @@ main(int argc, char *argv[])
 	for (j = FIRST_FD; j <= LAST_FD; ++j) {
 	    fprintf(stderr, "  %s %4d %5d %s\n",
 		    (rp->fds[j] != -1) ? "ok " : "err",
-		    rp->fds[j], rp->port - 1 + j/* IPv6 TESTING */,
+		    rp->fds[j], rp->port,
 		    rp->ipSpec ? rp->ipSpec : "(any address)");
 	}
     }
