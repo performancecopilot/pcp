@@ -1091,7 +1091,6 @@ vpmprintf(const char *msg, va_list arg)
 	int	fd = -1;
 	char	*tmpdir = pmGetConfig("PCP_TMP_DIR");
 
-	msgsize = -1;
 	if (tmpdir[0] != '\0') {
 	    /*
 	     * PCP_TMP_DIR found in the configuration/environment,
@@ -1126,9 +1125,12 @@ fail:
 		fprintf(stderr, "vpmprintf msg:\n");
 		if (fd >= 0)
 		    close(fd);
+		msgsize = -1;
 		fptr = NULL;
 	    }
 	}
+	else
+	    msgsize = -1;
     }
 
     if (msgsize < 0) {
