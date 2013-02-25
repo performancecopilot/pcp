@@ -5,6 +5,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "localconfig.h"
 
 int
 main()
@@ -12,7 +13,12 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
+#if PCP_VER >= 3611
     __pmSockAddr	*inaddr;
+#else
+    __pmInAddr		inaddr;
+    __pmIPAddr		ipaddr;
+#endif
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++) {
@@ -22,7 +28,7 @@ main()
 	}
 	if ((s = __pmAccAddOp(1 << op)) >= 0) {
 	    printf("duplicate op test failed for op %d\n", op);
-	    sts = s;
+	    sts = -EINVAL;
 	}
     }
     if (sts < 0)
@@ -45,12 +51,19 @@ main()
 	char	buf[20];
 
 	sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
+#if PCP_VER >= 3611
 	if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
 	    printf("insufficient memory\n");
 	    continue;
 	}
 	sts = __pmAccAddClient(inaddr, &i);
 	__pmSockAddrFree(inaddr);
+#else
+	inet_aton(buf, &inaddr);
+	ipaddr = __pmInAddrToIPAddr(&inaddr);
+	sts = __pmAccAddClient(ipaddr, &i);
+#endif
+
 	if (sts < 0) {
 	    printf("add client from host %d: %s\n", host, pmErrStr(sts));
 	    continue;
@@ -58,7 +71,6 @@ main()
 	else if (i != (1 << host))
 	    printf("host %d: __pmAccAddClient returns denyOpsResult 0x%x (expected 0x%x)\n",
 		   host, i, 1 << host);
-	    
     }
     
     putc('\n', stderr);

@@ -37,22 +37,22 @@ static struct {
 int
 __pmSecureServerHasFeature(__pmSecureServerFeature query)
 {
-    int sts;
+    int sts = 0;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     switch (query) {
     case PM_SERVER_FEATURE_SECURE:
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
 	sts = nss_server.certificate_verified;
+	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
+    case PM_SERVER_FEATURE_IPV6:
 	sts = 1;
 	break;
     default:
-	sts = 0;
 	break;
     }
-    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 

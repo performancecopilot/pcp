@@ -68,19 +68,19 @@ that are valid arguments to these routines.
 .SH "RETURN VALUE"
 If
 .I variable
-is not found in either the environment nor the PCP configuration file (or the
-PCP configuration file is not found and
-.B PCP_CONF
-is not set in the environment),
+is not found in either the environment nor the PCP configuration file then
+the return value is an empty string.
+If the
+PCP configuration file is not found
 then a fatal error message is printed and the process will
-.BR exit (2).
-Although this sounds drastic, it is the only course of action available
+.BR exit (2)
+\- although this sounds drastic, it is the only course of action available
 because the PCP configuration/installation is fatally flawed.
 .PP
 If the
 .B pmGetConfig
-function returns,
-the returned value points to a string in the environment and so changing
+function returns a non-empty string,
+the returned value points into the environment and so changing
 it is a bad idea.
 This function returns the same type as the 
 .BR getenv (3)

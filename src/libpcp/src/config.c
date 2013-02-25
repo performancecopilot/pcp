@@ -253,7 +253,6 @@ pmGetConfig(const char *name)
     }
 
     if ((val = getenv(name)) == NULL) {
-	pmprintf("Error: \"%s\" is not set in the environment\n", name);
 	val = "";
     }
 
