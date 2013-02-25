@@ -9,6 +9,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "localconfig.h"
 
 int
 main()
@@ -16,7 +17,12 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
+#if PCP_VER >= 3611
     __pmSockAddr	*inaddr;
+#else
+    __pmInAddr		inaddr;
+    __pmIPAddr		ipaddr;
+#endif
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++)
@@ -47,12 +53,18 @@ main()
 	for (j = 0; j <= host; j++) {
 	    char	buf[20];
 	    sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
+#if PCP_VER >= 3611
 	    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
 	      printf("insufficient memory\n");
 	      continue;
 	    }
 	    sts = __pmAccAddClient(inaddr, &i);
 	    __pmSockAddrFree(inaddr);
+#else
+	    inet_aton(buf, &inaddr);
+	    ipaddr = __pmInAddrToIPAddr(&inaddr);
+	    sts = __pmAccAddClient(ipaddr, &i);
+#endif
 	    if (sts < 0) {
 		if (j == host && sts == PM_ERR_CONNLIMIT)
 		    continue;

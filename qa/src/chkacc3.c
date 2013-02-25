@@ -7,6 +7,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "localconfig.h"
 
 int a[4] = {0, 37, 235, 126};
 int b[4] = {0, 201, 77, 127};
@@ -20,7 +21,12 @@ main()
     unsigned int	perm;
     char		name[20];
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
+#if PCP_VER >= 3611
     __pmSockAddr	*inaddr;
+#else
+    __pmInAddr		inaddr;
+    __pmIPAddr		ipaddr;
+#endif
 
     /* there are 10 ops numbered from 0 to 9 */
     sts = 0;
@@ -89,6 +95,7 @@ main()
 		for (ci = 0; ci < 4; ci++)
 		    for (di = 0; di < 4; di++) {
 			char	buf[20];
+#if PCP_VER >= 3611
 			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
 			if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
@@ -105,6 +112,19 @@ main()
 			}
 			fprintf(stderr, "got %03x for host %s\n", perm, host);
 			free(host);
+#else
+			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
+			inet_aton(buf, &inaddr);
+			ipaddr = __pmInAddrToIPAddr(&inaddr);
+			s = __pmAccAddClient(ipaddr, &perm);
+			if (s < 0) {
+			    fprintf(stderr, "from %s error: %s\n",
+				    inet_ntoa(inaddr), pmErrStr(s));
+			    continue;
+			}
+			fprintf(stderr, "got %03x for host %s\n",
+				perm, inet_ntoa(inaddr));
+#endif
 		    }
     
     exit(0);

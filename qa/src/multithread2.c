@@ -15,7 +15,13 @@
 #include "pthread_barrier.h"
 #endif
 
+#include "localconfig.h"
+
+#if PCP_VER >= 3611
 __pmSockAddr *addr;
+#else
+__pmIPAddr addr;
+#endif
 
 static pthread_barrier_t barrier;
 
@@ -153,7 +159,11 @@ main()
     int		sts;
     char	*msg;
 
+#if PCP_VER >= 3611
     addr = __pmLoopBackAddress();
+#else
+    addr = __pmLoopbackAddress();
+#endif
 
     sts = pthread_barrier_init(&barrier, NULL, 2);
     if (sts != 0) {
@@ -183,6 +193,8 @@ main()
     pthread_join(tid2, (void *)&msg); 
     if (msg != NULL) printf("tid2: %s\n", msg);
 
+#if PCP_VER >= 3611
     __pmSockAddrFree(addr);
+#endif
     exit(0);
 }
