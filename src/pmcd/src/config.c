@@ -1319,26 +1319,44 @@ ConnectSocketAgent(AgentInfo *aPtr)
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
 	__pmSockAddr	*addr;
 	__pmHostEnt	*host;
+	int		addrIx;
 
-	fd = __pmCreateSocket();
-	if (fd < 0) {
-	    fprintf(stderr,
-		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, netstrerror());
-	    return -1;
-	}
 	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
 	}
-	if ((addr = __pmHostEntGetSockAddr(host, 0)) == NULL) {
-	    fputs("pmcd: Error allocing sock addr\n", stderr);
-	    __pmHostEntFree(host);
-	    return -1;
+	for (addrIx = 0; /**/; ++addrIx) {
+	  /* More addresses to try? */
+	  if ((addr = __pmHostEntGetSockAddr(host, addrIx)) == NULL) {
+	      break;
+	  }
+
+	  if (__pmSockAddrIsInet(addr))
+	      fd = __pmCreateSocket();
+	  else if (__pmSockAddrIsIPv6(addr))
+	      fd = __pmCreateIPv6Socket();
+	  else {
+	      fprintf(stderr,
+		      "pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
+		      aPtr->pmDomainLabel, __pmSockAddrGetFamily(addr));
+	      fd = -1;
+	  }
+	  if (fd < 0) {
+	      __pmSockAddrFree(addr);
+	      continue; /* Try the next address */
+	  }
+
+	  __pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
+	  sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
+	  __pmSockAddrFree(addr);
+
+	  if (sts == 0)
+	      break; /* good connection */
+
+	  /* Unsuccessful connection. */
+	  __pmCloseSocket(fd);
+	  fd = -1;
 	}
-	__pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
-	sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
-	__pmSockAddrFree(addr);
 	__pmHostEntFree(host);
     }
     else {
@@ -1378,10 +1396,12 @@ ConnectSocketAgent(AgentInfo *aPtr)
     return 0;
 
 error:
-    if (aPtr->ipc.socket.addrDomain == AF_INET)
-	__pmCloseSocket(fd);
-    else
-	close(fd);
+    if (fd != -1) {
+        if (aPtr->ipc.socket.addrDomain == AF_INET)
+	    __pmCloseSocket(fd);
+	else
+	    close(fd);
+    }
     return -1;
 }
 
