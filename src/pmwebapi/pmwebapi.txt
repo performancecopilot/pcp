@@ -44,10 +44,11 @@ HTTP GET/POST URL patterns:
     "values": [
          { "pmid":PPPP1, "name":NAME1,
            "instances:" [
-             { "instance":IIII, "value":VALUE }
-        -or- { "instance":IIII, "binary":"base64value" }
-        -or- { "instance":IIII, "events":[ { ... } ] }
-                        ],
+               { "instance":IIII, "value":VALUE }
+          -or- { "instance":IIII, "binary":"base64value" }
+          -or- { "instance":IIII, "events":[ { ... } ] }
+             ...
+             ] },
          { "pmid":PPPP2, "name":NAME2, ... }
          ...
      ] }
@@ -63,7 +64,7 @@ HTTP GET/POST URL patterns:
 
   The result, if successful, is a application/json form to provide metric
   values:
-     { "instances": [ { "instance":IIII, "name":NNNN } ... } }
+     { "instances": [ { "instance":IIII, "name":NNNN } ... ] }
 
 
 * metric instance profile management: pmAddProfile/pmDelProfile (pmLookupInDom)
