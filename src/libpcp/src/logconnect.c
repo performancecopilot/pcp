@@ -74,12 +74,13 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    __pmSockAddr	 *myAddr;
-    __pmHostEnt		*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
     int			pinpdu;
+    __pmHostEnt		*servInfo;
+    __pmSockAddr	*myAddr;
+    int			addrIx;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -141,30 +142,45 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	return -ECONNREFUSED;
+	return -EHOSTUNREACH;
     }
 
-    /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
-	__pmHostEntFree(servInfo);
-	return fd;
-    }
+    /* Loop over the addresses resolved for this host name until one of them
+       connects. */
+    sts = -1;
+    fd = -1;
+    for (addrIx = 0; /**/; ++addrIx) {
+        /* More addresses to try? */
+        if ((myAddr = __pmHostEntGetSockAddr(servInfo, addrIx)) == NULL) {
+	    sts = -ECONNREFUSED;
+	    break;
+	}
 
-    if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
-	PM_UNLOCK(__pmLock_libpcp);
-	__pmHostEntFree(servInfo);
-	return -ENOMEM;
-    }
-    __pmSockAddrSetPort(myAddr, *port);
-    PM_UNLOCK(__pmLock_libpcp);
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myAddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myAddr))
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, 
+			  "__pmConnectLogger : invalid address family %d\n",
+			  __pmSockAddrGetFamily(myAddr));
+	    fd = -1;
+	}
+	if (fd < 0) {
+	    __pmSockAddrFree(myAddr);
+	    continue; /* Try the next address */
+	}
 
-    sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
+	/* Attempt to connect */
+	__pmSockAddrSetPort(myAddr, *port);
+	sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
+	__pmSockAddrFree(myAddr);
 
-    __pmSockAddrFree(myAddr);
-    __pmHostEntFree(servInfo);
+	/* Successful connection? */
+	if (sts >= 0)
+	    break;
 
-    if (sts < 0) {
 	sts = neterror();
 	if (sts == EINPROGRESS) {
 	  /* We're in progress - wait on select. */
@@ -189,16 +205,26 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	  }
 	}
 	sts = -sts;
-	if (sts < 0) {
-	  __pmCloseSocket(fd);
+
+	/* Successful connection? */
+	if (sts >= 0)
+	    break;
+
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
+	fd = -1;
+    }
+    __pmHostEntFree(servInfo);
+    PM_UNLOCK(__pmLock_libpcp);
+
+    if (sts < 0) {
 #ifdef PCP_DEBUG
-	  if (pmDebug & DBG_TRACE_CONTEXT) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	  }
-#endif
-	  return sts;
+        if (pmDebug & DBG_TRACE_CONTEXT) {
+	  char	errmsg[PM_MAXERRMSGLEN];
+	  fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
+#endif
+	return sts;
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */
