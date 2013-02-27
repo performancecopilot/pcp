@@ -255,6 +255,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			fd;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags;
+    int			addrIx;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -271,21 +272,32 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     __pmConnectTimeout();
 
-    if ((myAddr = __pmHostEntGetSockAddr(servInfo, 0)) == NULL) {
-        __pmHostEntFree(servInfo);
-	return -ENOMEM;
-    }
-    __pmHostEntFree(servInfo);
+    for (addrIx = 0; /**/; ++addrIx) {
+        /* More addresses to try? */
+        if ((myAddr = __pmHostEntGetSockAddr(servInfo, addrIx)) == NULL)
+	    return -ECONNREFUSED;
 
-    if ((fd = __pmCreateSocket()) < 0) {
-        __pmSockAddrFree(myAddr);
-	PM_UNLOCK(__pmLock_libpcp);
-	return fd;
-    }
-    PM_UNLOCK(__pmLock_libpcp);
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myAddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myAddr))
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, 
+			  "__pmAuxConnectPMCDPort(%s, %d) : invalid address family %d\n",
+			  hostname, pmcd_port, __pmSockAddrGetFamily(myAddr));
+	    fd = -1;
+	}
+	if (fd < 0) {
+	    __pmSockAddrFree(myAddr);
+	    continue; /* Try the next address */
+	}
 
-    if ((fdFlags = __pmConnectTo(fd, myAddr, pmcd_port)) >= 0) {
-        __pmSockAddrFree(myAddr);
+	/* Attempt to connect */
+	fdFlags = __pmConnectTo(fd, myAddr, pmcd_port);
+	__pmSockAddrFree(myAddr);
+	if (fdFlags < 0)
+	    continue; /* Try the next address */
 
 	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
@@ -305,21 +317,23 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	else {
 	    sts = (rc < 0) ? neterror() : EINVAL;
 	}
-	
-	if (sts) {
-	    __pmCloseSocket(fd);
-	    return -sts;
-	}
+ 
+	/* Successful connection? */
+	if (sts == 0)
+	    break;
 
-	/*
-	 * If we're here, it means we have a valid connection; restore the
-	 * flags and make sure this file descriptor is closed if exec() is
-	 * called
-	 */
-	return __pmConnectRestoreFlags(fd, fdFlags);
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
     }
-    __pmSockAddrFree(myAddr);
-    return fdFlags;
+    __pmHostEntFree(servInfo);
+    PM_UNLOCK(__pmLock_libpcp);
+
+    /*
+     * If we're here, it means we have a valid connection; restore the
+     * flags and make sure this file descriptor is closed if exec() is
+     * called
+     */
+    return __pmConnectRestoreFlags(fd, fdFlags);
 }
 
 #if !defined(HAVE_SECURE_SOCKETS)
@@ -561,14 +575,28 @@ int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
+    if (sock->sockaddr.raw.sa_family == AF_INET)
+        return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
+    if (sock->sockaddr.raw.sa_family == AF_INET6)
+        return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
+    __pmNotifyErr(LOG_ERR,
+		"__pmBind: Invalid address family: %d\n", sock->sockaddr.raw.sa_family);
+    errno = EAFNOSUPPORT;
+    return -1; /* failure */
 }
 
 int
 __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.raw));
+    if (sock->sockaddr.raw.sa_family == AF_INET)
+        return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
+    if (sock->sockaddr.raw.sa_family == AF_INET6)
+        return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
+    __pmNotifyErr(LOG_ERR,
+		"__pmConnect: Invalid address family: %d\n", sock->sockaddr.raw.sa_family);
+    errno = EAFNOSUPPORT;
+    return -1; /* failure */
 }
 
 int
@@ -677,14 +705,24 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
+/* TODO: Make this interface more like the native getnameinfo. i.e. caller provides buffer and size */
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
     int sts;
     char buf[NI_MAXHOST];
 
-    sts = getnameinfo(&address->sockaddr.raw, sizeof(address->sockaddr.raw),
-		      buf, sizeof(buf), NULL, 0, 0);
+    if (address->sockaddr.raw.sa_family == AF_INET) {
+        sts = getnameinfo(&address->sockaddr.raw, sizeof(address->sockaddr.inet),
+			  buf, sizeof(buf), NULL, 0, 0);
+    }
+    else if (address->sockaddr.raw.sa_family == AF_INET6) {
+        sts = getnameinfo(&address->sockaddr.raw, sizeof(address->sockaddr.ipv6),
+			  buf, sizeof(buf), NULL, 0, 0);
+    }
+    else
+        sts = EAI_FAMILY;
+
     return sts == 0 ? strdup(buf) : NULL;
 }
 
@@ -710,10 +748,12 @@ __pmGetAddrInfo(const char *hostName)
 
 	/* Try to reverse lookup the host name. */
 	addr = __pmHostEntGetSockAddr(hostEntry, 0);
-	if (addr != NULL)
-	  hostEntry->name = __pmGetNameInfo(addr);
+	if (addr != NULL) {
+	    hostEntry->name = __pmGetNameInfo(addr);
+	    __pmSockAddrFree(addr);
+	}
 	else
-	  hostEntry->name = strdup(hostName);
+	    hostEntry->name = strdup(hostName);
     }
     return hostEntry;
 }
@@ -721,6 +761,8 @@ __pmGetAddrInfo(const char *hostName)
 char *
 __pmHostEntGetName(const __pmHostEnt *he)
 {
+    if (he->name == NULL)
+        return NULL;
     return strdup(he->name);
 }
 
@@ -811,12 +853,13 @@ __pmStringToSockAddr(const char *cp)
 	    addr->sockaddr.raw.sa_family = 0;
 	}
 	else {
-	    int domain = (strchr(cp, ':') == NULL) ? AF_INET : AF_INET6;
+	    int family = (strchr(cp, ':') == NULL) ? AF_INET : AF_INET6;
 	    int sts;
-	    if (domain == AF_INET)
-	      sts = inet_pton(domain, cp, &addr->sockaddr.inet.sin_addr);
+	    addr->sockaddr.raw.sa_family = family;
+	    if (family == AF_INET)
+	        sts = inet_pton(family, cp, &addr->sockaddr.inet.sin_addr);
 	    else
-	      sts = inet_pton(domain, cp, &addr->sockaddr.ipv6.sin6_addr);
+	        sts = inet_pton(family, cp, &addr->sockaddr.ipv6.sin6_addr);
 	    if (sts <= 0) {
 	        __pmSockAddrFree(addr);
 		addr = NULL;
@@ -834,14 +877,14 @@ char *
 __pmSockAddrToString(__pmSockAddr *addr)
 {
     char str[INET6_ADDRSTRLEN];
-    int domain;
+    int family;
     const char *sts;
 
-    domain = addr->sockaddr.raw.sa_family;
-    if (domain == AF_INET)
-	sts = inet_ntop(domain, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
+    family = addr->sockaddr.raw.sa_family;
+    if (family == AF_INET)
+	sts = inet_ntop(family, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
     else
-	sts = inet_ntop(domain, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
+	sts = inet_ntop(family, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
     if (sts == NULL)
 	return NULL;
     return strdup(str);
