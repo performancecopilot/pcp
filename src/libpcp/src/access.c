@@ -90,15 +90,12 @@ getmyhostid(void)
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
-    PM_LOCK(__pmLock_libpcp);
     if ((host = __pmGetAddrInfo(myhostname)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		     myhostname, hoststrerror());
-	PM_UNLOCK(__pmLock_libpcp);
 	return -1;
     }
     myhostid = __pmHostEntGetSockAddr(host, 0);
-    PM_UNLOCK(__pmLock_libpcp);
     __pmHostEntFree(host);
     gotmyhostid = 1;
     return 0;
@@ -463,7 +460,8 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     for (i = nhosts - 1; i >= 0; i--) {
 	hp = &hostlist[i];
 	maskedid = __pmSockAddrDup(clientid);
-	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0) {
+	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
+	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0) {
 	    /* Clobber specified ops then set. Leave unspecified ops alone. */
 	    *denyOpsResult &= ~hp->specOps;
 	    *denyOpsResult |= hp->denyOps;
@@ -492,7 +490,8 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     for (i = 0; i < nhosts; i++) {
 	hp = &hostlist[i];
 	maskedid = __pmSockAddrDup(clientid);
-	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
+	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
+	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
 	    if (hp->maxcons)
 		hp->curcons++;
 	__pmSockAddrFree(maskedid);
@@ -518,7 +517,8 @@ __pmAccDelClient(__pmSockAddr *hostid)
     for (i = 0; i < nhosts; i++) {
 	hp = &hostlist[i];
 	maskedid = __pmSockAddrDup(hostid);
-	if (__pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
+	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
+	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
  	    if (hp->maxcons)
 		hp->curcons--;
 	__pmSockAddrFree(maskedid);
