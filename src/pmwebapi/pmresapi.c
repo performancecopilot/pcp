@@ -20,6 +20,8 @@
 
 #include "pmwebapi.h"
 
+const char *error_page = ""; /* could also be an actual error page... */
+
 /* ------------------------------------------------------------------------ */
 
 static const char *guess_content_type (const char* filename)
@@ -66,6 +68,9 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   assert (resourcedir != NULL); /* facility is enabled at all */
 
+  if (verbosity)
+    pmweb_notify (LOG_INFO, connection, "pmwebres attempting to serve url %s\n", url);
+
   /* Reject some obvious ways of escaping resourcedir. */
   if (NULL != strstr (url, "/..")) {
     pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
@@ -80,7 +85,17 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
   fd = open (filename, O_RDONLY);
   if (fd < 0) {
     pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
-    goto out; /* unceremonious; consider 404 HTTP instead. */
+
+    resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
+    if (resp == NULL) {
+      pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+      close (fd);
+      goto out;
+    }
+
+    rc = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, resp);
+    MHD_destroy_response (resp);
+    return rc;
   }
 
   rc = fstat (fd, &fds);
@@ -92,10 +107,19 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   /* XXX: handle if-modified-since */
 
-  if (! S_ISREG (fds.st_mode)) { /* XXX: consider directory-listing instead. */
+  if (! S_ISREG (fds.st_mode)) {
     pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
     close (fd);
-    goto out;
+
+    /* XXX: consider directory-listing if index.html is absent: */
+
+    char newurl [PATH_MAX];
+    rc = snprintf (newurl, sizeof(newurl), "%s%sindex.html", url, url[strlen(url)-1] == '/' ? "" : "/");
+    if (rc < 0 || rc >= sizeof(newurl))
+      goto out;
+
+    /* load index.html, if it exists */
+    return pmwebres_respond (cls, connection, newurl);
   }
 
   if (verbosity)
