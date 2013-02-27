@@ -63,6 +63,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
   int rc;
   char filename [PATH_MAX];
   struct stat fds;
+  unsigned int resp_code = MHD_HTTP_OK;
   struct MHD_Response *resp;
   const char *ctype;
 
@@ -86,16 +87,8 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
   if (fd < 0) {
     pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
 
-    resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
-    if (resp == NULL) {
-      pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-      close (fd);
-      goto out;
-    }
-
-    rc = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, resp);
-    MHD_destroy_response (resp);
-    return rc;
+    resp_code = MHD_HTTP_NOT_FOUND;
+    goto error_response;
   }
 
   rc = fstat (fd, &fds);
@@ -111,15 +104,9 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
     close (fd);
 
-    /* XXX: consider directory-listing if index.html is absent: */
-
-    char newurl [PATH_MAX];
-    rc = snprintf (newurl, sizeof(newurl), "%s%sindex.html", url, url[strlen(url)-1] == '/' ? "" : "/");
-    if (rc < 0 || rc >= sizeof(newurl))
-      goto out;
-
-    /* load index.html, if it exists */
-    return pmwebres_respond (cls, connection, newurl);
+    /* XXX: list directory, or redirect to index.html instead? */
+    resp_code = MHD_HTTP_FORBIDDEN;
+    goto error_response;
   }
 
   if (verbosity)
@@ -150,7 +137,19 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
   (void) MHD_add_response_header (resp, "Cache-Control", "public");
 
-  rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+  rc = MHD_queue_response (connection, resp_code, resp);
+  MHD_destroy_response (resp);
+  return rc;
+
+ error_response:
+  resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
+  if (resp == NULL) {
+    pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+    close (fd);
+    goto out;
+  }
+
+  rc = MHD_queue_response (connection, resp_code, resp);
   MHD_destroy_response (resp);
   return rc;
 
