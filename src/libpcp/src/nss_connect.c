@@ -1247,7 +1247,7 @@ __pmGetNameInfo(__pmSockAddr *address)
     if (he != NULL) {
         PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
 					     sizeof(he->buffer), &he->hostent);
-	name = (prStatus == PR_SUCCESS ? strdup(he->hostent.h_name) : NULL);
+	name = (prStatus == PR_SUCCESS ? __pmHostEntGetName(he) : NULL);
 	__pmHostEntFree(he);
     }
     return name;
@@ -1271,7 +1271,9 @@ __pmGetAddrInfo(const char *hostName)
 char *
 __pmHostEntGetName(const __pmHostEnt *he)
 {
-    return strdup(he->hostent.h_name);
+     if (he->hostent.h_name == NULL)
+        return NULL;
+     return strdup(he->hostent.h_name);
 }
 
 __pmSockAddr *
