@@ -1325,37 +1325,35 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
 	}
-	for (addrIx = 0; /**/; ++addrIx) {
-	  /* More addresses to try? */
-	  if ((addr = __pmHostEntGetSockAddr(host, addrIx)) == NULL) {
-	      break;
-	  }
+	addrIx = 0;
+	for (addr = __pmHostEntGetSockAddr(host, &addrIx);
+	     addr != NULL;
+	     addr = __pmHostEntGetSockAddr(host, &addrIx)) {
+	    if (__pmSockAddrIsInet(addr))
+	        fd = __pmCreateSocket();
+	    else if (__pmSockAddrIsIPv6(addr))
+	        fd = __pmCreateIPv6Socket();
+	    else {
+	        fprintf(stderr,
+			"pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
+			aPtr->pmDomainLabel, __pmSockAddrGetFamily(addr));
+		fd = -1;
+	    }
+	    if (fd < 0) {
+	        __pmSockAddrFree(addr);
+		continue; /* Try the next address */
+	    }
 
-	  if (__pmSockAddrIsInet(addr))
-	      fd = __pmCreateSocket();
-	  else if (__pmSockAddrIsIPv6(addr))
-	      fd = __pmCreateIPv6Socket();
-	  else {
-	      fprintf(stderr,
-		      "pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
-		      aPtr->pmDomainLabel, __pmSockAddrGetFamily(addr));
-	      fd = -1;
-	  }
-	  if (fd < 0) {
-	      __pmSockAddrFree(addr);
-	      continue; /* Try the next address */
-	  }
+	    __pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
+	    sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
+	    __pmSockAddrFree(addr);
 
-	  __pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
-	  sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
-	  __pmSockAddrFree(addr);
+	    if (sts == 0)
+	        break; /* good connection */
 
-	  if (sts == 0)
-	      break; /* good connection */
-
-	  /* Unsuccessful connection. */
-	  __pmCloseSocket(fd);
-	  fd = -1;
+	    /* Unsuccessful connection. */
+	    __pmCloseSocket(fd);
+	    fd = -1;
 	}
 	__pmHostEntFree(host);
     }
