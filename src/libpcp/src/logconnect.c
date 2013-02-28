@@ -149,13 +149,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
        connects. */
     sts = -1;
     fd = -1;
-    for (addrIx = 0; /**/; ++addrIx) {
-        /* More addresses to try? */
-        if ((myAddr = __pmHostEntGetSockAddr(servInfo, addrIx)) == NULL) {
-	    sts = -ECONNREFUSED;
-	    break;
-	}
-
+    addrIx = 0;
+    for (myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx);
+	 myAddr != NULL;
+	 myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx)) {
 	/* Create a socket */
 	if (__pmSockAddrIsInet(myAddr))
 	    fd = __pmCreateSocket();

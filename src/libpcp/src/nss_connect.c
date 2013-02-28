@@ -844,7 +844,7 @@ __pmSockAddrGetFamily(const __pmSockAddr *addr)
         return AF_INET6;
     __pmNotifyErr(LOG_ERR, "__pmSockAddrGetFamily: Invalid address family: %d\n",
 		  addr->sockaddr.raw.family);
-    return AF_INET;
+    return 0; /* not set */
 }
 
 void
@@ -1277,16 +1277,25 @@ __pmHostEntGetName(const __pmHostEnt *he)
 }
 
 __pmSockAddr *
-__pmHostEntGetSockAddr(const __pmHostEnt *he, int ix)
+__pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
 {
-    __pmSockAddr* addr = __pmSockAddrAlloc();
-    if (addr) {
-        PRIntn rc = PR_EnumerateHostEnt(ix, &he->hostent, 0, &addr->sockaddr);
-	if (rc < 0) {
+  __pmSockAddr* addr;
+
+    addr = __pmSockAddrAlloc();
+    if (addr == NULL) {
+        __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
+        *ix = 0;
+	return NULL;
+    }
+    *ix = PR_EnumerateHostEnt(*ix, &he->hostent, 0, &addr->sockaddr);
+    if (*ix <= 0) {
+        /* End of the address chain or an error. No address to return. */
+	__pmSockAddrFree(addr);
+        if (*ix < 0) {
 	    __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: unable to obtain host address\n");
-	    __pmSockAddrFree(addr);
-	    addr = NULL;
+	    *ix = 0;
 	}
+	return NULL;
     }
     return addr;
 }
