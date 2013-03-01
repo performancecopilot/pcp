@@ -791,7 +791,7 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
     }
 
     /* Now allocate a socket address and copy the data. */
-    __pmSockAddr* addr = __pmSockAddrAlloc();
+    addr = __pmSockAddrAlloc();
     if (addr == NULL) {
         __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
         *ix = 0;
