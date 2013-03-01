@@ -24,6 +24,7 @@
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-P\f1 \f2passfile\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
@@ -209,15 +210,41 @@ Normally
 .B pmproxy
 listens for PCP client connections on TCP/IP port number 44322
 (registered at
-.IR http://www.isecom.info ).
-The environment
+.IR http://www.iana.org/ ).
+Either the environment
 variable
 .B PMPROXY_PORT
-may be used to specify an alternative port number.  If
+.B \-p
+command line option
+may be used to specify alternative port number(s) when
 .B PMPROXY_PORT
-is used, care should be taken to ensure the environment variable is set before
+or the
+.B \-p
+command line option
+may be used to specify alternative port number(s) when
 .B pmproxy
-is started.
+is started; in each case, the specification is a comma-separated list
+of one or more numerical port numbers.  Should both methods be used
+or multiple
+.B \-p
+options appear on the command line,
+.B pmproxy
+will listen on the union of the set of ports specified via all
+.B \-p
+options and the
+.B PMPROXY_PORT
+environment variable.
+If non-default ports are used with
+.B pmproxy
+care should be taken to ensure that
+.B PMPROXY_PORT
+is also set in the environment of any client application that
+will connect to
+.BR pmproxy ,
+or that the extended host specification syntax is used
+(see
+.BR PCPIntro (1)
+for details).
 .SH FILES
 .PD 0
 .TP

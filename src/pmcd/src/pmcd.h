@@ -143,10 +143,6 @@ extern int		mapdom[];	/* the map */
 extern AgentInfo *FindDomainAgent(int);
 extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
-extern void CleanupClient(ClientInfo*, int);
-extern char* FdToString(int);
-extern pmResult **SplitResult(pmResult *);
-extern void Shutdown(void);
 
 /* timeout to PMDAs (secs) */
 PMCD_EXTERN int	_pmcd_timeout;
@@ -209,9 +205,17 @@ extern int DoPMNSChild(ClientInfo *, __pmPDU *);
 extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
 
 /*
- * set state change status for clients
+ * General purpose routines
  */
+extern void StartDaemon(int, char **);
+extern void Shutdown(void);
+extern int  ParseInitAgents(char *);
+extern void ParseRestartAgents(char *);
+extern void PrintAgentInfo(FILE *);
+extern void ResetBadHosts(void);
 extern void MarkStateChanges(int);
+extern void CleanupClient(ClientInfo*, int);
+extern pmResult **SplitResult(pmResult *);
 
 /*
  * Highest known file descriptor used for a Client or an Agent connection.

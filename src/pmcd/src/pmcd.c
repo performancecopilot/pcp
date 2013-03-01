@@ -18,19 +18,20 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-extern int  ParseInitAgents(char *);
-extern void ParseRestartAgents(char *);
-extern void PrintAgentInfo(FILE *);
-extern void ResetBadHosts(void);
-extern void StartDaemon(int, char **);
-
 #define SHUTDOWNWAIT	12	/* < PMDAs wait previously used in rc_pcp */
 #define MAXPENDING	5	/* maximum number of pending connections */
 #define FDNAMELEN	40	/* maximum length of a fd description */
+#define STRINGIFY(s)	#s
+#define TO_STRING(s)	STRINGIFY(s)
+
+#ifdef PCP_DEBUG
+static char	*FdToString(int);
+#endif
 
 int		AgentDied;		/* for updating mapdom[] */
 static int	timeToDie;		/* For SIGINT handling */
 static int	restart;		/* For SIGHUP restart */
+static int	maxReqPortFd;		/* Largest request port fd */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -38,26 +39,9 @@ int		_creds_timeout = 3;	/* Timeout for agents credential PDU */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
+static char	*certdb;		/* certificate database path (NSS) */
+static char	*dbpassfile;		/* certificate database password file */
 static int	dupok;			/* set to 1 for -N pmnsfile */
-
-/*
- * Interfaces we're willing to listen for clients on, from -i
- */
-static int	nintf;
-static char	**intflist;
-
-/*
- * Ports we're willing to listen for clients on, from -p or $PMCD_PORT
- */
-static int	nport;
-static int	*portlist;
-static int	maxReqPortFd;
-
-/*
- * Optional security services information
- */
-static char	*certdb;	/* certificate database path (NSS) */
-static char	*dbpassfile;	/* certificate database password file */
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -117,8 +101,6 @@ ParseOptions(int argc, char *argv[])
     int		usage = 0;
     char	*endptr;
     int		val;
-    int		port;
-    char	*p;
 
     strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
 
@@ -154,12 +136,8 @@ ParseOptions(int argc, char *argv[])
 		break;
 
 	    case 'i':
-		/* one (of possibly several) IP addresses for client requests */
-		nintf++;
-		if ((intflist = (char **)realloc(intflist, nintf * sizeof(char *))) == NULL) {
-		    __pmNoMem("pmcd: can't grow interface list", nintf * sizeof(char *), PM_FATAL_ERR);
-		}
-		intflist[nintf-1] = optarg;
+		/* one (of possibly several) interfaces for client requests */
+		__pmServerAddInterface(optarg);
 		break;
 
 	    case 'l':
@@ -170,7 +148,7 @@ ParseOptions(int argc, char *argv[])
 	    case 'L': /* Maximum size for PDUs from clients */
 		val = (int)strtol (optarg, NULL, 0);
 		if ( val <= 0 ) {
-		    fputs ("pmcd: -L requires a positive value\n", stderr);
+		    fputs("pmcd: -L requires a positive value\n", stderr);
 		    errflag++;
 		} else {
 		    __pmSetPDUCeiling (val);
@@ -186,32 +164,14 @@ ParseOptions(int argc, char *argv[])
 		break;
 
 	    case 'p':
-		/*
-		 * one (of possibly several) ports for client requests
-		 * ... accept a comma separated list of ports here
-		 */
-		p = optarg;
-		for ( ; ; ) {
-		    port = (int)strtol(p, &endptr, 0);
-		    if ((*endptr != '\0' && *endptr != ',') || port < 0) {
-			fprintf(stderr,
-				"pmcd: -p requires a positive numeric argument (%s)\n", optarg);
-			errflag++;
-			break;
-		    }
-		    else {
-			nport++;
-			if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
-			    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-			}
-			portlist[nport-1] = port;
-		    }
-		    if (*endptr == '\0')
-			break;
-		    p = &endptr[1];
+		if (__pmServerAddPorts(optarg) < 0) {
+		    fprintf(stderr,
+			"pmcd: -p requires a positive numeric argument (%s)\n",
+			optarg);
+		    errflag++;
 		}
 		break;
-
+		    
 	    case 'P':	/* password file for certificate database access */
 		dbpassfile = optarg;
 		break;
@@ -827,51 +787,24 @@ void SigBad(int sig)
 int
 main(int argc, char *argv[])
 {
-    int		i;
-    int		n;
     int		sts;
-    int		status;
+    int		nport = 0;
     char	*envstr;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
 #endif
 
     umask(022);
-    __pmProcessDataSize(NULL);
-
     __pmSetProgname(argv[0]);
+    __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
 
-    /*
-     * get optional stuff from environment ... PMCD_PORT ...
-     * same code is in connect.c of libpcp
-     */
-    if ((envstr = getenv("PMCD_PORT")) != NULL) {
-	char	*p = envstr;
-	char	*endptr;
-	int	port;
-
-	for ( ; ; ) {
-	    port = (int)strtol(p, &endptr, 0);
-	    if ((*endptr != '\0' && *endptr != ',') || port < 0) {
-		__pmNotifyErr(LOG_WARNING,
-			 "pmcd: ignored bad PMCD_PORT = '%s'", p);
-	    }
-	    else {
-		nport++;
-		if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
-		    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-		}
-		portlist[nport-1] = port;
-	    }
-	    if (*endptr == '\0')
-		break;
-	    p = &endptr[1];
-	}
-    }
-
+    if ((envstr = getenv("PMCD_PORT")) != NULL)
+	nport = __pmServerAddPorts(envstr);
     ParseOptions(argc, argv);
+    if (nport == 0)
+	__pmServerAddPorts(TO_STRING(SERVER_PORT));
 
     if (run_daemon) {
 	fflush(stderr);
@@ -891,66 +824,11 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
-    /* seed random numbers for authorisation */
-    srand48((long)time(0));
-
-    if (nport == 0) {
-	/*
-	 * no ports from $PMCD_PORT, nor from -p, set up defaults
-	 * for compatibility this used to be SERVER_PORT,4321 but
-	 * has now transitioned to just SERVER_PORT
-	 */
-	nport = 1;
-	if ((portlist = (int *)realloc(portlist, nport * sizeof(int))) == NULL) {
-	    __pmNoMem("pmcd: can't grow port list", nport * sizeof(int), PM_FATAL_ERR);
-	}
-	portlist[0] = SERVER_PORT;
-    }
-
-    /*
-     * check for duplicate ports, warn and remove duplicates
-     */
-    for (i = 0; i < nport; i++) {
-	for (n = i+1; n < nport; n++) {
-	    if (portlist[i] == portlist[n])
-		break;
-	}
-	if (n < nport) {
-	    __pmNotifyErr(LOG_WARNING,
-		     "pmcd: duplicate client request port (%d) will be ignored\n",
-		     portlist[n]);
-	    portlist[n] = -1;
-	}
-    }
-
-    if (nintf == 0) {
-	/*
-	 * no -i IP_ADDR options specified, allow connections on any
-	 * IP addr
-	 */
-	for (n = 0; n < nport; n++) {
-	    if (portlist[n] != -1)
-		__pmServerAddRequestPort(NULL, portlist[n]);
-	}
-    }
-    else {
-	for (i = 0; i < nintf; i++) {
-	    for (n = 0; n < nport; n++) {
-		if (portlist[n] == -1)
-		    continue;
-		if (!__pmServerAddRequestPort(intflist[i], portlist[n])) {
-		    fprintf(stderr, "pmcd: bad address spec: -i %s\n", intflist[i]);
-		    exit(1);
-		}
-	    }
-	}
-    }
-
     if ((sts = __pmServerOpenRequestPorts(&clientFds, MAXPENDING)) < 0)
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 
-    __pmOpenLog(pmProgname, logfile, stderr, &status);
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
@@ -1107,7 +985,7 @@ CleanupClient(ClientInfo *cp, int sts)
 
 #ifdef PCP_DEBUG
 /* Convert a file descriptor to a string describing what it is for. */
-char*
+static char *
 FdToString(int fd)
 {
     static char fdStr[FDNAMELEN];

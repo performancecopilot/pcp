@@ -596,7 +596,8 @@ typedef enum {
 } __pmServerFeature;
 
 extern int __pmServerHasFeature(__pmServerFeature);
-extern int __pmServerAddRequestPort(const char *, int);
+extern int __pmServerAddPorts(const char *);
+extern int __pmServerAddInterface(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int);
 extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 extern int __pmServerAddToClientFdSet(__pmFdSet *, int);

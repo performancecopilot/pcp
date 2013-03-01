@@ -21,6 +21,12 @@
 
 #define MAXPENDING	5	/* maximum number of pending connections */
 #define FDNAMELEN	40	/* maximum length of a fd description */
+#define STRINGIFY(s)    #s
+#define TO_STRING(s)    STRINGIFY(s)
+
+#ifdef PCP_DEBUG
+static char	*FdToString(int);
+#endif
 
 static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
@@ -29,14 +35,14 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
-static char	pmproxy_host[MAXHOSTNAMELEN];
-static int	pmproxy_port;
+static char	hostname[MAXHOSTNAMELEN];
 
 static void
 DontStart(void)
 {
     FILE	*tty;
     FILE	*log;
+
     __pmNotifyErr(LOG_ERR, "pmproxy not started due to errors!\n");
 
     if ((tty = fopen(fatalfile, "w")) != NULL) {
@@ -61,12 +67,11 @@ ParseOptions(int argc, char *argv[])
 {
     int		c;
     int		sts;
-    int		nReqPorts = 0;
     int		errflag = 0;
     int		usage = 0;
     int		val;
 
-    while ((c = getopt(argc, argv, "C:D:fi:l:L:P:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "C:D:fi:l:L:p:P:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'C':	/* path to NSS certificate database */
@@ -89,12 +94,8 @@ ParseOptions(int argc, char *argv[])
 		break;
 
 	    case 'i':
-		/* one (of possibly several) IP addresses for client requests */
-		if (!__pmServerAddRequestPort(optarg, pmproxy_port)) {
-		    fprintf(stderr, "pmproxy: bad IP spec: -i %s\n", optarg);
-		    errflag++;
-		}
-		nReqPorts++;
+		/* one (of possibly several) interfaces for client requests */
+		__pmServerAddInterface(optarg);
 		break;
 
 	    case 'l':
@@ -109,6 +110,15 @@ ParseOptions(int argc, char *argv[])
 		    errflag++;
 		} else {
 		    __pmSetPDUCeiling (val);
+		}
+		break;
+
+	    case 'p':
+		if (__pmServerAddPorts(optarg) < 0) {
+		    fprintf(stderr,
+			"pmproxy: -p requires a positive numeric argument (%s)\n",
+			optarg);
+		    errflag++;
 		}
 		break;
 
@@ -143,6 +153,7 @@ ParseOptions(int argc, char *argv[])
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
+"  -p port         accept connections on this port\n"
 "  -P passfile     password file for certificate database access\n"
 "  -U username     assume identity of username (only when run as root)\n"
 "  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
@@ -151,11 +162,6 @@ ParseOptions(int argc, char *argv[])
 	    exit(0);
 	else
 	    DontStart();
-    }
-
-    /* If no -i IP_ADDR options specified, allow connections on any IP number */
-    if (nReqPorts == 0) {
-	__pmServerAddRequestPort(NULL, pmproxy_port);
     }
 }
 
@@ -213,7 +219,7 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 
     /* finally perform any additional handshaking needed with pmcd */
     if (sts >= 0 && flags)
-	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, pmproxy_host);
+	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, hostname);
    
     return sts;
 }
@@ -305,32 +311,6 @@ SignalShutdown(void)
     __pmNotifyErr(LOG_INFO, "pmproxy caught SIGINT or SIGTERM\n");
     Shutdown();
     exit(0);
-}
-
-#ifdef PCP_DEBUG
-/* Convert a file descriptor to a string describing what it is for. */
-char*
-FdToString(int fd)
-{
-    static char fdStr[FDNAMELEN];
-    static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
-    int		i;
-
-    if (fd >= -1 && fd < 3)
-	return stdFds[fd + 1];
-    if (__pmServerRequestPortString(fd, fdStr, FDNAMELEN) != NULL)
-	return fdStr;
-    for (i = 0; i < nClients; i++) {
-	if (client[i].status.connected && fd == client[i].fd) {
-	    sprintf(fdStr, "client[%d] client socket", i);
-	    return fdStr;
-	}
-	if (client[i].status.connected && fd == client[i].pmcd_fd) {
-	    sprintf(fdStr, "client[%d] pmcd socket", i);
-	    return fdStr;
-	}
-    }
-    return stdFds[0];
 }
 
 static void
@@ -428,28 +408,13 @@ SigBad(int sig)
 }
 
 /*
- * extract runtime details:
- * - any PMPROXY_PORT setting from the environment
- * - hostname extracted and cached for later use during protocol negotiations
+ * Hostname extracted and cached for later use during protocol negotiations
  */
 static void
-ProxyEnvironment(void)
+GetProxyHostname(void)
 {
     struct hostent	*hep = NULL;
     char		host[MAXHOSTNAMELEN];
-    char		*env_str;
-    char		*end_ptr;
-
-    if ((env_str = getenv("PMPROXY_PORT")) != NULL) {
-	pmproxy_port = (int)strtol(env_str, &end_ptr, 0);
-	if (*end_ptr != '\0' || pmproxy_port < 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			 "main: ignored bad PMPROXY_PORT = '%s'\n", env_str);
-	    pmproxy_port = PROXY_PORT;
-	}
-    }
-    else
-	pmproxy_port = PROXY_PORT;
 
     /* nathans TODO - fix this up - use newer APIs */
     if (gethostname(host, MAXHOSTNAMELEN) < 0) {
@@ -458,22 +423,28 @@ ProxyEnvironment(void)
     }
     host[MAXHOSTNAMELEN-1] = '\0';
     hep = gethostbyname(host);
-    strncpy(pmproxy_host, hep ? hep->h_name : host, MAXHOSTNAMELEN);
-    pmproxy_host[MAXHOSTNAMELEN-1] = '\0';
+    strncpy(hostname, hep ? hep->h_name : host, MAXHOSTNAMELEN);
+    hostname[MAXHOSTNAMELEN-1] = '\0';
 }
 
 int
 main(int argc, char *argv[])
 {
     int		sts;
+    int		nport = 0;
+    char	*envstr;
 
     umask(022);
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
 
-    ProxyEnvironment();
+    if ((envstr = getenv("PMPROXY_PORT")) != NULL)
+	nport = __pmServerAddPorts(envstr);
     ParseOptions(argc, argv);
+    if (nport == 0)
+        __pmServerAddPorts(TO_STRING(PROXY_PORT));
+    GetProxyHostname();
 
     if (run_daemon) {
 	fflush(stderr);
@@ -515,5 +486,31 @@ main(int argc, char *argv[])
 
     Shutdown();
     exit(0);
+}
+
+#ifdef PCP_DEBUG
+/* Convert a file descriptor to a string describing what it is for. */
+static char *
+FdToString(int fd)
+{
+    static char fdStr[FDNAMELEN];
+    static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
+    int		i;
+
+    if (fd >= -1 && fd < 3)
+	return stdFds[fd + 1];
+    if (__pmServerRequestPortString(fd, fdStr, FDNAMELEN) != NULL)
+	return fdStr;
+    for (i = 0; i < nClients; i++) {
+	if (client[i].status.connected && fd == client[i].fd) {
+	    sprintf(fdStr, "client[%d] client socket", i);
+	    return fdStr;
+	}
+	if (client[i].status.connected && fd == client[i].pmcd_fd) {
+	    sprintf(fdStr, "client[%d] pmcd socket", i);
+	    return fdStr;
+	}
+    }
+    return stdFds[0];
 }
 #endif

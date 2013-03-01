@@ -35,6 +35,56 @@ static unsigned         nReqPorts;		/* number of ports */
 static unsigned         szReqPorts;		/* capacity of ports array */
 static ReqPortInfo      *reqPorts;      	/* ports array */
 
+/*
+ * Interfaces we're willing to listen for clients on, from -i
+ */
+static int	nintf;
+static char	**intflist;
+
+/*
+ * Ports we're willing to listen for clients on, from -p (or env)
+ */
+static int	nport;
+static int	*portlist;
+
+int
+__pmServerAddInterface(const char *address)
+{
+    size_t size = (nintf+1) * sizeof(char *);
+
+    /* one (of possibly several) IP addresses for client requests */
+    intflist = (char **)realloc(intflist, nintf * sizeof(char *));
+    if (intflist == NULL)
+	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
+    intflist[nintf++] = strdup(address);
+    return nintf;
+}
+
+int
+__pmServerAddPorts(const char *ports)
+{
+    char	*endptr, *p = (char *)ports;
+
+    /*
+     * one (of possibly several) ports for client requests
+     * ... accept a comma separated list of ports here
+     */
+    for ( ; ; ) {
+	size_t	size = (nport + 1) * sizeof(int);
+	int	port = (int)strtol(p, &endptr, 0);
+
+	if ((*endptr != '\0' && *endptr != ',') || port < 0)
+	    return -EINVAL;
+	if ((portlist = (int *)realloc(portlist, size)) == NULL)
+	    __pmNoMem("AddPorts: cannot grow port list", size, PM_FATAL_ERR);
+	portlist[nport++] = port;
+	if (*endptr == '\0')
+	    break;
+	p = &endptr[1];
+    }
+    return nport;
+}
+
 /* Increase the capacity of the reqPorts array (maintain the contents) */
 static void
 GrowRequestPorts(void)
@@ -51,8 +101,8 @@ GrowRequestPorts(void)
 }
 
 /* Add a request port to the reqPorts array */
-int
-__pmServerAddRequestPort(const char *address, int port)
+static int
+AddRequestPort(const char *address, int port)
 {
     ReqPortInfo	*rp;
 
@@ -64,7 +114,7 @@ __pmServerAddRequestPort(const char *address, int port)
     rp = &reqPorts[nReqPorts];
     rp->fds[INET_FD] = -1;
     rp->fds[IPV6_FD] = -1;
-    rp->address = strdup(address);
+    rp->address = address;
     rp->port = port;
     nReqPorts++;
 
@@ -73,7 +123,45 @@ __pmServerAddRequestPort(const char *address, int port)
         fprintf(stderr, "AddRequestPort: %s port %d\n", rp->address, rp->port);
 #endif
 
-    return 1;   /* success */
+    return nReqPorts;   /* success */
+}
+
+static int
+SetupRequestPorts(void)
+{
+    int	i, n;
+
+    /* check for duplicate ports, remove duplicates */
+    for (i = 0; i < nport; i++) {
+	for (n = i + 1; n < nport; n++) {
+	    if (portlist[i] == portlist[n])
+		break;
+	}
+	if (n < nport) {
+	    __pmNotifyErr(LOG_WARNING,
+		"%s: duplicate client request port (%d) will be ignored\n",
+                     pmProgname, portlist[n]);
+	    portlist[n] = -1;
+	}
+    }
+
+    if (nintf == 0) {
+	/* no interface options specified, allow connections on any address */
+	for (n = 0; n < nport; n++) {
+	    if (portlist[n] != -1)
+		AddRequestPort(NULL, portlist[n]);
+	}
+    }
+    else {
+	for (i = 0; i < nintf; i++) {
+	    for (n = 0; n < nport; n++) {
+		if (portlist[n] == -1 || intflist[i] == NULL)
+		    continue;
+		AddRequestPort(intflist[i], portlist[n]);
+	    }
+	}
+    }
+    return 0;
 }
 
 /*
@@ -188,15 +276,15 @@ fail:
         __pmCloseSocket(fd);
     if (myAddr)
         __pmSockAddrFree(myAddr);
-    exit(1);	/* all errors here are fatal */
+    return -1;
 }
 
 /*
  * Open request ports for client connections.
  * Open an INet and an IPv6 socket for clients, if appropriate.
  */
-int
-__pmServerOpenRequestPorts(__pmFdSet *fdset, int backlog)
+static int
+OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
 
@@ -210,18 +298,20 @@ __pmServerOpenRequestPorts(__pmFdSet *fdset, int backlog)
 	 */
 	if (rp->address == NULL || strcmp(rp->address, "INADDR_ANY") == 0) {
 	    family = AF_INET;
-	    fd = OpenRequestSocket(rp->port, rp->address, &family,
-				    backlog, fdset, &maximum);
+	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
+				    backlog, fdset, &maximum)) < 0)
+		break;
 	    rp->fds[INET_FD] = fd;
 	    family = AF_INET6;
-	    fd = OpenRequestSocket(rp->port, rp->address, &family,
-				    backlog, fdset, &maximum);
+	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
+				    backlog, fdset, &maximum)) < 0)
+		break;
 	    rp->fds[IPV6_FD] = fd;
 	}
 	else {
-	    fd = OpenRequestSocket(rp->port, rp->address, &family,
-				    backlog, fdset, &maximum);
-
+	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
+				    backlog, fdset, &maximum)) < 0)
+		break;
 	    if (family == AF_INET)
 	        rp->fds[INET_FD] = fd;
 	    else if (family == AF_INET6)
@@ -240,6 +330,16 @@ __pmServerOpenRequestPorts(__pmFdSet *fdset, int backlog)
     __pmNotifyErr(LOG_ERR, "%s: can't open any request ports, exiting\n",
 		pmProgname);
     return -1;
+}
+
+int
+__pmServerOpenRequestPorts(__pmFdSet *fdset, int backlog)
+{
+    int sts;
+
+    if ((sts = SetupRequestPorts()) < 0)
+	return sts;
+    return OpenRequestPorts(fdset, backlog);
 }
 
 void
