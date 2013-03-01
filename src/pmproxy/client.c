@@ -19,17 +19,15 @@
 
 ClientInfo	*client;
 int		nClients;		/* Number in array, (not all in use) */
-int		maxSockFd = -1;		/* largest fd for a client */
+int		maxReqPortFd;		/* highest request port fd */
+int		maxSockFd;		/* largest fd for a client */
 __pmFdSet	sockFds;		/* for client select() */
-
-static int	clientSize;
-
-extern void	Shutdown(void);
 
 static int
 NewClient(void)
 {
-    int i;
+    int		i;
+    static int	clientSize;
 
     for (i = 0; i < nClients; i++)
 	if (!client[i].status.connected)

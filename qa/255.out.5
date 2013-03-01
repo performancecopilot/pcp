@@ -1,0 +1,268 @@
+QA output created by 255
+=== Removing potential cron conflicts ===
+=== Install broken namespace ===
+You will need to choose an appropriate configuration for installation of
+the "broken" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
+Skipping PMDA install and PMCD re-configuration
+=== Broken PMNS ===
+broken.valid.one
+broken.valid.two
+broken.valid.three
+broken.bad.type
+broken.bad.semantics
+broken.bad.scale
+broken.bad.indom
+broken.no.fetch
+broken.no.help
+broken.no.shorthelp
+broken.no.longhelp
+broken.no.instfetch
+broken.no.instances
+broken.bogus.one
+=== Building simple agent ===
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [m] Updating the Performance Metrics Name Space (PMNS) ...
+Skipping PMDA install and PMCD re-configuration
+Namespace installed
+PMDA built
+Help generated
+=== Replacing pmcd.options ===
+=== Restarting PMCD with minimal PMDAs ===
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+=== Installing simple ===
+5 metrics and 9 values
+simple is alive and well
+=== Removing simple ===
+=== Restarting PMCD with minimal PMDAs ===
+5 warnings, 5 metrics and 0 values
+Warnings when fetching simple metrics:
+simple.color: pmLookupDesc: Unknown or illegal metric identifier
+simple.now: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple was removed
+=== Installing simple ===
+5 metrics and 9 values
+simple is alive and well
+=== Removing simple ===
+=== Restarting PMCD with minimal PMDAs ===
+5 warnings, 5 metrics and 0 values
+Warnings when fetching simple metrics:
+simple.color: pmLookupDesc: Unknown or illegal metric identifier
+simple.now: pmLookupDesc: Unknown or illegal metric identifier
+simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
+simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
+simple was removed
+=== Installing broken_pmda_2_0 ===
+5 warnings, 14 metrics and 14 values
+Warnings when fetching broken metrics:
+broken.bad.indom: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.type: Not Supported
+broken.bogus.one: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.fetch: Unknown or illegal metric identifier
+broken.no.instances: No value(s) available
+broken is alive and as well as can be expected
+=== Removing broken ===
+=== Restarting PMCD with minimal PMDAs ===
+14 warnings, 14 metrics and 0 values
+Warnings when fetching broken metrics:
+broken.bad.indom: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.scale: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.semantics: pmLookupDesc: Unknown or illegal metric identifier
+broken.bad.type: pmLookupDesc: Unknown or illegal metric identifier
+broken.bogus.one: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.fetch: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.help: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.instances: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.instfetch: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.longhelp: pmLookupDesc: Unknown or illegal metric identifier
+broken.no.shorthelp: pmLookupDesc: Unknown or illegal metric identifier
+broken.valid.one: pmLookupDesc: Unknown or illegal metric identifier
+broken.valid.three: pmLookupDesc: Unknown or illegal metric identifier
+broken.valid.two: pmLookupDesc: Unknown or illegal metric identifier
+broken was removed
+
+=== Removing broken_pmda namespace ===
+Culling the Performance Metrics Name Space ...
+broken ... done
+Skipping PMDA removal and PMCD re-configuration
+=== Resetting pmcd.conf back to original state ===
+=== Resetting pmcd.options back to original state ===
+=== Restart PMCD ===
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+=== Filter pmcd.log ===
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD 44321 inet INADDR_ANY
+ok FD 44321 ipv6 INADDR_ANY
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+simple       SIMPLE PID FD FD   2 bin pipe cmd=PCP_PMDAS_DIR/simple/pmdasimple -d 253
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+Cleanup "simple" agent (dom 253): unconfigured, exit(0)
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+simple       SIMPLE                 2 dso i:2  lib=PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX entry=simple_init
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+Cleanup "simple" agent (dom 253): unconfigured, exit(0)
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+broken       BROKEN PID FD FD   2 bin pipe cmd=broken_pmda_2_0 -d 249
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+Cleanup "broken" agent (dom 249): unconfigured, exit(0)
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+Configuration file '$PCP_PMCDCONF_PATH' unchanged
+Restarting any deceased agents:
+    (no agents required restarting)
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+[DATE] pmcd(PID) Info: Reloading PMNS "DEFAULT"
+[DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+[DATE] pmcd(PID) Info: pmcd Shutdown
+
+Log finished DATE
+=== Restoring crontab ===

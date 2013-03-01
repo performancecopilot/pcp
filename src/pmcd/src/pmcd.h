@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -143,10 +143,6 @@ extern int		mapdom[];	/* the map */
 extern AgentInfo *FindDomainAgent(int);
 extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
-extern void CleanupClient(ClientInfo*, int);
-extern char* FdToString(int);
-extern pmResult **SplitResult(pmResult *);
-extern void Shutdown(void);
 
 /* timeout to PMDAs (secs) */
 PMCD_EXTERN int	_pmcd_timeout;
@@ -194,9 +190,32 @@ extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
 
 /*
- * set state change status for clients
+ * PDU handling routines
  */
+extern int DoFetch(ClientInfo *, __pmPDU *);
+extern int DoProfile(ClientInfo *, __pmPDU *);
+extern int DoDesc(ClientInfo *, __pmPDU *);
+extern int DoInstance(ClientInfo *, __pmPDU *);
+extern int DoText(ClientInfo *, __pmPDU *);
+extern int DoStore(ClientInfo *, __pmPDU *);
+extern int DoCreds(ClientInfo *, __pmPDU *);
+extern int DoPMNSIDs(ClientInfo *, __pmPDU *);
+extern int DoPMNSNames(ClientInfo *, __pmPDU *);
+extern int DoPMNSChild(ClientInfo *, __pmPDU *);
+extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
+
+/*
+ * General purpose routines
+ */
+extern void StartDaemon(int, char **);
+extern void Shutdown(void);
+extern int  ParseInitAgents(char *);
+extern void ParseRestartAgents(char *);
+extern void PrintAgentInfo(FILE *);
+extern void ResetBadHosts(void);
 extern void MarkStateChanges(int);
+extern void CleanupClient(ClientInfo*, int);
+extern pmResult **SplitResult(pmResult *);
 
 /*
  * Highest known file descriptor used for a Client or an Agent connection.

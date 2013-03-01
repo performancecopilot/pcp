@@ -282,6 +282,8 @@ pmGetConfig(const char *name)
 #else
 #define SECURE_SOCKETS_ENABLED	"false"
 #endif
+/* IPv6 supported in all builds from pcp-3.6.11 onward */
+#define IPV6_ENABLED		"true"
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
@@ -294,6 +296,7 @@ static const struct {
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
 	{ "fault_injection",	FAULT_INJECTION_ENABLED },
 	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
+	{ "ipv6",		IPV6_ENABLED },
 };
 
 void

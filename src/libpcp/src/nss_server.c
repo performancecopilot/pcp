@@ -35,7 +35,7 @@ static struct {
 } nss_server;
 
 int
-__pmSecureServerHasFeature(__pmSecureServerFeature query)
+__pmServerHasFeature(__pmServerFeature query)
 {
     int sts = 0;
 

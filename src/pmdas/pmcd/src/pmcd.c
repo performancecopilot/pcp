@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -996,7 +997,7 @@ fetch_feature(int item, pmAtomValue *avp)
 {
     if (item < 0 || item >= PM_SERVER_FEATURES)
 	return PM_ERR_PMID;
-    avp->ul = __pmSecureServerHasFeature((__pmSecureServerFeature)item);
+    avp->ul = __pmServerHasFeature((__pmServerFeature)item);
     return 0;
 }
 

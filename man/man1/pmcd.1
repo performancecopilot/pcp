@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2012-2013 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -985,11 +985,9 @@ would not restart it.
 .P
 Normally
 .B pmcd
-listens for client connections on one or more well-known TCP/IP port numbers
-(historically 4321 and more recently the officially registered port
-44321; in the current release,
-.B pmcd
-listens on only port 44321 by default).
+listens for client connections on TCP/IP port number 44321
+(registered at
+.IR http://www.iana.org/ ).
 Either the environment
 variable
 .B PMCD_PORT
@@ -998,7 +996,7 @@ or the
 command line option
 may be used to specify alternative port number(s) when
 .B pmcd
-is started; in each case, the specficiation is a comma-separated list
+is started; in each case, the specification is a comma-separated list
 of one or more numerical port numbers.  Should both methods be used
 or multiple
 .B \-p
@@ -1015,7 +1013,11 @@ care should be taken to ensure that
 .B PMCD_PORT
 is also set in the environment of any client application that
 will connect to
-.BR pmcd .
+.BR pmcd ,
+or that the extended host specification syntax is used
+(see
+.BR PCPIntro (1)
+for details).
 .SH FILES
 .PD 0
 .TP 10

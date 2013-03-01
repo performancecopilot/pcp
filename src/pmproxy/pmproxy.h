@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -32,17 +32,17 @@ typedef struct {
     __pmSockAddr	*addr;		/* address of client */
 } ClientInfo;
 
-extern ClientInfo	*client;		/* Array of clients */
-extern int		nClients;		/* Number of entries in array */
-extern int		maxSockFd;		/* largest fd for a clients
-						 * and pmcd connections */
-extern __pmFdSet	sockFds;		/* for select() */
+extern ClientInfo	*client;	/* Array of clients */
+extern int		nClients;	/* Number of entries in array */
+extern int		maxReqPortFd;	/* highest request port fd */
+extern int		maxSockFd;	/* largest fd for a clients
+					 * and pmcd connections */
+extern __pmFdSet	sockFds;	/* for select() */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);
 extern void DeleteClient(ClientInfo *);
 extern void StartDaemon(int, char **);
-
-extern int	maxReqPortFd;	/* highest request port file descriptor */
+extern void Shutdown(void);
 
 #endif /* _PROXY_H */

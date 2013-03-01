@@ -24,7 +24,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
-	stuffvalue.c endian.c config.c access.c auxconnect.c \
+	stuffvalue.c endian.c config.c access.c auxconnect.c auxserver.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c
@@ -95,13 +95,13 @@ derive.o derive_fetch.o: derive.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
-auxconnect.o context.o derive.o fetch.o fetch.o lock.o: internal.h
+auxserver.o auxconnect.o: internal.h
 nss_server.o nss_connect.o: internal.h
+context.o derive.o fetch.o fetch.o lock.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
-
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows

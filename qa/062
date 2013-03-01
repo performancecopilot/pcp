@@ -1,8 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 062
-# Test pmcd's ability to supress multiple access control warnings from the same
-# host
+# Test pmcd's ability to suppress multiple access control warnings
+# from the same host
 #
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -14,17 +15,19 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+ipv6=false
+eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+
 rm -f $seq.out
-endian=`perl -MConfig -e 'print $Config{byteorder}' | tr -d 5678`
-if [ "$endian" = "4321" ]
-then
-    ln $seq.out.4321 $seq.out
-elif [ "$endian" = "1234" ]
-then
-    ln $seq.out.1234 $seq.out
+if $ipv6 ; then
+    ln $seq.out.1 $seq.out || exit 1
 else
-    echo "Arrgh ... cannot determine host endianness"
-    exit 1
+    endian=`perl -MConfig -e 'print $Config{byteorder}' | tr -d 5678`
+    if [ "$endian" != "4321" -a "$endian" != "1234" ]
+	echo "Arrgh ... cannot determine host endianness"
+	exit 1
+    fi
+    ln $seq.out.$endian $seq.out || exit 1
 fi
 
 # real QA test starts here

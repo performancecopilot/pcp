@@ -13,12 +13,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if which pmobjstyle >/dev/null 2>&1
-then
-    BINFMT=`pmobjstyle`
+ipv6=false
+eval `pmconfig -L 2>/dev/null`
+rm -f $seq.out
+if [ "$ipv6" = "true" ]; then
+    ln $seq.out.2 $seq.out || exit 1
 else
-    BINFMT=unknown-obj
+    ln $seq.out.1 $seq.out || exit 1
 fi
+
+BINFMT=unknown-obj
+which pmobjstyle >/dev/null 2>&1 && BINFMT=`pmobjstyle`
 
 _filter_log()
 {

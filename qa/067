@@ -14,17 +14,24 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+ipv6=false
+pmcdx=false
+eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
+test $? -eq 0 && pmcdx=true
+
 rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    if test $PCP_EOE_VER -ge 2704
+if $ipv6 ; then
+    ln $seq.out.4 $seq.out || exit 1
+elif $pmcdx ; then
+    if test $PCP_VER -ge 2704
     then
-	ln $seq.out.3 $seq.out
+	ln $seq.out.3 $seq.out || exit 1
     else
-	ln $seq.out.2 $seq.out
+	ln $seq.out.2 $seq.out || exit 1
     fi
 else
-    ln $seq.out.1 $seq.out
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
