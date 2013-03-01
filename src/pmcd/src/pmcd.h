@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -192,6 +192,21 @@ extern void pmcd_init_trace(int);
 extern void pmcd_trace(int, int, int, int);
 extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
+
+/*
+ * PDU handling routines
+ */
+extern int DoFetch(ClientInfo *, __pmPDU *);
+extern int DoProfile(ClientInfo *, __pmPDU *);
+extern int DoDesc(ClientInfo *, __pmPDU *);
+extern int DoInstance(ClientInfo *, __pmPDU *);
+extern int DoText(ClientInfo *, __pmPDU *);
+extern int DoStore(ClientInfo *, __pmPDU *);
+extern int DoCreds(ClientInfo *, __pmPDU *);
+extern int DoPMNSIDs(ClientInfo *, __pmPDU *);
+extern int DoPMNSNames(ClientInfo *, __pmPDU *);
+extern int DoPMNSChild(ClientInfo *, __pmPDU *);
+extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
 
 /*
  * set state change status for clients

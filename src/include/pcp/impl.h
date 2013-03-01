@@ -593,12 +593,20 @@ typedef enum {
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
     PM_SERVER_FEATURES
-} __pmSecureServerFeature;
+} __pmServerFeature;
 
-extern int __pmSecureServerHasFeature(__pmSecureServerFeature);
+extern int __pmServerHasFeature(__pmServerFeature);
+extern int __pmServerAddRequestPort(const char *, int);
+typedef void (*__pmServerCallback)(__pmFdSet *, int);
+extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
+extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
+extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
+extern void __pmServerCloseRequestPorts(void);
+extern void __pmServerDumpRequestPorts(FILE *);
+extern char *__pmServerRequestPortString(int, char *, size_t);
 
 /*
- * per context controls for archives and logs
+ * Per-context controls for archives and logs
  */
 typedef struct {
     __pmLogCtl		*ac_log;	/* global logging and archive control */

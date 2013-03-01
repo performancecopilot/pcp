@@ -479,50 +479,12 @@ __pmDataIPCSize(void)
 }
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd)
-{
-    (void)db;
-    (void)passwd;
-    return 0;
-}
-
-int
-__pmSecureServerIPCFlags(int fd, int flags)
-{
-    (void)fd;
-    (void)flags;
-    return -EOPNOTSUPP;
-}
-
-void
-__pmSecureServerShutdown(void)
-{
-    /* nothing to do here */
-}
-
-int
 __pmSecureClientHandshake(int fd, int flags, const char *hostname)
 {
     (void)fd;
     (void)flags;
     (void)hostname;
     return -EOPNOTSUPP;
-}
-
-int
-__pmSecureServerHandshake(int fd, int flags)
-{
-    (void)fd;
-    (void)flags;
-    return -EOPNOTSUPP;
-}
-
-int
-__pmSecureServerHasFeature(__pmSecureServerFeature query)
-{
-    if (query == PM_SERVER_FEATURE_IPV6)
-	return 1;
-    return 0;
 }
 
 int

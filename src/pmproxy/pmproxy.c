@@ -19,6 +19,9 @@
 #include <pwd.h>
 #endif
 
+#define MAXPENDING	5	/* maximum number of pending connections */
+#define FDNAMELEN	40	/* maximum length of a fd description */
+
 static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
@@ -28,23 +31,6 @@ static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
 static char	pmproxy_host[MAXHOSTNAMELEN];
 static int	pmproxy_port;
-
-/*
- * For maintaining info about a request port that clients may connect to
- * pmproxy on
- */
-typedef struct {
-    int		fd;		/* File descriptor */
-    char*	ipSpec;		/* String used to specify IP addr (or NULL) */
-} ReqPortInfo;
-
-/*
- * A list of the ports that pmproxy is listening for client connections on
- */
-static unsigned		nReqPorts = 0;	/* number of ports */
-static unsigned		szReqPorts = 0;	/* capacity of ports array */
-static ReqPortInfo	*reqPorts = NULL;	/* ports array */
-int			maxReqPortFd = -1;	/* highest request port file descriptor */
 
 static void
 DontStart(void)
@@ -70,50 +56,12 @@ DontStart(void)
     exit(1);
 }
 
-/* Increase the capacity of the reqPorts array (maintain the contents) */
-
-static void
-GrowReqPorts(void)
-{
-    size_t need;
-    szReqPorts += 4;
-    need = szReqPorts * sizeof(ReqPortInfo);
-    reqPorts = (ReqPortInfo*)realloc(reqPorts, need);
-    if (reqPorts == NULL) {
-	__pmNoMem("pmproxy: can't grow request port array", need, PM_FATAL_ERR);
-    }
-}
-
-/* Add a request port to the reqPorts array */
-
-static int
-AddRequestPort(char *ipSpec)
-{
-    ReqPortInfo		*rp;
-
-    if (nReqPorts == szReqPorts)
-	GrowReqPorts();
-    rp = &reqPorts[nReqPorts];
-
-    rp->fd = -1;
-    if (ipSpec == NULL)
-	ipSpec = "INADDR_ANY";
-    rp->ipSpec = strdup(ipSpec);
-    nReqPorts++;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "AddRequestPort: %s\n", rp->ipSpec);
-#endif
-    return 1;	/* success */
-
-}
-
 static void
 ParseOptions(int argc, char *argv[])
 {
     int		c;
     int		sts;
+    int		nReqPorts = 0;
     int		errflag = 0;
     int		usage = 0;
     int		val;
@@ -142,10 +90,11 @@ ParseOptions(int argc, char *argv[])
 
 	    case 'i':
 		/* one (of possibly several) IP addresses for client requests */
-		if (!AddRequestPort(optarg)) {
+		if (!__pmServerAddRequestPort(optarg, pmproxy_port)) {
 		    fprintf(stderr, "pmproxy: bad IP spec: -i %s\n", optarg);
 		    errflag++;
 		}
+		nReqPorts++;
 		break;
 
 	    case 'l':
@@ -185,7 +134,7 @@ ParseOptions(int argc, char *argv[])
 		break;
 	}
 
-    if (usage ||errflag || optind < argc) {
+    if (usage || errflag || optind < argc) {
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
@@ -203,87 +152,11 @@ ParseOptions(int argc, char *argv[])
 	else
 	    DontStart();
     }
-}
 
-/* Create socket for incoming connections and bind to it an address for
- * clients to use.  Only returns if it succeeds (exits on failure).
- * ipSpec is the IP address that the port is advertised for.
- * To allow connections to all this host's IP addresses from clients
- * use ipSpec = "INADDR_ANY".
- */
-static int
-OpenRequestSocket(const char * ipSpec)
-{
-    int			fd;
-    int			sts;
-    __pmSockAddr	*myAddr;
-    int			one = 1;
-
-    fd = __pmCreateSocket();
-    if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) socket: %s\n",
-			pmproxy_port, netstrerror());
-	DontStart();
+    /* If no -i IP_ADDR options specified, allow connections on any IP number */
+    if (nReqPorts == 0) {
+	__pmServerAddRequestPort(NULL, pmproxy_port);
     }
-    if (fd > maxSockFd)
-	maxSockFd = fd;
-    __pmFD_SET(fd, &sockFds);
-
-#ifndef IS_MINGW
-    /* Ignore dead client connections */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &one,
-			(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) __pmSetSockopt(SO_REUSEADDR): %s\n",
-		pmproxy_port, netstrerror());
-	DontStart();
-    }
-#else
-    /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *) &one,
-			(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d) __pmSetSockOpt(SO_EXCLUSIVEADDRUSE): %s\n",
-		pmproxy_port, netstrerror());
-	DontStart();
-    }
-#endif
-
-    /* and keep alive please - pv 916354 bad networks eat fds */
-    if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
-			(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		pmproxy_port, ipSpec, netstrerror());
-	DontStart();
-    }
-
-    /* Initialize the socket address */
-    if ((myAddr = __pmStringToSockAddr(ipSpec)) == 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-		      pmproxy_port, ipSpec);
-	DontStart();
-    }
-    __pmSockAddrSetFamily(myAddr, AF_INET);
-    __pmSockAddrSetPort(myAddr, pmproxy_port);
-
-    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
-    __pmSockAddrFree(myAddr);
-    if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmBind: %s\n",
-			pmproxy_port, netstrerror());
-	if (neterror() == EADDRINUSE)
-	    __pmNotifyErr(LOG_ERR, "pmproxy is already running\n");
-	DontStart();
-    }
-
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == -1) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d) __pmListen: %s\n",
-			pmproxy_port, netstrerror());
-	DontStart();
-    }
-    return fd;
 }
 
 static void
@@ -412,19 +285,15 @@ HandleInput(__pmFdSet *fdsPtr)
 }
 
 /* Called to shutdown pmproxy in an orderly manner */
-
 void
 Shutdown(void)
 {
     int	i;
-    int	fd;
 
     for (i = 0; i < nClients; i++)
 	if (client[i].status.connected)
 	    __pmCloseSocket(client[i].fd);
-    for (i = 0; i < nReqPorts; i++)
-	if ((fd = reqPorts[i].fd) != -1)
-	    __pmCloseSocket(fd);
+    __pmServerCloseRequestPorts();
     __pmSecureServerShutdown();
     __pmNotifyErr(LOG_INFO, "pmproxy Shutdown\n");
     fflush(stderr);
@@ -443,19 +312,14 @@ SignalShutdown(void)
 char*
 FdToString(int fd)
 {
-#define FDNAMELEN 40
     static char fdStr[FDNAMELEN];
     static char *stdFds[4] = {"*UNKNOWN FD*", "stdin", "stdout", "stderr"};
     int		i;
 
     if (fd >= -1 && fd < 3)
 	return stdFds[fd + 1];
-    for (i = 0; i < nReqPorts; i++) {
-	if (fd == reqPorts[i].fd) {
-	    sprintf(fdStr, "pmproxy request socket %s", reqPorts[i].ipSpec);
-	    return fdStr;
-	}
-    }
+    if (__pmServerRequestPortString(fd, fdStr, FDNAMELEN) != NULL)
+	return fdStr;
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected && fd == client[i].fd) {
 	    sprintf(fdStr, "client[%d] client socket", i);
@@ -469,6 +333,41 @@ FdToString(int fd)
     return stdFds[0];
 }
 
+static void
+CheckNewClient(__pmFdSet * fdset, int rfd)
+{
+    ClientInfo	*cp;
+
+    if (__pmFD_ISSET(rfd, fdset)) {
+	if ((cp = AcceptNewClient(rfd)) == NULL)
+	    /* failed to negotiate, already cleaned up */
+	    return;
+
+	/* establish a new connection to pmcd */
+	if ((cp->pmcd_fd = __pmAuxConnectPMCDPort(cp->pmcd_hostname, cp->pmcd_port)) < 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT)
+		/* append to message started in AcceptNewClient() */
+		fprintf(stderr, " oops!\n"
+			"__pmAuxConnectPMCDPort(%s,%d) failed: %s\n",
+			cp->pmcd_hostname, cp->pmcd_port,
+			pmErrStr(-oserror()));
+#endif
+	    CleanupClient(cp, -oserror());
+	}
+	else {
+	    if (cp->pmcd_fd > maxSockFd)
+		maxSockFd = cp->pmcd_fd;
+	    __pmFD_SET(cp->pmcd_fd, &sockFds);
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT)
+		/* append to message started in AcceptNewClient() */
+		fprintf(stderr, " fd=%d\n", cp->pmcd_fd);
+#endif
+	}
+    }
+}
+
 /* Loop, synchronously processing requests from clients. */
 static void
 ClientLoop(void)
@@ -476,7 +375,6 @@ ClientLoop(void)
     int		i, sts;
     int		maxFd;
     __pmFdSet	readableFds;
-    ClientInfo	*cp;
 
     for (;;) {
 	/* Figure out which file descriptors to wait for input on.  Keep
@@ -494,42 +392,7 @@ ClientLoop(void)
 		    if (__pmFD_ISSET(i, &readableFds))
 			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n", FdToString(i), i);
 #endif
-	    /* Accept any new client connections */
-	    for (i = 0; i < nReqPorts; i++) {
-		int rfd = reqPorts[i].fd;
-		if (__pmFD_ISSET(rfd, &readableFds)) {
-		    cp = AcceptNewClient(rfd);
-		    if (cp == NULL) {
-			/* failed to negotiate correctly, already cleaned up */
-			continue;
-		    }
-		    /*
-		     * make connection to pmcd
-		     */
-		    if ((cp->pmcd_fd = __pmAuxConnectPMCDPort(cp->pmcd_hostname, cp->pmcd_port)) < 0) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_CONTEXT)
-			    /* append to message started in AcceptNewClient() */
-			    fprintf(stderr, " oops!\n"
-				"__pmAuxConnectPMCDPort(%s,%d) failed: %s\n",
-				cp->pmcd_hostname, cp->pmcd_port,
-				pmErrStr(-oserror()));
-#endif
-			CleanupClient(cp, -oserror());
-		    }
-		    else {
-			if (cp->pmcd_fd > maxSockFd)
-			    maxSockFd = cp->pmcd_fd;
-			__pmFD_SET(cp->pmcd_fd, &sockFds);
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_CONTEXT)
-			    /* append to message started in AcceptNewClient() */
-			    fprintf(stderr, " fd=%d\n", cp->pmcd_fd);
-#endif
-		    }
-		}
-	    }
-
+	    __pmServerAddNewClients(&readableFds, CheckNewClient);
 	    HandleInput(&readableFds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
@@ -602,17 +465,15 @@ ProxyEnvironment(void)
 int
 main(int argc, char *argv[])
 {
-    int		i;
-    int		status;
-    unsigned	nReqPortsOK = 0;
+    int		sts;
 
     umask(022);
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
 
-    ParseOptions(argc, argv);
     ProxyEnvironment();
+    ParseOptions(argc, argv);
 
     if (run_daemon) {
 	fflush(stderr);
@@ -625,26 +486,12 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
-    /* If no -i IP_ADDR options specified, allow connections on any IP number */
-    if (nReqPorts == 0)
-	AddRequestPort(NULL);
-
     /* Open request ports for client connections */
-    for (i = 0; i < nReqPorts; i++) {
-	int fd = OpenRequestSocket(reqPorts[i].ipSpec);
-	if (fd != -1) {
-	    reqPorts[i].fd = fd;
-	    if (fd > maxReqPortFd)
-		maxReqPortFd = fd;
-	    nReqPortsOK++;
-	}
-    }
-    if (nReqPortsOK == 0) {
-	__pmNotifyErr(LOG_ERR, "pmproxy: can't open any request ports, exiting\n");
+    if ((sts = __pmServerOpenRequestPorts(&sockFds, MAXPENDING)) < 0)
 	DontStart();
-    }	
+    maxReqPortFd = maxSockFd = sts;
 
-    __pmOpenLog("pmproxy", logfile, stderr, &status);
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
@@ -654,16 +501,7 @@ main(int argc, char *argv[])
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
-    fputs("pmproxy request port(s):\n"
-	  "  sts fd   IP addr\n"
-	  "  === ==== ========\n", stderr);
-    for (i = 0; i < nReqPorts; i++) {
-	ReqPortInfo *rp = &reqPorts[i];
-	fprintf(stderr, "  %s %4d %s\n",
-		(rp->fd != -1) ? "ok " : "err",
-		rp->fd,
-		rp->ipSpec ? rp->ipSpec : "(any address)");
-    }
+    __pmServerDumpRequestPorts(stderr);
     fflush(stderr);
 
     /* lose root privileges if we have them */
