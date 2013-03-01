@@ -28,7 +28,7 @@ enum {
 typedef struct {
     int			fds[FAMILIES];	/* Inet and IPv6 File descriptors */
     int			port;		/* Listening port */
-    char		*address;	/* String used to specify address (or NULL) */
+    const char		*address;	/* Network address string (or NULL) */
 } ReqPortInfo;
 
 static unsigned         nReqPorts;		/* number of ports */
