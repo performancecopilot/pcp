@@ -13,6 +13,15 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
+ipv6=false
+eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+rm -f $seq.out
+if $ipv6 ; then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
 _filter_log()
 {
     sleep 3
@@ -24,10 +33,6 @@ _filter_log()
 	-e 's/Cannot open 000000660066: No such file or directory//' \
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \
-	-e '/started PMDA ora_/d' \
-	-e '/cmd=\/usr\/pcp\/lib\/pmdaoracle7/d' \
-	-e '/started PMDA watch/d' \
-	-e '/cmd=\/usr\/pcp\/lib\/pmdawatch/d' \
 	-e '/pmGetPDU/{
 s/\[[0-9][0-9]*]/[PID]/
 s/from=.*/from=PID/
@@ -48,7 +53,9 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
+	-e '/localhost/s/ 255\.255\.255\.255 / ffffffff / ' \
 	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /' \
+	-e '/localhost/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / MYIPADDR / ' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "/sed: couldn't flush stdout: Broken pipe/d" \
     | $PCP_AWK_PROG '

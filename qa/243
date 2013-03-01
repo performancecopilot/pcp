@@ -6,12 +6,17 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-. ./localconfig
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
+if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 then
-    if test $PCP_EOE_VER -ge 2704
+    if test $PCP_VER -ge 2704
     then
 	ln $seq.out.3 $seq.out
     else
@@ -21,17 +26,11 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
-
 _filter_err()
 {
     _filter_pmcd_log \
     | sed \
+	-e 's/ INADDR_ANY/ 0x0/g' \
 	-e 's/ __pmBind: / bind: /g' \
 	-e 's/may already be running/is already running/g' \
 	-e '/Log for pmcd/,/INADDR_ANY/c\
@@ -47,10 +46,6 @@ _filter_log()
 	-e 's/Cannot open 000000660066: No such file or directory//' \
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \
-	-e '/started PMDA ora_/d' \
-	-e '/cmd=\/usr\/pcp\/lib\/pmdaoracle7/d' \
-	-e '/started PMDA watch/d' \
-	-e '/cmd=\/usr\/pcp\/lib\/pmdawatch/d' \
 	-e '/pmGetPDU/{
 s/\[[0-9][0-9]*]/[PID]/
 s/from=.*/from=PID/
