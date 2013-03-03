@@ -30,11 +30,13 @@ _filter_err()
 {
     _filter_pmcd_log \
     | sed \
-	-e 's/ INADDR_ANY/ 0x0/g' \
 	-e 's/ __pmBind: / bind: /g' \
 	-e 's/may already be running/is already running/g' \
+	-e '/Log for pmcd/,/ipv6.*INADDR_ANY/c\
+... boring stuff deleted' \
 	-e '/Log for pmcd/,/INADDR_ANY/c\
-... boring stuff deleted'
+... boring stuff deleted' \
+	-e 's/ INADDR_ANY/ 0x0/g'
 }
 
 _filter_log()
