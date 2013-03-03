@@ -1039,7 +1039,7 @@ extern int __pmSetSocketIPC(int);
 extern int __pmSetVersionIPC(int, int);
 extern int __pmSetDataIPC(int, void *);
 extern int __pmDataIPCSize(void);
-extern int __pmLastVersionIPC();
+extern int __pmLastVersionIPC(void);
 extern int __pmVersionIPC(int);
 extern int __pmSocketIPC(int);
 extern int __pmDataIPC(int, void *);
@@ -1234,7 +1234,7 @@ EXTERN const __pmConfigCallback __pmNativeConfig;
 extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
-extern int __pmPathSeparator();
+extern int __pmPathSeparator(void);
 
 /*
  * discover configurable features of the shared libraries
