@@ -1319,16 +1319,16 @@ ConnectSocketAgent(AgentInfo *aPtr)
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
 	__pmSockAddr	*addr;
 	__pmHostEnt	*host;
-	int		addrIx;
+	void		*enumIx;
 
 	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
 	}
-	addrIx = 0;
-	for (addr = __pmHostEntGetSockAddr(host, &addrIx);
+	enumIx = NULL;
+	for (addr = __pmHostEntGetSockAddr(host, &enumIx);
 	     addr != NULL;
-	     addr = __pmHostEntGetSockAddr(host, &addrIx)) {
+	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
 	    if (__pmSockAddrIsInet(addr))
 	        fd = __pmCreateSocket();
 	    else if (__pmSockAddrIsIPv6(addr))

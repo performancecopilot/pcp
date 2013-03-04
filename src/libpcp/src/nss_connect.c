@@ -27,15 +27,13 @@
 #include <sys/termios.h>
 #endif
 
-__pmHostEnt *
-__pmHostEntAlloc(void)
-{
-    return malloc(sizeof(__pmHostEnt));
-}
-
 void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
+    if (hostent->name != NULL)
+        free(hostent->name);
+    if (hostent->addresses != NULL)
+        PR_FreeAddrInfo(hostent->addresses);
     free(hostent);
 }
 
@@ -1242,59 +1240,66 @@ __pmSocketReady(int fd, struct timeval *timeout)
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
-    char *name = NULL;
-    __pmHostEnt *he = __pmHostEntAlloc();
-    if (he != NULL) {
-        PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &he->buffer[0],
-					     sizeof(he->buffer), &he->hostent);
-	name = (prStatus == PR_SUCCESS ? __pmHostEntGetName(he) : NULL);
-	__pmHostEntFree(he);
-    }
+    char buffer[PR_NETDB_BUF_SIZE];
+    char *name;
+    PRHostEnt he;
+    PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
+    name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
     return name;
 }
 
 __pmHostEnt *
 __pmGetAddrInfo(const char *hostName)
 {
+    void *null;
+    __pmSockAddr *addr;
     __pmHostEnt *he = __pmHostEntAlloc();
+
     if (he != NULL) {
-        PRStatus prStatus = PR_GetHostByName(hostName, &he->buffer[0],
-					     PR_NETDB_BUF_SIZE, &he->hostent);
-	if (prStatus != PR_SUCCESS) {
+        he->addresses = PR_GetAddrInfoByName(hostName, AF_UNSPEC, PR_AI_ADDRCONFIG);
+	if (he->addresses == NULL) {
 	    __pmHostEntFree(he);
 	    return NULL;
 	}
     }
+
+    /* Try to reverse lookup the host name. */
+    null = NULL;
+    addr = __pmHostEntGetSockAddr(he, &null);
+    if (addr != NULL) {
+        he->name = __pmGetNameInfo(addr);
+	__pmSockAddrFree(addr);
+    }
+    else
+      he->name = strdup(hostName);
+
     return he;
 }
 
 char *
 __pmHostEntGetName(const __pmHostEnt *he)
 {
-     if (he->hostent.h_name == NULL)
+     if (he->name == NULL)
         return NULL;
-     return strdup(he->hostent.h_name);
+     return strdup(he->name);
 }
 
 __pmSockAddr *
-__pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
+__pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
 {
   __pmSockAddr* addr;
 
     addr = __pmSockAddrAlloc();
     if (addr == NULL) {
         __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
-        *ix = 0;
+        *ei = NULL;
 	return NULL;
     }
-    *ix = PR_EnumerateHostEnt(*ix, &he->hostent, 0, &addr->sockaddr);
-    if (*ix <= 0) {
+
+    *ei = PR_EnumerateAddrInfo(*ei, he->addresses, 0, &addr->sockaddr);
+    if (*ei == NULL) {
         /* End of the address chain or an error. No address to return. */
 	__pmSockAddrFree(addr);
-        if (*ix < 0) {
-	    __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: unable to obtain host address\n");
-	    *ix = 0;
-	}
 	return NULL;
     }
     return addr;

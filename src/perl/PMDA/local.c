@@ -150,7 +150,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
     __pmSockAddr *myaddr = NULL;
     __pmHostEnt  *servinfo = NULL;
-    int		 addrIx;
+    void	 *enumIx;
     int		 sts = -1;
     int me, fd = -1;
 
@@ -160,10 +160,10 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     }
     /* Loop over the addresses resolved for this host name until one of them
        connects. */
-    addrIx = 0;
-    for (myaddr = __pmHostEntGetSockAddr(servinfo, &addrIx);
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
 	 myaddr != NULL;
-	 myaddr = __pmHostEntGetSockAddr(servinfo, &addrIx)) {
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
 	if (__pmSockAddrIsInet(myaddr))
 	    fd = __pmCreateSocket();
 	else if (__pmSockAddrIsIPv6(myaddr))
@@ -300,7 +300,7 @@ local_reconnector(files_t *file)
     __pmHostEnt *servinfo = NULL;
     int fd = -1;
     int	sts = -1;
-    int	addrIx;
+    void *enumIx;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
@@ -308,10 +308,10 @@ local_reconnector(files_t *file)
 	goto done;
     /* Loop over the addresses resolved for this host name until one of them
        connects. */
-    addrIx = 0;
-    for (myaddr = __pmHostEntGetSockAddr(servinfo, &addrIx);
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
 	 myaddr != NULL;
-	 myaddr = __pmHostEntGetSockAddr(servinfo, &addrIx)) {
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
 	if (__pmSockAddrIsInet(myaddr))
 	    fd = __pmCreateSocket();
 	else if (__pmSockAddrIsIPv6(myaddr))

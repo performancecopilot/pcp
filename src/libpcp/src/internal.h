@@ -69,10 +69,8 @@ __pmTPDGet(void)
 struct __pmSockAddr {
     PRNetAddr		sockaddr;
 };
-struct __pmHostEnt {
-    PRHostEnt		hostent;
-    char		buffer[PR_NETDB_BUF_SIZE];
-};
+
+typedef PRAddrInfo __pmAddrInfo;
 
 /* internal NSS implementation details */
 extern int __pmSecureSocketsError(void);
@@ -85,11 +83,15 @@ struct __pmSockAddr {
 	struct sockaddr_in6	ipv6;
     } sockaddr;
 };
-struct __pmHostEnt {
-    char			*name;
-    struct addrinfo		*addresses;
-};
+
+typedef struct addrinfo __pmAddrInfo;
+
 #endif
+
+struct __pmHostEnt {
+    char		*name;
+    __pmAddrInfo	*addresses;
+};
 #endif
 
 #ifdef __cplusplus

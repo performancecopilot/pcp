@@ -579,7 +579,7 @@ extern __pmSockAddr *__pmLoopBackAddress(void);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);
-extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, int *);
+extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, void **);
 extern char *	     __pmHostEntGetName(const __pmHostEnt *);
 
 extern __pmHostEnt * __pmGetAddrInfo(const char *);
