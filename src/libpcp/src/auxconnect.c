@@ -737,7 +737,7 @@ __pmSockAddr *
 __pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
 {
     struct addrinfo *ai;
-    __pmSockAddr* addr = __pmSockAddrAlloc();
+    __pmSockAddr *addr;
     int i;
 
     /* Make sure the given index references an actual address in the chain. */
@@ -753,7 +753,7 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
     }
 
     /* Now allocate a socket address and copy the data. */
-    __pmSockAddr* addr = __pmSockAddrAlloc();
+     addr = __pmSockAddrAlloc();
     if (addr == NULL) {
         __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
         *ix = 0;
