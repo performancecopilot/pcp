@@ -93,7 +93,7 @@ CreatePIDfile(void)
 }
 
 static void
-ParseOptions(int argc, char *argv[])
+ParseOptions(int argc, char *argv[], int *nports)
 {
     int		c;
     int		sts;
@@ -169,6 +169,8 @@ ParseOptions(int argc, char *argv[])
 			"pmcd: -p requires a positive numeric argument (%s)\n",
 			optarg);
 		    errflag++;
+		} else {
+		    *nports += 1;
 		}
 		break;
 		    
@@ -802,7 +804,7 @@ main(int argc, char *argv[])
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
-    ParseOptions(argc, argv);
+    ParseOptions(argc, argv, &nport);
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
 
