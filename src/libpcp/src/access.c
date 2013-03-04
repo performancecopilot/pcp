@@ -83,7 +83,7 @@ static int
 getmyhostid(void)
 {
     struct __pmHostEnt	*host;
-    int zero;
+    void *null;
 
     if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
 	__pmNotifyErr(LOG_ERR, "gethostname failure\n");
@@ -96,8 +96,8 @@ getmyhostid(void)
 		     myhostname, hoststrerror());
 	return -1;
     }
-    zero = 0;
-    myhostid = __pmHostEntGetSockAddr(host, &zero);
+    null = NULL;
+    myhostid = __pmHostEntGetSockAddr(host, &null);
     __pmHostEntFree(host);
     gotmyhostid = 1;
     return 0;
@@ -231,7 +231,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     __pmSockAddr	*hostid, *hostmask;
     const char		*p;
     hostinfo		*hp;
-    int			zero;
+    void		*null;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -339,8 +339,8 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return -EHOSTUNREACH;	/* host error unsuitable to return */
 	}
-	zero = 0;
-	hostid = __pmHostEntGetSockAddr(host, &zero);
+	null = NULL;
+	hostid = __pmHostEntGetSockAddr(host, &null);
 	PM_UNLOCK(__pmLock_libpcp);
 	__pmHostEntFree(host);
 

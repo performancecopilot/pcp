@@ -21,6 +21,12 @@
 /* default connect timeout is 5 seconds */
 static struct timeval	canwait = { 5, 000000 };
 
+__pmHostEnt *
+__pmHostEntAlloc(void)
+{
+    return calloc(1, sizeof(__pmHostEnt));
+}
+
 __pmSockAddr *
 __pmSockAddrAlloc(void)
 {
@@ -250,12 +256,12 @@ __pmAuxConnectPMCD(const char *hostname)
 int
 __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
-    __pmSockAddr *myAddr;
-    __pmHostEnt	*servInfo;
+    __pmSockAddr	*myAddr;
+    __pmHostEnt		*servInfo;
     int			fd = -1;	/* Fd for socket connection to pmcd */
     int			sts;
     int			fdFlags = 0;
-    int			addrIx;
+    void		*enumIx;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -272,10 +278,10 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     __pmConnectTimeout();
 
-    addrIx = 0;
-    for (myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx);
+    enumIx = NULL;
+    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
-	 myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx)) {
+	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
 	/* Create a socket */
 	if (__pmSockAddrIsInet(myAddr))
 	    fd = __pmCreateSocket();
@@ -340,12 +346,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 }
 
 #if !defined(HAVE_SECURE_SOCKETS)
-
-__pmHostEnt *
-__pmHostEntAlloc(void)
-{
-    return calloc(1, sizeof(__pmHostEnt));
-}
 
 void
 __pmHostEntFree(__pmHostEnt *hostent)
@@ -697,7 +697,7 @@ __pmGetAddrInfo(const char *hostName)
     __pmSockAddr *addr;
     __pmHostEnt *hostEntry;
     struct addrinfo hints;
-    int zero;
+    void *null;
     int sts;
 
     hostEntry = __pmHostEntAlloc();
@@ -713,8 +713,8 @@ __pmGetAddrInfo(const char *hostName)
 	}
 
 	/* Try to reverse lookup the host name. */
-	zero = 0;
-	addr = __pmHostEntGetSockAddr(hostEntry, &zero);
+	null = NULL;
+	addr = __pmHostEntGetSockAddr(hostEntry, &null);
 	if (addr != NULL) {
 	    hostEntry->name = __pmGetNameInfo(addr);
 	    __pmSockAddrFree(addr);
@@ -734,35 +734,30 @@ __pmHostEntGetName(const __pmHostEnt *he)
 }
 
 __pmSockAddr *
-__pmHostEntGetSockAddr(const __pmHostEnt *he, int *ix)
+__pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
 {
-    struct addrinfo *ai;
+    __pmAddrInfo *ai;
     __pmSockAddr *addr;
-    int i;
 
-    /* Make sure the given index references an actual address in the chain. */
-    for (i = 0, ai = he->addresses; i < *ix && ai != NULL; ++i, ai = ai->ai_next)
-        ;
-    if (i != *ix)
-        __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: unable to obtain host address\n");
-
-    if (i != *ix || ai == NULL) {
-        /* End of the address chain. No address to return. */
-	*ix = 0;
-	return NULL;
+    /* The enumerator index (*ei) is actually a pointer to the current address info. */
+    if (*ei == NULL)
+        *ei = ai = he->addresses;
+    else {
+        ai = *ei;
+        *ei = ai = ai->ai_next;
     }
+    if (*ei == NULL)
+        return NULL; /* no (more) addresses in the chain. */
 
     /* Now allocate a socket address and copy the data. */
      addr = __pmSockAddrAlloc();
     if (addr == NULL) {
         __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
-        *ix = 0;
+        *ei = NULL;
 	return NULL;
     }
     memcpy(&addr->sockaddr.raw, ai->ai_addr, ai->ai_addrlen);
 
-    /* Update the enumerator index. */
-    ++*ix;
     return addr;
 }
 

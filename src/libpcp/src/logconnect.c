@@ -80,7 +80,7 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     int			pinpdu;
     __pmHostEnt		*servInfo;
     __pmSockAddr	*myAddr;
-    int			addrIx;
+    void		*enumIx;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -149,10 +149,10 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
        connects. */
     sts = -1;
     fd = -1;
-    addrIx = 0;
-    for (myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx);
+    enumIx = NULL;
+    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
-	 myAddr = __pmHostEntGetSockAddr(servInfo, &addrIx)) {
+	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
 	/* Create a socket */
 	if (__pmSockAddrIsInet(myAddr))
 	    fd = __pmCreateSocket();
