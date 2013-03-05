@@ -291,7 +291,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	    __pmNotifyErr(LOG_ERR, 
 			  "__pmAuxConnectPMCDPort(%s, %d) : invalid address family %d\n",
 			  hostname, pmcd_port, __pmSockAddrGetFamily(myAddr));
-	    fd = -1;
+	    fd = -EINVAL;
 	}
 	if (fd < 0) {
 	    __pmSockAddrFree(myAddr);
@@ -329,13 +329,13 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
 	/* Unsuccessful connection. */
 	__pmCloseSocket(fd);
-	fd = -1;
+	fd = -sts;
     }
 
     __pmHostEntFree(servInfo);
     PM_UNLOCK(__pmLock_libpcp);
     if (fd < 0)
-        return -ECONNREFUSED;
+        return fd;
 
     /*
      * If we're here, it means we have a valid connection; restore the
