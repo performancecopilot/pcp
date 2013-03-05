@@ -7,7 +7,6 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-#  EXPUNGED: dual of 481, 625, this test may *not* work
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -17,19 +16,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-#  Requires common.product and localconfig:
-. ./localconfig
 rm -f $seq.full $seq.out
-if [ "$PCP_PLATFORM" = irix -a $PCP_VER -lt 2200 ]
+if [ $PCP_VER -ge 3611 ]
 then
-    ln $seq-pre2.2.out $seq.out || exit 1
-else  #  includes Linux...
-    if [ $PCP_VER -lt 3611 ]
-    then
-	ln $seq-2.2post.out $seq.out || exit 1
-    else
-	ln $seq.3.out $seq.out || exit 1
-    fi
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
