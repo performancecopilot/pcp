@@ -22,11 +22,10 @@ fi
 echo "QA output created by $seq"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $tmp.* /tmp/func?.out $seq.full
+trap "rm -f $tmp.* /tmp/func?.out; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo rm -f /tmp/func?.out
 echo "Only one context ..."
 src/multithread9 localhost
 cat /tmp/func?.out | LC_COLLATE=POSIX sort | uniq -c | sed -e 's/  */ /g'
