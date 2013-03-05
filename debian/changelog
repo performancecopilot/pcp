@@ -1,8 +1,9 @@
 pcp (3.6.11) unstable; urgency=low
 
-  * Under development (full details in CHANGELOG).
+  * New release (full details in CHANGELOG).
+  * Resolve issues in python sub-package creation.
 
- -- Nathan Scott <nathans@debian.org>  Fri, 23 Nov 2012 09:20:51 +1100
+ -- Nathan Scott <nathans@debian.org>  Tue, 05 Mar 2013 15:31:58 +1100
 
 pcp (3.6.10) unstable; urgency=low
 
