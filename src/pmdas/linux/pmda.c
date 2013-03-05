@@ -5589,6 +5589,7 @@ linux_init(pmdaInterface *dp)
 {
     int		i, major, minor, point;
     __pmID_int	*idp;
+    FILE        *fp;
 
     _pm_system_pagesize = getpagesize();
     if (_isDSO) {
@@ -5690,6 +5691,16 @@ linux_init(pmdaInterface *dp)
 	if (linux_metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
 			    idp->cluster, idp->item);
+    }
+
+    /* This check is currently only made in refresh_proc_vmstat */
+    /* All access to that is guarded by "if(_pm_have_proc_vmstat == 1)" so it never gets set */
+    if ((fp = fopen("/proc/vmstat", "r")) != NULL){
+        _pm_have_proc_vmstat = 1;
+	fclose(fp);
+    }
+    else{
+	_pm_have_proc_vmstat = 0;
     }
 
     interrupts_init();
