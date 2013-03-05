@@ -377,8 +377,7 @@ done:
 static int
 rejectUserCertificate(const char *message)
 {
-    pmprintf(message);
-    pmprintf("? (no)\n");
+    pmprintf("%s? (no)\n", message);
     pmflush();
     return 0;
 }
@@ -397,8 +396,7 @@ queryCertificateOK(const char *message)
     do {
 	struct termios saved, raw;
 
-	pmprintf(message);
-	pmprintf(" (y/n)? ");
+	pmprintf("%s (y/n)? ", message);
 	pmflush();
 
 	/* save terminal state and temporarily enter raw terminal mode */
