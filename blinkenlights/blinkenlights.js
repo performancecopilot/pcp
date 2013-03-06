@@ -1,6 +1,13 @@
-var pm_host = "localhost"
+var pm_host = "localhost"; // TODOXXX adapt to where browser is pointed?
 var pm_root = "http://" + pm_host + ":44323/pmapi";
 var pm_context = -1;
+
+// ----------------------------------------------------------------------
+
+// TODOXXX use actual pictures for the blinkenlights
+var red_light = "(!)";
+var green_light = "(X)";
+var gray_light = "( )";
 
 // ----------------------------------------------------------------------
 
@@ -9,6 +16,7 @@ function Predicate(name,index,operator,threshold) {
   this.index = index;
   this.operator = operator;
   this.threshold = threshold;
+  this.inames = {}; // TODOXXX gather instance names for this metric, requires _indom support
 }
 
 Predicate.prototype.test = function(elt,data_dict,index) {
@@ -21,7 +29,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   }
   
   if (typeof(index) == "undefined") index == this.index;
-  
+
   var metric = data_dict[this.name].instances[index].value;
   var result = 0, error = "";
   if (this.operator == "<") result = metric < this.threshold;
@@ -32,16 +40,29 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   else { error = "unknown operator '" + this.operator + "'"; result = -1; }
   
   // TODOXXX assign id to this li, avoid $("#blinkenlights").empty()
-  // TODOXXX use actual pictures for the blinkenlights, proper error location
-  var blinken = result < 0 ? "error: " + error
-              : result     ? "(<strong>X</strong>)" 
-                           : "( )";
+  // XXX var blinken_id = 
+  var blinken = result < 0 ? red_light : result ? green_light : gray_light;
+
   // TODOXXX use instance names to display something nicer than an index
   var source = this.name + "[" + index + "] " + this.operator + " " + this.threshold;
-  elt.append("<li>" + blinken + " <span>" + source + "</span>" + "</li>");
+  var content = blinken + " <span>" + source + "</span>"
+              + (result < 0 ? " &ndash; error: " + error : "");
+
+  // XXX if (elt.find("#" + blinken_id)) ...
+  // XXX else elt.append("<li id=\"" + blinken_id + "\">" + content + "</li>")
+  elt.append("<li>" + content + "</li>");
 };
 
 var predicates = [];
+
+function parsePredicate(src) {
+  var matches = /([^[]+)\s*(\[\*\]|\[\]|)\s*(<|>|<=|>=|==)\s*(\S+)/.exec(src);
+  var name = matches[1];
+  var index = matches[2]; index = index == "" ? "*" : index.substring(1,index.length-1);
+  var operator = matches[3];
+  var threshold = parseFloat(matches[4]); // TODOXXX what about other types?
+  return new Predicate(name,index,operator,threshold);
+}
 
 // ----------------------------------------------------------------------
 
@@ -93,7 +114,8 @@ function loadBlinkenlights() {
 }
 
 $(document).ready(function() {
-  predicates.push(new Predicate("kernel.all.load", "*", ">", 0.2));
+  predicates.push(parsePredicate("kernel.all.load[*] > 0.2"));
+  // predicates.push(new Predicate("kernel.all.load", "*", ">", 0.2));
   
   loadBlinkenlights();
   // TODOXXX add support for editing mode
