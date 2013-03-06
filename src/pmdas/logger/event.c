@@ -18,9 +18,6 @@
 #include "event.h"
 #include "pmda.h"
 #include "util.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <ctype.h>
 #ifdef HAVE_REGEX_H
 #include <regex.h>
