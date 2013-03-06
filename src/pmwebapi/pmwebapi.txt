@@ -53,19 +53,23 @@ HTTP GET/POST URL patterns:
          ...
      ] }
          
-  Upon an error, no result is printed.
+  In the case of a mixture of bad and good pmids/names, the good ones
+  will be returned.
 
 * metric instance metadata: pmGetInDom,pmNameInDom/pmLookupInDom
-  These calls use instance names (URL-encoded) and/or instance identifiers.
+  These calls use instance names (URL-encoded) and/or instance identifiers,
+  associated with instance-domain numbers or metric names.
 
   /pmapi/NNNN/_indom?indom=DDDD
   /pmapi/NNNN/_indom?indom=DDDD,instance=IIII,JJJJ
   /pmapi/NNNN/_indom?indom=DDDD,iname=INAME,INAME2
+  /pmapi/NNNN/_indom?name=NAME
+  /pmapi/NNNN/_indom?name=NAME,instance=IIII,JJJJ
+  /pmapi/NNNN/_indom?name=NAME,iname=INAME,INAME2
 
   The result, if successful, is a application/json form to provide metric
   values:
-     { "instances": [ { "instance":IIII, "name":NNNN } ... ] }
-
+     [{ "indom":DDDD, "instances": [ { "instance":IIII, "name":NNNN } ... ] } ...]
 
 * metric instance profile management: pmAddProfile/pmDelProfile (pmLookupInDom)
   These calls use instance names (URL-encoded) and/or instance identifiers.
