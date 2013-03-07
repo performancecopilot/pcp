@@ -217,9 +217,6 @@ OpenRequestSocket(int port, const char *address, int *family,
 		port, address, netstrerror());
 	goto fail;
     }
-    if (fd > *maximum)
-	*maximum = fd;
-    __pmFD_SET(fd, fdset);
 
     /* Ignore dead client connections */
     one = 1;
@@ -269,6 +266,9 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
+    if (fd > *maximum)
+	*maximum = fd;
+    __pmFD_SET(fd, fdset);
     return fd;
 
 fail:
@@ -294,44 +294,26 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	/*
 	 * If the spec is NULL or "INADDR_ANY", then we open one socket
 	 * for each address family (inet, IPv6).  Otherwise, the address
-	 * family will be determined by OpenRequestSocket.
+	 * family will be determined by OpenRequestSocket.  Reporting of
+	 * all errors is left to OpenRequestSocket to avoid doubling up.
 	 */
 	if (rp->address == NULL || strcmp(rp->address, "INADDR_ANY") == 0) {
 	    family = AF_INET;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open inet request port for INADDR_ANY:%d: %s\n",
-			      pmProgname, rp->port, netstrerror());
-	    }
-	    else {
+					backlog, fdset, &maximum)) >= 0) {
 	        rp->fds[INET_FD] = fd;
 		success = 1;
 	    }
 	    family = AF_INET6;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open IPv6 request port for INADDR_ANY:%d: %s\n",
-			      pmProgname, rp->port, netstrerror());
-	    }
-	    else {
+					backlog, fdset, &maximum)) >= 0) {
 	        rp->fds[IPV6_FD] = fd;
 		success = 1;
 	    }
 	}
 	else {
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open %s request port for %s:%d: %s\n",
-			      pmProgname,
-			      family == AF_INET ? "inet" :
-			      family == AF_INET6 ? "IPv6" :
-			      "unknown address family",
-			      rp->address, rp->port, netstrerror());
-	    }
-	    else {
+					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
 		    rp->fds[INET_FD] = fd;
 		    success = 1;
@@ -339,11 +321,6 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		else if (family == AF_INET6) {
 		    rp->fds[IPV6_FD] = fd;
 		    success = 1;
-		}
-		else {
-		    __pmNotifyErr(LOG_WARNING,
-				  "%s: invalid request socket specification: %s\n",
-				  pmProgname, rp->address);
 		}
 	    }
 	}

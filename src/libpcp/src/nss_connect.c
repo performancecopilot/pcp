@@ -189,42 +189,66 @@ __pmShutdownSecureSockets(void)
 }
 
 static int
-createSocket(PRIntn family)
+__pmSetupSocket(PRFileDesc *fdp)
 {
-    int fd, sts;
     __pmSecureSocket socket = { 0 };
+    int fd, sts;
 
-    __pmInitSecureSockets();
-
-    /* Open the socket */
-    if ((socket.nsprFd = PR_OpenTCPSocket(family)) == NULL)
-	return -neterror();
-
-    fd = newNSPRHandle();
-    __pmSetDataIPC(fd, (void *)&socket);
-
-    if ((sts = __pmInitSocket(fd)) < 0)
-        return sts;
+    socket.nsprFd = fdp;
+    if ((fd = newNSPRHandle()) < 0) {
+	PR_Close(socket.nsprFd);
+	return fd;
+    }
+    if ((sts = __pmSetDataIPC(fd, (void *)&socket)) < 0) {
+	PR_Close(socket.nsprFd);
+	freeNSPRHandle(fd);
+	return sts;
+    }
+    (void)__pmInitSocket(fd);	/* cannot fail after __pmSetDataIPC */
     return fd;
 }
 
 int
 __pmCreateSocket(void)
 {
-    return createSocket(PR_AF_INET);
+    PRFileDesc *fdp;
+
+    __pmInitSecureSockets();
+    if ((fdp = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
+	return -neterror();
+    return __pmSetupSocket(fdp);
 }
 
 int
 __pmCreateIPv6Socket(void)
 {
-    int socket = createSocket(PR_AF_INET6);
+    int fd, sts, on;
+    size_t onlen = sizeof(on);
+    PRFileDesc *fdp;
 
-    if (socket >= 0) {
-	/* Disable IPv4-mapped connections */
-	int one = 1;
-	__pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+    __pmInitSecureSockets();
+
+    /* Open the socket */
+    if ((fdp = PR_OpenTCPSocket(PR_AF_INET6)) == NULL)
+	return -neterror();
+    fd = PR_FileDesc2NativeHandle(fdp);
+
+    /*
+     * Disable IPv4-mapped connections.
+     * Must explicitly check whether that worked, for ipv6.enabled=false
+     * kernels.  Setting then testing is the most reliable way we've found.
+     */
+    on = 1;
+    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, onlen);
+    on = 0;
+    sts = getsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
+    if (sts < 0 || on != 1) {
+	__pmNotifyErr(LOG_ERR, "__pmCreateIPv6Socket: IPV6 is not supported\n");
+	PR_Close(fdp);
+	return -EOPNOTSUPP;
     }
-    return socket;
+
+    return __pmSetupSocket(fdp);
 }
 
 void
