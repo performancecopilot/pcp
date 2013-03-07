@@ -504,6 +504,7 @@ dnl check if the rpmbuild program is available
 if test -z "$RPMBUILD"; then
     AC_PATH_PROG(RPMBUILD, rpmbuild)
 fi
+test $target_distro = slackware && RPMBUILD=''
 rpmbuild=$RPMBUILD
 AC_SUBST(rpmbuild)
 
@@ -511,11 +512,12 @@ dnl check if the rpm program is available
 if test -z "$RPM"; then
     AC_PATH_PROG(RPM, rpm)
 fi
+test $target_distro = slackware && RPM=''
 rpm=$RPM
 AC_SUBST(rpm)
 
 dnl if rpmbuild exists, use it, otherwise use rpm
-if test -x "$RPMBUILD"
+if test -n "$RPMBUILD" -a -x "$RPMBUILD"
 then
     rpmprog=$RPMBUILD
 else

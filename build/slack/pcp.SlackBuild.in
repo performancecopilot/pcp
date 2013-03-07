@@ -7,14 +7,14 @@
 
 PRGNAM=@package_name@
 VERSION=@package_version@
-ARCH=${ARCH:-i486}
+ARCH=${ARCH:-`uname -m`}
 BUILD=${BUILD:-@package_build@}
 TAG=${TAG:-_SBo}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
-OUTPUT=${OUTPUT:-/tmp}
+OUTPUT=${CWD}
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -33,10 +33,10 @@ rm -rf "$PKG"
 mkdir -p "$TMP" "$PKG" "$OUTPUT"
 cd "$TMP"
 rm -rf "$PRGNAM-$VERSION"
-tar xzvf "$CWD/$PRGNAM-$VERSION${BUILD:+-$BUILD}.src.tar.gz" || exit 1
+tar xzf "$CWD/../tar/$PRGNAM-$VERSION${BUILD:+-$BUILD}.src.tar.gz" || exit 1
 cd "$PRGNAM-$VERSION"
-chown -R root:root .
-chmod -R a-s,u+w,go+r-w .
+# chown -R root:root .
+# chmod -R a-s,u+w,go+r-w .
 
 make configure_${PRGNAM}
 
