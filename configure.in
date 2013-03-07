@@ -2058,6 +2058,16 @@ AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
 
+dnl Check if we have AI_ADDRCONFIG
+AC_MSG_CHECKING([for AI_ADDRCONFIG])
+AC_TRY_COMPILE(
+[  
+    #include <netdb.h>
+    int test = AI_ADDRCONFIG;
+],
+[
+], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
 dnl Do you have git installed?
 AC_CHECK_PROGS(GIT,git)
 AC_SUBST(GIT)
