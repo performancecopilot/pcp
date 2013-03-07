@@ -21,14 +21,10 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
-#include <fcntl.h>
 #include <limits.h>
-#include <signal.h>
 #include <sys/stat.h>
-#ifdef HAVE_NETINET_TCP_H
-#include <netinet/tcp.h>
-#endif
 
 /*
  * Return timeout (in seconds) to be used when pmlc is communicating

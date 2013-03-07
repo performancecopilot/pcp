@@ -29,9 +29,9 @@
  * missed updates
  */
 
-#include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 INTERN int	pmDebug = 0;		/* the real McCoy */
 

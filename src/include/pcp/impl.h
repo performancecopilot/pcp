@@ -504,11 +504,9 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
 extern int __pmSecureServerSetup(const char *, const char *);
-extern int __pmSecureServerHandshake(int, int);
-extern int __pmSecureServerIPCFlags(int, int);
 extern void __pmSecureServerShutdown(void);
+extern int __pmSecureServerHandshake(int, int);
 extern int __pmSecureClientHandshake(int, int, const char *);
-extern void *__pmGetSecureSocket(int);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef struct {
@@ -523,15 +521,9 @@ typedef fd_set __pmFdSet;
 typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
 
-extern int __pmInitSecureSockets(void);
-extern int __pmInitCertificates(void);
-
 extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
-extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
-extern int __pmSocketClosed(void);
-extern int __pmSocketReady(int, struct timeval *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
@@ -544,7 +536,6 @@ extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
-extern int __pmConnectCheckError(int);
 
 extern int __pmGetFileStatusFlags(int);
 extern int __pmSetFileStatusFlags(int, int);
