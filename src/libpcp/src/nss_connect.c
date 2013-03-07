@@ -1288,7 +1288,7 @@ __pmGetAddrInfo(const char *hostName)
     __pmHostEnt *he = __pmHostEntAlloc();
 
     if (he != NULL) {
-        he->addresses = PR_GetAddrInfoByName(hostName, AF_UNSPEC, PR_AI_ADDRCONFIG);
+        he->addresses = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
 	if (he->addresses == NULL) {
 	    __pmHostEntFree(he);
 	    return NULL;
