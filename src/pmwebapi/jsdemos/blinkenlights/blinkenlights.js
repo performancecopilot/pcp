@@ -1,4 +1,4 @@
-var pm_host = "localhost"; // TODOXXX adapt to where browser is pointed?
+var pm_host = location.hostname;
 var pm_root = "http://" + pm_host + ":44323/pmapi";
 var pm_context = -1;
 
