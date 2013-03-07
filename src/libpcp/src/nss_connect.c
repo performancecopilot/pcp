@@ -945,7 +945,6 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	PRIntervalTime timer;
-	PRFileDesc *nsprFd;
 	int msec;
 
 	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
