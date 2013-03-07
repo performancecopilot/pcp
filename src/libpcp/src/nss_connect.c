@@ -896,9 +896,13 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	PRIntervalTime timer;
 	PRFileDesc *nsprFd;
+	int msec;
 
-	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
+	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	timer = PR_MillisecondsToInterval(msec);
+	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, timer);
 	if (nsprFd == NULL)
 	    return -1;
 
@@ -939,9 +943,16 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSecureSocket socket;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
-	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT)
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	PRIntervalTime timer;
+	PRFileDesc *nsprFd;
+	int msec;
+
+	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	timer = PR_MillisecondsToInterval(msec);
+	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer)
 		== PR_SUCCESS) ? 0 : -1;
+    }
     return connect(fd, (struct sockaddr *)addr, addrlen);
 }
 

@@ -102,7 +102,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     struct timeval	now;
 
     while (len) {
-	if (timeout == GETPDU_ASYNC) {
+	if (timeout == TIMEOUT_ASYNC) {
 	    /*
 	     * no grabbing more than you need ... read header to get
 	     * length and then read body.

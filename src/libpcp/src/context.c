@@ -201,6 +201,11 @@ __pmConvertTimeout(int timeo)
         tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
         break;
 
+    case TIMEOUT_CONNECT:
+        tv = __pmConnectTimeout();
+        tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
+        break;
+
     default:
         tout_msec = timeo  * 1000;
         break;
