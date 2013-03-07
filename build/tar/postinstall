@@ -35,6 +35,63 @@ do
     fi
 done
 
+# set up pcp and pcpqa users
+#
+if [ -f /etc/passwd ]
+then
+    # things like useradd may be hiding in odd places ...
+    #
+    PATH=$PATH:/usr/sbin
+    if grep '^pcp:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd -r pcp
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcp:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd -r pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcpqa\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp -m -r -s /bin/bash pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
+	    exit 1
+	fi
+    fi
+fi
+
 # Note: do not start pmie nor pmproxy by default
 #
 for svc in pmcd pmlogger
