@@ -223,7 +223,7 @@ int
 __pmCreateIPv6Socket(void)
 {
     int fd, sts, on;
-    size_t onlen = sizeof(on);
+    __pmSockLen onlen = sizeof(on);
     PRFileDesc *fdp;
 
     __pmInitSecureSockets();

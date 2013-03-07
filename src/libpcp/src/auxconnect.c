@@ -372,8 +372,8 @@ __pmCreateSocket(void)
 int
 __pmCreateIPv6Socket(void)
 {
-    int sts, fd;
-    int on = 1, onlen = sizeof(on);
+    int sts, fd, on = 1;
+    __pmSockLen onlen = sizeof(on);
 
     if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
 	return -neterror();
