@@ -164,6 +164,16 @@ SetupRequestPorts(void)
     return 0;
 }
 
+static const char *
+AddressFamily(int family)
+{
+    if (family == AF_INET)
+	return "inet";
+    if (family == AF_INET6)
+	return "ipv6";
+    return "unknown";
+}
+
 /*
  * Create socket for incoming connections and bind to it an address for
  * clients to use.  Returns -1 on failure.
@@ -213,8 +223,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     }
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmCreateSocket: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 
@@ -224,16 +234,16 @@ OpenRequestSocket(int port, const char *address, int *family,
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d,%s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #endif
@@ -242,8 +252,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 
@@ -252,8 +262,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     myAddr = NULL;
     if (sts < 0) {
 	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
 	goto fail;
@@ -261,8 +271,8 @@ OpenRequestSocket(int port, const char *address, int *family,
 
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmListen: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 
