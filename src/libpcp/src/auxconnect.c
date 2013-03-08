@@ -714,7 +714,9 @@ __pmGetAddrInfo(const char *hostName)
     if (hostEntry != NULL) {
         memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+#ifdef HAVE_AI_ADDRCONFIG
 	hints.ai_flags = AI_ADDRCONFIG; /* Only return configured address types */
+#endif
 
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	if (sts != 0) {
