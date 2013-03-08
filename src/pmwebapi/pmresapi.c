@@ -20,7 +20,7 @@
 
 #include "pmwebapi.h"
 
-const char *error_page = ""; /* could also be an actual error page... */
+const char error_page[] = "pmwebapi error"; /* could also be an actual error page... */
 
 /* ------------------------------------------------------------------------ */
 
