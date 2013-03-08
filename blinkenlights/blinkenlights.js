@@ -76,8 +76,8 @@ function updateBlinkenlights() {
     $.getJSON(pm_url, function(data, status) {
       // TODOXXX error handling
       pm_context = data.context;
-      return; // will retry one cycle later
     });
+    return; // will retry one cycle later
   }
 
   // ajax request for JSON data
