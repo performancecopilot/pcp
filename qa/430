@@ -256,7 +256,6 @@ for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
 do
     echo | tee -a $here/$seq.full
     echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$here/$seq.full
     pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
     try=1
     num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
@@ -268,18 +267,21 @@ do
 	num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
 	try=`expr $try + 1`
     done
-    echo "$log contents ..." >>$here/$seq.full
-    ls -l $log >>$here/$seq.full
-    for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
-    do
-	echo "+++ $ctl +++" >>$here/$seq.full
-	cat $ctl >>$here/$seq.full
-    done
-    echo "+ grep -l $log" $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
-    grep $log $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
     if [ $num_pid -ne 1 ]
     then
 	echo "Arrgh ... failed to find just one pmlogger to kill ... see $seq.full"
+	echo "" >>$here/$seq.full
+	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+	echo "$log contents ..." >>$here/$seq.full
+	ls -l $log >>$here/$seq.full
+	for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
+	do
+	    echo "+++ $ctl +++" >>$here/$seq.full
+	    cat $ctl >>$here/$seq.full
+	done
+	echo "+ grep -l $log"' $PCP_TMP_DIR/pmlogger/[0-9]*' >>$here/$seq.full
+	grep $log $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
 	exit
     fi
     echo "Victim pid=$pid" >>$here/$seq.full
@@ -293,6 +295,8 @@ NR == 1	{ print
 	  next
 	}
 $2 == '"$pid"' { print; exit(0) }'
+    echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$here/$seq.full
+    cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $here/$seq.full
     $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
