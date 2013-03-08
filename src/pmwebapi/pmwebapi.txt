@@ -85,3 +85,14 @@ HTTP GET/POST URL patterns:
 
   /pmapi/NNNN/_derive?name=NAME,expr=EXPRESSION
 
+
+
+--------------------------------------------------------------------------------
+
+todos:
+
+- missing APIs
+- load control / attack detection (tarpot invalid webapi# pollers)
+- pmReconnectContext() if pmUseContext etc. return PM_ERR_IPC || PM_ERR_TIMEOUT
+- serialize webapi connection state & profile data,
+            for possible restoring if pmwebapi is killed/restarted
