@@ -30,6 +30,17 @@ unsigned maxtimeout = 300;     /* set by -t option */
 unsigned exit_p;               /* counted by SIG* handler */
 
 
+
+static int mhd_log_args (void *connection, enum MHD_ValueKind kind, 
+                         const char *key, const char *value)
+{
+  (void) kind;
+  pmweb_notify (LOG_DEBUG, connection, "%s:%s", key, value);
+  return MHD_YES;
+}
+
+
+
 /* Respond to a new incoming HTTP request.  It may be
    one of three general categories:
    (a) creation of a new PMAPI context: do it
@@ -54,6 +65,9 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
 
   if (verbosity > 1)
     pmweb_notify (LOG_INFO, connection, "%s %s %s", version, method, url);
+  if (verbosity > 2) /* Print arguments too. */
+    (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
+                                      &mhd_log_args, connection);
 
   /* Determine whether request is a pmapi or a resource call. */
   if (0 == strncmp(url, uriprefix, strlen(uriprefix)))
