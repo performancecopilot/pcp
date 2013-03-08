@@ -698,6 +698,189 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 /* ------------------------------------------------------------------------ */
 
 
+int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
+                                    struct webcontext *c)
+{
+  const char* val; // indom
+  const char* val2; // name
+  const char* val3; // instance
+  const char* val4; // iname
+  struct MHD_Response* resp;
+  int rc;
+  int max_num_instances;
+  int num_instances;
+  int printed_instances;
+  int *instances;
+  struct mhdb output;
+  pmID metric_id;
+  pmDesc metric_desc;
+  pmInDom inDom;
+  int i;
+
+  val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
+  if (val == NULL) val = "";
+  val2 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
+  if (val2 == NULL) val2 = "";
+  val3 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
+  if (val3 == NULL) val3 = "";
+  val4 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "iname");
+  if (val4 == NULL) val4 = "";
+
+  /* Obtain the instance domain. */
+  if (0 == strcmp(val, "")) {
+    rc = pmLookupName (1, (char **)& val2, & metric_id);
+    if (rc != 1) {
+      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val2);
+      goto out;
+    }
+    assert (metric_id != PM_ID_NULL);
+
+    rc = pmLookupDesc (metric_id, & metric_desc);
+    if (rc != 0) {
+      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val2);
+      goto out;
+    }
+
+    inDom = metric_desc.indom;
+  } else {
+    char *numend;
+    inDom = strtoul (val, & numend, 10);
+    if (numend == val) {
+      pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val);
+      goto out;
+    }
+  }
+
+  /* Pessimistically overestimate maximum number of instance IDs needed. */
+  max_num_instances = strlen(val) + strlen(val2);
+  num_instances = 0;
+  instances = calloc ((size_t) max_num_instances, sizeof(int));
+  if (instances == NULL) {
+    pmweb_notify (LOG_ERR, connection, "calloc instances[%d] oom\n", max_num_instances);
+    goto out;
+  }
+
+  /* In the case where neither val3 nor val4 are specified, pmGetInDom
+     will allocate different arrays on our behalf, so we don't have
+     to worry about accounting for how many instances are returned in
+     that case. */
+
+  /* Loop over instance= numbers in val3, collect them in instances[]. */
+  while (*val3 != '\0') {
+    char *numend;
+    int iid = (int) strtoul (val3, & numend, 10);
+    if (numend == val3) break; /* invalid contents */
+    assert (num_instances < max_num_instances);
+    instances[num_instances++] = iid;
+    
+    if (*numend == '\0') break; /* end of string */
+    if (*numend == ',')
+      val3 = numend+1; /* advance to next string */
+  }
+
+  /* Loop over iname= names in val4, collect them in instances[]. */
+  while (*val4 != '\0') {
+    char *iname;
+    char *iname_end = strchr (val4, ',');
+    int iid;
+    
+    /* Ignore plain "," XXX: elsewhere too? */
+    if (*val4 == ',') {
+      val4 ++;
+      continue;
+    }
+
+    if (iname_end) {
+      iname = strndup (val4, (iname_end - val4));
+      val4 = iname_end + 1; /* skip past , */
+    } else {
+      iname = strdup (val4);
+      val4 += strlen (val4); /* skip onto \0 */
+    }
+    
+    iid = pmLookupInDom(inDom, iname);
+
+    if (iid > 0) {
+      assert (num_instances < max_num_instances);
+      instances[num_instances++] = iid;
+    }
+  }
+
+  /* Time to fetch the instance info. */
+  int *instlist;
+  char **namelist = NULL;
+  if (num_instances == 0) {
+    free (instances);
+
+    num_instances = pmGetInDom(inDom, & instlist, & namelist);
+    if (num_instances < 1) {
+      pmweb_notify (LOG_ERR, connection, "pmGetInDom failed\n");
+      goto out;
+    }
+  } else {
+    instlist = instances;
+  }
+
+  /* Build the response string all in one giant buffer: */
+  mhdb_init (& output, num_instances * 200);
+  mhdb_printf (& output, "{ \"indom\": %lu,\n", (unsigned long) inDom);
+  mhdb_printf (& output, "\"instances\": [\n");
+
+  printed_instances = 0;
+  for (i=0; i<num_instances; i++) {
+    char *instance_name;
+
+    if (namelist != NULL) {
+      instance_name = namelist[i];
+    } else {
+      rc = pmNameInDom (inDom, instlist[i], & instance_name);
+      if (rc != 0) continue; /* skip this instance quietly */
+    }
+
+    if (printed_instances >= 1)
+      mhdb_printf (& output, ",\n");
+    mhdb_printf (& output, "{ \"instance\":%d,\n", instlist[i]);
+    mhdb_print_key_value (& output, "name", instance_name, "\n");
+    mhdb_printf (& output, "}");
+
+    if (namelist == NULL) free (instance_name);
+
+    printed_instances ++; /* comma separation at beginning of loop */
+  }
+  mhdb_printf(& output, "] }"); /* iteration over instances */
+
+  /* Free no-longer-needed things: */
+  free (instlist);
+  if (namelist != NULL) free (namelist);
+
+  resp = mhdb_fini_response (& output);
+  if (resp == NULL) {
+    pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
+    goto out;
+  }
+  rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+  if (rc != MHD_YES) {
+    pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+    goto out1;
+  }
+  rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+  if (rc != MHD_YES) {
+    pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+    goto out1;
+  }
+  MHD_destroy_response (resp);
+  return MHD_YES;
+
+ out1:
+  MHD_destroy_response (resp);
+ out:
+  return MHD_NO;
+}
+
+
+/* ------------------------------------------------------------------------ */
+
+
 int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                       const char* url,
                       const char* method, const char* upload_data, size_t *upload_data_size)
@@ -769,6 +952,11 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
       (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
     return pmwebapi_respond_metric_fetch (connection, c);
 
+  /* ------------------------------------------------------------------------ */
+  /* metric instance metadata: /context/$ID/_indom */
+  if (0 == strcmp (context_command, "_indom") &&
+      (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
+    return pmwebapi_respond_instance_list (connection, c);
 
   pmweb_notify (LOG_WARNING, connection, "unrecognized %s context command %s \n", method, context_command);
 
