@@ -1,0 +1,20 @@
+QA output created by 705
+adding entries
+iterating WALK_STOP
+3
+iterating WALK_NEXT
+3
+2
+1
+0
+iterating WALK_DELETE_STOP
+3
+iterating WALK_NEXT
+2
+1
+0
+iterating WALK_DELETE_NEXT
+2
+1
+0
+iterating WALK_NEXT

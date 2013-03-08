@@ -1,0 +1,58 @@
+#! /bin/sh
+# PCP QA Test No. 705
+# __pmHashWalk tests
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+
+trap "rm -f $tmp.* $tmp; exit" 0 1 2 3 15
+
+# real QA test starts here
+cat >$tmp.c <<End-of-File
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+
+__pmHashCtl hc;
+
+
+int
+walker (const __pmHashNode *n, void *data, const __pmHashCtl *hc) {
+    long ptr = (long)n->data;
+    printf("%ld\n", ptr);
+    return (int)(long)data;
+}
+
+
+int
+main()
+{
+    printf("adding entries\n");
+    __pmHashAdd(0, (void*)0L, & hc);
+    __pmHashAdd(1, (void*)1L, & hc);
+    __pmHashAdd(2, (void*)2L, & hc);
+    __pmHashAdd(3, (void*)3L, & hc);
+    printf("iterating WALK_STOP\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_STOP, &hc);
+    printf("iterating WALK_NEXT\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_NEXT, &hc);
+    printf("iterating WALK_DELETE_STOP\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_DELETE_STOP, &hc);
+    printf("iterating WALK_NEXT\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_NEXT, &hc);
+    printf("iterating WALK_DELETE_NEXT\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_DELETE_NEXT, &hc);
+    printf("iterating WALK_NEXT\n");
+    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_NEXT, &hc);
+    exit(0);
+}
+End-of-File
+
+cc -o $tmp $tmp.c -I$PCP_INC_DIR -I$PCP_INC_DIR/.. -L$PCP_LIB_DIR -lpcp -lpthread -ldl -lm
+$tmp

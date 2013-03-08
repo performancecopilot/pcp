@@ -829,6 +829,7 @@ pmlogrewrite
 653 libpcp local oss
 654 pmda.gfs2 local oss
 703 pcpweb local oss
+705 libpcp local oss
 706 libpcp local oss
 707 pcp.py libpcp local oss
 708 pcp.py pmimport local oss
