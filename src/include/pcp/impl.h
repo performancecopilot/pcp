@@ -304,21 +304,27 @@ typedef struct _hashnode {
 } __pmHashNode;
 
 typedef struct {
-    int		nodes;
-    int		hsize;
+    int			nodes;
+    int			hsize;
     __pmHashNode	**hash;
+    __pmHashNode	*next;
+    unsigned int	index;
 } __pmHashCtl;
 
-#define PM_HASH_WALK_STOP 0
-#define PM_HASH_WALK_NEXT 1
-#define PM_HASH_WALK_DELETE_NEXT 2
-#define PM_HASH_WALK_DELETE_STOP 3
-typedef int (*__pmHashWalkCallback) (const __pmHashNode *, void *, const __pmHashCtl *);
+typedef enum {
+    PM_HASH_WALK_START = 0,
+    PM_HASH_WALK_NEXT,
+    PM_HASH_WALK_STOP,
+    PM_HASH_WALK_DELETE_NEXT,
+    PM_HASH_WALK_DELETE_STOP,
+} __pmHashWalkState;
 
+typedef __pmHashWalkState (*__pmHashWalkCallback)(const __pmHashNode *, void *);
+extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
+extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
 extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
-extern void __pmHashWalkCB(__pmHashWalkCallback, void*, __pmHashCtl *);
 
 /*
  * External file and internal (below PMAPI) format for an archive label

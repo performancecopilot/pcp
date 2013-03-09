@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -382,14 +383,17 @@ indomspec	: TOK_INDOM indom_int
 			if (current_star_indom) {
 			    __pmContext		*ctxp;
 			    __pmHashCtl		*hcp;
-			    __pmHashNode	*this;
+			    __pmHashNode	*node;
+
 			    ctxp = __pmHandleToPtr(pmWhichContext());
 			    assert(ctxp != NULL);
 			    hcp = &ctxp->c_archctl->ac_log->l_hashindom;
 			    star_domain = pmInDom_domain($2);
-			    for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
-				if (pmInDom_domain((pmInDom)(this->key)) == star_domain)
-				    current_indomspec = start_indom((pmInDom)(this->key));
+			    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+				 node != NULL;
+				 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+				if (pmInDom_domain((pmInDom)(node->key)) == star_domain)
+				    current_indomspec = start_indom((pmInDom)(node->key));
 			    }
 			    do_walk_indom = 1;
 			}
@@ -556,7 +560,8 @@ metricspec	: TOK_METRIC pmid_or_name
 			if (current_star_metric) {
 			    __pmContext		*ctxp;
 			    __pmHashCtl		*hcp;
-			    __pmHashNode	*this;
+			    __pmHashNode	*node;
+
 			    ctxp = __pmHandleToPtr(pmWhichContext());
 			    assert(ctxp != NULL);
 			    hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
@@ -565,11 +570,13 @@ metricspec	: TOK_METRIC pmid_or_name
 				star_cluster = pmid_cluster($2);
 			    else
 				star_cluster = PM_ID_NULL;
-			    for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
-				if (pmid_domain((pmID)(this->key)) == star_domain &&
+			    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+				 node != NULL;
+				 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+				if (pmid_domain((pmID)(node->key)) == star_domain &&
 				    (star_cluster == PM_ID_NULL ||
-				     star_cluster == pmid_cluster((pmID)(this->key))))
-				    current_metricspec = start_metric((pmID)(this->key));
+				     star_cluster == pmid_cluster((pmID)(node->key))))
+				    current_metricspec = start_metric((pmID)(node->key));
 			    }
 			    do_walk_metric = 1;
 			}
