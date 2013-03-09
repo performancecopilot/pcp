@@ -26,30 +26,30 @@ const char error_page[] = "pmwebapi error"; /* could also be an actual error pag
 
 static const char *guess_content_type (const char* filename)
 {
-  const char *extension = rindex (filename, '.');
-  if (extension == NULL) return NULL;
+    const char *extension = rindex (filename, '.');
+    if (extension == NULL) return NULL;
+    
+    /* One could go all out and parse /etc/mime.types, or one can do this ... */
+    if (0 == strcasecmp (extension, "html")) return "text/html";
+    if (0 == strcasecmp (extension, "js")) return "text/javascript";
+    if (0 == strcasecmp (extension, "json")) return "application/json";
+    if (0 == strcasecmp (extension, "txt")) return "text/plain";
+    if (0 == strcasecmp (extension, "xml")) return "text/xml";
+    if (0 == strcasecmp (extension, "svg")) return "image/svg+xml";
+    if (0 == strcasecmp (extension, "png")) return "image/png";
+    if (0 == strcasecmp (extension, "jpg")) return "image/jpg";
 
-  /* One could go all out and parse /etc/mime.types, or one can do this ... */
-  if (0 == strcasecmp (extension, "html")) return "text/html";
-  if (0 == strcasecmp (extension, "js")) return "text/javascript";
-  if (0 == strcasecmp (extension, "json")) return "application/json";
-  if (0 == strcasecmp (extension, "txt")) return "text/plain";
-  if (0 == strcasecmp (extension, "xml")) return "text/xml";
-  if (0 == strcasecmp (extension, "svg")) return "image/svg+xml";
-  if (0 == strcasecmp (extension, "png")) return "image/png";
-  if (0 == strcasecmp (extension, "jpg")) return "image/jpg";
-
-  return NULL;
+    return NULL;
 }
 
 
 static const char *create_rfc822_date (time_t t)
 {
-  static char datebuf[80]; /* if-threaded: unstaticify */
-  struct tm *now = gmtime (& t);
-  size_t rc = strftime (datebuf, sizeof(datebuf), "%a, %d %b %Y %T %z", now);
-  if (rc <= 0 || rc >= sizeof(datebuf)) return NULL;
-  return datebuf;
+    static char datebuf[80]; /* if-threaded: unstaticify */
+    struct tm *now = gmtime (& t);
+    size_t rc = strftime (datebuf, sizeof(datebuf), "%a, %d %b %Y %T %z", now);
+    if (rc <= 0 || rc >= sizeof(datebuf)) return NULL;
+    return datebuf;
 }
 
 
@@ -59,101 +59,100 @@ static const char *create_rfc822_date (time_t t)
 int pmwebres_respond (void *cls, struct MHD_Connection *connection,
                       const char* url)
 {
-  int fd;
-  int rc;
-  char filename [PATH_MAX];
-  struct stat fds;
-  unsigned int resp_code = MHD_HTTP_OK;
-  struct MHD_Response *resp;
-  const char *ctype;
+    int fd;
+    int rc;
+    char filename [PATH_MAX];
+    struct stat fds;
+    unsigned int resp_code = MHD_HTTP_OK;
+    struct MHD_Response *resp;
+    const char *ctype;
 
-  assert (resourcedir != NULL); /* facility is enabled at all */
+    assert (resourcedir != NULL); /* facility is enabled at all */
 
-  if (verbosity)
-    pmweb_notify (LOG_INFO, connection, "pmwebres attempting to serve url %s\n", url);
+    if (verbosity)
+        pmweb_notify (LOG_INFO, connection, "pmwebres attempting to serve url %s\n", url);
 
-  /* Reject some obvious ways of escaping resourcedir. */
-  if (NULL != strstr (url, "/..")) {
-    pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
-    goto out;
-  }
+    /* Reject some obvious ways of escaping resourcedir. */
+    if (NULL != strstr (url, "/..")) {
+        pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
+        goto out;
+    }
 
-  assert (url[0] == '/');
-  rc = snprintf (filename, sizeof(filename), "%s%s", resourcedir, url);
-  if (rc < 0 || rc >= sizeof(filename))
-    goto out;
+    assert (url[0] == '/');
+    rc = snprintf (filename, sizeof(filename), "%s%s", resourcedir, url);
+    if (rc < 0 || rc >= sizeof(filename))
+        goto out;
 
-  fd = open (filename, O_RDONLY);
-  if (fd < 0) {
-    pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
+    fd = open (filename, O_RDONLY);
+    if (fd < 0) {
+        pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
 
-    resp_code = MHD_HTTP_NOT_FOUND;
-    goto error_response;
-  }
+        resp_code = MHD_HTTP_NOT_FOUND;
+        goto error_response;
+    }
 
-  rc = fstat (fd, &fds);
-  if (rc < 0) {
-    pmweb_notify (LOG_ERR, connection, "pmwebres stat %s failed (%d)\n", filename, rc);
-    close (fd);
-    goto out;
-  }
+    rc = fstat (fd, &fds);
+    if (rc < 0) {
+        pmweb_notify (LOG_ERR, connection, "pmwebres stat %s failed (%d)\n", filename, rc);
+        close (fd);
+        goto out;
+    }
 
-  /* XXX: handle if-modified-since */
+    /* XXX: handle if-modified-since */
 
-  if (! S_ISREG (fds.st_mode)) {
-    pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
-    close (fd);
+    if (! S_ISREG (fds.st_mode)) {
+        pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
+        close (fd);
 
-    /* XXX: list directory, or redirect to index.html instead? */
-    resp_code = MHD_HTTP_FORBIDDEN;
-    goto error_response;
-  }
+        /* XXX: list directory, or redirect to index.html instead? */
+        resp_code = MHD_HTTP_FORBIDDEN;
+        goto error_response;
+    }
 
-  if (verbosity)
-    pmweb_notify (LOG_INFO, connection, "pmwebres serving file %s.\n", filename);
+    if (verbosity)
+        pmweb_notify (LOG_INFO, connection, "pmwebres serving file %s.\n", filename);
 
-  resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);    /* auto-closes fd */
-  if (resp == NULL) {
-    pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-    close (fd);
-    goto out;
-  }
+    resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);    /* auto-closes fd */
+    if (resp == NULL) {
+        pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+        close (fd);
+        goto out;
+    }
 
-  /* Guess at a suitable MIME content-type. */
-  ctype = guess_content_type (filename);
-  if (ctype)
-    (void) MHD_add_response_header (resp, "Content-Type", ctype);
+    /* Guess at a suitable MIME content-type. */
+    ctype = guess_content_type (filename);
+    if (ctype)
+        (void) MHD_add_response_header (resp, "Content-Type", ctype);
 
-  /* And since we're generous to a fault, supply a timestamp field to
-     assist caching. */
-  ctype = create_rfc822_date (fds.st_mtime);
-  if (ctype)
-    (void) MHD_add_response_header (resp, "Last-Modified", ctype);
+    /* And since we're generous to a fault, supply a timestamp field to
+       assist caching. */
+    ctype = create_rfc822_date (fds.st_mtime);
+    if (ctype)
+        (void) MHD_add_response_header (resp, "Last-Modified", ctype);
 
-  /* Add a 5-minute expiry. */
-  ctype = create_rfc822_date (time(0) + 300); /* XXX: configure */
-  if (ctype)
-    (void) MHD_add_response_header (resp, "Expires", ctype);
+    /* Add a 5-minute expiry. */
+    ctype = create_rfc822_date (time(0) + 300); /* XXX: configure */
+    if (ctype)
+        (void) MHD_add_response_header (resp, "Expires", ctype);
 
-  (void) MHD_add_response_header (resp, "Cache-Control", "public");
+    (void) MHD_add_response_header (resp, "Cache-Control", "public");
 
-  rc = MHD_queue_response (connection, resp_code, resp);
-  MHD_destroy_response (resp);
-  return rc;
+    rc = MHD_queue_response (connection, resp_code, resp);
+    MHD_destroy_response (resp);
+    return rc;
 
  error_response:
-  resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
-  if (resp == NULL) {
-    pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-    close (fd);
-    goto out;
-  }
+    resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
+    if (resp == NULL) {
+        pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+        close (fd);
+        goto out;
+    }
 
-  rc = MHD_queue_response (connection, resp_code, resp);
-  MHD_destroy_response (resp);
-  return rc;
+    rc = MHD_queue_response (connection, resp_code, resp);
+    MHD_destroy_response (resp);
+    return rc;
 
  out:
-  return MHD_NO;
+    return MHD_NO;
 }
-
