@@ -44,8 +44,8 @@ static __pmHashCtl contexts;
 
 
 
-pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
-                                   const __pmHashNode *kv)
+__pmHashWalkState
+pmwebapi_gc_fn (const __pmHashNode *kv, void *cdata)
 {
     const struct webcontext *value = kv->data;
     time_t now = * (time_t *) cdata;
@@ -59,10 +59,10 @@ pmHashIterResult_t pmwebapi_gc_fn (const __pmHashCtl *hcp, void *cdata,
             if (rc)
                 __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
                                value->context, rc);
-            return PM_PHI_CONTINUE_DELETE;
+            return PM_HASH_WALK_DELETE_NEXT;
         }
     else
-        return PM_PHI_CONTINUE;
+        return PM_HASH_WALK_NEXT;
 }
 
 
@@ -75,7 +75,7 @@ void pmwebapi_gc ()
     (void) time (& now);
 
     /* if-multithread: Lock contexts. */
-    __pmHashIter (& contexts, pmwebapi_gc_fn, & now);
+    __pmHashWalkCB (pmwebapi_gc_fn, & now, & contexts);
     /* if-multithread: Unlock contexts. */
 }
 
