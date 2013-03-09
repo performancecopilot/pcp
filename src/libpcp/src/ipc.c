@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -196,7 +196,8 @@ __pmSetDataIPC(int fd, void *data)
     }
 
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmSetDataIPC: fd=%d data=%p(sz=%d)\n", fd, data, (int)(ipcentrysize - sizeof(__pmIPC)));
+	fprintf(stderr, "__pmSetDataIPC: fd=%d data=%p(sz=%d)\n",
+		fd, data, (int)(ipcentrysize - sizeof(__pmIPC)));
 
     dest = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
     memcpy(dest, data, ipcentrysize - sizeof(__pmIPC));
@@ -214,9 +215,6 @@ __pmDataIPC(int fd, void *data)
 {
     char	*source;
 
-    if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmDataIPC: fd=%d\n", fd);
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (fd < 0 || fd >= ipctablecount || __pmIPCTable == NULL ||
@@ -226,7 +224,8 @@ __pmDataIPC(int fd, void *data)
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
     if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmDataIPC: fd=%d, data=%p(sz=%d)\n", fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
+	fprintf(stderr, "__pmDataIPC: fd=%d, data=%p(sz=%d)\n",
+		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));
 
     PM_UNLOCK(__pmLock_libpcp);
