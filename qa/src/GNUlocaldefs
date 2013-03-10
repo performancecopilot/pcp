@@ -99,6 +99,13 @@ LDIRT += multithread0 multithread1 multithread2 multithread3 \
 	exerlock
 endif
 
+ifeq ($(shell test $(PCP_VER) -ge 3700 && echo 1), 1)
+CFILES += hashwalk.c
+else
+MYFILES += hashwalk.c
+LDIRT += hashwalk
+endif
+
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only include these ones if the fault injection version of libpcp
 # appears to have been installed (assumes PCP >= 3.5)

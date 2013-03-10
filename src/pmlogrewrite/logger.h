@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * common data structures for pmlogextract
  */
@@ -149,7 +146,6 @@ extern int	yyparse(void);
 #define W_NEXT	2
 #define W_NONE	3
 
-extern __pmHashNode	*__pmHashWalk(__pmHashCtl *, int);
 extern int		__pmLogRename(const char *, const char *);
 extern int		__pmLogRemove(const char *);
 

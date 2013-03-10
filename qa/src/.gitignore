@@ -78,6 +78,7 @@ gap.meta
 getconfig
 grind_conv
 grind_ctx
+hashwalk
 hex2nbo
 hp-mib
 indom
