@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -13,11 +14,17 @@ seq=`basename $0`
 . ./common.filter
 . ./localconfig
 
-rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    if test $PCP_EOE_VER -ge 2704
-    then
+ipv6=false
+pmcdx=false
+eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
+test $? -eq 0 && pmcdx=true
+
+rm -f $seq.out $seq.full
+if $ipv6 ; then
+    ln $seq.out.4 $seq.out || exit 1
+elif $pmcdx ; then
+    if test $PCP_EOE_VER -ge 2704; then
 	ln $seq.out.3 $seq.out
     else
 	ln $seq.out.2 $seq.out
@@ -25,6 +32,14 @@ then
 else
     ln $seq.out.1 $seq.out
 fi
+
+localhost=`hostname | sed -e 's/\..*//'`
+eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+echo "other1=$other1" >$seq.full
+echo "other2=$other2" >>$seq.full
+echo "localhost=$localhost" >>$seq.full
+[ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
+[ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
 status=1
 done_clean=false
@@ -46,26 +61,6 @@ _cleanup()
 }
 
 trap "_cleanup" 0 1 2 3 15
-
-rm -f $seq.full
-
-localhost=`hostname | sed -e 's/\..*//'`
-eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
-echo "other1=$other1" >$seq.full
-echo "other2=$other2" >>$seq.full
-echo "localhost=$localhost" >>$seq.full
-if [ -z "$other1" ]
-then
-    cat $tmp.out
-    _notrun "Cannot find first remote host running pmcd"
-fi
-if [ -z "$other2" ]
-then
-    cat $tmp.out
-    _notrun "Cannot find second remote host running pmcd"
-fi
-
-echo "QA output created by $seq"
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR
@@ -142,6 +137,9 @@ s/lib=\/var\//lib=\/usr-or-var\//
     -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
     -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
     -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
+    -e "/$localhost\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  / " \
+    -e "/$other1\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP1 / " \
+    -e "/$other2\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP2 / " \
     -e "s/$localhost\$/LOCALHOST/g" \
     -e "s/$other1\$/OTHERHOST1/g" \
     -e "s/$other2\$/OTHERHOST2/g" \
