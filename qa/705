@@ -1,0 +1,32 @@
+#! /bin/sh
+# PCP QA Test No. 705
+# __pmHashWalk and __pmHashWalkCB tests
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_VER -ge 3700 ] || _notrun "Installed libpcp lacks hash iterators"
+
+trap "rm -f $tmp.* $tmp; exit" 0 1 2 3 15
+
+# real QA test starts here
+echo "== callback-based state exercising"
+src/hashwalk
+
+echo "== verifying both hash walkers produce same results"
+src/hashwalk callback >$tmp.callback 2>&1
+echo callback: && cat $tmp.callback
+
+src/hashwalk linked >$tmp.linked 2>&1
+echo chained: && cat $tmp.linked
+
+diff $tmp.callback $tmp.linked
+[ $? -eq 0 ] && echo "== success"

@@ -18,9 +18,6 @@
 #include "event.h"
 #include "pmda.h"
 #include "util.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <ctype.h>
 #ifdef HAVE_REGEX_H
 #include <regex.h>
@@ -105,10 +102,10 @@ event_shutdown(void)
 static int
 valid_pmns_name(char *name)
 {
-    if (!isalpha(name[0]))
+    if (!isalpha((int)name[0]))
 	return 0;
     for (; *name != '\0'; name++)
-	if (!isalnum(*name) && *name != '_')
+	if (!isalnum((int)*name) && *name != '_')
 	    return 0;
     return 1;
 }
@@ -174,7 +171,7 @@ event_config(const char *fname)
 	/* Now we need to split the line into 3 parts: NAME, ACCESS
 	 * and PATHNAME.  NAME can't have whitespace in it, so look
 	 * for the first non-whitespace. */
-	while (*ptr != '\0' && ! isspace(*ptr)) {
+	while (*ptr != '\0' && ! isspace((int)*ptr)) {
 	    ptr++;
 	}
 	/* If we're at the end, we didn't find any whitespace, so
@@ -206,7 +203,7 @@ event_config(const char *fname)
 	ptr = noaccess = lstrip(ptr);
 
 	/* Look for the next whitespace, and that terminate ACCESS */
-	while (*ptr != '\0' && ! isspace(*ptr)) {
+	while (*ptr != '\0' && ! isspace((int)*ptr)) {
 	    ptr++;
 	}
 
@@ -282,9 +279,20 @@ event_create(event_logfile_t *logfile)
      * need to keep something.
      */
     if (!buffer) {
+	int	sts = 0;
 	bufsize = 16 * getpagesize();
-	buffer = memalign(getpagesize(), bufsize);
-	if (!buffer) {
+#ifdef HAVE_POSIX_MEMALIGN
+	sts = posix_memalign((void **)&buffer, getpagesize(), bufsize);
+#else
+#ifdef HAVE_MEMALIGN
+	buffer = (char *)memalign(getpagesize(), bufsize);
+	if (buffer == NULL) sts = -1;
+#else
+	buffer = (char *)malloc(bufsize);
+	if (buffer == NULL) sts = -1;
+#endif
+#endif
+	if (sts != 0) {
 	    __pmNotifyErr(LOG_ERR, "event buffer allocation failure");
 	    return -1;
 	}

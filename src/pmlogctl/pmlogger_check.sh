@@ -471,7 +471,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	if test -f $PCP_TMP_DIR/pmlogger/primary
 	then
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
+	    if $VERY_VERBOSE
+	    then 
+		_host=`sed -n 2p <$PCP_TMP_DIR/pmlogger/primary`
+		_arch=`sed -n 3p <$PCP_TMP_DIR/pmlogger/primary`
+		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
+	    fi
 	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
 	    $VERY_VERBOSE && echo primary_inode=$primary_inode
 	    pid=''
@@ -514,7 +519,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
         do
 	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $log: ""$PCP_ECHO_C"
+	    if $VERY_VERBOSE
+	    then 
+		_host=`sed -n 2p <$PCP_TMP_DIR/pmlogger/primary`
+		_arch=`sed -n 3p <$PCP_TMP_DIR/pmlogger/primary`
+		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log fqdn=$fqdn host=$_host arch=$_arch: ""$PCP_ECHO_C"
+	    fi
 	    # throw away stderr in case $log has been removed by now
 	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null \
                    | $PCP_AWK_PROG '

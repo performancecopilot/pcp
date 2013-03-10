@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2012 Aconex.  All Rights Reserved.
+# Copyright (c) 2011-2013 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@ use LWP::UserAgent;
 
 my $es_port = 9200;
 my $es_instance = 'localhost';
-use vars qw($pmda $http $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats);
+use vars qw($pmda $http $es_cluster $es_nodes $es_nodestats $es_root $es_searchstats $es_cluster_state);
 
 my $nodes_indom = 0;
 my @nodes_instances;
@@ -99,6 +99,12 @@ sub es_refresh_cluster_health
     $es_cluster = defined($content) ? decode_json($content) : undef;
 }
 
+sub es_refresh_cluster_state
+{
+    my $content = es_agent_get($baseurl . "_cluster/state");
+    $es_cluster_state = defined($content) ? decode_json($content) : undef;
+}
+
 sub es_refresh_cluster_nodes_stats_all
 {
     my $content = es_agent_get($baseurl . "_cluster/nodes/stats?all");
@@ -161,6 +167,8 @@ sub es_refresh
 	es_refresh_stats_search();
 	# avoid 2nd refresh call on metrics in other cluster
 	$cluster_cache[4] = $cluster_cache[5] = $now;
+    } elsif ($cluster == 6) { # Update the cluster state
+	es_refresh_cluster_state();
     }
     $cluster_cache[$cluster] = $now;
 }
@@ -286,6 +294,13 @@ sub es_fetch_callback
 	$search = es_lookup_search($es_searchstats, $inst);
 	if (!defined($search))		{ return (PM_ERR_AGAIN, 0); }
 	return es_value($search, \@metric_subnames);
+    }
+    elsif ($cluster == 6) {
+	if (!defined($es_cluster_state)){ return (PM_ERR_AGAIN, 0); }
+	if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+	# remove first couple (i.e. elasticsearch.cluster.)
+	splice(@metric_subnames, 0, 2);
+	return es_value($es_cluster_state, \@metric_subnames);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -706,6 +721,12 @@ $pmda->add_metric(pmda_pmid(5,7), PM_TYPE_U64, $search_indom,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'elasticsearch.search.perindex.total.search.fetch_time_in_millis',
 		  'Time spent in search fetches to all elasticsearch primaries', '');
+
+# cluster state
+$pmda->add_metric(pmda_pmid(6,0), PM_TYPE_STRING, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.cluster.master_node',
+		  'Internal identifier of the master node of the cluster', '');
 
 $pmda->add_indom($nodes_indom, \@nodes_instances,
 		'Instance domain exporting each elasticsearch node', '');

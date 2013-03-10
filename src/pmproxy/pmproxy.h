@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,32 +18,31 @@
 #include "pmapi.h"
 #include "impl.h"
 
-typedef struct __pmSockAddrIn SockAddrIn;
-
 /* The table of clients, used by pmproxy */
 typedef struct {
     int			fd;		/* client socket descriptor */
     int			version;	/* proxy-client protocol version */
     struct {				/* Status of connection to client */
-	unsigned int	connected : 1;	/* Client connected */
+	unsigned int	connected : 1;	/* Client connected, socket level */
+	unsigned int	allowed : 1;	/* Creds seen, OK to talk to pmcd */
     } status;
     char		*pmcd_hostname;	/* PMCD hostname */
     int			pmcd_port;	/* PMCD port */
-    int			pmcd_fd;	/* PMCD socket descriptor */
-    SockAddrIn		*addr;		/* address of client */
+    int			pmcd_fd;	/* PMCD socket file descriptor */
+    __pmSockAddr	*addr;		/* address of client */
 } ClientInfo;
 
-extern ClientInfo	*client;		/* Array of clients */
-extern int		nClients;		/* Number of entries in array */
-extern int		maxSockFd;		/* largest fd for a clients
-						 * and pmcd connections */
-extern __pmFdSet	sockFds;		/* for select() */
+extern ClientInfo	*client;	/* Array of clients */
+extern int		nClients;	/* Number of entries in array */
+extern int		maxReqPortFd;	/* highest request port fd */
+extern int		maxSockFd;	/* largest fd for a clients
+					 * and pmcd connections */
+extern __pmFdSet	sockFds;	/* for select() */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);
 extern void DeleteClient(ClientInfo *);
 extern void StartDaemon(int, char **);
-
-extern int	maxReqPortFd;	/* highest request port file descriptor */
+extern void Shutdown(void);
 
 #endif /* _PROXY_H */

@@ -35,6 +35,87 @@ do
     fi
 done
 
+# set up pcp and pcpqa users
+#
+if [ -f /etc/passwd ]
+then
+    # things like useradd may be hiding in odd places ...
+    #
+    PATH=$PATH:/usr/sbin
+    # common command-line options
+    # -c comment
+    # -g primary_group_name
+    # -d home_directory
+    # -m create home directory
+    # -s shell
+    # command-line variations
+    # do not create home directory
+    # 	-M for Linux, nothing for netbsd
+    # system account (no aging, sys gid/uid range, no home dir creation)
+    #   -r for Linux, not supported for netbsd
+    #
+    if [ $PCP_PLATFORM = netbsd ]
+    then
+	no_home_dir=''
+	sys_acc=''
+	nologin=/sbin/nologin
+	bash=/usr/pkg/bin/bash
+    else
+	no_home_dir='-M'
+	sys_acc='-r'
+	nologin=/usr/sbin/nologin
+	bash=/bin/bash
+    fi
+    if grep '^pcp:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd $sys_acc pcp
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcp:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp $no_home_dir $sys_acc -s $nologin pcp
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd $sys_acc pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcpqa\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp $no_home_dir $sys_acc -s $bash pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
+	    exit 1
+	fi
+    fi
+fi
+
 # Note: do not start pmie nor pmproxy by default
 #
 for svc in pmcd pmlogger

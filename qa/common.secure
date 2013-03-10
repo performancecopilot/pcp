@@ -1,0 +1,152 @@
+#
+# Common shell routines for testing security extensions
+# Copyright (c) 2012-2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+usersdb=${HOME}/.pki/nssdb
+collectordb=$tmp/pki/nssdb
+collectorpw=$tmp/pki/nssdb/pass
+certopts="-d sql:$collectordb -f $collectorpw -z $tmp.rand"
+
+qahost=`_get_fqdn`
+hostname=`hostname | sed -e 's/\..*//'`
+
+nss_notrun_checks()
+{
+    [ $PCP_VER -ge 3611 ] || _notrun "Installed pcp is too old"
+    eval `pmconfig -L`
+    [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
+    which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
+    [ -c /dev/urandom ] || _notrun "No random number generator special file found"
+}
+
+nss_cleanup()
+{
+    unset PCP_SECURE_SOCKETS
+
+    # restore any modified pmcd configuration file
+    cf=$PCP_PMCDOPTIONS_PATH
+    if test -f $cf.$seq
+    then
+	$sudo rm -f $cf
+	$sudo mv $cf.$seq $cf
+    fi
+
+    # restore user certificate DB from existing installation
+    if test -d $usersdb.$seq
+    then
+	$sudo rm -fr $usersdb
+	$sudo mv $usersdb.$seq $usersdb
+    fi
+}
+
+# backup pmcd configuration and certificate DBs from existing installation
+nss_backup()
+{
+    for f in $PCP_PMCDOPTIONS_PATH $usersdb
+    do
+	[ -e $f ] && $sudo mv $f $f.$seq
+    done
+}
+
+nss_filter_pminfo()
+{
+    sed \
+	-e "s/$qahost/QAHOST/g" \
+	-e "s/$hostname/HOST/g" \
+	-e "/^SHA1 fingerprint is .*/d" \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+nss_setup_randomness()
+{
+    dd if=/dev/urandom of=$tmp.rand bs=1 count=10000 >/dev/null 2>&1
+}
+
+nss_subject_name()
+{
+    fqdn=$1
+    host=$2
+    echo $fqdn | sed -e "s/^$host\./dc=/g" -e 's/\./,dc=/g'
+}
+
+nss_setup_certificates()
+{
+    certdomain=`nss_subject_name $qahost $hostname`
+
+    echo "setup_certificates host details:" >> $seq.full
+    echo "HOST=$hostname" >> $seq.full
+    echo "QAHOST=$qahost" >> $seq.full
+    echo "DOMAIN=$certdomain" >> $seq.full
+
+    # create self-signed (-x) server certificate locally
+    echo "== Creating local certificates" | tee -a $seq.full
+    $sudo certutil $certopts -S -x \
+	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
+	-t "CT,,"  >> $seq.full 2>&1
+    $sudo certutil $certopts -S \
+	-n "PCP Collector certificate" -s "cn=PCP Collector" \
+	-c "Local CA certificate" -8 "$qahost,$hostname" \
+	-t "P,," >> $seq.full 2>&1
+    echo "== Certificate DB and local certificates created" | tee -a $seq.full
+
+    # export ascii copy of the certificate for later use
+    $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
+}
+
+nss_setup_collector()
+{
+    withcerts=$1
+    fqdn=$2
+    host=$3
+
+    # prepare new locations for certificates
+    $sudo rm -fr $collectordb
+    $sudo mkdir -p -m 0755 $collectordb
+
+    # prepare password file for certificates
+    echo "$seq.password" > $tmp.password
+    $sudo mv $tmp.password $collectorpw
+
+    echo "== Creating empty certificate DB" | tee -a $seq.full
+    $sudo certutil $certopts -N
+
+    $withcerts && nss_setup_certificates $fqdn $host
+
+    $sudo chmod -R 0644 $collectordb/*
+    $sudo chown -R pcp:pcp $collectordb
+
+    cat <<End-Of-File >$tmp.options
+# Dummy lines added by PCP QA test $seq
+#
+-l $tmp.pmcd.log
+-C sql:$collectordb
+-P $collectorpw
+End-Of-File
+    $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
+    $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
+    _wait_for_pmcd
+    grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+    echo "Checking pmcd.log for unexpected messages" | tee -a $seq.full
+    egrep 'Error:|Info:' $tmp.pmcd.log
+    cat $tmp.pmcd.log >> $seq.full
+}
+
+nss_setup_empty_userdb()
+{
+    $sudo rm -fr $usersdb
+    echo > $tmp.empty
+    mkdir -p -m 0755 $usersdb
+    certutil -N -d sql:$usersdb -f $tmp.empty
+}
+
+nss_import_cert_userdb()
+{
+    certutil -A -d sql:$usersdb -n "Local CA certificate" -t "CT,," -a -i $tmp.cacert.asc
+}

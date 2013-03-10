@@ -45,6 +45,8 @@ sub PM_SPACE_KBYTE	{ 1; }	# kilobytes
 sub PM_SPACE_MBYTE	{ 2; }	# megabytes
 sub PM_SPACE_GBYTE	{ 3; }	# gigabytes
 sub PM_SPACE_TBYTE	{ 4; }	# terabytes
+sub PM_SPACE_PBYTE	{ 5; }	# petabytes
+sub PM_SPACE_EBYTE	{ 6; }	# exabytes
 
 # units - time scale
 sub PM_TIME_NSEC	{ 0; }	# nanoseconds
@@ -68,6 +70,10 @@ sub PM_TYPE_U64		{ 3; }	# 64-bit unsigned integer
 sub PM_TYPE_FLOAT	{ 4; }	# 32-bit floating point
 sub PM_TYPE_DOUBLE	{ 5; }	# 64-bit floating point
 sub PM_TYPE_STRING	{ 6; }	# array of characters
+sub PM_TYPE_AGGREGATE	{ 7; }	# arbitrary binary data (aggregate)
+sub PM_TYPE_AGGREGATE_STATIC { 8; } # static pointer to aggregate
+sub PM_TYPE_EVENT	{ 9; }	# packed pmEventArray
+sub PM_TYPE_UNKNOWN	{ 255; }
 
 # semantics/interpretation of metric values
 sub PM_SEM_COUNTER	{ 1; }	# cumulative counter (monotonic increasing)

@@ -109,6 +109,9 @@ endif
 ifeq "$(TARGET_OS)" "freebsd"
 DSOSUFFIX = so
 endif
+ifeq "$(TARGET_OS)" "netbsd"
+DSOSUFFIX = so
+endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
@@ -406,7 +409,8 @@ PERL_GET_FILELIST = \
 	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
 	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
 	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
-	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" -i.tmp $(1) || exit 1; \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(1) >$(1).tmp; \
+	    mv $(1).tmp $1; \
 	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
@@ -421,8 +425,8 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
 	      ] && echo 1)" "1"
+# Gather installed Perl files before packaging
 PERL_INSTALL = \
-	# Gather installed Perl files before packaging
 	if [ -n "$(DIST_MANIFEST)" ]; then \
 	    if [ "`echo $(TOPDIR)/perl-pcp-*.list`" != "$(TOPDIR)/perl-pcp-*.list" ]; then \
 		cat $(TOPDIR)/perl-pcp-*.list | while read f; do \

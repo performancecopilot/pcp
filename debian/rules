@@ -59,24 +59,23 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 		$(dirpcp_testsuite) $(dirpcp_python)
 
-zip = @export GZIP=-9q
-pkgpcp = $(zip); export DIST_ROOT=`pwd`/$(dirpcp);
-pkglibpcp = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp);
-pkglibpcp_gui = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_gui);
-pkglibpcp_mmv = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
-pkglibpcp_pmda = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
-pkglibpcp_trace = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_trace);
-pkglibpcp_import = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_import);
-pkglibpcp_mmv_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
-pkglibpcp_pmda_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
-pkglibpcp_import_perl = $(zip); export DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
-pkgpcp_logsummary_perl = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
-pkgpcp_import_sar = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sar);
-pkgpcp_import_mrtg = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
-pkgpcp_import_sheet = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
-pkgpcp_import_iostat = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
-pkgpcp_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_testsuite);
-pkgpcp_python = $(zip); export DIST_ROOT=`pwd`/$(dirpcp_python);
+pkgpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp);
+pkglibpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp);
+pkglibpcp_gui = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_gui);
+pkglibpcp_mmv = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
+pkglibpcp_pmda = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
+pkglibpcp_trace = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_trace);
+pkglibpcp_import = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_import);
+pkglibpcp_mmv_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
+pkglibpcp_pmda_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
+pkglibpcp_import_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
+pkgpcp_logsummary_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
+pkgpcp_import_sar = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sar);
+pkgpcp_import_mrtg = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
+pkgpcp_import_sheet = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
+pkgpcp_import_iostat = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
+pkgpcp_testsuite = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_testsuite);
+pkgpcp_python = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
@@ -121,7 +120,6 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
-	$(pkgpcp_python) $(MAKE) -C src/python install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
@@ -130,6 +128,9 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
+	for V in $(shell pyversions -vr); do \
+	    $(pkgpcp_python) $(MAKE) PYTHON=python$$V -C src/python install; \
+	done
 
 	dh_installdocs
 	dh_installchangelogs
@@ -156,7 +157,7 @@ binary-arch: checkroot build-stamp
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
-	dh_python2 $(pcp_python)
+	dh_python2 --package $(pcp_python)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(libpcp_import_perl)
@@ -167,7 +168,7 @@ binary-arch: checkroot build-stamp
 	dh_perl -p $(pcp_import_iostat)
 	dh_installdeb
 	dh_shlibdeps 2>/dev/null	# squash bogus and harmless warnings
-	dh_gencontrol
+	dh_gencontrol 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums
 
 	dh_builddeb

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat, Inc.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -109,4 +110,75 @@ __pmHashDel(unsigned int key, void *data, __pmHashCtl *hcp)
     }
 
     return 0;
+}
+
+/*
+ * Iterate over the entire hash table.  For each entry, call *cb,
+ * passing *cdata and the current key/value pair.  The function's
+ * return value decides how to continue or abort iteration.  The
+ * callback function must not modify the hash table.
+ */
+void
+__pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, const __pmHashCtl *hcp)
+{
+    int n;
+
+    for (n = 0; n < hcp->hsize; n++) {
+        __pmHashNode *tp = hcp->hash[n];
+        __pmHashNode **tpp = & hcp->hash[n];
+
+        while (tp != NULL) {
+            __pmHashWalkState state = (*cb)(tp, cdata);
+
+            switch (state) {
+            case PM_HASH_WALK_DELETE_STOP:
+                *tpp = tp->next;  /* unlink */
+                free(tp);         /* delete */
+                return;           /* & stop */
+
+            case PM_HASH_WALK_NEXT:
+                tpp = &tp->next;
+                tp = *tpp;
+                break;
+
+            case PM_HASH_WALK_DELETE_NEXT:
+                *tpp = tp->next;  /* unlink */
+                /* NB: do not change tpp.  It will still point at the previous
+                 * node's "next" pointer.  Consider consecutive CONTINUE_DELETEs.
+                 */
+                free(tp);         /* delete */
+                tp = *tpp; /* == tp->next, except that tp is already freed. */
+                break;            /* & next */
+
+            case PM_HASH_WALK_STOP:
+            default:
+                return;
+            }
+        }
+    }
+}
+
+/*
+ * Walk a hash table; state flow is START ... NEXT ... NEXT ...
+ */
+__pmHashNode *
+__pmHashWalk(__pmHashCtl *hcp, __pmHashWalkState state)
+{
+    __pmHashNode	*node;
+
+    if (state == PM_HASH_WALK_START) {
+        hcp->index = 0;
+        hcp->next = hcp->hash[0];
+    }
+
+    while (hcp->next == NULL) {
+        hcp->index++;
+        if (hcp->index >= hcp->hsize)
+            return NULL;
+        hcp->next = hcp->hash[hcp->index];
+    }
+
+    node = hcp->next;
+    hcp->next = node->next;
+    return node;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -87,8 +87,8 @@ AcceptNewClient(int reqfd)
     struct timeval	now;
 
     i = NewClient();
-    addrlen = __pmSockAddrInSize();
-    fd = __pmAccept(reqfd, (void *)client[i].addr, &addrlen);
+    addrlen = __pmSockAddrSize();
+    fd = __pmAccept(reqfd, client[i].addr, &addrlen);
     if (fd == -1) {
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
@@ -128,15 +128,13 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
+#if 0 /* TODO: IPv6 -- how to trace an ip address?? */
     pmcd_trace(TR_ADD_CLIENT, ClientIPAddr(&client[i]), fd, client[i].seq);
+#else /* For now so that the output is not completely missing. */
+    pmcd_trace(TR_ADD_CLIENT, 0, fd, client[i].seq);
+#endif
 
     return &client[i];
-}
-
-__pmIPAddr
-ClientIPAddr(ClientInfo *cp)
-{
-    return __pmSockAddrInToIPAddr(cp->addr);
 }
 
 int
@@ -149,24 +147,27 @@ NewClient(void)
 	    break;
 
     if (i == clientSize) {
-	char *baseaddr;
 	int j, sz;
 
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
-	sz = (sizeof(ClientInfo) + __pmSockAddrInSize()) * clientSize;
+	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
 	if (client == NULL) {
 	    __pmNoMem("NewClient", sz, PM_RECOV_ERR);
 	    Shutdown();
 	    exit(1);
 	}
-	baseaddr = (char *)client + (sizeof(ClientInfo) * clientSize);
 	for (j = i; j < clientSize; j++) {
-	    client[j].addr = (struct __pmSockAddrIn *)baseaddr;
+	    client[j].addr = NULL;
 	    client[j].profile = NULL;
 	    client[j].szProfile = 0;
-	    baseaddr += __pmSockAddrInSize();
 	}
+    }
+    client[i].addr = __pmSockAddrAlloc();
+    if (client[i].addr == NULL) {
+        __pmNoMem("NewClient", __pmSockAddrSize(), PM_RECOV_ERR);
+	Shutdown();
+	exit(1);
     }
     if (i >= nClients)
 	nClients = i + 1;
@@ -215,6 +216,8 @@ DeleteClient(ClientInfo *cp)
 	    cp->profile[i] = NULL;
 	}
     }
+    __pmSockAddrFree(cp->addr);
+    cp->addr = NULL;
     cp->status.connected = 0;
     cp->fd = -1;
 

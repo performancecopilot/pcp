@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -19,19 +19,27 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
-        help.c instance.c p_desc.c p_error.c p_fetch.c p_instance.c \
+	help.c instance.c p_desc.c p_error.c p_fetch.c p_instance.c \
 	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c pdu.c \
 	pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
-        sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
+	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
-        stuffvalue.c endian.c config.c access.c auxconnect.c \
+	stuffvalue.c endian.c config.c access.c auxconnect.c auxserver.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c
 
-HFILES = derive.h oldpmapi.h internal.h
+HFILES = derive.h internal.h
 
 LSRCFILES = check-statics
+
+ifeq "$(ENABLE_SECURE)" "true"
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
+CFILES += nss_server.c nss_connect.c
+else
+LSRCFILES += nss_server.c nss_connect.c
+endif
 
 ifneq "$(TARGET_OS)" "mingw"
 LSRCFILES += win32.c
@@ -49,18 +57,6 @@ LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
-
-ifneq "$(LIB_FOR_SSL)" ""
-LLDLIBS += $(LIB_FOR_SSL)
-endif
-ifneq "$(LIB_FOR_NSS)" ""
-LCFLAGS += $(NSSCFLAGS)
-LLDLIBS += $(LIB_FOR_NSS)
-endif
-ifneq "$(LIB_FOR_NSPR)" ""
-LCFLAGS += $(NSPRCFLAGS)
-LLDLIBS += $(LIB_FOR_NSPR)
-endif
 
 DSOVERSION = 3
 STATICLIBTARGET = libpcp.a
@@ -97,16 +93,15 @@ include $(BUILDRULES)
 
 derive.o derive_fetch.o: derive.h
 
-p_error.o p_result.o: oldpmapi.h
-
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
+auxserver.o auxconnect.o: internal.h
+nss_server.o nss_connect.o: internal.h
 context.o derive.o fetch.o fetch.o lock.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
-
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows

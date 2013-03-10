@@ -1,8 +1,9 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -133,6 +134,22 @@ static struct {
 #define VMSTAT_OFFSET(ii, pp) (int64_t *)((char *)pp + \
     (__psint_t)vmstat_fields[ii].offset - (__psint_t)&vmstat)
 
+void
+proc_vmstat_init(void)
+{
+    /*
+     * The swap metrics moved from /proc/stat to /proc/vmstat early in 2.6.
+     * In addition, the swap operation count was removed; the fetch routine
+     * needs to deal with these quirks and return something sensible based
+     * (initially) on whether the vmstat file exists.
+     *
+     * We'll re-evaluate this on each fetch of the mem.vmstat metrics, but
+     * that is not a problem.  This routine makes sure any swap.xxx metric
+     * fetch without a preceding mem.vmstat fetch has the correct state.
+     */
+    _pm_have_proc_vmstat = (access("/proc/vmstat", R_OK) == 0);
+}
+
 int
 refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 {
@@ -167,7 +184,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 		continue;
 	    p = VMSTAT_OFFSET(i, proc_vmstat);
 	    for (bufp++; *bufp; bufp++) {
-	    	if (isdigit(*bufp)) {
+	    	if (isdigit((int)*bufp)) {
 		    sscanf(bufp, "%llu", (unsigned long long *)p);
 		    break;
 		}

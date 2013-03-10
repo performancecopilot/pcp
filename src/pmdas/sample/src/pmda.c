@@ -87,11 +87,12 @@ main(int argc, char **argv)
     int			c, errflag = 0;
     int			sep = __pmPathSeparator();
     char		helppath[MAXPATHLEN];
-    char		*username = "pcp";
+    char		*username;
     extern int		_isDSO;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(helppath, sizeof(helppath), "%s%c" "sample" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

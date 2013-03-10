@@ -457,9 +457,9 @@ __pmdaEventPrint(const char *buffer, int bufsize, char *msg, int msgsize)
     memset(msg + minsize, '.', msgsize - minsize);
     msg[minsize - 1] = '\0';
     for (i = 0; i < minsize - 1; i++) {
-	if (isspace(msg[i]))
+	if (isspace((int)msg[i]))
 	    msg[i] = ' ';
-	else if (!isprint(msg[i]))
+	else if (!isprint((int)msg[i]))
 	    msg[i] = '.';
     }
     return msg;

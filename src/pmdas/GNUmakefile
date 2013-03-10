@@ -22,7 +22,7 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 	cisco trace apache shping mounts weblog \
 	lmsensors process roomtemp summary hotproc \
 	lustrecomm linux_proc mmv etw logger bash \
-	systemd gfs2
+	systemd gfs2 netbsd
 
 PERLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \

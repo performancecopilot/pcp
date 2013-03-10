@@ -43,7 +43,7 @@ static pmdaInstid *_delay;
 
 static char	*queuedir = "/var/spool/mqueue";
 static char	startdir[MAXPATHLEN];
-static char	*username = "pcp";
+static char	*username;
 
 static char	*regexstring;
 static regex_t	mq_regex;
@@ -254,6 +254,8 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
+
     if (getcwd(startdir, sizeof(startdir)) == NULL) {
 	fprintf(stderr, "%s: getcwd() failed: %s\n",
 	    pmProgname, pmErrStr(-oserror()));

@@ -57,7 +57,7 @@ char	*clientid;
 static FILE *logfp;
 static char logfile[MAXPATHLEN+1];
 static char perffile[MAXPATHLEN+1];	/* /var/tmp/<pid> file name */
-static char *username = "pcp";
+static char *username;
 
 static char menu[] =
 "pmie debugger commands\n\n"
@@ -967,6 +967,7 @@ int
 main(int argc, char **argv)
 {
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
     setlinebuf(stdout);
 
     /* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */

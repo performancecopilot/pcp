@@ -20,7 +20,7 @@
 
 __uint32_t	cycletime = 120;	/* default cycle time, 2 minutes */
 __uint32_t	timeout = 20;		/* response timeout in seconds */
-static char	*username = "pcp";	/* user account to run under */
+static char	*username;		/* user account to run under */
 cmd_t		*cmdlist;
 
 #ifdef HAVE_SPROC
@@ -112,6 +112,7 @@ main(int argc, char **argv)
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "shping" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

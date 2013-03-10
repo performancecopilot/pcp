@@ -1,7 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 197
 # pmNewContext used to leak file descriptors across an exec()
-# The close on exec flag is now set to prevent this.
+# The close-on-exec flag is now set to prevent this.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -11,10 +11,23 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
+rm -f $seq.out
+
+# if secure sockets in use, we have additional file descriptors
+# due to NSS opening up the sqlite key/certificate database.
+#
+which pmconfig >/dev/null 2>&1
+test $? -eq 0 && eval `pmconfig -L`
+if $secure_sockets
+then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
 
 # real QA test starts here
-
 echo "All invocations should have the same file descriptors at startup and exec/exit"
 src/context_fd_leak 4 | sort

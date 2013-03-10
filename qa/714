@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 714
+#
+# Exercise encrypted communications between pmcd/clients
+# Copyright (c) 2013 Red Hat.
+#
+
+. ./common.secure
+
+seq=`basename $0`
+nss_notrun_checks
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    nss_cleanup
+
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# real QA test starts here
+nss_backup
+nss_setup_randomness
+
+# verify that local clients are warned if establishing a connection
+# when an invalid collecter certificate is presented (DNS mismatch).
+nss_setup_collector true $qahost $hostname
+nss_setup_empty_userdb
+nss_import_cert_userdb
+nss_setup_collector true no.such.host no
+
+echo "checking client, bad server certificate.  should fail DNS check..." | tee -a $seq.full
+export PCP_SECURE_SOCKETS=1
+yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+unset PCP_SECURE_SOCKETS
+
+# success, all done
+status=0
+exit

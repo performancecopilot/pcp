@@ -86,7 +86,7 @@ _pm_ispartition(char *dname)
      * a partition, or not for a disk.
      */
     if (strchr(dname, '/')) {
-	for (p = m; p > 0 && isdigit(dname[p]); p--)
+	for (p = m; p > 0 && isdigit((int)dname[p]); p--)
 	    ;
 	if (p == m)
 	    /* name had no trailing digits.  Wildly guess a disk. */
@@ -105,7 +105,7 @@ _pm_ispartition(char *dname)
 	 * here - mostly seems to be RAM-type disk drivers that're
 	 * choosing to end device names with numbers.
 	 */
-	return isdigit(dname[m]) &&
+	return isdigit((int)dname[m]) &&
 		!_pm_isloop(dname) &&
 		!_pm_isramdisk(dname) &&
 		!_pm_ismmcdisk(dname);

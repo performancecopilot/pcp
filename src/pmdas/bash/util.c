@@ -27,7 +27,7 @@ extract_int(char *s, const char *field, size_t length, int *value)
     if (strncmp(s, field, length) != 0)
 	return 0;
     num = strtol(s + length, &endnum, 10);
-    if (*endnum != ',' && *endnum != '\0' && !isspace(*endnum))
+    if (*endnum != ',' && *endnum != '\0' && !isspace((int)*endnum))
 	return 0;
     *value = num;
     return endnum - s + 1;
@@ -41,7 +41,7 @@ extract_str(char *s, size_t end, const char *field, size_t length, char *value, 
     if (strncmp(s, field, length) != 0)
 	return 0;
     p = s + length;
-    while (*p != ',' && *p != '\0' && !isspace(*p))
+    while (*p != ',' && *p != '\0' && !isspace((int)*p))
 	p++;
     *p = '\0';
     strncpy(value, s + length, vsz);

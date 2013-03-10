@@ -14,8 +14,25 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "oldpmapi.h"
 #include <ctype.h>
+
+/*
+ * Old V1 error codes are only used in 2 places now:
+ * 1) embedded in pmResults of V1 archives, and
+ * 2) as part of the client/pmcd connection challenge where all versions
+ *    if pmcd return the status as a V1 error code as a legacy of
+ *    migration from V1 to V2 protocols that we're stuck with (not
+ *    really an issue, as the error code is normally 0)
+ *
+ * These macros were removed from the more public pmapi.h and impl.h
+ * headers in PCP 3.6
+ */
+#define PM_ERR_BASE1 1000
+#define PM_ERR_V1(e) (e)+PM_ERR_BASE2-PM_ERR_BASE1
+#define XLATE_ERR_1TO2(e) \
+	((e) <= -PM_ERR_BASE1 ? (e)+PM_ERR_BASE1-PM_ERR_BASE2 : (e))
+#define XLATE_ERR_2TO1(e) \
+	((e) <= -PM_ERR_BASE2 ? PM_ERR_V1(e) : (e))
 
 /*
  * PDU for general error reporting (PDU_ERROR)

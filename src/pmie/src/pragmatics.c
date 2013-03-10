@@ -601,7 +601,6 @@ canon(pmUnits in)
     return out;
 }
 
-
 /* scale factor to canonical pmUnits */
 double
 scale(pmUnits in)

@@ -20,6 +20,8 @@ in
 	    arch=`uname -m 2>/dev/null`
 	    [ "$arch" = "i686" -o "$arch" = "x86_64" ] || exit 0
 	    ;;
+    netbsd)
+	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
 	    exit 0
@@ -72,7 +74,14 @@ auxconnect.o
     d canwait			# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b ?nsprFds			# guarded by __pmLock_libpcp mutex
+auxserver.o
+    b nport                     # single-threaded server scope
+    b portlist                  # single-threaded server scope
+    b nintf                     # single-threaded server scope
+    b intflist                  # single-threaded server scope
+    b nReqPorts			# single-threaded server scope
+    b szReqPorts		# single-threaded server scope
+    b reqPorts			# single-threaded server scope
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const
@@ -165,6 +174,8 @@ lock.o
     b multi_init		# guarded by __pmLock_libpcp mutex
     b multi_seen		# guarded by __pmLock_libpcp mutex
     b ?hashctl.[0-9]*		# for lock debug tracing
+    B ?__pmTPDKey		# if don't have __thread support
+
 logconnect.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex
@@ -181,6 +192,10 @@ logutil.o
     [sr] ?ncompress		# const
     [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
+nss_server.o
+    b nss_server		# guarded by __pmLock_libpcp mutex
+nss_connect.o
+    b ?nsprFds			# guarded by __pmLock_libpcp mutex
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
 p_creds.o
@@ -291,6 +306,9 @@ util.o
     d first.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b last.[0-9]*		# __pmEventType deprecated by __pmEventType_r
     b sum.[0-9]*		# __pmEventType deprecated by __pmEventType_r
+    r ?bp			# const
+    r ?dp_h			# const
+    r ?dp_l			# const
 ?win32.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
@@ -368,6 +386,10 @@ do
 	    else
 		case "$type"
 		in
+		    nss_*.o)
+			echo "$type: Info: NSS object file skipped, not configured"
+			skip_file=true
+			;;
 		    \?*)
 			skip_file=true
 			;;

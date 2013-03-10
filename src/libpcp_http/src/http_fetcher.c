@@ -304,7 +304,7 @@ int http_fetch(const char *url_tmp, char **fileBuf)
 				}
 			charIndex += strlen("Location:");
             /* Skip any whitespace... */
-            while(*charIndex != '\0' && isspace(*charIndex))
+            while(*charIndex != '\0' && isspace((int)*charIndex))
                 charIndex++;
             if(*charIndex == '\0')
                 {

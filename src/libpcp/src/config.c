@@ -37,7 +37,7 @@ dos_native_path(char *path)
 {
     char *p = path;
 
-    if (path[0] == '/' && isalpha(path[1]) && path[2] == '/') {
+    if (path[0] == '/' && isalpha((int)path[1]) && path[2] == '/') {
 	p[0] = tolower(p[1]);
 	p[1] = ':';
 	p += 2;
@@ -50,7 +50,7 @@ dos_native_path(char *path)
 static int
 dos_absolute_path(char *path)
 {
-    return (isalpha(path[0]) && path[1] == ':' && path[2] == '\\');
+    return (isalpha((int)path[0]) && path[1] == ':' && path[2] == '\\');
 }
 
 static char *
@@ -59,7 +59,7 @@ msys_native_path(char *path)
     char *p = path;
 
     /* Only single drive letters allowed (Wikipedia says so) */
-    if (isalpha(path[0]) && path[1] == ':') {
+    if (isalpha((int)path[0]) && path[1] == ':') {
 	p[1] = tolower(p[0]);
 	p[0] = '/';
 	p += 2;
@@ -253,7 +253,6 @@ pmGetConfig(const char *name)
     }
 
     if ((val = getenv(name)) == NULL) {
-	pmprintf("Error: \"%s\" is not set in the environment\n", name);
 	val = "";
     }
 
@@ -283,6 +282,8 @@ pmGetConfig(const char *name)
 #else
 #define SECURE_SOCKETS_ENABLED	"false"
 #endif
+/* IPv6 supported in all builds from pcp-3.6.11 onward */
+#define IPV6_ENABLED		"true"
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
@@ -295,6 +296,7 @@ static const struct {
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
 	{ "fault_injection",	FAULT_INJECTION_ENABLED },
 	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
+	{ "ipv6",		IPV6_ENABLED },
 };
 
 void

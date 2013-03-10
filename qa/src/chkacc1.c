@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#include "localconfig.h"
 
 int
 main()
@@ -12,8 +13,12 @@ main()
     int			s, sts, op, host;
     unsigned int	i;
     char		name[20];
-    struct __pmInAddr	*inaddr;
+#if PCP_VER >= 3611
+    __pmSockAddr	*inaddr;
+#else
+    __pmInAddr		inaddr;
     __pmIPAddr		ipaddr;
+#endif
 
     sts = 0;
     for (op = 0; op < WORD_BIT; op++) {
@@ -23,7 +28,7 @@ main()
 	}
 	if ((s = __pmAccAddOp(1 << op)) >= 0) {
 	    printf("duplicate op test failed for op %d\n", op);
-	    sts = s;
+	    sts = -EINVAL;
 	}
     }
     if (sts < 0)
@@ -39,10 +44,6 @@ main()
     if (sts < 0)
 	exit(1);
 
-    if ((inaddr = __pmAllocInAddr()) == NULL) {
-	printf("insufficient memory\n");
-	exit(2);
-    }
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
@@ -50,9 +51,19 @@ main()
 	char	buf[20];
 
 	sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
-	__pmStringToInAddr(buf, inaddr);
-	ipaddr = __pmInAddrToIPAddr(inaddr);
+#if PCP_VER >= 3611
+	if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
+	    printf("insufficient memory\n");
+	    continue;
+	}
+	sts = __pmAccAddClient(inaddr, &i);
+	__pmSockAddrFree(inaddr);
+#else
+	inet_aton(buf, &inaddr);
+	ipaddr = __pmInAddrToIPAddr(&inaddr);
 	sts = __pmAccAddClient(ipaddr, &i);
+#endif
+
 	if (sts < 0) {
 	    printf("add client from host %d: %s\n", host, pmErrStr(sts));
 	    continue;
@@ -60,12 +71,10 @@ main()
 	else if (i != (1 << host))
 	    printf("host %d: __pmAccAddClient returns denyOpsResult 0x%x (expected 0x%x)\n",
 		   host, i, 1 << host);
-	    
     }
     
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
-    __pmFreeInAddr(inaddr);
 
     exit(0);
 }

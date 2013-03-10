@@ -21,7 +21,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "pmda.h"
+#include "internal.h"
 
 /* MY_BUFLEN needs to big enough to hold "hostname port" */
 #define MY_BUFLEN (MAXHOSTNAMELEN+10)
@@ -133,10 +133,10 @@ __pmConnectHandshake(int fd, int ctxflags, const char *hostname)
 		 * support for the feature.  And if it did, the client in
 		 * turn must request it be enabled (now, via pduflags).
 		 */
-		if (ctxflags & PM_CTXFLAG_SECURE) {
-		    if (pduinfo.features & PDU_FLAG_SECURE)
+		if (ctxflags & (PM_CTXFLAG_SECURE|PM_CTXFLAG_RELAXED)) {
+		    if (pduinfo.features & PDU_FLAG_SECURE) {
 			pduflags |= PDU_FLAG_SECURE;
-		    else {
+		    } else if (ctxflags & PM_CTXFLAG_SECURE) {
 			__pmUnpinPDUBuf(pb);
 			return -EOPNOTSUPP;
 		    }

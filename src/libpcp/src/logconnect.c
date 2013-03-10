@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -21,14 +21,10 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
-#include <fcntl.h>
 #include <limits.h>
-#include <signal.h>
 #include <sys/stat.h>
-#ifdef HAVE_NETINET_TCP_H
-#include <netinet/tcp.h>
-#endif
 
 /*
  * Return timeout (in seconds) to be used when pmlc is communicating
@@ -74,12 +70,13 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
-    struct __pmSockAddrIn *myAddr;
-    struct __pmHostEnt	*servInfo;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
     __pmPDUHdr		*php;
     int			pinpdu;
+    __pmHostEnt		*servInfo;
+    __pmSockAddr	*myAddr;
+    void		*enumIx;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -132,46 +129,51 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    if ((servInfo = __pmAllocHostEnt()) == NULL) {
-	return -ENOMEM;
-    }
-    if ((myAddr = __pmAllocSockAddrIn()) == NULL) {
-	__pmFreeHostEnt(servInfo);
-	return -ENOMEM;
-    }
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (__pmGetHostByName(hostname, servInfo) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
-	__pmFreeHostEnt(servInfo);
-	return -ECONNREFUSED;
+	return -EHOSTUNREACH;
     }
 
-    /* Create socket and attempt to connect to the pmlogger control port */
-    if ((fd = __pmCreateSocket()) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
-	__pmFreeSockAddrIn(myAddr);
-	__pmFreeHostEnt(servInfo);
-	return fd;
-    }
+    /* Loop over the addresses resolved for this host name until one of them
+       connects. */
+    sts = -1;
+    fd = -1;
+    enumIx = NULL;
+    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	 myAddr != NULL;
+	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myAddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myAddr))
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, 
+			  "__pmConnectLogger : invalid address family %d\n",
+			  __pmSockAddrGetFamily(myAddr));
+	    fd = -1;
+	}
+	if (fd < 0) {
+	    __pmSockAddrFree(myAddr);
+	    continue; /* Try the next address */
+	}
 
-    __pmInitSockAddr(myAddr, 0, htons(*port));
-    __pmSetSockAddr(myAddr, servInfo);
-    PM_UNLOCK(__pmLock_libpcp);
+	/* Attempt to connect */
+	__pmSockAddrSetPort(myAddr, *port);
+	sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
+	__pmSockAddrFree(myAddr);
 
-    sts = __pmConnect(fd, myAddr, __pmSockAddrInSize());
+	/* Successful connection? */
+	if (sts >= 0)
+	    break;
 
-    __pmFreeSockAddrIn(myAddr);
-    __pmFreeHostEnt(servInfo);
-
-    if (sts < 0) {
 	sts = neterror();
 	if (sts == EINPROGRESS) {
 	  /* We're in progress - wait on select. */
@@ -196,16 +198,26 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	  }
 	}
 	sts = -sts;
-	if (sts < 0) {
-	  __pmCloseSocket(fd);
+
+	/* Successful connection? */
+	if (sts >= 0)
+	    break;
+
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
+	fd = -1;
+    }
+    __pmHostEntFree(servInfo);
+    PM_UNLOCK(__pmLock_libpcp);
+
+    if (sts < 0) {
 #ifdef PCP_DEBUG
-	  if (pmDebug & DBG_TRACE_CONTEXT) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	  }
-#endif
-	  return sts;
+        if (pmDebug & DBG_TRACE_CONTEXT) {
+	  char	errmsg[PM_MAXERRMSGLEN];
+	  fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
+#endif
+	return sts;
     }
 
     /* Expect an error PDU back: ACK/NACK for connection */

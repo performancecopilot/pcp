@@ -76,7 +76,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
 else
-ifeq ($(shell cd ..; ( make localconfig >/dev/null && echo 1 )), 1)
+ifeq ($(shell cd ..; ( $(MAKE) localconfig >/dev/null && echo 1 )), 1)
 include ../localconfig
 else
 $(error Cannot make qa/localconfig)
@@ -97,6 +97,13 @@ LDIRT += multithread0 multithread1 multithread2 multithread3 \
 	multithread4 multithread5 multithread6 multithread7 \
 	multithread8 multithread9 \
 	exerlock
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3700 && echo 1), 1)
+CFILES += hashwalk.c
+else
+MYFILES += hashwalk.c
+LDIRT += hashwalk
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)

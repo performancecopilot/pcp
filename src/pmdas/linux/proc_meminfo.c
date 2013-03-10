@@ -119,7 +119,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 		continue;
 	    p = MOFFSET(i, proc_meminfo);
 	    for (bufp++; *bufp; bufp++) {
-	    	if (isdigit(*bufp)) {
+	    	if (isdigit((int)*bufp)) {
 		    sscanf(bufp, "%llu", (unsigned long long *)p);
 		    *p *= 1024; /* kbytes -> bytes */
 		    break;

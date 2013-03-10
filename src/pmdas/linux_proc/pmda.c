@@ -713,7 +713,7 @@ refresh_cpu_indom(pmInDom indom)
         return -oserror();
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-    	if (strncmp(buf, "cpu", 3) == 0 && isdigit(buf[3])) {
+    	if (strncmp(buf, "cpu", 3) == 0 && isdigit((int)buf[3])) {
 	    if ((space = strchr(buf, ' ')) != NULL) {
 	    	*space = '\0';
 		pmdaCacheStore(indom, PMDA_CACHE_ADD, buf, NULL);
@@ -729,7 +729,7 @@ int
 refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 {
     int changed;
-    time_t rightnow;
+    time_t rightnow = 0;
     static time_t previoustime;
     static __pmnsTree *previoustree;
 
@@ -831,7 +831,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	 */
 	char *p;
 	for (p = name; *p != '\0'; p++) {
-	    if (!isdigit(*p))
+	    if (!isdigit((int)*p))
 	    	break;
 	}
 	if (*p == '\0') {

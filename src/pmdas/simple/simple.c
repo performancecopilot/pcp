@@ -104,7 +104,7 @@ static int	red = 0;		/* current red value */
 static int	green = 100;		/* current green value */
 static int	blue = 200;		/* current blue value */
 static int	isDSO = 1;		/* =0 I am a daemon */
-static char	*username = "pcp";
+static char	*username;
 
 /* data and function prototypes for dynamic instance domain handling */
 static struct timeslice {
@@ -488,6 +488,7 @@ main(int argc, char **argv)
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "simple" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

@@ -1,8 +1,9 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -629,7 +630,7 @@ link_entries(void)
     indomspec_t		*ip;
     metricspec_t	*mp;
     __pmHashCtl		*hcp;
-    __pmHashNode	*this;
+    __pmHashNode	*node;
     int			i;
     int			change;
 
@@ -641,8 +642,10 @@ link_entries(void)
 	if (change == 0 && ip->new_indom == ip->old_indom)
 	    continue;
 
-	for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
-	    mp = start_metric((pmID)(this->key));
+	for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
+	    mp = start_metric((pmID)(node->key));
 	    if (mp->old_desc.indom == ip->old_indom) {
 		if (change)
 		    mp->ip = ip;
@@ -681,7 +684,7 @@ check_indoms()
     metricspec_t	*mp;
     indomspec_t		*ip;
     __pmHashCtl		*hcp;
-    __pmHashNode	*this;
+    __pmHashNode	*node;
 
 
     hcp = &inarch.ctxp->c_archctl->ac_log->l_hashindom;
@@ -691,7 +694,9 @@ check_indoms()
 	    /* associated indom has instance changes, we're OK */
 	    continue;
 	if ((mp->flags & METRIC_CHANGE_INDOM) && mp->new_desc.indom != PM_INDOM_NULL) {
-	    for (this = __pmHashWalk(hcp, W_START); this != NULL; this = __pmHashWalk(hcp, W_NEXT)) {
+	    for (node = __pmHashWalk(hcp, PM_HASH_WALK_START);
+		 node != NULL;
+		 node = __pmHashWalk(hcp, PM_HASH_WALK_NEXT)) {
 		/*
 		 * if this indom has an indomspec_t, check that, else
 		 * this indom will go to the archive without change
@@ -701,7 +706,7 @@ check_indoms()
 			break;
 		}
 		if (ip == NULL) {
-		    if ((pmInDom)(this->key) == mp->new_desc.indom)
+		    if ((pmInDom)(node->key) == mp->new_desc.indom)
 			/* we're OK */
 			break;
 		}
@@ -712,7 +717,7 @@ check_indoms()
 			break;
 		}
 	    }
-	    if (this == NULL) {
+	    if (node == NULL) {
 		snprintf(mess, sizeof(mess), "New indom (%s) for metric %s is not in the output archive", pmInDomStr(mp->new_desc.indom), mp->old_name);
 		yysemantic(mess);
 	    }

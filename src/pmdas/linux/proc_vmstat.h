@@ -1,8 +1,9 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * Portions Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,5 +124,6 @@ typedef struct {
 	__uint64_t zone_reclaim_failed;
 } proc_vmstat_t;
 
+extern void proc_vmstat_init(void);
 extern int refresh_proc_vmstat(proc_vmstat_t *);
 extern int _pm_have_proc_vmstat;

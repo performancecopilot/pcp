@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use PCP::PMDA;
 
-use vars qw( $pmda $now $red $green $blue $user $system );
+use vars qw( $pmda $red $green $blue $user $system );
 my ( $numfetch, $oldfetch ) = ( 0, -1 );
 my ( $color_indom, $now_indom ) = ( 0, 1 );
 my ( $red, $green, $blue ) = ( 0, 100, 200 );

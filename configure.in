@@ -38,7 +38,7 @@ AC_ARG_WITH(
     [tmpdir],
     [AS_HELP_STRING([--with-tmpdir],
 		    [define a temporary directory (default is /var/tmp)])],
-    [with_tmpdir=$withval],
+    [with_tmpdir=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tmpdir=$withval"],
     [with_tmpdir=default])
 
 AC_ARG_WITH(
@@ -47,6 +47,14 @@ AC_ARG_WITH(
 		    [enable support for secure sockets (default is on)])],
     [do_secure=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-secure-sockets=$withval"],
     [do_secure=check])
+
+AC_ARG_WITH(
+    [user-account],
+    [AS_HELP_STRING([--with-user-account],
+		    [user account under which daemons run (default is pcp)])],
+    [pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
+    [pcp_user=pcp])
+AC_SUBST(pcp_user)
 
 #
 # Note: the following environment variables may be
@@ -133,6 +141,11 @@ then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = netbsdelf
+then
+    target_os=netbsd
+    AC_DEFINE(IS_NETBSD)
+    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -193,6 +206,7 @@ in
     darwin)	pcp_platform_paths='/usr/local/bin';;
     solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
     freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
+    netbsd)	pcp_platform_paths='/usr/pkg/bin';;
 esac
 AC_SUBST(pcp_platform_paths)
 
@@ -361,7 +375,7 @@ AC_SUBST(pcp_owner)
 if test -z "$PCP_GROUP" ; then
     case "$target_os"
     in
-	darwin|freebsd)
+	darwin|freebsd|netbsd)
 	    pcp_group=wheel
 	    ;;
 	*)
@@ -490,6 +504,7 @@ dnl check if the rpmbuild program is available
 if test -z "$RPMBUILD"; then
     AC_PATH_PROG(RPMBUILD, rpmbuild)
 fi
+test $target_distro = slackware && RPMBUILD=''
 rpmbuild=$RPMBUILD
 AC_SUBST(rpmbuild)
 
@@ -497,11 +512,12 @@ dnl check if the rpm program is available
 if test -z "$RPM"; then
     AC_PATH_PROG(RPM, rpm)
 fi
+test $target_distro = slackware && RPM=''
 rpm=$RPM
 AC_SUBST(rpm)
 
 dnl if rpmbuild exists, use it, otherwise use rpm
-if test -x "$RPMBUILD"
+if test -n "$RPMBUILD" -a -x "$RPMBUILD"
 then
     rpmprog=$RPMBUILD
 else
@@ -880,7 +896,7 @@ AC_CHECK_FUNCS(gethostname select socket)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
-AC_CHECK_FUNCS(brk sbrk memalign valloc)
+AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
@@ -888,7 +904,7 @@ AC_CHECK_FUNCS(sysinfo getpwnam getpwnam_r)
 AC_CHECK_FUNCS(backtrace)
 
 dnl only define readdir64 on non-linux platforms that support it
-if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd; then
+if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
     AC_CHECK_FUNCS(readdir64)
 fi
 
@@ -1298,9 +1314,21 @@ End-of-File
 
 	dnl check if gcc supports __thread for thread private data
 	AC_MSG_CHECKING([if compiler supports __thread])
-	AC_TRY_COMPILE([#include <pthread.h>
-    __thread int x;], [],
-	    AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	dnl __thread support is broken in some places
+	if test $target_os = netbsd
+	then
+	    AC_TRY_COMPILE([#include <pthread.h>
+#if __GNUC__ < 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ < 5 )
+broken!
+#else
+__thread int x;
+#endif], [],
+		AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	else
+	    AC_TRY_COMPILE([#include <pthread.h>
+__thread int x;], [],
+		AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	fi
 
 	dnl Check if pthread_barrier_t is defined in pthread.h
 	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
@@ -1460,7 +1488,8 @@ then
 fi
 AC_SUBST(lib_for_dlopen)
 
-dnl check if flog10, fpclassify and isnanf are available in the maths library
+dnl check if flog10, pow, fpclassify and isnanf are available
+dnl in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
 if test $ac_cv_func_flog10 = no
@@ -1473,6 +1502,18 @@ then
     fi
 else
     AC_DEFINE(HAVE_FLOG10)
+fi
+AC_CHECK_FUNCS(pow)
+if test $ac_cv_func_pow = no
+then
+    AC_CHECK_LIB(m, pow)
+    if test $ac_cv_lib_m_pow = yes
+    then
+	AC_DEFINE(HAVE_POW)
+	lib_for_math=-lm
+    fi
+else
+    AC_DEFINE(HAVE_POW)
 fi
 AC_MSG_CHECKING([for fpclassify()])
 ac_cv_func_fpclassify=no
@@ -1576,7 +1617,7 @@ then
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd -a $target_os != netbsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
@@ -2016,6 +2057,16 @@ fi
 AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
+
+dnl Check if we have AI_ADDRCONFIG
+AC_MSG_CHECKING([for AI_ADDRCONFIG])
+AC_TRY_COMPILE(
+[  
+    #include <netdb.h>
+    int test = AI_ADDRCONFIG;
+],
+[
+], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl Do you have git installed?
 AC_CHECK_PROGS(GIT,git)

@@ -1,6 +1,47 @@
-pcp-3.6.11 (under development)
-    - pmdasystemd
-    - Fix issues with pmdashping timeouts
+pcp-3.6.11 (8 March 2013)
+    - Fix Linux swap metrics problems, thanks to Martins Innus.
+    - Support for IPv6 and revamped networking (libpcp-internal)
+      APIs, in particular making proper use of getaddrinfo now.
+    - Initial version of the NetBSD port
+    - Secure connections are now available as described here:
+      oss.sgi.com/projects/pcp/pcp-gui.git/man/html/lab.secure.html
+    - Added a PCP_USER setting for globally changing the default
+      unprivileged user account used by PCP daemons.
+    - Resolved Debian packaging issues from previous release to
+      do with the pcp-python subpackage.
+    - Improve pmdaapache fetch implementation (reduced overhead)
+    - Close up a file descriptor leak on a pmdaapache error path,
+      thanks to Ryan Doyle.
+    - Added the gfs2 PMDA.
+    - Added the systemd PMDA.
+    - Alignment issues on ia64 resolved.
+    - Create pmlogger and pmie logdirs during install.
+    - Added -L option to pmconfig(1) for reporting libpcp options.
+    - Further workarounds for sar/sadf XML exporting problems.
+    - Updates to MinGW PCP builds for native PCP on Windows.
+    - Use initgroups() to correctly set up supplementary groups in
+      PCP daemons that are changing user/group from root/root.
+    - Fix memory leak on scandir failure in several PMDAs.
+    - Correctly install the pcp user/group during Mac OS X upgrade
+    - Allow pmdalogger to be installed on multiple platforms
+    - Series of updates to pmie to improve action %h, %v and %i
+      substitutions (amongst other pmie improvements and several
+      corner-case fixes)
+    - MySQL PMDA now re-connects after a database server re-start.
+    - Workaround versioning issues between python and rpmbuild.
+    - Ensure HZ is initialised in Linux proc PMDA, fixing a small
+      regression from the earlier proc/linux PMDA split.
+    - PCP_SYSCONF_DIR
+    - Fix -p option to pcp(1) command reporting pmie instances.
+    - Add one-line help for the proc metrics that did not have it.
+    - Change primary pmlogger control from symlink to link.
+    - Add an interface allowing PMAPI clients to explicitly cleanup
+      (which allows for improved accuracy in valgrind reporting).
+    - Fix race conditions in pmie and pmlogger startup scripts.
+    - Updates to the named (name server) PMDA.
+    - Change __pmSetProcessIdentity to fail more resoundingly.
+    - Fix issues with pmdashping timeouts observed on multi-core
+      x86_64 machines related to signals interacting with pthreads.
     - Move debian tmpdir settings to match other distros.
 
 pcp-3.6.10 (19 November 2012)

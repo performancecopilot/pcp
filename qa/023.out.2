@@ -1,0 +1,150 @@
+QA output created by 023
+Waiting for pmcd to terminate ...
+$PCP_PMCDCONF_PATH contains:
+<BEGIN>
+# Created by QA 023
+fake_irix 1 pipe binary dumb_pmda -d 1 fake_irix
+fake_proc 3 pipe binary dumb_pmda -d 3 fake_proc
+fake_cisco 5 pipe binary dumb_pmda -d 5 fake_cisco
+fake_six 6 pipe binary dumb_pmda -d 6 fake_six
+pmcd 2 ...
+[access]
+allow localhost : all;
+disallow * : all;
+<END>
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
+pmcd 2 A_PID ...
+fake_proc 3 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 3 fake_proc
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
+fake_six 6 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 6 fake_six
+
+Host access list:
+00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
+== == =========== =============== =============== === ==============
+y 1 A_PID 0 IP-addr-in-hex 255.255.255.255 0 localhost
+n n A_PID 0 0.0.0.0 0.0.0.0 4 *
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD A_PID inet INADDR_ANY
+ok FD A_PID ipv6 INADDR_ANY
+
+Restart dead agent test
+Expect "IPC protocol failure" then "No agent for domain...":
+hinv.ncpu: pmLookupDesc: IPC protocol failure
+hinv.ncpu: pmLookupDesc: No PMCD agent for domain of request
+
+pmcd.agent.status
+    inst [1 or "fake_irix"] value 8
+    inst [2 or "pmcd"] value 0
+    inst [3 or "fake_proc"] value 0
+    inst [5 or "fake_cisco"] value 0
+    inst [6 or "fake_six"] value 0
+
+
+pmcd.control.timeout tests
+Agent timeout test, domain = 5, timeout = 3
+    timeout is now 3 seconds
+Agent timeout test, domain = 6, timeout = 8
+    timeout is now 8 seconds
+pmcd.control.timeout old value=8 new value=2
+
+pmcd.agent.status
+    inst [1 or "fake_irix"] value 8
+    inst [2 or "pmcd"] value 0
+    inst [3 or "fake_proc"] value 0
+    inst [5 or "fake_cisco"] value 8
+    inst [6 or "fake_six"] value 8
+
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
+pmcd 2 A_PID ...
+fake_proc 3 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 3 fake_proc
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
+fake_six 6 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 6 fake_six
+
+Host access list:
+00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
+== == =========== =============== =============== === ==============
+y 1 A_PID 0 IP-addr-in-hex 255.255.255.255 0 localhost
+n n A_PID 0 0.0.0.0 0.0.0.0 4 *
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD A_PID inet INADDR_ANY
+ok FD A_PID ipv6 INADDR_ANY
+[DATE] pmcd(PID) Warning: pduread: timeout (after 2.000 sec) on fd=FD
+Cleanup "fake_irix" agent (dom 1): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Warning: pduread: timeout (after 3.000 sec) on fd=FD
+Cleanup "fake_cisco" agent (dom 5): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Warning: pduread: timeout (after 8.000 sec) on fd=FD
+Cleanup "fake_six" agent (dom 6): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+     ==  ========================================  =======  =================
+
+Configuration file '$PCP_PMCDCONF_PATH' unchanged
+Restarting any deceased agents:
+    "fake_irix" agent
+    "fake_cisco" agent
+    "fake_six" agent
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
+pmcd 2 A_PID ...
+fake_proc 3 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 3 fake_proc
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
+fake_six 6 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 6 fake_six
+
+Host access list:
+00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
+== == =========== =============== =============== === ==============
+y 1 A_PID 0 IP-addr-in-hex 255.255.255.255 0 localhost
+n n A_PID 0 0.0.0.0 0.0.0.0 4 *
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+
+pmcd.agent.status
+    inst [1 or "fake_irix"] value 0
+    inst [2 or "pmcd"] value 0
+    inst [3 or "fake_proc"] value 0
+    inst [5 or "fake_cisco"] value 0
+    inst [6 or "fake_six"] value 0
+
+Expect "IPC protocol failure" then "No PMCD agent...":
+hinv.ncpu: pmLookupDesc: IPC protocol failure
+hinv.ncpu: pmLookupDesc: No PMCD agent for domain of request
+
+pmcd.agent.status
+    inst [1 or "fake_irix"] value 8
+    inst [2 or "pmcd"] value 0
+    inst [3 or "fake_proc"] value 0
+    inst [5 or "fake_cisco"] value 0
+    inst [6 or "fake_six"] value 0
+
+Restart and ping pmcd ...
+Starting pmcd ... 
+Starting pmlogger ... 
+pmcd.control.debug 1

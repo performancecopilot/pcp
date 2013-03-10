@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -148,30 +148,69 @@ local_tail(char *file, scalar_t *callback, int cookie)
 int
 local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
-    int me, fd;
+    __pmSockAddr *myaddr = NULL;
+    __pmHostEnt  *servinfo = NULL;
+    void	 *enumIx;
+    int		 sts = -1;
+    int me, fd = -1;
 
-    if ((servinfo = gethostbyname(host)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "gethostbyname (%s): %s", host, netstrerror());
-	exit(1);
+    if ((servinfo = __pmGetAddrInfo(host)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
+	goto error;
     }
-    if ((fd = __pmCreateSocket()) < 0) {
-	__pmNotifyErr(LOG_ERR, "socket (%s): %s", host, netstrerror());
-	exit(1);
+    /* Loop over the addresses resolved for this host name until one of them
+       connects. */
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
+	 myaddr != NULL;
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
+	if (__pmSockAddrIsInet(myaddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myaddr))
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
+			  __pmSockAddrGetFamily(myaddr));
+	    fd = -1;
+	}
+
+	if (fd < 0) {
+	    __pmSockAddrFree(myaddr);
+	    continue; /* Try the next address */
+	}
+
+	__pmSockAddrSetPort(myaddr, port);
+
+	sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize());
+	__pmSockAddrFree(myaddr);
+	if (sts == 0)
+	    break; /* Successful connection */
+
+	/* Try the next address */
+        __pmCloseSocket(fd);
+	fd = -1;
     }
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(port);
-    if (__pmConnect(fd, (void *)&myaddr, sizeof(myaddr)) < 0) {
-	__pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
-	exit(1);
+    __pmHostEntFree(servinfo);
+
+    if (sts < 0) {
+        __pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
+	goto error;
     }
+
     me = local_file(FILE_SOCK, fd, callback, cookie);
     files[me].me.sock.host = strdup(host);
     files[me].me.sock.port = port;
+
     return me;
+
+ error:
+    if (fd >= 0)
+        __pmCloseSocket(fd);
+    if (servinfo)
+        __pmHostEntFree(servinfo);
+    if (myaddr)
+        __pmSockAddrFree(myaddr);
+    exit(1);
 }
 
 static char *
@@ -257,33 +296,56 @@ local_log_rotated(files_t *file)
 static void
 local_reconnector(files_t *file)
 {
-    struct __pmSockAddrIn *myaddr = NULL;
-    struct __pmHostEnt *servinfo = NULL;
-    int fd;
+    __pmSockAddr *myaddr = NULL;
+    __pmHostEnt *servinfo = NULL;
+    int fd = -1;
+    int	sts = -1;
+    void *enumIx;
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	goto done;
-    if ((myaddr = __pmAllocSockAddrIn()) == NULL)
+    if ((servinfo = __pmGetAddrInfo(file->me.sock.host)) == NULL)
 	goto done;
-    if ((servinfo = __pmAllocHostEnt()) == NULL)
-	goto done;
-    if (__pmGetHostByName(file->me.sock.host, servinfo) == NULL)
-	goto done;
-    if ((fd = __pmCreateSocket()) < 0)
-	goto done;
-    __pmInitSockAddr(myaddr, 0, htons(files->me.sock.port));
-    __pmSetSockAddr(myaddr, servinfo);
-    if (__pmConnect(fd, (void *)myaddr, __pmSockAddrInSize()) < 0) {
+    /* Loop over the addresses resolved for this host name until one of them
+       connects. */
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
+	 myaddr != NULL;
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
+	if (__pmSockAddrIsInet(myaddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myaddr))
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, "invalid address family: %d\n",
+			  __pmSockAddrGetFamily(myaddr));
+	    fd = -1;
+	}
+
+	if (fd < 0) {
+	    __pmSockAddrFree(myaddr);
+	    continue; /* Try the next address */
+	}
+
+	__pmSockAddrSetPort(myaddr, files->me.sock.port);
+	sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize());
+	__pmSockAddrFree(myaddr);
+	if (sts == 0) /* good connection */
+	    break;
+
+	/* Try the next address */
 	__pmCloseSocket(fd);
-	goto done;
+	fd = -1;
     }
-    files->fd = fd;
+
+    if (fd >= 0)
+        files->fd = fd;
 
 done:
     if (myaddr)
-	__pmFreeSockAddrIn(myaddr);
+	__pmSockAddrFree(myaddr);
     if (servinfo)
-	__pmFreeHostEnt(servinfo);
+	__pmHostEntFree(servinfo);
 }
 
 static void

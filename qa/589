@@ -32,6 +32,8 @@ _filter()
 _filter2()
 {
     sed \
+	-e 's/__pmGetAddrInfo/gethostbyname/g' \
+	-e 's/__pmGetHostByName/gethostbyname/g' \
 	-e '/gethostbyname:/s/ Resolver Error 0 (no error)/ Unknown host/'
 }
 

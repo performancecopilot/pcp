@@ -40,7 +40,7 @@ refresh_proc_runq(proc_runq_t *proc_runq)
     	return -oserror();
 
     while((d = readdir(dir)) != NULL) {
-	if (!isdigit(d->d_name[0]))
+	if (!isdigit((int)d->d_name[0]))
 	    continue;
 	sprintf(fullpath, "/proc/%s/stat", d->d_name);
 	if ((fd = open(fullpath, O_RDONLY)) < 0)

@@ -139,6 +139,8 @@ extern "C" {
 #undef HAVE_SYS_MACHINE_H
 #undef HAVE_MACHINE_ENDIAN_H
 
+#undef HAVE_AI_ADDRCONFIG
+
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
 #endif
@@ -225,6 +227,7 @@ extern "C" {
 
 #undef HAVE_BRK
 #undef HAVE_SBRK
+#undef HAVE_POSIX_MEMALIGN
 #undef HAVE_MEMALIGN
 #undef HAVE_VALLOC
 
@@ -252,6 +255,7 @@ extern "C" {
 #undef HAVE_ISNAN
 #undef HAVE_ISNANF
 #undef HAVE_FLOG10
+#undef HAVE_POW
 #undef HAVE_DIRNAME
 #undef HAVE_BASENAME
 #undef HAVE_SYSINFO
@@ -451,8 +455,11 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on an AIX box */
 #undef IS_AIX
 
-/* Determine if we are on an FreeBSD box */
+/* Determine if we are on a FreeBSD box */
 #undef IS_FREEBSD
+
+/* Determine if we are on a NetBSD box */
+#undef IS_NETBSD
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN

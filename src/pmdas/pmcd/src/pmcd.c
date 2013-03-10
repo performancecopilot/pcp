@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -191,6 +192,13 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(7,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
 /* pmcd.cputime.per_pdu_in */
     { PMDA_PMID(7,1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,-1,0,PM_TIME_USEC,PM_COUNT_ONE) },
+
+/* pmcd.feature.secure */
+    { PMDA_PMID(8,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.compress */
+    { PMDA_PMID(8,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.ipv6 */
+    { PMDA_PMID(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -955,7 +963,7 @@ simabi()
     } else {
 	return abi;
     }
-#elif defined(IS_FREEBSD)
+#elif defined(IS_FREEBSD) || defined(IS_NETBSD)
     return "elf";
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;
@@ -982,6 +990,15 @@ tzinfo(void)
     putenv("TZ=");
 #endif
     return __pmTimezone();
+}
+
+static int
+fetch_feature(int item, pmAtomValue *avp)
+{
+    if (item < 0 || item >= PM_SERVER_FEATURES)
+	return PM_ERR_PMID;
+    avp->ul = __pmServerHasFeature((__pmServerFeature)item);
+    return 0;
 }
 
 static int
@@ -1479,6 +1496,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	    case 7:	/* cputime metrics */
 		sts = fetch_cputime(pmidp->item, pmda->e_context, &atom);
+		break;
+
+	    case 8:	/* feature metrics */
+		sts = fetch_feature(pmidp->item, &atom);
 		break;
 	}
 

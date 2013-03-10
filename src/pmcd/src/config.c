@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1317,39 +1317,45 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		fd = -1;	/* pander to gcc */
 
     if (aPtr->ipc.socket.addrDomain == AF_INET) {
-	struct __pmSockAddrIn *addr;
-	struct __pmHostEnt *host;
+	__pmSockAddr	*addr;
+	__pmHostEnt	*host;
+	void		*enumIx;
 
-	if ((host = __pmAllocHostEnt()) == NULL) {
-	    fputs("pmcd: Error allocing host entry\n", stderr);
-	    return -1;
-	}
-	if ((addr = __pmAllocSockAddrIn()) == NULL) {
-	    fputs("pmcd: Error allocing sock addr\n", stderr);
-	    __pmFreeHostEnt(host);
-	    return -1;
-	}
-
-	fd = __pmCreateSocket();
-	if (fd < 0) {
-	    fprintf(stderr,
-		     "pmcd: Error creating socket for \"%s\" agent : %s\n",
-		     aPtr->pmDomainLabel, netstrerror());
-	    __pmFreeSockAddrIn(addr);
-	    __pmFreeHostEnt(host);
-	    return -1;
-	}
-	if (__pmGetHostByName("localhost", host) == NULL) {
+	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
-	    __pmFreeSockAddrIn(addr);
-	    __pmFreeHostEnt(host);
 	    goto error;
 	}
-	__pmInitSockAddr(addr, 0, htons(aPtr->ipc.socket.port));
-	__pmSetSockAddr(addr, host);
-	sts = __pmConnect(fd, (void *)addr, __pmSockAddrInSize());
-	__pmFreeSockAddrIn(addr);
-	__pmFreeHostEnt(host);
+	enumIx = NULL;
+	for (addr = __pmHostEntGetSockAddr(host, &enumIx);
+	     addr != NULL;
+	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
+	    if (__pmSockAddrIsInet(addr))
+	        fd = __pmCreateSocket();
+	    else if (__pmSockAddrIsIPv6(addr))
+	        fd = __pmCreateIPv6Socket();
+	    else {
+	        fprintf(stderr,
+			"pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
+			aPtr->pmDomainLabel, __pmSockAddrGetFamily(addr));
+		fd = -1;
+	    }
+	    if (fd < 0) {
+	        __pmSockAddrFree(addr);
+		continue; /* Try the next address */
+	    }
+
+	    __pmSockAddrSetPort(addr, aPtr->ipc.socket.port);
+	    sts = __pmConnect(fd, (void *)addr, __pmSockAddrSize());
+	    __pmSockAddrFree(addr);
+
+	    if (sts == 0)
+	        break; /* good connection */
+
+	    /* Unsuccessful connection. */
+	    __pmCloseSocket(fd);
+	    fd = -1;
+	}
+	__pmHostEntFree(host);
     }
     else {
 #if defined(HAVE_SYS_UN_H)
@@ -1388,10 +1394,12 @@ ConnectSocketAgent(AgentInfo *aPtr)
     return 0;
 
 error:
-    if (aPtr->ipc.socket.addrDomain == AF_INET)
-	__pmCloseSocket(fd);
-    else
-	close(fd);
+    if (fd != -1) {
+        if (aPtr->ipc.socket.addrDomain == AF_INET)
+	    __pmCloseSocket(fd);
+	else
+	    close(fd);
+    }
     return -1;
 }
 
@@ -2269,7 +2277,7 @@ ParseRestartAgents(char *fileName)
 	ClientInfo	*cp = &client[i];
 	int		s;
 
-	if ((s = __pmAccAddClient(ClientIPAddr(cp), &cp->denyOps)) < 0) {
+	if ((s = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);

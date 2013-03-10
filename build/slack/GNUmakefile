@@ -25,7 +25,8 @@ default default_pcp :
 
 install install_pcp :
 
-pack_pcp : 
+pack_pcp : $(CONFFILES)
+	sh ./pcp.SlackBuild
 
 md5sum_pcp : $(CONFFILES)
 

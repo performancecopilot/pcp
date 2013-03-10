@@ -78,7 +78,20 @@ _filter2()
 	-e '/value /s/ [0-9].*/ NUMBER/' \
 	-e '/^__pmDataIPC:/d' \
 	-e '/^__pmSetDataIPC:/,+1 d' \
-	-e 's/Permission denied/No permission to perform requested operation/'
+	-e 's/Permission denied/No permission to perform requested operation/' \
+    | perl -ne '
+	# squash repeated occurrences of the following pattern
+	# (as a result of needing to do getaddrinfo list walk)
+	if (/^IPC table fd.PDU version.: ...$/) {
+	    $saved[1] = $_;
+	} elsif (/^__pmSetSocketIPC: fd=N$/) {
+	    $saved[0] = $_;
+	} else {
+	    if ($#saved >= 0) { print $saved[0]; }
+	    if ($#saved == 1) { print $saved[1]; }
+	    @saved = undef;
+	    print;
+	}'
 }
 
 _filter3()

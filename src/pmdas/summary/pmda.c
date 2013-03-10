@@ -38,9 +38,10 @@ main(int argc, char **argv)
     char		helpfile[MAXPATHLEN]; 
     int			cmdpipe;		/* metric source/cmd pipe */
     char		*command = NULL;
-    char		*username = "pcp";
+    char		*username;
 
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);  /* we are below the PMAPI */
 
     snprintf(helpfile, sizeof(helpfile), "%s%c" "summary" "%c" "help",

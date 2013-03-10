@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,7 +15,7 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-typedef struct __pmSockAddrIn SockAddrIn;
+struct __pmSockAddr;
 
 /* The table of clients, used by pmcd */
 typedef struct {
@@ -34,12 +34,7 @@ typedef struct {
     __pmPDUInfo		pduInfo;
     unsigned int	seq;		/* client sequence number */
     time_t		start;		/* time client connected */
-    /* There is an array of addresses appended to the clientinfo array,
-     * this pointer indicates the offset therein for each clients address.
-     * This allows a single contiguous client memory (re)allocation without
-     * knowing the size of SockAddrIn in advance (depends on build options).
-     */
-    SockAddrIn		*addr;		/* Address of client */
+    struct __pmSockAddr	*addr;		/* Address of client */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
@@ -52,7 +47,6 @@ PMCD_EXTERN int		this_client_id;		/* client for current request */
 extern ClientInfo *AcceptNewClient(int);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
-extern __pmIPAddr ClientIPAddr(ClientInfo *);
 PMCD_EXTERN void ShowClients(FILE *m);
 
 #ifdef PCP_DEBUG
