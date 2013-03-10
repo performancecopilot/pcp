@@ -167,6 +167,8 @@ class _collect_print(object):
             return 0
         else:
             return dividend / divisor
+    def set_verbosity(self, verbosity):
+        self.verbosity = verbosity
 
 
 # _cpu_collect_print --------------------------------------------------
@@ -322,7 +324,7 @@ class _interrupt_collect_print(interrupt, _collect_print):
                 print "%-8s" % self.metrics[j].split(".")[3],
                 for k in range(len(self.metric_value[0])):
                     print "%4d " % (self.metric_value[j][k]),
-                text = (pm.pmLookupText(self.metric_name[j], pmapi.PM_TEXT_ONELINE))
+                text = (pm.pmLookupText(self.metric_pmids[j], pmapi.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
     def print_verbose(self):
@@ -355,12 +357,12 @@ class _disk_collect_print(disk, _collect_print):
             self.get_metric_value('disk.all.write_bytes') / 1024,
             self.get_metric_value('disk.all.write')),
     def print_detail(self):
-        for j in xrange(len(self.metric_name)):
+        for j in xrange(len(self.metric_pmids)):
             try:
-                (inst, iname) = pm.pmGetInDom(self.metric_desc[j])
+                (inst, iname) = pm.pmGetInDom(self.metric_descs[j])
                 break
             except pmErr, e:
-                iname = iname = "X"
+                iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
         for j in xrange(get_dimension(self.get_metric_value('disk.dev.read_bytes'))):
@@ -483,14 +485,14 @@ class _net_collect_print(net, _collect_print):
             sum(self.get_metric_value('network.interface.total.mcasts')),
             sum(self.get_metric_value('network.interface.out.errors')))
     def print_detail(self):
-        for j in xrange(len(self.get_metric_value('network.interface.in.bytes'))):
-            for k in xrange(len(self.metric_name)):
-                try:
-                    (inst, iname) = pm.pmGetInDom(self.metric_desc[k])
-                    break
-                except pmErr, e:
-                    iname = "X"
+        for j in xrange(len(self.metric_pmids)):
+            try:
+                (inst, iname) = pm.pmGetInDom(self.metric_descs[j])
+                break
+            except pmErr, e:
+                iname = "X"
 
+        for j in xrange(len(self.get_metric_value('network.interface.in.bytes'))):
             print '%4d %-7s %6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
                 j, iname[j],
                 self.get_metric_value('network.interface.in.bytes')[j] / 1024,
@@ -581,7 +583,7 @@ if __name__ == '__main__':
             sys.exit(1)
         elif (sys.argv[i][:1] == "-"):
             print sys.argv[0] + ": Unknown option ", sys.argv[i]
-            print "Try `" + sys.argv[0] + "--help' for more information."
+            print "Try `" + sys.argv[0] + " --help' for more information."
             sys.exit(1)
         i += 1
 
@@ -638,14 +640,16 @@ if __name__ == '__main__':
     for s in subsys:
         try:
             s.setup_metrics(pm)
-        except:
+        except pmErr, e:
             if input_file != "":
                 args = ""
                 for i in sys.argv:
                     args = args + " " + i
                 print "Argument mismatch between invocation arguments:\n" + args
                 record_check_creator(input_file, "and arguments used to create the playback directory\n ")
-                sys.exit(1)
+            else:
+                print e,"\nwhile calling setup_metrics"
+            sys.exit(1)
         s.set_verbosity(verbosity)
         s.get_stats(pm)
 
