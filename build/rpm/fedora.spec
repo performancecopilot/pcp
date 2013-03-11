@@ -318,6 +318,10 @@ then
 fi
 
 %post
+# restore saved configs, if any
+PCP_LOG_DIR=/var/log/pcp
+test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
+rm -f $PCP_LOG_DIR/configs.sh
 chown -R pcp:pcp %{_localstatedir}/log/pcp/pmcd 2>/dev/null
 chown -R pcp:pcp %{_localstatedir}/log/pcp/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_localstatedir}/log/pcp/pmie 2>/dev/null

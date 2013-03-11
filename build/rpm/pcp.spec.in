@@ -414,7 +414,10 @@ fi
 PCP_LOG_DIR=@pcp_log_dir@
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
-chown -R pcp:pcp /var/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
+chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
+chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
+chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
+chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1
