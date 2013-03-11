@@ -16,7 +16,22 @@ function Predicate(name,index,operator,threshold) {
   this.index = index;
   this.operator = operator;
   this.threshold = threshold;
-  this.inames = {}; // TODOXXX gather instance names for this metric, requires _indom support
+  this.inames = {};
+}
+
+Predicate.prototype.get_iname = function(iid) {
+  if (!(iid in this.inames)) {
+    var pm_url = pm_root + "/" + pm_context + "/_indom?name=" + this.name + "&instance=" + iid;
+    var predicate = this;
+    $.getJSON(pm_url, function(data, status) {
+      // TODOXXX error check: should return 1 instance
+      predicate.inames[iid] = data.instances[0].name;
+    });
+
+    return "..."; // will be reloaded next cycle
+  }
+
+  return this.inames[iid];
 }
 
 Predicate.prototype.test = function(elt,data_dict,index) {
@@ -31,6 +46,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   if (typeof(index) == "undefined") index == this.index;
 
   var metric = data_dict[this.name].instances[index].value;
+  var iid = data_dict[this.name].instances[index].instance;
   var result = 0, error = "";
   if (this.operator == "<") result = metric < this.threshold;
   else if (this.operator == ">") result = metric > this.threshold;
@@ -43,8 +59,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   // XXX var blinken_id = 
   var blinken = result < 0 ? red_light : result ? green_light : gray_light;
 
-  // TODOXXX use instance names to display something nicer than an index
-  var source = this.name + "[" + index + "] " + this.operator + " " + this.threshold;
+  var source = this.name + " ( " + this.get_iname(iid) + " : " + iid + " ) " + this.operator + " " + this.threshold;
   var content = blinken + " <span>" + source + "</span>"
               + (result < 0 ? " &ndash; error: " + error : "");
 
