@@ -20,15 +20,6 @@ else
     _notrun PM_MULTI_THREAD not defined in impl.h
 fi
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
-rm -f $seq.out
-if $ipv6 ; then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -43,8 +34,10 @@ _filter1()
 _filter2()
 {
     $PCP_AWK_PROG '
-$7 == "localhost"	{ sub(/[0-9a-f]{8}/,"HEXNUMBR",$4);
-			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"IPADDR",$4) }
+$7 == "localhost"	{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"IPADDR",$4)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"IPADDR",$4)
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"IPMASK",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"IPMASK",$5) }
 			{ print }'
 }
 

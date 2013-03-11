@@ -66,7 +66,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e "s;$here/src/;;" \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
-$1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex" }
+$1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex"; $6 = "Host-mask" }
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 			{ print }' \
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
