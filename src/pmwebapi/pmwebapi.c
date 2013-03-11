@@ -480,8 +480,8 @@ int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
                                    struct webcontext *c)
 {
-    const char* val;
-    const char* val2;
+    const char* val_pmids;
+    const char* val_names;
     struct MHD_Response* resp;
     int rc;
     int max_num_metrics;
@@ -492,15 +492,15 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     pmResult *results;
     int i;
 
-    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
-    if (val == NULL) val = "";
-    val2 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "names");
-    if (val2 == NULL) val2 = "";
+    val_pmids = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
+    if (val_pmids == NULL) val_pmids = "";
+    val_names = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "names");
+    if (val_names == NULL) val_names = "";
 
     /* Pessimistically overestimate maximum number of pmID elements
        we'll need, to allocate the metrics[] array just once, and not have
        to range-check. */
-    max_num_metrics = strlen(val)+strlen(val2); /* The real minimum is actually
+    max_num_metrics = strlen(val_pmids)+strlen(val_names); /* The real minimum is actually
                                                    closer to strlen()/2, to account
                                                    for commas. */
     num_metrics = 0;
@@ -510,27 +510,27 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         goto out;
     }
 
-    /* Loop over names= names in val2, collect them in metrics[]. */
-    while (*val2 != '\0') {
+    /* Loop over names= names in val_names, collect them in metrics[]. */
+    while (*val_names != '\0') {
         char *name;
-        char *name_end = strchr (val2, ',');
+        char *name_end = strchr (val_names, ',');
         char *names[1];
         pmID found_pmid;
         int num;
 
         /* Ignore plain "," XXX: elsewhere too? */
-        if (*val2 == ',') {
-            val2 ++;
+        if (*val_names == ',') {
+            val_names ++;
             continue;
         }
       
         /* Copy just this name piece. */
         if (name_end) {
-            name = strndup (val2, (name_end - val2));
-            val2 = name_end + 1; /* skip past , */
+            name = strndup (val_names, (name_end - val_names));
+            val_names = name_end + 1; /* skip past , */
         } else {
-            name = strdup (val2);
-            val2 += strlen (val2); /* skip onto \0 */
+            name = strdup (val_names);
+            val_names += strlen (val_names); /* skip onto \0 */
         }
         names[0] = name;
 
@@ -543,18 +543,18 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     }
 
 
-    /* Loop over pmids= numbers in val, append them to metrics[]. */
-    while (*val) {
+    /* Loop over pmids= numbers in val_pmids, append them to metrics[]. */
+    while (*val_pmids) {
         char *numend; 
-        unsigned long pmid = strtoul (val, & numend, 10); /* matches pmid printing above */
-        if (numend == val) break; /* invalid contents */
+        unsigned long pmid = strtoul (val_pmids, & numend, 10); /* matches pmid printing above */
+        if (numend == val_pmids) break; /* invalid contents */
 
         assert (num_metrics < max_num_metrics);
         metrics[num_metrics++] = pmid;
 
         if (*numend == '\0') break; /* end of string */
         if (*numend == ',')
-            val = numend+1; /* advance to next string */
+            val_pmids = numend+1; /* advance to next string */
     }  
 
     /* Time to fetch the metric values. */
@@ -701,10 +701,10 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
                                     struct webcontext *c)
 {
-  const char* val; // indom
-  const char* val2; // name
-  const char* val3; // instance
-  const char* val4; // iname
+  const char* val_indom;
+  const char* val_name;
+  const char* val_instance;
+  const char* val_iname;
   struct MHD_Response* resp;
   int rc;
   int max_num_instances;
@@ -717,42 +717,42 @@ int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
   pmInDom inDom;
   int i;
 
-  val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
-  if (val == NULL) val = "";
-  val2 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
-  if (val2 == NULL) val2 = "";
-  val3 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
-  if (val3 == NULL) val3 = "";
-  val4 = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "iname");
-  if (val4 == NULL) val4 = "";
+  val_indom = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
+  if (val_indom == NULL) val_indom = "";
+  val_name = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
+  if (val_name == NULL) val_name = "";
+  val_instance = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
+  if (val_instance == NULL) val_instance = "";
+  val_iname = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "iname");
+  if (val_iname == NULL) val_iname = "";
 
   /* Obtain the instance domain. */
-  if (0 == strcmp(val, "")) {
-    rc = pmLookupName (1, (char **)& val2, & metric_id);
+  if (0 == strcmp(val_indom, "")) {
+    rc = pmLookupName (1, (char **)& val_name, & metric_id);
     if (rc != 1) {
-      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val2);
+      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
       goto out;
     }
     assert (metric_id != PM_ID_NULL);
 
     rc = pmLookupDesc (metric_id, & metric_desc);
     if (rc != 0) {
-      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val2);
+      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
       goto out;
     }
 
     inDom = metric_desc.indom;
   } else {
     char *numend;
-    inDom = strtoul (val, & numend, 10);
-    if (numend == val) {
-      pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val);
+    inDom = strtoul (val_indom, & numend, 10);
+    if (numend == val_indom) {
+      pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val_indom);
       goto out;
     }
   }
 
   /* Pessimistically overestimate maximum number of instance IDs needed. */
-  max_num_instances = strlen(val) + strlen(val2);
+  max_num_instances = strlen(val_indom) + strlen(val_name);
   num_instances = 0;
   instances = calloc ((size_t) max_num_instances, sizeof(int));
   if (instances == NULL) {
@@ -760,42 +760,42 @@ int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     goto out;
   }
 
-  /* In the case where neither val3 nor val4 are specified, pmGetInDom
-     will allocate different arrays on our behalf, so we don't have
-     to worry about accounting for how many instances are returned in
-     that case. */
+  /* In the case where neither val_instance nor val_iname are
+     specified, pmGetInDom will allocate different arrays on our
+     behalf, so we don't have to worry about accounting for how many
+     instances are returned in that case. */
 
-  /* Loop over instance= numbers in val3, collect them in instances[]. */
-  while (*val3 != '\0') {
+  /* Loop over instance= numbers in val_instance, collect them in instances[]. */
+  while (*val_instance != '\0') {
     char *numend;
-    int iid = (int) strtoul (val3, & numend, 10);
-    if (numend == val3) break; /* invalid contents */
+    int iid = (int) strtoul (val_instance, & numend, 10);
+    if (numend == val_instance) break; /* invalid contents */
     assert (num_instances < max_num_instances);
     instances[num_instances++] = iid;
     
     if (*numend == '\0') break; /* end of string */
     if (*numend == ',')
-      val3 = numend+1; /* advance to next string */
+      val_instance = numend+1; /* advance to next string */
   }
 
-  /* Loop over iname= names in val4, collect them in instances[]. */
-  while (*val4 != '\0') {
+  /* Loop over iname= names in val_iname, collect them in instances[]. */
+  while (*val_iname != '\0') {
     char *iname;
-    char *iname_end = strchr (val4, ',');
+    char *iname_end = strchr (val_iname, ',');
     int iid;
     
     /* Ignore plain "," XXX: elsewhere too? */
-    if (*val4 == ',') {
-      val4 ++;
+    if (*val_iname == ',') {
+      val_iname ++;
       continue;
     }
 
     if (iname_end) {
-      iname = strndup (val4, (iname_end - val4));
-      val4 = iname_end + 1; /* skip past , */
+      iname = strndup (val_iname, (iname_end - val_iname));
+      val_iname = iname_end + 1; /* skip past , */
     } else {
-      iname = strdup (val4);
-      val4 += strlen (val4); /* skip onto \0 */
+      iname = strdup (val_iname);
+      val_iname += strlen (val_iname); /* skip onto \0 */
     }
     
     iid = pmLookupInDom(inDom, iname);
