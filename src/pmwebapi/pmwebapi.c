@@ -500,9 +500,10 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     /* Pessimistically overestimate maximum number of pmID elements
        we'll need, to allocate the metrics[] array just once, and not have
        to range-check. */
-    max_num_metrics = strlen(val_pmids)+strlen(val_names); /* The real minimum is actually
-                                                   closer to strlen()/2, to account
-                                                   for commas. */
+    max_num_metrics = strlen(val_pmids)+strlen(val_names);
+    /* The real minimum is actually closer to strlen()/2, to account
+       for commas. */
+
     num_metrics = 0;
     metrics = calloc ((size_t) max_num_metrics, sizeof(pmID));
     if (metrics == NULL) {
