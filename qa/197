@@ -14,20 +14,19 @@ echo "QA output created by $seq"
 . ./common.check
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-rm -f $seq.out
-
-# if secure sockets in use, we have additional file descriptors
-# due to NSS opening up the sqlite key/certificate database.
-#
-which pmconfig >/dev/null 2>&1
-test $? -eq 0 && eval `pmconfig -L`
-if $secure_sockets
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
 
 # real QA test starts here
-echo "All invocations should have the same file descriptors at startup and exec/exit"
-src/context_fd_leak 4 | sort
+src/context_fd_leak 4 >$tmp.out
+
+# invocation 1:     at startup, next free file descriptor = 3    at exit,    next free file descriptor = 9
+#
+# expected range for the exit fd is >=4 and <= 12 ... depends on how
+# libpcp is built, version of nss/nspr installed, ... but it needs to
+# be the _same_ for all lines of output
+#
+$PCP_AWK_PROG <$tmp.out '
+BEGIN				{ n = 0 }
+/free file descriptor = /	{ if (n == 0 && $NF >=4 && $NF <=12) { n = $NF }
+				  if (n == $NF) $NF = "OK"
+				}
+				{ print }'
