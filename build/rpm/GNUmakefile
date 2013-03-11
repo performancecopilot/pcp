@@ -18,12 +18,10 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 SPEC = pcp.spec
-LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros  pcp.spec.head
+LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros
 
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
-LSRCFILES = macros.template fedora.spec \
-	    pcp.spec.head.in pcp.spec.tail \
-	    $(PERLFILES)
+LSRCFILES = macros.template fedora.spec pcp.spec.in $(PERLFILES)
 
 default install install_pcp default_pcp :
 
@@ -51,7 +49,7 @@ rpmmacros : macros.template
 	    -e '/^%/s/[ \t]*$$/'\''/' \
 	    -e '/^%/s/^%/--define '\''/' <$< >$@
 
-pcp.spec.head: pcp.spec.head.in
+pcp.spec: pcp.spec.in
 	@echo Generating $@ from $?; \
 	sed -e's|@package_sgirelease@|$(SGIRELEASENUMBER)|g' \
 	    -e's|@sgi_chroot_build@|$(SGI_CHROOT_BUILD)|g' \
@@ -66,10 +64,6 @@ pcp.spec.head: pcp.spec.head.in
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
-
-pcp.spec: pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail
-	rm -f pcp.spec
-	cat pcp.spec.head ../../debian/cleanconfigs pcp.spec.tail >pcp.spec
 
 include $(BUILDRULES)
 

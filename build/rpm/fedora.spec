@@ -262,66 +262,40 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
-
 PCP_SYSCONF_DIR=/etc/pcp
 PCP_LOG_DIR=/var/log/pcp
-[ -d "$PCP_LOG_DIR" ] || mkdir -p "$PCP_LOG_DIR"
-
-# Function to do all of the configuration file migration work
-#
-_clean_configs()
+# produce a script to run post-install to move configs to their new homes
+save_configs_script()
 {
-    _verbose=true
     _new="$1"
-    if [ ! -d "$_new" ]
-    then
-	$verbose && echo >&2 + mkdir -p "$_new"
-	mkdir -p "$_new"
-    fi
     shift
     for _dir
     do
-	[ "$_dir" = "$_new" ] && continue
-	if [ -d "$_dir" ]
-	then
-	    ( cd "$_dir" ; find . -type f -print ) \
-	    | sed -e 's/^\.\///' \
-	    | while read _file
-	    do
-		_want=false
-		if [ -f "$_new/$_file" ]
-		then
-		    # file exists in both directories, pick the more
-		    # recently modified one
-		    #
-		    _try=`find "$_dir/$_file" -newer "$_new/$_file" -print`
-		    [ -n "$_try" ] && _want=true
-		else
-		    _want=true
-		fi
-		if $_want
-		then
-		    _dest=`dirname $_new/$_file`
-		    if [ ! -d "$_dest" ]
-		    then
-			$verbose && >&2 echo + mkdir -p "$_dest"
-			mkdir -p "$_dest"
-		    fi
-		    $_verbose && echo >&2 + cp -p "$_dir/$_file" "$_new/$_file"
-		    cp -p "$_dir/$_file" "$_new/$_file"
-		fi
-	    done
-	fi
+        [ "$_dir" = "$_new" ] && continue
+        if [ -d "$_dir" ]
+        then
+            ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
+            | while read _file
+            do
+                _want=true
+                if [ -f "$_new/$_file" ]
+                then
+                    # file exists in both directories, pick the more
+                    # recently modified one
+                    _try=`find "$_dir/$_file" -newer "$_new/$_file" -print`
+                    [ -n "$_try" ] || _want=false
+                fi
+                $_want && echo cp -p "$_dir/$_file" "$_new/$_file"
+            done
+        fi
     done
 }
-
 # migrate and clean configs
-echo >>$PCP_LOG_DIR/install.log
-date >>$PCP_LOG_DIR/install.log
-for base in pmcd pmie pmlogger pmproxy
+rm -f "$PCP_LOG_DIR/configs.sh"
+for daemon in pmcd pmie pmlogger pmproxy
 do
-    _clean_configs 2>>$PCP_LOG_DIR/install.log $PCP_SYSCONF_DIR/$base \
-	/var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" $PCP_SYSCONF_DIR/$daemon \
+        /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
