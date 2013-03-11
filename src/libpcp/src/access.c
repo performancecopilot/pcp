@@ -203,6 +203,145 @@ __pmAccFreeSavedHosts(void)
     saved = 0;
 }
 
+/* Build up strings representing the ip address and the mask. Compute the wildcard
+   level as we go. */
+static int
+parseInetWildCard(const char *name, char *ip, char *mask)
+{
+    int level;
+    int ipIx, maskIx;
+    int i, n;
+    const char *p;
+
+    ipIx = maskIx = 0;
+    level = 4;
+    for (p = name; *p && *p != '*' ; p++) {
+        n = (int)strtol(p, (char **)&p, 10);
+	if ((*p != '.' && *p != '*') || n < 0 || n > 255) {
+	    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+	    return -EINVAL;
+	}
+	if (ipIx != 0) {
+	    ipIx += sprintf(ip + ipIx, ".");
+	    maskIx += sprintf(mask + maskIx, ".");
+	}
+	ipIx += sprintf(ip + ipIx, "%d", n);
+	maskIx += sprintf(mask + maskIx, "255");
+	--level;
+    }
+    /* Check the wildcard level, 0 is exact match, 4 is most general */
+    if (level < 1) {
+        __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
+	return -EINVAL;
+    }
+    /* Add zeroed components for the wildcarded levels. */
+    for (i = 0; i < level; ++i) {
+        if (ipIx != 0) {
+	    ipIx += sprintf(ip + ipIx, ".");
+	    maskIx += sprintf(mask + maskIx, ".");
+	}
+	ipIx += sprintf(ip + ipIx, "0");
+	maskIx += sprintf(mask + maskIx, "0");
+    }
+    return level;
+}
+
+static int
+parseIPv6WildCard(const char *name, char *ip, char *mask)
+{
+    int level;
+    int ipIx, maskIx;
+    int emptyRegion;
+    int n;
+    const char *p;
+
+    /* If the string starts with ':', then the second character must also be a ':'
+       which would form a region of zeroes of unspecified length. */
+    emptyRegion = 0;
+    level = 8;
+    p = name;
+    if (*p == ':') {
+        ++p;
+	if (*p != ':') {
+	    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+	    return -EINVAL;
+	}
+	ipIx = sprintf(ip, ":");
+	maskIx = sprintf(mask, ":");
+	/* The second colon will be detected in the loop below. */
+    }
+    else {
+	ipIx = maskIx = 0;
+    }
+
+    for (/**/; *p && *p != '*' ; p++) {
+        /* Check for an empty region. There can only be one. */
+        if (*p == ':') {
+	    if (emptyRegion) {
+	        __pmNotifyErr(LOG_ERR, "Too many empty regions in host pattern \"%s\"\n", name);
+		return -EINVAL;
+	    }
+	    emptyRegion = 1;
+	    ipIx += sprintf(ip + ipIx, ":");
+	    maskIx += sprintf(mask + maskIx, ":");
+	}
+	else {
+	    n = (int)strtol(p, (char **)&p, 16);
+	    if ((*p != ':' && *p != '*') || n < 0 || n > 0xffff) {
+	        __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+		return -EINVAL;
+	    }
+	    if (ipIx != 0) {
+	        ipIx += sprintf(ip + ipIx, ":");
+		maskIx += sprintf(mask + maskIx, ":");
+	    }
+	    ipIx += sprintf(ip + ipIx, "%x", n);
+	    maskIx += sprintf(mask + maskIx, "ffff");
+	}
+	--level;
+    }
+    /* Check the wildcard level, 0 is exact match, 8 is most general */
+    if (level < 1) {
+        __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
+	return -EINVAL;
+    }
+    /* Add zeroed components for the wildcarded levels.
+       If the entire address is wildcarded then return the zero address. */
+    if (level == 8 || (level == 7 && emptyRegion)) {
+        /* "*" or "::*" */
+        strcpy(ip, "::");
+        strcpy(mask, "::");
+    }
+    else if (emptyRegion) {
+        /* If there was an empty region, then we assume that the wildcard represents the final
+	   segment of the spec only. */
+        sprintf(ip + ipIx, ":0");
+	sprintf(mask + maskIx, ":0");
+    }
+    else {
+        /* no empty region, so use one to finish off the address and the mask */
+        sprintf(ip + ipIx, "::");
+	sprintf(mask + maskIx, "::");
+    }
+    return level;
+}
+
+static int
+parseWildCard(const char *name, char *ip, char *mask)
+{
+  /* Names containing ':' are IPv6. */
+  if (strchr(name, ':') != NULL)
+    return parseIPv6WildCard(name, ip, mask);
+
+  /* Names containing '.' are inet. If the name is a full wildcard, then default to
+     inet (TODO: for now). */
+  if (strchr(name, '.') != NULL || strcmp(name, "*") == 0)
+    return parseInetWildCard(name, ip, mask);
+
+  __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+  return -EINVAL;
+}
+
 /* Routine to add a host to the host access list with a specified set of
  * permissions and a maximum connection limit.
  * specOps is a mask.  Only bits corresponding to operations specified by
@@ -222,10 +361,9 @@ int
 __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int maxcons)
 {
     size_t		need;
-    int			i, n, sts;
-    char		ip[4*3 + 3 + 1]; /* 3 digit dotted decimal max, plus nul */
-    char		mask[4*3 + 3 + 1];
-    int			ipIx, maskIx;
+    int			i, sts;
+    char		ip[8*4 + 7 + 1]; /* fully specified IPv6 address, plus nul */
+    char		mask[8*4 + 7 + 1];
     struct __pmHostEnt	*host;
     int			level = 0;	/* Wildcarding level */
     __pmSockAddr	*hostid, *hostmask;
@@ -262,40 +400,11 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 
 	/* Build up strings representing the ip address and the mask. Compute the wildcard
 	   level as we go. */
-	ipIx = maskIx = 0;
-	level = 4;
-	for (p = name; *p && *p != '*' ; p++) {
-	    n = (int)strtol(p, (char **)&p, 10);
-	    if ((*p != '.' && *p != '*') || n < 0 || n > 255) {
-		__pmNotifyErr(LOG_ERR,
-			     "Bad IP address wildcard, %s\n",
-			     name);
-		return -EINVAL;
-	    }
-	    if (ipIx != 0) {
-	        ipIx += sprintf(ip + ipIx, ".");
-		maskIx += sprintf(mask + maskIx, ".");
-	    }
-	    ipIx += sprintf(ip + ipIx, "%d", n);
-	    maskIx += sprintf(mask + maskIx, "255");
-	    --level;
-	}
-	/* Check the wildcard level, 0 is exact match, 4 is most general */
-	if (level < 1) {
-	    __pmNotifyErr(LOG_ERR,
-			 "Too many dots in host pattern \"%s\"\n",
-			 name);
-	    return -EINVAL;
-	}
-	/* Add zeroed components for the wildcarded levels. */
-	for (i = 0; i < level; ++i) {
-	    if (ipIx != 0) {
-	        ipIx += sprintf(ip + ipIx, ".");
-		maskIx += sprintf(mask + maskIx, ".");
-	    }
-	    ipIx += sprintf(ip + ipIx, "0");
-	    maskIx += sprintf(mask + maskIx, "0");
-	}
+	level = parseWildCard(name, ip, mask);
+	if (level < 0)
+	    return level;
+
+	/* Now create socket addresses for the ip address and mask. */
 	hostid = __pmStringToSockAddr(ip);
 	if (hostid == NULL) {
 	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
@@ -314,6 +423,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
      */
     else {
 	const char	*realname;
+	int		family;
 
 	if (strcasecmp(name, "localhost") == 0) {
 	    /* Map "localhost" to full host name & get IP address */
@@ -348,8 +458,15 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
 	    return -ENOMEM;
 	}
-	/* TODO: IPv6 */
-	hostmask = __pmStringToSockAddr("255.255.255.255");
+	family = __pmSockAddrGetFamily(hostid);
+	if (family == AF_INET)
+	    hostmask = __pmStringToSockAddr("255.255.255.255");
+	else if (family == AF_INET6)
+	    hostmask = __pmStringToSockAddr("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+	else {
+	  __pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
+	    return -EINVAL;
+	}
 	if (hostmask == NULL) {
 	    __pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
 	    __pmSockAddrFree(hostid);
@@ -532,8 +649,9 @@ __pmAccDelClient(__pmSockAddr *hostid)
 void
 __pmAccDumpHosts(FILE *stream)
 {
-    int			h, i;
+    int			h, i, j;
     int			minbit = -1, maxbit;
+    int			addrWidth;
     unsigned int	mask;
     hostinfo		*hp;
 
@@ -554,15 +672,23 @@ __pmAccDumpHosts(FILE *stream)
 	return;
     }
 
+    addrWidth = 39; /* Full IPv6 address */
     fprintf(stream, "\nHost access list:\n");
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fprintf(stream, "%02d ", i);
-    fprintf(stream, "Cur/MaxCons host-spec       host-mask       lvl host-name\n");
+    fprintf(stream, "Cur/MaxCons %-*s %-*s lvl host-name\n",
+	    addrWidth, "host-spec", addrWidth, "host-mask");
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fputs("== ", stream);
-    fprintf(stream, "=========== =============== =============== === ==============\n");
+    fprintf(stream, "=========== ");
+    for (i = 0; i < 2; ++i) {
+        for (j = 0; j < addrWidth; ++j)
+	    fprintf(stream, "=");
+	fprintf(stream, " ");
+    }
+    fprintf(stream, "=== ==============\n");
     for (h = 0; h < nhosts; h++) {
 	hp = &hostlist[h];
 
@@ -576,8 +702,10 @@ __pmAccDumpHosts(FILE *stream)
 		}
 	    }
 	}
-	fprintf(stream, "%5d %5d %-15s %-15s %3d %s\n", hp->curcons, hp->maxcons,
-		__pmSockAddrToString(hp->hostid), __pmSockAddrToString(hp->hostmask), hp->level, hp->hostspec);
+	fprintf(stream, "%5d %5d %-*s %-*s %3d %s\n", hp->curcons, hp->maxcons,
+		addrWidth, __pmSockAddrToString(hp->hostid),
+		addrWidth, __pmSockAddrToString(hp->hostmask),
+		hp->level, hp->hostspec);
     }
     putc('\n', stream);
 }
