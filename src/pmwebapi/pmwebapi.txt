@@ -61,11 +61,11 @@ HTTP GET/POST URL patterns:
   associated with instance-domain numbers or metric names.
 
   /pmapi/NNNN/_indom?indom=DDDD [done]
-  /pmapi/NNNN/_indom?indom=DDDD,instance=IIII,JJJJ [done]
-  /pmapi/NNNN/_indom?indom=DDDD,iname=INAME,INAME2 [done]
+  /pmapi/NNNN/_indom?indom=DDDD&instance=IIII,JJJJ [done]
+  /pmapi/NNNN/_indom?indom=DDDD&iname=INAME,INAME2 [done]
   /pmapi/NNNN/_indom?name=NAME [done]
-  /pmapi/NNNN/_indom?name=NAME,instance=IIII,JJJJ [done]
-  /pmapi/NNNN/_indom?name=NAME,iname=INAME,INAME2 [done]
+  /pmapi/NNNN/_indom?name=NAME&instance=IIII,JJJJ [done]
+  /pmapi/NNNN/_indom?name=NAME&iname=INAME,INAME2 [done]
 
   The result, if successful, is a application/json form to provide metric
   values:
@@ -76,14 +76,14 @@ HTTP GET/POST URL patterns:
 
   /pmapi/NNNN/_profile_reset?
   /pmapi/NNNN/_profile_reset?indom=DDDD
-  /pmapi/NNNN/_profile_add?indom=DDDD,instance=IIII,JJJJ
-  /pmapi/NNNN/_profile_add?indom=DDDD,iname=IIII,JJJJ
-  /pmapi/NNNN/_profile_del?indom=DDDD,instance=JJJJ
-  /pmapi/NNNN/_profile_del?indom=DDDD,iname=INAME1,INAME2
+  /pmapi/NNNN/_profile_add?indom=DDDD&instance=IIII,JJJJ
+  /pmapi/NNNN/_profile_add?indom=DDDD&iname=IIII,JJJJ
+  /pmapi/NNNN/_profile_del?indom=DDDD&instance=JJJJ
+  /pmapi/NNNN/_profile_del?indom=DDDD&iname=INAME1,INAME2
 
 * metric derivation management:
 
-  /pmapi/NNNN/_derive?name=NAME,expr=EXPRESSION
+  /pmapi/NNNN/_derive?name=NAME&expr=EXPRESSION
 
 
 
