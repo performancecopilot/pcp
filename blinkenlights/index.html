@@ -2,11 +2,26 @@
   <head>
     <script type="text/javascript" src="../jquery-1.7.2.js"></script>
     <script type="text/javascript" src="blinkenlights.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#predicate_form").submit(function() {
+          predicates = [];
+          predicates.push(parsePredicate($("#predicate_input").val()));
+          return false; // stay on this page
+        });
+
+        $("#predicate_input").val("kernel.all.load[*] > 0.2");
+      });
+    </script>
     <link rel="stylesheet" type="text/css" href="blinkenlights.css" />
     <title>pcp blinkenlights demo</title>
   </head>
   <body>
     <h1 id="header"></h1>
+    <form id="predicate_form">
+      <input id="predicate_input" size="50" type="text" />
+      <input value="Set Predicate" type="submit" />
+    </form>
     <div id="content"></div>
     <!--<footer>
       <p id="permalink">permalink: <span></span> (<a>copy</a>)</p>

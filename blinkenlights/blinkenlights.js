@@ -43,7 +43,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
     return;
   }
   
-  if (typeof(index) == "undefined") index == this.index;
+  if (typeof(index) == "undefined") index = this.index;
 
   var metric = data_dict[this.name].instances[index].value;
   var iid = data_dict[this.name].instances[index].instance;
@@ -71,11 +71,14 @@ Predicate.prototype.test = function(elt,data_dict,index) {
 var predicates = [];
 
 function parsePredicate(src) {
-  var matches = /([^[]+)\s*(\[\*\]|\[\]|)\s*(<|>|<=|>=|==)\s*(\S+)/.exec(src);
+  var matches = /([^[]+)\s*(\[\d+\]|\[\*\]|\[\]|)\s*(<|>|<=|>=|==)\s*(\S+)/.exec(src);
   var name = matches[1];
   var index = matches[2]; index = index == "" ? "*" : index.substring(1,index.length-1);
   var operator = matches[3];
   var threshold = parseFloat(matches[4]); // TODOXXX what about other types?
+
+  console.log ("create predicate " + name + " : " + index + " : " + operator + " : " + threshold)
+
   return new Predicate(name,index,operator,threshold);
 }
 
@@ -112,7 +115,6 @@ function updateBlinkenlights() {
 
     // update the view
     $("#blinkenlights").empty();
-    console.log(data_dict);
     $.each(predicates, function(i, predicate) {
       predicate.test($("#blinkenlights"), data_dict);
     });
