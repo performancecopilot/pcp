@@ -329,17 +329,17 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 static int
 parseWildCard(const char *name, char *ip, char *mask)
 {
-  /* Names containing ':' are IPv6. */
-  if (strchr(name, ':') != NULL)
-    return parseIPv6WildCard(name, ip, mask);
+    /* Names containing ':' are IPv6. */
+    if (strchr(name, ':') != NULL)
+        return parseIPv6WildCard(name, ip, mask);
 
-  /* Names containing '.' are inet. If the name is a full wildcard, then default to
-     inet (TODO: for now). */
-  if (strchr(name, '.') != NULL || strcmp(name, "*") == 0)
-    return parseInetWildCard(name, ip, mask);
+    /* Names containing '.' are inet. If the name is a full wildcard, then default to
+       inet (TODO: for now). */
+    if (strchr(name, '.') != NULL || strcmp(name, "*") == 0)
+        return parseInetWildCard(name, ip, mask);
 
-  __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
-  return -EINVAL;
+    __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+    return -EINVAL;
 }
 
 /* Routine to add a host to the host access list with a specified set of
