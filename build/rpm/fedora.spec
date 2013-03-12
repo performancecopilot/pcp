@@ -459,6 +459,9 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 - Migrate all configuration files below the /etc/pcp hierarchy.
 
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.6.10-2.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Wed Nov 28 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-2
 - Ensure tmpfile directories created in %files section.
 - Resolve tmpfile create/teardown race conditions.
