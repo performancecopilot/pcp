@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013, Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -37,7 +38,7 @@ public:
     // Index to the active context
     unsigned int contextIndex() const { return my.use; }
 
-    int use(int type, const QString &source);
+    int use(int type, const QString &source, int flags = 0);
     int use(unsigned int index) { my.use = index; return useContext(); }
     bool defaultDefined() const { return (numContexts() > 0); }
     int useDefault();

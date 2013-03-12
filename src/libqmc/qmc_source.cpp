@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -12,9 +13,10 @@
 QString QmcSource::localHost;
 QList<QmcSource*> QmcSource::sourceList;
 
-QmcSource::QmcSource(int type, QString &source)
+QmcSource::QmcSource(int type, QString &source, int flags)
 {
     my.status = -1;
+    my.flags = flags;
     my.type = type;
     my.tz = 0;
     my.dupFlag = false;
@@ -62,7 +64,7 @@ QmcSource::retryConnect(int type, QString &source)
 
     oldContext = pmWhichContext();
 
-    my.status = pmNewContext(type, (const char *)source.toAscii());
+    my.status = pmNewContext(type | my.flags, (const char *)source.toAscii());
     if (my.status >= 0) {
 	my.handles.append(my.status);
 
@@ -194,8 +196,18 @@ QmcSource::timeStringBrief(const struct timeval *timeval)
     return timestring;
 }
 
+bool
+QmcSource::compare(int type, QString &source, int flags)
+{
+    if (this->type() != type)
+	return false;
+    if (this->flags() != flags)
+	return false;
+    return this->source() == source;
+}
+
 QmcSource*
-QmcSource::getSource(int type, QString &source, bool matchHosts)
+QmcSource::getSource(int type, QString &source, int flags, bool matchHosts)
 {
     int i;
     QmcSource *src = NULL;
@@ -213,7 +225,7 @@ QmcSource::getSource(int type, QString &source, bool matchHosts)
 		break;
 	    }
 	}
-	else if (src->type() == type && src->source() == source) {
+	else if (src->compare(type, source, flags)) {
 	    if (pmDebug & DBG_TRACE_PMC) {
 		QTextStream cerr(stderr);
 		cerr << "QmcSource::getSource: Matched " << source
@@ -236,7 +248,7 @@ QmcSource::getSource(int type, QString &source, bool matchHosts)
 		cerr << "QmcSource::getSource: Creating new local context"
 		     << endl;
 	}
-	src = new QmcSource(type, source);
+	src = new QmcSource(type, source, flags);
     }
 
     if (src == NULL && pmDebug & DBG_TRACE_PMC) {

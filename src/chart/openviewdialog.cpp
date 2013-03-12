@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013, Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -268,23 +269,32 @@ void OpenViewDialog::archiveAdd()
 
 void OpenViewDialog::hostAdd()
 {
-    HostDialog *h = new HostDialog(this);
-    int sts;
+    HostDialog *host = new HostDialog(this);
 
-    if (h->exec() == QDialog::Accepted) {
-	QString host = h->hostLineEdit->text().trimmed();
-	if ((sts = liveGroup->use(PM_CONTEXT_HOST, host)) < 0) {
-	    host.prepend(tr("Cannot connect to host: "));
-	    host.append(tr("\n"));
-	    host.append(tr(pmErrStr(sts)));
-	    QMessageBox::warning(this, pmProgname, host,
+    if (host->exec() == QDialog::Accepted) {
+	QString hostspec = host->getHostSpecification();
+	int sts, flags = host->getContextFlags();
+
+	if (hostspec == QString::null || hostspec.length() == 0) {
+	    hostspec.append(tr("Hostname not specified\n"));
+	    QMessageBox::warning(this, pmProgname, hostspec,
 		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
-		    QMessageBox::NoButton, QMessageBox::NoButton);
+		    Qt::NoButton, Qt::NoButton);
+	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
+	    hostspec.prepend(tr("Cannot connect to host: "));
+	    hostspec.append(tr("\n"));
+	    hostspec.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, hostspec,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
 	} else {
+	    console->post(PmChart::DebugUi,
+			"OpenViewDialog::newHost: %s (flags=0x%x)",
+			(const char *)hostspec.toAscii(), flags);
 	    setupComboBoxes(false);
 	}
     }
-    delete h;
+    delete host;
 }
 
 void OpenViewDialog::sourcePushButton_clicked()

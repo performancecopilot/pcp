@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -11,7 +12,6 @@
 #define QMC_SOURCE_H
 
 #include <qmc.h>
-
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
@@ -19,7 +19,7 @@
 class QmcSource
 {
 public:
-    QmcSource(int type, QString &source);
+    QmcSource(int type, QString &source, int flags = 0);
     ~QmcSource();
 
     // Get the source description by searching the list of existing sources
@@ -27,13 +27,11 @@ public:
     // If matchHosts is true, then it will attempt to map a live context
     // to an archive source. If no matching archive context is found,
     // a NULL pointer is returned.
-    static QmcSource* getSource(int type, QString &source, 
+    static QmcSource* getSource(int type, QString &source, int flags,
 				 bool matchHosts = false);
 
-    // retry context/connection (e.g. if it failed in the constructor)
-    void retryConnect(int type, QString &source);
-
     int status() const { return my.status; }
+    int flags() const { return my.flags; }
     int type() const { return my.type; }
     bool isArchive() const { return my.type == PM_CONTEXT_ARCHIVE; }
     QString source() const { return my.source; }
@@ -76,6 +74,17 @@ public:
     static QString timeString(const struct timeval *timeval);
     static QString timeStringBrief(const struct timeval *timeval);
 
+    void setSecureFlag() { my.flags |= PM_CTXFLAG_SECURE; }
+    void setRelaxedFlag() { my.flags |= PM_CTXFLAG_RELAXED; }
+    void setCompressFlag() { my.flags |= PM_CTXFLAG_COMPRESS; }
+
+protected:
+    // retry context/connection (e.g. if it failed in the constructor)
+    void retryConnect(int type, QString &source);
+
+    // compare two sources - static so getSource() can make use of it
+    bool compare(int type, QString &source, int flags);
+
 private:
     struct {
 	int status;
@@ -90,6 +99,7 @@ private:
 	struct timeval end;
 	int tz;
 	bool dupFlag;		// Dup has been called and 1st context is in use
+	int flags;
     } my;
 
     static QList<QmcSource*> sourceList;

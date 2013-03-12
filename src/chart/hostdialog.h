@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,6 +16,7 @@
 #define HOSTDIALOG_H
 
 #include "ui_hostdialog.h"
+#include <QtCore/QProcess>
 
 class HostDialog : public QDialog, public Ui::HostDialog
 {
@@ -22,9 +24,27 @@ class HostDialog : public QDialog, public Ui::HostDialog
 
 public:
     HostDialog(QWidget* parent);
+    int getContextFlags() const;
+    QString getHostSpecification() const;
 
 protected slots:
     virtual void languageChange();
+
+private slots:
+    virtual void quit();
+    virtual void proxyCheckBox_toggled(bool);
+    virtual void secureCheckBox_toggled(bool);
+    virtual void certificatesPushButton_clicked();
+    virtual void authenticateCheckBox_toggled(bool);
+    virtual void nssGuiFinished(int, QProcess::ExitStatus);
+
+private:
+    void nssGuiStart();
+
+    struct {
+	bool		nssGuiStarted;
+	QProcess	*nssGuiProc;
+    } my;
 };
 
 #endif // HOSTDIALOG_H

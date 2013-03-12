@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -46,6 +46,12 @@ static inline void __pmtimevalNow(struct timeval *t) { gettimeofday(t, NULL); }
 #define PM_TYPE_EVENT	9
 static inline void pmUnpackEventRecords(pmResult **) { }
 static inline int pmFreeEventResult(pmValueSet *, int, pmResult ***) { return -ENOSYS; }
+#endif
+
+#if HAVE_DECL_PM_CTXFLAG_SECURE == 0
+#define PM_CTXFLAG_SECURE	(1U<<10)
+#define PM_CTXFLAG_COMPRESS	(1U<<11)
+#define PM_CTXFLAG_RELAXED	(1U<<12)
 #endif
 
 #endif // VERSION_H

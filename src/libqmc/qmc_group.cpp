@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1997-2005 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013, Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1997-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -70,7 +71,7 @@ QmcGroup::~QmcGroup()
 }
 
 int
-QmcGroup::use(int type, const QString &theSource)
+QmcGroup::use(int type, const QString &theSource, int flags)
 {
     int sts = 0;
     unsigned int i;
@@ -164,7 +165,7 @@ QmcGroup::use(int type, const QString &theSource)
 		 << '\"' << endl;
 	}
 
-	QmcSource *src = QmcSource::getSource(type, source, false);
+	QmcSource *src = QmcSource::getSource(type, source, flags, false);
 	if (src == NULL) {
 	    pmprintf("%s: Error: No archives were specified for host \"%s\"\n",
 		     pmProgname, (const char *)source.toAscii());
@@ -334,7 +335,7 @@ QmcGroup::createLocalContext()
     if (numContexts() == 0) {
 	QTextStream cerr(stderr);
 	QmcSource *localSource = QmcSource::getSource(PM_CONTEXT_HOST,
-							localHost, false);
+							localHost, 0, false);
 	if (localSource->status() < 0 && pmDebug & DBG_TRACE_PMC)
 	    cerr << "QmcGroup::createLocalContext: Default context to "
 		 << localSource->desc() << " failed: " 
