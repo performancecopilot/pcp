@@ -114,6 +114,9 @@ class _pmsubsys(object):
                 return atom1.d 
             else:
                 return atom1.d - atom2.d
+        elif type == pmapi.PM_TYPE_STRING:
+            atom_str = c_char_p(atom1.cp)
+            return str(atom_str.value)
         else:
             return 0
 
@@ -153,7 +156,11 @@ class _pmsubsys(object):
                 # metric may require a diff to get a per interval value
                 for k in xrange(metric_result.contents.get_numval(j)):
                     if type(self.old_metric_values[j]) == list_type:
-                        old_val = self.old_metric_values[j][k]
+                        try:
+                            old_val = self.old_metric_values[j][k]
+                        except Exception, err:
+                            # ??? fix this indexing error
+                            pass
                     else:
                         old_val = self.old_metric_values[j]
                     value.append (self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], first))

@@ -135,6 +135,7 @@ def minutes_seconds (millis):
 class _atop_print(object):
     def set_stdscr(self, a_stdscr):
         self.p_stdscr = a_stdscr
+        self.yx = a_stdscr.getmaxyx()
     def prc(self):
         True
 
@@ -144,38 +145,42 @@ class _atop_print(object):
 
 class _cpu_print(_atop_print, cpu):
     def prc(self):
-        self.p_stdscr.addstr ('PRC | sys %8s | user %8s | #proc %8d | #zombie %8d\n' % (
-            minutes_seconds(self.get_metric_value('kernel.all.cpu.sys')),
-            minutes_seconds(self.get_metric_value('kernel.all.cpu.user')),
-            self.get_metric_value('kernel.all.nprocs'), self.get_metric_value('proc.runq.defunct'))
-                       )
+        self.p_stdscr.addstr ('PRC |')
+        self.p_stdscr.addstr (' sys %8s |' % (minutes_seconds(self.get_metric_value('kernel.all.cpu.sys'))))
+        self.p_stdscr.addstr (' user %7s |' % (minutes_seconds(self.get_metric_value('kernel.all.cpu.user'))))
+        self.p_stdscr.addstr (' #proc %6d |' % (self.get_metric_value('kernel.all.nprocs')))
+        self.p_stdscr.addstr (' #zombie %4d' % (self.get_metric_value('proc.runq.defunct')))
+        self.p_stdscr.addstr ('\n')
     def cpu(self):
         self.get_total()
-        self.p_stdscr.addstr ('CPU | sys %7d%% | user %7d%% | irq %7d%% | idle %7d%% | wait %7d%%\n' % (
-            100 * self.get_metric_value('kernel.all.cpu.sys') / self.cpu_total,
-            100 * self.get_metric_value('kernel.all.cpu.user') / self.cpu_total,
-            100 * self.get_metric_value('kernel.all.cpu.irq.hard') / self.cpu_total +
-            100 * self.get_metric_value('kernel.all.cpu.irq.soft') / self.cpu_total,
-            100 * self.get_metric_value('kernel.all.cpu.idle') / self.cpu_total,
-            100 * self.get_metric_value('kernel.all.cpu.wait.total') / self.cpu_total)
-                       )
+        self.p_stdscr.addstr ('CPU |')
+        self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.get_metric_value('kernel.all.cpu.sys') / self.cpu_total))
+        self.p_stdscr.addstr (' user %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.user') / self.cpu_total))
+        self.p_stdscr.addstr (' irq %7d%% |' % (
+                100 * self.get_metric_value('kernel.all.cpu.irq.hard') / self.cpu_total +
+                100 * self.get_metric_value('kernel.all.cpu.irq.soft') / self.cpu_total))
+        self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.idle') / self.cpu_total))
+        self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.wait.total') / self.cpu_total))
+        self.p_stdscr.addstr('\n')
         for k in range(len(self.get_metric_value('kernel.percpu.cpu.user'))):
-            self.p_stdscr.addstr ('cpu | sys %7d%% | user %7d%% | irq %7d%% | idle %7d%% | wait %7d%%\n' % (
-                100 * self.get_metric_value('kernel.percpu.cpu.sys')[k] / self.cpu_total,
-                100 * self.get_metric_value('kernel.percpu.cpu.user')[k] / self.cpu_total,
-                100 * self.get_metric_value('kernel.percpu.cpu.irq.hard')[k] / self.cpu_total +
-                100 * self.get_metric_value('kernel.percpu.cpu.irq.soft')[k] / self.cpu_total,
-                100 * self.get_metric_value('kernel.percpu.cpu.idle')[k] / self.cpu_total,
-                100 * self.get_metric_value('kernel.percpu.cpu.wait.total')[k] / self.cpu_total)
-                           )
-        self.p_stdscr.addstr ('CPL | avg1 %7.2f | avg5 %8.2f | avg15 %6.2f | csw  %5.2e | intr %5.2e\n' % (
-            self.get_metric_value('kernel.all.load')[0],
-            self.get_metric_value('kernel.all.load')[1],
-            self.get_metric_value('kernel.all.load')[2],
-            self.get_metric_value('kernel.all.pswitch'),
-            self.get_metric_value('kernel.all.intr')
-            )
-                       )
+            self.p_stdscr.addstr ('cpu |')
+            self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.sys')[k] / self.cpu_total))
+            self.p_stdscr.addstr (' user %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.user')[k] / self.cpu_total))
+            self.p_stdscr.addstr (' irq %7d%% |' % (
+                    100 * self.get_metric_value('kernel.percpu.cpu.irq.hard')[k] / self.cpu_total +
+                    100 * self.get_metric_value('kernel.percpu.cpu.irq.soft')[k] / self.cpu_total))
+            self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.idle')[k] / self.cpu_total))
+            self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.wait.total')[k] / self.cpu_total))
+            self.p_stdscr.addstr ('\n')
+
+        self.p_stdscr.addstr ('CPL |')
+        self.p_stdscr.addstr (' avg1 %7.2g |' % (self.get_metric_value('kernel.all.load')[0]))
+        self.p_stdscr.addstr (' avg5 %7.2g |' % (self.get_metric_value('kernel.all.load')[1]))
+        self.p_stdscr.addstr (' avg15 %6.2g |' % (self.get_metric_value('kernel.all.load')[2]))
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", "  \\1e", (' csw %8.2g |' % (self.get_metric_value('kernel.all.pswitch')))))
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", "  \\1e", (' intr %7.2g |' % (self.get_metric_value('kernel.all.intr')))))
+        self.p_stdscr.addstr ('\n')
+# re.sub("([0-9]*)e\+0", "  \\1e", " xyz 123e+02")
 
 # _interrupt_print --------------------------------------------------
 
@@ -198,56 +203,57 @@ class _disk_print(_atop_print, disk):
         # we also want LVMs here; so we want to use disk.partition.*
         # lvm partitions have names like dm-N; but we want to get the real name
         for j in xrange(get_dimension(self.get_metric_value('disk.dev.read_bytes'))):
-            self.p_stdscr.addstr ('DSK | %12s | busy %7d%% | read %7d | write %5.2g | avio %6.2f\n' % (
-                iname[j],
-                0, # self.get_metric_value('disk.dev.avactive')
-                self.get_metric_value('disk.dev.read'),
-                self.get_metric_value('disk.dev.write'),
-                0
-                )
-                           )
+            self.p_stdscr.addstr ('DSK |')
+            self.p_stdscr.addstr (' %12s |' % (iname[j]))
+            self.p_stdscr.addstr (' busy %6d%% |' % (0)) # self.get_metric_value('disk.dev.avactive')
+            self.p_stdscr.addstr (' read %7d |' % (self.get_metric_value('disk.dev.read')))
+            self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' write %6.2g |' % (self.get_metric_value('disk.dev.write')))))
+            self.p_stdscr.addstr (' avio %7.2g |' % (0))
+            self.p_stdscr.addstr ('\n')
+
 
 # _memory_print --------------------------------------------------
 
 
 class _memory_print(_atop_print, memory):
     def mem(self):
-        self.p_stdscr.addstr ('MEM | tot %7dM | free %7dM | cache %5dM | buff %7dM | slab %6dM\n' % (
-            round(self.get_metric_value('mem.physmem'),1000),
-            round(self.get_metric_value('mem.freemem'),1000),
-            round(self.get_metric_value('mem.util.cached'),1000),
-            round(self.get_metric_value('mem.util.bufmem'),1000),
-            round(self.get_metric_value('mem.util.slab'),1000),
-            )
-                       )
-        self.p_stdscr.addstr ('SWP | tot %7dG | free %7dG |              | vmcom %6dG | vmlim %6dG\n' % (
-            round(self.get_metric_value('mem.util.swapTotal'), 1000000),
-            round(self.get_metric_value('mem.util.swapFree'), 1000000),
-            round(self.get_metric_value('mem.util.committed_AS'), 1000000),
-            round(self.get_metric_value('mem.util.commitLimit'), 1000000),
-            )
-                       )
-        self.p_stdscr.addstr ('PAG | scan %7d | steal %7d | stall %6d | swin %8d | swout %5d\n' % (
-            self.get_metric_value('mem.vmstat.slabs_scanned'),
-            self.get_metric_value('mem.vmstat.pginodesteal'),
-            self.get_metric_value('mem.vmstat.allocstall'),
-            self.get_metric_value('mem.vmstat.pswpin'),
-            self.get_metric_value('mem.vmstat.pswpout')
-            )
-                       )
+        self.p_stdscr.addstr ('MEM |')
+        self.p_stdscr.addstr (' tot %7dM |' % (round(self.get_metric_value('mem.physmem'),1000)))
+        self.p_stdscr.addstr (' free %6dM |' % (round(self.get_metric_value('mem.freemem'),1000)))
+        self.p_stdscr.addstr (' cache %5dM |' % (round(self.get_metric_value('mem.util.cached'),1000)))
+        self.p_stdscr.addstr (' buff %6dM |' % (round(self.get_metric_value('mem.util.bufmem'),1000)))
+        self.p_stdscr.addstr (' slab %6dM |' % (round(self.get_metric_value('mem.util.slab'),1000)))
+        self.p_stdscr.addstr ('\n')
+
+        self.p_stdscr.addstr ('SWP |')
+        self.p_stdscr.addstr (' tot %7dG |' % (round(self.get_metric_value('mem.util.swapTotal'), 1000000)))
+        self.p_stdscr.addstr (' free %6dG |' % (round(self.get_metric_value('mem.util.swapFree'), 1000000)))
+        self.p_stdscr.addstr ('              |')
+        self.p_stdscr.addstr (' vmcom %5dG |' % (round(self.get_metric_value('mem.util.committed_AS'), 1000000)))
+        self.p_stdscr.addstr (' vmlim %5dG |' % (round(self.get_metric_value('mem.util.commitLimit'), 1000000)))
+        self.p_stdscr.addstr ('\n')
+
+        self.p_stdscr.addstr ('PAG |')
+        self.p_stdscr.addstr (' scan %7d |' % (self.get_metric_value('mem.vmstat.slabs_scanned')))
+        self.p_stdscr.addstr (' steal %6d |' % (self.get_metric_value('mem.vmstat.pginodesteal')))
+        self.p_stdscr.addstr (' stall %6d |' % (self.get_metric_value('mem.vmstat.allocstall')))
+        self.p_stdscr.addstr (' swin %7d |' % (self.get_metric_value('mem.vmstat.pswpin')))
+        self.p_stdscr.addstr (' swout %6d |' % (self.get_metric_value('mem.vmstat.pswpout')))
+        self.p_stdscr.addstr ('\n')
+
 
 # _net_print --------------------------------------------------
 
 
 class _net_print(_atop_print, net):
     def net(self, pm):
-        self.p_stdscr.addstr ('NET | tcpi %6dM | tcpo %7dM | udpi %6dM | udpo %7dM\n' % (
-            self.get_metric_value('network.tcp.insegs'),
-            self.get_metric_value('network.tcp.outsegs'),
-            self.get_metric_value('network.udp.indatagrams'),
-            self.get_metric_value('network.udp.outdatagrams')
-            )
-                       )
+        self.p_stdscr.addstr ('NET | transport    |')
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' tcpi %6.2gM |' % (self.get_metric_value('network.tcp.insegs')))))
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' tcpo %6.2gM |' % (self.get_metric_value('network.tcp.outsegs')))))
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' udpi %6.2gM |' % (self.get_metric_value('network.udp.indatagrams')))))
+        self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' udpo %6.2gM |' % (self.get_metric_value('network.udp.outdatagrams')))))
+        self.p_stdscr.addstr ('\n')
+
         for k in xrange(len(self.metric_pmids)):
             try:
                 (inst, iname) = pm.pmGetInDom(self.metric_descs[k])
@@ -257,25 +263,27 @@ class _net_print(_atop_print, net):
         net_metric = self.get_metric_value('network.interface.in.bytes')
         if type(net_metric) == type([]):
             for j in xrange(len(self.get_metric_value('network.interface.in.bytes'))):
-                self.p_stdscr.addstr ('NET | %12s | pcki %6dM | pcko %7dM | si %8dM | so %9dM\n' % (
-                    iname[j],
-                    self.get_metric_value('network.interface.in.packets')[j],
-                    self.get_metric_value('network.interface.out.packets')[j],
-                    self.get_metric_value('network.interface.in.bytes')[j],
-                    self.get_metric_value('network.interface.out.bytes')[j]
-            )
-                               )
+                self.p_stdscr.addstr ('NET |')
+                self.p_stdscr.addstr (' %12s |' % (iname[j]))
+                self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' pcki %6.2gM |' % (self.get_metric_value('network.interface.in.packets')[j]))))
+                self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' pcko %6.2gM |' % (self.get_metric_value('network.interface.out.packets')[j]))))
+                self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' si %9.2gM |' % (self.get_metric_value('network.interface.in.bytes')[j]))))
+                self.p_stdscr.addstr (re.sub("([0-9\.]*)e\+0", " \\1e", (' so %9.2gM |' % (self.get_metric_value('network.interface.out.bytes')[j]))))
+                self.p_stdscr.addstr ('\n')
+
 
 # _proc_print --------------------------------------------------
 
 
 class _proc_print(_atop_print, proc):
     def proc(self):
+        current_yx = self.p_stdscr.getyx()
+
         for j in xrange(len(self.get_metric_value('proc.psinfo.pid'))):
-            if j > 20:
+            if j > (self.yx[0] - current_yx[0]):
                 break
 
-            self.p_stdscr.addstr ('%5d %5d %5d %5d %5d %15s\n' % (
+            self.p_stdscr.addstr ('%5d %5d %5d %5d %5d %-15s\n' % (
                     self.get_metric_value('proc.psinfo.pid')[j],
                     self.get_metric_value('proc.schedstat.cpu_time')[j],
                     self.get_metric_value('proc.id.uid')[j],
