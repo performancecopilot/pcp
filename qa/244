@@ -54,8 +54,9 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
 	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /g' \
-	-e '/localhost/s/ 255\.255\.255\.255 / ffffffff / ' \
 	-e '/localhost/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / MYIPADDR / ' \
+	-e '/localhost/s/ [a-f0-9:]\+ *ff/ MYIPADDR ff/ ' \
+	-e '/localhost/s/ ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff / MYHOSTMASK / ' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "/sed: couldn't flush stdout: Broken pipe/d" \
     | $PCP_AWK_PROG '

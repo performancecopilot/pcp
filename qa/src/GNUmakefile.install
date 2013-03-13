@@ -32,6 +32,7 @@ else
 # Warning: ../localconfig does not exist, assuming PCP 3.0
 PCP_VER=3000
 endif
+LDIRT += localconfig.h
 
 include GNUlocaldefs
 

@@ -49,9 +49,9 @@ fake_sampledso 30 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 30 fake_sampledso
 fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
 
 Host access list:
-00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
-== == =========== =============== =============== === ==============
-y y A_PID 0 MYIPADDR ffffffff 0 localhost
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y y A_PID 0 MYIPADDR MYHOSTMASK 0 localhost
 n n A_PID 0 0.0.0.0 0.0.0.0 4 *
 
 
@@ -83,9 +83,9 @@ sample 29 A_PID FD FD 2 bin pipe cmd=...pmdasample -d 29
 fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
 
 Host access list:
-00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
-== == =========== =============== =============== === ==============
-y y A_PID 0 MYIPADDR ffffffff 0 localhost
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y y A_PID 0 MYIPADDR MYHOSTMASK 0 localhost
 n n A_PID 0 0.0.0.0 0.0.0.0 4 *
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged

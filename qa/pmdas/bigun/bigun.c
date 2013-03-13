@@ -42,6 +42,13 @@ bigun_init(pmdaInterface *dp)
     int		sep = __pmPathSeparator();
     char	helppath[MAXPATHLEN];
 
+    /*
+     * Note: helpfile is only available if the PMDA has been installed
+     * from $PCP_VAR_DIR/testsuite/pmdas/bigun ... when the PMDA install
+     * comes from QA run from some other directory, the helpfile may not
+     * be found ... fortunately nothing in QA depends on the helpfile
+     * being available for the bigun PMDA.
+     */
     snprintf(helppath, sizeof(helppath),
 		"%s%c" "testsuite" "%c" "pmdas" "%c" "bigun" "%c" "help",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, sep);

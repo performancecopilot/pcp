@@ -1,4 +1,10 @@
-pcp-3.6.11 (8 March 2013)
+pcp-3.7.1 (under development)
+    - IPv6 addresses and wild cards for host access control.
+    - ...
+
+pcp-3.7.0 (11 March 2013)
+    - Added hash table iterator interfaces to libpcp.
+    - Added PCP_SYSCONF_DIR, migrated daemon configuration there.
     - Fix Linux swap metrics problems, thanks to Martins Innus.
     - Support for IPv6 and revamped networking (libpcp-internal)
       APIs, in particular making proper use of getaddrinfo now.
@@ -31,7 +37,6 @@ pcp-3.6.11 (8 March 2013)
     - Workaround versioning issues between python and rpmbuild.
     - Ensure HZ is initialised in Linux proc PMDA, fixing a small
       regression from the earlier proc/linux PMDA split.
-    - PCP_SYSCONF_DIR
     - Fix -p option to pcp(1) command reporting pmie instances.
     - Add one-line help for the proc metrics that did not have it.
     - Change primary pmlogger control from symlink to link.
