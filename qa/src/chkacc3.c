@@ -19,9 +19,10 @@ main()
 {
     int			s, sts, op, i, ai, bi, ci, di;
     unsigned int	perm;
-    char		name[20];
+    char		name[4*8 + 7 + 1]; /* handles full IPv6 address, if supported */
     char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
 #if PCP_VER >= 3611
+    char		*wnames6[4] = { "*", "26:*", "26:ca:*", "26:ca:10:*" };
     __pmSockAddr	*inaddr;
 #else
     __pmInAddr		inaddr;
@@ -39,7 +40,7 @@ main()
     if (sts < 0)
 	exit(1);
 
-    /* every address except address 0.* leaves ops 8 and 9 unspecified */
+    /* every address except address 0.* and 0:* leaves ops 8 and 9 unspecified */
     op = 0;
     for (ai = 0; ai < 4; ai++)
 	for (bi = 0; bi < 4; bi++)
@@ -67,6 +68,34 @@ main()
 		    }
 		    fprintf(stderr, "set %03x for host %d.%d.%d.%d\n",
 			    perm, a[ai], b[bi], c[ci], d[di]);
+#if PCP_VER >= 3611
+		    sprintf(name, "%x:%x:%x:%x:%x:%x:%x:%x",
+		            a[ai], b[bi], c[ci], d[di],
+		            a[ai], b[bi], c[ci], d[di]);
+		    perm = op;
+		    if (perm >= 1 << 8) {
+			fprintf(stderr, "expect error, perm=%d (>255):\n", perm);
+			perm = 1 << 10;
+		    }
+		    if (ai == 0) {
+			/* 0.0.* gets y,y; 0.201.* gets n,y; 0.77.* gets y,n;
+			 * 0.127.* gets n,n
+			 */
+			perm |= (bi << 8);
+			s = __pmAccAddHost(name, 0x3ff, perm, 0);
+		    }
+		    else
+			s = __pmAccAddHost(name, 0xff, perm, 0);
+		    if (s < 0) {
+			fprintf(stderr, "add host for host %s error: %s\n",
+				name, pmErrStr(s));
+			continue;
+		    }
+		    fprintf(stderr, "set %03x for host %x:%x:%x:%x:%x:%x:%x:%x\n",
+			    perm,
+		            a[ai], b[bi], c[ci], d[di],
+		            a[ai], b[bi], c[ci], d[di]);
+#endif
 		}
 
     /* ops 8 and 9 are for wildcard testing:
@@ -75,12 +104,21 @@ main()
      *	38.*		y	n
      *  38.202.*	n	y
      *	38.202.16	n	n
+     *  26:*		y	n
+     *  26:ca:*		n	y
+     *  26:ca:10:*	n	n
      */
     for (i = 0; i < 4; i++) {
 	if ((s = __pmAccAddHost(wnames[i], 0x300, (i << 8), 0)) < 0) {
-	    fprintf(stderr, "cannot add host for op%d: %s\n", i, strerror(s));
+	    fprintf(stderr, "cannot add inet host for op%d: %s\n", i, strerror(s));
 	    sts = s;
 	}
+#if PCP_VER >= 3611
+	if ((s = __pmAccAddHost(wnames6[i], 0x300, (i << 8), 0)) < 0) {
+	    fprintf(stderr, "cannot add IPv6 host for op%d: %s\n", i, strerror(s));
+	    sts = s;
+	}
+#endif
     }
     if (sts < 0)
 	exit(1);
@@ -94,7 +132,7 @@ main()
 	    for (bi = 0; bi < 4; bi++)
 		for (ci = 0; ci < 4; ci++)
 		    for (di = 0; di < 4; di++) {
-			char	buf[20];
+		      char	buf[20];
 #if PCP_VER >= 3611
 			char   *host;
 			sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
@@ -126,6 +164,33 @@ main()
 				perm, inet_ntoa(inaddr));
 #endif
 		    }
+#if PCP_VER >= 3611
+    for (i = 0; i < 2; i++)
+	for (ai = 0; ai < 4; ai++)
+	    for (bi = 0; bi < 4; bi++)
+		for (ci = 0; ci < 4; ci++)
+		    for (di = 0; di < 4; di++) {
+			char	buf[4*8 + 7 + 1]; /* handles full IPv6 address */
+			char   *host;
+			sprintf(buf, "%x:%x:%x:%x:%x:%x:%x:%x",
+				a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i,
+				a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
+			if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
+			  printf("insufficient memory\n");
+			  continue;
+			}
+			s = __pmAccAddClient(inaddr, &perm);
+			host = __pmSockAddrToString(inaddr);
+			__pmSockAddrFree(inaddr);
+			if (s < 0) {
+			    fprintf(stderr, "from %s error: %s\n", host, pmErrStr(s));
+			    free(host);
+			    continue;
+			}
+			fprintf(stderr, "got %03x for host %s\n", perm, host);
+			free(host);
+		    }
+#endif
     
     exit(0);
 }

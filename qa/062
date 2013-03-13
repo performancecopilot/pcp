@@ -15,21 +15,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
-
-rm -f $seq.out
-if $ipv6 ; then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    endian=`perl -MConfig -e 'print $Config{byteorder}' | tr -d 5678`
-    if [ "$endian" != "4321" -a "$endian" != "1234" ]; then
-	echo "Arrgh ... cannot determine host endianness"
-	exit 1
-    fi
-    ln $seq.out.$endian $seq.out || exit 1
-fi
-
 # real QA test starts here
 
 echo "testing single op for all ops..."
