@@ -55,11 +55,11 @@ active agent dom   pid  in out ver protocol parameters
 pmcd           2                 N dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
-00 01 Cur/MaxCons host-spec host-mask lvl host-name
-== == =========== ========= ========= === ==============
- y  n     0     1  OTHER1_HEXIP  ffffffff   0 OTHER_1
- y  y     0     1  OTHER2_HEXIP  ffffffff   0 OTHER_2
- n  n     0     0  00000000  00000000   4 *
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+ y  n     0     1  OTHER1_IP                              255.255.255.255                           0 OTHER_1
+ y  y     0     1  OTHER2_IP                              255.255.255.255                           0 OTHER_2
+ n  n     0     0  0.0.0.0                                0.0.0.0                                   4 *
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
 access violation from host OTHER1_IP:

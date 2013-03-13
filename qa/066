@@ -49,7 +49,6 @@ _filter_log()
 	-e 's/^$//' \
 	-e '/^00[08]:/d' \
 	-e '/^linux/s/\/var\//\/usr\//' \
-	-e '/localhost/s/[0-9a-f][0-9a-f][0-9a-f]*/MYIPADDR/' \
 	-e '/^sample/s/.*/sample agent.../' \
 	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e '/client connection from/,/^$/d' \
@@ -59,7 +58,14 @@ _filter_log()
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
 	-e 's;$PCP_PMDAS_DIR/pmcd/;;' \
-	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g"
+	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g" \
+    | $PCP_AWK_PROG '
+/localhost/		{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYIPADDR",$5)
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYHOSTMASK",$6)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYHOSTMASK",$6) }
+			{ print }'
 }
 
 interrupt()
