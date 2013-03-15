@@ -23,11 +23,11 @@ active agent dom   pid  in out ver protocol parameters
 pmcd           2                 2 dso i:2  lib=...pmda_pmcd.so entry=pmcd_init
 
 Host access list:
-00 01 Cur/MaxCons host-spec host-mask lvl host-name
-== == =========== ========= ========= === ==============
- y  y     0     0  <hexnum>  ffffffff   0 LOCALHOST
- y        0     0  <hexnum>  ffffffff   0 OTHERHOST1
-    y     0     0  <hexnum>  ffffffff   0 OTHERHOST2
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+ y  y     0     0  <ipaddr>                               255.255.255.255                           0 LOCALHOST
+ y        0     0  <ipaddr>                               255.255.255.255                           0 OTHERHOST1
+    y     0     0  <ipaddr>                               255.255.255.255                           0 OTHERHOST2
 
 
 pmcd: PID = PID
