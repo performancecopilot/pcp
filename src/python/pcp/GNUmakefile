@@ -12,30 +12,14 @@
 # for more details.
 # 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SUBDIRS = pcp
-LSRCFILES = setup.py
-LDIRDIRT = build dist
-LDIRT = build_python
+CFILES = pmapi.c
+LSRCFILES = __init__.py pcpi.py pcp.py pmi.py
 
-default default_pcp: build_python
-
-ifneq "$(PYTHON)" ""
-build_python:
-	$(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
-	$(PYTHON) setup.py build
-	touch build_python
-
-install_python: default
-	$(PYTHON) setup.py install $(SETUP_PY_INSTALL_OPTIONS)
-	$(PYTHON_INSTALL)
-else
-build_python: 
-install_python: 
-endif
+default default_pcp:
 
 include $(BUILDRULES)
 
-install_pcp install: install_python
+install_pcp install:
