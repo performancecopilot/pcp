@@ -359,6 +359,7 @@ getent passwd pcp >/dev/null || \
 # new directories; they should match /etc/pcp.conf settings after install
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
+[ -d $PCP_LOG_DIR ] || exit 0	# no configuration file upgrades required
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {

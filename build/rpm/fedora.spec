@@ -264,6 +264,7 @@ getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 PCP_SYSCONF_DIR=/etc/pcp
 PCP_LOG_DIR=/var/log/pcp
+[ -d $PCP_LOG_DIR ] || exit 0	# no configuration file upgrades required
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {
