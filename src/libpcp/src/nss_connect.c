@@ -1301,9 +1301,11 @@ __pmGetAddrInfo(const char *hostName)
     if (addr != NULL) {
         he->name = __pmGetNameInfo(addr);
 	__pmSockAddrFree(addr);
+	if (he->name == NULL)
+	    he->name = strdup(hostName);
     }
     else
-      he->name = strdup(hostName);
+        he->name = strdup(hostName);
 
     return he;
 }

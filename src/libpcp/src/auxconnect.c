@@ -680,7 +680,6 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
-/* TODO: Make this interface more like the native getnameinfo. i.e. caller provides buffer and size */
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
@@ -730,6 +729,8 @@ __pmGetAddrInfo(const char *hostName)
 	if (addr != NULL) {
 	    hostEntry->name = __pmGetNameInfo(addr);
 	    __pmSockAddrFree(addr);
+	    if (hostEntry->name == NULL)
+		hostEntry->name = strdup(hostName);
 	}
 	else
 	    hostEntry->name = strdup(hostName);
