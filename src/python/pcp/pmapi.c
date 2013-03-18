@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Red Hat.
+ * Copyright (C) 2012-2013 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -16,23 +16,19 @@
  * for more details.
  */
 
-/****************************************************************************\
-**                                                                          **
-** This C extension module mainly serves the purpose of loading constants   **
-** from <pcp/pmapi.h> into the module dictionary. The PMAPI functions and   **
-** data structures are wrapped in pcp.py, using ctypes.                     **
-**                                                                          **
-** The following constants and macros have not been wrapped.                **
-**    - PM_XTB_FLAG                                                         **
-**    - PM_XTB_SET()                                                        **
-**    - PM_XTB_GET()                                                        **
-**                                                                          **
-\****************************************************************************/
+/**************************************************************************\
+**                                                                        **
+** This C extension module mainly serves the purpose of loading constants **
+** from PCP headers into the module dictionary.  The PMAPI functions and  **
+** data structures are wrapped in pcp.py and friends, using ctypes.       **
+**                                                                        **
+\***************************************************************************/
 
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
 #include <pcp/import.h>
+#include <pcp/pmda.h>
 
 typedef union {
     int i;
@@ -377,4 +373,52 @@ initpmapi(void)
               (intu) PMI_ERR_BADSEM,        INT_T, pmiErrSymD );
     dict_add( dict, "PMI_ERR_NODATA",
               (intu) PMI_ERR_NODATA,        INT_T, pmiErrSymD );
+
+
+    /* pmda.h */
+    dict_add( dict, "PMDA_FETCH_NOVALUES",
+		(intu) PMDA_FETCH_NOVALUES, INT_T, NULL );
+    dict_add( dict, "PMDA_FETCH_STATIC",
+		(intu) PMDA_FETCH_STATIC,   INT_T, NULL );
+    dict_add( dict, "PMDA_FETCH_DYNAMIC",
+		(intu) PMDA_FETCH_DYNAMIC,  INT_T, NULL );
+
+    dict_add( dict, "PMDA_CACHE_LOAD",
+		(intu) PMDA_CACHE_LOAD,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_ADD",
+		(intu) PMDA_CACHE_ADD,      INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_HIDE",
+		(intu) PMDA_CACHE_HIDE,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_CULL",
+		(intu) PMDA_CACHE_CULL,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_EMPTY",
+		(intu) PMDA_CACHE_EMPTY,    INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_SAVE",
+		(intu) PMDA_CACHE_SAVE,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_ACTIVE",
+		(intu) PMDA_CACHE_ACTIVE,   INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_INACTIVE",
+		(intu) PMDA_CACHE_INACTIVE, INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_SIZE",
+		(intu) PMDA_CACHE_SIZE,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_SIZE_ACTIVE",
+		(intu) PMDA_CACHE_SIZE_ACTIVE, INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_SIZE_INACTIVE",
+		(intu) PMDA_CACHE_SIZE_INACTIVE, INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_REUSE",
+		(intu) PMDA_CACHE_REUSE,    INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_WALK_REWIND",
+		(intu) PMDA_CACHE_WALK_REWIND, INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_WALK_NEXT",
+		(intu) PMDA_CACHE_WALK_NEXT, INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_CHECK",
+		(intu) PMDA_CACHE_CHECK,    INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_REORG",
+		(intu) PMDA_CACHE_REORG,    INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_SYNC",
+		(intu) PMDA_CACHE_SYNC,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_DUMP",
+		(intu) PMDA_CACHE_DUMP,     INT_T, NULL);
+    dict_add( dict, "PMDA_CACHE_DUMP_ALL",
+		(intu) PMDA_CACHE_DUMP_ALL, INT_T, NULL);
 }

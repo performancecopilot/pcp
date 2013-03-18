@@ -99,6 +99,14 @@ typedef void (*pmdaDoneCallBack)(void);
 typedef void (*pmdaEndContextCallBack)(int);
 
 /*
+ * Forward declarations of structures so that inclusion of (internal) impl.h
+ * header file is not mandated if this header file is included.
+ */
+typedef struct __pmnsTree __pmnsTree;
+typedef struct __pmProfile __pmProfile;
+typedef struct __pmInResult __pmInResult;
+
+/*
  * libpcp_pmda extension structure.
  *
  * The fields of this structure are initialised using pmdaDaemon() or pmdaDSO()
