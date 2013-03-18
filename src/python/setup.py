@@ -29,7 +29,7 @@ setup(name = 'pcp',
     url = 'http://oss.sgi.com/projects/pcp/',
     packages = ['pcp'],
     ext_modules = [
-        Extension('pmapi', ['pcp/pmapi.c'], libraries = ['pcp'])
+        Extension('pmapi', ['pmapi.c'], libraries = ['pcp'])
     ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     long_description =

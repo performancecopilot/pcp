@@ -15,7 +15,6 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmapi.c
 LSRCFILES = __init__.py pcpi.py pcp.py pmi.py
 
 default default_pcp:
