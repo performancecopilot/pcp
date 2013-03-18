@@ -1,1 +1,2 @@
-#blinkenlights { font-family: monospace; }
+#blinkenlights { font-family: monospace; font-size: 130%; }
+#blinkenlights li { list-style: none; }

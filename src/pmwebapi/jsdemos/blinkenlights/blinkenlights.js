@@ -4,10 +4,11 @@ var pm_context = -1;
 
 // ----------------------------------------------------------------------
 
-// TODOXXX use actual pictures for the blinkenlights
-var red_light = "(!)";
-var green_light = "(X)";
-var gray_light = "( )";
+// public domain images courtesy of
+// http://www.clker.com/clipart-led-off.html and http://www.clker.com/clipart-6514.html
+var red_light = "<img src=\"blinken_error.png\" width=\"25\" height=\"25\" alt=\"(!)\" />";
+var green_light = "<img src=\"blinken_on.png\" width=\"25\" height=\"25\" alt=\"(X)\" />";
+var gray_light = "<img src=\"blinken_off.png\" width=\"25\" height=\"25\" alt=\"( )\" />";
 
 // ----------------------------------------------------------------------
 
