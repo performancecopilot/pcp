@@ -301,8 +301,14 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	/* Attempt to connect */
 	fdFlags = __pmConnectTo(fd, myAddr, pmcd_port);
 	__pmSockAddrFree(myAddr);
-	if (fdFlags < 0)
-	    continue; /* Try the next address */
+	if (fdFlags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address
+	     */
+	    fd = -EINVAL;
+	    continue;
+	}
 
 	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
