@@ -556,7 +556,8 @@ main(int argc, char **argv)
 
 	case 'm':		/* note for port map file */
 	    note = optarg;
-	    isdaemon = (strcmp(note, "pmlogger_check") == 0);
+	    isdaemon = ((strcmp(note, "pmlogger_check") == 0) ||
+			(strcmp(note, "pmlogger_daily") == 0));
 	    break;
 
 	case 'n':		/* alternative name space file */
