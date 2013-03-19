@@ -28,6 +28,8 @@ _clean_tmpdirs()
     _new_tmp_dir="$1"
     _old_tmp_dir="$2"
 
+    [ "$_new_tmp_dir" != "$old_tmp_dir" ] || return
+
     for _subdir
     do
         d="$_old_tmp_dir/$_subdir"
