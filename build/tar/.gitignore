@@ -2,3 +2,5 @@
 pcp.md5sum.src
 preinstall.head
 preinstall
+postinstall.head
+postinstall

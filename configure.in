@@ -2086,8 +2086,10 @@ dnl   PCP paths and other defs
     src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
-dnl   preamble for Debian preinst script
+dnl   preamble for deb install scripts
     debian/pcp.preinst.head
-dnl   preamble for tar preinstall script
+    debian/pcp.postinst.head
+dnl   preamble for tar install scripts
     build/tar/preinstall.head
+    build/tar/postinstall.head
 )
