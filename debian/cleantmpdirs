@@ -39,9 +39,9 @@ _clean_tmpdirs()
             target="$_new_tmp_dir/$_subdir/$f"
             [ "$source" != "$target" ] || continue
             $verbose && echo + mv -fun "$source" "$target"
-            mv -fun "$source" "$target"
+            mv -fun "$source" "$target" || true
         done
         $verbose && echo + rmdir "$d"
-        cd && rmdir "$d" 2>/dev/null
+        cd && rmdir "$d" 2>/dev/null || true
     done
 }
