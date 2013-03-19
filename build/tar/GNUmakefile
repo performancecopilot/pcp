@@ -25,14 +25,14 @@ LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) \
 
 default install install_pcp default_pcp : preinstall postinstall
 
-preinstall: preinstall.head ../../debian/cleanconfigs preinstall.tail
+preinstall: preinstall.head $(TOPDIR)/debian/cleanconfigs preinstall.tail
 	rm -f $@
-	cat preinstall.head ../../debian/cleanconfigs preinstall.tail > $@
+	cat preinstall.head $(TOPDIR)/debian/cleanconfigs preinstall.tail > $@
 	chmod ugo+x $@
 
-postinstall: postinstall.head ../../debian/cleantmpdirs postinstall.tail
+postinstall: postinstall.head $(TOPDIR)/debian/cleantmpdirs postinstall.tail
 	rm -f $@
-	cat postinstall.head ../../debian/cleantmpdirs postinstall.tail > $@
+	cat postinstall.head $(TOPDIR)/debian/cleantmpdirs postinstall.tail > $@
 	chmod ugo+x $@
 
 # Note on sed below
