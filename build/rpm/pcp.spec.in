@@ -359,7 +359,6 @@ getent passwd pcp >/dev/null || \
 # new directories; they should match /etc/pcp.conf settings after install
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
-[ -d $PCP_LOG_DIR ] || exit 0	# no configuration file upgrades required
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {
@@ -386,11 +385,12 @@ save_configs_script()
         fi
     done
 }
-# migrate and clean configs
+# migrate and clean configs if we have had a previous in-use installation
+[ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
 for daemon in pmcd pmie pmlogger pmproxy
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" $PCP_SYSCONF_DIR/$daemon \
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
         /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
@@ -411,10 +411,35 @@ then
 fi
 
 %post
-# restore saved configs, if any
 PCP_LOG_DIR=@pcp_log_dir@
+# restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
+
+# migrate old to new temp dir locations within the same filesystem)
+migrate_tempdirs()
+{
+    _sub="$1"
+    _new_tmp_dir=%{_tmpdir}
+    _old_tmp_dir=%{_localstatedir}/tmp
+
+    for d in "$_old_tmp_dir/$_sub" ; do
+	test -d "$d" -a -k "$d" || continue
+	cd "$d" || continue
+	for f in * ; do
+	    [ "$f" != "*" ] || continue
+	    source="$d/$f"
+	    target="$_new_tmp_dir/$_sub/$f"
+            [ "$source" != "$target" ] || continue
+            mv -fun "$source" "$target"
+        done
+        cd && rmdir "$d" 2>/dev/null
+    done
+}
+for daemon in mmv pmdabash pmie pmlogger
+do
+    migrate_tempdirs $daemon
+done
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
