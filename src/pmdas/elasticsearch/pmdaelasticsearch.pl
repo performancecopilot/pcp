@@ -125,10 +125,10 @@ sub es_refresh_cluster_health
 #
 sub es_rewrite_cluster_state
 {
-    my $indices = {$es_cluster_state->{'metadata'}->{'indices'}};
+    my $indices = $es_cluster_state->{'metadata'}->{'indices'};
     foreach my $index_key (keys %$indices) {
 	# Go over each setting key and transpose what the key name is called
-	my $settings = {$indices->{$index_key}->{'settings'}};
+	my $settings = $indices->{$index_key}->{'settings'};
 	foreach my $settings_key (keys %$settings) {
 	    # Convert keys like "index.version.created" to "version_created"
 	    my $transformed_key = $settings_key;
