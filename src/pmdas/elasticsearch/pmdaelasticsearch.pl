@@ -120,24 +120,31 @@ sub es_refresh_cluster_health
     $es_cluster = defined($content) ? decode_json($content) : undef;
 }
 
+# Update the JSON hash of ES indices so we can later map the metric names
+# much more easily back to the PMID (during the fetch callback routine).
+#
+sub es_rewrite_cluster_state
+{
+    my $indices = {$es_cluster_state->{'metadata'}->{'indices'}};
+    foreach my $index_key (keys %$indices) {
+	# Go over each setting key and transpose what the key name is called
+	my $settings = {$indices->{$index_key}->{'settings'}};
+	foreach my $settings_key (keys %$settings) {
+	    # Convert keys like "index.version.created" to "version_created"
+	    my $transformed_key = $settings_key;
+	    $transformed_key =~ s/index\.//;
+	    $transformed_key =~ s/\./_/g;
+	    $settings->{$transformed_key} = $settings->{$settings_key};
+	}
+    }
+}
+
 sub es_refresh_cluster_state
 {
     my $content = es_agent_get($baseurl . "_cluster/state");
     if (defined($content)) {
-	$es_cluster_state = defined($content) ? decode_json($content) : undef;
-	# Patch the returned JSON hash so we can map the metric names back
-	# to the PMID
-	foreach my $index_key (keys %{$es_cluster_state->{'metadata'}->{'indices'}}) {
-	    # Go through each setting key so we can transpose what the key name is called
-	    foreach my $settings_key (keys %{$es_cluster_state->{'metadata'}->{'indices'}->{$index_key}->{'settings'}}) {
-		my $transformed_setting_key = $settings_key;
-		# We want to convert the key index.version.created to version_created
-		$transformed_setting_key =~ s/index\.//;
-		$transformed_setting_key =~ s/\./_/g;
-		$es_cluster_state->{'metadata'}->{'indices'}->{$index_key}->{'settings'}->{$transformed_setting_key} =
-		     $es_cluster_state->{'metadata'}->{'indices'}->{$index_key}->{'settings'}->{$settings_key};
-	    }
-	}
+	$es_cluster_state = decode_json($content);
+	es_rewrite_cluster_state();
 	es_data_index_instances($es_cluster_state->{'metadata'}->{'indices'});
     } else {
 	$es_cluster_state = undef;
