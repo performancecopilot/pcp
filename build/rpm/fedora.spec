@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.7.0
+Version: 3.7.1
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -27,6 +27,9 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
+%define _confdir  %{_sysconfdir}/pcp
+%define _logsdir  %{_localstatedir}/log/pcp
+%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
@@ -216,7 +219,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=/etc/rc.d/init.d --with-tmpdir=%{_tempsdir}
+%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir}
 make default_pcp
 
 %install
@@ -232,7 +235,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
 
 # default chkconfig off for Fedora and RHEL
-for f in $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
+for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmproxy}; do
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
@@ -262,8 +265,8 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
-PCP_SYSCONF_DIR=/etc/pcp
-PCP_LOG_DIR=/var/log/pcp
+PCP_SYSCONF_DIR=%{_confdir}
+PCP_LOG_DIR=%{_logsdir}
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {
@@ -290,11 +293,12 @@ save_configs_script()
         fi
     done
 }
-# migrate and clean configs
+# migrate and clean configs if we have had a previous in-use installation
+[ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
 for daemon in pmcd pmie pmlogger pmproxy
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" $PCP_SYSCONF_DIR/$daemon \
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
         /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
@@ -318,14 +322,39 @@ then
 fi
 
 %post
+PCP_LOG_DIR=%{_logsdir}
 # restore saved configs, if any
-PCP_LOG_DIR=/var/log/pcp
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
-chown -R pcp:pcp %{_localstatedir}/log/pcp/pmcd 2>/dev/null
-chown -R pcp:pcp %{_localstatedir}/log/pcp/pmlogger 2>/dev/null
-chown -R pcp:pcp %{_localstatedir}/log/pcp/pmie 2>/dev/null
-chown -R pcp:pcp %{_localstatedir}/log/pcp/pmproxy 2>/dev/null
+
+# migrate old to new temp dir locations (within the same filesystem)
+migrate_tempdirs()
+{
+    _sub="$1"
+    _new_tmp_dir=%{_tempsdir}
+    _old_tmp_dir=%{_localstatedir}/tmp
+
+    for d in "$_old_tmp_dir/$_sub" ; do
+        test -d "$d" -a -k "$d" || continue
+        cd "$d" || continue
+        for f in * ; do
+            [ "$f" != "*" ] || continue
+            source="$d/$f"
+            target="$_new_tmp_dir/$_sub/$f"
+            [ "$source" != "$target" ] || continue
+            mv -fun "$source" "$target"
+        done
+        cd && rmdir "$d" 2>/dev/null
+    done
+}
+for daemon in mmv pmdabash pmie pmlogger
+do
+    migrate_tempdirs $daemon
+done
+chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
+chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
+chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
+chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -357,29 +386,29 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/pmproxy 2>/dev/null
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
-%{_localstatedir}/log/pcp
+%{_logsdir}
 %{_localstatedir}/lib/pcp/pmns
-%{_initrddir}/pcp
-%{_initrddir}/pmcd
-%{_initrddir}/pmlogger
-%{_initrddir}/pmie
-%{_initrddir}/pmproxy
+%{_initddir}/pcp
+%{_initddir}/pmcd
+%{_initddir}/pmlogger
+%{_initddir}/pmie
+%{_initddir}/pmproxy
 %{_mandir}/man4/*
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
 %{_sysconfdir}/pcp
-%config(noreplace) %{_sysconfdir}/pcp/pmcd/pmcd.conf
-%config(noreplace) %{_sysconfdir}/pcp/pmcd/pmcd.options
-%config(noreplace) %{_sysconfdir}/pcp/pmcd/rc.local
-%config(noreplace) %{_sysconfdir}/pcp/pmie/config.default
-%config(noreplace) %{_sysconfdir}/pcp/pmie/control
-%config(noreplace) %{_sysconfdir}/pcp/pmie/crontab
-%config(noreplace) %{_sysconfdir}/pcp/pmie/stomp
-%config(noreplace) %{_sysconfdir}/pcp/pmlogger/config.default
-%config(noreplace) %{_sysconfdir}/pcp/pmlogger/control
-%config(noreplace) %{_sysconfdir}/pcp/pmlogger/crontab
-%config(noreplace) %{_sysconfdir}/pcp/pmproxy/pmproxy.options
+%config(noreplace) %{_confdir}/pmcd/pmcd.conf
+%config(noreplace) %{_confdir}/pmcd/pmcd.options
+%config(noreplace) %{_confdir}/pmcd/rc.local
+%config(noreplace) %{_confdir}/pmie/config.default
+%config(noreplace) %{_confdir}/pmie/control
+%config(noreplace) %{_confdir}/pmie/crontab
+%config(noreplace) %{_confdir}/pmie/stomp
+%config(noreplace) %{_confdir}/pmlogger/config.default
+%config(noreplace) %{_confdir}/pmlogger/control
+%config(noreplace) %{_confdir}/pmlogger/crontab
+%config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %{_localstatedir}/lib/pcp/config/*
 
 %files libs
@@ -455,6 +484,10 @@ chown -R pcp:pcp %{_localstatedir}/log/pcp/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Wed Mar 20 2013 Nathan Scott <nathans@redhat.com> - 3.7.1-1
+- Update to latest PCP sources.
+- Migrate all tempfiles correctly to the new tempdir hierarchy.
+
 * Sun Mar 10 2013 Nathan Scott <nathans@redhat.com> - 3.7.0-1
 - Update to latest PCP sources.
 - Migrate all configuration files below the /etc/pcp hierarchy.

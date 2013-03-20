@@ -301,8 +301,14 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	/* Attempt to connect */
 	fdFlags = __pmConnectTo(fd, myAddr, pmcd_port);
 	__pmSockAddrFree(myAddr);
-	if (fdFlags < 0)
-	    continue; /* Try the next address */
+	if (fdFlags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address
+	     */
+	    fd = -EINVAL;
+	    continue;
+	}
 
 	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
@@ -680,7 +686,6 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
-/* TODO: Make this interface more like the native getnameinfo. i.e. caller provides buffer and size */
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
@@ -730,6 +735,8 @@ __pmGetAddrInfo(const char *hostName)
 	if (addr != NULL) {
 	    hostEntry->name = __pmGetNameInfo(addr);
 	    __pmSockAddrFree(addr);
+	    if (hostEntry->name == NULL)
+		hostEntry->name = strdup(hostName);
 	}
 	else
 	    hostEntry->name = strdup(hostName);

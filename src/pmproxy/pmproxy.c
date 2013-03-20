@@ -35,7 +35,7 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
-static char	hostname[MAXHOSTNAMELEN];
+static char	*hostname;
 
 static void
 DontStart(void)
@@ -415,18 +415,28 @@ SigBad(int sig)
 static void
 GetProxyHostname(void)
 {
-    struct hostent	*hep = NULL;
-    char		host[MAXHOSTNAMELEN];
+    __pmHostEnt	*hep;
+    char        host[MAXHOSTNAMELEN];
 
-    /* nathans TODO - fix this up - use newer APIs */
     if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-        __pmNotifyErr(LOG_ERR, "gethostname failure\n");
+        __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmProgname);
         DontStart();
     }
     host[MAXHOSTNAMELEN-1] = '\0';
-    hep = gethostbyname(host);
-    strncpy(hostname, hep ? hep->h_name : host, MAXHOSTNAMELEN);
-    hostname[MAXHOSTNAMELEN-1] = '\0';
+
+    hep = __pmGetAddrInfo(host);
+    if (hep == NULL) {
+        __pmNotifyErr(LOG_ERR, "%s: __pmGetAddrInfo failure\n", pmProgname);
+        DontStart();
+    } else {
+        hostname = __pmHostEntGetName(hep);
+        if (!hostname) {	/* no reverse DNS lookup for local hostname */
+            hostname = strdup(host);
+            if (!hostname)	/* out of memory, we're having a bad day!?! */
+                __pmNoMem("PMPROXY.hostname", strlen(host), PM_FATAL_ERR);
+        }
+        __pmHostEntFree(hep);
+    }
 }
 
 int

@@ -1,8 +1,11 @@
 #!/bin/sh
-
+#
 # Slackware build script for pcp
-
-# Roman Revyakin <rrevyakin@aconex.com> 
+#
+# Copyright (c) 2006 Aconex.  All Rights Reserved.
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+# Roman Revyakin <rrevyakin@aconex.com> .  All rights reserved.
 # ver 1.1 2009-10-06 
 
 PRGNAM=@package_name@
@@ -33,19 +36,20 @@ rm -rf "$PKG"
 mkdir -p "$TMP" "$PKG" "$OUTPUT"
 cd "$TMP"
 rm -rf "$PRGNAM-$VERSION"
-tar xzf "$CWD/../tar/$PRGNAM-$VERSION${BUILD:+-$BUILD}.src.tar.gz" || exit 1
+tar xzf "$CWD/../tar/$PRGNAM-$VERSION.src.tar.gz" || exit 1
 cd "$PRGNAM-$VERSION"
+
 # chown -R root:root .
 # chmod -R a-s,u+w,go+r-w .
-
-make configure_${PRGNAM}
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
   --prefix=/usr \
+  --libexecdir=/usr/lib \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
   --sysconfdir=/etc \
+  --with-rcdir=/etc/rc.d \
   --localstatedir=/var \
   --mandir=/usr/man \
   --infodir=/usr/info \
@@ -88,10 +92,9 @@ done
 cat "$CWD/$PRGNAM.SlackBuild" > "$PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild"
 
 # Move the startup scripts to where they belong to and disable them 
-for RC_SCRIPT in $(find "$PKG/etc/rc.d/init.d" -type f -printf "%f\n")
+for RC_SCRIPT in $(find "$PKG/etc/rc.d" -type f -printf "%f\n")
 do
-    mv "$PKG/etc/rc.d/init.d/$RC_SCRIPT" "$PKG/etc/rc.d/rc.$RC_SCRIPT" 
-    chmod 644 "$PKG/etc/rc.d/rc.$RC_SCRIPT"
+    ln "$PKG/etc/rc.d/$RC_SCRIPT" "$PKG/etc/rc.d/rc.$RC_SCRIPT" 
 done 
 
 # Add doinst.sh to package (if it exists)

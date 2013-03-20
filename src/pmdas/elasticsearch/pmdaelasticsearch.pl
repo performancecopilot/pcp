@@ -28,6 +28,9 @@ my @nodes_instance_ids;
 my $search_indom = 1;
 my @search_instances;
 my @search_instance_ids;
+my $index_indom = 2;
+my @index_instances;
+my @index_instance_ids;
 
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
@@ -74,6 +77,24 @@ sub es_data_node_instances
     $pmda->replace_indom($nodes_indom, \@nodes_instances);
 }
 
+sub es_data_index_instances
+{
+    my $indexIDs = shift;
+    my $i = 0;
+
+    @index_instances = ();
+    @index_instance_ids = ();
+    foreach my $index (keys %$indexIDs){
+	$index_instances[$i*2] = $i;
+	$index_instances[($i*2)+1] = $index;
+	$index_instance_ids[$i*2] = $i;
+	$index_instance_ids[($i*2)+1] = $index;
+	$i++;
+    }
+    $pmda->replace_indom($index_indom, \@index_instances);
+
+}
+
 # crack json data structure, extract index names
 sub es_search_instances
 {
@@ -99,10 +120,35 @@ sub es_refresh_cluster_health
     $es_cluster = defined($content) ? decode_json($content) : undef;
 }
 
+# Update the JSON hash of ES indices so we can later map the metric names
+# much more easily back to the PMID (during the fetch callback routine).
+#
+sub es_rewrite_cluster_state
+{
+    my $indices = {$es_cluster_state->{'metadata'}->{'indices'}};
+    foreach my $index_key (keys %$indices) {
+	# Go over each setting key and transpose what the key name is called
+	my $settings = {$indices->{$index_key}->{'settings'}};
+	foreach my $settings_key (keys %$settings) {
+	    # Convert keys like "index.version.created" to "version_created"
+	    my $transformed_key = $settings_key;
+	    $transformed_key =~ s/index\.//;
+	    $transformed_key =~ s/\./_/g;
+	    $settings->{$transformed_key} = $settings->{$settings_key};
+	}
+    }
+}
+
 sub es_refresh_cluster_state
 {
     my $content = es_agent_get($baseurl . "_cluster/state");
-    $es_cluster_state = defined($content) ? decode_json($content) : undef;
+    if (defined($content)) {
+	$es_cluster_state = decode_json($content);
+	es_rewrite_cluster_state();
+	es_data_index_instances($es_cluster_state->{'metadata'}->{'indices'});
+    } else {
+	$es_cluster_state = undef;
+    }
 }
 
 sub es_refresh_cluster_nodes_stats_all
@@ -167,7 +213,7 @@ sub es_refresh
 	es_refresh_stats_search();
 	# avoid 2nd refresh call on metrics in other cluster
 	$cluster_cache[4] = $cluster_cache[5] = $now;
-    } elsif ($cluster == 6) { # Update the cluster state
+    } elsif ($cluster == 6 || $cluster == 7) { # Update the cluster state
 	es_refresh_cluster_state();
     }
     $cluster_cache[$cluster] = $now;
@@ -185,6 +231,13 @@ sub es_lookup_search
     my ($json, $inst) = @_;
     my $searchID = $search_instance_ids[($inst*2)+1];
     return $json->{'_all'}->{'indices'}->{$searchID};
+}
+
+sub es_lookup_index
+{
+    my ($json, $inst) = @_;
+    my $indexID = $index_instance_ids[($inst*2)+1];
+    return $json->{'metadata'}->{'indices'}->{$indexID};
 }
 
 # iterate over metric-name components, performing hash lookups as we go.
@@ -301,6 +354,16 @@ sub es_fetch_callback
 	# remove first couple (i.e. elasticsearch.cluster.)
 	splice(@metric_subnames, 0, 2);
 	return es_value($es_cluster_state, \@metric_subnames);
+    }
+    elsif ($cluster == 7) {
+	# Remove elasticsearch.index
+	splice(@metric_subnames, 0, 2);
+	if (!defined($es_cluster_state)){ return (PM_ERR_AGAIN, 0); }
+	if ($inst == PM_IN_NULL)    { return (PM_ERR_INST, 0); }
+	$search = es_lookup_index($es_cluster_state, $inst);
+	if (!defined($search))      { return (PM_ERR_AGAIN, 0); }
+	return es_value($search, \@metric_subnames);
+
     }
     return (PM_ERR_PMID, 0);
 }
@@ -728,10 +791,30 @@ $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  'elasticsearch.cluster.master_node',
 		  'Internal identifier of the master node of the cluster', '');
 
+# index state
+$pmda->add_metric(pmda_pmid(7,0), PM_TYPE_64, $index_indom,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+		  'elasticsearch.index.settings.gateway_snapshot_interval',
+		  'Interval between gateway snapshots', '');
+$pmda->add_metric(pmda_pmid(7,1), PM_TYPE_U64, $index_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.index.settings.number_of_replicas',
+		  'Number of replicas of shards index setting', '');
+$pmda->add_metric(pmda_pmid(7,2), PM_TYPE_U64, $index_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.index.settings.number_of_shards',
+		  'Number of shards index setting', '');
+$pmda->add_metric(pmda_pmid(7,3), PM_TYPE_U64, $index_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'elasticsearch.index.settings.version_created',
+		  'The version of elasticsearch the index was created with', '');
+
 $pmda->add_indom($nodes_indom, \@nodes_instances,
 		'Instance domain exporting each elasticsearch node', '');
 $pmda->add_indom($search_indom, \@search_instances,
 		'Instance domain exporting each elasticsearch index', '');
+$pmda->add_indom($index_indom, \@index_instances,
+		'Instance domain exporting each elasticsearch index metadata', '');
 
 $pmda->set_fetch_callback(\&es_fetch_callback);
 $pmda->set_refresh(\&es_refresh);

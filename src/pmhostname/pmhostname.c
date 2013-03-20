@@ -22,14 +22,17 @@
 int
 main(int argc, char **argv)
 {
-    char		*name;
-    char        	host[MAXHOSTNAMELEN];
-    struct hostent      *hep = NULL;
+    char	*name, *hename;
+    char       	host[MAXHOSTNAMELEN];
+    __pmHostEnt	*hep;
 
     __pmSetProgname(argv[0]);
 
     if (argc == 1) {
-	(void)gethostname(host, MAXHOSTNAMELEN);
+	if (gethostname(host, MAXHOSTNAMELEN) < 0) {
+	    __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmProgname);
+	    exit(1);
+	}
 	name = host;
     }
     else if (argc == 2 && argv[1][0] != '-')
@@ -39,11 +42,13 @@ main(int argc, char **argv)
 	exit(0);
     }
 
-    hep = gethostbyname(name);
+    hep = __pmGetAddrInfo(name);
     if (hep == NULL)
         printf("%s\n", name);
-    else
-        printf("%s\n", hep->h_name);
+    else {
+	hename = __pmHostEntGetName(hep);
+        printf("%s\n", hename ? hename : name);
+    }
 
     exit(0);
 }

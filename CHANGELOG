@@ -1,6 +1,18 @@
-pcp-3.7.1 (under development)
+pcp-3.7.1 (20 March 2013)
     - IPv6 addresses and wild cards for host access control.
-    - ...
+    - Add packaging scripts to correctly transition active temp
+      file directories from their old locations.
+    - Resolve a warning from rpm %pre script on new installs.
+    - Convert pmhostname(1) to use the newer networking APIs.
+    - Convert pmproxy(1) to use the newer networking APIs.
+    - Correct the pmlogger heuristics for determining whether it
+      is running as a daemon for *both* pmlogger_{daily,check}.
+    - Add script to handle the tmpdir transition such that folks
+      with running parfait/mmv-instrumented applications continue
+      to see data exported, and for correct pmlogger/pmie daemon
+      tracking across releases.
+    - Fix "Warning: __pmConnectRestoreFlags: cannot restore flags"
+      messages when built with secure-sockets option disabled.
 
 pcp-3.7.0 (11 March 2013)
     - Added hash table iterator interfaces to libpcp.

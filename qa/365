@@ -21,10 +21,14 @@ pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out $seq.full
-if $ipv6 ; then
-    ln $seq.out.4 $seq.out || exit 1
+if [ $PCP_VER -ge 3700 ]; then
+    if $ipv6 ; then
+        ln $seq.out.5 $seq.out || exit 1
+    else
+        ln $seq.out.4 $seq.out || exit 1
+    fi
 elif $pmcdx ; then
-    if test $PCP_EOE_VER -ge 2704; then
+    if test $PCP_VER -ge 2704; then
 	ln $seq.out.3 $seq.out
     else
 	ln $seq.out.2 $seq.out
@@ -148,6 +152,7 @@ s/lib=\/var\//lib=\/usr-or-var\//
 $8 ~ /^[A-Z]+HOST[12]*$/{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*$/,"<ipaddr>",$5)
+			}
 			{ print }'
 
 status=0
