@@ -785,7 +785,7 @@ $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_STRING, PM_INDOM_NULL,
 		  'Internal identifier of the master node of the cluster', '');
 
 # index state
-$pmda->add_metric(pmda_pmid(7,0), PM_TYPE_U64, $index_indom,
+$pmda->add_metric(pmda_pmid(7,0), PM_TYPE_64, $index_indom,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 		  'elasticsearch.index.settings.gateway_snapshot_interval',
 		  'Interval between gateway snapshots', '');
