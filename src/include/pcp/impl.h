@@ -195,30 +195,30 @@ pmInDom_build (unsigned int domain, unsigned int serial)
 /*
  * internal structure of a PMNS node
  */
-typedef struct pn_s {
-    struct pn_s	*parent;
-    struct pn_s	*next;
-    struct pn_s	*first;
-    struct pn_s	*hash;	/* used as "last" in build, then pmid hash synonym */
-    char	*name;
-    pmID	pmid;
+typedef struct __pmnsNode {
+    struct __pmnsNode	*parent;
+    struct __pmnsNode	*next;
+    struct __pmnsNode	*first;
+    struct __pmnsNode	*hash;	/* used as "last" in build, then pmid hash synonym */
+    char		*name;
+    pmID		pmid;
 } __pmnsNode;
 
 /*
  * internal structure of a PMNS tree
  */
-typedef struct {
-    __pmnsNode *root;  /* root of tree structure */
-    __pmnsNode **htab; /* hash table of nodes keyed on pmid */
-    int htabsize;     /* number of nodes in the table */
-    char *symbol;     /* store all names contiguously */
-    int contiguous;   /* is data stored contiguously ? */
-    int mark_state;   /* the total mark value for trimming */
+typedef struct __pmnsTree {
+    __pmnsNode		*root;  /* root of tree structure */
+    __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
+    int			htabsize;     /* number of nodes in the table */
+    char		*symbol;     /* store all names contiguously */
+    int			contiguous;   /* is data stored contiguously ? */
+    int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
 
 /* used by pmnsmerge... */
-extern __pmnsTree* __pmExportPMNS(void); 
+extern __pmnsTree *__pmExportPMNS(void); 
 
 /* for PMNS in archives */
 extern int __pmNewPMNS(__pmnsTree **);
@@ -297,13 +297,13 @@ extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 /*
  * Hashed Data Structures for the Processing of Logs and Archives
  */
-typedef struct _hashnode {
-    struct _hashnode	*next;
+typedef struct __pmHashNode {
+    struct __pmHashNode	*next;
     unsigned int	key;
     void		*data;
 } __pmHashNode;
 
-typedef struct {
+typedef struct __pmHashCtl {
     int			nodes;
     int			hsize;
     __pmHashNode	**hash;
@@ -410,7 +410,7 @@ extern const char *__pmFindPMDA(const char *);
 #define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
 
 /* Profile entry (per instance domain) */
-typedef struct {
+typedef struct __pmInDomProfile {
     pmInDom	indom;			/* instance domain */
     int		state;			/* include all or exclude all */
     int		instances_len;		/* length of instances array */
@@ -418,7 +418,7 @@ typedef struct {
 } __pmInDomProfile;
 
 /* Instance profile for all domains */
-typedef struct {
+typedef struct __pmProfile {
     int			state;			/* default global state */
     int			profile_len;		/* length of profile array */
     __pmInDomProfile	*profile;		/* array of instance profiles */
@@ -434,7 +434,7 @@ extern void __pmDumpProfile(FILE *, int, const __pmProfile *);
  * Result structure for instance domain queries
  * Only the PMDAs and pmcd need to know about this.
  */
-typedef struct {
+typedef struct __pmInResult {
     pmInDom	indom;		/* instance domain */
     int		numinst;	/* may be 0 */
     int		*instlist;	/* instance ids, may be NULL */

@@ -102,9 +102,9 @@ typedef void (*pmdaEndContextCallBack)(int);
  * Forward declarations of structures so that inclusion of (internal) impl.h
  * header file is not mandated if this header file is included.
  */
-typedef struct __pmnsTree __pmnsTree;
-typedef struct __pmProfile __pmProfile;
-typedef struct __pmInResult __pmInResult;
+typedef struct __pmnsTree  pmdaNameSpace;
+typedef struct __pmProfile pmdaInProfile;
+typedef struct __pmInResult pmdaInResult;
 
 /*
  * libpcp_pmda extension structure.
@@ -134,7 +134,7 @@ typedef struct {
     int		e_nmetrics;	/* number of metrics */
     int		e_nindoms;	/* number of instance domains */
     int		e_help;		/* help text comes via this handle */
-    __pmProfile	*e_prof;	/* last received profile */
+    pmdaInProfile *e_prof;	/* last received profile */
     pmdaIoType	e_io;		/* connection type to pmcd */
     pmdaIndom	*e_indoms;	/* instance domain table */
     pmdaIndom	*e_idp;		/* used in instance domain expansion */
@@ -177,10 +177,10 @@ typedef struct {
 
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(__pmProfile *, pmdaExt *);
+	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	} two;
@@ -193,10 +193,10 @@ typedef struct {
 
 	struct {
 	    pmdaExt *ext;
-	    int	    (*profile)(__pmProfile *, pmdaExt *);
+	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
 	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
-	    int	    (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
@@ -317,7 +317,7 @@ extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
  *       structure.
  *
  * pmdaProfile
- *	Store the __pmProfile away for the next fetch.
+ *	Store the instance profile away for the next fetch.
  *
  * pmdaFetch
  *	Resize the pmResult and call e_callback in the pmdaExt structure
@@ -351,9 +351,9 @@ extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
  *	(this is the pmTraversePMNS variant, with the status added)
  */
 
-extern int pmdaProfile(__pmProfile *, pmdaExt *);
+extern int pmdaProfile(pmdaInProfile *, pmdaExt *);
 extern int pmdaFetch(int , pmID *, pmResult **, pmdaExt *);
-extern int pmdaInstance(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+extern int pmdaInstance(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
 extern int pmdaStore(pmResult *, pmdaExt *);
@@ -373,29 +373,29 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
  * Dynamic names interface (version 4) helper routines.
  *
  * pmdaTreePMID
- *	when a __pmnsTree implementation is being used, this provides
+ *	when a pmdaNameSpace is being used, this provides
  *	an implementation for the four.pmid() interface.
  *
  * pmdaTreeName
- *	when a __pmnsTree implementation is being used, this provides
+ *	when a pmdaNameSpace is being used, this provides
  *	an implementation for the four.name() interface.
  *
  * pmdaTreeChildren
- *	when a __pmnsTree implementation is being used, this provides
+ *	when a pmdaNameSpace is being used, this provides
  *	an implementation for the four.children() interface.
  *
  * pmdaTreeRebuildHash
- *	iterate over a pmns tree and (re)build the hash table for any
- *	subsequent PMID -> name (reverse) lookups
+ *	iterate over a pmdaNameSpace and (re)build the hash
+ *	for any subsequent PMID -> name (reverse) lookups
  *
  * pmdaTreeSize
- *	returns the numbers of entries in a __pmnsTree.
+ *	returns the numbers of entries in a pmdaNameSpace.
  */
-extern int pmdaTreePMID(__pmnsTree *, const char *, pmID *);
-extern int pmdaTreeName(__pmnsTree *, pmID, char ***);
-extern int pmdaTreeChildren(__pmnsTree *, const char *, int, char ***, int **);
-extern void pmdaTreeRebuildHash(__pmnsTree *, int);
-extern int pmdaTreeSize(__pmnsTree *);
+extern int pmdaTreePMID(pmdaNameSpace *, const char *, pmID *);
+extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
+extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
+extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
+extern int pmdaTreeSize(pmdaNameSpace *);
 
 /*
  * PMDA instance domain cache support
