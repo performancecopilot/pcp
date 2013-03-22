@@ -1,0 +1,86 @@
+QA output created by 716
+dbpmda> open pipe /usr/bin/perl pmdasimple.pl
+Start perl PMDA: /usr/bin/perl pmdasimple.pl
+dbpmda> getdesc on
+dbpmda> desc simple.numfetch
+PMID: 253.0.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+dbpmda> fetch simple.numfetch
+PMID(s): 253.0.0
+pmResult ... numpmid: 1
+  253.0.0 (simple.numfetch): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> text simple.numfetch
+PMID: 253.0.0
+[Number of pmFetch operations.]
+The cumulative number of pmFetch operations directed to the "simple"
+PMDA.
+
+This counter may be modified with pmstore(1).
+dbpmda> desc simple.color
+PMID: 253.0.1
+    Data Type: 32-bit int  InDom: 253.0 0x3f400000
+    Semantics: instant  Units: none
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult ... numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> text simple.color
+PMID: 253.0.1
+[Metrics which increment with each fetch]
+This metric has 3 instances, designated "red", "green" and "blue".
+
+The value of the metric is monotonic increasing in the range NUMBER to
+255, then back to 0.  The different instances have different starting
+values, namely 0 (red), 100 (green) and 200 (blue).
+
+The metric values my be altered using pmstore(1).
+dbpmda> desc simple.now
+PMID: 253.2.4
+    Data Type: 32-bit unsigned int  InDom: 253.1 0x3f400001
+    Semantics: instant  Units: none
+dbpmda> fetch simple.now
+PMID(s): 253.2.4
+pmResult ... numpmid: 1
+  253.2.4 (simple.now): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+    inst [1 or ???] value NUMBER
+    inst [2 or ???] value NUMBER
+dbpmda> text simple.now
+PMID: 253.2.4
+[Time of day with a configurable instance domain]
+The value reflects the current time of day through a dynamically
+reconfigurable instance domain.  On each metric value fetch request,
+the agent checks to see whether the configuration file in
+$PCP_PMDAS_DIR/simple/simple.conf has been modified - if it has then
+the file is re-parsed and the instance domain for this metric is again
+constructed according to its contents.
+
+This configuration file contains a single line of comma-separated time
+tokens from this set:
+  "sec"  (seconds after the minute),
+  "min"  (minutes after the hour),
+  "hour" (hour since midnight).
+
+An example configuration file could be:  sec,min,hour
+and in this case the simple.now metric would export values
+for the three instances "sec", "min" and "hour" corresponding
+respectively to the components seconds, minutes and hours of the
+current time of day.
+
+The instance domain reflects each token present in the file, and the
+values reflect the time at which the PMDA processes the fetch.
+dbpmda> instance 253.0
+pmInDom: 253.0
+[  0] inst: 0 name: "red"
+[  1] inst: 1 name: "green"
+[  2] inst: 2 name: "blue"
+dbpmda> text indom 253.1
+pmInDom: 253.1
+[Instance domain "colour" for simple PMDA]
+Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+dbpmda> 
