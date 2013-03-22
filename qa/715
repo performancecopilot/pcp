@@ -1,0 +1,103 @@
+#! /bin/sh
+# PCP QA Test No. 715
+# Basic checkout of the Perl pmdasimple implementation.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+status=1
+done_clean=false
+rm -f $seq.full
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+iam=simple
+cd $PCP_PMDAS_DIR/$iam
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+echo
+echo "=== $iam agent installation ==="
+cat << End-of-File | $sudo ./Install >$tmp.out 2>&1
+both
+perl
+End-of-File
+# Check simple metrics have appeared ... X metrics and Y values
+_filter_pmda_install <$tmp.out \
+| sed \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/'
+
+check()
+{
+    iter=$1
+    name=$2
+
+    echo "fetch pmprobe #$iter - $name" | tee -a $here/$seq.full
+    pmprobe -v $iam > $tmp.pmprobe
+    cat $tmp.pmprobe >>$here/$seq.full
+
+    echo "check pmprobe #$iter - $name" | tee -a $here/$seq.full
+    cat $tmp.pmprobe \
+    | while read metric nv v1
+    do
+	if [ "$metric" = "simple.numfetch" ]
+	then
+	    echo "$metric shows $nv value(s), $v1 fetches so far"
+	else
+	    echo "$metric shows $nv value(s)"
+        fi
+    done
+}
+
+echo
+echo "=== fetch and check values ==="
+echo sec,min,hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
+check 1 defaults
+echo sec,min > $tmp.conf && $sudo mv $tmp.conf simple.conf
+check 2 twotimes
+echo hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
+check 3 onetime
+echo > $tmp.conf && $sudo mv $tmp.conf simple.conf
+check 4 notime
+
+# reset the clock back to the start state
+echo sec,min,hour > $tmp.conf && $sudo mv $tmp.conf simple.conf
+
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit
