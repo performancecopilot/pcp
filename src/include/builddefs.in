@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -277,6 +277,33 @@ DOMAIN_PERLRULE = \
 		}\
 		if (pmd != "'"$$perldomain"'") {\
 		    print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Perl source ("'"$$perldomain"'")"; \
+		    exit(1) \
+		}\
+		exit(0) \
+	    }'
+
+DOMAIN_PYTHONRULE = \
+	@export pythondomain=`sed -n \
+		-e '/PMDA(/s/[^0-9]*$//' \
+		-e '/PMDA(/s/^[^0-9]*//p' pmda$(IAM).py`; \
+	$(AWK) <$< '\
+	    BEGIN {\
+		domain = toupper("$(IAM)") \
+	    }\
+	    $$1=="\#define" && $$2 == domain { \
+		pmd=$$3; found++ \
+	    }\
+	    END {\
+		if (found == 0) {\
+		    print "Botch: no define for domain " domain " in $<"; \
+		    exit(1) \
+		}\
+	        if (found > 1) {\
+		    print "Botch: multiple defines of domain " domain " in $<";\
+		    exit(1) \
+		}\
+		if (pmd != "'"$$pythondomain"'") {\
+		    print "Botch: domain number in ../../pmns/stdpmid (" pmd ") does not match domain number in Python source ("'"$$pythondomain"'")"; \
 		    exit(1) \
 		}\
 		exit(0) \

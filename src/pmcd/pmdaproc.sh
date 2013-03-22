@@ -139,6 +139,8 @@ ECHONL="echo -n"
 dso_opt=false
 #	Can install as perl script?
 perl_opt=false
+#	Can install as python script?
+python_opt=false
 #	Can install as daemon?
 daemon_opt=true
 #	If daemon, pipe?
@@ -471,6 +473,9 @@ __check_domain()
     elif [ -f domain.h.perl ]
     then
 	__infile=domain.h.perl
+    elif [ -f domain.h.python ]
+    then
+	__infile=domain.h.python
     else
 	echo "Install: cannot find ./domain.h to determine the Performance Metrics Domain"
 	exit 1
@@ -852,7 +857,29 @@ _setup()
 	fi
     fi
 
-    # Juggle pmns and domain.h in case perl pmda install was done here
+    # automatically generate files for the Python programmers too
+    #
+    if $python_opt
+    then
+	python_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.py"
+	python_name="$python_name"
+	python_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.python"
+	python_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.python"
+	python -e 'from pcp import pmda' 2>/dev/null
+	if test $? -eq 0
+	then
+	    eval PCP_PYTHON_DOMAIN=1 python "$python_name" > "$python_dom"
+	    eval PCP_PYTHON_PMNS=1 python "$python_name" > "$python_pmns"
+	elif $dso_opt || $daemon_opt
+	then
+	    :	# we have an alternative, so continue on
+	else
+	    echo 'Python pcp.pmda module is not installed, install it and try again'
+	    exit 1
+	fi
+    fi
+
+    # Juggle pmns and domain.h in case perl/python pmda install was done here
     # last time
     #
     for file in pmns domain.h
@@ -904,7 +931,7 @@ _install_views()
 #
 # before calling _install,
 # 1. set $iam
-# 2. set one/some/all of $dso_opt, $perl_opt, or $daemon_opt to true
+# 2. set one/some/all of $dso_opt, $perl_opt, $python_opt or $daemon_opt to true
 #    (optional, $daemon_opt is true by default)
 # 3. if $daemon_opt set one or both of $pipe_opt or $socket_opt true
 #    (optional, $pipe_opt is true by default)
@@ -921,11 +948,11 @@ _install()
 
     if $do_pmda
     then
-	if $dso_opt || $perl_opt || $daemon_opt
+	if $dso_opt || $perl_opt || $python_opt || $daemon_opt
 	then
 	    :
 	else
-	    echo 'Botch: must set at least one of $dso_opt, $perl_opt or $daemon_opt to "true"'
+	    echo 'Botch: must set at least one of $dso_opt, $perl_opt, $python_opt or $daemon_opt to "true"'
 	    exit 1
 	fi
 	if $daemon_opt
@@ -939,7 +966,7 @@ _install()
 	    fi
 	fi
 
-	# Select a PMDA style (dso/perl/deamon), and for daemons the
+	# Select a PMDA style (dso/perl/python/deamon), and for daemons the
 	# IPC method for communication between PMCD and the PMDA.
 	#
 	pmda_options=''
@@ -960,6 +987,17 @@ _install()
 		pmda_multiple_options=true
 	    else
 		pmda_options="perl"
+	    fi
+	fi
+	if $python_opt
+	then
+	    pmda_default_option="python"
+	    if test -n "$pmda_options"
+	    then
+		pmda_options="python or $pmda_options"
+		pmda_multiple_options=true
+	    else
+		pmda_options="python"
 	    fi
 	fi
 	if $daemon_opt
@@ -999,6 +1037,16 @@ _install()
 			break
 		    fi
 		else
+		elif [ "X$pmda_type" = Xpython ]
+		then
+		    python -e 'from pcp import pmda' 2>/dev/null
+		    if test $? -ne 0
+		    then
+			echo 'Python pcp pmda module is not installed, install it and try again'
+		    else
+			break
+		    fi
+		else
 		    echo "Must choose one of $pmda_options, please try again"
 		fi
 	    done
@@ -1011,6 +1059,10 @@ _install()
 	then
 	    type="pipe	binary		perl $perl_name"
 	    args=""
+	elif [ "$pmda_type" = python ]
+	then
+	    type="pipe	binary		python $python_name"
+	    args=""
 	else
 	    type="dso	$dso_entry	$dso_name"
 	    args=""
@@ -1018,7 +1070,10 @@ _install()
 
 	# Install binaries
 	#
-	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
+	if [ "$pmda_type" = perl -o "$pmda_type" = python ]
+	then
+	    :	# we can safely skip building binaries
+	elif [ -f Makefile -o -f makefile -o -f GNUmakefile ]
 	then
 	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
 	    then
@@ -1056,41 +1111,39 @@ _install()
 
     if $do_pmda
     then
-	if [ "X$pmda_type" = Xperl ]
+	if [ "X$pmda_type" = Xperl -o "X$pmda_type" = Xpython ]
 	then
 	    # Juggle pmns and domain.h ... save originals and
-	    # use *.perl ones created earlier
+	    # use *.{perl,python} ones created earlier
 	    for file in pmns domain.h
 	    do
-		if [ ! -f $file.perl ]
+		if [ ! -f "$file.$pmda_type" ]
 		then
-		    echo "Botch: $file.perl missing ... giving up"
+		    echo "Botch: $file.$pmda_type missing ... giving up"
 		    exit 1
 		fi
 		if [ -f $file ]
 		then
-		    if diff $file.perl $file >/dev/null
+		    if diff $file.$pmda_type $file >/dev/null
 		    then
 			:
 		    else
 			[ ! -f $file.save ] && mv $file $file.save
-			mv $file.perl $file
+			mv $file.$pmda_type $file
 		    fi
 		else
-		    mv $file.perl $file
+		    mv $file.$pmda_type $file
 		fi
 	    done
 	fi
     else
-	# Maybe PMNS only install, and only implementation may be a
-	# Perl one ... simpler juggling needed here
+	# Maybe PMNS only install, and only implementation may be
+	# Perl or Python ones ... simpler juggling needed here.
 	#
 	for file in pmns domain.h
 	do
-	    if [ ! -f $file -a -f $file.perl ]
-	    then
-		mv $file.perl $file
-	    fi
+	    [ ! -f $file -a -f $file.perl ] && mv $file.perl $file
+	    [ ! -f $file -a -f $file.python ] && mv $file.python $file
 	done
     fi
 
