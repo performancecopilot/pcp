@@ -1,0 +1,741 @@
+#!/bin/sh
+#
+# Run test builds on one or more PCP machines
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18"
+list_2="comma grundy vm02 vm00 vm05 vm11 vm15 vm19"
+
+_usage()
+{
+    echo >&2 "Usage: `basename $0` [options] vm ..."
+    echo >&2 "options:"
+    echo >&2 "  -a          all except shutdown VM [implies -pmiqh]"
+    echo >&2 "  -b branch   pcp branch to checkout [default $pcp_branch]"
+    echo >&2 "  -c          check git repositories"
+    echo >&2 "  -e file     prerun script"
+    echo >&2 "  -f          force shutdown"
+    echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
+    if [ "X$what" = Xall ]
+    then
+	echo >&2 "              [default <nothing> => all tests]"
+    else
+	echo >&2 "              [default $what]"
+    fi
+    echo >&2 "  -h          harvest QA failures"
+    echo >&2 "  -i          install built pcp packages"
+    echo >&2 "  -m          build (Makepkgs) for pcp"
+    echo >&2 "  -p          git pull for pcp"
+    echo >&2 "  -q          run qa"
+    echo >&2 "  -r          rerun qa for failing cases"
+    echo >&2 "  -s          shutdown VM"
+    echo >&2 "  -t          tree for pcp [default $pcp_tree]"
+    echo >&2 "default: -pmiqhs"
+    echo >&2 "vmlist1: $list_1"
+    echo >&2 "vmlist2: $list_2"
+    echo >&2 "[both vmlists run in parallel for the default case]"
+}
+
+args="$*"
+pcp_branch=dev
+pcp_tree=pcp
+cflag=false
+fflag=false
+hflag=false
+iflag=false
+mflag=false
+pflag=false
+qflag=false
+rflag=false
+what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
+what=all
+sflag=false
+options=false
+work=false
+efile=''
+while getopts "ab:B:ce:fg:himpqrst:T:?" c
+do
+    case $c
+    in
+	a)
+	    options=true
+	    work=true
+	    pflag=true
+	    mflag=true
+	    iflag=true
+	    qflag=true
+	    hflag=true
+	    ;;
+	b)
+	    pcp_branch="$OPTARG"
+	    ;;
+	c)
+	    options=true
+	    work=true
+	    cflag=true
+	    ;;
+	e)
+	    efile="$OPTARG"
+	    if [ -f "$efile" ]
+	    then
+		:
+	    else
+		echo "Error: $efile: cannot be found"
+		sts=1
+		exit
+	    fi
+	    ;;
+	f)
+	    fflag=true
+	    ;;
+	g)
+	    what="$OPTARG"
+	    ;;
+	h)
+	    options=true
+	    work=true
+	    hflag=true
+	    ;;
+	i)
+	    options=true
+	    work=true
+	    iflag=true
+	    ;;
+	m)
+	    options=true
+	    work=true
+	    mflag=true
+	    ;;
+	p)
+	    options=true
+	    work=true
+	    pflag=true
+	    ;;
+	q)
+	    options=true
+	    work=true
+	    qflag=true
+	    ;;
+	r)
+	    options=true
+	    work=true
+	    rflag=true
+	    ;;
+	s)
+	    options=true
+	    sflag=true
+	    ;;
+	t)
+	    pcp_tree="$OPTARG"
+	    ;;
+	?)
+	    _usage
+	    sts=1
+	    exit
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 0 ]
+then
+    # set -- vm03 vm02 vm01 vm00 vm04 vm05 vm07 vm08 vm11 vm12 vm13 vm14 vm16 comma
+    set -- $list_1
+    pcp-daily $args $list_2 &
+fi
+
+if $options
+then
+    :
+else
+    # defaults
+    #
+    work=true
+    pflag=true
+    mflag=true
+    iflag=true
+    qflag=true
+    hflag=true
+    sflag=true
+fi
+
+today=`date +%Y-%m-%d`
+mkdir -p $HOME/Logs/by-date/$today
+
+echo "comma" >$tmp.domains
+echo "grundy.sgi.com" >>$tmp.domains
+if which virsh >/dev/null 2>&1
+then
+    virsh list --all \
+    | sed >>$tmp.domains \
+        -e 1d \
+        -e '/-----/d' \
+        -e 's/^  *//' \
+        -e 's/^[0-9][0-9]*[ 	]*//' \
+        -e 's/^-[ 	]*//' \
+	-e 's/[    ].*//' \
+        -e '/^$/d'
+fi
+
+for target
+do
+    grep "^$target" <$tmp.domains >$tmp.domain
+    if [ ! -s $tmp.domain ]
+    then
+	echo "No domain matches \"$target\" ... the domains I have are ..."
+	cat $tmp.domains
+	continue
+    fi
+    count=`wc -l <$tmp.domain | sed -e 's/ //g'`
+    if [ $count != 1 ]
+    then
+	echo "More than one domain matches \"$target\" ... the matches I have are ..."
+	cat $tmp.domain
+	continue
+    fi
+    domain=`cat $tmp.domain`
+    host=`echo $domain | sed -e '/^vm/s/-.*//'`
+    echo "::: $domain :::"
+    # per-host settings
+    # MAKE=gmake for *BSD hosts
+    #
+    MAKE=make
+    case "$domain"
+    in
+	*freebsd*|*netbsd*)
+	    MAKE=gmake
+	    ;;
+	*grundy*)
+	    [ X"$what" = Xall ] && what='-x remote'
+	    ;;
+    esac
+
+    if which virsh >/dev/null 2>&1
+    then
+	state=`virsh list --all | grep "$domain" | awk '{print $3}'`
+	case "$state"
+	in
+	    shut)
+		if $work
+		then
+		    sudo virsh start $domain
+		    state=running
+		fi
+		;;
+	    running)
+		;;
+	    paused)
+		if $work
+		then
+		    sudo virsh resume $domain
+		    state=running
+		fi
+		;;
+	    '')
+		# probably not a VM, like "comma"
+		;;
+	    *)
+		echo "No clue what do with virsh state \"$state\""
+		continue
+		;;
+	esac
+    fi
+
+    if $work
+    then
+	log=$HOME/Logs/by-date/$today/$domain
+	touch $log
+	mkdir -p $HOME/Logs/by-vm/$domain
+	if [ ! -L $HOME/Logs/by-vm/$domain/$today ]
+	then
+	    ( cd $HOME/Logs/by-vm/$domain; ln -s ../../by-date/$today/$domain $today )
+	fi
+
+	rm -f $tmp.up
+	wait=0
+	delta=5
+	max_wait=300
+	while [ $wait -lt $max_wait ]
+	do
+	    # if ping -c 1 $host >/dev/null 2>&1
+	    # then
+		if ssh $host true
+		then
+		    #debug# echo host up
+		    touch $tmp.up
+		    break
+		fi
+	    # else
+		#debug# echo host down
+		# :
+	    # fi
+	    sleep $delta
+	    wait=`expr $wait + $delta`
+	done
+	if [ ! -f $tmp.up ]
+	then
+	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
+	    continue
+	fi
+
+	cat >$tmp.script <<End-of-File
+#!/bin/sh
+#
+# PCP Build Script from pcp-daily on `date`
+#
+
+[ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
+#debug# echo PATH=\$PATH
+#debug# which ${MAKE:-make}
+
+tmp=/var/tmp/\$\$
+trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
+rm -f \$HOME/daily.log
+touch \$HOME/daily.log
+
+case "$pcp_tree"
+in
+    pcpfans)
+	if [ ! -d src/pcpfans ]
+	then
+	    git clone git://sourceware.org/git/${pcp_tree}.git src/pcpfans
+	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
+	fi
+	;;
+    secure-pcp)
+	if [ ! -d src/secure-pcp ]
+	then
+	    git clone ssh://bozo/home/kenj/git/${pcp_tree}.git src/secure-pcp
+	    echo "Info: clone $pcp_tree-pcp git tree" | tee -a \$HOME/daily.log
+	fi
+	;;
+esac
+
+cd src/$pcp_tree
+End-of-File
+	if [ -n "$efile" ]
+	then
+	    cat $efile >>$tmp.script
+	fi
+	cat >>$tmp.script <<End-of-File
+git branch -a >\$tmp.branch
+if grep " $pcp_branch\$" <\$tmp.branch >/dev/null
+then
+    :
+else
+    if grep " remotes/origin/$pcp_branch\$" <\$tmp.branch >/dev/null
+    then
+	git branch --track $pcp_branch remotes/origin/$pcp_branch
+	echo "Info: pcp git branch $pcp_branch set up for remote tracking" | tee -a \$HOME/daily.log
+    else
+	echo "Error: pcp git branch $pcp_branch unknown!" | tee -a \$HOME/daily.log
+	exit 1
+    fi
+fi
+End-of-File
+
+	$cflag && cat >>$tmp.script <<End-of-File
+git status -s | grep 'M ' >\$tmp.status
+if [ -s \$tmp.status ]
+then
+    echo "Warning: modified pcp files ..." | tee -a \$HOME/daily.log
+    sed -e 's/.*M  */    /' \$tmp.status | tee -a \$HOME/daily.log
+else
+    echo "Info: No modified pcp files" | tee -a \$HOME/daily.log
+fi
+End-of-File
+
+	$pflag && cat >>$tmp.script <<End-of-File
+# need to clean before pulling in case unwanted files no longer removed,
+# e.g. in PCP 3.x -> PCP 4.0 migration of source base
+${MAKE:-make} clean >>\$HOME/daily.log 2>&1
+# only VERSION.pcp is expected to be modified, sometimes!
+git checkout -f VERSION.pcp
+if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
+then
+    echo "Info: pcp git checkout $pcp_branch" | tee -a \$HOME/daily.log
+else
+    echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
+    exit 1
+fi
+if git pull >>\$HOME/daily.log 2>&1
+then
+    echo "Info: pcp git pull" | tee -a \$HOME/daily.log
+else
+    echo "Error: pcp git pull failed!" | tee -a \$HOME/daily.log
+    exit 1
+fi
+End-of-File
+
+	if $mflag
+	then
+	    echo "${MAKE:-make} clean >>\$HOME/daily.log 2>&1" >>$tmp.script
+	    cat >>$tmp.script <<'End-of-File'
+ok=false
+# if needed, bump build number for pcp-daily
+if [ ! -f VERSION.pcp.daily ]
+then
+    cp VERSION.pcp VERSION.pcp.daily
+else
+    diff VERSION.pcp VERSION.pcp.daily >$tmp.tmp
+    if egrep 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp.tmp >/dev/null
+    then
+	# different PCP release, do an initial build
+	cp VERSION.pcp VERSION.pcp.daily
+    else
+	# same PCP release, bump away
+	awk -F= <VERSION.pcp.daily '
+BEGIN	{ OFS = "=" }
+$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
+			{ print }' \
+| sed -e 's/=$//' >$tmp.version
+	cp $tmp.version VERSION.pcp.daily
+    fi
+fi
+cp VERSION.pcp.daily VERSION.pcp
+# simulate a first-time build
+sudo rm -rf /usr/include/pcp
+sudo rm -f /usr/lib*/libpcp[_.]*
+# clean up any build turds
+rm -f qa/qa_outfiles
+End-of-File
+	    echo "if MAKE=$MAKE ./Makepkgs >>\$HOME/daily.log 2>&1" >>$tmp.script
+	    cat >>$tmp.script <<'End-of-File'
+then
+    ok=true
+else
+    # for Debian/Ubuntu, it may just be the signing of the packages that
+    # failed
+    #
+    if tail -5 $HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
+    then
+	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a $HOME/daily.log
+    else
+	echo "Error: Makepkgs failed!" | tee -a $HOME/daily.log
+	# restore build number
+	git checkout -f VERSION.pcp
+	exit 1
+    fi
+fi
+# restore build number
+git checkout -f VERSION.pcp
+# Look for errors/warnings in the build logs ...
+#
+for log in Logs/*
+do
+    echo "--- $log ---" >>$HOME/daily.log
+    cat $log >>$HOME/daily.log
+    echo "--- end $log ---" >>$HOME/daily.log
+done
+grep 'Permission denied' Logs/pcp >$tmp.err
+grep ' [Ee]rror: ' Logs/pcp >>$tmp.err
+grep ' [Ww]arning: ' Logs/pcp \
+| sed >>$tmp.err \
+    -e '/yyunput.* defined but not used/d' \
+    -e '/input.* defined but not used/d'
+if [ -s $tmp.err ]
+then
+    echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
+    cat $tmp.err >>$HOME/daily.log
+    echo "--- end build warnings/errors ---" >>$HOME/daily.log
+    ok=false
+fi
+$ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log
+End-of-File
+	fi
+
+	$iflag && cat >>$tmp.script <<'End-of-File'
+src_version=`sed -n <pcp.lsm -e 's/[ 	]*$//' -e '/^Version:/{
+s/Version:[ 	]*//
+p
+q
+}'`
+if [ -f build/deb/pcp_[0-9]*.deb ]
+then
+    # Debian packaging ...
+    if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
+    then
+	echo "Info: dpkg install" | tee -a $HOME/daily.log
+    else
+	echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+	exit 1
+    fi
+elif [ -f build/rpm/pcp-[0-9]*.src.rpm ]
+then
+    # RPM packaging ...
+    # Notes
+    #	--nodeps	needed because perl-Spreadsheet-Read is not available
+    #			for Fedora 15
+    #   --oldpackage	sometimes we do a downgrade on the QA machines
+    #
+    if sudo rpm --nodeps --oldpackage -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+    then
+	cat $tmp.out >>$HOME/daily.log
+	echo "Info: rpm install" | tee -a $HOME/daily.log
+    else
+	cat $tmp.out >>$HOME/daily.log
+	grep -v 'is already installed' $tmp.out >$tmp.tmp
+	if [ -s $tmp.tmp ]
+	then
+	    echo "Error: rpm failed!" | tee -a $HOME/daily.log
+	    exit 1
+	else
+	    echo "Warning: rpm packages already installed" | tee -a $HOME/daily.log
+	fi
+    fi
+elif [ -f build/mac/pcp-[0-9]*[0-9].dmg ]
+then
+    # Mac OS X "pkg in a disk image" packaging
+    here=`pwd`
+    cd build/mac
+    if ./cmdline-install >>$HOME/daily.log 2>&1
+    then
+	echo "Info: installer install" | tee -a $HOME/daily.log
+    else
+	echo "Error: installer failed!" | tee -a $HOME/daily.log
+	exit 1
+    fi
+    cd $here
+elif [ -f build/sun/pcp-$src_version ]
+then
+    # System V style pkgadd/pkgrm packaging ...
+    here=`pwd`
+    cd build/sun
+    yes Y | sudo /usr/sbin/pkgrm pcp >>$HOME/daily.log 2>&1
+    if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp all >>$HOME/daily.log 2>&1
+    then
+	echo "Info: pkgadd install" | tee -a $HOME/daily.log
+    else
+	echo "Error: pkgadd failed!" | tee -a $HOME/daily.log
+	exit 1
+    fi
+    cd $here
+    sudo /usr/sbin/svcadm enable -s svc:/application/pcp/pmcd >>$HOME/daily.log 2>&1
+    sudo /usr/sbin/svcadm enable -s svc:/application/pcp/pmlogger >>$HOME/daily.log 2>&1
+elif [ -f build/tar/pcp-[0-9]*[0-9].tar.gz ]
+then
+    # tarball packaging ... (this has to be last, because some of the
+    # other packaging regimes also create tarballs)
+    here=`pwd`
+    tarball=$here/build/tar/pcp-[0-9]*[0-9].tar.gz
+    cd build/tar
+    sudo ./preinstall >>$HOME/daily.log 2>&1
+    cd /
+    if sudo tar -zxpf $tarball >>$HOME/daily.log 2>&1
+    then
+	echo "Info: tar install" | tee -a $HOME/daily.log
+    else
+	echo "Error: tar install failed!" | tee -a $HOME/daily.log
+	exit 1
+    fi
+    cd $here
+    cd build/tar
+    sudo ./postinstall >>$HOME/daily.log 2>&1
+    cd $here
+else
+    echo "Don't know how to install packages" | tee -a $HOME/daily.log
+    exit 1
+fi
+if [ -f build/sun/pcp-$src_version ]
+then
+    : pmcd started above
+else
+    . /etc/pcp.env
+    if sudo $PCP_RC_DIR/pcp start >>$HOME/daily.log 2>&1
+    then
+	echo "Info: pmcd started" | tee -a $HOME/daily.log
+    else
+	echo "Error: pmcd start failed" | tee -a $HOME/daily.log
+	exit 1
+    fi
+fi
+running_version=`pmprobe -v pmcd.version | sed -e 's/"//g' -e 's/pmcd.version 1 //'`
+echo "Source version: $src_version" >>$HOME/daily.log
+echo "Running version: $running_version" >>$HOME/daily.log
+if [ "$src_version" != "$running_version" ]
+then
+    pcp >>$HOME/daily.log
+    echo "Error: version mismatch src=$src_version running=$running_version" | tee -a $HOME/daily.log
+    exit 1
+fi
+End-of-File
+
+	cat >>$tmp.script <<End-of-File
+
+cd qa
+End-of-File
+
+	check_what="$what"
+	[ X"$what" = Xall ] && check_what=''
+	# Need to add
+	# -x remote default for grundy.sgi.com if running all tests
+	#
+	case "$domain"
+	in
+	    *grundy*)
+		[ X"$what" = Xall ] && check_what='$check_what -x remote'
+		;;
+	esac
+
+	$qflag && cat >>$tmp.script <<End-of-File
+rm -f *.out.bad
+./changeversion >/dev/null 2>&1
+if ./check -l $check_what >>\$HOME/daily.log 2>&1
+then
+    echo "Info: QA $what" | tee -a \$HOME/daily.log
+else
+    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
+    sed -e '/^    [0-9 ]*\$/d' <check.log \
+    | awk '
+NF == 0	{ txt = ""; next }
+	{ if (txt == "") txt = \$0
+	  else txt = txt "\n" \$0
+	}
+END	{ print txt }' | tee -a \$HOME/daily.log
+fi
+End-of-File
+
+	$rflag && cat >>$tmp.script <<End-of-File
+if ./recheck >>\$HOME/daily.log 2>&1
+then
+    echo "Info: QA recheck" | tee -a \$HOME/daily.log
+else
+    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.log
+fi
+End-of-File
+
+	$hflag && cat >>$tmp.script <<End-of-File
+rm -f \$HOME/daily.harvest
+touch \$HOME/daily.harvest
+nbad=0
+nfull=0
+for bad in *.out.bad
+do
+    [ "\$bad" = '*.out.bad' ] && continue
+    echo \$bad >>\$HOME/daily.harvest
+    nbad=\`expr \$nbad + 1\`
+    seq=\`echo \$bad | sed -e 's/\.out\.bad//'\`
+    [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
+    if [ -f \$seq.full ]
+    then
+	echo \$seq.full >>\$HOME/daily.harvest
+	nfull=\`expr \$nfull + 1\`
+    fi
+done
+[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.log
+echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log
+End-of-File
+
+	chmod 755 $tmp.script
+	if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	then
+	    :
+	else
+	    cat $tmp.out
+	    echo "Error: scp failed!"
+	    continue
+	fi
+	ssh -t $host sh -c ./daily.script
+	scp -q $host:daily.log $tmp.out
+	echo "=== `date` ===" >>$log
+	cat $tmp.out >>$log
+	echo "=== END ===" >>$log
+
+	if $hflag
+	then
+	    # harvest failures by pulling from QA host
+	    echo "Harvest:"
+	    if [ -d $HOME/Logs/by-vm/$domain/pcpqa ]
+	    then
+		# old dir name
+		mv $HOME/Logs/by-vm/$domain/pcpqa $HOME/Logs/by-vm/$domain/qa
+	    fi
+	    if [ ! -d $HOME/Logs/by-vm/$domain/qa ]
+	    then
+		rm -f $HOME/Logs/by-vm/$domain/qa
+		mkdir -p $HOME/Logs/by-vm/$domain/qa
+		( cd $HOME/Logs/by-vm/$domain/qa; ln -s $HOME/src/pcp/qa/common* .; ln -s $HOME/src/pcp/qa/show-me .; ln -s $HOME/src/pcp/qa/localconfig . )
+	    fi
+	    rm -f $HOME/Logs/by-vm/$domain/qa/[0-9]*
+	    rm -f $tmp.harvest
+	    scp $host:daily.harvest $tmp.harvest >$tmp.out 2>&1
+	    if [ -s $tmp.harvest ]
+	    then
+		for file in `cat $tmp.harvest`
+		do
+		    echo -n " $file"
+		    if scp $host:src/pcp/qa/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
+		    then
+			:
+		    else
+			echo
+			cat $tmp.err
+		    fi
+		done
+		echo
+	    elif [ -s $tmp.out ]
+	    then
+		echo "scp error ..."
+		cat $tmp.out
+	    else
+		echo "No failures."
+	    fi
+	fi
+    fi
+
+    if $sflag
+    then
+	doit=false
+	case $host
+	in
+	    vm01|vm03)
+		# try to keep vm01 and vm03 running, unless -f
+		$fflag && doit=true
+		;;
+	    vm*)
+		doit=true
+		;;
+	esac
+	if $doit
+	then
+	    if [ $state = shut ]
+	    then
+		if $work
+		then
+		    echo "Warning: Already shutdown"  | tee -a $HOME/daily.log
+		else
+		    echo "Warning: Already shutdown"
+		fi
+	    else
+		ssh -t -q $host sudo poweroff -f </dev/null >/dev/null 2>&1 &
+		sleep 20
+		sudo virsh shutdown $domain >/dev/null 2>&1
+		sleep 10
+		# seems a bit harsh, but we've given you two chances to
+		# shutdown
+		#
+		sudo virsh destroy $domain
+		if $work
+		then
+		    echo "Info: Shutdown"  | tee -a $HOME/daily.log
+		else
+		    echo "Info: Shutdown"
+		fi
+	    fi
+	else
+	    if $work
+	    then
+		echo "Warning: Shutdown skipped"  | tee -a $HOME/daily.log
+	    else
+		echo "Warning: Shutdown skipped"
+	    fi
+	fi
+    fi
+
+    $work && echo "Logs in $log"
+
+done

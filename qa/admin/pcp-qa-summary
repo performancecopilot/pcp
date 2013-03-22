@@ -1,0 +1,189 @@
+#!/bin/sh
+#
+# pcp-qa-summary [vm ...]
+#
+# Used in concert with pcp-daily -q
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+if [ $# -eq 0 ]
+then
+    set -- `[ -d $HOME/Logs/by-vm ] && cd $HOME/Logs/by-vm && echo *`
+fi
+
+if [ -f $HOME/whatami.out ]
+then
+    # Turn
+    # Host        PCP      CPU     Operating System
+    # ----------- -------- ------  ------------------
+    # vm00        3.7.0    x86_64  Ubuntu 12.04 (precise)
+    # into
+    # vm00|PCP 3.7.0 x86_64 Ubuntu 12.04
+    #
+    sed <$HOME/whatami.out \
+	-e '1,2d' \
+	-e '/^[ 	]*$/d' \
+	-e 's/  */|PCP#/' \
+	-e 's/  */#/' \
+	-e 's/  */#/' \
+	-e 's/  *(.*)//' \
+	-e 's/#/ /g' \
+    | sort >$tmp.what
+fi
+
+_what()
+{
+    if [ -f $tmp.what ]
+    then
+	join \
+	    -1 2 -2 1 -t '|' -a 1 -e "$vmdir" -o 1.1,2.1,2.2 \
+	    - $tmp.what \
+	| sed -e 's/|PCP/ PCP/'
+    else
+	cat
+    fi
+}
+
+echo "==== QA Summary ===="
+echo
+echo "Date        Run Pass Fail Nrun Host"
+for vm
+do
+    cd $HOME/Logs/by-vm
+    if [ -d "$vm" ]
+    then
+	cd "$vm"
+	vmdir="$vm"
+    else
+	vmdir=`echo ${vm}*`
+	if [ -d "$vmdir" ]
+	then
+	    cd "$vmdir"
+	else
+	    echo "$vm: arrrgggh no \$HOME/Logs/${vm}* directory"
+	    continue
+	fi
+    fi
+    basevmname=`echo $vmdir | sed -e 's/[.-].*//'`
+    rm -f $tmp.seen $tmp.found
+    for date in `ls | grep -v qa | grep -v pcpqa | grep -v pcp | sort -r`
+    do
+	touch $tmp.seen
+	#debug# echo "== $vmdir on $date =="
+	# Looking for
+	# Not run: 008 009 022 096 114 117 130 148 164 212 223 233 284 290 307 311 329 330 331 332 333 348 361 370 377 390 420 441 442 476 477 478 480 506 512 545 570 584 640 652 654 712 713 714
+	# Failures: 062 169 244
+	# Failed 3 of 516 tests
+	# Passed all 67 tests
+	#
+	if egrep '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests))' <$date >/dev/null
+	then
+	    awk <$date >$tmp.out '
+/^Not run:/	{ notrun = NF - 2
+		  state = 1
+		  #debug# print "notrun start=",notrun >"/home/kenj/eek"
+		  next
+		}
+/^Failed [0-9][0-9]* of [0-9][0-9]* tests/	{
+		  failed = $2
+		  run = $4
+		  state = 3
+		}
+/^Passed all [0-9][0-9]* tests/	{
+		  failed = 0
+		  run = $3
+		  state = 3
+		}
+/^Failures:/	{
+		  list = $2
+		  for (i = 3; i <= NF; i++) list = list " " $i
+		  state = 2
+		}
+state == 1	{ # Not run: list broken over multiple lines
+		  notrun += NF
+		  #debug# print "notrun add",NF," =",notrun >"/home/kenj/eek"
+		}
+state == 3	{ printf "%s %4d %4d %4d %4d|%s|%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",list
+		  state = 0
+		  notrun = 0
+		}'
+	    # Need to sort multiple runs and pick the one whith the
+	    # maximum passes and minimum not runs
+	    #
+	    # 2013-03-13      1      1      0      0|vm19-opensuse-64
+	    # 2013-03-13     67     67      0      2|vm19-opensuse-64
+	    # 2013-03-13    512    509      3     48|vm19-opensuse-64
+	    # 2013-03-13    512    509      3     16|vm19-opensuse-64
+	    sort <$tmp.out --key=3,3nr --key=5,5n \
+	    | sed -e 1q >$tmp.tmp
+	    sed -e 's/|[^|]*$//' <$tmp.tmp | _what
+	    sed -e 's/.*|//' <$tmp.tmp \
+	    | tr ' ' '\012' \
+	    | sed -e "s/\$/ $basevmname/" >>$tmp.map
+	    touch $tmp.found
+	    break
+	fi
+    done
+    if [ -f $tmp.seen -a ! -f $tmp.found ]
+    then
+	printf "%-30s|%s\n" "Daily runs, but no QA" "$basevmname" | _what
+    elif [ ! -f $tmp.seen ]
+    then
+	printf "%-30s|%s\n" "No daily runs" "$basevmname" | _what
+    fi
+
+done
+
+if [ -f $tmp.map ]
+then
+    echo
+    echo "==== QA Failure Map ===="
+    echo
+    ( ( sed -e 's/.* //' <$tmp.map | sort | uniq ) \
+      ; echo "---" \
+      ; sort -n $tmp.map \
+      ; echo "END" \
+    ) \
+    | awk '
+BEGIN	{ nh = 0; state = 0 }
+$1 == "---"	{ printf "%4.4s","Host"
+		  for (i = 0; i < nh; i++) printf " %2.2s",substr(host[i],length(host[i])-1)
+                  printf "\n"
+		  printf "%4.4s","QA"
+		  for (i = 0; i < nh; i++) printf " %2.2s"," "
+                  printf " %4.4s QA groups (A. ==> pmda.)\n","QA"
+		  state = 1
+		  last = $1
+		  next
+		}
+state == 0	{ host[nh] = $1; nh++; next }
+$1 != last	{ if (last != "---") {
+		      printf "%4.4s",last
+		      for (i = 0; i < nh; i++) printf " %2.2s",fail[i]
+		      printf " %4.4s ",last
+		      cmd = "grep \"^" last " \" $HOME/src/pcp/qa/group | sed -e \"s/^[0-9]* //\""
+		      system(cmd)
+		  }
+		  for (i = 0; i < nh; i++) fail[i] = " "
+		  last = $1
+		}
+$1 == last	{ for (i = 0; i < nh; i++) {
+		    if (host[i] == $2) {
+			fail[i] = "X"
+			break
+		    }
+		  }
+		}' \
+    | sed \
+	-e 's/ remote//' \
+	-e 's/ sanity//' \
+	-e 's/ ostest//' \
+	-e 's/ local//' \
+	-e 's/ oss//' \
+	-e 's/ #[0-9][0-9]*//g' \
+	-e 's/ pmda\.\([a-z]\)/ A.\1/g'
+fi
+
