@@ -426,9 +426,17 @@ _check_valgrind()
 
 _run_valgrind()
 {
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f valgrind-suppress-$__version ]
+    then
+	__extra="--suppressions=valgrind-suppress-$__version"
+	echo "Warning: using extra $__extra" >>$seq.full
+    else
+	__extra=''
+    fi
     valgrind \
 	--leak-check=full --read-var-info=yes \
-	--suppressions=valgrind-suppress --log-file=$tmp._valgrind \
+	--suppressions=valgrind-suppress $__extra --log-file=$tmp._valgrind \
 	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
     echo "=== std out ==="
     cat $tmp._valgrind.out
