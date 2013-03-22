@@ -31,10 +31,10 @@
 # blank lines before the @ line are ignored
 #
 
-@ SIMPLE.1 Instance domain "colour" for simple PMDA
+@ SIMPLE.0 Instance domain "colour" for simple PMDA
 Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
 
-@ SIMPLE.2 Dynamic instance domain "time" for simple PMDA
+@ SIMPLE.1 Dynamic instance domain "time" for simple PMDA
 An instance domain which is computed on-the-fly for exporting current time
 information.  Refer to the help text for simple.now for a more complete
 explanation.
