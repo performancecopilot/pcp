@@ -628,8 +628,8 @@ enable_secure
 lib_for_nspr
 lib_for_nss
 lib_for_ssl
-nss_inc_dir
-nspr_inc_dir
+NSPRCFLAGS
+NSSCFLAGS
 ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
@@ -11159,7 +11159,7 @@ if test "x$ac_cv_header_nss_nss_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NSS_NSS_H 1
 _ACEOF
- nss_inc_dir=/usr/include/nss
+ NSSCFLAGS=-I/usr/include/nss
 else
 
 	for ac_header in nss3/nss.h
@@ -11169,7 +11169,7 @@ if test "x$ac_cv_header_nss3_nss_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NSS3_NSS_H 1
 _ACEOF
- nss_inc_dir=/usr/include/nss3
+ NSSCFLAGS=-I/usr/include/nss3
 else
 
 	    enable_secure=false
@@ -11187,6 +11187,8 @@ fi
 
 done
 
+
+
     for ac_header in nspr/nspr.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "nspr/nspr.h" "ac_cv_header_nspr_nspr_h" "$ac_includes_default"
@@ -11194,7 +11196,7 @@ if test "x$ac_cv_header_nspr_nspr_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NSPR_NSPR_H 1
 _ACEOF
- nspr_inc_dir=/usr/include/nspr
+ NSPRCFLAGS=-I/usr/include/nspr
 else
 
 	for ac_header in nspr4/nspr.h
@@ -11204,7 +11206,7 @@ if test "x$ac_cv_header_nspr4_nspr_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_NSPR4_NSPR_H 1
 _ACEOF
- nspr_inc_dir=/usr/include/nspr4
+ NSPRCFLAGS=-I/usr/include/nspr4
 else
 
 	    enable_secure=false
@@ -11221,7 +11223,6 @@ done
 fi
 
 done
-
 
 
 

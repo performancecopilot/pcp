@@ -7,6 +7,12 @@ pcp-3.7.1 (20 March 2013)
     - Convert pmproxy(1) to use the newer networking APIs.
     - Correct the pmlogger heuristics for determining whether it
       is running as a daemon for *both* pmlogger_{daily,check}.
+    - Add script to handle the tmpdir transition such that folks
+      with running parfait/mmv-instrumented applications continue
+      to see data exported, and for correct pmlogger/pmie daemon
+      tracking across releases.
+    - Fix "Warning: __pmConnectRestoreFlags: cannot restore flags"
+      messages when built with secure-sockets option disabled.
 
 pcp-3.7.0 (11 March 2013)
     - Added hash table iterator interfaces to libpcp.

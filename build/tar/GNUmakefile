@@ -15,6 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
+SCRIPTS = $(TOPDIR)/build
 
 LSRCFILES = remove README \
 	preinstall.head.in preinstall.head preinstall.tail \
@@ -25,14 +26,14 @@ LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) \
 
 default install install_pcp default_pcp : preinstall postinstall
 
-preinstall: preinstall.head $(TOPDIR)/debian/cleanconfigs preinstall.tail
+preinstall: preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail
 	rm -f $@
-	cat preinstall.head $(TOPDIR)/debian/cleanconfigs preinstall.tail > $@
+	cat preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail > $@
 	chmod ugo+x $@
 
-postinstall: postinstall.head $(TOPDIR)/debian/cleantmpdirs postinstall.tail
+postinstall: postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail
 	rm -f $@
-	cat postinstall.head $(TOPDIR)/debian/cleantmpdirs postinstall.tail > $@
+	cat postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail > $@
 	chmod ugo+x $@
 
 # Note on sed below

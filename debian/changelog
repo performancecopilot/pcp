@@ -1,8 +1,8 @@
 pcp (3.7.1) unstable; urgency=low
 
-   * Under active development
+   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Mon, 11 Mar 2013 11:03:56 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 20 Mar 2013 09:01:30 +1100
 
 pcp (3.7.0) unstable; urgency=low
 
