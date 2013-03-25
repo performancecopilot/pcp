@@ -177,7 +177,8 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 		    }
 		  }
 		}
-END		{ for (i = 0; i < nh; i++) printf " %2.2s",substr(host[i],length(host[i])-1)
+END		{ printf "%4.4s","Host"
+		  for (i = 0; i < nh; i++) printf " %2.2s",substr(host[i],length(host[i])-1)
                   printf "\n"
 		}' \
     | sed \
