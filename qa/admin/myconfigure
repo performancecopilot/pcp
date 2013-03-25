@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Run configure like it is run for current system ... makes workarea
+# src/include/pcp.conf match /etc/pcp.conf so "sudo make install"
+# works without surprises
+#
+
+VERS=`uname -s | cut -c-5`
+ARCH=`uname -m`
+configure_options="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+case "$VERS"
+in
+    MINGW)
+	configure_options="$configure_options --disable-ssp"
+	;;
+    Linux)
+	if [ -f /etc/slackware-version ]
+	then
+	    if [ "$ARCH" = x86_64 ]
+	    then
+		configure_options="$configure_options --libdir=/usr/lib64"
+	    fi
+	fi
+	;;
+esac
+
+./configure $configure_options

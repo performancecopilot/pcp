@@ -454,40 +454,65 @@ s/Version:[ 	]*//
 p
 q
 }'`
-if [ -f build/deb/pcp_[0-9]*.deb ]
-then
-    # Debian packaging ...
-    if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
-    then
-	echo "Info: dpkg install" | tee -a $HOME/daily.log
-    else
-	echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+notfound=true
+case `echo build/deb/pcp_[0-9]*.deb`
+in
+    *\ *)
+	ls -l build/deb/pcp_[0-9]*.deb
+	echo "Error: more than one deb pkg found" | tee -a $HOME/daily.log
 	exit 1
-    fi
-elif [ -f build/rpm/pcp-[0-9]*.src.rpm ]
-then
-    # RPM packaging ...
-    # Notes
-    #	--nodeps	needed because perl-Spreadsheet-Read is not available
-    #			for Fedora 15
-    #   --oldpackage	sometimes we do a downgrade on the QA machines
-    #
-    if sudo rpm --nodeps --oldpackage -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
-    then
-	cat $tmp.out >>$HOME/daily.log
-	echo "Info: rpm install" | tee -a $HOME/daily.log
-    else
-	cat $tmp.out >>$HOME/daily.log
-	grep -v 'is already installed' $tmp.out >$tmp.tmp
-	if [ -s $tmp.tmp ]
+	;;
+    'build/deb/pcp_[0-9]*.deb')
+	# no deb packages
+	;;
+    *)
+	# Debian packaging ...
+	if yes Y | sudo dpkg -i --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
 	then
-	    echo "Error: rpm failed!" | tee -a $HOME/daily.log
-	    exit 1
+	    echo "Info: dpkg install" | tee -a $HOME/daily.log
 	else
-	    echo "Warning: rpm packages already installed" | tee -a $HOME/daily.log
+	    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+	    exit 1
 	fi
-    fi
-elif [ -f build/mac/pcp-[0-9]*[0-9].dmg ]
+	notfound=false
+	;;
+esac
+$notfound && case `echo build/rpm/pcp-[0-9]*.src.rpm`
+in
+    *\ *)
+	ls -l build/rpm/pcp-[0-9]*.src.rpm
+	echo "Error: more than one rpm pkg found" | tee -a $HOME/daily.log
+	exit 1
+	;;
+    'build/rpm/pcp-[0-9]*.src.rpm')
+	# no rpm packages
+	;;
+    *)
+	# RPM packaging ...
+	# Notes
+	#	--nodeps	needed because perl-Spreadsheet-Read is not available
+	#			for Fedora 15
+	#   --oldpackage	sometimes we do a downgrade on the QA machines
+	#
+	if sudo rpm --nodeps --oldpackage -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+	then
+	    cat $tmp.out >>$HOME/daily.log
+	    echo "Info: rpm install" | tee -a $HOME/daily.log
+	else
+	    cat $tmp.out >>$HOME/daily.log
+	    grep -v 'is already installed' $tmp.out >$tmp.tmp
+	    if [ -s $tmp.tmp ]
+	    then
+		echo "Error: rpm failed!" | tee -a $HOME/daily.log
+		exit 1
+	    else
+		echo "Warning: rpm packages already installed" | tee -a $HOME/daily.log
+	    fi
+	fi
+	notfound=false
+	;;
+esac
+$notfound && if [ -f build/mac/pcp-[0-9]*[0-9].dmg ]
 then
     # Mac OS X "pkg in a disk image" packaging
     here=`pwd`

@@ -176,6 +176,9 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 			break
 		    }
 		  }
+		}
+END		{ for (i = 0; i < nh; i++) printf " %2.2s",substr(host[i],length(host[i])-1)
+                  printf "\n"
 		}' \
     | sed \
 	-e 's/ remote//' \

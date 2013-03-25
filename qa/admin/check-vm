@@ -1,0 +1,225 @@
+#!/bin/sh
+#
+# Check what's installed on a PCP/PCPQA VM looking for missing apps
+# and packages
+#
+
+_usage()
+{
+    echo "Usage: $0 [-v]"
+    exit 1
+}
+
+verbose=false
+while getopts 'v?' p
+do
+    case "$p"
+    in
+	v)	verbose=true
+		;;
+
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+[ $# -eq 0 ] || _usage
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# add additional and optional directories
+for dir in /sbin /usr/sbin
+do
+    if [ -d "$dir" ]
+    then
+	if echo ":$PATH:" | grep -q ":$dir:"
+	then
+	    :
+	else
+	    export PATH="$PATH:$dir"
+	    #debug# echo add $dir to \$PATH
+	fi
+    fi
+done
+
+# perl ? apt-get install -qqy --force-yes libxml-tokeparser-perl
+# perl ? apt-get install -qqy --force-yes libspreadsheet-read-perl
+cat <<End-of-File | sed -e 's/#.*//' -e '/^[ 	]*$/d' | while read apps
+# one line per app, alternate items separated by white space
+# first item ending in ? means this item is a guard, if it does not
+# exist silently ignore the rest of the line
+# tests items can be
+#	starting with a /	test for existence of file or directory
+#                               (alternates separated by |)
+#	containing ::		test for presence of the associated Perl module
+#	otherwise		test for an executable with which(1)
+#
+# text after # is treated as a comment
+# text after [ is treated as annotation
+#
+# executables
+ed
+git
+make
+gcc
+autoconf
+flex
+bison
+gdb
+mktemp
+gawk
+certutils			[libnss3-tools(dpkg)]
+# optional executables
+dpkg?	dpkg-buildpackage	[dpkg-dev package]
+dpkg?	dh			[debhelper package]
+dpkg?	chrpath			[chrpath package]
+dpkg?	sysv-rc-conf		[sysv-rc-conf package]
+rpm?	rpmbuild		[rpm-build package]
+# files
+/usr/include/readline/readline.h	[libreadline-dev(dpkg) readline-devel(rpm)]
+rpm?	/usr/include/ncurses.h	# is this a bug in the spec file?
+# perl modules
+Time::HiRes			[Perl Time-HiRes]
+Date::Format			[Perl TimeDate perl-TimeDate(rpm)]
+Date::Parse			[Perl TimeDate perl-TimeDate(rpm)]
+Getopt::Std			[base Perl]
+ExtUtils::MakeMaker		[libextutils-autoinstall-perl(dpkg) perl-ExtUtils-MakeMaker(rpm)]
+XML::TokeParser			[libxml-tokeparser-perl(dpkg)]
+Spreadsheet::Read		[libspreadsheet-read-perl(dpkg)]
+Spreadsheet::WriteExcel		[libspreadsheet-writeexcel-perl(dpkg) perl-Spreadsheet-WriteExcel(rpm)]
+Spreadsheet::ReadSXC		[cpan?]
+# other run-time
+sadf				[sysstat package]
+# QA
+bc
+Spreadsheet::XLSX		[libspreadsheet-xlsx-perl(dpkg)]
+Text::CSV_XS			[Perl Text-CSV_XS perl-Text-CSV(rpm)]
+crontab				[from vixie-cron?]
+valgrind
+mail				[bsd-mailx(dpkg) mailx(redhat)]
+host				[bind-utils(redhat)]
+dpkg?	apache2			[apache2(dpkg)]
+rpm?	httpd			[httpd(redhat)]
+time				[time(redhat)]
+# pcp-gui
+dpkg?	qmake			[qt4-qmake]
+rpm?	qmake			[qt-devel]
+dpkg?	/usr/lib/libQtCore.so|/usr/lib/*/libQtCore.so	[libqt4-dev]
+rpm?	/usr/lib/libQtCore.so	[qt-devel]
+dpkg?	/usr/lib/libQtAssistantClient.so|/usr/lib/*/libQtAssistantClient.so	[libqtassistantclient-dev]
+rpm?	/usr/lib/libQtAssistantClient.so	[qt4-assistant-adp-devel(suse) qt-assistant-adp-devel(fedora)]
+# python
+rpm?	/usr/include/python*/Python.h		[python-devel]
+rpm?	/usr/lib/python*/site-packages/ctypes	[python-ctypes]
+dpkg?	/usr/include/python*/Python.h		[python-dev]
+# nss
+dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
+dpkg?	/usr/include/nss/nss.h		[libnss3-dev]
+End-of-File
+do
+    rm -f $tmp.ok
+    for app in $apps
+    do
+	case $app
+	in
+	    \[*)
+	    	break
+		;;
+	    *\?)
+	    	app=`echo $app | sed -e 's/?$//'`
+		optional=true
+		;;
+	    *)
+		optional=false
+		;;
+	esac
+	case $app
+	in
+	    \[*)
+	    	break
+		;;
+	    /*)
+		rm -f $tmp.tmp
+		for file in `echo "$app" | sed -e 's/|/ /g'`
+		do
+		    if [ -f "$file" ]
+		    then
+			touch $tmp.tmp
+			break
+		    fi
+		done
+		[ -f $tmp.tmp ]
+		ok=$?
+		;;
+	    *::*)
+		echo "use $app;" | perl >/dev/null 2>&1
+		ok=$?
+		;;
+	    *)
+		which $app >/dev/null 2>&1
+		ok=$?
+		;;
+	esac
+	if $verbose
+	then
+	    echo -n " .. $app"
+	    $optional && echo -n "[optional]"
+	    if [ $ok = 0 ]
+	    then
+		echo -n " yes"
+	    else
+		echo -n " no"
+	    fi
+	fi
+	if [ $ok = 0 ]
+	then
+	    $optional && continue
+	    touch $tmp.ok
+	    break
+	else
+	    if $optional
+	    then
+		# guard not true, skip checks for other apps
+		touch $tmp.ok
+		break
+	    fi
+	fi
+    done
+    $verbose && echo
+    if [ ! -f $tmp.ok ]
+    then
+	echo "Missing: `echo $apps \
+	    | sed \
+		-e 's/[ 	][ 	]*/ /g' \
+		-e '/ /{
+s/? /?@/
+:loop1
+s/\(\[.*\) /\1@/
+t loop1
+:loop2
+s/ \([^[]\)/@|@\1/
+t loop2
+s/@/ /g
+}'`"
+    fi
+done
+
+# Some platform-specific and special case tests
+#
+if which dpkg >/dev/null 2>&1
+then
+    # Debian based
+    #
+    dpkg -l >$tmp.tmp
+    for pkg in python-all
+    do
+	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
+	then
+	    :
+	else
+	    echo "Need # apt-get install $pkg"
+	fi
+    done
+fi
+
