@@ -288,9 +288,9 @@ pmGetConfig(const char *name)
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
 
-static const struct {
-	const char *		feature;
-	const char *		state;
+static struct {
+	const char 	*feature;
+	const char	*state;
 } features[] = {
 	{ "pmapi_version",	TO_STRING(PMAPI_VERSION) },
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
@@ -299,10 +299,50 @@ static const struct {
 	{ "ipv6",		IPV6_ENABLED },
 };
 
+static int	cando_ipv6 = -1;
+
+static void
+fix_ipv6(void)
+{
+    /*
+     * one trip check to see if IPv6 is supported in the current run-time
+     */
+#if defined(IS_LINUX)
+    if (access("/proc/net/if_inet6", F_OK) == 0)
+	cando_ipv6 = 1;
+    else
+	cando_ipv6 = 0;
+#else
+    /*
+     * otherwise punt ...
+     */
+    cando_ipv6 = 1;
+#endif
+    if (cando_ipv6 == 0) {
+	/*
+	 * Although code is build to enable IPv6, the running kernel
+	 * does not seem to support IPv6, so set the corresponding
+	 * feature[] to false.
+	 */
+	int 	i;
+
+	for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
+	    if (strcmp("ipv6", features[i].feature) == 0) {
+		features[i].state = "false";
+		break;
+	    }
+	}
+    }
+}
+
+
+
 void
 __pmAPIConfig(__pmAPIConfigCallback formatter)
 {
     int i;
+
+    if (cando_ipv6 == -1) fix_ipv6();
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
 	if (pmDebug & DBG_TRACE_CONFIG)
@@ -316,6 +356,8 @@ const char *
 __pmGetAPIConfig(const char *name)
 {
     int i;
+
+    if (cando_ipv6 == -1) fix_ipv6();
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++)
         if (strcasecmp(name, features[i].feature) == 0)
