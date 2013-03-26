@@ -41,6 +41,7 @@ extern int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                              const char* url, const char* method,
                              const char* upload_data, size_t *upload_data_size);
 extern void pmwebapi_gc (void);
+extern void pmwebapi_deallocate_all (void);
 extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
                              const char* url);
 

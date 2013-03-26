@@ -81,6 +81,31 @@ void pmwebapi_gc ()
 
 
 
+__pmHashWalkState
+pmwebapi_deallocate_all_fn (const __pmHashNode *kv, void *cdata)
+{
+    const struct webcontext *value = kv->data;
+    int rc;
+    (void) cdata;
+
+    if (verbosity)
+        __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) deleted.\n", kv->key, value->context);
+    rc = pmDestroyContext (value->context);
+    if (rc)
+        __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
+                       value->context, rc);
+    return PM_HASH_WALK_DELETE_NEXT;
+}
+
+
+void pmwebapi_deallocate_all ()
+{
+    /* if-multithread: Lock contexts. */
+    __pmHashWalkCB (pmwebapi_deallocate_all_fn, NULL, & contexts);
+    /* if-multithread: Unlock contexts. */
+}
+
+
 int webcontext_allocate (int webapi_ctx, struct webcontext** wc)
 {
     if (__pmHashSearch (webapi_ctx, & contexts) != NULL)

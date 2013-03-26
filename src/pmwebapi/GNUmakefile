@@ -26,7 +26,7 @@ LLDLIBS = -lpcp -lmicrohttpd $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS) $(LIB_FOR_MAT
 LCFLAGS += -Wextra
 CFILES	= main.c pmwebapi.c pmresapi.c
 HFILES = pmwebapi.h
-CMDTARGET = pmwebapi$(EXECSUFFIX)
+CMDTARGET = pmwebd$(EXECSUFFIX)
 LDIRT = $(TARGET)
 
 default:	$(CMDTARGET)

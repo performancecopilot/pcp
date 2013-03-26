@@ -84,22 +84,26 @@ int mhd_respond (void *cls, struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
-static char *options = "p:n:K:t:a:r:h?vA:H:L";
+static char *options = "p:K:t:a:r:h:?vA:L46";
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x)
 static char usage[] =
     "Usage: %s [options]\n\n"
     "Options:\n"
-    "  -p N          listen on TCP port N\n"
+    "  -p N          listen on given TCP port, default " STRINGIFY(PMWEBD_PORT) "\n"
+    "  -6            listen on IPv6 only\n"
+    "  -4            listen on IPv4 only\n"
     "  -K spec       optional additional PMDA spec for local connection\n"
     "                spec is of the form op,domain,dso-path,init-routine\n"
     "  -n pnmsfile   use an alternative PMNS\n"
-    "  -a prefix     serve API requests with given prefix, default /pmapi\n"
+    "  -A prefix     serve API requests with given prefix, default /pmapi\n"
     "  -r resdir     serve non-API files from given directory, no default\n"
     "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
-    "  -H hostname   permanently bind next context to metrics on PMCD on host\n"
-    "  -A archive    permanently bind next context to metrics in archive\n"
+    "  -h hostname   permanently bind next context to metrics on PMCD on host\n"
+    "  -a archive    permanently bind next context to metrics in archive\n"
     "  -L            permanently bind next context to metrics in local PMDAs\n"
     "  -v            increase verbosity\n"
-    "  -h -?         help\n"
+    "  -?            help\n"
     ;
 
 
@@ -113,8 +117,11 @@ void handle_signals (int sig)
 /* Main loop of pmwebapi server. */
 int main(int argc, char *argv[])
 {
-    struct MHD_Daemon *d = NULL;
-    unsigned short port = 44323; /* pmcdproxy + 1 */
+    struct MHD_Daemon *d4 = NULL;
+    int mhd_ipv4 = 1;
+    struct MHD_Daemon *d6 = NULL;
+    int mhd_ipv6 = 1;
+    unsigned short port = PMWEBD_PORT;
     int c;
     char *errmsg = NULL;
     unsigned errflag = 0;
@@ -146,8 +153,9 @@ int main(int argc, char *argv[])
                 char *endptr;
                 errno = 0;
                 tn = strtol(optarg, &endptr, 0);
+                /* NB: strtoul would accept negative values. */
                 if (errno != 0 || *endptr != '\0' || tn < 0 || tn > UINT_MAX) {
-                    fprintf(stderr, "%s: invalid -t timeoutr %s\n", pmProgname, optarg);
+                    fprintf(stderr, "%s: invalid -t timeout %s\n", pmProgname, optarg);
                     errflag ++;
                 }
                 else maxtimeout = (unsigned) tn;
@@ -161,11 +169,7 @@ int main(int argc, char *argv[])
             }
             break;
 
-        case 'n':
-            pmnsfile = optarg;
-            break;
-
-        case 'a':
+        case 'A':
             uriprefix = optarg;
             break;
 
@@ -173,11 +177,22 @@ int main(int argc, char *argv[])
             resourcedir = optarg;
             break;
 
+        case '6':
+            mhd_ipv6 = 1;
+            mhd_ipv4 = 0;
+            break;
+
+        case '4':
+            mhd_ipv4 = 1;
+            mhd_ipv6 = 0;
+            break;
+
         case 'v':
             verbosity ++;
             break;
 
-        case 'H':
+        case 'h':
+            assert (optarg);
             {
                 int pcp_context = pmNewContext (PM_CONTEXT_HOST, optarg);
                 int rc;
@@ -199,7 +214,8 @@ int main(int argc, char *argv[])
             }
             break;
 
-        case 'A':
+        case 'a':
+            assert (optarg);
             {
                 int pcp_context = pmNewContext (PM_CONTEXT_ARCHIVE, optarg);
                 int rc;
@@ -245,7 +261,6 @@ int main(int argc, char *argv[])
 
         default:
         case '?':
-        case 'h':
             fprintf(stderr, usage, pmProgname);
             exit(EXIT_FAILURE);
         }
@@ -257,20 +272,36 @@ int main(int argc, char *argv[])
        model, so we don't complicate things with threads.  In the
        future, if PMAPI becomes safe to invoke from a multithreaded
        application, consider MHD_USE_THREAD_PER_CONNECTION, with
-       ample locking over the contexts etc. */
-    d = MHD_start_daemon(0 /* | MHD_USE_IPv6 */,
-                         port,
-                         NULL, NULL,              /* default accept policy */
-                         &mhd_respond, NULL,      /* handler callback */
-                         MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
-                         MHD_OPTION_END);
-    if (d == NULL) {
-        __pmNotifyErr(LOG_ERR, "error starting microhttpd thread\n");
+       ample locking over our context structures etc. */
+    if (mhd_ipv4)
+        d4 = MHD_start_daemon(0,
+                              port,
+                              NULL, NULL,              /* default accept policy */
+                              &mhd_respond, NULL,      /* handler callback */
+                              MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
+                              MHD_OPTION_END);
+    if (mhd_ipv6)
+        d6 = MHD_start_daemon(MHD_USE_IPv6,
+                              port,
+                              NULL, NULL,              /* default accept policy */
+                              &mhd_respond, NULL,      /* handler callback */
+                              MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
+                              MHD_OPTION_END);
+
+    if (d4 == NULL && d6 == NULL) {
+        __pmNotifyErr(LOG_ERR, "error starting microhttpd daemons\n");
         exit(EXIT_FAILURE);
     }
+    
+    if (d4)
+        __pmNotifyErr (LOG_INFO, "Started daemon on IPv4 tcp port %d, pmapi url %s\n",
+                       port, uriprefix);
+    if (d6)
+        __pmNotifyErr (LOG_INFO, "Started daemon on IPv6 tcp port %d, pmapi url %s\n",
+                       port, uriprefix);
 
-    __pmNotifyErr (LOG_INFO, "Started daemon on tcp port %d, pmapi url %s\n", port, uriprefix);
-    if (resourcedir) __pmNotifyErr (LOG_INFO, "Serving other urls under directory %s", resourcedir);
+    if (resourcedir)
+        __pmNotifyErr (LOG_INFO, "Serving other urls under directory %s", resourcedir);
 
     /* Set up signal handlers. */
     signal (SIGINT, handle_signals);
@@ -293,7 +324,9 @@ int main(int argc, char *argv[])
         FD_ZERO (& rs);
         FD_ZERO (& ws);
         FD_ZERO (& es);
-        if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))
+        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max))
+            break; /* fatal internal error */
+        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max))
             break; /* fatal internal error */
 
         /* Always block for at most half the context maxtimeout, so on
@@ -306,16 +339,21 @@ int main(int argc, char *argv[])
 
         (void) select (max+1, &rs, &ws, &es, &tv);
 
-        MHD_run (d);
+        if (d4) MHD_run (d4);
+        if (d6) MHD_run (d6);
         pmwebapi_gc ();
     }
 
-    /* Shut down cleanly, out of a misplaced sense of propriety. */
-    MHD_stop_daemon (d);
+    __pmNotifyErr (LOG_INFO, "Stopping\n");
 
-    /* We could pmDestroyContext() all the active contexts. */
-    /* We could free() the contexts too. */
-    /* But the OS will do all that for us anyway. */
+    /* Shut down cleanly, out of a misplaced sense of propriety. */
+    if (d4) MHD_stop_daemon (d4);
+    if (d6) MHD_stop_daemon (d6);
+
+    /* Let's politely clean up all the active contexts. */
+    /* The OS could do all that for us anyway, but let's make valgrind happy. */
+    pmwebapi_deallocate_all ();
+
     return 0;
 }
 

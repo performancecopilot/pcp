@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2012 Red Hat Inc.
+ * Copyright (c) 2011-2013 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,9 +69,6 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
     assert (resourcedir != NULL); /* facility is enabled at all */
 
-    if (verbosity)
-        pmweb_notify (LOG_INFO, connection, "pmwebres attempting to serve url %s\n", url);
-
     /* Reject some obvious ways of escaping resourcedir. */
     if (NULL != strstr (url, "/..")) {
         pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
@@ -86,7 +83,6 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     fd = open (filename, O_RDONLY);
     if (fd < 0) {
         pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename, fd);
-
         resp_code = MHD_HTTP_NOT_FOUND;
         goto error_response;
     }
@@ -109,7 +105,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
         goto error_response;
     }
 
-    if (verbosity)
+    if (verbosity > 2)
         pmweb_notify (LOG_INFO, connection, "pmwebres serving file %s.\n", filename);
 
     resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);    /* auto-closes fd */
@@ -142,7 +138,9 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     return rc;
 
  error_response:
-    resp = MHD_create_response_from_buffer (sizeof(error_page), error_page, MHD_RESPMEM_PERSISTENT);
+    resp = MHD_create_response_from_buffer (sizeof(error_page),
+                                            (char*)error_page, 
+                                            MHD_RESPMEM_PERSISTENT);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
         close (fd);
