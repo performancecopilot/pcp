@@ -69,7 +69,6 @@ bison
 gdb
 mktemp
 gawk
-certutils			[libnss3-tools(dpkg)]
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev package]
 dpkg?	dh			[debhelper package]
@@ -116,6 +115,8 @@ dpkg?	/usr/include/python*/Python.h		[python-dev]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
 dpkg?	/usr/include/nss/nss.h		[libnss3-dev]
+dpkg?	certutil			[libnss3-tools]
+rpm?	certutil			[nss-tools]
 End-of-File
 do
     rm -f $tmp.ok
@@ -143,7 +144,7 @@ do
 		rm -f $tmp.tmp
 		for file in `echo "$app" | sed -e 's/|/ /g'`
 		do
-		    if [ -f "$file" ]
+		    if [ -f "$file" -o -d "$file" ]
 		    then
 			touch $tmp.tmp
 			break
@@ -223,3 +224,32 @@ then
     done
 fi
 
+# Networking goo
+#
+_check_host()
+{
+    ipaddr=`sed -n </etc/hosts -e '/^#/d' -e 's/$/ /' -e "/[ 	]$1[ 	]/"'{
+s/[ 	].*//
+p
+}'`
+    if [ -z "$ipaddr" ]
+    then
+	echo "No /etc/hosts entry for $1"
+	return
+    fi
+
+    ifconfig \
+    | awk '
+/^[^ 	]/	{ iface = $1; next }
+/inet addr:'$ipaddr' /	{ if (iface == "lo")
+			    print "Warning: '$1' associated with loopback network interface"
+			  found = 1
+			  exit
+			}
+END		{ if (found != 1)
+		    print "Warning: '$1' ('$ipaddr') not associated with a network interface"
+		}'
+}
+
+_check_host `hostname`
+which pmhostname >/dev/null 2>&1 && _check_host `pmhostname`
