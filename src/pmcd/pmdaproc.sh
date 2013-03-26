@@ -865,7 +865,7 @@ _setup()
 	python_name="$python_name"
 	python_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.python"
 	python_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.python"
-	python -e 'from pcp import pmda' 2>/dev/null
+	python -c 'from pcp import pmda' 2>/dev/null
 	if test $? -eq 0
 	then
 	    eval PCP_PYTHON_DOMAIN=1 python "$python_name" > "$python_dom"
@@ -1039,7 +1039,7 @@ _install()
 		else
 		elif [ "X$pmda_type" = Xpython ]
 		then
-		    python -e 'from pcp import pmda' 2>/dev/null
+		    python -c 'from pcp import pmda' 2>/dev/null
 		    if test $? -ne 0
 		    then
 			echo 'Python pcp pmda module is not installed, install it and try again'

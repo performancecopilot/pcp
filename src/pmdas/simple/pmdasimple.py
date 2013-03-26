@@ -17,10 +17,12 @@ Python implementation of the "simple" Performance Metrics Domain Agent.
 
 import os
 import time
-import pmapi
-from pcp import pmda
 
-class SimplePMDA(pcp.PMDA):
+from pcp import pmda
+from pcp import pmapi
+from pcp.pmapi import pmContext as PCP
+
+class SimplePMDA(PMDA):
     '''
     A simple Performance Metrics Domain Agent with very simple metrics.
     Install it and make basic use of it, as follows:
@@ -189,30 +191,30 @@ class SimplePMDA(pcp.PMDA):
 
 
     def __init__(self, name, domain):
-        pcp.PMDA.__init__(name, domain)
+        PMDA.__init__(self, name, domain)
 
-        helpfile = pcp.pmGetConfig('PCP_PMDAS_DIR')
+        helpfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         helpfile += '/' + name + '/' + 'help'
         self.set_helpfile(helpfile)
 
-        self.configfile = pcp.pmGetConfig('PCP_PMDAS_DIR')
+        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
-        self.add_metric(name + '.numfetch', pcp.pmda_pmid(0, 0),
+        self.add_metric(name + '.numfetch', self.pmda_pmid(0, 0),
                 pmapi.PM_TYPE_U32, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_INSTANT,
-                pcp.pmda_units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.color', pcp.pmda_pmid(0, 1),
+                self.pmda_units(0, 0, 0, 0, 0, 0))
+        self.add_metric(name + '.color', self.pmda_pmid(0, 1),
                 pmapi.PM_TYPE_32, self.color_indom, pmapi.PM_SEM_INSTANT,
-                pcp.pmda_units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.time.user', pcp.pmda_pmid(1, 2),
+                self.pmda_units(0, 0, 0, 0, 0, 0))
+        self.add_metric(name + '.time.user', self.pmda_pmid(1, 2),
                 pmapi.PM_TYPE_DOUBLE, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_COUNTER,
-                pcp.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
-        self.add_metric(name + '.time.sys', pcp.pmda_pmid(1, 3),
+                self.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
+        self.add_metric(name + '.time.sys', self.pmda_pmid(1, 3),
                 pmapi.PM_TYPE_DOUBLE, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_COUNTER,
-                pcp.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
-        self.add_metric(name + '.now', pcp.pmda_pmid(2, 4),
+                self.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
+        self.add_metric(name + '.now', self.pmda_pmid(2, 4),
                 pmapi.PM_TYPE_U32, self.now_indom, pmapi.PM_SEM_INSTANT,
-                pcp.pmda_units(0, 0, 0, 0, 0, 0))
+                self.pmda_units(0, 0, 0, 0, 0, 0))
 
         self.color_indom = self.add_indom(self.color_indom,
                 {0: 'red', 1: 'green', 2: 'blue'})
@@ -222,7 +224,7 @@ class SimplePMDA(pcp.PMDA):
         self.set_instance(simple_instance)
         self.set_fetch_callback(simple_fetch_callback)
         self.set_store_callback(simple_store_callback)
-        self.set_user(pcp.pmGetConfig('PCP_USER'))
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.simple_timenow_check()
 
 
