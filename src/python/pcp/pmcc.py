@@ -22,7 +22,7 @@
 
 import sys
 from pcp import pmapi
-from pcp.pmapi import pmResult, libpcp as LIBPCP
+from pcp.pmapi import pmResult, LIBPCP
 from ctypes import c_uint, c_char_p, POINTER, Structure
 
 
@@ -268,7 +268,7 @@ class MetricResultHandle(Structure):
     # overloads
 
     def __init__(self, result_p = 0):
-        Structure.__init__()
+        Structure.__init__(self)
         if result_p:
             self.result_p = result_p
     def __del__(self):
