@@ -33,11 +33,12 @@ _usage()
     echo >&2 "  -q          run qa"
     echo >&2 "  -r          rerun qa for failing cases"
     echo >&2 "  -s          shutdown VM"
+    echo >&2 "  -S          single-thread, not parallel"
     echo >&2 "  -t          tree for pcp [default $pcp_tree]"
     echo >&2 "default: -pmiqhs"
     echo >&2 "vmlist1: $list_1"
     echo >&2 "vmlist2: $list_2"
-    echo >&2 "[both vmlists run in parallel for the default case]"
+    echo >&2 "[both vmlists run in parallel for the default case without -S]"
 }
 
 args="$*"
@@ -54,10 +55,11 @@ rflag=false
 what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
 what=all
 sflag=false
+Sflag=false
 options=false
 work=false
 efile=''
-while getopts "ab:B:ce:fg:himpqrst:T:?" c
+while getopts "ab:B:ce:fg:himpqrsSt:T:?" c
 do
     case $c
     in
@@ -129,6 +131,9 @@ do
 	    options=true
 	    sflag=true
 	    ;;
+	S)
+	    Sflag=true
+	    ;;
 	t)
 	    pcp_tree="$OPTARG"
 	    ;;
@@ -143,9 +148,15 @@ shift `expr $OPTIND - 1`
 
 if [ $# -eq 0 ]
 then
-    # set -- vm03 vm02 vm01 vm00 vm04 vm05 vm07 vm08 vm11 vm12 vm13 vm14 vm16 comma
-    set -- $list_1
-    pcp-daily $args $list_2 &
+    if $Sflag
+    then
+	# serial run
+	set -- $list_1 $list_2
+    else
+	# run in parallel
+	set -- $list_1
+	pcp-daily $args $list_2 &
+    fi
 fi
 
 if $options
@@ -352,7 +363,8 @@ End-of-File
 	$pflag && cat >>$tmp.script <<End-of-File
 # need to clean before pulling in case unwanted files no longer removed,
 # e.g. in PCP 3.x -> PCP 4.0 migration of source base
-${MAKE:-make} clean >>\$HOME/daily.log 2>&1
+# not needed any longer - 26 Mar 2013
+#${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
 git checkout -f VERSION.pcp
 if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
