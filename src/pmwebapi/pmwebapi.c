@@ -44,7 +44,7 @@ static __pmHashCtl contexts;
 
 
 
-__pmHashWalkState
+static __pmHashWalkState
 pmwebapi_gc_fn (const __pmHashNode *kv, void *cdata)
 {
     const struct webcontext *value = kv->data;
@@ -81,7 +81,7 @@ void pmwebapi_gc ()
 
 
 
-__pmHashWalkState
+static __pmHashWalkState
 pmwebapi_deallocate_all_fn (const __pmHashNode *kv, void *cdata)
 {
     const struct webcontext *value = kv->data;
@@ -106,7 +106,7 @@ void pmwebapi_deallocate_all ()
 }
 
 
-int webcontext_allocate (int webapi_ctx, struct webcontext** wc)
+static int webcontext_allocate (int webapi_ctx, struct webcontext** wc)
 {
     if (__pmHashSearch (webapi_ctx, & contexts) != NULL)
         return -EEXIST;
@@ -147,7 +147,7 @@ int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 
 
 
-int pmwebapi_respond_new_context (struct MHD_Connection *connection)
+static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
 {
     /* Create a context. */
     const char *val;
@@ -265,7 +265,7 @@ struct mhdb {
 /* Create a MHD response buffer of given initial size.  Upon failure,
    leave the buffer unallocated, which will block any mhdb_printfs,
    and cause mhdb_fini_response to fail. */
-void mhdb_init (struct mhdb *md, size_t size)
+static void mhdb_init (struct mhdb *md, size_t size)
 {
     md->buf_size = size;
     md->buf_used = 0;
@@ -277,8 +277,8 @@ void mhdb_init (struct mhdb *md, size_t size)
    Extend/realloc the buffer if needed.  If unable, free the buffer,
    which will block any further mhdb_vsprintfs, and cause the
    mhdb_fini_response to fail. */
-void mhdb_printf(struct mhdb *md, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
-void mhdb_printf(struct mhdb *md, const char *fmt, ...)
+static void mhdb_printf(struct mhdb *md, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+static void mhdb_printf(struct mhdb *md, const char *fmt, ...)
 {
     va_list vl;
     int n;
@@ -321,7 +321,7 @@ void mhdb_printf(struct mhdb *md, const char *fmt, ...)
 
 /* Print a string with JSON quoting.  Replace non-ASCII characters
    with \uFFFD "REPLACEMENT CHARACTER". */
-void mhdb_print_qstring(struct mhdb *md, const char *value)
+static void mhdb_print_qstring(struct mhdb *md, const char *value)
 {
     const char *c;
 
@@ -338,7 +338,7 @@ void mhdb_print_qstring(struct mhdb *md, const char *value)
 /* A convenience function to print a vanilla-ascii key and an
    unknown ancestry value as a JSON pair.  Add given suffix,
    which is likely to be a comma or a \n. */
-void mhdb_print_key_value(struct mhdb *md, const char *key, const char *value,
+static void mhdb_print_key_value(struct mhdb *md, const char *key, const char *value,
                           const char *suffix)
 {
     mhdb_printf(md, "\"%s\":", key);
@@ -347,16 +347,17 @@ void mhdb_print_key_value(struct mhdb *md, const char *key, const char *value,
 }
 
 
+#if 0 /* unused */
 /* Ensure that any recent mhdb_printfs are canceled, and that the
    final mhdb_fini_response will fail. */
-void mhdb_unprintf(struct mhdb *md)
+static void mhdb_unprintf(struct mhdb *md)
 {
     if (md->buf) {
         free (md->buf);
         md->buf = NULL;
     }
 }
-
+#endif
 
 
 /* Create a MHD_Response from the mhdb, now that we're done with it.
@@ -364,7 +365,7 @@ void mhdb_unprintf(struct mhdb *md)
    the MHD_create_response* function fails, return NULL.  Ensure that
    the buffer will be freed either by us here, or later by a
    successful MHD_create_response* function. */
-struct MHD_Response* mhdb_fini_response(struct mhdb *md)
+static struct MHD_Response* mhdb_fini_response(struct mhdb *md)
 {
     struct MHD_Response *r;
 
@@ -391,7 +392,7 @@ struct metric_list_traverse_closure {
 
 
 
-void metric_list_traverse (const char* metric, void *closure)
+static void metric_list_traverse (const char* metric, void *closure)
 {
     struct metric_list_traverse_closure *mltc = closure;
     pmID metric_id;
@@ -448,8 +449,8 @@ void metric_list_traverse (const char* metric, void *closure)
 }
 
 
-int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
-                                  struct webcontext *c)
+static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
+                                         struct webcontext *c)
 {
     struct metric_list_traverse_closure mltc;
     const char* val;
@@ -502,8 +503,8 @@ int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 /* ------------------------------------------------------------------------ */
 
 
-int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
-                                   struct webcontext *c)
+static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
+                                          struct webcontext *c)
 {
     const char* val_pmids;
     const char* val_names;
@@ -724,183 +725,183 @@ int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 /* ------------------------------------------------------------------------ */
 
 
-int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
-                                    struct webcontext *c)
+static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
+                                           struct webcontext *c)
 {
-  const char* val_indom;
-  const char* val_name;
-  const char* val_instance;
-  const char* val_iname;
-  struct MHD_Response* resp;
-  int rc;
-  int max_num_instances;
-  int num_instances;
-  int printed_instances;
-  int *instances;
-  struct mhdb output;
-  pmID metric_id;
-  pmDesc metric_desc;
-  pmInDom inDom;
-  int i;
+    const char* val_indom;
+    const char* val_name;
+    const char* val_instance;
+    const char* val_iname;
+    struct MHD_Response* resp;
+    int rc;
+    int max_num_instances;
+    int num_instances;
+    int printed_instances;
+    int *instances;
+    struct mhdb output;
+    pmID metric_id;
+    pmDesc metric_desc;
+    pmInDom inDom;
+    int i;
 
-  val_indom = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
-  if (val_indom == NULL) val_indom = "";
-  val_name = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
-  if (val_name == NULL) val_name = "";
-  val_instance = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
-  if (val_instance == NULL) val_instance = "";
-  val_iname = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "iname");
-  if (val_iname == NULL) val_iname = "";
+    val_indom = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
+    if (val_indom == NULL) val_indom = "";
+    val_name = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
+    if (val_name == NULL) val_name = "";
+    val_instance = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
+    if (val_instance == NULL) val_instance = "";
+    val_iname = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "iname");
+    if (val_iname == NULL) val_iname = "";
 
-  /* Obtain the instance domain. */
-  if (0 == strcmp(val_indom, "")) {
-    rc = pmLookupName (1, (char **)& val_name, & metric_id);
-    if (rc != 1) {
-      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
-      goto out;
-    }
-    assert (metric_id != PM_ID_NULL);
+    /* Obtain the instance domain. */
+    if (0 == strcmp(val_indom, "")) {
+        rc = pmLookupName (1, (char **)& val_name, & metric_id);
+        if (rc != 1) {
+            pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
+            goto out;
+        }
+        assert (metric_id != PM_ID_NULL);
 
-    rc = pmLookupDesc (metric_id, & metric_desc);
-    if (rc != 0) {
-      pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
-      goto out;
-    }
+        rc = pmLookupDesc (metric_id, & metric_desc);
+        if (rc != 0) {
+            pmweb_notify (LOG_ERR, connection, "failed to lookup metric '%s'\n", val_name);
+            goto out;
+        }
 
-    inDom = metric_desc.indom;
-  } else {
-    char *numend;
-    inDom = strtoul (val_indom, & numend, 10);
-    if (numend == val_indom) {
-      pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val_indom);
-      goto out;
-    }
-  }
-
-  /* Pessimistically overestimate maximum number of instance IDs needed. */
-  max_num_instances = strlen(val_indom) + strlen(val_name);
-  num_instances = 0;
-  instances = calloc ((size_t) max_num_instances, sizeof(int));
-  if (instances == NULL) {
-    pmweb_notify (LOG_ERR, connection, "calloc instances[%d] oom\n", max_num_instances);
-    goto out;
-  }
-
-  /* In the case where neither val_instance nor val_iname are
-     specified, pmGetInDom will allocate different arrays on our
-     behalf, so we don't have to worry about accounting for how many
-     instances are returned in that case. */
-
-  /* Loop over instance= numbers in val_instance, collect them in instances[]. */
-  while (*val_instance != '\0') {
-    char *numend;
-    int iid = (int) strtoul (val_instance, & numend, 10);
-    if (numend == val_instance) break; /* invalid contents */
-    assert (num_instances < max_num_instances);
-    instances[num_instances++] = iid;
-    
-    if (*numend == '\0') break; /* end of string */
-    if (*numend == ',')
-      val_instance = numend+1; /* advance to next string */
-  }
-
-  /* Loop over iname= names in val_iname, collect them in instances[]. */
-  while (*val_iname != '\0') {
-    char *iname;
-    char *iname_end = strchr (val_iname, ',');
-    int iid;
-    
-    /* Ignore plain "," XXX: elsewhere too? */
-    if (*val_iname == ',') {
-      val_iname ++;
-      continue;
-    }
-
-    if (iname_end) {
-      iname = strndup (val_iname, (iname_end - val_iname));
-      val_iname = iname_end + 1; /* skip past , */
+        inDom = metric_desc.indom;
     } else {
-      iname = strdup (val_iname);
-      val_iname += strlen (val_iname); /* skip onto \0 */
+        char *numend;
+        inDom = strtoul (val_indom, & numend, 10);
+        if (numend == val_indom) {
+            pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val_indom);
+            goto out;
+        }
     }
+
+    /* Pessimistically overestimate maximum number of instance IDs needed. */
+    max_num_instances = strlen(val_indom) + strlen(val_name);
+    num_instances = 0;
+    instances = calloc ((size_t) max_num_instances, sizeof(int));
+    if (instances == NULL) {
+        pmweb_notify (LOG_ERR, connection, "calloc instances[%d] oom\n", max_num_instances);
+        goto out;
+    }
+
+    /* In the case where neither val_instance nor val_iname are
+       specified, pmGetInDom will allocate different arrays on our
+       behalf, so we don't have to worry about accounting for how many
+       instances are returned in that case. */
+
+    /* Loop over instance= numbers in val_instance, collect them in instances[]. */
+    while (*val_instance != '\0') {
+        char *numend;
+        int iid = (int) strtoul (val_instance, & numend, 10);
+        if (numend == val_instance) break; /* invalid contents */
+        assert (num_instances < max_num_instances);
+        instances[num_instances++] = iid;
     
-    iid = pmLookupInDom(inDom, iname);
-
-    if (iid > 0) {
-      assert (num_instances < max_num_instances);
-      instances[num_instances++] = iid;
+        if (*numend == '\0') break; /* end of string */
+        if (*numend == ',')
+            val_instance = numend+1; /* advance to next string */
     }
-  }
 
-  /* Time to fetch the instance info. */
-  int *instlist;
-  char **namelist = NULL;
-  if (num_instances == 0) {
-    free (instances);
+    /* Loop over iname= names in val_iname, collect them in instances[]. */
+    while (*val_iname != '\0') {
+        char *iname;
+        char *iname_end = strchr (val_iname, ',');
+        int iid;
+    
+        /* Ignore plain "," XXX: elsewhere too? */
+        if (*val_iname == ',') {
+            val_iname ++;
+            continue;
+        }
 
-    num_instances = pmGetInDom(inDom, & instlist, & namelist);
-    if (num_instances < 1) {
-      pmweb_notify (LOG_ERR, connection, "pmGetInDom failed\n");
-      goto out;
+        if (iname_end) {
+            iname = strndup (val_iname, (iname_end - val_iname));
+            val_iname = iname_end + 1; /* skip past , */
+        } else {
+            iname = strdup (val_iname);
+            val_iname += strlen (val_iname); /* skip onto \0 */
+        }
+    
+        iid = pmLookupInDom(inDom, iname);
+
+        if (iid > 0) {
+            assert (num_instances < max_num_instances);
+            instances[num_instances++] = iid;
+        }
     }
-  } else {
-    instlist = instances;
-  }
 
-  /* Build the response string all in one giant buffer: */
-  mhdb_init (& output, num_instances * 200);
-  mhdb_printf (& output, "{ \"indom\": %lu,\n", (unsigned long) inDom);
-  mhdb_printf (& output, "\"instances\": [\n");
+    /* Time to fetch the instance info. */
+    int *instlist;
+    char **namelist = NULL;
+    if (num_instances == 0) {
+        free (instances);
 
-  printed_instances = 0;
-  for (i=0; i<num_instances; i++) {
-    char *instance_name;
-
-    if (namelist != NULL) {
-      instance_name = namelist[i];
+        num_instances = pmGetInDom(inDom, & instlist, & namelist);
+        if (num_instances < 1) {
+            pmweb_notify (LOG_ERR, connection, "pmGetInDom failed\n");
+            goto out;
+        }
     } else {
-      rc = pmNameInDom (inDom, instlist[i], & instance_name);
-      if (rc != 0) continue; /* skip this instance quietly */
+        instlist = instances;
     }
 
-    if (printed_instances >= 1)
-      mhdb_printf (& output, ",\n");
-    mhdb_printf (& output, "{ \"instance\":%d,\n", instlist[i]);
-    mhdb_print_key_value (& output, "name", instance_name, "\n");
-    mhdb_printf (& output, "}");
+    /* Build the response string all in one giant buffer: */
+    mhdb_init (& output, num_instances * 200);
+    mhdb_printf (& output, "{ \"indom\": %lu,\n", (unsigned long) inDom);
+    mhdb_printf (& output, "\"instances\": [\n");
 
-    if (namelist == NULL) free (instance_name);
+    printed_instances = 0;
+    for (i=0; i<num_instances; i++) {
+        char *instance_name;
 
-    printed_instances ++; /* comma separation at beginning of loop */
-  }
-  mhdb_printf(& output, "] }"); /* iteration over instances */
+        if (namelist != NULL) {
+            instance_name = namelist[i];
+        } else {
+            rc = pmNameInDom (inDom, instlist[i], & instance_name);
+            if (rc != 0) continue; /* skip this instance quietly */
+        }
 
-  /* Free no-longer-needed things: */
-  free (instlist);
-  if (namelist != NULL) free (namelist);
+        if (printed_instances >= 1)
+            mhdb_printf (& output, ",\n");
+        mhdb_printf (& output, "{ \"instance\":%d,\n", instlist[i]);
+        mhdb_print_key_value (& output, "name", instance_name, "\n");
+        mhdb_printf (& output, "}");
 
-  resp = mhdb_fini_response (& output);
-  if (resp == NULL) {
-    pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
-    goto out;
-  }
-  rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
-  if (rc != MHD_YES) {
-    pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
-    goto out1;
-  }
-  rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
-  if (rc != MHD_YES) {
-    pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
-    goto out1;
-  }
-  MHD_destroy_response (resp);
-  return MHD_YES;
+        if (namelist == NULL) free (instance_name);
+
+        printed_instances ++; /* comma separation at beginning of loop */
+    }
+    mhdb_printf(& output, "] }"); /* iteration over instances */
+
+    /* Free no-longer-needed things: */
+    free (instlist);
+    if (namelist != NULL) free (namelist);
+
+    resp = mhdb_fini_response (& output);
+    if (resp == NULL) {
+        pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
+        goto out;
+    }
+    rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+        goto out1;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        goto out1;
+    }
+    MHD_destroy_response (resp);
+    return MHD_YES;
 
  out1:
-  MHD_destroy_response (resp);
+    MHD_destroy_response (resp);
  out:
-  return MHD_NO;
+    return MHD_NO;
 }
 
 

@@ -44,10 +44,10 @@ static int mhd_log_args (void *connection, enum MHD_ValueKind kind,
 /* Respond to a new incoming HTTP request.  It may be
    one of three general categories:
    (a) creation of a new PMAPI context: do it
-   (b) operation an existing context: do it
+   (b) operation on an existing context: do it
    (c) access to some non-API URI: serve it from $resourcedir/ if configured.
 */
-int mhd_respond (void *cls, struct MHD_Connection *connection,
+static int mhd_respond (void *cls, struct MHD_Connection *connection,
                  const char *url,
                  const char *method, const char *version,
                  const char *upload_data,
@@ -107,7 +107,7 @@ static char usage[] =
     ;
 
 
-void handle_signals (int sig)
+static void handle_signals (int sig)
 {
     exit_p ++;
 }
