@@ -12,7 +12,7 @@ main()
 {
     int			s, sts, op, host;
     unsigned int	i;
-    char		name[20];
+    char		name[4*8 + 7 + 1]; /* handles full IPv6 address, if supported */
 #if PCP_VER >= 3611
     __pmSockAddr	*inaddr;
 #else
@@ -37,9 +37,18 @@ main()
     for (host = 0; host < WORD_BIT; host++) {
 	sprintf(name, "155.%d.%d.%d", host * 3, 17+host, host);
 	if ((s = __pmAccAddHost(name, 1 << host, 1 << host, 0)) < 0) {
-	    printf("cannot add host for op%d: %s\n", host, strerror(s));
+	    printf("cannot add inet host for op%d: %s\n", host, strerror(s));
 	    sts = s;
 	}
+#if PCP_VER >= 3611
+	sprintf(name, "fec0::%x:%x:%x:%x:%x:%x",
+		host * 3, 17+host, host,
+		host * 3, 17+host, host);
+	if ((s = __pmAccAddHost(name, 1 << host, 1 << host, 0)) < 0) {
+	    printf("cannot add IPv6 host for op%d: %s\n", host, strerror(s));
+	    sts = s;
+	}
+#endif
     }
     if (sts < 0)
 	exit(1);
@@ -65,13 +74,37 @@ main()
 #endif
 
 	if (sts < 0) {
-	    printf("add client from host %d: %s\n", host, pmErrStr(sts));
+	    printf("add inet client from host %d: %s\n", host, pmErrStr(sts));
 	    continue;
 	}
 	else if (i != (1 << host))
-	    printf("host %d: __pmAccAddClient returns denyOpsResult 0x%x (expected 0x%x)\n",
+	    printf("inet host %d: __pmAccAddClient returns denyOpsResult 0x%x (expected 0x%x)\n",
 		   host, i, 1 << host);
     }
+
+#if PCP_VER >= 3611
+    for (host = 0; host < WORD_BIT; host++) {
+	char	buf[4*8 + 7 + 1]; /* handles full IPv6 address */
+
+	sprintf(buf, "fec0::%x:%x:%x:%x:%x:%x",
+		host * 3, 17+host, host,
+		host * 3, 17+host, host);
+	if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
+	    printf("insufficient memory\n");
+	    continue;
+	}
+	sts = __pmAccAddClient(inaddr, &i);
+	__pmSockAddrFree(inaddr);
+
+	if (sts < 0) {
+	    printf("add IPv6 client from host %d: %s\n", host, pmErrStr(sts));
+	    continue;
+	}
+	else if (i != (1 << host))
+	    printf("IPv6 host %d: __pmAccAddClient returns denyOpsResult 0x%x (expected 0x%x)\n",
+		   host, i, 1 << host);
+    }
+#endif
     
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);

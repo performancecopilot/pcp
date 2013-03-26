@@ -44,11 +44,11 @@ active agent dom   pid  in out ver protocol parameters
 pmcd           2                 X dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
-00 01 Cur/MaxCons host-spec host-mask lvl host-name
-== == =========== ========= ========= === ==============
- y  y     0     0  MYIPADDR  ffffffff   0 localhost
-    n     0     0  83190000  ffff0000   2 131.25.*
- n  n     0     0  00000000  00000000   4 *
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y y 0 0 MYIPADDR MYHOSTMASK 0 localhost
+    n     0     0 131.25.0.0                              255.255.0.0                               2 131.25.*
+ n  n     0     0 0.0.0.0                                 0.0.0.0                                   4 *
 
 
 pmcd: PID = PID
@@ -72,11 +72,11 @@ active agent dom   pid  in out ver protocol parameters
 pmcd           2                 X dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
-00 01 Cur/MaxCons host-spec host-mask lvl host-name
-== == =========== ========= ========= === ==============
- y  y     0     0  MYIPADDR  ffffffff   0 localhost
-    n     0     0  83190000  ffff0000   2 131.25.*
- n  n     0     0  00000000  00000000   4 *
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y y 0 0 MYIPADDR MYHOSTMASK 0 localhost
+    n     0     0 131.25.0.0                              255.255.0.0                               2 131.25.*
+ n  n     0     0 0.0.0.0                                 0.0.0.0                                   4 *
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
 Waiting for pmcd to terminate ...

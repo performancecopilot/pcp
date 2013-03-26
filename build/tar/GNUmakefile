@@ -10,26 +10,31 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
+SCRIPTS = $(TOPDIR)/build
 
-LSRCFILES = preinstall.head.in preinstall.head preinstall.tail postinstall remove README
+LSRCFILES = remove README \
+	preinstall.head.in preinstall.head preinstall.tail \
+	postinstall.head.in postinstall.head postinstall.tail
 
-LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) preinstall preinstall.head
+LDIRT = $(wildcard pcp*.tar.gz pcp*.md5sum.src) \
+	preinstall preinstall.head postinstall postinstall.head
 
-default install install_pcp default_pcp : preinstall
+default install install_pcp default_pcp : preinstall postinstall
 
-preinstall: preinstall.head ../../debian/cleanconfigs preinstall.tail
-	rm -f preinstall
-	cat preinstall.head ../../debian/cleanconfigs preinstall.tail >preinstall
-	chmod ugo+x preinstall
+preinstall: preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail
+	rm -f $@
+	cat preinstall.head $(SCRIPTS)/cleanconfigs preinstall.tail > $@
+	chmod ugo+x $@
+
+postinstall: postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail
+	rm -f $@
+	cat postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail > $@
+	chmod ugo+x $@
 
 # Note on sed below
 # for f and l lines of manifest, want the last word (target name),

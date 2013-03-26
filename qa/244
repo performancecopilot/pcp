@@ -53,10 +53,6 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e '/access violation from host/d' \
 	-e '/endclient client.* No permission/d' \
-	-e '/localhost/s/ [0-9a-f][0-9a-f][0-9a-f]* / MYIPADDR /g' \
-	-e '/localhost/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / MYIPADDR / ' \
-	-e '/localhost/s/ [a-f0-9:]\+ *ff/ MYIPADDR ff/ ' \
-	-e '/localhost/s/ ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff / MYHOSTMASK / ' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "/sed: couldn't flush stdout: Broken pipe/d" \
     | $PCP_AWK_PROG '
@@ -69,6 +65,11 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 			  }
 			}
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
+/localhost/		{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYIPADDR",$5)
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYHOSTMASK",$6)
+			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYHOSTMASK",$6) }
 			{ print }' \
     | _filter_optional_pmdas \
     | sed \

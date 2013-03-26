@@ -30,6 +30,7 @@
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-u\f1]
+[\f3\-U\f1 \f2username\f1]
 [\f3\-v\f1 \f2volsize\f1]
 [\f3\-V\f1 \f2version\f1]
 [\f3\-x\f1 \f2fd\f1]
@@ -266,6 +267,15 @@ of collection to be reported in the log file.  This
 information is reported
 the first time each group is successfully written
 to the archive.
+.PP
+The
+.B \-U
+option specifies the user account under which to run
+.BR pmlogger .
+The default is the current user account for interactive use.
+When run as a daemon, the unprivileged "pcp" account is used
+in current versions of PCP, but in older versions the superuser
+account ("root") was used by default.
 .PP
 The log file is potentially a multi-volume data set, and the
 .B \-v

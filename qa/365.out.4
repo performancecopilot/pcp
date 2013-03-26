@@ -23,11 +23,11 @@ active agent dom   pid  in out ver protocol parameters
 pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
-00 01 Cur/MaxCons host-spec       host-mask       lvl host-name
-== == =========== =============== =============== === ==============
- y  y     0     0 LOCALIP    255.255.255.255   0 LOCALHOST
- y        0     0 OTHERIP1   255.255.255.255   0 OTHERHOST1
-    y     0     0 OTHERIP2   255.255.255.255   0 OTHERHOST2
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+ y  y     0     0 LOCALIP                            255.255.255.255                           0 LOCALHOST
+ y        0     0 OTHERIP1                           255.255.255.255                           0 OTHERHOST1
+    y     0     0 OTHERIP2                           255.255.255.255                           0 OTHERHOST2
 
 
 pmcd: PID = PID
@@ -35,7 +35,6 @@ pmcd request port(s):
   sts fd   port  family address
   === ==== ===== ====== =======
 ok FD 44321 inet INADDR_ANY
-ok FD 44321 ipv6 INADDR_ANY
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 

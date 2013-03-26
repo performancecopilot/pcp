@@ -20,9 +20,6 @@
 #include <execinfo.h>
 #endif
 #endif
-#ifdef IS_MINGW
-extern const char *strerror_r(int, char *, size_t);
-#endif
 
 /* the big libpcp lock */
 #ifdef PM_MULTI_THREAD
@@ -52,7 +49,7 @@ __pmInitLocks(void)
     int				psts;
     char			errmsg[PM_MAXERRMSGLEN];
     if ((psts = pthread_mutex_lock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitLocks: pthread_mutex_lock failed: %s", errmsg);
 	exit(4);
     }
@@ -65,17 +62,17 @@ __pmInitLocks(void)
 	pthread_mutexattr_t	attr;
 
 	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_init failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_settype failed: %s", errmsg);
 	    exit(4);
 	}
 	if ((psts = pthread_mutex_init(&__pmLock_libpcp, &attr)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
@@ -83,7 +80,7 @@ __pmInitLocks(void)
 #ifndef HAVE___THREAD
 	/* first thread here creates the thread private data key */
 	if ((psts = pthread_key_create(&__pmTPDKey, __pmTPD__destroy)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_key_create failed: %s", errmsg);
 	    exit(4);
 	}
@@ -91,7 +88,7 @@ __pmInitLocks(void)
 	done = 1;
     }
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitLocks: pthread_mutex_unlock failed: %s", errmsg);
 	exit(4);
     }
@@ -103,7 +100,7 @@ __pmInitLocks(void)
 	    /*NOTREACHED*/
 	}
 	if ((psts = pthread_setspecific(__pmTPDKey, tpd)) != 0) {
-	    strerror_r(psts, errmsg, sizeof(errmsg));
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_setspecific failed: %s", errmsg);
 	    exit(4);
 	}
@@ -187,6 +184,7 @@ again:
 	    hp = hp->next;
 	}
 	if (hp == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    ldp = (lockdbg_t *)malloc(sizeof(lockdbg_t));
 	    ldp->lock = lock;
 	    ldp->count = 0;
@@ -197,7 +195,7 @@ again:
 		    goto again;
 	    }
 	    hp = NULL;
-	    fprintf(stderr, " hash control failure: %s\n", pmErrStr(sts));
+	    fprintf(stderr, " hash control failure: %s\n", pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	}
     }
 

@@ -30,8 +30,12 @@ pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
-if $ipv6 ; then
-    ln $seq.out.3 $seq.out || exit 1
+if [ $PCP_VER -ge 3700 ]; then
+    if $ipv6 ; then
+        ln $seq.out.4 $seq.out || exit 1
+    else
+        ln $seq.out.3 $seq.out || exit 1
+    fi
 elif $pmcdx ; then
     ln $seq.out.2 $seq.out || exit 1
 else

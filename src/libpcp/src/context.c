@@ -31,9 +31,6 @@
 #include "impl.h"
 #include "internal.h"
 #include <string.h>
-#ifdef IS_MINGW
-extern const char *strerror_r(int, char *, size_t);
-#endif
 
 static __pmContext	**contexts;		/* array of context ptrs */
 static int		contexts_len;		/* number of contexts */
@@ -228,21 +225,21 @@ __pmInitContextLock(pthread_mutex_t *lock)
      * locked
      */
     if ((sts = pthread_mutexattr_init(&attr)) != 0) {
-	strerror_r(sts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_init failed: %s",
 		contexts_len-1, errmsg);
 	exit(4);
     }
     if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
-	strerror_r(sts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_settype failed: %s",
 		contexts_len-1, errmsg);
 	exit(4);
     }
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
-	strerror_r(sts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutex_init failed: %s",
 		contexts_len-1, errmsg);
@@ -257,7 +254,7 @@ __pmInitChannelLock(pthread_mutex_t *lock)
     char	errmsg[PM_MAXERRMSGLEN];
 
     if ((sts = pthread_mutex_init(lock, NULL)) != 0) {
-	strerror_r(sts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d pmcd channel lock pthread_mutex_init failed: %s",
 		contexts_len, errmsg);
@@ -777,7 +774,7 @@ pmDestroyContext(int handle)
     PM_UNLOCK(ctxp->c_lock);
 #ifdef PM_MULTI_THREAD
     if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmDestroyContext: context=%d pthread_mutex_destroy failed: %s", handle, errmsg);
 	exit(4);
     }
