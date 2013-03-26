@@ -125,9 +125,13 @@ TRACEFILES = \
 
 PERLFILES = \
 	check_import.perl
+# not installed:
+PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
 PYTHONFILES = \
 	test_pcp.python test_pmi.python check_import.python
+# not installed:
+PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
@@ -207,7 +211,11 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 .ORDER:	torture_api \
 	chkctx2 fetchrate
 
-default default_pcp: $(CFILES_TARGETS) $(TARGETS) $(SRCARCH) $(SRCARCHPART) ipcs_clear
+default default_pcp: \
+	$(CFILES_TARGETS) $(TARGETS) \
+	$(SRCARCH) $(SRCARCHPART) \
+	$(PLFILES) $(PYFILES) \
+	ipcs_clear
 
 setup: default $(MKARCH) 
 
@@ -713,3 +721,11 @@ scale.o:	localconfig.h
 
 bozo:
 	@echo TARGETS=$(TARGETS)
+
+# Suffix rules to support transition for perl and python scripts
+%.py : %.python
+	$(LN_S) $< $@
+
+%.pl : %.perl
+	$(LN_S) $< $@
+
