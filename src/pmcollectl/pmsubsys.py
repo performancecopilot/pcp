@@ -50,7 +50,6 @@ class _pmsubsys(object):
         # remove any unsupported metrics
         for j in range(len(self.metrics)-1, -1, -1):
             try:
-
                 (code, self.metric_pmids) = pm.pmLookupName(self.metrics[j])
             except pmErr, e:
                 self.metrics.remove(self.metrics[j])
@@ -77,6 +76,14 @@ class _pmsubsys(object):
     def get_total(self):
         True
             
+    def get_scalar_value (self, var, idx):
+        value = self.get_metric_value(var)
+        if type(value) != type(int()) and type(value) != type(long()):
+            return value[idx]
+        else:
+            return value
+
+
     def get_atom_value (self, metric, atom1, atom2, desc, first):
         if desc.contents.sem == pmapi.PM_SEM_DISCRETE or desc.contents.sem == pmapi.PM_SEM_INSTANT :
             # just use the absolute value as if it were the first value
@@ -209,8 +216,9 @@ class cpu(_pmsubsys):
                          'kernel.percpu.cpu.idle', 'kernel.all.nprocs',
                          'kernel.all.runnable',
                          # multiple inheritance?
-                         'proc.runq.runnable', 'proc.runq.blocked',
-                         'proc.runq.defunct']
+                         'proc.runq.blocked', 'proc.runq.defunct', 
+                         'proc.runq.runnable', 'proc.runq.sleeping']
+
 
     def get_total(self):
         self.cpu_total = (self.get_metric_value('kernel.all.cpu.nice') +
@@ -253,6 +261,9 @@ class disk(_pmsubsys):
                          'disk.dev.read_merge',
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
+                         'disk.partitions.read', 'disk.partitions.write',
+                         'disk.partitions.read_bytes',
+                         'disk.partitions.write_bytes'
                          ]
 
 
@@ -263,13 +274,13 @@ class memory(_pmsubsys):
     def __init__(self):
         super(memory, self).__init__()
         self.metrics += ['mem.freemem', 'mem.physmem', 'mem.util.anonpages',
-                         'mem.util.buffers', 'mem.util.bufmem',
+                         'mem.util.bufmem',
                          'mem.util.cached', 'mem.util.commitLimit',
                          'mem.util.committed_AS', 'mem.util.dirty',
                          'mem.util.free', 'mem.util.inactive',
                          'mem.util.inactive', 'mem.util.mapped',
                          'mem.util.mlocked', 'mem.util.other',
-                         'mem.util.shared', 'mem.util.slab',
+                         'mem.util.shared', 'mem.util.shmem', 'mem.util.slab',
                          'mem.util.slabReclaimable', 'mem.util.swapFree',
                          'mem.util.swapTotal', 'mem.util.used',
                          'mem.vmstat.allocstall', 'mem.vmstat.pgfault',
@@ -302,7 +313,8 @@ class net(_pmsubsys):
                          'network.interface.in.drops',
                          'network.interface.out.drops',
                          'network.ip.forwdatagrams', 'network.ip.indelivers',
-                         'network.ip.inreceives', 'network.tcp.activeopens',
+                         'network.ip.inreceives', 'network.ip.outrequests',
+                         'network.tcp.activeopens',
                          'network.tcp.inerrs', 'network.tcp.insegs',
                          'network.tcp.outrsts', 'network.tcp.outsegs',
                          'network.tcp.passiveopens', 'network.tcp.retranssegs',
@@ -324,10 +336,13 @@ class proc(_pmsubsys):
                          'proc.memory.vmsize', 'proc.memory.vmstack',
                          'proc.nprocs', 'proc.psinfo.cmd',
                          'proc.psinfo.exit_signal', 'proc.psinfo.flags',
+                         'proc.psinfo.maj_flt',
                          'proc.psinfo.minflt', 'proc.psinfo.nice',
+                         'proc.psinfo.nswap',
                          'proc.psinfo.pid', 'proc.psinfo.ppid',
                          'proc.psinfo.priority', 'proc.psinfo.processor',
                          'proc.psinfo.rss', 'proc.psinfo.start_time',
+                         'proc.psinfo.stime','proc.psinfo.utime',
                          'proc.runq.runnable', 'proc.runq.sleeping',
                          'proc.runq.blocked', 'proc.runq.defunct',
                          'proc.schedstat.cpu_time',

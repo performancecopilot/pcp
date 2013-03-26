@@ -62,17 +62,6 @@ def get_dimension (value):
     return dim
         
 
-# get_scalar_value  ------------------------------------------------------
-
-
-def get_scalar_value (var, idx):
-
-    if type(var) != type(int()) and type(var) != type(long()):
-        return var[idx]
-    else:
-        return var
-
-
 # record ---------------------------------------------------------------
 
 def record (pm, config, duration, file):
@@ -84,13 +73,9 @@ def record (pm, config, duration, file):
         sys.exit(1)
     os.mkdir (file)
     status = pm.pmRecordSetup (file + "/" + me + ".pcp", me, 0)
-    check_code (status)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
-    check_code (status)
     status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
-    check_code (status)
     status = pm.pmRecordControl (0, pmapi.PM_REC_ON, "")
-    check_code (status)
     time.sleep(duration)
     pm.pmRecordControl (0, pmapi.PM_REC_STATUS, "")
     status = pm.pmRecordControl (rhp, pmapi.PM_REC_OFF, "")
@@ -368,14 +353,14 @@ class _disk_collect_print(disk, _collect_print):
         for j in xrange(get_dimension(self.get_metric_value('disk.dev.read_bytes'))):
             print "%-10s %6d %6d %4d %4d  %6d %6d %4d %4d  %6d %6d %4d %6d %4d" % (
                 iname[j],
-                get_scalar_value (self.get_metric_value('disk.dev.read_bytes'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.read_merge'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.read'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.blkread'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.write_bytes'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.write_merge'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.write'), j),
-                get_scalar_value (self.get_metric_value('disk.dev.blkwrite'), j),
+                get_scalar_value ('disk.dev.read_bytes', j),
+                get_scalar_value ('disk.dev.read_merge', j),
+                get_scalar_value ('disk.dev.read', j),
+                get_scalar_value ('disk.dev.blkread', j),
+                get_scalar_value ('disk.dev.write_bytes', j),
+                get_scalar_value ('disk.dev.write_merge', j),
+                get_scalar_value ('disk.dev.write', j),
+                get_scalar_value ('disk.dev.blkwrite', j),
                 0, 0, 0, 0, 0)
 # ??? replace 0 with required fields
 
