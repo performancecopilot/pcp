@@ -1,1 +1,1 @@
-__all__ = ["pmapi", "pcp", "pmi", "pcpi"]
+__all__ = ["pmapi", "pmcc", "pmda", "pmgui", "pmi", "cpmapi", "cpmda", "cpmgui", "cpmi"]

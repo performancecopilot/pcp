@@ -1,5 +1,6 @@
+""" Convenience Classes building on the base PMAPI extension module """
 #
-# pcpi.py
+# pmcc.py
 #
 # Copyright (C) 2009-2012 Michael T. Werner
 #
@@ -17,20 +18,13 @@
 # for more details.
 #
 
-"""Convenience classes building on the base pcp extension module
-
-"""
-
-##
-#
 
 ##############################################################################
 #
 # imports
 #
 
-import pcp
-from pcp import *
+from pcp import pmapi
 
 
 ##############################################################################

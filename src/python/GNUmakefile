@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp
-CFILES = pmapi.c
+CFILES = pmapi.c pmda.c pmgui.c pmi.c
 LSRCFILES = setup.py
 LDIRDIRT = build dist
 LDIRT = build_python
@@ -24,7 +24,7 @@ LDIRT = build_python
 default default_pcp: build_python
 
 ifneq "$(PYTHON)" ""
-build_python:
+build_python: setup.py $(CFILES)
 	$(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
 	$(PYTHON) setup.py build
 	touch build_python

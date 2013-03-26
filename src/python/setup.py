@@ -29,7 +29,10 @@ setup(name = 'pcp',
     url = 'http://oss.sgi.com/projects/pcp/',
     packages = ['pcp'],
     ext_modules = [
-        Extension('pmapi', ['pmapi.c'], libraries = ['pcp'])
+        Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
+        Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda']),
+        Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui']),
+        Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
     ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     long_description =

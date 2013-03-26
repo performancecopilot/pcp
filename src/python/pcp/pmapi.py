@@ -30,8 +30,7 @@ cf. Chapter 3. PMAPI - The Performance Metrics API
 
 EXAMPLE
 
-import pmapi
-from pcp import *
+from pcp import pmapi
 
 # Create a pcp class
 pm = pmContext(pmapi.PM_CONTEXT_HOST,"localhost")
@@ -81,8 +80,8 @@ import datetime
 import time
 
 # constants adapted from C header file <pcp/pmapi.h>
-import pmapi
-from pmapi import *
+import cpmapi
+from cpmapi import *
 
 # for interfacing with libpcp - the client-side C API
 import ctypes
@@ -96,8 +95,7 @@ from ctypes.util import find_library
 #
 
 libpcp = ctypes.CDLL(find_library("pcp"))
-libpcp_gui = ctypes.CDLL(find_library("pcp_gui"))
-libc = ctypes.CDLL(find_library("c")) # libc is needed for free() 
+libc = ctypes.CDLL(find_library("c"))
 
 
 ##############################################################################
@@ -122,18 +120,6 @@ class pmErr( Exception ):
             return "%s %s: %s" % (errSym, errStr, badL)
         else:
             return "%s %s" % (errSym, errStr)
-
-class pmiErr( Exception ):
-
-    def __str__( self ):
-        errNum = self.args[0]
-        try:
-            errSym = pmiErrSymD[ errNum ]
-            errStr = ctypes.create_string_buffer(PMI_MAXERRMSGLEN)
-            errStr = libpcp_import.pmiErrStr_r( errNum, errStr, PMI_MAXERRMSGLEN )
-        except KeyError:
-            errSym = errStr = ""
-        return "%s %s" % (errSym, errStr)
 
 
 ##############################################################################
@@ -376,17 +362,6 @@ class pmLogLabel(Structure):
                  ("tz", c_char * PM_TZ_MAXLEN) ]
 
 
-class pmRecordHost(Structure):
-    """state information between the recording session and the pmlogger
-    """
-    _fields_ = [ ("f_config", c_void_p),
-                 ("fd_ipc", c_int),
-                 ("logfile", c_char_p),
-                 ("pid", c_int),
-                 ("status", c_int) ]
-
-
-
 ##############################################################################
 #
 # PMAPI function prototypes
@@ -515,19 +490,6 @@ libpcp.pmStore.argtypes = [ POINTER(pmResult) ]
 
 
 ##
-# PMAPI Record-Mode Services
-
-libpcp_gui.pmRecordSetup.restype = c_long
-libpcp_gui.pmRecordSetup.argtypes = [ c_char_p, c_char_p, c_int]
-
-libpcp_gui.pmRecordAddHost.restype = c_int
-libpcp_gui.pmRecordAddHost.argtypes = [ c_char_p, c_int, POINTER(POINTER(pmRecordHost))]
-
-libpcp_gui.pmRecordControl.restype = c_int
-libpcp_gui.pmRecordControl.argtypes = [ POINTER(pmRecordHost), c_int, c_char_p ]
-
-
-##
 # PMAPI Archive-Specific Services
 
 libpcp.pmGetArchiveLabel.restype = c_int
@@ -549,52 +511,6 @@ libpcp.pmNameInDomArchive.argtypes = [ pmInDom, c_int ]
 
 libpcp.pmFetchArchive.restype = c_int
 libpcp.pmFetchArchive.argtypes = [ POINTER(POINTER(pmResult)) ]
-
-
-##
-# PMAPI Time Control Services
-
-#libpcp.pmCtime.restype = c_int
-#libpcp.pmCtime.argtypes = [ ]
-
-#libpcp.pmLocaltime.restype = c_int
-#libpcp.pmLocaltime.argtypes = [ ]
-
-#libpcp.pmParseTimeWindow.restype = c_int
-#libpcp.pmParseTimeWindow.argtypes = [ ]
-
-#libpcp.pmTimeConnect.restype = c_int
-#libpcp.pmTimeConnect.argtypes = [ ]
-
-#libpcp.pmTimeDisconnect.restype = c_int
-#libpcp.pmTimeDisconnect.argtypes = [ ]
-
-#libpcp.pmTimeGetPort.restype = c_int
-#libpcp.pmTimeGetPort.argtypes = [ ]
-
-#libpcp.pmTimeRecv.restype = c_int
-#libpcp.pmTimeRecv.argtypes = [ ]
-
-#libpcp.pmTimeSendAck.restype = c_int
-#libpcp.pmTimeSendAck.argtypes = [ ]
-
-#libpcp.pmTimeSendBounds.restype = c_int
-#libpcp.pmTimeSendBounds.argtypes = [ ]
-
-#libpcp.pmTimeSendMode.restype = c_int
-#libpcp.pmTimeSendMode.argtypes = [ ]
-
-#libpcp.pmTimeSendPosition.restype = c_int
-#libpcp.pmTimeSendPosition.argtypes = [ ]
-
-#libpcp.pmTimeSendTimezone.restype = c_int
-#libpcp.pmTimeSendTimezone.argtypes = [ ]
-
-#libpcp.pmTimeShowDialog.restype = c_int
-#libpcp.pmTimeShowDialog.argtypes = [ ]
-
-#libpcp.pmTimeGetStatePixmap.restype = c_int
-#libpcp.pmTimeGetStatePixmap.argtypes = [ ]
 
 
 ##
@@ -1208,51 +1124,6 @@ class pmContext( object ):
             raise pmErr, status
         return status, result
 
-    ##
-    # PMAPI Record-Mode Services
-
-    def pmRecordSetup( self, folio, creator, replay ):
-        """PMAPI - Setup an archive recording session
-        File* file = pmRecordSetup("folio", "creator", 0)
-        """
-        status = libpcp.pmUseContext( self.ctx )
-        if status < 0:
-            raise pmErr, status
-        file_result = libpcp_gui.pmRecordSetup ( c_char_p(folio), c_char_p(creator), replay )
-        if (file_result == 0):
-            raise pmErr, file_result
-        return file_result
-
-    def pmRecordAddHost( self, host, isdefault, config ):
-        """PMAPI - Adds host to an archive recording session
-        (status, pmRecordHost* pmrecordhost) = pmRecordAddHost("host", 1, "configuration")
-        """
-        status = libpcp.pmUseContext( self.ctx )
-        if status < 0:
-            raise pmErr, status
-        rhp = POINTER(pmRecordHost)()
-        status = libpcp_gui.pmRecordAddHost ( c_char_p(host), isdefault, byref(rhp) )
-        if status < 0:
-            raise pmErr, status
-        status = libc.fputs (c_char_p(config), rhp.contents.f_config)
-        if (status < 0):
-            libc.perror(c_char_p(""))
-            raise pmErr, status
-        return status, rhp
-
-    def pmRecordControl( self, rhp, request, options ):
-        """PMAPI - Control an archive recording session
-        status = pmRecordControl (0, pmapi.PM_RCSETARG, "args")
-        status = pmRecordControl (0, pmapi.PM_REC_ON)
-        status = pmRecordControl (0, pmapi.PM_REC_OFF)
-        """
-        status = libpcp.pmUseContext( self.ctx )
-        if status < 0:
-            raise pmErr, status
-        status = libpcp_gui.pmRecordControl ( cast(rhp,POINTER(pmRecordHost)), request, c_char_p(options) )
-        if status < 0 and status != pmapi.PM_ERR_IPC:
-            raise pmErr, status
-        return status
 
     ##
     # PMAPI Archive-Specific Services
@@ -1347,19 +1218,14 @@ class pmContext( object ):
             raise pmErr, status
         return status, result_p
 
-    ##
-    # PMAPI Time Control Services
-    # (Not Yet Implemented)
-
 
     ##
     # PMAPI Ancilliary Support Services
-
-    def pmGetConfig( self, variable ):
+    @staticmethod
+    def pmGetConfig(variable):
         """PMAPI - Return value from environment or pcp config file
         """
-        x = str( libpcp.pmGetConfig( variable ) )
-        return x
+        return str(libpcp.pmGetConfig(variable))
 
     def pmErrStr( self, code ):
         """PMAPI - Return value from environment or pcp config file

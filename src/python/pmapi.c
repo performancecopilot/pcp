@@ -22,13 +22,11 @@
 ** from PCP headers into the module dictionary.  The PMAPI functions and  **
 ** data structures are wrapped in pcp.py and friends, using ctypes.       **
 **                                                                        **
-\***************************************************************************/
+\**************************************************************************/
 
 #include <Python.h>
 #include <pcp/pmapi.h>
 #include <pcp/pmafm.h>
-#include <pcp/import.h>
-#include <pcp/pmda.h>
 
 typedef union {
     int i;
@@ -79,31 +77,23 @@ void dict_add( PyObject *dict, char *sym, intu val, int type, PyObject *revD )
     if( pyVal ) {
         Py_XDECREF(pyVal);
     }
-} 
+}
 
 static PyMethodDef methods[] = {
-    {NULL, NULL}
+    { .ml_name = NULL, .ml_meth = NULL, .ml_flags = 0, .ml_doc = NULL}
 };
 
-/* This function is called when the module is initialized. */ 
-
+/* called when the module is initialized. */
 void
-initpmapi(void)
+initcpmapi(void)
 {
-    PyObject *module, *dict;
-    PyObject *pmiErrSymD, *pmErrSymD;
+    PyObject *module, *dict, *pmErrSymDict;
 
-    module = Py_InitModule( "pmapi", methods );
-
-    pmErrSymD = PyDict_New();
-    Py_INCREF( pmErrSymD ); 
-    PyModule_AddObject( module, "pmErrSymD", pmErrSymD ); 
-
-    pmiErrSymD = PyDict_New();
-    Py_INCREF( pmiErrSymD ); 
-    PyModule_AddObject( module, "pmiErrSymD", pmiErrSymD ); 
-
+    module = Py_InitModule("cpmapi", methods);
     dict = PyModule_GetDict( module );
+    pmErrSymDict = PyDict_New();
+    Py_INCREF(pmErrSymDict);
+    PyModule_AddObject(module, "pmErrSymDict", pmErrSymDict);
 
     dict_add( dict, "PMAPI_VERSION_2",
               (intu) PMAPI_VERSION_2, INT_T, NULL );
@@ -239,105 +229,105 @@ initpmapi(void)
 
     /* pmapi error codes */
     dict_add( dict, "PM_ERR_GENERIC",
-              (intu) PM_ERR_GENERIC,      INT_T, pmErrSymD );
+              (intu) PM_ERR_GENERIC,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PMNS",
-              (intu) PM_ERR_PMNS,         INT_T, pmErrSymD );
+              (intu) PM_ERR_PMNS,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOPMNS",
-              (intu) PM_ERR_NOPMNS,       INT_T, pmErrSymD );
+              (intu) PM_ERR_NOPMNS,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_DUPPMNS",
-              (intu) PM_ERR_DUPPMNS,      INT_T, pmErrSymD );
+              (intu) PM_ERR_DUPPMNS,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TEXT",
-              (intu) PM_ERR_TEXT,         INT_T, pmErrSymD );
+              (intu) PM_ERR_TEXT,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_APPVERSION",
-              (intu) PM_ERR_APPVERSION,   INT_T, pmErrSymD );
+              (intu) PM_ERR_APPVERSION,   INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_VALUE",
-              (intu) PM_ERR_VALUE,        INT_T, pmErrSymD );
+              (intu) PM_ERR_VALUE,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TIMEOUT",
-              (intu) PM_ERR_TIMEOUT,      INT_T, pmErrSymD );
+              (intu) PM_ERR_TIMEOUT,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NODATA",
-              (intu) PM_ERR_NODATA,       INT_T, pmErrSymD );
+              (intu) PM_ERR_NODATA,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_RESET",
-              (intu) PM_ERR_RESET,        INT_T, pmErrSymD );
+              (intu) PM_ERR_RESET,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NAME",
-              (intu) PM_ERR_NAME,         INT_T, pmErrSymD );
+              (intu) PM_ERR_NAME,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PMID",
-              (intu) PM_ERR_PMID,         INT_T, pmErrSymD );
+              (intu) PM_ERR_PMID,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_INDOM",
-              (intu) PM_ERR_INDOM,        INT_T, pmErrSymD );
+              (intu) PM_ERR_INDOM,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_INST",
-              (intu) PM_ERR_INST,         INT_T, pmErrSymD );
+              (intu) PM_ERR_INST,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_UNIT",
-              (intu) PM_ERR_UNIT,         INT_T, pmErrSymD );
+              (intu) PM_ERR_UNIT,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_CONV",
-              (intu) PM_ERR_CONV,         INT_T, pmErrSymD );
+              (intu) PM_ERR_CONV,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TRUNC",
-              (intu) PM_ERR_TRUNC,        INT_T, pmErrSymD );
+              (intu) PM_ERR_TRUNC,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_SIGN",
-              (intu) PM_ERR_SIGN,         INT_T, pmErrSymD );
+              (intu) PM_ERR_SIGN,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PROFILE",
-              (intu) PM_ERR_PROFILE,      INT_T, pmErrSymD );
+              (intu) PM_ERR_PROFILE,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_IPC",
-              (intu) PM_ERR_IPC,          INT_T, pmErrSymD );
+              (intu) PM_ERR_IPC,          INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_EOF",
-              (intu) PM_ERR_EOF,          INT_T, pmErrSymD );
+              (intu) PM_ERR_EOF,          INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOTHOST",
-              (intu) PM_ERR_NOTHOST,      INT_T, pmErrSymD );
+              (intu) PM_ERR_NOTHOST,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_EOL",
-              (intu) PM_ERR_EOL,          INT_T, pmErrSymD );
+              (intu) PM_ERR_EOL,          INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_MODE",
-              (intu) PM_ERR_MODE,         INT_T, pmErrSymD );
+              (intu) PM_ERR_MODE,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_LABEL",
-              (intu) PM_ERR_LABEL,        INT_T, pmErrSymD );
+              (intu) PM_ERR_LABEL,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_LOGREC",
-              (intu) PM_ERR_LOGREC,       INT_T, pmErrSymD );
+              (intu) PM_ERR_LOGREC,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOTARCHIVE",
-              (intu) PM_ERR_NOTARCHIVE,   INT_T, pmErrSymD );
+              (intu) PM_ERR_NOTARCHIVE,   INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_LOGFILE",
-              (intu) PM_ERR_LOGFILE,      INT_T, pmErrSymD );
+              (intu) PM_ERR_LOGFILE,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOCONTEXT",
-              (intu) PM_ERR_NOCONTEXT,    INT_T, pmErrSymD );
+              (intu) PM_ERR_NOCONTEXT,    INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PROFILESPEC",
-              (intu) PM_ERR_PROFILESPEC,  INT_T, pmErrSymD );
+              (intu) PM_ERR_PROFILESPEC,  INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PMID_LOG",
-              (intu) PM_ERR_PMID_LOG,     INT_T, pmErrSymD );
+              (intu) PM_ERR_PMID_LOG,     INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_INDOM_LOG",
-              (intu) PM_ERR_INDOM_LOG,    INT_T, pmErrSymD );
+              (intu) PM_ERR_INDOM_LOG,    INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_INST_LOG",
-              (intu) PM_ERR_INST_LOG,     INT_T, pmErrSymD );
+              (intu) PM_ERR_INST_LOG,     INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOPROFILE",
-              (intu) PM_ERR_NOPROFILE,    INT_T, pmErrSymD );
+              (intu) PM_ERR_NOPROFILE,    INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOAGENT",
-              (intu) PM_ERR_NOAGENT,      INT_T, pmErrSymD );
+              (intu) PM_ERR_NOAGENT,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PERMISSION",
-              (intu) PM_ERR_PERMISSION,   INT_T, pmErrSymD );
+              (intu) PM_ERR_PERMISSION,   INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_CONNLIMIT",
-              (intu) PM_ERR_CONNLIMIT,    INT_T, pmErrSymD );
+              (intu) PM_ERR_CONNLIMIT,    INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_AGAIN",
-              (intu) PM_ERR_AGAIN,        INT_T, pmErrSymD );
+              (intu) PM_ERR_AGAIN,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_ISCONN",
-              (intu) PM_ERR_ISCONN,       INT_T, pmErrSymD );
+              (intu) PM_ERR_ISCONN,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NOTCONN",
-              (intu) PM_ERR_NOTCONN,      INT_T, pmErrSymD );
+              (intu) PM_ERR_NOTCONN,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NEEDPORT",
-              (intu) PM_ERR_NEEDPORT,     INT_T, pmErrSymD );
+              (intu) PM_ERR_NEEDPORT,     INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NONLEAF",
-              (intu) PM_ERR_NONLEAF,      INT_T, pmErrSymD );
+              (intu) PM_ERR_NONLEAF,      INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TYPE",
-              (intu) PM_ERR_TYPE,         INT_T, pmErrSymD );
+              (intu) PM_ERR_TYPE,         INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_THREAD",
-              (intu) PM_ERR_THREAD,       INT_T, pmErrSymD );
+              (intu) PM_ERR_THREAD,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TOOSMALL",
-              (intu) PM_ERR_TOOSMALL,     INT_T, pmErrSymD );
+              (intu) PM_ERR_TOOSMALL,     INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_TOOBIG",
-              (intu) PM_ERR_TOOBIG,       INT_T, pmErrSymD );
+              (intu) PM_ERR_TOOBIG,       INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_FAULT",
-              (intu) PM_ERR_FAULT,        INT_T, pmErrSymD );
+              (intu) PM_ERR_FAULT,        INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PMDAREADY",
-              (intu) PM_ERR_PMDAREADY,    INT_T, pmErrSymD );
+              (intu) PM_ERR_PMDAREADY,    INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_PMDANOTREADY",
-              (intu) PM_ERR_PMDANOTREADY, INT_T, pmErrSymD );
+              (intu) PM_ERR_PMDANOTREADY, INT_T, pmErrSymDict );
     dict_add( dict, "PM_ERR_NYI",
-              (intu) PM_ERR_NYI,          INT_T, pmErrSymD );
+              (intu) PM_ERR_NYI,          INT_T, pmErrSymDict );
 
 
     /* pmafm.h */
@@ -346,79 +336,4 @@ initpmapi(void)
     dict_add( dict, "PM_REC_DETACH", (intu) PM_REC_DETACH, INT_T, NULL );
     dict_add( dict, "PM_REC_STATUS", (intu) PM_REC_STATUS, INT_T, NULL );
     dict_add( dict, "PM_REC_SETARG", (intu) PM_REC_SETARG, INT_T, NULL );
-
-
-    /* import.h */
-    dict_add( dict, "PMI_MAXERRMSGLEN", (intu) PMI_MAXERRMSGLEN, INT_T, NULL );
-
-    dict_add( dict, "PMI_ERR_DUPMETRICNAME",
-              (intu) PMI_ERR_DUPMETRICNAME, INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPMETRICID",
-              (intu) PMI_ERR_DUPMETRICID,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPINSTNAME",
-              (intu) PMI_ERR_DUPINSTNAME,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPINSTID",
-              (intu) PMI_ERR_DUPINSTID,     INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_INSTNOTNULL",
-              (intu) PMI_ERR_INSTNOTNULL,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_INSTNULL",
-              (intu) PMI_ERR_INSTNULL,      INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADHANDLE",
-              (intu) PMI_ERR_BADHANDLE,     INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPVALUE",
-              (intu) PMI_ERR_DUPVALUE,      INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADTYPE",
-              (intu) PMI_ERR_BADTYPE,       INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADSEM",
-              (intu) PMI_ERR_BADSEM,        INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_NODATA",
-              (intu) PMI_ERR_NODATA,        INT_T, pmiErrSymD );
-
-
-    /* pmda.h */
-    dict_add( dict, "PMDA_FETCH_NOVALUES",
-		(intu) PMDA_FETCH_NOVALUES, INT_T, NULL );
-    dict_add( dict, "PMDA_FETCH_STATIC",
-		(intu) PMDA_FETCH_STATIC,   INT_T, NULL );
-    dict_add( dict, "PMDA_FETCH_DYNAMIC",
-		(intu) PMDA_FETCH_DYNAMIC,  INT_T, NULL );
-
-    dict_add( dict, "PMDA_CACHE_LOAD",
-		(intu) PMDA_CACHE_LOAD,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_ADD",
-		(intu) PMDA_CACHE_ADD,      INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_HIDE",
-		(intu) PMDA_CACHE_HIDE,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_CULL",
-		(intu) PMDA_CACHE_CULL,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_EMPTY",
-		(intu) PMDA_CACHE_EMPTY,    INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_SAVE",
-		(intu) PMDA_CACHE_SAVE,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_ACTIVE",
-		(intu) PMDA_CACHE_ACTIVE,   INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_INACTIVE",
-		(intu) PMDA_CACHE_INACTIVE, INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_SIZE",
-		(intu) PMDA_CACHE_SIZE,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_SIZE_ACTIVE",
-		(intu) PMDA_CACHE_SIZE_ACTIVE, INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_SIZE_INACTIVE",
-		(intu) PMDA_CACHE_SIZE_INACTIVE, INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_REUSE",
-		(intu) PMDA_CACHE_REUSE,    INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_WALK_REWIND",
-		(intu) PMDA_CACHE_WALK_REWIND, INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_WALK_NEXT",
-		(intu) PMDA_CACHE_WALK_NEXT, INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_CHECK",
-		(intu) PMDA_CACHE_CHECK,    INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_REORG",
-		(intu) PMDA_CACHE_REORG,    INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_SYNC",
-		(intu) PMDA_CACHE_SYNC,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_DUMP",
-		(intu) PMDA_CACHE_DUMP,     INT_T, NULL);
-    dict_add( dict, "PMDA_CACHE_DUMP_ALL",
-		(intu) PMDA_CACHE_DUMP_ALL, INT_T, NULL);
 }
