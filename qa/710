@@ -29,6 +29,7 @@ if [ $? -eq 0 ]
 then
     pmdumplog -a $tmp.pcplog 2>&1 | filter_dump
 else
+    cat $tmp.out
     echo "check_import python script gave non-zero result"
 fi
 

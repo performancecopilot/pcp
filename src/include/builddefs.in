@@ -492,7 +492,9 @@ else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
+	      ] && echo 1)" "1"
+# Linux and not Gentoo (which needs tarball packaging)
 PYTHON_INSTALL = \
 	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
 		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
@@ -505,19 +507,25 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
 	      ] && echo 1)" "1"
+# Gather installed Python files before packaging
+# Lines in python-pcp.list are like this
+# /usr/lib/python2.7/site-packages/pcp.py
+# /usr/lib/python2.7/site-packages/pcp.pyc
+# /usr/lib/python2.7/site-packages/pmapi.so
+# /usr/lib/python2.7/site-packages/pcp-0.2-py2.7.egg-info
+#
+# Matching build artifacts are below src/python/build
+#
 PYTHON_INSTALL = \
-	# Gather installed Python files before packaging
 	if [ -n "$(DIST_MANIFEST)" ]; then \
-	    if [ "`echo $(TOPDIR)/python-pcp*.list`" != "$(TOPDIR)/python-pcp*.list" ]; then \
-		cat $(TOPDIR)/python-pcp*.list | while read f; do \
-		    bn=`basename $$f .gz`; \
-		    dn=`dirname $$f`; \
-		    $(INSTALL) -d $$dn || exit 1; \
-		    src=`find */blib -name $$bn`; \
-		    if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
-		    $(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
-		done; \
-	    fi; \
+	    cat $(TOPDIR)/python-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
 	fi
 else
 PYTHON_INSTALL = 

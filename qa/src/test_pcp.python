@@ -134,7 +134,7 @@ def test_pcp(self, context = 'local', path = ''):
     except pmErr, e:
         print "pmLookupName:", e
         self.assertTrue(True)
-    metrics = ("kernel.all.load", "kernel.percpu.cpu.user", "kernel.percpu.cpu.sys", "mem.freemem")
+    metrics = ("kernel.all.load", "sample.bin", "kernel.percpu.cpu.sys", "mem.freemem")
     (code, self.metric_ids) = pm.pmLookupName(metrics)
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
@@ -157,15 +157,15 @@ def test_pcp(self, context = 'local', path = ''):
 
     (code, descs) = pm.pmLookupDesc(self.metric_ids)
     if self.local_type:
-        # pmGetInDom
+        # pmGetInDom - sample.bin
         (inst, name) = pm.pmGetInDom(descs[1])
         print "pmGetInDom:", name
-        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
+        self.assertTrue(len(inst) == 9 and len(name) == 9)
     else:
-        # pmGetInDomArchive
+        # pmGetInDomArchive - sample.bin
         (inst, name) = pm.pmGetInDomArchive(descs[1])
         print "pmGetInDomArchive:", name
-        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
+        self.assertTrue(len(inst) == 9 and len(name) == 9)
 
     # pmInDomStr
     x = pm.pmInDomStr(descs[0])
@@ -268,22 +268,22 @@ def test_pcp(self, context = 'local', path = ''):
         print "pmStore: ", e
         self.assertTrue(True)
 
-    for cpu in xrange(ncpu):
-        for i in xrange(results.contents.numpmid):
-            #  kernel.percpu.cpu.user ?
-            if (results.contents.get_pmid(i) != self.metric_ids[1]):
-                continue
+    for i in xrange(results.contents.numpmid):
+	if (results.contents.get_pmid(i) != self.metric_ids[1]):
+	    continue
+	for bin in xrange(9):
+            #  sample.bin - each instance in turn
             (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
-                                             results.contents.get_vlist(i, cpu),
+                                             results.contents.get_vlist(i, bin),
                                              descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
-            print "pmExtractValue", cpu, atom.f
-            self.assertTrue(atom.f > 0)
+            print "pmExtractValue", bin, atom.f
+            self.assertTrue(99*(bin+1) <= atom.f and atom.f <= 101*(bin+1))
 
     # pmExtractValue 
     for i in xrange(results.contents.numpmid):
-        # mem.freemem ?
         if (results.contents.get_pmid(i) != self.metric_ids[3]):
             continue
+        # mem.freemem
         (code, tmpatom) = pm.pmExtractValue(results.contents.get_valfmt(i),
                                             results.contents.get_vlist(i, 0),
                                             descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
@@ -297,10 +297,6 @@ def test_pcp(self, context = 'local', path = ''):
     # pmAtomStr
     x = pm.pmAtomStr (atom, pmapi.PM_TYPE_FLOAT)
     print "pmAtomStr", x
-
-    # pmFreeResult
-    pm.pmFreeResult(results)
-    print "pmFreeResult"
 
     code = pm.pmtimevalSleep(delta);
     print "pmtimevalSleep"
@@ -341,6 +337,10 @@ def test_pcp(self, context = 'local', path = ''):
     code = pm.pmReconnectContext ()
     print "pmReconnectContext", code
     self.assertTrue(code >= 0)
+
+    # pmFreeResult
+    pm.pmFreeResult(results)
+    print "pmFreeResult"
 
     del pm
 
