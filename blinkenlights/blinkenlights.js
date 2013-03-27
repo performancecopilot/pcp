@@ -60,7 +60,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   // XXX var blinken_id = 
   var blinken = result < 0 ? red_light : result ? green_light : gray_light;
 
-  var source = this.name + " ( " + this.get_iname(iid) + " : " + iid + " ) " + this.operator + " " + this.threshold;
+  var source = metric + " -- " + this.name + " ( " + this.get_iname(iid) + " : " + iid + " ) " + this.operator + " " + this.threshold;
   var content = blinken + " <span>" + source + "</span>"
               + (result < 0 ? " &ndash; error: " + error : "");
 
