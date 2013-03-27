@@ -28,38 +28,38 @@
 #include <pcp/pmda.h>
 
 static PyObject *
-pmda_pmid(PyObject *self, PyObject *args, PyObject * keywords)
+pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int result;
     int cluster, item;
     char *keyword_list[] = {"item", "cluster", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-			":pmda_pmid", keyword_list,
-			&item, &cluster))
-	return NULL;
+                        "ii:pmda_pmid", keyword_list,
+                        &item, &cluster))
+        return NULL;
     result = PMDA_PMID(item, cluster);
     return Py_BuildValue("i", result);
 }
 
 static PyObject *
-pmda_units(PyObject *self, PyObject *args, PyObject * keywords)
+pmda_units(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int result;
     int dim_time, dim_space, dim_count;
     int scale_space, scale_time, scale_count;
     char *keyword_list[] = {"dim_time", "dim_space", "dim_count",
-			"scale_space", "scale_time", "scale_count", NULL};
+                        "scale_space", "scale_time", "scale_count", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-			":pmda_units", keyword_list,
-			&dim_time, &dim_space, &dim_count,
-			&scale_space, &scale_time, &scale_count))
-	return NULL;
+                        "iiiiii:pmda_units", keyword_list,
+                        &dim_time, &dim_space, &dim_count,
+                        &scale_space, &scale_time, &scale_count))
+        return NULL;
     {
-	pmUnits units = PMDA_PMUNITS(dim_time, dim_space, dim_count,
-					scale_space, scale_time, scale_count);
-	result = *(int *)&units;
+        pmUnits units = PMDA_PMUNITS(dim_time, dim_space, dim_count,
+                                        scale_space, scale_time, scale_count);
+        result = *(int *)&units;
     }
     return Py_BuildValue("i", result);
 }
@@ -75,9 +75,9 @@ pmda_dict_add(PyObject *dict, char *sym, long val)
 
 static PyMethodDef methods[] = {
     { .ml_name = "pmda_pmid", .ml_meth = (PyCFunction)pmda_pmid,
-	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_units", .ml_meth = (PyCFunction)pmda_units,
-	.ml_flags = METH_VARARGS|METH_KEYWORDS },
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { NULL },
 };
 

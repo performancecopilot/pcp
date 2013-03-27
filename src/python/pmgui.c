@@ -36,9 +36,7 @@ pmgui_dict_add(PyObject *dict, char *sym, long val)
     Py_XDECREF(pyVal);
 } 
 
-static PyMethodDef methods[] = {
-    { .ml_name = NULL, .ml_meth = NULL, .ml_flags = 0, .ml_doc = NULL}
-};
+static PyMethodDef methods[] = { { NULL } };
 
 /* called when the module is initialized. */ 
 void

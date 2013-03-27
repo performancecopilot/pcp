@@ -27,9 +27,7 @@
 #include <pcp/pmapi.h>
 #include <pcp/import.h>
 
-static PyMethodDef methods[] = {
-    { .ml_name = NULL, .ml_meth = NULL, .ml_flags = 0, .ml_doc = NULL}
-};
+static PyMethodDef methods[] = { { NULL } };
 
 static void
 pmi_dict_add(PyObject *dict, char *sym, long val)

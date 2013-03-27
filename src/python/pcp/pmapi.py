@@ -11,7 +11,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -19,20 +19,20 @@
 #
 
 # Additional Information:
-#   
+#
 # Performance Co-Pilot Web Site
 # http://oss.sgi.com/projects/pcp
-#   
+#
 # Performance Co-Pilot Programmer's Guide
 # cf. Chapter 3. PMAPI - The Performance Metrics API
-# 
+#
 # EXAMPLE
-    
+
     from pcp import pmapi
-    
+
     # Create a pcp class
     context = pmapi.pmContext(pmapi.PM_CONTEXT_HOST, "localhost")
-    
+
     # Get ids for number cpus and load metrics
     (code, metric_ids) = context.pmLookupName(("hinv.ncpu","kernel.all.load"))
     # Get the description of the metrics
@@ -46,11 +46,11 @@
                                     descs[0].contents.type,
                                     pmapi.PM_TYPE_U32)
     print "#cpus=", atom.ul
-    
+
     # Get the instance ids for kernel.all.load
     inst1 = context.pmLookupInDom(descs[1], "1 minute")
     inst5 = context.pmLookupInDom(descs[1], "5 minute")
-    
+
     # Loop through the metric ids
     for i in xrange(results.contents.numpmid):
         # Is this the kernel.all.load id?
@@ -121,10 +121,10 @@ class pmErr(Exception):
 
 ##############################################################################
 #
-# definition of structures used by C library LIBPCP, derived from <pcp/pmapi.h>
+# definition of structures used by libpcp, derived from <pcp/pmapi.h>
 #
 # This section defines the data structures for accessing and manuiplating
-# metric information and values. Detailled information about these data
+# metric information and values.  Detailed information about these data
 # structures can be found in:
 #
 # SGI Document: 007-3434-005
@@ -135,11 +135,11 @@ class pmErr(Exception):
 
 # this hardcoded decl should be derived from <sys/time.h>
 class timeval(Structure):
-    _fields_ = [ ("tv_sec", c_long),
-                 ("tv_usec", c_long) ]
+    _fields_ = [("tv_sec", c_long),
+                ("tv_usec", c_long)]
 
     def __str__(self):
-        tmp = datetime.date.fromtimestamp( self.tv_sec )
+        tmp = datetime.date.fromtimestamp(self.tv_sec)
         return "%s.%06d" % (tmp, self.tv_usec)
 
 class pmAtomValue(Union):
@@ -147,14 +147,14 @@ class pmAtomValue(Union):
 
     Constants for specifying metric types are defined in module pmapi
     """
-    _fields_ = [ ("l", c_int),
-                 ("ul", c_uint),
-                 ("ll", c_longlong),
-                 ("ull", c_ulonglong),
-                 ("f", c_float),
-                 ("d", c_double),
-                 ("cp", c_char_p),
-                 ("vp", c_void_p) ]
+    _fields_ = [("l", c_int),
+                ("ul", c_uint),
+                ("ll", c_longlong),
+                ("ull", c_ulonglong),
+                ("f", c_float),
+                ("d", c_double),
+                ("cp", c_char_p),
+                ("vp", c_void_p)]
 
     _atomDrefD = {api.PM_TYPE_32 : lambda x: x.l,
                   api.PM_TYPE_U32 : lambda x: x.ul,
@@ -180,24 +180,24 @@ class pmUnits(Structure):
     IRIX => HAVE_BITFIELDS_LTOR, gcc => not so much
     """
     if api.HAVE_BITFIELDS_LTOR:
-        _fields_ = [ ("dimSpace", c_int, 4),
-                     ("dimTime", c_int, 4),
-                     ("dimCount", c_int, 4),
-                     ("scaleSpace", c_int, 4),
-                     ("scaleTime", c_int, 4),
-                     ("scaleCount", c_int, 4),
-                     ("pad", c_int, 8) ]
+        _fields_ = [("dimSpace", c_int, 4),
+                    ("dimTime", c_int, 4),
+                    ("dimCount", c_int, 4),
+                    ("scaleSpace", c_int, 4),
+                    ("scaleTime", c_int, 4),
+                    ("scaleCount", c_int, 4),
+                    ("pad", c_int, 8)]
     else:
-        _fields_ = [ ("pad", c_int, 8),
-                     ("scaleCount", c_int, 4),
-                     ("scaleTime", c_int, 4),
-                     ("scaleSpace", c_int, 4),
-                     ("dimCount", c_int, 4),
-                     ("dimTime", c_int, 4),
-                     ("dimSpace", c_int, 4) ]
+        _fields_ = [("pad", c_int, 8),
+                    ("scaleCount", c_int, 4),
+                    ("scaleTime", c_int, 4),
+                    ("scaleSpace", c_int, 4),
+                    ("dimCount", c_int, 4),
+                    ("dimTime", c_int, 4),
+                    ("dimSpace", c_int, 4)]
 
-    def __str__( self ):
-        return LIBPCP.pmUnitsStr( self )
+    def __str__(self):
+        return LIBPCP.pmUnitsStr(self)
 
 
 class pmValueBlock(Structure):
@@ -207,13 +207,13 @@ class pmValueBlock(Structure):
        too large (> 32 bits) to fit in the pmValue structure
     """
     if api.HAVE_BITFIELDS_LTOR:   # IRIX
-        _fields_ = [ ("vtype", c_uint, 8),
-                     ("vlen", c_uint, 24),
-                     ("vbuf", c_char * 1) ]
+        _fields_ = [("vtype", c_uint, 8),
+                    ("vlen", c_uint, 24),
+                    ("vbuf", c_char * 1)]
     else:   # Linux (gcc)
-        _fields_ = [ ("vlen", c_uint, 24),
-                     ("vtype", c_uint, 8),
-                     ("vbuf", c_char * 1) ]
+        _fields_ = [("vlen", c_uint, 24),
+                    ("vtype", c_uint, 8),
+                    ("vbuf", c_char * 1)]
 
 class valueDref(Union):
     """Union in pmValue for dereferencing the value of an instance of a metric
@@ -221,19 +221,19 @@ class valueDref(Union):
     For small items, e.g. a 32-bit number, the union contains the actual value
     For large items, e.g. a text string, the union points to a pmValueBlock
     """
-    _fields_ = [ ("pval", POINTER(pmValueBlock)),
-                 ("lval", c_int) ]
+    _fields_ = [("pval", POINTER(pmValueBlock)),
+                ("lval", c_int)]
     def __str__(self):
         return "value=%#lx" % (self.lval)
 
 class pmValue(Structure):
     """Structure holding the value of a metric instance """
-    _fields_ = [ ("inst", c_int),
-                  ("value", valueDref) ]
+    _fields_ = [("inst", c_int),
+                ("value", valueDref)]
     def __str__(self):
         vstr = str(self.value)
         return "pmValue@%#lx inst=%d " % (addressof(self), self.inst) + vstr
-                   
+
 class pmValueSet(Structure):
     """Structure holding a metric's list of instance values
 
@@ -257,7 +257,7 @@ class pmValueSet(Structure):
             return "pmValueSet@%#lx id=%#lx numval=%d valfmt=%d" % vset + vstr
         else:
             return ""
-                   
+
     def vlist_read(self):
         return pointer(self._vlist[0])
 
@@ -339,7 +339,7 @@ def get_indom( pmdesc ):
         _fields_ = [ ("pval", POINTER(pmDesc)),
                      ("lval", c_uint) ]
     if type(pmdesc) == POINTER(pmDesc):
-        return pmdesc.contents.indom 
+        return pmdesc.contents.indom
     else:           # raw indom
         # Goodness, there must be a simpler way to do this
         value = Value()
@@ -709,8 +709,8 @@ class pmContext(object):
     def pmLookupName(self, nameA):
         """PMAPI - Lookup pmIDs from a list of metric names nameA
 
-        (status, c_uint pmid []) = pmidpmLookupName("MetricName") 
-        (status, c_uint pmid []) = pmLookupName(("MetricName1" "MetricName2"...)) 
+        (status, c_uint pmid []) = pmidpmLookupName("MetricName")
+        (status, c_uint pmid []) = pmLookupName(("MetricName1" "MetricName2"...))
         """
         if type(nameA) == type(""):
             n = 1
@@ -888,7 +888,7 @@ class pmContext(object):
     def pmLookupInDom(self, pmdesc, name):
         """PMAPI - Lookup the instance id with the given NAME in the indom
 
-        c_uint instid = pmLookupInDom(pmDesc pmdesc, "Instance")   
+        c_uint instid = pmLookupInDom(pmDesc pmdesc, "Instance")
         """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
@@ -969,7 +969,7 @@ class pmContext(object):
     def pmAddProfile( self, pmdesc, instL ):
         """PMAPI - add instances to list that will be collected from indom
 
-        status = pmAddProfile(pmDesc pmdesc, c_uint instid)   
+        status = pmAddProfile(pmDesc pmdesc, c_uint instid)
         """
         if type(instL) == type(0):
             numinst = 1
@@ -992,7 +992,7 @@ class pmContext(object):
         return status
 
     def pmDelProfile( self, pmdesc, instL ):
-        """PMAPI - delete instances from list to be collected from indom 
+        """PMAPI - delete instances from list to be collected from indom
 
         status = pmDelProfile(pmDesc pmdesc, c_uint inst)
         status = pmDelProfile(pmDesc pmdesc, [c_uint inst])
@@ -1100,7 +1100,7 @@ class pmContext(object):
     # PMAPI Metrics Services
 
     def pmFetch(self, pmidA):
-        """PMAPI - Fetch pmResult from the target source 
+        """PMAPI - Fetch pmResult from the target source
 
         (status, pmResult* pmresult) = pmFetch(c_uint pmid[])
         """
@@ -1149,7 +1149,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         return status, loglabel
-    
+
     def pmGetArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
@@ -1189,7 +1189,7 @@ class pmContext(object):
     def pmLookupInDomArchive(self, pmdesc, name):
         """PMAPI - Lookup the instance id with the given name in the indom
 
-        c_uint instid = pmLookupInDomArchive(pmDesc pmdesc, "Instance")   
+        c_uint instid = pmLookupInDomArchive(pmDesc pmdesc, "Instance")
         """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
@@ -1250,7 +1250,7 @@ class pmContext(object):
         """PMAPI - Extract a value from a pmValue struct and convert its type
 
         (status, pmAtomValue) = pmExtractValue(results.contents.get_valfmt(i),
-        				       results.contents.get_vlist(i, 0),
+                                               results.contents.get_vlist(i, 0),
                                                descs[i].contents.type,
                                                pmapi.PM_TYPE_FLOAT)
         """
@@ -1266,7 +1266,7 @@ class pmContext(object):
         """PMAPI - Convert a value to a different scale
 
         (status, pmAtomValue) = pmConvScale(pmapi.PM_TYPE_FLOAT, pmAtomValue,
-        				    pmDesc*, 3, pmapi.PM_SPACE_MBYTE)
+                                            pmDesc*, 3, pmapi.PM_SPACE_MBYTE)
         """
         outAtom = pmAtomValue()
         pmunits = pmUnits()
@@ -1294,7 +1294,7 @@ class pmContext(object):
     @staticmethod
     def pmInDomStr(pmdescp):
         """PMAPI - Convert an instance domain ID  to a readable string
-        "indom" =  pmGetInDom(pmDesc pmdesc)
+        "indom" = pmGetInDom(pmDesc pmdesc)
         """
         indomstr = ctypes.create_string_buffer(32)
         return str(LIBPCP.pmInDomStr_r(get_indom(pmdescp), indomstr, 32))
@@ -1305,7 +1305,7 @@ class pmContext(object):
         "type" = pmTypeStr(pmapi.PM_TYPE_FLOAT)
         """
         typestr = ctypes.create_string_buffer(32)
-        return str( LIBPCP.pmTypeStr_r(typed, typestr, 32))
+        return str(LIBPCP.pmTypeStr_r(typed, typestr, 32))
 
     @staticmethod
     def pmAtomStr(atom, typed):
@@ -1361,7 +1361,7 @@ class pmContext(object):
     @staticmethod
     def pmParseMetricSpec(string, isarch, source):
         """PMAPI - parse a textual metric specification into a struct
-        (status,result,errormssg) = pmTypeStr("kernel.all.load", 0, "localhost")
+        (status,result,errormsg) = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
         """
         rsltp = POINTER(pmMetricSpec)()
         errmsg = c_char_p()
@@ -1370,4 +1370,12 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         return status, rsltp, errmsg
+
+    @staticmethod
+    def pmtimevalSleep(tvp):
+        """ Delay for a specified amount of time (timeval).  Useful for sampling.
+            Single arg is the timeval from tuple returned from pmParseInterval().
+        """
+        api.pmtimevalSleep(tvp)
+        return None
 

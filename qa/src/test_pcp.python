@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -257,7 +257,6 @@ def test_pcp(self):
     # pmSortInstances
     ctx.pmSortInstances(results)
     print "pmSortInstances:", code
-    self.assertTrue(True)	# pmSortInstances returns void
 
     # pmStore
     try:
@@ -299,6 +298,10 @@ def test_pcp(self):
     # pmAtomStr
     atomstr = ctx.pmAtomStr(atom, api.PM_TYPE_FLOAT)
     print "pmAtomStr", atomstr
+
+    # pmtimevalSleep
+    ctx.pmtimevalSleep(delta);
+    print "pmtimevalSleep"
 
     # pmDupContext
     context = ctx.pmDupContext()
