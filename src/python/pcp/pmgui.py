@@ -1,4 +1,5 @@
-""" Wrapper module for libpcp_gui - PCP Graphical Use Interface interfaces """
+# pylint: disable=C0103
+""" Wrapper module for libpcp_gui - PCP Graphical User Interface clients """
 #
 # Copyright (C) 2012-2013 Red Hat Inc.
 # Copyright (C) 2009-2012 Michael T. Werner
@@ -24,14 +25,13 @@
 #
 
 # constants adapted from C header file <pcp/pmapi.h>
-from cpmgui import *
+from pmapi import pmErr
+from cpmapi import PM_ERR_IPC
 
 # for interfacing with libpcp - the client-side C API
 from ctypes import CDLL, Structure, POINTER, cast, byref
 from ctypes import c_void_p, c_char_p, c_int, c_long
 from ctypes.util import find_library
-
-from pcp.pmapi import pmErr
 
 
 ##############################################################################
@@ -156,14 +156,14 @@ class GuiClient(object):
     @staticmethod
     def pmRecordControl(rhp, request, options):
         """PMAPI - Control an archive recording session
-        status = pmRecordControl (0, pmapi.PM_RCSETARG, "args")
-        status = pmRecordControl (0, pmapi.PM_REC_ON)
-        status = pmRecordControl (0, pmapi.PM_REC_OFF)
+        status = pmRecordControl(0, cpmgui.PM_RCSETARG, "args")
+        status = pmRecordControl(0, cpmgui.PM_REC_ON)
+        status = pmRecordControl(0, cpmgui.PM_REC_OFF)
         """
         status = LIBPCP_GUI.pmRecordControl(
                                 cast(rhp, POINTER(pmRecordHost)),
                                 request, c_char_p(options))
-        if status < 0 and status != pmapi.PM_ERR_IPC:
+        if status < 0 and status != PM_ERR_IPC:
             raise pmErr, status
         return status
 
