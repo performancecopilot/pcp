@@ -297,7 +297,7 @@ static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
-    static	int cando_ipv6 = -1;
+    int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
@@ -315,25 +315,8 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	        rp->fds[INET_FD] = fd;
 		success = 1;
 	    }
-	    if (cando_ipv6 == -1) {
-		/*
-		 * one trip check to see if IPv6 is supported in the
-		 * current run-time
-		 */
-#if defined(IS_LINUX)
-		if (access("/proc/net/if_inet6", F_OK) == 0)
-		    cando_ipv6 = 1;
-		else
-		    cando_ipv6 = 0;
-#else
-		/*
-		 * otherwise punt ...
-		 */
-		cando_ipv6 = 1;
-#endif
-	    }
-	    if (cando_ipv6 == 1) {
-	    family = AF_INET6;
+	    if (with_ipv6) {
+		family = AF_INET6;
 		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					    backlog, fdset, &maximum)) >= 0) {
 		    rp->fds[IPV6_FD] = fd;
