@@ -329,19 +329,16 @@ int main(int argc, char *argv[])
         if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max))
             break; /* fatal internal error */
 
-        /* Always block for at most half the context maxtimeout, so on
-           average we garbage-collect contexts at no more than 50% past
-           their expiry times.  We don't need to bound it by
+        /* Find the next expiry.  We don't need to bound it by
            MHD_get_timeout, since we don't use a small
            MHD_OPTION_CONNECTION_TIMEOUT. */
-        tv.tv_sec = maxtimeout/2;
-        tv.tv_usec = (maxtimeout*1000000)/2 % 1000000;
+        tv.tv_sec = pmwebapi_gc ();
+        tv.tv_usec = 0;
 
         (void) select (max+1, &rs, &ws, &es, &tv);
 
         if (d4) MHD_run (d4);
         if (d6) MHD_run (d6);
-        pmwebapi_gc ();
     }
 
     __pmNotifyErr (LOG_INFO, "Stopping\n");

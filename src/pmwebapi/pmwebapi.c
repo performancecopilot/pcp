@@ -44,13 +44,23 @@ static __pmHashCtl contexts;
 
 
 
+struct web_gc_iteration {
+    time_t now;
+    time_t soonest; /* 0 => no context pending gc */
+};
+
+
 static __pmHashWalkState
 pmwebapi_gc_fn (const __pmHashNode *kv, void *cdata)
 {
     const struct webcontext *value = kv->data;
-    time_t now = * (time_t *) cdata;
+    struct web_gc_iteration *t = (struct web_gc_iteration *) cdata;
 
-    if (value->expires && value->expires < now)
+    if (! value->expires)
+        return PM_HASH_WALK_NEXT;
+
+    /* Expired. */
+    if (value->expires < t->now)
         {
             int rc;
             if (verbosity)
@@ -61,22 +71,32 @@ pmwebapi_gc_fn (const __pmHashNode *kv, void *cdata)
                                value->context, rc);
             return PM_HASH_WALK_DELETE_NEXT;
         }
-    else
-        return PM_HASH_WALK_NEXT;
+
+    /* Expiring soon? */
+    if (t->soonest == 0) 
+        t->soonest = value->expires;
+    else if (t->soonest > value->expires)
+        t->soonest = value->expires;
+
+    return PM_HASH_WALK_NEXT;
 }
 
 
 /* Check whether any contexts have been unpolled so long that they
    should be considered abandoned.  If so, close 'em, free 'em, yak
-   'em, smack 'em. */
-void pmwebapi_gc ()
+   'em, smack 'em.  Return the number of seconds to the next good time
+   to check for garbage. */
+unsigned pmwebapi_gc ()
 {
-    time_t now;
-    (void) time (& now);
+    struct web_gc_iteration t;
+    (void) time (& t.now);
+    t.soonest = 0;
 
     /* if-multithread: Lock contexts. */
-    __pmHashWalkCB (pmwebapi_gc_fn, & now, & contexts);
+    __pmHashWalkCB (pmwebapi_gc_fn, & t, & contexts);
     /* if-multithread: Unlock contexts. */
+
+    return t.soonest ? (t.soonest - t.now) : maxtimeout;
 }
 
 
