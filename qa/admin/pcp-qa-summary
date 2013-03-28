@@ -5,6 +5,40 @@
 # Used in concert with pcp-daily -q
 #
 
+_usage()
+{
+    echo "Usage: $0 [options] [vm ...]"
+    echo "Options:"
+    echo "  -d      debug"
+    echo "  -m      minimum number of tests run to be reported [default 67]"
+    echo "  -r      only most recent results date [default report all dates]"
+    exit 1
+}
+
+
+# must have tried to run at least this number to qualify
+# 67 = > -g sanity
+#
+minrun=67
+
+debug=false
+recent=false
+while getopts 'dm:r?' p
+do
+    case "$p"
+    in
+	d)	debug=true
+		;;
+	m)	minrun=$OPTARG
+		;;
+	r)	recent=true
+		;;
+	?)	_usage
+		# NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
 tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
@@ -71,20 +105,22 @@ do
     rm -f $tmp.seen $tmp.found
     for date in `ls | grep -v qa | grep -v pcpqa | grep -v pcp | sort -r`
     do
+	[ -f $date ] || continue
 	touch $tmp.seen
-	#debug# echo "== $vmdir on $date =="
+	$debug && echo "Debug: == $vmdir on $date =="
 	# Looking for
 	# Not run: 008 009 022 096 114 117 130 148 164 212 223 233 284 290 307 311 329 330 331 332 333 348 361 370 377 390 420 441 442 476 477 478 480 506 512 545 570 584 640 652 654 712 713 714
 	# Failures: 062 169 244
 	# Failed 3 of 516 tests
 	# Passed all 67 tests
 	#
-	if egrep '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests))' <$date >/dev/null
+	rm -f $tmp.dbg
+	if egrep '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests)|Info:|===)' <$date >/dev/null
 	then
 	    awk <$date >$tmp.out '
 /^Not run:/	{ notrun = NF - 2
 		  state = 1
-		  #debug# print "notrun start=",notrun >"/home/kenj/eek"
+		  print NR,": Not run: start: notrun=" notrun >"'$tmp.dbg'"
 		  next
 		}
 /^Failed [0-9][0-9]* of [0-9][0-9]* tests/	{
@@ -97,42 +133,87 @@ do
 		  run = $3
 		  state = 3
 		}
-/^Failures:/	{
+/^Failures:/	{ nfail = NF - 1
 		  list = $2
 		  for (i = 3; i <= NF; i++) list = list " " $i
+		  print NR,": Failures: start: nfail=" nfail >"'$tmp.dbg'"
 		  state = 2
+		  next
+		}
+/^Info:/	{
+		  state = 0
+		  notrun = 0
+		  nfail = 0
+		  next
+		}
+/^===/		{
+		  state = 0
+		  notrun = 0
+		  nfail = 0
+		  next
 		}
 state == 1	{ # Not run: list broken over multiple lines
 		  notrun += NF
-		  #debug# print "notrun add",NF," =",notrun >"/home/kenj/eek"
+		  print NR,": Not run: add",NF," notrun=" notrun >"'$tmp.dbg'"
+		  next
 		}
-state == 3	{ printf "%s %4d %4d %4d %4d|%s|%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",list
+state == 2	{ # Failures: list broken over multiple lines
+		  nfail += NF
+		  for (i = 1; i <= NF; i++) list = list " " $i
+		  print NR,": Failures: add",NF," nfail=" nfail >"'$tmp.dbg'"
+		  next
+		}
+state == 3	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d|%s|%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",list
 		  state = 0
 		  notrun = 0
+		  nfail = 0
+		}
+END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		}'
-	    # Need to sort multiple runs and pick the one whith the
-	    # maximum passes and minimum not runs
+	    # Need to sort multiple runs one this date and pick the one
+	    # with the maximum passes and minimum not runs
 	    #
 	    # 2013-03-13      1      1      0      0|vm19-opensuse-64
 	    # 2013-03-13     67     67      0      2|vm19-opensuse-64
 	    # 2013-03-13    512    509      3     48|vm19-opensuse-64
 	    # 2013-03-13    512    509      3     16|vm19-opensuse-64
+	    $debug && sed -e 's/^/Debug: /' <$tmp.dbg
 	    sort <$tmp.out --key=3,3nr --key=5,5n \
 	    | sed -e 1q >$tmp.tmp
-	    sed -e 's/|[^|]*$//' <$tmp.tmp | _what
-	    sed -e 's/.*|//' <$tmp.tmp \
-	    | tr ' ' '\012' \
-	    | sed -e "s/\$/ $basevmname/" >>$tmp.map
-	    touch $tmp.found
-	    break
+	    if [ -s $tmp.tmp ]
+	    then
+		if $debug
+		then
+		    echo "Debug: summary lines ..."
+		    sed -e 's/^/Debug: /' <$tmp.out
+		fi
+		sed -e 's/|[^|]*$//' <$tmp.tmp | _what >>$tmp.found
+		nfail=`awk <$tmp.tmp '{print $4}'`
+		if [ $nfail -gt 0 ]
+		then
+		    sed -e 's/.*|//' <$tmp.tmp \
+		    | tr ' ' '\012' \
+		    | sed -e "s/\$/ $basevmname/" >>$tmp.map
+		fi
+		$recent && break
+	    else
+		$debug && echo "Debug: tag lines, but no QA results found"
+	    fi
+	else
+	    $debug && echo "Debug: no QA result tag lines found"
 	fi
     done
-    if [ -f $tmp.seen -a ! -f $tmp.found ]
+    if [ -f $tmp.found ]
     then
-	printf "%-30s|%s\n" "Daily runs, but no QA" "$basevmname" | _what
-    elif [ ! -f $tmp.seen ]
-    then
-	printf "%-30s|%s\n" "No daily runs" "$basevmname" | _what
+	sort $tmp.found
+    else
+	if [ -f $tmp.seen ]
+	then
+	    printf "%-30s|%s\n" "Daily runs, but no QA" "$basevmname" | _what
+	elif [ ! -f $tmp.seen ]
+	then
+	    printf "%-30s|%s\n" "No daily runs" "$basevmname" | _what
+	fi
     fi
 
 done
