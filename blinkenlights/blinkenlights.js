@@ -81,6 +81,7 @@ var updateIntervalID = 1;
 
 function setUpdateInterval(i) {
    if (updateIntervalID >= 0) { clearInterval(updateIntervalID); }
+   if (i > updateInterval) { pm_context = -1; } // will likely need a new context
    updateInterval = i;
    updateIntervalID = setInterval(updateBlinkenlights, updateInterval); 
 }
@@ -89,10 +90,10 @@ function updateBlinkenlights() {
   var pm_url;
 
   if (pm_context < 0) {
-    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + (10*updateInterval/1000);
+    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + (2*updateInterval/1000);
     $.getJSON(pm_url, function(data, status) {
       pm_context = data.context;
-      setTimeout(updateBlinkenlights, 500); // short-circuit retry
+      setTimeout(updateBlinkenlights, 100); // retry soon
     }).error(function() { pm_context = -1; });
     return; // will retry one cycle later
   }
