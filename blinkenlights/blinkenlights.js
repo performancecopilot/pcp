@@ -97,6 +97,11 @@ function updateBlinkenlights() {
     return; // will retry one cycle later
   }
 
+  if(predicates.length == 0) {
+      $("#blinkenlights").html("<b>No predicates requested...</b>");
+      return;
+  }
+
   // ajax request for JSON data
   pm_url = pm_root + "/" + pm_context + "/_fetch?names=";
   $.each(predicates, function(i, predicate) {
