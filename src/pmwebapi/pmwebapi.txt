@@ -17,6 +17,13 @@ HTTP GET/POST URL patterns:
   where the NNNN number is used in other pmwebapi URLs to identify the
   context.  Upon an error, no result is printed.
 
+* ping
+
+  /pmapi/NNNN/ping
+
+  The result is empty, and performs no action other than extending the
+  garbage collection interval for this context.
+
 * metric metadata/listing: pmLookupName/pmLookupDesc
 
   /pmapi/NNNN/_metric                     [done]
