@@ -379,12 +379,12 @@ pmweb_notify (int priority, struct MHD_Connection* connection, const char *fmt, 
         rc = getnameinfo (so, sizeof(struct sockaddr_in),
                           hostname, sizeof(hostname),
                           servname, sizeof(servname),
-                          0);
+                          NI_NUMERICHOST|NI_NUMERICSERV);
     else if (so && so->sa_family == AF_INET6)
         rc = getnameinfo (so, sizeof(struct sockaddr_in6),
                           hostname, sizeof(hostname),
                           servname, sizeof(servname),
-                          0);
+                          NI_NUMERICHOST|NI_NUMERICSERV);
     if (rc != 0)
         hostname[0] = servname[0] = '\0';
 
