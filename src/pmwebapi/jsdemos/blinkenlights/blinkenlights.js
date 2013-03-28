@@ -76,17 +76,24 @@ function parsePredicate(src) {
 
 // ----------------------------------------------------------------------
 
-var updateInterval;
+var updateInterval = 10000; // milliseconds
+var updateIntervalID = 1;
+
+function setUpdateInterval(i) {
+   if (updateIntervalID >= 0) { clearInterval(updateIntervalID); }
+   updateInterval = i;
+   updateIntervalID = setInterval(updateBlinkenlights, updateInterval); 
+}
 
 function updateBlinkenlights() {
   var pm_url;
 
   if (pm_context < 0) {
-    pm_url = pm_root + "/context?hostname=" + pm_host;
+    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + (10*updateInterval/1000);
     $.getJSON(pm_url, function(data, status) {
-      // TODOXXX error handling
       pm_context = data.context;
-    });
+      setTimeout(updateBlinkenlights, 500); // short-circuit retry
+    }).error(function() { pm_context = -1; });
     return; // will retry one cycle later
   }
 
@@ -97,8 +104,6 @@ function updateBlinkenlights() {
     pm_url += predicate.name;
   });
   $.getJSON(pm_url, function(data, status) {
-    // TODOXXX error handling
-
     // update data_dict
     var data_dict = {};
     $.each(data.values, function(i, value) {
@@ -110,7 +115,9 @@ function updateBlinkenlights() {
     $.each(predicates, function(i, predicate) {
       predicate.test($("#blinkenlights"), data_dict);
     });
-  });
+  }).error(function() { 
+      $("#blinkenlights").html("<b>error accessing server, retrying...</b>");
+      pm_context = -1; });
 }
 
 function loadBlinkenlights() {
@@ -118,8 +125,8 @@ function loadBlinkenlights() {
   $("#content").html("<ul id=\"blinkenlights\"><li>loading...</li></ul>");
 
   // start timer for updateBlinkenlights
-  updateInterval = setInterval(updateBlinkenlights, 1000);
   updateBlinkenlights();
+  setUpdateInterval(1000);
 }
 
 $(document).ready(function() {

@@ -1,3 +1,6 @@
+#interval-slider-label { margin: 0px; }
+#interval-slider  { width: 300px; margin: 0px; display: inline-block; }
+
 #blinkenlights { font-family: monospace; font-size: 130%; }
 #blinkenlights li {
     list-style: none; line-height: 25px;

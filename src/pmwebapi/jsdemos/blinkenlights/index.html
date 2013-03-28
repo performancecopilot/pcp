@@ -1,15 +1,28 @@
 <html>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
   <head>
+    <link rel="stylesheet" href="../jquery-ui-themes-1.10.2/themes/humanity/jquery-ui.css">
     <script type="text/javascript" src="../jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../jquery-ui-1.10.2.js"></script>
     <script type="text/javascript" src="blinkenlights.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
         $("#predicate_form").submit(function() {
-          predicates = [];
           predicates.push(parsePredicate($("#predicate_input").val()));
           return false; // stay on this page
         });
-
+        $("#predicate_clear_form").submit(function() {
+          predicates = [];
+          return false; // stay on this page
+        });
+        $("#interval").val(updateInterval);
+        $("#interval-slider").slider({
+          value: updateInterval, min: 500, max: 10000,
+          slide: function (event, ui) {
+              setUpdateInterval(ui.value);
+              $("#interval").val(updateInterval);
+          }
+        });
         $("#predicate_input").val("kernel.all.load[*] > 0.2");
       });
     </script>
@@ -20,8 +33,13 @@
     <h1 id="header"></h1>
     <form id="predicate_form">
       <input id="predicate_input" size="50" type="text" />
-      <input value="Set Predicate" type="submit" />
+      <input value="Add Predicate" type="submit" />
     </form>
+    <form id="predicate_clear_form">
+      <input value="Clear Predicates" type="submit" />
+    </form>
+    <span id="interval-slider-label"><label for="interval">Refresh interval (ms):</label><input type="text" size="5" id="interval" readonly /></span>
+    <div id="interval-slider"></div>
     <div id="content"></div>
     <!--<footer>
       <p id="permalink">permalink: <span></span> (<a>copy</a>)</p>
