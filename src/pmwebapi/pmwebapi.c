@@ -327,9 +327,16 @@ static void mhdb_print_qstring(struct mhdb *md, const char *value)
 
     mhdb_printf(md, "\"");
     for (c = value; *c; c++) {
-        if (! isascii(*c)) { mhdb_printf(md, "\\uFFFD"); continue; }
-        if (isalnum(*c)) { mhdb_printf(md, "%c", *c); continue; }
-        mhdb_printf(md, "\\u00%02x", *c);
+        if (! isascii(*c))
+            mhdb_printf(md, "\\uFFFD");
+        else if (isalnum(*c))
+            mhdb_printf(md, "%c", *c);
+        else if (ispunct(*c) && !iscntrl(*c) && (*c != '\\' && *c != '\"'))
+            mhdb_printf(md, "%c", *c);
+        else if (*c == ' ')
+            mhdb_printf(md, "%c", *c);
+        else
+            mhdb_printf(md, "\\u00%02x", *c);
     }
     mhdb_printf(md, "\"");
 }
