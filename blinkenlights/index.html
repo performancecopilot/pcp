@@ -17,7 +17,7 @@
         });
         $("#interval").val(updateInterval);
         $("#interval-slider").slider({
-          value: updateInterval, min: 500, max: 10000,
+          value: updateInterval, min: 1000, max: 10000,
           slide: function (event, ui) {
               setUpdateInterval(ui.value);
               $("#interval").val(updateInterval);
