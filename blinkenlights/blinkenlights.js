@@ -4,14 +4,6 @@ var pm_context = -1;
 
 // ----------------------------------------------------------------------
 
-// public domain images courtesy of
-// http://www.clker.com/clipart-led-off.html and http://www.clker.com/clipart-6514.html
-var red_light = "<img src=\"blinken_error.png\" width=\"25\" height=\"25\" alt=\"(!)\" />";
-var green_light = "<img src=\"blinken_on.png\" width=\"25\" height=\"25\" alt=\"(X)\" />";
-var gray_light = "<img src=\"blinken_off.png\" width=\"25\" height=\"25\" alt=\"( )\" />";
-
-// ----------------------------------------------------------------------
-
 function Predicate(name,index,operator,threshold) {
   this.name = name;
   this.index = index;
@@ -56,17 +48,16 @@ Predicate.prototype.test = function(elt,data_dict,index) {
   else if (this.operator == "==") result = metric == this.threshold;
   else { error = "unknown operator '" + this.operator + "'"; result = -1; }
   
-  // TODOXXX assign id to this li, avoid $("#blinkenlights").empty()
-  // XXX var blinken_id = 
-  var blinken = result < 0 ? red_light : result ? green_light : gray_light;
+  // TODOXXX avoid $("#blinkenlights").empty() by using existing li's??
+  var bclass = result < 0 ? "error" : result ? "on" : "off";
 
-  var source = metric + " -- " + this.name + " ( " + this.get_iname(iid) + " : " + iid + " ) " + this.operator + " " + this.threshold;
-  var content = blinken + " <span>" + source + "</span>"
-              + (result < 0 ? " &ndash; error: " + error : "");
+  var source = "<strong>" + metric + "</strong> -- "
+             + this.name + " ( " + this.get_iname(iid) + " : " + iid + " ) "
+             + this.operator + " " + this.threshold;
+  var content = "<span>" + source + "</span>"
+              + (result < 0 ? " -- error: " + error : "");
 
-  // XXX if (elt.find("#" + blinken_id)) ...
-  // XXX else elt.append("<li id=\"" + blinken_id + "\">" + content + "</li>")
-  elt.append("<li>" + content + "</li>");
+  elt.append("<li class=\"" + bclass + "\">" + content + "</li>");
 };
 
 var predicates = [];
