@@ -90,7 +90,7 @@ function updateBlinkenlights() {
   var pm_url;
 
   if (pm_context < 0) {
-    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + (2*updateInterval/1000);
+    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + Math.floor(2*updateInterval/1000);
     $.getJSON(pm_url, function(data, status) {
       pm_context = data.context;
       setTimeout(updateBlinkenlights, 100); // retry soon
