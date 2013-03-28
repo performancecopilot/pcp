@@ -8,6 +8,10 @@ HTTP GET/POST URL patterns:
   /pmapi/context?hostname=STRING          [done]
   /pmapi/context?archivefile=ARCHIVE      [done]
 
+  Optionally add &polltimeout=NNN for the maximum interval (in
+  seconds) between accesses to the given context, to prevent their
+  garbage collection.                     [done]
+
   The result, if successful, is a application/json form: 
      { "context": NNNN }
   where the NNNN number is used in other pmwebapi URLs to identify the

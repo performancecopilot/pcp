@@ -177,7 +177,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         long pt;
         char *endptr;
         errno = 0;
-        pt = strtol(optarg, &endptr, 0);
+        pt = strtol(val, &endptr, 0);
         if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > maxtimeout) {
             polltimeout = maxtimeout;
         }
