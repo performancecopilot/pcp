@@ -63,11 +63,13 @@ Predicate.prototype.test = function(elt,data_dict,index) {
 var predicates = [];
 
 function parsePredicate(src) {
-  var matches = /([^[]+)\s*(\[\d+\]|\[\*\]|\[\]|)\s*(<|>|<=|>=|==)\s*(\S+)/.exec(src);
+  var matches = /^([^[]+)\s*(\[\d+\]|\[\*\]|\[\]|)\s*(<=|>=|==|<|>)\s*(\S*)$/.exec(src);
+  if (matches == null) return null;
   var name = matches[1];
   var index = matches[2]; index = index == "" ? "*" : index.substring(1,index.length-1);
   var operator = matches[3];
-  var threshold = parseFloat(matches[4]); // TODOXXX what about other types?
+  var threshold = parseFloat(matches[4]); // TODOXXX what about other types?; accepts 40foobar
+  if (isNaN(threshold)) return null;
 
   console.log ("create predicate " + name + " : " + index + " : " + operator + " : " + threshold)
 
