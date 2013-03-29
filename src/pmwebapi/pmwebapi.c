@@ -173,7 +173,8 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     const char *val;
     int rc;
     int context = -1;
-    static char http_response [512];  /* if-threaded: not static */
+    char http_response [30];
+    char context_description [512] = "<none>"; // for logging
     unsigned polltimeout;
     struct MHD_Response *resp;
     int webapi_ctx;
@@ -182,12 +183,21 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostname");
     if (val) {
         context = pmNewContext (PM_CONTEXT_HOST, val); /* XXX: limit access */
+        snprintf (context_description, sizeof(context_description), "PM_CONTEXT_HOST %s", val);
     } else {
         val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "archivefile");
         if (val) {
             context = pmNewContext (PM_CONTEXT_ARCHIVE, val); /* XXX: limit access */
-        } else {
+            snprintf (context_description, sizeof(context_description), "PM_CONTEXT_ARCHIVE %s", val);
+        } else if (MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "local")) {
+            /* Note we need to use a dummy parameter to local=FOO,
+               since the MHD_lookup* API does not differentiate
+               between an absent argument vs. an argument given
+               without a parameter value. */
             context = pmNewContext (PM_CONTEXT_LOCAL, NULL);
+            snprintf (context_description, sizeof(context_description), "PM_CONTEXT_LOCAL");
+        } else {
+            /* context remains -1 */
         }
     }
 
@@ -208,7 +218,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     }
 
     if (context < 0) {
-        pmweb_notify (LOG_ERR, connection, "new context failed\n");
+        pmweb_notify (LOG_ERR, connection, "new context failed (%s)\n", pmErrStr (context));
         goto out;
     }
 
@@ -244,9 +254,15 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     /* Errors beyond this point don't require instant cleanup; the
        periodic context GC will do it all. */
   
-    if (verbosity)
-        pmweb_notify (LOG_INFO, connection, "context (web%d=pm%d) created, expires in %us.\n",
+    if (verbosity) {
+        const char* context_hostname = pmGetContextHostName (context);
+        pmweb_notify (LOG_INFO, connection, "context %s%s%s%s (web%d=pm%d) created, expires in %us.\n",
+                      context_description, 
+                      context_hostname ? " (" : "",
+                      context_hostname ? context_hostname : "",
+                      context_hostname ? ")" : "",
                       webapi_ctx, context, polltimeout);
+    }
   
     rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
     assert (rc >= 0 && rc < sizeof(http_response));

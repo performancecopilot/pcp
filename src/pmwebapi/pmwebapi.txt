@@ -4,7 +4,7 @@ HTTP GET/POST URL patterns:
 
 * context creation: pmNewContext
 
-  /pmapi/context                          [done]
+  /pmapi/context?local=ANYTHING           [done]
   /pmapi/context?hostname=STRING          [done]
   /pmapi/context?archivefile=ARCHIVE      [done]
 

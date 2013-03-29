@@ -35,7 +35,8 @@ static int mhd_log_args (void *connection, enum MHD_ValueKind kind,
                          const char *key, const char *value)
 {
     (void) kind;
-    pmweb_notify (LOG_DEBUG, connection, "%s:%s", key, value);
+    pmweb_notify (LOG_DEBUG, connection,
+                  "%s%s%s", key, (value ? ":" : ""), (value ? value : ""));
     return MHD_YES;
 }
 
