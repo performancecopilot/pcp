@@ -16,7 +16,16 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 then
-    if test $PCP_VER -ge 2704
+    if test $PCP_VER -ge 3611
+    then
+	ipv6=false
+	eval `pmconfig -L 2>/dev/null`
+	if [ "$ipv6" = "true" ]; then
+	    ln $seq.out.5 $seq.out || exit 1
+	else
+	    ln $seq.out.4 $seq.out || exit 1
+	fi
+    elif test $PCP_VER -ge 2704
     then
 	ln $seq.out.3 $seq.out
     else
@@ -32,10 +41,9 @@ _filter_err()
     | sed \
 	-e 's/ __pmBind: / bind: /g' \
 	-e 's/may already be running/is already running/g' \
-	-e '/Log for pmcd/,/ipv6.*INADDR_ANY/c\
-... boring stuff deleted' \
 	-e '/Log for pmcd/,/INADDR_ANY/c\
 ... boring stuff deleted' \
+	-e '/ok FD 44321 ipv6 INADDR_ANY/d' \
 	-e 's/ INADDR_ANY/ 0x0/g'
 }
 

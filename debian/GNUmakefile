@@ -1,5 +1,6 @@
 TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
+SCRIPTS = $(TOPDIR)/build
 
 LINTIAN = source.lintian-overrides
 LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
@@ -64,26 +65,28 @@ LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
 SUBDIRS = source
-LDIRT = *.debhelper *.substvars *.log pcp files pcp.preinst pcp.preinst.head \
+LDIRT = *.debhelper *.substvars *.log pcp files \
+	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
 LSRCFILES = changelog compat control copyright rules \
-		pcp.preinst.head.in pcp.preinst.head cleanconfigs pcp.preinst.tail \
-		$(LINTIAN) $(PCP_LINT) \
-		$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
-		$(PCPTESTSUITE_FILES) \
-		$(LIBGUI_FILES) $(DEVGUI_FILES) \
-		$(LIBMMV_FILES) $(DEVMMV_FILES) \
-		$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
-		$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
-		$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
-		$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
-		$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
+	pcp.preinst.head.in pcp.preinst.head pcp.preinst.tail \
+	pcp.postinst.head.in pcp.postinst.head pcp.postinst.tail \
+	$(LINTIAN) $(PCP_LINT) \
+	$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
+	$(PCPTESTSUITE_FILES) \
+	$(LIBGUI_FILES) $(DEVGUI_FILES) \
+	$(LIBMMV_FILES) $(DEVMMV_FILES) \
+	$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
+	$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
+	$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
+	$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
+	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
 
-default: pcp.preinst
+default: pcp.preinst pcp.postinst
 
 include $(BUILDRULES)
 
@@ -216,6 +219,10 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTIOSTAT_DOC_DIR)/changelog.Debian
 endif
 
-pcp.preinst:	pcp.preinst.head cleanconfigs pcp.preinst.tail
-	rm -f pcp.preinst
-	cat pcp.preinst.head cleanconfigs pcp.preinst.tail >pcp.preinst
+pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
+	rm -f $@
+	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail > $@
+
+pcp.postinst:	pcp.postinst.head $(SCRIPTS)/cleantmpdirs pcp.postinst.tail
+	rm -f $@
+	cat pcp.postinst.head $(SCRIPTS)/cleantmpdirs pcp.postinst.tail > $@

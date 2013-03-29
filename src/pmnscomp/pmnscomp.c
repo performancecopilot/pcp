@@ -160,10 +160,10 @@ pass2(__pmnsNode *p)
 static void
 pass3(__pmnsNode *p)
 {
-    _nodetab[i].parent = (struct pn_s *)nodemap(_nodetab[i].parent);
-    _nodetab[i].next = (struct pn_s *)nodemap(_nodetab[i].next);
-    _nodetab[i].first = (struct pn_s *)nodemap(_nodetab[i].first);
-    _nodetab[i].hash = (struct pn_s *)nodemap(_nodetab[i].hash);
+    _nodetab[i].parent = (__pmnsNode *)nodemap(_nodetab[i].parent);
+    _nodetab[i].next = (__pmnsNode *)nodemap(_nodetab[i].next);
+    _nodetab[i].first = (__pmnsNode *)nodemap(_nodetab[i].first);
+    _nodetab[i].hash = (__pmnsNode *)nodemap(_nodetab[i].hash);
     i++;
 }
 

@@ -51,7 +51,7 @@ COMMON = common.check common.config common.filter \
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 valgrind-suppress sanity.coverage
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9]*.full' | tee qa_outfiles)
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun)' | tee qa_outfiles)
 LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:

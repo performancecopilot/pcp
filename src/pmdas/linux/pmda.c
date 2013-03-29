@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -4065,8 +4065,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.p_guest[inst] / proc_stat.hz);
 	    break;
-
-
 	case 62: /* kernel.pernode.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.n_user[inst] / proc_stat.hz);
@@ -4108,7 +4106,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.n_guest[inst] / proc_stat.hz);
 	    break;
-
 
 	case 8: /* pagesin */
 	    if (_pm_have_proc_vmstat)
@@ -5484,7 +5481,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[CLUSTER_STAT]++;
 	}
 
-	/* In 2.6 kernels, swap.{pagesin,pagesout,in,out} are in /proc/vmstat */
+	/* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
 	if (_pm_have_proc_vmstat && idp->cluster == CLUSTER_STAT) {
 	    if (idp->item >= 8 && idp->item <= 11)
 	    	need_refresh[CLUSTER_VMSTAT]++;
@@ -5692,6 +5689,7 @@ linux_init(pmdaInterface *dp)
 			    idp->cluster, idp->item);
     }
 
+    proc_vmstat_init();
     interrupts_init();
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), linux_metrictab,

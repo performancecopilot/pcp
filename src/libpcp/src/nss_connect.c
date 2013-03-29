@@ -189,42 +189,66 @@ __pmShutdownSecureSockets(void)
 }
 
 static int
-createSocket(PRIntn family)
+__pmSetupSocket(PRFileDesc *fdp)
 {
-    int fd, sts;
     __pmSecureSocket socket = { 0 };
+    int fd, sts;
 
-    __pmInitSecureSockets();
-
-    /* Open the socket */
-    if ((socket.nsprFd = PR_OpenTCPSocket(family)) == NULL)
-	return -neterror();
-
-    fd = newNSPRHandle();
-    __pmSetDataIPC(fd, (void *)&socket);
-
-    if ((sts = __pmInitSocket(fd)) < 0)
-        return sts;
+    socket.nsprFd = fdp;
+    if ((fd = newNSPRHandle()) < 0) {
+	PR_Close(socket.nsprFd);
+	return fd;
+    }
+    if ((sts = __pmSetDataIPC(fd, (void *)&socket)) < 0) {
+	PR_Close(socket.nsprFd);
+	freeNSPRHandle(fd);
+	return sts;
+    }
+    (void)__pmInitSocket(fd);	/* cannot fail after __pmSetDataIPC */
     return fd;
 }
 
 int
 __pmCreateSocket(void)
 {
-    return createSocket(PR_AF_INET);
+    PRFileDesc *fdp;
+
+    __pmInitSecureSockets();
+    if ((fdp = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
+	return -neterror();
+    return __pmSetupSocket(fdp);
 }
 
 int
 __pmCreateIPv6Socket(void)
 {
-    int socket = createSocket(PR_AF_INET6);
+    int fd, sts, on;
+    __pmSockLen onlen = sizeof(on);
+    PRFileDesc *fdp;
 
-    if (socket >= 0) {
-	/* Disable IPv4-mapped connections */
-	int one = 1;
-	__pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+    __pmInitSecureSockets();
+
+    /* Open the socket */
+    if ((fdp = PR_OpenTCPSocket(PR_AF_INET6)) == NULL)
+	return -neterror();
+    fd = PR_FileDesc2NativeHandle(fdp);
+
+    /*
+     * Disable IPv4-mapped connections.
+     * Must explicitly check whether that worked, for ipv6.enabled=false
+     * kernels.  Setting then testing is the most reliable way we've found.
+     */
+    on = 1;
+    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, onlen);
+    on = 0;
+    sts = getsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
+    if (sts < 0 || on != 1) {
+	__pmNotifyErr(LOG_ERR, "__pmCreateIPv6Socket: IPV6 is not supported\n");
+	PR_Close(fdp);
+	return -EOPNOTSUPP;
     }
-    return socket;
+
+    return __pmSetupSocket(fdp);
 }
 
 void
@@ -375,8 +399,7 @@ done:
 static int
 rejectUserCertificate(const char *message)
 {
-    pmprintf(message);
-    pmprintf("? (no)\n");
+    pmprintf("%s? (no)\n", message);
     pmflush();
     return 0;
 }
@@ -395,8 +418,7 @@ queryCertificateOK(const char *message)
     do {
 	struct termios saved, raw;
 
-	pmprintf(message);
-	pmprintf(" (y/n)? ");
+	pmprintf("%s (y/n)? ", message);
 	pmflush();
 
 	/* save terminal state and temporarily enter raw terminal mode */
@@ -874,9 +896,13 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
+	PRIntervalTime timer;
 	PRFileDesc *nsprFd;
+	int msec;
 
-	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, PR_INTERVAL_NO_TIMEOUT);
+	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	timer = PR_MillisecondsToInterval(msec);
+	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, timer);
 	if (nsprFd == NULL)
 	    return -1;
 
@@ -917,9 +943,15 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSecureSocket socket;
 
-    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd)
-	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, PR_INTERVAL_NO_TIMEOUT)
+    if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
+	PRIntervalTime timer;
+	int msec;
+
+	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	timer = PR_MillisecondsToInterval(msec);
+	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer)
 		== PR_SUCCESS) ? 0 : -1;
+    }
     return connect(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -1269,9 +1301,11 @@ __pmGetAddrInfo(const char *hostName)
     if (addr != NULL) {
         he->name = __pmGetNameInfo(addr);
 	__pmSockAddrFree(addr);
+	if (he->name == NULL)
+	    he->name = strdup(hostName);
     }
     else
-      he->name = strdup(hostName);
+        he->name = strdup(hostName);
 
     return he;
 }

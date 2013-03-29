@@ -19,6 +19,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <sys/stat.h>
 
 typedef struct event_logfile {
     pmID		pmid;

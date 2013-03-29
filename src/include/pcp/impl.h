@@ -195,30 +195,30 @@ pmInDom_build (unsigned int domain, unsigned int serial)
 /*
  * internal structure of a PMNS node
  */
-typedef struct pn_s {
-    struct pn_s	*parent;
-    struct pn_s	*next;
-    struct pn_s	*first;
-    struct pn_s	*hash;	/* used as "last" in build, then pmid hash synonym */
-    char	*name;
-    pmID	pmid;
+typedef struct __pmnsNode {
+    struct __pmnsNode	*parent;
+    struct __pmnsNode	*next;
+    struct __pmnsNode	*first;
+    struct __pmnsNode	*hash;	/* used as "last" in build, then pmid hash synonym */
+    char		*name;
+    pmID		pmid;
 } __pmnsNode;
 
 /*
  * internal structure of a PMNS tree
  */
-typedef struct {
-    __pmnsNode *root;  /* root of tree structure */
-    __pmnsNode **htab; /* hash table of nodes keyed on pmid */
-    int htabsize;     /* number of nodes in the table */
-    char *symbol;     /* store all names contiguously */
-    int contiguous;   /* is data stored contiguously ? */
-    int mark_state;   /* the total mark value for trimming */
+typedef struct __pmnsTree {
+    __pmnsNode		*root;  /* root of tree structure */
+    __pmnsNode		**htab; /* hash table of nodes keyed on pmid */
+    int			htabsize;     /* number of nodes in the table */
+    char		*symbol;     /* store all names contiguously */
+    int			contiguous;   /* is data stored contiguously ? */
+    int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
 
 /* used by pmnsmerge... */
-extern __pmnsTree* __pmExportPMNS(void); 
+extern __pmnsTree *__pmExportPMNS(void); 
 
 /* for PMNS in archives */
 extern int __pmNewPMNS(__pmnsTree **);
@@ -297,18 +297,31 @@ extern void __pmDumpNameAndStatusList(FILE *, int, char **, int *);
 /*
  * Hashed Data Structures for the Processing of Logs and Archives
  */
-typedef struct _hashnode {
-    struct _hashnode	*next;
+typedef struct __pmHashNode {
+    struct __pmHashNode	*next;
     unsigned int	key;
     void		*data;
 } __pmHashNode;
 
-typedef struct {
-    int		nodes;
-    int		hsize;
+typedef struct __pmHashCtl {
+    int			nodes;
+    int			hsize;
     __pmHashNode	**hash;
+    __pmHashNode	*next;
+    unsigned int	index;
 } __pmHashCtl;
 
+typedef enum {
+    PM_HASH_WALK_START = 0,
+    PM_HASH_WALK_NEXT,
+    PM_HASH_WALK_STOP,
+    PM_HASH_WALK_DELETE_NEXT,
+    PM_HASH_WALK_DELETE_STOP,
+} __pmHashWalkState;
+
+typedef __pmHashWalkState (*__pmHashWalkCallback)(const __pmHashNode *, void *);
+extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
+extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
 extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
@@ -397,7 +410,7 @@ extern const char *__pmFindPMDA(const char *);
 #define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
 
 /* Profile entry (per instance domain) */
-typedef struct {
+typedef struct __pmInDomProfile {
     pmInDom	indom;			/* instance domain */
     int		state;			/* include all or exclude all */
     int		instances_len;		/* length of instances array */
@@ -405,7 +418,7 @@ typedef struct {
 } __pmInDomProfile;
 
 /* Instance profile for all domains */
-typedef struct {
+typedef struct __pmProfile {
     int			state;			/* default global state */
     int			profile_len;		/* length of profile array */
     __pmInDomProfile	*profile;		/* array of instance profiles */
@@ -421,7 +434,7 @@ extern void __pmDumpProfile(FILE *, int, const __pmProfile *);
  * Result structure for instance domain queries
  * Only the PMDAs and pmcd need to know about this.
  */
-typedef struct {
+typedef struct __pmInResult {
     pmInDom	indom;		/* instance domain */
     int		numinst;	/* may be 0 */
     int		*instlist;	/* instance ids, may be NULL */
@@ -504,11 +517,9 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
 extern int __pmSecureServerSetup(const char *, const char *);
-extern int __pmSecureServerHandshake(int, int);
-extern int __pmSecureServerIPCFlags(int, int);
 extern void __pmSecureServerShutdown(void);
+extern int __pmSecureServerHandshake(int, int);
 extern int __pmSecureClientHandshake(int, int, const char *);
-extern void *__pmGetSecureSocket(int);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef struct {
@@ -523,15 +534,9 @@ typedef fd_set __pmFdSet;
 typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
 
-extern int __pmInitSecureSockets(void);
-extern int __pmInitCertificates(void);
-
 extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
-extern int __pmInitSocket(int);
 extern void __pmCloseSocket(int);
-extern int __pmSocketClosed(void);
-extern int __pmSocketReady(int, struct timeval *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
@@ -544,7 +549,6 @@ extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
-extern int __pmConnectCheckError(int);
 
 extern int __pmGetFileStatusFlags(int);
 extern int __pmSetFileStatusFlags(int, int);
@@ -716,10 +720,12 @@ EXTERN unsigned int *__pmPDUCntIn;
 EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
-/* timeout options for __pmGetPDU */
+/* timeout options for __pmConvertTimeout */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
-#define GETPDU_ASYNC	-2
+#define TIMEOUT_ASYNC	-2
+#define TIMEOUT_CONNECT	-3
+#define GETPDU_ASYNC	TIMEOUT_ASYNC	/* backward-compatibility */
 extern int __pmConvertTimeout(int);
 
 /* mode options for __pmGetPDU */

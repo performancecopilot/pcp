@@ -4,6 +4,7 @@
 \f3telnet-probe\f1 \- lightweight telnet-like port probe
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/telnet-probe\f1
+[\f3\-c\f1]
 [\f3\-v\f1]
 \f2host\f1 \f2port\f1
 .SH DESCRIPTION
@@ -21,6 +22,19 @@ and
 number arguments have the same meaning as their
 .BR telnet (1)
 equivalents.
+.PP
+The
+.B \-c
+option causes
+.B telnet-probe
+to perform a
+.BR connect (2)
+only.
+This skips the
+.BR read (2)
+and
+.BR write (2)
+exercise that would otherwise be done after connecting (see below).
 .PP
 The
 .B \-v
@@ -76,6 +90,9 @@ a non-zero exit status is returned.
 .SH SEE ALSO
 .BR PCPintro (1),
 .BR pmdashping (1),
-.BR pmie (1)
+.BR pmie (1),
+.BR telnet (1),
+.BR connect (2),
+.BR read (2)
 and
-.BR telnet (1).
+.BR write (2).

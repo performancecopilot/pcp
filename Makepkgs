@@ -69,10 +69,22 @@ trap "rm -rf $tmp" 0 1 2 3 15
 
 ARCH=`uname -m | sed -e 's/i.86/ia32/'`
 VERS=`uname -s | cut -c-5`
-if [ "$VERS" = MINGW ]
-then
-    configure_options="--prefix= --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --disable-ssp"
-fi
+case "$VERS"
+in
+    MINGW)
+	configure_options="$configure_options --disable-ssp"
+	;;
+    Linux)
+	configure_options="$configure_options --libexecdir=/usr/lib"
+	if [ -f /etc/slackware-version ]
+	then
+	    if [ "$ARCH" = x86_64 ]
+	    then
+		configure_options="$configure_options --libdir=/usr/lib64"
+	    fi
+	fi
+	;;
+esac
 
 # Sanity checks ... this is sick, but I'm really tired of QA failing
 # because of bad binaries being built from the Debian/Ubuntu toolchain

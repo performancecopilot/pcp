@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,25 +12,23 @@
 # for more details.
 #
 
-import unittest
-import pmapi
-import time
 import sys
-from pcp import *
-from ctypes import *
+import unittest
+from pcp import pmapi
+import cpmapi as api
 
 # Utilities
 
-def dump_seq (name_p, seq_p):
+def dump_seq(name_p, seq_p):
     print (name_p)
-    for t in seq_p:
-        if type(t) == type(int()) or type(t) == type(long()):
-            print (hex(t))
+    for text in seq_p:
+        if type(text) == type(int()) or type(text) == type(long()):
+            print (hex(text))
         else:
-            print (t)
+            print (text)
     print ()
 
-def dump_array_ptrs (name_p, arr_p):
+def dump_array_ptrs(name_p, arr_p):
     print (name_p)
     for i in xrange(len(arr_p)):
         if (i > 0):
@@ -38,7 +36,7 @@ def dump_array_ptrs (name_p, arr_p):
         else:
             print (""), arr_p[i].contents
 
-def dump_array (name_p, arr_p):
+def dump_array(name_p, arr_p):
     print (name_p)
     for i in xrange(len(arr_p)):
         if (i > 0):
@@ -46,303 +44,306 @@ def dump_array (name_p, arr_p):
         else:
             print (""), hex(arr_p[i])
 
-archive = ""                    # For testing either localhost or archive
+ARCHIVE = ""                    # For testing either localhost or archive
 
-traverse_callback_count = 0     # callback for pmTraversePMNS
+TRAVERSE_CALLBACK_COUNT = 0     # callback for pmTraversePMNS
 
-def traverse_callback (arg):
-    global traverse_callback_count
-    traverse_callback_count += 1
+def traverse_callback(arg):
+    global TRAVERSE_CALLBACK_COUNT
+    TRAVERSE_CALLBACK_COUNT += 1
 
-def test_pcp(self, context = 'local', path = ''):
+def test_pcp(self):
 
-    if (archive == ""):
+    if (ARCHIVE == ""):
         print 'Running as localhost'
-        pm = pmContext(pmapi.PM_CONTEXT_HOST,"localhost")
+        ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "localhost")
         self.local_type = True
     else:
-        print 'Running as archive', archive
-        pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
+        print 'Running as archive', ARCHIVE
+        ctx = pmapi.pmContext(api.PM_CONTEXT_ARCHIVE, ARCHIVE)
         self.archive_type = True
 
     # pmGetContextHostName
-    hostname = pm.pmGetContextHostName()
+    hostname = ctx.pmGetContextHostName()
     print "pmGetContextHostName:", hostname
     self.assertTrue(len(hostname) >= 0)
 
     # pmParseMetricSpec
-    (code, rsltp, errmsg) = pm.pmParseMetricSpec("kernel.all.load", 0, "localhost")
-    print "pmParseMetricSpec:", rsltp.contents.source
-    self.assertTrue(rsltp.contents.source == "localhost")
+    source = 'localhost'
+    (code, rsltp, errmsg) = ctx.pmParseMetricSpec("kernel.all.load", 0, source)
+    if (code < 0):
+        print "pmParseMetricSpec error: ", errmsg
+    else:
+        print "pmParseMetricSpec:", rsltp.contents.source
+        self.assertTrue(rsltp.contents.source == source)
 
     # Get number of cpus
     # pmLookupName
-    (code, self.ncpu_id) = pm.pmLookupName(("hinv.ncpu","kernel.all.load"))
+    (code, self.ncpu_id) = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load"))
     print "pmLookupName:", self.ncpu_id
     self.assertTrue(code >= 0)
 
     # pmIDStr
-    print "pmIDStr:", pm.pmIDStr(self.ncpu_id[0])
-    self.assertTrue(pm.pmIDStr(self.ncpu_id[0]).count(".") > 1)
+    print "pmIDStr:", ctx.pmIDStr(self.ncpu_id[0])
+    self.assertTrue(ctx.pmIDStr(self.ncpu_id[0]).count(".") > 1)
 
     # pmLookupDesc
-    (code, descs) = pm.pmLookupDesc(self.ncpu_id)
+    (code, descs) = ctx.pmLookupDesc(self.ncpu_id)
     dump_array_ptrs("pmLookupDesc", descs)
     self.assertTrue(code >= 0)
 
     # pmFetch
-    (code, results) = pm.pmFetch(self.ncpu_id)
+    (code, results) = ctx.pmFetch(self.ncpu_id)
     print "pmFetch:", results
     self.assertTrue(code >= 0)
 
     # pmExtractValue
-    (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(0),
+    (code, atom) = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                      results.contents.get_vlist(0, 0),
                                      descs[0].contents.type,
-                                     pmapi.PM_TYPE_U32)
+                                     api.PM_TYPE_U32)
     self.assertTrue(code >= 0)
     self.assertTrue(atom.ul > 0)
-    print ("pmExtractValue:", atom.ul)
-    ncpu = atom.ul
+    print "pmExtractValue:", atom.ul
 
     # pmGetChildren
-    gc = pm.pmGetChildren("kernel")
-    print "pmGetChildren:", gc
-    self.assertTrue(len(gc) >=2)
+    gcs = ctx.pmGetChildren("kernel")
+    print "pmGetChildren:", gcs
+    self.assertTrue(len(gcs) >=2)
 
     # pmGetChildrenStatus
-    gc = pm.pmGetChildrenStatus("kernel")
-    print "pmGetChildrenStatus:", gc
-    self.assertTrue(len(gc[0]) == len(gc[1]))
+    gcs = ctx.pmGetChildrenStatus("kernel")
+    print "pmGetChildrenStatus:", gcs
+    self.assertTrue(len(gcs[0]) == len(gcs[1]))
 
     # pmGetPMNSLocation
-    i = pm.pmGetPMNSLocation()
-    print "pmGetPMNSLocation:", i
-    self.assertTrue(i==PMNS_ARCHIVE or i==PMNS_LOCAL or i==PMNS_REMOTE)
+    index = ctx.pmGetPMNSLocation()
+    print "pmGetPMNSLocation:", index
+    self.assertTrue(index == api.PMNS_ARCHIVE or
+                    index == api.PMNS_LOCAL or
+                    index == api.PMNS_REMOTE)
 
     # pmTraversePMNS
-    global traverse_callback_count
-    traverse_callback_count = 0
-    i = pm.pmTraversePMNS("kernel", traverse_callback)
-    print "pmTraversePMNS:", traverse_callback_count
-    self.assertTrue(traverse_callback_count > 0)
+    ctx.pmTraversePMNS("kernel", traverse_callback)
+    print "pmTraversePMNS:", TRAVERSE_CALLBACK_COUNT
+    self.assertTrue(TRAVERSE_CALLBACK_COUNT > 0)
 
     # pmLookupName
     try:
-        (code, badid) = pm.pmLookupName("A_BAD_METRIC")
+        (code, badid) = ctx.pmLookupName("A_BAD_METRIC")
         self.assertTrue(False)
-    except pmErr, e:
-        print "pmLookupName:", e
+    except pmapi.pmErr, error:
+        print "pmLookupName:", error
         self.assertTrue(True)
-    metrics = ("kernel.all.load", "kernel.percpu.cpu.user", "kernel.percpu.cpu.sys", "mem.freemem")
-    (code, self.metric_ids) = pm.pmLookupName(metrics)
+    metrics = ("kernel.all.load", "sample.bin",
+               "kernel.percpu.cpu.sys", "mem.freemem")
+    (code, self.metric_ids) = ctx.pmLookupName(metrics)
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
     for i in xrange(len(metrics)):
         # pmNameAll
-        x = pm.pmNameAll(self.metric_ids[i])
-        print "pmNameAll:", x[0]
-        self.assertTrue(x[0] == metrics[i])
+        nameall = ctx.pmNameAll(self.metric_ids[i])
+        print "pmNameAll:", nameall[0]
+        self.assertTrue(nameall[0] == metrics[i])
 
         # pmNameID
-        y = pm.pmNameID(self.metric_ids[i])
-        print "pmNameID:",y 
-        self.assertTrue(y == metrics[i])
+        name = ctx.pmNameID(self.metric_ids[i])
+        print "pmNameID:", name
+        self.assertTrue(name == metrics[i])
 
         # pmLookupDesc
-        (code, descs) = pm.pmLookupDesc(self.metric_ids[i])
+        (code, descs) = ctx.pmLookupDesc(self.metric_ids[i])
         dump_array_ptrs("pmLookupDesc", descs)
         self.assertTrue(len(descs) == 1)
 
-    (code, descs) = pm.pmLookupDesc(self.metric_ids)
+    (code, descs) = ctx.pmLookupDesc(self.metric_ids)
     if self.local_type:
-        # pmGetInDom
-        (inst, name) = pm.pmGetInDom(descs[1])
+        # pmGetInDom - sample.bin
+        (inst, name) = ctx.pmGetInDom(descs[1])
         print "pmGetInDom:", name
-        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
+        self.assertTrue(len(inst) == 9 and len(name) == 9)
     else:
-        # pmGetInDomArchive
-        (inst, name) = pm.pmGetInDomArchive(descs[1])
+        # pmGetInDomArchive - sample.bin
+        (inst, name) = ctx.pmGetInDomArchive(descs[1])
         print "pmGetInDomArchive:", name
-        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
+        self.assertTrue(len(inst) == 9 and len(name) == 9)
 
     # pmInDomStr
-    x = pm.pmInDomStr(descs[0])
-    print "pmInDomStr:", x
-    self.assertTrue(x.count(".") >= 1)
+    indomstr = ctx.pmInDomStr(descs[0])
+    print "pmInDomStr:", indomstr
+    self.assertTrue(indomstr.count(".") >= 1)
 
     # pmDelProfile
-    code = pm.pmDelProfile(descs[0], None);
+    code = ctx.pmDelProfile(descs[0], None)
     print "pmDelProfile:"
     self.assertTrue(code >= 0)
 
     if self.local_type:
         # pmLookupInDom
-        inst1 = pm.pmLookupInDom(descs[0], "1 minute")
+        inst1 = ctx.pmLookupInDom(descs[0], "1 minute")
         print "pmLookupInDom:", inst1
     else:
         # pmLookupInDomArchive
-        inst1 = pm.pmLookupInDomArchive(descs[0], "1 minute")
+        inst1 = ctx.pmLookupInDomArchive(descs[0], "1 minute")
         print "pmLookupInDomArchive:", inst1
     self.assertTrue(inst1 >= 0)
         
     if self.local_type:
         # pmNameInDom
-        instname = pm.pmNameInDom(descs[0], inst1)
+        instname = ctx.pmNameInDom(descs[0], inst1)
         print "pmNameInDom:", instname
     else:
         # pmNameInDomArchive
-        instname = pm.pmNameInDomArchive(descs[0], inst1)
+        instname = ctx.pmNameInDomArchive(descs[0], inst1)
         print "pmNameInDomArchive:", instname
     self.assertTrue(instname == "1 minute")
         
-    text = 0
     try:
         # pmLookupInDomText
-        text = pm.pmLookupInDomText(descs[0])
+        ctx.pmLookupInDomText(descs[0])
         self.assertTrue(False)
-    except pmErr, e:
-        print "pmLookupInDomText:", e
+    except pmapi.pmErr, error:
+        print "pmLookupInDomText:", error
         self.assertTrue(True)
         
     # pmAddProfile
-    code = pm.pmAddProfile(descs[0], inst1);
+    code = ctx.pmAddProfile(descs[0], inst1)
     self.assertTrue(code >= 0)
 
     inst = 0
     try:
         # pmLookupInDom
-        inst = pm.pmLookupInDom(descs[0], "gg minute")
+        inst = ctx.pmLookupInDom(descs[0], "gg minute")
         self.assertTrue(False)
-    except pmErr, e:
-        print "pmLookupInDom:", e
+    except pmapi.pmErr, error:
+        print "pmLookupInDom:", error
         self.assertTrue(True)
         
     if self.local_type:
         # pmLookupInDom
-        inst5 = pm.pmLookupInDom(descs[0], "5 minute")
-        inst15 = pm.pmLookupInDom(descs[0], "15 minute")
+        inst5 = ctx.pmLookupInDom(descs[0], "5 minute")
+        inst15 = ctx.pmLookupInDom(descs[0], "15 minute")
         print "pmLookupInDom:", inst5, inst15
     else:
         # pmLookupInDomArchive
-        inst5 = pm.pmLookupInDomArchive(descs[0], "5 minute")
-        inst15 = pm.pmLookupInDomArchive(descs[0], "15 minute")
+        inst5 = ctx.pmLookupInDomArchive(descs[0], "5 minute")
+        inst15 = ctx.pmLookupInDomArchive(descs[0], "15 minute")
         print "pmLookupInDomArchive:", inst5, inst15
     self.assertTrue(inst15 >= 0)
         
     # pmAddProfile
-    code = pm.pmAddProfile(descs[0], inst15);
+    code = ctx.pmAddProfile(descs[0], inst15)
     print "pmAddProfile:"
     self.assertTrue(code >= 0)
 
     # pmParseInterval
-    (code, delta, errmsg) = pm.pmParseInterval("3 seconds")
+    (code, delta, errmsg) = ctx.pmParseInterval("3 seconds")
     print "pmParseInterval:", delta
     self.assertTrue(code >= 0)
 
     try:
-        # pmLoadNameSpace
-        # TODO Test a real use, pmUnLoadNameSpace
-        inst = pm.pmLoadNameSpace("NoSuchFile")
+        inst = ctx.pmLoadNameSpace("NoSuchFile")
         self.assertTrue(False)
-    except pmErr, e:
-        print "pmLoadNameSpace:", e
+    except pmapi.pmErr, error:
+        print "pmLoadNameSpace:", error
         self.assertTrue(True)
 
     # pmFetch
-    (code, results) = pm.pmFetch(self.metric_ids)
+    (code, results) = ctx.pmFetch(self.metric_ids)
     print "pmFetch:", results
     self.assertTrue(code >= 0)
 
     # pmSortInstances
-    pm.pmSortInstances(results)
+    ctx.pmSortInstances(results)
     print "pmSortInstances:", code
-    self.assertTrue(True)	# pmSortInstances returns void
 
     # pmStore
     try:
-        code = pm.pmStore(results)
+        code = ctx.pmStore(results)
         self.assertTrue(False)
-    except pmErr, e:
-        print "pmStore: ", e
+    except pmapi.pmErr, error:
+        print "pmStore: ", error
         self.assertTrue(True)
 
-    for cpu in xrange(ncpu):
-        for i in xrange(results.contents.numpmid):
-            #  kernel.percpu.cpu.user ?
-            if (results.contents.get_pmid(i) != self.metric_ids[1]):
-                continue
-            (code, atom) = pm.pmExtractValue(results.contents.get_valfmt(i),
-                                             results.contents.get_vlist(i, cpu),
-                                             descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
-            print "pmExtractValue", cpu, atom.f
-            self.assertTrue(atom.f > 0)
+    for i in xrange(results.contents.numpmid):
+        if (results.contents.get_pmid(i) != self.metric_ids[1]):
+            continue
+        for val in xrange(9):
+            # sample.bin - each instance in turn
+            (code, atom) = ctx.pmExtractValue(results.contents.get_valfmt(i),
+                                             results.contents.get_vlist(i, val),
+                                             descs[i].contents.type,
+                                             api.PM_TYPE_FLOAT)
+            print "pmExtractValue", val, atom.f
+            self.assertTrue(99*(val+1) <= atom.f and atom.f <= 101*(val+1))
 
     # pmExtractValue 
     for i in xrange(results.contents.numpmid):
-        # mem.freemem ?
         if (results.contents.get_pmid(i) != self.metric_ids[3]):
             continue
-        (code, tmpatom) = pm.pmExtractValue(results.contents.get_valfmt(i),
+        # mem.freemem
+        (code, tmpatom) = ctx.pmExtractValue(results.contents.get_valfmt(i),
                                             results.contents.get_vlist(i, 0),
-                                            descs[i].contents.type, pmapi.PM_TYPE_FLOAT)
+                                            descs[i].contents.type,
+                                            api.PM_TYPE_FLOAT)
         self.assertTrue(tmpatom.f > 0)
 
     # pmConvScale
-    (code, atom) = pm.pmConvScale(pmapi.PM_TYPE_FLOAT, tmpatom, descs, 3, pmapi.PM_SPACE_MBYTE)
+    (code, atom) = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
+                                  api.PM_SPACE_MBYTE)
     print "pmConvScale", tmpatom.f, atom.f
     self.assertTrue(atom.f > 0)
 
     # pmAtomStr
-    x = pm.pmAtomStr (atom, pmapi.PM_TYPE_FLOAT)
-    print "pmAtomStr", x
+    atomstr = ctx.pmAtomStr(atom, api.PM_TYPE_FLOAT)
+    print "pmAtomStr", atomstr
 
-    # pmFreeResult
-    pm.pmFreeResult(results)
-    print "pmFreeResult"
-
-    code = pm.pmtimevalSleep(delta);
+    # pmtimevalSleep
+    ctx.pmtimevalSleep(delta);
     print "pmtimevalSleep"
 
     # pmDupContext
-    context = pm.pmDupContext()
+    context = ctx.pmDupContext()
     print "pmDupContext", context
     self.assertTrue(context >= 0)
 
-
     # pmWhichContext
-    code = pm.pmWhichContext ()
+    code = ctx.pmWhichContext()
     print "pmWhichContext", code
     self.assertTrue(code >= 0)
 
     # pmTypeStr
-    x = pm.pmTypeStr (pmapi.PM_TYPE_FLOAT)
-    print "pmTypeStr", x
-    self.assertTrue (x  == "FLOAT")
+    typestr = ctx.pmTypeStr(api.PM_TYPE_FLOAT)
+    print "pmTypeStr", typestr
+    self.assertTrue(typestr == "FLOAT")
 
     if self.archive_type:
         # pmSetMode
-        code = pm.pmSetMode (pmapi.PM_MODE_INTERP, results.contents.timestamp, 0)
+        code = ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
         print "pmSetMode", code
         self.assertTrue(code >= 0)
 
         # pmGetArchiveLabel
-        (code, loglabel) = pm.pmGetArchiveLabel()
+        (code, loglabel) = ctx.pmGetArchiveLabel()
         print "pmGetArchiveLabel", code
         self.assertTrue (code >= 0 and loglabel.pid_t > 0)
 
-    # pmPrintValue XXX
+    # pmPrintValue
     print "pmPrintValue: "
-    pm.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
+    ctx.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
     print
 
     # pmReconnectContext
-    code = pm.pmReconnectContext ()
+    code = ctx.pmReconnectContext()
     print "pmReconnectContext", code
     self.assertTrue(code >= 0)
 
-    del pm
+    # pmFreeResult
+    ctx.pmFreeResult(results)
+    print "pmFreeResult"
+
+    del ctx
 
 class TestSequenceFunctions(unittest.TestCase):
 
@@ -357,28 +358,16 @@ class TestSequenceFunctions(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    HAVE_BITFIELDS_LTOR = False
     if (len(sys.argv) == 2):
         open(sys.argv[1] + '.index', mode='r')
-        archive = sys.argv[1]
+        ARCHIVE = sys.argv[1]
     elif (len(sys.argv) > 2):
         print "Usage: " + sys.argv[0] + " OptionalArchivePath"
         sys.exit()
     else:
-        archive = ""
+        ARCHIVE = ""
         
     sys.argv[1:] = ()
 
-    unittest.main()
-    sys.exit(main())
-
-""" Not tested
-pmNewContextZone
-pmNewZone
-pmUseZone
-pmWhichZone
-pmGetConfig
-pmFetchArchive
-pmGetArchiveEnd
-pmSetMode
-"""
+    STS = unittest.main()
+    sys.exit(STS)

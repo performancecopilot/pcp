@@ -20,27 +20,26 @@ echo "QA output created by $seq"
 # rare
 #
 eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+[ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
+[ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
-if [ -z "$other1" ]
-then
-    echo "Cannot find first remote host running pmcd" >$seq.notrun
-    status=1
-    exit
-fi
-
-if [ -z "$other2" ]
-then
-    echo "Cannot find second remote host running pmcd" >$seq.notrun
-    status=1
-    exit
-fi
+ipv6=false
+pmcdx=false
+eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
+test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    ln $seq.out.2 $seq.out
+if [ $PCP_VER -ge 3700 ]; then
+    if $ipv6 ; then
+        ln $seq.out.4 $seq.out || exit 1
+    else
+        ln $seq.out.3 $seq.out || exit 1
+    fi
+elif $pmcdx ; then
+    ln $seq.out.2 $seq.out || exit 1
 else
-    ln $seq.out.1 $seq.out
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 # real QA test starts here

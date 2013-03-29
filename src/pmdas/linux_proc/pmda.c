@@ -729,7 +729,7 @@ int
 refresh_cgroups(pmdaExt *pmda, __pmnsTree **tree)
 {
     int changed;
-    time_t rightnow;
+    time_t rightnow = 0;
     static time_t previoustime;
     static __pmnsTree *previoustree;
 

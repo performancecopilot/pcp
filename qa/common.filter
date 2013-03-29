@@ -306,6 +306,7 @@ _filter_top_pmns()
 	-e '/^    sybase /d' \
 	-e '/^    sybping /d' \
 	-e '/^    sysother /d' \
+	-e '/^    systemd /d' \
 	-e '/^    systemtap /d' \
 	-e '/^    trace /d' \
 	-e '/^    trivial /d' \

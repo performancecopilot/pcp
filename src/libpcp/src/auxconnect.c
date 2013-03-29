@@ -91,7 +91,7 @@ __pmInitSocket(int fd)
     /* avoid 200 ms delay */
     if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		   (__pmSockLen)sizeof(nodelay)) < 0) {
-	__pmNotifyErr(LOG_ERR, 
+	__pmNotifyErr(LOG_WARNING,
 		      "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
@@ -99,7 +99,7 @@ __pmInitSocket(int fd)
     /* don't linger on close */
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (__pmSockLen)sizeof(nolinger)) < 0) {
-	__pmNotifyErr(LOG_ERR, 
+	__pmNotifyErr(LOG_WARNING,
 		      "__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
@@ -301,8 +301,14 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	/* Attempt to connect */
 	fdFlags = __pmConnectTo(fd, myAddr, pmcd_port);
 	__pmSockAddrFree(myAddr);
-	if (fdFlags < 0)
-	    continue; /* Try the next address */
+	if (fdFlags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address
+	     */
+	    fd = -ECONNREFUSED;
+	    continue;
+	}
 
 	/* FNDELAY and we're in progress - wait on select */
 	struct timeval stv = canwait;
@@ -357,12 +363,12 @@ __pmHostEntFree(__pmHostEnt *hostent)
     free(hostent);
 }
 
-static int
-createSocket(int family)
+int
+__pmCreateSocket(void)
 {
     int sts, fd;
 
-    if ((fd = socket(family, SOCK_STREAM, 0)) < 0)
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	return -neterror();
     if ((sts = __pmInitSocket(fd)) < 0)
         return sts;
@@ -370,22 +376,32 @@ createSocket(int family)
 }
 
 int
-__pmCreateSocket(void)
-{
-    return createSocket(AF_INET);
-}
-
-int
 __pmCreateIPv6Socket(void)
 {
-    int socket = createSocket(AF_INET6);
+    int sts, fd, on = 1;
+    __pmSockLen onlen = sizeof(on);
 
-    if (socket >= 0) {
-	/* Disable IPv4-mapped connections */
-	int one = 1;
-	__pmSetSockOpt(socket, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
+    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
+	return -neterror();
+
+    /*
+     * Disable IPv4-mapped connections
+     * Must explicitly check whether that worked, for ipv6.enabled=false
+     * kernels.  Setting then testing is the most reliable way we've found.
+     */
+    on = 1;
+    __pmSetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on));
+    on = 0;
+    sts = __pmGetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
+    if (sts < 0 || on != 1) {
+	__pmNotifyErr(LOG_ERR, "__pmCreateIPv6Socket: IPV6 is not supported\n");
+	close(fd);
+	return -EOPNOTSUPP;
     }
-    return socket;
+
+    if ((sts = __pmInitSocket(fd)) < 0)
+        return sts;
+    return fd;
 }
 
 void
@@ -670,7 +686,6 @@ __pmSocketReady(int fd, struct timeval *timeout)
     return select(fd+1, &onefd, NULL, NULL, timeout);
 }
 
-/* TODO: Make this interface more like the native getnameinfo. i.e. caller provides buffer and size */
 char *
 __pmGetNameInfo(__pmSockAddr *address)
 {
@@ -704,7 +719,9 @@ __pmGetAddrInfo(const char *hostName)
     if (hostEntry != NULL) {
         memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+#ifdef HAVE_AI_ADDRCONFIG
 	hints.ai_flags = AI_ADDRCONFIG; /* Only return configured address types */
+#endif
 
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	if (sts != 0) {
@@ -718,6 +735,8 @@ __pmGetAddrInfo(const char *hostName)
 	if (addr != NULL) {
 	    hostEntry->name = __pmGetNameInfo(addr);
 	    __pmSockAddrFree(addr);
+	    if (hostEntry->name == NULL)
+		hostEntry->name = strdup(hostName);
 	}
 	else
 	    hostEntry->name = strdup(hostName);

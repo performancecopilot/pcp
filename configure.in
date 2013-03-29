@@ -504,6 +504,7 @@ dnl check if the rpmbuild program is available
 if test -z "$RPMBUILD"; then
     AC_PATH_PROG(RPMBUILD, rpmbuild)
 fi
+test $target_distro = slackware && RPMBUILD=''
 rpmbuild=$RPMBUILD
 AC_SUBST(rpmbuild)
 
@@ -511,11 +512,12 @@ dnl check if the rpm program is available
 if test -z "$RPM"; then
     AC_PATH_PROG(RPM, rpm)
 fi
+test $target_distro = slackware && RPM=''
 rpm=$RPM
 AC_SUBST(rpm)
 
 dnl if rpmbuild exists, use it, otherwise use rpm
-if test -x "$RPMBUILD"
+if test -n "$RPMBUILD" -a -x "$RPMBUILD"
 then
     rpmprog=$RPMBUILD
 else
@@ -1908,8 +1910,8 @@ then
     CFLAGS="$CFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
     CPPFLAGS="$CPPFLAGS $NSS_INC_DIRS $NSPR_INC_DIRS"
 
-    AC_CHECK_HEADERS([nss/nss.h], [nss_inc_dir=/usr/include/nss], [
-	AC_CHECK_HEADERS([nss3/nss.h], [nss_inc_dir=/usr/include/nss3], [
+    AC_CHECK_HEADERS([nss/nss.h], [NSSCFLAGS=-I/usr/include/nss], [
+	AC_CHECK_HEADERS([nss3/nss.h], [NSSCFLAGS=-I/usr/include/nss3], [
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
@@ -1917,8 +1919,10 @@ then
 	    fi
 	])
     ])
-    AC_CHECK_HEADERS([nspr/nspr.h], [nspr_inc_dir=/usr/include/nspr], [
-	AC_CHECK_HEADERS([nspr4/nspr.h], [nspr_inc_dir=/usr/include/nspr4], [
+    AC_SUBST(NSSCFLAGS)
+
+    AC_CHECK_HEADERS([nspr/nspr.h], [NSPRCFLAGS=-I/usr/include/nspr], [
+	AC_CHECK_HEADERS([nspr4/nspr.h], [NSPRCFLAGS=-I/usr/include/nspr4], [
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
@@ -1926,8 +1930,7 @@ then
 	    fi
 	])
     ])
-    AC_SUBST(nspr_inc_dir)
-    AC_SUBST(nss_inc_dir)
+    AC_SUBST(NSPRCFLAGS)
 
     AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
 	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [
@@ -2056,6 +2059,16 @@ AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
 
+dnl Check if we have AI_ADDRCONFIG
+AC_MSG_CHECKING([for AI_ADDRCONFIG])
+AC_TRY_COMPILE(
+[  
+    #include <netdb.h>
+    int test = AI_ADDRCONFIG;
+],
+[
+], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
 dnl Do you have git installed?
 AC_CHECK_PROGS(GIT,git)
 AC_SUBST(GIT)
@@ -2074,8 +2087,10 @@ dnl   PCP paths and other defs
     src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
-dnl   preamble for Debian preinst script
+dnl   preamble for deb install scripts
     debian/pcp.preinst.head
-dnl   preamble for tar preinstall script
+    debian/pcp.postinst.head
+dnl   preamble for tar install scripts
     build/tar/preinstall.head
+    build/tar/postinstall.head
 )

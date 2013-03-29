@@ -233,6 +233,9 @@ threads
 # perl bits
 perl
 
+# python modules and client tools
+python
+
 # fault injection (in libpcp)
 fault
 
@@ -829,15 +832,20 @@ pmlogrewrite
 653 libpcp local oss
 654 pmda.gfs2 local oss
 703 pcpweb local oss
+705 libpcp local oss
 706 libpcp local oss
-707 pcp.py libpcp local oss
-708 pcp.py pmimport local oss
-709 pcp.py local oss
-710 pcp.py pmimport local oss
+707 python libpcp local oss
+708 python pmimport local oss
+709 python local oss
+710 python pmimport local oss
 711 pmimport pmdumplog pmlogsummary perl local oss
 712 context libpcp pmcd local oss
 713 context libpcp pmproxy local oss
 714 context libpcp pmcd local oss
+715 pmda.simple perl oss
+716 dbpmda pmda.simple perl oss
+717 pmda.simple python oss
+718 dbpmda pmda.simple python oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

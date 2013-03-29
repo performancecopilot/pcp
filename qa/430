@@ -78,6 +78,12 @@ _setup()
     chmod ugo+w $logdir $logdir2
 }
 
+# This relies on 127.0.0.x being an alias for 127.0.0.1
+# Also, place our real hostname entry first, then the
+# 127.0.0.x alias so that the reverse hostname lookup in
+# pmlogger gets the same hostname for the portmap files
+# as the -h from the command line
+#
 _update_hostsfile()
 {
     extra_hostname=$1
@@ -89,38 +95,45 @@ _update_hostsfile()
 
     # update /etc/hosts
     # add an entry for extra_hostname
-    $PCP_AWK_PROG <$hostsfile >$tmp.etc.hosts \
-	-v realhost=$realhost -v extra_hostname=$extra_hostname '
-/^#/			{ print; next }
-$2 == realhost && gotit == 0 {  
-			   print
-			   printf("%s\t%s\n", $1, extra_hostname)
-			   gotit = 1
-			   next
-			}
-			{ print }'
+    rm -f $tmp.etc.hosts
+    for i in 2 3 4 5 6 7 8 9
+    do
+	if grep "^127.0.0.$i" $hostsfile >/dev/null
+	then
+	    :
+	else
+	    echo "# Hacked for QA/$seq" >$tmp.etc.hosts
+	    echo "#" >>$tmp.etc.hosts
+	    egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >$tmp.tmp
+	    if [ `wc -l <$tmp.tmp | sed -e 's/  *//g'` -ne 1 ]
+	    then
+		echo "Updating $hostsfile failed: no single $realhost entry: (see $seq.full):"
+		echo "=== $hostsfile ===" >>$here/$seq.full
+		cat $hostsfile >>$here/$seq.full
+		echo "grep $realhost ..." >>$here/$seq.full
+		cat $tmp.tmp >>$here/$seq.full
+		exit
+	    fi
+	    cat $tmp.tmp >>$tmp.etc.hosts
+	    echo "127.0.0.$i	$extra_hostname" >>$tmp.etc.hosts
+	    echo "" >>$tmp.etc.hosts
+	    egrep -v '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >>$tmp.etc.hosts
+	    break
+	fi
+    done
 
     # extra check
-    # we only want to add one line
-    diff $tmp.etc.hosts $hostsfile > $tmp.diff
-    len=`wc -l $tmp.diff | $PCP_AWK_PROG '{print $1}' `
-    if [ $len -ne 2 ]
+    # we expect to make a change!
+    if [ -s $tmp.etc.hosts ]
     then
-	echo "Updating $hostsfile failed: diff is not what was expected: (see $seq.full):"
-	echo "-- diffs --"
-	cat $tmp.diff
-	echo "-----------"
-	ls -l $tmp.etc.hosts $hostsfile >>$here/$seq.full
-	sum $tmp.etc.hosts $hostsfile >>$here/$seq.full
-	echo "=== $tmp.etc.hosts ===" >>$here/$seq.full
-	cat $tmp.etc.hosts >>$here/$seq.full
+	# create new hosts file
+	$sudo cp $tmp.etc.hosts $hostsfile
+    else
+	echo "Updating $hostsfile failed: no 127.0.0.x available: (see $seq.full):"
 	echo "=== $hostsfile ===" >>$here/$seq.full
 	cat $hostsfile >>$here/$seq.full
-	exit 1
+	exit
     fi
-
-    # create new hosts file
-    $sudo cp $tmp.etc.hosts $hostsfile
 }
 
 _extract_control()
@@ -228,23 +241,66 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 | tee -a $here/$seq.full | _filter
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 \
+    | tee -a $here/$seq.full \
+    | _filter
 done
 
-echo
-echo "Restart tests while other pmloggers are running ..."
+echo | tee -a $here/$seq.full
+echo "Restart tests while other pmloggers are running ..." | tee -a $here/$seq.full
 
 # now for the 5. case, terminate the pmloggers one at a time and
 # check the pmlogger_check restarts the right one
 #
 for log in $logdir.1 $logdir.2 $logdir.3 $logdir.4 $logdir.5 $logdir.6
 do
-    echo
-    echo "Kill off one pmlogger ..."
+    echo | tee -a $here/$seq.full
+    echo "Kill off one pmlogger ..." | tee -a $here/$seq.full
     pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+    try=1
+    num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
+    while [ $try -lt 10 -a $num_pid -ne 1 ]
+    do
+	echo "try $try num_pid=$num_pid: `echo $pid`" >>$here/$seq.full
+	sleep 1
+	pid=`grep -l $log $PCP_TMP_DIR/pmlogger/[0-9]* | sed -e 's/.*pmlogger.//'`
+	num_pid=`echo "$pid" | wc -w | sed -e 's/ *//g'`
+	try=`expr $try + 1`
+    done
+    if [ $num_pid -ne 1 ]
+    then
+	echo "Arrgh ... failed to find just one pmlogger to kill ... see $seq.full"
+	echo "" >>$here/$seq.full
+	echo "Arrgh ... failed to find just one pmlogger to kill ..." >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|[p]mlogger' >>$here/$seq.full
+	echo "$log contents ..." >>$here/$seq.full
+	ls -l $log >>$here/$seq.full
+	for ctl in $PCP_TMP_DIR/pmlogger/[0-9]*
+	do
+	    echo "+++ $ctl +++" >>$here/$seq.full
+	    cat $ctl >>$here/$seq.full
+	done
+	echo "+ grep -l $log"' $PCP_TMP_DIR/pmlogger/[0-9]*' >>$here/$seq.full
+	grep $log $PCP_TMP_DIR/pmlogger/[0-9]* >>$here/$seq.full
+	exit
+    fi
+    echo "Victim pid=$pid" >>$here/$seq.full
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | $PCP_AWK_PROG >>$here/$seq.full '
+NR == 1	{ print
+	  if ($2 != "PID") {
+	    print "PID not in field 2 of ps output!"
+	    exit(1)
+	  }
+	  next
+	}
+$2 == '"$pid"' { print; exit(0) }'
+    echo "+++ $PCP_TMP_DIR/pmlogger/$pid +++" >>$here/$seq.full
+    cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
-    echo "Check ..."
+    echo "Check ..." | tee -a $here/$seq.full
     $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
+    | tee -a $here/$seq.full \
     | sed -e '/^... try /d' \
     | _filter
 

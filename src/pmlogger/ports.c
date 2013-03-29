@@ -184,6 +184,7 @@ GetPort(char *file)
     int			sts;
     __pmSockAddr	*myAddr;
     __pmHostEnt		*host;
+    char		*hostname;
     static int		port_base = -1;
 
     fd = __pmCreateSocket();
@@ -259,14 +260,17 @@ GetPort(char *file)
 
     /* then the PMCD host */
     if ((host = __pmGetAddrInfo(pmcd_host)) != NULL) {
-        char *hostName = __pmHostEntGetName(host);
-	if (hostName != NULL) {
-	    fprintf(mapstream, "%s", hostName);
-	    free(hostName);
-	}
+        hostname = __pmHostEntGetName(host);
+	if (hostname != NULL) {
+	    fprintf(mapstream, "%s\n", hostname);
+	    free(hostname);
+	} else {
+	    fprintf(mapstream, "%s\n", pmcd_host);
+        }
 	__pmHostEntFree(host);
+    } else {
+	fprintf(mapstream, "%s\n", pmcd_host);
     }
-    fprintf(mapstream, "\n");
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);

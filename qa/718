@@ -1,0 +1,50 @@
+#! /bin/sh
+# PCP QA Test No. 718
+# Exercise dbpmda use with the Python implementation of pmdasimple.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+    | _filter_dumpresult
+}
+
+domain=253
+# ensure help text exists
+cd "$PCP_PMDAS_DIR/simple"
+$sudo ./Install </dev/null >/dev/null 2>&1
+
+# real QA test starts here
+$sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python pmdasimple.py
+getdesc on
+desc simple.numfetch
+fetch simple.numfetch
+text simple.numfetch
+desc simple.color
+fetch simple.color
+text simple.color
+desc simple.now
+fetch simple.now
+text simple.now
+instance $domain.0
+text indom $domain.1
+End-of-File
+
+exit 0

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Red Hat.
+ * Copyright (C) 2012-2013 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -16,365 +16,256 @@
  * for more details.
  */
 
-/****************************************************************************\
-**                                                                          **
-** This C extension module mainly serves the purpose of loading constants   **
-** from <pcp/pmapi.h> into the module dictionary. The PMAPI functions and   **
-** data structures are wrapped in pcp.py, using ctypes.                     **
-**                                                                          **
-** The following constants and macros have not been wrapped.                **
-**    - PM_XTB_FLAG                                                         **
-**    - PM_XTB_SET()                                                        **
-**    - PM_XTB_GET()                                                        **
-**                                                                          **
-\****************************************************************************/
+/**************************************************************************\
+**                                                                        **
+** This C extension module mainly serves the purpose of loading constants **
+** from PCP headers into the module dictionary.  The PMAPI functions and  **
+** data structures are wrapped in pmapi.py and friends, using ctypes.     **
+**                                                                        **
+\**************************************************************************/
 
 #include <Python.h>
 #include <pcp/pmapi.h>
-#include <pcp/pmafm.h>
-#include <pcp/import.h>
 
-typedef union {
-    int i;
-    unsigned int u;
-    void *v; /* for values passed in as NULL */
-} intu;
-
-#define INT_T 0
-#define UNS_T 1
-
-void dict_add( PyObject *dict, char *sym, intu val, int type, PyObject *revD )
+static void
+dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 {
-    PyObject *pySym=NULL, *pyVal=NULL;
+    PyObject *pyvalue = PyLong_FromUnsignedLong(value);
+    PyDict_SetItemString(dict, symbol, pyvalue);
+    Py_XDECREF(pyvalue);
+}
 
-    if( type == INT_T ) {
-        pyVal = PyInt_FromLong( (long) val.i );
-    }
+static void
+dict_add(PyObject *dict, char *symbol, long value)
+{
+    PyObject *pyvalue = PyInt_FromLong(value);
+    PyDict_SetItemString(dict, symbol, pyvalue);
+    Py_XDECREF(pyvalue);
+}
 
-    if( type == UNS_T ) {
-        pyVal = PyLong_FromUnsignedLong( (unsigned long) val.u );
-    }
+static void
+edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
+{
+    PyObject *pyvalue = PyInt_FromLong(value);
+    PyObject *pysymbol = PyString_FromString(symbol);
 
-    if( ! pyVal ) {
-        /* need some manner of appropriate error handling */
-        PyErr_Clear();
-    }
+    PyDict_SetItemString(dict, symbol, pyvalue);
+    PyDict_SetItem(edict, pyvalue, pysymbol);
+    Py_XDECREF(pysymbol);
+    Py_XDECREF(pyvalue);
+}
 
-    if( ! PyDict_SetItemString( dict, sym, pyVal ) ) {
-        /* need some manner of appropriate error handling */
-        PyErr_Clear();
-    }
+static PyObject *
+setExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int type;
+    char *keyword_list[] = {"type", NULL};
 
-    if( revD ) {
-        pySym = PyString_FromString( sym );
-        if( ! pySym ) {
-            /* need some manner of appropriate error handling */
-            PyErr_Clear();
-        }
-        if( ! PyDict_SetItem( revD, pyVal, pySym ) ) {
-            /* need some manner of appropriate error handling */
-            PyErr_Clear();
-        }
-    }
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "i:PM_XTB_SET", keyword_list, &type))
+        return NULL;
+    return Py_BuildValue("i", PM_XTB_SET(type));
+}
 
-    if( pySym ) {
-        Py_XDECREF(pySym);
-    }
-    if( pyVal ) {
-        Py_XDECREF(pyVal);
-    }
-} 
+static PyObject *
+getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int mode;
+    char *keyword_list[] = {"mode", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "i:PM_XTB_GET", keyword_list, &mode))
+        return NULL;
+    return Py_BuildValue("i", PM_XTB_GET(mode));
+}
+
+static PyObject *
+timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    struct timeval *ctvp;
+    char *keyword_list[] = {"timeval", NULL};
+    extern void __pmtimevalSleep(struct timeval);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:pmtimevalSleep", keyword_list, &ctvp))
+        return NULL;
+    __pmtimevalSleep(*ctvp);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyMethodDef methods[] = {
-    {NULL, NULL}
+    { .ml_name = "PM_XTB_SET", .ml_meth = (PyCFunction)setExtendedTimeBase,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "PM_XTB_GET", .ml_meth = (PyCFunction)getExtendedTimeBase,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmtimevalSleep", .ml_meth = (PyCFunction)timevalSleep,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { NULL }
 };
 
-/* This function is called when the module is initialized. */ 
-
+/* called when the module is initialized. */
 void
-initpmapi(void)
+initcpmapi(void)
 {
-    PyObject *module, *dict;
-    PyObject *pmiErrSymD, *pmErrSymD;
+    PyObject *module, *dict, *edict;
 
-    module = Py_InitModule( "pmapi", methods );
+    module = Py_InitModule("cpmapi", methods);
+    dict = PyModule_GetDict(module);
+    edict = PyDict_New();
+    Py_INCREF(edict);
+    PyModule_AddObject(module, "pmErrSymDict", edict);
 
-    pmErrSymD = PyDict_New();
-    Py_INCREF( pmErrSymD ); 
-    PyModule_AddObject( module, "pmErrSymD", pmErrSymD ); 
+    dict_add(dict, "PMAPI_VERSION_2", PMAPI_VERSION_2);
+    dict_add(dict, "PMAPI_VERSION", PMAPI_VERSION);
 
-    pmiErrSymD = PyDict_New();
-    Py_INCREF( pmiErrSymD ); 
-    PyModule_AddObject( module, "pmiErrSymD", pmiErrSymD ); 
+    dict_add_unsigned(dict, "PM_ID_NULL", PM_ID_NULL);
+    dict_add_unsigned(dict, "PM_INDOM_NULL", PM_INDOM_NULL);
+    dict_add_unsigned(dict, "PM_IN_NULL", PM_IN_NULL);
 
-    dict = PyModule_GetDict( module );
-
-    dict_add( dict, "PMAPI_VERSION_2",
-              (intu) PMAPI_VERSION_2, INT_T, NULL );
-    dict_add( dict, "PMAPI_VERSION",
-              (intu) PMAPI_VERSION,   INT_T, NULL );
-
-    dict_add( dict, "PM_ID_NULL",
-              (intu) PM_ID_NULL,    UNS_T, NULL );
-    dict_add( dict, "PM_INDOM_NULL",
-              (intu) PM_INDOM_NULL, UNS_T, NULL );
-    dict_add( dict, "PM_IN_NULL",
-              (intu) PM_IN_NULL,    INT_T, NULL );
-
-    dict_add( dict, "PM_NS_DEFAULT",
-                     (intu) PM_NS_DEFAULT, UNS_T, NULL );
+    dict_add_unsigned(dict, "PM_NS_DEFAULT", 0);
 
 #ifdef HAVE_BITFIELDS_LTOR
-    dict_add( dict, "HAVE_BITFIELDS_LTOR",
-              (intu) HAVE_BITFIELDS_LTOR, INT_T, NULL );
-    dict_add( dict, "HAVE_BITFIELDS_RTOL", (intu) 0, INT_T, NULL );
+    dict_add(dict, "HAVE_BITFIELDS_LTOR", 1);
+    dict_add(dict, "HAVE_BITFIELDS_RTOL", 0);
 #else
-    dict_add( dict, "HAVE_BITFIELDS_LTOR", (intu) 0, INT_T, NULL );
-    dict_add( dict, "HAVE_BITFIELDS_RTOL", (intu) 1, INT_T, NULL );
+    dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
+    dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
 
-    /* pmUnits.scaleSpace */
-    dict_add( dict, "PM_SPACE_BYTE",  (intu) PM_SPACE_BYTE,  INT_T, NULL );
-    dict_add( dict, "PM_SPACE_KBYTE", (intu) PM_SPACE_KBYTE, INT_T, NULL );
-    dict_add( dict, "PM_SPACE_MBYTE", (intu) PM_SPACE_MBYTE, INT_T, NULL );
-    dict_add( dict, "PM_SPACE_GBYTE", (intu) PM_SPACE_GBYTE, INT_T, NULL );
-    dict_add( dict, "PM_SPACE_TBYTE", (intu) PM_SPACE_TBYTE, INT_T, NULL );
-    dict_add( dict, "PM_SPACE_PBYTE", (intu) PM_SPACE_PBYTE, INT_T, NULL );
-    dict_add( dict, "PM_SPACE_EBYTE", (intu) PM_SPACE_EBYTE, INT_T, NULL );
-    /* pmUnits.scaleTime */
-    dict_add( dict, "PM_TIME_NSEC", (intu) PM_TIME_NSEC, INT_T, NULL );
-    dict_add( dict, "PM_TIME_USEC", (intu) PM_TIME_USEC, INT_T, NULL );
-    dict_add( dict, "PM_TIME_MSEC", (intu) PM_TIME_MSEC, INT_T, NULL );
-    dict_add( dict, "PM_TIME_SEC",  (intu) PM_TIME_SEC,  INT_T, NULL );
-    dict_add( dict, "PM_TIME_MIN",  (intu) PM_TIME_MIN,  INT_T, NULL );
-    dict_add( dict, "PM_TIME_HOUR", (intu) PM_TIME_HOUR, INT_T, NULL );
-    /* pmUnits.countXXX */
-    dict_add( dict, "PM_COUNT_ONE", (intu) PM_COUNT_ONE, INT_T, NULL );
+    dict_add(dict, "PM_SPACE_BYTE", PM_SPACE_BYTE);
+    dict_add(dict, "PM_SPACE_KBYTE", PM_SPACE_KBYTE);
+    dict_add(dict, "PM_SPACE_MBYTE", PM_SPACE_MBYTE);
+    dict_add(dict, "PM_SPACE_GBYTE", PM_SPACE_GBYTE);
+    dict_add(dict, "PM_SPACE_TBYTE", PM_SPACE_TBYTE);
+    dict_add(dict, "PM_SPACE_PBYTE", PM_SPACE_PBYTE);
+    dict_add(dict, "PM_SPACE_EBYTE", PM_SPACE_EBYTE);
 
-    /* pmDesc.type */
-    dict_add( dict, "PM_TYPE_NOSUPPORT",
-              (intu) PM_TYPE_NOSUPPORT, INT_T, NULL );
-    dict_add( dict, "PM_TYPE_32",     (intu) PM_TYPE_32,     INT_T, NULL );
-    dict_add( dict, "PM_TYPE_U32",    (intu) PM_TYPE_U32,    INT_T, NULL );
-    dict_add( dict, "PM_TYPE_64",     (intu) PM_TYPE_64,     INT_T, NULL );
-    dict_add( dict, "PM_TYPE_U64",    (intu) PM_TYPE_U64,    INT_T, NULL );
-    dict_add( dict, "PM_TYPE_FLOAT",  (intu) PM_TYPE_FLOAT,  INT_T, NULL );
-    dict_add( dict, "PM_TYPE_DOUBLE", (intu) PM_TYPE_DOUBLE, INT_T, NULL );
-    dict_add( dict, "PM_TYPE_STRING", (intu) PM_TYPE_STRING, INT_T, NULL );
-    dict_add( dict, "PM_TYPE_AGGREGATE",
-              (intu) PM_TYPE_AGGREGATE,        INT_T, NULL );
-    dict_add( dict, "PM_TYPE_AGGREGATE_STATIC",
-              (intu) PM_TYPE_AGGREGATE_STATIC, INT_T, NULL );
-    dict_add( dict, "PM_TYPE_EVENT",  (intu) PM_TYPE_EVENT, INT_T, NULL );
-    dict_add( dict, "PM_TYPE_UNKNOWN",
-              (intu) PM_TYPE_UNKNOWN,          INT_T, NULL );
+    dict_add(dict, "PM_TIME_NSEC", PM_TIME_NSEC);
+    dict_add(dict, "PM_TIME_USEC", PM_TIME_USEC);
+    dict_add(dict, "PM_TIME_MSEC", PM_TIME_MSEC);
+    dict_add(dict, "PM_TIME_SEC", PM_TIME_SEC);
+    dict_add(dict, "PM_TIME_MIN", PM_TIME_MIN);
+    dict_add(dict, "PM_TIME_HOUR", PM_TIME_HOUR);
+    dict_add(dict, "PM_COUNT_ONE", PM_COUNT_ONE);
 
-    /* pmDesc.sem */
-    dict_add( dict, "PM_SEM_COUNTER",  (intu) PM_SEM_COUNTER,  INT_T, NULL );
-    dict_add( dict, "PM_SEM_INSTANT",  (intu) PM_SEM_INSTANT,  INT_T, NULL );
-    dict_add( dict, "PM_SEM_DISCRETE", (intu) PM_SEM_DISCRETE, INT_T, NULL );
+    dict_add(dict, "PM_TYPE_NOSUPPORT", PM_TYPE_NOSUPPORT);
+    dict_add(dict, "PM_TYPE_32", PM_TYPE_32);
+    dict_add(dict, "PM_TYPE_U32", PM_TYPE_U32);
+    dict_add(dict, "PM_TYPE_64", PM_TYPE_64);
+    dict_add(dict, "PM_TYPE_U64", PM_TYPE_U64);
+    dict_add(dict, "PM_TYPE_FLOAT", PM_TYPE_FLOAT);
+    dict_add(dict, "PM_TYPE_DOUBLE", PM_TYPE_DOUBLE);
+    dict_add(dict, "PM_TYPE_STRING", PM_TYPE_STRING);
+    dict_add(dict, "PM_TYPE_AGGREGATE", PM_TYPE_AGGREGATE);
+    dict_add(dict, "PM_TYPE_AGGREGATE_STATIC", PM_TYPE_AGGREGATE_STATIC);
+    dict_add(dict, "PM_TYPE_EVENT", PM_TYPE_EVENT);
+    dict_add(dict, "PM_TYPE_UNKNOWN", PM_TYPE_UNKNOWN);
 
+    dict_add(dict, "PM_SEM_COUNTER", PM_SEM_COUNTER);
+    dict_add(dict, "PM_SEM_INSTANT", PM_SEM_INSTANT);
+    dict_add(dict, "PM_SEM_DISCRETE", PM_SEM_DISCRETE);
 
-    dict_add( dict, "PMNS_LOCAL",   (intu) PMNS_LOCAL,   INT_T, NULL );
-    dict_add( dict, "PMNS_REMOTE",  (intu) PMNS_REMOTE,  INT_T, NULL );
-    dict_add( dict, "PMNS_ARCHIVE", (intu) PMNS_ARCHIVE, INT_T, NULL );
+    dict_add(dict, "PMNS_LOCAL", PMNS_LOCAL);
+    dict_add(dict, "PMNS_REMOTE", PMNS_REMOTE);
+    dict_add(dict, "PMNS_ARCHIVE", PMNS_ARCHIVE);
+    dict_add(dict, "PMNS_LEAF_STATUS", PMNS_LEAF_STATUS);
+    dict_add(dict, "PMNS_NONLEAF_STATUS", PMNS_NONLEAF_STATUS);
 
-    dict_add( dict, "PMNS_LEAF_STATUS",
-              (intu) PMNS_LEAF_STATUS,    INT_T, NULL );
-    dict_add( dict, "PMNS_NONLEAF_STATUS",
-              (intu) PMNS_NONLEAF_STATUS, INT_T, NULL );
+    dict_add(dict, "PM_CONTEXT_UNDEF", PM_CONTEXT_UNDEF);
+    dict_add(dict, "PM_CONTEXT_HOST", PM_CONTEXT_HOST);
+    dict_add(dict, "PM_CONTEXT_ARCHIVE", PM_CONTEXT_ARCHIVE);
+    dict_add(dict, "PM_CONTEXT_LOCAL", PM_CONTEXT_LOCAL);
+    dict_add(dict, "PM_CONTEXT_TYPEMASK", PM_CONTEXT_TYPEMASK);
+    dict_add(dict, "PM_CTXFLAG_SECURE", PM_CTXFLAG_SECURE);
+    dict_add(dict, "PM_CTXFLAG_COMPRESS", PM_CTXFLAG_COMPRESS);
+    dict_add(dict, "PM_CTXFLAG_RELAXED", PM_CTXFLAG_RELAXED);
 
-    /* context types and flags */
-    dict_add( dict, "PM_CONTEXT_ARCHIVE",
-              (intu) PM_CONTEXT_ARCHIVE, INT_T, NULL );
-    dict_add( dict, "PM_CONTEXT_LOCAL",
-              (intu) PM_CONTEXT_LOCAL,   INT_T, NULL );
-    dict_add( dict, "PM_CONTEXT_HOST",
-              (intu) PM_CONTEXT_HOST,    INT_T, NULL );
-    dict_add( dict, "PM_CONTEXT_TYPEMASK",
-              (intu) PM_CONTEXT_TYPEMASK,INT_T, NULL );
-    dict_add( dict, "PM_CTXFLAG_SECURE",
-              (intu) PM_CTXFLAG_SECURE,  INT_T, NULL );
+    dict_add(dict, "PM_VAL_HDR_SIZE", PM_VAL_HDR_SIZE);
+    dict_add(dict, "PM_VAL_VLEN_MAX", PM_VAL_VLEN_MAX);
+    dict_add(dict, "PM_VAL_INSITU", PM_VAL_INSITU);
+    dict_add(dict, "PM_VAL_DPTR",   PM_VAL_DPTR);
+    dict_add(dict, "PM_VAL_SPTR",   PM_VAL_SPTR);
 
-    /* event type */
-    dict_add( dict, "PM_EVENT_FLAG_POINT",  (intu) PM_EVENT_FLAG_POINT, INT_T, NULL );
-    dict_add( dict, "PM_EVENT_FLAG_START",  (intu) PM_EVENT_FLAG_START, INT_T, NULL );
-    dict_add( dict, "PM_EVENT_FLAG_END",    (intu) PM_EVENT_FLAG_END,   INT_T, NULL );
-    dict_add( dict, "PM_EVENT_FLAG_ID",     (intu) PM_EVENT_FLAG_ID,    INT_T, NULL );
-    dict_add( dict, "PM_EVENT_FLAG_PARENT", (intu) PM_EVENT_FLAG_PARENT, INT_T, NULL );
-    dict_add( dict, "PM_EVENT_FLAG_MISSED", (intu) PM_EVENT_FLAG_MISSED, INT_T, NULL );
+    dict_add(dict, "PMCD_NO_CHANGE", PMCD_NO_CHANGE);
+    dict_add(dict, "PMCD_ADD_AGENT", PMCD_ADD_AGENT);
+    dict_add(dict, "PMCD_RESTART_AGENT", PMCD_RESTART_AGENT);
+    dict_add(dict, "PMCD_DROP_AGENT", PMCD_DROP_AGENT);
 
+    dict_add(dict, "PM_MAXERRMSGLEN", PM_MAXERRMSGLEN);
+    dict_add(dict, "PM_TZ_MAXLEN",    PM_TZ_MAXLEN);
 
-    dict_add( dict, "PM_VAL_HDR_SIZE", (intu) PM_VAL_HDR_SIZE, INT_T, NULL );
-    dict_add( dict, "PM_VAL_VLEN_MAX", (intu) PM_VAL_VLEN_MAX, INT_T, NULL );
+    dict_add(dict, "PM_LOG_MAXHOSTLEN", PM_LOG_MAXHOSTLEN);
+    dict_add(dict, "PM_LOG_MAGIC",    PM_LOG_MAGIC);
+    dict_add(dict, "PM_LOG_VERS02",   PM_LOG_VERS02);
+    dict_add(dict, "PM_LOG_VOL_TI",   PM_LOG_VOL_TI);
+    dict_add(dict, "PM_LOG_VOL_META", PM_LOG_VOL_META);
 
-    /* values for valfmt in pmValueSet */
-    dict_add( dict, "PM_VAL_INSITU", (intu) PM_VAL_INSITU, INT_T, NULL );
-    dict_add( dict, "PM_VAL_DPTR",   (intu) PM_VAL_DPTR,   INT_T, NULL );
-    dict_add( dict, "PM_VAL_SPTR",   (intu) PM_VAL_SPTR,   INT_T, NULL );
+    dict_add(dict, "PM_MODE_LIVE",   PM_MODE_LIVE);
+    dict_add(dict, "PM_MODE_INTERP", PM_MODE_INTERP);
+    dict_add(dict, "PM_MODE_FORW",   PM_MODE_FORW);
+    dict_add(dict, "PM_MODE_BACK",   PM_MODE_BACK);
 
-    dict_add( dict, "PMCD_NO_CHANGE",
-              (intu) PMCD_NO_CHANGE,     INT_T, NULL );
-    dict_add( dict, "PMCD_ADD_AGENT",
-              (intu) PMCD_ADD_AGENT,     INT_T, NULL );
-    dict_add( dict, "PMCD_RESTART_AGENT",
-              (intu) PMCD_RESTART_AGENT, INT_T, NULL );
-    dict_add( dict, "PMCD_DROP_AGENT",
-              (intu) PMCD_DROP_AGENT,    INT_T, NULL );
+    dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
+    dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 
-    dict_add( dict, "PM_MAXERRMSGLEN", (intu) PM_MAXERRMSGLEN, INT_T, NULL );
+    dict_add(dict, "PM_XTB_FLAG", PM_XTB_FLAG);
 
-    dict_add( dict, "PM_TZ_MAXLEN",    (intu) PM_TZ_MAXLEN, INT_T, NULL );
+    dict_add(dict, "PM_EVENT_FLAG_POINT",  PM_EVENT_FLAG_POINT);
+    dict_add(dict, "PM_EVENT_FLAG_START",  PM_EVENT_FLAG_START);
+    dict_add(dict, "PM_EVENT_FLAG_END",    PM_EVENT_FLAG_END);
+    dict_add(dict, "PM_EVENT_FLAG_ID",     PM_EVENT_FLAG_ID);
+    dict_add(dict, "PM_EVENT_FLAG_PARENT", PM_EVENT_FLAG_PARENT);
+    dict_add(dict, "PM_EVENT_FLAG_MISSED", PM_EVENT_FLAG_MISSED);
 
-    dict_add( dict, "PM_LOG_MAXHOSTLEN",
-              (intu) PM_LOG_MAXHOSTLEN, INT_T, NULL );
-    dict_add( dict, "PM_LOG_MAGIC",    (intu) PM_LOG_MAGIC,    INT_T, NULL );
-    dict_add( dict, "PM_LOG_VERS02",   (intu) PM_LOG_VERS02,   INT_T, NULL );
-    dict_add( dict, "PM_LOG_VOL_TI",   (intu) PM_LOG_VOL_TI,   INT_T, NULL );
-    dict_add( dict, "PM_LOG_VOL_META", (intu) PM_LOG_VOL_META, INT_T, NULL );
-
-    dict_add( dict, "PM_MODE_LIVE",   (intu) PM_MODE_LIVE,   INT_T, NULL );
-    dict_add( dict, "PM_MODE_INTERP", (intu) PM_MODE_INTERP, INT_T, NULL );
-    dict_add( dict, "PM_MODE_FORW",   (intu) PM_MODE_FORW,   INT_T, NULL );
-    dict_add( dict, "PM_MODE_BACK",   (intu) PM_MODE_BACK,   INT_T, NULL );
-
-    dict_add( dict, "PM_TEXT_ONELINE", (intu) PM_TEXT_ONELINE, INT_T, NULL );
-    dict_add( dict, "PM_TEXT_HELP",    (intu) PM_TEXT_HELP,    INT_T, NULL );
-
-    /* pmapi error codes */
-    dict_add( dict, "PM_ERR_GENERIC",
-              (intu) PM_ERR_GENERIC,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMNS",
-              (intu) PM_ERR_PMNS,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOPMNS",
-              (intu) PM_ERR_NOPMNS,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_DUPPMNS",
-              (intu) PM_ERR_DUPPMNS,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TEXT",
-              (intu) PM_ERR_TEXT,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_APPVERSION",
-              (intu) PM_ERR_APPVERSION,   INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_VALUE",
-              (intu) PM_ERR_VALUE,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TIMEOUT",
-              (intu) PM_ERR_TIMEOUT,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NODATA",
-              (intu) PM_ERR_NODATA,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_RESET",
-              (intu) PM_ERR_RESET,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NAME",
-              (intu) PM_ERR_NAME,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMID",
-              (intu) PM_ERR_PMID,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_INDOM",
-              (intu) PM_ERR_INDOM,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_INST",
-              (intu) PM_ERR_INST,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_UNIT",
-              (intu) PM_ERR_UNIT,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_CONV",
-              (intu) PM_ERR_CONV,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TRUNC",
-              (intu) PM_ERR_TRUNC,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_SIGN",
-              (intu) PM_ERR_SIGN,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PROFILE",
-              (intu) PM_ERR_PROFILE,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_IPC",
-              (intu) PM_ERR_IPC,          INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_EOF",
-              (intu) PM_ERR_EOF,          INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOTHOST",
-              (intu) PM_ERR_NOTHOST,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_EOL",
-              (intu) PM_ERR_EOL,          INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_MODE",
-              (intu) PM_ERR_MODE,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_LABEL",
-              (intu) PM_ERR_LABEL,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_LOGREC",
-              (intu) PM_ERR_LOGREC,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOTARCHIVE",
-              (intu) PM_ERR_NOTARCHIVE,   INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_LOGFILE",
-              (intu) PM_ERR_LOGFILE,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOCONTEXT",
-              (intu) PM_ERR_NOCONTEXT,    INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PROFILESPEC",
-              (intu) PM_ERR_PROFILESPEC,  INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMID_LOG",
-              (intu) PM_ERR_PMID_LOG,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_INDOM_LOG",
-              (intu) PM_ERR_INDOM_LOG,    INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_INST_LOG",
-              (intu) PM_ERR_INST_LOG,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOPROFILE",
-              (intu) PM_ERR_NOPROFILE,    INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOAGENT",
-              (intu) PM_ERR_NOAGENT,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PERMISSION",
-              (intu) PM_ERR_PERMISSION,   INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_CONNLIMIT",
-              (intu) PM_ERR_CONNLIMIT,    INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_AGAIN",
-              (intu) PM_ERR_AGAIN,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_ISCONN",
-              (intu) PM_ERR_ISCONN,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NOTCONN",
-              (intu) PM_ERR_NOTCONN,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NEEDPORT",
-              (intu) PM_ERR_NEEDPORT,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NONLEAF",
-              (intu) PM_ERR_NONLEAF,      INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TYPE",
-              (intu) PM_ERR_TYPE,         INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_THREAD",
-              (intu) PM_ERR_THREAD,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TOOSMALL",
-              (intu) PM_ERR_TOOSMALL,     INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_TOOBIG",
-              (intu) PM_ERR_TOOBIG,       INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_FAULT",
-              (intu) PM_ERR_FAULT,        INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMDAREADY",
-              (intu) PM_ERR_PMDAREADY,    INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_PMDANOTREADY",
-              (intu) PM_ERR_PMDANOTREADY, INT_T, pmErrSymD );
-    dict_add( dict, "PM_ERR_NYI",
-              (intu) PM_ERR_NYI,          INT_T, pmErrSymD );
-
-
-    /* pmafm.h */
-    dict_add( dict, "PM_REC_ON", (intu) PM_REC_ON, INT_T, NULL );
-    dict_add( dict, "PM_REC_OFF", (intu) PM_REC_OFF, INT_T, NULL );
-    dict_add( dict, "PM_REC_DETACH", (intu) PM_REC_DETACH, INT_T, NULL );
-    dict_add( dict, "PM_REC_STATUS", (intu) PM_REC_STATUS, INT_T, NULL );
-    dict_add( dict, "PM_REC_SETARG", (intu) PM_REC_SETARG, INT_T, NULL );
-
-
-    /* import.h */
-    dict_add( dict, "PMI_MAXERRMSGLEN", (intu) PMI_MAXERRMSGLEN, INT_T, NULL );
-
-    dict_add( dict, "PMI_ERR_DUPMETRICNAME",
-              (intu) PMI_ERR_DUPMETRICNAME, INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPMETRICID",
-              (intu) PMI_ERR_DUPMETRICID,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPINSTNAME",
-              (intu) PMI_ERR_DUPINSTNAME,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPINSTID",
-              (intu) PMI_ERR_DUPINSTID,     INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_INSTNOTNULL",
-              (intu) PMI_ERR_INSTNOTNULL,   INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_INSTNULL",
-              (intu) PMI_ERR_INSTNULL,      INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADHANDLE",
-              (intu) PMI_ERR_BADHANDLE,     INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_DUPVALUE",
-              (intu) PMI_ERR_DUPVALUE,      INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADTYPE",
-              (intu) PMI_ERR_BADTYPE,       INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_BADSEM",
-              (intu) PMI_ERR_BADSEM,        INT_T, pmiErrSymD );
-    dict_add( dict, "PMI_ERR_NODATA",
-              (intu) PMI_ERR_NODATA,        INT_T, pmiErrSymD );
+    edict_add(dict, edict, "PM_ERR_GENERIC", PM_ERR_GENERIC);
+    edict_add(dict, edict, "PM_ERR_PMNS", PM_ERR_PMNS);
+    edict_add(dict, edict, "PM_ERR_NOPMNS", PM_ERR_NOPMNS);
+    edict_add(dict, edict, "PM_ERR_DUPPMNS", PM_ERR_DUPPMNS);
+    edict_add(dict, edict, "PM_ERR_TEXT", PM_ERR_TEXT);
+    edict_add(dict, edict, "PM_ERR_APPVERSION", PM_ERR_APPVERSION);
+    edict_add(dict, edict, "PM_ERR_VALUE", PM_ERR_VALUE);
+    edict_add(dict, edict, "PM_ERR_TIMEOUT", PM_ERR_TIMEOUT);
+    edict_add(dict, edict, "PM_ERR_NODATA", PM_ERR_NODATA);
+    edict_add(dict, edict, "PM_ERR_RESET", PM_ERR_RESET);
+    edict_add(dict, edict, "PM_ERR_NAME", PM_ERR_NAME);
+    edict_add(dict, edict, "PM_ERR_PMID", PM_ERR_PMID);
+    edict_add(dict, edict, "PM_ERR_INDOM", PM_ERR_INDOM);
+    edict_add(dict, edict, "PM_ERR_INST", PM_ERR_INST);
+    edict_add(dict, edict, "PM_ERR_UNIT", PM_ERR_UNIT);
+    edict_add(dict, edict, "PM_ERR_CONV", PM_ERR_CONV);
+    edict_add(dict, edict, "PM_ERR_TRUNC", PM_ERR_TRUNC);
+    edict_add(dict, edict, "PM_ERR_SIGN", PM_ERR_SIGN);
+    edict_add(dict, edict, "PM_ERR_PROFILE", PM_ERR_PROFILE);
+    edict_add(dict, edict, "PM_ERR_IPC", PM_ERR_IPC);
+    edict_add(dict, edict, "PM_ERR_EOF", PM_ERR_EOF);
+    edict_add(dict, edict, "PM_ERR_NOTHOST", PM_ERR_NOTHOST);
+    edict_add(dict, edict, "PM_ERR_EOL", PM_ERR_EOL);
+    edict_add(dict, edict, "PM_ERR_MODE", PM_ERR_MODE);
+    edict_add(dict, edict, "PM_ERR_LABEL", PM_ERR_LABEL);
+    edict_add(dict, edict, "PM_ERR_LOGREC", PM_ERR_LOGREC);
+    edict_add(dict, edict, "PM_ERR_NOTARCHIVE", PM_ERR_NOTARCHIVE);
+    edict_add(dict, edict, "PM_ERR_LOGFILE", PM_ERR_LOGFILE);
+    edict_add(dict, edict, "PM_ERR_NOCONTEXT", PM_ERR_NOCONTEXT);
+    edict_add(dict, edict, "PM_ERR_PROFILESPEC", PM_ERR_PROFILESPEC);
+    edict_add(dict, edict, "PM_ERR_PMID_LOG", PM_ERR_PMID_LOG);
+    edict_add(dict, edict, "PM_ERR_INDOM_LOG", PM_ERR_INDOM_LOG);
+    edict_add(dict, edict, "PM_ERR_INST_LOG", PM_ERR_INST_LOG);
+    edict_add(dict, edict, "PM_ERR_NOPROFILE", PM_ERR_NOPROFILE);
+    edict_add(dict, edict, "PM_ERR_NOAGENT", PM_ERR_NOAGENT);
+    edict_add(dict, edict, "PM_ERR_PERMISSION", PM_ERR_PERMISSION);
+    edict_add(dict, edict, "PM_ERR_CONNLIMIT", PM_ERR_CONNLIMIT);
+    edict_add(dict, edict, "PM_ERR_AGAIN", PM_ERR_AGAIN);
+    edict_add(dict, edict, "PM_ERR_ISCONN", PM_ERR_ISCONN);
+    edict_add(dict, edict, "PM_ERR_NOTCONN", PM_ERR_NOTCONN);
+    edict_add(dict, edict, "PM_ERR_NEEDPORT", PM_ERR_NEEDPORT);
+    edict_add(dict, edict, "PM_ERR_NONLEAF", PM_ERR_NONLEAF);
+    edict_add(dict, edict, "PM_ERR_TYPE", PM_ERR_TYPE);
+    edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
+    edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
+    edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
+    edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);
+    edict_add(dict, edict, "PM_ERR_PMDAREADY", PM_ERR_PMDAREADY);
+    edict_add(dict, edict, "PM_ERR_PMDANOTREADY", PM_ERR_PMDANOTREADY);
+    edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
 }

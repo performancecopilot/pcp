@@ -94,6 +94,15 @@ struct __pmHostEnt {
 };
 #endif
 
+extern int __pmInitSecureSockets(void);
+extern int __pmInitCertificates(void);
+extern int __pmInitSocket(int);
+extern int __pmSocketReady(int, struct timeval *);
+extern int __pmSocketClosed(void);
+extern int __pmConnectCheckError(int);
+extern void *__pmGetSecureSocket(int);
+extern int __pmSecureServerIPCFlags(int, int);
+
 #ifdef __cplusplus
 }
 #endif

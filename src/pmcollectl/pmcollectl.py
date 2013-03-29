@@ -2,7 +2,7 @@
 #
 # pmcollectl.py
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,18 +28,19 @@ http://oss.sgi.com/projects/pcp
 # imports
 #
 
-import pmapi
-import time
+import os
 import sys
 import copy
-from pcp import *
-from ctypes import *
+import time
+import cpmapi as c_api
+import cpmgui as c_gui
+from pcp import pmapi, pmgui
 
 me = "pmcollectl"
 
 def check_code (code):
     if (code < 0):
-        print pmErrStr(code)
+        print pmapi.pmErrStr(code)
         sys.exit(1)
 
 def usage ():
@@ -68,38 +69,38 @@ Where:	-cN is number of cycles
 
 
 def get_atom_value (metric, atom1, atom2, desc, first):
-    if desc.contents.sem == pmapi.PM_SEM_DISCRETE or desc.contents.sem == pmapi.PM_SEM_INSTANT :
+    if desc.contents.sem == c_api.PM_SEM_DISCRETE or desc.contents.sem == c_api.PM_SEM_INSTANT :
         # just use the absolute value as if it were the first value
         first = True
 
     # value conversion and diff, if required
     type = desc.contents.type
-    if type == pmapi.PM_TYPE_32:
+    if type == c_api.PM_TYPE_32:
         if first:
             return atom1.l 
         else:
             return atom1.l - atom2.l
-    elif type == pmapi.PM_TYPE_U32:
+    elif type == c_api.PM_TYPE_U32:
         if first:
             return atom1.ul 
         else:
             return atom1.ul - atom2.ul
-    elif type == pmapi.PM_TYPE_64:
+    elif type == c_api.PM_TYPE_64:
         if first:
             return atom1.ll 
         else:
             return atom1.ll - atom2.ll
-    elif type == pmapi.PM_TYPE_U64:
+    elif type == c_api.PM_TYPE_U64:
         if first:
             return atom1.ull 
         else:
             return atom1.ull - atom2.ull
-    elif type == pmapi.PM_TYPE_FLOAT:
+    elif type == c_api.PM_TYPE_FLOAT:
         if first:
             return atom1.f 
         else:
             return atom1.f - atom2.f
-    elif type == pmapi.PM_TYPE_DOUBLE:
+    elif type == c_api.PM_TYPE_DOUBLE:
         if first:
             return atom1.d 
         else:
@@ -118,7 +119,7 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
     try:
         (code, metric_result) = pm.pmFetch(metric_name)
         check_code (code)
-    except pmErr, e:
+    except pmapi.pmErr, e:
         if str(e).find("PM_ERR_EOL") != -1:
             print "\nReached end of archive"
             sys.exit(1)
@@ -202,14 +203,14 @@ def record (pm, config, duration, file):
     check_code (status)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
     check_code (status)
-    status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
+    status = pm.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(duration) + "sec")
     check_code (status)
-    status = pm.pmRecordControl (0, pmapi.PM_REC_ON, "")
+    status = pm.pmRecordControl (0, c_gui.PM_REC_ON, "")
     check_code (status)
     time.sleep(duration)
-    pm.pmRecordControl (0, pmapi.PM_REC_STATUS, "")
-    status = pm.pmRecordControl (rhp, pmapi.PM_REC_OFF, "")
-    if status < 0 and status != pmapi.PM_ERR_IPC:
+    pm.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
+    status = pm.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    if status < 0 and status != c_gui.PM_ERR_IPC:
         check_status (status)
 
 
@@ -321,7 +322,7 @@ class _cpu(_subsys):
             try:
 
                 (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics[j])
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 self.cpu_metrics.remove(self.cpu_metrics[j])
 
         self.cpu_metrics_dict=dict((i,self.cpu_metrics.index(i)) for i in self.cpu_metrics)
@@ -470,7 +471,7 @@ class _interrupt(_subsys):
             try:
 
                 (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics[j])
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 self.interrupt_metrics.remove(self.interrupt_metrics[j])
 
         self.interrupt_metrics_dict=dict((i,self.interrupt_metrics.index(i)) for i in self.interrupt_metrics)
@@ -549,7 +550,7 @@ class _interrupt(_subsys):
                 print "%-8s" % self.interrupt_metrics[j].split(".")[3],
                 for k in range(len(self.interrupt_metric_value[0])):
                     print "%4d " % (self.interrupt_metric_value[j][k]),
-                text = (pm.pmLookupText(self.int_metric_name[j], pmapi.PM_TEXT_ONELINE))
+                text = (pm.pmLookupText(self.int_metric_name[j], c_api.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
     def print_verbose(self):
@@ -577,7 +578,7 @@ class _disk(_subsys):
             try:
 
                 (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics[j])
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 self.disk_metrics.remove(self.disk_metrics[j])
 
         self.disk_metrics_dict=dict((i,self.disk_metrics.index(i)) for i in self.disk_metrics)
@@ -628,7 +629,7 @@ class _disk(_subsys):
             try:
                 (inst, iname) = pm.pmGetInDom(self.disk_metric_desc[j])
                 break
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 iname = iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
@@ -703,7 +704,7 @@ class _memory(_subsys):
             try:
 
                 (code, self.memory_metric_name) = pm.pmLookupName(self.memory_metrics[j])
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 self.memory_metrics.remove(self.memory_metrics[j])
 
         self.memory_metrics_dict=dict((i,self.memory_metrics.index(i)) for i in self.memory_metrics)
@@ -795,7 +796,7 @@ class _net(_subsys):
             try:
 
                 (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics[j])
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 self.net_metrics.remove(self.net_metrics[j])
 
         self.net_metrics_dict=dict((i,self.net_metrics.index(i)) for i in self.net_metrics)
@@ -863,7 +864,7 @@ class _net(_subsys):
                 try:
                     (inst, iname) = pm.pmGetInDom(self.net_metric_desc[k])
                     break
-                except pmErr, e:
+                except pmapi.pmErr, e:
                     iname = "X"
 
             print '%4d %-7s %6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
@@ -958,8 +959,8 @@ if __name__ == '__main__':
 
     if input_file == "":
         try:
-            pm = pmContext()
-        except pmErr, e:
+            pm = pmapi.pmContext()
+        except pmapi.pmErr, e:
             print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)
     else:
@@ -975,8 +976,8 @@ if __name__ == '__main__':
             lol.append(line[:-1].split())
         archive = input_file + "/" + lol[len(lol)-1][2]
         try:
-            pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
-        except pmErr, e:
+            pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
+        except pmapi.pmErr, e:
             print "Cannot open PCP archive: %s" % archive
             sys.exit(1)
 
@@ -999,8 +1000,9 @@ if __name__ == '__main__':
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pm, configuration, duration, output_file)
-        record_add_creator (output_file)
+        client = pmgui.GuiClient()
+        record(client, configuration, duration, output_file)
+        record_add_creator(output_file)
         sys.exit(0)
 
     for s in subsys:

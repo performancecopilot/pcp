@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Generic script to be run after installing PCP from a tarball
+#
+
+# The new place ... this should match the setting in /etc/pcp.conf
+# _after_ the installation
+#
+PCP_TMP_DIR=@pcp_tmp_dir@

@@ -164,6 +164,16 @@ SetupRequestPorts(void)
     return 0;
 }
 
+static const char *
+AddressFamily(int family)
+{
+    if (family == AF_INET)
+	return "inet";
+    if (family == AF_INET6)
+	return "ipv6";
+    return "unknown";
+}
+
 /*
  * Create socket for incoming connections and bind to it an address for
  * clients to use.  Returns -1 on failure.
@@ -213,13 +223,10 @@ OpenRequestSocket(int port, const char *address, int *family,
     }
 
     if (fd < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmCreateSocket: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
-    if (fd > *maximum)
-	*maximum = fd;
-    __pmFD_SET(fd, fdset);
 
     /* Ignore dead client connections */
     one = 1;
@@ -227,16 +234,16 @@ OpenRequestSocket(int port, const char *address, int *family,
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d,%s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #endif
@@ -245,8 +252,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_KEEPALIVE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, address, netstrerror());
+		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 
@@ -255,8 +262,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     myAddr = NULL;
     if (sts < 0) {
 	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmBind: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
 	goto fail;
@@ -264,11 +271,14 @@ OpenRequestSocket(int port, const char *address, int *family,
 
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) __pmListen: %s\n",
-		port, address, netstrerror());
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 
+    if (fd > *maximum)
+	*maximum = fd;
+    __pmFD_SET(fd, fdset);
     return fd;
 
 fail:
@@ -287,6 +297,7 @@ static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
+    int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
@@ -294,44 +305,30 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	/*
 	 * If the spec is NULL or "INADDR_ANY", then we open one socket
 	 * for each address family (inet, IPv6).  Otherwise, the address
-	 * family will be determined by OpenRequestSocket.
+	 * family will be determined by OpenRequestSocket.  Reporting of
+	 * all errors is left to OpenRequestSocket to avoid doubling up.
 	 */
 	if (rp->address == NULL || strcmp(rp->address, "INADDR_ANY") == 0) {
 	    family = AF_INET;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open inet request port for INADDR_ANY:%d: %s\n",
-			      pmProgname, rp->port, netstrerror());
-	    }
-	    else {
+					backlog, fdset, &maximum)) >= 0) {
 	        rp->fds[INET_FD] = fd;
 		success = 1;
 	    }
-	    family = AF_INET6;
-	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open IPv6 request port for INADDR_ANY:%d: %s\n",
-			      pmProgname, rp->port, netstrerror());
+	    if (with_ipv6) {
+		family = AF_INET6;
+		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
+					    backlog, fdset, &maximum)) >= 0) {
+		    rp->fds[IPV6_FD] = fd;
+		    success = 1;
+		}
 	    }
-	    else {
-	        rp->fds[IPV6_FD] = fd;
-		success = 1;
-	    }
+	    else
+		rp->fds[IPV6_FD] = -EPROTO;
 	}
 	else {
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) < 0) {
-	        __pmNotifyErr(LOG_WARNING,
-			      "%s: Unable to open %s request port for %s:%d: %s\n",
-			      pmProgname,
-			      family == AF_INET ? "inet" :
-			      family == AF_INET6 ? "IPv6" :
-			      "unknown address family",
-			      rp->address, rp->port, netstrerror());
-	    }
-	    else {
+					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
 		    rp->fds[INET_FD] = fd;
 		    success = 1;
@@ -339,11 +336,6 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		else if (family == AF_INET6) {
 		    rp->fds[IPV6_FD] = fd;
 		    success = 1;
-		}
-		else {
-		    __pmNotifyErr(LOG_WARNING,
-				  "%s: invalid request socket specification: %s\n",
-				  pmProgname, rp->address);
 		}
 	    }
 	}
@@ -372,9 +364,9 @@ __pmServerCloseRequestPorts(void)
     int i, fd;
 
     for (i = 0; i < nReqPorts; i++) {
-	if ((fd = reqPorts[i].fds[INET_FD]) != -1)
+	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
 	    __pmCloseSocket(fd);
-	if ((fd = reqPorts[i].fds[IPV6_FD]) != -1)
+	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
 }
@@ -417,11 +409,13 @@ __pmServerDumpRequestPorts(FILE *stream)
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
-	for (j = 0; j < FAMILIES; j++)
-	    fprintf(stderr, "  %-3s %4d %5d %-6s %s\n",
+	for (j = 0; j < FAMILIES; j++) {
+	    if (rp->fds[j] != -EPROTO)
+		fprintf(stderr, "  %-3s %4d %5d %-6s %s\n",
 		    (rp->fds[j] != -1) ? "ok" : "err",
 		    rp->fds[j], rp->port, RequestFamilyString(j),
 		    rp->address ? rp->address : "(any address)");
+	}
     }
 }
 

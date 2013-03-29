@@ -1,0 +1,142 @@
+
+if [ ! -f /etc/pcp.env ]
+then
+    # PCP not installed ... seems odd
+    #
+    echo "Error: /etc/pcp.env not installed!"
+    exit 1
+fi
+
+. /etc/pcp.env
+
+# no need to touch $PCP_VAR_DIR/pmns/.NeedRebuild as this file
+# is included in the tarball
+#
+
+for conf in \
+    $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
+    $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
+    $PCP_PMPROXYOPTIONS_PATH
+do
+    if [ -f "$conf.pre" -a -f "$conf" ]
+    then
+	if diff "$conf" "$conf.pre" >/dev/null 2>&1
+	then
+	    rm -f "$conf.pre"
+	else
+	    mv "$conf" "$conf.dist"
+	    mv "$conf.pre" "$conf"
+	    echo "Warning: $conf: original restored, new version in $conf.dist"
+	fi
+    fi
+done
+
+_clean_tmpdirs $PCP_TMP_DIR /var/tmp mmv pmdabash pmie pmlogger
+
+# set up pcp and pcpqa users
+#
+if [ -f /etc/passwd ]
+then
+    # things like useradd may be hiding in odd places ...
+    #
+    PATH=$PATH:/usr/sbin
+    # common command-line options
+    # -c comment
+    # -g primary_group_name
+    # -d home_directory
+    # -m create home directory
+    # -s shell
+    # command-line variations
+    # do not create home directory
+    # 	-M for Linux, nothing for netbsd
+    # system account (no aging, sys gid/uid range, no home dir creation)
+    #   -r for Linux, not supported for netbsd
+    #
+    if [ $PCP_PLATFORM = netbsd ]
+    then
+	no_home_dir=''
+	sys_acc=''
+	nologin=/sbin/nologin
+	bash=/usr/pkg/bin/bash
+    else
+	no_home_dir='-M'
+	sys_acc='-r'
+	nologin=/usr/sbin/nologin
+	bash=/bin/bash
+    fi
+    if grep '^pcp:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd $sys_acc pcp
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcp:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp $no_home_dir $sys_acc -s $nologin pcp
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcp\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/group >/dev/null
+    then
+	:
+    else
+	if which groupadd >/dev/null 2>&1
+	then
+	    groupadd $sys_acc pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add group \"pcpqa\""
+	    exit 1
+	fi
+    fi
+    if grep '^pcpqa:' /etc/passwd >/dev/null
+    then
+	:
+    else
+	if which useradd >/dev/null 2>&1
+	then
+	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp $no_home_dir $sys_acc -s $bash pcpqa
+	else
+	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
+	    exit 1
+	fi
+    fi
+fi
+
+# permissions ...
+#
+chown -R pcp:pcp $PCP_LOG_DIR/pmcd
+chown -R pcp:pcp $PCP_LOG_DIR/pmie
+chown -R pcp:pcp $PCP_LOG_DIR/pmproxy
+chown -R pcp:pcp $PCP_LOG_DIR/pmlogger
+chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
+
+# Note: do not start pmie nor pmproxy by default
+#
+for svc in pmcd pmlogger
+do
+    if which rc-update >/dev/null 2>&1
+    then
+	if rc-update show | grep " $svc " >/dev/null 2>&1
+	then
+	    # service is already installed ...
+	    #
+	    rc-update delete $svc
+	fi
+	rc-update add $svc
+    fi
+    $PCP_RC_DIR/$svc start
+done
+
+exit 0

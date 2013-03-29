@@ -1,0 +1,14 @@
+#!/bin/sh -e
+#DEBHELPER#
+#
+# The goal here is to live-migrate PCP temporary files from places
+# they may have been stashed away in previous versions.  This is
+# important as they may be in-use by instrumented applications and
+# we want to avoid loss of service as a result of the switch.
+#
+
+# The new place ... this should match the setting in /etc/pcp.conf
+# _after_ the installation
+#
+PCP_TMP_DIR=@pcp_tmp_dir@
+

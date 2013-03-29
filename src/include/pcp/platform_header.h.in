@@ -139,6 +139,8 @@ extern "C" {
 #undef HAVE_SYS_MACHINE_H
 #undef HAVE_MACHINE_ENDIAN_H
 
+#undef HAVE_AI_ADDRCONFIG
+
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
 #endif

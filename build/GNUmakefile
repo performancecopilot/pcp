@@ -16,6 +16,8 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
+SCRIPTS = cleanconfigs cleantmpdirs
+LSRCFILES = $(SCRIPTS)
 LDIRT = $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION) \
 	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION) \
