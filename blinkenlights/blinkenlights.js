@@ -86,11 +86,20 @@ function setUpdateInterval(i) {
    updateIntervalID = setInterval(updateBlinkenlights, updateInterval); 
 }
 
+var pm_context_spec = "hostname="+pm_host;
+
+function setPMContextSpec(i) {
+   pm_context_spec = i;
+   pm_context = -1;
+   updateBlinkenlights();
+}
+
+
 function updateBlinkenlights() {
   var pm_url;
 
   if (pm_context < 0) {
-    pm_url = pm_root + "/context?hostname=" + pm_host + "&polltimeout=" + Math.floor(2*updateInterval/1000);
+    pm_url = pm_root + "/context?" + pm_context_spec + "&polltimeout=" + Math.floor(5*updateInterval/1000);
     $.getJSON(pm_url, function(data, status) {
       pm_context = data.context;
       setTimeout(updateBlinkenlights, 100); // retry soon
