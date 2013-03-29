@@ -8,7 +8,9 @@
     <script type="text/javascript">
       $(document).ready(function() {
         $("#predicate_form").submit(function() {
-          predicates.push(parsePredicate($("#predicate_input").val()));
+          pstr = $("#predicate_input").val()
+          p = parsePredicate(pstr);
+          if (p == null) { alert("cannot parse " + pstr); } else { predicates.push(p); }
           return false; // stay on this page
         });
         $("#predicate_clear_form").submit(function() {
