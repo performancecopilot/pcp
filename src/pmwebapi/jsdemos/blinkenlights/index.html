@@ -23,6 +23,11 @@
               $("#interval").val(updateInterval);
           }
         });
+        $("#contextspec").val(pm_context_spec);
+        $("#contextspec_form").submit(function() {
+            setPMContextSpec($("#contextspec").val());
+            return false; // stay on this page
+        });
         $("#predicate_input").val("kernel.all.load[*] > 0.2");
       });
     </script>
@@ -31,6 +36,10 @@
   </head>
   <body>
     <h1 id="header"></h1>
+    <form id="contextspec_form">
+      <input type="text" size="50" id="contextspec" />
+      <input value="Connect" type="submit" />
+    </form>
     <form id="predicate_form">
       <input id="predicate_input" size="50" type="text" />
       <input value="Add Predicate" type="submit" />
