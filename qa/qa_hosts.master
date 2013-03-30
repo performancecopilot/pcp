@@ -14,6 +14,7 @@ vm00.localdomain
 vm01.localdomain
 vm02.localdomain
 vm03.localdomain
+emma.localdomain
 
 # SGI Section
 grundy.sgi.com
