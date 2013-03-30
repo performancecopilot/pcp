@@ -28,6 +28,8 @@ CFILES	= main.c pmwebapi.c pmresapi.c
 HFILES = pmwebapi.h
 CMDTARGET = pmwebd$(EXECSUFFIX)
 LDIRT = $(TARGET)
+LCFLAGS += $(PIECFLAGS)
+LLDFLAGS += $(PIELDFLAGS)
 
 default:	$(CMDTARGET)
 
