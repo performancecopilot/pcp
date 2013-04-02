@@ -14,6 +14,7 @@ vm00.localdomain
 vm01.localdomain
 vm02.localdomain
 vm03.localdomain
+emma.localdomain
 
 # SGI Section
 grundy.sgi.com
@@ -53,5 +54,26 @@ deb32.bork.org
 #order	bozo			.localdomain
 #order	bozo-laptop		.localdomain
 #order	colleens-imac.local	.local
+#order	emma			.localdomain
+#order	vm00			.localdomain
+#order	vm01			.localdomain
+#order	vm02			.localdomain
+#order	vm03			.localdomain
+#order	vm04			.localdomain
+#order	vm05			.localdomain
+#order	vm06			.localdomain
+#order	vm07			.localdomain
+#order	vm08			.localdomain
+#order	vm09			.localdomain
+#order	vm10			.localdomain
+#order	vm11			.localdomain
+#order	vm12			.localdomain
+#order	vm13			.localdomain
+#order	vm14			.localdomain
+#order	vm15			.localdomain
+#order	vm16			.localdomain
+#order	vm17			.localdomain
+#order	vm18			.localdomain
+#order	vm19			.localdomain
 # Mort Section
 #order .bork.org .bork.org

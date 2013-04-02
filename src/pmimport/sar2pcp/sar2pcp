@@ -108,6 +108,8 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'hugepages' => 1,	'hugfree' => 1,
 	'hugused' => 1,		'hugused-percent' => 1,
 	'active' => 1,		'inactive' => 1,
+	'temperature' => 1,	'temp' => 1,
+	'usb' => 1,
 );
 
 # Register metrics with a singular value.
