@@ -38,9 +38,9 @@ from pcp import pmapi, pmgui
 
 me = "pmcollectl"
 
-def check_code (code):
+def check_code (pm, code):
     if (code < 0):
-        print pmapi.pmErrStr(code)
+        print pm.pmErrStr(code)
         sys.exit(1)
 
 def usage ():
@@ -118,7 +118,7 @@ def get_stats (metric, metric_name, metric_desc, metric_value, old_metric_value)
 
     try:
         (code, metric_result) = pm.pmFetch(metric_name)
-        check_code (code)
+        check_code (pm, code)
     except pmapi.pmErr, e:
         if str(e).find("PM_ERR_EOL") != -1:
             print "\nReached end of archive"
@@ -200,17 +200,17 @@ def record (pm, config, duration, file):
         sys.exit(1)
     os.mkdir (file)
     status = pm.pmRecordSetup (file + "/" + me + ".pcp", me, 0)
-    check_code (status)
+    check_code (pm, status)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
-    check_code (status)
+    check_code (pm, status)
     status = pm.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(duration) + "sec")
-    check_code (status)
+    check_code (pm, status)
     status = pm.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    check_code (status)
+    check_code (pm, status)
     time.sleep(duration)
     pm.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
     status = pm.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
-    if status < 0 and status != c_gui.PM_ERR_IPC:
+    if status < 0 and status != c_api.PM_ERR_IPC:
         check_status (status)
 
 
@@ -327,9 +327,9 @@ class _cpu(_subsys):
 
         self.cpu_metrics_dict=dict((i,self.cpu_metrics.index(i)) for i in self.cpu_metrics)
         (code, self.cpu_metric_name) = pm.pmLookupName(self.cpu_metrics)
-        check_code (code)
+        check_code (pm, code)
         (code, self.cpu_metric_desc) = pm.pmLookupDesc(self.cpu_metric_name)
-        check_code (code)
+        check_code (pm, code)
         self.cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
         self.old_cpu_metric_value = [0 for i in range(len(self.cpu_metrics))]
 
@@ -476,9 +476,9 @@ class _interrupt(_subsys):
 
         self.interrupt_metrics_dict=dict((i,self.interrupt_metrics.index(i)) for i in self.interrupt_metrics)
         (code, self.int_metric_name) = pm.pmLookupName(self.interrupt_metrics)
-        check_code (code)
+        check_code (pm, code)
         (code, self.int_metric_desc) = pm.pmLookupDesc(self.int_metric_name)
-        check_code (code)
+        check_code (pm, code)
         self.interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
         self.old_interrupt_metric_value = [0 for i in range(len(self.interrupt_metrics))]
 
@@ -583,9 +583,9 @@ class _disk(_subsys):
 
         self.disk_metrics_dict=dict((i,self.disk_metrics.index(i)) for i in self.disk_metrics)
         (code, self.disk_metric_name) = pm.pmLookupName(self.disk_metrics)
-        check_code (code)
+        check_code (pm, code)
         (code, self.disk_metric_desc) = pm.pmLookupDesc(self.disk_metric_name)
-        check_code (code)
+        check_code (pm, code)
         self.disk_metric_value = [0 for i in range(len(self.disk_metrics))]
         self.old_disk_metric_value = [0 for i in range(len(self.disk_metrics))]
 
@@ -709,9 +709,9 @@ class _memory(_subsys):
 
         self.memory_metrics_dict=dict((i,self.memory_metrics.index(i)) for i in self.memory_metrics)
         (code, self.memory_metric_name) = pm.pmLookupName(self.memory_metrics)
-        check_code (code)
+        check_code (pm, code)
         (code, self.memory_metric_desc) = pm.pmLookupDesc(self.memory_metric_name)
-        check_code (code)
+        check_code (pm, code)
         self.memory_metric_value = [0 for i in range(len(self.memory_metrics))]
         self.old_memory_metric_value = [0 for i in range(len(self.memory_metrics))]
 
@@ -801,9 +801,9 @@ class _net(_subsys):
 
         self.net_metrics_dict=dict((i,self.net_metrics.index(i)) for i in self.net_metrics)
         (code, self.net_metric_name) = pm.pmLookupName(self.net_metrics)
-        check_code (code)
+        check_code (pm, code)
         (code, self.net_metric_desc) = pm.pmLookupDesc(self.net_metric_name)
-        check_code (code)
+        check_code (pm, code)
         self.net_metric_value = [0 for i in range(len(self.net_metrics))]
         self.old_net_metric_value = [0 for i in range(len(self.net_metrics))]
 
