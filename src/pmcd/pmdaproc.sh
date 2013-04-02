@@ -1020,7 +1020,10 @@ _install()
 	#
 	if [ -f Makefile -o -f makefile -o -f GNUmakefile ]
 	then
-	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	    # $PCP_MAKE_PROG may contain command line args ... executable
+	    # is first word
+	    #
+	    if [ ! -f "`echo $PCP_MAKE_PROG | sed -e 's/ .*//'`" -o ! -f "$PCP_INC_DIR/pmda.h" ]
 	    then
 		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
 		exit 1
