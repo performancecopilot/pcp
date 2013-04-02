@@ -128,11 +128,7 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-#if 0 /* TODO: IPv6 -- how to trace an ip address?? */
-    pmcd_trace(TR_ADD_CLIENT, ClientIPAddr(&client[i]), fd, client[i].seq);
-#else /* For now so that the output is not completely missing. */
-    pmcd_trace(TR_ADD_CLIENT, 0, fd, client[i].seq);
-#endif
+    pmcd_trace(TR_ADD_CLIENT, i, 0, 0);
 
     return &client[i];
 }
@@ -172,6 +168,17 @@ NewClient(void)
     if (i >= nClients)
 	nClients = i + 1;
     return i;
+}
+
+/*
+ * Expose ClientInfo struct for client #n
+ */
+ClientInfo *
+GetClient(int n)
+{
+    if (0 <= n && n < nClients && client[n].status.connected)
+	return &client[n];
+    return NULL;
 }
 
 void

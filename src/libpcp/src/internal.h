@@ -62,6 +62,7 @@ __pmTPDGet(void)
 #include <nss.h>
 #include <ssl.h>
 #include <nspr.h>
+#include <prerror.h>
 #include <private/pprio.h>
 
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"

@@ -23,8 +23,12 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = data.c trace.c client.c
 
-LCFLAGS = -I$(TOPDIR)/src/pmcd/src -DPMCD_INTERNAL
+LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = -lpcp
+
+ifeq "$(ENABLE_SECURE)" "true"
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
+endif
 
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)

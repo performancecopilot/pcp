@@ -430,7 +430,7 @@ migrate_tempdirs()
 	    source="$d/$f"
 	    target="$_new_tmp_dir/$_sub/$f"
             [ "$source" != "$target" ] || continue
-            mv -fun "$source" "$target"
+	    [ -f "$target" ] || mv -fu "$source" "$target"
         done
         cd && rmdir "$d" 2>/dev/null
     done

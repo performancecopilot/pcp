@@ -1,0 +1,102 @@
+#
+# Copyright (C) 2013 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import time
+import math
+import copy
+from pcp import pmcc
+
+def cpu_print( group, metric_list ):
+
+    ticks = {}
+    total = 0.0
+    for name in metric_list:
+        metric = group[ name ]
+        results = dict( map(  lambda x: ( x[1], x[2] ), metric.netValue ) )
+        prevs = dict( map(  lambda x: ( x[1], x[2] ), metric.netPrev ) )
+        instVal = reduce( lambda x, y: x + y,
+               map( lambda x: results[x] - prevs[x], results.keys() ) )
+        ticks.update( { name : instVal } )
+        total += instVal
+    for name in metric_list:
+        print "   ", name, round( ticks[ name ] / total * 100, 2 ), "%"
+
+
+def mem_print( group, metric_list ):
+
+    for name in metric_list:
+        metric = group[ name ]
+        results = dict( map(  lambda x: ( x[1], x[2] ), metric.netValue ) )
+    
+        for instName in results.keys():
+            instVal = results[ instName ] 
+            print "   ", name, instVal, metric.ctx.pmUnitsStr( metric.desc.units )
+
+
+def disk_print( group, metric_list ):
+
+    for name in metric_list:
+        metric = group[ name ]
+        results = dict( map(  lambda x: ( x[1], x[2] ), metric.netValue ) )
+    
+        for instName in results.keys():
+            instVal = results[ instName ] 
+            print "   ", name, instVal, metric.ctx.pmUnitsStr( metric.desc.units )
+
+
+def metric_fetch( mgm ):
+    for k in mgm.keys():
+        mgm[k].mgFetch()
+
+
+def metric_print( mgm ):
+
+    # print the target name
+    print mgm.target
+
+    cpu_print( mgm[ "cpu" ], cpu_metrics )
+    mem_print( mgm[ "mem" ], mem_metrics )
+    disk_print( mgm[ "disk" ], disk_metrics )
+
+
+cpu_metrics = [
+    "kernel.all.cpu.sys",
+    "kernel.all.cpu.user",
+    "kernel.all.cpu.nice",
+    "kernel.all.cpu.idle",
+    ]
+
+mem_metrics = [
+    "mem.physmem",
+    "mem.freemem",
+    ]
+
+disk_metrics = [
+    "disk.all.read",
+    "disk.all.write",
+    ]
+
+# MetricGroupManager -> MetricCache -> pmContext
+mgm = pmcc.MetricGroupManager()
+
+mgm[ "cpu" ] = cpu_metrics
+mgm[ "mem" ] = mem_metrics
+mgm[ "disk" ] = disk_metrics
+
+
+metric_fetch( mgm )
+time.sleep(1)
+metric_fetch( mgm )
+
+metric_print( mgm )
