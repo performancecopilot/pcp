@@ -267,7 +267,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
     assert (rc >= 0 && rc < sizeof(http_response));
     resp = MHD_create_response_from_buffer (strlen(http_response), http_response,
-                                            MHD_RESPMEM_PERSISTENT);
+                                            MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
         goto out;
