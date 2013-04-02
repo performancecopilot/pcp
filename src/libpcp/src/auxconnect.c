@@ -875,6 +875,7 @@ __pmSockAddrToString(__pmSockAddr *addr)
     int family;
     const char *sts;
 
+    sts = NULL;
     family = addr->sockaddr.raw.sa_family;
     if (family == AF_INET)
 	sts = inet_ntop(family, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
