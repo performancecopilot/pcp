@@ -194,6 +194,9 @@ if [ -f $tmp.failed ] ; then
     exit 1
 fi
 
+# Special case removal of build artefacts that might break the build
+#
+rm -f qa/qa_outfiles
 
 special=false
 [ "$VERS" = MINGW ] && special=windows

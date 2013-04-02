@@ -97,6 +97,7 @@ nss_setup_certificates()
 
     # export ascii copy of the certificate for later use
     $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
+    cat $tmp.cacert.asc >> $seq.full
 }
 
 nss_setup_collector()
@@ -136,6 +137,7 @@ End-Of-File
     echo "Checking pmcd.log for unexpected messages" | tee -a $seq.full
     egrep 'Error:|Info:' $tmp.pmcd.log
     cat $tmp.pmcd.log >> $seq.full
+    echo "--- end of pmcd.log ---" >> $seq.full
 }
 
 nss_setup_empty_userdb()

@@ -17,6 +17,8 @@
  */
 
 #include "pmcd.h"
+#define SOCKET_INTERNAL
+#include "internal.h"
 
 #ifdef IS_SOLARIS
 #define _REENTRANT
@@ -105,9 +107,7 @@ pmcd_dump_trace(FILE *f)
     int			p;
     struct tm		last = { 0, 0 };
     struct tm		*this;
-    struct in_addr	addr;	/* internet address */
-    struct hostent	*hp;
-    char		strbuf[20];
+    char		strbuf[46];	// max size for PR_NetAddrToString()
 
     if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
 	fprintf(f, "\n->PMCD event trace: ");
@@ -142,22 +142,50 @@ pmcd_dump_trace(FILE *f)
 	    switch (trace[p].t_type) {
 
 		case TR_ADD_CLIENT:
-		    fprintf(f, "New client: from=");
-		    addr.s_addr = trace[p].t_who;
-		    hp = gethostbyaddr((void *)&addr.s_addr, sizeof(addr.s_addr), AF_INET);
-		    if (hp == NULL) {
-			char	*p = (char *)&addr.s_addr;
-			int	k;
-			for (k = 0; k < 4; k++) {
-			    if (k > 0)
-				fputc('.', f);
-			    fprintf(f, "%d", p[k] & 0xff);
+		    {
+			ClientInfo	*cip;
+
+
+			fprintf(f, "New client: [%d] ", trace[p].t_who);
+			cip = GetClient(trace[p].t_who);
+			if (cip == NULL) {
+			    fprintf(f, "-- unknown\n?");
+			}
+			else {
+			    __pmSockAddr	*saddr = (__pmSockAddr *)cip->addr;
+#ifdef HAVE_SECURE_SOCKETS
+			    int			sts;
+			    switch (saddr->sockaddr.raw.family) {
+				case PR_AF_INET:
+				case PR_AF_INET6:
+					sts = PR_NetAddrToString(&saddr->sockaddr, strbuf, sizeof(strbuf));
+					if (sts == PR_SUCCESS)
+					    fprintf(f, "addr=%s", strbuf);
+					else
+					    fprintf(f, "secure family=%d PR_NetAddrToString: Error: %d", saddr->sockaddr.raw.family, PR_GetError());
+					break;
+				default:
+					fprintf(f, "secure unknown family=%d", saddr->sockaddr.raw.family);
+					break;
+			    }
+#else
+			    switch (saddr->sockaddr.raw.sa_family) {
+				case AF_INET:
+					inet_ntop(AF_INET, (void *)&saddr->sockaddr.inet.sin_addr, strbuf, sizeof(strbuf));
+					    fprintf(f, "addr=%s", strbuf);
+					break;
+				case AF_INET6:
+					inet_ntop(AF_INET6, (void *)&saddr->sockaddr.ipv6.sin6_addr, strbuf, sizeof(strbuf));
+					    fprintf(f, "addr=%s", strbuf);
+					break;
+				default:
+					fprintf(f, "unknown family=%d", saddr->sockaddr.raw.sa_family);
+					break;
+			    }
+#endif
+			    fprintf(f, ", fd=%d, seq=%u\n", cip->fd, cip->seq);
 			}
 		    }
-		    else {
-			fprintf(f, "%s", hp->h_name);
-		    }
-		    fprintf(f, ", fd=%d, seq=%u\n", trace[p].t_p1, (unsigned int)trace[p].t_p2);
 		    break;
 
 		case TR_DEL_CLIENT:

@@ -18,35 +18,44 @@ which sar >/dev/null 2>&1 || _notrun "sar not installed"
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
 which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
-# assume 9.0.6.anything is really the same as 9.0.6, etc
-#
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
 s/.* //
-s/\([^.]*\.[^.]*\.[^.]*\)\..*/\1/
 p
 }'`
-[ -f src/sa-sysstat-$version ] || \
-    _notrun "no data file for sysstat version $version"
 
 rm -f $seq.out
+file_version=$version
 case "$version"
 in
-    9.0.6)
-	ln $seq.out.1 $seq.out || exit 1
-	;;
-    9.1.7)
-	ln $seq.out.2 $seq.out || exit 1
-	;;
-    10.0.1)
-	ln $seq.out.3 $seq.out || exit 1
-	;;
-    9.0.4)	# RHEL6
+    9.0.4*)	# RHEL6
 	ln $seq.out.4 $seq.out || exit 1
+	file_version=9.0.4
+	;;
+    9.0.6.1)
+	ln $seq.out.5 $seq.out || exit 1
+	;;
+    9.0.6*)
+	ln $seq.out.1 $seq.out || exit 1
+	file_version=9.0.6
+	;;
+    9.1.7*)
+	ln $seq.out.2 $seq.out || exit 1
+	file_version=9.1.7
+	;;
+    10.0.1*)
+	ln $seq.out.3 $seq.out || exit 1
+	file_version=10.0.1
+	;;
+    10.0.5*)
+	ln $seq.out.6 $seq.out || exit 1
+	file_version=10.0.5
 	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
 	;;
 esac
+[ -f src/sa-sysstat-$file_version ] || \
+    _notrun "no data file (sa-sysstat-$file_version) for sysstat version $version"
 
 echo "QA output created by $seq"
 
@@ -56,7 +65,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-sar2pcp src/sa-sysstat-$version $tmp
+sar2pcp src/sa-sysstat-$file_version $tmp
 
 # version 9.x output
 # 11:07:39        CPU     %user     %nice   %system   %iowait    %steal     %idle
@@ -66,7 +75,7 @@ sar2pcp src/sa-sysstat-$version $tmp
 # 04:50:52 PM     CPU     %user     %nice   %system   %iowait    %steal     %idle
 # 04:50:57 PM     all      0.31      0.00      0.31      0.00      0.00     99.38
 #
-sar -f src/sa-sysstat-$version -u \
+sar -f src/sa-sysstat-$file_version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/
@@ -136,7 +145,7 @@ echo >>$seq.full
 # 04:50:52 PM       tps      rtps      wtps   bread/s   bwrtn/s
 # 04:50:57 PM      0.80      0.00      0.80      0.00      6.40
 #
-sar -f src/sa-sysstat-$version -b \
+sar -f src/sa-sysstat-$file_version -b \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/

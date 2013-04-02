@@ -251,5 +251,18 @@ END		{ if (found != 1)
 		}'
 }
 
-_check_host `hostname`
-which pmhostname >/dev/null 2>&1 && _check_host `pmhostname`
+host=`hostname`
+_check_host $host
+if which pmhostname >/dev/null 2>&1
+then
+    pmhost=`pmhostname`
+    case $pmhost
+    in
+	$host|$host.*)
+		;;
+	*)
+		echo "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
+		;;
+    esac
+    _check_host $pmhost
+fi
