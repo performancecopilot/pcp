@@ -62,45 +62,7 @@
 <!--The frontmatter contains many file entities. If you want to remove a file entity enter the following in the Command window: set showentities=none. Then highlight the file entity and cut it. To view full text again enter the command set showentities=file.-->
 <![ %public; [<legalnotice>
 <title>COPYRIGHT</title>
-<para>&copy; 1996&ndash;1999, 2001, 2002, Silicon Graphics, Inc. All rights reserved; provided portions  may be copyright in third parties, as indicated elsewhere herein. No permission is granted to copy, distribute, or create derivative works from the contents of this electronic documentation in any manner, in whole or in part, without the prior written permission of Silicon Graphics, Inc.</para>
-</legalnotice>]]><![ %private; [<legalnotice><title>SGI PRIVATE</title>
-<para>Copyright &copy; <replaceable>all years of publication</replaceable> Silicon Graphics,
-Inc. All Rights Reserved. 
-The contents of this document may not be copied or duplicated in 
-any manner, in whole or in part, without the prior written 
-permission of Silicon Graphics, Inc.
-</para>
-</legalnotice>]]><![ %proprietary; [<legalnotice><title>SGI PROPRIETARY</title>
-<para>Copyright &copy; <replaceable>all years of publication</replaceable> Silicon Graphics,
-Inc. All Rights Reserved. 
-The contents of this document may not be copied or duplicated in 
-any manner, in whole or in part, without the prior written 
-permission of Silicon Graphics, Inc.
-</para>
-</legalnotice>]]><![ %private; [<legalnotice>
-<para>This document contains information private to Silicon
-Graphics, Inc. It
-can be distributed to non-SGI personnel only with approval of the appropriate
-SGI manager.</para>
-</legalnotice>
-<legalnotice>
-<para>Restricted Rights Legend</para>
-<para>Use, duplication, or disclosure by the Government is subject to restrictions
-as set forth in the subparagraph [(c) (1) (ii)] of the rights in Technical
-Data and Computer Software clause at 52.227&ndash;7013. (October 1988)</para>
-<para>Cray Research, Inc. Unpublished Private Information - All Rights Reserved.
-</para>
-</legalnotice>]]><![ %proprietary; [<legalnotice>
-<para>Dissemination of this documentation to non-SGI personnel requires approval
-from the appropriate vice president and a nondisclosure agreement. Export
-of technical information in this category may require a Letter of Assurance.
-</para>
-<para>Restricted Rights Legend</para>
-<para>Use, duplication, or disclosure by the Government is subject to restrictions
-as set forth in the subparagraph [(c) (1) (ii)] of the rights in Technical
-Data and Computer Software clause at 52.227&ndash;7013. (October 1988)</para>
-<para>Silicon Graphics, Inc. Unpublished Private Information - All Rights Reserved.
-</para>
+<para>&copy; 2000&ndash;2013 Silicon Graphics International Corp. All rights reserved. Permission is granted to copy, distribute, and/or modify this document under the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any later version published by the Creative Commons Corp. A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
 </legalnotice>]]>&disclaimer;
 <legalnotice>
 <title>TRADEMARKS AND ATTRIBUTIONS</title>

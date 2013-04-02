@@ -5,19 +5,7 @@
 <bookinfo><invpartnumber condition="sgi_partnumber:PCP_PG:sgi-developer">007-3434-005</invpartnumber><edition>2.3</edition><othercredit><contrib>Illustrated by Dany Galgani</contrib><contrib>Edited by Susan Wilkening</contrib><contrib>Production by Glen Traefald</contrib><contrib>Engineering and written contributions by David Chatterton, Michael Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan Rayner, Terry Schultz, Nathan Scott, Timothy Shimmin, and Bill Tuthill</contrib></othercredit><legalnotice>
 
 <title>COPYRIGHT</title>
-<para>&#xA9; 1996-1999, 2001, 2002, Silicon Graphics, Inc. All rights reserved; provided portions  may be copyright in third parties, as indicated elsewhere herein. No permission is granted to copy, distribute, or create derivative works from the contents of this electronic documentation in any manner, in whole or in part, without the prior written permission of Silicon Graphics, Inc.</para>
-</legalnotice><legalnotice>
-
-<title>LIMITED RIGHTS LEGEND</title>
-<para>The electronic (software) version of this document was developed at 
-private expense; if acquired under an agreement with the USA government
-or any contractor thereto, it is acquired as &quot;commercial computer software&quot;
-subject to the provisions of its applicable license agreement, as
-specified in (a) 48 CFR 12.212 of the FAR; or, if acquired for Department
-of Defense units, (b) 48 CFR 227-7202 of the DoD FAR Supplement; or
-sections succeeding thereto. Contractor/manufacturer is Silicon 
-Graphics, Inc., 1600 Amphitheatre Pkwy 2E, Mountain View, CA 94043-1351.
-</para>
+<para>&#xA9; 2000&ndash;2013 Silicon Graphics International Corp. All rights reserved. Permission is granted to copy, distribute, and/or modify this document under the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any later version published by the Creative Commons Corp. A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
 </legalnotice><legalnotice>
 
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
