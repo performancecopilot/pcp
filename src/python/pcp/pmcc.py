@@ -21,9 +21,9 @@
 
 
 import sys
-from pcp import pmapi
-from pcp.pmapi import pmResult, LIBPCP
+from pcp.pmapi import pmResult, LIBPCP, pmContext
 from ctypes import c_uint, c_char_p, POINTER, Structure
+from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
 
 
 class MetricCore(object):
@@ -165,7 +165,7 @@ class Metric(object):
             print "   ", name, val
 
 
-class MetricCache(pmapi.pmContext):
+class MetricCache(pmContext):
     """
     A cache of MetricCores is kept to reduce calls into the PMAPI library
     this also slightly reduces the memory footprint of Metric instances
@@ -178,8 +178,8 @@ class MetricCache(pmapi.pmContext):
     ##
     # overloads
   
-    def __init__(self, typed = pmapi.PM_CONTEXT_HOST, target = "localhost"):
-        pmapi.pmContext.__init__(self, typed, target)
+    def __init__(self, typed = PM_CONTEXT_HOST, target = "localhost"):
+        pmContext.__init__(self, typed, target)
         self._mcIndomD = {}
         self._mcByNameD = {}
         self._mcByPmidD = {}
@@ -193,8 +193,8 @@ class MetricCache(pmapi.pmContext):
     def _mcAdd(self, core):
         indom = core.desc.indom
         if not self._mcIndomD.has_key(indom):
-            if indom == pmapi.PM_INDOM_NULL:
-                instmap = { pmapi.PM_IN_NULL : "PM_IN_NULL" }
+            if indom == PM_INDOM_NULL:
+                instmap = { PM_IN_NULL : "PM_IN_NULL" }
             else:
                 instL, nameL = self.pmGetInDom(indom)
                 instmap = dict(zip(instL, nameL))
@@ -222,7 +222,7 @@ class MetricCache(pmapi.pmContext):
         if missD:
             idL, errL = self.mcFetchPmids(missD.keys())
             for name, pmid in idL:
-                if pmid == pmapi.PM_ID_NULL:
+                if pmid == PM_ID_NULL:
                     # fetch failed for the given metric name
                     if not errL:
                         errL = []
@@ -385,7 +385,7 @@ class MetricGroupManager(dict, MetricCache):
     ##
     # overloads
 
-    def __init__(self, typed = pmapi.PM_CONTEXT_HOST, target = "localhost"):
+    def __init__(self, typed = PM_CONTEXT_HOST, target = "localhost"):
         MetricCache.__init__(self, typed, target)
         dict.__init__(self)
 

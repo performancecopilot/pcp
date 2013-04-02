@@ -129,7 +129,7 @@ PERLFILES = \
 PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
 PYTHONFILES = \
-	test_pcp.python test_pmi.python check_import.python
+	test_pcp.python test_pmcc.python test_pmi.python check_import.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 
