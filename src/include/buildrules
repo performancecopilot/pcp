@@ -115,6 +115,7 @@ src-pcp : $(SRCFILES) $(SUBDIRS)
 src-link-pcp : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-pcp outside the Makepkgs script"; exit 1 )
 	@test -z "$$DIR" && DIR="."; \
+	echo "=== $$DIR ==="; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
 		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
