@@ -142,7 +142,9 @@ else
     exit 1
 fi
 
-if ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda" >/dev/null
+ps $PCP_PS_ALL_FLAGS >$tmp.ps
+egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
+if grep "[d]umb_pmda" $tmp.ps >/dev/null
 then
     :
 else
@@ -154,8 +156,11 @@ fi
 
 # force to a known state
 #
-pmstore pmcd.control.timeout 5 >/dev/null 2>&1
-# pmstore pmcd.control.tracenobuf 1 # for debugging
+pmstore pmcd.control.timeout 5 >/dev/null
+
+# for debugging
+#
+#debug# pmstore pmcd.control.tracenobuf 1 >/dev/null
 
 #
 # pmcd agent timeout < application time out
@@ -178,7 +183,9 @@ _echo ""
 sleep 2
 pminfo -n $pmns -d dummyproc >/dev/null 2>&1
 
-if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep "[d]umb_pmda" >/dev/null
+ps $PCP_PS_ALL_FLAGS >$tmp.ps
+egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
+if grep "[d]umb_pmda" <$tmp.ps >/dev/null
 then
     _echo "Error: pmcd didn't terminate the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
@@ -186,6 +193,11 @@ then
 else
     _echo "pmcd terminated dummy the dumb_pmda agent as desired"
 fi
+
+echo >>$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
+echo >>$seq.full
+cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
 
 # Restart pmcd and its agents
 _echo ""
@@ -202,9 +214,11 @@ else
     exit 1
 fi
 
-if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+ps $PCP_PS_ALL_FLAGS >$tmp.ps
+egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
+if grep "[d]umb_pmda" <$tmp.ps >/dev/null
 then
-    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep "[d]umb_pmda"`
     old_dummy_pid=`echo $psline | cut -d ' ' -f 2`
 else
     _echo "pmcd SIGHUP didn't restart the dumb_pmda agent"
@@ -232,12 +246,14 @@ pminfo -n $pmns -d dummyproc
 #DEBUG# date
 _echo ""
 
-if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+ps $PCP_PS_ALL_FLAGS >$tmp.ps
+egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
+if grep "[d]umb_pmda" <$tmp.ps >/dev/null
 then 
     _echo "pmcd did NOT terminate the dumb_pmda agent as desired"
 
     # make sure it is really the same process - check pid
-    psline=`ps $PCP_PS_ALL_FLAGS | grep -v grep | grep "dumb_pmda"`
+    psline=`ps $PCP_PS_ALL_FLAGS | grep "[d]umb_pmda"`
     new_dummy_pid=`echo $psline | cut -d ' ' -f 2`
     if [ $old_dummy_pid -ne $new_dummy_pid ]
     then
@@ -256,7 +272,9 @@ _echo "Now wait for pmcd to timeout..."
 _echo ""
 sleep 6
 
-if ps $PCP_PS_ALL_FLAGS | tee -a $seq.full | grep -v grep | grep "dumb_pmda" >/dev/null
+ps $PCP_PS_ALL_FLAGS >$tmp.ps
+egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
+if grep "[d]umb_pmda" <$tmp.ps >/dev/null
 then
     _echo "Error: pmcd didn't terminate the dumb_pmda agent"
     cat $pmcdlog >>$seq.full
@@ -264,6 +282,11 @@ then
 else
     _echo "pmcd terminated the dumb_pmda agent as desired"
 fi
+
+echo >>$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
+echo >>$seq.full
+cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq.full
 
 _echo ""
 status=0
