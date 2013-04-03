@@ -104,7 +104,7 @@ unsigned pmwebapi_gc ()
 static __pmHashWalkState
 pmwebapi_deallocate_all_fn (const __pmHashNode *kv, void *cdata)
 {
-    const struct webcontext *value = kv->data;
+    struct webcontext *value = kv->data;
     int rc;
     (void) cdata;
 
@@ -114,6 +114,7 @@ pmwebapi_deallocate_all_fn (const __pmHashNode *kv, void *cdata)
     if (rc)
         __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
                        value->context, rc);
+    free (value);
     return PM_HASH_WALK_DELETE_NEXT;
 }
 
@@ -603,8 +604,8 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
             val_names += strlen (val_names); /* skip onto \0 */
         }
         names[0] = name;
-
         num = pmLookupName (1, names, & found_pmid);
+        free(name);
 
         if (num == 1) {
             assert (num_metrics < max_num_metrics);

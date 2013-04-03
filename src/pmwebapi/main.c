@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
         fd_set rs;
         fd_set ws;
         fd_set es;
-        int max;
+        int max = 0;
 
         /* Based upon MHD fileserver_example_external_select.c */
         FD_ZERO (& rs);
