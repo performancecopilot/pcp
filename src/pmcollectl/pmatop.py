@@ -56,17 +56,6 @@ def round (value, magnitude):
     return (value + (magnitude / 2)) / magnitude
 
 
-# get_dimension  ---------------------------------------------------------
-
-
-def get_dimension (value):
-    if type(value) != type(int()) and type(value) != type(long()):
-        dim = len(value)
-    else:
-        dim = 1
-    return dim
-        
-
 # record ---------------------------------------------------------------
 
 def record (pm, config, duration, file):
@@ -175,21 +164,21 @@ class _cpu_print(_atop_print, cpu):
         self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.idle') / self.cpu_total))
         self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.wait.total') / self.cpu_total))
         self.next_line()
-        for k in range(len(self.get_metric_value('kernel.percpu.cpu.user'))):
+        for k in range(self.get_len(self.get_metric_value('kernel.percpu.cpu.user'))):
             self.p_stdscr.addstr ('cpu |')
-            self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.sys')[k] / self.cpu_total))
-            self.p_stdscr.addstr (' user %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.user')[k] / self.cpu_total))
+            self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.sys',k) / self.cpu_total))
+            self.p_stdscr.addstr (' user %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.user',k) / self.cpu_total))
             self.p_stdscr.addstr (' irq %7d%% |' % (
-                    100 * self.get_metric_value('kernel.percpu.cpu.irq.hard')[k] / self.cpu_total +
-                    100 * self.get_metric_value('kernel.percpu.cpu.irq.soft')[k] / self.cpu_total))
-            self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.idle')[k] / self.cpu_total))
-            self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_metric_value('kernel.percpu.cpu.wait.total')[k] / self.cpu_total))
+                    100 * self.get_scalar_value('kernel.percpu.cpu.irq.hard',k) / self.cpu_total +
+                    100 * self.get_scalar_value('kernel.percpu.cpu.irq.soft',k) / self.cpu_total))
+            self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.idle',k) / self.cpu_total))
+            self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.wait.total',k) / self.cpu_total))
             self.next_line()
 
         self.p_stdscr.addstr ('CPL |')
-        self.p_stdscr.addstr (' avg1 %7.3g |' % (self.get_metric_value('kernel.all.load')[0]))
-        self.p_stdscr.addstr (' avg5 %7.3g |' % (self.get_metric_value('kernel.all.load')[1]))
-        self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_metric_value('kernel.all.load')[2]))
+        self.p_stdscr.addstr (' avg1 %7.3g |' % (self.get_scalar_value('kernel.all.load',0)))
+        self.p_stdscr.addstr (' avg5 %7.3g |' % (self.get_scalar_value('kernel.all.load',1)))
+        self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_scalar_value('kernel.all.load',2)))
         self.p_stdscr.addstr (self.put_value(' csw %8.3g |', self.get_metric_value('kernel.all.pswitch')))
         self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr')))
         self.p_stdscr.addstr ('\n')
@@ -219,7 +208,7 @@ class _disk_print(_atop_print, disk):
 # Missing: LVM avq (average queue depth)
 # Missing: LVM avio (milliseconds per request)
 
-        for j in xrange(get_dimension(self.get_metric_value('disk.partitions.read'))):
+        for j in xrange(self.get_len(self.get_metric_value('disk.partitions.read'))):
             self.p_stdscr.addstr ('LVM |')
             self.p_stdscr.addstr (' %-12s |' % (iname[j]))
             self.p_stdscr.addstr ('              |')
@@ -244,7 +233,7 @@ class _disk_print(_atop_print, disk):
         except pmErr, e:
             iname = iname = "X"
 
-        for j in xrange(get_dimension(self.get_metric_value('disk.dev.read_bytes'))):
+        for j in xrange(self.get_len(self.get_metric_value('disk.dev.read_bytes'))):
             self.p_stdscr.addstr ('DSK |')
             self.p_stdscr.addstr (' %-12s |' % (iname[j]))
             self.p_stdscr.addstr (' busy %6d%% |' % (0)) # self.get_scalar_value('disk.dev.avactive',j)
@@ -324,14 +313,14 @@ class _net_print(_atop_print, net):
             for j in xrange(len(self.get_metric_value('network.interface.in.bytes'))):
                 self.p_stdscr.addstr ('NET |')
                 self.p_stdscr.addstr (' %-12s |' % (iname[j]))
-                self.p_stdscr.addstr (self.put_value(' pcki %6.2gM |', self.get_metric_value('network.interface.in.packets')[j]))
-                self.p_stdscr.addstr (self.put_value(' pcko %6.2gM |', self.get_metric_value('network.interface.out.packets')[j]))
-                self.p_stdscr.addstr (self.put_value(' si %8.2gM |', self.get_metric_value('network.interface.in.bytes')[j]))
-                self.p_stdscr.addstr (self.put_value(' so %8.2gM |', self.get_metric_value('network.interface.out.bytes')[j]))
+                self.p_stdscr.addstr (self.put_value(' pcki %6.2gM |', self.get_scalar_value('network.interface.in.packets',j)))
+                self.p_stdscr.addstr (self.put_value(' pcko %6.2gM |', self.get_scalar_value('network.interface.out.packets',j)))
+                self.p_stdscr.addstr (self.put_value(' si %8.2gM |', self.get_scalar_value('network.interface.in.bytes',j)))
+                self.p_stdscr.addstr (self.put_value(' so %8.2gM |', self.get_scalar_value('network.interface.out.bytes',j)))
                 if (self.yx[1] >= 95):
-                    self.p_stdscr.addstr (self.put_value(' erri %6.2gM |', self.get_metric_value('network.interface.in.errors')[j]))
+                    self.p_stdscr.addstr (self.put_value(' erri %6.2gM |', self.get_scalar_value('network.interface.in.errors',j)))
                 if (self.yx[1] >= 110):
-                    self.p_stdscr.addstr (self.put_value(' erro %6.2gM |', self.get_metric_value('network.interface.out.errors')[j]))
+                    self.p_stdscr.addstr (self.put_value(' erro %6.2gM |', self.get_scalar_value('network.interface.out.errors',j)))
                 self.next_line()
 
 
@@ -355,25 +344,25 @@ class _proc_print(_atop_print, proc):
                 break
 
             if self.output_type in ['g', 'm']:
-                self.p_stdscr.addstr ('%4d  ' % (self.get_metric_value('proc.psinfo.pid')[j]))
+                self.p_stdscr.addstr ('%4d  ' % (self.get_scalar_value('proc.psinfo.pid',j)))
             if self.output_type in ['g']:
 # Missing: is proc.psinfo.stime correct?
-                self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_metric_value('proc.psinfo.stime')[j]))
+                self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime',j)))
 # Missing: is proc.psinfo.utime correct?
-                self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_metric_value('proc.psinfo.utime')[j]))
+                self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime',j)))
                 self.p_stdscr.addstr ('%5d ' % 0)
                 self.p_stdscr.addstr ('%5d ' % 0)
-                self.p_stdscr.addstr ('%5d ' % (self.get_metric_value('proc.id.uid')[j]))
+                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.id.uid',j)))
                 self.p_stdscr.addstr ('%5d ' % 0)
                 self.p_stdscr.addstr ('%3d ' % 0)
-#                self.p_stdscr.addstr ('%5d ' % (self.get_metric_value('proc.psinfo.flags')[j]))
-                self.p_stdscr.addstr ('%3d ' % (self.get_metric_value('proc.psinfo.exit_signal')[j]))
+#                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.flags',j)))
+                self.p_stdscr.addstr ('%3d ' % (self.get_scalar_value('proc.psinfo.exit_signal',j)))
                 self.p_stdscr.addstr ('%2d ' % 0)
                 self.p_stdscr.addstr ('%3d ' % 0)
-                self.p_stdscr.addstr ('%-15s ' % (self.get_metric_value('proc.psinfo.cmd')[j]))
+                self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd',j)))
             if self.output_type in ['m']:
-                self.p_stdscr.addstr ('%5d ' % (self.get_metric_value('proc.psinfo.maj_flt')[j]))
-                self.p_stdscr.addstr ('%5d ' % (self.get_metric_value('proc.psinfo.minflt')[j]))
+                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.maj_flt',j)))
+                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.minflt',j)))
             self.next_line()
 
 

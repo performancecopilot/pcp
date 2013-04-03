@@ -27,12 +27,6 @@ from pcp import *
 from ctypes import *
 
 
-def check_code (code):
-    if (code < 0):
-        print pmErrStr(code)
-        sys.exit(1)
-
-
 # _pmsubsys ---------------------------------------------------------------
 
 
@@ -56,9 +50,7 @@ class _pmsubsys(object):
 
         self.metrics_dict=dict((i,self.metrics.index(i)) for i in self.metrics)
         (code, self.metric_pmids) = pm.pmLookupName(self.metrics)
-        check_code (code)
         (code, self.metric_descs) = pm.pmLookupDesc(self.metric_pmids)
-        check_code (code)
         self.metric_values = [0 for i in range(len(self.metrics))]
         self.old_metric_values = [0 for i in range(len(self.metrics))]
         if hasattr(super(_pmsubsys, self), 'setup_metrics'):
@@ -83,6 +75,11 @@ class _pmsubsys(object):
         else:
             return value
 
+    def get_len (self, var):
+        if type(var) != type(int()) and type(var) != type(long()):
+            return len(var)
+        else:
+            return 1
 
     def get_atom_value (self, metric, atom1, atom2, desc, first):
         if desc.contents.sem == pmapi.PM_SEM_DISCRETE or desc.contents.sem == pmapi.PM_SEM_INSTANT :
@@ -129,18 +126,16 @@ class _pmsubsys(object):
 
     def get_stats(self, pm):
         if len(self.metrics) <= 0:
-            print "This subsystem is not implemented yet"
-            return
+            raise pmErr
     
         list_type = type([])
 
         try:
             (code, metric_result) = pm.pmFetch(self.metric_pmids)
-            check_code (code)
         except pmErr, e:
             if str(e).find("PM_ERR_EOL") != -1:
-                print "\nReached end of archive"
-                sys.exit(1)
+                e.errStr += "\nReached end of archive"
+                raise pmErr, e
 
         if max(self.old_metric_values) == 0:
             first = True

@@ -51,17 +51,6 @@ def round (value, magnitude):
     return (value + (magnitude / 2)) / magnitude
 
 
-# get_dimension  ---------------------------------------------------------
-
-
-def get_dimension (value):
-    if type(value) != type(int()) and type(value) != type(long()):
-        dim = len(value)
-    else:
-        dim = 1
-    return dim
-        
-
 # record ---------------------------------------------------------------
 
 def record (pm, config, duration, file):
@@ -192,29 +181,29 @@ class _cpu_collect_print(cpu, _collect_print):
         print "%5d %6d" % (self.get_metric_value('kernel.all.intr'),
                            self.get_metric_value('kernel.all.pswitch')),
     def print_detail(self):
-        for k in range(len(self.get_metric_value('kernel.percpu.cpu.user'))):
+        for k in range(self.get_len(self.get_metric_value('kernel.percpu.cpu.user'))):
             print "    %3d  %4d %4d  %3d %4d %3d  %4d %5d %4d" % (
                 k,
-                (100 * (self.get_metric_value('kernel.percpu.cpu.nice')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.user')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.intr')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.sys')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.steal')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.irq.hard')[k] +
-                        self.get_metric_value('kernel.percpu.cpu.irq.soft')[k]) /
+                (100 * (self.get_scalar_value('kernel.percpu.cpu.nice',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.user',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.intr',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.sys',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.steal',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.irq.hard',k) +
+                        self.get_scalar_value('kernel.percpu.cpu.irq.soft',k)) /
              self.cpu_total),
-            self.get_metric_value('kernel.percpu.cpu.nice')[k],
-            (100 * (self.get_metric_value('kernel.percpu.cpu.intr')[k] +
-                    self.get_metric_value('kernel.percpu.cpu.sys')[k] +
-                    self.get_metric_value('kernel.percpu.cpu.steal')[k] +
-                    self.get_metric_value('kernel.percpu.cpu.irq.hard')[k] +
-                    self.get_metric_value('kernel.percpu.cpu.irq.soft')[k]) /
+            self.get_scalar_value('kernel.percpu.cpu.nice',k),
+            (100 * (self.get_scalar_value('kernel.percpu.cpu.intr',k) +
+                    self.get_scalar_value('kernel.percpu.cpu.sys',k) +
+                    self.get_scalar_value('kernel.percpu.cpu.steal',k) +
+                    self.get_scalar_value('kernel.percpu.cpu.irq.hard',k) +
+                    self.get_scalar_value('kernel.percpu.cpu.irq.soft',k)) /
              self.cpu_total),
-            self.get_metric_value('kernel.percpu.cpu.wait.total')[k],
-            self.get_metric_value('kernel.percpu.cpu.irq.hard')[k],
-            self.get_metric_value('kernel.percpu.cpu.irq.soft')[k],
-            self.get_metric_value('kernel.percpu.cpu.steal')[k],
-            self.get_metric_value('kernel.percpu.cpu.idle')[k] / 10)
+            self.get_scalar_value('kernel.percpu.cpu.wait.total',k),
+            self.get_scalar_value('kernel.percpu.cpu.irq.hard',k),
+            self.get_scalar_value('kernel.percpu.cpu.irq.soft',k),
+            self.get_scalar_value('kernel.percpu.cpu.steal',k),
+            self.get_scalar_value('kernel.percpu.cpu.idle',k) / 10)
     def print_verbose(self):
         ncpu = self.get_metric_value('hinv.ncpu')
         print "%4d %6d %5d %4d %4d %5d " % (
@@ -260,7 +249,7 @@ class _cpu_collect_print(cpu, _collect_print):
 
 class _interrupt_collect_print(interrupt, _collect_print):
     def print_header1_brief(self):
-            ndashes = (((len(self.metric_value[0])) * 6) - 6) / 2
+            ndashes = (((self.get_len(self.metric_values[0])) * 6) - 6) / 2
             h = "#<"
             for k in range(ndashes):
                 h += "-"
@@ -272,43 +261,43 @@ class _interrupt_collect_print(interrupt, _collect_print):
     def print_header1_detail(self):
             print '# INTERRUPT DETAILS'
             print '# Int    ',
-            for k in range(len(self.metric_value[0])):
+            for k in range(len(self.metric_values[0])):
                 print 'Cpu%d ' % k,
             print 'Type            Device(s)'
     def print_header1_verbose(self):
             print '# INTERRUPT SUMMARY'
     def print_header2_brief(self):
-            for k in range(len(self.metric_value[0])):
+            for k in range(len(self.metric_values[0])):
                 if k == 0:
                     print '#Cpu%d ' % k,
                 else:
                     print 'Cpu%d ' % k,
     def print_header2_verbose(self):
             print '#    ',
-            for k in range(len(self.metric_value[0])):
+            for k in range(len(self.metric_values[0])):
                 print 'Cpu%d ' % k,
             print
     def print_brief(self):
         int_count = []
-        for k in range(len(self.metric_value[0])):
+        for k in range(len(self.metric_values[0])):
             int_count.append(0)
-            for j  in range(0, len(self.metric_value)):
-                int_count[k] += self.metric_value[j][k]
+            for j  in range(0, len(self.metric_values)):
+                int_count[k] += self.metric_values[j][k]
                 
-        for k in range(len(self.metric_value[0])):
+        for k in range(len(self.metric_values[0])):
             print "%4d " % (int_count[k]),
     def print_detail(self):
         for j  in range(0, len(self.metrics_dict)):
-            for k in range(len(self.metric_value[0])):
+            for k in range(len(self.metric_values[0])):
                 have_nonzero_value = False
-                if self.metric_value[j][k] != 0:
+                if self.metric_values[j][k] != 0:
                     have_nonzero_value = True
                 if not have_nonzero_value:
                     continue
                 # pcp does not give the interrupt # so print spaces
                 print "%-8s" % self.metrics[j].split(".")[3],
-                for k in range(len(self.metric_value[0])):
-                    print "%4d " % (self.metric_value[j][k]),
+                for k in range(len(self.metric_values[0])):
+                    print "%4d " % (self.metric_values[j][k]),
                 text = (pm.pmLookupText(self.metric_pmids[j], pmapi.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
@@ -350,17 +339,17 @@ class _disk_collect_print(disk, _collect_print):
                 iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
-        for j in xrange(get_dimension(self.get_metric_value('disk.dev.read_bytes'))):
+        for j in xrange(self.get_len(self.get_metric_value('disk.dev.read_bytes'))):
             print "%-10s %6d %6d %4d %4d  %6d %6d %4d %4d  %6d %6d %4d %6d %4d" % (
                 iname[j],
-                get_scalar_value ('disk.dev.read_bytes', j),
-                get_scalar_value ('disk.dev.read_merge', j),
-                get_scalar_value ('disk.dev.read', j),
-                get_scalar_value ('disk.dev.blkread', j),
-                get_scalar_value ('disk.dev.write_bytes', j),
-                get_scalar_value ('disk.dev.write_merge', j),
-                get_scalar_value ('disk.dev.write', j),
-                get_scalar_value ('disk.dev.blkwrite', j),
+                self.get_scalar_value ('disk.dev.read_bytes', j),
+                self.get_scalar_value ('disk.dev.read_merge', j),
+                self.get_scalar_value ('disk.dev.read', j),
+                self.get_scalar_value ('disk.dev.blkread', j),
+                self.get_scalar_value ('disk.dev.write_bytes', j),
+                self.get_scalar_value ('disk.dev.write_merge', j),
+                self.get_scalar_value ('disk.dev.write', j),
+                self.get_scalar_value ('disk.dev.blkwrite', j),
                 0, 0, 0, 0, 0)
 # ??? replace 0 with required fields
 
@@ -528,11 +517,11 @@ if __name__ == '__main__':
                  "c":[cpu,"brief"],"C":[cpu,"detail"],
                  "n":[net,"brief"],"N":[net,"detail"],
                  "j":[interrupt,"brief"],"J":[interrupt,"detail"],
-                 "b":[ss,"brief"],"B":[ss,"detail"],
-                 "m":[memory,"brief"],"M":[ss,"detail"],
-                 "f":[ss,"brief"],"F":[ss,"detail"],
-                 "y":[ss,"brief"],"Y":[ss,"detail"],
-                 "Z":[ss,"detail"]
+                 "b":[ss,"brief"], # "B":[ss,"detail"],
+                 "m":[memory,"brief"], # "M":[ss,"detail"],
+#                 "f":[ss,"brief"],"F":[ss,"detail"],
+#                 "y":[ss,"brief"],"Y":[ss,"detail"],
+#                 "z":[ss,"detail"],"Z":[ss,"detail"]
                  }
 
     while i < len(sys.argv):
@@ -557,7 +546,11 @@ if __name__ == '__main__':
         elif (sys.argv[i][:2] == "-s"):
             for j in xrange(len(sys.argv[i][2:])):
                 subsys_arg = sys.argv[i][j+2:j+3]
-                subsys.append(s_options[subsys_arg][0])
+                try:
+                    subsys.append(s_options[subsys_arg][0])
+                except KeyError:
+                    print sys.argv[0] + ": Unimplemented subsystem -s" + subsys_arg
+                    sys.exit(1)
                 if subsys_arg.isupper():
                     verbosity =  s_options[subsys_arg][1]
         elif (sys.argv[i] == "--verbose"):
@@ -627,13 +620,16 @@ if __name__ == '__main__':
             s.setup_metrics(pm)
         except pmErr, e:
             if input_file != "":
-                args = ""
-                for i in sys.argv:
-                    args = args + " " + i
-                print "Argument mismatch between invocation arguments:\n" + args
-                record_check_creator(input_file, "and arguments used to create the playback directory\n ")
+                if s == interrupt:
+                    print "the interrupt subsystem is not supported with playback"
+                else:
+                    args = ""
+                    for i in sys.argv:
+                        args = args + " " + i
+                    print "Argument mismatch between invocation arguments:\n" + args
+                    record_check_creator(input_file, "and arguments used to create the playback directory\n ")
             else:
-                print e,"\nwhile calling setup_metrics"
+                print "unable to setup metrics"
             sys.exit(1)
         s.set_verbosity(verbosity)
         s.get_stats(pm)
