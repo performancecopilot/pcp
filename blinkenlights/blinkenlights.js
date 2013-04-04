@@ -12,6 +12,11 @@ function Predicate(name,index,operator,threshold) {
   this.inames = {};
 }
 
+Predicate.prototype.to_string = function() {
+  return this.name + "[" + this.index + "] "
+    + this.operator + " " + this.threshold;
+};
+
 Predicate.prototype.get_iname = function(iid) {
   if (!(iid in this.inames)) {
     var pm_url = pm_root + "/" + pm_context + "/_indom?name=" + this.name + "&instance=" + iid;
@@ -63,7 +68,7 @@ Predicate.prototype.test = function(elt,data_dict,index) {
 var predicates = [];
 
 function parsePredicate(src) {
-  var matches = /^([^[]+)\s*(\[\d+\]|\[\*\]|\[\]|)\s*(<=|>=|==|<|>)\s*(\S*)$/.exec(src);
+  var matches = /^([^[ ]+)\s*(\[\d+\]|\[\*\]|\[\]|)\s*(<=|>=|==|<|>)\s*(\S*)$/.exec(src);
   if (matches == null) return null;
   var name = matches[1];
   var index = matches[2]; index = index == "" ? "*" : index.substring(1,index.length-1);
@@ -143,13 +148,10 @@ function loadBlinkenlights() {
 
   // start timer for updateBlinkenlights
   updateBlinkenlights();
-  setUpdateInterval(1000);
+  setUpdateInterval(updateInterval);
 }
 
 $(document).ready(function() {
-  predicates.push(parsePredicate("kernel.all.load[*] > 0.2"));
-  // predicates.push(new Predicate("kernel.all.load", "*", ">", 0.2));
-  
   loadBlinkenlights();
   // TODOXXX add support for editing mode
 });
