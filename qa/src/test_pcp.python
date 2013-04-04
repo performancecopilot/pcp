@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012, 2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -106,14 +106,15 @@ def test_pcp(self, context = 'local', path = ''):
     ncpu = atom.ul
 
     # pmGetChildren
-    gc = pm.pmGetChildren("kernel")
-    print "pmGetChildren:", gc
-    self.assertTrue(len(gc) >=2)
+    if not self.archive_type:
+        gc = pm.pmGetChildren("kernel")
+        print "pmGetChildren:", gc
+        self.assertTrue(len(gc) >=2)
 
     # pmGetChildrenStatus
-    gc = pm.pmGetChildrenStatus("kernel")
-    print "pmGetChildrenStatus:", gc
-    self.assertTrue(len(gc[0]) == len(gc[1]))
+        gc = pm.pmGetChildrenStatus("kernel")
+        print "pmGetChildrenStatus:", gc
+        self.assertTrue(len(gc[0]) == len(gc[1]))
 
     # pmGetPMNSLocation
     i = pm.pmGetPMNSLocation()
@@ -160,7 +161,7 @@ def test_pcp(self, context = 'local', path = ''):
         # pmGetInDom
         (inst, name) = pm.pmGetInDom(descs[1])
         print "pmGetInDom:", name
-        self.assertTrue(len(inst) >= 2 and len(name) >= 2)
+        self.assertTrue(len(inst) == ncpu and len(name) == ncpu)
     else:
         # pmGetInDomArchive
         (inst, name) = pm.pmGetInDomArchive(descs[1])
@@ -282,7 +283,7 @@ def test_pcp(self, context = 'local', path = ''):
     # pmExtractValue 
     for i in xrange(results.contents.numpmid):
         # mem.freemem ?
-        if (results.contents.get_pmid(i) != self.metric_ids[3]):
+        if (results.contents.get_pmid(i) != self.metric_ids[1]):
             continue
         (code, tmpatom) = pm.pmExtractValue(results.contents.get_valfmt(i),
                                             results.contents.get_vlist(i, 0),
@@ -333,9 +334,10 @@ def test_pcp(self, context = 'local', path = ''):
         self.assertTrue (code >= 0 and loglabel.pid_t > 0)
 
     # pmPrintValue XXX
-    print "pmPrintValue: "
-    pm.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
-    print
+    if not self.archive_type:
+        print "pmPrintValue: "
+        pm.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
+        print
 
     # pmReconnectContext
     code = pm.pmReconnectContext ()
@@ -359,7 +361,7 @@ if __name__ == '__main__':
 
     HAVE_BITFIELDS_LTOR = False
     if (len(sys.argv) == 2):
-        open(sys.argv[1] + '.index', mode='r')
+        open(sys.argv[1], mode='r')
         archive = sys.argv[1]
     elif (len(sys.argv) > 2):
         print "Usage: " + sys.argv[0] + " OptionalArchivePath"

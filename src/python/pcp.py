@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012, 2013 Red Hat Inc.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -1368,9 +1368,9 @@ class pmContext( object ):
     ##
     # PMAPI Archive-Specific Services
 
-    def pmGetArchiveLabel( self, loglabel ):
+    def pmGetArchiveLabel( self ):
         """PMAPI - Get the label record from the archive
-        (status, loglabel) = pmGetArchiveLabel()
+        (status) = pmGetArchiveLabel()
         """
         loglabel = pmLogLabel()
         status = libpcp.pmUseContext( self.ctx )
@@ -1553,6 +1553,7 @@ class pmContext( object ):
 
     def pmPrintValue( self, fileObj, result, ptype, vset_idx, vlist_idx, minWidth):
         """PMAPI - Print the value of a metric
+        pmPrintValue (file, value, pmDesc pmdesc, vset_index, vlist_index, min_width)
         """
         fp = ctypes.pythonapi.PyFile_AsFile( fileObj )
         libpcp.pmPrintValue (fp, c_int(result.contents.vset[vset_idx].contents.valfmt), c_int(ptype.contents.type), byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]), minWidth)
