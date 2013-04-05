@@ -1,6 +1,5 @@
-<?xml version="1.0" standalone="yes"?>
-
-<!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "dtd/docbook/docbookx.dtd">
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <book status="final" security="public"><title>Performance Co-Pilot&#x2122; Programmer's Guide</title>
 <bookinfo><invpartnumber condition="sgi_partnumber:PCP_PG:sgi-developer">007-3434-005</invpartnumber><edition>2.3</edition><othercredit><contrib>Illustrated by Dany Galgani</contrib><contrib>Edited by Susan Wilkening</contrib><contrib>Production by Glen Traefald</contrib><contrib>Engineering and written contributions by David Chatterton, Michael Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan Rayner, Terry Schultz, Nathan Scott, Timothy Shimmin, and Bill Tuthill</contrib></othercredit><legalnotice>
 
@@ -402,20 +401,19 @@ of export methodology is typically determined by the source of the instrumentati
 <para><indexterm id="IG3134017766"><primary>PMDA</primary><secondary> checklist</secondary></indexterm><xref linkend="id5187871"/> describes the suggested steps for designing and implementing a PMDA:</para>
 <procedure id="id5187871">
 <title>Creating a PMDA</title>
-<orderedlist><listitem><para>Determine how to extract the metrics from the target domain.</para>
-</listitem><listitem><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>sproc</command>).</para>
-</listitem><listitem><para>Define the metrics and instances that the PMDA will support.</para>
-</listitem><listitem><para>Implement the functionality to extract the metric values.</para>
-</listitem><listitem><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS).</para>
-</listitem><listitem><para><indexterm id="IG3134017767"><primary>help text</primary><secondary>structure specification</secondary></indexterm>Specify the help file and control data structures for metrics and instances that are required by the standard PMDA implementation library functions.</para>
-</listitem><listitem><para>Write code to supply the metrics and associated information to PMCD.</para>
-</listitem><listitem><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para>
-</listitem><listitem><para><indexterm id="IG3134017768"><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command>dbpmda(1)</command> man page.</para>
-</listitem><listitem><para>Install and connect the PMDA to a running PMCD process; see the <command>pmcd(1)</command> man page.</para>
-</listitem><listitem><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages (IRIX only). For an examples of text-based tools, see the <command>
-pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of alarm tools, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para>
-<para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configurations suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogger(1)</command> man page.</para>
-</listitem></orderedlist>
+<step><para>Determine how to extract the metrics from the target domain.</para></step>
+<step><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>sproc</command>).</para></step>
+<step><para>Define the metrics and instances that the PMDA will support.</para></step>
+<step><para>Implement the functionality to extract the metric values.</para></step>
+<step><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS).</para></step>
+<step><para><indexterm id="IG3134017767"><primary>help text</primary><secondary>structure specification</secondary></indexterm>Specify the help file and control data structures for metrics and instances that are required by the standard PMDA implementation library functions.</para></step>
+<step><para>Write code to supply the metrics and associated information to PMCD.</para></step>
+<step><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para></step>
+<step><para><indexterm id="IG3134017768"><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command>dbpmda(1)</command> man page.</para></step>
+<step><para>Install and connect the PMDA to a running PMCD process; see the <command>pmcd(1)</command> man page.</para></step>
+<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages (IRIX only). For an examples of text-based tools, see the <command>
+pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of alarm tools, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
+<step><para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configurations suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogger(1)</command> man page.</para></step>
 </procedure>
 </section>
 <section id="id5188149">
@@ -2585,14 +2583,13 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <para>In <xref linkend="id5206969"/>, the functions are used in combination to create a recording session.</para>
 <procedure id="id5206969">
 <title>Creating a Recording Session</title>
-<orderedlist><listitem><para>Call <command>pmRecordSetup</command> to establish a new recording session. A new Archive Folio is created using the name <replaceable>folio</replaceable>. If the <replaceable>folio</replaceable> file or directory already exists, or if it cannot be created, this is an error. The application that is creating the session is identified by creator (most often this would be the same as the global PMAPI application name, <literal>pmProgname</literal>). If the application knows how to create its own configuration file to replay the recorded session, replay should be nonzero. The <command>pmRecordSetup</command> function returns a stdio stream onto which the application writes the text of any required replay configuration file.</para>
-</listitem><listitem><para>For each host that is to be included in the recording session, call <command>pmRecordAddHost</command>. A new <filename>pmRecordHost</filename> structure is returned via <replaceable>rhp</replaceable>. It is assumed that PMCD is running on the host as this is how <command>pmlogger</command> retrieves the required performance metrics. See <xref linkend="LE13213-PARENT"/> for more information.</para>
-</listitem><listitem><para>Optionally, add arguments to the command line that is used to launch <command>pmlogger</command> by calling <command>pmRecordControl</command> with a request of <literal>PM_REC_SETARG</literal>. The argument is passed via options and one call to <command>pmRecordControl</command> is required for each distinct argument. See <xref linkend="LE35969-PARENT"/> for more information.</para>
-</listitem><listitem><para>To commence the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_ON</literal>, and <replaceable>rhp</replaceable> must be NULL.</para>
-</listitem><listitem><para>To terminate a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_OFF</literal>.</para>
-</listitem><listitem><para>To display the current status of the <command>pmlogger</command> instance identified by, <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_STATUS</literal>.</para>
-</listitem><listitem><para>To detach a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, allow it to continue independent of the application that launched the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_DETACH</literal>.</para>
-</listitem></orderedlist>
+<step><para>Call <command>pmRecordSetup</command> to establish a new recording session. A new Archive Folio is created using the name <replaceable>folio</replaceable>. If the <replaceable>folio</replaceable> file or directory already exists, or if it cannot be created, this is an error. The application that is creating the session is identified by creator (most often this would be the same as the global PMAPI application name, <literal>pmProgname</literal>). If the application knows how to create its own configuration file to replay the recorded session, replay should be nonzero. The <command>pmRecordSetup</command> function returns a stdio stream onto which the application writes the text of any required replay configuration file.</para></step>
+<step><para>For each host that is to be included in the recording session, call <command>pmRecordAddHost</command>. A new <filename>pmRecordHost</filename> structure is returned via <replaceable>rhp</replaceable>. It is assumed that PMCD is running on the host as this is how <command>pmlogger</command> retrieves the required performance metrics. See <xref linkend="LE13213-PARENT"/> for more information.</para></step>
+<step><para>Optionally, add arguments to the command line that is used to launch <command>pmlogger</command> by calling <command>pmRecordControl</command> with a request of <literal>PM_REC_SETARG</literal>. The argument is passed via options and one call to <command>pmRecordControl</command> is required for each distinct argument. See <xref linkend="LE35969-PARENT"/> for more information.</para></step>
+<step><para>To commence the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_ON</literal>, and <replaceable>rhp</replaceable> must be NULL.</para></step>
+<step><para>To terminate a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_OFF</literal>.</para></step>
+<step><para>To display the current status of the <command>pmlogger</command> instance identified by, <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_STATUS</literal>.</para></step>
+<step><para>To detach a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, allow it to continue independent of the application that launched the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_DETACH</literal>.</para></step>
 </procedure>
 <para>The calling application should not close any of the returned stdio streams; <command>pmRecordControl</command> performs this task when recording is commenced.</para>
 <para>Once <command>pmlogger</command> has been started for a recording session, <command>pmlogger</command> assumes responsibility for any dialogue with the user in the event that the application that launched the recording session should exit, particularly without terminating the recording session.</para>
