@@ -1,7 +1,0 @@
-<deflistentry><?Pub Caret1>
-<term><literal>command</literal></term>
-<listitem><para>This fixed-space font denotes literal  items such as commands,
-files, routines,  path names, signals, messages, and  programming language
-structures. </para>
-</listitem>
-</deflistentry>

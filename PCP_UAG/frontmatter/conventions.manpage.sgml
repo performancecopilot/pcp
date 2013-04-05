@@ -1,6 +1,0 @@
-<deflistentry>
-<term><literal>manpage</literal>(<replaceable>x</replaceable>)</term>
-<listitem><para>Man page section identifiers appear in  parentheses after
-man page names. 
-</para>
-</listitem></deflistentry>

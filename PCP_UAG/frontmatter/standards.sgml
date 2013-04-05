@@ -1,6 +1,0 @@
-<para>The default shell in the UNICOS and UNICOS/mk operating systems, referred to as the <firstterm>standard shell</firstterm>, is a version of the Korn shell that conforms to the following standards:<itemizedlist>
-<listitem><para>Institute of Electrical and Electronics Engineers (IEEE)  Portable Operating System Interface (POSIX) Standard  1003.2&ndash;1992</para>
-</listitem>
-<listitem><para>X/Open Portability Guide, Issue 4 (XPG4)</para>
-</listitem></itemizedlist></para>
-<para>The UNICOS and UNICOS/mk operating systems also support the optional use of the C shell.</para><?Pub Caret>
