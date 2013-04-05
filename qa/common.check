@@ -174,10 +174,10 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		ps "$PCP_PS_ALL_FLAGS" | egrep "pm|PPID"
+		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
 		;;
 	    *)
-		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"pm|PPID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
 	status=2
@@ -278,7 +278,7 @@ _wait_for_pmlogger()
 	    fi
 	fi
 	base=`cat $_logfile | sed -n '/^Archive basename:[ 	]*/s///p'`
-	if [ -f $base.0 ]
+	if [ -n "$base" -a -f $base.0 ]
 	then
 	    echo "archive created ..."
 	    pmdumplog -l $base.0
@@ -291,7 +291,7 @@ _wait_for_pmlogger()
 	echo "local pmlogger map ..."
 	for map in $PCP_TMP_DIR/pmlogger/*
 	do
-	    if [ "`echo $map`" = '$PCP_TMP_DIR/pmlogger/*' ]
+	    if [ "`echo $map`" = "$PCP_TMP_DIR"'/pmlogger/*' ]
 	    then
 		echo "No files in $PCP_TMP_DIR/pmlogger !?"
 	    else
@@ -301,7 +301,7 @@ _wait_for_pmlogger()
 	done
 	echo
 	echo "Likely looking processes ..."
-	ps $PCP_PS_ALL_FLAGS | egrep 'pm|PPID'
+	ps $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]ID'
 	status=2
 	exit $status
     fi
