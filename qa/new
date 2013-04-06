@@ -94,7 +94,7 @@ fi
 #
 while true
 do
-    id=`sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
+    id=`sed -n -e 's/:retired / /' -e '/^[0-9]/s/[ 	].*//p' <group \
 	| LC_COLLATE=POSIX sort -n \
 	| $PCP_AWK_PROG '
 BEGIN		{ last = '$try' }
