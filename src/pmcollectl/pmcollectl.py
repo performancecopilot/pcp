@@ -56,12 +56,10 @@ def round (value, magnitude):
 def record (pm, config, duration, file):
     global me
 
-    # -f saves the metrics in a directory
     if os.path.exists(file):
-        print me + "playback directory %s already exists\n" % file
+        print me + "archive %s already exists\n" % file
         sys.exit(1)
-    os.mkdir (file)
-    status = pm.pmRecordSetup (file + "/" + me + ".pcp", me, 0)
+    status = pm.pmRecordSetup (file, me, 0)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
     status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
     status = pm.pmRecordControl (0, pmapi.PM_REC_ON, "")
@@ -75,7 +73,7 @@ def record (pm, config, duration, file):
 # record_add_creator ------------------------------------------------------
 
 def record_add_creator (fn):
-    f = open (fn + "/" + me + ".pcp", "r+")
+    f = open (fn, "r+")
     args = ""
     for i in sys.argv:
         args = args + i + " "
@@ -505,10 +503,14 @@ if __name__ == '__main__':
     duration = 0
     interval_arg = 1
     duration_arg = 0
+    create_archive = False
+    replay_archive = False
 
     ss = _generic_collect_print()
     cpu = _cpu_collect_print()
     interrupt = _interrupt_collect_print()
+    # interrupt metrics are setup on the fly; an archive may not provide this
+    interrupt.init_metrics(pmContext())
     disk = _disk_collect_print()
     memory = _memory_collect_print()
     net = _net_collect_print()
@@ -533,9 +535,11 @@ if __name__ == '__main__':
         elif (sys.argv[i] == "-f" or sys.argv[i] == "--filename"):
             i += 1
             output_file = sys.argv[i]
+            create_archive = True
         elif (sys.argv[i] == "-p" or sys.argv[i] == "--playback"):
             i += 1
             input_file = sys.argv[i]
+            replay_archive = True
         elif (sys.argv[i] == "-R" or sys.argv[i] == "--runtime"):
             i += 1
             duration_arg = sys.argv[i]
@@ -566,30 +570,29 @@ if __name__ == '__main__':
         i += 1
 
     if len(subsys) == 0:
-        map( lambda x: subsys.append(x) , (cpu, disk, net) )
+        if create_archive:
+            map( lambda x: subsys.append(x) , (cpu, disk, net, interrupt, memory) )
+        else:
+            map( lambda x: subsys.append(x) , (cpu, disk, net) )
 
-    if input_file == "":
-        try:
-            pm = pmContext()
-        except pmErr, e:
-            print "Cannot connect to pmcd on %s" % "localhost"
-            sys.exit(1)
-    else:
-        # -f saves the metrics in a directory, so get the archive basename
-        lol = []
+    if replay_archive:
+        lines = []
         if not os.path.exists(input_file):
             print input_file, "does not exist"
             sys.exit(1)
-        if not os.path.isdir(input_file) or not os.path.exists(input_file + "/pmcollectl.pcp"):
-            print input_file, "is not a", me, "playback directory"
-            sys.exit(1)
-        for line in open(input_file + "/" + me + ".pcp"):
-            lol.append(line[:-1].split())
-        archive = input_file + "/" + lol[len(lol)-1][2]
+        for line in open(input_file):
+            lines.append(line[:-1].split())
+        archive = os.path.join(os.path.dirname(input_file), lines[len(lines)-1][2])
         try:
             pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
         except pmErr, e:
             print "Cannot open PCP archive: %s" % archive
+            sys.exit(1)
+    else:
+        try:
+            pm = pmContext()
+        except pmErr, e:
+            print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)
 
     if duration_arg != 0:
@@ -617,17 +620,14 @@ if __name__ == '__main__':
 
     for s in subsys:
         try:
+            metrics = str(s.metrics)
             s.setup_metrics(pm)
         except pmErr, e:
-            if input_file != "":
-                if s == interrupt:
-                    print "the interrupt subsystem is not supported with playback"
-                else:
-                    args = ""
-                    for i in sys.argv:
-                        args = args + " " + i
-                    print "Argument mismatch between invocation arguments:\n" + args
-                    record_check_creator(input_file, "and arguments used to create the playback directory\n ")
+            if replay_archive:
+                from textwrap import TextWrapper,fill
+                wrapper = TextWrapper()
+                print str(cpu.metrics)
+                print "One of the following metrics is required but absent in " + input_file + "\n" + wrapper.fill(str(metrics))
             else:
                 print "unable to setup metrics"
             sys.exit(1)
@@ -663,7 +663,12 @@ if __name__ == '__main__':
                     print
                     s.print_header1()
                     s.print_header2()
-                s.get_stats(pm)
+                try:
+                    s.get_stats(pm)
+                except pmErr, e:
+                    if str(e).find("PM_ERR_EOL") != -1:
+                        print str(e)
+                        sys.exit(1)
                 s.get_total()
                 s.print_line()
             if verbosity == "brief":

@@ -40,6 +40,9 @@ class _pmsubsys(object):
         self.old_metric_values = []
         super (_pmsubsys, self).__init__()
 
+    def init_metrics(self,pm):
+        pass
+
     def setup_metrics(self,pm):
         # remove any unsupported metrics
         for j in range(len(self.metrics)-1, -1, -1):
@@ -130,12 +133,7 @@ class _pmsubsys(object):
     
         list_type = type([])
 
-        try:
-            (code, metric_result) = pm.pmFetch(self.metric_pmids)
-        except pmErr, e:
-            if str(e).find("PM_ERR_EOL") != -1:
-                e.errStr += "\nReached end of archive"
-                raise pmErr, e
+        (code, metric_result) = pm.pmFetch(self.metric_pmids)
 
         if max(self.old_metric_values) == 0:
             first = True
@@ -234,11 +232,10 @@ class interrupt(_pmsubsys):
         super(interrupt, self).__init__()
 
 
-    def setup_metrics(self,pm):
+    def init_metrics(self,pm):
         int_list = pm.pmGetChildren("kernel.percpu.interrupts")
         for i in xrange(len(int_list)):
             self.metrics.append('kernel.percpu.interrupts.' + int_list[i])
-        super(interrupt, self).setup_metrics(pm)
 
 
 # disk  -----------------------------------------------------------------
