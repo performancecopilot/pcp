@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 Red Hat, Inc.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -35,11 +35,11 @@ public:
     int type() const { return my.type; }
     bool isArchive() const { return my.type == PM_CONTEXT_ARCHIVE; }
     QString source() const { return my.source; }
-    const char *sourceAscii() const { return (const char*)my.source.toAscii(); }
+    char *sourceAscii() const { return strdup((const char*)my.source.toAscii()); }
     QString host() const { return my.host; }
-    const char *hostAscii() const { return (const char *)my.host.toAscii(); }
+    char *hostAscii() const { return strdup((const char *)my.host.toAscii()); }
     QString proxy() const { return my.proxy; }
-    const char *proxyAscii() const { return (const char *)my.proxy.toAscii(); }
+    char *proxyAscii() const { return strdup((const char *)my.proxy.toAscii()); }
     int tzHandle() const { return my.tz; }
     QString timezone() const { return my.timezone; }
     struct timeval start() const { return my.start; }
@@ -47,7 +47,7 @@ public:
     struct timeval end() const { return my.end; }
     QString endTime() { return timeString(&my.end); }
     QString desc() const { return my.desc; }
-    const char *descAscii() const { return (const char *)my.desc.toAscii(); }
+    char *descAscii() const { return strdup((const char *)my.desc.toAscii()); }
 
     // Number of active contexts to this source
     uint numContexts() const { return my.handles.size(); }

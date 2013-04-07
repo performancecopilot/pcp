@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2013, Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -223,9 +224,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	format = regex.cap(1);
 	QList<QByteArray> array = QImageWriter::supportedImageFormats();
 	for (i = 0; i < array.size(); i++) {
-	    const char *f1 = array.at(i);
-	    const char *f2 = (const char *)format.toAscii();
-	    if (strcmp(f1, f2) == 0)
+	    if (strcmp(array.at(i), (const char *)format.toAscii()) == 0)
 		break;
 	}
 	if (i == array.size())

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2013, Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,8 +62,7 @@ QColor ColorScheme::colorSpec(QString name)
 	color.setNamedColor(name);
     else {
 	float fr, fg, fb;
-	const char *s = (const char *)rgbi.toAscii();
-	if (sscanf(s, "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
+	if (sscanf((const char *)rgbi.toAscii(), "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
 	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
 	// else return color as-is, i.e. invalid.
     }

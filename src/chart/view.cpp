@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2013, Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1246,9 +1247,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
     for (int m = 0; m < cp->metricCount(); m++) {
-	char	*p, *q, *qend;
-	bool	saveInsts = false;
-
+	char	*p;
 	if (cp->activeItem(m) == false)
 	    continue;
 	fprintf(f, "\tplot");
@@ -1259,27 +1258,10 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	if (hostDynamic == false)
 	    fprintf(f, " host %s", (const char *)
 			cp->metricContext(m)->source().host().toAscii());
-	saveInsts = cp->metric(m)->explicitInsts();
-	if (saveInsts) {
-	    p = (char *)(const char *)cp->name(m).toAscii();
-	    if ((q = strchr(p, '[')) != NULL) {
-		// metric with an instance
-		if ((qend = strrchr(q, ']')) == NULL) {
-		    QString	msg;
-		    msg.sprintf("Botch @ metric name: \"%s\"", p);
-		    err(E_CRIT, false, msg);
-		}
-		else {
-		    *q++ = '\0';
-		    *qend = '\0';
-		    fprintf(f, " metric %s instance \"%s\"", p, q);
-		}
-	    } else {
-		saveInsts = false;
-	    }
-	}
-	if (!saveInsts) // singular metric or non-explicit insts
-	    fprintf(f, " metric %s", p);
+        fprintf(f, " metric %s", (const char *)
+                cp->metricName(m).toAscii());
+	if (cp->metric(m)->explicitInsts())
+            fprintf(f, " instance \"%s\"", (const char*)cp->metricInstance(m).toAscii());
 	fputc('\n', f);
     }
 }
@@ -1291,7 +1273,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
     int		c, t;
     Tab		*tab;
     Gadget	*gadget;
-    const char	*path = (const char *)file.toAscii();
+    char	*path = strdup((const char *)file.toAscii());
     QStringList	schemes;
 
     if ((f = fopen(path, "w")) == NULL)
@@ -1338,11 +1320,13 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 
     fflush(f);
     fclose(f);
+    free (path);
     return true;
 
 noview:
     QString errmsg;
     errmsg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
     err(E_CRIT, false, errmsg);
+    free (path);
     return false;
 }
