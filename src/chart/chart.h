@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2013, Red Hat, Inc.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -196,6 +196,7 @@ class ChartEngine
 public:
     ChartEngine() { }
     ChartEngine(Chart *chart);
+    virtual ~ChartEngine() {}
 
     // test whether a new metric (type and units) would be compatible
     // with this engine and any metrics already plotted in the chart.
