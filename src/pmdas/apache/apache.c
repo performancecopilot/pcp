@@ -196,7 +196,6 @@ static int refreshData(time_t now)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "Doing http_fetch(%s)\n", url);
 
-    http_setTimeout(1);
     len = http_fetch(url, &res);
     if (len < 0) {
 	if (pmDebug & DBG_TRACE_APPL1)
