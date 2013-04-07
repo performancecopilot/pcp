@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013, Red Hat Inc.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
@@ -191,7 +192,7 @@ void setupEnvironment(void)
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append(QChar(__pmPathSeparator()));
     confirm.append("pmquery");
-    putenv(strdup((const char *)confirm.toAscii()));
+    putenv(strdup(confirm.toAscii().constData()));
     if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));
 
@@ -765,7 +766,7 @@ main(int argc, char ** argv)
 
     readSchemes();
     for (c = 0; c < configs.size(); c++)
-	OpenViewDialog::openView((const char *)configs[c].toAscii());
+        OpenViewDialog::openView(configs[c].toAscii().constData());
     setupViewGlobals();
     pmflush();
 

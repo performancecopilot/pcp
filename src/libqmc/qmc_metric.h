@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -162,7 +162,7 @@ public:
     int status() const { return my.status; }
     pmID metricID() const { return my.pmid; }
     const QString name() const { return my.name; }
-    const char *nameAscii() const { return (const char *)my.name.toAscii(); }
+    char *nameAscii() const { return strdup(my.name.toAscii().constData()); }
     QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const

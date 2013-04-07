@@ -129,7 +129,7 @@ void ExportDialog::filePushButton_clicked()
 
 void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)
 {
-    char *format = strdup((const char *)suffix.toAscii());
+    char *format = strdup(suffix.toAscii().constData());
     QString file = fileLineEdit->text().trimmed();
     QString regex = my.format;
 
@@ -185,7 +185,7 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     QPainter qp(&image);
 
     console->post("ExportDialog::exportFile file=%s fmt=%s qual=%d w=%d h=%d trans=%d every=%d\n",
-	(const char *)file.toAscii(), format, quality, width, height, transparent, everything);
+                  file.toAscii().constData(), format, quality, width, height, transparent, everything);
 
     if (transparent) {
 	image.fill(qRgba(255, 255, 255, 0));
@@ -200,8 +200,8 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     bool sts = writer.write(image);
     if (!sts)
 	fprintf(stderr, "%s: error writing %s (%s): %s\n",
-		pmProgname, (const char *) file.toAscii(), format,
-		(const char *) writer.errorString().toAscii());
+		pmProgname, file.toAscii().constData(), format,
+		writer.errorString().toAscii().constData());
     return sts;
 }
 
@@ -223,9 +223,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	format = regex.cap(1);
 	QList<QByteArray> array = QImageWriter::supportedImageFormats();
 	for (i = 0; i < array.size(); i++) {
-	    const char *f1 = array.at(i);
-	    const char *f2 = (const char *)format.toAscii();
-	    if (strcmp(f1, f2) == 0)
+            if (strcmp(array.at(i),format.toAscii().constData()) == 0)
 		break;
 	}
 	if (i == array.size())
@@ -235,7 +233,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	file.append(".png");
 	format = QString("png");
     }
-    strncpy(suffix, (const char *)format.toAscii(), sizeof(suffix));
+    strncpy(suffix, format.toAscii().constData(), sizeof(suffix));
     suffix[sizeof(suffix)-1] = '\0';
 
     regex.setPattern("(\\d+)x(\\d+)");

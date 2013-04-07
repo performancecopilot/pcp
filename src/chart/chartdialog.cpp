@@ -415,8 +415,8 @@ void ChartDialog::hostButtonClicked()
 		    Qt::NoButton, Qt::NoButton);
 	} else {
 	    console->post(PmChart::DebugUi,
-			"ChartDialog::newHost: %s (flags=0x%x)",
-			(const char *)hostspec.toAscii(), flags);
+                          "ChartDialog::newHost: %s (flags=0x%x)",
+                          hostspec.toAscii().constData(), flags);
 	    setupAvailableMetricsTree(false);
 	}
     }
@@ -807,18 +807,18 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     pmMetricSpec pms;
 
-    const char *nlabel = NULL;
+    char *nlabel = NULL;
     if (name->label().isEmpty() == false)
-	nlabel = (const char *)name->label().toAscii();
+        nlabel = strdup(name->label().toAscii().constData());
     pms.isarch = (name->sourceType() == PM_CONTEXT_LOCAL) ? 2 :
 		((name->sourceType() == PM_CONTEXT_ARCHIVE) ? 1 : 0);
-    pms.source = strdup((const char *)name->sourceName().toAscii());
-    pms.metric = strdup((const char *)name->metricName().toAscii());
+    pms.source = strdup(name->sourceName().toAscii().constData());
+    pms.metric = strdup(name->metricName().toAscii().constData());
     if (!pms.source || !pms.metric)
 	nomem();
     if (name->isInst()) {
 	pms.ninst = 1;
-	pms.inst[0] = strdup((const char *)name->metricInstance().toAscii());
+	pms.inst[0] = strdup(name->metricInstance().toAscii().constData());
 	if (!pms.inst[0])
 	    nomem();
     }
@@ -853,6 +853,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 
     if (pms.ninst == 1)
 	free(pms.inst[0]);
+    free(nlabel);
     free(pms.metric);
     free(pms.source);
 }

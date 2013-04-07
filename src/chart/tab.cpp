@@ -201,7 +201,7 @@ void Tab::stopRecording(void)
 	QString archive = my.archiveList.at(i);
 
 	console->post("Tab::stopRecording opening archive %s",
-			(const char *)archive.toAscii());
+                      archive.toAscii().constData());
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
 	    errmsg.append(tr("Cannot open PCP archive: "));
 	    errmsg.append(archive);
@@ -241,7 +241,7 @@ void Tab::stopRecording(void)
 	// TODO: may need to update archive samples/visible?
 	tab->init(pmchart->tabWidget(), archiveGroup, "Record");
 	pmchart->addActiveTab(tab);
-	OpenViewDialog::openView((const char *)my.view.toAscii());
+	OpenViewDialog::openView(my.view.toAscii().constData());
 	cleanupRecording();
     }
 }

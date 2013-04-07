@@ -330,13 +330,13 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 #if DESPERATE
 	    QString timestamp = QmcSource::timeStringBrief(record.timestamp());
 	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
-		"[%s] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
-		(const char *)timestamp.toAscii(),
-		(const char *)event.spanID().toAscii(), slot,
-		event.hasIdentifier() ? "y" : "n",
-		(const char *)event.rootID().toAscii(), parentSlot,
-		event.hasParent() ? "y" : "n",
-		event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
+                          "[%s] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
+                          timestamp.toAscii().constData(),
+                          event.spanID().toAscii().constData(), slot,
+                          event.hasIdentifier() ? "y" : "n",
+                          event.rootID().toAscii().constData(), parentSlot,
+                          event.hasParent() ? "y" : "n",
+                          event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
 #endif
 
 	    if (event.hasStartFlag()) {
@@ -579,7 +579,7 @@ TracingScaleDraw::label(double value) const
 #if DESPERATE
     console->post(PmChart::DebugForce,
 		"TracingScaleDraw::label: lookup ID %d (=>\"%s\")",
-		slot, (const char *)label.toAscii());
+                  slot, label.toAscii().constData());
 #endif
 
     // ensure label is not too long to fit
@@ -666,8 +666,8 @@ TracingEngine::addTraceSpan(const QString &spanID, int slot)
 {
     Q_ASSERT(spanID != QString::null && spanID != "");
     console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d/%d span/label)",
-			(const char *)spanID.toAscii(), slot,
-			my.traceSpanMapping.size(), my.labelSpanMapping.size());
+                  spanID.toAscii().constData(), slot,
+                  my.traceSpanMapping.size(), my.labelSpanMapping.size());
     my.traceSpanMapping.insert(spanID, slot);
     my.labelSpanMapping.insert(slot, spanID);
 }

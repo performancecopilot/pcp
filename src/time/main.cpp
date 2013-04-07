@@ -25,7 +25,7 @@ static void setupEnvironment(void)
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append(QChar(__pmPathSeparator()));
     confirm.append("pmquery");
-    putenv(strdup((const char *)confirm.toAscii()));
+    putenv(strdup(confirm.toAscii().constData()));
     if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));
 

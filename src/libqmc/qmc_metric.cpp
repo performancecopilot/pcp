@@ -127,8 +127,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	if (my.status >= 0)
 	    my.status = context()->lookupInDom(my.pmid, my.indomIndex);
 	if (my.status < 0) {
-	    name = strdup(nameAscii());
-	    src = strdup(context()->source().sourceAscii());
+	    name = nameAscii();
+	    src = context()->source().sourceAscii();
 	    pmprintf("%s: Error: %s%c%s: %s\n", 
 		     pmProgname,
 		     contextType == PM_CONTEXT_LOCAL ?  "@" : src,
@@ -144,8 +144,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 	descType = desc().desc().type;
 	if (descType == PM_TYPE_NOSUPPORT) {
 	    my.status = PM_ERR_CONV;
-	    name = strdup(nameAscii());
-	    src = strdup(context()->source().sourceAscii());
+	    name = nameAscii();
+	    src = context()->source().sourceAscii();
 	    pmprintf("%s: Error: %s%c%s is not supported on %s\n",
 		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
 		     (contextType == PM_CONTEXT_ARCHIVE ? '/' : ':'),
@@ -155,8 +155,8 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 		 descType == PM_TYPE_AGGREGATE_STATIC ||
 		 descType == PM_TYPE_UNKNOWN) {
 	    my.status = PM_ERR_CONV;
-	    name = strdup(nameAscii());
-	    src = strdup(context()->source().sourceAscii());
+	    name = nameAscii();
+	    src = context()->source().sourceAscii();
 	    pmprintf("%s: Error: %s%c%s has type \"%s\","
 		     " which is not a number or a string\n",
 		     pmProgname, contextType == PM_CONTEXT_LOCAL ? "@" : src,
@@ -542,7 +542,7 @@ void
 QmcMetric::dumpErr() const
 {
     pmprintf("%s: Error: %s: %s\n", pmProgname,
-	     (const char *)spec(true).toAscii(), pmErrStr(my.status));
+	     spec(true).toAscii().constData(), pmErrStr(my.status));
 }
 
 // Instance list may not be valid, so pass inst as a string rather than
@@ -552,7 +552,7 @@ void
 QmcMetric::dumpErr(const char *inst) const
 {
     pmprintf("%s: Error: %s[%s]: %s\n", pmProgname,
-	     (const char *)spec(true).toAscii(), inst, pmErrStr(my.status));
+	     spec(true).toAscii().constData(), inst, pmErrStr(my.status));
 }
 
 const char *

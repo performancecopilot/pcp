@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2013, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -329,7 +329,7 @@ Chart::title()
 // If expand is true then expand %h to host name in title
 //
 void
-Chart::changeTitle(char *title, int expand)
+Chart::changeTitle(const char *title, int expand)
 {
     bool hadTitle = (my.title != NULL);
 
@@ -386,7 +386,7 @@ Chart::changeTitle(char *title, int expand)
 void
 Chart::changeTitle(QString title, int expand)
 {
-    changeTitle((char *)(const char *)title.toAscii(), expand);
+    changeTitle(title.toAscii().constData(), expand);
 }
 
 QString
@@ -800,8 +800,8 @@ Chart::addToTree(QTreeWidget *treeview, QString metric,
     int depth;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
-		(const char *)source.toAscii(), (const char *)metric.toAscii(),
-		isInst);
+                  source.toAscii().constData(), metric.toAscii().constData(),
+                  isInst);
 
     depth = name.indexOf(regexInstance);
     if (depth > 0) {
