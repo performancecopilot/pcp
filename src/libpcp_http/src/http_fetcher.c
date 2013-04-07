@@ -644,7 +644,7 @@ void http_perror(const char *string)
 int http_getTimeoutError()
 	{
 	if(errorSource == FETCHER_ERROR)
-		return (http_errno == HF_DATATIMEOUT || http_errno == HF_HEADTIMEOUT);
+		return (http_errno == HF_DATATIMEOUT || http_errno == HF_HEADTIMEOUT || http_errno == HF_CONNECTTIMEOUT);
 	return 0;
 	}
 
@@ -773,6 +773,12 @@ int makeSocket(const char *host)
 	int ret;
     int port;
     char *p;
+    long sock_args;
+    fd_set rfds;
+    int selectRet;
+    struct timeval tv;
+    socklen_t lon;
+    int valopt;
 	
     /* Check for port number specified in URL */
     p = strchr(host, ':');
@@ -795,8 +801,70 @@ int makeSocket(const char *host)
 	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
+    /* Get socket options */
+    if ((sock_args = fcntl(sock, F_GETFL, NULL)) < 0) { errorSource = ERRNO; close(sock); return -1; }
+    sock_args |= O_NONBLOCK; /* OR non-blocking with existing options */
+    /* Set non-blocking */
+    if( fcntl(sock, F_SETFL, sock_args) < 0) { errorSource = ERRNO; close(sock); return -1; }
+    /* Try to connect */
 	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
-	if(ret == -1) { errorSource = ERRNO; close(sock); return -1; }
+    if (ret < 0 ){
+        if (ERRNO == EINPROGRESS) {
+            do {
+                tv.tv_sec = timeout;
+                tv.tv_usec = 0;
+                FD_ZERO(&rfds);
+                FD_SET(sock, &rfds);
+
+                if(timeout >= 0)
+                    selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
+                else
+                    selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
+
+                if (selectRet < 0 && ERRNO != EINTR){
+                    errorSource = ERRNO;
+                    close(sock);
+                    return -1;
+                }
+                else if (selectRet > 0){
+                    lon = sizeof(int);
+                    if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0){
+                        /* Can't call getsockopt */
+                        errorSource = ERRNO;
+                        close(sock);
+                        return -1;
+                    }
+                    if (valopt) {
+                        /* Got a SO_ERROR */
+                        errorSource = ERRNO;
+                        close(sock);
+                        return -1;
+                    }
+                    break;
+                }
+                /* Timed out waiting for socket to become ready */
+                else{
+                    errorSource = FETCHER_ERROR;
+                    http_errno = HF_CONNECTTIMEOUT;
+                    errorInt = timeout;
+                    close(sock);
+                    return -1;
+                }
+
+
+            } while(1);
+        }
+        else {
+            /* We were expecting to be in progress but something else happened with the connect */
+            errorSource = ERRNO;
+            close(sock);
+            return -1;
+        }
+    }
+    /* Set socket back to blocking */
+    if((sock_args = fcntl(sock, F_GETFL, NULL)) < 0) { errorSource = ERRNO; close(sock); return -1; }
+    sock_args &= (~O_NONBLOCK);
+    if(fcntl(sock, F_SETFL, sock_args) < 0) { errorSource = ERRNO; close(sock); return -1; }
 
 	return sock;
 	}
