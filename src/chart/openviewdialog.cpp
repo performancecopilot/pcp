@@ -117,7 +117,7 @@ void OpenViewDialog::setPathUi(const QString &path)
 void OpenViewDialog::setPath(const QModelIndex &index)
 {
     console->post("OpenViewDialog::setPath QModelIndex path=%s",
-                  my.dirModel->filePath(index).toAscii().constData());
+			(const char *)my.dirModel->filePath(index).toAscii());
     my.dirIndex = index;
     my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
@@ -127,7 +127,7 @@ void OpenViewDialog::setPath(const QModelIndex &index)
 void OpenViewDialog::setPath(const QString &path)
 {
     console->post("OpenViewDialog::setPath QString path=%s",
-                  path.toAscii().constData());
+			(const char *)path.toAscii());
     my.dirIndex = my.dirModel->index(path);
     my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);
@@ -290,7 +290,7 @@ void OpenViewDialog::hostAdd()
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
-                          hostspec.toAscii().constData(), flags);
+			(const char *)hostspec.toAscii(), flags);
 	    setupComboBoxes(false);
 	}
     }
@@ -321,7 +321,7 @@ bool OpenViewDialog::useLiveContext(QString source)
     if ((sts = liveGroup->use(PM_CONTEXT_HOST, source)) < 0) {
 	QString msg;
 	msg.sprintf("Failed to connect to pmcd on \"%s\".\n%s.\n\n",
-		    source.toAscii().constData(), pmErrStr(sts));
+		    (const char *)source.toAscii(), pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
@@ -337,7 +337,7 @@ bool OpenViewDialog::useArchiveContext(QString source)
     if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source)) < 0) {
 	QString msg;
 	msg.sprintf("Failed to open archive \"%s\".\n%s.\n\n",
-		    source.toAscii().constData(), pmErrStr(sts));
+		    (const char *)source.toAscii(), pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
@@ -373,7 +373,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	return false;
     QStringList files = fl;
     for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-        if (openView((*it).toAscii().constData()) == false)
+	if (openView((const char *)(*it).toAscii()) == false)
 	    result = false;
     pmchart->enableUi();
     return result;

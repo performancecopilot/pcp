@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2013, Red Hat Inc.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -98,7 +97,7 @@ static void err(int severity, int do_where, QString msg)
 	// else do nothing for E_INFO
 	msg.append("\n");
 	fflush(stderr);
-	pmprintf("%s", msg.toAscii().constData());
+	pmprintf("%s", (const char *)msg.toAscii());
 	pmflush();
     }
     else {
@@ -282,8 +281,8 @@ bool OpenViewDialog::openView(const char *path)
 	    // not found, start the great hunt
 	    // try user's pmchart dir ...
 	    snprintf(_fname, sizeof(_fname),
-                     "%s%c" ".pcp%c" "pmchart%c" "%s",
-                     homepath.toAscii().constData(), sep, sep, sep, path);
+			"%s%c" ".pcp%c" "pmchart%c" "%s",
+			(const char *)homepath.toAscii(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
 		// try system pmchart dir
 		snprintf(_fname, sizeof(_fname),
@@ -292,9 +291,9 @@ bool OpenViewDialog::openView(const char *path)
 		if ((f = fopen(_fname, "r")) == NULL) {
 		    // try user's kmchart dir
 		    snprintf(_fname, sizeof(_fname),
-                             "%s%c" ".pcp%c" "kmchart%c" "%s",
-                             homepath.toAscii().constData(),
-                             sep, sep, sep, path);
+				"%s%c" ".pcp%c" "kmchart%c" "%s",
+				(const char *)homepath.toAscii(),
+				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
 			// try system kmchart dir
 			snprintf(_fname, sizeof(_fname),
@@ -961,7 +960,8 @@ done_tab:
 			    goto skip;
 			}
 			QmcSource source = archiveGroup->context()->source();
-			pms.source = strdup(source.source().toAscii().constData());
+			pms.source = strdup((const char *)
+					source.source().toAscii());
 		    }
 		    else {
 			pms.source = strdup(host);
@@ -970,7 +970,8 @@ done_tab:
 		else {
 		    // no explicit host, use current default source
 		    QmcSource source = activeGroup->context()->source();
-		    pms.source = strdup(source.source().toAscii().constData());
+		    pms.source = strdup((const char *)
+					source.source().toAscii());
 		}
 		// expand instances when not specified for metrics
 		// with instance domains and all instances required,
@@ -1192,9 +1193,9 @@ static void saveScheme(FILE *f, QString scheme)
     int		m;
 
     if (cs) {
-      fprintf(f, "scheme %s", cs->name().toAscii().constData());
+	fprintf(f, "scheme %s", (const char *)cs->name().toAscii());
 	for (m = 0; m < cs->size(); m++)
-          fprintf(f, " %s", cs->colorName(m).toAscii().constData());
+	    fprintf(f, " %s", (const char *)cs->colorName(m).toAscii());
 	fprintf(f, "\n\n");
     }
 }
@@ -1245,7 +1246,8 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
     for (int m = 0; m < cp->metricCount(); m++) {
-        char	*p;
+	char	*p, *q, *qend;
+	bool	saveInsts = false;
 
 	if (cp->activeItem(m) == false)
 	    continue;
@@ -1253,12 +1255,31 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	p = cp->legendSpec(m);
 	if (p != NULL)
 	    fprintf(f, " legend \"%s\"", p);
-	fprintf(f, " color %s", cp->color(m).name().toAscii().constData());
+	fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
 	if (hostDynamic == false)
-          fprintf(f, " host %s", cp->metricContext(m)->source().host().toAscii().constData());
-        fprintf(f, " metric %s", cp->metricName(m).toAscii().constData());
-	if (cp->metric(m)->explicitInsts())
-          fprintf(f, " instance \"%s\"", cp->metricInstance(m).toAscii().constData()); /* FIXME: quote embedded "? */
+	    fprintf(f, " host %s", (const char *)
+			cp->metricContext(m)->source().host().toAscii());
+	saveInsts = cp->metric(m)->explicitInsts();
+	if (saveInsts) {
+	    p = (char *)(const char *)cp->name(m).toAscii();
+	    if ((q = strchr(p, '[')) != NULL) {
+		// metric with an instance
+		if ((qend = strrchr(q, ']')) == NULL) {
+		    QString	msg;
+		    msg.sprintf("Botch @ metric name: \"%s\"", p);
+		    err(E_CRIT, false, msg);
+		}
+		else {
+		    *q++ = '\0';
+		    *qend = '\0';
+		    fprintf(f, " metric %s instance \"%s\"", p, q);
+		}
+	    } else {
+		saveInsts = false;
+	    }
+	}
+	if (!saveInsts) // singular metric or non-explicit insts
+	    fprintf(f, " metric %s", p);
 	fputc('\n', f);
     }
 }
@@ -1270,8 +1291,8 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
     int		c, t;
     Tab		*tab;
     Gadget	*gadget;
+    const char	*path = (const char *)file.toAscii();
     QStringList	schemes;
-    char	*path = strdup(file.toAscii().constData());
 
     if ((f = fopen(path, "w")) == NULL)
 	goto noview;
@@ -1301,7 +1322,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	for (t = 0; t < tabWidget->size(); t++) {
 	    tab = tabWidget->at(t);
 	    fprintf(f, "\ntab \"%s\"\n\n",
-		    tabWidget->tabText(t).toAscii().constData());
+		    (const char *) tabWidget->tabText(t).toAscii());
 	    for (c = 0; c < tab->gadgetCount(); c++)
 		tab->gadget(c)->save(f, hostDynamic);
 	}
@@ -1317,13 +1338,11 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 
     fflush(f);
     fclose(f);
-    free(path);
     return true;
 
 noview:
     QString errmsg;
     errmsg.sprintf("Cannot open \"%s\" for writing\n%s", path, strerror(errno));
     err(E_CRIT, false, errmsg);
-    free(path);
     return false;
 }

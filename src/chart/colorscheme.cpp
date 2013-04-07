@@ -61,7 +61,8 @@ QColor ColorScheme::colorSpec(QString name)
 	color.setNamedColor(name);
     else {
 	float fr, fg, fb;
-	if (sscanf(rgbi.toAscii().constData(), "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
+	const char *s = (const char *)rgbi.toAscii();
+	if (sscanf(s, "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
 	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
 	// else return color as-is, i.e. invalid.
     }

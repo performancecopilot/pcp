@@ -65,7 +65,7 @@ public:
     void reviveItem(int);
 
     char *title(void);			// return chart title
-    void changeTitle(const char *, int); // NULL to clear
+    void changeTitle(char *, int);	// NULL to clear
     void changeTitle(QString, int);
 
     Style style(void);			// return chart style

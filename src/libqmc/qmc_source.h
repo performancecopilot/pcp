@@ -35,11 +35,11 @@ public:
     int type() const { return my.type; }
     bool isArchive() const { return my.type == PM_CONTEXT_ARCHIVE; }
     QString source() const { return my.source; }
-    char *sourceAscii() const { return strdup(my.source.toAscii().constData()); }
+    const char *sourceAscii() const { return (const char*)my.source.toAscii(); }
     QString host() const { return my.host; }
-    char *hostAscii() const { return strdup(my.host.toAscii().constData()); }
+    const char *hostAscii() const { return (const char *)my.host.toAscii(); }
     QString proxy() const { return my.proxy; }
-    char *proxyAscii() const { return strdup(my.proxy.toAscii().constData()); }
+    const char *proxyAscii() const { return (const char *)my.proxy.toAscii(); }
     int tzHandle() const { return my.tz; }
     QString timezone() const { return my.timezone; }
     struct timeval start() const { return my.start; }
@@ -47,7 +47,7 @@ public:
     struct timeval end() const { return my.end; }
     QString endTime() { return timeString(&my.end); }
     QString desc() const { return my.desc; }
-    char *descAscii() const { return strdup(my.desc.toAscii().constData()); }
+    const char *descAscii() const { return (const char *)my.desc.toAscii(); }
 
     // Number of active contexts to this source
     uint numContexts() const { return my.handles.size(); }

@@ -83,8 +83,8 @@ void SearchDialog::search()
 
     console->post(PmChart::DebugUi,
 	 "SearchDialog::search metric pat=\"%s\" instance pat=\"%s\"",
-                  namePattern->text().toAscii().constData(),
-                  instancePattern->text().toAscii().constData());
+	 (const char *)namePattern->text().toAscii(),
+	 (const char *)instancePattern->text().toAscii());
 
     if (namePattern->text() == NULL && instancePattern->text() == NULL) {
 	// got here via pressing Enter from one of the pattern input fields,
@@ -113,8 +113,7 @@ void SearchDialog::search()
 	    if (m_match >= 0) {
 		if (item->isLeaf() && instancePattern->text() == NULL) {
 		    console->post(PmChart::DebugUi,
-                                  "SearchDialog::search metric=\"%s\" m_match=%d",
-                                  item->metricName().toAscii().constData(), m_match);
+			 "SearchDialog::search metric=\"%s\" m_match=%d", (const char *)item->metricName().toAscii(), m_match);
 		    matchList->addItem(item->metricName());
 		    my.pmnsList.append(item);
 		    m_match = -2;
@@ -141,9 +140,9 @@ void SearchDialog::search()
 		matchList->addItem(fqn);
 		my.pmnsList.append(item);
 		console->post(PmChart::DebugUi,
-                              "SearchDialog::search metric=\"%s\" m_match=%d inst=\"%s\" i_match=%d",
-                              item->metricName().toAscii().constData(), m_match,
-                              item->metricInstance().toAscii().constData(), i_match);
+		     "SearchDialog::search metric=\"%s\" m_match=%d inst=\"%s\" i_match=%d",
+		     (const char *)item->metricName().toAscii(), m_match,
+		     (const char *)item->metricInstance().toAscii(), i_match);
 	    }
 	}
 	else if (item->isNonLeaf()) {
@@ -173,16 +172,16 @@ void SearchDialog::ok()
 	row = matchList->row(selected[i]);
 #if DESPERATE
 	fprintf(stderr, "[%d] %s:%s[%s]\n",
-                row, my.pmnsList[row]->sourceName().toAscii().constData(),
-                my.pmnsList[row]->metricName().toAscii().constData(),
-                my.pmnsList[row]->metricInstance().toAscii().constData());
+	    row, (const char *)my.pmnsList[row]->sourceName().toAscii(),
+	    (const char *)my.pmnsList[row]->metricName().toAscii(),
+	    (const char *)my.pmnsList[row]->metricInstance().toAscii());
 #endif
 	my.pmnsList[row]->setSelected(true);
 	parent = (NameSpace *)my.pmnsList[row]->parent();
 	while (parent->isRoot() == false) {
 #if DESPERATE
 	    fprintf(stderr, "SearchDialog::ok expand: %s\n",
-                    parent->metricName().toAscii().constData());
+			(const char *)parent->metricName().toAscii());
 #endif
 	    parent->QTreeWidgetItem::setExpanded(true);
 	    parent = (NameSpace *)parent->parent();

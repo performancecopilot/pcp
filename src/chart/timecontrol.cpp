@@ -101,8 +101,8 @@ void TimeControl::init(int port, bool live,
 	my.livePacket->start = now;
 	my.livePacket->end = now;
     }
-    strncpy(my.tzData, tzstring.toAscii().constData(), tzlen+1);
-    strncpy(my.tzData + tzlen+1, tzlabel.toAscii().constData(), lablen+1);
+    strncpy(my.tzData, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toAscii(), lablen+1);
 
     if (port < 0) {
 	startTimeServer();
@@ -134,8 +134,9 @@ void TimeControl::addArchive(
     message->length = sz;
     message->start = starttime;
     message->end = endtime;
-    strncpy((char *)message->data, tzstring.toAscii().constData(), tzlen+1);
-    strncpy((char *)message->data + tzlen+1, tzlabel.toAscii().constData(), lablen+1);
+    strncpy((char *)message->data, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy((char *)message->data + tzlen+1,
+				(const char *)tzlabel.toAscii(), lablen+1);
     if (my.archiveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),

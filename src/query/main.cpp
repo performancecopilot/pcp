@@ -237,7 +237,7 @@ int main(int argc, char ** argv)
 	    file = new QFile(filename);
 	    if (!file->open(QIODevice::ReadOnly)) {
 		fprintf(stderr, "Cannot open %s: %s\n", filename,
-			file->errorString().toAscii().constData());
+			(char *)file->errorString().toAscii().data());
 		exit(1);
 	    }
 	    stream = new QTextStream(file);
@@ -246,7 +246,7 @@ int main(int argc, char ** argv)
 	    QString line = stream->readLine();
 	    if (line.isNull())
 		break;
-	    if ((option = strdup(line.toAscii().constData())) == NULL) {
+	    if ((option = strdup(line.toAscii())) == NULL) {
 		fputs("Insufficient memory reading message stream\n", stderr);
 		exit(1);
 	    }

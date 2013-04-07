@@ -92,7 +92,7 @@ void SaveViewDialog::setPathUi(const QString &path)
 void SaveViewDialog::setPath(const QModelIndex &index)
 {
     console->post("SaveViewDialog::setPath QModelIndex path=%s",
-                  my.dirModel->filePath(index).toAscii().constData());
+			(const char *)my.dirModel->filePath(index).toAscii());
     my.dirIndex = index;
     my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
@@ -102,7 +102,7 @@ void SaveViewDialog::setPath(const QModelIndex &index)
 void SaveViewDialog::setPath(const QString &path)
 {
     console->post("SaveViewDialog::setPath QString path=%s",
-                  path.toAscii().constData());
+			(const char *)path.toAscii());
     my.dirIndex = my.dirModel->index(path);
     my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);

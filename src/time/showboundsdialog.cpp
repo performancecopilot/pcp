@@ -94,7 +94,7 @@ void ShowBounds::displayStartText()
 
     console->post("ShowBounds::displayStartText clock=%.3f - %s",
 			my.localCurrentStart,
-                 	lineEditStart->text().toAscii().constData());
+			(const char *)lineEditStart->text().toAscii());
 }
 
 void ShowBounds::displayEndText()
@@ -158,7 +158,7 @@ void ShowBounds::accept()
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
-	if (__pmParseTime(input.toAscii().constData(), &start, &end, &current, &msg) < 0) {
+	if (__pmParseTime(input.toAscii(), &start, &end, &current, &msg) < 0) {
 	    error.sprintf("Invalid start date/time:\n\n%s\n", msg);
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);
@@ -184,7 +184,7 @@ void ShowBounds::accept()
 	}
 	if (input[0] != '@')
 	    input.prepend("@");
-	if (__pmParseTime(input.toAscii().constData(), &start, &end, &current, &msg) < 0) {
+	if (__pmParseTime(input.toAscii(), &start, &end, &current, &msg) < 0) {
 	    error.sprintf("Invalid end date/time:\n%s\n\n", msg);
 	    QMessageBox::warning(0, tr("Warning"), error, tr("Quit"));
 	    free(msg);

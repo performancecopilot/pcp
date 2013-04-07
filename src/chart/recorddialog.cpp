@@ -266,7 +266,7 @@ void RecordDialog::buttonOk_clicked()
     }
 
     console->post("RecordDialog verifying paths view=%s folio=%s",
-                  folio.toAscii().constData(), view.toAscii().constData());
+	(const char *)folio.toAscii(), (const char *)view.toAscii());
 
     my.view  = view;
     my.folio = folio;
