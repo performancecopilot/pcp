@@ -11,7 +11,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite
-TESTS	= $(shell sed -n -e '/^[0-9]/s/[ 	].*//p' <group)
+TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
 SUBDIRS = src pmdas cisco pconf sadist
 LCONFIG = localconfig
@@ -51,7 +51,7 @@ COMMON = common.check common.config common.filter \
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 valgrind-suppress sanity.coverage
 
-DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun)' | tee qa_outfiles)
+DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
 LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:
@@ -77,3 +77,9 @@ ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
 endif
 
 include $(BUILDRULES)
+
+debug-me:
+	@echo TESTS=$(TESTS)
+	@echo SRCFILES=$(SRCFILES)
+	@echo CONFFILES=$(CONFFILES)
+	@echo SUBDIRS=$(SUBDIRS)
