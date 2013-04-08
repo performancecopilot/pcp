@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -362,15 +362,23 @@ INIT_CONTEXT:
 	    }
 	}
 
-	if (nhosts == 1) {
+        /* As an optimization, if there is already a connection to the same PMCD,
+           we try to reuse (share) it. */
+	if (nhosts == 1) { /* not proxied */
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == PM_TPD(curcontext))
 		    continue;
 		if (contexts[i]->c_type == new->c_type &&
 		    contexts[i]->c_flags == new->c_flags &&
-		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name,
-			    hosts[0].name) == 0) {
-		    new->c_pmcd = contexts[i]->c_pmcd;
+		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
+                    contexts[i]->c_pmcd->pc_hosts[0].nports == hosts[0].nports) {
+                    int j;
+                    int ports_same = 1;
+                    for (j=0; j<hosts[0].nports; j++)
+                        if (contexts[i]->c_pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
+                            ports_same = 0;
+                    if (ports_same)
+                        new->c_pmcd = contexts[i]->c_pmcd;
 		}
 	    }
 	}
