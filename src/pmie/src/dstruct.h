@@ -453,6 +453,13 @@ void dstructInit(void);		/* initialize central data structures */
 void timeInit(void);		/* initialize time keeping data structures */
 void agentInit(void);		/* initialize evaluation parameters */
 
+/***********************************************************************
+ * unknown units handling
+ * We don't have a good sentinal value, but 1 / count x 10 ^ 7 does
+ * not appear in any PMDA and cannot come from the pmie lexical scanner
+ ***********************************************************************/
+#define SET_UNITS_UNKNOWN(u) { u.dimCount = -1; u.scaleCount = 7; }
+#define UNITS_UNKNOWN(u) (u.dimCount == -1 && u.scaleCount == 7)
 
 #endif /* DSTRUCT_H */
 
