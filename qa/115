@@ -47,11 +47,13 @@ _filter()
 {
     sed \
 	-e "s/$$/PID/g" \
-	-e "s/$remote/REMOTEHOST/g" \
-	-e "s/$rhost/REMOTEHOST/g" \
-	-e "s/$host/LOCALHOST/g" \
-	-e "s/$lhost/LOCALHOST/g" \
-	-e "s;/private/tmp;/tmp;g"
+	-e 's/$/ /' \
+	-e 's/\([ "]\)'"$remote"'\([ "]\)/\1REMOTEHOST\2/g' \
+	-e 's/\([ "]\)'"$rhost"'\([ "]\)/\1REMOTEHOST\2/g' \
+	-e 's/\([ "]\)'"$host"'\([ "]\)/\1LOCALHOST\2/g' \
+	-e 's/\([ "]\)'"$lhost"'\([ "]\)/\1LOCALHOST\2/g' \
+	-e "s;/private/tmp;/tmp;g" \
+	-e 's/ $//'
 }
 
 _count_pmies()
