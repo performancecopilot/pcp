@@ -843,15 +843,13 @@ int makeSocket(const char *host)
                     break;
                 }
                 /* Timed out waiting for socket to become ready */
-                else{
+                else {
                     errorSource = FETCHER_ERROR;
                     http_errno = HF_CONNECTTIMEOUT;
                     errorInt = timeout;
                     close(sock);
                     return -1;
                 }
-
-
             } while(1);
         }
         else {
