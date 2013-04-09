@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,9 +19,6 @@ include $(TOPDIR)/src/include/builddefs
 
 MAN_SECTION	= 1
 
-# Notes
-#	pmnscomp.1 retired in PCP 3.6
-#
 MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmafm.1 pmcd.1 pmcd_wait.1 pmclient.1 pmdacisco.1 pmdamailq.1 \
 	pmdasample.1 pmdasendmail.1 pmdasimple.1 pmdate.1 pmdatrace.1 \
@@ -34,7 +31,7 @@ MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmloglabel.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
-	pmdabash.1 pmcollectl.1
+	pmdabash.1 pmcollectl.1 pmwtf.1
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
