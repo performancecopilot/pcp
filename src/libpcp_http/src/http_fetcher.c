@@ -774,7 +774,7 @@ int makeSocket(const char *host)
     int port;
     char *p;
     long sock_args;
-    fd_set rfds;
+    fd_set wfds;
     int selectRet;
     struct timeval tv;
     socklen_t lon;
@@ -813,13 +813,13 @@ int makeSocket(const char *host)
             do {
                 tv.tv_sec = timeout;
                 tv.tv_usec = 0;
-                FD_ZERO(&rfds);
-                FD_SET(sock, &rfds);
+                FD_ZERO(&wfds);
+                FD_SET(sock, &wfds);
 
                 if(timeout >= 0)
-                    selectRet = select(sock+1, &rfds, NULL, NULL, &tv);
+                    selectRet = select(sock+1, NULL, &wfds, NULL, &tv);
                 else
-                    selectRet = select(sock+1, &rfds, NULL, NULL, NULL);
+                    selectRet = select(sock+1, NULL, &wfds, NULL, NULL);
 
                 if (selectRet < 0 && ERRNO != EINTR){
                     errorSource = ERRNO;
