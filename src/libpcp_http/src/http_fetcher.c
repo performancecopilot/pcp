@@ -809,7 +809,7 @@ int makeSocket(const char *host)
     /* Try to connect */
 	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
     if (ret < 0 ){
-        if (ERRNO == EINPROGRESS) {
+        if (errno == EINPROGRESS) {
             do {
                 tv.tv_sec = timeout;
                 tv.tv_usec = 0;
@@ -821,7 +821,7 @@ int makeSocket(const char *host)
                 else
                     selectRet = select(sock+1, NULL, &wfds, NULL, NULL);
 
-                if (selectRet < 0 && ERRNO != EINTR){
+                if (selectRet < 0 && errno != EINTR){
                     errorSource = ERRNO;
                     close(sock);
                     return -1;
