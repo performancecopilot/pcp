@@ -1,6 +1,13 @@
+pcp (3.7.2) unstable; urgency=low
+
+  * Add build dependency on python-dev (closes: #704717)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 10 Apr 2013 05:56:15 +1000
+
 pcp (3.7.1) unstable; urgency=low
 
-   * New release (full details in CHANGELOG).
+  * New release (full details in CHANGELOG).
 
  -- Nathan Scott <nathans@debian.org>  Wed, 20 Mar 2013 09:01:30 +1100
 
