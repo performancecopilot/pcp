@@ -25,12 +25,12 @@ SUBDIRS = include \
 	  pmcd pmerr pmdbg \
 	  pmcdctl pmlogctl win32ctl \
 	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap \
+	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmevent \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite pmcollectl python
+	  autofsd-probe telnet-probe bashrc pmiestatus pmlogrewrite \
+	  python pmcollectl pmatop
 
 # hack; we should always descend into perl (for source packaging at least)
 # Win32 builds need some love - when that happens, remember to undo this:

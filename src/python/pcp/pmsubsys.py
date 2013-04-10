@@ -23,8 +23,9 @@ http://oss.sgi.com/projects/pcp
 """
 
 import copy
-from pcp import *
-from ctypes import *
+import cpmapi as c_api
+from pcp.pmapi import pmErr
+from ctypes import c_char_p
 
 
 # _pmsubsys ---------------------------------------------------------------
@@ -38,22 +39,22 @@ class _pmsubsys(object):
         self.metric_values = []
         self.metrics_dict = {}
         self.old_metric_values = []
-        super (_pmsubsys, self).__init__()
+        super(_pmsubsys, self).__init__()
 
-    def init_metrics(self,pm):
+    def init_metrics(self, pcp):
         pass
 
-    def setup_metrics(self,pm):
+    def setup_metrics(self, pcp):
         # remove any unsupported metrics
         for j in range(len(self.metrics)-1, -1, -1):
             try:
-                (code, self.metric_pmids) = pm.pmLookupName(self.metrics[j])
+                (code, self.metric_pmids) = pcp.pmLookupName(self.metrics[j])
             except pmErr, e:
                 self.metrics.remove(self.metrics[j])
 
-        self.metrics_dict=dict((i,self.metrics.index(i)) for i in self.metrics)
-        (code, self.metric_pmids) = pm.pmLookupName(self.metrics)
-        (code, self.metric_descs) = pm.pmLookupDesc(self.metric_pmids)
+        self.metrics_dict = dict((i, self.metrics.index(i)) for i in self.metrics)
+        (code, self.metric_pmids) = pcp.pmLookupName(self.metrics)
+        (code, self.metric_descs) = pcp.pmLookupDesc(self.metric_pmids)
         self.metric_values = [0 for i in range(len(self.metrics))]
         self.old_metric_values = [0 for i in range(len(self.metrics))]
         if hasattr(super(_pmsubsys, self), 'setup_metrics'):
@@ -71,69 +72,69 @@ class _pmsubsys(object):
     def get_total(self):
         True
             
-    def get_scalar_value (self, var, idx):
+    def get_scalar_value(self, var, idx):
         value = self.get_metric_value(var)
         if type(value) != type(int()) and type(value) != type(long()):
             return value[idx]
         else:
             return value
 
-    def get_len (self, var):
+    def get_len(self, var):
         if type(var) != type(int()) and type(var) != type(long()):
             return len(var)
         else:
             return 1
 
-    def get_atom_value (self, metric, atom1, atom2, desc, first):
-        if desc.contents.sem == pmapi.PM_SEM_DISCRETE or desc.contents.sem == pmapi.PM_SEM_INSTANT :
+    def get_atom_value(self, metric, atom1, atom2, desc, first):
+        if desc.contents.sem == c_api.PM_SEM_DISCRETE or desc.contents.sem == c_api.PM_SEM_INSTANT :
             # just use the absolute value as if it were the first value
             first = True
 
         # value conversion and diff, if required
-        type = desc.contents.type
-        if type == pmapi.PM_TYPE_32:
+        atom_type = desc.contents.type
+        if atom_type == c_api.PM_TYPE_32:
             if first:
                 return atom1.l 
             else:
                 return atom1.l - atom2.l
-        elif type == pmapi.PM_TYPE_U32:
+        elif atom_type == c_api.PM_TYPE_U32:
             if first:
                 return atom1.ul 
             else:
                 return atom1.ul - atom2.ul
-        elif type == pmapi.PM_TYPE_64:
+        elif atom_type == c_api.PM_TYPE_64:
             if first:
                 return atom1.ll 
             else:
                 return atom1.ll - atom2.ll
-        elif type == pmapi.PM_TYPE_U64:
+        elif atom_type == c_api.PM_TYPE_U64:
             if first:
                 return atom1.ull 
             else:
                 return atom1.ull - atom2.ull
-        elif type == pmapi.PM_TYPE_FLOAT:
+        elif atom_type == c_api.PM_TYPE_FLOAT:
             if first:
                 return atom1.f 
             else:
                 return atom1.f - atom2.f
-        elif type == pmapi.PM_TYPE_DOUBLE:
+        elif atom_type == c_api.PM_TYPE_DOUBLE:
             if first:
                 return atom1.d 
             else:
                 return atom1.d - atom2.d
-        elif type == pmapi.PM_TYPE_STRING:
+        elif atom_type == c_api.PM_TYPE_STRING:
             atom_str = c_char_p(atom1.cp)
             return str(atom_str.value)
         else:
             return 0
 
-    def get_stats(self, pm):
+    def get_stats(self, pcp):
         if len(self.metrics) <= 0:
             raise pmErr
     
         list_type = type([])
 
-        (code, metric_result) = pm.pmFetch(self.metric_pmids)
+        (code, metric_result) = pcp.pmFetch(self.metric_pmids)
 
         if max(self.old_metric_values) == 0:
             first = True
@@ -149,7 +150,7 @@ class _pmsubsys(object):
                 # list of instances, one or more per metric.  e.g. there are many 
                 # instances for network metrics, one per network interface
                 for k in xrange(metric_result.contents.get_numval(j)):
-                    (code, atom) = pm.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].contents.type, self.metric_descs[j].contents.type)
+                    (code, atom) = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].contents.type, self.metric_descs[j].contents.type)
                     atomlist.append(atom)
 
                 value = []
@@ -163,7 +164,7 @@ class _pmsubsys(object):
                             pass
                     else:
                         old_val = self.old_metric_values[j]
-                    value.append (self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], first))
+                    value.append(self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], first))
 
                 self.old_metric_values[j] = copy.copy(atomlist)
                 if metric_result.contents.get_numval(j) == 1:
@@ -174,7 +175,7 @@ class _pmsubsys(object):
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
                 if hasattr(super(_pmsubsys, self), 'get_stats'):
-                    super (_pmsubsys, self).get_stats(arg)
+                    super(_pmsubsys, self).get_stats(arg)
 
 
     def get_metric_value(self, idx):
@@ -183,7 +184,7 @@ class _pmsubsys(object):
         else:
             return 0
         if hasattr(super(_pmsubsys, self), 'get_metric_value'):
-            super (_pmsubsys, self).get_metric_value(arg)
+            super(_pmsubsys, self).get_metric_value(arg)
 
 
 # cpu  -----------------------------------------------------------------
@@ -232,8 +233,8 @@ class interrupt(_pmsubsys):
         super(interrupt, self).__init__()
 
 
-    def init_metrics(self,pm):
-        int_list = pm.pmGetChildren("kernel.percpu.interrupts")
+    def init_metrics(self, pcp):
+        int_list = pcp.pmGetChildren("kernel.percpu.interrupts")
         for i in xrange(len(int_list)):
             self.metrics.append('kernel.percpu.interrupts.' + int_list[i])
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2013 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,16 +10,19 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = __init__.py pmapi.py pmcc.py pmda.py pmgui.py pmi.py mmv.py \
-	pmsubsys.py
+TARGET = pmatop
+PYFILES	= $(TARGET).py
 
-default default_pcp:
+default default_pcp: $(PYFILES)
 
 include $(BUILDRULES)
 
-install_pcp install:
+install install_pcp: $(PYFILES)
+ifneq "$(PYTHON)" ""
+	$(INSTALL) -m 755 $(PYFILES) $(PCP_BIN_DIR)/$(TARGET)
+endif
