@@ -15,6 +15,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# These apps do _lots_ of reverse DNS lookups, so populate /etc/hosts
+# with lots of bogus but matching entries to try and speed things up.
+#
+src/fixhosts
+
 # real QA test starts here
 
 echo "testing single op for all ops..."

@@ -115,7 +115,6 @@ static double	weekday;		/* days since Sunday 0..6 */
  ***********************************************************************/
 int		need_wait;
 
-
 /* return real time */
 RealTime
 getReal(void)
@@ -445,7 +444,13 @@ newExpr(int op, Expr *arg1, Expr *arg2,
 	arg = primary(arg1, arg2);
 	x->metrics = arg->metrics;
     }
-    x->units = noUnits;
+    if (sem == SEM_NUMVAR || sem == SEM_NUMCONST || sem == SEM_TRUTH ||
+        sem == SEM_CHAR || sem == SEM_REGEX)
+	x->units = noUnits;
+    else {
+	x->units = noUnits;
+	SET_UNITS_UNKNOWN(x->units);
+    }
     x->sem = sem;
     return x;
 }
@@ -748,41 +753,52 @@ instExpr(Expr *x)
     Expr    *arg1 = x->arg1;
     Expr    *arg2 = x->arg2;
     Expr    *arg = primary(arg1, arg2);
-    pmUnits u = { 0 };
 
-    /* semantics and units */
+    /* semantics ... */
     if (x->sem == SEM_UNKNOWN) {
-
-	/* unary expression */
 	if (arg2 == NULL) {
-	    up = 1;
-	    x->sem = arg1->sem;
-	    x->units = arg1->units;
+	    /* unary expression */
+	    if (arg1->sem != SEM_UNKNOWN) {
+		up = 1;
+		x->sem = arg1->sem;
+	    }
 	}
-
-	/* bianry expression with known args */
 	else if ((arg1->sem != SEM_UNKNOWN) &&
 		 (arg2->sem != SEM_UNKNOWN)) {
+	    /* binary expression with known args */
 	    up = 1;
 	    x->sem = arg->sem;
-	    if (x->op == CND_MUL) {
-		u.dimSpace = arg1->units.dimSpace + arg2->units.dimSpace;
-		u.dimTime = arg1->units.dimTime + arg2->units.dimTime;
-		u.dimCount = arg1->units.dimCount + arg2->units.dimCount;
-	    }
-	    else if (x->op == CND_DIV) {
-		u.dimSpace = arg1->units.dimSpace - arg2->units.dimSpace;
-		u.dimTime = arg1->units.dimTime - arg2->units.dimTime;
-		u.dimCount = arg1->units.dimCount - arg2->units.dimCount;
-	    }
-	    else
-		u = arg->units;
-	    x->units = u;
 	}
-
 	/* binary expression with unknown arg */
 	else
 	    return;
+    }
+
+    /* units ... */
+    if (UNITS_UNKNOWN(x->units)) {
+	if (arg2 == NULL) {
+	    /* unary expression */
+	    if (!UNITS_UNKNOWN(arg1->units)) {
+		up = 1;
+		x->units = arg1->units;
+	    }
+	}
+	else if (!UNITS_UNKNOWN(arg1->units) &&
+		 !UNITS_UNKNOWN(arg2->units)) {
+	    /* binary expression with known args */
+	    up = 1;
+	    x->units = arg->units;
+	    if (x->op == CND_MUL) {
+		x->units.dimSpace = arg1->units.dimSpace + arg2->units.dimSpace;
+		x->units.dimTime = arg1->units.dimTime + arg2->units.dimTime;
+		x->units.dimCount = arg1->units.dimCount + arg2->units.dimCount;
+	    }
+	    else if (x->op == CND_DIV) {
+		x->units.dimSpace = arg1->units.dimSpace - arg2->units.dimSpace;
+		x->units.dimTime = arg1->units.dimTime - arg2->units.dimTime;
+		x->units.dimCount = arg1->units.dimCount - arg2->units.dimCount;
+	    }
+	}
     }
 
     /* instance domain */
@@ -851,6 +867,7 @@ instFetchExpr(Expr *x)
 	m++;
     }
     if (x->e_idom != ninst) {
+	/* number of instances is different */
 	x->e_idom = ninst;
 	x->tspan = (x->e_idom >= 0) ? x->e_idom : abs(x->hdom);
 	x->nvals = x->nsmpls * x->tspan;
@@ -858,8 +875,13 @@ instFetchExpr(Expr *x)
 	newRingBfr(x);
 	up = 1;
     }
-    if (up && x->parent)
-	instExpr(x->parent);
+    if (x->parent) {
+	/* do we need to propagate changes? */
+	if (up ||
+	    (UNITS_UNKNOWN(x->parent->units) && !UNITS_UNKNOWN(x->units))) {
+	    instExpr(x->parent);
+	}
+    }
 }
 
 
@@ -1112,7 +1134,10 @@ __dumpExpr(int level, Expr *x)
     }
     if (sem_map[j].name == NULL)
 	fprintf(stderr, "%d", x->sem);
-    fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
+    if (UNITS_UNKNOWN(x->units))
+	fprintf(stderr, " units=UNKNOWN\n");
+    else
+	fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
     if (x->valid > 0) {
 	if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
 	    x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||

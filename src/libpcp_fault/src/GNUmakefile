@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c
 
-HFILES = derive.h oldpmapi.h internal.h
+HFILES = derive.h internal.h
 
 ifneq "$(TARGET_OS)" "mingw"
 LSRCFILES = win32.c
@@ -93,7 +93,6 @@ endif
 include $(BUILDRULES)
 
 derive_fetch.o derive.o: derive.h
-p_error.o: oldpmapi.h
 context.o context.o derive.o fetch.o lock.o: internal.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h

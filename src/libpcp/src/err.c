@@ -210,6 +210,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 
 	    if (sp != NULL) {
 		sp++;
+		if (*sp == '-') sp++;
 		for (p = sp; *p != '\0'; p++) {
 		    if (!isdigit((int)*p)) break;
 		}

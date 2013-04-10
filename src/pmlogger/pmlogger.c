@@ -690,6 +690,10 @@ Options:\n\
 	__pmSetProcessIdentity(username);
 
     __pmOpenLog("pmlogger", logfile, stderr, &sts);
+    if (sts != 1) {
+	fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmProgname, logfile);
+	/* continue on ... writing to stderr */
+    }
 
     /* base name for archive is here ... */
     archBase = argv[optind];
