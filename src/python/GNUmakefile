@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp
-CFILES = pmapi.c pmda.c pmgui.c pmi.c
+CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
 LSRCFILES = setup.py
 LDIRDIRT = build dist
 LDIRT = build_python

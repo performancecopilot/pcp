@@ -19,39 +19,38 @@
 
 # Example use of this module for creating a PCP archive:
 
-	import math
-	import time
-	import pmapi
-	from pcp import pmi
+        import math
+        import time
+        import pmapi
+        from pcp import pmi
 
-	# Create a new archive
-	log = pmi.pmiLogImport("loadtest")
-	log.pmiSetHostname("www.abc.com")
-	log.pmiSetTimezone("EST-10")
+        # Create a new archive
+        log = pmi.pmiLogImport("loadtest")
+        log.pmiSetHostname("www.abc.com")
+        log.pmiSetTimezone("EST-10")
 
-	# Add a metric with an instance domain
+        # Add a metric with an instance domain
         domain = 60  # Linux kernel
-	pmid = log.pmiID(domain, 2, 0)
-	indom = log.pmiInDom(domain, 2)
-	units = log.pmiUnits(0, 0, 0, 0, 0, 0)
-	log.pmiAddMetric("kernel.all.load", pmid, pmapi.PM_TYPE_FLOAT,
-			 indom, pmapi.PM_SEM_INSTANT, units)
-	log.pmiAddInstance(indom, "1 minute", 1)
-	log.pmiAddInstance(indom, "5 minute", 5)
-	log.pmiAddInstance(indom, "15 minute", 15)
+        pmid = log.pmiID(domain, 2, 0)
+        indom = log.pmiInDom(domain, 2)
+        units = log.pmiUnits(0, 0, 0, 0, 0, 0)
+        log.pmiAddMetric("kernel.all.load", pmid, pmapi.PM_TYPE_FLOAT,
+                         indom, pmapi.PM_SEM_INSTANT, units)
+        log.pmiAddInstance(indom, "1 minute", 1)
+        log.pmiAddInstance(indom, "5 minute", 5)
+        log.pmiAddInstance(indom, "15 minute", 15)
 
-	# Create a record with a timestamp
+        # Create a record with a timestamp
         log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
         log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
         log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
-	timetuple = math.modf(time.time())
-	useconds = int(timetuple[0] * 1000000)
-	seconds = int(timetuple[1])
-	log.pmiWrite(seconds, useconds)
-	del log
+        timetuple = math.modf(time.time())
+        useconds = int(timetuple[0] * 1000000)
+        seconds = int(timetuple[1])
+        log.pmiWrite(seconds, useconds)
+        del log
 """
 
-import pcp
 from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
 
@@ -75,8 +74,8 @@ LIBPCP_IMPORT.pmiInDom.argtypes = [ctypes.c_int, ctypes.c_int]
 
 LIBPCP_IMPORT.pmiUnits.restype = pmUnits
 LIBPCP_IMPORT.pmiUnits.argtypes = [
-	ctypes.c_int, ctypes.c_int, ctypes.c_int,
-	ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        ctypes.c_int, ctypes.c_int, ctypes.c_int,
+        ctypes.c_int, ctypes.c_int, ctypes.c_int]
 
 LIBPCP_IMPORT.pmiErrStr_r.restype = c_char_p
 LIBPCP_IMPORT.pmiErrStr_r.argtypes = [c_int, c_char_p, c_int]
@@ -98,7 +97,7 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
-	c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
+        c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
 
 LIBPCP_IMPORT.pmiAddInstance.restype = c_int
 LIBPCP_IMPORT.pmiAddInstance.argtypes = [pmInDom, c_char_p, c_int]
@@ -132,7 +131,7 @@ class pmiErr(Exception):
             error_symbol = pmiErrSymDict[error_code]
             error_string = ctypes.create_string_buffer(PMI_MAXERRMSGLEN)
             error_string = LIBPCP_IMPORT.pmiErrStr_r(error_code,
-					error_string, PMI_MAXERRMSGLEN)
+                                        error_string, PMI_MAXERRMSGLEN)
         except KeyError:
             error_symbol = error_string = ""
         return "%s %s" % (error_symbol, error_string)
@@ -153,12 +152,10 @@ class pmiLogImport(object):
     # property read methods
 
     def read_path(self):
-        """ Property for archive path
-        """
+        """ Property for archive path """
         return self._path
     def read_ctx(self):
-        """ Property for log import context
-        """
+        """ Property for log import context """
         return self._ctx
 
     ##
@@ -171,7 +168,7 @@ class pmiLogImport(object):
     # overloads
 
     def __init__(self, path, inherit = 0):
-        self._path = path	# the archive path (file name)
+        self._path = path        # the archive path (file name)
         self._ctx = LIBPCP_IMPORT.pmiStart(c_char_p(path), inherit)
         if self._ctx < 0:
             raise pmiErr, self._ctx
@@ -186,8 +183,7 @@ class pmiLogImport(object):
     # PMI Log Import Services
 
     def pmiSetHostname(self, hostname):
-        """PMI - set the source host name for a Log Import archive
-        """
+        """PMI - set the source host name for a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -209,41 +205,36 @@ class pmiLogImport(object):
 
     @staticmethod
     def pmiID(domain, cluster, item):
-        """PMI - construct a pmID data structure (helper routine)
-        """
+        """PMI - construct a pmID data structure (helper routine) """
         return LIBPCP_IMPORT.pmiID(domain, cluster, item)
 
     @staticmethod
     def pmiInDom(domain, serial):
-        """PMI - construct a pmInDom data structure (helper routine)
-        """
+        """PMI - construct a pmInDom data structure (helper routine) """
         return LIBPCP_IMPORT.pmiInDom(domain, serial)
 
     @staticmethod
     def pmiUnits(dim_space, dim_time, dim_count,
-			scale_space, scale_time, scale_count):
+                        scale_space, scale_time, scale_count):
         # pylint: disable=R0913
-        """PMI - construct a pmiUnits data structure (helper routine)
-        """
+        """PMI - construct a pmiUnits data structure (helper routine) """
         return LIBPCP_IMPORT.pmiUnits(dim_space, dim_time, dim_count,
                                        scale_space, scale_time, scale_count)
 
     def pmiAddMetric(self, name, pmid, typed, indom, sem, units):
         # pylint: disable=R0913
-        """PMI - add a new metric definition to a Log Import context
-        """
+        """PMI - add a new metric definition to a Log Import context """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
         status = LIBPCP_IMPORT.pmiAddMetric(c_char_p(name),
-					pmid, typed, indom, sem, units)
+                                        pmid, typed, indom, sem, units)
         if status < 0:
             raise pmiErr, status
         return status
 
     def pmiAddInstance(self, indom, instance, instid):
-        """PMI - add an element to an instance domain in a Log Import context
-        """
+        """PMI - add element to an instance domain in a Log Import context """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -253,20 +244,18 @@ class pmiLogImport(object):
         return status
 
     def pmiPutValue(self, name, inst, value):
-        """PMI - add a value for a metric-instance pair
-        """
+        """PMI - add a value for a metric-instance pair """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
         status = LIBPCP_IMPORT.pmiPutValue(c_char_p(name),
-					c_char_p(inst), c_char_p(value))
+                                        c_char_p(inst), c_char_p(value))
         if status < 0:
             raise pmiErr, status
         return status
 
     def pmiGetHandle(self, name, inst):
-        """PMI - define a handle for a metric-instance pair
-        """
+        """PMI - define a handle for a metric-instance pair """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -276,8 +265,7 @@ class pmiLogImport(object):
         return status
 
     def pmiPutValueHandle(self, handle, value):
-        """PMI - add a value for a metric-instance pair via a handle
-        """
+        """PMI - add a value for a metric-instance pair via a handle """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -287,8 +275,7 @@ class pmiLogImport(object):
         return status
 
     def pmiWrite(self, sec, usec):
-        """PMI - flush data to a Log Import archive
-        """
+        """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -298,8 +285,7 @@ class pmiLogImport(object):
         return status
 
     def put_result(self, result):
-        """PMI - add a data record to a Log Import archive
-        """
+        """PMI - add a data record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status
@@ -310,13 +296,11 @@ class pmiLogImport(object):
 
     @staticmethod
     def pmiDump():
-        """PMI - dump the current Log Import contexts (diagnostic)
-        """
+        """PMI - dump the current Log Import contexts (diagnostic) """
         LIBPCP_IMPORT.pmiDump()
 
     def pmiEnd(self):
-        """PMI - close current context and finish a Log Import archive
-        """
+        """PMI - close current context and finish a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr, status

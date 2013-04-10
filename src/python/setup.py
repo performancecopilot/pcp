@@ -33,6 +33,7 @@ setup(name = 'pcp',
         Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda']),
         Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui']),
         Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
+        Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
     ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     long_description =

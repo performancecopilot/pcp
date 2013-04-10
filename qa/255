@@ -289,7 +289,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd
 
-    if _check_agent $agent 2
+    if _check_agent $agent
     then
     	echo "$agent is alive and well"
     else
@@ -307,7 +307,7 @@ _agent_remove()
     echo "=== Removing $agent ==="
     _renew_pmcd _agent_remove
 
-    if _check_agent $agent 2
+    if _check_agent $agent
     then
     	echo "Failed to remove $agent"
 	exit
@@ -334,7 +334,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd
     
-    if _check_agent broken $ver
+    if _check_agent broken
     then
     	echo "$agent is alive and well...hang on there should be some warnings"
 	pminfo -f broken
@@ -346,33 +346,6 @@ end-of-file
     else
     	echo "$agent is alive and as well as can be expected"
     fi
-}
-
-# check that the agent is up and running
-#
-_check_agent() 
-{
-    agent=$1
-    sts=0
-
-    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
-    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
-    cat $tmp.fetch
-    if grep warnings $tmp.fetch > /dev/null 2>&1
-    then
-	# 5 warnings, 5 metrics and 0 values
-	num_warn=`sed -n -e '/warnings/s/ .*//p' < $tmp.fetch`
-	if [ "$num_warn" -gt 0 ]
-	then
-	    echo "Warnings when fetching $agent metrics:"
-	    cat $tmp.verify
-	    sts=1
-	fi
-    else
-    	num_warn=0
-    fi
-
-    return $sts
 }
 
 # Copy and replace pmcd.conf

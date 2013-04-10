@@ -22,6 +22,7 @@
 
 import cpmapi
 import cpmda
+from pmapi import pmContext as PCP
 from pmapi import pmID, pmInDom, pmUnits, pmResult
 
 import ctypes
@@ -53,9 +54,32 @@ LIBPCP_PMDA.pmdaCacheOp.restype = c_int
 LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
 
+class MetricDispatch(object):
+    """ Helper for PMDA class which manages metric dispatch
+        table, metric namesspace, descriptors and help text.
+
+        Overall strategy is to interface to the C code in
+        python/pmda.c here, using a void* handle to the PMDA
+        dispatch structure (allocated and managed in C code).
+
+        In addition, several dictionaries for metric related
+        strings are managed here (names, help text).
+    """
+    ##
+    # overloads
+
+    def __init__(self, domain, name, logfile, helpfile):
+        self._metric_names = {}
+        self._metric_oneline = {}
+        self._metric_helptext = {}
+        self._indom_oneline = {}
+        self._indom_helptext = {}
+        self._dispatch = pmda_dispatch(domain, name, logfile, helpfile)
+
+
 class PMDA(object):
-    """Defines a PCP performance metrics domain agent
-       Used to add new metrics into the PCP toolkit.
+    """ Defines a PCP performance metrics domain agent
+        Used to add new metrics into the PCP toolkit.
     """
 
     ##
@@ -81,6 +105,11 @@ class PMDA(object):
     def __init__(self, name, domain):
         self._name = name
         self._domain = domain
+        logfile = name + '.log'
+        pmdaname = 'pmda' + name
+        helpfile = '%s/%s/help' % PCP.pmGetConfig('PCP_PMDAS_DIR'), name
+        self._dispatch = MetricDispatch(domain, pmdaname, logfile, helpfile)
+
 
     ##
     # general PMDA class methods
