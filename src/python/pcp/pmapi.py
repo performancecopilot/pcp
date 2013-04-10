@@ -1138,7 +1138,7 @@ class pmContext(object):
     ##
     # PMAPI Archive-Specific Services
 
-    def pmGetArchiveLabel(self, loglabel):
+    def pmGetArchiveLabel(self):
         """PMAPI - Get the label record from the archive
         (status, loglabel) = pmGetArchiveLabel()
         """
@@ -1317,13 +1317,15 @@ class pmContext(object):
         return str(LIBPCP.pmAtomStr(byref(atom), typed, atomstr, 96))
 
     @staticmethod
-    def pmPrintValue(fileObj, result, ptype, vset_idx, vlist_idx, minWidth):
-        """PMAPI - Print the value of a metric """
+    def pmPrintValue(fileObj, result, ptype, vset_idx, vlist_idx, min_width):
+        """PMAPI - Print the value of a metric
+        pmPrintValue(file, value, pmdesc, vset_index, vlist_index, min_width)
+        """
         LIBPCP.pmPrintValue(ctypes.pythonapi.PyFile_AsFile(fileObj),
                 c_int(result.contents.vset[vset_idx].contents.valfmt),
                 c_int(ptype.contents.type),
                 byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]),
-                minWidth)
+                min_width)
 
     @staticmethod
     def pmflush():

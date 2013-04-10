@@ -107,14 +107,15 @@ def test_pcp(self):
     print "pmExtractValue:", atom.ul
 
     # pmGetChildren
-    gcs = ctx.pmGetChildren("kernel")
-    print "pmGetChildren:", gcs
-    self.assertTrue(len(gcs) >=2)
+    if not self.archive_type:
+        gcs = ctx.pmGetChildren("kernel")
+        print "pmGetChildren:", gcs
+        self.assertTrue(len(gcs) >=2)
 
-    # pmGetChildrenStatus
-    gcs = ctx.pmGetChildrenStatus("kernel")
-    print "pmGetChildrenStatus:", gcs
-    self.assertTrue(len(gcs[0]) == len(gcs[1]))
+        # pmGetChildrenStatus
+        gcs = ctx.pmGetChildrenStatus("kernel")
+        print "pmGetChildrenStatus:", gcs
+        self.assertTrue(len(gcs[0]) == len(gcs[1]))
 
     # pmGetPMNSLocation
     index = ctx.pmGetPMNSLocation()
@@ -300,7 +301,7 @@ def test_pcp(self):
     print "pmAtomStr", atomstr
 
     # pmtimevalSleep
-    ctx.pmtimevalSleep(delta);
+    ctx.pmtimevalSleep(delta)
     print "pmtimevalSleep"
 
     # pmDupContext
@@ -330,9 +331,10 @@ def test_pcp(self):
         self.assertTrue (code >= 0 and loglabel.pid_t > 0)
 
     # pmPrintValue
-    print "pmPrintValue: "
-    ctx.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
-    print
+    if not self.archive_type:
+        print "pmPrintValue: "
+        ctx.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
+        print
 
     # pmReconnectContext
     code = ctx.pmReconnectContext()
@@ -359,7 +361,6 @@ class TestSequenceFunctions(unittest.TestCase):
 if __name__ == '__main__':
 
     if (len(sys.argv) == 2):
-        open(sys.argv[1] + '.index', mode='r')
         ARCHIVE = sys.argv[1]
     elif (len(sys.argv) > 2):
         print "Usage: " + sys.argv[0] + " OptionalArchivePath"
