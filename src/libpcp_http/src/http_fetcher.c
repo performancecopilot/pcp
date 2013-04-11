@@ -802,10 +802,12 @@ int makeSocket(const char *host)
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
 	/* Get socket options */
-	if ((sock_args = fcntl(sock, F_GETFL, NULL)) < 0) { errorSource = ERRNO; close(sock); return -1; }
+	if ((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
 	sock_args |= O_NONBLOCK; /* OR non-blocking with existing options */
 	/* Set non-blocking */
-	if( fcntl(sock, F_SETFL, sock_args) < 0) { errorSource = ERRNO; close(sock); return -1; }
+	if( fcntl(sock, F_SETFL, sock_args) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
 	/* Try to connect */
 	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
 	if (ret < 0 ){
@@ -844,9 +846,11 @@ int makeSocket(const char *host)
 	    }
 	}
 	/* Set socket back to blocking */
-	if((sock_args = fcntl(sock, F_GETFL, NULL)) < 0) { errorSource = ERRNO; close(sock); return -1; }
+	if((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
 	sock_args &= (~O_NONBLOCK);
-	if(fcntl(sock, F_SETFL, sock_args) < 0) { errorSource = ERRNO; close(sock); return -1; }
+	if(fcntl(sock, F_SETFL, sock_args) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
 
 	return sock;
 	}
