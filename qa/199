@@ -24,7 +24,8 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
-install_on_cleanup=true
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
 
 _cleanup()
 {
@@ -119,11 +120,6 @@ unset ROOT
 # copy some config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
-
-if [ `pmprobe trivial.time 2>&1 | $PCP_AWK_PROG '{print $2}'` -lt 0 ]
-then
-    install_on_cleanup=false
-fi
 
 if $sudo make clobber >$tmp.out 2>&1
 then
