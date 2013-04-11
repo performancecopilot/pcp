@@ -36,6 +36,8 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
 update_config=true
+systemctl=false
+upstart=false
 if [ -f /etc/rsyslog.conf -a -f /var/run/*syslogd.pid ]
 then
     # smells like rsyslogd
@@ -52,7 +54,6 @@ then
 	upstart=true
     elif [ -f /etc/init.d/rsyslog ]
     then
-	upstart=false
 	init=/etc/init.d/rsyslog
     elif [ -f /etc/init.d/syslog ]
     then
@@ -60,8 +61,13 @@ then
 	upstart=false
 	init=/etc/init.d/syslog
     else
-	echo "Botch: using rsyslog, but I don't know how to stop/start it"
-	exit 1
+	if `which systemctl >/dev/null 2>&1`
+	then
+	    systemctl=true
+	else
+	    echo "Botch: using rsyslog, but I don't know how to stop/start it"
+	    exit 1
+	fi
     fi
 elif [ -f /etc/syslog.conf ]
 then
@@ -92,6 +98,9 @@ cleanup()
 	    if $upstart
 	    then
 		$sudo service rsyslog restart >>$seq.full 2>&1
+	    elif $systemctl
+	    then
+		$sudo systemctl restart rsyslog
 	    else
 		# kill should be enough, but restart to be sure
 		#
@@ -131,6 +140,9 @@ setup()
 	if $upstart
 	then
 	    $sudo service rsyslog restart >>$seq.full 2>&1
+	elif $systemctl
+	then
+	    $sudo systemctl restart rsyslog
 	else
 	    # kill should be enough, but restart to be sure
 	    #
