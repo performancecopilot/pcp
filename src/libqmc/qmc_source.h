@@ -27,7 +27,7 @@ public:
     // If matchHosts is true, then it will attempt to map a live context
     // to an archive source. If no matching archive context is found,
     // a NULL pointer is returned.
-    static QmcSource* getSource(int type, QString &source, int flags,
+    static QmcSource* getSource(int type, QString &source, int flags = 0,
 				 bool matchHosts = false);
 
     int status() const { return my.status; }
