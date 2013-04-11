@@ -821,42 +821,26 @@ int makeSocket(const char *host)
 		    else
 			selectRet = select(sock+1, NULL, &wfds, NULL, NULL);
 
-		    if (selectRet < 0 && errno != EINTR){
-			errorSource = ERRNO;
-			close(sock);
-			return -1;
-		    }
+		    if (selectRet < 0 && errno != EINTR)
+			return _makeSocketErr(sock, ERRNO, 0);
 		    else if (selectRet > 0){
 			lon = sizeof(int);
-			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0){
+			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0)
+			    return _makeSocketErr(sock, ERRNO, 0);
 			    /* Can't call getsockopt */
-			    errorSource = ERRNO;
-			    close(sock);
-			    return -1;
-			}
-			if (valopt) {
+			if (valopt)
+			    return _makeSocketErr(sock, ERRNO, 0);
 			    /* Got a SO_ERROR */
-			    errorSource = ERRNO;
-			    close(sock);
-			    return -1;
-			}
-			    break;
+			break;
 		    }
 		    /* Timed out waiting for socket to become ready */
-		    else {
-			errorSource = FETCHER_ERROR;
-			http_errno = HF_CONNECTTIMEOUT;
-			errorInt = timeout;
-			close(sock);
-			return -1;
-			}
+		    else
+			return _makeSocketErr(sock, FETCHER_ERROR, HF_CONNECTTIMEOUT);
 		    } while(1);
 	    }
 	    else {
 		/* We were expecting to be in progress but something else happened with the connect */
-		errorSource = ERRNO;
-		close(sock);
-		return -1;
+		return _makeSocketErr(sock, ERRNO, 0);
 	    }
 	}
 	/* Set socket back to blocking */
@@ -867,7 +851,12 @@ int makeSocket(const char *host)
 	return sock;
 	}
 
-
+int _makeSocketErr(int sock, int this_errorSource, int this_http_errno){
+	errorSource = this_errorSource;
+	http_errno = this_http_errno;
+	close(sock);
+	return -1;
+	}
 
 	/*
 	 * Determines if the given NULL-terminated buffer is large enough to
