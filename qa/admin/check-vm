@@ -110,7 +110,7 @@ dpkg?	/usr/lib/libQtAssistantClient.so|/usr/lib/*/libQtAssistantClient.so	[libqt
 rpm?	/usr/lib/libQtAssistantClient.so	[qt4-assistant-adp-devel(suse) qt-assistant-adp-devel(fedora)]
 # python
 rpm?	/usr/include/python*/Python.h		[python-devel]
-rpm?	/usr/lib/python*/site-packages/ctypes|/usr/lib/python*/ctypes	[python-ctypes]
+rpm?	/usr/lib*/python*/site-packages/ctypes|/usr/lib*/python*/ctypes	[python-ctypes]
 dpkg?	/usr/include/python*/Python.h		[python-dev]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
@@ -228,13 +228,19 @@ fi
 #
 _check_host()
 {
-    ipaddr=`sed -n </etc/hosts -e '/^#/d' -e 's/$/ /' -e "/[ 	]$1[ 	]/"'{
+    ipaddr=`sed -n </etc/hosts -e '/^#/d' -e '/::/d' -e 's/$/ /' -e "/[ 	]$1[ 	]/"'{
 s/[ 	].*//
 p
 }'`
     if [ -z "$ipaddr" ]
     then
 	echo "No /etc/hosts entry for $1"
+	return
+    fi
+
+    if [ `echo "$ipaddr" | wc -l | sed -e 's/  *//g'` -gt 1 ]
+    then
+	echo "Multiple /etc/hosts entries for $1"
 	return
     fi
 
@@ -257,13 +263,18 @@ _check_host $host
 if which pmhostname >/dev/null 2>&1
 then
     pmhost=`pmhostname`
-    case $pmhost
-    in
-	$host|$host.*)
-		;;
-	*)
-		echo "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
-		;;
-    esac
-    _check_host $pmhost
+    if [ -z "$pmhost" ]
+    then
+	echo "Warning: pmhostname returns nothing!"
+    else
+	case $pmhost
+	in
+	    $host|$host.*)
+		    ;;
+	    *)
+		    echo "Warning: hostname ($host) is not a prefix of pmhostname ($pmhost)"
+		    ;;
+	esac
+	_check_host $pmhost
+    fi
 fi
