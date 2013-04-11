@@ -103,16 +103,19 @@ class Metric( object ):
         instD = ctx.mcGetInstD( self.desc.indom )
         numval = vset.numval
         valL = []
+        print 'AA'
         for i in range( numval ):
             instval = vset.vlist[i].inst
             name = instD[ instval ]
             outAtom = self.ctx.pmExtractValue( vset.valfmt,
                      vset.vlist[i],
                      self.desc.type, self._convType )
+            atom = outAtom[1]
             if self._convUnits:
-                outAtom = self.ctx.pmConvScale( self._convType, outAtom,
+                atom = self.ctx.pmConvScale( self._convType, atom,
                      self.desc.units, self._convUnits )
-            x = outAtom.dref( self._convType )
+            print 'AA' + str(atom)
+            x = atom.dref( self._convType )
             valL.append( (instval, name, x) )
         return valL
 
@@ -129,19 +132,24 @@ class Metric( object ):
         return self._errorStatus
 
     def _R_netPrev( self ):
+        print 'AA0'
         if not self._prev:
             return None
         if type(self._netPrev) == type(None):
             self._netPrev = self.computeVal( self._prev )
         return self._netPrev
     def _R_netValue( self ):
+        print 'AA1 '  + str(self._result)
         if not self._result:
+            print 'AA2'
             return None
         if type(self._netValue) == type(None):
+            print 'AA3'
             self._netValue = self.computeVal( self._result )
         return self._netValue
 
     def _W_result( self, value ):
+        print 'BB ' + str(self._result)
         self._prev = self._result
         self._result = value
         self._netPrev = self._netValue
@@ -208,6 +216,9 @@ class MetricCache( pmContext ):
         return self._mcIndomD[ indom ]
 
     def _mcAdd( self, core ):
+#        print "XXX" + str((core.desc[1]))
+#        print get_indom(core.desc[1][0])
+#        i = get_indom(core.desc[1][0])
         i = core.desc.indom
         if not self._mcIndomD.has_key( i ):
             # if i == PM_INDOM_NULL:
@@ -256,7 +267,8 @@ class MetricCache( pmContext ):
     
     def _mcCreateCore( self, name, pmid ):
         newcore = MetricCore( self, name, pmid )
-        newcore.desc = self.pmLookupDesc( pmid )
+        d = self.pmLookupDesc( pmid )[1]
+        newcore.desc = d[0].contents
         # insert core into cache
         self._mcAdd( newcore )
         return newcore
@@ -298,17 +310,18 @@ class MetricResultHandle(Structure):
     # property methods
 
     def data_write( self, value ):
+        print 'EE ' + str(type(value))
         if self._data_p and libpcp:
             libpcp.pmFreeResult( self._data_p )
         self._data_p = value
     def data_read( self ):
-        return _data_p
+        return self._data_p
     def ts_read( self ):
-        return self._data_p.timestamp
+        return self._data_p.contents.timestamp
     def np_read( self ):
-        return self._data_p.numpmid
+        return self._data_p.contents.numpmid
     def vs_read( self ):
-        return self._data_p.vset
+        return self._data_p.contents.vset
 
     ##
     # property definitions
@@ -344,6 +357,7 @@ class MetricGroup( dict ):
     # property write methods
 
     def _W_result( self, value ):
+        print 'CC ' + str(value.result_p.contents.get_numval(0)) + " " + str(type(value))
         self._prev = self._result
         self._result = value
 
@@ -383,6 +397,7 @@ class MetricGroup( dict ):
 
     def mgFetch( self ):
         # fetch the metric values
+        print 'DD '
         status, result_p = self._ctx.pmFetch( self._pmidA )
         # handle errors
         # update the group's result pointers
@@ -390,7 +405,11 @@ class MetricGroup( dict ):
         self.result = rh
         # update the result entries in each metric
         for i in range( rh.numpmid ):
-            self._altD[ rh.vset[i].pmid ].result = (rh.timestamp, rh.vset[i])
+            try:
+                print "XX" + str(type(rh.vset[int(i)].contents.pmid))
+                self._altD[ rh.vset[int(i)].contents.pmid ].result = (rh.timestamp, rh.vset[i])
+            except IndexError:
+                pass
 
 ##
 # manages a dictionary of MetricGroups which can be pmFetch'ed
