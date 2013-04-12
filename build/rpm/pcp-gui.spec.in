@@ -11,7 +11,7 @@ Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Requires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
-BuildRequires: pcp >= 3.5.0
+BuildRequires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
 %if "%{_vendor}" == "suse"
 Requires: qt >= 4.2
 BuildRequires: qt-devel >= 4.2
@@ -130,6 +130,10 @@ set -x
 %defattr(-,pcpqa,pcpqa)
 
 %changelog
+* Fri Apr 12 2013 Mark Goodwin <mgoodwin@redhat.com> - 1.5.7-1
+- currently under development
+- QString toAscii decorruption
+
 * Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
 - Update to latest sources, creates a new testsuite package.
 

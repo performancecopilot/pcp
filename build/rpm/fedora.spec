@@ -1,6 +1,6 @@
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.6
+Version: 1.5.7
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -11,7 +11,7 @@ Source0: pcp-gui-%{version}.src.tar.gz
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf, bison, flex, gawk
-BuildRequires: pcp >= 2.0, pcp-libs-devel >= 2.0
+BuildRequires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.2
 
@@ -102,6 +102,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
+* Fri Apr 12 2013 Mark Goodwin <mgoodwin@redhat.com> - 1.5.7-1
+- currently under development
+- QString toAscii decorruption fixes
+
 * Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
 - Update to latest PCP GUI sources.
 - Introduces new pcp-gui-testsuite sub-package.
