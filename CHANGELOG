@@ -1,3 +1,15 @@
+pcp-3.7.2 (under development)
+    - Improved pmie propagation of metadata units
+    - Extra pmlogger diagnostic when log cannot be created
+    - Fix Debian python build dependencies.
+    - Avoid mis-sharing outbound pmcd connections if ports do not
+      match (libpcp)
+    - IPv6 presence now checked at run-time as well (pmconfig)
+    - Packaging updates - tarball, slackware, gentoo
+    - Add several missing man page options, typos and such, found
+      by Red Hat (internal?) checker tools
+    - Added pmwtf.1 man page
+
 pcp-3.7.1 (20 March 2013)
     - IPv6 addresses and wild cards for host access control.
     - Add packaging scripts to correctly transition active temp

@@ -230,18 +230,37 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 	    int	save_error = oserror();	/* need for error message */
 
 	    close(oldfd);
-	    if (dup(dupoldfd) != oldfd)
+	    if (dup(dupoldfd) != oldfd) {
 		/* fd juggling failed! */
 		oldstream = NULL;
-	    else
+	    }
+	    else {
 		/* oldfd now re-instated as at entry */
 		oldstream = fdopen(oldfd, "w");
+	    }
 	    if (oldstream == NULL) {
 		/* serious trouble ... choose least obnoxious alternative */
 		if (dupoldstream == stderr)
 		    oldstream = fdopen(fileno(stdout), "w");
 		else
 		    oldstream = fdopen(fileno(stderr), "w");
+	    }
+	    if (oldstream != NULL) {
+		/*
+		 * oldstream was NULL, but recovered so now fixup
+		 * input oldstream ... this is potentially dangerous,
+		 * but we're relying on
+		 * (a) fflush(oldstream) on entry flushes buffers
+		 * (b) fdopen() leaves new oldstream initialized
+		 * (c) caller knows nothing about "new" oldstream
+		 *     and is never going to fclose() it, so only
+		 *     fclose() will come at exit() and should be
+		 *     benign (except possibly for a free() of an
+		 *     already free()'d buffer)
+		 */
+		*dupoldstream = *oldstream;	/* struct copy */
+		/* put oldstream back for return value */
+		oldstream = dupoldstream;
 	    }
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
 		    progname, logname, strerror(save_error));

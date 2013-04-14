@@ -226,16 +226,13 @@ prefetch(void)
 int
 fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
-    int sts;
-
     if (need_refresh)
 	pmns_refresh();
     if (fetch_func)
 	prefetch();
     if (refresh_func)
 	refresh(numpmid, pmidlist);
-    sts = pmdaFetch(numpmid, pmidlist, rp, pmda);
-    return sts;
+    return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
 
 int

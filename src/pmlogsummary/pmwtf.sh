@@ -20,7 +20,7 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 _usage()
 {
-    echo "Usage: $0 [options] archive1 archive2"
+    echo "Usage: $0 [options] archive1 [archive2]"
     echo
     echo "Options:"
     echo "  -d         debug, keep temp files"

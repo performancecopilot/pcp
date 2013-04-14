@@ -117,6 +117,7 @@ src-link-pcp : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
+		echo "=== $$DIR/$$f ==="; \
 		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
 		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \

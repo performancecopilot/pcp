@@ -20,16 +20,12 @@ sanity
 pmcd
 # pmcd proxy
 pmproxy
-# pmchart app
-pmchart
 # pmdumptext app
 pmdumptext
 # pmdumplog app
 pmdumplog
 # pmlogger app (not control scripts)
 pmlogger
-# pmview app
-pmview
 # pmie app, sample rules and friends
 pmie
 # dbpmda app
@@ -50,8 +46,6 @@ pmem
 pminfo
 # pmprobe app
 pmprobe
-# routervis
-routervis
 # diskstat
 diskstat
 # pmpost
@@ -61,9 +55,6 @@ pmdate
 
 # general PDU encode/decode
 pdu
-
-# time control services
-pmtime
 
 # PMNS related functions/programs
 pmns
@@ -113,14 +104,8 @@ pmda
 # pmda installation scripts and procedures
 pmda.install
 
-# launching tools from pmview/oview
-pmlaunch
-
 # tools which use PCP_COUNTER_WRAP 
 wrap
-
-# pmsnap utility
-pmsnap
 
 # pmstore command and pmStore() libpcp routine
 pmstore
@@ -178,9 +163,6 @@ pmsocks
 
 # newhelp, chkhelp and associated library support
 help
-
-# oview
-oview
 
 # pmgadgets
 pmgadgets
@@ -242,7 +224,19 @@ fault
 # log rewriting app
 pmlogrewrite
 
+# systemd PMDA
+pmda.systemd
+
+# gfs2 PMDA
+pmda.gfs2
+
+# Python
+pcp.py
+
 # test-group association ... one line per test
+# add :retired as a tag immediatelty after the test number to keep the
+# test number allocated, but prevent the test from being run
+
 # ... use sort -n from here on down to tidy up this mess
 #
 000 other pmcd local ostest oss
@@ -522,13 +516,13 @@ pmlogrewrite
 281 archive mem_leak #504616 local oss
 282 pmcd local pmprobe logutil oss
 283 context pmcd local oss
-284 pdu local purify oss
+284:retired  pdu local purify oss
 285 dbpmda local oss
 286 pmda.linux local oss
 287 pmlogreduce local oss pmval
 288 archive local oss
 289 libpcp fetch archive #505498 local oss
-290 pmns local purify oss
+290:retired  pmns local purify oss
 291 logutil local pmlogextract oss pmdumplog
 292 pmlogextract logutil pmval local oss
 293 pmstat #939275 local oss
@@ -567,11 +561,11 @@ pmlogrewrite
 326 pmlogger pmval libpcp pmcd local pmda.install folio oss pmdumplog
 327 archive oss local pmdumplog
 328 logutil local pmlogextract oss pmdumplog
-329 archive mem_leak local purify oss
-330 archive mem_leak local purify oss
-331 archive mem_leak local purify oss
-332 archive mem_leak local purify oss
-333 archive mem_leak local purify oss
+329:retired  archive mem_leak local purify oss
+330:retired  archive mem_leak local purify oss
+331:retired  archive mem_leak local purify oss
+332:retired  archive mem_leak local purify oss
+333:retired  archive mem_leak local purify oss
 334 derive local oss
 335 derive local oss
 336 trace local pmda.install oss
@@ -794,7 +788,7 @@ pmlogrewrite
 580 indom local ostest oss
 581 pmie local oss
 583 pmie #698718 remote oss
-584 libpcp pmie local #698774 oss
+584:retired libpcp pmie local #698774 oss purify
 587 pmcd #754795 local pmda.install oss pmda.trivial
 589 remote oss
 592 pmda.sample local oss
@@ -855,3 +849,5 @@ pmlogrewrite
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
+524 libpcp pmlogger local oss
+525 pmda.summary pmie local oss

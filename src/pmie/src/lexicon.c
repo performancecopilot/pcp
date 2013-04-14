@@ -507,7 +507,10 @@ yylex(void)
 	    token[i] = '\0';
 	    if (d == '\'') c = nextc();
 
-	    /* recognize units keyword */
+	    /*
+	     * recognize keywords associated with units of space, time
+	     * and count, see unitab[]
+	     */
 	    if (d != '\'') {
 		lt2 = &unitab[0];
 		if (i > 0 && token[i-1] == 's')

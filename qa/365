@@ -129,6 +129,7 @@ $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
+cat $PCP_PMCDLOG_PATH >>$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '/^linux/{
@@ -149,7 +150,8 @@ s/lib=\/var\//lib=\/usr-or-var\//
     -e "s/$other2\$/OTHERHOST2/g" \
     -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
     | $PCP_AWK_PROG '
-$8 ~ /^[A-Z]+HOST[12]*$/{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
+$8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*$/,"<ipaddr>",$5)
 			}
