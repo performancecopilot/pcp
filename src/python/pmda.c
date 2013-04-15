@@ -208,7 +208,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     char *keyword_list[] = {"domain", "name", "log", "help", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "icc:pmda_dispatch", keyword_list, // TODO: char * (x2)
+                        "isss:pmda_dispatch", keyword_list,
                         &domain, &name, &logfile, &help))
         return NULL;
 

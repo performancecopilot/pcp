@@ -74,7 +74,7 @@ class MetricDispatch(object):
         self._metric_helptext = {}
         self._indom_oneline = {}
         self._indom_helptext = {}
-        self._dispatch = pmda_dispatch(domain, name, logfile, helpfile)
+        self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
 
 
 class PMDA(object):
@@ -107,7 +107,7 @@ class PMDA(object):
         self._domain = domain
         logfile = name + '.log'
         pmdaname = 'pmda' + name
-        helpfile = '%s/%s/help' % PCP.pmGetConfig('PCP_PMDAS_DIR'), name
+        helpfile = '%s/%s/help' % (PCP.pmGetConfig('PCP_PMDAS_DIR'), name)
         self._dispatch = MetricDispatch(domain, pmdaname, logfile, helpfile)
 
 
@@ -138,17 +138,23 @@ class PMDA(object):
     def set_store_callback(self, store_callback):
         return None
 
+    def inst_lookup(self, indom, instance):
+        return None
+
+    def run(self):
+        return None
+
+    @staticmethod
     def set_user(username):
-        return None
+        return cpmapi.pmSetProcessIdentity(username)
 
-    def pmda_inst_lookup(indom, instance):
-        return None
+    @staticmethod
+    def pmid(cluster, item):
+        return cpmda.pmda_pmid(cluster, item)
 
-    def pmda_pmid(cluster, item):
-        return None
-
-    def pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):
-        return None
+    @staticmethod
+    def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):
+        return cpmda.pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
 #Needed data:
 #    dispatch table
@@ -163,7 +169,6 @@ class PMDA(object):
 #
 #Needed methods:
 #    __init__(name, domain)
-#    run()
 #    set_helpdb(path)
 #    clear_metrics()
 #    add_indoms()
@@ -190,5 +195,4 @@ class PMDA(object):
 #    pmda_uptime(now)
 #    log()
 #    err()
-#    set_user
 #    

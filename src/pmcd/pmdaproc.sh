@@ -1036,7 +1036,6 @@ _install()
 		    else
 			break
 		    fi
-		else
 		elif [ "X$pmda_type" = Xpython ]
 		then
 		    python -c 'from pcp import pmda' 2>/dev/null

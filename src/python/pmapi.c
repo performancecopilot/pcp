@@ -94,12 +94,27 @@ timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_None;
 }
 
+static PyObject *
+setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *name;
+    char *keyword_list[] = {"name", NULL};
+    extern int __pmSetProcessIdentity(const char *);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "s:pmSetProcessIdentity", keyword_list, &name))
+        return NULL;
+    return Py_BuildValue("i", __pmSetProcessIdentity(name));
+}
+
 static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_SET", .ml_meth = (PyCFunction)setExtendedTimeBase,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "PM_XTB_GET", .ml_meth = (PyCFunction)getExtendedTimeBase,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmtimevalSleep", .ml_meth = (PyCFunction)timevalSleep,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmSetProcessIdentity", .ml_meth = (PyCFunction)setIdentity,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { NULL }
 };
