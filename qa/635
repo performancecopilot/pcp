@@ -20,6 +20,82 @@ echo "QA output created by $seq"
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# sample output
+#kenj-pc 68% netstat -i
+#Kernel Interface table
+#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
+#lo     3924   0   164293      0      0      0   164293      0      0      0 LRU
+#
+#
+# Grab the netstat statistics.  Get name and mtu:
+#
+_netstat_i_1()
+{
+    netstat -i \
+    | tee -a $seq.full \
+    | sed -e 's/\*/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ iface = -1; mtu = -1; hdr = 0 }
+/Kernel Interface table/	{ next }
+hdr==0	{ for (i = 0; i <= NF; i++) {
+		if ($i == "Iface") iface = i
+		if ($i == "MTU") mtu = i
+	  }
+	  if (iface == -1 || mtu == -1) {
+	    print "Botch: bad iface/mtu header line:",iface,mtu
+	    exit(0);
+	  }
+	  hdr = 1
+	  next
+	}
+hdr==1	{ print $iface, $mtu }'
+}
+
+# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
+# and xmit drops.
+#
+#Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+#eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
+#lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
+#
+# Note: drops metric is really ?-DRP + ?-OVR ... visible in netstat, but
+# 	not /proc/net/dev that the Linux PMDA uses
+# Note: Met may not be there!
+#
+_netstat_i_2()
+{
+    netstat -i \
+    tee -a $seq.full \
+    | sed \
+	-e 's/\*/ /' \
+    | $PCP_AWK_PROG '
+BEGIN	{ rx = -1; rx_err = -1; rx_drp = -1; rx_ovr = -1
+	  tx = -1; tx_err = -1; tx_drp = -1; tx_ovr = -1
+	  hdr = 0
+	}
+/Kernel Interface table/	{ next }
+hdr==0	{ for (i = 0; i <= NF; i++) {
+		if ($i == "RX-OK") rx = i
+		if ($i == "RX-ERR") rx_err = i
+		if ($i == "RX-DRP") rx_drp = i
+		if ($i == "RX-OVR") rx_ovr = i
+		if ($i == "TX-OK") tx = i
+		if ($i == "TX-ERR") tx_err = i
+		if ($i == "TX-DRP") tx_drp = i
+		if ($i == "TX-OVR") tx_ovr = i
+	  }
+	  if (rx == -1 || rx_err == -1 || rx_drp == -1 || rx_ovr == -1 ||
+	      tx == -1 || tx_err == -1 || tx_drp == -1 || tx_ovr == -1) {
+	    print "Botch: bad rx/txheader line:",rx,rx_err,rx_drp,rx_ovr,tx,tx_err,tx_drp,tx_ovr
+	    exit(0);
+	  }
+	  hdr = 1
+	  next
+	}
+hdr==1	{ print $rx, $rx_err, $rx_drp+$rx_ovr, $tx, $tx_err, $tx_drp+$tx_ovr }' 
+}
+
 # real QA test starts here
 echo >$seq.full
 
@@ -27,7 +103,7 @@ echo >$seq.full
 #
 ifconfig -a \
     | sed -n -e '/^[^ 	]/{
-s/[ 	].*//
+s/[: 	].*//
 p
 }' \
     | LC_COLLATE=POSIX sort \
@@ -64,44 +140,15 @@ out.packets
 out.drops
 END
 
-# sample output
-#kenj-pc 68% netstat -i
-#Kernel Interface table
-#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
-#eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
-#lo     3924   0   164293      0      0      0   164293      0      0      0 LRU
-#
-#
-# Grab the netstat statistics.  Get name and mtu:
-#
 echo >>$seq.full
 echo "=== netstat for first i/f name and mtu ===" >>$seq.full
-netstat -i \
-    | tee -a $seq.full \
-    | sed -e 's/\*/ /' \
-    | $PCP_AWK_PROG 'NR > 2 { print $1, $2 }' \
-    > $tmp.net.1a
+_netstat_i_1 > $tmp.net.1a
 echo "===" >>$seq.full
 cat $tmp.net.1a >>$seq.full
 
-# Then recv packets, recv errors, recv drops, xmit packets, xmit errors
-# and xmit drops.
-#
-#Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
-#eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
-#lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
-#
-# Note: drops metric is really ?-DRP + ?-OVR ... visible in netstat, but
-# 	not /proc/net/dev that the Linux PMDA uses
-#
 echo >>$seq.full
 echo "=== netstat for first counts ===" >>$seq.full
-netstat -i \
-    | tee -a $seq.full \
-    | sed \
-	-e 's/\*/ /' \
-    | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6+$7, $8, $9, $10+$11 }' \
-    > $tmp.net.1b
+_netstat_i_2 > $tmp.net.1b
 echo "===" >>$seq.full
 cat $tmp.net.1b >>$seq.full
 
@@ -162,11 +209,7 @@ done
 #
 echo >>$seq.full
 echo "=== netstat for second i/f name and mtu ===" >>$seq.full
-netstat -i \
-    | tee -a $seq.full \
-    | sed -e 's/\*/ /' \
-    | $PCP_AWK_PROG 'NR > 2 { print $1, $2 }' \
-    > $tmp.net.2a
+_netstat_i_1 > $tmp.net.2a
 echo "===" >>$seq.full
 cat $tmp.net.2a >>$seq.full
 
@@ -175,12 +218,7 @@ cat $tmp.net.2a >>$seq.full
 #
 echo >>$seq.full
 echo "=== netstat for second counts ===" >>$seq.full
-netstat -i \
-    | tee -a $seq.full \
-    | sed \
-	-e 's/\*/ /' \
-    | $PCP_AWK_PROG 'NR > 2 { print $4, $5, $6+$7, $8, $9, $10+$11 }' \
-    > $tmp.net.2b
+_netstat_i_2 > $tmp.net.2b
 echo "===" >>$seq.full
 cat $tmp.net.2b >>$seq.full
 

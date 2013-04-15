@@ -207,6 +207,7 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
     if [ -f $tmp.found ]
     then
 	sort $tmp.found
+	cat $tmp.found >>$tmp.counts
     else
 	if [ -f $tmp.seen ]
 	then
@@ -218,6 +219,13 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
     fi
 
 done
+
+if [ -f $tmp.counts ]
+then
+    awk <$tmp.counts '
+	{ nrun += $2; nfail += $4 }
+END	{ printf "Summary: %d run, %d failed (%.2f%%)\n", nrun, nfail, 100*nfail/nrun }'
+fi
 
 if [ -f $tmp.map ]
 then
