@@ -63,8 +63,8 @@ def record (pm, config, duration, file):
         sys.exit(1)
     status = pm.pmRecordSetup (file, me, 0)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
-    status = pm.pmRecordControl (0, c_api.PM_REC_SETARG, "-T" + str(duration) + "sec")
-    status = pm.pmRecordControl (0, c_api.PM_REC_ON, "")
+    status = pm.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(duration) + "sec")
+    status = pm.pmRecordControl (0, c_gui.PM_REC_ON, "")
     # XXX: duration should be a time interval allowing sub-second resolution
     time.sleep(duration)
     pm.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
@@ -513,7 +513,7 @@ if __name__ == '__main__':
     cpu = _cpu_collect_print()
     interrupt = _interrupt_collect_print()
     # interrupt metrics are setup on the fly; an archive may not provide this
-    interrupt.init_metrics(pmContext())
+    interrupt.init_metrics(pmapi.pmContext())
     disk = _disk_collect_print()
     memory = _memory_collect_print()
     net = _net_collect_print()
@@ -593,7 +593,7 @@ if __name__ == '__main__':
             sys.exit(1)
     else:
         try:
-            pm = pmContext()
+            pm = pmapi.pmContext()
         except pmErr, e:
             print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)

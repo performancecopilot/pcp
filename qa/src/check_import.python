@@ -17,6 +17,7 @@
 import sys
 import math
 import time
+import cpmapi
 from pcp import pmi
 from pcp import pmapi
 
@@ -33,15 +34,15 @@ def check_import(archive, hostname, timezone):
     units = log.pmiUnits(0, 0, 0, 0, 0, 0)
 
     # create a metric with no instances (hinv.ncpu)
-    log.pmiAddMetric("hinv.ncpu", pmapi.PM_ID_NULL, pmapi.PM_TYPE_U32,
-                pmapi.PM_INDOM_NULL, pmapi.PM_SEM_DISCRETE, units)
+    log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL, cpmapi.PM_TYPE_U32,
+                cpmapi.PM_INDOM_NULL, cpmapi.PM_SEM_DISCRETE, units)
 
     # give it a value
     log.pmiPutValue("hinv.ncpu", "", "%d" % 42)
 
     # create a metric with instances (kernel.all.load)
     log.pmiAddMetric("kernel.all.load", pmid,
-                pmapi.PM_TYPE_FLOAT, indom, pmapi.PM_SEM_INSTANT, units)
+                cpmapi.PM_TYPE_FLOAT, indom, cpmapi.PM_SEM_INSTANT, units)
     log.pmiAddInstance(indom, "1 minute", 1)
     log.pmiAddInstance(indom, "5 minute", 5)
     log.pmiAddInstance(indom, "15 minute", 15)
