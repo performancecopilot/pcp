@@ -644,7 +644,7 @@ void http_perror(const char *string)
 int http_getTimeoutError()
 	{
 	if(errorSource == FETCHER_ERROR)
-		return (http_errno == HF_DATATIMEOUT || http_errno == HF_HEADTIMEOUT);
+		return (http_errno == HF_DATATIMEOUT || http_errno == HF_HEADTIMEOUT || http_errno == HF_CONNECTTIMEOUT);
 	return 0;
 	}
 
@@ -771,8 +771,14 @@ int makeSocket(const char *host)
 	struct sockaddr_in sa;							/* Socket address */
 	struct hostent *hp;								/* Host entity */
 	int ret;
-    int port;
-    char *p;
+	int port;
+	char *p;
+	long sock_args;
+	fd_set wfds;
+	int selectRet;
+	struct timeval tv;
+	socklen_t lon;
+	int valopt;
 	
     /* Check for port number specified in URL */
     p = strchr(host, ':');
@@ -795,13 +801,66 @@ int makeSocket(const char *host)
 	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
 	if(sock == -1) { errorSource = ERRNO; return -1; }
 
+	/* Get socket options */
+	if ((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
+	sock_args |= O_NONBLOCK; /* OR non-blocking with existing options */
+	/* Set non-blocking */
+	if( fcntl(sock, F_SETFL, sock_args) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
+	/* Try to connect */
 	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
-	if(ret == -1) { errorSource = ERRNO; close(sock); return -1; }
+	if (ret < 0 ){
+	    if (errno == EINPROGRESS) {
+		do {
+		    tv.tv_sec = timeout;
+		    tv.tv_usec = 0;
+		    FD_ZERO(&wfds);
+		    FD_SET(sock, &wfds);
+
+		    if(timeout >= 0)
+			selectRet = select(sock+1, NULL, &wfds, NULL, &tv);
+		    else
+			selectRet = select(sock+1, NULL, &wfds, NULL, NULL);
+
+		    if (selectRet < 0 && errno != EINTR)
+			return _makeSocketErr(sock, ERRNO, 0);
+		    else if (selectRet > 0){
+			lon = sizeof(int);
+			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0)
+			    return _makeSocketErr(sock, ERRNO, 0);
+			    /* Can't call getsockopt */
+			if (valopt)
+			    return _makeSocketErr(sock, ERRNO, 0);
+			    /* Got a SO_ERROR */
+			break;
+		    }
+		    /* Timed out waiting for socket to become ready */
+		    else
+			return _makeSocketErr(sock, FETCHER_ERROR, HF_CONNECTTIMEOUT);
+		    } while(1);
+	    }
+	    else {
+		/* We were expecting to be in progress but something else happened with the connect */
+		return _makeSocketErr(sock, ERRNO, 0);
+	    }
+	}
+	/* Set socket back to blocking */
+	if((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
+	sock_args &= (~O_NONBLOCK);
+	if(fcntl(sock, F_SETFL, sock_args) < 0)
+	    return _makeSocketErr(sock, ERRNO, 0);
 
 	return sock;
 	}
 
-
+int _makeSocketErr(int sock, int this_errorSource, int this_http_errno){
+	errorSource = this_errorSource;
+	http_errno = this_http_errno;
+	close(sock);
+	return -1;
+	}
 
 	/*
 	 * Determines if the given NULL-terminated buffer is large enough to

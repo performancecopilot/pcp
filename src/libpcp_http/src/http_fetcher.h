@@ -151,6 +151,10 @@ int _http_read_header(int sock, char *headerPtr);
 	 */
 int makeSocket(const char *host);
 
+	/* Handles error conditions with creating sockets
+	 */
+int _makeSocketErr(int sock, int this_errorSource, int this_http_errno);
+
 	/*
 	 * Determines if the given NULL-terminated buffer is large enough to
 	 *	concatenate the given number of characters.  If not, it attempts to
