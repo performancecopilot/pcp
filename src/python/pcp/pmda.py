@@ -20,18 +20,68 @@
 # See pmdasimple.py for an example use of this module.
 """
 
+import os
+
 import cpmapi
 import cpmda
 from pmapi import pmContext as PCP
-from pmapi import pmID, pmInDom, pmUnits, pmResult
+from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
 
 import ctypes
 from ctypes import c_int, c_long, c_char_p, c_void_p
-from ctypes import cast, CDLL, POINTER
+from ctypes import cast, CDLL, POINTER, Structure
 
 ## Performance Co-Pilot PMDA library (C)
 LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))
 
+
+##
+# Definition of structures used by C library libpcp_pmda, derived from <pcp/pmda.h>
+#
+
+class pmdaMetric(Structure):
+    """ Structure describing a metric definition for a PMDA """
+    _fields_ = [("m_user", c_void_p),
+                ("m_desc", pmDesc)]
+
+    def __init__(self, pmid, typeof, sem, units):
+        Structure.__init__(self)
+        self.m_user = None
+        self.m_desc.pmid = pmid
+        self.m_desc.type = typeof
+        self.m_desc.sem = sem
+        self.m_desc.units = units
+
+    def __str__(self):
+        return "pmdaMetric@%#lx pmid=%#lx type=%d" % (addressof(self), self.m_desc.pmid, self.m_desc.type)
+
+class pmdaInstid(Structure):
+    """ Structure describing an instance (index/name) a PMDA """
+    _fields_ = [("i_inst", c_int),
+                ("i_name", c_char_p)]
+
+    def __init__(self, instid, name):
+        Structure.__init__(self)
+        self.i_inst = instid
+        self.i_name = name
+
+    def __str__(self):
+        return "pmdaInstid@%#lx index=%d name=%s" % (addressof(self), self.i_inst, self.i_name)
+
+class pmdaIndom(Structure):
+    """ Structure describing an instance domain within a PMDA """
+    _fields_ = [("it_indom", pmInDom),
+                ("it_numinst", c_int),
+                ("it_set", POINTER(pmdaInstid))]
+
+    def __init__(self, indom, insts):
+        Structure.__init__(self)
+        self.it_indom = indom
+        self.it_numinst = len(insts)
+        self.it_set = insts
+
+    def __str__(self):
+        return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
 
 ###
 ## PMDA Indom Cache Services
@@ -56,28 +106,82 @@ LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
 class MetricDispatch(object):
     """ Helper for PMDA class which manages metric dispatch
-        table, metric namesspace, descriptors and help text.
+        table, metric namespace, descriptors and help text.
 
         Overall strategy is to interface to the C code in
         python/pmda.c here, using a void* handle to the PMDA
         dispatch structure (allocated and managed in C code).
 
         In addition, several dictionaries for metric related
-        strings are managed here (names, help text).
+        strings are managed here (names, help text) - cached
+        for quick lookups in callback routines.
     """
+
     ##
     # overloads
 
     def __init__(self, domain, name, logfile, helpfile):
+        self._metrictable = []
+        self._indomtable = []
+
+        self._metrics = {}
         self._metric_names = {}
         self._metric_oneline = {}
         self._metric_helptext = {}
+        self._indoms = {}
         self._indom_oneline = {}
         self._indom_helptext = {}
+
         self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
 
+    ##
+    # general PMDA class methods
 
-class PMDA(object):
+    def pmns_refresh():
+        return None
+
+    def add_metric(self, name, metric, oneline = '', text = ''):
+        pmid = metric.m_desc.pmid
+        if (pmid in self._metric_names):
+            raise KeyError, 'attempt to add_metric with an existing name'
+        if (pmid in self._metrics):
+            raise KeyError, 'attempt to add_metric with an existing pmid'
+        self._metrictable.append(metric)
+        self._metrics[pmid] = metric
+        self._metric_names[pmid] = name
+        self._metric_oneline[pmid] = oneline
+        self._metric_helptext[pmid] = text
+        
+    def add_indom(self, indom, oneline = '', text = ''):
+        indomid = indom.it_indom
+        if (indomid in self._indoms):
+            raise KeyError, 'attempt to add_indom with an existing indom'
+        self._indomtable.append(indom)
+        self._indoms[indomid] = indom
+        self._indom_oneline[indomid] = oneline
+        self._indom_helptext[indomid] = text
+
+    def replace_indom(self, indom, instlist):
+        replacement = pmdaIndom(indom, instlist)
+        for entry in self._indomtable:
+            if (entry.it_indom == indom):
+                entry = replacement
+        self._indoms[indomid] = replacement
+
+    def inst_lookup(self, indom, instance):
+        """
+        Lookup the (external) name associated with an (internal) instance ID
+        within a specific instance domain
+        """
+        entry = self._indoms[indom]
+        if (entry.it_indom == indom):
+            for inst in entry.it_set:
+                if (inst.i_inst == instance):
+                    return inst.i_name
+        return None
+
+
+class PMDA(MetricDispatch):
     """ Defines a PCP performance metrics domain agent
         Used to add new metrics into the PCP toolkit.
     """
@@ -108,23 +212,11 @@ class PMDA(object):
         logfile = name + '.log'
         pmdaname = 'pmda' + name
         helpfile = '%s/%s/help' % (PCP.pmGetConfig('PCP_PMDAS_DIR'), name)
-        self._dispatch = MetricDispatch(domain, pmdaname, logfile, helpfile)
+        MetricDispatch.__init__(self, domain, pmdaname, logfile, helpfile)
 
 
     ##
     # general PMDA class methods
-
-    def add_metric(self, name, pmid, typed, sem, units, oneline = '', text = ''):
-        return None
-
-    def add_indom(self, indom, instlist, oneline = '', text = ''):
-        return None
-
-    def replace_indom(self, indom, instlist):
-        return None
-
-    def set_helpfile(self, path):
-        return None
 
     def set_fetch(self, fetch):
         return None
@@ -138,11 +230,38 @@ class PMDA(object):
     def set_store_callback(self, store_callback):
         return None
 
-    def inst_lookup(self, indom, instance):
-        return None
+    def domain_write():
+        """
+        Write out the domain.h file (used during installation)
+        """
+        print '#define %s %d' % (self._name.upper(), self._domain)
+
+    def pmns_write(root):
+        """
+        Write out the namespace file (used during installation)
+        """
+        prefixes = [key.split('.')[0] for key in self._metric_names]
+        indent = (root == 'root')
+        lead = ''
+        if indent:
+            lead = '\t'
+            print 'root {'
+        for prefix in prefixes:
+            print '%s%s\t%d:*:*' % (lead, prefix, self._domain)
+        if indent:
+            print '}'
 
     def run(self):
-        return None
+        if ('PCP_PYTHON_DOMAIN' in os.environ):
+            self.domain_write()
+        elif ('PCP_PYTHON_PMNS' in os.environ):
+            self.pmns_refresh()
+            self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
+        else:
+            self.pmns_refresh()
+            LIBPCP_PMDA.pmdaInit(self._dispatch)
+            LIBPCP_PMDA.pmdaConnect(self._dispatch)
+            LIBPCP_PMDA.pmdaMain(self._dispatch)
 
     @staticmethod
     def set_user(username):
@@ -157,15 +276,7 @@ class PMDA(object):
         return cpmda.pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
 #Needed data:
-#    dispatch table
-#    metrics table
-#    indom table
 #    pmns tree
-#    metric names (dict)
-#    metric oneline (dict)
-#    metric helptext (dict)
-#    indom helptext (dict)
-#    indom oneline (dict)
 #
 #Needed methods:
 #    __init__(name, domain)
