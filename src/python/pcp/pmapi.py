@@ -71,9 +71,8 @@
                 print "load average 5=",atom.f
 """
 
-
-# for dereferencing timestamp in pmResult structure
-import datetime
+# for dereferencing times from pmLocaltime function (struct tm)
+from time import struct_time, mktime
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -134,14 +133,30 @@ class pmErr(Exception):
 # Section 3.5 - Performance Metric Values, pp. 62
 #
 
-# this hardcoded decl should be derived from <sys/time.h>
+# these hardcoded decls should be derived from <sys/time.h>
 class timeval(Structure):
     _fields_ = [("tv_sec", c_long),
                 ("tv_usec", c_long)]
 
     def __str__(self):
-        tmp = datetime.date.fromtimestamp(self.tv_sec)
-        return "%s.%06d" % (tmp, self.tv_usec)
+        return c_api.pmtimevalToReal(addressof(self))
+
+class tm(Structure):
+    _fields_ = [("tm_sec", c_int),
+                ("tm_min", c_int),
+                ("tm_hour", c_int),
+                ("tm_mday", c_int),
+                ("tm_mon", c_int),
+                ("tm_year", c_int),
+                ("tm_wday", c_int),
+                ("tm_yday", c_int),
+                ("tm_isdst", c_int)]
+
+    def __str__(self):
+        tmp = mktime(self.tm_year, self.tm_mon, self.tm_mday, self.tm_hour,
+                     self.tm_min, self.tm_sec, self.tm_wday, self.tm_yday,
+                     self.tm_isdst)
+        return "%s" % tmp.__str__()
 
 class pmAtomValue(Union):
     """Union used for unpacking metric values according to type
@@ -479,6 +494,12 @@ LIBPCP.pmUseZone.argtypes = [c_int]
 
 LIBPCP.pmWhichZone.restype = c_int
 LIBPCP.pmWhichZone.argtypes = [POINTER(c_char_p)]
+
+LIBPCP.pmLocaltime.restype = tm
+LIBPCP.pmLocaltime.argtypes = [POINTER(c_long), POINTER(tm)]
+
+LIBPCP.pmCtime.restype = c_char_p
+LIBPCP.pmCtime.argtypes = [c_long, c_char_p]
 
 
 ##
@@ -1056,8 +1077,7 @@ class pmContext(object):
     # PMAPI Timezone Services
 
     def pmNewContextZone(self):
-        """PMAPI - Query and set the current reporting timezone
-        """
+        """PMAPI - Query and set the current reporting timezone """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
@@ -1067,8 +1087,7 @@ class pmContext(object):
         return status
 
     def pmNewZone(self, tz):
-        """PMAPI - Create new zone handle and set reporting timezone
-        """
+        """PMAPI - Create new zone handle and set reporting timezone """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
@@ -1078,8 +1097,7 @@ class pmContext(object):
         return status
 
     def pmUseZone(self, tz_handle):
-        """PMAPI - Sets the current reporting timezone
-        """
+        """PMAPI - Sets the current reporting timezone """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
@@ -1089,13 +1107,27 @@ class pmContext(object):
         return status
 
     def pmWhichZone(self):
-        """PMAPI - Query the current reporting timezone
-        """
+        """PMAPI - Query the current reporting timezone """
         status = LIBPCP.pmGetContextHostName(self.ctx)
         if status < 0:
             raise pmErr, status
         return status
 
+    def pmLocaltime(self, seconds):
+        """PMAPI - convert the date and time for a reporting timezone """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+        result = POINTER(tm)()
+        return LIBPCP.pmLocaltime(seconds, byref(result))
+
+    def pmCtime(self, seconds):
+        """PMAPI - format the date and time for a reporting timezone """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+        result = (c_char * 32)()
+        return LIBPCP.pmCtime(seconds, byref(result))
 
     ##
     # PMAPI Metrics Services
