@@ -270,7 +270,7 @@ class MetricResultHandle(Structure):
     def __init__(self, result_p = 0):
         Structure.__init__(self)
         if result_p:
-            self.result_p = result_p
+            self._data_p = result_p
     def __del__(self):
         if self._data_p and LIBPCP:
             LIBPCP.pmFreeResult(self._data_p)
