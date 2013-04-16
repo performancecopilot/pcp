@@ -38,7 +38,7 @@ do
     [ $samples -gt 15 ] && samples=15
     echo
     echo "interpolate $samples, $delta seconds appart"
-    _run_valgrind src/interp0 -a src/interp -t 1 -s $samples \
+    _run_valgrind src/interp0 -a src/interp -t $delta -s $samples \
     | _filter
 done
 

@@ -1,4 +1,6 @@
 *.o
+*.pl
+*.py
 779246
 agenttimeout
 aggrstore

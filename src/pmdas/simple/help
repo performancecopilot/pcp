@@ -11,10 +11,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # simple PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
@@ -31,10 +27,10 @@
 # blank lines before the @ line are ignored
 #
 
-@ SIMPLE.1 Instance domain "colour" for simple PMDA
+@ SIMPLE.0 Instance domain "colour" for simple PMDA
 Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
 
-@ SIMPLE.2 Dynamic instance domain "time" for simple PMDA
+@ SIMPLE.1 Dynamic instance domain "time" for simple PMDA
 An instance domain which is computed on-the-fly for exporting current time
 information.  Refer to the help text for simple.now for a more complete
 explanation.

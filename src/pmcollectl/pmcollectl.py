@@ -3,7 +3,7 @@
 #
 # pmcollectl.py
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2012-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,12 +29,14 @@ http://oss.sgi.com/projects/pcp
 # imports
 #
 
-import pmapi
-import time
+import os
 import sys
-from pcp import *
-from ctypes import *
-from pmsubsys import cpu, interrupt, disk, memory, net, proc, subsys
+import copy
+import time
+import cpmapi as c_api
+import cpmgui as c_gui
+from pcp import pmapi, pmgui
+from pcp.pmsubsys import cpu, interrupt, disk, memory, net, proc, subsys
 
 me = "pmcollectl"
 
@@ -61,12 +63,13 @@ def record (pm, config, duration, file):
         sys.exit(1)
     status = pm.pmRecordSetup (file, me, 0)
     (status, rhp) = pm.pmRecordAddHost ("localhost", 1, config)
-    status = pm.pmRecordControl (0, pmapi.PM_REC_SETARG, "-T" + str(duration) + "sec")
-    status = pm.pmRecordControl (0, pmapi.PM_REC_ON, "")
+    status = pm.pmRecordControl (0, c_api.PM_REC_SETARG, "-T" + str(duration) + "sec")
+    status = pm.pmRecordControl (0, c_api.PM_REC_ON, "")
+    # XXX: duration should be a time interval allowing sub-second resolution
     time.sleep(duration)
-    pm.pmRecordControl (0, pmapi.PM_REC_STATUS, "")
-    status = pm.pmRecordControl (rhp, pmapi.PM_REC_OFF, "")
-    if status < 0 and status != pmapi.PM_ERR_IPC:
+    pm.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
+    status = pm.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    if status < 0 and status != c_api.PM_ERR_IPC:
         check_status (status)
 
 
@@ -296,7 +299,7 @@ class _interrupt_collect_print(interrupt, _collect_print):
                 print "%-8s" % self.metrics[j].split(".")[3],
                 for k in range(len(self.metric_values[0])):
                     print "%4d " % (self.metric_values[j][k]),
-                text = (pm.pmLookupText(self.metric_pmids[j], pmapi.PM_TEXT_ONELINE))
+                text = (pm.pmLookupText(self.metric_pmids[j], c_api.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
     def print_verbose(self):
@@ -333,7 +336,7 @@ class _disk_collect_print(disk, _collect_print):
             try:
                 (inst, iname) = pm.pmGetInDom(self.metric_descs[j])
                 break
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
@@ -461,7 +464,7 @@ class _net_collect_print(net, _collect_print):
             try:
                 (inst, iname) = pm.pmGetInDom(self.metric_descs[j])
                 break
-            except pmErr, e:
+            except pmapi.pmErr, e:
                 iname = "X"
 
         for j in xrange(len(self.get_metric_value('network.interface.in.bytes'))):
@@ -584,8 +587,8 @@ if __name__ == '__main__':
             lines.append(line[:-1].split())
         archive = os.path.join(os.path.dirname(input_file), lines[len(lines)-1][2])
         try:
-            pm = pmContext(pmapi.PM_CONTEXT_ARCHIVE, archive)
-        except pmErr, e:
+            pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
+        except pmapi.pmErr, e:
             print "Cannot open PCP archive: %s" % archive
             sys.exit(1)
     else:
@@ -614,8 +617,9 @@ if __name__ == '__main__':
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pm, configuration, duration, output_file)
-        record_add_creator (output_file)
+        client = pmgui.GuiClient()
+        record(client, configuration, duration, output_file)
+        record_add_creator(output_file)
         sys.exit(0)
 
     for s in subsys:

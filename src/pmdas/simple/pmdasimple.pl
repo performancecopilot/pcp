@@ -25,7 +25,7 @@ my ( $red, $green, $blue ) = ( 0, 100, 200 );
 
 # simple.now instance domain stuff...
 my $simple_config = pmda_config('PCP_PMDAS_DIR') . '/simple/simple.conf';
-my %timeslices = ( 'sec' => 0, 'min' => 0, 'hour' => 0 );
+my %timeslices;
 my $file_error = 0;
 
 sub simple_instance	# called once per ``instance request'' pdu
@@ -67,7 +67,7 @@ sub simple_fetch_callback	# must return array of value,status
     elsif ($cluster == 2 && $item == 4) {
 	my $value = pmda_inst_lookup($now_indom, $inst);
 	return (PM_ERR_INST, 0) unless defined($value);
-	return ($$value, 1);
+	return ($value, 1);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -103,6 +103,8 @@ sub simple_store_callback	# must return a single value (scalar context)
 
 sub simple_timenow_check
 {
+    %timeslices = ();
+
     if (open(CONFIG, $simple_config)) {
 	my %values;
 
@@ -111,10 +113,9 @@ sub simple_timenow_check
 	$_ = <CONFIG>;
 	chomp;		# avoid possible \n on last field
 	foreach my $spec (split(/,/)) {
-	    $timeslices{$spec} = \$values{$spec};
+	    $timeslices{$spec} = $values{$spec};
 	}
 	close CONFIG;
-	$pmda->replace_indom( $now_indom, \%timeslices );
 	$file_error = 0;
     }
     else {
@@ -122,8 +123,8 @@ sub simple_timenow_check
 	    $pmda->log("read failed on $simple_config: $!");
 	    $file_error = $!;
 	}
-	$pmda->replace_indom( $now_indom, {} );
     }
+    $pmda->replace_indom( $now_indom, \%timeslices);
 }
 
 $pmda = PCP::PMDA->new('simple', 253);
@@ -151,6 +152,6 @@ $pmda->set_instance( \&simple_instance );
 $pmda->set_fetch_callback( \&simple_fetch_callback );
 $pmda->set_store_callback( \&simple_store_callback );
 
-&simple_timenow_check;
 $pmda->set_user('pcp');
+&simple_timenow_check;
 $pmda->run;

@@ -15,8 +15,6 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-struct __pmSockAddr;
-
 /* The table of clients, used by pmcd */
 typedef struct {
     int			fd;		/* Socket descriptor */
@@ -34,7 +32,7 @@ typedef struct {
     __pmPDUInfo		pduInfo;
     unsigned int	seq;		/* client sequence number */
     time_t		start;		/* time client connected */
-    struct __pmSockAddr	*addr;		/* Address of client */
+    void		*addr;		/* Address of client */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
@@ -47,6 +45,7 @@ PMCD_EXTERN int		this_client_id;		/* client for current request */
 extern ClientInfo *AcceptNewClient(int);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
+extern ClientInfo *GetClient(int);
 PMCD_EXTERN void ShowClients(FILE *m);
 
 #ifdef PCP_DEBUG

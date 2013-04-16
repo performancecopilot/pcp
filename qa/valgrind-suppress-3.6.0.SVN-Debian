@@ -1,0 +1,75 @@
+# Broken valgrind 3.6.1 seen on i686 openSUSE 12.1
+# also seen with valgrind 3.6.0 on i586 Debian 6.0.7
+#
+# For libpcp/interp.c as of commit ba2cb05135896224d534ff9e1d1195e9193facba
+# the full reported "error" is
+# Conditional jump or move depends on uninitialised value(s)
+#    at 0x4076805: __pmLogFetchInterp (interp.c:1437)
+#    by 0x40716FB: __pmLogFetch (logutil.c:1653)
+#    by 0x4021917: ???
+#  Uninitialised value was created by a heap allocation
+#    at 0x402913D: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+#    by 0x40765EB: __pmLogFetchInterp (interp.c:1427)
+#    by 0x40716FB: __pmLogFetch (logutil.c:1653)
+#    by 0x4021917: ???
+# which is bogus
+#
+{
+   Valgrind 3.6.1 botch
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   obj:*
+}
+
+# dlopen issues seen with valgrind 3.6.0 on i586 Debian 6.0.7
+{
+   dlopen -> local_strdup
+   Memcheck:Leak
+   fun:malloc
+   fun:local_strdup
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+}
+
+{
+   dlopen -> _dl_check_map_versions
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+   obj:*
+}
+
+{
+   dlopen -> _dl_map_object_deps
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.1
+   fun:__pmConnectLocal
+   fun:pmNewContext
+   obj:*
+}

@@ -306,7 +306,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	     * Mark failure in case we fall out the end of the loop
 	     * and try next address
 	     */
-	    fd = -EINVAL;
+	    fd = -ECONNREFUSED;
 	    continue;
 	}
 

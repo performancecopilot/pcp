@@ -297,6 +297,7 @@ static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
+    int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
@@ -314,12 +315,16 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	        rp->fds[INET_FD] = fd;
 		success = 1;
 	    }
-	    family = AF_INET6;
-	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
-					backlog, fdset, &maximum)) >= 0) {
-	        rp->fds[IPV6_FD] = fd;
-		success = 1;
+	    if (with_ipv6) {
+		family = AF_INET6;
+		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
+					    backlog, fdset, &maximum)) >= 0) {
+		    rp->fds[IPV6_FD] = fd;
+		    success = 1;
+		}
 	    }
+	    else
+		rp->fds[IPV6_FD] = -EPROTO;
 	}
 	else {
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
@@ -359,9 +364,9 @@ __pmServerCloseRequestPorts(void)
     int i, fd;
 
     for (i = 0; i < nReqPorts; i++) {
-	if ((fd = reqPorts[i].fds[INET_FD]) != -1)
+	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
 	    __pmCloseSocket(fd);
-	if ((fd = reqPorts[i].fds[IPV6_FD]) != -1)
+	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
 }
@@ -404,11 +409,13 @@ __pmServerDumpRequestPorts(FILE *stream)
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
-	for (j = 0; j < FAMILIES; j++)
-	    fprintf(stderr, "  %-3s %4d %5d %-6s %s\n",
+	for (j = 0; j < FAMILIES; j++) {
+	    if (rp->fds[j] != -EPROTO)
+		fprintf(stderr, "  %-3s %4d %5d %-6s %s\n",
 		    (rp->fds[j] != -1) ? "ok" : "err",
 		    rp->fds[j], rp->port, RequestFamilyString(j),
 		    rp->address ? rp->address : "(any address)");
+	}
     }
 }
 

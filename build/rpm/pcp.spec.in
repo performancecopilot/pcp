@@ -232,14 +232,13 @@ building Performance Metric API (PMAPI) tools using Python.
 
 %prep
 %setup -q
-%configure @package_configure@ --with-rcdir=%{_rcdir} --with-tmpdir=%{_tmpdir}
-touch config.done
 
 %clean
 [ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+%configure @package_configure@ --with-rcdir=%{_rcdir} --with-tmpdir=%{_tmpdir}
 @make@ default_pcp
 
 %install
@@ -431,7 +430,7 @@ migrate_tempdirs()
 	    source="$d/$f"
 	    target="$_new_tmp_dir/$_sub/$f"
             [ "$source" != "$target" ] || continue
-            mv -fun "$source" "$target"
+	    [ -f "$target" ] || mv -fu "$source" "$target"
         done
         cd && rmdir "$d" 2>/dev/null
     done

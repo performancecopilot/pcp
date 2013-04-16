@@ -1,5 +1,7 @@
+""" Python test case for Log Import API wrapper module
+"""
 #
-# Copyright (C) 2012 Red Hat Inc.
+# Copyright (C) 2012-2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,54 +14,49 @@
 # for more details.
 #
 
-import os
-import pmapi
+import sys
 import math
 import time
-from pcp import *
-from ctypes import *
+from pcp import pmi
+from pcp import pmapi
 
-def check_import (archive, hostname, timezone):
+def check_import(archive, hostname, timezone):
+    """ Test body - check many of the Log Import API wrapper interfaces
+    """
+    log = pmi.pmiLogImport(archive)
+    log.pmiSetHostname(hostname)
+    log.pmiSetTimezone(timezone)
 
-    pmi = pmiLogImport(archive)
-    code = pmi.pmiSetHostname(hostname)
-
-    code = pmi.pmiSetTimezone(timezone)
-
-    pmid = pmi.pmiID(60, 2, 0)
-
-    indom = pmi.pmiInDom(60, 2)
-
-    units = pmi.pmiUnits(0,0,0,0,0,0)
+    domain = 60  # Linux kernel
+    pmid = log.pmiID(domain, 2, 0)
+    indom = log.pmiInDom(domain, 2)
+    units = log.pmiUnits(0, 0, 0, 0, 0, 0)
 
     # create a metric with no instances (hinv.ncpu)
-    code = pmi.pmiAddMetric("hinv.ncpu", PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, units)
+    log.pmiAddMetric("hinv.ncpu", pmapi.PM_ID_NULL, pmapi.PM_TYPE_U32,
+                pmapi.PM_INDOM_NULL, pmapi.PM_SEM_DISCRETE, units)
 
     # give it a value
-    code = pmi.pmiPutValue("hinv.ncpu", "", "42")
+    log.pmiPutValue("hinv.ncpu", "", "%d" % 42)
 
     # create a metric with instances (kernel.all.load)
-    code = pmi.pmiAddMetric("kernel.all.load", pmid, PM_TYPE_FLOAT, indom, PM_SEM_INSTANT, units)
-
-    code = pmi.pmiAddInstance(indom, "1 minute", 1)
-
-    code = pmi.pmiAddInstance(indom, "5 minute", 5)
-
-    code = pmi.pmiAddInstance(indom, "15 minute", 15)
+    log.pmiAddMetric("kernel.all.load", pmid,
+                pmapi.PM_TYPE_FLOAT, indom, pmapi.PM_SEM_INSTANT, units)
+    log.pmiAddInstance(indom, "1 minute", 1)
+    log.pmiAddInstance(indom, "5 minute", 5)
+    log.pmiAddInstance(indom, "15 minute", 15)
 
     # give them values
-    code = pmi.pmiPutValue("kernel.all.load", "1 minute", "0.01")
-
-    code = pmi.pmiPutValue("kernel.all.load", "5 minute", "0.05")
-
-    code = pmi.pmiPutValue("kernel.all.load", "15 minute", "0.15")
+    log.pmiPutValue("kernel.all.load", "1 minute", "%f" % 0.01)
+    log.pmiPutValue("kernel.all.load", "5 minute", "%f" % 0.05)
+    log.pmiPutValue("kernel.all.load", "15 minute", "%f" % 0.15)
 
     timetuple = math.modf(time.time())
     useconds = int(timetuple[0] * 1000000)
     seconds = int(timetuple[1])
-    status = pmi.pmiWrite(seconds, useconds)
+    log.pmiWrite(seconds, useconds)
 
-    del pmi
+    del log
 
 if __name__ == '__main__':
 

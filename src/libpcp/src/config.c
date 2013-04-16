@@ -267,36 +267,49 @@ pmGetConfig(const char *name)
  * Details of runtime features available in the built libpcp
  */
 
-#ifdef PM_MULTI_THREAD
-#define MULTI_THREAD_ENABLED	"true"
-#else
-#define MULTI_THREAD_ENABLED	"false"
-#endif
-#ifdef PM_FAULT_INJECTION
-#define FAULT_INJECTION_ENABLED	"true"
-#else
-#define FAULT_INJECTION_ENABLED	"false"
-#endif
-#if defined(HAVE_SECURE_SOCKETS)
-#define SECURE_SOCKETS_ENABLED	"true"
-#else
-#define SECURE_SOCKETS_ENABLED	"false"
-#endif
-/* IPv6 supported in all builds from pcp-3.6.11 onward */
-#define IPV6_ENABLED		"true"
+static const char *enabled(void) { return "true"; }
+static const char *disabled(void) { return "false"; }
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
+static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION); }
 
-static const struct {
-	const char *		feature;
-	const char *		state;
+static const char *
+ipv6_enabled(void)
+{
+#if defined(IS_LINUX)
+    return access("/proc/net/if_inet6", F_OK) == 0 ? enabled() : disabled();
+#else
+    return enabled();
+#endif
+}
+
+#ifdef PM_MULTI_THREAD
+#define MULTI_THREAD_ENABLED	enabled
+#else
+#define MULTI_THREAD_ENABLED	disabled
+#endif
+#ifdef PM_FAULT_INJECTION
+#define FAULT_INJECTION_ENABLED	enabled
+#else
+#define FAULT_INJECTION_ENABLED	disabled
+#endif
+#if defined(HAVE_SECURE_SOCKETS)
+#define SECURE_SOCKETS_ENABLED	enabled
+#else
+#define SECURE_SOCKETS_ENABLED	disabled
+#endif
+
+typedef const char *(*feature_detector)(void);
+static struct {
+	const char 		*feature;
+	feature_detector	detector;
 } features[] = {
-	{ "pmapi_version",	TO_STRING(PMAPI_VERSION) },
+	{ "pmapi_version",	pmapi_version },
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
 	{ "fault_injection",	FAULT_INJECTION_ENABLED },
 	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
-	{ "ipv6",		IPV6_ENABLED },
+	{ "ipv6",		ipv6_enabled },
 };
 
 void
@@ -305,10 +318,11 @@ __pmAPIConfig(__pmAPIConfigCallback formatter)
     int i;
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
+	const char *value = features[i].detector();
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "__pmAPIConfig: %s=%s\n",
-		  features[i].feature, features[i].state);
-	formatter(features[i].feature, features[i].state);
+		  features[i].feature, value);
+	formatter(features[i].feature, value);
     }
 }
 
@@ -319,6 +333,6 @@ __pmGetAPIConfig(const char *name)
 
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++)
         if (strcasecmp(name, features[i].feature) == 0)
-	    return features[i].state;
+	    return features[i].detector();
     return NULL;
 }

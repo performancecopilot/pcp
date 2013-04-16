@@ -17,12 +17,34 @@ status=1	# failure is the default!
 $sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+_check_full()
+{
+    mode=$1
+
+    echo -n "$mode - "
+    if grep OK $seq.full
+    then
+        :
+    else
+        # Give some hint as to what went wrong ...
+        #
+        $PCP_AWK_PROG <$seq.full '
+$1 == "FAIL:"			{ want = 1 }
+$1 == "File"			{ want = 1 }
+want == 1 && $1 == "Ran" 	{ exit }
+want == 1			{ print }'
+    fi
+}
+
 # real QA test starts here
+
+# test live mode
 python $here/src/test_pcp.python >$seq.full 2>&1
+_check_full "live"
+
 # test archive replay
 python $here/src/test_pcp.python src/all-sles9-sp1.0 >>$seq.full 2>&1
-
-grep OK $seq.full
+_check_full "archive"
 
 # success, all done
 status=$?
