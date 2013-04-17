@@ -139,7 +139,7 @@ class timeval(Structure):
                 ("tv_usec", c_long)]
 
     def __str__(self):
-        return c_api.pmtimevalToReal(addressof(self))
+        return "%.3f" % c_api.pmtimevalToReal(self.tv_sec, self.tv_usec)
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
@@ -731,8 +731,8 @@ class pmContext(object):
     def pmLookupName(self, nameA):
         """PMAPI - Lookup pmIDs from a list of metric names nameA
 
-        c_uint pmid [] = pmidpmLookupName("MetricName")
-        c_uint pmid [] = pmLookupName(("MetricName1" "MetricName2"...))
+        c_uint pmid [] = pmLookupName("MetricName")
+        c_uint pmid [] = pmLookupName(("MetricName1", "MetricName2", ...))
         """
         if type(nameA) == type(""):
             n = 1
@@ -1428,6 +1428,6 @@ class pmContext(object):
             Useful for implementing tools that do metric sampling.
             Single arg is timeval in tuple returned from pmParseInterval().
         """
-        c_api.pmtimevalSleep(tvp)
+        c_api.pmtimevalSleep(tvp.tv_sec, tvp.tv_usec)
         return None
 

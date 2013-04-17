@@ -82,14 +82,17 @@ getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    struct timeval *ctvp;
-    char *keyword_list[] = {"timeval", NULL};
+    struct timeval ctv;
+    long seconds, useconds;
+    char *keyword_list[] = {"seconds", "useconds", NULL};
     extern void __pmtimevalSleep(struct timeval);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "O:pmtimevalSleep", keyword_list, &ctvp))
+                        "ll:pmtimevalSleep", keyword_list, &seconds, &useconds))
         return NULL;
-    __pmtimevalSleep(*ctvp);
+    ctv.tv_sec = seconds;
+    ctv.tv_usec = useconds;
+    __pmtimevalSleep(ctv);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -97,14 +100,17 @@ timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 timevalToReal(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    struct timeval *ctvp;
-    char *keyword_list[] = {"timeval", NULL};
+    struct timeval ctv;
+    long seconds, useconds;
+    char *keyword_list[] = {"seconds", "useconds", NULL};
     extern double __pmtimevalToReal(const struct timeval *);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "O:pmtimevalToReal", keyword_list, &ctvp))
+                        "ll:pmtimevalToReal", keyword_list, &seconds, &useconds))
         return NULL;
-    return Py_BuildValue("d", __pmtimevalToReal(ctvp));
+    ctv.tv_sec = seconds;
+    ctv.tv_usec = useconds;
+    return Py_BuildValue("d", __pmtimevalToReal(&ctv));
 }
 
 static PyObject *
