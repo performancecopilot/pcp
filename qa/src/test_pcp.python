@@ -70,39 +70,48 @@ def test_pcp(self):
 
     # pmParseMetricSpec
     source = 'localhost'
-    (code, rsltp, errmsg) = ctx.pmParseMetricSpec("kernel.all.load", 0, source)
-    if (code < 0):
-        print "pmParseMetricSpec error: ", errmsg
-    else:
+    try:
+        (rsltp, errmsg) = ctx.pmParseMetricSpec("kernel.all.load", 0, source)
         print "pmParseMetricSpec:", rsltp.contents.source
         self.assertTrue(rsltp.contents.source == source)
+    except pmapi.pmErr, error:
+        print "pmParseMetricSpec error: ", error
 
     # Get number of cpus
     # pmLookupName
-    (code, self.ncpu_id) = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load"))
-    print "pmLookupName:", self.ncpu_id
-    self.assertTrue(code >= 0)
+    try:
+        self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load"))
+        print "pmLookupName:", self.ncpu_id
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        self.assertTrue(False)
 
     # pmIDStr
     print "pmIDStr:", ctx.pmIDStr(self.ncpu_id[0])
     self.assertTrue(ctx.pmIDStr(self.ncpu_id[0]).count(".") > 1)
 
     # pmLookupDesc
-    (code, descs) = ctx.pmLookupDesc(self.ncpu_id)
-    dump_array_ptrs("pmLookupDesc", descs)
-    self.assertTrue(code >= 0)
+    try:
+        descs = ctx.pmLookupDesc(self.ncpu_id[0])
+        # dump_array_ptrs("pmLookupDesc", descs)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        self.assertTrue(False)
 
     # pmFetch
-    (code, results) = ctx.pmFetch(self.ncpu_id)
-    print "pmFetch:", results
-    self.assertTrue(code >= 0)
+    try:
+        results = ctx.pmFetch(self.ncpu_id)
+        print "pmFetch:", results
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmFetch: ", error
+        self.assertTrue(False)
 
     # pmExtractValue
-    (code, atom) = ctx.pmExtractValue(results.contents.get_valfmt(0),
-                                     results.contents.get_vlist(0, 0),
-                                     descs[0].contents.type,
-                                     api.PM_TYPE_U32)
-    self.assertTrue(code >= 0)
+    atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                              results.contents.get_vlist(0, 0),
+                              descs.contents.type,
+                              api.PM_TYPE_U32)
     self.assertTrue(atom.ul > 0)
     print "pmExtractValue:", atom.ul
 
@@ -131,14 +140,14 @@ def test_pcp(self):
 
     # pmLookupName
     try:
-        (code, badid) = ctx.pmLookupName("A_BAD_METRIC")
+        badid = ctx.pmLookupName("A_BAD_METRIC")
         self.assertTrue(False)
     except pmapi.pmErr, error:
         print "pmLookupName:", error
         self.assertTrue(True)
     metrics = ("kernel.all.load", "sample.bin",
                "kernel.percpu.cpu.sys", "mem.freemem")
-    (code, self.metric_ids) = ctx.pmLookupName(metrics)
+    self.metric_ids = ctx.pmLookupName(metrics)
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
@@ -154,11 +163,11 @@ def test_pcp(self):
         self.assertTrue(name == metrics[i])
 
         # pmLookupDesc
-        (code, descs) = ctx.pmLookupDesc(self.metric_ids[i])
+        descs = ctx.pmLookupDescs(self.metric_ids[i])
         dump_array_ptrs("pmLookupDesc", descs)
         self.assertTrue(len(descs) == 1)
 
-    (code, descs) = ctx.pmLookupDesc(self.metric_ids)
+    descs = ctx.pmLookupDescs(self.metric_ids)
     if self.local_type:
         # pmGetInDom - sample.bin
         (inst, name) = ctx.pmGetInDom(descs[1])
@@ -176,9 +185,13 @@ def test_pcp(self):
     self.assertTrue(indomstr.count(".") >= 1)
 
     # pmDelProfile
-    code = ctx.pmDelProfile(descs[0], None)
-    print "pmDelProfile:"
-    self.assertTrue(code >= 0)
+    try:
+        ctx.pmDelProfile(descs[0], None)
+        print "pmDelProfile:"
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmDelProfile: ", error
+        self.assertTrue(False)
 
     if self.local_type:
         # pmLookupInDom
@@ -209,8 +222,12 @@ def test_pcp(self):
         self.assertTrue(True)
         
     # pmAddProfile
-    code = ctx.pmAddProfile(descs[0], inst1)
-    self.assertTrue(code >= 0)
+    try:
+        ctx.pmAddProfile(descs[0], inst1)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmAddProfile: ", error
+        self.assertTrue(False)
 
     inst = 0
     try:
@@ -234,14 +251,22 @@ def test_pcp(self):
     self.assertTrue(inst15 >= 0)
         
     # pmAddProfile
-    code = ctx.pmAddProfile(descs[0], inst15)
-    print "pmAddProfile:"
-    self.assertTrue(code >= 0)
+    try:
+        ctx.pmAddProfile(descs[0], inst15)
+        print "pmAddProfile:"
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmAddProfile: ", error
+        self.assertTrue(False)
 
     # pmParseInterval
-    (code, delta, errmsg) = ctx.pmParseInterval("3 seconds")
-    print "pmParseInterval:", delta
-    self.assertTrue(code >= 0)
+    try:
+        (delta, errmsg) = ctx.pmParseInterval("3 seconds")
+        print "pmParseInterval:", delta
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmFetch: ", error
+        self.assertTrue(False)
 
     try:
         inst = ctx.pmLoadNameSpace("NoSuchFile")
@@ -251,17 +276,25 @@ def test_pcp(self):
         self.assertTrue(True)
 
     # pmFetch
-    (code, results) = ctx.pmFetch(self.metric_ids)
-    print "pmFetch:", results
-    self.assertTrue(code >= 0)
+    try:
+        results = ctx.pmFetch(self.metric_ids)
+        print "pmFetch:", results
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmFetch: ", error
+        self.assertTrue(False)
 
     # pmSortInstances
-    ctx.pmSortInstances(results)
-    print "pmSortInstances:", code
+    try:
+        ctx.pmSortInstances(results)
+        print "pmSortInstances:"
+    except pmapi.pmErr, error:
+        print "pmSortInstances: ", error
+        self.assertTrue(False)
 
     # pmStore
     try:
-        code = ctx.pmStore(results)
+        ctx.pmStore(results)
         self.assertTrue(False)
     except pmapi.pmErr, error:
         print "pmStore: ", error
@@ -272,10 +305,10 @@ def test_pcp(self):
             continue
         for val in xrange(9):
             # sample.bin - each instance in turn
-            (code, atom) = ctx.pmExtractValue(results.contents.get_valfmt(i),
-                                             results.contents.get_vlist(i, val),
-                                             descs[i].contents.type,
-                                             api.PM_TYPE_FLOAT)
+            atom = ctx.pmExtractValue(results.contents.get_valfmt(i),
+                                      results.contents.get_vlist(i, val),
+                                      descs[i].contents.type,
+                                      api.PM_TYPE_FLOAT)
             print "pmExtractValue", val, atom.f
             self.assertTrue(99*(val+1) <= atom.f and atom.f <= 101*(val+1))
 
@@ -284,15 +317,15 @@ def test_pcp(self):
         if (results.contents.get_pmid(i) != self.metric_ids[3]):
             continue
         # mem.freemem
-        (code, tmpatom) = ctx.pmExtractValue(results.contents.get_valfmt(i),
-                                            results.contents.get_vlist(i, 0),
-                                            descs[i].contents.type,
-                                            api.PM_TYPE_FLOAT)
+        tmpatom = ctx.pmExtractValue(results.contents.get_valfmt(i),
+                                     results.contents.get_vlist(i, 0),
+                                     descs[i].contents.type,
+                                     api.PM_TYPE_FLOAT)
         self.assertTrue(tmpatom.f > 0)
 
     # pmConvScale
-    (code, atom) = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
-                                  api.PM_SPACE_MBYTE)
+    atom = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
+                           api.PM_SPACE_MBYTE)
     print "pmConvScale", tmpatom.f, atom.f
     self.assertTrue(atom.f > 0)
 
@@ -310,9 +343,13 @@ def test_pcp(self):
     self.assertTrue(context >= 0)
 
     # pmWhichContext
-    code = ctx.pmWhichContext()
-    print "pmWhichContext", code
-    self.assertTrue(code >= 0)
+    try:
+        ctx.pmWhichContext()
+        print "pmWhichContext: "
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmWhichContext: ", error
+        self.assertTrue(False)
 
     # pmTypeStr
     typestr = ctx.pmTypeStr(api.PM_TYPE_FLOAT)
@@ -321,14 +358,23 @@ def test_pcp(self):
 
     if self.archive_type:
         # pmSetMode
-        code = ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
-        print "pmSetMode", code
-        self.assertTrue(code >= 0)
+        try:
+            ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
+            print "pmSetMode: "
+            self.assertTrue(True)
+        except pmapi.pmErr, error:
+            print "pmSetMode: ", error
+            self.assertTrue(False)
+
 
         # pmGetArchiveLabel
-        (code, loglabel) = ctx.pmGetArchiveLabel()
-        print "pmGetArchiveLabel", code
-        self.assertTrue (code >= 0 and loglabel.pid_t > 0)
+        try:
+            loglabel = ctx.pmGetArchiveLabel()
+            print "pmGetArchiveLabel: "
+            self.assertTrue (True)
+        except pmapi.pmErr, error:
+            print "pmGetArchiveLabel: ", error
+            self.assertTrue(False)
 
     # pmPrintValue
     if not self.archive_type:
@@ -337,9 +383,13 @@ def test_pcp(self):
         print
 
     # pmReconnectContext
-    code = ctx.pmReconnectContext()
-    print "pmReconnectContext", code
-    self.assertTrue(code >= 0)
+    try:
+        ctx.pmReconnectContext()
+        print "pmReconnectContext:"
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmReconnectContext: ", error
+        self.assertTrue(False)
 
     # pmFreeResult
     ctx.pmFreeResult(results)

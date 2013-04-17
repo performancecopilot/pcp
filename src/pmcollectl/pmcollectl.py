@@ -594,7 +594,7 @@ if __name__ == '__main__':
     else:
         try:
             pm = pmapi.pmContext()
-        except pmErr, e:
+        except pmapi.pmErr, e:
             print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)
 
@@ -605,7 +605,7 @@ if __name__ == '__main__':
             sys.exit(1)
         duration = timeval.tv_sec
 
-    (code, delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
+    (delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
     if output_file != "":
         configuration = "log mandatory on every " + str(interval_arg) + " seconds { "
@@ -626,7 +626,7 @@ if __name__ == '__main__':
         try:
             metrics = str(s.metrics)
             s.setup_metrics(pm)
-        except pmErr, e:
+        except pmapi.pmErr, e:
             if replay_archive:
                 from textwrap import TextWrapper,fill
                 wrapper = TextWrapper()
@@ -669,7 +669,7 @@ if __name__ == '__main__':
                     s.print_header2()
                 try:
                     s.get_stats(pm)
-                except pmErr, e:
+                except pmapi.pmErr, e:
                     if str(e).find("PM_ERR_EOL") != -1:
                         print str(e)
                         sys.exit(1)

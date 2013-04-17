@@ -731,8 +731,8 @@ class pmContext(object):
     def pmLookupName(self, nameA):
         """PMAPI - Lookup pmIDs from a list of metric names nameA
 
-        (status, c_uint pmid []) = pmidpmLookupName("MetricName")
-        (status, c_uint pmid []) = pmLookupName(("MetricName1" "MetricName2"...))
+        c_uint pmid [] = pmidpmLookupName("MetricName")
+        c_uint pmid [] = pmLookupName(("MetricName1" "MetricName2"...))
         """
         if type(nameA) == type(""):
             n = 1
@@ -757,7 +757,7 @@ class pmContext(object):
             raise pmErr, (status, pmidA, badL)
         if status < 0:
             raise pmErr, (status, pmidA)
-        return status, pmidA
+        return pmidA
 
     def pmNameAll(self, pmid):
         """PMAPI - Return list of all metric names having this identical PMID
@@ -800,11 +800,10 @@ class pmContext(object):
         status = LIBPCP.pmTraversePMNS(name, cb)
         if status < 0:
             raise pmErr, status
-        return status
 
     def pmUnLoadNameSpace(self):
         """PMAPI - Unloads a local PMNS, if one was previously loaded
-        status = pm.pmUnLoadNameSpace("NameSpace")
+        pm.pmUnLoadNameSpace("NameSpace")
         """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
@@ -812,17 +811,34 @@ class pmContext(object):
         status = LIBPCP.pmUnloadNameSpace()
         if status < 0:
             raise pmErr, status
-        return status
 
     ##
     # PMAPI Metrics Description Services
 
-    def pmLookupDesc(self, pmids_p):
+    def pmLookupDesc(self, pmid_p):
 
         """PMAPI - Lookup a metric description structure from a pmID
 
-        (status, (pmDesc* pmdesc)[]) = pmLookupDesc(c_uint pmid[N])
-        (status, (pmDesc* pmdesc)[]) = pmLookupDesc(c_uint pmid)
+        pmDesc* pmdesc = pmLookupDesc(c_uint pmid)
+        """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+
+        descbuf = create_string_buffer(sizeof(pmDesc))
+        desc = cast(descbuf, POINTER(pmDesc))
+        pmid = c_uint(pmid_p)
+        status = LIBPCP.pmLookupDesc(pmid, desc)
+        if status < 0:
+            raise pmErr, status
+        return desc
+
+    def pmLookupDescs(self, pmids_p):
+
+        """PMAPI - Lookup metric description structures from pmIDs
+
+        (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid[N])
+        (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid)
         """
         if type(pmids_p) == type(int(0)) or type(pmids_p) == type(long(0)):
             n = 1
@@ -846,7 +862,7 @@ class pmContext(object):
             status = LIBPCP.pmLookupDesc(pmids, desc[i])
             if status < 0:
                 raise pmErr, status
-        return status, desc
+        return desc
 
     def pmLookupInDomText(self, pmdesc, kind = c_api.PM_TEXT_ONELINE):
         """PMAPI - Lookup the description of a metric's instance domain
@@ -1135,7 +1151,7 @@ class pmContext(object):
     def pmFetch(self, pmidA):
         """PMAPI - Fetch pmResult from the target source
 
-        (status, pmResult* pmresult) = pmFetch(c_uint pmid[])
+        pmResult* pmresult = pmFetch(c_uint pmid[])
         """
         result_p = POINTER(pmResult)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1144,7 +1160,7 @@ class pmContext(object):
         status = LIBPCP.pmFetch(len(pmidA), pmidA, byref(result_p))
         if status < 0:
             raise pmErr, status
-        return status, result_p
+        return result_p
 
     @staticmethod
     def pmFreeResult(result_p):
@@ -1155,7 +1171,7 @@ class pmContext(object):
 
     def pmStore(self, result):
         """PMAPI - Set values on target source, inverse of pmFetch
-        code = pmStore(pmResult* pmresult)
+        pmresult = pmStore(pmResult* pmresult)
         """
         LIBPCP.pmStore.argtypes = [(type(result))]
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1164,7 +1180,7 @@ class pmContext(object):
         status = LIBPCP.pmStore(result)
         if status < 0:
             raise pmErr, status
-        return status, result
+        return result
 
 
     ##
@@ -1172,7 +1188,7 @@ class pmContext(object):
 
     def pmGetArchiveLabel(self):
         """PMAPI - Get the label record from the archive
-        (status, loglabel) = pmGetArchiveLabel()
+        loglabel = pmGetArchiveLabel()
         """
         loglabel = pmLogLabel()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1181,7 +1197,7 @@ class pmContext(object):
         status = LIBPCP.pmGetArchiveLabel(byref(loglabel))
         if status < 0:
             raise pmErr, status
-        return status, loglabel
+        return loglabel
 
     def pmGetArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
@@ -1193,7 +1209,7 @@ class pmContext(object):
         status = LIBPCP.pmGetArchiveEnd(tvp)
         if status < 0:
             raise pmErr, status
-        return status, tvp
+        return tvp
 
     def pmGetInDomArchive(self, pmdescp):
         """PMAPI - Get the instance IDs and names for an instance domain
@@ -1252,7 +1268,7 @@ class pmContext(object):
     def pmFetchArchive(self):
         """PMAPI - Fetch measurements from the target source
 
-        (status, pmResult* pmresult) = pmFetch()
+        pmResult* pmresult = pmFetch()
         """
         result_p = POINTER(pmResult)()
         status = LIBPCP.pmUseContext(self.ctx)
@@ -1261,7 +1277,7 @@ class pmContext(object):
         status = LIBPCP.pmFetchArchive(byref(result_p))
         if status < 0:
             raise pmErr, status
-        return status, result_p
+        return result_p
 
 
     ##
@@ -1282,23 +1298,23 @@ class pmContext(object):
     def pmExtractValue(valfmt, vlist, intype, outtype):
         """PMAPI - Extract a value from a pmValue struct and convert its type
 
-        (status, pmAtomValue) = pmExtractValue(results.contents.get_valfmt(i),
-                                               results.contents.get_vlist(i, 0),
-                                               descs[i].contents.type,
-                                               c_api.PM_TYPE_FLOAT)
+        pmAtomValue = pmExtractValue(results.contents.get_valfmt(i),
+                                     results.contents.get_vlist(i, 0),
+                                     descs[i].contents.type,
+                                     c_api.PM_TYPE_FLOAT)
         """
         outAtom = pmAtomValue()
         status = LIBPCP.pmExtractValue(valfmt, vlist, intype,
                                         byref(outAtom), outtype)
         if status < 0:
             raise pmErr, status
-        return status, outAtom
+        return outAtom
 
     @staticmethod
     def pmConvScale(inType, inAtom, desc, metric_idx, outUnits):
         """PMAPI - Convert a value to a different scale
 
-        (status, pmAtomValue) = pmConvScale(c_api.PM_TYPE_FLOAT, pmAtomValue,
+        pmAtomValue = pmConvScale(c_api.PM_TYPE_FLOAT, pmAtomValue,
                                             pmDesc*, 3, c_api.PM_SPACE_MBYTE)
         """
         outAtom = pmAtomValue()
@@ -1310,7 +1326,7 @@ class pmContext(object):
                          byref(pmunits))
         if status < 0:
             raise pmErr, status
-        return status, outAtom
+        return outAtom
 
     @staticmethod
     def pmUnitsStr(units):
@@ -1384,19 +1400,19 @@ class pmContext(object):
     @staticmethod
     def pmParseInterval(interval):
         """PMAPI - parse a textual time interval into a timeval struct
-        (status, timeval_ctype, "error message") = pmParseInterval("time string")
+        (timeval_ctype, "error message") = pmParseInterval("time string")
         """
         tvp = timeval()
         errmsg = POINTER(c_char_p)()
         status = LIBPCP.pmParseInterval(interval, byref(tvp), errmsg)
         if status < 0:
             raise pmErr, status
-        return status, tvp, errmsg
+        return tvp, errmsg
 
     @staticmethod
     def pmParseMetricSpec(string, isarch, source):
         """PMAPI - parse a textual metric specification into a struct
-        (status,result,errormsg) = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
+        (result,errormsg) = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
         """
         rsltp = POINTER(pmMetricSpec)()
         errmsg = c_char_p()
@@ -1404,7 +1420,7 @@ class pmContext(object):
                                         byref(rsltp), byref(errmsg))
         if status < 0:
             raise pmErr, status
-        return status, rsltp, errmsg
+        return rsltp, errmsg
 
     @staticmethod
     def pmtimevalSleep(tvp):
