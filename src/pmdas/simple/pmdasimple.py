@@ -20,9 +20,9 @@ import time
 import cpmapi as c_api
 
 from pcp import pmda
-from pcp.pmda import PMDA
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp import pmapi
-from pcp.pmapi import pmContext as PCP
+from pcp.pmapi import pmUnits, pmContext as PCP
 
 class SimplePMDA(PMDA):
     '''
@@ -195,32 +195,30 @@ class SimplePMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
-        helpfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        helpfile += '/' + name + '/' + 'help'
-        self.set_helpfile(helpfile)
-
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
-        self.add_metric(name + '.numfetch', self.pmid(0, 0),
+        self.add_metric(name + '.numfetch', pmdaMetric(self.pmid(0, 0),
                 c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
-                self.units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.color', self.pmid(0, 1),
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.color', pmdaMetric(self.pmid(0, 1),
                 c_api.PM_TYPE_32, self.color_indom, c_api.PM_SEM_INSTANT,
-                self.units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.time.user', self.pmid(1, 2),
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.time.user', pmdaMetric(self.pmid(1, 2),
                 c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
-                self.units(0, 1, 0, 0, c_api.PM_TIME_SEC, 0))
-        self.add_metric(name + '.time.sys', self.pmid(1, 3),
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)))
+        self.add_metric(name + '.time.sys', pmdaMetric(self.pmid(1, 3),
                 c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
-                self.units(0, 1, 0, 0, c_api.PM_TIME_SEC, 0))
-        self.add_metric(name + '.now', self.pmid(2, 4),
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)))
+        self.add_metric(name + '.now', pmdaMetric(self.pmid(2, 4),
                 c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
-                self.units(0, 0, 0, 0, 0, 0))
+                pmUnits(0, 0, 0, 0, 0, 0)))
 
-        self.color_indom = self.add_indom(self.color_indom,
-                {0: 'red', 1: 'green', 2: 'blue'})
-        self.now_indom = self.add_indom(self.now_indom, {}) # initialized on-the-fly
+        self.color_indom = self.add_indom(pmdaIndom(self.color_indom,
+                [pmdaInstid(0, 'red'),
+                 pmdaInstid(1, 'green'),
+                 pmdaInstid(2, 'blue')]))
+        self.now_indom = self.add_indom(self.now_indom, None) # initialized on-the-fly
 
         self.set_fetch(self.simple_fetch)
         self.set_instance(self.simple_instance)

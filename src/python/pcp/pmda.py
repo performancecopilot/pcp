@@ -44,11 +44,12 @@ class pmdaMetric(Structure):
     _fields_ = [("m_user", c_void_p),
                 ("m_desc", pmDesc)]
 
-    def __init__(self, pmid, typeof, sem, units):
+    def __init__(self, pmid, typeof, indom, sem, units):
         Structure.__init__(self)
         self.m_user = None
         self.m_desc.pmid = pmid
         self.m_desc.type = typeof
+        self.m_desc.indom = indom
         self.m_desc.sem = sem
         self.m_desc.units = units
 
@@ -78,7 +79,10 @@ class pmdaIndom(Structure):
         Structure.__init__(self)
         self.it_indom = indom
         self.it_numinst = len(insts)
-        self.it_set = insts
+        for i in xrange(len(insts)):
+            self.it_set[i] = insts[i]
+        #self.it_set = insts
+
 
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
