@@ -48,13 +48,13 @@ class _pmsubsys(object):
         # remove any unsupported metrics
         for j in range(len(self.metrics)-1, -1, -1):
             try:
-                (code, self.metric_pmids) = pcp.pmLookupName(self.metrics[j])
+                self.metric_pmids = pcp.pmLookupName(self.metrics[j])
             except pmErr, e:
                 self.metrics.remove(self.metrics[j])
 
         self.metrics_dict = dict((i, self.metrics.index(i)) for i in self.metrics)
-        (code, self.metric_pmids) = pcp.pmLookupName(self.metrics)
-        (code, self.metric_descs) = pcp.pmLookupDesc(self.metric_pmids)
+        self.metric_pmids = pcp.pmLookupName(self.metrics)
+        self.metric_descs = pcp.pmLookupDescs(self.metric_pmids)
         self.metric_values = [0 for i in range(len(self.metrics))]
         self.old_metric_values = [0 for i in range(len(self.metrics))]
         if hasattr(super(_pmsubsys, self), 'setup_metrics'):
@@ -134,7 +134,7 @@ class _pmsubsys(object):
     
         list_type = type([])
 
-        (code, metric_result) = pcp.pmFetch(self.metric_pmids)
+        metric_result = pcp.pmFetch(self.metric_pmids)
 
         if max(self.old_metric_values) == 0:
             first = True
@@ -150,7 +150,7 @@ class _pmsubsys(object):
                 # list of instances, one or more per metric.  e.g. there are many 
                 # instances for network metrics, one per network interface
                 for k in xrange(metric_result.contents.get_numval(j)):
-                    (code, atom) = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].contents.type, self.metric_descs[j].contents.type)
+                    atom = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].contents.type, self.metric_descs[j].contents.type)
                     atomlist.append(atom)
 
                 value = []

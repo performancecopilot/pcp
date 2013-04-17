@@ -513,7 +513,7 @@ if __name__ == '__main__':
     cpu = _cpu_collect_print()
     interrupt = _interrupt_collect_print()
     # interrupt metrics are setup on the fly; an archive may not provide this
-    interrupt.init_metrics(pmContext())
+    interrupt.init_metrics(pmapi.pmContext())
     disk = _disk_collect_print()
     memory = _memory_collect_print()
     net = _net_collect_print()
@@ -593,8 +593,8 @@ if __name__ == '__main__':
             sys.exit(1)
     else:
         try:
-            pm = pmContext()
-        except pmErr, e:
+            pm = pmapi.pmContext()
+        except pmapi.pmErr, e:
             print "Cannot connect to pmcd on %s" % "localhost"
             sys.exit(1)
 
@@ -605,7 +605,7 @@ if __name__ == '__main__':
             sys.exit(1)
         duration = timeval.tv_sec
 
-    (code, delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
+    (delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
     if output_file != "":
         configuration = "log mandatory on every " + str(interval_arg) + " seconds { "
