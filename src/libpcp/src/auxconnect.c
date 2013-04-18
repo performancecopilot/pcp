@@ -52,7 +52,19 @@ int
 __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
     int rc;
-    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
+    int family;
+    __pmSockAddr *loopBackAddr;
+
+    family = __pmSockAddrGetFamily(addr);
+    if (family == AF_INET)
+	loopBackAddr = __pmLoopBackAddress();
+    else if (family == AF_INET6)
+	loopBackAddr = __pmStringToSockAddr("::1");
+    else {
+	__pmNotifyErr(LOG_ERR, "__pmSockAddrIsLoopBack: Invalid address family: %d\n", family);
+	return 0;
+    }
+
     if (loopBackAddr == NULL)
         return 0;
     rc = __pmSockAddrCompare(addr, loopBackAddr);
