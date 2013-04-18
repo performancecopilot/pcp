@@ -735,11 +735,15 @@ END									{ print "End-of-List" }'
 	    #	        UP LOOPBACK RUNNING  MTU:16436  Metric:1
 	    #	        ...
 	    #
+	    # Note addr: tag is not present in some ifconfig output
+	    #
+	    cp $tmp._tmp save.tmp
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^lo/						{ skip=1; next }
 skip == 1 && NF > 0				{ next }
 skip == 1 					{ skip = 0 }
 $1 == "inet" && $2 ~ /addr:/			{ print $2 }
+$1 == "inet" && $2 ~ /^[0-9]/			{ print $2 }
 END						{ print "End-of-List" }' \
 	    | sed -e 's/addr://' >$tmp._addr
 	else
@@ -817,12 +821,18 @@ END									{ print "End-of-List" }'
 #           collisions:0 txqueuelen:3
 #           RX bytes:7017171 (6.6 Mb)  TX bytes:3952015 (3.7 Mb)
 	    #
+	    # Note addr: tag is not present in some ifconfig output,
+	    #      AND UP comes first!
+	    #
+	    cp $tmp._tmp save.tmp
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^[a-z]/					{ loopback = 0 }
 /^lo/						{ loopback = 1; next }
 $1 == "inet" && $2 ~ /addr:/			{ save = $2; next }
-/UP.*RUNNING/					{ if (loopback == 0)
+$1 == "inet" && $2 ~ /^[0-9]/			{ save = $2; next }
+$1 == "TX"					{ if (loopback == 0 && save != 0)
 						    print save
+						  save = 0
 						}
 END						{ print "End-of-List" }' \
 	    | sed -e 's/addr://' >$tmp._addr
