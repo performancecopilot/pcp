@@ -49,6 +49,8 @@ _cleanup()
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/kvm; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/kvm; $sudo ./Remove >/dev/null 2>&1 )
 	fi
 	done_clean=true
     fi

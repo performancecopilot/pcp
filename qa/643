@@ -31,6 +31,8 @@ _cleanup()
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove </dev/null >/dev/null 2>&1 )
 	fi
 	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start

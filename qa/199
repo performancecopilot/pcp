@@ -51,11 +51,14 @@ _cleanup()
 	:
     else
 
-# do a default install which ensures the pmns and any views are installed
 
 	if $install_on_cleanup
 	then
-	    $sudo ./Install < /dev/null > /dev/null 2>&1
+# do a default install which ensures the pmns and any views are installed
+	    $sudo ./Install </dev/null >/dev/null 2>&1
+	else
+# leave the landscape clean like you found it
+	    $sudo ./Remove >/dev/null 2>&1
 	fi
 
 # PMDA may have been installed differently to default. As everything is
