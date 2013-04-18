@@ -25,7 +25,13 @@ rm -f $seq.out
 case "`uname -p`"
 in
     i?86|athlon)
-	ln $seq.out.i386 $seq.out || exit 1
+	if [ $PCP_PLATFORM = darwin ]
+	then
+	    # apps are 64-bit on my Mac OS X
+	    ln $seq.out.x86_64 $seq.out || exit 1
+	else
+	    ln $seq.out.i386 $seq.out || exit 1
+	fi
 	;;
     x86_64|ia64)
 	ln $seq.out.x86_64 $seq.out || exit 1
