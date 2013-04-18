@@ -222,7 +222,7 @@ GetPort(char *file)
 	exit(1);
     }
     for (ctlport = port_base; ; ctlport++) {
-        __pmSockAddrInit(myAddr, INADDR_ANY, ctlport);
+        __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts < 0) {
 	    if (neterror() != EADDRINUSE) {
