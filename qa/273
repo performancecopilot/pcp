@@ -77,7 +77,10 @@ _filter2()
 	-e '/NotifyEndLocalContext: /s/:.*/: .../' \
 	-e '/value /s/ [0-9].*/ NUMBER/' \
 	-e '/^__pmDataIPC:/d' \
-	-e '/^__pmSetDataIPC:/,+1 d' \
+	-e '/^__pmSetDataIPC:/{
+N
+d
+}' \
 	-e 's/Permission denied/No permission to perform requested operation/' \
 	-e '/__pmConnect(fd=/d' \
     | perl -ne '
