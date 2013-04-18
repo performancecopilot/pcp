@@ -18,8 +18,6 @@
 
 /*
  * pmdbg - help for PCP debug flags
- *
- * If you add a flag here, you should also add the flag to dbpmda.
  */
 
 #include <ctype.h>
@@ -79,6 +77,8 @@ static struct {
 		"Diags for pmLoop* services" },
     { DBG_TRACE_FAULT,		"FAULT",
     		"Trace fault injection (if enabled)" },
+    { DBG_TRACE_DESPERATE,		"DESPERATE",
+    		"Desperate/verbose level" },
 };
 
 static int	nfoo = sizeof(foo) / sizeof(foo[0]);
