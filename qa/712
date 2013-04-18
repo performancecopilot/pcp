@@ -60,9 +60,6 @@ export PCP_SECURE_SOCKETS=1
 yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PCP_SECURE_SOCKETS
 
-echo "pmcd set up, waiting ..."
-read x
-
 # success, all done
 status=0
 exit
