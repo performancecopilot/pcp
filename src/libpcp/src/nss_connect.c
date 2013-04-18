@@ -1078,15 +1078,34 @@ __pmSend(int fd, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int fd, void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket	socket;
+    ssize_t		size;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	ssize_t	size = PR_Read(socket.nsprFd, buffer, length);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv[secure](", __FILE__);
+	}
+#endif
+	size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError();
-	return size;
     }
-    return recv(fd, buffer, length, flags);
+    else {
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv(", __FILE__);
+	}
+#endif
+	size = recv(fd, buffer, length, flags);
+    }
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+	    fd, (int)length, flags, (int)size);
+    }
+#endif
+    return size;
 }
 
 int

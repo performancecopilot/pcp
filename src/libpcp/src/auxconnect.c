@@ -625,7 +625,15 @@ __pmSend(int socket, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
-    return recv(socket, buffer, length, flags);
+    ssize_t	size;
+    size = recv(socket, buffer, length, flags);
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+		__FILE__, socket, length, flags, size);
+    }
+#endif
+    return size;
 }
 
 int
