@@ -78,11 +78,21 @@ class pmdaIndom(Structure):
     def __init__(self, indom, insts):
         Structure.__init__(self)
         self.it_indom = indom
-        self.it_numinst = len(insts)
-        for i in xrange(len(insts)):
-            self.it_set[i] = insts[i]
-        #self.it_set = insts
+        self.set_instances(insts)
 
+    def set_instances(self, insts):
+        if (insts == None):
+            self.it_numinst = 0
+            return
+        instance_count = len(insts)
+        self.it_numinst = instance_count
+        if (instance_count == 0):
+            return
+        instance_array = (pmdaInstid * instance_count)()
+        for i in xrange(instance_count):
+            instance_array[i].i_inst = insts[i].i_inst
+            instance_array[i].i_name = insts[i].i_name
+        self.it_set = instance_array
 
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
@@ -125,24 +135,33 @@ class MetricDispatch(object):
     # overloads
 
     def __init__(self, domain, name, logfile, helpfile):
-        self._metrictable = []
-        self._indomtable = []
+        self.clear_indoms()
+        self.clear_metrics()
+        self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
 
-        self._metrics = {}
-        self._metric_names = {}
-        self._metric_oneline = {}
-        self._metric_helptext = {}
+    def clear_indoms(self):
+        self._indomtable = []
         self._indoms = {}
         self._indom_oneline = {}
         self._indom_helptext = {}
 
-        self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
+    def clear_metrics(self):
+        self._metrictable = []
+        self._metrics = {}
+        self._metric_names = {}
+        self._metric_oneline = {}
+        self._metric_helptext = {}
+
+    def reset_metrics(self):
+        clear_metrics()
+        cpmda.set_need_refresh(self._metrics)
 
     ##
     # general PMDA class methods
 
-    def pmns_refresh():
-        return None
+    def pmns_refresh(self):
+        if (cpmda.need_refresh()):
+            cpmda.pmns_refresh(self._metrics)
 
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
@@ -150,12 +169,15 @@ class MetricDispatch(object):
             raise KeyError, 'attempt to add_metric with an existing name'
         if (pmid in self._metrics):
             raise KeyError, 'attempt to add_metric with an existing pmid'
+
         self._metrictable.append(metric)
         self._metrics[pmid] = metric
         self._metric_names[pmid] = name
         self._metric_oneline[pmid] = oneline
         self._metric_helptext[pmid] = text
-        
+
+        cpmda.set_need_refresh(self._metrics)
+
     def add_indom(self, indom, oneline = '', text = ''):
         indomid = indom.it_indom
         if (indomid in self._indoms):
@@ -234,17 +256,18 @@ class PMDA(MetricDispatch):
     def set_store_callback(self, store_callback):
         return None
 
-    def domain_write():
+    def domain_write(self):
         """
         Write out the domain.h file (used during installation)
         """
         print '#define %s %d' % (self._name.upper(), self._domain)
 
-    def pmns_write(root):
+    def pmns_write(self, root):
         """
         Write out the namespace file (used during installation)
         """
-        prefixes = [key.split('.')[0] for key in self._metric_names]
+        namespace = self._metric_names
+        prefixes = set([namespace[key].split('.')[0] for key in namespace])
         indent = (root == 'root')
         lead = ''
         if indent:
@@ -279,16 +302,7 @@ class PMDA(MetricDispatch):
     def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):
         return cpmda.pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
-#Needed data:
-#    pmns tree
-#
 #Needed methods:
-#    __init__(name, domain)
-#    set_helpdb(path)
-#    clear_metrics()
-#    add_indoms()
-#    clear_indoms()
-#    replace_indom()
 #    add_timer()
 #    add_pipe()
 #    add_tail()

@@ -28,51 +28,69 @@
 #include <pcp/pmda.h>
 #include <pcp/impl.h>
 
-#if 0
 static pmdaInterface dispatch;
-static pmdaMetric *metrictab;
-static int mtab_size;
 static __pmnsTree *pmns;
-static int need_refresh;
-static pmdaIndom *indomtab;
-static int itab_size;
-static int *clustertab;
-static int ctab_size;
+static PyObject *need_refresh;
+static PyObject *fetch_func;
+//static PyObject *instance_func;
 
-void
+static void
 pmns_refresh(void)
 {
-    char *pmid, *next, *metric;
-    int sts;
+    int sts, count = 0;
+    PyObject *iterator, *item;
 
     if (pmns)
         __pmFreePMNS(pmns);
 
-    if ((sts = __pmNewPMNS(&pmns)) < 0)
-        __pmNotifyErr(LOG_FATAL,
-                        "Failed to create namespace root: %s",
-                        pmErrStr(sts));
-
-#if 0  // TODO: rework metric name walker
-    I32 idsize;
-    SV *metric;
-    hv_iterinit(metric_names);
-    while ((metric = hv_iternextsv(metric_names, &pmid, &idsize)) != NULL) {
-        unsigned int domain, cluster, item, id;
-
-        domain = strtoul(pmid, &next, 10);
-        cluster = strtoul(next+1, &next, 10);
-        item = strtoul(next+1, &next, 10);
-        id = pmid_build(domain, cluster, item);
-        if ((sts = __pmAddPMNSNode(pmns, id, SvPV_nolen(metric))) < 0)
-            __pmNotifyErr(LOG_FATAL,
-                            "Failed to add metric %s(%s) to namespace: %s",
-                            metric, pmIDStr(id), pmErrStr(sts));
+    if ((sts = __pmNewPMNS(&pmns)) < 0) {
+        __pmNotifyErr(LOG_ERR, "failed to create namespace root: %s",
+                      pmErrStr(sts));
+        return;
     }
-#endif
 
-    pmdaTreeRebuildHash(pmns, mtab_size); /* for reverse (pmid->name) lookups */
-    need_refresh = 0;
+    if ((iterator = PyObject_GetIter(need_refresh)) == NULL) {
+        __pmNotifyErr(LOG_ERR, "failed to create metric iterator");
+        return;
+    }
+    while ((item = PyIter_Next(iterator)) != NULL) {
+        const char *name;
+        long pmid;
+
+        if (!PyTuple_Check(item) || PyTuple_GET_SIZE(item) != 2) {
+            __pmNotifyErr(LOG_ERR, "method iterator not findind 2-tuples");
+            continue;
+        }
+        pmid = PyLong_AsLong(PyTuple_GET_ITEM(item, 0));
+        name = PyString_AsString(PyTuple_GET_ITEM(item, 1));
+        if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
+            __pmNotifyErr(LOG_ERR,
+                    "failed to add metric %s(%s) to namespace: %s",
+                    name, pmIDStr(pmid), pmErrStr(sts));
+        } else {
+            count++;
+        }
+        Py_DECREF(item);
+    }
+    Py_DECREF(iterator);
+
+    pmdaTreeRebuildHash(pmns, count); /* for reverse (pmid->name) lookups */
+    Py_DECREF(need_refresh);
+    need_refresh = NULL;
+}
+
+static PyObject *
+namespace_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"metrics", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:namespace_refresh", keyword_list, &need_refresh))
+        return NULL;
+    if (need_refresh)
+        pmns_refresh();
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 int
@@ -107,24 +125,6 @@ pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
-void
-pmns_write(void)
-{
-    __pmnsNode *node;
-    char *pppenv = getenv("PCP_PYTHON_PMNS");
-    int root = pppenv ? strcmp(pppenv, "root") == 0 : 0;
-    char *prefix = root ? "\t" : "";
-
-    pmns_refresh();
-
-    if (root)
-        printf("root {\n");
-    for (node = pmns->root->first; node != NULL; node = node->next)
-        printf("%s%s\t%u:*:*\n", prefix, node->name, dispatch.domain);
-    if (root)
-        printf("}\n");
-}
-
 static void
 prefetch(void)
 {
@@ -138,27 +138,33 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
         pmns_refresh();
     if (fetch_func)
         prefetch();
-    if (refresh_func)
-        refresh(numpmid, pmidlist);
     return pmdaFetch(numpmid, pmidlist, rp, pmda);
 }
 
+#if 0
 static void
 preinstance(indom)
 {
     // TODO: call python instance_func
 }
+#endif
 
 int
 instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     if (need_refresh)
         pmns_refresh();
-    if (instance_func)
-        preinstance(instance_index(indom));
+//  if (instance_func)
+//      preinstance(instance_index(indom));
     return pmdaInstance(indom, a, b, rp, pmda);
 }
 
+int
+text(int ident, int type, char **buffer, pmdaExt *pmda)
+{
+    // TODO: call python text_func
+    return 0;
+}
 
 /*
  * Allocate a new PMDA dispatch structure and fill it
@@ -172,16 +178,16 @@ static inline int
 pmda_generating_domain(void) { return getenv("PCP_PYTHON_DOMAIN") != NULL; }
 
 static void
-init_dispatch(int domain, char *pmdaname, char *logfile, char *helpfile)
+init_dispatch(int domain, char *name, char *logfile, char *helpfile)
 {
     char *p;
 
-    __pmSetProgname(pmdaname);
+    __pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
         if ((pmDebug = __pmParseDebug(p)) < 0)
             pmDebug = 0;
 
-    if (access(help, R_OK) != 0) {
+    if (access(helpfile, R_OK) != 0) {
         pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, NULL);
         dispatch.version.four.text = text;
     } else {
@@ -198,7 +204,6 @@ init_dispatch(int domain, char *pmdaname, char *logfile, char *helpfile)
     if (!pmda_generating_pmns() && !pmda_generating_domain())
         pmdaOpenLog(&dispatch);
 }
-#endif
 
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
@@ -212,7 +217,7 @@ pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
                         &domain, &name, &logfile, &help))
         return NULL;
 
-//    init_dispatch(name, logfile, help);	-- TODO
+    init_dispatch(domain, name, logfile, help);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -254,13 +259,23 @@ pmda_units(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_BuildValue("i", result);
 }
 
-static void
-pmda_dict_add(PyObject *dict, char *sym, long val)
+static PyObject *
+get_need_refresh(PyObject *self, PyObject *args)
 {
-    PyObject *pyVal = PyInt_FromLong(val);
+    return Py_BuildValue("i", (need_refresh == NULL));
+}
 
-    PyDict_SetItemString(dict, sym, pyVal);
-    Py_XDECREF(pyVal);
+static PyObject *
+set_need_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"metrics", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:set_need_refresh", keyword_list, &need_refresh))
+        return NULL;
+    Py_INCREF(need_refresh);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMethodDef methods[] = {
@@ -270,8 +285,23 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmns_refresh", .ml_meth = (PyCFunction)namespace_refresh,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "need_refresh", .ml_meth = (PyCFunction)get_need_refresh,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "set_need_refresh", .ml_meth = (PyCFunction)set_need_refresh,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { NULL },
 };
+
+static void
+pmda_dict_add(PyObject *dict, char *sym, long val)
+{
+    PyObject *pyVal = PyInt_FromLong(val);
+
+    PyDict_SetItemString(dict, sym, pyVal);
+    Py_XDECREF(pyVal);
+}
 
 /* called when the module is initialized. */ 
 void

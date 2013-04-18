@@ -214,11 +214,11 @@ class SimplePMDA(PMDA):
                 c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
-        self.color_indom = self.add_indom(pmdaIndom(self.color_indom,
-                [pmdaInstid(0, 'red'),
-                 pmdaInstid(1, 'green'),
-                 pmdaInstid(2, 'blue')]))
-        self.now_indom = self.add_indom(self.now_indom, None) # initialized on-the-fly
+        colors = [pmdaInstid(0, 'red'),
+                  pmdaInstid(1, 'green'),
+                  pmdaInstid(2, 'blue')]
+        self.add_indom(pmdaIndom(self.color_indom, colors))
+        self.add_indom(pmdaIndom(self.now_indom, None))
 
         self.set_fetch(self.simple_fetch)
         self.set_instance(self.simple_instance)
