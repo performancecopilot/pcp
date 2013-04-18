@@ -1050,7 +1050,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		version = vcp->c_version;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: version cred (%u)\n", vcp->c_version);
+		    fprintf(stderr, "pmcd: version cred (%u) flags=%x\n", vcp->c_version, vcp->c_flags);
 #endif
 		break;
 
