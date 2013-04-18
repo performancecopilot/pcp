@@ -91,164 +91,216 @@ int
 pduread(int fd, char *buf, int len, int part, int timeout)
 {
     /*
-     * handle short reads that may split a PDU ...
+     * Handle short reads that may split a PDU ...
+     *
+     * The original logic here assumed that recv() would only split a
+     * PDU at a word (__pmPDU) boundary ... with the introduction of
+     * secure connections, SSL and possibly compression all lurking
+     * below the socket covers, this is no longer as safe assumption.
      */
     int			socketipc = __pmSocketIPC(fd);
     int			status = 0;
     int			have = 0;
-    int			size;
     int			onetrip = 1;
     struct timeval	dead_hand;
     struct timeval	now;
 
-    while (len) {
-	if (timeout == TIMEOUT_ASYNC) {
-	    /*
-	     * no grabbing more than you need ... read header to get
-	     * length and then read body.
-	     * This assumes you are either willing to block, or have
-	     * already done a select() and are pretty confident that
-	     * you will not block.
-	     * Also assumes buf is aligned on a __pmPDU boundary.
-	     */
-	    __pmPDU	*lp;
+    if (timeout == TIMEOUT_ASYNC) {
+	/*
+	 * no grabbing more than you need ... read header to get
+	 * length and then read body.
+	 * This assumes you are either willing to block, or have
+	 * already done a select() and are pretty confident that
+	 * you will not block.
+	 * Also assumes buf is aligned on a __pmPDU boundary.
+	 */
+	__pmPDU	*lp;
+	int	want = (int)sizeof(__pmPDU);
 
-	    if (socketipc) {
-		status = __pmRecv(fd, buf, (int)sizeof(__pmPDU), 0);
-		setoserror(neterror());
-	    } else {
-		status = read(fd, buf, (int)sizeof(__pmPDU));
+	if (socketipc) {
+	    while (want > 0) {
+		status = __pmRecv(fd, &buf[have], want, 0);
+		if (status <= 0 || status == want)
+		    break;
+		have += status;
+		want -= status;
 	    }
-	    __pmOverrideLastFd(fd);
-	    if (status <= 0)
-		/* EOF or error */
-		return status;
-	    else if (status != sizeof(__pmPDU))
-		/* short read, bad error! */
-		return PM_ERR_IPC;
-	    lp = (__pmPDU *)buf;
-	    have = ntohl(*lp);
-	    size = have - (int)sizeof(__pmPDU);
-	    if (socketipc) {
-		status = __pmRecv(fd, &buf[sizeof(__pmPDU)], size, 0);
-		setoserror(neterror());
-	    } else {
-		status = read(fd, &buf[sizeof(__pmPDU)], size);
+	    setoserror(neterror());
+		
+	} else {
+	    status = read(fd, buf, want);
+	    if (status > 0) {
+		have = status;
+		want -= status;
 	    }
-	    if (status <= 0)
-		/* EOF or error */
-		return status;
-	    else if (status != have - (int)sizeof(__pmPDU)) {
-		/* short read, bad error! */
-		setoserror(EMSGSIZE);
-		return PM_ERR_IPC;
-	    }
-	    break;
 	}
-	else {
-	    struct timeval	wait;
+	__pmOverrideLastFd(fd);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "pduread[async](%d, ..., %d, ...): LEN have %d, last read %d, wanted %d, still need %d\n",
+		fd, len, have, status, (int)sizeof(__pmPDU), want);
+	}
+#endif
+	if (status <= 0)
+	    /* EOF or error */
+	    return status;
+	else if (have != (int)sizeof(__pmPDU))
+	    /* short read, bad error! */
+	    return PM_ERR_IPC;
+	if (have == len)
+	    /* just length field wanted! */
+	    return have;
+	lp = (__pmPDU *)buf;
+	/* first word of buf[] is the total PDU length */
+	want = ntohl(*lp) - have;
+	if (socketipc) {
+	    while (want > 0) {
+		status = __pmRecv(fd, &buf[have], want, 0);
+		if (status <= 0 || status == want)
+		    break;
+		have += status;
+		want -= status;
+	    }
+	    setoserror(neterror());
+	} else {
+	    status = read(fd, &buf[have], want);
+	    if (status > 0) {
+		have += status;
+		want -= status;
+	    }
+	}
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "pduread[async](%d, ..., %d, ...): LEN+BODY have %d, last read %d, still need %d\n",
+		fd, len, have, status, want);
+	}
+#endif
+	if (status <= 0)
+	    /* EOF or error */
+	    return status;
+	else if (want > 0) {
+	    /* short read, bad error! */
+	    setoserror(EMSGSIZE);
+	    return PM_ERR_IPC;
+	}
+	return have;
+    }
+
+    /*
+     * reading possibly with timeout case ... keep nibbling at the
+     * input stream until we have all that we have requested, or we
+     * timeout, or error
+     */
+    while (len) {
+	struct timeval	wait;
 
 #if defined(IS_MINGW)	/* cannot select on a pipe on Win32 - yay! */
-	    if (!__pmSocketIPC(fd)) {
-		COMMTIMEOUTS cwait = { 0 };
+	if (!__pmSocketIPC(fd)) {
+	    COMMTIMEOUTS cwait = { 0 };
 
-		if (timeout != TIMEOUT_NEVER)
-		    cwait.ReadTotalTimeoutConstant = timeout * 1000.0;
-		else
-		    cwait.ReadTotalTimeoutConstant = def_timeout * 1000.0;
-		SetCommTimeouts((HANDLE)_get_osfhandle(fd), &cwait);
-	    }
+	    if (timeout != TIMEOUT_NEVER)
+		cwait.ReadTotalTimeoutConstant = timeout * 1000.0;
 	    else
+		cwait.ReadTotalTimeoutConstant = def_timeout * 1000.0;
+	    SetCommTimeouts((HANDLE)_get_osfhandle(fd), &cwait);
+	}
+	else
 #endif
 
-	    /*
-	     * either never timeout (i.e. block forever), or timeout
-	     */
-	    if (timeout != TIMEOUT_NEVER) {
-		if (timeout > 0) {
-		    wait.tv_sec = timeout;
-		    wait.tv_usec = 0;
+	/*
+	 * either never timeout (i.e. block forever), or timeout
+	 */
+	if (timeout != TIMEOUT_NEVER) {
+	    if (timeout > 0) {
+		wait.tv_sec = timeout;
+		wait.tv_usec = 0;
+	    }
+	    else
+		wait = def_wait;
+	    if (onetrip) {
+		/*
+		 * Need all parts of the PDU to be received by dead_hand
+		 * This enforces a low overall timeout for the whole PDU
+		 * (as opposed to just a timeout for individual calls to
+		 * recv).  A more invasive alternative (better) approach
+		 * would see all I/O performed in the main event loop,
+		 * and I/O routines transformed to continuation-passing
+		 * style.
+		 */
+		gettimeofday(&dead_hand, NULL);
+		dead_hand.tv_sec += wait.tv_sec;
+		dead_hand.tv_usec += wait.tv_usec;
+		while (dead_hand.tv_usec >= 1000000) {
+		    dead_hand.tv_usec -= 1000000;
+		    dead_hand.tv_sec++;
 		}
-		else
-		    wait = def_wait;
-		if (onetrip) {
-		    /*
-		     * Need all parts of the PDU to be received by dead_hand
-		     * This enforces a low overall timeout for the whole PDU
-		     * (as opposed to just a timeout for individual calls to
-		     * recv).  A more invasive alternative (better) approach
-		     * would see all I/O performed in the main event loop,
-		     * and I/O routines transformed to continuation-passing
-		     * style.
+		onetrip = 0;
+	    }
+
+	    status = __pmSocketReady(fd, &wait);
+	    if (status > 0) {
+		gettimeofday(&now, NULL);
+		if (now.tv_sec > dead_hand.tv_sec ||
+		    (now.tv_sec == dead_hand.tv_sec &&
+		     now.tv_usec > dead_hand.tv_usec))
+		    status = 0;
+	    }
+	    if (status == 0) {
+		if (__pmGetInternalState() != PM_STATE_APPL) {
+		    /* special for PMCD and friends 
+		     * Note, on Linux select would return 'time remaining'
+		     * in timeout value, so report the expected timeout
 		     */
-		    gettimeofday(&dead_hand, NULL);
-		    dead_hand.tv_sec += wait.tv_sec;
-		    dead_hand.tv_usec += wait.tv_usec;
-		    while (dead_hand.tv_usec >= 1000000) {
-			dead_hand.tv_usec -= 1000000;
-			dead_hand.tv_sec++;
+		    int tosec, tomsec;
+
+		    if ( timeout != TIMEOUT_NEVER && timeout > 0 ) {
+			tosec = (int)timeout;
+			tomsec = 0;
+		    } else {
+			tosec = (int)def_wait.tv_sec;
+			tomsec = 1000*(int)def_wait.tv_usec;
 		    }
-		    onetrip = 0;
-		}
 
-		status = __pmSocketReady(fd, &wait);
-		if (status > 0) {
-		    gettimeofday(&now, NULL);
-		    if (now.tv_sec > dead_hand.tv_sec ||
-		        (now.tv_sec == dead_hand.tv_sec &&
-			 now.tv_usec > dead_hand.tv_usec))
-			status = 0;
+		    __pmNotifyErr(LOG_WARNING, 
+				  "pduread: timeout (after %d.%03d "
+				  "sec) while attempting to read %d "
+				  "bytes out of %d in %s on fd=%d",
+				  tosec, tomsec, len - have, len, 
+				  part == HEADER ? "HDR" : "BODY", fd);
 		}
-		if (status == 0) {
-		    if (__pmGetInternalState() != PM_STATE_APPL) {
-			/* special for PMCD and friends 
-			 * Note, on Linux select would return 'time remaining'
-			 * in timeout value, so report the expected timeout
-			 */
-			int tosec, tomsec;
-
-			if ( timeout != TIMEOUT_NEVER && timeout > 0 ) {
-			    tosec = (int)timeout;
-			    tomsec = 0;
-			} else {
-			    tosec = (int)def_wait.tv_sec;
-			    tomsec = 1000*(int)def_wait.tv_usec;
-			}
-
-			__pmNotifyErr(LOG_WARNING, 
-				      "pduread: timeout (after %d.%03d "
-				      "sec) while attempting to read %d "
-				      "bytes out of %d in %s on fd=%d",
-				      tosec, tomsec, len - have, len, 
-				      part == HEADER ? "HDR" : "BODY", fd);
-		    }
-		    return PM_ERR_TIMEOUT;
-		}
-		else if (status < 0) {
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    __pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			    fd, netstrerror_r(errmsg, sizeof(errmsg)));
-		    setoserror(neterror());
-		    return status;
-		}
+		return PM_ERR_TIMEOUT;
 	    }
-	    if (socketipc) {
-		status = __pmRecv(fd, buf, len, 0);
+	    else if (status < 0) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		__pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
+			fd, netstrerror_r(errmsg, sizeof(errmsg)));
 		setoserror(neterror());
-	    } else {
-		status = read(fd, buf, len);
+		return status;
 	    }
-	    __pmOverrideLastFd(fd);
-	    if (status <= 0)
-		/* EOF or error */
-		return status;
-	    if (part == HEADER)
-		/* special case, see __pmGetPDU */
-		return status;
-	    have += status;
-	    buf += status;
-	    len -= status;
 	}
+	if (socketipc) {
+	    status = __pmRecv(fd, buf, len, 0);
+	    setoserror(neterror());
+	} else {
+	    status = read(fd, buf, len);
+	}
+	__pmOverrideLastFd(fd);
+	if (status < 0)
+	    /* error */
+	    return status;
+	else if (status == 0)
+	    /* return what we have, or nothing */
+	    break;
+
+	have += status;
+	buf += status;
+	len -= status;
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "pduread(%d, ...): have %d, last read %d, still need %d\n",
+		fd, have, status, len);
+	}
+#endif
     }
 
     return have;
