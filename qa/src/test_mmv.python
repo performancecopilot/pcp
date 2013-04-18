@@ -16,8 +16,8 @@
 import sys
 import unittest
 from pcp import mmv, pmapi
-from pmapi import pmUnits
 from cpmapi import PM_COUNT_ONE, PM_TIME_USEC
+import cmmv
 
 class TestSequenceFunctions(unittest.TestCase):
     """ Test driver class for pcp.mmv module verification """
@@ -30,76 +30,74 @@ class TestSequenceFunctions(unittest.TestCase):
             be queried using pmdammv (by a PCP test driver script).
         """
 
-        instances = [mmv_instance(0, "zero"), mmv_instance(1, "hero")]
-        woodlands = [mmv_instance(0, "bird"), mmv_instance(1, "tree"),
-                     mmv_instance(2, "eggs"), mmv_instance(3, "frog")]
-        indoms = [mmv_indom('serial': 1,
-                            'count': len(instances),
-                            'instances': instances,
-                            'shorttext': "We can be heroes",
-                            'helptext': "Set of instances from zero to hero"),
-                  mmv_indom('serial': 2,
-                            'count': len(woodlands),
-                            'instances': woodlands)]
-        metrics = [mmv_metric('name': "counter",
-                              'item': 1,
-                              'typeof': MMV_TYPE_U32,
-                              'semantics': MMV_SEM_COUNTER,
-                              'dimension': pmUnits(0,0,1,0,0,PM_COUNT_ONE),
-                              'shorttext': "Example counter metric",
-                              'helptext': "Yep, a test counter metric"),
-                   mmv_metric('name': "instant",
-                              'item': 2,
-                              'typeof': MMV_TYPE_I32,
-                              'semantics': MMV_SEM_INSTANT,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'shorttext': "Example instant metric",
-                              'helptext': "Yep, a test instantaneous metric"),
-                   mmv_metric('name': "indom",
-                              'item': 3,
-                              'typeof': MMV_TYPE_U32,
-                              'semantics': MMV_SEM_DISCRETE,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'indom': 1),
-                   mmv_metric('name': "interval",
-                              'item': 4,
-                              'typeof': MMV_TYPE_ELAPSED,
-                              'semantics': MMV_SEM_COUNTER,
-                              'dimension': pmUnits(0,1,0,0,PM_TIME_USEC,0),
-                              'indom' = 2),
-                   mmv_metric('name': "string",
-                              'item': 5,
-                              'typeof': MMV_TYPE_STRING,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'semantics': MMV_SEM_INSTANT)
-                   mmv_metric('name': "strings",
-                              'item': 6,
-                              'typeof': MMV_TYPE_STRING,
-                              'semantics': MMV_SEM_INSTANT,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'indom': 1,
-                              'shorttext': "test string metrics",
-                              'helptext': "Yep, string metric with instances")]
+        instances = [mmv.mmv_instance(0, "zero"), mmv.mmv_instance(1, "hero")]
+        woodlands = [mmv.mmv_instance(0, "bird"), mmv.mmv_instance(1, "tree"),
+                     mmv.mmv_instance(2, "eggs"), mmv.mmv_instance(3, "frog")]
+        indoms = [mmv.mmv_indom(serial = 1,
+                            shorttext = "We can be heroes",
+                            helptext = "Set of instances from zero to hero"),
+                  mmv.mmv_indom(serial = 2)]
+        indoms[0].set_instances(instances)
+        indoms[1].set_instances(woodlands)
+        metrics = [mmv.mmv_metric(name = "counter",
+                              item = 1,
+                              typeof = cmmv.MMV_TYPE_U32,
+                              semantics = cmmv.MMV_SEM_COUNTER,
+                              dimension = pmapi.pmUnits(0,0,1,0,0,PM_COUNT_ONE),
+                              shorttext = "Example counter metric",
+                              helptext = "Yep, a test counter metric"),
+                   mmv.mmv_metric(name = "instant",
+                              item = 2,
+                              typeof = cmmv.MMV_TYPE_I32,
+                              semantics = cmmv.MMV_SEM_INSTANT,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              shorttext = "Example instant metric",
+                              helptext = "Yep, a test instantaneous metric"),
+                   mmv.mmv_metric(name = "indom",
+                              item = 3,
+                              typeof = cmmv.MMV_TYPE_U32,
+                              semantics = cmmv.MMV_SEM_DISCRETE,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              indom = 1),
+                   mmv.mmv_metric(name = "interval",
+                              item = 4,
+                              typeof = cmmv.MMV_TYPE_ELAPSED,
+                              semantics = cmmv.MMV_SEM_COUNTER,
+                              dimension = pmapi.pmUnits(0,1,0,0,PM_TIME_USEC,0),
+                              indom = 2),
+                   mmv.mmv_metric(name = "string",
+                              item = 5,
+                              typeof = cmmv.MMV_TYPE_STRING,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              semantics = cmmv.MMV_SEM_INSTANT),
+                   mmv.mmv_metric(name = "strings",
+                              item = 6,
+                              typeof = cmmv.MMV_TYPE_STRING,
+                              semantics = cmmv.MMV_SEM_INSTANT,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              indom = 1,
+                              shorttext = "test string metrics",
+                              helptext = "Yep, string metric with instances")]
 
-        values = MemoryMappedValues(sys.argv[1])
+        values = mmv.MemoryMappedValues("test")
         self.assertTrue(values != None)
-        self.assertTrue(values.started == 0)
+        self.assertTrue(values.started() == 0)
         values.add_indoms(indoms)
-        self.assertTrue(values.started == 0)
+        self.assertTrue(values.started() == 0)
         values.add_metrics(metrics)
-        self.assertTrue(values.started == 0)
+        self.assertTrue(values.started() == 0)
 
         values.start()
-        self.assertTrue(values.started == 1)
-        caliper = values.interval_start("interval", "eggs")
+        self.assertTrue(values.started() == 1)
+        caliper = values.lookup_interval_start("interval", "eggs")
         self.assertTrue(caliper != None)
-        instant = values.lookup_mapping("discrete", None)
+        instant = values.lookup_mapping("instant", None)
         self.assertTrue(instant != None)
-        values.add(discrete, 41)
-        values.inc(discrete)
+        values.add(instant, 41)
+        values.inc(instant)
         values.interval_end(caliper)
         values.stop()
-        self.assertTrue(values.started == 0)
+        self.assertTrue(values.started() == 0)
 
         # verification of the metrics values, semantics, indoms
         # and so on is performed in conjunction with pmdammv in

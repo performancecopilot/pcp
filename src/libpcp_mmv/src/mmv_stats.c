@@ -360,13 +360,14 @@ mmv_stats_init(const char *fname,
 void
 mmv_stats_stop(const char *fname, void *addr)
 {
+    mmv_disk_header_t *hdr = (mmv_disk_header_t *)addr;
     char path[MAXPATHLEN];
     struct stat sbuf;
 
     mmv_stats_path(fname, path, sizeof(path));
     if (stat(path, &sbuf) < 0)
 	sbuf.st_size = (size_t)-1;
-    else
+    else if (hdr->flags & MMV_FLAG_PROCESS)
 	unlink(path);
     __pmMemoryUnmap(addr, sbuf.st_size);
 }
