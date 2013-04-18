@@ -822,20 +822,18 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
  * INADDR_LOOPBACK in host byte order.
  */
 void
-__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
+__pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 {
     PRStatus prStatus;
     switch(address) {
     case INADDR_ANY:
-        prStatus = PR_InitializeNetAddr(PR_IpAddrAny, port, &addr->sockaddr);
+        prStatus = PR_SetNetAddr(PR_IpAddrAny, family, port, &addr->sockaddr);
 	break;
     case INADDR_LOOPBACK:
-        prStatus = PR_InitializeNetAddr(PR_IpAddrLoopback, port, &addr->sockaddr);
+        prStatus = PR_SetNetAddr(PR_IpAddrLoopback, family, port, &addr->sockaddr);
 	break;
     default:
-	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrInit: PR_InitializeNetAddr failure: Invalid address %d\n",
-		      address);
+	__pmNotifyErr(LOG_ERR, "__pmSockAddrInit: Invalid address %d\n", address);
 	return;
     }
     if (prStatus != PR_SUCCESS)

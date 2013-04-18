@@ -56,15 +56,7 @@ __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
     __pmSockAddr *loopBackAddr;
 
     family = __pmSockAddrGetFamily(addr);
-    if (family == AF_INET)
-	loopBackAddr = __pmLoopBackAddress();
-    else if (family == AF_INET6)
-	loopBackAddr = __pmStringToSockAddr("::1");
-    else {
-	__pmNotifyErr(LOG_ERR, "__pmSockAddrIsLoopBack: Invalid address family: %d\n", family);
-	return 0;
-    }
-
+    loopBackAddr = __pmLoopBackAddress(family);
     if (loopBackAddr == NULL)
         return 0;
     rc = __pmSockAddrCompare(addr, loopBackAddr);
@@ -79,11 +71,11 @@ __pmSockAddrFree(__pmSockAddr *sockaddr)
 }
 
 __pmSockAddr *
-__pmLoopBackAddress(void)
+__pmLoopBackAddress(int family)
 {
     __pmSockAddr* addr = __pmSockAddrAlloc();
     if (addr != NULL)
-        __pmSockAddrInit(addr, INADDR_LOOPBACK, 0);
+        __pmSockAddrInit(addr, family, INADDR_LOOPBACK, 0);
     return addr;
 }
 
@@ -444,12 +436,20 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 /* Initialize a socket address. The integral address must be INADDR_ANY or
    INADDR_LOOPBACK in host byte order. */
 void
-__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
+__pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 {
     memset(addr, 0, sizeof(*addr));
-    addr->sockaddr.inet.sin_family = AF_INET;
-    addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
-    addr->sockaddr.inet.sin_port = htons(port);
+    if (family == AF_INET) {
+	addr->sockaddr.inet.sin_family = family;
+	addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
+	addr->sockaddr.inet.sin_port = htons(port);
+    }
+    else {
+	addr->sockaddr.ipv6.sin6_family = family;
+	addr->sockaddr.ipv6.sin6_port = htons(port);
+	if (address == INADDR_LOOPBACK)
+	    addr->sockaddr.ipv6.sin6_addr.s6_addr[15] = 1;
+    }
 }
 
 void

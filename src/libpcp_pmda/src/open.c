@@ -82,7 +82,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenInet: sock addr alloc failed\n");
 	exit(1);
     }
-    __pmSockAddrInit(myaddr, INADDR_ANY, myport);
+    __pmSockAddrInit(myaddr, AF_INET, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
         __pmSockAddrFree(myaddr);
