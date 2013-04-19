@@ -15,6 +15,7 @@
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
+#include "version.h"
 
 class QmcSource
 {
