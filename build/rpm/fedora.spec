@@ -66,9 +66,9 @@ Quality assurance test suite for Performance Co-Pilot (PCP) GUI.
 
 %prep
 %setup -q
-autoconf
 
 %build
+autoconf
 %configure
 make %{?_smp_mflags}
 
@@ -89,6 +89,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libexecdir}/*
 %{_localstatedir}/lib/pcp
 %{_mandir}/man1/*
+%{_sysconfdir}/pcp/pmsnap
+%config(noreplace) %{_sysconfdir}/pcp/pmsnap
 %{_datadir}/pcp
 %{_datadir}/pixmaps/*
 %{_datadir}/applications/pmchart.desktop
