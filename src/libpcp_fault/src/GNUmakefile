@@ -50,13 +50,12 @@ LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) -lpcp_pmda
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
-ifneq "$(LIB_FOR_NSS)" ""
-LCFLAGS += $(NSSCFLAGS)
-LLDLIBS += $(LIB_FOR_NSS)
-endif
-ifneq "$(LIB_FOR_NSPR)" ""
-LCFLAGS += $(NSPRCFLAGS)
-LLDLIBS += $(LIB_FOR_NSPR)
+ifeq "$(ENABLE_SECURE)" "true"
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
+CFILES += nss_server.c nss_connect.c
+else
+LSRCFILES += nss_server.c nss_connect.c
 endif
 
 # same as libcp

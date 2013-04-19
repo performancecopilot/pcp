@@ -422,7 +422,7 @@ pcp.py
 190 libpcp local oss
 191 pmie local oss
 192 pdu local oss
-193 libpcp pmcd #935490 local oss
+193 libpcp pmcd #935490 local oss pdu
 194 libpcp pmcd #935490 local oss
 195 archive local oss pmdumplog
 196 pmcd remote oss

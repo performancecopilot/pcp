@@ -5,15 +5,22 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 seq=`basename $0`
 
-. ./localconfig
+rm -f $seq.out
+if [ $PCP_VER -lt 3702 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
 
 echo "QA output created by $seq"
-
-. ./common.product
-. ./common.check
-. ./common.filter
 
 LOCALHOST=`hostname`
 status=1
@@ -42,6 +49,9 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
+	-e '/__pmConnect(/{
+s/fd=.*,/fd=...,/
+}' \
     | $PCP_AWK_PROG '
 /delay: 6 /	{ print "delay: 6-10 secs"; next }
 /delay: 7 /	{ print "delay: 6-10 secs"; next }

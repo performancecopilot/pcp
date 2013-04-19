@@ -52,7 +52,11 @@ int
 __pmSockAddrIsLoopBack(const __pmSockAddr *addr)
 {
     int rc;
-    __pmSockAddr *loopBackAddr = __pmLoopBackAddress();
+    int family;
+    __pmSockAddr *loopBackAddr;
+
+    family = __pmSockAddrGetFamily(addr);
+    loopBackAddr = __pmLoopBackAddress(family);
     if (loopBackAddr == NULL)
         return 0;
     rc = __pmSockAddrCompare(addr, loopBackAddr);
@@ -67,11 +71,11 @@ __pmSockAddrFree(__pmSockAddr *sockaddr)
 }
 
 __pmSockAddr *
-__pmLoopBackAddress(void)
+__pmLoopBackAddress(int family)
 {
     __pmSockAddr* addr = __pmSockAddrAlloc();
     if (addr != NULL)
-        __pmSockAddrInit(addr, INADDR_LOOPBACK, 0);
+        __pmSockAddrInit(addr, family, INADDR_LOOPBACK, 0);
     return addr;
 }
 
@@ -432,12 +436,20 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 /* Initialize a socket address. The integral address must be INADDR_ANY or
    INADDR_LOOPBACK in host byte order. */
 void
-__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
+__pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 {
     memset(addr, 0, sizeof(*addr));
-    addr->sockaddr.inet.sin_family = AF_INET;
-    addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
-    addr->sockaddr.inet.sin_port = htons(port);
+    if (family == AF_INET) {
+	addr->sockaddr.inet.sin_family = family;
+	addr->sockaddr.inet.sin_addr.s_addr = htonl(address);
+	addr->sockaddr.inet.sin_port = htons(port);
+    }
+    else {
+	addr->sockaddr.ipv6.sin6_family = family;
+	addr->sockaddr.ipv6.sin6_port = htons(port);
+	if (address == INADDR_LOOPBACK)
+	    addr->sockaddr.ipv6.sin6_addr.s6_addr[15] = 1;
+    }
 }
 
 void
@@ -625,7 +637,15 @@ __pmSend(int socket, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int socket, void *buffer, size_t length, int flags)
 {
-    return recv(socket, buffer, length, flags);
+    ssize_t	size;
+    size = recv(socket, buffer, length, flags);
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+		__FILE__, socket, length, flags, size);
+    }
+#endif
+    return size;
 }
 
 int

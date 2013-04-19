@@ -822,20 +822,18 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
  * INADDR_LOOPBACK in host byte order.
  */
 void
-__pmSockAddrInit(__pmSockAddr *addr, int address, int port)
+__pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 {
     PRStatus prStatus;
     switch(address) {
     case INADDR_ANY:
-        prStatus = PR_InitializeNetAddr(PR_IpAddrAny, port, &addr->sockaddr);
+        prStatus = PR_SetNetAddr(PR_IpAddrAny, family, port, &addr->sockaddr);
 	break;
     case INADDR_LOOPBACK:
-        prStatus = PR_InitializeNetAddr(PR_IpAddrLoopback, port, &addr->sockaddr);
+        prStatus = PR_SetNetAddr(PR_IpAddrLoopback, family, port, &addr->sockaddr);
 	break;
     default:
-	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrInit: PR_InitializeNetAddr failure: Invalid address %d\n",
-		      address);
+	__pmNotifyErr(LOG_ERR, "__pmSockAddrInit: Invalid address %d\n", address);
 	return;
     }
     if (prStatus != PR_SUCCESS)
@@ -946,11 +944,29 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	PRIntervalTime timer;
 	int msec;
+	PRStatus sts;
 
 	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
 	timer = PR_MillisecondsToInterval(msec);
-	return (PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer)
-		== PR_SUCCESS) ? 0 : -1;
+	sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    PRStatus	prStatus;
+	    char	buf[1024]; // at least PM_NET_ADDR_STRING_SIZE
+
+	    prStatus = PR_NetAddrToString((PRNetAddr *)addr, buf, sizeof(buf));
+	    fprintf(stderr, "__pmConnect(fd=%d(nsprFd=%p), %s) ->",
+		fd, socket.nsprFd,
+		prStatus == PR_SUCCESS ? buf : "<unknown addr>");
+	    if (sts == PR_SUCCESS)
+		fprintf(stderr, " OK\n");
+	    else {
+		pmErrStr_r(__pmSecureSocketsError(), buf, sizeof(buf));
+		fprintf(stderr, " %s\n", buf);
+	    }
+	}
+#endif
+	return (sts == PR_SUCCESS) ? 0 : -1;
     }
     return connect(fd, (struct sockaddr *)addr, addrlen);
 }
@@ -1060,15 +1076,34 @@ __pmSend(int fd, const void *buffer, size_t length, int flags)
 ssize_t
 __pmRecv(int fd, void *buffer, size_t length, int flags)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket	socket;
+    ssize_t		size;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	ssize_t	size = PR_Read(socket.nsprFd, buffer, length);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv[secure](", __FILE__);
+	}
+#endif
+	size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
 	    __pmSecureSocketsError();
-	return size;
     }
-    return recv(fd, buffer, length, flags);
+    else {
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "%s:__pmRecv(", __FILE__);
+	}
+#endif
+	size = recv(fd, buffer, length, flags);
+    }
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
+	    fd, (int)length, flags, (int)size);
+    }
+#endif
+    return size;
 }
 
 int

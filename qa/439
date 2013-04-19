@@ -25,7 +25,8 @@ _filter()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/logcontrol([0-9][0-9]*)/logcontrol(PID)/' \
 	-e "s/$$/MYPID/g" \
-	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;g"
+	-e "s;$PCP_TMP_DIR;\$PCP_TMP_DIR;g" \
+	-e 's/TCP connection reset by peer/Connection refused/'
 }
 
 # real QA test starts here

@@ -28,11 +28,21 @@ esac
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
+
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
+
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
     ( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
+    if $install_on_cleanup
+    then
+	( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
+    else
+	( cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove >/dev/null 2>&1 )
+    fi
     if [ -f $PCP_PMCDCONF_PATH.$seq ]
     then
 	echo

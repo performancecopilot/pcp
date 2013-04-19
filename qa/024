@@ -64,7 +64,8 @@ s;=[0-9].*/OS/.*;=N name=OS_PMDA, ...;
 	-e '/^__pmLocalPMDA(.*\/OS\//{
 s/name=.*/name=OS_PMDA, ...)/
 s/domain=[0-9][0-9]*/domain=N/
-}'
+}' \
+	-e '/__pmConnect(fd=<n>(nsprFd=/d'
 
 }
 
