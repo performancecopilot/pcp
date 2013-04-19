@@ -63,7 +63,7 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 	goto error;
     }
 
-    __pmSockAddrInit(myaddr, INADDR_LOOPBACK, port);
+    __pmSockAddrInit(myaddr, AF_INET, INADDR_LOOPBACK, port);
     if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
 	setoserror(neterror());
 	goto error;

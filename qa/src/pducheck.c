@@ -1356,13 +1356,8 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "AD:i:Np:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:i:Np:?")) != EOF) {
 	switch (c) {
-	case 'A':	/* GETPDU_ASYNC */
-	    timeout = GETPDU_ASYNC;
-	    fprintf(stderr, "+ Using GETPDU_ASYNC instead of TIMEOUT_DEFAULT +\n");
-	    break;
-
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -1403,7 +1398,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s [-AN] [-D n] [-i iter] [-p port] [host]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-N] [-D n] [-i iter] [-p port] [host]\n", pmProgname);
 	exit(1);
     }
 

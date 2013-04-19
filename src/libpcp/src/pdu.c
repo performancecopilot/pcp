@@ -90,14 +90,6 @@ __pmDefaultRequestTimeout(void)
 int
 pduread(int fd, char *buf, int len, int part, int timeout)
 {
-    /*
-     * Handle short reads that may split a PDU ...
-     *
-     * The original logic here assumed that recv() would only split a
-     * PDU at a word (__pmPDU) boundary ... with the introduction of
-     * secure connections, SSL and possibly compression all lurking
-     * below the socket covers, this is no longer as safe assumption.
-     */
     int			socketipc = __pmSocketIPC(fd);
     int			status = 0;
     int			have = 0;
@@ -105,91 +97,19 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     struct timeval	dead_hand;
     struct timeval	now;
 
-    if (timeout == TIMEOUT_ASYNC) {
-	/*
-	 * no grabbing more than you need ... read header to get
-	 * length and then read body.
-	 * This assumes you are either willing to block, or have
-	 * already done a select() and are pretty confident that
-	 * you will not block.
-	 * Also assumes buf is aligned on a __pmPDU boundary.
-	 */
-	__pmPDU	*lp;
-	int	want = (int)sizeof(__pmPDU);
-
-	if (socketipc) {
-	    while (want > 0) {
-		status = __pmRecv(fd, &buf[have], want, 0);
-		if (status <= 0 || status == want)
-		    break;
-		have += status;
-		want -= status;
-	    }
-	    setoserror(neterror());
-		
-	} else {
-	    status = read(fd, buf, want);
-	    if (status > 0) {
-		have = status;
-		want -= status;
-	    }
-	}
-	__pmOverrideLastFd(fd);
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	    fprintf(stderr, "pduread[async](%d, ..., %d, ...): LEN have %d, last read %d, wanted %d, still need %d\n",
-		fd, len, have, status, (int)sizeof(__pmPDU), want);
-	}
-#endif
-	if (status <= 0)
-	    /* EOF or error */
-	    return status;
-	else if (have != (int)sizeof(__pmPDU))
-	    /* short read, bad error! */
-	    return PM_ERR_IPC;
-	if (have == len)
-	    /* just length field wanted! */
-	    return have;
-	lp = (__pmPDU *)buf;
-	/* first word of buf[] is the total PDU length */
-	want = ntohl(*lp) - have;
-	if (socketipc) {
-	    while (want > 0) {
-		status = __pmRecv(fd, &buf[have], want, 0);
-		if (status <= 0 || status == want)
-		    break;
-		have += status;
-		want -= status;
-	    }
-	    setoserror(neterror());
-	} else {
-	    status = read(fd, &buf[have], want);
-	    if (status > 0) {
-		have += status;
-		want -= status;
-	    }
-	}
-#ifdef PCP_DEBUG
-	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	    fprintf(stderr, "pduread[async](%d, ..., %d, ...): LEN+BODY have %d, last read %d, still need %d\n",
-		fd, len, have, status, want);
-	}
-#endif
-	if (status <= 0)
-	    /* EOF or error */
-	    return status;
-	else if (want > 0) {
-	    /* short read, bad error! */
-	    setoserror(EMSGSIZE);
-	    return PM_ERR_IPC;
-	}
-	return have;
-    }
+    if (timeout == TIMEOUT_ASYNC)
+	return -EOPNOTSUPP;
 
     /*
-     * reading possibly with timeout case ... keep nibbling at the
-     * input stream until we have all that we have requested, or we
-     * timeout, or error
+     * Handle short reads that may split a PDU ...
+     *
+     * The original logic here assumed that recv() would only split a
+     * PDU at a word (__pmPDU) boundary ... with the introduction of
+     * secure connections, SSL and possibly compression all lurking
+     * below the socket covers, this is no longer a safe assumption.
+     *
+     * So, we keep nibbling at the input stream until we have all that
+     * we have requested, or we timeout, or error.
      */
     while (len) {
 	struct timeval	wait;

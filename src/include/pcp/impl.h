@@ -569,7 +569,7 @@ extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 extern __pmSockAddr *__pmSockAddrAlloc(void);
 extern void	     __pmSockAddrFree(__pmSockAddr *);
 extern size_t	     __pmSockAddrSize(void);
-extern void	     __pmSockAddrInit(__pmSockAddr *, int, int);
+extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
 extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
@@ -581,7 +581,7 @@ extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern char *	     __pmSockAddrToString(__pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
-extern __pmSockAddr *__pmLoopBackAddress(void);
+extern __pmSockAddr *__pmLoopBackAddress(int);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);

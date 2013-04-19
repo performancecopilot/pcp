@@ -154,7 +154,7 @@ MYFILES += $(SRCARCH) \
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
-	mksa-sysstat mktzchange show-args mkbig1
+	mksa-sysstat mktzchange show-args mkbig1 fixhosts
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
