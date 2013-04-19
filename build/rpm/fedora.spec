@@ -102,9 +102,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
-* Fri Apr 12 2013 Mark Goodwin <mgoodwin@redhat.com> - 1.5.7-1
-- currently under development
-- QString toAscii decorruption fixes
+* Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 1.5.7-1
+- Update to latest PCP GUI sources.
+- Fix Save View memory corruption in pmchart (BZ 951173)
 
 * Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
 - Update to latest PCP GUI sources.

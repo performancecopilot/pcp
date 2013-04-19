@@ -1,3 +1,13 @@
+pcp-gui 1.5.7 (19 April 2013)
+    - General QString toAscii de-corruption.
+    - Fix memory corruption in pmchart Save View dialog.
+    - Remove all use of the QAssistantClient class.
+    - Remove remaining references to old Qt doc adp files.
+    - Extensions to the New Host dialog box allowing secure socket
+      connections to be explicitly requested.
+    - Add a secure connections tutorial documents.
+    - Several documentation updates.
+
 pcp-gui 1.5.6 (26 October 2012)
     - Added the pcp-gui-testsuite package into the builds.
     - Much work getting the QA suite stable and all tests passing.
