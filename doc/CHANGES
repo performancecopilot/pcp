@@ -1,3 +1,6 @@
+pcp-gui 1.5.8 (20 April 2013)
+    - Fix a build issue when building with older PCP header files.
+
 pcp-gui 1.5.7 (19 April 2013)
     - General QString toAscii de-corruption.
     - Fix memory corruption in pmchart Save View dialog.
