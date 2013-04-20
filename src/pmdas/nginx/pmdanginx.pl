@@ -35,7 +35,7 @@ sub update_nginx_status
 	my $response = $http_client->get($nginx_status_url);
 	if ($response->is_success) {
 	    # All the content on the status page are digits. Map the array
-	    # index to thl metric item ID.
+	    # index to the metric item ID.
 	    @nginx_status = ($response->decoded_content =~ m/(\d+)/gm);
 	} else {
 	    @nginx_status = undef;
