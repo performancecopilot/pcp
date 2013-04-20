@@ -181,16 +181,9 @@ End-of-File
 eval `./getpmcdhosts -L -n 2 \
       | $PCP_AWK_PROG '{ if (NF == 2) printf("other1=%s other2=%s\n",$1,$2); }'`
 
-if [ -z "$other1" ]
+if [ -z "$other1" -o -z "$other2" ]
 then
-    echo "Cannot find first remote host running pmcd" >$seq.notrun
-    status=1
-    exit
-fi
-
-if [ -z "$other2" ]
-then
-    echo "Cannot find second remote host running pmcd" >$seq.notrun
+    echo "Cannot find two remote hosts running pmcd" >$seq.notrun
     status=1
     exit
 fi
