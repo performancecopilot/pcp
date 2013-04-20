@@ -44,7 +44,13 @@ do
 	cd `dirname $bad`
 	for qabits in localconfig
 	do
-	    [ -L $qabits ] || ln -s $HOME/src/pcp/qa/$qabits $qabits
+	    if [ -L $qabits ]
+	    then
+		:
+	    else
+		rm -f $qabits
+		ln -s $HOME/src/pcp/qa/$qabits $qabits
+	    fi
 	done
 	show-me $seq
 	$full && [ -f $seq.full ] && less $seq.full </dev/tty
