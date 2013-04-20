@@ -19,14 +19,16 @@ use LWP::UserAgent;
 
 my @nginx_status = ();
 my $nginx_status_url = "http://localhost/nginx_status";
+my $nginx_fetch_timeout = 1;
 my $http_client = LWP::UserAgent->new;
-$http_client->agent('pmdanginx');
-$http_client->timeout(1);
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/nginx/nginx.conf', 'nginx.conf') {
 	eval `cat $file` unless ! -f $file;
 }
+
+$http_client->agent('pmdanginx');
+$http_client->timeout($nginx_fetch_timeout);
 
 sub update_nginx_status 
 {
