@@ -23,7 +23,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= nginx
 DOMAIN	= NGINX
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl
+LSRCFILES = Install Remove pmda$(IAM).pl $(IAM).conf
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
@@ -44,7 +44,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	$(INSTALL) -m 644 $(IAM).conf $(PMDADIR)
+	$(INSTALL) -m 644 $(IAM).conf $(PMDADIR)/$(IAM).conf
 	@$(INSTALL_MAN)
 
 default_pcp : default
