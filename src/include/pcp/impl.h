@@ -267,6 +267,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
+/* not yet allocated, bits (1<<24) ... (1<<29) */
+#define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
@@ -567,7 +569,7 @@ extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 extern __pmSockAddr *__pmSockAddrAlloc(void);
 extern void	     __pmSockAddrFree(__pmSockAddr *);
 extern size_t	     __pmSockAddrSize(void);
-extern void	     __pmSockAddrInit(__pmSockAddr *, int, int);
+extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
 extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
@@ -579,7 +581,7 @@ extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern char *	     __pmSockAddrToString(__pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
-extern __pmSockAddr *__pmLoopBackAddress(void);
+extern __pmSockAddr *__pmLoopBackAddress(int);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);

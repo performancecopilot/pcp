@@ -1,7 +1,7 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.7.1
-%define buildversion 2
+Version: 3.7.2
+%define buildversion 1
 
 Release: %{buildversion}%{?dist}
 License: GPLv2
@@ -28,8 +28,9 @@ Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %define _confdir  %{_sysconfdir}/pcp
-%define _logsdir  %{_localstatedir}/log/pcp
 %define _initddir %{_sysconfdir}/rc.d/init.d
+%define _logsdir  %{_localstatedir}/log/pcp
+%define _pmnsdir  %{_localstatedir}/lib/pcp/pmns
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
@@ -324,6 +325,7 @@ fi
 
 %post
 PCP_LOG_DIR=%{_logsdir}
+PCP_PMNS_DIR=%{_pmnsdir}
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
@@ -356,6 +358,8 @@ chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
+# we only need this manual Rebuild as long as pmcd is condstart below
+[ -f "$PCP_PMNS_DIR/root" ] || ( cd "$PCP_PMNS_DIR" && ./Rebuild -sud )
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1
@@ -485,8 +489,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Mon Mar 25 2013 Nathan Scott <nathans@redhat.com> - 3.7.1-2
-- Run autoconf before configure for latest scripts (BZ 926315).
+* Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1
+- Update to latest PCP sources.
+- Ensure root namespace exists at the end of install (BZ 952977)
 
 * Wed Mar 20 2013 Nathan Scott <nathans@redhat.com> - 3.7.1-1
 - Update to latest PCP sources.

@@ -27,7 +27,7 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 PERLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch snmp
+	rsyslog elasticsearch snmp nginx
 
 SUBDIRS = $(CPMDAS) $(PERLPMDAS)
 LDIRT = pmcd.conf

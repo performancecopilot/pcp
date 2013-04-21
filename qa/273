@@ -79,6 +79,7 @@ _filter2()
 	-e '/^__pmDataIPC:/d' \
 	-e '/^__pmSetDataIPC:/,+1 d' \
 	-e 's/Permission denied/No permission to perform requested operation/' \
+	-e '/__pmConnect(fd=/d' \
     | perl -ne '
 	# squash repeated occurrences of the following pattern
 	# (as a result of needing to do getaddrinfo list walk)

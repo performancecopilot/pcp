@@ -87,7 +87,7 @@ silent=false
 
 _usage()
 {
-    _trace "Usage: Rebuild [-dnuv]"
+    _trace "Usage: Rebuild [-dnsuv]"
     _trace "Options:"
     _trace "  -d    allow duplicate PMIDs in the PMNS"
     _trace "  -n    dry run, show me what would be done"

@@ -1,14 +1,24 @@
-pcp-3.7.2 (under development)
-    - Improved pmie propagation of metadata units
-    - Extra pmlogger diagnostic when log cannot be created
+pcp-3.7.2 (19 April 2013)
+    - Improved pmie propagation of metadata units.
+    - Extra pmlogger diagnostic when log cannot be created.
     - Fix Debian python build dependencies.
     - Avoid mis-sharing outbound pmcd connections if ports do not
-      match (libpcp)
-    - IPv6 presence now checked at run-time as well (pmconfig)
-    - Packaging updates - tarball, slackware, gentoo
+      match (libpcp).
+    - IPv6 presence now checked at run-time as well (pmconfig).
+    - Packaging updates - tarball, slackware, gentoo.
     - Add several missing man page options, typos and such, found
-      by Red Hat (internal?) checker tools
-    - Added pmwtf.1 man page
+      by Red Hat (internal?) checker tools.
+    - Added pmwtf.1 man page.
+    - Make pmdaapache observe a connect timeout as well as its
+      existing request timeout.
+    - Extend pmcd access control with a global wildcard for IPv6.
+    - Make __pmSockAddrIsLoopBack handle IPv6 loopback address.
+    - Resolve bug in too-small pduread recv causing communication
+      failures with secure sockets, but in theory affecting other
+      socket transports as well.
+    - Resolve Debian packaging and build dependency issue.
+    - Resolve Fedora bug where pmstat fails to start when pmcd has
+      never been started (so namespace rebuild script not yet run).
 
 pcp-3.7.1 (20 March 2013)
     - IPv6 addresses and wild cards for host access control.

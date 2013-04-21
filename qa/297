@@ -51,6 +51,7 @@ _filter()
 	-e '/^__pmSendCreds/d' \
 	-e '/^IPC table/d' \
 	-e '/^__pmConnectPMCD.* failed/d' \
+	-e '/^__pmConnect(fd=[0-9][0-9]*(nsprFd=/d' \
 	-e '/^__pmConnectPMCD/{
 s/'$fqdn'/MY_HOST/g
 s/'$hostname'/MY_HOST/g

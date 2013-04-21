@@ -18,6 +18,9 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 done_clean=false
 
+install_on_cleanup=false
+pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
+
 _cleanup()
 {
     if $done_clean
@@ -25,6 +28,12 @@ _cleanup()
 	:
     else
 	( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
 	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd

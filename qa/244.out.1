@@ -52,7 +52,8 @@ Host access list:
 00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
 == == =========== ======================================= ======================================= === ==============
 y y A_PID 0 MYIPADDR MYHOSTMASK 0 localhost
-n n A_PID 0 0.0.0.0 0.0.0.0 4 *
+n n A_PID 0 0.0.0.0 0.0.0.0 4 .*
+n n A_PID 0 :: :: 8 :*
 
 
 pmcd: PID = PID
@@ -85,7 +86,8 @@ Host access list:
 00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
 == == =========== ======================================= ======================================= === ==============
 y y A_PID 0 MYIPADDR MYHOSTMASK 0 localhost
-n n A_PID 0 0.0.0.0 0.0.0.0 4 *
+n n A_PID 0 0.0.0.0 0.0.0.0 4 .*
+n n A_PID 0 :: :: 8 :*
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
 [DATE] pmcd(PID) Warning: pduread: timeout (after 2.000 sec) while attempting to read 12 bytes out of 12 in HDR on fd=FD

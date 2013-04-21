@@ -20,6 +20,9 @@ grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/n
 
 echo "QA output created by $seq"
 
+install_on_cleanup=false
+pminfo rsyslog >/dev/null 2>&1 && install_on_cleanup=true
+
 status=1
 done_clean=false
 
@@ -34,6 +37,12 @@ _cleanup()
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/rsyslog; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/rsyslog; $sudo ./Remove >/dev/null 2>&1 )
+	fi
 	done_clean=true
     fi
     exit $status
@@ -71,6 +80,7 @@ $sudo rm -f pmns domain.h
 
 echo
 echo "=== $iam agent installation ==="
+$sudo rm -f $PCP_LOG_DIR/rsyslog/stats
 $sudo ./Install </dev/null >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out \
 | _filter
@@ -83,6 +93,19 @@ echo "\
 2011-05-11T08:18:02.420797+10:00 host rsyslogd-pstats: main Q: size=1181 enqueued=1181 full=0 maxqsize=1181 
 2011-05-11T08:18:07.423713+10:00 host rsyslogd-pstats: imuxsock: submitted=85 ratelimit.discarded=0 ratelimit.numratelimiters=24 
 2011-05-11T08:18:07.423752+10:00 host rsyslogd-pstats: main Q: size=1 enqueued=1183 full=0 maxqsize=1182" > $tmp.stats
+
+for i in 1 2 3 4 5
+do
+    [ -p $PCP_LOG_DIR/rsyslog/stats ] && break
+    sleep 1
+done
+
+if [ ! -p $PCP_LOG_DIR/rsyslog/stats ]
+then
+    echo "Arrgh failed to see named pipe $PCP_LOG_DIR/rsyslog/stats after 5 seconds"
+    ls -l $PCP_LOG_DIR/rsyslog
+    exit
+fi
 
 $sudo sh -c "cat $tmp.stats >> $PCP_LOG_DIR/rsyslog/stats"
 sleep 2	# give some time for pmdarsyslog to be told

@@ -217,6 +217,7 @@ _filter_optional_pmdas()
 	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
+	-e '/pmdanginx/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapdns/d' \
@@ -289,6 +290,7 @@ _filter_top_pmns()
 	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
+	-e '/^    nginx /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
