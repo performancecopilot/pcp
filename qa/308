@@ -18,15 +18,19 @@ _filter()
     # some of this is because Linux and IRIX mixes produce different
     # PIDs for the proc metrics, and the name of the init process is
     # different
+    # And on some Linux systems (e.g. Fedora 18), pid 1 is not init, but
+    # /usr/lib/systemd/systemd --switched-root --system --deserialize ...
     #
     _filter_pmdumplog \
     | grep proc.psinfo.ppid \
     | sed -e 's/000*/zeroes.../' \
 	  -e 's/ 60\.8\.3 / PID /' \
 	  -e 's/ 3\.1\.8 / PID /' \
+	  -e 's/ 3\.8\.3 / PID /' \
 	  -e 's/ init \[[0-9]*]/ init/' \
-	  -e 's/ \/etc\/init/ init/' \
-	  -e 's/ \/sbin\/init/ init/' \
+	  -e 's/ \/etc\/init\([ "]\)/ init\1/' \
+	  -e 's/ \/sbin\/init\([ "]\)/ init\1/' \
+	  -e 's/ \/usr\/lib\/systemd\/systemd\([ "]\)/ init\1/' \
 	  -e 's/init .*"/init"/'
 }
 
