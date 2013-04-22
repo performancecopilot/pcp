@@ -22,11 +22,11 @@
 
 /* ------------------------------------------------------------------------ */
 
-char *pmnsfile = NULL;         /* set by -n option */
-char *uriprefix = "/pmapi";    /* overridden by -a option */
+const char uriprefix[] = "/pmapi";
 char *resourcedir = NULL;      /* set by -r option */
 unsigned verbosity = 0;        /* set by -v option */
 unsigned maxtimeout = 300;     /* set by -t option */
+unsigned new_contexts_p = 1;   /* set by -R option */
 unsigned exit_p;               /* counted by SIG* handler */
 
 
@@ -85,24 +85,24 @@ static int mhd_respond (void *cls, struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
-static char *options = "p:K:t:a:r:h:?vA:L46";
+/* NB: see also ../../man/man1/pmwebd.1 */
+static char *options = "p:46K:r:t:h:a:LRv?";
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
-static char usage[] =
+static char usage[] = 
     "Usage: %s [options]\n\n"
     "Options:\n"
     "  -p N          listen on given TCP port, default " STRINGIFY(PMWEBD_PORT) "\n"
-    "  -6            listen on IPv6 only\n"
     "  -4            listen on IPv4 only\n"
+    "  -6            listen on IPv6 only\n"
     "  -K spec       optional additional PMDA spec for local connection\n"
     "                spec is of the form op,domain,dso-path,init-routine\n"
-    "  -n pnmsfile   use an alternative PMNS\n"
-    "  -A prefix     serve API requests with given prefix, default /pmapi\n"
     "  -r resdir     serve non-API files from given directory, no default\n"
     "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
     "  -h hostname   permanently bind next context to metrics on PMCD on host\n"
     "  -a archive    permanently bind next context to metrics in archive\n"
     "  -L            permanently bind next context to metrics in local PMDAs\n"
+    "  -R            disable remote new-context requests\n"
     "  -v            increase verbosity\n"
     "  -?            help\n"
     ;
@@ -168,10 +168,6 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "%s: __pmSpecLocalPMDA failed\n%s\n", pmProgname, errmsg);
                 errflag++;
             }
-            break;
-
-        case 'A':
-            uriprefix = optarg;
             break;
 
         case 'r':
@@ -260,6 +256,10 @@ int main(int argc, char *argv[])
             }
             break;
 
+        case 'R':
+            new_contexts_p = 0;
+            break;
+
         default:
         case '?':
             fprintf(stderr, usage, pmProgname);
@@ -311,7 +311,13 @@ int main(int argc, char *argv[])
     signal (SIGTERM, handle_signals);
     signal (SIGQUIT, handle_signals);
 
-    srandom (getpid() ^ (unsigned int) time (NULL));
+    {
+        struct timeval tv;
+        gettimeofday (&tv, NULL);
+        srandom ((unsigned int) getpid() ^
+                 (unsigned int) tv.tv_sec ^
+                 (unsigned int) tv.tv_usec);
+    }
 
     /* Block indefinitely. */
     while (! exit_p) {

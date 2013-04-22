@@ -28,10 +28,11 @@
 /* ------------------------------------------------------------------------ */
 
 extern char *pmnsfile;                /* set by -n option */
-extern char *uriprefix;               /* overridden by -a option */
+extern const char uriprefix[];
 extern char *resourcedir;             /* set by -r option */
 extern unsigned verbosity;            /* set by -v option */
 extern unsigned maxtimeout;           /* set by -t option */
+extern unsigned new_contexts_p;       /* set by -R option */
 extern unsigned exit_p;               /* counted by SIG* handler */
 
 /* ------------------------------------------------------------------------ */

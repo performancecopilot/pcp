@@ -968,6 +968,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     /* context creation */
     /* if-multithreaded: write-lock contexts */
     if (0 == strcmp (url, "context") &&
+        new_contexts_p && /* permitted */
         (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
         return pmwebapi_respond_new_context (connection);
 
