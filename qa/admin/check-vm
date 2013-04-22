@@ -213,7 +213,7 @@ then
     # Debian based
     #
     dpkg -l >$tmp.tmp
-    for pkg in python-all
+    for pkg in python-all python-all-dev
     do
 	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
 	then

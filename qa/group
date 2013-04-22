@@ -537,7 +537,7 @@ pcp.py
 305 pmgadgets local oss
 306 other local oss
 307 pmlc #936084 local oss
-308 pmlc pmlogger #452417 remote oss pmdumplog
+308 pmlc pmlogger #452417 remote oss pmdumplog pmda.proc
 309 libpcp pmcd pmda.linux pmda.simple local oss
 310 pmie local oss
 311 archive compat pmlogger #509592 pminfo local oss pmstore pmdumplog

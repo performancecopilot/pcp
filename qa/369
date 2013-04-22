@@ -46,19 +46,34 @@ _filter2()
 	-e '/PID for pmlogger:/s/[0-9][0-9]*/PID/'
 }
 
+_filter3()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ part = "part1" }
+NF == 0		{ part = "part2" }
+		{ print >part }'
+    if [ -f part1 ]
+    then
+	# first part of output is in non-deterministic order, so sort it
+	#
+	_filter1 <part1 | LC_COLLATE=POSIX sort
+    fi
+    [ -f part2 ] && _filter1 <part2
+}
+
 mkdir $tmp
 cd $tmp
 
 # real QA test starts here
-echo "C version ..."
-$here/src/check_import 2>&1 | _filter1
+echo "C version ..." | tee -a $here/$seq.full
+$here/src/check_import 2>&1 | tee -a $here/$seq.full | _filter1
 pminfo -dm -a myarchive
 pmdumplog -a myarchive 2>&1 | _filter2
 
 echo
-echo "Perl wrapper version ..."
+echo "Perl wrapper version ..." | tee -a $here/$seq.full
 rm -f myarchive.*
-perl $here/src/check_import.perl 2>&1 | _filter1
+perl $here/src/check_import.perl 2>&1 | tee -a $here/$seq.full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -a myarchive 2>&1 | _filter2
 

@@ -3,12 +3,18 @@
 # Verify handling of corrupt PDUs
 
 # get standard environment, filters and checks
+. ./common.product
+. ./common.filter
 . ./common.check
 
 seq=`basename $0`
 
-which valgrind >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "valgrind unavailable on this platform"
+_check_valgrind
 
 echo "QA output created by $seq"
-valgrind --quiet src/pducrash
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_run_valgrind src/pducrash
