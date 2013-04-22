@@ -52,6 +52,7 @@ do
 		ln -s $HOME/src/pcp/qa/$qabits $qabits
 	    fi
 	done
+	echo -n `echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/[-/].*/-/'`
 	show-me $seq
 	$full && [ -f $seq.full ] && less $seq.full </dev/tty
     done
