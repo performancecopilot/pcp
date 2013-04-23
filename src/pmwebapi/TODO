@@ -1,0 +1,17 @@
+- authentication, association with pmwebapi context#s
+- ssl
+- _fetch event types
+- pmStore ?
+- missing APIs
+- consider having blinkenlights call /pmapi/NNNNN/destroy
+<script type="text/javascript">
+  window.onbeforeunload = function(){
+    return "Did you save your stuff?"
+  }
+</script>
+
+- load control / attack detection (tarpot invalid webapi# brute-forcers)
+- pmReconnectContext() if pmUseContext etc. return PM_ERR_IPC || PM_ERR_TIMEOUT
+- serialize webapi connection state & profile data,
+            for possible restoring if pmwebapi is killed/restarted
+

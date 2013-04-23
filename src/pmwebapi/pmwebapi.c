@@ -18,7 +18,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#include "pmwebapi.h"
+v#include "pmwebapi.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <inttypes.h>
@@ -684,6 +684,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
             int printed_value = 1;
 
             if (desc.type == PM_TYPE_EVENT) continue;
+            // XXX:
 
             mhdb_printf (& output, "{");
 
@@ -956,6 +957,9 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                       const char* url,
                       const char* method, const char* upload_data, size_t *upload_data_size)
 {
+    /* XXX: emit CORS header, e.g.
+       https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+
     /* NB: url is already edited to remove the /pmapi/ prefix. */
     long webapi_ctx;
     __pmHashNode *chn;
@@ -964,7 +968,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
 
     /* Decode the calls to the web API. */
 
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
     /* context creation */
     /* if-multithreaded: write-lock contexts */
     if (0 == strcmp (url, "context") &&
@@ -972,7 +976,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
         (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
         return pmwebapi_respond_new_context (connection);
 
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
     /* All other calls use $CTX/command, so we parse $CTX
        generally and map it to the webcontext* */
     if (! (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET"))) {
@@ -1009,28 +1013,33 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     /* if-multithreaded: watch out. */
     pmUseContext (c->context);
 
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
     /* context duplication: /context/$ID/copy */
 
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
+    /* context destruction: /context/$ID/destroy */
+
+    /* -------------------------------------------------------------------- */
     /* metric enumeration: /context/$ID/_metric */
     if (0 == strcmp (context_command, "_metric") &&
         (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
         return pmwebapi_respond_metric_list (connection, c);
 
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
     /* metric instance metadata: /context/$ID/_indom */
     if (0 == strcmp (context_command, "_indom") &&
         (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
         return pmwebapi_respond_instance_list (connection, c);
     
-    /* ------------------------------------------------------------------------ */
+    /* -------------------------------------------------------------------- */
     /* metric fetch: /context/$ID/_fetch */
     if (0 == strcmp (context_command, "_fetch") &&
         (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
         return pmwebapi_respond_metric_fetch (connection, c);
 
     pmweb_notify (LOG_WARNING, connection, "unrecognized %s context command %s \n", method, context_command);
+
+    /* XXX: emit pmErrStr explanation if needed. */
 
  out:
     return MHD_NO;

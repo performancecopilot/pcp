@@ -18,20 +18,128 @@
 \f3pmwebd\f1 \- bridge client PMAPI to HTTP
 .SH SYNOPSIS
 \f3pmwebd\f1
-[\f3\-v\f1]
 [\f3\-p\f1 \f2port #\f1]
 [\f3\-4\f1]
 [\f3\-6\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2prefix\f1]
 [\f3\-r\f1 \f2resdir\f1]
+[\f3\-t\f1 \f2timeout\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-L\f1]
+[\f3\-v\f1]
+[\f3\-?\f1]
+.\" see also ../../src/pmwebapi/main.c options[] et al.
+
 .SH DESCRIPTION
 .B pmwebd
-bridges the Performance Co-Pilot (PCP) client API to web applications.
+is a long-running network daemon.  It binds a subset of the
+Performance Co-Pilot (PCP) client API (PMAPI) to RESTful web
+applications using the HTTP (PMWEBAPI) protocol.  Web
+clients request a URI with the prefix
+.B /pmapi
+to access the bindings.  pmwebd creates dynamic PCP contexts as requested
+by a dynamic pool of remote clients, and maintains them as long as the
+clients regularly reconnect to request PMAPI operations.  Otherwise,
+PCP contexts are closed after a timeout.  Permanent contexts may be
+requested on the command line. 
 .PP
+In addition to the API binding, pmwebd may be optionally configured as a
+simple HTTP file server, in order to feed the web application itself
+to a web browser.  URIs not matching the 
+.B /pmapi
+prefix are mapped to files under the configured resource directory.
+.PP
+The options to
+.B pmwebd
+are as follows.
+.TP
+\f3\-p\f1 \f2port #\f1
+Set the TCP port number on which pmwebd will listen for HTTP requests.
+The default is 44323.
+.TP
+\f3\-4\f1 or \f3\-6\f1
+Listen only on IPv4 or IPv6.  By default, pmwebd will listen on both
+protocols, if possible.
+.TP
+\f3\-K\f1 \f2spec\f1
+When
+fetching metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+\f3\-r\f1 \f2resdir\f1
+Activate file serving beneath the given resource directory.  All regular
+files there may be read & transcribed to remote clients.
+.TP
+\f3\-r\f1 \f2timeout\f1
+Set the maximum timeout (in seconds) after the last operation on a web
+context, before it is closed by pwmebd.  A smaller timeout may be requested
+by the web client.
+.TP
+\f3\-h\f1 \f2hostname\f1 or \f3\-a\f1 \f2archive\f1 or \f3\-L\f1
+Assign a permanent PMWEBAPI context to a PMAPI connection to the given host
+(with an extended syntax as given in 
+.BR PCPIntro (1)),
+or archive file, or the PM_CONTEXT_LOCAL.  Permanent PMWEBAPI context
+numbers start at 1 and proceed consecutively.
+.TP
+\f3\-R\f1
+Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
+permanent ones accessible.
+.TP
+\f3\-v\f1
+Increase the verbosity of the pmwebd program as it logs to its standard
+error.
+.TP
+\f3\-?\f1
+Show pmwebd invocation help and exit.
+
+.SH SECURITY
+.PP
+The current release of pmwebd is suitable for direct exposure to
+trusted networks only, due to several security limitations.  Most or
+all of these limitations may be worked around by use of a web
+application firewall (for example, an Apache HTTPD proxy), which would
+add the constraints and capabilities absent within pmwebd.  Such
+configuration is beyond the scope of this document.
+.TP
+encryption/confidentiality
+The pmwebd program is does not currently support HTTPS (SSL/TLS), so
+the HTTP traffic is not protected against network-level attacks.
+.TP
+authentication
+At present, the PMAPI layer does not possess an authentication mechanism, 
+so any remote connection can access any metric exposed by the connected
+PMAPI contexts.
+.TP
+inbound admission control
+The pmwebd program does not impose ACLs on the origin or rate of its
+incoming requests.  It may be possible for some clients to starve others.
+.TP
+outbound admission control
+The pmwebd program does not impose ACLs on outbound connections or
+local archive file names, when a new PMAPI context is created for a
+remote third-party pmcd.  One may disable remotely specified PMAPI
+context creation using the 
+.B \-R
+option; in this case, specify a static set of contexts using the
+.B \-h ", " \-a ", and/or " \-L " options."
+.TP
+context ownership 
+Different web clients are kept distinct solely by the assignment of
+large pseudorandom identifiers.  It may be possible to find these by
+brute-force search or other techniques, thereby letting a web client
+impersonate another.  In the absence of per-user authentication, this
+poses little risk, beyond state such as instance domain profiles.
 
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -50,6 +158,7 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),
+.BR PMWEBAPI (3),
 .BR pcp.conf (4),
 .BR pcp.env (4)
 and
