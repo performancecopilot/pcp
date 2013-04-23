@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.7.2
+Version: 3.8.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -488,6 +488,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Tue Apr 23 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
+- Currently under development.
+
 * Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1
 - Update to latest PCP sources.
 - Ensure root namespace exists at the end of install (BZ 952977)
