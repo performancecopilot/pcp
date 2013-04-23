@@ -305,17 +305,21 @@ dbpath(char *path, size_t size)
     int sep = __pmPathSeparator();
     const char *empty_homedir = "";
     char *homedir = getenv("HOME");
+    char *nss_method = getenv("PCP_SECURE_DB_METHOD");
+
+    if (homedir == NULL)
+	homedir = (char *)empty_homedir;
+    if (nss_method == NULL)
+	nss_method = "sql:";
 
     /*
      * Fill in a buffer with the users NSS database specification.
      * Return a pointer to the filesystem path component - without
-     * the sql:-prefix - for other helpers to work with.
+     * the <method>:-prefix - for other routines to work with.
      */
-    if (homedir == NULL)
-	homedir = (char *)empty_homedir;
-    snprintf(path, size, "sql:" "%s" "%c" ".pki" "%c" "nssdb",
-		homedir, sep, sep);
-    return path + 4;
+    snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
+		nss_method, homedir, sep, sep);
+    return path + strlen(nss_method);
 }
 
 int

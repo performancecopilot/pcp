@@ -752,6 +752,15 @@ When set, this variable forces any monitor tool connections to be
 established using the certificate-based secure sockets feature.
 If the connections cannot be established securely, they will fail.
 .TP
+.B PCP_SECURE_DB_METHOD
+With secure socket connections, the certificate and key database is
+stored using the
+.B sql:
+method by default.  Use
+.B PCP_SECURE_DB_METHOD
+to override the default, most usually setting the value to the empty
+string (for the older database methods).
+.TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
 .BR PCP_STDERR ,

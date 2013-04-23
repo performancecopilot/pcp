@@ -39,7 +39,7 @@ nss_setup_collector true $qahost $hostname
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-proxyargs="-C sql:$collectordb -P $collectorpw"
+proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
 echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full

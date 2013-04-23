@@ -188,15 +188,19 @@ static char *
 serverdb(char *path, size_t size)
 {
     int sep = __pmPathSeparator();
+    char *nss_method = getenv("PCP_SECURE_DB_METHOD");
+
+    if (nss_method == NULL)
+	nss_method = "sql:";
 
     /*
      * Fill in a buffer with the server NSS database specification.
      * Return a pointer to the filesystem path component - without
-     * the sql:-prefix - for other routines to work with.
+     * the <method>:-prefix - for other routines to work with.
      */
-    snprintf(path, size, "sql:" "%c" "etc" "%c" "pki" "%c" "nssdb",
-		sep, sep, sep);
-    return path + 4;
+    snprintf(path, size, "%s" "%c" "etc" "%c" "pki" "%c" "nssdb",
+		nss_method, sep, sep, sep);
+    return path + strlen(nss_method);
 }
 
 int
