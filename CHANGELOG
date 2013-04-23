@@ -1,3 +1,7 @@
+pcp-3.8.0 (under development)
+    - Added the nginx PMDA, thanks to Ryan Doyle.
+    - Fixed memory leak on an error path in profile PDU decoder.
+
 pcp-3.7.2 (19 April 2013)
     - Improved pmie propagation of metadata units.
     - Extra pmlogger diagnostic when log cannot be created.
