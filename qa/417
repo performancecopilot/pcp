@@ -68,11 +68,11 @@ _check_core()
 {
     if [ "`echo core*`" != "core*" ]
     then
-	echo -n "Dumped core! (saved in $here as"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! (saved in $here as""$PCP_ECHO_C"
 	for c in core*
 	do
 	    $sudo mv $c $here/$seq.$c
-	    echo -n " $seq.$c"
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $seq.$c""$PCP_ECHO_C"
 	done
 	echo ")"
     fi

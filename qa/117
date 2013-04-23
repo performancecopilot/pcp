@@ -130,7 +130,7 @@ $ip.strictreassgapfrags
 END
 
 echo '#!/bin/sh' >$tmp.pminfo.sh
-echo -n 'true' >>$tmp.pminfo.sh
+$PCP_ECHO_PROG $PCP_ECHO_N 'true'"$PCP_ECHO_C" >>$tmp.pminfo.sh
 $PCP_AWK_PROG < $tmp.metrics >>$tmp.pminfo.sh '
 line % 5 == 0	{ printf " || exit 1\npminfo -f "; line++; }
 		{ printf "%s ", $1; line++; }

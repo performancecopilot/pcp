@@ -64,11 +64,11 @@ _testdata > $tmp.reg
 mkdir $tmp.dir
 mkfifo $tmp.fifo
 touch $tmp.empty
-echo -n "#!/bin/sh
+$PCP_ECHO_PROG $PCP_ECHO_N "#!/bin/sh
 echo \$\$ > $tmp.pipe.pid
 trap \"echo child\" USR1
 read book
-" > $tmp.pipe	# i.e. print something when sigusr1 delivered
+""$PCP_ECHO_C" > $tmp.pipe	# i.e. print something when sigusr1 delivered
 chmod 755 $tmp.pipe
 
 # setup pmdalogger configuration file
@@ -90,60 +90,60 @@ cat $tmp.out | _filter_pmda_install | _filter
 
 echo
 echo "=== 1. simple working case ==="
-echo -n "Checking initial data:"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking initial data:""$PCP_ECHO_C"
 pminfo -f logger.perfile.reg | _filter
 _testdata >> $tmp.reg
-echo -n "Checking appended data:"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking appended data:""$PCP_ECHO_C"
 pminfo -f logger.perfile.reg | _filter
 
 echo
 echo "=== 2. named pipe (fifo) ==="
-echo -n "Check initial pipe"
+$PCP_ECHO_PROG $PCP_ECHO_N "Check initial pipe""$PCP_ECHO_C"
 pminfo -f logger.perfile.fifo | _filter
-echo -n "Checking new pipe data"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new pipe data""$PCP_ECHO_C"
 _testdata >> $tmp.fifo
 pminfo -f logger.perfile.fifo | _filter
-echo -n "Unlink the fifo"
+$PCP_ECHO_PROG $PCP_ECHO_N "Unlink the fifo""$PCP_ECHO_C"
 rm -f $tmp.fifo
 pminfo -f logger.perfile.fifo | _filter
 
 echo
 echo "=== 3. log file rotation ==="
 rm -f $tmp.reg
-echo -n "Checking removed file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking removed file""$PCP_ECHO_C"
 pminfo -f logger.perfile.reg  | _filter
-echo -n "Checking new log file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 _testdata >> $tmp.reg
 pminfo -f logger.perfile.reg | _filter
 
 echo
 echo "=== 4. non-existant file ==="
-echo -n "Check a missing file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a missing file""$PCP_ECHO_C"
 pminfo -f logger.perfile.none | _filter
 _testdata >> $tmp.none
-echo -n "Checking new log file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 pminfo -f logger.perfile.none | _filter
 
 echo
 echo "=== 5. empty file ==="
-echo -n "Check an empty file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Check an empty file""$PCP_ECHO_C"
 pminfo -f logger.perfile.empty | _filter
 _testdata >> $tmp.empty
-echo -n "Checking new log file"
+$PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 pminfo -f logger.perfile.empty | _filter
 
 echo
 echo "=== 6. directory ==="
-echo -n "Check a directory"
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a directory""$PCP_ECHO_C"
 pminfo -f logger.perfile.dir | _filter_dir
 
 echo
 echo "=== 7. command pipe ==="
 [ -f $tmp.pipe.pid ] || _fail "PID file from command pipe not found"
 pid=`cat $tmp.pipe.pid`
-echo -n "Check a piped command"
+$PCP_ECHO_PROG $PCP_ECHO_N "Check a piped command""$PCP_ECHO_C"
 pminfo -f logger.perfile.pipe | _filter
-echo -n "Signal the command"
+$PCP_ECHO_PROG $PCP_ECHO_N "Signal the command""$PCP_ECHO_C"
 pmsignal -s USR1 $pid >/dev/null 2>&1
 sleep 2	# some time for it to be delivered
 pminfo -f logger.perfile.pipe | _filter
