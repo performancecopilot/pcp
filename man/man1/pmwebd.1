@@ -24,6 +24,7 @@
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2prefix\f1]
 [\f3\-r\f1 \f2resdir\f1]
+[\f3\-C\f1 \f2number\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-a\f1 \f2archive\f1]
@@ -85,12 +86,15 @@ Set the maximum timeout (in seconds) after the last operation on a web
 context, before it is closed by pwmebd.  A smaller timeout may be requested
 by the web client.
 .TP
+\f3\-C\f1 \f2number\f1
+Reset the next PMWEBAPI permanent context identifier as given.
+The default is 1.
+.TP
 \f3\-h\f1 \f2hostname\f1 or \f3\-a\f1 \f2archive\f1 or \f3\-L\f1
-Assign a permanent PMWEBAPI context to a PMAPI connection to the given host
-(with an extended syntax as given in 
+Assign the next permanent PMWEBAPI context identifier to a PMAPI connection
+to the given host (with an extended syntax as given in 
 .BR PCPIntro (1)),
-or archive file, or the PM_CONTEXT_LOCAL.  Permanent PMWEBAPI context
-numbers start at 1 and proceed consecutively.
+or archive file, or the PM_CONTEXT_LOCAL.
 .TP
 \f3\-R\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
@@ -138,8 +142,12 @@ context ownership
 Different web clients are kept distinct solely by the assignment of
 large pseudorandom identifiers.  It may be possible to find these by
 brute-force search or other techniques, thereby letting a web client
-impersonate another.  In the absence of per-user authentication, this
-poses little risk, beyond state such as instance domain profiles.
+impersonate another.  For more privacy of the permanent contexts, use the
+.B \-C
+option to reset their starting web context identifiers to a number
+much different from 1.  On the other hand, context ownership is not
+that precious, since there exist no state-destructive operations for
+them, except perhaps instance profile settings.
 
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

@@ -26,6 +26,7 @@ const char uriprefix[] = "/pmapi";
 char *resourcedir = NULL;      /* set by -r option */
 unsigned verbosity = 0;        /* set by -v option */
 unsigned maxtimeout = 300;     /* set by -t option */
+unsigned perm_context = 1;     /* set by -C option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;   /* set by -R option */
 unsigned exit_p;               /* counted by SIG* handler */
 
@@ -86,7 +87,7 @@ static int mhd_respond (void *cls, struct MHD_Connection *connection,
 /* ------------------------------------------------------------------------ */
 
 /* NB: see also ../../man/man1/pmwebd.1 */
-static char *options = "p:46K:r:t:h:a:LRv?";
+static char *options = "p:46K:r:t:C:h:a:LRv?";
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
 static char usage[] = 
@@ -99,6 +100,7 @@ static char usage[] =
     "                spec is of the form op,domain,dso-path,init-routine\n"
     "  -r resdir     serve non-API files from given directory, no default\n"
     "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
+    "  -C number     set next permanent-binding context identifier\n"
     "  -h hostname   permanently bind next context to metrics on PMCD on host\n"
     "  -a archive    permanently bind next context to metrics in archive\n"
     "  -L            permanently bind next context to metrics in local PMDAs\n"
@@ -126,7 +128,6 @@ int main(int argc, char *argv[])
     int c;
     char *errmsg = NULL;
     unsigned errflag = 0;
-    unsigned context = 1; /* index=0 is invalid */
 
     __pmSetProgname(argv[0]);
 
@@ -188,6 +189,21 @@ int main(int argc, char *argv[])
             verbosity ++;
             break;
 
+        case 'C':
+            assert (optarg);
+            {
+                long pc;
+                char *endptr;
+                errno = 0;
+                pc = strtol(optarg, &endptr, 0);
+                if (errno != 0 || *endptr != '\0' || pc <= 0 || pc >= INT_MAX) {
+                    fprintf(stderr, "%s: invalid -C context number %s\n", pmProgname, optarg);
+                    errflag ++;
+                }
+                else perm_context = (unsigned) pc;
+            }
+            break;
+
         case 'h':
             assert (optarg);
             {
@@ -199,15 +215,15 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
-                rc = pmwebapi_bind_permanent (context++, pcp_context);
+                rc = pmwebapi_bind_permanent (perm_context++, pcp_context);
                 if (rc < 0) {
                     __pmNotifyErr (LOG_ERR, "new context failed\n");
                     exit(EXIT_FAILURE);
                 }
-
+                
                 if(verbosity)
                     __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n", 
-                                   context-1, pcp_context, optarg);
+                                   perm_context-1, pcp_context, optarg);
             }
             break;
 
@@ -222,7 +238,7 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
-                rc = pmwebapi_bind_permanent (context++, pcp_context);
+                rc = pmwebapi_bind_permanent (perm_context++, pcp_context);
                 if (rc < 0) {
                     __pmNotifyErr (LOG_ERR, "new context failed\n");
                     exit(EXIT_FAILURE);
@@ -230,7 +246,7 @@ int main(int argc, char *argv[])
 
                 if(verbosity)
                     __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n", 
-                                   context-1, pcp_context, optarg);
+                                   perm_context-1, pcp_context, optarg);
             }
             break;
 
@@ -244,7 +260,7 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
-                rc = pmwebapi_bind_permanent (context++, pcp_context);
+                rc = pmwebapi_bind_permanent (perm_context++, pcp_context);
                 if (rc < 0) {
                     __pmNotifyErr (LOG_ERR, "new context failed\n");
                     exit(EXIT_FAILURE);
@@ -252,7 +268,7 @@ int main(int argc, char *argv[])
 
                 if(verbosity)
                     __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n", 
-                                   context-1, pcp_context);
+                                   perm_context-1, pcp_context);
             }
             break;
 
