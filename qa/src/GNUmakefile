@@ -20,7 +20,7 @@ LDIRT += localconfig.h
 
 include GNUlocaldefs
 
-localconfig.h:
+localconfig.h: ../localconfig
 	@awk -F= '{ print "#define",$$1,$$2 }' < ../localconfig > localconfig.h
 
 install install_pcp:

@@ -1,4 +1,6 @@
 QA output created by 513
+=== std out ===
+=== std err ===
 [cred] checking all-zeroes structure
   __pmDecodeCreds: sts = -12366 (IPC protocol failure)
 [cred] checking large numcred field
@@ -185,3 +187,10 @@ QA output created by 513
   __pmtracedecodedata: sts = -12006 (IPC protocol failure)
 [trace_data] checking access beyond buffer
   __pmtracedecodedata: sts = -12006 (IPC protocol failure)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/pducrash
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

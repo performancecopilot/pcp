@@ -49,9 +49,7 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmDataIPC: /d' \
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
-	-e '/__pmConnect(/{
-s/fd=.*,/fd=...,/
-}' \
+	-e '/__pmConnect(fd=.*) ->/d' \
     | $PCP_AWK_PROG '
 /delay: 6 /	{ print "delay: 6-10 secs"; next }
 /delay: 7 /	{ print "delay: 6-10 secs"; next }
