@@ -22,7 +22,7 @@ else
 fi
 
 rm -f $seq.out
-case "`uname -p`"
+case "`uname -m`"
 in
     i?86|athlon)
 	if [ $PCP_PLATFORM = darwin ]
