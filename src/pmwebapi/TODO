@@ -1,4 +1,5 @@
 - authentication, association with pmwebapi context#s
+- incoming & outgoing ACL
 - ssl
 - _fetch event types
 - pmStore ?
