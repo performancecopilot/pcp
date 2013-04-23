@@ -192,9 +192,9 @@ logutil.o
     [sr] ?ncompress		# const
     [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
-nss_server.o
-    b nss_server		# guarded by __pmLock_libpcp mutex
-nss_connect.o
+secureserver.o
+    b secure_server		# guarded by __pmLock_libpcp mutex
+secureconnect.o
     b ?nsprFds			# guarded by __pmLock_libpcp mutex
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
@@ -254,6 +254,7 @@ p_profile.o
 p_result.o
 profile.o
 p_text.o
+p_userauth.o
 rtime.o
     s ?wdays			# const
     s ?months			# const
@@ -386,8 +387,8 @@ do
 	    else
 		case "$type"
 		in
-		    nss_*.o)
-			echo "$type: Info: NSS object file skipped, not configured"
+		    secure*.o)
+			echo "$type: Info: security object file skipped, not configured"
 			skip_file=true
 			;;
 		    \?*)

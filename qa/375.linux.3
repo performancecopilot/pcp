@@ -1,6 +1,6 @@
 QA output created by 375
 
-=== pmlc host type: -b 32 -v pcp=2 ===
+=== pmlc host type: -b 32 -v pcp>=2 ===
 New log volume 1
 last log entry   DATE
 current time     DATE
@@ -32,7 +32,7 @@ pmcd.control.register
     adv  off nl              [15 or "15"]
 
 pmcd.agent.type
-    adv  off nl              [1 or "irix"]
+    adv  off nl              [60 or "linux"]
     adv  off nl              [2 or "pmcd"]
     adv  off nl              [29 or "sample"]
 
@@ -69,9 +69,6 @@ pmcd.pdu_in.text
 pmcd.pdu_in.control_req
     adv  off nl             
 
-pmcd.pdu_in.datax
-    adv  off nl             
-
 pmcd.pdu_in.creds
     adv  off nl             
 
@@ -90,13 +87,16 @@ pmcd.pdu_in.total
 pmcd.pdu_in.pmns_traverse
     adv  off nl             
 
+pmcd.pdu_in.user_auth
+    adv  off nl             
+
 pmcd.agent.type
-    mand on             once [1 or "irix"]
+    mand on             once [60 or "linux"]
     mand on             once [2 or "pmcd"]
     mand off nl              [29 or "sample"]
 
 
-=== pmlc host type: -b 64 -v pcp=2 ===
+=== pmlc host type: -b 64 -v pcp>=2 ===
 New log volume 1
 last log entry   DATE
 current time     DATE
@@ -128,7 +128,7 @@ pmcd.control.register
     adv  off nl              [15 or "15"]
 
 pmcd.agent.type
-    adv  off nl              [1 or "irix"]
+    adv  off nl              [60 or "linux"]
     adv  off nl              [2 or "pmcd"]
     adv  off nl              [29 or "sample"]
 
@@ -165,9 +165,6 @@ pmcd.pdu_in.text
 pmcd.pdu_in.control_req
     adv  off nl             
 
-pmcd.pdu_in.datax
-    adv  off nl             
-
 pmcd.pdu_in.creds
     adv  off nl             
 
@@ -187,7 +184,7 @@ pmcd.pdu_in.pmns_traverse
     adv  off nl             
 
 pmcd.agent.type
-    mand on             once [1 or "irix"]
+    mand on             once [60 or "linux"]
     mand on             once [2 or "pmcd"]
     mand off nl              [29 or "sample"]
 

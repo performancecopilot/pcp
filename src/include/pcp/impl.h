@@ -598,6 +598,7 @@ typedef enum {
     PM_SERVER_FEATURE_SECURE = 0,
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
+    PM_SERVER_FEATURE_USER_AUTH,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -699,6 +700,7 @@ typedef struct {
 /* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
 #define PDU_FLAG_SECURE		(1U<<0)
 #define PDU_FLAG_COMPRESS	(1U<<1)
+#define PDU_FLAG_USER_AUTH	(1U<<2)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -756,7 +758,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_NAMES		0x700e
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_FINISH		0x7010
+#define PDU_USER_AUTH		0x7011
+#define PDU_FINISH		0x7011
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -812,6 +815,8 @@ extern int __pmSendChildReq(int, int, const char *, int);
 extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
+extern int __pmSendUserAuth(int, int, int, const char *);
+extern int __pmDecodeUserAuth(__pmPDU *, int *, int *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 

@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 2012-2013 Red Hat.
- * Network Security Services (NSS) support.  Server side.
- * 
+ *
+ * Server side security features - via Network Security Services (NSS) and
+ * the Simple Authentication and Security Layer (SASL).
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -25,6 +27,7 @@
 #define MAX_NSSDB_PASSWORD_LENGTH	256
 
 static struct {
+    /* NSS certificate management */
     CERTCertificate	*certificate;
     SECKEYPrivateKey	*private_key;
     const char		*password_file;
@@ -32,7 +35,9 @@ static struct {
     unsigned int	certificate_verified : 1;
     unsigned int	ssl_session_cache_setup : 1;
     char		database_path[MAXPATHLEN];
-} nss_server;
+
+    /* SASL authentication fields */
+} secure_server;
 
 int
 __pmServerHasFeature(__pmServerFeature query)
@@ -43,12 +48,15 @@ __pmServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_SECURE:
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	sts = nss_server.certificate_verified;
+	sts = secure_server.certificate_verified;
 	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
-    case PM_SERVER_FEATURE_IPV6:
+    case PM_SERVER_FEATURE_USER_AUTH:
 	sts = 1;
+	break;
+    case PM_SERVER_FEATURE_IPV6:
+	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
     default:
 	break;
@@ -112,8 +120,8 @@ certificate_database_password(PK11SlotInfo *info, PRBool retry, void *arg)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     passfile[0] = '\0';
-    if (nss_server.password_file)
-	strncpy(passfile, nss_server.password_file, MAXPATHLEN-1);
+    if (secure_server.password_file)
+	strncpy(passfile, secure_server.password_file, MAXPATHLEN-1);
     passfile[MAXPATHLEN-1] = '\0';
     PM_UNLOCK(__pmLock_libpcp);
 
@@ -212,7 +220,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     PM_LOCK(__pmLock_libpcp);
 
     /* Configure optional (cmdline) password file in case DB locked */
-    nss_server.password_file = passwd;
+    secure_server.password_file = passwd;
     PK11_SetPasswordFunc(certificate_database_password);
 
     /*
@@ -223,26 +231,27 @@ __pmSecureServerSetup(const char *db, const char *passwd)
      */
 
     if (!db) {
-	char *path = serverdb(nss_server.database_path, MAXPATHLEN);
+	char *path = serverdb(secure_server.database_path, MAXPATHLEN);
 
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		__pmNotifyErr(LOG_INFO,
 			"Cannot access system security database: %s",
-			nss_server.database_path);
+			secure_server.database_path);
 	    sts = 0;	/* not fatal - just no secure connections */
 	    goto done;
 	}
     } else {
 	/* shortened-buffer-size (-2) guarantees null-termination */
-	strncpy(nss_server.database_path, db, MAXPATHLEN-2);
+	strncpy(secure_server.database_path, db, MAXPATHLEN-2);
     }
 
-    secsts = NSS_Init(nss_server.database_path);
+    secsts = NSS_Init(secure_server.database_path);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
-		nss_server.database_path, pmErrStr(__pmSecureSocketsError()));
+			secure_server.database_path,
+			pmErrStr(__pmSecureSocketsError()));
 	goto done;
     }
 
@@ -260,7 +269,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 		pmErrStr(__pmSecureSocketsError()));
 	goto done;
     } else {
-	nss_server.ssl_session_cache_setup = 1;
+	secure_server.ssl_session_cache_setup = 1;
     }
 
     /*
@@ -286,20 +295,20 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 		    __pmDumpCertificate(stderr, nickname, node->cert);
 		if (!__pmValidCertificate(nssdb, node->cert, now))
 		    continue;
-		nss_server.certificate_verified = 1;
+		secure_server.certificate_verified = 1;
 		break;
 	    }
 	    CERT_DestroyCertList(certlist);
 	}
 
-	if (nss_server.certificate_verified) {
-	    nss_server.certificate_KEA = NSS_FindCertKEAType(dbcert);
-	    nss_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
-	    if (!nss_server.private_key) {
+	if (secure_server.certificate_verified) {
+	    secure_server.certificate_KEA = NSS_FindCertKEAType(dbcert);
+	    secure_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
+	    if (!secure_server.private_key) {
 		__pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
 				nickname);
 		CERT_DestroyCertificate(dbcert);
-		nss_server.certificate_verified = 0;
+		secure_server.certificate_verified = 0;
 		goto done;
 	    }
 	} else {
@@ -309,11 +318,11 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	}
     }
 
-    if (nss_server.certificate_verified) {
-	nss_server.certificate = dbcert;
+    if (secure_server.certificate_verified) {
+	secure_server.certificate = dbcert;
     } else if (pmDebug & DBG_TRACE_CONTEXT) {
 	__pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
-		nickname, nss_server.database_path);
+		nickname, secure_server.database_path);
     }
     sts = 0;
 
@@ -327,17 +336,17 @@ __pmSecureServerShutdown(void)
 {
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (nss_server.certificate) {
-	CERT_DestroyCertificate(nss_server.certificate);
-	nss_server.certificate = NULL;
+    if (secure_server.certificate) {
+	CERT_DestroyCertificate(secure_server.certificate);
+	secure_server.certificate = NULL;
     }
-    if (nss_server.private_key) {
-	SECKEY_DestroyPrivateKey(nss_server.private_key);
-	nss_server.private_key = NULL;
+    if (secure_server.private_key) {
+	SECKEY_DestroyPrivateKey(secure_server.private_key);
+	secure_server.private_key = NULL;
     }
-    if (nss_server.ssl_session_cache_setup) {
+    if (secure_server.ssl_session_cache_setup) {
 	SSL_ShutdownServerSessionIDCache();
-	nss_server.ssl_session_cache_setup = 0;
+	secure_server.ssl_session_cache_setup = 0;
     }    
     PM_UNLOCK(__pmLock_libpcp);
     NSS_Shutdown();
@@ -370,9 +379,9 @@ __pmSecureServerHandshake(int fd, int flags)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     secsts = SSL_ConfigSecureServer(sslsocket,
-			nss_server.certificate,
-			nss_server.private_key,
-			nss_server.certificate_KEA);
+			secure_server.certificate,
+			secure_server.private_key,
+			secure_server.certificate_KEA);
     PM_UNLOCK(__pmLock_libpcp);
 
     if (secsts != SECSuccess) {

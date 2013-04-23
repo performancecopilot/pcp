@@ -101,14 +101,16 @@ __pmSocketClosed(void)
 }
 
 /*
- * For every connection when operating under secure socket mode, we need the following
- * auxillary structure associated with the socket.  It holds critical information that
- * each piece of the security pie can make use of (NSS/SSL/NSPR).  Allocated once when
- * initial connection is being established.
+ * For every connection when operating under secure socket mode, we need
+ * the following auxillary structure associated with the socket.  It holds
+ * critical information that each piece of the security pie can make use
+ * of (NSS/SSL/NSPR/SASL).  This is allocated once when initial connection
+ * is being established.
  */
 typedef struct { 
     PRFileDesc	*nsprFd;
     PRFileDesc	*sslFd;
+    sasl_conn_t *sasl;
 } __pmSecureSocket;
 
 int

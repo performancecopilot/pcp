@@ -590,6 +590,8 @@ CheckNewClient(__pmFdSet * fdset, int rfd)
 		cp->pduInfo.features |= PDU_FLAG_SECURE;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_USER_AUTH))
+		cp->pduInfo.features |= PDU_FLAG_USER_AUTH;
 	    challenge = *(int*)(&cp->pduInfo);
 	    sts = 0;
 	}

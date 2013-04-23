@@ -10,6 +10,53 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 
+#include "localconfig.h"
+
+#if PCP_VER >= 3800
+static void
+decode_user_auth(const char *name)
+{
+    char		*payload;
+    int			sts, length, sender;
+    struct user_auth {
+	__pmPDUHdr	hdr;
+	char		payload[0];
+    } *user_auth;
+
+    fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
+    user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(user_auth);
+
+    fprintf(stderr, "[%s] checking negative length\n", name);
+    user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
+    user_auth->hdr.len = -512;
+    user_auth->hdr.type = PDU_USER_AUTH;
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(user_auth);
+
+    fprintf(stderr, "[%s] checking empty payload\n", name);
+    user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
+    user_auth->hdr.len = sizeof(*user_auth);
+    user_auth->hdr.type = PDU_USER_AUTH;
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(user_auth);
+
+    fprintf(stderr, "[%s] checking access beyond limit\n", name);
+    user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
+    user_auth->hdr.len = INT_MAX;
+    user_auth->hdr.type = PDU_USER_AUTH;
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(user_auth);
+}
+#else
+static void decode_user_auth(const char *name) { (void)name; }
+#endif
+
 static void
 decode_creds(const char *name)
 {
@@ -1166,6 +1213,7 @@ struct pdu {
     { "text", 		decode_text },
     { "trace_ack",	decode_trace_ack },
     { "trace_data",	decode_trace_data },
+    { "user_auth",	decode_user_auth },
 };
 
 int

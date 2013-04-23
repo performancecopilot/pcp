@@ -628,6 +628,8 @@ enable_secure
 lib_for_nspr
 lib_for_nss
 lib_for_ssl
+lib_for_sasl
+SASLCFLAGS
 NSPRCFLAGS
 NSSCFLAGS
 ac_xconfirm_prog
@@ -11223,6 +11225,78 @@ done
 fi
 
 done
+
+
+
+    for ac_header in sasl/sasl.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sasl/sasl.h" "ac_cv_header_sasl_sasl_h" "$ac_includes_default"
+if test "x$ac_cv_header_sasl_sasl_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SASL_SASL_H 1
+_ACEOF
+ SASLCFLAGS=-I/usr/include/sasl
+else
+
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    as_fn_error $? "cannot enable secure sockets mode - no SASL header" "$LINENO" 5
+	fi
+
+fi
+
+done
+
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sasl_server_init in -lsasl2" >&5
+$as_echo_n "checking for sasl_server_init in -lsasl2... " >&6; }
+if ${ac_cv_lib_sasl2_sasl_server_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsasl2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sasl_server_init ();
+int
+main ()
+{
+return sasl_server_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sasl2_sasl_server_init=yes
+else
+  ac_cv_lib_sasl2_sasl_server_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sasl2_sasl_server_init" >&5
+$as_echo "$ac_cv_lib_sasl2_sasl_server_init" >&6; }
+if test "x$ac_cv_lib_sasl2_sasl_server_init" = xyes; then :
+  lib_for_sasl="-lsasl2"
+else
+
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    as_fn_error $? "cannot enable secure sockets mode - no SASL library" "$LINENO" 5
+	fi
+
+fi
 
 
 

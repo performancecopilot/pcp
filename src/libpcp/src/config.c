@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -296,8 +296,10 @@ ipv6_enabled(void)
 #endif
 #if defined(HAVE_SECURE_SOCKETS)
 #define SECURE_SOCKETS_ENABLED	enabled
+#define AUTHENTICATION_ENABLED	enabled
 #else
 #define SECURE_SOCKETS_ENABLED	disabled
+#define AUTHENTICATION_ENABLED	disabled
 #endif
 
 typedef const char *(*feature_detector)(void);
@@ -308,8 +310,9 @@ static struct {
 	{ "pmapi_version",	pmapi_version },
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
 	{ "fault_injection",	FAULT_INJECTION_ENABLED },
-	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
+	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },	/* from pcp-3.7.x */
 	{ "ipv6",		ipv6_enabled },
+	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
 };
 
 void

@@ -473,7 +473,7 @@ int
 __pmServerHasFeature(__pmServerFeature query)
 {
     if (query == PM_SERVER_FEATURE_IPV6)
-	return 1;
+	return (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
     return 0;
 }
 

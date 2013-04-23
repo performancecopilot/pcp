@@ -8,10 +8,18 @@
 . ./common.check
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 _check_valgrind
+authenticate=false
+eval `pmconfig -L 2>/dev/null`
 
-echo "QA output created by $seq"
+rm -f $seq.out $seq.full
+if $authenticate ; then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
