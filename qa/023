@@ -65,10 +65,17 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "s;$here/src/;;" \
     | $PCP_AWK_PROG '
-$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
-$1 == "y" && $2 = "y" && $8 == "localhost"	{ $5 = "IP-addr-in-hex"; $6 = "Host-mask" }
+$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID"; }
+/Host access list:/	{ localHostPrinted = 0 }
+$1 == "y" && $2 = "y" && $8 == "localhost" {
+			  if (! localHostPrinted) {
+				localHostPrinted = 1
+				$5 = "IP-addr-in-hex"; $6 = "Host-mask"
+			  }
+			  else next
+			}
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
-			{ print }' \
+			{ print	}' \
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
 }
 
