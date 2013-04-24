@@ -50,7 +50,7 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
 	-e '/__pmConnect(/{
-s/fd=.*,/fd=...,/
+s/fd=.*,/fd=...,/; s/127.0.0.1/LOOPBACK/; s/::1/LOOPBACK/
 }' \
     | $PCP_AWK_PROG '
 /delay: 6 /	{ print "delay: 6-10 secs"; next }
