@@ -22,6 +22,13 @@ Performance Co-Pilot Web Site
 http://oss.sgi.com/projects/pcp
 """
 
+# ignore line too long, missing docstring, method could be a function,
+#        too many public methods
+# pylint: disable=C0301 
+# pylint: disable=C0111 
+# pylint: disable=R0201
+# pylint: disable=R0904
+
 import copy
 import cpmapi as c_api
 from pcp.pmapi import pmErr
@@ -58,7 +65,7 @@ class _pmsubsys(object):
         self.metric_values = [0 for i in range(len(self.metrics))]
         self.old_metric_values = [0 for i in range(len(self.metrics))]
         if hasattr(super(_pmsubsys, self), 'setup_metrics'):
-            super (_pmsubsys, self).setup_metrics(arg)
+            super (_pmsubsys, self).setup_metrics()
 
     def dump_metrics(self):
         metrics_string = ""
@@ -66,11 +73,11 @@ class _pmsubsys(object):
             metrics_string += self.metrics[i]
             metrics_string += " "
         if hasattr(super(_pmsubsys, self), 'dump_metrics'):
-            super (_pmsubsys, self).dump_metrics(arg)
+            super (_pmsubsys, self).dump_metrics()
         return metrics_string
 
     def get_total(self):
-        True
+        True                        # pylint: disable-msg=W0104
             
     def get_scalar_value(self, var, idx):
         value = self.get_metric_value(var)
@@ -85,7 +92,7 @@ class _pmsubsys(object):
         else:
             return 1
 
-    def get_atom_value(self, metric, atom1, atom2, desc, first):
+    def get_atom_value(self, metric, atom1, atom2, desc, first): # pylint: disable-msg=R0913
         if desc.contents.sem == c_api.PM_SEM_DISCRETE or desc.contents.sem == c_api.PM_SEM_INSTANT :
             # just use the absolute value as if it were the first value
             first = True
@@ -157,11 +164,7 @@ class _pmsubsys(object):
                 # metric may require a diff to get a per interval value
                 for k in xrange(metric_result.contents.get_numval(j)):
                     if type(self.old_metric_values[j]) == list_type:
-                        try:
-                            old_val = self.old_metric_values[j][k]
-                        except Exception, err:
-                            # ??? fix this indexing error
-                            pass
+                        old_val = self.old_metric_values[j][k]
                     else:
                         old_val = self.old_metric_values[j]
                     value.append(self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], first))
@@ -175,7 +178,7 @@ class _pmsubsys(object):
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
                 if hasattr(super(_pmsubsys, self), 'get_stats'):
-                    super(_pmsubsys, self).get_stats(arg)
+                    super(_pmsubsys, self).get_stats()
 
 
     def get_metric_value(self, idx):
@@ -184,15 +187,15 @@ class _pmsubsys(object):
         else:
             return 0
         if hasattr(super(_pmsubsys, self), 'get_metric_value'):
-            super(_pmsubsys, self).get_metric_value(arg)
+            super(_pmsubsys, self).get_metric_value()
 
 
-# cpu  -----------------------------------------------------------------
+# Cpu  -----------------------------------------------------------------
 
 
-class cpu(_pmsubsys):
+class Cpu(_pmsubsys):
     def __init__(self):
-        super(cpu, self).__init__()
+        super(Cpu, self).__init__()
         self.cpu_total = 0
         self.metrics += ['hinv.ncpu', 'kernel.all.cpu.guest',
                          'kernel.all.cpu.idle', 'kernel.all.cpu.intr',
@@ -225,12 +228,12 @@ class cpu(_pmsubsys):
                           self.get_metric_value('kernel.all.cpu.irq.soft') )
 
 
-# interrupt  -----------------------------------------------------------------
+# Interrupt  -----------------------------------------------------------------
 
 
-class interrupt(_pmsubsys):
+class Interrupt(_pmsubsys):
     def __init__(self):
-        super(interrupt, self).__init__()
+        super(Interrupt, self).__init__()
 
 
     def init_metrics(self, pcp):
@@ -239,12 +242,12 @@ class interrupt(_pmsubsys):
             self.metrics.append('kernel.percpu.interrupts.' + int_list[i])
 
 
-# disk  -----------------------------------------------------------------
+# Disk  -----------------------------------------------------------------
 
 
-class disk(_pmsubsys):
+class Disk(_pmsubsys):
     def __init__(self):
-        super(disk, self).__init__()
+        super(Disk, self).__init__()
         self.metrics += ['disk.all.read', 'disk.all.write',
                          'disk.all.read_bytes', 'disk.all.write_bytes',
                          'disk.all.read_merge', 'disk.all.write_merge',
@@ -260,12 +263,12 @@ class disk(_pmsubsys):
                          ]
 
 
-# memory  -----------------------------------------------------------------
+# Memory  -----------------------------------------------------------------
 
 
-class memory(_pmsubsys):
+class Memory(_pmsubsys):
     def __init__(self):
-        super(memory, self).__init__()
+        super(Memory, self).__init__()
         self.metrics += ['mem.freemem', 'mem.physmem', 'mem.util.anonpages',
                          'mem.util.bufmem',
                          'mem.util.cached', 'mem.util.commitLimit',
@@ -285,12 +288,12 @@ class memory(_pmsubsys):
                          'swap.pagesout', 'swap.used' ]
 
 
-# net  -----------------------------------------------------------------
+# Net  -----------------------------------------------------------------
 
 
-class net(_pmsubsys):
+class Net(_pmsubsys):
     def __init__(self):
-        super(net, self).__init__()
+        super(Net, self).__init__()
         self.metrics += ['network.interface.in.bytes',
                          'network.interface.in.packets',
                          'network.interface.out.bytes',
@@ -315,12 +318,12 @@ class net(_pmsubsys):
                          'network.udp.outdatagrams', 'network.udp.noports' ]
 
 
-# proc  -----------------------------------------------------------------
+# Proc  -----------------------------------------------------------------
 
 
-class proc(_pmsubsys):
+class Proc(_pmsubsys):
     def __init__(self):
-        super(proc, self).__init__()
+        super(Proc, self).__init__()
         self.metrics += ['proc.id.egid', 'proc.id.euid', 'proc.id.fsgid',
                          'proc.id.fsuid', 'proc.id.gid', 'proc.id.sgid',
                          'proc.id.suid', 'proc.id.uid', 'proc.io.write_bytes',
@@ -345,5 +348,5 @@ class proc(_pmsubsys):
 # subsys  -----------------------------------------------------------------
 
 
-class subsys(_pmsubsys):
-    True
+class Subsys(_pmsubsys):
+    True                        # pylint: disable-msg=W0104
