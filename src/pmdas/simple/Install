@@ -25,7 +25,7 @@ forced_restart=false
 
 dso_opt=true
 perl_opt=true
-python_opt=true
+#python_opt=true
 socket_opt=true
 socket_inet_def=2078
 

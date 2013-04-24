@@ -48,6 +48,15 @@ _time_filter()
 	-e 's/[0-9][0-9]*/[NUMBER]/g'
 }
 
+_pmda_filter()
+{
+    _filter_pmda_install \
+    | sed \
+	-e 's/or python //g' \
+	-e 's/or perl //g' \
+
+}
+
 # real QA test starts here
 home=$PCP_PMDAS_DIR
 iam=simple
@@ -77,7 +86,7 @@ fi
 $sudo ./Remove >/dev/null 2>&1
 
 $sudo ./Install -e </dev/null >$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+_pmda_filter <$tmp.out
 
 # exercise various configuration file entries (updated on the fly) ...
 # check all together
@@ -114,7 +123,7 @@ $sudo cp $tmp.conf $home/$iam/$iam.conf
 
 # remove the agent
 $sudo ./Remove >$tmp.out 2>&1
-_filter_pmda_install <$tmp.out
+_pmda_filter <$tmp.out
 
 status=0
 exit
