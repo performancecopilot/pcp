@@ -11,11 +11,11 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 _check_valgrind
-authenticate=false
+authentication=false
 eval `pmconfig -L 2>/dev/null`
 
 rm -f $seq.out $seq.full
-if $authenticate ; then
+if $authentication ; then
     ln $seq.out.2 $seq.out
 else
     ln $seq.out.1 $seq.out

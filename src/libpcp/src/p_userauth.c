@@ -23,7 +23,7 @@
  */
 typedef struct {
     __pmPDUHdr	hdr;
-    char	payload[1];
+    char	payload[sizeof(int)];
 } user_auth_t;
 
 int
@@ -37,11 +37,11 @@ __pmSendUserAuth(int fd, int from, int length, const char *payload)
     if (length < 0 || length >= LIMIT_USER_AUTH)
 	return PM_ERR_IPC;
 
-    need = sizeof(user_auth_t) + (length - 1);
+    need = (sizeof(*pp) - sizeof(pp->payload)) + length;
     if ((pp = (user_auth_t *)__pmFindPDUBuf((int)need)) == NULL)
 	return -oserror();
     pp->hdr.len = (int)need;
-    pp->hdr.type = PDU_CREDS;
+    pp->hdr.type = PDU_USER_AUTH;
     pp->hdr.from = from;
     memcpy(&pp->payload, payload, length);
 
@@ -50,7 +50,7 @@ __pmSendUserAuth(int fd, int from, int length, const char *payload)
 	char buffer[LIMIT_USER_AUTH] = { 0 };
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint(payload[i]) ? payload[i] : '.';
-	fprintf(stderr, "__pmSendUserAuth [len=%d]: %s\n", length, buffer);
+	fprintf(stderr, "__pmSendUserAuth [len=%d]: \"%s\"\n", length, buffer);
     }
 #endif
 
@@ -60,7 +60,7 @@ __pmSendUserAuth(int fd, int from, int length, const char *payload)
 }
 
 int
-__pmDecodeUserAuth(__pmPDU *pdubuf, int *sender, int *paylen, char **payload)
+__pmDecodeUserAuth(__pmPDU *pdubuf, int *paylen, char **payload)
 {
     user_auth_t	*pp;
     int		i;
@@ -69,11 +69,10 @@ __pmDecodeUserAuth(__pmPDU *pdubuf, int *sender, int *paylen, char **payload)
 
     pp = (user_auth_t *)pdubuf;
     pdulen = pp->hdr.len;	/* ntohl() converted already in __pmGetPDU() */
-    length = pdulen - (sizeof(user_auth_t) - 1);
+    length = pdulen - (sizeof(*pp) - sizeof(pp->payload));
     if (length < 0 || length >= LIMIT_USER_AUTH)
 	return PM_ERR_IPC;
 
-    *sender = pp->hdr.from;	/* ntohl() converted already in __pmGetPDU() */
     *paylen = length;
     *payload = length ? pp->payload : NULL;
 
@@ -82,7 +81,7 @@ __pmDecodeUserAuth(__pmPDU *pdubuf, int *sender, int *paylen, char **payload)
 	char buffer[LIMIT_USER_AUTH] = { 0 };
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint(pp->payload[i]) ? pp->payload[i] : '.';
-	fprintf(stderr, "__pmDecodeUserAuth [len=%d]: %s\n", length, buffer);
+	fprintf(stderr, "__pmDecodeUserAuth [len=%d]: \"%s\"\n", length, buffer);
     }
 #endif
 

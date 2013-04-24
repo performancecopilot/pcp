@@ -17,7 +17,7 @@ static void
 decode_user_auth(const char *name)
 {
     char		*payload;
-    int			sts, length, sender;
+    int			sts, length;
     struct user_auth {
 	__pmPDUHdr	hdr;
 	char		payload[0];
@@ -25,7 +25,7 @@ decode_user_auth(const char *name)
 
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
     user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
-    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &length, &payload);
     fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
     free(user_auth);
 
@@ -33,7 +33,7 @@ decode_user_auth(const char *name)
     user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
     user_auth->hdr.len = -512;
     user_auth->hdr.type = PDU_USER_AUTH;
-    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &length, &payload);
     fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
     free(user_auth);
 
@@ -41,7 +41,7 @@ decode_user_auth(const char *name)
     user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
     user_auth->hdr.len = sizeof(*user_auth);
     user_auth->hdr.type = PDU_USER_AUTH;
-    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &length, &payload);
     fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
     free(user_auth);
 
@@ -49,7 +49,7 @@ decode_user_auth(const char *name)
     user_auth = (struct user_auth *)calloc(1, sizeof(*user_auth));
     user_auth->hdr.len = INT_MAX;
     user_auth->hdr.type = PDU_USER_AUTH;
-    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &sender, &length, &payload);
+    sts = __pmDecodeUserAuth((__pmPDU *)user_auth, &length, &payload);
     fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
     free(user_auth);
 }

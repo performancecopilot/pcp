@@ -816,7 +816,7 @@ extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 extern int __pmSendUserAuth(int, int, int, const char *);
-extern int __pmDecodeUserAuth(__pmPDU *, int *, int *, char **);
+extern int __pmDecodeUserAuth(__pmPDU *, int *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 

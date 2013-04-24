@@ -13,6 +13,7 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 #include <math.h>
+#include "localconfig.h"
 
 static int		fd[2];
 static int		standalone = 1;
@@ -790,6 +791,49 @@ _z(void)
 	    }
 	}
     }
+
+/* PDU_USER_AUTH */
+#if PCP_VER >= 3800
+#define PAYLOAD "All of your base are belong to us"
+    if ((e = __pmSendUserAuth(fd[1], mypid, sizeof(PAYLOAD), PAYLOAD)) < 0) {
+	fprintf(stderr, "Error: SendUserAuth: %s\n", pmErrStr(e));
+	exit(1);
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvUserAuth: %s\n", pmErrStr(e));
+	    exit(1);
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvUserAuth: end-of-file!\n");
+	    exit(1);
+	}
+	else if (e != PDU_USER_AUTH) {
+	    fprintf(stderr, "Error: RecvUserAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    exit(1);
+	}
+	else {
+	    buffer = NULL;
+	    if ((e = __pmDecodeUserAuth(pb, &count, &buffer)) < 0) {
+		fprintf(stderr, "Error: DecodeUserAuth: %s\n", pmErrStr(e));
+		exit(1);
+	    }
+	    else {
+		if (count != sizeof(PAYLOAD))
+		    fprintf(stderr, "Botch: UserAuth: length: got: 0x%x expect: 0x%x\n",
+			count, (int)sizeof(PAYLOAD));
+		if (buffer == NULL)
+		    fprintf(stderr, "Botch: UserAuth: payload is NULL!\n");
+		else {
+		    if (strncmp(buffer, PAYLOAD, sizeof(PAYLOAD)) != 0)
+			fprintf(stderr, "Botch: UserAuth: payload: got: \"%s\" expect: \"%s\"\n",
+			    buffer, PAYLOAD);
+		    free(buffer);
+		}
+	    }
+	}
+    }
+#endif
 
 /* PDU_CREDS */
     sender = 0;
