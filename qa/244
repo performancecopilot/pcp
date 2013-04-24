@@ -65,11 +65,17 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 			  }
 			}
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
-/localhost/		{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
-			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
-			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYIPADDR",$5)
-			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYHOSTMASK",$6)
-			  sub(/^[0-9a-f:][0-9a-f:]*$/,"MYHOSTMASK",$6) }
+/Host access list:/	{ localHostPrinted = 0 }
+/localhost/		{ if (! localHostPrinted) {
+			    localHostPrinted = 1
+			    sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
+			    sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
+			    sub(/^[0-9a-f:][0-9a-f:]*$/,"MYIPADDR",$5)
+			    sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYHOSTMASK",$6)
+			    sub(/^[0-9a-f:][0-9a-f:]*$/,"MYHOSTMASK",$6)
+			  }
+			  else next
+			}
 			{ print }' \
     | _filter_optional_pmdas \
     | sed \
