@@ -85,7 +85,19 @@ _check_agent()
     agent=$1
     sts=0
 
-    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
+    pminfo -f $agent 2>&1 | \
+        $PCP_AWK_PROG '
+BEGIN           { value=0; metric=0; warn=0 }
+NF==0           { next }
+/ value /       { value++; next }
+/^'$agent'/         { metric++
+                  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}' > $tmp.fetch 2>&1
+
     pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
     cat $tmp.fetch
     if grep warnings $tmp.fetch > /dev/null 2>&1
