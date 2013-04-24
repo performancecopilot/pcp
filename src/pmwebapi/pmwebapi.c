@@ -173,7 +173,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     /* Create a context. */
     const char *val;
     int rc;
-    int context = -1;
+    int context = -EINVAL;
     char http_response [30];
     char context_description [512] = "<none>"; // for logging
     unsigned polltimeout;
@@ -198,7 +198,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
             context = pmNewContext (PM_CONTEXT_LOCAL, NULL);
             snprintf (context_description, sizeof(context_description), "PM_CONTEXT_LOCAL");
         } else {
-            /* context remains -1 */
+            /* context remains -something */
         }
     }
 
@@ -443,10 +443,11 @@ static void metric_list_traverse (const char* metric, void *closure)
     pmDesc metric_desc;
     int rc;
     char *metric_text;
+    char *metrics[1] = { (char*) metric };
 
     assert (mltc != NULL);
 
-    rc = pmLookupName (1, (char **)& metric, & metric_id);
+    rc = pmLookupName (1, metrics, & metric_id);
     if (rc != 1) {
         /* Quietly skip this metric. */
         return;
@@ -508,7 +509,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
     /* We need to construct a copy of the entire JSON metric metadata string,
        in one long malloc()'d buffer.  We size it generously to avoid having
        to realloc the bad boy and cause copies. */
-    mhdb_init (& mltc.mhdb, 200000); /* 1000 pmns entries * 200 bytes each */
+    mhdb_init (& mltc.mhdb, 300000); /* 1000 pmns entries * 300 bytes each */
     mhdb_printf(& mltc.mhdb, "{ \"metrics\":[\n");
 
     val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "prefix");
