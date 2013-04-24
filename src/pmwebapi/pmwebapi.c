@@ -25,15 +25,16 @@
 #include <ctype.h>
 
 
-/* ------------------------------------------------------------------------ */
-
-
 #define JSON_MIMETYPE "application/json"
+#define TEXT_MIMETYPE "text/plain"
 
+
+/* ------------------------------------------------------------------------ */
 
 struct webcontext {
     /* __pmHashNode key is     unique randomized web context key, [1,INT_MAX] */
     /* XXX: optionally bind session to a particular IP address? */
+    /* XXX: optionally bind session to a particular authenticated user? */
     unsigned  mypolltimeout;
     time_t    expires;      /* poll timeout, 0 if never expires */
     int       context;      /* PMAPI context handle, 0 if deleted/free */
@@ -166,6 +167,40 @@ int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 }
 
 
+/* Print a best-effort message as a plain-text http response; anything
+   to avoid a dreaded MHD_NO, which results in a 500 return code.
+   That in turn could be interpreted by a web client as an invitation
+   to try, try again. */
+static int pmwebapi_notify_error (struct MHD_Connection *connection, int rc)
+{
+    char error_message [1000];
+    char pmmsg [PM_MAXERRMSGLEN];
+    struct MHD_Response *resp;
+
+    (void) pmErrStr_r (rc, pmmsg, sizeof(pmmsg));
+    (void) snprintf (error_message, sizeof(error_message),
+                     "PMWEBAPI error, code %d: %s", rc, pmmsg);
+    resp = MHD_create_response_from_buffer (strlen(error_message), error_message,
+                                            MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
+        return MHD_NO;
+    }
+
+    /* override any that may have been specified by a partial run */
+    (void) MHD_del_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    (void) MHD_add_response_header (resp, "Content-Type", TEXT_MIMETYPE);
+
+    rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
+    MHD_destroy_response (resp);
+
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        return MHD_NO;
+    }
+
+    return MHD_YES;
+}
 
 
 static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
@@ -175,7 +210,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     int rc;
     int context = -EINVAL;
     char http_response [30];
-    char context_description [512] = "<none>"; // for logging
+    char context_description [512] = "<none>"; /* for logging */
     unsigned polltimeout;
     struct MHD_Response *resp;
     int webapi_ctx;
@@ -514,7 +549,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 
     val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "prefix");
     if (val == NULL) val = "";
-    pmTraversePMNS_r (val, & metric_list_traverse, & mltc);
+    (void) pmTraversePMNS_r (val, & metric_list_traverse, & mltc); /* cannot fail */
     /* XXX: also handle pmids=... */
     /* XXX: also handle names=... */
 
@@ -522,16 +557,19 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
     resp = mhdb_fini_response (& mltc.mhdb);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
+        rc = -ENOMEM;
         goto out;
     }
     rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
 
@@ -541,7 +579,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
  out1:
     MHD_destroy_response (resp);
  out:
-    return MHD_NO;
+    return pmwebapi_notify_error (connection, rc);
 }
 
 
@@ -554,7 +592,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     const char* val_pmids;
     const char* val_names;
     struct MHD_Response* resp;
-    int rc;
+    int rc = 0;
     int max_num_metrics;
     int num_metrics;
     int printed_metrics; /* exclude skipped ones */
@@ -579,6 +617,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     metrics = calloc ((size_t) max_num_metrics, sizeof(pmID));
     if (metrics == NULL) {
         pmweb_notify (LOG_ERR, connection, "calloc pmIDs[%d] oom\n", max_num_metrics);
+        rc = -ENOMEM;
         goto out;
     }
 
@@ -630,12 +669,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     }  
 
     /* Time to fetch the metric values. */
-    if (num_metrics == 0) {
-        free (metrics);
-        pmweb_notify (LOG_ERR, connection, "no metrics requested\n");
-        goto out;
-    }
-
+    /* num_metrics=0 ==> PM_ERR_TOOSMALL */
     rc = pmFetch (num_metrics, metrics, & results);
     free (metrics); /* don't need any more */
     if (rc < 0) {
@@ -666,7 +700,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         if (pvs->numval <= 0) continue; /* error code; skip metric */
 
         rc = pmLookupDesc (pvs->pmid, &desc); /* need to find desc.type only */
-        if (rc < 0) continue;
+        if (rc < 0) continue; /* quietly skip it */
 
         if (printed_metrics >= 1)
             mhdb_printf (& output, ",\n");
@@ -685,7 +719,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
             int printed_value = 1;
 
             if (desc.type == PM_TYPE_EVENT) continue;
-            // XXX:
+            /* XXX: */
 
             mhdb_printf (& output, "{");
 
@@ -746,16 +780,19 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     resp = mhdb_fini_response (& output);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
+        rc = -ENOMEM;
         goto out;
     }
     rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
     MHD_destroy_response (resp);
@@ -764,7 +801,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
  out1:
     MHD_destroy_response (resp);
  out:
-    return MHD_NO;
+    return pmwebapi_notify_error (connection, rc);
 }
 
 
@@ -779,7 +816,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     const char* val_instance;
     const char* val_iname;
     struct MHD_Response* resp;
-    int rc;
+    int rc = 0;
     int max_num_instances;
     int num_instances;
     int printed_instances;
@@ -820,6 +857,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         inDom = strtoul (val_indom, & numend, 10);
         if (numend == val_indom) {
             pmweb_notify (LOG_ERR, connection, "failed to parse indom '%s'\n", val_indom);
+            rc = -EINVAL;
             goto out;
         }
     }
@@ -830,6 +868,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     instances = calloc ((size_t) max_num_instances, sizeof(int));
     if (instances == NULL) {
         pmweb_notify (LOG_ERR, connection, "calloc instances[%d] oom\n", max_num_instances);
+        rc = -ENOMEM;
         goto out;
     }
 
@@ -888,6 +927,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         num_instances = pmGetInDom(inDom, & instlist, & namelist);
         if (num_instances < 1) {
             pmweb_notify (LOG_ERR, connection, "pmGetInDom failed\n");
+            rc = num_instances;
             goto out;
         }
     } else {
@@ -929,16 +969,19 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     resp = mhdb_fini_response (& output);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "mhdb_response failed\n");
+        rc = -ENOMEM;
         goto out;
     }
     rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        rc = -ENOMEM;
         goto out1;
     }
     MHD_destroy_response (resp);
@@ -947,7 +990,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
  out1:
     MHD_destroy_response (resp);
  out:
-    return MHD_NO;
+    return pmwebapi_notify_error (connection, rc);
 }
 
 
@@ -966,6 +1009,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     __pmHashNode *chn;
     struct webcontext *c;
     char *context_command;
+    int rc = 0;
 
     /* Decode the calls to the web API. */
 
@@ -982,6 +1026,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
        generally and map it to the webcontext* */
     if (! (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET"))) {
         pmweb_notify (LOG_WARNING, connection, "unknown method %s\n", method);
+        rc = -EINVAL;
         goto out;
     }
     errno = 0;
@@ -991,6 +1036,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
         || webapi_ctx > INT_MAX /* matches random() loop above */
         || *context_command != '/') { /* parsed up to the next slash */
         pmweb_notify (LOG_WARNING, connection, "unrecognized %s url %s \n", method, url);
+        rc = -ESRCH; /* a bit of a stretch, but ... */
         goto out;
     }
     context_command ++; /* skip the / */
@@ -999,6 +1045,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     chn = __pmHashSearch ((int)webapi_ctx, & contexts);
     if (chn == NULL) {
         pmweb_notify (LOG_WARNING, connection, "unknown web context #%ld\n", webapi_ctx);
+        rc = -ESRCH; /* a bit of a stretch, but ... */
         goto out;
     }
     c = (struct webcontext *) chn->data;
@@ -1012,13 +1059,9 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
 
     /* Switch to this context for subsequent operations. */
     /* if-multithreaded: watch out. */
-    pmUseContext (c->context);
-
-    /* -------------------------------------------------------------------- */
-    /* context duplication: /context/$ID/copy */
-
-    /* -------------------------------------------------------------------- */
-    /* context destruction: /context/$ID/destroy */
+    rc = pmUseContext (c->context);
+    if (rc)
+        goto out;
 
     /* -------------------------------------------------------------------- */
     /* metric enumeration: /context/$ID/_metric */
@@ -1040,8 +1083,6 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
 
     pmweb_notify (LOG_WARNING, connection, "unrecognized %s context command %s \n", method, context_command);
 
-    /* XXX: emit pmErrStr explanation if needed. */
-
  out:
-    return MHD_NO;
+    return pmwebapi_notify_error (connection, rc);
 }
