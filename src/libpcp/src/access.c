@@ -382,6 +382,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     int			nameIx;
     hostinfo		*hp;
     void		*null;
+    static int		cando_ipv6 = -1;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -393,8 +394,16 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     /* If the general wildcard ("*") is specified, then we'll do this once for inet and
        once more for IPv6. However, if any error occurs, then return right away. */
     if (strcmp(name, "*") == 0) {
+	if (cando_ipv6 == -1) {
+	    const char	*config = __pmGetAPIConfig("ipv6");
+	    if (config != NULL && strcmp(config, "true") == 0)
+		cando_ipv6 = 1;
+	    else
+		cando_ipv6 = 0;
+	}
 	names[0] = ".*";
-	names[1] = ":*";
+	if (cando_ipv6)
+	    names[1] = ":*";
     }
     else
 	names[0] = name;

@@ -63,6 +63,7 @@ access.o
     b oldszhostlist		# single-threaded PM_SCOPE_ACL
     b saved			# single-threaded PM_SCOPE_ACL
     b szhostlist		# single-threaded PM_SCOPE_ACL
+    d cando_ipv6.[0-9]*		# no unsafe side-effects
 AF.o
     d afid			# single-threaded PM_SCOPE_AF
     b block			# single-threaded PM_SCOPE_AF
