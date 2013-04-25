@@ -106,12 +106,13 @@ static char usage[] =
     "  -L            permanently bind next context to metrics in local PMDAs\n"
     "  -R            disable remote new-context requests\n"
     "  -v            increase verbosity\n"
-    "  -?            help\n"
-    ;
+    "  -?            help\n";
+
 
 
 static void handle_signals (int sig)
 {
+    (void) sig;
     exit_p ++;
 }
 
@@ -410,7 +411,7 @@ pmweb_notify (int priority, struct MHD_Connection* connection, const char *fmt, 
 
     /* Add the [hostname:port] as a prefix */
     rc = snprintf (message_buf, sizeof(message_buf), "[%s:%s] ", hostname, servname);
-    if (rc > 0 && rc < sizeof(message_buf))
+    if (rc > 0 && rc < (int)sizeof(message_buf))
         {
             message_tail = message_buf + rc; /* Keep it only if successful. */
             message_len = sizeof(message_buf)-rc;
@@ -430,7 +431,7 @@ pmweb_notify (int priority, struct MHD_Connection* connection, const char *fmt, 
     /* Delegate, but avoid format-string vulnerabilities.  Drop the
        trailing \n, if there is one, since __pmNotifyErr will add one for
        us (since it is missing from the %s format string). */
-    if (rc >= 0 && rc < message_len)
+    if (rc >= 0 && rc < (int)message_len)
         if (message_tail[rc-1] == '\n')
             message_tail[rc-1] = '\0';
     __pmNotifyErr (priority, "%s", message_buf);

@@ -67,6 +67,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     struct MHD_Response *resp;
     const char *ctype;
 
+    (void) cls;
     assert (resourcedir != NULL); /* facility is enabled at all */
 
     /* Reject some obvious ways of escaping resourcedir. */
@@ -77,7 +78,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 
     assert (url[0] == '/');
     rc = snprintf (filename, sizeof(filename), "%s%s", resourcedir, url);
-    if (rc < 0 || rc >= sizeof(filename))
+    if (rc < 0 || rc >= (int)sizeof(filename))
         goto out;
 
     fd = open (filename, O_RDONLY);

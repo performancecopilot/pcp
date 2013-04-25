@@ -207,7 +207,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
 {
     /* Create a context. */
     const char *val;
-    int rc;
+    int rc = 0;
     int context = -EINVAL;
     char http_response [30];
     char context_description [512] = "<none>"; /* for logging */
@@ -237,6 +237,12 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         }
     }
 
+    if (context < 0) {
+        pmweb_notify (LOG_ERR, connection, "new context failed (%s)\n", pmErrStr (context));
+        rc = context;
+        goto out;
+    }
+
     /* Process optional ?polltimeout=SECONDS field.  If broken/missing, assume maxtimeout. */
     val = MHD_lookup_connection_value (connection,  MHD_GET_ARGUMENT_KIND, "polltimeout");
     if (val) {
@@ -253,10 +259,6 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         polltimeout = maxtimeout;
     }
 
-    if (context < 0) {
-        pmweb_notify (LOG_ERR, connection, "new context failed (%s)\n", pmErrStr (context));
-        goto out;
-    }
 
     struct webcontext* c = NULL;
     /* Create a new context key for the webapi.  We just use a random integer within
@@ -269,11 +271,13 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
             {
                 pmweb_notify (LOG_ERR, connection, "webapi_ctx allocation failed\n");
                 pmDestroyContext (context);
+                rc = -EMFILE;
                 goto out;
             }
     
         webapi_ctx = random(); /* we hope RAND_MAX is large enough */
-        if (webapi_ctx <= 0 || webapi_ctx > INT_MAX) continue;
+        if (webapi_ctx <= 0 || webapi_ctx > INT_MAX) 
+            continue;
 
         rc = webcontext_allocate (webapi_ctx, & c);
         if (rc == 0)
@@ -301,24 +305,34 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     }
   
     rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
-    assert (rc >= 0 && rc < sizeof(http_response));
+    assert (rc >= 0 && rc < (int)sizeof(http_response));
     resp = MHD_create_response_from_buffer (strlen(http_response), http_response,
                                             MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
+        rc = -ENOMEM;
         goto out;
     }
     rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
     if (rc != MHD_YES) {
+        MHD_destroy_response (resp);
+        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
+        goto out;
     }
+
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
-    if (rc != MHD_YES) pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
     MHD_destroy_response (resp);
-    return rc;
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        rc = -ENOMEM;
+        goto out;
+    }
+
+    return MHD_YES;
 
  out:
-    return MHD_NO;
+    return pmwebapi_notify_error (connection, rc);
 }
 
 
@@ -601,6 +615,8 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     pmResult *results;
     int i;
 
+    (void) c;
+
     val_pmids = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
     if (val_pmids == NULL) val_pmids = "";
     val_names = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "names");
@@ -827,6 +843,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     pmInDom inDom;
     int i;
 
+    (void) c;
     val_indom = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
     if (val_indom == NULL) val_indom = "";
     val_name = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "name");
@@ -1010,6 +1027,10 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     struct webcontext *c;
     char *context_command;
     int rc = 0;
+
+    (void) cls;
+    (void) upload_data;
+    (void) upload_data_size;
 
     /* Decode the calls to the web API. */
 
