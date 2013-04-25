@@ -39,7 +39,7 @@ nss_setup_collector false
 nss_setup_empty_userdb
 echo "checking client, no certificate at all.  should fail..." | tee -a $seq.full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PCP_SECURE_SOCKETS
 
 # verify that local clients are prompted to establish a connection
@@ -49,7 +49,7 @@ nss_setup_collector true $qahost $hostname
 nss_setup_empty_userdb
 echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
@@ -57,7 +57,7 @@ echo "checking client, user certificate only.  should pass..."
 nss_setup_empty_userdb
 nss_import_cert_userdb
 export PCP_SECURE_SOCKETS=1
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PCP_SECURE_SOCKETS
 
 # success, all done
