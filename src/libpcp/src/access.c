@@ -395,6 +395,10 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
        once more for IPv6. However, if any error occurs, then return right away. */
     if (strcmp(name, "*") == 0) {
 	if (cando_ipv6 == -1) {
+	    /*
+	     * one trip check to see if IPv6 is supported in the
+	     * current run-time
+	     */
 	    const char	*config = __pmGetAPIConfig("ipv6");
 	    if (config != NULL && strcmp(config, "true") == 0)
 		cando_ipv6 = 1;

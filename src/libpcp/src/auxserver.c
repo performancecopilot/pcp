@@ -320,17 +320,11 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		 * one trip check to see if IPv6 is supported in the
 		 * current run-time
 		 */
-#if defined(IS_LINUX)
-		if (access("/proc/net/if_inet6", F_OK) == 0)
+		const char	*config = __pmGetAPIConfig("ipv6");
+		if (config != NULL && strcmp(config, "true") == 0)
 		    cando_ipv6 = 1;
 		else
 		    cando_ipv6 = 0;
-#else
-		/*
-		 * otherwise punt ...
-		 */
-		cando_ipv6 = 1;
-#endif
 	    }
 	    if (cando_ipv6 == 1) {
 	    family = AF_INET6;
