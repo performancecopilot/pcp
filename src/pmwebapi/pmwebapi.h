@@ -27,12 +27,12 @@
 
 /* ------------------------------------------------------------------------ */
 
-extern char *pmnsfile;                /* set by -n option */
 extern const char uriprefix[];
-extern char *resourcedir;             /* set by -r option */
+extern char *archivesdir;             /* set by -A option */
+extern char *resourcedir;             /* set by -R option */
 extern unsigned verbosity;            /* set by -v option */
 extern unsigned maxtimeout;           /* set by -t option */
-extern unsigned new_contexts_p;       /* set by -R option */
+extern unsigned new_contexts_p;       /* set by -N option */
 extern unsigned exit_p;               /* counted by SIG* handler */
 
 /* ------------------------------------------------------------------------ */

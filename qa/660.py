@@ -10,6 +10,8 @@ args = parser.parse_args()
 
 url = 'http://' + args.host + ':' + str(args.port) + '/'
 devnull = os.open(os.devnull, os.O_RDWR)
+os.unsetenv('http_proxy')
+os.unsetenv('HTTP_PROXY')
 
 # ------------------------------------------------------------------------
 
@@ -27,6 +29,12 @@ print 'Received PM_CONTEXT_HOST #'+str(ctx_host)
 # ------------------------------------------------------------------------
 
 # all these should get an error
+req = requests.get(url=url + 'pmapi/context?archivefile=/dev/null')
+print 'bad archive /dev/null response code ' + str(req.status_code) 
+
+req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/passwd')
+print 'bad archive ../../etc/passwd response code ' + str(req.status_code) 
+
 req = requests.get(url=url + 'pmapi/NOSUCHAPI')
 print 'command NOSUCHAPI response code ' + str(req.status_code) 
 
@@ -35,6 +43,9 @@ print 'context NOSUCHCONTEXT response code ' + str(req.status_code)
 
 req = requests.get(url=url + 'pmapi/0/_metric')
 print 'context 0 response code ' + str(req.status_code) 
+
+req = requests.get(url=url + 'random_nonpmwebapi_url')
+print 'non-pmwebapi response code ' + str(req.status_code) 
 
 # ------------------------------------------------------------------------
 
@@ -63,10 +74,11 @@ def test_metric_enumeration(ctx, prefix):
     req = requests.get(url=ctxurl + '_metric' + \
                            ('?prefix='+prefix if prefix != '' else ''))
     resp = req.json()
+    print testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics']))
     if (abs(len(resp['metrics']) - num_metrics) < 10): # allow some variation
-        print testprefix + ' enumeration count PASS #'+str(len(resp['metrics']))
+        print testprefix + ' enumeration match count PASS'
     else:
-        print testprefix + ' enumeration count FAIL #'+str(len(resp['metrics']))
+        print testprefix + ' enumeration match count FAIL'
 
 
 test_metric_enumeration(ctx_local,'')
@@ -79,3 +91,6 @@ test_metric_enumeration(ctx_host,'kernel')
 # empty _fetch should get an error
 req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
 print 'context #'+str(ctx_host)+' response code ' + str(req.status_code) 
+
+# ------------------------------------------------------------------------
+

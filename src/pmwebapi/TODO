@@ -1,4 +1,6 @@
 - authentication, association with pmwebapi context#s
+	/context?auth=plain
+	thence 401 for that /pmapi/NNNN/* if not similarly authenticated
 - incoming & outgoing ACL
 - ssl
 - _fetch event types

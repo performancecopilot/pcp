@@ -21,14 +21,15 @@
 [\f3\-p\f1 \f2port #\f1]
 [\f3\-4\f1]
 [\f3\-6\f1]
-[\f3\-K\f1 \f2spec\f1]
-[\f3\-A\f1 \f2prefix\f1]
-[\f3\-r\f1 \f2resdir\f1]
-[\f3\-C\f1 \f2number\f1]
 [\f3\-t\f1 \f2timeout\f1]
+[\f3\-R\f1 \f2resdir\f1]
+[\f3\-C\f1 \f2number\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-L\f1]
+[\f3\-N\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-A\f1 \f2archdir\f1]
 [\f3\-v\f1]
 [\f3\-?\f1]
 .\" see also ../../src/pmwebapi/main.c options[] et al.
@@ -64,24 +65,11 @@ The default is 44323.
 Listen only on IPv4 or IPv6.  By default, pmwebd will listen on both
 protocols, if possible.
 .TP
-\f3\-K\f1 \f2spec\f1
-When
-fetching metrics from a local context, the
-.B \-K
-option may be used to control the DSO PMDAs that should be
-made accessible.  The
-.I spec
-argument conforms to the syntax described in
-.BR __pmSpecLocalPMDA (3).
-More than one
-.B \-K
-option may be used.
-.TP
-\f3\-r\f1 \f2resdir\f1
+\f3\-R\f1 \f2resdir\f1
 Activate file serving beneath the given resource directory.  All regular
 files there may be read & transcribed to remote clients.
 .TP
-\f3\-r\f1 \f2timeout\f1
+\f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a web
 context, before it is closed by pwmebd.  A smaller timeout may be requested
 by the web client.
@@ -96,9 +84,27 @@ to the given host (with an extended syntax as given in
 .BR PCPIntro (1)),
 or archive file, or the PM_CONTEXT_LOCAL.
 .TP
-\f3\-R\f1
+\f3\-A\f1 \f2archdir\f1
+Limit remote new-context requests for archives to beneath the given
+directory.  By default, only files beneath the initial working directory
+may be accessed.
+.TP
+\f3\-N\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
 permanent ones accessible.
+.TP
+\f3\-K\f1 \f2spec\f1
+When
+fetching metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
 .TP
 \f3\-v\f1
 Increase the verbosity of the pmwebd program as it logs to its standard
@@ -130,13 +136,18 @@ The pmwebd program does not impose ACLs on the origin or rate of its
 incoming requests.  It may be possible for some clients to starve others.
 .TP
 outbound admission control
-The pmwebd program does not impose ACLs on outbound connections or
-local archive file names, when a new PMAPI context is created for a
-remote third-party pmcd.  One may disable remotely specified PMAPI
-context creation using the 
-.B \-R
+The pmwebd program does not impose ACLs on outbound connections 
+when a new PMAPI context is created for a remote third-party PMCD.
+For an archive type context, the files must be located under the
+pmwebd current directory, or another directory specified by 
+.BR \-A .
+One may entirely disable remotely specified PMAPI context creation using the 
+.B \-N
 option; in this case, specify a static set of contexts using the
 .B \-h ", " \-a ", and/or " \-L " options."
+You may assign them arbitrary context numbers with the
+.B \-C
+option.
 .TP
 context ownership 
 Different web clients are kept distinct solely by the assignment of

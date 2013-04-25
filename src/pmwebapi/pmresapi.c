@@ -20,7 +20,6 @@
 
 #include "pmwebapi.h"
 
-const char error_page[] = "pmwebapi error"; /* could also be an actual error page... */
 
 /* ------------------------------------------------------------------------ */
 
@@ -53,33 +52,36 @@ static const char *create_rfc822_date (time_t t)
 }
 
 
+
 /* Respond to a GET request, not under the pmwebapi URL prefix.  This
    is a mini fileserver, just for small standalone installations of
    pmwebapi-based web front-ends. */
 int pmwebres_respond (void *cls, struct MHD_Connection *connection,
                       const char* url)
 {
-    int fd;
+    int fd = -1;
     int rc;
     char filename [PATH_MAX];
     struct stat fds;
     unsigned int resp_code = MHD_HTTP_OK;
     struct MHD_Response *resp;
-    const char *ctype;
+    const char *ctype = NULL;
+    static const char error_page[] =
+        "PMRESAPI error"; /* could also be an actual error page... */
 
     (void) cls;
     assert (resourcedir != NULL); /* facility is enabled at all */
 
     /* Reject some obvious ways of escaping resourcedir. */
-    if (NULL != strstr (url, "/..")) {
+    if (NULL != strstr (url, "/../")) {
         pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
-        goto out;
+        goto error_response;
     }
 
     assert (url[0] == '/');
     rc = snprintf (filename, sizeof(filename), "%s%s", resourcedir, url);
     if (rc < 0 || rc >= (int)sizeof(filename))
-        goto out;
+        goto error_response;
 
     fd = open (filename, O_RDONLY);
     if (fd < 0) {
@@ -92,7 +94,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     if (rc < 0) {
         pmweb_notify (LOG_ERR, connection, "pmwebres stat %s failed (%d)\n", filename, rc);
         close (fd);
-        goto out;
+        goto error_response;
     }
 
     /* XXX: handle if-modified-since */
@@ -112,8 +114,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);    /* auto-closes fd */
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-        close (fd);
-        goto out;
+        goto error_response;
     }
 
     /* Guess at a suitable MIME content-type. */
@@ -139,19 +140,25 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     return rc;
 
  error_response:
-    resp = MHD_create_response_from_buffer (sizeof(error_page),
+    /* override any that may have been specified by a partial run */
+    if (ctype)
+        (void) MHD_del_response_header (resp, "Content-Type", ctype);
+    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
+
+    resp = MHD_create_response_from_buffer (strlen(error_page),
                                             (char*)error_page, 
                                             MHD_RESPMEM_PERSISTENT);
     if (resp == NULL) {
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-        close (fd);
-        goto out;
+        return MHD_NO;
     }
 
     rc = MHD_queue_response (connection, resp_code, resp);
     MHD_destroy_response (resp);
-    return rc;
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        return MHD_NO;
+    }
 
- out:
-    return MHD_NO;
+    return rc;
 }

@@ -23,11 +23,12 @@
 /* ------------------------------------------------------------------------ */
 
 const char uriprefix[] = "/pmapi";
-char *resourcedir = NULL;      /* set by -r option */
+char *resourcedir = NULL;      /* set by -R option */
+char *archivesdir = ".";       /* set by -A option */
 unsigned verbosity = 0;        /* set by -v option */
 unsigned maxtimeout = 300;     /* set by -t option */
 unsigned perm_context = 1;     /* set by -C option, changed by -h/-a/-L */
-unsigned new_contexts_p = 1;   /* set by -R option */
+unsigned new_contexts_p = 1;   /* set by -N option */
 unsigned exit_p;               /* counted by SIG* handler */
 
 
@@ -56,6 +57,10 @@ static int mhd_respond (void *cls, struct MHD_Connection *connection,
                  size_t *upload_data_size, void **con_cls)
 {
     static int dummy;
+    struct MHD_Response* resp = NULL;
+    int rc;
+    static const char error_page[] =
+        "PMWEBD error"; /* could also be an actual error page... */
 
     /* MHD calls us at least twice per request.  Skip the first one,
        since it only gives us headers, and not any POST content. */
@@ -71,40 +76,60 @@ static int mhd_respond (void *cls, struct MHD_Connection *connection,
         (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
                                           &mhd_log_args, connection);
 
-    /* Determine whether request is a pmapi or a resource call. */
+    /* pmwebapi? */
     if (0 == strncmp(url, uriprefix, strlen(uriprefix)))
         return pmwebapi_respond (cls, connection,
                                  & url[strlen(uriprefix)+1], /* strip prefix */
                                  method, upload_data, upload_data_size);
 
+    /* pmresapi? */
     else if (0 == strcmp(method, "GET") && resourcedir != NULL)
         return pmwebres_respond (cls, connection, url);
 
-    return MHD_NO;
+    /* junk? */
+    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
+    resp = MHD_create_response_from_buffer (strlen(error_page),
+                                            (char*)error_page, 
+                                            MHD_RESPMEM_PERSISTENT);
+    if (resp == NULL) {
+        pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+        return MHD_NO;
+    }
+
+    rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
+    MHD_destroy_response (resp);
+    if (rc != MHD_YES) {
+        pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+        return MHD_NO;
+    }
+
+    return MHD_YES;
 }
 
 
 /* ------------------------------------------------------------------------ */
 
 /* NB: see also ../../man/man1/pmwebd.1 */
-static char *options = "p:46K:r:t:C:h:a:LRv?";
+static char *options = "p:46K:R:t:C:h:a:LA:Nv?";
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
 static char usage[] = 
     "Usage: %s [options]\n\n"
-    "Options:\n"
+    "Network options:\n"
     "  -p N          listen on given TCP port, default " STRINGIFY(PMWEBD_PORT) "\n"
     "  -4            listen on IPv4 only\n"
     "  -6            listen on IPv6 only\n"
-    "  -K spec       optional additional PMDA spec for local connection\n"
-    "                spec is of the form op,domain,dso-path,init-routine\n"
-    "  -r resdir     serve non-API files from given directory, no default\n"
     "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
-    "  -C number     set next permanent-binding context identifier\n"
-    "  -h hostname   permanently bind next context to metrics on PMCD on host\n"
-    "  -a archive    permanently bind next context to metrics in archive\n"
-    "  -L            permanently bind next context to metrics in local PMDAs\n"
-    "  -R            disable remote new-context requests\n"
+    "  -R resdir     serve non-API files from given directory, no default\n"
+    "Context options:\n"
+    "  -C number     set next permanent-binding context number\n"
+    "  -h hostname   permanent-bind next context to MCD on host\n"
+    "  -a archive    permanent-bind next context to archive\n"
+    "  -L            permanent-bind next context to local PMDAs\n"
+    "  -N            disable remote new-context requests\n"
+    "  -K spec       optional additional PMDA spec for local connection\n"
+    "  -A archdir    permit remote new-archive-context under archdir, CWD default\n"
+    "Other options:\n"
     "  -v            increase verbosity\n"
     "  -?            help\n";
 
@@ -172,8 +197,12 @@ int main(int argc, char *argv[])
             }
             break;
 
-        case 'r':
+        case 'R':
             resourcedir = optarg;
+            break;
+
+        case 'A':
+            archivesdir = optarg;
             break;
 
         case '6':
@@ -222,9 +251,8 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
                 
-                if(verbosity)
-                    __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n", 
-                                   perm_context-1, pcp_context, optarg);
+                __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n", 
+                               perm_context-1, pcp_context, optarg);
             }
             break;
 
@@ -245,9 +273,8 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
-                if(verbosity)
-                    __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n", 
-                                   perm_context-1, pcp_context, optarg);
+                __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n", 
+                               perm_context-1, pcp_context, optarg);
             }
             break;
 
@@ -267,13 +294,12 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
-                if(verbosity)
-                    __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n", 
-                                   perm_context-1, pcp_context);
+                __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n", 
+                               perm_context-1, pcp_context);
             }
             break;
 
-        case 'R':
+        case 'N':
             new_contexts_p = 0;
             break;
 
@@ -319,7 +345,16 @@ int main(int argc, char *argv[])
                        port, uriprefix);
 
     if (resourcedir)
-        __pmNotifyErr (LOG_INFO, "Serving other urls under directory %s", resourcedir);
+        __pmNotifyErr (LOG_INFO, "Serving non-PMWEBAPI URLs under directory %s\n",
+                       resourcedir);
+
+    if (new_contexts_p) {
+        /* XXX: network outbound ACL */
+        __pmNotifyErr (LOG_INFO, "Serving PCP archives under directory %s\n",
+                       archivesdir);
+    } else {
+        __pmNotifyErr (LOG_INFO, "Disabling remote context creation requests\n");
+    }
 
     /* Set up signal handlers. */
     signal (SIGINT, handle_signals);

@@ -25,10 +25,6 @@
 #include <ctype.h>
 
 
-#define JSON_MIMETYPE "application/json"
-#define TEXT_MIMETYPE "text/plain"
-
-
 /* ------------------------------------------------------------------------ */
 
 struct webcontext {
@@ -188,8 +184,8 @@ static int pmwebapi_notify_error (struct MHD_Connection *connection, int rc)
     }
 
     /* override any that may have been specified by a partial run */
-    (void) MHD_del_response_header (resp, "Content-Type", JSON_MIMETYPE);
-    (void) MHD_add_response_header (resp, "Content-Type", TEXT_MIMETYPE);
+    (void) MHD_del_response_header (resp, "Content-Type", "application/json");
+    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
 
     rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
     MHD_destroy_response (resp);
@@ -223,7 +219,20 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     } else {
         val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "archivefile");
         if (val) {
-            context = pmNewContext (PM_CONTEXT_ARCHIVE, val); /* XXX: limit access */
+            char archive_fullpath[PATH_MAX];
+
+            snprintf(archive_fullpath, sizeof(archive_fullpath),
+                     "%s%c%s", archivesdir, __pmPathSeparator(), val);
+
+            /* Block some basic ways of escaping archive_dir */ 
+            if (NULL != strstr (archive_fullpath, "/../")) {
+                pmweb_notify (LOG_ERR, connection, "pmwebapi suspicious archive path %s\n", 
+                              archive_fullpath);
+                rc = -EINVAL;
+                goto out;
+            }
+
+            context = pmNewContext (PM_CONTEXT_ARCHIVE, archive_fullpath);
             snprintf (context_description, sizeof(context_description), "PM_CONTEXT_ARCHIVE %s", val);
         } else if (MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "local")) {
             /* Note we need to use a dummy parameter to local=FOO,
@@ -313,7 +322,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         rc = -ENOMEM;
         goto out;
     }
-    rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         MHD_destroy_response (resp);
         rc = -ENOMEM;
@@ -574,7 +583,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out;
     }
-    rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
         rc = -ENOMEM;
@@ -799,7 +808,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out;
     }
-    rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
         rc = -ENOMEM;
@@ -989,7 +998,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out;
     }
-    rc = MHD_add_response_header (resp, "Content-Type", JSON_MIMETYPE);
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
         rc = -ENOMEM;
