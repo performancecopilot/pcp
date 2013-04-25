@@ -34,7 +34,8 @@ _filter2()
     sed \
 	-e 's/__pmGetAddrInfo/gethostbyname/g' \
 	-e 's/__pmGetHostByName/gethostbyname/g' \
-	-e '/gethostbyname:/s/ Resolver Error 0 (no error)/ Unknown host/'
+	-e '/gethostbyname:/s/ Resolver Error 0 (no error)/ Unknown host/' \
+	-e 's/No route to host/Connection refused/'
 }
 
 # real QA test starts here
@@ -58,14 +59,27 @@ echo quit | $PCP_BINADM_DIR/telnet-probe $host 22
 echo "exit status is $? (should be 0)"
 
 # should fail to connect
+#
+# Note: [port] 26 below is unassigned by IANA although
+# 	http://www.speedguide.net reports it may be used for RSFTP (simple
+# 	FTP-like service) and perhaps an SMTP alternate ... for our
+# 	purposes we're looking for a port that has no one listening
+# 	on the remote end
+# Another note: some firewalls will respond with "No route to host"
+# 	rather than "Connection refused", so treat these as equivalent
+#
 echo; echo === 3rd test
-echo quit | $PCP_BINADM_DIR/telnet-probe -v localhost 26
-echo "exit status is $? (should be 1 with verbosity)"
-echo quit | $PCP_BINADM_DIR/telnet-probe -v $host 26
-echo "exit status is $? (should be 1 with verbosity)"
-echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host 26 >$tmp.out 2>&1
+echo quit | $PCP_BINADM_DIR/telnet-probe -v localhost 26 >$tmp.out 2>$tmp.err
 sts=$?
-cat <$tmp.out | _filter2
+cat $tmp.err $tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
+echo quit | $PCP_BINADM_DIR/telnet-probe -v $host 26 >$tmp.out 2>$tmp.err
+sts=$?
+cat $tmp.err $tmp.out | _filter2
+echo "exit status is $sts (should be 1 with verbosity)"
+echo quit | $PCP_BINADM_DIR/telnet-probe -v no.such.host 26 >$tmp.out 2>$tmp.err
+sts=$?
+cat $tmp.err $tmp.out | _filter2
 echo "exit status is $sts (should be 1 with verbosity)"
 
 # success, all done
