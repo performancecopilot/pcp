@@ -737,7 +737,6 @@ END									{ print "End-of-List" }'
 	    #
 	    # Note addr: tag is not present in some ifconfig output
 	    #
-	    cp $tmp._tmp save.tmp
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^lo/						{ skip=1; next }
 skip == 1 && NF > 0				{ next }
@@ -824,7 +823,6 @@ END									{ print "End-of-List" }'
 	    # Note addr: tag is not present in some ifconfig output,
 	    #      AND UP comes first!
 	    #
-	    cp $tmp._tmp save.tmp
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^[a-z]/					{ loopback = 0 }
 /^lo/						{ loopback = 1; next }
