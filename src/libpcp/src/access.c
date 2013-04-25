@@ -399,18 +399,31 @@ getAccessSpecs(const char *name, int *sts)
     int			family;
     const char		*realname;
     const char		*p;
+    static int		cando_ipv6 = -1;
 
     /* If the general wildcard ("*") is specified, then generate individual wildcards for
-       inet and IPv6. */
+       inet and, is supported, IPv6. */
     *sts = 0;
     if (strcmp(name, "*") == 0) {
 	/* Use calloc so that the final entry is zeroed. */
 	specs = calloc(3, sizeof(*specs));
 	if (specs == NULL)
 	    __pmNoMem("Access Spec List", 3 * sizeof(*specs), PM_FATAL_ERR);
-	/* These are guaranteed to succeed. */
 	getWildCardSpec(".*", &specs[0]);
-	getWildCardSpec(":*", &specs[1]);
+
+	if (cando_ipv6 == -1) {
+	    /*
+	     * one trip check to see if IPv6 is supported in the
+	     * current run-time
+	     */
+	    const char	*config = __pmGetAPIConfig("ipv6");
+	    if (config != NULL && strcmp(config, "true") == 0)
+		cando_ipv6 = 1;
+	    else
+		cando_ipv6 = 0;
+	}
+	if (cando_ipv6)
+	    getWildCardSpec(":*", &specs[1]); /* Guaranteed to succeed. */
 	return specs;
     }
 
