@@ -40,7 +40,8 @@ do_msec()
     eval src/parseinterval $arg \
     | sed \
 	-e 's/0.122999 sec/0.123000 sec/' \
-	-e 's/0.009122 sec/0.009123 sec/'
+	-e 's/0.009122 sec/0.009123 sec/' \
+	-e 's/0.007999 sec/0.008000 sec/'
 }
 
 do_sec()
@@ -111,12 +112,16 @@ do_day 1 1.5 10. "   0.083333333333  "
 
 echo
 echo "some hybrids ..."
-src/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec"
+src/parseinterval 1min30sec 1d1h1m1s1msec "1.5 hr 10 min 15 sec" \
+| sed \
+    -e 's/90061.000999 sec/90061.001000 sec/'
 src/parseinterval "1 2 3 4 5 6 7 8 9 10" 55seconds
 
 echo
 echo "some errors ..."
-src/parseinterval 123+sec 123.456.789min "4minutes 30secoonds" sec "123sec min"
+src/parseinterval 123+sec 123.456.789min "4minutes 30secoonds" sec "123sec min" \
+| sed \
+    -e 's/170.796000/170.795999/'
 
 # success, all done
 status=0
