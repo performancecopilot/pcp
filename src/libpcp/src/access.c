@@ -231,11 +231,11 @@ parseInetWildCard(const char *name, char *ip, char *mask)
 	ipIx += sprintf(ip + ipIx, "%d", n);
 	maskIx += sprintf(mask + maskIx, "255");
 	--level;
-    }
-    /* Check the wildcard level, 0 is exact match, 4 is most general */
-    if (level < 1) {
-        __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
-	return -EINVAL;
+	/* Check the wildcard level, 0 is exact match, 4 is most general */
+	if (level < 1) {
+	    __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
+	    return -EINVAL;
+	}
     }
     /* Add zeroed components for the wildcarded levels. */
     for (i = 0; i < level; ++i) {
@@ -303,11 +303,11 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 	    maskIx += sprintf(mask + maskIx, "ffff");
 	}
 	--level;
-    }
-    /* Check the wildcard level, 0 is exact match, 8 is most general */
-    if (level < 1) {
-        __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
-	return -EINVAL;
+	/* Check the wildcard level, 0 is exact match, 8 is most general */
+	if (level < 1) {
+	    __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
+	    return -EINVAL;
+	}
     }
     /* Add zeroed components for the wildcarded levels.
        If the entire address is wildcarded then return the zero address. */
