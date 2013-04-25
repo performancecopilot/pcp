@@ -37,8 +37,7 @@ request/parameter encoding (the GET and POST methods are
 interchangeable), and JSON as response encoding.  A context identifier
 is used as a persistent way to refer to PMAPI contexts across related
 web requests.  These context identifiers expire after a configurable
-period of disuse.  Errors may result in empty JSON document or
-HTTP-level error response codes.
+period of disuse.  Errors generally result in HTTP-level error responses.
 
 .SH CONTEXT CREATION: pmNewContext
 
@@ -83,10 +82,7 @@ assigned permanently at pmwebd startup, and
 .TP
 .B OPERATION?PARAM1=VALUE2&PARAM2=VALUE2
 identifes the operation and its URL-encoded parameters.  Some
-parameters may be optional.  An invalid context number, or invalid 
-parameters, or an underlying PMAPI error, generally results in an
-empty JSON document or HTTP-level error response code.
-.\" offer pmErrString instead?
+parameters may be optional.
 
 .SS METRIC METADATA: pmLookupName, pmLookupDesc, pmTraversePMNS_r
 
