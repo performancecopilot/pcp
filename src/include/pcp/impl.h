@@ -486,8 +486,22 @@ typedef struct {
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
-extern void __pmUnparseHostSpec(pmHostSpec *, int, char **, int);
+extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
+
+typedef enum {
+    PCP_ATTR_NONE = 0,
+    PCP_ATTR_PROTOCOL,
+    PCP_ATTR_COMPRESS,
+    PCP_ATTR_UNIXSOCK,
+    PCP_ATTR_USERNAME,
+    PCP_ATTR_PASSWORD,
+} __pmHostAttributeKey;
+extern int __pmParseHostAttrsSpec(
+    const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
+extern int __pmUnparseHostAttrsSpec(
+    pmHostSpec *, int, __pmHashCtl *, char *, size_t);
+extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
 
 /*
  * Control for connection to a PMCD

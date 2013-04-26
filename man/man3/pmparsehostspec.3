@@ -1,34 +1,40 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2007 Aconex, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
-.\" 
-.TH PMPARSEHOSTSPEC 3 "Aconex" "Performance Co-Pilot"
+.\"
+.TH PMPARSEHOSTSPEC 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3__pmParseHostSpec\f1,
+\f3__pmUnparseHostSpec\f1,
 \f3__pmFreeHostSpec\f1 \- uniform host specification parser
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
 .sp
 .ad l
 .hy 0
 .in +8n
 .ti -8n
-int __pmParseHostSpec(const char *\fIstring\fP, pmHostSpec **\fIrsltp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
+int __pmParseHostSpec(const char *\fIstring\fP, pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
 .br
 .ti -8n
-void __pmFreeHostSpec(pmHostSpec *\fIrslt\fP, int \fIcount\fP);
+int __pmUnparseHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP, char *\fIstring\fP, size_t \fIsize\fP);
+.br
+.ti -8n
+void __pmFreeHostSpec(pmHostSpec *\fIhosts\fP, int \fIcount\fP);
 .sp
 .in
 .hy
@@ -77,7 +83,7 @@ entries.
 These
 .B pmHostSpec
 structures that are returned via
-.B rsltp
+.B hostsp
 represent each individual host in the specification
 .B string
 and has the following
@@ -92,17 +98,37 @@ declaration:
     } pmHostSpec;
 .fi
 .PP
-.B __pmParseHostSpec
-returns 0 if the given
+.B __pmUnparseHostSpec
+performs the inverse operation, creating a
 .B string
-was successfully parsed.  In this case all the storage allocated by
+representation from a number of
+.B hosts
+structures.
+Where the
+.B count
+of structures indicated by
+.B hosts
+is greater than one, the proxy syntax is used to indicate a chain of
+proxied hosts.
+The size of the supplied
+.B string
+buffer must be provided by the caller using the
+.B size
+parameter.
+.SH "RETURN VALUE"
+If the given
+.B string
+is successfully parsed
+.B __pmParseHostSpec
+returns zero.
+In this case the dynamic storage allocated by
 .B __pmParseHostSpec
 can be released by calling
 .B __pmFreeHostSpec
 using the address returned from
 .B __pmParseHostSpec
 via
-.BR rsltp .
+.BR hosts .
 .P
 .B __pmParseHostSpec
 returns
@@ -119,15 +145,24 @@ Be sure to
 the error message string in this situation.
 .PP
 In the case of an error,
-.B rsltp
+.B hosts
 is undefined.
 In the case of success,
 .B errmsg
 is undefined.
+.PP
+On success
+.B __pmUnparseHostSpec
+returns a positive value indicating the number of characters written
+into the supplied buffer.
+However, if the supplied buffer was too small, a negative status code of
+.B \-E2BIG
+is returned.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmproxy (1),
 .BR pmchart (1),
+.BR __pmParseHostAttrsSpec (3),
 .BR PMAPI (3)
 and
 .BR pmNewContext (3).

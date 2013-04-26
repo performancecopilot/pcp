@@ -1,0 +1,70 @@
+QA output created by 720
+=== std out ===
+pmParseHostAttrsSpec("pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress", ...)
+host[0]: "nas1.servers.com" ports: 44321 4321
+host[1]: "firewall.servers.com" port: 44322
+compress
+protocol=pcps
+pmUnparseHostAttrsSpec("pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress") -> "pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("pcp://localhost:23?compress", ...)
+host[0]: "localhost" port: 23
+compress
+protocol=pcp
+pmUnparseHostAttrsSpec("pcp://localhost:23?compress") -> "pcp://localhost:23?compress"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs pcp://localhost:23?compress
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("pcp://some.host?user=pcpqa", ...)
+host[0]: "some.host"
+username="pcpqa"
+protocol=pcp
+pmUnparseHostAttrsSpec("pcp://some.host?user=pcpqa") -> "pcp://some.host?username=pcpqa"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs pcp://some.host?user=pcpqa
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("some.host?user=pcpqa", ...)
+host[0]: "some.host"
+username="pcpqa"
+pmUnparseHostAttrsSpec("some.host?user=pcpqa") -> "some.host?username=pcpqa"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs some.host?user=pcpqa
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("some.host", ...)
+host[0]: "some.host"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs some.host
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("pcp://?compress", ...)
+host[0]: ""
+compress
+protocol=pcp
+pmUnparseHostAttrsSpec("pcp://?compress") -> "pcp://?compress"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs pcp://?compress
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts ...

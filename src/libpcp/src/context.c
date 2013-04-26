@@ -590,7 +590,7 @@ pmDupContext(void)
 {
     int			sts, oldtype;
     int			old, new = -1;
-    char		hostspec[4096], *h;
+    char		hostspec[4096];
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
@@ -608,9 +608,8 @@ pmDupContext(void)
     oldcon = contexts[old];
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
-	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
-			oldcon->c_pmcd->pc_nhosts, &h, sizeof(hostspec));
+			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
 	new = pmNewContext(oldtype, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)

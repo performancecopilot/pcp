@@ -164,6 +164,8 @@ nullinst
 null.meta
 numberstr
 obs
+parsehostattrs
+parsehostspec
 parseinterval
 parsemetricspec
 pcp_lite_crash
