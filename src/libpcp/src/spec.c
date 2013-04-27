@@ -410,7 +410,7 @@ __pmDropHostPort(pmHostSpec *specp)
  *	one optional proxy host is there (i.e. proxy ->proxy ->... ->pmcd),
  *	in case someone implements the pmproxy->pmproxy protocol extension.
  */
-int             /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
+static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
 parseHostSpec(
     const char *spec,
     char **position,            /* parse this string, return end char */
@@ -424,7 +424,9 @@ parseHostSpec(
 
     for (s = start = *position; s != NULL; s++) {
 	if (*s == ':' || *s == '@' || *s == '\0' || *s == '?') {
-	    if (s == start)
+	    if (s == *position)
+		break;
+	    else if (s == start)
 		continue;
 	    hsp = hostAdd(hsp, &nhosts, start, s - start);
 	    if (hsp == NULL) {
@@ -545,7 +547,9 @@ __pmFreeHostSpec(pmHostSpec *specp, int count)
 static __pmHashWalkState
 attrHashNodeDel(const __pmHashNode *tp, void *cp)
 {
-    (void)tp; (void)cp;
+    (void)cp;
+    if (tp->data)
+	free(tp->data);
     return PM_HASH_WALK_DELETE_NEXT;
 }
 
@@ -635,7 +639,7 @@ lookupAttribute(const char *attribute, int size)
  * Optionally, an initial attribute:value pair can be passed
  * in as well to add to the parsed set.
  */
-int
+static int
 parseAttributeSpec(
     const char *spec,           /* the original, complete string to parse */
     char **position,            /* parse from here onward and update at end */
@@ -784,12 +788,14 @@ __pmUnparseHostAttrsSpec(
     for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+	if (node->key == PCP_ATTR_PROTOCOL)
+	    continue;
 	if ((sts = snprintf(string + off, len, "%c", first ? '?' : '&')) >= size)
 	    return -E2BIG;
 	len -= sts; off += sts;
 	first = 0;
 
-	if ((sts = unparseAttribute(node, string, size)) >= size)
+	if ((sts = unparseAttribute(node, string + off, len)) >= size)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }

@@ -10,7 +10,9 @@ pmUnparseHostAttrsSpec("pcps://nas1.servers.com:44321,4321@firewall.servers.com:
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("pcp://localhost:23?compress", ...)
@@ -22,7 +24,25 @@ pmUnparseHostAttrsSpec("pcp://localhost:23?compress") -> "pcp://localhost:23?com
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs pcp://localhost:23?compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+pmParseHostAttrsSpec("pcp://some.host?user=pcpqa&compress&pass=blah", ...)
+host[0]: "some.host"
+password="blah"
+compress
+username="pcpqa"
+protocol=pcp
+pmUnparseHostAttrsSpec("pcp://some.host?user=pcpqa&compress&pass=blah") -> "pcp://some.host?password=blah&compress&username=pcpqa"
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/parsehostattrs pcp://some.host?user=pcpqa&compress&pass=blah
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("pcp://some.host?user=pcpqa", ...)
@@ -34,7 +54,9 @@ pmUnparseHostAttrsSpec("pcp://some.host?user=pcpqa") -> "pcp://some.host?usernam
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs pcp://some.host?user=pcpqa
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("some.host?user=pcpqa", ...)
@@ -45,11 +67,14 @@ pmUnparseHostAttrsSpec("some.host?user=pcpqa") -> "some.host?username=pcpqa"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs some.host?user=pcpqa
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("some.host", ...)
 host[0]: "some.host"
+pmUnparseHostAttrsSpec("some.host") -> "some.host"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -58,7 +83,6 @@ All heap blocks were freed -- no leaks are possible
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("pcp://?compress", ...)
-host[0]: ""
 compress
 protocol=pcp
 pmUnparseHostAttrsSpec("pcp://?compress") -> "pcp://?compress"
@@ -66,5 +90,7 @@ pmUnparseHostAttrsSpec("pcp://?compress") -> "pcp://?compress"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs pcp://?compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
