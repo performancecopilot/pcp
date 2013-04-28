@@ -828,7 +828,6 @@ _z(void)
 		    if (strncmp(buffer, PAYLOAD, sizeof(PAYLOAD)) != 0)
 			fprintf(stderr, "Botch: UserAuth: payload: got: \"%s\" expect: \"%s\"\n",
 			    buffer, PAYLOAD);
-		    free(buffer);
 		}
 	    }
 	}
