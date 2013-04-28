@@ -253,6 +253,15 @@ pdu-server: waiting ...
 016: 61732073 6e6f770a 
 
 pdu-server: waiting ...
+[SERVER]pmGetPDU: USER_AUTH fd=<n> len=46 from=CLIENT
+000:       2e     7011   CLIENT 206c6c41 7920666f 2072756f 65736162 65726120 
+008: 6c656220 20676e6f 75206f74 7e7e0073 
++ PDU_USER_AUTH: length=34 payload="All of your  ...  are belong to us"
+[SERVER]pmXmitPDU: USER_AUTH fd=<n> len=46
+000:       2e     7011   SERVER 206c6c41 7920666f 2072756f 65736162 65726120 
+008: 6c656220 20676e6f 75206f74 7e7e0073 
+
+pdu-server: waiting ...
 [SERVER]pmGetPDU: CREDS fd=<n> len=20 from=CLIENT
 000:       14     700c   CLIENT  1000000  b0a0201 
 + PDU_CREDS: sender=CLIENT count=1
