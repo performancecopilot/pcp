@@ -6,6 +6,7 @@
 - _fetch event types
 - pmStore ?
 - missing APIs
+  - time control
 - consider having blinkenlights call /pmapi/NNNNN/destroy
 <script type="text/javascript">
   window.onbeforeunload = function(){
