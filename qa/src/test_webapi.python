@@ -2,7 +2,7 @@
 
 import requests, argparse, subprocess, os
 
-parser = argparse.ArgumentParser(description='qa/660.py pmwebapi check')
+parser = argparse.ArgumentParser(description='qa/src/test_webapi.py pmwebapi check')
 parser.add_argument('--version', action='version', version='1')
 parser.add_argument('--host', required=True)
 parser.add_argument('--port', default=44323)
