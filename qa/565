@@ -48,10 +48,19 @@ _cleanup()
 	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/sendmail; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/sendmail; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
 	done_clean=true
     fi
     exit $status
 }
+
+install_on_cleanup=false
+pminfo sendmail >/dev/null 2>&1 && install_on_cleanup=true
 
 trap "_cleanup" 0 1 2 3 15
 
