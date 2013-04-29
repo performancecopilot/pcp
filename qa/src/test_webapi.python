@@ -32,8 +32,11 @@ print 'Received PM_CONTEXT_HOST #'+str(ctx_host)
 req = requests.get(url=url + 'pmapi/context?archivefile=/dev/null')
 print 'bad archive /dev/null response code ' + str(req.status_code) 
 
-req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/passwd')
-print 'bad archive ../../etc/passwd response code ' + str(req.status_code) 
+req = requests.get(url=url + 'pmapi/context?archivefile=../etc/passwd')
+print 'bad archive ../etc/passwd response code ' + str(req.status_code) 
+
+req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/shadow')
+print 'bad archive ../../etc/shadow response code ' + str(req.status_code) 
 
 req = requests.get(url=url + 'pmapi/NOSUCHAPI')
 print 'command NOSUCHAPI response code ' + str(req.status_code) 
@@ -52,10 +55,10 @@ print 'non-pmwebapi response code ' + str(req.status_code)
 def test_metric_enumeration(ctx, prefix):
     ctxurl = url + 'pmapi/' + str(ctx) + '/'
     if (ctx == ctx_local):
-        procargs = ['pminfo', '-L']
+        procargs = ['pminfo', '-L', '-t']
         dbg = 'local'
     else:
-        procargs = ['pminfo', '-h', args.host]
+        procargs = ['pminfo', '-h', args.host, '-t']
         dbg = 'host'
     if (prefix != ''):
         procargs.append(prefix)
@@ -67,11 +70,14 @@ def test_metric_enumeration(ctx, prefix):
     # f = open('/tmp/pmcd-' + dbg, 'w')
     while True:
         line = proc.stdout.readline()
-        if line != '':
+        if (line == ''):
+            break # eof
+        if line.strip() == '':
+            continue # blank line pminfo sometimes does that
+        if line.find('Error: No PMCD agent') == -1 and \
+           line.find('Not known to the PMDA') == -1:
             num_metrics = num_metrics + 1
             # f.write(line)
-        else:
-            break
     # f.write('Total ' + str(num_metrics) + ' metrics\n')
     # f.close()
 
