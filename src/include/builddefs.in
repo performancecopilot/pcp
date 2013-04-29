@@ -144,7 +144,8 @@ OBJECTS = $(ASFILES:.s=.o) \
           $(LFILES:.l=.o) \
           $(YFILES:%.y=%.tab.o)
 
-MAKE	= @make@
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE	= @make@
 CC	= @cc@
 LD	= @ld@
 AWK	= @awk@
@@ -161,7 +162,8 @@ INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
 
 CCF	= $(CC) $(CFLAGS)
-MAKEF	= $(MAKE) $(MAKEOPTS)
+# NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
+#MAKEF	= $(MAKE) $(MAKEOPTS)
 LDF	= $(LD) $(LDFLAGS)
 MAKEDEPEND = @makedepend@
 
@@ -232,10 +234,10 @@ RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/li
 endif
 
 SUBDIRS_MAKERULE = \
-	@for d in `echo $^ `; do \
+	+for d in `echo $^ `; do \
 	    if test -d "$$d" -a -f "$$d/GNUmakefile"; then \
 		$(ECHO) === $$d ===; \
-		$(MAKEF) -C $$d $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
 	    fi; \
 	done
 

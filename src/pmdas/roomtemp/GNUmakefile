@@ -37,6 +37,8 @@ default: build-me
 
 include $(BUILDRULES)
 
+.NOTPARALLEL:
+
 ifeq "$(findstring $(TARGET_OS),solaris linux)" ""
 build-me:
 	$(SUBDIRS_MAKERULE)
