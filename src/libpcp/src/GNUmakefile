@@ -81,6 +81,7 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) check.done
+LDIRT += nss_server.o nss_connect.o
 
 base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
 
