@@ -102,7 +102,7 @@ END             { if (warn) printf "%d warnings, ",warn
 		}' > $tmp.fetch 2>&1
 
     pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
-    test $quiet || cat $tmp.fetch
+    $quiet || cat $tmp.fetch
     if grep warnings $tmp.fetch > /dev/null 2>&1
     then
 	# X warnings, Y metrics and Z values
