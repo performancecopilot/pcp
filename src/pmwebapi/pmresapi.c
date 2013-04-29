@@ -72,16 +72,16 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     (void) cls;
     assert (resourcedir != NULL); /* facility is enabled at all */
 
-    /* Reject some obvious ways of escaping resourcedir. */
-    if (NULL != strstr (url, "/../")) {
-        pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
-        goto error_response;
-    }
-
     assert (url[0] == '/');
     rc = snprintf (filename, sizeof(filename), "%s%s", resourcedir, url);
     if (rc < 0 || rc >= (int)sizeof(filename))
         goto error_response;
+
+    /* Reject some obvious ways of escaping resourcedir. */
+    if (NULL != strstr (filename, "/../")) {
+        pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
+        goto error_response;
+    }
 
     fd = open (filename, O_RDONLY);
     if (fd < 0) {
