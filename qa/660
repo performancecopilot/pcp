@@ -13,8 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
-# 3702
-[ $PCP_VER -gt 3700 ] || _notrun "Installed pcp is too old"
+[ $PCP_VER -ge 3800 ] || _notrun "Installed pcp is too old"
 
 if which curl >/dev/null 2>&1
 then
