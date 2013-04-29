@@ -71,7 +71,7 @@ __pmAccAddOp(unsigned int op)
  */
 
 static int		gotmyhostid;
-static __pmSockAddr	*myhostid;
+static __pmHostEnt	*myhostid;
 static char		myhostname[MAXHOSTNAMELEN+1];
 
 /*
@@ -82,23 +82,17 @@ static char		myhostname[MAXHOSTNAMELEN+1];
 static int
 getmyhostid(void)
 {
-    struct __pmHostEnt	*host;
-    void *null;
-
     if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
 	__pmNotifyErr(LOG_ERR, "gethostname failure\n");
 	return -1;
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
-    if ((host = __pmGetAddrInfo(myhostname)) == NULL) {
+    if ((myhostid = __pmGetAddrInfo(myhostname)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		     myhostname, hoststrerror());
 	return -1;
     }
-    null = NULL;
-    myhostid = __pmHostEntGetSockAddr(host, &null);
-    __pmHostEntFree(host);
     gotmyhostid = 1;
     return 0;
 }
@@ -237,11 +231,11 @@ parseInetWildCard(const char *name, char *ip, char *mask)
 	ipIx += sprintf(ip + ipIx, "%d", n);
 	maskIx += sprintf(mask + maskIx, "255");
 	--level;
-    }
-    /* Check the wildcard level, 0 is exact match, 4 is most general */
-    if (level < 1) {
-        __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
-	return -EINVAL;
+	/* Check the wildcard level, 0 is exact match, 4 is most general */
+	if (level < 1) {
+	    __pmNotifyErr(LOG_ERR, "Too many dots in host pattern \"%s\"\n", name);
+	    return -EINVAL;
+	}
     }
     /* Add zeroed components for the wildcarded levels. */
     for (i = 0; i < level; ++i) {
@@ -309,11 +303,11 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 	    maskIx += sprintf(mask + maskIx, "ffff");
 	}
 	--level;
-    }
-    /* Check the wildcard level, 0 is exact match, 8 is most general */
-    if (level < 1) {
-        __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
-	return -EINVAL;
+	/* Check the wildcard level, 0 is exact match, 8 is most general */
+	if (level < 1) {
+	    __pmNotifyErr(LOG_ERR, "Too many colons in host pattern \"%s\"\n", name);
+	    return -EINVAL;
+	}
     }
     /* Add zeroed components for the wildcarded levels.
        If the entire address is wildcarded then return the zero address. */
@@ -352,6 +346,180 @@ parseWildCard(const char *name, char *ip, char *mask)
     return -EINVAL;
 }
 
+/* Information representing an access specification. */
+struct accessSpec {
+    char		*name;
+    __pmSockAddr	*hostid;
+    __pmSockAddr	*hostmask;
+    int			level;
+};
+
+/* Construct the proper spec for the given wildcard. */
+static int
+getWildCardSpec(const char *name, struct accessSpec *spec)
+{
+    char ip[INET6_ADDRSTRLEN];
+    char mask[INET6_ADDRSTRLEN];
+
+    /* Build up strings representing the ip address and the mask. Compute the wildcard
+       level as we go. */
+    spec->level = parseWildCard(name, ip, mask);
+    if (spec->level < 0)
+	return spec->level;
+
+    /* Now create socket addresses for the ip address and mask. */
+    spec->hostid = __pmStringToSockAddr(ip);
+    if (spec->hostid == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	return -ENOMEM;
+    }
+    spec->hostmask = __pmStringToSockAddr(mask);
+    if (spec->hostmask == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
+	__pmSockAddrFree(spec->hostid);
+	return -ENOMEM;
+    }
+
+    /* Do this last since a valid name indicates a valid spec. */
+    spec->name = strdup(name);
+    return 0;
+}
+
+/* Determine all of the access specs which result from the given name. */
+static struct accessSpec *
+getAccessSpecs(const char *name, int *sts)
+{
+    struct accessSpec	*specs;
+    size_t		specSize;
+    size_t		specIx;
+    size_t		need;
+    __pmSockAddr	*myAddr;
+    __pmHostEnt		*servInfo;
+    void		*enumIx;
+    int			family;
+    const char		*realname;
+    const char		*p;
+    static int		cando_ipv6 = -1;
+
+    /* If the general wildcard ("*") is specified, then generate individual wildcards for
+       inet and, is supported, IPv6. */
+    *sts = 0;
+    if (strcmp(name, "*") == 0) {
+	/* Use calloc so that the final entry is zeroed. */
+	specs = calloc(3, sizeof(*specs));
+	if (specs == NULL)
+	    __pmNoMem("Access Spec List", 3 * sizeof(*specs), PM_FATAL_ERR);
+	getWildCardSpec(".*", &specs[0]);
+
+	if (cando_ipv6 == -1) {
+	    /*
+	     * one trip check to see if IPv6 is supported in the
+	     * current run-time
+	     */
+	    const char	*config = __pmGetAPIConfig("ipv6");
+	    if (config != NULL && strcmp(config, "true") == 0)
+		cando_ipv6 = 1;
+	    else
+		cando_ipv6 = 0;
+	}
+	if (cando_ipv6)
+	    getWildCardSpec(":*", &specs[1]); /* Guaranteed to succeed. */
+	return specs;
+    }
+
+    /* If any other wildcard is specified, then our list will contain that single item. */
+    if ((p = strchr(name, '*')) != NULL) {
+	if (p[1] != '\0') {
+	    __pmNotifyErr(LOG_ERR,
+			  "Wildcard in host pattern \"%s\" is not at the end\n",
+			  name);
+	    *sts = -EINVAL;
+	    return NULL;
+	}
+	/* Use calloc so that the final entry is zeroed. */
+	specs = calloc(2, sizeof(*specs));
+	if (specs == NULL)
+	    __pmNoMem("Access Spec List", 2 * sizeof(*specs), PM_FATAL_ERR);
+	*sts = getWildCardSpec(name, &specs[0]);
+	return specs;
+    }
+
+    /* Assume we have a host name or address. Resolve it and contruct a list containing all of the
+       resolved addresses. If the name is "localhost", then resolve using the actual host name. */
+    if (strcasecmp(name, "localhost") == 0) {
+	if (!gotmyhostid) {
+	    if (getmyhostid() < 0) {
+		__pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
+		*sts = -EHOSTDOWN;
+		return NULL;	/* should never happen! */
+	    }
+	}
+	realname = myhostname;
+    }
+    else
+	realname = name;
+
+    *sts = -EHOSTUNREACH;
+    specs = NULL;
+    specSize = 0;
+    specIx = 0;
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if ((servInfo = __pmGetAddrInfo(realname)) != NULL) {
+	/* Collect all of the resolved addresses. Check for the end of the list within the
+	   loop since we need to add an empty entry and the code to grow the list is within the
+	   loop. */
+	enumIx = NULL;
+	for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	     /**/;
+	     myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	    if (specIx == specSize) {
+		specSize = specSize == 0 ? 4 : specSize * 2;
+		need = specSize * sizeof(*specs);
+		specs = realloc(specs, need);
+		if (specs == NULL) {
+		    PM_UNLOCK(__pmLock_libpcp);
+		    __pmNoMem("Access Spec List", need, PM_FATAL_ERR);
+		}
+	    }
+	    /* No more addresses? */
+	    if (myAddr == NULL) {
+		specs[specIx].name = NULL;
+		break;
+	    }
+	    /* Add the new address and its corrsponding mask. */
+	    family = __pmSockAddrGetFamily(myAddr);
+	    if (family == AF_INET)
+		specs[specIx].hostmask = __pmStringToSockAddr("255.255.255.255");
+	    else if (family == AF_INET6)
+		specs[specIx].hostmask = __pmStringToSockAddr("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+	    else {
+		__pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
+		__pmSockAddrFree(myAddr);
+		continue;
+	    }
+	    specs[specIx].hostid = myAddr;
+	    specs[specIx].level = 0;
+	    specs[specIx].name = strdup(name);
+	    *sts = 0;
+	    ++specIx;
+	}
+	__pmHostEntFree(servInfo);
+    }
+    else {
+	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
+		      realname, hoststrerror());
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+
+    /* Return NULL if nothing was discovered. *sts is already set. */
+    if (specIx == 0 && specs != NULL) {
+	free(specs);
+	specs = NULL;
+    }
+    return specs;
+}
+
 /* Routine to add a host to the host access list with a specified set of
  * permissions and a maximum connection limit.
  * specOps is a mask.  Only bits corresponding to operations specified by
@@ -372,17 +540,12 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 {
     size_t		need;
     int			i, sts;
-    char		ip[8*4 + 7 + 1]; /* fully specified IPv6 address, plus nul */
-    char		mask[8*4 + 7 + 1];
-    struct __pmHostEnt	*host;
-    int			level = 0;	/* Wildcarding level */
-    __pmSockAddr	*hostid, *hostmask;
-    const char		*p;
-    const char		*names[] = {NULL, NULL, NULL};
-    int			nameIx;
+    struct accessSpec	*specs;
+    struct accessSpec	*spec;
     hostinfo		*hp;
-    void		*null;
-    static int		cando_ipv6 = -1;
+    int			found;
+    char		*prevHost;
+    char		*prevName;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -391,126 +554,20 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     if (maxcons < 0)
 	return -EINVAL;
 
-    /* If the general wildcard ("*") is specified, then we'll do this once for inet and
-       once more for IPv6. However, if any error occurs, then return right away. */
-    if (strcmp(name, "*") == 0) {
-	if (cando_ipv6 == -1) {
-	    /*
-	     * one trip check to see if IPv6 is supported in the
-	     * current run-time
-	     */
-	    const char	*config = __pmGetAPIConfig("ipv6");
-	    if (config != NULL && strcmp(config, "true") == 0)
-		cando_ipv6 = 1;
-	    else
-		cando_ipv6 = 0;
-	}
-	names[0] = ".*";
-	if (cando_ipv6)
-	    names[1] = ":*";
-    }
-    else
-	names[0] = name;
-    for (nameIx = 0; names[nameIx] != NULL; ++nameIx) {
-	/* Make the host access list larger if required */
-	if (nhosts == szhostlist) {
-	    szhostlist += 8;
-	    need = szhostlist * sizeof(hostinfo);
-	    hostlist = (hostinfo *)realloc(hostlist, need);
-	    if (hostlist == NULL) {
-		__pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
-	    }
-	}
+    /* The specified name may result in more than one access specification. */
+    specs = getAccessSpecs(name, &sts);
+    if (specs == NULL)
+	return sts;
 
-	/* If it has an asterisk it's a wildcarded host id */
-	if ((p = strchr(names[nameIx], '*')) != NULL) {
-	    if (p[1] != '\0') {
-		__pmNotifyErr(LOG_ERR,
-			      "Wildcard in host pattern \"%s\" is not at the end\n",
-			      names[nameIx]);
-		return -EINVAL;
-	    }
-
-	    /* Build up strings representing the ip address and the mask. Compute the wildcard
-	       level as we go. */
-	    level = parseWildCard(names[nameIx], ip, mask);
-	    if (level < 0)
-		return level;
-
-	    /* Now create socket addresses for the ip address and mask. */
-	    hostid = __pmStringToSockAddr(ip);
-	    if (hostid == NULL) {
-		__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
-		return -ENOMEM;
-	    }
-	    hostmask = __pmStringToSockAddr(mask);
-	    if (hostmask == NULL) {
-		__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
-		__pmSockAddrFree(hostid);
-		return -ENOMEM;
-	    }
-	}
-	/* No asterisk: must be a specific host.
-	 * Map localhost to this host's specific IP address so that host access
-	 * statements with wildcarding work with it.
-	 */
-	else {
-	    const char	*realname;
-	    int		family;
-
-	    if (strcasecmp(names[nameIx], "localhost") == 0) {
-		/* Map "localhost" to full host name & get IP address */
-		PM_INIT_LOCKS();
-		PM_LOCK(__pmLock_libpcp);
-		if (!gotmyhostid)
-		    if (getmyhostid() < 0) {
-			__pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
-			PM_UNLOCK(__pmLock_libpcp);
-			return -EHOSTDOWN;	/* should never happen! */
-		    }
-		realname = myhostname;
-		PM_UNLOCK(__pmLock_libpcp);
-	    }
-	    else
-		realname = names[nameIx];
-
-	    PM_INIT_LOCKS();
-	    PM_LOCK(__pmLock_libpcp);
-	    if ((host = __pmGetAddrInfo(realname)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
-			      realname, hoststrerror());
-		PM_UNLOCK(__pmLock_libpcp);
-		return -EHOSTUNREACH;	/* host error unsuitable to return */
-	    }
-	    null = NULL;
-	    hostid = __pmHostEntGetSockAddr(host, &null);
-	    PM_UNLOCK(__pmLock_libpcp);
-	    __pmHostEntFree(host);
-
-	    if (hostid == NULL) {
-		__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
-		return -ENOMEM;
-	    }
-	    family = __pmSockAddrGetFamily(hostid);
-	    if (family == AF_INET)
-		hostmask = __pmStringToSockAddr("255.255.255.255");
-	    else if (family == AF_INET6)
-		hostmask = __pmStringToSockAddr("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
-	    else {
-		__pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
-		return -EINVAL;
-	    }
-	    if (hostmask == NULL) {
-		__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
-		__pmSockAddrFree(hostid);
-		return -ENOMEM;
-	    }
-	    level = 0;
-	}
-
+    /* Search for a match to each spec in the existing table of hosts. We will either use
+       or free the host id, mask and name of each spec as we go. */
+    prevHost = NULL;
+    prevName = NULL;
+    found = 0;
+    for (spec = specs; spec->name != NULL; ++spec) {
 	sts = 0;
 	for (i = 0; i < nhosts; i++) {
-	    if (hostlist[i].level > level)
+	    if (hostlist[i].level > spec->level)
 		break;
 	    /* hostid AND level must match.  Wildcarded IP addresses have zero in
 	     * the unspecified components.  Distinguish between 155.23.6.0 and
@@ -518,53 +575,169 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	     * addresses shouldn't have zero in last position but to deal with
 	     * them just in case.
 	     */
-	    if (__pmSockAddrCompare(hostid, hostlist[i].hostid) == 0 &&
-		level == hostlist[i].level) {
+	    if (__pmSockAddrCompare(spec->hostid, hostlist[i].hostid) == 0 &&
+		spec->level == hostlist[i].level) {
 		sts = 1;
 		break;
 	    }
 	}
-	hp = &hostlist[i];
 
 	/* Check and augment existing host access list entry for this host id if a
 	 * match was found (sts == 1) otherwise insert a new entry in list.
 	 */
 	if (sts == 1) {
-	    __pmSockAddrFree(hostid);
-	    __pmSockAddrFree(hostmask);
+	    __pmSockAddrFree(spec->hostid);
+	    __pmSockAddrFree(spec->hostmask);
 
 	    /* If the specified operations overlap, they must agree */
+	    hp = &hostlist[i];
 	    if ((hp->maxcons && maxcons && hp->maxcons != maxcons) ||
 		((hp->specOps & specOps) &&
 		 ((hp->specOps & hp->denyOps) ^ (specOps & denyOps)))) {
-		__pmNotifyErr(LOG_ERR,
-			      "Permission clash for %s with earlier statement for %s\n",
-			      names[nameIx], hp->hostspec);
-		return -EINVAL;
+		/* Suppress duplicate messages. These can occur when a host resolves to more
+		   than one address. */
+		if (prevName == NULL ||
+		    strcmp(prevName, spec->name) != 0 || strcmp(prevHost, hp->hostspec) != 0) {
+		    __pmNotifyErr(LOG_ERR,
+				  "Permission clash for %s with earlier statement for %s\n",
+				  spec->name, hp->hostspec);
+		    if (prevName != NULL) {
+			free(prevName);
+			free(prevHost);
+		    }
+		    prevName = strdup(spec->name);
+		    prevHost = strdup(hp->hostspec);
+		}
+		free(spec->name);
+		continue;
 	    }
+	    free(spec->name);
 	    hp->specOps |= specOps;
 	    hp->denyOps |= (specOps & denyOps);
 	    if (maxcons)
 		hp->maxcons = maxcons;
 	}
 	else {
+	    /* Make the host access list larger if required */
+	    if (nhosts == szhostlist) {
+		szhostlist += 8;
+		need = szhostlist * sizeof(hostinfo);
+		hostlist = (hostinfo *)realloc(hostlist, need);
+		if (hostlist == NULL) {
+		    __pmNoMem("AddHost enlarge", need, PM_FATAL_ERR);
+		}
+	    }
+
 	    /* Move any subsequent hosts down to make room for the new entry*/
+	    hp = &hostlist[i];
 	    if (i < nhosts)
 		memmove(&hostlist[i+1], &hostlist[i],
 			(nhosts - i) * sizeof(hostinfo));
-	    hp->hostspec = strdup(names[nameIx]);
-	    hp->hostid = hostid;
-	    hp->hostmask = hostmask;
-	    hp->level = level;
+	    hp->hostspec = spec->name;
+	    hp->hostid = spec->hostid;
+	    hp->hostmask = spec->hostmask;
+	    hp->level = spec->level;
 	    hp->specOps = specOps;
 	    hp->denyOps = specOps & denyOps;
 	    hp->maxcons = maxcons;
 	    hp->curcons = 0;
 	    nhosts++;
 	}
-    } /* loop over address families */
+	/* Count the found hosts. */
+	++found;
+    } /* loop over addresses */
 
-    return 0;
+    if (prevName != NULL) {
+	free(prevName);
+	free(prevHost);
+    }
+    free(specs);
+    return found != 0 ? 0 : -EINVAL;
+}
+
+static __pmSockAddr **
+getClientIds(const __pmSockAddr *hostid, int *sts)
+{
+    __pmSockAddr	**clientIds;
+    __pmSockAddr	*myAddr;
+    size_t		clientIx;
+    size_t		clientSize;
+    size_t		need;
+    void		*enumIx;
+
+    *sts = 0;
+
+    /* If the address is not for "localhost", then return a list containing only
+       the given address. */
+    if (! __pmSockAddrIsLoopBack(hostid)) {
+	clientIds = calloc(2, sizeof(*clientIds));
+	if (clientIds == NULL)
+	    __pmNoMem("Client Ids", 2 * sizeof(*clientIds), PM_FATAL_ERR);
+	clientIds[0] = __pmSockAddrDup(hostid);
+	return clientIds;
+    }
+
+    /* Map "localhost" to the real IP addresses.  Host access statements for
+     * localhost are mapped to the "real" IP addresses so that wildcarding works
+     * consistently. First get the real host address;
+     */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (!gotmyhostid)
+	getmyhostid();
+
+    *sts = PM_ERR_PERMISSION;
+    if (gotmyhostid <= 0) {
+	PM_UNLOCK(__pmLock_libpcp);
+	return NULL;
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+
+    /* Now construct a list containing each address. Check for the end of the list within the
+       loop since we need to add an empty entry and the code to grow the list is within the
+       loop. */
+    clientIds = NULL;
+    clientIx = 0;
+    clientSize = 0;
+    enumIx = NULL;
+    for (myAddr = __pmHostEntGetSockAddr(myhostid, &enumIx);
+	 /**/;
+	 myAddr = __pmHostEntGetSockAddr(myhostid, &enumIx)) {
+	if (clientIx == clientSize) {
+	    clientSize = clientSize == 0 ? 4 : clientSize * 2;
+	    need = clientSize * sizeof(*clientIds);
+	    clientIds = realloc(clientIds, need);
+	    if (clientIds == NULL) {
+		PM_UNLOCK(__pmLock_libpcp);
+		__pmNoMem("Client Ids", need, PM_FATAL_ERR);
+	    }
+	}
+	/* No more addresses? */
+	if (myAddr == NULL) {
+	    clientIds[clientIx] = NULL;
+	    break;
+	}
+	/* Add the new address and its corrsponding mask. */
+	clientIds[clientIx] = myAddr;
+	++clientIx;
+	*sts = 0;
+    }
+
+    /* If no addresses were discovered, then return NULL. *sts is already set. */
+    if (clientIx == 0 && clientIds != NULL) {
+	free(clientIds);
+	clientIds = NULL;
+    }
+    return clientIds;
+}
+
+static void
+freeClientIds(__pmSockAddr **clientIds)
+{
+    int i;
+    for (i = 0; clientIds[i] != NULL; ++i)
+	free(clientIds[i]);
+    free(clientIds);
 }
 
 /* Called after accepting new client's connection to check that another
@@ -577,81 +750,74 @@ int
 __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 {
     int			i;
+    int			sts;
     hostinfo		*hp;
     hostinfo		*lastmatch = NULL;
-    __pmSockAddr	*clientid;
-    __pmSockAddr	*maskedid;
+    int			clientIx;
+    __pmSockAddr	**clientIds;
+    __pmSockAddr	*clientId;
+    __pmSockAddr	*maskedId;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
-    clientid = hostid;
-
-    /* Map "localhost" to the real IP address.  Host access statements for
-     * localhost are mapped to the "real" IP address so that wildcarding works
-     * consistently.
-     */
-    if (__pmSockAddrIsLoopBack(clientid)) {
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-	if (!gotmyhostid)
-	    getmyhostid();
-
-	if (gotmyhostid > 0) {
-	    clientid = myhostid;
-	    PM_UNLOCK(__pmLock_libpcp);
-	}
-	else {
-	    PM_UNLOCK(__pmLock_libpcp);
-	    return PM_ERR_PERMISSION;
-	}
-    }
-
+    /* There could be more than one address associated with this host.*/
+    clientIds = getClientIds(hostid, &sts);
+    if (clientIds == NULL)
+	return sts;
 
     *denyOpsResult = 0;			/* deny nothing == allow all */
     if (nhosts == 0)			/* No access controls => allow all */
 	return 0;
 
-    for (i = nhosts - 1; i >= 0; i--) {
-	hp = &hostlist[i];
-	maskedid = __pmSockAddrDup(clientid);
-	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
-	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0) {
-	    /* Clobber specified ops then set. Leave unspecified ops alone. */
-	    *denyOpsResult &= ~hp->specOps;
-	    *denyOpsResult |= hp->denyOps;
-	    lastmatch = hp;
+    /* Accumulate permissions for each client address. */
+    for (clientIx = 0; clientIds[clientIx] != NULL; ++clientIx) {
+	clientId = clientIds[clientIx];
+	for (i = nhosts - 1; i >= 0; i--) {
+	    hp = &hostlist[i];
+	    maskedId = __pmSockAddrDup(clientId);
+	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
+		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0) {
+		/* Clobber specified ops then set. Leave unspecified ops alone. */
+		*denyOpsResult &= ~hp->specOps;
+		*denyOpsResult |= hp->denyOps;
+		lastmatch = hp;
+	    }
+	    __pmSockAddrFree(maskedId);
 	}
-	__pmSockAddrFree(maskedid);
+	/* no matching entry in hostlist => allow all */
+
+	/* If no operations are allowed, disallow connection */
+	if (*denyOpsResult == all_ops) {
+	    freeClientIds(clientIds);
+	    return PM_ERR_PERMISSION;
+	}
+
+	/* Check for connection limit */
+	if (lastmatch != NULL && lastmatch->maxcons &&
+	    lastmatch->curcons >= lastmatch->maxcons) {
+
+	    *denyOpsResult = all_ops;
+	    freeClientIds(clientIds);
+	    return PM_ERR_CONNLIMIT;
+	}
+
+	/* Increment the count of current connections for ALL host specs in the
+	 * host access list that match the client's IP address.  A client may
+	 * contribute to several connection counts because of wildcarding.
+	 */
+	for (i = 0; i < nhosts; i++) {
+	    hp = &hostlist[i];
+	    maskedId = __pmSockAddrDup(clientId);
+	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
+		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0)
+		if (hp->maxcons)
+		    hp->curcons++;
+	    __pmSockAddrFree(maskedId);
+	}
     }
-    /* no matching entry in hostlist => allow all */
 
-    /* If no operations are allowed, disallow connection */
-    if (*denyOpsResult == all_ops)
-	return PM_ERR_PERMISSION;
-
-    /* Check for connection limit */
-    if (lastmatch != NULL && lastmatch->maxcons &&
-	lastmatch->curcons >= lastmatch->maxcons) {
-
-	*denyOpsResult = all_ops;
-	return PM_ERR_CONNLIMIT;
-    }
-
-    /* Increment the count of current connections for ALL host specs in the
-     * host access list that match the client's IP address.  A client may
-     * contribute to several connection counts because of wildcarding.
-     */
-    for (i = 0; i < nhosts; i++) {
-	hp = &hostlist[i];
-	maskedid = __pmSockAddrDup(clientid);
-	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
-	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
-	    if (hp->maxcons)
-		hp->curcons++;
-	__pmSockAddrFree(maskedid);
-    }
-
+    freeClientIds(clientIds);
     return 0;
 }
 
@@ -659,25 +825,38 @@ void
 __pmAccDelClient(__pmSockAddr *hostid)
 {
     int		i;
+    int		sts;
     hostinfo	*hp;
-    __pmSockAddr *maskedid;
+    int		clientIx;
+    __pmSockAddr **clientIds;
+    __pmSockAddr *clientId;
+    __pmSockAddr *maskedId;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return;
 
-    /* Increment the count of current connections for ALL host specs in the
-     * host access list that match the client's IP address.  A client may
+    /* There could be more than one address associated with this host.*/
+    clientIds = getClientIds(hostid, &sts);
+    if (clientIds == NULL)
+	return;
+
+    /* Decrement the count of current connections for ALL host specs in the
+     * host access list that match the client's IP addresses.  A client may
      * contribute to several connection counts because of wildcarding.
      */
-    for (i = 0; i < nhosts; i++) {
-	hp = &hostlist[i];
-	maskedid = __pmSockAddrDup(hostid);
-	if (__pmSockAddrGetFamily(maskedid) == __pmSockAddrGetFamily(hp->hostmask) &&
-	    __pmSockAddrCompare(__pmSockAddrMask(maskedid, hp->hostmask), hp->hostid) == 0)
- 	    if (hp->maxcons)
-		hp->curcons--;
-	__pmSockAddrFree(maskedid);
+    for (clientIx = 0; clientIds[clientIx] != NULL; ++clientIx) {
+	clientId = clientIds[clientIx];
+	for (i = 0; i < nhosts; i++) {
+	    hp = &hostlist[i];
+	    maskedId = __pmSockAddrDup(clientId);
+	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
+		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0)
+		if (hp->maxcons)
+		    hp->curcons--;
+	    __pmSockAddrFree(maskedId);
+	}
     }
+    freeClientIds(clientIds);
 }
 
 void
