@@ -114,7 +114,9 @@ rpm?	/usr/lib*/python*/site-packages/ctypes|/usr/lib*/python*/ctypes	[python-cty
 dpkg?	/usr/include/python*/Python.h		[python-dev]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
+rpm?	/usr/include/nspr4/nspr.h	[nspr-devel]
 dpkg?	/usr/include/nss/nss.h		[libnss3-dev]
+rpm?	/usr/include/nss3/nss.h		[nss-dev]
 dpkg?	certutil			[libnss3-tools]
 rpm?	certutil			[nss-tools]
 End-of-File
