@@ -1,7 +1,7 @@
+""" Build script for the PCP python package
+"""
 #
-# setup.py
-#
-# Copyright (C) 2012 Red Hat.
+# Copyright (C) 2012-2013 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -20,36 +20,43 @@
 
 from distutils.core import setup, Extension
 
-setup(name="pcp",
-      version="0.2",
-      description="Python Interface to Performance Co-Pilot API",
-      author="Michael Werner",
-      author_email="mtw@protomagic.com",
-      maintainer="Stan Cox",
-      maintainer_email="scox@redhat.com",
-      url="http://oss.sgi.com/projects/pcp/",
-      py_modules = ['pcp','pcpi'],
-      ext_modules=[ Extension( "pmapi", ["pmapi.c"],
-                               libraries=["pcp"]
-                             )
-                  ],
-      classifiers = [
-            'Development Status :: 4 - Beta'
-            'Intended Audience :: Developers',
-            'Intended Audience :: System Administrators',
-            'Intended Audience :: Information Technology',
-            'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-            'Natural Language :: English',
-            'Operating System :: MacOS :: MacOS X',
-            'Operating System :: Microsoft :: Windows',
-            'Operating System :: POSIX',
-            'Operating System :: POSIX :: AIX',
-            'Operating System :: POSIX :: IRIX',
-            'Operating System :: POSIX :: Linux',
-            'Operating System :: POSIX :: SunOS/Solaris',
-            'Operating System :: Unix',
-            'Topic :: System :: Monitoring',
-            'Topic :: System :: Networking :: Monitoring',
-            'Topic :: Software Development :: Libraries',
-      ],
+setup(name = 'pcp',
+    version = '0.3',
+    description = 'Python package for Performance Co-Pilot',
+    license = 'GPLv2+',
+    author = 'Performance Co-Pilot Development Team',
+    author_email = 'pcp@oss.sgi.com',
+    url = 'http://oss.sgi.com/projects/pcp/',
+    packages = ['pcp'],
+    ext_modules = [
+        Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
+        Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda']),
+        Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui']),
+        Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
+        Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
+    ],
+    platforms = [ 'Windows', 'Linux', 'FreeBSD', 'Solaris', 'Mac OS X', 'AIX' ],
+    long_description =
+        'PCP provides services to support system-level performance monitoring',
+    classifiers = [
+        'Development Status :: 4 - Beta'
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Operating System :: POSIX :: AIX',
+        'Operating System :: POSIX :: IRIX',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: POSIX :: NetBSD',
+        'Operating System :: POSIX :: FreeBSD',
+        'Operating System :: POSIX :: SunOS/Solaris',
+        'Operating System :: Unix',
+        'Topic :: System :: Monitoring',
+        'Topic :: System :: Networking :: Monitoring',
+        'Topic :: Software Development :: Libraries',
+    ],
 )

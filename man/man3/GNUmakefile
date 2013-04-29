@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -52,8 +53,8 @@ MAN_PAGES	= \
 	pmunpackeventrecords.3 pmfreeeventresult.3 pmeventflagsstr.3 \
 	pmdaeventarray.3 pmdaeventclient.3 pmdaeventqueue.3 \
 	pmconverttime.3 pmmktime.3 pmparsectime.3 pmfreeprofile.3 \
-	pmlookupipc.3 pmopenlog.3 pmparsedebug.3 pmparsetime.3 \
-	pmaf.3 pmconnectlogger.3 pmcontrollog.3
+	pmlookupipc.3 pmopenlog.3 pmparsedebug.3 pmparsetime.3 pmaf.3 \
+	pmconnectlogger.3 pmcontrollog.3 pmparsehostattrsspec.3
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)

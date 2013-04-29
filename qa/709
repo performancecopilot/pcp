@@ -2,7 +2,7 @@
 # PCP QA Test No. 709
 # Exercise the python collectl implementation
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012, 2013 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -65,9 +65,21 @@ $PYCOLLECTL -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -scd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -scd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# test playback
+$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10
+$PYCOLLECTL -sd -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sc -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sn -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sm -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sd -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sc -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sn -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL -sm -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+
 
 cat $tmp.out >>$here/$seq.full
 
 # success, all done
+/bin/rm -rf test.pmcollectl
 status=0
 exit

@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012 Red Hat.
+dnl Copyright (c) 2012-2013 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -1898,7 +1898,8 @@ then
 	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 fi
 
-dnl Check for Network Security Services
+dnl Check for Network Security Services (NSS) and
+dnl Simple Authentication and Security Layer (SASL)
 if test "$do_secure" = "check" -o "$do_secure" = "yes"
 then
     enable_secure=true
@@ -1931,6 +1932,24 @@ then
 	])
     ])
     AC_SUBST(NSPRCFLAGS)
+
+    AC_CHECK_HEADERS([sasl/sasl.h], [SASLCFLAGS=-I/usr/include/sasl], [
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL header)
+	fi
+    ])
+    AC_SUBST(SASLCFLAGS)
+
+    AC_CHECK_LIB(sasl2, sasl_server_init, [lib_for_sasl="-lsasl2"], [
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL library)
+	fi
+    ])
+    AC_SUBST(lib_for_sasl)
 
     AC_CHECK_LIB(ssl, SSL_ImportFD, [lib_for_ssl="-lssl"], [
 	AC_CHECK_LIB(ssl3, SSL_ImportFD, [lib_for_ssl="-lssl3"], [

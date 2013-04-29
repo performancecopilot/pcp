@@ -87,6 +87,7 @@ _filter()
 	-e '/In function .vpmprintf.:/d' \
 	-e '/warning: the use of .tempnam./d' \
 	-e 's/ or perl//' \
+	-e 's/ or python//' \
 	-e 's/.* \(hash table entries\)/  NNN \1/' \
 	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
 	-e 's/.* \(leaf nodes\)/  NNN \1/' \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -267,88 +267,65 @@ pmGetConfig(const char *name)
  * Details of runtime features available in the built libpcp
  */
 
-#ifdef PM_MULTI_THREAD
-#define MULTI_THREAD_ENABLED	"true"
-#else
-#define MULTI_THREAD_ENABLED	"false"
-#endif
-#ifdef PM_FAULT_INJECTION
-#define FAULT_INJECTION_ENABLED	"true"
-#else
-#define FAULT_INJECTION_ENABLED	"false"
-#endif
-#if defined(HAVE_SECURE_SOCKETS)
-#define SECURE_SOCKETS_ENABLED	"true"
-#else
-#define SECURE_SOCKETS_ENABLED	"false"
-#endif
-/* IPv6 supported in all builds from pcp-3.6.11 onward */
-#define IPV6_ENABLED		"true"
+static const char *enabled(void) { return "true"; }
+static const char *disabled(void) { return "false"; }
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
+static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION); }
 
-static struct {
-	const char 	*feature;
-	const char	*state;
-} features[] = {
-	{ "pmapi_version",	TO_STRING(PMAPI_VERSION) },
-	{ "multi_threaded",	MULTI_THREAD_ENABLED },
-	{ "fault_injection",	FAULT_INJECTION_ENABLED },
-	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
-	{ "ipv6",		IPV6_ENABLED },
-};
-
-static int	cando_ipv6 = -1;
-
-static void
-fix_ipv6(void)
+static const char *
+ipv6_enabled(void)
 {
-    /*
-     * one trip check to see if IPv6 is supported in the current run-time
-     */
 #if defined(IS_LINUX)
-    if (access("/proc/net/if_inet6", F_OK) == 0)
-	cando_ipv6 = 1;
-    else
-	cando_ipv6 = 0;
+    return access("/proc/net/if_inet6", F_OK) == 0 ? enabled() : disabled();
 #else
-    /*
-     * otherwise punt ...
-     */
-    cando_ipv6 = 1;
+    return enabled();
 #endif
-    if (cando_ipv6 == 0) {
-	/*
-	 * Although code is build to enable IPv6, the running kernel
-	 * does not seem to support IPv6, so set the corresponding
-	 * feature[] to false.
-	 */
-	int 	i;
-
-	for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
-	    if (strcmp("ipv6", features[i].feature) == 0) {
-		features[i].state = "false";
-		break;
-	    }
-	}
-    }
 }
 
+#ifdef PM_MULTI_THREAD
+#define MULTI_THREAD_ENABLED	enabled
+#else
+#define MULTI_THREAD_ENABLED	disabled
+#endif
+#ifdef PM_FAULT_INJECTION
+#define FAULT_INJECTION_ENABLED	enabled
+#else
+#define FAULT_INJECTION_ENABLED	disabled
+#endif
+#if defined(HAVE_SECURE_SOCKETS)
+#define SECURE_SOCKETS_ENABLED	enabled
+#define AUTHENTICATION_ENABLED	enabled
+#else
+#define SECURE_SOCKETS_ENABLED	disabled
+#define AUTHENTICATION_ENABLED	disabled
+#endif
 
+typedef const char *(*feature_detector)(void);
+static struct {
+	const char 		*feature;
+	feature_detector	detector;
+} features[] = {
+	{ "pmapi_version",	pmapi_version },
+	{ "multi_threaded",	MULTI_THREAD_ENABLED },
+	{ "fault_injection",	FAULT_INJECTION_ENABLED },
+	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },	/* from pcp-3.7.x */
+	{ "ipv6",		ipv6_enabled },
+	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
+};
 
 void
 __pmAPIConfig(__pmAPIConfigCallback formatter)
 {
     int i;
 
-    if (cando_ipv6 == -1) fix_ipv6();
-
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
+	const char *value = features[i].detector();
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "__pmAPIConfig: %s=%s\n",
-		  features[i].feature, features[i].state);
-	formatter(features[i].feature, features[i].state);
+		  features[i].feature, value);
+	formatter(features[i].feature, value);
     }
 }
 
@@ -357,10 +334,8 @@ __pmGetAPIConfig(const char *name)
 {
     int i;
 
-    if (cando_ipv6 == -1) fix_ipv6();
-
     for (i = 0; i < sizeof(features)/sizeof(features[0]); i++)
         if (strcasecmp(name, features[i].feature) == 0)
-	    return features[i].state;
+	    return features[i].detector();
     return NULL;
 }

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -106,6 +106,13 @@ MYFILES += hashwalk.c
 LDIRT += hashwalk
 endif
 
+ifeq ($(shell test $(PCP_VER) -ge 3800 && echo 1), 1)
+CFILES += parsehostattrs.c parsehostspec.c
+else
+MYFILES += parsehostattrs.c parsehostspec.c
+LDIRT += parsehostattrs parsehostspec
+endif
+
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only include these ones if the fault injection version of libpcp
 # appears to have been installed (assumes PCP >= 3.5)
@@ -125,9 +132,15 @@ TRACEFILES = \
 
 PERLFILES = \
 	check_import.perl
+# not installed:
+PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
 PYTHONFILES = \
-	test_pcp.python test_pmi.python check_import.python
+	test_pcp.python test_pmcc.python \
+	test_pmi.python check_import.python \
+	test_mmv.python
+# not installed:
+PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
@@ -207,7 +220,11 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 .ORDER:	torture_api \
 	chkctx2 fetchrate
 
-default default_pcp: $(CFILES_TARGETS) $(TARGETS) $(SRCARCH) $(SRCARCHPART) ipcs_clear
+default default_pcp: \
+	$(CFILES_TARGETS) $(TARGETS) \
+	$(SRCARCH) $(SRCARCHPART) \
+	$(PLFILES) $(PYFILES) \
+	ipcs_clear
 
 setup: default $(MKARCH) 
 
@@ -713,3 +730,11 @@ scale.o:	localconfig.h
 
 bozo:
 	@echo TARGETS=$(TARGETS)
+
+# Suffix rules to support transition for perl and python scripts
+%.py : %.python
+	$(LN_S) $< $@
+
+%.pl : %.perl
+	$(LN_S) $< $@
+

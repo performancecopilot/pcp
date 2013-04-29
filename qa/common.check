@@ -77,6 +77,46 @@ _check_freespace()
     fi
 }
 
+# check that a given agent (argument 1) is up and running;
+# indicated by return status and agent warnings to stdout.
+#
+_check_agent() 
+{
+    agent=$1
+    sts=0
+
+    pminfo -f $agent 2>&1 | \
+        $PCP_AWK_PROG '
+BEGIN           { value=0; metric=0; warn=0 }
+NF==0           { next }
+/ value /       { value++; next }
+/^'$agent'/         { metric++
+                  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}' > $tmp.fetch 2>&1
+
+    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
+    cat $tmp.fetch
+    if grep warnings $tmp.fetch > /dev/null 2>&1
+    then
+	# X warnings, Y metrics and Z values
+	num_warn=`sed -n -e '/warnings/s/ .*//p' < $tmp.fetch`
+	if [ "$num_warn" -gt 0 ]
+	then
+	    echo "Warnings when fetching $agent metrics:"
+	    cat $tmp.verify
+	    sts=1
+	fi
+    else
+    	num_warn=0
+    fi
+
+    return $sts
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '

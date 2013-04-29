@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -389,7 +390,7 @@ __pmDropHostPort(pmHostSpec *specp)
     memmove(&specp->ports[0], &specp->ports[1], specp->nports*sizeof(int));
 }
 
-/* 
+/*
  * Parse a host specification, with optional ports and proxy host(s).
  * Examples:
  *	pcp -h app1.aconex.com:44321,4321@firewall.aconex.com:44322
@@ -409,10 +410,10 @@ __pmDropHostPort(pmHostSpec *specp)
  *	one optional proxy host is there (i.e. proxy ->proxy ->... ->pmcd),
  *	in case someone implements the pmproxy->pmproxy protocol extension.
  */
-
-int             /* 0 -> ok, PM_ERR_GENERIC -> error */
-__pmParseHostSpec(
-    const char *spec,           /* parse this string */
+static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
+parseHostSpec(
+    const char *spec,
+    char **position,            /* parse this string, return end char */
     pmHostSpec **rslt,          /* result allocated and returned here */
     int *count,
     char **errmsg)              /* error message */
@@ -421,9 +422,11 @@ __pmParseHostSpec(
     const char *s, *start;
     int nhosts = 0, sts = 0;
 
-    for (s = start = spec; s != NULL; s++) {
-	if (*s == ':' || *s == '@' || *s == '\0') {
-	    if (s == start)
+    for (s = start = *position; s != NULL; s++) {
+	if (*s == ':' || *s == '@' || *s == '\0' || *s == '?') {
+	    if (s == *position)
+		break;
+	    else if (s == start)
 		continue;
 	    hsp = hostAdd(hsp, &nhosts, start, s - start);
 	    if (hsp == NULL) {
@@ -432,7 +435,7 @@ __pmParseHostSpec(
 	    }
 	    if (*s == ':') {
 		for (++s, start = s; s != NULL; s++) {
-		    if (*s == ',' || *s == '@' || *s == '\0') {
+		    if (*s == ',' || *s == '@' || *s == '\0' || *s == '?') {
 			if (s - start < 1) {
 			    hostError(spec, s, "missing port", errmsg);
 			    sts = PM_ERR_GENERIC;
@@ -443,7 +446,7 @@ __pmParseHostSpec(
 			if (sts < 0)
 			    goto fail;
 			start = s + 1;
-			if (*s == '@' || *s == '\0')
+			if (*s == '@' || *s == '\0' || *s == '?')
 			    break;
 			continue;
 		    }
@@ -461,6 +464,7 @@ __pmParseHostSpec(
 	    break;
 	}
     }
+    *position = (char *)s;
     *count = nhosts;
     *rslt = hsp;
     return 0;
@@ -472,19 +476,55 @@ fail:
     return sts;
 }
 
-void
-__pmUnparseHostSpec(pmHostSpec *hostp, int count, char **specp, int specsz)
+int
+__pmParseHostSpec(
+    const char *spec,           /* parse this string */
+    pmHostSpec **rslt,          /* result allocated and returned here */
+    int *count,			/* number of host specs returned here */
+    char **errmsg)              /* error message */
 {
-    int i, j, sz = 0;
+    char *s = (char *)spec;
+    int sts;
+
+    if ((sts = parseHostSpec(spec, &s, rslt, count, errmsg)) < 0)
+	return sts;
+
+    if (*s == '\0')
+	return 0;
+
+    hostError(spec, s, "unexpected terminal character", errmsg);
+    __pmFreeHostSpec(*rslt, *count);
+    *rslt = NULL;
+    *count = 0;
+    return PM_ERR_GENERIC;
+}
+
+int
+__pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
+{
+    int off = 0, len = size;	/* offset in string and space remaining */
+    int i, j, sts;
 
     for (i = 0; i < count; i++) {
-	if (i > 0)
-	    sz += snprintf(*specp, specsz, "@");
-	sz += snprintf(*specp, specsz, "%s", hostp[0].name);
-	for (j = 0; j < hostp[i].nports; j++)
-	    sz += snprintf((*specp) + sz, specsz - sz,
-			    "%c%u", (j == 0) ? ':' : ',', hostp[i].ports[j]);
+	if (i > 0) {
+	    if ((sts = snprintf(string + off, len, "@")) >= size)
+		return -E2BIG;
+	    len -= sts; off += sts;
+	}
+
+	if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size)
+	    return -E2BIG;
+	len -= sts; off += sts;
+
+	for (j = 0; j < hostp[i].nports; j++) {
+	    if ((sts = snprintf(string + off, len,
+			    "%c%u", (j == 0) ? ':' : ',',
+			    hostp[i].ports[j])) >= size)
+		return -E2BIG;
+	    len -= sts; off += sts;
+	}
     }
+    return off;
 }
 
 void
@@ -502,4 +542,263 @@ __pmFreeHostSpec(pmHostSpec *specp, int count)
     }
     if (specp && count)
 	free(specp);
+}
+
+static __pmHashWalkState
+attrHashNodeDel(const __pmHashNode *tp, void *cp)
+{
+    (void)cp;
+    if (tp->data)
+	free(tp->data);
+    return PM_HASH_WALK_DELETE_NEXT;
+}
+
+void
+__pmFreeAttrsSpec(__pmHashCtl *attrs)
+{
+    __pmHashWalkCB(attrHashNodeDel, NULL, attrs);
+}
+
+void
+__pmFreeHostAttrsSpec(pmHostSpec *hosts, int count, __pmHashCtl *attrs)
+{
+    __pmFreeHostSpec(hosts, count);
+    __pmFreeAttrsSpec(attrs);
+}
+
+#define PCP_PROTOCOL_NAME	"pcp"
+#define PCP_PROTOCOL_PREFIX	PCP_PROTOCOL_NAME ":"
+#define PCP_PROTOCOL_SIZE	(sizeof(PCP_PROTOCOL_NAME)-1)
+#define PCP_PROTOCOL_PREFIXSZ	(sizeof(PCP_PROTOCOL_PREFIX)-1)
+#define PCPS_PROTOCOL_NAME	"pcps"
+#define PCPS_PROTOCOL_PREFIX	PCPS_PROTOCOL_NAME ":"
+#define PCPS_PROTOCOL_SIZE	(sizeof(PCPS_PROTOCOL_NAME)-1)
+#define PCPS_PROTOCOL_PREFIXSZ	(sizeof(PCPS_PROTOCOL_PREFIX)-1)
+
+static int
+parseProtocolSpec(
+    const char *spec,           /* the original, complete string to parse */
+    char **position,
+    int *attribute,
+    char **value)
+{
+    char *protocol = NULL;
+    char *s = *position;
+
+    /* optionally extract protocol specifier */
+    if (strncmp(s, PCP_PROTOCOL_PREFIX, PCP_PROTOCOL_PREFIXSZ) == 0) {
+	protocol = PCP_PROTOCOL_NAME;
+	s += PCP_PROTOCOL_PREFIXSZ;
+    } else if (strncmp(s, PCPS_PROTOCOL_PREFIX, PCPS_PROTOCOL_PREFIXSZ) == 0) {
+	protocol = PCPS_PROTOCOL_NAME;
+	s += PCPS_PROTOCOL_PREFIXSZ;
+    }
+
+    /* optionally skip over slash-delimiters */
+    if (protocol) {
+	while (*s == '/')
+	    s++;
+	if ((*value = strdup(protocol)) == NULL)
+	    return -ENOMEM;
+	*attribute = PCP_ATTR_PROTOCOL;
+    } else {
+	*value = NULL;
+	*attribute = PCP_ATTR_NONE;
+    }
+
+    *position = s;
+    return 0;
+}
+
+static int
+lookupAttribute(const char *attribute, int size)
+{
+    if ((size == sizeof("compress")-1 &&
+	 strncmp(attribute, "compress", size) == 0))
+	return PCP_ATTR_COMPRESS;
+    if ((size == sizeof("user")-1 &&
+	 strncmp(attribute, "user", size) == 0) ||
+	(size == sizeof("username")-1 &&
+        strncmp(attribute, "username", size) == 0))
+	return PCP_ATTR_USERNAME;
+    if ((size == sizeof("pass")-1 &&
+	strncmp(attribute, "pass", size) == 0) ||
+	(size == sizeof("password")-1 &&
+        strncmp(attribute, "password", size) == 0))
+	return PCP_ATTR_PASSWORD;
+    if ((size == sizeof("unix")-1 &&
+	strncmp(attribute, "unix", size) == 0) ||
+	(size == sizeof("unixsock")-1 &&
+        strncmp(attribute, "unixsock", size) == 0))
+	return PCP_ATTR_PASSWORD;
+    return PCP_ATTR_NONE;
+}
+
+/*
+ * Parse the attributes component of a PCP connection string.
+ * Optionally, an initial attribute:value pair can be passed
+ * in as well to add to the parsed set.
+ */
+static int
+parseAttributeSpec(
+    const char *spec,           /* the original, complete string to parse */
+    char **position,            /* parse from here onward and update at end */
+    int attribute,
+    char *value,
+    __pmHashCtl *attributes,
+    char **errmsg)
+{
+    char *s, *start, *v = NULL;
+    int attr, len, sts;
+
+    if (attribute != PCP_ATTR_NONE)
+	if ((sts = __pmHashAdd(attribute, (void *)value, attributes)) < 0)
+	    return sts;
+
+    for (s = start = *position; s != NULL; s++) {
+	/* parse: foo=bar&moo&goo=blah ... go! */
+	if (*s == '\0' || *s == '&') {
+	    if (*s == '\0' && s == start)
+		break;
+	    len = v ? (v - start - 1) : (s - start);
+	    attr = lookupAttribute(start, len);
+	    if (attr != PCP_ATTR_NONE) {
+		char *val = NULL;
+
+		if (v && (val = strndup(v, s - v)) == NULL) {
+		    sts = -ENOMEM;
+		    goto fail;
+		}
+		if ((sts = __pmHashAdd(attr, (void *)val, attributes)) < 0) {
+		    free(val);
+		    goto fail;
+		}
+	    }
+	    v = NULL;
+	    if (*s == '\0')
+		break;
+	    start = s + 1;	/* start of attribute name */
+	    continue;
+	}
+	if (*s == '=') {
+	   v = s + 1;	/* start of attribute value */
+	}
+    }
+
+    *position = s;
+    return 0;
+
+fail:
+    if (attribute != PCP_ATTR_NONE)	/* avoid double free in caller */
+	__pmHashDel(attribute, (void *)value, attributes);
+    __pmFreeAttrsSpec(attributes);
+    return sts;
+}
+
+/*
+ * Finally, bring it all together to handle parsing full connection URLs:
+ *
+ * pcp://oss.sgi.com:45892?user=otto&pass=blotto&compress=true
+ * pcps://oss.sgi.com@proxy.org:45893?user=jimbo&pass=jones&compress=true
+ */
+int
+__pmParseHostAttrsSpec(
+    const char *spec,           /* the original, complete string to parse */
+    pmHostSpec **host,          /* hosts result allocated and returned here */
+    int *count,
+    __pmHashCtl *attributes,
+    char **errmsg)              /* error message */
+{
+    char *value = NULL, *s = (char *)spec;
+    int sts, attr;
+
+    /* parse optional protocol section */
+    if ((sts = parseProtocolSpec(spec, &s, &attr, &value)) < 0)
+	return sts;
+
+    if ((sts = parseHostSpec(spec, &s, host, count, errmsg)) < 0)
+	goto fail;
+
+    /* skip over an attributes delimiter */
+    if (*s == '?') {
+	s++;	/* optionally skip over the question mark */
+    } else if (*s != '\0') {
+	hostError(spec, s, "unexpected terminal character", errmsg);
+	sts = PM_ERR_GENERIC;
+	goto fail;
+    }
+
+    /* parse optional attributes section */
+    if ((sts = parseAttributeSpec(spec, &s, attr, value, attributes, errmsg)) < 0)
+	goto fail;
+
+    return 0;
+
+fail:
+    if (value)
+	free(value);
+    if (*count)
+	__pmFreeHostSpec(*host, *count);
+    *count = 0;
+    *host = NULL;
+    return sts;
+}
+
+static int
+unparseAttribute(__pmHashNode *node, char *string, size_t size)
+{
+    switch (node->key) {
+    case PCP_ATTR_COMPRESS:
+	return snprintf(string, size, "compress");
+    case PCP_ATTR_UNIXSOCK:
+	return snprintf(string, size, "unixsock");
+    case PCP_ATTR_USERNAME:
+	return snprintf(string, size, "username=%s",
+			node->data ? (char *)node->data : "");
+    case PCP_ATTR_PASSWORD:
+	return snprintf(string, size, "password=%s",
+			node->data ? (char *)node->data : "");
+    }
+    return 0;
+}
+
+int
+__pmUnparseHostAttrsSpec(
+    pmHostSpec *hosts,
+    int count,
+    __pmHashCtl *attrs,
+    char *string,
+    size_t size)
+{
+    __pmHashNode *node;
+    int off = 0, len = size;	/* offset in string and space remaining */
+    int sts, first;
+
+    if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
+	if ((sts = snprintf(string, len, "%s://", (char *)node->data)) >= size)
+	    return -E2BIG;
+	len -= sts; off += sts;
+    }
+
+    if ((sts = __pmUnparseHostSpec(hosts, count, string + off, len)) >= size)
+	return sts;
+    len -= sts; off += sts;
+
+    first = 1;
+    for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
+	 node != NULL;
+	 node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+	if (node->key == PCP_ATTR_PROTOCOL)
+	    continue;
+	if ((sts = snprintf(string + off, len, "%c", first ? '?' : '&')) >= size)
+	    return -E2BIG;
+	len -= sts; off += sts;
+	first = 0;
+
+	if ((sts = unparseAttribute(node, string + off, len)) >= size)
+	    return -E2BIG;
+	len -= sts; off += sts;
+    }
+
+    return off;
 }

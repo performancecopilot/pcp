@@ -1,0 +1,66 @@
+QA output created by 704
+
+Running python test program
+Checking pmdammv metrics
+
+mmv.test.strings PMID: 70.42.6 [test string metrics]
+    Data Type: string  InDom: 70.86017 0x11815001
+    Semantics: instant  Units: none
+Help:
+Yep, string metric with instances
+    inst [0 or "zero"] value ""
+    inst [1 or "hero"] value ""
+
+mmv.test.string PMID: 70.42.5 One-line Help: Error: One-line or help text is not available
+
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Full Help: Error: One-line or help text is not available
+    value ""
+
+mmv.test.interval PMID: 70.42.4 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 64-bit int  InDom: 70.86018 0x11815002
+    Semantics: counter  Units: microsec
+Full Help: Error: One-line or help text is not available
+    inst [0 or "bird"] value NUMBER
+    inst [1 or "tree"] value NUMBER
+    inst [2 or "eggs"] value NUMBER
+    inst [3 or "frog"] value NUMBER
+
+mmv.test.indom PMID: 70.42.3 One-line Help: Error: One-line or help text is not available
+
+    Data Type: 32-bit unsigned int  InDom: 70.86017 0x11815001
+    Semantics: discrete  Units: none
+Full Help: Error: One-line or help text is not available
+    inst [0 or "zero"] value NUMBER
+    inst [1 or "hero"] value NUMBER
+
+mmv.test.instant PMID: 70.42.2 [Example instant metric]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Yep, a test instantaneous metric
+    value NUMBER
+
+mmv.test.counter PMID: 70.42.1 [Example counter metric]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+Yep, a test counter metric
+    value NUMBER
+
+mmv.debug PMID: 70.0.1 [Debug flag]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+See pmdbg(1).  pmstore into this metric to change the debug value.
+    value NUMBER
+
+mmv.reload PMID: 70.0.0 [Control maps reloading]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Writing anything other then 0 to this metric will result in
+re-reading directory and re-mapping files.
+    value NUMBER

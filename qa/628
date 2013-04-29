@@ -92,7 +92,8 @@ fi
 cd $PCP_PMDAS_DIR/idiot
 mv simple.c idiot.c
 mv simple.conf idiot.conf
-mv pmdasimple.pl pmdaidiot.pl
+[ -f pmdasimple.pl ] && mv pmdasimple.pl pmdaidiot.pl
+[ -f pmdasimple.py ] && mv pmdasimple.py pmdaidiot.py
 for file in *
 do
     sed <$file >$tmp.tmp \

@@ -166,6 +166,9 @@ __pmHashWalk(__pmHashCtl *hcp, __pmHashWalkState state)
 {
     __pmHashNode	*node;
 
+    if (hcp->hsize == 0)
+	return NULL;
+
     if (state == PM_HASH_WALK_START) {
         hcp->index = 0;
         hcp->next = hcp->hash[0];

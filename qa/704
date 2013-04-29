@@ -1,0 +1,54 @@
+#! /bin/sh
+# PCP QA Test No. 704
+# Exercise MMV python module (end-to-end)
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun "Python MMV module test 704 not yet stable"
+
+python -c 'from pcp import mmv' 2>/dev/null
+test $? -eq 0 || _notrun "Python MMV module not available"
+
+status=1
+MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+MMV_STATS_FILE=pymmv
+
+_cleanup()
+{
+    if [ -d "$tmp.mmv.dir" ]
+    then
+        rm -fr "$MMV_STATS_DIR"
+        mv "$tmp.mmv.dir" "$MMV_STATS_DIR"
+    fi
+}
+
+_filter_pminfo()
+{
+    tee -a $here/$seq.full | sed \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+# real QA starts here
+[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+mkdir "$MMV_STATS_DIR"
+chmod 1777 "$MMV_STATS_DIR"
+_check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
+
+echo "Running python test program"
+python $here/src/test_mmv.python
+echo "Checking pmdammv metrics"
+pminfo -fmdtT mmv | _filter_pminfo
+
+status=0
+exit

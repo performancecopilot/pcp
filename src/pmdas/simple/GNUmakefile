@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,8 @@ CMDTARGET = pmdasimple$(EXECSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
-LSRCFILES = Install Remove pmns root $(DFILES) pmdasimple.pl \
+SCRIPTS = pmdasimple.pl #pmdasimple.py
+LSRCFILES = Install Remove pmns root $(DFILES) $(SCRIPTS) \
 	simple.conf GNUmakefile.install
 
 IAM	= simple
@@ -37,10 +38,9 @@ include $(BUILDRULES)
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmdasimple.pl $(PMDADIR)/pmdasimple.pl
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root pmns domain.h simple.conf $(PMDADIR)
-	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
+	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(SCRIPTS) $(PMDADIR)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

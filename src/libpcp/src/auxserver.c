@@ -297,7 +297,7 @@ static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
 {
     int i, fd, family, success = 0, maximum = -1;
-    static	int cando_ipv6 = -1;
+    int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
@@ -315,19 +315,8 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	        rp->fds[INET_FD] = fd;
 		success = 1;
 	    }
-	    if (cando_ipv6 == -1) {
-		/*
-		 * one trip check to see if IPv6 is supported in the
-		 * current run-time
-		 */
-		const char	*config = __pmGetAPIConfig("ipv6");
-		if (config != NULL && strcmp(config, "true") == 0)
-		    cando_ipv6 = 1;
-		else
-		    cando_ipv6 = 0;
-	    }
-	    if (cando_ipv6 == 1) {
-	    family = AF_INET6;
+	    if (with_ipv6) {
+		family = AF_INET6;
 		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					    backlog, fdset, &maximum)) >= 0) {
 		    rp->fds[IPV6_FD] = fd;
@@ -484,7 +473,7 @@ int
 __pmServerHasFeature(__pmServerFeature query)
 {
     if (query == PM_SERVER_FEATURE_IPV6)
-	return 1;
+	return (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
     return 0;
 }
 

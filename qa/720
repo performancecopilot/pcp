@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 720
+# Exercise the pmParseHostAttrsSpec API family
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+_check_valgrind
+[ $PCP_VER -ge 3800 ] || _notrun "Installed libpcp lacks host parse APIs"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_run_valgrind src/parsehostattrs pcps://nas1.servers.com:44321,4321@firewall.servers.com:44322?compress
+_run_valgrind src/parsehostattrs pcp://localhost:23?compress
+_run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa\&compress\&pass=blah
+_run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa
+_run_valgrind src/parsehostattrs some.host?user=pcpqa
+_run_valgrind src/parsehostattrs some.host
+_run_valgrind src/parsehostattrs pcp://?compress

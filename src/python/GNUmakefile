@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,15 +15,16 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmapi.c
-PYFILES = pcpi.py pcp.py setup.py
+SUBDIRS = pcp
+CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
+LSRCFILES = setup.py
 LDIRDIRT = build dist
 LDIRT = build_python
 
 default default_pcp: build_python
 
 ifneq "$(PYTHON)" ""
-build_python: $(CFILES) $(PYFILES)
+build_python: setup.py $(CFILES)
 	$(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
 	$(PYTHON) setup.py build
 	touch build_python

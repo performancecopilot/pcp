@@ -220,6 +220,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+autoconf
 %configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir}
 make default_pcp
 

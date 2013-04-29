@@ -88,23 +88,6 @@ _cleanup()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# Function to filter pminfo output
-#
-_filter()
-{
-    $PCP_AWK_PROG '
-BEGIN           { value=0; metric=0; warn=0 }
-NF==0           { next }
-/ value /       { value++; next }
-/^'$1'/         { metric++
-                  if ($0 !~ /:/) next
-		}
-		{ warn++ }
-END             { if (warn) printf "%d warnings, ",warn
-		  printf "%d metrics and %d values\n",metric,value
-		}'
-}
-
 _filter_ins()
 {
     sed \
@@ -233,7 +216,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd
 
-    if _check_agent $agent 2
+    if _check_agent $agent
     then
     	echo "$agent is alive and well"
     else
@@ -251,39 +234,13 @@ _agent_remove()
     echo "=== Removing $agent ===" | tee -a $here/$seq.full
     _renew_pmcd _agent_remove
 
-    if _check_agent $agent 2
+    if _check_agent $agent
     then
     	echo "Failed to remove $agent"
 	exit
     else
     	echo "$agent was removed"
     fi
-}
-
-# check that the agent is up and running
-#
-_check_agent() 
-{
-    agent=$1
-    sts=0
-
-    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
-    pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
-    
-    if grep warnings $tmp.fetch > /dev/null 2>&1
-    then
-	num_warn=`cut -d' ' -f1 < $tmp.fetch`
-	if [ "$num_warn" -gt 0 ]
-	then
-	    echo "Warnings when fetching $agent metrics:"
-	    cat $tmp.verify
-	    sts=1
-	fi
-    else
-    	num_warn=0
-    fi
-
-    return $sts
 }
 
 # real QA test starts here
