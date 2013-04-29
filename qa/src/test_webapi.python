@@ -2,7 +2,7 @@
 
 import requests, argparse, subprocess, os
 
-parser = argparse.ArgumentParser(description='qa/src/test_webapi.py pmwebapi check')
+parser = argparse.ArgumentParser(description='test_webapi.py pmwebapi check')
 parser.add_argument('--version', action='version', version='1')
 parser.add_argument('--host', required=True)
 parser.add_argument('--port', default=44323)
@@ -53,20 +53,27 @@ def test_metric_enumeration(ctx, prefix):
     ctxurl = url + 'pmapi/' + str(ctx) + '/'
     if (ctx == ctx_local):
         procargs = ['pminfo', '-L']
+        dbg = 'local'
     else:
         procargs = ['pminfo', '-h', args.host]
+        dbg = 'host'
     if (prefix != ''):
         procargs.append(prefix)
+        dbg = dbg + '-' + prefix
     proc = subprocess.Popen(procargs,
                             stdout=subprocess.PIPE, 
                             stderr=devnull)
     num_metrics = 0
+    # f = open('/tmp/pmcd-' + dbg, 'w')
     while True:
         line = proc.stdout.readline()
         if line != '':
             num_metrics = num_metrics + 1
+            # f.write(line)
         else:
             break
+    # f.write('Total ' + str(num_metrics) + ' metrics\n')
+    # f.close()
 
     testprefix='test #'+str(ctx)+' metric '+prefix+'.*'
     print testprefix+ ' enumeration with pminfo #'+str(num_metrics)
@@ -75,6 +82,15 @@ def test_metric_enumeration(ctx, prefix):
                            ('?prefix='+prefix if prefix != '' else ''))
     resp = req.json()
     print testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics']))
+
+    # web_metrics = 0
+    # f = open('/tmp/webd-' + dbg, 'w')
+    # for metric in resp['metrics']:
+    #     web_metrics = web_metrics + 1
+    #     f.write(metric['name'] + '\n')
+    # f.write('Total ' + str(web_metrics) + ' metrics\n')
+    # f.close()
+
     if (abs(len(resp['metrics']) - num_metrics) < 10): # allow some variation
         print testprefix + ' enumeration match count PASS'
     else:
