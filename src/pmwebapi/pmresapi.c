@@ -140,11 +140,6 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
     return rc;
 
  error_response:
-    /* override any that may have been specified by a partial run */
-    if (ctype)
-        (void) MHD_del_response_header (resp, "Content-Type", ctype);
-    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
-
     resp = MHD_create_response_from_buffer (strlen(error_page),
                                             (char*)error_page, 
                                             MHD_RESPMEM_PERSISTENT);
@@ -152,6 +147,8 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection,
         pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
         return MHD_NO;
     }
+
+    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
 
     rc = MHD_queue_response (connection, resp_code, resp);
     MHD_destroy_response (resp);
