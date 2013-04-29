@@ -183,8 +183,6 @@ static int pmwebapi_notify_error (struct MHD_Connection *connection, int rc)
         return MHD_NO;
     }
 
-    /* override any that may have been specified by a partial run */
-    (void) MHD_del_response_header (resp, "Content-Type", "application/json");
     (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
 
     rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
