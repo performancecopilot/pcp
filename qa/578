@@ -216,7 +216,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd
 
-    if _check_agent $agent
+    if _check_agent $agent true
     then
     	echo "$agent is alive and well"
     else
@@ -234,7 +234,7 @@ _agent_remove()
     echo "=== Removing $agent ===" | tee -a $here/$seq.full
     _renew_pmcd _agent_remove
 
-    if _check_agent $agent
+    if _check_agent $agent true
     then
     	echo "Failed to remove $agent"
 	exit
