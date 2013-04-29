@@ -359,9 +359,10 @@ int main(int argc, char *argv[])
     /* Set up signal handlers. */
     signal (SIGINT, handle_signals);
     signal (SIGHUP, handle_signals);
-    signal (SIGPIPE, handle_signals);
     signal (SIGTERM, handle_signals);
     signal (SIGQUIT, handle_signals);
+    /* Not this one; might get it from pmcd momentary disconnection. */
+    /* signal (SIGPIPE, handle_signals); */
 
     {
         struct timeval tv;
