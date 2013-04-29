@@ -16,7 +16,7 @@ _cleanup()
     nss_cleanup
 
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
