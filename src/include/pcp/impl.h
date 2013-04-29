@@ -88,6 +88,11 @@ extern int __pmGetInternalState(void);
 #define PROXY_PORT 44322
 
 /*
+ * port that clients connect to pmwebd(1) by default
+ */
+#define PMWEBD_PORT 44323
+
+/*
  * Internally, this is how to decode a PMID!
  * - flag is to denote state internally in some operations
  * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID

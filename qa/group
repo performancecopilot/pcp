@@ -823,6 +823,7 @@ pcp.py
 650 pmlogger local oss pmdumplog
 651 pmproxy local oss
 652 pmda.systemd event local oss
+660 pmwebapi local oss
 653 libpcp local oss
 654 pmda.gfs2 local oss
 703 pcpweb local oss

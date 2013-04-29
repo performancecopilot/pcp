@@ -2088,6 +2088,22 @@ AC_TRY_COMPILE(
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
+savedLIBS=$LIBS
+AC_CHECK_LIB(rt, timer_gettime)
+lib_for_rt=""
+if test $ac_cv_lib_rt_timer_gettime = yes
+then
+    lib_for_rt="-lrt"
+fi
+AC_SUBST(lib_for_rt)
+LIBS=$savedLIBS
+
+dnl Do you have system microhttpd libraries for pmwebapi?
+savedLIBS=$LIBS
+AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmicrohttpd=0])
+AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
+LIBS=$savedLIBS
+
 dnl Do you have git installed?
 AC_CHECK_PROGS(GIT,git)
 AC_SUBST(GIT)

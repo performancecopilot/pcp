@@ -29,8 +29,8 @@ SUBDIRS = include \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe bashrc pmiestatus pmlogrewrite \
-	  python pmcollectl pmatop
+	  autofsd-probe telnet-probe bashrc pmiestatus \
+	  pmevent pmlogrewrite pmcollectl python pmatop pmwebapi
 
 # hack; we should always descend into perl (for source packaging at least)
 # Win32 builds need some love - when that happens, remember to undo this:
