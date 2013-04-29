@@ -15,7 +15,7 @@ _cleanup()
 {
     nss_cleanup
 
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
