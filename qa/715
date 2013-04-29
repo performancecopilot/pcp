@@ -32,7 +32,7 @@ _prepare_pmda_install simple
 
 echo
 echo "=== $iam agent installation ==="
-cat << End-of-File | $sudo ./Install >$tmp.out 2>&1
+cat << End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 both
 perl
 End-of-File
