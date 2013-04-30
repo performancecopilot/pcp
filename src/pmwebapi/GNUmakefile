@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2011-2013 Red Hat Inc.
 #
@@ -12,44 +11,41 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-
-LLDLIBS = -lpcp -lmicrohttpd $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS) $(LIB_FOR_MATH) $(LIB_FOR_RT)
-LCFLAGS += -Wextra
-CFILES	= main.c pmwebapi.c pmresapi.c
-HFILES = pmwebapi.h
 CMDTARGET = pmwebd$(EXECSUFFIX)
-LDIRT = $(TARGET)
+HFILES = pmwebapi.h
+CFILES	= main.c util.c pmwebapi.c pmresapi.c
+LSRCFILES = rc_pmwebd pmwebd.options
+
+LLDLIBS = $(PCPLIB) -lmicrohttpd
+LDIRT = pmwebd.log
+
+LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-default:	$(CMDTARGET)
-
-$(CMDTARGET): $(BUNDLEDLIB)
-
-install:	$(CMDTARGET)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-
-default_pcp:	default
-install_pcp:	install
-
-else
-
-# no libmicrohttpd => no pmwebd
-
-default:
-install:
-default_pcp:
-install_pcp:
-
-endif
+default:	build-me
 
 include $(BUILDRULES)
+
+ifeq "$(HAVE_LIBMICROHTTPD)" "1"
+build-me:	$(CMDTARGET)
+
+install:	default
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
+	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
+	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmwebd
+else
+build-me:
+install:
+endif
+
+default_pcp:	default
+
+install_pcp:	install
+
