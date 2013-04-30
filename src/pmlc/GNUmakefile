@@ -32,6 +32,7 @@ install:	$(CMDTARGET)
 
 pmlc.o:	gram.h
 
+.NOTPARALLEL:
 gram.tab.h gram.tab.c:	gram.y
 	$(YACC) -d -b `basename $< .y` $<
 

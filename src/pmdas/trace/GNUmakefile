@@ -99,6 +99,7 @@ default_pcp:	default
 
 install_pcp:	install
 
+.NOTPARALLEL:
 Makefile.demos:	Makefile.proto
 	rm -f $@
 	sed \

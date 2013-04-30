@@ -41,6 +41,7 @@ $(CMDTARGET) : $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
 
+.NOTPARALLEL:
 makefiles:
 	@for d in $(MKFILE_SUBDIRS); do \
 	    rm -f $$d/GNUmakefile; \

@@ -14,6 +14,7 @@ BuildRequires: procps autoconf bison flex
 BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: libmicrohttpd-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7

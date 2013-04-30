@@ -37,6 +37,7 @@ install:	$(CMDTARGET)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogrewrite
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
+.NOTPARALLEL:
 gram.tab.h gram.tab.c:	gram.y
 
 lex.o gram.tab.o:	gram.tab.h logger.h

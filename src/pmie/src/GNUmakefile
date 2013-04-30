@@ -38,6 +38,8 @@ LLDFLAGS += $(PIELDFLAGS)
 default:	$(TARGET)
 
 YFILES = grammar.y
+
+.NOTPARALLEL:
 grammar.h grammar.tab.c:	grammar.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
 
