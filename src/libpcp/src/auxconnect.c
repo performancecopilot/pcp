@@ -642,7 +642,7 @@ __pmRecv(int socket, void *buffer, size_t length, int flags)
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    fprintf(stderr, "%s:__pmRecv(%d, ..., %d, " PRINTF_P_PFX "%x) -> %d\n",
-		__FILE__, socket, length, flags, size);
+		__FILE__, socket, (int)length, flags, (int)size);
     }
 #endif
     return size;
