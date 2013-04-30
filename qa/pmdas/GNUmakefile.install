@@ -19,9 +19,9 @@ SUBDIRS_MAKERULE = \
 	    if test -d "$$d" ; then \
 		$(ECHO) === $$d ===; \
 		if test -f "$$d/GNUmakefile.install"; then \
-		    $(MAKEF) -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		    $(MAKE) -C $$d -f GNUmakefile.install $@ || exit $$?; \
 		else \
-		    $(MAKEF) -C $$d $@ || exit $$?; \
+		    $(MAKE) -C $$d $@ || exit $$?; \
 		fi; \
 	    fi; \
 	done
