@@ -22,6 +22,12 @@ fi
 
 echo "QA output created by $seq"
 
+echo >$tmp.input 'b
+pigs
+can
+fly
+'
+
 status=1
 done_clean=false
 
@@ -32,14 +38,23 @@ _cleanup()
 	:
     else
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/txmon; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/txmon; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	rm -f $tmp.*
 	done_clean=true
     fi
     exit $status
 }
+
+install_on_cleanup=false
+pminfo txmon >/dev/null 2>&1 && install_on_cleanup=true
 
 trap "_cleanup" 0 1 2 3 15
 
@@ -95,12 +110,7 @@ fi
 echo
 echo "=== default $iam agent installation ==="
 $sudo ./Remove >$tmp.out 2>&1
-echo 'b
-pigs
-can
-fly
-' \
-| $sudo ./Install -e >>$tmp.out 2>&1
+$sudo ./Install <$tmp.input -e >>$tmp.out 2>&1
 
 _filter <$tmp.out
 

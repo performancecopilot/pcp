@@ -18,7 +18,17 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    _restore_pmda_install $iam
+    if $_needclean
+    then
+	_restore_pmda_install logger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
     $sudo rm -fr $tmp.dir
     $sudo rm -f $tmp.*
     exit $status
@@ -49,15 +59,35 @@ s:[0-9][0-9]*:SIZE:
 }'
 }
 
-iam=logger
-status=1	# failure is the default!
-trap "_cleanup" 0 1 2 3 15
-
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
 
+# setup pmdalogger configuration file
+echo "
+# from PCP QA $seq
+reg	n	$tmp.reg
+fifo	n	$tmp.fifo
+none	n	$tmp.none
+empty	n	$tmp.empty
+dir	n	$tmp.dir
+pipe	n	$tmp.pipe|
+" >$tmp.conf
+
+# and PMDA Install script
+cat >$tmp.input <<End-of-File
+b
+1
+End-of-File
+
+install_on_cleanup=false
+pminfo logger >/dev/null 2>&1 && install_on_cleanup=true
+
+status=1	# failure is the default!
+_needclean=true
+trap "_cleanup" 0 1 2 3 15
+
 # real QA test starts here
-_prepare_pmda_install $iam
+_prepare_pmda_install logger
 
 # prepare test case files (see below)
 _testdata > $tmp.reg
@@ -71,15 +101,6 @@ read book
 ""$PCP_ECHO_C" > $tmp.pipe	# i.e. print something when sigusr1 delivered
 chmod 755 $tmp.pipe
 
-# setup pmdalogger configuration file
-echo "
-reg	n	$tmp.reg
-fifo	n	$tmp.fifo
-none	n	$tmp.none
-empty	n	$tmp.empty
-dir	n	$tmp.dir
-pipe	n	$tmp.pipe|
-" > $tmp.conf
 [ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
@@ -109,11 +130,13 @@ pminfo -f logger.perfile.fifo | _filter
 
 echo
 echo "=== 3. log file rotation ==="
-rm -f $tmp.reg
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking removed file""$PCP_ECHO_C"
+rm -f $tmp.reg
+sleep 3	# pmda interval timer is 2 seconds
 pminfo -f logger.perfile.reg  | _filter
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 _testdata >> $tmp.reg
+sleep 3	# pmda interval timer is 2 seconds
 pminfo -f logger.perfile.reg | _filter
 
 echo
@@ -121,6 +144,7 @@ echo "=== 4. non-existant file ==="
 $PCP_ECHO_PROG $PCP_ECHO_N "Check a missing file""$PCP_ECHO_C"
 pminfo -f logger.perfile.none | _filter
 _testdata >> $tmp.none
+sleep 3	# pmda interval timer is 2 seconds
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 pminfo -f logger.perfile.none | _filter
 
@@ -129,6 +153,7 @@ echo "=== 5. empty file ==="
 $PCP_ECHO_PROG $PCP_ECHO_N "Check an empty file""$PCP_ECHO_C"
 pminfo -f logger.perfile.empty | _filter
 _testdata >> $tmp.empty
+sleep 3	# pmda interval timer is 2 seconds
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking new log file""$PCP_ECHO_C"
 pminfo -f logger.perfile.empty | _filter
 
@@ -145,7 +170,7 @@ $PCP_ECHO_PROG $PCP_ECHO_N "Check a piped command""$PCP_ECHO_C"
 pminfo -f logger.perfile.pipe | _filter
 $PCP_ECHO_PROG $PCP_ECHO_N "Signal the command""$PCP_ECHO_C"
 pmsignal -s USR1 $pid >/dev/null 2>&1
-sleep 2	# some time for it to be delivered
+sleep 3	# some time for it to be delivered
 pminfo -f logger.perfile.pipe | _filter
 
 status=0

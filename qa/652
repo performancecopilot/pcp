@@ -70,18 +70,18 @@ $sudo ./Install < /dev/null >$tmp.out 2>&1
 cat $tmp.out | _filter_pmda_install | _filter
 
 echo
-echo "=== 1. scalar metrics  ==="
-pminfo -f systemd | _filter
+echo "=== 1. scalar metrics  ===" |& tee -a $here/$seq.full
+pminfo -f systemd | tee -a $here/$seq.full | _filter
 
-echo
-echo "=== 2. journald.records  ==="
+echo |& tee -a $here/$seq.full
+echo "=== 2. journald.records  ===" |& tee -a $here/$seq.full
 (sleep 3; logger yo) &
-pmevent -T 10 systemd.journal.records | _filter_events
+pmevent -T 10 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
-echo
-echo "=== 3. journald.records  ==="
+echo |& tee -a $here/$seq.full
+echo "=== 3. journald.records  ===" |& tee -a $here/$seq.full
 (sleep 3; logger yo) &
-pmevent -T 10 systemd.journal.records_raw | _filter_events_raw
+pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 status=0
 exit

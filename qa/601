@@ -15,16 +15,30 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
+    cd $here
     if [ -n "$savedtracehost" ]
     then
 	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
     fi
+    if $_needclean
+    then
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/trace; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
     rm -f $tmp.*
-    cd $here
     exit $status
 }
 
+install_on_cleanup=false
+pminfo trace >/dev/null 2>&1 && install_on_cleanup=true
+
 status=1	# failure is the default!
+_needclean=true
 trap "_cleanup" 0 1 2 3 15
 
 if [ -n "$PCP_TRACE_HOST" ]
@@ -33,8 +47,6 @@ then
 fi
 
 thishost=`hostname`
-pminfo trace >/dev/null 2>&1
-remove=$?
 
 _filter_trace_install()
 {
@@ -188,8 +200,6 @@ fi
 $PCP_DEMOS_DIR/trace/app1 >/dev/null 2>&1
 sleep $interval
 pminfo -f trace.transact.count
-
-[ $remove -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
 
 # success, all done
 status=0

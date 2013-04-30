@@ -18,7 +18,17 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    _restore_pmda_install $iam
+    _restore_pmda_install logger
+    if $_needclean
+    then
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/logger; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	_needclean=false
+    fi
     $sudo rm -f $tmp.*
     exit $status
 }
@@ -39,12 +49,15 @@ _filter()
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
 }
 
-iam=logger
+install_on_cleanup=false
+pminfo logger >/dev/null 2>&1 && install_on_cleanup=true
+
 status=1	# failure is the default!
+_needclean=true
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-_prepare_pmda_install $iam
+_prepare_pmda_install logger
 
 # prepare test case files (see below)
 $sudo rm -f $tmp.*

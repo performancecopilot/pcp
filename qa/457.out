@@ -14,6 +14,7 @@ Which configuration file do you want to use ? [1]
 Contents of the selected configuration file:
 --------------- start PCP_VAR_DIR/config/logger/logger.conf ---------------
 
+# from PCP QA 457
 reg	n	TMPFILE.reg
 fifo	n	TMPFILE.fifo
 none	n	TMPFILE.none
@@ -153,7 +154,7 @@ logger.perfile.reg.path
     value "TMPFILE.reg"
 
 logger.perfile.reg.size
-    value 56
+    value 0
 
 logger.perfile.reg.bytes
     value 0
@@ -177,10 +178,10 @@ logger.perfile.reg.size
     value 56
 
 logger.perfile.reg.bytes
-    value 0
+    value 56
 
 logger.perfile.reg.count
-    value 0
+    value 2
 
 === 4. non-existant file ===
 Check a missing file
@@ -218,13 +219,13 @@ logger.perfile.none.path
     value "TMPFILE.none"
 
 logger.perfile.none.size
-    value 0
+    value 56
 
 logger.perfile.none.bytes
-    value 0
+    value 56
 
 logger.perfile.none.count
-    value 0
+    value 2
 
 === 5. empty file ===
 Check an empty file
@@ -262,13 +263,13 @@ logger.perfile.empty.path
     value "TMPFILE.empty"
 
 logger.perfile.empty.size
-    value 0
+    value 56
 
 logger.perfile.empty.bytes
-    value 0
+    value 56
 
 logger.perfile.empty.count
-    value 0
+    value 2
 
 === 6. directory ===
 Check a directory

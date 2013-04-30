@@ -52,7 +52,7 @@ nss_setup_empty_userdb
 echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
@@ -61,7 +61,7 @@ nss_setup_empty_userdb
 nss_import_cert_userdb
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # success, all done
