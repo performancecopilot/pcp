@@ -30,7 +30,7 @@ struct glocks {
     __uint64_t	values[NUM_GLOCKS_STATS];
 };
 
-extern int gfs2_refresh_glocks(const char *, const char *, struct glocks *);
 extern int gfs2_glocks_fetch(int, struct glocks *, pmAtomValue *);
+extern int gfs2_refresh_glocks(const char *, const char *, struct glocks *);
 
 #endif	/*GLOCKS_H*/

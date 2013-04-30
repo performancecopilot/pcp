@@ -15,8 +15,8 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= glocks.c sbstats.c dynamic.c pmda.c
-HFILES		= glocks.h sbstats.h dynamic.h pmdagfs2.h
+CFILES		= glstats.c lock_time.c glocks.c sbstats.c dynamic.c pmda.c
+HFILES		= glstats.h lock_time.h glocks.h sbstats.h dynamic.h pmdagfs2.h
 CMDTARGET	= pmdagfs2
 LLDLIBS		= $(PCP_PMDALIB)
 LSRCFILES	= Install Remove pmns root help
@@ -54,3 +54,5 @@ pmda.o glocks.o:	glocks.h
 pmda.o sbstats.o:	sbstats.h
 pmda.o dynamic.o sbstats.o:	dynamic.h
 pmda.o dynamic.o:	pmdagfs2.h
+pmda.o glstats.o:	glstats.h
+pmda.o lock_time.o:	lock_time.h

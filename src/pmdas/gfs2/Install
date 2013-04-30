@@ -18,6 +18,13 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
+# Enable the gfs2_glock_lock_time tracepoint, is required for the glock_lock_time 
+# metrics.
+if [ -f /sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time/enable ];
+then
+    echo 1 > /sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time/enable
+fi
+
 iam=gfs2
 forced_restart=true
 pmda_interface=4

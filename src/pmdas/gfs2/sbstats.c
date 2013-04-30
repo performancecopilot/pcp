@@ -226,8 +226,10 @@ sbstats_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
     if (item < 0 || item >= SBSTATS_COUNT)
 	return PM_ERR_PMID;
     snprintf(text, sizeof(text), "%s for %s glocks",
-	     stattext[item % NUM_LOCKTYPES], locktype[item / NUM_LOCKTYPES]);
-    *buf = text;
+	     stattext[item % NUM_LOCKSTATS], locktype[item / NUM_LOCKSTATS]);
+
+     *buf = text;
+
     return 0;
 }
 

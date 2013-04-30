@@ -20,8 +20,10 @@
 #include "domain.h"
 #include "dynamic.h"
 #include "pmdagfs2.h"
+#include <sys/types.h>
 
 static char *gfs2_sysfsdir = "/sys/kernel/debug/gfs2";
+static char *gfs2_sysdir = "/sys/fs/gfs2";
 static pmdaIndom indomtable[] = { { .it_indom = GFS_FS_INDOM } };
 #define INDOM(x) (indomtable[x].it_indom)
 
@@ -29,6 +31,7 @@ static pmdaIndom indomtable[] = { { .it_indom = GFS_FS_INDOM } };
  * all metrics supported in this PMDA - one table entry for each
  */
 pmdaMetric metrictable[] = {
+    /* GLOCK */
     { .m_desc = {
 	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_TOTAL),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
@@ -49,6 +52,7 @@ pmdaMetric metrictable[] = {
 	PMDA_PMID(CLUSTER_GLOCKS, GLOCKS_EXCLUSIVE),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    /* SBSTATS */
     { .m_desc = {
 	PMDA_PMID(CLUSTER_SBSTATS, LOCKSTAT_SRTT),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
@@ -81,6 +85,84 @@ pmdaMetric metrictable[] = {
 	PMDA_PMID(CLUSTER_SBSTATS, LOCKSTAT_QCOUNT),
 	PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* GLSTATS */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_TOTAL),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_TRANS),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_INODE),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_RGRP),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_META),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_IOPEN),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_FLOCK),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_QUOTA),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_JOURNAL),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* GFS2_GLOCK_LOCK_TIME */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_LOCK_TYPE),
+        PM_TYPE_U32, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_NUMBER),
+        PM_TYPE_U32, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SRTT),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SRTTVAR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SRTTB),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SRTTVARB),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SIRT),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_SIRTVAR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_DLM),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LOCKTIME, LOCKTIME_QUEUE),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 int
@@ -105,8 +187,8 @@ gfs2_instance_refresh(void)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    /* update indom cache based on scan of /sys/kernel/debug/gfs2 */
-    count = scandir(gfs2_sysfsdir, &files, NULL, NULL);
+    /* update indom cache based on scan of /sys/fs/gfs2 */
+    count = scandir(gfs2_sysdir, &files, NULL, NULL);
     if (count < 0) {	/* give some feedback as to GFS2 kernel state */
 	if (oserror() == EPERM)
 	    gfs2_status = PM_ERR_PERMISSION;
@@ -121,13 +203,36 @@ gfs2_instance_refresh(void)
     for (i = 0; i < count; i++) {
 	struct gfs2_fs *fs;
 	const char *name = files[i]->d_name;
+        char buffer[4096];
+        int major, minor;
+        dev_t dev_id;
+        FILE *fp;
 
 	if (name[0] == '.')
 	    continue;
 
+        /* gfs2_glock_lock_time requires block device id for each filesystem
+         * in order to match to the lock data, this info can be found in
+         * /sys/fs/gfs2/NAME/id, we extract the data and store it in gfs2_fs->dev
+         *
+         */
+        snprintf(buffer, sizeof(buffer), "%s/%s/id", gfs2_sysdir, name);
+        buffer[sizeof(buffer)-1] = '\0';
+
+        if ((fp = fopen(buffer, "r")) == NULL)
+	    return 1;
+
+        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+            sscanf(buffer, "%u:%u", &major, &minor);
+            dev_id = makedev(major, minor);
+        }     
+        fclose(fp);
+
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&fs);
-	if (sts == PM_ERR_INST || (sts >= 0 && fs == NULL))
+	if (sts == PM_ERR_INST || (sts >= 0 && fs == NULL)){
 	    fs = calloc(1, sizeof(struct gfs2_fs));
+            fs->dev_id = dev_id;
+        }   
 	else if (sts < 0)
 	    continue;
 
@@ -157,6 +262,8 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
     char *name;
     int i, sts;
 
+    dev_t dev_id = makedev(253, 0);
+
     if ((sts = gfs2_instance_refresh()) < 0)
 	return sts;
 
@@ -169,6 +276,10 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    gfs2_refresh_glocks(gfs2_sysfsdir, name, &fs->glocks);
 	if (need_refresh[CLUSTER_SBSTATS])
 	    gfs2_refresh_sbstats(gfs2_sysfsdir, name, &fs->sbstats);
+        if (need_refresh[CLUSTER_GLSTATS])
+            gfs2_refresh_glstats(gfs2_sysfsdir, name, &fs->glstats);
+        if (need_refresh[CLUSTER_LOCKTIME])
+            gfs2_refresh_lock_time(gfs2_sysfsdir, name, &fs->lock_time, fs->dev_id);
     }
     return sts;
 }
@@ -207,14 +318,23 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	return gfs2_glocks_fetch(idp->item, &fs->glocks, atom);
 
-    case CLUSTER_GLSTATS:
-	return PM_ERR_NYI;	/* Not Yet Implemented */
-
     case CLUSTER_SBSTATS:
 	sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
 	if (sts < 0)
 	    return sts;
 	return gfs2_sbstats_fetch(idp->item, &fs->sbstats, atom);
+
+    case CLUSTER_GLSTATS:
+        sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
+	if (sts < 0)
+	    return sts;
+	return gfs2_glstats_fetch(idp->item, &fs->glstats, atom);
+
+    case CLUSTER_LOCKTIME:
+        sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void**)&fs);
+        if (sts < 0)
+            return sts;
+        return gfs2_locktime_fetch(idp->item, &fs->lock_time, atom);
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;
