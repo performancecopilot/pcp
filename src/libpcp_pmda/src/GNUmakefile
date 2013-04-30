@@ -60,9 +60,9 @@ LIBTARGET_V2 =
 LIBTARGET_V3 =
 endif
 
-LDIRT = $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET_V3)
+LDIRT = $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET_V3) links.done
 
-default: $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET) $(STATICLIBTARGET)
+default: $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET) $(STATICLIBTARGET) links.done
 
 ifneq "$(LIBTARGET_V1)" ""
 $(LIBTARGET_V1): $(LIBTARGET_V3)
@@ -95,3 +95,14 @@ default_pcp : default
 
 install_pcp : install
 
+# Populate a common lib directory for simplifying the builds of some other
+# components that need to find multiple PCP libraries easily.  Also makes
+# use of LD_LIBRARY_PATH for debugging exercises a little simpler.
+# 
+links.done: $(STATICLIBTARGET) $(LIBTARGET)
+ifneq "$(LIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/libpcp_pmda.$(DSOSUFFIX) $(TOPDIR)/src/lib
+endif
+ifneq "$(STATICLIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
+endif

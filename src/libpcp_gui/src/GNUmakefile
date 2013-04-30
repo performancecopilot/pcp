@@ -40,9 +40,9 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT = $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+LDIRT = $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) links.done
 
-default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) links.done
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET):
@@ -67,3 +67,16 @@ endif
 default_pcp:	default
 
 install_pcp:	install
+
+# Populate a common lib directory for simplifying the builds of some other
+# components that need to find multiple PCP libraries easily.  Also makes
+# use of LD_LIBRARY_PATH for debugging exercises a little simpler.
+# 
+links.done: $(STATICLIBTARGET) $(LIBTARGET)
+ifneq "$(LIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/libpcp_gui.$(DSOSUFFIX) $(TOPDIR)/src/lib
+endif
+ifneq "$(STATICLIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
+endif
+	touch links.done

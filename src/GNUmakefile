@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include \
+SUBDIRS = include lib \
 	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
 	  libpcp_mmv \
 	  pmconfig pmns newhelp pminfo pmcpp \
@@ -29,8 +29,8 @@ SUBDIRS = include \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite pmcollectl python pmatop pmwebapi
+	  autofsd-probe telnet-probe bashrc pmiestatus pmlogrewrite \
+	  python pmcollectl pmatop pmwebapi
 
 # hack; we should always descend into perl (for source packaging at least)
 # Win32 builds need some love - when that happens, remember to undo this:

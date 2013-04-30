@@ -8,14 +8,14 @@ my $lddlflags;
 my $cccdlflags;
 
 if ($ENV{TARGET_OS} eq "mingw") {
-    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_pmda/src -L$ENV{PCP_DIR}\\local\\bin -lpcp_pmda -lpcp local.o PMDA.o";
+    $ldfrom = "-L$ENV{PCP_TOPDIR}/src/lib -L$ENV{PCP_DIR}\\local\\bin -lpcp_pmda -lpcp local.o PMDA.o";
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp -I$ENV{PCP_DIR}\\include\\pcp -I$ENV{PCP_DIR}\\c\\include";
     $libs = ["-L$ENV{PCP_DIR}\\local\\bin", '-lpcp_pmda', '-lpcp'];
 }
 else {
     $ldfrom = "local.o PMDA.o";
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
-    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_pmda/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_pmda -lpcp"];
+    $libs = ["-L$ENV{PCP_TOPDIR}/src/lib -lpcp_pmda -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     # standard ones, minus -arch ppc

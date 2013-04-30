@@ -19,6 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= import.c stuff.c archive.c
 HFILES	= private.h
 
+IAM = libpcp_import
 STATICLIBTARGET	= libpcp_import.a
 DSOVERSION = 1
 LIBTARGET = libpcp_import.$(DSOSUFFIX).$(DSOVERSION)
@@ -38,11 +39,11 @@ endif
 
 LCFLAGS =
 LLDLIBS = -lpcp
-LDIRT = $(SYMTARGET) domain.h
+LDIRT = $(SYMTARGET) domain.h links.done
 
 DOMAIN = PMI_DOMAIN
 
-default: domain.h $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: domain.h $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) links.done
 
 $(OBJECTS):	$(HFILES)
 
@@ -81,3 +82,16 @@ END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  e
           if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
 	  exit(0)\
 	}'
+#
+# Populate a common lib directory for simplifying the builds of some other
+# components that need to find multiple PCP libraries easily.  Also makes
+# use of LD_LIBRARY_PATH for debugging exercises a little simpler.
+# 
+links.done: $(STATICLIBTARGET) $(LIBTARGET)
+ifneq "$(LIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/libpcp_import.$(DSOSUFFIX) $(TOPDIR)/src/lib
+endif
+ifneq "$(STATICLIBTARGET)" ""
+	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
+endif
+	touch links.done

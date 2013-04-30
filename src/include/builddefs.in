@@ -239,6 +239,17 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
+ifneq "$(LIBTARGET)" ""
+LIBLINK_MAKERULE = \
+	@rm -f $(TOPDIR)/src/lib/$(LIBTARGET) \
+	$(LN_S) -f $(shell pwd)/$(LIBTARGET) $(TOPDIR)/src/lib
+endif
+ifneq "$(STATICLIBTARGET)" ""
+STATIC_LIBLINK_MAKERULE = \
+	@rm -f $(TOPDIR)/src/lib/$(STATICLIBTARGET) \
+	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
+endif
+
 DOMAIN_MAKERULE = \
 	@rm -f domain.h; \
 	echo "/*" >domain.h; \
@@ -486,7 +497,7 @@ PMDA_SYSTEMD=@PMDA_SYSTEMD@
 PYTHON=@PYTHON@
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/lib
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
