@@ -71,7 +71,7 @@ then
     for conf in \
 	$PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
 	$PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-	$PCP_PMPROXYOPTIONS_PATH
+	$PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
     do
 	if [ -f $conf.pre -a -f $conf ]
 	then
@@ -115,6 +115,10 @@ then
     dscl . append /Groups/pcp GroupMembership pcp
 fi
 
-chown -R pcp:pcp /var/log/pcp/{pmcd,pmlogger,pmie,pmproxy} 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null
+chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null
 
 status=0

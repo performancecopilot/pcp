@@ -47,3 +47,5 @@ extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
                              const char* url);
 
 extern void pmweb_notify (int, struct MHD_Connection*, const char *, ...) __PM_PRINTFLIKE(3,4);
+
+extern void pmweb_start_daemon (int, char **);

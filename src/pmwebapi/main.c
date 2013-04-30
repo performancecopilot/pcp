@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "pmwebapi.h"
@@ -23,14 +19,16 @@
 /* ------------------------------------------------------------------------ */
 
 const char uriprefix[] = "/pmapi";
-char *resourcedir = NULL;      /* set by -R option */
+char *resourcedir;             /* set by -R option */
 char *archivesdir = ".";       /* set by -A option */
-unsigned verbosity = 0;        /* set by -v option */
+unsigned verbosity;            /* set by -v option */
 unsigned maxtimeout = 300;     /* set by -t option */
-unsigned perm_context = 1;     /* set by -C option, changed by -h/-a/-L */
+unsigned perm_context = 1;     /* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;   /* set by -N option */
 unsigned exit_p;               /* counted by SIG* handler */
-
+static char *logfile = "pmwebd.log";
+static char *fatalfile = "/dev/tty"; /* fatal messages at startup go here */
+static char *username;
 
 
 static int mhd_log_args (void *connection, enum MHD_ValueKind kind, 
@@ -109,8 +107,9 @@ static int mhd_respond (void *cls, struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
+
 /* NB: see also ../../man/man1/pmwebd.1 */
-static char *options = "p:46K:R:t:C:h:a:LA:Nv?";
+#define OPTIONS "fl:p:46K:R:t:c:h:a:LA:NU:vx:?"
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
 static char usage[] = 
@@ -122,17 +121,20 @@ static char usage[] =
     "  -t timeout    max time (seconds) for pmapi polling, default 300\n"
     "  -R resdir     serve non-API files from given directory, no default\n"
     "Context options:\n"
-    "  -C number     set next permanent-binding context number\n"
-    "  -h hostname   permanent-bind next context to MCD on host\n"
+    "  -c number     set next permanent-binding context number\n"
+    "  -h hostname   permanent-bind next context to PMCD on host\n"
     "  -a archive    permanent-bind next context to archive\n"
     "  -L            permanent-bind next context to local PMDAs\n"
     "  -N            disable remote new-context requests\n"
     "  -K spec       optional additional PMDA spec for local connection\n"
     "  -A archdir    permit remote new-archive-context under archdir, CWD default\n"
     "Other options:\n"
+    "  -f            run in the foreground\n"
+    "  -l logfile    redirect diagnostics and trace output\n"
     "  -v            increase verbosity\n"
+    "  -U username   assume identity of username (only when run as root)\n"
+    "  -x file       fatal messages at startup sent to file [default /dev/tty]\n"
     "  -?            help\n";
-
 
 
 static void handle_signals (int sig)
@@ -142,24 +144,109 @@ static void handle_signals (int sig)
 }
 
 
+static void
+pmweb_dont_start(void)
+{
+    FILE        *tty;
+    FILE        *log;
 
-/* Main loop of pmwebapi server. */
+    __pmNotifyErr(LOG_ERR, "pmwebd not started due to errors!\n");
+
+    if ((tty = fopen(fatalfile, "w")) != NULL) {
+        fflush(stderr);
+        fprintf(tty, "NOTE: pmwebd not started due to errors!  ");
+        if ((log = fopen(logfile, "r")) != NULL) {
+            int         c;
+            fprintf(tty, "Log file \"%s\" contains ...\n", logfile);
+            while ((c = fgetc(log)) != EOF)
+                fputc(c, tty);
+            fclose(log);
+        }
+        else
+            fprintf(tty, "Log file \"%s\" has vanished!\n", logfile);
+        fclose(tty);
+    }
+    exit(1);
+}
+
+
+/*
+ * Local variant of __pmServerDumpRequestPorts - remove this
+ * when an NSS-based pmweb daemon is built.
+ */
+static void
+server_dump_request_ports(FILE *f, int ipv4, int ipv6, int port)
+{
+    if (ipv4)
+        fprintf (f, "Started daemon on IPv4 TCP port %d\n", port);
+    if (ipv6)
+        fprintf (f, "Started daemon on IPv6 TCP port %d\n", port);
+}
+
+
+static void
+server_dump_configuration(FILE *f)
+{
+    if (resourcedir) {
+        fprintf (f, "Serving non-pmwebapi URLs under directory %s\n",
+                       resourcedir);
+    }
+    if (new_contexts_p) {
+        /* XXX: network outbound ACL */
+        fprintf (f, "Serving PCP archives under directory %s\n",
+                       archivesdir);
+    } else {
+        fprintf (f, "Remote context creation requests disabled\n");
+    }
+}
+
+
+static void
+pmweb_init_random_seed(void)
+{
+    struct timeval tv;
+
+    gettimeofday (&tv, NULL);
+    srandom ((unsigned int) getpid() ^
+             (unsigned int) tv.tv_sec ^
+             (unsigned int) tv.tv_usec);
+}
+
+
+static void
+pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
+{
+    /* Shut down cleanly, out of a misplaced sense of propriety. */
+    if (d4) MHD_stop_daemon (d4);
+    if (d6) MHD_stop_daemon (d6);
+
+    /* Let's politely clean up all the active contexts. */
+    /* The OS could do all that for us anyway, but let's make valgrind happy. */
+    pmwebapi_deallocate_all ();
+
+    __pmNotifyErr (LOG_INFO, "pmwebd Shutdown\n");
+    fflush(stderr);
+}
+
+
 int main(int argc, char *argv[])
 {
     struct MHD_Daemon *d4 = NULL;
     int mhd_ipv4 = 1;
     struct MHD_Daemon *d6 = NULL;
     int mhd_ipv6 = 1;
-    unsigned short port = PMWEBD_PORT;
     int c;
+    int sts;
+    int run_daemon = 1;
     char *errmsg = NULL;
     unsigned errflag = 0;
+    unsigned short port = PMWEBD_PORT;
 
+    umask(022);
     __pmSetProgname(argv[0]);
+    __pmGetUsername(&username);
 
-    /* Parse options */
-
-    while ((c = getopt(argc, argv, options)) != EOF)
+    while ((c = getopt(argc, argv, "D:" OPTIONS)) != EOF)
         switch (c) {
         case 'p':
             {
@@ -219,7 +306,7 @@ int main(int argc, char *argv[])
             verbosity ++;
             break;
 
-        case 'C':
+        case 'c':
             assert (optarg);
             {
                 long pc;
@@ -227,7 +314,7 @@ int main(int argc, char *argv[])
                 errno = 0;
                 pc = strtol(optarg, &endptr, 0);
                 if (errno != 0 || *endptr != '\0' || pc <= 0 || pc >= INT_MAX) {
-                    fprintf(stderr, "%s: invalid -C context number %s\n", pmProgname, optarg);
+                    fprintf(stderr, "%s: invalid -c context number %s\n", pmProgname, optarg);
                     errflag ++;
                 }
                 else perm_context = (unsigned) pc;
@@ -303,6 +390,35 @@ int main(int argc, char *argv[])
             new_contexts_p = 0;
             break;
 
+        case 'D':       /* debug flag */
+            sts = __pmParseDebug(optarg);
+            if (sts < 0) {
+                fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+                        pmProgname, optarg);
+                errflag++;
+            }
+            pmDebug |= sts;
+            break;
+
+        case 'f':
+            /* foreground, i.e. do _not_ run as a daemon */
+            run_daemon = 0;
+            break;
+
+        case 'l':
+            /* log file name */
+            logfile = optarg;
+            break;
+
+        case 'U':
+            /* run as user username */
+            username = optarg;
+            break;
+
+        case 'x':
+            fatalfile = optarg;
+            break;
+
         default:
         case '?':
             fprintf(stderr, usage, pmProgname);
@@ -312,11 +428,16 @@ int main(int argc, char *argv[])
     if (errflag)
         exit(EXIT_FAILURE);
 
-    /* Start microhttpd daemon.  Use the application-driven threading
+    if (run_daemon) {
+        fflush(stderr);
+        pmweb_start_daemon(argc, argv);
+    }
+
+    /* Start microhttp daemon.  Use the application-driven threading
        model, so we don't complicate things with threads.  In the
-       future, if PMAPI becomes safe to invoke from a multithreaded
-       application, consider MHD_USE_THREAD_PER_CONNECTION, with
-       ample locking over our context structures etc. */
+       future, if this daemon becomes safe to run multithreaded (now
+       that libpcp is), consider MHD_USE_THREAD_PER_CONNECTION; need
+       to add ample locking over pmwebd context structures etc. */
     if (mhd_ipv4)
         d4 = MHD_start_daemon(0,
                               port,
@@ -334,43 +455,34 @@ int main(int argc, char *argv[])
 
     if (d4 == NULL && d6 == NULL) {
         __pmNotifyErr(LOG_ERR, "error starting microhttpd daemons\n");
-        exit(EXIT_FAILURE);
+        pmweb_dont_start();
     }
-    
-    if (d4)
-        __pmNotifyErr (LOG_INFO, "Started daemon on IPv4 tcp port %d, pmapi url %s\n",
-                       port, uriprefix);
-    if (d6)
-        __pmNotifyErr (LOG_INFO, "Started daemon on IPv6 tcp port %d, pmapi url %s\n",
-                       port, uriprefix);
 
-    if (resourcedir)
-        __pmNotifyErr (LOG_INFO, "Serving non-PMWEBAPI URLs under directory %s\n",
-                       resourcedir);
-
-    if (new_contexts_p) {
-        /* XXX: network outbound ACL */
-        __pmNotifyErr (LOG_INFO, "Serving PCP archives under directory %s\n",
-                       archivesdir);
-    } else {
-        __pmNotifyErr (LOG_INFO, "Disabling remote context creation requests\n");
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+    /* close old stdout, and force stdout into same stream as stderr */
+    fflush(stdout);
+    close(fileno(stdout));
+    if (dup(fileno(stderr)) == -1) {
+        fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
     }
+    fprintf(stderr, "pmwebd: PID = %" FMT_PID ", PMAPI URL = %s\n", getpid(), uriprefix);
+    server_dump_request_ports(stderr, d4 != NULL, d6 != NULL, port);
+    server_dump_configuration(stderr);
+    fflush(stderr);
 
     /* Set up signal handlers. */
-    signal (SIGINT, handle_signals);
-    signal (SIGHUP, handle_signals);
-    signal (SIGTERM, handle_signals);
-    signal (SIGQUIT, handle_signals);
+    __pmSetSignalHandler(SIGHUP, SIG_IGN);
+    __pmSetSignalHandler(SIGINT, handle_signals);
+    __pmSetSignalHandler(SIGTERM, handle_signals);
+    __pmSetSignalHandler(SIGQUIT, handle_signals);
     /* Not this one; might get it from pmcd momentary disconnection. */
-    /* signal (SIGPIPE, handle_signals); */
+    /* __pmSetSignalHandler(SIGPIPE, handle_signals); */
 
-    {
-        struct timeval tv;
-        gettimeofday (&tv, NULL);
-        srandom ((unsigned int) getpid() ^
-                 (unsigned int) tv.tv_sec ^
-                 (unsigned int) tv.tv_usec);
-    }
+    /* lose root privileges if we have them */
+    __pmSetProcessIdentity(username);
+
+    /* Setup randomness for calls to random() */
+    pmweb_init_random_seed();
 
     /* Block indefinitely. */
     while (! exit_p) {
@@ -401,16 +513,7 @@ int main(int argc, char *argv[])
         if (d6) MHD_run (d6);
     }
 
-    __pmNotifyErr (LOG_INFO, "Stopping\n");
-
-    /* Shut down cleanly, out of a misplaced sense of propriety. */
-    if (d4) MHD_stop_daemon (d4);
-    if (d6) MHD_stop_daemon (d6);
-
-    /* Let's politely clean up all the active contexts. */
-    /* The OS could do all that for us anyway, but let's make valgrind happy. */
-    pmwebapi_deallocate_all ();
-
+    pmweb_shutdown (d4, d6);
     return 0;
 }
 

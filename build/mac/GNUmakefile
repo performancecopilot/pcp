@@ -10,10 +10,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 
 TOPDIR = ../..
@@ -80,6 +76,7 @@ idb: $(DIST_MANIFEST)
 	@echo "f 644 root wheel Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings English.lproj/Localizable.strings replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmcd etc/init.d/pmcd replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmie etc/init.d/pmie replace" >> idb
+	@echo "s 0 root wheel Library/StartupItems/pcp/pmwebd etc/init.d/pmwebd replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmproxy etc/init.d/pmproxy replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmlogger etc/init.d/pmlogger replace" >> idb
 	@echo idb created

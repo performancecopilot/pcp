@@ -19,6 +19,7 @@ To start pmcd (and enable persistent restart after reboot)
 Similarly (if needed) ...
 
     # /usr/sbin/svcadm enable pcp/pmie
+    # /usr/sbin/svcadm enable pcp/pmwebd
     # /usr/sbin/svcadm enable pcp/pmproxy
 
 To remove PCP, run the following command as "root":

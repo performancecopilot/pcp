@@ -11,33 +11,32 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
-[ $PCP_VER -ge 3800 ] || _notrun "Installed pcp is too old"
 
-if which curl >/dev/null 2>&1
-then
-    echo curl ok
-else
-    _notrun no curl
-fi
+which pmproxy >/dev/null 2>&1 || _notrun "No pmwebd binary installed"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+echo curl ok
 # nb: wget dispreferred because of its processing of .. relative links,
 # so it's harder to stress pmwebd's base-directory-escapig logic
 
 pyscript=src/test_webapi.python
-if python $pyscript --version 2>/dev/null
-then
-    echo python ok
-else
-    _notrun python/modules missing 
-fi
+python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
+echo python ok
 
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
 {
-    rm -fr $tmp.dir
-    rm -f $tmp.*
-    kill $pid 2>/dev/null
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    $sudo $signal -a pmwebd >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmwebd restart >/dev/null 2>&1
     exit $status
 }
 
@@ -47,21 +46,18 @@ _filter()
 }
 
 
-iam=pmwebd
-status=1	# failure is the default!
-trap "_cleanup" 0 1 2 3 15
-
-rm -fr $tmp.dir
-rm -f $tmp.*
-
 unset http_proxy
 unset HTTP_PROXY
 
+$sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
+$sudo $signal -a pmwebd >/dev/null 2>&1
+
+webargs="-U $username -f"
+
 echo
 echo "=== 1. pmwebd default startup  ==="
-pmwebd 2>$tmp.out &
-pid=$!
-sleep 2
+$PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out 2>&1 &
+sleep 2		# let it start up
 curl -s -S 'http://localhost:44323/pmapi/context?local=ANYTHING' | awk '{print $2}'
 
 rm -f $seq.out
@@ -79,19 +75,19 @@ echo
 echo "=== 2. pmwebd exercise via python ==="
 # pmwebd still running in default mode
 if grep -q IPv4 $tmp.out; then
-  python $pyscript --host localhost | _filter
+    python $pyscript --host localhost | _filter
 fi
 if grep -q IPv6 $tmp.out; then
-  python $pyscript --host localhost6 | _filter
+    python $pyscript --host localhost6 | _filter
 fi
 
 echo
 echo "=== 3. pmwebd security constraints, file service ==="
-kill $pid
-sleep 2
-pmwebd -R `pwd` -C 2222 -L -N 2>/dev/null &
-pid=$!
-sleep 2
+$sudo $signal -a pmwebd >/dev/null 2>&1
+sleep 2		# let it shutdown
+
+$PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -N 2>/dev/null &
+sleep 2		# let it start up
 
 # should fail due to -N
 curl -s -S 'http://localhost:44323/pmapi/context?local=anything'
@@ -109,7 +105,6 @@ echo
 curl -s -S "http://localhost:44323/$seq" > $tmp.out
 diff $tmp.out $0 && echo file service ok
 
-# $pid killed automagically via trap
 status=0
 sleep 2
 exit

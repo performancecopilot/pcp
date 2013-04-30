@@ -12,10 +12,10 @@ seeking centralized monitoring of distributed processing.
 
 POST-INSTALL:
 ============
-By default the pmcd agent, pmie and pmproxy startup scripts 
+By default the pmie, pmwebd and pmproxy startup scripts 
 
 /etc/rc.d/rc.pmie
-/etc/rc.d/rc.pcp
+/etc/rc.d/rc.pmwebd
 /etc/rc.d/rc.pmproxy
 
 are disabled (no executable permissions are set). To enable any of them,
@@ -25,5 +25,6 @@ rc.pcp - starts all the agents and daemons for collecting the info from
          various host monitoring 
 rc.pmie - starts all daemons for evaluating the rules based on the exported 
           PCP metrics (usually for triggering particular events)
+rc.pmwebd - starts the web daemon (JSON web requests for the pmcd daemon)
 rc.pmproxy - starts proxy daemon (proxies requests for the pmcd daemon)
 
