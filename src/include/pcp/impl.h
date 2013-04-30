@@ -490,6 +490,7 @@ typedef struct {
     int		*ports;			/* array of host port numbers */
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
+
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
 extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
@@ -501,7 +502,9 @@ typedef enum {
     PCP_ATTR_UNIXSOCK,
     PCP_ATTR_USERNAME,
     PCP_ATTR_PASSWORD,
+    PCP_ATTR_SECURE,
 } __pmHostAttributeKey;
+
 extern int __pmParseHostAttrsSpec(
     const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
 extern int __pmUnparseHostAttrsSpec(
@@ -525,7 +528,7 @@ typedef struct {
     time_t		pc_again;	/* time to try again */
 } __pmPMCDCtl;
 
-extern int __pmConnectPMCD(pmHostSpec *, int, int);
+extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
 extern int __pmConnectLocal(void);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
@@ -663,7 +666,8 @@ typedef struct {
     int			c_sent;		/* profile has been sent to pmcd */
     __pmProfile		*c_instprof;	/* instance profile */
     void		*c_dm;		/* derived metrics, if any */
-    int			c_flags;	/* various context flags, e.g. SECURE */
+    int			c_flags;	/* ctx flags (set via type/env/attrs) */
+    __pmHashCtl		c_attrs;	/* various optional context attributes */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff

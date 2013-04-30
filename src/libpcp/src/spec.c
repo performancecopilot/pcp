@@ -630,7 +630,10 @@ lookupAttribute(const char *attribute, int size)
 	strncmp(attribute, "unix", size) == 0) ||
 	(size == sizeof("unixsock")-1 &&
         strncmp(attribute, "unixsock", size) == 0))
-	return PCP_ATTR_PASSWORD;
+	return PCP_ATTR_UNIXSOCK;
+    if ((size == sizeof("secure")-1 &&
+	 strncmp(attribute, "secure", size) == 0))
+	return PCP_ATTR_SECURE;
     return PCP_ATTR_NONE;
 }
 
@@ -757,6 +760,9 @@ unparseAttribute(__pmHashNode *node, char *string, size_t size)
 			node->data ? (char *)node->data : "");
     case PCP_ATTR_PASSWORD:
 	return snprintf(string, size, "password=%s",
+			node->data ? (char *)node->data : "");
+    case PCP_ATTR_SECURE:
+	return snprintf(string, size, "secure=%s",
 			node->data ? (char *)node->data : "");
     }
     return 0;

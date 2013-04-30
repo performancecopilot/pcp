@@ -299,7 +299,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 }
 
 int
-__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
+__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 {
     int		sts = -1;
     int		fd = -1;	/* Fd for socket connection to pmcd */
@@ -312,6 +312,8 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 
     static int first_time = 1;
     static pmHostSpec proxy;
+
+    (void)attrs;	/* for now - WIP */
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
