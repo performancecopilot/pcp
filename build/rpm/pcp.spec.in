@@ -13,6 +13,7 @@ BuildRequires: procps bison flex
 BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: libmicrohttpd-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{_vendor}" == "redhat"
