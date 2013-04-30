@@ -196,7 +196,7 @@ class _CpuPrint(_AtopPrint, Cpu):
 
 
 class _InterruptPrint(_AtopPrint, Interrupt):
-    True                        # pylint: disable-msg=W0104
+    pass
 
 
 # _DiskPrint --------------------------------------------------
@@ -380,7 +380,7 @@ class _ProcPrint(_AtopPrint, Proc):
 
 
 class _GenericPrint(_AtopPrint, Subsys):
-    True                        # pylint: disable-msg=W0104
+    pass
 
 
 # main ----------------------------------------------------------------------
@@ -415,7 +415,7 @@ def main (stdscr):
     sort_options = {"C", "M", "D", "N", "A"}
 
     class NextOption ( Exception ):
-        True                        # pylint: disable-msg=W0104
+        pass
 
     while i < len(sys.argv):
         try:
@@ -448,7 +448,7 @@ def main (stdscr):
             i += 1
         except NextOption:
             i += 1
-            True                        # pylint: disable-msg=W0104
+            pass
 
     if input_file == "":
         try:
@@ -558,7 +558,7 @@ def main (stdscr):
                     proc.output_type = cmd
             i_samples += 1
     except KeyboardInterrupt:
-        True                        # pylint: disable-msg=W0104
+        pass
     stdscr.refresh()
     time.sleep(3)
     return ""
