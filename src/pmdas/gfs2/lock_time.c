@@ -227,7 +227,7 @@ check_glocks(linkedList_t * list, dev_t dev){
 }
 
 /*
- * Comparision function to allow the comparision of two different locks, we
+ * Comparison function to allow the comparison of two different locks, we
  * compare the values; we return A worse than B = 1, 
  *                               B worse than A = 0.
  */
