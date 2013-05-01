@@ -293,7 +293,7 @@ class pmResult(Structure):
 
     def get_pmid(self, vset_idx):
         """ Return the pmid of vset[vset_idx] """
-        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
+        vsetptr = cast(self.vset, POINTER(pmValueSetPtr))
         return vsetptr[vset_idx].contents.pmid
 
     def get_valfmt(self, vset_idx):
@@ -330,6 +330,11 @@ class pmDesc(Structure):
     def __str__(self):
         fields = (addressof(self), self.pmid, self.type)
         return "pmDesc@%#lx id=%#lx type=%d" % fields
+
+pmDescPtr = POINTER(pmDesc)
+pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
+pmDescPtr.type = property(lambda x: x.contents.type, None, None, None)
+
 
 def get_indom( pmdesc ):
     """Internal function to extract an indom from a pmdesc

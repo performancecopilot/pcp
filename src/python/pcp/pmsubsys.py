@@ -41,6 +41,7 @@ from ctypes import c_char_p
 class _pmsubsys(object):
     def __init__(self):
         self.metrics = []
+        self.diff_metrics = []
         self.metric_pmids = []
         self.metric_descs = []
         self.metric_values = []
@@ -77,7 +78,7 @@ class _pmsubsys(object):
         return metrics_string
 
     def get_total(self):
-        True                        # pylint: disable-msg=W0104
+        True
             
     def get_scalar_value(self, var, idx):
         value = self.get_metric_value(var)
@@ -92,43 +93,39 @@ class _pmsubsys(object):
         else:
             return 1
 
-    def get_atom_value(self, metric, atom1, atom2, desc, first): # pylint: disable-msg=R0913
-        if desc.contents.sem == c_api.PM_SEM_DISCRETE or desc.contents.sem == c_api.PM_SEM_INSTANT :
-            # just use the absolute value as if it were the first value
-            first = True
-
+    def get_atom_value(self, metric, atom1, atom2, desc, want_diff): # pylint: disable-msg=R0913
         # value conversion and diff, if required
-        atom_type = desc.contents.type
+        atom_type = desc.type
         if atom_type == c_api.PM_TYPE_32:
-            if first:
-                return atom1.l 
-            else:
+            if want_diff:
                 return atom1.l - atom2.l
+            else:
+                return atom1.l 
         elif atom_type == c_api.PM_TYPE_U32:
-            if first:
-                return atom1.ul 
-            else:
+            if want_diff:
                 return atom1.ul - atom2.ul
+            else:
+                return atom1.ul 
         elif atom_type == c_api.PM_TYPE_64:
-            if first:
-                return atom1.ll 
-            else:
+            if want_diff:
                 return atom1.ll - atom2.ll
+            else:
+                return atom1.ll 
         elif atom_type == c_api.PM_TYPE_U64:
-            if first:
-                return atom1.ull 
-            else:
+            if want_diff:
                 return atom1.ull - atom2.ull
+            else:
+                return atom1.ull 
         elif atom_type == c_api.PM_TYPE_FLOAT:
-            if first:
-                return atom1.f 
-            else:
+            if want_diff:
                 return atom1.f - atom2.f
-        elif atom_type == c_api.PM_TYPE_DOUBLE:
-            if first:
-                return atom1.d 
             else:
+                return atom1.f 
+        elif atom_type == c_api.PM_TYPE_DOUBLE:
+            if want_diff:
                 return atom1.d - atom2.d
+            else:
+                return atom1.d 
         elif atom_type == c_api.PM_TYPE_STRING:
             atom_str = c_char_p(atom1.cp)
             return str(atom_str.value)
@@ -146,7 +143,8 @@ class _pmsubsys(object):
         if max(self.old_metric_values) == 0:
             first = True
         else:
-            first =  False
+            first = False
+
         # list of metric names
         for i in xrange(len(self.metrics)):
             # list of metric results, one per metric name
@@ -157,17 +155,29 @@ class _pmsubsys(object):
                 # list of instances, one or more per metric.  e.g. there are many 
                 # instances for network metrics, one per network interface
                 for k in xrange(metric_result.contents.get_numval(j)):
-                    atom = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].contents.type, self.metric_descs[j].contents.type)
+                    atom = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].type, self.metric_descs[j].type)
                     atomlist.append(atom)
 
                 value = []
                 # metric may require a diff to get a per interval value
                 for k in xrange(metric_result.contents.get_numval(j)):
                     if type(self.old_metric_values[j]) == list_type:
-                        old_val = self.old_metric_values[j][k]
+                        try:
+                            old_val = self.old_metric_values[j][k]
+                        except IndexError:
+                            old_val = 0
                     else:
                         old_val = self.old_metric_values[j]
-                    value.append(self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], first))
+                    if first:
+                        want_diff = False
+                    elif self.metrics[j] in self.diff_metrics:
+                        want_diff = True
+                    elif (self.metric_descs[j].sem == c_api.PM_SEM_DISCRETE
+                          or self.metric_descs[j].sem == c_api.PM_SEM_INSTANT) :
+                        want_diff = False
+                    else:
+                        want_diff = True
+                    value.append(self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], want_diff))
 
                 self.old_metric_values[j] = copy.copy(atomlist)
                 if metric_result.contents.get_numval(j) == 1:
@@ -190,12 +200,12 @@ class _pmsubsys(object):
             super(_pmsubsys, self).get_metric_value()
 
 
-# Cpu  -----------------------------------------------------------------
+# Processor  -----------------------------------------------------------------
 
 
-class Cpu(_pmsubsys):
+class Processor(_pmsubsys):
     def __init__(self):
-        super(Cpu, self).__init__()
+        super(Processor, self).__init__()
         self.cpu_total = 0
         self.metrics += ['hinv.ncpu', 'kernel.all.cpu.guest',
                          'kernel.all.cpu.idle', 'kernel.all.cpu.intr',
@@ -215,6 +225,7 @@ class Cpu(_pmsubsys):
                          # multiple inheritance?
                          'proc.runq.blocked', 'proc.runq.defunct', 
                          'proc.runq.runnable', 'proc.runq.sleeping']
+        self.diff_metrics = ['kernel.all.uptime']
 
 
     def get_total(self):
@@ -288,12 +299,12 @@ class Memory(_pmsubsys):
                          'swap.pagesout', 'swap.used' ]
 
 
-# Net  -----------------------------------------------------------------
+# Network  -----------------------------------------------------------------
 
 
-class Net(_pmsubsys):
+class Network(_pmsubsys):
     def __init__(self):
-        super(Net, self).__init__()
+        super(Network, self).__init__()
         self.metrics += ['network.interface.in.bytes',
                          'network.interface.in.packets',
                          'network.interface.out.bytes',
@@ -318,12 +329,12 @@ class Net(_pmsubsys):
                          'network.udp.outdatagrams', 'network.udp.noports' ]
 
 
-# Proc  -----------------------------------------------------------------
+# Process  -----------------------------------------------------------------
 
 
-class Proc(_pmsubsys):
+class Process(_pmsubsys):
     def __init__(self):
-        super(Proc, self).__init__()
+        super(Process, self).__init__()
         self.metrics += ['proc.id.egid', 'proc.id.euid', 'proc.id.fsgid',
                          'proc.id.fsuid', 'proc.id.gid', 'proc.id.sgid',
                          'proc.id.suid', 'proc.id.uid', 'proc.io.write_bytes',
@@ -348,5 +359,5 @@ class Proc(_pmsubsys):
 # subsys  -----------------------------------------------------------------
 
 
-class Subsys(_pmsubsys):
-    True                        # pylint: disable-msg=W0104
+class Subsystem(_pmsubsys):
+    True
