@@ -1351,14 +1351,6 @@ __pmGetAddrInfo(const char *hostName)
     return he;
 }
 
-char *
-__pmHostEntGetName(const __pmHostEnt *he)
-{
-     if (he->name == NULL)
-        return NULL;
-     return strdup(he->name);
-}
-
 __pmSockAddr *
 __pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
 {
