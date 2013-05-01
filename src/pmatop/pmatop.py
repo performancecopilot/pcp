@@ -625,7 +625,9 @@ def main (stdscr_p):
                     proc.output_type = cmd
                 else:
                     stdscr.move (proc.command_line, 0)
-                    stdscr.addstr ("Invalid command %s" % cmd)
+                    all_cmds = list(subsys_cmds)
+                    all_cmds.append('q')
+                    stdscr.addstr ("Invalid command %s %s" % (cmd,all_cmds))
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1
