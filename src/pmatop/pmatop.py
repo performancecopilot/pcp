@@ -42,20 +42,24 @@ import re
 import time
 import sys
 import curses
+import select
 import cpmapi as c_api
 import cpmgui as c_gui
 from pcp import pmapi
-from pcp.pmsubsys import Cpu, Interrupt, Disk, Memory, Net, Proc, Subsys
+from pcp.pmsubsys import Processor, Interrupt, Disk, Memory, Network, Process, Subsystem
 
 ME = "pmatop"
 
 def usage ():
-    print "\nUsage:", sys.argv[0], "\n\t[-d|-c|-n|-s|-v|-c|-y|-u|-p] [-C|-M|-D|-N|-A] [-f|--filename FILE] [-p|--playback FILE]"
+    print "\nUsage:", sys.argv[0], "\n\t[-d|-c|-n|-s|-v|-c|-y|-u|-p] [-C|-M|-D|-N|-A] [-f|--filename FILE] [-p|--playback FILE] Interval Trials"
 
 
 def debug (mssg):
     fdesc = open("/tmp/,python", mode="a")
-    fdesc.write(mssg)
+    if type(mssg) == type(""):
+        fdesc.write(mssg)
+    else:
+        fdesc.write(str(mssg) + "\n")
     fdesc.close()
 
 
@@ -121,6 +125,56 @@ def minutes_seconds (millis):
     return "%dh%dm" % (hours, minutes)
 
 
+# _StandardOutput --------------------------------------------------
+
+
+class _StandardOutput(object):
+    def __init__(self, out):
+        if (out == sys.stdout):
+            self.stdout = True
+        else:
+            self.stdout = False
+            self.so_stdscr = out
+    def addstr(self, str):
+        if self.stdout:
+            sys.stdout.write(str)
+        else:
+            self.so_stdscr.addstr (str)
+    def move(self, y, x):
+        if not self.stdout:
+            self.so_stdscr.move(y,x)
+    def getyx(self):
+        if self.stdout:
+            return (0, 0)
+        else:
+            return self.so_stdscr.getyx()
+    def getmaxyx(self):
+        if self.stdout:
+            return (1000, 80)
+        else:
+            return self.so_stdscr.getmaxyx()
+    def nodelay(self, tf):
+        if not self.stdout:
+            self.so_stdscr.nodelay(tf)
+    def timeout(self, milliseconds):
+        if not self.stdout:
+            self.so_stdscr.timeout(milliseconds)
+    def refresh(self):
+        if not self.stdout:
+            self.so_stdscr.refresh()
+    def getch(self):
+        if not self.stdout:
+            return self.so_stdscr.getch()
+        else:
+            while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                char = sys.stdin.read(1)
+                if len(char) == 0:
+                    return -1
+                else:
+                    return ord(char)
+            return -1
+
+
 # _AtopPrint --------------------------------------------------
 
 class _AtopPrint(object):
@@ -131,6 +185,9 @@ class _AtopPrint(object):
         self.p_stdscr = a_stdscr
         self.apyx = a_stdscr.getmaxyx()
     def next_line(self):
+        if self.p_stdscr.stdout:
+            print
+            return
         line = self.p_stdscr.getyx()
         apy = line[0]
         if line[1] > 0:
@@ -141,10 +198,10 @@ class _AtopPrint(object):
         return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
 
 
-# _CpuPrint --------------------------------------------------
+# _ProcessorPrint --------------------------------------------------
 
 
-class _CpuPrint(_AtopPrint, Cpu):
+class _ProcessorPrint(_AtopPrint, Processor):
 # Missing: #trun (total # running threads) 
 # Missing: #exit (requires accounting)
 # Substitutions: proc.runq.sleeping for #tslpi (threads sleeping) 
@@ -289,7 +346,7 @@ class _MemoryPrint(_AtopPrint, Memory):
 # _NetPrint --------------------------------------------------
 
 
-class _NetPrint(_AtopPrint, Net):
+class _NetPrint(_AtopPrint, Network):
     def net(self, context):
         self.p_stdscr.addstr ('NET | transport    |')
         self.p_stdscr.addstr (self.put_value(' tcpi %6.2gM |', self.get_metric_value('network.tcp.insegs')))
@@ -336,25 +393,28 @@ class _NetPrint(_AtopPrint, Net):
 # _ProcPrint --------------------------------------------------
 
 
-class _ProcPrint(_AtopPrint, Proc):
+class _ProcPrint(_AtopPrint, Process):
     def __init__(self):
         super(_ProcPrint, self).__init__()
-        self.output_type = 'g'
+        self._output_type = 'g'
+    def type_write(self, value):
+        self._output_type = value
+    output_type = property(None, type_write, None, None)
+
     def proc(self):
         current_yx = self.p_stdscr.getyx()
-
-        if self.output_type in ['g']:
+        if self._output_type in ['g']:
             self.p_stdscr.addstr ('  PID SYSCPU USRCPU VGROW RGROW RUID   THR ST EXC S CPU  CMD\n')
-        elif self.output_type in ['m']:
+        elif self._output_type in ['m']:
             self.p_stdscr.addstr ('  PID MAJFLT MINFLT\n')
 
         for j in xrange(len(self.get_metric_value('proc.psinfo.pid'))):
             if j > (self.apyx[0] - current_yx[0]):
                 break
 
-            if self.output_type in ['g', 'm']:
+            if self._output_type in ['g', 'm']:
                 self.p_stdscr.addstr ('%4d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
-            if self.output_type in ['g']:
+            if self._output_type in ['g']:
 # Missing: is proc.psinfo.stime correct?
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime', j)))
 # Missing: is proc.psinfo.utime correct?
@@ -369,7 +429,7 @@ class _ProcPrint(_AtopPrint, Proc):
                 self.p_stdscr.addstr ('%2d ' % 0)
                 self.p_stdscr.addstr ('%3d ' % 0)
                 self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd', j)))
-            if self.output_type in ['m']:
+            if self._output_type in ['m']:
                 self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.maj_flt', j)))
                 self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.minflt', j)))
             self.next_line()
@@ -379,16 +439,24 @@ class _ProcPrint(_AtopPrint, Proc):
 # _GenericPrint --------------------------------------------------
 
 
-class _GenericPrint(_AtopPrint, Subsys):
+class _GenericPrint(_AtopPrint, Subsystem):
     pass
+
+
+class _MiscMetrics(Subsystem):
+    def __init__(self):
+        super(_MiscMetrics, self).__init__()
+        self.metrics += ['kernel.all.uptime']
+        self.diff_metrics += ['kernel.all.uptime']
 
 
 # main ----------------------------------------------------------------------
 
 
-def main (stdscr):
+def main (stdscr_p):
+    stdscr = _StandardOutput(stdscr_p)
     subsys = list()
-    cpu = _CpuPrint()
+    cpu = _ProcessorPrint()
     cpu.set_stdscr(stdscr)
     mem = _MemoryPrint()
     mem.set_stdscr(stdscr)
@@ -398,23 +466,24 @@ def main (stdscr):
     net.set_stdscr(stdscr)
     proc = _ProcPrint()
     proc.set_stdscr(stdscr)
+    mm = _MiscMetrics()
 
     output_file = ""
     input_file = ""
     sort = ""
     duration = 0
-    interval_arg = 1
+    interval_arg = 5
     duration_arg = 0
     n_samples = 0
     i = 1
 
-    stdscr.nodelay(True)
+#    stdscr.nodelay(True)
 
     subsys_options = {"d", "c", "n", "s", "v", "c", "y", "u", "p"}
 
     sort_options = {"C", "M", "D", "N", "A"}
 
-    class NextOption ( Exception ):
+    class NextOption(Exception):
         pass
 
     while i < len(sys.argv):
@@ -468,11 +537,10 @@ def main (stdscr):
         try:
             pmc = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
-            debug(e.__str__())
             return "Cannot open PCP archive: " + archive
 
     if duration_arg != 0:
-        (code, timeval, errmsg) = pmc.pmParseInterval(duration_arg)
+        (timeval, errmsg) = pmc.pmParseInterval(duration_arg)
         if code < 0:
             return errmsg
         duration = timeval.tv_sec
@@ -516,14 +584,20 @@ def main (stdscr):
     if host == "localhost":
         host = os.uname()[1]
 
-    stdscr.move (0, 0)
-    stdscr.addstr ('ATOP - %s\t\t%s elapsed\n\n' % (time.strftime("%c"), datetime.timedelta(0, cpu.get_metric_value('kernel.all.uptime'))))
-
     i_samples = 0
     subsys_cmds = ['g', 'm']
 
+    mm.setup_metrics(pmc)
+    mm.get_stats(pmc)
+    (delta, errmsg) = pmc.pmParseInterval(str(interval_arg) + " seconds")
+
     try:
         while (i_samples < n_samples) or (n_samples == 0):
+            stdscr.move (0, 0)
+            stdscr.addstr ('ATOP - %s\t\t%s elapsed\n\n' % (
+                    time.strftime("%c"), 
+                    datetime.timedelta(0, mm.get_metric_value('kernel.all.uptime'))))
+            mm.get_stats(pmc)
             stdscr.move (2, 0)
             for ssx in subsys:
                 try:
@@ -535,17 +609,10 @@ def main (stdscr):
                 except curses.error:
                     pass
             stdscr.move (proc.command_line, 0)
-            sec = 1
-            char = 0
-            (delta, errmsg) = pmc.pmParseInterval(str(interval_arg) + " seconds")
-            (one_second, errmsg) = pmc.pmParseInterval(str(1) + " seconds")
             stdscr.refresh()
-            while (sec < delta.tv_sec):
-                char = stdscr.getch()
-                if (char != -1 and chr(char) == "q"):
-                    raise KeyboardInterrupt
-                pmc.pmtimevalSleep(one_second)
-                sec += 1
+
+            stdscr.timeout(delta.tv_sec * 1000)
+            char = stdscr.getch()
 
             if (char != -1):       # user typed a command
                 try:
@@ -556,15 +623,24 @@ def main (stdscr):
                     raise KeyboardInterrupt
                 elif cmd in subsys_cmds:
                     proc.output_type = cmd
+                else:
+                    stdscr.move (proc.command_line, 0)
+                    stdscr.addstr ("Invalid command %s" % cmd)
+                    stdscr.refresh()
+                    time.sleep(2)
             i_samples += 1
     except KeyboardInterrupt:
         pass
     stdscr.refresh()
-    time.sleep(3)
+    time.sleep(1)
     return ""
 
 if __name__ == '__main__':
-    status = curses.wrapper(main)   # pylint: disable-msg=C0103
+    if sys.stdout.isatty():
+        status = curses.wrapper(main)   # pylint: disable-msg=C0103
+        # You're running in a real terminal
+    else:
+        status = main(sys.stdout)
+        # You're being piped or redirected
     if (status != ""):
         print status
-
