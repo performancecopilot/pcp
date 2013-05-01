@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -87,7 +87,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
  * client connects to pmcd handshake
  */
 static int
-__pmConnectHandshake(int fd, int ctxflags, const char *hostname)
+__pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *attrs)
 {
     __pmPDU	*pb;
     int		ok;
@@ -95,6 +95,8 @@ __pmConnectHandshake(int fd, int ctxflags, const char *hostname)
     int		challenge;
     int		sts;
     int		pinpdu;
+
+    (void)attrs;	/* for now - WIP */
 
     /* Expect an error PDU back from PMCD: ACK/NACK for connection */
     pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -313,8 +315,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     static int first_time = 1;
     static pmHostSpec proxy;
 
-    (void)attrs;	/* for now - WIP */
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first_time) {
@@ -350,7 +350,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(name, ports[i])) >= 0) {
-		if ((sts = __pmConnectHandshake(fd, ctxflags, name)) < 0) {
+		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
 		}
 		else
@@ -410,7 +410,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    __pmCloseSocket(fd);
-	else if ((sts = __pmConnectHandshake(fd, ctxflags, proxyhost->name)) < 0)
+	else if ((sts = __pmConnectHandshake(fd, proxyhost->name, ctxflags, attrs)) < 0)
 	    __pmCloseSocket(fd);
 	else
 	    /* success */
