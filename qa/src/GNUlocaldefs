@@ -107,10 +107,10 @@ LDIRT += hashwalk
 endif
 
 ifeq ($(shell test $(PCP_VER) -ge 3800 && echo 1), 1)
-CFILES += parsehostattrs.c parsehostspec.c
+CFILES += parsehostattrs.c parsehostspec.c check_import_name.c
 else
-MYFILES += parsehostattrs.c parsehostspec.c
-LDIRT += parsehostattrs parsehostspec
+MYFILES += parsehostattrs.c parsehostspec.c check_import_name.c
+LDIRT += parsehostattrs parsehostspec check_import_name
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
@@ -493,6 +493,10 @@ tabort:	tabort.c
 #
 
 check_import:	check_import.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+
+check_import_name:	check_import_name.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
 

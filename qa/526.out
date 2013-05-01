@@ -1,0 +1,121 @@
+QA output created by 526
+
+=== std out ===
+Checking metric name: "." ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: Error: Illegal metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name .
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "abc.123" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: Error: Illegal metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name abc.123
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "1bc.123" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: Error: Illegal metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name 1bc.123
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "abc.xyz" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: OK
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name abc.xyz
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "a" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: OK
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name a
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "1" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: Error: Illegal metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name 1
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "kernel.all.load" ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: OK
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name kernel.all.load
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== std out ===
+Checking metric name: "ab.cd." ...
+=== std err ===
+pmiStart: OK -> 1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: Error: Illegal metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/check_import_name ab.cd.
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

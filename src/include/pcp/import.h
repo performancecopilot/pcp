@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -57,6 +57,7 @@ extern void pmiDump(void);
 #define PMI_ERR_BADTYPE		(-PMI_ERR_BASE-9) /* Illegal metric type */
 #define PMI_ERR_BADSEM		(-PMI_ERR_BASE-10) /* Illegal metric semantics */
 #define PMI_ERR_NODATA		(-PMI_ERR_BASE-11) /* No data to output */
+#define PMI_ERR_BADMETRICNAME	(-PMI_ERR_BASE-12) /* Illegal metric name */
 
 #ifdef __cplusplus
 }
