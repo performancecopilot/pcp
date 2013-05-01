@@ -606,7 +606,7 @@ def main (stdscr_p):
                         ssx[0]()
                     else:
                         ssx[0](ssx[1])
-                except curses.error:
+                except: # catch all errors, pcp or python or otherwise
                     pass
             stdscr.move (proc.command_line, 0)
             stdscr.refresh()
