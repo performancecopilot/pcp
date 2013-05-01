@@ -20,9 +20,9 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-MAN_SECTION	= 4
+MAN_SECTION	= 5
 
-MAN_PAGES	= pcp.conf.4 pcp.env.4 pmieconf.4 pmns.4 mmv.4
+MAN_PAGES	= pcp.conf.5 pcp.env.5 pmieconf.5 pmns.5 mmv.5
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
 

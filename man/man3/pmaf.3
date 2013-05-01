@@ -146,7 +146,7 @@ In addition, the semantics of the interval timer(s) and the global
 state needed to support these services demand that applications
 calling these routines must do so from a single thread.
 This restriction is enforced at the
-.BR PMAPI (4),
+.BR PMAPI (3),
 where routines may return the error code
 .B PM_ERR_THREAD
 if the library detects calls from more than one thread.
