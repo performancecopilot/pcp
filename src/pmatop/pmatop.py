@@ -43,6 +43,7 @@ import time
 import sys
 import curses
 import select
+import signal
 import cpmapi as c_api
 import cpmgui as c_gui
 from pcp import pmapi
@@ -454,6 +455,7 @@ class _MiscMetrics(Subsystem):
 
 
 def main (stdscr_p):
+    global stdscr
     stdscr = _StandardOutput(stdscr_p)
     subsys = list()
     cpu = _ProcessorPrint()
@@ -637,8 +639,19 @@ def main (stdscr_p):
     time.sleep(1)
     return ""
 
+def sigwinch_handler(n, frame):
+    global stdscr
+    curses.endwin()
+    curses.initscr()
+    # consume any subsequent characters awhile
+    while 1:
+        char = stdscr.getch()
+        if (char == -1):
+            break
+
 if __name__ == '__main__':
     if sys.stdout.isatty():
+        signal.signal(signal.SIGWINCH, sigwinch_handler)
         status = curses.wrapper(main)   # pylint: disable-msg=C0103
         # You're running in a real terminal
     else:
