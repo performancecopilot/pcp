@@ -401,25 +401,8 @@ is the name of an initialization function which will be called when the DSO is
 loaded
 .TP 14
 .I path
-designates the location of the DSO. This field is treated differently 
-on Irix and on Linux. Later expects it to be an absolute pathname, while 
-former uses some heuristics to find an agent. If
-.I path
-begins with a
-.B /
-it is taken as an absolute path specifying the DSO. If
-.I path
-is relative,
-.B pmcd
-will expect to find the agent in a file with the name
-\f3mips_\f2simabi\f3.\f2path\f1,
-where
-.I simabi
-is either
-.BR o32 ,
-.BR n32
-or
-.BR 64 .
+designates the location of the DSO and this is expected
+to be an absolute pathname.
 .B pmcd
 is only able to load DSO agents that have the same
 .I simabi
