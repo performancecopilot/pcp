@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <stdarg.h>
 #include <microhttpd.h>
 
 /* ------------------------------------------------------------------------ */
