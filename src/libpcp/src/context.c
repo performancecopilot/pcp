@@ -286,13 +286,26 @@ ctxflags(__pmHashCtl *attrs)
 
     if (secure) {
         if (secure[0] == '\0' ||
-	          (strcmp(secure, "1")) == 0 ||
-	          (strcmp(secure, "enforce")) == 0) {
+	   (strcmp(secure, "1")) == 0 ||
+	   (strcmp(secure, "enforce")) == 0) {
 	    flags |= PM_CTXFLAG_SECURE;
 	} else if (strcmp(secure, "relaxed") == 0) {
 	    flags |= PM_CTXFLAG_RELAXED;
 	}
     }
+
+    if (__pmHashSearch(PCP_ATTR_COMPRESS, attrs) != NULL)
+	flags |= PM_CTXFLAG_COMPRESS;
+
+    if (__pmHashSearch(PCP_ATTR_USERAUTH, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_AUTHNAME, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
+	flags |= PM_CTXFLAG_USER_AUTH;
+
     return flags;
 }
 

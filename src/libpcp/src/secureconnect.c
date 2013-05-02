@@ -38,16 +38,16 @@ __pmHostEntFree(__pmHostEnt *hostent)
 }
 
 /*
- * We shift NSS/SSL errors below the valid range for PCP error codes,
- * in order to avoid conflicts.  pmErrStr can then detect and decode.
- * PM_ERR_NYI is the PCP error code sentinel.
+ * We shift NSS/NSPR/SSL/SASL errors below the valid range for other
+ * PCP error codes, in order to avoid conflicts.  pmErrStr can then
+ * detect and decode.  PM_ERR_NYI is the PCP error code sentinel.
  */
 int
-__pmSecureSocketsError()
+__pmSecureSocketsError(int code)
 {
-    int code = (PM_ERR_NYI + PR_GetError());  /* encode, negative value */
-    setoserror(-code);
-    return code;
+    int sts = (PM_ERR_NYI + code);	/* encode, negative value */
+    setoserror(-sts);
+    return sts;
 }
 
 int
@@ -263,9 +263,15 @@ __pmCloseSocket(int fd)
     __pmResetIPC(fd);
 
     if (sts == 0) {
+	if (socket.sasl) {
+	    sasl_dispose(&socket.sasl);
+	    socket.sasl = NULL;
+	}
 	if (socket.nsprFd) {
 	    freeNSPRHandle(fd);
 	    PR_Close(socket.nsprFd);
+	    socket.nsprFd = NULL;
+	    socket.sslFd = NULL;
 	}
     } else {
 #if defined(IS_MINGW)
@@ -343,11 +349,11 @@ __pmInitCertificates(void)
 
     secsts = NSS_InitReadWrite(nssdb);
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     SSL_ClearSessionCache();
     return 0;
@@ -357,7 +363,7 @@ int
 __pmShutdownCertificates(void)
 {
     if (NSS_Shutdown() != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
     return 0;
 }
 
@@ -397,7 +403,8 @@ done:
     if (secsts != SECSuccess) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	pmprintf("WARNING: Failed to save certificate locally: %s\n",
-		pmErrStr_r(__pmSecureSocketsError(), errmsg, sizeof(errmsg)));
+		pmErrStr_r(__pmSecureSocketsError(PR_GetError()),
+			errmsg, sizeof(errmsg)));
 	pmflush();
     }
 }
@@ -573,6 +580,7 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
+    int sts;
 
     if (__pmDataIPC(fd, &socket) < 0)
 	return -EOPNOTSUPP;
@@ -588,23 +596,31 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
     if ((flags & PDU_FLAG_SECURE) != 0) {
 	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_SetURL(socket.sslFd, hostname);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_BadCertHook(socket.sslFd,
 				(SSLBadCertHandler)badCertificate, NULL);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
+    }
+
+    if ((flags & PDU_FLAG_USER_AUTH) != 0) {
+	sts = sasl_client_new(SECURE_SERVER_SERVICE, hostname,
+				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
+				0, &socket.sasl);
+	if (sts != SASL_OK)
+	    return __pmSecureSocketsError(sts);
     }
 
     /* save changes back into the IPC table (updates client sslFd) */
@@ -612,7 +628,7 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname)
 }
 
 int
-__pmSecureClientHandshake(int fd, int flags, const char *hostname)
+__pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     PRIntervalTime timer;
     PRFileDesc *sslsocket;
@@ -628,13 +644,13 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname)
 
     secsts = SSL_ResetHandshake(sslsocket, PR_FALSE /*client*/);
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     msec = __pmConvertTimeout(TIMEOUT_DEFAULT);
     timer = PR_MillisecondsToInterval(msec);
     secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     return 0;
 }
@@ -661,32 +677,32 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	return -EOPNOTSUPP;
 
     if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
     socket.nsprFd = socket.sslFd;
 
     secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
 	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError();
+	    return __pmSecureSocketsError(PR_GetError());
     }
 
     /* save changes back into the IPC table (updates server sslFd) */
@@ -967,7 +983,8 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 	    if (sts == PR_SUCCESS)
 		fprintf(stderr, " OK\n");
 	    else {
-		pmErrStr_r(__pmSecureSocketsError(), buf, sizeof(buf));
+		int code = __pmSecureSocketsError(PR_GetError());
+		pmErrStr_r(code, buf, sizeof(buf));
 		fprintf(stderr, " %s\n", buf);
 	    }
 	}
@@ -1045,7 +1062,7 @@ __pmWrite(int fd, const void *buffer, size_t length)
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	ssize_t	size = PR_Write(socket.nsprFd, buffer, length);
 	if (size < 0)
-	    __pmSecureSocketsError();
+	    __pmSecureSocketsError(PR_GetError());
 	return size;
     }
     return write(fd, buffer, length);
@@ -1059,7 +1076,7 @@ __pmRead(int fd, void *buffer, size_t length)
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	ssize_t size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
-	    __pmSecureSocketsError();
+	    __pmSecureSocketsError(PR_GetError());
 	return size;
     }
     return read(fd, buffer, length);
@@ -1073,7 +1090,7 @@ __pmSend(int fd, const void *buffer, size_t length, int flags)
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	ssize_t size = PR_Write(socket.nsprFd, buffer, length);
 	if (size < 0)
-	    __pmSecureSocketsError();
+	    __pmSecureSocketsError(PR_GetError());
 	return size;
     }
     return send(fd, buffer, length, flags);
@@ -1093,7 +1110,7 @@ __pmRecv(int fd, void *buffer, size_t length, int flags)
 #endif
 	size = PR_Read(socket.nsprFd, buffer, length);
 	if (size < 0)
-	    __pmSecureSocketsError();
+	    __pmSecureSocketsError(PR_GetError());
     }
     else {
 #ifdef PCP_DEBUG

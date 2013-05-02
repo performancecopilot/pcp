@@ -507,11 +507,12 @@ __pmDataIPCSize(void)
 }
 
 int
-__pmSecureClientHandshake(int fd, int flags, const char *hostname)
+__pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     (void)fd;
     (void)flags;
     (void)hostname;
+    (void)attrs;
     return -EOPNOTSUPP;
 }
 
