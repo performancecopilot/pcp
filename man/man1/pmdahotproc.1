@@ -300,10 +300,8 @@ as described in
 and
 .BR pmstore (1).
 .SH CAVEATS
-.B iowait
-and
-.B schedwait
-are not supported in IRIX 5.3 and will generate an error
+Some of the required metrics may not be available on some platforms and these
+will generate an error
 message on startup.
 .P
 The values for hotproc.psinfo.ttyname are extracted from 
