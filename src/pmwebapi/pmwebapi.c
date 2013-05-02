@@ -93,7 +93,7 @@ unsigned pmwebapi_gc ()
     __pmHashWalkCB (pmwebapi_gc_fn, & t, & contexts);
     /* if-multithread: Unlock contexts. */
 
-    return t.soonest ? (t.soonest - t.now) : maxtimeout;
+    return t.soonest ? (unsigned)(t.soonest - t.now) : maxtimeout;
 }
 
 
@@ -257,7 +257,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         char *endptr;
         errno = 0;
         pt = strtol(val, &endptr, 0);
-        if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > maxtimeout) {
+        if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > (long)maxtimeout) {
             polltimeout = maxtimeout;
         }
         else
