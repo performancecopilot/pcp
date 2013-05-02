@@ -75,6 +75,11 @@ dpkg?	dh			[debhelper package]
 dpkg?	chrpath			[chrpath package]
 dpkg?	sysv-rc-conf		[sysv-rc-conf package]
 rpm?	rpmbuild		[rpm-build package]
+# other build prerequisites
+dpkg?	libmicrohttpd-dev	[libmicrohttpd-dev package]
+rpm?	libmicrohttpd-devel	[libmicrohttpd-devel package]
+dpkg?	libsasl2-dev		[libsasl2-dev package]
+rpm?	libsasl2-devel		[libsasl2-devel package]
 # files
 /usr/include/readline/readline.h	[libreadline-dev(dpkg) readline-devel(rpm)]
 rpm?	/usr/include/ncurses.h	# is this a bug in the spec file?
