@@ -613,26 +613,43 @@ parseProtocolSpec(
 static int
 lookupAttribute(const char *attribute, int size)
 {
-    if ((size == sizeof("compress")-1 &&
-	 strncmp(attribute, "compress", size) == 0))
+    if (size == sizeof("compress")-1 &&
+	strncmp(attribute, "compress", size) == 0)
 	return PCP_ATTR_COMPRESS;
+    if ((size == sizeof("userauth")-1 &&
+	strncmp(attribute, "userauth", size) == 0) ||
+        (size == sizeof("authorise")-1 &&
+	(strncmp(attribute, "authorise", size) == 0 ||
+	strncmp(attribute, "authorize", size) == 0)))
+	return PCP_ATTR_USERAUTH;
     if ((size == sizeof("user")-1 &&
-	 strncmp(attribute, "user", size) == 0) ||
+	strncmp(attribute, "user", size) == 0) ||
 	(size == sizeof("username")-1 &&
-        strncmp(attribute, "username", size) == 0))
+	strncmp(attribute, "username", size) == 0))
 	return PCP_ATTR_USERNAME;
+    if (size == sizeof("authname")-1 &&
+	strncmp(attribute, "authname", size) == 0)
+	return PCP_ATTR_AUTHNAME;
+    if (size == sizeof("realm")-1 &&
+	strncmp(attribute, "realm", size) == 0)
+	return PCP_ATTR_REALM;
+    if ((size == sizeof("authmeth")-1 &&
+	strncmp(attribute, "authmeth", size) == 0) ||
+	(size == sizeof("method")-1 &&
+	strncmp(attribute, "method", size) == 0))
+	return PCP_ATTR_METHOD;
     if ((size == sizeof("pass")-1 &&
 	strncmp(attribute, "pass", size) == 0) ||
 	(size == sizeof("password")-1 &&
-        strncmp(attribute, "password", size) == 0))
+	strncmp(attribute, "password", size) == 0))
 	return PCP_ATTR_PASSWORD;
     if ((size == sizeof("unix")-1 &&
 	strncmp(attribute, "unix", size) == 0) ||
 	(size == sizeof("unixsock")-1 &&
-        strncmp(attribute, "unixsock", size) == 0))
+	strncmp(attribute, "unixsock", size) == 0))
 	return PCP_ATTR_UNIXSOCK;
-    if ((size == sizeof("secure")-1 &&
-	 strncmp(attribute, "secure", size) == 0))
+    if (size == sizeof("secure")-1 &&
+	strncmp(attribute, "secure", size) == 0)
 	return PCP_ATTR_SECURE;
     return PCP_ATTR_NONE;
 }
@@ -753,17 +770,28 @@ unparseAttribute(__pmHashNode *node, char *string, size_t size)
     switch (node->key) {
     case PCP_ATTR_COMPRESS:
 	return snprintf(string, size, "compress");
-    case PCP_ATTR_UNIXSOCK:
-	return snprintf(string, size, "unixsock");
+    case PCP_ATTR_USERAUTH:
+	return snprintf(string, size, "userauth");
     case PCP_ATTR_USERNAME:
 	return snprintf(string, size, "username=%s",
+			node->data ? (char *)node->data : "");
+    case PCP_ATTR_AUTHNAME:
+	return snprintf(string, size, "authname=%s",
 			node->data ? (char *)node->data : "");
     case PCP_ATTR_PASSWORD:
 	return snprintf(string, size, "password=%s",
 			node->data ? (char *)node->data : "");
+    case PCP_ATTR_METHOD:
+	return snprintf(string, size, "method=%s",
+			node->data ? (char *)node->data : "");
+    case PCP_ATTR_REALM:
+	return snprintf(string, size, "realm=%s",
+			node->data ? (char *)node->data : "");
     case PCP_ATTR_SECURE:
 	return snprintf(string, size, "secure=%s",
 			node->data ? (char *)node->data : "");
+    case PCP_ATTR_UNIXSOCK:
+	return snprintf(string, size, "unixsock");
     }
     return 0;
 }

@@ -161,12 +161,12 @@ __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
 	return -EINVAL;
     }
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     /* Convert to local time */
     PR_ExplodeTime(itime, PR_GMTParameters, &exploded);
     if (!PR_FormatTime(buffer, size, "%a %b %d %H:%M:%S %Y", &exploded))
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
     return 0;
 }
 
@@ -255,14 +255,14 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
-			pmErrStr(__pmSecureSocketsError()));
+			pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     }
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy: %s",
-		pmErrStr(__pmSecureSocketsError()));
+		pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     }
 
@@ -270,7 +270,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
-		pmErrStr(__pmSecureSocketsError()));
+		pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     } else {
 	secure_server.ssl_session_cache_setup = 1;
@@ -390,14 +390,14 @@ __pmSecureServerHandshake(int fd, int flags)
 
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
     secsts = SSL_ResetHandshake(sslsocket, PR_TRUE /*server*/);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
@@ -407,7 +407,7 @@ __pmSecureServerHandshake(int fd, int flags)
     secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 

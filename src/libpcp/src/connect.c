@@ -96,8 +96,6 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
     int		sts;
     int		pinpdu;
 
-    (void)attrs;	/* for now - WIP */
-
     /* Expect an error PDU back from PMCD: ACK/NACK for connection */
     pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
     if (sts == PDU_ERROR) {
@@ -151,6 +149,14 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 			return -EOPNOTSUPP;
 		    }
 		}
+		if (ctxflags & PM_CTXFLAG_USER_AUTH) {
+		    if (pduinfo.features & PDU_FLAG_USER_AUTH)
+			pduflags |= PDU_FLAG_USER_AUTH;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
 	    }
 
 	    /*
@@ -171,10 +177,11 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    /*
 	     * At this point we know caller wants to set channel options and
 	     * pmcd supports them so go ahead and update the socket now (this
-	     * completes the SSL handshake in encrypting mode).
+	     * completes the SSL handshake in encrypting mode, authentication
+	     * via SASL, and/or enabling compression in NSS).
 	     */
 	    if (sts >= 0 && pduflags)
-		sts = __pmSecureClientHandshake(fd, pduflags, hostname);
+		sts = __pmSecureClientHandshake(fd, pduflags, hostname, attrs);
 	}
 	else
 	    sts = PM_ERR_IPC;

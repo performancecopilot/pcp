@@ -66,6 +66,7 @@ __pmTPDGet(void)
 #include <private/pprio.h>
 #include <sasl.h>
 
+#define SECURE_SERVER_SERVICE "PCP Collector"
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
 
 struct __pmSockAddr {
@@ -74,8 +75,8 @@ struct __pmSockAddr {
 
 typedef PRAddrInfo __pmAddrInfo;
 
-/* internal NSS implementation details */
-extern int __pmSecureSocketsError(void);
+/* internal NSS/NSPR/SSL/SASL implementation details */
+extern int __pmSecureSocketsError(int);
 
 #else
 struct __pmSockAddr {
