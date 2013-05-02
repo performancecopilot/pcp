@@ -734,6 +734,7 @@ pcp.py
 523 pmie local oss
 524 libpcp pmlogger local oss
 525 pmda.summary pmie local oss
+526 pmimport local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
 532 logutil pmlogextract local oss

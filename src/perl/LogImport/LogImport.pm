@@ -85,6 +85,7 @@ sub PMI_ERR_DUPVALUE    { -20008; }	# Value already assigned for singular metric
 sub PMI_ERR_BADTYPE     { -20009; }	# Illegal metric type
 sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
 sub PMI_ERR_NODATA      { -20011; }	# No data to output
+sub PMI_ERR_BADMETRICNAME { -20012; }	# Illegal metric name
 
 bootstrap PCP::LogImport $VERSION;
 

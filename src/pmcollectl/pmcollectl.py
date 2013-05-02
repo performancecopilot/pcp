@@ -42,7 +42,7 @@ import time
 import cpmapi as c_api
 import cpmgui as c_gui
 from pcp import pmapi, pmgui
-from pcp.pmsubsys import Cpu, Interrupt, Disk, Memory, Net, Proc, Subsys
+from pcp.pmsubsys import Processor, Interrupt, Disk, Memory, Network, Process, Subsystem
 
 ME = "pmcollectl"
 
@@ -154,7 +154,7 @@ class _CollectPrint(object):
 # _cpuCollectPrint --------------------------------------------------
 
 
-class _cpuCollectPrint(Cpu, _CollectPrint):
+class _cpuCollectPrint(Processor, _CollectPrint):
     def print_header1_brief(self):
         print '#<--------CPU-------->',
     def print_header1_detail(self):
@@ -428,7 +428,7 @@ class _memoryCollectPrint(Memory, _CollectPrint):
 # _netCollectPrint --------------------------------------------------
 
 
-class _netCollectPrint(Net, _CollectPrint):
+class _netCollectPrint(Network, _CollectPrint):
     def print_header1_brief(self):
         print '<----------Network--------->',
     def print_header1_detail(self):
@@ -494,8 +494,8 @@ class _netCollectPrint(Net, _CollectPrint):
 # _genericCollectPrint -----------------------------------------------
 
 
-class _genericCollectPrint(Subsys, _CollectPrint):
-    True                        # pylint: disable-msg=W0104
+#class _genericCollectPrint(Subsystem, _CollectPrint):
+#    True                        # pylint: disable-msg=W0104
 
 
 # main -----------------------------------------------------------------
@@ -518,7 +518,7 @@ if __name__ == '__main__':
     create_archive = False
     replay_archive = False
 
-    ss = _genericCollectPrint()
+#    ss = _genericCollectPrint()
     cpu = _cpuCollectPrint()
     interrupt = _interruptCollectPrint()
     # interrupt metrics are setup on the fly; an archive may not provide this
@@ -531,7 +531,7 @@ if __name__ == '__main__':
                  "c":[cpu, "brief"], "C":[cpu, "detail"],
                  "n":[net, "brief"], "N":[net, "detail"],
                  "j":[interrupt, "brief"], "J":[interrupt, "detail"],
-                 "b":[ss, "brief"], # "B":[ss, "detail"],
+#                 "b":[ss, "brief"], # "B":[ss, "detail"],
                  "m":[memory, "brief"], # "M":[ss, "detail"],
 #                 "f":[ss, "brief"], "F":[ss, "detail"],
 #                 "y":[ss, "brief"], "Y":[ss, "detail"],
