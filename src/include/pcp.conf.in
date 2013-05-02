@@ -74,7 +74,7 @@ PCP_INC_DIR=@pcp_inc_dir@
 
 # parent directory of man pages
 # Standard path: /usr/man
-# Subdirectories: man1 man3 man4
+# Subdirectories: man1 man3 man5
 PCP_MAN_DIR=@pcp_man_dir@
 
 # directory for non-shared (i.e. system local) PCP files

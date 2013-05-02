@@ -405,7 +405,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmie
 %{_initddir}/pmwebd
 %{_initddir}/pmproxy
-%{_mandir}/man4/*
+%{_mandir}/man5/*
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
