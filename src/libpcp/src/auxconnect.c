@@ -267,8 +267,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			fdFlags = 0;
     void		*enumIx;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -276,7 +274,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
 
@@ -343,7 +340,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     }
 
     __pmHostEntFree(servInfo);
-    PM_UNLOCK(__pmLock_libpcp);
     if (fd < 0)
         return fd;
 
