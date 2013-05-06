@@ -129,15 +129,12 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 #endif
     }
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
 		    hoststrerror());
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
 
@@ -208,7 +205,6 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
 	fd = -1;
     }
     __pmHostEntFree(servInfo);
-    PM_UNLOCK(__pmLock_libpcp);
 
     if (sts < 0) {
 #ifdef PCP_DEBUG
