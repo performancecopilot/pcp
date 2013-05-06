@@ -272,7 +272,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
-/* not yet allocated, bits (1<<24) ... (1<<29) */
+#define DBG_TRACE_USERAUTH	(1<<24) /* user authorisation mechanism */
+/* not yet allocated, bits (1<<25) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
@@ -514,6 +515,7 @@ extern int __pmParseHostAttrsSpec(
 extern int __pmUnparseHostAttrsSpec(
     pmHostSpec *, int, __pmHashCtl *, char *, size_t);
 extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
+extern void __pmFreeAttrsSpec(__pmHashCtl *);
 
 /*
  * Control for connection to a PMCD
@@ -546,7 +548,7 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  */
 extern int __pmSecureServerSetup(const char *, const char *);
 extern void __pmSecureServerShutdown(void);
-extern int __pmSecureServerHandshake(int, int);
+extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
 
 #ifdef HAVE_SECURE_SOCKETS

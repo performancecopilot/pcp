@@ -30,9 +30,10 @@ typedef struct {
     int			szProfile;	/* Size of array */
     unsigned int	denyOps;	/* Disallowed operations for client */
     __pmPDUInfo		pduInfo;
-    unsigned int	seq;		/* client sequence number */
-    time_t		start;		/* time client connected */
-    void		*addr;		/* Address of client */
+    unsigned int	seq;		/* Client sequence number (pmdapmcd) */
+    time_t		start;		/* Time client connected (pmdapmcd) */
+    __pmSockAddr	*addr;		/* Network address of client */
+    __pmHashCtl		attrs;		/* Connection attributes (auth info) */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */

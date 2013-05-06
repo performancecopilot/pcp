@@ -214,8 +214,8 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     /* need to ensure both the pmcd and client channel use flags */
 
     if (sts >= 0 && flags)
-	sts = __pmSecureServerHandshake(cp->fd, flags);
-	
+	sts = __pmSecureServerHandshake(cp->fd, flags, &attrs);
+
     /* send credentials PDU through to pmcd now (order maintained) */
     if (sts >= 0)
 	sts = __pmXmitPDU(cp->pmcd_fd, pb);
