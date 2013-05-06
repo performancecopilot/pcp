@@ -142,15 +142,13 @@ AcceptNewClient(int reqfd)
 int
 NewClient(void)
 {
-    int i;
+    int i, sz;
 
     for (i = 0; i < nClients; i++)
 	if (!client[i].status.connected)
 	    break;
 
     if (i == clientSize) {
-	int j, sz;
-
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
@@ -159,16 +157,8 @@ NewClient(void)
 	    Shutdown();
 	    exit(1);
 	}
-	sz -= (sizeof(ClientInfo) * j);
+	sz -= (sizeof(ClientInfo) * i);
 	memset(&client[i], 0, sz);
-#if 0	// XXX: nathans TODO - verify this change
-	for (j = i; j < clientSize; j++) {
-	    client[j].addr = NULL;
-	    client[j].profile = NULL;
-	    client[j].szProfile = 0;
-	    client[j].attrs = 0;
-	}
-#endif
     }
     client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
