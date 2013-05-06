@@ -218,13 +218,11 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     SECStatus secsts;
     int sts;
 
-#if 0	// XXX: nathans TODO
-    sts = sasl_server_init(callbacks, "pcp");
-    if (sts != SASL_OK && sts != SASL_CONTINUE) {
-	__pmNotifyErr(LOG_ERR, "Failed to start SASL server");
+    sts = __pmInitAuthServer();
+    if (sts < 0) {
+	__pmNotifyErr(LOG_ERR, "Failed to start authenticating server");
 	return sts;
     }
-#endif
 
     PR_Init(PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
 
