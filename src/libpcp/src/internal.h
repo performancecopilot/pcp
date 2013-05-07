@@ -109,8 +109,8 @@ extern int __pmSecureServerIPCFlags(int, int);
 #define SECURE_SERVER_SASL_CONFIG "pcp"
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
 #define LIMIT_USER_AUTH	2048	/* maximum size of a SASL transfer (in bytes) */
-#define DEFAULT_SECURITY_STRENGTH 1	/* SASL security strength factor */
-/* nathans TODO: above should possibly be zero? */
+#define DEFAULT_SECURITY_STRENGTH 0	/* SASL security strength factor */
+
 typedef int (*sasl_callback_func)(void);
 extern int __pmInitAuthClients(void);
 extern int __pmInitAuthServer(void);
