@@ -521,6 +521,12 @@ __pmShutdownSecureSockets(void)
 }
 
 int
+__pmInitAuthClients(void)
+{
+    return 0;
+}
+
+int
 __pmDataIPCSize(void)
 {
     return 0;
@@ -750,6 +756,7 @@ __pmGetNameInfo(__pmSockAddr *address)
 __pmHostEnt *
 __pmGetAddrInfo(const char *hostName)
 {
+    __pmHostEnt *hostEntry;
     struct addrinfo hints;
     int sts;
 
