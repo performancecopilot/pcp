@@ -443,24 +443,27 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
 static int
 __pmAuthServerSetProperties(sasl_conn_t *conn, int ssf)
 {
-#if 0   /* XXX: nathans TODO */
-    int sts;
+    int saslsts;
     sasl_security_properties_t props;
 
     /* set external security strength factor */
-    sasl_setprop(conn, SASL_SSF_EXTERNAL, &ssf);
+    saslsts = sasl_setprop(conn, SASL_SSF_EXTERNAL, &ssf);
+    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	__pmNotifyErr(LOG_ERR, "SASL setting external SSF to %d: %s",
+			ssf, sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
+    }
 
     /* set general security properties */
     memset(&props, 0, sizeof(props));
     props.maxbufsize = LIMIT_USER_AUTH;
     props.max_ssf = UINT_MAX;
-
-    /* props.security_flags |= SASL_SEC_* */
-    sasl_setprop(conn, SASL_SEC_PROPS, &props);
-#else
-    (void)conn;
-    (void)ssf;
-#endif
+    saslsts = sasl_setprop(conn, SASL_SEC_PROPS, &props);
+    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	__pmNotifyErr(LOG_ERR, "SASL setting security properties: %s",
+			sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
+    }
 
     return 0;
 }
@@ -491,13 +494,13 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
                             (unsigned int *)&length,
                             &count);
     if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
-	__pmNotifyErr(LOG_ERR, "Generating client mechanism list");
-	return -EINVAL;
+	__pmNotifyErr(LOG_ERR, "Generating client mechanism list: %s",
+			sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
     }
-
     if (pmDebug & DBG_TRACE_USERAUTH)
-	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list"
-			" with %d items (bytes=%d)\n", count, length);
+	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list "
+			"(%d items): \"%s\"\n", count, payload);
 
     if ((sts = __pmSendUserAuth(fd, FROM_ANON, length, payload)) < 0)
 	return sts;
@@ -514,7 +517,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 				(const char **)&payload,
 				(unsigned int *)&length);
 	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
-		sts = __pmSecureSocketsError(sts);
+		sts = __pmSecureSocketsError(saslsts);
 	}
     } else if (sts == PDU_ERROR) {
         __pmDecodeError(pb, &sts);
