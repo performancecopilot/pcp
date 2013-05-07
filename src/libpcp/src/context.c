@@ -274,11 +274,12 @@ ctxflags(__pmHashCtl *attrs)
     __pmHashNode *node;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
-	if (strcmp((char *)node->data, "pcps") == 0 &&
-	    (node = __pmHashSearch(PCP_ATTR_SECURE, attrs)) != NULL)
-	    secure = (char *)node->data;
-	else
-	    secure = "enforce";
+	if (strcmp((char *)node->data, "pcps") == 0) {
+	    if ((node = __pmHashSearch(PCP_ATTR_SECURE, attrs)) != NULL)
+		secure = (char *)node->data;
+	    else
+		secure = "enforce";
+	}
     }
 
     if (!secure)
