@@ -676,9 +676,9 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     *result = value;
 
     if (pmDebug & DBG_TRACE_USERAUTH)
-	fprintf(stderr, "__pmAuthSimpleCB ctx=%p, id=%d -> rslt=%p len=%d\n",
-		context, id, *result, len ? *len : -1);
-    return SASL_OK;
+	fprintf(stderr, "__pmAuthSimpleCB ctx=%p id=%d -> sts=%d rslt=%p len=%d\n",
+		context, id, sts, *result, len ? *len : -1);
+    return sts;
 }
 
 static int
@@ -939,7 +939,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	method = (const char *)node->data;
 
     if (pmDebug & DBG_TRACE_USERAUTH)
-	fprintf(stderr, "__pmAuthClientNegotiation - requested \"%s\" method\n",
+	fprintf(stderr, "__pmAuthClientNegotiation requesting \"%s\" method\n",
 		method ? method : "default");
 
     /* get security mechanism list */ 
@@ -979,7 +979,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	return sts;
 
     if (pmDebug & DBG_TRACE_USERAUTH)
-	fprintf(stderr, "__pmAuthClientNegotiation chosen method is %s", method);
+	fprintf(stderr, "__pmAuthClientNegotiation chose \"%s\" method\n",
+		method);
 
     /* tell server we've made a decision and are ready to move on */
     strncpy(buffer, method, sizeof(buffer));
