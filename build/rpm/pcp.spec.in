@@ -13,9 +13,10 @@ BuildRequires: procps bison flex
 BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
-BuildRequires: libmicrohttpd-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-
+%if @have_libmicrohttpd@ == 1
+BuildRequires: libmicrohttpd-devel
+%endif
 %if "%{_vendor}" == "redhat"
 BuildRequires: initscripts man /bin/hostname
 %endif
@@ -291,10 +292,14 @@ pmie/stomp
 pmlogger/config.default
 pmlogger/control
 pmlogger/crontab
-pmwebd/pmwebd.options
 pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOFEOF
+%if @have_libmicrohttpd@ == 1
+cat >>conf_files <<WEBEOF
+pmwebd/pmwebd.options
+WEBEOF
+%endif
 
 #
 # Files for the pcp-import subpackages. We use these sub-packages
