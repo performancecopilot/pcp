@@ -312,6 +312,12 @@ AC_SUBST(cflags_abi)
 PCFLAGS=$CFLAGS
 AC_SUBST(PCFLAGS)
 
+dnl for cc use locally in configure (not exported via $PCFLAGS),
+dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+dnl flags out into $CFLAGS_OPT for our build infrastructure
+CFLAGS="-O $CFLAGS"
+
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
 if test -z "$MAKE"

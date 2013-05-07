@@ -5310,6 +5310,8 @@ cc_is_gcc=$GCC
 PCFLAGS=$CFLAGS
 
 
+CFLAGS="-O $CFLAGS"
+
 if test -z "$MAKE"
 then
     # Extract the first word of "gmake", so it can be a program name with args.
