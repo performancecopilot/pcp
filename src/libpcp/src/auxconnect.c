@@ -267,8 +267,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			fdFlags = 0;
     void		*enumIx;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -276,7 +274,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 		    hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
 	return -EHOSTUNREACH;
     }
 
@@ -343,7 +340,6 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     }
 
     __pmHostEntFree(servInfo);
-    PM_UNLOCK(__pmLock_libpcp);
     if (fd < 0)
         return fd;
 
@@ -353,6 +349,30 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * called
      */
     return __pmConnectRestoreFlags(fd, fdFlags);
+}
+
+char *
+__pmHostEntGetName(__pmHostEnt *he)
+{
+    __pmSockAddr	*addr;
+    void		*enumIx;
+
+    if (he->name == NULL) {
+	/* Try to reverse lookup the host name. Check each address until the reverse lookup
+	   succeeds. */
+	enumIx = NULL;
+	for (addr = __pmHostEntGetSockAddr(he, &enumIx);
+	     addr != NULL;
+	     addr = __pmHostEntGetSockAddr(he, &enumIx)) {
+	    he->name = __pmGetNameInfo(addr);
+	    __pmSockAddrFree(addr);
+	    if (he->name != NULL)
+		break;
+	}
+	if (he->name == NULL)
+	    he->name = "Unknown Host";
+    }
+    return strdup(he->name);
 }
 
 #if !defined(HAVE_SECURE_SOCKETS)
@@ -501,17 +521,24 @@ __pmShutdownSecureSockets(void)
 }
 
 int
+__pmInitAuthClients(void)
+{
+    return 0;
+}
+
+int
 __pmDataIPCSize(void)
 {
     return 0;
 }
 
 int
-__pmSecureClientHandshake(int fd, int flags, const char *hostname)
+__pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     (void)fd;
     (void)flags;
     (void)hostname;
+    (void)attrs;
     return -EOPNOTSUPP;
 }
 
@@ -729,10 +756,8 @@ __pmGetNameInfo(__pmSockAddr *address)
 __pmHostEnt *
 __pmGetAddrInfo(const char *hostName)
 {
-    __pmSockAddr *addr;
     __pmHostEnt *hostEntry;
     struct addrinfo hints;
-    void *null;
     int sts;
 
     hostEntry = __pmHostEntAlloc();
@@ -748,28 +773,9 @@ __pmGetAddrInfo(const char *hostName)
 	    __pmHostEntFree(hostEntry);
 	    return NULL;
 	}
-
-	/* Try to reverse lookup the host name. */
-	null = NULL;
-	addr = __pmHostEntGetSockAddr(hostEntry, &null);
-	if (addr != NULL) {
-	    hostEntry->name = __pmGetNameInfo(addr);
-	    __pmSockAddrFree(addr);
-	    if (hostEntry->name == NULL)
-		hostEntry->name = strdup(hostName);
-	}
-	else
-	    hostEntry->name = strdup(hostName);
+	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
     }
     return hostEntry;
-}
-
-char *
-__pmHostEntGetName(const __pmHostEnt *he)
-{
-    if (he->name == NULL)
-        return NULL;
-    return strdup(he->name);
 }
 
 __pmSockAddr *

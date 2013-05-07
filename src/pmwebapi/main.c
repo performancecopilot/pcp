@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
                 errno = 0;
                 tn = strtol(optarg, &endptr, 0);
                 /* NB: strtoul would accept negative values. */
-                if (errno != 0 || *endptr != '\0' || tn < 0 || tn > UINT_MAX) {
+                if (errno != 0 || *endptr != '\0' || tn < 0 || tn > (long)UINT_MAX) {
                     fprintf(stderr, "%s: invalid -t timeout %s\n", pmProgname, optarg);
                     errflag ++;
                 }

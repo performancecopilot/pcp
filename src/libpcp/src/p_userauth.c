@@ -14,9 +14,8 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #include <ctype.h>
-
-#define LIMIT_USER_AUTH	2048
 
 /*
  * PDU for per-user authentication (PDU_USER_AUTH)

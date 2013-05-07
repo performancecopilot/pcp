@@ -74,8 +74,8 @@ struct __pmSockAddr {
 
 typedef PRAddrInfo __pmAddrInfo;
 
-/* internal NSS implementation details */
-extern int __pmSecureSocketsError(void);
+/* internal NSS/NSPR/SSL/SASL implementation details */
+extern int __pmSecureSocketsError(int);
 
 #else
 struct __pmSockAddr {
@@ -103,7 +103,17 @@ extern int __pmSocketReady(int, struct timeval *);
 extern int __pmSocketClosed(void);
 extern int __pmConnectCheckError(int);
 extern void *__pmGetSecureSocket(int);
+extern void *__pmGetUserAuthData(int);
 extern int __pmSecureServerIPCFlags(int, int);
+
+#define SECURE_SERVER_SASL_CONFIG "pcp"
+#define SECURE_SERVER_SASL_SERVICE "PCP Collector"
+#define LIMIT_USER_AUTH	2048	/* maximum size of a SASL transfer (in bytes) */
+#define DEFAULT_SECURITY_STRENGTH 0	/* SASL security strength factor */
+
+typedef int (*sasl_callback_func)(void);
+extern int __pmInitAuthClients(void);
+extern int __pmInitAuthServer(void);
 
 #ifdef __cplusplus
 }

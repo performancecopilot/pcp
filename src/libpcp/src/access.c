@@ -463,8 +463,6 @@ getAccessSpecs(const char *name, int *sts)
     specs = NULL;
     specSize = 0;
     specIx = 0;
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((servInfo = __pmGetAddrInfo(realname)) != NULL) {
 	/* Collect all of the resolved addresses. Check for the end of the list within the
 	   loop since we need to add an empty entry and the code to grow the list is within the
@@ -478,7 +476,6 @@ getAccessSpecs(const char *name, int *sts)
 		need = specSize * sizeof(*specs);
 		specs = realloc(specs, need);
 		if (specs == NULL) {
-		    PM_UNLOCK(__pmLock_libpcp);
 		    __pmNoMem("Access Spec List", need, PM_FATAL_ERR);
 		}
 	    }
@@ -510,7 +507,6 @@ getAccessSpecs(const char *name, int *sts)
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
 		      realname, hoststrerror());
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     /* Return NULL if nothing was discovered. *sts is already set. */
     if (specIx == 0 && specs != NULL) {

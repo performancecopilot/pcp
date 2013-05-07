@@ -43,9 +43,11 @@ import time
 import sys
 import curses
 import select
+import signal
+import pwd
 import cpmapi as c_api
 import cpmgui as c_gui
-from pcp import pmapi
+from pcp import pmapi, pmgui
 from pcp.pmsubsys import Processor, Interrupt, Disk, Memory, Network, Process, Subsystem
 
 ME = "pmatop"
@@ -67,7 +69,7 @@ def debug (mssg):
 
 
 def scale (value, magnitude):
-    return (value + (magnitude / 2)) / magnitude
+    return value / magnitude
 
 
 # record ---------------------------------------------------------------
@@ -75,7 +77,7 @@ def scale (value, magnitude):
 def record (context, config, interval, path):
 
     # -f saves the metrics in a directory
-    if os.path.exists(file):
+    if os.path.exists(path):
         print ME + "playback directory %s already exists\n" % path
         sys.exit(1)
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
@@ -113,16 +115,19 @@ def record_check_creator (path, doc):
 # minutes_seconds ----------------------------------------------------------
 
 
-def minutes_seconds (millis):
-    try:
-        dtm = datetime.timedelta(0, millis/1000)
-    except OverflowError:
-        dtm = datetime.timedelta(0, 0)
-    hours = dtm.days * 24
-    minutes = dtm.seconds / 60
-    hours += minutes / 60
-    minutes = minutes % 60
-    return "%dh%dm" % (hours, minutes)
+def minutes_seconds (milli):
+    sec, milli = divmod(milli, 1000)
+    tenth, milli = divmod(milli, 100)
+    milli = milli / 10
+    min, sec = divmod(sec, 60)
+    hour, min = divmod(min, 60)
+    day, hour = divmod(hour, 24)
+    if hour > 0:
+        return "%dh%dm" % (day, hour)
+    elif min > 0:
+        return "%dm%ds" % (min, sec)
+    else:
+        return "%d.%d%1ds" % (sec, tenth, milli)
 
 
 # _StandardOutput --------------------------------------------------
@@ -162,6 +167,9 @@ class _StandardOutput(object):
     def refresh(self):
         if not self.stdout:
             self.so_stdscr.refresh()
+    def clrtobot(self):
+        if not self.stdout:
+            self.so_stdscr.clrtobot()
     def getch(self):
         if not self.stdout:
             return self.so_stdscr.getch()
@@ -217,7 +225,6 @@ class _ProcessorPrint(_AtopPrint, Processor):
             self.p_stdscr.addstr (' #tslpu %5d |' % (self.get_metric_value('proc.runq.blocked')))
         self.p_stdscr.addstr (' #zombie %4d' % (self.get_metric_value('proc.runq.defunct')))
         self.next_line()
-# Missing: curf (current frequency)
 # Missing: curscal (current current scaling percentage)
     def cpu(self):
         self.get_total()
@@ -230,7 +237,7 @@ class _ProcessorPrint(_AtopPrint, Processor):
         self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.idle') / self.cpu_total))
         self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_metric_value('kernel.all.cpu.wait.total') / self.cpu_total))
         self.next_line()
-        for k in range(self.get_len(self.get_metric_value('kernel.percpu.cpu.user'))):
+        for k in range(self.get_metric_value('hinv.ncpu')):
             self.p_stdscr.addstr ('cpu |')
             self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.sys', k) / self.cpu_total))
             self.p_stdscr.addstr (' user %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.user', k) / self.cpu_total))
@@ -238,15 +245,19 @@ class _ProcessorPrint(_AtopPrint, Processor):
                     100 * self.get_scalar_value('kernel.percpu.cpu.irq.hard', k) / self.cpu_total +
                     100 * self.get_scalar_value('kernel.percpu.cpu.irq.soft', k) / self.cpu_total))
             self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.idle', k) / self.cpu_total))
-            self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.get_scalar_value('kernel.percpu.cpu.wait.total', k) / self.cpu_total))
+            self.p_stdscr.addstr (' cpu%02d %5d%% |' % (k, 100 * self.get_scalar_value('kernel.percpu.cpu.wait.total', k) / self.cpu_total))
+            if (self.apyx[1] >= 95):
+                self.p_stdscr.addstr (self.put_value(' curf %4.2gMHz |', scale(self.get_scalar_value('hinv.cpu.clock', k), 1000)))
             self.next_line()
 
         self.p_stdscr.addstr ('CPL |')
         self.p_stdscr.addstr (' avg1 %7.3g |' % (self.get_scalar_value('kernel.all.load', 0)))
         self.p_stdscr.addstr (' avg5 %7.3g |' % (self.get_scalar_value('kernel.all.load', 1)))
         self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_scalar_value('kernel.all.load', 2)))
-        self.p_stdscr.addstr (self.put_value(' csw %8.3g |', self.get_metric_value('kernel.all.pswitch')))
+        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch')))
         self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr')))
+        self.p_stdscr.addstr ('              |')
+        self.p_stdscr.addstr (' numcpu   %2d  |' % (self.get_metric_value('hinv.ncpu')))
         self.p_stdscr.addstr ('\n')
 
 # _InterruptPrint --------------------------------------------------
@@ -260,38 +271,36 @@ class _InterruptPrint(_AtopPrint, Interrupt):
 
 
 class _DiskPrint(_AtopPrint, Disk):
+    def interval_write(self, value):
+        self._interval = value
+    interval = property(None, interval_write, None, None)
+
     def disk(self, context):
         try:
             (inst, iname) = context.pmGetInDom(self.metric_descs [self.metrics_dict['disk.partitions.read']])
         except pmapi.pmErr, e:
             iname = iname = "X"
 
-# lvm partitions have names like dm-N; but we want the real name
-# Missing: LVM name
-# Missing: LVM busy (time handling requests)
-# Missing: LVM MBr/s (per second read throughput)
-# Missing: LVM MBw/s (per second write throughput)
 # Missing: LVM avq (average queue depth)
-# Missing: LVM avio (milliseconds per request)
+
+        lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:],x),
+                         (os.listdir("/dev/mapper"))))
 
         for j in xrange(self.get_len(self.get_metric_value('disk.partitions.read'))):
+            if iname[j] not in lvms:
+                continue
             self.p_stdscr.addstr ('LVM |')
-            self.p_stdscr.addstr (' %-12s |' % (iname[j]))
+            lvm = lvms[iname[j]]
+            self.p_stdscr.addstr (' %-12s |' % (lvm[len(lvm)-12:]))
             self.p_stdscr.addstr ('              |')
             self.p_stdscr.addstr (self.put_value(' read %7.3g |', self.get_scalar_value('disk.partitions.read', j)))
             self.p_stdscr.addstr (self.put_value(' write %6.3g |', self.get_scalar_value('disk.partitions.write', j)))
             if (self.apyx[1] >= 95):
-                if self.get_scalar_value('disk.partitions.read', j) != 0:
-                    val = self.get_scalar_value('disk.partitions.read_bytes', j) / self.get_scalar_value('disk.partitions.read', j)
-                else:
-                    val = 0
-                self.p_stdscr.addstr (self.put_value(' KiB/r %6.3g |', val))
+                val = (float(self.get_scalar_value('disk.partitions.blkread', j)) / float(self._interval * 1000)) * 100
+                self.p_stdscr.addstr (self.put_value(' MBr/s %6.3g |', val))
             if (self.apyx[1] >= 110):
-                if self.get_scalar_value('disk.partitions.write', j) != 0:
-                    val = self.get_scalar_value('disk.partitions.write_bytes', j) / self.get_scalar_value('disk.partitions.write', j)
-                else:
-                    val = 0
-                self.p_stdscr.addstr (self.put_value(' KiB/w %6.3g |', val))
+                val = (float(self.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
+                self.p_stdscr.addstr (self.put_value(' MBw/s %6.3g |', val))
             self.next_line()
 
         try:
@@ -302,11 +311,22 @@ class _DiskPrint(_AtopPrint, Disk):
         for j in xrange(self.get_len(self.get_metric_value('disk.dev.read_bytes'))):
             self.p_stdscr.addstr ('DSK |')
             self.p_stdscr.addstr (' %-12s |' % (iname[j]))
-            self.p_stdscr.addstr (' busy %6d%% |' % (0)) # self.get_scalar_value('disk.dev.avactive', j)
+            busy = (float(self.get_scalar_value('disk.dev.avactive', j)) / float(self._interval * 1000)) * 100
+            self.p_stdscr.addstr (' busy %6d%% |' % (busy)) # self.get_scalar_value('disk.dev.avactive', j)
             val = self.get_scalar_value('disk.dev.read', j)
             self.p_stdscr.addstr (' read %7d |' % (val))
             self.p_stdscr.addstr (self.put_value(' write %6.3g |', self.get_scalar_value('disk.dev.write', j)))
-            self.p_stdscr.addstr (' avio %7.3g |' % (0))
+            if (self.apyx[1] >= 95):
+                val = (float(self.get_scalar_value('disk.partitions.blkread', j)) / float(self._interval * 1000)) * 100
+                self.p_stdscr.addstr (self.put_value(' MBr/s %6.3g |', val))
+            if (self.apyx[1] >= 110):
+                val = (float(self.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
+                self.p_stdscr.addstr (self.put_value(' MBw/s %6.3g |', val))
+            try:
+                avio = (float(self.get_scalar_value('disk.dev.avactive', j)) / float(self.get_scalar_value('disk.dev.total', j)))
+            except ZeroDivisionError:
+                avio = 0
+            self.p_stdscr.addstr (' avio %4.2g ms |' % (avio))
             self.next_line()
 
 
@@ -366,6 +386,10 @@ class _NetPrint(_AtopPrint, Network):
         self.p_stdscr.addstr (self.put_value(' ipo %7.2gM |', self.get_metric_value('network.ip.outrequests')))
         self.p_stdscr.addstr (self.put_value(' ipfrw %5.2gM |', self.get_metric_value('network.ip.forwdatagrams')))
         self.p_stdscr.addstr (self.put_value(' deliv %5.2gM |', self.get_metric_value('network.ip.indelivers')))
+        if (self.apyx[1] >= 95):
+            self.p_stdscr.addstr (' icmpi %6d |' % (self.get_metric_value('network.icmp.inmsgs')))
+        if (self.apyx[1] >= 110):
+            self.p_stdscr.addstr (' icmpo %6d |' % (self.get_metric_value('network.icmp.outmsgs')))
         self.next_line()
 
         for k in xrange(len(self.metric_pmids)):
@@ -381,8 +405,8 @@ class _NetPrint(_AtopPrint, Network):
                 self.p_stdscr.addstr (' %-12s |' % (iname[j]))
                 self.p_stdscr.addstr (self.put_value(' pcki %6.2gM |', self.get_scalar_value('network.interface.in.packets', j)))
                 self.p_stdscr.addstr (self.put_value(' pcko %6.2gM |', self.get_scalar_value('network.interface.out.packets', j)))
-                self.p_stdscr.addstr (self.put_value(' si %8.2gM |', self.get_scalar_value('network.interface.in.bytes', j)))
-                self.p_stdscr.addstr (self.put_value(' so %8.2gM |', self.get_scalar_value('network.interface.out.bytes', j)))
+                self.p_stdscr.addstr (self.put_value(' si %4d Kbps |', scale (self.get_scalar_value('network.interface.in.bytes', j), 100000000)))
+                self.p_stdscr.addstr (self.put_value(' so %4d Kpbs |', scale (self.get_scalar_value('network.interface.out.bytes', j), 100000000)))
                 if (self.apyx[1] >= 95):
                     self.p_stdscr.addstr (self.put_value(' erri %6.2gM |', self.get_scalar_value('network.interface.in.errors', j)))
                 if (self.apyx[1] >= 110):
@@ -401,37 +425,55 @@ class _ProcPrint(_AtopPrint, Process):
         self._output_type = value
     output_type = property(None, type_write, None, None)
 
+    def set_cpu(self, value):
+        self._cpu = value
+
+    def set_mem(self, value):
+        self._mem = value
+
     def proc(self):
         current_yx = self.p_stdscr.getyx()
         if self._output_type in ['g']:
+            if 'proc.memory.rss' not in self.diff_metrics:
+                self.diff_metrics.append('proc.memory.rss')
             self.p_stdscr.addstr ('  PID SYSCPU USRCPU VGROW RGROW RUID   THR ST EXC S CPU  CMD\n')
         elif self._output_type in ['m']:
-            self.p_stdscr.addstr ('  PID MAJFLT MINFLT\n')
+            if 'proc.memory.rss' in self.diff_metrics:
+                self.diff_metrics.remove('proc.memory.rss')
+            self.p_stdscr.addstr ('  PID   VSIZE   RSIZE  MAJFLT MINFLT CMD\n')
 
         for j in xrange(len(self.get_metric_value('proc.psinfo.pid'))):
-            if j > (self.apyx[0] - current_yx[0]):
+            if self.get_scalar_value('proc.schedstat.cpu_time', j) < 1000000:
+                continue
+            if (self.apyx[0] == current_yx[0]):
                 break
 
             if self._output_type in ['g', 'm']:
                 self.p_stdscr.addstr ('%4d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
             if self._output_type in ['g']:
-# Missing: is proc.psinfo.stime correct?
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime', j)))
-# Missing: is proc.psinfo.utime correct?
-                self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime', j)))
-                self.p_stdscr.addstr ('%5d ' % 0)
-                self.p_stdscr.addstr ('%5d ' % 0)
-                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.id.uid', j)))
-                self.p_stdscr.addstr ('%5d ' % 0)
-                self.p_stdscr.addstr ('%3d ' % 0)
-#                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.flags', j)))
-                self.p_stdscr.addstr ('%3d ' % (self.get_scalar_value('proc.psinfo.exit_signal', j)))
-                self.p_stdscr.addstr ('%2d ' % 0)
-                self.p_stdscr.addstr ('%3d ' % 0)
+                self.p_stdscr.addstr (' %5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime', j)))
+                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.memory.vmsize', j)))
+                self.p_stdscr.addstr ('%4d ' % (self.get_scalar_value('proc.memory.rss', j)))
+                self.p_stdscr.addstr ('%5s ' % (pwd.getpwuid(self.get_scalar_value('proc.id.uid', j))[0]))
+                # Missing: # threads is in /proc/NNN/status but not via pcp
+                self.p_stdscr.addstr ('%5s ' % '-')
+                self.p_stdscr.addstr ('%3s ' % '--')
+                state = self.get_scalar_value('proc.psinfo.sname', j)
+                self.p_stdscr.addstr ('%2s ' % '-')
+                if state not in  ('D', 'R', 'S', 'T', 'W', 'X', 'Z'):
+                    state = 'S'
+                self.p_stdscr.addstr ('%2s ' % (state))
+#                self.p_stdscr.addstr ('%3d ' % (self.get_scalar_value('proc.psinfo.exit_signal', j)))
+                cpu_total = float(self._cpu.cpu_total - self._cpu.get_metric_value('kernel.all.cpu.idle'))
+                self.p_stdscr.addstr ('%2d%% ' % ((float(self.get_scalar_value('proc.schedstat.cpu_time', j) / 1000000) / cpu_total) * 100))
                 self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd', j)))
             if self._output_type in ['m']:
-                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.maj_flt', j)))
-                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.psinfo.minflt', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
+                val = float(self.get_scalar_value('proc.psinfo.rss', j)) / float(self._mem.get_metric_value('mem.physmem')) * 100
+                self.p_stdscr.addstr (self.put_value('%6d%% ', val))
+                self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd', j)))
             self.next_line()
 
 
@@ -454,6 +496,7 @@ class _MiscMetrics(Subsystem):
 
 
 def main (stdscr_p):
+    global stdscr
     stdscr = _StandardOutput(stdscr_p)
     subsys = list()
     cpu = _ProcessorPrint()
@@ -564,6 +607,8 @@ def main (stdscr_p):
         subsys.append ([net.net, pmc])
         subsys.append ([proc.get_stats, pmc])
         subsys.append ([proc.set_line, None])
+        subsys.append ([proc.set_cpu, cpu])
+        subsys.append ([proc.set_mem, mem])
         subsys.append ([proc.proc, None])
 
     if output_file != "":
@@ -576,7 +621,7 @@ def main (stdscr_p):
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pmc, configuration, duration, output_file)
+        record (pmgui.GuiClient(), configuration, duration, output_file)
         record_add_creator (output_file)
         sys.exit(0)
 
@@ -590,6 +635,7 @@ def main (stdscr_p):
     mm.setup_metrics(pmc)
     mm.get_stats(pmc)
     (delta, errmsg) = pmc.pmParseInterval(str(interval_arg) + " seconds")
+    disk.interval = delta.tv_sec
 
     try:
         while (i_samples < n_samples) or (n_samples == 0):
@@ -606,7 +652,7 @@ def main (stdscr_p):
                         ssx[0]()
                     else:
                         ssx[0](ssx[1])
-                except curses.error:
+                except: # catch all errors, pcp or python or otherwise
                     pass
             stdscr.move (proc.command_line, 0)
             stdscr.refresh()
@@ -621,11 +667,29 @@ def main (stdscr_p):
                     cmd = None
                 if cmd == "q":
                     raise KeyboardInterrupt
+                elif cmd == "z":
+                    stdscr.timeout(-1)
+                    # currently it just does "hit any key to continue"
+                    char = stdscr.getch()
+                elif cmd == "h":
+                    stdscr.move (proc.command_line, 0)
+                    stdscr.clrtobot()
+                    stdscr.move (proc.command_line, 0)
+                    stdscr.addstr ('\nOptions shown for active processes:\n')
+                    stdscr.addstr ( "'g'  - generic info (default)\n")
+                    stdscr.addstr ( "'m'  - memory details\n")
+                    stdscr.addstr ( "Miscellaneous commands:\n")
+                    stdscr.addstr ("'z'  - pause-button to freeze current sample (toggle)\n")
+                    stdscr.addstr ("hit any key to continue\n")
+                    stdscr.timeout(-1)
+                    char = stdscr.getch()
                 elif cmd in subsys_cmds:
                     proc.output_type = cmd
                 else:
                     stdscr.move (proc.command_line, 0)
-                    stdscr.addstr ("Invalid command %s" % cmd)
+                    all_cmds = list(subsys_cmds)
+                    all_cmds.append('q')
+                    stdscr.addstr ("Invalid command %s %s" % (cmd,all_cmds))
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1
@@ -635,8 +699,19 @@ def main (stdscr_p):
     time.sleep(1)
     return ""
 
+def sigwinch_handler(n, frame):
+    global stdscr
+    curses.endwin()
+    curses.initscr()
+    # consume any subsequent characters awhile
+    while 1:
+        char = stdscr.getch()
+        if (char == -1):
+            break
+
 if __name__ == '__main__':
     if sys.stdout.isatty():
+        signal.signal(signal.SIGWINCH, sigwinch_handler)
         status = curses.wrapper(main)   # pylint: disable-msg=C0103
         # You're running in a real terminal
     else:

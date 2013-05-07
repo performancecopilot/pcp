@@ -272,7 +272,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
-/* not yet allocated, bits (1<<24) ... (1<<29) */
+#define DBG_TRACE_USERAUTH	(1<<24) /* user authorisation mechanism */
+/* not yet allocated, bits (1<<25) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
@@ -497,12 +498,16 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 typedef enum {
     PCP_ATTR_NONE = 0,
-    PCP_ATTR_PROTOCOL,
-    PCP_ATTR_COMPRESS,
-    PCP_ATTR_UNIXSOCK,
-    PCP_ATTR_USERNAME,
-    PCP_ATTR_PASSWORD,
-    PCP_ATTR_SECURE,
+    PCP_ATTR_PROTOCOL,			/* either pcp:/pcps: protocol (libssl) */
+    PCP_ATTR_SECURE,			/* relaxed/enforced pcps mode (libssl) */
+    PCP_ATTR_COMPRESS,			/* compression flag, no value (libnss) */
+    PCP_ATTR_USERAUTH,			/* user auth flag, no value (libsasl) */
+    PCP_ATTR_USERNAME,			/* user login identity (libsasl) */
+    PCP_ATTR_AUTHNAME,			/* authentication name (libsasl) */
+    PCP_ATTR_PASSWORD,			/* passphrase-based secret (libsasl) */
+    PCP_ATTR_METHOD,			/* use authentication method (libsasl) */
+    PCP_ATTR_REALM,			/* realm to authenticate in (libsasl) */
+    PCP_ATTR_UNIXSOCK,			/* AF_UNIX socket + SO_PASSCRED (NYI) */
 } __pmHostAttributeKey;
 
 extern int __pmParseHostAttrsSpec(
@@ -510,6 +515,7 @@ extern int __pmParseHostAttrsSpec(
 extern int __pmUnparseHostAttrsSpec(
     pmHostSpec *, int, __pmHashCtl *, char *, size_t);
 extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
+extern void __pmFreeAttrsSpec(__pmHashCtl *);
 
 /*
  * Control for connection to a PMCD
@@ -542,8 +548,8 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  */
 extern int __pmSecureServerSetup(const char *, const char *);
 extern void __pmSecureServerShutdown(void);
-extern int __pmSecureServerHandshake(int, int);
-extern int __pmSecureClientHandshake(int, int, const char *);
+extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
+extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef struct {
@@ -608,7 +614,7 @@ extern __pmSockAddr *__pmLoopBackAddress(int);
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);
 extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, void **);
-extern char *	     __pmHostEntGetName(const __pmHostEnt *);
+extern char *	     __pmHostEntGetName(__pmHostEnt *);
 
 extern __pmHostEnt * __pmGetAddrInfo(const char *);
 extern char *	     __pmGetNameInfo(__pmSockAddr *);

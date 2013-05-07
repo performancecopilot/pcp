@@ -87,6 +87,14 @@ class _pmsubsys(object):
         else:
             return value
 
+    def get_metric_value(self, idx):
+        if idx in self.metrics:
+            return self.metric_values[self.metrics_dict[idx]]
+        else:
+            return 0
+        if hasattr(super(_pmsubsys, self), 'get_metric_value'):
+            super(_pmsubsys, self).get_metric_value()
+
     def get_len(self, var):
         if type(var) != type(int()) and type(var) != type(long()):
             return len(var)
@@ -96,6 +104,8 @@ class _pmsubsys(object):
     def get_atom_value(self, metric, atom1, atom2, desc, want_diff): # pylint: disable-msg=R0913
         # value conversion and diff, if required
         atom_type = desc.type
+        if atom2 == None:
+            want_diff = False
         if atom_type == c_api.PM_TYPE_32:
             if want_diff:
                 return atom1.l - atom2.l
@@ -165,7 +175,7 @@ class _pmsubsys(object):
                         try:
                             old_val = self.old_metric_values[j][k]
                         except IndexError:
-                            old_val = 0
+                            old_val = None
                     else:
                         old_val = self.old_metric_values[j]
                     if first:
@@ -191,15 +201,6 @@ class _pmsubsys(object):
                     super(_pmsubsys, self).get_stats()
 
 
-    def get_metric_value(self, idx):
-        if idx in self.metrics:
-            return self.metric_values[self.metrics_dict[idx]]
-        else:
-            return 0
-        if hasattr(super(_pmsubsys, self), 'get_metric_value'):
-            super(_pmsubsys, self).get_metric_value()
-
-
 # Processor  -----------------------------------------------------------------
 
 
@@ -207,7 +208,7 @@ class Processor(_pmsubsys):
     def __init__(self):
         super(Processor, self).__init__()
         self.cpu_total = 0
-        self.metrics += ['hinv.ncpu', 'kernel.all.cpu.guest',
+        self.metrics += ['hinv.ncpu', 'hinv.cpu.clock', 'kernel.all.cpu.guest',
                          'kernel.all.cpu.idle', 'kernel.all.cpu.intr',
                          'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft',
                          'kernel.all.cpu.nice', 'kernel.all.cpu.steal',
@@ -265,9 +266,10 @@ class Disk(_pmsubsys):
                          'disk.dev.avactive', 'disk.dev.aveq',
                          'disk.dev.blkread', 'disk.dev.blkwrite',
                          'disk.dev.read', 'disk.dev.read_bytes',
-                         'disk.dev.read_merge',
+                         'disk.dev.read_merge', 'disk.dev.total',
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
+                         'disk.partitions.blkread', 'disk.partitions.blkwrite',
                          'disk.partitions.read', 'disk.partitions.write',
                          'disk.partitions.read_bytes',
                          'disk.partitions.write_bytes'
@@ -338,22 +340,22 @@ class Process(_pmsubsys):
         self.metrics += ['proc.id.egid', 'proc.id.euid', 'proc.id.fsgid',
                          'proc.id.fsuid', 'proc.id.gid', 'proc.id.sgid',
                          'proc.id.suid', 'proc.id.uid', 'proc.io.write_bytes',
-                         'proc.memory.rss', 'proc.memory.textrss',
-                         'proc.memory.vmdata', 'proc.memory.vmlib',
-                         'proc.memory.vmsize', 'proc.memory.vmstack',
+                         'proc.memory.rss', 'proc.memory.vmsize',
                          'proc.nprocs', 'proc.psinfo.cmd',
-                         'proc.psinfo.exit_signal', 'proc.psinfo.flags',
-                         'proc.psinfo.maj_flt',
+                         'proc.psinfo.exit_signal', 'proc.psinfo.maj_flt',
                          'proc.psinfo.minflt', 'proc.psinfo.nice',
                          'proc.psinfo.nswap',
                          'proc.psinfo.pid', 'proc.psinfo.ppid',
                          'proc.psinfo.priority', 'proc.psinfo.processor',
-                         'proc.psinfo.rss', 'proc.psinfo.start_time',
+                         'proc.psinfo.rss', 'proc.psinfo.sname',
+                         'proc.psinfo.start_time',
                          'proc.psinfo.stime','proc.psinfo.utime',
+                         'proc.psinfo.vsize',
                          'proc.runq.runnable', 'proc.runq.sleeping',
                          'proc.runq.blocked', 'proc.runq.defunct',
                          'proc.schedstat.cpu_time',
                          'process.interface.out.errors']
+        self.diff_metrics += ['proc.memory.rss', 'proc.memory.vmsize']
 
 
 # subsys  -----------------------------------------------------------------

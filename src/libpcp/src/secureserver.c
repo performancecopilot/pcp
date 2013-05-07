@@ -161,12 +161,12 @@ __pmCertificateTimestamp(SECItem *vtime, char *buffer, size_t size)
 	return -EINVAL;
     }
     if (secsts != SECSuccess)
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
 
     /* Convert to local time */
     PR_ExplodeTime(itime, PR_GMTParameters, &exploded);
     if (!PR_FormatTime(buffer, size, "%a %b %d %H:%M:%S %Y", &exploded))
-	return __pmSecureSocketsError();
+	return __pmSecureSocketsError(PR_GetError());
     return 0;
 }
 
@@ -216,7 +216,13 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 {
     const char *nickname = SECURE_SERVER_CERTIFICATE;
     SECStatus secsts;
-    int sts = -EINVAL;
+    int sts;
+
+    sts = __pmInitAuthServer();
+    if (sts < 0) {
+	__pmNotifyErr(LOG_ERR, "Failed to start authenticating server");
+	return sts;
+    }
 
     PR_Init(PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
 
@@ -233,7 +239,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
      * If command line db specified, pass it directly through - allowing
      * any old database format, at the users discretion.
      */
-
+    sts = -EINVAL;
     if (!db) {
 	char *path = serverdb(secure_server.database_path, MAXPATHLEN);
 
@@ -255,14 +261,14 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
-			pmErrStr(__pmSecureSocketsError()));
+			pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     }
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy: %s",
-		pmErrStr(__pmSecureSocketsError()));
+		pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     }
 
@@ -270,7 +276,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
-		pmErrStr(__pmSecureSocketsError()));
+		pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	goto done;
     } else {
 	secure_server.ssl_session_cache_setup = 1;
@@ -356,25 +362,14 @@ __pmSecureServerShutdown(void)
     NSS_Shutdown();
 }
 
-int
-__pmSecureServerHandshake(int fd, int flags)
+static int
+__pmSecureServerNegotiation(int fd, int *strength)
 {
     PRIntervalTime timer;
-    PRFileDesc	*sslsocket;
-    SECStatus	secsts;
-    int		msec;
-    int		sts;
-
-    /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS)) != 0)
-	return PM_ERR_IPC;
-
-    if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
-	return sts;
-
-    /* if no request for TLS/SSL has been made, our work here is done */
-    if (!(flags & PDU_FLAG_SECURE))
-	return 0;
+    PRFileDesc *sslsocket;
+    SECStatus secsts;
+    int enabled, keysize;
+    int msec;
 
     sslsocket = (PRFileDesc *)__pmGetSecureSocket(fd);
     if (!sslsocket)
@@ -390,14 +385,14 @@ __pmSecureServerHandshake(int fd, int flags)
 
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure secure server: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
     secsts = SSL_ResetHandshake(sslsocket, PR_TRUE /*server*/);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to reset secure handshake: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
@@ -407,9 +402,202 @@ __pmSecureServerHandshake(int fd, int flags)
     secsts = SSL_ForceHandshakeWithTimeout(sslsocket, timer);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to force secure handshake: %s",
-			    pmErrStr(__pmSecureSocketsError()));
+			    pmErrStr(__pmSecureSocketsError(PR_GetError())));
 	return PM_ERR_IPC;
     }
 
+    secsts = SSL_SecurityStatus(sslsocket, &enabled, NULL, &keysize, NULL, NULL, NULL);
+    if (secsts != SECSuccess)
+	return __pmSecureSocketsError(PR_GetError());
+
+    *strength = (enabled > 0) ? keysize : DEFAULT_SECURITY_STRENGTH;
+    return 0;
+}
+
+static int
+__pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
+{
+    const void *property = NULL;
+    char *username;
+    int sts;
+
+    sts = sasl_getprop(conn, SASL_USERNAME, &property);
+    if (sts == SASL_OK && property) {
+	__pmNotifyErr(LOG_INFO, "Successful authentication for user \"%s\"\n",
+				(char *)property);
+	username = strdup((char *)property);
+    } else {
+	username = NULL;
+    }
+
+    if (!username) {
+	sts = property ? strlen(property) : 0;
+	__pmNoMem("__pmAuthServerSetAttributes", sts, PM_RECOV_ERR);
+	sts = -ENOMEM;
+    } else {
+	sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs);
+    }
+    return sts;
+}
+
+static int
+__pmAuthServerSetProperties(sasl_conn_t *conn, int ssf)
+{
+    int saslsts;
+    sasl_security_properties_t props;
+
+    /* set external security strength factor */
+    saslsts = sasl_setprop(conn, SASL_SSF_EXTERNAL, &ssf);
+    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	__pmNotifyErr(LOG_ERR, "SASL setting external SSF to %d: %s",
+			ssf, sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
+    }
+
+    /* set general security properties */
+    memset(&props, 0, sizeof(props));
+    props.maxbufsize = LIMIT_USER_AUTH;
+    props.max_ssf = UINT_MAX;
+    saslsts = sasl_setprop(conn, SASL_SEC_PROPS, &props);
+    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	__pmNotifyErr(LOG_ERR, "SASL setting security properties: %s",
+			sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
+    }
+
+    return 0;
+}
+
+static int
+__pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
+{
+    int sts, saslsts;
+    int pinned, length, count;
+    char *payload, buffer[LIMIT_USER_AUTH];
+    sasl_conn_t *sasl_conn;
+    __pmPDU *pb;
+
+    if (pmDebug & DBG_TRACE_USERAUTH)
+	fprintf(stderr, "__pmAuthServerNegotiation(fd=%d, ssf=%d)\n",
+		fd, ssf);
+
+    if ((sasl_conn = (sasl_conn_t *)__pmGetUserAuthData(fd)) == NULL)
+        return -EINVAL;
+
+    /* setup all the security properties for this connection */
+    if ((sts = __pmAuthServerSetProperties(sasl_conn, ssf)) < 0)
+	return sts;
+
+    saslsts = sasl_listmech(sasl_conn,
+			    NULL, NULL, " ", NULL,
+                            (const char **)&payload,
+                            (unsigned int *)&length,
+                            &count);
+    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+	__pmNotifyErr(LOG_ERR, "Generating client mechanism list: %s",
+			sasl_errstring(saslsts, NULL, NULL));
+	return __pmSecureSocketsError(saslsts);
+    }
+    if (pmDebug & DBG_TRACE_USERAUTH)
+	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list "
+			"(%d items): \"%s\"\n", count, payload);
+
+    if ((sts = __pmSendUserAuth(fd, FROM_ANON, length, payload)) < 0)
+	return sts;
+
+    if (pmDebug & DBG_TRACE_USERAUTH)
+	fprintf(stderr, "__pmAuthServerNegotiation - wait for mechanism\n");
+
+    sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
+    if (sts == PDU_USER_AUTH) {
+        sts = __pmDecodeUserAuth(pb, &length, &payload);
+        if (sts >= 0) {
+	    saslsts = sasl_server_start(sasl_conn, buffer,
+				payload, length,
+				(const char **)&payload,
+				(unsigned int *)&length);
+	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
+		sts = __pmSecureSocketsError(saslsts);
+	}
+    } else if (sts == PDU_ERROR) {
+        __pmDecodeError(pb, &sts);
+    } else if (sts != PM_ERR_TIMEOUT) {
+        sts = PM_ERR_IPC;
+    }
+
+    if (pinned)
+	__pmUnpinPDUBuf(pb);
+    if (sts < 0)
+	return sts;
+
+    if (pmDebug & DBG_TRACE_USERAUTH)
+	fprintf(stderr, "__pmAuthServerNegotiation method negotiated\n");
+
+    while (saslsts == SASL_CONTINUE) {
+	if (!payload) {
+	    __pmNotifyErr(LOG_ERR, "No SASL data to send");
+	    sts = -EINVAL;
+	    break;
+	}
+	if ((sts = __pmSendUserAuth(fd, FROM_ANON, length, payload)) < 0)
+	    break;
+
+	if (pmDebug & DBG_TRACE_USERAUTH)
+	    fprintf(stderr, "__pmAuthServerNegotiation awaiting response\n");
+
+	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
+	if (sts == PDU_USER_AUTH) {
+	    sts = __pmDecodeUserAuth(pb, &length, &payload);
+	    if (sts >= 0) {
+		sts = saslsts = sasl_server_step(sasl_conn, payload, length,
+                                                 (const char **)&payload,
+                                                 (unsigned int *)&length);
+		if (sts != SASL_OK && sts != SASL_CONTINUE) {
+		    sts = __pmSecureSocketsError(sts);
+		    break;
+		}
+		if (pmDebug & DBG_TRACE_USERAUTH) {
+		    fprintf(stderr, "__pmAuthServerNegotiation"
+				    " step recv (%d bytes)", length);
+		}
+	    }
+	} else if (sts == PDU_ERROR) {
+	    __pmDecodeError(pb, &sts);
+	} else if (sts != PM_ERR_TIMEOUT) {
+	    sts = PM_ERR_IPC;
+	}
+
+	if (pinned)
+	    __pmUnpinPDUBuf(pb);
+	if (sts < 0)
+	    break;
+    }
+
+    if (sts < 0) {
+	if (pmDebug & DBG_TRACE_USERAUTH)
+	    fprintf(stderr, "__pmAuthClientNegotiation loop failed\n");
+	return sts;
+    }
+
+    return __pmAuthServerSetAttributes(sasl_conn, attrs);
+}
+
+int
+__pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
+{
+    int sts, ssf = DEFAULT_SECURITY_STRENGTH;
+
+    /* protect from unsupported requests from future/oddball clients */
+    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS|PDU_FLAG_USER_AUTH)) != 0)
+	return PM_ERR_IPC;
+
+    if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
+	return sts;
+    if (((flags & PDU_FLAG_SECURE) != 0) &&
+	((sts = __pmSecureServerNegotiation(fd, &ssf)) < 0))
+	return sts;
+    if (((flags & PDU_FLAG_USER_AUTH) != 0) &&
+	((sts = __pmAuthServerNegotiation(fd, ssf, attrs)) < 0))
+	return sts;
     return 0;
 }

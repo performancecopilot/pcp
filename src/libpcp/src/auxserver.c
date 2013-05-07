@@ -462,10 +462,11 @@ __pmSecureServerShutdown(void)
 }
 
 int
-__pmSecureServerHandshake(int fd, int flags)
+__pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
     (void)flags;
+    (void)attrs;
     return -EOPNOTSUPP;
 }
 

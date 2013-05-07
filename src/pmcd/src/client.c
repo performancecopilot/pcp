@@ -112,9 +112,13 @@ AcceptNewClient(int reqfd)
     __pmFD_SET(fd, &clientFds);
     __pmSetVersionIPC(fd, UNKNOWN_VERSION);	/* before negotiation */
     __pmSetSocketIPC(fd);
+
     client[i].fd = fd;
     client[i].status.connected = 1;
     client[i].status.changes = 0;
+    memset(&client[i].attrs, 0, sizeof(__pmHashCtl));
+
+#if 1	// nathans - replace these using connection attributes ... ?
     /*
      * Note seq needs to be unique, but we're using a free running counter
      * and not bothering to check here ... unless we churn through
@@ -124,6 +128,8 @@ AcceptNewClient(int reqfd)
     client[i].seq = seq++;
     __pmtimevalNow(&now);
     client[i].start = now.tv_sec;
+#endif
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
@@ -136,15 +142,13 @@ AcceptNewClient(int reqfd)
 int
 NewClient(void)
 {
-    int i;
+    int i, sz;
 
     for (i = 0; i < nClients; i++)
 	if (!client[i].status.connected)
 	    break;
 
     if (i == clientSize) {
-	int j, sz;
-
 	clientSize = clientSize ? clientSize * 2 : MIN_CLIENTS_ALLOC;
 	sz = sizeof(ClientInfo) * clientSize;
 	client = (ClientInfo *) realloc(client, sz);
@@ -153,11 +157,8 @@ NewClient(void)
 	    Shutdown();
 	    exit(1);
 	}
-	for (j = i; j < clientSize; j++) {
-	    client[j].addr = NULL;
-	    client[j].profile = NULL;
-	    client[j].szProfile = 0;
-	}
+	sz -= (sizeof(ClientInfo) * i);
+	memset(&client[i], 0, sz);
     }
     client[i].addr = __pmSockAddrAlloc();
     if (client[i].addr == NULL) {
@@ -184,7 +185,7 @@ GetClient(int n)
 void
 DeleteClient(ClientInfo *cp)
 {
-    int		i;
+    int i;
 
     for (i = 0; i < nClients; i++)
 	if (cp == &client[i])
@@ -223,6 +224,8 @@ DeleteClient(ClientInfo *cp)
 	    cp->profile[i] = NULL;
 	}
     }
+    __pmFreeAttrsSpec(&cp->attrs);
+    memset(&cp->attrs, 0, sizeof(cp->attrs));
     __pmSockAddrFree(cp->addr);
     cp->addr = NULL;
     cp->status.connected = 0;
