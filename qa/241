@@ -34,6 +34,13 @@ SAVE_MMV_STATS_DIR="$PCP_TMP_DIR/mmv.$seq"
 
 $sudo rm -rf $tmp.*
 
+# for QA the default install for mmv PMDA is as a dso, not a daemon
+#
+cat <<End-of-File >$tmp.input
+b
+dso
+End-of-File
+
 _cleanup()
 {
     if $done_clean
@@ -43,16 +50,16 @@ _cleanup()
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	[ -d $SAVE_MMV_STATS_DIR ] && rm -fr "$MMV_STATS_DIR"
 	[ -d $SAVE_MMV_STATS_DIR ] && $sudo mv $SAVE_MMV_STATS_DIR $MMV_STATS_DIR
-	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
 	then
-	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
 	else
 	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Remove </dev/null >/dev/null 2>&1 )
 	fi
+	rm -f $tmp.*
 	done_clean=true
     fi
     exit $status
@@ -116,10 +123,7 @@ End-of-File
 
 echo
 echo "=== $iam agent installation ==="
-cat <<End-of-File | $sudo ./Install -e >$tmp.out 2>&1
-b
-dso
-End-of-File
+$sudo ./Install -e <$tmp.input >$tmp.out 2>&1
 _filter_pmda_install <$tmp.out
 
 value=5
