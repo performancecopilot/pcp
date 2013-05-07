@@ -27,7 +27,7 @@ Description: System level performance monitoring and performance management
 Package: libpcp3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 3.8.0)
+Replaces: pcp (<< 3.8.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp-dev package contains the base Performance Co-Pilot (PCP)
