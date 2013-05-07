@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 719
+# Exercise the python pmatop implementation
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+remove_extra_whitespace()
+{
+    sed \
+	-e 's/>>>.*<<<//g' \
+	-e 's/[0-9]/9/g' \
+	-e 's/9[9]*/9/g' \
+	-e 's/  *$//' \
+	-e '/^ *$/d' \
+	-e 's/  */ /g' \
+	-e 's/^ *//' \
+	-e 's/RECORD.*$/RECORD/' \
+
+}
+
+redact_lines()
+{
+awk -v f=$1 '
+    BEGIN {first_cpu=1;first_lvm=1}
+     /^[0-9]/ {if ($f == "systemd") print $0; next}
+     /cpu/ {if (first_cpu) {print $0; first_cpu=0}; next}
+     /LVM/ {if (first_lvm) {gsub("[a-zA-Z0-9_]*","x",$3);print $0; first_lvm=0;}; next}
+     /NET/ {if ($3 == "transport" || $3 == "network" || $3 == "wlan9") {print $0}; next}
+     {print $0}'
+}
+
+# real QA test starts here
+
+PMATOP=pmatop		# installed version
+$PMATOP -m 1 1 | remove_extra_whitespace | redact_lines 7 | tee -a $tmp.out 2>&1
+$PMATOP -g 1 1 | remove_extra_whitespace | redact_lines 12 | tee -a $tmp.out 2>&1
+
+cat $tmp.out >>$here/$seq.full
+
+# success, all done
+/bin/rm -rf test.pmcollectl
+status=0
+exit
