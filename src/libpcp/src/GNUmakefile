@@ -80,10 +80,10 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) check.done links.done
+LDIRT += $(SYMTARGET) check.done
 LDIRT += nss_server.o nss_connect.o p_userauth.o
 
-base default : $(LIBTARGET) check.done links.done $(SYMTARGET) $(STATICLIBTARGET)
+base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
 
 ifneq "$(SYMTARGET)" ""
 $(SYMTARGET): 
@@ -137,17 +137,4 @@ $(TOPDIR)/src/pmns/stdpmid:
 #
 check.done:	$(OBJECTS)
 	./check-statics
-	@touch check.done
-
-# Populate a common lib directory for simplifying the builds of some other
-# components that need to find multiple PCP libraries easily.  Also makes
-# use of LD_LIBRARY_PATH for debugging exercises a little simpler.
-# 
-links.done: $(STATICLIBTARGET) $(LIBTARGET)
-ifneq "$(LIBTARGET)" ""
-	$(LN_S) -f $(shell pwd)/libpcp.$(DSOSUFFIX) $(TOPDIR)/src/lib
-endif
-ifneq "$(STATICLIBTARGET)" ""
-	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
-endif
-	touch links.done
+	touch check.done

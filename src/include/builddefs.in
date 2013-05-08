@@ -241,17 +241,6 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-ifneq "$(LIBTARGET)" ""
-LIBLINK_MAKERULE = \
-	@rm -f $(TOPDIR)/src/lib/$(LIBTARGET) \
-	$(LN_S) -f $(shell pwd)/$(LIBTARGET) $(TOPDIR)/src/lib
-endif
-ifneq "$(STATICLIBTARGET)" ""
-STATIC_LIBLINK_MAKERULE = \
-	@rm -f $(TOPDIR)/src/lib/$(STATICLIBTARGET) \
-	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
-endif
-
 DOMAIN_MAKERULE = \
 	@rm -f domain.h; \
 	echo "/*" >domain.h; \
