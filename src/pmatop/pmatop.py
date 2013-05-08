@@ -522,9 +522,9 @@ def main (stdscr_p):
 
 #    stdscr.nodelay(True)
 
-    subsys_options = {"d", "c", "n", "s", "v", "c", "y", "u", "p"}
+    subsys_options = ("d", "c", "n", "s", "v", "c", "y", "u", "p")
 
-    sort_options = {"C", "M", "D", "N", "A"}
+    sort_options = ("C", "M", "D", "N", "A")
 
     class NextOption(Exception):
         pass
