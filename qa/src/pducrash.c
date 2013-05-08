@@ -53,8 +53,54 @@ decode_user_auth(const char *name)
     fprintf(stderr, "  __pmDecodeUserAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
     free(user_auth);
 }
+
+static void
+decode_auth_attr(const char *name)
+{
+    char		*value;
+    int			sts, attr, length;
+    struct auth_attr {
+	__pmPDUHdr	hdr;
+	int		attr;
+	char		value[0];
+    } *auth_attr;
+
+    fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
+    auth_attr = (struct auth_attr *)calloc(1, sizeof(*auth_attr));
+    sts = __pmDecodeAuthAttr((__pmPDU *)auth_attr, &attr, &length, &value);
+    fprintf(stderr, "  __pmDecodeAuthAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth_attr);
+
+    fprintf(stderr, "[%s] checking negative length\n", name);
+    auth_attr = (struct auth_attr *)calloc(1, sizeof(*auth_attr));
+    auth_attr->hdr.len = -512;
+    auth_attr->hdr.type = PDU_AUTH_ATTR;
+    auth_attr->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuthAttr((__pmPDU *)auth_attr, &attr, &length, &value);
+    fprintf(stderr, "  __pmDecodeAuthAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth_attr);
+
+    fprintf(stderr, "[%s] checking empty value\n", name);
+    auth_attr = (struct auth_attr *)calloc(1, sizeof(*auth_attr));
+    auth_attr->hdr.len = sizeof(*auth_attr);
+    auth_attr->hdr.type = PDU_AUTH_ATTR;
+    auth_attr->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuthAttr((__pmPDU *)auth_attr, &attr, &length, &value);
+    fprintf(stderr, "  __pmDecodeAuthAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth_attr);
+
+    fprintf(stderr, "[%s] checking access beyond limit\n", name);
+    auth_attr = (struct auth_attr *)calloc(1, sizeof(*auth_attr));
+    auth_attr->hdr.len = INT_MAX;
+    auth_attr->hdr.type = PDU_AUTH_ATTR;
+    auth_attr->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuthAttr((__pmPDU *)auth_attr, &attr, &length, &value);
+    fprintf(stderr, "  __pmDecodeAuthAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth_attr);
+}
 #else
 static void decode_user_auth(const char *name) { (void)name; }
+static void decode_auth_attr(const char *name) { (void)name; }
 #endif
 
 static void
@@ -1214,6 +1260,7 @@ struct pdu {
     { "trace_ack",	decode_trace_ack },
     { "trace_data",	decode_trace_data },
     { "user_auth",	decode_user_auth },
+    { "auth_attr",	decode_auth_attr },
 };
 
 int

@@ -790,7 +790,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
 #define PDU_USER_AUTH		0x7011
-#define PDU_FINISH		0x7011
+#define PDU_AUTH_ATTR		0x7012
+#define PDU_FINISH		0x7012
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -848,6 +849,8 @@ extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 extern int __pmSendUserAuth(int, int, int, const char *);
 extern int __pmDecodeUserAuth(__pmPDU *, int *, char **);
+extern int __pmSendAuthAttr(int, int, int, int, const char *);
+extern int __pmDecodeAuthAttr(__pmPDU *, int *, int *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 

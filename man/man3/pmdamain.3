@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,11 +17,9 @@
 .TH PMDAMAIN 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaMain\f1,
-\f3pmdaMainLoop\f1,
 \f3pmdaSetResultCallBack\f1,
 \f3pmdaSetCheckCallBack\f1,
-\f3pmdaSetDoneCallBack\f1,
-\f3pmdaMainLoopFreeResultCallback\f1 \- generic PDU processing for a PMDA
+\f3pmdaSetDoneCallBack\f1 \- generic PDU processing for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -30,10 +29,6 @@
 #include <pcp/pmda.h>
 .sp
 cc ... \-lpcp_pmda \-lpcp
-.sp
-.ft 2
-PMDA Interface 2 or higher
-.ft 3
 .sp
 .ad l
 .hy 0
@@ -53,22 +48,6 @@ void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP, pmdaDoneCallBack\ \fIcal
 .in
 .hy
 .ad
-.ft 2
-PMDA Interface 1
-.ft 3
-.sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-void pmdaMainLoop(char *\fIname\fP, int \fIinfd\fP, int \fIoutfd\fP, _pmPMDA\ *\fIdispatch\fP, int\ (*\fIcheck\fP)(void), void\ (*\fIdone\fP)(void));
-.br
-.ti -8n
-void pmdaMainLoopFreeResultCallback(void (*\fIcallback\fP)(pmResult *\fIres\fP));
-.sp
-.in
-.hy
-.ad
 .ft 1
 .SH DESCRIPTION
 For Performance Metric Domain Agents 
@@ -78,12 +57,6 @@ using the binary PDU protocols to communicate with
 the routine
 .B pmdaMain
 provides a generic implementation of the PDU-driven main loop. 
-.PP
-.B pmdaMainLoop
-and
-.B pmdaMainLoopFreeResultCallback
-implemented an earlier version of this functionality.  Both functions will be
-removed in a later release and should not be used.
 .PP
 The arguments that are now encapsulated in
 .B pmdaExt
@@ -114,20 +87,20 @@ typedef struct {
     struct {
         unsigned int    pmda_interface: 8; /* PMDA DSO interface version */
         unsigned int    pmapi_version : 8; /* PMAPI version */
-        unsigned int    flags : 16;        /* usage TBD */
+        unsigned int    flags : 16;        /* optional feature flags */
     } comm;             /* set/return communication and version info */
     int status;         /* return initialization status here */
 
     union {
         struct {                              /* PMDA_INTERFACE_2 or _3 */
-            pmdaExt *e_ext;
+            pmdaExt *ext;
             int (*profile)(__pmProfile *, pmdaExt *);
             int (*fetch)(int, pmID *, pmResult **, pmdaExt *);
             int (*desc)(pmID, pmDesc *, pmdaExt *);
             int (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
             int (*text)(int, int, char **, pmdaExt *);
             int (*store)(pmResult *, pmdaExt *);
-        } two;
+        } two, three;
 
         struct {                              /* PMDA_INTERFACE_4 or _5 */
             pmdaExt *ext;
@@ -140,7 +113,21 @@ typedef struct {
             int     (*pmid)(char *, pmID *, pmdaExt *);
             int     (*name)(pmID, char ***, pmdaExt *);
             int     (*children)(char *, int, char ***, int **, pmdaExt *);
-        } four;
+        } four, five;
+
+        struct {                              /* PMDA_INTERFACE_6 */
+            pmdaExt *ext;
+            int     (*profile)(__pmProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, __pmInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(char *, int, char ***, int **, pmdaExt *);
+            int     (*attribute)(int, int, const char *, int, pmdaExt *);
+        } six;
     } version;
 
 } pmdaInterface;
@@ -164,6 +151,8 @@ will force
 .B pmdaMain
 to use the callbacks in the
 .I version.two
+or
+.I version.three
 structure.
 A setting of
 .B PMDA_INTERFACE_4
@@ -173,7 +162,16 @@ will force
 .B pmdaMain
 to use the callbacks in the
 .I version.four
-structure.  Any other value will result in an error and termination of
+or
+.I version.five
+structure, and similarly a
+.B PMDA_INTERFACE_6
+setting forces
+.B pmdaMain
+to use the callbacks in the
+.I version.six
+structure.
+Any other value will result in an error and termination of
 .BR pmdaMain .
 .PP
 Note that the use of

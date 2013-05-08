@@ -31,7 +31,7 @@
  * Open an inet port to PMCD
  */
 
-void
+static void
 __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
 {
     int			sts;
@@ -118,7 +118,7 @@ __pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
  * Open a unix port to PMCD
  */
 
-void
+static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
     int			sts;
@@ -179,7 +179,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 }
 
 #else	/* MINGW */
-void
+static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
     __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported on Windows");
@@ -206,16 +206,13 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 	return EOF;
     }
 
-    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.four.ext;
-    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.two.ext;
-    else {
+    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaGetOpt: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	(*err)++;
 	return EOF;
     }
+    pmda = dispatch->version.any.ext;
 
     while (!flag && ((c = getopt(argc, argv, optstring)) != EOF)) {
     	switch (c) {
@@ -310,21 +307,15 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     __pmID_int	        *pmidp = NULL;
     pmdaExt	        *pmda = NULL;
 
-    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.four.ext;
-    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.two.ext;
-    else {
+    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
+    pmda = dispatch->version.any.ext;
 
-    if (((HAVE_V_FOUR(dispatch->comm.pmda_interface) &&
-	  dispatch->version.four.fetch == pmdaFetch) ||
-	 (HAVE_V_TWO(dispatch->comm.pmda_interface) &&
-	  dispatch->version.two.fetch == pmdaFetch)) &&
+    if (dispatch->version.any.fetch == pmdaFetch &&
 	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
 	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
@@ -360,7 +351,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 	return;
     }
     
-
     /* fix bit fields in indom for all instance domains */
     for (i = 0; i < pmda->e_nindoms; i++) {
 	unsigned int domain = dispatch->domain;
@@ -459,7 +449,9 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
     if (pmDebug & DBG_TRACE_LIBPMDA)
     {
     	__pmNotifyErr(LOG_INFO, "name        = %s\n", pmda->e_name);
-	__pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
+        __pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
+        if (dispatch->comm.flags)
+    	    __pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
     	__pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
     	__pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
     	__pmNotifyErr(LOG_INFO, "direct map  = %d\n", pmda->e_direct);
@@ -473,21 +465,19 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
  * version exchange with pmcd via credentials PDU
  */
 
-int
-__pmdaSetupPDU(int infd, int outfd, char *agentname)
+static int
+__pmdaSetupPDU(int infd, int outfd, int flags, char *agentname)
 {
-    __pmCred	handshake[1];
-    __pmCred	*credlist = NULL;
-    __pmPDU	*pb;
-    int		i, sts, vflag = 0;
-    int		version = UNKNOWN_VERSION, credcount = 0, sender = 0;
-    int		pinpdu;
+    __pmVersionCred	handshake;
+    __pmCred		*credlist = NULL;
+    __pmPDU		*pb;
+    int			i, sts, pinpdu, vflag = 0;
+    int			version = UNKNOWN_VERSION, credcount = 0, sender = 0;
 
-    handshake[0].c_type = CVERSION;
-    handshake[0].c_vala = PDU_VERSION;
-    handshake[0].c_valb = 0;
-    handshake[0].c_valc = 0;
-    if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, handshake)) < 0) {
+    handshake.c_type = CVERSION;
+    handshake.c_version = PDU_VERSION;
+    handshake.c_flags = flags;
+    if ((sts = __pmSendCreds(outfd, (int)getpid(), 1, (__pmCred *)&handshake)) < 0) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetupPDU: PMDA %s send creds: %s\n", agentname, pmErrStr(sts));
 	return -1;
     }
@@ -538,18 +528,15 @@ void
 pmdaConnect(pmdaInterface *dispatch)
 {
     pmdaExt	*pmda = NULL;
-    int		sts;
+    int		sts, flags = dispatch->comm.flags;
 
-    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.four.ext;
-    else if (HAVE_V_TWO(dispatch->comm.pmda_interface))
-	pmda = dispatch->version.two.ext;
-    else {
+    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
+    pmda = dispatch->version.any.ext;
 
     switch (pmda->e_io) {
 	case pmdaPipe:
@@ -597,33 +584,31 @@ pmdaConnect(pmdaInterface *dispatch)
 	    exit(1);
     }
 
-    if (HAVE_V_FOUR(dispatch->comm.pmda_interface) ||
-        HAVE_V_TWO(dispatch->comm.pmda_interface)) {
-	if ((sts = __pmdaSetupPDU(pmda->e_infd, pmda->e_outfd, pmda->e_name)) < 0)
-	    dispatch->status = sts;
-	else
-	    dispatch->comm.pmapi_version = (unsigned int)sts;
-    }
+    sts = __pmdaSetupPDU(pmda->e_infd, pmda->e_outfd, flags, pmda->e_name);
+    if (sts < 0)
+	dispatch->status = sts;
+    else
+	dispatch->comm.pmapi_version = (unsigned int)sts;
 }
 
 /*
  * initialise the pmdaExt and pmdaInterface structures for a daemon or DSO PMDA.
  */
 
-void
+static void
 __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
 {
     pmdaExt	*pmda = NULL;
     e_ext_t	*extp;
 
-    if (!HAVE_V_FOUR(version) && !HAVE_V_TWO(version)) {
+    if (!HAVE_ANY(version)) {
 	__pmNotifyErr(LOG_CRIT, "__pmdaSetup: %s PMDA: interface version %d not supported (domain=%d)",
 		     name, version, dispatch->domain);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
 
-    pmda = (pmdaExt *)malloc(sizeof(pmdaExt));
+    pmda = (pmdaExt *)calloc(1, sizeof(pmdaExt));
     if (pmda == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for pmdaExt structure (%d bytes)",
@@ -638,66 +623,44 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     dispatch->comm.pmapi_version = PMAPI_VERSION;
     dispatch->comm.flags = 0;
 
+    if (HAVE_V_SIX(version)) {
+	dispatch->version.six.attribute = pmdaAttribute;
+    }
     if (HAVE_V_FOUR(version)) {
-	dispatch->version.four.profile = pmdaProfile;
-	dispatch->version.four.fetch = pmdaFetch;
-	dispatch->version.four.desc = pmdaDesc;
-	dispatch->version.four.instance = pmdaInstance;
-	dispatch->version.four.text = pmdaText;
-	dispatch->version.four.store = pmdaStore;
 	dispatch->version.four.pmid = pmdaPMID;
 	dispatch->version.four.name = pmdaName;
 	dispatch->version.four.children = pmdaChildren;
-	dispatch->version.four.ext = pmda;
     }
-    else {
-	dispatch->version.two.profile = pmdaProfile;
-	dispatch->version.two.fetch = pmdaFetch;
-	dispatch->version.two.desc = pmdaDesc;
-	dispatch->version.two.instance = pmdaInstance;
-	dispatch->version.two.text = pmdaText;
-	dispatch->version.two.store = pmdaStore;
-	dispatch->version.two.ext = pmda;
-    }
+    dispatch->version.any.profile = pmdaProfile;
+    dispatch->version.any.fetch = pmdaFetch;
+    dispatch->version.any.desc = pmdaDesc;
+    dispatch->version.any.instance = pmdaInstance;
+    dispatch->version.any.text = pmdaText;
+    dispatch->version.any.store = pmdaStore;
+    dispatch->version.any.ext = pmda;
 
-    pmda->e_sockname = NULL;
     pmda->e_name = name;
-    pmda->e_logfile = NULL;
-    pmda->e_helptext = NULL;
-    pmda->e_status = 0;
     pmda->e_infd = -1;
     pmda->e_outfd = -1;
     pmda->e_port = -1;
     pmda->e_singular = -1;
     pmda->e_ordinal = -1;
-    pmda->e_direct = 0;
     pmda->e_domain = dispatch->domain;
-    pmda->e_nmetrics = 0;
-    pmda->e_nindoms = 0;
     pmda->e_help = -1;
-    pmda->e_prof = NULL;
     pmda->e_io = pmdaUnknown;
-    pmda->e_indoms = NULL;
-    pmda->e_idp = NULL;
-    pmda->e_metrics = NULL;
     pmda->e_ext = (void *)dispatch;
 
-    extp = (e_ext_t *)malloc(sizeof(*extp));
+    extp = (e_ext_t *)calloc(1, sizeof(*extp));
     if (extp == NULL) {
 	__pmNotifyErr(LOG_ERR, 
 		     "%s: Unable to allocate memory for e_ext_t structure (%d bytes)",
 		     name, (int)sizeof(*extp));
 	free(pmda);
-	if (HAVE_V_FOUR(version))
-	    dispatch->version.four.ext = NULL;
-	else
-	    dispatch->version.two.ext = NULL;
+	dispatch->version.any.ext = NULL;
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     extp->pmda_interface = version;
-    extp->res = NULL;
-    extp->maxnpmids = 0;
     pmda->e_ext = (void *)extp;
 
     pmdaSetResultCallBack(dispatch, __pmFreeResultValues);
@@ -716,7 +679,7 @@ void
 pmdaDaemon(pmdaInterface *dispatch, int version, char *name, int domain, 
 	   char *logfile, char *helptext)
 {
-    pmdaExt	*pmda = NULL;
+    pmdaExt	*pmda;
 
     dispatch->domain = domain;
     __pmdaSetup(dispatch, version, name);
@@ -724,10 +687,7 @@ pmdaDaemon(pmdaInterface *dispatch, int version, char *name, int domain,
     if (dispatch->status < 0)
 	return;
 
-    if (HAVE_V_FOUR(version))
-	pmda = dispatch->version.four.ext;
-    else
-	pmda = dispatch->version.two.ext;
+    pmda = dispatch->version.any.ext;
     pmda->e_logfile = logfile;
     pmda->e_helptext = helptext;
 
@@ -747,10 +707,7 @@ pmdaDSO(pmdaInterface *dispatch, int version, char *name, char *helptext)
     if (dispatch->status < 0)
 	return;
 
-    if (HAVE_V_FOUR(version))
-	dispatch->version.four.ext->e_helptext = helptext;
-    else
-	dispatch->version.two.ext->e_helptext = helptext;
+    dispatch->version.any.ext->e_helptext = helptext;
 }
 
 /*
@@ -762,21 +719,9 @@ pmdaOpenLog(pmdaInterface *dispatch)
 {
     int c;
 
-    if (dispatch->status != 0)
+    if (dispatch->status < 0)
 	return;
 
-    if (!HAVE_V_FOUR(dispatch->comm.pmda_interface) &&
-        !HAVE_V_TWO(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaOpenLog: PMDA interface version %d not supported (domain=%d)",
-		     dispatch->comm.pmda_interface, dispatch->domain);
-	dispatch->status = PM_ERR_GENERIC;
-	return;
-    }
-
-    if (HAVE_V_FOUR(dispatch->comm.pmda_interface))
-	__pmOpenLog(dispatch->version.four.ext->e_name, 
-    	       dispatch->version.four.ext->e_logfile, stderr, &c);
-    else
-	__pmOpenLog(dispatch->version.two.ext->e_name, 
-    	       dispatch->version.two.ext->e_logfile, stderr, &c);
+    __pmOpenLog(dispatch->version.any.ext->e_name, 
+		dispatch->version.any.ext->e_logfile, stderr, &c);
 }

@@ -917,7 +917,7 @@ __pmAuthClientSetProperties(sasl_conn_t *saslconn, int ssf)
 
     /* set general security properties */
     memset(&props, 0, sizeof(props));
-    props.maxbufsize = LIMIT_USER_AUTH;
+    props.maxbufsize = LIMIT_AUTH_PDU;
     props.max_ssf = UINT_MAX;
     if ((sts = sasl_setprop(saslconn, SASL_SEC_PROPS, &props)) != SASL_OK)
 	return __pmSecureSocketsError(sts);
@@ -930,7 +930,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 {
     int sts, result = SASL_OK;
     int pinned, length, method_length;
-    char *payload, buffer[LIMIT_USER_AUTH];
+    char *payload, buffer[LIMIT_AUTH_PDU];
     const char *method = NULL;
     sasl_conn_t *saslconn;
     __pmHashNode *node;
@@ -1000,7 +1000,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     buffer[sizeof(buffer) - 1] = '\0';
     method_length = strlen(buffer);
     if (payload) {
-	if (LIMIT_USER_AUTH - method_length - 1 < length)
+	if (LIMIT_AUTH_PDU - method_length - 1 < length)
 	    return -E2BIG;
 	memcpy(buffer + method_length + 1, payload, length);
 	length += method_length + 1;

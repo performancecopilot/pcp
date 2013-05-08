@@ -108,7 +108,7 @@ extern int __pmSecureServerIPCFlags(int, int);
 
 #define SECURE_SERVER_SASL_CONFIG "pcp"
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
-#define LIMIT_USER_AUTH	2048	/* maximum size of a SASL transfer (in bytes) */
+#define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
 #define DEFAULT_SECURITY_STRENGTH 0	/* SASL security strength factor */
 
 typedef int (*sasl_callback_func)(void);

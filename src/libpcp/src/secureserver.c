@@ -456,7 +456,7 @@ __pmAuthServerSetProperties(sasl_conn_t *conn, int ssf)
 
     /* set general security properties */
     memset(&props, 0, sizeof(props));
-    props.maxbufsize = LIMIT_USER_AUTH;
+    props.maxbufsize = LIMIT_AUTH_PDU;
     props.max_ssf = UINT_MAX;
     saslsts = sasl_setprop(conn, SASL_SEC_PROPS, &props);
     if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
@@ -473,7 +473,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 {
     int sts, saslsts;
     int pinned, length, count;
-    char *payload, buffer[LIMIT_USER_AUTH];
+    char *payload, buffer[LIMIT_AUTH_PDU];
     sasl_conn_t *sasl_conn;
     __pmPDU *pb;
 
