@@ -2348,7 +2348,7 @@ done:
 	vset->numval = j;
     }
     *resp = res;
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 static int

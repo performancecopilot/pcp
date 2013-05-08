@@ -346,7 +346,6 @@ __pmConnectLocal(void)
 	challenge = 0xff;
 	dp->dispatch.comm.pmda_interface = challenge;
 	dp->dispatch.comm.pmapi_version = ~PMAPI_VERSION;
-
 	dp->dispatch.comm.flags = 0;
 	dp->dispatch.status = 0;
 

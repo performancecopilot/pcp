@@ -262,6 +262,13 @@ pdu-server: waiting ...
 008: 6c656220 20676e6f 75206f74 7e7e0073 
 
 pdu-server: waiting ...
+[SERVER]pmGetPDU: AUTH_ATTR fd=<n> len=22 from=CLIENT
+000:       16     7012   CLIENT  5000000 71706370 7e7e0061 
++ PDU_AUTH_ATTR: attr=5 length=6 value="pcpqa"
+[SERVER]pmXmitPDU: AUTH_ATTR fd=<n> len=22
+000:       16     7012   SERVER  5000000 71706370 7e7e0061 
+
+pdu-server: waiting ...
 [SERVER]pmGetPDU: CREDS fd=<n> len=20 from=CLIENT
 000:       14     700c   CLIENT  1000000  b0a0201 
 + PDU_CREDS: sender=CLIENT count=1

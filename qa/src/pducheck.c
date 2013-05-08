@@ -110,6 +110,7 @@ _z(void)
     int			type;
     char		*buffer;
     int			control;
+    int			attr;
     int			rate;
     int			state;
     int			num;
@@ -792,8 +793,8 @@ _z(void)
 	}
     }
 
-/* PDU_USER_AUTH */
 #if PCP_VER >= 3800
+/* PDU_USER_AUTH */
 #define PAYLOAD "All of your base are belong to us"
     if ((e = __pmSendUserAuth(fd[1], mypid, sizeof(PAYLOAD), PAYLOAD)) < 0) {
 	fprintf(stderr, "Error: SendUserAuth: %s\n", pmErrStr(e));
@@ -828,6 +829,49 @@ _z(void)
 		    if (strncmp(buffer, PAYLOAD, sizeof(PAYLOAD)) != 0)
 			fprintf(stderr, "Botch: UserAuth: payload: got: \"%s\" expect: \"%s\"\n",
 			    buffer, PAYLOAD);
+		}
+	    }
+	}
+    }
+
+/* PDU_AUTH_ATTR */
+#define USERNAME "pcpqa"
+    if ((e = __pmSendAuthAttr(fd[1], mypid, PCP_ATTR_USERNAME, sizeof(USERNAME), USERNAME)) < 0) {
+	fprintf(stderr, "Error: SendAuthAttr: %s\n", pmErrStr(e));
+	exit(1);
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvAuthAttr: %s\n", pmErrStr(e));
+	    exit(1);
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvAuthAttr: end-of-file!\n");
+	    exit(1);
+	}
+	else if (e != PDU_AUTH_ATTR) {
+	    fprintf(stderr, "Error: RecvAuthAttr: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    exit(1);
+	}
+	else {
+	    buffer = NULL;
+	    if ((e = __pmDecodeAuthAttr(pb, &attr, &count, &buffer)) < 0) {
+		fprintf(stderr, "Error: DecodeAuthAttr: %s\n", pmErrStr(e));
+		exit(1);
+	    }
+	    else {
+		if (attr != PCP_ATTR_USERNAME)
+		    fprintf(stderr, "Botch: AuthAttr: attr: got: 0x%x expect: 0x%x\n",
+			attr, PCP_ATTR_USERNAME);
+		if (count != sizeof(USERNAME))
+		    fprintf(stderr, "Botch: AuthAttr: length: got: 0x%x expect: 0x%x\n",
+			count, (int)sizeof(USERNAME));
+		if (buffer == NULL)
+		    fprintf(stderr, "Botch: AuthAttr: payload is NULL!\n");
+		else {
+		    if (strncmp(buffer, USERNAME, sizeof(USERNAME)) != 0)
+			fprintf(stderr, "Botch: AuthAttr: payload: got: \"%s\" expect: \"%s\"\n",
+			    buffer, USERNAME);
 		}
 	    }
 	}

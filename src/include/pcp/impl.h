@@ -498,16 +498,18 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 typedef enum {
     PCP_ATTR_NONE = 0,
-    PCP_ATTR_PROTOCOL,			/* either pcp:/pcps: protocol (libssl) */
-    PCP_ATTR_SECURE,			/* relaxed/enforced pcps mode (libssl) */
-    PCP_ATTR_COMPRESS,			/* compression flag, no value (libnss) */
-    PCP_ATTR_USERAUTH,			/* user auth flag, no value (libsasl) */
-    PCP_ATTR_USERNAME,			/* user login identity (libsasl) */
-    PCP_ATTR_AUTHNAME,			/* authentication name (libsasl) */
-    PCP_ATTR_PASSWORD,			/* passphrase-based secret (libsasl) */
-    PCP_ATTR_METHOD,			/* use authentication method (libsasl) */
-    PCP_ATTR_REALM,			/* realm to authenticate in (libsasl) */
-    PCP_ATTR_UNIXSOCK,			/* AF_UNIX socket + SO_PASSCRED (NYI) */
+    PCP_ATTR_PROTOCOL,		/* either pcp:/pcps: protocol (libssl) */
+    PCP_ATTR_SECURE,		/* relaxed/enforced pcps mode (libssl) */
+    PCP_ATTR_COMPRESS,		/* compression flag, no value (libnss) */
+    PCP_ATTR_USERAUTH,		/* user auth flag, no value (libsasl) */
+    PCP_ATTR_USERNAME,		/* user login identity (libsasl) */
+    PCP_ATTR_AUTHNAME,		/* authentication name (libsasl) */
+    PCP_ATTR_PASSWORD,		/* passphrase-based secret (libsasl) */
+    PCP_ATTR_METHOD,		/* use authentication method (libsasl) */
+    PCP_ATTR_REALM,		/* realm to authenticate in (libsasl) */
+    PCP_ATTR_UNIXSOCK,		/* AF_UNIX socket + SO_PASSCRED (unix) */
+    PCP_ATTR_USERID,		/* uid - user identifier (posix) */
+    PCP_ATTR_GROUPID,		/* gid - group identifier (posix) */
 } __pmHostAttributeKey;
 
 extern int __pmParseHostAttrsSpec(
@@ -788,7 +790,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
 #define PDU_USER_AUTH		0x7011
-#define PDU_FINISH		0x7011
+#define PDU_AUTH_ATTR		0x7012
+#define PDU_FINISH		0x7012
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -846,6 +849,8 @@ extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 extern int __pmSendUserAuth(int, int, int, const char *);
 extern int __pmDecodeUserAuth(__pmPDU *, int *, char **);
+extern int __pmSendAuthAttr(int, int, int, int, const char *);
+extern int __pmDecodeAuthAttr(__pmPDU *, int *, int *, char **);
 
 #if defined(HAVE_64BIT_LONG)
 

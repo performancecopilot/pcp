@@ -58,6 +58,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		control;
     int		length;
     int		state;
+    int		attr;
     int		rate;
     int		ident;
     int		txtype;
@@ -326,6 +327,34 @@ decode_encode(int fd, __pmPDU *pb, int type)
 #endif
 	    if ((e = __pmSendUserAuth(fd, mypid, length, buffer)) < 0) {
 		fprintf(stderr, "%s: Error: SendUserAuth: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+
+	case PDU_AUTH_ATTR:
+	    if ((e = __pmDecodeAuthAttr(pb, &attr, &length, &buffer)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeAuthAttr: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		char	buf[32] = { 0 };
+
+		fprintf(stderr, "+ PDU_AUTH_ATTR: attr=%d length=%d", attr, length);
+		if (length < sizeof(buf)-2) {
+                    strncpy(buf, buffer, length);
+		    fprintf(stderr, " value=\"%s\"\n", buf);
+		} else {
+                    strncpy(buf, buffer, sizeof(buf)-2);
+		    fprintf(stderr, " value=\"%12.12s ... ", buf);
+                    strncpy(buf, &buffer[length-18], sizeof(buf)-2);
+		    fprintf(stderr, "%s\"\n", buf);
+		}
+	    }
+#endif
+	    if ((e = __pmSendAuthAttr(fd, mypid, attr, length, buffer)) < 0) {
+		fprintf(stderr, "%s: Error: SendAuthAttr: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 	    fail = 0;
