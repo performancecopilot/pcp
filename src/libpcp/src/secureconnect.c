@@ -795,13 +795,13 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
     if (socket.nsprFd == NULL)
 	return -EOPNOTSUPP;
 
-    if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
-	return PM_ERR_IPC;
-    }
-    socket.nsprFd = socket.sslFd;
-
     if ((flags & PDU_FLAG_SECURE) != 0) {
+	if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "SecureClientIPCFlags: importing socket into SSL");
+	    return PM_ERR_IPC;
+	}
+	socket.nsprFd = socket.sslFd;
+
 	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
@@ -868,6 +868,17 @@ __pmSecureClientNegotiation(int fd, int *strength)
     return 0;
 }
 
+static void
+__pmInitAuthPaths(void)
+{
+    char *path;
+
+    if ((path = getenv("PCP_SASL2_PLUGIN_PATH")) != NULL)
+	sasl_set_path(SASL_PATH_TYPE_PLUGIN, path);
+    if ((path = getenv("PCP_SASL2_CONFIG_PATH")) != NULL)
+	sasl_set_path(SASL_PATH_TYPE_CONFIG, path);
+}
+
 int
 __pmInitAuthClients(void)
 {
@@ -875,6 +886,7 @@ __pmInitAuthClients(void)
 	{ .id = SASL_CB_LOG, .proc = (sasl_callback_func)&__pmAuthLogCB },
 	{ .id = SASL_CB_LIST_END }};
 
+    __pmInitAuthPaths();
     if (sasl_client_init(callbacks) != SASL_OK)
 	return -EINVAL;
     return 0;
@@ -887,6 +899,7 @@ __pmInitAuthServer(void)
 	{ .id = SASL_CB_LOG, .proc = (sasl_callback_func)&__pmAuthLogCB },
 	{ .id = SASL_CB_LIST_END }};
 
+    __pmInitAuthPaths();
     if (sasl_server_init(callbacks, SECURE_SERVER_SASL_CONFIG) != SASL_OK)
 	return -EINVAL;
     return 0;
@@ -957,7 +970,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		length = strlen(buffer);
 	    } else {
 		strncpy(buffer, payload, length);
-		buffer[length - 1] = '\0';
+		buffer[length] = '\0';
 	    }
 
 	    payload = NULL;
