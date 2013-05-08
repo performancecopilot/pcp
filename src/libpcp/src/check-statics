@@ -210,7 +210,7 @@ pdu.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     d def_timeout		# guarded by __pmLock_libpcp mutex
     d def_wait			# guarded by __pmLock_libpcp mutex
-    [BD] pmDebug		# set-once in main(), read-only elsewhere
+    [CD] pmDebug		# set-once in main(), read-only elsewhere
     d ceiling			# no unsafe side-effects
     b ?sigpipe_done		# no unsafe side-effects
     d mypid			# no unsafe side-effects
