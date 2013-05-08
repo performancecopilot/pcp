@@ -502,7 +502,7 @@ PMDA_SYSTEMD=@PMDA_SYSTEMD@
 PYTHON=@PYTHON@
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/lib
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
