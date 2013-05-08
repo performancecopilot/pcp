@@ -498,16 +498,18 @@ extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 typedef enum {
     PCP_ATTR_NONE = 0,
-    PCP_ATTR_PROTOCOL,			/* either pcp:/pcps: protocol (libssl) */
-    PCP_ATTR_SECURE,			/* relaxed/enforced pcps mode (libssl) */
-    PCP_ATTR_COMPRESS,			/* compression flag, no value (libnss) */
-    PCP_ATTR_USERAUTH,			/* user auth flag, no value (libsasl) */
-    PCP_ATTR_USERNAME,			/* user login identity (libsasl) */
-    PCP_ATTR_AUTHNAME,			/* authentication name (libsasl) */
-    PCP_ATTR_PASSWORD,			/* passphrase-based secret (libsasl) */
-    PCP_ATTR_METHOD,			/* use authentication method (libsasl) */
-    PCP_ATTR_REALM,			/* realm to authenticate in (libsasl) */
-    PCP_ATTR_UNIXSOCK,			/* AF_UNIX socket + SO_PASSCRED (NYI) */
+    PCP_ATTR_PROTOCOL,		/* either pcp:/pcps: protocol (libssl) */
+    PCP_ATTR_SECURE,		/* relaxed/enforced pcps mode (libssl) */
+    PCP_ATTR_COMPRESS,		/* compression flag, no value (libnss) */
+    PCP_ATTR_USERAUTH,		/* user auth flag, no value (libsasl) */
+    PCP_ATTR_USERNAME,		/* user login identity (libsasl) */
+    PCP_ATTR_AUTHNAME,		/* authentication name (libsasl) */
+    PCP_ATTR_PASSWORD,		/* passphrase-based secret (libsasl) */
+    PCP_ATTR_METHOD,		/* use authentication method (libsasl) */
+    PCP_ATTR_REALM,		/* realm to authenticate in (libsasl) */
+    PCP_ATTR_UNIXSOCK,		/* AF_UNIX socket + SO_PASSCRED (unix) */
+    PCP_ATTR_USERID,		/* uid - user identifier (posix) */
+    PCP_ATTR_GROUPID,		/* gid - group identifier (posix) */
 } __pmHostAttributeKey;
 
 extern int __pmParseHostAttrsSpec(
