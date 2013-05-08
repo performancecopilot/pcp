@@ -63,7 +63,6 @@ def scale (value, magnitude):
 
 def record (context, config, interval, path):
     
-    os.putenv('PCP_STDERR', '')
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
