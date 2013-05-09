@@ -847,7 +847,7 @@ pmlogrewrite
 716 dbpmda pmda.simple perl oss
 717 pmda.simple python oss
 718 dbpmda pmda.simple python oss
-719 python local oss
+722 python local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
