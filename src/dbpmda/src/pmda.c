@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -298,9 +299,11 @@ dopmda(int pdu)
     int			i;
     int			j;
     int			ident;
+    int			length;
     char		*buffer;
     struct timeval	start;
     struct timeval	end;
+    char		name[32];
     char		**namelist;
     int			*statuslist;
     int			numnames;
@@ -660,6 +663,22 @@ dopmda(int pdu)
 	    }
 	    else
 		printf("Error: __pmSendTraversePMNS() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	case PDU_AUTH_ATTR:
+	    j = param.number;			/* attribute key */
+	    buffer = param.name;		/* attribute value */
+	    length = !buffer ? 0 : strlen(buffer) + 1;	/* value length */
+	    i = 42;				/* client ID */
+
+	    __pmAttrKeyStr_r(j, name, sizeof(name)-1);
+	    name[sizeof(name)-1] = '\0';
+
+	    printf("Attribute: %s=%s\n", name, buffer ? buffer : "''");
+	    if ((sts = __pmSendAuthAttr(outfd, (int)getpid(), j, length, buffer)) >= 0)
+		printf("Success\n");
+	    else
+		printf("Error: __pmSendAuthAttr() failed: %s\n", pmErrStr(sts));
 	    break;
 
 	default:

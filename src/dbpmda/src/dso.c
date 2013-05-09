@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -170,10 +171,7 @@ dodso_desc(pmID pmid, pmDesc *desc)
     if (pmDebug & DBG_TRACE_PDU)
 	fprintf(stderr, "DSO desc()\n");
 #endif
-    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-	sts = dispatch.version.four.desc(pmid, desc, dispatch.version.four.ext);
-    else
-	sts = dispatch.version.two.desc(pmid, desc, dispatch.version.two.ext);
+    sts = dispatch.version.any.desc(pmid, desc, dispatch.version.four.ext);
 
 #ifdef PCP_DEBUG
     if (sts >= 0  && (pmDebug & DBG_TRACE_PDU))
@@ -188,6 +186,7 @@ void
 dodso(int pdu)
 {
     int			sts = 0;		/* initialize to pander to gcc */
+    int			length;
     pmDesc		desc;
     pmDesc		*desc_list = NULL;
     pmResult		*result;
@@ -197,6 +196,7 @@ dodso(int pdu)
     char		*buffer;
     struct timeval	start;
     struct timeval	end;
+    char		name[32];
     char		**namelist;
     int			*statuslist;
     pmID		pmid;
@@ -240,14 +240,9 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO profile()\n");
 #endif
-		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
-		else
-		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
-
-		if (sts < 0) {
+		sts = dispatch.version.any.profile(profile, dispatch.version.any.ext);
+		if (sts < 0)
 		    printf("Error: DSO profile() failed: %s\n", pmErrStr(sts));
-		}
 		else
 		    profile_changed = 0;
 	    }
@@ -256,13 +251,8 @@ dodso(int pdu)
 		if (pmDebug & DBG_TRACE_PDU)
 		    fprintf(stderr, "DSO fetch()\n");
 #endif
-		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    sts = dispatch.version.four.fetch(param.numpmid, param.pmidlist, 
-						     &result, dispatch.version.four.ext);
-		else
-		    sts = dispatch.version.two.fetch(param.numpmid, param.pmidlist, 
-						     &result, dispatch.version.two.ext);
-
+		sts = dispatch.version.any.fetch(param.numpmid, param.pmidlist, 
+						&result, dispatch.version.any.ext);
 		if (sts >= 0) {
 		    if (desc_list)
 		        _dbDumpResult(stdout, result, desc_list);
@@ -289,20 +279,13 @@ dodso(int pdu)
 		fprintf(stderr, "DSO instance()\n");
 #endif
 
-	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = dispatch.version.four.instance(param.indom, param.number, 
+	    sts = dispatch.version.any.instance(param.indom, param.number, 
 						    param.name, &inresult,
-						    dispatch.version.four.ext);
-	    else
-		sts = dispatch.version.two.instance(param.indom, param.number, 
-						    param.name, &inresult,
-						    dispatch.version.two.ext);
-
+						    dispatch.version.any.ext);
 	    if (sts >= 0)
 		printindom(stdout, inresult);
-	    else {
+	    else
 		printf("Error: DSO instance() failed: %s\n", pmErrStr(sts));
-	    }
 	    break;
 
 	case PDU_RESULT:
@@ -316,11 +299,7 @@ dodso(int pdu)
 
 	    if (profile_changed) {
 		printf("Sending Profile...\n");
-		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    sts = dispatch.version.four.profile(profile, dispatch.version.four.ext);
-		else
-		    sts = dispatch.version.two.profile(profile, dispatch.version.two.ext);
-
+		sts = dispatch.version.any.profile(profile, dispatch.version.any.ext);
 		if (sts < 0) {
 		    printf("Error: DSO profile() failed: %s\n", pmErrStr(sts));
 		    return;
@@ -330,13 +309,8 @@ dodso(int pdu)
 	    }
 
 	    printf("Getting Result Structure...\n");
-	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = dispatch.version.four.fetch(1, &(desc.pmid), &result,
-						    dispatch.version.four.ext);
-	    else
-		sts = dispatch.version.two.fetch(1, &(desc.pmid), &result,
-						    dispatch.version.two.ext);
-	    
+	    sts = dispatch.version.any.fetch(1, &(desc.pmid), &result,
+						    dispatch.version.any.ext);
 	    if (sts < 0) {
 		printf("Error: DSO fetch() failed: %s\n", pmErrStr(sts));
 		return;
@@ -348,17 +322,12 @@ dodso(int pdu)
 #endif
 	 
 	    sts = fillResult(result, desc.type);
-
 	    if (sts < 0) {
 		pmFreeResult(result);
 		return;
 	    }
 
-	    if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = dispatch.version.four.store(result, dispatch.version.four.ext);
-	    else
-		sts = dispatch.version.two.store(result, dispatch.version.two.ext);
-	    
+	    sts = dispatch.version.any.store(result, dispatch.version.any.ext);
 	    if (sts < 0)
 		printf("Error: DSO store() failed: %s\n", pmErrStr(sts));
 
@@ -383,11 +352,7 @@ dodso(int pdu)
 		    param.number |= PM_TEXT_HELP;
 		}
 
-		if (dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    sts = dispatch.version.four.text(i, param.number, &buffer, dispatch.version.four.ext);
-		else
-		    sts = dispatch.version.two.text(i, param.number, &buffer, dispatch.version.two.ext);
-
+		sts = dispatch.version.any.text(i, param.number, &buffer, dispatch.version.any.ext);
 		if (sts >= 0) {
 		    if (j == 0) {
 			if (*buffer != '\0')
@@ -406,8 +371,7 @@ dodso(int pdu)
 	    break;
 
 	case PDU_PMNS_IDS:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_4) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
 	    }
@@ -419,33 +383,27 @@ dodso(int pdu)
 		}
 		free(namelist);
 	    }
-	    else if (sts == 0) {
+	    else if (sts == 0)
 		printf("Warning: DSO name() returns 0\n");
-	    }
-	    else {
+	    else
 		printf("Error: DSO name() failed: %s\n", pmErrStr(sts));
-	    }
 	    break;
 
 	case PDU_PMNS_NAMES:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_4) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
 	    }
             printf("Metric: %s\n", param.name);
 	    sts = dispatch.version.four.pmid(param.name, &pmid, dispatch.version.four.ext);
-	    if (sts >= 0) {
+	    if (sts >= 0)
 		printf("   %s\n", pmIDStr(pmid));
-	    }
-	    else {
+	    else
 		printf("Error: DSO pmid() failed: %s\n", pmErrStr(sts));
-	    }
 	    break;
 
 	case PDU_PMNS_CHILD:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_4) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
 	    }
@@ -458,21 +416,18 @@ dodso(int pdu)
 		free(namelist);
 		free(statuslist);
 	    }
-	    else if (sts == 0) {
+	    else if (sts == 0)
 		printf("Warning: DSO children() returns 0\n");
-	    }
-	    else {
+	    else
 		printf("Error: DSO children() failed: %s\n", pmErrStr(sts));
-	    }
 	    break;
 
 	case PDU_PMNS_TRAVERSE:
-	    if (dispatch.comm.pmda_interface == PMDA_INTERFACE_2 ||
-		dispatch.comm.pmda_interface == PMDA_INTERFACE_3) {
+	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_4) {
 		printf("Error: PMDA Interface %d does not support dynamic metric names\n", dispatch.comm.pmda_interface);
 		break;
 	    }
-            printf("Metric: %s\n", param.name);
+	    printf("Metric: %s\n", param.name);
 	    sts = dispatch.version.four.children(param.name, 1, &namelist, &statuslist, dispatch.version.four.ext);
 	    if (sts > 0) {
 		for (i = 0; i < sts; i++) {
@@ -481,20 +436,38 @@ dodso(int pdu)
 		free(namelist);
 		free(statuslist);
 	    }
-	    else if (sts == 0) {
+	    else if (sts == 0)
 		printf("Warning: DSO children() returns 0\n");
-	    }
-	    else {
+	    else
 		printf("Error: DSO children() failed: %s\n", pmErrStr(sts));
+	    break;
+
+	case PDU_AUTH_ATTR:
+	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_6) {
+		printf("Error: PMDA Interface %d does not support authentication\n", dispatch.comm.pmda_interface);
+		break;
 	    }
+	    j = param.number;			/* attribute key */
+	    buffer = param.name;		/* attribute value */
+	    length = strlen(buffer) + 1;	/* length of value */
+	    i = 42;				/* client ID */
+
+	    __pmAttrKeyStr_r(j, name, sizeof(name)-1);
+	    name[sizeof(name)-1] = '\0';
+
+	    printf("Attribute: %s=%s\n", name, buffer ? buffer : "''");
+	    sts = dispatch.version.six.attribute(i, j, buffer, length, dispatch.version.six.ext);
+	    if (sts >= 0)
+		printf("Success\n");
+	    else
+		printf("Error: DSO attribute() failed: %s\n", pmErrStr(sts));
 	    break;
 
 	default:
 	    printf("Error: DSO PDU (%s) botch!\n", __pmPDUTypeStr(pdu));
 	    break;
-
     }
-	   
+  
     if (sts >= 0 && timer != 0) {
 	__pmtimevalNow(&end);
 	printf("Timer: %f seconds\n", __pmtimevalSub(&end, &start));

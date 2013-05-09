@@ -5,27 +5,14 @@
 static __pmHashWalkState
 print_attribute(const __pmHashNode *tp, void *cp)
 {
-    switch (tp->key) {
-    case PCP_ATTR_PROTOCOL:
-	printf("protocol=%s\n", (char *)tp->data);
-	break;
-    case PCP_ATTR_COMPRESS:
-	printf("compress\n");
-	break;
-    case PCP_ATTR_UNIXSOCK:
-	printf("unixsock\n");
-	break;
-    case PCP_ATTR_USERNAME:
-	printf("username=\"%s\"\n", tp->data ? (char *)tp->data : "");
-	break;
-    case PCP_ATTR_PASSWORD:
-	printf("password=\"%s\"\n", tp->data ? (char *)tp->data : "");
-	break;
-    default:
+    char buffer[256];
+
+    if (!__pmAttrStr_r(tp->key, tp->data, buffer, sizeof(buffer))) {
 	fprintf(stderr, "Found unrecognised attribute (%d: \"%s\")\n",
 		tp->key, tp->data ? (char *)tp->data : "");
-	break;
     }
+    buffer[sizeof(buffer)-1] = '\0';
+    printf("%s\n", buffer);
     return PM_HASH_WALK_NEXT;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -149,7 +149,7 @@ main(int argc, char **argv)
 		"  -n pmnsfile   use an alternative PMNS\n"
 		"  -q timeout    PMDA initial negotiation timeout (seconds) "
                                 "[default 3]\n"
-		"  -U username   run as named user [default pcp]",
+		"  -U username   run as named user\n",
 		pmProgname);
 	exit(1);
     }
@@ -404,6 +404,22 @@ main(int argc, char **argv)
 		    
 		    case CONN_DAEMON:
 			dopmda(PDU_PMNS_TRAVERSE);
+			break;
+		    
+		    case NO_CONN:
+			yywarn("No PMDA currently opened");
+			break;
+		}
+		break;
+
+	    case AUTH_ATTR:
+		switch (connmode) {
+		    case CONN_DSO:
+			dodso(PDU_AUTH_ATTR);
+			break;
+		    
+		    case CONN_DAEMON:
+			dopmda(PDU_AUTH_ATTR);
 			break;
 		    
 		    case NO_CONN:

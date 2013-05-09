@@ -740,5 +740,5 @@ pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pm
 int
 pmdaAttribute(int context, int attribute, const char *value, int size, pmdaExt *pmda)
 {
-    return PM_ERR_PERMISSION;
+    return 0;	/* simply ignore everything by default */
 }

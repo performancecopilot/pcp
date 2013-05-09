@@ -1505,6 +1505,26 @@ fail:
      return j;
 }
 
+int
+sample_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
+{
+    char buffer[256];
+
+    /*
+     * We have no special security or other requirements, so we're just
+     * going to log any connection attribute messages we happen to get
+     * from pmcd (handy for demo and testing purposes).
+     */
+    if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+	__pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
+    } else {
+	buffer[sizeof(buffer)-1] = '\0';
+	__pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+    }
+
+    return 0;
+}
+
 /*
  * high precision counter
  */
@@ -2658,15 +2678,16 @@ void sample_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.four.fetch = sample_fetch;
-    dp->version.four.desc = sample_desc;
-    dp->version.four.instance = sample_instance;
-    dp->version.four.text = sample_text;
-    dp->version.four.store = sample_store;
-    dp->version.four.profile = sample_profile;
+    dp->version.any.fetch = sample_fetch;
+    dp->version.any.desc = sample_desc;
+    dp->version.any.instance = sample_instance;
+    dp->version.any.text = sample_text;
+    dp->version.any.store = sample_store;
+    dp->version.any.profile = sample_profile;
     dp->version.four.pmid = sample_pmid;
     dp->version.four.name = sample_name;
     dp->version.four.children = sample_children;
+    dp->version.six.attribute = sample_attribute;
     pmdaSetEndContextCallBack(dp, sample_ctx_end);
 
     pmdaInit(dp, NULL, 0, NULL, 0);	/* don't use indomtab or metrictab */

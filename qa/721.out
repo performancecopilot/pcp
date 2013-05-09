@@ -1,0 +1,35 @@
+QA output created by 721
+.
+dbpmda> open pipe pmdasample
+Start pmdasample PMDA: ./pmdasample
+dbpmda> attr
+attr name [value]
+attr attr# [value]
+dbpmda> attr 5 "pcpqa"
+Attribute: username=pcpqa
+Success
+dbpmda> attr "username" "pcpqa"
+Attribute: username=pcpqa
+Success
+dbpmda> attr "no-such-attr"
+Warning: Attribute (no-such-attr) is not recognised
+Checking log file, pipe mode
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=42 username=pcpqa
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=42 username=pcpqa
+.
+dbpmda> open dso pmda_sample.so sample_init
+dbpmda> attr
+attr name [value]
+attr attr# [value]
+dbpmda> attr 5 "pcpqa"
+Attribute: username=pcpqa
+[DATETIME] dbpmda(PID) Info: Attribute: ctx=42 username=pcpqa
+Success
+dbpmda> attr "username" "pcpqa"
+Attribute: username=pcpqa
+[DATETIME] dbpmda(PID) Info: Attribute: ctx=42 username=pcpqa
+Success
+dbpmda> attr 0 Warning: Attribute (0) is not recognised
+Attribute (0) is not recognised
+dbpmda> attr "no-such-attr"
+Warning: Attribute (no-such-attr) is not recognised

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -222,6 +223,7 @@ dohelp(int command, int full)
 {
     if (command < 0) {
 	puts("help [ command ]\n");
+	dohelp(AUTH_ATTR, HELP_USAGE);
 	dohelp(PMNS_CHILDREN, HELP_USAGE);
 	dohelp(CLOSE, HELP_USAGE);
 	dohelp(DBG, HELP_USAGE);
@@ -249,6 +251,10 @@ dohelp(int command, int full)
 	    putchar('\n');
 
 	switch (command) {
+	case AUTH_ATTR:
+	    puts("attr name [value]");
+	    puts("attr attr# [value]");
+	    break;
 	case CLOSE:
 	    puts("close");
 	    break;
@@ -321,6 +327,11 @@ dohelp(int command, int full)
 	if (full == HELP_FULL) {
 	    putchar('\n');
 	    switch (command) {
+	    case AUTH_ATTR:
+		puts(
+"Set a security attribute. These set aspects of per-user authentication,\n"
+"allowing a PMDA to provide different metric views for different users.\n");
+		break;
 	    case CLOSE:
 		puts(
 "Close the pipe to a daemon PMDA or dlclose(3) a DSO PMDA. dbpmda does not\n"

@@ -510,7 +510,11 @@ typedef enum {
     PCP_ATTR_UNIXSOCK,		/* AF_UNIX socket + SO_PASSCRED (unix) */
     PCP_ATTR_USERID,		/* uid - user identifier (posix) */
     PCP_ATTR_GROUPID,		/* gid - group identifier (posix) */
-} __pmHostAttributeKey;
+} __pmAttrKey;
+
+extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
+extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
+extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 
 extern int __pmParseHostAttrsSpec(
     const char *, pmHostSpec **, int *, __pmHashCtl *, char **);

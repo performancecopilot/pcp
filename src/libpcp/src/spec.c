@@ -610,45 +610,55 @@ parseProtocolSpec(
     return 0;
 }
 
-static int
-lookupAttribute(const char *attribute, int size)
+__pmAttrKey
+__pmLookupAttrKey(const char *attribute, size_t size)
 {
-    if (size == sizeof("compress")-1 &&
+    if (size == sizeof("compress") &&
 	strncmp(attribute, "compress", size) == 0)
 	return PCP_ATTR_COMPRESS;
-    if ((size == sizeof("userauth")-1 &&
+    if ((size == sizeof("userauth") &&
 	strncmp(attribute, "userauth", size) == 0) ||
-        (size == sizeof("authorise")-1 &&
+        (size == sizeof("authorise") &&
 	(strncmp(attribute, "authorise", size) == 0 ||
 	strncmp(attribute, "authorize", size) == 0)))
 	return PCP_ATTR_USERAUTH;
-    if ((size == sizeof("user")-1 &&
+    if ((size == sizeof("user") &&
 	strncmp(attribute, "user", size) == 0) ||
-	(size == sizeof("username")-1 &&
+	(size == sizeof("username") &&
 	strncmp(attribute, "username", size) == 0))
 	return PCP_ATTR_USERNAME;
-    if (size == sizeof("authname")-1 &&
+    if (size == sizeof("authname") &&
 	strncmp(attribute, "authname", size) == 0)
 	return PCP_ATTR_AUTHNAME;
-    if (size == sizeof("realm")-1 &&
+    if (size == sizeof("realm") &&
 	strncmp(attribute, "realm", size) == 0)
 	return PCP_ATTR_REALM;
-    if ((size == sizeof("authmeth")-1 &&
+    if ((size == sizeof("authmeth") &&
 	strncmp(attribute, "authmeth", size) == 0) ||
-	(size == sizeof("method")-1 &&
+	(size == sizeof("method") &&
 	strncmp(attribute, "method", size) == 0))
 	return PCP_ATTR_METHOD;
-    if ((size == sizeof("pass")-1 &&
+    if ((size == sizeof("pass") &&
 	strncmp(attribute, "pass", size) == 0) ||
-	(size == sizeof("password")-1 &&
+	(size == sizeof("password") &&
 	strncmp(attribute, "password", size) == 0))
 	return PCP_ATTR_PASSWORD;
-    if ((size == sizeof("unix")-1 &&
+    if ((size == sizeof("unix") &&
 	strncmp(attribute, "unix", size) == 0) ||
-	(size == sizeof("unixsock")-1 &&
+	(size == sizeof("unixsock") &&
 	strncmp(attribute, "unixsock", size) == 0))
 	return PCP_ATTR_UNIXSOCK;
-    if (size == sizeof("secure")-1 &&
+    if ((size == sizeof("uid") &&
+	strncmp(attribute, "uid", size) == 0) ||
+	(size == sizeof("userid") &&
+	strncmp(attribute, "userid", size) == 0))
+	return PCP_ATTR_USERID;
+    if ((size == sizeof("gid") &&
+	strncmp(attribute, "gid", size) == 0) ||
+	(size == sizeof("groupid") &&
+	strncmp(attribute, "groupid", size) == 0))
+	return PCP_ATTR_GROUPID;
+    if (size == sizeof("secure") &&
 	strncmp(attribute, "secure", size) == 0)
 	return PCP_ATTR_SECURE;
     return PCP_ATTR_NONE;
@@ -669,7 +679,8 @@ parseAttributeSpec(
     char **errmsg)
 {
     char *s, *start, *v = NULL;
-    int attr, len, sts;
+    char buffer[32];	/* must be large enough to hold largest attr name */
+    int buflen, attr, len, sts;
 
     if (attribute != PCP_ATTR_NONE)
 	if ((sts = __pmHashAdd(attribute, (void *)value, attributes)) < 0)
@@ -681,7 +692,10 @@ parseAttributeSpec(
 	    if (*s == '\0' && s == start)
 		break;
 	    len = v ? (v - start - 1) : (s - start);
-	    attr = lookupAttribute(start, len);
+	    buflen = (len < sizeof(buffer)-1) ? len : sizeof(buffer)-1;
+	    strncpy(buffer, start, buflen);
+	    buffer[buflen] = '\0';
+	    attr = __pmLookupAttrKey(buffer, buflen+1);
 	    if (attr != PCP_ATTR_NONE) {
 		char *val = NULL;
 
@@ -767,31 +781,73 @@ fail:
 static int
 unparseAttribute(__pmHashNode *node, char *string, size_t size)
 {
-    switch (node->key) {
+    return __pmAttrStr_r(node->key, node->data, string, size);
+}
+
+int
+__pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
+{
+    switch (key) {
+    case PCP_ATTR_PROTOCOL:
+	return snprintf(string, size, "protocol");
     case PCP_ATTR_COMPRESS:
 	return snprintf(string, size, "compress");
     case PCP_ATTR_USERAUTH:
 	return snprintf(string, size, "userauth");
     case PCP_ATTR_USERNAME:
-	return snprintf(string, size, "username=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "username");
     case PCP_ATTR_AUTHNAME:
-	return snprintf(string, size, "authname=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "authname");
     case PCP_ATTR_PASSWORD:
-	return snprintf(string, size, "password=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "password");
     case PCP_ATTR_METHOD:
-	return snprintf(string, size, "method=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "method");
     case PCP_ATTR_REALM:
-	return snprintf(string, size, "realm=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "realm");
     case PCP_ATTR_SECURE:
-	return snprintf(string, size, "secure=%s",
-			node->data ? (char *)node->data : "");
+	return snprintf(string, size, "secure");
     case PCP_ATTR_UNIXSOCK:
 	return snprintf(string, size, "unixsock");
+    case PCP_ATTR_USERID:
+	return snprintf(string, size, "userid");
+    case PCP_ATTR_GROUPID:
+	return snprintf(string, size, "groupid");
+    case PCP_ATTR_NONE:
+    default:
+	break;
+    }
+    return 0;
+}
+
+int
+__pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
+{
+    char name[16];	/* must be sufficient to hold any key name (above) */
+    int sts;
+
+    if ((sts = __pmAttrKeyStr_r(key, name, sizeof(name))) <= 0)
+	return sts;
+
+    switch (key) {
+    case PCP_ATTR_PROTOCOL:
+    case PCP_ATTR_USERNAME:
+    case PCP_ATTR_AUTHNAME:
+    case PCP_ATTR_PASSWORD:
+    case PCP_ATTR_METHOD:
+    case PCP_ATTR_REALM:
+    case PCP_ATTR_SECURE:
+    case PCP_ATTR_USERID:
+    case PCP_ATTR_GROUPID:
+	return snprintf(string, size, "%s=%s", name, data ? data : "");
+
+    case PCP_ATTR_UNIXSOCK:
+    case PCP_ATTR_COMPRESS:
+    case PCP_ATTR_USERAUTH:
+	return snprintf(string, size, "%s", name);
+
+    case PCP_ATTR_NONE:
+    default:
+	break;
     }
     return 0;
 }
