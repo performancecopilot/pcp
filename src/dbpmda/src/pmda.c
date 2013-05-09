@@ -669,7 +669,7 @@ dopmda(int pdu)
 	    j = param.number;			/* attribute key */
 	    buffer = param.name;		/* attribute value */
 	    length = !buffer ? 0 : strlen(buffer) + 1;	/* value length */
-	    i = 42;				/* client ID */
+	    i = 0;				/* client ID */
 
 	    __pmAttrKeyStr_r(j, name, sizeof(name)-1);
 	    name[sizeof(name)-1] = '\0';
