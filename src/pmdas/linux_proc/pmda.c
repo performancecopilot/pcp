@@ -1401,8 +1401,7 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 static int
 proc_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LIBPMDA) {
+    if (pmDebug & DBG_TRACE_AUTH) {
 	char buffer[256];
 
 	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
@@ -1412,7 +1411,6 @@ proc_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
 	}
     }
-#endif
     return 0;
 }
 
