@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -160,12 +160,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	if (ap->ipcType == AGENT_DSO) {
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		s = ap->ipc.dso.dispatch.version.four.store(dResult[i],
-				       ap->ipc.dso.dispatch.version.four.ext);
-	    else
-		s = ap->ipc.dso.dispatch.version.two.store(dResult[i],
-				       ap->ipc.dso.dispatch.version.two.ext);
+	    s = ap->ipc.dso.dispatch.version.any.store(dResult[i],
+				       ap->ipc.dso.dispatch.version.any.ext);
 	}
 	else {
 	    if (ap->status.notReady == 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -77,12 +77,8 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-	    sts = ap->ipc.dso.dispatch.version.four.text(ident, type, &buffer,
-					  ap->ipc.dso.dispatch.version.four.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.two.text(ident, type, &buffer,
-					  ap->ipc.dso.dispatch.version.two.ext);
+	sts = ap->ipc.dso.dispatch.version.any.text(ident, type, &buffer,
+					  ap->ipc.dso.dispatch.version.any.ext);
     }
     else {
 	if (ap->status.notReady)
@@ -208,12 +204,8 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-	    sts = ap->ipc.dso.dispatch.version.four.desc(pmid, &desc,
-					ap->ipc.dso.dispatch.version.four.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.two.desc(pmid, &desc,
-					ap->ipc.dso.dispatch.version.two.ext);
+	sts = ap->ipc.dso.dispatch.version.any.desc(pmid, &desc,
+					ap->ipc.dso.dispatch.version.any.ext);
     }
     else {
 	if (ap->status.notReady)
@@ -306,14 +298,9 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     if (ap->ipcType == AGENT_DSO) {
 	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 	    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
-	if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-	    sts = ap->ipc.dso.dispatch.version.four.instance(indom, inst, name,
+	sts = ap->ipc.dso.dispatch.version.any.instance(indom, inst, name,
 					&inresult,
-					ap->ipc.dso.dispatch.version.four.ext);
-	else
-	    sts = ap->ipc.dso.dispatch.version.two.instance(indom, inst, name,
-					&inresult,
-					ap->ipc.dso.dispatch.version.two.ext);
+					ap->ipc.dso.dispatch.version.any.ext);
     }
     else {
 	if (ap->status.notReady) {
