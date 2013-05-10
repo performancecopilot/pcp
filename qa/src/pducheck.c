@@ -794,69 +794,29 @@ _z(void)
     }
 
 #if PCP_VER >= 3800
-/* PDU_USER_AUTH */
-#define PAYLOAD "All of your base are belong to us"
-    if ((e = __pmSendUserAuth(fd[1], mypid, sizeof(PAYLOAD), PAYLOAD)) < 0) {
-	fprintf(stderr, "Error: SendUserAuth: %s\n", pmErrStr(e));
-	exit(1);
-    }
-    else {
-	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvUserAuth: %s\n", pmErrStr(e));
-	    exit(1);
-	}
-	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvUserAuth: end-of-file!\n");
-	    exit(1);
-	}
-	else if (e != PDU_USER_AUTH) {
-	    fprintf(stderr, "Error: RecvUserAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
-	}
-	else {
-	    buffer = NULL;
-	    if ((e = __pmDecodeUserAuth(pb, &count, &buffer)) < 0) {
-		fprintf(stderr, "Error: DecodeUserAuth: %s\n", pmErrStr(e));
-		exit(1);
-	    }
-	    else {
-		if (count != sizeof(PAYLOAD))
-		    fprintf(stderr, "Botch: UserAuth: length: got: 0x%x expect: 0x%x\n",
-			count, (int)sizeof(PAYLOAD));
-		if (buffer == NULL)
-		    fprintf(stderr, "Botch: UserAuth: payload is NULL!\n");
-		else {
-		    if (strncmp(buffer, PAYLOAD, sizeof(PAYLOAD)) != 0)
-			fprintf(stderr, "Botch: UserAuth: payload: got: \"%s\" expect: \"%s\"\n",
-			    buffer, PAYLOAD);
-		}
-	    }
-	}
-    }
-
-/* PDU_AUTH_ATTR */
+/* PDU_AUTH */
 #define USERNAME "pcpqa"
-    if ((e = __pmSendAuthAttr(fd[1], mypid, PCP_ATTR_USERNAME, sizeof(USERNAME), USERNAME)) < 0) {
-	fprintf(stderr, "Error: SendAuthAttr: %s\n", pmErrStr(e));
+    if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
+	fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvAuthAttr: %s\n", pmErrStr(e));
+	    fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
 	    exit(1);
 	}
 	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvAuthAttr: end-of-file!\n");
+	    fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
 	    exit(1);
 	}
-	else if (e != PDU_AUTH_ATTR) {
-	    fprintf(stderr, "Error: RecvAuthAttr: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	else if (e != PDU_AUTH) {
+	    fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
 	    exit(1);
 	}
 	else {
 	    buffer = NULL;
-	    if ((e = __pmDecodeAuthAttr(pb, &attr, &count, &buffer)) < 0) {
-		fprintf(stderr, "Error: DecodeAuthAttr: %s\n", pmErrStr(e));
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
+		fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
 		exit(1);
 	    }
 	    else {

@@ -52,7 +52,7 @@ __pmServerHasFeature(__pmServerFeature query)
 	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
-    case PM_SERVER_FEATURE_USER_AUTH:
+    case PM_SERVER_FEATURE_AUTH:
 	sts = 1;
 	break;
     case PM_SERVER_FEATURE_IPV6:
@@ -477,7 +477,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     sasl_conn_t *sasl_conn;
     __pmPDU *pb;
 
-    if (pmDebug & DBG_TRACE_USERAUTH)
+    if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthServerNegotiation(fd=%d, ssf=%d)\n",
 		fd, ssf);
 
@@ -498,19 +498,19 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 			sasl_errstring(saslsts, NULL, NULL));
 	return __pmSecureSocketsError(saslsts);
     }
-    if (pmDebug & DBG_TRACE_USERAUTH)
+    if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list "
 			"(%d items): \"%s\"\n", count, payload);
 
-    if ((sts = __pmSendUserAuth(fd, FROM_ANON, length, payload)) < 0)
+    if ((sts = __pmSendAuth(fd, FROM_ANON, 0, payload, length)) < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_USERAUTH)
+    if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthServerNegotiation - wait for mechanism\n");
 
     sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
-    if (sts == PDU_USER_AUTH) {
-        sts = __pmDecodeUserAuth(pb, &length, &payload);
+    if (sts == PDU_AUTH) {
+        sts = __pmDecodeAuth(pb, &count, &payload, &length);
         if (sts >= 0) {
 	    saslsts = sasl_server_start(sasl_conn, buffer,
 				payload, length,
@@ -530,7 +530,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     if (sts < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_USERAUTH)
+    if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthServerNegotiation method negotiated\n");
 
     while (saslsts == SASL_CONTINUE) {
@@ -539,15 +539,15 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	    sts = -EINVAL;
 	    break;
 	}
-	if ((sts = __pmSendUserAuth(fd, FROM_ANON, length, payload)) < 0)
+	if ((sts = __pmSendAuth(fd, FROM_ANON, 0, payload, length)) < 0)
 	    break;
 
-	if (pmDebug & DBG_TRACE_USERAUTH)
+	if (pmDebug & DBG_TRACE_AUTH)
 	    fprintf(stderr, "__pmAuthServerNegotiation awaiting response\n");
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
-	if (sts == PDU_USER_AUTH) {
-	    sts = __pmDecodeUserAuth(pb, &length, &payload);
+	if (sts == PDU_AUTH) {
+	    sts = __pmDecodeAuth(pb, &count, &payload, &length);
 	    if (sts >= 0) {
 		sts = saslsts = sasl_server_step(sasl_conn, payload, length,
                                                  (const char **)&payload,
@@ -556,7 +556,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 		    sts = __pmSecureSocketsError(sts);
 		    break;
 		}
-		if (pmDebug & DBG_TRACE_USERAUTH) {
+		if (pmDebug & DBG_TRACE_AUTH) {
 		    fprintf(stderr, "__pmAuthServerNegotiation"
 				    " step recv (%d bytes)", length);
 		}
@@ -574,7 +574,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     }
 
     if (sts < 0) {
-	if (pmDebug & DBG_TRACE_USERAUTH)
+	if (pmDebug & DBG_TRACE_AUTH)
 	    fprintf(stderr, "__pmAuthClientNegotiation loop failed\n");
 	return sts;
     }
@@ -588,7 +588,7 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS|PDU_FLAG_USER_AUTH)) != 0)
+    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS|PDU_FLAG_AUTH)) != 0)
 	return PM_ERR_IPC;
 
     if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
@@ -596,7 +596,7 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     if (((flags & PDU_FLAG_SECURE) != 0) &&
 	((sts = __pmSecureServerNegotiation(fd, &ssf)) < 0))
 	return sts;
-    if (((flags & PDU_FLAG_USER_AUTH) != 0) &&
+    if (((flags & PDU_FLAG_AUTH) != 0) &&
 	((sts = __pmAuthServerNegotiation(fd, ssf, attrs)) < 0))
 	return sts;
     return 0;

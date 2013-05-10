@@ -71,8 +71,7 @@ pmcd.pdu_in {
     pmns_child		PMCD:1:15
     total		PMCD:1:16
     pmns_traverse	PMCD:1:17
-    user_auth		PMCD:1:18
-    auth_attr		PMCD:1:19
+    auth		PMCD:1:18
 }
 
 pmcd.pdu_out {
@@ -93,8 +92,7 @@ pmcd.pdu_out {
     pmns_child		PMCD:2:15
     total		PMCD:2:16
     pmns_traverse	PMCD:2:17
-    user_auth		PMCD:2:18
-    auth_attr		PMCD:2:19
+    auth		PMCD:2:18
 }
 
 pmcd.pmlogger {

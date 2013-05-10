@@ -412,14 +412,14 @@ main(int argc, char **argv)
 		}
 		break;
 
-	    case AUTH_ATTR:
+	    case ATTR:
 		switch (connmode) {
 		    case CONN_DSO:
-			dodso(PDU_AUTH_ATTR);
+			dodso(PDU_AUTH);
 			break;
 		    
 		    case CONN_DAEMON:
-			dopmda(PDU_AUTH_ATTR);
+			dopmda(PDU_AUTH);
 			break;
 		    
 		    case NO_CONN:

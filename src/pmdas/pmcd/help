@@ -187,13 +187,9 @@ clients and agents.
 Running total of BINARY mode PMNS_TRAVERSE PDUs received by the PMCD from
 clients and agents.
 
-@ pmcd.pdu_in.user_auth USER_AUTH PDUs received by PMCD
-Running total of BINARY mode USER_AUTH PDUs received by the PMCD from
-clients and agents.  These PDUs are used for per-user authentication.
-
-@ pmcd.pdu_in.auth_attr AUTH_ATTR PDUs received by PMCD
-Running total of BINARY mode AUTH_ATTR PDUs received by the PMCD from
-clients and agents.  They communicate per-user connection attributes.
+@ pmcd.pdu_in.auth AUTH PDUs received by PMCD
+Running total of BINARY mode AUTH PDUs received by the PMCD from
+clients and agents.  These PDUs are used for authentication.
 
 @ pmcd.pdu_out.total Total PDUs sent by PMCD
 Running total of all BINARY mode PDUs sent by the PMCD to clients and
@@ -263,13 +259,9 @@ and agents.
 Running total of BINARY mode PMNS_TRAVERSE PDUs sent by the PMCD to clients
 and agents.
 
-@ pmcd.pdu_out.user_auth USER_AUTH PDUs sent by PMCD
-Running total of BINARY mode USER_AUTH PDUs sent by the PMCD to clients
-and agents.  These PDUs are used for per-user authentication.
-
-@ pmcd.pdu_out.auth_attr AUTH_ATTR PDUs sent by PMCD
-Running total of BINARY mode AUTH_ATTR PDUs sent by the PMCD to clients
-and agents.  They communicate per-user connection attributes.
+@ pmcd.pdu_out.auth AUTH PDUs sent by PMCD
+Running total of BINARY mode AUTH PDUs sent by the PMCD to clients
+and agents.  These PDUs are used for authentication.
 
 @ pmcd.pmlogger.host host where active pmlogger is running
 The fully qualified domain name of the host on which a pmlogger

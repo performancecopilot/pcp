@@ -63,8 +63,8 @@ static int dbpmdaFlexInput (char *, int);
 
 add		{ return ADD; }
 all		{ return ALL; }
-attr		{ return AUTH_ATTR; }
-attribute	{ return AUTH_ATTR; }
+attr		{ return ATTR; }
+attribute	{ return ATTR; }
 children	{ return PMNS_CHILDREN; }
 close		{ return CLOSE; }
 debug		{ return DBG; }

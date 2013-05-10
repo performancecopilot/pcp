@@ -442,7 +442,7 @@ dodso(int pdu)
 		printf("Error: DSO children() failed: %s\n", pmErrStr(sts));
 	    break;
 
-	case PDU_AUTH_ATTR:
+	case PDU_AUTH:
 	    if (dispatch.comm.pmda_interface < PMDA_INTERFACE_6) {
 		printf("Error: PMDA Interface %d does not support authentication\n", dispatch.comm.pmda_interface);
 		break;

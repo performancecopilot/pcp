@@ -272,7 +272,7 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
-#define DBG_TRACE_USERAUTH	(1<<24) /* user authorisation mechanism */
+#define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 /* not yet allocated, bits (1<<25) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
@@ -632,7 +632,7 @@ typedef enum {
     PM_SERVER_FEATURE_SECURE = 0,
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
-    PM_SERVER_FEATURE_USER_AUTH,
+    PM_SERVER_FEATURE_AUTH,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -735,7 +735,7 @@ typedef struct {
 /* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
 #define PDU_FLAG_SECURE		(1U<<0)
 #define PDU_FLAG_COMPRESS	(1U<<1)
-#define PDU_FLAG_USER_AUTH	(1U<<2)
+#define PDU_FLAG_AUTH		(1U<<2)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -793,9 +793,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_NAMES		0x700e
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_USER_AUTH		0x7011
-#define PDU_AUTH_ATTR		0x7012
-#define PDU_FINISH		0x7012
+#define PDU_AUTH		0x7011
+#define PDU_FINISH		0x7011
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -851,10 +850,8 @@ extern int __pmSendChildReq(int, int, const char *, int);
 extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
-extern int __pmSendUserAuth(int, int, int, const char *);
-extern int __pmDecodeUserAuth(__pmPDU *, int *, char **);
-extern int __pmSendAuthAttr(int, int, int, int, const char *);
-extern int __pmDecodeAuthAttr(__pmPDU *, int *, int *, char **);
+extern int __pmSendAuth(int, int, int, const char *, int);
+extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 

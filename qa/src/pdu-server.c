@@ -304,44 +304,16 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 #if PCP_VER >= 3800
-	case PDU_USER_AUTH:
-	    if ((e = __pmDecodeUserAuth(pb, &length, &buffer)) < 0) {
-		fprintf(stderr, "%s: Error: DecodeUserAuth: %s\n", pmProgname, pmErrStr(e));
+	case PDU_AUTH:
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &length)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
 		char	buf[32] = { 0 };
 
-		fprintf(stderr, "+ PDU_USER_AUTH: length=%d", length);
-		if (length < sizeof(buf)-2) {
-                    strncpy(buf, buffer, length);
-		    fprintf(stderr, " payload=\"%s\"\n", buf);
-		} else {
-                    strncpy(buf, buffer, sizeof(buf)-2);
-		    fprintf(stderr, " payload=\"%12.12s ... ", buf);
-                    strncpy(buf, &buffer[length-18], sizeof(buf)-2);
-		    fprintf(stderr, "%s\"\n", buf);
-		}
-	    }
-#endif
-	    if ((e = __pmSendUserAuth(fd, mypid, length, buffer)) < 0) {
-		fprintf(stderr, "%s: Error: SendUserAuth: %s\n", pmProgname, pmErrStr(e));
-		break;
-	    }
-	    fail = 0;
-	    break;
-
-	case PDU_AUTH_ATTR:
-	    if ((e = __pmDecodeAuthAttr(pb, &attr, &length, &buffer)) < 0) {
-		fprintf(stderr, "%s: Error: DecodeAuthAttr: %s\n", pmProgname, pmErrStr(e));
-		break;
-	    }
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL0) {
-		char	buf[32] = { 0 };
-
-		fprintf(stderr, "+ PDU_AUTH_ATTR: attr=%d length=%d", attr, length);
+		fprintf(stderr, "+ PDU_AUTH: attr=%d length=%d", attr, length);
 		if (length < sizeof(buf)-2) {
                     strncpy(buf, buffer, length);
 		    fprintf(stderr, " value=\"%s\"\n", buf);
@@ -353,8 +325,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 	    }
 #endif
-	    if ((e = __pmSendAuthAttr(fd, mypid, attr, length, buffer)) < 0) {
-		fprintf(stderr, "%s: Error: SendAuthAttr: %s\n", pmProgname, pmErrStr(e));
+	    if ((e = __pmSendAuth(fd, mypid, attr, buffer, length)) < 0) {
+		fprintf(stderr, "%s: Error: SendAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 	    fail = 0;

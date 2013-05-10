@@ -109,7 +109,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 %term	COMMA EQUAL
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
-	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE AUTH_ATTR
+	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
 	DSO PIPE SOCK
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
@@ -298,19 +298,19 @@ stmt	: OPEN EOL				{
 		param.name = $2;
 		stmt_type = NAMESPACE; YYACCEPT;
 	    }
-	| AUTH_ATTR EOL				{
-		param.number = AUTH_ATTR; param.pmid = HELP_USAGE;
+	| ATTR EOL				{
+		param.number = ATTR; param.pmid = HELP_USAGE;
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| AUTH_ATTR attribute EOL		{
+	| ATTR attribute EOL		{
 		param.number = $2;
 		param.name = NULL;
-		stmt_type = AUTH_ATTR; YYACCEPT;
+		stmt_type = ATTR; YYACCEPT;
 	    }
-	| AUTH_ATTR attribute STRING EOL	{
+	| ATTR attribute STRING EOL	{
 		param.number = $2;
 		param.name = $3;
-		stmt_type = AUTH_ATTR; YYACCEPT;
+		stmt_type = ATTR; YYACCEPT;
 	    }
 
 	| HELP EOL				{ 
@@ -369,8 +369,8 @@ stmt	: OPEN EOL				{
 		param.number = PMNS_TRAVERSE; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
-	| HELP AUTH_ATTR EOL			{
-		param.number = AUTH_ATTR; param.pmid = HELP_FULL; 
+	| HELP ATTR EOL			{
+		param.number = ATTR; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP PROFILE EOL			{

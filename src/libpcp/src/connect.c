@@ -149,9 +149,9 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 			return -EOPNOTSUPP;
 		    }
 		}
-		if (ctxflags & PM_CTXFLAG_USER_AUTH) {
-		    if (pduinfo.features & PDU_FLAG_USER_AUTH)
-			pduflags |= PDU_FLAG_USER_AUTH;
+		if (ctxflags & PM_CTXFLAG_AUTH) {
+		    if (pduinfo.features & PDU_FLAG_AUTH)
+			pduflags |= PDU_FLAG_AUTH;
 		    else {
 			__pmUnpinPDUBuf(pb);
 			return -EOPNOTSUPP;

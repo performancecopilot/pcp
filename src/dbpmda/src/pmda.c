@@ -665,7 +665,7 @@ dopmda(int pdu)
 		printf("Error: __pmSendTraversePMNS() failed: %s\n", pmErrStr(sts));
 	    break;
 
-	case PDU_AUTH_ATTR:
+	case PDU_AUTH:
 	    j = param.number;			/* attribute key */
 	    buffer = param.name;		/* attribute value */
 	    length = !buffer ? 0 : strlen(buffer) + 1;	/* value length */
@@ -675,10 +675,10 @@ dopmda(int pdu)
 	    name[sizeof(name)-1] = '\0';
 
 	    printf("Attribute: %s=%s\n", name, buffer ? buffer : "''");
-	    if ((sts = __pmSendAuthAttr(outfd, (int)getpid(), j, length, buffer)) >= 0)
+	    if ((sts = __pmSendAuth(outfd, (int)getpid(), j, buffer, length)) >= 0)
 		printf("Success\n");
 	    else
-		printf("Error: __pmSendAuthAttr() failed: %s\n", pmErrStr(sts));
+		printf("Error: __pmSendAuth() failed: %s\n", pmErrStr(sts));
 	    break;
 
 	default:

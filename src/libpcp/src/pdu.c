@@ -249,8 +249,7 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
     else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
     else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
-    else if (type == PDU_USER_AUTH) res = "USER_AUTH";
-    else if (type == PDU_AUTH_ATTR) res = "AUTH_ATTR";
+    else if (type == PDU_AUTH) res = "AUTH";
     if (res == NULL)
 	snprintf(buf, buflen, "TYPE-%d?", type);
     else
