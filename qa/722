@@ -10,8 +10,6 @@
 . ./common.filter
 . ./common.check
 
-_notrun "Awaiting another pmatop update from scox"
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
