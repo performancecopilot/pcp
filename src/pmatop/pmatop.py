@@ -133,8 +133,13 @@ def minutes_seconds (milli):
 
 
 class _StandardOutput(object):
+    def width_write(self, value):
+        self._width = value
+    width = property(None, width_write, None, None)
+
     def __init__(self, out):
         if (out == sys.stdout):
+            self._width = 80
             self.stdout = True
         else:
             self.stdout = False
@@ -154,7 +159,7 @@ class _StandardOutput(object):
             return self.so_stdscr.getyx()
     def getmaxyx(self):
         if self.stdout:
-            return (1000, 80)
+            return (1000, self._width)
         else:
             return self.so_stdscr.getmaxyx()
     def nodelay(self, tf):
@@ -169,6 +174,9 @@ class _StandardOutput(object):
     def clrtobot(self):
         if not self.stdout:
             self.so_stdscr.clrtobot()
+    def clear(self):
+        if not self.stdout:
+            self.so_stdscr.clear()
     def getch(self):
         if not self.stdout:
             return self.so_stdscr.getch()
@@ -255,9 +263,11 @@ class _ProcessorPrint(_AtopPrint, Processor):
         self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_scalar_value('kernel.all.load', 2)))
         self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch')))
         self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr')))
-        self.p_stdscr.addstr ('              |')
-        self.p_stdscr.addstr (' numcpu   %2d  |' % (self.get_metric_value('hinv.ncpu')))
-        self.p_stdscr.addstr ('\n')
+        if (self.apyx[1] >= 110):
+            self.p_stdscr.addstr ('              |')
+        if (self.apyx[1] >= 95):
+            self.p_stdscr.addstr (' numcpu   %2d  |' % (self.get_metric_value('hinv.ncpu')))
+        self.next_line()
 
 # _InterruptPrint --------------------------------------------------
 
@@ -430,20 +440,37 @@ class _ProcPrint(_AtopPrint, Process):
     def set_mem(self, value):
         self._mem = value
 
+    @staticmethod
+    def sort_l(l1, l2):
+        if (l1[1] < l2[1]):
+            return -1
+        elif (l1[1] > l2[1]):
+            return 1
+        else: return 0
+
     def proc(self):
         current_yx = self.p_stdscr.getyx()
         if self._output_type in ['g']:
-            if 'proc.memory.rss' not in self.diff_metrics:
-                self.diff_metrics.append('proc.memory.rss')
-            self.p_stdscr.addstr ('  PID SYSCPU USRCPU VGROW RGROW RUID   THR ST EXC S CPU  CMD\n')
+            self.p_stdscr.addstr ('  PID SYSCPU USRCPU VGROW    RGROW  RUID   THR ST EXC S CPU  CMD')
         elif self._output_type in ['m']:
-            if 'proc.memory.rss' in self.diff_metrics:
-                self.diff_metrics.remove('proc.memory.rss')
-            self.p_stdscr.addstr ('  PID   VSIZE   RSIZE  MAJFLT MINFLT CMD\n')
+            self.p_stdscr.addstr ('PID ')
+            if (self.apyx[1] >= 110):
+                self.p_stdscr.addstr ('MINFLT MAJFLT ')
+            else:
+                self.p_stdscr.addstr ('     ')
+            if (self.apyx[1] >= 95):
+                self.p_stdscr.addstr ('VSTEXT VSLIBS ')
+            self.p_stdscr.addstr ('VDATA  VSTACK     VGROW   RGROW  VSIZE    RSIZE     MEM   CMD')
+        self.next_line()
 
-        for j in xrange(len(self.get_metric_value('proc.psinfo.pid'))):
-            if self.get_scalar_value('proc.schedstat.cpu_time', j) < 1000000:
-                continue
+        # TODO Remember this state for Next/Previous Page
+        cpu_time_sorted = list()
+        for j in xrange(self.get_metric_value('proc.nprocs')):
+            cpu_time_sorted.append((j, self.get_scalar_value('proc.schedstat.cpu_time', j)))
+        cpu_time_sorted.sort(self.sort_l,reverse=True)
+
+        for i in xrange(len(cpu_time_sorted)):
+            j = cpu_time_sorted[i][0]
             if (self.apyx[0] == current_yx[0]):
                 break
 
@@ -452,10 +479,10 @@ class _ProcPrint(_AtopPrint, Process):
             if self._output_type in ['g']:
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime', j)))
                 self.p_stdscr.addstr (' %5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime', j)))
-                self.p_stdscr.addstr ('%5d ' % (self.get_scalar_value('proc.memory.vmsize', j)))
-                self.p_stdscr.addstr ('%4d ' % (self.get_scalar_value('proc.memory.rss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
                 self.p_stdscr.addstr ('%5s ' % (pwd.getpwuid(self.get_scalar_value('proc.id.uid', j))[0]))
-                # Missing: # threads is in /proc/NNN/status but not via pcp
+                # Missing: THR # threads is in /proc/NNN/status
                 self.p_stdscr.addstr ('%5s ' % '-')
                 self.p_stdscr.addstr ('%3s ' % '--')
                 state = self.get_scalar_value('proc.psinfo.sname', j)
@@ -463,16 +490,40 @@ class _ProcPrint(_AtopPrint, Process):
                 if state not in  ('D', 'R', 'S', 'T', 'W', 'X', 'Z'):
                     state = 'S'
                 self.p_stdscr.addstr ('%2s ' % (state))
-#                self.p_stdscr.addstr ('%3d ' % (self.get_scalar_value('proc.psinfo.exit_signal', j)))
                 cpu_total = float(self._cpu.cpu_total - self._cpu.get_metric_value('kernel.all.cpu.idle'))
                 self.p_stdscr.addstr ('%2d%% ' % ((float(self.get_scalar_value('proc.schedstat.cpu_time', j) / 1000000) / cpu_total) * 100))
                 self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd', j)))
             if self._output_type in ['m']:
+                # Missing: SWAPSZ, proc.psinfo.nswap frequently returns -1
+                if (self.apyx[1] >= 110):
+                    minf = self.get_scalar_value('proc.psinfo.minflt', j)
+                    majf = self.get_scalar_value('proc.psinfo.maj_flt', j)
+                    if minf < 0:
+                        minf = 0
+                    if majf < 0:
+                        majf = 0
+                    if minf < 1000:
+                        self.p_stdscr.addstr (self.put_value('%3d ', minf))                        
+                    else:
+                        self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
+                    if majf < 1000:
+                        self.p_stdscr.addstr (self.put_value('%3d ', majf))                        
+                    else:
+                        self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
+                if (self.apyx[1] >= 95):
+                    self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.textrss', j)))
+                    # Missing: VSLIBS librss seems to always be 0
+                    self.p_stdscr.addstr (self.put_value('%4.2gK ', self.get_scalar_value('proc.memory.librss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.datrss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.vmstack', j)))
                 self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
                 self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
-                val = float(self.get_scalar_value('proc.psinfo.rss', j)) / float(self._mem.get_metric_value('mem.physmem')) * 100
-                self.p_stdscr.addstr (self.put_value('%6d%% ', val))
-                self.p_stdscr.addstr ('%-15s ' % (self.get_scalar_value('proc.psinfo.cmd', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.vsize', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.rss', j)))
+                val = float(self.get_old_scalar_value('proc.psinfo.rss', j)) / float(self._mem.get_metric_value('mem.physmem')) * 100
+                if val > 100: val = 0
+                self.p_stdscr.addstr (self.put_value('%2d%% ', val))
+                self.p_stdscr.addstr ('%-15s' % (self.get_scalar_value('proc.psinfo.cmd', j)))
             self.next_line()
 
 
@@ -496,19 +547,6 @@ class _MiscMetrics(Subsystem):
 
 def main (stdscr_p):
     stdscr = _StandardOutput(stdscr_p)
-    subsys = list()
-    cpu = _ProcessorPrint()
-    cpu.set_stdscr(stdscr)
-    mem = _MemoryPrint()
-    mem.set_stdscr(stdscr)
-    disk = _DiskPrint()
-    disk.set_stdscr(stdscr)
-    net = _NetPrint()
-    net.set_stdscr(stdscr)
-    proc = _ProcPrint()
-    proc.set_stdscr(stdscr)
-    mm = _MiscMetrics()
-
     output_file = ""
     input_file = ""
     sort = ""
@@ -516,13 +554,10 @@ def main (stdscr_p):
     interval_arg = 5
     duration_arg = 0
     n_samples = 0
+    output_type = "g"
     i = 1
 
-#    stdscr.nodelay(True)
-
-    subsys_options = {"d", "c", "n", "s", "v", "c", "y", "u", "p"}
-
-    sort_options = {"C", "M", "D", "N", "A"}
+    subsys_options = {"g", "m"}
 
     class NextOption ( Exception ):
         True
@@ -532,11 +567,7 @@ def main (stdscr_p):
             if (sys.argv[i][:1] == "-"):
                 for ssx in subsys_options:
                     if sys.argv[i][1:] == ssx:
-                        subsys.append([ssx])
-                        raise NextOption
-                for ssx in sort_options:
-                    if sys.argv[i][1:] == ssx:
-                        sort = ssx[1]
+                        output_type = ssx
                         raise NextOption
                 if (sys.argv[i] == "-w"):
                     i += 1
@@ -544,6 +575,9 @@ def main (stdscr_p):
                 elif (sys.argv[i] == "-r"):
                     i += 1
                     input_file = sys.argv[i]
+                elif (sys.argv[i] == "-L"):
+                    i += 1
+                    stdscr.width = int(sys.argv[i])
                 elif (sys.argv[i] == "--help" or sys.argv[i] == "-h"):
                     usage()
                     sys.exit(1)
@@ -558,6 +592,20 @@ def main (stdscr_p):
             i += 1
         except NextOption:
             i += 1
+
+    subsys = list()
+    cpu = _ProcessorPrint()
+    cpu.set_stdscr(stdscr)
+    mem = _MemoryPrint()
+    mem.set_stdscr(stdscr)
+    disk = _DiskPrint()
+    disk.set_stdscr(stdscr)
+    net = _NetPrint()
+    net.set_stdscr(stdscr)
+    proc = _ProcPrint()
+    proc.set_stdscr(stdscr)
+    proc.output_type = output_type
+    mm = _MiscMetrics()
 
     if input_file == "":
         try:
@@ -681,7 +729,9 @@ def main (stdscr_p):
                     stdscr.timeout(-1)
                     char = stdscr.getch()
                 elif cmd in subsys_cmds:
+                    stdscr.clear()
                     proc.output_type = cmd
+                # TODO Next/Previous Page
                 else:
                     stdscr.move (proc.command_line, 0)
                     stdscr.addstr ("Invalid command %s" % cmd)
