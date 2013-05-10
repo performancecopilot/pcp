@@ -115,6 +115,8 @@ typedef int (*sasl_callback_func)(void);
 extern int __pmInitAuthClients(void);
 extern int __pmInitAuthServer(void);
 
+extern int __pmGetUserIdentity(const char *, uid_t *, gid_t *, int);
+
 #ifdef __cplusplus
 }
 #endif

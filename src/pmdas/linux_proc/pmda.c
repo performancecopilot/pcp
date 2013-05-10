@@ -1398,6 +1398,24 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static int
+proc_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
+{
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LIBPMDA) {
+	char buffer[256];
+
+	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
+	} else {
+	    buffer[sizeof(buffer)-1] = '\0';
+	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+	}
+    }
+#endif
+    return 0;
+}
+
 int
 proc_metrictable_size(void)
 {
@@ -1422,6 +1440,7 @@ proc_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_AUTH;
 
     dp->version.six.instance = proc_instance;
     dp->version.six.store = proc_store;
@@ -1430,6 +1449,7 @@ proc_init(pmdaInterface *dp)
     dp->version.six.pmid = proc_pmid;
     dp->version.six.name = proc_name;
     dp->version.six.children = proc_children;
+    dp->version.six.attribute = proc_attribute;
     pmdaSetFetchCallBack(dp, proc_fetchCallBack);
 
     /*

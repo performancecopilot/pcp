@@ -414,6 +414,27 @@ __pmSecureServerNegotiation(int fd, int *strength)
     return 0;
 }
 
+static void
+__pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
+{
+    char name[32];
+    char *namep;
+    uid_t uid;
+    gid_t gid;
+
+    if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR)) {
+	snprintf(name, sizeof(name), "%u", uid);
+	name[sizeof(name)-1] = '\0';
+	if ((namep = strdup(name)) != NULL)
+	    __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+
+	snprintf(name, sizeof(name), "%u", gid);
+	name[sizeof(name)-1] = '\0';
+	if ((namep = strdup(name)) != NULL)
+	    __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+    }
+}
+
 static int
 __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
 {
@@ -436,6 +457,7 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
 	sts = -ENOMEM;
     } else {
 	sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs);
+	__pmSetUserGroupAttributes(username, attrs);
     }
     return sts;
 }

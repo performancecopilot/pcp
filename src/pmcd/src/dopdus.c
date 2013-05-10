@@ -1055,7 +1055,12 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
-    if (sts >= 0 && flags)
-	sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs);
+    if (sts >= 0 && flags) {
+	/* new client has arrived; may want encryption, authentication, etc */
+	if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0)
+	    return sts;
+	/* client arrived and may be authenticated, notify interested PMDAs */
+	sts = AgentsAuthentication(cp - client);
+    }
     return sts;
 }

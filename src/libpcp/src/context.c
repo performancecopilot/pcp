@@ -445,7 +445,7 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
-	if ((sts = __pmConnectLocal()) != 0)
+	if ((sts = __pmConnectLocal(&new->c_attrs)) != 0)
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {

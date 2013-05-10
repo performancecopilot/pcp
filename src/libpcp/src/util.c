@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1901,11 +1901,9 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 }
 
 int
-__pmSetProcessIdentity(const char *username)
+__pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 {
     int sts;
-    gid_t gid;
-    uid_t uid;
     char buf[16*1024];
     struct passwd *pw;
 
@@ -1916,14 +1914,18 @@ __pmSetProcessIdentity(const char *username)
     if (pw == NULL) {
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
-	exit(1);
+	if (mode == PM_FATAL_ERR)
+	    exit(1);
+	return -ENOENT;
     } else if (sts != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
 		username, pmErrStr_r(sts, buf, sizeof(buf)));
-	exit(1);
+	if (mode == PM_FATAL_ERR)
+	    exit(1);
+	return -ENOENT;
     }
-    uid = pwd.pw_uid;
-    gid = pwd.pw_gid;
+    *uid = pwd.pw_uid;
+    *gid = pwd.pw_gid;
 #elif defined(HAVE_GETPWNAM)
     sts = 0;
     setoserror(0);
@@ -1931,22 +1933,37 @@ __pmSetProcessIdentity(const char *username)
     if ((pw = getpwnam(username)) == 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
-	exit(1);
+	if (mode == PM_FATAL_ERR)
+	    exit(1);
+	return -ENOENT;
     } else if ((sts = oserror()) != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(sts, buf, sizeof(buf)));
-	exit(1);
+	if (mode == PM_FATAL_ERR)
+	    exit(1);
+	return -ENOENT;
     }
-    uid = pw->pw_uid;
-    gid = pw->pw_gid;
+    *uid = pw->pw_uid;
+    *gid = pw->pw_gid;
 #else
 !bozo!
 #endif
+    return 0;
+}
+
+int
+__pmSetProcessIdentity(const char *username)
+{
+    gid_t gid;
+    uid_t uid;
+    char msg[256];
+
+    __pmGetUserIdentity(username, &uid, &gid, PM_FATAL_ERR);
 
     if (setgid(gid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"setgid to gid of %s user (gid=%d): %s",
-		username, gid, osstrerror_r(buf, sizeof(buf)));
+		username, gid, osstrerror_r(msg, sizeof(msg)));
 	exit(1);
     }
 
@@ -1958,14 +1975,14 @@ __pmSetProcessIdentity(const char *username)
     if (initgroups(username, gid) < 0 && oserror() != EPERM) {
 	__pmNotifyErr(LOG_CRIT,
 		"initgroups with gid of %s user (gid=%d): %s",
-		username, gid, osstrerror_r(buf, sizeof(buf)));
+		username, gid, osstrerror_r(msg, sizeof(msg)));
 	exit(1);
     }
 
     if (setuid(uid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"setuid to uid of %s user (uid=%d): %s",
-		username, uid, osstrerror_r(buf, sizeof(buf)));
+		username, uid, osstrerror_r(msg, sizeof(msg)));
 	exit(1);
     }
 

@@ -541,7 +541,7 @@ typedef struct {
 } __pmPMCDCtl;
 
 extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
-extern int __pmConnectLocal(void);
+extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 

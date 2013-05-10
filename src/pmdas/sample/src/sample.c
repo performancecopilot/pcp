@@ -2677,6 +2677,7 @@ void sample_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_AUTH;
 
     dp->version.any.fetch = sample_fetch;
     dp->version.any.desc = sample_desc;
