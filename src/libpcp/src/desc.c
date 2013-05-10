@@ -60,10 +60,7 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	else {
 	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		dp->dispatch.version.four.ext->e_context = ctx;
-	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		n = dp->dispatch.version.four.desc(pmid, desc, dp->dispatch.version.four.ext);
-	    else
-		n = dp->dispatch.version.two.desc(pmid, desc, dp->dispatch.version.two.ext);
+	    n = dp->dispatch.version.any.desc(pmid, desc, dp->dispatch.version.any.ext);
 	}
     }
     else {
