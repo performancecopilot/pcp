@@ -30,20 +30,5 @@ socket_opt=true
 socket_inet_def=2078
 
 pmdaSetup
-
-# Ensure the PMDA InDom Cache files are writeable by the user "pcp"
-#
-domain=`sed -n <domain.h '/^#define[ 	]*SIMPLE/{
-s///
-s/[ 	]*//g
-p
-}'`
-if [ -z "$domain" ]
-then
-    echo "Botch: cannot extract domain number from domain.h"
-    exit 1
-fi
-chown pcp $PCP_VAR_DIR/config/pmda/$domain.* >/dev/null 2>&1
-
 pmdaInstall
 exit 0
