@@ -10,7 +10,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-_notrun "Exercising not yet complete attribute interface code"
 [ $PCP_VER -ge 3800 ] || _notrun "Installed dbpmda lacks attribute support"
 
 status=0	# success is the default!
@@ -20,6 +19,7 @@ trap "rm -f $tmp.* sample.log; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
+	-e '/ctx=[0-9][0-9]*/s//ctx=N/' \
 	-e '/dbpmda([0-9][0-9]*)/s//dbpmda(PID)/' \
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
@@ -32,7 +32,8 @@ echo .
 # pipe PMDA variant of test
 $sudo rm -f sample.log
 $sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
-open pipe pmdasample
+debug AUTH
+open pipe pmdasample -l sample.log -D AUTH
 attr
 attr 5 "pcpqa"
 attr "username" "pcpqa"
@@ -46,6 +47,7 @@ echo .
 
 # DSO PMDA variant of test
 $sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
+debug AUTH
 open dso pmda_sample.so sample_init
 attr
 attr 5 "pcpqa"

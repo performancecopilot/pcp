@@ -1,7 +1,8 @@
 QA output created by 721
 .
-dbpmda> open pipe pmdasample
-Start pmdasample PMDA: ./pmdasample
+dbpmda> debug AUTH
+dbpmda> open pipe pmdasample -l sample.log -D AUTH
+Start pmdasample PMDA: ./pmdasample -l sample.log -D AUTH
 dbpmda> attr
 attr name [value]
 attr attr# [value]
@@ -11,25 +12,38 @@ Success
 dbpmda> attr "username" "pcpqa"
 Attribute: username=pcpqa
 Success
+dbpmda> attr 0 "no-such-attr"
+              ^ at or near here
+Error: Attribute (0) is not recognised
+Type 'help' for a list of commands.
 dbpmda> attr "no-such-attr"
-Warning: Attribute (no-such-attr) is not recognised
+                          ^ at or near here
+Error: Attribute (no-such-attr) is not recognised
+Type 'help' for a list of commands.
+dbpmda> 
 Checking log file, pipe mode
-[DATETIME] pmdasample(PID) Info: Attribute: ctx=0 username=pcpqa
-[DATETIME] pmdasample(PID) Info: Attribute: ctx=0 username=pcpqa
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N username=pcpqa
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N username=pcpqa
 .
+dbpmda> debug AUTH
 dbpmda> open dso pmda_sample.so sample_init
 dbpmda> attr
 attr name [value]
 attr attr# [value]
 dbpmda> attr 5 "pcpqa"
 Attribute: username=pcpqa
-[DATETIME] dbpmda(PID) Info: Attribute: ctx=0 username=pcpqa
+[DATETIME] dbpmda(PID) Info: Attribute: ctx=N username=pcpqa
 Success
 dbpmda> attr "username" "pcpqa"
 Attribute: username=pcpqa
-[DATETIME] dbpmda(PID) Info: Attribute: ctx=0 username=pcpqa
+[DATETIME] dbpmda(PID) Info: Attribute: ctx=N username=pcpqa
 Success
-dbpmda> attr 0 Warning: Attribute (0) is not recognised
-Attribute (0) is not recognised
+dbpmda> attr 0 "no-such-attr"
+              ^ at or near here
+Error: Attribute (0) is not recognised
+Type 'help' for a list of commands.
 dbpmda> attr "no-such-attr"
-Warning: Attribute (no-such-attr) is not recognised
+                          ^ at or near here
+Error: Attribute (no-such-attr) is not recognised
+Type 'help' for a list of commands.
+dbpmda> 

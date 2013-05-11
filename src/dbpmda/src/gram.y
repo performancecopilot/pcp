@@ -472,7 +472,8 @@ attribute : NUMBER				{
 		sts = __pmAttrKeyStr_r($1, warnStr, sizeof(warnStr));
 		if (sts <= 0) {
 		    sprintf(warnStr, "Attribute (%d) is not recognised", $1);
-		    yywarn(warnStr);
+		    yyerror(warnStr);
+		    YYERROR;
 		}
 		$$ = $1;
 	    }
@@ -480,7 +481,8 @@ attribute : NUMBER				{
 		sts = __pmLookupAttrKey($1, strlen($1)+1);
 		if (sts <= 0) {
 		    sprintf(warnStr, "Attribute (%s) is not recognised", $1);
-		    yywarn(warnStr);
+		    yyerror(warnStr);
+		    YYERROR;
 		}
 		$$ = sts;
 	    }
