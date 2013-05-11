@@ -395,9 +395,63 @@ it is
 .BR pmcd (1)
 and not the PMDA that
 is responsible for implementing these functions).
+.PP
+Client authentication mechanisms have been incorporated into
+the PMCS, providing per-user (and per-connection) information
+that is available to PMDAs.
+A PMDA using PMDA_INTERFACE_6 or later in
+.I libpcp_pmda
+is able to make use of the "attribute" method to gain visibility
+into these authenticated connections, with access to information
+including user and group identifiers, user name, and so on.
+The need to exercise and debug this interface has led to a new
+.B dbpmda
+command.
+The following example is based on the
+.I sample
+PMDA.
+.PP
+.nf
+.ft CW
+.in +0.5i
+$ dbpmda
+dbpmda> open pipe pmdasample \-D AUTH \-l logfile
+dbpmda> Start pmdasample PMDA: pmdasample \-D AUTH \-l logfile
+dbpmda> attr "username" "tanya"
+Attribute: username=tanya
+Success
+dbpmda> attr 11 "0"
+Attribute: userid=0
+Success
+dbpmda> 
+.fi
+.in
+.PP
+The
+.B attr
+command passes connection attributes (PCP_ATTR keys) and their
+values into a PMDA in much the same way that PMCD would for a
+client connection.
+.B dbpmda
+always passes a client context identifier of zero, and while no
+validity checking on values is performed only recognised attributes
+can be set.
+.PP
+In the example above the
+.I AUTH
+debug flag is set for the PMDA, which
+uses this in its attribute callback and records each attribute and
+value pair sent to it in its
+.IR logfile .
+.PP
+Note that authentication checks have already been performed by PMCD
+by the time a PMDA is presented with these attributes, so no further
+verification is necessary by the PMDA.
 .SH CAVEATS
-A value cannot be stored into a metric of type 
-.BR PM_TYPE_AGGREGATE .
+A value cannot be stored into metrics of type 
+.B PM_TYPE_AGGREGATE
+or
+.BR PM_TYPE_EVENT .
 .PP
 .B dbpmda
 uses 
@@ -410,20 +464,6 @@ makes no attempt to detect the termination of the daemon PMDA process, so it is
 possible for a PMDA to exit unexpectedly without any notification. However,
 any further communication attempts with the PMDA will result in errors which
 will indicate that the PMDA is no longer responding.
-.PP
-Only DSO PMDAs with the same
-.I simabi
-(Subprogram Interface Model ABI)
-as the running kernel may be attached to
-.BR dbpmda .
-ie. a machine running a 64-bit kernel will have a 64-bit version of
-.B dbpmda
-which may only be attached to 64-bit DSO PMDAs.  As daemon PMDAs are separate
-processes, there are no 
-.I simabi
-restrictions between
-.B dbpmda
-and daemon PMDAs.
 .SH FILES
 .TP 10
 .I ./.dbpmdarc
