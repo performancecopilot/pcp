@@ -46,6 +46,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     int			subtype;
     pmResult		*result;
     int			ctxnum;
+    int			length;
     __pmTimeval		when;
     int			ident;
     int			type;
@@ -380,6 +381,21 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	    __pmNotifyErr(LOG_DEBUG, "Received PDU_CONTROL_REQ\n");
 	}
 #endif
+	break;
+
+    case PDU_AUTH:
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_AUTH\n");
+#endif
+	if (__pmDecodeAuth(pb, &subtype, &buffer, &length) < 0) 
+	    break;
+	if (HAVE_V_SIX(dispatch->comm.pmda_interface)) {
+	    ctxnum = dispatch->version.six.ext->e_context;
+	    sts = dispatch->version.six.attribute(ctxnum, subtype, buffer, length, pmda);
+	} else {
+	    sts = PM_ERR_GENERIC;
+	}
 	break;
 
     default: {
