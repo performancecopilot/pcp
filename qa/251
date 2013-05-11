@@ -23,12 +23,12 @@ _filter()
 	-e '/No values available/d'
     if [ "`echo core*`" != "core*" ]
     then
-	echo -n "Dumped core! ... saved in"
+	$PCP_ECHO_PROG $PCP_ECHO_N "Dumped core! ... saved in""$PCP_ECHO_C"
 	$sudo rm -f $here/core*
 	for c in core*
 	do
 	    $sudo mv $c $here/$c
-	    echo -n " $here/$c"
+	    $PCP_ECHO_PROG $PCP_ECHO_N " $here/$c""$PCP_ECHO_C"
 	done
 	echo
 	touch die

@@ -16,7 +16,7 @@ _cleanup()
     nss_cleanup
 
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -39,7 +39,7 @@ nss_setup_collector true $qahost $hostname
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
-proxyargs="-C sql:$collectordb -P $collectorpw"
+proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
 echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full
@@ -52,7 +52,7 @@ nss_setup_empty_userdb
 echo "checking client, server certificate only.  should prompt and fail..." | tee -a $seq.full
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
@@ -61,7 +61,7 @@ nss_setup_empty_userdb
 nss_import_cert_userdb
 export PMPROXY_HOST=$hostname
 export PCP_SECURE_SOCKETS=enforce
-yes | pminfo -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # success, all done

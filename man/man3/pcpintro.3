@@ -328,6 +328,11 @@ and/or changes to the PMDAs under
 control.
 .RE
 .TP
+.B PM_ERR_FAULT
+.I "QA fault injected"
+.br
+Used only for PCP Quality Assurance (QA) testing.
+.TP
 .B PM_ERR_NYI
 .I "Functionality not yet implemented"
 .br
@@ -541,7 +546,7 @@ must not be invalid.
 .SH "NAMESPACE ERRORS"
 These errors may occur in the processing of PCP namespace operations.
 A PCP namespace, see
-.BR pmns (4),
+.BR pmns (5),
 provides the external
 names and the internal identifiers for the available performance metrics.
 .TP
@@ -617,7 +622,7 @@ The
 variable may be used to specify an alternative
 configuration file,
 as described in
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 Values for these variables may be obtained programatically
 using the
 .BR pmGetConfig (3)
@@ -627,6 +632,6 @@ function.
 .BR PMAPI (3),
 .BR pmErrStr (3),
 .BR pmGetConfig (3),
-.BR pcp.conf (4)
+.BR pcp.conf (5)
 and
-.BR pcp.env (4).
+.BR pcp.env (5).

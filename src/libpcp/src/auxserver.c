@@ -462,10 +462,11 @@ __pmSecureServerShutdown(void)
 }
 
 int
-__pmSecureServerHandshake(int fd, int flags)
+__pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
     (void)flags;
+    (void)attrs;
     return -EOPNOTSUPP;
 }
 
@@ -473,7 +474,7 @@ int
 __pmServerHasFeature(__pmServerFeature query)
 {
     if (query == PM_SERVER_FEATURE_IPV6)
-	return 1;
+	return (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
     return 0;
 }
 

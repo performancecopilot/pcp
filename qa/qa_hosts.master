@@ -54,6 +54,7 @@ deb32.bork.org
 #order	bozo			.localdomain
 #order	bozo-laptop		.localdomain
 #order	colleens-imac.local	.local
+#order	comma			.localdomain
 #order	emma			.localdomain
 #order	vm00			.localdomain
 #order	vm01			.localdomain

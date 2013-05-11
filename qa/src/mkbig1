@@ -46,6 +46,18 @@ _cleanup()
 cd $here/pmdas/bigun
 make >$here/src/$iam.log 2>&1
 $sudo ./Install </dev/null >>$here/src/$iam.log
+if [ $? != 0 ]
+then
+    echo "bigun pmda Install failed ... see $here/src/$iam.log"
+    exit
+fi
+if pmprobe bigun 2>&1 | tee -a $here/src/$iam.log | grep ' [0-9]$'
+then
+    :
+else
+    echo "bigun pmda Install failed ... see $here/src/$iam.log"
+    exit
+fi
 cd $here
 
 cat <<End-of-File >$tmp.config

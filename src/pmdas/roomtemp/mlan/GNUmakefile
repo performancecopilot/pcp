@@ -34,6 +34,8 @@ else
 default : $(STATICLIBTARGET)
 endif
 
+.NOTPARALLEL:
+
 install : 
 
 default_pcp : default

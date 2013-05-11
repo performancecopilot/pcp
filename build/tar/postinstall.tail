@@ -16,7 +16,7 @@ fi
 for conf in \
     $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
     $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-    $PCP_PMPROXYOPTIONS_PATH
+    $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
 do
     if [ -f "$conf.pre" -a -f "$conf" ]
     then
@@ -118,11 +118,12 @@ fi
 #
 chown -R pcp:pcp $PCP_LOG_DIR/pmcd
 chown -R pcp:pcp $PCP_LOG_DIR/pmie
+chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
 chown -R pcp:pcp $PCP_LOG_DIR/pmproxy
 chown -R pcp:pcp $PCP_LOG_DIR/pmlogger
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
-# Note: do not start pmie nor pmproxy by default
+# Note: do not start pmie, pmwebd nor pmproxy by default
 #
 for svc in pmcd pmlogger
 do

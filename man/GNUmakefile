@@ -20,7 +20,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = man1 man3 man4
+SUBDIRS = man1 man3 man5
 
 default :: default_pcp 
 

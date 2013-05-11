@@ -40,19 +40,19 @@ pack_pcp : pcp.src
 	rm -f $$DIST_MANIFEST; \
 	echo === install === && $(MAKE) -j 1 -C $(TOPDIR) install_pcp || exit $$?; \
 	if test ! -z "$(TAR)"; then \
-	    echo === tar === && $(MAKEF) -j 1 -C tar $@ || exit $$?; \
+	    echo === tar === && $(MAKE) -j 1 -C tar $@ || exit $$?; \
 	fi; \
 	if test ! -z "$(RPM)"; then \
-	    echo === rpm === && $(MAKEF) -j 1 -C rpm $@ || exit $$?; \
+	    echo === rpm === && $(MAKE) -j 1 -C rpm $@ || exit $$?; \
 	fi; \
 	if test ! -z "$(PACKAGE_MAKER)"; then \
-	    echo === mac === && $(MAKEF) -j 1 -C mac $@ || exit $$?; \
+	    echo === mac === && $(MAKE) -j 1 -C mac $@ || exit $$?; \
 	fi; \
 	if test ! -z "$(MKINSTALLP)"; then \
-	    echo === aix === && $(MAKEF) -j 1 -C aix $@ || exit $$?; \
+	    echo === aix === && $(MAKE) -j 1 -C aix $@ || exit $$?; \
 	fi; \
 	if test ! -z "$(PKGMK)" ; then \
-	    echo === sun === && $(MAKEF) -j 1 -C sun $@ || exit $$?; \
+	    echo === sun === && $(MAKE) -j 1 -C sun $@ || exit $$?; \
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" && rm -rf $$DIST_ROOT; echo Done
 

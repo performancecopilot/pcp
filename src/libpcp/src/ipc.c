@@ -223,7 +223,7 @@ __pmDataIPC(int fd, void *data)
 	return -ESRCH;
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
-    if (pmDebug & DBG_TRACE_CONTEXT)
+    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
 	fprintf(stderr, "__pmDataIPC: fd=%d, data=%p(sz=%d)\n",
 		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));

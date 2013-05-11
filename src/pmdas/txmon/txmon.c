@@ -280,6 +280,7 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TXMON,
 		"txmon.log", mypath);
+    pmdaOpenLog(&dispatch);
 
     while ((n = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
 	switch(n) {
@@ -376,7 +377,6 @@ main(int argc, char **argv)
     /*
      * the real work is done below here ...
      */
-    pmdaOpenLog(&dispatch);
     txmon_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);

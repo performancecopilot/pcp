@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1999-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -10,18 +11,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 #ifndef LIBDEFS_H
 #define LIBDEFS_H
 
-#define HAVE_V_TWO(interface) (interface == PMDA_INTERFACE_2 || interface == PMDA_INTERFACE_3)
-#define HAVE_V_FOUR(interface) (interface == PMDA_INTERFACE_4 || interface == PMDA_INTERFACE_5)
-#define HAVE_V_FIVE(interface) (interface == PMDA_INTERFACE_5)
+#define HAVE_V_TWO(interface)	((interface) >= PMDA_INTERFACE_2)
+#define HAVE_V_FOUR(interface)	((interface) >= PMDA_INTERFACE_4)
+#define HAVE_V_FIVE(interface)	((interface) >= PMDA_INTERFACE_5)
+#define HAVE_V_SIX(interface)	((interface) >= PMDA_INTERFACE_6)
+#define HAVE_ANY(interface)	((interface) <= PMDA_INTERFACE_6 && HAVE_V_TWO(interface))
 
 /*
  * Auxilliary structure used to save data from pmdaDSO or pmdaDaemon and

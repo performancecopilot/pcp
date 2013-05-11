@@ -17,10 +17,12 @@ Python implementation of the "simple" Performance Metrics Domain Agent.
 
 import os
 import time
+import cpmapi as c_api
 
 from pcp import pmda
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp import pmapi
-from pcp.pmapi import pmContext as PCP
+from pcp.pmapi import pmUnits, pmContext as PCP
 
 class SimplePMDA(PMDA):
     '''
@@ -80,9 +82,9 @@ class SimplePMDA(PMDA):
                 self.blue = (self.blue + 1) % 255
                 return [self.blue, 1]
             else:
-                return [pmapi.PM_ERR_INST, 0]
+                return [c_api.PM_ERR_INST, 0]
         else:
-            return [pmapi.PM_ERR_PMID, 0]
+            return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_times_callback(self, item):
         '''
@@ -97,7 +99,7 @@ class SimplePMDA(PMDA):
             return [times[0], 1]
         elif (item == 3):
             return [times[1], 1]
-        return [pmapi.PM_ERR_PMID, 0]
+        return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_now_callback(self, item, inst):
         '''
@@ -107,32 +109,32 @@ class SimplePMDA(PMDA):
         if (item == 4):
             value = self.pmda_inst_lookup(self.now_indom, inst)
             if (value == None):
-                return [pmapi.PM_ERR_INST, 0]
+                return [c_api.PM_ERR_INST, 0]
             return [value, 1]
-        return [pmapi.PM_ERR_PMID, 0]
+        return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_callback(self, cluster, item, inst):
         '''
         Main fetch callback, defers to helpers for each cluster.
         Returns a list of value,status (single pair) for requested pmid/inst
         '''
-        if (not (inst == pmapi.PM_IN_NULL or
+        if (not (inst == c_api.PM_IN_NULL or
             (cluster == 0 and item == 1) or (cluster == 2 and item == 4))):
-            return [pmapi.PM_ERR_INST, 0]
+            return [c_api.PM_ERR_INST, 0]
         if (cluster == 0):
             return self.simple_fetch_color_callback(item, inst)
         elif (cluster == 1):
             return self.simple_fetch_times_callback(item)
         elif (cluster == 2):
             return self.simple_fetch_now_callback(item, inst)
-        return [pmapi.PM_ERR_PMID, 0]
+        return [c_api.PM_ERR_PMID, 0]
 
 
     def simple_store_count_callback(self, val):
         ''' Helper for the store callback, handles simple.numfetch '''
         sts = 0
         if (val < 0):
-            sts = pmapi.PM_ERR_SIGN
+            sts = c_api.PM_ERR_SIGN
             val = 0
         self.numfetch = val
         return sts
@@ -141,10 +143,10 @@ class SimplePMDA(PMDA):
         ''' Helper for the store callback, handles simple.color '''
         sts = 0
         if (val < 0):
-            sts = pmapi.PM_ERR_SIGN
+            sts = c_api.PM_ERR_SIGN
             val = 0
         elif (val > 255):
-            sts = pmapi.PM_ERR_CONV
+            sts = c_api.PM_ERR_CONV
             val = 255
 
         if (inst == 0):
@@ -154,7 +156,7 @@ class SimplePMDA(PMDA):
         elif (inst == 2):
             self.blue = val
         else:
-            sts = pmapi.PM_ERR_INST
+            sts = c_api.PM_ERR_INST
         return sts
 
     def simple_store_callback(self, cluster, item, inst, val):
@@ -168,11 +170,11 @@ class SimplePMDA(PMDA):
             elif (item == 1):
                 return self.simple_store_color_callback(val, inst)
             else:
-                return pmapi.PM_ERR_PMID
+                return c_api.PM_ERR_PMID
         elif ((cluster == 1 and (item == 2 or item == 3))
             or (cluster == 2 and item == 4)):
-            return pmapi.PM_ERR_PERMISSION
-        return pmapi.PM_ERR_PMID
+            return c_api.PM_ERR_PERMISSION
+        return c_api.PM_ERR_PMID
 
 
     def simple_timenow_check(self):
@@ -193,37 +195,35 @@ class SimplePMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
-        helpfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
-        helpfile += '/' + name + '/' + 'help'
-        self.set_helpfile(helpfile)
-
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
-        self.add_metric(name + '.numfetch', self.pmda_pmid(0, 0),
-                pmapi.PM_TYPE_U32, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_INSTANT,
-                self.pmda_units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.color', self.pmda_pmid(0, 1),
-                pmapi.PM_TYPE_32, self.color_indom, pmapi.PM_SEM_INSTANT,
-                self.pmda_units(0, 0, 0, 0, 0, 0))
-        self.add_metric(name + '.time.user', self.pmda_pmid(1, 2),
-                pmapi.PM_TYPE_DOUBLE, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_COUNTER,
-                self.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
-        self.add_metric(name + '.time.sys', self.pmda_pmid(1, 3),
-                pmapi.PM_TYPE_DOUBLE, pmapi.PM_INDOM_NULL, pmapi.PM_SEM_COUNTER,
-                self.pmda_units(0, 1, 0, 0, pmapi.PM_TIME_SEC, 0))
-        self.add_metric(name + '.now', self.pmda_pmid(2, 4),
-                pmapi.PM_TYPE_U32, self.now_indom, pmapi.PM_SEM_INSTANT,
-                self.pmda_units(0, 0, 0, 0, 0, 0))
+        self.add_metric(name + '.numfetch', pmdaMetric(self.pmid(0, 0),
+                c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.color', pmdaMetric(self.pmid(0, 1),
+                c_api.PM_TYPE_32, self.color_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+        self.add_metric(name + '.time.user', pmdaMetric(self.pmid(1, 2),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)))
+        self.add_metric(name + '.time.sys', pmdaMetric(self.pmid(1, 3),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)))
+        self.add_metric(name + '.now', pmdaMetric(self.pmid(2, 4),
+                c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
 
-        self.color_indom = self.add_indom(self.color_indom,
-                {0: 'red', 1: 'green', 2: 'blue'})
-        self.now_indom = self.add_indom(self.now_indom, {}) # initialized on-the-fly
+        colors = [pmdaInstid(0, 'red'),
+                  pmdaInstid(1, 'green'),
+                  pmdaInstid(2, 'blue')]
+        self.add_indom(pmdaIndom(self.color_indom, colors))
+        self.add_indom(pmdaIndom(self.now_indom, None))
 
-        self.set_fetch(simple_fetch)
-        self.set_instance(simple_instance)
-        self.set_fetch_callback(simple_fetch_callback)
-        self.set_store_callback(simple_store_callback)
+        self.set_fetch(self.simple_fetch)
+        self.set_instance(self.simple_instance)
+        self.set_fetch_callback(self.simple_fetch_callback)
+        self.set_store_callback(self.simple_store_callback)
         self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.simple_timenow_check()
 

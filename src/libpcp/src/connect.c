@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -87,7 +87,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
  * client connects to pmcd handshake
  */
 static int
-__pmConnectHandshake(int fd, int ctxflags, const char *hostname)
+__pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *attrs)
 {
     __pmPDU	*pb;
     int		ok;
@@ -149,6 +149,14 @@ __pmConnectHandshake(int fd, int ctxflags, const char *hostname)
 			return -EOPNOTSUPP;
 		    }
 		}
+		if (ctxflags & PM_CTXFLAG_AUTH) {
+		    if (pduinfo.features & PDU_FLAG_AUTH)
+			pduflags |= PDU_FLAG_AUTH;
+		    else {
+			__pmUnpinPDUBuf(pb);
+			return -EOPNOTSUPP;
+		    }
+		}
 	    }
 
 	    /*
@@ -169,10 +177,11 @@ __pmConnectHandshake(int fd, int ctxflags, const char *hostname)
 	    /*
 	     * At this point we know caller wants to set channel options and
 	     * pmcd supports them so go ahead and update the socket now (this
-	     * completes the SSL handshake in encrypting mode).
+	     * completes the SSL handshake in encrypting mode, authentication
+	     * via SASL, and/or enabling compression in NSS).
 	     */
 	    if (sts >= 0 && pduflags)
-		sts = __pmSecureClientHandshake(fd, pduflags, hostname);
+		sts = __pmSecureClientHandshake(fd, pduflags, hostname, attrs);
 	}
 	else
 	    sts = PM_ERR_IPC;
@@ -267,9 +276,10 @@ load_proxy_hostspec(pmHostSpec *proxy)
 }
 
 static void
-load_certificate_database(void)
+load_secure_runtime(void)
 {
     /* Ensure correct security lib initialisation order */
+    __pmInitAuthClients();
     __pmInitSecureSockets();
 
     /*
@@ -299,7 +309,7 @@ __pmConnectGetPorts(pmHostSpec *host)
 }
 
 int
-__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
+__pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 {
     int		sts = -1;
     int		fd = -1;	/* Fd for socket connection to pmcd */
@@ -327,7 +337,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 	first_time = 0;
 	load_pmcd_ports();
 	load_proxy_hostspec(&proxy);
-	load_certificate_database();
+	load_secure_runtime();
     }
 
     if (hosts[0].nports > 0) {
@@ -348,7 +358,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 	PM_UNLOCK(__pmLock_libpcp);
 	for (i = 0; i < nports; i++) {
 	    if ((fd = __pmAuxConnectPMCDPort(name, ports[i])) >= 0) {
-		if ((sts = __pmConnectHandshake(fd, ctxflags, name)) < 0) {
+		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
 		}
 		else
@@ -408,7 +418,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags)
 	}
 	if ((sts = version = negotiate_proxy(fd, hosts[0].name, ports[i])) < 0)
 	    __pmCloseSocket(fd);
-	else if ((sts = __pmConnectHandshake(fd, ctxflags, proxyhost->name)) < 0)
+	else if ((sts = __pmConnectHandshake(fd, proxyhost->name, ctxflags, attrs)) < 0)
 	    __pmCloseSocket(fd);
 	else
 	    /* success */

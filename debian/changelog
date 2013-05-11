@@ -1,6 +1,21 @@
+pcp (3.8.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Introduces SASL dependency in core PCP library.
+  * Ensure install.log turds not left behind (closes: #705994)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 23 Apr 2013 15:29:36 +1000
+
+pcp (3.7.2) unstable; urgency=low
+
+  * Add build dependency on python-all-dev (closes: #704717)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 19 Apr 2013 09:24:10 +1000
+
 pcp (3.7.1) unstable; urgency=low
 
-   * New release (full details in CHANGELOG).
+  * New release (full details in CHANGELOG).
 
  -- Nathan Scott <nathans@debian.org>  Wed, 20 Mar 2013 09:01:30 +1100
 

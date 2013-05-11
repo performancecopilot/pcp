@@ -621,6 +621,8 @@ ac_includes_default="\
 
 ac_subst_vars='PACKAGE_CONFIGURE
 GIT
+HAVE_LIBMICROHTTPD
+lib_for_rt
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -628,6 +630,8 @@ enable_secure
 lib_for_nspr
 lib_for_nss
 lib_for_ssl
+lib_for_sasl
+SASLCFLAGS
 NSPRCFLAGS
 NSSCFLAGS
 ac_xconfirm_prog
@@ -670,6 +674,7 @@ pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
 pcp_pmproxyoptions_path
+pcp_pmwebdoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
@@ -3460,7 +3465,7 @@ if test "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
    save_CXXFLAGS="$CXXFLAGS"
-   CFLAGS="$CFLAGS -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2"
+   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 int something ();
@@ -3469,7 +3474,7 @@ if ac_fn_c_try_compile "$LINENO"; then :
 
        { $as_echo "$as_me:${as_lineno-$LINENO}: Compiling with gcc -fstack-protector-all et al." >&5
 $as_echo "$as_me: Compiling with gcc -fstack-protector-all et al." >&6;}
-       CFLAGS="$save_CFLAGS -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2"
+       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
 else
 
        { $as_echo "$as_me:${as_lineno-$LINENO}: Compiler does not support -fstack-protector-all et al." >&5
@@ -5304,6 +5309,8 @@ cc_is_gcc=$GCC
 
 PCFLAGS=$CFLAGS
 
+
+CFLAGS="-O $CFLAGS"
 
 if test -z "$MAKE"
 then
@@ -10109,10 +10116,12 @@ pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+
 
 
 
@@ -11226,6 +11235,78 @@ done
 
 
 
+    for ac_header in sasl/sasl.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sasl/sasl.h" "ac_cv_header_sasl_sasl_h" "$ac_includes_default"
+if test "x$ac_cv_header_sasl_sasl_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SASL_SASL_H 1
+_ACEOF
+ SASLCFLAGS=-I/usr/include/sasl
+else
+
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    as_fn_error $? "cannot enable secure sockets mode - no SASL header" "$LINENO" 5
+	fi
+
+fi
+
+done
+
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sasl_server_init in -lsasl2" >&5
+$as_echo_n "checking for sasl_server_init in -lsasl2... " >&6; }
+if ${ac_cv_lib_sasl2_sasl_server_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsasl2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sasl_server_init ();
+int
+main ()
+{
+return sasl_server_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sasl2_sasl_server_init=yes
+else
+  ac_cv_lib_sasl2_sasl_server_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sasl2_sasl_server_init" >&5
+$as_echo "$ac_cv_lib_sasl2_sasl_server_init" >&6; }
+if test "x$ac_cv_lib_sasl2_sasl_server_init" = xyes; then :
+  lib_for_sasl="-lsasl2"
+else
+
+	enable_secure=false
+	if test "$do_secure" = "yes"
+	then
+	    as_fn_error $? "cannot enable secure sockets mode - no SASL library" "$LINENO" 5
+	fi
+
+fi
+
+
+
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSL_ImportFD in -lssl" >&5
 $as_echo_n "checking for SSL_ImportFD in -lssl... " >&6; }
 if ${ac_cv_lib_ssl_SSL_ImportFD+:} false; then :
@@ -11786,6 +11867,88 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+savedLIBS=$LIBS
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for timer_gettime in -lrt" >&5
+$as_echo_n "checking for timer_gettime in -lrt... " >&6; }
+if ${ac_cv_lib_rt_timer_gettime+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lrt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char timer_gettime ();
+int
+main ()
+{
+return timer_gettime ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_rt_timer_gettime=yes
+else
+  ac_cv_lib_rt_timer_gettime=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_timer_gettime" >&5
+$as_echo "$ac_cv_lib_rt_timer_gettime" >&6; }
+if test "x$ac_cv_lib_rt_timer_gettime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRT 1
+_ACEOF
+
+  LIBS="-lrt $LIBS"
+
+fi
+
+lib_for_rt=""
+if test $ac_cv_lib_rt_timer_gettime = yes
+then
+    lib_for_rt="-lrt"
+fi
+
+LIBS=$savedLIBS
+
+savedLIBS=$LIBS
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking checking for libmicrohttpd > 0.9.9" >&5
+$as_echo_n "checking checking for libmicrohttpd > 0.9.9... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <microhttpd.h>
+int
+main ()
+{
+int foo (void) { return MHD_RESPMEM_PERSISTENT; }
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    have_libmicrohttpd=1
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    have_libmicrohttpd=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+HAVE_LIBMICROHTTPD=$have_libmicrohttpd
+
+LIBS=$savedLIBS
 
 for ac_prog in git
 do

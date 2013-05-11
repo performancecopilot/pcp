@@ -1,0 +1,185 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMNSCOMP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmnscomp\f1 \- compile an ASCII performance metrics namespace into binary format.
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmnscomp\f1
+[\f3\-d\f1]
+[\f3\-f\f1]
+[\f3\-n\f1 \f2namespace\f1]
+[\f3\-v\f1 \f2version\f1]
+\f2outfile\f1
+.SH DESCRIPTION
+.B pmnscomp
+compiles a Performance Metrics Name Space (PMNS) in ASCII format into a more
+efficient binary representation.
+.BR pmLoadNameSpace (3)
+is able to load this binary representation significantly faster than the
+equivalent ASCII representation.
+.PP
+If
+.I outfile
+already exists
+.B pmnscomp
+will exit without overwriting it.
+.PP
+By convention, the name of the compiled namespace is that of the root file of
+the ASCII namespace, with
+.B .bin
+appended.  For example, the root of the default PMNS is a file named
+.B root
+and the compiled version of the entire namespace is
+.BR root.bin .
+.PP
+The options are;
+.TP 5
+.B \-d
+By default the PMNS to be compiled is expected to contain at most one
+name for each unique Performance Metric Id (PMID).  The
+.B \-d
+option relaxes this restriction and allows the compilation of a
+PMNS in which multiple names may be associated with a single PMID.
+Duplicate names are useful when a particular metric may
+be logically associated with more than one group of related metrics,
+or when it is desired to create abbreviated aliases to name a set
+of frequently used metrics.
+.TP
+.B \-f
+Force overwriting of an existing
+.I outfile
+if it already exists.
+.TP
+.B \-n
+Normally
+.B pmnscomp
+operates on the default PMNS, however if the
+.B \-n
+option is specified an alternative namespace is loaded
+from the file
+.IR namespace.
+.TP
+.B \-v
+By default,
+.B pmnscomp
+writes a version
+.B 2
+compiled namespace.
+If
+.I version
+is
+.B 1
+then
+.B pmnscomp
+will write a version
+.B 1
+namespace which is similar to version
+.BR 2 ,
+without the extra integrity afforded by checksums.
+Note that PCP version 2.0 or later can handle both versions
+.B 1
+and
+.B 2
+of the binary PMNS format.
+.PP
+The default input PMNS is found in the file
+.I $PCP_VAR_DIR/pmns/root
+unless the environment variable
+.B PMNS_DEFAULT
+is set, in which case the value is assumed to be the pathname
+to the file containing the default input PMNS.
+.SH CAVEAT
+Once the writing of the new
+.I outfile
+has begun, the signals SIGINT, SIGHUP and SIGTERM will be ignored
+to protect the integrity of the new file.
+.SH FILES
+.PD 0
+.TP 10
+.I $PCP_VAR_DIR/pmns/*
+default PMNS specification files
+.TP
+.I $PCP_VAR_DIR/pmns/root.bin
+compiled version of the default PMNS, when the environment variable
+.B PMNS_DEFAULT
+is unset
+.TP
+.I $PCP_VAR_DIR/pmns/stdpmid
+some standard macros for PMID generation
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmnsadd (1),
+.BR pmnsdel (1),
+.BR pmnsmerge (1),
+.BR PMAPI (3),
+.BR pmLoadNameSpace (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).
+.SH DIAGNOSTICS
+Cannot open ``xyz'' \- the filename for the root of the PMNS that was
+passed to
+.BR pmLoadNameSpace (3)
+is bogus.
+.PP
+Illegal PMID \- either one of the three PMID components (see
+.BR pmns (5))
+is not an integer, or the value for one of the 
+components is negative, or too large.
+.PP
+Expected ... \- specific syntax errors when a particular type of
+lexical symbol was expected and
+not found; the messages are intended to be self-explanatory.
+.PP
+Internal botch \- implementation problem for the parser ... 
+.PP
+Duplicate name ``abc'' in subtree for ``pqr.xyz'' \- for each non-leaf
+node, the names of all immediate descendents must be unique.
+.PP
+No name space entry for ``root'' \- the special non-leaf node with a pathname
+of ``root'' defines the root of the PMNS, and must appear
+somewhere in the PMNS specification.
+.PP
+Multiple name space entries for ``root'' \- more than one ``root'' node
+does not make sense!
+.PP
+Disconnected subtree (``abc.xyz.def'') in name space \- the pathname
+for this non-leaf node does not correspond to any pathname in the PMNS,
+hence this non-leaf node is ``orphaned'' in the PMNS.
+.PP
+Cannot find definition for non-terminal node ``xyz'' in name space \- a
+non-terminal node is named as part of its parent's specification, but
+is never defined.
+.PP
+Duplicate metric id (xxx) in name space for metrics ``abc'' and ``xyz''
+\- each PMID must be unique across the PMNS.

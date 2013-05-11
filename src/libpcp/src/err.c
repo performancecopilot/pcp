@@ -17,9 +17,10 @@
 #include "fault.h"
 #include <ctype.h>
 #ifdef HAVE_SECURE_SOCKETS
-#include "prerror.h"
-#include "secerr.h"
-#include "sslerr.h"
+#include <prerror.h>
+#include <secerr.h>
+#include <sslerr.h>
+#include <sasl.h>
 #endif
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
@@ -178,13 +179,21 @@ pmErrStr_r(int code, char *buf, int buflen)
 	return buf;
     }
 
-    /* is the code from a library wrapped by libpcp?  (e.g. NSS/SSL) */
+    /*
+     * Is the code from a library wrapped by libpcp?  (e.g. NSS/SSL/SASL)
+     * By good fortune, these libraries are using error codes that do not
+     * overlap - by design for NSS/SSL/NSPR, and by sheer luck with SASL.
+     */
     if (code < PM_ERR_NYI) {
 #ifdef HAVE_SECURE_SOCKETS
 #define DECODE_SECURE_SOCKETS_ERROR(c)	((c) - PM_ERR_NYI)	/* negative */
+#define DECODE_SASL_SPECIFIC_ERROR(c)	((c) < -1000 ? 0 : (c))
 
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
-	strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
+	if (DECODE_SASL_SPECIFIC_ERROR(error))
+	    strncpy(buf, sasl_errstring(error, NULL, NULL), buflen);
+	else
+	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
 	buf[buflen-1] = '\0';
 	return buf;
 #endif
@@ -210,6 +219,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 
 	    if (sp != NULL) {
 		sp++;
+		if (*sp == '-') sp++;
 		for (p = sp; *p != '\0'; p++) {
 		    if (!isdigit((int)*p)) break;
 		}

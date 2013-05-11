@@ -1,0 +1,119 @@
+'\"! tbl | mmdoc
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCP.CONF 5 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp.conf\f1 \- the Performance Co-Pilot configuration and environment file
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+.I /etc/pcp.conf
+.SH DESCRIPTION
+When using Performance Co-Pilot (PCP) tools and utilities
+and when calling PCP library functions, a standard set of
+environment variables are defined in 
+.IR /etc/pcp.conf .
+These variables are generally used to specify the location of
+various PCP pieces in the file system and may be loaded into
+shell scripts by sourcing the
+.IR /etc/pcp.env (5)
+shell script and queried by C/C++ programs using the
+.IR pmGetConfig (3)
+library function.
+If a variable is already defined in the environment,
+the values in
+.I pcp.conf
+do 
+.B not
+override those values, i.e. the values in
+.I pcp.conf
+serve as installation defaults only.
+.PP
+Both the
+.I pcp.env
+and
+.I pcp.conf
+files are expected to be found in
+.I /etc
+by default.
+If required, the
+.I pcp.conf
+file may be relocated and
+.B PCP_CONF
+set in the environment to specify the full path to the new location.
+The
+.I pcp.env
+file can not be relocated (this is the only hard coded path
+required by PCP).
+.PP
+The syntax rules for
+.I pcp.conf
+are as follows :
+.IP 1. 4
+the general syntax is
+.br
+.ce 1
+.B "PCP_VARIABLE_NAME=variable value to end of line"
+.IP 2. 4
+lines that begin with
+.B #
+and all blank lines are ignored. 
+.IP 3. 4
+all variables must be prefixed with
+.BR PCP_ .
+This is a security issue - variables that do not have this prefix will
+be silently ignored.
+.IP 4. 4
+there should be no space between the variable name and the literal
+.B =
+and no space between the
+.B = 
+and the variable value (unless the value actually starts with a space).
+This is required because the
+.I pcp.conf
+file may be sourced directly by Makefiles as well as interpreted by the
+.I pcp.env
+script and the
+.I "pmGetConfig"
+function.
+.IP 5. 4
+variable values may contain spaces and should
+.B not
+be quoted.
+The
+.I pcp.env
+script automatically quotes all variable values from the character
+immediately following the
+.B =
+through to the end of the line.
+.PP
+For further details and an explanation of the use of
+each variable, see the comments in the
+.I /etc/pcp.conf
+file itself.
+.SH ENVIRONMENT
+The
+.B PCP_CONF
+environment variable specifies an alternative path to the
+.I pcp.conf
+file.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PCPIntro (3),
+.BR PMAPI (3),
+.BR pmGetConfig (3)
+and
+.BR pcp.env (5).

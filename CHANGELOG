@@ -1,3 +1,47 @@
+pcp-3.8.0 (under development)
+    - Added the nginx PMDA, thanks to Ryan Doyle.
+    - Fixed memory leak on an error path in profile PDU decoder.
+    - Added pmwebd(1) - a JSON-based bridge providing web tools
+      with access to the PMAPI (both pmcd and archives) via HTTP.
+    - Added 
+    - Reworked many aspects of the python APIs - now a pcp package
+      with sub-modules, improved error handling, and much more.
+    - Work toward pylint(1)-clean python code throughout PCP.
+    - Added a new python module for MMV instrumentatio.
+    - Added a new python module for writing PMDAs.
+    - Added a new python module abstracting commonly needed metric
+      Subsystems
+    - Added a new python client tool pmatop(1) implementing much
+      of the reporting functionality of atop (www.atoptool.nl).
+    - Additional checks added to metric names allowed into the PCP
+      Log Import library to match the PMNS man page requirements.
+    - Support for parallel make invocations.
+    - Improvements to the secure server code to make it work better
+      and on more platforms.
+    - Improvements to the IPv6 and IPv4 access control wildcards.
+
+pcp-3.7.2 (19 April 2013)
+    - Improved pmie propagation of metadata units.
+    - Extra pmlogger diagnostic when log cannot be created.
+    - Fix Debian python build dependencies.
+    - Avoid mis-sharing outbound pmcd connections if ports do not
+      match (libpcp).
+    - IPv6 presence now checked at run-time as well (pmconfig).
+    - Packaging updates - tarball, slackware, gentoo.
+    - Add several missing man page options, typos and such, found
+      by Red Hat (internal?) checker tools.
+    - Added pmwtf.1 man page.
+    - Make pmdaapache observe a connect timeout as well as its
+      existing request timeout.
+    - Extend pmcd access control with a global wildcard for IPv6.
+    - Make __pmSockAddrIsLoopBack handle IPv6 loopback address.
+    - Resolve bug in too-small pduread recv causing communication
+      failures with secure sockets, but in theory affecting other
+      socket transports as well.
+    - Resolve Debian packaging and build dependency issue.
+    - Resolve Fedora bug where pmstat fails to start when pmcd has
+      never been started (so namespace rebuild script not yet run).
+
 pcp-3.7.1 (20 March 2013)
     - IPv6 addresses and wild cards for host access control.
     - Add packaging scripts to correctly transition active temp

@@ -28,7 +28,7 @@ WARN="echo Warning:"
 RM=rm
 RMDIR=rmdir
 
-for svc in pmproxy pmie pcp
+for svc in pmproxy pmwebd pmie pcp
 do
     [ -f $PCP_RC_DIR/$svc ] && $PCP_RC_DIR/$svc stop
     if which rc-update >/dev/null 2>&1
@@ -66,7 +66,7 @@ done
 for conf in \
     $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
     $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-    $PCP_PMPROXYOPTIONS_PATH
+    $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
 do
     rm -f "$conf.pre" "$conf.dist"
 done

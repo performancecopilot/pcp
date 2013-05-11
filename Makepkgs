@@ -15,7 +15,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-LOGDIR=Logs
+LOGDIR=`pwd`/Logs
 
 clean=false
 verbose=false
@@ -174,22 +174,21 @@ fi
 
 echo
 
-LOGF=$LOGDIR/pcp
 echo
-echo "== Building pcp, log is in $LOGF"
+echo "== Building pcp, log is in $LOGDIR/pcp"
 
 . ./VERSION.pcp
 
 echo "== Configuring pcp for vendor/distro installation ($configure_options)"
 if $verbose ; then
-    ./configure $configure_options 2>&1 | tee -a $LOGF || touch $tmp.failed
+    ./configure $configure_options 2>&1 | tee -a $LOGDIR/pcp || touch $tmp.failed
 else
-    ./configure $configure_options >> $LOGF 2>&1 || touch $tmp.failed
+    ./configure $configure_options >> $LOGDIR/pcp 2>&1 || touch $tmp.failed
 fi
 if [ -f $tmp.failed ] ; then
     if ! $verbose ; then
-        echo \"./configure\" failed, see log in $LOGF
-        tail $LOGF
+        echo \"./configure\" failed, see log in $LOGDIR/pcp
+        tail $LOGDIR/pcp
     fi
     exit 1
 fi
@@ -204,10 +203,8 @@ special=false
     
 if [ $special != false ]
 then
-    LOGF=`pwd`/$LOGF
-
     echo
-    echo "== src-link-pcp, log is in $LOGF" | tee -a $LOGF
+    echo "== src-link-pcp, log is in $LOGDIR/src-link-pcp" | tee -a $LOGDIR/src-link-pcp
 
     VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
     SRCLINK_ROOT=`pwd`/pcp-$VERSION
@@ -218,16 +215,16 @@ then
 
     rm -fr $SRCLINK_ROOT
     mkdir -p $SRCLINK_ROOT || exit 1
-    $MAKE -j 1 src-link-pcp || exit 1
+    $MAKE -j 1 src-link-pcp >>$LOGDIR/src-link-pcp || exit 1
     cd $SRCLINK_ROOT
 
     if [ $special = debian ]
     then
 	SUDO=${SUDO:-fakeroot}
 	if $verbose ; then
-	    dpkg-buildpackage -r$SUDO | tee -a $LOGF
+	    dpkg-buildpackage -r$SUDO | tee -a $LOGDIR/pcp
 	else
-	    dpkg-buildpackage -r$SUDO >> $LOGF || exit 1
+	    dpkg-buildpackage -r$SUDO >> $LOGDIR/pcp || exit 1
 	fi
 	exit 0
     fi
@@ -235,35 +232,35 @@ fi
 
 # Fall through for MinGW (Win32) builds
 if $verbose ; then
-    st=`(($MAKE -j 1 default_pcp 2>&1; echo $? >&3) | tee $LOGF 1>&2) 3>&1`
+    st=`(($MAKE -j 1 default_pcp 2>&1; echo $? >&3) | tee -a $LOGDIR/pcp 1>&2) 3>&1`
 else
-    $MAKE -j 1 default_pcp > $LOGF 2>&1; st=$?
+    $MAKE -j 1 default_pcp >>$LOGDIR/pcp 2>&1; st=$?
 fi
 if [ $st -ne 0 ] ; then
     if ! $verbose ; then
-	echo \"$MAKE default_pcp\" failed, see log in $LOGF
-	tail $LOGF
+	echo \"$MAKE default_pcp\" failed, see log in $LOGDIR/pcp
+	tail $LOGDIR/pcp
     fi
     exit 1
 fi
 
 rm -f files.rpm
 echo
-echo "== Packaging pcp, log is in $LOGF" | tee -a $LOGF
+echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
 if $verbose ; then
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGF
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
 else
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGF
+    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
 fi
 if [ -f $tmp/failed ] ; then
     if ! $verbose ; then
-	echo Packaging failed, see log in $LOGF
-	tail $LOGF
+	echo Packaging failed, see log in $LOGDIR/pcp
+	tail $LOGDIR/pcp
     fi
     exit 1
 else
     if ! $verbose ; then
-	grep '^Wrote:' $LOGF | sed -e 's/\.\.\/\.\.\///'
+	grep '^Wrote:' $LOGDIR/pcp | sed -e 's/\.\.\/\.\.\///'
     fi
 fi
 

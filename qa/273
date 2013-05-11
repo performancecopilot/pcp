@@ -77,8 +77,12 @@ _filter2()
 	-e '/NotifyEndLocalContext: /s/:.*/: .../' \
 	-e '/value /s/ [0-9].*/ NUMBER/' \
 	-e '/^__pmDataIPC:/d' \
-	-e '/^__pmSetDataIPC:/,+1 d' \
+	-e '/^__pmSetDataIPC:/{
+N
+d
+}' \
 	-e 's/Permission denied/No permission to perform requested operation/' \
+	-e '/__pmConnect(fd=/d' \
     | perl -ne '
 	# squash repeated occurrences of the following pattern
 	# (as a result of needing to do getaddrinfo list walk)
@@ -230,12 +234,12 @@ src/xval -e
 # store.c
 #
 echo
-$sudo src/chknumval -L sampledso.long.write_me sampledso.ulong.write_me sampledso.longlong.write_me 2>&1 \
-| _filter2
+$sudo src/chknumval -L sampledso.long.write_me sampledso.ulong.write_me sampledso.longlong.write_me >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter2
 
 echo
-$sudo src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour 2>&1 \
-| _filter2
+$sudo src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter2
 cat >$tmp.root <<End-of-File
 root {
     pmcd
@@ -260,12 +264,12 @@ sampledso.long {
 End-of-File
 
 echo
-$sudo src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour 2>&1 \
-| _filter2
+$sudo src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter2
 
 echo
-$sudo src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now simple.now simple.now 2>&1 \
-| _filter2
+$sudo src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now simple.now simple.now >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter2
 
 # success, all done
 exit

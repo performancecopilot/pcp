@@ -266,6 +266,50 @@ __pmInitChannelLock(pthread_mutex_t *lock)
 #define __pmInitChannelLock(x)	do { } while (1)
 #endif
 
+static int
+ctxflags(__pmHashCtl *attrs)
+{
+    int flags = 0;
+    char *secure = NULL;
+    __pmHashNode *node;
+
+    if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
+	if (strcmp((char *)node->data, "pcps") == 0) {
+	    if ((node = __pmHashSearch(PCP_ATTR_SECURE, attrs)) != NULL)
+		secure = (char *)node->data;
+	    else
+		secure = "enforce";
+	}
+    }
+
+    if (!secure)
+	secure = getenv("PCP_SECURE_SOCKETS");
+
+    if (secure) {
+        if (secure[0] == '\0' ||
+	   (strcmp(secure, "1")) == 0 ||
+	   (strcmp(secure, "enforce")) == 0) {
+	    flags |= PM_CTXFLAG_SECURE;
+	} else if (strcmp(secure, "relaxed") == 0) {
+	    flags |= PM_CTXFLAG_RELAXED;
+	}
+    }
+
+    if (__pmHashSearch(PCP_ATTR_COMPRESS, attrs) != NULL)
+	flags |= PM_CTXFLAG_COMPRESS;
+
+    if (__pmHashSearch(PCP_ATTR_USERAUTH, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_AUTHNAME, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
+	flags |= PM_CTXFLAG_AUTH;
+
+    return flags;
+}
+
 int
 pmNewContext(int type, const char *name)
 {
@@ -333,33 +377,20 @@ INIT_CONTEXT:
     new->c_instprof->state = PM_PROFILE_INCLUDE;	/* default global state */
 
     if (new->c_type == PM_CONTEXT_HOST) {
+	__pmHashCtl	*attrs = &new->c_attrs;
 	pmHostSpec	*hosts;
 	int		nhosts;
 	char		*errmsg;
 
-	/* deconstruct a host[:port@proxy:port] specification */
-	sts = __pmParseHostSpec(name, &hosts, &nhosts, &errmsg);
+	/* break down a host[:port@proxy:port][?attributes] specification */
+	sts = __pmParseHostAttrsSpec(name, &hosts, &nhosts, attrs, &errmsg);
 	if (sts < 0) {
 	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
 	    pmflush();
 	    free(errmsg);
 	    goto FAILED;
-	} else if (sts > 0) {
-	    /* upgrade API request to secure channel, as hostspec demands it */
-	    new->c_flags |= sts;
 	} else {
-	    /* upgrade API request to secure channel, if environ requests it */
-	    char *secure = getenv("PCP_SECURE_SOCKETS");
-
-	    if (!secure) {
-		; /* leave secure connection flag as-is */
-	    } else if (secure[0] == '\0' ||
-	              (strcmp(secure, "1")) == 0 ||
-	              (strcmp(secure, "enforce")) == 0) {
-		new->c_flags |= PM_CTXFLAG_SECURE;
-	    } else if (strcmp(secure, "relaxed") == 0) {
-		new->c_flags |= PM_CTXFLAG_RELAXED;
-	    }
+	    new->c_flags |= ctxflags(attrs);
 	}
 
         /* As an optimization, if there is already a connection to the same PMCD,
@@ -388,9 +419,9 @@ INIT_CONTEXT:
 	     * If this fails, restore the original current context
 	     * and return an error.
 	     */
-	    sts = __pmConnectPMCD(hosts, nhosts, new->c_flags);
+	    sts = __pmConnectPMCD(hosts, nhosts, new->c_flags, &new->c_attrs);
 	    if (sts < 0) {
-		__pmFreeHostSpec(hosts, nhosts);
+		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
 		goto FAILED;
 	    }
 
@@ -398,7 +429,7 @@ INIT_CONTEXT:
 	    if (new->c_pmcd == NULL) {
 		sts = -oserror();
 		__pmCloseSocket(sts);
-		__pmFreeHostSpec(hosts, nhosts);
+		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
 		goto FAILED;
 	    }
 	    new->c_pmcd->pc_fd = sts;
@@ -409,12 +440,12 @@ INIT_CONTEXT:
 	}
 	else {
 	    /* duplicate of an existing context, don't need the __pmHostSpec */
-	    __pmFreeHostSpec(hosts, nhosts);
+	    __pmFreeHostAttrsSpec(hosts, nhosts, attrs);
 	}
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
-	if ((sts = __pmConnectLocal()) != 0)
+	if ((sts = __pmConnectLocal(&new->c_attrs)) != 0)
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
@@ -544,7 +575,8 @@ pmReconnectContext(int handle)
 	    ctl->pc_fd = -1;
 	}
 
-	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts, ctxp->c_flags)) < 0) {
+	if ((sts = __pmConnectPMCD(ctl->pc_hosts, ctl->pc_nhosts,
+				   ctxp->c_flags, &ctxp->c_attrs)) < 0) {
 	    waitawhile(ctl);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
@@ -590,7 +622,7 @@ pmDupContext(void)
 {
     int			sts, oldtype;
     int			old, new = -1;
-    char		hostspec[4096], *h;
+    char		hostspec[4096];
     __pmContext		*newcon, *oldcon;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
@@ -608,9 +640,8 @@ pmDupContext(void)
     oldcon = contexts[old];
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
-	h = &hostspec[0];
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
-			oldcon->c_pmcd->pc_nhosts, &h, sizeof(hostspec));
+			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
 	new = pmNewContext(oldtype, hostspec);
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)

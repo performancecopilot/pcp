@@ -42,6 +42,7 @@ ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
 	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
 endif
 
+.NOTPARALLEL:
 YFLAGS += -v
 gram.tab.h gram.tab.c:	gram.y
 	$(YACC) -d -b `basename $< .y` $<

@@ -20,8 +20,16 @@ else
     _notrun PM_MULTI_THREAD not defined in impl.h
 fi
 
+rm -f $seq.out $seq.full
+if [ $PCP_VER -ge 3800 ]
+then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter1()

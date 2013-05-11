@@ -195,7 +195,7 @@ again:
 		    goto again;
 	    }
 	    hp = NULL;
-	    fprintf(stderr, " hash control failure: %s\n", pmErrStr_r(-sts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, " hash control failure: %s\n", pmErrStr_r(-sts, errmsg, sizeof(errmsg)));
 	}
     }
 

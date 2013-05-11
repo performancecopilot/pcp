@@ -31,7 +31,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c
 
-HFILES = derive.h oldpmapi.h internal.h
+HFILES = derive.h internal.h
 
 ifneq "$(TARGET_OS)" "mingw"
 LSRCFILES = win32.c
@@ -50,13 +50,12 @@ LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) -lpcp_pmda
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
-ifneq "$(LIB_FOR_NSS)" ""
-LCFLAGS += $(NSSCFLAGS)
-LLDLIBS += $(LIB_FOR_NSS)
-endif
-ifneq "$(LIB_FOR_NSPR)" ""
-LCFLAGS += $(NSPRCFLAGS)
-LLDLIBS += $(LIB_FOR_NSPR)
+ifeq "$(ENABLE_SECURE)" "true"
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
+CFILES += nss_server.c nss_connect.c
+else
+LSRCFILES += nss_server.c nss_connect.c
 endif
 
 # same as libcp
@@ -93,7 +92,6 @@ endif
 include $(BUILDRULES)
 
 derive_fetch.o derive.o: derive.h
-p_error.o: oldpmapi.h
 context.o context.o derive.o fetch.o lock.o: internal.h
 
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h

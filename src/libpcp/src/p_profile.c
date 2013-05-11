@@ -129,8 +129,10 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
     instprof->state = ntohl(pduProfile->g_state);
     instprof->profile = NULL;
     instprof->profile_len = ntohl(pduProfile->numprof);
-    if (instprof->profile_len < 0)
-	return PM_ERR_IPC;
+    if (instprof->profile_len < 0) {
+	sts = PM_ERR_IPC;
+	goto fail;
+    }
 
     p += sizeof(profile_t) / sizeof(__pmPDU);
 

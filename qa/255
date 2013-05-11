@@ -223,23 +223,6 @@ end-of-file
 $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 # Do not restart pmcd here, do it after changing pmcd.conf later
 
-# Function to filter pminfo output
-#
-_filter()
-{
-    $PCP_AWK_PROG '
-BEGIN		{ value=0; metric=0; warn=0 }
-NF==0		{ next }
-/ value /	{ value++; next }
-/^'$1'/		{ metric++
-		  if ($0 !~ /:/) next
-		}
-		{ warn++ }
-END		{ if (warn) printf "%d warnings, ",warn
-		  printf "%d metrics and %d values\n",metric,value
-		}'
-}
-
 _renew_pmcd()
 {
     echo "=== Restarting PMCD with minimal PMDAs ==="

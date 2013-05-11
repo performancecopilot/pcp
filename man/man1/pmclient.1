@@ -37,12 +37,14 @@ performance metrics.
 .PP
 The real value of
 .B pmclient
-is as a sample client using the PMAPI, and to this end the source
-code is shipped on both Irix, where it is included in the 
-.I pcp.sw.demo
-images of the Performance Co-Pilot (PCP) product (see
+is as a sample client using the
+.BR PMAPI (3),
+interfaces and to this end the source
+code is included with the
+the Performance Co-Pilot (PCP) package (see
 .BR PCPIntro (1)),
-and on Linux, where it is included into the PCP Source RPM.
+and is typically installed in
+.IR /usr/share/pcp/demos/pmclient .
 .PP
 Normally
 .B pmclient
@@ -174,7 +176,7 @@ The
 variable may be used to specify an alternative
 configuration file,
 as described in
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
@@ -182,8 +184,8 @@ as described in
 .BR pmgenmap (1),
 .BR pmstat (1),
 .BR PMAPI (3),
-.BR pcp.conf (4)
+.BR pcp.conf (5)
 and
-.BR pcp.env (4).
+.BR pcp.env (5).
 .SH DIAGNOSTICS
 All are generated on standard error, and are intended to be self-explanatory.

@@ -88,6 +88,11 @@ extern int __pmGetInternalState(void);
 #define PROXY_PORT 44322
 
 /*
+ * port that clients connect to pmwebd(1) by default
+ */
+#define PMWEBD_PORT 44323
+
+/*
  * Internally, this is how to decode a PMID!
  * - flag is to denote state internally in some operations
  * - domain is usually the unique domain number of a PMDA, but DYNAMIC_PMID
@@ -267,6 +272,9 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
+#define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
+/* not yet allocated, bits (1<<25) ... (1<<29) */
+#define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
@@ -483,9 +491,37 @@ typedef struct {
     int		*ports;			/* array of host port numbers */
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
+
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
-extern void __pmUnparseHostSpec(pmHostSpec *, int, char **, int);
+extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
+
+typedef enum {
+    PCP_ATTR_NONE = 0,
+    PCP_ATTR_PROTOCOL,		/* either pcp:/pcps: protocol (libssl) */
+    PCP_ATTR_SECURE,		/* relaxed/enforced pcps mode (libssl) */
+    PCP_ATTR_COMPRESS,		/* compression flag, no value (libnss) */
+    PCP_ATTR_USERAUTH,		/* user auth flag, no value (libsasl) */
+    PCP_ATTR_USERNAME,		/* user login identity (libsasl) */
+    PCP_ATTR_AUTHNAME,		/* authentication name (libsasl) */
+    PCP_ATTR_PASSWORD,		/* passphrase-based secret (libsasl) */
+    PCP_ATTR_METHOD,		/* use authentication method (libsasl) */
+    PCP_ATTR_REALM,		/* realm to authenticate in (libsasl) */
+    PCP_ATTR_UNIXSOCK,		/* AF_UNIX socket + SO_PASSCRED (unix) */
+    PCP_ATTR_USERID,		/* uid - user identifier (posix) */
+    PCP_ATTR_GROUPID,		/* gid - group identifier (posix) */
+} __pmAttrKey;
+
+extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
+extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
+extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
+
+extern int __pmParseHostAttrsSpec(
+    const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
+extern int __pmUnparseHostAttrsSpec(
+    pmHostSpec *, int, __pmHashCtl *, char *, size_t);
+extern void __pmFreeHostAttrsSpec(pmHostSpec *, int, __pmHashCtl *);
+extern void __pmFreeAttrsSpec(__pmHashCtl *);
 
 /*
  * Control for connection to a PMCD
@@ -504,8 +540,8 @@ typedef struct {
     time_t		pc_again;	/* time to try again */
 } __pmPMCDCtl;
 
-extern int __pmConnectPMCD(pmHostSpec *, int, int);
-extern int __pmConnectLocal(void);
+extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
+extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 
@@ -518,8 +554,8 @@ extern void __pmConnectGetPorts(pmHostSpec *);
  */
 extern int __pmSecureServerSetup(const char *, const char *);
 extern void __pmSecureServerShutdown(void);
-extern int __pmSecureServerHandshake(int, int);
-extern int __pmSecureClientHandshake(int, int, const char *);
+extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
+extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
 
 #ifdef HAVE_SECURE_SOCKETS
 typedef struct {
@@ -567,7 +603,7 @@ extern int __pmSelectWrite(int, __pmFdSet *, struct timeval *);
 extern __pmSockAddr *__pmSockAddrAlloc(void);
 extern void	     __pmSockAddrFree(__pmSockAddr *);
 extern size_t	     __pmSockAddrSize(void);
-extern void	     __pmSockAddrInit(__pmSockAddr *, int, int);
+extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
 extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
@@ -579,12 +615,12 @@ extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern char *	     __pmSockAddrToString(__pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
-extern __pmSockAddr *__pmLoopBackAddress(void);
+extern __pmSockAddr *__pmLoopBackAddress(int);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);
 extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, void **);
-extern char *	     __pmHostEntGetName(const __pmHostEnt *);
+extern char *	     __pmHostEntGetName(__pmHostEnt *);
 
 extern __pmHostEnt * __pmGetAddrInfo(const char *);
 extern char *	     __pmGetNameInfo(__pmSockAddr *);
@@ -596,6 +632,7 @@ typedef enum {
     PM_SERVER_FEATURE_SECURE = 0,
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
+    PM_SERVER_FEATURE_AUTH,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -641,7 +678,8 @@ typedef struct {
     int			c_sent;		/* profile has been sent to pmcd */
     __pmProfile		*c_instprof;	/* instance profile */
     void		*c_dm;		/* derived metrics, if any */
-    int			c_flags;	/* various context flags, e.g. SECURE */
+    int			c_flags;	/* ctx flags (set via type/env/attrs) */
+    __pmHashCtl		c_attrs;	/* various optional context attributes */
 } __pmContext;
 
 #define __PM_MODE_MASK	0xffff
@@ -697,6 +735,7 @@ typedef struct {
 /* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
 #define PDU_FLAG_SECURE		(1U<<0)
 #define PDU_FLAG_COMPRESS	(1U<<1)
+#define PDU_FLAG_AUTH		(1U<<2)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -754,7 +793,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_NAMES		0x700e
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_FINISH		0x7010
+#define PDU_AUTH		0x7011
+#define PDU_FINISH		0x7011
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
 /*
@@ -810,6 +850,8 @@ extern int __pmSendChildReq(int, int, const char *, int);
 extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
+extern int __pmSendAuth(int, int, int, const char *, int);
+extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 

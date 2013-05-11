@@ -516,9 +516,8 @@ and
 .B "1:07 pm"
 are equivalent.
 .SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
-The number of performance metric names supported by PCP in IRIX
-is of the order of a few thousand. There are fewer metrics on Linux,
-but still a considerable number.
+The number of performance metric names supported by PCP on most
+platforms ranges from many hundreds to a few thousand.
 The PCP libraries and applications use an internal
 identification scheme that unambiguously associates a single
 integer with each known performance metric.
@@ -751,6 +750,15 @@ is called) or when requests are made against the PMNS.
 When set, this variable forces any monitor tool connections to be
 established using the certificate-based secure sockets feature.
 If the connections cannot be established securely, they will fail.
+.TP
+.B PCP_SECURE_DB_METHOD
+With secure socket connections, the certificate and key database is
+stored using the
+.B sql:
+method by default.  Use
+.B PCP_SECURE_DB_METHOD
+to override the default, most usually setting the value to the empty
+string (for the older database methods).
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable
@@ -1021,7 +1029,7 @@ been installed locally.
 If set,
 .BR pmieconf (1)
 will form its
-.BR pmieconf (4)
+.BR pmieconf (5)
 specification (set of parameterized
 .BR pmie (1)
 rules) using all valid
@@ -1035,7 +1043,7 @@ colon-separated list of subdirectories.  If not set, the default is
 .B /etc/pcp.conf
 Configuration file for the PCP runtime environment,
 see
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 .TP
 .B /etc/pki/nssdb
 Optionally contains a Network Security Services database with a
@@ -1124,7 +1132,7 @@ Directory containing the set of PMNS files for all installed PMDAs.
 .TP
 .B $PCP_VAR_DIR/pmns/root
 The ASCII
-.BR pmns (4)
+.BR pmns (5)
 exported by
 .BR pmcd (1)
 by default.  This PMNS is be the super set of all other PMNS files
@@ -1166,7 +1174,7 @@ The
 variable may be used to specify an alternative
 configuration file,
 as described in
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmie (1),
@@ -1178,10 +1186,10 @@ as described in
 .BR pmstat (1),
 .BR pmval (1),
 .BR pcp (1),
-.BR pcp.conf (4),
-.BR pcp.env (4),
+.BR pcp.conf (5),
+.BR pcp.env (5),
 and
-.BR pmns (4).
+.BR pmns (5).
 .PP
 If the PCP GUI package is installed, then the
 following entries are also relevant:

@@ -79,6 +79,7 @@ _await_logger()
 	    # ...but meant to die
 	    echo
 	    echo "primary pmlogger won't die, can't do QA test, ...giving up!"
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]PID'
 	    exit 1
 	fi
     else
@@ -90,6 +91,9 @@ _await_logger()
 	    echo "primary pmlogger won't start, can't do QA test, ...giving up!"
 	    echo "pmlogger log file:"
 	    cat $log
+	    echo "pmlogger sh log:"
+	    cat $tmp/sh.log
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]PID'
 	    exit 1
 	else
 	    echo "primary pmlogger terminated"
@@ -150,6 +154,10 @@ _await_logger false
 if mkdir $tmp
 then
     cd $tmp
+    # since we now run pmlogger as user/group pcp/pcp when -P is
+    # specified, need to make this directory writeable
+    #
+    chmod 777 .
 else
     echo "Unable to create working directory $tmp, ...giving up!"
     exit 1
@@ -178,7 +186,7 @@ echo "starting test pmlogger..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST" >/dev/null 2>&1 & ) >/dev/null 2>&1
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 
@@ -196,6 +204,7 @@ if [ -s $errors ]
 then
     echo Errors: | tee -a $here/$seq.full
     _filter < $errors
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]PID'
     exit 1
 fi
 
@@ -274,7 +283,7 @@ echo "starting new pmlogger for advisory & mandatory tests..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST2" >/dev/null 2>&1 & ) >/dev/null 2>&1
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST2" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 
@@ -297,6 +306,8 @@ then
     cat $log
     echo Errors: | tee -a $seq.full
     _filter < $errors
+    echo "pmlogger sh log:"
+    cat $tmp/sh.log
     exit 1
 fi
 
@@ -350,7 +361,7 @@ echo "starting new pmlogger for mandatory tests..."
 #
 # extra parentheses and I/O redirection so that shell doesn't print pid
 #
-( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST3" >/dev/null 2>&1 & ) >/dev/null 2>&1
+( sh -c "$sudo $PCP_BINADM_DIR/pmlogger -P -c $config -l $log TEST3" >$tmp/sh.log 2>&1 & ) >/dev/null 2>&1
 _await_logger true
 _wait_for_pmlogger $logger_pid $log
 

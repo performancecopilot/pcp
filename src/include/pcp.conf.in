@@ -74,7 +74,7 @@ PCP_INC_DIR=@pcp_inc_dir@
 
 # parent directory of man pages
 # Standard path: /usr/man
-# Subdirectories: man1 man3 man4
+# Subdirectories: man1 man3 man5
 PCP_MAN_DIR=@pcp_man_dir@
 
 # directory for non-shared (i.e. system local) PCP files
@@ -97,6 +97,10 @@ PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
 # path to pmproxy options file
 # Standard path: $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+
+# path to pmwebd options file
+# Standard path: $PCP_SYSCONF_DIR/pmwebd/pmwebd.options
+PCP_PMWEBDOPTIONS_PATH=@pcp_pmwebdoptions_path@
 
 # path to pmie control file
 # Standard path: $PCP_SYSCONF_DIR/pmie/control

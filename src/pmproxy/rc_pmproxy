@@ -86,7 +86,7 @@ _shutdown()
     _get_pids_by_name pmproxy >$tmp/tmp
     if [ ! -s $tmp/tmp ]
     then
-	[ "$1" = verbose ] && echo "$pmprog: PMPROXY not running"
+	[ "$1" = verbose ] && echo "$pmprog: pmproxy not running"
 	return 0
     fi
 
@@ -96,7 +96,7 @@ _shutdown()
     # Wait for pmproxy to terminate.
     #
     pmsignal -a -s TERM pmproxy > /dev/null 2>&1
-    $ECHO $PCP_ECHO_N "Waiting for PMPROXY to terminate ...""$PCP_ECHO_C"
+    $ECHO $PCP_ECHO_N "Waiting for pmproxy to terminate ...""$PCP_ECHO_C"
     gone=0
     for i in 1 2 3 4 5 6
     do
@@ -109,7 +109,7 @@ _shutdown()
 	fi
 
 	# If pmproxy doesn't go in 15 seconds, SIGKILL and sleep 1 more time
-	# to allow any clients reading from PMPROXY sockets to fail so that
+	# to allow any clients reading from pmproxy sockets to fail so that
 	# socket doesn't end up in TIME_WAIT or somesuch.
 	#
 	if [ $i = 5 ]
@@ -122,7 +122,7 @@ _shutdown()
 	    do
 		$PCP_AWK_PROG <$tmp/ps "\$2 == $pid { print }"
 	    done
-	    echo "$prog: Warning: Forcing PMPROXY to terminate!"
+	    echo "$prog: Warning: Forcing pmproxy to terminate!"
 	    pmsignal -a -s KILL pmproxy > /dev/null 2>&1
 	else
 	    $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
@@ -132,7 +132,7 @@ _shutdown()
     then
 	echo "Process ..."
 	cat $tmp/tmp
-	echo "$prog: Warning: PMPROXY won't die!"
+	echo "$prog: Warning: pmproxy won't die!"
 	exit
     fi
     $RC_STATUS -v 
@@ -174,7 +174,7 @@ then
 	: running in a non-default installation, do not need to be root
     else
 	echo "$prog:"'
-Error: You must be root (uid 0) to start or stop the PCP PMPROXY daemon.'
+Error: You must be root (uid 0) to start or stop the PCP pmproxy daemon.'
 	exit
     fi
 fi
@@ -206,7 +206,7 @@ case "$1" in
 
 	_shutdown quietly
 
-	# PMPROXY messages should go to stderr, not the GUI notifiers
+	# pmproxy messages should go to stderr, not the GUI notifiers
 	#
 	unset PCP_STDERR
 
@@ -215,13 +215,13 @@ case "$1" in
 	    if [ ! -f $PCP_PMPROXYCONF_PATH ]
 	    then
 		echo "$prog:"'
-Error: PMPROXY control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start PMPROXY.'
+Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmproxy.'
 		exit
 	    fi
 	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
 	    cd $RUNDIR
 
-	    # salvage the previous versions of any PMPROXY
+	    # salvage the previous versions of any pmproxy
 	    #
 	    if [ -f pmproxy.log ]
 	    then
@@ -229,7 +229,7 @@ Error: PMPROXY control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start PMP
 		mv pmproxy.log pmproxy.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting PMPROXY (logfile is $RUNDIR/pmproxy.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmproxy (logfile is $RUNDIR/pmproxy.log) ..." "$PCP_ECHO_C"
 
 	    # options file processing ...
 	    # only consider lines which start with a hyphen
@@ -270,7 +270,7 @@ END			{ if (exports != "") print "export", exports }'`
 
   'status')
 	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
-	$ECHO $PCP_ECHO_N "Checking for PMPROXY:" "$PCP_ECHO_C"
+	$ECHO $PCP_ECHO_N "Checking for pmproxy:" "$PCP_ECHO_C"
         if [ -r /etc/rc.status ]
         then
             # SuSE

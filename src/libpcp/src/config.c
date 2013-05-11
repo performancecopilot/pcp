@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -273,6 +273,18 @@ static const char *disabled(void) { return "false"; }
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
 static const char *pmapi_version(void) { return TO_STRING(PMAPI_VERSION); }
+static const char *pcp_version(void) { return PCP_VERSION; }
+#if defined(HAVE_SECURE_SOCKETS)
+#include "nss.h"
+#include "nspr.h"
+#include "sasl.h"
+static const char *nspr_version(void) { return PR_VERSION; }
+static const char *nss_version(void) { return NSS_VERSION; }
+static const char *sasl_version_string(void)
+{
+    return TO_STRING(SASL_VERSION_MAJOR.SASL_VERSION_MINOR.SASL_VERSION_STEP);
+}
+#endif
 
 static const char *
 ipv6_enabled(void)
@@ -296,8 +308,10 @@ ipv6_enabled(void)
 #endif
 #if defined(HAVE_SECURE_SOCKETS)
 #define SECURE_SOCKETS_ENABLED	enabled
+#define AUTHENTICATION_ENABLED	enabled
 #else
 #define SECURE_SOCKETS_ENABLED	disabled
+#define AUTHENTICATION_ENABLED	disabled
 #endif
 
 typedef const char *(*feature_detector)(void);
@@ -305,11 +319,18 @@ static struct {
 	const char 		*feature;
 	feature_detector	detector;
 } features[] = {
+	{ "pcp_version",	pcp_version },
 	{ "pmapi_version",	pmapi_version },
+#if defined(HAVE_SECURE_SOCKETS)
+	{ "nss_version",	nss_version },
+	{ "nspr_version",	nspr_version },
+	{ "sasl_version",	sasl_version_string },
+#endif
 	{ "multi_threaded",	MULTI_THREAD_ENABLED },
 	{ "fault_injection",	FAULT_INJECTION_ENABLED },
-	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },
+	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },	/* from pcp-3.7.x */
 	{ "ipv6",		ipv6_enabled },
+	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
 };
 
 void

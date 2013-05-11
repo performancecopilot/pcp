@@ -1,12 +1,12 @@
 # migrate and clean configs
 echo >>$PCP_LOG_DIR/install.log
 date >>$PCP_LOG_DIR/install.log
-for base in pmcd pmie pmlogger pmproxy
+for base in pmcd pmie pmlogger pmwebd pmproxy
 do
     _clean_configs -v 2>>$PCP_LOG_DIR/install.log $PCP_SYSCONF_DIR/$base /var/lib/pcp/config/$base /etc/$base /etc/pcp/$base /etc/sysconfig/$base
 done
 
-for svc in pmproxy pmie pmlogger pmcd pcp 
+for svc in pmproxy pmwebd pmie pmlogger pmcd pcp 
 do
     [ -f $PCP_RC_DIR/$svc ] && $PCP_RC_DIR/$svc stop
     if which rc-update >/dev/null 2>&1
@@ -23,7 +23,7 @@ done
 for conf in \
     $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH $PCP_PMCDRCLOCAL_PATH \
     $PCP_PMIECONTROL_PATH $PCP_PMLOGGERCONTROL_PATH \
-    $PCP_PMPROXYOPTIONS_PATH
+    $PCP_PMPROXYOPTIONS_PATH $PCP_PMWEBDOPTIONS_PATH
 do
     if [ -f "$conf" ]
     then

@@ -60,9 +60,11 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
 	    -e's|@package_builder@|$(PACKAGE_BUILDER)|g' \
+	    -e's|@have_libmicrohttpd@|$(HAVE_LIBMICROHTTPD)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
+	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 
 include $(BUILDRULES)

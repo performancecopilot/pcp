@@ -82,16 +82,48 @@ getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 timevalSleep(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    struct timeval *ctvp;
-    char *keyword_list[] = {"timeval", NULL};
+    struct timeval ctv;
+    long seconds, useconds;
+    char *keyword_list[] = {"seconds", "useconds", NULL};
     extern void __pmtimevalSleep(struct timeval);
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "O:pmtimevalSleep", keyword_list, &ctvp))
+                        "ll:pmtimevalSleep", keyword_list, &seconds, &useconds))
         return NULL;
-    __pmtimevalSleep(*ctvp);
+    ctv.tv_sec = seconds;
+    ctv.tv_usec = useconds;
+    __pmtimevalSleep(ctv);
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject *
+timevalToReal(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    struct timeval ctv;
+    long seconds, useconds;
+    char *keyword_list[] = {"seconds", "useconds", NULL};
+    extern double __pmtimevalToReal(const struct timeval *);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "ll:pmtimevalToReal", keyword_list, &seconds, &useconds))
+        return NULL;
+    ctv.tv_sec = seconds;
+    ctv.tv_usec = useconds;
+    return Py_BuildValue("d", __pmtimevalToReal(&ctv));
+}
+
+static PyObject *
+setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *name;
+    char *keyword_list[] = {"name", NULL};
+    extern int __pmSetProcessIdentity(const char *);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "s:pmSetProcessIdentity", keyword_list, &name))
+        return NULL;
+    return Py_BuildValue("i", __pmSetProcessIdentity(name));
 }
 
 static PyMethodDef methods[] = {
@@ -100,6 +132,10 @@ static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_GET", .ml_meth = (PyCFunction)getExtendedTimeBase,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmtimevalSleep", .ml_meth = (PyCFunction)timevalSleep,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmtimevalToReal", .ml_meth = (PyCFunction)timevalToReal,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmSetProcessIdentity", .ml_meth = (PyCFunction)setIdentity,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { NULL }
 };

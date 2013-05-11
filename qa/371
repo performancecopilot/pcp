@@ -59,18 +59,18 @@ cat <<'End-of-File' >$tmp.mapfile
     <metric pmid="60.0.22" units="0,1,0,0,PM_TIME_MSEC,0" fungus="bogus"
 	type="PM_TYPE_U64" sem="PM_SEM_COUNTER">
 	kernel.all.cpu.sys</metric>
-    <metric pmid="60.0">bad.pmid.1</metric>
-    <metric pmid="6x.0.2">bad.pmid.2</metric>
-    <metric indom="60.0.0">bad.indom.1</metric>
-    <metric indom="60">bad.indom.2</metric>
-    <metric indom="bozo">bad.indom.3</metric>
-    <metric units="0,0,0,0,0">bad.units.1</metric>
-    <metric units="0,0,0,0,0,0,0">bad.units.2</metric>
-    <metric units="BOZO,0,0,PM_SPACE_BOZO,0,0,">bad.units.3</metric>
-    <metric units="1,0,0,PM_SPACE_BOZO,0,0,">bad.units.4</metric>
-    <metric type="PM_TYPE_FOO">bad.type.1</metric>
-    <metric type="">bad.type.2</metric>
-    <metric sem="PM_SEM_FOO">bad.sem.1</metric>
+    <metric pmid="60.0">bad.pmid.one</metric>
+    <metric pmid="6x.0.2">bad.pmid.two</metric>
+    <metric indom="60.0.0">bad.indom.one</metric>
+    <metric indom="60">bad.indom.two</metric>
+    <metric indom="bozo">bad.indom.three</metric>
+    <metric units="0,0,0,0,0">bad.units.one</metric>
+    <metric units="0,0,0,0,0,0,0">bad.units.two</metric>
+    <metric units="BOZO,0,0,PM_SPACE_BOZO,0,0,">bad.units.three</metric>
+    <metric units="1,0,0,PM_SPACE_BOZO,0,0,">bad.units.four</metric>
+    <metric type="PM_TYPE_FOO">bad.type.one</metric>
+    <metric type="">bad.type.two</metric>
+    <metric sem="PM_SEM_FOO">bad.sem.one</metric>
     <metric sem="PM_SEM_COUNTER"></metric>	<!-- no metric name -->
     <datetime monkey="true"></datetime>
     <data hi="ho">badmetricname</data>
@@ -168,10 +168,10 @@ cat <<'End-of-File' >$tmp.mapfile
 	kernel.percpu.cpu.sys</metric>
     <metric pmid="60.0.32" type="PM_TYPE_U32" sem="PM_SEM_DISCRETE">
 	hinv.ncpu</metric>
-    <metric pmid="PM_ID_NULL">good.pmid.1</metric>
-    <metric pmid="PMI_DOMAIN.0.63">good.pmid.2</metric>
-    <metric indom="PM_INDOM_NULL">good.indom.1</metric>
-    <metric indom="PMI_DOMAIN.27">good.indom.2</metric>
+    <metric pmid="PM_ID_NULL">good.pmid.one</metric>
+    <metric pmid="PMI_DOMAIN.0.63">good.pmid.two</metric>
+    <metric indom="PM_INDOM_NULL">good.indom.one</metric>
+    <metric indom="PMI_DOMAIN.27">good.indom.two</metric>
     <datetime></datetime>
     <data>hinv.ncpu</data>
     <data>kernel.percpu.cpu.sys[cpu0]</data>

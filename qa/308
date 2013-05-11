@@ -18,15 +18,19 @@ _filter()
     # some of this is because Linux and IRIX mixes produce different
     # PIDs for the proc metrics, and the name of the init process is
     # different
+    # And on some Linux systems (e.g. Fedora 18), pid 1 is not init, but
+    # /usr/lib/systemd/systemd --switched-root --system --deserialize ...
     #
     _filter_pmdumplog \
     | grep proc.psinfo.ppid \
     | sed -e 's/000*/zeroes.../' \
 	  -e 's/ 60\.8\.3 / PID /' \
 	  -e 's/ 3\.1\.8 / PID /' \
+	  -e 's/ 3\.8\.3 / PID /' \
 	  -e 's/ init \[[0-9]*]/ init/' \
-	  -e 's/ \/etc\/init/ init/' \
-	  -e 's/ \/sbin\/init/ init/' \
+	  -e 's/ \/etc\/init\([ "]\)/ init\1/' \
+	  -e 's/ \/sbin\/init\([ "]\)/ init\1/' \
+	  -e 's/ \/usr\/lib\/systemd\/systemd\([ "]\)/ init\1/' \
 	  -e 's/init .*"/init"/'
 }
 
@@ -54,6 +58,30 @@ echo "QA output created by $seq"
 rm -f $seq.full
 echo "host1=$host1" >>$seq.full
 echo "host2=$host2" >>$seq.full
+done_clean=false
+
+install_on_cleanup=false
+pminfo proc >/dev/null 2>&1 && install_on_cleanup=true
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/proc; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/proc; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	done_clean=true
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+( cd $PCP_PMDAS_DIR/proc; $sudo ./Install </dev/null >/dev/null 2>&1 )
 
 # real QA test starts here
 
@@ -65,6 +93,13 @@ s/^[^"]*"/"/
 s/] value .*//
 p
 }'`
+
+if [ -z "$inst" ]
+then
+    echo "Arrgh ... cannot find inst for local pid 1" | tee -a $seq.full
+    pminfo -F proc.psinfo.ppid >>$seq.full
+    exit
+fi
 
 echo "inst=$inst" >>$seq.full
 ps $PCP_PS_ALL_FLAGS | egrep "PID|$inst" >>$seq.full
@@ -120,6 +155,12 @@ s/^[^"]*"/"/
 s/] value .*//
 p
 }'`
+if [ -z "$inst" ]
+then
+    echo "Arrgh ... cannot find inst for host $host1 pid 1" | tee -a $seq.full
+    pminfo -F -h $host1 proc.psinfo.ppid >>$seq.full
+    exit
+fi
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file
@@ -185,6 +226,12 @@ s/^[^"]*"/"/
 s/] value .*//
 p
 }'`
+if [ -z "$inst" ]
+then
+    echo "Arrgh ... cannot find inst for host $host2 pid 1" | tee -a $seq.full
+    pminfo -F -h $host2 proc.psinfo.ppid >>$seq.full
+    exit
+fi
 cat <<end-of-file >$tmp.conf
 log advisory on once { proc.psinfo.ppid[$inst] }
 end-of-file

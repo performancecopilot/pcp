@@ -17,8 +17,6 @@
  */
 
 #include "pmcd.h"
-#define SOCKET_INTERNAL
-#include "internal.h"
 
 #ifdef IS_SOLARIS
 #define _REENTRANT
@@ -107,7 +105,7 @@ pmcd_dump_trace(FILE *f)
     int			p;
     struct tm		last = { 0, 0 };
     struct tm		*this;
-    char		strbuf[46];	// max size for PR_NetAddrToString()
+    char		strbuf[20];
 
     if ((_pmcd_trace_mask & TR_MASK_NOBUF) == 0)
 	fprintf(f, "\n->PMCD event trace: ");
@@ -145,7 +143,6 @@ pmcd_dump_trace(FILE *f)
 		    {
 			ClientInfo	*cip;
 
-
 			fprintf(f, "New client: [%d] ", trace[p].t_who);
 			cip = GetClient(trace[p].t_who);
 			if (cip == NULL) {
@@ -153,36 +150,15 @@ pmcd_dump_trace(FILE *f)
 			}
 			else {
 			    __pmSockAddr	*saddr = (__pmSockAddr *)cip->addr;
-#ifdef HAVE_SECURE_SOCKETS
-			    int			sts;
-			    switch (saddr->sockaddr.raw.family) {
-				case PR_AF_INET:
-				case PR_AF_INET6:
-					sts = PR_NetAddrToString(&saddr->sockaddr, strbuf, sizeof(strbuf));
-					if (sts == PR_SUCCESS)
-					    fprintf(f, "addr=%s", strbuf);
-					else
-					    fprintf(f, "secure family=%d PR_NetAddrToString: Error: %d", saddr->sockaddr.raw.family, PR_GetError());
-					break;
-				default:
-					fprintf(f, "secure unknown family=%d", saddr->sockaddr.raw.family);
-					break;
+			    char		*addrbuf;
+
+			    addrbuf = __pmSockAddrToString(saddr);
+			    if (addrbuf == NULL)
+				fprintf(f, "invalid socket address");
+			    else {
+				fprintf(f, "addr=%s", addrbuf);
+				free(addrbuf);
 			    }
-#else
-			    switch (saddr->sockaddr.raw.sa_family) {
-				case AF_INET:
-					inet_ntop(AF_INET, (void *)&saddr->sockaddr.inet.sin_addr, strbuf, sizeof(strbuf));
-					    fprintf(f, "addr=%s", strbuf);
-					break;
-				case AF_INET6:
-					inet_ntop(AF_INET6, (void *)&saddr->sockaddr.ipv6.sin6_addr, strbuf, sizeof(strbuf));
-					    fprintf(f, "addr=%s", strbuf);
-					break;
-				default:
-					fprintf(f, "unknown family=%d", saddr->sockaddr.raw.sa_family);
-					break;
-			    }
-#endif
 			    fprintf(f, ", fd=%d, seq=%u\n", cip->fd, cip->seq);
 			}
 		    }

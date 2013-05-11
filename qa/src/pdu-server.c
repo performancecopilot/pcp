@@ -18,6 +18,7 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 #include <strings.h>
+#include "localconfig.h"
 
 static int	raw;		/* if set, echo PDUs, do not decode/encode */
 
@@ -55,7 +56,9 @@ decode_encode(int fd, __pmPDU *pb, int type)
     char	*name;
     __pmInResult	*inres;
     int		control;
+    int		length;
     int		state;
+    int		attr;
     int		rate;
     int		ident;
     int		txtype;
@@ -299,6 +302,36 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    fail = 0;
 	    free(buffer);
 	    break;
+
+#if PCP_VER >= 3800
+	case PDU_AUTH:
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &length)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeAuth: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		char	buf[32] = { 0 };
+
+		fprintf(stderr, "+ PDU_AUTH: attr=%d length=%d", attr, length);
+		if (length < sizeof(buf)-2) {
+                    strncpy(buf, buffer, length);
+		    fprintf(stderr, " value=\"%s\"\n", buf);
+		} else {
+                    strncpy(buf, buffer, sizeof(buf)-2);
+		    fprintf(stderr, " value=\"%12.12s ... ", buf);
+                    strncpy(buf, &buffer[length-18], sizeof(buf)-2);
+		    fprintf(stderr, "%s\"\n", buf);
+		}
+	    }
+#endif
+	    if ((e = __pmSendAuth(fd, mypid, attr, buffer, length)) < 0) {
+		fprintf(stderr, "%s: Error: SendAuth: %s\n", pmProgname, pmErrStr(e));
+		break;
+	    }
+	    fail = 0;
+	    break;
+#endif
 
 	case PDU_CREDS:
 	    if ((e = __pmDecodeCreds(pb, &sender, &count, &creds)) < 0) {

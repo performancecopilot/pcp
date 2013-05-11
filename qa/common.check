@@ -83,11 +83,26 @@ _check_freespace()
 _check_agent() 
 {
     agent=$1
+    quiet=$2
     sts=0
 
-    pminfo -f $agent 2>&1 | _filter $agent > $tmp.fetch 2>&1
+    [ X"$quiet" = "X" ] && quiet=false
+
+    pminfo -f $agent 2>&1 | \
+        $PCP_AWK_PROG '
+BEGIN           { value=0; metric=0; warn=0 }
+NF==0           { next }
+/ value /       { value++; next }
+/^'$agent'/         { metric++
+                  if ($0 !~ /:/) next
+		}
+		{ warn++ }
+END             { if (warn) printf "%d warnings, ",warn
+		  printf "%d metrics and %d values\n",metric,value
+		}' > $tmp.fetch 2>&1
+
     pminfo -v $agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
-    cat $tmp.fetch
+    $quiet || cat $tmp.fetch
     if grep warnings $tmp.fetch > /dev/null 2>&1
     then
 	# X warnings, Y metrics and Z values
@@ -202,10 +217,10 @@ _wait_for_pmcd()
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
 		echo "likely looking processes ..."
-		ps "$PCP_PS_ALL_FLAGS" | egrep "pm|PPID"
+		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
 		;;
 	    *)
-		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"pm|PPID\" )'" </dev/null
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
 	status=2
@@ -306,7 +321,7 @@ _wait_for_pmlogger()
 	    fi
 	fi
 	base=`cat $_logfile | sed -n '/^Archive basename:[ 	]*/s///p'`
-	if [ -f $base.0 ]
+	if [ -n "$base" -a -f $base.0 ]
 	then
 	    echo "archive created ..."
 	    pmdumplog -l $base.0
@@ -319,7 +334,7 @@ _wait_for_pmlogger()
 	echo "local pmlogger map ..."
 	for map in $PCP_TMP_DIR/pmlogger/*
 	do
-	    if [ "`echo $map`" = '$PCP_TMP_DIR/pmlogger/*' ]
+	    if [ "`echo $map`" = "$PCP_TMP_DIR"'/pmlogger/*' ]
 	    then
 		echo "No files in $PCP_TMP_DIR/pmlogger !?"
 	    else
@@ -329,7 +344,7 @@ _wait_for_pmlogger()
 	done
 	echo
 	echo "Likely looking processes ..."
-	ps $PCP_PS_ALL_FLAGS | egrep 'pm|PPID'
+	ps $PCP_PS_ALL_FLAGS | egrep '[p]m|[P]ID'
 	status=2
 	exit $status
     fi
@@ -763,11 +778,14 @@ END									{ print "End-of-List" }'
 	    #	        UP LOOPBACK RUNNING  MTU:16436  Metric:1
 	    #	        ...
 	    #
+	    # Note addr: tag is not present in some ifconfig output
+	    #
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^lo/						{ skip=1; next }
 skip == 1 && NF > 0				{ next }
 skip == 1 					{ skip = 0 }
 $1 == "inet" && $2 ~ /addr:/			{ print $2 }
+$1 == "inet" && $2 ~ /^[0-9]/			{ print $2 }
 END						{ print "End-of-List" }' \
 	    | sed -e 's/addr://' >$tmp._addr
 	else
@@ -845,12 +863,17 @@ END									{ print "End-of-List" }'
 #           collisions:0 txqueuelen:3
 #           RX bytes:7017171 (6.6 Mb)  TX bytes:3952015 (3.7 Mb)
 	    #
+	    # Note addr: tag is not present in some ifconfig output,
+	    #      AND UP comes first!
+	    #
 	    $PCP_AWK_PROG <$tmp._tmp '
 /^[a-z]/					{ loopback = 0 }
 /^lo/						{ loopback = 1; next }
 $1 == "inet" && $2 ~ /addr:/			{ save = $2; next }
-/UP.*RUNNING/					{ if (loopback == 0)
+$1 == "inet" && $2 ~ /^[0-9]/			{ save = $2; next }
+$1 == "TX"					{ if (loopback == 0 && save != 0)
 						    print save
+						  save = 0
 						}
 END						{ print "End-of-List" }' \
 	    | sed -e 's/addr://' >$tmp._addr

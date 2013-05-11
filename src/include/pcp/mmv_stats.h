@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (C) 2013 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
+ * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +23,7 @@ extern "C" {
 #define MMV_NAMEMAX	64
 #define MMV_STRINGMAX	256
 
-typedef enum {
+typedef enum mmv_metric_type {
     MMV_TYPE_NOSUPPORT = PM_TYPE_NOSUPPORT,
     MMV_TYPE_I32       = PM_TYPE_32,	/* 32-bit signed integer */
     MMV_TYPE_U32       = PM_TYPE_U32,	/* 32-bit unsigned integer */
@@ -34,18 +35,18 @@ typedef enum {
     MMV_TYPE_ELAPSED   = 9,		/* 64-bit elapsed time */
 } mmv_metric_type_t;
 
-typedef enum {
+typedef enum mmv_metric_sem {
     MMV_SEM_COUNTER	= PM_SEM_COUNTER,
     MMV_SEM_INSTANT	= PM_SEM_INSTANT,
     MMV_SEM_DISCRETE	= PM_SEM_DISCRETE,
 } mmv_metric_sem_t;
 
-typedef struct {
+typedef struct mmv_instances {
     __int32_t		internal;	/* Internal instance ID */
     char		external[MMV_NAMEMAX];	/* External instance ID */
 } mmv_instances_t;
 
-typedef struct {
+typedef struct mmv_indom {
     __uint32_t		serial;		/* Unique identifier */
     __uint32_t		count;		/* Number of instances */
     mmv_instances_t *	instances;	/* Internal/external IDs */
@@ -53,7 +54,7 @@ typedef struct {
     char *		helptext;	/* Long help text string */
 } mmv_indom_t;
 
-typedef struct {
+typedef struct mmv_metric {
     char		name[MMV_NAMEMAX];
     __uint32_t		item;		/* Unique identifier */
     mmv_metric_type_t	type;
@@ -70,7 +71,7 @@ typedef struct {
 #define MMV_UNITS(a,b,c,d,e,f)	{0,f,e,d,c,b,a}
 #endif
 
-typedef enum {
+typedef enum mmv_stats_flags {
     MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
     MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
 } mmv_stats_flags_t;

@@ -1036,7 +1036,6 @@ _install()
 		    else
 			break
 		    fi
-		else
 		elif [ "X$pmda_type" = Xpython ]
 		then
 		    python -c 'from pcp import pmda' 2>/dev/null
@@ -1075,7 +1074,10 @@ _install()
 	    :	# we can safely skip building binaries
 	elif [ -f Makefile -o -f makefile -o -f GNUmakefile ]
 	then
-	    if [ ! -f "$PCP_MAKE_PROG" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	    # $PCP_MAKE_PROG may contain command line args ... executable
+	    # is first word
+	    #
+	    if [ ! -f "`echo $PCP_MAKE_PROG | sed -e 's/ .*//'`" -o ! -f "$PCP_INC_DIR/pmda.h" ]
 	    then
 		echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
 		exit 1

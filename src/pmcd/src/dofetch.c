@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -235,12 +235,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = aPtr->ipc.dso.dispatch.version.four.profile(cPtr->profile[ctxnum],
-				     aPtr->ipc.dso.dispatch.version.four.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.two.profile(cPtr->profile[ctxnum],
-				     aPtr->ipc.dso.dispatch.version.two.ext);
+	    sts = aPtr->ipc.dso.dispatch.version.any.profile(cPtr->profile[ctxnum],
+				     aPtr->ipc.dso.dispatch.version.any.ext);
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
@@ -265,14 +261,9 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	if (aPtr->ipcType == AGENT_DSO) {
 	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		aPtr->ipc.dso.dispatch.version.four.ext->e_context = cPtr - client;
-	    if (aPtr->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = aPtr->ipc.dso.dispatch.version.four.fetch(dpList->listSize,
+	    sts = aPtr->ipc.dso.dispatch.version.any.fetch(dpList->listSize,
 				   dpList->list, &result, 
-				   aPtr->ipc.dso.dispatch.version.four.ext);
-	    else
-		sts = aPtr->ipc.dso.dispatch.version.two.fetch(dpList->listSize,
-				   dpList->list, &result, 
-				   aPtr->ipc.dso.dispatch.version.two.ext);
+				   aPtr->ipc.dso.dispatch.version.any.ext);
 	    if (sts >= 0) {
 		if (result == NULL) {
 		    __pmNotifyErr(LOG_WARNING,

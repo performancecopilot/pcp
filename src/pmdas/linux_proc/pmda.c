@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012 Red Hat, Inc. All Rights Reserved.
+ * Portions Copyright (c) 2012-2013 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -979,7 +979,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sscanf(f, "%lu", &ul);
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 		break;
-	    
+
 	    case PROC_PID_STAT_PRIORITY:
 	    case PROC_PID_STAT_NICE:
 		/*
@@ -1331,7 +1331,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
     }
 
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 
@@ -1398,6 +1398,22 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static int
+proc_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
+{
+    if (pmDebug & DBG_TRACE_AUTH) {
+	char buffer[256];
+
+	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
+	} else {
+	    buffer[sizeof(buffer)-1] = '\0';
+	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+	}
+    }
+    return 0;
+}
+
 int
 proc_metrictable_size(void)
 {
@@ -1417,19 +1433,21 @@ proc_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "proc DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "proc DSO", helppath);
     }
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_AUTH;
 
-    dp->version.four.instance = proc_instance;
-    dp->version.four.store = proc_store;
-    dp->version.four.fetch = proc_fetch;
-    dp->version.four.text = proc_text;
-    dp->version.four.pmid = proc_pmid;
-    dp->version.four.name = proc_name;
-    dp->version.four.children = proc_children;
+    dp->version.six.instance = proc_instance;
+    dp->version.six.store = proc_store;
+    dp->version.six.fetch = proc_fetch;
+    dp->version.six.text = proc_text;
+    dp->version.six.pmid = proc_pmid;
+    dp->version.six.name = proc_name;
+    dp->version.six.children = proc_children;
+    dp->version.six.attribute = proc_attribute;
     pmdaSetFetchCallBack(dp, proc_fetchCallBack);
 
     /*
@@ -1493,7 +1511,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, PROC, "proc.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
     while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
 	switch (c) {

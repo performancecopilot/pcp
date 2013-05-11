@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -706,12 +707,13 @@ pmdaStore(pmResult *result, pmdaExt *pmda)
 }
 
 /*
- * Expect these ones ...
- *	pmdaPMID()
- *	pmdaName()
- *	pmdaChildren()
+ * Expect routines pmdaPMID(), pmdaName() and pmdaChildren() below
  * to be overridden with real routines for any PMDA that is
  * using PMDA_INTERFACE_4 or later and supporting dynamic metrics.
+ *
+ * Expect the pmdaAttribute() routine to be overridden with a real
+ * routine for a PMDA using PMDA_INTERFACE_6 or later supporting
+ * metrics whose behaviour depends on clients being authenticated.
  *
  * These implementations are stubs that return appropriate errors
  * if they are ever called.
@@ -733,4 +735,10 @@ int
 pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
     return PM_ERR_NAME;
+}
+
+int
+pmdaAttribute(int context, int attribute, const char *value, int size, pmdaExt *pmda)
+{
+    return 0;	/* simply ignore everything by default */
 }

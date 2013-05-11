@@ -16,16 +16,21 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if [ $PCP_PLATFORM = irix ]
 then
-    ln $seq.irix $seq.out
+    ln $seq.irix $seq.out || exit 1
 elif [ $PCP_PLATFORM = linux ]
 then
-    ln $seq.linux $seq.out
+    if [ $PCP_VER -lt 3702 ]
+    then
+	ln $seq.linux $seq.out || exit 1
+    else
+	ln $seq.linux.2 $seq.out || exit 1
+    fi
 elif [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin $seq.out
+    ln $seq.darwin $seq.out || exit 1
 elif [ $PCP_PLATFORM = solaris ]
 then
-    ln $seq.solaris $seq.out
+    ln $seq.solaris $seq.out || exit 1
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1

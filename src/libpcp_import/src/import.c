@@ -17,6 +17,7 @@
 #include "import.h"
 #include "domain.h"
 #include "private.h"
+#include <ctype.h>
 
 static pmi_context *context_tab;
 static int ncontext;
@@ -181,6 +182,9 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	case PMI_ERR_NODATA:
 	    msg = "No data to output";
 	    break;
+	case PMI_ERR_BADMETRICNAME:
+	    msg = "Illegal metric name";
+	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);
     }
@@ -344,6 +348,37 @@ pmiSetTimezone(const char *value)
     return current->last_sts = 0;
 }
 
+static int
+valid_pmns_name(const char *name)
+{
+    const char *previous;
+
+    /*
+     * Ensure requested metric name conforms to the PMNS rules:
+     * Should start with an alphabetic, then any combination of
+     * alphanumerics or underscore.  Dot separators are OK, but
+     * ensure only one (no repeats).
+     */
+    if (name == NULL)
+	return 0;
+    if (!isalpha((int)*name))
+	return 0;
+    for (previous = name++; *name != '\0'; name++) {
+	if (!isalnum((int)*name) && *name != '_' && *name != '.')
+	    return 0;
+	if (*previous == '.') {
+	    if (!isalpha((int)*name))	/* non-alphabetic first */
+		return 0;
+	    if (*name == *previous)	/* repeated . separator */
+		return 0;
+	}
+	previous = name;
+    }
+    if (*previous == '.')	/* shouldn't end with separator */
+	return 0;
+    return 1;
+}
+
 int
 pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUnits units)
 {
@@ -352,6 +387,9 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
+
+    if (valid_pmns_name(name) == 0)
+	return current->last_sts = PMI_ERR_BADMETRICNAME;
 
     for (m = 0; m < current->nmetric; m++) {
 	if (strcmp(name, current->metric[m].name) == 0) {
@@ -364,7 +402,8 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	}
     }
 
-    /* basic sanity check of metadata ... we do not check later so this
+    /*
+     * basic sanity check of metadata ... we do not check later so this
      * needs to be robust
      */
     switch (type) {

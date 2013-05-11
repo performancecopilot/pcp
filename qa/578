@@ -88,23 +88,6 @@ _cleanup()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# Function to filter pminfo output
-#
-_filter()
-{
-    $PCP_AWK_PROG '
-BEGIN           { value=0; metric=0; warn=0 }
-NF==0           { next }
-/ value /       { value++; next }
-/^'$1'/         { metric++
-                  if ($0 !~ /:/) next
-		}
-		{ warn++ }
-END             { if (warn) printf "%d warnings, ",warn
-		  printf "%d metrics and %d values\n",metric,value
-		}'
-}
-
 _filter_ins()
 {
     sed \
@@ -233,7 +216,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd
 
-    if _check_agent $agent
+    if _check_agent $agent true
     then
     	echo "$agent is alive and well"
     else
@@ -251,7 +234,7 @@ _agent_remove()
     echo "=== Removing $agent ===" | tee -a $here/$seq.full
     _renew_pmcd _agent_remove
 
-    if _check_agent $agent
+    if _check_agent $agent true
     then
     	echo "Failed to remove $agent"
 	exit

@@ -12,7 +12,7 @@
 
 seq=`basename $0`
 
-rm -f $seq.out
+rm -f $seq.out $seq.full
 if [ $PCP_VER -lt 3600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
@@ -26,10 +26,16 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 done_clean=false
 
+pcp >>$here/$seq.full
 pminfo trace >/dev/null 2>&1
 remove_trace=$?
+echo "remove_trace=$remove_trace" >>$here/$seq.full
+pminfo trivial >/dev/null 2>&1
+remove_trivial=$?
+echo "remove_trivial=$remove_trivial" >>$here/$seq.full
 pminfo sendmail >/dev/null 2>&1
 remove_sendmail=$?
+echo "remove_sendmail=$remove_sendmail" >>$here/$seq.full
 
 _setup_pmdas()
 {
@@ -37,7 +43,7 @@ _setup_pmdas()
     for pmda in trivial simple sample sendmail trace
     do
 	cd $pmda
-	$sudo ./Install -e -Q </dev/null >/dev/null 2>&1
+	$sudo ./Install -e -Q </dev/null >>$here/$seq.full 2>&1
 	cd ..
     done
 }
@@ -48,11 +54,25 @@ _cleanup()
     then
 	:
     else
+	if [ $remove_trace -ne 0 ]
+	then
+	    cd $PCP_PMDAS_DIR/trace
+	    $sudo ./Remove >>$here/$seq.full 2>&1
+	fi
+	if [ $remove_trivial -ne 0 ]
+	then
+	    cd $PCP_PMDAS_DIR/trivial
+	    $sudo ./Remove >>$here/$seq.full 2>&1
+	fi
+	if [ $remove_sendmail -ne 0 ]
+	then
+	    cd $PCP_PMDAS_DIR/sendmail
+	    $sudo ./Remove >>$here/$seq.full 2>&1
+	fi
 	[ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
-	_setup_pmdas
 	done_clean=true
     fi
     $sudo rm -f $tmp.*
@@ -96,9 +116,6 @@ pminfo -n $PCP_VAR_DIR/pmns/root \
 | LC_COLLATE=POSIX sort \
 | diff - $tmp.pmns.start
 echo
-
-[ $remove_trace -eq 1 ] && $sudo $PCP_PMDAS_DIR/trace/Remove >/dev/null 2>&1
-[ $remove_sendmail -eq 1 ] && $sudo $PCP_PMDAS_DIR/sendmail/Remove >/dev/null 2>&1
 
 # success, all done
 exit

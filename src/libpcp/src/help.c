@@ -75,10 +75,7 @@ again:
 again_local:
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.four.text(ident, type, buffer, dp->dispatch.version.four.ext);
-		else
-		    n = dp->dispatch.version.two.text(ident, type, buffer, dp->dispatch.version.two.ext);
+		n = dp->dispatch.version.any.text(ident, type, buffer, dp->dispatch.version.any.ext);
 		if (n == 0 && (*buffer)[0] == '\0' && (type & PM_TEXT_HELP)) {
 		    /* fall back to one-line, if possible */
 		    type &= ~PM_TEXT_HELP;

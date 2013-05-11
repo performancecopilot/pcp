@@ -25,9 +25,23 @@ echo "QA output created by $seq"
 #
 host=`hostname | sed -e 's/\..*//'`
 rm -f $seq.out
-[ -f $seq.out.$host ] || \
-	_notrun "No qualified results file ($seq.out.$host) for the localhost"
-ln $seq.out.$host $seq.out
+case $host
+in
+    bozo)
+    	# sdc comes and goes
+	if pmprobe -I disk.dev.total | grep sdc >/dev/null
+	then
+	    ln $seq.out.bozo+sdc $seq.out
+	else
+	    ln $seq.out.bozo $seq.out
+	fi
+	;;
+    *)
+	[ -f $seq.out.$host ] || \
+	    _notrun "No qualified results file ($seq.out.$host) for the localhost"
+	ln $seq.out.$host $seq.out
+	;;
+esac
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

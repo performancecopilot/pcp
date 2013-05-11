@@ -1227,12 +1227,86 @@ doneLine:
 }
 
 static int
+DoAuthentication(AgentInfo *ap, int clientID)
+{
+    int sts = 0;
+    __pmHashCtl *attrs = &client[clientID].attrs;
+    __pmHashNode *node;
+
+    if ((ap->status.flags & PDU_FLAG_AUTH) == 0)
+	return 0;
+
+    if (ap->ipcType == AGENT_DSO) {
+	if (ap->ipc.dso.dispatch.comm.pmda_interface < PMDA_INTERFACE_6 ||
+	    ap->ipc.dso.dispatch.version.six.attribute == NULL)
+	    return 0;
+	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+	    if ((sts = ap->ipc.dso.dispatch.version.six.attribute(
+				clientID, node->key, node->data,
+				node->data ? strlen(node->data)+1 : 0,
+				ap->ipc.dso.dispatch.version.six.ext)) < 0)
+		break;
+	}
+    } else {
+	/* daemon PMDA ... ship attributes */
+	if (ap->status.notReady)
+	    return PM_ERR_AGAIN;
+	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+	    if ((sts = __pmSendAuth(ap->inFd,
+				clientID, node->key, node->data,
+				node->data ? strlen(node->data)+1 : 0)) < 0)
+		break;
+	}
+    }
+    return sts;
+}
+
+/*
+ * Once a secure client arrives, we need to inform any interested PMDAs.
+ * Iterate over the authenticating agents and send connection attributes.
+ */
+int
+AgentsAuthentication(int clientID)
+{
+    int agentID, sts = 0;
+
+    for (agentID = 0; agentID < nAgents; agentID++) {
+	if (agent[agentID].status.connected &&
+	   (sts = DoAuthentication(&agent[agentID], clientID)) < 0)
+	    break;
+    }
+    return sts;
+}
+
+/*
+ * Once a PMDA has started, we need to inform it about secure clients.
+ * Iterate over the authenticated clients and send connection attributes
+ */
+int
+ClientsAuthentication(AgentInfo *ap)
+{
+    int clientID, sts = 0;
+
+    for (clientID = 0; clientID < nClients; clientID++) {
+	if (client[clientID].status.connected &&
+	   (sts = DoAuthentication(ap, clientID)) < 0)
+	    break;
+    }
+    return sts;
+}
+
+static int
 DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 {
     int			i;
     int			sts = 0;
-    int			credcount = 0;
+    int			flags = 0;
     int			sender = 0;
+    int			credcount = 0;
     int			version = UNKNOWN_VERSION;
     __pmCred		*credlist = NULL;
     __pmVersionCred	*vcp;
@@ -1247,9 +1321,11 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	case CVERSION:
 	    vcp = (__pmVersionCred *)&credlist[i];
 	    aPtr->pduVersion = version = vcp->c_version;
+	    aPtr->status.flags = flags = vcp->c_flags;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmcd: version cred (%u)\n", aPtr->pduVersion);
+		fprintf(stderr, "pmcd: version creds (version=%u,flags=%x)\n",
+			aPtr->pduVersion, aPtr->status.flags);
 #endif
 	    break;
 	}
@@ -1266,13 +1342,19 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	__pmVersionCred	handshake;
 	__pmCred *cp = (__pmCred *)&handshake;
 
+	/* return pmcd PDU version and all flags pmcd knows about */
 	handshake.c_type = CVERSION;
 	handshake.c_version = PDU_VERSION;
-	handshake.c_flags = 0;
+	handshake.c_flags = (flags & PDU_FLAG_AUTH);
 	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
 	    return sts;
 	else if (_pmcd_trace_mask)
 	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
+
+	/* send auth attributes for existing connected clients */
+	if ((flags & PDU_FLAG_AUTH) != 0 &&
+	    (sts = ClientsAuthentication(aPtr)) < 0)
+	    return sts;
     }
 
     return 0;
@@ -1819,8 +1901,11 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    aPtr->status.connected = 1;
     aPtr->reason = 0;
+    aPtr->status.connected = 1;
+    aPtr->status.flags = dso->dispatch.comm.flags;
+    if (dso->dispatch.comm.flags & PDU_FLAG_AUTH)
+	ClientsAuthentication(aPtr);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)

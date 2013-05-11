@@ -5,13 +5,15 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-echo "QA output created by $seq"
+_notrun "Python MMV module test 704 not yet stable"
 
 python -c 'from pcp import mmv' 2>/dev/null
 test $? -eq 0 || _notrun "Python MMV module not available"
@@ -29,18 +31,24 @@ _cleanup()
     fi
 }
 
+_filter_pminfo()
+{
+    tee -a $here/$seq.full | sed \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
 trap "_cleanup" 0 1 2 3 15
 
 # real QA starts here
 [ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
-mkdir -m "$MMV_STATS_DIR"
+mkdir "$MMV_STATS_DIR"
 chmod 1777 "$MMV_STATS_DIR"
-_check_agent mmv || _notrun "MMV agent should be setup but is not"
+_check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"
 python $here/src/test_mmv.python
 echo "Checking pmdammv metrics"
-pminfo -fmdtT mmv
+pminfo -fmdtT mmv | _filter_pminfo
 
 status=0
 exit

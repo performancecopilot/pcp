@@ -38,5 +38,6 @@
 #define HF_HERROR		9
 #define HF_CANTREDIRECT 10
 #define HF_MAXREDIRECTS 11
+#define HF_CONNECTTIMEOUT 12
 
 #endif

@@ -68,16 +68,9 @@ pmLookupInDom(pmInDom indom, const char *name)
 		/* We can safely cast away const here */
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, 
-							  (char *)name, 
-							  &result, 
-							  dp->dispatch.version.four.ext);
-		else
-		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, 
-							  (char *)name, 
-							  &result, 
-							  dp->dispatch.version.two.ext);
+		n = dp->dispatch.version.any.instance(indom, PM_IN_NULL, 
+							(char *)name, &result, 
+							dp->dispatch.version.any.ext);
 	    }
 	    if (n >= 0) {
 		n = result->instlist[0];
@@ -146,10 +139,7 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.four.instance(indom, inst, NULL, &result, dp->dispatch.version.four.ext);
-		else
-		    n = dp->dispatch.version.two.instance(indom, inst, NULL, &result, dp->dispatch.version.two.ext);
+		n = dp->dispatch.version.any.instance(indom, inst, NULL, &result, dp->dispatch.version.any.ext);
 	    }
 	    if (n >= 0) {
 		if ((*name = strdup(result->namelist[0])) == NULL)
@@ -273,14 +263,9 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    else {
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    n = dp->dispatch.version.four.instance(indom, PM_IN_NULL, NULL,
+		n = dp->dispatch.version.any.instance(indom, PM_IN_NULL, NULL,
 					       &result,
-					       dp->dispatch.version.four.ext);
-		else
-		    n = dp->dispatch.version.two.instance(indom, PM_IN_NULL, NULL,
-					       &result,
-					       dp->dispatch.version.two.ext);
+					       dp->dispatch.version.any.ext);
 	    }
 	    if (n >= 0)
 		n = inresult_to_lists(result, instlist, namelist);

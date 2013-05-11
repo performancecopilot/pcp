@@ -21,3 +21,4 @@ PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
 PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@
 PCP_PMLOGGERCONTROL_PATH=@pcp_pmloggercontrol_path@
 PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
+PCP_PMWEBDOPTIONS_PATH=@pcp_pmwebdoptions_path@

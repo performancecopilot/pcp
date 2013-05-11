@@ -129,6 +129,7 @@ $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
+cat $PCP_PMCDLOG_PATH >>$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '/^linux/{
@@ -141,15 +142,25 @@ s/lib=\/var\//lib=\/usr-or-var\//
     -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
     -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
     -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
-    -e "/$localhost\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  / " \
-    -e "/$other1\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP1 / " \
-    -e "/$other2\$/s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP2 / " \
+    -e "/$localhost\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  /
+s/  */ /g
+}' \
+    -e "/$other1\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP1 /
+s/  */ /g
+}' \
+    -e "/$other2\$/"'{
+s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP2 /
+s/  */ /g
+}' \
     -e "s/$localhost\$/LOCALHOST/g" \
     -e "s/$other1\$/OTHERHOST1/g" \
     -e "s/$other2\$/OTHERHOST2/g" \
     -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
     | $PCP_AWK_PROG '
-$8 ~ /^[A-Z]+HOST[12]*$/{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
+$8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
+			  sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"<ipaddr>",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*$/,"<ipaddr>",$5)
 			}

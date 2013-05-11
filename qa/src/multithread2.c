@@ -159,7 +159,9 @@ main()
     int		sts;
     char	*msg;
 
-#if PCP_VER >= 3611
+#if PCP_VER >= 3702
+    addr = __pmLoopBackAddress(AF_INET);
+#elif PCP_VER >= 3611
     addr = __pmLoopBackAddress();
 #else
     addr = __pmLoopbackAddress();

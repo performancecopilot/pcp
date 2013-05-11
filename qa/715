@@ -17,47 +17,27 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 status=1
-done_clean=false
 rm -f $seq.full
 
 _cleanup()
 {
-    if $done_clean
-    then
-	:
-    else
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	rm -f $tmp.*
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-	_wait_for_pmcd
-	_wait_for_pmlogger
-	done_clean=true
-    fi
+    _restore_pmda_install simple
     exit $status
 }
 
 trap "_cleanup" 0 1 2 3 15
 
 # real QA test starts here
-iam=simple
-cd $PCP_PMDAS_DIR/$iam
-
-# copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
-
-# start from a known starting point
-$sudo ./Remove >/dev/null 2>&1
+_prepare_pmda_install simple
 
 echo
 echo "=== $iam agent installation ==="
-cat << End-of-File | $sudo ./Install >$tmp.out 2>&1
+cat << End-of-File | $sudo ./Install -e >$tmp.out 2>&1
 both
 perl
 End-of-File
 # Check simple metrics have appeared ... X metrics and Y values
-_filter_pmda_install <$tmp.out \
-| sed \
-	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/'
+_filter_pmda_install <$tmp.out
 
 check()
 {

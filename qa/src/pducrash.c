@@ -10,6 +10,57 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 
+#include "localconfig.h"
+
+#if PCP_VER >= 3800
+static void
+decode_auth(const char *name)
+{
+    char		*value;
+    int			sts, attr, length;
+    struct auth {
+	__pmPDUHdr	hdr;
+	int		attr;
+	char		value[0];
+    } *auth;
+
+    fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
+    auth = (struct auth *)calloc(1, sizeof(*auth));
+    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
+    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth);
+
+    fprintf(stderr, "[%s] checking negative length\n", name);
+    auth = (struct auth *)calloc(1, sizeof(*auth));
+    auth->hdr.len = -512;
+    auth->hdr.type = PDU_AUTH;
+    auth->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
+    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth);
+
+    fprintf(stderr, "[%s] checking empty value\n", name);
+    auth = (struct auth *)calloc(1, sizeof(*auth));
+    auth->hdr.len = sizeof(*auth);
+    auth->hdr.type = PDU_AUTH;
+    auth->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
+    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth);
+
+    fprintf(stderr, "[%s] checking access beyond limit\n", name);
+    auth = (struct auth *)calloc(1, sizeof(*auth));
+    auth->hdr.len = INT_MAX;
+    auth->hdr.type = PDU_AUTH;
+    auth->attr = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
+    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    free(auth);
+}
+#else
+static void decode_auth(const char *name) { (void)name; }
+#endif
+
 static void
 decode_creds(const char *name)
 {
@@ -1166,6 +1217,7 @@ struct pdu {
     { "text", 		decode_text },
     { "trace_ack",	decode_trace_ack },
     { "trace_data",	decode_trace_data },
+    { "auth",		decode_auth },
 };
 
 int

@@ -114,8 +114,9 @@ DSOSUFFIX = so
 endif
 
 CFLAGS_ABI = @cflags_abi@
-CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) -O2 -g -DPCP_DEBUG \
-	-DPCP_VERSION=\"$(PCP_VERSION)\" \
+CFLAGS_OPT = -O2 -g
+CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
+	-DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 PIECFLAGS = @PIECFLAGS@
@@ -123,6 +124,7 @@ PIELDFLAGS = @PIELDFLAGS@
 
 NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
+SASLCFLAGS = @SASLCFLAGS@
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -142,7 +144,8 @@ OBJECTS = $(ASFILES:.s=.o) \
           $(LFILES:.l=.o) \
           $(YFILES:%.y=%.tab.o)
 
-MAKE	= @make@
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE	= @make@
 CC	= @cc@
 LD	= @ld@
 AWK	= @awk@
@@ -159,7 +162,8 @@ INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
 
 CCF	= $(CC) $(CFLAGS)
-MAKEF	= $(MAKE) $(MAKEOPTS)
+# NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
+#MAKEF	= $(MAKE) $(MAKEOPTS)
 LDF	= $(LD) $(LDFLAGS)
 MAKEDEPEND = @makedepend@
 
@@ -201,9 +205,13 @@ LIB_FOR_MATH = @lib_for_math@
 LIB_FOR_READLINE = @lib_for_readline@
 LIB_FOR_CURSES = @lib_for_curses@
 LIB_FOR_PTHREADS = @lib_for_pthreads@
+LIB_FOR_RT = @lib_for_rt@
 LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
+LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
+
+HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -226,10 +234,10 @@ RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/li
 endif
 
 SUBDIRS_MAKERULE = \
-	@for d in `echo $^ `; do \
+	+for d in `echo $^ `; do \
 	    if test -d "$$d" -a -f "$$d/GNUmakefile"; then \
 		$(ECHO) === $$d ===; \
-		$(MAKEF) -C $$d $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
 	    fi; \
 	done
 
@@ -319,22 +327,25 @@ else
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
     for d in `echo $$MAN_PAGES`; do \
+	echo "=== `pwd`/$$d ===" >>/tmp/eek.raw; \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
-        cat $$d | $(AWK) ' \
-	    BEGIN			{ do_print=0; print "'"$$base"'"; } \
-	    $$1 == ".ds"		{ ds["\\\\\\*\\("$$2] = $$3; } \
-	    /^\.SH NAME/		{ do_print=1; next } \
-	    $$1 == ".SH" && do_print	{ do_print=0; next } \
-	    do_print			{ if (match($$0, "^\\\\f3.*\\\\f1")) { \
-					    gsub ("\\\\f3", "", $$0); \
-					    gsub ("\\\\f1.*", "", $$0); \
-					    for ( d in ds ) { \
-						sub (d, ds[d], $$0); \
-					    } \
-					    print; } }' \
-		| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u | \
-	while read m; do \
+	$(AWK) <$$d ' \
+BEGIN { state=0; print "'"$$base"'" } \
+$$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
+$$1==".SH" && $$2=="NAME" { state=1; next } \
+$$1==".SH" && state==1	{ exit } \
+/^\./ { next } \
+state==1 { for (i=1;i<=NF;i++) { \
+             if ($$i=="\\-" || $$i=="-") exit; \
+	     gsub ("\\\\f3", "", $$i); gsub ("\\\\f1.*", "", $$i); \
+	     for ( d in ds ) sub (d, ds[d], $$i); \
+	     print $$i \
+	   } \
+	 }' \
+	| tee -a /tmp/eek.raw \
+	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
+	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
 	    if $$first; then \
@@ -480,7 +491,7 @@ PMDA_SYSTEMD=@PMDA_SYSTEMD@
 PYTHON=@PYTHON@
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list

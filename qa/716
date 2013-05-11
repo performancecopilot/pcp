@@ -15,6 +15,14 @@ seq=`basename $0`
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
+rm -f $seq.out
+if [ $PCP_VER -lt 3800 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

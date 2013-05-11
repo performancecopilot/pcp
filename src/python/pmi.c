@@ -78,4 +78,5 @@ initcpmi(void)
     pmi_edict_add(dict, edict, "PMI_ERR_BADTYPE", PMI_ERR_BADTYPE);
     pmi_edict_add(dict, edict, "PMI_ERR_BADSEM", PMI_ERR_BADSEM);
     pmi_edict_add(dict, edict, "PMI_ERR_NODATA", PMI_ERR_NODATA);
+    pmi_edict_add(dict, edict, "PMI_ERR_BADMETRICNAME", PMI_ERR_BADMETRICNAME);
 }

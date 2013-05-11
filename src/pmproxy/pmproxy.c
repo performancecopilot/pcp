@@ -190,6 +190,7 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 {
     int	i, sts, flags = 0, sender = 0, credcount = 0;
     __pmPDUHdr *header = (__pmPDUHdr *)pb;
+    __pmHashCtl attrs = { 0 }; /* TODO */
     __pmCred *credlist;
 
     /* first check that this is a credentials PDU */
@@ -213,15 +214,15 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     /* need to ensure both the pmcd and client channel use flags */
 
     if (sts >= 0 && flags)
-	sts = __pmSecureServerHandshake(cp->fd, flags);
-	
+	sts = __pmSecureServerHandshake(cp->fd, flags, &attrs);
+
     /* send credentials PDU through to pmcd now (order maintained) */
     if (sts >= 0)
 	sts = __pmXmitPDU(cp->pmcd_fd, pb);
 
     /* finally perform any additional handshaking needed with pmcd */
     if (sts >= 0 && flags)
-	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, hostname);
+	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, hostname, &attrs);
    
     return sts;
 }

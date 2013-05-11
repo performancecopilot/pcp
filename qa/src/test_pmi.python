@@ -15,6 +15,7 @@
 
 import sys
 import unittest
+import cpmapi
 from pcp import pmi
 from pcp import pmapi
 
@@ -42,9 +43,9 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     units = log.pmiUnits(0, 0, 0, 0, 0, 0)
 
     # create a metric without instances (hinv.ncpu)
-    code = log.pmiAddMetric("hinv.ncpu", pmapi.PM_ID_NULL,
-                            pmapi.PM_TYPE_U32, pmapi.PM_INDOM_NULL,
-                            pmapi.PM_SEM_DISCRETE, units)
+    code = log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL,
+                            cpmapi.PM_TYPE_U32, cpmapi.PM_INDOM_NULL,
+                            cpmapi.PM_SEM_DISCRETE, units)
     print "pmiAddMetric: hinv.ncpu"
     self.assertTrue(code >= 0)
 
@@ -55,8 +56,8 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
 
     # create a metric with instances (kernel.all.load)
     code = log.pmiAddMetric("kernel.all.load", pmid,
-                            pmapi.PM_TYPE_FLOAT, indom,
-                            pmapi.PM_SEM_DISCRETE, units)
+                            cpmapi.PM_TYPE_FLOAT, indom,
+                            cpmapi.PM_SEM_DISCRETE, units)
     print "pmiAddMetric: kernel.all.load"
     self.assertTrue(code >= 0)
     code = log.pmiAddInstance(indom, "1 minute", 1)

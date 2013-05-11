@@ -13,6 +13,7 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 #include <math.h>
+#include "localconfig.h"
 
 static int		fd[2];
 static int		standalone = 1;
@@ -109,6 +110,7 @@ _z(void)
     int			type;
     char		*buffer;
     int			control;
+    int			attr;
     int			rate;
     int			state;
     int			num;
@@ -791,6 +793,51 @@ _z(void)
 	}
     }
 
+#if PCP_VER >= 3800
+/* PDU_AUTH */
+#define USERNAME "pcpqa"
+    if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
+	fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
+	exit(1);
+    }
+    else {
+	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+	    fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
+	    exit(1);
+	}
+	else if (e == 0) {
+	    fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
+	    exit(1);
+	}
+	else if (e != PDU_AUTH) {
+	    fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	    exit(1);
+	}
+	else {
+	    buffer = NULL;
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
+		fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
+		exit(1);
+	    }
+	    else {
+		if (attr != PCP_ATTR_USERNAME)
+		    fprintf(stderr, "Botch: AuthAttr: attr: got: 0x%x expect: 0x%x\n",
+			attr, PCP_ATTR_USERNAME);
+		if (count != sizeof(USERNAME))
+		    fprintf(stderr, "Botch: AuthAttr: length: got: 0x%x expect: 0x%x\n",
+			count, (int)sizeof(USERNAME));
+		if (buffer == NULL)
+		    fprintf(stderr, "Botch: AuthAttr: payload is NULL!\n");
+		else {
+		    if (strncmp(buffer, USERNAME, sizeof(USERNAME)) != 0)
+			fprintf(stderr, "Botch: AuthAttr: payload: got: \"%s\" expect: \"%s\"\n",
+			    buffer, USERNAME);
+		}
+	    }
+	}
+    }
+#endif
+
 /* PDU_CREDS */
     sender = 0;
     count = -1;
@@ -1356,13 +1403,8 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "AD:i:Np:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:i:Np:?")) != EOF) {
 	switch (c) {
-	case 'A':	/* GETPDU_ASYNC */
-	    timeout = GETPDU_ASYNC;
-	    fprintf(stderr, "+ Using GETPDU_ASYNC instead of TIMEOUT_DEFAULT +\n");
-	    break;
-
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -1403,7 +1445,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s [-AN] [-D n] [-i iter] [-p port] [host]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-N] [-D n] [-i iter] [-p port] [host]\n", pmProgname);
 	exit(1);
     }
 

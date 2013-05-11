@@ -63,6 +63,7 @@ access.o
     b oldszhostlist		# single-threaded PM_SCOPE_ACL
     b saved			# single-threaded PM_SCOPE_ACL
     b szhostlist		# single-threaded PM_SCOPE_ACL
+    d cando_ipv6.[0-9]*		# no unsafe side-effects
 AF.o
     d afid			# single-threaded PM_SCOPE_AF
     b block			# single-threaded PM_SCOPE_AF
@@ -192,12 +193,13 @@ logutil.o
     [sr] ?ncompress		# const
     [BD] __pmLogReads		# diag counter, no atomic updates
     b pc_hc			# guarded by __pmLock_libpcp mutex
-nss_server.o
-    b nss_server		# guarded by __pmLock_libpcp mutex
-nss_connect.o
+secureserver.o
+    b secure_server		# guarded by __pmLock_libpcp mutex
+secureconnect.o
     b ?nsprFds			# guarded by __pmLock_libpcp mutex
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
+p_auth.o
 p_creds.o
 p_desc.o
 pdubuf.o
@@ -208,7 +210,7 @@ pdu.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     d def_timeout		# guarded by __pmLock_libpcp mutex
     d def_wait			# guarded by __pmLock_libpcp mutex
-    [BD] pmDebug		# set-once in main(), read-only elsewhere
+    [CD] pmDebug		# set-once in main(), read-only elsewhere
     d ceiling			# no unsafe side-effects
     b ?sigpipe_done		# no unsafe side-effects
     d mypid			# no unsafe side-effects
@@ -386,8 +388,8 @@ do
 	    else
 		case "$type"
 		in
-		    nss_*.o)
-			echo "$type: Info: NSS object file skipped, not configured"
+		    secure*.o)
+			echo "$type: Info: security object file skipped, not configured"
 			skip_file=true
 			;;
 		    \?*)

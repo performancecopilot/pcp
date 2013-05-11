@@ -38,8 +38,8 @@ extern char	*clientid;
 int	dfltConn;	/* default context type */
 
 /* for initialization of pmUnits struct */
-pmUnits noUnits    = {0, 0, 0, 0, 0, 0};
-pmUnits countUnits = {0, 0, 1, 0, 0, 0};
+pmUnits noUnits;
+pmUnits countUnits = { .dimCount = 1 };
 
 char *
 findsource(char *host)
@@ -447,15 +447,36 @@ sendDesc(Expr *x, pmValueSet *vset)
 
     d.pmid = vset->pmid;
     d.indom = PM_INDOM_NULL;
-    if (x->sem != SEM_UNKNOWN) {
-	d.type = PM_TYPE_DOUBLE;
-	d.sem = x->sem;
-	d.units = x->units;
-    }
-    else {
-	d.type = PM_TYPE_NOSUPPORT;
-	d.sem = PM_SEM_INSTANT;
-	d.units = noUnits;
+    switch (x->sem) {
+	case PM_SEM_COUNTER:
+	case PM_SEM_INSTANT:
+	case PM_SEM_DISCRETE:
+	    /* these map directly to PMAPI semantics */
+	    d.type = PM_TYPE_DOUBLE;
+	    d.sem = x->sem;
+	    d.units = x->units;
+	    break;
+
+	case SEM_NUMVAR:
+	case SEM_NUMCONST:
+	case SEM_TRUTH:
+	    /* map to a numeric value */
+	    d.type = PM_TYPE_DOUBLE;
+	    d.sem = PM_SEM_INSTANT;
+	    d.units = x->units;
+	    break;
+
+	default:
+	    fprintf(stderr, "sendDesc(%s): botch sem=%d?\n", pmIDStr(d.pmid), x->sem);
+	    /* FALLTHROUGH */
+	case SEM_UNKNOWN:
+	case SEM_CHAR:
+	case SEM_REGEX:
+	    /* no mapping is possible */
+	    d.type = PM_TYPE_NOSUPPORT;
+	    d.sem = PM_SEM_INSTANT;
+	    d.units = noUnits;
+	    break;
     }
     __pmSendDesc(STDOUT_FILENO, pmWhichContext(), &d);
 }

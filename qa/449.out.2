@@ -1,0 +1,93 @@
+QA output created by 449
+=== __pmMultiThreaded ===
+func: is multithreaded
+func: is multithreaded
+main0: is NOT multithreaded
+main1: is NOT multithreaded
+main2: is NOT multithreaded
+
+=== PM_CONTEXT_LOCAL ===
+pmDupContext: -> 1
+pmDupContext: Operation not supported for multi-threaded applications
+pmFetch: -> OK
+pmFetch: Operation not supported for multi-threaded applications
+pmGetChildrenStatus: -> 0
+pmGetChildrenStatus: Operation not supported for multi-threaded applications
+pmGetInDom: -> 3
+pmGetInDom: 30.1: Operation not supported for multi-threaded applications
+pmGetPMNSLocation: -> 1
+pmGetPMNSLocation: Operation not supported for multi-threaded applications
+pmLookupDesc: -> 30.0.5 type=32 indom=30.1
+pmLookupDesc: Operation not supported for multi-threaded applications
+pmLookupInDom: Operation not supported for multi-threaded applications
+pmLookupInDom: red -> 0
+pmLookupName: -> 30.0.5
+pmLookupName: Operation not supported for multi-threaded applications
+pmLookupText: -> Metrics with a "saw-tooth" trend over time
+pmLookupText: Operation not supported for multi-threaded applications
+pmNameInDom: 0 -> red
+pmNameInDom: Operation not supported for multi-threaded applications
+pmNewContext: -> 0
+pmNewContext: Operation not supported for multi-threaded applications
+pmStore: No permission to perform requested operation
+pmStore: Operation not supported for multi-threaded applications
+pmUseContext(0) -> 0
+pmUseContext(0) -> 0
+
+=== PM_SCOPE_AF and PM_SCOPE_ACL ===
+func1: __pmAFregister -> OK
+func1: __pmAFunregister -> OK
+func2: __pmAFregister -> Operation not supported for multi-threaded applications
+func2: __pmAFunregister -> Operation not supported for multi-threaded applications
+func1: __pmAccAddOp(1) -> OK
+func1: __pmAccAddOp(2) -> OK
+func1: __pmAccAddHost -> OK
+
+Host access list:
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y 0 3 IPADDR IPMASK 0 localhost
+
+func1: __pmAccSaveHosts -> OK
+func1: __pmAccRestoreHosts -> OK
+func1: __pmAccAddClient -> 0
+func2: __pmAccAddOp(1) -> Operation not supported for multi-threaded applications
+func2: __pmAccAddOp(2) -> Operation not supported for multi-threaded applications
+func2: __pmAccAddHost -> Operation not supported for multi-threaded applications
+func2: __pmAccSaveHosts -> Operation not supported for multi-threaded applications
+func2: __pmAccRestoreHosts -> Operation not supported for multi-threaded applications
+func2: __pmAccAddClient -> Operation not supported for multi-threaded applications
+
+=== PMNS concurrency ===
+ root            
+     a               
+         one              0.0.0
+         two              0.1.0
+         three           
+             foo              0.2.0
+             bar              0.2.1
+     b                1.0.0
+     c                2.0.0
+func1: pmGetChildrenStatus -> 3
+[0] a non-leaf
+[1] b leaf
+[2] c leaf
+func1: [0] b -> 1.0.0 -> b
+func1: [0] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [0] d.f.fumble -> PM_ID_NULL
+func1: pmGetChildrenStatus[1] -> PMNS not accessible
+func1: [2] b -> 1.0.0 -> b
+func1: [2] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [2] d.f.fumble -> PM_ID_NULL
+func1: [3] b -> 1.0.0 -> b
+func1: [3] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [3] d.f.fumble -> 3.0.1 -> d.f.fumble
+func1: [4] b -> 1.0.0 -> b
+func1: [4] a.three.foo -> 0.2.0 -> a.three.foo
+func1: [4] d.f.fumble -> 3.0.1 -> d.f.fumble
+
+=== PMNS Load/Unload & Traverse concurrency ===
+Total PDU counts
+in: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+out: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+traverse: found MYNUMBER metrics, sts MYSTS

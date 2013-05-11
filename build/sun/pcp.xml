@@ -119,6 +119,32 @@
 	</template>
 </service>
 
+<service name='application/pcp/pmwebd' type='service' version='1'>
+	<create_default_instance enabled='false' />
+	<single_instance />
+	<dependency name='root' grouping='require_all' restart_on='none'
+	    type='service'>
+		<service_fmri value='svc:/system/filesystem/local:default'/>
+		<service_fmri value='svc:/milestone/network:default'/>
+	</dependency>
+	<exec_method type='method' name='start' exec='/etc/init.d/pmwebd start'
+	    timeout_seconds='60' />
+	<exec_method type='method' name='stop' exec='/etc/init.d/pmwebd stop'
+	    timeout_seconds='60' />
+	<stability value='Unstable' />
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				Performance Co-Pilot Web Daemon
+			</loctext>
+		</common_name>
+		<documentation>
+			<manpage title='pmwebd' section='1'
+				manpath='/usr/share/man' />
+		</documentation>
+	</template>
+</service>
+
 <service name='application/pcp/pmproxy' type='service' version='1'>
 	<create_default_instance enabled='false' />
 	<single_instance />

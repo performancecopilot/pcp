@@ -13,11 +13,19 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+authenticate=false
+eval `pmconfig -L 2>/dev/null`
+
+rm -f $seq.out $seq.full
+if $authentication ; then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-rm -f $seq.full
 
 # real QA test starts here
 $signal -a -s KILL pdu-server >/dev/null 2>&1

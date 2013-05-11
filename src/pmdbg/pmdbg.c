@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2002-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,16 +11,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
  * pmdbg - help for PCP debug flags
- *
- * If you add a flag here, you should also add the flag to dbpmda.
  */
 
 #include <ctype.h>
@@ -79,6 +74,10 @@ static struct {
 		"Diags for pmLoop* services" },
     { DBG_TRACE_FAULT,		"FAULT",
     		"Trace fault injection (if enabled)" },
+    { DBG_TRACE_AUTH,		"AUTH",
+    		"Authentication services (if enabled)" },
+    { DBG_TRACE_DESPERATE,		"DESPERATE",
+    		"Desperate/verbose level" },
 };
 
 static int	nfoo = sizeof(foo) / sizeof(foo[0]);

@@ -49,7 +49,8 @@ _filter_stderr()
 	-e 's/     XPID  6004007/     XPID  7400006/' \
 	-e 's/  1000000        0  2004007/        1        0  7400002/' \
 	-e '/\(DSO init .*->\)0x[0-9a-f]*()/s//\1VADDR()/' \
-	-e '/DSO init .*->/s/pmda_interface=0x[0-9a-f][0-9a-f]*/pmda_interface=0xXXXX/' |
+	-e '/DSO init .*->/s/pmda_interface=0x[0-9a-f][0-9a-f]*/pmda_interface=0xXXXX/' \
+	-e '/DSO has domain/s/pmda_interface=[5-9]/pmda_interface=X/' |
     $PCP_AWK_PROG '
 	/pmGetPDU/  {gotGetPDU=1; next}
 	gotGetPDU==1 && $1 ~ /[0-9][0-9][0-9]:/ { next }

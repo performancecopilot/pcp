@@ -310,6 +310,7 @@ verbose=false
 paranoid=false
 group=false
 xgroup=false
+retired=false
 selbygroup=false
 snarf=''
 showme=false
@@ -326,12 +327,19 @@ do
     	selbygroup=true
 
 	# arg after -g
-	group_list=`sed -n <group -e 's/$/ /' -e "/^[0-9][0-9][0-9].* $r /"'{
+	group_list=`
+	if $retired
+	then
+	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	else
+	    sed -e '/[0-9]:retired /d' <group
+	fi \
+	| sed -n -e 's/$/ /' -e "/^[0-9][0-9]*.* $r /"'{
 s/ .*//p
 }'`
 	if [ -z "$group_list" ]
 	then
-	    echo "Group \"$r\" is empty or not defined; ignored"
+	    echo "Group \"$r\" is empty or not defined; ignored" >&2
 	else
 	    [ ! -s $tmp.list ] && touch $tmp.list
 	    for t in $group_list
@@ -352,15 +360,29 @@ s/ .*//p
     	selbygroup=true
 
 	# if no test numbers, do everything from group file
-	[ ! -s $tmp.list ] && sed -n -e '/^[0-9]/s/[ 	].*//p' <group >$tmp.list
+	[ -s $tmp.list ] || \
+	if $retired
+	then
+	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	else
+	    sed -e '/[0-9]:retired /d' <group
+	fi \
+	| sed -n -e '/^[0-9]/s/[ 	].*//p' >$tmp.list
 
 	# arg after -x
-	group_list=`sed -n <group \
+	group_list=`
+	if $retired
+	then
+	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	else
+	    sed -e '/[0-9]:retired /d' <group
+	fi \
+	| sed -n \
 	    -e "/^[0-9].* $r /s/[ 	].*//p" \
 	    -e "/^[0-9].* $r\$/s/[ 	].*//p"`
 	if [ -z "$group_list" ]
 	then
-	    echo "Group \"$r\" is empty or not defined; ignored"
+	    echo "Group \"$r\" is empty or not defined; ignored" >&2
 	else
 	    numsed=0
 	    rm -f $tmp.sed
@@ -418,6 +440,7 @@ check options
     -l		line mode diff [xdiff]
     -n		show me, do not run tests
     -q		quick, no PMDA checks (you are on your own)
+    -r		include retired tests
     -t		turn on tracing
     -T		output timestamps
     -x group	exclude tests from these groups (multiple flags allowed)
@@ -441,11 +464,25 @@ show-me options
 	    ;;
 
 	-G)	# -G report groups and number of tests per group
-	    sed -n -e '/^[a-z]/s/[ 	].*//p' <group >$tmp.group
+	    sed -n -e '/^[a-z]/{
+s/[ 	].*//
+p
+}' <group >$tmp.group
+	    cat $tmp.group
+	    echo ===
 	    LC_COLLATE=POSIX sort $tmp.group \
 	    | while read group
 	    do
-		num=`egrep "[ 	]$group([ 	]|$)" group | wc -l | sed -e 's/ //g'`
+		num=`
+		    if $retired
+		    then
+			sed -e 's/\([0-9]\):retired /\1 /' <group
+		    else
+			sed -e '/[0-9]:retired /d' <group
+		    fi \
+		    | egrep "^[0-9].*[ 	]$group([ 	]|$)" \
+		    | wc -l \
+		    | sed -e 's/ //g'`
 		printf "%-20.20s %3d\n" $group $num
 	    done
 	    exit 0
@@ -466,14 +503,19 @@ show-me options
 	    xpand=false
 	    ;;
 
+	-n)	# show me, don't do it
+	    showme=true
+	    quick=true
+	    xpand=false
+	    ;;
+
 	-q)	# "quick", no PMDA checks (you are on your own)
 	    quick=true
 	    xpand=false
 	    ;;
 
-	-n)	# show me, don't do it
-	    showme=true
-	    quick=true
+	-r)	# include retired tests
+	    retired=true
 	    xpand=false
 	    ;;
 
@@ -503,7 +545,7 @@ show-me options
 	    ;;
 
 	'[0-9][0-9][0-9] [0-9][0-9][0-9][0-9]')
-	    echo "No tests?"
+	    echo "No tests?" >&2
 	    status=1
 	    exit $status
 	    ;;
@@ -518,7 +560,7 @@ show-me options
 	    end=`echo [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] | sed -e 's/\[0-9]//g' -e 's/  *$//' -e 's/.* //'`
 	    if [ -z "$end" ]
 	    then
-		echo "No tests in range \"$r\"?"
+		echo "No tests in range \"$r\"?" >&2
 		status=1
 		exit $status
 	    fi
@@ -537,13 +579,19 @@ show-me options
 	start=`echo $start | sed -e 's/^0*\(.\)/\1/'`
 	end=`echo $end | sed -e 's/^0*\(.\)/\1/'`
 	have_test_arg=true
+	if $retired
+	then
+	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	else
+	    sed -e '/[0-9]:retired /d' <group
+	fi >$tmp.group
 	$PCP_AWK_PROG </dev/null '
 BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	| while read id
 	do
 	    # if test not present, silently forget about it
 	    [ -f $id ] || continue
-	    if grep -s "^$id[ 	]" group >/dev/null
+	    if egrep -s "^$id([ 	]|$)" $tmp.group >/dev/null
 	    then
 		# in group file ... OK
 		echo $id >>$tmp.list
@@ -568,12 +616,21 @@ else
     else
 	if $selbygroup
     	then
-    	    echo "No tests selected?"
+    	    echo "No tests selected?" >&2
     	    exit 1
     	else
 	    # no test numbers, do everything from group file
 	    touch $tmp.list
-	    sed -n -e '/^[0-9]/s/[ 	].*//p' <group \
+	    if $retired
+	    then
+		sed -e 's/\([0-9]\):retired /\1 /' <group
+	    else
+		sed -e '/[0-9]:retired /d' <group
+	    fi \
+	    | sed -n -e '/^[0-9]/{
+s/[ 	].*//
+p
+}' \
 	    | while read id
 	    do
 		[ -f $id ] || continue

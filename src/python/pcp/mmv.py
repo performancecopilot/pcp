@@ -20,80 +20,51 @@
 # Example use of this module for instrumenting a python application:
 
         from pcp import mmv, pmapi
-        from pmapi import pmUnits
         from cpmapi import PM_COUNT_ONE, PM_TIME_USEC
 
-        instances = [mmv_instance(0, "zero"), mmv_instance(1, "hero")]
-        woodlands = [mmv_instance(0, "bird"), mmv_instance(1, "tree"),
-                     mmv_instance(2, "eggs"), mmv_instance(3, "frog")]
-        indoms = [mmv_indom('serial': 1,
-                            'count': len(instances),
-                            'instances': instances,
-                            'shorttext': "We can be heroes",
-                            'helptext': "Set of instances from zero to hero"),
-                  mmv_indom('serial': 2,
-                            'count': len(woodlands),
-                            'instances': woodlands)]
-        metrics = [mmv_metric('name': "counter",
-                              'item': 1,
-                              'typeof': MMV_TYPE_U32,
-                              'semantics': MMV_SEM_COUNTER,
-                              'dimension': pmUnits(0,0,1,0,0,PM_COUNT_ONE),
-                              'shorttext': "Example counter metric",
-                              'helptext': "Yep, a test counter metric"),
-                   mmv_metric('name': "instant",
-                              'item': 2,
-                              'typeof': MMV_TYPE_I32,
-                              'semantics': MMV_SEM_INSTANT,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'shorttext': "Example instant metric",
-                              'helptext': "Yep, a test instantaneous metric"),
-                   mmv_metric('name': "indom",
-                              'item': 3,
-                              'typeof': MMV_TYPE_U32,
-                              'semantics': MMV_SEM_DISCRETE,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'indom': 1),
-                   mmv_metric('name': "interval",
-                              'item': 4,
-                              'typeof': MMV_TYPE_ELAPSED,
-                              'semantics': MMV_SEM_COUNTER,
-                              'dimension': pmUnits(0,1,0,0,PM_TIME_USEC,0),
-                              'indom' = 2),
-                   mmv_metric('name': "string",
-                              'item': 5,
-                              'typeof': MMV_TYPE_STRING,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'semantics': MMV_SEM_INSTANT)
-                   mmv_metric('name': "strings",
-                              'item': 6,
-                              'typeof': MMV_TYPE_STRING,
-                              'semantics': MMV_SEM_INSTANT,
-                              'dimension': pmUnits(0,0,0,0,0,0),
-                              'indom': 1,
-                              'shorttext': "test string metrics",
-                              'helptext': "Yep, string metric with instances")]
+        instances = [mmv.mmv_instance(0, "zero"), mmv.mmv_instance(1, "hero")]
+        indoms = [mmv.mmv_indom(serial = 1,
+                            shorttext = "We can be heroes",
+                            helptext = "Set of instances from zero to hero"),
+        indoms[0].set_instances(instances)
+        metrics = [mmv.mmv_metric(name = "counter",
+                              item = 1,
+                              typeof = mmv.MMV_TYPE_U32,
+                              semantics = mmv.MMV_SEM_COUNTER,
+                              dimension = pmapi.pmUnits(0,0,1,0,0,PM_COUNT_ONE),
+                              shorttext = "Example counter metric",
+                              helptext = "Yep, a test counter metric"),
+                   mmv.mmv_metric(name = "instant",
+                              item = 2,
+                              typeof = mmv.MMV_TYPE_I32,
+                              semantics = mmv.MMV_SEM_INSTANT,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              shorttext = "Example instant metric",
+                              helptext = "Yep, a test instantaneous metric"),
+                   mmv.mmv_metric(name = "indom",
+                              item = 3,
+                              typeof = mmv.MMV_TYPE_U32,
+                              semantics = mmv.MMV_SEM_DISCRETE,
+                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
+                              indom = 1)]
 
-        values = MemoryMappedValues(sys.argv[1])
+        values = mmv.MemoryMappedValues("demo")
         values.add_indoms(indoms)
         values.add_metrics(metrics)
 
         values.start()
-        caliper = values.interval_start("interval", "eggs")
-        instant = values.lookup_mapping("discrete", None)
-        values.add(discrete, 41)
-        values.inc(discrete)
-        values.interval_end(calipers)
+        instant = values.lookup_mapping("instant", None)
+        values.set(instant, 41)
+        values.inc(instant)
         values.stop()
 """
 
-import pcp
 from pcp.pmapi import pmUnits, pmAtomValue
-from cmmv import MMV_NAMEMAX, MMV_STRINGMAX
+from cmmv import MMV_NAMEMAX
 
 import ctypes
 from ctypes import Structure, POINTER
-from ctypes import c_int, c_uint, c_long, c_char, c_char_p, c_double
+from ctypes import c_int, c_uint, c_long, c_char, c_char_p, c_double, c_void_p
 
 # Performance Co-Pilot MMV library (C)
 LIBPCP_MMV = ctypes.CDLL(ctypes.util.find_library("pcp_mmv"))
@@ -107,7 +78,7 @@ LIBPCP_MMV = ctypes.CDLL(ctypes.util.find_library("pcp_mmv"))
 # structures can be found in the MMV(4) manual page.
 #
 
-class mmv_instances(Structure):
+class mmv_instance(Structure):
     """ Maps internal to external instance identifiers, within an
         instance domain.
     """
@@ -121,9 +92,18 @@ class mmv_indom(Structure):
     """
     _fields_ = [("serial", c_uint),
                 ("count", c_uint),
-                ("instances", POINTER(mmv_instances)),
+                ("instances", POINTER(mmv_instance)),
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
+
+    def set_instances(self, instances):
+        """ Update the instances and counts fields for this indom """
+        self.count = len(instances)
+        instance_array = (mmv_instance * self.count)()
+        for i in xrange(self.count):
+            instance_array[i].internal = instances[i].internal
+            instance_array[i].external = instances[i].external
+        self.instances = instance_array
 
 class mmv_metric(Structure):
     """ Represents an individual metric to be exported by pmdammv
@@ -137,13 +117,14 @@ class mmv_metric(Structure):
                 ("indom", c_uint),
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
-     
+
 ##
 # PCP Memory Mapped Value Services
 
 LIBPCP_MMV.mmv_stats_init.restype = c_void_p
 LIBPCP_MMV.mmv_stats_init.argtypes = [
-    c_char_p, c_int, c_int, mmv_metric, c_int, mmv_indom, c_int]
+    c_char_p, c_int, c_int,
+    POINTER(mmv_metric), c_int, POINTER(mmv_indom), c_int]
 
 LIBPCP_MMV.mmv_stats_stop.restype = None
 LIBPCP_MMV.mmv_stats_stop.argtypes = [c_char_p, c_void_p]
@@ -204,27 +185,42 @@ class MemoryMappedValues(object):
     """
 
     def __init__(self, name, flags = 0, cluster = 42):
-       self._name = name
-       self._flags = flags      # MMV_FLAGS_* flags
-       self._cluster = cluster  # PMID cluster number (domain is MMV)
-       self._metrics = []
-       self._indoms = []
-       self._handle = None      # pointer to the memory mapped area
+        self._name = name
+        self._cluster = cluster  # PMID cluster number (domain is MMV)
+        self._flags = flags      # MMV_FLAGS_* flags
+        self._metrics = []
+        self._indoms = []
+        self._handle = None      # pointer to the memory mapped area
 
     def start(self):
+        """ Initialise the underlying library with metrics/instances.
+            On completion of this call, we're all visible to pmdammv.
+        """
+        count_metrics = len(self._metrics)
+        metrics = (mmv_metric * count_metrics)()
+        for i in xrange(count_metrics):
+            metrics[i] = self._metrics[i]
+        count_indoms = len(self._indoms)
+        indoms = (mmv_indom * count_indoms)()
+        for i in xrange(count_indoms):
+            indoms[i] = self._indoms[i]
         self._handle = LIBPCP_MMV.mmv_stats_init(
                                 self._name,
-                                self._flags,
                                 self._cluster,
-                                self._metrics, len(self._metrics),
-                                self._indoms, len(self._indoms))
+                                self._flags,
+                                metrics, count_metrics,
+                                indoms, count_indoms)
 
     def stop(self):
+        """ Shut down the underlying library with metrics/instances.
+            This closes the mmap file preventing any further updates.
+        """
         if (self._handle != None):
             LIBPCP_MMV.mmv_stats_stop(self._name, self._handle)
         self._handle = None
 
     def restart(self):
+        """ Cleanly stop-if-running and restart MMV export services. """
         self.stop()
         self.start()
 
@@ -235,20 +231,24 @@ class MemoryMappedValues(object):
         return 1
 
     def add_indoms(self, indoms):
+        """ Make a list of instance domains visible to the MMV export """
         self._indoms = indoms
         if (self.started()):
             self.restart()
 
     def add_indom(self, indom):
+        """ Make an additional instance domain visible to the MMV export """
         self._indoms.append(indom)
         self.add_indoms(self._indoms)
 
     def add_metrics(self, metrics):
+        """ Make a list of metrics visible to the MMV export """
         self._metrics = metrics
         if (self.started()):
             self.restart()
 
     def add_metric(self, metric):
+        """ Make an additional metric visible to the MMV export """
         self._metrics.append(metric)
         self.add_metrics(self._metrics)
 
@@ -265,15 +265,19 @@ class MemoryMappedValues(object):
         """
         return LIBPCP_MMV.mmv_lookup_value_desc(self._handle, name, inst)
 
-    def inc(self, mapping, value):
+    def add(self, mapping, value):
         """ Increment the mapped metric by a given value """
         LIBPCP_MMV.mmv_inc_value(self._handle, mapping, value)
+
+    def inc(self, mapping):
+        """ Increment the mapped metric by one """
+        LIBPCP_MMV.mmv_inc_value(self._handle, mapping, 1)
 
     def set(self, mapping, value):
         """ Set the mapped metric to a given value """
         LIBPCP_MMV.mmv_set_value(self._handle, mapping, value)
 
-    def set_string(self, mapping, string):
+    def set_string(self, mapping, value):
         """ Set the string mapped metric to a given value """
         LIBPCP_MMV.mmv_set_string(self._handle, mapping, value, len(value))
 
@@ -292,7 +296,7 @@ class MemoryMappedValues(object):
         """ Lookup the named metric[instance] and add a value to it """
         LIBPCP_MMV.mmv_stats_add(self._handle, name, inst, value)
 
-    def lookup_inc(self, name, inst, value):
+    def lookup_inc(self, name, inst):
         """ Lookup the named metric[instance] and add one to it """
         LIBPCP_MMV.mmv_stats_inc(self._handle, name, inst)
 
@@ -304,7 +308,8 @@ class MemoryMappedValues(object):
         """ Lookup the named metric[instance] and start an interval
             The opaque handle returned is passed to interval_end().
         """
-        return LIBPCP_MMV.mmv_stats_interval_start(self._handle, 0, name, inst)
+        return LIBPCP_MMV.mmv_stats_interval_start(self._handle,
+                                                   None, name, inst)
 
     def lookup_set_string(self, name, inst, s):
         """ Lookup the named metric[instance] and set its string value """

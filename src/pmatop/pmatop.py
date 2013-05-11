@@ -43,6 +43,7 @@ import time
 import sys
 import curses
 import select
+import signal
 import pwd
 import cpmapi as c_api
 import cpmgui as c_gui
@@ -273,7 +274,7 @@ class _ProcessorPrint(_AtopPrint, Processor):
 
 
 class _InterruptPrint(_AtopPrint, Interrupt):
-    True
+    pass
 
 
 # _DiskPrint --------------------------------------------------
@@ -532,7 +533,7 @@ class _ProcPrint(_AtopPrint, Process):
 
 
 class _GenericPrint(_AtopPrint, Subsystem):
-    True
+    pass
 
 
 class _MiscMetrics(Subsystem):
@@ -546,6 +547,7 @@ class _MiscMetrics(Subsystem):
 
 
 def main (stdscr_p):
+    global stdscr
     stdscr = _StandardOutput(stdscr_p)
     output_file = ""
     input_file = ""
@@ -557,10 +559,10 @@ def main (stdscr_p):
     output_type = "g"
     i = 1
 
-    subsys_options = {"g", "m"}
+    subsys_options = ("g", "m")
 
-    class NextOption ( Exception ):
-        True
+    class NextOption(Exception):
+        pass
 
     while i < len(sys.argv):
         try:
@@ -592,6 +594,7 @@ def main (stdscr_p):
             i += 1
         except NextOption:
             i += 1
+            pass
 
     subsys = list()
     cpu = _ProcessorPrint()
@@ -697,7 +700,7 @@ def main (stdscr_p):
                         ssx[0]()
                     else:
                         ssx[0](ssx[1])
-                except curses.error:
+                except: # catch all errors, pcp or python or otherwise
                     pass
             stdscr.move (proc.command_line, 0)
             stdscr.refresh()
@@ -734,18 +737,31 @@ def main (stdscr_p):
                 # TODO Next/Previous Page
                 else:
                     stdscr.move (proc.command_line, 0)
-                    stdscr.addstr ("Invalid command %s" % cmd)
+                    all_cmds = list(subsys_cmds)
+                    all_cmds.append('q')
+                    stdscr.addstr ("Invalid command %s %s" % (cmd,all_cmds))
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1
     except KeyboardInterrupt:
-        True                        # pylint: disable-msg=W0104
+        pass
     stdscr.refresh()
     time.sleep(1)
     return ""
 
+def sigwinch_handler(n, frame):
+    global stdscr
+    curses.endwin()
+    curses.initscr()
+    # consume any subsequent characters awhile
+    while 1:
+        char = stdscr.getch()
+        if (char == -1):
+            break
+
 if __name__ == '__main__':
     if sys.stdout.isatty():
+        signal.signal(signal.SIGWINCH, sigwinch_handler)
         status = curses.wrapper(main)   # pylint: disable-msg=C0103
         # You're running in a real terminal
     else:

@@ -70,9 +70,9 @@ Internet
 End-of-File
 
 sed <$tmp.out \
-    -e 's/daemon or perl or dso,/"daemon" or "dso",/g' \
-    -e 's/daemon or perl or dso agent/daemon or dso agent/' \
-    -e 's/daemon or perl or python or dso agent/daemon or dso agent/' \
+    -e 's/or perl //g' \
+    -e 's/or python //g' \
+    -e 's/daemon or dso,/"daemon" or "dso",/g' \
     -e '/.[0-9][0-9]* hash table entries/d' \
     -e '/.[0-9][0-9]* leaf nodes/d' \
     -e '/.[0-9][0-9]* non-leaf nodes/d' \

@@ -106,7 +106,7 @@ src-pcp : $(SRCFILES) $(SUBDIRS)
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
-		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \
 		$(ECHO) $$DIR/$$f; \
 	    fi; \
@@ -117,8 +117,9 @@ src-link-pcp : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
+		echo "=== $$DIR/$$f ==="; \
 		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \
 		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
 	    fi; \
@@ -156,7 +157,7 @@ $(PCP_ALTLIBS):
 	rm -rf $@
 	mkdir $@
 	cp GNUlocaldefs.$@ $@/GNUlocaldefs
-	make -C src SLDEST=../$@ SLSRC=../src libsrc_symlinks
+	$(MAKE) -C src SLDEST=../$@ SLSRC=../src libsrc_symlinks
 endif
 
 libsrc_symlinks:
