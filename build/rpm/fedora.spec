@@ -11,9 +11,11 @@ Source0: pcp-%{version}.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
+BuildRequires: nss-devel
 BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname

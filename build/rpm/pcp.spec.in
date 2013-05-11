@@ -14,6 +14,10 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
+%if "@enable_secure@" == "true"
+BuildRequires: nss-devel
+BuildRequires: cyrus-sasl-devel
+%endif
 %if @have_libmicrohttpd@ == 1
 BuildRequires: libmicrohttpd-devel
 %endif
