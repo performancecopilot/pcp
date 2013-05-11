@@ -499,8 +499,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Tue Apr 23 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
-- Currently under development.
+* Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
+- Update to latest PCP sources.
 - Validate metric names passed into pmiAddMetric (BZ 958019)
 
 * Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1
