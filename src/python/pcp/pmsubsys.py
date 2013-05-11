@@ -54,12 +54,15 @@ class _pmsubsys(object):
 
     def setup_metrics(self, pcp):
         # remove any unsupported metrics
+        name_pattern = self.metrics[0].split(".")[0] + ".*"
         for j in range(len(self.metrics)-1, -1, -1):
             try:
                 self.metric_pmids = pcp.pmLookupName(self.metrics[j])
             except pmErr, e:
                 self.metrics.remove(self.metrics[j])
 
+        if (len(self.metrics) == 0):
+            raise pmErr, (c_api.PM_ERR_NAME, "", name_pattern)
         self.metrics_dict = dict((i, self.metrics.index(i)) for i in self.metrics)
         self.metric_pmids = pcp.pmLookupName(self.metrics)
         self.metric_descs = pcp.pmLookupDescs(self.metric_pmids)

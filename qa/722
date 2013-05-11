@@ -35,12 +35,12 @@ redact_lines()
 {
 awk -v f=$1 '
     BEGIN {first_cpu=1;first_lvm=1}
-    /^[0-9]/ {if ($f == "systemd") {gsub("[SR]","x",$10);print $0}; next}
-     /cpu/ {if (first_cpu) {print $0; first_cpu=0}; next}
-     /LVM/ {if (first_lvm) {gsub("[a-zA-Z0-9_-]*","x",$3);print $0; first_lvm=0;}; next}
-     /NET/ {if ($3 == "transport" || $3 == "network" || $3 == "wlan9") {print $0}; next}
-     /ATOP/ {gsub("[A-Za-z]*","Day",$3);gsub("[A-Za-z]*","Month",$4)}
-     {print $0}'
+    /^[0-9]/ {if ($f == "pmcd") {gsub("[SR]","x",$10);print $0}; next}
+    /cpu/ {if (first_cpu) {print $0; first_cpu=0}; next}
+    /LVM/ {if (first_lvm) {gsub("[a-zA-Z0-9_-]*","x",$3);print $0; first_lvm=0;}; next}
+    /NET/ {if ($3 == "transport" || $3 == "network" || $3 == "wlan9") {print $0}; next}
+    /ATOP/ {gsub("[A-Za-z]*","Day",$3);gsub("[A-Za-z]*","Month",$4)}
+    {print $0}'
 }
 
 # real QA test starts here
