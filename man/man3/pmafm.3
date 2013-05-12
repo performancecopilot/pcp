@@ -237,6 +237,20 @@ An informative dialog is generated directly by each
 process and hence note the comments on the disposition of output from
 .B pmlogger
 below.
+.PP
+Alternatively,
+.B pmlogger
+can be started with options to limit the duration of logging, e.g. the
+.B \-T
+or
+.B \-s
+arguments, in which case there is no need to call
+.B pmRecordControl
+with a
+.I request
+of
+.B PM_REC_OFF
+and no dialog is generated.
 .RE
 .IP 6.
 To display the current status of the
