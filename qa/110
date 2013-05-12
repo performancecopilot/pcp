@@ -115,6 +115,10 @@ _full()
 
 rm -f $seq.full
 
+# Clean the simple PMDA (domain 253) InDom cache
+#
+$sudo rm -f $PCP_VAR_DIR/config/pmda/253.*
+
 # real QA test starts here
 home=$PCP_PMDAS_DIR
 iam=simple
