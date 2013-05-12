@@ -799,7 +799,8 @@ build_os
 build_vendor
 build_cpu
 build
-pcp_user
+pcp_gname
+pcp_uname
 target_alias
 host_alias
 build_alias
@@ -846,6 +847,7 @@ with_threads
 with_tmpdir
 with_secure_sockets
 with_user_account
+with_group_account
 enable_ssp
 enable_pie
 enable_shared
@@ -1508,6 +1510,7 @@ Optional Packages:
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-user-account     user account under which daemons run (default is
                           pcp)
+  --with-group-account    user group under which daemons run (default is pcp)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2420,9 +2423,19 @@ fi
 
 # Check whether --with-user-account was given.
 if test "${with_user_account+set}" = set; then :
-  withval=$with_user_account; pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"
+  withval=$with_user_account; pcp_uname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"
 else
-  pcp_user=pcp
+  pcp_uname=pcp
+fi
+
+
+
+
+# Check whether --with-group-account was given.
+if test "${with_group_account+set}" = set; then :
+  withval=$with_group_account; pcp_gname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"
+else
+  pcp_gname=pcp
 fi
 
 
