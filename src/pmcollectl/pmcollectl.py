@@ -70,17 +70,19 @@ def record (context, config, interval, path):
     (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
     status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
     status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    time.sleep(interval)
-    context.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
-    status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
-    if status < 0 and status != c_api.PM_ERR_IPC:
-        check_status (status)
-
+    # sleep +1 to make sure pmlogger gets to the -T limit
+    time.sleep(interval+1)
+    # don't need to do anything else ... pmlogger will stop of it's own
+    # once -T limit is reached, or pmcollectl exits, and in particular
+    # calling
+    # status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    # produces a popup dialog we don't want
+    #
 
 # record_add_creator ------------------------------------------------------
 
 def record_add_creator (path):
-    fdesc = open (path, "r+")
+    fdesc = open (path, "a+")
     args = ""
     for i in sys.argv:
         args = args + i + " "

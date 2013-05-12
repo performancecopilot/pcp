@@ -185,5 +185,6 @@ PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
 PCP_MPI_DIRS=@pcp_mpi_dirs@
 
 # default account for running daemons (preferably unprivileged)
-# Standard user: "pcp"
-PCP_USER=@pcp_user@
+# Standard user: "pcp" and group: "pcp"
+PCP_USER=@pcp_uname@
+PCP_GROUP=@pcp_gname@

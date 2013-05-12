@@ -29,6 +29,22 @@ perl_opt=true
 socket_opt=true
 socket_inet_def=2078
 
+# Set up the simple PMDA (domain 253) InDom cache
+#
+domain=`sed -n <domain.h -e '/define SIMPLE/{
+s/[ 	]*$//
+s/.*[ 	]//
+p
+}'`
+if [ -z "$domain" ]
+then
+    echo "Arrgh ... cannot extract domain number from domain.h"
+    exit 1
+fi
+touch $PCP_VAR_DIR/config/pmda/$domain.1
+chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/$domain.1
+chmod 644 $PCP_VAR_DIR/config/pmda/$domain.1
+
 pmdaSetup
 pmdaInstall
 exit 0

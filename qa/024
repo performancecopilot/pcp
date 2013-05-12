@@ -129,5 +129,5 @@ $sudo src/chkctx2_lite -D16 -L 2>&1 \
 
 echo
 echo "sorted stripped lines ..."
-LC_COLLATE=POSIX sort $tmp.tmp
+LC_COLLATE=POSIX sort $tmp.tmp | uniq
 
