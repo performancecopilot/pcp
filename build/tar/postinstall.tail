@@ -118,7 +118,7 @@ fi
 #
 chown -R pcp:pcp $PCP_LOG_DIR/pmcd
 chown -R pcp:pcp $PCP_LOG_DIR/pmie
-[ -f $PCP_LOG_DIR/pmwebd ] && chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
+[ -d $PCP_LOG_DIR/pmwebd ] && chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
 chown -R pcp:pcp $PCP_LOG_DIR/pmproxy
 chown -R pcp:pcp $PCP_LOG_DIR/pmlogger
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
