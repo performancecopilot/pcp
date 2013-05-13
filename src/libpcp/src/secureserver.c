@@ -495,7 +495,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 {
     int sts, saslsts;
     int pinned, length, count;
-    char *payload, buffer[LIMIT_AUTH_PDU];
+    char *payload, *offset;
     sasl_conn_t *sasl_conn;
     __pmPDU *pb;
 
@@ -531,13 +531,23 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	fprintf(stderr, "__pmAuthServerNegotiation - wait for mechanism\n");
 
     sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
-    if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmGetPDU gave sts=%d (%s)", sts, pmErrStr(sts));
     if (sts == PDU_AUTH) {
         sts = __pmDecodeAuth(pb, &count, &payload, &length);
         if (sts >= 0) {
-	    saslsts = sasl_server_start(sasl_conn, buffer,
-				payload, length,
+	    for (count = 0; count < length; count++) {
+		if (payload[count] == '\0')
+		    break;
+	    }
+	    if (count < length)	{  /* found an initial response */
+		length = length - count - 1;
+		offset = payload + count + 1;
+	    } else {
+		length = 0;
+		offset = NULL;
+	    }
+
+	    saslsts = sasl_server_start(sasl_conn, payload,
+				offset, length,
 				(const char **)&payload,
 				(unsigned int *)&length);
 	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {

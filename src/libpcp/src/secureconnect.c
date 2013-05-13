@@ -17,6 +17,7 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#include <assert.h>
 #include <hasht.h>
 #include <certdb.h>
 #include <secerr.h>
@@ -111,6 +112,7 @@ typedef struct {
     PRFileDesc	*nsprFd;
     PRFileDesc	*sslFd;
     sasl_conn_t *saslConn;
+    sasl_callback_t *saslCB;
 } __pmSecureSocket;
 
 int
@@ -266,6 +268,10 @@ __pmCloseSocket(int fd)
 	if (socket.saslConn) {
 	    sasl_dispose(&socket.saslConn);
 	    socket.saslConn = NULL;
+	}
+	if (socket.saslCB) {
+	    free(socket.saslCB);
+	    socket.saslCB = NULL;
 	}
 	if (socket.nsprFd) {
 	    freeNSPRHandle(fd);
@@ -771,39 +777,9 @@ static int
 __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     __pmSecureSocket socket;
+    sasl_callback_t *cb;
     SECStatus secsts;
     int sts;
-
-    sasl_callback_t callbacks[] = \
-	{ {
-	    .id = SASL_CB_USER,
-	    .proc = (sasl_callback_func)&__pmAuthSimpleCB,
-	    .context = (void *)attrs,
-	}, {
-	    .id = SASL_CB_AUTHNAME,
-	    .proc = (sasl_callback_func)&__pmAuthSimpleCB,
-	    .context = (void *)attrs,
-	}, {
-	    .id = SASL_CB_LANGUAGE,
-	    .proc = (sasl_callback_func)&__pmAuthSimpleCB,
-	}, {
-	    .id = SASL_CB_GETREALM,
-	    .proc = (sasl_callback_func)&__pmAuthRealmCB,
-	    .context = (void *)attrs,
-	}, {
-	    .id = SASL_CB_PASS,
-	    .proc = (sasl_callback_func)&__pmAuthSecretCB,
-	    .context = (void *)attrs,
-	}, {
-	    .id = SASL_CB_ECHOPROMPT,
-	    .proc = (sasl_callback_func)&__pmAuthPromptCB,
-	}, {
-	    .id = SASL_CB_NOECHOPROMPT,
-	    .proc = (sasl_callback_func)&__pmAuthPromptCB,
-	}, {
-	    .id = SASL_CB_LIST_END,
-	} };
-
 
     if (__pmDataIPC(fd, &socket) < 0)
 	return -EOPNOTSUPP;
@@ -839,10 +815,42 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
+	socket.saslCB = calloc(LIMIT_CLIENT_CALLBACKS, sizeof(sasl_callback_t));
+	if ((cb = socket.saslCB) == NULL)
+	    return -ENOMEM;
+	cb->id = SASL_CB_USER;
+	cb->proc = (sasl_callback_func)&__pmAuthSimpleCB;
+	cb->context = (void *)attrs;
+	cb++;
+	cb->id = SASL_CB_AUTHNAME;
+	cb->proc = (sasl_callback_func)&__pmAuthSimpleCB;
+	cb->context = (void *)attrs;
+	cb++;
+	cb->id = SASL_CB_LANGUAGE;
+	cb->proc = (sasl_callback_func)&__pmAuthSimpleCB;
+	cb++;
+	cb->id = SASL_CB_GETREALM;
+	cb->proc = (sasl_callback_func)&__pmAuthRealmCB;
+	cb->context = (void *)attrs;
+	cb++;
+	cb->id = SASL_CB_PASS;
+	cb->proc = (sasl_callback_func)&__pmAuthSecretCB;
+	cb->context = (void *)attrs;
+	cb++;
+	cb->id = SASL_CB_ECHOPROMPT;
+	cb->proc = (sasl_callback_func)&__pmAuthPromptCB;
+	cb++;
+	cb->id = SASL_CB_NOECHOPROMPT;
+	cb->proc = (sasl_callback_func)&__pmAuthPromptCB;
+	cb++;
+	cb->id = SASL_CB_LIST_END;
+	cb++;
+	assert(cb - socket.saslCB <= LIMIT_CLIENT_CALLBACKS);
+
 	sts = sasl_client_new(SECURE_SERVER_SASL_SERVICE,
 				hostname,
 				NULL, NULL, /*iplocal,ipremote*/
-				callbacks,
+				socket.saslCB,
 				0, &socket.saslConn);
 	if (sts != SASL_OK && sts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(sts);
@@ -894,15 +902,15 @@ __pmInitAuthPaths(void)
 	sasl_set_path(SASL_PATH_TYPE_CONFIG, path);
 }
 
-int
-__pmInitAuthClients(void)
-{
-    sasl_callback_t callbacks[] = { \
+static sasl_callback_t common_callbacks[] = { \
 	{ .id = SASL_CB_LOG, .proc = (sasl_callback_func)&__pmAuthLogCB },
 	{ .id = SASL_CB_LIST_END }};
 
+int
+__pmInitAuthClients(void)
+{
     __pmInitAuthPaths();
-    if (sasl_client_init(callbacks) != SASL_OK)
+    if (sasl_client_init(common_callbacks) != SASL_OK)
 	return -EINVAL;
     return 0;
 }
@@ -910,12 +918,8 @@ __pmInitAuthClients(void)
 int
 __pmInitAuthServer(void)
 {
-    sasl_callback_t callbacks[] = { \
-	{ .id = SASL_CB_LOG, .proc = (sasl_callback_func)&__pmAuthLogCB },
-	{ .id = SASL_CB_LIST_END }};
-
     __pmInitAuthPaths();
-    if (sasl_server_init(callbacks, SECURE_SERVER_SASL_CONFIG) != SASL_OK)
+    if (sasl_server_init(common_callbacks, SECURE_SERVER_SASL_CONFIG) != SASL_OK)
 	return -EINVAL;
     return 0;
 }
@@ -1029,6 +1033,10 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     } else {
 	length = method_length + 1;
     }
+
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "sasl_client_start sending (%d bytes) \"%s\"\n",
+		length, buffer);
 
     if ((sts = __pmSendAuth(fd, FROM_ANON, 0, buffer, length)) < 0)
 	return sts;
