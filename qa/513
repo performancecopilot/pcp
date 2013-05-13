@@ -11,11 +11,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 _check_valgrind
-authentication=false
-eval `pmconfig -L 2>/dev/null`
-
 rm -f $seq.out $seq.full
-if $authentication ; then
+if [ $PCP_VER -ge 3800 ]; then
     ln $seq.out.2 $seq.out
 else
     ln $seq.out.1 $seq.out
