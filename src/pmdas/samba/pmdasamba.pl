@@ -128,7 +128,7 @@ $pmda->run;
 
 =head1 NAME
 
-pmdasamba - Linux virtualisation performance metrics domain agent (PMDA)
+pmdasamba - Samba performance metrics domain agent (PMDA)
 
 =head1 DESCRIPTION
 
