@@ -579,6 +579,9 @@ badCertificate(void *arg, PRFileDesc *sslsocket)
 static int
 __pmAuthLogCB(void *context, int priority, const char *message)
 {
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthLogCB enter ctx=%p pri=%d\n", context, priority);
+
     if (!message)
 	return SASL_BADPARAM;
     switch (priority) {
@@ -616,6 +619,9 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     char *value = NULL;
 
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthRealmCB enter ctx=%p id=%d\n", context, id);
+
     if (id != SASL_CB_GETREALM)
 	return SASL_FAIL;
 
@@ -647,6 +653,9 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     char *value = NULL;
     int sts = SASL_OK;
+
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthSimpleCB enter ctx=%p id=%d\n", context, id);
 
     if (!result)
 	return SASL_BADPARAM;
@@ -689,6 +698,9 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     unsigned int length = 0;
     char *password = NULL;
 
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthSecretCB enter ctx=%p id=%d\n", context, id);
+
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
 	return SASL_BADPARAM;
 
@@ -713,6 +725,9 @@ static int
 __pmAuthPromptCB(void *context, int id, const char *challenge, const char *prompt,
 		 const char *defaultresult, const char **result, unsigned *length)
 {
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthPromptCB enter ctx=%p id=%d\n", context, id);
+
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)
 	return SASL_BADPARAM;
     if (!prompt || !result || !length)
@@ -826,7 +841,7 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
     if ((flags & PDU_FLAG_AUTH) != 0) {
 	sts = sasl_client_new(SECURE_SERVER_SASL_SERVICE,
 				hostname,
-				NULL, NULL, /*iplocal,ipremote,callbacks*/
+				NULL, NULL, /*iplocal,ipremote*/
 				callbacks,
 				0, &socket.saslConn);
 	if (sts != SASL_OK && sts != SASL_CONTINUE)
@@ -928,7 +943,7 @@ __pmAuthClientSetProperties(sasl_conn_t *saslconn, int ssf)
 static int
 __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *attrs)
 {
-    int sts, zero, result = SASL_OK;
+    int sts, zero, saslsts = SASL_FAIL;
     int pinned, length, method_length;
     char *payload, buffer[LIMIT_AUTH_PDU];
     const char *method = NULL;
@@ -960,6 +975,12 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     if (sts == PDU_AUTH) {
 	sts = __pmDecodeAuth(pb, &zero, &payload, &length);
 	if (sts >= 0) {
+	    strncpy(buffer, payload, length);
+	    buffer[length] = '\0';
+
+	    if (pmDebug & DBG_TRACE_AUTH)
+		fprintf(stderr, "__pmAuthClientNegotiation got methods: "
+				"\"%s\" (%d)\n", buffer, length);
 	    /*
 	     * buffer now contains the list of server mechanisms -
 	     * override using users preference (if any) and proceed.
@@ -968,17 +989,18 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		strncpy(buffer, method, sizeof(buffer));
 		buffer[sizeof(buffer) - 1] = '\0';
 		length = strlen(buffer);
-	    } else {
-		strncpy(buffer, payload, length);
-		buffer[length] = '\0';
 	    }
 
 	    payload = NULL;
-	    sts = result = sasl_client_start(saslconn, buffer, NULL,
+	    saslsts = sasl_client_start(saslconn, buffer, NULL,
 					     (const char **)&payload,
 					     (unsigned int *)&length, &method);
-	    if (sts != SASL_OK && sts != SASL_CONTINUE)
-		sts = __pmSecureSocketsError(sts);
+	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+		sts = __pmSecureSocketsError(saslsts);
+		if (pmDebug & DBG_TRACE_AUTH)
+		    fprintf(stderr, "sasl_client_start failed: %d (%s)\n",
+				    saslsts, pmErrStr(sts));
+	    }
 	}
     } else if (sts == PDU_ERROR) {
 	__pmDecodeError(pb, &sts);
@@ -992,8 +1014,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	return sts;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthClientNegotiation chose \"%s\" method\n",
-		method);
+	fprintf(stderr, "sasl_client_start chose \"%s\" method, saslsts=%s\n",
+		method, saslsts == SASL_CONTINUE ? "continue" : "ok");
 
     /* tell server we've made a decision and are ready to move on */
     strncpy(buffer, method, sizeof(buffer));
@@ -1011,19 +1033,22 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     if ((sts = __pmSendAuth(fd, FROM_ANON, 0, buffer, length)) < 0)
 	return sts;
 
-    while (result == SASL_CONTINUE) {
+    while (saslsts == SASL_CONTINUE) {
 	if (pmDebug & DBG_TRACE_AUTH)
-	    fprintf(stderr, "__pmAuthClientNegotiation awaiting server reply");
+	    fprintf(stderr, "__pmAuthClientNegotiation awaiting server reply\n");
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 	if (sts == PDU_AUTH) {
 	    sts = __pmDecodeAuth(pb, &zero, &payload, &length);
 	    if (sts >= 0) {
-		sts = result = sasl_client_step(saslconn, payload, length, NULL,
+		saslsts = sasl_client_step(saslconn, payload, length, NULL,
 						(const char **)&buffer,
 						(unsigned int *)&length);
-		if (sts != SASL_OK && sts != SASL_CONTINUE) {
-		    sts = __pmSecureSocketsError(sts);
+		if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
+		    sts = __pmSecureSocketsError(saslsts);
+		    if (pmDebug & DBG_TRACE_AUTH)
+			fprintf(stderr, "sasl_client_step failed: %d (%s)\n",
+					saslsts, pmErrStr(sts));
 		    break;
 		}
 		if (pmDebug & DBG_TRACE_AUTH) {
@@ -1049,9 +1074,9 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	if (sts < 0)
 	    fprintf(stderr, "__pmAuthClientNegotiation loop failed\n");
 	else {
-	    result = sasl_getprop(saslconn, SASL_USERNAME, (const void **)&payload);
+	    saslsts = sasl_getprop(saslconn, SASL_USERNAME, (const void **)&payload);
 	    fprintf(stderr, "__pmAuthClientNegotiation success, username=%s\n",
-			    result != SASL_OK ? "?" : payload);
+			    saslsts != SASL_OK ? "?" : payload);
 	}
     }
 
@@ -1099,6 +1124,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
+    int saslsts;
 
     if (__pmDataIPC(fd, &socket) < 0)
 	return -EOPNOTSUPP;
@@ -1134,10 +1160,12 @@ __pmSecureServerIPCFlags(int fd, int flags)
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
-	int saslsts = sasl_server_new(SECURE_SERVER_SASL_SERVICE,
+	saslsts = sasl_server_new(SECURE_SERVER_SASL_SERVICE,
 				NULL, NULL, /*localdomain,userdomain*/
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
 				0, &socket.saslConn);
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "__pmSecureServerIPCFlags SASL server: %d\n", saslsts);
 	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(saslsts);
     }

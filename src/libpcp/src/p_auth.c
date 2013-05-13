@@ -48,11 +48,16 @@ __pmSendAuth(int fd, int from, int attr, const char *value, int length)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
-	char buffer[LIMIT_AUTH_PDU] = { 0 };
+	char buffer[LIMIT_AUTH_PDU];
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint(value[i]) ? value[i] : '.';
-	fprintf(stderr, "__pmSendAuth [len=%d]: attr=%x value=\"%s\"\n",
-		attr, length, buffer);
+	buffer[length] = buffer[LIMIT_AUTH_PDU-1] = '\0';
+	if (attr)
+	    fprintf(stderr, "__pmSendAuth [len=%d]: attr=%x value=\"%s\"\n",
+			    length, attr, buffer);
+	else
+	    fprintf(stderr, "__pmSendAuth [len=%d]: payload=\"%s\"\n",
+			    length, buffer);
     }
 #endif
 
@@ -81,11 +86,16 @@ __pmDecodeAuth(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
-	char buffer[LIMIT_AUTH_PDU] = { 0 };
+	char buffer[LIMIT_AUTH_PDU];
 	for (i = 0; i < length; i++)
 	    buffer[i] = isprint(pp->value[i]) ? pp->value[i] : '.';
-	fprintf(stderr, "__pmDecodeAuth [len=%d]: attr=%x value=\"%s\"\n",
-		length, *attr, buffer);
+	buffer[length] = buffer[LIMIT_AUTH_PDU-1] = '\0';
+	if (*attr)
+	    fprintf(stderr, "__pmDecodeAuth [len=%d]: attr=%x value=\"%s\"\n",
+			    length, *attr, buffer);
+	else
+	    fprintf(stderr, "__pmDecodeAuth [len=%d]: payload=\"%s\"\n",
+			    length, buffer);
     }
 #endif
 
