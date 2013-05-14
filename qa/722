@@ -22,7 +22,7 @@ remove_extra_whitespace()
     sed \
 	-e 's/>>>.*<<<//g' \
 	-e 's/[0-9]/9/g' \
-	-e 's/9[9]*/9/g' \
+	-e 's/9[9\.e]*/9/g' \
 	-e 's/  *$//' \
 	-e '/^ *$/d' \
 	-e 's/  */ /g' \
@@ -34,11 +34,22 @@ remove_extra_whitespace()
 redact_lines()
 {
 awk -v f=$1 '
-    BEGIN {first_cpu=1;first_lvm=1}
-    /^[0-9]/ {if ($f == "pmcd") {gsub("[SR]","x",$10);print $0}; next}
+    BEGIN {first_cpu=1;first_dsk=1;first_lvm=1;proc_printed=0}
+    /^9/ {if (! proc_printed) {
+		 gsub("[SR]","x",$10)
+		 gsub("[a-zA-Z_][a-zA-Z_]+","userid",$6)
+		 gsub("[a-zA-Z_][a-zA-Z_]+","process",$9)
+		 gsub("[a-zA-Z_][a-zA-Z_]+","process",$12)
+		 if ($2 != "9K") $2="HHMMSS"
+		 if ($3 != "9K") $3="HHMMSS"
+		 proc_printed = 1
+		 print $0}
+	      next}
     /cpu/ {if (first_cpu) {print $0; first_cpu=0}; next}
+    /PRC/ {$4 = "HHMMSS";$7 = "HHMMSS"}
+    /DSK/ {if (first_dsk) {$3 = "DISKNAME"; print $0; first_dsk=0}; next}
     /LVM/ {if (first_lvm) {gsub("[a-zA-Z0-9_-]*","x",$3);print $0; first_lvm=0;}; next}
-    /NET/ {if ($3 == "transport" || $3 == "network" || $3 == "wlan9") {print $0}; next}
+    /NET/ {if ($3 == "transport" || $3 == "network") {print $0}; next}
     /ATOP/ {gsub("[A-Za-z]*","Day",$3);gsub("[A-Za-z]*","Month",$4)}
     {print $0}'
 }
