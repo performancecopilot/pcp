@@ -591,14 +591,13 @@ if __name__ == '__main__':
             map( subsys.append, (cpu, disk, net) )
 
     if replay_archive:
-        lines = []
         if not os.path.exists(input_file):
             print input_file, "does not exist"
             sys.exit(1)
         for line in open(input_file):
-            lines.append(line[:-1].split())
-        archive = os.path.join(os.path.dirname(input_file),
-                               lines[len(lines)-1][2])
+            if (line[:8] == "Archive:"):
+                lines = line[:-1].split()
+        archive = os.path.join(os.path.dirname(input_file), lines[2])
         try:
             pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
