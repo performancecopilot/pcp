@@ -67,6 +67,7 @@ __pmTPDGet(void)
 #include <sasl.h>
 
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
+#define SECURE_USERDB_DEFAULT_KEY "\n"
 
 struct __pmSockAddr {
     PRNetAddr		sockaddr;
