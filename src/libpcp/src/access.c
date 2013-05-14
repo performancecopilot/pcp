@@ -392,6 +392,7 @@ getAccessSpecs(const char *name, int *sts)
     struct accessSpec	*specs;
     size_t		specSize;
     size_t		specIx;
+    size_t		ix;
     size_t		need;
     __pmSockAddr	*myAddr;
     __pmHostEnt		*servInfo;
@@ -402,7 +403,7 @@ getAccessSpecs(const char *name, int *sts)
     static int		cando_ipv6 = -1;
 
     /* If the general wildcard ("*") is specified, then generate individual wildcards for
-       inet and, is supported, IPv6. */
+       inet and, if supported, IPv6. */
     *sts = 0;
     if (strcmp(name, "*") == 0) {
 	/* Use calloc so that the final entry is zeroed. */
@@ -483,6 +484,15 @@ getAccessSpecs(const char *name, int *sts)
 	    if (myAddr == NULL) {
 		specs[specIx].name = NULL;
 		break;
+	    }
+	    /* Don't add any duplicate entries. It causes false permission clashes. */
+	    for (ix = 0; ix < specIx; ++ix) {
+		if (__pmSockAddrCompare(myAddr, specs[ix].hostid) == 0)
+		    break;
+	    }
+	    if (ix < specIx){
+		__pmSockAddrFree(myAddr);
+		continue;
 	    }
 	    /* Add the new address and its corrsponding mask. */
 	    family = __pmSockAddrGetFamily(myAddr);
