@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -33,7 +33,7 @@
 #include "impl.h"
 #include "internal.h"
 
-INTERN int	pmDebug = 0;		/* the real McCoy */
+INTERN int	pmDebug;		/* the real McCoy */
 
 /*
  * Performance Instrumentation
@@ -249,7 +249,7 @@ __pmPDUTypeStr_r(int type, char *buf, int buflen)
     else if (type == PDU_LOG_CONTROL) res = "LOG_CONTROL";
     else if (type == PDU_LOG_STATUS) res = "LOG_STATUS";
     else if (type == PDU_LOG_REQUEST) res = "LOG_REQUEST";
-    else if (type == PDU_USER_AUTH) res = "USER_AUTH";
+    else if (type == PDU_AUTH) res = "AUTH";
     if (res == NULL)
 	snprintf(buf, buflen, "TYPE-%d?", type);
     else

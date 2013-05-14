@@ -52,9 +52,17 @@ AC_ARG_WITH(
     [user-account],
     [AS_HELP_STRING([--with-user-account],
 		    [user account under which daemons run (default is pcp)])],
-    [pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
-    [pcp_user=pcp])
-AC_SUBST(pcp_user)
+    [pcp_uname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
+    [pcp_uname=pcp])
+AC_SUBST(pcp_uname)
+
+AC_ARG_WITH(
+    [group-account],
+    [AS_HELP_STRING([--with-group-account],
+		    [user group under which daemons run (default is pcp)])],
+    [pcp_gname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"],
+    [pcp_gname=pcp])
+AC_SUBST(pcp_gname)
 
 #
 # Note: the following environment variables may be
@@ -311,6 +319,12 @@ AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
 PCFLAGS=$CFLAGS
 AC_SUBST(PCFLAGS)
+
+dnl for cc use locally in configure (not exported via $PCFLAGS),
+dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+dnl flags out into $CFLAGS_OPT for our build infrastructure
+CFLAGS="-O $CFLAGS"
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax

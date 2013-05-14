@@ -110,6 +110,7 @@ _z(void)
     int			type;
     char		*buffer;
     int			control;
+    int			attr;
     int			rate;
     int			state;
     int			num;
@@ -792,42 +793,45 @@ _z(void)
 	}
     }
 
-/* PDU_USER_AUTH */
 #if PCP_VER >= 3800
-#define PAYLOAD "All of your base are belong to us"
-    if ((e = __pmSendUserAuth(fd[1], mypid, sizeof(PAYLOAD), PAYLOAD)) < 0) {
-	fprintf(stderr, "Error: SendUserAuth: %s\n", pmErrStr(e));
+/* PDU_AUTH */
+#define USERNAME "pcpqa"
+    if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
+	fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
 	exit(1);
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvUserAuth: %s\n", pmErrStr(e));
+	    fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
 	    exit(1);
 	}
 	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvUserAuth: end-of-file!\n");
+	    fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
 	    exit(1);
 	}
-	else if (e != PDU_USER_AUTH) {
-	    fprintf(stderr, "Error: RecvUserAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+	else if (e != PDU_AUTH) {
+	    fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
 	    exit(1);
 	}
 	else {
 	    buffer = NULL;
-	    if ((e = __pmDecodeUserAuth(pb, &count, &buffer)) < 0) {
-		fprintf(stderr, "Error: DecodeUserAuth: %s\n", pmErrStr(e));
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
+		fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
 		exit(1);
 	    }
 	    else {
-		if (count != sizeof(PAYLOAD))
-		    fprintf(stderr, "Botch: UserAuth: length: got: 0x%x expect: 0x%x\n",
-			count, (int)sizeof(PAYLOAD));
+		if (attr != PCP_ATTR_USERNAME)
+		    fprintf(stderr, "Botch: AuthAttr: attr: got: 0x%x expect: 0x%x\n",
+			attr, PCP_ATTR_USERNAME);
+		if (count != sizeof(USERNAME))
+		    fprintf(stderr, "Botch: AuthAttr: length: got: 0x%x expect: 0x%x\n",
+			count, (int)sizeof(USERNAME));
 		if (buffer == NULL)
-		    fprintf(stderr, "Botch: UserAuth: payload is NULL!\n");
+		    fprintf(stderr, "Botch: AuthAttr: payload is NULL!\n");
 		else {
-		    if (strncmp(buffer, PAYLOAD, sizeof(PAYLOAD)) != 0)
-			fprintf(stderr, "Botch: UserAuth: payload: got: \"%s\" expect: \"%s\"\n",
-			    buffer, PAYLOAD);
+		    if (strncmp(buffer, USERNAME, sizeof(USERNAME)) != 0)
+			fprintf(stderr, "Botch: AuthAttr: payload: got: \"%s\" expect: \"%s\"\n",
+			    buffer, USERNAME);
 		}
 	    }
 	}

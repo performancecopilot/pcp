@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -174,6 +175,38 @@ eatline:
     return 0;
 }
 
+static int
+build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
+{
+    __pmHashNode *node;
+    char name[32];
+    char *namep;
+    int sts = 0;
+
+    snprintf(name, sizeof(name), "%u", getuid());
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+	__pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+
+    snprintf(name, sizeof(name), "%u", getgid());
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+	__pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+
+    if (dispatch->version.six.attribute != NULL) {
+	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
+	     node != NULL;
+	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+	    if ((sts = dispatch->version.six.attribute(
+				0, node->key, node->data,
+				node->data ? strlen(node->data)+1 : 0,
+				dispatch->version.six.ext)) < 0)
+		break;
+	}
+    }
+    return sts;
+}
+
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
@@ -246,7 +279,7 @@ __pmShutdownLocal(void)
 }
 
 int
-__pmConnectLocal(void)
+__pmConnectLocal(__pmHashCtl *attrs)
 {
     int			i;
     __pmDSO		*dp;
@@ -346,7 +379,6 @@ __pmConnectLocal(void)
 	challenge = 0xff;
 	dp->dispatch.comm.pmda_interface = challenge;
 	dp->dispatch.comm.pmapi_version = ~PMAPI_VERSION;
-
 	dp->dispatch.comm.flags = 0;
 	dp->dispatch.status = 0;
 
@@ -372,14 +404,18 @@ __pmConnectLocal(void)
 		dlclose(dp->handle);
 		dp->domain = -1;
 	    }
-
-	    if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
+	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
 			 dp->dispatch.comm.pmapi_version, path);
 		pmflush();
 		dlclose(dp->handle);
 		dp->domain = -1;
+	    }
+	    else if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_6 &&
+		    (dp->dispatch.comm.flags & PDU_FLAG_AUTH) != 0) {
+		/* Agent wants to know about connection attributes */
+		build_dsoattrs(&dp->dispatch, attrs);
 	    }
 	}
 #ifdef HAVE_ATEXIT

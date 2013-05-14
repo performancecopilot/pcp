@@ -54,7 +54,8 @@ are equivalent to the scripts
 .BR cron.pmcheck
 and
 .BR cron.pmlogmerge 
-which are deprecated but preserved on IRIX for backward compatibility.
+which are deprecated but preserved on some older platforms
+for backward compatibility.
 .PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
@@ -364,7 +365,7 @@ away from the root login,
 .RS +4n
 .IP + 2n
 Instead of using the ``root'' login,
-create a special IRIX login with uid equal to 0, e.g. \c
+create a special login with uid equal to 0, e.g. \c
 .BR su_pcp .
 The password may be locked and/or the shell invalid to prevent login
 or
@@ -527,7 +528,7 @@ The
 variable may be used to specify an alternative
 configuration file,
 as described in
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 .SH SEE ALSO
 .BR bzip2 (1),
 .BR cron (1),

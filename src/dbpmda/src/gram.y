@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 %{
@@ -112,7 +109,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 %term	COMMA EQUAL
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
-	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE
+	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
 	DSO PIPE SOCK
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
@@ -123,6 +120,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	optdomain
 	debug
 	raw_pmid
+	attribute
 
 %type <y_str>
 	fname
@@ -300,6 +298,20 @@ stmt	: OPEN EOL				{
 		param.name = $2;
 		stmt_type = NAMESPACE; YYACCEPT;
 	    }
+	| ATTR EOL				{
+		param.number = ATTR; param.pmid = HELP_USAGE;
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| ATTR attribute EOL		{
+		param.number = $2;
+		param.name = NULL;
+		stmt_type = ATTR; YYACCEPT;
+	    }
+	| ATTR attribute STRING EOL	{
+		param.number = $2;
+		param.name = $3;
+		stmt_type = ATTR; YYACCEPT;
+	    }
 
 	| HELP EOL				{ 
 		param.number = -1; param.pmid = HELP_FULL; 
@@ -355,6 +367,10 @@ stmt	: OPEN EOL				{
 	    }
 	| HELP PMNS_TRAVERSE EOL			{
 		param.number = PMNS_TRAVERSE; param.pmid = HELP_FULL; 
+		stmt_type = HELP; YYACCEPT;
+	    }
+	| HELP ATTR EOL			{
+		param.number = ATTR; param.pmid = HELP_FULL; 
 		stmt_type = HELP; YYACCEPT;
 	    }
 	| HELP PROFILE EOL			{
@@ -450,6 +466,26 @@ fname	: NAME					{ $$ = strcons("./", $1); }
 
 optdomain : NUMBER				{ $$ = $1; }
 	| /* nothing */				{ $$ = 0; }
+	;
+
+attribute : NUMBER				{
+		sts = __pmAttrKeyStr_r($1, warnStr, sizeof(warnStr));
+		if (sts <= 0) {
+		    sprintf(warnStr, "Attribute (%d) is not recognised", $1);
+		    yyerror(warnStr);
+		    YYERROR;
+		}
+		$$ = $1;
+	    }
+	| STRING				{ 
+		sts = __pmLookupAttrKey($1, strlen($1)+1);
+		if (sts <= 0) {
+		    sprintf(warnStr, "Attribute (%s) is not recognised", $1);
+		    yyerror(warnStr);
+		    YYERROR;
+		}
+		$$ = sts;
+	    }
 	;
 
 metric	: NUMBER				{ 

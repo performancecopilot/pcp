@@ -2,6 +2,7 @@
 #define _PMDA_H
 
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +30,8 @@ extern "C" {
 #define PMDA_INTERFACE_4	4	/* dynamic pmns */
 #define PMDA_INTERFACE_5	5	/* client context in pmda and */
 					/* 4-state return from fetch callback */
-#define PMDA_INTERFACE_LATEST	5
+#define PMDA_INTERFACE_6	6	/* client security attributes in pmda */
+#define PMDA_INTERFACE_LATEST	6
 
 /*
  * Type of I/O connection to PMCD (pmdaUnknown defaults to pmdaPipe)
@@ -103,6 +105,7 @@ typedef void (*pmdaEndContextCallBack)(int);
  * header file is not mandated if this header file is included.
  */
 typedef struct __pmnsTree  pmdaNameSpace;
+typedef struct __pmHashCtl pmdaHashTable;
 typedef struct __pmProfile pmdaInProfile;
 typedef struct __pmInResult pmdaInResult;
 
@@ -151,9 +154,9 @@ typedef struct {
 
 /*
  * Interface Definitions for PMDA DSO Interface
- * The new interface structure differs significantly from the original version
- * (_pmPMDA that used to be in impl.h) with the use of a union to
- * manage new revisions cleanly.
+ * The new interface structure makes use of a union to manage new revisions
+ * cleanly.  The structure for each new version must be backward compatible
+ * to all of the previous versions (i.e. contain earlier fields unchanged).
  *
  * The domain field is set by pmcd(1) in the case of a DSO PMDA, and by
  * pmdaDaemon and pmdaGetOpt in the case of a Daemon PMDA. It should not be
@@ -164,7 +167,7 @@ typedef struct {
     struct {
 	unsigned int	pmda_interface : 8;	/* PMDA DSO interface version */
 	unsigned int	pmapi_version : 8;	/* PMAPI version */
-	unsigned int	flags : 16;		/* usage TBD */
+	unsigned int	flags : 16;		/* optional feature flags */
     } comm;		/* set/return communication and version info */
     int	status;		/* return initialization status here */
 
@@ -183,12 +186,12 @@ typedef struct {
 	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
 	    int	    (*store)(pmResult *, pmdaExt *);
-	} two;
+	} any, two, three;
 
 /*
  * Interface Version 4 (dynamic pmns support) and Version 5 (client context
- * in pmda)
- * PMDA_INTERFACE_4 and PMDA_INTERFACE_5
+ * in PMDA).
+ * PMDA_INTERFACE_4, PMDA_INTERFACE_5
  */
 
 	struct {
@@ -202,7 +205,25 @@ typedef struct {
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
-	} four;
+	} four, five;
+
+/*
+ * Interface Version 6 (client context security attributes in PMDA).
+ * PMDA_INTERFACE_6
+ */
+	struct {
+	    pmdaExt *ext;
+	    int	    (*profile)(pmdaInProfile *, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
+	    int	    (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+	    int	    (*text)(int, int, char **, pmdaExt *);
+	    int	    (*store)(pmResult *, pmdaExt *);
+	    int     (*pmid)(const char *, pmID *, pmdaExt *);
+	    int     (*name)(pmID, char ***, pmdaExt *);
+	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
+	    int     (*attribute)(int, int, const char *, int, pmdaExt *);
+	} six;
 
     } version;
 
@@ -349,10 +370,16 @@ extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
  *	the PMNS (this is the pmGetChildren or pmGetChildrenStatus variant).
  *	If traverse == 1, return the full names of all descendent metrics
  *	(this is the pmTraversePMNS variant, with the status added)
+ *
+ * pmdaAttribute
+ *	Inform the agent about security aspects of a client connection,
+ *	such as the authenticated userid.  Passed in a client identifier,
+ *	numeric PCP_ATTR, pointer to the associated value, and the length
+ *	of the value.
  */
 
 extern int pmdaProfile(pmdaInProfile *, pmdaExt *);
-extern int pmdaFetch(int , pmID *, pmResult **, pmdaExt *);
+extern int pmdaFetch(int, pmID *, pmResult **, pmdaExt *);
 extern int pmdaInstance(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
 extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 extern int pmdaText(int, int, char **, pmdaExt *);
@@ -360,6 +387,7 @@ extern int pmdaStore(pmResult *, pmdaExt *);
 extern int pmdaPMID(const char *, pmID *, pmdaExt *);
 extern int pmdaName(pmID, char ***, pmdaExt *);
 extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
+extern int pmdaAttribute(int, int, const char *, int, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation
@@ -466,19 +494,6 @@ extern int pmdaCachePurge(pmInDom, time_t);
  *	Step through an instance domain, returning instances one at a
  *	time.
  *
- * __pmdaSetup
- *      Setup the PMDA's pmdaInterface and pmdaExt structures which are common 
- *      to both Daemon and DSO PMDAs.
- *
- * __pmdaSetupPDU
- *	Exchange version information with pmcd.
- *
- * __pmdaOpenInet
- *	Open an inet port to PMCD.
- *
- * __pmdaOpenUnix
- *	Open a unix port to PMCD.
- *
  * __pmdaMainPDU
  *	Use this when you need to override pmdaMain and construct
  *      your own loop.
@@ -499,12 +514,6 @@ extern int pmdaCachePurge(pmInDom, time_t);
 extern int __pmdaCntInst(pmInDom, pmdaExt *);
 extern void __pmdaStartInst(pmInDom, pmdaExt *);
 extern int __pmdaNextInst(int *, pmdaExt *);
-
-extern void __pmdaSetup(pmdaInterface *, int, char *);
-extern int __pmdaSetupPDU(int, int, char *);
-
-extern void __pmdaOpenInet(char *, int, int *, int *);
-extern void __pmdaOpenUnix(char *, int *, int *);
 
 extern int __pmdaMainPDU(pmdaInterface *);
 extern int __pmdaInFd(pmdaInterface *);

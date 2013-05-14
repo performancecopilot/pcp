@@ -86,7 +86,7 @@ _check_agent()
     quiet=$2
     sts=0
 
-    [ X"$quiet" == "X" ] && quiet=false
+    [ X"$quiet" = "X" ] && quiet=false
 
     pminfo -f $agent 2>&1 | \
         $PCP_AWK_PROG '

@@ -83,12 +83,7 @@ pmStore(const pmResult *result)
 			tmpvset.vlist[0] = result->vset[n]->vlist[0];
 			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 			    dp->dispatch.version.four.ext->e_context = ctx;
-			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-			    sts = dp->dispatch.version.four.store(&tmp,
-						    dp->dispatch.version.four.ext);
-			else
-			    sts = dp->dispatch.version.two.store(&tmp,
-						    dp->dispatch.version.two.ext);
+			sts = dp->dispatch.version.any.store(&tmp, dp->dispatch.version.any.ext);
 		    }
 		}
 	    }

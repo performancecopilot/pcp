@@ -67,6 +67,7 @@ __pmTPDGet(void)
 #include <sasl.h>
 
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
+#define SECURE_USERDB_DEFAULT_KEY "\n"
 
 struct __pmSockAddr {
     PRNetAddr		sockaddr;
@@ -108,12 +109,15 @@ extern int __pmSecureServerIPCFlags(int, int);
 
 #define SECURE_SERVER_SASL_CONFIG "pcp"
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
-#define LIMIT_USER_AUTH	2048	/* maximum size of a SASL transfer (in bytes) */
-#define DEFAULT_SECURITY_STRENGTH 1	/* SASL security strength factor */
-/* nathans TODO: above should possibly be zero? */
+#define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
+#define LIMIT_CLIENT_CALLBACKS 8	/* maximum size of callback array */
+#define DEFAULT_SECURITY_STRENGTH 0	/* SASL security strength factor */
+
 typedef int (*sasl_callback_func)(void);
 extern int __pmInitAuthClients(void);
 extern int __pmInitAuthServer(void);
+
+extern int __pmGetUserIdentity(const char *, uid_t *, gid_t *, int);
 
 #ifdef __cplusplus
 }

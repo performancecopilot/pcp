@@ -63,7 +63,6 @@ def scale (value, magnitude):
 
 def record (context, config, interval, path):
     
-    os.putenv('PCP_STDERR', '')
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
@@ -71,17 +70,19 @@ def record (context, config, interval, path):
     (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
     status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
     status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    time.sleep(interval)
-    context.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
-    status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
-    if status < 0 and status != c_api.PM_ERR_IPC:
-        check_status (status)
-
+    # sleep +1 to make sure pmlogger gets to the -T limit
+    time.sleep(interval+1)
+    # don't need to do anything else ... pmlogger will stop of it's own
+    # once -T limit is reached, or pmcollectl exits, and in particular
+    # calling
+    # status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    # produces a popup dialog we don't want
+    #
 
 # record_add_creator ------------------------------------------------------
 
 def record_add_creator (path):
-    fdesc = open (path, "r+")
+    fdesc = open (path, "a+")
     args = ""
     for i in sys.argv:
         args = args + i + " "
@@ -590,14 +591,13 @@ if __name__ == '__main__':
             map( subsys.append, (cpu, disk, net) )
 
     if replay_archive:
-        lines = []
         if not os.path.exists(input_file):
             print input_file, "does not exist"
             sys.exit(1)
         for line in open(input_file):
-            lines.append(line[:-1].split())
-        archive = os.path.join(os.path.dirname(input_file),
-                               lines[len(lines)-1][2])
+            if (line[:8] == "Archive:"):
+                lines = line[:-1].split()
+        archive = os.path.join(os.path.dirname(input_file), lines[2])
         try:
             pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:

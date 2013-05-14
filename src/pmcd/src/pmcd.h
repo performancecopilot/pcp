@@ -90,7 +90,9 @@ typedef struct {
 	    madeDsoResult : 1,		/* Pmcd made a "bad" pmResult (DSO only) */
 	    restartKeep : 1,		/* Keep agent if set during restart */
 	    notReady : 1,		/* Agent not ready to process PDUs */
-	    startNotReady : 1;		/* Agent starts in non-ready state */
+	    startNotReady : 1,		/* Agent starts in non-ready state */
+	    unused : 9,			/* Zero-padded, unused space */
+	    flags : 16;			/* Agent-supplied connection flags */
     } status;
     int		reason;			/* if ! connected */
     union {				/* per-ipcType info */
@@ -214,7 +216,9 @@ extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
 extern void ResetBadHosts(void);
 extern void MarkStateChanges(int);
-extern void CleanupClient(ClientInfo*, int);
+extern void CleanupClient(ClientInfo *, int);
+extern int ClientsAuthentication(AgentInfo *);
+extern int AgentsAuthentication(int);
 extern pmResult **SplitResult(pmResult *);
 
 /*

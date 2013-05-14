@@ -241,17 +241,6 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-ifneq "$(LIBTARGET)" ""
-LIBLINK_MAKERULE = \
-	@rm -f $(TOPDIR)/src/lib/$(LIBTARGET) \
-	$(LN_S) -f $(shell pwd)/$(LIBTARGET) $(TOPDIR)/src/lib
-endif
-ifneq "$(STATICLIBTARGET)" ""
-STATIC_LIBLINK_MAKERULE = \
-	@rm -f $(TOPDIR)/src/lib/$(STATICLIBTARGET) \
-	$(LN_S) -f $(shell pwd)/$(STATICLIBTARGET) $(TOPDIR)/src/lib
-endif
-
 DOMAIN_MAKERULE = \
 	@rm -f domain.h; \
 	echo "/*" >domain.h; \
@@ -338,22 +327,25 @@ else
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
     for d in `echo $$MAN_PAGES`; do \
+	echo "=== `pwd`/$$d ===" >>/tmp/eek.raw; \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
-        cat $$d | $(AWK) ' \
-	    BEGIN			{ do_print=0; print "'"$$base"'"; } \
-	    $$1 == ".ds"		{ ds["\\\\\\*\\("$$2] = $$3; } \
-	    /^\.SH NAME/		{ do_print=1; next } \
-	    $$1 == ".SH" && do_print	{ do_print=0; next } \
-	    do_print			{ if (match($$0, "^\\\\f3.*\\\\f1")) { \
-					    gsub ("\\\\f3", "", $$0); \
-					    gsub ("\\\\f1.*", "", $$0); \
-					    for ( d in ds ) { \
-						sub (d, ds[d], $$0); \
-					    } \
-					    print; } }' \
-		| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u | \
-	while read m; do \
+	$(AWK) <$$d ' \
+BEGIN { state=0; print "'"$$base"'" } \
+$$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
+$$1==".SH" && $$2=="NAME" { state=1; next } \
+$$1==".SH" && state==1	{ exit } \
+/^\./ { next } \
+state==1 { for (i=1;i<=NF;i++) { \
+             if ($$i=="\\-" || $$i=="-") exit; \
+	     gsub ("\\\\f3", "", $$i); gsub ("\\\\f1.*", "", $$i); \
+	     for ( d in ds ) sub (d, ds[d], $$i); \
+	     print $$i \
+	   } \
+	 }' \
+	| tee -a /tmp/eek.raw \
+	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
+	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
 	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
 	    if $$first; then \
@@ -499,7 +491,7 @@ PMDA_SYSTEMD=@PMDA_SYSTEMD@
 PYTHON=@PYTHON@
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
-SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/lib
+SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
 SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list

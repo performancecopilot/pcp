@@ -272,7 +272,7 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_CONFIG	(1<<21) /* configuration parameters */
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
-#define DBG_TRACE_USERAUTH	(1<<24) /* user authorisation mechanism */
+#define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 /* not yet allocated, bits (1<<25) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
@@ -497,18 +497,24 @@ extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
 
 typedef enum {
-    PCP_ATTR_NONE = 0,
-    PCP_ATTR_PROTOCOL,			/* either pcp:/pcps: protocol (libssl) */
-    PCP_ATTR_SECURE,			/* relaxed/enforced pcps mode (libssl) */
-    PCP_ATTR_COMPRESS,			/* compression flag, no value (libnss) */
-    PCP_ATTR_USERAUTH,			/* user auth flag, no value (libsasl) */
-    PCP_ATTR_USERNAME,			/* user login identity (libsasl) */
-    PCP_ATTR_AUTHNAME,			/* authentication name (libsasl) */
-    PCP_ATTR_PASSWORD,			/* passphrase-based secret (libsasl) */
-    PCP_ATTR_METHOD,			/* use authentication method (libsasl) */
-    PCP_ATTR_REALM,			/* realm to authenticate in (libsasl) */
-    PCP_ATTR_UNIXSOCK,			/* AF_UNIX socket + SO_PASSCRED (NYI) */
-} __pmHostAttributeKey;
+    PCP_ATTR_NONE	= 0,
+    PCP_ATTR_PROTOCOL	= 1,	/* either pcp:/pcps: protocol (libssl) */
+    PCP_ATTR_SECURE	= 2,	/* relaxed/enforced pcps mode (libssl) */
+    PCP_ATTR_COMPRESS	= 3,	/* compression flag, no value (libnss) */
+    PCP_ATTR_USERAUTH	= 4,	/* user auth flag, no value (libsasl) */
+    PCP_ATTR_USERNAME	= 5,	/* user login identity (libsasl) */
+    PCP_ATTR_AUTHNAME	= 6,	/* authentication name (libsasl) */
+    PCP_ATTR_PASSWORD	= 7,	/* passphrase-based secret (libsasl) */
+    PCP_ATTR_METHOD	= 8,	/* use authentication method (libsasl) */
+    PCP_ATTR_REALM	= 9,	/* realm to authenticate in (libsasl) */
+    PCP_ATTR_UNIXSOCK	= 10,	/* AF_UNIX socket + SO_PASSCRED (unix) */
+    PCP_ATTR_USERID	= 11,	/* uid - user identifier (posix) */
+    PCP_ATTR_GROUPID	= 12,	/* gid - group identifier (posix) */
+} __pmAttrKey;
+
+extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
+extern int __pmAttrKeyStr_r(__pmAttrKey, char *, size_t);
+extern int __pmAttrStr_r(__pmAttrKey, const char *, char *, size_t);
 
 extern int __pmParseHostAttrsSpec(
     const char *, pmHostSpec **, int *, __pmHashCtl *, char **);
@@ -535,7 +541,7 @@ typedef struct {
 } __pmPMCDCtl;
 
 extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
-extern int __pmConnectLocal(void);
+extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 
@@ -626,7 +632,7 @@ typedef enum {
     PM_SERVER_FEATURE_SECURE = 0,
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
-    PM_SERVER_FEATURE_USER_AUTH,
+    PM_SERVER_FEATURE_AUTH,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -729,7 +735,7 @@ typedef struct {
 /* Flags for CVERSION credential PDUs, and __pmPDUInfo features */
 #define PDU_FLAG_SECURE		(1U<<0)
 #define PDU_FLAG_COMPRESS	(1U<<1)
-#define PDU_FLAG_USER_AUTH	(1U<<2)
+#define PDU_FLAG_AUTH		(1U<<2)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -787,7 +793,7 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_NAMES		0x700e
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_USER_AUTH		0x7011
+#define PDU_AUTH		0x7011
 #define PDU_FINISH		0x7011
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
@@ -844,8 +850,8 @@ extern int __pmSendChildReq(int, int, const char *, int);
 extern int __pmDecodeChildReq(__pmPDU *, char **, int *);
 extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
-extern int __pmSendUserAuth(int, int, int, const char *);
-extern int __pmDecodeUserAuth(__pmPDU *, int *, char **);
+extern int __pmSendAuth(int, int, int, const char *, int);
+extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 

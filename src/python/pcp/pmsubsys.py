@@ -54,12 +54,15 @@ class _pmsubsys(object):
 
     def setup_metrics(self, pcp):
         # remove any unsupported metrics
+        name_pattern = self.metrics[0].split(".")[0] + ".*"
         for j in range(len(self.metrics)-1, -1, -1):
             try:
                 self.metric_pmids = pcp.pmLookupName(self.metrics[j])
             except pmErr, e:
                 self.metrics.remove(self.metrics[j])
 
+        if (len(self.metrics) == 0):
+            raise pmErr, (c_api.PM_ERR_NAME, "", name_pattern)
         self.metrics_dict = dict((i, self.metrics.index(i)) for i in self.metrics)
         self.metric_pmids = pcp.pmLookupName(self.metrics)
         self.metric_descs = pcp.pmLookupDescs(self.metric_pmids)
@@ -95,13 +98,26 @@ class _pmsubsys(object):
         if hasattr(super(_pmsubsys, self), 'get_metric_value'):
             super(_pmsubsys, self).get_metric_value()
 
+    def get_old_scalar_value(self, var, idx):
+        aidx = 0
+        if var in self.metrics:
+            aidx = self.metrics_dict[var]
+            aval = self.old_metric_values[aidx]
+        else:
+            return 0
+        val = self.get_atom_value(aval[idx], None, self.metric_descs[aidx], False)
+        if type(val) == type(int()) or type(val) == type(long()):
+            return val
+        else:
+            return val[idx]
+
     def get_len(self, var):
         if type(var) != type(int()) and type(var) != type(long()):
             return len(var)
         else:
             return 1
 
-    def get_atom_value(self, metric, atom1, atom2, desc, want_diff): # pylint: disable-msg=R0913
+    def get_atom_value(self, atom1, atom2, desc, want_diff): # pylint: disable-msg=R0913
         # value conversion and diff, if required
         atom_type = desc.type
         if atom2 == None:
@@ -187,7 +203,7 @@ class _pmsubsys(object):
                         want_diff = False
                     else:
                         want_diff = True
-                    value.append(self.get_atom_value(self.metrics[i], atomlist[k], old_val, self.metric_descs[j], want_diff))
+                    value.append(self.get_atom_value(atomlist[k], old_val, self.metric_descs[j], want_diff))
 
                 self.old_metric_values[j] = copy.copy(atomlist)
                 if metric_result.contents.get_numval(j) == 1:
@@ -333,14 +349,12 @@ class Network(_pmsubsys):
 
 # Process  -----------------------------------------------------------------
 
-
 class Process(_pmsubsys):
     def __init__(self):
         super(Process, self).__init__()
-        self.metrics += ['proc.id.egid', 'proc.id.euid', 'proc.id.fsgid',
-                         'proc.id.fsuid', 'proc.id.gid', 'proc.id.sgid',
-                         'proc.id.suid', 'proc.id.uid', 'proc.io.write_bytes',
-                         'proc.memory.rss', 'proc.memory.vmsize',
+        self.metrics += ['proc.id.uid', 
+                         'proc.memory.datrss', 'proc.memory.librss',
+                         'proc.memory.textrss', 'proc.memory.vmstack',
                          'proc.nprocs', 'proc.psinfo.cmd',
                          'proc.psinfo.exit_signal', 'proc.psinfo.maj_flt',
                          'proc.psinfo.minflt', 'proc.psinfo.nice',
@@ -355,7 +369,7 @@ class Process(_pmsubsys):
                          'proc.runq.blocked', 'proc.runq.defunct',
                          'proc.schedstat.cpu_time',
                          'process.interface.out.errors']
-        self.diff_metrics += ['proc.memory.rss', 'proc.memory.vmsize']
+        self.diff_metrics += ['proc.psinfo.rss', 'proc.psinfo.vsize']
 
 
 # subsys  -----------------------------------------------------------------

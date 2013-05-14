@@ -31,9 +31,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("pcp://some.host?user=pcpqa&compress&pass=blah", ...)
 host[0]: "some.host"
-password="blah"
+password=blah
 compress
-username="pcpqa"
+username=pcpqa
 protocol=pcp
 pmUnparseHostAttrsSpec("pcp://some.host?user=pcpqa&compress&pass=blah") -> "pcp://some.host?password=blah&compress&username=pcpqa"
 === std err ===
@@ -47,7 +47,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("pcp://some.host?user=pcpqa", ...)
 host[0]: "some.host"
-username="pcpqa"
+username=pcpqa
 protocol=pcp
 pmUnparseHostAttrsSpec("pcp://some.host?user=pcpqa") -> "pcp://some.host?username=pcpqa"
 === std err ===
@@ -61,7 +61,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("some.host?user=pcpqa", ...)
 host[0]: "some.host"
-username="pcpqa"
+username=pcpqa
 pmUnparseHostAttrsSpec("some.host?user=pcpqa") -> "some.host?username=pcpqa"
 === std err ===
 === filtered valgrind report ===

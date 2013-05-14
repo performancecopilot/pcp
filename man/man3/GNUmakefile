@@ -68,6 +68,6 @@ include $(BUILDRULES)
 install :: install_pcp
 
 install_pcp : default
-	@$(INSTALL_MAN)
+	$(INSTALL_MAN)
 
 

@@ -1,0 +1,209 @@
+.TH PMATOP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B pmatop 
+- System & Process Monitor
+.SH SYNOPSIS
+Interactive usage:
+.P
+.B pmatop
+[-g|-m] [-L linelen]
+[
+.I interval
+[
+.I samples
+]]
+.P
+Writing and reading raw logfiles:
+.P
+.B pmatop
+-w
+.I rawfile
+[
+.I interval
+[
+.I samples
+]]
+.br
+.B pmatop
+-r [
+.I rawfile
+] [-g|-m] [-L linelen]
+.SH DESCRIPTION
+The program
+.I pmatop
+is an interactive monitor to view the load on a Linux system.
+It shows the occupation of the most critical hardware resources 
+(from a performance point of view) on system level, i.e. cpu, memory, disk
+and network. It is modeled after
+.BR atop (1)
+and provides a showcase for the variety of data available via
+.BR pmcd (1).
+.br
+.PP
+Every
+.I interval
+(default: 10 seconds) information is shown about the resource occupation
+on system level (cpu, memory, disks and network layers), followed
+by a list of processes which have been active during the last interval
+If the list of active processes does not entirely fit on
+the screen, only the top of the list is shown.
+.br
+The intervals are repeated till the number of
+.I samples
+(specified as command argument) is reached, or till the key 'q' is pressed
+in interactive mode.
+.PP
+When 
+.I pmatop
+is started, it checks whether the standard output channel is connected to a
+screen, or to a file/pipe. In the first case it produces screen control 
+codes (via the ncurses library) and behaves interactively; in the second case
+it produces flat ASCII-output.
+.PP
+In interactive mode, the output of 
+.I pmatop
+scales dynamically to the current dimensions of the screen/window.
+.PP
+Furthermore in interactive mode the output of 
+.I pmatop
+can be controlled by pressing particular keys.
+However it is also possible to specify such key as
+.B flag
+on the command line. In that case
+.I pmatop
+switches to the indicated mode on beforehand; this mode can 
+be modified again interactively. Specifying such key as flag is especially
+useful when running
+.I pmatop
+with output to a pipe or file (non-interactively).
+These flags are the same as the keys that can be pressed in interactive
+mode (see section INTERACTIVE COMMANDS).
+.SH OUTPUT FORMAT
+The output of 
+.I pmatop
+consists of system level and process level information.  The system
+level information consists of the following output lines:
+.PP
+.TP 5
+.B PRC
+Process and thread level totals.
+.br
+This line contains the total cpu time consumed 
+in system mode (`sys') and in user mode (`user'),
+the total number of processes present at this moment (`#proc'),
+`sleeping interruptible' (`#tslpi') and `sleeping uninterruptible' (`#tslpu'),
+and the number of zombie processes (`#zombie').
+.PP
+.TP 5
+.B CPU
+The occupation percentage of this process related to the available capacity
+for this resource on system level.
+.br
+This line contains the total CPU usage in system mode, in user mode,
+in irq mode, in idle mode, and in wait mode.  The 
+.B cpu
+lines contain this information on a per cpu basis.
+.PP
+.TP 5
+.B CPL
+This line contains load average information for the last minute, five
+minutes, and fifteen minutes.  Also the number of context switches and
+the number of device interrupts.
+.PP
+.TP 5
+.B MEM
+This line contains the size of physical memory, free memory, page
+cache, buffer cache, and slab.
+.PP
+.TP 5
+.B SWP
+This line contains the size of swap, free swap, committed space, and
+committed space limit.
+.PP
+.TP 5
+.B PAG
+This line contains the number of page scans, allocstalls, swapins, and
+swapouts.
+.PP
+.TP 5
+.B LVM/MDD/DSK
+For every logical volume/multiple device/hard disk one line is shown
+containing the nàme, number of reads, and number of writes.
+.PP
+.TP 5
+.B NET
+The first line is for the upper TCP/IP layer and contains the number
+of packets received, packets transmitted, packets received.  The next
+line is one per network interface and contains the number of packets
+received and number of packets transmitted.
+.PP
+.TP 5
+.B PROCESS
+The remaining lines are one line per process and can be controlled as
+described below.
+.SH INTERACTIVE COMMANDS
+When running
+.I pmatop
+interactively (no output redirection), keys can be pressed to control the
+output.
+.PP
+.TP 5
+.B g
+Show generic output (default).
+
+Per process the following fields are shown in case of a window-width
+of 80 positions:
+process-id, cpu consumption during
+the last interval in system- and user mode, the virtual and resident
+memory growth of the process.
+
+The subsequent columns are the username, number of threads in the
+thread group, the status and exit code are shown.
+.br
+The last columns contain the state, the occupation percentage for the
+chosen resource (default: cpu) and the process name.
+
+When more than 80 positions are available, other information is added.
+.PP
+.TP 5
+.B m
+Show memory related output.
+
+Per process the following fields are shown in case of a window-width
+of 80 positions:
+process-id, minor and major
+memory faults, size of virtual shared text, total virtual 
+process size, total resident process size, virtual and resident growth during
+last interval, memory occupation percentage and process name.
+
+When more than 80 positions are available, other information is added.
+.PP
+Miscellaneous interactive commands:
+.PP
+.TP 5
+.B ?
+Request for help information (also the key 'h' can be pressed).
+.PP
+.TP 5
+.B z
+The pause key can be used to freeze the current situation in order to
+investigate the output on the screen. While 
+.I pmatop
+is paused, the keys described above can be pressed to show other
+information about the current list of processes.
+Whenever the pause key is pressed again,
+pmatop will continue with a next sample.
+.PP
+.SH "SEE ALSO"
+.BR PCPIntro (1),
+.BR collectl (1),
+.BR perl (1),
+.BR python (1),
+.BR pmlogger (1),
+.BR pmcd (1),
+.BR pmprobe (1),
+.BR pmval (1),
+.BR PMAPI (3),
+and
+.BR pcp.conf (4).
+

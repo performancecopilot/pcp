@@ -11,9 +11,11 @@ Source0: pcp-%{version}.src.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
+BuildRequires: nss-devel
 BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
@@ -419,7 +421,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmie
 %{_initddir}/pmwebd
 %{_initddir}/pmproxy
-%{_mandir}/man4/*
+%{_mandir}/man5/*
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
@@ -516,8 +518,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Tue Apr 23 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
-- Currently under development.
+* Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
+- Update to latest PCP sources.
 - Validate metric names passed into pmiAddMetric (BZ 958019)
 
 * Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1

@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -160,6 +160,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     aPtr->status.connected = 0;
     aPtr->status.busy = 0;
     aPtr->status.notReady = 0;
+    aPtr->status.flags = 0;
     AgentDied = 1;
 
     if (_pmcd_trace_mask)

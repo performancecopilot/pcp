@@ -493,10 +493,10 @@ If there is only one metric specification in the list, the braces are optional.
 A metric specification consists of a metric name optionally
 followed by a set of instance names.
 The metric name follows the standard PCP naming conventions, see
-.BR pmns (4),
+.BR pmns (5),
 and if the metric name
 is a non-leaf node in the PMNS (see \c
-.BR pmns (4)),
+.BR pmns (5)),
 then
 .B pmlogger
 will recursively descend the PMNS and apply the logging specification
@@ -744,17 +744,17 @@ The
 variable may be used to specify an alternative
 configuration file,
 as described in
-.BR pcp.conf (4).
+.BR pcp.conf (5).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmdumplog (1),
 .BR pmlc (1),
 .BR pmlogger_check (1),
-.BR pcp.conf (4),
-.BR pcp.env (4)
+.BR pcp.conf (5),
+.BR pcp.env (5)
 and
-.BR pmns (4).
+.BR pmns (5).
 .SH DIAGNOSTICS
 The archive logs are sufficiently precious that
 .B pmlogger

@@ -274,11 +274,12 @@ ctxflags(__pmHashCtl *attrs)
     __pmHashNode *node;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
-	if (strcmp((char *)node->data, "pcps") == 0 &&
-	    (node = __pmHashSearch(PCP_ATTR_SECURE, attrs)) != NULL)
-	    secure = (char *)node->data;
-	else
-	    secure = "enforce";
+	if (strcmp((char *)node->data, "pcps") == 0) {
+	    if ((node = __pmHashSearch(PCP_ATTR_SECURE, attrs)) != NULL)
+		secure = (char *)node->data;
+	    else
+		secure = "enforce";
+	}
     }
 
     if (!secure)
@@ -304,7 +305,7 @@ ctxflags(__pmHashCtl *attrs)
 	__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
-	flags |= PM_CTXFLAG_USER_AUTH;
+	flags |= PM_CTXFLAG_AUTH;
 
     return flags;
 }
@@ -444,7 +445,7 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
-	if ((sts = __pmConnectLocal()) != 0)
+	if ((sts = __pmConnectLocal(&new->c_attrs)) != 0)
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {

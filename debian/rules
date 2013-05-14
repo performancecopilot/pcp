@@ -87,7 +87,7 @@ uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
 uninstallpy = cat python-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include
+uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep

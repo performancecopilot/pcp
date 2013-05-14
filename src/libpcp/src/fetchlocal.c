@@ -107,34 +107,25 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
 #endif
 		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    dp->dispatch.version.four.ext->e_context = ctx;
-		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		    sts = dp->dispatch.version.four.profile(ctxp->c_instprof,
-							   dp->dispatch.version.four.ext);
-		else
-		    sts = dp->dispatch.version.two.profile(ctxp->c_instprof,
-							   dp->dispatch.version.two.ext);
+		sts = dp->dispatch.version.any.profile(ctxp->c_instprof,
+						dp->dispatch.version.any.ext);
 		if (sts >= 0)
 		    ctxp->c_sent = dp->domain;
 	    }
-
 	}
 
 	/* Copy all pmID for the current domain into the temp. list */
 	for (cnt=0, k=j; k < numpmid; k++ ) {
-	    if (((__pmID_int*)(pmidlist+k))->domain == ((__pmID_int*)(pmidlist+j))->domain) {
+	    if (((__pmID_int*)(pmidlist+k))->domain ==
+		((__pmID_int*)(pmidlist+j))->domain)
 		splitlist[cnt++] = pmidlist[k];
-	    }
 	}
 
 	if (sts >= 0) {
 	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		dp->dispatch.version.four.ext->e_context = ctx;
-	    if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4)
-		sts = dp->dispatch.version.four.fetch(cnt, splitlist, &tmp_ans,
-						     dp->dispatch.version.four.ext);
-	    else
-		sts = dp->dispatch.version.two.fetch(cnt, splitlist, &tmp_ans,
-						     dp->dispatch.version.two.ext);
+	    sts = dp->dispatch.version.any.fetch(cnt, splitlist, &tmp_ans,
+						dp->dispatch.version.any.ext);
 	}
 
 	/* Copy results back

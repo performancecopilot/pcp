@@ -187,14 +187,14 @@ QA output created by 513
   __pmtracedecodedata: sts = -12006 (IPC protocol failure)
 [trace_data] checking access beyond buffer
   __pmtracedecodedata: sts = -12006 (IPC protocol failure)
-[user_auth] checking all-zeroes structure
-  __pmDecodeUserAuth: sts = -12366 (IPC protocol failure)
-[user_auth] checking negative length
-  __pmDecodeUserAuth: sts = -12366 (IPC protocol failure)
-[user_auth] checking empty payload
-  __pmDecodeUserAuth: sts = 0 (No error)
-[user_auth] checking access beyond limit
-  __pmDecodeUserAuth: sts = -12366 (IPC protocol failure)
+[auth] checking all-zeroes structure
+  __pmDecodeAuth: sts = -12366 (IPC protocol failure)
+[auth] checking negative length
+  __pmDecodeAuth: sts = -12366 (IPC protocol failure)
+[auth] checking empty value
+  __pmDecodeAuth: sts = 0 (No error)
+[auth] checking access beyond limit
+  __pmDecodeAuth: sts = -12366 (IPC protocol failure)
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducrash

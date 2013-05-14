@@ -1,10 +1,10 @@
 pcp (3.8.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
-  * Introduces SASL dependency in core PCP library.
+  * Introduces SASL2 dependency in core PCP library.
   * Ensure install.log turds not left behind (closes: #705994)
 
- -- Nathan Scott <nathans@debian.org>  Tue, 23 Apr 2013 15:29:36 +1000
+ -- Nathan Scott <nathans@debian.org>  Tue, 14 May 2013 08:29:36 +1000
 
 pcp (3.7.2) unstable; urgency=low
 

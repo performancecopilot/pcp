@@ -74,7 +74,7 @@ PCP_INC_DIR=@pcp_inc_dir@
 
 # parent directory of man pages
 # Standard path: /usr/man
-# Subdirectories: man1 man3 man4
+# Subdirectories: man1 man3 man5
 PCP_MAN_DIR=@pcp_man_dir@
 
 # directory for non-shared (i.e. system local) PCP files
@@ -185,5 +185,6 @@ PCP_XCONFIRM_PROG=@ac_xconfirm_prog@
 PCP_MPI_DIRS=@pcp_mpi_dirs@
 
 # default account for running daemons (preferably unprivileged)
-# Standard user: "pcp"
-PCP_USER=@pcp_user@
+# Standard user: "pcp" and group: "pcp"
+PCP_USER=@pcp_uname@
+PCP_GROUP=@pcp_gname@

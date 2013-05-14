@@ -187,14 +187,33 @@ server_dump_request_ports(FILE *f, int ipv4, int ipv6, int port)
 static void
 server_dump_configuration(FILE *f)
 {
+    char *cwd;
+    char path[MAXPATHLEN];
+    char cwdpath[MAXPATHLEN];
+    int sep = __pmPathSeparator();
+    int len;
+
+    cwd = getcwd(cwdpath, sizeof(cwdpath));
     if (resourcedir) {
-        fprintf (f, "Serving non-pmwebapi URLs under directory %s\n",
-                       resourcedir);
+	len = (__pmAbsolutePath(resourcedir) || !cwd) ?
+	    snprintf(path, sizeof(path), "%s", resourcedir) :
+	    snprintf(path, sizeof(path), "%s%c%s", cwd, sep, resourcedir);
+	while (len-- > 1) {
+	    if (path[len] != '.' && path[len] != sep) break;
+	    path[len] = '\0';
+	}
+        fprintf (f, "Serving non-pmwebapi URLs under directory %s\n", path);
     }
     if (new_contexts_p) {
+	len = (__pmAbsolutePath(archivesdir) || !cwd) ?
+	    snprintf(path, sizeof(path), "%s", archivesdir) :
+	    snprintf(path, sizeof(path), "%s%c%s", cwd, sep, archivesdir);
+	while (len-- > 1) {
+	    if (path[len] != '.' && path[len] != sep) break;
+	    path[len] = '\0';
+	}
         /* XXX: network outbound ACL */
-        fprintf (f, "Serving PCP archives under directory %s\n",
-                       archivesdir);
+        fprintf (f, "Serving PCP archives under directory %s\n", path);
     } else {
         fprintf (f, "Remote context creation requests disabled\n");
     }

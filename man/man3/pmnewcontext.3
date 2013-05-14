@@ -228,7 +228,7 @@ In addition, applications using a
 context
 must be single-threaded because the various DSO PMDAs may not be
 thread-safe.  This restriction is enforced at the
-.BR PMAPI (4),
+.BR PMAPI (3),
 where routines may return the error code
 .B PM_ERR_THREAD
 if the library detects calls from more than one thread.
@@ -238,7 +238,7 @@ Applications that use
 should exercise caution because the static fields in
 .I "struct hostent"
 may not be preserved across some
-.BR PMAPI (4)
+.BR PMAPI (3)
 calls.
 In particular,
 .BR pmNewContext (3)
@@ -260,9 +260,9 @@ internally.
 .BR pmSetMode (3),
 .BR pmUseContext (3),
 .BR pmWhichContext (3),
-.BR pcp.conf (4)
+.BR pcp.conf (5)
 and
-.BR pcp.env (4).
+.BR pcp.env (5).
 .SH DIAGNOSTICS
 .P
 .B PM_ERR_PERMISSION

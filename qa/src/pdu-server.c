@@ -58,6 +58,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		control;
     int		length;
     int		state;
+    int		attr;
     int		rate;
     int		ident;
     int		txtype;
@@ -303,29 +304,29 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    break;
 
 #if PCP_VER >= 3800
-	case PDU_USER_AUTH:
-	    if ((e = __pmDecodeUserAuth(pb, &length, &buffer)) < 0) {
-		fprintf(stderr, "%s: Error: DecodeUserAuth: %s\n", pmProgname, pmErrStr(e));
+	case PDU_AUTH:
+	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &length)) < 0) {
+		fprintf(stderr, "%s: Error: DecodeAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0) {
 		char	buf[32] = { 0 };
 
-		fprintf(stderr, "+ PDU_USER_AUTH: length=%d", length);
+		fprintf(stderr, "+ PDU_AUTH: attr=%d length=%d", attr, length);
 		if (length < sizeof(buf)-2) {
                     strncpy(buf, buffer, length);
-		    fprintf(stderr, " payload=\"%s\"\n", buf);
+		    fprintf(stderr, " value=\"%s\"\n", buf);
 		} else {
                     strncpy(buf, buffer, sizeof(buf)-2);
-		    fprintf(stderr, " payload=\"%12.12s ... ", buf);
+		    fprintf(stderr, " value=\"%12.12s ... ", buf);
                     strncpy(buf, &buffer[length-18], sizeof(buf)-2);
 		    fprintf(stderr, "%s\"\n", buf);
 		}
 	    }
 #endif
-	    if ((e = __pmSendUserAuth(fd, mypid, length, buffer)) < 0) {
-		fprintf(stderr, "%s: Error: SendUserAuth: %s\n", pmProgname, pmErrStr(e));
+	    if ((e = __pmSendAuth(fd, mypid, attr, buffer, length)) < 0) {
+		fprintf(stderr, "%s: Error: SendAuth: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
 	    fail = 0;

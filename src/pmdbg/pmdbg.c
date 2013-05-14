@@ -74,8 +74,8 @@ static struct {
 		"Diags for pmLoop* services" },
     { DBG_TRACE_FAULT,		"FAULT",
     		"Trace fault injection (if enabled)" },
-    { DBG_TRACE_USERAUTH,	"USERAUTH",
-    		"User authentication services (if enabled)" },
+    { DBG_TRACE_AUTH,		"AUTH",
+    		"Authentication services (if enabled)" },
     { DBG_TRACE_DESPERATE,		"DESPERATE",
     		"Desperate/verbose level" },
 };

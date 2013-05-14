@@ -60,16 +60,16 @@ pmiDump: context 0 of 1 archive: TMP
   metric[1] name=hinv.ncpu pmid=60.0.32
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-  metric[2] name=good.pmid.1 pmid=245.0.3
+  metric[2] name=good.pmid.one pmid=245.0.3
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-  metric[3] name=good.pmid.2 pmid=245.0.63
+  metric[3] name=good.pmid.two pmid=245.0.63
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-  metric[4] name=good.indom.1 pmid=245.0.5
+  metric[4] name=good.indom.one pmid=245.0.5
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-  metric[5] name=good.indom.2 pmid=245.0.6
+  metric[5] name=good.indom.two pmid=245.0.6
     Data Type: float  InDom: 245.27 0x3d40001b
     Semantics: instant  Units: none
   indom[0] indom=60.0
