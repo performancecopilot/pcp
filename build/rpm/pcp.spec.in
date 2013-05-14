@@ -218,6 +218,20 @@ Performance Co-Pilot (PCP) front-end tools for importing MTRG data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
+# pcp-import-collectl2pcp
+#
+%package import-collectl2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= %{version}-%{release}
+
+%description import-collectl2pcp
+Performance Co-Pilot (PCP) front-end tools for importing collectl data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
@@ -305,6 +319,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 
 rm -f devel_files.rpm libs_files.rpm base_files.rpm testsuite_files.rpm import_*_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -316,6 +331,7 @@ BEGIN {
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
+    while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
@@ -326,6 +342,7 @@ BEGIN {
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
     else if (import_mrtg2pcp[$NF]) f="import_mrtg2pcp_files.rpm";
+    else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
     else f="base_files.rpm"
 }
 $1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
@@ -486,6 +503,9 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 %defattr(-,root,root)
 
 %files import-mrtg2pcp -f import_mrtg2pcp_files.rpm
+%defattr(-,root,root)
+
+%files import-collectl2pcp -f import_collectl2pcp_files.rpm
 %defattr(-,root,root)
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list

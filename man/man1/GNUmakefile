@@ -31,7 +31,7 @@ MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmloglabel.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
-	pmdabash.1 pmcollectl.1 pmwtf.1
+	pmdabash.1 pmcollectl.1 pmwtf.1 collectl2pcp.1
 
 # same guard as in src/pmwebapi/GNUmakefile
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"

@@ -1,0 +1,70 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH COLLECTL2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3collectl2pcp\f1 \- import collectl data to a PCP archive
+.SH SYNOPSIS
+\f3collectl2pcp\f1
+[\f3\-v\f1]
+[\f3\-?\f1]
+\f3\-a\f1 \f2archive\f1
+\f2file\f1 [\f2file\f1 ...]
+
+.SH DESCRIPTION
+.B collectl2pcp
+reads raw collectl(1) data from each \f2file\f1
+and creates a new PCP archive in \f2archive\f1.
+Each input \f2file\f1 may be gzipped (with \f3.gz\f1 suffix).
+The PCP \f2archive\f1 is a required argument and must not already exist.
+.PP
+The current implementation only imports CPU, disk, network, loadavg and hinv data.
+All other data in the input file(s) is skipped and ignored.
+.PP
+The options to
+.B collectl2pcp
+are as follows.
+.TP
+\f3\-v\f1
+Report progress and errors verbosely.
+.TP
+\f3\-a\f1 \f2archive\f1
+This is a required argument, designating the base name of the PCP archive to be created.
+.TP
+\f2file\f1 [\f2file\f1 ...]
+These are the collectl(1) input files and must contain data for the same host,
+e.g. \f3/var/log/collectl/*.gz\f1.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR collectl (1),
+.BR PCPIntro (1),
+.BR LOGIMPORT (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

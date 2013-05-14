@@ -304,6 +304,14 @@ Description: Tool for importing data from iostat into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-import-collectl2pcp
+Depends: ${misc:Depends}
+Architecture: all
+Description: Tool for importing data from collectl into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from collectl
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Architecture: any

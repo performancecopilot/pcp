@@ -28,6 +28,10 @@ PCPIMPORTIOSTAT = pcp-import-iostat2pcp
 PCPIMPORTIOSTAT_FILES = pcp-import-iostat2pcp.install
 PCPIMPORTIOSTAT_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-iostat2pcp
 
+PCPIMPORTCOLLECTL = pcp-import-collectl2pcp
+PCPIMPORTCOLLECTL_FILES = pcp-import-collectl2pcp.install
+PCPIMPORTCOLLECTL_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-collectl2pcp
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
@@ -71,7 +75,9 @@ LDIRT = *.debhelper *.substvars *.log pcp files \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
-	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT)
+	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
+	$(PCPIMPORTCOLLECTL)
+
 LSRCFILES = changelog compat control copyright rules \
 	pcp.preinst.head.in pcp.preinst.head pcp.preinst.tail \
 	pcp.postinst.head.in pcp.postinst.head pcp.postinst.tail \
@@ -84,7 +90,8 @@ LSRCFILES = changelog compat control copyright rules \
 	$(LIBTRACE_FILES) $(DEVTRACE_FILES) \
 	$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
 	$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
-	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES)
+	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES) \
+	$(PCPIMPORTCOLLECTL_FILES)
 
 default: pcp.preinst pcp.postinst
 
@@ -217,6 +224,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPIMPORTIOSTAT_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTIOSTAT_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTIOSTAT_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportcollectl: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTCOLLECTL_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTCOLLECTL_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTCOLLECTL_DOC_DIR)/changelog.Debian
 endif
 
 pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
