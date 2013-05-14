@@ -41,9 +41,12 @@ then
     echo "Arrgh ... cannot extract domain number from domain.h"
     exit 1
 fi
-touch $PCP_VAR_DIR/config/pmda/$domain.1
-chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/$domain.1
-chmod 644 $PCP_VAR_DIR/config/pmda/$domain.1
+if [ -d $PCP_VAR_DIR/config/pmda ]
+then
+    touch $PCP_VAR_DIR/config/pmda/$domain.1
+    chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/$domain.1
+    chmod 644 $PCP_VAR_DIR/config/pmda/$domain.1
+fi
 
 pmdaSetup
 pmdaInstall

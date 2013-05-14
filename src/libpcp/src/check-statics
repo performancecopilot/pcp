@@ -197,6 +197,7 @@ secureserver.o
     b secure_server		# guarded by __pmLock_libpcp mutex
 secureconnect.o
     b ?nsprFds			# guarded by __pmLock_libpcp mutex
+    d common_callbacks		# const
 optfetch.o
     d optcost			# guarded by __pmLock_libpcp mutex
 p_auth.o

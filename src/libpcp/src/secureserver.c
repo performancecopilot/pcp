@@ -495,7 +495,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 {
     int sts, saslsts;
     int pinned, length, count;
-    char *payload, buffer[LIMIT_AUTH_PDU];
+    char *payload, *offset;
     sasl_conn_t *sasl_conn;
     __pmPDU *pb;
 
@@ -522,7 +522,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     }
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthServerNegotiation - sending mechanism list "
-			"(%d items): \"%s\"\n", count, payload);
+		"(%d items, %d bytes): \"%s\"\n", count, length, payload);
 
     if ((sts = __pmSendAuth(fd, FROM_ANON, 0, payload, length)) < 0)
 	return sts;
@@ -534,17 +534,37 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     if (sts == PDU_AUTH) {
         sts = __pmDecodeAuth(pb, &count, &payload, &length);
         if (sts >= 0) {
-	    saslsts = sasl_server_start(sasl_conn, buffer,
-				payload, length,
+	    for (count = 0; count < length; count++) {
+		if (payload[count] == '\0')
+		    break;
+	    }
+	    if (count < length)	{  /* found an initial response */
+		length = length - count - 1;
+		offset = payload + count + 1;
+	    } else {
+		length = 0;
+		offset = NULL;
+	    }
+
+	    saslsts = sasl_server_start(sasl_conn, payload,
+				offset, length,
 				(const char **)&payload,
 				(unsigned int *)&length);
-	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
+	    if (saslsts != SASL_OK && saslsts != SASL_CONTINUE) {
 		sts = __pmSecureSocketsError(saslsts);
+		if (pmDebug & DBG_TRACE_AUTH)
+		    fprintf(stderr, "sasl_server_start failed: %d (%s)\n",
+				    saslsts, pmErrStr(sts));
+	    } else {
+		if (pmDebug & DBG_TRACE_AUTH)
+		    fprintf(stderr, "sasl_server_start success: sts=%s",
+			    saslsts == SASL_CONTINUE ? "continue" : "ok");
+	    }
 	}
     } else if (sts == PDU_ERROR) {
-        __pmDecodeError(pb, &sts);
+	__pmDecodeError(pb, &sts);
     } else if (sts != PM_ERR_TIMEOUT) {
-        sts = PM_ERR_IPC;
+	sts = PM_ERR_IPC;
     }
 
     if (pinned)
@@ -597,7 +617,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 
     if (sts < 0) {
 	if (pmDebug & DBG_TRACE_AUTH)
-	    fprintf(stderr, "__pmAuthClientNegotiation loop failed\n");
+	    fprintf(stderr, "__pmAuthServerNegotiation loop failed: %d\n", sts);
 	return sts;
     }
 
