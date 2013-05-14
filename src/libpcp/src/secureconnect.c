@@ -1834,8 +1834,6 @@ __pmGetNameInfo(__pmSockAddr *address)
 __pmHostEnt *
 __pmGetAddrInfo(const char *hostName)
 {
-    void *null;
-    __pmSockAddr *addr;
     __pmHostEnt *he = __pmHostEntAlloc();
 
     if (he != NULL) {
@@ -1844,19 +1842,8 @@ __pmGetAddrInfo(const char *hostName)
 	    __pmHostEntFree(he);
 	    return NULL;
 	}
+	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
     }
-
-    /* Try to reverse lookup the host name. */
-    null = NULL;
-    addr = __pmHostEntGetSockAddr(he, &null);
-    if (addr != NULL) {
-        he->name = __pmGetNameInfo(addr);
-	__pmSockAddrFree(addr);
-	if (he->name == NULL)
-	    he->name = strdup(hostName);
-    }
-    else
-        he->name = strdup(hostName);
 
     return he;
 }
