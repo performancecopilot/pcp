@@ -85,6 +85,7 @@ The search path for the namelist file is as follows:
 @ proc.psinfo.blocked_s blocked signals mask in string form (from /proc/<pid>/status)
 @ proc.psinfo.sigignore_s ignored signals mask in string form (from /proc/<pid>/status)
 @ proc.psinfo.sigcatch_s caught signals mask in string form (from /proc/<pid>/status)
+@ proc.psinfo.thread number of threads in this process
 @ proc.memory.size instantaneous virtual size of process, excluding page table and task structure.
 @ proc.memory.rss instantaneous resident size of process, excluding page table and task structure.
 @ proc.memory.share instantaneous amount of memory shared by this process with other processes 
@@ -100,6 +101,7 @@ The search path for the namelist file is as follows:
 @ proc.memory.vmstack virtual memory used for stack (from /proc/<pid>/status)
 @ proc.memory.vmexe virtual memory used for non-library executable code (from /proc/<pid>/status)
 @ proc.memory.vmlib virtual memory used for libraries (from /proc/<pid>/status)
+@ proc.memory.vmswap virtual memory that has been brought in and out.
 @ proc.id.uid real user ID from /proc/<pid>/status
 @ proc.id.euid effective user ID from /proc/<pid>/status
 @ proc.id.suid saved user ID from /proc/<pid>/status
