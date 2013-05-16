@@ -433,6 +433,17 @@ pmdaMetric proc_metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STATUS,26), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
+/* proc.memory.vmswap */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,27), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.psinfo.threads */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+
 /*
  * proc/<pid>/statm cluster
  */
@@ -1260,6 +1271,20 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case PROC_PID_STATUS_VMLIB:
 	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    sscanf(f, "%u", &atom->ul);
+	break;
+
+	case PROC_PID_STATUS_VMSWAP:
+	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    sscanf(f, "%u", &atom->ul);
+	break;
+
+	case PROC_PID_STATUS_THREADS:
+	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    sscanf(f, "%u", &atom->ul);
