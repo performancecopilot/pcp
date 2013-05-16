@@ -60,9 +60,6 @@ PmChart::PmChart() : QMainWindow(NULL)
     if (!globalSettings.initialToolbar && !outfile)
 	toolBar->hide();
 
-    my.liveHidden = true;
-    my.archiveHidden = true;
-    timeControlAction->setChecked(false);
     toolbarAction->setChecked(true);
     my.toolbarHidden = !globalSettings.initialToolbar;
     my.consoleHidden = true;
@@ -112,7 +109,7 @@ void PmChart::setupDialogs(void)
     connect(my.statusBar->timeFrame(), SIGNAL(clicked()),
 				this, SLOT(editSamples()));
     connect(my.statusBar->timeButton(), SIGNAL(clicked()),
-				this, SLOT(optionsTimeControl()));
+				this, SLOT(optionsShowTimeControl()));
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
     connect(my.edittab->buttonOk, SIGNAL(clicked()),
@@ -424,24 +421,20 @@ void PmChart::whatsThis()
     QWhatsThis::enterWhatsThisMode();
 }
 
-void PmChart::optionsTimeControl()
+void PmChart::optionsShowTimeControl()
 {
-    if (activeTab()->isArchiveSource()) {
-	if (my.archiveHidden)
-	    pmtime->showArchiveTimeControl();
-	else
-	    pmtime->hideArchiveTimeControl();
-	my.archiveHidden = !my.archiveHidden;
-	timeControlAction->setChecked(!my.archiveHidden);
-    }
-    else {
-	if (my.liveHidden)
-	    pmtime->showLiveTimeControl();
-	else
-	    pmtime->hideLiveTimeControl();
-	my.liveHidden = !my.liveHidden;
-	timeControlAction->setChecked(!my.liveHidden);
-    }
+    if (activeTab()->isArchiveSource())
+	pmtime->showArchiveTimeControl();
+    else
+	pmtime->showLiveTimeControl();
+}
+
+void PmChart::optionsHideTimeControl()
+{
+    if (activeTab()->isArchiveSource())
+	pmtime->hideArchiveTimeControl();
+    else
+	pmtime->hideLiveTimeControl();
 }
 
 void PmChart::optionsToolbar()
@@ -711,13 +704,10 @@ void PmChart::setActiveTab(int index, bool redisplay)
 {
     console->post("PmChart::setActiveTab index=%d r=%d", index, redisplay);
     
-    if (chartTabWidget->setActiveTab(index) == true) {
+    if (chartTabWidget->setActiveTab(index) == true)
 	activeGroup = archiveGroup;
-	timeControlAction->setChecked(!my.archiveHidden);
-    } else {
+    else
 	activeGroup = liveGroup;
-	timeControlAction->setChecked(!my.liveHidden);
-    }
     activeGroup->updateTimeButton();
     activeGroup->updateTimeAxis();
 
@@ -822,7 +812,8 @@ void PmChart::setupEnabledActionsList()
     addSeparatorAction();	// end recording group
     my.toolbarActionsList << editSettingsAction;
     addSeparatorAction();	// end settings group
-    my.toolbarActionsList << timeControlAction << newPmchartAction;
+    my.toolbarActionsList << showTimeControlAction << hideTimeControlAction
+			  << newPmchartAction;
     addSeparatorAction();	// end other processes
     my.toolbarActionsList << helpManualAction << helpWhatsThisAction;
 
@@ -833,7 +824,7 @@ void PmChart::setupEnabledActionsList()
 				// separator
 			  << fileExportAction
 				// separator
-			  << timeControlAction << newPmchartAction;
+			  << showTimeControlAction << newPmchartAction;
 
     if (globalSettings.toolbarActions.size() > 0) {
 	setEnabledActionsList(globalSettings.toolbarActions, false);

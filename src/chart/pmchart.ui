@@ -96,7 +96,8 @@
     <property name="title" >
      <string>&amp;Options</string>
     </property>
-    <addaction name="timeControlAction" />
+    <addaction name="showTimeControlAction" />
+    <addaction name="hideTimeControlAction" />
     <addaction name="toolbarAction" />
     <addaction name="consoleAction" />
     <addaction name="separator" />
@@ -181,7 +182,7 @@
    <addaction name="separator" />
    <addaction name="fileExportAction" />
    <addaction name="separator" />
-   <addaction name="timeControlAction" />
+   <addaction name="showTimeControlAction" />
    <addaction name="newPmchartAction" />
   </widget>
   <action name="fileOpenViewAction" >
@@ -267,16 +268,22 @@
     <string>New pmchart</string>
    </property>
   </action>
-  <action name="timeControlAction" >
-   <property name="checkable" >
-    <bool>true</bool>
-   </property>
+  <action name="showTimeControlAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
      <normaloff>:/pmtime.png</normaloff>:/pmtime.png</iconset>
    </property>
    <property name="text" >
-    <string>Time Controls</string>
+    <string>Show Time</string>
+   </property>
+  </action>
+  <action name="hideTimeControlAction" >
+   <property name="icon" >
+    <iconset resource="pmchart.qrc" >
+     <normaloff>:/pmtime-close.png</normaloff>:/pmtime-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Hide Time</string>
    </property>
   </action>
   <action name="toolbarAction" >
@@ -669,10 +676,26 @@
    </hints>
   </connection>
   <connection>
-   <sender>timeControlAction</sender>
+   <sender>showTimeControlAction</sender>
    <signal>triggered()</signal>
    <receiver>PmChart</receiver>
-   <slot>optionsTimeControl()</slot>
+   <slot>optionsShowTimeControl()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideTimeControlAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmChart</receiver>
+   <slot>optionsHideTimeControl()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

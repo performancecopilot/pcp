@@ -117,7 +117,8 @@ public slots:
     virtual void helpAboutQt();
     virtual void helpSeeAlso();
     virtual void whatsThis();
-    virtual void optionsTimeControl();
+    virtual void optionsShowTimeControl();
+    virtual void optionsHideTimeControl();
     virtual void optionsToolbar();
     virtual void optionsConsole();
     virtual void optionsNewPmchart();
@@ -151,8 +152,6 @@ protected slots:
 private:
     struct {
 	bool dialogsSetup;
-	bool liveHidden;
-	bool archiveHidden;
 	bool toolbarHidden;
 	bool consoleHidden;
 
