@@ -75,7 +75,8 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 export DIST_ROOT=$RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+export PCP_PMSNAPCONTROL_PATH=/etc/pcp/pmsnap/control
+make install DESTDIR=$RPM_BUILD_ROOT PCP_PMSNAPCONTROL_PATH=$PCP_PMSNAPCONTROL_PATH
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 
@@ -106,10 +107,14 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sun Apr 21 2013 Nathan Scott <nathans@redhat.com> - 1.5.9-1
 - Under development.
+- Improve pmchart show-/hide-time-control mechanism (BZ 957002)
+- Add a close button to pmchart Preferences dialog (BZ 922198)
+- Fix pmchart Preferences dialog color scheme sigsegv (BZ 963505)
 
-* Sat Apr 20 2013 Nathan Scott <nathans@redhat.com> - 1.5.8-1
+* Sat Apr 20 2013 Nathan Scott <nathans@redhat.com> - 1.5.8-2
 - Update to latest PCP GUI sources.
 - Build fix when building against older PCP headers.
+- Force PCP_PMSNAPCONTROL_PATH to the preferred location.
 
 * Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 1.5.7-1
 - Update to latest PCP GUI sources.
