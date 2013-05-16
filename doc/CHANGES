@@ -1,3 +1,10 @@
+pcp-gui 1.5.9 (under development)
+    - Improve correctness in the show-/hide-time-control mechanism.
+    - Add a close button to preferences dialog to improve usability.
+    - Fix Preference dialog handling of Remove color scheme button.
+    - Add new pmchart views into the installed set (ElasticSearch,
+      Apache) - thanks to Owen Butler.
+
 pcp-gui 1.5.8 (20 April 2013)
     - Fix a build issue when building with older PCP header files.
 

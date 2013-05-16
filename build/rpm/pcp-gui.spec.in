@@ -129,22 +129,3 @@ set -x
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
-%changelog
-* Fri Apr 12 2013 Mark Goodwin <mgoodwin@redhat.com> - 1.5.7-1
-- currently under development
-- QString toAscii decorruption
-
-* Fri Oct 26 2012 Nathan Scott <nathans@redhat.com> - 1.5.6-1
-- Update to latest sources, creates a new testsuite package.
-
-* Wed Mar 21 2012 Mark Goodwin <mgoodwin@redhat.com> - 1.5.5-1
-- Updates to fix pmchart archive positioning bug.
-
-* Mon Jan 09 2012 Nathan Scott <nathans@aconex.com>
-- Updates to make desktop icons appear for RHEL builds.
-
-* Thu Dec 01 2011 Nathan Scott <nathans@aconex.com>
-- Updates to make rpmlint happy for Fedora build.
-
-* Tue Jul 13 2010 Nathan Scott <nathans@aconex.com>
-- Rework spec file to produce a separate pcp-doc package as well.
