@@ -401,11 +401,18 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 		    /* memory info - these lines don't exist for kernel threads */
 		    ep->status_lines.vmsize = strsep(&curline, "\n");
 		    ep->status_lines.vmlck = strsep(&curline, "\n");
+		    if (strncmp(curline, "VmRSS:", 6) != 0)
+			curline = index(curline, '\n') + 1; // Have VmPin: ?
+		    if (strncmp(curline, "VmRSS:", 6) != 0)
+			curline = index(curline, '\n') + 1; // Have VmHWM: ?
 		    ep->status_lines.vmrss = strsep(&curline, "\n");
 		    ep->status_lines.vmdata = strsep(&curline, "\n");
 		    ep->status_lines.vmstk = strsep(&curline, "\n");
 		    ep->status_lines.vmexe = strsep(&curline, "\n");
 		    ep->status_lines.vmlib = strsep(&curline, "\n");
+		    curline = index(curline, '\n') + 1; // skip VmPTE
+		    ep->status_lines.vmswap = strsep(&curline, "\n");
+		    ep->status_lines.threads = strsep(&curline, "\n");
 		} else
 		if (strncmp(curline, "SigPnd:", 7) == 0) {
 		    /* signal masks */

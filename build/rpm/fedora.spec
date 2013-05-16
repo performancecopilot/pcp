@@ -237,7 +237,6 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-autoconf
 %configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir}
 make default_pcp
 
@@ -414,6 +413,11 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
 %{_logsdir}
+%attr(0755,pcp,pcp) %{_logsdir}/pmcd
+%attr(0755,pcp,pcp) %{_logsdir}/pmlogger
+%attr(0755,pcp,pcp) %{_logsdir}/pmie
+%attr(0755,pcp,pcp) %{_logsdir}/pmwebd
+%attr(0755,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
 %{_initddir}/pcp
 %{_initddir}/pmcd
@@ -518,9 +522,13 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Web May 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
+- Currently under development.
+
 * Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
 - Update to latest PCP sources.
 - Validate metric names passed into pmiAddMetric (BZ 958019)
+- Install log directories with correct ownership (BZ 960858)
 
 * Fri Apr 19 2013 Nathan Scott <nathans@redhat.com> - 3.7.2-1
 - Update to latest PCP sources.
