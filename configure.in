@@ -913,7 +913,7 @@ AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
-AC_CHECK_FUNCS(strtod strtol strtoll strtoull)
+AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
 AC_CHECK_FUNCS(sysinfo getpwnam getpwnam_r)
 AC_CHECK_FUNCS(backtrace)
 
