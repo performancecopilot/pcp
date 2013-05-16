@@ -341,6 +341,10 @@ void SettingsDialog::newScheme()
 void SettingsDialog::removeSchemeButton_clicked()
 {
     ColorScheme::removeScheme(schemeComboBox->currentText());
+    setupSchemeComboBox();
+    schemeLineEdit->clear();
+    globalSettings.colorSchemesModified = true;
+    writeSettings();
 }
 
 void SettingsDialog::updateSchemeColors(ColorScheme *scheme)
