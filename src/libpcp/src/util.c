@@ -1395,12 +1395,10 @@ char *
 strndup(const char *s, size_t n)
 {
     char	*buf;
-    size_t	len = strlen(s);
 
-    if (len > n) len = n;
-    if ((buf = malloc(len+1)) != NULL) {
-	memcpy(buf, s, len);
-	buf[len] = '\0';
+    if ((buf = malloc(n + 1)) != NULL) {
+	strncpy(buf, s, n);
+	buf[n] = '\0';
     }
     return buf;
 }
