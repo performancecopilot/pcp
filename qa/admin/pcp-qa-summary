@@ -10,7 +10,8 @@ _usage()
     echo "Usage: $0 [options] [vm ...]"
     echo "Options:"
     echo "  -d      debug"
-    echo "  -m      minimum number of tests run to be reported [default 67]"
+    echo "  -m N    minimum number of tests run to be reported [default 67]"
+    echo '  -n      report not run tests (reported as "-")'
     echo "  -r      only most recent results date [default report all dates]"
     exit 1
 }
@@ -23,13 +24,16 @@ minrun=67
 
 debug=false
 recent=false
-while getopts 'dm:r?' p
+nflag=false
+while getopts 'dm:nr?' p
 do
     case "$p"
     in
 	d)	debug=true
 		;;
 	m)	minrun=$OPTARG
+		;;
+	n)	nflag=true
 		;;
 	r)	recent=true
 		;;
@@ -39,9 +43,16 @@ do
 done
 shift `expr $OPTIND - 1`
 
-tmp=/var/tmp/$$
 sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+if $debug
+then
+    tmp=`pwd`/tmp
+    trap "exit \$sts" 0 1 2 3 15
+else
+    tmp=/var/tmp/$$
+    trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+fi
+rm -f $tmp.*
 
 if [ $# -eq 0 ]
 then
@@ -120,6 +131,8 @@ do
 	then
 	    awk <$date >$tmp.out '
 /^Not run:/	{ notrun = NF - 2
+		  nrlist = $3
+		  for (i = 4; i <= NF; i++) nrlist = nrlist " " $i
 		  state = 1
 		  print NR,": Not run: start: notrun=" notrun >"'$tmp.dbg'"
 		  next
@@ -135,8 +148,8 @@ do
 		  state = 3
 		}
 /^Failures:/	{ nfail = NF - 1
-		  list = $2
-		  for (i = 3; i <= NF; i++) list = list " " $i
+		  flist = $2
+		  for (i = 3; i <= NF; i++) flist = flist " " $i
 		  print NR,": Failures: start: nfail=" nfail >"'$tmp.dbg'"
 		  state = 2
 		  next
@@ -155,16 +168,17 @@ do
 		}
 state == 1	{ # Not run: list broken over multiple lines
 		  notrun += NF
+		  for (i = 1; i <= NF; i++) nrlist = nrlist " " $i
 		  print NR,": Not run: add",NF," notrun=" notrun >"'$tmp.dbg'"
 		  next
 		}
 state == 2	{ # Failures: list broken over multiple lines
 		  nfail += NF
-		  for (i = 1; i <= NF; i++) list = list " " $i
+		  for (i = 1; i <= NF; i++) flist = flist " " $i
 		  print NR,": Failures: add",NF," nfail=" nfail >"'$tmp.dbg'"
 		  next
 		}
-state == 3	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d|%s|%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",list
+state == 3	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d|%s|%s+%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",flist,nrlist
 		  state = 0
 		  notrun = 0
 		  nfail = 0
@@ -192,9 +206,19 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		nfail=`awk <$tmp.tmp '{print $4}'`
 		if [ $nfail -gt 0 ]
 		then
-		    sed -e 's/.*|//' <$tmp.tmp \
+		    sed -e 's/.*|//' -e 's/+.*//' <$tmp.tmp \
 		    | tr ' ' '\012' \
-		    | sed -e "s/\$/ $basevmname/" >>$tmp.map
+		    | sed -e "s/\$/ X $basevmname/" >>$tmp.map
+		fi
+		if $nflag
+		then
+		    nrun=`sed -e 's/|.*//' <$tmp.tmp | awk '{print $5}'`
+		    if [ $nrun -gt 0 ]
+		    then
+			sed -e 's/.*+//' <$tmp.tmp \
+			| tr ' ' '\012' \
+			| sed -e "s/\$/ - $basevmname/" >>$tmp.map
+		    fi
 		fi
 		$recent && break
 	    else
@@ -230,7 +254,12 @@ fi
 if [ -f $tmp.map ]
 then
     echo
-    echo "==== QA Failure Map ===="
+    if $nflag
+    then
+	echo "==== QA Failure (X) and Not Run (-) Map ===="
+    else
+	echo "==== QA Failure (X) Map ===="
+    fi
     echo
     ( ( sed -e 's/.* //' <$tmp.map | sort | uniq ) \
       ; echo "---" \
@@ -254,7 +283,7 @@ BEGIN	{ nh = 0; state = 0 }
 $1 == "---"	{ heading()
 		  printf "%4.4s","QA"
 		  for (i = 0; i < nh; i++) printf " %2.2s"," "
-                  printf " %4.4s QA groups (A. ==> pmda.)\n","QA"
+                  printf " %4.4s QA groups\n","QA"
 		  state = 1
 		  last = $1
 		  next
@@ -271,8 +300,8 @@ $1 != last	{ if (last != "---") {
 		  last = $1
 		}
 $1 == last	{ for (i = 0; i < nh; i++) {
-		    if (host[i] == $2) {
-			fail[i] = "X"
+		    if (host[i] == $3) {
+			fail[i] = $2
 			break
 		    }
 		  }
@@ -284,7 +313,6 @@ END		{ heading() }' \
 	-e 's/ ostest//' \
 	-e 's/ local//' \
 	-e 's/ oss//' \
-	-e 's/ #[0-9][0-9]*//g' \
-	-e 's/ pmda\.\([a-z]\)/ A.\1/g'
+	-e 's/ #[0-9][0-9]*//g'
 fi
 

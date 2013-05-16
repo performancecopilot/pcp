@@ -220,9 +220,6 @@ do
 	*freebsd*|*netbsd*)
 	    MAKE=gmake
 	    ;;
-	*grundy*)
-	    [ X"$what" = Xall ] && what='-x remote'
-	    ;;
     esac
 
     if which virsh >/dev/null 2>&1
@@ -501,12 +498,12 @@ in
 	;;
     *)
 	# RPM packaging ...
-	# Notes
-	#	--nodeps	needed because perl-Spreadsheet-Read is not available
-	#			for Fedora 15
-	#   --oldpackage	sometimes we do a downgrade on the QA machines
+	# Notes may need to add these flags ...
+	#  --nodeps	needed because perl-Spreadsheet-Read is not available
+	#		e.g. Fedora 15
+	#  --oldpackage	sometimes we do a downgrade on the QA machines
 	#
-	if sudo rpm --nodeps --oldpackage -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+	if sudo rpm -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
 	    echo "Info: rpm install" | tee -a $HOME/daily.log
