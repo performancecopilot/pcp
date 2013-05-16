@@ -2116,10 +2116,10 @@ LIBS=$savedLIBS
 
 dnl Do you have system microhttpd libraries for pmwebapi?
 savedLIBS=$LIBS
-AC_MSG_CHECKING([checking for libmicrohttpd > 0.9.9])
+AC_MSG_CHECKING([for libmicrohttpd > 0.9.9])
 AC_COMPILE_IFELSE(
    [AC_LANG_PROGRAM([[#include <microhttpd.h>]],
-                    [[int foo (void) { return MHD_RESPMEM_PERSISTENT; }]])],
+                    [[(void)MHD_RESPMEM_PERSISTENT;]])],
    [AC_MSG_RESULT([yes])
     have_libmicrohttpd=1],
    [AC_MSG_RESULT([no])
