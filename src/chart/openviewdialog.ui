@@ -323,13 +323,13 @@
         <string>System Views</string>
        </property>
        <property name="whatsThis" >
-        <string>DIsplay preconfigured system Views.  A view is one or more charts.</string>
+        <string>Display preconfigured system Views.  A view is one or more charts.</string>
        </property>
        <property name="text" >
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/toolview.png</iconset>
+        <iconset resource="pmchart.qrc" >:/view.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
