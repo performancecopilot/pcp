@@ -27,7 +27,10 @@ else
 fi
 
 rm -f $seq.out $seq.full
-if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
+if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 3801 ]
+then
+    ln $seq.linux.3 $seq.out
+elif [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
 then
     ln $seq.linux.2 $seq.out
 elif [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2300 ]
