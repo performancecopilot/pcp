@@ -14,13 +14,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full $seq.out
-if [ $PCP_VER -lt 3800 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
+rm -f $seq.full
 
 _filter()
 {
@@ -167,20 +161,32 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 
 # real QA test starts here
 
-for type in "-v pcp>=2"
-do
-    echo
-    echo "=== pmlogger host type: $type ==="
-    host=`./getpmcdhosts -L -n 1 $type`
-    if [ -z "$host" ]
-    then
-	echo "./getpmcdhosts failed to find a suitable host" >$seq.notrun
-	exit
-    else
-	echo "$type => $host" >>$seq.full
-	_speak_to_me $host
-    fi
-done
+type="-v pcp>=2"
+echo
+echo "=== pmlogger host type: $type ==="
+host=`./getpmcdhosts -L -n 1 $type`
+if [ -z "$host" ]
+then
+    echo "./getpmcdhosts failed to find a suitable host" >$seq.notrun
+    exit
+else
+    echo "$type => $host" >>$seq.full
+    _speak_to_me $host
+fi
+
+# output version depends on the PCP version at the _remote_ host
+# not the local host as is normally the case
+#
+rm $seq.out
+REMOTE_VER=`pmprobe -v -h $host pmcd.version \
+    | sed -e 's/"$//' -e 's/.*"//' -e 's/\.//g' -e 's/^\(..\)\(.\)$/\10\2/'`
+echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full
+if [ $REMOTE_VER -lt 3800 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
 
 # success, all done
 status=0
