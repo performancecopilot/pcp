@@ -250,9 +250,30 @@ __pmLogCacheClear(FILE *mfp)
 }
 
 #ifdef PCP_DEBUG
+/*
+ * prior == 1 for ?_prior fields, else use ?_next fields
+ */
 static void
-dumpval(FILE *f, int type, int valfmt, int mark, value *vp)
+dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 {
+    int		mark;
+    value	*vp;
+    if (prior) {
+	if (icp->t_prior == -1) {
+	    fprintf(stderr, " <undefined>");
+	    return;
+	}
+	mark = icp->m_prior;
+	vp = &icp->v_prior;
+    }
+    else {
+	if (icp->t_next == -1) {
+	    fprintf(stderr, " <undefined>");
+	    return;
+	}
+	mark = icp->m_next;
+	vp = &icp->v_next;
+    }
     if (mark) {
 	fprintf(f, " <mark>");
 	return;
@@ -463,9 +484,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			fprintf(stderr, "update%s pmid %s inst %d prior: t=%.6f",
 			    changed & 2 ? "+search" : "",
 			    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
-			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_prior, &icp->v_prior);
+			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 1, icp);
 			fprintf(stderr, " next: t=%.6f", icp->t_next);
-			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_next, &icp->v_next);
+			dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 0, icp);
 			fprintf(stderr, " t_first=%.6f t_last=%.6f\n",
 			    icp->t_first, icp->t_last);
 		    }
@@ -1110,9 +1131,9 @@ retry_forw:
 		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d prior: t=%.6f",
 			    pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->inst, icp->t_prior);
-		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_prior, &icp->v_prior);
+		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 1, icp);
 		    fprintf(stderr, " next: t=%.6f", icp->t_next);
-		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, icp->m_next, &icp->v_next);
+		    dumpval(stderr, pcp->desc.type, icp->metric->valfmt, 0, icp);
 		    fprintf(stderr, " t_first=%.6f t_last=%.6f\n",
 			icp->t_first, icp->t_last);
 		}
