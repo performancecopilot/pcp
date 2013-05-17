@@ -26,11 +26,35 @@ else
     _notrun "PCP source not found at ../src"
 fi
 
+if [ ! -f $SRC/include/pcp/platform_header.h ]
+then
+    _notrun "Need to run configure (probably admin/myconfigure)"
+fi
+
 echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# we need to run part of the make to get headers and libraries setup
+# in $SRC
+#
+for dir in include libpcp/src
+do
+    echo "$SRC/$dir ..." >>$seq.full
+    cd $SRC/$dir
+    if make 2>$tmp.err >>$seq.full
+    then
+	cat $tmp.err >>$seq.full
+    else
+	echo "Arrgh ... make failed in $SRC/$dir"
+	cat $tmp.err
+	status=1
+	exit
+    fi
+    cd $here
+done
 
 _filter()
 {
