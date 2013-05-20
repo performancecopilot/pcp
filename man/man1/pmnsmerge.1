@@ -142,9 +142,9 @@ is processed.
 .PP
 Once all of the merging has been completed,
 .B pmnsmerge
-will attempt to compile
+will attempt to load
 the resultant namespace using
-.BR pmnscomp (1)
+.BR pmLoadASCIINameSpace (3)
 \- if this fails for any reason,
 .I outfile
 will still be created, but
@@ -171,8 +171,8 @@ as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
 .BR pmnsadd (1),
-.BR pmnscomp (1),
 .BR pmnsdel (1),
+.BR pmLoadASCIINameSpace (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

@@ -30,34 +30,19 @@ internal identifier, the Performance Metric Identifier (PMID).
 .PP
 A PMNS specifies the association between a metric's name and its PMID.
 .PP
-A PMNS is defined on one or more ASCII source files, that may be
-compiled using
-.BR pmnscomp (1)
-to produce a binary PMNS.
-Note that
-.BR pmnscomp (1)
-is normally invoked from the
-.I $PCP_VAR_DIR/pmns/Rebuild
-script if necessary when
-.BR pmcd (1)
-is started.
+A PMNS is defined on one or more ASCII source files.
 .PP
 Loading of a PMNS is done by calling
 .BR pmLoadNameSpace (3)
-which silently tolerates either the ASCII or binary formats.
-Alternatively,
-.BR pmLoadASCIINameSpace (3)
-may be used to load just the ASCII format.
+or
+.BR pmLoadASCIINameSpace (3).
 .PP
-If the binary format is used, no checking is performed for aliasing
-in which multiple names in the PMNS are associated with a single
-PMID.
-If the ASCII format is to be used, duplicate PMIDs are not allowed,
+By default duplicate PMIDs are not allowed in the PMNS,
 although
 .BR pmLoadASCIINameSpace (3)
 provides an alternative interface with user-defined control
-over the processing of duplicate PMIDs in an ASCII format PMNS.
-The external ASCII format for a PMNS conforms to the syntax
+over the processing of duplicate PMIDs in the PMNS.
+The external format for a PMNS conforms to the syntax
 and semantics described in the following sections.
 .PP
 There is one default PMNS in the files below
@@ -256,7 +241,6 @@ cpu.util {
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR pmcpp (1),
-.BR pmnscomp (1),
 .BR PCPIntro (3),
 .BR PMAPI (3),
 .BR pmErrStr (3),
