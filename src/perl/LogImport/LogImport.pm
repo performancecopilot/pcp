@@ -86,6 +86,7 @@ sub PMI_ERR_BADTYPE     { -20009; }	# Illegal metric type
 sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
 sub PMI_ERR_NODATA      { -20011; }	# No data to output
 sub PMI_ERR_BADMETRICNAME { -20012; }	# Illegal metric name
+sub PMI_ERR_BADTIMESTAMP { -20013; }	# Illegal result timestamp
 
 bootstrap PCP::LogImport $VERSION;
 

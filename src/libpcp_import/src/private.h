@@ -34,6 +34,7 @@ typedef struct {
     int		nhandle;
     pmi_handle	*handle;
     int		last_sts;
+    struct timeval	last_stamp;
 } pmi_context;
 
 #define CONTEXT_START	1

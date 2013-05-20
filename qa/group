@@ -146,6 +146,9 @@ pmda.linux
 # libpcp_dev
 libpcp_dev
 
+# libpcp_import - pmi* routines for log importing
+libpcp_import
+
 # pmsocks
 pmsocks
 
@@ -579,7 +582,7 @@ pcp.py
 368 pmlogconf local oss
 369 pmimport local oss sanity pmdumplog perl
 370 pmimport local oss derive pmdumplog perl
-371 pmimport local oss sanity pmdumplog perl
+371 pmimport local oss sanity pmdumplog perl libpcp_pmi
 372 pmimport local oss sanity pmdumplog perl
 373 pmimport local oss perl
 374 pmlc pmlogger remote oss
@@ -833,3 +836,4 @@ pcp.py
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
+527 libpcp_import perl local oss
