@@ -20,7 +20,7 @@
 #include <pcp/pmapi.h>
 
 #define VERSION "@pkg_version@"
-#define HTMLDIR "@pkg_html_dir@"
+#define HTMLDIR "@pkg_books_dir@/html"
 
 #define PM_USE_CONTEXT_LOCAL 1
 

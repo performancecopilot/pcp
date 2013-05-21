@@ -93,19 +93,19 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$DOCDIR" || pkg_doc_dir="$DOCDIR"
     AC_SUBST(pkg_doc_dir)
 
-    pkg_html_dir=`eval echo $datadir`
-    pkg_html_dir=`eval echo $pkg_html_dir/doc/pcp-doc`
-    if test "`echo $pkg_html_dir | sed 's;/.*\$;;'`" = NONE
+    pkg_books_dir=`eval echo $datadir`
+    pkg_books_dir=`eval echo $pkg_books_dir/doc/pcp-doc`
+    if test "`echo $pkg_books_dir | sed 's;/.*\$;;'`" = NONE
     then
 	if test -d /usr/share/doc
 	then
-	    pkg_html_dir=/usr/share/doc/pcp-doc
+	    pkg_books_dir=/usr/share/doc/pcp-doc
 	else
-	    pkg_html_dir=/usr/share/pcp-doc
+	    pkg_books_dir=/usr/share/pcp-doc
 	fi
     fi
-    test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
-    AC_SUBST(pkg_html_dir)
+    test -z "$BOOKSDIR" || pkg_books_dir="$BOOKSDIR"
+    AC_SUBST(pkg_books_dir)
 
     pkg_icon_dir=`eval echo $datadir`
     pkg_icon_dir=`eval echo $pkg_icon_dir/pixmaps`
@@ -392,6 +392,44 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
     hdiutil=$HDIUTIL
     AC_SUBST(hdiutil)
+
+    AC_ARG_WITH(
+        [books],
+        [AC_HELP_STRING([--with-books],
+                        [enable building of the PCP books (default is on)])],
+        [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
+        [do_books=check])
+
+    dnl check if a toolchain is available for the books
+    test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
+    publican=$PUBLICAN
+    AC_SUBST(publican)
+    test -z "$DBLATEX" && AC_PATH_PROG(DBLATEX, dblatex)
+    dblatex=$DBLATEX
+    AC_SUBST(dblatex)
+    test -z "$XMLTO" && AC_PATH_PROG(XMLTO, xmlto)
+    xmlto=$XMLTO
+    AC_SUBST(xmlto)
+
+    if test "$do_books" = "check" -o "$do_books" = "yes"
+    then
+        if test "$BOOK_TOOLCHAIN" != ""
+        then
+            book_toolchain=$BOOK_TOOLCHAIN
+        elif test "$PUBLICAN" != ""
+        then
+            book_toolchain=publican
+        elif test "$DBLATEX" != ""
+        then
+            book_toolchain=dblatex
+        elif test "$XMLTO" != ""
+        then
+            book_toolchain=xmlto
+        else
+            AC_MSG_ERROR(cannot enable books build - no toolchain found)
+        fi
+    fi
+    AC_SUBST(book_toolchain)
 
     dnl check if user wants their own lex, yacc
     AC_PROG_YACC

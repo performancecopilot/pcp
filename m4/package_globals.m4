@@ -64,19 +64,19 @@ AC_DEFUN([AC_PACKAGE_GLOBALS],
     test -z "$DOCDIR" || pkg_doc_dir="$DOCDIR"
     AC_SUBST(pkg_doc_dir)
 
-    pkg_html_dir=`eval echo $datadir`
-    pkg_html_dir=`eval echo $pkg_html_dir/doc/pcp-doc`
-    if test "`echo $pkg_html_dir | sed 's;/.*\$;;'`" = NONE
+    pkg_books_dir=`eval echo $datadir`
+    pkg_books_dir=`eval echo $pkg_books_dir/doc/pcp-doc`
+    if test "`echo $pkg_books_dir | sed 's;/.*\$;;'`" = NONE
     then
 	if test -d /usr/share/doc
 	then
-	    pkg_html_dir=/usr/share/doc/pcp-doc
+	    pkg_books_dir=/usr/share/doc/pcp-doc
 	else
-	    pkg_html_dir=/usr/share/pcp-doc
+	    pkg_books_dir=/usr/share/pcp-doc
 	fi
     fi
-    test -z "$HTMLDIR" || pkg_html_dir="$HTMLDIR"
-    AC_SUBST(pkg_html_dir)
+    test -z "$BOOKSDIR" || pkg_books_dir="$BOOKSDIR"
+    AC_SUBST(pkg_books_dir)
 
     pkg_icon_dir=`eval echo $datadir`
     pkg_icon_dir=`eval echo $pkg_icon_dir/pixmaps`

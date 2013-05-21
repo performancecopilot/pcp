@@ -23,5 +23,5 @@ include $(BUILDRULES)
 install install-dev: default
 	$(INSTALL) -m 755 -d $(PKG_DEMOS_DIR)/tutorials
 	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials/$(BINTAR)
-	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/html/$(BUNDLE)
-	$(INSTALL) -m 644 $(CONFIGS) $(PKG_HTML_DIR)/html/$(BUNDLE)
+	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)/html/$(BUNDLE)
+	$(INSTALL) -m 644 $(CONFIGS) $(PKG_BOOKS_DIR)/html/$(BUNDLE)

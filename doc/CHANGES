@@ -4,6 +4,7 @@ pcp-gui 1.5.9 (under development)
     - Fix Preference dialog handling of Remove color scheme button.
     - Add new pmchart views into the installed set (ElasticSearch,
       Apache) - thanks to Owen Butler.
+    - Incorporate the PCP books into the build (pcp-doc subpackage).
 
 pcp-gui 1.5.8 (20 April 2013)
     - Fix a build issue when building with older PCP header files.

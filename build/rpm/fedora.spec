@@ -14,6 +14,7 @@ BuildRequires: autoconf, bison, flex, gawk
 BuildRequires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.2
+BuildRequires: xmlto
 
 Requires: pcp
 

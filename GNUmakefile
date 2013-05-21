@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -28,7 +29,7 @@ LDIRT = config.log .dep config.status config.cache confdefs.h conftest* \
 	install.manifest base_files.rpm docs_files.rpm conf_files
 LDIRDIRT = pcp-gui-*
 
-SUBDIRS = src qa m4 images doc man debian build
+SUBDIRS = src qa m4 images doc man books debian build
 
 default :: default-pcp-gui
 
@@ -56,7 +57,7 @@ install-pcp-gui : default-pcp-gui
 	done
 	$(INSTALL) -m 755 -d $(PKG_DOC_DIR)
 	$(INSTALL) -m 644 pcp-gui.lsm README $(PKG_DOC_DIR)
-	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)
+	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
 	$(INSTALL) -m 755 -d $(PKG_ICON_DIR)
 	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
 

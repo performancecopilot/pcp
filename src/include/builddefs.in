@@ -40,9 +40,9 @@ PKG_DISTRIBUTION= @pkg_distribution@
 PKG_BIN_DIR	= $(PCP_BIN_DIR)
 PKG_MAN_DIR	= $(PCP_MAN_DIR)
 PKG_DEMOS_DIR	= $(PCP_DEMOS_DIR)
-PKG_DOC_DIR	= @pkg_doc_dir@
-PKG_HTML_DIR	= @pkg_html_dir@
+PKG_BOOKS_DIR	= @pkg_books_dir@
 PKG_ICON_DIR	= @pkg_icon_dir@
+PKG_DOC_DIR	= @pkg_doc_dir@
 PKG_DESKTOP_DIR	= $(datadir)/applications
 
 QMAKE		= @qmake@
@@ -62,6 +62,10 @@ RPMBUILD	= @rpmbuild@
 PACKAGE_MAKER	= @package_maker@
 HDIUTIL		= @hdiutil@
 DPKG		= @dpkg@
+XMLTO		= @xmlto@
+DBLATEX		= @dblatex@
+PUBLICAN	= @publican@
+BOOK_TOOLCHAIN	= @book_toolchain@
 
 QT_RELEASE	= @qt_release@
 

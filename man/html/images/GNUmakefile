@@ -14,5 +14,5 @@ default: iconlinks
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PKG_HTML_DIR)/html/images
-	$(INSTALL) -m 644 $(INSTFILES) $(PKG_HTML_DIR)/html/images
+	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)/html/images
+	$(INSTALL) -m 644 $(INSTFILES) $(PKG_BOOKS_DIR)/html/images

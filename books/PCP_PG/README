@@ -1,5 +1,0 @@
-To render this documentation to PDF or HTML, use one of:
-
-0)  cd .; dblatex *.xml
-a)  cd .; xmlto --with-fop pdf *.xml
-b)  cd publican; publican build --langs=en-US --formats=pdf
