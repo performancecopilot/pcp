@@ -101,6 +101,8 @@
 #define PROC_PID_STATUS_VMSTACK      24
 #define PROC_PID_STATUS_VMEXE        25
 #define PROC_PID_STATUS_VMLIB        26
+#define PROC_PID_STATUS_VMSWAP	     27
+#define PROC_PID_STATUS_THREADS	     28
 
 /* number of metrics from /proc/<pid>/status */
 #define NR_PROC_PID_STATUS           27
@@ -158,6 +160,8 @@ typedef struct {	/* /proc/<pid>/status */
     char *vmstk;
     char *vmexe;
     char *vmlib;
+    char *vmswap;
+    char *threads;
 } status_lines_t;
 
 typedef struct {	/* /proc/<pid>/io */

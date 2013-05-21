@@ -82,6 +82,7 @@ proc.psinfo {
     blocked_s           PROC:24:17
     sigignore_s         PROC:24:18
     sigcatch_s          PROC:24:19
+    threads		PROC:24:28
 }    
 
 proc.id {
@@ -119,6 +120,7 @@ proc.memory {
     vmstack      	PROC:24:24
     vmexe      		PROC:24:25
     vmlib           	PROC:24:26
+    vmswap		PROC:24:27
 }
 
 proc.runq {

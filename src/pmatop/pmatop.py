@@ -53,7 +53,7 @@ from pcp.pmsubsys import Processor, Interrupt, Disk, Memory, Network, Process, S
 ME = "pmatop"
 
 def usage ():
-    print "\nUsage:", sys.argv[0], "\n\t[-d|-c|-n|-s|-v|-c|-y|-u|-p] [-C|-M|-D|-N|-A] [-f|--filename FILE] [-p|--playback FILE] Interval Trials"
+    return "\nUsage:" + sys.argv[0] + "\n\t[-g|-m] [-w FILE] [-r FILE] [-L width] Interval Trials"
 
 
 def debug (mssg):
@@ -78,8 +78,7 @@ def record (context, config, interval, path):
 
     # -f saves the metrics in a directory
     if os.path.exists(path):
-        print ME + "playback directory %s already exists\n" % path
-        sys.exit(1)
+        return "playback directory %s already exists\n" % path
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
     (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
     status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
@@ -101,16 +100,6 @@ def record_add_creator (path):
     fdesc.write("# Created by " + args)
     fdesc.write("\n#\n")
     fdesc.close()
-
-# record_check_creator ------------------------------------------------------
-
-def record_check_creator (path, doc):
-    fdesc = open (path + "/" + ME + ".pcp", "r")
-    rline = fdesc.readline()
-    if rline.find("# Created by ") == 0:
-        print doc + rline[13:]
-    fdesc.close()
-
 
 # minutes_seconds ----------------------------------------------------------
 
@@ -557,6 +546,8 @@ def main (stdscr_p):
     duration_arg = 0
     n_samples = 0
     output_type = "g"
+    create_archive = False
+    replay_archive = False
     i = 1
 
     subsys_options = ("g", "m")
@@ -574,15 +565,16 @@ def main (stdscr_p):
                 if (sys.argv[i] == "-w"):
                     i += 1
                     output_file = sys.argv[i]
+                    create_archive = True
                 elif (sys.argv[i] == "-r"):
                     i += 1
                     input_file = sys.argv[i]
+                    replay_archive = True
                 elif (sys.argv[i] == "-L"):
                     i += 1
                     stdscr.width = int(sys.argv[i])
                 elif (sys.argv[i] == "--help" or sys.argv[i] == "-h"):
-                    usage()
-                    sys.exit(1)
+                    return usage()
                 else:
                     return sys.argv[0] + ": Unknown option " + sys.argv[i] \
                         + "\nTry `" + sys.argv[0] + " --help' for more information."
@@ -610,25 +602,23 @@ def main (stdscr_p):
     proc.output_type = output_type
     mm = _MiscMetrics()
 
-    if input_file == "":
-        try:
-            pmc = pmapi.pmContext()
-        except pmapi.pmErr, e:
-            return "Cannot connect to pmcd on localhost"
-    else:
-        # -f saved the metrics in an archive
-        lines = []
+    if replay_archive:
+        archive = input_file
         if not os.path.exists(input_file):
-            print input_file, "does not exist"
-            sys.exit(1)
+            return input_file + " does not exist"
         for line in open(input_file):
-            lines.append(line[:-1].split())
-        archive = os.path.join(os.path.dirname(input_file),
-                               lines[len(lines)-1][2])
+            if (line[:8] == "Archive:"):
+                tokens = line[:-1].split()
+                archive = os.path.join(os.path.dirname(input_file), tokens[2])
         try:
             pmc = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
             return "Cannot open PCP archive: " + archive
+    else:
+        try:
+            pmc = pmapi.pmContext()
+        except pmapi.pmErr, e:
+            return "Cannot connect to pmcd on localhost"
 
     if duration_arg != 0:
         (timeval, errmsg) = pmc.pmParseInterval(duration_arg)
@@ -659,9 +649,10 @@ def main (stdscr_p):
         subsys.append ([proc.set_mem, mem])
         subsys.append ([proc.proc, None])
 
-    if output_file != "":
-        configuration = "log mandatory on every " + str(interval_arg) + " seconds { "
-        for ssx in (cpu, mem, disk, net, proc):
+    if create_archive:
+        configuration = "log mandatory on every " + \
+            str(interval_arg) + " seconds { "
+        for ssx in (mm, cpu, mem, disk, net, proc):
             configuration += ssx.dump_metrics()
         configuration += "}"
         if duration == 0:
@@ -669,7 +660,9 @@ def main (stdscr_p):
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pmgui.GuiClient(), configuration, duration, output_file)
+        status = record (pmgui.GuiClient(), configuration, duration, output_file)
+        if status != "":
+            return status
         record_add_creator (output_file)
         sys.exit(0)
 
@@ -700,6 +693,8 @@ def main (stdscr_p):
                         ssx[0]()
                     else:
                         ssx[0](ssx[1])
+                except pmapi.pmErr, e:
+                    return str(e) + " while processing " + str(ssx[0])
                 except: # catch all errors, pcp or python or otherwise
                     pass
             stdscr.move (proc.command_line, 0)

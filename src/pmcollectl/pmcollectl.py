@@ -90,16 +90,6 @@ def record_add_creator (path):
     fdesc.write("\n#\n")
     fdesc.close()
 
-# record_check_creator ------------------------------------------------------
-
-def record_check_creator (path, doc):
-    fdesc = open (path + "/" + ME + ".pcp", "r")
-    rline = fdesc.readline()
-    if rline.find("# Created by ") == 0:
-        print doc + rline[13:]
-    fdesc.close()
-
-
 # _CollectPrint -------------------------------------------------------
 
 
@@ -268,43 +258,48 @@ class _interruptCollectPrint(Interrupt, _CollectPrint):
     def print_header1_detail(self):
         print '# INTERRUPT DETAILS'
         print '# Int    ',
-        for k in range(len(self.metric_values[0])):
+        for k in range(self.get_len(self.metric_values[0])):
             print 'Cpu%d ' % k,
         print 'Type            Device(s)'
     def print_header1_verbose(self):
         print '# INTERRUPT SUMMARY'
     def print_header2_brief(self):
-        for k in range(len(self.metric_values[0])):
+        for k in range(self.get_len(self.metric_values[0])):
             if k == 0:
                 print '#Cpu%d ' % k,
             else:
                 print 'Cpu%d ' % k,
     def print_header2_verbose(self):
         print '#    ',
-        for k in range(len(self.metric_values[0])):
+        for k in range(self.get_len(self.metric_values[0])):
             print 'Cpu%d ' % k,
         print
+    def get_int_value(self, value, idx):
+        if type(value) != type(int()) and type(value) != type(long()):
+            return value[idx]
+        else:
+            return value
     def print_brief(self):
         int_count = []
-        for k in range(len(self.metric_values[0])):
+        for k in range(self.get_len(self.metric_values[0])):
             int_count.append(0)
             for j  in range(0, len(self.metric_values)):
-                int_count[k] += self.metric_values[j][k]
+                int_count[k] += self.get_scalar_value(j, k)
                 
-        for k in range(len(self.metric_values[0])):
+        for k in range(self.get_len(self.metric_values[0])):
             print "%4d " % (int_count[k]),
     def print_detail(self):
         for j  in range(0, len(self.metrics_dict)):
-            for k in range(len(self.metric_values[0])):
+            for k in range(self.get_len(self.metric_values[0])):
                 have_nonzero_value = False
-                if self.metric_values[j][k] != 0:
+                if self.get_scalar_value(j, k) != 0:
                     have_nonzero_value = True
                 if not have_nonzero_value:
                     continue
                 # pcp does not give the interrupt # so print spaces
                 print "%-8s" % self.metrics[j].split(".")[3],
-                for k in range(len(self.metric_values[0])):
-                    print "%4d " % (self.metric_values[j][k]),
+                for k in range(self.get_len(self.metric_values[0])):
+                    print "%4d " % (self.get_scalar_value(j, k)),
                 text = (pm.pmLookupText(self.metric_pmids[j], c_api.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
@@ -591,13 +586,14 @@ if __name__ == '__main__':
             map( subsys.append, (cpu, disk, net) )
 
     if replay_archive:
+        archive = input_file
         if not os.path.exists(input_file):
             print input_file, "does not exist"
             sys.exit(1)
         for line in open(input_file):
             if (line[:8] == "Archive:"):
-                lines = line[:-1].split()
-        archive = os.path.join(os.path.dirname(input_file), lines[2])
+                tokens = line[:-1].split()
+                archive = os.path.join(os.path.dirname(input_file), tokens[2])
         try:
             pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
@@ -619,7 +615,7 @@ if __name__ == '__main__':
 
     (delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
-    if output_file != "":
+    if create_archive:
         configuration = "log mandatory on every " + \
             str(interval_arg) + " seconds { "
         for ssx in subsys:
@@ -630,9 +626,8 @@ if __name__ == '__main__':
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        client = pmgui.GuiClient()
-        record(client, configuration, duration, output_file)
-        record_add_creator(output_file)
+        record (pmgui.GuiClient(), configuration, duration, output_file)
+        record_add_creator (output_file)
         sys.exit(0)
 
     for ssx in subsys:
