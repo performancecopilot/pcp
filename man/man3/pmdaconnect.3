@@ -52,7 +52,20 @@ was launched.
 .B pmdaInet
 Assume
 .BR pmcd (1)
-will establish a connection to an internet domain socket set up by the
+will establish a connection to an IPv4 internet domain socket set up by the
+.BR PMDA (3).
+The name or number of the port must be specified in the 
+.I e_sockname
+or
+.I e_port
+fields of the
+.B pmdaExt
+structure, respectively.
+.TP
+.B pmdaIPv6
+Assume
+.BR pmcd (1)
+will establish a connection to an IPv6 internet domain socket set up by the
 .BR PMDA (3).
 The name or number of the port must be specified in the 
 .I e_sockname
