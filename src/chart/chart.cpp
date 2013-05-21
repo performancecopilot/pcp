@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2013, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -35,7 +35,7 @@
 Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 {
     my.tab = chartTab;
-    my.title = NULL;
+    my.title = QString::null;
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
@@ -285,6 +285,8 @@ Chart::addItem(pmMetricSpec *msp, const char *legend)
 
     my.items.append(item);
     console->post("addItem %p nitems=%d", item, my.items.size());
+
+    changeTitle(title(), true); // regenerate %h expansion
     return my.items.size() - 1;
 }
 
@@ -298,12 +300,14 @@ void
 Chart::removeItem(int index)
 {
     my.items[index]->remove();
+    changeTitle(title(), true); // regenerate %h expansion
 }
 
 void
 Chart::reviveItem(int index)
 {
     my.items[index]->revive();
+    changeTitle(title(), true); // regenerate %h expansion
 }
 
 void
@@ -320,24 +324,21 @@ Chart::metricCount() const
     return my.items.size();
 }
 
-char *
+QString
 Chart::title()
 {
     return my.title;
 }
 
-// If expand is true then expand %h to host name in title
+// If expand is true then expand %h to host name in rendered title label
 //
 void
-Chart::changeTitle(char *title, int expand)
+Chart::changeTitle(QString title, int expand)
 {
-    bool hadTitle = (my.title != NULL);
+    bool hadTitle = (my.title != QString::null);
+    my.title = title; /* copy into QString */
 
-    if (my.title) {
-	free(my.title);
-	my.title = NULL;
-    }
-    if (title != NULL) {
+    if (my.title != QString::null) {
 	if (hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
 	QwtText t = titleLabel()->text();
@@ -348,30 +349,51 @@ Chart::changeTitle(char *title, int expand)
 	QFont titleFont = *globalFont;
 	titleFont.setBold(true);
 	titleLabel()->setFont(titleFont);
-	my.title = strdup(title);
 
-	if (expand && (strstr(title, "%h")) != NULL) {
-	    QString titleString = title;
-	    QString shortHost = activeGroup->context()->source().host();
-	    QStringList::Iterator host;
+	if (expand && title.contains("%h")) {
+            QSet<QString> shortHosts;
+            QList<ChartItem*>::Iterator item;
 
-	    /* shorten hostname(s) - may be multiple (proxied) */
-	    QStringList hosts = shortHost.split(QChar('@'));
-	    for (host = hosts.begin(); host != hosts.end(); ++host) {
-		/* decide whether or not to truncate this hostname */
-		int dot = host->indexOf(QChar('.'));
-		if (dot != -1)
-		    /* no change if it looks even vaguely like an IP address */
-		    if (!host->contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
-			!host->contains(QChar(':')))		/* IPv6 */
-			host->remove(dot, host->size());
-	    }
-	    host = hosts.begin();
-	    shortHost = *host++;
-	    for (; host != hosts.end(); ++host)
-		shortHost.append(QString("@")).append(*host);
-	    titleString.replace(QRegExp("%h"), shortHost);
-	    setTitle(titleString);
+            /* iterate across this chart's items, not activeGroup */
+            for (item = my.items.begin(); item != my.items.end(); ++item) {
+                // nb: ... but we don't get notified of direct calls to
+                // ChartItem::setRemoved().
+                if ((*item)->removed())
+                    continue;
+
+                QString shortHost = (*item)->metricContext()->source().host();
+                QStringList::Iterator host;
+
+                /* shorten hostname(s) - may be multiple (proxied) */
+                QStringList hosts = shortHost.split(QChar('@'));
+                for (host = hosts.begin(); host != hosts.end(); ++host) {
+                    /* decide whether or not to truncate this hostname */
+                    int dot = host->indexOf(QChar('.'));
+                    if (dot != -1)
+                        /* no change if it looks even vaguely like an IP address */
+                        if (!host->contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
+                            !host->contains(QChar(':')))		/* IPv6 */
+                            host->remove(dot, host->size());
+                }
+                host = hosts.begin();
+                shortHost = *host++;
+                for (; host != hosts.end(); ++host)
+                    shortHost.append(QString("@")).append(*host);
+
+                shortHosts.insert(shortHost);
+            }
+
+            /* extract the duplicate-eliminated host names */
+            QSet<QString>::Iterator qsi;
+            QString hostNames;
+            for (qsi = shortHosts.begin(); qsi != shortHosts.end(); qsi++) {
+                if (hostNames != "")
+                    hostNames += ",";
+                hostNames += (*qsi);
+            }
+            title.replace(QRegExp("%h"), hostNames);
+	    setTitle(title);
+            /* NB: my.title retains the %h */
 	}
 	else 
 	    setTitle(my.title);
@@ -381,12 +403,6 @@ Chart::changeTitle(char *title, int expand)
 	    pmchart->updateHeight(-(titleLabel()->height()));
 	setTitle(NULL);
     }
-}
-
-void
-Chart::changeTitle(QString title, int expand)
-{
-    changeTitle((char *)(const char *)title.toAscii(), expand);
 }
 
 QString

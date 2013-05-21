@@ -1208,9 +1208,8 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
     bool	autoscale;
 
     fprintf(f, "chart");
-    s = cp->title();
-    if (s != NULL)
-	fprintf(f, " title \"%s\"", s);
+    if (cp->title() != QString::null)
+	fprintf(f, " title \"%s\"", (const char*)cp->title().toAscii());
     switch (cp->style()) {
 	case Chart::LineStyle:
 	    s = "plot";

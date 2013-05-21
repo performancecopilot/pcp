@@ -64,9 +64,8 @@ public:
     void removeItem(int);
     void reviveItem(int);
 
-    char *title(void);			// return chart title
-    void changeTitle(char *, int);	// NULL to clear
-    void changeTitle(QString, int);
+    QString title(void);		// return copy of chart title
+    void changeTitle(QString, int);     // QString::null to clear; expand_p?
 
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
@@ -155,7 +154,7 @@ private:
 	Tab *tab;
 	QList<ChartItem *> items;
 
-	char *title;
+	QString title;
 	QString scheme;
 	int sequence;
 	Style style;
