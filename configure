@@ -8434,7 +8434,7 @@ _ACEOF
 fi
 done
 
-for ac_func in strtod strtol strtoll strtoull
+for ac_func in strtod strtol strtoll strtoull strndup
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -11936,15 +11936,15 @@ fi
 LIBS=$savedLIBS
 
 savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking checking for libmicrohttpd > 0.9.9" >&5
-$as_echo_n "checking checking for libmicrohttpd > 0.9.9... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmicrohttpd > 0.9.9" >&5
+$as_echo_n "checking for libmicrohttpd > 0.9.9... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <microhttpd.h>
 int
 main ()
 {
-int foo (void) { return MHD_RESPMEM_PERSISTENT; }
+(void)MHD_RESPMEM_PERSISTENT;
   ;
   return 0;
 }

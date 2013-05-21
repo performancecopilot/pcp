@@ -336,10 +336,21 @@ dbpath(char *path, size_t size)
     return path + strlen(nss_method);
 }
 
+static char *
+dbphrase(PK11SlotInfo *slot, PRBool retry, void *arg)
+{
+    (void)arg;
+    if (retry)
+	return NULL;
+    assert(PK11_IsInternal(slot));
+    return PL_strdup(SECURE_USERDB_DEFAULT_KEY);
+}
+
 int
 __pmInitCertificates(void)
 {
     char nssdb[MAXPATHLEN];
+    PK11SlotInfo *slot;
     SECStatus secsts;
 
     /*
@@ -353,9 +364,18 @@ __pmInitCertificates(void)
     if (mkpath(dbpath(nssdb, sizeof(nssdb)), 0700) < 0)
 	return 0;
 
+    PK11_SetPasswordFunc(dbphrase);
     secsts = NSS_InitReadWrite(nssdb);
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError(PR_GetError());
+
+    if ((slot = PK11_GetInternalKeySlot()) != NULL) {
+	if (PK11_NeedUserInit(slot))
+	    PK11_InitPin(slot, NULL, SECURE_USERDB_DEFAULT_KEY);
+	else if (PK11_NeedLogin(slot))
+	    PK11_Authenticate(slot, PR_FALSE, NULL);
+	PK11_FreeSlot(slot);
+    }
 
     secsts = NSS_SetExportPolicy();
     if (secsts != SECSuccess)
@@ -1814,8 +1834,6 @@ __pmGetNameInfo(__pmSockAddr *address)
 __pmHostEnt *
 __pmGetAddrInfo(const char *hostName)
 {
-    void *null;
-    __pmSockAddr *addr;
     __pmHostEnt *he = __pmHostEntAlloc();
 
     if (he != NULL) {
@@ -1824,19 +1842,8 @@ __pmGetAddrInfo(const char *hostName)
 	    __pmHostEntFree(he);
 	    return NULL;
 	}
+	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
     }
-
-    /* Try to reverse lookup the host name. */
-    null = NULL;
-    addr = __pmHostEntGetSockAddr(he, &null);
-    if (addr != NULL) {
-        he->name = __pmGetNameInfo(addr);
-	__pmSockAddrFree(addr);
-	if (he->name == NULL)
-	    he->name = strdup(hostName);
-    }
-    else
-        he->name = strdup(hostName);
 
     return he;
 }

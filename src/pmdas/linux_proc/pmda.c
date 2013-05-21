@@ -440,7 +440,7 @@ pmdaMetric proc_metrictab[] = {
 
 /* proc.psinfo.threads */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 

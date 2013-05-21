@@ -62,11 +62,8 @@ as root.
 Provided some initial integrity checks are satisfied,
 .B pmnsdel
 will update the necessary PMNS files.
-.B pmnsdel
-will then attempt to compile
-the resultant namespace using
-.BR pmnscomp (1)
-\- if this fails for any reason, the original namespace is restored.  Note
+Should an error be encountered
+the original namespace is restored.  Note
 that any PMNS files that are no longer referenced by the modified namespace
 will not be removed, even though their contents are
 not part of the new namespace.
@@ -104,7 +101,6 @@ as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
 .BR pmnsadd (1),
-.BR pmnscomp (1),
 .BR pmnsmerge (1),
 .BR pcp.conf (5),
 .BR pcp.env (5)

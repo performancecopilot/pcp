@@ -1,3 +1,6 @@
+pcp-3.8.1 (under development)
+    - Add new proc.{memory.vmswap,psinfo.threads} metrics.
+
 pcp-3.8.0 (14 May 2013)
     - Added the nginx PMDA, thanks to Ryan Doyle.
     - Fixed memory leak on an error path in profile PDU decoder.

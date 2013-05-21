@@ -37,6 +37,7 @@ pcp -p \
 want==1		{ print }' \
 | sed \
     -e "s;$tmp;TMP;" \
+    -e "s;/privateTMP;TMP;g" \
     -e '/TMP/{
 s/ (.*//
 s/.*:/HOST:/

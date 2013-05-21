@@ -1125,7 +1125,7 @@ vpmprintf(const char *msg, va_list arg)
 	    fname = tempnam(tmpdir, "pcp-");
 	    if (fname == NULL) goto fail;
 	    fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
-#endif
+#endif /* HAVE_MKSTEMP */
 
 	    if (fd < 0) goto fail;
 	    if ((fptr = fdopen(fd, "a")) == NULL) {
@@ -1373,7 +1373,7 @@ basename(char *name)
     else
 	return(p+1);
 }
-#endif
+#endif /* HAVE_BASENAME */
 
 #ifndef HAVE_DIRNAME
 char *
@@ -1388,7 +1388,21 @@ dirname(char *name)
 	return(name);
     }
 }
-#endif
+#endif /* HAVE_DIRNAME */
+
+#ifndef HAVE_STRNDUP
+char *
+strndup(const char *s, size_t n)
+{
+    char	*buf;
+
+    if ((buf = malloc(n + 1)) != NULL) {
+	strncpy(buf, s, n);
+	buf[n] = '\0';
+    }
+    return buf;
+}
+#endif /* HAVE_STRNDUP */
 
 #ifndef HAVE_SCANDIR
 /*

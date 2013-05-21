@@ -23,6 +23,18 @@ static pmi_context *context_tab;
 static int ncontext;
 static pmi_context *current;
 
+static void
+printstamp(FILE *f, const struct timeval *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%4d-%02d-%02d %02d:%02d:%02d.%06d", 1900+tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_usec));
+}
+ 
+
 void
 pmiDump(void)
 {
@@ -185,6 +197,9 @@ pmiErrStr_r(int code, char *buf, int buflen)
 	case PMI_ERR_BADMETRICNAME:
 	    msg = "Illegal metric name";
 	    break;
+	case PMI_ERR_BADTIMESTAMP:
+	    msg = "Illegal result timestamp";
+	    break;
 	default:
 	    return pmErrStr_r(code, buf, buflen);
     }
@@ -292,6 +307,7 @@ pmiStart(const char *archive, int inherit)
 	}
 	else
 	    current->handle = NULL;
+	current->last_stamp = old_current->last_stamp;
     }
     else {
 	current->nmetric = 0;
@@ -300,6 +316,7 @@ pmiStart(const char *archive, int inherit)
 	current->indom = NULL;
 	current->nhandle = 0;
 	current->handle = NULL;
+	current->last_stamp.tv_sec = current->last_stamp.tv_usec = 0;
     }
     return ncontext;
 }
@@ -664,7 +681,20 @@ pmiWrite(int sec, int usec)
 	current->result->timestamp.tv_sec = sec;
 	current->result->timestamp.tv_usec = usec;
     }
-    sts = _pmi_put_result(current, current->result);
+    if (current->result->timestamp.tv_sec < current->last_stamp.tv_sec ||
+        (current->result->timestamp.tv_sec == current->last_stamp.tv_sec &&
+	 current->result->timestamp.tv_usec < current->last_stamp.tv_usec)) {
+	fprintf(stderr, "Fatal Error: timestamp ");
+	printstamp(stderr, &current->result->timestamp);
+	fprintf(stderr, " not greater than previous valid timestamp ");
+	printstamp(stderr, &current->last_stamp);
+	fputc('\n', stderr);
+	sts = PMI_ERR_BADTIMESTAMP;
+    }
+    else {
+	sts = _pmi_put_result(current, current->result);
+	current->last_stamp = current->result->timestamp;
+    }
 
     pmFreeResult(current->result);
     current->result = NULL;

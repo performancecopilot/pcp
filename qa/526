@@ -12,6 +12,8 @@
 
 seq=`basename $0`
 
+_check_valgrind
+
 [ $PCP_VER -ge 3800 ] || _notrun "Installed libpcp_import lacks name checks"
 
 echo "QA output created by $seq"
