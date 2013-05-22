@@ -274,11 +274,6 @@ class _interruptCollectPrint(Interrupt, _CollectPrint):
         for k in range(self.get_len(self.metric_values[0])):
             print 'Cpu%d ' % k,
         print
-    def get_int_value(self, value, idx):
-        if type(value) != type(int()) and type(value) != type(long()):
-            return value[idx]
-        else:
-            return value
     def print_brief(self):
         int_count = []
         for k in range(self.get_len(self.metric_values[0])):
