@@ -110,7 +110,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	OPEN CLOSE DESC GETDESC FETCH INSTANCE PROFILE HELP 
 	WATCH DBG QUIT STATUS STORE INFO TIMER NAMESPACE WAIT
 	PMNS_NAME PMNS_PMID PMNS_CHILDREN PMNS_TRAVERSE ATTR
-	DSO PIPE SOCK
+	DSO PIPE SOCK UNIX INET IPV6
 	ADD DEL ALL NONE INDOM ON OFF
 	PLUS EOL
 
@@ -121,6 +121,7 @@ fix_dynamic_pmid(char *name, pmID *pmidp)
 	debug
 	raw_pmid
 	attribute
+	servport
 
 %type <y_str>
 	fname
@@ -137,12 +138,24 @@ stmt	: OPEN EOL				{
 		opendso($3, $4, $5);
 		stmt_type = OPEN; YYACCEPT;
 	    }
-	| OPEN PIPE fname arglist {
+	| OPEN PIPE fname arglist 		{
 		openpmda($3);
 		stmt_type = OPEN; YYACCEPT;
 	    }
 	| OPEN SOCK fname			{
-		opensocket($3);
+		open_unix_socket($3);
+		stmt_type = OPEN; YYACCEPT;
+	    }
+	| OPEN SOCK UNIX fname			{
+		open_unix_socket($4);
+		stmt_type = OPEN; YYACCEPT;
+	    }
+	| OPEN SOCK INET servport		{
+		open_inet_socket($4);
+		stmt_type = OPEN; YYACCEPT;
+	    }
+	| OPEN SOCK IPV6 servport		{
+		open_ipv6_socket($4);
 		stmt_type = OPEN; YYACCEPT;
 	    }
 	| CLOSE EOL				{ 
@@ -485,6 +498,20 @@ attribute : NUMBER				{
 		    YYERROR;
 		}
 		$$ = sts;
+	    }
+	;
+
+servport : NUMBER				{ $$ = $1; }
+	| STRING				{
+		struct servent *srv = getservbyname($1, NULL);
+		if (srv == NULL) {
+		    sprintf(warnStr, "Failed to map (%s) to a port number", $1);
+		    yyerror(warnStr);
+		    YYERROR;
+		}
+		sprintf(warnStr, "Mapped %s to port number %d", $1, srv->s_port);
+		yywarn(warnStr);
+		$$ = srv->s_port;
 	    }
 	;
 
