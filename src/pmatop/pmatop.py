@@ -139,6 +139,9 @@ class _StandardOutput(object):
             sys.stdout.write(str)
         else:
             self.so_stdscr.addstr (str)
+    def clear(self):
+        if not self.stdout:
+            self.so_stdscr.clear()
     def move(self, y, x):
         if not self.stdout:
             self.so_stdscr.move(y,x)
@@ -199,8 +202,14 @@ class _AtopPrint(object):
             apy += 1
         self.p_stdscr.addstr (' ' * (self.apyx[1] - line[1]))
         self.p_stdscr.move(apy, 0)
-    def put_value(self, form, value):
-        return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
+    def put_value(self, form, value, try_percentd=0):
+        if try_percentd > 0 and abs(value) < try_percentd:
+            iform = form.replace(form[form.index("."):form.index(".")+3],"d")
+            return iform % value
+        if value > 0:
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
+        else:
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0", "-\\1e", form % abs(value))
 
 
 # _ProcessorPrint --------------------------------------------------
@@ -251,8 +260,8 @@ class _ProcessorPrint(_AtopPrint, Processor):
         self.p_stdscr.addstr (' avg1 %7.3g |' % (self.get_scalar_value('kernel.all.load', 0)))
         self.p_stdscr.addstr (' avg5 %7.3g |' % (self.get_scalar_value('kernel.all.load', 1)))
         self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_scalar_value('kernel.all.load', 2)))
-        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch')))
-        self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr')))
+        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch'), 10000))
+        self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr'), 10000))
         if (self.apyx[1] >= 110):
             self.p_stdscr.addstr ('              |')
         if (self.apyx[1] >= 95):
@@ -465,12 +474,12 @@ class _ProcPrint(_AtopPrint, Process):
                 break
 
             if self._output_type in ['g', 'm']:
-                self.p_stdscr.addstr ('%4d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
+                self.p_stdscr.addstr ('%5d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
             if self._output_type in ['g']:
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime', j)))
                 self.p_stdscr.addstr (' %5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j), 10000))
                 self.p_stdscr.addstr ('%5s ' % (pwd.getpwuid(self.get_scalar_value('proc.id.uid', j))[0]))
                 # Missing: THR # threads is in /proc/NNN/status
                 self.p_stdscr.addstr ('%5s ' % '-')
@@ -492,24 +501,18 @@ class _ProcPrint(_AtopPrint, Process):
                         minf = 0
                     if majf < 0:
                         majf = 0
-                    if minf < 1000:
-                        self.p_stdscr.addstr (self.put_value('%3d ', minf))                        
-                    else:
-                        self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
-                    if majf < 1000:
-                        self.p_stdscr.addstr (self.put_value('%3d ', majf))                        
-                    else:
-                        self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
                 if (self.apyx[1] >= 95):
-                    self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.textrss', j)))
+                    self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.textrss', j), 10000))
                     # Missing: VSLIBS librss seems to always be 0
                     self.p_stdscr.addstr (self.put_value('%4.2gK ', self.get_scalar_value('proc.memory.librss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.datrss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.vmstack', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.rss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.datrss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.vmstack', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.rss', j), 10000))
                 val = float(self.get_old_scalar_value('proc.psinfo.rss', j)) / float(self._mem.get_metric_value('mem.physmem')) * 100
                 if val > 100: val = 0
                 self.p_stdscr.addstr (self.put_value('%2d%% ', val))
@@ -710,6 +713,9 @@ def main (stdscr_p):
                     cmd = None
                 if cmd == "q":
                     raise KeyboardInterrupt
+                elif cmd == "":
+                    stdscr.clear()
+                    stdscr.refresh()
                 elif cmd == "z":
                     stdscr.timeout(-1)
                     # currently it just does "hit any key to continue"
@@ -723,6 +729,7 @@ def main (stdscr_p):
                     stdscr.addstr ( "'m'  - memory details\n")
                     stdscr.addstr ( "Miscellaneous commands:\n")
                     stdscr.addstr ("'z'  - pause-button to freeze current sample (toggle)\n")
+                    stdscr.addstr ("^L   - redraw the screen\n")
                     stdscr.addstr ("hit any key to continue\n")
                     stdscr.timeout(-1)
                     char = stdscr.getch()
@@ -732,9 +739,7 @@ def main (stdscr_p):
                 # TODO Next/Previous Page
                 else:
                     stdscr.move (proc.command_line, 0)
-                    all_cmds = list(subsys_cmds)
-                    all_cmds.append('q')
-                    stdscr.addstr ("Invalid command %s %s" % (cmd,all_cmds))
+                    stdscr.addstr ("Invalid command %s\nType 'h' to see a list of valid commands" % (cmd))
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1

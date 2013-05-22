@@ -1,5 +1,5 @@
 QA output created by 722
-ATOP - Mon May 9 9:9:9 9		9 days, 9:9:9 elapsed
+ATOP - Day Month 9 9:9:9 9 9 days, 9:9:9 elapsed
 PRC | sys 9h9m | user 9h9m | #proc 9 | #zombie 9
 CPU | sys 9% | user 9% | irq 9% | idle 9% | wait 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
@@ -321,7 +321,7 @@ PID VDATA VSTACK VGROW RGROW VSIZE RSIZE MEM CMD
 9 9K 9K 9K 9K 9K 9K 9% kblockd
 9 9K 9K 9K 9K 9K 9K 9% khelper
 9 9K 9K 9K 9K 9K 9K 9% rcu_bh
-ATOP - Mon May 9 9:9:9 9		9 days, 9:9:9 elapsed
+ATOP - Day Month 9 9:9:9 9 9 days, 9:9:9 elapsed
 PRC | sys 9h9m | user 9h9m | #proc 9 | #zombie 9
 CPU | sys 9% | user 9% | irq 9% | idle 9% | wait 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
