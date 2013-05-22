@@ -1413,10 +1413,18 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	for (addr = __pmHostEntGetSockAddr(host, &enumIx);
 	     addr != NULL;
 	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
-	    if (__pmSockAddrIsInet(addr))
+	    if (__pmSockAddrIsInet(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET)
+		    continue;
 	        fd = __pmCreateSocket();
-	    else if (__pmSockAddrIsIPv6(addr))
+	    }
+	    else if (__pmSockAddrIsIPv6(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET6)
+		    continue;
 	        fd = __pmCreateIPv6Socket();
+	    }
 	    else {
 	        fprintf(stderr,
 			"pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
