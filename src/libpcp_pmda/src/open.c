@@ -32,7 +32,7 @@
  */
 
 static void
-__pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outfd)
+__pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
@@ -44,7 +44,7 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     if (sockname != NULL) {	/* Translate port name to port num */
 	service = getservbyname(sockname, NULL);
 	if (service == NULL) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: getservbyname(%s): %s\n", 
+	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: getservbyname(%s): %s\n", 
 		    sockname, netstrerror());
 	    exit(1);
 	}
@@ -54,7 +54,7 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     if (iotype == pmdaInet) {
 	sfd = __pmCreateSocket();
 	if (sfd < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: inet socket: %s\n",
+	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet socket: %s\n",
 			  netstrerror());
 	    exit(1);
 	}
@@ -62,13 +62,13 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     else if (iotype == pmdaIPv6) {
 	sfd = __pmCreateIPv6Socket();
 	if (sfd < 0) {
-	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: ipv6 socket: %s\n",
+	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: ipv6 socket: %s\n",
 			  netstrerror());
 	    exit(1);
 	}
     }
     else {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: unknown ipmdaIoType: %d\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: unknown ipmdaIoType: %d\n",
 		      iotype);
 	exit(1);
     }
@@ -79,7 +79,7 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
      */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: __pmSetSockOpt(reuseaddr): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(reuseaddr): %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -87,21 +87,21 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     /* see MSDN tech note: "Using SO_REUSEADDR and SO_EXCLUSIVEADDRUSE" */
     if (__pmSetSockOpt(sfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
 		(__pmSockLen)sizeof(one)) < 0) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: __pmSetSockOpt(excladdruse): %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: __pmSetSockOpt(excladdruse): %s\n",
 			netstrerror());
 	exit(1);
     }
 #endif
 
     if ((myaddr =__pmSockAddrAlloc()) == NULL) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: sock addr alloc failed\n");
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
 	exit(1);
     }
     __pmSockAddrInit(myaddr, AF_INET, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: inet bind: %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet bind: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -109,7 +109,7 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: inet listen: %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet listen: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -117,7 +117,7 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     /* block here, waiting for a connection */
     if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenIP: inet accept: %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet accept: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -126,6 +126,18 @@ __pmdaOpenIP(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outf
     __pmSockAddrFree(myaddr);
 
     *outfd = *infd;
+}
+
+static void
+__pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
+{
+    __pmdaOpenSocket(sockname, myport, pmdaInet, infd, outfd);
+}
+
+static void
+__pmdaOpenIPv6(char *sockname, int myport, int *infd, int *outfd)
+{
+    __pmdaOpenSocket(sockname, myport, pmdaIPv6, infd, outfd);
 }
 
 #if !defined(IS_MINGW)
@@ -602,8 +614,8 @@ pmdaConnect(pmdaInterface *dispatch)
 
 	case pmdaInet:
 
-	    __pmdaOpenIP(pmda->e_sockname, pmda->e_port, pmdaInet, &(pmda->e_infd), 
-			 &(pmda->e_outfd));
+	    __pmdaOpenInet(pmda->e_sockname, pmda->e_port, &(pmda->e_infd), 
+			   &(pmda->e_outfd));
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {
@@ -616,8 +628,8 @@ pmdaConnect(pmdaInterface *dispatch)
 
 	case pmdaIPv6:
 
-	    __pmdaOpenIP(pmda->e_sockname, pmda->e_port, pmdaIPv6, &(pmda->e_infd), 
-			 &(pmda->e_outfd));
+	    __pmdaOpenIPv6(pmda->e_sockname, pmda->e_port, &(pmda->e_infd), 
+			   &(pmda->e_outfd));
 
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA) {

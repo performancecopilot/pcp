@@ -36,7 +36,7 @@ extern "C" {
 /*
  * Type of I/O connection to PMCD (pmdaUnknown defaults to pmdaPipe)
  */
-typedef enum {pmdaPipe, pmdaInet, pmdaIPv6, pmdaUnix, pmdaUnknown} pmdaIoType;
+typedef enum {pmdaPipe, pmdaInet, pmdaUnix, pmdaUnknown, pmdaIPv6} pmdaIoType;
 
 /*
  * Instance description: index and name
