@@ -97,7 +97,10 @@ __pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
 	exit(1);
     }
-    __pmSockAddrInit(myaddr, AF_INET, INADDR_ANY, myport);
+    if (iotype == pmdaInet)
+	__pmSockAddrInit(myaddr, AF_INET, INADDR_ANY, myport);
+    else
+	__pmSockAddrInit(myaddr, AF_INET6, INADDR_ANY, myport);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
         __pmSockAddrFree(myaddr);
