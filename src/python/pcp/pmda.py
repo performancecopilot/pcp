@@ -315,6 +315,7 @@ class PMDA(MetricDispatch):
 #    set_store_callback
 #    set_fetch_callback
 #    set_inet_socket
+#    set_ipv6_socket
 #    set_unix_socket
 #
 #Static methods:

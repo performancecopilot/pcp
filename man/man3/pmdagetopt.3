@@ -74,6 +74,11 @@ Expect PMCD to connect on inet
 .I port
 (number or name).
 .TP
+.BI \-6 port
+Expect PMCD to connect on ipv6 
+.I port
+(number or name).
+.TP
 .BI \-l logfile
 Redirect diagnostics and trace output to 
 .IR logfile .
@@ -87,6 +92,7 @@ Expect PMCD to connect on unix domain
 .PP
 Only one of 
 .BR \-i ,
+.BR \-6 ,
 .BR \-p 
 and
 .B \-u

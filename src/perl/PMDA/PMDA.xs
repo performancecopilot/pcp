@@ -873,6 +873,14 @@ set_inet_socket(self,port)
 	self->version.four.ext->e_port = port;
 
 void
+set_ipv6_socket(self,port)
+	pmdaInterface *self
+	int	port
+    CODE:
+	self->version.four.ext->e_io = pmdaIPv6;
+	self->version.four.ext->e_port = port;
+
+void
 set_unix_socket(self,socket_name)
 	pmdaInterface *self
 	char *	socket_name

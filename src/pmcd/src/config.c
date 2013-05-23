@@ -682,11 +682,13 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (TokenIs("inet"))
 	addrDomain = AF_INET;
+    else if (TokenIs("ipv6"))
+	addrDomain = AF_INET6;
     else if (TokenIs("unix"))
 	addrDomain = AF_UNIX;
     else {
 	fprintf(stderr,
-		     "pmcd config[line %d]: Error: expected socket address domain (`inet' or `unix')\n",
+		     "pmcd config[line %d]: Error: expected socket address domain (`inet', `ipv6', or `unix')\n",
 		     nLines);
 	return -1;
     }
@@ -710,7 +712,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     /* If an internet domain port name was specified, find the corresponding
      port number. */
 
-    if (addrDomain == AF_INET && socketName) {
+    if ((addrDomain == AF_INET || addrDomain == AF_INET6) && socketName) {
 	struct servent *service;
 
 	service = getservbyname(socketName, NULL);
@@ -1398,7 +1400,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		sts = 0;
     int		fd = -1;	/* pander to gcc */
 
-    if (aPtr->ipc.socket.addrDomain == AF_INET) {
+    if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6) {
 	__pmSockAddr	*addr;
 	__pmHostEnt	*host;
 	void		*enumIx;
@@ -1411,10 +1413,18 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	for (addr = __pmHostEntGetSockAddr(host, &enumIx);
 	     addr != NULL;
 	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
-	    if (__pmSockAddrIsInet(addr))
+	    if (__pmSockAddrIsInet(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET)
+		    continue;
 	        fd = __pmCreateSocket();
-	    else if (__pmSockAddrIsIPv6(addr))
+	    }
+	    else if (__pmSockAddrIsIPv6(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET6)
+		    continue;
 	        fd = __pmCreateIPv6Socket();
+	    }
 	    else {
 	        fprintf(stderr,
 			"pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
@@ -1477,7 +1487,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 
 error:
     if (fd != -1) {
-        if (aPtr->ipc.socket.addrDomain == AF_INET)
+        if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6)
 	    __pmCloseSocket(fd);
 	else
 	    close(fd);
@@ -1744,6 +1754,13 @@ PrintAgentInfo(FILE *stream)
 		        aPtr->ipc.socket.name, aPtr->ipc.socket.port);
 		else
 		    fprintf(stream, "dom=inet port=%d", aPtr->ipc.socket.port);
+	    }
+	    else if (aPtr->ipc.socket.addrDomain == AF_INET6) {
+		if (aPtr->ipc.socket.name)
+		    fprintf(stream, "dom=ipv6 port=%s (%d)",
+		        aPtr->ipc.socket.name, aPtr->ipc.socket.port);
+		else
+		    fprintf(stream, "dom=ipv6 port=%d", aPtr->ipc.socket.port);
 	    }
 	    else {
 		fputs("dom=???", stream);

@@ -941,7 +941,8 @@ usage(void)
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
-	  "  -u socket    expect PMCD to connect on given unix domain socket\n",
+	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
+	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
 	  stderr);		
     exit(1);
 }
@@ -966,7 +967,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, FREEBSD,
 		"freebsd.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF) {
 	switch(c) {
 	case 'U':
 	    username = optarg;

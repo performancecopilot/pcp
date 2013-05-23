@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
@@ -53,7 +50,9 @@ extern void openpmda(char *);
 extern void closepmda(void);
 extern void dopmda(int);
 extern void watch(char *);
-extern void opensocket(char *);
+extern void open_unix_socket(char *);
+extern void open_inet_socket(int);
+extern void open_ipv6_socket(int);
 
 /*
  * connection states

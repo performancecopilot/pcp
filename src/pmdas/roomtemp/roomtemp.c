@@ -173,7 +173,8 @@ usage(void)
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
-	  "  -u socket    expect PMCD to connect on given unix domain socket\n",
+	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
+	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
 	  stderr);		
     exit(1);
 }
@@ -193,7 +194,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, ROOMTEMP,
 		"roomtemp.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:?", &dispatch, &err) != EOF)
+    if (pmdaGetOpt(argc, argv, "D:d:i:l:pu:6:?", &dispatch, &err) != EOF)
     	err++;
     if (err)
     	usage();

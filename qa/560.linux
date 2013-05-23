@@ -15,12 +15,12 @@ Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] foo
 Must choose one of "pipe" or "socket", please try again
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] socket
-Use Internet or Unix domain sockets? [Internet] foo
+Use Internet, IPv6 or Unix domain sockets? [Internet] foo
 Must choose one of "Unix" or "Internet", please try again
-Use Internet or Unix domain sockets? [Internet] Unix
+Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
 Unix FIFO name? 
 Must provide a name, please try again
-Use Internet or Unix domain sockets? [Internet] Internet
+Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
 Internet port number or service name? [2078] 
 Installing files ...
 Updating the Performance Metrics Name Space (PMNS) ...

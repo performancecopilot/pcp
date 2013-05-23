@@ -755,10 +755,10 @@ __choose_ipc()
     else
 	while true
 	do
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Use Internet or Unix domain sockets? [Internet] ""$PCP_ECHO_C"
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Use Internet, IPv6 or Unix domain sockets? [Internet] ""$PCP_ECHO_C"
 	    read ans
 	    $__echo && echo "$ans"
-	    if [ "X$ans" = XInternet -o "X$ans" = X ]
+	    if [ "X$ans" = XInternet -o "X$ans" = XIPv6 -o "X$ans" = X ]
 	    then
 		$PCP_ECHO_PROG $PCP_ECHO_N "Internet port number or service name? [$socket_inet_def] ""$PCP_ECHO_C"
 		read port
@@ -777,8 +777,14 @@ __choose_ipc()
 			    fi
 			    ;;
 		esac
-		type="socket	inet $port	$_dir/$pmda_name"
-		args="-i $port $args"
+		if [ "X$ans" = XInternet -o "X$ans" = X ]
+		then
+		    type="socket	inet $port	$_dir/$pmda_name"
+		    args="-i $port $args"
+		else
+		    type="socket	ipv6 $port	$_dir/$pmda_name"
+		    args="-6 $port $args"
+		fi
 		break
 	    elif [ "X$ans" = XUnix ]
 	    then
@@ -935,7 +941,7 @@ _install_views()
 #    (optional, $daemon_opt is true by default)
 # 3. if $daemon_opt set one or both of $pipe_opt or $socket_opt true
 #    (optional, $pipe_opt is true by default)
-# 4. if $socket_opt and there is an default Internet socket, set
+# 4. if $socket_opt and there is a default Internet socket, set
 #    $socket_inet_def
 
 _install()
