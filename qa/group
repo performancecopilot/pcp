@@ -837,3 +837,4 @@ pcp.py
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
 527 libpcp_import perl local oss
+528 pmimport pmdumplog perl local oss

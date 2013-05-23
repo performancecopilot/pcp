@@ -131,7 +131,7 @@ TRACEFILES = \
 	obs.c tstate.c tabort.c 
 
 PERLFILES = \
-	check_import.perl
+	batch_import.perl check_import.perl
 # not installed:
 PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 

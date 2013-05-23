@@ -1,9 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 369
-# Check out libpcp_import
+# PCP QA Test No. 528
+# Exercising log import API batching extensions.
 #
-# Copyright (c) 2012 Red Hat.
-# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -13,30 +12,17 @@
 
 seq=`basename $0`
 
+test $PCP_VER -ge 3801 || _notrun "No support for log import batching"
 [ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
 	_notrun "No support for libpcp_import"
 perl -e "use PCP::LogImport" 2>/dev/null || \
 	_notrun "Perl PCP::LogImport module is not installed"
 
-rm -f $seq.out
-if [ $PCP_VER -ge 3801 ]
-then
-    ln $seq.out.4 $seq.out || exit 1
-elif [ $PCP_VER -ge 3800 ]
-then
-    ln $seq.out.3 $seq.out || exit 1
-elif [ $PCP_VER -ge 3609 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
-
 echo "QA output created by $seq"
 
-status=0	# success is the default!
+status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter1()
 {
@@ -73,17 +59,11 @@ mkdir $tmp
 cd $tmp
 
 # real QA test starts here
-echo "C version ..." | tee -a $here/$seq.full
-$here/src/check_import 2>&1 | tee -a $here/$seq.full | _filter1
-pminfo -dm -a myarchive
-pmdumplog -a myarchive 2>&1 | _filter2
-
-echo
-echo "Perl wrapper version ..." | tee -a $here/$seq.full
-rm -f myarchive.*
-perl $here/src/check_import.perl 2>&1 | tee -a $here/$seq.full | _filter3
+rm -f myarchive.* myotherarchive.*
+perl $here/src/batch_import.perl 2>&1 | tee -a $here/$seq.full | _filter3
 pminfo -dm -a myarchive
 pmdumplog -a myarchive 2>&1 | _filter2
 
 # success, all done
+status=0
 exit
