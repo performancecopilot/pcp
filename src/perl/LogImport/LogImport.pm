@@ -15,6 +15,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
     pmiWrite
     pmiDump pmiErrStr pmiUnits pmiID pmiInDom
     pmid_build pmInDom_build
+    pmiBatchPutValue pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
@@ -87,6 +88,38 @@ sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
 sub PMI_ERR_NODATA      { -20011; }	# No data to output
 sub PMI_ERR_BADMETRICNAME { -20012; }	# Illegal metric name
 sub PMI_ERR_BADTIMESTAMP { -20013; }	# Illegal result timestamp
+
+# Batch operations
+our %batch = ();
+
+sub pmiBatchPutValue($$$) {
+  my ($name, $instance, $value) = @_;
+  push @{$batch{'b'}}, [ $name, $instance, $value ];
+  return 0;
+}
+
+sub pmiBatchWrite($$) {
+  my ($sec, $usec) = @_;
+  push @{$batch{$sec}}, @{delete $batch{'b'}};
+  return 0;
+}
+
+sub pmiBatchEnd() {
+  my ($arr, $r);
+  # Iterate over the sorted hash and call pmiPutValue/pmiWrite accordingly
+  delete $batch{'b'};
+  for my $k (sort {$a<=>$b} keys %batch) {
+    $arr = $batch{$k};
+    for my $v (@$arr) {
+      $r = pmiPutValue($v->[0], $v->[1], $v->[2]);
+      return $r if ($r != 0);
+      $r = pmiWrite($k, 0);
+      return $r if ($r != 0);
+    }
+  }
+  %batch = ();
+  return 0;
+}
 
 bootstrap PCP::LogImport $VERSION;
 
