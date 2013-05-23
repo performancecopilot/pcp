@@ -29,7 +29,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT_OK = qw();
 
 # set the version for version checking
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
