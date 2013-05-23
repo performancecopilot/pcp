@@ -1,8 +1,13 @@
 #! /bin/sh
-# PCP QA Test No. 654
-# checks basic pmdagfs2 functionality
+# PCP QA Test No. 655
+# checks extended pmdagfs2 functionality (gfs2_tracepoints)
 # Requires GFS2 support in the kernel, so may need a "modprobe gfs2" 
 # depending on how you like to roll your kernels.
+#
+# The gfs2_glock_lock_time tracepoint metrics require debugfs mounted, 
+# tracing enabled and also the gfs2_glock_lock_time tracepoint enabled.
+# The enabling of this tracepoint is attempted in the setup phase of the
+# test.
 #
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #
@@ -19,6 +24,7 @@ echo "QA output created by $seq"
 
 # Attempt to set up the gfs2 pmda test enviroment
 _gfs2_filesystem_support_tests
+_gfs2_tracepoints_support_tests
 
 # check for any loopback devices, cowardly abort this test if any exist
 loopcount=`$sudo losetup -a | wc -l`
@@ -36,26 +42,15 @@ touch $here/$seq.full
 _prepare_pmda_install $iam
 _install_pmda
 _setup_gfs2_mounts
+_setup_gfs2_tracepoints true
 
 echo 
-echo "=== Check for successful install of pmda ==" | tee -a $here/$seq.full
+echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
-echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.full
-[ `_pmcount gfs2` -ge 105 ] || _fail "Too few metrics?"
-
-echo
-echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glocks | _filter_pminfo
-
-echo
-echo "=== Additional glstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glstats | _filler_pminfo
-
-echo
-echo "=== Additional sbstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.sbstats | _filter_pminfo
+echo "=== gfs2_glock_lock_time tracepoint for all filesystems ===" | tee -a $here/$seq.full
+pminfo -fdm gfs2.glock_lock_time | _filter_pminfo
 
 echo
 echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full

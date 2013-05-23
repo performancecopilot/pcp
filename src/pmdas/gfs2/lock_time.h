@@ -1,5 +1,5 @@
 /*
- * GFS2 gfs2_glock_lock_time tracepoint metrics.
+ * GFS2 gfs2_glock_lock_time trace-point metrics.
  *
  * Copyright (c) 2013 Red Hat.
  * 
@@ -20,16 +20,28 @@
 #include <inttypes.h>
 
 enum {
-	LOCKTIME_LOCK_TYPE = 0,
-	LOCKTIME_NUMBER,
-	LOCKTIME_SRTT,
-	LOCKTIME_SRTTVAR,
-        LOCKTIME_SRTTB,
-        LOCKTIME_SRTTVARB,
-        LOCKTIME_SIRT,
-        LOCKTIME_SIRTVAR,
-        LOCKTIME_DLM,
-        LOCKTIME_QUEUE
+    LOCKTIME_LOCK_TYPE = 0,
+    LOCKTIME_NUMBER,
+    LOCKTIME_SRTT,
+    LOCKTIME_SRTTVAR,
+    LOCKTIME_SRTTB,
+    LOCKTIME_SRTTVARB,
+    LOCKTIME_SIRT,
+    LOCKTIME_SIRTVAR,
+    LOCKTIME_DLM,
+    LOCKTIME_QUEUE
+};
+
+enum {
+    TYPENUMBER_TRANS = 1,
+    TYPENUMBER_INODE = 2,
+    TYPENUMBER_RGRP = 3,
+    TYPENUMBER_META = 4,
+    TYPENUMBER_IOPEN = 5,
+    TYPENUMBER_FLOCK = 6,
+    TYPENUMBER_RESERVED = 7,
+    TYPENUMBER_QUOTA = 8,
+    TYPENUMBER_JOURNAL = 9,
 };
 
 struct lock_time {
@@ -46,19 +58,15 @@ struct lock_time {
 };
 
 typedef struct node {
-    struct lock_time data;    /* Holding data for our locks*/
+    struct lock_time data;   /* Holding data for our locks*/
     struct node* next;       /* Pointer to the next node in the list */
     dev_t dev_id;            /* Filesystem block device identifer */
 } linkedList_t;
 
 extern int gfs2_locktime_fetch(int, struct lock_time *, pmAtomValue *);
-extern int gfs2_refresh_lock_time(const char *, const char *, struct lock_time *, dev_t dev);
+extern int gfs2_refresh_lock_time(pmInDom, pmInDom);
 
+void lock_time_assign_glocks(pmInDom, pmInDom);
 int lock_compare(struct lock_time *, struct lock_time *);
-struct lock_time check_glocks(linkedList_t *list, dev_t dev);
-
-void list_push(linkedList_t **list, struct lock_time data, dev_t dev);
-void list_pop(linkedList_t **list, dev_t dev);
-void list_remove_duplicates(linkedList_t *list);
 
 #endif /* LOCK_TIME_H */

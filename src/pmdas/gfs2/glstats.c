@@ -55,26 +55,27 @@ gfs2_refresh_glstats(const char *sysfs, const char *name, struct glstats *glstat
      * This file however contains the total number of locks at this time,
      * on a large, heavy utilized filesystem there could be millions of entries
      * so needs to be quick and efficient.
+     *
      */
     while(fgets(buffer, sizeof(buffer), fp) != NULL){
         char *p = buffer;
         
         /* We pick out the various glock types by the identifying number */
-        if(strncmp(p, "G: n:1", 6) == 0){
+        if (strncmp(p, "G: n:1", 6) == 0){
             glstats->values[GLSTATS_TRANS]++;
-        } else if(strncmp(p, "G: n:2 ", 6) == 0){
+        } else if (strncmp(p, "G: n:2 ", 6) == 0){
             glstats->values[GLSTATS_INODE]++;
-        } else if(strncmp(p, "G: n:3 ", 6) == 0){
+        } else if (strncmp(p, "G: n:3 ", 6) == 0){
             glstats->values[GLSTATS_RGRP]++;
-        } else if(strncmp(p, "G: n:4 ", 6) == 0){
+        } else if (strncmp(p, "G: n:4 ", 6) == 0){
             glstats->values[GLSTATS_META]++;
-        } else if(strncmp(p, "G: n:5 ", 6) == 0){
+        } else if (strncmp(p, "G: n:5 ", 6) == 0){
             glstats->values[GLSTATS_IOPEN]++;
-        } else if(strncmp(p, "G: n:6 ", 6) == 0){
+        } else if (strncmp(p, "G: n:6 ", 6) == 0){
             glstats->values[GLSTATS_FLOCK]++;
-        } else if(strncmp(p, "G: n:8 ", 6) == 0){
+        } else if (strncmp(p, "G: n:8 ", 6) == 0){
             glstats->values[GLSTATS_QUOTA]++;
-        } else if(strncmp(p, "G: n:9 ", 6) == 0){
+        } else if (strncmp(p, "G: n:9 ", 6) == 0){
             glstats->values[GLSTATS_JOURNAL]++;
         }
         glstats->values[GLSTATS_TOTAL]++;
@@ -84,6 +85,7 @@ gfs2_refresh_glstats(const char *sysfs, const char *name, struct glstats *glstat
          * for (p += 6; isspace((int)*p); p++) {;}
          *
          * [ We can extract any other future fields from here on] 
+         *
          */
     }
 

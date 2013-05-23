@@ -92,6 +92,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
      * Also, we aggregate the per-CPU data for each statistic - we could go for
      * separate per-CPU metrics as well, but for now just keep it simple until
      * there's a real need for that extra complexity.
+     *
      */
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 	char *typestr, *statstr, *end;
@@ -104,7 +105,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 
 	typestr = p;
 	for (typestr = p; !isspace((int)*p); p++) { }	/* skip lock type */
-	for (; isspace((int)*p); p++) { *p = '\0'; }		/* eat whitespace */
+	for (; isspace((int)*p); p++) { *p = '\0'; }	/* eat whitespace */
 	for (statstr = p; *p != ':'; p++) { }		/* skip stat type */
 	*p = '\0';
 
@@ -185,6 +186,7 @@ refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
 
 /*
  * Create a new metric table entry based on an existing one.
+ *
  */
 static void
 refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
@@ -207,6 +209,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
 /*
  * Used to answer the question: how much extra space needs to be
  * allocated in the metric table for (dynamic) sbstats metrics?
+ *
  */
 static void
 size_metrictable(int *total, int *trees)

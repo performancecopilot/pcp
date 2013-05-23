@@ -21,6 +21,7 @@ gfs2 {
     sbstats		GFS2:*:*
     glstats
     glock_lock_time
+    control
 }
 
 gfs2.glocks {
@@ -54,4 +55,8 @@ gfs2.glock_lock_time {
     sirtvar		GFS2:3:7
     dlm			GFS2:3:8
     queue		GFS2:3:9
+}
+
+gfs2.control {
+    glock_lock_time     GFS2:4:0
 }

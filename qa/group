@@ -808,6 +808,7 @@ pcp.py
 660 pmwebapi local oss
 653 libpcp local oss
 654 pmda.gfs2 local oss
+655 pmda.gfs2 local oss
 703 pmda.weblog local oss
 704 pmda.mmv python mmv local oss
 705 libpcp local oss
