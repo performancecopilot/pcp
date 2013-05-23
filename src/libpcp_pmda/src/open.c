@@ -32,13 +32,14 @@
  */
 
 static void
-__pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *outfd)
+__pmdaOpenSocket(char *sockname, int port, int family, int *infd, int *outfd)
 {
     int			sts;
     int			sfd;
     struct servent	*service;
     __pmSockAddr	*myaddr;
     __pmSockLen		addrlen;
+    __pmFdSet		rfds;
     int			one = 1;
 
     if (sockname != NULL) {	/* Translate port name to port num */
@@ -48,10 +49,10 @@ __pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *
 		    sockname, netstrerror());
 	    exit(1);
 	}
-	myport = service->s_port;
+	port = service->s_port;
     }
 
-    if (iotype == pmdaInet) {
+    if (family != AF_INET6) {
 	sfd = __pmCreateSocket();
 	if (sfd < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet socket: %s\n",
@@ -59,18 +60,13 @@ __pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *
 	    exit(1);
 	}
     }
-    else if (iotype == pmdaIPv6) {
+    else {
 	sfd = __pmCreateIPv6Socket();
 	if (sfd < 0) {
 	    __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: ipv6 socket: %s\n",
 			  netstrerror());
 	    exit(1);
 	}
-    }
-    else {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: unknown ipmdaIoType: %d\n",
-		      iotype);
-	exit(1);
     }
 #ifndef IS_MINGW
     /*
@@ -97,30 +93,40 @@ __pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *
 	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: sock addr alloc failed\n");
 	exit(1);
     }
-    if (iotype == pmdaInet)
-	__pmSockAddrInit(myaddr, AF_INET, INADDR_ANY, myport);
-    else
-	__pmSockAddrInit(myaddr, AF_INET6, INADDR_ANY, myport);
+    __pmSockAddrInit(myaddr, family, INADDR_LOOPBACK, port);
     sts = __pmBind(sfd, (void *)myaddr, __pmSockAddrSize());
     if (sts < 0) {
-        __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet bind: %s\n",
+	__pmSockAddrFree(myaddr);
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: bind: %s\n",
 			netstrerror());
 	exit(1);
     }
 
-    sts = __pmListen(sfd, 5);	/* Max. of 5 pending connection requests */
+    sts = __pmListen(sfd, 1);	/* Max. 1 pending connection request (pmcd) */
     if (sts == -1) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet listen: %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: listen: %s\n",
 			netstrerror());
 	exit(1);
     }
+
+    /* block here indefinitely, waiting for a connection */
+    __pmFD_ZERO(&rfds);
+    __pmFD_SET(sfd, &rfds);
+    if ((sts = __pmSelectRead(sfd+1, &rfds, NULL)) != 1) {
+        sts = (sts < 0) ? -neterror() : -EINVAL;
+    }
+    if (sts < 0) {
+        __pmSockAddrFree(myaddr);
+        __pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: select: %s\n",
+                        pmErrStr(sts));
+        exit(1);
+    }
+
     addrlen = __pmSockAddrSize();
-    /* block here, waiting for a connection */
     if ((*infd = __pmAccept(sfd, myaddr, &addrlen)) < 0) {
         __pmSockAddrFree(myaddr);
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: inet accept: %s\n",
+	__pmNotifyErr(LOG_CRIT, "__pmdaOpenSocket: accept: %s\n",
 			netstrerror());
 	exit(1);
     }
@@ -132,15 +138,15 @@ __pmdaOpenSocket(char *sockname, int myport, pmdaIoType iotype, int *infd, int *
 }
 
 static void
-__pmdaOpenInet(char *sockname, int myport, int *infd, int *outfd)
+__pmdaOpenInet(char *sockname, int port, int *infd, int *outfd)
 {
-    __pmdaOpenSocket(sockname, myport, pmdaInet, infd, outfd);
+    __pmdaOpenSocket(sockname, port, AF_INET, infd, outfd);
 }
 
 static void
-__pmdaOpenIPv6(char *sockname, int myport, int *infd, int *outfd)
+__pmdaOpenIPv6(char *sockname, int port, int *infd, int *outfd)
 {
-    __pmdaOpenSocket(sockname, myport, pmdaIPv6, infd, outfd);
+    __pmdaOpenSocket(sockname, port, AF_INET6, infd, outfd);
 }
 
 #if !defined(IS_MINGW)
