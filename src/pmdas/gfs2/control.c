@@ -30,15 +30,10 @@ const char *control_locations[] = {
  */
 extern int
 gfs2_control_fetch(int item)
-    switch (item) {
-        case CONTROL_GLOCK_LOCK_TIME: /* gfs2.control.glock_lock_time */
-            return gfs2_control_check_value(control_locations[CONTROL_GLOCK_LOCK_TIME]); 
-            break;
-        default:
-            return PM_ERR_PMID;
-        }
-
-    return 0;
+{
+    if (item >= 0 && item < NUM_CONTROL_STATS)
+        return gfs2_control_check_value(control_locations[item]); 
+    return PM_ERR_PMID;
 }
 
 /*
@@ -77,16 +72,13 @@ extern int
 gfs2_control_check_value(const char *filename)
 {
     FILE *fp;
-    char buffer[5];
+    char buffer[8];
     int value = 0;
 
     fp = fopen(filename, "r");
-    if (!fp) {
-	value = 0;
-    } else {
-        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+    if (fp) {
+        while (fgets(buffer, sizeof(buffer), fp) != NULL)
             sscanf(buffer, "%d", &value);
-        }
 	fclose(fp);
     }
     return value;
