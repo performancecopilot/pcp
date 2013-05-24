@@ -82,6 +82,46 @@ gfs2_locktime_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
     }
 }
 
+static void
+gfs2_extract_glock_lock_time(char *token, pmInDom lock_time_indom)
+{
+    char *p, hash[256];
+    unsigned int major, minor;
+    struct lock_time glock;
+    dev_t dev_id;
+
+    if ((p = strstr(token, "gfs2_glock_lock_time: "))){  
+        sscanf(p, 
+            "gfs2_glock_lock_time: %"SCNu32",%"SCNu32" glock %"SCNu32":%"SCNu64" status:%*d flags:%*x tdiff:%*d srtt:%"SCNd64"/%"SCNd64" srttb:%"SCNd64"/%"SCNd64" sirt:%"SCNd64"/%"SCNd64" dcnt:%"SCNd64" qcnt:%"SCNd64,
+             &major,
+             &minor, 
+             &glock.lock_type,
+             &glock.number,
+             &glock.srtt, 
+             &glock.srttvar, 
+             &glock.srttb, 
+             &glock.srttvarb, 
+             &glock.sirt, 
+             &glock.sirtvar, 
+             &glock.dlm, 
+             &glock.queue
+        );
+
+        /* Check to see if the current lock is of correct type */
+        if (glock.lock_type == TYPENUMBER_INODE || glock.lock_type == TYPENUMBER_RGRP){
+
+            /* Create hash in order to distinguish the data */
+            dev_id = makedev(major, minor);
+            snprintf(hash, sizeof(hash), "%d:%d|%"PRIu32"|%"PRIu64"", 
+                        major(dev_id), minor(dev_id), glock.lock_type, glock.number);
+            hash[sizeof(hash)-1] = '\0';
+
+            /* Store our lock data into the indom */
+            pmdaCacheStore(lock_time_indom, PMDA_CACHE_ADD, hash, (void *)&glock);
+        }
+    }
+}
+
 /* 
  * Gathering of the required data for the gfs2.lock_time metrics. We take all 
  * required data from the trace_pipe and the trace values come from the 
@@ -97,6 +137,9 @@ gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
     int fd, flags;
     char buffer[8196], *token;
     static char *TRACE_PIPE = "/sys/kernel/debug/tracing/trace_pipe";
+
+    /* Clear old lock data from the cache */
+    pmdaCacheOp(lock_time_indom, PMDA_CACHE_CULL);
 
     /* We open the pipe in both read-only and non-blocking mode */
     if ((fp = fopen(TRACE_PIPE, "r")) == NULL)
@@ -114,54 +157,11 @@ gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
      *
      */
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-
-        /* Clear old lock data from the cache */
-        pmdaCacheOp(lock_time_indom, PMDA_CACHE_CULL);
-
-        for (token = strtok(buffer, "."); token != NULL; token = strtok(NULL, ".")){
-            char *p;
-            unsigned int major, minor;
-            dev_t dev_id;
-            struct lock_time glock;
-
-            if ((p = strstr(token, "gfs2_glock_lock_time: "))){  
-                sscanf(p, 
-                    "gfs2_glock_lock_time: %"SCNu32",%"SCNu32" glock %"SCNu32":%"SCNu64" status:%*d flags:%*x tdiff:%*d srtt:%"SCNd64"/%"SCNd64" srttb:%"SCNd64"/%"SCNd64" sirt:%"SCNd64"/%"SCNd64" dcnt:%"SCNd64" qcnt:%"SCNd64,
-                     &major,
-                     &minor, 
-                     &glock.lock_type,
-                     &glock.number,
-                     &glock.srtt, 
-                     &glock.srttvar, 
-                     &glock.srttb, 
-                     &glock.srttvarb, 
-                     &glock.sirt, 
-                     &glock.sirtvar, 
-                     &glock.dlm, 
-                     &glock.queue
-                );
-
-                /* Check to see if the current lock is of correct type */
-                if (glock.lock_type == TYPENUMBER_INODE || glock.lock_type == TYPENUMBER_RGRP){
-
-                    /* Create hash in order to store the distinuish the data */
-                    dev_id = makedev(major, minor);
-
-                    char hash[256];
-                    snprintf(hash, sizeof hash, "%d:%d|%"PRIu32"|%"PRIu64"", 
-                    major(dev_id), minor(dev_id), glock.lock_type, glock.number);
-      
-                    if (hash == NULL){
-                        close(fd);
-                        return -oserror();
-                    }
-
-                    /* Store our lock data into the indom */
-	            pmdaCacheStore(lock_time_indom, PMDA_CACHE_ADD, hash, (void *)&glock);
-                }
-            }
-        }
+        for (token = strtok(buffer, "."); token != NULL; token = strtok(NULL, "."))
+            gfs2_extract_glock_lock_time(token, lock_time_indom);
     }
+    fclose(fp);
+
     /* 
      * We have collected our data from the trace_pipe, now it is time to take
      * the data and find the worst glocks for each of our mounted file-systems,
@@ -170,8 +170,6 @@ gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
      *
      */
     lock_time_assign_glocks(lock_time_indom, gfs_fs_indom);
-
-    close(fd);
     return 0;
 }
 
