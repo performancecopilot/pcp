@@ -29,7 +29,7 @@ const char *control_locations[] = {
  *
  */
 extern int
-gfs2_control_fetch(int item){
+gfs2_control_fetch(int item)
     switch (item) {
         case CONTROL_GLOCK_LOCK_TIME: /* gfs2.control.glock_lock_time */
             return gfs2_control_check_value(control_locations[CONTROL_GLOCK_LOCK_TIME]); 
@@ -47,7 +47,8 @@ gfs2_control_fetch(int item){
  *
  */
 extern int 
-gfs2_control_set_value(const char *filename, pmValueSet *vsp){
+gfs2_control_set_value(const char *filename, pmValueSet *vsp)
+{
     FILE *fp;
     int value;
     int	sts = 0;
@@ -73,7 +74,8 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp){
  *
  */
 extern int 
-gfs2_control_check_value(const char *filename){
+gfs2_control_check_value(const char *filename)
+{
     FILE *fp;
     char buffer[5];
     int value = 0;

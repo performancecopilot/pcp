@@ -57,16 +57,7 @@ struct lock_time {
     __int64_t queue;         /* Count of gfs2_holder queues */
 };
 
-typedef struct node {
-    struct lock_time data;   /* Holding data for our locks*/
-    struct node* next;       /* Pointer to the next node in the list */
-    dev_t dev_id;            /* Filesystem block device identifer */
-} linkedList_t;
-
 extern int gfs2_locktime_fetch(int, struct lock_time *, pmAtomValue *);
 extern int gfs2_refresh_lock_time(pmInDom, pmInDom);
-
-void lock_time_assign_glocks(pmInDom, pmInDom);
-int lock_compare(struct lock_time *, struct lock_time *);
 
 #endif /* LOCK_TIME_H */
