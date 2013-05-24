@@ -51,7 +51,7 @@ pminfo -fdm gfs2.glocks | _filter_pminfo
 
 echo
 echo "=== Additional glstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glstats | _filler_pminfo
+pminfo -fdm gfs2.glstats | _filter_pminfo
 
 echo
 echo "=== Additional sbstats for all filesystems ===" | tee -a $here/$seq.full
