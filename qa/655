@@ -1,8 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 655
 # checks extended pmdagfs2 functionality (gfs2_tracepoints)
-# Requires GFS2 support in the kernel, so may need a "modprobe gfs2" 
-# depending on how you like to roll your kernels.
+# Requires GFS2 support in the kernel, else it will notrun.
 #
 # The gfs2_glock_lock_time tracepoint metrics require debugfs mounted, 
 # tracing enabled and also the gfs2_glock_lock_time tracepoint enabled.
@@ -18,8 +17,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
-
 . ./common.gfs2
 
 # Attempt to set up the gfs2 pmda test enviroment
