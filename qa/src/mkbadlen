@@ -10,15 +10,23 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # Set up for a new badlen-X archive
 #
-X=`ls badlen-*.index 2>/dev/null | tail -1 | sed -e 's/badlen-//' -e 's/\.index//'`
-if [ -z "$X" ]
+X=0
+while true
+do
+    [ ! -f badlen-$X.index ] && break
+    X=`expr $X + 1`
+    if [ $X -eq 100 ]
+    then
+	echo "Botch: all archives badlen-0...badlen-99 already exist?"
+	exit 1
+    fi
+done
+if [ $X -eq 0 ]
 then
     cp foo.0 badlen-0.0
     cp foo.meta badlen-0.meta
     cp foo.index badlen-0.index
     X=1
-else
-    X=`expr $X + 1`
 fi
 
 ln badlen-0.meta badlen-$X.meta
@@ -69,6 +77,15 @@ in
 	cp foo.index badlen-$X.index
 	rm -f badlen-$X.meta
 	dd if=foo.meta of=badlen-$X.meta bs=1 count=840
+	;;
+
+    10)	# Data file truncated in trailer of label record
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=131
+	;;
+
+    11)	# Data file truncated in header of first pmResult
+	dd if=badlen-0.0 of=badlen-$X.0 bs=1 count=133
+	;;
 
 esac
 
