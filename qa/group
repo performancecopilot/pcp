@@ -738,9 +738,13 @@ pcp.py
 524 libpcp pmlogger local oss
 525 pmda.summary pmie local oss
 526 pmimport local oss valgrind
+527 libpcp_import perl local oss
+528 pmimport pmdumplog perl local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
+531 dbpmda local pmda.sample oss sanity
 532 logutil pmlogextract local oss
+533 dbpmda local pmda.sample oss sanity
 534 pmie local oss
 535 pmie local pmprobe oss
 538 pmie local oss pmstore
@@ -836,5 +840,3 @@ pcp.py
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-527 libpcp_import perl local oss
-528 pmimport pmdumplog perl local oss
