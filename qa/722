@@ -54,12 +54,19 @@ awk -v f=$1 '
     {print $0}'
 }
 
+redact_header()
+{
+awk -v f=$1 '
+    /ATOP/ {gsub("[A-Za-z]*","Day",$3);gsub("[A-Za-z]*","Month",$4)}
+    {print $0}'
+}
+
 PMATOP=pmatop		# installed version
 which $PMATOP >/dev/null 2>&1 || _notrun "pmatop not installed"
 
 # real QA test starts here
-$PMATOP -m 1 1 | remove_extra_whitespace | redact_lines 7 | tee -a $tmp.out 2>&1
-$PMATOP -g 1 1 | remove_extra_whitespace | redact_lines 12 | tee -a $tmp.out 2>&1
+$PMATOP -r $here/src/pmatop-722.0 -m 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PMATOP -r $here/src/pmatop-722.0 -g 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
 cat $tmp.out >>$here/$seq.full
 

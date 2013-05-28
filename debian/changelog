@@ -1,8 +1,9 @@
 pcp (3.8.1) unstable; urgency=low
 
   * Currently under development.
+  * Remove a second 'restrict' keyword use (closes: #689552)
 
- -- Nathan Scott <nathans@debian.org>  Web, 15 May 2013 08:29:36 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 15 May 2013 08:29:36 +1000
 
 pcp (3.8.0) unstable; urgency=low
 

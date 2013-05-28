@@ -450,12 +450,14 @@ is an unsigned integer specifying the agent's domain in the range 1 to 510
 .TP 14
 .I addr-family
 designates whether the socket is in the
-.B AF_INET
+.B AF_INET,
+.B AF_INET6
 or
 .B AF_UNIX
 domain, and the corresponding
 values for this parameter are
-.B inet
+.B inet,
+.B ipv6
 and
 .B unix
 respectively.
@@ -470,6 +472,8 @@ sockets, the address should be the name of an agent's socket on the
 local host (a valid address for the UNIX domain).
 For
 .B inet
+and
+.B ipv6
 sockets, the address may be either a port number or a port name which may be
 used to connect to an agent on the local host.
 There is no syntax for

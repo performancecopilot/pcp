@@ -26,7 +26,7 @@ _filter()
 {
     sed \
 	-e "s;$tmp;TMP;g" \
-	-e "s;/[a-z/]*/perl;PERL;" \
+	-e "s;/[a-zA-Z0-9_/.\-]*/perl;PERL;" \
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;" \
 	-e '/^Log for pmdanews/s/ on .*/ on .../' \
 	-e '/^Log finished/s/ed .*/ed .../' \

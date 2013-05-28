@@ -53,7 +53,7 @@ from pcp.pmsubsys import Processor, Interrupt, Disk, Memory, Network, Process, S
 ME = "pmatop"
 
 def usage ():
-    print "\nUsage:", sys.argv[0], "\n\t[-d|-c|-n|-s|-v|-c|-y|-u|-p] [-C|-M|-D|-N|-A] [-f|--filename FILE] [-p|--playback FILE] Interval Trials"
+    return "\nUsage:" + sys.argv[0] + "\n\t[-g|-m] [-w FILE] [-r FILE] [-L width] Interval Trials"
 
 
 def debug (mssg):
@@ -78,8 +78,7 @@ def record (context, config, interval, path):
 
     # -f saves the metrics in a directory
     if os.path.exists(path):
-        print ME + "playback directory %s already exists\n" % path
-        sys.exit(1)
+        return "playback directory %s already exists\n" % path
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
     (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
     status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
@@ -101,16 +100,6 @@ def record_add_creator (path):
     fdesc.write("# Created by " + args)
     fdesc.write("\n#\n")
     fdesc.close()
-
-# record_check_creator ------------------------------------------------------
-
-def record_check_creator (path, doc):
-    fdesc = open (path + "/" + ME + ".pcp", "r")
-    rline = fdesc.readline()
-    if rline.find("# Created by ") == 0:
-        print doc + rline[13:]
-    fdesc.close()
-
 
 # minutes_seconds ----------------------------------------------------------
 
@@ -150,6 +139,9 @@ class _StandardOutput(object):
             sys.stdout.write(str)
         else:
             self.so_stdscr.addstr (str)
+    def clear(self):
+        if not self.stdout:
+            self.so_stdscr.clear()
     def move(self, y, x):
         if not self.stdout:
             self.so_stdscr.move(y,x)
@@ -210,8 +202,14 @@ class _AtopPrint(object):
             apy += 1
         self.p_stdscr.addstr (' ' * (self.apyx[1] - line[1]))
         self.p_stdscr.move(apy, 0)
-    def put_value(self, form, value):
-        return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
+    def put_value(self, form, value, try_percentd=0):
+        if try_percentd > 0 and abs(value) < try_percentd:
+            iform = form.replace(form[form.index("."):form.index(".")+3],"d")
+            return iform % value
+        if value > 0:
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
+        else:
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0", "-\\1e", form % abs(value))
 
 
 # _ProcessorPrint --------------------------------------------------
@@ -262,8 +260,8 @@ class _ProcessorPrint(_AtopPrint, Processor):
         self.p_stdscr.addstr (' avg1 %7.3g |' % (self.get_scalar_value('kernel.all.load', 0)))
         self.p_stdscr.addstr (' avg5 %7.3g |' % (self.get_scalar_value('kernel.all.load', 1)))
         self.p_stdscr.addstr (' avg15 %6.3g |' % (self.get_scalar_value('kernel.all.load', 2)))
-        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch')))
-        self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr')))
+        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.get_metric_value('kernel.all.pswitch'), 10000))
+        self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.get_metric_value('kernel.all.intr'), 10000))
         if (self.apyx[1] >= 110):
             self.p_stdscr.addstr ('              |')
         if (self.apyx[1] >= 95):
@@ -476,12 +474,12 @@ class _ProcPrint(_AtopPrint, Process):
                 break
 
             if self._output_type in ['g', 'm']:
-                self.p_stdscr.addstr ('%4d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
+                self.p_stdscr.addstr ('%5d  ' % (self.get_scalar_value('proc.psinfo.pid', j)))
             if self._output_type in ['g']:
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.stime', j)))
                 self.p_stdscr.addstr (' %5s ' % minutes_seconds (self.get_scalar_value('proc.psinfo.utime', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j), 10000))
                 self.p_stdscr.addstr ('%5s ' % (pwd.getpwuid(self.get_scalar_value('proc.id.uid', j))[0]))
                 # Missing: THR # threads is in /proc/NNN/status
                 self.p_stdscr.addstr ('%5s ' % '-')
@@ -503,24 +501,18 @@ class _ProcPrint(_AtopPrint, Process):
                         minf = 0
                     if majf < 0:
                         majf = 0
-                    if minf < 1000:
-                        self.p_stdscr.addstr (self.put_value('%3d ', minf))                        
-                    else:
-                        self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
-                    if majf < 1000:
-                        self.p_stdscr.addstr (self.put_value('%3d ', majf))                        
-                    else:
-                        self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
                 if (self.apyx[1] >= 95):
-                    self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.textrss', j)))
+                    self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.textrss', j), 10000))
                     # Missing: VSLIBS librss seems to always be 0
                     self.p_stdscr.addstr (self.put_value('%4.2gK ', self.get_scalar_value('proc.memory.librss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.datrss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.vmstack', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.vsize', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.rss', j)))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.datrss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.memory.vmstack', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_scalar_value('proc.psinfo.rss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.vsize', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.get_old_scalar_value('proc.psinfo.rss', j), 10000))
                 val = float(self.get_old_scalar_value('proc.psinfo.rss', j)) / float(self._mem.get_metric_value('mem.physmem')) * 100
                 if val > 100: val = 0
                 self.p_stdscr.addstr (self.put_value('%2d%% ', val))
@@ -557,6 +549,8 @@ def main (stdscr_p):
     duration_arg = 0
     n_samples = 0
     output_type = "g"
+    create_archive = False
+    replay_archive = False
     i = 1
 
     subsys_options = ("g", "m")
@@ -574,15 +568,16 @@ def main (stdscr_p):
                 if (sys.argv[i] == "-w"):
                     i += 1
                     output_file = sys.argv[i]
+                    create_archive = True
                 elif (sys.argv[i] == "-r"):
                     i += 1
                     input_file = sys.argv[i]
+                    replay_archive = True
                 elif (sys.argv[i] == "-L"):
                     i += 1
                     stdscr.width = int(sys.argv[i])
                 elif (sys.argv[i] == "--help" or sys.argv[i] == "-h"):
-                    usage()
-                    sys.exit(1)
+                    return usage()
                 else:
                     return sys.argv[0] + ": Unknown option " + sys.argv[i] \
                         + "\nTry `" + sys.argv[0] + " --help' for more information."
@@ -610,25 +605,23 @@ def main (stdscr_p):
     proc.output_type = output_type
     mm = _MiscMetrics()
 
-    if input_file == "":
-        try:
-            pmc = pmapi.pmContext()
-        except pmapi.pmErr, e:
-            return "Cannot connect to pmcd on localhost"
-    else:
-        # -f saved the metrics in an archive
-        lines = []
+    if replay_archive:
+        archive = input_file
         if not os.path.exists(input_file):
-            print input_file, "does not exist"
-            sys.exit(1)
+            return input_file + " does not exist"
         for line in open(input_file):
-            lines.append(line[:-1].split())
-        archive = os.path.join(os.path.dirname(input_file),
-                               lines[len(lines)-1][2])
+            if (line[:8] == "Archive:"):
+                tokens = line[:-1].split()
+                archive = os.path.join(os.path.dirname(input_file), tokens[2])
         try:
             pmc = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
             return "Cannot open PCP archive: " + archive
+    else:
+        try:
+            pmc = pmapi.pmContext()
+        except pmapi.pmErr, e:
+            return "Cannot connect to pmcd on localhost"
 
     if duration_arg != 0:
         (timeval, errmsg) = pmc.pmParseInterval(duration_arg)
@@ -659,9 +652,10 @@ def main (stdscr_p):
         subsys.append ([proc.set_mem, mem])
         subsys.append ([proc.proc, None])
 
-    if output_file != "":
-        configuration = "log mandatory on every " + str(interval_arg) + " seconds { "
-        for ssx in (cpu, mem, disk, net, proc):
+    if create_archive:
+        configuration = "log mandatory on every " + \
+            str(interval_arg) + " seconds { "
+        for ssx in (mm, cpu, mem, disk, net, proc):
             configuration += ssx.dump_metrics()
         configuration += "}"
         if duration == 0:
@@ -669,7 +663,9 @@ def main (stdscr_p):
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pmgui.GuiClient(), configuration, duration, output_file)
+        status = record (pmgui.GuiClient(), configuration, duration, output_file)
+        if status != "":
+            return status
         record_add_creator (output_file)
         sys.exit(0)
 
@@ -700,6 +696,8 @@ def main (stdscr_p):
                         ssx[0]()
                     else:
                         ssx[0](ssx[1])
+                except pmapi.pmErr, e:
+                    return str(e) + " while processing " + str(ssx[0])
                 except: # catch all errors, pcp or python or otherwise
                     pass
             stdscr.move (proc.command_line, 0)
@@ -715,6 +713,9 @@ def main (stdscr_p):
                     cmd = None
                 if cmd == "q":
                     raise KeyboardInterrupt
+                elif cmd == "":
+                    stdscr.clear()
+                    stdscr.refresh()
                 elif cmd == "z":
                     stdscr.timeout(-1)
                     # currently it just does "hit any key to continue"
@@ -728,6 +729,7 @@ def main (stdscr_p):
                     stdscr.addstr ( "'m'  - memory details\n")
                     stdscr.addstr ( "Miscellaneous commands:\n")
                     stdscr.addstr ("'z'  - pause-button to freeze current sample (toggle)\n")
+                    stdscr.addstr ("^L   - redraw the screen\n")
                     stdscr.addstr ("hit any key to continue\n")
                     stdscr.timeout(-1)
                     char = stdscr.getch()
@@ -737,9 +739,7 @@ def main (stdscr_p):
                 # TODO Next/Previous Page
                 else:
                     stdscr.move (proc.command_line, 0)
-                    all_cmds = list(subsys_cmds)
-                    all_cmds.append('q')
-                    stdscr.addstr ("Invalid command %s %s" % (cmd,all_cmds))
+                    stdscr.addstr ("Invalid command %s\nType 'h' to see a list of valid commands" % (cmd))
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1

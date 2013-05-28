@@ -180,8 +180,10 @@ tolerance="0.15e+09" # implies error of about 0.15 second
 mismatch_limit=1 # allow 1 mismatch
 
 src/wrap_int -n $num_samples >$tmp.expected
-metric="long"
+echo "--- Expected vals ---" >> $seq.full
+cat $tmp.expected >> $seq.full
 
+metric="long"
 echo "--- Testing pmval ---"
 echo "--- Testing pmval ---" >> $seq.full
 _reset

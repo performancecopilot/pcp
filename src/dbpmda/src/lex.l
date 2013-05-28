@@ -76,7 +76,9 @@ fetch		{ return FETCH; }
 getdesc		{ return GETDESC; }
 help		{ return HELP; }
 indom		{ return INDOM; }
+inet		{ return INET; }
 instance	{ return INSTANCE; }
+ipv6		{ return IPV6; }
 name		{ return PMNS_NAME; }
 namespace	{ BEGIN FNAME; return NAMESPACE; }
 none		{ return NONE; }
@@ -94,6 +96,7 @@ store		{ return STORE; }
 text		{ return INFO; }
 timer		{ return TIMER; }
 traverse	{ return PMNS_TRAVERSE; }
+unix		{ return UNIX; }
 wait		{ return WAIT; }
 watch		{ BEGIN FNAME; return WATCH; }
 \?		{ return HELP; }

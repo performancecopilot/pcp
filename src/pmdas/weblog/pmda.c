@@ -111,6 +111,7 @@ Options\n\
   -t delay	maximum number of seconds between reading weblog files\n\
   -u socket	expect PMCD to connect on given unix domain socket\n\
   -U username   user account to run under (default \"pcp\")\n\
+  -6 port	expect PMCD to connect on given ipv6 port (number or name)\n\
 \n\
 If none of the -i, -p or -u options are given, the configuration file is\n\
 checked and then %s terminates.\n", pmProgname, pmProgname);
@@ -483,7 +484,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, WEBSERVER,
 		wl_logFile, wl_helpFile);
 
-    while ((n = pmdaGetOpt(argc, argv, "CD:d:h:i:l:n:pS:t:u:U:?", 
+    while ((n = pmdaGetOpt(argc, argv, "CD:d:h:i:l:n:pS:t:u:U:6:?", 
 			   &desc, &err)) != EOF) {
 	switch (n) {
 

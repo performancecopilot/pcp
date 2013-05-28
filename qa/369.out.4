@@ -1,0 +1,548 @@
+QA output created by 369
+C version ...
+pmiDump: context 0 of 0 Error: current context is not defined.
+pmiStart: OK ->1
+pmiDump: context 0 of 1 archive: myarchive
+  state: 1 (start) hostname: <undefined> timezone: <undefined>
+  No metrics.
+  No indoms.
+  No handles.
+  No pmResult.
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiUseContext: Error: Attempt to use an illegal context
+pmiUseContext: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: Error: Metric name already defined
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: Error: Metric pmID already defined
+pmiAddMetric: OK
+pmiAddInstance: OK
+pmiAddInstance: OK
+pmiAddInstance: OK
+pmiAddInstance: Error: Internal instance identifer already defined
+pmiPutValue: OK
+pmiPutValue: Error: Null instance expected for a singular metric
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: Error: Unknown or illegal instance identifier
+pmiPutValue: Error: Null instance not allowed for a non-singular metric
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: OK
+pmiGetHandle: OK ->1
+pmiGetHandle: Error: Unknown metric name
+pmiPutValueHandle: Error: Value already assigned for this metric-instance
+pmiPutValueHandle: Error: Illegal handle
+pmiDump: context 0 of 1 archive: myarchive
+  state: 1 (start) hostname: somehost.com timezone: GMT-12
+  metric[0] name=my.metric.foo pmid=245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+  metric[1] name=my.metric.bar pmid=245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+  metric[2] name=my.metric.long pmid=245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[3] name=my.metric.double pmid=245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[4] name=my.metric.string pmid=245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[5] name=my.metric.float pmid=245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+  indom[0] indom=245.1
+   instance[0] eek really (1)
+   instance[1] eek (2)
+   instance[2] blah (3)
+  handle[0] metric=my.metric.foo (245.0.1) instance=-1
+pmResult ... numpmid: 6
+  245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 123 1.7235971e-43 0x7b
+  245.0.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [2 or ???] value 4567890123456
+    inst [3 or ???] value 4567890123457
+  245.0.5 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "a new string value"
+  245.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 123456789012345
+  245.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1.23456789012
+  245.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -1.234567
+pmiWrite: OK
+pmiPutValueHandle: OK
+pmiPutValue: OK
+pmiWrite: OK
+pmiPutValue: OK
+pmiWrite: OK
+pmiWrite: Error: No data to output
+pmiEnd: OK
+pmiStart: OK ->2
+pmiAddInstance: Error: Internal instance identifer already defined
+pmiGetHandle: OK ->2
+pmiPutValueHandle: OK
+pmiPutValueHandle: Error: Illegal handle
+pmiDump: context 1 of 2 archive: myotherarchive
+  state: 1 (start) hostname: <undefined> timezone: <undefined>
+  metric[0] name=my.metric.foo pmid=245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+  metric[1] name=my.metric.bar pmid=245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+  metric[2] name=my.metric.long pmid=245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[3] name=my.metric.double pmid=245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[4] name=my.metric.string pmid=245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[5] name=my.metric.float pmid=245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+  indom[0] indom=245.1
+   instance[0] eek really (1)
+   instance[1] eek (2)
+   instance[2] blah (3)
+  handle[0] metric=my.metric.foo (245.0.1) instance=-1
+  handle[1] metric=my.metric.bar (245.0.2) instance=2
+pmResult ... numpmid: 1
+  245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [2 or ???] value 6543210987654
+
+my.metric.float PMID: 245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+my.metric.double PMID: 245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.long PMID: 245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.string PMID: 245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.bar PMID: 245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+
+my.metric.foo PMID: 245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.6 (my.metric.float)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 245.0.4 (my.metric.double)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (my.metric.long)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (my.metric.string)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (my.metric.bar)
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.1 (my.metric.foo)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+
+Instance Domains in the Log ...
+InDom: 245.1
+TIMESTAMP 3 instances
+                 1 or "eek really"
+                 2 or "eek"
+                 3 or "blah"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0          132          132
+TIMESTAMP       0          531          132
+TIMESTAMP       0          531          516
+
+[228 bytes]
+TIMESTAMP  245.0.1 (my.metric.foo): value 123
+              245.0.2 (my.metric.bar):
+                inst [2 or "eek"] value 4567890123456
+                inst [3 or "blah"] value 4567890123457
+              245.0.5 (my.metric.string): value "a new string value"
+              245.0.3 (my.metric.long): value 123456789012345
+              245.0.4 (my.metric.double): value 1.23456789012
+              245.0.6 (my.metric.float): value -1.234567
+
+[88 bytes]
+TIMESTAMP  245.0.1 (my.metric.foo): value 4321
+              245.0.5 (my.metric.string): value "a second string value"
+
+[68 bytes]
+TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+
+Perl wrapper version ...
+*PCP::LogImport::BEGIN
+*PCP::LogImport::EXPORT
+*PCP::LogImport::EXPORT_OK
+*PCP::LogImport::EXPORT_TAGS
+*PCP::LogImport::ISA
+*PCP::LogImport::PMI_DOMAIN
+*PCP::LogImport::PMI_ERR_BADHANDLE
+*PCP::LogImport::PMI_ERR_BADMETRICNAME
+*PCP::LogImport::PMI_ERR_BADSEM
+*PCP::LogImport::PMI_ERR_BADTIMESTAMP
+*PCP::LogImport::PMI_ERR_BADTYPE
+*PCP::LogImport::PMI_ERR_DUPINSTID
+*PCP::LogImport::PMI_ERR_DUPINSTNAME
+*PCP::LogImport::PMI_ERR_DUPMETRICID
+*PCP::LogImport::PMI_ERR_DUPMETRICNAME
+*PCP::LogImport::PMI_ERR_DUPVALUE
+*PCP::LogImport::PMI_ERR_INSTNOTNULL
+*PCP::LogImport::PMI_ERR_INSTNULL
+*PCP::LogImport::PMI_ERR_NODATA
+*PCP::LogImport::PM_COUNT_ONE
+*PCP::LogImport::PM_ID_NULL
+*PCP::LogImport::PM_INDOM_NULL
+*PCP::LogImport::PM_IN_NULL
+*PCP::LogImport::PM_SEM_COUNTER
+*PCP::LogImport::PM_SEM_DISCRETE
+*PCP::LogImport::PM_SEM_INSTANT
+*PCP::LogImport::PM_SPACE_BYTE
+*PCP::LogImport::PM_SPACE_GBYTE
+*PCP::LogImport::PM_SPACE_KBYTE
+*PCP::LogImport::PM_SPACE_MBYTE
+*PCP::LogImport::PM_SPACE_TBYTE
+*PCP::LogImport::PM_TIME_HOUR
+*PCP::LogImport::PM_TIME_MIN
+*PCP::LogImport::PM_TIME_MSEC
+*PCP::LogImport::PM_TIME_NSEC
+*PCP::LogImport::PM_TIME_SEC
+*PCP::LogImport::PM_TIME_USEC
+*PCP::LogImport::PM_TYPE_32
+*PCP::LogImport::PM_TYPE_64
+*PCP::LogImport::PM_TYPE_DOUBLE
+*PCP::LogImport::PM_TYPE_FLOAT
+*PCP::LogImport::PM_TYPE_NOSUPPORT
+*PCP::LogImport::PM_TYPE_STRING
+*PCP::LogImport::PM_TYPE_U32
+*PCP::LogImport::PM_TYPE_U64
+*PCP::LogImport::VERSION
+*PCP::LogImport::a
+*PCP::LogImport::b
+*PCP::LogImport::bootstrap
+*PCP::LogImport::dl_load_flags
+*PCP::LogImport::import
+*PCP::LogImport::pmInDom_build
+*PCP::LogImport::pmiAddInstance
+*PCP::LogImport::pmiAddMetric
+*PCP::LogImport::pmiBatchEnd
+*PCP::LogImport::pmiBatchPutValue
+*PCP::LogImport::pmiBatchPutValueHandle
+*PCP::LogImport::pmiBatchWrite
+*PCP::LogImport::pmiDump
+*PCP::LogImport::pmiEnd
+*PCP::LogImport::pmiErrStr
+*PCP::LogImport::pmiGetHandle
+*PCP::LogImport::pmiID
+*PCP::LogImport::pmiInDom
+*PCP::LogImport::pmiPutValue
+*PCP::LogImport::pmiPutValueHandle
+*PCP::LogImport::pmiSetHostname
+*PCP::LogImport::pmiSetTimezone
+*PCP::LogImport::pmiStart
+*PCP::LogImport::pmiUnits
+*PCP::LogImport::pmiUseContext
+*PCP::LogImport::pmiWrite
+*PCP::LogImport::pmi_batch
+*PCP::LogImport::pmid_build
+BEGIN
+EXPORT
+EXPORT_OK
+EXPORT_TAGS
+ISA
+PCP::LogImport symbols ...
+PMI_DOMAIN
+PMI_ERR_BADHANDLE
+PMI_ERR_BADMETRICNAME
+PMI_ERR_BADSEM
+PMI_ERR_BADTIMESTAMP
+PMI_ERR_BADTYPE
+PMI_ERR_DUPINSTID
+PMI_ERR_DUPINSTNAME
+PMI_ERR_DUPMETRICID
+PMI_ERR_DUPMETRICNAME
+PMI_ERR_DUPVALUE
+PMI_ERR_INSTNOTNULL
+PMI_ERR_INSTNULL
+PMI_ERR_NODATA
+PM_COUNT_ONE
+PM_ID_NULL
+PM_INDOM_NULL
+PM_IN_NULL
+PM_SEM_COUNTER
+PM_SEM_DISCRETE
+PM_SEM_INSTANT
+PM_SPACE_BYTE
+PM_SPACE_GBYTE
+PM_SPACE_KBYTE
+PM_SPACE_MBYTE
+PM_SPACE_TBYTE
+PM_TIME_HOUR
+PM_TIME_MIN
+PM_TIME_MSEC
+PM_TIME_NSEC
+PM_TIME_SEC
+PM_TIME_USEC
+PM_TYPE_32
+PM_TYPE_64
+PM_TYPE_DOUBLE
+PM_TYPE_FLOAT
+PM_TYPE_NOSUPPORT
+PM_TYPE_STRING
+PM_TYPE_U32
+PM_TYPE_U64
+VERSION
+a
+b
+bootstrap
+dl_load_flags
+import
+pmInDom_build
+pmiAddInstance
+pmiAddMetric
+pmiBatchEnd
+pmiBatchPutValue
+pmiBatchPutValueHandle
+pmiBatchWrite
+pmiDump
+pmiEnd
+pmiErrStr
+pmiGetHandle
+pmiID
+pmiInDom
+pmiPutValue
+pmiPutValueHandle
+pmiSetHostname
+pmiSetTimezone
+pmiStart
+pmiUnits
+pmiUseContext
+pmiWrite
+pmi_batch
+pmid_build
+
+pmiDump: context 0 of 0 Error: current context is not defined.
+pmiStart: OK ->1
+pmiDump: context 0 of 1 archive: myarchive
+  state: 1 (start) hostname: <undefined> timezone: <undefined>
+  No metrics.
+  No indoms.
+  No handles.
+  No pmResult.
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiUseContext: Error: Attempt to use an illegal context
+pmiUseContext: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: Error: Metric name already defined
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: Error: Metric pmID already defined
+pmiAddMetric: OK
+pmiAddInstance: OK
+pmiAddInstance: OK
+pmiAddInstance: OK
+pmiAddInstance: Error: Internal instance identifer already defined
+pmiPutValue: OK
+pmiPutValue: Error: Null instance expected for a singular metric
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: Error: Unknown or illegal instance identifier
+pmiPutValue: Error: Null instance not allowed for a non-singular metric
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: OK
+pmiPutValue: OK
+pmiGetHandle: OK ->1
+pmiGetHandle: Error: Unknown metric name
+pmiPutValueHandle: Error: Value already assigned for this metric-instance
+pmiPutValueHandle: Error: Illegal handle
+pmiDump: context 0 of 1 archive: myarchive
+  state: 1 (start) hostname: somehost.com timezone: GMT-12
+  metric[0] name=my.metric.foo pmid=245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+  metric[1] name=my.metric.bar pmid=245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+  metric[2] name=my.metric.long pmid=245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[3] name=my.metric.double pmid=245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[4] name=my.metric.string pmid=245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[5] name=my.metric.float pmid=245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+  indom[0] indom=245.1
+   instance[0] eek really (1)
+   instance[1] eek (2)
+   instance[2] blah (3)
+  handle[0] metric=my.metric.foo (245.0.1) instance=-1
+pmResult ... numpmid: 6
+  245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value 123 1.7235971e-43 0x7b
+  245.0.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+    inst [2 or ???] value 4567890123456
+    inst [3 or ???] value 4567890123457
+  245.0.5 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value "a new string value"
+  245.0.3 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 123456789012345
+  245.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value 1.23456789012
+  245.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -1.234567
+pmiWrite: OK
+pmiPutValueHandle: OK
+pmiPutValue: OK
+pmiWrite: OK
+pmiPutValue: OK
+pmiWrite: OK
+pmiWrite: Error: No data to output
+pmiEnd: OK
+pmiStart: OK ->2
+pmiAddInstance: Error: Internal instance identifer already defined
+pmiGetHandle: OK ->2
+pmiPutValueHandle: OK
+pmiPutValueHandle: Error: Illegal handle
+pmiDump: context 1 of 2 archive: myotherarchive
+  state: 1 (start) hostname: <undefined> timezone: <undefined>
+  metric[0] name=my.metric.foo pmid=245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+  metric[1] name=my.metric.bar pmid=245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+  metric[2] name=my.metric.long pmid=245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[3] name=my.metric.double pmid=245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[4] name=my.metric.string pmid=245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+  metric[5] name=my.metric.float pmid=245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+  indom[0] indom=245.1
+   instance[0] eek really (1)
+   instance[1] eek (2)
+   instance[2] blah (3)
+  handle[0] metric=my.metric.foo (245.0.1) instance=-1
+  handle[1] metric=my.metric.bar (245.0.2) instance=2
+pmResult ... numpmid: 1
+  245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [2 or ???] value 6543210987654
+
+my.metric.float PMID: 245.0.6
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+my.metric.double PMID: 245.0.4
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.long PMID: 245.0.3
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.string PMID: 245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.bar PMID: 245.0.2
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+
+my.metric.foo PMID: 245.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.6 (my.metric.float)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 245.0.4 (my.metric.double)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.3 (my.metric.long)
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.5 (my.metric.string)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.2 (my.metric.bar)
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Semantics: instant  Units: Mbyte / sec
+PMID: 245.0.1 (my.metric.foo)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Mbyte / sec
+
+Instance Domains in the Log ...
+InDom: 245.1
+TIMESTAMP 3 instances
+                 1 or "eek really"
+                 2 or "eek"
+                 3 or "blah"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0          132          132
+TIMESTAMP       0          531          132
+TIMESTAMP       0          531          516
+
+[228 bytes]
+TIMESTAMP  245.0.1 (my.metric.foo): value 123
+              245.0.2 (my.metric.bar):
+                inst [2 or "eek"] value 4567890123456
+                inst [3 or "blah"] value 4567890123457
+              245.0.5 (my.metric.string): value "a new string value"
+              245.0.3 (my.metric.long): value 123456789012345
+              245.0.4 (my.metric.double): value 1.23456789012
+              245.0.6 (my.metric.float): value -1.234567
+
+[88 bytes]
+TIMESTAMP  245.0.1 (my.metric.foo): value 4321
+              245.0.5 (my.metric.string): value "a second string value"
+
+[68 bytes]
+TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"

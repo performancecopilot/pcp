@@ -7,17 +7,24 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
+# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-# These apps do _lots_ of reverse DNS lookups, so populate /etc/hosts
-# with lots of bogus but matching entries to try and speed things up.
-#
+seq=`basename $0`
+
+ipv6=false
+eval `pmconfig -L 2>/dev/null`
+rm -f $seq.out
+if [ "$ipv6" = "true" ]; then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
 src/fixhosts
 
 # real QA test starts here

@@ -31,8 +31,8 @@ BuildRequires: systemd-devel
 Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep fileutils findutils initscripts perl
-Requires: python python-ctypes
+Requires: bash gawk sed grep fileutils findutils perl
+Requires: python
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %define _rcdir /etc/init.d
@@ -473,7 +473,7 @@ done
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
+[ -f "$PCP_LOG_DIR/pmwebd" ] && chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd"
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 [ -f "$PCP_PMNS_DIR/root" ] || ( cd "$PCP_PMNS_DIR" && ./Rebuild -sud )
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
@@ -482,8 +482,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 /sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
-/sbin/chkconfig --add pmwebd >/dev/null 2>&1
-/sbin/service pmwebd condrestart
+if [ -f /etc/init.d/pmwebd ] 
+then
+    /sbin/chkconfig --add pmwebd >/dev/null 2>&1
+    /sbin/service pmwebd condrestart
+fi
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
 /sbin/service pmproxy condrestart
 

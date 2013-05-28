@@ -184,7 +184,7 @@ process_alloc(const char *bashname, bash_process_t *init, int numclients)
     bashful->queueid = queueid;
     bashful->exited = 0;
     bashful->finished = 0;
-    bashful->restrict = 0;
+    bashful->noaccess = 0;
     bashful->version = init->version;
     bashful->padding = 0;
 

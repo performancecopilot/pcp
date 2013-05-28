@@ -83,5 +83,8 @@ echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
 (sleep 3; logger yo) &
 pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
+# remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
+$sudo ./Remove < /dev/null >/dev/null 2>&1
+
 status=0
 exit

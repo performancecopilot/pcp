@@ -76,7 +76,9 @@ idb: $(DIST_MANIFEST)
 	@echo "f 644 root wheel Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings English.lproj/Localizable.strings replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmcd etc/init.d/pmcd replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmie etc/init.d/pmie replace" >> idb
+ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmwebd etc/init.d/pmwebd replace" >> idb
+endif
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmproxy etc/init.d/pmproxy replace" >> idb
 	@echo "s 0 root wheel Library/StartupItems/pcp/pmlogger etc/init.d/pmlogger replace" >> idb
 	@echo idb created

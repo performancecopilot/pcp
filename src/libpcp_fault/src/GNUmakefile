@@ -51,11 +51,11 @@ LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
 ifeq "$(ENABLE_SECURE)" "true"
-LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR)
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
-CFILES += nss_server.c nss_connect.c
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
+CFILES += secureserver.c secureconnect.c
 else
-LSRCFILES += nss_server.c nss_connect.c
+LSRCFILES += secureserver.c secureconnect.c
 endif
 
 # same as libcp

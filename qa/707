@@ -21,7 +21,7 @@ _check_full()
 {
     mode=$1
 
-    echo -n "$mode - "
+    $PCP_ECHO_PROG $PCP_ECHO_N "$mode - ""$PCP_ECHO_C"
     if grep OK $seq.full
     then
         :

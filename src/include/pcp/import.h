@@ -58,6 +58,7 @@ extern void pmiDump(void);
 #define PMI_ERR_BADSEM		(-PMI_ERR_BASE-10) /* Illegal metric semantics */
 #define PMI_ERR_NODATA		(-PMI_ERR_BASE-11) /* No data to output */
 #define PMI_ERR_BADMETRICNAME	(-PMI_ERR_BASE-12) /* Illegal metric name */
+#define PMI_ERR_BADTIMESTAMP	(-PMI_ERR_BASE-13) /* Illegal result timestamp */
 
 #ifdef __cplusplus
 }

@@ -24,7 +24,7 @@ BuildRequires: systemd-devel
 %endif
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
-Requires: python python-ctypes
+Requires: python
 
 Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}

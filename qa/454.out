@@ -15,7 +15,7 @@ Log finished DATE
 Log for pmcd on HOST started DATE
 
 pmcd config[line 1]: Error: too many parameters for DSO
-pmcd config[line 3]: Error: expected socket address domain (`inet' or `unix')
+pmcd config[line 3]: Error: expected socket address domain (`inet', `ipv6', or `unix')
 pmcd config[line 5]: Error: expected `dso', `socket' or `pipe'
 pmcd config[line 7]: Error: expected socket port name or number
 pmcd config[line 9]: Error: failed to get port number for port name no_such_service

@@ -84,7 +84,10 @@ class _pmsubsys(object):
         True
             
     def get_scalar_value(self, var, idx):
-        value = self.get_metric_value(var)
+        if type(var) == type(str()):
+            value = self.get_metric_value(var)
+        else:
+            value = self.metric_values[var]
         if type(value) != type(int()) and type(value) != type(long()):
             return value[idx]
         else:
@@ -224,7 +227,7 @@ class Processor(_pmsubsys):
     def __init__(self):
         super(Processor, self).__init__()
         self.cpu_total = 0
-        self.metrics += ['hinv.ncpu', 'hinv.cpu.clock', 'kernel.all.cpu.guest',
+        self.metrics += ['hinv.ncpu', 'hinv.cpu.clock', 
                          'kernel.all.cpu.idle', 'kernel.all.cpu.intr',
                          'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft',
                          'kernel.all.cpu.nice', 'kernel.all.cpu.steal',
@@ -279,16 +282,14 @@ class Disk(_pmsubsys):
         self.metrics += ['disk.all.read', 'disk.all.write',
                          'disk.all.read_bytes', 'disk.all.write_bytes',
                          'disk.all.read_merge', 'disk.all.write_merge',
-                         'disk.dev.avactive', 'disk.dev.aveq',
+                         'disk.dev.avactive',
                          'disk.dev.blkread', 'disk.dev.blkwrite',
                          'disk.dev.read', 'disk.dev.read_bytes',
                          'disk.dev.read_merge', 'disk.dev.total',
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
                          'disk.partitions.blkread', 'disk.partitions.blkwrite',
-                         'disk.partitions.read', 'disk.partitions.write',
-                         'disk.partitions.read_bytes',
-                         'disk.partitions.write_bytes'
+                         'disk.partitions.read', 'disk.partitions.write'
                          ]
 
 
@@ -301,12 +302,12 @@ class Memory(_pmsubsys):
         self.metrics += ['mem.freemem', 'mem.physmem', 'mem.util.anonpages',
                          'mem.util.bufmem',
                          'mem.util.cached', 'mem.util.commitLimit',
-                         'mem.util.committed_AS', 'mem.util.dirty',
-                         'mem.util.free', 'mem.util.inactive',
+                         'mem.util.committed_AS',
+                         'mem.util.inactive',
                          'mem.util.inactive', 'mem.util.mapped',
-                         'mem.util.mlocked', 'mem.util.other',
-                         'mem.util.shared', 'mem.util.shmem', 'mem.util.slab',
-                         'mem.util.slabReclaimable', 'mem.util.swapFree',
+                         'mem.util.mlocked',
+                         'mem.util.shmem', 'mem.util.slab',
+                         'mem.util.swapFree',
                          'mem.util.swapTotal', 'mem.util.used',
                          'mem.vmstat.allocstall', 'mem.vmstat.pgfault',
                          'mem.vmstat.pginodesteal',
@@ -333,18 +334,16 @@ class Network(_pmsubsys):
                          'network.interface.out.compressed',
                          'network.interface.in.errors',
                          'network.interface.out.errors',
-                         'network.icmp.inerrors', 'network.icmp.inmsgs',
-                         'network.icmp.outmsgs', 'network.interface.collisions',
-                         'network.interface.in.drops',
-                         'network.interface.out.drops',
+                         'network.icmp.inmsgs',
+                         'network.icmp.outmsgs',
                          'network.ip.forwdatagrams', 'network.ip.indelivers',
                          'network.ip.inreceives', 'network.ip.outrequests',
                          'network.tcp.activeopens',
-                         'network.tcp.inerrs', 'network.tcp.insegs',
-                         'network.tcp.outrsts', 'network.tcp.outsegs',
-                         'network.tcp.passiveopens', 'network.tcp.retranssegs',
-                         'network.udp.inerrors', 'network.udp.indatagrams',
-                         'network.udp.outdatagrams', 'network.udp.noports' ]
+                         'network.tcp.insegs',
+                         'network.tcp.outsegs',
+                         'network.tcp.passiveopens',
+                         'network.udp.indatagrams',
+                         'network.udp.outdatagrams' ]
 
 
 # Process  -----------------------------------------------------------------
@@ -356,19 +355,16 @@ class Process(_pmsubsys):
                          'proc.memory.datrss', 'proc.memory.librss',
                          'proc.memory.textrss', 'proc.memory.vmstack',
                          'proc.nprocs', 'proc.psinfo.cmd',
-                         'proc.psinfo.exit_signal', 'proc.psinfo.maj_flt',
-                         'proc.psinfo.minflt', 'proc.psinfo.nice',
-                         'proc.psinfo.nswap',
-                         'proc.psinfo.pid', 'proc.psinfo.ppid',
-                         'proc.psinfo.priority', 'proc.psinfo.processor',
+                         'proc.psinfo.maj_flt',
+                         'proc.psinfo.minflt',
+                         'proc.psinfo.pid',
                          'proc.psinfo.rss', 'proc.psinfo.sname',
-                         'proc.psinfo.start_time',
                          'proc.psinfo.stime','proc.psinfo.utime',
                          'proc.psinfo.vsize',
                          'proc.runq.runnable', 'proc.runq.sleeping',
                          'proc.runq.blocked', 'proc.runq.defunct',
                          'proc.schedstat.cpu_time',
-                         'process.interface.out.errors']
+                         ]
         self.diff_metrics += ['proc.psinfo.rss', 'proc.psinfo.vsize']
 
 

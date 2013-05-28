@@ -56,7 +56,7 @@ typedef struct {
 } DsoInfo;
 
 typedef struct {
-    int	  addrDomain;			/* AF_UNIX or AF_INET */
+    int	  addrDomain;			/* AF_UNIX, AF_INET or AF_INET6 */
     int	  port;				/* Port number if an INET socket */
     char  *name;			/* Port name if supplied for INET */
 					/* or socket name for UNIX */
