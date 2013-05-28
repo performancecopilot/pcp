@@ -25,7 +25,12 @@ timestamp_flush(void)
     int sts;
     int err = 0;
 
-    if (seconds && (sts = pmiWrite(seconds, mseconds*1000)) < 0) {
+    /*
+     * timstamps in collectl logs are seconds.mseconds since the epoch in utc
+     * Since we've set pmiSetTimezone to what was found in the header, we need
+     * to offset it here so the PCP archive matches the host timezone.
+     */
+    if (seconds && (sts = pmiWrite(seconds + utc_offset * 60 * 60, mseconds*1000)) < 0) {
 	if (sts != PMI_ERR_NODATA) {
 	    fprintf(stderr, "Error: pmiWrite failed: error %d: %s\n", sts, pmiErrStr(sts));
 	    err = sts; /* probably fatal */
@@ -36,15 +41,18 @@ timestamp_flush(void)
 }
 
 int
-timestamp_handler(char *buf)
+timestamp_handler(handler_t *h, fields_t *f)
 {
 
     int sts;
     int err = 0;
 
+    /* >>> 1368076390.001 <<< */
+    if (f->nfields != 3)
+    	return -1;
     if ((sts = timestamp_flush()) < 0)
     	err = sts;
-    sscanf(buf, ">>> %d.%d", &seconds, &mseconds);
+    sscanf(f->fields[1], "%d.%d", &seconds, &mseconds);
 
     return err;
 }

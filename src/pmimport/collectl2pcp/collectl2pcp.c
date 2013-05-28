@@ -19,21 +19,85 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 #include <pcp/import.h>
-
 #include "metrics.h"
 
+#define BUFSIZE 1048576
+
 handler_t handlers[] = {
-	{ ">>>",	timestamp_handler },
-	{ "cpu",	cpu_handler },
-	{ "disk",	disk_handler },
-	{ "Net",	net_handler },
-	{ "load",	load_handler },
+	{ ">>>",		timestamp_handler },
+
+	/* /proc/PID/... */
+	{ "proc:*",		proc_handler },
+
+	/* /proc/stat */
+	{ "cpu*",		cpu_handler },
+	{ "processes",		generic1_handler,	"kernel.all.nprocs" },
+	{ "intr",		generic1_handler,	"kernel.all.intr" },
+	{ "ctx",		generic1_handler,	"kernel.all.pswitch" },
+
+	/* /proc/diskstats */
+	{ "disk",		disk_handler },
+
+	/* /proc/net/dev */
+	{ "Net",		net_handler },
+
+	/* /proc/loadavg */
+	{ "load",		loadavg_handler },
+
+	/* /proc/meminfo */
+	{ "MemTotal:",		generic1_handler,	"mem.physmem" },
+	{ "MemFree:",		generic1_handler,	"mem.util.free" },
+	{ "Buffers:",		generic1_handler,	"mem.util.bufmem" },
+	{ "Cached:",		generic1_handler,	"mem.util.cached" },
+	{ "SwapCached:",	generic1_handler,	"mem.util.swapCached" },
+	{ "Active:",		generic1_handler,	"mem.util.active" },
+	{ "Inactive:",		generic1_handler,	"mem.util.inactive" },
+	{ "Active(anon):",	generic1_handler,	"mem.util.active_anon" },
+	{ "Inactive(anon):",	generic1_handler,	"mem.util.inactive_anon" },
+	{ "Active(file):",	generic1_handler,	"mem.util.active_file" },
+	{ "Inactive(file):",	generic1_handler,	"mem.util.inactive_file" },
+	{ "Unevictable:",	generic1_handler,	"mem.util.unevictable" },
+	{ "Mlocked:",		generic1_handler,	"mem.util.mlocked" },
+	{ "SwapTotal:",		generic1_handler,	"mem.util.swapTotal" },
+	{ "SwapFree:",		generic1_handler,	"mem.util.swapFree" },
+	{ "Dirty:",		generic1_handler,	"mem.util.dirty" },
+	{ "Writeback:",		generic1_handler,	"mem.util.writeback" },
+	{ "AnonPages:",		generic1_handler,	"mem.util.anonpages" },
+	{ "Mapped:",		generic1_handler,	"mem.util.mapped" },
+	{ "Shmem:",		generic1_handler,	"mem.util.shmem" },
+	{ "Slab:",		generic1_handler,	"mem.util.slab" },
+	{ "SReclaimable:",	generic1_handler,	"mem.util.slabReclaimable" },
+	{ "SUnreclaim:",	generic1_handler,	"mem.util.slabUnreclaimable" },
+	{ "KernelStack:",	generic1_handler,	"mem.util.kernelStack" },
+	{ "PageTables:",	generic1_handler,	"mem.util.pageTables" },
+	{ "NFS_Unstable:",	generic1_handler,	"mem.util.NFS_Unstable" },
+	{ "Bounce:",		generic1_handler,	"mem.util.bounce" },
+	{ "WritebackTmp:",	generic1_handler,	"unknown" },
+	{ "CommitLimit:",	generic1_handler,	"mem.util.commitLimit" },
+	{ "Committed_AS:",	generic1_handler,	"mem.util.committed_AS" },
+	{ "VmallocTotal:",	generic1_handler,	"mem.util.vmallocTotal" },
+	{ "VmallocUsed:",	generic1_handler,	"mem.util.vmallocUsed" },
+	{ "VmallocChunk:",	generic1_handler,	"mem.util.vmallocChunk" },
+	{ "HardwareCorrupted:",	generic1_handler,	"mem.util.corrupthardware" },
+	{ "AnonHugePages:",	generic1_handler,	"mem.util.anonhugepages" },
+	{ "HugePages_Total:",	generic1_handler,	"mem.util.hugepagesTotal" },
+	{ "HugePages_Free:",	generic1_handler,	"mem.util.hugepagesFree" },
+	{ "HugePages_Rsvd:",	generic1_handler,	"mem.util.hugepagesRsvd" },
+	{ "HugePages_Surp:",	generic1_handler,	"mem.util.hugepagesSurp" },
+	{ "Hugepagesize:",	generic1_handler,	"unknown" },
+	{ "DirectMap4k:",	generic1_handler,	"mem.util.directMap4k" },
+	{ "DirectMap2M:",	generic1_handler,	"mem.util.directMap2M" },
+
 	{ NULL }
 };
 
 int indom_cnt[NUM_INDOMS] = {0};
 
-static char buf[1048576], rbuf[1048576];
+/* global options */
+int vflag = 0;
+int Fflag = 0;
+int kernel_all_hz = 0;
+int utc_offset = 0;
 
 int
 main(int argc, char *argv[])
@@ -41,21 +105,15 @@ main(int argc, char *argv[])
     int         sts;
     int         ctx;
     int         errflag = 0;
-    int		verbose = 0;
     int         c;
-    int		ncpus = 0;
-    int		ndisks = 0;
-    int		nnets = 0;
-    int		physmem;
-    int		hz;
-    int		pagesize;
-    char	*infile = NULL;
-    char	*archive = NULL;
-    char	*hostname = NULL;
+    char	*infile;
+    int		nfilelist;
     int		filenum;
+    char	*archive = NULL;
     int		j;
+    char	*buf;
+    fields_t	*f;
     char	*s;
-    char	*p;
     int		gzipped;
     FILE	*fp;
     metric_t	*m;
@@ -64,7 +122,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:v")) != EOF) {
+    while ((c = getopt(argc, argv, "FD:v")) != EOF) {
         switch (c) {
 
         case 'D':       /* debug flag */
@@ -77,11 +135,11 @@ main(int argc, char *argv[])
             else
                 pmDebug |= sts;
             break;
-	case 'a':
-	    archive = optarg;
+	case 'F':
+	    Fflag = 1;
 	    break;
 	case 'v':
-	    verbose = 1;
+	    vflag++;
 	    break;
         case '?':
         default:
@@ -90,15 +148,36 @@ main(int argc, char *argv[])
         }
     }
 
-    if (!archive)
+    nfilelist = argc - optind - 1;
+    if (nfilelist < 1)
     	errflag++;
+    else
+	archive = argv[argc-1];
 
     if (errflag) {
 usage:	fprintf(stderr,
-	"Usage %s [-v] [-D N] -a archive file [file ...]\n"
-	"where 'archive' is the base name for the PCP archive to be created.\n"
-	"Each 'file' is a collectl archive for the same host (may be gzipped).\n", pmProgname);
+	"Usage: %s [-F] [-v] [-D N] inputfile [inputfile ...] archive\n"
+	"Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).\n"
+	"'archive' is the base name for the PCP archive to be created.\n"
+	"-F forces overwrite of 'archive' if it already exists.\n"
+	"-v enables verbose messages. Use more -v for extra verbosity.\n"
+	"-D N turns on debugging bits 'N', see pmdbg(1).\n", pmProgname);
         exit(1);
+    }
+
+    if ((buf = malloc(BUFSIZE)) == NULL) {
+    	perror("Error: out of memory:");
+	exit(1);
+    }
+
+    if (Fflag) {
+    	snprintf(buf, BUFSIZE, "%s.meta", archive); unlink(buf);
+    	snprintf(buf, BUFSIZE, "%s.index", archive); unlink(buf);
+	for (j=0;; j++) {
+	    snprintf(buf, BUFSIZE, "%s.%d", archive, j);
+	    if (unlink(buf) < 0)
+	    	break;
+	}
     }
 
     ctx = pmiStart(archive, 0);
@@ -107,11 +186,32 @@ usage:	fprintf(stderr,
 	exit(1);
     }
 
-    for (filenum=0; optind < argc; filenum++) {
-	infile = argv[optind++];
+    /*
+     * Define the metrics name space, see metrics.c (generated by pmdesc)
+     */
+    for (m = metrics; m->name; m++) {
+	pmDesc *d = &m->desc;
+
+	sts = pmiAddMetric(m->name, d->pmid, d->type, d->indom, d->sem, d->units);
+	if (sts < 0) {
+	    fprintf(stderr, "Error: failed to add metric %s: %s\n", m->name, pmiErrStr(sts));
+	    exit(1);
+	}
+    }
+
+    /*
+     * Populate special case instance domains
+     */
+    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "1 minute", 1);
+    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "5 minute", 5);
+    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "15 minute", 15);
+    indom_cnt[LOADAVG_INDOM] = 3;
+
+    for (filenum=0; filenum < nfilelist; filenum++) {
+	infile = argv[optind + filenum];
 	gzipped = strstr(infile, ".gz") != NULL;
 	if (gzipped) {
-	    sprintf(buf, "gzip -c -d %s", infile);
+	    snprintf(buf, BUFSIZE, "gzip -c -d %s", infile);
 	    if ((fp = popen(buf, "r")) == NULL)
 		perror(buf);
 	}
@@ -123,189 +223,34 @@ usage:	fprintf(stderr,
 	    goto usage;
 
 	/*
-	 * parse collectl header
+	 * parse the header
 	 */
-	while(fgets(buf, sizeof(buf), fp)) {
-	    if ((s = strrchr(buf, '\n')) != NULL)
-		*s = '\0';
-
-	    if (strncmp(buf, ">>>", 3) == 0) {
-		/* first timestamp: we're finished parsing the header */
-		timestamp_handler(buf);
-		break;
-	    }
-
-	    if (strncmp(buf, "# Host:", 7) == 0) {
-		/* # Host:       somehostname ... */  
-		s = strfield_r(buf, 3, rbuf);
-		if (hostname && strcmp(hostname, s) != 0) {
-		    fprintf(stderr, "Error: \"%s\" contains data for host \"%s\", not \"%s\"\n",
-		    	infile, s, hostname);
-		    exit(1); /* FATAL */
-		}
-
-		if (!hostname) {
-		    hostname = strdup(s);
-		    pmiSetHostname(s);
-		}
-		continue;
-	    }
-
-	    if (filenum == 0 && strncmp(buf, "# Date:", 7) == 0) {
-		/* # Date:       20130505-170328  Secs: 1367791408 TZ: -0500 */
-		if ((s = strstr(buf, "TZ: ")) != NULL) {
-		    sscanf(s, "TZ: %s", rbuf);
-		    sts = pmiSetTimezone(rbuf);
-		}
-		else
-		    sts = pmiSetTimezone("UTC");
-		continue;
-	    }
-
-	    if (filenum == 0 && strncmp(buf, "# SubSys:", 9) == 0) {
-		/* # SubSys:     bcdfijmnstYZ Options:  Interval: 10:60 NumCPUs: 24  NumBud: 3 Flags: i */
-		if ((s = strstr(buf, "NumCPUs: ")) != NULL)
-		    sscanf(s, "NumCPUs: %d", &ncpus);
-		continue;
-	    }
-
-	    if (filenum == 0 && strncmp(buf, "# HZ:", 3) == 0) {
-		/* # HZ:         100  Arch: x86_64-linux-thread-multi PageSize: 4096 */
-		if ((s = strfield_r(buf, 3, rbuf)) != NULL)
-		    sscanf(s, "%d", &hz);
-		if ((s = strstr(buf, "PageSize: ")) != NULL)
-		    sscanf(s, "PageSize: %d", &pagesize);
-		continue;
-	    }
-
-	    if (filenum == 0 && strncmp(buf, "# Kernel:", 9) == 0) {
-		/* # Kernel:     2.6.18-274.17.1.el5  Memory: 131965176 kB  Swap: 134215000 kB */
-		if ((s = strstr(buf, "Memory: ")) != NULL)
-		    sscanf(s, "Memory: %d", &physmem);
-		continue;
-	    }
-
-	    if (strncmp(buf, "# NumDisks:", 11) == 0) {
-		/* # NumDisks:   846 DiskNames: sda sdb .... */
-		sscanf(buf, "# NumDisks:%6d", &ndisks);
-
-		/* disk.dev.* instance domain */
-		if ((s = strstr(buf, "DiskNames:")) != NULL) {
-		    s = strtok(s, " ");
-		    for (j=0; j < ndisks; j++) {
-			s = strtok(NULL, " ");
-			sts = pmiAddInstance(pmInDom_build(LINUX_DOMAIN,DISK_INDOM), s, j);
-			if (filenum == 0 && sts < 0)
-			    fprintf(stderr, "Warning: failed to add disk \"%s\" failed: %s\n", s, pmiErrStr(sts));
-			else {
-			    if (verbose)
-				printf("Added disk instance [%d] \"%s\"\n", j, s);
-			}
-		    }
-		}
-		indom_cnt[DISK_INDOM] = ndisks;
-		continue;
-	    }
-
-	    if (strncmp(buf, "# NumNets:", 10) == 0) {
-		/* # NumNets:    5 NetNames: em1: lo: ... */
-		sscanf(buf, "# NumNets:%5d", &nnets);
-
-		/* network.interface instance domain */
-		if ((s = strstr(buf, "NetNames:")) != NULL) {
-		    s = strtok(s, " ");
-		    for (j=0; j < nnets; j++) {
-			s = strtok(NULL, " ");
-			if ((p = strchr(s, ':')) != NULL)
-			    *p = '\0';
-			sts = pmiAddInstance(pmInDom_build(LINUX_DOMAIN,NET_DEV_INDOM), s, j);
-			if (filenum == 0 && sts < 0)
-			    fprintf(stderr, "Warning: failed to add net \"%s\" failed: %s\n", s, pmiErrStr(sts));
-			else {
-			    if (verbose)
-				printf("Added net instance [%d] \"%s\"\n", j, s);
-			}
-		    }
-		}
-	    }
-	    indom_cnt[NET_DEV_INDOM] = nnets;
-	    continue;
-	}
-
-	/*
-	 * Populate other instance domains.
-	 * Only report errors for the first input file.
-	 */
-	for (j=0; j < ncpus; j++) {
-	    /* per-CPU instance domain */
-	    sprintf(buf, "cpu%d", j);
-	    sts = pmiAddInstance(pmInDom_build(LINUX_DOMAIN, CPU_INDOM), buf, j);
-	    if (filenum == 0 && sts < 0) {
-		fprintf(stderr, "Error: failed to add instance \"%s\": %s\n", buf, pmiErrStr(sts));
-		exit(1);
-	    }
-	    if (verbose)
-		printf("Added cpu instance [%d] \"%s\"\n", j, buf);
-	}
-	indom_cnt[CPU_INDOM] = ncpus;
-
-	/*
-	 * Populate instance domains that never change (first file only)
-	 */
-	if (filenum == 0) {
-	    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "1 minute", 1);
-	    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "5 minute", 5);
-	    pmiAddInstance(pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM), "15 minute", 15);
-	    indom_cnt[LOADAVG_INDOM] = 3;
-	}
-
-	/*
-	 * Define the metrics name space, see metrics.c (generated by pmdesc)
-	 */
-	if (filenum == 0) {
-	    for (m = metrics; m->name; m++) {
-		pmDesc *d = &m->desc;
-
-		sts = pmiAddMetric(m->name, d->pmid, d->type, d->indom, d->sem, d->units);
-		if (sts < 0) {
-		    fprintf(stderr, "Error: failed to add metric %s: %s\n", m->name, pmiErrStr(sts));
-		    exit(1);
-		}
-	    }
-	}
-
-	/*
-	 * Assorted singular metrics: emit these once for each input file.
-	 * hinv.ndisk can change due to hotplug and also for dm devices.
-	 * hinv.ncpu can change on a VM due to hotplug CPU.
-	 */
-	put_int_value("hinv.ncpu", PM_INDOM_NULL, NULL, ncpus);
-	put_int_value("hinv.ndisk", PM_INDOM_NULL, NULL, ndisks);
-	put_int_value("hinv.physmem", PM_INDOM_NULL, NULL, physmem/1024); /* mbytes */
-	put_int_value("hinv.pagesize", PM_INDOM_NULL, NULL, pagesize);
-	put_int_value("kernel.all.hz", PM_INDOM_NULL, NULL, hz);
-
-	if (verbose) {
-	    printf("file:\"%s\" host:\"%s\" ncpus:%d ndisks:%d nnets:%d physmem:%d pagesize:%d hz:%d\n",
-		infile, hostname, ncpus, ndisks, nnets, physmem, pagesize, hz);
-	}
+	sts = header_handler(fp, infile, buf, BUFSIZE);
 
 	/*
 	 * Parse remaining data stream for this input file
 	 */
-	while(fgets(buf, sizeof(buf), fp)) {
+	while(fgets(buf, BUFSIZE, fp)) {
 	    if ((s = strrchr(buf, '\n')) != NULL)
 		*s = '\0';
-
-	    if ((h = find_handler(buf)) == NULL)
-		unhandled_metric_cnt++;
-	    else {
-		sts = h->handler(buf);
-		if (sts < 0 && h->handler == timestamp_handler) {
-		    fprintf(stderr, "Error: %s\n", pmiErrStr(sts));
-		    exit(1);
+	    if (!buf[0])
+	    	continue;
+	    f = fields_new(buf, strlen(buf)+1, ' ');
+	    if (f->nfields > 0) {
+		if ((h = find_handler(f->fields[0])) == NULL) {
+		    unhandled_metric_cnt++;
+		    if (vflag > 1)
+			printf("Unhandled tag: \"%s\"\n", f->fields[0]);
+		}
+		else {
+		    sts = h->handler(h, f);
+		    if (sts < 0 && h->handler == timestamp_handler) {
+			fprintf(stderr, "Error: %s\n", pmiErrStr(sts));
+			exit(1);
+		    }
 		}
 	    }
+	    fields_free(f);
 	}
 
 	/* final flush for this file */
@@ -321,7 +266,7 @@ usage:	fprintf(stderr,
     }
 
     sts = pmiEnd();
-    if (unhandled_metric_cnt && verbose)
+    if (unhandled_metric_cnt && vflag)
     	fprintf(stderr, "Warning: %d unhandled metric/values\n", unhandled_metric_cnt);
 
     exit(0);

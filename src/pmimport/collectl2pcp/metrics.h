@@ -24,63 +24,67 @@
 #define LINUX_DOMAIN 60
 #define PROC_DOMAIN 3
 
-enum { /* from indom.h in the Linux PMDA */
-        CPU_INDOM = 0,          /* 0 - percpu */
-        DISK_INDOM,             /* 1 - disks */
-        LOADAVG_INDOM,          /* 2 - 1, 5, 15 minute load averages */
-        NET_DEV_INDOM,          /* 3 - network interfaces */
-        PROC_INTERRUPTS_INDOM,  /* 4 - interrupt lines -> proc PMDA */
-        FILESYS_INDOM,          /* 5 - mounted bdev filesystems */
-        SWAPDEV_INDOM,          /* 6 - swap devices */
-        NFS_INDOM,              /* 7 - nfs operations */
-        NFS3_INDOM,             /* 8 - nfs v3 operations */
-        PROC_PROC_INDOM,        /* 9 - processes */
-        PARTITIONS_INDOM,       /* 10 - disk partitions */
-        SCSI_INDOM,             /* 11 - scsi devices */
-        SLAB_INDOM,             /* 12 - kernel slabs */
-        IB_INDOM,               /* 13 - deprecated: do not re-use */
-        NFS4_CLI_INDOM,         /* 14 - nfs v4 client operations */
-        NFS4_SVR_INDOM,         /* 15 - nfs n4 server operations */
-        QUOTA_PRJ_INDOM,        /* 16 - project quota */
-        NET_INET_INDOM,         /* 17 - inet addresses */
-        TMPFS_INDOM,            /* 18 - tmpfs mounts */
-        NODE_INDOM,             /* 19 - NUMA nodes */
-        PROC_CGROUP_SUBSYS_INDOM,       /* 20 - control group subsystems -> proc PMDA */
-        PROC_CGROUP_MOUNTS_INDOM,       /* 21 - control group mounts -> proc PMDA */
+/* Linux PMDA instance domain identifiers */
+#include "../../pmdas/linux/indom.h"
 
-        NUM_INDOMS              /* one more than highest numbered cluster */
-};
-
+/* PCP metric, see metrics.c */
 typedef struct {
 	char *name;
 	pmDesc desc;
 } metric_t;
 
+/* parsed input buffer, split into fields. See fields_new() et al */
 typedef struct {
+	int len;
+	char *buf;
+	int nfields;
+	char **fields;
+	int *fieldlen;
+} fields_t;
+
+/* handler to convert parsed fields into pcp metrics and emit them */
+typedef struct handler {
 	char *pattern;
-	int (*handler)(char *buf);
+	int (*handler)(struct handler *h, fields_t *f);
+	char *metric_name;
 } handler_t;
+
+/* global options */
+extern int vflag;
+extern int kernel_all_hz;
+extern int utc_offset;
 
 /* metric table, see metrics.c (generated from pmdesc) */
 extern metric_t metrics[];
 
-/* indom count table */
+/* instance domain count table - needed for dynamic instances */
 extern int indom_cnt[NUM_INDOMS];
 
 /* metric value handler table */
 extern handler_t handlers[];
 
 /* handlers */
+extern int header_handler(FILE *fp, char *fname, char *buf, int buflen);
 extern int timestamp_flush(void);
-extern int timestamp_handler(char *buf);
-extern int cpu_handler(char *buf);
-extern int disk_handler(char *buf);
-extern int net_handler(char *buf);
-extern int load_handler(char *buf);
+extern int timestamp_handler(handler_t *h, fields_t *f);
+extern int cpu_handler(handler_t *h, fields_t *f);
+extern int proc_handler(handler_t *h, fields_t *f);
+extern int disk_handler(handler_t *h, fields_t *f);
+extern int net_handler(handler_t *h, fields_t *f);
+extern int loadavg_handler(handler_t *h, fields_t *f);
+extern int generic1_handler(handler_t *h, fields_t *f);
+extern int generic2_handler(handler_t *h, fields_t *f);
 
 /* various helpers, see util.c */
-extern char *strfield_r(char *p, int f, char *r);
 extern metric_t *find_metric(char *name);
 extern handler_t *find_handler(char *buf);
-extern int put_int_value(char *name, int indom, char *instance, int val);
-extern int put_str_value(char *name, int indom, char *instance, char *val);
+extern int put_str_instance(pmInDom indom, char *instance);
+extern int put_str_value(char *name, pmInDom indom, char *instance, char *val);
+extern int put_int_value(char *name, pmInDom indom, char *instance, int val);
+extern int put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val);
+
+/* helpers to parse and manage input buffers */
+extern int strfields(const char *s, int len, const char sep, char **fields, int *fieldlen, int maxfields);
+extern fields_t *fields_new(const char *s, int len, const char sep);
+extern fields_t *fields_dup(fields_t *f);
+extern void fields_free(fields_t *f);

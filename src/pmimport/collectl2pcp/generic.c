@@ -11,22 +11,25 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
- * Handler for load average
- * "load 1.07 1.18 1.30 3/658 4944"
+ * Generic handler for singular metrics with value in fields[1] e.g. :
+ * "processes 516779"
  *
  */
 
 #include "metrics.h"
 
+/* generic handler for <tag> <value> */
 int
-loadavg_handler(handler_t *h, fields_t *f)
+generic1_handler(handler_t *h, fields_t *f)
 {
-    pmInDom indom = pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM);
-    if (f->nfields < 4)
-    	return -1;
-    put_str_value("kernel.all.load", indom, "1 minute", f->fields[1]);
-    put_str_value("kernel.all.load", indom, "5 minute", f->fields[2]);
-    put_str_value("kernel.all.load", indom, "15 minute", f->fields[3]);
+    put_str_value(h->metric_name, PM_INDOM_NULL, NULL, f->fields[1]);
+    return 0;
+}
 
+/* generic handler for <tag> <somethingelse> <value> */
+int
+generic2_handler(handler_t *h, fields_t *f)
+{
+    put_str_value(h->metric_name, PM_INDOM_NULL, NULL, f->fields[2]);
     return 0;
 }

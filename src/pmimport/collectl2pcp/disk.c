@@ -19,39 +19,34 @@
 #include "metrics.h"
 
 int
-disk_handler(char *buf)
+disk_handler(handler_t *h, fields_t *f)
 {
-    char *s;
     char *inst;
+    pmInDom indom = pmInDom_build(LINUX_DOMAIN, DISK_INDOM);
+
+    if (f->nfields != 15)
+    	return -1;
 
     /* disk.dev.* */
-    s = strtok(buf, " "); /* "disk" */
-    s = strtok(NULL, " "); /* major */
-    s = strtok(NULL, " "); /* minor */
-    inst = strtok(NULL, " "); /* diskname */
+    inst = f->fields[3]; /* diskname */
 
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.read", DISK_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.read_merge", DISK_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.blkread", DISK_INDOM, inst, s);
-    s = strtok(NULL, " "); /* read_ticks */
+    put_str_value("disk.dev.read", indom, inst, f->fields[4]);
+    put_str_value("disk.dev.read_merge", indom, inst, f->fields[5]);
+    put_str_value("disk.dev.blkread", indom, inst, f->fields[6]);
+    /* skip read_ticks at f->fields[7] */
+    put_str_value("disk.dev.write", indom, inst, f->fields[8]);
+    put_str_value("disk.dev.write_merge", indom, inst, f->fields[9]);
+    put_str_value("disk.dev.blkwrite", indom, inst, f->fields[10]);
+    /* skip write_ticks at f->fields[11] */
+    /* skip in_flight at f->fields[12] */
+    put_str_value("disk.dev.avactive", indom, inst, f->fields[13]);
+    put_str_value("disk.dev.aveq", indom, inst, f->fields[14]);
 
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.write", DISK_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.write_merge", DISK_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.blkwrite", DISK_INDOM, inst, s);
-    s = strtok(NULL, " "); /* write_ticks */
-
-    s = strtok(NULL, " "); /* in_flight */
-
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.avactive", DISK_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("disk.dev.aveq", DISK_INDOM, inst, s);
+    /* derived values */
+    put_ull_value("disk.dev.write_bytes", indom, inst, strtoull(f->fields[10], NULL, 0) / 2);
+    put_ull_value("disk.dev.read_bytes", indom, inst, strtoull(f->fields[6], NULL, 0) / 2);
+    put_ull_value("disk.dev.total_bytes", indom, inst,
+    	strtoull(f->fields[6], NULL, 0) + strtoull(f->fields[10], NULL, 0));
 
     return 0;
 }

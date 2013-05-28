@@ -19,10 +19,12 @@
 #include "metrics.h"
 
 int
-net_handler(char *buf)
+net_handler(handler_t *h, fields_t *f)
 {
+    int n;
     char *s;
     char *inst;
+    pmInDom indom = pmInDom_build(LINUX_DOMAIN, NET_DEV_INDOM);
 
     /*
 Inter-|   Receive                                                |  Transmit
@@ -31,44 +33,31 @@ Inter-|   Receive                                                |  Transmit
   eth0:       0  337614    0    0    0     0          0         0        0  267537    0    0    0 27346      62          0
      */
 
-    if ((s = strchr(buf, ':')) != NULL)
-    	*s = ' ';
-    s = strtok(buf, " "); /* "Net" */
-    inst = strtok(NULL, " "); /* netname */
+    if (f->nfields != 18)
+    	return -1;
 
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.bytes", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.packets", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.errors", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.drops", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.fifo", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.frame", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.compressed", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.in.mcasts", NET_DEV_INDOM, inst, s);
+    inst = f->fields[1];
+    if ((s = strchr(inst, ':')) != NULL)
+    	*s = '\0';
 
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.bytes", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.packets", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.errors", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.drops", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.fifo", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.collisions", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.carrier", NET_DEV_INDOM, inst, s);
-    s = strtok(NULL, " ");
-    put_str_value("network.interface.out.compressed", NET_DEV_INDOM, inst, s);
+    n = 2;
+    put_str_value("network.interface.in.bytes", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.packets", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.errors", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.drops", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.fifo", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.frame", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.compressed", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.in.mcasts", indom, inst, f->fields[n++]);
+
+    put_str_value("network.interface.out.bytes", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.packets", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.errors", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.drops", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.fifo", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.collisions", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.carrier", indom, inst, f->fields[n++]);
+    put_str_value("network.interface.out.compressed", indom, inst, f->fields[n++]);
 
     return 0;
 }

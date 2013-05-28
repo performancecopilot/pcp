@@ -20,29 +20,52 @@
 
 #include "metrics.h"
 
+#define ticks_to_msec(ticks) (1000ULL * strtoull(ticks, NULL, 0) / kernel_all_hz)
+
 int
-cpu_handler(char *buf)
+cpu_handler(handler_t *h, fields_t *f)
 {
-    char *s;
-    metric_t *m;
     char *inst = NULL;
 
-    if (isdigit(buf[3])) {
+    if (f->fieldlen[0] < 3 || f->nfields < 9)
+    	return -1;
+
+    if (f->fieldlen[0] > 3 && isdigit(f->fields[0][3])) {
 	/* kernel.percpu.cpu.* */
-	inst = strtok(buf, " ");
-	m = find_metric("kernel.percpu.cpu.user");
-	for (; m && m->name; m++) {
-	    if ((s = strtok(NULL, " ")) != NULL)
-		put_str_value(m->name, CPU_INDOM, inst, s);
-	}
+	pmInDom indom = pmInDom_build(LINUX_DOMAIN, CPU_INDOM);
+
+	inst = f->fields[0]; /* cpuN */
+
+	put_ull_value("kernel.percpu.cpu.user", indom, inst, ticks_to_msec(f->fields[1]));
+	put_ull_value("kernel.percpu.cpu.nice", indom, inst, ticks_to_msec(f->fields[2]));
+	put_ull_value("kernel.percpu.cpu.sys", indom, inst, ticks_to_msec(f->fields[3]));
+	put_ull_value("kernel.percpu.cpu.idle", indom, inst, ticks_to_msec(f->fields[4]));
+	put_ull_value("kernel.percpu.cpu.wait.total", indom, inst, ticks_to_msec(f->fields[5]));
+	put_ull_value("kernel.percpu.cpu.irq.hard", indom, inst, ticks_to_msec(f->fields[6]));
+	put_ull_value("kernel.percpu.cpu.irq.soft", indom, inst, ticks_to_msec(f->fields[7]));
+	put_ull_value("kernel.percpu.cpu.steal", indom, inst, ticks_to_msec(f->fields[8]));
+	if (f->nfields > 9) /* guest cpu usage is only in more recent kernels */
+	    put_ull_value("kernel.percpu.cpu.guest", indom, inst, ticks_to_msec(f->fields[9]));
+
+	put_ull_value("kernel.percpu.cpu.intr", indom, inst,
+		1000 * ((double)strtoull(f->fields[6], NULL, 0) +
+			(double)strtoull(f->fields[7], NULL, 0)) / kernel_all_hz);
     }
     else {
-	s = strtok(buf, " ");
-	m = find_metric("kernel.all.cpu.user");
-	for (; m && m->name; m++) {
-	    if ((s = strtok(NULL, " ")) != NULL)
-		put_str_value(m->name, PM_INDOM_NULL, NULL, s);
-	}
+	put_ull_value("kernel.all.cpu.user", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[1]));
+	put_ull_value("kernel.all.cpu.nice", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[2]));
+	put_ull_value("kernel.all.cpu.sys", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[3]));
+	put_ull_value("kernel.all.cpu.idle", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[4]));
+	put_ull_value("kernel.all.cpu.wait.total", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[5]));
+	put_ull_value("kernel.all.cpu.irq.hard", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[6]));
+	put_ull_value("kernel.all.cpu.irq.soft", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[7]));
+	put_ull_value("kernel.all.cpu.steal", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[8]));
+	if (f->nfields > 9)
+	    put_ull_value("kernel.all.cpu.guest", PM_INDOM_NULL, NULL, ticks_to_msec(f->fields[9]));
+
+	put_ull_value("kernel.all.cpu.intr", PM_INDOM_NULL, NULL,
+		1000 * ((double)strtoull(f->fields[6], NULL, 0) +
+			(double)strtoull(f->fields[7], NULL, 0)) / kernel_all_hz);
     }
 
     return 0;
