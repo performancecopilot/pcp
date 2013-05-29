@@ -20,7 +20,7 @@ CFILES  = collectl2pcp.c cpu.c disk.c net.c load.c timestamp.c util.c \
 LSRCFILES = pmdesc.c
 
 CMDTARGET = collectl2pcp
-LLDLIBS = -lpcp_import $(PCPLIB)
+LLDLIBS = -L$(TOPDIR)/src/libpcp_import/src -lpcp_import $(PCPLIB)
 # LCFLAGS += -pg
 
 #

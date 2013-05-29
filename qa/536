@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 536
+# test collectl2pcp functionality
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+# test for-some-thing || _notrun No support for some-thing
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# are we even installed?
+collectl2pcp -\? 2>&1
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+
+exit
