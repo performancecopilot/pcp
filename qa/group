@@ -747,6 +747,7 @@ pcp.py
 533 dbpmda local pmda.sample oss sanity
 534 pmie local oss
 535 pmie local pmprobe oss
+537 pmimport perl local oss
 538 pmie local oss pmstore
 539 pmpost local oss
 541 pmie #535080 local pmprobe oss
