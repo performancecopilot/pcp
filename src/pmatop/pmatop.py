@@ -549,6 +549,7 @@ def main (stdscr_p):
     duration_arg = 0
     n_samples = 0
     output_type = "g"
+    host = ""
     create_archive = False
     replay_archive = False
     i = 1
@@ -576,8 +577,11 @@ def main (stdscr_p):
                 elif (sys.argv[i] == "-L"):
                     i += 1
                     stdscr.width = int(sys.argv[i])
-                elif (sys.argv[i] == "--help" or sys.argv[i] == "-h"):
+                elif (sys.argv[i] == "--help"):
                     return usage()
+                elif (sys.argv[i] == "-h"):
+                    i += 1
+                    host = sys.argv[i]
                 else:
                     return sys.argv[0] + ": Unknown option " + sys.argv[i] \
                         + "\nTry `" + sys.argv[0] + " --help' for more information."
@@ -618,10 +622,12 @@ def main (stdscr_p):
         except pmapi.pmErr, e:
             return "Cannot open PCP archive: " + archive
     else:
+        if host == "":
+            host = "localhost"
         try:
-            pmc = pmapi.pmContext()
+            pmc = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:
-            return "Cannot connect to pmcd on localhost"
+            return "Cannot connect to pmcd on " + host
 
     if duration_arg != 0:
         (timeval, errmsg) = pmc.pmParseInterval(duration_arg)
@@ -668,10 +674,6 @@ def main (stdscr_p):
             return status
         record_add_creator (output_file)
         sys.exit(0)
-
-    host = pmc.pmGetContextHostName()
-    if host == "localhost":
-        host = os.uname()[1]
 
     i_samples = 0
     subsys_cmds = ['g', 'm']

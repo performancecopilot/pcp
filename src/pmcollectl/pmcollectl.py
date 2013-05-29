@@ -508,6 +508,7 @@ if __name__ == '__main__':
     duration_arg = 0
     create_archive = False
     replay_archive = False
+    host = ""
 
 #    ss = _genericCollectPrint()
     cpu = _cpuCollectPrint()
@@ -565,9 +566,12 @@ if __name__ == '__main__':
         elif (sys.argv[argx] == "--verbose"):
             if verbosity != "detail":
                 verbosity = "verbose"
-        elif (sys.argv[argx] == "--help" or sys.argv[argx] == "-h"):
+        elif (sys.argv[argx] == "--help"):
             usage()
             sys.exit(1)
+        elif (sys.argv[argx] == "-h"):
+            argx += 1
+            host = sys.argv[argx]
         elif (sys.argv[argx][:1] == "-"):
             print sys.argv[0] + ": Unknown option ", sys.argv[argx]
             print "Try `" + sys.argv[0] + " --help' for more information."
@@ -595,10 +599,12 @@ if __name__ == '__main__':
             print "Cannot open PCP archive: %s" % archive
             sys.exit(1)
     else:
+        if host == "":
+            host = "localhost"
         try:
-            pm = pmapi.pmContext()
+            pm = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:
-            print "Cannot connect to pmcd on %s" % "localhost"
+            print "Cannot connect to pmcd on " + host
             sys.exit(1)
 
     if duration_arg != 0:
