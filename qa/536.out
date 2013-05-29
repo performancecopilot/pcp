@@ -1,0 +1,8 @@
+QA output created by 536
+collectl2pcp: invalid option -- '?'
+Usage: collectl2pcp [-F] [-v] [-D N] inputfile [inputfile ...] archive
+Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).
+'archive' is the base name for the PCP archive to be created.
+-F forces overwrite of 'archive' if it already exists.
+-v enables verbose messages. Use more -v for extra verbosity.
+-D N turns on debugging bits 'N', see pmdbg(1).
