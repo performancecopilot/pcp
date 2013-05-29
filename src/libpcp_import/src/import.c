@@ -459,12 +459,12 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
 	mp->pmid = pmid;
     } else {
 	/* choose a PMID on behalf of the caller - check boundaries first */
-	item = cluster = current->nmetric - 1;
+	item = cluster = current->nmetric;
 	if (item >= (1<<22)) {	/* enough room for unique item:cluster? */
 	    current->nmetric--;
 	    return current->last_sts = PMI_ERR_DUPMETRICID;	/* wrap */
 	}
-	item %= (1 << 10);
+	item %= (1<<10);
 	cluster >>= 10;
 	mp->pmid = pmid_build(PMI_DOMAIN, cluster, item);
     }
