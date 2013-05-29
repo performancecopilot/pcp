@@ -962,32 +962,32 @@ static int
 ParseHosts(int allow)
 {
     int		sts = 0;
-    int		i = 0;
-    int		j;
+    int		nhosts = 0;
+    int		i;
     int		ok = 0;
     int		another = 1;
-    static char	**name = NULL;
-    static int	szNames = 0;
     int		specOps = 0;
     int		denyOps = 0;
     int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    static char	**names;
+    static int	szNames;
 
     while (*token && another && *token != ':' && *token != ';') {
-	if (i == szNames) {
+	if (nhosts == szNames) {
 	    int		need;
 
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
-	    if ((name = (char **)realloc(name, need)) == NULL)
+	    if ((names = (char **)realloc(names, need)) == NULL)
 		__pmNoMem("pmcd ParseHosts name list", need, PM_FATAL_ERR);
 	}
-	if ((name[i] = CopyToken()) == NULL)
+	if ((names[nhosts] = CopyToken()) == NULL)
 	    __pmNoMem("pmcd ParseHosts name", tokenend - token, PM_FATAL_ERR);
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
-			 nLines, name[i]);
+			 nLines, names[nhosts]);
 	    goto error;
 	}
 	if (*token == ',') {
@@ -996,9 +996,9 @@ ParseHosts(int allow)
 	}
 	else
 	    another = 0;
-	i++;
+	nhosts++;
     }
-    if (i == 0) {
+    if (nhosts == 0) {
 	fprintf(stderr,
 		     "pmcd config[line %d]: Error: no hosts in allow/disallow statement\n",
 		     nLines);
@@ -1011,7 +1011,7 @@ ParseHosts(int allow)
     }
     if (*token != ':') {
 	fprintf(stderr, "pmcd config[line %d]: Error: ':' expected after \"%s\"\n",
-		nLines, name[i]);
+		nLines, names[nhosts-1]);
 	goto error;
     }
     FindNextToken();
@@ -1020,21 +1020,21 @@ ParseHosts(int allow)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1) {
-	for (j = 0; j < i; j++)
+	for (i = 0; i < nhosts; i++)
 	    fprintf(stderr, "ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
-		    name[j], specOps, denyOps, maxCons);
+		    names[i], specOps, denyOps, maxCons);
     }
 #endif
-    
+
     /* Make new entries for hosts in host access list */
 
-    for (j = 0; j < i; j++) {
-	if ((sts = __pmAccAddHost(name[j], specOps, denyOps, maxCons)) < 0) {
+    for (i = 0; i < nhosts; i++) {
+	if ((sts = __pmAccAddHost(names[i], specOps, denyOps, maxCons)) < 0) {
 	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
 		fprintf(stderr, "Warning: the following access control specification will be ignored\n");
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Warning: access control error for host '%s': %s\n",
-			 nLines, name[j], pmErrStr(sts));
+			 nLines, names[i], pmErrStr(sts));
 	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
 		;
 	    else
@@ -1046,8 +1046,8 @@ ParseHosts(int allow)
     return ok;
 
 error:
-    for (j = 0; j < i; j++)
-	free(name[j]);
+    for (i = 0; i < nhosts; i++)
+	free(names[i]);
     return -1;
 }
 

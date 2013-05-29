@@ -387,7 +387,7 @@ getWildCardSpec(const char *name, struct accessSpec *spec)
 
 /* Determine all of the access specs which result from the given name. */
 static struct accessSpec *
-getAccessSpecs(const char *name, int *sts)
+getHostAccessSpecs(const char *name, int *sts)
 {
     struct accessSpec	*specs;
     size_t		specSize;
@@ -561,7 +561,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	return -EINVAL;
 
     /* The specified name may result in more than one access specification. */
-    specs = getAccessSpecs(name, &sts);
+    specs = getHostAccessSpecs(name, &sts);
     if (specs == NULL)
 	return sts;
 
