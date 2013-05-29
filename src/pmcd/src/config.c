@@ -1030,12 +1030,12 @@ ParseHosts(int allow)
 
     for (i = 0; i < nhosts; i++) {
 	if ((sts = __pmAccAddHost(names[i], specOps, denyOps, maxCons)) < 0) {
-	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
+	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		fprintf(stderr, "Warning: the following access control specification will be ignored\n");
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Warning: access control error for host '%s': %s\n",
 			 nLines, names[i], pmErrStr(sts));
-	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
+	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		;
 	    else
 		goto error;
