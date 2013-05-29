@@ -1,3 +1,16 @@
+/*
+ * Generate sequences of values with wrapping for testing how
+ * tools deal with this.  Note: wrapping of *signed* integers
+ * is undefined (according to gcc folks) and they take that as
+ * meaning "anything can happen".  For some compilers, that's
+ * taken literally at higher optimisation levels, resulting in
+ * crashes, infinite loops, early exit; so *anything goes* for
+ * this test program.  Do not rely on its output when signed
+ * integers are being used (the default, without -u).
+ *
+ * http://thiemonagel.de/2010/01/signed-integer-overflow/
+ * https://patchwork.kernel.org/patch/34925/
+ */
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>

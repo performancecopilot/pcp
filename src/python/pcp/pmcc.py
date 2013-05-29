@@ -19,10 +19,9 @@
 # for more details.
 #
 
-
 import sys
-from pcp.pmapi import pmResult, LIBPCP, pmContext
-from ctypes import c_uint, c_char_p, POINTER, Structure
+from ctypes import c_uint, c_char_p
+from pcp.pmapi import pmContext, pmErr, pmResult, LIBPCP
 from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
 
 
@@ -46,7 +45,7 @@ class MetricCore(object):
 
 class Metric(object):
     """
-    Additional metric information, such as conversion factors and result values
+    Additional metric information, such as conversion factors and values
     several instances of Metric may share a MetricCore instance
     """
 
@@ -55,13 +54,13 @@ class Metric(object):
 
     def __init__(self, core):
         self._core = core
-        self._result = None
-        self._prev = None
-        self._convType = core.desc.type
-        self._convUnits = core.desc.units
+        self._values = None
+        self._prevValues = None
+        self._convType = core.desc.contents.type
+        self._convUnits = core.desc.contents.units
         self._errorStatus = None
-        self._netValue = None
-        self._netPrev = None
+        self._netValues = None
+        self._netPrevValues = None
 
     ##
     # core property read methods
@@ -82,9 +81,9 @@ class Metric(object):
     ## 
     # instance property read methods
 
-    def computeVal(self, inResult):
+    def computeValues(self, inValues):
         """ compute value """
-        timestamp, vset = inResult
+        vset = inValues
         ctx = self.ctx
         instD = ctx.mcGetInstD(self.desc.indom)
         numval = vset.numval
@@ -103,10 +102,10 @@ class Metric(object):
             valL.append((instval, name, value))
         return valL
 
-    def _R_result(self):
-        return self._result
-    def _R_prev(self):
-        return self._prev
+    def _R_values(self):
+        return self._values
+    def _R_prevValues(self):
+        return self._prevValues
     def _R_convType(self):
         return self._convType
     def _R_convUnits(self):
@@ -114,22 +113,22 @@ class Metric(object):
     def _R_errorStatus(self):
         return self._errorStatus
 
-    def _R_netPrev(self):
-        if not self._prev:
+    def _R_netPrevValues(self):
+        if not self._prevValues:
             return None
-        if type(self._netPrev) == type(None):
-            self._netPrev = self.computeVal(self._prev)
-        return self._netPrev
-    def _R_netValue(self):
-        if not self._result:
+        if type(self._netPrevValues) == type(None):
+            self._netPrevValues = self.computeValues(self._prevValues)
+        return self._netPrevValues
+    def _R_netValues(self):
+        if not self._values:
             return None
-        if type(self._netValue) == type(None):
-            self._netValue = self.computeVal(self._result)
-        return self._netValue
+        if type(self._netValues) == type(None):
+            self._netValues = self.computeValues(self._values)
+        return self._netValues
 
-    def _W_result(self, value):
-        self._prev = self._result
-        self._result = value
+    def _W_values(self, values):
+        self._prev = self._values
+        self._values = value
         self._netPrev = self._netValue
         self._netValue = None
     def _W_convType(self, value):
@@ -146,22 +145,20 @@ class Metric(object):
     help = property(_R_help, None, None, None)
 
     # properties specific to this instance
-    result = property(_R_result, _W_result, None, None)
-    prev = property(_R_prev, None, None, None)
+    values = property(_R_values, _W_values, None, None)
+    prevValues = property(_R_prevValues, None, None, None)
     convType = property(_R_convType, _W_convType, None, None)
     convUnits = property(_R_convUnits, _W_convUnits, None, None)
     errorStatus = property(_R_errorStatus, None, None, None)
-    netValue = property(_R_netValue, None, None, None)
-    netPrev = property(_R_netPrev, None, None, None)
+    netValues = property(_R_netValues, None, None, None)
+    netPrevValues = property(_R_netPrevValues, None, None, None)
 
     def metricPrint(self):
         print self.ctx.pmIDStr(self.pmid), self.name
-        stamp, vset = self.result
-        print "   ", "sec =", stamp.tv_sec, " usec =", stamp.tv_usec
         indomstr = self.ctx.pmInDomStr(self.desc.indom)
         print "   ", "indom:", indomstr
         instD = self.ctx.mcGetInstD(self.desc.indom)
-        for inst, name, val in self.netValue:
+        for inst, name, val in self.netValues:
             print "   ", name, val
 
 
@@ -191,7 +188,7 @@ class MetricCache(pmContext):
         return self._mcIndomD[indom]
 
     def _mcAdd(self, core):
-        indom = core.desc.indom
+        indom = core.desc.contents.indom
         if not self._mcIndomD.has_key(indom):
             if indom == PM_INDOM_NULL:
                 instmap = { PM_IN_NULL : "PM_IN_NULL" }
@@ -237,7 +234,11 @@ class MetricCache(pmContext):
     
     def _mcCreateCore(self, name, pmid):
         newcore = MetricCore(self, name, pmid)
-        newcore.desc = self.pmLookupDesc(pmid)
+        try:
+            newcore.desc = self.pmLookupDesc(pmid)
+        except pmErr, error:
+            print "pmLookupDesc: ", error
+
         # insert core into cache
         self._mcAdd(newcore)
         return newcore
@@ -248,56 +249,14 @@ class MetricCache(pmContext):
         nameA = (c_char_p * len(nameL))()
         for index, name in enumerate(nameL):
             nameA[index] = c_char_p(name)
-        status, pmidA = self.pmLookupName(nameA)
-        if status < len(nameA):
-            print "lookup failed: got ", status, " of ", len(nameA)
-            sys.exit()
+        try:
+            pmidArray = self.pmLookupName(nameA)
+            if len(pmidArray) < len(nameA):
+                print "lookup failed: got ", len(pmidArray), " of ", len(nameA)
+        except pmErr, error:
+            print "pmLookupName: ", error
 
-        return zip(nameA, pmidA), errL
-
-
-class MetricResultHandle(Structure):
-    """
-    A handle for a pointer to a pmResult structure
-    this provides access to the pmResult structure returned by pmFetch
-    """
-
-    _fields_ = [("_data_p", POINTER(pmResult))]
-
-    ##
-    # overloads
-
-    def __init__(self, result_p = 0):
-        Structure.__init__(self)
-        if result_p:
-            self._data_p = result_p
-    def __del__(self):
-        if self._data_p and LIBPCP:
-            LIBPCP.pmFreeResult(self._data_p)
-
-    ##
-    # property methods
-
-    def data_write(self, value):
-        if self._data_p and LIBPCP:
-            LIBPCP.pmFreeResult(self._data_p)
-        self._data_p = value
-    def data_read(self):
-        return self._data_p
-    def ts_read(self):
-        return self._data_p.timestamp
-    def np_read(self):
-        return self._data_p.numpmid
-    def vs_read(self):
-        return self._data_p.vset
-
-    ##
-    # property definitions
-
-    timestamp = property(ts_read, None, None, None)
-    numpmid = property(np_read, None, None, None)
-    vset = property(vs_read, None, None, None)
-    result_p = property(data_read, data_write, None, None)
+        return zip(nameA, pmidArray), errL
 
 
 class MetricGroup(dict):
@@ -315,34 +274,40 @@ class MetricGroup(dict):
 
     def _R_contextCache(self):
         return self._ctx
-    def _R_pmidA(self):
-        return self._pmidA
+    def _R_pmidArray(self):
+        return self._pmidArray
+    def _R_timestamp(self):
+        return self._result.contents.timestamp
     def _R_result(self):
         return self._result
+    def _R_prevTimestamp(self):
+        return self._prev.contents.timestamp
     def _R_prev(self):
         return self._prev
 
     ##
     # property write methods
 
-    def _W_result(self, value):
+    def _W_result(self, pmresult):
         self._prev = self._result
-        self._result = value
+        self._result = pmresult
 
     ##
     # property definitions
 
     contextCache = property(_R_contextCache, None, None, None)
-    pmidA = property(_R_pmidA, None, None, None)
+    pmidArray = property(_R_pmidArray, None, None, None)
     result = property(_R_result, _W_result, None, None)
+    timestamp = property(_R_timestamp, None, None, None)
     prev = property(_R_prev, None, None, None)
+    prevTimestamp = property(_R_prevTimestamp, None, None, None)
 
     ##
     # overloads
 
     def __init__(self, contextCache, inL = []):
         self._ctx = contextCache
-        self._pmidA = None
+        self._pmidArray = None
         self._result = None
         self._prev = None
         self._altD = {}
@@ -359,21 +324,22 @@ class MetricGroup(dict):
             self.update({metric.name: metric})
             self._altD.update({metric.pmid: metric})
         n = len(self)
-        self._pmidA = (c_uint * n)()
+        self._pmidArray = (c_uint * n)()
         for x, key in enumerate(self.keys()):
-            self._pmidA[x] = c_uint(self[key].pmid)
+            self._pmidArray[x] = c_uint(self[key].pmid)
 
     def mgFetch(self):
         # fetch the metric values
-        status, result_p = self._ctx.pmFetch(self._pmidA)
-        # handle errors
-        # update the group's result pointers
-        handle = MetricResultHandle(result_p)
-        self.result = handle
-        # update the result entries in each metric
-        for i in range(handle.numpmid):
-            vset = handle.vset[i]
-            self._altD[vset.pmid].result = (handle.timestamp, vset)
+        try:
+            self.result = self._ctx.pmFetch(self._pmidArray)
+            # update the result entries in each metric
+            result = self.result.contents
+            for i in range(result.numpmid):
+                pmid = result.get_pmid(i)
+                vset = result.get_vset(i)
+                self._altD[pmid].vset = vset
+        except pmErr, error:
+            print "pmFetch: ", error
 
 
 class MetricGroupManager(dict, MetricCache):
