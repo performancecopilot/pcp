@@ -2370,32 +2370,29 @@ ParseRestartAgents(char *fileName)
 	if (agent[i].status.connected)
 	    mapdom[agent[i].pmDomainId] = i;
 
-    /* Now recaluculate the access controls for each client and update the
-     * current connection count in the hostList entries matchine the client.
+    /* Now recalculate the access controls for each client and update the
+     * current connection count in the hostList entries matching the client.
      * If the client is no longer permitted the connection because of a change
      * in permissions or connection limit, the client's connection is closed.
      */
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
-	int		s;
 
-	if ((s = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
+	if ((j = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);
-	    __pmSendError(cp->fd, FROM_ANON, s);
-	    CleanupClient(cp, s);
+		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, j);
+	    __pmSendError(cp->fd, FROM_ANON, j);
+	    CleanupClient(cp, j);
 	}
     }
 
     PrintAgentInfo(stderr);
     __pmAccDumpHosts(stderr);
 
-    /*
-     * gather any deceased children, some may be PMDAs that were
+    /* Gather any deceased children, some may be PMDAs that were
      * terminated by CleanupAgent or killed and had not exited
      * when the previous harvest() was done
      */
     HarvestAgents(0);
 }
-
