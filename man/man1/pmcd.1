@@ -608,10 +608,12 @@ Permission to perform the
 operation should not be given indiscriminately; it has the potential to be
 abused by malicious users.
 .PP
-Hosts may be identified by name, IP address or a wildcarded IP address with the
-single wildcard character ``*'' as the last-given component of the IP
-address.
-Host names may not be wildcarded.
+Hosts may be identified by name, IP address, IPv6 address or a wildcarded IP/IPv6 address with the
+single wildcard character ``*'' as the last-given component of the
+address. The wildcard ``.*'' refers to all inet (IPv4) adresses. The wildcard ``:*'' refers to all
+IPv6 addresses. The wildcard ``*`` refers to all addresses. If an IPv6 wildcard contains a ``::''
+component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
+refers to the remaining unspecified bits of the address. Host names may not be wildcarded.
 The
 following are all valid host identifiers:
 .de CS
@@ -632,6 +634,11 @@ giggle.melbourne.sgi.com
 129.127.112.2
 129.127.114.*
 129.*
+\&.*
+fe80::223:14ff:feaf:b62c
+fe80::223:14ff:feaf:*
+fe80:*
+:*
 *
 .CE
 .PP
@@ -642,21 +649,24 @@ The following are not valid host identifiers:
 129.127.*.*
 129.*.114.9
 129.127*
+fe80::223:14ff:*:*
+fe80::223:14ff:*:b62c
+fe80*
 .CE
 .PP
 The first example is not allowed because only (numeric) IP addresses may
 contain a wildcard.
-The second example is not valid because there is more than
+The second and fifth examples are not valid because there is more than
 one wildcard character.
-The third contains an embedded wildcard, the fourth
-has a wildcard character that is not the last component of
-the IP address (the last component is \f(CW127*\f1).
+The third and sixth contain an embedded wildcard, the fourth and seventh
+have a wildcard character that is not the last component of
+the address (the last components are \f(CW127*\f1 and \f(CWfe80*\f1 respectively).
 .PP
 The name
 .B localhost
 is given special treatment to make the behavior of host wildcarding
 consistent.
-Rather than being 127.0.0.1, it is mapped to the primary IP address
+Rather than being 127.0.0.1 and ::1, it is mapped to the primary inet and IPv6 addresses
 associated with the name of the host on which
 .B pmcd
 is running.
