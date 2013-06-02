@@ -51,6 +51,7 @@ hinv.map {
     scsi		60:15:0
     cpu_num		60:18:6
     cpu_node		60:18:8
+    lvname		60:52:0
 }
 
 hinv.cpu {

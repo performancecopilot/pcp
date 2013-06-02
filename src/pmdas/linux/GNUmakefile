@@ -27,7 +27,7 @@ CFILES		= pmda.c proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  proc_net_dev.c interrupts.c filesys.c \
 		  swapdev.c proc_net_rpc.c proc_partitions.c \
 		  getinfo.c proc_net_sockstat.c \
-		  proc_net_snmp.c proc_scsi.c proc_fs_xfs.c \
+		  proc_net_snmp.c proc_scsi.c proc_lv.c proc_fs_xfs.c \
 		  proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
 		  proc_uptime.c proc_sys_fs.c proc_vmstat.c \
@@ -38,7 +38,7 @@ HFILES		= proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h interrupts.h filesys.h swapdev.h \
 		  proc_net_rpc.h proc_partitions.h getinfo.h \
 		  proc_net_sockstat.h proc_net_snmp.h \
-		  proc_scsi.h proc_fs_xfs.h \
+		  proc_scsi.h proc_lv.h proc_fs_xfs.h \
 		  proc_cpuinfo.h proc_net_tcp.h proc_slabinfo.h \
 		  sem_limits.h msg_limits.h shm_limits.h proc_uptime.h \
 		  proc_sys_fs.h proc_vmstat.h clusters.h indom.h \
@@ -106,6 +106,7 @@ pmda.o proc_net_sockstat.o:	proc_net_sockstat.h
 pmda.o proc_net_tcp.o:	proc_net_tcp.h
 pmda.o proc_partitions.o:	proc_partitions.h
 pmda.o proc_scsi.o:	proc_scsi.h
+pmda.o proc_lv.o:	proc_lv.h
 pmda.o proc_slabinfo.o:	proc_slabinfo.h
 pmda.o proc_stat.o:	proc_stat.h
 pmda.o proc_sys_fs.o:	proc_sys_fs.h
