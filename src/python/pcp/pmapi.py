@@ -326,7 +326,7 @@ class pmResult(Structure):
 
     def get_vlist(self, vset_idx, vlist_idx):
         """ Return the vlist[vlist_idx] of vset[vset_idx] """
-        listptr = cast(get_vset(vset_idx).contents.vlist, POINTER(pmValue))
+        listptr = cast(self.get_vset(vset_idx).contents.vlist, POINTER(pmValue))
         return listptr[vlist_idx]
 
     def get_inst(self, vset_idx, vlist_idx):

@@ -48,19 +48,14 @@ $_ = pmiAddMetric("my.metric.string", PM_ID_NULL, PM_TYPE_STRING, PM_INDOM_NULL,
 check($_, "pmiAddMetric");
 $_ = pmiAddMetric("my.metric.float", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, pmiUnits(0,0,0,0,0,0));
 check($_, "pmiAddMetric");
-
-$_ = pmiAddInstance(pmInDom_build(PMI_DOMAIN,1), "eek really", 1);
-check($_, "pmiAddInstance");
-$_ = pmiAddInstance(pmInDom_build(PMI_DOMAIN,1), "eek", 2);
-check($_, "pmiAddInstance");
-$_ = pmiAddInstance(pmInDom_build(PMI_DOMAIN,1), "blah", 3);
-check($_, "pmiAddInstance");
+$_ = pmiAddMetric("my.metric.strung", PM_ID_NULL, PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, pmiUnits(0,0,0,0,0,0));
+check($_, "pmiAddMetric");
 
 $_ = pmiBatchPutValue("my.metric.string", "", "a third string value");
 check($_, "pmiBatchPutValue");
 $_ = pmiBatchWrite(2, 70000);
 check($_, "pmiBatchWrite");
-$_ = pmiBatchPutValue("my.metric.string", "", "first string value");
+$_ = pmiBatchPutValue("my.metric.strung", "", "a first string value");
 check($_, "pmiBatchPutValue");
 $_ = pmiBatchPutValue("my.metric.string", "", "a second string value");
 check($_, "pmiBatchPutValue");
@@ -70,9 +65,9 @@ $hdl1 = pmiGetHandle("my.metric.string", "");
 check($hdl1, "pmiGetHandle");
 $_ = pmiBatchPutValueHandle($hdl1, "a fourth string value");
 check($_, "pmiBatchPutValueHandle");
-$hdl2 = pmiGetHandle("my.metric.float", "");
+$hdl2 = pmiGetHandle("my.metric.strung", "");
 check($hdl2, "pmiGetHandle");
-$_ = pmiBatchPutValueHandle($hdl2, 3.14);
+$_ = pmiBatchPutValueHandle($hdl2, "a fifth string value");
 check($_, "pmiBatchPutValueHandle");
 $_ = pmiBatchWrite(3, 10000);
 check($_, "pmiBatchWrite");

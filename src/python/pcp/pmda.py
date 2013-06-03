@@ -244,18 +244,6 @@ class PMDA(MetricDispatch):
     ##
     # general PMDA class methods
 
-    def set_fetch(self, fetch):
-        return None
-
-    def set_instance(self, instance):
-        return None
-
-    def set_fetch_callback(self, fetch_callback):
-        return None
-
-    def set_store_callback(self, store_callback):
-        return None
-
     def domain_write(self):
         """
         Write out the domain.h file (used during installation)
@@ -291,6 +279,26 @@ class PMDA(MetricDispatch):
             LIBPCP_PMDA.pmdaMain(self._dispatch)
 
     @staticmethod
+    def set_fetch(self, fetch):
+        return cpmda.set_fetch(fetch)
+
+    @staticmethod
+    def set_refresh(self, refresh):
+        return cpmda.set_refresh(refresh)
+
+    @staticmethod
+    def set_instance(self, instance):
+        return cpmda.set_instance(instance)
+
+    @staticmethod
+    def set_fetch_callback(self, fetch_callback):
+        return cpmda.set_fetch_callback(fetch_callback)
+
+    @staticmethod
+    def set_store_callback(self, store_callback):
+        return cpmda.set_store_callback(store_callback)
+
+    @staticmethod
     def set_user(username):
         return cpmapi.pmSetProcessIdentity(username)
 
@@ -302,27 +310,28 @@ class PMDA(MetricDispatch):
     def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):
         return cpmda.pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
-#Needed methods:
+    @staticmethod
+    def uptime(now):
+        return cpmda.pmda_uptime(now)
+
+    @staticmethod
+    def log(message):
+        return cpmda.pmda_log(message)
+
+    @staticmethod
+    def err(message):
+        return cpmda.pmda_err(message)
+
+# Other methods perl API provides:
 #    add_timer()
 #    add_pipe()
 #    add_tail()
 #    add_sock()
 #    put_sock()
-#
-#    set_fetch		// separate class for dispatch?
-#    set_refresh
-#    set_instance
-#    set_store_callback
-#    set_fetch_callback
 #    set_inet_socket
 #    set_ipv6_socket
 #    set_unix_socket
-#
-#Static methods:
 #    pmda_pmid_name(cluster,item)
 #    pmda_pmid_text(cluster,item)
 #    pmda_inst_lookup(index,instance)
-#    pmda_uptime(now)
-#    log()
-#    err()
 #    
