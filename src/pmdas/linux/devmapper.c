@@ -35,6 +35,10 @@ refresh_dev_mapper(dev_mapper_t *lvs)
     if (dirp == NULL)
         return 1;
   
+    for (i = 0; i < lvs->nlv; i++) {
+        free(lvs->lv[i].dev_name);
+        free(lvs->lv[i].lv_name);
+    }
     lvs->nlv = 0;
     lvs->lv = NULL;
     while ((dentry = readdir(dirp)) != NULL) {
@@ -65,9 +69,8 @@ refresh_dev_mapper(dev_mapper_t *lvs)
 
     if (lvs->lv_indom->it_numinst != lvs->nlv) {
         lvs->lv_indom->it_numinst = lvs->nlv;
-        lvs->lv_indom->it_set = (pmdaInstid *)realloc(lvs->lv_indom->it_set,
-						       lvs->nlv * sizeof(pmdaInstid));
-        memset(lvs->lv_indom->it_set, 0, lvs->nlv * sizeof(pmdaInstid));
+        lvs->lv_indom->it_set = (pmdaInstid *)
+                realloc(lvs->lv_indom->it_set, lvs->nlv * sizeof(pmdaInstid));
     }
     for (i = 0; i < lvs->nlv; i++) {
         int skip_prefix = 0;
