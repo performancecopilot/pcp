@@ -51,7 +51,6 @@
 #include "proc_partitions.h"
 #include "proc_net_snmp.h"
 #include "proc_scsi.h"
-#include "proc_lv.h"
 #include "proc_fs_xfs.h"
 #include "proc_slabinfo.h"
 #include "proc_uptime.h"
@@ -64,6 +63,7 @@
 #include "linux_table.h"
 #include "numa_meminfo.h"
 #include "interrupts.h"
+#include "devmapper.h"
 
 /*
  * Legacy value from deprecated infiniband.h, preserved for backward
@@ -82,7 +82,7 @@ static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
 static proc_net_snmp_t		proc_net_snmp;
 static proc_scsi_t		proc_scsi;
-static proc_lv_t		proc_lv;
+static dev_mapper_t		dev_mapper;
 static proc_fs_xfs_t		proc_fs_xfs;
 static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
@@ -3858,7 +3858,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_scsi(&proc_scsi);
 
     if (need_refresh[CLUSTER_LV])
-	refresh_proc_lv(&proc_lv);
+	refresh_dev_mapper(&dev_mapper);
 
     if (need_refresh[CLUSTER_XFS] || need_refresh[CLUSTER_XFSBUF])
     	refresh_proc_fs_xfs(&proc_fs_xfs);
@@ -5005,18 +5005,18 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_LV:
-	if (proc_lv.nlv == 0)
+	if (dev_mapper.nlv == 0)
 	    return 0; /* no values available */
 	switch(idp->item) {
 	case 0: /* hinv.map.lv */
 	    atom->cp = (char *)NULL;
-	    for (i=0; i < proc_lv.nlv; i++) {
-		if (proc_lv.lv[i].id == inst) {
-		    atom->cp = proc_lv.lv[i].dev_name;
+	    for (i = 0; i < dev_mapper.nlv; i++) {
+		if (dev_mapper.lv[i].id == inst) {
+		    atom->cp = dev_mapper.lv[i].dev_name;
 		    break;
 		}
 	    }
-	    if (i == proc_lv.nlv)
+	    if (i == dev_mapper.nlv)
 	    	return PM_ERR_INST;
 	    break;
 	default:
@@ -5650,7 +5650,7 @@ linux_init(pmdaInterface *dp)
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
     proc_scsi.scsi_indom = &indomtab[SCSI_INDOM];
-    proc_lv.lv_indom = &indomtab[LV_INDOM];
+    dev_mapper.lv_indom = &indomtab[LV_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
     /*

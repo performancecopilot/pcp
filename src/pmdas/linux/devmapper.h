@@ -1,7 +1,7 @@
 /*
- * Linux /proc/lv/lv metrics cluster
+ * Linux /dev/mapper metrics cluster
  *
- * Copyright (c) 2013 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -12,10 +12,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 typedef struct {
@@ -28,6 +24,6 @@ typedef struct {
     int           	nlv;
     lv_entry_t 		*lv;
     pmdaIndom   	*lv_indom;
-} proc_lv_t;
+} dev_mapper_t;
 
-extern int refresh_proc_lv(proc_lv_t *);
+extern int refresh_dev_mapper(dev_mapper_t *);
