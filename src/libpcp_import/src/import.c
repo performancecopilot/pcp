@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -400,6 +401,9 @@ int
 pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUnits units)
 {
     int		m;
+    int		item;
+    int		cluster;
+    size_t	size;
     pmi_metric	*mp;
 
     if (current == NULL)
@@ -445,19 +449,29 @@ pmiAddMetric(const char *name, pmID pmid, int type, pmInDom indom, int sem, pmUn
     }
 
     current->nmetric++;
-    current->metric = (pmi_metric *)realloc(current->metric, current->nmetric*sizeof(pmi_metric));
+    size = current->nmetric * sizeof(pmi_metric);
+    current->metric = (pmi_metric *)realloc(current->metric, size);
     if (current->metric == NULL) {
-	__pmNoMem("pmiAddMetric: pmi_metric", current->nmetric*sizeof(pmi_metric), PM_FATAL_ERR);
+	__pmNoMem("pmiAddMetric: pmi_metric", size, PM_FATAL_ERR);
     }
     mp = &current->metric[current->nmetric-1];
+    if (pmid != PM_ID_NULL) {
+	mp->pmid = pmid;
+    } else {
+	/* choose a PMID on behalf of the caller - check boundaries first */
+	item = cluster = current->nmetric;
+	if (item >= (1<<22)) {	/* enough room for unique item:cluster? */
+	    current->nmetric--;
+	    return current->last_sts = PMI_ERR_DUPMETRICID;	/* wrap */
+	}
+	item %= (1<<10);
+	cluster >>= 10;
+	mp->pmid = pmid_build(PMI_DOMAIN, cluster, item);
+    }
     mp->name = strdup(name);
     if (mp->name == NULL) {
 	__pmNoMem("pmiAddMetric: name", strlen(name)+1, PM_FATAL_ERR);
     }
-    if (pmid == PM_ID_NULL)
-	mp->pmid = pmid_build(PMI_DOMAIN, 0, current->nmetric);
-    else
-	mp->pmid = pmid;
     mp->desc.pmid = mp->pmid;
     mp->desc.type = type;
     mp->desc.indom = indom;

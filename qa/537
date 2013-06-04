@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 537
+# Exercises handling of pmimport PMID number boundaries.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+[ $PCP_VER -ge 3801 ] || _notrun "Too-old libpcp_import version"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+testdir=$tmp.dir
+mkdir $testdir || exit 1
+cd $testdir
+
+echo "Generating test archive"
+perl $here/src/import_limit_test.perl
+
+echo "Dumping test archive metric names and IDs"
+pminfo -m -a test-limit | \
+	LC_COLLATE=POSIX sort -n -k 2 | \
+	tee -a $seq.full | \
+	head -20
+
+# success, all done
+status=0
+
+exit

@@ -69,7 +69,13 @@ func1(void *arg)
 	printf("%s: __pmAccAddHost -> OK\n", fn);
     else
 	printf("%s: __pmAccAddHost -> %s\n", fn, pmErrStr(sts));
+#if PCP_VER >= 3801
+    putc('\n', stdout);
+#endif
     __pmAccDumpHosts(stdout);
+#if PCP_VER >= 3801
+    putc('\n', stdout);
+#endif
     sts = __pmAccSaveHosts();
     if (sts == 0)
 	printf("%s: __pmAccSaveHosts -> OK\n", fn);
@@ -131,6 +137,7 @@ func2(void *arg)
 	printf("%s: __pmAccAddHost -> OK\n", fn);
     else
 	printf("%s: __pmAccAddHost -> %s\n", fn, pmErrStr(sts));
+    /* expect an error here - so no need for version-specific EOLs */
     __pmAccDumpHosts(stdout);
     sts = __pmAccSaveHosts();
     if (sts == 0)

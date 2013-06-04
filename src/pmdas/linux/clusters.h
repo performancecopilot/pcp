@@ -71,6 +71,7 @@ enum {
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
 	PROC_PID_FD,		/* 51 /proc/<pid>/fd -> proc PMDA */
+	CLUSTER_LV,		/* 52 /dev/mapper */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

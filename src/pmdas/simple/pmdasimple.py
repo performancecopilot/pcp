@@ -18,10 +18,7 @@ Python implementation of the "simple" Performance Metrics Domain Agent.
 import os
 import time
 import cpmapi as c_api
-
-from pcp import pmda
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
-from pcp import pmapi
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 class SimplePMDA(PMDA):

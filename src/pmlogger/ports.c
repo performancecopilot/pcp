@@ -475,10 +475,10 @@ control_req(void)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    abuf = __pmSockAddrToString(addr);
-	    fprintf(stderr, "client addr: %s\n", abuf);
+	    fprintf(stderr, "client addr: %s\n\n", abuf);
 	    free(abuf);
 	    __pmAccDumpHosts(stderr);
-	    fprintf(stderr, "control_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
+	    fprintf(stderr, "\ncontrol_req: connection rejected on fd=%d from %s: %s\n", fd, pmlc_host, pmErrStr(sts));
 	}
 #endif
 	sts = __pmSendError(fd, FROM_ANON, sts);

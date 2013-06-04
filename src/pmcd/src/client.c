@@ -118,7 +118,6 @@ AcceptNewClient(int reqfd)
     client[i].status.changes = 0;
     memset(&client[i].attrs, 0, sizeof(__pmHashCtl));
 
-#if 1	// nathans - replace these using connection attributes ... ?
     /*
      * Note seq needs to be unique, but we're using a free running counter
      * and not bothering to check here ... unless we churn through
@@ -128,7 +127,6 @@ AcceptNewClient(int reqfd)
     client[i].seq = seq++;
     __pmtimevalNow(&now);
     client[i].start = now.tv_sec;
-#endif
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)

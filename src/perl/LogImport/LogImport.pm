@@ -106,19 +106,26 @@ sub pmiBatchPutValueHandle($$) {
 
 sub pmiBatchWrite($$) {
   my ($sec, $usec) = @_;
-  push @{$pmi_batch{"$sec,$usec"}}, @{delete $pmi_batch{'b'}};
+  push @{$pmi_batch{"$sec.$usec"}}, @{delete $pmi_batch{'b'}};
   return 0;
 }
 
 sub pmiBatchEnd() {
   my ($arr, $r);
+  my $ts = -1;
   # Iterate over the sorted hash and call pmiPutValue/pmiWrite accordingly
   delete $pmi_batch{'b'};
   for my $k (map { $_->[0] }
              sort { $a->[1] <=> $b->[1] || $a->[2] <=> $b->[2] }
-                  map { [$_, /(\d+),(\d+)/] }
+                  map { [$_, /(\d+)\.(\d+)/] }
              keys %pmi_batch) {
     $arr = $pmi_batch{$k};
+    $ts = $k if $ts eq -1;
+    if ($k > $ts) {
+      $r = pmiWrite(split(/\./, $ts));
+      return $r if ($r != 0);
+      $ts = $k;
+    }
     for my $v (@$arr) {
       if (defined($v->[2])) {
         $r = pmiPutValue($v->[0], $v->[1], $v->[2]);
@@ -126,10 +133,10 @@ sub pmiBatchEnd() {
         $r = pmiPutValueHandle($v->[0], $v->[1]);
       }
       return $r if ($r != 0);
-      $r = pmiWrite(split(/,/, $k));
-      return $r if ($r != 0);
     }
   }
+  $r = pmiWrite(split(/\./, $ts));
+  return $r if ($r != 0);
   %pmi_batch = ();
   return 0;
 }

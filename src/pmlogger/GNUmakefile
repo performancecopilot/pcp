@@ -35,7 +35,8 @@ default:	$(CMDTARGET)
 include $(BUILDRULES)
 
 install:	$(CMDTARGET) $(OTHERS)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmlogger
 ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
