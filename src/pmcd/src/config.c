@@ -817,8 +817,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
     int		haveComma = 0;
 
     if (*token == ';') {
-	fprintf(stderr,
-		     "pmcd config[line %d]: Error: empty or incomplete permissions list\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: empty or incomplete permissions list\n",
 		     nLines);
 	return -1;
     }
@@ -959,36 +958,30 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 }
 
 static int
-ParseHosts(int allow)
+ParseNames(char ***namesp, const char *nametype)
 {
-    int		sts = 0;
-    int		nhosts = 0;
-    int		i;
-    int		ok = 0;
+    int		nnames = 0;
     int		another = 1;
-    int		specOps = 0;
-    int		denyOps = 0;
-    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
     static char	**names;
     static int	szNames;
 
     while (*token && another && *token != ':' && *token != ';') {
-	if (nhosts == szNames) {
+	if (nnames == szNames) {
 	    int		need;
 
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
 	    if ((names = (char **)realloc(names, need)) == NULL)
-		__pmNoMem("pmcd ParseHosts name list", need, PM_FATAL_ERR);
+		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
 	}
-	if ((names[nhosts] = CopyToken()) == NULL)
-	    __pmNoMem("pmcd ParseHosts name", tokenend - token, PM_FATAL_ERR);
+	if ((names[nnames] = CopyToken()) == NULL)
+	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
-			 nLines, names[nhosts]);
-	    goto error;
+			 nLines, names[nnames]);
+	    return -1;
 	}
 	if (*token == ',') {
 	    FindNextToken();
@@ -996,45 +989,61 @@ ParseHosts(int allow)
 	}
 	else
 	    another = 0;
-	nhosts++;
+	nnames++;
     }
-    if (nhosts == 0) {
+    if (nnames == 0) {
 	fprintf(stderr,
-		     "pmcd config[line %d]: Error: no hosts in allow/disallow statement\n",
-		     nLines);
-	goto error;
+		     "pmcd config[line %d]: Error: no %ss in allow/disallow statement\n",
+		     nLines, nametype);
+	return -1;
     }
     if (another) {
-	fprintf(stderr, "pmcd config[line %d]: Error: host expected after ','\n",
-		     nLines);
-	goto error;
+	fprintf(stderr, "pmcd config[line %d]: Error: %s expected after ','\n",
+		     nLines, nametype);
+	return -1;
     }
     if (*token != ':') {
 	fprintf(stderr, "pmcd config[line %d]: Error: ':' expected after \"%s\"\n",
-		nLines, names[nhosts-1]);
-	goto error;
+		nLines, names[nnames-1]);
+	return -1;
     }
+    *namesp = names;
+    return nnames;
+}
+
+static int
+ParseHosts(int allow)
+{
+    int		sts;
+    int		nhosts;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**hostnames;
+
+    if ((nhosts = ParseNames(&hostnames, "host")) < 0)
+	goto error;
+
     FindNextToken();
     if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
 	goto error;
 
-#ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1) {
 	for (i = 0; i < nhosts; i++)
-	    fprintf(stderr, "ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
-		    names[i], specOps, denyOps, maxCons);
+	    fprintf(stderr, "HOST ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    hostnames[i], specOps, denyOps, maxCons);
     }
-#endif
 
     /* Make new entries for hosts in host access list */
-
     for (i = 0; i < nhosts; i++) {
-	if ((sts = __pmAccAddHost(names[i], specOps, denyOps, maxCons)) < 0) {
+	if ((sts = __pmAccAddHost(hostnames[i], specOps, denyOps, maxCons)) < 0) {
 	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		fprintf(stderr, "Warning: the following access control specification will be ignored\n");
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Warning: access control error for host '%s': %s\n",
-			 nLines, names[i], pmErrStr(sts));
+			 nLines, hostnames[i], pmErrStr(sts));
 	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		;
 	    else
@@ -1047,7 +1056,93 @@ ParseHosts(int allow)
 
 error:
     for (i = 0; i < nhosts; i++)
-	free(names[i]);
+	free(hostnames[i]);
+    return -1;
+}
+
+static int
+ParseUsers(int allow)
+{
+    int		sts;
+    int		nusers;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**usernames;
+
+    if ((nusers = ParseNames(&usernames, "user")) < 0)
+	goto error;
+
+    FindNextToken();
+    if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
+	goto error;
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	for (i = 0; i < nusers; i++)
+	    fprintf(stderr, "USER ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    usernames[i], specOps, denyOps, maxCons);
+    }
+
+    /* Make new entries for users in user access list */
+    for (i = 0; i < nusers; i++) {
+	if ((sts = __pmAccAddUser(usernames[i], specOps, denyOps, maxCons)) < 0) {
+	    fprintf(stderr,
+			 "pmcd config[line %d]: Warning: access control error for user '%s': %s\n",
+			 nLines, usernames[i], pmErrStr(sts));
+	    goto error;
+	}
+	ok = 1;
+    }
+    return ok;
+
+error:
+    for (i = 0; i < nusers; i++)
+	free(usernames[i]);
+    return -1;
+}
+
+static int
+ParseGroups(int allow)
+{
+    int		sts;
+    int		ngroups;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**groupnames;
+
+    if ((ngroups = ParseNames(&groupnames, "group")) < 0)
+	goto error;
+
+    FindNextToken();
+    if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
+	goto error;
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	for (i = 0; i < ngroups; i++)
+	    fprintf(stderr, "GROUP ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    groupnames[i], specOps, denyOps, maxCons);
+    }
+
+    /* Make new entries for groups in group access list */
+    for (i = 0; i < ngroups; i++) {
+	if ((sts = __pmAccAddGroup(groupnames[i], specOps, denyOps, maxCons)) < 0) {
+	    fprintf(stderr,
+			 "pmcd config[line %d]: Warning: access control error for group '%s': %s\n",
+			 nLines, groupnames[i], pmErrStr(sts));
+	    goto error;
+	}
+	ok = 1;
+    }
+    return ok;
+
+error:
+    for (i = 0; i < ngroups; i++)
+	free(groupnames[i]);
     return -1;
 }
 
@@ -1057,7 +1152,7 @@ ParseAccessControls(void)
     int		sts = 0;
     int		tmp;
     int		allow;
-    int		nHosts = 0;
+    int		naccess = 0;
 
     doingAccess = 1;
     /* This gets a little tricky, because the token may be "[access]", or
@@ -1109,10 +1204,24 @@ ParseAccessControls(void)
 	    return -1;
 	}
 	FindNextToken();
-	if ((tmp = ParseHosts(allow)) < 0)
-	    sts = -1;
-	else if (tmp > 0)
-	    nHosts++;
+	if (TokenIs("user") || TokenIs("users")) {
+	    FindNextToken();
+	    if ((tmp = ParseUsers(allow)) < 0)
+		sts = -1;
+	} else if (TokenIs("group") || TokenIs("groups")) {
+	    FindNextToken();
+	    if ((tmp = ParseGroups(allow)) < 0)
+		sts = -1;
+	} else if (TokenIs("host") || TokenIs("hosts")) {
+	    FindNextToken();
+	    if ((tmp = ParseHosts(allow)) < 0)
+		sts = -1;
+	} else {
+	    if ((tmp = ParseHosts(allow)) < 0)
+		sts = -1;
+	}
+	if (tmp > 0)
+	    naccess++;
 	while (*token && !scanError && *token != ';')
 	    FindNextToken();
 	if (!*token || scanError)
@@ -1122,7 +1231,7 @@ ParseAccessControls(void)
     if (sts != 0)
 	return sts;
 
-    if (nHosts == 0) {
+    if (naccess == 0) {
 	fprintf(stderr,
 		     "pmcd config[line %d]: Error: no valid statements in [access] section\n",
 		     nLines);
@@ -1131,7 +1240,7 @@ ParseAccessControls(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1)
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 #endif
 
     return 0;
@@ -2296,10 +2405,10 @@ ParseRestartAgents(char *fileName)
 	    MarkStateChanges(PMCD_RESTART_AGENT);
 	}
 	PrintAgentInfo(stderr);
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 	return;
     }
-    
+
     /* Save the current agent[] and host access tables, Reset the internal
      * state of the config file parser and re-parse the config file.
      */
@@ -2310,7 +2419,7 @@ ParseRestartAgents(char *fileName)
     szAgents = 0;
     scanInit = 0;
     scanError = 0;
-    if (__pmAccSaveHosts() < 0) {
+    if (__pmAccSaveLists() < 0) {
 	fprintf(stderr, "Error saving access controls\n");
 	sts = -2;
     }
@@ -2331,12 +2440,12 @@ ParseRestartAgents(char *fileName)
 	fprintf(stderr, "Configuration left unchanged\n");
 	agent = oldAgent;
 	nAgents = oldNAgents;
-	if (sts != -2 && __pmAccRestoreHosts() < 0) {
+	if (sts != -2 && __pmAccRestoreLists() < 0) {
 	    fprintf(stderr, "Error restoring access controls!\n");
 	    exit(1);
 	}
 	PrintAgentInfo(stderr);
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 	return;
     }
 
@@ -2360,7 +2469,7 @@ ParseRestartAgents(char *fileName)
 	FreeAgent(&oldAgent[j]);
     }
     free(oldAgent);
-    __pmAccFreeSavedHosts();
+    __pmAccFreeSavedLists();
 
     /* Start the new agents */
     ContactAgents();
@@ -2388,7 +2497,7 @@ ParseRestartAgents(char *fileName)
     }
 
     PrintAgentInfo(stderr);
-    __pmAccDumpHosts(stderr);
+    __pmAccDumpLists(stderr);
 
     /* Gather any deceased children, some may be PMDAs that were
      * terminated by CleanupAgent or killed and had not exited

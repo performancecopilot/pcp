@@ -30,6 +30,9 @@ _filter_pmcd_log()
 	-e '/Info: CleanupAgent/d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
+	-e 's/: host-based access control/: access control/g' \
+	-e '/^User access list empty: user-based access control turned off$/d' \
+	-e '/^Group access list empty: group-based access control turned off$/d' \
 	-e '/pmcd caught SIG.* from pid=/s/=[0-9][0-9]*/=N/g' \
 	-e '/^linux.*pmda_linux/{
 s/linux/[OS] /
