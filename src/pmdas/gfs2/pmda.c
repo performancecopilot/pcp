@@ -384,25 +384,18 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 gfs2_store(pmResult *result, pmdaExt *pmda)
 {
-    int		i, value;
+    int		i;
     int		sts = 0;
     pmValueSet	*vsp;
     __pmID_int	*pmidp;
-
-    value = 0;
 
     for (i = 0; i < result->numpmid && !sts; i++) {
 	vsp = result->vset[i];
 	pmidp = (__pmID_int *)&vsp->pmid;
 
-        /* If value is enable or disable */
-        if ((value == 1) || (value == 0)){
-	    if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_GLOCK_LOCK_TIME) {
-                sts = gfs2_control_set_value(control_locations[CONTROL_GLOCK_LOCK_TIME], vsp);
-           }
-        } else {
-	    sts = PM_ERR_PERMISSION;
-	}
+	if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_GLOCK_LOCK_TIME) {
+            sts = gfs2_control_set_value(control_locations[CONTROL_GLOCK_LOCK_TIME], vsp);
+       }
     }
     return sts;
 }

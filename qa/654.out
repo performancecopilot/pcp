@@ -10,10 +10,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 
-Check gfs2 metrics have appeared ... N metrics and 0 values
+Check gfs2 metrics have appeared ... 105 metrics and 1 values
 creating pseudo device 1
 creating a mount point 1
 creating device file 1
@@ -24,6 +21,9 @@ creating a mount point 0
 creating device file 0
 creating a mount point 0
 mounting pseudo device 0
+=== Check for successful install of pmda ===
+
+=== Check that the number of metrics are correct ===
 
 === Basic glock stats from all kernels ===
 
@@ -57,7 +57,63 @@ gfs2.glocks.exclusive PMID: 115.0.4
     inst [0 or "loop0"] value NUMBER
     inst [1 or "loop1"] value NUMBER
 
-=== Additional sbstats (dynamic) ===
+=== Additional glstats for all filesystems ===
+
+gfs2.glstats.total PMID: 115.2.0
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.trans PMID: 115.2.1
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.inode PMID: 115.2.2
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.rgrp PMID: 115.2.3
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.meta PMID: 115.2.4
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.iopen PMID: 115.2.5
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.flock PMID: 115.2.6
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.quota PMID: 115.2.8
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+gfs2.glstats.journal PMID: 115.2.9
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0 or "loop0"] value NUMBER
+    inst [1 or "loop1"] value NUMBER
+
+=== Additional sbstats for all filesystems ===
 
 gfs2.sbstats.journal.queue PMID: 115.1.79
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000

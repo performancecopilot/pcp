@@ -1,7 +1,10 @@
 #! /bin/sh
 # PCP QA Test No. 654
 # checks basic pmdagfs2 functionality
-# Requires GFS2 support in the kernel, else it will notrun.
+#
+# Requires GFS2 support in the kernel, else it will notrun. The following
+# tests in this script assume that there are currently no mounted gfs2
+# filesystems on the host.
 #
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #
@@ -34,8 +37,7 @@ _prepare_pmda_install $iam
 _install_pmda
 _setup_gfs2_mounts
 
-echo 
-echo "=== Check for successful install of pmda ==" | tee -a $here/$seq.full
+echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
@@ -54,8 +56,6 @@ echo
 echo "=== Additional sbstats for all filesystems ===" | tee -a $here/$seq.full
 pminfo -fdm gfs2.sbstats | _filter_pminfo
 
-echo
-echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full
 _remove_pmda
 
 status=0
