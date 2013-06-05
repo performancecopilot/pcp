@@ -14,6 +14,7 @@
  */
 
 #include <limits.h>
+#include <assert.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
@@ -1306,6 +1307,179 @@ __pmAccDelClient(__pmSockAddr *hostid)
 	}
     }
     freeClientIds(clientIds);
+}
+
+static int
+findGidInUsersGroups(const userinfo *up, gid_t gid)
+{
+    int		i;
+
+    for (i = 0; i < up->ngroups; i++)
+	if (up->groupids[i] == gid)
+	    return 1;
+    return 0;
+}
+
+static int
+accessCheckUsers(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
+{
+    userinfo	*up;
+    int		i;
+
+    if (nusers) {
+	up = &userlist[0];	/* global wildcard */
+	if (up->maxcons && up->curcons >= up->maxcons) {
+	    *denyOpsResult = all_ops;
+	    return PM_ERR_CONNLIMIT;
+	}
+	*denyOpsResult |= up->denyOps;
+    }
+
+    for (i = 1; i < nusers; i++) {
+	up = &userlist[i];
+	if (up->userid == uid || findGidInUsersGroups(up, gid)) {
+	    if (up->maxcons && up->curcons >= up->maxcons) {
+		*denyOpsResult = all_ops;
+		return PM_ERR_CONNLIMIT;
+	    }
+	    *denyOpsResult |= up->denyOps;
+	}
+    }
+    return 0;
+}
+
+static int
+findUidInGroupsUsers(const groupinfo *gp, uid_t uid)
+{
+    int		i;
+
+    for (i = 0; i < gp->nusers; i++)
+	if (gp->userids[i] == uid)
+	    return 1;
+    return 0;
+}
+
+static int
+accessCheckGroups(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
+{
+    groupinfo	*gp;
+    int		i;
+
+    if (ngroups) {
+	gp = &grouplist[0];	/* global wildcard */
+	if (gp->maxcons && gp->curcons >= gp->maxcons) {
+	    *denyOpsResult = all_ops;
+	    return PM_ERR_CONNLIMIT;
+	}
+	*denyOpsResult |= gp->denyOps;
+    }
+
+    for (i = 1; i < ngroups; i++) {
+	gp = &grouplist[i];
+	if (gp->groupid == gid || findUidInGroupsUsers(gp, uid)) {
+	    if (gp->maxcons && gp->curcons >= gp->maxcons) {
+		*denyOpsResult = all_ops;
+		return PM_ERR_CONNLIMIT;
+	    }
+	    *denyOpsResult |= gp->denyOps;
+	}
+    }
+    return 0;
+}
+
+static void updateGroupAccountConnections(gid_t, int, int);
+
+static void
+updateUserAccountConnections(uid_t uid, int descend, int direction)
+{
+    int		i, j;
+    userinfo	*up;
+
+    for (i = 1; i < nusers; i++) {
+	up = &userlist[i];
+	if (up->userid != uid)
+	    continue;
+	if (up->maxcons)
+	    up->curcons += direction;	/* might be negative */
+	assert(up->curcons >= 0);
+	if (!descend)
+	    continue;
+	for (j = 0; j < up->ngroups; j++)
+	    updateGroupAccountConnections(up->groupids[j], 0, direction);
+    }
+}
+
+static void
+updateGroupAccountConnections(gid_t gid, int descend, int direction)
+{
+    int		i, j;
+    groupinfo	*gp;
+
+    for (i = 1; i < ngroups; i++) {
+	gp = &grouplist[i];
+	if (gp->groupid != gid)
+	    continue;
+	if (gp->maxcons)
+	    gp->curcons += direction;	/* might be negative */
+	assert(gp->curcons >= 0);
+	if (!descend)
+	    continue;
+	for (j = 0; j < gp->nusers; j++)
+	    updateUserAccountConnections(gp->userids[j], 0, direction);
+    }
+}
+
+/* Called after authenticating a new connection to check that another
+ * connection from this account is permitted and to find which operations
+ * the account is permitted to perform.
+ * uid and gid identify the account, if not authenticated these will be
+ * negative.  denyOpsResult is a pointer to return the capability vector
+ * and WELL that it is both input (host access) and output (merged host
+ * and account access).  So, do not blindly zero or overwrite existing.
+ */
+int
+__pmAccAddAccount(int uid, int gid, unsigned int *denyOpsResult)
+{
+    int		sts;
+
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
+	return PM_ERR_THREAD;
+
+    if (nusers == 0 && ngroups == 0)	/* No access controls => allow all */
+	return 0;
+    if (uid < 0 && gid < 0)		/* Nothing to check, short-circuit */
+	return 0;
+
+    if ((sts = accessCheckUsers(uid, gid, denyOpsResult)) < 0)
+	return sts;
+    if ((sts = accessCheckGroups(uid, gid, denyOpsResult)) < 0)
+	return sts;
+
+    /* If no operations are allowed, disallow connection */
+    if (*denyOpsResult == all_ops)
+	return PM_ERR_PERMISSION;
+
+    /* Increment the count of current connections for this user and group
+     * in the user and groups access lists.  Must walk the supplementary
+     * ID lists as well as the primary ID ACLs.
+     */
+    updateUserAccountConnections(uid, 1, +1);
+    updateGroupAccountConnections(gid, 1, +1);
+    return 0;
+}
+
+void
+__pmAccDelAccount(int uid, int gid)
+{
+    if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
+	return;
+
+    /* Decrement the count of current connections for this user and group
+     * in the user and groups access lists.  Must walk the supplementary
+     * ID lists as well as the primary ID ACLs.
+     */
+    updateUserAccountConnections(uid, 1, -1);
+    updateGroupAccountConnections(gid, 1, -1);
 }
 
 static void

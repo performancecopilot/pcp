@@ -48,6 +48,8 @@ extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
 extern ClientInfo *GetClient(int);
 PMCD_EXTERN void ShowClients(FILE *m);
+extern int CheckClientAccess(ClientInfo *);
+extern int CheckAccountAccess(ClientInfo *);
 
 #ifdef PCP_DEBUG
 extern char *nameclient(int);

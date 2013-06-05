@@ -1249,9 +1249,9 @@ extern int __pmAccAddUser(const char *, unsigned int, unsigned int, int);
 extern int __pmAccAddGroup(const char *, unsigned int, unsigned int, int);
 
 extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
-extern int __pmAccAddClientUser(int, int, unsigned int *);
+extern int __pmAccAddAccount(int, int, unsigned int *);
 extern void __pmAccDelClient(__pmSockAddr *);
-extern void __pmAccDelClientUser(int, int);
+extern void __pmAccDelAccount(int, int);
 
 extern void __pmAccDumpHosts(FILE *);
 extern void __pmAccDumpUsers(FILE *);

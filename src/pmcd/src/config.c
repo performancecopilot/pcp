@@ -2480,19 +2480,21 @@ ParseRestartAgents(char *fileName)
 	    mapdom[agent[i].pmDomainId] = i;
 
     /* Now recalculate the access controls for each client and update the
-     * current connection count in the hostList entries matching the client.
+     * connection count in the ACL entries matching the client (and account).
      * If the client is no longer permitted the connection because of a change
      * in permissions or connection limit, the client's connection is closed.
      */
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
 
-	if ((j = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
+	if ((sts = CheckClientAccess(cp)) >= 0)
+	    sts = CheckAccountAccess(cp);
+	if (sts < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, j);
-	    __pmSendError(cp->fd, FROM_ANON, j);
-	    CleanupClient(cp, j);
+		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	    __pmSendError(cp->fd, FROM_ANON, sts);
+	    CleanupClient(cp, sts);
 	}
     }
 

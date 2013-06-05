@@ -24,8 +24,6 @@ __pmFdSet	clientFds;		/* for client select() */
 
 static int	clientSize;
 
-extern void	Shutdown(void);
-
 /*
  * For PMDA_INTERFACE_5 or later PMDAs, post a notification that
  * a context has been closed.
@@ -235,11 +233,38 @@ DeleteClient(ClientInfo *cp)
 void
 MarkStateChanges(int changes)
 {
-    int			i;
+    int i;
 
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected == 0)
 	    continue;
 	client[i].status.changes |= changes;
     }
+}
+
+static int
+GetClientAccount(int attribute, __pmHashCtl *attrs)
+{
+    __pmHashNode *node;
+
+    if ((node = __pmHashSearch(attribute, attrs)) == NULL)
+	return -1;
+    /* if present, the attribute value is well defined (int) */
+    return atoi((const char *)node->data);
+}
+
+int
+CheckAccountAccess(ClientInfo *cp)
+{
+    int uid, gid;
+
+    uid = GetClientAccount(PCP_ATTR_USERID, &cp->attrs);
+    gid = GetClientAccount(PCP_ATTR_GROUPID, &cp->attrs);
+    return __pmAccAddAccount(uid, gid, &cp->denyOps);
+}
+
+int
+CheckClientAccess(ClientInfo *cp)
+{
+    return __pmAccAddClient(cp->addr, &cp->denyOps);
 }
