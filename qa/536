@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 536
-# test collectl2pcp functionality
+# testing collectl2pcp functionality
 #
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #
@@ -12,22 +12,54 @@
 
 seq=`basename $0`
 
-# test for-some-thing || _notrun No support for some-thing
-
+which collectl2pcp 2> /dev/null || _notrun collectl2pcp not installed
 echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
+
+C=./collectl
+TA=testarchive
 
 # real QA test starts here
 
-# are we even installed?
-collectl2pcp -\? 2>&1
+echo '## Testing host mismatch in headers'
+collectl2pcp -F $C/some_host.raw $C/wrong_host.raw $TA 2>&1
 
-# optional stuff if your test has verbose output to help resolve problems
-#echo
-#echo "If failure, check $seq.full"
+echo '## Testing no archive overwrite'
+collectl2pcp $C/some_host.raw $TA
+
+echo '## Testing archive overwrite with F flag'
+collectl2pcp -F $C/some_host.raw $TA
+
+echo '## Testing correct temporal order of header timestamps'
+collectl2pcp -F $C/some_host.raw $C/some_host_later.raw $TA
+
+echo '## Testing incorrect temporal order of header timestamps'
+collectl2pcp -F $C/some_host_later.raw $C/some_host.raw $TA
+
+echo '## Testing timezone in archive label'
+collectl2pcp -F $C/some_host.raw $TA
+pmdumplog -L $TA | grep timezone
+awk '$6 == "TZ:" {print "collectl header timezone", $7}' $C/some_host.raw
+
+echo '## Testing RHEL64 conversion'
+collectl2pcp -F $C/rhel6.raw.gz $TA
+
+# TODO need raw collectl for rhel5, rhel7, debian, etc
+
+echo '## Testing some hinv metrics'
+collectl2pcp -F $C/some_host.raw $TA
+pminfo -a $TA -f hinv.{ncpu,ndisk}
+
+echo '## Testing handling of corrupted or truncated metric values'
+collectl2pcp -F $C/truncated.raw $TA 2>&1
+
+echo '## Testing per-CPU metrics'
+collectl2pcp -F $C/some_host.raw $TA
+pmval -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
+awk '/cpu0/ {print "cpu0 raw msec value", $2 * 1000 / 100}' $C/some_host.raw
 
 # success, all done
 status=0
