@@ -46,9 +46,8 @@ pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
 echo "=== gfs2_glock_lock_time tracepoint for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glock_lock_time | _filter_pminfo | sed \
+pminfo -fdm gfs2.glock_lock_time | _gfs2_filter_pminfo | sed \
     -e 's/or [-a-zA-Z0-9":_-]*/ or FILESYSTEM/'
-
 
 echo
 echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full

@@ -41,10 +41,14 @@ _gfs2_cluster_support_tests()
         _notrun "System is not in a cluster configuration"
 }
 
-_filter_pminfo()
+_gfs2_filter_pminfo()
 {
+    # The order in which loop device paths are evaluated is non-deterministic
+    # but that's ok; we just want to check both are found and have some value
+    #
     tee -a $here/$seq.full | sed \
-	-e 's/value [0-9][0-9]*/value NUMBER/'
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e 's/"loop[01]"/"loopN"/g'
 }
 
 _pmcount()

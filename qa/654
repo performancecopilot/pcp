@@ -46,15 +46,15 @@ echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.
 
 echo
 echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glocks | _filter_pminfo
+pminfo -fdm gfs2.glocks | _gfs2_filter_pminfo
 
 echo
 echo "=== Additional glstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glstats | _filter_pminfo
+pminfo -fdm gfs2.glstats | _gfs2_filter_pminfo
 
 echo
 echo "=== Additional sbstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.sbstats | _filter_pminfo
+pminfo -fdm gfs2.sbstats | _gfs2_filter_pminfo
 
 _remove_pmda
 
