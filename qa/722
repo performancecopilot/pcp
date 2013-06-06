@@ -60,10 +60,12 @@ redact_header()
 {
 awk -v f=$1 '
     /ATOP/ {gsub("[A-Za-z]*","Day",$3);gsub("[A-Za-z]*","Month",$4)}
+    /LVM/ {gsub("[a-zA-Z0-9_-]*","x",$3);print $0; next}
     {print $0}'
 }
 
-PMATOP=pmatop		# installed version
+#PMATOP=pmatop		# installed version
+PMATOP=pmatop.py
 which $PMATOP >/dev/null 2>&1 || _notrun "pmatop not installed"
 
 # real QA test starts here
