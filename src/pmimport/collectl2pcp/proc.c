@@ -99,6 +99,28 @@ inst_command_clean(char *command, size_t size)
     }
 }
 
+void
+base_command_name(const char *command, char *base, size_t size)
+{
+    char *p, *start, *end;
+    int kernel = (command[0] == '(');	/* kernel daemons heuristic */
+
+    /* moral equivalent of basename, dealing with args stripping too */
+    for (p = end = start = (char *)command; *p; end = ++p) {
+	if (kernel)
+	    continue;
+	else if (*p == '/')
+	    start = end = p+1;
+	else if (isspace(*p))
+	    break;
+    }
+    size--;	/* allow for a null */
+    if (size > (end - start))
+	size = (end - start);
+    memcpy(base, start, size);
+    base[size] = '\0';
+}
+
 int
 proc_handler(handler_t *h, fields_t *f)
 {
@@ -139,8 +161,14 @@ proc_handler(handler_t *h, fields_t *f)
     if (inst) {
 	pmInDom indom = pmInDom_build(PROC_DOMAIN, PROC_PROC_INDOM);
 
-	if ((command = strchr(inst, ' ')) != NULL)
-	    put_str_value("proc.psinfo.cmd", indom, inst, command+1);
+	if ((command = strchr(inst, ' ')) != NULL) {
+	    char cmdname[MAXPATHLEN];
+
+	    command++;
+	    base_command_name(command, &cmdname[0], sizeof(cmdname));
+	    put_str_value("proc.psinfo.cmd", indom, inst, cmdname);
+	    put_str_value("proc.psinfo.psargs", indom, inst, command);
+	}
 
 	/* emit the stashed proc_stat fields */
 	put_ull_value("proc.psinfo.utime", indom, inst, ticks_to_msec(proc_stat->fields[PROC_PID_STAT_UTIME+2]));

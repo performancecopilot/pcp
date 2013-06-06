@@ -123,13 +123,13 @@ header_handler(FILE *fp, char *fname, char *buf, int maxbuf)
 	    put_str_value("hinv.machine", PM_INDOM_NULL, NULL, "linux");
 	}
 
-	if (f->nfields > 5 && strncmp(f->fields[1], "NumDisks:", 9) == 0) {
+	if (f->nfields > 4 && strncmp(f->fields[1], "NumDisks:", 9) == 0) {
 	    /* # NumDisks:   846 DiskNames: sda sdb .... */
 	    put_str_value("hinv.ndisk", PM_INDOM_NULL, NULL, f->fields[2]);
 	}
 
 #if 0	/* TODO -- add hinv.ninterface */
-	if (f->nfields > 5 && strncmp(f->fields[1], "NumNets:", 8) == 0) {
+	if (f->nfields > 4 && strncmp(f->fields[1], "NumNets:", 8) == 0) {
 	    /* # NumNets:    5 NetNames: em1: lo: ... */
 	    put_str_value("hinv.ninterface", PM_INDOM_NULL, NULL, f->fields[2]);
 	}
