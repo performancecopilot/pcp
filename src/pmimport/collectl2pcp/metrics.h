@@ -84,7 +84,7 @@ extern int put_int_value(char *name, pmInDom indom, char *instance, int val);
 extern int put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val);
 
 /* helpers to parse and manage input buffers */
-extern int strfields(const char *s, int len, const char sep, char **fields, int *fieldlen, int maxfields);
-extern fields_t *fields_new(const char *s, int len, const char sep);
+extern int strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields);
+extern fields_t *fields_new(const char *s, int len);
 extern fields_t *fields_dup(fields_t *f);
 extern void fields_free(fields_t *f);

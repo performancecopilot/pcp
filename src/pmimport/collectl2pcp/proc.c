@@ -65,27 +65,69 @@
 #define PROC_PID_STAT_WCHAN_SYMBOL   	 40
 #define PROC_PID_STAT_PSARGS         	 41
 
-static char *inst = NULL;
-static fields_t *proc_stat = NULL;
+static char *inst;
+static fields_t *proc_stat;
+
+static int
+find_command_start(const char *buf, size_t len)
+{
+    int i;
+
+    /* skip over (minimal) leading "proc:N cmd " */
+    for (i = 7; i < len - 4; i++)
+	if (strncmp(&buf[i], "cmd", 4) == 0)
+	    return i + 4;
+    return -1;	/* wha?  cannot find the "cmd" component */
+}
+
+static void
+inst_command_clean(char *command, size_t size)
+{
+    int i;
+
+    /* command contains nulls - replace 'em */
+    for (i = 0; i < size; i++) {
+	if (!isprint(command[i]))
+	    command[i] = ' ';
+    }
+    /* and trailing whitespace - clean that */
+    while (--size) {
+	if (isspace(command[size]))
+	    command[size] = '\0';
+	else
+	    break;
+    }
+}
 
 int
 proc_handler(handler_t *h, fields_t *f)
 {
-    pmInDom indom = pmInDom_build(PROC_DOMAIN, PROC_PROC_INDOM);
-    int pid;
-    char *s;
+    int pid, off, bytes;
+    char *command;
+    size_t size;
 
     if (f->nfields < 2 || f->fieldlen[0] < 6)
     	return 0;
 
-    if (strncmp(f->fields[1], "cmd", 3) == 0) {
+    if (strcmp(f->fields[1], "cmd") == 0) {
 	/*
 	 * e.g. :
 	 * proc:27041 cmd /bin/sh /usr/prod/mts/common/bin/dblogin_gateway_reader
 	 */
-	inst = (char *)malloc(8 + strlen(f->buf+15));
+	if ((off = find_command_start(f->buf, f->len)) < 0)
+	    return 0;
+	size = f->len - off + 16;	/* +16 for the "%06d " pid */
+	if ((inst = (char *)malloc(size)) == NULL)
+	    return 0;
 	sscanf(f->buf, "proc:%d", &pid);
-	sprintf(inst, "%06d %s", pid, f->buf+15);
+	bytes = snprintf(inst, size, "%06d ", pid);
+
+	/* f->buf contains nulls - so memcpy it then replace 'em */
+	size = f->len - off - 1;
+	command = inst + bytes;
+	memcpy(command, f->buf + off, size);
+	command[size] = '\0';
+	inst_command_clean(command, size);
     }
 
     if (inst == NULL && strcmp(f->fields[1], "stat") == 0) {
@@ -95,8 +137,10 @@ proc_handler(handler_t *h, fields_t *f)
     }
 
     if (inst) {
-	if ((s = strchr(inst, ' ')) != NULL)
-	    put_str_value("proc.psinfo.cmd", indom, inst, s+1);
+	pmInDom indom = pmInDom_build(PROC_DOMAIN, PROC_PROC_INDOM);
+
+	if ((command = strchr(inst, ' ')) != NULL)
+	    put_str_value("proc.psinfo.cmd", indom, inst, command+1);
 
 	/* emit the stashed proc_stat fields */
 	put_ull_value("proc.psinfo.utime", indom, inst, ticks_to_msec(proc_stat->fields[PROC_PID_STAT_UTIME+2]));

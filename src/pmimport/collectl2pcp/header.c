@@ -34,7 +34,7 @@ header_handler(FILE *fp, char *fname, char *buf, int maxbuf)
 	if (!buf[0])
 	    continue;
 
-	f = fields_new(buf, strlen(buf)+1, ' ');
+	f = fields_new(buf, strlen(buf)+1);
 	if (f->nfields == 0) {
 	    fields_free(f);
 	    continue;
@@ -66,10 +66,23 @@ header_handler(FILE *fp, char *fname, char *buf, int maxbuf)
 	if (f->nfields > 2 && strncmp(f->fields[1], "Distro:", 7) == 0) {
 	    strcpy(buf, f->fields[2]);
 	    for (i=3; i < f->nfields; i++) {
+		if (strcmp(f->fields[i], "Platform:") == 0)
+		    break;
 		strcat(buf, " ");
 	    	strcat(buf, f->fields[i]);
 	    }
 	    put_str_value("kernel.uname.distro", PM_INDOM_NULL, NULL, buf);
+
+#if 0	/* TODO -- add hinv.platform */
+	    if (i < f->nfields) {	/* found embedded platform */
+		strcpy(buf, f->fields[++i]);
+		for (; i < f->nfields; i++) {
+		    strcat(buf, " ");
+		    strcat(buf, f->fields[i]);
+		}
+		put_str_value("hinv.platform", PM_INDOM_NULL, NULL, buf);
+	    }
+#endif
 	}
 
 	if (f->nfields == 7 && strncmp(f->fields[1], "Date:", 5) == 0) {
@@ -115,13 +128,12 @@ header_handler(FILE *fp, char *fname, char *buf, int maxbuf)
 	    put_str_value("hinv.ndisk", PM_INDOM_NULL, NULL, f->fields[2]);
 	}
 
+#if 0	/* TODO -- add hinv.ninterface */
 	if (f->nfields > 5 && strncmp(f->fields[1], "NumNets:", 8) == 0) {
 	    /* # NumNets:    5 NetNames: em1: lo: ... */
-#if 0
-	    /* TODO add this metric to pcp */
-	    put_str_value("hinv.nnets", PM_INDOM_NULL, NULL, fields[2]);
-#endif
+	    put_str_value("hinv.ninterface", PM_INDOM_NULL, NULL, f->fields[2]);
 	}
+#endif
 
 	fields_free(f);
     }

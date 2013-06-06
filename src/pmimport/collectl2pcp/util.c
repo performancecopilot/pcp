@@ -116,7 +116,7 @@ put_ull_value(char *name, pmInDom indom, char *instance, unsigned long long val)
 
 /* split a string into fields and their lengths. Free fields[0] when done. */
 int
-strfields(const char *s, int len, char sep, char **fields, int *fieldlen, int maxfields)
+strfields(const char *s, int len, char **fields, int *fieldlen, int maxfields)
 {
     int i;
     char *p;
@@ -131,7 +131,7 @@ strfields(const char *s, int len, char sep, char **fields, int *fieldlen, int ma
     for (i=0, p_end = p+len; i < maxfields;) {
         fields[i] = p;
 	fieldlen[i] = 0;
-        while(*p && *p != sep && p < p_end) {
+        while(*p && !isspace(*p) && p < p_end) {
             p++;
 	    fieldlen[i]++;
 	}
@@ -139,7 +139,7 @@ strfields(const char *s, int len, char sep, char **fields, int *fieldlen, int ma
 	if (!*p)
 	    break;
         *p++ ='\0';
-	while (*p == sep)
+	while (isspace(*p))
 	    p++;
     }
 
@@ -147,7 +147,7 @@ strfields(const char *s, int len, char sep, char **fields, int *fieldlen, int ma
 }
 
 fields_t *
-fields_new(const char *s, int len, const char sep)
+fields_new(const char *s, int len)
 {
     int n = 1;
     const char *p;
@@ -156,16 +156,16 @@ fields_new(const char *s, int len, const char sep)
     memset(f, 0, sizeof(fields_t));
     f->len = len;
     for (p=s; *p && p < s+len; p++) {
-	if (*p == sep)
+	if (isspace(*p))
 	    n++;
     }
     /*
-     * n is an upper bound, at least 1 (since sep may repeat).
+     * n is an upper bound, at least 1 (separator may repeat).
      * fields[0] is the actual buffer, allocated by strfields
      */
     f->fields = (char **)malloc(n * sizeof(char *));
     f->fieldlen = (int *)malloc(n * sizeof(int));
-    f->nfields = strfields(s, len, sep, f->fields, f->fieldlen, n);
+    f->nfields = strfields(s, len, f->fields, f->fieldlen, n);
     f->buf = f->fields[0];
 
     return f;

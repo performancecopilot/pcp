@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 544
+# testing collectl2pcp metrics extraction (proc indom, in particular)
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+which collectl2pcp 2> /dev/null || _notrun collectl2pcp not installed
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+C=./collectl
+TA=testarchive
+
+# real QA test starts here
+
+echo '## Testing RHEL64 process extraction'
+collectl2pcp -F $C/rhel6.raw.gz $TA
+pminfo -f -a $TA
+
+echo '## Testing Debian process extraction'
+collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
+pminfo -f -a $TA
+
+# success, all done
+status=0
+
+exit

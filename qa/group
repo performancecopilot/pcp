@@ -747,6 +747,7 @@ pcp.py
 533 dbpmda local pmda.sample oss sanity
 534 pmie local oss
 535 pmie local pmprobe oss
+536 pmimport local oss
 537 pmimport perl local oss
 538 pmie local oss pmstore
 539 pmpost local oss
@@ -754,6 +755,7 @@ pcp.py
 541 pmie #535080 local pmprobe oss
 542 pmdate #666344 local oss
 543 logutil remote oss
+544 pmimport local oss
 545 pmsocks local oss
 548 pmie local oss sanity
 549 pmie local oss
@@ -843,4 +845,3 @@ pcp.py
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-536 pmimport local oss

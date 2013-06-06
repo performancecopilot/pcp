@@ -235,7 +235,7 @@ usage:	fprintf(stderr,
 		*s = '\0';
 	    if (!buf[0])
 	    	continue;
-	    f = fields_new(buf, strlen(buf)+1, ' ');
+	    f = fields_new(buf, strlen(buf)+1);
 	    if (f->nfields > 0) {
 		if ((h = find_handler(f->fields[0])) == NULL) {
 		    unhandled_metric_cnt++;
