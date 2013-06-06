@@ -39,6 +39,7 @@ enum {
 	NODE_INDOM,		/* 19 - NUMA nodes */
 	PROC_CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems -> proc PMDA */
 	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
+	LV_INDOM,               /* 22 - lvm devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

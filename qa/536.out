@@ -1,0 +1,64 @@
+/usr/bin/collectl2pcp
+QA output created by 536
+## Testing host mismatch in headers
+FATAL Error: host mismatch: "./collectl/wrong_host.raw" contains data for host "wronghost", not "somehost"
+## Testing no archive overwrite
+__pmLogNewFile: "testarchive.index" already exists, not over-written
+Error: pmiWrite failed: error -17: File exists
+Error: File exists
+## Testing archive overwrite with F flag
+## Testing correct temporal order of header timestamps
+## Testing incorrect temporal order of header timestamps
+FATAL Error: input file order mismatch: "./collectl/some_host.raw" contains data at 1368076323, prior to 1378076323
+## Testing timezone in archive label
+Archive timezone: +1000
+collectl header timezone +1000
+## Testing RHEL64 conversion
+## Testing Debian (sid) conversion, defaults
+## Testing load average metric values
+Note: timezone set to local timezone of host "verge" from archive
+
+metric:    kernel.all.load
+archive:   testarchive
+host:      verge
+start:     Thu Jun  6 08:49:25 2013
+end:       Thu Jun  6 08:49:55 2013
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  10.00 sec
+
+                 1 minute      5 minute     15 minute 
+08:49:25.001         0.05          0.06          0.05 
+08:49:35.001         0.04          0.06          0.05 
+08:49:45.001         0.03          0.05          0.05 
+08:49:55.001         0.03          0.05          0.05 
+## Testing Debian (sid) conversion, detailed
+## Testing network interface instance domain
+network.interface.in.bytes 3 "lo" "eth1" "wlan0"
+## Testing some hinv metrics
+
+hinv.ncpu
+    value 4
+
+hinv.ndisk
+    value 5
+## Testing handling of corrupted or truncated metric values
+Warning: put_str_value "kernel.all.load" inst:"15 minute" value:"somecrap" failed: err=-12362 Impossible value or scale conversion
+## Testing per-CPU metrics
+
+metric:    kernel.percpu.cpu.user
+archive:   testarchive
+host:      somehost
+start:     Fri May 10 01:13:00 2013
+end:       Fri May 10 01:13:10 2013
+semantics: cumulative counter
+units:     millisec
+samples:   2
+interval:  10.00 sec
+
+                             cpu0 
+01:13:00.001            244885950 
+01:13:10.001            244885960 
+cpu0 raw msec value 244885950
+cpu0 raw msec value 244885960

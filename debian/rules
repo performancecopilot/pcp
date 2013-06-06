@@ -57,7 +57,8 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
-		$(dirpcp_testsuite) $(dirpcp_python)
+		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
+		$(dirpcp_python)
 
 pkgpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp);
 pkglibpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp);
@@ -74,6 +75,7 @@ pkgpcp_import_sar = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sar);
 pkgpcp_import_mrtg = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
+pkgpcp_import_collectl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
 pkgpcp_testsuite = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_testsuite);
 pkgpcp_python = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_python);
 
@@ -128,12 +130,14 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
+	$(pkgpcp_import_collectl) $(MAKE) -C src/pmimport/collectl2pcp install
 	for V in $(shell pyversions -vr); do \
 	    $(pkgpcp_python) $(MAKE) PYTHON=python$$V -C src/python install; \
 	done
 
 	dh_installdocs
 	dh_installchangelogs
+	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms -X/tmp

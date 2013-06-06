@@ -15,6 +15,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
     pmiWrite
     pmiDump pmiErrStr pmiUnits pmiID pmiInDom
     pmid_build pmInDom_build
+    pmiBatchPutValue pmiBatchPutValueHandle pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
@@ -28,7 +29,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT_OK = qw();
 
 # set the version for version checking
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 # metric identification
 sub PM_ID_NULL		{ 0xffffffff; }
@@ -87,6 +88,58 @@ sub PMI_ERR_BADSEM      { -20010; }	# Illegal metric semantics
 sub PMI_ERR_NODATA      { -20011; }	# No data to output
 sub PMI_ERR_BADMETRICNAME { -20012; }	# Illegal metric name
 sub PMI_ERR_BADTIMESTAMP { -20013; }	# Illegal result timestamp
+
+# Batch operations
+our %pmi_batch = ();
+
+sub pmiBatchPutValue($$$) {
+  my ($name, $instance, $value) = @_;
+  push @{$pmi_batch{'b'}}, [ $name, $instance, $value ];
+  return 0;
+}
+
+sub pmiBatchPutValueHandle($$) {
+  my ($handle, $value) = @_;
+  push @{$pmi_batch{'b'}}, [ $handle, $value ];
+  return 0;
+}
+
+sub pmiBatchWrite($$) {
+  my ($sec, $usec) = @_;
+  push @{$pmi_batch{"$sec.$usec"}}, @{delete $pmi_batch{'b'}};
+  return 0;
+}
+
+sub pmiBatchEnd() {
+  my ($arr, $r);
+  my $ts = -1;
+  # Iterate over the sorted hash and call pmiPutValue/pmiWrite accordingly
+  delete $pmi_batch{'b'};
+  for my $k (map { $_->[0] }
+             sort { $a->[1] <=> $b->[1] || $a->[2] <=> $b->[2] }
+                  map { [$_, /(\d+)\.(\d+)/] }
+             keys %pmi_batch) {
+    $arr = $pmi_batch{$k};
+    $ts = $k if $ts eq -1;
+    if ($k > $ts) {
+      $r = pmiWrite(split(/\./, $ts));
+      return $r if ($r != 0);
+      $ts = $k;
+    }
+    for my $v (@$arr) {
+      if (defined($v->[2])) {
+        $r = pmiPutValue($v->[0], $v->[1], $v->[2]);
+      } else {
+        $r = pmiPutValueHandle($v->[0], $v->[1]);
+      }
+      return $r if ($r != 0);
+    }
+  }
+  $r = pmiWrite(split(/\./, $ts));
+  return $r if ($r != 0);
+  %pmi_batch = ();
+  return 0;
+}
 
 bootstrap PCP::LogImport $VERSION;
 

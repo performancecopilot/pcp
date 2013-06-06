@@ -1,0 +1,70 @@
+QA output created by 655
+You will need to choose an appropriate configuration for installation of
+the "gfs2" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check gfs2 metrics have appeared ... 105 metrics and 105 values
+enabling gfs2_glock_lock_time tracepoint
+
+=== Check for successful install of pmda ===
+
+=== gfs2_glock_lock_time tracepoint for all filesystems ===
+
+gfs2.glock_lock_time.lock_type PMID: 115.3.0
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.number PMID: 115.3.1
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.srtt PMID: 115.3.2
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.srttvar PMID: 115.3.3
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.srttb PMID: 115.3.4
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.srttvarb PMID: 115.3.5
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.sirt PMID: 115.3.6
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.sirtvar PMID: 115.3.7
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.dlm PMID: 115.3.8
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.glock_lock_time.queue PMID: 115.3.9
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+=== Removing the GFS2 PMDA ===

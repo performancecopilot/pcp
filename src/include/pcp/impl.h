@@ -1243,14 +1243,35 @@ extern void __htonll(char *);		/* 64bit int */
  * access control routines
  */
 extern int __pmAccAddOp(unsigned int);
+
 extern int __pmAccAddHost(const char *, unsigned int, unsigned int, int);
+extern int __pmAccAddUser(const char *, unsigned int, unsigned int, int);
+extern int __pmAccAddGroup(const char *, unsigned int, unsigned int, int);
+
 extern int __pmAccAddClient(__pmSockAddr *, unsigned int *);
+extern int __pmAccAddAccount(int, int, unsigned int *);
 extern void __pmAccDelClient(__pmSockAddr *);
+extern void __pmAccDelAccount(int, int);
 
 extern void __pmAccDumpHosts(FILE *);
+extern void __pmAccDumpUsers(FILE *);
+extern void __pmAccDumpGroups(FILE *);
+extern void __pmAccDumpLists(FILE *);
+
 extern int __pmAccSaveHosts(void);
+extern int __pmAccSaveUsers(void);
+extern int __pmAccSaveGroups(void);
+extern int __pmAccSaveLists(void);
+
 extern int __pmAccRestoreHosts(void);
+extern int __pmAccRestoreUsers(void);
+extern int __pmAccRestoreGroups(void);
+extern int __pmAccRestoreLists(void);
+
 extern void __pmAccFreeSavedHosts(void);
+extern void __pmAccFreeSavedUsers(void);
+extern void __pmAccFreeSavedGroups(void);
+extern void __pmAccFreeSavedLists(void);
 
 /*
  * platform independent process routines

@@ -284,7 +284,9 @@ dohelp(int command, int full)
 	case OPEN:
 	    puts("open dso dsoname init_routine [ domain# ]");
 	    puts("open pipe execname [ arg ... ]");
-	    puts("open socket sockname");
+	    puts("open socket unix sockname");
+	    puts("open socket inet port#|service");
+	    puts("open socket ipv6 port#|service");
 	    break;
 	case PMNS_CHILDREN:
 	    puts("children metric-name");
@@ -378,12 +380,14 @@ dohelp(int command, int full)
 		break;
 	    case OPEN:
 		puts(
-"Open a PMDA as either a DSO, via UNIX domain socket (named pipe), or as a\n"
+"Open a PMDA as either a DSO, via a network socket (unix/inet/ipv6), or as a\n"
 "daemon (connected with a pipe).  The 'dsoname' and 'execname' fields are\n"
-"the path to the PMDA shared object file or executable.  The 'sockname'\n"
-"field is the path of a named pipe where a PMDA is listening for connections.\n"
+"the path to the PMDA shared object file or executable.  The first socket PMDA\n"
+"field is the type - either unix (if supported), inet or ipv6.  The 'sockname'\n"
+"argument for unix sockets is a path of a named pipe where a PMDA is listening\n"
+"for connections.  The 'port' argument is a port number, 'serv' a service name\n"
+"typically defined in /etc/services (resolved to a port via getservent(3)).\n"
 "The arguments to this command are similar to a line in the pmcd.conf file.\n");
-
 		break;
 	    case PMNS_CHILDREN:
 	        puts(

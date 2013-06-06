@@ -245,12 +245,18 @@ Perl wrapper version ...
 *PCP::LogImport::PM_TYPE_U32
 *PCP::LogImport::PM_TYPE_U64
 *PCP::LogImport::VERSION
+*PCP::LogImport::a
+*PCP::LogImport::b
 *PCP::LogImport::bootstrap
 *PCP::LogImport::dl_load_flags
 *PCP::LogImport::import
 *PCP::LogImport::pmInDom_build
 *PCP::LogImport::pmiAddInstance
 *PCP::LogImport::pmiAddMetric
+*PCP::LogImport::pmiBatchEnd
+*PCP::LogImport::pmiBatchPutValue
+*PCP::LogImport::pmiBatchPutValueHandle
+*PCP::LogImport::pmiBatchWrite
 *PCP::LogImport::pmiDump
 *PCP::LogImport::pmiEnd
 *PCP::LogImport::pmiErrStr
@@ -265,6 +271,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiUnits
 *PCP::LogImport::pmiUseContext
 *PCP::LogImport::pmiWrite
+*PCP::LogImport::pmi_batch
 *PCP::LogImport::pmid_build
 BEGIN
 EXPORT
@@ -313,12 +320,18 @@ PM_TYPE_STRING
 PM_TYPE_U32
 PM_TYPE_U64
 VERSION
+a
+b
 bootstrap
 dl_load_flags
 import
 pmInDom_build
 pmiAddInstance
 pmiAddMetric
+pmiBatchEnd
+pmiBatchPutValue
+pmiBatchPutValueHandle
+pmiBatchWrite
 pmiDump
 pmiEnd
 pmiErrStr
@@ -333,6 +346,7 @@ pmiStart
 pmiUnits
 pmiUseContext
 pmiWrite
+pmi_batch
 pmid_build
 
 pmiDump: context 0 of 0 Error: current context is not defined.

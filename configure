@@ -8446,7 +8446,7 @@ _ACEOF
 fi
 done
 
-for ac_func in sysinfo getpwnam getpwnam_r
+for ac_func in getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8458,12 +8458,25 @@ _ACEOF
 fi
 done
 
-for ac_func in backtrace
+for ac_func in getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r
 do :
-  ac_fn_c_check_func "$LINENO" "backtrace" "ac_cv_func_backtrace"
-if test "x$ac_cv_func_backtrace" = xyes; then :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_BACKTRACE 1
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in sysinfo backtrace
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
 _ACEOF
 
 fi

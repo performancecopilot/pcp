@@ -20,12 +20,16 @@ pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
-if $ipv6 ; then
+if [ $PCP_VER -ge 3801 ]; then
+    if $ipv6 ; then
+	ln $seq.out.5 $seq.out || exit 1
+    else
+	ln $seq.out.4 $seq.out || exit 1
+    fi
+elif $ipv6 ; then
     ln $seq.out.3 $seq.out || exit 1
-elif $pmcdx ; then
-    ln $seq.out.2 $seq.out || exit 1
 else
-    ln $seq.out.1 $seq.out || exit 1
+    ln $seq.out.2 $seq.out || exit 1
 fi
 
 # get valid hostnames: $remote_1, $remote_2, etc.

@@ -1,0 +1,55 @@
+#! /bin/sh
+# PCP QA Test No. 540
+# Check Linux hinv.map.lvname metric
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./localconfig
+
+seq=`basename $0`
+[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux logical volume manager"
+[ $PCP_VER -ge 3801 ] || _notrun "Requires more recent Linux kernel PMDA"
+[ -d /dev/mapper ] || _notrun "Requires kernel support for Device Mapper"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo >$seq.full
+
+# Get the device mapper names from /dev/mapper
+#
+echo "== /dev/mapper" >> $seq.full
+ls -l /dev/mapper | tee -a $seq.full \
+    | $PCP_AWK_PROG '/^l/ { print $11, $9 }' \
+    | sed -e 's/^\.\.\///' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.dev.mapper
+
+# Get the device mapper names from pmdalinux
+#
+echo "== pmdalinux" >> $seq.full
+pminfo -f hinv.map.lvname | tee -a $seq.full \
+    | $PCP_AWK_PROG '/inst/ { print $4, $6 }' \
+    | tr -d '"]' \
+    | LC_COLLATE=POSIX sort \
+    > $tmp.pcp.indom
+
+if diff $tmp.pcp.indom $tmp.dev.mapper >$tmp.indom.diff
+then
+    echo "Device mapper instance matches expected values"
+    status=0
+else
+    echo "Instance domain for hinv.map.lvname incorrect:"
+    echo "diff output (PCP first, then ifconfig):"
+    cat $tmp.indom.diff
+fi
+
+exit

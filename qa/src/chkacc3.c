@@ -184,8 +184,16 @@ Options:\n\
     if (sts < 0)
 	return 1;
 
+#if PCP_VER >= 3801
+    putc('\n', stderr);
+#endif
+
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
+
+#if PCP_VER >= 3801
+    putc('\n', stderr);
+#endif
 
     putc('\n', stderr);
     if (ipv4) {

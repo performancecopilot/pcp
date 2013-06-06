@@ -177,7 +177,7 @@ openpmda(char *fname)
 
 #ifdef HAVE_SYS_UN_H
 void
-opensocket(char *fname)
+open_unix_socket(char *fname)
 {
     int			fd;
     struct stat		buf;
@@ -222,11 +222,68 @@ opensocket(char *fname)
 }
 #else
 void
-opensocket(char *fname)
+open_unix_socket(char *fname)
 {
-	__pmNotifyErr(LOG_CRIT, "UNIX domain sockets unsupported\n");
+    __pmNotifyErr(LOG_CRIT, "UNIX domain sockets unsupported\n");
 }
 #endif
+
+static void
+open_socket(int port, int family, const char *protocol)
+{
+    __pmSockAddr	*addr;
+    int			fd, sts;
+    char		socket[64];
+
+    fd = (family == AF_INET) ? __pmCreateSocket() : __pmCreateIPv6Socket();
+    if (fd < 0) {
+	fprintf(stderr, "opensocket: socket: %s\n", netstrerror());
+	return;
+    }
+
+    addr = __pmLoopBackAddress(family);
+    if (addr == NULL) {
+	fprintf(stderr, "opensocket: loopback: %s\n", netstrerror());
+	__pmCloseSocket(fd);
+	return;
+    }
+
+    closepmda();
+
+    sts = __pmConnectTo(fd, addr, port);
+    __pmSockAddrFree(addr);
+
+    if (sts < 0) {
+	fprintf(stderr, "opensocket: connect: %s\n", netstrerror());
+	__pmCloseSocket(fd);
+	return;
+    }
+
+    infd = fd;
+    outfd = fd;
+
+    sprintf(socket, "%s port %d", protocol, port);
+    printf("Connect to PMDA on %s\n", socket);
+
+    connmode = CONN_DAEMON;
+    reset_profile();
+    if (myPmdaName != NULL)
+	free(myPmdaName);
+    myPmdaName = strdup(socket);
+    pmdaversion();
+}
+
+void
+open_inet_socket(int port)
+{
+    open_socket(port, AF_INET, "inet");
+}
+
+void
+open_ipv6_socket(int port)
+{
+    open_socket(port, AF_INET6, "ipv6");
+}
 
 void
 closepmda(void)

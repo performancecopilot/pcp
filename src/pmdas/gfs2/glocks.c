@@ -38,6 +38,7 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
      * Read through glocks file accumulating statistics as we go;
      * as an early starting point, we're simply binning aggregate
      * glock state counts.
+     *
      */
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 	char *p = buffer;

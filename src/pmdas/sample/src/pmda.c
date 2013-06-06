@@ -73,6 +73,7 @@ usage(void)
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
 	  "\nExactly one of the following options may appear:\n"
+	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
 	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
@@ -99,7 +100,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
 		"sample.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:?",
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?",
 				&dispatch, &errflag)) != EOF) {
 	switch (c) {
 	case 'U':

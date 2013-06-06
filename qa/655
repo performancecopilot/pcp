@@ -1,0 +1,57 @@
+#! /bin/sh
+# PCP QA Test No. 655
+# checks extended pmdagfs2 functionality (gfs2_tracepoints)
+# Requires GFS2 support in the kernel, else it will notrun.
+#
+# Testing functionality of the gfs2_glock_lock_time tracepoint metrics
+# require the system to be configured in as a gfs2 cluster with one 
+# shared gfs2 filesystem in order to test functionality.
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.gfs2
+
+# Attempt to set up the gfs2 pmda test enviroment
+_gfs2_filesystem_support_tests
+_gfs2_cluster_support_tests
+_gfs2_tracepoints_support_tests
+
+# check for any loopback devices, cowardly abort this test if any exist
+loopcount=`$sudo losetup -a | wc -l`
+[ $loopcount -eq 0 ] || _notrun "System has loop devices already, bailing"
+
+iam=gfs2
+status=1	# failure is the default!
+trap "_restore_pmda_install $iam" 0 1 2 3 15
+
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+_prepare_pmda_install $iam
+_install_pmda
+_setup_gfs2_tracepoints true
+
+echo 
+echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
+pminfo -v gfs2 > /dev/null || _fail "install failed?"
+
+echo
+echo "=== gfs2_glock_lock_time tracepoint for all filesystems ===" | tee -a $here/$seq.full
+pminfo -fdm gfs2.glock_lock_time | _gfs2_filter_pminfo | sed \
+    -e 's/or [-a-zA-Z0-9":_-]*/ or FILESYSTEM/'
+
+echo
+echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full
+_remove_pmda
+
+status=0
+exit

@@ -1,0 +1,1006 @@
+QA output created by 051
+Make sure all the config files are there
+051.work/die.001
+051.work/die.002
+051.work/die.003
+051.work/die.004
+051.work/die.005
+051.work/die.006
+051.work/die.007
+051.work/die.008
+051.work/die.009
+051.work/die.010
+051.work/die.011
+051.work/die.012
+051.work/die.013
+051.work/die.014
+051.work/die.015
+051.work/die.016
+051.work/die.017
+051.work/die.018
+051.work/die.019
+051.work/die.020
+051.work/die.021
+051.work/die.022
+051.work/die.023
+051.work/die.024
+051.work/die.025
+051.work/die.026
+051.work/die.027
+051.work/die.028
+051.work/die.029
+051.work/die.030
+051.work/die.031
+051.work/die.032
+051.work/die.033
+051.work/die.034
+051.work/die.035
+051.work/die.036
+051.work/die.037
+051.work/die.038
+051.work/die.039
+051.work/die.040
+051.work/die.041
+051.work/die.042
+051.work/die.043
+051.work/die.044
+051.work/die.045
+051.work/kill.001
+terminating pmcd...
+Waiting for pmcd to terminate ...
+
+Running the scanner/parser tests (die.\*)
+
+die.001================
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+
+die!
+die.001 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 7]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.001 endlog ----------------
+
+die.002================
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ access]
+
+die!
+die.002 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 7]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.002 endlog ----------------
+
+die.003================
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ access ]
+
+die!
+die.003 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 7]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.003 endlog ----------------
+
+die.004================
+# Test whitespace in "[access]" token
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[ 
+# what the &^*%# is this doing here!?
+access
+ ]
+
+die!
+die.004 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 10]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.004 endlog ----------------
+
+die.005================
+# Test missing host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow : all;
+
+die!
+die.005 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: no hosts in allow/disallow statement
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.005 endlog ----------------
+
+die.006================
+# Test missing comma in host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 remote-host-2: all;
+
+die!
+die.006 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: ',' or ':' expected after "remote-host-1"
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.006 endlog ----------------
+
+die.007================
+# Test extra comma in host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1,: all;
+
+die!
+die.007 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: host expected after ','
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.007 endlog ----------------
+
+die.008================
+# Test missing colon after host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 all;
+
+die!
+die.008 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: ',' or ':' expected after "remote-host-1"
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.008 endlog ----------------
+
+die.009================
+# Test extra comma and missing colon after host list
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1, all;
+
+die!
+die.009 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: ',' or ':' expected after "all"
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.009 endlog ----------------
+
+die.010================
+# Test missing semicolon
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: all
+
+die!
+die.010 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 8]: Error: ',' or ';' expected in permission list
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.010 endlog ----------------
+
+die.011================
+# Test statement with lotsa whitespace and comments interspersed.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+# I think
+   allow#that I
+#will never
+	   remote-host-1
+
+
+
+#see
+  	:   #a thing as beautiful
+all
+# as
+# the bottom of my in-tray
+
+;
+
+    	die here!
+die.011 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 21]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.011 endlog ----------------
+
+die.012================
+# Test all operation types.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+
+allow remote-host-1 : fetch;
+allow remote-host-1 : store;
+allow remote-host-1 : all;
+allow remote-host-1 : maximum 666 connections;
+
+die!
+die.012 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 12]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.012 endlog ----------------
+
+die.013================
+# Test all operations in a single permission list.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: fetch, store, maximum 666 connections;
+
+die!
+die.013 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.013 endlog ----------------
+
+die.014================
+# Test clash of "all" with a specific operation.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: all, fetch;
+
+die!
+die.014 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: can't have "all" mixed with specific permissions
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.014 endlog ----------------
+
+die.015================
+# Test that "all" works with a connection limit.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: all, maximum 666 connections;
+
+die!
+die.015 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.015 endlog ----------------
+
+die.016================
+# Test that specific operations work with a connection limit.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: fetch, store, maximum 666 connections;
+
+die!
+die.016 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.016 endlog ----------------
+
+die.017================
+# Test that a connection limit fails in a disallow.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow remote-host-1: store, maximum 666 connections;
+
+die!
+die.017 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: can't specify connection limit in a disallow statement
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.017 endlog ----------------
+
+die.018================
+# Test that a connection limit fails in a disallow with except.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow remote-host-1: all except fetch, maximum 666 connections;
+
+die!
+die.018 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: can't specify connection limit in a disallow statement
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.018 endlog ----------------
+
+die.019================
+# Test that a connection limit is OK in an allow with an except.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: all except store, maximum 666 connections;
+
+die!
+die.019 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.019 endlog ----------------
+
+die.020================
+# Test that a bogus hostname is detected
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow error...mebourne : fetch;
+
+die!
+die.020 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) ERROR...
+Warning: the following access control specification will be ignored
+pmcd config[line 6]: Warning: access control error for host 'HOST': No route to host
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.020 endlog ----------------
+
+die.021================
+# Test a no such host condition
+#
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow nosuchhost.melbourne.sgi.com : fetch;
+
+die!
+die.021 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) ERROR...
+Warning: the following access control specification will be ignored
+pmcd config[line 6]: Warning: access control error for host 'HOST': No route to host
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.021 endlog ----------------
+
+die.022================
+# Test that a bogus IP address
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.2.3.999 : fetch;
+
+die!
+die.022 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) ERROR...
+Warning: the following access control specification will be ignored
+pmcd config[line 6]: Warning: access control error for host 'HOST': No route to host
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.022 endlog ----------------
+
+die.023================
+# Test bad wildcard detection in IP address
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.*.2 : fetch;
+
+die!
+die.023 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Wildcard in host pattern "192.*.2" is not at the end
+pmcd config[line 6]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.023 endlog ----------------
+
+die.024================
+# Test embedded wildcard detection in host name
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow *.melbourne : fetch;
+
+die!
+die.024 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Wildcard in host pattern "*.melbourne" is not at the end
+pmcd config[line 6]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.024 endlog ----------------
+
+die.025================
+# Test wildcard detection in textual host name
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow melbourne.* : fetch;
+
+die!
+die.025 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Bad IP address wildcard, melbourne.*
+pmcd config[line 6]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.025 endlog ----------------
+
+die.026================
+# Test range check for IP address components
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.-1.* : fetch;
+allow 192.256.* : fetch;
+
+die!
+die.026 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Bad IP address wildcard, 192.-1.*
+pmcd config[line 6]: Warning: access control error for host 'HOST': Invalid argument
+[DATE] pmcd(PID) Error: Bad IP address wildcard, 192.256.*
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.026 endlog ----------------
+
+die.027================
+# Test "reinforcing" of permissions
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 : fetch;
+allow remote-host-1 : fetch;
+
+die!
+die.027 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.027 endlog ----------------
+
+die.028================
+# Test contradictory permissions
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 : fetch;
+disallow remote-host-1 : fetch;
+
+die!
+die.028 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.028 endlog ----------------
+
+die.029================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+(config for die.029 is host-specific)
+die.029 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.029 endlog ----------------
+
+die.030================
+# Test contradictory permissions with host aliasing (different names)
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 : all;
+disallow remote-host-1 : fetch;
+
+die!
+die.030 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.030 endlog ----------------
+
+die.031================
+# Test mutually exclusive host lists
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1, remote-host-2 : all;
+disallow remote-host-3, remote-host-4 : store;
+
+die!
+die.031 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.031 endlog ----------------
+
+die.032================
+# Test overlapping host lists
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1, remote-host-2 : all;
+allow remote-host-3, remote-host-2 : fetch, store;
+
+die!
+die.032 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.032 endlog ----------------
+
+die.033================
+# Test overlapping host lists with conflict
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1, remote-host-4, remote-host-2 : all;
+disallow remote-host-3, remote-host-2, remote-host-5 : store;
+
+die!
+die.033 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.033 endlog ----------------
+
+die.034================
+# Test overlapping host lists with conflicting connection counts
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1, remote-host-4, remote-host-2 : all, maximum 30 connections;
+allow remote-host-3, remote-host-2, remote-host-5 : fetch, store, maximum 10 connections;
+
+die!
+die.034 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.034 endlog ----------------
+
+die.035================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+# Test various levels of wildcarding
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.68.139.105:	all;
+allow 192.68.139.*:	all, maximum 666 connections;
+allow 192.68.*:		all except store, maximum 555 connections;
+allow 192.*:		fetch, store, maximum 444 connections;
+allow *:		fetch, maximum 333 connections;
+
+die!
+die.035 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 12]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.035 endlog ----------------
+
+die.036================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+# Test various levels of wildcarding with several similar setups
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow 192.68.139.105:	all;
+allow 192.68.139.*:	all, maximum 666 connections;
+allow 192.68.*:		all except store, maximum 555 connections;
+allow 192.*:		fetch, store, maximum 444 connections;
+allow *:		fetch, maximum 333 connections;
+
+allow 193.68.139.105:	all;
+allow 193.68.139.*:	all, maximum 666 connections;
+allow 193.68.*:		all except store, maximum 555 connections;
+allow 193.*:		fetch, store, maximum 444 connections;
+
+allow 194.68.139.105:	all;
+allow 194.68.139.*:	all, maximum 666 connections;
+allow 194.68.*:		all except store, maximum 555 connections;
+allow 194.*:		fetch, store, maximum 444 connections;
+
+die!
+die.036 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 22]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.036 endlog ----------------
+
+die.037================
+# Test reinforcing of disallows
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+disallow remote-host-1: fetch;
+disallow remote-host-1: store;
+disallow remote-host-1: all;
+
+die!
+die.037 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 10]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.037 endlog ----------------
+
+die.038================
+# Test detection of multiple conflicting explicit connections limits
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: maximum 5 connections, fetch, maximum 666 connections;
+
+die!
+die.038 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: connection limit already specified
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.038 endlog ----------------
+
+die.039================
+# Test detection of connections limits immediately after "all except"
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: all except maximum 5 connections;
+
+die!
+die.039 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: connection limit may not immediately follow "all except"
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.039 endlog ----------------
+
+die.040================
+# Test unlimited connections access spec.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: unlimited connections;
+
+die!
+die.040 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: "connections" expected
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.040 endlog ----------------
+
+die.041================
+# Test clash of unlimited connections with explicit maximum
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: unlimited connections;
+allow remote-host-1: fetch, maximum 666 connections;
+
+die!
+die.041 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: "connections" expected
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.041 endlog ----------------
+
+die.042================
+# Test reinforcing of unlimited connections
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: store, unlimited connections;
+allow remote-host-1: fetch, unlimited connections;
+
+die!
+die.042 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: "connections" expected
+pmcd config[line 7]: Error: "connections" expected
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.042 endlog ----------------
+
+die.043================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+(config for die.043 is host-specific)
+die.043 logfile----------------
+Log for pmcd on HOST started DATE
+
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 7]: Warning: access control error for host 'HOST': Invalid argument
+[DATE] pmcd(PID) Error: Permission clash for ...
+pmcd config[line 8]: Warning: access control error for host 'HOST': Invalid argument
+pmcd config[line 10]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.043 endlog ----------------
+
+die.044================
+# Check that log advisory and log mandatory no longer work
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1 : log advisory;
+allow remote-host-1 : log mandatory;
+
+die!
+die.044 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: bad access specifier
+pmcd config[line 7]: Error: bad access specifier
+pmcd config[line 9]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.044 endlog ----------------
+
+die.045================
+# Test invalid and valid operations in a single permission list.
+
+sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
+
+[access]
+allow remote-host-1: fetch, store, log advisory, log mandatory, maximum 666 connections;
+
+die!
+die.045 logfile----------------
+Log for pmcd on HOST started DATE
+
+pmcd config[line 6]: Error: bad access specifier
+pmcd config[line 8]: Error: allow or disallow statement expected
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+die.045 endlog ----------------
+
+
+Running the scanner/parser tests (kill.\*)
+
+kill.001================
+# Test various special case tokens and the parser
+
+tricky		128	pipe	binary		\
+			cat "whacko name" \
+			more  	 		 params x-D x-R x-d 43\
+21 back\\slash "broken\
+string" \
+abc:def 1;2;3 zzz "#abc\"def" "x \"y\" z" \#abc #and a comment\
+to_end
+kill.001 logfile----------------
+This is  filter.kill.001 
+
+Log for pmcd on ...
+
+pmcd: unexpected end-of-file at initial exchange with tricky PMDA
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+
+Host access list empty: host-based access control turned off
+User access list empty: user-based access control turned off
+Group access list empty: group-based access control turned off
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD 44321 inet INADDR_ANY
+ok FD 44321 ipv6 INADDR_ANY
+[DATE] pmcd(PID) Info: pmcd caught SIGTERM from pid=N uid=N
+[DATE] pmcd(PID) Info: pmcd Shutdown
+
+Log finished ...
+
+dummy cat agent should have produced "Cannot open" messages:
+Cannot open whacko name: No such file or directory
+Cannot open more: No such file or directory
+Cannot open params: No such file or directory
+Cannot open x-D: No such file or directory
+Cannot open x-R: No such file or directory
+Cannot open x-d: No such file or directory
+Cannot open 43: No such file or directory
+Cannot open 21: No such file or directory
+Cannot open back\\slash: No such file or directory
+Cannot open broken string: No such file or directory
+Cannot open abc:def: No such file or directory
+Cannot open 1;2;3: No such file or directory
+Cannot open zzz: No such file or directory
+Cannot open #abc"def: No such file or directory
+Cannot open x "y" z: No such file or directory
+Cannot open #abc: No such file or directory
+kill.001 endlog ----------------
+Restarting pmcd
+Starting pmcd ... 
+Starting pmlogger ... 

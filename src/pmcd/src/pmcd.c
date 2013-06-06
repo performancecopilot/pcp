@@ -299,7 +299,8 @@ HandleClientInput(__pmFdSet *fdsPtr)
 
 	switch (php->type) {
 	    case PDU_PROFILE:
-		sts = DoProfile(cp, pb);
+		sts = (cp->denyOps & PMCD_OP_FETCH) ?
+		      PM_ERR_PERMISSION : DoProfile(cp, pb);
 		break;
 
 	    case PDU_FETCH:
@@ -871,7 +872,7 @@ main(int argc, char *argv[])
 	DontStart();
 
     PrintAgentInfo(stderr);
-    __pmAccDumpHosts(stderr);
+    __pmAccDumpLists(stderr);
     fprintf(stderr, "\npmcd: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
     __pmServerDumpRequestPorts(stderr);

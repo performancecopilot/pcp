@@ -50,7 +50,7 @@ struct sbstats {
 };
 
 extern void gfs2_sbstats_init(void);
-extern int gfs2_sbstats_fetch(int item, struct sbstats *fs, pmAtomValue *atom);
+extern int gfs2_sbstats_fetch(int, struct sbstats *, pmAtomValue *);
 extern int gfs2_refresh_sbstats(const char *, const char *, struct sbstats *);
 
 #endif	/* SBSTATS_H */

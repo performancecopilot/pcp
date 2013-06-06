@@ -1,7 +1,7 @@
 /*
  * systemd support for the systemd PMDA
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -285,7 +285,7 @@ systemd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (id == METRICTAB_NUMCLIENTS_PMID) {
         sts = pmdaEventClients(atom);
     } else if (id == METRICTAB_MAXMEM_PMID) {
-        atom->ull = (unsigned long long)maxmem;
+        atom->ul = (unsigned long)maxmem;
         sts = PMDA_FETCH_STATIC;
     } else if (id == METRICTAB_JOURNAL_CURSOR_PMID) {
         sts = PMDA_FETCH_NOVALUES;

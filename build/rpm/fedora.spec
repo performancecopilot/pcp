@@ -203,6 +203,20 @@ Performance Co-Pilot (PCP) front-end tools for importing MTRG data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
+# pcp-import-collectl2pcp
+#
+%package import-collectl2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= %{version}-%{release}
+
+%description import-collectl2pcp
+Performance Co-Pilot (PCP) front-end tools for importing collectl data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
@@ -486,6 +500,11 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 %{_bindir}/mrtg2pcp
 %{_mandir}/man1/mrtg2pcp.1.gz
+
+%files import-collectl2pcp
+%defattr(-,root,root)
+%{_bindir}/collectl2pcp
+%{_mandir}/man1/collectl2pcp.1.gz
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)

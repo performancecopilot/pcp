@@ -92,7 +92,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
 		"cisco.log", parse_only ? NULL : helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:" "M:P:r:s:U:x:?", 
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:6:" "M:P:r:s:U:x:?", 
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
 
@@ -142,13 +142,17 @@ main(int argc, char **argv)
 	    pmProgname);
 	fputs("Options:\n"
 	      "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
+	      "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	      "  -l logfile   redirect diagnostics and trace output to logfile\n"
 	      "  -M username  user account to run PMDA under (default \"pcp\")\n"
+	      "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
 	      "  -P password  default user-level Cisco password\n"
 	      "  -r refresh   update metrics every refresh seconds\n"
 	      "  -s prompt    Cisco command prompt [default >]\n"
+	      "  -u socket    expect PMCD to connect on given unix domain socket\n"
 	      "  -U username  Cisco username\n"
-	      "  -x port      telnet port [default 23]\n",
+	      "  -x port      telnet port [default 23]\n"
+	      "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
 	      stderr);		
 	exit(1);
     }

@@ -1,0 +1,88 @@
+QA output created by 528
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: 64-bit unsigned int  InDom: 245.1 0x3d400001
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    Semantics: instant  Units: Mbyte / sec
+    Semantics: instant  Units: Mbyte / sec
+    Semantics: instant  Units: none
+    Semantics: instant  Units: none
+    Semantics: instant  Units: none
+    Semantics: instant  Units: none
+  No indoms.
+  No pmResult.
+  handle[0] metric=my.metric.string (245.0.5) instance=-1
+  handle[1] metric=my.metric.strung (245.0.7) instance=-1
+  metric[0] name=my.metric.foo pmid=245.0.1
+  metric[1] name=my.metric.bar pmid=245.0.2
+  metric[2] name=my.metric.long pmid=245.0.3
+  metric[3] name=my.metric.double pmid=245.0.4
+  metric[4] name=my.metric.string pmid=245.0.5
+  metric[5] name=my.metric.float pmid=245.0.6
+  metric[6] name=my.metric.strung pmid=245.0.7
+  state: 2 (active) hostname: batching.com timezone: GMT-12
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiAddMetric: OK
+pmiBatchEnd: OK
+pmiBatchPutValue: OK
+pmiBatchPutValue: OK
+pmiBatchPutValue: OK
+pmiBatchPutValueHandle: OK
+pmiBatchPutValueHandle: OK
+pmiBatchWrite: OK
+pmiBatchWrite: OK
+pmiBatchWrite: OK
+pmiDump: context 0 of 1 archive: myarchive
+pmiGetHandle: OK ->1
+pmiGetHandle: OK ->2
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiStart: OK ->1
+pmiUseContext: OK
+
+my.metric.string PMID: 245.0.5
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+my.metric.strung PMID: 245.0.7
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Log Label (Log Format Version 2)
+Performance metrics from host HOST
+  commencing DATE
+  ending     DATE
+
+Descriptions for Metrics in the Log ...
+PMID: 245.0.5 (my.metric.string)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 245.0.7 (my.metric.strung)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+TIMESTAMP       0          132          132
+TIMESTAMP       0          244          132
+
+[116 bytes]
+TIMESTAMP  245.0.7 (my.metric.strung): value "a first string value"
+              245.0.5 (my.metric.string): value "a second string value"
+
+[68 bytes]
+TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+
+[116 bytes]
+TIMESTAMP  245.0.5 (my.metric.string): value "a fourth string value"
+              245.0.7 (my.metric.strung): value "a fifth string value"

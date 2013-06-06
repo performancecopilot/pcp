@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 528
+# Exercising log import API batching extensions.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+test $PCP_VER -ge 3801 || _notrun "No support for log import batching"
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+	_notrun "No support for libpcp_import"
+perl -e "use PCP::LogImport" 2>/dev/null || \
+	_notrun "Perl PCP::LogImport module is not installed"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter1()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+	-e '/^EXPORT_FAIL$/d' \
+	-e '/::EXPORT_FAIL$/d'
+}
+
+_filter2()
+{
+    _filter_pmdumplog \
+    | sed \
+	-e '/PID for pmlogger:/s/[0-9][0-9]*/PID/'
+}
+
+_filter3()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ part = "part1" }
+NF == 0		{ part = "part2" }
+		{ print >part }'
+    if [ -f part1 ]
+    then
+	# first part of output is in non-deterministic order, so sort it
+	#
+	_filter1 <part1 | LC_COLLATE=POSIX sort
+    fi
+    [ -f part2 ] && _filter1 <part2
+}
+
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+rm -f myarchive.*
+perl $here/src/batch_import.perl 2>&1 | tee -a $here/$seq.full | _filter3
+pminfo -dm -a myarchive
+pmdumplog -a myarchive 2>&1 | _filter2
+
+# success, all done
+status=0
+exit

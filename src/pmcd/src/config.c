@@ -682,11 +682,13 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     FindNextToken();
     if (TokenIs("inet"))
 	addrDomain = AF_INET;
+    else if (TokenIs("ipv6"))
+	addrDomain = AF_INET6;
     else if (TokenIs("unix"))
 	addrDomain = AF_UNIX;
     else {
 	fprintf(stderr,
-		     "pmcd config[line %d]: Error: expected socket address domain (`inet' or `unix')\n",
+		     "pmcd config[line %d]: Error: expected socket address domain (`inet', `ipv6', or `unix')\n",
 		     nLines);
 	return -1;
     }
@@ -710,7 +712,7 @@ ParseSocket(char *pmDomainLabel, int pmDomainId)
     /* If an internet domain port name was specified, find the corresponding
      port number. */
 
-    if (addrDomain == AF_INET && socketName) {
+    if ((addrDomain == AF_INET || addrDomain == AF_INET6) && socketName) {
 	struct servent *service;
 
 	service = getservbyname(socketName, NULL);
@@ -815,8 +817,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
     int		haveComma = 0;
 
     if (*token == ';') {
-	fprintf(stderr,
-		     "pmcd config[line %d]: Error: empty or incomplete permissions list\n",
+	fprintf(stderr, "pmcd config[line %d]: Error: empty or incomplete permissions list\n",
 		     nLines);
 	return -1;
     }
@@ -957,36 +958,30 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 }
 
 static int
-ParseHosts(int allow)
+ParseNames(char ***namesp, const char *nametype)
 {
-    int		sts = 0;
-    int		i = 0;
-    int		j;
-    int		ok = 0;
+    int		nnames = 0;
     int		another = 1;
-    static char	**name = NULL;
-    static int	szNames = 0;
-    int		specOps = 0;
-    int		denyOps = 0;
-    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    static char	**names;
+    static int	szNames;
 
     while (*token && another && *token != ':' && *token != ';') {
-	if (i == szNames) {
+	if (nnames == szNames) {
 	    int		need;
 
 	    szNames += 8;
 	    need = szNames * (int)sizeof(char**);
-	    if ((name = (char **)realloc(name, need)) == NULL)
-		__pmNoMem("pmcd ParseHosts name list", need, PM_FATAL_ERR);
+	    if ((names = (char **)realloc(names, need)) == NULL)
+		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
 	}
-	if ((name[i] = CopyToken()) == NULL)
-	    __pmNoMem("pmcd ParseHosts name", tokenend - token, PM_FATAL_ERR);
+	if ((names[nnames] = CopyToken()) == NULL)
+	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
-			 nLines, name[i]);
-	    goto error;
+			 nLines, names[nnames]);
+	    return -1;
 	}
 	if (*token == ',') {
 	    FindNextToken();
@@ -994,46 +989,62 @@ ParseHosts(int allow)
 	}
 	else
 	    another = 0;
-	i++;
+	nnames++;
     }
-    if (i == 0) {
+    if (nnames == 0) {
 	fprintf(stderr,
-		     "pmcd config[line %d]: Error: no hosts in allow/disallow statement\n",
-		     nLines);
-	goto error;
+		     "pmcd config[line %d]: Error: no %ss in allow/disallow statement\n",
+		     nLines, nametype);
+	return -1;
     }
     if (another) {
-	fprintf(stderr, "pmcd config[line %d]: Error: host expected after ','\n",
-		     nLines);
-	goto error;
+	fprintf(stderr, "pmcd config[line %d]: Error: %s expected after ','\n",
+		     nLines, nametype);
+	return -1;
     }
     if (*token != ':') {
 	fprintf(stderr, "pmcd config[line %d]: Error: ':' expected after \"%s\"\n",
-		nLines, name[i]);
-	goto error;
+		nLines, names[nnames-1]);
+	return -1;
     }
+    *namesp = names;
+    return nnames;
+}
+
+static int
+ParseHosts(int allow)
+{
+    int		sts;
+    int		nhosts;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**hostnames;
+
+    if ((nhosts = ParseNames(&hostnames, "host")) < 0)
+	goto error;
+
     FindNextToken();
     if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
 	goto error;
 
-#ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1) {
-	for (j = 0; j < i; j++)
-	    fprintf(stderr, "ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
-		    name[j], specOps, denyOps, maxCons);
+	for (i = 0; i < nhosts; i++)
+	    fprintf(stderr, "HOST ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    hostnames[i], specOps, denyOps, maxCons);
     }
-#endif
-    
-    /* Make new entries for hosts in host access list */
 
-    for (j = 0; j < i; j++) {
-	if ((sts = __pmAccAddHost(name[j], specOps, denyOps, maxCons)) < 0) {
-	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
+    /* Make new entries for hosts in host access list */
+    for (i = 0; i < nhosts; i++) {
+	if ((sts = __pmAccAddHost(hostnames[i], specOps, denyOps, maxCons)) < 0) {
+	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		fprintf(stderr, "Warning: the following access control specification will be ignored\n");
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Warning: access control error for host '%s': %s\n",
-			 nLines, name[j], pmErrStr(sts));
-	    if (sts == -EHOSTUNREACH || -EHOSTDOWN)
+			 nLines, hostnames[i], pmErrStr(sts));
+	    if (sts == -EHOSTUNREACH || sts == -EHOSTDOWN)
 		;
 	    else
 		goto error;
@@ -1044,8 +1055,94 @@ ParseHosts(int allow)
     return ok;
 
 error:
-    for (j = 0; j < i; j++)
-	free(name[j]);
+    for (i = 0; i < nhosts; i++)
+	free(hostnames[i]);
+    return -1;
+}
+
+static int
+ParseUsers(int allow)
+{
+    int		sts;
+    int		nusers;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**usernames;
+
+    if ((nusers = ParseNames(&usernames, "user")) < 0)
+	goto error;
+
+    FindNextToken();
+    if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
+	goto error;
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	for (i = 0; i < nusers; i++)
+	    fprintf(stderr, "USER ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    usernames[i], specOps, denyOps, maxCons);
+    }
+
+    /* Make new entries for users in user access list */
+    for (i = 0; i < nusers; i++) {
+	if ((sts = __pmAccAddUser(usernames[i], specOps, denyOps, maxCons)) < 0) {
+	    fprintf(stderr,
+			 "pmcd config[line %d]: Warning: access control error for user '%s': %s\n",
+			 nLines, usernames[i], pmErrStr(sts));
+	    goto error;
+	}
+	ok = 1;
+    }
+    return ok;
+
+error:
+    for (i = 0; i < nusers; i++)
+	free(usernames[i]);
+    return -1;
+}
+
+static int
+ParseGroups(int allow)
+{
+    int		sts;
+    int		ngroups;
+    int		i;
+    int		ok = 0;
+    int		specOps = 0;
+    int		denyOps = 0;
+    int		maxCons = 0;		/* Zero=>unspecified, -1=>unlimited */
+    char	**groupnames;
+
+    if ((ngroups = ParseNames(&groupnames, "group")) < 0)
+	goto error;
+
+    FindNextToken();
+    if (ParseAccessSpec(allow, &specOps, &denyOps, &maxCons, 0) < 0)
+	goto error;
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	for (i = 0; i < ngroups; i++)
+	    fprintf(stderr, "GROUP ACCESS: %s specOps=%02x denyOps=%02x maxCons=%d\n",
+		    groupnames[i], specOps, denyOps, maxCons);
+    }
+
+    /* Make new entries for groups in group access list */
+    for (i = 0; i < ngroups; i++) {
+	if ((sts = __pmAccAddGroup(groupnames[i], specOps, denyOps, maxCons)) < 0) {
+	    fprintf(stderr,
+			 "pmcd config[line %d]: Warning: access control error for group '%s': %s\n",
+			 nLines, groupnames[i], pmErrStr(sts));
+	    goto error;
+	}
+	ok = 1;
+    }
+    return ok;
+
+error:
+    for (i = 0; i < ngroups; i++)
+	free(groupnames[i]);
     return -1;
 }
 
@@ -1055,7 +1152,7 @@ ParseAccessControls(void)
     int		sts = 0;
     int		tmp;
     int		allow;
-    int		nHosts = 0;
+    int		naccess = 0;
 
     doingAccess = 1;
     /* This gets a little tricky, because the token may be "[access]", or
@@ -1107,10 +1204,24 @@ ParseAccessControls(void)
 	    return -1;
 	}
 	FindNextToken();
-	if ((tmp = ParseHosts(allow)) < 0)
-	    sts = -1;
-	else if (tmp > 0)
-	    nHosts++;
+	if (TokenIs("user") || TokenIs("users")) {
+	    FindNextToken();
+	    if ((tmp = ParseUsers(allow)) < 0)
+		sts = -1;
+	} else if (TokenIs("group") || TokenIs("groups")) {
+	    FindNextToken();
+	    if ((tmp = ParseGroups(allow)) < 0)
+		sts = -1;
+	} else if (TokenIs("host") || TokenIs("hosts")) {
+	    FindNextToken();
+	    if ((tmp = ParseHosts(allow)) < 0)
+		sts = -1;
+	} else {
+	    if ((tmp = ParseHosts(allow)) < 0)
+		sts = -1;
+	}
+	if (tmp > 0)
+	    naccess++;
 	while (*token && !scanError && *token != ';')
 	    FindNextToken();
 	if (!*token || scanError)
@@ -1120,7 +1231,7 @@ ParseAccessControls(void)
     if (sts != 0)
 	return sts;
 
-    if (nHosts == 0) {
+    if (naccess == 0) {
 	fprintf(stderr,
 		     "pmcd config[line %d]: Error: no valid statements in [access] section\n",
 		     nLines);
@@ -1129,7 +1240,7 @@ ParseAccessControls(void)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1)
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 #endif
 
     return 0;
@@ -1398,7 +1509,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
     int		sts = 0;
     int		fd = -1;	/* pander to gcc */
 
-    if (aPtr->ipc.socket.addrDomain == AF_INET) {
+    if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6) {
 	__pmSockAddr	*addr;
 	__pmHostEnt	*host;
 	void		*enumIx;
@@ -1411,10 +1522,18 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	for (addr = __pmHostEntGetSockAddr(host, &enumIx);
 	     addr != NULL;
 	     addr = __pmHostEntGetSockAddr(host, &enumIx)) {
-	    if (__pmSockAddrIsInet(addr))
+	    if (__pmSockAddrIsInet(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET)
+		    continue;
 	        fd = __pmCreateSocket();
-	    else if (__pmSockAddrIsIPv6(addr))
+	    }
+	    else if (__pmSockAddrIsIPv6(addr)) {
+		/* Only consider addresses of the chosen family. */
+		if (aPtr->ipc.socket.addrDomain != AF_INET6)
+		    continue;
 	        fd = __pmCreateIPv6Socket();
+	    }
 	    else {
 	        fprintf(stderr,
 			"pmcd: Error creating socket for \"%s\" agent : invalid address family %d\n",
@@ -1477,7 +1596,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 
 error:
     if (fd != -1) {
-        if (aPtr->ipc.socket.addrDomain == AF_INET)
+        if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6)
 	    __pmCloseSocket(fd);
 	else
 	    close(fd);
@@ -1744,6 +1863,13 @@ PrintAgentInfo(FILE *stream)
 		        aPtr->ipc.socket.name, aPtr->ipc.socket.port);
 		else
 		    fprintf(stream, "dom=inet port=%d", aPtr->ipc.socket.port);
+	    }
+	    else if (aPtr->ipc.socket.addrDomain == AF_INET6) {
+		if (aPtr->ipc.socket.name)
+		    fprintf(stream, "dom=ipv6 port=%s (%d)",
+		        aPtr->ipc.socket.name, aPtr->ipc.socket.port);
+		else
+		    fprintf(stream, "dom=ipv6 port=%d", aPtr->ipc.socket.port);
 	    }
 	    else {
 		fputs("dom=???", stream);
@@ -2279,10 +2405,10 @@ ParseRestartAgents(char *fileName)
 	    MarkStateChanges(PMCD_RESTART_AGENT);
 	}
 	PrintAgentInfo(stderr);
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 	return;
     }
-    
+
     /* Save the current agent[] and host access tables, Reset the internal
      * state of the config file parser and re-parse the config file.
      */
@@ -2293,7 +2419,7 @@ ParseRestartAgents(char *fileName)
     szAgents = 0;
     scanInit = 0;
     scanError = 0;
-    if (__pmAccSaveHosts() < 0) {
+    if (__pmAccSaveLists() < 0) {
 	fprintf(stderr, "Error saving access controls\n");
 	sts = -2;
     }
@@ -2314,12 +2440,12 @@ ParseRestartAgents(char *fileName)
 	fprintf(stderr, "Configuration left unchanged\n");
 	agent = oldAgent;
 	nAgents = oldNAgents;
-	if (sts != -2 && __pmAccRestoreHosts() < 0) {
+	if (sts != -2 && __pmAccRestoreLists() < 0) {
 	    fprintf(stderr, "Error restoring access controls!\n");
 	    exit(1);
 	}
 	PrintAgentInfo(stderr);
-	__pmAccDumpHosts(stderr);
+	__pmAccDumpLists(stderr);
 	return;
     }
 
@@ -2343,7 +2469,7 @@ ParseRestartAgents(char *fileName)
 	FreeAgent(&oldAgent[j]);
     }
     free(oldAgent);
-    __pmAccFreeSavedHosts();
+    __pmAccFreeSavedLists();
 
     /* Start the new agents */
     ContactAgents();
@@ -2353,32 +2479,31 @@ ParseRestartAgents(char *fileName)
 	if (agent[i].status.connected)
 	    mapdom[agent[i].pmDomainId] = i;
 
-    /* Now recaluculate the access controls for each client and update the
-     * current connection count in the hostList entries matchine the client.
+    /* Now recalculate the access controls for each client and update the
+     * connection count in the ACL entries matching the client (and account).
      * If the client is no longer permitted the connection because of a change
      * in permissions or connection limit, the client's connection is closed.
      */
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
-	int		s;
 
-	if ((s = __pmAccAddClient(cp->addr, &cp->denyOps)) < 0) {
+	if ((sts = CheckClientAccess(cp)) >= 0)
+	    sts = CheckAccountAccess(cp);
+	if (sts < 0) {
 	    /* ignore errors, the client is being terminated in any case */
 	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, s);
-	    __pmSendError(cp->fd, FROM_ANON, s);
-	    CleanupClient(cp, s);
+		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	    __pmSendError(cp->fd, FROM_ANON, sts);
+	    CleanupClient(cp, sts);
 	}
     }
 
     PrintAgentInfo(stderr);
-    __pmAccDumpHosts(stderr);
+    __pmAccDumpLists(stderr);
 
-    /*
-     * gather any deceased children, some may be PMDAs that were
+    /* Gather any deceased children, some may be PMDAs that were
      * terminated by CleanupAgent or killed and had not exited
      * when the previous harvest() was done
      */
     HarvestAgents(0);
 }
-

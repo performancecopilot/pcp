@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 531
+# Exercise inet socket open command in dbpmda
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+[ $PCP_VER -ge 3801 ] || _notrun "No dbpmda support for inet sockets"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+username=`id -u -n`
+port=`_get_port tcp 6161 6171`
+if [ -z "$port" ]
+then
+    echo "Arrggh ... no free TCP port in the range 6161 ... 6171"
+    netstat -an
+    exit
+fi
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s/socket inet $port/socket inet PORT/g" \
+	-e "s/inet port $port/inet port PORT/g" \
+	-e "s/   value $pid/   value PID/g" \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+$PCP_PMDAS_DIR/sample/pmdasample -i $port -U $username -l $tmp.log &
+pid=$!
+echo "PMDA sample PID = $pid" > $seq.full
+
+dbpmda -n $PCP_PMDAS_DIR/sample/root -ie <<End-of-File 2>&1 | _filter
+open socket inet $port
+getdesc on
+desc sample.daemon_pid
+fetch sample.daemon_pid
+text sample.daemon_pid
+close
+End-of-File
+
+# success, all done
+status=0
+
+exit

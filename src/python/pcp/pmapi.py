@@ -29,23 +29,22 @@
 # EXAMPLE
 
     from pcp import pmapi
-    from pcp import cpmapi as c_api
+    import cpmapi as c_api
 
     # Create a pcp class
     context = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "localhost")
 
     # Get ids for number cpus and load metrics
-    (code, metric_ids) = context.pmLookupName(("hinv.ncpu","kernel.all.load"))
+    metric_ids = context.pmLookupName(("hinv.ncpu","kernel.all.load"))
     # Get the description of the metrics
-    (code, descs) = context.pmLookupDesc(metric_ids)
+    descs = context.pmLookupDescs(metric_ids)
     # Fetch the current value for number cpus
-    (code, results) = context.pmFetch(metric_ids)
+    results = context.pmFetch(metric_ids)
     # Extract the value into a scalar value
-    (code, atom) = context.pmExtractValue(
-                                    results.contents.get_valfmt(0),
-                                    results.contents.get_vlist(0, 0),
-                                    descs[0].contents.type,
-                                    c_api.PM_TYPE_U32)
+    atom = context.pmExtractValue(results.contents.get_valfmt(0),
+                                  results.contents.get_vlist(0, 0),
+                                  descs[0].contents.type,
+                                  c_api.PM_TYPE_U32)
     print "#cpus=", atom.ul
 
     # Get the instance ids for kernel.all.load
@@ -59,11 +58,10 @@
             continue
         # Extrace the kernal.all.load instance
         for j in xrange(results.contents.get_numval(i) - 1):
-            (code, atom) = context.pmExtractValue(
-                                            results.contents.get_valfmt(i),
-                                            results.contents.get_vlist(i, j),
-                                            descs[i].contents.type,
-                                            c_api.PM_TYPE_FLOAT)
+            atom = context.pmExtractValue(results.contents.get_valfmt(i),
+                                          results.contents.get_vlist(i, j),
+                                          descs[i].contents.type,
+                                          c_api.PM_TYPE_FLOAT)
             value = atom.f
             if results.contents.get_inst(i, j) == inst1:
                 print "load average 1=",atom.f
@@ -321,10 +319,14 @@ class pmResult(Structure):
         vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
         return vsetptr[vset_idx].contents.numval
 
+    def get_vset(self, vset_idx):
+        """ Return the vset[vset_idx] """
+        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
+        return vsetptr[vset_idx]
+
     def get_vlist(self, vset_idx, vlist_idx):
         """ Return the vlist[vlist_idx] of vset[vset_idx] """
-        vsetptr = cast(self.vset, POINTER(POINTER(pmValueSet)))
-        listptr = cast(vsetptr[vset_idx].contents.vlist, POINTER(pmValue))
+        listptr = cast(self.get_vset(vset_idx).contents.vlist, POINTER(pmValue))
         return listptr[vlist_idx]
 
     def get_inst(self, vset_idx, vlist_idx):

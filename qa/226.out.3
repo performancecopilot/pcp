@@ -1,0 +1,207 @@
+QA output created by 226
+help [ command ]
+
+attr name [value]
+attr attr# [value]
+children metric-name
+close
+debug all | none
+debug flag [ flag ... ] (flag is decimal or symbolic name)
+desc metric
+fetch metric [ metric ... ]
+getdesc on | off
+instance indom# [ number | name | "name" ]
+name pmid#
+namespace fname
+open dso dsoname init_routine [ domain# ]
+open pipe execname [ arg ... ]
+open socket unix sockname
+open socket inet port#|service
+open socket ipv6 port#|service
+pmid metric-name
+profile indom# [ all | none ]
+profile indom# [ add | delete ] number
+quit
+status
+store metric "value"
+text metric
+text indom indom#
+timer on | off
+traverse metric-name
+wait seconds
+watch logfilename
+
+dbpmda> help attr
+
+attr name [value]
+attr attr# [value]
+
+Set a security attribute. These set aspects of per-user authentication,
+allowing a PMDA to provide different metric views for different users.
+
+dbpmda> help children
+
+children metric-name
+
+Fetch and print the next name component of the direct decendents of
+metric-name in the PMNS, reporting for each if it is a leaf node or a
+non-leaf node.
+Most useful for PMDAs that support dynamic metrics in the PMNS.
+
+dbpmda> help close
+
+close
+
+Close the pipe to a daemon PMDA or dlclose(3) a DSO PMDA. dbpmda does not
+exit, allowing another PMDA to be opened.
+
+dbpmda> help debug
+
+debug all | none
+debug flag [ flag ... ] (flag is decimal or symbolic name)
+
+Specify which debugging flags should be active (see pmdbg(1)).  Flags may
+be specified as integers or by name, with multiple flags separated by
+white space.  All flags may be selected or deselected if 'all' or 'none' is
+specified.  The current setting is displayed by the status command.
+
+
+dbpmda> help desc
+
+desc metric
+
+Print out the meta data description for the 'metric'.  The metric may be
+specified by name, or as a PMID of the form N, N.N or N.N.N.
+
+dbpmda> help fetch
+
+fetch metric [ metric ... ]
+
+Fetch metrics from the PMDA.  The metrics may be specified as a list of
+metric names, or PMIDs of the form N, N.N or N.N.N.
+
+dbpmda> help getdesc
+
+getdesc on | off
+
+Before doing a fetch, get the descriptor so that the result of a fetch
+can be printed out correctly.
+
+dbpmda> help instance
+
+instance indom# [ number | name | "name" ]
+
+List the instances in 'indom'.  The list may be restricted to a specific
+instance 'name' or 'number'.
+
+dbpmda> help name
+
+name pmid#
+
+Print the name of the metric with PMID pmid#.  The pmid# syntax follows
+the source PMNS syntax, namely 3 numbers separated by '.' to encode
+the domain, cluster and item components of the PMID, e.g.
+    name 29.0.1004
+Most useful for PMDAs that support dynamic metrics in the PMNS.
+
+dbpmda> help namespace
+
+namespace fname
+
+Unload the current Name Space and load up the given Name Space.
+If unsuccessful then will try to reload the previous Name Space.
+
+dbpmda> help open
+
+open dso dsoname init_routine [ domain# ]
+open pipe execname [ arg ... ]
+open socket unix sockname
+open socket inet port#|service
+open socket ipv6 port#|service
+
+Open a PMDA as either a DSO, via a network socket (unix/inet/ipv6), or as a
+daemon (connected with a pipe).  The 'dsoname' and 'execname' fields are
+the path to the PMDA shared object file or executable.  The first socket PMDA
+field is the type - either unix (if supported), inet or ipv6.  The 'sockname'
+argument for unix sockets is a path of a named pipe where a PMDA is listening
+for connections.  The 'port' argument is a port number, 'serv' a service name
+typically defined in /etc/services (resolved to a port via getservent(3)).
+The arguments to this command are similar to a line in the pmcd.conf file.
+
+dbpmda> help pmid
+
+pmid metric-name
+
+Print the PMID for the named metric
+Most useful for PMDAs that support dynamic metrics in the PMNS.
+
+dbpmda> help profile
+
+profile indom# [ all | none ]
+profile indom# [ add | delete ] number
+
+For the instance domain specified, the profile may be changed to include
+'all' instances, no instances, add an instance or delete an instance.
+
+dbpmda> help quit
+
+quit
+
+Exit dbpmda.  This also closes any open PMDAs.
+
+dbpmda> help status
+
+status
+
+Display the state of dbpmda, including which PMDA is connected, which
+pmDebug flags are set, and the current profile.
+
+dbpmda> help store
+
+store metric "value"
+
+Store the value (int, real or string) into the 'metric'.  The metric may be
+specified by name or as a PMID with the format N, N.N, N.N.N.  The value to
+be stored must be enclosed in quotes.  Unlike the other commands, a store
+must request a metric description and fetch the metric to determine how to
+interpret the value, and to allocate the PDU for transmitting the value,
+respectively.  The current profile will be used.
+
+dbpmda> help text
+
+text metric
+text indom indom#
+
+Retrieve the help text for the 'metric' or 'indom' from the PMDA.  The one
+line message is shown between '[' and ']' with the long message on the next
+line.  To get the help text for an instance domain requires the word
+``indom'' before the indom number
+
+dbpmda> help timer
+
+timer on | off
+
+Report the response time of the PMDA when sending and receiving PDUs.
+
+dbpmda> help traverse
+
+traverse metric-name
+
+Fetch and print all of the decendent metric names below metric-name
+in the PMNS.
+Most useful for PMDAs that support dynamic metrics in the PMNS.
+
+dbpmda> help wait
+
+wait seconds
+
+Sleep for this number of seconds
+
+dbpmda> help watch
+
+watch logfilename
+
+A xwsh window is opened which tails the specified log file.  This window
+must be closed by the user when no longer required.
+
+dbpmda> 

@@ -24,8 +24,6 @@ __pmFdSet	clientFds;		/* for client select() */
 
 static int	clientSize;
 
-extern void	Shutdown(void);
-
 /*
  * For PMDA_INTERFACE_5 or later PMDAs, post a notification that
  * a context has been closed.
@@ -118,7 +116,6 @@ AcceptNewClient(int reqfd)
     client[i].status.changes = 0;
     memset(&client[i].attrs, 0, sizeof(__pmHashCtl));
 
-#if 1	// nathans - replace these using connection attributes ... ?
     /*
      * Note seq needs to be unique, but we're using a free running counter
      * and not bothering to check here ... unless we churn through
@@ -128,7 +125,6 @@ AcceptNewClient(int reqfd)
     client[i].seq = seq++;
     __pmtimevalNow(&now);
     client[i].start = now.tv_sec;
-#endif
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
@@ -237,11 +233,38 @@ DeleteClient(ClientInfo *cp)
 void
 MarkStateChanges(int changes)
 {
-    int			i;
+    int i;
 
     for (i = 0; i < nClients; i++) {
 	if (client[i].status.connected == 0)
 	    continue;
 	client[i].status.changes |= changes;
     }
+}
+
+static int
+GetClientAccount(int attribute, __pmHashCtl *attrs)
+{
+    __pmHashNode *node;
+
+    if ((node = __pmHashSearch(attribute, attrs)) == NULL)
+	return -1;
+    /* if present, the attribute value is well defined (int) */
+    return atoi((const char *)node->data);
+}
+
+int
+CheckAccountAccess(ClientInfo *cp)
+{
+    int uid, gid;
+
+    uid = GetClientAccount(PCP_ATTR_USERID, &cp->attrs);
+    gid = GetClientAccount(PCP_ATTR_GROUPID, &cp->attrs);
+    return __pmAccAddAccount(uid, gid, &cp->denyOps);
+}
+
+int
+CheckClientAccess(ClientInfo *cp)
+{
+    return __pmAccAddClient(cp->addr, &cp->denyOps);
 }
