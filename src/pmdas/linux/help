@@ -735,6 +735,7 @@ Total CPU time when a CPU had a runnable process, but the hypervisor
 Total CPU time spent running virtual guest operating systems.
 @ kernel.all.nusers number of user sessions on system
 
+@ hinv.ninterface number of active (up) network interfaces
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
 @ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
 @ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
