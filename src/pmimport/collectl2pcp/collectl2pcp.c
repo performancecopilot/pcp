@@ -91,13 +91,27 @@ handler_t handlers[] = {
 	{ NULL }
 };
 
-int indom_cnt[NUM_INDOMS] = {0};
+int indom_cnt[NUM_INDOMS];
 
 /* global options */
-int vflag = 0;
-int Fflag = 0;
-int kernel_all_hz = 0;
-int utc_offset = 0;
+int vflag;
+int Fflag;
+int kernel_all_hz;
+int utc_offset;
+
+static void usage(void)
+{
+    fprintf(stderr,
+	"Usage: %s [-F] [-v] [-D N] inputfile [inputfile ...] archive\n"
+	"Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).\n"
+	"'archive' is the base name for the PCP archive to be created.\n"
+	"\n"
+	"Options:\n"
+	"  -F      forces overwrite of 'archive' if it already exists.\n"
+	"  -v      enables verbose messages. Use more -v for extra verbosity.\n"
+	"  -D N    switch on debugging bits 'N', see pmdbg(1).\n", pmProgname);
+    exit(1);
+}
 
 int
 main(int argc, char *argv[])
@@ -154,16 +168,8 @@ main(int argc, char *argv[])
     else
 	archive = argv[argc-1];
 
-    if (errflag) {
-usage:	fprintf(stderr,
-	"Usage: %s [-F] [-v] [-D N] inputfile [inputfile ...] archive\n"
-	"Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).\n"
-	"'archive' is the base name for the PCP archive to be created.\n"
-	"-F forces overwrite of 'archive' if it already exists.\n"
-	"-v enables verbose messages. Use more -v for extra verbosity.\n"
-	"-D N turns on debugging bits 'N', see pmdbg(1).\n", pmProgname);
-        exit(1);
-    }
+    if (errflag)
+	usage();
 
     if ((buf = malloc(BUFSIZE)) == NULL) {
     	perror("Error: out of memory:");
@@ -220,7 +226,7 @@ usage:	fprintf(stderr,
 	    perror(infile);
 
 	if (fp == NULL)
-	    goto usage;
+	    usage();
 
 	/*
 	 * parse the header
