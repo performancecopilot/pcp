@@ -14,6 +14,28 @@ FATAL Error: input file order mismatch: "./collectl/some_host.raw" contains data
 Archive timezone: +1000
 collectl header timezone +1000
 ## Testing RHEL64 conversion
+## Testing Debian (sid) conversion, defaults
+## Testing load average metric values
+Note: timezone set to local timezone of host "verge" from archive
+
+metric:    kernel.all.load
+archive:   testarchive
+host:      verge
+start:     Thu Jun  6 08:49:25 2013
+end:       Thu Jun  6 08:49:55 2013
+semantics: instantaneous value
+units:     none
+samples:   4
+interval:  10.00 sec
+
+                 1 minute      5 minute     15 minute 
+08:49:25.001         0.05          0.06          0.05 
+08:49:35.001         0.04          0.06          0.05 
+08:49:45.001         0.03          0.05          0.05 
+08:49:55.001         0.03          0.05          0.05 
+## Testing Debian (sid) conversion, detailed
+## Testing network interface instance domain
+network.interface.in.bytes 3 "lo" "eth1" "wlan0"
 ## Testing some hinv metrics
 
 hinv.ncpu

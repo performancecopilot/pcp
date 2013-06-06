@@ -47,7 +47,17 @@ awk '$6 == "TZ:" {print "collectl header timezone", $7}' $C/some_host.raw
 echo '## Testing RHEL64 conversion'
 collectl2pcp -F $C/rhel6.raw.gz $TA
 
-# TODO need raw collectl for rhel5, rhel7, debian, etc
+echo '## Testing Debian (sid) conversion, defaults'
+collectl2pcp -F $C/debian_sid_defaults.raw.gz $TA
+
+echo '## Testing load average metric values'
+pmval -z -f 2 -t 10 -a $TA kernel.all.load
+
+echo '## Testing Debian (sid) conversion, detailed'
+collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
+
+echo '## Testing network interface instance domain'
+pmprobe -I -a $TA network.interface.in.bytes
 
 echo '## Testing some hinv metrics'
 collectl2pcp -F $C/some_host.raw $TA
