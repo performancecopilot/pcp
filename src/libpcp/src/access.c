@@ -1596,7 +1596,7 @@ __pmAccDumpUsers(FILE *stream)
 	fprintf(stream, "=");
     fprintf(stream, "\n");
 
-    for (u = 0; u < nusers; u++) {
+    for (u = nusers-1; u >= 0; u--) {
 	up = &userlist[u];
 
 	for (i = minbit; i <= maxbit; i++) {
@@ -1656,7 +1656,7 @@ __pmAccDumpGroups(FILE *stream)
 	fprintf(stream, "=");
     fprintf(stream, "\n");
 
-    for (g = 0; g < ngroups; g++) {
+    for (g = ngroups-1; g >= 0; g--) {
 	gp = &grouplist[g];
 
 	for (i = minbit; i <= maxbit; i++) {
