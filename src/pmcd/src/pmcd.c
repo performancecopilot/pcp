@@ -42,6 +42,9 @@ static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
 static int	dupok;			/* set to 1 for -N pmnsfile */
+#if defined(HAVE_SYS_UN_H)
+static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
+#endif
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -113,7 +116,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "C:D:fi:l:L:N:n:p:P:q:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'C':	/* path to NSS certificate database */
@@ -187,6 +190,15 @@ ParseOptions(int argc, char *argv[], int *nports)
 		}
 		else
 		    _creds_timeout = val;
+		break;
+
+	    case 's':	/* path to local unix domain socket */
+#if defined(HAVE_SYS_UN_H)
+		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
+#else
+		fprintf(stderr,
+			"pmcd: -s: unix domain sockets are not supported on this platform\n");
+#endif
 		break;
 
 	    case 't':
@@ -807,9 +819,20 @@ main(int argc, char *argv[])
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
+#if defined(HAVE_SYS_UN_H)
+    if ((envstr = getenv("PMCD_SOCKET")) != NULL)
+	snprintf(sockpath, sizeof(sockpath), "%s", envstr);
+    else {
+	snprintf(sockpath, sizeof(sockpath), "%s%c" "pmcd.socket",
+	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+    }
+#endif
     ParseOptions(argc, argv, &nport);
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
+#if defined(HAVE_SYS_UN_H)
+    __pmServerSetLocalSocket(sockpath);
+#endif
 
     if (run_daemon) {
 	fflush(stderr);
