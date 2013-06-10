@@ -572,6 +572,7 @@ typedef struct __pmHostEnt __pmHostEnt;
 
 extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
+extern int __pmCreateUnixSocket(void);
 extern void __pmCloseSocket(int);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
@@ -610,9 +611,11 @@ extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
+extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
+extern int	     __pmSockAddrIsUnix(const __pmSockAddr *);
 extern char *	     __pmSockAddrToString(__pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
 extern __pmSockAddr *__pmLoopBackAddress(int);
@@ -639,6 +642,7 @@ typedef enum {
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
+extern void __pmServerSetLocalSocket(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int);
 extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
