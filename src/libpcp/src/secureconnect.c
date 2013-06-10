@@ -193,7 +193,7 @@ __pmShutdownSecureSockets(void)
 }
 
 static int
-__pmSetupSocket(PRFileDesc *fdp)
+__pmSetupSocket(PRFileDesc *fdp, int family)
 {
     __pmSecureSocket socket = { 0 };
     int fd, sts;
@@ -208,7 +208,7 @@ __pmSetupSocket(PRFileDesc *fdp)
 	freeNSPRHandle(fd);
 	return sts;
     }
-    (void)__pmInitSocket(fd);	/* cannot fail after __pmSetDataIPC */
+    (void)__pmInitSocket(fd, family);	/* cannot fail after __pmSetDataIPC */
     return fd;
 }
 
@@ -220,7 +220,7 @@ __pmCreateSocket(void)
     __pmInitSecureSockets();
     if ((fdp = PR_OpenTCPSocket(PR_AF_INET)) == NULL)
 	return -neterror();
-    return __pmSetupSocket(fdp);
+    return __pmSetupSocket(fdp, AF_INET);
 }
 
 int
@@ -252,7 +252,30 @@ __pmCreateIPv6Socket(void)
 	return -EOPNOTSUPP;
     }
 
-    return __pmSetupSocket(fdp);
+    return __pmSetupSocket(fdp, AF_INET6);
+}
+
+int
+__pmCreateUnixSocket(void)
+{
+#if defined(HAVE_SYS_UN_H)
+    PRFileDesc *fdp;
+    int fd;
+
+    __pmInitSecureSockets();
+    if ((fdp = PR_OpenTCPSocket(PR_AF_LOCAL)) == NULL)
+	return -neterror();
+
+    fd = __pmSetupSocket(fdp, AF_UNIX);
+
+    /* NOTE: Do not set the SO_PASSCRED socket option here. If you do, then this socket will be
+       auto-bound to a name in the abstract namespace on modern linux platforms. The caller must
+       bind this socket to the desired filesystem path. See Unix(7) for details. */
+    return fd;
+#else
+    __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
+    return -EOPNOTSUPP;
+#endif
 }
 
 void
@@ -1227,8 +1250,11 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	switch(level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
+	    case SO_PASSCRED:
 #ifdef IS_MINGW
-	    case SO_EXCLUSIVEADDRUSE: {
+	    case SO_EXCLUSIVEADDRUSE:
+#endif
+	    {
 		/*
 		 * There is no direct mapping of this option in NSPR.
 		 * The best we can do is to use the native handle and
@@ -1237,7 +1263,6 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
-#endif
 	    case SO_KEEPALIVE:
 	        option_data.option = PR_SockOpt_Keepalive;
 		option_data.value.keep_alive = sockOptValue(option_value, option_len);
@@ -1363,6 +1388,10 @@ __pmSockAddrSetFamily(__pmSockAddr *addr, int family)
         addr->sockaddr.raw.family = PR_AF_INET;
     else if (family == AF_INET6)
         addr->sockaddr.raw.family = PR_AF_INET6;
+#if defined(HAVE_SYS_UN_H)
+    else if (family == AF_UNIX)
+        addr->sockaddr.raw.family = PR_AF_LOCAL;
+#endif
     else
 	__pmNotifyErr(LOG_ERR,
 		"__pmSockAddrSetFamily: Invalid address family: %d\n", family);
@@ -1375,6 +1404,10 @@ __pmSockAddrGetFamily(const __pmSockAddr *addr)
         return AF_INET;
     if (addr->sockaddr.raw.family == PR_AF_INET6)
         return AF_INET6;
+#if defined(HAVE_SYS_UN_H)
+    if (addr->sockaddr.raw.family == PR_AF_LOCAL)
+        return AF_UNIX;
+#endif
     __pmNotifyErr(LOG_ERR, "__pmSockAddrGetFamily: Invalid address family: %d\n",
 		  addr->sockaddr.raw.family);
     return 0; /* not set */
@@ -1390,6 +1423,20 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
     else
 	__pmNotifyErr(LOG_ERR,
 		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.family);
+}
+
+void
+__pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
+{
+#if defined(HAVE_SYS_UN_H)
+    if (addr->sockaddr.raw.family == PR_AF_LOCAL)
+	strncpy(addr->sockaddr.local.path, path, sizeof(addr->sockaddr.local.path));
+    else
+	__pmNotifyErr(LOG_ERR,
+		"__pmSockAddrSetPath: Invalid address family: %d\n", addr->sockaddr.raw.family);
+#else
+    __pmNotifyErr(LOG_ERR, "__pmSockAddrSetPath: AF_UNIX is not supported\n");
+#endif
 }
 
 int
@@ -1887,7 +1934,7 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 	for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
             addrBytes[i] &= maskBytes[i];
     }
-    else
+    else /* not applicable to other address families, e.g. PR_AF_LOCAL. */
 	__pmNotifyErr(LOG_ERR,
 		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
     return addr;
@@ -1908,6 +1955,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		    sizeof(addr1->sockaddr.ipv6.ip));
     }
 
+    /* not applicable to other address families, e.g. PR_AF_LOCAL. */
     __pmNotifyErr(LOG_ERR,
 		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.family);
     return 1; /* not equal */
@@ -1923,6 +1971,12 @@ int
 __pmSockAddrIsIPv6(const __pmSockAddr *addr)
 {
     return addr->sockaddr.raw.family == PR_AF_INET6;
+}
+
+int
+__pmSockAddrIsUnix(const __pmSockAddr *addr)
+{
+    return addr->sockaddr.raw.family == PR_AF_LOCAL;
 }
 
 __pmSockAddr *
@@ -1959,8 +2013,14 @@ char *
 __pmSockAddrToString(__pmSockAddr *addr)
 {
     PRStatus	prStatus;
-    char	*buf = malloc(PM_NET_ADDR_STRING_SIZE);
+    char	*buf;
 
+    /* PR_NetAddrToString() does not handle PR_AF_LOCAL. Handle it ourselves. */
+    if (addr->sockaddr.raw.family == PR_AF_LOCAL)
+	return strdup (addr->sockaddr.local.path);
+
+    /* Otherwise, let NSPR construct the string. */
+    buf = malloc(PM_NET_ADDR_STRING_SIZE);
     if (buf) {
 	prStatus = PR_NetAddrToString(&addr->sockaddr, buf, PM_NET_ADDR_STRING_SIZE);
 	if (prStatus != PR_SUCCESS) {
