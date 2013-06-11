@@ -23,9 +23,60 @@
 #include <grp.h>
 #endif
 
+int
+__pmEqualUserIDs(__pmUserID uid1, __pmUserID uid2)
+{
+    return uid1 == uid2;
+}
+
+int
+__pmEqualGroupIDs(__pmGroupID gid1, __pmGroupID gid2)
+{
+    return gid1 == gid2;
+}
+
+int
+__pmValidUserID(__pmUserID uid)
+{
+    return uid >= 0;
+}
+
+int __pmValidGroupID(__pmGroupID gid)
+{
+    return gid >= 0;
+}
+
+void
+__pmUserIDFromString(const char *userid, __pmUserID *uid)
+{
+    *uid = atoi(userid);
+}
+
+void
+__pmGroupIDFromString(const char *groupid, __pmGroupID *gid)
+{
+    *gid = atoi(groupid);
+}
+
+char *
+__pmUserIDToString(__pmUserID uid, char *buf, size_t size)
+{
+    snprintf(buf, size, "%u", (unsigned int)uid);
+    buf[size-1] = '\0';
+    return buf;
+}
+
+char *
+__pmGroupIDToString(__pmGroupID gid, char *buf, size_t size)
+{
+    snprintf(buf, size, "%u", (unsigned int)gid);
+    buf[size-1] = '\0';
+    return buf;
+}
+
 #if defined(HAVE_GETGRGID_R)
 char *
-__pmGroupname(gid_t gid, char *buf, size_t size)
+__pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct group grp, *result;
@@ -37,7 +88,7 @@ __pmGroupname(gid_t gid, char *buf, size_t size)
 }
 #elif defined(HAVE_GETGRGID)
 char *
-__pmGroupname(gid_t gid, char *buf, size_t size)
+__pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     struct group *result;
 
@@ -52,7 +103,7 @@ __pmGroupname(gid_t gid, char *buf, size_t size)
 
 #if defined(HAVE_GETPWUID_R)
 char *
-__pmUsername(uid_t uid, char *buf, size_t size)
+__pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct passwd pwd, *result;
@@ -64,7 +115,7 @@ __pmUsername(uid_t uid, char *buf, size_t size)
 }
 #elif defined(HAVE_GETPWUID)
 char *
-__pmUsername(uid_t uid, char *buf, size_t size)
+__pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     struct passwd *result;
 
@@ -79,7 +130,7 @@ __pmUsername(uid_t uid, char *buf, size_t size)
 
 #if defined(HAVE_GETPWNAM_R)
 int
-__pmUserID(const char *name, uid_t *uid)
+__pmUsernameToID(const char *name, uid_t *uid)
 {
     char namebuf[1024];
     struct passwd pwd, *result = NULL;
@@ -92,7 +143,7 @@ __pmUserID(const char *name, uid_t *uid)
 }
 #elif defined(HAVE_GETPWNAM)
 int
-__pmUserID(const char *name, uid_t *uid)
+__pmUsernameToID(const char *name, uid_t *uid)
 {
     struct passwd *result;
 
@@ -108,7 +159,7 @@ __pmUserID(const char *name, uid_t *uid)
 
 #if defined(HAVE_GETGRNAM_R)
 int
-__pmGroupID(const char *name, gid_t *gid)
+__pmGroupnameToID(const char *name, gid_t *gid)
 {
     char namebuf[512];
     struct group grp, *result = NULL;
@@ -121,7 +172,7 @@ __pmGroupID(const char *name, gid_t *gid)
 }
 #elif defined(HAVE_GETGRNAM)
 int
-__pmGroupID(const char *name, gid_t *gid)
+__pmGroupnameToID(const char *name, gid_t *gid)
 {
     struct group *result;
 

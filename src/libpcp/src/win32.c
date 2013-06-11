@@ -634,14 +634,77 @@ wsastrerror(int code)
     return NULL;
 }
 
+/*
+ * User and group account management using Security IDs (SIDs)
+ */
+int
+__pmValidUserID(__pmUserID sid)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmValidGroupID(__pmGroupID sid)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmEqualUserIDs(__pmUserID sid1, __pmUserID sid2)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmEqualGroupIDs(__pmGroupID sid1, __pmGroupID sid2)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+void
+__pmUserIDFromString(const char *username, __pmUserID *sid)
+{
+    /* NYI */
+}
+
+void
+__pmGroupIDFromString(const char *groupname, __pmGroupID *sid)
+{
+    /* NYI */
+}
+
 char *
-__pmGroupname(const __pmGroupID *gid, char *buf, size_t size)
+__pmUserIDToString(__pmUserID sid, char *buffer, size_t size)
 {
     return NULL;	/* NYI */
 }
 
 char *
-__pmUsername(const __pmUserID *uid, char *buf, size_t size)
+__pmGroupIDToString(__pmGroupID gid, char *buffer, size_t size)
+{
+    return NULL;	/* NYI */
+}
+
+int
+__pmUsernameToID(const char *username, __pmUserID *uidp)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmGroupnameToID(const char *groupname, __pmGroupID *gidp)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+char *
+__pmGroupnameFromID(__pmGroupID gid, char *buf, size_t size)
+{
+    return NULL;	/* NYI */
+}
+
+char *
+__pmUsernameFromID(__pmUserID uid, char *buf, size_t size)
 {
     return NULL;	/* NYI */
 }
@@ -653,7 +716,7 @@ __pmUsersGroupIDs(const char *username, __pmGroupID **groupids, unsigned int *ng
 }
 
 int
-__pmGroupsUserIDs(const char *name, __pmUserID **userids, unsigned int *nusers)
+__pmGroupsUserIDs(const char *groupname, __pmUserID **userids, unsigned int *nusers)
 {
     return -ENOTSUP;	/* NYI */
 }

@@ -281,6 +281,9 @@ extern "C" {
 #endif
 #endif
 
+/* if the unix domain socket address family is supported */
+#undef HAVE_AF_UNIX
+
 /* if the /proc pseudo filesystem exists */
 #undef HAVE_PROCFS
 
@@ -321,6 +324,22 @@ typedef long long __psint_t;
 #undef HAVE_PTRDIFF_T
 #ifndef HAVE_PTRDIFF_T
 #define ptrdiff_t	long
+#endif
+
+/*
+ * User and group accounts - POSIX uid_t/gid_t combo or Win32 SID
+ */
+#undef HAVE_UID_T
+#undef HAVE_GID_T
+#undef HAVE_SID
+#if defined(HAVE_UID_T) && defined(HAVE_GID_T)
+typedef uid_t	__pmUserID;
+typedef gid_t	__pmGroupID;
+#elif defined(HAVE_SID)
+typedef SID	__pmUserID;
+typedef SID	__pmGroupID;
+#else
+bozo! unclear how to represent users and groups for this platform
 #endif
 
 /*

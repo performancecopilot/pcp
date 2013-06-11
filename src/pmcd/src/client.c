@@ -242,25 +242,18 @@ MarkStateChanges(int changes)
     }
 }
 
-static int
-GetClientAccount(int attribute, __pmHashCtl *attrs)
-{
-    __pmHashNode *node;
-
-    if ((node = __pmHashSearch(attribute, attrs)) == NULL)
-	return -1;
-    /* if present, the attribute value is well defined (int) */
-    return atoi((const char *)node->data);
-}
-
 int
 CheckAccountAccess(ClientInfo *cp)
 {
-    int uid, gid;
+    __pmHashNode *node;
+    const char *userid;
+    const char *groupid;
 
-    uid = GetClientAccount(PCP_ATTR_USERID, &cp->attrs);
-    gid = GetClientAccount(PCP_ATTR_GROUPID, &cp->attrs);
-    return __pmAccAddAccount(uid, gid, &cp->denyOps);
+    userid = ((node = __pmHashSearch(PCP_ATTR_USERID, &cp->attrs)) ?
+		(const char *)node->data : NULL);
+    groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
+		(const char *)node->data : NULL);
+    return __pmAccAddAccount(userid, groupid, &cp->denyOps);
 }
 
 int

@@ -40,9 +40,9 @@ static int	szhostlist;
 
 typedef struct {
     char		*username;	/* User specification */
-    uid_t		userid;		/* User identifier to match */
+    __pmUserID		userid;		/* User identifier to match */
     unsigned int	ngroups;	/* Count of groups to which the user belongs */
-    gid_t		*groupids;	/* Names of groups to which the user belongs */
+    __pmGroupID		*groupids;	/* Names of groups to which the user belongs */
     unsigned int	specOps;	/* Mask of specified operations */
     unsigned int	denyOps;	/* Mask of disallowed operations */
     int			maxcons;	/* Max connections permitted (0 => no limit) */
@@ -57,9 +57,9 @@ static int	szuserlist;
 
 typedef struct {
     char		*groupname;	/* Group specification */
-    gid_t		groupid;	/* Group identifier to match */
+    __pmGroupID		groupid;	/* Group identifier to match */
     unsigned int	nusers;		/* Count of users in this group */
-    uid_t		*userids;	/* Names of users in this group */
+    __pmUserID		*userids;	/* Names of users in this group */
     unsigned int	specOps;	/* Mask of specified operations */
     unsigned int	denyOps;	/* Mask of disallowed operations */
     int			maxcons;	/* Max connections permitted (0 => no limit) */
@@ -758,8 +758,8 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
     int			i = 0, sts, wildcard, found = 0;
     char		errmsg[256];
     char		*groupname;
-    uid_t		*userids;
-    gid_t		groupid;
+    __pmUserID		*userids;
+    __pmGroupID		groupid;
     groupinfo		*gp;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -771,7 +771,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 
     wildcard = (strcmp(name, "*") == 0);
     if (!wildcard) {
-	if ((sts = __pmGroupID(name, &groupid)) < 0) {
+	if ((sts = __pmGroupnameToID(name, &groupid)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Failed to lookup group \"%s\": %s\n",
 				name, sts == 0 ? "no such group exists" :
 				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -875,8 +875,8 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
     int			i = 0, sts, wildcard, found = 0;
     char		errmsg[256];
     char		*username;
-    uid_t		userid;
-    gid_t		*groupids;
+    __pmUserID		userid;
+    __pmGroupID		*groupids;
     userinfo		*up;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
@@ -888,7 +888,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 
     wildcard = (strcmp(name, "*") == 0);
     if (!wildcard) {
-	if ((sts = __pmUserID(name, &userid)) < 0) {
+	if ((sts = __pmUsernameToID(name, &userid)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Failed to lookup user \"%s\": %s\n",
 				name, sts == 0 ? "no such user exists" :
 				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -1310,18 +1310,18 @@ __pmAccDelClient(__pmSockAddr *hostid)
 }
 
 static int
-findGidInUsersGroups(const userinfo *up, gid_t gid)
+findGidInUsersGroups(const userinfo *up, __pmGroupID gid)
 {
     int		i;
 
     for (i = 0; i < up->ngroups; i++)
-	if (up->groupids[i] == gid)
+	if (__pmEqualGroupIDs(up->groupids[i], gid))
 	    return 1;
     return 0;
 }
 
 static int
-accessCheckUsers(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
+accessCheckUsers(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 {
     userinfo	*up;
     int		i;
@@ -1337,7 +1337,8 @@ accessCheckUsers(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
 
     for (i = 1; i < nusers; i++) {
 	up = &userlist[i];
-	if (up->userid == uid || findGidInUsersGroups(up, gid)) {
+	if ((__pmValidUserID(uid) && __pmEqualUserIDs(up->userid, uid))
+	    || (__pmValidGroupID(gid) && findGidInUsersGroups(up, gid))) {
 	    if (up->maxcons && up->curcons >= up->maxcons) {
 		*denyOpsResult = all_ops;
 		return PM_ERR_CONNLIMIT;
@@ -1349,18 +1350,18 @@ accessCheckUsers(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
 }
 
 static int
-findUidInGroupsUsers(const groupinfo *gp, uid_t uid)
+findUidInGroupsUsers(const groupinfo *gp, __pmUserID uid)
 {
     int		i;
 
     for (i = 0; i < gp->nusers; i++)
-	if (gp->userids[i] == uid)
+	if (__pmEqualUserIDs(gp->userids[i], uid))
 	    return 1;
     return 0;
 }
 
 static int
-accessCheckGroups(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
+accessCheckGroups(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 {
     groupinfo	*gp;
     int		i;
@@ -1376,7 +1377,8 @@ accessCheckGroups(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
 
     for (i = 1; i < ngroups; i++) {
 	gp = &grouplist[i];
-	if (gp->groupid == gid || findUidInGroupsUsers(gp, uid)) {
+	if ((__pmValidGroupID(gid) && __pmEqualGroupIDs(gp->groupid, gid))
+	    || (__pmValidUserID(uid) && findUidInGroupsUsers(gp, uid))) {
 	    if (gp->maxcons && gp->curcons >= gp->maxcons) {
 		*denyOpsResult = all_ops;
 		return PM_ERR_CONNLIMIT;
@@ -1387,10 +1389,10 @@ accessCheckGroups(uid_t uid, gid_t gid, unsigned int *denyOpsResult)
     return 0;
 }
 
-static void updateGroupAccountConnections(gid_t, int, int);
+static void updateGroupAccountConnections(__pmGroupID, int, int);
 
 static void
-updateUserAccountConnections(uid_t uid, int descend, int direction)
+updateUserAccountConnections(__pmUserID uid, int descend, int direction)
 {
     int		i, j;
     userinfo	*up;
@@ -1410,7 +1412,7 @@ updateUserAccountConnections(uid_t uid, int descend, int direction)
 }
 
 static void
-updateGroupAccountConnections(gid_t gid, int descend, int direction)
+updateGroupAccountConnections(__pmGroupID gid, int descend, int direction)
 {
     int		i, j;
     groupinfo	*gp;
@@ -1434,20 +1436,24 @@ updateGroupAccountConnections(gid_t gid, int descend, int direction)
  * the account is permitted to perform.
  * uid and gid identify the account, if not authenticated these will be
  * negative.  denyOpsResult is a pointer to return the capability vector
- * and WELL that it is both input (host access) and output (merged host
+ * and note that it is both input (host access) and output (merged host
  * and account access).  So, do not blindly zero or overwrite existing.
  */
 int
-__pmAccAddAccount(int uid, int gid, unsigned int *denyOpsResult)
+__pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOpsResult)
 {
     int		sts;
+    __pmUserID	uid;
+    __pmGroupID	gid;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
     if (nusers == 0 && ngroups == 0)	/* No access controls => allow all */
 	return 0;
-    if (uid < 0 && gid < 0)		/* Nothing to check, short-circuit */
+    __pmUserIDFromString(userid, &uid);
+    __pmGroupIDFromString(groupid, &gid);
+    if (!__pmValidUserID(uid) && !__pmValidGroupID(gid))	/* Nothing to check, short-circuit */
 	return 0;
 
     if ((sts = accessCheckUsers(uid, gid, denyOpsResult)) < 0)
@@ -1469,10 +1475,16 @@ __pmAccAddAccount(int uid, int gid, unsigned int *denyOpsResult)
 }
 
 void
-__pmAccDelAccount(int uid, int gid)
+__pmAccDelAccount(const char *userid, const char *groupid)
 {
+    __pmUserID	uid;
+    __pmGroupID	gid;
+
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return;
+
+    __pmUserIDFromString(userid, &uid);
+    __pmGroupIDFromString(groupid, &gid);
 
     /* Decrement the count of current connections for this user and group
      * in the user and groups access lists.  Must walk the supplementary
@@ -1564,7 +1576,7 @@ __pmAccDumpUsers(FILE *stream)
 {
     int			u, i;
     int			minbit, maxbit;
-    char		buf[64];
+    char		buf[128];
     unsigned int	mask;
     userinfo		*up;
 
@@ -1609,12 +1621,13 @@ __pmAccDumpUsers(FILE *stream)
 		}
 	    }
 	}
-	snprintf(buf, sizeof(buf), u ? "%6d" : "     *", up->userid);
-	fprintf(stream, "%5d %5d %s %-*s", up->curcons, up->maxcons,
-			buf, NAME_WIDTH - ID_WIDTH, up->username);
+	fprintf(stream, "%5d %5d %*s %-*s", up->curcons, up->maxcons,
+			ID_WIDTH, u == 0 ? "*" :
+			__pmUsernameFromID(up->userid, buf, sizeof(buf)),
+			NAME_WIDTH - ID_WIDTH, up->username);
 	for (i = 0; i < up->ngroups; i++)
 	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', up->groupids[i],
-		    __pmGroupname(up->groupids[i], buf, sizeof(buf)));
+		    __pmGroupnameFromID(up->groupids[i], buf, sizeof(buf)));
 	fprintf(stream, "\n");
     }
 }
@@ -1624,7 +1637,7 @@ __pmAccDumpGroups(FILE *stream)
 {
     int			g, i;
     int			minbit, maxbit;
-    char		buf[64];
+    char		buf[128];
     unsigned int	mask;
     groupinfo		*gp;
 
@@ -1670,11 +1683,13 @@ __pmAccDumpGroups(FILE *stream)
 	    }
 	}
 	snprintf(buf, sizeof(buf), g ? "%6d" : "     *", gp->groupid);
-	fprintf(stream, "%5d %5d %s %-*s", gp->curcons, gp->maxcons,
-			buf, NAME_WIDTH - ID_WIDTH, gp->groupname);
+	fprintf(stream, "%5d %5d %*s %-*s", gp->curcons, gp->maxcons,
+			ID_WIDTH, g == 0 ? "*" :
+			__pmGroupnameFromID(gp->groupid, buf, sizeof(buf)),
+			NAME_WIDTH - ID_WIDTH, gp->groupname);
 	for (i = 0; i < gp->nusers; i++)
 	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', gp->userids[i],
-		    __pmUsername(gp->userids[i], buf, sizeof(buf)));
+		    __pmUsernameFromID(gp->userids[i], buf, sizeof(buf)));
 	fprintf(stream, "\n");
     }
 }
