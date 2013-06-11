@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -631,4 +632,34 @@ wsastrerror(int code)
 	if (wsatab[i].err == code)
 	    return wsatab[i].errmess;
     return NULL;
+}
+
+char *
+__pmGroupname(const __pmGroupID *gid, char *buf, size_t size)
+{
+    return NULL;	/* NYI */
+}
+
+char *
+__pmUsername(const __pmUserID *uid, char *buf, size_t size)
+{
+    return NULL;	/* NYI */
+}
+
+int
+__pmUsersGroupIDs(const char *username, __pmGroupID **groupids, unsigned int *ngroups)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmGroupsUserIDs(const char *name, __pmUserID **userids, unsigned int *nusers)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+int
+__pmGetUserIdentity(const char *username, __pmUserID *uid, __pmGroupID *gid, int mode)
+{
+    return -ENOTSUP;	/* NYI */
 }
