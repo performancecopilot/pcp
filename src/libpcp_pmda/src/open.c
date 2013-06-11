@@ -149,11 +149,10 @@ __pmdaOpenIPv6(char *sockname, int port, int *infd, int *outfd)
     __pmdaOpenSocket(sockname, port, AF_INET6, infd, outfd);
 }
 
-#if !defined(IS_MINGW)
+#ifdef HAVE_STRUCT_SOCKADDR_UN
 /*
  * Open a unix port to PMCD
  */
-
 static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
@@ -213,12 +212,11 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
     close(sfd);
     *outfd = *infd;
 }
-
-#else	/* MINGW */
+#else
 static void
 __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 {
-    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: Not supported on Windows");
+    __pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: UNIX domain sockets unsupported\n");
     exit(1);
 }
 #endif

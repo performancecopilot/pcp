@@ -994,16 +994,6 @@ AC_TRY_COMPILE([
 ], [ socklen_t len; ],
 AC_DEFINE(HAVE_SOCKLEN_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl check for Unix Domain socket family in <sys/socket.h>
-AC_MSG_CHECKING([for AF_UNIX constant in sys/socket.h])
-AC_TRY_COMPILE([
-    #include <sys/types.h>
-    #ifdef HAVE_SYS_SOCKET_H
-    #include <sys/socket.h>
-    #endif
-], [ int i = AF_UNIX; ],
-AC_DEFINE(HAVE_AF_UNIX) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-
 dnl check if LL suffix on constants is supported
 AC_TRY_COMPILE([
     #include <stdio.h>
@@ -2039,25 +2029,32 @@ else
 fi
 AC_SUBST(pcp_mpi_dirs)
 
-dnl Check for struct timespec in <time.h>
-AC_MSG_CHECKING([for struct timespec in time.h])
-AC_TRY_COMPILE(
-[
-    #include <time.h>
-],
-[
-    struct timespec foo;
-], AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+dnl check for Unix Domain socket family structure
+AC_MSG_CHECKING([for struct sockaddr_un in sys/un.h])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
+AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Check if we have IRIX style altzone 
-AC_MSG_CHECKING([for altzone in time.h])
-AC_TRY_COMPILE(
-[
+dnl check for struct timespec in <time.h>
+AC_MSG_CHECKING([for struct timespec in time.h])
+AC_TRY_COMPILE([
     #include <time.h>
-],
-[
-    time_t az = altzone;
-], AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], [ struct timespec foo; ],
+AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check if we have IRIX style altzone 
+AC_MSG_CHECKING([for altzone in time.h])
+AC_TRY_COMPILE([
+    #include <time.h>
+], [ time_t az = altzone; ],
+AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl If there is no altzone, check if strftime can handle %z
 AC_MSG_CHECKING([if strftime knows about %z])

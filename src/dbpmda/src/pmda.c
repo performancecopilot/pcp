@@ -175,7 +175,7 @@ openpmda(char *fname)
     }
 }
 
-#ifdef HAVE_SYS_UN_H
+#ifdef HAVE_STRUCT_SOCKADDR_UN
 void
 open_unix_socket(char *fname)
 {

@@ -1559,7 +1559,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	__pmHostEntFree(host);
     }
     else {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	struct sockaddr_un	addr;
 	int			len;
 

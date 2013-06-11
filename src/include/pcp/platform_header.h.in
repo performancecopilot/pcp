@@ -281,9 +281,6 @@ extern "C" {
 #endif
 #endif
 
-/* if the unix domain socket address family is supported */
-#undef HAVE_AF_UNIX
-
 /* if the /proc pseudo filesystem exists */
 #undef HAVE_PROCFS
 
@@ -470,8 +467,10 @@ typedef void (*SIG_PF) (int);
 
 #undef HAVE_ALTZONE
 #undef HAVE_STRFTIME_z
-
 #undef HAVE_STRERROR_R_PTR
+
+#undef HAVE_STRUCT_TIMESPEC
+#undef HAVE_STRUCT_SOCKADDR_UN
 
 #ifndef HAVE_VALLOC
 #define valloc(x) malloc(x)
@@ -550,8 +549,7 @@ extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
-#undef HAVE_STRUCT_TIMESPEC
-#ifndef HAVE_STRUCT_TIMESPEC
+#ifdef HAVE_STRUCT_TIMESPEC
 /*
  * This is a bit odd ... but for MinGW, struct timespec is not in
  * <time.h> but _is_ in <pthread.h> ... the structure (sec, nanosec)

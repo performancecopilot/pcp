@@ -8776,34 +8776,6 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AF_UNIX constant in sys/socket.h" >&5
-$as_echo_n "checking for AF_UNIX constant in sys/socket.h... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-    #include <sys/types.h>
-    #ifdef HAVE_SYS_SOCKET_H
-    #include <sys/socket.h>
-    #endif
-
-int
-main ()
-{
- int i = AF_UNIX;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_AF_UNIX 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -11730,6 +11702,37 @@ else
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for struct sockaddr_un in sys/un.h" >&5
+$as_echo_n "checking for struct sockaddr_un in sys/un.h... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+
+int
+main ()
+{
+ struct sockaddr_un sa; sa.sun_family = AF_UNIX;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  $as_echo "#define HAVE_STRUCT_SOCKADDR_UN 1" >>confdefs.h
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for struct timespec in time.h" >&5
 $as_echo_n "checking for struct timespec in time.h... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -11740,9 +11743,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-
-    struct timespec foo;
-
+ struct timespec foo;
   ;
   return 0;
 }
@@ -11767,9 +11768,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-
-    time_t az = altzone;
-
+ time_t az = altzone;
   ;
   return 0;
 }
