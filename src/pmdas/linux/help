@@ -794,6 +794,9 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ hinv.map.lvname mapping of logical volume names for devices
+Provides a logical-volume-name to device-name mapping for the device
+mapper subsystem.
 @ filesys.capacity Total capacity of mounted filesystem (Kbytes)
 @ filesys.used Total space used on mounted filesystem (Kbytes)
 @ filesys.free Total space free on mounted filesystem (Kbytes)
@@ -1245,6 +1248,7 @@ See also the kernel.uname.* metrics
 
 @ pmda.version build version of Linux PMDA
 @ hinv.map.cpu_num logical to physical CPU mapping for each CPU
+@ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo
