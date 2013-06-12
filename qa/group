@@ -757,6 +757,7 @@ pcp.py
 543 logutil remote oss
 544 pmimport local oss
 545 pmsocks local oss
+546 pmcd local oss
 548 pmie local oss sanity
 549 pmie local oss
 554 pmie local oss

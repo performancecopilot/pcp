@@ -780,7 +780,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 
 	/* Search for a match to this group in the groups access table */
 	for (i = 1; i < ngroups; i++) {
-	    if (groupid == grouplist[i].groupid) {
+	    if (__pmEqualGroupIDs(groupid, grouplist[i].groupid)) {
 		found = 1;
 		break;
 	    }
@@ -819,8 +819,10 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
 	    gp = &grouplist[0];
 	    memset(gp, 0, sizeof(*gp));
 	    gp->groupname = "*";
-	    if (!wildcard)	/* if so, we're adding two entries */
+	    gp->denyOps = gp->specOps = all_ops;
+	    if (!wildcard) {	/* if so, we're adding two entries */
 	        i = ++ngroups;
+	    }
 	}
 	if (wildcard) {
 	    i = 0;	/* always the first entry, setup constants */
@@ -897,7 +899,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 
 	/* Search for a match to this user in the existing table of users. */
 	for (i = 1; i < nusers; i++) {
-	    if (userid == userlist[i].userid) {
+	    if (__pmEqualUserIDs(userid, userlist[i].userid)) {
 		found = 1;
 		break;
 	    }
@@ -937,6 +939,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
 	    up = &userlist[0];
 	    memset(up, 0, sizeof(*up));
 	    up->username = "*";
+	    up->denyOps = up->specOps = all_ops;
 	    if (!wildcard)	/* if so, we're adding two entries */
 	        i = ++nusers;
 	}
@@ -1399,7 +1402,7 @@ updateUserAccountConnections(__pmUserID uid, int descend, int direction)
 
     for (i = 1; i < nusers; i++) {
 	up = &userlist[i];
-	if (up->userid != uid)
+	if (!__pmEqualUserIDs(up->userid, uid))
 	    continue;
 	if (up->maxcons)
 	    up->curcons += direction;	/* might be negative */
@@ -1419,7 +1422,7 @@ updateGroupAccountConnections(__pmGroupID gid, int descend, int direction)
 
     for (i = 1; i < ngroups; i++) {
 	gp = &grouplist[i];
-	if (gp->groupid != gid)
+	if (!__pmEqualGroupIDs(gp->groupid, gid))
 	    continue;
 	if (gp->maxcons)
 	    gp->curcons += direction;	/* might be negative */
@@ -1449,12 +1452,23 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
-    if (nusers == 0 && ngroups == 0)	/* No access controls => allow all */
-	return 0;
+    if (nusers == 0 && ngroups == 0)    /* No access controls => allow all */
+	return 0;                       /* Zero return code signifies noop */
+
+    /* Access controls present, but no authentication information - denied */
+    if (!userid || !groupid) {
+	*denyOpsResult = all_ops;
+	return PM_ERR_PERMISSION;
+    }
+
     __pmUserIDFromString(userid, &uid);
     __pmGroupIDFromString(groupid, &gid);
-    if (!__pmValidUserID(uid) && !__pmValidGroupID(gid))	/* Nothing to check, short-circuit */
-	return 0;
+
+    /* Access controls present, but invalid user/group information - denied */
+    if (!__pmValidUserID(uid) && !__pmValidGroupID(gid)) {
+	*denyOpsResult = all_ops;
+	return PM_ERR_PERMISSION;
+    }
 
     if ((sts = accessCheckUsers(uid, gid, denyOpsResult)) < 0)
 	return sts;
@@ -1471,7 +1485,9 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
      */
     updateUserAccountConnections(uid, 1, +1);
     updateGroupAccountConnections(gid, 1, +1);
-    return 0;
+
+    /* A positive return code signifies access controls were satisfied */
+    return 1;		
 }
 
 void
@@ -1495,7 +1511,7 @@ __pmAccDelAccount(const char *userid, const char *groupid)
 }
 
 static void
-getAccBits(unsigned int *maskp, int *minbitp, int *maxbitp)
+getAccMinMaxBits(int *minbitp, int *maxbitp)
 {
     unsigned int	mask = all_ops;
     int			i, minbit = -1;
@@ -1509,7 +1525,6 @@ getAccBits(unsigned int *maskp, int *minbitp, int *maxbitp)
 
     *minbitp = minbit;
     *maxbitp = i - 1;
-    *maskp = mask;
 }
 
 #define NAME_WIDTH	39	/* sufficient for a full IPv6 address */
@@ -1531,7 +1546,7 @@ __pmAccDumpHosts(FILE *stream)
 	return;
     }
 
-    getAccBits(&mask, &minbit, &maxbit);
+    getAccMinMaxBits(&minbit, &maxbit);
     fprintf(stream, "Host access list:\n");
 
     for (i = minbit; i <= maxbit; i++)
@@ -1556,12 +1571,10 @@ __pmAccDumpHosts(FILE *stream)
 
 	for (i = minbit; i <= maxbit; i++) {
 	    if (all_ops & (mask = 1 << i)) {
-		if (hp->specOps & mask) {
+		if (hp->specOps & mask)
 		    fputs((hp->denyOps & mask) ? " n " : " y ", stream);
-		}
-		else {
+		else
 		    fputs("   ", stream);
-		}
 	    }
 	}
 	fprintf(stream, "%5d %5d %-*s %-*s %3d %s\n", hp->curcons, hp->maxcons,
@@ -1588,20 +1601,23 @@ __pmAccDumpUsers(FILE *stream)
 	return;
     }
 
-    getAccBits(&mask, &minbit, &maxbit);
+    getAccMinMaxBits(&minbit, &maxbit);
     fprintf(stream, "User access list:\n");
 
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fprintf(stream, "%02d ", i);
-    fprintf(stream, "Cur/MaxCons    uid %-*s %s\n",
-	    NAME_WIDTH - ID_WIDTH, "user-name", "group-list");
+    fprintf(stream, "Cur/MaxCons %*s %-*s %s\n",
+	    ID_WIDTH, "uid", NAME_WIDTH-ID_WIDTH-1, "user-name", "group-list");
 
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fputs("== ", stream);
-    fprintf(stream, "=========== ====== ");
-    for (i = 0; i < NAME_WIDTH - ID_WIDTH; i++)	/* user-name */
+    fprintf(stream, "=========== ");
+    for (i = 0; i < ID_WIDTH; i++)		/* user-id */
+	fprintf(stream, "=");
+    fprintf(stream, " ");
+    for (i = 0; i < NAME_WIDTH-ID_WIDTH-1; i++)	/* user-name */
 	fprintf(stream, "=");
     fprintf(stream, " ");
     for (i = 0; i < NAME_WIDTH + 19; i++)	/* group-list */
@@ -1613,18 +1629,16 @@ __pmAccDumpUsers(FILE *stream)
 
 	for (i = minbit; i <= maxbit; i++) {
 	    if (all_ops & (mask = 1 << i)) {
-		if (up->specOps & mask) {
+		if (up->specOps & mask)
 		    fputs((up->denyOps & mask) ? " n " : " y ", stream);
-		}
-		else {
+		else
 		    fputs("   ", stream);
-		}
 	    }
 	}
 	fprintf(stream, "%5d %5d %*s %-*s", up->curcons, up->maxcons,
 			ID_WIDTH, u == 0 ? "*" :
-			__pmUsernameFromID(up->userid, buf, sizeof(buf)),
-			NAME_WIDTH - ID_WIDTH, up->username);
+			__pmUserIDToString(up->userid, buf, sizeof(buf)),
+			NAME_WIDTH-ID_WIDTH-1, up->username);
 	for (i = 0; i < up->ngroups; i++)
 	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', up->groupids[i],
 		    __pmGroupnameFromID(up->groupids[i], buf, sizeof(buf)));
@@ -1649,20 +1663,23 @@ __pmAccDumpGroups(FILE *stream)
 	return;
     }
 
-    getAccBits(&mask, &minbit, &maxbit);
+    getAccMinMaxBits(&minbit, &maxbit);
     fprintf(stream, "Group access list:\n");
 
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fprintf(stream, "%02d ", i);
-    fprintf(stream, "Cur/MaxCons    gid %-*s %s\n",
-	    NAME_WIDTH - ID_WIDTH, "group-name", "user-list");
+    fprintf(stream, "Cur/MaxCons %*s %-*s %s\n",
+	    ID_WIDTH, "gid", NAME_WIDTH-ID_WIDTH-1, "group-name", "user-list");
 
     for (i = minbit; i <= maxbit; i++)
 	if (all_ops & (1 << i))
 	    fputs("== ", stream);
-    fprintf(stream, "=========== ====== ");
-    for (i = 0; i < NAME_WIDTH - ID_WIDTH; i++)	/* group-name */
+    fprintf(stream, "=========== ");
+    for (i = 0; i < ID_WIDTH; i++)		/* group-id */
+	fprintf(stream, "=");
+    fprintf(stream, " ");
+    for (i = 0; i < NAME_WIDTH-ID_WIDTH-1; i++)	/* group-name */
 	fprintf(stream, "=");
     fprintf(stream, " ");
     for (i = 0; i < NAME_WIDTH + 19; i++)	/* user-list */
@@ -1674,19 +1691,17 @@ __pmAccDumpGroups(FILE *stream)
 
 	for (i = minbit; i <= maxbit; i++) {
 	    if (all_ops & (mask = 1 << i)) {
-		if (gp->specOps & mask) {
+		if (gp->specOps & mask)
 		    fputs((gp->denyOps & mask) ? " n " : " y ", stream);
-		}
-		else {
+		else
 		    fputs("   ", stream);
-		}
 	    }
 	}
 	snprintf(buf, sizeof(buf), g ? "%6d" : "     *", gp->groupid);
 	fprintf(stream, "%5d %5d %*s %-*s", gp->curcons, gp->maxcons,
 			ID_WIDTH, g == 0 ? "*" :
-			__pmGroupnameFromID(gp->groupid, buf, sizeof(buf)),
-			NAME_WIDTH - ID_WIDTH, gp->groupname);
+			__pmGroupIDToString(gp->groupid, buf, sizeof(buf)),
+			NAME_WIDTH-ID_WIDTH-1, gp->groupname);
 	for (i = 0; i < gp->nusers; i++)
 	    fprintf(stream, "%c%u(%s)", i ? ',' : ' ', gp->userids[i],
 		    __pmUsernameFromID(gp->userids[i], buf, sizeof(buf)));

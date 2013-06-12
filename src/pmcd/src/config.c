@@ -862,7 +862,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	    *specOps = PMCD_OP_ALL;		/* Do this AFTER any recursive call */
 	}
 	else if (TokenIs("maximum") || TokenIs("unlimited")) {
-	    int	unlimited = *token == 'u' || *token == 'U';
+	    int	unlimited = (*token == 'u' || *token == 'U');
 
 	    if (*maxCons) {
 		fprintf(stderr,
