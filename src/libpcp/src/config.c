@@ -313,6 +313,11 @@ ipv6_enabled(void)
 #define SECURE_SOCKETS_ENABLED	disabled
 #define AUTHENTICATION_ENABLED	disabled
 #endif
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+#define UNIX_DOMAIN_SOCKETS_ENABLED	enabled
+#else
+#define UNIX_DOMAIN_SOCKETS_ENABLED	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -331,6 +336,7 @@ static struct {
 	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },	/* from pcp-3.7.x */
 	{ "ipv6",		ipv6_enabled },
 	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
+	{ "unix_domain_sockets",UNIX_DOMAIN_SOCKETS_ENABLED },	/* from pcp-3.8.1 */
 };
 
 void
