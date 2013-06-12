@@ -89,7 +89,7 @@ struct __pmSockAddr {
 	struct sockaddr	        raw;
 	struct sockaddr_in	inet;
 	struct sockaddr_in6	ipv6;
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	struct sockaddr_un	local;
 #endif
     } sockaddr;

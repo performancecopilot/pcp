@@ -92,7 +92,7 @@ __pmInitSocket(int fd, int family)
 	return sts;
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (family != AF_UNIX) {
 #endif
 	/* Avoid 200 ms delay. This option is not supported for unix domain sockets. */
@@ -102,7 +102,7 @@ __pmInitSocket(int fd, int family)
 			  "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
 			  fd, netstrerror_r(errmsg, sizeof(errmsg)));
 	}
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     }
 #endif
 
@@ -360,7 +360,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 int
 __pmAuxConnectPMCDUnixSocket(const char *sock_path)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     __pmSockAddr	*myAddr;
     int			fd = -1;	/* Fd for socket connection to pmcd */
     int			sts;
@@ -517,7 +517,7 @@ __pmCreateIPv6Socket(void)
 int
 __pmCreateUnixSocket(void)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     int sts, fd;
 
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
@@ -610,7 +610,7 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr->sockaddr.raw.sa_family == AF_UNIX)
 	strncpy(addr->sockaddr.local.sun_path, path, sizeof(addr->sockaddr.local.sun_path));
     else
@@ -724,7 +724,7 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
     if (sock->sockaddr.raw.sa_family == AF_INET6)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (sock->sockaddr.raw.sa_family == AF_UNIX)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
 #endif
@@ -742,7 +742,7 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
         return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
     if (sock->sockaddr.raw.sa_family == AF_INET6)
         return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.ipv6));
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (sock->sockaddr.raw.sa_family == AF_UNIX)
         return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
 #endif
@@ -982,7 +982,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		    sizeof(addr1->sockaddr.ipv6.sin6_addr.s6_addr));
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr1->sockaddr.raw.sa_family == AF_UNIX) {
         /* Unix Domain: Compare the paths */
 	return strncmp(addr1->sockaddr.local.un_path, addr2->sockaddr.local.un_path,
@@ -1011,7 +1011,7 @@ __pmSockAddrIsIPv6(const __pmSockAddr *addr)
 int
 __pmSockAddrIsUnix(const __pmSockAddr *addr)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     return addr->sockaddr.raw.sa_family == AF_UNIX;
 #else
     return 0;
@@ -1062,7 +1062,7 @@ __pmSockAddrToString(__pmSockAddr *addr)
 	sts = inet_ntop(family, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
     else if (family == AF_INET)
 	sts = inet_ntop(family, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     else if (family == AF_UNIX)
 	return strdup(addr->sockaddr.local.sun_path);
 #endif

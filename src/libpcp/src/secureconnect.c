@@ -258,7 +258,7 @@ __pmCreateIPv6Socket(void)
 int
 __pmCreateUnixSocket(void)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     PRFileDesc *fdp;
     int fd;
 
@@ -1388,7 +1388,7 @@ __pmSockAddrSetFamily(__pmSockAddr *addr, int family)
         addr->sockaddr.raw.family = PR_AF_INET;
     else if (family == AF_INET6)
         addr->sockaddr.raw.family = PR_AF_INET6;
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     else if (family == AF_UNIX)
         addr->sockaddr.raw.family = PR_AF_LOCAL;
 #endif
@@ -1404,7 +1404,7 @@ __pmSockAddrGetFamily(const __pmSockAddr *addr)
         return AF_INET;
     if (addr->sockaddr.raw.family == PR_AF_INET6)
         return AF_INET6;
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr->sockaddr.raw.family == PR_AF_LOCAL)
         return AF_UNIX;
 #endif
@@ -1428,7 +1428,7 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr->sockaddr.raw.family == PR_AF_LOCAL)
 	strncpy(addr->sockaddr.local.path, path, sizeof(addr->sockaddr.local.path));
     else
@@ -1955,7 +1955,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		    sizeof(addr1->sockaddr.ipv6.ip));
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr1->sockaddr.raw.family == PR_AF_LOCAL) {
         /* Unix Domain: Compare the paths */
 	return strncmp(addr1->sockaddr.local.path, addr2->sockaddr.local.path,

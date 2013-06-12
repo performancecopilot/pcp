@@ -198,14 +198,14 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 static int	global_nports;
 static int	*global_portlist;
 static int	default_portlist[] = { SERVER_PORT };
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 static const char *pmcd_socket;
 #endif
 
 static void
 load_pmcd_local_socket(void)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     static int	first_time = 1;
 
     if (first_time) {
@@ -378,7 +378,7 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	 */
 	PM_UNLOCK(__pmLock_libpcp);
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	/* Try connecting via the local unix domain socket first. */
 	if (pmcd_socket != NULL && strcasecmp(name, "localhost") == 0) {
 	    if ((fd = __pmAuxConnectPMCDUnixSocket(pmcd_socket)) >= 0) {
