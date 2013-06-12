@@ -49,7 +49,7 @@ static char	**intflist;
 static int	nport;
 static int	*portlist;
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 /*
  * The unix domain socket we're willing to listen for clients on, from -s (or env)
  */
@@ -98,7 +98,7 @@ __pmServerAddPorts(const char *ports)
 void
 __pmServerSetLocalSocket(const char *path)
 {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (path != NULL)
 	localSocketPath = strdup(path);
     else
@@ -192,7 +192,7 @@ AddressFamily(int family)
 	return "inet";
     if (family == AF_INET6)
 	return "ipv6";
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (family == AF_UNIX)
 	return "unix";
 #endif
@@ -223,7 +223,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			one, sts;
     __pmSockAddr	*myAddr;
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (*family == AF_UNIX) {
 	if ((myAddr = __pmSockAddrAlloc()) == NULL) {
 	    __pmNoMem("OpenRequestSocket: can't allocate socket address",
@@ -266,7 +266,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 			  port, address, *family);
 	    goto fail;
 	}
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     }
 #endif
 
@@ -305,7 +305,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (*family == AF_UNIX) {
 	/* For unix domain sockets, unlink() the socket path before binding. If it
 	   exists, then it is either 1) stray and will be deleted or 2) in use
@@ -327,7 +327,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (*family == AF_UNIX) {
 	/* For unix domain sockets, grant rw access to the socket for all,
 	   otherwise, on linux platforms, connection will not be possible.
@@ -369,7 +369,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 fail:
     if (fd != -1) {
         __pmCloseSocket(fd);
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	/* We must unlink the socket file. */
 	if (*family == AF_UNIX)
 	    unlink(address);
@@ -434,7 +434,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
     }
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     /* Open a local unix domain socket, if specified. */
     if (localSocketPath != NULL) {
 	family = AF_UNIX;
@@ -477,7 +477,7 @@ __pmServerCloseRequestPorts(void)
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (localSocketFd >= 0) {
         __pmCloseSocket(localSocketFd);
 
@@ -501,7 +501,7 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
 {
     int i, fd;
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     /* Check the local unix domain fd. */
     if (localSocketFd >= 0) {
 	NewClient(fdset, localSocketFd);
@@ -536,7 +536,7 @@ __pmServerDumpRequestPorts(FILE *stream)
 	  "  sts fd   port  family address\n"
 	  "  === ==== ===== ====== =======\n", pmProgname);
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (localSocketFd != -EPROTO)
 	fprintf(stderr, "  %-3s %4d %5s %-6s %s\n",
 		(localSocketFd != -1) ? "ok" : "err",
@@ -561,7 +561,7 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 {
     int i, j;
 
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (fd == localSocketFd) {
 	snprintf(buffer, sz, "%s unix request socket %s",
 		 pmProgname, localSocketPath);

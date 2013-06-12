@@ -42,7 +42,7 @@ static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
 static int	dupok;			/* set to 1 for -N pmnsfile */
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 #endif
 
@@ -193,7 +193,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 's':	/* path to local unix domain socket */
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
 #else
 		fprintf(stderr,
@@ -819,7 +819,7 @@ main(int argc, char *argv[])
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if ((envstr = getenv("PMCD_SOCKET")) != NULL)
 	snprintf(sockpath, sizeof(sockpath), "%s", envstr);
     else {
@@ -830,7 +830,7 @@ main(int argc, char *argv[])
     ParseOptions(argc, argv, &nport);
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     __pmServerSetLocalSocket(sockpath);
 #endif
 
