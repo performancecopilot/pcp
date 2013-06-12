@@ -13,6 +13,7 @@ _filter_pmcd_log()
 /pduread: timeout/ && state == 0	{ next }
 /assuming PCP 1.x PMDA/ && state == 0	{ next }
 /ok .* INADDR_ANY/			{ $2 = "FD" }
+/ok .*pmcd.socket$/			{ $2 = "FD"; $4 = "UNIX_DOMAIN_SOCKET" }
 					{ print }' \
     | sed \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \

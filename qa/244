@@ -13,10 +13,17 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
+unix_domain_sockets=false
 ipv6=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 rm -f $seq.out
-if $ipv6 ; then
+if [ $unix_domain_sockets ]; then
+    if $ipv6 ; then
+	ln $seq.out.4 $seq.out || exit 1
+    else
+	ln $seq.out.3 $seq.out || exit 1
+    fi
+elif $ipv6 ; then
     ln $seq.out.2 $seq.out || exit 1
 else
     ln $seq.out.1 $seq.out || exit 1
