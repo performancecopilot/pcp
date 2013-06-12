@@ -14,14 +14,21 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./localconfig
 
+unix_domain_sockets=false
 ipv6=false
 pmcdx=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3700 ]; then
+if [ $PCP_VER -ge 3801 -a $unix_domain_sockets ]; then
+    if $ipv6 ; then
+        ln $seq.out.7 $seq.out || exit 1
+    else
+        ln $seq.out.6 $seq.out || exit 1
+    fi
+elif [ $PCP_VER -ge 3700 ]; then
     if $ipv6 ; then
         ln $seq.out.5 $seq.out || exit 1
     else

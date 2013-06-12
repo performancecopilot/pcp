@@ -1,0 +1,73 @@
+QA output created by 069
+Starting pmcd ... 
+Starting pmlogger ... 
+should be OK
+
+pmcd.numclients
+    value 2
+
+expect two access control errors:
+pminfo: Cannot connect to PMCD on host "LOCALHOST": No permission to perform requested operation
+pminfo: Cannot connect to PMCD on host "LOCALHOST": No permission to perform requested operation
+
+expect two connection limit errors:
+pminfo: Cannot connect to PMCD on host "OTHERHOST1": PMCD connection limit for this host exceeded
+pminfo: Cannot connect to PMCD on host "OTHERHOST1": PMCD connection limit for this host exceeded
+
+expect two connection limit errors:
+pminfo: Cannot connect to PMCD on host "OTHERHOST2": PMCD connection limit for this host exceeded
+pmstore: Cannot connect to PMCD on host "OTHERHOST2": PMCD connection limit for this host exceeded
+
+expect 3 access violation messages for localhost, OTHERHOST1 and OTHERHOST2
+and one endclient access violation for localhost and one endclient connection
+limit for each of OTHERHOST1 and OTHERHOST2
+Log for pmcd on HOST started DATE
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 N dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 N dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list empty: access control turned off
+
+
+pmcd: PID = PID
+pmcd request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD 4340 inet INADDR_ANY
+ok FD 4340 ipv6 INADDR_ANY
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+...
+
+access violation from host MY_IP:
+endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+[OS]          ??                 N dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
+pmcd           2                 N dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+
+Host access list:
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+ y  n     0     1 OTHER1_IP                           255.255.255.255                           0 OTHER_1
+ y  y     0     1 OTHER2_IP                           255.255.255.255                           0 OTHER_2
+ n  n     0     0 0.0.0.0                                 0.0.0.0                                   4 *
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+access violation from host OTHER1_IP:
+endclient client[N]: (fd <n>) PMCD connection limit for this host exceeded (-12388)
+access violation from host OTHER2_IP:
+endclient client[N]: (fd <n>) PMCD connection limit for this host exceeded (-12388)
+
+If failure, check 069.full
+Restarting pmcd
