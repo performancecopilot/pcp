@@ -256,10 +256,8 @@ refresh_proc_pid(proc_pid_t *proc_pid)
     if (refresh_pidlist() <= 0)
     	return -oserror();
 
-#if PCP_DEBUG
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "refresh_proc_pid: found %d pids\n", allpids.count);
-#endif
 
     return refresh_proc_pidlist(proc_pid, &allpids);
 }
@@ -674,8 +672,8 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	sprintf(buf, "/proc/%d/fd", ep->id);
 	dir = opendir(buf);
 	if (dir == NULL) {
-	    __pmNotifyErr(LOG_ERR, "failed to open pid fd path %s\n",
-			  buf);
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "failed to open pid fd path %s\n", buf);
 	    return NULL;
 	}
 	while (readdir(dir) != NULL) {

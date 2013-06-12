@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -23,10 +24,10 @@ LIBTARGET	= pmda_proc.so
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
-		  ksym.c getinfo.c
+		  ksym.c getinfo.c contexts.c
 
 HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
-		  proc_runq.h ksym.h filesys.h
+		  proc_runq.h ksym.h filesys.h contexts.h
 
 LSRCFILES 	= Install Remove help pmns pmns.cgroup root linux_proc_migrate.conf
 LDIRT		= domain.h
