@@ -544,6 +544,7 @@ extern int __pmConnectPMCD(pmHostSpec *, int, int, __pmHashCtl *);
 extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
+extern int __pmAuxConnectPMCDUnixSocket(const char *);
 
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);

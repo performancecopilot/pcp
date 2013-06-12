@@ -124,7 +124,8 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
     __pmSockAddr myAddr;
 
     myAddr = *addr;
-    __pmSockAddrSetPort(&myAddr, port);
+    if (port >= 0)
+	__pmSockAddrSetPort(&myAddr, port);
 
     if (__pmSetFileStatusFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -246,7 +247,6 @@ __pmAuxConnectPMCD(const char *hostname)
 	first_time = 0;
 
 	if ((env_str = getenv("PMCD_PORT")) != NULL) {
-
 	    pmcd_port = (int)strtol(env_str, &end_ptr, 0);
 	    if (*end_ptr != '\0' || pmcd_port < 0) {
 		__pmNotifyErr(LOG_WARNING,
@@ -357,6 +357,86 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return __pmConnectRestoreFlags(fd, fdFlags);
 }
 
+int
+__pmAuxConnectPMCDUnixSocket(const char *sock_path)
+{
+#if defined(HAVE_SYS_UN_H)
+    __pmSockAddr	*myAddr;
+    int			fd = -1;	/* Fd for socket connection to pmcd */
+    int			sts;
+    int			fdFlags = 0;
+    struct timeval	stv;
+    struct timeval	*pstv;
+    __pmFdSet		wfds;
+    int			rc;
+
+    __pmConnectTimeout();
+
+    /* Initialize the socket address. */
+    myAddr = __pmSockAddrAlloc();
+    if (myAddr == NULL) {
+        __pmNotifyErr(LOG_ERR, "__pmAuxConnectPMCDUnixSocket(%s): out of memory\n", sock_path);
+	return -1;
+    }
+    __pmSockAddrSetFamily(myAddr, AF_UNIX);
+    __pmSockAddrSetPath(myAddr, sock_path);
+
+    /* Create a socket */
+    fd = __pmCreateUnixSocket();
+    if (fd < 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
+
+	__pmNotifyErr(LOG_ERR, 
+		      "__pmAuxConnectPMCDUnixSocket(%s): unable to create socket: %s\n",
+		      sock_path, osstrerror_r(errmsg, sizeof(errmsg)));
+	__pmSockAddrFree(myAddr);
+	return fd;
+    }
+
+    /* Attempt to connect */
+    fdFlags = __pmConnectTo(fd, myAddr, -1);
+    __pmSockAddrFree(myAddr);
+    if (fdFlags < 0)
+	return -ECONNREFUSED;
+
+    /* FNDELAY and we're in progress - wait on select */
+    stv = canwait;
+    pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
+    __pmFD_ZERO(&wfds);
+    __pmFD_SET(fd, &wfds);
+    sts = 0;
+    if ((rc = __pmSelectWrite(fd+1, &wfds, pstv)) == 1) {
+	sts = __pmConnectCheckError(fd);
+    }
+    else if (rc == 0) {
+	sts = ETIMEDOUT;
+    }
+    else {
+	sts = (rc < 0) ? neterror() : EINVAL;
+    }
+ 
+    if (sts != 0) {
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
+	fd = -sts;
+    }
+
+    if (fd < 0)
+        return fd;
+
+    /*
+     * If we're here, it means we have a valid connection; restore the
+     * flags and make sure this file descriptor is closed if exec() is
+     * called
+     */
+    return __pmConnectRestoreFlags(fd, fdFlags);
+#else
+    __pmNotifyErr(LOG_ERR, 
+		  "__pmAuxConnectPMCDUnixSocket(%s) is not supported\n", sock_path);
+    return -1;
+#endif
+}
+
 char *
 __pmHostEntGetName(__pmHostEnt *he)
 {
@@ -438,8 +518,7 @@ int
 __pmCreateUnixSocket(void)
 {
 #if defined(HAVE_SYS_UN_H)
-    int sts, fd, on;
-    char errmsg[PM_MAXERRMSGLEN];
+    int sts, fd;
 
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
 	return -neterror();
@@ -532,11 +611,11 @@ void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_SYS_UN_H)
-    if (addr->sockaddr.raw.family == AF_UNIX)
+    if (addr->sockaddr.raw.sa_family == AF_UNIX)
 	strncpy(addr->sockaddr.local.sun_path, path, sizeof(addr->sockaddr.local.sun_path));
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetPath: Invalid address family: %d\n", addr->sockaddr.raw.family);
+		"__pmSockAddrSetPath: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
 #else
     __pmNotifyErr(LOG_ERR, "__pmSockAddrSetPath: AF_UNIX is not supported\n");
 #endif
@@ -803,7 +882,7 @@ __pmGetNameInfo(__pmSockAddr *address)
     }
     else {
 	__pmNotifyErr(LOG_ERR,
-		"__pmGetNameInfo: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
+		"__pmGetNameInfo: Invalid address family: %d\n", address->sockaddr.raw.sa_family);
         sts = EAI_FAMILY;
     }
 
@@ -903,7 +982,15 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		    sizeof(addr1->sockaddr.ipv6.sin6_addr.s6_addr));
     }
 
-    /* not applicable to other address families, e.g. AF_UNIX. */
+#if defined(HAVE_SYS_UN_H)
+    if (addr1->sockaddr.raw.sa_family == AF_UNIX) {
+        /* Unix Domain: Compare the paths */
+	return strncmp(addr1->sockaddr.local.un_path, addr2->sockaddr.local.un_path,
+		       sizeof(addr1->sockaddr.local.un_path)) == 0;
+    }
+#endif
+
+    /* Unknown address family. */
     __pmNotifyErr(LOG_ERR,
 		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.sa_family);
     return 1; /* not equal */
