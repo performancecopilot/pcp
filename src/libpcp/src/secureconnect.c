@@ -1955,6 +1955,14 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		    sizeof(addr1->sockaddr.ipv6.ip));
     }
 
+#if defined(HAVE_SYS_UN_H)
+    if (addr1->sockaddr.raw.family == PR_AF_LOCAL) {
+        /* Unix Domain: Compare the paths */
+	return strncmp(addr1->sockaddr.local.path, addr2->sockaddr.local.path,
+		       sizeof(addr1->sockaddr.local.path)) == 0;
+    }
+#endif
+
     /* not applicable to other address families, e.g. PR_AF_LOCAL. */
     __pmNotifyErr(LOG_ERR,
 		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.family);
