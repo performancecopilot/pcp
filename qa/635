@@ -13,7 +13,7 @@
 seq=`basename $0`
 
 . ./localconfig
-[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -i output format"
+[ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -ai output format"
 
 echo "QA output created by $seq"
 
@@ -21,7 +21,7 @@ status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # sample output
-#kenj-pc 68% netstat -i
+#kenj-pc 68% netstat -ai
 #Kernel Interface table
 #Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
 #eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
@@ -32,7 +32,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 #
 _netstat_i_1()
 {
-    netstat -i \
+    netstat -ai \
     | tee -a $seq.full \
     | sed -e 's/\*/ /' \
     | $PCP_AWK_PROG '
@@ -65,7 +65,7 @@ hdr==1	{ print $iface, $mtu }'
 #
 _netstat_i_2()
 {
-    netstat -i \
+    netstat -ai \
     tee -a $seq.full \
     | sed \
 	-e 's/\*/ /' \
