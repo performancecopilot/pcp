@@ -41,6 +41,9 @@ class SimplePMDA(PMDA):
     red = 0
     green = 100
     blue = 200
+    colors = [pmdaInstid(0, 'red'),
+              pmdaInstid(1, 'green'),
+              pmdaInstid(2, 'blue')]
 
     # simple.now instance domain
     configfile = ''
@@ -211,11 +214,8 @@ class SimplePMDA(PMDA):
                 c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
-        colors = [pmdaInstid(0, 'red'),
-                  pmdaInstid(1, 'green'),
-                  pmdaInstid(2, 'blue')]
-        self.add_indom(pmdaIndom(self.color_indom, colors))
-        self.add_indom(pmdaIndom(self.now_indom, None))
+        self.add_indom(pmdaIndom(self.color_indom, self.colors))
+        self.add_indom(pmdaIndom(self.now_indom, self.timeslices))
 
         self.set_fetch(self.simple_fetch)
         self.set_instance(self.simple_instance)

@@ -78,14 +78,10 @@ class pmdaIndom(Structure):
     def __init__(self, indom, insts):
         Structure.__init__(self)
         self.it_indom = indom
-        self.set_instances(insts)
+        self.set_instances(indom, insts)
 
-    def set_instances(self, insts):
-        if (insts == None):
-            self.it_numinst = 0
-            return
+    def set_list_instances(self, insts):
         instance_count = len(insts)
-        self.it_numinst = instance_count
         if (instance_count == 0):
             return
         instance_array = (pmdaInstid * instance_count)()
@@ -93,6 +89,22 @@ class pmdaIndom(Structure):
             instance_array[i].i_inst = insts[i].i_inst
             instance_array[i].i_name = insts[i].i_name
         self.it_set = instance_array
+
+    def set_dict_instances(self, indom, insts):
+        LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
+        for key in insts.keys():
+            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key, insts[key])
+        LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
+
+    def set_instances(self, indom, insts):
+        if (insts == None):
+            self.it_numinst = 0          # not yet known if cache indom or not
+        elif (isinstance(insts, dict)):
+            self.it_numinst = -1         # signifies cache indom (no it_set)
+            self.set_dict_instances(indom, insts)
+        else:
+            self.it_numinst = len(insts) # signifies an old-school array indom
+            self.set_list_instances(insts)
 
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
@@ -137,7 +149,7 @@ class MetricDispatch(object):
     def __init__(self, domain, name, logfile, helpfile):
         self.clear_indoms()
         self.clear_metrics()
-        self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
+        cpmda.init_dispatch(domain, name, logfile, helpfile)
 
     def clear_indoms(self):
         self._indomtable = []
@@ -168,7 +180,7 @@ class MetricDispatch(object):
         if (pmid in self._metric_names):
             raise KeyError, 'attempt to add_metric with an existing name'
         if (pmid in self._metrics):
-            raise KeyError, 'attempt to add_metric with an existing pmid'
+            raise KeyError, 'attempt to add_metric with an existing PMID'
 
         self._metrictable.append(metric)
         self._metrics[pmid] = metric
@@ -180,27 +192,35 @@ class MetricDispatch(object):
 
     def add_indom(self, indom, oneline = '', text = ''):
         indomid = indom.it_indom
-        if (indomid in self._indoms):
-            raise KeyError, 'attempt to add_indom with an existing indom'
+        for entry in self._indomtable:
+            if (entry.it_indom == indomid):
+                raise KeyError, 'attempt to add_indom with an existing ID'
         self._indomtable.append(indom)
         self._indoms[indomid] = indom
         self._indom_oneline[indomid] = oneline
         self._indom_helptext[indomid] = text
 
-    def replace_indom(self, indom, instlist):
-        replacement = pmdaIndom(indom, instlist)
-        for entry in self._indomtable:
-            if (entry.it_indom == indom):
-                entry = replacement
-        self._indoms[indomid] = replacement
+    def replace_indom(self, indom, insts):
+        replacement = pmdaIndom(indom, insts)
+        # list indoms need to keep the table up-to-date for libpcp_pmda
+        if (isinstance(insts, list)):
+            for entry in self._indomtable:
+                if (entry.it_indom == indom):
+                    entry = replacement
+        self._indoms[indom] = replacement
 
     def inst_lookup(self, indom, instance):
         """
-        Lookup the (external) name associated with an (internal) instance ID
-        within a specific instance domain
+        Lookup the name/value associated with an (internal) instance ID
+        within a specific instance domain (whether name or value depends
+        on whether this is an array indom or cache indom).
         """
         entry = self._indoms[indom]
-        if (entry.it_indom == indom):
+        if (entry.it_numinst < 0):
+            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, 0, value);
+            if (sts == cpmda.PMDA_CACHE_ACTIVE):
+                return value
+        elif (entry.it_numinst > 0 and entry.it_indom == indom):
             for inst in entry.it_set:
                 if (inst.i_inst == instance):
                     return inst.i_name
@@ -274,28 +294,26 @@ class PMDA(MetricDispatch):
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
         else:
             self.pmns_refresh()
-            LIBPCP_PMDA.pmdaInit(self._dispatch)
-            LIBPCP_PMDA.pmdaConnect(self._dispatch)
-            LIBPCP_PMDA.pmdaMain(self._dispatch)
+            cpmda.pmda_dispatch(self._indomtable, self._metrictable)
 
     @staticmethod
-    def set_fetch(self, fetch):
+    def set_fetch(fetch):
         return cpmda.set_fetch(fetch)
 
     @staticmethod
-    def set_refresh(self, refresh):
+    def set_refresh(refresh):
         return cpmda.set_refresh(refresh)
 
     @staticmethod
-    def set_instance(self, instance):
+    def set_instance(instance):
         return cpmda.set_instance(instance)
 
     @staticmethod
-    def set_fetch_callback(self, fetch_callback):
+    def set_fetch_callback(fetch_callback):
         return cpmda.set_fetch_callback(fetch_callback)
 
     @staticmethod
-    def set_store_callback(self, store_callback):
+    def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
 
     @staticmethod
@@ -333,5 +351,4 @@ class PMDA(MetricDispatch):
 #    set_unix_socket
 #    pmda_pmid_name(cluster,item)
 #    pmda_pmid_text(cluster,item)
-#    pmda_inst_lookup(index,instance)
 #    

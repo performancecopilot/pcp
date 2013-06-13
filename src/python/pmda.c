@@ -434,22 +434,29 @@ pmda_generating_pmns(void) { return getenv("PCP_PYTHON_PMNS") != NULL; }
 static inline int
 pmda_generating_domain(void) { return getenv("PCP_PYTHON_DOMAIN") != NULL; }
 
-static void
-init_dispatch(int domain, char *name, char *logfile, char *helpfile)
+static PyObject *
+init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    char *p;
+    int domain;
+    char *p, *name, *help, *logfile;
+    char *keyword_list[] = {"domain", "name", "log", "help", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "isss:init_dispatch", keyword_list,
+                        &domain, &name, &logfile, &help))
+        return NULL;
 
     __pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
         if ((pmDebug = __pmParseDebug(p)) < 0)
             pmDebug = 0;
 
-    if (access(helpfile, R_OK) != 0) {
+    if (access(help, R_OK) != 0) {
         pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, NULL);
         dispatch.version.four.text = text;
     } else {
-        char *help = strdup(helpfile);
-        pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, help);
+        p = strdup(help);
+        pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, p);
     }
     dispatch.version.four.fetch = fetch;
     dispatch.version.four.store = store;
@@ -461,21 +468,29 @@ init_dispatch(int domain, char *name, char *logfile, char *helpfile)
 
     if (!pmda_generating_pmns() && !pmda_generating_domain())
         pmdaOpenLog(&dispatch);
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    int domain;
-    char *name, *help, *logfile;
-    char *keyword_list[] = {"domain", "name", "log", "help", NULL};
+    pmdaIndom *indoms;
+    pmdaMetric *metrics;
+    int metrics_sz, indoms_sz;
+    char *keyword_list[] = {"indoms", "metrics", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "isss:pmda_dispatch", keyword_list,
-                        &domain, &name, &logfile, &help))
+                        "t#t#:pmda_dispatch", keyword_list,
+                        &indoms, &indoms_sz, &metrics, &metrics_sz))
         return NULL;
 
-    init_dispatch(domain, name, logfile, help);
+    indoms_sz /= sizeof(pmdaIndom);
+    metrics_sz /= sizeof(pmdaMetric);
+    pmdaInit(&dispatch, indoms, indoms_sz, metrics, metrics_sz);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -649,6 +664,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmda_units", .ml_meth = (PyCFunction)pmda_units,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_uptime", .ml_meth = (PyCFunction)pmda_uptime,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "init_dispatch", .ml_meth = (PyCFunction)init_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
