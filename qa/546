@@ -14,7 +14,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-test $PCP_VER -ge 3801 || _notrun "No support for user/group ACLs"
+test $PCP_VER -ge 3802 || _notrun "No support for user/group ACLs"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
