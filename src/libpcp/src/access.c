@@ -1535,6 +1535,7 @@ __pmAccDumpHosts(FILE *stream)
 {
     int			h, i;
     int			minbit, maxbit;
+    char		*addrid, *addrmask;
     unsigned int	mask;
     hostinfo		*hp;
 
@@ -1577,10 +1578,13 @@ __pmAccDumpHosts(FILE *stream)
 		    fputs("   ", stream);
 	    }
 	}
+	addrid = __pmSockAddrToString(hp->hostid);
+	addrmask = __pmSockAddrToString(hp->hostmask);
 	fprintf(stream, "%5d %5d %-*s %-*s %3d %s\n", hp->curcons, hp->maxcons,
-		NAME_WIDTH, __pmSockAddrToString(hp->hostid),
-		NAME_WIDTH, __pmSockAddrToString(hp->hostmask),
+		NAME_WIDTH, addrid, NAME_WIDTH, addrmask,
 		hp->level, hp->hostspec);
+	free(addrmask);
+	free(addrid);
     }
 }
 
