@@ -474,21 +474,55 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
-pmda_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
+pmda_dispatch(PyObject *self, PyObject *args)
 {
-    pmdaIndom *indoms;
+    int nindoms, nmetrics;
+    PyObject *ibuf, *mbuf;
     pmdaMetric *metrics;
-    int metrics_sz, indoms_sz;
-    char *keyword_list[] = {"indoms", "metrics", NULL};
+    pmdaIndom *indoms;
+    Py_buffer mv, iv;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "t#t#:pmda_dispatch", keyword_list,
-                        &indoms, &indoms_sz, &metrics, &metrics_sz))
+    if (!PyArg_ParseTuple(args, "OiOi", &ibuf, &nindoms, &mbuf, &nmetrics))
         return NULL;
 
-    indoms_sz /= sizeof(pmdaIndom);
-    metrics_sz /= sizeof(pmdaMetric);
-    pmdaInit(&dispatch, indoms, indoms_sz, metrics, metrics_sz);
+    if (!PyObject_CheckBuffer(ibuf)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 1st arg");
+        return NULL;
+    }
+    if (!PyObject_CheckBuffer(mbuf)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 3rd arg");
+        return NULL;
+    }
+
+    if (PyObject_GetBuffer(ibuf, &iv, PyBUF_SIMPLE)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch failed to get indoms");
+        return NULL;
+    }
+    if (PyObject_GetBuffer(mbuf, &mv, PyBUF_SIMPLE)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch failed to get metrics");
+	PyBuffer_Release(&iv);
+        return NULL;
+    }
+
+    if (iv.len != nindoms * sizeof(pmdaIndom)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch: invalid indom array");
+	PyBuffer_Release(&iv);
+	PyBuffer_Release(&mv);
+        return NULL;
+    }
+    if (mv.len != nmetrics * sizeof(pmdaMetric)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch: invalid metric array");
+	PyBuffer_Release(&iv);
+	PyBuffer_Release(&mv);
+        return NULL;
+    }
+
+    indoms = (pmdaIndom *)iv.buf;
+    metrics = (pmdaMetric *)mv.buf;
+    pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+    PyBuffer_Release(&iv);
+    PyBuffer_Release(&mv);
+
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     Py_INCREF(Py_None);
@@ -668,7 +702,7 @@ static PyMethodDef methods[] = {
     { .ml_name = "init_dispatch", .ml_meth = (PyCFunction)init_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+        .ml_flags = METH_VARARGS },
     { .ml_name = "pmns_refresh", .ml_meth = (PyCFunction)namespace_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "need_refresh", .ml_meth = (PyCFunction)get_need_refresh,

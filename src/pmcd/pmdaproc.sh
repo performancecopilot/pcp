@@ -13,10 +13,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
@@ -845,10 +841,10 @@ _setup()
     #
     if $perl_opt
     then
-	perl_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.pl"
-	perl_name="$perl_name"
-	perl_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.perl"
-	perl_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.perl"
+	perl_name="${pmda_dir}/pmda${iam}.perl"
+	[ -f "$perl_name" ] || perl_name="${pmda_dir}/pmda${iam}.pl"
+	perl_pmns="${pmda_dir}/pmns.perl"
+	perl_dom="${pmda_dir}/domain.h.perl"
 	perl -e 'use PCP::PMDA' 2>/dev/null
 	if test $? -eq 0
 	then
@@ -867,10 +863,10 @@ _setup()
     #
     if $python_opt
     then
-	python_name="${PCP_PMDAS_DIR}/${iam}/pmda${iam}.py"
-	python_name="$python_name"
-	python_pmns="${PCP_PMDAS_DIR}/${iam}/pmns.python"
-	python_dom="${PCP_PMDAS_DIR}/${iam}/domain.h.python"
+	python_name="${pmda_dir}/pmda${iam}.python"
+	[ -f "$python_name" ] || python_name="${pmda_dir}/pmda${iam}.py"
+	python_pmns="${pmda_dir}/pmns.python"
+	python_dom="${pmda_dir}/domain.h.python"
 	python -c 'from pcp import pmda' 2>/dev/null
 	if test $? -eq 0
 	then

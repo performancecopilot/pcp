@@ -29,7 +29,7 @@ from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
 
 import ctypes
 from ctypes import c_int, c_long, c_char_p, c_void_p
-from ctypes import cast, CDLL, POINTER, Structure
+from ctypes import cast, sizeof, CDLL, POINTER, Structure, create_string_buffer
 
 ## Performance Co-Pilot PMDA library (C)
 LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))
@@ -287,6 +287,14 @@ class PMDA(MetricDispatch):
             print '}'
 
     def run(self):
+        """
+        All the real work happens herein; we can be called in one of three
+        situations, determined by environment variables.  First couple are
+        during the agent Install process, where the domain.h and namespace
+        files need to be created.  The third case is the real mccoy, where
+        an agent is actually being started by pmcd/dbpmda and makes use of
+        libpcp_pmda to talk PCP protocol.
+        """
         if ('PCP_PYTHON_DOMAIN' in os.environ):
             self.domain_write()
         elif ('PCP_PYTHON_PMNS' in os.environ):
@@ -294,7 +302,17 @@ class PMDA(MetricDispatch):
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
         else:
             self.pmns_refresh()
-            cpmda.pmda_dispatch(self._indomtable, self._metrictable)
+            numindoms = len(self._indomtable)
+            ibuf = create_string_buffer(numindoms * sizeof(pmdaIndom))
+            indoms = cast(ibuf, POINTER(pmdaIndom))
+            for i in xrange(numindoms):
+                indoms[i] = self._indomtable[i]
+            nummetrics = len(self._metrictable)
+            mbuf = create_string_buffer(nummetrics * sizeof(pmdaMetric))
+            metrics = cast(mbuf, POINTER(pmdaMetric))
+            for i in xrange(nummetrics):
+                metrics[i] = self._metrictable[i]
+            cpmda.pmda_dispatch(ibuf.raw, numindoms, mbuf.raw, nummetrics)
 
     @staticmethod
     def set_fetch(fetch):
