@@ -324,8 +324,34 @@ class Subsystem(object):
 
 # Interrupt  --------------------------------------------------------------
 
-    def init_interrupt_metrics(self, pcp):
-        int_list = pcp.pmGetChildren("kernel.percpu.interrupts")
-        for i in xrange(len(int_list)):
-            self.metrics.append('kernel.percpu.interrupts.' + int_list[i])
+    def init_interrupt_metrics(self):
+        self.metrics += ['kernel.percpu.interrupts.MCP',
+                         'kernel.percpu.interrupts.MCE',
+                         'kernel.percpu.interrupts.THR',
+                         'kernel.percpu.interrupts.TRM',
+                         'kernel.percpu.interrupts.TLB',
+                         'kernel.percpu.interrupts.CAL',
+                         'kernel.percpu.interrupts.RES',
+                         'kernel.percpu.interrupts.RTR',
+                         'kernel.percpu.interrupts.IWI',
+                         'kernel.percpu.interrupts.PMI',
+                         'kernel.percpu.interrupts.SPU',
+                         'kernel.percpu.interrupts.LOC',
+                         'kernel.percpu.interrupts.line46',
+                         'kernel.percpu.interrupts.line45',
+                         'kernel.percpu.interrupts.line44',
+                         'kernel.percpu.interrupts.line43',
+                         'kernel.percpu.interrupts.line42',
+                         'kernel.percpu.interrupts.line41',
+                         'kernel.percpu.interrupts.line40',
+                         'kernel.percpu.interrupts.line23',
+                         'kernel.percpu.interrupts.line19',
+                         'kernel.percpu.interrupts.line18',
+                         'kernel.percpu.interrupts.line16',
+                         'kernel.percpu.interrupts.line12',
+                         'kernel.percpu.interrupts.line9',
+                         'kernel.percpu.interrupts.line8',
+                         'kernel.percpu.interrupts.line1',
+                         'kernel.percpu.interrupts.line0',
+                         ]
 
