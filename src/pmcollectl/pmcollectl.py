@@ -260,44 +260,49 @@ class _interruptCollectPrint(_CollectPrint):
     def print_header1_detail(self):
         print '# INTERRUPT DETAILS'
         print '# Int    ',
-        for k in range(self.ss.get_len(self.ss.metric_values[0])):
+        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             print 'Cpu%d ' % k,
         print 'Type            Device(s)'
     def print_header1_verbose(self):
         print '# INTERRUPT SUMMARY'
     def print_header2_brief(self):
-        for k in range(self.ss.get_len(self.ss.metric_values[0])):
+        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             if k == 0:
                 print '#Cpu%d ' % k,
             else:
                 print 'Cpu%d ' % k,
     def print_header2_verbose(self):
         print '#    ',
-        for k in range(self.ss.get_len(self.ss.metric_values[0])):
+        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             print 'Cpu%d ' % k,
         print
     def print_brief(self):
         int_count = []
-        for k in range(self.ss.get_len(self.ss.metric_values[0])):
+        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             int_count.append(0)
-            for j  in range(0, len(self.ss.metric_values)):
-                int_count[k] += self.ss.get_scalar_value(j, k)
+            for j in ss.metrics:
+                if j[0:24] == 'kernel.percpu.interrupts':
+                    int_count[k] += self.ss.get_scalar_value(self.ss.metrics_dict[j], k)
                 
-        for k in range(self.ss.get_len(self.ss.metric_values[0])):
+        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             print "%4d " % (int_count[k]),
     def print_detail(self):
-        for j  in range(0, len(self.ss.metrics_dict)):
-            for k in range(self.ss.get_len(self.ss.metric_values[0])):
-                have_nonzero_value = False
-                if self.ss.get_scalar_value(j, k) != 0:
+        for j in ss.metrics:
+            if j[0:24] != 'kernel.percpu.interrupts':
+                continue
+            j_i = self.ss.metrics_dict[j]
+            have_nonzero_value = False
+            for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+                if self.ss.get_scalar_value(j_i, k) != 0:
                     have_nonzero_value = True
                 if not have_nonzero_value:
                     continue
+            if have_nonzero_value:
                 # pcp does not give the interrupt # so print spaces
-                print "%-8s" % self.ss.metrics[j].split(".")[3],
-                for k in range(self.ss.get_len(self.ss.metric_values[0])):
-                    print "%4d " % (self.ss.get_scalar_value(j, k)),
-                text = (pm.pmLookupText(self.ss.metric_pmids[j], c_api.PM_TEXT_ONELINE))
+                print "%-8s" % self.ss.metrics[j_i].split(".")[3],
+                for i in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+                    print "%4d " % (self.ss.get_scalar_value(j_i, i)),
+                text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE))
                 print "%-18s %s" % (text[:(str.index(text," "))],
                                  text[(str.index(text," ")):])
     def print_verbose(self):
@@ -507,7 +512,7 @@ if __name__ == '__main__':
 
     ss = Subsystem()
     ss.init_processor_metrics()
-    ss.init_interrupt_metrics(pmapi.pmContext())
+    ss.init_interrupt_metrics()
     ss.init_disk_metrics()
     ss.init_memory_metrics()
     ss.init_network_metrics()
