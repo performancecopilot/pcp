@@ -1,0 +1,53 @@
+QA output created by 715
+
+=== simple agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] both
+Install simple as a daemon or python or perl or dso agent? [daemon] perl
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check simple metrics have appeared ... 5 metrics and 9 values
+
+=== fetch and check values ===
+fetch pmprobe #1 - defaults
+check pmprobe #1 - defaults
+simple.numfetch shows 1 value(s), 2 fetches so far
+simple.time.user shows 1 value(s)
+simple.time.sys shows 1 value(s)
+simple.now shows 3 value(s)
+simple.color shows 3 value(s)
+fetch pmprobe #2 - twotimes
+check pmprobe #2 - twotimes
+simple.numfetch shows 1 value(s), 3 fetches so far
+simple.time.user shows 1 value(s)
+simple.time.sys shows 1 value(s)
+simple.now shows 2 value(s)
+simple.color shows 3 value(s)
+fetch pmprobe #3 - onetime
+check pmprobe #3 - onetime
+simple.numfetch shows 1 value(s), 4 fetches so far
+simple.time.user shows 1 value(s)
+simple.time.sys shows 1 value(s)
+simple.now shows 1 value(s)
+simple.color shows 3 value(s)
+fetch pmprobe #4 - notime
+check pmprobe #4 - notime
+simple.numfetch shows 1 value(s), 5 fetches so far
+simple.time.user shows 1 value(s)
+simple.time.sys shows 1 value(s)
+simple.now shows 0 value(s)
+simple.color shows 3 value(s)
+=== remove simple agent ===
+Culling the Performance Metrics Name Space ...
+simple ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check simple metrics have gone away ... OK
