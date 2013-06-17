@@ -166,14 +166,13 @@ class MetricDispatch(object):
 
     def reset_metrics(self):
         clear_metrics()
-        cpmda.set_need_refresh(self._metrics)
+        cpmda.set_need_refresh()
 
     ##
     # general PMDA class methods
 
     def pmns_refresh(self):
-        if (cpmda.need_refresh()):
-            cpmda.pmns_refresh(self._metrics)
+        cpmda.pmns_refresh(self._metric_names)
 
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
@@ -187,8 +186,7 @@ class MetricDispatch(object):
         self._metric_names[pmid] = name
         self._metric_oneline[pmid] = oneline
         self._metric_helptext[pmid] = text
-
-        cpmda.set_need_refresh(self._metrics)
+        cpmda.set_need_refresh()
 
     def add_indom(self, indom, oneline = '', text = ''):
         indomid = indom.it_indom
@@ -302,6 +300,10 @@ class PMDA(MetricDispatch):
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
         else:
             self.pmns_refresh()
+            cpmda.pmid_oneline_refresh(self._metric_oneline)
+            cpmda.pmid_longtext_refresh(self._metric_helptext)
+            cpmda.indom_oneline_refresh(self._indom_oneline)
+            cpmda.indom_longtext_refresh(self._indom_helptext)
             numindoms = len(self._indomtable)
             ibuf = create_string_buffer(numindoms * sizeof(pmdaIndom))
             indoms = cast(ibuf, POINTER(pmdaIndom))

@@ -30,7 +30,12 @@
 
 static pmdaInterface dispatch;
 static __pmnsTree *pmns;
-static PyObject *need_refresh;
+static int need_refresh;
+static PyObject *pmns_dict;		/* metric pmid:names dictionary */
+static PyObject *pmid_oneline_dict;	/* metric pmid:short text */
+static PyObject *pmid_longtext_dict;	/* metric pmid:long help */
+static PyObject *indom_oneline_dict;	/* indom pmid:short text */
+static PyObject *indom_longtext_dict;	/* indom pmid:long help */
 
 static PyObject *fetch_func;
 static PyObject *refresh_func;
@@ -42,7 +47,11 @@ static void
 pmns_refresh(void)
 {
     int sts, count = 0;
-    PyObject *iterator, *item;
+    Py_ssize_t pos = 0;
+    PyObject *key, *value;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+        fprintf(stderr, "pmns_refresh: rebuilding namespace");
 
     if (pmns)
         __pmFreePMNS(pmns);
@@ -53,20 +62,15 @@ pmns_refresh(void)
         return;
     }
 
-    if ((iterator = PyObject_GetIter(need_refresh)) == NULL) {
-        __pmNotifyErr(LOG_ERR, "failed to create metric iterator");
-        return;
-    }
-    while ((item = PyIter_Next(iterator)) != NULL) {
+    while (PyDict_Next(pmns_dict, &pos, &key, &value)) {
         const char *name;
         long pmid;
 
-        if (!PyTuple_Check(item) || PyTuple_GET_SIZE(item) != 2) {
-            __pmNotifyErr(LOG_ERR, "method iterator not findind 2-tuples");
-            continue;
-        }
-        pmid = PyLong_AsLong(PyTuple_GET_ITEM(item, 0));
-        name = PyString_AsString(PyTuple_GET_ITEM(item, 1));
+        pmid = PyLong_AsLong(key);
+        name = PyString_AsString(value);
+        if (pmDebug & DBG_TRACE_LIBPMDA)
+            fprintf(stderr, "pmns_refresh: adding metric %s(%s)",
+                    name, pmIDStr(pmid));
         if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
             __pmNotifyErr(LOG_ERR,
                     "failed to add metric %s(%s) to namespace: %s",
@@ -74,13 +78,12 @@ pmns_refresh(void)
         } else {
             count++;
         }
-        Py_DECREF(item);
     }
-    Py_DECREF(iterator);
 
     pmdaTreeRebuildHash(pmns, count); /* for reverse (pmid->name) lookups */
-    Py_DECREF(need_refresh);
-    need_refresh = NULL;
+    Py_DECREF(pmns_dict);
+    need_refresh = 0;
+    pmns_dict = NULL;
 }
 
 static PyObject *
@@ -88,11 +91,138 @@ namespace_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *keyword_list[] = {"metrics", NULL};
 
+    if (pmns_dict) {
+	Py_DECREF(pmns_dict);
+	pmns_dict = NULL;
+    }
+
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "O:namespace_refresh", keyword_list, &need_refresh))
+                        "O:namespace_refresh", keyword_list, &pmns_dict))
         return NULL;
-    if (need_refresh)
-        pmns_refresh();
+    if (pmns_dict) {
+        if (!PyDict_Check(pmns_dict)) {
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh namespace with non-dict type");
+            Py_DECREF(pmns_dict);
+            pmns_dict = NULL;
+        } else if (need_refresh) {
+            pmns_refresh();
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pmid_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"oneline", NULL};
+
+    if (pmid_oneline_dict) {
+	Py_DECREF(pmid_oneline_dict);
+	pmid_oneline_dict = NULL;
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:pmid_oneline_refresh",
+                        keyword_list, &pmid_oneline_dict))
+        return NULL;
+
+    if (pmid_oneline_dict) {
+        if (!PyDict_Check(pmid_oneline_dict)) {
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh pmid oneline help with non-dict type");
+            Py_DECREF(pmid_oneline_dict);
+            pmid_oneline_dict = NULL;
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pmid_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"longtext", NULL};
+
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh0");
+    if (pmid_longtext_dict) {
+	Py_DECREF(pmid_longtext_dict);
+	pmid_longtext_dict = NULL;
+    }
+
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh1");
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:pmid_longtext_refresh",
+                        keyword_list, &pmid_longtext_dict))
+        return NULL;
+
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh2");
+    if (pmid_longtext_dict) {
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh3");
+        if (!PyDict_Check(pmid_longtext_dict)) {
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh4");
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh pmid long help with non-dict type");
+            Py_DECREF(pmid_longtext_dict);
+            pmid_longtext_dict = NULL;
+        }
+    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh5");
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+indom_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"oneline", NULL};
+
+    if (indom_oneline_dict) {
+	Py_DECREF(indom_oneline_dict);
+	indom_oneline_dict = NULL;
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:indom_oneline_refresh",
+                        keyword_list, &indom_oneline_dict))
+        return NULL;
+
+    if (indom_oneline_dict) {
+        if (!PyDict_Check(indom_oneline_dict)) {
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh indom oneline help with non-dict type");
+            Py_DECREF(indom_oneline_dict);
+            indom_oneline_dict = NULL;
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+indom_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"longtext", NULL};
+
+    if (indom_longtext_dict) {
+	Py_DECREF(indom_longtext_dict);
+	indom_longtext_dict = NULL;
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "O:indom_longtext_refresh",
+                        keyword_list, &indom_longtext_dict))
+        return NULL;
+
+    if (indom_longtext_dict) {
+        if (!PyDict_Check(indom_longtext_dict)) {
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh indom long help with non-dict type");
+            Py_DECREF(indom_longtext_dict);
+            indom_longtext_dict = NULL;
+        }
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -403,24 +533,50 @@ store(pmResult *result, pmdaExt *pmda)
 int
 text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
+    PyObject *dict, *value, *key;
+
     if (need_refresh)
         pmns_refresh();
 
-    // TODO: iterate over the PMDA helptext dictionary
-    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-        /* const char *hash = pmIDStr((pmID)ident); ? */
-        if (type & PM_TEXT_ONELINE)
-            return PM_ERR_TEXT;
-        else
-            return PM_ERR_TEXT;
+    if ((type & PM_TEXT_PMID) != 0) {
+	if ((type & PM_TEXT_ONELINE) != 0)
+	    dict = pmid_oneline_dict;
+	else
+	    dict = pmid_longtext_dict;
     } else {
-        /* const char *hash = pmInDomStr((pmInDom)ident); ? */
-        if (type & PM_TEXT_ONELINE)
-            return PM_ERR_TEXT;
-        else
-            return PM_ERR_TEXT;
+	if ((type & PM_TEXT_ONELINE) != 0)
+	    dict = indom_oneline_dict;
+	else
+	    dict = indom_longtext_dict;
     }
-    return PM_ERR_TEXT;        /* TODO: 0 on success */
+
+    key = PyLong_FromLong((long)ident);
+    if (!key)
+        return PM_ERR_TEXT;
+    value = PyDict_GetItem(dict, key);
+    Py_DECREF(key);
+    if (value == NULL)
+        return PM_ERR_TEXT;
+    *buffer = PyString_AsString(value);
+    /* "value" is a borrowed reference, do not decrement */
+    return 0;
+}
+
+int
+attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
+{
+    if (pmDebug & DBG_TRACE_AUTH) {
+        char buffer[256];
+
+        if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+            __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
+        } else {
+            buffer[sizeof(buffer)-1] = '\0';
+            __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+        }
+    }
+    /* handle connection attributes - need per-connection state code */
+    return 0;
 }
 
 /*
@@ -438,33 +594,35 @@ static PyObject *
 init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int domain;
-    char *p, *name, *help, *logfile;
+    char *p, *name, *help, *logfile, *pmdaname;
     char *keyword_list[] = {"domain", "name", "log", "help", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "isss:init_dispatch", keyword_list,
-                        &domain, &name, &logfile, &help))
+                        &domain, &pmdaname, &logfile, &help))
         return NULL;
 
+    name = strdup(pmdaname);
     __pmSetProgname(name);
     if ((p = getenv("PCP_PYTHON_DEBUG")) != NULL)
         if ((pmDebug = __pmParseDebug(p)) < 0)
             pmDebug = 0;
 
     if (access(help, R_OK) != 0) {
-        pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, NULL);
+        pmdaDaemon(&dispatch, PMDA_INTERFACE_6, name, domain, logfile, NULL);
         dispatch.version.four.text = text;
     } else {
         p = strdup(help);
-        pmdaDaemon(&dispatch, PMDA_INTERFACE_5, name, domain, logfile, p);
+        pmdaDaemon(&dispatch, PMDA_INTERFACE_6, name, domain, logfile, p);
     }
-    dispatch.version.four.fetch = fetch;
-    dispatch.version.four.store = store;
-    dispatch.version.four.instance = instance;
-    dispatch.version.four.desc = pmns_desc;
-    dispatch.version.four.pmid = pmns_pmid;
-    dispatch.version.four.name = pmns_name;
-    dispatch.version.four.children = pmns_children;
+    dispatch.version.six.fetch = fetch;
+    dispatch.version.six.store = store;
+    dispatch.version.six.instance = instance;
+    dispatch.version.six.desc = pmns_desc;
+    dispatch.version.six.pmid = pmns_pmid;
+    dispatch.version.six.name = pmns_name;
+    dispatch.version.six.children = pmns_children;
+    dispatch.version.six.attribute = attribute;
 
     if (!pmda_generating_pmns() && !pmda_generating_domain())
         pmdaOpenLog(&dispatch);
@@ -517,11 +675,17 @@ pmda_dispatch(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms");
+
     indoms = (pmdaIndom *)iv.buf;
     metrics = (pmdaMetric *)mv.buf;
     pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
     PyBuffer_Release(&iv);
     PyBuffer_Release(&mv);
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+        fprintf(stderr, "pmda_dispatch connecting to pmcd, entering PDU loop");
 
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
@@ -568,7 +732,7 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
                         "ii:pmda_pmid", keyword_list,
                         &item, &cluster))
         return NULL;
-    result = PMDA_PMID(item, cluster);
+    result = pmid_build(dispatch.domain, item, cluster);
     return Py_BuildValue("i", result);
 }
 
@@ -625,20 +789,9 @@ pmda_uptime(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
-get_need_refresh(PyObject *self, PyObject *args)
+set_need_refresh(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", (need_refresh == NULL));
-}
-
-static PyObject *
-set_need_refresh(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    char *keyword_list[] = {"metrics", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "O:set_need_refresh", keyword_list, &need_refresh))
-        return NULL;
-    Py_INCREF(need_refresh);
+    need_refresh = 1;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -705,10 +858,20 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS },
     { .ml_name = "pmns_refresh", .ml_meth = (PyCFunction)namespace_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "need_refresh", .ml_meth = (PyCFunction)get_need_refresh,
-        .ml_flags = METH_NOARGS },
-    { .ml_name = "set_need_refresh", .ml_meth = (PyCFunction)set_need_refresh,
+    { .ml_name = "pmid_oneline_refresh",
+        .ml_meth = (PyCFunction)pmid_oneline_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmid_longtext_refresh",
+        .ml_meth = (PyCFunction)pmid_longtext_refresh,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "indom_oneline_refresh",
+        .ml_meth = (PyCFunction)indom_oneline_refresh,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "indom_longtext_refresh",
+        .ml_meth = (PyCFunction)indom_longtext_refresh,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_need_refresh", .ml_meth = (PyCFunction)set_need_refresh,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "set_fetch", .ml_meth = (PyCFunction)set_fetch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh", .ml_meth = (PyCFunction)set_refresh,
