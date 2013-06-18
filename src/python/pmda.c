@@ -756,7 +756,6 @@ pmda_indom(PyObject *self, PyObject *args, PyObject *keywords)
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "i:pmda_indom", keyword_list, &serial))
         return NULL;
-    pmDebug |= (DBG_TRACE_LIBPMDA | DBG_TRACE_INDOM);
     result = pmInDom_build(dispatch.domain, serial);
     return Py_BuildValue("i", result);
 }
