@@ -145,29 +145,23 @@ pmid_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *keyword_list[] = {"longtext", NULL};
 
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh0");
     if (pmid_longtext_dict) {
 	Py_DECREF(pmid_longtext_dict);
 	pmid_longtext_dict = NULL;
     }
 
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh1");
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
                         "O:pmid_longtext_refresh",
                         keyword_list, &pmid_longtext_dict))
         return NULL;
 
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh2");
     if (pmid_longtext_dict) {
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh3");
         if (!PyDict_Check(pmid_longtext_dict)) {
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh4");
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh pmid long help with non-dict type");
             Py_DECREF(pmid_longtext_dict);
             pmid_longtext_dict = NULL;
         }
-    __pmNotifyErr(LOG_ERR, "pmid_longtext_refresh5");
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -373,37 +367,44 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     PyObject *arglist, *result;
     __pmID_int *pmid = (__pmID_int *)&metric->m_desc.pmid;
 
-    arglist = Py_BuildValue("(iii)", pmid->cluster, pmid->item, inst);
+    if (fetch_cb_func == NULL)
+	return PM_ERR_VALUE;
+
+    arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
     result = PyEval_CallObject(fetch_cb_func, arglist);
     Py_DECREF(arglist);
     if (result == NULL) {
         __pmNotifyErr(LOG_ERR, "fetch callback gave no result at all");
         return -EINVAL;
+    } else if (PyTuple_Check(result)) {
+        __pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
+        Py_DECREF(result);
+	return -EINVAL;
     }
-    rc = 0;
+    rc = code = 0;
     sts = PMDA_FETCH_STATIC;
     switch (metric->m_desc.type) {
         case PM_TYPE_32:
-            rc = PyArg_ParseTuple(result, "ii:fetch_cb", &code, &atom->l);
+            rc = PyArg_Parse(result, "(ii):fetch_cb_s32", &atom->l, &code);
             break;
         case PM_TYPE_U32:
-            rc = PyArg_ParseTuple(result, "iI:fetch_cb", &code, &atom->ul);
+            rc = PyArg_Parse(result, "(Ii):fetch_cb_u32", &atom->ul, &code);
             break;
         case PM_TYPE_64:
-            rc = PyArg_ParseTuple(result, "iL:fetch_cb", &code, &atom->ll);
+            rc = PyArg_Parse(result, "(Li):fetch_cb_s64", &atom->ll, &code);
             break;
         case PM_TYPE_U64:
-            rc = PyArg_ParseTuple(result, "iK:fetch_cb", &code, &atom->ull);
+            rc = PyArg_Parse(result, "(Ki):fetch_cb_u64", &atom->ull, &code);
             break;
         case PM_TYPE_FLOAT:
-            rc = PyArg_ParseTuple(result, "if:fetch_cb", &code, &atom->f);
+            rc = PyArg_Parse(result, "(fi):fetch_cb_float", &atom->f, &code);
             break;
         case PM_TYPE_DOUBLE:
-            rc = PyArg_ParseTuple(result, "id:fetch_cb", &code, &atom->d);
+            rc = PyArg_Parse(result, "(di):fetch_cb_double", &atom->d, &code);
             break;
         case PM_TYPE_STRING:
             s = NULL;
-            rc = PyArg_ParseTuple(result, "is:fetch_cb", &code, &s);
+            rc = PyArg_Parse(result, "(si):fetch_cb_string", &s, &code);
             if (rc == 0)
                 break;
             if (s == NULL)
@@ -417,20 +418,15 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
             __pmNotifyErr(LOG_ERR, "unsupported metric type in fetch callback");
             sts = -ENOTSUP;
     }
-    Py_DECREF(result);
 
-    if (rc != 0)        /* tuple successfully returned */
-        return sts;
-
-    /* expected tuple format not returned, try get an error code */
-    rc = PyArg_ParseTuple(result, "i:fetch_callback_error", &code);
-    if (rc == 0) {
-        __pmNotifyErr(LOG_ERR, "fetch callback gave bad result (tuple expected)");
-        return -EINVAL;
+    if (!rc || !code) {    /* tuple not parsed or atom contains bad value */
+        if (!PyArg_Parse(result, "(ii):fetch_cb_double", &sts, &code)) {
+            __pmNotifyErr(LOG_ERR, "extracting error code in fetch callback");
+            sts = -EINVAL;
+        }
     }
-    if (code < 0)
-        return code;
-    return 0;
+    Py_DECREF(result);
+    return sts;
 }
 
 int 
@@ -508,6 +504,9 @@ store(pmResult *result, pmdaExt *pmda)
 
     if (need_refresh)
         pmns_refresh();
+
+    if (store_cb_func == NULL)
+	return PM_ERR_PERMISSION;
 
     for (i = 0; i < result->numpmid; i++) {
         vsp = result->vset[i];
@@ -623,6 +622,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     dispatch.version.six.name = pmns_name;
     dispatch.version.six.children = pmns_children;
     dispatch.version.six.attribute = attribute;
+    pmdaSetFetchCallBack(&dispatch, fetch_callback);
 
     if (!pmda_generating_pmns() && !pmda_generating_domain())
         pmdaOpenLog(&dispatch);
