@@ -28,11 +28,33 @@ from pmapi import pmContext as PCP
 from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
 
 import ctypes
-from ctypes import c_int, c_long, c_char_p, c_void_p
-from ctypes import cast, sizeof, CDLL, POINTER, Structure, create_string_buffer
+from ctypes import c_int, c_long, c_char_p, c_void_p, cast, byref
+from ctypes import sizeof, CDLL, POINTER, Structure, create_string_buffer
 
 ## Performance Co-Pilot PMDA library (C)
 LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))
+
+
+###
+## PMDA Indom Cache Services
+#
+LIBPCP_PMDA.pmdaCacheStore.restype = c_int
+LIBPCP_PMDA.pmdaCacheStore.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
+LIBPCP_PMDA.pmdaCacheStoreKey.restype = c_int
+LIBPCP_PMDA.pmdaCacheStoreKey.argtypes = [
+        pmInDom, c_int, c_char_p, c_int, c_void_p]
+LIBPCP_PMDA.pmdaCacheLookup.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookup.argtypes = [
+        pmInDom, c_int, POINTER(c_char_p), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheLookupName.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookupName.argtypes = [
+        pmInDom, c_char_p, POINTER(c_int), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheLookupKey.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookupKey.argtypes = [
+        pmInDom, c_char_p, c_int, c_void_p, POINTER(c_char_p),
+       POINTER(c_int), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheOp.restype = c_int
+LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
 
 ##
@@ -93,7 +115,7 @@ class pmdaIndom(Structure):
     def set_dict_instances(self, indom, insts):
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
         for key in insts.keys():
-            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key, insts[key])
+            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key, byref(insts[key]))
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
 
     def set_instances(self, indom, insts):
@@ -109,26 +131,10 @@ class pmdaIndom(Structure):
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
 
-###
-## PMDA Indom Cache Services
-#
-LIBPCP_PMDA.pmdaCacheStore.restype = c_int
-LIBPCP_PMDA.pmdaCacheStore.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
-LIBPCP_PMDA.pmdaCacheStoreKey.restype = c_int
-LIBPCP_PMDA.pmdaCacheStoreKey.argtypes = [
-        pmInDom, c_int, c_char_p, c_int, c_void_p]
-LIBPCP_PMDA.pmdaCacheLookup.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookup.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
-LIBPCP_PMDA.pmdaCacheLookupName.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookupName.argtypes = [
-        pmInDom, c_char_p, POINTER(c_int), POINTER(c_void_p)]
-LIBPCP_PMDA.pmdaCacheLookupKey.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookupKey.argtypes = [
-        pmInDom, c_char_p, c_int, c_void_p, POINTER(c_char_p),
-       POINTER(c_int), POINTER(c_void_p)]
-LIBPCP_PMDA.pmdaCacheOp.restype = c_int
-LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
+###
+## Convenience Classes for PMDAs
+#
 
 class MetricDispatch(object):
     """ Helper for PMDA class which manages metric dispatch
@@ -215,7 +221,8 @@ class MetricDispatch(object):
         """
         entry = self._indoms[indom]
         if (entry.it_numinst < 0):
-            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, 0, value);
+            value = (c_void_p)()
+            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, None, byref(value))
             if (sts == cpmda.PMDA_CACHE_ACTIVE):
                 return value
         elif (entry.it_numinst > 0 and entry.it_indom == indom):
@@ -343,6 +350,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def pmid(cluster, item):
         return cpmda.pmda_pmid(cluster, item)
+
+    @staticmethod
+    def indom(serial):
+        return cpmda.pmda_indom(serial)
 
     @staticmethod
     def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):

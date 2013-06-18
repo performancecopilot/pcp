@@ -17,6 +17,8 @@ Python implementation of the "simple" Performance Metrics Domain Agent.
 
 import os
 import time
+import ctypes
+from ctypes import c_int, POINTER, cast
 import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
@@ -32,10 +34,6 @@ class SimplePMDA(PMDA):
 
     Then experiment with the simple.conf file (see simple.now metrics).
     '''
-
-    # all indoms in this PMDA
-    color_indom = 0
-    now_indom = 1
 
     # simple.color instance domain
     red = 0
@@ -55,9 +53,11 @@ class SimplePMDA(PMDA):
     oldfetch = -1
 
 
-    def simple_instance(self):
+    def simple_instance(self, serial):
         ''' Called once per "instance request" PDU '''
-        self.simple_timenow_check()
+        # self.log("instance update for %d" % serial)
+        if (serial == 1):
+            self.simple_timenow_check()
 
 
     def simple_fetch(self):
@@ -111,10 +111,11 @@ class SimplePMDA(PMDA):
         Helper for the fetch callback
         '''
         if (item == 4):
-            value = self.pmda_inst_lookup(self.now_indom, inst)
-            if (value == None):
+            voidp = self.inst_lookup(self.now_indom, inst)
+            if (voidp == None):
                 return [c_api.PM_ERR_INST, 0]
-            return [value, 1]
+            valuep = cast(voidp, POINTER(c_int))
+            return [valuep.contents.value, 1]
         return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_callback(self, cluster, item, inst):
@@ -186,7 +187,9 @@ class SimplePMDA(PMDA):
         self.timeslices.clear()
         with open(self.configfile) as cfg:
             fields = time.localtime()
-            values = {'sec': fields[5], 'min': fields[4], 'hour': fields[3]}
+            values = {'sec': c_int(fields[5]),
+                      'min': c_int(fields[4]),
+                      'hour': c_int(fields[3])}
             config = cfg.readline().strip()
             for key in config.split(','):
                 if (values[key] != None):
@@ -199,6 +202,12 @@ class SimplePMDA(PMDA):
 
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
+
+        self.color_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self.color_indom, self.colors))
+
+        self.now_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.now_indom, self.timeslices))
 
         self.add_metric(name + '.numfetch', pmdaMetric(self.pmid(0, 0),
                 c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
@@ -215,9 +224,6 @@ class SimplePMDA(PMDA):
         self.add_metric(name + '.now', pmdaMetric(self.pmid(2, 4),
                 c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
-
-        self.add_indom(pmdaIndom(self.color_indom, self.colors))
-        self.add_indom(pmdaIndom(self.now_indom, self.timeslices))
 
         self.set_fetch(self.simple_fetch)
         self.set_instance(self.simple_instance)

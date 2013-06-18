@@ -51,7 +51,7 @@ pmns_refresh(void)
     PyObject *key, *value;
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmns_refresh: rebuilding namespace");
+        fprintf(stderr, "pmns_refresh: rebuilding namespace\n");
 
     if (pmns)
         __pmFreePMNS(pmns);
@@ -69,7 +69,7 @@ pmns_refresh(void)
         pmid = PyLong_AsLong(key);
         name = PyString_AsString(value);
         if (pmDebug & DBG_TRACE_LIBPMDA)
-            fprintf(stderr, "pmns_refresh: adding metric %s(%s)",
+            fprintf(stderr, "pmns_refresh: adding metric %s(%s)\n",
                     name, pmIDStr(pmid));
         if ((sts = __pmAddPMNSNode(pmns, pmid, name)) < 0) {
             __pmNotifyErr(LOG_ERR,
@@ -263,8 +263,10 @@ prefetch(void)
         return -ENOMEM;
     result = PyEval_CallObject(fetch_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL)
-        return -ENOMEM;
+    if (!result) {
+        PyErr_Print();
+        return -EAGAIN;	/* exception thrown */
+    }
     Py_DECREF(result);
     return 0;
 }
@@ -279,8 +281,10 @@ refresh_cluster(int cluster)
         return -ENOMEM;
     result = PyEval_CallObject(refresh_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL)
-        return -ENOMEM;
+    if (result == NULL) {
+        PyErr_Print();
+        return -EAGAIN;	/* exception thrown */
+    }
     Py_DECREF(result);
     return 0;
 }
@@ -341,8 +345,10 @@ preinstance(pmInDom indom)
         return -ENOMEM;
     result = PyEval_CallObject(instance_func, arglist);
     Py_DECREF(arglist);
-    if (result == NULL)
-        return -ENOMEM;
+    if (result == NULL) {
+        PyErr_Print();
+        return -EAGAIN;	/* exception thrown */
+    }
     Py_DECREF(result);
     return 0;
 }
@@ -371,11 +377,15 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_VALUE;
 
     arglist = Py_BuildValue("(iiI)", pmid->cluster, pmid->item, inst);
+    if (arglist == NULL) {
+        __pmNotifyErr(LOG_ERR, "fetch callback cannot alloc parameters");
+        return -EINVAL;
+    }
     result = PyEval_CallObject(fetch_cb_func, arglist);
     Py_DECREF(arglist);
     if (result == NULL) {
-        __pmNotifyErr(LOG_ERR, "fetch callback gave no result at all");
-        return -EINVAL;
+        PyErr_Print();
+        return -EAGAIN;	/* exception thrown */
     } else if (PyTuple_Check(result)) {
         __pmNotifyErr(LOG_ERR, "non-tuple returned from fetch callback");
         Py_DECREF(result);
@@ -420,7 +430,7 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
     }
 
     if (!rc || !code) {    /* tuple not parsed or atom contains bad value */
-        if (!PyArg_Parse(result, "(ii):fetch_cb_double", &sts, &code)) {
+        if (!PyArg_Parse(result, "(ii):fetch_cb_error", &sts, &code)) {
             __pmNotifyErr(LOG_ERR, "extracting error code in fetch callback");
             sts = -EINVAL;
         }
@@ -676,7 +686,7 @@ pmda_dispatch(PyObject *self, PyObject *args)
     }
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms");
+        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
 
     indoms = (pmdaIndom *)iv.buf;
     metrics = (pmdaMetric *)mv.buf;
@@ -685,7 +695,7 @@ pmda_dispatch(PyObject *self, PyObject *args)
     PyBuffer_Release(&mv);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch connecting to pmcd, entering PDU loop");
+        fprintf(stderr, "pmda_dispatch connect to pmcd, entering PDU loop\n");
 
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
@@ -733,6 +743,21 @@ pmda_pmid(PyObject *self, PyObject *args, PyObject *keywords)
                         &item, &cluster))
         return NULL;
     result = pmid_build(dispatch.domain, item, cluster);
+    return Py_BuildValue("i", result);
+}
+
+static PyObject *
+pmda_indom(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int result;
+    int serial;
+    char *keyword_list[] = {"serial", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "i:pmda_indom", keyword_list, &serial))
+        return NULL;
+    pmDebug |= (DBG_TRACE_LIBPMDA | DBG_TRACE_INDOM);
+    result = pmInDom_build(dispatch.domain, serial);
     return Py_BuildValue("i", result);
 }
 
@@ -847,6 +872,8 @@ set_fetch_callback(PyObject *self, PyObject *args)
 
 static PyMethodDef methods[] = {
     { .ml_name = "pmda_pmid", .ml_meth = (PyCFunction)pmda_pmid,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_indom", .ml_meth = (PyCFunction)pmda_indom,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_units", .ml_meth = (PyCFunction)pmda_units,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
