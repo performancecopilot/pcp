@@ -48,6 +48,7 @@ class SimplePMDA(PMDA):
     # simple.now instance domain
     configfile = ''
     timeslices = {}
+    times = ()
 
     # simple.numfetch properties
     numfetch = 0
@@ -70,6 +71,8 @@ class SimplePMDA(PMDA):
         Helper for the fetch callback
         '''
         if (item == 0):
+            if (inst != c_api.PM_IN_NULL):
+                return [c_api.PM_ERR_INST, 0]
             return [self.numfetch, 1]
         elif (item == 1):
             if (inst == 0):
@@ -86,19 +89,20 @@ class SimplePMDA(PMDA):
         else:
             return [c_api.PM_ERR_PMID, 0]
 
-    def simple_fetch_times_callback(self, item):
+    def simple_fetch_times_callback(self, item, inst):
         '''
         Returns a list of value,status (single pair) for times cluster
         Helper for the fetch callback
         '''
-        times = ()
+        if (inst != c_api.PM_IN_NULL):
+            return [c_api.PM_ERR_INST, 0]
         if (self.oldfetch < self.numfetch):     # get current values, if needed
-            times = os.times()
+            self.times = os.times()
             self.oldfetch = self.numfetch
         if (item == 2):
-            return [times[0], 1]
+            return [self.times[0], 1]
         elif (item == 3):
-            return [times[1], 1]
+            return [self.times[1], 1]
         return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_now_callback(self, item, inst):
@@ -118,13 +122,11 @@ class SimplePMDA(PMDA):
         Main fetch callback, defers to helpers for each cluster.
         Returns a list of value,status (single pair) for requested pmid/inst
         '''
-        if (not (inst == c_api.PM_IN_NULL or
-            (cluster == 0 and item == 1) or (cluster == 2 and item == 4))):
-            return [c_api.PM_ERR_INST, 0]
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
         if (cluster == 0):
             return self.simple_fetch_color_callback(item, inst)
         elif (cluster == 1):
-            return self.simple_fetch_times_callback(item)
+            return self.simple_fetch_times_callback(item, inst)
         elif (cluster == 2):
             return self.simple_fetch_now_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
