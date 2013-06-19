@@ -820,12 +820,7 @@ main(int argc, char *argv[])
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if ((envstr = getenv("PMCD_SOCKET")) != NULL)
-	snprintf(sockpath, sizeof(sockpath), "%s", envstr);
-    else {
-	snprintf(sockpath, sizeof(sockpath), "%s%c" "pmcd.socket",
-	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
-    }
+    strncpy(sockpath, __pmPMCDLocalSocketDefault(), sizeof(sockpath));
 #endif
     ParseOptions(argc, argv, &nport);
     if (nport == 0)

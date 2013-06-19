@@ -492,6 +492,10 @@ typedef struct {
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
 
+/* nports values */
+#define PM_HOST_SPEC_NPORTS_LOCAL (-1)
+#define PM_HOST_SPEC_NPORTS_UNIX  (-2)
+
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
 extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
@@ -545,6 +549,7 @@ extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmAuxConnectPMCDUnixSocket(const char *);
+extern const char *__pmPMCDLocalSocketDefault(void);
 
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);

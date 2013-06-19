@@ -73,7 +73,15 @@ __pmSockAddrFree(__pmSockAddr *sockaddr)
 __pmSockAddr *
 __pmLoopBackAddress(int family)
 {
-    __pmSockAddr* addr = __pmSockAddrAlloc();
+    __pmSockAddr* addr;
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /* There is no loopback address for a unix domain socket. */
+    if (family == AF_UNIX)
+	return NULL;
+#endif
+
+    addr = __pmSockAddrAlloc();
     if (addr != NULL)
         __pmSockAddrInit(addr, family, INADDR_LOOPBACK, 0);
     return addr;
@@ -355,6 +363,31 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * called
      */
     return __pmConnectRestoreFlags(fd, fdFlags);
+}
+
+/* Return the path to the default PMCD local unix domain socket.
+   Returns a pointer to a static buffer which can be used directly.
+   Return the path regardless of whether unix domain sockets are
+   supported by our build. Other functions can then print reasonable
+   messages if an attempt is made to use one.*/
+const char *
+__pmPMCDLocalSocketDefault(void)
+{
+    static char pmcd_socket[MAXPATHLEN] = "";
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (pmcd_socket[0] == '\0') {
+	char *envstr;
+	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
+	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
+	else
+	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
+		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+
+    return pmcd_socket;
 }
 
 int
@@ -985,8 +1018,8 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (addr1->sockaddr.raw.sa_family == AF_UNIX) {
         /* Unix Domain: Compare the paths */
-	return strncmp(addr1->sockaddr.local.un_path, addr2->sockaddr.local.un_path,
-		       sizeof(addr1->sockaddr.local.un_path)) == 0;
+	return strncmp(addr1->sockaddr.local.sun_path, addr2->sockaddr.local.sun_path,
+		       sizeof(addr1->sockaddr.local.sun_path)) == 0;
     }
 #endif
 
@@ -1060,7 +1093,7 @@ __pmSockAddrToString(__pmSockAddr *addr)
     family = addr->sockaddr.raw.sa_family;
     if (family == AF_INET)
 	sts = inet_ntop(family, &addr->sockaddr.inet.sin_addr, str, sizeof(str));
-    else if (family == AF_INET)
+    else if (family == AF_INET6)
 	sts = inet_ntop(family, &addr->sockaddr.ipv6.sin6_addr, str, sizeof(str));
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     else if (family == AF_UNIX)
