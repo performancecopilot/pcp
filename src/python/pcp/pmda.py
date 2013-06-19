@@ -279,8 +279,8 @@ class PMDA(MetricDispatch):
         """
         Write out the namespace file (used during installation)
         """
-        namespace = self._metric_names
-        prefixes = set([namespace[key].split('.')[0] for key in namespace])
+        pmns = self._metric_names
+        prefixes = set([pmns[key].split('.')[0] for key in pmns])
         indent = (root == 'root')
         lead = ''
         if indent:
@@ -303,7 +303,6 @@ class PMDA(MetricDispatch):
         if ('PCP_PYTHON_DOMAIN' in os.environ):
             self.domain_write()
         elif ('PCP_PYTHON_PMNS' in os.environ):
-            self.pmns_refresh()
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
         else:
             self.pmns_refresh()

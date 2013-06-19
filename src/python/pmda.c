@@ -449,25 +449,25 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
 
     switch (type) {
         case PM_TYPE_32:
-            arglist = Py_BuildValue("(iiii)", cluster, item, inst, av.l);
+            arglist = Py_BuildValue("(iiIi)", cluster, item, inst, av.l);
             break;
         case PM_TYPE_U32:
-            arglist = Py_BuildValue("(iiiI)", cluster, item, inst, av.ul);
+            arglist = Py_BuildValue("(iiII)", cluster, item, inst, av.ul);
             break;
         case PM_TYPE_64:
-            arglist = Py_BuildValue("(iiiL)", cluster, item, inst, av.ll);
+            arglist = Py_BuildValue("(iiIL)", cluster, item, inst, av.ll);
             break;
         case PM_TYPE_U64:
-            arglist = Py_BuildValue("(iiiK)", cluster, item, inst, av.ull);
+            arglist = Py_BuildValue("(iiIK)", cluster, item, inst, av.ull);
             break;
         case PM_TYPE_FLOAT:
-            arglist = Py_BuildValue("(iiif)", cluster, item, inst, av.f);
+            arglist = Py_BuildValue("(iiIf)", cluster, item, inst, av.f);
             break;
         case PM_TYPE_DOUBLE:
-            arglist = Py_BuildValue("(iiid)", cluster, item, inst, av.d);
+            arglist = Py_BuildValue("(iiId)", cluster, item, inst, av.d);
             break;
         case PM_TYPE_STRING:
-            arglist = Py_BuildValue("(iiis)", cluster, item, inst, av.cp);
+            arglist = Py_BuildValue("(iiIs)", cluster, item, inst, av.cp);
             break;
         default:
             __pmNotifyErr(LOG_ERR, "unsupported type in store callback");
@@ -475,10 +475,14 @@ store_callback(__pmID_int *pmid, unsigned int inst, pmAtomValue av, int type)
     }
     result = PyEval_CallObject(store_cb_func, arglist);
     Py_DECREF(arglist);
-    rc = PyArg_ParseTuple(result, "i:store_callback", &code);
+    if (!result) {
+        PyErr_Print();
+        return -EAGAIN;	/* exception thrown */
+    }
+    rc = PyArg_Parse(result, "i:store_callback", &code);
     Py_DECREF(result);
     if (rc == 0) {
-        __pmNotifyErr(LOG_ERR, "store callback gave bad result (int expected)");
+        __pmNotifyErr(LOG_ERR, "store callback gave bad status (int expected)");
         return -EINVAL;
     }
     return code;
