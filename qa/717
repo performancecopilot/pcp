@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
-test -f "$PCP_PMDAS_DIR/simple/pmdasimple.py"
+test -f "$PCP_PMDAS_DIR/simple/pmdasimple.python"
 [ $? -eq 0 ] || _notrun "python simple pmda not yet installed"
 
 status=1
