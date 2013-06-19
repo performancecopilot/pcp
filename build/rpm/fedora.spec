@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.0
+Version: 3.8.1
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -522,8 +522,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Web May 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
-- Currently under development.
+* Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
+- Update to latest PCP sources.
+- Fix log import silently dropping >1024 metrics (BZ 968210)
+- Move some commonly used tools on the usual PATH (BZ 967709)
+- Improve pmatop handling of missing proc metrics (BZ 963085)
+- Stop out-of-order records corrupting import logs (BZ 958745)
 
 * Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
 - Update to latest PCP sources.
