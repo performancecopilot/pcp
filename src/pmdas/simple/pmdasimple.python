@@ -192,7 +192,7 @@ class SimplePMDA(PMDA):
                       'hour': c_int(fields[3])}
             config = cfg.readline().strip()
             for key in config.split(','):
-                if (values[key] != None):
+                if (key != '' and values[key] != None):
                     self.timeslices[key] = values[key]
         self.replace_indom(self.now_indom, self.timeslices)
 
