@@ -19,7 +19,7 @@ CFILES		= control.c glstats.c lock_time.c glocks.c sbstats.c dynamic.c pmda.c
 HFILES		= control.h glstats.h lock_time.h glocks.h sbstats.h dynamic.h pmdagfs2.h
 CMDTARGET	= pmdagfs2
 LLDLIBS		= $(PCP_PMDALIB)
-LSRCFILES	= Install Remove pmns root help
+LSRCFILES	= Install Remove pmns root help README
 
 IAM		= gfs2
 DOMAIN		= GFS2
