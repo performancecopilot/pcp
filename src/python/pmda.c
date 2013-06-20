@@ -43,6 +43,10 @@ static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
 
+#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION <= 5
+typedef int Py_ssize_t;
+#endif
+
 static void
 pmns_refresh(void)
 {
@@ -645,6 +649,7 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_None;
 }
 
+#ifdef PyBUF_SIMPLE
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args)
 {
@@ -706,6 +711,44 @@ pmda_dispatch(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+#else	/* old-school python */
+static PyObject *
+pmda_dispatch(PyObject *self, PyObject *args)
+{
+    int nindoms, nmetrics;
+    PyObject *ibuf, *mbuf;
+    pmdaMetric *metrics = NULL;
+    pmdaIndom *indoms = NULL;
+
+    if (!PyArg_ParseTuple(args, "OiOi", &ibuf, &nindoms, &mbuf, &nmetrics))
+        return NULL;
+
+    if (!PyBuffer_Check(ibuf)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 1st arg");
+        return NULL;
+    }
+    if (!PyBuffer_Check(mbuf)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 3rd arg");
+        return NULL;
+    }
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
+
+    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(ibuf, 0, (void *)&indoms);
+    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mbuf, 0, (void *)&metrics);
+    pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+        fprintf(stderr, "pmda_dispatch connect to pmcd, entering PDU loop\n");
+
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+#endif
 
 static PyObject *
 pmda_log(PyObject *self, PyObject *args, PyObject *keywords)
@@ -825,7 +868,7 @@ set_need_refresh(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-set_callback(PyObject *self, PyObject *args, const char *params, PyObject **callback)
+set_callback(PyObject *self, PyObject *args, char *params, PyObject **callback)
 {
     PyObject *func;
 
