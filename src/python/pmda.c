@@ -716,29 +716,41 @@ pmda_dispatch(PyObject *self, PyObject *args)
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args)
 {
-    int nindoms, nmetrics;
-    PyObject *ibuf, *mbuf;
+    int nindoms, nmetrics, size;
+    PyObject *ibuf, *mbuf, *iv, *mv;
     pmdaMetric *metrics = NULL;
     pmdaIndom *indoms = NULL;
 
     if (!PyArg_ParseTuple(args, "OiOi", &ibuf, &nindoms, &mbuf, &nmetrics))
         return NULL;
 
-    if (!PyBuffer_Check(ibuf)) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 1st arg");
+    size = nindoms * sizeof(pmdaIndom);
+    if ((iv = PyBuffer_FromObject(ibuf, 0, size)) == NULL) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch indom extraction");
         return NULL;
     }
-    if (!PyBuffer_Check(mbuf)) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch expected buffer 3rd arg");
+    if (!PyBuffer_Check(iv)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch wants buffer 1st arg");
+        return NULL;
+    }
+    size = nmetrics * sizeof(pmdaMetric);
+    if ((mv = PyBuffer_FromObject(mbuf, 0, size)) == NULL) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch metric extraction");
+        return NULL;
+    }
+    if (!PyBuffer_Check(mv)) {
+        PyErr_SetString(PyExc_TypeError, "pmda_dispatch wants buffer 3rd arg");
         return NULL;
     }
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
         fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
 
-    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(ibuf, 0, (void *)&indoms);
-    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mbuf, 0, (void *)&metrics);
+    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(iv, 0, (void *)&indoms);
+    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mv, 0, (void *)&metrics);
     pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+    Py_DECREF(ibuf);
+    Py_DECREF(mbuf);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
         fprintf(stderr, "pmda_dispatch connect to pmcd, entering PDU loop\n");
