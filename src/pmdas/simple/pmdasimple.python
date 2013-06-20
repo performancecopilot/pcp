@@ -185,7 +185,8 @@ class SimplePMDA(PMDA):
         Read our configuration file and update instance domain
         '''
         self.timeslices.clear()
-        with open(self.configfile) as cfg:
+        try:
+            cfg = open(self.configfile)
             fields = time.localtime()
             values = {'sec': c_int(fields[5]),
                       'min': c_int(fields[4]),
@@ -194,6 +195,8 @@ class SimplePMDA(PMDA):
             for key in config.split(','):
                 if (key != '' and values[key] != None):
                     self.timeslices[key] = values[key]
+        finally:
+            cfg.close()
         self.replace_indom(self.now_indom, self.timeslices)
 
 
