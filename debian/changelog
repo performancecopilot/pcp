@@ -1,3 +1,9 @@
+pcp (3.8.2) unstable; urgency=low
+
+  * Currently under development...
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 20 Jun 2013 09:33:00 +1000
+
 pcp (3.8.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
