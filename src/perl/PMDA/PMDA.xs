@@ -196,13 +196,16 @@ pmns_write(void)
 void
 domain_write(void)
 {
-    char name[512] = { 0 };
+    char *p, name[512] = { 0 };
     int i, len = strlen(pmProgname);
 
     if (len >= sizeof(name) - 1)
 	len = sizeof(name) - 2;
+    p = pmProgname;
+    if (strncmp(pmProgname, "pmda", 4) == 0)
+	p += 4;
     for (i = 0; i < len; i++)
-	name[i] = toupper(pmProgname[i]);
+	name[i] = toupper(p[i]);
     printf("#define %s %u\n", name, dispatch.domain);
 }
 

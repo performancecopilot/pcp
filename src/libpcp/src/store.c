@@ -35,6 +35,7 @@ pmStore(const pmResult *result)
 
     if ((sts = pmWhichContext()) >= 0) {
 	int	ctx = sts;
+
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
@@ -66,10 +67,11 @@ pmStore(const pmResult *result)
 	     */
 	    pmResult	tmp;
 	    pmValueSet	tmpvset;
-	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))
+
+	    if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
 		/* Local context requires single-threaded applications */
 		sts = PM_ERR_THREAD;
-	    else {
+	    } else {
 		sts = 0;
 		for (n = 0; sts == 0 && n < result->numpmid; n++) {
 		    if ((dp = __pmLookupDSO(((__pmID_int *)&result->vset[n]->pmid)->domain)) == NULL)
@@ -90,8 +92,7 @@ pmStore(const pmResult *result)
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE -- this is an error */
-	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTHOST;
+	    sts = PM_ERR_NOTHOST;
 	}
 	PM_UNLOCK(ctxp->c_lock);
     }

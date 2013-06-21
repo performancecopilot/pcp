@@ -2,6 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2013 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -734,6 +735,7 @@ Total CPU time when a CPU had a runnable process, but the hypervisor
 Total CPU time spent running virtual guest operating systems.
 @ kernel.all.nusers number of user sessions on system
 
+@ hinv.ninterface number of active (up) network interfaces
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
 @ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
 @ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
@@ -792,6 +794,9 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ hinv.map.lvname mapping of logical volume names for devices
+Provides a logical-volume-name to device-name mapping for the device
+mapper subsystem.
 @ filesys.capacity Total capacity of mounted filesystem (Kbytes)
 @ filesys.used Total space used on mounted filesystem (Kbytes)
 @ filesys.free Total space free on mounted filesystem (Kbytes)
@@ -1243,6 +1248,7 @@ See also the kernel.uname.* metrics
 
 @ pmda.version build version of Linux PMDA
 @ hinv.map.cpu_num logical to physical CPU mapping for each CPU
+@ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo

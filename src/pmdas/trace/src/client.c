@@ -129,13 +129,16 @@ showClients(void)
 		    "     ==  =====  ====  ======================\n");
     for (i=0; i < nclients; i++) {
 	char *hostName;
+	char *hostAddr;
 
 	fprintf(stderr, "    %3d", clients[i].fd);
 	fprintf(stderr, "  %s  ", clients[i].status.protocol == 1 ? "sync ":"async");
 	fprintf(stderr, "%s  ", clients[i].status.connected == 1 ? "up  ":"down");
 	hostName = __pmGetNameInfo(clients[i].addr);
 	if (hostName == NULL) {
-	    fprintf(stderr, "%s", __pmSockAddrToString(clients[i].addr));
+	    hostAddr = __pmSockAddrToString(clients[i].addr);
+	    fprintf(stderr, "%s", hostAddr);
+	    free(hostAddr);
 	} else {
 	    fprintf(stderr, "%-40.40s", hostName);
 	    free(hostName);

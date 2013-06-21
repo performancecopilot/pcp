@@ -4,5 +4,8 @@ probe	xfs.log.writes
 	xfs.log.writes
 	xfs.log.blocks
 	xfs.log.noiclogs
+	xfs.read
+	xfs.write
 	xfs.read_bytes
 	xfs.write_bytes
+	xfs.buffer

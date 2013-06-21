@@ -35,10 +35,10 @@ from pcp.pmapi import pmErr
 from ctypes import c_char_p
 
 
-# _pmsubsys ---------------------------------------------------------------
+# Subsystem  ---------------------------------------------------------------
 
 
-class _pmsubsys(object):
+class Subsystem(object):
     def __init__(self):
         self.metrics = []
         self.diff_metrics = []
@@ -47,10 +47,6 @@ class _pmsubsys(object):
         self.metric_values = []
         self.metrics_dict = {}
         self.old_metric_values = []
-        super(_pmsubsys, self).__init__()
-
-    def init_metrics(self, pcp):
-        pass
 
     def setup_metrics(self, pcp):
         # remove any unsupported metrics
@@ -68,21 +64,14 @@ class _pmsubsys(object):
         self.metric_descs = pcp.pmLookupDescs(self.metric_pmids)
         self.metric_values = [0 for i in range(len(self.metrics))]
         self.old_metric_values = [0 for i in range(len(self.metrics))]
-        if hasattr(super(_pmsubsys, self), 'setup_metrics'):
-            super (_pmsubsys, self).setup_metrics()
 
     def dump_metrics(self):
         metrics_string = ""
         for i in xrange(len(self.metrics)):
             metrics_string += self.metrics[i]
             metrics_string += " "
-        if hasattr(super(_pmsubsys, self), 'dump_metrics'):
-            super (_pmsubsys, self).dump_metrics()
         return metrics_string
 
-    def get_total(self):
-        True
-            
     def get_scalar_value(self, var, idx):
         if type(var) == type(str()):
             value = self.get_metric_value(var)
@@ -98,8 +87,6 @@ class _pmsubsys(object):
             return self.metric_values[self.metrics_dict[idx]]
         else:
             return 0
-        if hasattr(super(_pmsubsys, self), 'get_metric_value'):
-            super(_pmsubsys, self).get_metric_value()
 
     def get_old_scalar_value(self, var, idx):
         aidx = 0
@@ -216,16 +203,11 @@ class _pmsubsys(object):
                         self.metric_values[j] = 0
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
-                if hasattr(super(_pmsubsys, self), 'get_stats'):
-                    super(_pmsubsys, self).get_stats()
 
 
-# Processor  -----------------------------------------------------------------
+# Processor  --------------------------------------------------------------
 
-
-class Processor(_pmsubsys):
-    def __init__(self):
-        super(Processor, self).__init__()
+    def init_processor_metrics(self):
         self.cpu_total = 0
         self.metrics += ['hinv.ncpu', 'hinv.cpu.clock', 
                          'kernel.all.cpu.idle', 'kernel.all.cpu.intr',
@@ -258,27 +240,9 @@ class Processor(_pmsubsys):
                           self.get_metric_value('kernel.all.cpu.irq.hard') +
                           self.get_metric_value('kernel.all.cpu.irq.soft') )
 
-
-# Interrupt  -----------------------------------------------------------------
-
-
-class Interrupt(_pmsubsys):
-    def __init__(self):
-        super(Interrupt, self).__init__()
-
-
-    def init_metrics(self, pcp):
-        int_list = pcp.pmGetChildren("kernel.percpu.interrupts")
-        for i in xrange(len(int_list)):
-            self.metrics.append('kernel.percpu.interrupts.' + int_list[i])
-
-
 # Disk  -----------------------------------------------------------------
 
-
-class Disk(_pmsubsys):
-    def __init__(self):
-        super(Disk, self).__init__()
+    def init_disk_metrics(self):
         self.metrics += ['disk.all.read', 'disk.all.write',
                          'disk.all.read_bytes', 'disk.all.write_bytes',
                          'disk.all.read_merge', 'disk.all.write_merge',
@@ -289,16 +253,13 @@ class Disk(_pmsubsys):
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
                          'disk.partitions.blkread', 'disk.partitions.blkwrite',
-                         'disk.partitions.read', 'disk.partitions.write'
+                         'disk.partitions.read', 'disk.partitions.write',
+                         'hinv.map.lvname'
                          ]
-
 
 # Memory  -----------------------------------------------------------------
 
-
-class Memory(_pmsubsys):
-    def __init__(self):
-        super(Memory, self).__init__()
+    def init_memory_metrics(self):
         self.metrics += ['mem.freemem', 'mem.physmem', 'mem.util.anonpages',
                          'mem.util.bufmem',
                          'mem.util.cached', 'mem.util.commitLimit',
@@ -320,10 +281,7 @@ class Memory(_pmsubsys):
 
 # Network  -----------------------------------------------------------------
 
-
-class Network(_pmsubsys):
-    def __init__(self):
-        super(Network, self).__init__()
+    def init_network_metrics(self):
         self.metrics += ['network.interface.in.bytes',
                          'network.interface.in.packets',
                          'network.interface.out.bytes',
@@ -345,13 +303,10 @@ class Network(_pmsubsys):
                          'network.udp.indatagrams',
                          'network.udp.outdatagrams' ]
 
-
 # Process  -----------------------------------------------------------------
 
-class Process(_pmsubsys):
-    def __init__(self):
-        super(Process, self).__init__()
-        self.metrics += ['proc.id.uid', 
+    def init_process_metrics(self):
+        self.metrics += ['proc.id.uid', 'proc.id.uid_nm',
                          'proc.memory.datrss', 'proc.memory.librss',
                          'proc.memory.textrss', 'proc.memory.vmstack',
                          'proc.nprocs', 'proc.psinfo.cmd',
@@ -367,9 +322,36 @@ class Process(_pmsubsys):
                          ]
         self.diff_metrics += ['proc.psinfo.rss', 'proc.psinfo.vsize']
 
+# Interrupt  --------------------------------------------------------------
 
-# subsys  -----------------------------------------------------------------
+    def init_interrupt_metrics(self):
+        self.metrics += ['kernel.percpu.interrupts.MCP',
+                         'kernel.percpu.interrupts.MCE',
+                         'kernel.percpu.interrupts.THR',
+                         'kernel.percpu.interrupts.TRM',
+                         'kernel.percpu.interrupts.TLB',
+                         'kernel.percpu.interrupts.CAL',
+                         'kernel.percpu.interrupts.RES',
+                         'kernel.percpu.interrupts.RTR',
+                         'kernel.percpu.interrupts.IWI',
+                         'kernel.percpu.interrupts.PMI',
+                         'kernel.percpu.interrupts.SPU',
+                         'kernel.percpu.interrupts.LOC',
+                         'kernel.percpu.interrupts.line46',
+                         'kernel.percpu.interrupts.line45',
+                         'kernel.percpu.interrupts.line44',
+                         'kernel.percpu.interrupts.line43',
+                         'kernel.percpu.interrupts.line42',
+                         'kernel.percpu.interrupts.line41',
+                         'kernel.percpu.interrupts.line40',
+                         'kernel.percpu.interrupts.line23',
+                         'kernel.percpu.interrupts.line19',
+                         'kernel.percpu.interrupts.line18',
+                         'kernel.percpu.interrupts.line16',
+                         'kernel.percpu.interrupts.line12',
+                         'kernel.percpu.interrupts.line9',
+                         'kernel.percpu.interrupts.line8',
+                         'kernel.percpu.interrupts.line1',
+                         'kernel.percpu.interrupts.line0',
+                         ]
 
-
-class Subsystem(_pmsubsys):
-    True

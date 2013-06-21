@@ -29,27 +29,146 @@
 @ GFS2.0 Instance domain for mounted GFS2 filesystems
 
 @ gfs2.glocks.total Count of total observed incore GFS2 global locks
-Count of total incore GFS2 glock data structures based on parsing the
-contents of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
+Count of total incore GFS2 glock data structures based on parsing the contents
+of the /sys/kernel/debug/gfs2/<bdev>/glocks files.
 
 @ gfs2.glocks.shared GFS2 global locks in shared state
-Count of incore GFS2 glock data structures in shared state, based on
-parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
-value "SH".
+Count of incore GFS2 glock data structures in shared state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "SH".
 
 @ gfs2.glocks.unlocked GFS2 global locks in unlocked state
-Count of incore GFS2 glock data structures in unlocked state, based on
-parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
-value "UN".
+Count of incore GFS2 glock data structures in unlocked state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "UN".
 
 @ gfs2.glocks.deferred GFS2 global locks in deferred state
-Count of incore GFS2 glock data structures in deferred state, based on
-parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
-value "DF".
+Count of incore GFS2 glock data structures in deferred state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "DF".
 
 @ gfs2.glocks.exclusive GFS2 global locks in exclusive state
-Count of incore GFS2 glock data structures in exclusive state, based on
-parsing /sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:)
-value "EX".
+Count of incore GFS2 glock data structures in exclusive state, based on parsing
+/sys/kernel/debug/gfs2/<bdev>/glocks entries with state field (s:) value "EX".
 
 # help text for gfs2.sbstats.*.* is generated dynamically
+
+@ gfs2.glstats.total The total number of current glocks
+Total count of the number of glocks which currently reside for filesystem on 
+the given node. Data is based from /sys/kernel/debug/gfs2/<bdev>/glstats
+counting the total number of glock entries.
+
+@ gfs2.glstats.trans The number of transaction glocks
+The count of the current number of transaction type glocks that currently exist
+for the given filesystem. The data is recorded and counted from /sys/kernel/
+debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.inode The number of inode (metadata and data) glocks
+The count of the current number of inode metadata and data type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.rgrp The number of resource group metadata glocks
+The count of the current number of resource group metadata type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.meta The number of superblock glocks
+The count of the current number of superblock type glocks that currently exist
+for the given filesystem. The data is recorded and counted from /sys/kernel/
+debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.iopen The number of inode last closer detection glocks
+The count of the current number of inode last closer detection type glocks that
+currently exist for the given filesystem. The data is recorded and counted from
+/sys/kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.flock The number of flock(2) syscall glocks
+The count of the current number of flock(2) syscall type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.quota The number of quota operations glocks
+The count of the current number of quota operations type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glstats.journal The number of journal mutex glocks
+The count of the current number of journal mutex type glocks that currently
+exist for the given filesystem. The data is recorded and counted from /sys/
+kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
+
+@ gfs2.glock_lock_time.lock_type Glock type number
+The metric contains the value regarding the lock type representing the type of
+lock, this data is collected from the /sys/kernel/tracing/events/trace_pipe and
+requires the gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
+Note: Will return "No value(s) available!" if the metric set is disabled or
+when the file system is idle and no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.number Inode or resource group number
+This metric points to the inode or resource group on which the glock belongs to,
+this data is collected from the /sys/kernel/tracing/events/trace_pipe and requ-
+ires the gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
+Note: Will return "No value(s) available!" if the metric set is disabled or when
+the file system is idle and no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.srtt Non-blocking smoothed round trip time
+The smoothed round trip time for non-blocking dlm requests, this data is
+collected from the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.
+control.glock_lock_time metrics to be set as 1 to be enabled. Note: Will return
+"No value(s) available!" if the metric set is disabled or when the file system
+is idle and no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.srttvar Non-blocking smoothed variance
+Variance estimate for the smoothed round trip time, this data is collected
+from the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.
+glock_lock_time metrics to be set as 1 to be enabled. Note: Will return "No
+value(s) available!" if the metric set is disabled or when the file system is
+idle and no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.srttb Blocking smoothed round trip time
+Smoothed round trip time for (potentially) blocking dlm requests, this data
+is collected from the /sys/kernel/tracing/events/trace_pipe and requires the
+gfs2.control.glock_lock_time metrics to be set as 1 to be enabled. Note: Will
+return "No value(s) available!" if the metric set is disabled or when the file
+system is idle and no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.srttvarb Blocking smoothed variance
+Variance estimate for smoothed round trip time for (potentially) blocking dlm
+requests, this data is collected from the /sys/kernel/tracing/events/trace_pipe
+and requires the gfs2.control.glock_lock_time metrics to be set as 1 to be
+enabled. Note: Will return "No value(s) available!" if the metric set is disab-
+led or when the file system is idle and no lock data is currently in the trace-
+pipe.
+
+@ gfs2.glock_lock_time.sirt Smoothed Inter-request time
+The smoothed inter-request time (for dlm requests), this data is collected from
+the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_
+lock_time metrics to be set as 1 to be enabled. Note: Will return "No value(s)
+available!" if the metric set is disabled or when the file system is idle and
+no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.sirtvar Smoothed Inter-request variance
+Variance estimate for smoothed inter-request time, this data is collected from
+the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_
+lock_time metrics to be set as 1 to be enabled. Note: Will return "No value(s)
+available!" if the metric set is disabled or when the file system is idle and
+no lock data is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.dlm Count of dlm requests
+The number of dlm requests made, this data is collected from the /sys/kernel/
+tracing/events/trace_pipe and requires the the gfs2.control.glock_lock_time
+metrics to be set as 1 to be enabled. Note: Will return "No value(s) available!"
+if the metric set is disabled or when the file system is idle and no lock data
+is currently in the trace-pipe.
+
+@ gfs2.glock_lock_time.queue Count of gfs2_holder queues
+The number of glock requests queued, this data is collected from the
+/sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_lock_
+time metrics to be set as 1 to be enabled. Note: Will return "No value(s) ava-
+ilable!" if the metric set is disabled or when the file system is idle and no
+lock data is currently in the trace-pipe.
+
+@ gfs2.control.glock_lock_time Indication whether gfs2.glock_lock_time statistics are enabled
+The gfs2.glock_lock_time statistics can be manually controlled using pmstore
+gfs2.control.glock_lock_time 0 [off] or 1 [on]. setting the value of the metric
+controls the behavior of the PMDA to whether it tries to collect the lock_time
+metrics or not. The machine must have the gfs2 trace-points available for the
+glock_lock_time based metrics to function.

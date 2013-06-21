@@ -1,0 +1,164 @@
+#!/bin/sh
+# PCP QA Test No. 544
+# testing collectl2pcp metrics extraction (proc indom, in particular)
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+which collectl2pcp 2> /dev/null || _notrun collectl2pcp not installed
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+C=./collectl
+TA=testarchive
+
+cat > $tmp.general <<End-of-General
+disk.dev.avactive
+disk.dev.aveq
+disk.dev.read
+disk.dev.read_bytes
+disk.dev.write
+disk.dev.write_bytes
+hinv.machine
+hinv.ncpu
+hinv.ndisk
+hinv.ninterface
+hinv.pagesize
+hinv.physmem
+kernel.all.cpu.idle
+kernel.all.cpu.intr
+kernel.all.cpu.irq.hard
+kernel.all.cpu.irq.soft
+kernel.all.cpu.sys
+kernel.all.cpu.user
+kernel.all.cpu.wait.total
+kernel.all.hz
+kernel.all.intr
+kernel.all.load
+kernel.all.nprocs
+kernel.uname.distro
+kernel.uname.machine
+kernel.uname.nodename
+kernel.uname.release
+kernel.uname.sysname
+mem.physmem
+mem.util.active
+mem.util.active_anon
+mem.util.active_file
+mem.util.anonpages
+mem.util.bounce
+mem.util.bufmem
+mem.util.cached
+mem.util.commitLimit
+mem.util.committed_AS
+mem.util.corrupthardware
+mem.util.directMap2M
+mem.util.directMap4k
+mem.util.dirty
+mem.util.free
+mem.util.hugepagesFree
+mem.util.hugepagesRsvd
+mem.util.hugepagesSurp
+mem.util.hugepagesTotal
+mem.util.inactive
+mem.util.inactive_anon
+mem.util.inactive_file
+mem.util.kernelStack
+mem.util.mapped
+mem.util.mlocked
+mem.util.NFS_Unstable
+mem.util.pageTables
+mem.util.shmem
+mem.util.slab
+mem.util.slabReclaimable
+mem.util.slabUnreclaimable
+mem.util.swapCached
+mem.util.swapFree
+mem.util.swapTotal
+mem.util.unevictable
+mem.util.vmallocChunk
+mem.util.vmallocTotal
+mem.util.vmallocUsed
+mem.util.writeback
+End-of-General
+
+cat > $tmp.cpus <<End-of-CPUs
+kernel.percpu.cpu.guest
+kernel.percpu.cpu.idle
+kernel.percpu.cpu.intr
+kernel.percpu.cpu.irq.hard
+kernel.percpu.cpu.irq.soft
+kernel.percpu.cpu.nice
+kernel.percpu.cpu.steal
+kernel.percpu.cpu.sys
+kernel.percpu.cpu.user
+kernel.percpu.cpu.wait.total
+End-of-CPUs
+
+cat > $tmp.disks <<End-of-Disks
+network.interface.in.bytes
+network.interface.in.packets
+network.interface.out.bytes
+network.interface.out.packets
+End-of-Disks
+
+cat > $tmp.nets <<End-of-Nets
+network.interface.in.bytes
+network.interface.in.packets
+network.interface.out.bytes
+network.interface.out.packets
+End-of-Nets
+
+cat > $tmp.procs <<End-of-Procs
+proc.psinfo.cmd
+proc.psinfo.psargs
+End-of-Procs
+
+checksums()
+{
+    $sudo rm -f $tmp.out.*
+
+    pminfo -f -a $TA `cat $tmp.general` | tee -a $seq.full > $tmp.out.general
+    pminfo -f -a $TA `cat $tmp.cpus` | tee -a $seq.full > $tmp.out.cpus
+    pminfo -f -a $TA `cat $tmp.disks` | tee -a $seq.full > $tmp.out.disks
+    pminfo -f -a $TA `cat $tmp.nets` | tee -a $seq.full > $tmp.out.nets
+    pminfo -f -a $TA `cat $tmp.procs` | tee -a $seq.full > $tmp.out.procs
+
+    SUM="sum -r"
+    [ $PCP_PLATFORM = darwin ] && SUM=sum
+    $SUM $tmp.out.* \
+        | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
+	| sed -e 's/^00*//' \
+	| while read chksum path
+	do
+	    printf "%05d %s\n" $chksum $path | sed -e "s,$tmp,TMP,g"
+	done
+    echo >> $seq.full
+}
+
+# real QA test starts here
+
+echo '## Testing RHEL6.4 inst/value extraction, checksums:' | tee -a $seq.full
+collectl2pcp -F $C/rhel6.raw.gz $TA
+checksums
+
+echo '## Testing Debian inst/value extraction, checksums:' | tee -a $seq.full
+collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
+checksums
+
+# success, all done
+status=0
+
+exit

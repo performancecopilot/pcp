@@ -750,12 +750,17 @@ pcp.py
 533 dbpmda local pmda.sample oss sanity
 534 pmie local oss
 535 pmie local pmprobe oss
+536 pmimport local oss
+537 pmimport perl local oss
 538 pmie local oss pmstore
 539 pmpost local oss
+540 pmda.linux local pminfo oss
 541 pmie #535080 local pmprobe oss
 542 pmdate #666344 local oss
 543 logutil remote oss
+544 pmimport local oss
 545 pmsocks local oss
+546 pmcd local oss
 548 pmie local oss sanity
 549 pmie local oss
 554 pmie local oss
@@ -815,6 +820,7 @@ pcp.py
 652 pmda.systemd event local oss
 653 libpcp local oss
 654 pmda.gfs2 local oss
+655 pmda.gfs2 local oss
 660 pmwebapi local oss
 703 pmda.weblog local oss
 704 pmda.mmv python mmv local oss

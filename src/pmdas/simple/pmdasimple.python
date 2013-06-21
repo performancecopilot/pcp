@@ -17,11 +17,10 @@ Python implementation of the "simple" Performance Metrics Domain Agent.
 
 import os
 import time
+import ctypes
+from ctypes import c_int, POINTER, cast
 import cpmapi as c_api
-
-from pcp import pmda
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
-from pcp import pmapi
 from pcp.pmapi import pmUnits, pmContext as PCP
 
 class SimplePMDA(PMDA):
@@ -36,27 +35,29 @@ class SimplePMDA(PMDA):
     Then experiment with the simple.conf file (see simple.now metrics).
     '''
 
-    # all indoms in this PMDA
-    color_indom = 0
-    now_indom = 1
-
     # simple.color instance domain
     red = 0
     green = 100
     blue = 200
+    colors = [pmdaInstid(0, 'red'),
+              pmdaInstid(1, 'green'),
+              pmdaInstid(2, 'blue')]
 
     # simple.now instance domain
     configfile = ''
     timeslices = {}
+    times = ()
 
     # simple.numfetch properties
     numfetch = 0
     oldfetch = -1
 
 
-    def simple_instance(self):
+    def simple_instance(self, serial):
         ''' Called once per "instance request" PDU '''
-        self.simple_timenow_check()
+        # self.log("instance update for %d" % serial)
+        if (serial == 1):
+            self.simple_timenow_check()
 
 
     def simple_fetch(self):
@@ -70,6 +71,8 @@ class SimplePMDA(PMDA):
         Helper for the fetch callback
         '''
         if (item == 0):
+            if (inst != c_api.PM_IN_NULL):
+                return [c_api.PM_ERR_INST, 0]
             return [self.numfetch, 1]
         elif (item == 1):
             if (inst == 0):
@@ -86,19 +89,20 @@ class SimplePMDA(PMDA):
         else:
             return [c_api.PM_ERR_PMID, 0]
 
-    def simple_fetch_times_callback(self, item):
+    def simple_fetch_times_callback(self, item, inst):
         '''
         Returns a list of value,status (single pair) for times cluster
         Helper for the fetch callback
         '''
-        times = ()
+        if (inst != c_api.PM_IN_NULL):
+            return [c_api.PM_ERR_INST, 0]
         if (self.oldfetch < self.numfetch):     # get current values, if needed
-            times = os.times()
+            self.times = os.times()
             self.oldfetch = self.numfetch
         if (item == 2):
-            return [times[0], 1]
+            return [self.times[0], 1]
         elif (item == 3):
-            return [times[1], 1]
+            return [self.times[1], 1]
         return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_now_callback(self, item, inst):
@@ -107,10 +111,11 @@ class SimplePMDA(PMDA):
         Helper for the fetch callback
         '''
         if (item == 4):
-            value = self.pmda_inst_lookup(self.now_indom, inst)
-            if (value == None):
+            voidp = self.inst_lookup(self.now_indom, inst)
+            if (voidp == None):
                 return [c_api.PM_ERR_INST, 0]
-            return [value, 1]
+            valuep = cast(voidp, POINTER(c_int))
+            return [valuep.contents.value, 1]
         return [c_api.PM_ERR_PMID, 0]
 
     def simple_fetch_callback(self, cluster, item, inst):
@@ -118,13 +123,11 @@ class SimplePMDA(PMDA):
         Main fetch callback, defers to helpers for each cluster.
         Returns a list of value,status (single pair) for requested pmid/inst
         '''
-        if (not (inst == c_api.PM_IN_NULL or
-            (cluster == 0 and item == 1) or (cluster == 2 and item == 4))):
-            return [c_api.PM_ERR_INST, 0]
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
         if (cluster == 0):
             return self.simple_fetch_color_callback(item, inst)
         elif (cluster == 1):
-            return self.simple_fetch_times_callback(item)
+            return self.simple_fetch_times_callback(item, inst)
         elif (cluster == 2):
             return self.simple_fetch_now_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
@@ -182,13 +185,18 @@ class SimplePMDA(PMDA):
         Read our configuration file and update instance domain
         '''
         self.timeslices.clear()
-        with open(self.configfile) as cfg:
+        try:
+            cfg = open(self.configfile)
             fields = time.localtime()
-            values = {'sec': fields[5], 'min': fields[4], 'hour': fields[3]}
+            values = {'sec': c_int(fields[5]),
+                      'min': c_int(fields[4]),
+                      'hour': c_int(fields[3])}
             config = cfg.readline().strip()
             for key in config.split(','):
-                if (values[key] != None):
+                if (key != '' and values[key] != None):
                     self.timeslices[key] = values[key]
+        finally:
+            cfg.close()
         self.replace_indom(self.now_indom, self.timeslices)
 
 
@@ -197,6 +205,12 @@ class SimplePMDA(PMDA):
 
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
+
+        self.color_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self.color_indom, self.colors))
+
+        self.now_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.now_indom, self.timeslices))
 
         self.add_metric(name + '.numfetch', pmdaMetric(self.pmid(0, 0),
                 c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
@@ -213,12 +227,6 @@ class SimplePMDA(PMDA):
         self.add_metric(name + '.now', pmdaMetric(self.pmid(2, 4),
                 c_api.PM_TYPE_U32, self.now_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
-
-        colors = [pmdaInstid(0, 'red'),
-                  pmdaInstid(1, 'green'),
-                  pmdaInstid(2, 'blue')]
-        self.add_indom(pmdaIndom(self.color_indom, colors))
-        self.add_indom(pmdaIndom(self.now_indom, None))
 
         self.set_fetch(self.simple_fetch)
         self.set_instance(self.simple_instance)

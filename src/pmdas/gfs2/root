@@ -4,6 +4,13 @@
 
 #include <stdpmid>
 
-root { gfs2 }
+root { 
+        gfs2 
+
+}
+
+#ifndef GFS2
+#define GFS2 115
+#endif
 
 #include "pmns"

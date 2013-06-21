@@ -13,7 +13,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco pconf sadist
+SUBDIRS = src pmdas cisco pconf sadist collectl
 LCONFIG = localconfig
 
 # No implicit rules here, thank you
@@ -46,7 +46,7 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
-	 common.product common.rc common.setup common.secure
+	 common.product common.rc common.setup common.secure common.gfs2
 
 OTHERS = GNUmakefile.install group qa_hosts.master qa_outfiles README \
 	 valgrind-suppress sanity.coverage

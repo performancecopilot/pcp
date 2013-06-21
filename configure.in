@@ -914,8 +914,9 @@ AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
-AC_CHECK_FUNCS(sysinfo getpwnam getpwnam_r)
-AC_CHECK_FUNCS(backtrace)
+AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
+AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
+AC_CHECK_FUNCS(sysinfo backtrace)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
@@ -938,81 +939,90 @@ else
     AC_CHECK_TYPE(uint_t, unsigned int)
 fi
 
-dnl Check if we have a type for the pointer's size integer (__psint_t)
+dnl check if we have a type for the pointer's size integer (__psint_t)
 AC_MSG_CHECKING([for __psint_t ])
 AC_TRY_COMPILE(
 [  
     #include <sys/types.h>
     #include <stdlib.h> 
     #include <stddef.h>
-],
-[
-    __psint_t  psint;
-], AC_DEFINE(HAVE___PSINT_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], [ __psint_t psint; ],
+AC_DEFINE(HAVE___PSINT_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Check if we have a type for pointer difference (ptrdiff_t)
+dnl check if we have a type for pointer difference (ptrdiff_t)
 AC_MSG_CHECKING([for ptrdiff_t ])
-AC_TRY_COMPILE(
-[  
+AC_TRY_COMPILE([
     #include <stddef.h>
     #ifdef HAVE_MALLOC_H
     #include <malloc.h>
     #endif
-],
-[
-    ptrdiff_t  ptrdiff;
-], AC_DEFINE(HAVE_PTRDIFF_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], [ ptrdiff_t ptrdiff; ],
+AC_DEFINE(HAVE_PTRDIFF_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Check if we have a type for socklen_t
-AC_MSG_CHECKING([for socklen_t ])
-AC_TRY_COMPILE(
-[  
+dnl check if we have types for uid_t, gid_t (POSIX) or SID (Win32)
+AC_MSG_CHECKING([for uid_t ])
+AC_TRY_COMPILE([
     #include <sys/types.h>
+    #ifdef HAVE_PWD_H
+    #include <pwd.h>
+    #endif
+], [ uid_t uid; ],
+AC_DEFINE(HAVE_UID_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_MSG_CHECKING([for gid_t ])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_GRP_H
+    #include <grp.h>
+    #endif
+], [ gid_t gid; ],
+AC_DEFINE(HAVE_GID_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_MSG_CHECKING([for SID ])
+AC_TRY_COMPILE([
+    #ifdef HAVE_WINDOWS_H
+    #include <windows.h>
+    #endif
+], [ SID sid; ],
+AC_DEFINE(HAVE_SID) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check if we have a type for socklen_t
+AC_MSG_CHECKING([for socklen_t ])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
     #include <sys/socket.h>
-],
-[
-    socklen_t  len;
-], AC_DEFINE(HAVE_SOCKLEN_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+    #endif
+], [ socklen_t len; ],
+AC_DEFINE(HAVE_SOCKLEN_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl check if LL suffix on constants is supported
-AC_TRY_COMPILE(
-[
+AC_TRY_COMPILE([
     #include <stdio.h>
-],
-[
-    long long x = 0LL;
-], AC_DEFINE(HAVE_CONST_LONGLONG))
+], [ long long x = 0LL; ],
+AC_DEFINE(HAVE_CONST_LONGLONG))
 
 dnl check if _environ is declared globally
-AC_TRY_LINK(
-[
+AC_TRY_LINK([
     #include <stdlib.h>
     #include <unistd.h>
-],
-[
-    char **x = _environ;
-], AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
+], [ char **x = _environ; ],
+AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
 
 dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
-if test "$ac_cv_func_prctl" = "yes"
-then
 AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
-AC_TRY_COMPILE(
-[
+AC_TRY_COMPILE([
+    #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
-],
-[
-    int i = PR_TERMCHILD;
-], AC_DEFINE(HAVE_PR_TERMCHILD) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+    #endif
+], [ int i = PR_TERMCHILD; ],
+AC_DEFINE(HAVE_PR_TERMCHILD) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
 AC_MSG_CHECKING([for PR_SET_PDEATHSIG constants in sys/prctl.h])
-AC_TRY_COMPILE(
-[
+AC_TRY_COMPILE([
+    #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
-],
-[
-    int i = PR_SET_PDEATHSIG;
-], AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-fi
+    #endif
+], [ int i = PR_SET_PDEATHSIG; ],
+AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 AC_HEADER_TIOCGWINSZ
 
@@ -2019,25 +2029,32 @@ else
 fi
 AC_SUBST(pcp_mpi_dirs)
 
-dnl Check for struct timespec in <time.h>
-AC_MSG_CHECKING([for struct timespec in time.h])
-AC_TRY_COMPILE(
-[
-    #include <time.h>
-],
-[
-    struct timespec foo;
-], AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+dnl check for Unix Domain socket family structure
+AC_MSG_CHECKING([for struct sockaddr_un in sys/un.h])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
+AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Check if we have IRIX style altzone 
-AC_MSG_CHECKING([for altzone in time.h])
-AC_TRY_COMPILE(
-[
+dnl check for struct timespec in <time.h>
+AC_MSG_CHECKING([for struct timespec in time.h])
+AC_TRY_COMPILE([
     #include <time.h>
-],
-[
-    time_t az = altzone;
-], AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], [ struct timespec foo; ],
+AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check if we have IRIX style altzone 
+AC_MSG_CHECKING([for altzone in time.h])
+AC_TRY_COMPILE([
+    #include <time.h>
+], [ time_t az = altzone; ],
+AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl If there is no altzone, check if strftime can handle %z
 AC_MSG_CHECKING([if strftime knows about %z])

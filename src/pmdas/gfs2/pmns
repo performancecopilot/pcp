@@ -12,9 +12,16 @@
  * for more details.
  */
 
+/*
+ * Changed GFS2:*:* to root number 115 to remove ASCII parse errors during
+ * install of PMDA whilst testing.
+ */
 gfs2 {
     glocks
     sbstats		GFS2:*:*
+    glstats
+    glock_lock_time
+    control
 }
 
 gfs2.glocks {
@@ -23,4 +30,33 @@ gfs2.glocks {
     unlocked		GFS2:0:2
     deferred		GFS2:0:3
     exclusive		GFS2:0:4
+}
+
+gfs2.glstats {
+    total		GFS2:2:0
+    trans		GFS2:2:1
+    inode		GFS2:2:2
+    rgrp		GFS2:2:3
+    meta		GFS2:2:4
+    iopen		GFS2:2:5
+    flock		GFS2:2:6
+    quota		GFS2:2:8
+    journal		GFS2:2:9
+}
+
+gfs2.glock_lock_time {
+    lock_type		GFS2:3:0
+    number		GFS2:3:1
+    srtt		GFS2:3:2
+    srttvar		GFS2:3:3
+    srttb		GFS2:3:4
+    srttvarb		GFS2:3:5
+    sirt		GFS2:3:6
+    sirtvar		GFS2:3:7
+    dlm			GFS2:3:8
+    queue		GFS2:3:9
+}
+
+gfs2.control {
+    glock_lock_time     GFS2:4:0
 }

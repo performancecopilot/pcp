@@ -63,6 +63,7 @@
 #include "linux_table.h"
 #include "numa_meminfo.h"
 #include "interrupts.h"
+#include "devmapper.h"
 
 /*
  * Legacy value from deprecated infiniband.h, preserved for backward
@@ -81,6 +82,7 @@ static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
 static proc_net_snmp_t		proc_net_snmp;
 static proc_scsi_t		proc_scsi;
+static dev_mapper_t		dev_mapper;
 static proc_fs_xfs_t		proc_fs_xfs;
 static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
@@ -260,6 +262,9 @@ pmdaIndom indomtab[] = {
     { NET_INET_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
     { NODE_INDOM, 0, NULL },
+    { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
+    { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
+    { LV_INDOM, 0, NULL },
 };
 
 
@@ -1300,6 +1305,11 @@ pmdaMetric linux_metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,26), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.ninterface */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* network.interface.ipaddr */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
@@ -1759,6 +1769,7 @@ pmdaMetric linux_metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,8), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+		
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
@@ -2252,6 +2263,11 @@ pmdaMetric linux_metrictab[] = {
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* hinv.map.lvname */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_LV,0), PM_TYPE_STRING, LV_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
@@ -3846,6 +3862,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(&proc_scsi);
 
+    if (need_refresh[CLUSTER_LV])
+	refresh_dev_mapper(&dev_mapper);
+
     if (need_refresh[CLUSTER_XFS] || need_refresh[CLUSTER_XFSBUF])
     	refresh_proc_fs_xfs(&proc_fs_xfs);
 
@@ -3924,6 +3943,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case SCSI_INDOM:
     	need_refresh[CLUSTER_SCSI]++;
+	break;
+    case LV_INDOM:
+    	need_refresh[CLUSTER_LV]++;
 	break;
     case SLAB_INDOM:
     	need_refresh[CLUSTER_SLAB]++;
@@ -4574,6 +4596,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_NET_DEV: /* network.interface */
+	if (idp->item == 27) {	/* hinv.ninterface */
+	    atom->ul = pmdaCacheOp(INDOM(NET_DEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	    break;
+	}
 	sts = pmdaCacheLookup(INDOM(NET_DEV_INDOM), inst, NULL, (void **)&netip);
 	if (sts < 0)
 	    return sts;
@@ -4980,6 +5006,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 	    }
 	    if (i == proc_scsi.nscsi)
+	    	return PM_ERR_INST;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+    	break;
+
+    case CLUSTER_LV:
+	if (dev_mapper.nlv == 0)
+	    return 0; /* no values available */
+	switch(idp->item) {
+	case 0: /* hinv.map.lv */
+	    atom->cp = (char *)NULL;
+	    for (i = 0; i < dev_mapper.nlv; i++) {
+		if (dev_mapper.lv[i].id == inst) {
+		    atom->cp = dev_mapper.lv[i].dev_name;
+		    break;
+		}
+	    }
+	    if (i == dev_mapper.nlv)
 	    	return PM_ERR_INST;
 	    break;
 	default:
@@ -5613,6 +5659,7 @@ linux_init(pmdaInterface *dp)
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
     proc_scsi.scsi_indom = &indomtab[SCSI_INDOM];
+    dev_mapper.lv_indom = &indomtab[LV_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
     /*

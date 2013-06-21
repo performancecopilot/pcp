@@ -32,7 +32,8 @@ include $(BUILDRULES)
 pmlogextract:	$(OBJECTS)
 
 install:	$(CMDTARGET)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 .NOTPARALLEL:
 gram.tab.h gram.tab.c:	gram.y

@@ -46,13 +46,7 @@ _cleanup()
 trap "_cleanup" 0 1 2 3 15
 
 home=$PCP_PMDAS_DIR
-if [ ! -d $home/simple ]
-then
-    echo "Where is $home/simple?"
-    exit 1
-fi
 cd $home/simple
-unset ROOT
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
@@ -92,8 +86,11 @@ fi
 cd $PCP_PMDAS_DIR/idiot
 mv simple.c idiot.c
 mv simple.conf idiot.conf
-[ -f pmdasimple.pl ] && mv pmdasimple.pl pmdaidiot.pl
-[ -f pmdasimple.py ] && mv pmdasimple.py pmdaidiot.py
+for suffix in pl py perl python
+do
+    [ -f pmdasimple.$suffix ] && mv pmdasimple.$suffix pmdaidiot.$suffix
+done
+
 for file in *
 do
     sed <$file >$tmp.tmp \

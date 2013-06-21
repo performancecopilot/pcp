@@ -1,0 +1,108 @@
+#!/bin/sh
+# PCP QA Test No. 546
+# Check parsing of PMCD access section user/group extensions with errors
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+test $PCP_VER -ge 3802 || _notrun "No support for user/group ACLs"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+userid=`id -u`
+username=`id -u -n`
+groupid=`id -g`
+groupname=`id -g -n`
+
+_filter()
+{
+    _filter_pmcd_log \
+    | sed \
+	-e "s:$tmp:TMP:g" \
+	-e "s:$userid $username:USERID USERNAME:g" \
+	-e "s:$groupid $groupname:GROUPID GROUPNAME:g" \
+	-e "s:$userid\($username\):USERID(USERNAME):g" \
+	-e "s:$groupid\($groupname\):GROUPID(GROUPNAME):g" \
+
+}
+
+# new access control cases, not checked in QA 051 or 454
+# real QA test starts here
+export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_PORT=9876
+
+# user test cases
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow user nosuchuser ;
+allow user $username : ;
+allow user $username : fetch, ;
+allow user $username : fetch, maximum 7 connections, store, maximum 3 connections;
+allow user $username : fetch, maximum foo connections;
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow user $username : store
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow user $username, nosuchuser
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+# group test cases
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow group nosuchgroup ;
+allow group $groupname : ;
+allow group $groupname : fetch, ;
+allow group $groupname : fetch, maximum 7 connections, store, maximum 3 connections;
+allow group $groupname : fetch, maximum foo connections;
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow group $groupname : store
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+cat <<End-of-File >$tmp.conf
+sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
+[access]
+allow group $groupname, nosuchgroup
+End-of-File
+pmcd -f -x $seq.full -l $tmp.log
+_filter <$tmp.log
+
+# success, all done
+status=0
+
+exit

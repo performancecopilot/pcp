@@ -13,11 +13,14 @@
 seq=`basename $0`
 
 rm -f $seq.out $seq.full
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -ge 3801 ]
 then
-    ln $seq.out.1 $seq.out || exit 1
-else
+    ln $seq.out.3 $seq.out || exit 1
+elif [ $PCP_VER -ge 3600 ]
+then
     ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
 fi
 
 echo "QA output created by $seq"

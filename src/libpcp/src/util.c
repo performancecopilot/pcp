@@ -46,12 +46,6 @@
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
-#if defined(HAVE_PWD_H)
-#include <pwd.h>
-#endif
-#if defined(HAVE_GRP_H)
-#include <grp.h>
-#endif
 
 static FILE	**filelog;
 static int	nfilelog;
@@ -1915,95 +1909,6 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 }
 
 int
-__pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
-{
-    int sts;
-    char buf[16*1024];
-    struct passwd *pw;
-
-#if defined(HAVE_GETPWNAM_R)	/* thread-safe variant first */
-    struct passwd pwd;
-
-    sts = getpwnam_r(username, &pwd, buf, sizeof(buf), &pw);
-    if (pw == NULL) {
-	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
-	if (mode == PM_FATAL_ERR)
-	    exit(1);
-	return -ENOENT;
-    } else if (sts != 0) {
-	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
-		username, pmErrStr_r(sts, buf, sizeof(buf)));
-	if (mode == PM_FATAL_ERR)
-	    exit(1);
-	return -ENOENT;
-    }
-    *uid = pwd.pw_uid;
-    *gid = pwd.pw_gid;
-#elif defined(HAVE_GETPWNAM)
-    sts = 0;
-    setoserror(0);
-
-    if ((pw = getpwnam(username)) == 0) {
-	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to switch to\n", username);
-	if (mode == PM_FATAL_ERR)
-	    exit(1);
-	return -ENOENT;
-    } else if ((sts = oserror()) != 0) {
-	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
-		username, pmErrStr_r(sts, buf, sizeof(buf)));
-	if (mode == PM_FATAL_ERR)
-	    exit(1);
-	return -ENOENT;
-    }
-    *uid = pw->pw_uid;
-    *gid = pw->pw_gid;
-#else
-!bozo!
-#endif
-    return 0;
-}
-
-int
-__pmSetProcessIdentity(const char *username)
-{
-    gid_t gid;
-    uid_t uid;
-    char msg[256];
-
-    __pmGetUserIdentity(username, &uid, &gid, PM_FATAL_ERR);
-
-    if (setgid(gid) < 0) {
-	__pmNotifyErr(LOG_CRIT,
-		"setgid to gid of %s user (gid=%d): %s",
-		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
-    }
-
-    /*
-     * We must allow initgroups to fail with EPERM, as this
-     * is the behaviour when the parent process has already
-     * dropped privileges (e.g. pmcd receives SIGHUP).
-     */
-    if (initgroups(username, gid) < 0 && oserror() != EPERM) {
-	__pmNotifyErr(LOG_CRIT,
-		"initgroups with gid of %s user (gid=%d): %s",
-		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
-    }
-
-    if (setuid(uid) < 0) {
-	__pmNotifyErr(LOG_CRIT,
-		"setuid to uid of %s user (uid=%d): %s",
-		username, uid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
-    }
-
-    return 0;
-}
-
-int
 __pmSetSignalHandler(int sig, __pmSignalHandler func)
 {
     signal(sig, func);
@@ -2022,18 +1927,6 @@ __pmSetProgname(const char *program)
 	if (*p == '/')
 	    pmProgname = p+1;
     }
-    return 0;
-}
-
-int
-__pmGetUsername(char **username)
-{
-    char *user = pmGetConfig("PCP_USER");
-    if (user && user[0] != '\0') {
-	*username = user;
-	return 1;
-    }
-    *username = "pcp";
     return 0;
 }
 

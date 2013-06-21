@@ -1,9 +1,16 @@
+pcp (3.8.2) unstable; urgency=low
+
+  * Currently under development...
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 20 Jun 2013 09:33:00 +1000
+
 pcp (3.8.1) unstable; urgency=low
 
-  * Currently under development.
+  * New release (full details in CHANGELOG).
+  * Introduces a collectl2pcp format-converter package.
   * Remove a second 'restrict' keyword use (closes: #689552)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 15 May 2013 08:29:36 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Jun 2013 09:33:00 +1000
 
 pcp (3.8.0) unstable; urgency=low
 

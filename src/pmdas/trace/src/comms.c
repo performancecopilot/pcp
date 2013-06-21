@@ -104,9 +104,10 @@ traceMain(pmdaInterface *dispatch)
 		if (sts < 0) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
+			char *hostAddr = __pmSockAddrToString(cp->addr);
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: connect refused, denyOps=0x%x: %s",
-				 __pmSockAddrToString(cp->addr),
-				 cp->fd, cp->denyOps, pmtraceerrstr(sts));
+				 hostAddr, cp->fd, cp->denyOps, pmtraceerrstr(sts));
+			free(hostAddr);
 		    }
 #endif
 		    deleteClient(cp);
@@ -114,9 +115,10 @@ traceMain(pmdaInterface *dispatch)
 		else {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL0) {
+			char *hostAddr = __pmSockAddrToString(cp->addr);
 			__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: new connection, denyOps=0x%x",
-				 __pmSockAddrToString(cp->addr),
-				cp->fd, cp->denyOps);
+				 hostAddr, cp->fd, cp->denyOps);
+			free(hostAddr);
 		    }
 #endif
 		    ;
@@ -129,9 +131,10 @@ traceMain(pmdaInterface *dispatch)
 	    if (clients[i].denyOps & TR_OP_SEND) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0) {
+		    char *hostAddr = __pmSockAddrToString(clients[i].addr);
 		    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: send denied, denyOps=0x%x",
-			    __pmSockAddrToString(clients[i].addr),
-			    clients[i].fd, clients[i].denyOps);
+			    hostAddr, clients[i].fd, clients[i].denyOps);
+		    free(hostAddr);
 		}
 #endif
 		__pmtracesendack(clients[i].fd, PMTRACE_ERR_PERMISSION);
@@ -144,9 +147,10 @@ traceMain(pmdaInterface *dispatch)
 		    if ((pdutype = readData(clients[i].fd, &protocol)) < 0) {
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_APPL0) {
+			    char *hostAddr = __pmSockAddrToString(clients[i].addr);
 			    __pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: close connection",
-				__pmSockAddrToString(clients[i].addr),
-				clients[i].fd);
+				hostAddr, clients[i].fd);
+			    free(hostAddr);
 			}
 #endif
 			__pmAccDelClient(clients[i].addr);
@@ -156,19 +160,22 @@ traceMain(pmdaInterface *dispatch)
 			clients[i].status.protocol = protocol;
 			if (clients[i].status.connected) {
 #ifdef PCP_DEBUG
-			    if (pmDebug & DBG_TRACE_APPL0)
+			    if (pmDebug & DBG_TRACE_APPL0) {
+				char *hostAddr = __pmSockAddrToString(clients[i].addr);
 				__pmNotifyErr(LOG_DEBUG, "client %s [fd=%d]: %s ACK (type=%d)",
-				    __pmSockAddrToString(clients[i].addr),
-				    clients[i].fd,
+				    hostAddr, clients[i].fd,
 				    protocol ? "sending" : "no", pdutype);
+				free(hostAddr);
+			    }
 #endif
 			    if (protocol == 1) {
 				sts = __pmtracesendack(clients[i].fd, pdutype);
 				if (sts < 0) {
+				    char *hostAddr = __pmSockAddrToString(clients[i].addr);
 				    __pmNotifyErr(LOG_ERR, "client %s [fd=%d]: ACK send failed (type=%d): %s",
-				        __pmSockAddrToString(clients[i].addr),
-					clients[i].fd,
+				        hostAddr, clients[i].fd,
 					pdutype, pmtraceerrstr(sts));
+				    free(hostAddr);
 				}
 			    }
 			}

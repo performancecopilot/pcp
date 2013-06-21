@@ -22,6 +22,7 @@
 #include "pmda.h"
 #include "domain.h"
 #include "dynamic.h"
+#include "contexts.h"
 
 #include <ctype.h>
 #include <unistd.h>
@@ -800,7 +801,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS];
-    char		newname[11];		/* see Note below */
+    char		newname[16];		/* see Note below */
+    int			sts;
 
     memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
@@ -851,8 +853,11 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	}
     }
 
+    proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
-    return pmdaInstance(indom, inst, name, result, pmda);
+    sts = pmdaInstance(indom, inst, name, result, pmda);
+    proc_ctx_revert(pmda->e_context);
+    return sts;
 }
 
 /*
@@ -1363,20 +1368,21 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int		i;
+    int		i, sts;
     int		need_refresh[NUM_CLUSTERS];
 
     memset(need_refresh, 0, sizeof(need_refresh));
-    for (i=0; i < numpmid; i++) {
+    for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS) {
+	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS)
 	    need_refresh[idp->cluster]++;
-	}
-
     }
 
+    proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
-    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
+    proc_ctx_revert(pmda->e_context);
+    return sts;
 }
 
 static int
@@ -1423,22 +1429,6 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
-static int
-proc_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
-{
-    if (pmDebug & DBG_TRACE_AUTH) {
-	char buffer[256];
-
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
-    return 0;
-}
-
 int
 proc_metrictable_size(void)
 {
@@ -1472,7 +1462,8 @@ proc_init(pmdaInterface *dp)
     dp->version.six.pmid = proc_pmid;
     dp->version.six.name = proc_name;
     dp->version.six.children = proc_children;
-    dp->version.six.attribute = proc_attribute;
+    dp->version.six.attribute = proc_ctx_attrs;
+    pmdaSetEndContextCallBack(dp, proc_ctx_end);
     pmdaSetFetchCallBack(dp, proc_fetchCallBack);
 
     /*
@@ -1494,6 +1485,7 @@ proc_init(pmdaInterface *dp)
     read_ksym_sources(kernel_uname.release);
 
     cgroup_init();
+    proc_ctx_init();
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), proc_metrictab,
              sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));

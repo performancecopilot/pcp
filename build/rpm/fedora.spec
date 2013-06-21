@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.0
+Version: 3.8.2
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -200,6 +200,20 @@ Requires: perl-PCP-LogImport >= %{version}-%{release}
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# pcp-import-collectl2pcp
+#
+%package import-collectl2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= %{version}-%{release}
+
+%description import-collectl2pcp
+Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
@@ -487,6 +501,11 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/mrtg2pcp
 %{_mandir}/man1/mrtg2pcp.1.gz
 
+%files import-collectl2pcp
+%defattr(-,root,root)
+%{_bindir}/collectl2pcp
+%{_mandir}/man1/collectl2pcp.1.gz
+
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
@@ -503,8 +522,15 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Web May 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
-- Currently under development.
+* Thu Jun 20 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
+- Currently under development...
+
+* Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
+- Update to latest PCP sources.
+- Fix log import silently dropping >1024 metrics (BZ 968210)
+- Move some commonly used tools on the usual PATH (BZ 967709)
+- Improve pmatop handling of missing proc metrics (BZ 963085)
+- Stop out-of-order records corrupting import logs (BZ 958745)
 
 * Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
 - Update to latest PCP sources.

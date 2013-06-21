@@ -54,16 +54,28 @@ cat <<End-of-File \
 access.o
     b all_ops			# single-threaded PM_SCOPE_ACL
     b gotmyhostid		# single-threaded PM_SCOPE_ACL
+    b grouplist			# single-threaded PM_SCOPE_ACL
     b hostlist			# single-threaded PM_SCOPE_ACL
     b myhostid			# single-threaded PM_SCOPE_ACL
     b myhostname		# single-threaded PM_SCOPE_ACL
     b nhosts			# single-threaded PM_SCOPE_ACL
+    b ngroups			# single-threaded PM_SCOPE_ACL
+    b nusers			# single-threaded PM_SCOPE_ACL
+    b oldgrouplist		# single-threaded PM_SCOPE_ACL
     b oldhostlist		# single-threaded PM_SCOPE_ACL
+    b olduserlist		# single-threaded PM_SCOPE_ACL
+    b oldngroups		# single-threaded PM_SCOPE_ACL
     b oldnhosts			# single-threaded PM_SCOPE_ACL
+    b oldnusers			# single-threaded PM_SCOPE_ACL
+    b oldszgrouplist		# single-threaded PM_SCOPE_ACL
     b oldszhostlist		# single-threaded PM_SCOPE_ACL
+    b oldszuserlist		# single-threaded PM_SCOPE_ACL
     b saved			# single-threaded PM_SCOPE_ACL
     b szhostlist		# single-threaded PM_SCOPE_ACL
-    d cando_ipv6.[0-9]*		# no unsafe side-effects
+    b szgrouplist		# single-threaded PM_SCOPE_ACL
+    b szuserlist		# single-threaded PM_SCOPE_ACL
+    b userlist			# single-threaded PM_SCOPE_ACL
+accounts.o
 AF.o
     d afid			# single-threaded PM_SCOPE_AF
     b block			# single-threaded PM_SCOPE_AF

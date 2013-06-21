@@ -64,6 +64,13 @@ In this mode data is taken from a
 .BR live
 system and either displayed on the terminal or written to a PCP archive.
 .PP
+.B "\-h host"
+.RS
+Display metrics from
+.I host
+instead of displaying metrics from the local host.
+.RE
+.PP
 .\" .B "--align"
 .\" .RS
 .\" .BR pmcollectl
@@ -181,7 +188,7 @@ Read data from the specified PCP archive files(s).
 .SH "COMMON OPTIONS"
 The following options are supported in both record and playback modes.
 .PP
-.B \-h, --help
+.B \--help
 .RS
 Display standard help message.
 .RE
