@@ -750,7 +750,6 @@ pcp.py
 533 dbpmda local pmda.sample oss sanity
 534 pmie local oss
 535 pmie local pmprobe oss
-536 pmlogcheck local oss
 538 pmie local oss pmstore
 539 pmpost local oss
 541 pmie #535080 local pmprobe oss
@@ -768,6 +767,7 @@ pcp.py
 560 pmda.simple local pmda.install oss
 564 logutil local oss
 565 pmda.sendmail local pmda.install oss
+566 pmlogcheck local oss
 569 pmprobe #679693 local oss sanity
 570 pmns #690735 local oss
 571 pmlogger local oss pmdumplog
