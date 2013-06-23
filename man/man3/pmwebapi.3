@@ -47,7 +47,12 @@ To create a new web context identifier, a web client invokes:
 Creates a PM_CONTEXT_LOCAL PMAPI context.
 .TP
 .B /pmapi/context?hostname=STRING
-Creates a PM_CONTEXT_HOST PMAPI context with the given extended host name.
+.TP
+.B /pmapi/context?hostspec=STRING
+Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
+specification.  If the host specification contains a userid/password combination,
+then the corresponding pmapi context operations will require HTTP Basic authentication
+credentials with matching userid/password.
 .TP
 .B /pmapi/context?archivefile=ARCHIVE
 Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.

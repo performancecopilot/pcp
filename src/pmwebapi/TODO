@@ -1,13 +1,11 @@
-- authentication, association with pmwebapi context#s
-	/context?auth=plain
-	thence 401 for that /pmapi/NNNN/* if not similarly authenticated
 - incoming & outgoing ACL
 - ssl
 - _fetch event types
 - pmStore ?
 - missing APIs
   - time control
-- consider having blinkenlights call /pmapi/NNNNN/destroy
+  - or _metric&intervals=STARTTIME&count=COUNT
+- consider having blinkenlights call /pmapi/NNNNN/destroy ... but DoS unless authenticated
 <script type="text/javascript">
   window.onbeforeunload = function(){
     return "Did you save your stuff?"
