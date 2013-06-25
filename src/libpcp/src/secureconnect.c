@@ -268,9 +268,12 @@ __pmCreateUnixSocket(void)
 
     fd = __pmSetupSocket(fdp, AF_UNIX);
 
-    /* NOTE: Do not set the SO_PASSCRED socket option here. If you do, then this socket will be
-       auto-bound to a name in the abstract namespace on modern linux platforms. The caller must
-       bind this socket to the desired filesystem path. See Unix(7) for details. */
+    /*
+     * NOTE: Do not set the SO_PASSCRED socket option here. If you do, then
+     * this socket will be auto-bound to a name in the abstract namespace on
+     * modern linux platforms. The caller must bind this socket to the desired
+     * filesystem path. See Unix(7) for details.
+     */
     return fd;
 #else
     __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
@@ -1250,9 +1253,14 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	switch(level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
-	    case SO_PASSCRED:
+		/*
+		 * These options are not related. They are just both options for which
+		 * NSPR has no direct mapping.
+		 */
 #ifdef IS_MINGW
-	    case SO_EXCLUSIVEADDRUSE:
+	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
+#else
+	    case SO_PASSCRED: /* Does not exist on MINGW */
 #endif
 	    {
 		/*

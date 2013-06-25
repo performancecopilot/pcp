@@ -336,7 +336,7 @@ static struct {
 	{ "secure_sockets",	SECURE_SOCKETS_ENABLED },	/* from pcp-3.7.x */
 	{ "ipv6",		ipv6_enabled },
 	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
-	{ "unix_domain_sockets",UNIX_DOMAIN_SOCKETS_ENABLED },	/* from pcp-3.8.1 */
+	{ "unix_domain_sockets",UNIX_DOMAIN_SOCKETS_ENABLED },	/* from pcp-3.8.2 */
 };
 
 void

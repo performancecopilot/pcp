@@ -100,25 +100,24 @@ __pmInitSocket(int fd, int family)
 	return sts;
     }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (family != AF_UNIX) {
-#endif
-	/* Avoid 200 ms delay. This option is not supported for unix domain sockets. */
-	if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-			   (__pmSockLen)sizeof(nodelay)) < 0) {
-	    __pmNotifyErr(LOG_WARNING,
-			  "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
-			  fd, netstrerror_r(errmsg, sizeof(errmsg)));
-	}
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    }
-#endif
-
     /* Don't linger on close */
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (__pmSockLen)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_WARNING,
 		      "__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
+		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
+    }
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (family == AF_UNIX)
+	return fd;
+#endif
+
+    /* Avoid 200 ms delay. This option is not supported for unix domain sockets. */
+    if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
+		       (__pmSockLen)sizeof(nodelay)) < 0) {
+	__pmNotifyErr(LOG_WARNING,
+		      "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
 		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
@@ -365,15 +364,17 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     return __pmConnectRestoreFlags(fd, fdFlags);
 }
 
-/* Return the path to the default PMCD local unix domain socket.
-   Returns a pointer to a static buffer which can be used directly.
-   Return the path regardless of whether unix domain sockets are
-   supported by our build. Other functions can then print reasonable
-   messages if an attempt is made to use one.*/
+/*
+ * Return the path to the default PMCD local unix domain socket.
+ * Returns a pointer to a static buffer which can be used directly.
+ * Return the path regardless of whether unix domain sockets are
+ * supported by our build. Other functions can then print reasonable
+ * messages if an attempt is made to use one.
+*/
 const char *
 __pmPMCDLocalSocketDefault(void)
 {
-    static char pmcd_socket[MAXPATHLEN] = "";
+    static char pmcd_socket[MAXPATHLEN];
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -382,8 +383,8 @@ __pmPMCDLocalSocketDefault(void)
 	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	else
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
-		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c%s.socket",
+		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), pmProgname);
     }
     PM_UNLOCK(__pmLock_libpcp);
 
@@ -559,9 +560,12 @@ __pmCreateUnixSocket(void)
     if ((sts = __pmInitSocket(fd, AF_UNIX)) < 0)
         return sts;
 
-    /* NOTE: Do not set the SO_PASSCRED socket option here. If you do, then this socket will be
-       auto-bound to a name in the abstract namespace on modern linux platforms. The caller must
-       bind this socket to the desired filesystem path. See Unix(7) for details. */
+    /*
+     * NOTE: Do not set the SO_PASSCRED socket option here. If you do, then this
+     * socket will be auto-bound to a name in the abstract namespace on modern
+     * linux platforms. The caller must bind this socket to the desired filesystem
+     * path. See Unix(7) for details.
+     */
     return fd;
 #else
     __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");

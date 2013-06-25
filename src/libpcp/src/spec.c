@@ -476,7 +476,6 @@ fail:
     return sts;
 }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 /*
  * Parse a socket path.
  * Accept anything up to, but not including the first ':', or the end of the spec.
@@ -515,8 +514,10 @@ parseSocketPath(
 	len = s - start;
     }
 
-    /* Make sure that the path is absolute. parseProtocolSpec() removes the
-       (optional) "//" from "local://some/path". */
+    /*
+     * Make sure that the path is absolute. parseProtocolSpec() removes the
+     * (optional) "//" from "local://some/path".
+     */
     if (*path != __pmPathSeparator()) {
 	len = snprintf (absolute_path, sizeof(absolute_path), "%c%s",
 			__pmPathSeparator(), path);
@@ -535,7 +536,6 @@ parseSocketPath(
     *rslt = hsp;
     return 0;
 }
-#endif
 
 int
 __pmParseHostSpec(
@@ -668,23 +668,19 @@ parseProtocolSpec(
     if (strncmp(s, PCP_PROTOCOL_PREFIX, PCP_PROTOCOL_PREFIXSZ) == 0) {
 	protocol = PCP_PROTOCOL_NAME;
 	s += PCP_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_PROTOCOL;
     } else if (strncmp(s, PCPS_PROTOCOL_PREFIX, PCPS_PROTOCOL_PREFIXSZ) == 0) {
 	protocol = PCPS_PROTOCOL_NAME;
 	s += PCPS_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_PROTOCOL;
     } else if (strncmp(s, LOCAL_PROTOCOL_PREFIX, LOCAL_PROTOCOL_PREFIXSZ) == 0) {
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	protocol = LOCAL_PROTOCOL_NAME;
 	s += LOCAL_PROTOCOL_PREFIXSZ;
-#else
-	hostError(s, s, "unsupported protocol specifier", errmsg);
-#endif
+	*attribute = PCP_ATTR_LOCAL;
     } else if (strncmp(s, UNIX_PROTOCOL_PREFIX, UNIX_PROTOCOL_PREFIXSZ) == 0) {
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	protocol = UNIX_PROTOCOL_NAME;
 	s += UNIX_PROTOCOL_PREFIXSZ;
-#else
-	hostError(s, s, "unsupported protocol specifier", errmsg);
-#endif
+	*attribute = PCP_ATTR_UNIXSOCK;
     }
 
     /* optionally skip over slash-delimiters */
@@ -693,7 +689,6 @@ parseProtocolSpec(
 	    s++;
 	if ((*value = strdup(protocol)) == NULL)
 	    return -ENOMEM;
-	*attribute = PCP_ATTR_PROTOCOL;
     } else {
 	*value = NULL;
 	*attribute = PCP_ATTR_NONE;
@@ -840,33 +835,24 @@ __pmParseHostAttrsSpec(
 {
     char *value = NULL, *s = (char *)spec;
     int sts, attr;
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    int isLocal = 0;
-    int isUnix = 0;
-#endif
 
     /* parse optional protocol section */
     if ((sts = parseProtocolSpec(spec, &s, &attr, &value, errmsg)) < 0)
 	return sts;
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (value != NULL &&
-	((isLocal = (strcmp(value, LOCAL_PROTOCOL_NAME) == 0)) ||
-	 (isUnix = (strcmp(value, UNIX_PROTOCOL_NAME) == 0)))) {
+    if (attr == PCP_ATTR_LOCAL || attr == PCP_ATTR_UNIXSOCK) {
 	/* We are looking for a socket path. */
 	if ((sts = parseSocketPath(spec, &s, host)) < 0)
 	    goto fail;
 	*count = 1;
-	host[0]->nports = isLocal ? PM_HOST_SPEC_NPORTS_LOCAL : PM_HOST_SPEC_NPORTS_UNIX;
+	host[0]->nports = (attr == PCP_ATTR_LOCAL) ?
+	    PM_HOST_SPEC_NPORTS_LOCAL : PM_HOST_SPEC_NPORTS_UNIX;
     }
     else {
-#endif
 	/* We are looking for a host spec. */
 	if ((sts = parseHostSpec(spec, &s, host, count, errmsg)) < 0)
 	    goto fail;
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     }
-#endif
 
     /* skip over an attributes delimiter */
     if (*s == '?') {

@@ -49,13 +49,11 @@ static char	**intflist;
 static int	nport;
 static int	*portlist;
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 /*
  * The unix domain socket we're willing to listen for clients on, from -s (or env)
  */
-static char *localSocketPath;
+static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
-#endif
 
 int
 __pmServerAddInterface(const char *address)
@@ -98,12 +96,10 @@ __pmServerAddPorts(const char *ports)
 void
 __pmServerSetLocalSocket(const char *path)
 {
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (path != NULL)
+    if (path != NULL && *path != '\0')
 	localSocketPath = strdup(path);
     else
-	localSocketPath = NULL;
-#endif
+	localSocketPath = __pmPMCDLocalSocketDefault();
 }
 
 /* Increase the capacity of the reqPorts array (maintain the contents) */
@@ -213,7 +209,7 @@ AddressFamily(int family)
  * On input, 'family' is a pointer to the address family to use (AF_INET,
  * AF_INET6) if the address specified is empty.  If the spec is not
  * empty then family is ignored and is set to the actual address family
- * used.
+ * used. 'family' must be initialized to AF_UNSPEC, in this case.
  */
 static int
 OpenRequestSocket(int port, const char *address, int *family,
@@ -222,9 +218,19 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			fd = -1;
     int			one, sts;
     __pmSockAddr	*myAddr;
+    int			isUnix;
 
+    /*
+     * Using this flag will eliminate the need for more conditional
+     * compilation below, hopefully making the code easier to read and maintain.
+     */
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (*family == AF_UNIX) {
+    isUnix = (*family == AF_UNIX);
+#else
+    usUnix = 0;
+#endif
+
+    if (isUnix) {
 	if ((myAddr = __pmSockAddrAlloc()) == NULL) {
 	    __pmNoMem("OpenRequestSocket: can't allocate socket address",
 		      sizeof(*myAddr), PM_FATAL_ERR);
@@ -238,7 +244,6 @@ OpenRequestSocket(int port, const char *address, int *family,
 	fd = __pmCreateUnixSocket();
     }
     else {
-#endif
 	if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
 			  port, address);
@@ -266,9 +271,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 			  port, address, *family);
 	    goto fail;
 	}
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     }
-#endif
 
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
@@ -276,22 +279,22 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-    /* Ignore dead client connections */
+    /* Ignore dead client connections. */
     one = 1;
 #ifndef IS_MINGW
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
-		(__pmSockLen)sizeof(one)) < 0) {
+		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
+		      port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
-		(__pmSockLen)sizeof(one)) < 0) {
+		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
+		      port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #endif
@@ -305,16 +308,6 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (*family == AF_UNIX) {
-	/* For unix domain sockets, unlink() the socket path before binding. If it
-	   exists, then it is either 1) stray and will be deleted or 2) in use
-	   and the unlink will (correctly) fail to remove it. We will then (correctly)
-	   receive EADDRINUSE. */
-	unlink(address);
-    }
-#endif
-
     sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
     __pmSockAddrFree(myAddr);
     myAddr = NULL;
@@ -327,11 +320,12 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (*family == AF_UNIX) {
-	/* For unix domain sockets, grant rw access to the socket for all,
-	   otherwise, on linux platforms, connection will not be possible.
-	   This must be done AFTER binding the address. See Unix(7) for details. */
+    if (isUnix) {
+	/*
+	 * For unix domain sockets, grant rw access to the socket for all,
+	 * otherwise, on linux platforms, connection will not be possible.
+	 * This must be done AFTER binding the address. See Unix(7) for details.
+	 */
 	sts = chmod(address, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (sts != 0) {
 	    __pmNotifyErr(LOG_ERR,
@@ -340,10 +334,12 @@ OpenRequestSocket(int port, const char *address, int *family,
 	    goto fail;
 	}
 
-	/* For unix domain sockets, set the SO_PASSCRED option to allow user credentials
-	   to be authenticated. This must be done AFTER binding the address. Otherwise,
-	   on modern linux platforms, the socket will be auto-bound to a name in the
-	   abstract namespace. See Unix(7) for details. */
+	/*
+	 * For unix domain sockets, set the SO_PASSCRED option to allow user credentials
+	 * to be authenticated. This must be done AFTER binding the address. Otherwise,
+	 * on modern linux platforms, the socket will be auto-bound to a name in the
+	 * abstract namespace. See Unix(7) for details.
+	 */
 	if (__pmSetSockOpt(fd, SOL_SOCKET, SO_PASSCRED, (char *)&one,
 	    (__pmSockLen)sizeof(one)) < 0) {
 	    __pmNotifyErr(LOG_ERR,
@@ -352,7 +348,6 @@ OpenRequestSocket(int port, const char *address, int *family,
 	    goto fail;
         }
     }
-#endif
 
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
@@ -369,11 +364,9 @@ OpenRequestSocket(int port, const char *address, int *family,
 fail:
     if (fd != -1) {
         __pmCloseSocket(fd);
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	/* We must unlink the socket file. */
-	if (*family == AF_UNIX)
+	if (isUnix)
 	    unlink(address);
-#endif
     }
     if (myAddr)
         __pmSockAddrFree(myAddr);
@@ -420,6 +413,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		rp->fds[IPV6_FD] = -EPROTO;
 	}
 	else {
+	    family = AF_UNSPEC;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
@@ -434,19 +428,19 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
     }
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    /* Open a local unix domain socket, if specified. */
+    /* Open a local unix domain socket, if specified, and supported. */
     if (localSocketPath != NULL) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	family = AF_UNIX;
-	if ((fd = OpenRequestSocket(0, localSocketPath, &family,
-				    backlog, fdset, &maximum)) >= 0) {
-	    localSocketFd = fd;
+	if ((localSocketFd = OpenRequestSocket(0, localSocketPath, &family,
+					       backlog, fdset, &maximum)) >= 0) {
 	    success = 1;
 	}
-	else
-	    localSocketFd = -1;
-    }
+#else
+	__pmNotifyErr(LOG_ERR, "%s: unix domain sockets are not supported\n",
+		      pmProgname);
 #endif
+    }
 
     if (success)
 	return maximum;
@@ -477,20 +471,17 @@ __pmServerCloseRequestPorts(void)
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (localSocketFd >= 0) {
         __pmCloseSocket(localSocketFd);
 
 	/* We must remove the socket file. */
-	i = unlink(localSocketPath);
-	if (i != 0) {
-	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s. errno==%d: %s",
-			  pmProgname, localSocketPath, errno, strerror(errno));
+	if (unlink(localSocketPath) != 0) {
+	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s: %s",
+			  pmProgname, localSocketPath, strerror(errno));
 	    __pmNotifyErr(LOG_ERR, "%s: uid==%d euid==%d\n",
 			  pmProgname, getuid(), geteuid());
 	}
     }
-#endif
 }
 
 /*
@@ -501,12 +492,10 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
 {
     int i, fd;
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     /* Check the local unix domain fd. */
     if (localSocketFd >= 0) {
 	NewClient(fdset, localSocketFd);
     }
-#endif
 
     for (i = 0; i < nReqPorts; i++) {
 	/* Check the inet and ipv6 fds. */
@@ -536,13 +525,11 @@ __pmServerDumpRequestPorts(FILE *stream)
 	  "  sts fd   port  family address\n"
 	  "  === ==== ===== ====== =======\n", pmProgname);
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (localSocketFd != -EPROTO)
 	fprintf(stderr, "  %-3s %4d %5s %-6s %s\n",
 		(localSocketFd != -1) ? "ok" : "err",
 		localSocketFd, "", "unix",
 		localSocketPath);
-#endif
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
@@ -561,13 +548,11 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 {
     int i, j;
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (fd == localSocketFd) {
 	snprintf(buffer, sz, "%s unix request socket %s",
 		 pmProgname, localSocketPath);
 	return buffer;
     }
-#endif
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];

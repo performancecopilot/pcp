@@ -198,26 +198,6 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 static int	global_nports;
 static int	*global_portlist;
 static int	default_portlist[] = { SERVER_PORT };
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-static const char *pmcd_socket;
-#endif
-
-static void
-load_pmcd_local_socket(void)
-{
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-    static int	first_time = 1;
-
-    if (first_time) {
-	char	*envstr;
-
-	first_time = 0;
-
-	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
-	    pmcd_socket = strdup(envstr);
-    }
-#endif
-}
 
 static void
 load_pmcd_ports(void)
@@ -355,7 +335,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	 * found.
 	 */
 	first_time = 0;
-	load_pmcd_local_socket();
 	load_pmcd_ports();
 	load_proxy_hostspec(&proxy);
 	load_secure_runtime();
@@ -390,8 +369,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 		    sts = fd;
 		portIx = -1; /* no port */
 	    }
-	    /* If the connection failed and the protocol was 'local:', then try connecting to
-	       localhost via the default port(s). */
+	    /*
+	     * If the connection failed and the protocol was 'local:', then try
+	     * connecting to localhost via the default port(s).
+	     */
 	    if (sts < 0) {
 		if (nports == PM_HOST_SPEC_NPORTS_LOCAL) {
 		    name = "localhost";

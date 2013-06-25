@@ -96,8 +96,8 @@ auxserver.o
     b nReqPorts			# single-threaded server scope
     b szReqPorts		# single-threaded server scope
     b reqPorts			# single-threaded server scope
-    b ?localSocketPath		# single-threaded server scope
-    d ?localSocketFd		# single-threaded server scope
+    b localSocketPath		# single-threaded server scope
+    d localSocketFd		# single-threaded server scope
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const
@@ -115,7 +115,6 @@ connect.o
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b proxy.[0-9]*		# guarded by __pmLock_libpcp mutex
     b proxy_port.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b ?pmcd_socket		# guarded by __pmLock_libpcp mutex
 context.o
     [ds] _mode			# const
     d def_backoff		# guarded by __pmLock_libpcp mutex
