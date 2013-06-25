@@ -23,7 +23,6 @@ eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
-unix_domain_sockets=false
 ipv6=false
 pmcdx=false
 eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
@@ -32,33 +31,17 @@ test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
 if [ $PCP_VER -ge 3700 ]; then
-    if [ $unix_domain_sockets ]; then
-	if $ipv6 ; then
-	    if [ $PCP_VER -ge 3702 ]; then
-		ln $seq.out.9 $seq.out || exit 1
-	    else
-		ln $seq.out.8 $seq.out || exit 1
-	    fi
+    if $ipv6 ; then
+	if [ $PCP_VER -ge 3702 ]; then
+	    ln $seq.out.5 $seq.out || exit 1
 	else
-	    if [ $PCP_VER -ge 3702 ]; then
-		ln $seq.out.10 $seq.out || exit 1
-	    else
-		ln $seq.out.7 $seq.out || exit 1
-	    fi
+	    ln $seq.out.4 $seq.out || exit 1
 	fi
     else
-	if $ipv6 ; then
-	    if [ $PCP_VER -ge 3702 ]; then
-		ln $seq.out.5 $seq.out || exit 1
-	    else
-		ln $seq.out.4 $seq.out || exit 1
-	    fi
+	if [ $PCP_VER -ge 3702 ]; then
+	    ln $seq.out.6 $seq.out || exit 1
 	else
-	    if [ $PCP_VER -ge 3702 ]; then
-		ln $seq.out.6 $seq.out || exit 1
-	    else
-		ln $seq.out.3 $seq.out || exit 1
-	    fi
+	    ln $seq.out.3 $seq.out || exit 1
 	fi
     fi
 elif $pmcdx ; then
@@ -107,6 +90,7 @@ d
 	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
 	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
 	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }

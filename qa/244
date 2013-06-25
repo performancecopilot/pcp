@@ -13,17 +13,10 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
-unix_domain_sockets=false
 ipv6=false
 eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 rm -f $seq.out
-if [ $unix_domain_sockets ]; then
-    if $ipv6 ; then
-	ln $seq.out.4 $seq.out || exit 1
-    else
-	ln $seq.out.3 $seq.out || exit 1
-    fi
-elif $ipv6 ; then
+if $ipv6 ; then
     ln $seq.out.2 $seq.out || exit 1
 else
     ln $seq.out.1 $seq.out || exit 1
@@ -62,6 +55,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e '/endclient client.* No permission/d' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "/sed: couldn't flush stdout: Broken pipe/d" \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
 $1 == "news"		{ $4 = "fd_in"; $5 = "fd_out" }
@@ -131,6 +125,7 @@ cleanup()
 	_restore_loggers
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT
+	unset PMCD_SOCKET
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -177,6 +172,7 @@ echo '<END>'
 #
 port=`_find_free_port 5432`
 export PMCD_PORT=$port
+export PMCD_SOCKET=$tmp/pmcd.socket
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 # Also figure out which user we will run pmcd and its pmdas as

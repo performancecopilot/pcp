@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-unix_domain_sockets=false
 ipv6=false
 pmcdx=false
 eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
@@ -22,13 +21,7 @@ pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
-if [ $unix_domain_sockets ]; then
-    if $ipv6 ; then
-	ln $seq.out.6 $seq.out || exit 1
-    else
-	ln $seq.out.5 $seq.out || exit 1
-    fi
-elif $ipv6 ; then
+if $ipv6 ; then
     ln $seq.out.4 $seq.out || exit 1
 elif $pmcdx ; then
     if test $PCP_VER -ge 2704
@@ -72,7 +65,8 @@ _filter_log()
 	-e 's/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/' \
 	-e '/client connection from/,/^$/d' \
 	-e '/Cleanup/d' \
-	-e '/Info: spindle_stats_init/d'
+	-e '/Info: spindle_stats_init/d' \
+	-e '/UNIX_DOMAIN_SOCKET/d'
 }
 
 _filter_pmda_log()

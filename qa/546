@@ -37,6 +37,12 @@ _filter()
 
 }
 
+_filter_err()
+{
+    sed \
+	-e '/OpenRequestSocket.*unix.*__pmBind: Address already in use/,+1 d'
+}
+
 # new access control cases, not checked in QA 051 or 454
 # real QA test starts here
 export PCP_PMCDCONF_PATH=$tmp.conf
@@ -53,24 +59,27 @@ allow user $username : fetch, ;
 allow user $username : fetch, maximum 7 connections, store, maximum 3 connections;
 allow user $username : fetch, maximum foo connections;
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow user $username : store
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow user $username, nosuchuser
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 # group test cases
 
@@ -83,24 +92,27 @@ allow group $groupname : fetch, ;
 allow group $groupname : fetch, maximum 7 connections, store, maximum 3 connections;
 allow group $groupname : fetch, maximum foo connections;
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow group $groupname : store
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow group $groupname, nosuchgroup
 End-of-File
-pmcd -f -x $seq.full -l $tmp.log
+pmcd -f -x $seq.full -l $tmp.log 2>$tmp.err
 _filter <$tmp.log
+_filter_err <$tmp.err
 
 # success, all done
 status=0

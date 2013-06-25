@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-unix_domain_sockets=false
 ipv6=false
 pmcdx=false
 eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
@@ -22,13 +21,7 @@ pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3802 -a $unix_domain_sockets ]; then
-    if $ipv6 ; then
-        ln $seq.out.7 $seq.out || exit 1
-    else
-        ln $seq.out.6 $seq.out || exit 1
-    fi
-elif [ $PCP_VER -ge 3700 ]; then
+if [ $PCP_VER -ge 3700 ]; then
     if $ipv6 ; then
         ln $seq.out.5 $seq.out || exit 1
     else
@@ -76,6 +69,7 @@ _filter_log()
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
 	-e 's;$PCP_PMDAS_DIR/pmcd/;;' \
 	-e "s;\.$DSO_SUFFIX;.\$DSO_SUFFIX;g" \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 /localhost/		{ sub(/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/,"MYIPADDR",$5)
 			  sub(/^[0-9a-f:][0-9a-f:]*%[0-9a-z]+$/,"MYIPADDR",$5)
