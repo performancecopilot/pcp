@@ -19,6 +19,7 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
+[\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-f\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
@@ -73,6 +74,19 @@ agents are specified.
 The options to
 .B pmcd
 are as follows.
+.TP
+\f3\-c\f1 \f2config\f1
+On startup
+.B pmcd
+uses a configuration file from either the
+.IR $PCP_PMCDCONF_PATH ,
+configuration variable in
+.IR /etc/pcp.conf ,
+or an environment variable of the same name.
+However, these values may be overridden with
+.I config
+using this option.
+The format of this configuration file is described below.
 .TP
 \f3\-C\f1 \f2dirname\f1
 Specify the path to the Network Security Services certificate database,

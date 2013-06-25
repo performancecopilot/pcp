@@ -7,6 +7,12 @@
 # require the system to be configured in as a gfs2 cluster with one 
 # shared gfs2 filesystem in order to test functionality.
 #
+# One of the easiest ways to test this is to set up a virtualised
+# GFS2 cluster with one filesystem using the application cbox by 
+# Fabbione (available at https://github.com/fabbione/cbox) and 
+# installing the pcp-qa suite on one of the resulting virutal 
+# cluster's nodes.
+#
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #
 seq=`basename $0`

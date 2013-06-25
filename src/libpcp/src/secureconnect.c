@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2013 Red Hat.
- * Network Security Services (NSS) support.  Client side.
+ * Security and Authentication (NSS and SASL) support.  Client side.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -672,7 +672,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     char *value = NULL;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthRealmCB enter ctx=%p id=%d\n", context, id);
+	fprintf(stderr, "__pmAuthRealmCB enter ctx=%p id=%#x\n", context, id);
 
     if (id != SASL_CB_GETREALM)
 	return SASL_FAIL;
@@ -686,7 +686,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     *result = (const char *)value;
 
     if (pmDebug & DBG_TRACE_AUTH) {
-	fprintf(stderr, "__pmAuthRealmCB ctx=%p, id=%d, realms=(", context, id);
+	fprintf(stderr, "__pmAuthRealmCB ctx=%p, id=%#x, realms=(", context, id);
 	if (realms) {
 	    if (*realms)
 		fprintf(stderr, "%s", *realms);
@@ -707,7 +707,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     int sts = SASL_OK;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSimpleCB enter ctx=%p id=%d\n", context, id);
+	fprintf(stderr, "__pmAuthSimpleCB enter ctx=%p id=%#x\n", context, id);
 
     if (!result)
 	return SASL_BADPARAM;
@@ -737,7 +737,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     *result = value;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSimpleCB ctx=%p id=%d -> sts=%d rslt=%p len=%d\n",
+	fprintf(stderr, "__pmAuthSimpleCB ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
 		context, id, sts, *result, len ? *len : -1);
     return sts;
 }
@@ -747,17 +747,18 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 {
     __pmHashNode *node;
     __pmHashCtl *attrs = (__pmHashCtl *)context;
+    const char *password = NULL;
     unsigned int length = 0;
-    char *password = NULL;
+    int sts = SASL_OK;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSecretCB enter ctx=%p id=%d\n", context, id);
+	fprintf(stderr, "__pmAuthSecretCB enter ctx=%p id=%#x\n", context, id);
 
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
 	return SASL_BADPARAM;
 
-    if ((node = __pmHashSearch(PCP_ATTR_PASSWORD, attrs)) == NULL) {
-	password = (char *)node->data;
+    if ((node = __pmHashSearch(PCP_ATTR_PASSWORD, attrs)) != NULL) {
+	password = (const char *)node->data;
 	length = (unsigned int)strlen(password);
     } else {
 	/* prompt? */
@@ -770,7 +771,11 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 
     (*secret)->len = length;
     strcpy((char *)(*secret)->data, password);
-    return SASL_OK;
+
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "__pmAuthSecretCB ctx=%p id=%#x -> sts=%d data=%s len=%d\n",
+		context, id, sts, password, length);
+    return sts;
 }
 
 static int
@@ -778,7 +783,7 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 		 const char *defaultresult, const char **result, unsigned *length)
 {
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthPromptCB enter ctx=%p id=%d\n", context, id);
+	fprintf(stderr, "__pmAuthPromptCB enter ctx=%p id=%#x\n", context, id);
 
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)
 	return SASL_BADPARAM;
@@ -965,7 +970,7 @@ int
 __pmInitAuthServer(void)
 {
     __pmInitAuthPaths();
-    if (sasl_server_init(common_callbacks, SECURE_SERVER_SASL_CONFIG) != SASL_OK)
+    if (sasl_server_init(common_callbacks, pmProgname) != SASL_OK)
 	return -EINVAL;
     return 0;
 }

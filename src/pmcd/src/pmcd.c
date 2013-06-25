@@ -103,7 +103,8 @@ ParseOptions(int argc, char *argv[], int *nports)
     char	*endptr;
     int		val;
 
-    strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
+    endptr = pmGetConfig("PCP_PMCDCONF_PATH");
+    strncpy(configFileName, endptr, sizeof(configFileName)-1);
 
 #ifdef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
     /*
@@ -114,8 +115,12 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
 	switch (c) {
+
+	    case 'c':	/* configuration file */
+		strncpy(configFileName, optarg, sizeof(configFileName)-1);
+		break;
 
 	    case 'C':	/* path to NSS certificate database */
 		certdb = optarg;
@@ -237,6 +242,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
+"  -c config       path to configuration file\n"
 "  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
 "  -i ipaddress    accept connections on this IP address\n"

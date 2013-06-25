@@ -115,7 +115,6 @@ extern void *__pmGetSecureSocket(int);
 extern void *__pmGetUserAuthData(int);
 extern int __pmSecureServerIPCFlags(int, int);
 
-#define SECURE_SERVER_SASL_CONFIG "pcp"
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
 #define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
 #define LIMIT_CLIENT_CALLBACKS 8	/* maximum size of callback array */

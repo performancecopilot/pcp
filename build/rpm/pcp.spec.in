@@ -33,6 +33,9 @@ Conflicts: pcp-pro < 2.2
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils perl
 Requires: python
+%if 0%{?rhel} <= 5
+Requires: python-ctypes
+%endif
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %define _rcdir /etc/init.d
