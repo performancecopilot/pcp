@@ -557,7 +557,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 				    saslsts, pmErrStr(sts));
 	    } else {
 		if (pmDebug & DBG_TRACE_AUTH)
-		    fprintf(stderr, "sasl_server_start success: sts=%s",
+		    fprintf(stderr, "sasl_server_start success: sts=%s\n",
 			    saslsts == SASL_CONTINUE ? "continue" : "ok");
 	    }
 	}
@@ -600,7 +600,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 		}
 		if (pmDebug & DBG_TRACE_AUTH) {
 		    fprintf(stderr, "__pmAuthServerNegotiation"
-				    " step recv (%d bytes)", length);
+				    " step recv (%d bytes)\n", length);
 		}
 	    }
 	} else if (sts == PDU_ERROR) {
