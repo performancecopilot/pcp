@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<book status="final" security="public"><title>Performance Co-Pilot&#x2122; for IA-64 Linux User's and Administrator's
-Guide</title>
-<bookinfo><invpartnumber condition="sgi_partnumber:PCP_LinuxUAG:sgi-admin">007
--4580-001</invpartnumber><edition>
+<book status="final" security="public"><title>Performance Co-Pilot&#x2122; User's and Administrator's Guide</title>
+<bookinfo><invpartnumber condition="sgi_partnumber:PCP_LinuxUAG:sgi-admin">007-4580-001</invpartnumber><edition>
 2.3</edition><othercredit><contrib>Production by Karen Jacobson</contrib><contrib>Engineering and written contributions by David Chatterton, Michael
 Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken
 McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan
@@ -18,20 +16,17 @@ A copy of the license is available at http://creativecommons.org/licenses/by-sa/
 </legalnotice><legalnotice>
 
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
-<para>Silicon Graphics, SGI, the SGI logo, IRIS, IRIX, OpenGL and Origin are
-registered trademarks and IRIS InSight, MineSet, NUMAlink, Open Inventor,
-Performance Co-Pilot, and SGI ProPack for Linux are trademarks of Silicon
+<para>Silicon Graphics, SGI and the SGI logo are
+registered trademarks and Performance Co-Pilot is a trademark of Silicon
 Graphics, Inc.</para>
 <para>BROCADE is a trademark of Brocade Communications Systems, Inc. Cisco
-is a trademark of Cisco Systems, Inc. FLEXlm is a trademark of GLOBEtrotter
-Software. Linux is a registered trademark of Linus Torvalds, used with permission
-by Silicon Graphics, Inc. UNIX and the X Window System are registered trademarks
+is a trademark of Cisco Systems, Inc.
+Linux is a registered trademark of Linus Torvalds, used with permission.
+UNIX and the X Window System are registered trademarks
 of The Open Group in the United States and other countries. Netscape is a
 trademark of Netscape Communications Corporation. PostScript is a trademark
 of Adobe Systems, Inc. UNIX is a registered trademark in the United States
 and other countries, licensed exclusively through X/Open Company, Ltd.</para>
-<para>Cover design by Sarah Bolles, Sarah Bolles Design, and Dany Galgani,
-SGI Technical Publications.</para>
 </legalnotice><revhistory>
 
 
@@ -48,11 +43,9 @@ SGI Technical Publications.</para>
 
 <title>About This Guide</title>
 <para>This guide describes the Performance Co-Pilot (PCP) software package
-of advanced performance tools for the SGI family of IA-64 servers running
-the Linux operating system.</para>
-<para>The <citetitle>Performance Co-Pilot for IA-64 Linux User's and Administrator's
-Guide</citetitle> documents the the Performance Co-Pilot (PCP) software package.
-</para>
+of advanced performance tools.</para>
+<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>
+documents the open source, cross-platform PCP software package.</para>
 <para>PCP provides a systems-level suite of tools that cooperate to deliver
 integrated performance monitoring and performance management services spanning
 the hardware platforms, operating systems, service layers, Database Management
@@ -112,7 +105,7 @@ who is directly using and administering PCP applications.</para>
 <title>Related Resources</title>
 <para>The <citetitle>Performance Co-Pilot Programmer's
 Guide</citetitle>, a companion document to the <citetitle>Performance
-Co-Pilot for IA-64 Linux User's and Administrator's Guide</citetitle>, is
+Co-Pilot User's and Administrator's Guide</citetitle>, is
 intended for application developers who want to use the PCP framework and
 services for exporting additional collections of performance metrics, or for
 delivering new or customized applications to enhance performance management.
@@ -127,17 +120,9 @@ access:</para>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term>http://www.sgi.com</term>
-<listitem><para>The SGI general Web site, with search capability</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>http://www.sgi.com/software</term>
-<listitem><para>Links to Performance Co-Pilot product information</para>
-</listitem></varlistentry>
-<varlistentry>
 <term>http://oss.sgi.com/projects/pcp</term>
-<listitem><para>Some parts of the PCP infrastructure that have also been released
-as open source</para>
+<listitem><para>The PCP infrastructure is open source software released under 
+the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -1293,9 +1278,8 @@ Performance Co-Pilot (PCP) would be installed in a collector configuration
 on one or more hosts, from which the performance information could then be
 collected, and in a monitor configuration on one or more workstations, from
 which the performance of the server systems could then be monitored.</para>
-<para>Performance Co-Pilot is presented as two RPMs; one containing the basic
-components of PCP for Linux, and the other providing specific PCP functionality
-for SN-IA systems.</para>
+<para>On some platforms Performance Co-Pilot is presented as multiple packages;
+typically separating the server components from graphical user interfaces.</para>
 <variablelist id="Z926620168sdc">
 <varlistentry>
 <term>pcp-2.3-<replaceable>rev</replaceable></term>
@@ -4933,8 +4917,8 @@ signal, or by using the <command>flush</command> command of <command>pmlc
 <title>Administering PCP Archive Logs Using <command>cron</command> Scripts
 </title>
 <para><indexterm id="ITch07-6"><primary>cron scripts</primary></indexterm><indexterm id="IG31371888255">
-<primary>scripts</primary></indexterm>The IRIX operating system supports the
-standard <literal>cron</literal> process scheduling system.</para>
+<primary>scripts</primary></indexterm>Many operating systems support
+the <literal>cron</literal> process scheduling system.</para>
 <para><indexterm id="ITch07-7"><primary>pmlogger_check script</primary></indexterm><indexterm id="IG31371888256">
 <primary>pmlogger_daily script</primary></indexterm><indexterm id="IG31371888257"><primary>pmsnap
 tool</primary><secondary>script usage</secondary></indexterm><indexterm id="IG31371888258"><primary>
@@ -5063,7 +5047,7 @@ pmlogger</command> is configured for permanent execution (as opposed to short-te
 executions, for example, as launched from <command>pmchart</command> to record
 some performance data of current interest).</para>
 </note>
-<para>Typically, the IRIX filesystem structure can be used to reflect the
+<para>Typically, the filesystem structure can be used to reflect the
 number of hosts for which a <command>pmlogger</command> instance is expected
 to be running locally, obviating the need for lengthy and cumbersome filenames.
 It makes considerable sense to place all logs for a particular host in a separate
