@@ -61,7 +61,7 @@ static pmdaMetric metrictab[] = {
 #define METRICTAB_MAXMEM_PMID metrictab[1].m_desc.pmid
     { NULL,
       { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,1,0,0,0) }, },
+        PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* journal.field.cursor */
 #define METRICTAB_JOURNAL_CURSOR_PMID metrictab[2].m_desc.pmid
     { NULL,
