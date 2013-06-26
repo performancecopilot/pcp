@@ -758,8 +758,11 @@ pcp.py
 544 pmimport local oss
 545 pmsocks local oss
 546 pmcd local oss
+547 libpcp pmcd local oss
 548 pmie local oss sanity
 549 pmie local oss
+550 libpcp pmcd local oss
+551 libpcp pmcd local oss
 554 pmie local oss
 555 pmie local oss
 556 pmie local oss
