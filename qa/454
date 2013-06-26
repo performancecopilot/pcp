@@ -25,31 +25,24 @@ _filter()
 	-e "s:$tmp:TMP:g"
 }
 
-_filter_err()
-{
-    sed \
-	-e '/OpenRequestSocket.*unix.*__pmBind: Address already in use/,+1 d'
-}
-
 # real QA test starts here
 export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_SOCKET=$tmp.pmcd.socket
 
 cat <<End-of-File >$tmp.conf
 # no entry point _or_ pathname
 first	1	dso
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 # spaces, but no pathname
 first	1	dso	first_init           
 first	1	dso	first_init      no_leading_slash
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 first	1	dso	first_init      /first/pmda/dso extra arguments
@@ -72,17 +65,15 @@ foo	1	pipe	binary		mypmda
 # duplicate domain
 bar	1	pipe	binary		mypmda
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 # double quotes (for some strange lexer reason!)
 first	1	pipe	binary		mypmda "foo""bar"
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 first	1	pipe	binary		mypmda with is a very long list of args\
@@ -118,25 +109,22 @@ first	1	pipe	binary		mypmda with is a very long list of args\
 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\
 the end
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 first	1	pipe	binary		mypmda "foo
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 # empty access control section
 [access]
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 # access control cases not checked in QA 051
 #
@@ -145,25 +133,22 @@ cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [foo
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [ foo
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
@@ -176,27 +161,24 @@ disallow 127.0.* : all, store;
 allow localhost : fetch, maximum 7 connections, store, maximum 3 connections;
 allow localhost : fetch, maximum foo connections;
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow localhost : store
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow localhost, 127.0.0.1
 End-of-File
-pmcd -f -p 9876 -x $seq.full -l $tmp.log 2>$tmp.err
+pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
-_filter_err <$tmp.err
 
 # success, all done
 exit

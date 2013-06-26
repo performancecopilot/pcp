@@ -72,6 +72,14 @@ DontStart(void)
 	    fprintf(tty, "Log file \"%s\" has vanished!\n", logfile);
 	fclose(tty);
     }
+    /*
+     * We are often called after the request ports have been opened. If we don't
+     * explicitely close them, then the unix domain socket file (if any) will be
+     * left in the file system, causing "address already in use" the next time
+     * pmcd starts.
+     */
+    __pmServerCloseRequestPorts();
+
     exit(1);
 }
 
