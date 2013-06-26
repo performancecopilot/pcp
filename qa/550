@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 550
+# Exercise fixes for remotely triggered memory leaks in pmcd
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+host=localhost
+iterate=1000
+timeout=2
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pmcd_memory()
+{
+    pmprobe -h $host -v pmcd.datasize | tee -a $seq.full | awk '{ print $3 }'
+}
+
+# real QA test starts here
+echo "Initial pmcd memory size:" > $seq.full
+MEMINIT=`pmcd_memory`
+for leak_test in secure/leak-*
+do
+    echo "$leak_test checking: " | tee -a $seq.full
+    python $leak_test $host $iterate
+    pmcd_wait -t $timeout -h $host
+    sts=$?
+    echo "$leak_test complete sts=$sts" | tee -a $seq.full
+    [ $sts -ne 0 ] && exit
+    MEMUSED=`pmcd_memory`
+    # allow for max 64KB increase (pagesize on some systems)
+    MEMSLOP=`expr $MEMINIT + 64`
+    echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $seq.full
+    [ $MEMUSED -gt $MEMSLOP ] && exit
+    echo "$leak_test memory check=OK" | tee -a $seq.full
+done
+
+# success, all done
+status=0
+exit

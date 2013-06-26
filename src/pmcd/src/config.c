@@ -33,8 +33,6 @@
 #include <dl.h>
 #endif
 
-#undef EXPERIMENTAL_ACLS
-
 #define MIN_AGENTS_ALLOC	3	/* Number to allocate first time */
 #define LINEBUF_SIZE 200
 
@@ -1062,7 +1060,6 @@ error:
     return -1;
 }
 
-#ifdef EXPERIMENTAL_ACLS
 static int
 ParseUsers(int allow)
 {
@@ -1148,7 +1145,6 @@ error:
 	free(groupnames[i]);
     return -1;
 }
-#endif
 
 static int
 ParseAccessControls(void)
@@ -1208,7 +1204,6 @@ ParseAccessControls(void)
 	    return -1;
 	}
 	FindNextToken();
-#ifdef EXPERIMENTAL_ACLS
 	if (TokenIs("user") || TokenIs("users")) {
 	    FindNextToken();
 	    if ((tmp = ParseUsers(allow)) < 0)
@@ -1225,10 +1220,6 @@ ParseAccessControls(void)
 	    if ((tmp = ParseHosts(allow)) < 0)
 		sts = -1;
 	}
-#else
-	if ((tmp = ParseHosts(allow)) < 0)
-	    sts = -1;
-#endif
 	if (tmp > 0)
 	    naccess++;
 	while (*token && !scanError && *token != ';')

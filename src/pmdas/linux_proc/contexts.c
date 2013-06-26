@@ -115,10 +115,16 @@ proc_ctx_access(int ctx)
     if (pp->state == CTX_INACTIVE)
 	return;
 
-    if ((pp->state & CTX_USERID) && baseuid != pp->uid)
-	seteuid(pp->uid);
-    if ((pp->state & CTX_GROUPID) && basegid != pp->gid)
-	setegid(pp->gid);
+    if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
+	if (seteuid(pp->uid) < 0)
+	    __pmNotifyErr(LOG_ERR, "seteuid(%d) access failed: %s\n",
+			  pp->uid, osstrerror());
+    }
+    if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
+	if (setegid(pp->gid) < 0)
+	    __pmNotifyErr(LOG_ERR, "setegid(%d) access failed: %s\n",
+			  pp->gid, osstrerror());
+    }
 }
 
 void
@@ -132,8 +138,14 @@ proc_ctx_revert(int ctx)
     if (pp->state == CTX_INACTIVE)
 	return;
 
-    if ((pp->state & CTX_USERID) && baseuid != pp->uid)
-	seteuid(baseuid);
-    if ((pp->state & CTX_GROUPID) && basegid != pp->gid)
-	setegid(basegid);
+    if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
+	if (seteuid(baseuid) < 0)
+	    __pmNotifyErr(LOG_ERR, "seteuid(%d) revert failed: %s\n",
+			  baseuid, osstrerror());
+    }
+    if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
+	if (setegid(basegid) < 0)
+	    __pmNotifyErr(LOG_ERR, "setegid(%d) revert failed: %s\n",
+			  basegid, osstrerror());
+    }
 }

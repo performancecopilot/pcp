@@ -25,6 +25,9 @@ BuildRequires: systemd-devel
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python
+%if 0%{?rhel} <= 5
+Requires: python-ctypes
+%endif
 
 Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
