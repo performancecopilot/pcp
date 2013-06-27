@@ -45,6 +45,11 @@ _filter()
     sed -e 's,#[0-9]*,####,g'
 }
 
+_filter_error()
+{
+    sed -e 's, -[0-9][0-9]*: [A-Za-z ]*, -[CODE]: [ERROR MESSAGE],g'
+}
+
 
 unset http_proxy
 unset HTTP_PROXY
@@ -90,10 +95,10 @@ $PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -N 2>/dev/null &
 sleep 2		# let it start up
 
 # should fail due to -N
-curl -s -S 'http://localhost:44323/pmapi/context?local=anything'
+curl -s -S 'http://localhost:44323/pmapi/context?local=anything' | _filter_error
 echo
 # should fail due to nonexistent context#
-curl -s -S 'http://localhost:44323/pmapi/2223/_fetch'
+curl -s -S 'http://localhost:44323/pmapi/2223/_fetch' | _filter_error
 echo
 # should fail with a different error (insufficient elements; ie pmFetch failed) 
 curl -s -S 'http://localhost:44323/pmapi/2222/_fetch'
