@@ -31,7 +31,7 @@
 [\f3\-Y\f1 \f2regex\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-NTV\f1]
+[\f3\-NsTV\f1]
 [\f3\-c\f1 \f2control\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_merge
@@ -128,6 +128,11 @@ may be run at any time, and is intended to check that the desired set
 of
 .BR pmlogger (1)
 processes are running, and if not to re-launch any failed loggers.
+Use of the
+.B \-s
+option provides the reverse functionality, allowing the set of
+.B pmlogger
+processes to be cleanly shutdown.
 .PP
 .B pmlogger_merge
 is a wrapper script for

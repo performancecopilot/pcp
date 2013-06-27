@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,18 +13,18 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Example administrative script to check pmlogger instances are alive,
-# and restart as required.
+# Administrative script to check pmlogger processes are alive, and restart
+# them as required.
 #
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+PMLOGGER=pmlogger
+PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
+
 # Get the portable PCP rc script functions
-if [ -f  $PCP_SHARE_DIR/lib/rc-proc.sh ]
-then 
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-fi
+[ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] && . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
@@ -46,19 +47,13 @@ LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
 [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
 
 # determine path for pwd command to override shell built-in
-# (see BugWorks ID #595416).
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN	    	{ i = 0 }
 / not in /  	{ i = 1 }
 / aliased to /  { i = 1 }
  	    	{ if ( i == 0 ) print }
 '`
-if [ -z "$PWDCMND" ]
-then
-    #  Looks like we have no choice here...
-    #  force it to a known IRIX location
-    PWDCMND=/bin/pwd
-fi
+[ -z "$PWDCMND" ] && PWDCMND=/bin/pwd
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 
@@ -74,8 +69,9 @@ MV=mv
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
+START_PMLOGGER=true
 usage="Usage: $prog [-NTV] [-c control]"
-while getopts c:NTV? c
+while getopts c:NsTV? c
 do
     case $c
     in
@@ -83,6 +79,8 @@ do
 		;;
 	N)	SHOWME=true
 		MV="echo + mv"
+		;;
+        s)	START_PMLOGGER=false
 		;;
 	T)	TERSE=true
 		;;
@@ -106,6 +104,13 @@ then
     echo "$usage"
     status=1
     exit
+fi
+
+if [ $START_PMLOGGER = false ]
+then
+    # if pmlogger has never been started, there's no work to do to stop it
+    [ ! -d $PCP_TMP_DIR/pmlogger ] && exit
+    pmpost "stop pmlogger from $prog"
 fi
 
 if [ ! -f $CONTROL ]
@@ -158,6 +163,68 @@ p
 }'
 }
 
+_get_configfile()
+{
+    # extract the pmlogger configuration file (-c) from a list of arguments
+    #
+    echo $@ | sed -n \
+        -e 's/^/ /' \
+        -e 's/[         ][      ]*/ /g' \
+        -e 's/-c /-c/' \
+        -e 's/.* -c\([^ ]*\).*/\1/p'
+}
+
+_configure_pmlogger()
+{
+    # update a pmlogger configuration file if it should be created/modified
+    #
+    configfile="$1"
+    hostname="$2"
+
+    if [ -f "$configfile" ]
+    then
+        # look for "magic" string at start of file
+        if sed 1q "$configfile" | grep '^#pmlogconf [0-9]' >/dev/null
+        then
+            # pmlogconf file, see if re-generation is needed
+            cp "$configfile" $tmp/pmlogger
+            if $PMLOGCONF -q -h $hostname $tmp/pmlogger >$tmp/diag 2>&1
+            then
+                grep -v "updated by pmlogconf" "$configfile" >$tmp/old
+                grep -v "updated by pmlogconf" $tmp/pmlogger >$tmp/new
+                if ! diff $tmp/old $tmp/new >/dev/null
+                then
+                    if [ -w $configfile ]
+                    then
+                        $VERBOSE && echo "Reconfigured: \"$configfile\" (pmlogconf)"
+                        eval $CP $tmp/pmlogger "$configfile"
+                    else
+                        _warning "no write access to pmlogconf file \"$configfile\", skip reconfiguration"
+                        ls -l "$configfile"
+                    fi
+                fi
+            else
+                _warning "pmlogconf failed to reconfigure \"$configfile\""
+                cat "s;$tmp/pmlogger;$configfile;g" $tmp/diag
+                echo "=== start pmlogconf file ==="
+                cat $tmp/pmlogger
+                echo "=== end pmlogconf file ==="
+            fi
+        fi
+    elif [ ! -e "$configfile" ]
+    then
+        # file does not exist, generate it, if possible
+        if ! $PMLOGCONF -q -h $hostname "$configfile" >$tmp/diag 2>&1
+        then
+            _warning "pmlogconf failed to generate \"$configfile\""
+            cat $tmp/diag
+            echo "=== start pmlogconf file ==="
+            cat "$configfile"
+            echo "=== end pmlogconf file ==="
+        fi
+    fi
+}
+
 _get_logfile()
 {
     # looking for -lLOGFILE or -l LOGFILE in args
@@ -184,22 +251,23 @@ _get_logfile()
     done
 }
 
-_check_logfile()
+_check_archive()
 {
-    if [ ! -f $logfile ]
+    if [ ! -e "$logfile" ]
     then
 	echo "$prog: Error: cannot find pmlogger output file at \"$logfile\""
 	if $TERSE
 	then
 	    :
 	else
-	    logdir=`dirname $logfile`
-	    echo "Directory (`cd $logdir; $PWDCMND`) contents:"
-	    LC_TIME=POSIX ls -la $logdir
+	    logdir=`dirname "$logfile"`
+	    echo "Directory (`cd "$logdir"; $PWDCMND`) contents:"
+	    LC_TIME=POSIX ls -la "$logdir"
 	fi
-    else
+    elif [ -f "$logfile" ]
+    then
 	echo "Contents of pmlogger output file \"$logfile\" ..."
-	cat $logfile
+	cat "$logfile"
     fi
 }
 
@@ -261,7 +329,7 @@ _check_logger()
 		    done 
 		    echo
 		fi
-		_check_logfile
+		_check_archive
 		return 1
 	    fi
 	fi
@@ -278,7 +346,7 @@ _check_logger()
     else
 	sed -e 's/^/	/' $tmp/out
     fi
-    _check_logfile
+    _check_archive
     return 1
 }
 
@@ -291,7 +359,8 @@ _check_logger()
 version=''
 
 echo >$tmp/dir
-rm -f $tmp/err
+rm -f $tmp/err $tmp/pmloggers
+
 line=0
 cat $CONTROL \
  | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
@@ -366,10 +435,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # make sure output directory exists
     #
-    if [ ! -d $dir ]
+    if [ ! -d "$dir" ]
     then
-	mkdir -p $dir >$tmp/err 2>&1
-	if [ ! -d $dir ]
+	mkdir -p -m 755 "$dir" >$tmp/err 2>&1
+	if [ ! -d "$dir" ]
 	then
 	    cat $tmp/err
 	    _error "cannot create directory ($dir) for PCP archive files"
@@ -379,7 +448,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	chown pcp:pcp $dir 2>/dev/null
     fi
 
-    [ ! -d $dir ] && continue
+    [ ! -d "$dir" ] && continue
 
     # check for directory duplicate entries
     #
@@ -391,13 +460,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	echo "$dir" >>$tmp/dir
     fi
 
-    cd $dir
+    cd "$dir"
     dir=`$PWDCMND`
     $SHOWME && echo "+ cd $dir"
 
-    # ensure pcp user will be able write there
+    # ensure pcp user will be able to write there
     #
-    ( id pcp && chown -R pcp:pcp $dir ) >/dev/null 2>&1
+    ( id pcp && chown -R pcp:pcp "$dir" ) >/dev/null 2>&1
     if [ ! -w $dir ]
     then
         echo "$prog: Warning: no write access in $dir, skip lock file processing"
@@ -555,7 +624,7 @@ END							{ print m }'`
 	done
     fi
 
-    if [ -z "$pid" ]
+    if [ -z "$pid" -a $START_PMLOGGER = true ]
     then
 	rm -f Latest
 
@@ -608,6 +677,21 @@ END							{ print m }'`
 	    eval $MV -f $file `echo $file | sed -e "s/$LOGNAME/&-$suff/"`
 	done
 
+	configfile=`_get_configfile $args`
+	if [ ! -z "$configfile" ]
+	then
+	    # if this is a relative path and not relative to cwd,
+	    # substitute in the default pmlogger search location.
+	    #
+	    if [ ! -f "$configfile" -a "`basename $configfile`" = "$configfile" ]
+	    then
+		configfile="$PCP_SYSCONF_DIR/pmlogger/$configfile"
+	    fi
+
+	    # check configuration file exists and is up to date
+	    _configure_pmlogger "$configfile" "$host"
+	fi
+
 	$VERBOSE && _message restart
 
 	sock_me=''
@@ -639,15 +723,17 @@ END							{ print m }'`
 	    $VERBOSE && $SHOWME && echo
 	    eval $MV -f $logfile $logfile.prior
 	fi
+
 	args="$args -m pmlogger_check"
 	if $SHOWME
 	then
 	    echo
-	    echo "+ ${sock_me}pmlogger $args $LOGNAME"
+	    echo "+ ${sock_me}$PMLOGGER $args $LOGNAME"
 	    _unlock
 	    continue
 	else
-	    ${sock_me}pmlogger $args $LOGNAME >$tmp/out 2>&1 &
+	    pmpost "start pmlogger from $prog for host $host"
+	    ${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &
 	    pid=$!
 	fi
 
@@ -673,11 +759,48 @@ END							{ print m }'`
 		LC_TIME=POSIX ls -la $logdir
 	    fi
 	fi
+
+    elif [ ! -z "$pid" -a $START_PMLOGGER = false ]
+    then
+	# Send pmlogger a SIGTERM, which is noted as a pending shutdown.
+        # Add pid to list of loggers sent SIGTERM - may need SIGKILL later.
+	#
+	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
+	eval $KILL -s TERM $pid
+	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmloggers
     fi
 
     _unlock
-
 done
+
+# check all the SIGTERM'd loggers really died - if not, use a bigger hammer.
+# 
+if $SHOWME
+then
+    :
+elif [ $START_PMLOGGER = false -a -s $tmp/pmloggers ]
+then
+    pmloggerlist=`cat $tmp/pmloggers`
+    if ps -p "$pmloggerlist" >/dev/null 2>&1
+    then
+        $VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL `cat $tmp/pmies` ...""$PCP_ECHO_C" )
+        eval $KILL -s KILL $pmloggerlist >/dev/null 2>&1
+        delay=30        # tenths of a second
+        while ps -f -p "$pmloggerlist" >$tmp/alive 2>&1
+        do
+            if [ $delay -gt 0 ]
+            then
+                pmsleep 0.1
+                delay=`expr $delay - 1`
+                continue
+            fi
+            echo "$prog: Error: pmlogger process(es) will not die"
+            cat $tmp/alive
+            status=1
+            break
+        done
+    fi
+fi
 
 [ -f $tmp/err ] && status=1
 exit

@@ -1,5 +1,5 @@
-#!gmake
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,48 +12,45 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-OTHERS	= pmlogger.config pmnewlog.sh pmlogger_daily.sh pmlogger_check.sh \
-	pmlogger_merge.sh control config.sar config.base GNUmakefile.install
+OTHERS	= pmnewlog.sh control GNUmakefile.install.in \
+	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh 
 
-LSRCFILES = $(OTHERS) crontab.IN
-LDIRT	= crontab control.install
+LSRCFILES = $(OTHERS) crontab.in
+LDIRT	= crontab
 
-# Beware ... spaces at the end of these lines cause the install lines to break
-_confdir = $(PCP_SYSCONF_DIR)/pmlogger
-_bindir  = $(PCP_BINADM_DIR)
+ifeq ($(TARGET_OS),linux)
+CRONTAB_USER = root
+CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pmlogger
+else
+CRONTAB_USER =
+CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
+endif
 
-default: $(OTHERS) crontab control.install GNUmakefile.install.xxx
-
-crontab : crontab.IN
-	$(SED) -e '/\# .*/b' -e 's;PCP_BINADM_DIR;$(PCP_BINADM_DIR);g' < $< > $@
-
-control.install: control
-	$(SED) -e's;/var/adm/pcplog;PCP_LOG_DIR/pmlogger;' $< > $@
+default: $(OTHERS) crontab GNUmakefile.install
 
 include $(BUILDRULES)
 
 install: default crontab
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
-	$(INSTALL) -m 644 control.install $(PCP_PMLOGGERCONTROL_PATH)
-	$(INSTALL) -m 644 config.sar config.base crontab $(_confdir)
-	$(INSTALL) -m 644 pmlogger.config $(_confdir)/config.default
-	$(INSTALL) -m 644 GNUmakefile.install.xxx $(_confdir)/Makefile
-	$(INSTALL) -m 755 pmnewlog.sh $(_bindir)/pmnewlog
-	$(INSTALL) -m 755 pmlogger_daily.sh $(_bindir)/pmlogger_daily
-	$(INSTALL) -m 755 pmlogger_check.sh $(_bindir)/pmlogger_check
-	$(INSTALL) -m 755 pmlogger_merge.sh $(_bindir)/pmlogger_merge
+	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
+	$(INSTALL) -m 644 GNUmakefile.install $(PCP_SYSCONF_DIR)/pmlogger/Makefile
+	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog
+	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily
+	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check
+	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
 
 default_pcp : default
 
 install_pcp : install
 
-GNUmakefile.install.xxx:	GNUmakefile.install
-	sed -e "s;<CPP>;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" <GNUmakefile.install >GNUmakefile.install.xxx
+GNUmakefile.install:	GNUmakefile.install.in
+	$(SED) -e "s;@CPP@;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" $< > $@
+
+crontab : crontab.in
+	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@

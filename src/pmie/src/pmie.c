@@ -207,8 +207,8 @@ load(char *fname)
 	    fprintf(stderr, "load: cannot access config file %s: %s\n", fname, strerror(sts));
 	}
 #endif
-	snprintf(config, sizeof(config), "%s%c" "config" "%c" "pmie" "%c%s",
-		pmGetConfig("PCP_VAR_DIR"), sep, sep, sep, fname);
+	snprintf(config, sizeof(config)-1, "%s%c" "pmie" "%c%s",
+		pmGetConfig("PCP_SYSCONF_DIR"), sep, sep, fname);
 	if (access(config, F_OK) != 0) {
 	    fprintf(stderr, "%s: cannot access config file as either %s or %s: %s\n",
 		    pmProgname, fname, config, strerror(sts));
