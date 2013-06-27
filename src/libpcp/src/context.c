@@ -389,6 +389,9 @@ INIT_CONTEXT:
 	    pmflush();
 	    free(errmsg);
 	    goto FAILED;
+	} else if (nhosts == 0) {
+	    sts = PM_ERR_NOTHOST;
+	    goto FAILED;
 	} else {
 	    new->c_flags |= ctxflags(attrs);
 	}

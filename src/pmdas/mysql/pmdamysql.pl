@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Chandana De Silva.
+# Copyright (c) 2012-2013 Chandana De Silva.
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
@@ -504,7 +504,7 @@ $pmda->add_metric(pmda_pmid(0,109), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.compression', '', '');
 $pmda->add_metric(pmda_pmid(0,110), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'mysql.status.connections', '', '');
 $pmda->add_metric(pmda_pmid(0,111), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),

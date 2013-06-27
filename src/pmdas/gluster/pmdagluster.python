@@ -1,0 +1,175 @@
+'''
+Performance Metrics Domain Agent exporting Gluster filesystem metrics.
+'''
+#
+# Copyright (c) 2013 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from ctypes import c_int, POINTER, cast, Structure
+
+FILEOPS = [    # append only, do not change the order
+    'STAT', 'MKDIR', 'OPEN', 'WRITE', 'FLUSH', 'FSYNC',
+    'GETXATTR', 'OPENDIR', 'CREATE', 'FTRUNCATE', 'LOOKUP',
+    'READDIR', 'READDIRP', 'FINODELK', 'ENTRYLK', 'FXATTROP',
+]
+LATENCY_STATS_COUNT = len(FILEOPS) * 4	# (avg,min,max,count)
+
+class GlusterBrickLatencies(Structure):
+    ''' 2D array of latecy stats (avg,min,max,count) vs file operation '''
+    _fields_ = [("values", c_int * LATENCY_STATS_COUNT)]
+
+class GlusterPMDA(PMDA):
+    '''
+    Performance Metrics Domain Agent exporting gluster brick metrics.
+    Install it and make basic use of it if you use glusterfs, as follows:
+
+    # $PCP_PMDAS_DIR/gluster/Install
+    $ pminfo -fmdtT gluster
+    '''
+
+    # volumes and bricks instance domains
+    volumes = {}
+    bricks = {}
+
+    def gluster_instance(self, serial):
+        ''' Called once per "instance request" PDU '''
+        # self.log("instance update for %d" % serial)
+        self.gluster_refresh()
+
+
+    def gluster_fetch(self):
+        ''' Called once per "fetch" PDU, before callbacks '''
+        self.gluster_refresh()
+
+    def gluster_fetch_latency_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for latency cluster
+        Helper for the fetch callback
+        '''
+        if (item >= 0 and item < LATENCY_STATS_COUNT):
+            voidp = self.inst_lookup(self.brick_indom, inst)
+            if (voidp == None):
+                return [c_api.PM_ERR_INST, 0]
+            valuep = cast(voidp, POINTER(GlusterBrickLatencies))
+            return [valuep.contents.value.values[item], 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+    def gluster_fetch_volumes_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for volumes cluster
+        Helper for the fetch callback
+        '''
+        if (item == 0):
+            voidp = self.inst_lookup(self.volumes_indom, inst)
+            if (voidp == None):
+                return [c_api.PM_ERR_INST, 0]
+            valuep = cast(voidp, POINTER(c_int))
+            return [valuep.contents.value, 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+    def gluster_fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback, defers to helpers for each cluster.
+        Returns a list of value,status (single pair) for requested pmid/inst
+        '''
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if (cluster == 0):
+            return self.gluster_fetch_latency_callback(item, inst)
+        elif (cluster == 1):
+            return self.gluster_fetch_volumes_callback(item, inst)
+        return [c_api.PM_ERR_PMID, 0]
+
+
+    def gluster_store_volume_callback(self, val, inst):
+        ''' Helper for the store callback, volume profile enabling/disabling '''
+        sts = 0
+        namep = self.name_lookup(self.volumes_indom, inst)
+        if (namep == None):
+            sts = c_api.PM_ERR_INST
+        elif (val < 0):
+            sts = c_api.PM_ERR_SIGN
+        elif (val == 0):
+            self.log("disabling profiling on volume %s" % namep)
+        else:
+            self.log("enabling profiling on volume %s" % namep)
+        return sts
+
+    def gluster_store_callback(self, cluster, item, inst, val):
+        '''
+        Store callback, executed when a request to write to a metric happens
+        Defers to helpers for each storable metric.  Returns a single value.
+        '''
+        if (cluster == 1 and item == 0):
+            return self.gluster_store_volume_callback(val, inst)
+        elif (cluster == 0):
+            return c_api.PM_ERR_PERMISSION
+        return c_api.PM_ERR_PMID
+
+
+    def gluster_refresh(self):
+        '''
+        Query available gluster volumes/bricks and update instance domains
+        '''
+        self.bricks.clear()
+        self.volumes.clear()
+        self.log("refreshing cached volume/brick values")
+        self.replace_indom(self.brick_indom, self.bricks)
+        self.replace_indom(self.volume_indom, self.volumes)
+
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+
+        self.brick_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self.brick_indom, self.bricks))
+
+        self.volume_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.volume_indom, self.volumes))
+
+        item = 0
+        for fileop in FILEOPS:
+            metricname = name + '.latency.' + fileop.lower() + '.'
+            self.add_metric(metricname + 'avg', pmdaMetric(self.pmid(0, item),
+                    c_api.PM_TYPE_FLOAT, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+            self.add_metric(metricname + '.min', pmdaMetric(self.pmid(0, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+            self.add_metric(metricname + '.max', pmdaMetric(self.pmid(0, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+            self.add_metric(metricname + '.count', pmdaMetric(self.pmid(0, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+
+        self.add_metric(name + '.volume.profiling', pmdaMetric(self.pmid(1, 0),
+                c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+
+        self.set_fetch(self.gluster_fetch)
+        self.set_instance(self.gluster_instance)
+        self.set_fetch_callback(self.gluster_fetch_callback)
+        self.set_store_callback(self.gluster_store_callback)
+
+
+if __name__ == '__main__':
+
+    GlusterPMDA('gluster', 118).run()
+

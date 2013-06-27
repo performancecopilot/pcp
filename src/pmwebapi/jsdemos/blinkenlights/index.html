@@ -33,9 +33,12 @@
         else { predicates.push(p); }
       }
 
+      if ("contexttype" in qs) {
+          pm_context_type=qs["contexttype"];
+      }
+
       if ("contextspec" in qs) {
-        pair = qs["contextspec"].split('@');
-        pm_context_spec = pair[0] + "=" + pair[1];
+          pm_context_spec=qs["contextspec"];
       }
 
       if ("updateInterval" in qs) {
@@ -49,7 +52,8 @@
         str = $.param({
           predicates: raw_predicates.join('@'),
           updateInterval: updateInterval,
-          contextspec: pm_context_spec.replace("=","@")
+          contexttype: pm_context_type,
+          contextspec: pm_context_spec
         });
         str = location.protocol + "//" + location.hostname + ":" + location.port + location.pathname + "?" + str; // TODOXXX
         $("#permalink_uri").html(str);
@@ -79,8 +83,10 @@
               $("#interval").val(updateInterval);
           }
         });
+        $("#contexttype").val(pm_context_type);
         $("#contextspec").val(pm_context_spec);
         $("#contextspec_form").submit(function() {
+            setPMContextType($("#contexttype").val());
             setPMContextSpec($("#contextspec").val());
             saveQueryString();
             return false; // stay on this page
@@ -95,6 +101,11 @@
   <body>
     <h1 id="header"></h1>
     <form id="contextspec_form">
+      <select id="contexttype">
+      <option>hostspec</option>
+      <option>archivefile</option>
+      <option>local</option>
+      </select>
       <input type="text" size="50" id="contextspec" />
       <input value="Connect" type="submit" />
     </form>
@@ -107,6 +118,7 @@
     </form>
     <span id="interval-slider-label"><label for="interval">Refresh interval (ms):</label><input type="text" size="5" id="interval" readonly /></span>
     <div id="interval-slider"></div>
+    <p id="status"></p>
     <div id="content"></div>
     <p id="permalink">permalink: <a href="#" id="permalink_uri"></a></p>
     <!--<footer>
