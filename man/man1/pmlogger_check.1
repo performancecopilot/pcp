@@ -13,12 +13,16 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMLOGGER_DAILY 1 "PCP" "Performance Co-Pilot"
+.TH PMLOGGER_CHECK 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogger_daily\f1,
 \f3pmlogger_check\f1,
+\f3pmlogger_daily\f1,
 \f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmlogger_check
+[\f3\-NsTV\f1]
+[\f3\-c\f1 \f2control\f1]
+.br
 .B $PCP_BINADM_DIR/pmlogger_daily
 [\f3\-NorV\f1]
 [\f3\-c\f1 \f2control\f1]
@@ -29,10 +33,6 @@
 [\f3\-x\f1 \f2compress\f1]
 [\f3\-X\f1 \f2program\f1]
 [\f3\-Y\f1 \f2regex\f1]
-.br
-.B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-NsTV\f1]
-[\f3\-c\f1 \f2control\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_merge
 [\f3\-fNV\f1]
