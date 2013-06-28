@@ -26,20 +26,21 @@ cleanup()
     rm -rf $tmp.*
     [ $ppid -eq 0 ] || kill $ppid
     ppid=0
-    
 }
+
 cpu_count()
 {
-    pmprobe -h $host -v hinv.ncpu | tee -a $seq.full | awk '{ print $3 }'
+    pmprobe -h $host -v hinv.ncpu | tee -a $here/$seq.full | awk '{ print $3 }'
 }
 
 
 # real QA test starts here
+cd secure
 ncpu=`cpu_count`
-echo "Initial CPU count: $ncpu" > $seq.full
-for hang_test in secure/hang-*
+echo "Initial CPU count: $ncpu" > $here/$seq.full
+for hang_test in hang-*
 do
-    echo "$hang_test checking: " | tee -a $seq.full
+    echo "$hang_test checking: " | tee -a $here/$seq.full
     python $hang_test $host >$tmp.out 2>&1 &
     ppid=$!
     sts=0
@@ -47,22 +48,22 @@ do
     while [ $n -lt $count ]
     do
         ncpunow=`cpu_count`
-        echo "Fetched CPU count: $ncpunow" >> $seq.full
+        echo "Fetched CPU count: $ncpunow" >> $here/$seq.full
         if [ $ncpunow != $ncpu ]
         then
             sts=1
             break
         fi
-        echo "[$n] check data matched" | tee -a $seq.full
+        echo "[$n] check data matched" | tee -a $here/$seq.full
         n=`expr $n + 1`
         sleep 1
     done
     kill $ppid
     wait $ppid
     ppid=0
-    echo "$hang_test complete" | tee -a $seq.full
-    echo "$hang_test output " >> $seq.full
-    cat $tmp.out >> $seq.full
+    echo "$hang_test complete" | tee -a $here/$seq.full
+    echo "$hang_test output " >> $here/$seq.full
+    cat $tmp.out >> $here/$seq.full
     [ $sts -eq 0 ] || exit
 done
 
