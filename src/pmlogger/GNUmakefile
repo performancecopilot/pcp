@@ -17,7 +17,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-OTHERS	= pmnewlog.sh control rc_pmlogger GNUmakefile.install.in \
+OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh 
 
 LSRCFILES = $(OTHERS) crontab.in
@@ -31,14 +31,13 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
 endif
 
-default: $(OTHERS) crontab GNUmakefile.install
+default: $(OTHERS) crontab
 
 include $(BUILDRULES)
 
 install: default crontab
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
 	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
-	$(INSTALL) -m 644 GNUmakefile.install $(PCP_SYSCONF_DIR)/pmlogger/Makefile
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check
@@ -50,9 +49,6 @@ install: default crontab
 default_pcp : default
 
 install_pcp : install
-
-GNUmakefile.install:	GNUmakefile.install.in
-	$(SED) -e "s;@CPP@;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" $< > $@
 
 crontab : crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
