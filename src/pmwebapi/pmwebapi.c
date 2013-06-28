@@ -643,6 +643,145 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
+/* Print "value":<RENDERING>, possibly nested for PM_TYPE_EVENT.
+   Upon failure to decode, print less and return non-0. */
+
+static int pmwebapi_format_value (struct mhdb* output,
+                                  pmDesc* desc,
+                                  pmValueSet* pvs,
+                                  int vsidx)
+{
+    pmValue* value = & pvs->vlist[vsidx];
+    pmAtomValue a;
+    int rc;
+
+    /* unpack, as per pmevent.c:myeventdump */
+    if (desc->type == PM_TYPE_EVENT) {
+        pmResult **res;
+        int numres, i;
+        
+        numres = pmUnpackEventRecords (pvs, vsidx, &res);
+        if (numres < 0)
+            return numres;
+
+        mhdb_printf (output, "\"events\":[");
+        for (i=0; i<numres; i++) {
+            int j;
+            if (i>0)            
+                mhdb_printf (output, ",");
+            mhdb_printf (output, "{ \"timestamp\": { \"s\":%lu, \"us\":%lu } ", 
+                        res[i]->timestamp.tv_sec,
+                        res[i]->timestamp.tv_usec);
+
+            mhdb_printf (output, ", \"fields\":[");
+            for (j=0; j<res[i]->numpmid; j++) {
+                pmValueSet *fieldvsp = res[i]->vset[j];
+                pmDesc fielddesc;
+                char *fieldname;
+
+                if (j>0)            
+                    mhdb_printf (output, ",");
+
+                mhdb_printf (output, "{");
+
+                /* recurse */
+                rc = pmLookupDesc (fieldvsp->pmid, &fielddesc);
+                if (rc == 0)
+                    rc = pmwebapi_format_value (output, &fielddesc, fieldvsp, 0);
+
+                if (rc == 0) /* printer value: ... etc. ? */
+                    mhdb_printf (output, ", ");
+                /* XXX: handle value: for event.flags / event.missed */
+
+                rc = pmNameID (fieldvsp->pmid, & fieldname);
+                if (rc == 0) {
+                    mhdb_printf (output, "\"name\":\"%s\"", fieldname);
+                    free (fieldname);
+                } else {
+                    mhdb_printf (output, "\"name\":\"%s\"", pmIDStr (fieldvsp->pmid));
+                }
+
+                mhdb_printf (output, "}");
+            }
+            mhdb_printf (output, "]");
+
+            mhdb_printf (output, "}\n");
+        }
+        mhdb_printf (output, "]");
+        pmFreeEventResult(res);
+        return 0;
+    }
+
+    rc = pmExtractValue (pvs->valfmt, value, desc->type, &a, desc->type);
+    if (rc != 0)
+        return rc;
+
+    switch (desc->type) {
+    case PM_TYPE_32:
+        mhdb_printf (output, "\"value\":%i", a.l);
+        break;
+    case PM_TYPE_U32:
+        mhdb_printf (output, "\"value\":%u", a.ul);
+        break;
+    case PM_TYPE_64:
+        mhdb_printf (output, "\"value\":%" PRIi64, a.ll);
+        break;
+    case PM_TYPE_U64:
+        mhdb_printf (output, "\"value\":%" PRIu64, a.ull);
+        break;
+    case PM_TYPE_FLOAT:
+        mhdb_printf (output, "\"value\":%g", (double)a.f);
+        break;
+    case PM_TYPE_DOUBLE:
+        mhdb_printf (output, "\"value\":%g", a.d);
+        break;
+    case PM_TYPE_STRING:
+        mhdb_print_key_value (output, "value", a.cp, "");
+        free (a.cp);
+        break;
+    case PM_TYPE_AGGREGATE:
+    case PM_TYPE_AGGREGATE_STATIC:
+        {
+            /* base64-encode binary data */
+            const char* p_bytes = & value->value.pval->vbuf[0]; /* from pmevent.c:mydump() */
+            unsigned p_size = value->value.pval->vlen - PM_VAL_HDR_SIZE;
+            unsigned i;
+            const char base64_encoding_table[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+            if (value->value.pval->vlen < PM_VAL_HDR_SIZE) /* less than zero size? */
+                return -EINVAL;
+            
+            mhdb_printf (output, "\"value\":\"");
+            for (i=0; i<p_size; /* */) {
+                unsigned char byte_0 = i < p_size ? p_bytes[i++] : 0;
+                unsigned char byte_1 = i < p_size ? p_bytes[i++] : 0;
+                unsigned char byte_2 = i < p_size ? p_bytes[i++] : 0;
+                unsigned int triple = (byte_0 << 16) | (byte_1 << 8) | byte_2;
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 3*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 2*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 1*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 0*6) & 63]);
+            }
+            switch (p_size % 3) {
+            case 0: /*mhdb_printf (output, "");*/ break; 
+            case 1: mhdb_printf (output, "=="); break; 
+            case 2: mhdb_printf (output, "="); break; 
+            }
+            mhdb_printf (output, "\"");
+
+            if (desc->type != PM_TYPE_AGGREGATE_STATIC) /* XXX: correct? */
+                free (a.vbp);
+            break;
+        }
+    default:
+        /* ... just a complete unknown ... */
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
+
 
 static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
                                           struct webcontext *c)
@@ -774,58 +913,18 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         }
         mhdb_printf (& output, "\"instances\": [\n");
         for (j=0; j<pvs->numval; j++) {
-            pmAtomValue a;
             pmValue* val = & pvs->vlist[j];
-            int printed_value = 1;
-
-            if (desc.type == PM_TYPE_EVENT) continue;
-            /* XXX: */
+            int printed_value;
 
             mhdb_printf (& output, "{");
 
-            rc = pmExtractValue (pvs->valfmt, val, desc.type, &a, desc.type);
-            if (rc == 0)
-                switch (desc.type) {
-                case PM_TYPE_32:
-                    mhdb_printf (& output, "\"value\":%i", a.l);
-                    break;
-
-                case PM_TYPE_U32:
-                    mhdb_printf (& output, "\"value\":%u", a.ul);
-                    break;
-
-                case PM_TYPE_64:
-                    mhdb_printf (& output, "\"value\":%" PRIi64, a.ll);
-                    break;
-
-                case PM_TYPE_U64:
-                    mhdb_printf (& output, "\"value\":%" PRIu64, a.ull);
-                    break;
-
-                case PM_TYPE_FLOAT:
-                    mhdb_printf (& output, "\"value\":%g", (double)a.f);
-                    break;
-
-                case PM_TYPE_DOUBLE:
-                    mhdb_printf (& output, "\"value\":%g", a.d);
-                    break;
-
-                case PM_TYPE_STRING:
-                    mhdb_print_key_value (& output, "value", a.cp, "");
-                    free (a.cp);
-                    break;
-
-                    /* XXX: base64- PM_TYPE_AGGREGATE etc., as per pmPrintValue */
-
-                default:
-                    /* ... just a complete unknown ... */
-                    printed_value = 0;
-                }
+            printed_value = ! pmwebapi_format_value (& output, & desc, pvs, j);
 
             if (desc.indom != PM_INDOM_NULL)
-                mhdb_printf (& output, "%c \"instance\":%d", 
-                             printed_value ? ',' : ' ', /* comma separation */
+                mhdb_printf (& output, "%s \"instance\":%d", 
+                             printed_value ? ", " : "", /* comma separation */
                              val->inst);
+
             mhdb_printf (& output, "}");
             if (j+1 < pvs->numval)
                 mhdb_printf (& output, ","); /* comma separation */
