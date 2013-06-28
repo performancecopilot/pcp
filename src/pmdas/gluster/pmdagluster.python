@@ -19,14 +19,21 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from ctypes import c_int, POINTER, cast, Structure
+from socket import getfqdn
+from os import getenv
 
 VOL_LIST_COMMAND = 'gluster --xml volume list'
-VOL_PROFILE_COMMAND = 'gluster --xml volume profile %s info'
+VOL_PROFILE_COMMAND = 'gluster --xml volume profile %s'
 
-FILEOPS = [    # append only, do not change the order
-    'STAT', 'MKDIR', 'OPEN', 'WRITE', 'FLUSH', 'FSYNC',
-    'GETXATTR', 'OPENDIR', 'CREATE', 'FTRUNCATE', 'LOOKUP',
-    'READDIR', 'READDIRP', 'FINODELK', 'ENTRYLK', 'FXATTROP',
+FILEOPS = [    # append only, do not change the order (changes PMID)
+    'ACCESS', 'CREATE', 'DISCARD', 'ENTRYLK', 'FALLOCATE', 'FENTRYLK',
+    'FGETXATTR', 'FINODELK', 'FLUSH', 'FREMOVEXATTR', 'FSETATTR',
+    'FSETXATTR', 'FSTAT', 'FSYNC', 'FSYNCDIR', 'FTRUNCATE', 'FXATTROP',
+    'GETSPEC', 'GETXATTR', 'INODELK', 'LINK', 'LK', 'LOOKUP', 'MKDIR',
+    'MKNOD', 'OPEN', 'OPENDIR', 'RCHECKSUM', 'READDIR', 'READDIRP',
+    'READLINK', 'READV', 'REMOVEXATTR', 'RENAME', 'RMDIR', 'SETATTR',
+    'SETXATTR', 'STAT', 'STATFS', 'SYMLINK', 'TRUNCATE', 'UNLINK',
+    'WRITEV', 'XATTROP',
 ]
 LATENCY_STATS_COUNT = len(FILEOPS) * 4	# (avg,min,max,count)
 
@@ -42,6 +49,9 @@ class GlusterPMDA(PMDA):
     # $PCP_PMDAS_DIR/gluster/Install
     $ pminfo -fmdtT gluster
     '''
+
+    # restrict to local volumes/bricks
+    hostname = getfqdn()
 
     # volumes and bricks instance domains
     volumes = {}
@@ -155,8 +165,8 @@ class GlusterPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
-        self.vol_list = os.getenv('GLUSTER_VOL_LIST', VOL_LIST_COMMAND)
-        self.vol_info = os.getenv('GLUSTER_VOL_PROFILE', VOL_PROFILE_COMMAND)
+        self.vol_list = getenv('GLUSTER_VOL_LIST', VOL_LIST_COMMAND)
+        self.vol_info = getenv('GLUSTER_VOL_PROFILE', VOL_PROFILE_COMMAND)
 
         self.brick_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.brick_indom, self.bricks))
@@ -166,8 +176,8 @@ class GlusterPMDA(PMDA):
 
         item = 0
         for fileop in FILEOPS:
-            metricname = name + '.latency.' + fileop.lower() + '.'
-            self.add_metric(metricname + 'avg', pmdaMetric(self.pmid(0, item),
+            metricname = name + '.latency.' + fileop.lower()
+            self.add_metric(metricname + '.avg', pmdaMetric(self.pmid(0, item),
                     c_api.PM_TYPE_FLOAT, self.brick_indom, c_api.PM_SEM_INSTANT,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
             item += 1
@@ -184,7 +194,7 @@ class GlusterPMDA(PMDA):
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
             item += 1
 
-        self.add_metric(name + '.volume.profiling', pmdaMetric(self.pmid(1, 0),
+        self.add_metric(name + '.volume.profile', pmdaMetric(self.pmid(1, 0),
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
