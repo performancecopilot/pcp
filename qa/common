@@ -131,7 +131,7 @@ _haveagents()
 	reinstall=false
 	while true
 	do
-	    echo "PMDA probe: pminfo -h $QA_HOST -f $probe"
+	    [ $diff = true ] || echo "PMDA probe: pminfo -h $QA_HOST -f $probe"
 	    if pminfo -h $QA_HOST -f $probe 2>&1 \
 	       | tail -1 \
 	       | egrep "^[ 	]*((value)|(inst))[ 	]" >/dev/null
@@ -438,6 +438,7 @@ check options
     -g group	include tests from these groups (multiple flags allowed)
     -G          report groups and number of tests per group
     -l		line mode diff [xdiff]
+    -s		sssh mode diff [no diff, regular output]
     -n		show me, do not run tests
     -q		quick, no PMDA checks (you are on your own)
     -r		include retired tests
@@ -495,6 +496,11 @@ p
 
 	-h)	# host for show-me
 	    snarf=h
+	    xpand=false
+	    ;;
+
+	-s)	# sssh mode for diff, no diff at all 
+	    diff=true
 	    xpand=false
 	    ;;
 
