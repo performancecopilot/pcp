@@ -51,7 +51,9 @@ refresh_dev_mapper(dev_mapper_t *lvs)
         if (!S_ISBLK(statbuf.st_mode))
             continue;
 
-        linkname_len = readlink(path, linkname, sizeof(linkname));
+        if ((linkname_len = readlink(path, linkname, sizeof(linkname)-1)) < 0)
+	    continue;
+	linkname[linkname_len] = '\0';
 
         i = lvs->nlv;
         lvs->nlv++;
