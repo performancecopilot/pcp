@@ -20,6 +20,9 @@ from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from ctypes import c_int, POINTER, cast, Structure
 
+VOL_LIST_COMMAND = 'gluster --xml volume list'
+VOL_PROFILE_COMMAND = 'gluster --xml volume profile %s info'
+
 FILEOPS = [    # append only, do not change the order
     'STAT', 'MKDIR', 'OPEN', 'WRITE', 'FLUSH', 'FSYNC',
     'GETXATTR', 'OPENDIR', 'CREATE', 'FTRUNCATE', 'LOOKUP',
@@ -44,15 +47,29 @@ class GlusterPMDA(PMDA):
     volumes = {}
     bricks = {}
 
+    def gluster_refresh_volumes():
+        ''' Refresh the values and instances for gluster volumes (vol list) '''
+        self.log("refresh volumes: %s" % self.vol_list)
+
+    def gluster_refresh_bricks():
+        ''' Refresh the values and instances for gluster bricks (vol info) '''
+        self.log("refresh bricks: %s info" % self.vol_profile)
+
     def gluster_instance(self, serial):
         ''' Called once per "instance request" PDU '''
-        # self.log("instance update for %d" % serial)
-        self.gluster_refresh()
+        self.log("instance update for %d" % serial)
+        if (serial == 0):
+            self.gluster_refresh_bricks()
+        elif (serial == 1):
+            self.gluster_refresh_volumes()
 
-
-    def gluster_fetch(self):
-        ''' Called once per "fetch" PDU, before callbacks '''
-        self.gluster_refresh()
+    def gluster_refresh(self, cluster):
+        ''' Called for each unique "fetch" PDU cluster '''
+        self.log("cluster update for %d" % cluster)
+        if (cluster == 0):
+            self.gluster_refresh_bricks()
+        elif (cluster == 1):
+            self.gluster_refresh_volumes()
 
     def gluster_fetch_latency_callback(self, item, inst):
         '''
@@ -85,7 +102,7 @@ class GlusterPMDA(PMDA):
         Main fetch callback, defers to helpers for each cluster.
         Returns a list of value,status (single pair) for requested pmid/inst
         '''
-        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
         if (cluster == 0):
             return self.gluster_fetch_latency_callback(item, inst)
         elif (cluster == 1):
@@ -93,7 +110,7 @@ class GlusterPMDA(PMDA):
         return [c_api.PM_ERR_PMID, 0]
 
 
-    def gluster_store_volume_callback(self, val, inst):
+    def gluster_store_volume_callback(self, inst, val):
         ''' Helper for the store callback, volume profile enabling/disabling '''
         sts = 0
         namep = self.name_lookup(self.volumes_indom, inst)
@@ -102,9 +119,9 @@ class GlusterPMDA(PMDA):
         elif (val < 0):
             sts = c_api.PM_ERR_SIGN
         elif (val == 0):
-            self.log("disabling profiling on volume %s" % namep)
+            self.log("disable: %s %s stop" % (self.vol_profile, namep))
         else:
-            self.log("enabling profiling on volume %s" % namep)
+            self.log("enable: %s %s start" % (self.vol_profile, namep))
         return sts
 
     def gluster_store_callback(self, cluster, item, inst, val):
@@ -112,8 +129,9 @@ class GlusterPMDA(PMDA):
         Store callback, executed when a request to write to a metric happens
         Defers to helpers for each storable metric.  Returns a single value.
         '''
+        self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
         if (cluster == 1 and item == 0):
-            return self.gluster_store_volume_callback(val, inst)
+            return self.gluster_store_volume_callback(inst, val)
         elif (cluster == 0):
             return c_api.PM_ERR_PERMISSION
         return c_api.PM_ERR_PMID
@@ -125,13 +143,20 @@ class GlusterPMDA(PMDA):
         '''
         self.bricks.clear()
         self.volumes.clear()
+
+        self.log("refreshing cached volumes/bricks")
+        
         self.log("refreshing cached volume/brick values")
+        
         self.replace_indom(self.brick_indom, self.bricks)
         self.replace_indom(self.volume_indom, self.volumes)
 
 
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
+
+        self.vol_list = os.getenv('GLUSTER_VOL_LIST', VOL_LIST_COMMAND)
+        self.vol_info = os.getenv('GLUSTER_VOL_PROFILE', VOL_PROFILE_COMMAND)
 
         self.brick_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.brick_indom, self.bricks))
@@ -163,13 +188,11 @@ class GlusterPMDA(PMDA):
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
-        self.set_fetch(self.gluster_fetch)
+        self.set_refresh(self.gluster_refresh)
         self.set_instance(self.gluster_instance)
         self.set_fetch_callback(self.gluster_fetch_callback)
         self.set_store_callback(self.gluster_store_callback)
 
 
 if __name__ == '__main__':
-
     GlusterPMDA('gluster', 118).run()
-
