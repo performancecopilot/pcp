@@ -42,7 +42,7 @@ _cleanup()
 
 _filter()
 {
-    sed -e 's,#[0-9]*,####,g'
+    sed -e 's,#[0-9]*,####,g' -e 's/PMWEBAPI error,.*/PMWEBAPI error, XXX/g'
 }
 
 
