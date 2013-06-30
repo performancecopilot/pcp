@@ -1,0 +1,34 @@
+#
+# pmlogger configuration file for collecting ip-equivalent metrics
+#
+#
+# metrics annotated "+" are not available from sar, but are available
+# from PCP and are strongly related and useful
+#
+# metrics annotated "-" are not available from PCP because the sar
+# metric is not a simple time average or rate converted value
+#
+# metrics annotated "X" are available in both, but the units may be
+# different or some simple arithmetic (eg using pmie) may be required
+# to produce the same values
+#
+# metrics annotated "?" are ones where the information is available,
+# but relationship between the sar and the PCP metrics is not 1:1
+
+log mandatory on default {
+
+# -s link  -------------------------------------------------
+
+	network.interface.mtu
+	network.interface.out.bytes
+	network.interface.out.packets
+	network.interface.out.errors
+	network.interface.out.drops
+	network.interface.out.carrier
+	network.interface.collisions
+	network.interface.in.bytes
+	network.interface.in.packets
+	network.interface.in.errors
+	network.interface.in.drops
+	network.interface.total.mcasts
+}
