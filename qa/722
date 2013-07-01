@@ -13,8 +13,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-_notrun "Python pmatop test 722 not yet stable"
-
 status=0	# success is the default!
 $sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -64,9 +62,12 @@ awk -v f=$1 '
     {print $0}'
 }
 
-#PMATOP=pmatop		# installed version
-PMATOP=pmatop.py
-which $PMATOP >/dev/null 2>&1 || _notrun "pmatop not installed"
+PMATOP=pmatop.py		# local version, wont be there on installed system
+which $PMATOP >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    PMATOP=pmatop
+    which $PMATOP >/dev/null 2>&1 || _notrun "pmatop not installed"
+fi
 
 # real QA test starts here
 $PMATOP -r $here/src/pmatop-722.0 -m 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1

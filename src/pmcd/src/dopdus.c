@@ -1064,9 +1064,12 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	 */
 	if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0)
 	    return sts;
-	if ((sts = CheckAccountAccess(cp)) < 0)	/* host access done already */
-	    return sts;
-	sts = AgentsAuthentication(cp - client);
     }
+    if ((sts = CheckAccountAccess(cp)) < 0)	/* host access done already */
+	return sts;
+    else if (sts > 0)	/* account authentication successful - inform PMDAs */
+	sts = AgentsAuthentication(cp - client);
+    /* else: no account-based authentication needed, so finish successfully */
+
     return sts;
 }

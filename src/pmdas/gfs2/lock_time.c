@@ -186,7 +186,8 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
     unsigned int major, minor;
     char *hash, *fs_name;
     struct gfs2_fs *fs;
-    struct lock_time *glock, glockA, glockB, worst_glock;
+
+    struct lock_time *glock, worst_glock, glockA = {0}, glockB = {0}; 
 
     /* We walk through for each filesystem */
     for (pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_REWIND);;) {

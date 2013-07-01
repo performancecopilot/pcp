@@ -28,11 +28,33 @@ from pmapi import pmContext as PCP
 from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
 
 import ctypes
-from ctypes import c_int, c_long, c_char_p, c_void_p
-from ctypes import cast, CDLL, POINTER, Structure
+from ctypes import c_int, c_long, c_char_p, c_void_p, cast, byref
+from ctypes import sizeof, CDLL, POINTER, Structure, create_string_buffer
 
 ## Performance Co-Pilot PMDA library (C)
 LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))
+
+
+###
+## PMDA Indom Cache Services
+#
+LIBPCP_PMDA.pmdaCacheStore.restype = c_int
+LIBPCP_PMDA.pmdaCacheStore.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
+LIBPCP_PMDA.pmdaCacheStoreKey.restype = c_int
+LIBPCP_PMDA.pmdaCacheStoreKey.argtypes = [
+        pmInDom, c_int, c_char_p, c_int, c_void_p]
+LIBPCP_PMDA.pmdaCacheLookup.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookup.argtypes = [
+        pmInDom, c_int, POINTER(c_char_p), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheLookupName.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookupName.argtypes = [
+        pmInDom, c_char_p, POINTER(c_int), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheLookupKey.restype = c_int
+LIBPCP_PMDA.pmdaCacheLookupKey.argtypes = [
+        pmInDom, c_char_p, c_int, c_void_p, POINTER(c_char_p),
+       POINTER(c_int), POINTER(c_void_p)]
+LIBPCP_PMDA.pmdaCacheOp.restype = c_int
+LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
 
 ##
@@ -78,14 +100,10 @@ class pmdaIndom(Structure):
     def __init__(self, indom, insts):
         Structure.__init__(self)
         self.it_indom = indom
-        self.set_instances(insts)
+        self.set_instances(indom, insts)
 
-    def set_instances(self, insts):
-        if (insts == None):
-            self.it_numinst = 0
-            return
+    def set_list_instances(self, insts):
         instance_count = len(insts)
-        self.it_numinst = instance_count
         if (instance_count == 0):
             return
         instance_array = (pmdaInstid * instance_count)()
@@ -94,29 +112,29 @@ class pmdaIndom(Structure):
             instance_array[i].i_name = insts[i].i_name
         self.it_set = instance_array
 
+    def set_dict_instances(self, indom, insts):
+        LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
+        for key in insts.keys():
+            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key, byref(insts[key]))
+        LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
+
+    def set_instances(self, indom, insts):
+        if (insts == None):
+            self.it_numinst = 0          # not yet known if cache indom or not
+        elif (isinstance(insts, dict)):
+            self.it_numinst = -1         # signifies cache indom (no it_set)
+            self.set_dict_instances(indom, insts)
+        else:
+            self.it_numinst = len(insts) # signifies an old-school array indom
+            self.set_list_instances(insts)
+
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
 
-###
-## PMDA Indom Cache Services
-#
-LIBPCP_PMDA.pmdaCacheStore.restype = c_int
-LIBPCP_PMDA.pmdaCacheStore.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
-LIBPCP_PMDA.pmdaCacheStoreKey.restype = c_int
-LIBPCP_PMDA.pmdaCacheStoreKey.argtypes = [
-        pmInDom, c_int, c_char_p, c_int, c_void_p]
-LIBPCP_PMDA.pmdaCacheLookup.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookup.argtypes = [pmInDom, c_int, c_char_p, c_void_p]
-LIBPCP_PMDA.pmdaCacheLookupName.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookupName.argtypes = [
-        pmInDom, c_char_p, POINTER(c_int), POINTER(c_void_p)]
-LIBPCP_PMDA.pmdaCacheLookupKey.restype = c_int
-LIBPCP_PMDA.pmdaCacheLookupKey.argtypes = [
-        pmInDom, c_char_p, c_int, c_void_p, POINTER(c_char_p),
-       POINTER(c_int), POINTER(c_void_p)]
-LIBPCP_PMDA.pmdaCacheOp.restype = c_int
-LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
 
+###
+## Convenience Classes for PMDAs
+#
 
 class MetricDispatch(object):
     """ Helper for PMDA class which manages metric dispatch
@@ -137,7 +155,7 @@ class MetricDispatch(object):
     def __init__(self, domain, name, logfile, helpfile):
         self.clear_indoms()
         self.clear_metrics()
-        self._dispatch = cpmda.pmda_dispatch(domain, name, logfile, helpfile)
+        cpmda.init_dispatch(domain, name, logfile, helpfile)
 
     def clear_indoms(self):
         self._indomtable = []
@@ -154,53 +172,60 @@ class MetricDispatch(object):
 
     def reset_metrics(self):
         clear_metrics()
-        cpmda.set_need_refresh(self._metrics)
+        cpmda.set_need_refresh()
 
     ##
     # general PMDA class methods
 
     def pmns_refresh(self):
-        if (cpmda.need_refresh()):
-            cpmda.pmns_refresh(self._metrics)
+        cpmda.pmns_refresh(self._metric_names)
 
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
         if (pmid in self._metric_names):
             raise KeyError, 'attempt to add_metric with an existing name'
         if (pmid in self._metrics):
-            raise KeyError, 'attempt to add_metric with an existing pmid'
+            raise KeyError, 'attempt to add_metric with an existing PMID'
 
         self._metrictable.append(metric)
         self._metrics[pmid] = metric
         self._metric_names[pmid] = name
         self._metric_oneline[pmid] = oneline
         self._metric_helptext[pmid] = text
-
-        cpmda.set_need_refresh(self._metrics)
+        cpmda.set_need_refresh()
 
     def add_indom(self, indom, oneline = '', text = ''):
         indomid = indom.it_indom
-        if (indomid in self._indoms):
-            raise KeyError, 'attempt to add_indom with an existing indom'
+        for entry in self._indomtable:
+            if (entry.it_indom == indomid):
+                raise KeyError, 'attempt to add_indom with an existing ID'
         self._indomtable.append(indom)
         self._indoms[indomid] = indom
         self._indom_oneline[indomid] = oneline
         self._indom_helptext[indomid] = text
 
-    def replace_indom(self, indom, instlist):
-        replacement = pmdaIndom(indom, instlist)
-        for entry in self._indomtable:
-            if (entry.it_indom == indom):
-                entry = replacement
-        self._indoms[indomid] = replacement
+    def replace_indom(self, indom, insts):
+        replacement = pmdaIndom(indom, insts)
+        # list indoms need to keep the table up-to-date for libpcp_pmda
+        if (isinstance(insts, list)):
+            for entry in self._indomtable:
+                if (entry.it_indom == indom):
+                    entry = replacement
+        self._indoms[indom] = replacement
 
     def inst_lookup(self, indom, instance):
         """
-        Lookup the (external) name associated with an (internal) instance ID
-        within a specific instance domain
+        Lookup the name/value associated with an (internal) instance ID
+        within a specific instance domain (whether name or value depends
+        on whether this is an array indom or cache indom).
         """
         entry = self._indoms[indom]
-        if (entry.it_indom == indom):
+        if (entry.it_numinst < 0):
+            value = (c_void_p)()
+            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, None, byref(value))
+            if (sts == cpmda.PMDA_CACHE_ACTIVE):
+                return value
+        elif (entry.it_numinst > 0 and entry.it_indom == indom):
             for inst in entry.it_set:
                 if (inst.i_inst == instance):
                     return inst.i_name
@@ -254,8 +279,8 @@ class PMDA(MetricDispatch):
         """
         Write out the namespace file (used during installation)
         """
-        namespace = self._metric_names
-        prefixes = set([namespace[key].split('.')[0] for key in namespace])
+        pmns = self._metric_names
+        prefixes = set([pmns[key].split('.')[0] for key in pmns])
         indent = (root == 'root')
         lead = ''
         if indent:
@@ -267,35 +292,54 @@ class PMDA(MetricDispatch):
             print '}'
 
     def run(self):
+        """
+        All the real work happens herein; we can be called in one of three
+        situations, determined by environment variables.  First couple are
+        during the agent Install process, where the domain.h and namespace
+        files need to be created.  The third case is the real mccoy, where
+        an agent is actually being started by pmcd/dbpmda and makes use of
+        libpcp_pmda to talk PCP protocol.
+        """
         if ('PCP_PYTHON_DOMAIN' in os.environ):
             self.domain_write()
         elif ('PCP_PYTHON_PMNS' in os.environ):
-            self.pmns_refresh()
             self.pmns_write(os.environ['PCP_PYTHON_PMNS'])
         else:
             self.pmns_refresh()
-            LIBPCP_PMDA.pmdaInit(self._dispatch)
-            LIBPCP_PMDA.pmdaConnect(self._dispatch)
-            LIBPCP_PMDA.pmdaMain(self._dispatch)
+            cpmda.pmid_oneline_refresh(self._metric_oneline)
+            cpmda.pmid_longtext_refresh(self._metric_helptext)
+            cpmda.indom_oneline_refresh(self._indom_oneline)
+            cpmda.indom_longtext_refresh(self._indom_helptext)
+            numindoms = len(self._indomtable)
+            ibuf = create_string_buffer(numindoms * sizeof(pmdaIndom))
+            indoms = cast(ibuf, POINTER(pmdaIndom))
+            for i in xrange(numindoms):
+                indoms[i] = self._indomtable[i]
+            nummetrics = len(self._metrictable)
+            mbuf = create_string_buffer(nummetrics * sizeof(pmdaMetric))
+            metrics = cast(mbuf, POINTER(pmdaMetric))
+            for i in xrange(nummetrics):
+                metrics[i] = self._metrictable[i]
+            cpmda.pmda_dispatch(ibuf.raw, numindoms, mbuf.raw, nummetrics)
 
     @staticmethod
-    def set_fetch(self, fetch):
+    def set_fetch(fetch):
         return cpmda.set_fetch(fetch)
 
     @staticmethod
-    def set_refresh(self, refresh):
+    def set_refresh(refresh):
         return cpmda.set_refresh(refresh)
 
     @staticmethod
-    def set_instance(self, instance):
+    def set_instance(instance):
         return cpmda.set_instance(instance)
 
     @staticmethod
-    def set_fetch_callback(self, fetch_callback):
+    def set_fetch_callback(fetch_callback):
         return cpmda.set_fetch_callback(fetch_callback)
 
     @staticmethod
-    def set_store_callback(self, store_callback):
+    def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
 
     @staticmethod
@@ -305,6 +349,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def pmid(cluster, item):
         return cpmda.pmda_pmid(cluster, item)
+
+    @staticmethod
+    def indom(serial):
+        return cpmda.pmda_indom(serial)
 
     @staticmethod
     def units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count):
@@ -333,5 +381,4 @@ class PMDA(MetricDispatch):
 #    set_unix_socket
 #    pmda_pmid_name(cluster,item)
 #    pmda_pmid_text(cluster,item)
-#    pmda_inst_lookup(index,instance)
 #    

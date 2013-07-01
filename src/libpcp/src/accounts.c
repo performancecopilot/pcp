@@ -23,9 +23,60 @@
 #include <grp.h>
 #endif
 
+int
+__pmEqualUserIDs(__pmUserID uid1, __pmUserID uid2)
+{
+    return uid1 == uid2;
+}
+
+int
+__pmEqualGroupIDs(__pmGroupID gid1, __pmGroupID gid2)
+{
+    return gid1 == gid2;
+}
+
+int
+__pmValidUserID(__pmUserID uid)
+{
+    return uid >= 0;
+}
+
+int __pmValidGroupID(__pmGroupID gid)
+{
+    return gid >= 0;
+}
+
+void
+__pmUserIDFromString(const char *userid, __pmUserID *uid)
+{
+    *uid = atoi(userid);
+}
+
+void
+__pmGroupIDFromString(const char *groupid, __pmGroupID *gid)
+{
+    *gid = atoi(groupid);
+}
+
+char *
+__pmUserIDToString(__pmUserID uid, char *buf, size_t size)
+{
+    snprintf(buf, size, "%u", (unsigned int)uid);
+    buf[size-1] = '\0';
+    return buf;
+}
+
+char *
+__pmGroupIDToString(__pmGroupID gid, char *buf, size_t size)
+{
+    snprintf(buf, size, "%u", (unsigned int)gid);
+    buf[size-1] = '\0';
+    return buf;
+}
+
 #if defined(HAVE_GETGRGID_R)
 char *
-__pmGroupname(gid_t gid, char *buf, size_t size)
+__pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct group grp, *result;
@@ -37,7 +88,7 @@ __pmGroupname(gid_t gid, char *buf, size_t size)
 }
 #elif defined(HAVE_GETGRGID)
 char *
-__pmGroupname(gid_t gid, char *buf, size_t size)
+__pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 {
     struct group *result;
 
@@ -52,7 +103,7 @@ __pmGroupname(gid_t gid, char *buf, size_t size)
 
 #if defined(HAVE_GETPWUID_R)
 char *
-__pmUsername(uid_t uid, char *buf, size_t size)
+__pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     char namebuf[1024];
     struct passwd pwd, *result;
@@ -64,7 +115,7 @@ __pmUsername(uid_t uid, char *buf, size_t size)
 }
 #elif defined(HAVE_GETPWUID)
 char *
-__pmUsername(uid_t uid, char *buf, size_t size)
+__pmUsernameFromID(uid_t uid, char *buf, size_t size)
 {
     struct passwd *result;
 
@@ -79,7 +130,7 @@ __pmUsername(uid_t uid, char *buf, size_t size)
 
 #if defined(HAVE_GETPWNAM_R)
 int
-__pmUserID(const char *name, uid_t *uid)
+__pmUsernameToID(const char *name, uid_t *uid)
 {
     char namebuf[1024];
     struct passwd pwd, *result = NULL;
@@ -92,7 +143,7 @@ __pmUserID(const char *name, uid_t *uid)
 }
 #elif defined(HAVE_GETPWNAM)
 int
-__pmUserID(const char *name, uid_t *uid)
+__pmUsernameToID(const char *name, uid_t *uid)
 {
     struct passwd *result;
 
@@ -108,7 +159,7 @@ __pmUserID(const char *name, uid_t *uid)
 
 #if defined(HAVE_GETGRNAM_R)
 int
-__pmGroupID(const char *name, gid_t *gid)
+__pmGroupnameToID(const char *name, gid_t *gid)
 {
     char namebuf[512];
     struct group grp, *result = NULL;
@@ -121,7 +172,7 @@ __pmGroupID(const char *name, gid_t *gid)
 }
 #elif defined(HAVE_GETGRNAM)
 int
-__pmGroupID(const char *name, gid_t *gid)
+__pmGroupnameToID(const char *name, gid_t *gid)
 {
     struct group *result;
 
@@ -185,9 +236,7 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 	grp = NULL;
 	if (getgrent_r(&gr, grbuf, sizeof(grbuf), &grp) != 0 || grp == NULL)
 	    break;
-	for (i = 0; ; i++) {
-	    if (grp->gr_mem[i] == NULL)
-		break;
+	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
@@ -227,9 +276,7 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 	grp = NULL;
 	if ((grp = getgrent()) == NULL)
 	    break;
-	for (i = 0; ; i++) {
-	    if (grp->gr_mem[i] == NULL)
-		break;
+	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
@@ -249,10 +296,36 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 !bozo!
 #endif
 
+/*
+ * Add a user ID into a user list, if it is not there already.
+ * The current user ID list and size are passed in, updated if
+ * changed, and passed back out.
+ */
+static int
+__pmAddUserID(uid_t uid, uid_t **uidlist, unsigned int *count)
+{
+    uid_t		*uids = *uidlist;
+    size_t		need;
+    unsigned int	i, total = *count;
+
+    for (i = 0; i < total; i++)
+	if (uids[i] == uid)
+	    return 0;	/* already in the list, we're done */
+
+    need = (total + 1) * sizeof(uid_t);
+    if ((uids = (uid_t *)realloc(uids, need)) == NULL)
+	return -ENOMEM;
+    uids[total++] = uid;
+    *uidlist = uids;
+    *count = total;
+    return 0;
+}
+
 #if defined(HAVE_GETGRNAM_R) && defined(HAVE_GETPWENT_R)
 int
 __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
 {
+    int			sts;
     uid_t		*uidlist = NULL;
     gid_t		groupid;
     char		grbuf[1024];
@@ -260,7 +333,7 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     char		**names = NULL;
     struct group	gr, *grp = NULL;
     struct passwd	pw, *pwp;
-    unsigned int	i, j, count;
+    unsigned int	i, count = 0;
 
     /* for a given group name, find gid and user names */
     getgrnam_r(groupname, &gr, grbuf, sizeof(grbuf), &grp);
@@ -269,21 +342,26 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     groupid = grp->gr_gid;
     names = grp->gr_mem;	/* supplementaries */
 
-    /* prepare some space to pass back holding the uids */
-    for (count = 0; names[count]; count++) { /*just count*/ }
-    if ((uidlist = calloc(count, sizeof(uid_t))) == NULL && count)
-	return -ENOMEM;
-
     /* for a given list of usernames, lookup the user IDs */
     setpwent();
-    for (i = 0; i < count; ) {
+    while (1) {
 	pwp = NULL;
 	getpwent_r(&pw, buf, sizeof(buf), &pwp);
 	if (pwp == NULL)
 	    break;
-	for (j = 0; j < count; j++) {
-	    if (strcmp(pwp->pw_name, names[j]) == 0) {
-		uidlist[i++] = pwp->pw_uid;
+	/* check to see if this user has given group as primary */
+	if (pwp->pw_gid == groupid &&
+	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
+	    endpwent();
+	    return sts;
+	}
+	/* check to see if this user is listed in groups file */
+	for (i = 0; names[i]; i++) {
+	    if (strcmp(pwp->pw_name, names[i]) == 0) {
+		if ((sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
+		    endpwent();
+		    return sts;
+		}
 		break;
 	    }
 	}
@@ -291,19 +369,20 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     endpwent();
 
     *userids = uidlist;
-    *nusers = i;
+    *nusers = count;
     return 0;
 }
 #elif defined(HAVE_GETGRNAM) && defined(HAVE_GETPWENT)
 int
 __pmGroupsUserIDs(const char *name, uid_t **userids, unsigned int *nusers)
 {
+    int			sts;
     uid_t		*uidlist = NULL;
     gid_t		groupid;
     char		**names = NULL;
     struct group	*grp = NULL;
     struct passwd	*pwp;
-    unsigned int	i, j, count;
+    unsigned int	i, count = 0;
 
     /* for a given group name, find gid and user names */
     if ((grp = getgrnam(name)) == NULL)
@@ -311,19 +390,22 @@ __pmGroupsUserIDs(const char *name, uid_t **userids, unsigned int *nusers)
     groupid = grp->gr_gid;
     names = grp->gr_mem;
 
-    /* prepare some space to pass back holding the uids */
-    for (count = 0; names[count]; count++) { /*just count*/ }
-    if ((uidlist = calloc(count, sizeof(uid_t))) == NULL && count)
-	return -ENOMEM;
-
-    /* for a given list of usernames, lookup the user IDs */
     setpwent();
-    for (i = 0; i < count; ) {
+    while (1) {
 	if ((pwp = getpwent()) == NULL)
 	    break;
-	for (j = 0; j < count; j++) {
-	    if (strcmp(pwp->pw_name, names[j]) == 0) {
-		uidlist[i++] = pwp->pw_uid;
+	/* check to see if this user has given group as primary */
+	if (pwp->pw_gid == groupid &&
+	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
+	    endpwent();
+	    return sts;
+	}
+	for (i = 0; names[i]; i++) {
+	    if (strcmp(pwp->pw_name, names[i]) == 0) {
+		if ((sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
+		    endpwent();
+		    return sts;
+		}
 		break;
 	    }
 	}
@@ -331,7 +413,7 @@ __pmGroupsUserIDs(const char *name, uid_t **userids, unsigned int *nusers)
     endpwent();
 
     *userids = uidlist;
-    *nusers = i;
+    *nusers = count;
     return 0;
 }
 #else

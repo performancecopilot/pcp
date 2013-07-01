@@ -862,7 +862,7 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 	    *specOps = PMCD_OP_ALL;		/* Do this AFTER any recursive call */
 	}
 	else if (TokenIs("maximum") || TokenIs("unlimited")) {
-	    int	unlimited = *token == 'u' || *token == 'U';
+	    int	unlimited = (*token == 'u' || *token == 'U');
 
 	    if (*maxCons) {
 		fprintf(stderr,
@@ -1559,7 +1559,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	__pmHostEntFree(host);
     }
     else {
-#if defined(HAVE_SYS_UN_H)
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	struct sockaddr_un	addr;
 	int			len;
 

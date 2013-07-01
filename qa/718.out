@@ -1,6 +1,6 @@
 QA output created by 718
-dbpmda> open pipe /usr/bin/python pmdasimple.py
-Start python PMDA: /usr/bin/python pmdasimple.py
+dbpmda> open pipe /usr/bin/python pmdasimple.python
+Start python PMDA: /usr/bin/python pmdasimple.python
 dbpmda> getdesc on
 dbpmda> desc simple.numfetch
 PMID: 253.0.0
@@ -81,6 +81,8 @@ pmInDom: 253.0
 [  2] inst: 2 name: "blue"
 dbpmda> text indom 253.1
 pmInDom: 253.1
-[Instance domain "colour" for simple PMDA]
-Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
+[Dynamic instance domain "time" for simple PMDA]
+An instance domain which is computed on-the-fly for exporting current time
+information.  Refer to the help text for simple.now for a more complete
+explanation.
 dbpmda> 

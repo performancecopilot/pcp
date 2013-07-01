@@ -21,7 +21,7 @@ CMDTARGET = pmdasimple$(EXECSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
-SCRIPTS = pmdasimple.pl #pmdasimple.py
+SCRIPTS = pmdasimple.perl pmdasimple.python
 LSRCFILES = Install Remove pmns root $(DFILES) $(SCRIPTS) \
 	simple.conf GNUmakefile.install
 

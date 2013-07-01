@@ -4,7 +4,9 @@
 #
 # Requires GFS2 support in the kernel, else it will notrun. The following
 # tests in this script assume that there are currently no mounted gfs2
-# filesystems on the host.
+# filesystems on the host and that debugfs is mounted. For this test, the 
+# filesystems will be mounted as local filesystems and will only test the 
+# metrics which are available in these environments.
 #
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #

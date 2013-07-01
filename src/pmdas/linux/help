@@ -80,14 +80,14 @@ Total time spent processing interrupts on each CPU (this includes
 both soft and hard interrupt processing time).
 
 @ kernel.percpu.cpu.irq.soft percpu soft interrupt CPU time 
-Per-CPU soft interrupt CPU time (defered interrupt handling code,
+Per-CPU soft interrupt CPU time (deferred interrupt handling code,
 not run in the initial interrupt handler).
 
 @ kernel.percpu.cpu.irq.hard percpu hard interrupt CPU time 
-Per-CPU soft interrupt CPU time ("hard" interrupt handling code
+Per-CPU hard interrupt CPU time ("hard" interrupt handling code
 is the code run directly on receipt of the initial hardware
 interrupt, and does not include "soft" interrupt handling code
-which is defered until later).
+which is deferred until later).
 
 @ kernel.percpu.cpu.steal percpu CPU steal time 
 Per-CPU time when the CPU had a runnable process, but the hypervisor
@@ -721,13 +721,13 @@ This value includes both soft and hard interrupt processing time.
 @ kernel.all.cpu.sys total sys CPU time from /proc/stat for all CPUs
 @ kernel.all.cpu.idle total idle CPU time from /proc/stat for all CPUs
 @ kernel.all.cpu.irq.soft soft interrupt CPU time from /proc/stat for all CPUs
-Total soft interrupt CPU time (defered interrupt handling code,
+Total soft interrupt CPU time (deferred interrupt handling code,
 not run in the initial interrupt handler).
 @ kernel.all.cpu.irq.hard hard interrupt CPU time from /proc/stat for all CPUs
-Total soft interrupt CPU time ("hard" interrupt handling code
+Total hard interrupt CPU time ("hard" interrupt handling code
 is the code run directly on receipt of the initial hardware
 interrupt, and does not include "soft" interrupt handling code
-which is defered until later).
+which is deferred until later).
 @ kernel.all.cpu.steal total virtualisation CPU steal time for all CPUs
 Total CPU time when a CPU had a runnable process, but the hypervisor
 (virtualisation layer) chose to run something else instead.
@@ -735,6 +735,7 @@ Total CPU time when a CPU had a runnable process, but the hypervisor
 Total CPU time spent running virtual guest operating systems.
 @ kernel.all.nusers number of user sessions on system
 
+@ hinv.ninterface number of active (up) network interfaces
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
 @ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
 @ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
@@ -793,6 +794,9 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ hinv.map.lvname mapping of logical volume names for devices
+Provides a logical-volume-name to device-name mapping for the device
+mapper subsystem.
 @ filesys.capacity Total capacity of mounted filesystem (Kbytes)
 @ filesys.used Total space used on mounted filesystem (Kbytes)
 @ filesys.free Total space free on mounted filesystem (Kbytes)
@@ -1244,6 +1248,7 @@ See also the kernel.uname.* metrics
 
 @ pmda.version build version of Linux PMDA
 @ hinv.map.cpu_num logical to physical CPU mapping for each CPU
+@ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo

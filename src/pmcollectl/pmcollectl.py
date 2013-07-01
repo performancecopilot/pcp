@@ -330,9 +330,9 @@ class _diskCollectPrint(_CollectPrint):
         print '#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n',
     def print_brief(self):
         print "%6d %6d %6d %6d" % (
-            self.ss.get_metric_value('disk.all.read_bytes') / 1024,
+            self.ss.get_metric_value('disk.all.read_bytes'),
             self.ss.get_metric_value('disk.all.read'),
-            self.ss.get_metric_value('disk.all.write_bytes') / 1024,
+            self.ss.get_metric_value('disk.all.write_bytes'),
             self.ss.get_metric_value('disk.all.write')),
     def print_detail(self):
         for j in xrange(len(self.ss.metric_pmids)):

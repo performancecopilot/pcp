@@ -1305,6 +1305,11 @@ pmdaMetric linux_metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,26), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.ninterface */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_DEV,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* network.interface.ipaddr */
     { NULL, 
       { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
@@ -4591,6 +4596,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_NET_DEV: /* network.interface */
+	if (idp->item == 27) {	/* hinv.ninterface */
+	    atom->ul = pmdaCacheOp(INDOM(NET_DEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	    break;
+	}
 	sts = pmdaCacheLookup(INDOM(NET_DEV_INDOM), inst, NULL, (void **)&netip);
 	if (sts < 0)
 	    return sts;

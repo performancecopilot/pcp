@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 551
+# Exercise fix for hanging-pmcd-by-drip-feeding-requests
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+host=localhost
+ppid=0
+count=5
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+cleanup()
+{
+    cd $here
+    rm -rf $tmp.*
+    [ $ppid -eq 0 ] || kill $ppid
+    ppid=0
+}
+
+cpu_count()
+{
+    pmprobe -h $host -v hinv.ncpu | tee -a $here/$seq.full | awk '{ print $3 }'
+}
+
+
+# real QA test starts here
+cd secure
+ncpu=`cpu_count`
+echo "Initial CPU count: $ncpu" > $here/$seq.full
+for hang_test in hang-*
+do
+    echo "$hang_test checking: " | tee -a $here/$seq.full
+    python $hang_test $host >$tmp.out 2>&1 &
+    ppid=$!
+    sts=0
+    n=0
+    while [ $n -lt $count ]
+    do
+        ncpunow=`cpu_count`
+        echo "Fetched CPU count: $ncpunow" >> $here/$seq.full
+        if [ $ncpunow != $ncpu ]
+        then
+            sts=1
+            break
+        fi
+        echo "[$n] check data matched" | tee -a $here/$seq.full
+        n=`expr $n + 1`
+        sleep 1
+    done
+    kill $ppid
+    wait $ppid
+    ppid=0
+    echo "$hang_test complete" | tee -a $here/$seq.full
+    echo "$hang_test output " >> $here/$seq.full
+    cat $tmp.out >> $here/$seq.full
+    [ $sts -eq 0 ] || exit
+done
+
+# success, all done
+status=0
+exit

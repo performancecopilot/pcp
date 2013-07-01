@@ -93,8 +93,15 @@ function setUpdateInterval(i) {
    updateIntervalID = setInterval(updateBlinkenlights, updateInterval); 
 }
 
-var pm_context_spec = "hostname="+pm_host;
+// default mode
+var pm_context_type = "hostspec";
+var pm_context_spec = "localhost";
 
+function setPMContextType(k) {
+   pm_context_type = k;
+   pm_context = -1;
+   updateBlinkenlights();
+}
 function setPMContextSpec(i) {
    pm_context_spec = i;
    pm_context = -1;
@@ -106,7 +113,10 @@ function updateBlinkenlights() {
   var pm_url;
 
   if (pm_context < 0) {
-    pm_url = pm_root + "/context?" + pm_context_spec + "&polltimeout=" + Math.floor(5*updateInterval/1000);
+    pm_url = pm_root
+          + "/context?"
+          + pm_context_type + "=" + encodeURIComponent(pm_context_spec)
+          + "&polltimeout=" + Math.floor(5*updateInterval/1000);
     $.getJSON(pm_url, function(data, status) {
       pm_context = data.context;
       setTimeout(updateBlinkenlights, 100); // retry soon
@@ -131,7 +141,11 @@ function updateBlinkenlights() {
     $.each(data.values, function(i, value) {
       data_dict[value.name] = value;
     });
-
+    // update status field
+    theDate = new Date(0);
+    theDate.setUTCSeconds(data.timestamp.s);
+    theDate.setUTCMilliseconds(data.timestamp.us/1000);
+    $("#status").html("Timestamp: " + theDate.toString());
     // update the view
     $("#blinkenlights").empty();
     $.each(predicates, function(i, predicate) {

@@ -34,6 +34,7 @@ disk.dev.write_bytes
 hinv.machine
 hinv.ncpu
 hinv.ndisk
+hinv.ninterface
 hinv.pagesize
 hinv.physmem
 kernel.all.cpu.idle

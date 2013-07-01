@@ -1,0 +1,45 @@
+QA output created by 546
+Log for pmcd on HOST started DATE
+
+pmcd config[line 3]: Error: ',' or ':' expected after "nosuchuser"
+pmcd config[line 4]: Error: empty or incomplete permissions list
+pmcd config[line 5]: Error: misplaced (trailing) ',' in permission list
+pmcd config[line 6]: Error: connection limit already specified
+pmcd config[line 7]: Error: maximum connection limit must be a positive number
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+Log for pmcd on HOST started DATE
+
+pmcd config[line 4]: Error: ',' or ';' expected in permission list
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+Log for pmcd on HOST started DATE
+
+pmcd config[line 4]: Error: ',' or ':' expected after "nosuchuser"
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+Log for pmcd on HOST started DATE
+
+pmcd config[line 3]: Error: ',' or ':' expected after "nosuchgroup"
+pmcd config[line 4]: Error: empty or incomplete permissions list
+pmcd config[line 5]: Error: misplaced (trailing) ',' in permission list
+pmcd config[line 6]: Error: connection limit already specified
+pmcd config[line 7]: Error: maximum connection limit must be a positive number
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+Log for pmcd on HOST started DATE
+
+pmcd config[line 4]: Error: ',' or ';' expected in permission list
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE
+Log for pmcd on HOST started DATE
+
+pmcd config[line 4]: Error: ',' or ':' expected after "nosuchgroup"
+[DATE] pmcd(PID) Error: pmcd not started due to errors!
+
+Log finished DATE

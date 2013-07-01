@@ -1,5 +1,37 @@
-pcp-3.8.1 (under development)
-    - Add new proc.{memory.vmswap,psinfo.threads} metrics.
+pcp-3.8.1 (19 June 2013)
+    - Add support for PMDAs written in python via pcp.pmda package.
+    - Example implementation of pmdasimple using python.
+    - Added new proc.{memory.vmswap,psinfo.threads} metrics.
+    - New collectl2pcp utility and sub-package (deb/rpm) for
+      converting historical data collected with collectl into the
+      PCP archive format for replay and analysis with PCP tools.
+    - Add missing help text for some Linux kernel hinv.map metrics
+    - Added new hinv.map.lvname metric for reverse mapping logical
+      device mapper names to physical device names.
+    - Added new hinv.ninterface metric (pmdalinux and collectl2pcp)
+    - Fixes to pmcollectl handling of PCP logs in archive mode.
+    - Allow pmcollectl metrics to be sourced from a remote host.
+    - Additional gfs2 metrics and tests, thanks to Paul Evans from
+      the gfs2 development team at Red Hat.  This makes use of the
+      gfs2 kernel glock event tracing to track hot locks, and also
+      provides a storable mechanism for enabling/disabling tracing
+      on-the-fly.
+    - Updated access control section of pmcd.1 with IPv6 details.
+    - Improve archive integrity checking from libpcp_import, ensure
+      monotonic increasing timestamps presented for single archive.
+    - Improvements to the log import perl API allowing for batched
+      updates (out-of-order), thanks to Marko Myllynen.
+    - Removed a low limit in the libpcp_import auto-PMID generation
+      scheme, now allowing millions of metrics instead of hundreds.
+    - Promote pmlogger and pmlogextract into the default PATH, with
+      backward-compatibility preserving symlinks in PCP_BINADM_DIR.
+    - Support for IPv6 socket communication in libpcp_pmda for pmcd
+      PMDA communication.
+    - Support for IPv6 socket communication testing via dbpmda.
+    - Update man pages to reflect IPv6 support in libpcp_pmda.
+    - Other improvements to the socket-based PMDA mechanisms.
+    - Fix a 64bit big-endian host issue in systemd.maxmem metric
+    - Mac OS X packaging tweaks.
 
 pcp-3.8.0 (14 May 2013)
     - Added the nginx PMDA, thanks to Ryan Doyle.

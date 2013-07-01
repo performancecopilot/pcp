@@ -30,7 +30,8 @@
 struct webcontext {
     /* __pmHashNode key is     unique randomized web context key, [1,INT_MAX] */
     /* XXX: optionally bind session to a particular IP address? */
-    /* XXX: optionally bind session to a particular authenticated user? */
+    char      *userid;      /* NULL, or strdup'd username */
+    char      *password;    /* NULL, or strdup'd password */
     unsigned  mypolltimeout;
     time_t    expires;      /* poll timeout, 0 if never expires */
     int       context;      /* PMAPI context handle, 0 if deleted/free */
@@ -66,6 +67,10 @@ pmwebapi_gc_fn (const __pmHashNode *kv, void *cdata)
             if (rc)
                 __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
                                value->context, rc);
+
+            free (value->userid);
+            free (value->password);
+    
             return PM_HASH_WALK_DELETE_NEXT;
         }
 
@@ -111,6 +116,8 @@ pmwebapi_deallocate_all_fn (const __pmHashNode *kv, void *cdata)
     if (rc)
         __pmNotifyErr (LOG_ERR, "pmDestroyContext (%d) failed: %d\n",
                        value->context, rc);
+    free (value->userid);
+    free (value->password);
     free (value);
     return PM_HASH_WALK_DELETE_NEXT;
 }
@@ -124,14 +131,16 @@ void pmwebapi_deallocate_all ()
 }
 
 
+/* Allocate an zeroed webcontext structure, and enroll it in the
+   hash table with the given context#. */ 
 static int webcontext_allocate (int webapi_ctx, struct webcontext** wc)
 {
     if (__pmHashSearch (webapi_ctx, & contexts) != NULL)
         return -EEXIST;
   
-    /* Allocate & fill in our webapi context. */
+    /* Allocate & clear our webapi context. */
     assert (wc);
-    *wc = malloc(sizeof(struct webcontext));
+    *wc = calloc(1, sizeof(struct webcontext));
     if (! *wc)
         return -ENOMEM;
 
@@ -209,9 +218,32 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     struct MHD_Response *resp;
     int webapi_ctx;
     int iterations = 0;
+    char *userid = NULL;
+    char *password = NULL;
 
-    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostname");
+    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostspec");
+    if (val == NULL) /* backward compatibility alias */
+        val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostname");
     if (val) {
+        pmHostSpec *hostSpec;
+        int hostSpecCount;
+        __pmHashCtl hostAttrs;
+        char *hostAttrsError;
+
+        memset (& hostAttrs, 0, sizeof(hostAttrs)); /* XXX: need to initialize? */
+        rc = __pmParseHostAttrsSpec (val, & hostSpec, & hostSpecCount,
+                                     & hostAttrs, & hostAttrsError);
+        if (rc == 0) {
+            __pmHashNode *node;
+            node = __pmHashSearch (PCP_ATTR_USERNAME, & hostAttrs); /* XXX: PCP_ATTR_AUTHNAME? */
+            if (node) userid = strdup (node->data);
+            node = __pmHashSearch (PCP_ATTR_PASSWORD, & hostAttrs);
+            if (node) password = strdup (node->data);
+            __pmFreeHostAttrsSpec (hostSpec, hostSpecCount, & hostAttrs);
+        } else {
+            /* Ignore the parse error at this stage; pmNewContext will give it to us. */
+        }
+        
         context = pmNewContext (PM_CONTEXT_HOST, val); /* XXX: limit access */
         snprintf (context_description, sizeof(context_description), "PM_CONTEXT_HOST %s", val);
     } else {
@@ -297,18 +329,23 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     time (& c->expires);
     c->mypolltimeout = polltimeout;
     c->expires += c->mypolltimeout;
-  
+    c->userid = userid; /* may be NULL; otherwise, will be freed at context release. */
+    c->password = password; /* ditto */
+
     /* Errors beyond this point don't require instant cleanup; the
        periodic context GC will do it all. */
   
     if (verbosity) {
         const char* context_hostname = pmGetContextHostName (context);
-        pmweb_notify (LOG_INFO, connection, "context %s%s%s%s (web%d=pm%d) created, expires in %us.\n",
+        pmweb_notify (LOG_INFO, connection, "context %s%s%s%s (web%d=pm%d) created%s%s, expires in %us.\n",
                       context_description, 
                       context_hostname ? " (" : "",
                       context_hostname ? context_hostname : "",
                       context_hostname ? ")" : "",
-                      webapi_ctx, context, polltimeout);
+                      webapi_ctx, context, 
+                      userid ? ", user=" : "",
+                      userid ? userid : "",
+                      polltimeout);
     }
   
     rc = snprintf (http_response, sizeof(http_response), "{ \"context\": %d }", webapi_ctx);
@@ -606,6 +643,145 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
 
 /* ------------------------------------------------------------------------ */
 
+/* Print "value":<RENDERING>, possibly nested for PM_TYPE_EVENT.
+   Upon failure to decode, print less and return non-0. */
+
+static int pmwebapi_format_value (struct mhdb* output,
+                                  pmDesc* desc,
+                                  pmValueSet* pvs,
+                                  int vsidx)
+{
+    pmValue* value = & pvs->vlist[vsidx];
+    pmAtomValue a;
+    int rc;
+
+    /* unpack, as per pmevent.c:myeventdump */
+    if (desc->type == PM_TYPE_EVENT) {
+        pmResult **res;
+        int numres, i;
+        
+        numres = pmUnpackEventRecords (pvs, vsidx, &res);
+        if (numres < 0)
+            return numres;
+
+        mhdb_printf (output, "\"events\":[");
+        for (i=0; i<numres; i++) {
+            int j;
+            if (i>0)            
+                mhdb_printf (output, ",");
+            mhdb_printf (output, "{ \"timestamp\": { \"s\":%lu, \"us\":%lu } ", 
+                        res[i]->timestamp.tv_sec,
+                        res[i]->timestamp.tv_usec);
+
+            mhdb_printf (output, ", \"fields\":[");
+            for (j=0; j<res[i]->numpmid; j++) {
+                pmValueSet *fieldvsp = res[i]->vset[j];
+                pmDesc fielddesc;
+                char *fieldname;
+
+                if (j>0)            
+                    mhdb_printf (output, ",");
+
+                mhdb_printf (output, "{");
+
+                /* recurse */
+                rc = pmLookupDesc (fieldvsp->pmid, &fielddesc);
+                if (rc == 0)
+                    rc = pmwebapi_format_value (output, &fielddesc, fieldvsp, 0);
+
+                if (rc == 0) /* printer value: ... etc. ? */
+                    mhdb_printf (output, ", ");
+                /* XXX: handle value: for event.flags / event.missed */
+
+                rc = pmNameID (fieldvsp->pmid, & fieldname);
+                if (rc == 0) {
+                    mhdb_printf (output, "\"name\":\"%s\"", fieldname);
+                    free (fieldname);
+                } else {
+                    mhdb_printf (output, "\"name\":\"%s\"", pmIDStr (fieldvsp->pmid));
+                }
+
+                mhdb_printf (output, "}");
+            }
+            mhdb_printf (output, "]");
+
+            mhdb_printf (output, "}\n");
+        }
+        mhdb_printf (output, "]");
+        pmFreeEventResult(res);
+        return 0;
+    }
+
+    rc = pmExtractValue (pvs->valfmt, value, desc->type, &a, desc->type);
+    if (rc != 0)
+        return rc;
+
+    switch (desc->type) {
+    case PM_TYPE_32:
+        mhdb_printf (output, "\"value\":%i", a.l);
+        break;
+    case PM_TYPE_U32:
+        mhdb_printf (output, "\"value\":%u", a.ul);
+        break;
+    case PM_TYPE_64:
+        mhdb_printf (output, "\"value\":%" PRIi64, a.ll);
+        break;
+    case PM_TYPE_U64:
+        mhdb_printf (output, "\"value\":%" PRIu64, a.ull);
+        break;
+    case PM_TYPE_FLOAT:
+        mhdb_printf (output, "\"value\":%g", (double)a.f);
+        break;
+    case PM_TYPE_DOUBLE:
+        mhdb_printf (output, "\"value\":%g", a.d);
+        break;
+    case PM_TYPE_STRING:
+        mhdb_print_key_value (output, "value", a.cp, "");
+        free (a.cp);
+        break;
+    case PM_TYPE_AGGREGATE:
+    case PM_TYPE_AGGREGATE_STATIC:
+        {
+            /* base64-encode binary data */
+            const char* p_bytes = & value->value.pval->vbuf[0]; /* from pmevent.c:mydump() */
+            unsigned p_size = value->value.pval->vlen - PM_VAL_HDR_SIZE;
+            unsigned i;
+            const char base64_encoding_table[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+            if (value->value.pval->vlen < PM_VAL_HDR_SIZE) /* less than zero size? */
+                return -EINVAL;
+            
+            mhdb_printf (output, "\"value\":\"");
+            for (i=0; i<p_size; /* */) {
+                unsigned char byte_0 = i < p_size ? p_bytes[i++] : 0;
+                unsigned char byte_1 = i < p_size ? p_bytes[i++] : 0;
+                unsigned char byte_2 = i < p_size ? p_bytes[i++] : 0;
+                unsigned int triple = (byte_0 << 16) | (byte_1 << 8) | byte_2;
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 3*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 2*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 1*6) & 63]);
+                mhdb_printf (output, "%c", base64_encoding_table[(triple >> 0*6) & 63]);
+            }
+            switch (p_size % 3) {
+            case 0: /*mhdb_printf (output, "");*/ break; 
+            case 1: mhdb_printf (output, "=="); break; 
+            case 2: mhdb_printf (output, "="); break; 
+            }
+            mhdb_printf (output, "\"");
+
+            if (desc->type != PM_TYPE_AGGREGATE_STATIC) /* XXX: correct? */
+                free (a.vbp);
+            break;
+        }
+    default:
+        /* ... just a complete unknown ... */
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
+
 
 static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
                                           struct webcontext *c)
@@ -737,58 +913,18 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         }
         mhdb_printf (& output, "\"instances\": [\n");
         for (j=0; j<pvs->numval; j++) {
-            pmAtomValue a;
             pmValue* val = & pvs->vlist[j];
-            int printed_value = 1;
-
-            if (desc.type == PM_TYPE_EVENT) continue;
-            /* XXX: */
+            int printed_value;
 
             mhdb_printf (& output, "{");
 
-            rc = pmExtractValue (pvs->valfmt, val, desc.type, &a, desc.type);
-            if (rc == 0)
-                switch (desc.type) {
-                case PM_TYPE_32:
-                    mhdb_printf (& output, "\"value\":%i", a.l);
-                    break;
-
-                case PM_TYPE_U32:
-                    mhdb_printf (& output, "\"value\":%u", a.ul);
-                    break;
-
-                case PM_TYPE_64:
-                    mhdb_printf (& output, "\"value\":%" PRIi64, a.ll);
-                    break;
-
-                case PM_TYPE_U64:
-                    mhdb_printf (& output, "\"value\":%" PRIu64, a.ull);
-                    break;
-
-                case PM_TYPE_FLOAT:
-                    mhdb_printf (& output, "\"value\":%g", (double)a.f);
-                    break;
-
-                case PM_TYPE_DOUBLE:
-                    mhdb_printf (& output, "\"value\":%g", a.d);
-                    break;
-
-                case PM_TYPE_STRING:
-                    mhdb_print_key_value (& output, "value", a.cp, "");
-                    free (a.cp);
-                    break;
-
-                    /* XXX: base64- PM_TYPE_AGGREGATE etc., as per pmPrintValue */
-
-                default:
-                    /* ... just a complete unknown ... */
-                    printed_value = 0;
-                }
+            printed_value = ! pmwebapi_format_value (& output, & desc, pvs, j);
 
             if (desc.indom != PM_INDOM_NULL)
-                mhdb_printf (& output, "%c \"instance\":%d", 
-                             printed_value ? ',' : ' ', /* comma separation */
+                mhdb_printf (& output, "%s \"instance\":%d", 
+                             printed_value ? ", " : "", /* comma separation */
                              val->inst);
+
             mhdb_printf (& output, "}");
             if (j+1 < pvs->numval)
                 mhdb_printf (& output, ","); /* comma separation */
@@ -1064,7 +1200,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
         || webapi_ctx > INT_MAX /* matches random() loop above */
         || *context_command != '/') { /* parsed up to the next slash */
         pmweb_notify (LOG_WARNING, connection, "unrecognized %s url %s \n", method, url);
-        rc = -ESRCH; /* a bit of a stretch, but ... */
+        rc = -EINVAL;
         goto out;
     }
     context_command ++; /* skip the / */
@@ -1073,11 +1209,76 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     chn = __pmHashSearch ((int)webapi_ctx, & contexts);
     if (chn == NULL) {
         pmweb_notify (LOG_WARNING, connection, "unknown web context #%ld\n", webapi_ctx);
-        rc = -ESRCH; /* a bit of a stretch, but ... */
+        rc = -EBADRQC;
         goto out;
     }
     c = (struct webcontext *) chn->data;
     assert (c != NULL);
+
+    /* Process HTTP Basic userid/password, if supplied.  Both returned strings
+       need to be free(3)'d later.  */
+    if (c->userid != NULL) { /* Did this context requires userid/password auth? */
+        char *userid = NULL;
+        char *password = NULL;
+        userid = MHD_basic_auth_get_username_password (connection, &password);
+
+        /* 401 */
+        if (userid == NULL || password == NULL) {
+            static char auth_req_msg[] = "authentication required";
+            struct MHD_Response *resp;
+            char auth_realm[40];
+
+            free (userid);
+            free (password);
+            resp = MHD_create_response_from_buffer (strlen(auth_req_msg),
+                                                    auth_req_msg,
+                                                    MHD_RESPMEM_PERSISTENT);
+            if (! resp) {
+                rc = -ENOMEM;
+                goto out;
+            }
+
+            /* We need the user to resubmit this with http
+               authentication info, with a custom HTTP authenticaion
+               realm for this context. */
+            snprintf (auth_realm, sizeof(auth_realm),
+                      "%s/%ld", uriprefix, webapi_ctx);
+            rc = MHD_queue_basic_auth_fail_response (connection, auth_realm, resp);
+            MHD_destroy_response (resp);
+            if (rc != MHD_YES) {
+                rc = -ENOMEM;
+                goto out;
+            }
+            return MHD_YES;
+        }
+        /* 403 */
+        if (strcmp (userid, c->userid) ||
+            (c->password && strcmp (password, c->password))) {
+            static char auth_failed_msg[] = "authentication failed";
+            struct MHD_Response *resp;
+
+            free (userid);
+            free (password);
+            resp = MHD_create_response_from_buffer (strlen(auth_failed_msg),
+                                                    auth_failed_msg,
+                                                    MHD_RESPMEM_PERSISTENT);
+            if (! resp) {
+                rc = -ENOMEM;
+                goto out;
+            }
+            /* We need the user to resubmit this with http authentication info. */
+            rc = MHD_queue_response (connection, MHD_HTTP_FORBIDDEN, resp);
+            MHD_destroy_response (resp);
+            if (rc != MHD_YES) {
+                rc = -ENOMEM;
+                goto out;
+            }
+            return MHD_YES;
+        }
+        /* FALLTHROUGH: authentication required & succeeded. */
+        free (userid);
+        free (password);
+    }
 
     /* Update last-use of this connection. */
     if (c->expires != 0) {

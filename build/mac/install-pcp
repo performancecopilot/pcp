@@ -464,7 +464,7 @@ _install_file()
 			then
 			    _warn "Unable to remove existing $target, continuing"
 			fi
-			if _cmd $LN -s $root/$source $target
+			if _cmd $LN -s -f $root/$source $target
 			then
 			    installed=true
 			else
@@ -488,7 +488,7 @@ _install_file()
 	    then
 		_error "$target exists but is a directory"
 	    else
-		if _cmd $LN -s $root/$source $target
+		if _cmd $LN -s -f $root/$source $target
 		then
 		    installed=true
 		else

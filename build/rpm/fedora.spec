@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.0
+Version: 3.8.2
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -25,6 +25,9 @@ BuildRequires: systemd-devel
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python
+%if 0%{?rhel} <= 5
+Requires: python-ctypes
+%endif
 
 Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
@@ -427,19 +430,17 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
 %config %{_sysconfdir}/bash_completion.d/pcp
+%config %{_sysconfdir}/crond.d/pmlogger
+%config %{_sysconfdir}/crond.d/pmie
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
 %{_sysconfdir}/pcp
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
-%config(noreplace) %{_confdir}/pmie/config.default
 %config(noreplace) %{_confdir}/pmie/control
-%config(noreplace) %{_confdir}/pmie/crontab
 %config(noreplace) %{_confdir}/pmie/stomp
-%config(noreplace) %{_confdir}/pmlogger/config.default
 %config(noreplace) %{_confdir}/pmlogger/control
-%config(noreplace) %{_confdir}/pmlogger/crontab
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %{_localstatedir}/lib/pcp/config/*
@@ -522,8 +523,15 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Web May 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
-- Currently under development.
+* Thu Jun 20 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
+- Currently under development...
+
+* Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
+- Update to latest PCP sources.
+- Fix log import silently dropping >1024 metrics (BZ 968210)
+- Move some commonly used tools on the usual PATH (BZ 967709)
+- Improve pmatop handling of missing proc metrics (BZ 963085)
+- Stop out-of-order records corrupting import logs (BZ 958745)
 
 * Tue May 14 2013 Nathan Scott <nathans@redhat.com> - 3.8.0-1
 - Update to latest PCP sources.

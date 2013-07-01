@@ -1,0 +1,91 @@
+QA output created by 642
+
+=== install #1 ===
+You will need to choose an appropriate configuration for installation of
+the "trivial" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+
+=== install #2 ===
+You will need to choose an appropriate configuration for installation of
+the "simple" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Install simple as a daemon or python or perl or dso agent? [daemon] 
+PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] 
+Installing files ...
+[...install files, make output...]
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+
+=== install #3 ===
+You will need to choose an appropriate configuration for installation of
+the "sample" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+======================
+= sample daemon PMDA =
+======================
+PMCD should communicate with the sample daemon via a pipe or a socket? [pipe] 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+======================
+= sampledso DSO PMDA =
+======================
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+
+=== install #4 ===
+You will need to choose an appropriate configuration for installation of
+the "sendmail" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+
+=== install #5 ===
+Installing the "trace" Performance Metrics Domain Agent (PMDA) ...
+
+Use the default installation [y]? 
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Note: some warnings are expected until trace API calls are made - refer to
+      the man pages for pmtrace(1) and pmdatrace(3) for further details.
+
+=== PMNS differences (none expected) ===
+
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

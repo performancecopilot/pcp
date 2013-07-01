@@ -292,8 +292,8 @@ DOMAIN_PERLRULE = \
 
 DOMAIN_PYTHONRULE = \
 	@export pythondomain=`sed -n \
-		-e '/PMDA(/s/[^0-9]*$//' \
-		-e '/PMDA(/s/^[^0-9]*//p' pmda$(IAM).py`; \
+		-e '/PMDA(/s/[^0-9]*$$//' \
+		-e '/PMDA(/s/^[^0-9]*//p' $(PYSCRIPT)`; \
 	$(AWK) <$< '\
 	    BEGIN {\
 		domain = toupper("$(IAM)") \

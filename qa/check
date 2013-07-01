@@ -527,7 +527,7 @@ do
 	bad="$bad $seq"
 	n_bad=`expr $n_bad + 1`
 	quick=false
-	echo "Check local PMCD is still alive ..."
+	[ $diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
 	$OPTION_LOGGER && _havelogger
     fi

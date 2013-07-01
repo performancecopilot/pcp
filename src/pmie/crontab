@@ -1,6 +1,0 @@
-#
-# standard Performance Co-Pilot crontab entries for a PCP site
-# with one or more pmie instances running
-#
-# every 30 minutes, check pmie instances are running
-25,55	*	*	*	*	/usr/pcp/bin/pmie_check

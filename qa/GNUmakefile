@@ -13,7 +13,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco pconf sadist collectl
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure
 LCONFIG = localconfig
 
 # No implicit rules here, thank you

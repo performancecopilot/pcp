@@ -324,6 +324,22 @@ typedef long long __psint_t;
 #endif
 
 /*
+ * User and group accounts - POSIX uid_t/gid_t combo or Win32 SID
+ */
+#undef HAVE_UID_T
+#undef HAVE_GID_T
+#undef HAVE_SID
+#if defined(HAVE_UID_T) && defined(HAVE_GID_T)
+typedef uid_t	__pmUserID;
+typedef gid_t	__pmGroupID;
+#elif defined(HAVE_SID)
+typedef SID	__pmUserID;
+typedef SID	__pmGroupID;
+#else
+bozo! unclear how to represent users and groups for this platform
+#endif
+
+/*
  * socklen_t is not always defined, so use __pmSockLen abstraction
  */
 #undef HAVE_SOCKLEN_T
@@ -451,8 +467,10 @@ typedef void (*SIG_PF) (int);
 
 #undef HAVE_ALTZONE
 #undef HAVE_STRFTIME_z
-
 #undef HAVE_STRERROR_R_PTR
+
+#undef HAVE_STRUCT_TIMESPEC
+#undef HAVE_STRUCT_SOCKADDR_UN
 
 #ifndef HAVE_VALLOC
 #define valloc(x) malloc(x)
@@ -531,8 +549,7 @@ extern char *rindex(const char *, int);
 extern long int lrand48(void);
 extern void srand48(long int);
 
-#undef HAVE_STRUCT_TIMESPEC
-#ifndef HAVE_STRUCT_TIMESPEC
+#ifdef HAVE_STRUCT_TIMESPEC
 /*
  * This is a bit odd ... but for MinGW, struct timespec is not in
  * <time.h> but _is_ in <pthread.h> ... the structure (sec, nanosec)

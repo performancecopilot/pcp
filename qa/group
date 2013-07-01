@@ -452,7 +452,7 @@ pcp.py
 238 pmns local oss
 239 pmns local oss
 240 pmns local oss
-241 pmda.mmv local oss pmval sanity perl
+241 pmda.mmv local oss pmval perl
 242 pmlogger local oss
 243 pmcd local pmprobe oss
 244 pmcd local pmprobe oss
@@ -491,7 +491,7 @@ pcp.py
 277 libpcp pdu interop local oss
 278 other help local oss sanity
 279 pmcd local oss
-280 pmlogger logutil local folio oss sanity
+280 pmlogger logutil local folio oss
 281 archive mem_leak #504616 local oss
 282 pmcd local pmprobe logutil oss
 283 context pmcd local oss
@@ -582,8 +582,8 @@ pcp.py
 368 pmlogconf local oss
 369 pmimport local oss sanity pmdumplog perl
 370 pmimport local oss derive pmdumplog perl
-371 pmimport local oss sanity pmdumplog perl libpcp_pmi
-372 pmimport local oss sanity pmdumplog perl
+371 pmimport local oss pmdumplog perl libpcp_pmi
+372 pmimport local oss pmdumplog perl
 373 pmimport local oss perl
 374 pmlc pmlogger remote oss
 375 pmlc pmlogger remote oss
@@ -757,8 +757,14 @@ pcp.py
 543 logutil remote oss
 544 pmimport local oss
 545 pmsocks local oss
+546 pmcd local oss
+547 libpcp pmcd local oss
 548 pmie local oss sanity
 549 pmie local oss
+550 libpcp pmcd local oss
+551 libpcp pmcd local oss
+552 libpcp local oss
+553 dbpmda python pmda.gluster local oss
 554 pmie local oss
 555 pmie local oss
 556 pmie local oss
