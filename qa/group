@@ -764,6 +764,7 @@ pcp.py
 550 libpcp pmcd local oss
 551 libpcp pmcd local oss
 552 libpcp local oss
+553 dbpmda python pmda.gluster local oss
 554 pmie local oss
 555 pmie local oss
 556 pmie local oss
