@@ -1,6 +1,5 @@
 #pmlogconf-setup 2.0
-ident	PCP Commands
-ident	frequently sampled metrics for the example pmclient command
+ident	frequently sampled metrics for the pmclient(1) command
 delta	5 second
 	kernel.all.load [ 1 15 ]
 	kernel.percpu.cpu.user

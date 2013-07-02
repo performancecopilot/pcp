@@ -1,5 +1,4 @@
 #pmlogconf-setup 2.0
-ident	PCP Commands
-ident	metrics sampled once by the example pmclient command
+ident	metrics sampled once by the example pmclient(1) command
 delta	once
 	hinv.ncpu

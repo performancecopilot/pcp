@@ -1,6 +1,5 @@
 #pmlogconf-setup 2.0
-ident	PCP Commands
-ident	metrics used by pcp summary command
+ident	metrics used by pcp(1) summary command
 delta	once
 	hinv.ncpu
 	hinv.ndisk
