@@ -210,6 +210,16 @@ class pmUnits(Structure):
                     ("dimTime", c_int, 4),
                     ("dimSpace", c_int, 4)]
 
+    def __init__(self, dimS, dimT, dimC, scaleS, scaleT, scaleC):
+        Structure.__init__(self)
+        self.dimSpace = dimS
+        self.dimTime = dimT
+        self.dimCount = dimC
+        self.scaleSpace = scaleS
+        self.scaleTime = scaleT
+        self.scaleCount = scaleC
+        self.pad = 0
+
     def __str__(self):
         return LIBPCP.pmUnitsStr(self)
 
