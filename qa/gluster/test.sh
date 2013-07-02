@@ -1,23 +1,21 @@
 #!/bin/sh
 
-command=$1
+command="$1"
 shift
-
 case "$command"
 in
-    info)
-       volume=$1
-       cat $GLUSTER_HOME/info-$volume
-       ;;
+    info|stats)
+	testcase="$1"
+	cat $GLUSTER_HOME/$testcase
+	;;
 
-    profile)
-       volume=$1
-       shift
-       subcommand=$1
-       [ $subcommand == profile ] && cat $GLUSTER_HOME/profile-$1
-       # ignore start/stop for now, but a more sophisticated test
-       # might use 'em at some point.
-       ;;
+    start|stop)
+	volume="$1"
+	sequence="$2"
+	filename="$3"
+	echo "$command $volume - test $sequence" > "$filename"
+	;;
 
-    *) ;;
+    *)	# just ignore anything else
+	;;
 esac

@@ -23,8 +23,10 @@ import xml.etree.cElementTree as xmltree
 from os import getenv
 import subprocess
 
-VOL_LIST_COMMAND = 'gluster --xml volume info'
-VOL_PROFILE_COMMAND = 'gluster --xml volume profile %s'
+VOL_INFO_COMMAND = 'gluster --xml volume info'
+VOL_STOP_COMMAND = 'gluster --xml volume profile %s stop'
+VOL_START_COMMAND = 'gluster --xml volume profile %s start'
+VOL_STATS_COMMAND = 'gluster --xml volume profile %s info'
 
 FILEOPS = [    # append only, do not change the order (changes PMID)
     'ACCESS', 'CREATE', 'DISCARD', 'ENTRYLK', 'FALLOCATE', 'FENTRYLK',
@@ -48,10 +50,10 @@ class GlusterVolume(Structure):
 
 class GlusterBrick(Structure):
     ''' Statistic values per-gluster-brick, within a volume (brick indom) '''
-    _fields_ = [("avgtime", c_float * len(FILEOPS)),
-                ("mintime", c_long * len(FILEOPS)),
+    _fields_ = [("mintime", c_long * len(FILEOPS)),
                 ("maxtime", c_long * len(FILEOPS)),
-                ("hits", c_long * len(FILEOPS)),
+                ("avgtime", c_float * len(FILEOPS)),
+                ("count", c_long * len(FILEOPS)),
                 ("read_bytes", c_long),
                 ("write_bytes", c_long)]
 
@@ -70,17 +72,19 @@ class GlusterPMDA(PMDA):
 
     def runVolumeInfo(self):
         ''' Execute the gluster volume info command to extract volume names '''
-        process = subprocess.Popen(self.vol_list, shell = True,
+        process = subprocess.Popen(self.vol_info, shell = True,
                                    stdout = subprocess.PIPE, stderr = None)
         out, err = process.communicate()
+        # self.log('Info command %s output: %s' % (self.vol_info, out))
         return xmltree.fromstring(out)
 
     def runVolumeProfileInfo(self, volume):
-        ''' Execute the gluster volume profile command for a given volume '''
-        command = self.vol_profile + ' ' + volume + ' info'
+        ''' Execute gluster volume profile info command for a given volume '''
+        command = self.vol_stats % volume
         process = subprocess.Popen(command, shell = True,
                                    stdout = subprocess.PIPE, stderr = None)
         out, err = process.communicate()
+        # self.log('Profile command %s output: %s' % (command, out))
         return xmltree.fromstring(out)
 
     def parseVolumeInfo(self, xml):
@@ -93,35 +97,32 @@ class GlusterPMDA(PMDA):
             volume.distCount = int(volxml.find('volume/distCount').text)
             volume.stripeCount = int(volxml.find('volume/stripeCount').text)
             volume.replicaCount = int(volxml.find('volume/replicaCount').text)
-            volume.fopsEnabled = 0
+            volume.fopHitsEnabled = 0
             volume.latencyEnabled = 0
             for option in volxml.findall('volume/options/option'):
-                optionName = option.find('name').text
-                if (optionName == 'diagnostics.count-fop-hits' and
-                    (option.find('value').text == 'on')):
-                    volume.fopsEnabled = 1
-                if (optionName == 'diagnostics.latency-measurement' and
-                    (option.find('value').text == 'on')):
+                name = option.find('name').text
+                value = option.find('value').text
+                if (name == 'diagnostics.count-fop-hits' and value == 'on'):
+                    volume.fopHitsEnabled = 1
+                if (name == 'diagnostics.latency-measurement' and value == 'on'):
                     volume.latencyEnabled = 1
             self.volumes[volname] = volume	# prepare the volume indom cache
         return volumes
 
     def parseVolumeProfileInfo(self, volume, xml):
         ''' Extract the metric values from a given gluster profile string '''
-        # self.log('Volume: %s' % (volume))
         for brickxml in xml.findall('volProfile/brick'):
             brickname = brickxml.find('brickName').text
-            # self.log('Brick: %s' % (brickname))
             brick = GlusterBrick()
             for fileop in brickxml.findall('cumulativeStats/fopStats/fop'):
-                name = fileop.find('name').text.lower()
+                name = fileop.find('name').text
                 fop = FILEOPS_INDICES[name]
-                brick.hits[fop] = long(fileop.find('hits').text)
+                brick.count[fop] = long(fileop.find('hits').text)
                 brick.avgtime[fop] = float(fileop.find('avgLatency').text)
                 brick.mintime[fop] = long(float(fileop.find('minLatency').text))
                 brick.maxtime[fop] = long(float(fileop.find('maxLatency').text))
-            brick.read_bytes = long(brick.find('cumulativeStats/totalRead').text)
-            brick.write_bytes = long(brick.find('cumulativeStats/totalWrite').text)
+            brick.read_bytes = long(brickxml.find('cumulativeStats/totalRead').text)
+            brick.write_bytes = long(brickxml.find('cumulativeStats/totalWrite').text)
             self.bricks[brickname] = brick	# prepare the bricks indom cache
 
 
@@ -130,20 +131,17 @@ class GlusterPMDA(PMDA):
         xml = self.runVolumeInfo()
         if (xml != None):
             for vol in self.parseVolumeInfo(xml):
-                self.log("runVolumeProfileInfo on %s" % (vol))
                 xml = self.runVolumeProfileInfo(vol)
                 if (xml != None):
                     self.parseVolumeProfileInfo(vol, xml)
 
     def gluster_instance(self, serial):
         ''' Called once per "instance request" PDU '''
-        self.log("instance update for %d" % serial)
         if (serial == 0 or serial == 1):
             self.gluster_fetch()
 
     def gluster_fetch(self):
         ''' Called once per "fetch" PDU '''
-        self.log("fetching values")
         self.bricks.clear()
         self.volumes.clear()
         self.gluster_refresh()
@@ -151,32 +149,43 @@ class GlusterPMDA(PMDA):
         self.replace_indom(self.volume_indom, self.volumes)
 
 
-    def gluster_fetch_latency_callback(self, item, inst):
+    def gluster_fetch_thruput_callback(self, item, inst):
         '''
-        Returns a list of value,status (single pair) for latency cluster
+        Returns a list of value,status (single pair) for thruput cluster
         Helper for the fetch callback
         '''
-        if (item < 0):
+        if (item < 0 or item > 2):
             return [c_api.PM_ERR_PMID, 0]
         voidp = self.inst_lookup(self.brick_indom, inst)
         if (voidp == None):
             return [c_api.PM_ERR_INST, 0]
         cache = cast(voidp, POINTER(GlusterBrick))
-        brick = cache.contents.value
-
+        brick = cache.contents
         if (item == 0):
             return [brick.read_bytes, 1]
-        elif (item == 1):
-            return [brick.write_bytes, 1]
-        elif (item == 2):
-            return [brick.avgtime[(item - 2) % len(FILEOPS)], 1]
-        elif (item == 3):
-            return [brick.mintime[(item - 2) % len(FILEOPS)], 1]
-        elif (item == 4):
-            return [brick.maxtime[(item - 2) % len(FILEOPS)], 1]
-        elif (item == 5):
-            return [brick.hits[item % len(FILEOPS)], 1]
-        return [c_api.PM_ERR_PMID, 0]
+        return [brick.write_bytes, 1]
+
+    def gluster_fetch_latency_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for latency cluster
+        Helper for the fetch callback
+        '''
+        if (item < 0 or item > len(FILEOPS) * 4):
+            return [c_api.PM_ERR_PMID, 0]
+        voidp = self.inst_lookup(self.brick_indom, inst)
+        if (voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+        cache = cast(voidp, POINTER(GlusterBrick))
+        brick = cache.contents
+        fileop = item / 4
+        index = item % 4
+        if (index == 0):
+            return [brick.mintime[fileop], 1]
+        elif (index == 1):
+            return [brick.maxtime[fileop], 1]
+        elif (index == 2):
+            return [brick.avgtime[fileop], 1]
+        return [brick.count[fileop], 1]
 
     def gluster_fetch_volumes_callback(self, item, inst):
         '''
@@ -185,11 +194,11 @@ class GlusterPMDA(PMDA):
         '''
         if (item < 0 or item > 3):
             return [c_api.PM_ERR_PMID, 0]
-        voidp = self.inst_lookup(self.volumes_indom, inst)
+        voidp = self.inst_lookup(self.volume_indom, inst)
         if (voidp == None):
             return [c_api.PM_ERR_INST, 0]
         cached = cast(voidp, POINTER(GlusterVolume))
-        volume = cached.contents.value
+        volume = cached.contents
         if (item == 0):
             enabled = volume.fopHitsEnabled
             if (enabled):
@@ -208,10 +217,12 @@ class GlusterPMDA(PMDA):
         Main fetch callback, defers to helpers for each cluster.
         Returns a list of value,status (single pair) for requested pmid/inst
         '''
-        self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
         if (cluster == 0):
-            return self.gluster_fetch_latency_callback(item, inst)
+            return self.gluster_fetch_thruput_callback(item, inst)
         elif (cluster == 1):
+            return self.gluster_fetch_latency_callback(item, inst)
+        elif (cluster == 2):
             return self.gluster_fetch_volumes_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
 
@@ -219,19 +230,19 @@ class GlusterPMDA(PMDA):
     def gluster_store_volume_callback(self, inst, val):
         ''' Helper for the store callback, volume profile enabling/disabling '''
         sts = 0
-        namep = self.name_lookup(self.volumes_indom, inst)
-        if (namep == None):
+        name = self.inst_name_lookup(self.volume_indom, inst)
+        if (name == None):
             sts = c_api.PM_ERR_INST
         elif (val < 0):
             sts = c_api.PM_ERR_SIGN
         elif (val == 0):
-            self.log("disable: %s %s stop" % (self.vol_profile, namep))
-            command = self.vol_profile + ' ' + namep + ' stop'
-            process.call(command, shell=True)
+            command = self.vol_stop % name
+            # self.log("Running disable command: %s" % command)
+            subprocess.call(command, shell=True)
         else:
-            self.log("enable: %s %s start" % (self.vol_profile, namep))
-            command = self.vol_profile + ' ' + namep + ' start'
-            process.call(command, shell=True)
+            command = self.vol_start % name
+            # self.log("Running enable command: %s" % command)
+            subprocess.call(command, shell=True)
         return sts
 
     def gluster_store_callback(self, cluster, item, inst, val):
@@ -239,10 +250,10 @@ class GlusterPMDA(PMDA):
         Store callback, executed when a request to write to a metric happens
         Defers to helpers for each storable metric.  Returns a single value.
         '''
-        self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
-        if (cluster == 1 and item == 0):
+        # self.log("store callback for %d.%d[%d]" % (cluster, item, inst))
+        if (cluster == 2 and item == 0):
             return self.gluster_store_volume_callback(inst, val)
-        elif (cluster == 0):
+        elif (cluster == 0 or cluster == 1):
             return c_api.PM_ERR_PERMISSION
         return c_api.PM_ERR_PMID
 
@@ -250,14 +261,16 @@ class GlusterPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
-        self.vol_list = getenv('GLUSTER_VOL_LIST', VOL_LIST_COMMAND)
-        self.vol_profile = getenv('GLUSTER_VOL_PROFILE', VOL_PROFILE_COMMAND)
+        self.vol_info = getenv('GLUSTER_VOL_INFO', VOL_INFO_COMMAND)
+        self.vol_stop = getenv('GLUSTER_VOL_STOP', VOL_STOP_COMMAND)
+        self.vol_start = getenv('GLUSTER_VOL_START', VOL_START_COMMAND)
+        self.vol_stats = getenv('GLUSTER_VOL_STATS', VOL_STATS_COMMAND)
 
-        self.brick_indom = self.indom(0)
-        self.add_indom(pmdaIndom(self.brick_indom, self.bricks))
-
-        self.volume_indom = self.indom(1)
+        self.volume_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.volume_indom, self.volumes))
+
+        self.brick_indom = self.indom(1)
+        self.add_indom(pmdaIndom(self.brick_indom, self.bricks))
 
         self.add_metric(name + '.brick.read_bytes', pmdaMetric(self.pmid(0, 0),
                 c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_COUNTER,
@@ -266,37 +279,37 @@ class GlusterPMDA(PMDA):
                 c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_COUNTER,
                 pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)))
 
-        item = 2
+        item = 0
         for fileop in FILEOPS:
             metricname = name + '.brick.latency.' + fileop.lower() + '.'
-            self.add_metric(metricname + 'avg', pmdaMetric(self.pmid(0, item),
+            self.add_metric(metricname + 'min', pmdaMetric(self.pmid(1, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+            self.add_metric(metricname + 'max', pmdaMetric(self.pmid(1, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            item += 1
+            self.add_metric(metricname + 'avg', pmdaMetric(self.pmid(1, item),
                     c_api.PM_TYPE_FLOAT, self.brick_indom, c_api.PM_SEM_INSTANT,
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
             item += 1
-            self.add_metric(metricname + 'min', pmdaMetric(self.pmid(0, item),
-                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
-                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
-            item += 1
-            self.add_metric(metricname + 'max', pmdaMetric(self.pmid(0, item),
-                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
-                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
-            item += 1
-            self.add_metric(metricname + 'count', pmdaMetric(self.pmid(0, item),
-                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_INSTANT,
-                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)))
+            self.add_metric(metricname + 'count', pmdaMetric(self.pmid(1, item),
+                    c_api.PM_TYPE_U64, self.brick_indom, c_api.PM_SEM_COUNTER,
+                    pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)))
             item += 1
 
         metricname = name + '.volume.'
-        self.add_metric(name + 'profile', pmdaMetric(self.pmid(1, 0),
+        self.add_metric(metricname + 'profile', pmdaMetric(self.pmid(2, 0),
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
-        self.add_metric(name + 'dist.count', pmdaMetric(self.pmid(1, 1),
+        self.add_metric(metricname + 'dist.count', pmdaMetric(self.pmid(2, 1),
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
-        self.add_metric(name + 'stripe.count', pmdaMetric(self.pmid(1, 2),
+        self.add_metric(metricname + 'stripe.count', pmdaMetric(self.pmid(2, 2),
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
-        self.add_metric(name + 'replica.count', pmdaMetric(self.pmid(1, 3),
+        self.add_metric(metricname + 'replica.count', pmdaMetric(self.pmid(2, 3),
                 c_api.PM_TYPE_32, self.volume_indom, c_api.PM_SEM_INSTANT,
                 pmUnits(0, 0, 0, 0, 0, 0)))
 
