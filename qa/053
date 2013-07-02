@@ -24,7 +24,19 @@ _filter()
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-pmlogger -c config.pmclient -l $tmp.log -s 4 $tmp
+cat >$tmp.config <<End-of-File
+log mandatory on once {
+    hinv.ncpu
+}
+log mandatory on 5 secs {
+    kernel.all.load [ "1 minute", "15 minute" ]
+    kernel.percpu.cpu.user
+    kernel.percpu.cpu.sys
+    mem.freemem
+    disk.all.total
+}
+End-of-File
+pmlogger -c $tmp.config -l $tmp.log -s 4 $tmp
 _filter_pmlogger_log <$tmp.log
 
 ncpu=`pmprobe -v hinv.ncpu 2>&1 \
