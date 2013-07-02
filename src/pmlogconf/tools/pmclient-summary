@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	PCP Commands
+ident	metrics sampled once by the example pmclient command
+delta	once
+	hinv.ncpu
