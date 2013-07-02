@@ -210,7 +210,7 @@ class pmUnits(Structure):
                     ("dimTime", c_int, 4),
                     ("dimSpace", c_int, 4)]
 
-    def __init__(self, dimS, dimT, dimC, scaleS, scaleT, scaleC):
+    def __init__(self, dimS=0, dimT=0, dimC=0, scaleS=0, scaleT=0, scaleC=0):
         Structure.__init__(self)
         self.dimSpace = dimS
         self.dimTime = dimT
