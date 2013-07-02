@@ -197,6 +197,7 @@ _filter_optional_pmdas()
 	-e '/pmdaelasticsearch/d' \
 	-e '/pmdaespping/d' \
 	-e '/pmdagfs2/d' \
+	-e '/pmdagluster/d' \
 	-e '/pmdahippi/d' \
 	-e '/pmdahotproc/d' \
 	-e '/pmdainfmx7/d' \
@@ -274,6 +275,7 @@ _filter_top_pmns()
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
 	-e '/^    gfs2 /d' \
+	-e '/^    gluster /d' \
 	-e '/^    hippi /d' \
 	-e '/^    hotproc /d' \
 	-e '/^    hw /d' \
