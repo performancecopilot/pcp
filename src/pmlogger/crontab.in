@@ -1,0 +1,8 @@
+#
+# Performance Co-Pilot crontab entries for a monitored site
+# with one or more pmlogger instances running
+#
+# daily processing of archive logs
+10     0  *  *  *  @user@  @path@/pmlogger_daily
+# every 30 minutes, check pmlogger instances are running
+25,55  *  *  *  *  @user@  @path@/pmlogger_check

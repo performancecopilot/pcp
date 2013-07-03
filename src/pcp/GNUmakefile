@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -12,25 +11,18 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh pmlogger.config
+LSRCFILES = pcp.sh
 
 default:
 
 include $(BUILDRULES)
 
-CONFIGDIR = $(PCP_SYSCONF_DIR)/pmlogger
-
 install: default
 	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
-	$(INSTALL) -m 644 pmlogger.config $(CONFIGDIR)/config.pcp
 
 default_pcp : default
 

@@ -1,0 +1,117 @@
+#!/bin/sh
+# PCP QA Test No. 553
+# Exercise the gluster filesystem PMDA.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+pmda_path="$PCP_PMDAS_DIR/gluster"
+pmda_script="$pmda_path/pmdagluster.python"
+test -f "$pmda_script" || _notrun "pmdagluster not supported"
+python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+        -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+
+    test -f gluster.log && cat gluster.log >> $seq.full
+}
+
+_filter_result()
+{
+    _filter | _filter_dumpresult
+}
+
+domain=118
+test="$here/gluster"
+export GLUSTER_HOME="$test"
+export GLUSTER_VOL_INFO="$test/test.sh info info-single"
+export GLUSTER_VOL_STATS="$test/test.sh stats profile-%s-info"
+export GLUSTER_VOL_STOP="$test/test.sh stop %s $seq $tmp.stop"
+export GLUSTER_VOL_START="$test/test.sh start %s $seq $tmp.start"
+
+# real QA test starts here
+PCP_PYTHON_PMNS=root python "$pmda_script" > $tmp.root
+cd "$pmda_dir"
+
+echo "== Testing volume instance domain" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+instance $domain.0
+End-of-File
+
+echo "== Testing volume information metrics" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+getdesc on
+desc gluster.volume.dist.count
+desc gluster.volume.stripe.count
+desc gluster.volume.replica.count
+fetch gluster.volume.dist.count
+fetch gluster.volume.stripe.count
+fetch gluster.volume.replica.count
+End-of-File
+
+echo "== Testing volume control metric store" | tee -a $seq.full
+$sudo rm -f $tmp.start $tmp.stop
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+getdesc on
+desc gluster.volume.profile
+fetch gluster.volume.profile
+store gluster.volume.profile "1"
+store gluster.volume.profile "0"
+End-of-File
+# store should produce start/stop files via gluster/test.sh
+cat $tmp.start $tmp.stop
+$sudo rm -f $tmp.start $tmp.stop
+
+echo "== Testing brick instance domain" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+instance $domain.1
+End-of-File
+
+echo "== Testing brick throughput metrics" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+getdesc on
+desc gluster.brick.read_bytes
+fetch gluster.brick.read_bytes
+desc gluster.brick.write_bytes
+fetch gluster.brick.write_bytes
+End-of-File
+
+echo "== Testing brick file operation latency metrics" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+getdesc on
+desc gluster.brick.latency.getxattr.avg
+desc gluster.brick.latency.getxattr.min
+desc gluster.brick.latency.getxattr.max
+desc gluster.brick.latency.getxattr.count
+fetch gluster.brick.latency.getxattr.avg
+fetch gluster.brick.latency.getxattr.min
+fetch gluster.brick.latency.getxattr.max
+fetch gluster.brick.latency.getxattr.count
+End-of-File
+
+status=0
+exit

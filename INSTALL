@@ -127,7 +127,7 @@ PCP internet resources, and the pmchart utility.
    It will also leave binary and source tar file in the build/tar
    directory.
 
-       $ ./Makepkgs -verbose
+       $ ./Makepkgs --verbose
 
 2. If you want to build the package and install it manually, use the
    following steps (use configure options to suit your preferences,

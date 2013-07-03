@@ -25,13 +25,14 @@ MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	pmdatrivial.1 pmdatxmon.1 pmdbg.1 pmdumplog.1 pmerr.1 pmgenmap.1 \
 	pmhostname.1 pmie.1 pmie_check.1 pminfo.1 pmlc.1 pmconfig.1 \
 	pmlock.1 pmlogcheck.1 pmlogconf.1 pmlogextract.1 pmlogger.1 \
-	pmlogger_daily.1 pmnewlog.1 pmnsadd.1 pmnsdel.1 \
+	pmlogger_check.1 pmnewlog.1 pmnsadd.1 pmnsdel.1 \
 	pmnsmerge.1 pmpost.1 pmprobe.1 pmsocks.1 pmstat.1 pmstore.1 \
 	pmtrace.1 pmval.1 pmdaweblog.1 pmlogsummary.1 pmdashping.1 \
 	pmloglabel.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
-	pmdabash.1 pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1
+	pmdabash.1 pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1 \
+	pmdagfs2.1 pmdagluster.1
 
 # same guard as in src/pmwebapi/GNUmakefile
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"

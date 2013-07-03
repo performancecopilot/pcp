@@ -1,6 +1,5 @@
 - incoming & outgoing ACL
 - ssl
-- _fetch event types
 - pmStore ?
 - missing APIs
   - time control
@@ -14,6 +13,6 @@
 
 - load control / attack detection (tarpot invalid webapi# brute-forcers)
 - pmReconnectContext() if pmUseContext etc. return PM_ERR_IPC || PM_ERR_TIMEOUT
-- serialize webapi connection state & profile data,
+- serialize-to-disk webapi connection state & profile data,
             for possible restoring if pmwebapi is killed/restarted
 

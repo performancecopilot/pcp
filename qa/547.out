@@ -1,17 +1,17 @@
 QA output created by 547
-secure/crash-cred checking: 
-secure/crash-cred complete sts=0
-secure/crash-fetch checking: 
-secure/crash-fetch complete sts=0
-secure/crash-instancereq checking: 
-secure/crash-instancereq complete sts=0
-secure/crash-namereq-child checking: 
-secure/crash-namereq-child complete sts=0
-secure/crash-namereq-traverse checking: 
-secure/crash-namereq-traverse complete sts=0
-secure/crash-pmns-names checking: 
-secure/crash-pmns-names complete sts=0
-secure/crash-profile checking: 
-secure/crash-profile complete sts=0
-secure/crash-profile-instances checking: 
-secure/crash-profile-instances complete sts=0
+crash-cred checking: 
+crash-cred complete sts=0
+crash-fetch checking: 
+crash-fetch complete sts=0
+crash-instancereq checking: 
+crash-instancereq complete sts=0
+crash-namereq-child checking: 
+crash-namereq-child complete sts=0
+crash-namereq-traverse checking: 
+crash-namereq-traverse complete sts=0
+crash-pmns-names checking: 
+crash-pmns-names complete sts=0
+crash-profile checking: 
+crash-profile complete sts=0
+crash-profile-instances checking: 
+crash-profile-instances complete sts=0

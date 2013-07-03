@@ -71,6 +71,13 @@ endif
 %.tab.c : %.y
 	$(YACC) -d -b `basename $< .y` $<
 
+# Dealing with quirks of the various packaging mechanisms
+%.py: %.python
+	$(LN_S) $< $@
+
+%.pl: %.perl
+	$(LN_S) $< $@
+
 ifeq ($(TARGET_OS), mingw)
 #
 # .exe rule for Windows

@@ -215,9 +215,9 @@ class MetricDispatch(object):
 
     def inst_lookup(self, indom, instance):
         """
-        Lookup the name/value associated with an (internal) instance ID
-        within a specific instance domain (whether name or value depends
-        on whether this is an array indom or cache indom).
+        Lookup the value associated with an (internal) instance ID
+        within a specific instance domain (only valid with indoms
+        of cache type - array indom will always return None).
         """
         entry = self._indoms[indom]
         if (entry.it_numinst < 0):
@@ -225,6 +225,19 @@ class MetricDispatch(object):
             sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, None, byref(value))
             if (sts == cpmda.PMDA_CACHE_ACTIVE):
                 return value
+        return None
+
+    def inst_name_lookup(self, indom, instance):
+        """
+        Lookup the name associated with an (internal) instance ID within
+        a specific instance domain.
+        """
+        entry = self._indoms[indom]
+        if (entry.it_numinst < 0):
+            name = (c_char_p)()
+            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, byref(name), None)
+            if (sts == cpmda.PMDA_CACHE_ACTIVE):
+                return name.value
         elif (entry.it_numinst > 0 and entry.it_indom == indom):
             for inst in entry.it_set:
                 if (inst.i_inst == instance):

@@ -27,7 +27,7 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-SUBDIRS = src pmdas
+SUBDIRS = src pmdas secure
 
 default_pcp default setup: $(SUBDIRS) localconfig new remake check qa_hosts
 	$(SUBDIRS_MAKERULE)

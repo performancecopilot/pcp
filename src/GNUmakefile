@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,26 +17,18 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include \
-	  libpcp libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv \
-	  pmconfig pmns newhelp pminfo pmcpp \
-	  libpcp_import \
-	  pmcd pmerr pmdbg \
-	  pmcdctl pmlogctl win32ctl \
+SUBDIRS = include pmns libpcp \
+	  libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
+	  libpcp_mmv libpcp_import \
+	  pmconfig newhelp pminfo pmcpp pmcd pmcd_wait pmerr pmdbg \
 	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmevent \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
 	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite pmcollectl python pmatop pmwebapi
-
-# hack; we should always descend into perl (for source packaging at least)
-# Win32 builds need some love - when that happens, remember to undo this:
-ifneq "$(TARGET_OS)" "mingw"
-SUBDIRS	+= perl
-endif
+	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
+	  perl python win32ctl
 
 default :: default_pcp
 
