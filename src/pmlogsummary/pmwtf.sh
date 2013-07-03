@@ -65,7 +65,12 @@ do
 	    trap "exit \$sts" 0 1 2 3 15
 	    otmp="$tmp"
 	    tmp=`pwd`/tmp
-	    mkdir $tmp || exit 1
+	    if [ -d $tmp ]
+	    then
+		:
+	    else
+		mkdir $tmp || exit 1
+	    fi
 	    mv $otmp/exclude $tmp/exclude
 	    rmdir $otmp
 	    ;;
@@ -108,10 +113,17 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $# -lt 2 ]
+if [ $# -lt 1 -o $# -gt 2 ]
 then
     _usage
     # NOTREACHED
+elif [ $# -eq 2 ]
+then
+    arch1=$1
+    arch2=$2
+else
+    arch1=$1
+    arch2=$1
 fi
 
 echo "Directory: `pwd`"
@@ -126,10 +138,10 @@ fi
 if [ "X$finish1" != X ]; then
     options="$options -T $finish1"
 fi
-pmlogsummary -N $options $1 2>$tmp/err | _fix >$tmp/1
+pmlogsummary -N $options $arch1 2>$tmp/err | _fix >$tmp/1
 if [ -s $tmp/err ]
 then
-    echo "Warnings from pmlogsummary ... $1"
+    echo "Warnings from pmlogsummary ... $arch1"
     cat $tmp/err
     echo
 fi
@@ -145,18 +157,43 @@ if [ "X$finish2" != X ]; then
 elif [ "X$finish1" != X ]; then
     options="$options -T $finish1"
 fi
-pmlogsummary -N $options $2 2>$tmp/err | _fix >$tmp/2
+pmlogsummary -N $options $arch2 2>$tmp/err | _fix >$tmp/2
 if [ -s $tmp/err ]
 then
-    echo "Warnings from pmlogsummary ... $2"
+    echo "Warnings from pmlogsummary ... $arch2"
     cat $tmp/err
     echo
+fi
+
+if [ -z "$start1" ] 
+then
+    window1="start"
+else
+    window1="$start1"
+fi
+if [ -z "$finish1" ] 
+then
+    window1="$window1-end"
+else
+    window1="$window1-$finish1"
+fi
+if [ -z "$start2" ] 
+then
+    window2="start"
+else
+    window2="$start2"
+fi
+if [ -z "$finish2" ] 
+then
+    window2="$window2-end"
+else
+    window2="$window2-$finish2"
 fi
 
 join -t\| -v 2 $tmp/1 $tmp/2 >$tmp/tmp
 if [ -s $tmp/tmp ]
 then
-    echo "Missing from $1 (not compared) ..."
+    echo "Missing from $arch1 $window1 (not compared) ..."
     sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
     echo
 fi
@@ -164,34 +201,59 @@ fi
 join -t\| -v 1 $tmp/1 $tmp/2 >$tmp/tmp
 if [ -s $tmp/tmp ]
 then
-    echo "Missing from $2 (not compared) ..."
+    echo "Missing from $arch2 $window2 (not compared) ..."
     sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
     echo
 fi
 
-a1=`basename "$1"`
-a2=`basename "$2"`
+a1=`basename "$arch1"`
+a2=`basename "$arch2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%12s %12s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
+      printf "%15s %15s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
+if [ -z "$start1" ] 
+then
+    window1="start"
+else
+    window1="$start1"
+fi
+if [ -z "$finish1" ] 
+then
+    window1="$window1-end"
+else
+    window1="$window1-$finish1"
+fi
+if [ -z "$start2" ] 
+then
+    window2="start"
+else
+    window2="$start2"
+fi
+if [ -z "$finish2" ] 
+then
+    window2="$window2-end"
+else
+    window2="$window2-$finish2"
+fi
+printf '%15s %15s\n' "$window1" "$window2"
 join -t\| $tmp/1 $tmp/2 \
 | awk -F\| '
 function doval(v)
 {
     precision='"$precision"'
-    if (precision < 3 || precision > 12)
+    if (precision < 3 || precision > 15)
 	precision=3
     extra=precision-3
     if (v > 99999999)
-	printf "%*.*f%*s",12+extra,0,v,1," "
+	printf "%*.*f%*s",15+extra,0,v,1," "
     else if (v > 999)
-	printf "%*.*f%*s",8,0,v,2+precision," "
+	printf "%*.*f%*s",11,0,v,2+precision," "
     else if (v > 99)
-	printf "%*.*f%*s",10+extra,1+extra,v,3," "
+	printf "%*.*f%*s",13+extra,1+extra,v,3," "
     else if (v > 9)
-	printf "%*.*f%*s",11+extra,2+extra,v,2," "
+	printf "%*.*f%*s",14+extra,2+extra,v,2," "
     else
-	printf "%*.*f%*s",12+extra,precision,v,1," "
+	printf "%*.*f%*s",15+extra,precision,v,1," "
 }
 $3+0 == 0 || $2+0 == 0 {
 		if ($3 == $2)
@@ -211,7 +273,7 @@ $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 		printf " "
 		r = $3/$2
 		if (r < 0.001)
-		    printf " 0.001- "
+		    printf " 0.001-"
 		else if (r < 0.01)
 		    printf "%6.3f ",r
 		else if (r > 100)
@@ -220,5 +282,6 @@ $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 		    printf "%5.2f  ",r
 		printf " %s\n",$1
 	}' \
-| sort -nr -k 3,3
+| sort -nr -k 3,3 \
+| sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /'
 
