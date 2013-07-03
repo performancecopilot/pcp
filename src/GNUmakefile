@@ -17,7 +17,7 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include pmns libpcp \
+SUBDIRS = include libpcp pmns \
 	  libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
 	  libpcp_mmv libpcp_import \
 	  pmconfig newhelp pminfo pmcpp pmcd pmcd_wait pmerr pmdbg \
