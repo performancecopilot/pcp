@@ -80,7 +80,7 @@ dbpmda> getdesc on
 dbpmda> desc gluster.brick.read_bytes
 PMID: 118.0.0
     Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
-    Semantics: counter  Units: none
+    Semantics: counter  Units: byte
 dbpmda> fetch gluster.brick.read_bytes
 PMID(s): 118.0.0
 pmResult ... numpmid: 1
@@ -89,7 +89,7 @@ pmResult ... numpmid: 1
 dbpmda> desc gluster.brick.write_bytes
 PMID: 118.0.1
     Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
-    Semantics: counter  Units: none
+    Semantics: counter  Units: byte
 dbpmda> fetch gluster.brick.write_bytes
 PMID(s): 118.0.1
 pmResult ... numpmid: 1
@@ -103,19 +103,19 @@ dbpmda> getdesc on
 dbpmda> desc gluster.brick.latency.getxattr.avg
 PMID: 118.1.74
     Data Type: float  InDom: 118.1 0x1d800001
-    Semantics: instant  Units: count x 10
+    Semantics: instant  Units: microsec
 dbpmda> desc gluster.brick.latency.getxattr.min
 PMID: 118.1.72
     Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
-    Semantics: instant  Units: count x 10
+    Semantics: instant  Units: microsec
 dbpmda> desc gluster.brick.latency.getxattr.max
 PMID: 118.1.73
     Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
-    Semantics: instant  Units: count x 10
+    Semantics: instant  Units: microsec
 dbpmda> desc gluster.brick.latency.getxattr.count
 PMID: 118.1.75
     Data Type: 64-bit unsigned int  InDom: 118.1 0x1d800001
-    Semantics: counter  Units: none
+    Semantics: counter  Units: count
 dbpmda> fetch gluster.brick.latency.getxattr.avg
 PMID(s): 118.1.74
 pmResult ... numpmid: 1
