@@ -17,7 +17,8 @@
 .SH NAME
 \fBpmdagfs2\fR \- Global Filesystem v2 (GFS2) PMDA
 .SH DESCRIPTION
-\fBpmdagfs2\fR is a Performance Metrics Domain Agent (PMDA) which exports 
+.B pmdagfs2
+is a Performance Metrics Domain Agent (PMDA) which exports 
 metric values about mounted GFS2 filesystems from the debugfs filesystem. 
 This PMDA requires debugfs along with at least one mounted GFS2 filesystem
 to be mounted in order to be able to provide metric data.
@@ -30,20 +31,19 @@ able to provide metric data. This is due to them expecting locking
 messages to be passed via the distributed lock manager (DLM) between nodes
 of a cluster in order to generate their output.
 .PP
-These cluster environment only metrics can be distinguished by the
+These cluster-environment-only metrics can be distinguished by the
 inclusion of their corresponding control metrics so that they can be 
 optionally enabled or disabled on systems where they are not desired to be
 monitored or not supported.
 .PP
-\fIpmstore\fR(3) can be utilised in order to assign the required values to 
-these control metrics in order to set their values on (1) or off (0). This
-control mechanism is also useful on distributions that do not currently 
+.BR pmstore (3)
+can be used to assign values to these control metrics in order to enable (1)
+or disable (0) them.
+This mechanism is also useful on distributions that do not currently 
 have full support for the GFS2 trace-points or provide older versions of 
 the GFS2 driver.  
 .PP
-Further details on clustering and GFS2 can be found at
-.br
-http://redhat.com
+Further details on clustering and GFS2 can be found at http://redhat.com
 .SH INSTALLATION
 Install the GFS2 PMDA by using the Install script as root:
 .PP
@@ -57,9 +57,13 @@ To uninstall, do the following as root:
 .br
       # ./Remove
 .PP
-\fBpmdagfs2\fR is launched by \fIpmcd\fR(1) and should never be executed 
-directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
-agent is installed or removed.
+.B pmdagfs2
+is launched by 
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd
+when the agent is installed or removed.
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/gfs2/help\fR" 4
 default help text file for the GFS2 metrics
@@ -76,4 +80,7 @@ file \fB/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative 
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
-\fIpmcd\fR(1), \fIpmstore\fR(1), \fIgfs2\fR(5)
+.BR pmcd (1),
+.BR pmstore (1),
+and
+.BR gfs2 (5).
