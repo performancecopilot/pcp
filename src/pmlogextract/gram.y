@@ -189,29 +189,44 @@ dometric(const char *name)
 	}
 	else {
 	    if ((sts = pmGetInDomArchive(dp->indom, &intlist, &extlist)) < 0) {
-		snprintf(emess, sizeof(emess),
-		    "Cannot get instance domain for metric %s - %s)\n",
-			name, pmErrStr(sts));
-		yyerror(emess);
+		if (sts == PM_ERR_INDOM_LOG) {
+		    /*
+		     * If instance domain is not in archive, then there
+		     * are no instances, this is not a fatal error
+		     */
+		    ml[ml_numpmid-1].numinst = 0;
+		    ml[ml_numpmid-1].instlist = NULL;
+		}
+		else {
+		    snprintf(emess, sizeof(emess),
+			"Cannot get instance domain for metric %s - %s)\n",
+			    name, pmErrStr(sts));
+		    yyerror(emess);
+		}
 	    }
-	    ml[ml_numpmid-1].numinst = sts;
-	}
-
-	/*
-         * malloc here, and keep ... gets buried
-         */
-	ml[ml_numpmid-1].instlist = (int *)malloc(ml[ml_numpmid-1].numinst * sizeof(int));
-	if (ml[ml_numpmid-1].instlist == NULL) {
-	    goto nomem;
-	}
-
-	for (i=0; i<ml[ml_numpmid-1].numinst; i++) {
-	    if (intlist == NULL)
-		ml[ml_numpmid-1].instlist[i] = -1;
 	    else
-		ml[ml_numpmid-1].instlist[i] = intlist[i];
+		ml[ml_numpmid-1].numinst = sts;
+	}
 
-	} /*for(i)*/
+	if (ml[ml_numpmid-1].numinst >= 1) {
+	    /*
+	     * malloc here, and keep ... gets buried
+	     */
+	    ml[ml_numpmid-1].instlist = (int *)malloc(ml[ml_numpmid-1].numinst * sizeof(int));
+	    if (ml[ml_numpmid-1].instlist == NULL) {
+		goto nomem;
+	    }
+
+	    for (i=0; i<ml[ml_numpmid-1].numinst; i++) {
+		if (intlist == NULL) {
+		    /* PM_INDOM_NULL case */
+		    ml[ml_numpmid-1].instlist[i] = -1;
+		}
+		else
+		    ml[ml_numpmid-1].instlist[i] = intlist[i];
+
+	    } /*for(i)*/
+	}
 
 	if (intlist != NULL)
 	    free(intlist);
