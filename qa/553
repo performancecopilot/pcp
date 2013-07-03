@@ -113,4 +113,5 @@ fetch gluster.brick.latency.getxattr.max
 fetch gluster.brick.latency.getxattr.count
 End-of-File
 
-exit 0
+status=0
+exit
