@@ -73,7 +73,7 @@ class GlusterPMDA(PMDA):
     def runVolumeInfo(self):
         ''' Execute the gluster volume info command to extract volume names '''
         process = subprocess.Popen(self.vol_info, shell = True,
-                                   stdout = subprocess.PIPE, stderr = None)
+                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         out, err = process.communicate()
         # self.log('Info command %s output: %s' % (self.vol_info, out))
         return xmltree.fromstring(out)
@@ -82,7 +82,7 @@ class GlusterPMDA(PMDA):
         ''' Execute gluster volume profile info command for a given volume '''
         command = self.vol_stats % volume
         process = subprocess.Popen(command, shell = True,
-                                   stdout = subprocess.PIPE, stderr = None)
+                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         out, err = process.communicate()
         # self.log('Profile command %s output: %s' % (command, out))
         return xmltree.fromstring(out)
@@ -238,11 +238,13 @@ class GlusterPMDA(PMDA):
         elif (val == 0):
             command = self.vol_stop % name
             # self.log("Running disable command: %s" % command)
-            subprocess.call(command, shell=True)
+            subprocess.call(command, shell =True,
+                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         else:
             command = self.vol_start % name
             # self.log("Running enable command: %s" % command)
-            subprocess.call(command, shell=True)
+            subprocess.call(command, shell =True,
+                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         return sts
 
     def gluster_store_callback(self, cluster, item, inst, val):
