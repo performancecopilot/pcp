@@ -42,7 +42,7 @@ check_users(void)
     putc('\n', stderr);
 
     for (c = 0; c < WORD_BIT; c++) {
-	usr = &users[c];
+	usr = &users[c % nusers];
 	sts = __pmAccAddAccount(usr->pw_name, NULL, &op);
 	if (sts < 0) {
 	    printf("add user #%d (%s): %s\n", c, usr->pw_name, pmErrStr(sts));
@@ -79,7 +79,7 @@ check_groups(void)
     putc('\n', stderr);
 
     for (c = 0; c < WORD_BIT; c++) {
-	grp = &groups[c];
+	grp = &groups[c % ngroups];
 	sts = __pmAccAddAccount(NULL, grp->gr_name, &op);
 	if (sts < 0) {
 	    printf("add group #%d (%s): %s\n", c, grp->gr_name, pmErrStr(sts));
@@ -137,7 +137,7 @@ main(int argc, char **argv)
 
 	case 'u':	/* another user ID */
 	    uid = atoi(optarg);
-	    if ((usr = getpwuid(gid)) == NULL) {
+	    if ((usr = getpwuid(uid)) == NULL) {
 		fprintf(stderr, "%s: getpwuid: unknown user identifier (%s)\n",
 		    pmProgname, optarg);
 		errflag++;

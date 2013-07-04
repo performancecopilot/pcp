@@ -153,3 +153,15 @@ nss_import_cert_userdb()
 {
     certutil -A -d $PCP_SECURE_DB_METHOD$usersdb -n "Local CA certificate" -t "CT,," -a -i $tmp.cacert.asc
 }
+
+find_users()
+{
+    limit=$1
+    tail -n $limit /etc/passwd | $PCP_AWK_PROG -F: '{ print  $1 }'
+}
+
+find_groups()
+{
+    limit=$1
+    tail -n $limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
+}
