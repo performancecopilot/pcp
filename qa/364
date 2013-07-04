@@ -16,9 +16,11 @@ echo "QA output created by $seq"
 
 . ./localconfig
 rm -f $seq.out
-if [ -f $seq.$PCP_PLATFORM ]
+suffix=2
+[ $PCP_VER -lt 3802 ] && suffix=1
+if [ -f $seq.$PCP_PLATFORM.$suffix ]
 then
-    ln $seq.$PCP_PLATFORM $seq.out
+    ln $seq.$PCP_PLATFORM.$suffix $seq.out
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1
