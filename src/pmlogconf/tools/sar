@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   Metrics corresponding to sar
+ident   metrics used by the sar(1) command
 # -u
 	kernel.all.cpu.user	#   %usr
 	kernel.all.cpu.sys		#   %sys

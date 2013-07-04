@@ -12,12 +12,7 @@
 
 seq=`basename $0`
 
-if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
-then
-    :
-else
-    _notrun "pmlogconf version 2.0 not installed"
-fi
+[ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf version 2.0 not installed"
 
 echo "QA output created by $seq"
 
@@ -30,9 +25,11 @@ _filter()
 
 . ./localconfig
 rm -f $seq.out
-if [ -f $seq.$PCP_PLATFORM ]
+suffix=1
+[ $PCP_VER -ge 3802 ] && suffix=2
+if [ -f $seq.$PCP_PLATFORM.$suffix ]
 then
-    ln $seq.$PCP_PLATFORM $seq.out
+    ln $seq.$PCP_PLATFORM.$suffix $seq.out
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1

@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   Metrics corresponding to iostat
+ident   metrics used by the iostat(1) command
 
 # -d --------------------------------------------------
 
@@ -38,7 +38,7 @@ ident   Metrics corresponding to iostat
         disk.dev.read_rawactive         # ms: milliseconds spent reading
         disk.dev.write                  # total: Total writes completed successfully
         disk.dev.write_merge            # merged: grouped writes (resulting in one I/O)
-        disk.dev.bldwrite               # sectors: Sectors written successfully
+        disk.dev.blkwrite               # sectors: Sectors written successfully
         disk.dev.read_rawactive         # ms: milliseconds spent writing
                                         # cur: I/O in progress
 

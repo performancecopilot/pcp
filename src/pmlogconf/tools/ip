@@ -1,5 +1,5 @@
 #pmlogconf-setup 2.0
-ident   Metrics corresponding to ip
+ident   metrics used by the ip(1) command
 
 # -s link  -------------------------------------------------
 
