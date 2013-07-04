@@ -12,6 +12,8 @@
 
 seq=`basename $0`
 
+_notrun "pending reconciliation of old pmlogcheck with new pmlogcheck"
+
 echo "QA output created by $seq"
 
 _notrun "Test needs verified output"

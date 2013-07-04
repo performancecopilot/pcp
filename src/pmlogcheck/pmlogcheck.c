@@ -798,6 +798,7 @@ main(int argc, char *argv[])
 "  -r            process archive in reverse chronological order\n"
 "  -s            report size of data records in archive\n"
 "  -t            dump the temporal index\n"
+"  -v            verbose output\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time for host from -a\n",
                 pmProgname);
