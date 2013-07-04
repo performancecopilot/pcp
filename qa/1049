@@ -40,30 +40,12 @@ modify espping enabled no
 modify environ enabled no
 modify xvm enabled no
 EOF
-elif [ $PCP_PLATFORM = linux ]
-then
-    # Not all metrics are available in Linux, so skip the associated
-    # rules
-    #
-    cat >>$tmp.cmd <<EOF
-EOF
-elif [ $PCP_PLATFORM = darwin ]
-then
-    # Not all metrics are available in Mac OS X, so skip the associated
-    # rules
-    #
-    cat >>$tmp.cmd <<EOF
-EOF
-elif [ $PCP_PLATFORM = solaris ]
-then
-    # Not all metrics are available in Solaris, so skip the associated
-    # rules
-    #
-    cat >>$tmp.cmd <<EOF
-EOF
 else
-    echo "Arrgh ... need rule customization for $PCP_PLATFORM"
-    exit 1
+    # Some metrics unavailable by default, so skip the associated rules
+    #
+    cat >>$tmp.cmd <<EOF
+modify cisco enabled no
+EOF
 fi
 
 # real QA test starts here
