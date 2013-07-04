@@ -24,7 +24,7 @@ LSRCFILES = $(OTHERS) crontab.in
 LDIRT	= crontab
 
 ifeq ($(TARGET_OS),linux)
-CRONTAB_USER = root
+CRONTAB_USER = $(PCP_USER)
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pmlogger
 else
 CRONTAB_USER =
