@@ -407,7 +407,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %dir %{_pmdasdir}
 %dir %{_datadir}/pcp
-%dir %{_localstatedir}/run/pcp
+%dir %attr(0775,root,pcp) %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
 %dir %{_tempsdir}
