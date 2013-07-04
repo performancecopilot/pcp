@@ -808,13 +808,33 @@ main(int argc, char *argv[])
 
     if (mflag) {
 	if (mode == PM_MODE_FORW) {
-	    sts = pmSetMode(mode, &appStart, 0);
-	    done = appEnd;
+	    if (start != NULL || finish != NULL) {
+		/* -S or -T */
+		sts = pmSetMode(mode, &appStart, 0);
+		done = appEnd;
+	    }
+	    else {
+		/* read the whole archive */
+		done.tv_sec = 0;
+		done.tv_usec = 0;
+		sts = pmSetMode(mode, &done, 0);
+		done.tv_sec = INT_MAX;
+	    }
 	}
 	else {
-	    appEnd.tv_sec = INT_MAX;
-	    sts = pmSetMode(mode, &appEnd, 0);
-	    done = appStart;
+	    if (start != NULL || finish != NULL) {
+		/* -S or -T */
+		appEnd.tv_sec = INT_MAX;
+		sts = pmSetMode(mode, &appEnd, 0);
+		done = appStart;
+	    }
+	    else {
+		/* read the whole archive backwards */
+		done.tv_sec = INT_MAX;
+		done.tv_usec = 0;
+		sts = pmSetMode(mode, &done, 0);
+		done.tv_sec = 0;
+	    }
 	}
 	if (sts < 0) {
 	    fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));

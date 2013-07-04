@@ -61,7 +61,7 @@ static pmdaMetric metrictab[] = {
 #define METRICTAB_MAXMEM_PMID metrictab[1].m_desc.pmid
     { NULL,
       { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,1,0,0,0) }, },
+        PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* journal.field.cursor */
 #define METRICTAB_JOURNAL_CURSOR_PMID metrictab[2].m_desc.pmid
     { NULL,
@@ -108,7 +108,14 @@ void systemd_shutdown(void)
 
 void systemd_refresh(void)
 {
-    while (1) {
+    /* We limit the number of journald entries we yank out per
+       refresh, due to apparent systemd bugs (rhbz979487) that may
+       want to feed us thousands upon thousands of older entries at
+       pmda startup.  That can make the pmda unresponsive and make
+       pmcd vewy vewy upset. */
+    unsigned max_iterations = 100;
+
+    while (--max_iterations > 0) {
         char *cursor = NULL;
         char *timestamp_str = NULL;
         size_t timestamp_len = 0;

@@ -1,0 +1,64 @@
+In the beginning all PCP archives were created by pmlogger.  So a
+corrupt PCP archive meant pmlogger had a bug or was interrupted in
+some manner.
+
+We fixed the bugs (!) and hardened the checking of archives to ensure
+we could process as much as possible of an interrupted archive.
+
+But things changed and archives could be created in more ways ...
+- pmlogmerge, so more checks to ensure the semantic consistency of
+  the input archives, but again we could assume pmlogmerge would
+  create correct archives
+- pmlogreduce, same as pmlogmerge
+
+With the introduction of libpcp_import and bindings for Perl and
+Python, we now have the possibility of and infinite number of scripts
+creating archives using low-level calls that can be combined to
+produce and infinite variety of corrupted archives.  The first example
+of this class is https://bugzilla.redhat.com/show_bug.cgi?id=958745
+but we should expect more of these to be lurking in the future.
+
+When these problems appear, the initial triage effort is directed
+(rightly) towards the replay tool that is failing, and it takes
+considerable time and effort to determine that the root cause is
+a corrupted archive, not an application or libpcp failure.
+
+Some corruption we can (and do) catch in libpcp.  We could probably
+do more there, but the most common usage with "interp" mode replay
+makes it almost impossible to check timestamps on the fly, so the
+but above would be most unlikely to be found there.
+
+So, in the spirit of the original Unix filesystem, I'm proposing
+an ncheck/icheck (none of you're whimpy fsck in those days) tool,
+pmlogcheck.
+
+The objective would be to have one anally retentive tool that can
+assert the "goodness" of a PCP archive, as the first step in any
+triage, even before pmdumplog is used.
+
+pmlogcheck would certainly be a multi-pass tool, initially using
+no libpcp services to read blocks of the files, and then graduate
+to the low-level libpcp routines once basic sanity has been
+established.
+
+The sorts of checks it might try would include:
+
+x. process temporal index if any
+   [ ] check label
+   [ ] if missing, warn
+   [ ] else load temporal index
+x. process meta file
+   [ ] check label
+   [ ] check header-trailer len for every record
+   [ ] check timestamps for indoms are monotonic increasing (and >= label
+       record start)
+   [ ] check timestamp and offset against temporal index (if available)
+   [ ] if OK load metadata
+x. process each metric volume file
+   [ ] check label
+   [ ] check header-trailer len for every record
+   [ ] check timestamps are monotonic increasing (and >= label record start)
+   [ ] check timestamp and offset against temporal index (if available)
+   [ ] check pmids are defined in meta data
+   [ ] check instances are defined in metadata
+   [ ] check value encoding matches metadata type

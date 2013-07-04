@@ -1,6 +1,12 @@
 # command-line options and environment variables for pmwebd
 # uncomment/edit lines as required
 
+# expose archives from local pmloggers
+# -A $(PCP_LOG_DIR)/pmlogger
+#
+# default: pmwebd's private log directory
+-A $(PCP_LOG_DIR)/pmwebd
+
 # run in the foreground
 # -f
 

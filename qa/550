@@ -22,26 +22,29 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmcd_memory()
 {
-    pmprobe -h $host -v pmcd.datasize | tee -a $seq.full | awk '{ print $3 }'
+    pmprobe -h $host -v pmcd.datasize \
+	| tee -a $here/$seq.full \
+	| awk '{ print $3 }'
 }
 
 # real QA test starts here
 echo "Initial pmcd memory size:" > $seq.full
 MEMINIT=`pmcd_memory`
-for leak_test in secure/leak-*
+cd secure
+for leak_test in leak-*
 do
-    echo "$leak_test checking: " | tee -a $seq.full
+    echo "$leak_test checking: " | tee -a $here/$seq.full
     python $leak_test $host $iterate
     pmcd_wait -t $timeout -h $host
     sts=$?
-    echo "$leak_test complete sts=$sts" | tee -a $seq.full
+    echo "$leak_test complete sts=$sts" | tee -a $here/$seq.full
     [ $sts -ne 0 ] && exit
     MEMUSED=`pmcd_memory`
-    # allow for max 64KB increase (pagesize on some systems)
-    MEMSLOP=`expr $MEMINIT + 64`
-    echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $seq.full
+    # allow for max 64KB increase (several pages on 64KB systems)
+    MEMSLOP=`expr $MEMINIT + 640`
+    echo "init=$MEMINIT used=$MEMUSED slop=$MEMSLOP" >> $here/$seq.full
     [ $MEMUSED -gt $MEMSLOP ] && exit
-    echo "$leak_test memory check=OK" | tee -a $seq.full
+    echo "$leak_test memory check=OK" | tee -a $here/$seq.full
 done
 
 # success, all done

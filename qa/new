@@ -6,8 +6,7 @@
 #
 # Usage: new [base-seq-no group ...]
 #
-# base-seq-no defaults to 100 (for open src and sgi tests), and the other
-# useful value is 1000 (for sgi-only tests, as used by new-sgi)
+# base-seq-no defaults to some random place in the range 700-999
 #
 
 # generic initialization
@@ -88,7 +87,13 @@ then
     try=$1
     shift
 else
-    try=100
+    # random in the range 700-999 based on user name convered from alpha
+    # to numeric, prefixed by current clock seconds
+    #
+    sec=`date +%S`
+    try=`echo "$USER" \
+	| tr 'a-z' '0-90-90-9' \
+	| awk '{ srand('"$sec"'+$1); print int(700+rand()*300) }'`
 fi
 # pick first hole after $try, provided the test does not already exist
 #

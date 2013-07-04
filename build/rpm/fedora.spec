@@ -430,19 +430,17 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
 %config %{_sysconfdir}/bash_completion.d/pcp
+%config %{_sysconfdir}/crond.d/pmlogger
+%config %{_sysconfdir}/crond.d/pmie
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
 %{_sysconfdir}/pcp
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
-%config(noreplace) %{_confdir}/pmie/config.default
 %config(noreplace) %{_confdir}/pmie/control
-%config(noreplace) %{_confdir}/pmie/crontab
 %config(noreplace) %{_confdir}/pmie/stomp
-%config(noreplace) %{_confdir}/pmlogger/config.default
 %config(noreplace) %{_confdir}/pmlogger/control
-%config(noreplace) %{_confdir}/pmlogger/crontab
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %{_localstatedir}/lib/pcp/config/*

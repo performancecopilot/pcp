@@ -80,9 +80,10 @@ _filter_me()
     sed \
 	-e "s/`pmhostname`/MY_HOSTNAME/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
-	-e "s#$tmp#TMP#g" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
-	-e "s#$PCP_SYSCONF_DIR#PCP_SYSCONF_DIR#g"
+	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
+	-e "s,$tmp.config,TMP.logger.config,g" \
+	-e "s#$tmp#TMP#g"
 }
 
 _filter_pmproxy()
@@ -107,6 +108,30 @@ _do()
     else
 	echo "Skipped, no $1 binary installed"
     fi
+}
+
+_do_config()
+{
+    cat >$tmp.config <<End-of-File
+log advisory on default {
+    kernel.all.load
+    swap.used
+    mem.util.free
+    mem.util.bufmem
+    mem.bufmem
+    mem.util.cached
+    swap.in
+    swap.pagesin
+    swap.out
+    swap.pagesout
+    disk.all.blkread
+    disk.all.blkwrite
+    kernel.all.intr
+    kernel.all.intr.non_vme
+    kernel.all.pswitch
+    kernel.all.cpu
+}
+End-of-File
 }
 
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
@@ -140,7 +165,8 @@ then
     : on Mac OS X and OpenSolaris
 else
     _do pmstat -t 0.5 -s 2
-    _do pmlogger -c $PCP_SYSCONF_DIR/pmlogger/config.pmstat -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+    _do_config 
+    _do pmlogger -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
     _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
 fi
 

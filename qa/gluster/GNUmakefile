@@ -1,0 +1,22 @@
+TOPDIR = ../..
+include $(TOPDIR)/src/include/builddefs
+
+TESTDIR = $(PCP_VAR_DIR)/testsuite/gluster
+
+SCRIPT = test.sh
+INFOFILES = $(shell echo info-*)
+PROFFILES = $(shell echo profile-*)
+
+LSRCFILES = $(SCRIPT) $(INFOFILES) $(PROFFILES)
+
+default default_pcp setup:
+
+install install_pcp:
+	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 755 $(SCRIPT) $(TESTDIR)/$(SCRIPT)
+	$(INSTALL) -m 644 $(INFOFILES) $(PROFFILES) $(TESTDIR)
+
+include $(BUILDRULES)
+
+%.py : %.python
+	$(LN_S) $< $@

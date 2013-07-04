@@ -303,16 +303,14 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 cat >conf_files <<EOFEOF
 etc/pcp.sh
 etc/pcp.env
+etc/cron.d/pmie
+etc/cron.d/pmlogger
 pmcd/pmcd.conf
 pmcd/pmcd.options
 pmcd/rc.local
-pmie/config.default
 pmie/control
-pmie/crontab
 pmie/stomp
-pmlogger/config.default
 pmlogger/control
-pmlogger/crontab
 pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOFEOF

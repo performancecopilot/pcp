@@ -31,20 +31,20 @@ $version=1.1
 
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
-#Host		P?  S?	directory			args
+#Host		P?  S?	directory				args
 
 # local primary logger
-#LOCALHOSTNAME	y   n	/var/adm/pcplog/LOCALHOSTNAME	-c config.default
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-c config.default
 
 # Note:	if multiple pmloggers for the same host (e.g. both primary and
 #	non-primary loggers are active), then they MUST use different
 #	directories
 
 # local non-primary logger
-#LOCALHOSTNAME	n   n	/var/adm/pcplog/mysummary	-c config.Summary
+#LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-c config.Summary
 
 # remote host
-#remote		n   n	/var/adm/pcplog/remote		-c ./config.remote
+#remote		n   n	PCP_LOG_DIR/pmlogger/remote		-c config.remote
 
 # thru the firewall via socks
-#distant	n   y	/var/adm/pcplog/distant		-c ./config.distant
+#distant	n   y	PCP_LOG_DIR/pmlogger/distant		-c config.distant

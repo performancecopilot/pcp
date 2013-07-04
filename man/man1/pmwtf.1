@@ -20,6 +20,7 @@
 \f3pmwtf\f1
 [\f3\-dz\f1]
 [\f3\-p\f1 \f2precision\f1]
+[\f3\-q\f1 \f2thres\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-B\f1 \f2starttime\f1]
@@ -79,8 +80,9 @@ of each metric in both logs, and then calculating whether the ratio
 falls outside of a range considered normal.
 This ratio can be adjusted using the
 .B \-q
-option, and by default it is 2 (i.e. all metrics with values that
-have more than doubled in the two time windows are reported).
+option, and by default it is 2 (i.e. report all metrics with average values that
+have more than doubled in the two time windows or more
+than halved in the two time windows).
 .PP
 Should any metrics be present in one window but missing from the
 other, a diagnostic will be displayed listing each missing metric

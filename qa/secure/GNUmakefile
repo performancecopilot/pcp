@@ -10,7 +10,7 @@ HANGFILES = $(shell echo hang-*)
 
 PYMODULES = pcppdu.python
 TESTCASES = $(CRASHFILES) $(QUERYFILES) $(LEAKFILES) $(HANGFILES)
-LSRCFILES = $(TESTCASES) $(PYMODULES)
+LSRCFILES = $(TESTCASES) $(PYMODULES) GNUmakefile.install
 LDIRT = pcppdu.py pcppdu.pyc pcppdu.pyo
 
 default default_pcp setup: pcppdu.py
@@ -18,6 +18,7 @@ default default_pcp setup: pcppdu.py
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 644 $(TESTCASES) $(PYMODULES) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 
