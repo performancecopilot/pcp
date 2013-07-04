@@ -5,7 +5,7 @@ IAM = user-administrator-guide
 LDIRDIRT = Common_Content
 LDIRT = $(IAM).xml $(IAM).fo
 
-default build.done: $(IAM).xml
+default build.done build-me: $(IAM).xml
 
 include $(BUILDRULES)
 

@@ -130,9 +130,9 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_ARG_WITH(
         [books],
         [AC_HELP_STRING([--with-books],
-                        [enable building of the PCP books (default is on)])],
+                        [enable building of the PCP books (default is off)])],
         [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-        [do_books=check])
+        [do_books=off])
 
     dnl check if a toolchain is available for the books
     test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
