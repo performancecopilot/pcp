@@ -1,1 +1,1 @@
-FILES = pcp-summary pmclient pmclient-summary pmstat
+FILES = pcp-summary pmclient pmclient-summary pmstat iostat ip mpstat vmstat
