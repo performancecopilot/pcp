@@ -66,6 +66,7 @@ logfile=pmlogger.log
 #
 SHOWME=false
 MV=mv
+CP=cp
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
@@ -79,6 +80,7 @@ do
 		;;
 	N)	SHOWME=true
 		MV="echo + mv"
+		CP="echo + cp"
 		;;
         s)	START_PMLOGGER=false
 		;;
