@@ -113,6 +113,13 @@ MYFILES += parsehostattrs.c parsehostspec.c check_import_name.c
 LDIRT += parsehostattrs parsehostspec check_import_name
 endif
 
+ifeq ($(shell test $(PCP_VER) -ge 3802 && echo 1), 1)
+CFILES += chkacc4.c
+else
+MYFILES += chkacc4.c
+LDIRT += chkacc4
+endif
+
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only include these ones if the fault injection version of libpcp
 # appears to have been installed (assumes PCP >= 3.5)
