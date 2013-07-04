@@ -475,7 +475,9 @@ do
 
 	if [ -f $seq.notrun ]
 	then
+	    [ $color = true ] && tput bold && tput setaf 4 # blue
 	    echo " [not run] `cat $seq.notrun`"
+	    [ $color = true ] && tput sgr0 # reset
 	    notrun="$notrun $seq"
 	else
 	    if [ $sts -ne 0 ]
@@ -499,7 +501,9 @@ do
 			echo "$seq `expr $stop - $start`" >>$tmp.time
 		    fi
 		else
+		    [ $color = true ] && tput bold && tput setaf 1 # red
 		    echo " - output mismatch (see $seq.out.bad)"
+		    [ $color = true ] && tput sgr0 # reset
 		    mv $tmp.out $seq.out.bad
 		    $diff $seq.out $seq.out.bad
 		    err=true

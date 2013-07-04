@@ -42,7 +42,6 @@ install::	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMIECONTROL_PATH)`
 	$(INSTALL) -m 644 control $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmie
-	$(INSTALL) -m 644 stomp $(PCP_SYSCONF_DIR)/pmie/stomp
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col

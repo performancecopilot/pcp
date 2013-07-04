@@ -31,11 +31,13 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
 endif
 
-default: $(OTHERS) crontab
+default: $(SUBDIRS) crontab
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
-install: default crontab
+install: $(SUBDIRS) crontab
+	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
 	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog

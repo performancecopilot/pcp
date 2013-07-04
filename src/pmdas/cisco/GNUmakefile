@@ -28,7 +28,7 @@ LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
-PMIE	= $(PCP_SYSCONF_DIR)/pmie/$(IAM)
+PMIEDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out parse.? probe.o \
 	$(TARGETS)
@@ -46,9 +46,9 @@ install:	build-me
 	$(INSTALL) -m 755 probe parse Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Cisco.pmchart $(PMCHART)/Cisco
-	$(INSTALL) -m 755 -d $(PMIE)
-	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIE)/in_util
-	$(INSTALL) -m 644 cisco.out_util.pmie $(PMIE)/out_util
+	$(INSTALL) -m 755 -d $(PMIEDIR)
+	$(INSTALL) -m 644 cisco.in_util.pmie $(PMIEDIR)/in_util
+	$(INSTALL) -m 644 cisco.out_util.pmie $(PMIEDIR)/out_util
 else
 build-me:
 install:

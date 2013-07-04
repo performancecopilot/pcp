@@ -23,9 +23,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
@@ -479,6 +476,9 @@ End-of-File
 # It is safe to make additions from here on ...
 #
 
+[access]
+disallow * : all except enquire;
+allow localhost : advisory;
 End-of-File
 
 else

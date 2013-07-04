@@ -1,0 +1,20 @@
+#pmlogconf-setup 2.0
+ident	metrics used by pcp(1) summary command
+delta	once
+	hinv.ncpu
+	hinv.ndisk
+	hinv.nnode
+	hinv.nrouter
+	hinv.nxbow
+	hinv.ncell
+	hinv.physmem
+	hinv.cputype
+	pmda.uname
+	pmcd.numagents
+	pmcd.numclients
+	pmcd.version
+	pmcd.build
+	pmcd.timezone
+	pmcd.agent.status
+	pmcd.pmlogger
+	pmcd.pmie

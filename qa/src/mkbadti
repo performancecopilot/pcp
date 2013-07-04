@@ -1,0 +1,107 @@
+#!/bin/sh
+#
+# Recipes for making badti-* family of archives.
+# 
+# Every one is based on a version of ok-foo, with binary editing using
+# bvi (or similar) and cut-n-paste with dd.
+#
+# This is the good temporal index
+#
+# Timestamp    Log Vol    end(meta)     end(log)     offset
+#                                                         0 <- label record
+# 04:34:32.257       0          132          132	132
+# 04:34:33.248       0          350          284	152
+# 04:34:40.258       0          851         1768	172
+#                                                       191 <- EOF
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# Set up for a new badti-X archive
+#
+X=`ls badti-*.index 2>/dev/null | tail -1 | sed -e 's/badti-//' -e 's/\.index//'`
+if [ -z "$X" ]
+then
+    X=1
+else
+    X=`expr $X + 1`
+fi
+
+ln ok-foo.meta badti-$X.meta
+ln ok-foo.0 badti-$X.0
+
+case $X
+in
+    1)	# index broken in the middle of an entry
+	dd if=ok-foo.index of=badti-$X.index bs=1 count=162
+	;;
+
+    2)	# entry[2] volume is negative
+	# entry[2] tv_usec in timestamp is >99999
+	# entry[3] tv_sec in timestamp is negative
+	# entry[3] tv_usec in timestamp is negative
+	cp ok-foo.index badti-$X.index
+	echo '140s\\....\\FFFFFFFF\\' >$tmp.ex
+	echo '136s\\....\\000F4240\\' >>$tmp.ex
+	echo '172s\\....\\FFFFFFFE\\' >>$tmp.ex
+	echo '176s\\....\\FFFFFFFC\\' >>$tmp.ex
+	;;
+
+    3)	# entry[1] volume -> non existant file, and then volume goes backwards
+	# entry[3] meta and log offsets past end of file
+	cp ok-foo.index badti-$X.index
+	echo '132s\\....\\00000002\\' >$tmp.ex
+	echo '184s\\....\\00000354\\' >>$tmp.ex
+	echo '188s\\....\\000007B9\\' >>$tmp.ex
+	;;
+
+    4)	# tv_usec in timestamp is negative
+	cp ok-foo.index badti-$X.index
+	;;
+
+    5)	# Short label record (42 bytes, not 132)
+	dd if=badti-0.0 of=badti-$X.0 bs=1 count=42
+	;;
+
+    6)	# Label header len 64 not 132 as expected
+	cp ok-foo.0 badti-$X.0
+	echo '3s\\.\\40\\' >$tmp.ex
+	;;
+
+    7)	# Label trailer len 64 not 132 as expected
+	cp ok-foo.0 badti-$X.0
+	echo '131s\\.\\40\\' >$tmp.ex
+	;;
+
+    8)	# Label bad PM_LOG_VER
+	cp ok-foo.0 badti-$X.0
+	echo '7s\\.\\FF\\' >$tmp.ex
+	;;
+
+    9)  # Truncated metadata file
+	cp ok-foo.0 badti-$X.0
+	cp ok-foo.index badti-$X.index
+	rm -f badti-$X.meta
+	dd if=ok-foo.meta of=badti-$X.meta bs=1 count=840
+
+esac
+
+if [ -f $tmp.ex ]
+then
+    echo 'w' >>$tmp.ex
+    echo 'q' >>$tmp.ex
+
+    if which bvi >/dev/null 2>&1
+    then
+	bvi -f $tmp.ex badti-$X.index
+    else
+	echo "bvi not installed"
+	echo "Need to apply the equivalent of this binary editing to badti-$X.0"
+	cat $tmp.ex
+    fi
+fi
+
+echo "badti-$X created."
+
+exit
+

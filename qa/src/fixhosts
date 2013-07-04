@@ -3,7 +3,7 @@
 # For QA ... 
 #
 
-if grep '155.0.17.0	pcpqa00.sgi.com' /etc/hosts >/dev/null
+if grep '155.0.17.0	pcpqa-4-00.sgi.com' /etc/hosts >/dev/null
 then
     # already done
     exit 0

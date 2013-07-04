@@ -306,6 +306,7 @@ then
     which gdiff >/dev/null 2>&1 && diff=gdiff
 fi
 
+color=false
 verbose=false
 paranoid=false
 group=false
@@ -435,6 +436,7 @@ common options
 
 check options
     -c		check configuration files [off]
+    -C		color mode output [off]
     -g group	include tests from these groups (multiple flags allowed)
     -G          report groups and number of tests per group
     -l		line mode diff [xdiff]
@@ -456,6 +458,11 @@ show-me options
 
 	-c)	# check config files
 	    check_config=true
+	    xpand=false
+	    ;;
+
+	-C)	# color mode for results and summaries
+	    color=true
 	    xpand=false
 	    ;;
 
@@ -499,11 +506,6 @@ p
 	    xpand=false
 	    ;;
 
-	-s)	# sssh mode for diff, no diff at all 
-	    diff=true
-	    xpand=false
-	    ;;
-
 	-l)	# line mode for diff, not gdiff over modems
 	    diff=diff
 	    xpand=false
@@ -522,6 +524,11 @@ p
 
 	-r)	# include retired tests
 	    retired=true
+	    xpand=false
+	    ;;
+
+	-s)	# sssh mode for diff, no diff at all 
+	    diff=true
 	    xpand=false
 	    ;;
 

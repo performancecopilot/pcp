@@ -15,12 +15,9 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET	= pmstat$(EXECSUFFIX)
-CFILES	= pmstat.c
-LSRCFILES = pmlogger.config
+CMDTARGET = pmstat$(EXECSUFFIX)
+CFILES  = pmstat.c
 LDIRT = $(CMDTARGET)
-
-PMLOGGERCONFIG = $(PCP_SYSCONF_DIR)/pmlogger
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB)
@@ -31,7 +28,6 @@ include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 644 pmlogger.config $(PMLOGGERCONFIG)/config.pmstat
 
 default_pcp:	default
 

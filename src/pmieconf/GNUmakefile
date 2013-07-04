@@ -1,4 +1,5 @@
 # 
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -23,16 +24,18 @@ CMDTARGET = pmieconf$(EXECSUFFIX)
 CFILES = pmieconf.c rules.c io.c
 HFILES = rules.h
 
+PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
+
 LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
 
 LLDLIBS = $(PCPLIB)
 LDIRT = rules local $(CMDTARGET) rate-syscalls \
-	pmlogger.tmp pmlogger.config \
+	pmlogconf.tmp pmlogconf \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
 	percpu/GNUmakefile pernetif/GNUmakefile
 LDIRDIRT = .pcp
 
-default_pcp: $(CMDTARGET) makefiles rules pmlogger.config
+default_pcp: $(CMDTARGET) makefiles rules pmlogconf
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
@@ -55,14 +58,12 @@ rules: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(RUN_IN_BUILD_ENV) ./$(CMDTARGET) -F -r rules -f local
 
-pmlogger.config: $(SUBDIRS)
-	@rm -f pmlogger.config
-	@echo "# extracted from pmieconf rules in source tree" >pmlogger.config
-	@echo >>pmlogger.config
-	@echo "log advisory on default {" >>pmlogger.config
-	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogger.tmp
-	@$(PCP_SORT_PROG) -u pmlogger.tmp | sed -e 's/^/    /' >>pmlogger.config
-	@echo "}" >>pmlogger.config
+pmlogconf: $(SUBDIRS)
+	@rm -f pmlogconf
+	@echo "#pmlogconf-setup 2.0" >pmlogconf
+	@echo "ident	metrics from pmieconf rules in source tree" >>pmlogconf
+	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogconf.tmp
+	@$(PCP_SORT_PROG) -u pmlogconf.tmp | sed -e 's/^/	/' >>pmlogconf
 
 install_pcp: install
 
@@ -70,6 +71,6 @@ install: default_pcp $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
-	$(INSTALL) -m 644 pmlogger.config $(PCP_SYSCONF_DIR)/pmlogger/config.pmieconf
+	$(INSTALL) -m 644 pmlogconf $(PMLOGCONF_TOOLS)/pmieconf
 
 include $(BUILDRULES)

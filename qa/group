@@ -209,6 +209,9 @@ fault
 # log rewriting app
 pmlogrewrite
 
+# log checking
+pmlogcheck
+
 # Python
 pcp.py
 
@@ -774,6 +777,7 @@ pcp.py
 560 pmda.simple local pmda.install oss
 564 logutil local oss
 565 pmda.sendmail local pmda.install oss
+566 pmlogcheck local oss
 569 pmprobe #679693 local oss sanity
 570 pmns #690735 local oss
 571 pmlogger local oss pmdumplog
@@ -819,10 +823,10 @@ pcp.py
 650 pmlogger local oss pmdumplog
 651 pmproxy local oss
 652 pmda.systemd event local oss
-660 pmwebapi local oss
 653 libpcp local oss
 654 pmda.gfs2 local oss
 655 pmda.gfs2 local oss
+660 pmwebapi local oss
 703 pmda.weblog local oss
 704 pmda.mmv python mmv local oss
 705 libpcp local oss

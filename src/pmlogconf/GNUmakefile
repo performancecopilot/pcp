@@ -20,7 +20,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking \
-	sqlserver
+	sqlserver tools
 
 LSRCFILES = pmlogconf.sh pmlogconf-setup.sh GNUmakefile.groups
 

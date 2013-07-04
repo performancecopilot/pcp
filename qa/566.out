@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 528
+# basic pmlogcheck workout
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+mkdir $tmp
+
+_filter()
+{
+    echo >>$seq.full
+    echo "stdout" >>$seq.full
+    cat $tmp.out >>$seq.full
+    echo "stderr" >>$seq.full
+    cat $tmp.err >>$seq.full
+    sed $tmp.out -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
+    sed $tmp.err -e "s;$tmp;TMP;g"
+}
+
+# real QA test starts here
+echo "=== directory traversal and file checks ==="
+cp src/foo.index $tmp
+echo; echo "TMP/foo.index alone:"
+pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cp src/foo.0 $tmp
+echo; echo "TMP/foo.meta missing:"
+pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+rm $tmp/foo.0
+cp src/foo.meta $tmp
+echo; echo "TMP/foo.0 missing:"
+pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cp src/foo.0 $tmp
+touch $tmp/foo
+touch $tmp/foo.
+touch $tmp/foobar.0
+touch $tmp/foo.999999
+touch $tmp/foo.1
+chmod 0 $tmp/foo.1
+touch $tmp/foo.bar
+touch $tmp/foo.99x99
+echo; echo "TMP/bar:"
+pmlogcheck -v $tmp/bar >$tmp.out 2>$tmp.err
+_filter
+echo; echo "TMP/foo:"
+pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+_filter
+cd $tmp
+echo; echo "foo:"
+pmlogcheck -v foo >$tmp.out 2>$tmp.err
+_filter
+chmod 644 $tmp/foo.1
+echo; echo "foo:"
+pmlogcheck -v foo.index >$tmp.out 2>$tmp.err
+_filter
+cd $here
+
+echo
+echo "=== pass 0 failures ==="
+for arch in src/badlen-*.meta src/badti-1
+do
+    # some of the bad archives do not have pass 0 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	src/badlen-0.meta|src/badlen-8.meta)
+		;;
+	*)
+		echo; echo "$arch:"
+		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		_filter
+		;;
+    esac
+done
+
+echo
+echo "=== pass 1 failures ==="
+for arch in src/badti-*.meta
+do
+    # some of the bad archives do not have pass 1 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	src/badti-1.meta)
+		;;
+	*)
+		echo; echo "$arch:"
+		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		_filter
+		;;
+    esac
+done
+
+# success, all done
+status=0
+
+exit

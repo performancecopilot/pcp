@@ -19,9 +19,8 @@ CFILES	= pmclient.c
 CMDTARGET = pmclient$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB)
 LDIRT	= pmnsmap.h mylog.* runme.sh
-LSRCFILES = README GNUmakefile.install pmlogger.config pmnsmap.spec
+LSRCFILES = README GNUmakefile.install pmnsmap.spec
 
-PMLOGGERCONFIG=$(PCP_SYSCONF_DIR)/pmlogger
 DEMODIR=$(PCP_DEMOS_DIR)/pmclient
 
 default:	$(CMDTARGET)
@@ -30,7 +29,6 @@ include $(BUILDRULES)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 644 pmlogger.config $(PMLOGGERCONFIG)/config.pmclient
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 $(CFILES) README pmnsmap.spec $(DEMODIR)
