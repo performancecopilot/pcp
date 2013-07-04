@@ -1,114 +1,172 @@
-#!/bin/sh
-# PCP QA Test No. 528
-# basic pmlogcheck workout
-#
-# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
-#
+QA output created by 566
+=== directory traversal and file checks ===
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+TMP/foo.index alone:
+Cannot continue ... bye
+Scanning for components of archive "TMP/foo"
+pass0: TMP/foo.index:
+pmlogcheck: Missing metadata file (TMP/foo.meta)
+pmlogcheck: Missing log file (TMP/foo.0 or similar)
 
-seq=`basename $0`
+TMP/foo.meta missing:
+Cannot continue ... bye
+Scanning for components of archive "TMP/foo"
+pass0: TMP/foo.0:
+pass0: TMP/foo.index:
+pmlogcheck: Missing metadata file (TMP/foo.meta)
 
-echo "QA output created by $seq"
+TMP/foo.0 missing:
+Cannot continue ... bye
+Scanning for components of archive "TMP/foo"
+pass0: TMP/foo.index:
+pass0: TMP/foo.meta:
+pmlogcheck: Missing log file (TMP/foo.0 or similar)
 
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-mkdir $tmp
+TMP/bar:
+Scanning for components of archive "TMP/bar"
+pmlogcheck: No PCP archive files match "TMP/bar"
 
-_filter()
-{
-    echo >>$seq.full
-    echo "stdout" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo "stderr" >>$seq.full
-    cat $tmp.err >>$seq.full
-    sed $tmp.out -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
-    sed $tmp.err -e "s;$tmp;TMP;g"
-}
+TMP/foo:
+Cannot continue ... bye
+Scanning for components of archive "TMP/foo"
+TMP/foo.999999: contains no PCP data
+pass0: TMP/foo.0:
+pass0: TMP/foo.1:
+pass0: TMP/foo.999999:
+pass0: TMP/foo.index:
+pass0: TMP/foo.meta:
+pmlogcheck: Cannot open "TMP/foo.1": Permission denied
 
-# real QA test starts here
-echo "=== directory traversal and file checks ==="
-cp src/foo.index $tmp
-echo; echo "TMP/foo.index alone:"
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
-_filter
-cp src/foo.0 $tmp
-echo; echo "TMP/foo.meta missing:"
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
-_filter
-rm $tmp/foo.0
-cp src/foo.meta $tmp
-echo; echo "TMP/foo.0 missing:"
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
-_filter
-cp src/foo.0 $tmp
-touch $tmp/foo
-touch $tmp/foo.
-touch $tmp/foobar.0
-touch $tmp/foo.999999
-touch $tmp/foo.1
-chmod 0 $tmp/foo.1
-touch $tmp/foo.bar
-touch $tmp/foo.99x99
-echo; echo "TMP/bar:"
-pmlogcheck -v $tmp/bar >$tmp.out 2>$tmp.err
-_filter
-echo; echo "TMP/foo:"
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
-_filter
-cd $tmp
-echo; echo "foo:"
-pmlogcheck -v foo >$tmp.out 2>$tmp.err
-_filter
-chmod 644 $tmp/foo.1
-echo; echo "foo:"
-pmlogcheck -v foo.index >$tmp.out 2>$tmp.err
-_filter
-cd $here
+foo:
+./foo.999999: contains no PCP data
+Cannot continue ... bye
+Scanning for components of archive "foo"
+pass0: ./foo.0:
+pass0: ./foo.1:
+pass0: ./foo.999999:
+pass0: ./foo.index:
+pass0: ./foo.meta:
+pmlogcheck: Cannot open "./foo.1": Permission denied
 
-echo
-echo "=== pass 0 failures ==="
-for arch in src/badlen-*.meta src/badti-1
-do
-    # some of the bad archives do not have pass 0 style corruption,
-    # so skip these ones for now
-    #
-    case $arch
-    in
-	src/badlen-0.meta|src/badlen-8.meta)
-		;;
-	*)
-		echo; echo "$arch:"
-		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
-		_filter
-		;;
-    esac
-done
+foo:
+./foo.1: contains no PCP data
+./foo.999999: contains no PCP data
+Scanning for components of archive "foo.index"
+pass0: ./foo.0:
+pass0: ./foo.1:
+pass0: ./foo.999999:
+pass0: ./foo.index:
+pass0: ./foo.meta:
+pass1: check temporal index
 
-echo
-echo "=== pass 1 failures ==="
-for arch in src/badti-*.meta
-do
-    # some of the bad archives do not have pass 1 style corruption,
-    # so skip these ones for now
-    #
-    case $arch
-    in
-	src/badti-1.meta)
-		;;
-	*)
-		echo; echo "$arch:"
-		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
-		_filter
-		;;
-    esac
-done
+=== pass 0 failures ===
 
-# success, all done
-status=0
+src/badlen-1.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-1.meta"
+pass0: src/badlen-1.0:
+pass0: src/badlen-1.index:
+pass0: src/badlen-1.meta:
+src/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
 
-exit
+src/badlen-10.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-10.meta"
+pass0: src/badlen-10.0:
+pass0: src/badlen-10.index:
+pass0: src/badlen-10.meta:
+src/badlen-10.0: unexpected EOF in label record trailer
+
+src/badlen-11.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-11.meta"
+pass0: src/badlen-11.0:
+pass0: src/badlen-11.index:
+pass0: src/badlen-11.meta:
+src/badlen-11.0[record 1]: unexpected EOF in record header
+
+src/badlen-2.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-2.meta"
+pass0: src/badlen-2.0:
+pass0: src/badlen-2.index:
+pass0: src/badlen-2.meta:
+src/badlen-2.0[record 1]: unexpected EOF in record trailer
+
+src/badlen-3.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-3.meta"
+pass0: src/badlen-3.0:
+pass0: src/badlen-3.index:
+pass0: src/badlen-3.meta:
+src/badlen-3.0[record 1]: unexpected EOF in record body
+
+src/badlen-4.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-4.meta"
+pass0: src/badlen-4.0:
+pass0: src/badlen-4.index:
+pass0: src/badlen-4.meta:
+src/badlen-4.0[record 0]: unexpected EOF in record header
+
+src/badlen-5.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-5.meta"
+pass0: src/badlen-5.0:
+pass0: src/badlen-5.index:
+pass0: src/badlen-5.meta:
+src/badlen-5.0: unexpected EOF in label record body
+
+src/badlen-6.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-6.meta"
+pass0: src/badlen-6.0:
+pass0: src/badlen-6.index:
+pass0: src/badlen-6.meta:
+src/badlen-6.0: label record length mismatch: header 64 != trailer 0
+
+src/badlen-7.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-7.meta"
+pass0: src/badlen-7.0:
+pass0: src/badlen-7.index:
+pass0: src/badlen-7.meta:
+src/badlen-7.0: label record length mismatch: header 132 != trailer 64
+
+src/badlen-9.meta:
+Cannot continue ... bye
+Scanning for components of archive "src/badlen-9.meta"
+pass0: src/badlen-9.0:
+pass0: src/badlen-9.index:
+pass0: src/badlen-9.meta:
+src/badlen-9.meta[record 11]: unexpected EOF in record body
+
+src/badti-1:
+Cannot continue ... bye
+Scanning for components of archive "src/badti-1"
+pass0: src/badti-1.0:
+pass0: src/badti-1.index:
+pass0: src/badti-1.meta:
+src/badti-1.index[record 2]: unexpected EOF in index entry
+
+=== pass 1 failures ===
+
+src/badti-2.meta:
+Scanning for components of archive "src/badti-2.meta"
+badti-2.index: timestamp went backwards in time 902428473.248687[entry 2]-> -2.-00004[entry 3]
+badti-2.index[entry 1]: Illegal timestamp value (902428472 sec, 1000000 usec)
+badti-2.index[entry 1]: illegal volume number -1
+badti-2.index[entry 3]: Illegal timestamp value (-2 sec, -4 usec)
+pass0: src/badti-2.0:
+pass0: src/badti-2.index:
+pass0: src/badti-2.meta:
+pass1: check temporal index
+
+src/badti-3.meta:
+Scanning for components of archive "src/badti-3.meta"
+badti-3.index[entry 3]: offset to log (1977) past end of file (1976)
+badti-3.index[entry 3]: offset to metadata (852) past end of file (851)
+pass0: src/badti-3.0:
+pass0: src/badti-3.index:
+pass0: src/badti-3.meta:
+pass1: check temporal index

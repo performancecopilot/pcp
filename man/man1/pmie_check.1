@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -145,8 +146,7 @@ $ PMCD_CONNECT_TIMEOUT=20
 .BR Warning :
 The
 .B $PCP_PMIECONTROL_PATH
-file is a potential security risk if it is writable by any user other
-than root.
+file must not be writable by any user other than root.
 .br
 .IP 3.
 There should be one line in the control file
@@ -185,15 +185,6 @@ through a firewall (\c
 .B y
 or
 .BR n ).
-Note that
-.B pmsocks
-is part of the
-.I pcp
-product distribution, rather than the
-.I pcp_eoe
-distribution, and as such may not be installed on your system.  Refer to
-.B PCPintro (1)
-for full details.
 .IP 8.
 The
 .I third
@@ -231,77 +222,40 @@ and another monitoring performance metrics from the host
 .PP
 .nf
 .ft CW
-wobbly  n  PCP_LOG_DIR/pmie/wobbly  \-c pmie/config.default
-splat   n  PCP_LOG_DIR/pmie/splat   \-c pmie/splat/cpu.conf
+wobbly  n  PCP_LOG_DIR/pmie/wobbly  \-c config.default
+splat   n  PCP_LOG_DIR/pmie/splat   \-c splat/cpu.conf
 .ft 1
 .fi
 .PP
-A typical
+Typical
 .BR crontab (5)
-entry for periodic execution of
+entries for periodic execution of
+.B pmie_daily
+and
 .B pmie_check
-is given in
+are given in
 .BR $PCP_SYSCONF_DIR/pmie/crontab
+(unless installed by default in
+.IR /etc/cron.d
+already)
 and shown below.
 .PP
 .nf
 .ft CW
 # daily processing of pmie logs
-14      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
+08      0       *       *       *       $PCP_BINADM_DIR/pmie_daily
 # every 30 minutes, check pmie instances are running
 28,58   *       *       *       *       $PCP_BINADM_DIR/pmie_check
 .ft 1
 .fi
 .PP
-Alternate redirection of the output from the
+The output from the
 .BR cron (1)
-execution of the script may be controlled as follows:
-.IP (1) 4n
-The
+execution of the scripts may be extended using the
 .B \-V
-option to the script will enable verbose tracing of their activity.
-By default the script generates no output unless some error or warning
+option to the scripts which will enable verbose tracing of their activity.
+By default the scripts generate no output unless some error or warning
 condition is encountered.
-.IP (2)
-To redirect the e-mail from
-.BR cron (1)
-away from the root login,
-.RS +4n
-.IP + 2n
-Instead of using the ``root'' login,
-create a special account with uid equal to 0, e.g. \c
-.BR su_pcp .
-The password may be locked and/or the shell invalid to prevent login
-or
-.B su (1),
-but the home directory should exist.
-For example the following entry in
-.BR /etc/passwd :
-
-.ti +4n
-.ft CW
-.nf
-su_pcp:x:0:0:PCP Housekeeping:/usr/people/su_pcp:/dev/null
-.fi
-.IP +
-.ft R
-Create a
-.B $HOME/.forward
-for
-.BR su_pcp ,
-else an entry in
-.B /usr/lib/aliases
-for
-.BR su_pcp ,
-redirecting the e-mail to a real user or user(s).
-.IP +
-Add the ``crontab'' entries above to the crontab file for
-.B su_pcp
-not
-.BR root ,
-e.g. in the file
-.B /usr/spool/cron/crontabs/su_pcp
-.RE
 .PP
 The
 .B \-N
@@ -318,11 +272,20 @@ maximizes the diagnostic capabilities for debugging.
 the default PCP inference engine control file
 .br
 .BR Warning :
-this file is a potential security risk if it is writable by any user
-other than root.
+this file must not be writable by any user other than root.
 .TP
 .B $PCP_SYSCONF_DIR/pmie/crontab
-sample crontab for automated script execution by root
+sample crontab for automated script execution by $PCP_USER (or root) -
+exists only if the platform does not support the
+.I /etc/cron.d
+mechanism.
+.TP
+.B $PCP_SYSCONF_DIR/pmie/config.default
+default
+.B pmlogger
+configuration file location for a localhost inference engine, typically
+generated automatically by
+.BR pmieconf (1).
 .TP
 .BI $PCP_LOG_DIR/pmie/ hostname
 default location for the pmie log file for the host
@@ -362,5 +325,6 @@ as described in
 .BR cron (1),
 .BR PCPintro (1),
 .BR pmie (1)
+.BR pmieconf (1)
 and
 .BR pmsocks (1).

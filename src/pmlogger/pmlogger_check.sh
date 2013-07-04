@@ -66,6 +66,7 @@ logfile=pmlogger.log
 #
 SHOWME=false
 MV=mv
+CP=cp
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
@@ -79,6 +80,7 @@ do
 		;;
 	N)	SHOWME=true
 		MV="echo + mv"
+		CP="echo + cp"
 		;;
         s)	START_PMLOGGER=false
 		;;
@@ -214,13 +216,18 @@ _configure_pmlogger()
     elif [ ! -e "$configfile" ]
     then
         # file does not exist, generate it, if possible
-        if ! $PMLOGCONF -q -h $hostname "$configfile" >$tmp/diag 2>&1
+        if $SHOW_ME
+        then
+            echo "+ $PMLOGCONF -q -h $hostname $configfile"
+        elif ! $PMLOGCONF -q -h $hostname "$configfile" >$tmp/diag 2>&1
         then
             _warning "pmlogconf failed to generate \"$configfile\""
             cat $tmp/diag
             echo "=== start pmlogconf file ==="
             cat "$configfile"
             echo "=== end pmlogconf file ==="
+        else
+            ( id pcp && chown pcp:pcp "$configfile" ) >/dev/null 2>&1
         fi
     fi
 }

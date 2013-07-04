@@ -1,0 +1,58 @@
+#pmlogconf-setup 2.0
+ident   Metrics corresponding to iostat
+
+# -d --------------------------------------------------
+
+# Device:
+# tps
+# kB_read/s
+# kB_wrtn/s
+	disk.dev.read_bytes			# kB_read
+	disk.dev.write_bytes			# kB_wrtn
+
+# -h --------------------------------------------------
+
+	kernel.all.cpu.user	# %user   
+	kernel.all.cpu.nice	# %nice 
+	kernel.all.cpu.sys	# %system 
+	kernel.all.cpu.wait.total	# %iowait  
+	kernel.all.cpu.steal	# %steal   
+	kernel.all.cpu.idle	# %idle
+
+# -x --------------------------------------------------
+
+        disk.all.read                   # total: Total reads completed successfully
+        disk.all.read_merge             # merged: grouped reads (resulting in one I/O)
+        disk.all.blkread                # sectors: Sectors read successfully
+        disk.all.read_rawactive         # ms: milliseconds spent reading
+        disk.all.write                  # total: Total writes completed successfully
+        disk.all.write_merge            # merged: grouped writes (resulting in one I/O)
+        disk.all.blkwrite               # sectors: Sectors written successfully
+        disk.all.read_rawactive         # ms: milliseconds spent writing
+                                        # cur: I/O in progress
+        disk.all.avactive               # s: seconds spent for I/O
+
+        disk.dev.read                   # total: Total reads completed successfully
+        disk.dev.read_merge             # merged: grouped reads (resulting in one I/O)
+        disk.dev.blkread                # sectors: Sectors read successfully
+        disk.dev.read_rawactive         # ms: milliseconds spent reading
+        disk.dev.write                  # total: Total writes completed successfully
+        disk.dev.write_merge            # merged: grouped writes (resulting in one I/O)
+        disk.dev.bldwrite               # sectors: Sectors written successfully
+        disk.dev.read_rawactive         # ms: milliseconds spent writing
+                                        # cur: I/O in progress
+
+	disk.all.read_merge		# rrqm/s
+	disk.all.write_merge		# wrqm/s
+	disk.all.read			# r/s
+	disk.all.write			# w/s
+	disk.all.read_bytes		# rkB/s
+	disk.all.write_bytes		# wkB/s
+					# avgqu-sz
+					# - avgrq-sz 
+	disk.dev.avactive		# await
+	disk.all.read_rawactive		# r_await
+	disk.all.write_rawactive	# w_await
+	# - svctm
+	# - %util (r/s + w/s) * (svctm / 1000)		
+
