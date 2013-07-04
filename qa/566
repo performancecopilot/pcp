@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 536
+# PCP QA Test No. 566
 # basic pmlogcheck workout
 #
 # Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
@@ -13,6 +13,8 @@
 seq=`basename $0`
 
 echo "QA output created by $seq"
+
+_notrun "Test needs verified output"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
