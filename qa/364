@@ -45,13 +45,17 @@ sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
 mv $tmp.tmp $tmp.conf
 
 yes '' | pmlogconf $tmp.conf >$tmp.out
+( echo && echo "== TMP.OUT" ) >>$seq.full
 cat $tmp.out >>$seq.full
+( echo && echo "== TMP.CONF") >>$seq.full
 cat $tmp.conf >>$seq.full
+( echo && echo "== FILTERED") >>$seq.full
 
 sed -n <$tmp.conf \
     -e '/^[ 	]/{
 s/^[ 	]*//
 s/[ 	].*//
+/^#/d
 p
 }' \
 | LC_COLLATE=POSIX sort \
