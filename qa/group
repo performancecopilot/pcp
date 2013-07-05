@@ -848,6 +848,7 @@ pcp.py
 720 libpcp local oss
 721 dbpmda local oss
 722 python local oss
+875 libpcp local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
