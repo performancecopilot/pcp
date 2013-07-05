@@ -476,6 +476,67 @@ fail:
     return sts;
 }
 
+/*
+ * Parse a socket path.
+ * Accept anything up to, but not including the first ':', or the end of the spec.
+ * We use ':' as the delimeter even though a '?' could be the start of the attibutes because
+ * '?' is a valid character in a socket path. It is also consistent with things like $PATH.
+ */
+static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
+parseSocketPath(
+    const char *spec,
+    char **position,            /* parse this string, return end char */
+    pmHostSpec **rslt)          /* result allocated and returned here */
+{
+    pmHostSpec *hsp = NULL;
+    const char *s, *start, *path;
+    char absolute_path[MAXPATHLEN];
+    size_t len;
+    int nhosts = 0;
+
+    /* Scan to the end of the string or to the first ':'. */
+    for (s = start = *position; s != NULL; s++) {
+	if (*s == '\0')
+	    break;
+	if (*s == ':') {
+	    ++s;
+	    break;
+	}
+    }
+
+    /* If the path is empty, then provide the default. */
+    if (s == start) {
+	path = __pmPMCDLocalSocketDefault();
+	len = strlen(path);
+    }
+    else {
+	path = start;
+	len = s - start;
+    }
+
+    /*
+     * Make sure that the path is absolute. parseProtocolSpec() removes the
+     * (optional) "//" from "local://some/path".
+     */
+    if (*path != __pmPathSeparator()) {
+	len = snprintf (absolute_path, sizeof(absolute_path), "%c%s",
+			__pmPathSeparator(), path);
+	path = absolute_path;
+    }
+
+    /* Add the path as the only member of the host list. */
+    hsp = hostAdd(hsp, &nhosts, path, len);
+    if (hsp == NULL) {
+	__pmFreeHostSpec(hsp, nhosts);
+	*rslt = NULL;
+	return -ENOMEM;
+    }
+
+    *position = (char *)s;
+    *rslt = hsp;
+    return 0;
+}
+
 int
 __pmParseHostSpec(
     const char *spec,           /* parse this string */
@@ -512,8 +573,17 @@ __pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
 	    len -= sts; off += sts;
 	}
 
-	if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size)
-	    return -E2BIG;
+	if (hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL ||
+	    hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
+	    /* These host specs contain a leading path separator as part of the name
+	       which should not be printed. */
+	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name + 1)) >= size)
+		return -E2BIG;
+	}
+	else {
+	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size)
+		return -E2BIG;
+	}
 	len -= sts; off += sts;
 
 	for (j = 0; j < hostp[i].nports; j++) {
@@ -574,13 +644,22 @@ __pmFreeHostAttrsSpec(pmHostSpec *hosts, int count, __pmHashCtl *attrs)
 #define PCPS_PROTOCOL_PREFIX	PCPS_PROTOCOL_NAME ":"
 #define PCPS_PROTOCOL_SIZE	(sizeof(PCPS_PROTOCOL_NAME)-1)
 #define PCPS_PROTOCOL_PREFIXSZ	(sizeof(PCPS_PROTOCOL_PREFIX)-1)
+#define LOCAL_PROTOCOL_NAME	"local"
+#define LOCAL_PROTOCOL_PREFIX	LOCAL_PROTOCOL_NAME ":"
+#define LOCAL_PROTOCOL_SIZE	(sizeof(LOCAL_PROTOCOL_NAME)-1)
+#define LOCAL_PROTOCOL_PREFIXSZ	(sizeof(LOCAL_PROTOCOL_PREFIX)-1)
+#define UNIX_PROTOCOL_NAME	"unix"
+#define UNIX_PROTOCOL_PREFIX	UNIX_PROTOCOL_NAME ":"
+#define UNIX_PROTOCOL_SIZE	(sizeof(UNIX_PROTOCOL_NAME)-1)
+#define UNIX_PROTOCOL_PREFIXSZ	(sizeof(UNIX_PROTOCOL_PREFIX)-1)
 
 static int
 parseProtocolSpec(
     const char *spec,           /* the original, complete string to parse */
     char **position,
     int *attribute,
-    char **value)
+    char **value,
+    char **errmsg)
 {
     char *protocol = NULL;
     char *s = *position;
@@ -589,9 +668,19 @@ parseProtocolSpec(
     if (strncmp(s, PCP_PROTOCOL_PREFIX, PCP_PROTOCOL_PREFIXSZ) == 0) {
 	protocol = PCP_PROTOCOL_NAME;
 	s += PCP_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_PROTOCOL;
     } else if (strncmp(s, PCPS_PROTOCOL_PREFIX, PCPS_PROTOCOL_PREFIXSZ) == 0) {
 	protocol = PCPS_PROTOCOL_NAME;
 	s += PCPS_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_PROTOCOL;
+    } else if (strncmp(s, LOCAL_PROTOCOL_PREFIX, LOCAL_PROTOCOL_PREFIXSZ) == 0) {
+	protocol = LOCAL_PROTOCOL_NAME;
+	s += LOCAL_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_LOCAL;
+    } else if (strncmp(s, UNIX_PROTOCOL_PREFIX, UNIX_PROTOCOL_PREFIXSZ) == 0) {
+	protocol = UNIX_PROTOCOL_NAME;
+	s += UNIX_PROTOCOL_PREFIXSZ;
+	*attribute = PCP_ATTR_UNIXSOCK;
     }
 
     /* optionally skip over slash-delimiters */
@@ -600,7 +689,6 @@ parseProtocolSpec(
 	    s++;
 	if ((*value = strdup(protocol)) == NULL)
 	    return -ENOMEM;
-	*attribute = PCP_ATTR_PROTOCOL;
     } else {
 	*value = NULL;
 	*attribute = PCP_ATTR_NONE;
@@ -734,6 +822,8 @@ fail:
  *
  * pcp://oss.sgi.com:45892?user=otto&pass=blotto&compress=true
  * pcps://oss.sgi.com@proxy.org:45893?user=jimbo&pass=jones&compress=true
+ * local://path/to/socket:?user=jimbo&pass=jones
+ * unix://path/to/socket
  */
 int
 __pmParseHostAttrsSpec(
@@ -747,11 +837,22 @@ __pmParseHostAttrsSpec(
     int sts, attr;
 
     /* parse optional protocol section */
-    if ((sts = parseProtocolSpec(spec, &s, &attr, &value)) < 0)
+    if ((sts = parseProtocolSpec(spec, &s, &attr, &value, errmsg)) < 0)
 	return sts;
 
-    if ((sts = parseHostSpec(spec, &s, host, count, errmsg)) < 0)
-	goto fail;
+    if (attr == PCP_ATTR_LOCAL || attr == PCP_ATTR_UNIXSOCK) {
+	/* We are looking for a socket path. */
+	if ((sts = parseSocketPath(spec, &s, host)) < 0)
+	    goto fail;
+	*count = 1;
+	host[0]->nports = (attr == PCP_ATTR_LOCAL) ?
+	    PM_HOST_SPEC_NPORTS_LOCAL : PM_HOST_SPEC_NPORTS_UNIX;
+    }
+    else {
+	/* We are looking for a host spec. */
+	if ((sts = parseHostSpec(spec, &s, host, count, errmsg)) < 0)
+	    goto fail;
+    }
 
     /* skip over an attributes delimiter */
     if (*s == '?') {

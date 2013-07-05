@@ -39,6 +39,7 @@ cleanup()
         _needclean=false
 	$signal -s TERM $pmcd
 	sleep 1
+	unset PMCD_SOCKET
         echo "Restart and ping pmcd ..."
         $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -77,6 +78,7 @@ $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
+export PMCD_SOCKET=$tmp/pmcd.socket
 if [ $PCP_VER -lt 3600 ]
 then
     $PCP_PMCD_PROG -f -n $pmns -l $seq.full &

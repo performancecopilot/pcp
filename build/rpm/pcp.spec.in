@@ -355,7 +355,7 @@ BEGIN {
     else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
     else f="base_files.rpm"
 }
-$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,root) %s\n", $2, $5) >> f } 
+$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,%s) %s\n", $2, $4, $5) >> f } 
 
 $1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
 $1 == "f" {

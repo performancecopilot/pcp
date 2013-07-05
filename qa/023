@@ -64,6 +64,7 @@ s/value [0-9][0-9]*/value INTEGER/
 	-e 's/ while attempting to read 12 bytes out of 12 in .*on fd/ on fd/' \
 	-e 's/fd=[0-9][0-9]*/fd=FD/g' \
 	-e "s;$here/src/;;" \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 $3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID"; }
 /Host access list:/	{ localHostPrinted = 0 }
@@ -117,6 +118,7 @@ cleanup()
 	[ ! -z "$SAVE_LOGGER" ] && _change_config pmlogger $SAVE_LOGGER
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
+	unset PMCD_SOCKET
 	$sudo $PCP_RC_DIR/pcp restart \
 	| tee -a $here/$seq.full \
 	| _filterall_pcp_start \
@@ -201,7 +203,8 @@ echo '<END>'
 #
 PMCD_PORT=$port
 PATH=$PATH:$here/src
-export PMCD_PORT PATH
+PMCD_SOCKET=$tmp/pmcd.socket
+export PMCD_PORT PATH PMCD_SOCKET
 $PCP_PMCD_PROG -f -t 2 &
 pmcd=$!
 if [ -d $PCP_RUN_DIR ]

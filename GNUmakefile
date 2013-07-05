@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -80,6 +80,7 @@ endif
 ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
 	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)
 endif
+	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib

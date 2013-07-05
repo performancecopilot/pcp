@@ -53,10 +53,13 @@ and any attributes that should be associated with the connection to that
 daemon.
 .PP
 The syntax allows the optional specification of a protocol (native PCP
-protocol, or encrypted PCP protocol), an initial
+protocol, encrypted PCP protocol or unix domain socket protocol).
+.PP
+If the specified protocol is native PCP protocol, or encrypted PCP protocol,
+an initial
 .BR pmcd (1)
 hostname with optional port numbers and optional proxy host,
-and optional attributes which are to be associated with the connection.
+and optional attributes which are to be associated with the connection may be specified.
 Some examples follow:
 .PP
 .in +0.5i
@@ -68,13 +71,42 @@ pcps://nas1.servers.com?user=otto&pass=blotto&compress
 .fi
 .in
 .PP
+If the specified protocol is a unix domain socket protocol, the path
+to the socket in the local file system may be specified along with
+optional attributes which are to be associated with the connection.
+For example:
+.PP
+.in +0.5i
+.nf
+.ft CW
+unix://var/run/pcp/pmcd.socket:?compress
+local://my/local/pmcd.socket:?user=otto&pass=blotto&compress
+.ft R
+.fi
+.in
+.PP
 If the optional protocol component is not specified, then the default
 setting will be used - which is the native PCP binary protocol.
 However, this can still be overwritten via the environment as described
 in
 .BR PCPIntro (1).
 If the protocol prefix is specified, it must be one of either "pcp://"
-(clear) or "pcps://" (secure, encrypted).
+(clear), "pcps://" (secure, encrypted), "unix://" (authenticated local)
+or "local://" ("unix://" then "pcp://").
+.PP
+The path specified for the "unix://" and "local://" protocols will always be
+interpreted as an absolute path name. For example, the following are all
+interpreted identically as /var/run/pcp/pmcd.socket.
+.PP
+.in +0.5i
+.nf
+.ft CW
+unix://var/run/pcp/pmcd.socket
+unix:/var/run/pcp/pmcd.socket
+unix:var/run/pcp/pmcd.socket
+.ft R
+.fi
+.in
 .PP
 Refer to
 .BR __pmParseHostSpec (3)

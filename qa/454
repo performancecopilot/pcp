@@ -27,6 +27,7 @@ _filter()
 
 # real QA test starts here
 export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_SOCKET=$tmp.pmcd.socket
 
 cat <<End-of-File >$tmp.conf
 # no entry point _or_ pathname
