@@ -261,6 +261,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 "  -p port         accept connections on this port\n"
 "  -P passfile     password file for certificate database access\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
+"  -s sockname     Unix domain socket file [default $PCP_RUN_DIR/pmcd.socket]\n"
 "  -T traceflag    Event trace control\n"
 "  -t timeout      PMDA response timeout (seconds) [default 5]\n"
 "  -U username     in daemon mode, run as named user [default pcp]\n"

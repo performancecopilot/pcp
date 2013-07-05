@@ -492,10 +492,6 @@ typedef struct {
     int		nports;			/* number of ports in host port array */
 } pmHostSpec;
 
-/* nports values */
-#define PM_HOST_SPEC_NPORTS_LOCAL (-1)
-#define PM_HOST_SPEC_NPORTS_UNIX  (-2)
-
 extern int __pmParseHostSpec(const char *, pmHostSpec **, int *, char **);
 extern int __pmUnparseHostSpec(pmHostSpec *, int, char *, size_t);
 extern void __pmFreeHostSpec(pmHostSpec *, int);
@@ -511,10 +507,10 @@ typedef enum {
     PCP_ATTR_PASSWORD	= 7,	/* passphrase-based secret (libsasl) */
     PCP_ATTR_METHOD	= 8,	/* use authentication method (libsasl) */
     PCP_ATTR_REALM	= 9,	/* realm to authenticate in (libsasl) */
-    PCP_ATTR_UNIXSOCK	= 10,	/* AF_UNIX socket + SO_PASSCRED (unix) */
+    PCP_ATTR_UNIXSOCK	= 10,	/* AF_UNIX socket + SO_PEERCRED (unix) */
     PCP_ATTR_USERID	= 11,	/* uid - user identifier (posix) */
     PCP_ATTR_GROUPID	= 12,	/* gid - group identifier (posix) */
-    PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket + SO_PASSCRED (unix) followed by localhost */
+    PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
 } __pmAttrKey;
 
 extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
@@ -550,7 +546,6 @@ extern int __pmConnectLocal(__pmHashCtl *);
 extern int __pmAuxConnectPMCD(const char *);
 extern int __pmAuxConnectPMCDPort(const char *, int);
 extern int __pmAuxConnectPMCDUnixSocket(const char *);
-extern const char *__pmPMCDLocalSocketDefault(void);
 
 extern int __pmAddHostPorts(pmHostSpec *, int *, int);
 extern void __pmDropHostPort(pmHostSpec *);

@@ -260,21 +260,11 @@ __pmCreateUnixSocket(void)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     PRFileDesc *fdp;
-    int fd;
 
     __pmInitSecureSockets();
     if ((fdp = PR_OpenTCPSocket(PR_AF_LOCAL)) == NULL)
 	return -neterror();
-
-    fd = __pmSetupSocket(fdp, AF_UNIX);
-
-    /*
-     * NOTE: Do not set the SO_PASSCRED socket option here. If you do, then
-     * this socket will be auto-bound to a name in the abstract namespace on
-     * modern linux platforms. The caller must bind this socket to the desired
-     * filesystem path. See Unix(7) for details.
-     */
-    return fd;
+    return __pmSetupSocket(fdp, AF_UNIX);
 #else
     __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
     return -EOPNOTSUPP;
@@ -1265,7 +1255,7 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 #ifdef IS_MINGW
 	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
 #else
-	    case SO_PASSCRED: /* Does not exist on MINGW */
+	    // case SO_PEERCRED: /* Does not exist on MINGW */
 #endif
 	    {
 		/*

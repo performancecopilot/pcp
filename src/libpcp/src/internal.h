@@ -57,6 +57,11 @@ __pmTPDGet(void)
 #define PM_TPD(x) x
 #endif
 
+/* AF_UNIX socket family internals */
+#define PM_HOST_SPEC_NPORTS_LOCAL (-1)
+#define PM_HOST_SPEC_NPORTS_UNIX  (-2)
+extern const char *__pmPMCDLocalSocketDefault(void);
+
 #ifdef SOCKET_INTERNAL
 #ifdef HAVE_SECURE_SOCKETS
 #include <nss.h>

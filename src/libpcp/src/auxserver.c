@@ -330,23 +330,9 @@ OpenRequestSocket(int port, const char *address, int *family,
 	if (sts != 0) {
 	    __pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) chmod(%s): %s\n",
-		port, address, AddressFamily(*family), address, netstrerror());
+		port, address, AddressFamily(*family), address, strerror(errno));
 	    goto fail;
 	}
-
-	/*
-	 * For unix domain sockets, set the SO_PASSCRED option to allow user credentials
-	 * to be authenticated. This must be done AFTER binding the address. Otherwise,
-	 * on modern linux platforms, the socket will be auto-bound to a name in the
-	 * abstract namespace. See Unix(7) for details.
-	 */
-	if (__pmSetSockOpt(fd, SOL_SOCKET, SO_PASSCRED, (char *)&one,
-	    (__pmSockLen)sizeof(one)) < 0) {
-	    __pmNotifyErr(LOG_ERR,
-	        "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_PASSCRED): %s\n",
-	        port, address, AddressFamily(*family), netstrerror());
-	    goto fail;
-        }
     }
 
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
@@ -476,10 +462,9 @@ __pmServerCloseRequestPorts(void)
 
 	/* We must remove the socket file. */
 	if (unlink(localSocketPath) != 0) {
-	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s: %s",
-			  pmProgname, localSocketPath, strerror(errno));
-	    __pmNotifyErr(LOG_ERR, "%s: uid==%d euid==%d\n",
-			  pmProgname, getuid(), geteuid());
+	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
+			  pmProgname, localSocketPath, getuid(), geteuid(),
+			  strerror(errno));
 	}
     }
 }

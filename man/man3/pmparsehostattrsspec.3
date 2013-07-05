@@ -79,7 +79,7 @@ For example:
 .in +0.5i
 .nf
 .ft CW
-unix://var/run/pcp/pmcd.socket:?compress
+unix://$PCP_RUN_DIR/pmcd.socket:?compress
 local://my/local/pmcd.socket:?user=otto&pass=blotto&compress
 .ft R
 .fi
@@ -96,14 +96,15 @@ or "local://" ("unix://" then "pcp://").
 .PP
 The path specified for the "unix://" and "local://" protocols will always be
 interpreted as an absolute path name. For example, the following are all
-interpreted identically as /var/run/pcp/pmcd.socket.
+interpreted identically as
+.IR $PCP_RUN_DIR/pmcd.socket .
 .PP
 .in +0.5i
 .nf
 .ft CW
-unix://var/run/pcp/pmcd.socket
-unix:/var/run/pcp/pmcd.socket
-unix:var/run/pcp/pmcd.socket
+unix://$PCP_RUN_DIR/pmcd.socket
+unix:/$PCP_RUN_DIR/pmcd.socket
+unix:$PCP_RUN_DIR/pmcd.socket
 .ft R
 .fi
 .in

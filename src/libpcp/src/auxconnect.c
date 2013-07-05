@@ -370,7 +370,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
  * Return the path regardless of whether unix domain sockets are
  * supported by our build. Other functions can then print reasonable
  * messages if an attempt is made to use one.
-*/
+ */
 const char *
 __pmPMCDLocalSocketDefault(void)
 {
@@ -560,12 +560,6 @@ __pmCreateUnixSocket(void)
     if ((sts = __pmInitSocket(fd, AF_UNIX)) < 0)
         return sts;
 
-    /*
-     * NOTE: Do not set the SO_PASSCRED socket option here. If you do, then this
-     * socket will be auto-bound to a name in the abstract namespace on modern
-     * linux platforms. The caller must bind this socket to the desired filesystem
-     * path. See Unix(7) for details.
-     */
     return fd;
 #else
     __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
