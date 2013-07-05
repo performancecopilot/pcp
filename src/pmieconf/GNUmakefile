@@ -61,7 +61,7 @@ rules: $(SUBDIRS)
 pmlogconf: $(SUBDIRS)
 	@rm -f pmlogconf
 	@echo "#pmlogconf-setup 2.0" >pmlogconf
-	@echo "ident	metrics used in pmie(1) rules from the pmieconf(1) command" >>pmlogconf
+	@echo "ident	metrics used by pmie(1) rules from the pmieconf(1) command" >>pmlogconf
 	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogconf.tmp
 	@$(PCP_SORT_PROG) -u pmlogconf.tmp | sed -e 's/^/	/' >>pmlogconf
 
