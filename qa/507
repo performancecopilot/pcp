@@ -47,14 +47,39 @@ $NF == "RAM"	{ x = $(NF-1); x = ((int)(x/128)+1)*128; $(NF-1) = x }
     | fgrep -v "archive:"
 }
 
+_config()
+{
+    cat <<End-of-File
+log mandatory on once {
+    hinv.ncpu
+    hinv.ndisk
+    hinv.nnode
+    hinv.nrouter
+    hinv.nxbow
+    hinv.ncell
+    hinv.physmem
+    hinv.cputype
+    pmda.uname
+    pmcd.numagents
+    pmcd.numclients
+    pmcd.version
+    pmcd.build
+    pmcd.timezone
+    pmcd.agent.status
+    pmcd.pmlogger
+    pmcd.pmie
+}
+End-of-File
+}
+
 # 
 # check command args compatible:
 # -h local must be same as no args & just local
 # also, locally-generated archive must obviously be very similar also
 # 
 # real QA test starts here
-
-pmlogger -T 3sec -c $PCP_SYSCONF_DIR/pmlogger/config.pcp $tmp.archive
+_config > $tmp.config.pcp
+pmlogger -T 3sec -c $tmp.config.pcp $tmp.archive
 echo pmlogger status=$?
 
 pcp -a $tmp.archive | _filter >$tmp.arch

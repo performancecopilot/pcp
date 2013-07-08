@@ -350,6 +350,42 @@ _wait_for_pmlogger()
     fi
 }
 
+# ensure primary logger allows pmlc state changes
+#
+_writable_primary_logger()
+{
+    configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+
+    echo "_open_primary_logger checking config file: $configfile" >>$seq.full
+
+    # first, move aside the default configuration file
+    $sudo mv "$configfile" "$configfile.$seq"
+
+    # next, create a new default configuration file
+    PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
+    test -f "$configfile" || \
+	$sudo $PMLOGCONF -q -h localhost "$configfile" >>$seq.full 2>&1
+
+    # finally, open it up to local access from pmlc
+    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' "$configfile"
+}
+
+# restore primary logger pmlc access restrictions
+#
+_restore_primary_logger()
+{
+    configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+
+    # close out access from local pmlc once more
+    test -f "$configfile" && \
+        $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+            "$configfile"
+
+    # if there was an initial configuration, put it back
+    test -f "$configfile.$seq" && $sudo mv "$configfile.$seq" "$configfile"
+    ( id pcp && $sudo chown pcp:pcp "$configfile" ) >/dev/null 2>&1
+}
+
 # purify support
 #
 # typical usage:

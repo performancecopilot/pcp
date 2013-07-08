@@ -616,6 +616,7 @@ sed -e '/No such file/s/^cat:/Cannot open/' \
 | $PCP_AWK_PROG '
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 /ok .* INADDR_ANY/	{ $2 = "FD" }
+/ok .*pmcd.socket$/	{ next }
 /^tricky/	{ for ( i = 1 ; i <= NF ; i++ )
 		    if ( i == 3 ) printf "PID " ; else printf "%s ", $i 
 		    printf "\n"

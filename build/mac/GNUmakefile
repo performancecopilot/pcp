@@ -55,7 +55,7 @@ idb: $(DIST_MANIFEST)
 			    for( n = 1; n < i; n++ ) { \
 				    str = str a[n] "/"; \
 			    } \
-			printf "s 0 $(PCP_OWNER) $(PCP_GROUP) %s %s%s replace\n", $$3, str, $$2 ; \
+			printf "s 0 $(PCP_USER_INSTALL) $(PCP_GROUP_INSTALL) %s %s%s replace\n", $$3, str, $$2 ; \
 			next; \
 		} \
 		$$5 ~ "'$$DIST_ROOT'" { \

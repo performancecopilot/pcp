@@ -87,6 +87,7 @@ auxconnect.o
     d canwait			# guarded by __pmLock_libpcp mutex
     d first_time.[0-9]*		# guarded by __pmLock_libpcp mutex
     b pmcd_port.[0-9]*		# guarded by __pmLock_libpcp mutex
+    b pmcd_socket.[0-9]*	# guarded by __pmLock_libpcp mutex
 auxserver.o
     b nport                     # single-threaded server scope
     b portlist                  # single-threaded server scope
@@ -95,6 +96,8 @@ auxserver.o
     b nReqPorts			# single-threaded server scope
     b szReqPorts		# single-threaded server scope
     b reqPorts			# single-threaded server scope
+    b localSocketPath		# single-threaded server scope
+    d localSocketFd		# single-threaded server scope
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const

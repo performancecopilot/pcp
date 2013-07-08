@@ -754,8 +754,8 @@ gzip
 ZIP
 tar
 TAR
-pcp_group
-pcp_owner
+pcp_group_install
+pcp_user_install
 ld
 LD
 cpp
@@ -799,8 +799,8 @@ build_os
 build_vendor
 build_cpu
 build
-pcp_gname
-pcp_uname
+pcp_group
+pcp_user
 target_alias
 host_alias
 build_alias
@@ -846,8 +846,8 @@ with_64bit
 with_threads
 with_tmpdir
 with_secure_sockets
-with_user_account
-with_group_account
+with_user
+with_group
 enable_ssp
 enable_pie
 enable_shared
@@ -1508,9 +1508,9 @@ Optional Packages:
   --with-threads          enable support for multiple threads (default is on)
   --with-tmpdir           define a temporary directory (default is /var/tmp)
   --with-secure-sockets   enable support for secure sockets (default is on)
-  --with-user-account     user account under which daemons run (default is
+  --with-user             user account under which daemons run (default is
                           pcp)
-  --with-group-account    user group under which daemons run (default is pcp)
+  --with-group            user group under which daemons run (default is pcp)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2421,21 +2421,21 @@ fi
 
 
 
-# Check whether --with-user-account was given.
-if test "${with_user_account+set}" = set; then :
-  withval=$with_user_account; pcp_uname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"
+# Check whether --with-user was given.
+if test "${with_user+set}" = set; then :
+  withval=$with_user; pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"
 else
-  pcp_uname=pcp
+  pcp_user=pcp
 fi
 
 
 
 
-# Check whether --with-group-account was given.
-if test "${with_group_account+set}" = set; then :
-  withval=$with_group_account; pcp_gname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"
+# Check whether --with-group was given.
+if test "${with_group+set}" = set; then :
+  withval=$with_group; pcp_group=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"
 else
-  pcp_gname=pcp
+  pcp_group=pcp
 fi
 
 
@@ -5591,24 +5591,24 @@ fi
 ld=$LD
 
 
-if test -z "$PCP_OWNER" ; then
-    pcp_owner=root
+if test -z "$PCP_USER_INSTALL" ; then
+    pcp_user_install=root
 else
-    pcp_owner="$PCP_OWNER"
+    pcp_user_install="$PCP_USER_INSTALL"
 fi
 
-if test -z "$PCP_GROUP" ; then
+if test -z "$PCP_GROUP_INSTALL" ; then
     case "$target_os"
     in
 	darwin|freebsd|netbsd)
-	    pcp_group=wheel
+	    pcp_group_install=wheel
 	    ;;
 	*)
-	    pcp_group=root
+	    pcp_group_install=root
 	    ;;
     esac
 else
-    pcp_group="$PCP_GROUP"
+    pcp_group_install="$PCP_GROUP_INSTALL"
 fi
 
 

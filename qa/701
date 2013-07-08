@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 701
+# Exercise user/group account access control checking.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.secure
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+_notrun "Reserved test number for WIP account ACLs"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/),.*$/)/g' \
+	-e 's/[A-Za-z][A-Za-z0-9]*/ACCT/g'
+}
+
+# real QA test starts here
+users=""
+for user in `find_users 10`
+do
+    users="$users -u $user"
+done
+
+groups=""
+for group in `find_groups 5`
+do
+    groups="$groups -g $group"
+done
+
+echo "== Checking user access basics" | tee -a $seq.full
+src/chkacc4 $users 2>&1 | tee -a $seq.full | _filter
+
+echo "== Checking group access basics" | tee -a $seq.full
+src/chkacc4 $groups 2>&1 | tee -a $seq.full | _filter
+
+echo == Checking both access basics ==
+src/chkacc4 $users $groups 2>&1 | tee -a $seq.full | _filter
+
+# success, all done
+status=0
+exit

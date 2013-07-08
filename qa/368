@@ -23,11 +23,13 @@ fi
 echo "QA output created by $seq"
 
 rm -f $seq.out
+suffix=1
+[ $PCP_VER -ge 3802 ] && suffix=2
 if [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin $seq.out || exit 1
+    ln $seq.darwin.$suffix $seq.out || exit 1
 else
-    ln $seq.other $seq.out || exit 1
+    ln $seq.other.$suffix $seq.out || exit 1
 fi
 
 status=0	# success is the default!

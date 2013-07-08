@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 ipv6=false
 pmcdx=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 

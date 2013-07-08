@@ -27,14 +27,19 @@ _cleanup()
 	echo
 	echo "Restore pmcd.conf and restart PMCD ..."
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	rm -f $tmp.*
+	_restore_primary_logger
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	rm -f $tmp.*
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
     fi
     exit $status
 }
+
+$sudo rm -rf $tmp.* $seq.full 
+trap "_cleanup" 0 1 2 3 15
+
 
 _filter_pmval()
 {
@@ -77,11 +82,7 @@ sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 
-# very odd inode update problem on kenj-pc with one variant of the Linux
-# 2.6.11 kernel ... this should be 100% benign for everyone else
-#
-sync
-
+_writable_primary_logger
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 if [ -d $PCP_LOG_DIR/pmlogger ]

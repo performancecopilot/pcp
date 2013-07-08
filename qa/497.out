@@ -25,6 +25,9 @@ log advisory on default {
 # It is safe to make additions from here on ...
 #
 
+[access]
+disallow * : all;
+allow localhost : enquire;
 --- end initial config file ---
 
 === bad condition in probe clause ===
@@ -127,4 +130,7 @@ log advisory on default {
 # It is safe to make additions from here on ...
 #
 
+[access]
+disallow * : all;
+allow localhost : enquire;
 --- end final config file ---

@@ -1,5 +1,6 @@
 #pmlogconf-setup 2.0
-ident   Metrics corresponding to vmstat
+ident   metrics used by the vmstat(1) command
+force	available
 
 # -s --------------------------------------------------
 
@@ -84,7 +85,7 @@ ident   Metrics corresponding to vmstat
 	disk.dev.read_rawactive		# ms: milliseconds spent reading
 	disk.dev.write			# total: Total writes completed successfully
 	disk.dev.write_merge		# merged: grouped writes (resulting in one I/O)
-	disk.dev.bldwrite		# sectors: Sectors written successfully
+	disk.dev.blkwrite		# sectors: Sectors written successfully
 	disk.dev.read_rawactive		# ms: milliseconds spent writing
 					# cur: I/O in progress
 	disk.dev.avactive       	# s: seconds spent for I/O

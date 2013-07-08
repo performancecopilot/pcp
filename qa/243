@@ -44,6 +44,7 @@ _filter_err()
 	-e '/Log for pmcd/,/INADDR_ANY/c\
 ... boring stuff deleted' \
 	-e '/ok FD 44321 ipv6 INADDR_ANY/d' \
+	-e '/OpenRequestSocket.*unix.*bind: Address already in use/,+1 d' \
 	-e 's/ INADDR_ANY/ 0x0/g'
 }
 
@@ -96,6 +97,7 @@ cleanup()
 	_needclean=false
 	$signal -s TERM $my_pmcd_pid
 	sleep 1
+	unset PMCD_SOCKET
 	echo "Restart and ping pmcd ..."
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -113,6 +115,7 @@ $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
+export PMCD_SOCKET=$tmp/pmcd.socket
 $PCP_PMCD_PROG -f -x err1 &
 my_pmcd_pid=$!
 

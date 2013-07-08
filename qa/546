@@ -41,6 +41,7 @@ _filter()
 # real QA test starts here
 export PCP_PMCDCONF_PATH=$tmp.conf
 export PMCD_PORT=9876
+export PMCD_SOCKET=$tmp.pmcd.socket
 
 # user test cases
 

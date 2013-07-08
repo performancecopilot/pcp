@@ -351,13 +351,18 @@ _configure_pmie()
     elif [ ! -e "$configfile" ]
     then
 	# file does not exist, generate it, if possible
-	if ! $PMIECONF -f "$configfile" $CONFARGS >$tmp/diag 2>&1
+	if $SHOW_ME
+	then
+	    echo "+ $PMIECONF -f $configfile $CONFARGS"
+	elif ! $PMIECONF -f "$configfile" $CONFARGS >$tmp/diag 2>&1
 	then
 	    _warning "pmieconf failed to generate \"$configfile\""
 	    cat $tmp/diag
 	    echo "=== start pmieconf file ==="
 	    cat "$configfile"
 	    echo "=== end pmieconf file ==="
+	else
+	    ( id pcp && chown pcp:pcp "$configfile" ) >/dev/null 2>&1
 	fi
     fi
 }

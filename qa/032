@@ -18,7 +18,16 @@ _echo()
     echo "+++" $* "+++"
 }
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+_cleanup()
+{
+    _restore_primary_logger
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1
+rm -f $seq.full
+trap "_cleanup" 0 1 2 3 15
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
@@ -28,12 +37,16 @@ else
 fi
 
 # sensitive to the state of the primary logger and the sample PMDA,
-# so re-start them to make sure.  6O second delay is to avoid clash
-# in basename of archive between consecutive instances of the primary
-# logger.
+# so re-start them to make sure.  Up-to-6O second delay is to avoid
+# clash in basename of archive between consecutive instances of the
+# primary logger.
 #
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-sleep 60
+timeleft=`date +%S`
+timesleep=`expr 60 - $timeleft`
+sleep $timesleep
+_writable_primary_logger
+
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
@@ -64,3 +77,6 @@ _echo "turn it off"
 src/logcontrol advisory off sample.lights
 _echo "turn it on"
 src/logcontrol advisory on sample.lights
+
+status=0
+exit

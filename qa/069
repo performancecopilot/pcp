@@ -25,7 +25,7 @@ eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 
 ipv6=false
 pmcdx=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
@@ -90,6 +90,7 @@ d
 	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
 	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
 	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }

@@ -827,6 +827,7 @@ pcp.py
 654 pmda.gfs2 local oss
 655 pmda.gfs2 local oss
 660 pmwebapi local oss
+701 libpcp local oss
 703 pmda.weblog local oss
 704 pmda.mmv python mmv local oss
 705 libpcp local oss
@@ -847,6 +848,7 @@ pcp.py
 720 libpcp local oss
 721 dbpmda local oss
 722 python local oss
+875 libpcp local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

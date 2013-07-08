@@ -42,6 +42,7 @@ static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
 static int	dupok;			/* set to 1 for -N pmnsfile */
+static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
 #ifdef HAVE_SA_SIGINFO
 static pid_t	killer_pid;
@@ -71,6 +72,14 @@ DontStart(void)
 	    fprintf(tty, "Log file \"%s\" has vanished!\n", logfile);
 	fclose(tty);
     }
+    /*
+     * We are often called after the request ports have been opened. If we don't
+     * explicitely close them, then the unix domain socket file (if any) will be
+     * left in the file system, causing "address already in use" the next time
+     * pmcd starts.
+     */
+    __pmServerCloseRequestPorts();
+
     exit(1);
 }
 
@@ -114,7 +123,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'c':	/* configuration file */
@@ -194,6 +203,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		    _creds_timeout = val;
 		break;
 
+	    case 's':	/* path to local unix domain socket */
+		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
+		break;
+
 	    case 't':
 		val = (int)strtol(optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0.0) {
@@ -248,6 +261,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 "  -p port         accept connections on this port\n"
 "  -P passfile     password file for certificate database access\n"
 "  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
+"  -s sockname     Unix domain socket file [default $PCP_RUN_DIR/pmcd.socket]\n"
 "  -T traceflag    Event trace control\n"
 "  -t timeout      PMDA response timeout (seconds) [default 5]\n"
 "  -U username     in daemon mode, run as named user [default pcp]\n"
@@ -816,6 +830,7 @@ main(int argc, char *argv[])
     ParseOptions(argc, argv, &nport);
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
+    __pmServerSetLocalSocket(sockpath);
 
     if (run_daemon) {
 	fflush(stderr);

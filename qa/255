@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 ipv6=false
 pmcdx=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6 status
+eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
 pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
 test $? -eq 0 && pmcdx=true
 
@@ -84,6 +84,7 @@ _filter_pmcd()
 	-e "s/cmd=.*pmdas\/broken./cmd=/" \
 	-e "s/ fd=[0-9]*/ fd=FD/" \
 	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
+	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }
