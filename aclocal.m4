@@ -396,9 +396,9 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     AC_ARG_WITH(
         [books],
         [AC_HELP_STRING([--with-books],
-                        [enable building of the PCP books (default is on)])],
+                        [enable building of the PCP books (default is off)])],
         [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-        [do_books=check])
+        [do_books=off])
 
     dnl check if a toolchain is available for the books
     test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
@@ -411,22 +411,24 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     xmlto=$XMLTO
     AC_SUBST(xmlto)
 
+    book_toolchain=""
     if test "$do_books" = "check" -o "$do_books" = "yes"
     then
         if test "$BOOK_TOOLCHAIN" != ""
         then
             book_toolchain=$BOOK_TOOLCHAIN
-        elif test "$PUBLICAN" != ""
-        then
-            book_toolchain=publican
         elif test "$DBLATEX" != ""
         then
             book_toolchain=dblatex
+        elif test "$PUBLICAN" != ""
+        then
+            book_toolchain=publican
         elif test "$XMLTO" != ""
         then
             book_toolchain=xmlto
-        else
-            AC_MSG_ERROR(cannot enable books build - no toolchain found)
+        elif test "$do_books" = "yes"
+	then
+	    AC_MSG_ERROR(cannot enable books build - no toolchain found)
         fi
     fi
     AC_SUBST(book_toolchain)

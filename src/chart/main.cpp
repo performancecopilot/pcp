@@ -660,11 +660,11 @@ main(int argc, char ** argv)
 	liveGroup->use(PM_CONTEXT_LOCAL, QmcSource::localHost);
     for (c = 0; c < hosts.size(); c++) {
 	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
-	    hosts.removeAt(c);
+	    hosts.removeAt(c--);
     }
     for (c = 0; c < archives.size(); c++) {
 	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
-	    archives.removeAt(c);
+	    archives.removeAt(c--);
     }
     if (!Lflag && hosts.size() == 0 && archives.size() == 0)
 	liveGroup->createLocalContext();
