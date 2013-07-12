@@ -44,6 +44,7 @@ public:
     struct timeval *archiveInterval() { return &my.archivePacket->delta; }
     struct timeval *archivePosition() { return &my.archivePacket->position; }
     void setArchivePosition(struct timeval *pos) { my.archivePacket->position = *pos; }
+    void setArchiveInterval(struct timeval *delta) { my.archivePacket->delta = *delta; }
     struct timeval *archiveStart() { return &my.archivePacket->start; }
     struct timeval *archiveEnd() { return &my.archivePacket->end; }
 
