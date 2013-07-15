@@ -751,11 +751,13 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 	password = (const char *)node->data;
 	length = (unsigned int)strlen(password);
     } else {
-	/* prompt? */
-	return SASL_FAIL;
+	password = (const char *)getpass("Password: ");
+	if (!password)
+	    return SASL_FAIL;
+	length = (unsigned int)strlen(password);
     }
 
-    *secret = (sasl_secret_t *) malloc(sizeof(sasl_secret_t) + length);
+    *secret = (sasl_secret_t *) malloc(sizeof(sasl_secret_t) + length + 1);
     if (!*secret)
 	return SASL_NOMEM;
 
