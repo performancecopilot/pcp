@@ -200,7 +200,7 @@ main(int argc, char **argv)
 {
     int			errflag = 0;
     int			sts;
-    char		c;
+    int			c;
     struct timeval	stamp;
     pmAtomValue		atom;
     int			savelen;

@@ -8,7 +8,7 @@ main(int argc, char **argv)
     int errflag = 0;
     int	indom = 123;
     int	sts;
-    char c;
+    int c;
 
     __pmSetProgname(argv[0]);
 
