@@ -13,7 +13,7 @@
 # for more details.
 #
 # Assumptions:
-#	Except for line supression for idle devices with -z, output from
+#	Except for line suppresion for idle devices with -z, output from
 #	iostat is completely deterministic, with the number and order of
 #	values identical for each sample interval.
 #
@@ -71,7 +71,8 @@ my %inst_map = ();	# key=indom value=last_inst_assigned, and
 sub dodate($)
 {
     # convert datetime formats 27/07/10 12:47:34 or
-    # 2010-07-27T12:46:07+1000 into ISO-8601 dates that Date::Parse
+    # 2013-07-05 09:17:28 or 2010-07-27T12:46:07+1000
+    # into ISO-8601 dates that Date::Parse
     # seems to be able to parse correctly ... this would appear to
     # have to be YYYY-MM-DDTHH:MM:SS.000000 and then pass the timezone
     # as the second parameter to str2time()
@@ -94,20 +95,37 @@ sub dodate($)
 	$dd = $fields[2];
     }
     else {
-	# DD/MM/YY HH:MM:SS format
-	@fields = split(/ /, $datetime);
-	$#fields == 1 or die "dodate: bad datetime format: \"$datetime\"\n";
-	$time = $fields[1];
-	@fields = split(/\//, $fields[0]);
-	$#fields == 2 or die "dodate: bad datetime format: \"$datetime\"\n";
-	$dd = $fields[0];
-	$mm = $fields[1];
-	$yy = $fields[2];
+	@fields = split(/\//, $datetime);
+	if ($#fields == 2) {
+	    # DD/MM/YY HH:MM:SS format
+	    @fields = split(/ /, $datetime);
+	    $#fields == 1 or die "dodate: bad datetime format 1: \"$datetime\"\n";
+	    $time = $fields[1];
+	    @fields = split(/\//, $fields[0]);
+	    $#fields == 2 or die "dodate: bad date format 1: \"$datetime\"\n";
+	    $dd = $fields[0];
+	    $mm = $fields[1];
+	    $yy = $fields[2];
+	}
+	else {
+	    @fields = split(/-/, $datetime);
+	    if ($#fields == 2) {
+		# YYYY-MM-DD HH:MM:SS format
+		@fields = split(/ /, $datetime);
+		$#fields == 1 or die "dodate: bad datetime format 3: \"$datetime\"\n";
+		$time = $fields[1];
+		@fields = split(/-/, $fields[0]);
+		$#fields == 2 or die "dodate: bad date format 3: \"$datetime\"\n";
+		$yy = $fields[0];
+		$mm = $fields[1];
+		$dd = $fields[2];
+	    }
+	}
     }
 
     if ($time !~ /\./) { $time .= ".000000" }
 
-    # get into cannonical DD, MM and YYYY format
+    # get into canonical DD, MM and YYYY format
     if ($dd < 10 && $dd !~ /^0/) { $dd .= "0" };	# add leading zero
     if ($mm < 10 && $mm !~ /^0/) { $mm .= "0" };	# add leading zero
     if ($yy < 100) {
@@ -118,7 +136,7 @@ sub dodate($)
     return $yy . "-" . $mm . "-" . $dd . "T" . $time;
 }
 
-# for stamp_style 1 or 2, -S and -t options ignored
+# for stamp_style 1 or 2 or 3, -S and -t options ignored
 # for stamp_style 2, -Z option ignored
 #
 sub check_opts()
@@ -379,6 +397,16 @@ while (<INFILE>) {
 	check_opts();
 	next;
     }
+    elsif ($line == 3 && /[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+
+	# -t option timestamp and ??? not sure ... but visible in
+	# https://bugzilla.redhat.com/show_bug.cgi?id=981545
+	# 2013-07-05 09:17:28
+	#
+	$stamp_style = 3;
+	check_opts();
+	next;
+    }
     elsif ($line == 3) {
 	# first group tag
 	$first_tag = $_;
@@ -409,6 +437,13 @@ while (<INFILE>) {
     }
     elsif ($stamp_style == 2) {
 	if (/[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9][-+][0-9]+/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 3) {
+	if (/[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
 	    $next_stamp = dodate($_);
 	    $next_now = str2time($next_stamp, $zone);
 	    $end_sample = 1;
@@ -449,7 +484,7 @@ while (<INFILE>) {
 		#
 		# PCP expects a $TZ style timezone in the archive label, so
 		# we have to make up a PCP-xx:xx timezone ... note this
-		# invloves a sign reversal!
+		# involves a sign reversal!
 		#
 		my $label_zone = $zone;
 		if ($zone =~ /^[-+][0-9][0-9][0-9][0-9]/) {
@@ -479,7 +514,7 @@ while (<INFILE>) {
 
 	# if timestamp, get onto real data in following lines
 	#
-	($stamp_style == 1 || $stamp_style == 2) and next;
+	($stamp_style == 1 || $stamp_style == 2 || $stamp_style == 3) and next;
     }
 
     if (/^Device:/) {
@@ -718,7 +753,7 @@ If I<infile> is E<quot>-E<quot> then I<iostat2pcp> reads for
 standard input, allowing easy preprocessing of the I<iostat>(1) output
 with I<sed>(1) or similar.
 
-The resultant PCP achive may be used with all the PCP client tools
+The resultant PCP archive may be used with all the PCP client tools
 to graph subsets of the data using B<pmchart>(1),
 perform data reduction and reporting, filter with
 the PCP inference engine B<pmie>(1), etc.
@@ -739,6 +774,37 @@ The best results are obtained when I<iostat>(1) was run with its own B<-t>
 flag, so each output sample is prefixed with a timestamp.  Even better
 is B<-t> with $B<S_TIME_FORMAT=ISO> set in environment when I<iostat>(1)
 is run, in which case the timestamp includes the timezone.
+
+Note that if $B<S_TIME_FORMAT=ISO> is B<not> used with the B<-t> option
+then I<iostat>(1) may produce a timestamp controlled by B<LC_TIME> from
+the locale that is in a format I<iostat2pcp> cannot parse.  The formats
+for the timestamp that I<iostat2pcp> accepts are illustrated by these
+examples:
+
+=over 4
+
+=item B<2013-07-06T21:34:39+1000>
+
+(for the $B<S_TIME_FORMAT=ISO>).
+
+=item B<2013-07-06 21:34:39>
+
+(for some of the European formats, e.g. de_AT,
+de_BE, de_LU and en_DK.utf8).
+
+=item B<06/07/13 21:34:39>
+
+(for all of the $B<LC_TIME> settings for English
+locales outside North America, e.g. en_AU, en_GB, en_IE, en_NZ,
+en_SG and en_ZA, and all the Spanish locales, e.g.  es_ES, es_MX and es_AR).
+
+=back
+
+In particular, note that some common North American $B<LC_TIME> settings will
+B<not> work with I<iostat2pcp> (namely, en_US, POSIX and C) because they
+use the MM/DD format which may be incorrectly converted with the
+assumed DD/MM format.  This is another reason to recommend setting
+$B<S_TIME_FORMAT=ISO>.
 
 If there are no timestamps in the input stream, I<iostat2pcp> will
 try and deduce the sample interval if basic Disk data (B<-d>
