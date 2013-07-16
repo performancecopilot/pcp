@@ -906,7 +906,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep unsetenv)
-AC_CHECK_FUNCS(gethostname select socket)
+AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
@@ -2041,6 +2041,19 @@ AC_TRY_COMPILE([
     #endif
 ], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
 AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check for Linux Unix Domain socket credential structure
+AC_MSG_CHECKING([for struct ucred in sys/socket.h])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+], [ struct ucred ucred; ucred.uid = 0; ],
+AC_DEFINE(HAVE_STRUCT_UCRED) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl check for struct timespec in <time.h>
 AC_MSG_CHECKING([for struct timespec in time.h])

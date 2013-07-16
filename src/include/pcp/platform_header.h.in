@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2003 Moser, Inc.  All Rights Reserved.
  * Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -202,9 +202,11 @@ extern "C" {
 #undef HAVE_MKTIME
 #undef HAVE_UNSETENV
 
-#undef HAVE_GETHOSTNAME
 #undef HAVE_SELECT
 #undef HAVE_SOCKET
+#undef HAVE_GETHOSTNAME
+#undef HAVE_GETPEERUCRED
+#undef HAVE_GETPEEREID
 
 #undef HAVE_UNAME
 #undef HAVE_SYSLOG
@@ -471,6 +473,7 @@ typedef void (*SIG_PF) (int);
 
 #undef HAVE_STRUCT_TIMESPEC
 #undef HAVE_STRUCT_SOCKADDR_UN
+#undef HAVE_STRUCT_UCRED
 
 #ifndef HAVE_VALLOC
 #define valloc(x) malloc(x)

@@ -1354,6 +1354,14 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char buffer[64];
+		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
+		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]",
+			clientID, buffer, (int)(ap - agent));
+	    }
+#endif
 	    if ((sts = ap->ipc.dso.dispatch.version.six.attribute(
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0,
@@ -1367,6 +1375,14 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char buffer[64];
+		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
+		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]",
+			clientID, buffer, (int)(ap - agent));
+	    }
+#endif
 	    if ((sts = __pmSendAuth(ap->inFd,
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0)) < 0)

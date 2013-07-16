@@ -1256,8 +1256,6 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		 */
 #ifdef IS_MINGW
 	    case SO_EXCLUSIVEADDRUSE: /* Only exists on MINGW */
-#else
-	    // case SO_PEERCRED: /* Does not exist on MINGW */
 #endif
 	    {
 		/*
@@ -1335,6 +1333,10 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 	switch (level) {
 	case SOL_SOCKET:
 	    switch(option_name) {
+
+#if defined(HAVE_STRUCT_UCRED)
+	    case SO_PEERCRED:
+#endif
 	    case SO_ERROR: {
 		/*
 		 * There is no direct mapping of this option in NSPR.
