@@ -383,8 +383,8 @@ __pmPMCDLocalSocketDefault(void)
 	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	else
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c%s.socket",
-		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), pmProgname);
+	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
+		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
     }
     PM_UNLOCK(__pmLock_libpcp);
 
