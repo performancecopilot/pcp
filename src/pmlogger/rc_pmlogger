@@ -104,7 +104,7 @@ _start_pmcheck()
     bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
     trap "rm -rf $bgtmp; exit \$bgstatus" 0 1 2 3 15
 
-    pmlogger_check $VFLAG >$bgtmp/pmcheck 2>&1
+    pmlogger_check $VFLAG >$bgtmp/pmcheck.out 2>$bgtmp/pmcheck
     bgstatus=$?
     if [ -s $bgtmp/pmcheck ]
     then

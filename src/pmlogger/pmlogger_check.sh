@@ -122,16 +122,16 @@ fi
 
 _error()
 {
-    echo "$prog: [$CONTROL:$line]"
-    echo "Error: $1"
-    echo "... logging for host \"$host\" unchanged"
+    echo 2>&1 "$prog: [$CONTROL:$line]"
+    echo 2>&1 "Error: $1"
+    echo 2>&1 "... logging for host \"$host\" unchanged"
     touch $tmp/err
 }
 
 _warning()
 {
-    echo "$prog [$CONTROL:$line]"
-    echo "Warning: $1"
+    echo 2>&1 "$prog [$CONTROL:$line]"
+    echo 2>&1 "Warning: $1"
 }
 
 _message()
