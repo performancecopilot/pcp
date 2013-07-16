@@ -302,7 +302,6 @@ ctxflags(__pmHashCtl *attrs)
 	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_AUTHNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
-	__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
 	flags |= PM_CTXFLAG_AUTH;
