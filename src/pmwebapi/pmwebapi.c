@@ -230,7 +230,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         __pmHashCtl hostAttrs;
         char *hostAttrsError;
 
-        memset (& hostAttrs, 0, sizeof(hostAttrs)); /* XXX: need to initialize? */
+	__pmHashInit (& hostAttrs);
         rc = __pmParseHostAttrsSpec (val, & hostSpec, & hostSpecCount,
                                      & hostAttrs, & hostAttrsError);
         if (rc == 0) {
@@ -240,6 +240,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
             node = __pmHashSearch (PCP_ATTR_PASSWORD, & hostAttrs);
             if (node) password = strdup (node->data);
             __pmFreeHostAttrsSpec (hostSpec, hostSpecCount, & hostAttrs);
+	    __pmHashClear (& hostAttrs);
         } else {
             /* Ignore the parse error at this stage; pmNewContext will give it to us. */
         }
