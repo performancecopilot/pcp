@@ -584,7 +584,6 @@ HandleReadyAgents(__pmFdSet *readyFds)
 
 		if (ap->ipcType != AGENT_DSO && sts <= 0)
 		    CleanupAgent(ap, reason, fd);
-
 	    }
 	}
     }
@@ -592,7 +591,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 }
 
 static void
-CheckNewClient(__pmFdSet * fdset, int rfd)
+CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 {
     int		s, sts, challenge, accepted = 1;
     ClientInfo	*cp;
@@ -603,6 +602,17 @@ CheckNewClient(__pmFdSet * fdset, int rfd)
 	    return;	/* Accept failed and no client added */
 
 	sts = __pmAccAddClient(cp->addr, &cp->denyOps);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	if (sts >= 0 && family == AF_UNIX) {
+	    if ((sts = __pmServerSetLocalCreds(cp->fd, &cp->attrs)) < 0) {
+		__pmNotifyErr(LOG_ERR,
+			"ClientLoop: error extracting local credentials: %s",
+			pmErrStr(sts));
+	    } else {
+		sts = AgentsAuthentication(cp - client);
+	    }
+	}
+#endif
 	if (sts >= 0) {
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
@@ -617,7 +627,6 @@ CheckNewClient(__pmFdSet * fdset, int rfd)
 	    sts = 0;
 	}
 	else {
-	    /* __pmAccAddClient failed, this is grim! */
 	    challenge = 0;
 	    accepted = 0;
 	}
