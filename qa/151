@@ -42,7 +42,7 @@ _filter()
 }
 
 status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
 
 # take explicit control of the umask
 #
@@ -149,7 +149,7 @@ ls -l $tmp >>$seq.full
 #
 echo
 echo "pmlogger_daily -k 4 -V ..." >>$seq.full
-pmlogger_daily -c $tmp/control -k 4 -V 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -V 2>&1 \
 | tee -a $tmp.full \
 | _filter \
 | $PCP_AWK_PROG '

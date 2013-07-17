@@ -43,7 +43,7 @@ _filter()
 }
 
 status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; $sudo mv $PCP_LOG_DIR/NOTICES.$$ $PCP_LOG_DIR/NOTICES; exit \$status" 0 1 2 3 15
 
 # take explicit control of the umask
 #
@@ -126,7 +126,7 @@ ls -l $tmp >>$seq.full
 # complexity at the end of this pipeline
 #
 echo
-pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
 | _filter \
 | $PCP_AWK_PROG '
 state == 0		{ print >"'$tmp.out.0'"

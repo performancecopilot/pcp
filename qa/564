@@ -16,7 +16,7 @@ _cleanup()
 {
     [ -d $tmp.distdir ] && rm -fr $tmp.distdir
     [ -d $tmp.relaydir ] && rm -fr $tmp.relaydir
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
 }
 
 status=1	# failure is the default!
@@ -67,7 +67,7 @@ STAMP=`pmdate -5m %Y%m%d`0010
 touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
 
 # real QA test starts here
-pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl | sed \
 	-e "s/$TODAY/TODAY/g" \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
