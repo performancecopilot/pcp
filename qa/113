@@ -15,6 +15,10 @@ seq=`basename $0`
 if [ $PCP_PLATFORM = solaris ]
 then
     _notrun No filesys metrics for Solaris
+elif [ $PCP_PLATFORM = linux ]
+then
+    loopcount=`$sudo losetup -a | wc -l`
+    [ $loopcount -eq 0 ] || _notrun "System has active loop devices, bailing"
 fi
 
 echo "QA output created by $seq"

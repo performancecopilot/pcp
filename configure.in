@@ -49,20 +49,20 @@ AC_ARG_WITH(
     [do_secure=check])
 
 AC_ARG_WITH(
-    [user-account],
-    [AS_HELP_STRING([--with-user-account],
+    [user],
+    [AS_HELP_STRING([--with-user],
 		    [user account under which daemons run (default is pcp)])],
-    [pcp_uname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
-    [pcp_uname=pcp])
-AC_SUBST(pcp_uname)
+    [pcp_user=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-user-account=$withval"],
+    [pcp_user=pcp])
+AC_SUBST(pcp_user)
 
 AC_ARG_WITH(
-    [group-account],
-    [AS_HELP_STRING([--with-group-account],
+    [group],
+    [AS_HELP_STRING([--with-group],
 		    [user group under which daemons run (default is pcp)])],
-    [pcp_gname=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"],
-    [pcp_gname=pcp])
-AC_SUBST(pcp_gname)
+    [pcp_group=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-group-account=$withval"],
+    [pcp_group=pcp])
+AC_SUBST(pcp_group)
 
 #
 # Note: the following environment variables may be
@@ -380,26 +380,26 @@ ld=$LD
 AC_SUBST(ld)
 
 dnl Provide ways to override owner and group for installed files
-if test -z "$PCP_OWNER" ; then
-    pcp_owner=root
+if test -z "$PCP_USER_INSTALL" ; then
+    pcp_user_install=root
 else
-    pcp_owner="$PCP_OWNER"
+    pcp_user_install="$PCP_USER_INSTALL"
 fi
-AC_SUBST(pcp_owner)
-if test -z "$PCP_GROUP" ; then
+AC_SUBST(pcp_user_install)
+if test -z "$PCP_GROUP_INSTALL" ; then
     case "$target_os"
     in
 	darwin|freebsd|netbsd)
-	    pcp_group=wheel
+	    pcp_group_install=wheel
 	    ;;
 	*)
-	    pcp_group=root
+	    pcp_group_install=root
 	    ;;
     esac
 else
-    pcp_group="$PCP_GROUP"
+    pcp_group_install="$PCP_GROUP_INSTALL"
 fi
-AC_SUBST(pcp_group)
+AC_SUBST(pcp_group_install)
 
 dnl check if the tar program is available
 if test -z "$TAR"; then
@@ -906,7 +906,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mktime nanosleep unsetenv)
-AC_CHECK_FUNCS(gethostname select socket)
+AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
 AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
@@ -2041,6 +2041,19 @@ AC_TRY_COMPILE([
     #endif
 ], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
 AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+
+dnl check for Linux Unix Domain socket credential structure
+AC_MSG_CHECKING([for struct ucred in sys/socket.h])
+AC_TRY_COMPILE([
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+], [ struct ucred ucred; ucred.uid = 0; ],
+AC_DEFINE(HAVE_STRUCT_UCRED) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
 dnl check for struct timespec in <time.h>
 AC_MSG_CHECKING([for struct timespec in time.h])

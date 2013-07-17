@@ -1,0 +1,29 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the mpstat(1) command
+force	available
+
+# -I -------------------------------------------------
+
+	kernel.percpu.interrupts
+
+# -u --------------------------------------------------
+
+	kernel.all.cpu.user 		# %usr
+	kernel.percpu.cpu.user
+	kernel.all.cpu.nice 		# %nice
+	kernel.percpu.cpu.nice
+	kernel.all.cpu.sys 		# %sys
+	kernel.percpu.cpu.sys
+	kernel.all.cpu.wait.total 	# %iowait
+	kernel.percpu.cpu.wait.total
+	kernel.all.cpu.intr		# %irq
+	kernel.percpu.cpu.intr
+	kernel.all.cpu.irq.soft		# %soft
+	kernel.percpu.cpu.irq.soft
+	kernel.all.cpu.steal		# %steal
+	kernel.percpu.cpu.steal
+	kernel.all.cpu.guest		# %guest
+	kernel.percpu.cpu.guest
+	kernel.all.cpu.idle		# %idle
+	kernel.percpu.cpu.idle
+

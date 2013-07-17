@@ -16,9 +16,11 @@ echo "QA output created by $seq"
 
 . ./localconfig
 rm -f $seq.out
-if [ -f $seq.$PCP_PLATFORM ]
+suffix=2
+[ $PCP_VER -lt 3802 ] && suffix=1
+if [ -f $seq.$PCP_PLATFORM.$suffix ]
 then
-    ln $seq.$PCP_PLATFORM $seq.out
+    ln $seq.$PCP_PLATFORM.$suffix $seq.out
 else
     echo "Arrgh ... need qualified output for $PCP_PLATFORM"
     exit 1
@@ -43,13 +45,17 @@ sed -e 's/:n:/:y:/' <$tmp.conf >$tmp.tmp
 mv $tmp.tmp $tmp.conf
 
 yes '' | pmlogconf $tmp.conf >$tmp.out
+( echo && echo "== TMP.OUT" ) >>$seq.full
 cat $tmp.out >>$seq.full
+( echo && echo "== TMP.CONF") >>$seq.full
 cat $tmp.conf >>$seq.full
+( echo && echo "== FILTERED") >>$seq.full
 
 sed -n <$tmp.conf \
     -e '/^[ 	]/{
 s/^[ 	]*//
 s/[ 	].*//
+/^#/d
 p
 }' \
 | LC_COLLATE=POSIX sort \

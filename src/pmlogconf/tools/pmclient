@@ -1,5 +1,6 @@
 #pmlogconf-setup 2.0
-ident	frequently sampled metrics for the pmclient(1) command
+ident	metrics sampled frequently by the pmclient(1) command
+force	available
 delta	5 second
 	kernel.all.load [ 1 15 ]
 	kernel.percpu.cpu.user

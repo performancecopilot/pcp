@@ -477,8 +477,8 @@ End-of-File
 #
 
 [access]
-disallow * : all except enquire;
-allow localhost : advisory;
+disallow * : all;
+allow localhost : enquire;
 End-of-File
 
 else

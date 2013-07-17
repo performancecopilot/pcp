@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -44,18 +45,6 @@ create a customized regime of administration and management for
 Performance Co-Pilot (see
 .BR PCPintro (1))
 archive log files.
-.PP
-.B pmlogger_daily ,
-.B pmlogger_check ,
-and
-.B pmlogger_merge
-are equivalent to the scripts
-.BR cron.pmdaily ,
-.BR cron.pmcheck
-and
-.BR cron.pmlogmerge 
-which are deprecated but preserved on some older platforms
-for backward compatibility.
 .PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
@@ -217,8 +206,7 @@ $ PMCD_CONNECT_TIMEOUT=20
 .BR Warning :
 The
 .B $PCP_PMLOGGERCONTROL_PATH
-file is a potential security risk and should not be writable by any user other
-than root.
+file must not be writable by any user other than root.
 .br
 .IP 3.
 There
@@ -340,69 +328,27 @@ and
 .B pmlogger_check
 are given in
 .BR $PCP_SYSCONF_DIR/pmlogger/crontab
+(unless installed by default in
+.I /etc/cron.d
+already)
 and shown below.
-Due to the file permissions involved, these should be added to the
-.I crontab
-for root if automated PCP archive log maintenance is desired.
 .PP
 .nf
 .ft CW
 # daily processing of archive logs
 14      0       *       *       *       $PCP_BINADM_DIR/pmlogger_daily
 # every 30 minutes, check pmlogger instances are running
-28,58   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
+25,55   *       *       *       *       $PCP_BINADM_DIR/pmlogger_check
 .ft 1
 .fi
 .PP
-Alternate redirection of the output from the
+The output from the
 .BR cron (1)
-execution of the scripts may be controlled as follows:
-.IP (1) 4n
-The
+execution of the scripts may be extended using the
 .B \-V
-option to the scripts will enable verbose tracing of their activity.
+option to the scripts which will enable verbose tracing of their activity.
 By default the scripts generate no output unless some error or warning condition is
 encountered.
-.IP (2)
-To redirect the e-mail from
-.BR cron (1)
-away from the root login,
-.RS +4n
-.IP + 2n
-Instead of using the ``root'' login,
-create a special login with uid equal to 0, e.g. \c
-.BR su_pcp .
-The password may be locked and/or the shell invalid to prevent login
-or
-.B su (1),
-but the home directory should exist.
-For example the following entry in
-.BR /etc/passwd :
-
-.ti +4n
-.ft CW
-.nf
-su_pcp:x:0:0:PCP Housekeeping:/usr/people/su_pcp:/dev/null
-.fi
-.IP +
-.ft R
-Create a
-.B $HOME/.forward
-for
-.BR su_pcp ,
-else an entry in
-.B /usr/lib/aliases
-for
-.BR su_pcp ,
-redirecting the e-mail to a real user or user(s).
-.IP +
-Add the ``crontab'' entries above to the crontab file for
-.B su_pcp
-not
-.BR root ,
-e.g. in the file
-.B /usr/spool/cron/crontabs/su_pcp
-.RE
 .PP
 The
 .B \-N
@@ -477,22 +423,18 @@ end-of-week and/or end-of-month management for a set of PCP archives.
 the PCP logger control file
 .br
 .BR Warning :
-this file is a potential security risk and should not be writable by any user
-other than root.
+this file must not be writable by any user other than root.
 .TP
 .B $PCP_SYSCONF_DIR/pmlogger/crontab
-sample crontab for automated script execution by root
+sample crontab for automated script execution by $PCP_USER (or root).
+Exists only if the platform does not support the /etc/cron.d mechanism.
 .TP
 .B $PCP_SYSCONF_DIR/pmlogger/config.default
 default
 .B pmlogger
-configuration file for the local primary logger
-.TP
-.BI $PCP_SYSCONF_DIR/pmlogger/ config.*
-other
-.B pmlogger
-configuration files suited for particular PCP monitoring tools,
-add-on products and application environments
+configuration file location for the local primary logger, typically
+generated automatically by
+.BR pmlogconf (1).
 .TP
 .BI $PCP_LOG_DIR/pmlogger/ hostname
 default location for archives of performance information collected from the host
@@ -540,8 +482,10 @@ as described in
 .BR egrep (1),
 .BR PCP (1),
 .BR pmlc (1),
+.BR pmlogconf (1),
 .BR pmlogger (1),
 .BR pmlogmerge (1),
+.BR pmlogrewrite (1),
 .BR pmnewlog (1)
 and
 .BR pmsocks (1).

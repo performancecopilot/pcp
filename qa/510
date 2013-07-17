@@ -15,7 +15,7 @@ seq=`basename $0`
 
 echo "QA output created by $seq"
 
-status=0	# success is the default!
+status=1
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 needclean=true
@@ -30,6 +30,7 @@ _cleanup()
 	    $sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
 	fi
 	needclean=false
+	_restore_primary_logger
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     fi
@@ -48,6 +49,7 @@ $sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
 sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' <$PCP_PMLOGGERCONTROL_PATH >$tmp.control
 $sudo mv $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
 $sudo mv $tmp.control $PCP_PMLOGGERCONTROL_PATH
+_writable_primary_logger
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
@@ -60,4 +62,5 @@ query sample.event
 End-of-File
 
 # success, all done
+status=0
 exit

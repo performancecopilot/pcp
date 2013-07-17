@@ -13,7 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+_cleanup()
+{
+    _restore_primary_logger
+    rm -f $tmp $tmp.*
+    exit $status
+}
+
+status=1
+rm -f $seq.full
+trap "_cleanup" 0 1 2 3 15
 
 _filter_pmlc()
 {
@@ -31,10 +40,7 @@ _filter_pmlc()
 signal=$PCP_BINADM_DIR/pmsignal
 
 # real QA test starts here
-
-# unconditionally restart pmcd and pmlogger so avoid fd leak
-# problems in buggy flexlm code
-#
+_writable_primary_logger
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
@@ -128,3 +134,6 @@ log mandatory maybe {
 End-of-File
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
+
+status=0
+exit

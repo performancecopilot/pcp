@@ -57,6 +57,11 @@ __pmTPDGet(void)
 #define PM_TPD(x) x
 #endif
 
+/* AF_UNIX socket family internals */
+#define PM_HOST_SPEC_NPORTS_LOCAL (-1)
+#define PM_HOST_SPEC_NPORTS_UNIX  (-2)
+extern const char *__pmPMCDLocalSocketDefault(void);
+
 #ifdef SOCKET_INTERNAL
 #ifdef HAVE_SECURE_SOCKETS
 #include <nss.h>
@@ -78,12 +83,20 @@ typedef PRAddrInfo __pmAddrInfo;
 /* internal NSS/NSPR/SSL/SASL implementation details */
 extern int __pmSecureSocketsError(int);
 
-#else
+#else /* native sockets only */
+
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
+
 struct __pmSockAddr {
     union {
 	struct sockaddr	        raw;
 	struct sockaddr_in	inet;
 	struct sockaddr_in6	ipv6;
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	struct sockaddr_un	local;
+#endif
     } sockaddr;
 };
 
@@ -99,7 +112,7 @@ struct __pmHostEnt {
 
 extern int __pmInitSecureSockets(void);
 extern int __pmInitCertificates(void);
-extern int __pmInitSocket(int);
+extern int __pmInitSocket(int, int);
 extern int __pmSocketReady(int, struct timeval *);
 extern int __pmSocketClosed(void);
 extern int __pmConnectCheckError(int);

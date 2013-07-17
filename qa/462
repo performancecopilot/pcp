@@ -156,7 +156,8 @@ else
    echo "pmcd_wait failed as expected for sleeping pmcd - over timeout"
    echo ""
 fi
-_filter <$tmp.stop.out
+_filter <$tmp.stop.out \
+| sed -e '/pmlogger not running/d'
 _filter <$tmp.start.out
 
 wait $pid # for background processs, "pcp start" to finish

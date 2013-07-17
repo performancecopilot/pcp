@@ -1,0 +1,19 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the ip(1) command
+force	available
+
+# -s link  -------------------------------------------------
+
+	network.interface.mtu
+	network.interface.out.bytes
+	network.interface.out.packets
+	network.interface.out.errors
+	network.interface.out.drops
+	network.interface.out.carrier
+	network.interface.collisions
+	network.interface.in.bytes
+	network.interface.in.packets
+	network.interface.in.errors
+	network.interface.in.drops
+	network.interface.total.mcasts
+

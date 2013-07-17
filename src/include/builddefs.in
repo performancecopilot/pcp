@@ -159,7 +159,7 @@ GREP    = @grep@
 GIT	= @GIT@
 
 INSTALL_SH = $(TOPDIR)/install-sh
-INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
+INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
 
 CCF	= $(CC) $(CFLAGS)
 # NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
@@ -549,8 +549,10 @@ endif
 # Targets needing this should depend on $(_FORCE)
 _FORCE = __force_build
 
-PCP_OWNER = @pcp_owner@
+PCP_USER = @pcp_user@
 PCP_GROUP = @pcp_group@
+PCP_USER_INSTALL = @pcp_user_install@
+PCP_GROUP_INSTALL = @pcp_group_install@
 
 PCPLIB = -lpcp
 ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"

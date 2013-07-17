@@ -97,7 +97,7 @@ AcceptNewClient(int reqfd)
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept: %s\n",
-	    reqfd, netstrerror());
+			    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
 	}

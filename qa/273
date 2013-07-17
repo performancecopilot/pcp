@@ -52,9 +52,16 @@ else
     ln $seq.out.1 $seq.out || exit 1
 fi
 
-status=0	# success is the default!
+_cleanup()
+{
+    _restore_primary_logger
+    rm -f $tmp.*
+    exit $status
+}
+
+status=1
 $sudo rm -rf $tmp.* $seq.full 
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup" 0 1 2 3 15
 
 _filter()
 {
@@ -112,6 +119,11 @@ then
 fi
 
 # real QA test starts here
+_change_config pmcd on
+_change_config pmlogger on
+_writable_primary_logger
+$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+_wait_for_pmlogger
 
 # help.c
 #
@@ -272,4 +284,5 @@ $sudo src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmd
 cat $tmp.err $tmp.out | _filter2
 
 # success, all done
+status=0
 exit

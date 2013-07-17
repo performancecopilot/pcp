@@ -12,6 +12,8 @@
  * License for more details.
  */
 
+#include <sys/stat.h> 
+
 #include "pmapi.h"
 #include "impl.h"
 #define SOCKET_INTERNAL
@@ -46,6 +48,12 @@ static char	**intflist;
  */
 static int	nport;
 static int	*portlist;
+
+/*
+ * The unix domain socket we're willing to listen for clients on, from -s (or env)
+ */
+static const char *localSocketPath;
+static int   localSocketFd = -EPROTO;
 
 int
 __pmServerAddInterface(const char *address)
@@ -83,6 +91,15 @@ __pmServerAddPorts(const char *ports)
 	p = &endptr[1];
     }
     return nport;
+}
+
+void
+__pmServerSetLocalSocket(const char *path)
+{
+    if (path != NULL && *path != '\0')
+	localSocketPath = strdup(path);
+    else
+	localSocketPath = __pmPMCDLocalSocketDefault();
 }
 
 /* Increase the capacity of the reqPorts array (maintain the contents) */
@@ -167,10 +184,14 @@ SetupRequestPorts(void)
 static const char *
 AddressFamily(int family)
 {
-    if (family == AF_INET)
+    if (family ==  AF_INET)
 	return "inet";
     if (family == AF_INET6)
 	return "ipv6";
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (family == AF_UNIX)
+	return "unix";
+#endif
     return "unknown";
 }
 
@@ -178,13 +199,17 @@ AddressFamily(int family)
  * Create socket for incoming connections and bind to it an address for
  * clients to use.  Returns -1 on failure.
  *
+ * If '*family' is AF_UNIX and unix domain sockets are supported:
+ * 'port' is ignored and 'address' is the path to the socket file in the filesystem.
+ *
+ * Otherwise:
  * address is a string representing the Inet/IPv6 address that the port
  * is advertised for.  To allow connections to all this host's internet
  * addresses from clients use address = "INADDR_ANY".
- * On input, 'family' is a pointer to the address family to use (AF_INET
- * or AF_INET6) if the address specified is empty.  If the spec is not
+ * On input, 'family' is a pointer to the address family to use (AF_INET,
+ * AF_INET6) if the address specified is empty.  If the spec is not
  * empty then family is ignored and is set to the actual address family
- * used.
+ * used. 'family' must be initialized to AF_UNSPEC, in this case.
  */
 static int
 OpenRequestSocket(int port, const char *address, int *family,
@@ -193,33 +218,58 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			fd = -1;
     int			one, sts;
     __pmSockAddr	*myAddr;
-
-    if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-		      port, address);
-	goto fail;
-    }
+    int			isUnix = 0;
 
     /*
-     * If the address is unspecified, then use the address family we
-     * have been given, otherwise the family will be determined by
-     * __pmStringToSockAddr.
+     * Using this flag will eliminate the need for more conditional
+     * compilation below, hopefully making the code easier to read and maintain.
      */
-    if (address == NULL || strcmp(address, "INADDR_ANY") == 0)
-        __pmSockAddrSetFamily(myAddr, *family);
-    else
-        *family = __pmSockAddrGetFamily(myAddr);
-    __pmSockAddrSetPort(myAddr, port);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (*family == AF_UNIX)
+	isUnix = 1;
+#endif
 
-    /* Create the socket. */
-    if (*family == AF_INET)
-        fd = __pmCreateSocket();
-    else if (*family == AF_INET6)
-        fd = __pmCreateIPv6Socket();
+    if (isUnix) {
+	if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+	    __pmNoMem("OpenRequestSocket: can't allocate socket address",
+		      sizeof(*myAddr), PM_FATAL_ERR);
+	}
+
+	/* Initialize the address. */
+	__pmSockAddrSetFamily(myAddr, *family);
+	__pmSockAddrSetPath(myAddr, address);
+
+	/* Create the socket. */
+	fd = __pmCreateUnixSocket();
+    }
     else {
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address family: %d\n",
-		      port, address, *family);
-	goto fail;
+	if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+			  port, address);
+	    goto fail;
+	}
+
+	/*
+	 * If the address is unspecified, then use the address family we
+	 * have been given, otherwise the family will be determined by
+	 * __pmStringToSockAddr.
+	 */
+	if (address == NULL || strcmp(address, "INADDR_ANY") == 0)
+	    __pmSockAddrSetFamily(myAddr, *family);
+	else
+	    *family = __pmSockAddrGetFamily(myAddr);
+	__pmSockAddrSetPort(myAddr, port);
+
+	/* Create the socket. */
+	if (*family == AF_INET)
+	    fd = __pmCreateSocket();
+	else if (*family == AF_INET6)
+	    fd = __pmCreateIPv6Socket();
+	else {
+	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address family: %d\n",
+			  port, address, *family);
+	    goto fail;
+	}
     }
 
     if (fd < 0) {
@@ -228,22 +278,22 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-    /* Ignore dead client connections */
+    /* Ignore dead client connections. */
     one = 1;
 #ifndef IS_MINGW
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&one,
-		(__pmSockLen)sizeof(one)) < 0) {
+		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
+		      port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #else
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&one,
-		(__pmSockLen)sizeof(one)) < 0) {
+		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
-		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
+		      port, address, AddressFamily(*family), netstrerror());
 	goto fail;
     }
 #endif
@@ -269,6 +319,21 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
+    if (isUnix) {
+	/*
+	 * For unix domain sockets, grant rw access to the socket for all,
+	 * otherwise, on linux platforms, connection will not be possible.
+	 * This must be done AFTER binding the address. See Unix(7) for details.
+	 */
+	sts = chmod(address, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	if (sts != 0) {
+	    __pmNotifyErr(LOG_ERR,
+		"OpenRequestSocket(%d, %s, %s) chmod(%s): %s\n",
+		port, address, AddressFamily(*family), address, strerror(errno));
+	    goto fail;
+	}
+    }
+
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
@@ -282,8 +347,12 @@ OpenRequestSocket(int port, const char *address, int *family,
     return fd;
 
 fail:
-    if (fd != -1)
+    if (fd != -1) {
         __pmCloseSocket(fd);
+	/* We must unlink the socket file. */
+	if (isUnix)
+	    unlink(address);
+    }
     if (myAddr)
         __pmSockAddrFree(myAddr);
     return -1;
@@ -291,7 +360,9 @@ fail:
 
 /*
  * Open request ports for client connections.
- * Open an inet and an IPv6 socket for clients, if appropriate.
+ * For each request port, open an inet and IPv6 (if supported) socket
+ * for clients. Also open a local unix domain socket, if it has been
+ * specified
  */
 static int
 OpenRequestPorts(__pmFdSet *fdset, int backlog)
@@ -327,6 +398,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		rp->fds[IPV6_FD] = -EPROTO;
 	}
 	else {
+	    family = AF_UNSPEC;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
@@ -340,6 +412,21 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	    }
 	}
     }
+
+    /* Open a local unix domain socket, if specified, and supported. */
+    if (localSocketPath != NULL) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	family = AF_UNIX;
+	if ((localSocketFd = OpenRequestSocket(0, localSocketPath, &family,
+					       backlog, fdset, &maximum)) >= 0) {
+	    success = 1;
+	}
+#else
+	__pmNotifyErr(LOG_ERR, "%s: unix domain sockets are not supported\n",
+		      pmProgname);
+#endif
+    }
+
     if (success)
 	return maximum;
 
@@ -369,6 +456,16 @@ __pmServerCloseRequestPorts(void)
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
+    if (localSocketFd >= 0) {
+        __pmCloseSocket(localSocketFd);
+
+	/* We must remove the socket file. */
+	if (unlink(localSocketPath) != 0) {
+	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
+			  pmProgname, localSocketPath, getuid(), geteuid(),
+			  strerror(errno));
+	}
+    }
 }
 
 /*
@@ -379,13 +476,74 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
 {
     int i, fd;
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /* Check the local unix domain fd. */
+    if (localSocketFd >= 0)
+	NewClient(fdset, localSocketFd, AF_UNIX);
+#endif
+
     for (i = 0; i < nReqPorts; i++) {
-	/* Check both the inet and ipv6 fds. */
+	/* Check the inet and ipv6 fds. */
 	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
-	    NewClient(fdset, fd);
+	    NewClient(fdset, fd, AF_INET);
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
-	    NewClient(fdset, fd);
+	    NewClient(fdset, fd, AF_INET6);
     }
+}
+
+static int
+SetCredentialAttrs(__pmHashCtl *attrs, unsigned int uid, unsigned int gid)
+{
+    char name[32], *namep;
+
+    snprintf(name, sizeof(name), "%u", uid);
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+        __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+
+    snprintf(name, sizeof(name), "%u", gid);
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+        __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+
+    return 0;
+}
+
+/*
+ * Set local connection credentials into given hash structure
+ */
+int
+__pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
+{
+#if defined(HAVE_STRUCT_UCRED)		/* Linux */
+    struct ucred ucred;
+    __pmSockLen length = sizeof(ucred);
+
+    if (__pmGetSockOpt(fd, SOL_SOCKET, SO_PEERCRED, &ucred, &length) < 0)
+	return -oserror();
+    return SetCredentialAttrs(attrs, ucred.uid, ucred.gid);
+
+#elif defined(HAVE_GETPEEREID)		/* MacOSX */
+    uid_t uid;
+    gid_t gid;
+
+    if (getpeereid(__pmFD(fd), &uid, &gid) < 0)
+	return -oserror();
+    return SetCredentialAttrs(attrs, uid, gid);
+
+#elif defined(HAVE_GETPEERUCRED)	/* Solaris */
+    unsigned int uid, gid;
+    ucred_t ucred;
+
+    if (getpeerucred(__pmFD(fd), &ucred) < 0)
+	return -oserror();
+    uid = ucred_geteuid(&ucred);
+    gid = ucred_getegid(&ucred);
+    return SetCredentialAttrs(attrs, uid, gid);
+
+#else
+    return -EOPNOTSUPP;
+#endif
 }
 
 static const char *
@@ -407,6 +565,12 @@ __pmServerDumpRequestPorts(FILE *stream)
 	  "  sts fd   port  family address\n"
 	  "  === ==== ===== ====== =======\n", pmProgname);
 
+    if (localSocketFd != -EPROTO)
+	fprintf(stderr, "  %-3s %4d %5s %-6s %s\n",
+		(localSocketFd != -1) ? "ok" : "err",
+		localSocketFd, "", "unix",
+		localSocketPath);
+
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
 	for (j = 0; j < FAMILIES; j++) {
@@ -423,6 +587,12 @@ char *
 __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 {
     int i, j;
+
+    if (fd == localSocketFd) {
+	snprintf(buffer, sz, "%s unix request socket %s",
+		 pmProgname, localSocketPath);
+	return buffer;
+    }
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo *rp = &reqPorts[i];
