@@ -91,13 +91,13 @@ EOF
 echo "--------------"
 echo "PMLOGGER.CHECK"
 echo "--------------"
-$PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control 2>&1 | _filter
 
 echo
 echo "--------------"
 echo "PMLOGGER.DAILY"
 echo "--------------"
-$PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control 2>&1 | _filter
 
 # success, all done
 status=0

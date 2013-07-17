@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
 # check for new version ... may need -o to force "old style" behaviour
@@ -97,6 +97,6 @@ done
 echo "done, now=$now" >>$seq.full
 
 # real QA test starts here
-pmlogger_daily $oflag -k 550 -N -c $tmp.control 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -k 550 -N -c $tmp.control 2>&1 \
 | tee -a $seq.full \
 | _filter
