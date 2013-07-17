@@ -27,7 +27,7 @@ unset PCP_STDERR
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
 echo >$tmp/lock
-trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $PCP_RUN_DIR/pmlogger_daily $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 if is_chkconfig_on pmlogger
@@ -341,6 +341,16 @@ then
 	fi
     fi
 fi
+
+# Keep our pid in $PCP_RUN_DIR/pmlogger_daily ... this is checked by
+# pmlogger_check when it fails to obtain the lock should it be run
+# while pmlogger_daily is running
+#
+# $PCP_RUN_DIR creation is also done in pmcd startup, but pmcd may
+# not be running on this system
+#
+[ -d "$PCP_RUN_DIR" ] || mkdir -p -m 755 "$PCP_RUN_DIR"
+echo $$ >"$PCP_RUN_DIR"/pmlogger_daily
 
 # note on control file format version
 #  1.0 was shipped as part of PCPWEB beta, and did not include the

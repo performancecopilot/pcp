@@ -124,16 +124,16 @@ fi
 
 _error()
 {
-    echo "$prog: [$CONTROL:$line]"
-    echo "Error: $1"
-    echo "... logging for host \"$host\" unchanged"
+    echo 2>&1 "$prog: [$CONTROL:$line]"
+    echo 2>&1 "Error: $1"
+    echo 2>&1 "... logging for host \"$host\" unchanged"
     touch $tmp/err
 }
 
 _warning()
 {
-    echo "$prog [$CONTROL:$line]"
-    echo "Warning: $1"
+    echo 2>&1 "$prog [$CONTROL:$line]"
+    echo 2>&1 "Warning: $1"
 }
 
 _message()
@@ -514,6 +514,22 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	then
 	    # failed to gain mutex lock
 	    #
+	    # maybe pmlogger_daily is running ... check and silently
+	    # move on if this is the case
+	    #
+	    if [ -f "$PCP_RUN_DIR"/pmlogger_daily ]
+	    then
+		# maybe, check pid matches a running /bin/sh
+		#
+		pid=`cat "$PCP_RUN_DIR"/pmlogger_daily`
+		if _get_pids_by_name sh | grep "^$pid\$" >/dev/null
+		then
+		    # seems to be still running ... nothing for us to see
+		    # or do here
+		    #
+		    continue
+		fi
+	    fi
 	    if [ -f lock ]
             then
                 echo "$prog: Warning: is another PCP cron job running concurrently?"
