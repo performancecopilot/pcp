@@ -362,7 +362,7 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void**)&fs);
         if (sts < 0)
             return sts;
-        return gfs2_locktime_fetch(idp->item, &fs->lock_time, atom);
+        return gfs2_lock_time_fetch(idp->item, &fs->lock_time, atom);
 
     case CLUSTER_CONTROL:
         switch (idp->item) {

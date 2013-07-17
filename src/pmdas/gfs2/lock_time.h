@@ -57,7 +57,7 @@ struct lock_time {
     __int64_t queue;         /* Count of gfs2_holder queues */
 };
 
-extern int gfs2_locktime_fetch(int, struct lock_time *, pmAtomValue *);
+extern int gfs2_lock_time_fetch(int, struct lock_time *, pmAtomValue *);
 extern int gfs2_refresh_lock_time(pmInDom, pmInDom);
 
 #endif /* LOCK_TIME_H */
