@@ -327,12 +327,14 @@ typedef enum {
     PM_HASH_WALK_DELETE_STOP,
 } __pmHashWalkState;
 
+extern void __pmHashInit(__pmHashCtl *);
 typedef __pmHashWalkState (*__pmHashWalkCallback)(const __pmHashNode *, void *);
 extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
 extern int __pmHashDel(unsigned int, void *, __pmHashCtl *);
+extern void __pmHashClear(__pmHashCtl *);
 
 /*
  * External file and internal (below PMAPI) format for an archive label

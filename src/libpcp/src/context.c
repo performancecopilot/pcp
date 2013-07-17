@@ -302,6 +302,8 @@ ctxflags(__pmHashCtl *attrs)
 	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_AUTHNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL ||
+	__pmHashSearch(PCP_ATTR_LOCAL, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
 	flags |= PM_CTXFLAG_AUTH;
@@ -382,6 +384,7 @@ INIT_CONTEXT:
 	char		*errmsg;
 
 	/* break down a host[:port@proxy:port][?attributes] specification */
+	__pmHashInit(attrs);
 	sts = __pmParseHostAttrsSpec(name, &hosts, &nhosts, attrs, &errmsg);
 	if (sts < 0) {
 	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
@@ -424,6 +427,7 @@ INIT_CONTEXT:
 	    sts = __pmConnectPMCD(hosts, nhosts, new->c_flags, &new->c_attrs);
 	    if (sts < 0) {
 		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+		__pmHashClear(attrs);
 		goto FAILED;
 	    }
 
@@ -432,6 +436,7 @@ INIT_CONTEXT:
 		sts = -oserror();
 		__pmCloseSocket(sts);
 		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+		__pmHashClear(attrs);
 		goto FAILED;
 	    }
 	    new->c_pmcd->pc_fd = sts;
@@ -443,6 +448,7 @@ INIT_CONTEXT:
 	else {
 	    /* duplicate of an existing context, don't need the __pmHostSpec */
 	    __pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+	    __pmHashClear(attrs);
 	}
 	new->c_pmcd->pc_refcnt++;
     }
