@@ -517,11 +517,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    # maybe pmlogger_daily is running ... check and silently
 	    # move on if this is the case
 	    #
-	    if [ -f "$PCP_RUN_DIR"/pmlogger_daily ]
+	    if [ -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
 	    then
 		# maybe, check pid matches a running /bin/sh
 		#
-		pid=`cat "$PCP_RUN_DIR"/pmlogger_daily`
+		pid=`cat "$PCP_RUN_DIR"/pmlogger_daily.pid`
 		if _get_pids_by_name sh | grep "^$pid\$" >/dev/null
 		then
 		    # seems to be still running ... nothing for us to see
