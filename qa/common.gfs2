@@ -93,10 +93,11 @@ _setup_gfs2_tracepoints()
     enable_tracing=$1
     [ "X$enable_tracing" == X ] && enable_tracing=false
 
-    $enable_tracing || continue
-    echo "enabling gfs2_glock_lock_time tracepoint"
     file=/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time/enable
     [ -f $file ] || _notrun "Cannot enable gfs2_glock_lock_time tracepoint"
+
+    $enable_tracing || continue
+    echo "enabling gfs2_glock_lock_time tracepoint"
     $sudo sh -c "echo 1 > $file"
 }
 

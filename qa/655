@@ -28,6 +28,7 @@ echo "QA output created by $seq"
 _gfs2_filesystem_support_tests
 _debugfs_mount_tests
 _gfs2_tracepoints_support_tests
+_setup_gfs2_tracepoints false
 
 # check for any loopback devices, cowardly abort this test if any exist
 loopcount=`$sudo losetup -a | wc -l`
@@ -44,6 +45,8 @@ touch $here/$seq.full
 # real QA test starts here
 _prepare_pmda_install $iam
 _install_pmda
+
+cd $here
 _setup_gfs2_tracepoints true
 
 echo
