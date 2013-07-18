@@ -59,8 +59,14 @@ static const char *locktype[] = {
 int
 gfs2_sbstats_fetch(int item, struct sbstats *fs, pmAtomValue *atom)
 {
+    /* Check for valid metric count */
     if (item < 0 || item >= SBSTATS_COUNT)
 	return PM_ERR_PMID;
+
+    /* Check for no values recorded */
+    if(fs->values[item] == UINT64_MAX)
+        return 0;
+
     atom->ull = fs->values[item];
     return 1;
 }
@@ -72,13 +78,21 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
     char buffer[4096];
     FILE *fp;
 
-    memset(sb, 0, sizeof(*sb));	/* reset all counters for this filesystem */
+    /* Reset all counter for this fs */
+    memset(sb, 0, sizeof(*sb));
 
     snprintf(buffer, sizeof(buffer), "%s/%s/sbstats", sysfs, name);
     buffer[sizeof(buffer)-1] = '\0';
 
-    if ((fp = fopen(buffer, "r")) == NULL)
+    if ((fp = fopen(buffer, "r")) == NULL){
+        /*
+         * We set the values to UINT64_MAX to signify we have no
+         * current values (no metric support or debugfs not mounted)
+         *
+         */
+        memset(sb, -1, sizeof(*sb));
 	return -oserror();
+    }
 
     /*
      * Read through sbstats file one line at a time.  This is called on each
@@ -231,7 +245,7 @@ sbstats_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
     snprintf(text, sizeof(text), "%s for %s glocks",
 	     stattext[item % NUM_LOCKSTATS], locktype[item / NUM_LOCKSTATS]);
 
-     *buf = text;
+    *buf = text;
 
     return 0;
 }

@@ -38,7 +38,7 @@ static int lock_compare(struct lock_time *, struct lock_time *);
  *
  */
 int 
-gfs2_locktime_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
+gfs2_lock_time_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
 {
     /* Check to see if we have values to assign */
     if (glstats->lock_type >= TYPENUMBER_TRANS && glstats->lock_type <= TYPENUMBER_JOURNAL){

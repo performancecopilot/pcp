@@ -37,17 +37,40 @@
  */
 
 int
+gfs2_glstats_fetch(int item, struct glstats *glstats, pmAtomValue *atom)
+{
+    /* Handle the case for our reserved but not used glock type 7 */
+    if ((item < 0 || item >= NUM_GLSTATS_STATS) && item != 7)
+	return PM_ERR_PMID;
+
+    /* Check for no values recorded */
+    if(glstats->values[item] == UINT64_MAX)
+        return 0;
+
+    atom->ull = glstats->values[item];
+    return 1;
+}
+
+int
 gfs2_refresh_glstats(const char *sysfs, const char *name, struct glstats *glstats){
     char buffer[4096];
     FILE *fp;
 
-    memset(glstats, 0, sizeof(*glstats)); /* Reset all counter for this fs */
+    /* Reset all counter for this fs */
+    memset(glstats, 0, sizeof(*glstats));
 
     snprintf(buffer, sizeof(buffer), "%s/%s/glstats", sysfs, name);
     buffer[sizeof(buffer) - 1] = '\0';
 
-    if ((fp = fopen(buffer, "r")) == NULL)
+    if ((fp = fopen(buffer, "r")) == NULL){
+        /*
+         * We set the values to UINT64_MAX to signify we have no
+         * current values (no metric support or debugfs not mounted)
+         *
+         */
+        memset(glstats, -1, sizeof(*glstats));
 	return -oserror();
+    }
 
     /*
      * We read through the glstats file, finding out what glock types we are
@@ -91,13 +114,4 @@ gfs2_refresh_glstats(const char *sysfs, const char *name, struct glstats *glstat
 
     fclose(fp);
     return 0;
-}
-
-int
-gfs2_glstats_fetch(int item, struct glstats *glstats, pmAtomValue *atom){
-    /* Handle the case for our reserved but not used glock type 7 */
-    if ((item < 0 || item >= NUM_GLSTATS_STATS) && item != 7)
-	return PM_ERR_PMID;
-    atom->ull = glstats->values[item];
-    return 1;
 }
