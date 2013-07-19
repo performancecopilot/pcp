@@ -5,13 +5,22 @@
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
+# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3802 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
@@ -58,7 +67,9 @@ fi
 echo
 echo "Check pmpost messages ..."
 grep bozo $PCP_LOG_DIR/NOTICES \
-| sed -e 's/^[0-9][0-9]*:[0-9][0-9]*/TIME/'
+| sed \
+    -e 's/^[0-9][0-9]*:[0-9][0-9]*/TIME/' \
+    -e 's/\(check for host \).*/\1HOSTNAME/'
 
 # success, all done
 exit
