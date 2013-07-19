@@ -640,10 +640,12 @@ typedef enum {
     PM_SERVER_FEATURE_COMPRESS,
     PM_SERVER_FEATURE_IPV6,
     PM_SERVER_FEATURE_AUTH,
+    PM_SERVER_FEATURE_CREDS_REQD,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
 extern int __pmServerHasFeature(__pmServerFeature);
+extern int __pmServerSetFeature(__pmServerFeature);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);
@@ -745,6 +747,7 @@ typedef struct {
 #define PDU_FLAG_SECURE		(1U<<0)
 #define PDU_FLAG_COMPRESS	(1U<<1)
 #define PDU_FLAG_AUTH		(1U<<2)
+#define PDU_FLAG_CREDS_REQD	(1U<<3)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
