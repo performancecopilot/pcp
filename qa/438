@@ -5,12 +5,20 @@
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
-# get standard environment, filters and checks
+# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
 seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3802 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
 
 echo "QA output created by $seq"
 
@@ -40,9 +48,10 @@ for i in src/badlen-*.0
 do
     [ "$i" = "src/badlen-0.0" ] && continue
     i=`echo $i | sed -e 's/\.0$//'`
-    echo
-    echo "--- $i ---"
+    echo | tee -a $seq.full
+    echo "--- $i ---" | tee -a $seq.full
     pmdumplog -Dlog $i 2>&1 \
+    | tee -a $seq.full \
     | _filter
 done
 
