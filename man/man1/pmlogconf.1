@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,7 +19,7 @@
 \f3pmlogconf\f1 \- create/edit a pmlogger configuration file
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmlogconf\f1
-[\f3\-qrv\f1]
+[\f3\-cqrv\f1]
 [\f3\-d\f2 groupsdir\f1]
 [\f3\-h\f2 hostname\f1]
 \f2configfile\f1
@@ -101,6 +102,11 @@ is one of the keywords
 .BR minute ,
 .BR hour
 or the plural form of one of the keywords.
+.PP
+When run from automated logging setup processes, the
+.B \-c
+option is used to add a message and timestamp indicating this fact.
+This option is not appropriate for interactive use of the tool.
 .PP
 The
 .B \-q

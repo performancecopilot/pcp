@@ -20,31 +20,29 @@
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
-# if pmsocks is being used, edit the IP address for $SOCKS_SERVER and
-# uncomment the next line
+# if pmsocks is being used, edit the IP address for $SOCKS_SERVER
 #$SOCKS_SERVER=123.456.789.123
 
-# if remote loggers are run over a WAN with potentially long delays, 
-# adjust the following and uncomment
-#$PMCD_CONNECT_TIMEOUT=20
-#$PMCD_REQUEST_TIMEOUT=15
+# for remote loggers running over a WAN with potentially long delays
+$PMCD_CONNECT_TIMEOUT=150
+$PMCD_REQUEST_TIMEOUT=120
 
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
 #Host		P?  S?	directory				args
 
 # local primary logger
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-c config.default
+LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default
 
 # Note:	if multiple pmloggers for the same host (e.g. both primary and
 #	non-primary loggers are active), then they MUST use different
 #	directories
 
 # local non-primary logger
-#LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-c config.Summary
+#LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-r -T24h10m -c config.Summary
 
 # remote host
-#remote		n   n	PCP_LOG_DIR/pmlogger/remote		-c config.remote
+#remote		n   n	PCP_LOG_DIR/pmlogger/remote		-r -T24h10m -c config.remote
 
 # thru the firewall via socks
-#distant	n   y	PCP_LOG_DIR/pmlogger/distant		-c config.distant
+#distant	n   y	PCP_LOG_DIR/pmlogger/distant		-r -T24h10m -c config.distant

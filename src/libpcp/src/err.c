@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -191,7 +192,7 @@ pmErrStr_r(int code, char *buf, int buflen)
 
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
 	if (DECODE_SASL_SPECIFIC_ERROR(error))
-	    strncpy(buf, sasl_errstring(error, NULL, NULL), buflen);
+	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));
 	else
 	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
 	buf[buflen-1] = '\0';

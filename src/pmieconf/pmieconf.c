@@ -23,6 +23,7 @@
 #define MAXBUFLEN	(1024+1)
 
 static int	verbose;
+static int	autocreate;
 static int	interactive = 1;
 static int	pmiefile_modified;
 static char	warn[MAXBUFLEN];	/* buffer for any warning messages */
@@ -31,6 +32,7 @@ static char	usage[] = \
     "Usage: %s [options] [ command [args...] ]\n"
     "\n"
     "Options:\n"
+    "  -c           an automated pmie configuration by the system\n"
     "  -F           force creation/update of pmie file, then exit\n"
     "  -f filename  location of generated pmie configuration file\n"
     "               [for root, default is %s/%s and\n"
@@ -335,7 +337,7 @@ write_pmie(void)
     char	*msg;
     dep_t	*list;
 
-    if ((msg = write_pmiefile(pmProgname)) != NULL) {
+    if ((msg = write_pmiefile(pmProgname, autocreate)) != NULL) {
 	error(msg);
 	return 1;
     }
@@ -759,8 +761,13 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "Ff:r:v?")) != EOF) {
+    while ((c = getopt(argc, argv, "cFf:r:v?")) != EOF) {
 	switch (c) {
+	case 'c':
+	    autocreate = 1;
+	    interactive = 0;
+	    break;
+
 	case 'F':
 	    force = 1;
 	    break;

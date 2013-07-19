@@ -125,8 +125,17 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    __pmVersionCred	handshake;
 	    int			pduflags = 0;
 
+	    pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
+
+	    if (pduinfo.features & PDU_FLAG_CREDS_REQD)
+		/*
+		 * This is a mandatory connection feature - pmcd must be
+		 * sent user credential information one way or another -
+		 * i.e. via SASL2 authentication, or AF_UNIX peer creds.
+		 */
+		pduflags |= PDU_FLAG_CREDS_REQD;
+
 	    if (ctxflags) {
-		pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
 		/*
 		 * If an optional connection feature (e.g. encryption) is
 		 * desired, the pmcd that we're talking to must advertise
@@ -160,7 +169,7 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    }
 
 	    /*
-	     * Negotiate connection version and credentials
+	     * Negotiate connection version and features (via creds PDU)
 	     */
 	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
 		__pmUnpinPDUBuf(pb);

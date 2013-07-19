@@ -46,19 +46,20 @@ hinv.ndisk
 ## Testing handling of corrupted or truncated metric values
 Warning: put_str_value "kernel.all.load" inst:"15 minute" value:"somecrap" failed: err=-12362 Impossible value or scale conversion
 ## Testing per-CPU metrics
+Note: timezone set to local timezone of host "somehost" from archive
 
 metric:    kernel.percpu.cpu.user
 archive:   testarchive
 host:      somehost
-start:     Fri May 10 01:13:00 2013
-end:       Fri May 10 01:13:10 2013
+start:     Thu May  9 15:13:00 2013
+end:       Thu May  9 15:13:10 2013
 semantics: cumulative counter
 units:     millisec
 samples:   2
 interval:  10.00 sec
 
                              cpu0 
-01:13:00.001            244885950 
-01:13:10.001            244885960 
+15:13:00.001            244885950 
+15:13:10.001            244885960 
 cpu0 raw msec value 244885950
 cpu0 raw msec value 244885960

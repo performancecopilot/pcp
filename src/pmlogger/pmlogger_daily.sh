@@ -312,7 +312,7 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	    echo "PCP NOTICES summary for $LOCALHOST"
 	    cat $tmp/pcp
 	fi
-        [ -w `dirname $NOTICES` ] && mv $tmp/pcp $MAILFILE
+        [ -w `dirname "$NOTICES"` ] && mv $tmp/pcp "$MAILFILE"
     fi
 fi
 
@@ -320,9 +320,9 @@ fi
 # Roll $PCP_LOG_DIR/NOTICES -> $PCP_LOG_DIR/NOTICES.old if larger
 # that 10 Kbytes, and you can write in $PCP_LOG_DIR
 #
-if [ -s $NOTICES -a -w `dirname $NOTICES` ]
+if [ -s "$NOTICES" -a -w `dirname "$NOTICES"` ]
 then
-    if [ "`wc -c <$NOTICES`" -ge $ROLLNOTICES ]
+    if [ "`wc -c <"$NOTICES"`" -ge $ROLLNOTICES ]
     then
 	if $VERBOSE
 	then
@@ -334,10 +334,11 @@ then
 	    echo "+ mv -f $NOTICES $NOTICES.old"
 	    echo "+ touch $NOTICES"
 	else
-	    echo >>$NOTICES
-	    echo "*** rotated by $prog: `date`" >>$NOTICES
-	    mv -f $NOTICES $NOTICES.old
-	    echo "Started by $prog: `date`" >$NOTICES
+	    echo >>"$NOTICES"
+	    echo "*** rotated by $prog: `date`" >>"$NOTICES"
+	    mv -f "$NOTICES" "$NOTICES.old"
+	    echo "Started by $prog: `date`" >"$NOTICES"
+	    ( id pcp && chown pcp:pcp "$NOTICES" ) >/dev/null 2>&1
 	fi
     fi
 fi

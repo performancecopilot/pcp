@@ -640,12 +640,41 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     return -EOPNOTSUPP;
 }
 
+static unsigned int require_credentials;
+
+int
+__pmServerSetFeature(__pmServerFeature wanted)
+{
+    if (wanted == PM_SERVER_FEATURE_CREDS_REQD) {
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	require_credentials = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	return 1;
+    }
+    return 0;
+}
+
 int
 __pmServerHasFeature(__pmServerFeature query)
 {
-    if (query == PM_SERVER_FEATURE_IPV6)
-	return (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
-    return 0;
+    int sts;
+
+    switch (query) {
+    case PM_SERVER_FEATURE_IPV6:
+	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
+	break;
+    case PM_SERVER_FEATURE_CREDS_REQD:
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	sts = require_credentials;
+	PM_UNLOCK(__pmLock_libpcp);
+	break;
+    default:
+	sts = 0;
+	break;
+    }
+    return sts;
 }
 
 #endif /* !HAVE_SECURE_SOCKETS */

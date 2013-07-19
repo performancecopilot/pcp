@@ -1,12 +1,8 @@
 #! /bin/sh
 # PCP QA Test No. 654
 # checks basic pmdagfs2 functionality
-#
-# Requires GFS2 support in the kernel, else it will notrun. The following
-# tests in this script assume that there are currently no mounted gfs2
-# filesystems on the host and that debugfs is mounted. For this test, the 
-# filesystems will be mounted as local filesystems and will only test the 
-# metrics which are available in these environments.
+# Requires GFS2 support in the kernel and gfs2-utils installed,
+# else the test will not run.
 #
 # Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
 #
@@ -21,6 +17,7 @@ echo "QA output created by $seq"
 
 # Attempt to set up the gfs2 pmda test enviroment
 _gfs2_filesystem_support_tests
+_debugfs_mount_tests
 
 # check for any loopback devices, cowardly abort this test if any exist
 loopcount=`$sudo losetup -a | wc -l`
@@ -49,14 +46,6 @@ echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.
 echo
 echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full
 pminfo -fdm gfs2.glocks | _gfs2_filter_pminfo
-
-echo
-echo "=== Additional glstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.glstats | _gfs2_filter_pminfo
-
-echo
-echo "=== Additional sbstats for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.sbstats | _gfs2_filter_pminfo
 
 _remove_pmda
 

@@ -67,4 +67,10 @@ gfs2.glock_lock_time.queue PMID: 115.3.9
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
+=== check functionality of pmstore (off) ===
+gfs2.control.glock_lock_time OLD VALUE new value=0
+
+=== check functionality of pmstore (on) === 
+gfs2.control.glock_lock_time OLD VALUE new value=1
+
 === Removing the GFS2 PMDA ===

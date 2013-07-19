@@ -1139,6 +1139,11 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 {
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
+    if (flags & PDU_FLAG_CREDS_REQD) {
+	if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL)
+	    return 0;
+	flags |= PDU_FLAG_AUTH;	/* force the use of SASL authentication */
+    }
     if ((sts = __pmSecureClientIPCFlags(fd, flags, hostname, attrs)) < 0)
 	return sts;
     if (((flags & PDU_FLAG_SECURE) != 0) &&

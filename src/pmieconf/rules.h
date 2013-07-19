@@ -115,7 +115,7 @@ char *value_string(atom_t *, int);   /* printable string form of atoms value */
 char *value_change(rule_t *, char *, char *); /* change rule parameter value */
 char *validate(int, char *, char *);  /* check proposed value for named type */
 
-char *write_pmiefile(char *);
+char *write_pmiefile(char *, int);
 char *lookup_processes(int *, char ***);
 
 int is_attribute(char *);

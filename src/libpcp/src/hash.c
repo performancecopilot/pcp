@@ -17,6 +17,12 @@
 #include "impl.h"
 #include <stddef.h>
 
+void
+__pmHashInit(__pmHashCtl *hcp)
+{
+    memset(hcp, 0, sizeof(*hcp));
+}
+
 __pmHashNode *
 __pmHashSearch(unsigned int key, __pmHashCtl *hcp)
 {
@@ -110,6 +116,15 @@ __pmHashDel(unsigned int key, void *data, __pmHashCtl *hcp)
     }
 
     return 0;
+}
+
+void
+__pmHashClear(__pmHashCtl *hcp)
+{
+    if (hcp->hsize != 0) {
+	free(hcp->hash);
+	hcp->hsize = 0;
+    }
 }
 
 /*

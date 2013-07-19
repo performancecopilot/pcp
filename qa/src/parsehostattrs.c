@@ -21,7 +21,7 @@ main(int argc, char **argv)
 {
     char		*msg;
     char		buffer[512];
-    __pmHashCtl		attrs = { 0 };
+    __pmHashCtl		attrs;
     pmHostSpec		*hosts;
     int			count, sts, i, j;
 
@@ -30,6 +30,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    __pmHashInit(&attrs);
     printf("pmParseHostAttrsSpec(\"%s\", ...)\n", argv[1]);
     sts = __pmParseHostAttrsSpec(argv[1], &hosts, &count, &attrs, &msg);
     if (sts < 0) {
@@ -59,5 +60,6 @@ main(int argc, char **argv)
     printf("pmUnparseHostAttrsSpec(\"%s\") -> \"%s\"\n", argv[1], buffer);
 
     __pmFreeHostAttrsSpec(hosts, count, &attrs);
+    __pmHashClear(&attrs);
     exit(0);
 }

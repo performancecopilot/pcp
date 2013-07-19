@@ -123,7 +123,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'c':	/* configuration file */
@@ -205,6 +205,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 's':	/* path to local unix domain socket */
 		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
+		break;
+
+	    case 'S':	/* only allow authenticated clients */
+		__pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
 		break;
 
 	    case 't':
@@ -621,8 +625,10 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_SECURE;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
-	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))     /* optionally */
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /* required */
+		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    challenge = *(int*)(&cp->pduInfo);
 	    sts = 0;
 	}

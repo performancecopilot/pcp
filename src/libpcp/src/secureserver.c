@@ -32,12 +32,26 @@ static struct {
     SECKEYPrivateKey	*private_key;
     const char		*password_file;
     SSLKEAType		certificate_KEA;
-    unsigned int	certificate_verified : 1;
-    unsigned int	ssl_session_cache_setup : 1;
     char		database_path[MAXPATHLEN];
 
-    /* SASL authentication fields */
+    /* status flags (bitfields) */
+    unsigned int	certificate_verified : 1;	/* NSS */
+    unsigned int	ssl_session_cache_setup : 1;	/* NSS */
+    unsigned int	credentials_required : 1;	/* SASL/AF_UNIX */
 } secure_server;
+
+int
+__pmServerSetFeature(__pmServerFeature wanted)
+{
+    if (wanted == PM_SERVER_FEATURE_CREDS_REQD) {
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	secure_server.credentials_required = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	return 1;
+    }
+    return 0;
+}
 
 int
 __pmServerHasFeature(__pmServerFeature query)
@@ -45,10 +59,13 @@ __pmServerHasFeature(__pmServerFeature query)
     int sts = 0;
 
     switch (query) {
+    case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_SECURE:
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	sts = secure_server.certificate_verified;
+	sts = (query == PM_SERVER_FEATURE_SECURE) ?
+		secure_server.certificate_verified:
+		secure_server.credentials_required;
 	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
@@ -630,8 +647,16 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS|PDU_FLAG_AUTH)) != 0)
+    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_COMPRESS
+		   | PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD)) != 0)
 	return PM_ERR_IPC;
+
+    if (flags & PDU_FLAG_CREDS_REQD) {
+	if (__pmHashSearch(PCP_ATTR_USERID, attrs) != NULL)
+            return 0;	/* unix domain socket */
+	else
+	    flags |= PDU_FLAG_AUTH;	/* force authentication */
+    }
 
     if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
 	return sts;

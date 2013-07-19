@@ -68,7 +68,7 @@ collectl2pcp -F $C/truncated.raw $TA 2>&1
 
 echo '## Testing per-CPU metrics'
 collectl2pcp -F $C/some_host.raw $TA
-pmval -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
+pmval -z -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
 awk '/cpu0/ {print "cpu0 raw msec value", $2 * 1000 / 100}' $C/some_host.raw
 
 # success, all done
