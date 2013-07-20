@@ -4701,7 +4701,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -oserror();
+		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -4764,7 +4764,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -oserror();
+		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -5551,7 +5551,7 @@ procfs_zero(const char *filename, pmValueSet *vsp)
 
     fp = fopen(filename, "w");
     if (!fp) {
-	sts = -oserror();
+	sts = PM_ERR_PERMISSION;
     } else {
 	fprintf(fp, "%d\n", value);
 	fclose(fp);
@@ -5573,7 +5573,7 @@ linux_store(pmResult *result, pmdaExt *pmda)
 
 	if (pmidp->cluster == CLUSTER_XFS && pmidp->item == 79) {
 	    sts = procfs_zero("/proc/sys/fs/xfs/stats_clear", vsp);
-	} 
+	}
 	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == IB_COUNTERS_ALL + 1) {
 	    /* deprecated: code preserved so suitable error can be returned */
 	    sts = PM_ERR_APPVERSION;
