@@ -127,3 +127,5 @@ typedef struct {
 extern void proc_vmstat_init(void);
 extern int refresh_proc_vmstat(proc_vmstat_t *);
 extern int _pm_have_proc_vmstat;
+extern proc_vmstat_t _pm_proc_vmstat;
+
