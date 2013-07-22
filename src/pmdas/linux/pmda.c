@@ -4027,7 +4027,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 1;
 	    }
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
-		if (idp->item != 43)	/* tcp.maxconn is special */
+		if (idp->item != 53)	/* tcp.maxconn is special */
 		    return 0; /* no value available on this kernel */
 	}
 	else
