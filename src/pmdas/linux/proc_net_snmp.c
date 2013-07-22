@@ -231,7 +231,7 @@ get_fields(snmp_fields_t *fields, char *header, char *buffer)
      * kernel - but may be out-of-order for older kernels).
      */
     p = strtok(buffer, " ");
-    for (i = j = 0; j < count && i < count; j++, i++) {
+    for (i = j = 0; j < count && fields[i].field; j++, i++) {
         if ((p = strtok(NULL, " \n")) == NULL)
             break;
         if (strcmp(fields[i].field, indices[j]) == 0) {
