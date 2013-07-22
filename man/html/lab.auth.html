@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2013 Red Hat.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Authenticated Connections</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Authenticated Connections</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmcd
+pminfo
+pmchart
+pmconfig
+pluginviewer
+saslpasswd2
+sasldblistusers2
+kadmin.local
+kinit
+klist
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial covers setting up authenticated
+connections between PCP collector and monitor components.
+An authenticated connection is one where the PCP collector (<B>pmcd</B> and its PMDAs)
+is made aware of the credentials of the user running the monitor tools.
+This allows the PCP collector software to perform two important functions:
+<OL>
+    <LI> Grant additional access, allowing potentially sensitive information to be
+	 accessed by the authenticated user;
+    <LI> Make access control decisions for users and groups in order to prevent
+	 inappropriate access to metrics or over-subscription of server resources.
+</OL>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI> <A HREF="#overview">Overview</A> 
+    <LI> <A HREF="#unix">Localhost Credentials</A> 
+    <LI> <A HREF="#sasl">Remote Access</A> 
+    <UL>
+        <LI> <A HREF="#plain">Plain Authentication</A>
+        <LI> <A HREF="#digest">DIGEST-MD5 Authentication</A>
+        <LI> <A HREF="#gssapi">Kerberos Authentication</A>
+    </UL>
+</UL>
+<P>Note: remote host authentication will often warrant the configuration of secure
+connections between PCP monitors and collectors - this is covered by a separate
+tutorial: <A HREF="lab.secure.html">Secure Connections</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<P>All connections made to the PCP metrics collector daemon (<B>pmcd</B>)
+are made using the PCP protocol, which is TCP/IP based.  Traditionally, no
+functionality was available to identify the user making a connection between
+a PCP monitor and collector.  However, as PCP evolved to be able to export
+sensitive information (event trace parameters and detailed per-process
+statistics, for example), it became necessary to provide such mechanisms.</P>
+
+<P>The Performance Co-Pilot has two facilities for transfering credentials
+between the monitoring and collecting components - a local-host-only facility
+using Unix domain sockets, and SASL-based authentication which can be over
+either IPv4 or IPv6 sockets (local or remote).</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="unix">Localhost Credentials</A></B></FONT></P></TD></TR>
+</TABLE>
+
+<P>For local connections, there is a fast local transport mechanism
+using Unix domain sockets.  These sockets provide a facility whereby the
+userid and groupid of the monitor process is automatically made available
+to the collector process, with no user intervention being required.</P>
+
+<P>This will become the default localhost transport mechanism over time.
+However, its use can be requested via the <I>unix:</I> host specification
+(<B>-h</B> option) with all monitor tools.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check for support, then establish a Unix domain socket connection with automatic credentials transfer:<BR>
+<PRE><B>
+$ pmconfig -L | grep ^unix
+unix_domain_sockets=true
+
+$ pminfo -h unix: -dfmt kernel.all.load
+
+kernel.all.load PMID: 60.2.0 [1, 5 and 15 minute load average]
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    inst [1 or "1 minute"] value 1.64
+    inst [5 or "5 minute"] value 2.0799999
+    inst [15 or "15 minute"] value 2.6400001
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>A <I>local:</I> specification is also available, which indicates that
+the monitor tool should first attempt to establish a Unix domain socket
+connection (with automatic credentials transfer), but failing that fall back
+to the traditional socket connection style (with no credentials transfer,
+unless mandated by collector or explicitly requested by the monitor user -
+described later in this tutorial).</P>
+
+<P>Note: this facility is completely independent and separate to the remote
+access facility described shortly.
+Therefore, it can still be used even when support for the more complex remote
+authentication facilities is unavailable or not configured.
+This local facility is always enabled on platforms that support it - these
+include Linux, Mac OS X and Solaris.
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="sasl">Remote Access</A></B></FONT></P></TD></TR>
+</TABLE>
+
+<P>The alternative authentication facility is the "Simple Authentication and
+Security Layer" (SASL) which provides for remote authentication.
+Usually this would be used with a <A HREF="lab.secure.html">secure connection</A>
+to ensure sensitive information is not transmitted in the clear.</P>
+
+<P>SASL can be configured with many different authentication mechanisms, and this
+this configuration is done transparently (outside of PCP, as described shortly).
+This list of mechanisms can be changed via the <I>mech_list</I> entry in the
+<I>/etc/sasl2/pmcd.conf</I> file.
+This can be set to any one of the installed SASL mechanisms, or a space-separated
+list of mechanisms from which the monitor tools can select.</P>
+
+<P>To make use of SASL-based authentication, both monitor and collector systems
+need to be capable of running the SASL code (PCP support, in particular, must be
+present on each end of the connection).
+As demonstrated in the following examples, we can use both the <B>pmconfig</B>
+PCP command and the <B>pluginviewer</B> SASL command to interogate aspects of
+the installations on each end of a connection.
+The <B>pluginviewer</B> command has separate options for reporting on client
+(<B>-c</B>) and server (<B>-s</B>) components of an installation.
+</P>
+
+<I><B><A NAME="plain">Plain Authentication</A></B></I>
+<P>The SASL &quot;plain&quot; mechanism provides a direct <I>/etc/passwd</I> based
+authentication.
+The <I>mech_list</I> parameter described above must contain the keyword <I>plain</I>
+to allow this form of authentication.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check for support:<BR>
+<PRE><B>
+$ pmconfig -L | egrep '^auth|^secure'
+secure_sockets=true
+authentication=true
+
+$ pluginviewer -s -m PLAIN
+[...]
+Plugin "plain" [loaded], 	API version: 4
+	SASL mechanism: PLAIN, best SSF: 0, supports setpass: no
+	security flags: NO_ANONYMOUS|PASS_CREDENTIALS
+	features: WANT_CLIENT_FIRST|PROXY_AUTHENTICATION
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<I><B><A NAME="digest">DIGEST-MD5 Authentication</A></B></I>
+<P>The SASL mechanism configured by default on a PCP collector system is DIGEST-MD5,
+which provides a basic username and password style authentication mechanism.
+Without customisation for individual users, as described below, it allows no access.
+The <I>mech_list</I> parameter described above must contain the keyword <I>digest-md5</I>
+to allow this form of authentication.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check for support:<BR>
+<PRE><B>
+$ pmconfig -L | egrep '^auth|^secure'
+secure_sockets=true
+authentication=true
+
+$ pluginviewer -s -m DIGEST-MD5
+[...]
+Plugin "digestmd5" [loaded], 	API version: 4
+	SASL mechanism: DIGEST-MD5, best SSF: 128, supports setpass: no
+	security flags: NO_ANONYMOUS|NO_PLAINTEXT|MUTUAL_AUTH
+	features: PROXY_AUTHENTICATION|SUPPORTS_HTTP
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>By default, the SASL configuration file <I>/etc/sasl2/pmcd.conf</I> for <B>pmcd</B>
+specifies the use of <I>/etc/pcp/pmcd/passwd.db</I> as the SASL credentials database.
+SASL commands allow this database to be manipulated (independently of the other host
+access methods like <I>/etc/passwd</I>) - adding, listing and deleting users, setting
+passwords and so on.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Setup DIGEST-MD5 authentication on the PCP Collector:<BR>
+<PRE><B>
+# saslpasswd2 -a pmcd jack
+Password: xxxxxx
+Again (for verification): xxxxxx
+
+$ pminfo -h 'pcps://server.demo.net?authname=jack' -dfmt kernel.all.load
+Password: xxxxxx
+
+kernel.all.load PMID: 60.2.0 [1, 5 and 15 minute load average]
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    inst [1 or "1 minute"] value 1.64
+    inst [5 or "5 minute"] value 2.0799999
+    inst [15 or "15 minute"] value 2.6400001
+</B></PRE>
+</TD></TR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Other administrative commands - list users, then disable a user:<BR>
+<PRE><B>
+# sasldblistusers2 -f /etc/pcp/pmcd/passwd.db
+jack@server.demo.net: userPassword
+jill@server.demo.net: userPassword
+
+# saslpasswd2 -a pmcd -d jack
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<I><B><A NAME="gssapi">Kerberos Authentication</A></B></I>
+<P>The PCP collector system can be configured to authenticate using Kerberos
+single-sign-on using the GSSAPI authentication mechanism.
+This mechanism is enabled via the <I>mech_list</I> option in <I>/etc/sasl2/pmcd.conf</I>,
+and the keytab should be set to <I>/etc/pcp/pmcd/krb5.tab</I>.
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check for support:<BR>
+<PRE><B>
+$ pmconfig -L | egrep '^auth|^secure'
+secure_sockets=true
+authentication=true
+
+$ pluginviewer -s -m GSSAPI
+[...]
+Plugin "gssapiv2" [loaded], 	API version: 4
+	SASL mechanism: GSSAPI, best SSF: 56, supports setpass: no
+	security flags: NO_ANONYMOUS|NO_PLAINTEXT|NO_ACTIVE|PASS_CREDENTIALS|MUTUAL_AUTH
+	features: WANT_CLIENT_FIRST|PROXY_AUTHENTICATION|DONTUSE_USERPASSWD
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Setup Kerberos authentication on the PCP Collector:<BR>
+<PRE><B>
+# kadmin.local
+kadmin.local: add_principal pmcd/server.demo.net
+Enter password for principal "pmcd/server.demo.net@DEMO.NET":
+Re-enter password for principal "pmcd/server.demo.net@DEMO.NET":
+Principal "pmcd/server.demo.net@DEMO.NET" created.
+
+kadmin.local:  ktadd -k /root/pmcd-server-demo.tab pmcd/server.demo.net@DEMO.NET
+Entry for principal pmcd/server.demo.net@DEMO.NET with kvno 4, encryption type Triple DES cbc mode with HMAC/sha1 added to keytab WRFILE:/root/pmcd-server-demo.tab.
+Entry for principal pmcd/server.demo.net@DEMO.NET with kvno 4, encryption type ArcFour with HMAC/md5 added to keytab WRFILE:/root/pmcd-server-demo.tab.
+Entry for principal pmcd/server.demo.net@DEMO.NET with kvno 4, encryption type DES with HMAC/sha1 added to keytab WRFILE:/root/pmcd-server-demo.tab.
+Entry for principal pmcd/server.demo.net@DEMO.NET with kvno 4, encryption type DES cbc mode with RSA-MD5 added to keytab WRFILE:/root/pmcd-server-demo.tab.
+
+kadmin.local: quit
+
+# scp /root/pmcd-server-demo.tab root@server.demo.net:/etc/pcp/pmcd/krb5.tab
+# rm /root/pmcd-server-demo.tab
+
+$ kinit jack@DEMO.NET
+Password for jack@DEMO.NET: xxxxxx
+
+$ klist
+Ticket cache: FILE:/tmp/krb5cc_500
+Default principal: jack@DEMO.NET
+
+Valid starting     Expires            Service principal
+02/07/13 20:46:40  02/08/13 06:46:40  krbtgt/DEMO.NET@DEMO.NET
+	renew until 02/07/13 20:46:40
+
+$ pminfo -h 'pcps://server.demo.net?method=gssapi' -dfmt kernel.all.load
+
+kernel.all.load PMID: 60.2.0 [1, 5 and 15 minute load average]
+    Data Type: float  InDom: 60.2 0xf000002
+    Semantics: instant  Units: none
+    inst [1 or "1 minute"] value 1.64
+    inst [5 or "5 minute"] value 2.0799999
+    inst [15 or "15 minute"] value 2.6400001
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2013 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
