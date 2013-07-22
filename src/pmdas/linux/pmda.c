@@ -4027,7 +4027,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 1;
 	    }
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
-	    	return 0; /* no value available on this kernel */
+		if (idp->item != 43)	/* tcp.maxconn is special */
+		    return 0; /* no value available on this kernel */
 	}
 	else
 	if (idp->cluster == CLUSTER_NET_NFS) {
