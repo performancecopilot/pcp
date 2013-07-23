@@ -166,7 +166,7 @@ _shutdown()
 	return 0
     fi
 
-    $ECHO $PCP_ECHO_N "Waiting for PMIE process(es) to terminate ..." "$PCP_ECHO_C"
+    $ECHO $PCP_ECHO_N "Waiting for pmie process(es) to terminate ..." "$PCP_ECHO_C"
 
     pmie_check -s >$tmp/pmie 2>&1
     if [ -s $tmp/pmie ]
