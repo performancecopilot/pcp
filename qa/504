@@ -35,16 +35,20 @@ signal=$PCP_BINADM_DIR/pmsignal
 lhost=`hostname`
 host=`_get_fqdn`
 remote=`./getpmcdhosts -n 1 -L 2>/dev/null`
-[ -z "$PCP_PMIECONTROL_PATH" ] && \
-	PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
-control="$PCP_PMIECONTROL_PATH"
+if [ -z "$PCP_PMIECONTROL_PATH" ]
+then
+    echo "Arrgh: Botch: PCP_PMIECONTROL_PATH not defined"
+    exit 1
+fi
 needclean=false
 
 _cleanup()
 {
     if $needclean
     then
-	$sudo cp $tmp.control.bak $control
+	$sudo cp $tmp.control.bak $PCP_PMIECONTROL_PATH
+	$sudo chown pcp:pcp $PCP_PMIECONTROL_PATH
+	$sudo chmod 664 $PCP_PMIECONTROL_PATH
 	$sudo cp $tmp.pmcd.bak $PCP_PMCDCONF_PATH
     fi
     $sudo rm -f $tmp.*
@@ -110,7 +114,7 @@ $remote         y $tmp.log2 -c $tmp.conf
 EOF
 
 # real QA test starts here
-cp $control $tmp.control.bak
+cp $PCP_PMIECONTROL_PATH $tmp.control.bak
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.bak
 needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
@@ -128,7 +132,9 @@ SOCKS_SERVER=$PCPQA_SOCKS_SERVER
 export SOCKS_SERVER
 
 _change_config pmie on
-$sudo cp $tmp.control $control
+$sudo cp $tmp.control $PCP_PMIECONTROL_PATH
+$sudo chown pcp:pcp $PCP_PMIECONTROL_PATH
+$sudo chmod 664 $PCP_PMIECONTROL_PATH
 
 echo === check pmie_check and custom config ===
 pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
