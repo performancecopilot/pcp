@@ -93,9 +93,8 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmie" ]
     then
-	# For some packages, $PCP_TMP_DIR/pmie cannot be included in
-	# the package and so needs to be created here.	The permissions
-	# need to match those defined in src/pmie/GNUmakefile
+	# $PCP_TMP_DIR/pmie is not included in the PCP package ... it
+	# is created here and cleaned up here.
 	#
 	mkdir -p -m 1777 "$PCP_TMP_DIR/pmie"
     else

@@ -39,7 +39,7 @@ install:	default
 	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmwebd
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
 else
 build-me:
 install:

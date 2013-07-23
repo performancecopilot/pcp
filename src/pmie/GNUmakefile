@@ -50,9 +50,6 @@ ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
-endif
 
 include $(BUILDRULES)
 
