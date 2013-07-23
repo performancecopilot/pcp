@@ -1,5 +1,6 @@
 #!gmake
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 LLDIRT		= *.log *.dir *.pag so_locations
 
@@ -24,7 +21,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 LSRCFILES = pmdaproc.sh rc_pcp rc_pmcd rc_local pmcd.options \
-	    rc-proc.sh rc-proc.sh.minimal
+	    rc-proc.sh rc-proc.sh.minimal sasl2.conf
 
 default : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -33,6 +30,7 @@ install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 ifeq ($(TARGET_OS),darwin)
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
+	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 endif
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmcd.options $(PCP_PMCDOPTIONS_PATH)
@@ -47,6 +45,7 @@ endif
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcd
 endif
+	$(INSTALL) -m 644 sasl2.conf $(PCP_SASLCONF_DIR)/pmcd.conf
 
 include $(BUILDRULES)
 

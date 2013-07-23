@@ -1698,6 +1698,9 @@ dnl
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
 AC_SUBST(pcp_etc_dir)
+pcp_saslconf_dir=`eval echo $sysconfdir/sasl2`
+pcp_saslconf_dir=`eval echo $pcp_saslconf_dir`
+AC_SUBST(pcp_saslconf_dir)
 pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
 pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 AC_SUBST(pcp_sysconf_dir)
