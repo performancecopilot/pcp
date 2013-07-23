@@ -50,6 +50,7 @@ static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
+static int		have_access;	/* =1 recvd uid/gid */
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
@@ -853,10 +854,14 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 	}
     }
 
-    proc_ctx_access(pmda->e_context);
-    proc_refresh(pmda, need_refresh);
-    sts = pmdaInstance(indom, inst, name, result, pmda);
-    proc_ctx_revert(pmda->e_context);
+    sts = PM_ERR_PERMISSION;
+    have_access = proc_ctx_access(pmda->e_context);
+    if (have_access) {
+	proc_refresh(pmda, need_refresh);
+	sts = pmdaInstance(indom, inst, name, result, pmda);
+    }
+    have_access = proc_ctx_revert(pmda->e_context);
+
     return sts;
 }
 
@@ -922,6 +927,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	else {
 	    static char ttyname[MAXPATHLEN];
 
+	    if (!have_access)
+		return PM_ERR_PERMISSION;
 	    if ((entry = fetch_proc_pid_stat(inst, &proc_pid)) == NULL)
 	    	return PM_ERR_INST;
 
@@ -1061,9 +1068,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_PID_STATM:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
 	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid)) == NULL)
-		    return PM_ERR_INST;
+		return PM_ERR_INST;
 	    atom->cp = entry->maps_buf;
 	} else {
 	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid)) == NULL)
@@ -1082,6 +1091,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_PID_SCHEDSTAT:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
 	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
 
@@ -1103,8 +1114,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_PID_IO:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL)
-		return PM_ERR_INST;
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
 
 	switch (idp->item) {
 
@@ -1160,6 +1173,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 * Cluster added by Mike Mason <mmlnx@us.ibm.com>
 	 */
     case CLUSTER_PID_STATUS:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_status(inst, &proc_pid)) == NULL)
 		return PM_ERR_INST;
 
@@ -1349,10 +1364,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return cgroup_procs_fetch(idp->cluster, idp->item, inst, atom);
 
     case CLUSTER_PID_FD:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
 	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
-		return PM_ERR_INST;
+	    return PM_ERR_INST;
 	if (idp->item != PROC_PID_FD_COUNT)
-		return PM_ERR_INST;
+	    return PM_ERR_INST;
 
 	atom->ul = entry->fd_count;
 	break;
@@ -1378,10 +1395,10 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[idp->cluster]++;
     }
 
-    proc_ctx_access(pmda->e_context);
+    have_access = proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    proc_ctx_revert(pmda->e_context);
+    have_access = proc_ctx_revert(pmda->e_context);
     return sts;
 }
 

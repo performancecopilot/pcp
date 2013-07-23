@@ -852,6 +852,7 @@ pcp.py
 831 pmda.sample pmstore local oss
 832 pmda.sample pmstore local oss
 875 libpcp local oss
+943 pmprobe pmda.proc local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
