@@ -26,15 +26,19 @@ then
     exit
 fi
 needclean=false
-[ -z "$PCP_PMIECONTROL_PATH" ] && \
-	PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
-control="$PCP_PMIECONTROL_PATH"
+if [ -z "$PCP_PMIECONTROL_PATH" ]
+then
+    echo "Arrgh: Botch: PCP_PMIECONTROL_PATH not defined"
+    exit 1
+fi
 
 _cleanup()
 {
     if $needclean
     then
-	$sudo cp $tmp.control.bak $control
+	$sudo cp $tmp.control.bak $PCP_PMIECONTROL_PATH
+	$sudo chown pcp:pcp $PCP_PMIECONTROL_PATH
+	$sudo chmod 664 $PCP_PMIECONTROL_PATH
 	$sudo cp $tmp.pmcd.bak $PCP_PMCDCONF_PATH
     fi
     $sudo rm -f $tmp.*
@@ -104,7 +108,7 @@ LOCALHOSTNAME   n $tmp.log0 $tmp.conf
 EOF
 
 # real QA test starts here
-cp $control $tmp.control.bak
+cp $PCP_PMIECONTROL_PATH $tmp.control.bak
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.bak
 needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
@@ -126,7 +130,7 @@ echo
 
 echo === check for missing control file ===
 _change_config pmie off
-$sudo rm -f $control
+$sudo rm -f $PCP_PMIECONTROL_PATH
 _change_config pmie on
 $sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
