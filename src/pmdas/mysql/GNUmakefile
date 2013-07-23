@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary
+LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary migrate.conf
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
