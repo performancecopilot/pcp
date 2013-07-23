@@ -5,8 +5,22 @@ chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
 useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
-chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null || true
-chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null || true
+
+# match src/pmcd/GNUmakefile
+chown -R pcp:pcp /var/log/pcp/pmcd
+chmod 775 /var/log/pcp/pmcd
+
+# match src/pmie/GNUmakefile
+[ -d /var/tmp/pmie ] || mkdir /var/tmp/pmie
+chown root:root /var/tmp/pmie
+chmod 1777 /var/tmp/pmie
+chown pcp:pcp /etc/pcp/pmie/control
+chmod 664 /etc/pcp/pmie/control
+chown -R pcp:pcp /etc/pcp/pmie
+chmod 775 /etc/pcp/pmie
+chown -R pcp:pcp /var/log/pcp/pmie
+chmod 775 /var/log/pcp/pmie
+
 [ ! -d /var/log/pcp/pmwebd ] || \
 chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null || true
 chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null || true
