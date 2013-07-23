@@ -1,0 +1,183 @@
+#!/bin/sh
+#
+# Build a new QA permslist file by descend the source tree finding
+# install lines for files with non-default mode (not 0644 for files or
+# 0755 for directories) and/or non-default user and group (not root)
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+sts=0
+TOP=../..
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.new
+# Control file of targets from the PCP source code that are installed
+# with non-default mode and/or owner and/or group permissions.
+# Generate by qa/src/mkpermslist on `date`
+#
+End-of-File
+
+rm -f tmp.debug.*
+( cd $TOP ; find GNU* src -type f -name "GNU*" ) \
+| while read makefile
+do
+    rm -f $tmp.raw
+    grep -i 'INSTALL' $TOP/$makefile >$tmp.tmp
+    #debug# cat $tmp.tmp >>tmp.debug.0
+    # check for -m xxx for xxx not 644 or 755
+    #
+    sed -n <$tmp.tmp >>$tmp.raw \
+	-e '/-m[ 	][ 	]*/{
+/-m[ 	][ 	]*644/d
+/-m[ 	][ 	]*755/d
+s/\(-[a-z]\)[ 	][ 	]*/\1/g
+p
+}'
+    # check for -g or -o
+    #
+    sed -n <$tmp.tmp >>$tmp.raw \
+	-e '/-[og][ 	][ 	]*/{
+/-[og][ 	][ 	]*root/d
+s/\(-[a-z]\)[ 	][ 	]*/\1/g
+p
+}'
+    # expand PCP env vars we expect to find
+    #
+    sed <$tmp.raw >$tmp.tmp \
+	-e 's/$(INSTALL)//' \
+	-e 's@$(PCP_USER)@'$PCP_USER@g \
+	-e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
+	-e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
+	-e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
+	-e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
+	-e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
+	-e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
+	-e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
+	-e "s@^@$makefile@"
+    mv $tmp.tmp $tmp.raw
+
+    # special cases ... these are makefile lines that do not match
+    # the generic format and need special handling on a per makefile
+    # basis
+    #
+    case "$makefile"
+    in
+	GNUmakefile)
+	    # this INSTALL line is optional depending on packaging
+	    # $(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
+	    #
+	    sed -e "/`echo $PCP_RUN_DIR | sed -e 's/\\//\\\\\\//g'`"'/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    diff $tmp.raw $tmp.tmp >tmp.debug.2
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/perl/GNUmakefile)
+	    # this INSTALL line is safe because mode is 0644 or 0755
+	    #	if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \
+	    #	$(INSTALL) -m $$mode $$src $$dn/$$bn || exit 1; \
+	    #
+	    sed -e '/\$\$mode/d' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmie/GNUmakefile)
+	    # this INSTALL line is optional because there if conditional
+	    # gmake control around it
+	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
+	    sed -e "/`echo $PCP_TMP_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmie/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmdas/bash/GNUmakefile)
+	    # this INSTALL line is optional because there if conditional
+	    # gmake control around it
+	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
+	    #
+	    sed -e '/\/pmdabash$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+    esac
+
+    # any left over $'s are bad ...
+    #
+
+    if grep '\$' $tmp.raw >&2
+    then
+	echo >&2 "Need fixup for shell variables or makefile macros in $makefile"
+	rm -f $tmp.new
+	break
+    fi
+
+    # translate into a generic format
+    # makefile|mode|owner|group|target-file-name|optional
+    #
+    awk <$tmp.raw '
+    { mode = ""; group = "root"; owner = "root"; list = ""
+      for (i = 2; i <= NF; i++) {
+	if ($i ~ /-m/) mode = substr($i, 3, length($i));
+	else if ($i ~ /-g/) group = substr($i, 3, length($i));
+	else if ($i ~ /-o/) owner = substr($i, 3, length($i));
+	else if ($i ~ /-d/) {
+	    dir = ""
+	    list = substr($i, 3, length($i));
+	}
+	else if (i == NF) {
+	    dir = $i
+	}
+	else if (list == "") {
+	    list = $i
+	}
+	else {
+	    list = list " " $i
+	}
+      }
+      if (dir != "" && list == "") {
+	print $1 "|" mode "|" owner "|" group "|" dir
+      }
+      else if (dir == "" && list != "") {
+	print $1 "|" mode "|" owner "|" group "|" list
+      }
+      else {
+	n = split(list, files)
+	if (n == 1) {
+	    print $1 "|" mode "|" owner "|" group "|" dir
+	}
+	else {
+	    for (i = 0; i < n; i++)
+		print $1 "|" mode "|" owner "|" group "|" dir "/" files[i]
+	}
+      }
+
+    }'
+
+done \
+| sort | uniq >$tmp.new
+
+if [ -s $tmp.new ]
+then
+    :
+else
+    sts=1
+    exit
+fi
+
+if [ -f permslist ]
+then
+    sed -e '/^#/d' <permslist >$tmp.old.strip
+    sed -e '/^#/d' <$tmp.new >$tmp.new.strip
+    if cmp $tmp.old.strip $tmp.new.strip >/dev/null
+    then
+	echo "No changes."
+    else
+	diff -u permslist $tmp.new
+	mv permslist permslist.old
+	cp $tmp.new permslist
+	echo "Updated (previous permslist saved as permslist.old)."
+    fi
+else
+    echo "Created permslist."
+    cp $tmp.new permslist
+fi
