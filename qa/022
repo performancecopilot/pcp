@@ -2,6 +2,7 @@
 # PCP QA Test No. 022
 # proc PMDA exerciser
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -12,39 +13,21 @@ seq=`basename $0`
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    _notrun No proc metrics for $PCP_PLATFORM
-else
-    # proc metrics may not be available
-    #
-    if pminfo proc.nprocs >/dev/null 2>&1
-    then
-	:
-    else
-	_notrun proc PMDA not installed
-    fi
-fi
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
+
+# see if unix domain sockets are available (permissions)
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+target="-h localhost"
+$unix_domain_sockets && target="-h unix:"
 
 rm -f $seq.out $seq.full
-if [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 3801 ]
+if [ $PCP_VER -ge 3801 -a -f $seq.$PCP_PLATFORM.3 ]
 then
-    ln $seq.linux.3 $seq.out
-elif [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2704 ]
+    ln $seq.$PCP_PLATFORM.3 $seq.out
+elif [ $PCP_VER -ge 2704 -a -f $seq.$PCP_PLATFORM.2 ]
 then
-    ln $seq.linux.2 $seq.out
-elif [ $PCP_PLATFORM = linux -a $PCP_EOE_VER -ge 2300 ]
-then
-    ln $seq.linux.1 $seq.out
-elif [ $PCP_PLATFORM = linux ]
-then
-    ln $seq.linux $seq.out
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 6514 ]
-then
-    ln $seq.irix.0 $seq.out
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6514 ]
-then
-    ln $seq.irix.1 $seq.out
+    ln $seq.$PCP_PLATFORM.2 $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
@@ -80,6 +63,7 @@ _proc_filter()
 	-e "s/\([^0-9]\)0*$pid\([^0-9]\)/\1PID\2/g" \
 	-e "s/\([^0-9]\)0*$ppid\([^0-9]\)/\1PPID\2/g" \
 	-e "s/\([^0-9]\)0*$cpid\([^0-9]\)/\1CPID\2/g" \
+	-e "s,$PCP_RUN_DIR/pmcd.socket,localhost," \
 	-e 's/^ //' \
 	-e 's/ $//' \
 	-e 's/fd=[0-9][0-9]*/fd=N/g' \
@@ -109,38 +93,23 @@ echo "=== pminfo -F output ===" >$seq.full
 
 # try fetching all proc metrics
 # cull out the not supported msg component
-pminfo -F proc \
+pminfo $target -F proc \
 | tee -a $seq.full \
 | _inst_value_filter \
 | sed -e '/value/d' \
     -e '/not supported/d' \
+    -e '/instance identifier/d' \
     -e '/^[ \t]*$/d' \
     -e '/DISAPPEARED/d' \
     -e '/^proc\.fd\.count$/d'
 
-if [ $PCP_PLATFORM = linux ]
-then
-    src/proc_test \
+src/proc_test $target \
 	proc.psinfo.utime \
 	proc.psinfo.stime \
 	proc.memory.rss \
 	proc.memory.size \
 	> $tmp.out 2>&1
-    code=$?
-else
-    src/proc_test \
-	proc.psinfo.time \
-	proc.pstatus.utime \
-	proc.psusage.utime \
-	proc.pscred.suid \
-	proc.memory.virtual.txt \
-	proc.memory.physical.txt \
-	proc.psinfo.uname \
-	proc.psinfo.gname \
-	proc.psinfo.ttyname \
-	> $tmp.out 2>&1
-    code=$?
-fi
+code=$?
 
 echo >>$seq.full
 echo "=== src/proc_test output ===" >>$seq.full
@@ -155,28 +124,17 @@ then
     exit 1
 fi
 
-
 #
 # fetch all instances for one metric in each cluster 
 # if new clusters are added, add more here
 #
 echo ""
 echo "All instances for selected metrics ..."
-if [ $PCP_PLATFORM = linux ]
-then
-    pminfo -F 2>$tmp.err \
+pminfo $target -F 2>$tmp.err \
 	proc.nprocs \
 	proc.psinfo.sname \
 	proc.memory.textrss \
-	proc.runq.sleeping
-else
-    pminfo -F 2>$tmp.err \
-	proc.nprocs \
-	proc.psinfo.time \
-	proc.pstatus.pid \
-	proc.pscred.suid \
-	proc.psusage.sysc
-fi \
+	proc.runq.sleeping \
 | sed \
     -e '/Error: proc_instance: unknown pid:/d' \
     -e '/^  *value /d' \
@@ -191,39 +149,6 @@ then
 	echo "--------"
 	cat $tmp.err1
 	echo "--------"
-fi
-
-if [ $PCP_PLATFORM = irix ]
-then
-    #
-    # Check hp-mib test program
-    # (this uses pcp_lite | PM_CONTEXT_LOCAL)
-    #
-    echo ""
-    echo "Exercise the stuff for the SNMP HP-UX MIB ..."
-    PMDA_LOCAL_PROC=yes; export PMDA_LOCAL_PROC
-    $sudo src/hp-mib 2>$tmp.err.hpmib \
-    | _inst_value_filter \
-    | _filter_pmids \
-    | sed \
-	-e '/Error: proc_instance: unknown pid:/d' \
-	-e '/^[ ]*value/d' \
-	-e '/^[ ]*inst/d' \
-	-e '/unknown pid/d' \
-	-e '/numval:/s/numval: .*/numval: LOTS/' \
-	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-
-    _filter_pmcd_log <$tmp.err.hpmib \
-    | sed -e '/unknown pid/d' >$tmp.err2
-
-    if [ -s $tmp.err2 ]
-    then
-	    echo Following is unexpected stderr output from hp-mib \| sed
-	    echo "--------"
-	    cat $tmp.err2
-	    echo "--------"
-	    
-    fi
 fi
 
 exit 0
