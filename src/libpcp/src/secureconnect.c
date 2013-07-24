@@ -644,7 +644,10 @@ __pmAuthLogCB(void *context, int priority, const char *message)
     case SASL_LOG_DEBUG:
     case SASL_LOG_TRACE:
     case SASL_LOG_PASS:
-	priority = LOG_DEBUG;
+	if (pmDebug & DBG_TRACE_AUTH)
+	    priority = LOG_DEBUG;
+	else
+	    return SASL_OK;
 	break;
     default:
 	priority = LOG_INFO;
