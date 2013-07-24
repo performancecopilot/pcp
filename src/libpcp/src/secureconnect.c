@@ -743,22 +743,34 @@ static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
  */
 
 static char *
-__pmGetAttrInteractive(const char *prompt, int secret)
+__pmGetAttrConsole(const char *prompt, int secret)
 {
     FILE *input, *output;
-    char *value;
+    char *value, *console;
 
-    /* Interactive mode: open terminal and discuss with user */
-    input = fopen(consoleName, "r");
-    if (input == NULL) {
-        __pmNotifyErr(LOG_ERR, "opening input terminal for read\n");
-        return NULL;
+    /*
+     * Interactive mode: open terminal and discuss with user
+     * For graphical tools, we do not want to ever be here.
+     * For testing, we want to just error out of here ASAP.
+     */
+    console = getenv("PCP_CONSOLE");
+    if (console) {
+	if (strcmp(console, "none") == 0)
+	    return NULL;
+    } else {
+	console = consoleName;
     }
-    output = fopen(consoleName, "w");
+
+    input = fopen(console, "r");
+    if (input == NULL) {
+	__pmNotifyErr(LOG_ERR, "opening input terminal for read\n");
+	return NULL;
+    }
+    output = fopen(console, "w");
     if (output == NULL) {
-        __pmNotifyErr(LOG_ERR, "opening output terminal for write\n");
+	__pmNotifyErr(LOG_ERR, "opening output terminal for write\n");
 	fclose(input);
-        return NULL;
+	return NULL;
     }
 
     value = fgetsPrompt(input, output, prompt, secret);
@@ -778,7 +790,7 @@ __pmGetAttrValue(__pmAttrKey key, __pmHashCtl *attrs, const char *prompt)
 	if ((node = __pmHashSearch(key, attrs)) != NULL)
 	    return strdup((char *)node->data);
     }
-    return __pmGetAttrInteractive(prompt, key == PCP_ATTR_PASSWORD);
+    return __pmGetAttrConsole(prompt, key == PCP_ATTR_PASSWORD);
 }
 
 
@@ -862,16 +874,18 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 	return SASL_BADPARAM;
 
     password = __pmGetAttrValue(PCP_ATTR_PASSWORD, attrs, "Password: ");
-    length = strlen(password);
+    length = password ? strlen(password) : 0;
 
-    *secret = (sasl_secret_t *) malloc(sizeof(sasl_secret_t) + length + 1);
+    *secret = (sasl_secret_t *) calloc(1, sizeof(sasl_secret_t) + length + 1);
     if (!*secret) {
 	free(password);
 	return SASL_NOMEM;
     }
 
-    (*secret)->len = length;
-    strcpy((char *)(*secret)->data, password);
+    if (password) {
+	(*secret)->len = length;
+	strcpy((char *)(*secret)->data, password);
+    }
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
@@ -905,8 +919,8 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     message[sizeof(message)-1] = '\0';
 
     if (id == SASL_CB_ECHOPROMPT) {
-	value = __pmGetAttrInteractive(message, 0);
-	if (value[0] != '\0') {
+	value = __pmGetAttrConsole(message, 0);
+	if (value && value[0] != '\0') {
 	    *result = value;
 	} else {
 	    free(value);

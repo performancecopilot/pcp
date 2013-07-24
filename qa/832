@@ -57,6 +57,8 @@ grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
 # unix domain access should always succeed - no matter how binaries
 # were configured/built
 
+export PCP_CONSOLE=none	# do not attempt to interact
+
 echo "testing secure mode access via unix domain socket (PASS)"
 pmstore -h unix: sample.write_me 1	# store PDU
 pmprobe -h unix: -v sample.write_me	# fetch PDU
