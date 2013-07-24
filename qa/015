@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
@@ -21,7 +22,7 @@ then
 		ln $seq.linux.x86 $seq.out
 		;;
 	*)
-		echo "Warning: no validated output for Linux and `uname -m`"
+		_notrun "No validated output for `uname -m` Linux"
 		;;
     esac
 elif [ $PCP_PLATFORM = darwin ]
@@ -31,7 +32,7 @@ elif [ $PCP_PLATFORM = solaris ]
 then
     ln $seq.linux.x86 $seq.out
 else
-    echo "Warning: no validated output for $PCP_PLATFORM"
+    _notrun "No validated output for $PCP_PLATFORM"
 fi
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
