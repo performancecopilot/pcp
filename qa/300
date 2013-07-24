@@ -12,7 +12,7 @@
 
 seq=`basename $0`
 
-rm -f $seq.out
+rm -f $seq.out $seq.full
 if [ $PCP_VER -lt 3802 ]
 then
     ln $seq.out.1 $seq.out || exit 1
@@ -66,7 +66,8 @@ fi
 
 echo
 echo "Check pmpost messages ..."
-grep bozo $PCP_LOG_DIR/NOTICES \
+cat $PCP_LOG_DIR/NOTICES > $seq.full
+egrep 'bozo|pmlogger_check' $PCP_LOG_DIR/NOTICES \
 | sed \
     -e 's/^[0-9][0-9]*:[0-9][0-9]*/TIME/' \
     -e 's/\(check for host \).*/\1HOSTNAME/'
