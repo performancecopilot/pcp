@@ -82,7 +82,7 @@ ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
 endif
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	# $PCP_RUN_DIR usually -> /var/run which may be a mounted filesystem
-	# and Debian's linitan complains about packages including /var/run/xxx
+	# and Debian's lintian complains about packages including /var/run/xxx
 	# artifacts ... $PCP_RUN_DIR is also conditionally created on the
 	# fly in each before use case, so the inclusion in the package
 	# is desirable, but not mandatory
@@ -99,6 +99,7 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
+	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)
