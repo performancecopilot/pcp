@@ -47,8 +47,9 @@ void queue_statistics(int q)
     pmdaEventQueueClients(q, &clients);
     pmdaEventQueueMemory(q, &memory);
 
-    fprintf(stderr, "event queue#%d count=%d, bytes=%d, clients=%d, mem=%d\n",
-	    q, (int)count.ul, (int)bytes.ull, (int)clients.ul, (int)memory.ul);
+    fprintf(stderr, "event queue#%d count=%d, bytes=%d, clients=%d, mem=%lld\n",
+	    q, (int)count.ul, (int)bytes.ull, (int)clients.ul,
+	    (long long)memory.ul);
 }
 
 /*
