@@ -16,17 +16,20 @@ echo "QA output created by $seq"
 unix_domain_sockets=false
 eval `pmconfig -L 2>/dev/null`
 $unix_domain_sockets || _notrun "No unix domain socket support available"
-
 $authentication || _notrun "No authentication support available"
+export PCP_CONSOLE=none 
 
 cleanup()
 {
-    # restore any modified pmcd configuration file
-    if test -f $PCP_PMCDOPTIONS_PATH.$seq
-    then
-        $sudo rm -f $PCP_PMCDOPTIONS_PATH
-        $sudo mv $PCP_PMCDOPTIONS_PATH.$seq $PCP_PMCDOPTIONS_PATH
-    fi
+    # restore any modified pmcd configuration files
+    for file in $PCP_PMCDOPTIONS_PATH $PCP_SASLCONF_DIR/pmcd.conf
+    do
+	if test -f $file.$seq
+	then
+	    $sudo rm -f $file
+	    $sudo mv $file.$seq $file
+	fi
+    done
 
     $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
@@ -39,7 +42,16 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed -e '/Parameter Error/d'
+}
+
 # real QA test starts here
+$sudo mv $PCP_SASLCONF_DIR/pmcd.conf $PCP_SASLCONF_DIR/pmcd.conf.$seq
+echo 'mech_list: plain' > $tmp.sasl
+$sudo mv $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+
 $sudo mv $PCP_PMCDOPTIONS_PATH $PCP_PMCDOPTIONS_PATH.$seq
 cat <<End-Of-File >$tmp.options
 # Dummy lines added by PCP QA test $seq
@@ -57,8 +69,6 @@ grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
 # unix domain access should always succeed - no matter how binaries
 # were configured/built
 
-export PCP_CONSOLE=none	# do not attempt to interact
-
 echo "testing secure mode access via unix domain socket (PASS)"
 pmstore -h unix: sample.write_me 1	# store PDU
 pmprobe -h unix: -v sample.write_me	# fetch PDU
@@ -67,10 +77,10 @@ pminfo -dh unix: sample.write_me	# desc PDU
 echo
 
 echo "testing secure mode access attempt via inet socket (FAIL)"
-pmstore -h localhost sample.write_me 2	# store PDU
-pmprobe -h localhost -v sample.write_me	# fetch PDU
-pminfo -th localhost sample.write_me	# text PDU
-pminfo -dh localhost sample.write_me	# desc PDU
+pmstore -h localhost sample.write_me 2  2>&1 | _filter
+pmprobe -h localhost -v sample.write_me 2>&1 | _filter
+pminfo -th localhost sample.write_me    2>&1 | _filter
+pminfo -dh localhost sample.write_me    2>&1 | _filter
 echo
 
 # success, all done

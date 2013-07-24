@@ -705,6 +705,7 @@ static char *fgetsQuietly(char *buf, int length, FILE *input)
 
 static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
 {
+    size_t length;
     int infd  = fileno(in);
     int isTTY = isatty(infd);
     char *value, phrase[256];
@@ -717,13 +718,14 @@ static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
     }
 
     memset(phrase, 0, sizeof(phrase));
-    value = fgetsQuietly(phrase, sizeof(phrase), in);
-    phrase[sizeof(phrase)-1] = '\0';
+    value = fgetsQuietly(phrase, sizeof(phrase)-1, in);
+    length = strlen(value) - 1;
+    while (length && (value[length] == '\n' || value[length] == '\r'))
+	value[length] = '\0';
 
-    if (isTTY) {
+    if (isTTY && secret) {
 	fprintf(out, "\n");
-	if (secret)
-	    echoOn(infd);
+	echoOn(infd);
     }
 
     return strdup(value);
