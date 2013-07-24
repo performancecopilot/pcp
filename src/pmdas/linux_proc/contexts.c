@@ -104,39 +104,51 @@ proc_ctx_init(void)
     basegid = getgid();
 }
 
-void
+int
 proc_ctx_access(int ctx)
 {
     proc_perctx_t *pp;
+    int accessible = 0;
 
     if (ctx < 0 || ctx >= num_ctx)
-	return;
+	return accessible;
     pp = &ctxtab[ctx];
     if (pp->state == CTX_INACTIVE)
-	return;
+	return accessible;
 
-    if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
-	if (seteuid(pp->uid) < 0)
-	    __pmNotifyErr(LOG_ERR, "seteuid(%d) access failed: %s\n",
-			  pp->uid, osstrerror());
+    if (pp->state & CTX_GROUPID) {
+	accessible++;
+	if (basegid != pp->gid) {
+	    if (setegid(pp->gid) < 0) {
+		__pmNotifyErr(LOG_ERR, "setegid(%d) access failed: %s\n",
+			      pp->gid, osstrerror());
+		accessible--;
+	    }
+	}
     }
-    if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
-	if (setegid(pp->gid) < 0)
-	    __pmNotifyErr(LOG_ERR, "setegid(%d) access failed: %s\n",
-			  pp->gid, osstrerror());
+    if (pp->state & CTX_USERID) {
+	accessible++;
+	if (baseuid != pp->uid) {
+	    if (seteuid(pp->uid) < 0) {
+		__pmNotifyErr(LOG_ERR, "seteuid(%d) access failed: %s\n",
+			      pp->uid, osstrerror());
+		accessible--;
+	    }
+	}
     }
+    return (accessible > 1);
 }
 
-void
+int
 proc_ctx_revert(int ctx)
 {
     proc_perctx_t *pp;
 
     if (ctx < 0 || ctx >= num_ctx)
-	return;
+	return 0;
     pp = &ctxtab[ctx];
     if (pp->state == CTX_INACTIVE)
-	return;
+	return 0;
 
     if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
 	if (seteuid(baseuid) < 0)
@@ -148,4 +160,5 @@ proc_ctx_revert(int ctx)
 	    __pmNotifyErr(LOG_ERR, "setegid(%d) revert failed: %s\n",
 			  basegid, osstrerror());
     }
+    return 0;
 }

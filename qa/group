@@ -848,9 +848,12 @@ pcp.py
 720 libpcp local oss
 721 dbpmda local oss
 722 python local oss
+748 pmlogrewrite pmda.mysql local oss
 831 pmda.sample pmstore local oss
 832 pmda.sample pmstore local oss
 875 libpcp local oss
+943 pmprobe pmda.proc local oss
+994 other local oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
@@ -859,5 +862,3 @@ pcp.py
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
 1108 logutil local folio sgi
-748 pmlogrewrite pmda.mysql local oss
-994 other local oss

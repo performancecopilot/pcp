@@ -33,6 +33,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	mirage-1.0 mirage-2.0 eventrec-old.0 eventrec.0 \
 	badlen-0.0 badlen-1.0 badlen-2.0 badlen-3.0 badlen-4.0 \
 	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 badlen-9.0 \
+	badlen-10.0 badlen-11.0 \
 	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \

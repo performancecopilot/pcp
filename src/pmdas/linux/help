@@ -916,6 +916,9 @@ tools running on IRIX.
 @ network.icmp.outtimestampreps count of icmp outtimestampreps
 @ network.icmp.outaddrmasks count of icmp outaddrmasks
 @ network.icmp.outaddrmaskreps count of icmp outaddrmaskreps
+@ network.icmp.incsumerrors count of icmp in checksum errors
+@ network.icmpmsg.intype count of icmp message types recvd
+@ network.icmpmsg.outtype count of icmp message types sent
 @ network.tcp.rtoalgorithm count of tcp rtoalgorithm
 @ network.tcp.rtomin count of tcp rtomin
 @ network.tcp.rtomax count of tcp rtomax
@@ -930,6 +933,7 @@ tools running on IRIX.
 @ network.tcp.retranssegs count of tcp retranssegs
 @ network.tcp.inerrs count of tcp inerrs
 @ network.tcp.outrsts count of tcp outrsts
+@ network.tcp.incsumerrors count of tcp in checksum errors
 @ network.tcpconn.established Number of established connections
 @ network.tcpconn.syn_sent Number of SYN_SENT connections
 @ network.tcpconn.syn_recv Number of SYN_RECV connections
@@ -947,12 +951,14 @@ tools running on IRIX.
 @ network.udp.outdatagrams count of udp outdatagrams
 @ network.udp.recvbuferrors count of udp receive buffer errors
 @ network.udp.sndbuferrors count of udp send buffer errors
+@ network.udp.incsumerrors count of udp in checksum errors
 @ network.udplite.indatagrams count of udplite indatagrams
 @ network.udplite.noports count of udplite noports
 @ network.udplite.inerrors count of udplite inerrors
 @ network.udplite.outdatagrams count of udplite outdatagrams
 @ network.udplite.recvbuferrors count of udplite receive buffer errors
 @ network.udplite.sndbuferrors count of udplite send buffer errors
+@ network.udplite.incsumerrors count of udplite in checksum errors
 @ xfs.allocs.alloc_extent XFS extents allocated
 Number of file system extents allocated over all XFS filesystems
 @ xfs.allocs.alloc_block XFS blocks allocated

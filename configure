@@ -678,6 +678,7 @@ pcp_pmwebdoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
+pcp_saslconf_dir
 pcp_sysconf_dir
 pcp_etc_dir
 lib_for_math
@@ -10206,6 +10207,9 @@ fi
 
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
+
+pcp_saslconf_dir=`eval echo $sysconfdir/sasl2`
+pcp_saslconf_dir=`eval echo $pcp_saslconf_dir`
 
 pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
 pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`

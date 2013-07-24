@@ -10,30 +10,25 @@
 # for what it thought was an impossible instance id but
 # it wasn't because it was truncated.  
 #
-#
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = darwin ] && _notrun "No proc metrics for darwin"
-[ $PCP_PLATFORM = solaris ] && _notrun "No proc metrics for solaris"
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
-# proc metrics may not be available
-#
-if pminfo proc.nprocs >/dev/null 2>&1
-then
-    :
-else
-    _notrun proc PMDA not installed
-fi
-
-echo "QA output created by $seq"
+# see if unix domain sockets are available (permissions)
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+target="-h localhost"
+$unix_domain_sockets && target="-h unix:"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -43,8 +38,9 @@ debug=false
 
 _filter()
 {
-   sed -e "s/0*$mypid/PID/" -e 's/^[ \t]*//'
-
+   sed \
+	-e "s/0*$mypid/PID/" -e 's/^[ \t]*//' \
+	-e 's/host:      unix:/host:      localhost/'
 }
 
 # real QA test starts here
@@ -74,12 +70,13 @@ do
 done
 
 # should all succeed
-pmval -w 30 -s1 -i "$mypid" proc.psinfo.pid | _filter
-pmval -w 30 -s1 -i "${zeroes}$mypid" proc.psinfo.pid | _filter
-pmval -w 30 -s1 -i "${zeroes}${mypid}hi" proc.psinfo.pid | _filter
+args="$target -w 30 -s1"
+pmval $args -i "$mypid" proc.psinfo.pid | _filter
+pmval $args -i "${zeroes}$mypid" proc.psinfo.pid | _filter
+pmval $args -i "${zeroes}${mypid}hi" proc.psinfo.pid | _filter
 
 # should now fail - passed previously
-pmval -w 30 -s1 -i "${zeroes}${mypid}12345" proc.psinfo.pid | _filter
+pmval $args -i "${zeroes}${mypid}12345" proc.psinfo.pid | _filter
 
 # success, all done
 status=0

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,6 +41,7 @@ enum {
 	PROC_CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems -> proc PMDA */
 	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
 	LV_INDOM,               /* 22 - lvm devices */
+	ICMPMSG_INDOM,          /* 23 - icmp message types */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

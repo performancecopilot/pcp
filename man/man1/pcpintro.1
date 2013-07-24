@@ -729,6 +729,21 @@ described in the
 section below,
 the following environment variables apply to all installations.
 .TP
+.B PCP_CONSOLE
+When set, this changes the default console from
+.I /dev/tty
+(on Unix)
+or
+.I CON:
+(on Windows)
+to be the specified console.
+The special value of
+.I none
+can be used to indicate no console is available for use.
+This is used in places where console-based tools need to interact
+with the user, and in particular is used when authentication is
+being performed.
+.TP
 .B PCP_DERIVED_CONFIG
 When set, this variable defines the path to a file that contains
 definitions of derived metrics as per the syntax described in
