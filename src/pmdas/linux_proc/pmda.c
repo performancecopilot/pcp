@@ -856,7 +856,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
     sts = PM_ERR_PERMISSION;
     have_access = proc_ctx_access(pmda->e_context);
-    if (have_access) {
+    if (have_access || indomp->serial != PROC_INDOM) {
 	proc_refresh(pmda, need_refresh);
 	sts = pmdaInstance(indom, inst, name, result, pmda);
     }
