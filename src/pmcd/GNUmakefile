@@ -41,7 +41,7 @@ endif
 	$(INSTALL) -m 644 pmdaproc.sh $(PCP_SHARE_DIR)/lib/pmdaproc.sh
 	$(INSTALL) -m 644 rc-proc.sh $(PCP_SHARE_DIR)/lib/rc-proc.sh
 	$(INSTALL) -m 644 rc-proc.sh.minimal $(PCP_SHARE_DIR)/lib/rc-proc.sh.minimal
-	$(INSTALL) -m 1777 -d $(PCP_LOG_DIR)/pmcd
+	$(INSTALL) -o $(PCP_USER) -g $(PCP_GROUP) -m 775 -d $(PCP_LOG_DIR)/pmcd
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcd
 endif

@@ -38,14 +38,14 @@ include $(BUILDRULES)
 
 install: $(SUBDIRS) crontab
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmlogger
-	$(INSTALL) -m 664 -g $(PCP_GROUP) control $(PCP_PMLOGGERCONTROL_PATH)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmlogger
+	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
-	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif

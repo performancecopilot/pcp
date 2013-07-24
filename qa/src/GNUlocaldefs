@@ -172,11 +172,11 @@ MYFILES += $(SRCARCH) \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
 	pmtimezone.c pthread_barrier.h pv.c qa_test.c \
-	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7
+	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7 permslist
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
-	mksa-sysstat mktzchange show-args mkbig1 fixhosts
+	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
