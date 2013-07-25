@@ -358,7 +358,7 @@ fi
 if [ -d "$PCP_RUN_DIR" ]
 then
     mkdir -p -m 775 "$PCP_RUN_DIR"
-    chgrp $PCP_GROUP "$PCP_RUN_DIR"
+    chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
 fi
 echo $$ >"$PCP_RUN_DIR"/pmlogger_daily.pid
 
