@@ -55,8 +55,7 @@ then
     PROG=pmstat
     cp $seq.linux $seq.out
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 export SOCKS_SERVER PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PROG
