@@ -43,7 +43,6 @@ $(WRAPPER): $(WRAPPER).IN
 	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
 
 install: default
-	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 ifneq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 else

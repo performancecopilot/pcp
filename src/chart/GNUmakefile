@@ -65,7 +65,6 @@ $(WRAPPER): $(WRAPPER).IN
 
 install: default
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 ifeq ($(WINDOW),win)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif

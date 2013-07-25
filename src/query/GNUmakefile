@@ -41,7 +41,6 @@ pmconfirm.sh: pmconfirm.sh.IN
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
 
 install: default
-	$(INSTALL) -m 755 -d $(PKG_BIN_DIR)
 ifneq ($(WINDOW),mac)
 	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
 endif
