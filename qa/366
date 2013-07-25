@@ -4,6 +4,19 @@
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
+# Maintenance notes.
+# As pmlogconf usage grows, the generated pmlogconf files are going
+# to become more complicated and more variable across platforms and
+# in particular groups will change from not being expanded by default
+# to be expanded by default.
+#
+# Where this tests _expects_ a control line to be expanded to a group
+# of metrics, we use platform/version variants of the *.out files.
+#
+# But where a control line is expanded on some platforms, but not
+# on others, we should just cull the control line from the $tmp.conf
+# file and the 5 line of related changes in all the *.out files ...
+# as long as some expansion is done, the test remains valid.
 
 # get standard environment, filters and checks
 . ./common.product
@@ -200,12 +213,6 @@ cat <<'End-of-File' >$tmp.conf
 
 # Services
 #
-#+ S0:n:default:
-## NFS2 stats [nfsvis, pmchart:NFS2]
-#----
-#+ S1:n:default:
-## NFS3 stats [nfsvis, pmchart:NFS3]
-#----
 #+ S2:n:default:
 ## RPC stats [pmie:rpc]
 #----

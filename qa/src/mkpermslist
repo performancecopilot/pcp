@@ -47,15 +47,6 @@ p
     #
     sed <$tmp.raw >$tmp.tmp \
 	-e 's/$(INSTALL)//' \
-	-e 's@$(PCP_USER)@'$PCP_USER@g \
-	-e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
-	-e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
-	-e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
-	-e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
-	-e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
-	-e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
-	-e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
-	-e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
 	-e "s@^@$makefile@"
     mv $tmp.tmp $tmp.raw
 
@@ -69,7 +60,7 @@ p
 	    # this INSTALL line is optional depending on packaging
 	    # $(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 	    #
-	    sed -e "/`echo $PCP_RUN_DIR | sed -e 's/\\//\\\\\\//g'`"'/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed -e '/PCP_RUN_DIR)$/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    diff $tmp.raw $tmp.tmp >tmp.debug.2
 	    mv $tmp.tmp $tmp.raw
 	    ;;
@@ -87,7 +78,15 @@ p
 	    # this INSTALL line is optional because there if conditional
 	    # gmake control around it
 	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
-	    sed -e "/`echo $PCP_TMP_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmie/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed -e '/PCP_TMP_DIR)\/pmie$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmlogger/GNUmakefile)
+	    # this INSTALL line is optional because there if conditional
+	    # gmake control around it
+	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
+	    sed -e '/PCP_TMP_DIR)\/pmlogger$/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
@@ -96,14 +95,23 @@ p
 	    # gmake control around it
 	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
 	    #
-	    sed -e "/`echo $PCP_TMP_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmdabash/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed -e '/PCP_TMP_DIR)\/pmdabash$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmdas/mmv/GNUmakefile)
+	    # this INSTALL line is optional because there if conditional
+	    # gmake control around it
+	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/mmv
+	    #
+	    sed -e '/PCP_TMP_DIR)\/mmv$/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
 	src/pmwebapi/GNUmakefile)
 	    # all the INSTALL lines here are conditional, including this one
 	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
-	    sed -e "/`echo $PCP_LOG_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmwebd/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed -e '/PCP_LOG_DIR)\/pmwebd$/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
@@ -112,8 +120,10 @@ p
     # any left over $'s are bad ...
     #
 
-    if grep '\$' $tmp.raw >&2
+    grep '\$' $tmp.raw | grep -v '\$(PCP_' >$tmp.tmp
+    if [ -s $tmp.tmp ]
     then
+	cat >&2 $tmp.tmp
 	echo >&2 "Need fixup for shell variables or makefile macros in $makefile"
 	rm -f $tmp.new
 	break
