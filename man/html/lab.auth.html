@@ -229,7 +229,7 @@ Note that requires the previous step to have been performed,
 as that informs the tools about the location of the database.</P>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Administer the SASL database:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Administer the SASL database (add, list and disable users):<BR>
 <PRE><B>
 # saslpasswd2 -a pmcd jack
 Password: xxxxxx
@@ -257,7 +257,7 @@ and if that is free of errors, we can attempt to authenticate.</P>
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Establish an authenticated connection:<BR>
 <PRE><B>
-$ pminfo -fmdt -h pcps://localhost?method=plain proc.fd.count
+$ pminfo -fmdt -h pcps://server.demo.net?method=plain proc.fd.count
 Authname: jack
 Username: jack
 Password: xxxxxx
