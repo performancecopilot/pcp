@@ -431,7 +431,7 @@ __pmSecureServerNegotiation(int fd, int *strength)
     return 0;
 }
 
-static void
+static int
 __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
 {
     char name[32];
@@ -439,17 +439,24 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
     uid_t uid;
     gid_t gid;
 
-    if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR)) {
+    if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR) == 0) {
 	snprintf(name, sizeof(name), "%u", uid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+	else
+	    return -ENOMEM;
 
 	snprintf(name, sizeof(name), "%u", gid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+	else
+	    return -ENOMEM;
+	return 0;
     }
+    __pmNotifyErr(LOG_ERR, "Authenticated user %s not found\n", username);
+    return -ESRCH;
 }
 
 static int
@@ -460,23 +467,25 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
     int sts;
 
     sts = sasl_getprop(conn, SASL_USERNAME, &property);
-    if (sts == SASL_OK && property) {
-	__pmNotifyErr(LOG_INFO, "Successful authentication for user \"%s\"\n",
-				(char *)property);
-	username = strdup((char *)property);
+    username = (char *)property;
+    if (sts == SASL_OK && username) {
+	__pmNotifyErr(LOG_INFO,
+			"Successful authentication for user \"%s\"\n",
+			username);
+	if ((username = strdup(username)) == NULL) {
+	    __pmNoMem("__pmAuthServerSetAttributes",
+			strlen(username), PM_RECOV_ERR);
+	    return -ENOMEM;
+	}
     } else {
-	username = NULL;
+	__pmNotifyErr(LOG_ERR,
+			"Authentication complete, but no username\n");
+	return -ESRCH;
     }
 
-    if (!username) {
-	sts = property ? strlen(property) : 0;
-	__pmNoMem("__pmAuthServerSetAttributes", sts, PM_RECOV_ERR);
-	sts = -ENOMEM;
-    } else {
-	sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs);
-	__pmSetUserGroupAttributes(username, attrs);
-    }
-    return sts;
+    if ((sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs)) < 0)
+	return sts;
+    return __pmSetUserGroupAttributes(username, attrs);
 }
 
 static int

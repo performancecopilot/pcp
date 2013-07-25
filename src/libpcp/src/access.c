@@ -1452,8 +1452,8 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
-    if (nusers == 0 && ngroups == 0)    /* No access controls => allow all */
-	return 0;                       /* Zero return code signifies noop */
+    if (nusers == 0 && ngroups == 0)	/* No access controls => allow all */
+	return (userid || groupid);	/* Inform caller of credentials */
 
     /* Access controls present, but no authentication information - denied */
     if (!userid || !groupid) {
@@ -1486,8 +1486,8 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     updateUserAccountConnections(uid, 1, +1);
     updateGroupAccountConnections(gid, 1, +1);
 
-    /* A positive return code signifies access controls were satisfied */
-    return 1;		
+    /* Return code indicates access controls OK and have credentials */
+    return (userid || groupid);
 }
 
 void
