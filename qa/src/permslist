@@ -1,5 +1,6 @@
 GNUmakefile|1777|root|root|/var/tmp
-GNUmakefile|775|root|pcp|/var/run/pcp|optional
+GNUmakefile|775|pcp|pcp|/var/lib/pcp/config/pmda
+GNUmakefile|775|pcp|pcp|/var/run/pcp|optional
 src/pmcd/GNUmakefile|775|pcp|pcp|/var/log/pcp/pmcd
 src/pmdas/bash/GNUmakefile|1777|root|root|/var/tmp/pmdabash|optional
 src/pmdas/mmv/GNUmakefile|1777|root|root|/var/tmp/mmv
@@ -11,4 +12,4 @@ src/pmlogger/GNUmakefile|664|pcp|pcp|/etc/pcp/pmlogger/control
 src/pmlogger/GNUmakefile|775|pcp|pcp|/etc/pcp/pmlogger
 src/pmlogger/GNUmakefile|775|pcp|pcp|/var/log/pcp/pmlogger
 src/pmproxy/GNUmakefile|775|pcp|pcp|/var/log/pcp/pmproxy
-src/pmwebapi/GNUmakefile|775|pcp|pcp|/var/log/pcp/pmwebd
+src/pmwebapi/GNUmakefile|775|pcp|pcp|/var/log/pcp/pmwebd|optional

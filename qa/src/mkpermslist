@@ -53,6 +53,7 @@ p
 	-e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
 	-e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
 	-e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
+	-e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
 	-e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
 	-e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
 	-e "s@^@$makefile@"
@@ -95,7 +96,14 @@ p
 	    # gmake control around it
 	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
 	    #
-	    sed -e '/\/pmdabash$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    sed -e "/`echo $PCP_TMP_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmdabash/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmwebapi/GNUmakefile)
+	    # all the INSTALL lines here are conditional, including this one
+	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
+	    sed -e "/`echo $PCP_LOG_DIR | sed -e 's/\\//\\\\\\//g'`"'\/pmwebd/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 

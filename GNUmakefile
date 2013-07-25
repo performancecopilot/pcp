@@ -87,7 +87,7 @@ ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	# fly in each before use case, so the inclusion in the package
 	# is desirable, but not mandatory
 	#
-	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 endif
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
@@ -99,7 +99,7 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
-	$(INSTALL) -m 775 -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)
