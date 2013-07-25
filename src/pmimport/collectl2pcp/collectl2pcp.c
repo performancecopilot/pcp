@@ -33,7 +33,7 @@ handler_t handlers[] = {
 	{ "cpu*",		cpu_handler },
 	{ "processes",		generic1_handler,	"kernel.all.nprocs" },
 	{ "intr",		generic1_handler,	"kernel.all.intr" },
-	{ "ctx",		generic1_handler,	"kernel.all.pswitch" },
+	{ "ctxt",		generic1_handler,	"kernel.all.pswitch" },
 
 	/* /proc/diskstats */
 	{ "disk",		disk_handler },
