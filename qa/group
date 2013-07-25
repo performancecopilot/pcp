@@ -11,8 +11,27 @@ sgi
 # catch-all
 other
 
-# sanity check ... quick coverage of most functionality
+# sanity check ... quick coverage of much functionality
+# expectation is to run in 3-5 minutes, and must pass 100%
+# NOTE: used by testing orgs beyond developers, must pass!
 sanity
+
+# local check ... runs on localhost alone, no remotes used
+# NOTE: used by testing orgs beyond developers, do not add
+# tests that known-fail sometimes - goal is for 100% pass,
+# but due to test volume and chaos theory, some tests will
+# fail sometimes, on some platforms, during a full moon.
+local
+
+# packaging verification ... suitable for standalone use,
+# particularly immediately after installation to check.
+verify
+
+# flaky checks ... known to have intermittent races/hangs.
+# NOTE: some threading race conditions (possibly in tests),
+# prevent 100% pass rate being achieved here.  Goal is to
+# get this group devoid of any tests.
+flakey
 
 # specific apps
 #
@@ -597,7 +616,7 @@ pcp.py
 380 libpcp pmda pmda.sample local oss
 381 logutil pmlc remote oss
 382 dbpmda pmda pmda.sample local oss
-383 pmda.cisco local oss
+383 pmda.cisco flakey oss
 384 pmda.pmcd local oss
 385 libpcp pmda.sample pminfo pmprobe local oss event sanity
 386 pdu mem_leak valgrind local oss
@@ -663,13 +682,13 @@ pcp.py
 446 trace local oss
 447 event local oss
 448 libpcp local oss
-449 threads local oss
+449 threads flakey oss
 450 pmlogextract local #584487 pmval oss
 451 threads local oss
 452 pmda.linux local oss
 453 perl local oss sanity
 454 pmcd local oss
-455 pmda.rsyslog pmda.install local oss
+455 pmda.rsyslog flakey pmda.install oss
 456 logutil local #591459 folio oss
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
@@ -853,7 +872,7 @@ pcp.py
 832 pmda.sample pmstore local oss
 875 libpcp local oss
 943 pmprobe pmda.proc local oss
-994 other local oss
+994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi
