@@ -258,7 +258,6 @@ and if that is free of errors, we can attempt to authenticate.</P>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Establish an authenticated connection:<BR>
 <PRE><B>
 $ pminfo -fmdt -h pcps://server.demo.net?method=plain proc.fd.count
-Authname: jack
 Username: jack
 Password: xxxxxx
 
@@ -335,7 +334,6 @@ failures can be further diagnosed using information captured there.</P>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Setup use of <I>saslauthd</I> on the PCP Collector:<BR>
 <PRE><B>
 $ pminfo -h pcps://server.demo.net?method=plain -dfmt proc.fd.count
-Authname: jack
 Username: jack
 Password: xxxxxx
 
