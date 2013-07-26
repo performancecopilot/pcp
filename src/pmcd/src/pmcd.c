@@ -612,8 +612,6 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		__pmNotifyErr(LOG_ERR,
 			"ClientLoop: error extracting local credentials: %s",
 			pmErrStr(sts));
-	    } else {
-		sts = AgentsAuthentication(cp - client);
 	    }
 	}
 #endif
