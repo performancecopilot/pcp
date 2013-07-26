@@ -36,23 +36,37 @@ QmcSource::retryConnect(int type, QString &source)
 {
     int oldTZ;
     int oldContext;
+    int offset;
     int sts;
     char *tzs;
+    QString hostSpec;
 
+    my.attrs = QString::null;
     switch(type) {
     case PM_CONTEXT_LOCAL:
 	my.desc = "Local context";
 	my.host = my.source = localHost;
 	my.proxy = "";
 	break;
+
     case PM_CONTEXT_HOST:
 	my.desc = "host \"";
 	my.desc.append(source);
 	my.desc.append(QChar('\"'));
 	my.host = source;
-	my.source = source;
 	my.proxy = getenv("PMPROXY_HOST");
+	if ((offset = my.host.indexOf('?')) >= 0) {
+	    my.attrs = my.host;
+	    my.attrs.remove(0, offset+1);
+	    my.host.truncate(offset);
+	}
+	if ((offset = my.host.indexOf('@')) >= 0) {
+	    my.proxy = my.host;
+	    my.proxy.remove(0, offset+1);
+	}
+	my.source = my.host;
 	break;
+
     case PM_CONTEXT_ARCHIVE:
 	my.desc = "archive \"";
 	my.desc.append(source);
@@ -64,7 +78,11 @@ QmcSource::retryConnect(int type, QString &source)
 
     oldContext = pmWhichContext();
 
-    my.status = pmNewContext(type | my.flags, (const char *)source.toAscii());
+    hostSpec = source;
+    if (my.attrs != QString::null)
+	hostSpec.append("?").append(my.attrs);
+
+    my.status = pmNewContext(type | my.flags, (const char *)hostSpec.toAscii());
     if (my.status >= 0) {
 	my.handles.append(my.status);
 

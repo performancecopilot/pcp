@@ -80,6 +80,13 @@ AC_DEFUN([AC_PACKAGE_HAVE_PM_CTXFLAG_SECURE],
   ])
 
 #
+# Check if we have the PM_CTXFLAG_AUTH macro in pmapi.h
+#
+AC_DEFUN([AC_PACKAGE_HAVE_PM_CTXFLAG_AUTH],
+  [ AC_CHECK_DECLS(PM_CTXFLAG_AUTH, [], [], [[#include <pcp/pmapi.h>]])
+  ])
+
+#
 # Check if we have the pmdaMain routine in libpcp_pmda
 #
 AC_DEFUN([AC_PACKAGE_NEED_LIBPCP_PMDA],

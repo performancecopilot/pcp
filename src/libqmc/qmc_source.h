@@ -75,10 +75,6 @@ public:
     static QString timeString(const struct timeval *timeval);
     static QString timeStringBrief(const struct timeval *timeval);
 
-    void setSecureFlag() { my.flags |= PM_CTXFLAG_SECURE; }
-    void setRelaxedFlag() { my.flags |= PM_CTXFLAG_RELAXED; }
-    void setCompressFlag() { my.flags |= PM_CTXFLAG_COMPRESS; }
-
 protected:
     // retry context/connection (e.g. if it failed in the constructor)
     void retryConnect(int type, QString &source);
@@ -92,6 +88,7 @@ private:
 	int type;
 	QString source;
 	QString proxy;
+	QString attrs;
 	QString host;
 	QString	desc;
 	QString timezone;

@@ -53,5 +53,8 @@ static inline int pmFreeEventResult(pmValueSet *, int, pmResult ***) { return -E
 #define PM_CTXFLAG_COMPRESS	(1U<<11)
 #define PM_CTXFLAG_RELAXED	(1U<<12)
 #endif
+#if HAVE_DECL_PM_CTXFLAG_AUTH == 0
+#define PM_CTXFLAG_AUTH		(1U<<13)
+#endif
 
 #endif // VERSION_H

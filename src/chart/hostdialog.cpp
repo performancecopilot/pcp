@@ -77,6 +77,16 @@ HostDialog::getHostSpecification(void) const
             host.prepend("@").prepend(proxy);
     }
 
+    if (authenticateCheckBox->isChecked()) {
+	QString username = usernameLineEdit->text().trimmed();
+	QString password = passwordLineEdit->text().trimmed();
+	QString realm = realmLineEdit->text().trimmed();
+
+	host.append("?username=").append(username);
+	host.append("&password=").append(password);
+	host.append("&realm=").append(realm);
+    }
+
     return host;
 }
 
@@ -89,6 +99,8 @@ HostDialog::getContextFlags(void) const
         flags |= PM_CTXFLAG_SECURE;
     if (compressCheckBox->isChecked())
         flags |= PM_CTXFLAG_COMPRESS;
+    if (authenticateCheckBox->isChecked())
+        flags |= PM_CTXFLAG_AUTH;
     return flags;
 }
 
