@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2013, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -66,13 +66,13 @@ public:
     TabWidget *tabWidget() { return chartTabWidget; }
     TimeAxis *timeAxis() { return my.statusBar->timeAxis(); }
     QLabel *dateLabel() { return my.statusBar->dateLabel(); }
+    Chart *acceptNewChart();
 
     virtual void step(bool livemode, PmTime::Packet *pmtime);
     virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
     virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
     virtual void setStyle(char *style);
     virtual void updateHeight(int);
-    virtual void createNewChart();
     virtual void metricInfo(QString src, QString m, QString inst, int srcType);
     virtual void metricSearch(QTreeWidget *pmns);
     virtual void createNewTab(bool liveMode);
@@ -122,7 +122,6 @@ public slots:
     virtual void optionsToolbar();
     virtual void optionsConsole();
     virtual void optionsNewPmchart();
-    virtual void acceptNewChart();
     virtual void fileNewChart();
     virtual void editChart();
     virtual void acceptEditChart();
@@ -158,8 +157,7 @@ private:
 	TabDialog *newtab;
 	TabDialog *edittab;
 	InfoDialog *info;
-	ChartDialog *newchart;
-	ChartDialog *editchart;
+	ChartDialog *newchart;	// shared by New and Edit Chart actions
 	ExportDialog *exporter;
 	SearchDialog *search;
 	SamplesDialog *samples;

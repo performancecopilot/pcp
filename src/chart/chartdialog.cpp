@@ -91,7 +91,8 @@ void ChartDialog::reset()
     setCurrentScheme(QString::null);
     my.sequence = 0;
 
-    resetCommon();
+    resetCompletely();
+    enableUi();
 }
 
 void ChartDialog::reset(Chart *cp)
@@ -119,13 +120,23 @@ void ChartDialog::reset(Chart *cp)
     setScheme(cp->scheme(), cp->sequence());
     setupSchemeComboBox();
 
-    resetCommon();
+    resetCompletely();
+    enableUi();
+}
+
+void ChartDialog::resetPartially(Chart *cp)
+{
+    my.chart = cp;
+
+    setWindowTitle(tr("Edit Chart"));
+    setupChartMetricsTree();
+    enableUi();
 }
 
 //
 // Code paths common to both Create/Edit dialog uses
 //
-void ChartDialog::resetCommon()
+void ChartDialog::resetCompletely()
 {
     if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
@@ -142,7 +153,6 @@ void ChartDialog::resetCommon()
     my.availableTreeSelected = false;
     my.chartTreeSingleSelected = NULL;
     my.availableTreeSingleSelected = NULL;
-    enableUi();
 }
 
 void ChartDialog::enableUi()
@@ -245,14 +255,10 @@ void ChartDialog::buttonApply_clicked()
     int index;
 
     if (validate(message, index)) {
-	if (my.chart) {
+	if (my.chart)
 	    pmchart->acceptEditChart();
-	    reset(my.chart);
-	}
-	else {
-	    pmchart->acceptNewChart();
-	    reset();
-	}
+	else	// New Chart to Edit Chart transition:
+	    resetPartially(pmchart->acceptNewChart());
     }
     else {
 	tabWidget->setCurrentIndex(index);
@@ -767,6 +773,7 @@ bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
 	QColor c = nextColor(cp->scheme(), &seq);
 	n->setCurrentColor(c, NULL);
 	createChartPlot(cp, n);
+	my.sequence = seq;
     }
     return true;	// either way, we're finished now
 }

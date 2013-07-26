@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2013, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
@@ -101,7 +101,6 @@ void PmChart::setupDialogs(void)
     my.samples = new SamplesDialog(this);
     my.exporter = new ExportDialog(this);
     my.newchart = new ChartDialog(this);
-    my.editchart = new ChartDialog(this);
     my.openview = new OpenViewDialog(this);
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
@@ -132,7 +131,6 @@ void PmChart::quit()
 	my.samples->reject();
 	my.exporter->reject();
 	my.newchart->reject();
-	my.editchart->reject();
 	my.openview->reject();
 	my.saveview->reject();
 	my.settings->reject();
@@ -478,19 +476,12 @@ void PmChart::optionsNewPmchart()
     buddy->start("pmchart", arguments);
 }
 
-void PmChart::createNewChart()
-{
-    setupDialogs();
-    my.newchart->reset();
-    my.newchart->show();
-}
-
 //
-// Note: Called from both Accept and OK on New Chart dialog
+// Note: Called from both Apply and OK on New Chart dialog
 // Must only called when the changes are definately going to
 // be applied, so all input validation must be done by now.
 //
-void PmChart::acceptNewChart()
+Chart *PmChart::acceptNewChart()
 {
     bool yAutoScale;
     double yMin, yMax;
@@ -518,11 +509,14 @@ void PmChart::acceptNewChart()
     activeTab()->showGadgets();
 
     enableUi();
+    return cp;
 }
 
 void PmChart::fileNewChart()
 {
-    createNewChart();
+    setupDialogs();
+    my.newchart->reset();
+    my.newchart->show();
 }
 
 void PmChart::editChart()
@@ -530,8 +524,8 @@ void PmChart::editChart()
     Chart *cp = (Chart *)activeTab()->currentGadget();
 
     setupDialogs();
-    my.editchart->reset(cp);
-    my.editchart->show();
+    my.newchart->reset(cp);
+    my.newchart->show();
 }
 
 void PmChart::acceptEditChart()
@@ -541,17 +535,17 @@ void PmChart::acceptEditChart()
     QString scheme;
     int sequence;
 
-    Chart *cp = my.editchart->chart();
-    QString editTitle = my.editchart->title().trimmed();
+    Chart *cp = my.newchart->chart();
+    QString editTitle = my.newchart->title().trimmed();
     if (editTitle.isEmpty() == false && editTitle != cp->title())
 	cp->changeTitle(editTitle, true);
-    cp->setLegendVisible(my.editchart->legend());
-    cp->setAntiAliasing(my.editchart->antiAliasing());
-    cp->setRateConvert(my.editchart->rateConvert());
-    my.editchart->scale(&yAutoScale, &yMin, &yMax);
+    cp->setLegendVisible(my.newchart->legend());
+    cp->setAntiAliasing(my.newchart->antiAliasing());
+    cp->setRateConvert(my.newchart->rateConvert());
+    my.newchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
-    my.editchart->setupChartPlots(cp);
-    my.editchart->scheme(&scheme, &sequence);
+    my.newchart->setupChartPlots(cp);
+    my.newchart->scheme(&scheme, &sequence);
     cp->setScheme(scheme, sequence);
     if (cp->metricCount() > 0) {
 	cp->replot();
@@ -885,8 +879,6 @@ void PmChart::newScheme(QString cs)
 {
     my.newchart->setCurrentScheme(cs);
     my.newchart->setupSchemeComboBox();
-    my.editchart->setCurrentScheme(cs);
-    my.editchart->setupSchemeComboBox();
 }
 
 void PmChart::exportFile()

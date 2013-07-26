@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -117,7 +118,8 @@ private:
 	QRgb currentColor;
     } my;
 
-    void resetCommon();
+    void resetCompletely();
+    void resetPartially(Chart *);
     bool validate(QString &, int &);
 };
 
