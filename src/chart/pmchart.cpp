@@ -137,6 +137,11 @@ void PmChart::quit()
     }
     if (pmtime)
 	pmtime->quit();
+#ifdef HAVE_UNSETENV
+    unsetenv("PCP_STDERR");
+#else
+    putenv("PCP_STDERR=");
+#endif
     pmflush();
 }
 

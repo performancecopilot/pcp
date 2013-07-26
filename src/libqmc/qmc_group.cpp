@@ -434,8 +434,10 @@ QmcGroup::dump(QTextStream &stream)
 int
 QmcGroup::useContext()
 {
-    int sts = pmUseContext(context()->handle());
-    if (sts < 0)
+    int sts = 0;
+
+    if ((context()->status() == 0) &&
+	(sts = pmUseContext(context()->handle())) < 0)
 	pmprintf("%s: Error: Unable to reuse context to %s: %s\n",
 		 pmProgname, context()->source().sourceAscii(), pmErrStr(sts));
     return sts;
