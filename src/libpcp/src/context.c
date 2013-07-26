@@ -300,7 +300,6 @@ ctxflags(__pmHashCtl *attrs)
 
     if (__pmHashSearch(PCP_ATTR_USERAUTH, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
-	__pmHashSearch(PCP_ATTR_AUTHNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)

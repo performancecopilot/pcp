@@ -716,9 +716,6 @@ __pmLookupAttrKey(const char *attribute, size_t size)
 	(size == sizeof("username") &&
 	strncmp(attribute, "username", size) == 0))
 	return PCP_ATTR_USERNAME;
-    if (size == sizeof("authname") &&
-	strncmp(attribute, "authname", size) == 0)
-	return PCP_ATTR_AUTHNAME;
     if (size == sizeof("realm") &&
 	strncmp(attribute, "realm", size) == 0)
 	return PCP_ATTR_REALM;
@@ -938,7 +935,6 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     switch (key) {
     case PCP_ATTR_PROTOCOL:
     case PCP_ATTR_USERNAME:
-    case PCP_ATTR_AUTHNAME:
     case PCP_ATTR_PASSWORD:
     case PCP_ATTR_METHOD:
     case PCP_ATTR_REALM:

@@ -790,12 +790,14 @@ static char *
 __pmGetAttrValue(__pmAttrKey key, __pmHashCtl *attrs, const char *prompt)
 {
     __pmHashNode *node;
+    char *value;
 
-    if (key != PCP_ATTR_NONE && attrs != NULL) {
-	if ((node = __pmHashSearch(key, attrs)) != NULL)
-	    return strdup((char *)node->data);
-    }
-    return __pmGetAttrConsole(prompt, key == PCP_ATTR_PASSWORD);
+    if ((node = __pmHashSearch(key, attrs)) != NULL)
+	return (char *)node->data;
+    value = __pmGetAttrConsole(prompt, key == PCP_ATTR_PASSWORD);
+    if (value)	/* must track all our own memory use in SASL */
+	__pmHashAdd(key, value, attrs);
+    return value;
 }
 
 
@@ -843,10 +845,8 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     sts = SASL_OK;
     switch (id) {
     case SASL_CB_USER:
-	value = __pmGetAttrValue(PCP_ATTR_USERNAME, attrs, "Username: ");
-	break;
     case SASL_CB_AUTHNAME:
-	value = __pmGetAttrValue(PCP_ATTR_AUTHNAME, attrs, "Authname: ");
+	value = __pmGetAttrValue(PCP_ATTR_USERNAME, attrs, "Username: ");
 	break;
     case SASL_CB_LANGUAGE:
 	break;
@@ -929,13 +929,13 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 	    *result = value;
 	} else {
 	    free(value);
-	    *result = strdup(defaultresult);
+	    *result = defaultresult;
 	}
     } else {
 	if (fgets(message, sizeof(message), stdin) == NULL || message[0])
 	    *result = strdup(message);
 	else
-	    *result = strdup(defaultresult);
+	    *result = defaultresult;
     }
     if (!*result)
 	return SASL_NOMEM;
