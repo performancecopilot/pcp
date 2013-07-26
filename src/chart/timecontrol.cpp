@@ -57,6 +57,12 @@ void TimeControl::quit()
 {
     disconnect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this,
 		    SLOT(endTimeControl()));
+    if (my.liveSocket)
+	disconnect(my.liveSocket, SIGNAL(disconnected()), this,
+			SLOT(liveCloseConnection()));
+    if (my.archiveSocket)
+	disconnect(my.archiveSocket, SIGNAL(disconnected()), this,
+			SLOT(archiveCloseConnection()));
     if (my.liveSocket) {
 	my.liveSocket->close();
 	my.liveSocket = NULL;
@@ -216,18 +222,22 @@ void TimeControl::endTimeControl(void)
 
 void TimeControl::liveCloseConnection()
 {
-    my.liveSocket->close();
-    my.liveSocket = NULL;
-    pmchart->quit();
-    exit(0);
+    console->post("Disconnected from pmtime, live source");
+    QMessageBox::warning(0,
+		QApplication::tr("Error"),
+		QApplication::tr("Connection to pmtime lost (live mode)."),
+		QApplication::tr("Quit") );
+    quit();
 }
 
 void TimeControl::archiveCloseConnection()
 {
-    my.archiveSocket->close();
-    my.archiveSocket = NULL;
-    pmchart->quit();
-    exit(0);
+    console->post("Disconnected from pmtime, archive source");
+    QMessageBox::warning(0,
+		QApplication::tr("Error"),
+		QApplication::tr("Connection to pmtime lost (archive mode)."),
+		QApplication::tr("Quit") );
+    quit();
 }
 
 void TimeControl::liveSocketConnected()

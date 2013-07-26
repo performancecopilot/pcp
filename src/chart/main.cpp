@@ -765,7 +765,10 @@ main(int argc, char ** argv)
 
     readSchemes();
     for (c = 0; c < configs.size(); c++)
-	OpenViewDialog::openView((const char *)configs[c].toAscii());
+	if (!OpenViewDialog::openView((const char *)configs[c].toAscii()))
+	    errflg++;
+    if (errflg)
+	exit(1);
     setupViewGlobals();
     pmflush();
 
