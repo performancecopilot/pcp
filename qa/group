@@ -18,9 +18,9 @@ sanity
 
 # local check ... runs on localhost alone, no remotes used
 # NOTE: used by testing orgs beyond developers, do not add
-# tests that known-fail sometimes - goal is for 100% pass,
-# but due to test volume and chaos theory, some tests will
-# fail sometimes, on some platforms, during a full moon.
+# tests here that are known to fail - goal is for 100% pass
+# rate, but due to test volume and chaos theory, some tests
+# do fail sometimes, on some platforms, during a full moon.
 local
 
 # packaging verification ... suitable for standalone use,
@@ -616,7 +616,7 @@ pcp.py
 380 libpcp pmda pmda.sample local oss
 381 logutil pmlc remote oss
 382 dbpmda pmda pmda.sample local oss
-383 pmda.cisco flakey oss
+383 pmda.cisco local flakey oss
 384 pmda.pmcd local oss
 385 libpcp pmda.sample pminfo pmprobe local oss event sanity
 386 pdu mem_leak valgrind local oss
@@ -682,13 +682,13 @@ pcp.py
 446 trace local oss
 447 event local oss
 448 libpcp local oss
-449 threads flakey oss
+449 threads local flakey oss
 450 pmlogextract local #584487 pmval oss
 451 threads local oss
 452 pmda.linux local oss
 453 perl local oss sanity
 454 pmcd local oss
-455 pmda.rsyslog flakey pmda.install oss
+455 pmda.rsyslog local flakey pmda.install oss
 456 logutil local #591459 folio oss
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
