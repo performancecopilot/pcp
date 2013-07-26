@@ -125,15 +125,6 @@ void PmChart::quit()
     // End any processes we may have started and close any open dialogs
     if (my.dialogsSetup) {
 	my.info->reject();
-	my.search->reject();
-	my.newtab->reject();
-	my.edittab->reject();
-	my.samples->reject();
-	my.exporter->reject();
-	my.newchart->reject();
-	my.openview->reject();
-	my.saveview->reject();
-	my.settings->reject();
     }
     if (pmtime)
 	pmtime->quit();
