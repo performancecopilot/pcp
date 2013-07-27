@@ -44,8 +44,8 @@ echo "--- matching instances up to leading space ---"
 $dump -imC "kernel.all.load[15,5,1]" 2>&1 | _filter
 
 echo "--- two archives from the same host ---"
-$dump -a archives/gap,archives/gap2 hinv.ncpu 2>&1 | _filter
-$dump -a archives/gap2 archives/gap/hinv.ncpu 2>&1 | _filter
+$dump -a archives/gap,archives/gap2 hinv.ncpu
+$dump -a archives/gap2 archives/gap/hinv.ncpu
 
 echo "--- no matching archive for host ---"
 $dump -a archives/gap ${otherhost}:hinv.ncpu 2>&1 | _filter
