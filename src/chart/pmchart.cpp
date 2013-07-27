@@ -50,6 +50,10 @@ PmChart::PmChart() : QMainWindow(NULL)
 
     my.statusBar = new StatusBar;
     setStatusBar(my.statusBar);
+    connect(my.statusBar->timeFrame(), SIGNAL(clicked()),
+				this, SLOT(editSamples()));
+    connect(my.statusBar->timeButton(), SIGNAL(clicked()),
+				this, SLOT(optionsShowTimeControl()));
 
     my.timeAxisRightAlign = toolBar->height();
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
@@ -105,10 +109,6 @@ void PmChart::setupDialogs(void)
     my.saveview = new SaveViewDialog(this);
     my.settings = new SettingsDialog(this);
 
-    connect(my.statusBar->timeFrame(), SIGNAL(clicked()),
-				this, SLOT(editSamples()));
-    connect(my.statusBar->timeButton(), SIGNAL(clicked()),
-				this, SLOT(optionsShowTimeControl()));
     connect(my.newtab->buttonOk, SIGNAL(clicked()),
 				this, SLOT(acceptNewTab()));
     connect(my.edittab->buttonOk, SIGNAL(clicked()),
@@ -575,9 +575,11 @@ void PmChart::metricSearch(QTreeWidget *pmns)
 
 void PmChart::editSamples()
 {
+    int samples = activeGroup->sampleHistory();
+    int visible = activeGroup->visibleHistory();
+
     setupDialogs();
-    my.samples->reset(globalSettings.sampleHistory,
-			globalSettings.visibleHistory);
+    my.samples->reset(samples, visible);
     my.samples->show();
 }
 
