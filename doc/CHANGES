@@ -1,9 +1,20 @@
-pcp-gui 1.5.9 (under development)
+pcp-gui 1.5.9 (28 July 2013)
+    - Fix problems with pmchart Samples/Visible History.
+    - Support authenticated connections in New Host dialog.
+    - Fix pmchart startup handling lack of metrics source.
+    - Fix missing metric handling for archive View files.
+    - Usability improvements for the New/Edit Chart Apply button.
+    - Resolve packaging issue where /usr/bin gets installed.
+    - Preserve the update interval when loading a pmchart view.
+    - Fixes a sigsegv in pmchart command line error handling.
+    - Add optional kernel.all.cpu.guest plot to standard CPU view.
+    - Update pmchart title [%h] with list of metric host names.
     - Improve correctness in the show-/hide-time-control mechanism.
     - Add a close button to preferences dialog to improve usability.
     - Fix Preference dialog handling of Remove color scheme button.
     - Add new pmchart views into the installed set (ElasticSearch,
       Apache) - thanks to Owen Butler.
+    - New tutorial covering setup of PCP authentication mechanisms.
     - Incorporate the PCP books into the build (pcp-doc subpackage).
 
 pcp-gui 1.5.8 (20 April 2013)

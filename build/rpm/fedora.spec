@@ -106,8 +106,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
-* Sun Apr 21 2013 Nathan Scott <nathans@redhat.com> - 1.5.9-1
-- Under development.
+* Sun Jul 28 2013 Nathan Scott <nathans@redhat.com> - 1.5.9-1
+- Fix problems with pmchart Samples/Visible History (BZ 968825)
+- Fix pmchart startup handling lack of metrics source (BZ 957007)
+- Fix missing metric handling for archive View files (BZ 981140)
+- UX improvements for the New/Edit Chart Apply button (BZ 957669)
+- Resolve packaging issue where /usr/bin was installed (BZ 988176)
 - Improve pmchart show-/hide-time-control mechanism (BZ 957002)
 - Add a close button to pmchart Preferences dialog (BZ 922198)
 - Fix pmchart Preferences dialog color scheme sigsegv (BZ 963505)
