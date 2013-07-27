@@ -20,8 +20,8 @@ pmdumptext: no valid metrics, exiting.
              Metric	  load	  load	  load
                Inst	15 min	5 minu	1 minu
 --- two archives from the same host ---
-pmdumptext: Error: Archives "archives/gap" and "archives/gap" are from the same host "THIS_HOST"
-pmdumptext: Error: Archives "archives/gap2" and "archives/gap2" are from the same host "THIS_HOST"
+pmdumptext: Error: Archives "archives/gap" and "archives/gap2" are from the same host "THIS_HOST"
+pmdumptext: Error: Archives "archives/gap2" and "archives/gap" are from the same host "THIS_HOST"
 pmdumptext: no valid metrics, exiting.
 --- no matching archive for host ---
 pmdumptext: Error: No archives were specified for host "OTHER_HOST"
