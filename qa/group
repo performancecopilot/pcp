@@ -3,6 +3,15 @@
 # catch-all
 other
 
+# runs on QA host alone
+local
+
+# needs multiple QA hosts
+remote
+
+# test is known to have issues (races, hangs, etc)
+flakey
+
 # view configs
 config
 
@@ -33,16 +42,16 @@ dumptext
 014 libqmc local
 015 libqmc local
 016 libqmc local
-017 libqmc local
-018 libqmc local
-019 libqmc local
-020 libqmc local
+017 libqmc local flakey
+018 libqmc local flakey
+019 libqmc local flakey
+020 libqmc local flakey
 021 libqmc local
 022 dumptext local
 023 dumptext local
 024 dumptext chart local
 025 dumptext local
-026 dumptext
+026 dumptext remote
 027 dumptext local
 028 dumptext local
 029 libqmc local
