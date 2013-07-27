@@ -197,9 +197,11 @@ void PmChart::updateHeight(int adjustment)
     int ideal = newSize.height() + adjustment;	// may be negative
     int sized = QApplication::desktop()->availableGeometry().height();
 
+#ifdef DESPERATE
     console->post(PmChart::DebugUi,
-	"upateHeight() oldsize h=%d,w=%d maximum=%d proposed=%d",
+	"updateHeight() oldsize h=%d,w=%d maximum=%d proposed=%d",
 	newSize.height(), newSize.width(), sized, ideal);
+#endif
 
     if (ideal > sized)
 	ideal = sized;
