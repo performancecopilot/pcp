@@ -772,7 +772,7 @@ pcp.py
 536 pmimport local oss
 537 pmimport perl local oss
 538 pmie local oss pmstore
-539 pmpost local oss
+539 pmpost local oss flakey
 540 pmda.linux local pminfo oss
 541 pmie #535080 local pmprobe oss
 542 pmdate #666344 local oss
