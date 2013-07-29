@@ -235,7 +235,7 @@ pmlogcheck
 pcp.py
 
 # test-group association ... one line per test
-# add :retired as a tag immediatelty after the test number to keep the
+# add :retired as a tag immediately after the test number to keep the
 # test number allocated, but prevent the test from being run
 
 # ... use sort -n from here on down to tidy up this mess
@@ -359,7 +359,7 @@ pcp.py
 123 libpcp local oss
 124 pmie local #870661 oss
 125 pmval archive
-126 pmda.linux local oss
+126:retired pmda.linux local oss
 127 pmlogreduce local oss sanity pmdumplog
 128 libirixpmda pminfo local oss
 129 pmlogreduce local oss pmval
