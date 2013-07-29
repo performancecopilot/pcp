@@ -39,7 +39,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
 	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
 	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-722.0 \
-	new_mysql.0
+	new_mysql.0 new_snmp.0
 
 SRCARCHPART = ok-noti-bigbin.0 
 

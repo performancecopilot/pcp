@@ -868,6 +868,7 @@ pcp.py
 721 dbpmda local oss
 722 python local oss
 748 pmlogrewrite pmda.mysql local oss
+827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore local oss
 832 pmda.sample pmstore local oss
 875 libpcp local oss

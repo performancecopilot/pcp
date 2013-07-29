@@ -21,6 +21,7 @@ DOMAIN		= LINUX
 CMDTARGET	= pmdalinux
 LIBTARGET	= pmda_linux.so
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "linux	60	dso	linux_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c \
@@ -47,7 +48,7 @@ HFILES		= clusters.h indom.h convert.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
 		  dynamic.h
 
-LSRCFILES 	= help root_linux
+LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -71,6 +72,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
+	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
 else
 build-me:
 install:
