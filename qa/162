@@ -86,7 +86,7 @@ trivial
 txmon'
 
 # real QA test starts here
-unset ROOT
+unset ROOT MAKEFLAGS
 mkdir $tmp
 
 cat >>$tmp/root.orig <<End-of-File

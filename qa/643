@@ -51,7 +51,7 @@ $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # real QA test starts here
 cd $PCP_PMDAS_DIR/trivial
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 $sudo ./Remove </dev/null >/dev/null 2>&1
 pminfo -n $PCP_VAR_DIR/pmns/root >$tmp.pmns.start
 

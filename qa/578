@@ -145,7 +145,7 @@ export PMCD_PORT
 # Build simple agent
 #
 echo "=== Building simple agent ===" | tee -a $here/$seq.full
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 cd $PCP_PMDAS_DIR/simple
 
 # get rid of warnings from simple if no config exists

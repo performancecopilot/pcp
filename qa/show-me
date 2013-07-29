@@ -122,7 +122,7 @@ then
     fi
 fi
 
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 quick=true
 check=false
 . ./common

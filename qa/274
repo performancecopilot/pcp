@@ -87,7 +87,7 @@ BEGIN   { found = false }
 
 
 # real QA test starts here
-unset ROOT
+unset ROOT MAKEFLAGS
 
 # Install the PMDA
 cd $here/pmdas/broken

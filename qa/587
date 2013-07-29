@@ -109,7 +109,7 @@ $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
-unset ROOT
+unset ROOT MAKEFLAGS
 cd $PCP_PMDAS_DIR/trivial
 $sudo ./Install </dev/null >/dev/null
 cd $here
