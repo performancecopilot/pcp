@@ -4,11 +4,8 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=kenmcd
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -16,8 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_cleanup()
+{
+    test -f $PCP_LOG_DIR/NOTICES.orig && \
+	$sudo mv $PCP_LOG_DIR/NOTICES.orig $PCP_LOG_DIR/NOTICES
+    $sudo rm -f $tmp.*
+}
+
 status=0	# success is the default!
-trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
 # check for new version ... may need -o to force "old style" behaviour
@@ -97,6 +101,8 @@ done
 echo "done, now=$now" >>$seq.full
 
 # real QA test starts here
+test -f $PCP_LOG_DIR/NOTICES && \
+	$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.orig
 $sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -k 550 -N -c $tmp.control 2>&1 \
 | tee -a $seq.full \
 | _filter
