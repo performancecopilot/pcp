@@ -627,7 +627,7 @@ pcp.py
 391 archive mem_leak valgrind local oss
 392 pmns local oss
 393 archive mem_leak valgrind local oss
-394 archive mem_leak valgrind local oss
+394 archive mem_leak valgrind local oss flakey
 395 archive mem_leak valgrind local oss
 396 pmval local oss
 397 dbpmda libpcp local oss pdu event sanity
