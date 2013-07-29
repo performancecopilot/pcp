@@ -16,24 +16,8 @@ echo "QA output created by $seq"
 which pmlogreduce >/dev/null 2>&1 || _notrun "No pmlogreduce binary installed"
 
 rm -f $seq.out
-case "`uname -m`"
-in
-    i?86|athlon)
-	if [ $PCP_PLATFORM = darwin ]
-	then
-	    # apps are 64-bit on my Mac OS X
-	    ln $seq.out.x86_64 $seq.out || exit 1
-	else
-	    ln $seq.out.i386 $seq.out || exit 1
-	fi
-	;;
-    x86_64|ia64)
-	ln $seq.out.x86_64 $seq.out || exit 1
-	;;
-    *)
-	_notrun "No verified output for CPU type \"`uname -p`\""
-	;;
-esac
+size=`_get_word_size`
+ln $seq.out.$size $seq.out || exit 1
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
