@@ -19,7 +19,8 @@
 . $PCP_DIR/etc/pcp.env
 
 tmp=`mktemp -d $PCP_TMP_DIR/pmdaproc.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp; exit" 0 1 2 3 15
+pmdatmp=$tmp
+trap "rm -rf $pmdatmp $pcptmp; exit" 0 1 2 3 15
 
 _setup_platform()
 {
@@ -164,6 +165,8 @@ pmda_interface=1
 # Other variables and constants
 #
 prog=`basename $0`
+tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
+pcptmp=$tmp
 do_pmda=true
 do_check=true
 __here=`pwd`
@@ -404,6 +407,7 @@ __pmda_add()
     mydomain=`echo $1 | $PCP_AWK_PROG '{print $2}'`
     # add entry to $PCP_PMCDCONF_PATH
     #
+    echo >$tmp/pmcd.body
     echo >$tmp/pmcd.access
     $PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
 NF==0					{ next }
@@ -1152,7 +1156,7 @@ _install()
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $pcptmp $pmdatmp; exit" 0 1 2 3 15
 
     echo "Updating the Performance Metrics Name Space (PMNS) ..."
 
@@ -1219,7 +1223,7 @@ _install()
         cd $__here
     done
 
-    trap "rm -rf $tmp; exit" 0 1 2 3 15
+    trap "rm -rf $pcptmp $pmdatmp; exit" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 
     _install_views pmchart
@@ -1274,7 +1278,7 @@ _remove()
     #
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
-    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $tmp; exit" 0 1 2 3 15
+    trap "$PCP_SHARE_DIR/lib/unlockpmns \$NAMESPACE; rm -rf $pcptmp $pmdatmp; exit" 0 1 2 3 15
 
     echo "Culling the Performance Metrics Name Space ..."
     cd $PMNSDIR
@@ -1352,7 +1356,7 @@ _remove()
 	echo "Skipping PMDA removal and PMCD re-configuration"
     fi
 
-    trap "rm -rf $tmp; exit" 0 1 2 3 15
+    trap "rm -rf $pcptmp $pmdatmp; exit" 0 1 2 3 15
     $PCP_SHARE_DIR/lib/unlockpmns $NAMESPACE
 }
 
