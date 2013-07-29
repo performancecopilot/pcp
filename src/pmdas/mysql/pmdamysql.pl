@@ -1877,6 +1877,8 @@ and the values of 1 (YES/ON) or 0 (NO/OFF).
 
 =item * mysql.slave_status.slave_io_running_num
 
+=back
+
 =head1 FILES
 
 =over
