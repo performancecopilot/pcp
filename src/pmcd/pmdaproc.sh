@@ -3,6 +3,7 @@
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2013 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +18,7 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_TMP_DIR/pmdaproc.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 _setup_platform()
@@ -163,7 +164,6 @@ pmda_interface=1
 # Other variables and constants
 #
 prog=`basename $0`
-tmp=`mktemp -d $PCP_TMP_DIR/pmdaproc.XXXXXXXXX` || exit 1
 do_pmda=true
 do_check=true
 __here=`pwd`
