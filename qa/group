@@ -255,7 +255,7 @@ pcp.py
 012 archive local oss
 013 archive pmdumplog local ostest oss
 014 archive local ostest oss pmdumplog
-015 pdu local ostest oss sanity pmstore
+015 pdu local ostest oss pmstore
 016 archive indom local ostest oss pmdumplog
 017 context local ostest oss
 018 pmcd local ostest oss
@@ -264,7 +264,7 @@ pcp.py
 021 other local ostest oss
 022 context_local pmda pmda.proc local ostest oss
 023 pmcd local pmprobe ostest oss
-024 context context_local ostest remote oss sanity
+024 context context_local ostest remote oss
 025 context pmlc local ostest oss
 026 other help local ostest oss sanity libpcp
 027 libpcp local ostest oss sanity
@@ -310,7 +310,7 @@ pcp.py
 074 pmda pmda.cisco pmda.pmcd local ostest oss sanity
 075 pmval pmstore ostest remote oss
 076 pmda.pmcd local ostest oss
-077 libpcp ostest remote oss sanity
+077 libpcp ostest remote oss
 078 pmdumplog local ostest oss
 079 libpcp archive local ostest oss
 080 libpcp pmval local oss sanity
@@ -588,7 +588,7 @@ pcp.py
 352 derive pmlogger local oss pmdumplog
 353 pmsocks remote oss
 354 folio local oss sanity
-355 trace local pmda.install oss sanity
+355 trace local pmda.install oss
 356 derive local oss
 357 other local oss
 358 pmie local oss pmstore
@@ -764,9 +764,9 @@ pcp.py
 528 pmimport pmdumplog perl local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
-531 dbpmda local pmda.sample oss sanity
+531 dbpmda local pmda.sample oss
 532 logutil pmlogextract local oss
-533 dbpmda local pmda.sample oss sanity
+533 dbpmda local pmda.sample oss
 534 pmie local oss
 535 pmie local pmprobe oss
 536 pmimport local oss
