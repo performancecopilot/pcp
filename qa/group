@@ -751,7 +751,7 @@ pcp.py
 515 pmie local oss
 516 pmie local oss
 517 other local oss
-518 other local oss
+518 other local oss flakey
 519 pmie remote oss
 520 pmie local oss
 521 pmie local oss
