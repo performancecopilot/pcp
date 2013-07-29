@@ -210,13 +210,13 @@ __pmValidCertificate(CERTCertDBHandle *db, CERTCertificate *cert, PRTime stamp)
 }
 
 static char *
-serverdb(char *path, size_t size)
+serverdb(char *path, size_t size, char *db_method)
 {
     int sep = __pmPathSeparator();
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");
 
     if (nss_method == NULL)
-	nss_method = "sql:";
+	nss_method = db_method;
 
     /*
      * Fill in a buffer with the server NSS database specification.
@@ -258,7 +258,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
      */
     sts = -EINVAL;
     if (!db) {
-	char *path = serverdb(secure_server.database_path, MAXPATHLEN);
+	char *path = serverdb(secure_server.database_path, MAXPATHLEN, "sql:");
 
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
@@ -275,6 +275,12 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     }
 
     secsts = NSS_Init(secure_server.database_path);
+    if (secsts != SECSuccess && !db) {
+	/* fallback, older versions of NSS do not support sql: */
+	serverdb(secure_server.database_path, MAXPATHLEN, "");
+	secsts = NSS_Init(secure_server.database_path);
+    }
+
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,

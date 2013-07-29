@@ -330,7 +330,7 @@ mkpath(const char *dir, mode_t mode)
 }
 
 static char *
-dbpath(char *path, size_t size)
+dbpath(char *path, size_t size, char *db_method)
 {
     int sep = __pmPathSeparator();
     const char *empty_homedir = "";
@@ -340,7 +340,7 @@ dbpath(char *path, size_t size)
     if (homedir == NULL)
 	homedir = (char *)empty_homedir;
     if (nss_method == NULL)
-	nss_method = "sql:";
+	nss_method = db_method;
 
     /*
      * Fill in a buffer with the users NSS database specification.
@@ -369,6 +369,8 @@ __pmInitCertificates(void)
     PK11SlotInfo *slot;
     SECStatus secsts;
 
+    PK11_SetPasswordFunc(dbphrase);
+
     /*
      * Check for client certificate databases.  We enforce use
      * of the per-user shared NSS database at $HOME/.pki/nssdb
@@ -377,11 +379,16 @@ __pmInitCertificates(void)
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
      */
-    if (mkpath(dbpath(nssdb, sizeof(nssdb)), 0700) < 0)
+    if (mkpath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
-
-    PK11_SetPasswordFunc(dbphrase);
     secsts = NSS_InitReadWrite(nssdb);
+
+    if (secsts != SECSuccess) {
+	/* fallback, older versions of NSS do not support sql: */
+	dbpath(nssdb, sizeof(nssdb), "");
+	secsts = NSS_InitReadWrite(nssdb);
+    }
+
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError(PR_GetError());
 
