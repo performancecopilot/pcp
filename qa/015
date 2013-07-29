@@ -13,28 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_PLATFORM = linux ]
-then
-    case `uname -m`
-    in
-	i?86|ia64|x86_64)
-		ln $seq.linux.x86 $seq.out
-		;;
-	*)
-		_notrun "No validated output for `uname -m` Linux"
-		;;
-    esac
-elif [ $PCP_PLATFORM = darwin ]
-then
-    ln $seq.linux.x86 $seq.out
-elif [ $PCP_PLATFORM = solaris ]
-then
-    ln $seq.linux.x86 $seq.out
-else
-    _notrun "No validated output for $PCP_PLATFORM"
-fi
-
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
