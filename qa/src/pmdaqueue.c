@@ -49,7 +49,7 @@ void queue_statistics(int q)
 
     fprintf(stderr, "event queue#%d count=%d, bytes=%d, clients=%d, mem=%lld\n",
 	    q, (int)count.ul, (int)bytes.ull, (int)clients.ul,
-	    (long long)memory.ul);
+	    (long long)memory.ull);
 }
 
 /*
