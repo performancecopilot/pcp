@@ -24,10 +24,14 @@ else
     ln $seq.out.1 $seq.out || exit 1
 fi
 
+realhost=`pmhostname`
+hostsfile="/etc/hosts"
+egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >/dev/null || \
+    _notrun "No entry for hostname of local host in $hostsfile"
+
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`
-hostsfile="/etc/hosts"
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -90,8 +94,6 @@ _update_hostsfile()
 
     # save old hosts file
     $sudo cp $hostsfile $tmp.etc.hosts.orig
-
-    realhost=`pmhostname`
 
     # update /etc/hosts
     # add an entry for extra_hostname
@@ -164,7 +166,6 @@ EOF
 	}
     ' 
 }
-
 
 # real QA test starts here
 rm -f $here/$seq.full
