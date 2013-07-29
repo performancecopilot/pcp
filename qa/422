@@ -12,6 +12,11 @@
 . ./common.check
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
+rm -f $seq.out $seq.full
+endian=`_get_endian`
+ln $seq.out.$endian $seq.out
 
 # sane starting point
 src/aggrstore sample.aggregate.write_me 13 >/dev/null
@@ -19,10 +24,8 @@ src/aggrstore sampledso.aggregate.write_me 13 >/dev/null
 pmstore sample.string.write_me 13 >/dev/null
 pmstore sampledso.string.write_me 13 >/dev/null
 
-echo "QA output created by $seq"
-
 status=0	# success is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
