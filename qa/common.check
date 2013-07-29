@@ -773,6 +773,23 @@ _get_port()
     done
 }
 
+# get host endianness
+_get_endian()
+{
+    check=`echo a | od -x 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/ //g' -e '/^$/d'`
+    case "$check"
+    in
+    0a61) echo le ;;
+    610a) echo be ;;
+    *)
+	echo "Arrgh ... od -x returned something odd ($check)"
+	echo a | od -x
+	status=1
+	exit
+	;;
+    esac
+}
+
 # _all_hostnames host - generate all hostnames (or IP addresses) for this host,
 #			that map to some network interface, excluding loopback
 #
