@@ -28,6 +28,8 @@ remove_extra_whitespace()
 	-e 's/  */ /g' \
 	-e 's/^ *//' \
 	-e 's/RECORD.*$/RECORD/' \
+	-e 's/<-*Int/<-Int/' \
+	-e 's/Int-*>/Int->/' \
 
 }
 
