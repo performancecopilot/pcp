@@ -529,6 +529,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 - Integrate gluster related stats with PCP (BZ 969348)
 - Fix for iostat2pcp not parsing iostat output (BZ 981545)
+- Start pmlogger with usable config by default (BZ 953759)
+- Fix pmatop failing to start, gives stacktrace (BZ 963085)
 
 * Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
 - Update to latest PCP sources.
