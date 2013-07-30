@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -398,7 +399,7 @@ extern char        *pmnsfile;	/* alternate namespace */
 extern Archive	   *archives;	/* archives given on command line */
 extern RealTime	   first;	/* archive starting point */
 extern RealTime	   last;	/* archive end point */
-extern char	   localHost[];	/* local host name */
+extern char	   *localHost;	/* local host name */
 extern char	   *dfltHost;	/* default host name */
 extern RealTime	   dfltDelta;	/* default sample interval */
 extern char        *startFlag;  /* start time specified? */

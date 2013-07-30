@@ -702,10 +702,8 @@ _pmauxtraceconnect(void)
      */
     if ((sptr = getenv(TRACE_ENV_HOST)) != NULL)
 	strcpy(hostname, sptr);
-    else {
-	(void)gethostname(hostname, MAXHOSTNAMELEN);
-	hostname[MAXHOSTNAMELEN-1] = '\0';
-    }
+    else
+	strcpy(hostname, "local:");
     if ((sptr = getenv(TRACE_ENV_PORT)) != NULL) {
 	port = (int)strtol(sptr, &endnum, 0);
 	if (*endnum != '\0' || port < 0) {

@@ -46,7 +46,7 @@ main(int argc, char *argv[])
     pmID pmid;
     pmDesc desc;
 
-    ctx = pmNewContext(PM_CONTEXT_HOST, "localhost");
+    ctx = pmNewContext(PM_CONTEXT_HOST, "local:");
     if (ctx < 0) {
     	fprintf(stderr, "Error: pmNewContext %s\n", pmErrStr(ctx));
 	exit(1);

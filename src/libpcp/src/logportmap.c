@@ -304,7 +304,9 @@ __pmIsLocalhost(const char *hostname)
 {
     int sts = 0;
 
-    if (strcasecmp(hostname, "localhost") == 0)
+    if (strcasecmp(hostname, "localhost") == 0 ||
+	strncmp(hostname, "local:", 6) == 0 ||
+	strncmp(hostname, "unix:", 5) == 0)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
