@@ -521,6 +521,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    # maybe pmlogger_daily is running ... check and silently
 	    # move on if this is the case
 	    #
+	    # Note: $PCP_RUN_DIR may not exist (see pmlogger_daily note), but
+	    #       only if pmlogger_daily has not run, so no chance of a
+	    #       collision
+	    #
 	    if [ -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
 	    then
 		# maybe, check pid matches a running /bin/sh

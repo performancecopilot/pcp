@@ -27,8 +27,7 @@ then
     # same output as linux
     ln $seq.out.linux $seq.out
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 # real QA test starts here

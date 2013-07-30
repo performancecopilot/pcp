@@ -30,8 +30,10 @@ _filter_number()
 	-e 's/  *[0-9][0-9]*\.[0-9]*/ NUMBER/g' \
 	-e 's/  *[0-9][0-9]*/ NUMBER/g' \
 	-e 's/:[0-9][0-9]/:NUMBER/g' \
+	-e 's/NUMBER[kmgKMG]/NUMBER/g' \
 	-e 's/   pi   po   bi/  si  so    bi/' \
 	-e 's/^ //' \
+	-e 's/[ 	][ 	]*/ /g' \
 	-e 's/Mon\|Tue\|Wed\|Thu\|Fri\|Sat\|Sun/DAY/' \
 	-e 's/Jan\|Feb\|Mar\|Apr\|May\|Jun\|Jul\|Aug\|Sep\|Oct\|Nov\|Dec/MONTH/' 
 }
@@ -53,8 +55,7 @@ then
     PROG=pmstat
     cp $seq.linux $seq.out
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 export SOCKS_SERVER PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PROG
@@ -84,7 +85,7 @@ echo
 echo "=== pmie + PM_CONTEXT_HOST ==="
 cat >$tmp.conf <<'End-of-File'
 kernel.all.load;
-proc.nprocs;
+hinv.ncpu
 End-of-File
 pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out
 cat $tmp.out $tmp.err | _show_pmie_errors
@@ -93,7 +94,7 @@ echo
 echo "=== pmie + PM_CONTEXT_HOST + pmsocks ==="
 cat >$tmp.conf <<'End-of-File'
 kernel.all.load;
-proc.nprocs;
+hinv.ncpu
 End-of-File
 pmsocks pmie -v -t1 -T2 <$tmp.conf 2>$tmp.err | _filter_number > $tmp.out
 cat $tmp.out $tmp.err | _show_pmie_errors

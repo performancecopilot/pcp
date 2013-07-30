@@ -1,0 +1,13 @@
+QA output created by 748
+old -> new changes
+@@ -9,7 +9,7 @@
+     Semantics: counter  Units: count
+ PMID: 66.0.110 (mysql.status.connections)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: instant  Units: none
++    Semantics: counter  Units: count
+ PMID: 66.0.184 (mysql.status.max_used_connections)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: instant  Units: none
+
+new -> ref changes ... expect none

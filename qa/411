@@ -40,7 +40,7 @@ _cleanup()
     exit $status
 }
 
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 
 _time_filter()
 {

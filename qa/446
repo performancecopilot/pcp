@@ -49,7 +49,7 @@ get_syms()
 
 # real QA test starts here
 cd $PCP_DEMOS_DIR/trace
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 $sudo make -f Makefile.stub clobber 2>&1 >/dev/null
 $sudo make -f Makefile.stub lib/libpcp_trace.$DSO_VERSION 2>&1 >$tmp.make
 if [ $? -ne 0 ]

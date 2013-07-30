@@ -407,20 +407,20 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %dir %{_pmdasdir}
 %dir %{_datadir}/pcp
-%dir %attr(0775,root,pcp) %{_localstatedir}/run/pcp
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
-%dir %{_tempsdir}
-%attr(1777,root,root) %{_tempsdir}
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
+%dir %attr(1777,root,root) %{_tempsdir}
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
 %{_logsdir}
-%attr(0755,pcp,pcp) %{_logsdir}/pmcd
-%attr(0755,pcp,pcp) %{_logsdir}/pmlogger
-%attr(0755,pcp,pcp) %{_logsdir}/pmie
-%attr(0755,pcp,pcp) %{_logsdir}/pmwebd
-%attr(0755,pcp,pcp) %{_logsdir}/pmproxy
+%attr(0775,pcp,pcp) %{_logsdir}/pmcd
+%attr(0775,pcp,pcp) %{_logsdir}/pmlogger
+%attr(0775,pcp,pcp) %{_logsdir}/pmie
+%attr(0775,pcp,pcp) %{_logsdir}/pmwebd
+%attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
 %{_initddir}/pcp
 %{_initddir}/pmcd
@@ -429,20 +429,22 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmwebd
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
+%config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
+%config(noreplace) %{_sysconfdir}/cron.d/pmlogger
+%config(noreplace) %{_sysconfdir}/cron.d/pmie
 %config %{_sysconfdir}/bash_completion.d/pcp
-%config %{_sysconfdir}/crond.d/pmlogger
-%config %{_sysconfdir}/crond.d/pmie
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
 %{_sysconfdir}/pcp
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
-%config(noreplace) %{_confdir}/pmie/control
-%config(noreplace) %{_confdir}/pmie/stomp
-%config(noreplace) %{_confdir}/pmlogger/control
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
+%dir %attr(0775,pcp,pcp) %{_confdir}/pmie
+%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
+%dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
+%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
 %{_localstatedir}/lib/pcp/config/*
 
 %files libs
@@ -523,8 +525,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Thu Jun 20 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
-- Currently under development...
+* Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
+- Update to latest PCP sources.
+- Integrate gluster related stats with PCP (BZ 969348)
+- Fix for iostat2pcp not parsing iostat output (BZ 981545)
 
 * Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
 - Update to latest PCP sources.

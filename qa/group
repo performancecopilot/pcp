@@ -11,8 +11,27 @@ sgi
 # catch-all
 other
 
-# sanity check ... quick coverage of most functionality
+# sanity check ... quick coverage of much functionality
+# expectation is to run in 3-5 minutes, and must pass 100%
+# NOTE: used by testing orgs beyond developers, must pass!
 sanity
+
+# local check ... runs on localhost alone, no remotes used
+# NOTE: used by testing orgs beyond developers, do not add
+# tests here that are known to fail - goal is for 100% pass
+# rate, but due to test volume and chaos theory, some tests
+# do fail sometimes, on some platforms, during a full moon.
+local
+
+# packaging verification ... suitable for standalone use,
+# particularly immediately after installation to check.
+verify
+
+# flaky checks ... known to have intermittent races/hangs.
+# NOTE: some threading race conditions (possibly in tests),
+# prevent 100% pass rate being achieved here.  Goal is to
+# get this group devoid of any tests.
+flakey
 
 # specific apps
 #
@@ -73,6 +92,9 @@ archive
 
 # cron.*, pm*log* apps (except pmlogger)
 logutil
+
+# NSS, SASL, other authentication
+secure
 
 # log extraction app
 pmlogextract
@@ -216,7 +238,7 @@ pmlogcheck
 pcp.py
 
 # test-group association ... one line per test
-# add :retired as a tag immediatelty after the test number to keep the
+# add :retired as a tag immediately after the test number to keep the
 # test number allocated, but prevent the test from being run
 
 # ... use sort -n from here on down to tidy up this mess
@@ -236,7 +258,7 @@ pcp.py
 012 archive local oss
 013 archive pmdumplog local ostest oss
 014 archive local ostest oss pmdumplog
-015 pdu local ostest oss sanity pmstore
+015 pdu local ostest oss pmstore
 016 archive indom local ostest oss pmdumplog
 017 context local ostest oss
 018 pmcd local ostest oss
@@ -245,7 +267,7 @@ pcp.py
 021 other local ostest oss
 022 context_local pmda pmda.proc local ostest oss
 023 pmcd local pmprobe ostest oss
-024 context context_local ostest remote oss sanity
+024 context context_local ostest remote oss
 025 context pmlc local ostest oss
 026 other help local ostest oss sanity libpcp
 027 libpcp local ostest oss sanity
@@ -291,7 +313,7 @@ pcp.py
 074 pmda pmda.cisco pmda.pmcd local ostest oss sanity
 075 pmval pmstore ostest remote oss
 076 pmda.pmcd local ostest oss
-077 libpcp ostest remote oss sanity
+077 libpcp ostest remote oss
 078 pmdumplog local ostest oss
 079 libpcp archive local ostest oss
 080 libpcp pmval local oss sanity
@@ -340,7 +362,7 @@ pcp.py
 123 libpcp local oss
 124 pmie local #870661 oss
 125 pmval archive
-126 pmda.linux local oss
+126:retired pmda.linux local oss
 127 pmlogreduce local oss sanity pmdumplog
 128 libirixpmda pminfo local oss
 129 pmlogreduce local oss pmval
@@ -569,7 +591,7 @@ pcp.py
 352 derive pmlogger local oss pmdumplog
 353 pmsocks remote oss
 354 folio local oss sanity
-355 trace local pmda.install oss sanity
+355 trace local pmda.install oss
 356 derive local oss
 357 other local oss
 358 pmie local oss pmstore
@@ -597,7 +619,7 @@ pcp.py
 380 libpcp pmda pmda.sample local oss
 381 logutil pmlc remote oss
 382 dbpmda pmda pmda.sample local oss
-383 pmda.cisco local oss
+383 pmda.cisco local flakey oss
 384 pmda.pmcd local oss
 385 libpcp pmda.sample pminfo pmprobe local oss event sanity
 386 pdu mem_leak valgrind local oss
@@ -608,7 +630,7 @@ pcp.py
 391 archive mem_leak valgrind local oss
 392 pmns local oss
 393 archive mem_leak valgrind local oss
-394 archive mem_leak valgrind local oss
+394 archive mem_leak valgrind local oss flakey
 395 archive mem_leak valgrind local oss
 396 pmval local oss
 397 dbpmda libpcp local oss pdu event sanity
@@ -663,13 +685,13 @@ pcp.py
 446 trace local oss
 447 event local oss
 448 libpcp local oss
-449 threads local oss
+449 threads local flakey oss
 450 pmlogextract local #584487 pmval oss
 451 threads local oss
 452 pmda.linux local oss
 453 perl local oss sanity
 454 pmcd local oss
-455 pmda.rsyslog pmda.install local oss
+455 pmda.rsyslog local flakey pmda.install oss
 456 logutil local #591459 folio oss
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
@@ -732,7 +754,7 @@ pcp.py
 515 pmie local oss
 516 pmie local oss
 517 other local oss
-518 other local oss
+518 other local oss flakey
 519 pmie remote oss
 520 pmie local oss
 521 pmie local oss
@@ -745,15 +767,15 @@ pcp.py
 528 pmimport pmdumplog perl local oss
 529 pmie local oss
 530 logutil local pmlogextract local oss
-531 dbpmda local pmda.sample oss sanity
+531 dbpmda local pmda.sample oss
 532 logutil pmlogextract local oss
-533 dbpmda local pmda.sample oss sanity
+533 dbpmda local pmda.sample oss
 534 pmie local oss
 535 pmie local pmprobe oss
 536 pmimport local oss
 537 pmimport perl local oss
 538 pmie local oss pmstore
-539 pmpost local oss
+539 pmpost local oss flakey
 540 pmda.linux local pminfo oss
 541 pmie #535080 local pmprobe oss
 542 pmdate #666344 local oss
@@ -837,9 +859,9 @@ pcp.py
 709 python local oss
 710 python pmimport local oss
 711 pmimport pmdumplog pmlogsummary perl local oss
-712 context libpcp pmcd local oss
-713 context libpcp pmproxy local oss
-714 context libpcp pmcd local oss
+712 context libpcp pmcd secure local oss
+713 context libpcp pmproxy secure local oss
+714 context libpcp pmcd secure local oss
 715 pmda.simple perl oss
 716 dbpmda pmda.simple perl oss
 717 pmda.simple python oss
@@ -848,9 +870,15 @@ pcp.py
 720 libpcp local oss
 721 dbpmda local oss
 722 python local oss
-831 pmda.sample pmstore local oss
-832 pmda.sample pmstore local oss
+748 pmlogrewrite pmda.mysql local oss
+823 pmda.sample pmstore secure local oss
+827 pmlogrewrite pmda.linux local oss
+831 pmda.sample pmstore secure local oss
+832 pmda.sample pmstore secure local oss
 875 libpcp local oss
+943 pmprobe pmda.proc local oss
+944 pmcd secure local oss
+994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

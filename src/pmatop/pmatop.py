@@ -243,7 +243,11 @@ class _ProcessorPrint(_AtopPrint):
         self.p_stdscr.addstr (' idle %6d%% |' % (100 * self.ss.get_metric_value('kernel.all.cpu.idle') / self.ss.cpu_total))
         self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.ss.get_metric_value('kernel.all.cpu.wait.total') / self.ss.cpu_total))
         self.next_line()
-        for k in range(self.ss.get_metric_value('hinv.ncpu')):
+        ncpu = self.ss.get_metric_value('hinv.ncpu')
+        for k in range(ncpu):
+            if (ncpu > 8 and self.ss.get_scalar_value('kernel.percpu.cpu.sys', 
+k) == 0 and self.ss.get_scalar_value('kernel.percpu.cpu.user', k) == 0):
+                continue
             self.p_stdscr.addstr ('cpu |')
             self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.ss.get_scalar_value('kernel.percpu.cpu.sys', k) / self.ss.cpu_total))
             self.p_stdscr.addstr (' user %6d%% |' % (100 * self.ss.get_scalar_value('kernel.percpu.cpu.user', k) / self.ss.cpu_total))
@@ -255,6 +259,8 @@ class _ProcessorPrint(_AtopPrint):
             if (self.apyx[1] >= 95):
                 self.p_stdscr.addstr (self.put_value(' curf %4.2gMHz |', scale(self.ss.get_scalar_value('hinv.cpu.clock', k), 1000)))
             self.next_line()
+            if (ncpu > 8 and k >= 8): # Censor to allow for screensize
+                break
 
         self.p_stdscr.addstr ('CPL |')
         self.p_stdscr.addstr (' avg1 %7.3g |' % (self.ss.get_scalar_value('kernel.all.load', 0)))
@@ -318,6 +324,8 @@ class _DiskPrint(_AtopPrint):
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr (self.put_value(' MBw/s %6.3g |', val))
             self.next_line()
+            if (j > 6):         # Censor to allow for screensize 
+                break
 
         try:
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs [self.ss.metrics_dict['disk.dev.read']])
@@ -344,6 +352,8 @@ class _DiskPrint(_AtopPrint):
                 avio = 0
             self.p_stdscr.addstr (' avio %4.2g ms |' % (avio))
             self.next_line()
+            if (j > 4):         # Censor to allow for screensize 
+                break
 
 
 # _MemoryPrint --------------------------------------------------
@@ -665,7 +675,6 @@ def main (stdscr_p):
             except pmapi.pmErr, e:
                 return str(e) + " while processing " + str(ssx[0])
             except Exception, e: # catch all errors, pcp or python or otherwise
-                debug (str(e))
                 pass
             stdscr.move (proc.command_line, 0)
             stdscr.refresh()

@@ -93,6 +93,9 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmie" ]
     then
+	# $PCP_TMP_DIR/pmie is not included in the PCP package ... it
+	# is created here and cleaned up here.
+	#
 	mkdir -p -m 1777 "$PCP_TMP_DIR/pmie"
     else
 	rm -rf $tmp/ent $tmp/pid
@@ -163,7 +166,7 @@ _shutdown()
 	return 0
     fi
 
-    $ECHO $PCP_ECHO_N "Waiting for PMIE process(es) to terminate ..." "$PCP_ECHO_C"
+    $ECHO $PCP_ECHO_N "Waiting for pmie process(es) to terminate ..." "$PCP_ECHO_C"
 
     pmie_check -s >$tmp/pmie 2>&1
     if [ -s $tmp/pmie ]
@@ -226,7 +229,14 @@ case "$1" in
 	then
 	    if is_chkconfig_on pmie
 	    then
-		[ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR"
+		if [ ! -d "$RUNDIR" ]
+		then
+		    # Should not happen, but needs to match permissions
+		    # from package, as defined in src/pmie/GNUmakefile
+		    #
+		    mkdir -p -m 775 "$RUNDIR"
+		    chown pcp:pcp "$RUNDIR"
+		fi
 		cd $RUNDIR
 		if which pmie_check >/dev/null 2>&1
 		then

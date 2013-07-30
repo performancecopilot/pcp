@@ -35,7 +35,7 @@ install: default
 	$(INSTALL) -m 644 pmproxy.options $(PCP_PMPROXYOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmproxy $(PCP_RC_DIR)/pmproxy
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmproxy
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmproxy
 
 default_pcp : default
 

@@ -147,7 +147,7 @@ class GuiClient(object):
                                 c_char_p(host), isdefault, byref(rhp))
         if status < 0:
             raise pmErr, status
-        status = LIBC.fputs(c_char_p(config), rhp.contents.f_config)
+        status = LIBC.fputs(c_char_p(config), c_long(rhp.contents.f_config))
         if (status < 0):
             LIBC.perror(c_char_p(""))
             raise pmErr, status

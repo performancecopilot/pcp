@@ -5,12 +5,43 @@ chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
 useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
-chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null || true
-chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null || true
-[ ! -d /var/log/pcp/pmwebd ] || \
-chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null || true
-chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null || true
-chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null || true
+
+# must match GNUmakefile
+chown pcp:pcp /var/lib/pcp/config/pmda
+chmod 775 /var/lib/pcp/config/pmda
+
+# must match src/pmcd/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmcd
+chmod 775 /var/log/pcp/pmcd
+
+# must match src/pmie/GNUmakefile
+chown pcp:pcp /etc/pcp/pmie
+chmod 775 /etc/pcp/pmie
+chown pcp:pcp /etc/pcp/pmie/control
+chmod 664 /etc/pcp/pmie/control
+chown pcp:pcp /var/log/pcp/pmie
+chmod 775 /var/log/pcp/pmie
+
+# must match src/pmlogger/GNUmakefile
+chown pcp:pcp /etc/pcp/pmlogger
+chmod 775 /etc/pcp/pmlogger
+chown pcp:pcp /etc/pcp/pmlogger/control
+chmod 664 /etc/pcp/pmlogger/control
+chown pcp:pcp /var/log/pcp/pmlogger
+chmod 775 /var/log/pcp/pmlogger
+
+# not always included in the package (if prereqs not in build environment)
+#
+if [ -d /var/log/pcp/pmwebd ]
+then
+    # must match src/pmwebapi/GNUmakefile
+    chown pcp:pcp /var/log/pcp/pmwebd
+    chmod 775 /var/log/pcp/pmwebd
+fi
+
+# must match src/pmproxy/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmproxy
+chmod 775 /var/log/pcp/pmproxy
 
 update-rc.d pmcd defaults >/dev/null
 update-rc.d pmlogger defaults >/dev/null

@@ -16,16 +16,45 @@
 #include "impl.h"
 #include <sys/stat.h>
 #include <sys/file.h>
+#ifdef HAVE_GRP_H
+#include <grp.h>
+#endif
+
+/*
+ * Attempt to setup the notices file in a way that members of
+ * the (unprivileged) "pcp" group account can write to it.
+ */
+int gid;
+#ifdef HAVE_GETGRNAM
+static void
+setup_group(void)
+{
+    char *name = pmGetConfig("PCP_GROUP");
+    struct group *group;
+
+    if (!name || name[0] == '\0')
+	name = "pcp";
+    group = getgrnam(name);
+    if (group)
+	gid = group->gr_gid;
+}
+#else
+#define setup_group()
+#endif
 
 static int
 mkdir_r(char *path)
 {
     struct stat	sbuf;
+    int sts;
 
     if (stat(path, &sbuf) < 0) {
 	if (mkdir_r(dirname(strdup(path))) < 0)
 	    return -1;
-	return mkdir2(path, 0755);
+	sts = mkdir2(path, 0775);
+	if (chown(path, 0, gid) < 0)
+	    fprintf(stderr, "pmpost: cannot set dir gid[%d]: %s\n", gid, path);
+	return sts;
     }
     else if ((sbuf.st_mode & S_IFDIR) == 0) {
 	fprintf(stderr, "pmpost: \"%s\" is not a directory\n", path);
@@ -76,7 +105,7 @@ main(int argc, char **argv)
 	}
     }
 #endif
-    umask(0022);
+    umask(0002);
 
     if ((argc == 1) || (argc == 2 && strcmp(argv[1], "-?") == 0)) {
 	fprintf(stderr, "Usage: pmpost message\n");
@@ -86,6 +115,7 @@ main(int argc, char **argv)
     snprintf(notices, sizeof(notices), "%s%c" "NOTICES",
 		pmGetConfig("PCP_LOG_DIR"), __pmPathSeparator());
 
+    setup_group();
     dir = dirname(strdup(notices));
     if (mkdir_r(dir) < 0) {
 	fprintf(stderr, "pmpost: cannot create directory \"%s\": %s\n",
@@ -94,10 +124,13 @@ main(int argc, char **argv)
     }
 
     if ((fd = open(notices, O_WRONLY|O_APPEND, 0)) < 0) {
-	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0644)) < 0) {
+	if ((fd = open(notices, O_WRONLY|O_CREAT|O_APPEND, 0664)) < 0) {
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
 		notices, osstrerror());
 	    exit(1);
+	} else if ((fchown(fd, 0, gid)) < 0) {
+	    fprintf(stderr, "pmpost: cannot set file gid \"%s\": %s\n",
+		notices, osstrerror());
 	}
 	lastday = LAST_NEWFILE;
     }

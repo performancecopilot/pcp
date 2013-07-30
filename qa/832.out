@@ -11,10 +11,10 @@ sample.write_me
     Semantics: instant  Units: count / sec
 
 testing secure mode access attempt via inet socket (FAIL)
-pmstore: Cannot connect to PMCD on host "localhost": Authentication - generic failure
-pmprobe: Cannot connect to PMCD on host "localhost": Authentication - generic failure
-pminfo: Cannot connect to PMCD on host "localhost": Authentication - generic failure
-pminfo: Cannot connect to PMCD on host "localhost": Authentication - generic failure
+pmstore: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pmprobe: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
+pminfo: Cannot connect to PMCD on host "localhost": Authentication - invalid parameter supplied
 
 Waiting for pmcd to terminate ...
 Starting pmcd ... 

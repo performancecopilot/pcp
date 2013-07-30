@@ -1,8 +1,13 @@
 pcp (3.8.2) unstable; urgency=low
 
-  * Currently under development...
+  * New release (full details in CHANGELOG).
+  * Fix library symlink in libpcp-gui2-dev (closes: #715100)
+  * Fix library symlink in libpcp-import1-dev (closes: #715101)
+  * Fix library symlink in libpcp-mmv1-dev (closes: #715102)
+  * Fix library symlink in libpcp-pmda3-dev (closes: #715103)
+  * Fix library symlink in libpcp-trace2-dev (closes: #715104)
 
- -- Nathan Scott <nathans@debian.org>  Thu, 20 Jun 2013 09:33:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 31 Jul 2013 08:12:02 +1000
 
 pcp (3.8.1) unstable; urgency=low
 

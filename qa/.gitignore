@@ -26,7 +26,6 @@ sudo
 006.out
 008.out
 012.out
-015.out
 019.out
 022.out
 023.out
@@ -106,6 +105,7 @@ sudo
 294.out
 298.out
 299.out
+300.out
 313.out
 320.out
 322.out
@@ -135,13 +135,16 @@ sudo
 411.out
 417.out
 419.out
+422.out
 429.out
 430.out
+438.out
 449.out
 464.out
 465.out
 479.out
 480.out
+491.out
 492.out
 498.out
 501.out
@@ -174,4 +177,3 @@ sudo
 715.out
 716.out
 1051.out
-1108.out

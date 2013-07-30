@@ -32,8 +32,7 @@ elif [ $PCP_PLATFORM = solaris ]
 then
     ln $seq.solaris $seq.out || exit 1
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 trap "cd $here; rm -rf $tmp $tmp.* /tmp/chk.fout; exit" 0 1 2 3 15

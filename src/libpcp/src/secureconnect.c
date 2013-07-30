@@ -330,7 +330,7 @@ mkpath(const char *dir, mode_t mode)
 }
 
 static char *
-dbpath(char *path, size_t size)
+dbpath(char *path, size_t size, char *db_method)
 {
     int sep = __pmPathSeparator();
     const char *empty_homedir = "";
@@ -340,7 +340,7 @@ dbpath(char *path, size_t size)
     if (homedir == NULL)
 	homedir = (char *)empty_homedir;
     if (nss_method == NULL)
-	nss_method = "sql:";
+	nss_method = db_method;
 
     /*
      * Fill in a buffer with the users NSS database specification.
@@ -369,6 +369,8 @@ __pmInitCertificates(void)
     PK11SlotInfo *slot;
     SECStatus secsts;
 
+    PK11_SetPasswordFunc(dbphrase);
+
     /*
      * Check for client certificate databases.  We enforce use
      * of the per-user shared NSS database at $HOME/.pki/nssdb
@@ -377,11 +379,16 @@ __pmInitCertificates(void)
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
      */
-    if (mkpath(dbpath(nssdb, sizeof(nssdb)), 0700) < 0)
+    if (mkpath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
-
-    PK11_SetPasswordFunc(dbphrase);
     secsts = NSS_InitReadWrite(nssdb);
+
+    if (secsts != SECSuccess) {
+	/* fallback, older versions of NSS do not support sql: */
+	dbpath(nssdb, sizeof(nssdb), "");
+	secsts = NSS_InitReadWrite(nssdb);
+    }
+
     if (secsts != SECSuccess)
 	return __pmSecureSocketsError(PR_GetError());
 
@@ -644,7 +651,10 @@ __pmAuthLogCB(void *context, int priority, const char *message)
     case SASL_LOG_DEBUG:
     case SASL_LOG_TRACE:
     case SASL_LOG_PASS:
-	priority = LOG_DEBUG;
+	if (pmDebug & DBG_TRACE_AUTH)
+	    priority = LOG_DEBUG;
+	else
+	    return SASL_OK;
 	break;
     default:
 	priority = LOG_INFO;
@@ -654,10 +664,153 @@ __pmAuthLogCB(void *context, int priority, const char *message)
     return SASL_OK;
 }
 
+#if !defined(IS_MINGW)
+static void echoOff(int fd)
+{
+    if (isatty(fd)) {
+        struct termios tio;
+        tcgetattr(fd, &tio);
+        tio.c_lflag &= ~ECHO;
+        tcsetattr(fd, TCSAFLUSH, &tio);
+    }
+}
+
+static void echoOn(int fd)
+{
+    if (isatty(fd)) {
+        struct termios tio;
+        tcgetattr(fd, &tio);
+        tio.c_lflag |= ECHO;
+        tcsetattr(fd, TCSAFLUSH, &tio);
+    }
+}
+#define fgetsQuietly(buf,length,input) fgets(buf,length,input)
+#define consoleName "/dev/tty"
+#else
+#define echoOn(fd) do { } while (0)
+#define echoOff(fd) do { } while (0)
+#define consoleName "CON:"
+static char *fgetsQuietly(char *buf, int length, FILE *input)
+{
+    int c;
+    char *end = buf;
+
+    if (!isatty(fileno(input)))
+        return fgets(buf, length, input);
+    do {
+        c = getch();
+        if (c == '\b') {
+            if (end > buf)
+                end--;
+        }
+	else if (--length > 0)
+            *end++ = c;
+        if (!c || c == '\n' || c == '\r')
+	    break;
+    } while (1);
+
+    return buf;
+}
+#endif
+
+static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
+{
+    size_t length;
+    int infd  = fileno(in);
+    int isTTY = isatty(infd);
+    char *value, phrase[256];
+
+    if (isTTY) {
+	fprintf(out, "%s", prompt);
+	fflush(out);
+	if (secret)
+	    echoOff(infd);
+    }
+
+    memset(phrase, 0, sizeof(phrase));
+    value = fgetsQuietly(phrase, sizeof(phrase)-1, in);
+    length = strlen(value) - 1;
+    while (length && (value[length] == '\n' || value[length] == '\r'))
+	value[length] = '\0';
+
+    if (isTTY && secret) {
+	fprintf(out, "\n");
+	echoOn(infd);
+    }
+
+    return strdup(value);
+}
+
+/*
+ * SASL is calling us looking for the value for a specific attribute;
+ * we must respond as best we can:
+ * - if user specified it on the command line, its in the given hash
+ * - if we can interact, we can ask the user for it (taking care for
+ *   sensitive info like passwords, not to echo back to the user)
+ * Also take care to handle non-console interactive modes, like the
+ * pmchart case.  Further, we should consider a mode where we extract
+ * these values from a per-user config file too (ala. libvirt).
+ *
+ * Return value is a dynamically allocated string, caller must free.
+ */
+
+static char *
+__pmGetAttrConsole(const char *prompt, int secret)
+{
+    FILE *input, *output;
+    char *value, *console;
+
+    /*
+     * Interactive mode: open terminal and discuss with user
+     * For graphical tools, we do not want to ever be here.
+     * For testing, we want to just error out of here ASAP.
+     */
+    console = getenv("PCP_CONSOLE");
+    if (console) {
+	if (strcmp(console, "none") == 0)
+	    return NULL;
+    } else {
+	console = consoleName;
+    }
+
+    input = fopen(console, "r");
+    if (input == NULL) {
+	__pmNotifyErr(LOG_ERR, "opening input terminal for read\n");
+	return NULL;
+    }
+    output = fopen(console, "w");
+    if (output == NULL) {
+	__pmNotifyErr(LOG_ERR, "opening output terminal for write\n");
+	fclose(input);
+	return NULL;
+    }
+
+    value = fgetsPrompt(input, output, prompt, secret);
+
+    fclose(input);
+    fclose(output);
+
+    return value;
+}
+
+static char *
+__pmGetAttrValue(__pmAttrKey key, __pmHashCtl *attrs, const char *prompt)
+{
+    __pmHashNode *node;
+    char *value;
+
+    if ((node = __pmHashSearch(key, attrs)) != NULL)
+	return (char *)node->data;
+    value = __pmGetAttrConsole(prompt, key == PCP_ATTR_PASSWORD);
+    if (value)	/* must track all our own memory use in SASL */
+	__pmHashAdd(key, value, attrs);
+    return value;
+}
+
+
 static int
 __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 {
-    __pmHashNode *node;
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     char *value = NULL;
 
@@ -667,12 +820,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     if (id != SASL_CB_GETREALM)
 	return SASL_FAIL;
 
-    if ((node = __pmHashSearch(PCP_ATTR_REALM, attrs)) != NULL) {
-	value = (char *)node->data;
-    } else {
-	/* prompt? */
-	return SASL_FAIL;
-    }
+    value = __pmGetAttrValue(PCP_ATTR_REALM, attrs, "Realm: ");
     *result = (const char *)value;
 
     if (pmDebug & DBG_TRACE_AUTH) {
@@ -691,10 +839,9 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 static int
 __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
 {
-    __pmHashNode *node;
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     char *value = NULL;
-    int sts = SASL_OK;
+    int sts;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthSimpleCB enter ctx=%p id=%#x\n", context, id);
@@ -702,18 +849,11 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     if (!result)
 	return SASL_BADPARAM;
 
+    sts = SASL_OK;
     switch (id) {
     case SASL_CB_USER:
-	if ((node = __pmHashSearch(PCP_ATTR_USERNAME, attrs)) != NULL)
-	    value = (char *)node->data;
-	else
-	    sts = SASL_FAIL;
-	break;
     case SASL_CB_AUTHNAME:
-	if ((node = __pmHashSearch(PCP_ATTR_AUTHNAME, attrs)) != NULL)
-	    value = (char *)node->data;
-	else
-	    sts = SASL_FAIL;
+	value = __pmGetAttrValue(PCP_ATTR_USERNAME, attrs, "Username: ");
 	break;
     case SASL_CB_LANGUAGE:
 	break;
@@ -735,11 +875,9 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
 static int
 __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **secret)
 {
-    __pmHashNode *node;
     __pmHashCtl *attrs = (__pmHashCtl *)context;
-    const char *password = NULL;
-    unsigned int length = 0;
-    int sts = SASL_OK;
+    size_t length = 0;
+    char *password;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthSecretCB enter ctx=%p id=%#x\n", context, id);
@@ -747,33 +885,34 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
 	return SASL_BADPARAM;
 
-    if ((node = __pmHashSearch(PCP_ATTR_PASSWORD, attrs)) != NULL) {
-	password = (const char *)node->data;
-	length = (unsigned int)strlen(password);
-    } else {
-	password = (const char *)getpass("Password: ");
-	if (!password)
-	    return SASL_FAIL;
-	length = (unsigned int)strlen(password);
+    password = __pmGetAttrValue(PCP_ATTR_PASSWORD, attrs, "Password: ");
+    length = password ? strlen(password) : 0;
+
+    *secret = (sasl_secret_t *) calloc(1, sizeof(sasl_secret_t) + length + 1);
+    if (!*secret) {
+	free(password);
+	return SASL_NOMEM;
     }
 
-    *secret = (sasl_secret_t *) malloc(sizeof(sasl_secret_t) + length + 1);
-    if (!*secret)
-	return SASL_NOMEM;
-
-    (*secret)->len = length;
-    strcpy((char *)(*secret)->data, password);
+    if (password) {
+	(*secret)->len = length;
+	strcpy((char *)(*secret)->data, password);
+    }
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSecretCB ctx=%p id=%#x -> sts=%d data=%s len=%d\n",
-		context, id, sts, password, length);
-    return sts;
+	fprintf(stderr, "__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
+		context, id, password, (unsigned)length);
+    free(password);
+
+    return SASL_OK;
 }
 
 static int
 __pmAuthPromptCB(void *context, int id, const char *challenge, const char *prompt,
 		 const char *defaultresult, const char **result, unsigned *length)
 {
+    char *value, message[512];
+
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "__pmAuthPromptCB enter ctx=%p id=%#x\n", context, id);
 
@@ -784,30 +923,26 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     if (defaultresult == NULL)
 	defaultresult = "";
 
-    /* TODO */
-    fputs(prompt, stdout);
-    if (challenge)
-	printf(" [challenge: %s]", challenge);
-    printf(" [%s]: ", defaultresult);
-    fflush(stdout);
+    if (!challenge)
+	snprintf(message, sizeof(message), "%s [%s]: ", prompt, defaultresult);
+    else
+	snprintf(message, sizeof(message), "%s [challenge: %s] [%s]: ",
+		 prompt, challenge, defaultresult);
+    message[sizeof(message)-1] = '\0';
 
     if (id == SASL_CB_ECHOPROMPT) {
-	char *original = getpass("");	/* TODO */
-	if (!original)
-	    return SASL_FAIL;
-	if (*original)
-	    *result = strdup(original);
-	else
-	    *result = strdup(defaultresult);
-	memset(original, 0L, strlen(original));
-    } else {
-	char buf[1024];
-	if (fgets(buf, 1024, stdin) == NULL || buf[0]) {
-	    *result = strdup(buf);
+	value = __pmGetAttrConsole(message, 0);
+	if (value && value[0] != '\0') {
+	    *result = value;
 	} else {
-	    *result = strdup(defaultresult);
+	    free(value);
+	    *result = defaultresult;
 	}
-	memset(buf, 0L, sizeof(buf));
+    } else {
+	if (fgets(message, sizeof(message), stdin) == NULL || message[0])
+	    *result = strdup(message);
+	else
+	    *result = defaultresult;
     }
     if (!*result)
 	return SASL_NOMEM;

@@ -163,8 +163,7 @@ _haveagents()
 			echo "Trying to re-install PMDA $agent from $agentdir ..."
 			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 			cd $agentdir
-			unset ROOT
-			unset TOOLROOT
+			unset ROOT TOOLROOT MAKEFLAGS
 			$sudo ./Remove </dev/null >>$here/$iam.out
 			case $agent
 			in

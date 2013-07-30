@@ -146,7 +146,7 @@ pmcd_dump_trace(FILE *f)
 			fprintf(f, "New client: [%d] ", trace[p].t_who);
 			cip = GetClient(trace[p].t_who);
 			if (cip == NULL) {
-			    fprintf(f, "-- unknown\n?");
+			    fprintf(f, "-- unknown?\n");
 			}
 			else {
 			    __pmSockAddr	*saddr = (__pmSockAddr *)cip->addr;

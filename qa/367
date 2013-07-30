@@ -14,8 +14,9 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out $seq.full
+endian=`_get_endian`
 if [ $PCP_VER -ge 3800 ]; then
-    ln $seq.out.2 $seq.out
+    ln $seq.out.$endian.2 $seq.out
 else
     ln $seq.out.1 $seq.out
 fi

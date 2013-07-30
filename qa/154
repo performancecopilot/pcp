@@ -47,7 +47,7 @@ then
     # the PMDA ... this should be a no-op, but may take a while
     #
     cd $PCP_PMDAS_DIR/cisco
-    unset ROOT
+    unset ROOT MAKEFLAGS
     $sudo ./Install </dev/null >/dev/null 2>&1
     cd $here
     if [ ! -f $PCP_PMDAS_DIR/cisco/help.pag ]
@@ -131,7 +131,7 @@ then
     # see comments above when help.pag created for cisco PMDA
     #
     cd $PCP_PMDAS_DIR/cisco
-    unset ROOT
+    unset ROOT MAKEFLAGS
     $sudo ./Remove </dev/null >/dev/null 2>&1
     cd $here
 fi

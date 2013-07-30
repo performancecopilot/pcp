@@ -22,8 +22,7 @@ if [ -f $seq.$PCP_PLATFORM.$suffix ]
 then
     ln $seq.$PCP_PLATFORM.$suffix $seq.out
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 status=0	# success is the default!

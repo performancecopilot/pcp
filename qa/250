@@ -25,8 +25,7 @@ then
 	ln $seq.out.3 $seq.out
     fi
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 status=1	# failure is the default!

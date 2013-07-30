@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,11 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+#define SNMP_MAX_COLUMNS	64	/* arbitrary upper bound */
+#define SNMP_PERLINE		16	/* see net/ipv4/proc.c */
+#define SNMP_MAX_ICMPMSG_TYPESTR 8	/* longest name for type */
+#define NR_ICMPMSG_COUNTERS	SNMP_PERLINE
 
 enum {
     _PM_SNMP_IP_FORWARDING = 0,
@@ -43,6 +45,7 @@ enum {
 enum {
     _PM_SNMP_ICMP_INMSGS = 0,
     _PM_SNMP_ICMP_INERRORS,
+    _PM_SNMP_ICMP_INCSUMERRORS,
     _PM_SNMP_ICMP_INDESTUNREACHS,
     _PM_SNMP_ICMP_INTIMEEXCDS,
     _PM_SNMP_ICMP_INPARMPROBS,
@@ -72,6 +75,12 @@ enum {
 };
 
 enum {
+    _PM_SNMP_ICMPMSG_INTYPE = 0,
+    _PM_SNMP_ICMPMSG_OUTTYPE = NR_ICMPMSG_COUNTERS,
+    _PM_SNMP_ICMPMSG_NFIELDS = (NR_ICMPMSG_COUNTERS*2)
+};
+
+enum {
     _PM_SNMP_TCP_RTOALGORITHM = 0,
     _PM_SNMP_TCP_RTOMIN,
     _PM_SNMP_TCP_RTOMAX,
@@ -86,6 +95,7 @@ enum {
     _PM_SNMP_TCP_RETRANSSEGS,
     _PM_SNMP_TCP_INERRS,
     _PM_SNMP_TCP_OUTRSTS,
+    _PM_SNMP_TCP_INCSUMERRORS,
 
     _PM_SNMP_TCP_NFIELDS /* must be last */
 };
@@ -97,6 +107,7 @@ enum {
     _PM_SNMP_UDP_OUTDATAGRAMS,
     _PM_SNMP_UDP_RECVBUFERRORS,
     _PM_SNMP_UDP_SNDBUFERRORS,
+    _PM_SNMP_UDP_INCSUMERRORS,
 
     _PM_SNMP_UDP_NFIELDS /* must be last */
 };
@@ -108,16 +119,18 @@ enum {
     _PM_SNMP_UDPLITE_OUTDATAGRAMS,
     _PM_SNMP_UDPLITE_RECVBUFERRORS,
     _PM_SNMP_UDPLITE_SNDBUFERRORS,
+    _PM_SNMP_UDPLITE_INCSUMERRORS,
 
     _PM_SNMP_UDPLITE_NFIELDS /* must be last */
 };
 
 typedef struct {
-    unsigned int ip[_PM_SNMP_IP_NFIELDS];
-    unsigned int icmp[_PM_SNMP_ICMP_NFIELDS];
-    unsigned int tcp[_PM_SNMP_TCP_NFIELDS];
-    unsigned int udp[_PM_SNMP_UDP_NFIELDS];
-    unsigned int udplite[_PM_SNMP_UDPLITE_NFIELDS];
+    __uint64_t	ip[_PM_SNMP_IP_NFIELDS];
+    __uint64_t	icmp[_PM_SNMP_ICMP_NFIELDS];
+    __uint64_t	icmpmsg[_PM_SNMP_ICMPMSG_NFIELDS];
+    __uint64_t	tcp[_PM_SNMP_TCP_NFIELDS];
+    __uint64_t	udp[_PM_SNMP_UDP_NFIELDS];
+    __uint64_t	udplite[_PM_SNMP_UDPLITE_NFIELDS];
 } proc_net_snmp_t;
 
 extern int refresh_proc_net_snmp(proc_net_snmp_t *);

@@ -67,6 +67,7 @@ rm -f $seq.full
 
 _filter_log()
 {
+    fixed_width_ip="                        "
     sed <$log \
 	-e 's/^$//' \
 	-e '/^irix/s/\/var\//\/usr\//' \
@@ -78,6 +79,7 @@ _filter_log()
 	-e "s/$me_ip/MY_IP/" \
 	-e "s/$other1_ip/OTHER1_IP/" \
 	-e "s/$other2_ip/OTHER2_IP/" \
+	-e "s/\(OTHER._IP\) *\( 255.255.255.255\)/\1 ${fixed_width_ip} \2/" \
 	-e '/access violation .* [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9]/{
 N
 d

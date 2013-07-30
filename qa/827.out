@@ -1,0 +1,324 @@
+QA output created by 827
+old -> new changes
+@@ -5,223 +5,223 @@
+ 
+ Descriptions for Metrics in the Log ...
+ PMID: 60.14.4 (network.ip.inaddrerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.34 (network.icmp.outerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.5 (network.ip.forwdatagrams)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.35 (network.icmp.outdestunreachs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.6 (network.ip.inunknownprotos)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.36 (network.icmp.outtimeexcds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.7 (network.ip.indiscards)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.37 (network.icmp.outparmprobs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.8 (network.ip.indelivers)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.38 (network.icmp.outsrcquenchs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.9 (network.ip.outrequests)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.39 (network.icmp.outredirects)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.10 (network.ip.outdiscards)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.40 (network.icmp.outechos)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.70 (network.udp.indatagrams)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.11 (network.ip.outnoroutes)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.41 (network.icmp.outechoreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.71 (network.udp.noports)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.12 (network.ip.reasmtimeout)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.42 (network.icmp.outtimestamps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.72 (network.udp.inerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.13 (network.ip.reasmreqds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.43 (network.icmp.outtimestampreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.14 (network.ip.reasmoks)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.44 (network.icmp.outaddrmasks)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.74 (network.udp.outdatagrams)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.15 (network.ip.reasmfails)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.45 (network.icmp.outaddrmaskreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.75 (network.udp.recvbuferrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.76 (network.udp.sndbuferrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.16 (network.ip.fragoks)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.77 (network.udplite.indatagrams)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.17 (network.ip.fragfails)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.78 (network.udplite.noports)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.18 (network.ip.fragcreates)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.79 (network.udplite.inerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.20 (network.icmp.inmsgs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.50 (network.tcp.rtoalgorithm)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.80 (network.udplite.outdatagrams)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.21 (network.icmp.inerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.51 (network.tcp.rtomin)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.81 (network.udplite.recvbuferrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.22 (network.icmp.indestunreachs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.52 (network.tcp.rtomax)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.82 (network.udplite.sndbuferrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.23 (network.icmp.intimeexcds)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.24 (network.icmp.inparmprobs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.54 (network.tcp.activeopens)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 2.3.0 (pmcd.pmlogger.port)
+     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 60.14.25 (network.icmp.insrcquenchs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.55 (network.tcp.passiveopens)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.26 (network.icmp.inredirects)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.56 (network.tcp.attemptfails)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 2.3.2 (pmcd.pmlogger.archive)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 60.14.27 (network.icmp.inechos)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.57 (network.tcp.estabresets)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 2.3.3 (pmcd.pmlogger.host)
+     Data Type: string  InDom: 2.1 0x800001
+     Semantics: discrete  Units: none
+ PMID: 60.14.28 (network.icmp.inechoreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.58 (network.tcp.currestab)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.29 (network.icmp.intimestamps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.59 (network.tcp.insegs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.0 (network.ip.forwarding)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.30 (network.icmp.intimestampreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.60 (network.tcp.outsegs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.1 (network.ip.defaultttl)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.31 (network.icmp.inaddrmasks)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.61 (network.tcp.retranssegs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.2 (network.ip.inreceives)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.62 (network.tcp.inerrs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.32 (network.icmp.inaddrmaskreps)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.3 (network.ip.inhdrerrors)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.63 (network.tcp.outrsts)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ PMID: 60.14.33 (network.icmp.outmsgs)
+-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
++    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+ 
+ Instance Domains in the Log ...
+@@ -232,14 +232,14 @@
+ Temporal Index
+              Log Vol    end(meta)     end(log)
+ 21:49:30.119       0          132          132
+-21:49:32.119       0         4762         1664
++21:49:32.119       0         4762         2504
+ 
+ [112 bytes]
+ 21:49:30.119  2.3.3 (pmcd.pmlogger.host): inst [22801 or "22801"] value "smash"
+               2.3.0 (pmcd.pmlogger.port): inst [22801 or "22801"] value 4330
+               2.3.2 (pmcd.pmlogger.archive): inst [22801 or "22801"] value "/tmp/new_snmp"
+ 
+-[1420 bytes]
++[2260 bytes]
+ 21:49:31.119  60.14.82 (network.udplite.sndbuferrors): value 0
+               60.14.81 (network.udplite.recvbuferrors): value 0
+               60.14.80 (network.udplite.outdatagrams): value 0
+@@ -311,7 +311,7 @@
+               60.14.1 (network.ip.defaultttl): value 64
+               60.14.0 (network.ip.forwarding): value 1
+ 
+-[1420 bytes]
++[2260 bytes]
+ 21:49:32.119  60.14.82 (network.udplite.sndbuferrors): value 0
+               60.14.81 (network.udplite.recvbuferrors): value 0
+               60.14.80 (network.udplite.outdatagrams): value 0
+
+new -> ref changes ... expect none

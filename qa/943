@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 943
+# Exercise pmdaproc access permission checking.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+$authentication || _notrun "No authentication support available"
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_counts()
+{
+    $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }'
+}
+
+# lists of metrics
+unprivileged="proc.nprocs proc.runq"
+privileged="proc.psinfo proc.memory proc.id proc.fd proc.schedstat"
+
+# notes:
+# proc.io file permissions sometimes prevent reading after seteuid?
+# debug: pminfo -L -K add,3,proc/pmda_proc.so,proc_init proc.io -f
+
+# real QA test starts here
+echo "== Check unprivileged metric access"
+pmprobe -h localhost $unprivileged | _filter_counts
+
+echo "== Check protected per-process metric fetches (expect errors)"
+pmprobe -h localhost $privileged | _filter_counts
+
+echo "== Check authentic per-process metric fetches (expect values)"
+pmprobe -h unix: $privileged | _filter_counts
+
+# success, all done
+status=0
+exit

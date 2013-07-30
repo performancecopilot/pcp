@@ -72,7 +72,7 @@ trap "_cleanup" 0 1 2 3 15
 home="$PCP_PMDAS_DIR"
 iam=mmv
 cd "$home/$iam"
-unset ROOT
+unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"

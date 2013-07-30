@@ -140,10 +140,9 @@ cat <<End-of-File >$id
 . ./common.check
 
 seq=\`basename \$0\`
+echo "QA output created by \$seq"
 
 # test for-some-thing || _notrun No support for some-thing
-
-echo "QA output created by \$seq"
 
 status=1	# failure is the default!
 \$sudo rm -rf \$tmp.* \$seq.full

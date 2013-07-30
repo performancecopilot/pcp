@@ -17,8 +17,8 @@ fi
 # 
 _notrun()
 {
-    echo $@ >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
+    echo $@ >$here/$seq.notrun
+    echo "$seq: [not run] `cat $here/$seq.notrun`"
     exit 0
 }
 
@@ -771,6 +771,46 @@ _get_port()
 	fi
 	__port=`expr $__port + 1`
     done
+}
+
+# get host endianness ("le" or "be")
+_get_endian()
+{
+    check=`echo a | od -x 2>&1 | sed -e 's/^0[^ ]* *//' -e 's/ //g' -e '/^$/d'`
+    case "$check"
+    in
+    0a61) echo le ;;
+    610a) echo be ;;
+    *)
+	echo "Arrgh ... od -x returned something odd ($check)"
+	echo a | od -x
+	status=1
+	exit
+	;;
+    esac
+}
+
+# get host word size ("32" or "64")
+_get_word_size()
+{
+    machine=`uname -m`
+    case "$machine"
+    in
+    i?86|athlon|ppc)
+	size=32
+	# but, apps are 64-bit on my Mac OS X
+	[ $PCP_PLATFORM = darwin ] && size=64
+	;;
+    x86_64|ia64|ppc64|s390x|aarch64)
+	size=64
+	;;
+    *)
+	echo "uname gave machine type with unknown word size ($machine)"
+	status=1
+	exit
+	;;
+    esac
+    echo $size
 }
 
 # _all_hostnames host - generate all hostnames (or IP addresses) for this host,

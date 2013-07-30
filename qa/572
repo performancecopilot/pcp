@@ -19,7 +19,7 @@ pmcdconf=$PCP_PMCDCONF_PATH
 rootconf=$PCP_VAR_DIR/pmns/root
 needclean=false
 
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 
 _cleanup()
 {

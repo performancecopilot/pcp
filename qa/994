@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 994
+# Try to check permissions of package artifacts.
+#
+# See src/mkpermslist and src/permslist.
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+# test for-some-thing || _notrun No support for some-thing
+
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -f src/permslist ]
+then
+    echo "Arrgh .. src/permslist is missing.  Need to"
+    echo "	$ cd src; ./mkpermslist"
+    echo "in a git tree containg the PCP source and then try again."
+    status=1
+    exit
+fi
+
+# real QA test starts here
+
+# permslist format ...
+# src/pmdas/mmv/GNUmakefile|1777|root|root|/var/tmp/mmv
+# but also need to expand PCP env vars we expect to find
+sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
+    -e 's@$(PCP_USER)@'$PCP_USER@g \
+    -e 's@$(PCP_GROUP)@'$PCP_GROUP@g \
+    -e 's@$(PCP_PMLOGGERCONTROL_PATH)@'$PCP_PMLOGGERCONTROL_PATH@g \
+    -e 's@$(PCP_PMIECONTROL_PATH)@'$PCP_PMIECONTROL_PATH@g \
+    -e 's@$(PCP_TMP_DIR)@'$PCP_TMP_DIR@g \
+    -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
+    -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
+    -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
+    -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
+| while read makefile mode owner group target optional
+do
+    if [ ! -f "$target" -a ! -d "$target" ]
+    then
+	[ -z "$optional" ] && \
+	    echo "Error: $target: not found, should have been installed from $makefile"
+    else
+	# stat line of interest ...
+	# Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)
+	#
+	_mode=""
+	_owner=""
+	_group=""
+	eval `stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
+s/Access: *(/_mode=/
+s/\/.*) *Uid: *( *[0-9][0-9]*\/ */ _owner=/
+s/) *Gid: *( *[0-9][0-9]*\/ */ _group=/
+s/).*//
+s/=0*/=/g
+p
+}'`
+	if [ -z "$_mode" -o -z "$_owner" -o -z "$_group" ]
+	then
+	    echo "Arrgh, failed to extract mode, owner and group from stat(1) output ..."
+	    stat $target
+	    status=1
+	    break
+	fi
+	#debug# echo "$target: mode: have $_mode expect $mode"
+	#debug# echo "$target: owner: have $_owner expect $owner"
+	#debug# echo "$target: group: have $_group expect $group"
+	if [ "$_mode" != "$mode" ]
+	then
+	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
+	fi
+	if [ "$_owner" != "$owner" ]
+	then
+	    echo "$target: wrong owner: expected $owner (from $makefile), found $_owner"
+	fi
+	if [ "$_group" != "$group" ]
+	then
+	    echo "$target: wrong group: expected $group (from $makefile), found $_group"
+	fi
+    fi
+done
+
+# success, all done
+status=0
+
+exit

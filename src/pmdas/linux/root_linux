@@ -397,6 +397,7 @@ network {
     sockstat
     ip
     icmp
+    icmpmsg
     tcp
     udp
     udplite
@@ -520,6 +521,7 @@ network.icmp {
     outtimestampreps	60:14:43
     outaddrmasks	60:14:44
     outaddrmaskreps	60:14:45
+    incsumerrors	60:14:46
 }
 
 network.tcp {
@@ -537,6 +539,7 @@ network.tcp {
     retranssegs		60:14:61
     inerrs		60:14:62
     outrsts		60:14:63
+    incsumerrors	60:14:64
 }
 
 network.udp {
@@ -546,6 +549,7 @@ network.udp {
     outdatagrams	60:14:74
     recvbuferrors	60:14:75
     sndbuferrors	60:14:76
+    incsumerrors	60:14:83
 }
 
 network.udplite {
@@ -555,6 +559,12 @@ network.udplite {
     outdatagrams	60:14:80
     recvbuferrors	60:14:81
     sndbuferrors	60:14:82
+    incsumerrors	60:14:84
+}
+
+network.icmpmsg {
+    intype		60:14:88
+    outtype		60:14:89
 }
 
 filesys {
