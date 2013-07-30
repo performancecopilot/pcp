@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
+ * Copyright (c) 2012-2013 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -698,7 +698,10 @@ Options:\n\
     /* base name for archive is here ... */
     archBase = argv[optind];
 
-    if (pmcd_host == NULL || strcmp(pmcd_host, "localhost") == 0) {
+    if (pmcd_host == NULL ||
+	strcmp(pmcd_host, "localhost") == 0 ||
+	strncmp(pmcd_host, "unix:", 5) == 0 ||
+	strncmp(pmcd_host, "local:", 6) == 0) {
 	(void)gethostname(local, MAXHOSTNAMELEN);
 	local[MAXHOSTNAMELEN-1] = '\0';
 	pmcd_host = local;
