@@ -846,8 +846,8 @@ void SigBad(int sig)
     __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE) {
-	/* -D desperate on the command line it enable tracback, if we
-	 * have platform support for it
+	/* -D desperate on the command line to enable traceback,
+	 * if we have platform support for it
 	 */
 #if defined(HAVE_TRACE_BACK_STACK) || defined(HAVE_BACKTRACE)
 	fprintf(stderr, "\nProcedure call traceback ...\n");
