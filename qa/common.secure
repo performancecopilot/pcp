@@ -14,6 +14,10 @@ collectorpw=$tmp/pki/nssdb/pass
 PCP_SECURE_DB_METHOD=${PCP_SECURE_DB_METHOD-'sql:'}
 certopts="-d $PCP_SECURE_DB_METHOD$collectordb -f $collectorpw -z $tmp.rand"
 
+userid=`id -u`
+groupid=`id -g`
+username=`id -u -n`
+
 qahost=`_get_fqdn`
 hostname=`hostname | sed -e 's/\..*//'`
 
@@ -164,4 +168,16 @@ find_groups()
 {
     limit=$1
     tail -n $limit /etc/group | $PCP_AWK_PROG -F: '{ print  $1 }'
+}
+
+filter_sample_log_credentials()
+{
+    grep Info $PCP_LOG_DIR/pmcd/sample.log | \
+    sed \
+        -e '/ctx=[0-9][0-9]*/s//ctx=N/' \
+        -e "s/userid=$userid/userid=UID/g" \
+        -e "s/groupid=$groupid/groupid=GID/g" \
+        -e "s/username=$username/username=USER/g" \
+        -e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
+        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
 }

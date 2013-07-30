@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 823
+# Exercise basic SASL functionality using a custom sasldb.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+
+authentication=false
+eval `pmconfig -L 2>/dev/null`
+$authentication || _notrun "No authentication support available"
+for helper in saslpasswd2 sasldblistusers2; do
+    which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
+done
+
+cleanup()
+{
+    # restore any modified pmcd configuration files
+    for file in $PCP_SASLCONF_DIR/pmcd.conf
+    do
+        test -f $file.$seq || continue
+        $sudo rm -f $file
+        $sudo mv $file.$seq $file
+    done
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+$sudo mv $PCP_SASLCONF_DIR/pmcd.conf $PCP_SASLCONF_DIR/pmcd.conf.$seq
+echo 'mech_list: plain' > $tmp.sasl
+echo "sasldb_path: $tmp.passwd.db" >> $tmp.sasl
+$sudo mv $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+
+echo "Creating temporary sasldb, add user running QA to it"
+echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
+
+echo "Verify saslpasswd2 has successfully added a new user"
+sasldblistusers2 -f $tmp.passwd.db | sed -e "s/^$username/USER/"
+
+echo "Ensure pmcd can read the password file"
+id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $tmp.passwd.db
+
+echo "Start pmcd with this shiny new sasldb"
+$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
+_wait_for_pmcd
+
+echo "Enabling sample PMDA tracing"
+authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
+pmstore sample.control $authdbg
+
+echo "Verifying SASL authentication for new client (FAIL)"
+pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control
+filter_sample_log_credentials
+echo "pmcd.log (from expected FAIL)" >> $seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
+
+echo "Verifying SASL authentication for new client (PASS)"
+pmprobe -v -h "pcp://localhost?username=${username}&password=y" sample.control
+filter_sample_log_credentials
+echo "pmcd.log (from expected PASS)" >> $seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
+
+# success, all done
+status=0
+exit
