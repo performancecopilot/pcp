@@ -1327,16 +1327,8 @@ static int
 accessCheckUsers(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 {
     userinfo	*up;
+    int		matched = 0;
     int		i;
-
-    if (nusers) {
-	up = &userlist[0];	/* global wildcard */
-	if (up->maxcons && up->curcons >= up->maxcons) {
-	    *denyOpsResult = all_ops;
-	    return PM_ERR_CONNLIMIT;
-	}
-	*denyOpsResult |= up->denyOps;
-    }
 
     for (i = 1; i < nusers; i++) {
 	up = &userlist[i];
@@ -1347,8 +1339,19 @@ accessCheckUsers(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 		return PM_ERR_CONNLIMIT;
 	    }
 	    *denyOpsResult |= up->denyOps;
+	    matched = 1;
 	}
     }
+
+    if (nusers && !matched) {
+	up = &userlist[0];	/* global wildcard */
+	if (up->maxcons && up->curcons >= up->maxcons) {
+	    *denyOpsResult = all_ops;
+	    return PM_ERR_CONNLIMIT;
+	}
+	*denyOpsResult |= up->denyOps;
+    }
+
     return 0;
 }
 
@@ -1367,16 +1370,8 @@ static int
 accessCheckGroups(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 {
     groupinfo	*gp;
+    int		matched = 0;
     int		i;
-
-    if (ngroups) {
-	gp = &grouplist[0];	/* global wildcard */
-	if (gp->maxcons && gp->curcons >= gp->maxcons) {
-	    *denyOpsResult = all_ops;
-	    return PM_ERR_CONNLIMIT;
-	}
-	*denyOpsResult |= gp->denyOps;
-    }
 
     for (i = 1; i < ngroups; i++) {
 	gp = &grouplist[i];
@@ -1387,8 +1382,19 @@ accessCheckGroups(__pmUserID uid, __pmGroupID gid, unsigned int *denyOpsResult)
 		return PM_ERR_CONNLIMIT;
 	    }
 	    *denyOpsResult |= gp->denyOps;
+	    matched = 1;
 	}
     }
+
+    if (ngroups && !matched) {
+	gp = &grouplist[0];	/* global wildcard */
+	if (gp->maxcons && gp->curcons >= gp->maxcons) {
+	    *denyOpsResult = all_ops;
+	    return PM_ERR_CONNLIMIT;
+	}
+	*denyOpsResult |= gp->denyOps;
+    }
+
     return 0;
 }
 

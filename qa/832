@@ -24,11 +24,9 @@ cleanup()
     # restore any modified pmcd configuration files
     for file in $PCP_PMCDOPTIONS_PATH $PCP_SASLCONF_DIR/pmcd.conf
     do
-	if test -f $file.$seq
-	then
-	    $sudo rm -f $file
-	    $sudo mv $file.$seq $file
-	fi
+	test -f $file.$seq || continue
+	$sudo rm -f $file
+	$sudo mv $file.$seq $file
     done
 
     $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start

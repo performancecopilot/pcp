@@ -11,9 +11,7 @@
 #
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.secure
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -25,8 +23,6 @@ $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
 
 status=1	# failure is the default!
-userid=`id -u`
-groupid=`id -g`
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -51,11 +47,11 @@ pmstore sample.control $authdbg
 
 echo "Verifying authentication for new client"
 pmprobe -v -h unix: sample.control
-check_sample_log
+filter_sample_log_credentials
 
 echo "Resetting sample PMDA tracing"
 pmstore -h unix: sample.control 0
-check_sample_log
+filter_sample_log_credentials
 
 # success, all done
 status=0
