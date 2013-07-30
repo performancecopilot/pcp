@@ -6,24 +6,18 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.secure
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-test $PCP_VER -ge 3802 || _notrun "No support for user/group ACLs"
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+$unix_domain_sockets || _notrun "No unix domain socket support available"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
-userid=`id -u`
-username=`id -u -n`
-groupid=`id -g`
-groupname=`id -g -n`
 
 _filter()
 {

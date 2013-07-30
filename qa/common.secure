@@ -17,6 +17,7 @@ certopts="-d $PCP_SECURE_DB_METHOD$collectordb -f $collectorpw -z $tmp.rand"
 userid=`id -u`
 groupid=`id -g`
 username=`id -u -n`
+groupname=`id -g -n`
 
 qahost=`_get_fqdn`
 hostname=`hostname | sed -e 's/\..*//'`
