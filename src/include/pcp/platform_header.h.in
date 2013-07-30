@@ -273,6 +273,7 @@ extern "C" {
 #undef HAVE_DIRNAME
 #undef HAVE_BASENAME
 #undef HAVE_SYSINFO
+#undef HAVE_TRACE_BACK_STACK
 #undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
 
