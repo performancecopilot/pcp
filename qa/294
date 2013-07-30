@@ -147,15 +147,15 @@ export PMPROXY_HOST
 rm -f $seq.full
 
 # real QA test starts here
-_do pminfo -d pmcd.agent
-_do pminfo -f sample.hordes
+_do pminfo -h $PMPROXY_HOST -d pmcd.agent
+_do pminfo -h $PMPROXY_HOST -f sample.hordes
 _do pmprobe -v -h localhost hinv.ncpu
 _do pmval -h `pmhostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
-_do pmie -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
 echo "kernel.all.cpu.user :localhost;" >$tmp.in
-_do pmie -c $tmp.in -v -t 0.5 -T 1.5 
+_do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
 _do pmdumptext -h `hostname | sed -e 's/\..*//'` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
@@ -164,7 +164,7 @@ then
     : not much to do, as metrics for pmstat are largely missing
     : on Mac OS X and OpenSolaris
 else
-    _do pmstat -t 0.5 -s 2
+    _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
     _do_config 
     _do pmlogger -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
     _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch

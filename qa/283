@@ -57,7 +57,6 @@ s/(.*)/(HOST)/
 s/fd=[0-9][0-9]*/fd=<n>/
 p
 }'
-
 }
 
 
@@ -117,7 +116,7 @@ END
 
 	echo "--- PMCD_PORT=$PMCD_PORT ---"
 	echo "--- PMCD_PORT=$PMCD_PORT ---" >>$seq.full
-	pmprobe -v -D context sample.long.one >$tmp.tmp 2>&1
+	pmprobe -v -h localhost -D context sample.long.one >$tmp.tmp 2>&1
 	cat $tmp.tmp >>$seq.full
 	_filter <$tmp.tmp
 

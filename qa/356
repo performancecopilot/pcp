@@ -28,6 +28,7 @@ _filter()
     _filter_pmie_log \
     | sed \
 	-e '/^\[TIMESTAMP]/'"s/ `hostname`/ HOST/" \
+	-e '/^\[TIMESTAMP]/'"s/ local:/ HOST/" \
 	-e '/expr_1:.*?/d' \
 	-e '/expr_1: [0-9. ]*/s/ .*/ value(s)/' \
 	-e 's/Connection reset by peer/IPC protocol failure/' \

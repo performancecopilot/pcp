@@ -37,7 +37,8 @@ _filter()
         -e 's/:  *[0-9][0-9]*e[-+][0-9][0-9]*/: NUMBER/' \
         -e 's/:  *[0-9][0-9]*\.[0-9]*/: NUMBER/' \
         -e 's/:  *[0-9][0-9]*/: NUMBER/' \
-        -e "s/$host/HOST/"
+        -e "s/$host/HOST/" \
+	-e "s/local:/HOST/"
 }
 
 status=0	# success is the default!
