@@ -100,7 +100,7 @@ static int		ahtype = PM_CONTEXT_HOST;	/* archive or host? */
 		/* have previous sample, so could compute rate if required */
 static int		havePrev = 0;
 static int		amode = PM_MODE_INTERP;		/* archive scan mode */
-static char		local[] = "localhost";
+static char		local[] = "local:";
 static int		gui;
 static int		rawarchive;
 static int		port = -1;
