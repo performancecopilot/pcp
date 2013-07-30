@@ -133,11 +133,8 @@ gfs2_extract_glock_lock_time(char *buffer, pmInDom lock_time_indom)
 static int 
 lock_comparison(const void *a, const void *b)
 {
-
     struct lock_time *aa = (struct lock_time *)a;
     struct lock_time *bb = (struct lock_time *)b;
-
-
     int true_count = 0;
 
     /* (A sirt (LESS THAN) B sirt = A worse) */
@@ -159,7 +156,7 @@ lock_comparison(const void *a, const void *b)
          /* Tie break condition */
          if ( aa->dlm > bb->queue ) return 1; /* a is worse than b */
     }
-    return(-1); /* b is worse than a */
+    return -1; /* b is worse than a */
 }
 
 /*
@@ -173,8 +170,7 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
 {
     int i, j;
     struct gfs2_fs *fs;
-    struct lock_time *glock, comparator;   
-
+    struct lock_time *glock;   
 
     int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE);   
   
