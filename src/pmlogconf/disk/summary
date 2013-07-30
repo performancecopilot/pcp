@@ -6,7 +6,5 @@ force	include
 	disk.all.total
 	disk.all.read_bytes
 	disk.all.write_bytes
-	disk.all.bytes			# for irix
-	disk.all.total_bytes		# for linux
-	disk.all.avg_disk.active	# for irix
-	disk.all.avactive		# for linux
+	disk.all.total_bytes
+	disk.all.avactive
