@@ -40,6 +40,9 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
+%if 0%{?fedora} >= 20
+%define _with_doc --with-docdir=%{_docdir}/%{name}
+%endif
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -240,7 +243,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir}
+%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir} %{_with_doc}
 make default_pcp
 
 %install
@@ -622,10 +625,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Mon Oct 24 2011 Mark Goodwin - 3.5.9-1
 - Update to latest PCP sources.
 
-* Mon Aug 8 2011 Mark Goodwin - 3.5.8-1
+* Mon Aug 08 2011 Mark Goodwin - 3.5.8-1
 - Update to latest PCP sources.
 
-* Fri Aug 5 2011 Mark Goodwin - 3.5.7-1
+* Fri Aug 05 2011 Mark Goodwin - 3.5.7-1
 - Update to latest PCP sources.
 
 * Fri Jul 22 2011 Mark Goodwin - 3.5.6-1
@@ -634,7 +637,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Tue Jul 19 2011 Mark Goodwin - 3.5.5-1
 - Update to latest PCP sources.
 
-* Wed Feb 3 2011 Mark Goodwin - 3.5.0-1
+* Thu Feb 03 2011 Mark Goodwin - 3.5.0-1
 - Update to latest PCP sources.
 
 * Thu Sep 30 2010 Mark Goodwin - 3.4.0-1
@@ -669,6 +672,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
   a stand-alone package.
 - Move cluster PMDA to a stand-alone package.
 
-* Fri Oct 9 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
+* Fri Oct 09 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
 - This is the initial import for Fedora
 - See 3.0.0 details in CHANGELOG
