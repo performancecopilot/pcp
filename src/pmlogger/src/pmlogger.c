@@ -812,63 +812,49 @@ Options:\n\
     }
     else {
 	/*
-	 * try and establish $TZ from the remote PMCD ...
+	 * try and establish $TZ and hostname from the remote PMCD ...
 	 * Note the label record has been set up, but not written yet
 	 */
-	char		*name = "pmcd.timezone";
-	pmID		pmid;
+	char		*names[2] = {"pmcd.timezone", "pmcd.hostname"};
+	pmID		pmids[2];
 	pmResult	*resp;
 
 	__pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
 
 	if (sts >= 0)
-	    sts = pmLookupName(1, &name, &pmid);
+	    sts = pmLookupName(2, names, pmids);
 	if (sts >= 0) {
-	    sts = pmFetch(1, &pmid, &resp);
+	    sts = pmFetch(2, pmids, &resp);
 	}
-	if (sts >= 0 && resp->vset[0]->numval > 0) {
-	    strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
-	    /* prefer to use remote time to avoid clock drift problems */
-	    epoch = resp->timestamp;		/* struct assignment */
-	    pmFreeResult(resp);
-	    pmNewZone(logctl.l_label.ill_tz);
-        }
+	if (sts >= 0) {
+	    if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
+		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
+		/* prefer to use remote time to avoid clock drift problems */
+		epoch = resp->timestamp;		/* struct assignment */
+		pmNewZone(logctl.l_label.ill_tz);
+	    }
 #ifdef PCP_DEBUG
-    	else if (pmDebug & DBG_TRACE_LOG) {
-		fprintf(stderr, 
+	    else if (pmDebug & DBG_TRACE_LOG) {
+		fprintf(stderr,
 			"main: Could not get timezone from host %s\n",
 			pmcd_host);
-	}
+	    }
 #endif
-
-	/* Now try again for the hostname; can't combine the two queries
-	   because pmLookupName requires both to be resolvable, but older
-	   PMCDs won't have this metric.  Even though __pmLogCreate was
-	   called with the original pmcd_host, we can overwrite that field
-	   with the PMCD's favorite hostname (if it has one). */
-	name = "pmcd.hostname";
-	pmid = 0;
-	resp = 0;
-
-	sts = pmUseContext(ctx);
-	if (sts >= 0)
-	    sts = pmLookupName(1, &name, &pmid);
-	if (sts >= 0) {
-	    sts = pmFetch(1, &pmid, &resp);
-	}
-	if (sts >= 0 && resp->vset[0]->numval > 0) {
-	    strncpy(logctl.l_label.ill_hostname, resp->vset[0]->vlist[0].value.pval->vbuf, PM_LOG_MAXHOSTLEN-1);
-	    logctl.l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-	    pmFreeResult(resp);
-	}
+	    if (resp->vset[1]->numval > 0) { /* pmcd.hostname present */
+		strncpy(logctl.l_label.ill_hostname,
+			resp->vset[1]->vlist[0].value.pval->vbuf, PM_LOG_MAXHOSTLEN-1);
+		logctl.l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
+	    }
 #ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_LOG) {
+	    else if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr,
 			"main: Could not get hostname from host %s\n",
 			pmcd_host);
-	}
+	    }
 #endif
+	    pmFreeResult(resp);
+	}
     }
 
     /* do ParseTimeWindow stuff for -T */
