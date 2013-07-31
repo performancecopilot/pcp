@@ -42,6 +42,8 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
+%else
+%define _with_doc %{nil}
 %endif
 
 %description
