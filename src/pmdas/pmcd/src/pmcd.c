@@ -77,6 +77,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,19), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* build -- pcp build number */
     { PMDA_PMID(0,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* hostname -- local hostname -- for pmlogger */
+    { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -998,6 +1000,20 @@ tzinfo(void)
     return __pmTimezone();
 }
 
+static const char *
+hostnameinfo(void)
+{
+#ifdef HOST_NAME_MAX
+#define PCP_HOST_NAME_MAX HOST_NAME_MAX
+#else
+#define PCP_HOST_NAME_MAX 1024
+#endif
+    static char the_hostname[PCP_HOST_NAME_MAX];
+    (void) gethostname(the_hostname, PCP_HOST_NAME_MAX);
+    the_hostname[PCP_HOST_NAME_MAX-1]='\0';
+    return the_hostname;
+}
+
 static int
 fetch_feature(int item, pmAtomValue *avp)
 {
@@ -1255,6 +1271,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 20:	/* build */
 				atom.cp = BUILD;
+				break;
+
+			case 21:	/* hostname */
+                                atom.cp = hostnameinfo();
 				break;
 		    }
 		    break;

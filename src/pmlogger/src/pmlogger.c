@@ -821,6 +821,7 @@ Options:\n\
 
 	__pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
+
 	if (sts >= 0)
 	    sts = pmLookupName(1, &name, &pmid);
 	if (sts >= 0) {
@@ -837,6 +838,34 @@ Options:\n\
     	else if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, 
 			"main: Could not get timezone from host %s\n",
+			pmcd_host);
+	}
+#endif
+
+	/* Now try again for the hostname; can't combine the two queries
+	   because pmLookupName requires both to be resolvable, but older
+	   PMCDs won't have this metric.  Even though __pmLogCreate was
+	   called with the original pmcd_host, we can overwrite that field
+	   with the PMCD's favorite hostname (if it has one). */
+	name = "pmcd.hostname";
+	pmid = 0;
+	resp = 0;
+
+	sts = pmUseContext(ctx);
+	if (sts >= 0)
+	    sts = pmLookupName(1, &name, &pmid);
+	if (sts >= 0) {
+	    sts = pmFetch(1, &pmid, &resp);
+	}
+	if (sts >= 0 && resp->vset[0]->numval > 0) {
+	    strncpy(logctl.l_label.ill_hostname, resp->vset[0]->vlist[0].value.pval->vbuf, PM_LOG_MAXHOSTLEN-1);
+	    logctl.l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
+	    pmFreeResult(resp);
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_LOG) {
+		fprintf(stderr,
+			"main: Could not get hostname from host %s\n",
 			pmcd_host);
 	}
 #endif
