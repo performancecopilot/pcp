@@ -679,6 +679,7 @@ pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
 pcp_sysconf_dir
+pcp_saslconf_dir
 pcp_etc_dir
 lib_for_math
 lib_for_dlopen
@@ -8350,7 +8351,7 @@ _ACEOF
 fi
 done
 
-for ac_func in gethostname select socket
+for ac_func in select socket gethostname getpeerucred getpeereid
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8470,7 +8471,7 @@ _ACEOF
 fi
 done
 
-for ac_func in sysinfo backtrace
+for ac_func in sysinfo trace_back_stack backtrace
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -10207,6 +10208,9 @@ fi
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
 
+pcp_saslconf_dir=`eval echo $sysconfdir/sasl2`
+pcp_saslconf_dir=`eval echo $pcp_saslconf_dir`
+
 pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
 pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 
@@ -11725,6 +11729,37 @@ main ()
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   $as_echo "#define HAVE_STRUCT_SOCKADDR_UN 1" >>confdefs.h
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for struct ucred in sys/socket.h" >&5
+$as_echo_n "checking for struct ucred in sys/socket.h... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <sys/types.h>
+    #ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+    #endif
+    #ifdef HAVE_SYS_UN_H
+    #include <sys/un.h>
+    #endif
+
+int
+main ()
+{
+ struct ucred ucred; ucred.uid = 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  $as_echo "#define HAVE_STRUCT_UCRED 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else

@@ -33,11 +33,13 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	mirage-1.0 mirage-2.0 eventrec-old.0 eventrec.0 \
 	badlen-0.0 badlen-1.0 badlen-2.0 badlen-3.0 badlen-4.0 \
 	badlen-5.0 badlen-6.0 badlen-7.0 badlen-8.0 badlen-9.0 \
+	badlen-10.0 badlen-11.0 \
 	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
 	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
-	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-722.0
+	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-722.0 \
+	new_mysql.0 new_snmp.0
 
 SRCARCHPART = ok-noti-bigbin.0 
 
@@ -170,11 +172,11 @@ MYFILES += $(SRCARCH) \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
 	pmtimezone.c pthread_barrier.h pv.c qa_test.c \
-	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7
+	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7 permslist
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
-	mksa-sysstat mktzchange show-args mkbig1 fixhosts
+	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 

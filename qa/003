@@ -150,6 +150,7 @@ do
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
 	    -e "/hinv\.map\.disk: $unavailable/d" \
+	    -e "/hinv\.map\.lvname: $unavailable/d" \
 	    -e "/hinv\.map\.node: $unavailable/d" \
 	    -e "/hinv\.map\.routerport: $unavailable/d" \
 	    -e "/hinv\.map\.router: $unavailable/d" \
@@ -178,6 +179,7 @@ do
 	    -e "/network\.interface\.duplex: $unavailable/d" \
 	    -e "/network\.interface\.inet_addr: $unavailable/d" \
 	    -e "/network\.interface\.speed: $unavailable/d" \
+	    -e "/network\..*\.incsumerrors: $unavailable/d" \
 	    -e "/nfs3\.server\..*: $unavailable/d" \
 	    -e "/nfs.*\.client\.calls: $unavailable/d" \
 	    -e "/nfs.*\.client\.reqs: $unavailable/d" \

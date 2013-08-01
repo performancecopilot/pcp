@@ -177,7 +177,7 @@ fi
 # output version depends on the PCP version at the _remote_ host
 # not the local host as is normally the case
 #
-rm $seq.out
+rm -f $seq.out
 REMOTE_VER=`pmprobe -v -h $host pmcd.version \
     | sed -e 's/"$//' -e 's/.*"//' -e 's/\.//g' -e 's/^\(..\)\(.\)$/\10\2/'`
 echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full

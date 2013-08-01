@@ -1153,6 +1153,7 @@ ParseAccessControls(void)
     int		tmp;
     int		allow;
     int		naccess = 0;
+    int		need_creds = 0;
 
     doingAccess = 1;
     /* This gets a little tricky, because the token may be "[access]", or
@@ -1208,10 +1209,14 @@ ParseAccessControls(void)
 	    FindNextToken();
 	    if ((tmp = ParseUsers(allow)) < 0)
 		sts = -1;
+	    else
+		need_creds = 1;
 	} else if (TokenIs("group") || TokenIs("groups")) {
 	    FindNextToken();
 	    if ((tmp = ParseGroups(allow)) < 0)
 		sts = -1;
+	    else
+		need_creds = 1;
 	} else if (TokenIs("host") || TokenIs("hosts")) {
 	    FindNextToken();
 	    if ((tmp = ParseHosts(allow)) < 0)
@@ -1237,6 +1242,9 @@ ParseAccessControls(void)
 		     nLines);
 	return -1;
     }
+
+    if (need_creds)
+	__pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL1)
@@ -1354,6 +1362,14 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char buffer[64];
+		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
+		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]",
+			clientID, buffer, (int)(ap - agent));
+	    }
+#endif
 	    if ((sts = ap->ipc.dso.dispatch.version.six.attribute(
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0,
@@ -1367,6 +1383,14 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
+		char buffer[64];
+		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
+		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]",
+			clientID, buffer, (int)(ap - agent));
+	    }
+#endif
 	    if ((sts = __pmSendAuth(ap->inFd,
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0)) < 0)

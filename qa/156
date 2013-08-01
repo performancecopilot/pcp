@@ -72,7 +72,7 @@ then
     exit 1
 fi
 cd $home/$iam
-unset ROOT
+unset ROOT MAKEFLAGS
 
 if [ ! -f dynamic.indom ]
 then

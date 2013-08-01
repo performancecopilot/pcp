@@ -417,6 +417,7 @@ _filter_pcp_stop()
 {
     sed \
 	-e '/Stopping pmlogger .../d' \
+	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
 	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
 	-e '/^Waiting for PMCD/{
 s/\.\.\.[. ]*done/.../
@@ -437,6 +438,7 @@ s/\.\.\.\.*/.../
 _filter_pmie_start()
 {
     sed \
+	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
 	-e '/^Waiting for pmie process(es) to terminate/d' \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
 	-e '/(pmie) is disabled/d' \
@@ -457,6 +459,7 @@ _filter_pmie_stop()
 {
     sed \
 	-e "s;$PCP_RC_DIR/pmie;\$PCP_RC_DIR/pmie;g" \
+	-e '/^Waiting for PMIE/s/PMIE/pmie/' \
 	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
 	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
     | _filter_init_distro

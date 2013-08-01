@@ -1,12 +1,12 @@
 .TH PMATOP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 .B pmatop 
-- System & Process Monitor
+\- System & Process Monitor
 .SH SYNOPSIS
 Interactive usage:
 .P
 .B pmatop
-[-g|-m] [-L linelen] [-h host]
+[\-g|\-m] [\-L linelen] [\-h host]
 [
 .I interval
 [
@@ -16,7 +16,7 @@ Interactive usage:
 Writing and reading raw logfiles:
 .P
 .B pmatop
--w
+\-w
 .I rawfile
 [
 .I interval
@@ -25,9 +25,9 @@ Writing and reading raw logfiles:
 ]]
 .br
 .B pmatop
--r [
+\-r [
 .I rawfile
-] [-g|-m] [-L linelen] [-h host]
+] [\-g|\-m] [\-L linelen] [\-h host]
 .SH DESCRIPTION
 The program
 .I pmatop

@@ -27,7 +27,7 @@ unset PCP_STDERR
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
 echo >$tmp/lock
-trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
+trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $PCP_RUN_DIR/pmlogger_daily.pid $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
 if is_chkconfig_on pmlogger
@@ -312,7 +312,7 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
 	    echo "PCP NOTICES summary for $LOCALHOST"
 	    cat $tmp/pcp
 	fi
-        [ -w `dirname $NOTICES` ] && mv $tmp/pcp $MAILFILE
+        [ -w `dirname "$NOTICES"` ] && mv $tmp/pcp "$MAILFILE"
     fi
 fi
 
@@ -320,9 +320,9 @@ fi
 # Roll $PCP_LOG_DIR/NOTICES -> $PCP_LOG_DIR/NOTICES.old if larger
 # that 10 Kbytes, and you can write in $PCP_LOG_DIR
 #
-if [ -s $NOTICES -a -w `dirname $NOTICES` ]
+if [ -s "$NOTICES" -a -w `dirname "$NOTICES"` ]
 then
-    if [ "`wc -c <$NOTICES`" -ge $ROLLNOTICES ]
+    if [ "`wc -c <"$NOTICES"`" -ge $ROLLNOTICES ]
     then
 	if $VERBOSE
 	then
@@ -334,13 +334,33 @@ then
 	    echo "+ mv -f $NOTICES $NOTICES.old"
 	    echo "+ touch $NOTICES"
 	else
-	    echo >>$NOTICES
-	    echo "*** rotated by $prog: `date`" >>$NOTICES
-	    mv -f $NOTICES $NOTICES.old
-	    echo "Started by $prog: `date`" >$NOTICES
+	    echo >>"$NOTICES"
+	    echo "*** rotated by $prog: `date`" >>"$NOTICES"
+	    mv -f "$NOTICES" "$NOTICES.old"
+	    echo "Started by $prog: `date`" >"$NOTICES"
+	    ( id pcp && chown pcp:pcp "$NOTICES" ) >/dev/null 2>&1
 	fi
     fi
 fi
+
+# Keep our pid in $PCP_RUN_DIR/pmlogger_daily.pid ... this is checked
+# by pmlogger_check when it fails to obtain the lock should it be run
+# while pmlogger_daily is running
+#
+# For most packages, $PCP_RUN_DIR is included in the package,
+# but for Debian and cases where /var/run is a mounted filesystem
+# it may not exist, so create it here before it is used to create
+# any pid/lock files
+#
+# $PCP_RUN_DIR creation is also done in pmcd startup, but pmcd may
+# not be running on this system
+#
+if [ -d "$PCP_RUN_DIR" ]
+then
+    mkdir -p -m 775 "$PCP_RUN_DIR"
+    chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+fi
+echo $$ >"$PCP_RUN_DIR"/pmlogger_daily.pid
 
 # note on control file format version
 #  1.0 was shipped as part of PCPWEB beta, and did not include the

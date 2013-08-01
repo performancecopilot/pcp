@@ -520,39 +520,39 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    vset->vlist[j].inst = inst;
 
 	    if ((sts = (*(pmda->e_fetchCallBack))(metap, inst, &atom)) < 0) {
+		char	strbuf[20];
 
+		pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf));
 		if (sts == PM_ERR_PMID) {
-		    char	strbuf[20];
 		    __pmNotifyErr(LOG_ERR, 
 		        "pmdaFetch: PMID %s not handled by fetch callback\n",
-				 pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
+				strbuf);
 		}
 		else if (sts == PM_ERR_INST) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
-			char	strbuf[20];
 			__pmNotifyErr(LOG_ERR,
 			    "pmdaFetch: Instance %d of PMID %s not handled by fetch callback\n",
-				     inst, pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
+				    inst, strbuf);
 		    }
 #endif
 		}
 		else if (sts == PM_ERR_APPVERSION ||
-			(sts == PM_ERR_AGAIN) ||
-			(sts == PM_ERR_PERMISSION)) {
+			 sts == PM_ERR_PERMISSION ||
+			 sts == PM_ERR_AGAIN) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
-			char	strbuf[20];
 			__pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Unavailable metric PMID %s\n",
-				 pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)));
+			     "pmdaFetch: Unavailable metric PMID %s[%d]\n",
+				    strbuf, inst);
 		    }
 #endif
 		}
-		else
+		else {
 		    __pmNotifyErr(LOG_ERR,
-				 "pmdaFetch: Fetch callback error: %s\n",
-				 pmErrStr(sts));
+			"pmdaFetch: Fetch callback error from metric PMID %s[%d]: %s\n",
+				strbuf, inst, pmErrStr(sts));
+		}
 	    }
 	    else {
 		/*

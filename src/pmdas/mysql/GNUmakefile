@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
@@ -12,17 +11,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary
+LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary migrate.conf
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
@@ -46,6 +41,7 @@ install: default
 	@$(INSTALL_MAN)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
+	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/mysql_migrate.conf
 
 default_pcp : default
 

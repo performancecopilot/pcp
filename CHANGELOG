@@ -1,3 +1,80 @@
+pcp-3.8.2 (31 July 2013)
+    - Support for the Unix domain socket transport between pmcd
+      and client tools, using the "unix:" host specifier (and the
+      more forgiving "local:" which falls back to localhost if no
+      platform support exists).
+    - Note: PCP_RUN_DIR is as a result now installed owned by the
+      "pcp" user and group (rather than as "root").  Several other
+      directories are also now installed "pcp"-owned too, after
+      (unrelated) pmie and changes described below.
+    - Support for automatic extraction of client tool credentials
+      with Unix domain sockets, and transfer to interested PMDAs,
+      on Linux, Mac OS X and Solaris.  IOWs, PMDAs now know which
+      user they are acting on behalf of for each connection, when
+      this class of socket is used.  In a future release, it hoped
+      to make this the default local connection style.
+    - Extensions to pmdaproc to allow it to perform access-control
+      checking and metric value fetches as the user requesting the
+      data, instead of as root, such that kernel-based permission
+      checking is now performed.
+    - Re-enabled pmdaproc by default on Linux.
+    - pmdagfs2: updates to metrics, tests and a new manual page.
+    - pmdagfs2: fixes for distributions without gfs2 trace-points.
+    - pmdalinux: fix hinv.map.lvname realink memory corruption bug.
+    - pmdalinux: fix issue where EPERM passed out as a fetch result
+      with inaccessible filesystem paths.
+    - pmdalinux: rework /proc/net/snmp metric extraction, added new
+      metrics from recent kernels (checksum error counters, icmpmsg).
+    - Linux PMDA SNMP metric type migration support (log rewriter).
+    - pmdasystemd: correct .maxmem metric to PM_SPACE_BYTE
+    - pmdasystemd: limit number of journald entries consumed per poll
+    - pmdamysql: additional status metrics suitable for pmie rules.
+    - pmdamysql: correct units and type for active connection count
+    - MySQL PMDA metric migration support (log rewriting rules).
+    - pmdagluster: new PMDA exporting gluster filesystem metrics,
+      in particular fs operation latency and brick throughput data.
+    - Fixes to the python pmda interface code to allow old python
+      versions as well.
+    - Extensions to python pmda interface to allow pmdaCache(3) use.
+    - pmwebapi: support more general pcp hostname specs, and
+      HTTP Basic authentication.
+    - Throttle the size of the pmatop hardware component display.
+    - Fix pmgui.py on big endian platforms (affects pmcollectl).
+    - Further progress on the log checking tool, pmlogcheck.
+    - Generate default pmlogger and pmie daemon configuration files.
+    - Migrated all static pmlogger configs over to pmlogconf format.
+    - Added pmlogconf config files for metrics used by iostat, ip,
+      mpstat, sar, vmstat.
+    - Install cisco PMDA pmieconf rules into the correct location.
+    - Install default crontab entries for pmlogger and pmie checking
+      and daily archive maintenance, on Linux, running as user "pcp"
+      now (previously, "root").
+    - pmlogconf scripts: added in automatic NFSv4 logging.
+    - pmlogger scripts: better locking between check and daily
+    - pmlogger control: add -r, -T and increase timeouts by default.
+    - Start a working primary pmlogger with a useful and extensible
+      set of metrics after enabling the service.
+    - Start a working pmie with a useful and extensible set of rules
+      after enabling the service.
+    - Assigned new PANASAS and NVML PMDA domain numbers.
+    - pmlogextract: fix minor bug for empty instance domains
+    - Resolve issue where clients get sigsegv from bad -h options.
+    - Updated pmwtf man page - better explanation for -q option
+    - Massive, massive QA efforts, much better support for non-x86.
+    - iostat2pcp - timestamp rework for European datetime formats.
+    - Fixed debian bugs related to broken library symlink.
+    - Ensure permissions on the NOTICES file allow pcp uid/gid access.
+    - Major updates to the SASL code allowing remote authentication
+      and improvements to username/password interaction process.
+    - Fix SASL related memory leaks, sort out authname mapping.
+    - Ensure SASL errors are easily identifiable as such (pmErrStr_r)
+    - User and groups access control list support in pmcd, augmenting
+      the existing host-based access control list support.
+    - Fix tempfile leak in pmdaproc.sh from accidental $tmp override.
+    - Improve the PCP experience with older versions of NSS (<=RHEL5)
+    - Introduce pmcd self-callstack-tracing capability for the Linux,
+      FreeBSD, and MacOSX platforms (maybe others, via backtrace(3)).
+
 pcp-3.8.1 (19 June 2013)
     - Add support for PMDAs written in python via pcp.pmda package.
     - Example implementation of pmdasimple using python.

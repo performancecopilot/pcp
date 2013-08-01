@@ -39,8 +39,7 @@ in
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
     *)
-	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-	exit 1
+	_notrun "Need qualified output for $PCP_PLATFORM"
 	;;
 esac
 

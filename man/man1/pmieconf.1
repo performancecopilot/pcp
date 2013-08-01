@@ -15,7 +15,7 @@
 \f3pmieconf\f1 \- display and set configurable pmie rule variables
 .SH SYNOPSIS
 \f3pmieconf\f1
-[\f3\-Fv\f1]
+[\f3\-cFv\f1]
 [\f3\-f\f1 \f2file\f1]
 [\f3\-r\f1 \f2rulepath\f1]
 [\f2command\f1 [\f2args...\f1]]
@@ -36,6 +36,13 @@ is a valid input file for
 A brief description of the
 .B pmieconf
 command line options follows:
+.TP 8
+\f3-c\f1
+When run from automated
+.B pmie
+setup processes, this option is used to add a specific message and
+timestamp indicating that this is the case.
+It is not appropriate when using the tool interactively.
 .TP 8
 \f3\-f\f1 \f2file\f1 
 Any rule modifications resulting from

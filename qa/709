@@ -14,8 +14,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 status=0	# success is the default!
-$sudo rm -f $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -fr $tmp.* $seq.full
+trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 
 remove_extra_whitespace()
 {
@@ -45,6 +45,8 @@ remove_extra_columns()
 }
 
 # real QA test starts here
+mkdir $tmp.$seq
+cd $tmp.$seq
 
 #PYCOLLECTL=pmcollectl.py	# developer version
 PYCOLLECTL=pmcollectl		# installed version
@@ -82,6 +84,8 @@ $PYCOLLECTL -sm -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee
 cat $tmp.out >>$here/$seq.full
 
 # success, all done
-/bin/rm -rf test.pmcollectl
+rm -rf test.pmcollectl
+cd $here
+
 status=0
 exit

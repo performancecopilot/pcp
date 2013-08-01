@@ -383,8 +383,8 @@ __pmPMCDLocalSocketDefault(void)
 	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	else
-	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c%s.socket",
-		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), pmProgname);
+	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
+		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
     }
     PM_UNLOCK(__pmLock_libpcp);
 
@@ -692,9 +692,21 @@ int
 __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *attrs)
 {
     (void)fd;
-    (void)flags;
     (void)hostname;
-    (void)attrs;
+
+    /*
+     * We cannot handle many flags here (no support), in particular:
+     * PDU_FLAG_SECURE (NSS)
+     * PDU_FLAG_COMPRESS (NSS)
+     * PDU_FLAG_AUTH (SASL2)
+     *
+     * But we can still talk to a pmcd that requires credentials, provided
+     * we are using unix domain sockets (the kernel provides the auth info
+     * to pmcd in this case, with no other special sauce required).
+     */
+    if (flags == PDU_FLAG_CREDS_REQD)
+	if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL)
+	    return 0;
     return -EOPNOTSUPP;
 }
 

@@ -47,7 +47,7 @@ $sudo ls -l /tmp/[0-9][0-9]*.* >>$seq.full 2>&1
 echo "=== config files" >>$seq.full
 ls -l $PCP_PMCDCONF_PATH $PCP_PMCDOPTIONS_PATH >>$seq.full
 
-unset ROOT
+unset ROOT MAKEFLAGS
 
 simple_domain=253
 broken_domain=249

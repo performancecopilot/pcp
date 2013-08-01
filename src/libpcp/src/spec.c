@@ -716,9 +716,6 @@ __pmLookupAttrKey(const char *attribute, size_t size)
 	(size == sizeof("username") &&
 	strncmp(attribute, "username", size) == 0))
 	return PCP_ATTR_USERNAME;
-    if (size == sizeof("authname") &&
-	strncmp(attribute, "authname", size) == 0)
-	return PCP_ATTR_AUTHNAME;
     if (size == sizeof("realm") &&
 	strncmp(attribute, "realm", size) == 0)
 	return PCP_ATTR_REALM;
@@ -737,6 +734,9 @@ __pmLookupAttrKey(const char *attribute, size_t size)
 	(size == sizeof("unixsock") &&
 	strncmp(attribute, "unixsock", size) == 0))
 	return PCP_ATTR_UNIXSOCK;
+    if ((size == sizeof("local") &&
+	 strncmp(attribute, "local", size) == 0))
+	return PCP_ATTR_LOCAL;
     if ((size == sizeof("uid") &&
 	strncmp(attribute, "uid", size) == 0) ||
 	(size == sizeof("userid") &&
@@ -910,6 +910,8 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
 	return snprintf(string, size, "secure");
     case PCP_ATTR_UNIXSOCK:
 	return snprintf(string, size, "unixsock");
+    case PCP_ATTR_LOCAL:
+	return snprintf(string, size, "local");
     case PCP_ATTR_USERID:
 	return snprintf(string, size, "userid");
     case PCP_ATTR_GROUPID:
@@ -933,7 +935,6 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     switch (key) {
     case PCP_ATTR_PROTOCOL:
     case PCP_ATTR_USERNAME:
-    case PCP_ATTR_AUTHNAME:
     case PCP_ATTR_PASSWORD:
     case PCP_ATTR_METHOD:
     case PCP_ATTR_REALM:
@@ -943,6 +944,7 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
 	return snprintf(string, size, "%s=%s", name, data ? data : "");
 
     case PCP_ATTR_UNIXSOCK:
+    case PCP_ATTR_LOCAL:
     case PCP_ATTR_COMPRESS:
     case PCP_ATTR_USERAUTH:
 	return snprintf(string, size, "%s", name);
@@ -967,12 +969,22 @@ __pmUnparseHostAttrsSpec(
     int sts, first;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
-	if ((sts = snprintf(string, len, "%s://", (char *)node->data)) >= size)
+	if ((sts = snprintf(string, len, "%s://", (char *)node->data)) >= len)
+	    return -E2BIG;
+	len -= sts; off += sts;
+    }
+    else if ((node = __pmHashSearch(PCP_ATTR_UNIXSOCK, attrs)) != NULL) {
+	if ((sts = snprintf(string, len, "unix://")) >= len)
+	    return -E2BIG;
+	len -= sts; off += sts;
+    }
+    else if ((node = __pmHashSearch(PCP_ATTR_LOCAL, attrs)) != NULL) {
+	if ((sts = snprintf(string, len, "local://")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
 
-    if ((sts = __pmUnparseHostSpec(hosts, count, string + off, len)) >= size)
+    if ((sts = __pmUnparseHostSpec(hosts, count, string + off, len)) >= len)
 	return sts;
     len -= sts; off += sts;
 
@@ -980,14 +992,15 @@ __pmUnparseHostAttrsSpec(
     for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	 node != NULL;
 	 node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
-	if (node->key == PCP_ATTR_PROTOCOL)
+	if (node->key == PCP_ATTR_PROTOCOL ||
+	    node->key == PCP_ATTR_UNIXSOCK || node->key == PCP_ATTR_LOCAL)
 	    continue;
-	if ((sts = snprintf(string + off, len, "%c", first ? '?' : '&')) >= size)
+	if ((sts = snprintf(string + off, len, "%c", first ? '?' : '&')) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
 	first = 0;
 
-	if ((sts = unparseAttribute(node, string + off, len)) >= size)
+	if ((sts = unparseAttribute(node, string + off, len)) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }

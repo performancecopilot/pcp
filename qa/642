@@ -88,7 +88,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 # real QA test starts here
-unset ROOT TOOLROOT
+unset ROOT TOOLROOT MAKEFLAGS
 _setup_pmdas
 pminfo -n $PCP_VAR_DIR/pmns/root | LC_COLLATE=POSIX sort >$tmp.pmns.start
 

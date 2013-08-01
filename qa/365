@@ -157,6 +157,7 @@ s/  */ /g
     -e "s/$localhost\$/LOCALHOST/g" \
     -e "s/$other1\$/OTHERHOST1/g" \
     -e "s/$other2\$/OTHERHOST2/g" \
+    -e '/UNIX_DOMAIN_SOCKET/d' \
     -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
     | $PCP_AWK_PROG '
 $8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {

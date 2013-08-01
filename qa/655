@@ -4,16 +4,16 @@
 # Requires GFS2 support in the kernel, else it will notrun.
 #
 # Testing functionality of the gfs2_glock_lock_time tracepoint metrics
-# require the system to be configured in as a gfs2 cluster with one 
-# shared gfs2 filesystem in order to test functionality.
+# require the system to be configured in as a gfs2 cluster with one
+# shared gfs2 filesystem using the locktype lock_dlm in order to test 
+# functionality.
 #
 # One of the easiest ways to test this is to set up a virtualised
-# GFS2 cluster with one filesystem using the application cbox by 
-# Fabbione (available at https://github.com/fabbione/cbox) and 
-# installing the pcp-qa suite on one of the resulting virutal 
-# cluster's nodes.
+# GFS2 cluster with one filesystem using the application cbox
+# (available at https://github.com/fabbione/cbox) and installing 
+# the pcp-qa suite on one of the resulting virutal cluster nodes.
 #
-# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat, Inc. All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -26,15 +26,16 @@ echo "QA output created by $seq"
 
 # Attempt to set up the gfs2 pmda test enviroment
 _gfs2_filesystem_support_tests
-_gfs2_cluster_support_tests
+_debugfs_mount_tests
 _gfs2_tracepoints_support_tests
+_setup_gfs2_tracepoints false
 
 # check for any loopback devices, cowardly abort this test if any exist
 loopcount=`$sudo losetup -a | wc -l`
 [ $loopcount -eq 0 ] || _notrun "System has loop devices already, bailing"
 
 iam=gfs2
-status=1	# failure is the default!
+status=1 # failure is the default!
 trap "_restore_pmda_install $iam" 0 1 2 3 15
 
 $sudo rm -fr $tmp.*.dir
@@ -44,9 +45,11 @@ touch $here/$seq.full
 # real QA test starts here
 _prepare_pmda_install $iam
 _install_pmda
+
+cd $here
 _setup_gfs2_tracepoints true
 
-echo 
+echo
 echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
@@ -54,6 +57,16 @@ echo
 echo "=== gfs2_glock_lock_time tracepoint for all filesystems ===" | tee -a $here/$seq.full
 pminfo -fdm gfs2.glock_lock_time | _gfs2_filter_pminfo | sed \
     -e 's/or [-a-zA-Z0-9":_-]*/ or FILESYSTEM/'
+
+echo
+echo "=== check functionality of pmstore (off) ===" | tee -a $here/$seq.full
+pmstore gfs2.control.glock_lock_time 0 | sed \
+    -e 's/old value=[0-9]/OLD VALUE/'
+
+echo
+echo "=== check functionality of pmstore (on) === " | tee -a $here/$seq.full
+pmstore gfs2.control.glock_lock_time 1 | sed \
+     -e 's/old value=[0-9]/OLD VALUE/'
 
 echo
 echo "=== Removing the GFS2 PMDA ===" | tee -a $here/$seq.full

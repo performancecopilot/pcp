@@ -56,7 +56,7 @@ Description: Performance Co-Pilot library
 
 Package: libpcp-gui2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
@@ -84,7 +84,7 @@ Description: Performance Co-Pilot graphical client tools library
 
 Package: libpcp-mmv1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
  The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
@@ -112,7 +112,7 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 
 Package: libpcp-pmda3-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp3 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
@@ -139,7 +139,7 @@ Description: Performance Co-Pilot Domain Agent library
 
 Package: libpcp-trace2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
@@ -169,7 +169,7 @@ Description: Performance Co-Pilot application tracing library
 
 Package: libpcp-import1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp3-dev
+Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp3-dev
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
  The libpcp-import-dev package contains the library and header files

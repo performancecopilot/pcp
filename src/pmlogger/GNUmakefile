@@ -38,15 +38,21 @@ include $(BUILDRULES)
 
 install: $(SUBDIRS) crontab
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d `dirname $(PCP_PMLOGGERCONTROL_PATH)`
-	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmlogger
+	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
+ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
+endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
+	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
+endif
 
 default_pcp : default
 

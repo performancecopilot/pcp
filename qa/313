@@ -30,8 +30,7 @@ then
     # same output for Linux, Mac OS X and OpenSolaris
     ln $seq.62_6512plus $seq.out || exit 1
 else
-    echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-    exit 1
+    _notrun "Need qualified output for $PCP_PLATFORM"
 fi
 
 status=1	# failure is the default!

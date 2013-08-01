@@ -159,7 +159,7 @@ GREP    = @grep@
 GIT	= @GIT@
 
 INSTALL_SH = $(TOPDIR)/install-sh
-INSTALL	= $(INSTALL_SH) -o @pcp_owner@ -g @pcp_group@
+INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
 
 CCF	= $(CC) $(CFLAGS)
 # NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization

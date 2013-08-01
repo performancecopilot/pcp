@@ -21,18 +21,41 @@
 #include <ctype.h>
 
 int
+gfs2_glocks_fetch(int item, struct glocks *glocks, pmAtomValue *atom)
+{
+    /* Check for valid metric count */
+    if (item < 0 || item >= NUM_GLOCKS_STATS)
+	return PM_ERR_PMID;
+
+    /* Check for no values recorded */
+    if(glocks->values[item] == UINT64_MAX)
+        return 0;
+
+    atom->ull = glocks->values[item];
+    return 1;
+}
+
+int
 gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 {
     char buffer[4096];
     FILE *fp;
 
-    memset(glocks, 0, sizeof(*glocks));	/* reset all counters for this fs */
+    /* Reset all counter for this fs */
+    memset(glocks, 0, sizeof(*glocks));
 
     snprintf(buffer, sizeof(buffer), "%s/%s/glocks", sysfs, name);
     buffer[sizeof(buffer)-1] = '\0';
 
-    if ((fp = fopen(buffer, "r")) == NULL)
+    if ((fp = fopen(buffer, "r")) == NULL) {
+        /*
+         * We set the values to UINT64_MAX to signify we have no
+         * current values (no metric support or debugfs not mounted)
+         *
+         */
+        memset(glocks, -1, sizeof(*glocks));
 	return -oserror();
+    }
 
     /*
      * Read through glocks file accumulating statistics as we go;
@@ -65,13 +88,4 @@ gfs2_refresh_glocks(const char *sysfs, const char *name, struct glocks *glocks)
 
     fclose(fp);
     return 0;
-}
-
-int
-gfs2_glocks_fetch(int item, struct glocks *glocks, pmAtomValue *atom)
-{
-    if (item < 0 || item >= NUM_GLOCKS_STATS)
-	return PM_ERR_PMID;
-    atom->ull = glocks->values[item];
-    return 1;
 }

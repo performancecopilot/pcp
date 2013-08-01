@@ -35,22 +35,40 @@ use vars qw( $dbh $sth_variables $sth_status $sth_processes $sth_slave_status );
 my $process_indom = 0;
 my @process_instances;
 
+# translate yes/no true/false on/off to 1/0
+sub mysql_txt2num {
+    my ($value) = lc($_[0]);
+
+    if (!defined($value)) {
+	    return (PM_ERR_AGAIN, 0);
+    }
+    elsif ($value eq "yes" || $value eq "true" || $value eq "on") {
+        return 1;
+    }
+    elsif ($value eq "no" || $value eq "false" || $value eq "off") {
+        return 0;
+    }
+    else {
+        return -1;
+    }
+}
+
 sub mysql_connection_setup
 {
     # $pmda->log("mysql_connection_setup\n");
 
     if (!defined($dbh)) {
-	$dbh = DBI->connect($database, $username, $password);
-	if (defined($dbh)) {
-	    # set the db handle to undef in case of any failure
-	    # this will force a database reconnect
-	    $dbh->{HandleError} = sub { $dbh = undef; };
-	    $pmda->log("MySQL connection established\n");
-	    $sth_variables = $dbh->prepare('show variables');
-	    $sth_status = $dbh->prepare('show status');
-	    $sth_processes = $dbh->prepare('show processlist');
-	    $sth_slave_status = $dbh->prepare('show slave status');
-	}
+        $dbh = DBI->connect($database, $username, $password);
+        if (defined($dbh)) {
+            # set the db handle to undef in case of any failure
+            # this will force a database reconnect
+            $dbh->{HandleError} = sub { $dbh = undef; };
+            $pmda->log("MySQL connection established\n");
+            $sth_variables = $dbh->prepare('show variables');
+            $sth_status = $dbh->prepare('show global status');
+            $sth_processes = $dbh->prepare('show processlist');
+            $sth_slave_status = $dbh->prepare('show slave status');
+        }
     }
 }
 
@@ -60,11 +78,11 @@ sub mysql_variables_refresh
 
     %variables = ();	# clear any previous contents
     if (defined($dbh)) {
-	$sth_variables->execute();
-	my $result = $sth_variables->fetchall_arrayref();
-	for my $i (0 .. $#{$result}) {
-	    $variables{$result->[$i][0]} = $result->[$i][1];
-	}
+        $sth_variables->execute();
+        my $result = $sth_variables->fetchall_arrayref();
+        for my $i (0 .. $#{$result}) {
+            $variables{$result->[$i][0]} = $result->[$i][1];
+        }
     }
 }
 
@@ -74,12 +92,20 @@ sub mysql_status_refresh
 
     %status = ();	# clear any previous contents
     if (defined($dbh)) {
-	$sth_status->execute();
-	my $result = $sth_status->fetchall_arrayref();
-	for my $i (0 .. $#{$result}) {
-	    my $key = lcfirst $result->[$i][0];
-	    $status{$key} = $result->[$i][1];
-	}
+        $sth_status->execute();
+        my $result = $sth_status->fetchall_arrayref();
+        my $txtnum;
+        my $txtnumvar;
+        for my $i (0 .. $#{$result}) {
+            my $key = lcfirst $result->[$i][0];
+            $status{$key} = $result->[$i][1];
+            # if this status value has a yes/no type value, get it translated
+            $txtnum = mysql_txt2num($result->[$i][1]);
+            if ($txtnum ge 0) {
+                $txtnumvar=$key . "_num";
+                $status{$txtnumvar} = $txtnum;
+            }
+        }
     }
 }
 
@@ -91,13 +117,13 @@ sub mysql_process_refresh
     @process_instances = ();	# refresh indom too
 
     if (defined($dbh)) {
-	$sth_processes->execute();
-	my $result = $sth_processes->fetchall_arrayref();
-	for my $i (0 .. $#{$result}) {
-	    $process_instances[($i*2)] = $i;
-	    $process_instances[($i*2)+1] = "$result->[$i][0]";
-	    $processes[$i] = $result->[$i];
-	}
+        $sth_processes->execute();
+        my $result = $sth_processes->fetchall_arrayref();
+        for my $i (0 .. $#{$result}) {
+            $process_instances[($i*2)] = $i;
+            $process_instances[($i*2)+1] = "$result->[$i][0]";
+            $processes[$i] = $result->[$i];
+        }
     }
 
     $pmda->replace_indom($process_indom, \@process_instances);
@@ -109,11 +135,19 @@ sub mysql_slave_status_refresh
 
     %slave_status = ();	# clear any previous contents
     if (defined($dbh)) {
-	$sth_slave_status->execute();
-	my $result = $sth_slave_status->fetchrow_hashref();
-	while ( my ($key, $value) = each(%$result) ) {
-	    $slave_status{lc $key} = $value;
-	}
+        $sth_slave_status->execute();
+        my $result = $sth_slave_status->fetchrow_hashref();
+        my $txtnum;
+        my $txtnumvar;
+        while ( my ($key, $value) = each(%$result) ) {
+            $slave_status{lc $key} = $value;
+            # if this status value has a yes/no type value, get it translated
+            $txtnum = mysql_txt2num($value);
+            if ($txtnum ge 0) {
+                $txtnumvar=lc($key) . "_num";
+                $slave_status{$txtnumvar} = $txtnum;
+            }
+        }
     }
 }
 
@@ -147,26 +181,26 @@ sub mysql_fetch_callback
 	@procs = @$value;
 	if (!defined($procs[$item]) && $item == 6) { return ("?", 1); }
 	if (!defined($procs[$item])) { return (PM_ERR_APPVERSION, 0); }
-	return ($procs[$item], 1);
+    	return ($procs[$item], 1);
     }
     if ($inst != PM_IN_NULL)		{ return (PM_ERR_INST, 0); }
     if ($cluster == 0) {
-	$mysql_name =~ s/^mysql\.status\.//;
-	$value = $status{$mysql_name};
-	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
-	return ($value, 1);
+        $mysql_name =~ s/^mysql\.status\.//;
+        $value = $status{$mysql_name};
+        if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
+        return ($value, 1);
     }
     elsif ($cluster == 1) {
-	$mysql_name =~ s/^mysql\.variables\.//;
-	$value = $variables{$mysql_name};
-	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
-	return ($value, 1);
+        $mysql_name =~ s/^mysql\.variables\.//;
+        $value = $variables{$mysql_name};
+        if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
+        return ($value, 1);
     }
     elsif ($cluster == 3) {
-	$mysql_name =~ s/^mysql\.slave_status\.//;
-	$value = $slave_status{$mysql_name};
-	if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
-	return ($value, 1);
+        $mysql_name =~ s/^mysql\.slave_status\.//;
+        $value = $slave_status{$mysql_name};
+        if (!defined($value))	{ return (PM_ERR_APPVERSION, 0); }
+        return ($value, 1);
     }
     return (PM_ERR_PMID, 0);
 }
@@ -932,6 +966,12 @@ $pmda->add_metric(pmda_pmid(0,251), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(0,252), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.uptime_since_flush_status', '', '');
+$pmda->add_metric(pmda_pmid(0,253), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.status.slave_running_num', '', '');
+$pmda->add_metric(pmda_pmid(0,254), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.status.compression_num', '', '');
 
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -1751,6 +1791,15 @@ $pmda->add_metric(pmda_pmid(3,30), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(3,31), PM_TYPE_STRING, PM_INDOM_NULL,
 		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
 		  'mysql.slave_status.master_ssl_key', '', '');
+$pmda->add_metric(pmda_pmid(3,32), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.slave_io_running_num', '', '');
+$pmda->add_metric(pmda_pmid(3,33), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.slave_sql_running_num', '', '');
+$pmda->add_metric(pmda_pmid(3,34), PM_TYPE_U32, PM_INDOM_NULL,
+		  PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+		  'mysql.slave_status.master_ssl_allowed_num', '','');
 		  
 $pmda->add_indom($process_indom, \@process_instances,
 		 'Instance domain exporting each MySQL process', '');
@@ -1812,6 +1861,24 @@ B<pmdamysql> is launched by pmcd(1) and should never be executed
 directly.  The Install and Remove scripts notify pmcd(1) when
 the agent is installed or removed.
 
+=head1 Binary Status values in text
+
+Some of the status values are in the form of YES/NO or ON/OFF.
+
+Since these cannot be intepreted by tools like PMIE, 
+they have been duplicated with a _num extension
+and the values of 1 (YES/ON) or 0 (NO/OFF).
+
+=head2 Eg:
+
+=over
+
+=item * mysql.slave_status.slave_io_running
+
+=item * mysql.slave_status.slave_io_running_num
+
+=back
+
 =head1 FILES
 
 =over
@@ -1841,4 +1908,4 @@ default log file for error messages from B<pmdamysql>
 =head1 SEE ALSO
 
 pmcd(1), pmdadbping.pl(1) and DBI(3).
-# vi: sw=4 ts=4 et
+# vi: sw=4 ts=4 et:

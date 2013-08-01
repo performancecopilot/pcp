@@ -31,8 +31,7 @@ in
 	ln $seq.linux $seq.out || exit 1
 	;;
     *)
-	echo "Arrgh ... need qualified output for $PCP_PLATFORM"
-	exit 1
+	_notrun "Need qualified output for $PCP_PLATFORM"
 	;;
 esac
 
@@ -42,10 +41,10 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 cd $PCP_PMDAS_DIR/simple
 
+unset ROOT MAKEFLAGS
+
 $sudo make clobber >/dev/null 2>&1
 $sudo make >/dev/null 2>&1
-
-unset ROOT
 
 _filter_make()
 {

@@ -218,16 +218,15 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			fd = -1;
     int			one, sts;
     __pmSockAddr	*myAddr;
-    int			isUnix;
+    int			isUnix = 0;
 
     /*
      * Using this flag will eliminate the need for more conditional
      * compilation below, hopefully making the code easier to read and maintain.
      */
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    isUnix = (*family == AF_UNIX);
-#else
-    usUnix = 0;
+    if (*family == AF_UNIX)
+	isUnix = 1;
 #endif
 
     if (isUnix) {
@@ -477,18 +476,74 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
 {
     int i, fd;
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     /* Check the local unix domain fd. */
-    if (localSocketFd >= 0) {
-	NewClient(fdset, localSocketFd);
-    }
+    if (localSocketFd >= 0)
+	NewClient(fdset, localSocketFd, AF_UNIX);
+#endif
 
     for (i = 0; i < nReqPorts; i++) {
 	/* Check the inet and ipv6 fds. */
 	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
-	    NewClient(fdset, fd);
+	    NewClient(fdset, fd, AF_INET);
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
-	    NewClient(fdset, fd);
+	    NewClient(fdset, fd, AF_INET6);
     }
+}
+
+static int
+SetCredentialAttrs(__pmHashCtl *attrs, unsigned int uid, unsigned int gid)
+{
+    char name[32], *namep;
+
+    snprintf(name, sizeof(name), "%u", uid);
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+        __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+
+    snprintf(name, sizeof(name), "%u", gid);
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+        __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+
+    return 0;
+}
+
+/*
+ * Set local connection credentials into given hash structure
+ */
+int
+__pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
+{
+#if defined(HAVE_STRUCT_UCRED)		/* Linux */
+    struct ucred ucred;
+    __pmSockLen length = sizeof(ucred);
+
+    if (__pmGetSockOpt(fd, SOL_SOCKET, SO_PEERCRED, &ucred, &length) < 0)
+	return -oserror();
+    return SetCredentialAttrs(attrs, ucred.uid, ucred.gid);
+
+#elif defined(HAVE_GETPEEREID)		/* MacOSX */
+    uid_t uid;
+    gid_t gid;
+
+    if (getpeereid(__pmFD(fd), &uid, &gid) < 0)
+	return -oserror();
+    return SetCredentialAttrs(attrs, uid, gid);
+
+#elif defined(HAVE_GETPEERUCRED)	/* Solaris */
+    unsigned int uid, gid;
+    ucred_t ucred;
+
+    if (getpeerucred(__pmFD(fd), &ucred) < 0)
+	return -oserror();
+    uid = ucred_geteuid(&ucred);
+    gid = ucred_getegid(&ucred);
+    return SetCredentialAttrs(attrs, uid, gid);
+
+#else
+    return -EOPNOTSUPP;
+#endif
 }
 
 static const char *
@@ -585,12 +640,41 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     return -EOPNOTSUPP;
 }
 
+static unsigned int require_credentials;
+
+int
+__pmServerSetFeature(__pmServerFeature wanted)
+{
+    if (wanted == PM_SERVER_FEATURE_CREDS_REQD) {
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	require_credentials = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	return 1;
+    }
+    return 0;
+}
+
 int
 __pmServerHasFeature(__pmServerFeature query)
 {
-    if (query == PM_SERVER_FEATURE_IPV6)
-	return (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
-    return 0;
+    int sts;
+
+    switch (query) {
+    case PM_SERVER_FEATURE_IPV6:
+	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
+	break;
+    case PM_SERVER_FEATURE_CREDS_REQD:
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	sts = require_credentials;
+	PM_UNLOCK(__pmLock_libpcp);
+	break;
+    default:
+	sts = 0;
+	break;
+    }
+    return sts;
 }
 
 #endif /* !HAVE_SECURE_SOCKETS */

@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -11,7 +12,6 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMPOST 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -50,12 +50,16 @@ will prepend the message with the full date.
 If the notice board file does not exist,
 .B pmpost
 will create it.
-Due to the importance of the notice board file,
 .B pmpost
-is typically installed as a
-.BR setuid (2)
-root program and so the
-notice board is owned by, and writable only by, root.
+would usually run from long-running PCP daemons executing
+under the (typically unprivileged)
+.B $PCP_USER
+and
+.B $PCP_GROUP
+accounts.
+The file should be owned by root, and group writable by the
+.B $PCP_GROUP
+group.
 .SH FILES
 .TP 10
 .B $PCP_LOG_DIR/NOTICES
@@ -64,27 +68,12 @@ the PCP notice board file
 The file
 .B /etc/pcp.conf
 contains the local values for PCP_ variables.
-Because
-.B pmpost
-is 
-.BR setuid (1),
-only the settings in
-.B /etc/pcp.conf
-are used.
-In addition, the
-.B $PCP_CONF
-variable may
-.B not
-be used to specify an alternative
-configuration file for
-.BR pmpost .
 .SH UNIX SEE ALSO
 .BR logger (1).
 .SH WINDOWS SEE ALSO
 .BR pcp-eventlog (1).
 .SH SEE ALSO
 .BR pmie (1),
-.BR setuid (2),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

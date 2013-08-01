@@ -123,7 +123,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:t:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'c':	/* configuration file */
@@ -205,6 +205,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 's':	/* path to local unix domain socket */
 		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
+		break;
+
+	    case 'S':	/* only allow authenticated clients */
+		__pmServerSetFeature(PM_SERVER_FEATURE_CREDS_REQD);
 		break;
 
 	    case 't':
@@ -584,7 +588,6 @@ HandleReadyAgents(__pmFdSet *readyFds)
 
 		if (ap->ipcType != AGENT_DSO && sts <= 0)
 		    CleanupAgent(ap, reason, fd);
-
 	    }
 	}
     }
@@ -592,7 +595,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 }
 
 static void
-CheckNewClient(__pmFdSet * fdset, int rfd)
+CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 {
     int		s, sts, challenge, accepted = 1;
     ClientInfo	*cp;
@@ -603,6 +606,15 @@ CheckNewClient(__pmFdSet * fdset, int rfd)
 	    return;	/* Accept failed and no client added */
 
 	sts = __pmAccAddClient(cp->addr, &cp->denyOps);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	if (sts >= 0 && family == AF_UNIX) {
+	    if ((sts = __pmServerSetLocalCreds(cp->fd, &cp->attrs)) < 0) {
+		__pmNotifyErr(LOG_ERR,
+			"ClientLoop: error extracting local credentials: %s",
+			pmErrStr(sts));
+	    }
+	}
+#endif
 	if (sts >= 0) {
 	    memset(&cp->pduInfo, 0, sizeof(cp->pduInfo));
 	    cp->pduInfo.version = PDU_VERSION;
@@ -611,13 +623,14 @@ CheckNewClient(__pmFdSet * fdset, int rfd)
 		cp->pduInfo.features |= PDU_FLAG_SECURE;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
-	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))     /* optionally */
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /* required */
+		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    challenge = *(int*)(&cp->pduInfo);
 	    sts = 0;
 	}
 	else {
-	    /* __pmAccAddClient failed, this is grim! */
 	    challenge = 0;
 	    accepted = 0;
 	}
@@ -795,15 +808,55 @@ do_traceback(FILE *f)
 #endif
     return;
 }
-#endif
+#endif /* HAVE_TRACE_BACK_STACK */
+
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+
+#define MAX_DEPTH 30
+
+static void
+do_traceback(FILE *f)
+{
+    int		nframe;
+    void	*buf[MAX_DEPTH];
+    char	**symbols;
+    int		i;
+
+    nframe = backtrace(buf, MAX_DEPTH);
+    if (nframe < 1) {
+	fprintf(f, "backtrace -> %d frames?\n", nframe);
+	return;
+    }
+    symbols = backtrace_symbols(buf, nframe);
+    if (symbols == NULL) {
+	fprintf(f, "backtrace_symbols failed!\n");
+	return;
+
+    }
+    for (i = 1; i < nframe; i++)
+	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+
+    return;
+}
+#endif /* HAVE_BACKTRACE */
 
 void SigBad(int sig)
 {
     __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-#if HAVE_TRACE_BACK_STACK
-    fprintf(stderr, "\nProcedure call traceback ...\n");
-    do_traceback(stderr);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	/* -D desperate on the command line to enable traceback,
+	 * if we have platform support for it
+	 */
+#if defined(HAVE_TRACE_BACK_STACK) || defined(HAVE_BACKTRACE)
+	fprintf(stderr, "\nProcedure call traceback ...\n");
+	do_traceback(stderr);
+#else
+	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
 #endif
+    }
+#endif /* PCP_DEBUG */
     fprintf(stderr, "\nDumping to core ...\n");
     fflush(stderr);
     abort();

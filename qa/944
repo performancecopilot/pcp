@@ -1,0 +1,149 @@
+#!/bin/sh
+# PCP QA Test No. 944
+# Exercise user/group access control lists in pmcd.
+#
+# Have to take extra care with filtering in this test,
+# as user ID and group ID may well be equal for a given
+# user (user name and group name might well be too).
+# As a result, testing is performed separately to avoid
+# incorrectly filtering one as the other.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+. ./common.secure
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
+id -g nobody >/dev/null 2>&1 || _notrun "Group nobody unavailable"
+
+nobodyuid=`id -u nobody`
+nobodygid=`id -g nobody`
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_start_local_pmcd()
+{
+    pmcd -f -x $seq.full -l $tmp.log &
+    pid=$!
+    pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
+}
+
+_stop_local_pmcd()
+{
+    if [ -n "$pid" ]
+    then
+	echo "Terminating local pmcd process"
+	$signal -s TERM $pid
+	wait
+	pid=""
+    fi
+}
+
+_cleanup()
+{
+    _stop_local_pmcd
+    cd $here; rm -rf $tmp.*
+}
+
+_filter_user()
+{
+    _filter_common \
+    | sed \
+        -e "s:$userid $username *:USERID USERNAME :g" \
+        -e "s:$groupid($groupname).*$:GROUPID(GROUPNAME),...:g" \
+    ; echo
+}
+
+_filter_group()
+{
+    _filter_common \
+    | sed \
+        -e "s:$groupid $groupname *:GROUPID GROUPNAME :g" \
+        -e "s:$userid($username).*$:USERID(USERNAME),...:g" \
+    ; echo
+}
+
+_filter_common()
+{
+    _filter_pmcd_log \
+    | sed \
+        -e "s:$tmp:TMP:g" \
+        -e "s:-U $username:-U USERNAME:g" \
+        -e "s:$PCP_PMDAS_DIR:PCP_PMDAS_DIR:g" \
+        -e "s:$nobodyuid nobody:NOBODYID nobody:g" \
+        -e "s:$nobodygid nobody:NOBODYID nobody:g" \
+        -e "s:$nobodyuid(nobody).*$:NOBODYID(nobody):g" \
+        -e "s:$nobodygid(nobody).*$:NOBODYID(nobody):g" \
+        -e "s: $PMCD_PORT : port :g" \
+    | $PCP_AWK_PROG '\
+	/^sample / { $2 = "   DOMAIN"; $3 = "  PID"; \
+		     $4 = " IN"; $5 = "OUT"; $6 = "VER"; \
+		   } { print }'
+}
+
+# real QA test starts here
+export PCP_PMCDCONF_PATH=$tmp.conf
+export PMCD_PORT=9876
+export PMCD_SOCKET=$tmp.pmcd.socket
+
+# user test cases
+cat <<End-of-File >$tmp.conf
+sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
+[access]
+allow user $username : fetch;
+disallow user $username : store;
+End-of-File
+_start_local_pmcd
+_filter_user <$tmp.log
+
+echo "Testing QA user allowed fetch access (explicit)"
+pmprobe -v -h unix:$PMCD_SOCKET sample.control
+
+echo "Testing QA user disallowed store access (explicit)"
+# expected to produce two lines of output - an initial fetch is done
+# (which is allowed), pmstore reports what it would do, then fails.
+pmstore -f -h unix:$PMCD_SOCKET sample.write_me 1
+
+echo "Testing nobody user disallowed fetch access (implicit)"
+$sudo -u nobody pminfo -f -h unix:$PMCD_SOCKET sample.control 2>&1
+
+_stop_local_pmcd
+_filter_user <$tmp.log
+
+# group test cases
+cat <<End-of-File >$tmp.conf
+sample 29  pipe binary  $PCP_PMDAS_DIR/sample/pmdasample -d 29 -U $username
+[access]
+allow group $groupname : fetch;
+disallow group $groupname : store;
+End-of-File
+_start_local_pmcd
+_filter_group <$tmp.log
+
+echo "Testing QA group allowed fetch access (explicit)"
+pmprobe -v -h unix:$PMCD_SOCKET sample.control
+
+echo "Testing QA group disallowed store access (explicit)"
+# expected to produce two lines of output - an initial fetch is done
+# (which is allowed), pmstore reports what it would do, then fails.
+pmstore -f -h unix:$PMCD_SOCKET sample.write_me 1
+
+echo "Testing nobody group disallowed fetch access (implicit)"
+$sudo -u nobody pminfo -f -h unix:$PMCD_SOCKET sample.control 2>&1
+
+_stop_local_pmcd
+_filter_group <$tmp.log
+
+# success, all done
+status=0
+
+exit

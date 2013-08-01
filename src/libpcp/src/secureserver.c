@@ -32,12 +32,26 @@ static struct {
     SECKEYPrivateKey	*private_key;
     const char		*password_file;
     SSLKEAType		certificate_KEA;
-    unsigned int	certificate_verified : 1;
-    unsigned int	ssl_session_cache_setup : 1;
     char		database_path[MAXPATHLEN];
 
-    /* SASL authentication fields */
+    /* status flags (bitfields) */
+    unsigned int	certificate_verified : 1;	/* NSS */
+    unsigned int	ssl_session_cache_setup : 1;	/* NSS */
+    unsigned int	credentials_required : 1;	/* SASL/AF_UNIX */
 } secure_server;
+
+int
+__pmServerSetFeature(__pmServerFeature wanted)
+{
+    if (wanted == PM_SERVER_FEATURE_CREDS_REQD) {
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	secure_server.credentials_required = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	return 1;
+    }
+    return 0;
+}
 
 int
 __pmServerHasFeature(__pmServerFeature query)
@@ -45,10 +59,13 @@ __pmServerHasFeature(__pmServerFeature query)
     int sts = 0;
 
     switch (query) {
+    case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_SECURE:
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	sts = secure_server.certificate_verified;
+	sts = (query == PM_SERVER_FEATURE_SECURE) ?
+		secure_server.certificate_verified:
+		secure_server.credentials_required;
 	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
@@ -193,13 +210,13 @@ __pmValidCertificate(CERTCertDBHandle *db, CERTCertificate *cert, PRTime stamp)
 }
 
 static char *
-serverdb(char *path, size_t size)
+serverdb(char *path, size_t size, char *db_method)
 {
     int sep = __pmPathSeparator();
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");
 
     if (nss_method == NULL)
-	nss_method = "sql:";
+	nss_method = db_method;
 
     /*
      * Fill in a buffer with the server NSS database specification.
@@ -241,7 +258,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
      */
     sts = -EINVAL;
     if (!db) {
-	char *path = serverdb(secure_server.database_path, MAXPATHLEN);
+	char *path = serverdb(secure_server.database_path, MAXPATHLEN, "sql:");
 
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
@@ -258,6 +275,12 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     }
 
     secsts = NSS_Init(secure_server.database_path);
+    if (secsts != SECSuccess && !db) {
+	/* fallback, older versions of NSS do not support sql: */
+	serverdb(secure_server.database_path, MAXPATHLEN, "");
+	secsts = NSS_Init(secure_server.database_path);
+    }
+
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
@@ -414,7 +437,7 @@ __pmSecureServerNegotiation(int fd, int *strength)
     return 0;
 }
 
-static void
+static int
 __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
 {
     char name[32];
@@ -422,17 +445,24 @@ __pmSetUserGroupAttributes(const char *username, __pmHashCtl *attrs)
     uid_t uid;
     gid_t gid;
 
-    if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR)) {
+    if (__pmGetUserIdentity(username, &uid, &gid, PM_RECOV_ERR) == 0) {
 	snprintf(name, sizeof(name), "%u", uid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+	else
+	    return -ENOMEM;
 
 	snprintf(name, sizeof(name), "%u", gid);
 	name[sizeof(name)-1] = '\0';
 	if ((namep = strdup(name)) != NULL)
 	    __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+	else
+	    return -ENOMEM;
+	return 0;
     }
+    __pmNotifyErr(LOG_ERR, "Authenticated user %s not found\n", username);
+    return -ESRCH;
 }
 
 static int
@@ -443,23 +473,25 @@ __pmAuthServerSetAttributes(sasl_conn_t *conn, __pmHashCtl *attrs)
     int sts;
 
     sts = sasl_getprop(conn, SASL_USERNAME, &property);
-    if (sts == SASL_OK && property) {
-	__pmNotifyErr(LOG_INFO, "Successful authentication for user \"%s\"\n",
-				(char *)property);
-	username = strdup((char *)property);
+    username = (char *)property;
+    if (sts == SASL_OK && username) {
+	__pmNotifyErr(LOG_INFO,
+			"Successful authentication for user \"%s\"\n",
+			username);
+	if ((username = strdup(username)) == NULL) {
+	    __pmNoMem("__pmAuthServerSetAttributes",
+			strlen(username), PM_RECOV_ERR);
+	    return -ENOMEM;
+	}
     } else {
-	username = NULL;
+	__pmNotifyErr(LOG_ERR,
+			"Authentication complete, but no username\n");
+	return -ESRCH;
     }
 
-    if (!username) {
-	sts = property ? strlen(property) : 0;
-	__pmNoMem("__pmAuthServerSetAttributes", sts, PM_RECOV_ERR);
-	sts = -ENOMEM;
-    } else {
-	sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs);
-	__pmSetUserGroupAttributes(username, attrs);
-    }
-    return sts;
+    if ((sts = __pmHashAdd(PCP_ATTR_USERNAME, username, attrs)) < 0)
+	return sts;
+    return __pmSetUserGroupAttributes(username, attrs);
 }
 
 static int
@@ -630,8 +662,16 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE|PDU_FLAG_COMPRESS|PDU_FLAG_AUTH)) != 0)
+    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_COMPRESS
+		   | PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD)) != 0)
 	return PM_ERR_IPC;
+
+    if (flags & PDU_FLAG_CREDS_REQD) {
+	if (__pmHashSearch(PCP_ATTR_USERID, attrs) != NULL)
+            return 0;	/* unix domain socket */
+	else
+	    flags |= PDU_FLAG_AUTH;	/* force authentication */
+    }
 
     if ((sts = __pmSecureServerIPCFlags(fd, flags)) < 0)
 	return sts;

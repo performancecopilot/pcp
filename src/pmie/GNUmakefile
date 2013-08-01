@@ -39,19 +39,17 @@ install:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install::	default
-	$(INSTALL) -m 755 -d `dirname $(PCP_PMIECONTROL_PATH)`
-	$(INSTALL) -m 644 control $(PCP_PMIECONTROL_PATH)
-	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmie
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmie
+	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
-	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)/pmie
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
+ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
 endif
+	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
 
 include $(BUILDRULES)
 

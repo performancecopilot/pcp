@@ -14,7 +14,6 @@
  * for more details.
  */
 
-#include "stdio.h"
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
@@ -29,19 +28,16 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 
-static void lock_time_assign_glocks(pmInDom, pmInDom);
-static int lock_compare(struct lock_time *, struct lock_time *);
-
 /*
  * Refreshing of the metrics for gfs2.lock_time, some of metrics are of
  * a different typing.
  *
  */
 int 
-gfs2_locktime_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
+gfs2_lock_time_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
 {
     /* Check to see if we have values to assign */
-    if (glstats->lock_type >= TYPENUMBER_TRANS && glstats->lock_type <= TYPENUMBER_JOURNAL){
+    if (glstats->lock_type == LOCKTIME_INODE || glstats->lock_type == LOCKTIME_RGRP){
         switch(item){
             case LOCKTIME_LOCK_TYPE:
                 atom->ul = glstats->lock_type; /* Glock type number */
@@ -83,14 +79,15 @@ gfs2_locktime_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
 }
 
 static void
-gfs2_extract_glock_lock_time(char *token, pmInDom lock_time_indom)
+gfs2_extract_glock_lock_time(char *buffer, pmInDom lock_time_indom)
 {
-    char *p, hash[256];
-    unsigned int major, minor;
     struct lock_time glock;
-    dev_t dev_id;
+    unsigned int major, minor;
+    char *p, hash[256];
 
-    if ((p = strstr(token, "gfs2_glock_lock_time: "))){  
+    if ( (p = strstr(buffer, "gfs2_glock_lock_time: ")) ) {
+
+        /* Assign data here */
         sscanf(p, 
             "gfs2_glock_lock_time: %"SCNu32",%"SCNu32" glock %"SCNu32":%"SCNu64" status:%*d flags:%*x tdiff:%*d srtt:%"SCNd64"/%"SCNd64" srttb:%"SCNd64"/%"SCNd64" sirt:%"SCNd64"/%"SCNd64" dcnt:%"SCNd64" qcnt:%"SCNd64,
              &major,
@@ -106,20 +103,122 @@ gfs2_extract_glock_lock_time(char *token, pmInDom lock_time_indom)
              &glock.dlm, 
              &glock.queue
         );
+        glock.dev_id = makedev(major, minor);
 
-        /* Check to see if the current lock is of correct type */
-        if (glock.lock_type == TYPENUMBER_INODE || glock.lock_type == TYPENUMBER_RGRP){
+        /* Filter on required lock types */
+        if (glock.lock_type == LOCKTIME_INODE || glock.lock_type == LOCKTIME_RGRP) {
 
-            /* Create hash in order to distinguish the data */
-            dev_id = makedev(major, minor);
-            snprintf(hash, sizeof(hash), "%d:%d|%"PRIu32"|%"PRIu64"", 
-                        major(dev_id), minor(dev_id), glock.lock_type, glock.number);
-            hash[sizeof(hash)-1] = '\0';
+            if (glock.dlm > COUNT_THRESHOLD && glock.queue > COUNT_THRESHOLD) {
 
-            /* Store our lock data into the indom */
-            pmdaCacheStore(lock_time_indom, PMDA_CACHE_ADD, hash, (void *)&glock);
+                /* Create unique hash for pmdaCache */
+                snprintf(hash, sizeof(hash), "%d:%d|%"PRIu32"|%"PRIu64"", 
+                    major(glock.dev_id),
+                    minor(glock.dev_id),
+                    glock.lock_type, 
+                    glock.number);
+                hash[sizeof(hash)-1] = '\0';
+        
+                /* Store in pmdaCache */
+                pmdaCacheStore(lock_time_indom, PMDA_CACHE_ADD, hash, (void *)&glock);
+            }
         }
     }
+}
+
+/*
+ * Comparison function we compare the values; we return the lock which 
+ * is deemed to be the worst.
+ *
+ */
+static int 
+lock_comparison(const void *a, const void *b)
+{
+    struct lock_time *aa = (struct lock_time *)a;
+    struct lock_time *bb = (struct lock_time *)b;
+    int true_count = 0;
+
+    /* (A sirt (LESS THAN) B sirt = A worse) */
+    if (aa->sirtvar < bb->sirtvar)
+        true_count++;
+
+    /* A srtt (MORE THAN) B srtt = A worse */
+    if (aa->srttvarb > bb->srttvarb)
+        true_count++;
+
+    /* A srttb (MORE THAN) B srttb = A worse */
+    if (aa->srttvar > bb->srttvar)
+        true_count++;
+
+    /* If there are more counts where A is worse than B? */
+    if ( true_count > 1 ) {
+        return 1; /* a is worse than b */
+    } else if ( true_count  == 1 ){
+         /* Tie break condition */
+         if ( aa->dlm > bb->queue ) return 1; /* a is worse than b */
+    }
+    return -1; /* b is worse than a */
+}
+
+/*
+ * We loop through each of our available file-sytems, find the locks that corr-
+ * esspond to the filesystem. With these locks we find the worst and assign it
+ * to the filesystem before returning the metric values.
+ *
+ */
+static int
+lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
+{
+    int i, j;
+    struct gfs2_fs *fs;
+    struct lock_time *glock;   
+
+    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE);   
+  
+    struct lock_time *glock_array = malloc(array_size * sizeof(struct lock_time));
+    if (glock_array == NULL){
+        return -oserror();
+    }   
+
+    /* We walk through for each filesystem */
+    for (pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_REWIND);;) {
+	if ((i = pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(gfs2_fs_indom, i, NULL, (void **)&fs) || !fs)
+	    continue;
+
+        int counter = 0;
+
+        /* We walk through each lock we have */
+        for (pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_REWIND);;) {
+	    if ((j = pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	        break;
+	    if (!pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock) || !glock)
+	        continue;
+
+            /* If our lock belongs to the current filesystem */
+            if (fs->dev_id == glock->dev_id){
+
+                    /* Assign values in array */
+                    glock_array[counter] = *glock;
+                    counter++;
+            }    
+        }
+
+        if (counter > 0){
+            /* Sort our values with our comparator */
+            qsort(glock_array, counter, sizeof(struct lock_time), lock_comparison);           
+
+            /* Assign our worst glock */
+            fs->lock_time = glock_array[0];
+        }    
+
+        /* Clear array for next filesystem */
+        memset(glock_array, 0, array_size * sizeof(struct lock_time));
+    }
+    /* Free memory used for array */
+    free(glock_array);
+
+    return 0;
 }
 
 /* 
@@ -135,7 +234,7 @@ gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
 {
     FILE *fp;
     int fd, flags;
-    char buffer[8196], *token;
+    char buffer[8196];
     static char *TRACE_PIPE = "/sys/kernel/debug/tracing/trace_pipe";
 
     /* Clear old lock data from the cache */
@@ -148,138 +247,23 @@ gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
     /* Set flags of fp as non-blocking */
     fd = fileno(fp);
     flags = fcntl(fd, F_GETFL);
-    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    fcntl(fd, F_SETFL, flags | O_RDONLY | O_NONBLOCK);
 
     /*
-     * Read through glocks file accumulating statistics as we go;
-     * we bin unwanted glocks which are not inode(2) or resource group(3)
-     * and compare to locate the worse lock on this run though
+     * Read through glocks file accumulating statistics as we go.
      *
      */
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        for (token = strtok(buffer, "."); token != NULL; token = strtok(NULL, "."))
-            gfs2_extract_glock_lock_time(token, lock_time_indom);
+        gfs2_extract_glock_lock_time(buffer, lock_time_indom);
     }
     fclose(fp);
 
     /* 
      * We have collected our data from the trace_pipe, now it is time to take
      * the data and find the worst glocks for each of our mounted file-systems,
-     * finally assign the worst locks to the file-systems to be returned to the 
-     * metrics.
+     * finally assign the worst locks.
      *
      */
     lock_time_assign_glocks(lock_time_indom, gfs_fs_indom);
     return 0;
-}
-
-/*
- * We loop through each of our available file-sytems, find the locks that corr-
- * esspond to the filesystem. With these locks we find the worst and assign it
- * to the filesystem before returning the metric values.
- *
- */
-static void
-lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
-{
-    int i, j, count;
-    unsigned int major, minor;
-    char *hash, *fs_name;
-    struct gfs2_fs *fs;
-
-    struct lock_time *glock, worst_glock, glockA = {0}, glockB = {0}; 
-
-    /* We walk through for each filesystem */
-    for (pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_REWIND);;) {
-	if ((i = pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_NEXT)) < 0)
-	    break;
-	if (!pmdaCacheLookup(gfs2_fs_indom, i, &fs_name, (void **)&fs) || !fs)
-	    continue;
-
-        /* We walk through each lock we have */
-        for (pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_REWIND);;) {
-	    if ((j = pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_NEXT)) < 0)
-	        break;
-	    if (!pmdaCacheLookup(glock_indom, j, &hash, (void **)&glock) || !glock)
-	        continue;
-
-            /* Work out the device id for the lock from the hash */
-            if (sscanf(hash, "%u:%u", &major, &minor) != 2)
-	        continue;
-
-            /* If our lock belongs to the current filesystem */
-            if (fs->dev_id == makedev(major, minor)){
-                if (count == 0){
-                    glockA = *glock;
-                } else {
-                    glockB = *glock;
-                }
-                if (count >= 1){
-                    /* 
-                     * Call to compare the two given locks, the return value indicates
-                     * which lock is the worst, 1 for glockA and 0 for glockB.
-                     *
-                     */
-                    if (lock_compare(&glockA, &glockB) == 1){
-                        worst_glock = glockA; 
-                    } else {
-                        worst_glock = glockB;
-                        /* 
-                         * If glockB is the worse overwrite glockA with that value
-                         * because on the each loop the new "challenger" will be
-                         * placed as glockB.
-                         *
-                         */
-                        glockA = glockB;
-                    }
-                } else {
-                    worst_glock = glockA;
-                }
-                count++;
-
-                /* Assign our value */
-                fs->lock_time = worst_glock;
-            }
-        }
-        count = 0;
-    }
-}
-
-/*
- * Comparison function to allow the comparison of two different locks, we
- * compare the values; we return A worse than B = 1, 
- *                               B worse than A = 0.
- *
- */
-static int 
-lock_compare(struct lock_time *glockA, struct lock_time *glockB)
-{
-    int true_count = 0;
-
-    /* (A sirt (LESS THAN) B sirt = A worse) */
-    if (glockA->sirtvar < glockB->sirtvar)
-        true_count++;
-
-    /* A srtt (MORE THAN) B srtt = A worse */
-    if (glockA->srttvarb > glockB->srttvarb)
-        true_count++;
-
-    /* A srttb (MORE THAN) B srttb = A worse */
-    if (glockA->srttvar > glockB->srttvar)
-        true_count++;
-
-    /* 
-     * Base return on the number of true counts for A worse than B
-     * if there is more than one true out of three A is worse, if 
-     * there is one count each way we decide on qucount and dcount
-     * else B is worse.
-     * 
-     */
-    if (true_count > 1){
-        return 1; /* glockA worse */
-    } else if(true_count == 1){
-         /* Tie-break decision case */
-         if (glockA->dlm > glockA->queue) return 1; /* glockA worse */
-    }
-    return 0; /* glockB worse */
 }

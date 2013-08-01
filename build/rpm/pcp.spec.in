@@ -355,7 +355,7 @@ BEGIN {
     else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
     else f="base_files.rpm"
 }
-$1 == "d" { printf ("%%%%dir %%%%attr(%s,root,%s) %s\n", $2, $4, $5) >> f } 
+$1 == "d" { printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f } 
 
 $1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
 $1 == "f" {
@@ -368,7 +368,7 @@ $1 == "f" {
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
 		printf ("%%%%doc ") >> f;
 	    }
-	    printf ("%%%%attr(%s,root,root) %s\n", $2, $6) >> f }
+	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f }
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 %pre testsuite

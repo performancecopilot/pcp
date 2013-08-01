@@ -317,7 +317,7 @@ SignalShutdown(void)
 }
 
 static void
-CheckNewClient(__pmFdSet * fdset, int rfd)
+CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 {
     ClientInfo	*cp;
 

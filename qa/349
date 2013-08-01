@@ -61,7 +61,7 @@ then
     exit 1
 fi
 cd $home/$iam
-unset ROOT
+unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf

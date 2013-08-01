@@ -11,12 +11,10 @@
 . ./common.check
 
 seq=`basename $0`
-
-# test for-some-thing || _notrun No support for some-thing
-
 echo "QA output created by $seq"
 
 status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -26,6 +24,7 @@ hinv.ncpu < 0 -> print "whoa ... no cpus!";
 End-of-File
 
 # real QA test starts here
+$sudo $signal -a pmie >/dev/null 2>&1
 pmie -t 1 -c $tmp.pmie 2>$tmp.err >$tmp.out &
 pid=$!
 
@@ -43,7 +42,7 @@ s/ (.*//
 s/.*:/HOST:/
 }'
 
-kill -TERM $pid
+$signal $pid
 wait
 
 cat $tmp.out >>$seq.full

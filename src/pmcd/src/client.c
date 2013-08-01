@@ -97,7 +97,7 @@ AcceptNewClient(int reqfd)
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept: %s\n",
-	    reqfd, netstrerror());
+			    reqfd, netstrerror());
 	    Shutdown();
 	    exit(1);
 	}
@@ -253,6 +253,9 @@ CheckAccountAccess(ClientInfo *cp)
 		(const char *)node->data : NULL);
     groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
 		(const char *)node->data : NULL);
+    if (!userid || !groupid)
+	if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD))
+	    return PM_ERR_PERMISSION;
     return __pmAccAddAccount(userid, groupid, &cp->denyOps);
 }
 

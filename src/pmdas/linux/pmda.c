@@ -65,13 +65,6 @@
 #include "interrupts.h"
 #include "devmapper.h"
 
-/*
- * Legacy value from deprecated infiniband.h, preserved for backward
- * compatibility in linux_store() below.
- */
-
-#define IB_COUNTERS_ALL  20
-
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
 static proc_loadavg_t		proc_loadavg;
@@ -80,7 +73,6 @@ static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static proc_net_snmp_t		proc_net_snmp;
 static proc_scsi_t		proc_scsi;
 static dev_mapper_t		dev_mapper;
 static proc_fs_xfs_t		proc_fs_xfs;
@@ -91,7 +83,6 @@ static msg_limits_t		msg_limits;
 static shm_limits_t		shm_limits;
 static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
-static proc_vmstat_t		proc_vmstat;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 
@@ -105,6 +96,9 @@ int _pm_intr_size; /* size in bytes of interrupt sum count metric */
 int _pm_ctxt_size; /* size in bytes of context switch count metric */
 int _pm_cputime_size; /* size in bytes of most of the cputime metrics */
 int _pm_idletime_size; /* size in bytes of the idle cputime metric */
+proc_vmstat_t _pm_proc_vmstat;
+proc_net_snmp_t _pm_proc_net_snmp;
+pmdaInstid _pm_proc_net_snmp_indom_id[NR_ICMPMSG_COUNTERS];
 
 /*
  * Metric Instance Domains (statically initialized ones only)
@@ -265,6 +259,7 @@ pmdaIndom indomtab[] = {
     { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
     { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
     { LV_INDOM, 0, NULL },
+    { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
 };
 
 
@@ -1849,252 +1844,257 @@ pmdaMetric linux_metrictab[] = {
  */
 
 /* network.ip.forwarding */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_FORWARDING], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FORWARDING], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.defaultttl */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_DEFAULTTTL], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_DEFAULTTTL], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.inreceives */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INRECEIVES], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INRECEIVES], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.inhdrerrors */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INHDRERRORS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INHDRERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.inaddrerrors */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INADDRERRORS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INADDRERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.forwdatagrams */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_FORWDATAGRAMS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FORWDATAGRAMS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.inunknownprotos */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INUNKNOWNPROTOS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INUNKNOWNPROTOS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.indiscards */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INDISCARDS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INDISCARDS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.indelivers */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_INDELIVERS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_INDELIVERS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.outrequests */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_OUTREQUESTS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_OUTREQUESTS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.outdiscards */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_OUTDISCARDS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_OUTDISCARDS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.outnoroutes */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_OUTNOROUTES], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_OUTNOROUTES], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.reasmtimeout */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_REASMTIMEOUT], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_REASMTIMEOUT], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.reasmreqds */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_REASMREQDS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_REASMREQDS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.reasmoks */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_REASMOKS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_REASMOKS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.reasmfails */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_REASMFAILS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_REASMFAILS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.fragoks */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_FRAGOKS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FRAGOKS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.fragfails */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_FRAGFAILS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FRAGFAILS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.ip.fragcreates */
-  { &proc_net_snmp.ip[_PM_SNMP_IP_FRAGCREATES], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.ip[_PM_SNMP_IP_FRAGCREATES], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 
 /* network.icmp.inmsgs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INMSGS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INMSGS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inerrors */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INERRORS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.indestunreachs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INDESTUNREACHS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INDESTUNREACHS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.intimeexcds */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMEEXCDS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,23), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMEEXCDS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inparmprobs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INPARMPROBS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INPARMPROBS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.insrcquenchs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INSRCQUENCHS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,25), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INSRCQUENCHS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inredirects */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INREDIRECTS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,26), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INREDIRECTS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inechos */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INECHOS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INECHOS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inechoreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INECHOREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,28), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INECHOREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.intimestamps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMESTAMPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,29), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMESTAMPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.intimestampreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMESTAMPREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,30), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INTIMESTAMPREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inaddrmasks */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INADDRMASKS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,31), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INADDRMASKS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.inaddrmaskreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_INADDRMASKREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,32), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INADDRMASKREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outmsgs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTMSGS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,33), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTMSGS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outerrors */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTERRORS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,34), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outdestunreachs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTDESTUNREACHS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,35), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTDESTUNREACHS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outtimeexcds */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMEEXCDS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,36), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMEEXCDS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outparmprobs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTPARMPROBS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,37), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTPARMPROBS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outsrcquenchs */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTSRCQUENCHS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,38), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTSRCQUENCHS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outredirects */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTREDIRECTS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,39), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTREDIRECTS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outechos */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTECHOS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,40), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTECHOS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outechoreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTECHOREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,41), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTECHOREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outtimestamps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMESTAMPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,42), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMESTAMPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outtimestampreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMESTAMPREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,43), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTTIMESTAMPREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outaddrmasks */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,44), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.icmp.outaddrmaskreps */
-  { &proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKREPS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,45), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_OUTADDRMASKREPS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp.incsumerrors */
+  { &_pm_proc_net_snmp.icmp[_PM_SNMP_ICMP_INCSUMERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 
 /* network.tcp.rtoalgorithm */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_RTOALGORITHM], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,50), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOALGORITHM], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.rtomin */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMIN], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,51), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMIN], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.rtomax */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMAX], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,52), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMAX], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.maxconn */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_MAXCONN], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_MAXCONN], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-			
+
 /* network.tcpconn.established */
   { &proc_net_tcp.stat[_PM_TCP_ESTABLISHED],
     { PMDA_PMID(CLUSTER_NET_TCP, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -2151,113 +2151,138 @@ pmdaMetric linux_metrictab[] = {
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.activeopens */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_ACTIVEOPENS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,54), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_ACTIVEOPENS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.passiveopens */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_PASSIVEOPENS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,55), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_PASSIVEOPENS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.attemptfails */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_ATTEMPTFAILS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,56), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_ATTEMPTFAILS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.estabresets */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_ESTABRESETS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,57), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_ESTABRESETS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.currestab */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_CURRESTAB], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,58), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_CURRESTAB], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.insegs */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_INSEGS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_INSEGS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.outsegs */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_OUTSEGS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,60), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_OUTSEGS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.retranssegs */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_RETRANSSEGS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,61), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RETRANSSEGS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.inerrs */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_INERRS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,62), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_INERRS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.tcp.outrsts */
-  { &proc_net_snmp.tcp[_PM_SNMP_TCP_OUTRSTS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,63), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_OUTRSTS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.incsumerrors */
+  { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_INCSUMERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.indatagrams */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_INDATAGRAMS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_INDATAGRAMS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.noports */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_NOPORTS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,71), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_NOPORTS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.inerrors */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_INERRORS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,72), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_INERRORS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.outdatagrams */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_OUTDATAGRAMS], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,74), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_OUTDATAGRAMS], 
+    { PMDA_PMID(CLUSTER_NET_SNMP,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.recvbuferrors */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_RECVBUFERRORS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,75), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_RECVBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udp.sndbuferrors */
-  { &proc_net_snmp.udp[_PM_SNMP_UDP_SNDBUFERRORS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,76), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_SNDBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp.incsumerrors */
+  { &_pm_proc_net_snmp.udp[_PM_SNMP_UDP_INCSUMERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.indatagrams */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INDATAGRAMS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,77), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INDATAGRAMS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.noports */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_NOPORTS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,78), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_NOPORTS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.inerrors */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INERRORS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,79), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.outdatagrams */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_OUTDATAGRAMS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,80), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_OUTDATAGRAMS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.recvbuferrors */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_RECVBUFERRORS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,81), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_RECVBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.udplite.sndbuferrors */
-  { &proc_net_snmp.udplite[_PM_SNMP_UDPLITE_SNDBUFERRORS],
-    { PMDA_PMID(CLUSTER_NET_SNMP,82), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_SNDBUFERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite.incsumerrors */
+  { &_pm_proc_net_snmp.udplite[_PM_SNMP_UDPLITE_INCSUMERRORS],
+    { PMDA_PMID(CLUSTER_NET_SNMP,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmpmsg.intype */
+  { &_pm_proc_net_snmp.icmpmsg[_PM_SNMP_ICMPMSG_INTYPE],
+    { PMDA_PMID(CLUSTER_NET_SNMP,88), PM_TYPE_U64, ICMPMSG_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmpmsg.outtype */
+  { &_pm_proc_net_snmp.icmpmsg[_PM_SNMP_ICMPMSG_OUTTYPE],
+    { PMDA_PMID(CLUSTER_NET_SNMP,89), PM_TYPE_U64, ICMPMSG_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* hinv.map.scsi */
@@ -3111,507 +3136,507 @@ pmdaMetric linux_metrictab[] = {
      */
 
     /* mem.vmstat.nr_dirty */
-    { &proc_vmstat.nr_dirty,
+    { &_pm_proc_vmstat.nr_dirty,
     {PMDA_PMID(28,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_writeback */
-    { &proc_vmstat.nr_writeback,
+    { &_pm_proc_vmstat.nr_writeback,
     {PMDA_PMID(28,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_unstable */
-    { &proc_vmstat.nr_unstable,
+    { &_pm_proc_vmstat.nr_unstable,
     {PMDA_PMID(28,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_page_table_pages */
-    { &proc_vmstat.nr_page_table_pages,
+    { &_pm_proc_vmstat.nr_page_table_pages,
     {PMDA_PMID(28,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_mapped */
-    { &proc_vmstat.nr_mapped,
+    { &_pm_proc_vmstat.nr_mapped,
     {PMDA_PMID(28,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_slab */
-    { &proc_vmstat.nr_slab,
+    { &_pm_proc_vmstat.nr_slab,
     {PMDA_PMID(28,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.pgpgin */
-    { &proc_vmstat.pgpgin,
+    { &_pm_proc_vmstat.pgpgin,
     {PMDA_PMID(28,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgpgout */
-    { &proc_vmstat.pgpgout,
+    { &_pm_proc_vmstat.pgpgout,
     {PMDA_PMID(28,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pswpin */
-    { &proc_vmstat.pswpin,
+    { &_pm_proc_vmstat.pswpin,
     {PMDA_PMID(28,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pswpout */
-    { &proc_vmstat.pswpout,
+    { &_pm_proc_vmstat.pswpout,
     {PMDA_PMID(28,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_high */
-    { &proc_vmstat.pgalloc_high,
+    { &_pm_proc_vmstat.pgalloc_high,
     {PMDA_PMID(28,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_normal */
-    { &proc_vmstat.pgalloc_normal,
+    { &_pm_proc_vmstat.pgalloc_normal,
     {PMDA_PMID(28,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_dma */
-    { &proc_vmstat.pgalloc_dma,
+    { &_pm_proc_vmstat.pgalloc_dma,
     {PMDA_PMID(28,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgfree */
-    { &proc_vmstat.pgfree,
+    { &_pm_proc_vmstat.pgfree,
     {PMDA_PMID(28,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgactivate */
-    { &proc_vmstat.pgactivate,
+    { &_pm_proc_vmstat.pgactivate,
     {PMDA_PMID(28,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgdeactivate */
-    { &proc_vmstat.pgdeactivate,
+    { &_pm_proc_vmstat.pgdeactivate,
     {PMDA_PMID(28,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgfault */
-    { &proc_vmstat.pgfault,
+    { &_pm_proc_vmstat.pgfault,
     {PMDA_PMID(28,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgmajfault */
-    { &proc_vmstat.pgmajfault,
+    { &_pm_proc_vmstat.pgmajfault,
     {PMDA_PMID(28,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_high */
-    { &proc_vmstat.pgrefill_high,
+    { &_pm_proc_vmstat.pgrefill_high,
     {PMDA_PMID(28,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_normal */
-    { &proc_vmstat.pgrefill_normal,
+    { &_pm_proc_vmstat.pgrefill_normal,
     {PMDA_PMID(28,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_dma */
-    { &proc_vmstat.pgrefill_dma,
+    { &_pm_proc_vmstat.pgrefill_dma,
     {PMDA_PMID(28,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_high */
-    { &proc_vmstat.pgsteal_high,
+    { &_pm_proc_vmstat.pgsteal_high,
     {PMDA_PMID(28,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_normal */
-    { &proc_vmstat.pgsteal_normal,
+    { &_pm_proc_vmstat.pgsteal_normal,
     {PMDA_PMID(28,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_dma */
-    { &proc_vmstat.pgsteal_dma,
+    { &_pm_proc_vmstat.pgsteal_dma,
     {PMDA_PMID(28,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_high */
-    { &proc_vmstat.pgscan_kswapd_high,
+    { &_pm_proc_vmstat.pgscan_kswapd_high,
     {PMDA_PMID(28,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_normal */
-    { &proc_vmstat.pgscan_kswapd_normal,
+    { &_pm_proc_vmstat.pgscan_kswapd_normal,
     {PMDA_PMID(28,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_dma */
-    { &proc_vmstat.pgscan_kswapd_dma,
+    { &_pm_proc_vmstat.pgscan_kswapd_dma,
     {PMDA_PMID(28,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_high */
-    { &proc_vmstat.pgscan_direct_high,
+    { &_pm_proc_vmstat.pgscan_direct_high,
     {PMDA_PMID(28,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_normal */
-    { &proc_vmstat.pgscan_direct_normal,
+    { &_pm_proc_vmstat.pgscan_direct_normal,
     {PMDA_PMID(28,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_dma */
-    { &proc_vmstat.pgscan_direct_dma,
+    { &_pm_proc_vmstat.pgscan_direct_dma,
     {PMDA_PMID(28,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pginodesteal */
-    { &proc_vmstat.pginodesteal,
+    { &_pm_proc_vmstat.pginodesteal,
     {PMDA_PMID(28,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.slabs_scanned */
-    { &proc_vmstat.slabs_scanned,
+    { &_pm_proc_vmstat.slabs_scanned,
     {PMDA_PMID(28,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_steal */
-    { &proc_vmstat.kswapd_steal,
+    { &_pm_proc_vmstat.kswapd_steal,
     {PMDA_PMID(28,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_inodesteal */
-    { &proc_vmstat.kswapd_inodesteal,
+    { &_pm_proc_vmstat.kswapd_inodesteal,
     {PMDA_PMID(28,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pageoutrun */
-    { &proc_vmstat.pageoutrun,
+    { &_pm_proc_vmstat.pageoutrun,
     {PMDA_PMID(28,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.allocstall */
-    { &proc_vmstat.allocstall,
+    { &_pm_proc_vmstat.allocstall,
     {PMDA_PMID(28,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrotated */
-    { &proc_vmstat.pgrotated,
+    { &_pm_proc_vmstat.pgrotated,
     {PMDA_PMID(28,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_slab_reclaimable */
-    { &proc_vmstat.nr_slab_reclaimable,
+    { &_pm_proc_vmstat.nr_slab_reclaimable,
     {PMDA_PMID(28,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_slab_unreclaimable */
-    { &proc_vmstat.nr_slab_unreclaimable,
+    { &_pm_proc_vmstat.nr_slab_unreclaimable,
     {PMDA_PMID(28,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_anon_pages */
-    { &proc_vmstat.nr_anon_pages,
+    { &_pm_proc_vmstat.nr_anon_pages,
     {PMDA_PMID(28,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_bounce */
-    { &proc_vmstat.nr_bounce,
+    { &_pm_proc_vmstat.nr_bounce,
     {PMDA_PMID(28,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_file_pages */
-    { &proc_vmstat.nr_file_pages,
+    { &_pm_proc_vmstat.nr_file_pages,
     {PMDA_PMID(28,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* mem.vmstat.nr_vmscan_write */
-    { &proc_vmstat.nr_vmscan_write,
+    { &_pm_proc_vmstat.nr_vmscan_write,
     {PMDA_PMID(28,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.htlb_buddy_alloc_fail */
-    { &proc_vmstat.htlb_buddy_alloc_fail,
+    { &_pm_proc_vmstat.htlb_buddy_alloc_fail,
     {PMDA_PMID(28,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.htlb_buddy_alloc_success */
-    { &proc_vmstat.htlb_buddy_alloc_success,
+    { &_pm_proc_vmstat.htlb_buddy_alloc_success,
     {PMDA_PMID(28,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_active_anon */
-    { &proc_vmstat.nr_active_anon,
+    { &_pm_proc_vmstat.nr_active_anon,
     {PMDA_PMID(28,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_active_file */
-    { &proc_vmstat.nr_active_file,
+    { &_pm_proc_vmstat.nr_active_file,
     {PMDA_PMID(28,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_free_pages */
-    { &proc_vmstat.nr_free_pages,
+    { &_pm_proc_vmstat.nr_free_pages,
     {PMDA_PMID(28,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_inactive_anon */
-    { &proc_vmstat.nr_inactive_anon,
+    { &_pm_proc_vmstat.nr_inactive_anon,
     {PMDA_PMID(28,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_inactive_file */
-    { &proc_vmstat.nr_inactive_file,
+    { &_pm_proc_vmstat.nr_inactive_file,
     {PMDA_PMID(28,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_isolated_anon */
-    { &proc_vmstat.nr_isolated_anon,
+    { &_pm_proc_vmstat.nr_isolated_anon,
     {PMDA_PMID(28,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_isolated_file */
-    { &proc_vmstat.nr_isolated_file,
+    { &_pm_proc_vmstat.nr_isolated_file,
     {PMDA_PMID(28,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_kernel_stack */
-    { &proc_vmstat.nr_kernel_stack,
+    { &_pm_proc_vmstat.nr_kernel_stack,
     {PMDA_PMID(28,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_mlock */
-    { &proc_vmstat.nr_mlock,
+    { &_pm_proc_vmstat.nr_mlock,
     {PMDA_PMID(28,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_shmem */
-    { &proc_vmstat.nr_shmem,
+    { &_pm_proc_vmstat.nr_shmem,
     {PMDA_PMID(28,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_unevictable */
-    { &proc_vmstat.nr_unevictable,
+    { &_pm_proc_vmstat.nr_unevictable,
     {PMDA_PMID(28,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_writeback_temp */
-    { &proc_vmstat.nr_writeback_temp,
+    { &_pm_proc_vmstat.nr_writeback_temp,
     {PMDA_PMID(28,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_blocks_moved */
-    { &proc_vmstat.compact_blocks_moved,
+    { &_pm_proc_vmstat.compact_blocks_moved,
     {PMDA_PMID(28,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_fail */
-    { &proc_vmstat.compact_fail,
+    { &_pm_proc_vmstat.compact_fail,
     {PMDA_PMID(28,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_pagemigrate_failed */
-    { &proc_vmstat.compact_pagemigrate_failed,
+    { &_pm_proc_vmstat.compact_pagemigrate_failed,
     {PMDA_PMID(28,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_pages_moved */
-    { &proc_vmstat.compact_pages_moved,
+    { &_pm_proc_vmstat.compact_pages_moved,
     {PMDA_PMID(28,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_stall */
-    { &proc_vmstat.compact_stall,
+    { &_pm_proc_vmstat.compact_stall,
     {PMDA_PMID(28,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.compact_success */
-    { &proc_vmstat.compact_success,
+    { &_pm_proc_vmstat.compact_success,
     {PMDA_PMID(28,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_dma32 */
-    { &proc_vmstat.pgalloc_dma32,
+    { &_pm_proc_vmstat.pgalloc_dma32,
     {PMDA_PMID(28,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgalloc_movable */
-    { &proc_vmstat.pgalloc_movable,
+    { &_pm_proc_vmstat.pgalloc_movable,
     {PMDA_PMID(28,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_dma32 */
-    { &proc_vmstat.pgrefill_dma32,
+    { &_pm_proc_vmstat.pgrefill_dma32,
     {PMDA_PMID(28,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgrefill_movable */
-    { &proc_vmstat.pgrefill_movable,
+    { &_pm_proc_vmstat.pgrefill_movable,
     {PMDA_PMID(28,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_dma32 */
-    { &proc_vmstat.pgscan_direct_dma32,
+    { &_pm_proc_vmstat.pgscan_direct_dma32,
     {PMDA_PMID(28,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_direct_movable */
-    { &proc_vmstat.pgscan_direct_movable,
+    { &_pm_proc_vmstat.pgscan_direct_movable,
     {PMDA_PMID(28,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_dma32 */
-    { &proc_vmstat.pgscan_kswapd_dma32,
+    { &_pm_proc_vmstat.pgscan_kswapd_dma32,
     {PMDA_PMID(28,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgscan_kswapd_movable */
-    { &proc_vmstat.pgscan_kswapd_movable,
+    { &_pm_proc_vmstat.pgscan_kswapd_movable,
     {PMDA_PMID(28,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_dma32 */
-    { &proc_vmstat.pgsteal_dma32,
+    { &_pm_proc_vmstat.pgsteal_dma32,
     {PMDA_PMID(28,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.pgsteal_movable */
-    { &proc_vmstat.pgsteal_movable,
+    { &_pm_proc_vmstat.pgsteal_movable,
     {PMDA_PMID(28,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_fault_alloc */
-    { &proc_vmstat.thp_fault_alloc,
+    { &_pm_proc_vmstat.thp_fault_alloc,
     {PMDA_PMID(28,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_fault_fallback */
-    { &proc_vmstat.thp_fault_fallback,
+    { &_pm_proc_vmstat.thp_fault_fallback,
     {PMDA_PMID(28,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_collapse_alloc */
-    { &proc_vmstat.thp_collapse_alloc,
+    { &_pm_proc_vmstat.thp_collapse_alloc,
     {PMDA_PMID(28,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_collapse_alloc_failed */
-    { &proc_vmstat.thp_collapse_alloc_failed,
+    { &_pm_proc_vmstat.thp_collapse_alloc_failed,
     {PMDA_PMID(28,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.thp_split */
-    { &proc_vmstat.thp_split,
+    { &_pm_proc_vmstat.thp_split,
     {PMDA_PMID(28,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_cleared */
-    { &proc_vmstat.unevictable_pgs_cleared,
+    { &_pm_proc_vmstat.unevictable_pgs_cleared,
     {PMDA_PMID(28,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_culled */
-    { &proc_vmstat.unevictable_pgs_culled,
+    { &_pm_proc_vmstat.unevictable_pgs_culled,
     {PMDA_PMID(28,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_mlocked */
-    { &proc_vmstat.unevictable_pgs_mlocked,
+    { &_pm_proc_vmstat.unevictable_pgs_mlocked,
     {PMDA_PMID(28,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_mlockfreed */
-    { &proc_vmstat.unevictable_pgs_mlockfreed,
+    { &_pm_proc_vmstat.unevictable_pgs_mlockfreed,
     {PMDA_PMID(28,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_munlocked */
-    { &proc_vmstat.unevictable_pgs_munlocked,
+    { &_pm_proc_vmstat.unevictable_pgs_munlocked,
     {PMDA_PMID(28,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_rescued */
-    { &proc_vmstat.unevictable_pgs_rescued,
+    { &_pm_proc_vmstat.unevictable_pgs_rescued,
     {PMDA_PMID(28,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_scanned */
-    { &proc_vmstat.unevictable_pgs_scanned,
+    { &_pm_proc_vmstat.unevictable_pgs_scanned,
     {PMDA_PMID(28,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.unevictable_pgs_stranded */
-    { &proc_vmstat.unevictable_pgs_stranded,
+    { &_pm_proc_vmstat.unevictable_pgs_stranded,
     {PMDA_PMID(28,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.zone_reclaim_failed */
-    { &proc_vmstat.zone_reclaim_failed,
+    { &_pm_proc_vmstat.zone_reclaim_failed,
     {PMDA_PMID(28,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_low_wmark_hit_quickly */
-    { &proc_vmstat.kswapd_low_wmark_hit_quickly,
+    { &_pm_proc_vmstat.kswapd_low_wmark_hit_quickly,
     {PMDA_PMID(28,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_high_wmark_hit_quickly */
-    { &proc_vmstat.kswapd_high_wmark_hit_quickly,
+    { &_pm_proc_vmstat.kswapd_high_wmark_hit_quickly,
     {PMDA_PMID(28,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.kswapd_skip_congestion_wait */
-    { &proc_vmstat.kswapd_skip_congestion_wait,
+    { &_pm_proc_vmstat.kswapd_skip_congestion_wait,
     {PMDA_PMID(28,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_anon_transparent_hugepages */
-    { &proc_vmstat.nr_anon_transparent_hugepages,
+    { &_pm_proc_vmstat.nr_anon_transparent_hugepages,
     {PMDA_PMID(28,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirtied */
-    { &proc_vmstat.nr_dirtied,
+    { &_pm_proc_vmstat.nr_dirtied,
     {PMDA_PMID(28,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirty_background_threshold */
-    { &proc_vmstat.nr_dirty_background_threshold,
+    { &_pm_proc_vmstat.nr_dirty_background_threshold,
     {PMDA_PMID(28,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_dirty_threshold */
-    { &proc_vmstat.nr_dirty_threshold,
+    { &_pm_proc_vmstat.nr_dirty_threshold,
     {PMDA_PMID(28,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.nr_written */
-    { &proc_vmstat.nr_written,
+    { &_pm_proc_vmstat.nr_written,
     {PMDA_PMID(28,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_foreign */
-    { &proc_vmstat.numa_foreign,
+    { &_pm_proc_vmstat.numa_foreign,
     {PMDA_PMID(28,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_hit */
-    { &proc_vmstat.numa_hit,
+    { &_pm_proc_vmstat.numa_hit,
     {PMDA_PMID(28,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_interleave */
-    { &proc_vmstat.numa_interleave,
+    { &_pm_proc_vmstat.numa_interleave,
     {PMDA_PMID(28,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_local */
-    { &proc_vmstat.numa_local,
+    { &_pm_proc_vmstat.numa_local,
     {PMDA_PMID(28,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_miss */
-    { &proc_vmstat.numa_miss,
+    { &_pm_proc_vmstat.numa_miss,
     {PMDA_PMID(28,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* mem.vmstat.numa_other */
-    { &proc_vmstat.numa_other,
+    { &_pm_proc_vmstat.numa_other,
     {PMDA_PMID(28,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
@@ -3857,7 +3882,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     	uname(&kernel_uname);
 
     if (need_refresh[CLUSTER_NET_SNMP])
-	refresh_proc_net_snmp(&proc_net_snmp);
+	refresh_proc_net_snmp(&_pm_proc_net_snmp);
 
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(&proc_scsi);
@@ -3890,7 +3915,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     	refresh_proc_sys_fs(&proc_sys_fs);
 
     if (need_refresh[CLUSTER_VMSTAT])
-    	refresh_proc_vmstat(&proc_vmstat);
+    	refresh_proc_vmstat(&_pm_proc_vmstat);
 
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
@@ -3950,6 +3975,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case SLAB_INDOM:
     	need_refresh[CLUSTER_SLAB]++;
 	break;
+    case ICMPMSG_INDOM:
+    	need_refresh[CLUSTER_NET_SNMP]++;
+	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -3980,8 +4008,27 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
          * metrictab slot.
 	 */
 	if (idp->cluster == CLUSTER_VMSTAT) {
-	    if (!_pm_have_proc_vmstat || *(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
+	    if (!(_pm_have_proc_vmstat) ||
+		*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 	    	return 0; /* no value available on this kernel */
+	}
+	else
+	if (idp->cluster == CLUSTER_NET_SNMP) {
+	    __uint64_t value;
+
+	    /* network.icmpmsg has an indom - deal with it now */
+	    if (idp->item == 88 || idp->item == 89) {
+		if (inst > NR_ICMPMSG_COUNTERS)
+		    return PM_ERR_INST;
+		value = *((__uint64_t *)mdesc->m_user + inst);
+		if (value == (__uint64_t)-1)
+		    return 0;	/* no value for this instance */
+		atom->ull = value;
+		return 1;
+	    }
+	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
+		if (idp->item != 53)	/* tcp.maxconn is special */
+		    return 0; /* no value available on this kernel */
 	}
 	else
 	if (idp->cluster == CLUSTER_NET_NFS) {
@@ -4131,13 +4178,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 8: /* pagesin */
 	    if (_pm_have_proc_vmstat)
-		atom->ul = proc_vmstat.pswpin;
+		atom->ul = _pm_proc_vmstat.pswpin;
 	    else
 		atom->ul = proc_stat.swap[0];
 	    break;
 	case 9: /* pagesout */
 	    if (_pm_have_proc_vmstat)
-		atom->ul = proc_vmstat.pswpout;
+		atom->ul = _pm_proc_vmstat.pswpout;
 	    else
 		atom->ul = proc_stat.swap[1];
 	    break;
@@ -4701,7 +4748,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -oserror();
+		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -4764,7 +4811,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sbuf = &fs->stats;
 	    if (!(fs->flags & FSF_FETCHED)) {
 		if (statfs(fs->path, sbuf) < 0)
-		    return -oserror();
+		    return PM_ERR_INST;
 		fs->flags |= FSF_FETCHED;
 	    }
 
@@ -5551,7 +5598,7 @@ procfs_zero(const char *filename, pmValueSet *vsp)
 
     fp = fopen(filename, "w");
     if (!fp) {
-	sts = -oserror();
+	sts = PM_ERR_PERMISSION;
     } else {
 	fprintf(fp, "%d\n", value);
 	fclose(fp);
@@ -5573,8 +5620,8 @@ linux_store(pmResult *result, pmdaExt *pmda)
 
 	if (pmidp->cluster == CLUSTER_XFS && pmidp->item == 79) {
 	    sts = procfs_zero("/proc/sys/fs/xfs/stats_clear", vsp);
-	} 
-	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == IB_COUNTERS_ALL + 1) {
+	}
+	else if (pmidp->cluster == CLUSTER_IB && pmidp->item == 21) {
 	    /* deprecated: code preserved so suitable error can be returned */
 	    sts = PM_ERR_APPVERSION;
 	} 

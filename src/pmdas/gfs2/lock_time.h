@@ -33,18 +33,19 @@ enum {
 };
 
 enum {
-    TYPENUMBER_TRANS = 1,
-    TYPENUMBER_INODE = 2,
-    TYPENUMBER_RGRP = 3,
-    TYPENUMBER_META = 4,
-    TYPENUMBER_IOPEN = 5,
-    TYPENUMBER_FLOCK = 6,
-    TYPENUMBER_RESERVED = 7,
-    TYPENUMBER_QUOTA = 8,
-    TYPENUMBER_JOURNAL = 9,
+    LOCKTIME_TRANS = 1,
+    LOCKTIME_INODE = 2,
+    LOCKTIME_RGRP = 3,
+    LOCKTIME_META = 4,
+    LOCKTIME_IOPEN = 5,
+    LOCKTIME_FLOCK = 6,
+    LOCKTIME_RESERVED = 7,
+    LOCKTIME_QUOTA = 8,
+    LOCKTIME_JOURNAL = 9,
 };
 
 struct lock_time {
+    dev_t dev_id; 
     __uint32_t lock_type;    /* Glock type number */
     __uint64_t number;       /* Inode or resource group number */
     __int64_t srtt;          /* Non blocking smoothed round trip time */
@@ -57,7 +58,9 @@ struct lock_time {
     __int64_t queue;         /* Count of gfs2_holder queues */
 };
 
-extern int gfs2_locktime_fetch(int, struct lock_time *, pmAtomValue *);
+#define COUNT_THRESHOLD 25
+
+extern int gfs2_lock_time_fetch(int, struct lock_time *, pmAtomValue *);
 extern int gfs2_refresh_lock_time(pmInDom, pmInDom);
 
 #endif /* LOCK_TIME_H */

@@ -155,7 +155,7 @@ fi
 #      *.2222               *.*                0      0 128000      0 LISTEN
 #
 
-$sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
+$sudo $signal -a pmgadgets pmchart pmview pmie >/dev/null 2>&1
 src/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
 pid=$!
 echo "pmdashutdown pid: $pid" >$seq.full
