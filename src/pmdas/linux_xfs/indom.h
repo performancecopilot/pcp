@@ -1,7 +1,6 @@
 /*
+ * Copyright (c) 2013 Red Hat, Inc. All Rights Reserved.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2010 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat, Inc. All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,19 +18,17 @@
 
 /*
  * indom serial numbers ... to manage the indom migration after the
- * linux -> linux + proc PMDAs split, these need to match the enum
+ * linux -> linux + xfs PMDAs split, these need to match the enum
  * assigned values for *_INDOM from the linux PMDA. Consequently,
- * the proc indom table is sparse.
+ * the xfs indom table is sparse.
  */
-#define CPU_INDOM		 0 /* 0 - percpu */
-#define PROC_INDOM		 9 /* - processes */
-#define CGROUP_SUBSYS_INDOM	20 /* - control group subsystems */
-#define CGROUP_MOUNTS_INDOM	21 /* - control group mounts */
+#define FILESYS_INDOM		5  /* mounted bdev filesystems */
+#define QUOTA_PRJ_INDOM		16 /* - project quota */
 
-#define MIN_INDOM  0		/* first indom number we use here */
-#define NUM_INDOMS 22		/* one more than highest indom number we use here */
+#define MIN_INDOM 		5  /* first indom number we use here */
+#define NUM_INDOMS		17 /* one more than highest indom number used */
 
-#define INDOM(x) (proc_indomtab[x].it_indom)
-extern pmdaIndom proc_indomtab[];
+#define INDOM(x) (xfs_indomtab[x].it_indom)
+extern pmdaIndom xfs_indomtab[];
 
 #endif /* _INDOM_H */

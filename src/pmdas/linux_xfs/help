@@ -1,0 +1,469 @@
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Linux XFS PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ xfs.allocs.alloc_extent XFS extents allocated
+Number of file system extents allocated over all XFS filesystems
+@ xfs.allocs.alloc_block XFS blocks allocated
+Number of file system blocks allocated over all XFS filesystems
+@ xfs.allocs.free_extent XFS extents freed
+Number of file system extents freed over all XFS filesystems
+@ xfs.allocs.free_block XFS blocks freed
+Number of file system blocks freed over all XFS filesystems
+
+@ xfs.alloc_btree.lookup lookups in XFS alloc btrees
+Number of lookup operations in XFS filesystem allocation btrees
+@ xfs.alloc_btree.compare compares in XFS alloc btrees
+Number of compares in XFS filesystem allocation btree lookups
+@ xfs.alloc_btree.insrec insertions in XFS alloc btrees
+Number of extent records inserted into XFS filesystem allocation btrees
+@ xfs.alloc_btree.delrec deletions in XFS alloc btrees
+Number of extent records deleted from XFS filesystem allocation btrees
+
+@ xfs.block_map.read_ops block map read ops in XFS
+Number of block map for read operations performed on XFS files
+@ xfs.block_map.write_ops block map write ops in XFS
+Number of block map for write operations performed on XFS files
+@ xfs.block_map.unmap block unmap ops in XFS
+Number of block unmap (delete) operations performed on XFS files
+@ xfs.block_map.add_exlist extent list add ops in XFS
+Number of extent list insertion operations for XFS files
+@ xfs.block_map.del_exlist extent list delete ops in XFS
+Number of extent list deletion operations for XFS files
+@ xfs.block_map.look_exlist extent list lookup ops in XFS
+Number of extent list lookup operations for XFS files
+@ xfs.block_map.cmp_exlist extent list compare ops in XFS
+Number of extent list comparisons in XFS extent list lookups
+
+@ xfs.bmap_btree.lookup block map btree lookup ops in XFS
+Number of block map btree lookup operations on XFS files
+@ xfs.bmap_btree.compare block map btree compare ops in XFS
+Number of block map btree compare operations in XFS block map lookups
+@ xfs.bmap_btree.insrec block map btree insert ops in XFS
+Number of block map btree records inserted for XFS files
+@ xfs.bmap_btree.delrec block map btree delete ops in XFS
+Number of block map btree records deleted for XFS files
+
+@ xfs.dir_ops.lookup number of file name directory lookups
+This is a count of the number of file name directory lookups in XFS
+filesystems. It counts only those lookups which miss in the operating
+system's directory name lookup cache and must search the real directory
+structure for the name in question.  The count is incremented once for
+each level of a pathname search that results in a directory lookup.
+
+@ xfs.dir_ops.create number of directory entry creation operations
+This is the number of times a new directory entry was created in XFS
+filesystems. Each time that a new file, directory, link, symbolic link,
+or special file is created in the directory hierarchy the count is
+incremented.
+
+@ xfs.dir_ops.remove number of directory entry remove operations
+This is the number of times an existing directory entry was removed in
+XFS filesystems. Each time that a file, directory, link, symbolic link,
+or special file is removed from the directory hierarchy the count is
+incremented.
+
+@ xfs.dir_ops.getdents number of times the getdents operation is performed
+This is the number of times the XFS directory getdents operation was
+performed. The getdents operation is used by programs to read the
+contents of directories in a file system independent fashion.  This
+count corresponds exactly to the number of times the getdents(2) system
+call was successfully used on an XFS directory.
+
+@ xfs.transactions.sync number of synchronous meta-data transactions performed
+This is the number of meta-data transactions which waited to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are slower and more
+expensive than asynchronous transactions, because they force the in
+memory log buffers to be forced to disk more often and they wait for
+the completion of the log buffer writes.
+
+@ xfs.transactions.async number of asynchronous meta-data transactions performed
+This is the number of meta-data transactions which did not wait to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are faster and more
+efficient than synchronous transactions, because they commit their data
+to the in memory log buffers without forcing those buffers to be
+written to disk. This allows multiple asynchronous transactions to be
+committed to disk in a single log buffer write. Most transactions used
+in XFS file systems are asynchronous.
+
+@ xfs.transactions.empty number of meta-data transactions which committed without changing anything
+This is the number of meta-data transactions which did not actually
+change anything. These are transactions which were started for some
+purpose, but in the end it turned out that no change was necessary.
+
+@ xfs.inode_ops.ig_attempts number of in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache. Whether the inode was found in the cache or
+needed to be read in from the disk is not indicated here, but this can
+be computed from the ig_found and ig_missed counts.
+
+@ xfs.inode_ops.ig_found number of successful in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found it. The closer this count is to the
+ig_attempts count the better the inode cache is performing.
+
+@ xfs.inode_ops.ig_frecycle number of just missed in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and saw that it was there but was unable to
+use the in memory inode because it was being recycled by another
+process.
+
+@ xfs.inode_ops.ig_missed number of failed in memory inode lookup operations
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and the inode was not there. The further this
+count is from the ig_attempts count the better.
+
+@ xfs.inode_ops.ig_dup number of inode cache insertions that fail because the inode is there
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found that it was not there but upon
+attempting to add the inode to the cache found that another process had
+already inserted it.
+
+@ xfs.inode_ops.ig_reclaims number of in memory inode recycle operations
+This is the number of times the operating system recycled an XFS inode
+from the inode cache in order to use the memory for that inode for
+another purpose. Inodes are recycled in order to keep the inode cache
+from growing without bound. If the reclaim rate is high it may be
+beneficial to raise the vnode_free_ratio kernel tunable variable to
+increase the size of inode cache.
+
+@ xfs.inode_ops.ig_attrchg number of inode attribute change operations
+This is the number of times the operating system explicitly changed the
+attributes of an XFS inode. For example, this could be to change the
+inode's owner, the inode's size, or the inode's timestamps.
+
+@ xfs.log.writes number of buffer writes going to the disk from the log
+This variable counts the number of log buffer writes going to the
+physical log partitions of all XFS filesystems. Log data traffic is
+proportional to the level of meta-data updating. Log buffer writes get
+generated when they fill up or external syncs occur.
+
+@ xfs.log.blocks write throughput to the physical XFS log
+This variable counts the number of Kbytes of information being written
+to the physical log partitions of all XFS filesystems. Log data traffic
+is proportional to the level of meta-data updating. The rate with which
+log data gets written depends on the size of internal log buffers and
+disk write speed. Therefore, filesystems with very high meta-data
+updating may need to stripe the log partition or put the log partition
+on a separate drive.
+
+@ xfs.log.write_ratio ratio of count of XFS log blocks written to log writes
+The ratio of log blocks written to log writes.  If block count isn't a
+"reasonable" multiple of writes, then many small log writes are being
+performed - this is suboptimal.  Perfection is 64.  Fine-grain control
+can be obtained when this metric is used in conjuntion with pmstore(1)
+and the xfs.control.reset metric.
+
+@ xfs.log.noiclogs count of failures for immediate get of buffered/internal
+This variable keeps track of times when a logged transaction can not
+get any log buffer space. When this occurs, all of the internal log
+buffers are busy flushing their data to the physical on-disk log.
+
+@ xfs.log.force value from xs_log_force field of struct xfsstats
+The number of times the in-core log is forced to disk.  It is
+equivalent to the number of successful calls to the function
+xfs_log_force().
+
+@ xfs.log.force_sleep value from xs_log_force_sleep field of struct xfsstats
+This metric is exported from the xs_log_force_sleep field of struct xfsstats
+
+@ xfs.log_tail.try_logspace value from xs_try_logspace field of struct xfsstats
+This metric is exported from the xs_try_logspace field of struct xfsstats
+
+@ xfs.log_tail.sleep_logspace value from xs_sleep_logspace field of struct xfsstats
+This metric is exported from the xs_sleep_logspace field of struct xfsstats
+
+@ xfs.log_tail.push_ail.pushes number of times the AIL tail is moved forward
+The number of times the tail of the AIL is moved forward.  It is
+equivalent to the number of successful calls to the function
+xfs_trans_push_ail().
+
+@ xfs.log_tail.push_ail.success value from xs_push_ail_success field of struct xfsstats
+@ xfs.log_tail.push_ail.pushbuf value from xs_push_ail_pushbuf field of struct xfsstats
+@ xfs.log_tail.push_ail.pinned value from xs_push_ail_pinned field of struct xfsstats
+@ xfs.log_tail.push_ail.locked value from xs_push_ail_locked field of struct xfsstats
+@ xfs.log_tail.push_ail.flushing value from xs_push_ail_flushing field of struct xfsstats
+@ xfs.log_tail.push_ail.restarts value from xs_push_ail_restarts field of struct xfsstats
+@ xfs.log_tail.push_ail.flush value from xs_push_ail_flush field of struct xfsstats
+
+@ xfs.xstrat.bytes number of bytes of data processed by the XFS daemons
+This is the number of bytes of file data flushed out by the XFS
+flushing daemons.
+
+@ xfs.xstrat.quick number of buffers processed by the XFS daemons written to contiguous space on disk
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to contiguous space on disk. The buffers handled by
+the XFS daemons are delayed allocation buffers, so this count gives an
+indication of the success of the XFS daemons in allocating contiguous
+disk space for the data being flushed to disk.
+
+@ xfs.xstrat.split number of buffers processed by the XFS daemons written to non-contiguous space on disk
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to non-contiguous space on disk. The buffers handled
+by the XFS daemons are delayed allocation buffers, so this count gives
+an indication of the failure of the XFS daemons in allocating
+contiguous disk space for the data being flushed to disk. Large values
+in this counter indicate that the file system has become fragmented.
+
+@ xfs.write number of XFS file system write operations
+This is the number of write(2) system calls made to files in
+XFS file systems.
+
+@ xfs.write_bytes number of bytes written in XFS file system write operations
+This is the number of bytes written via write(2) system calls to files
+in XFS file systems. It can be used in conjunction with the write_calls
+count to calculate the average size of the write operations to files in
+XFS file systems.
+
+@ xfs.read number of XFS file system read operations
+This is the number of read(2) system calls made to files in XFS file
+systems.
+
+@ xfs.read_bytes number of bytes read in XFS file system read operations
+This is the number of bytes read via read(2) system calls to files in
+XFS file systems. It can be used in conjunction with the read_calls
+count to calculate the average size of the read operations to files in
+XFS file systems.
+
+@ xfs.attr.get number of "get" operations on XFS extended file attributes
+The number of "get" operations performed on extended file attributes
+within XFS filesystems.  The "get" operation retrieves the value of an
+extended attribute.
+
+@ xfs.attr.set number of "set" operations on XFS extended file attributes
+The number of "set" operations performed on extended file attributes
+within XFS filesystems.  The "set" operation creates and sets the value
+of an extended attribute.
+
+@ xfs.attr.remove number of "remove" operations on XFS extended file attributes
+The number of "remove" operations performed on extended file attributes
+within XFS filesystems.  The "remove" operation deletes an extended
+attribute.
+
+@ xfs.attr.list number of "list" operations on XFS extended file attributes
+The number of "list" operations performed on extended file attributes
+within XFS filesystems.  The "list" operation retrieves the set of
+extended attributes associated with a file.
+
+@ xfs.quota.reclaims value from xs_qm_dqreclaims field of struct xfsstats
+@ xfs.quota.reclaim_misses value from xs_qm_dqreclaim_misses field of struct xfsstats
+@ xfs.quota.dquot_dups value from xs_qm_dquot_dups field of struct xfsstats
+@ xfs.quota.cachemisses value from xs_qm_dqcachemisses field of struct xfsstats
+@ xfs.quota.cachehits value from xs_qm_dqcachehits field of struct xfsstats
+@ xfs.quota.wants value from xs_qm_dqwants field of struct xfsstats
+@ xfs.quota.shake_reclaims value from xs_qm_dqshake_reclaims field of struct xfsstats
+@ xfs.quota.inact_reclaims value from xs_qm_dqinact_reclaims field of struct xfsstats
+
+@ xfs.iflush_count the number of calls to xfs_iflush
+This is the number of calls to xfs_iflush which gets called when an
+inode is being flushed (such as by bdflush or tail pushing).
+xfs_iflush searches for other inodes in the same cluster which are
+dirty and flushable.
+
+@ xfs.icluster_flushcnt value from xs_icluster_flushcnt field of struct xfsstats
+
+@ xfs.icluster_flushinode number of flushes of only one inode in cluster
+This is the number of times that the inode clustering was not able to
+flush anything but the one inode it was called with.
+
+@ xfs.buffer.get number of request buffer calls
+@ xfs.buffer.create number of buffers created
+@ xfs.buffer.get_locked number of requests for a locked buffer which succeeded
+@ xfs.buffer.get_locked_waited number of requests for a locked buffer which waited
+@ xfs.buffer.miss_locked number of requests for a locked buffer which failed due to no buffer
+@ xfs.buffer.busy_locked number of non-blocking requests for a locked buffer which failed
+@ xfs.buffer.page_retries number of retry attempts when allocating a page for insertion in a buffer
+@ xfs.buffer.page_found number of hits in the page cache when looking for a page
+@ xfs.buffer.get_read number of buffer get calls requiring immediate device reads
+@ xfs.vnodes.active number of vnodes not on free lists
+@ xfs.vnodes.alloc number of times vn_alloc called
+@ xfs.vnodes.get number of times vn_get called
+@ xfs.vnodes.hold number of times vn_hold called
+@ xfs.vnodes.rele number of times vn_rele called
+@ xfs.vnodes.reclaim number of times vn_reclaim called
+@ xfs.vnodes.remove number of times vn_remove called
+@ xfs.vnodes.free number of times vn_free called
+@ xfs.control.reset reset the values of all XFS metrics to zero
+
+@ quota.state.project.accounting 1 indicates quota accounting enabled, else 0
+@ quota.state.project.enforcement 1 indicates quotas enforced, else 0
+@ quota.project.space.hard hard limit for this project and filesys in Kbytes
+@ quota.project.space.soft soft limit for this project and filesys in Kbytes
+@ quota.project.space.used space used for this project and filesys in Kbytes
+@ quota.project.space.time_left when soft limit is exceeded, seconds until it is enacted
+@ quota.project.files.hard file count hard limit for this project and filesys
+@ quota.project.files.soft file count soft limit for this project and filesys
+@ quota.project.files.used file count for this project and filesys
+@ quota.project.files.time_left when soft limit is exceeded, seconds until it is enacted
+
+@ xfs.btree.alloc_blocks.lookup
+Number of free-space-by-block-number btree record lookups
+@ xfs.btree.alloc_blocks.compare
+Number of free-space-by-block-number btree record compares
+@ xfs.btree.alloc_blocks.insrec
+Number of free-space-by-block-number btree insert record operations executed
+@ xfs.btree.alloc_blocks.delrec
+Number of free-space-by-block-number btree delete record operations executed
+@ xfs.btree.alloc_blocks.newroot
+Number of times a new level is added to a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.killroot
+Number of times a level is removed from a free-space-by-block-number btree
+@ xfs.btree.alloc_blocks.increment
+Number of times a cursor has been moved forward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.decrement
+Number of times a cursor has been moved backward one free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.lshift
+Left shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.rshift
+Right shift block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.split
+Split block operations to make space for a new free-space-by-block-number
+btree record
+@ xfs.btree.alloc_blocks.join
+Merge block operations when deleting free-space-by-block-number btree records
+@ xfs.btree.alloc_blocks.alloc
+Btree block allocations during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.free
+Btree blocks freed during free-space-by-block-number btree operations
+@ xfs.btree.alloc_blocks.moves
+Records moved inside blocks during free-space-by-block-number btree operations
+
+@ xfs.btree.alloc_contig.lookup
+Number of free-space-by-size btree record lookups
+@ xfs.btree.alloc_contig.compare
+Number of free-space-by-size btree btree record compares
+@ xfs.btree.alloc_contig.insrec
+Number of free-space-by-size btree insert record operations executed
+@ xfs.btree.alloc_contig.delrec
+Number of free-space-by-size btree delete record operations executed
+@ xfs.btree.alloc_contig.newroot
+Number of times a new level is added to a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.killroot
+Number of times a level is removed from a free-space-by-size btree tree
+@ xfs.btree.alloc_contig.increment
+Number of times a free-space-by-size btree cursor has been moved forward
+one record
+@ xfs.btree.alloc_contig.decrement
+Number of times a free-space-by-size btree cursor has been moved backward
+one record
+@ xfs.btree.alloc_contig.lshift
+Left shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.rshift
+Right shift block operations to make space for a new free-space-by-size
+btree record
+@ xfs.btree.alloc_contig.split
+Split block operations to make space for a new free-space-by-size btree
+record
+@ xfs.btree.alloc_contig.join
+Merge block operations when deleting free-space-by-size btree records
+@ xfs.btree.alloc_contig.alloc
+Btree block allocations during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.free
+Btree blocks freed during free-space-by-size btree operations
+@ xfs.btree.alloc_contig.moves
+Records moved inside blocks during free-space-by-size btree operations
+
+@ xfs.btree.block_map.lookup
+Number of inode-block-map/extent btree record lookups
+@ xfs.btree.block_map.compare
+Number of inode-block-map/extent btree record compares
+@ xfs.btree.block_map.insrec
+Number of inode-block-map/extent btree insert record operations executed
+@ xfs.btree.block_map.delrec
+Number of inode-block-map/extent btree delete record operations executed
+@ xfs.btree.block_map.newroot
+Number of times a new level is added to an inode-block-map/extent btree
+@ xfs.btree.block_map.killroot
+Number of times a level is removed from an inode-block-map/extent btree
+@ xfs.btree.block_map.increment
+Number of times an inode-block-map/extent btree cursor has been moved
+forward one record
+@ xfs.btree.block_map.decrement
+Number of times an inode-block-map/extent btree cursor has been moved
+backward one record
+@ xfs.btree.block_map.lshift
+Left shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.rshift
+Right shift block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.split
+Split block operations to make space for a new inode-block-map/extent
+btree record
+@ xfs.btree.block_map.join
+Merge block operations when deleting inode-block-map/extent btree records
+@ xfs.btree.block_map.alloc
+Btree block allocations during inode-block-map/extent btree operations
+@ xfs.btree.block_map.free
+Btree blocks freed during inode-block-map/extent btree operations
+@ xfs.btree.block_map.moves
+Records moved inside blocks during inode-block-map/extent btree operations
+
+@ xfs.btree.inode.lookup
+Number of inode-allocation btree record lookups
+@ xfs.btree.inode.compare
+Number of inode-allocation btree record compares
+@ xfs.btree.inode.insrec
+Number of inode-allocation btree insert record operations executed
+@ xfs.btree.inode.delrec
+Number of inode-allocation btree delete record operations executed
+@ xfs.btree.inode.newroot
+Number of times a new level is added to an inode-allocation btree
+@ xfs.btree.inode.killroot
+Number of times a level is removed from an inode-allocation btree
+@ xfs.btree.inode.increment
+Number of times a cursor has been moved forward one inode-allocation
+btree record
+@ xfs.btree.inode.decrement
+Number of times a cursor has been moved backward one inode-allocation
+btree record
+@ xfs.btree.inode.lshift
+Left shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.rshift
+Right shift block operations to make space for a new inode-allocation
+btree record
+@ xfs.btree.inode.split
+Split block operations to make space for a new inode-allocation btree record
+@ xfs.btree.inode.join
+Merge block operations when deleting inode-allocation btree records
+@ xfs.btree.inode.alloc
+Btree block allocations during inode-allocation btree operations
+@ xfs.btree.inode.free
+Btree blocks freed during inode-allocation btree operations
+@ xfs.btree.inode.moves
+Records moved inside blocks during inode-allocation btree operations
+

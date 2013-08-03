@@ -59,7 +59,7 @@ size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
  * The proc instance domain table is direct lookup and sparse.
  * It is initialized in proc_init(), see below.
  */
-pmdaIndom indomtab[NUM_INDOMS];
+pmdaIndom proc_indomtab[NUM_INDOMS];
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -801,11 +801,10 @@ static int
 proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			need_refresh[NUM_CLUSTERS];
+    int			need_refresh[NUM_CLUSTERS] = { 0 };
     char		newname[16];		/* see Note below */
     int			sts;
 
-    memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
     case CPU_INDOM:
 	/*
@@ -1386,12 +1385,11 @@ static int
 proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i, sts;
-    int		need_refresh[NUM_CLUSTERS];
+    int		need_refresh[NUM_CLUSTERS] = { 0 };
 
-    memset(need_refresh, 0, sizeof(need_refresh));
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS)
+	if (idp->cluster >= MIN_CLUSTER && idp->cluster < NUM_CLUSTERS)
 	    need_refresh[idp->cluster]++;
     }
 
@@ -1486,13 +1484,12 @@ proc_init(pmdaInterface *dp)
     /*
      * Initialize the instance domain table.
      */
-    memset(indomtab, 0, sizeof(indomtab));
-    indomtab[CPU_INDOM].it_indom = CPU_INDOM;
-    indomtab[PROC_INDOM].it_indom = PROC_INDOM;
-    indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
-    indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
+    proc_indomtab[CPU_INDOM].it_indom = CPU_INDOM;
+    proc_indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    proc_indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
+    proc_indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
-    proc_pid.indom = &indomtab[PROC_INDOM];
+    proc_pid.indom = &proc_indomtab[PROC_INDOM];
  
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel
@@ -1504,8 +1501,8 @@ proc_init(pmdaInterface *dp)
     cgroup_init();
     proc_ctx_init();
 
-    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), proc_metrictab,
-             sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
+    pmdaInit(dp, proc_indomtab, sizeof(proc_indomtab)/sizeof(proc_indomtab[0]),
+	     proc_metrictab, sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
 
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);
