@@ -565,7 +565,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
 * Wed Nov 28 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-2
-- Ensure tmpfile directories created in %files section.
+- Ensure tmpfile directories created in %%files section.
 - Resolve tmpfile create/teardown race conditions.
 
 * Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
@@ -612,7 +612,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources
 
 * Thu Mar 22 2012 Mark Goodwin - 3.6.0-1
-- use %configure macro for correct libdir logic
+- use %%configure macro for correct libdir logic
 - update to latest PCP sources
 
 * Thu Dec 15 2011 Mark Goodwin - 3.5.11-2
@@ -661,7 +661,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 
 * Wed Jan 27 2010 Mark Goodwin - 3.1.0-1
-- BuildRequires: initscripts for %{_vendor} == redhat.
+- BuildRequires: initscripts for %%{_vendor} == redhat.
 
 * Thu Dec 10 2009 Mark Goodwin - 3.0.3-1
 - BuildRequires: initscripts for FC12.
