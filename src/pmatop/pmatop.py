@@ -697,9 +697,8 @@ def main (stdscr_p):
                     # currently it just does "hit any key to continue"
                     char = stdscr.getch()
                 elif cmd == "h":
-                    stdscr.move (proc.command_line, 0)
-                    stdscr.clrtobot()
-                    stdscr.move (proc.command_line, 0)
+                    stdscr.clear ()
+                    stdscr.move (0, 0)
                     stdscr.addstr ('\nOptions shown for active processes:\n')
                     stdscr.addstr ( "'g'  - generic info (default)\n")
                     stdscr.addstr ( "'m'  - memory details\n")
@@ -709,6 +708,7 @@ def main (stdscr_p):
                     stdscr.addstr ("hit any key to continue\n")
                     stdscr.timeout(-1)
                     char = stdscr.getch()
+                    stdscr.clear ()
                 elif cmd in subsys_cmds:
                     stdscr.clear()
                     proc.output_type = cmd
