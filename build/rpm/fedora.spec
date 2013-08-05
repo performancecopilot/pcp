@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.2
+Version: 3.8.3
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -530,6 +530,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Mon Aug 05 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
+- Currently under development.
+
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
 - Update to latest PCP sources.
 - Integrate gluster related stats with PCP (BZ 969348)
