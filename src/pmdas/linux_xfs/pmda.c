@@ -27,10 +27,11 @@
 static proc_fs_xfs_t	proc_fs_xfs;
 static int		_isDSO = 1;	/* =0 I am a daemon */
 
-pmdaIndom xfs_indomtab[] = {
-    { FILESYS_INDOM, 0, NULL },
-    { QUOTA_PRJ_INDOM, 0, NULL },
-};
+/*
+ * The XFS instance domain table is direct lookup and sparse.
+ * It is initialized in xfs_init(), see below.
+ */
+pmdaIndom xfs_indomtab[NUM_INDOMS];
 
 pmdaMetric xfs_metrictab[] = {
 
@@ -708,7 +709,7 @@ xfs_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 
-    if (indomp->serial == QUOTA_PRJ_INDOM)
+    if (indomp->serial == FILESYS_INDOM || indomp->serial == QUOTA_PRJ_INDOM)
     	need_refresh[CLUSTER_QUOTA]++;
     xfs_refresh(pmda, need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -912,8 +913,13 @@ xfs_init(pmdaInterface *dp)
     dp->version.any.instance = xfs_instance;
     pmdaSetFetchCallBack(dp, xfs_fetchCallBack);
 
+    xfs_indomtab[FILESYS_INDOM].it_indom = FILESYS_INDOM;
+    xfs_indomtab[QUOTA_PRJ_INDOM].it_indom = QUOTA_PRJ_INDOM;
+
     pmdaInit(dp, xfs_indomtab, sizeof(xfs_indomtab)/sizeof(xfs_indomtab[0]),
 		xfs_metrictab, sizeof(xfs_metrictab)/sizeof(xfs_metrictab[0]));
+    pmdaCacheOp(INDOM(FILESYS_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(QUOTA_PRJ_INDOM), PMDA_CACHE_CULL);
 }
 
 static void
@@ -943,7 +949,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, XFS, "xfs.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, XFS, "xfs.log", helppath);
 
     while (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
 	err++;

@@ -250,6 +250,7 @@ pmdaIndom indomtab[] = {
     { IB_INDOM, 0, NULL }, /* deprecated */
     { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS, nfs4_cli_indom_id },
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
+    { QUOTA_PRJ_INDOM, 0, NULL },	/* migrated to the xfs PMDA */
     { NET_INET_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
     { NODE_INDOM, 0, NULL },

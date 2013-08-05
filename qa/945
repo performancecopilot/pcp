@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 945
+# Exercise log migration for the XFS from Linux PMDA split.
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+_notrun "Not yet ready, problems with the pmlogrewrite config"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
+
+# real QA test starts here
+cat >$tmp.config <<End-of-File
+metric 11.16.* { pmid -> 60.*.* }	# CLUSTER_XFS
+metric 11.17.* { pmid -> 60.*.* }	# CLUSTER_XFSBUF
+metric 11.30.* { pmid -> 60.*.* indom -> 60.* }	# CLUSTER_QUOTA
+End-of-File
+
+pmlogrewrite -c $tmp.config -w src/new_xfs $tmp.old
+
+pmlogrewrite -c $migrate -w $tmp.old $tmp.new
+
+pmdumplog -a $tmp.old >$tmp.old.dump
+pmdumplog -a $tmp.new >$tmp.new.dump
+pmdumplog -a src/new_xfs >$tmp.ref.dump
+
+echo "old -> new changes"
+diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
+
+echo
+echo "new -> ref changes ... expect none"
+diff -u $tmp.new.dump $tmp.ref.dump | sed -e '/^---/d' -e '/^+++/d'
+
+# success, all done
+status=0
+
+exit

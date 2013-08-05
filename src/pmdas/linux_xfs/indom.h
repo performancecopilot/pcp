@@ -22,8 +22,8 @@
  * assigned values for *_INDOM from the linux PMDA. Consequently,
  * the xfs indom table is sparse.
  */
-#define FILESYS_INDOM		5  /* mounted bdev filesystems */
-#define QUOTA_PRJ_INDOM		16 /* - project quota */
+#define FILESYS_INDOM		5  /* mounted filesystems */
+#define QUOTA_PRJ_INDOM		16 /* project quota */
 
 #define MIN_INDOM 		5  /* first indom number we use here */
 #define NUM_INDOMS		17 /* one more than highest indom number used */

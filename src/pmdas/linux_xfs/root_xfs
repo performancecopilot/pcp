@@ -33,7 +33,7 @@ xfs {
     log
     log_tail
     xstrat
-    write		60:16:51
+    write		XFS:16:51
     write_bytes		XFS:16:52
     read		XFS:16:53
     read_bytes		XFS:16:54
