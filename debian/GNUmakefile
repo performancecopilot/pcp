@@ -32,6 +32,10 @@ PCPIMPORTCOLLECTL = pcp-import-collectl2pcp
 PCPIMPORTCOLLECTL_FILES = pcp-import-collectl2pcp.install
 PCPIMPORTCOLLECTL_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-collectl2pcp
 
+PCPPMDAINFINIBAND = pcp-pmda-infiniband
+PCPPMDAINFINIBAND_FILES = pcp-pmda-infiniband.install
+PCPPMDAINFINIBAND_DOC_DIR = $(PCP_DOC_DIR)/../pcp-pmda-infiniband
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
@@ -91,7 +95,7 @@ LSRCFILES = changelog compat control copyright rules \
 	$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
 	$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
 	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES) \
-	$(PCPIMPORTCOLLECTL_FILES)
+	$(PCPIMPORTCOLLECTL_FILES) $(PCPPMDAINFINIBAND_FILES)
 
 default: pcp.preinst pcp.postinst
 
@@ -231,6 +235,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPIMPORTCOLLECTL_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTCOLLECTL_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTCOLLECTL_DOC_DIR)/changelog.Debian
+endif
+
+install-pcppmdainfiniband: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
 endif
 
 pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail

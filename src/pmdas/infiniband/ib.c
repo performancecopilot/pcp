@@ -13,23 +13,10 @@
  *
  * IB part of the PMDA - initialization, fetching etc.
  */
-#include <stdio.h>
-#include <limits.h>
-#include <errno.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <setjmp.h>
-#include <fcntl.h>
+#include "ibpmda.h"
 #include <infiniband/umad.h>
 #include <infiniband/mad.h>
-#include <syslog.h>
-
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
-
-#include "ibpmda.h"
+#include <ctype.h>
 
 #define IBPMDA_MAX_HCAS (16)
 
@@ -145,7 +132,7 @@ static int lcnt;
 
 #define print_parse_err(loglevel, fmt, args...) \
     if (fconf) { \
-	__pmNotifyErr(loglevel, "%s(%d): " fmt, fconf, lcnt, args); \
+	__pmNotifyErr(loglevel, "%s(%d): " fmt, confpath, lcnt, args); \
     } else { \
 	__pmNotifyErr(loglevel, fmt, args); \
     }
@@ -594,7 +581,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			__pmNotifyErr (LOG_ERR, 
 				       "Cannot resolve GUID 0x%llx for %s "
 				       "via  %s:%d\n", 
-					pst->guid, name, lp->ump->ca_name,
+					(unsigned long long)pst->guid,
+					name, lp->ump->ca_name,
 					lp->ump->portnum);
 			pst->portid.lid = -1;
 			return 0;

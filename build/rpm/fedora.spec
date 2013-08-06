@@ -225,6 +225,23 @@ Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
+# pcp-pmda-infiniband
+#
+%package pmda-infiniband
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= %{version}-%{release}
+Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+
+%description import-collectl2pcp
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting Infiniband statistics.  By default, it monitors the local HCAs
+but can also be configured to monitor remote GUIDs such as IB switches.
+
+#
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
@@ -485,10 +502,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 # PMDAs that ship src and are not for production use
 # straight out-of-the-box, for devel or QA use only.
-%{_localstatedir}/lib/pcp/pmdas/simple
-%{_localstatedir}/lib/pcp/pmdas/sample
-%{_localstatedir}/lib/pcp/pmdas/trivial
-%{_localstatedir}/lib/pcp/pmdas/txmon
+%{_pmdasdir}/simple
+%{_pmdasdir}/sample
+%{_pmdasdir}/trivial
+%{_pmdasdir}/txmon
 
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
@@ -514,6 +531,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
+%files pmda-infiniband
+%defattr(-,root,root)
+%{_pmdasdir}/ib
+%{_pmdasdir}/infiniband
+%{_mandir}/man1/pmdaib.1.gz
+
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
@@ -532,6 +555,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %changelog
 * Mon Aug 05 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
 - Currently under development.
+- Introduces new pcp-pmda-infiniband sub-package.
 
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
 - Update to latest PCP sources.

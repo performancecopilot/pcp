@@ -17,12 +17,10 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmdaib$(EXECSUFFIX)
-CFILES	= ib.c pmda.c daemon.c
-HFILES  = ib.h ibpmda.h
+CFILES	= ib.c pmda.c
+HFILES  = ibpmda.h
 
 LSRCFILES = help root pmns Install Remove 
-
-IB_LIBS = -libumad -libmad
 LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp
 
 IAM	= ib
@@ -30,14 +28,22 @@ DOMAIN  = IB
 PMDADIR = $(PCP_PMDAS_DIR)/infiniband
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
 
-default: $(CMDTARGET)
+default: build-me
 
 include $(BUILDRULES)
 
+ifneq "$(PMDA_INFINIBAND)" ""
+build-me: domain.h $(CMDTARGET)
+
 install: default
-	install -m 755 -d $(PMDADIR)
-	install -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
-	install -m 644 pmns root help domain.h $(PMDADIR)
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -S $(PMDADIR) $(PCP_PMDAS_DIR)/$(IAM)
+	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 pmns root help domain.h $(PMDADIR)
+else
+build-me:
+install:
+endif
 
 ib.o:	domain.h
 

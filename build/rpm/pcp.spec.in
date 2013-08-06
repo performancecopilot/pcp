@@ -58,7 +58,7 @@ Requires: initscripts
 #
 # override the default automatic requires/provides generation
 %define _use_internal_dependency_generator 0
-# remember the real find-requires path (%global avoids recursive %define
+# remember the real find-requires path (%%global avoids recursive %%define)
 # macros below
 %global __find_requires_save %{__find_requires}
 # slip our filter into place
@@ -272,6 +272,23 @@ Requires: pcp-libs = @package_version@
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
 
+#
+# pcp-pmda-infiniband
+#
+%package -n pcp-pmda-infiniband
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs = @package_version@
+Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+
+%description -n pcp-pmda-infiniband
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting Infiniband statistics.  By default, it monitors the local HCAs
+but can also be configured to monitor remote GUIDs such as IB switches.
+
 %prep
 %setup -q
 
@@ -340,15 +357,16 @@ WEBEOF
 %endif
 
 #
-# Files for the pcp-import subpackages. We use these sub-packages
+# Files for the pcp-import subpackages. We use these subpackages
 # to isolate the (somewhat exotic) dependencies for these tools
-# Likewise, for the pcp-testsuite subpackage.
+# Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 
 rm -f devel_files.rpm libs_files.rpm base_files.rpm testsuite_files.rpm import_*_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -356,6 +374,7 @@ BEGIN {
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
+    while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
@@ -367,6 +386,7 @@ BEGIN {
     if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
+    else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
@@ -524,6 +544,9 @@ fi
 
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
+
+%files pmda-infiniband -f pmda_infiniband_files.rpm
+%defattr(-,root,root)
 
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 %defattr(-,root,root)

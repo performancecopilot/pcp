@@ -1,4 +1,5 @@
 /* 
+ * Copyright (C) 2013 Red Hat.
  * Copyright (C) 2007,2008 Silicon Graphics, Inc. All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,8 +16,22 @@
 #ifndef _IBPMDA_H
 #define _IBPMDA_H
 
-#include "ib.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
 #include "domain.h"
+
+#ifdef HAVE_PORT_PERfORMANCE_QUERY_VIA
+#define port_perf_query(data, dst, port, timeout, srcport) \
+	port_performance_query_via(data, dst, port, timeout, srcport)
+#define port_perf_reset(data, dst, port, mask, timeout, srcport) \
+	port_performance_reset_via(data, dst, port, mask, timeout, srcport)
+#else
+#define port_perf_query(data, dst, port, timeout, srcport) \
+	pma_query_via(data, dst, port, timeout, IB_GSI_PORT_COUNTERS, srcport)
+#define port_perf_reset(data, dst, port, mask, timeout, srcport) \
+	performance_reset_via(data, dst, port, mask, timeout, IB_GSI_PORT_COUNTERS, srcport)
+#endif
 
 
 void ibpmda_init (const char *configpath, int, pmdaInterface *);

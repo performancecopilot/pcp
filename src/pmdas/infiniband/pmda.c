@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2013 Red Hat.
  * Copyright (C) 2007,2008 Silicon Graphics, Inc. All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,246 +13,235 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <limits.h>
-#include <errno.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
-
 #include "ibpmda.h"
 
 /*
  * Metric Table
  */
 pmdaMetric metrictab[] = {
-    /* ib.hca.type */
+    /* infiniband.hca.type */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_type),
 	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.ca_type */
+    /* infiniband.hca.ca_type */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_ca_type),
 	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.numports */
+    /* infiniband.hca.numports */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_numports),
 	 PM_TYPE_32, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.fw_ver */
+    /* infiniband.hca.fw_ver */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_fw_ver),
 	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.hw_ver */
+    /* infiniband.hca.hw_ver */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_hw_ver),
 	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.node_guid */
+    /* infiniband.hca.node_guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_node_guid),
 	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.hca.system_guid */
+    /* infiniband.hca.system_guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_system_guid),
 	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.guid */
+    /* infiniband.port.guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_guid),
 	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
          PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.gid_prefix */
+    /* infiniband.port.gid_prefix */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_gid_prefix),
 	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.lid */
+    /* infiniband.port.lid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_lid),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.state */
+    /* infiniband.port.state */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_state),
 	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.phystate */
+    /* infiniband.port.phystate */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_phystate),
 	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.rate */
+    /* infiniband.port.rate */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_rate),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.capabilities */
+    /* infiniband.port.capabilities */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_capabilities),
 	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.linkspeed */
+    /* infiniband.port.linkspeed */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_linkspeed),
 	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.linkwidth */
+    /* infiniband.port.linkwidth */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_linkwidth),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-    /* ib.port.in.bytes */
+    /* infiniband.port.in.bytes */
     { (void *)IBPMDA_RCV_BYTES,
 	{PMDA_PMID(1,METRIC_ib_port_in_bytes),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-    /* ib.port.in.packets */
+    /* infiniband.port.in.packets */
     { (void *)IBPMDA_RCV_PKTS,
 	{PMDA_PMID(1,METRIC_ib_port_in_packets),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) }, },
 
-    /* ib.port.in.errors.drop */
+    /* infiniband.port.in.errors.drop */
     { (void *)IBPMDA_ERR_SWITCH_REL,
 	{PMDA_PMID(1,METRIC_ib_port_in_errors_drop),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.in.errors.filter */
+    /* infiniband.port.in.errors.filter */
     { (void *)IBPMDA_ERR_RCVCONSTR,
 	{PMDA_PMID(1,METRIC_ib_port_in_errors_filter),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.in.errors.local */
+    /* infiniband.port.in.errors.local */
     { (void *)IBPMDA_ERR_RCV,
 	{PMDA_PMID(1,METRIC_ib_port_in_errors_local),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.in.errors.filter */
+    /* infiniband.port.in.errors.filter */
     { (void *)IBPMDA_ERR_PHYSRCV,
 	{PMDA_PMID(1,METRIC_ib_port_in_errors_remote),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.out.bytes */
+    /* infiniband.port.out.bytes */
     { (void *)IBPMDA_XMT_BYTES,
 	{PMDA_PMID(1,METRIC_ib_port_out_bytes),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-    /* ib.port.out.packets */
+    /* infiniband.port.out.packets */
     {(void *)IBPMDA_XMT_PKTS,
 	{PMDA_PMID(1,METRIC_ib_port_out_packets),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) }, },
 
-    /* ib.port.out.errors.drop */
+    /* infiniband.port.out.errors.drop */
     { (void *)IBPMDA_XMT_DISCARDS,
 	{PMDA_PMID(1,METRIC_ib_port_out_errors_drop),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.out.errors.filter */
+    /* infiniband.port.out.errors.filter */
     { (void *)IBPMDA_ERR_XMTCONSTR,
 	{PMDA_PMID(1,METRIC_ib_port_out_errors_filter),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.bytes */
+    /* infiniband.port.total.bytes */
     { (void *)-1,
 	{PMDA_PMID(1,METRIC_ib_port_total_bytes),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
-    /* ib.port.total.packets */
+    /* infiniband.port.total.packets */
     { (void *)-1,
 	{PMDA_PMID(1,METRIC_ib_port_total_packets),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.drop */
+    /* infiniband.port.total.errors.drop */
     { (void *)-1,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_drop),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.filter */
+    /* infiniband.port.total.errors.filter */
     { (void *)-1,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_filter),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.link */
+    /* infiniband.port.total.errors.link */
     { (void *)IBPMDA_LINK_DOWNED,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_link),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.recover */
+    /* infiniband.port.total.errors.recover */
     { (void *)IBPMDA_LINK_RECOVERS,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_recover),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.integrity */
+    /* infiniband.port.total.errors.integrity */
     { (void *)IBPMDA_ERR_LOCALINTEG,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_integrity),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.vl15 */
+    /* infiniband.port.total.errors.vl15 */
     { (void *)IBPMDA_VL15_DROPPED,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_vl15),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.overrun */
+    /* infiniband.port.total.errors.overrun */
     { (void *)IBPMDA_ERR_EXCESS_OVR,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_overrun),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.port.total.errors.symbol */
+    /* infiniband.port.total.errors.symbol */
     { (void *)IBPMDA_ERR_SYM,
 	{PMDA_PMID(1,METRIC_ib_port_total_errors_symbol),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 
-    /* ib.control.query_timeout */
+    /* infiniband.control.query_timeout */
     { NULL,
 	{PMDA_PMID(2,METRIC_ib_control_query_timeout),
 	 PM_TYPE_32, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) } },
 
-    /* ib.control.hiwat */
+    /* infiniband.control.hiwat */
     { NULL,
 	{PMDA_PMID(2,METRIC_ib_control_hiwat),
 	 PM_TYPE_U32, IB_CNT_INDOM, PM_SEM_DISCRETE, 
@@ -303,7 +293,7 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
          return;
 
     if (confpath == NULL) {
-	snprintf(defconf, sizeof(defconf), "%s%c" "ib" "%c" "config", 
+	snprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	confpath = defconf;
     }
@@ -330,4 +320,63 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, ib_fetch_val);
 
     pmdaInit(dp, indomtab, ARRAYSZ(indomtab), metrictab, ARRAYSZ(metrictab));
+}
+
+static void
+usage(void)
+{
+    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
+    fputs("Options:\n"
+          "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
+	  "  -l logfile write log into logfile rather than using default log name\n"
+	  "  -c path to configuration file\n"
+	  "  -w write the basic configuration file\n",
+          stderr);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    int err = 0;
+    int sep = __pmPathSeparator();
+    pmdaInterface dispatch;
+    char helppath[MAXPATHLEN];
+    char *confpath = NULL;
+    int opt;
+    int writeconf = 0;
+
+    __pmSetProgname(argv[0]);
+    snprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help", 
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, IB, "infiniband.log", helppath);
+
+    while ((opt = pmdaGetOpt(argc, argv, "D:c:d:l:w?", &dispatch, &err)) != EOF) {
+	switch (opt) {
+	case 'c':
+	    confpath = optarg;
+	    break;
+	case 'w':
+	    writeconf = 1;
+	    break;
+	default:
+	    err++;
+	}
+    }
+
+    if (err) {
+        usage();
+    }
+
+    if (!writeconf) {
+	/* If writeconf is specified, then errors should go to stdout
+	 * since the PMDA daemon will exit immediately after writing
+	 * out the default config file
+	 */
+	pmdaOpenLog(&dispatch);
+    }
+    ibpmda_init(confpath, writeconf, &dispatch);
+    pmdaConnect(&dispatch);
+    pmdaMain(&dispatch);
+    exit(0);
 }

@@ -688,6 +688,8 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
+PMDA_INFINIBAND
+IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
@@ -8222,6 +8224,154 @@ fi
 PMDA_SYSTEMD=$pmda_systemd
 
 
+have_infiniband=false
+for ac_header in infiniband/umad.h infiniband/mad.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+ have_infiniband=true
+fi
+
+done
+
+if test $have_infiniband
+then
+    IB_LIBS=""
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for madrpc_init in -libmad" >&5
+$as_echo_n "checking for madrpc_init in -libmad... " >&6; }
+if ${ac_cv_lib_ibmad_madrpc_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-libmad  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char madrpc_init ();
+int
+main ()
+{
+return madrpc_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ibmad_madrpc_init=yes
+else
+  ac_cv_lib_ibmad_madrpc_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ibmad_madrpc_init" >&5
+$as_echo "$ac_cv_lib_ibmad_madrpc_init" >&6; }
+if test "x$ac_cv_lib_ibmad_madrpc_init" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBIBMAD 1
+_ACEOF
+
+  LIBS="-libmad $LIBS"
+
+fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for umad_init in -libumad" >&5
+$as_echo_n "checking for umad_init in -libumad... " >&6; }
+if ${ac_cv_lib_ibumad_umad_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-libumad  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char umad_init ();
+int
+main ()
+{
+return umad_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ibumad_umad_init=yes
+else
+  ac_cv_lib_ibumad_umad_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ibumad_umad_init" >&5
+$as_echo "$ac_cv_lib_ibumad_umad_init" >&6; }
+if test "x$ac_cv_lib_ibumad_umad_init" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBIBUMAD 1
+_ACEOF
+
+  LIBS="-libumad $LIBS"
+
+fi
+
+    if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
+    then
+        IB_LIBS="-libmad -libumad"
+	savedLIBS=$LIBS
+	LIBS="$IB_LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OFED version (port_performance_query_via API)" >&5
+$as_echo_n "checking for OFED version (port_performance_query_via API)... " >&6; }
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char port_performance_query_via ();
+int
+main ()
+{
+return port_performance_query_via ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  $as_echo "#define HAVE_PORT_PERFORMANCE_QUERY_VIA 1" >>confdefs.h
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: OFED < 1.5" >&5
+$as_echo "OFED < 1.5" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: OFED >= 1.5" >&5
+$as_echo "OFED >= 1.5" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	LIBS=$savedLIBS
+    fi
+
+    PMDA_INFINIBAND=infiniband
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }

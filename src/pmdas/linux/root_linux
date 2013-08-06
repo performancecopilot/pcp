@@ -403,7 +403,6 @@ network {
     udp
     udplite
     tcpconn
-    ib
 }
 
 network.interface {
@@ -845,55 +844,6 @@ vfs.inodes {
 vfs.dentry {
     count		60:27:5
     free		60:27:6
-}
-
-network.ib {
-    status		60:29:20
-    control		60:29:21
-    in
-    out
-    total
-}
-
-network.ib.in {
-    bytes		60:29:0
-    packets		60:29:1
-    errors
-}
-
-network.ib.in.errors {
-    drop		60:29:2
-    filter		60:29:3
-    local		60:29:4
-    remote		60:29:5
-}
-
-network.ib.out {
-    bytes		60:29:6
-    packets		60:29:7
-    errors
-}
-
-network.ib.out.errors {
-    drop		60:29:8
-    filter		60:29:9
-}
-
-network.ib.total {
-    bytes               60:29:16
-    packets		60:29:17
-    errors
-}
-
-network.ib.total.errors {
-    drop		60:29:18
-    filter		60:29:19
-    link		60:29:10
-    recover		60:29:11
-    integrity		60:29:12
-    vl15		60:29:13
-    overrun		60:29:14
-    symbol		60:29:15
 }
 
 sysfs {

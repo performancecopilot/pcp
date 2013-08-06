@@ -900,6 +900,27 @@ PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
                              [ pmda_systemd=systemd ], [ pmda_systemd= ])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
+have_infiniband=false
+AC_CHECK_HEADERS(infiniband/umad.h infiniband/mad.h, [have_infiniband=true], [])
+if test $have_infiniband
+then
+    IB_LIBS=""
+    AC_CHECK_LIB(ibmad, madrpc_init)
+    AC_CHECK_LIB(ibumad, umad_init)
+    if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
+    then
+        IB_LIBS="-libmad -libumad"
+	savedLIBS=$LIBS
+	LIBS="$IB_LIBS"
+	AC_MSG_CHECKING([for OFED version (port_performance_query_via API)])
+	AC_TRY_LINK_FUNC(port_performance_query_via,
+                AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA) AC_MSG_RESULT(OFED < 1.5),
+                AC_MSG_RESULT(OFED >= 1.5))
+	LIBS=$savedLIBS
+    fi
+    AC_SUBST(IB_LIBS)
+    AC_SUBST(PMDA_INFINIBAND, infiniband)
+fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

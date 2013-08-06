@@ -12,30 +12,28 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.ds ia ib
-.ds IA IB
 .TH PMDAIB 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmda\*(ia\f1 \- \*(ia performance metrics domain agent (PMDA)
+\f3pmdaib\f1 \- Infiniband performance metrics domain agent (PMDA)
 .SH SYNOPSYS
-\f3$PCP_PMDAS_DIR/\*(ia/pmda\*(ia\f1
+\f3$PCP_PMDAS_DIR/infiniband/pmdaib\f1
 [\f3\-c\f1 \f2configFile\f1]
 [\f3\-D\f1 \f2debug\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-w\f1]
 .SH DESCRIPTION
-.B pmda\*(ia
+.B pmdaib
 is a Performance Metrics Domain Agent (PMDA) which exports information and
 performance metrics about local Infiniband HCAs and local or remote Infiniband GUIDs.
 .PP
 A brief description of the
-.B pmda\*(ia
+.B pmdaib
 command line options follows:
 .TP 5
 .B \-c
 Location of the config file.  By default, the config file is named
-.BR $PCP_PMDAS_DIR/\*(ia/config.
+.BR $PCP_PMDAS_DIR/infiniband/config.
 See
 .BR "CONFIG FILE"
 for more information.
@@ -51,7 +49,7 @@ number.  Almost never necessary.
 .TP
 .B \-l
 Location of the log file.  By default, a log file named
-.I \*(ia.log
+.I ib.log
 is written to
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot be created or is not writable, output
@@ -59,7 +57,7 @@ is written to the standard error instead.
 .TP
 .B \-w
 Write out the default config file to
-.BR $PCP_PMDAS_DIRS/\*(ia
+.BR $PCP_PMDAS_DIRS/infiniband
 and exit immediately.  The written config file will contain the local HCA ports.
 It will not overwrite an existing file.  This argument should only be used to create
 the template config file and should never appear in
@@ -76,7 +74,7 @@ instance domain naming may change because it will always be based on the kernel'
 In cases where this is not acceptable, or in the case where monitoring remote Infiniband
 ports is required, a config file must be created.  A "template" file can be created by
 running the
-.B pmda\*(ia
+.B pmdaib
 daemon with the
 .B \-w
 argument.  This will create a config file with the local ports and GUIDs.
@@ -109,9 +107,9 @@ on the first port of the second HCA:
 .PP
 switch13 0xfeeffeefabcdabcd 13 via mthca1:1
 .SH LOCAL CONTEXT
-The IB pmda also supports accessing the metrics via
+The Infiniband pmda also supports accessing the metrics via
 .B PM_CONTEXT_LOCAL
-when using the PMAPI interface.  In order to use the IB pmda in this way,
+when using the PMAPI interface.  In order to use the Infiniband pmda in this way,
 set the environment variable
 .B PMDA_LOCAL_IB
 prior to calling

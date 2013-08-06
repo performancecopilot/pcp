@@ -35,22 +35,11 @@ __choose_mode()
 __choose_ipc()
 {
     ipc_type=pipe
-    type="pipe  binary       $PCP_PMDAS_DIR/$iam/pmda$iam"
+    type="pipe  binary       $PCP_PMDAS_DIR/infiniband/pmda$iam"
 }
 
-# Do it
-#
-if [ -f /usr/sbin/unifdef ]
-then
-    # IRIX
-    CPP=/usr/sbin/unifdef
-else
-    # Linux
-    CPP=cpp
-fi
-
 pmdaSetup
-cat domain.h pmns | $CPP -DPCP_PMNS >$tmp.pmns
+cat domain.h pmns >$tmp.pmns
 pmns_source=$tmp.pmns
 pmns_name=infiniband
 

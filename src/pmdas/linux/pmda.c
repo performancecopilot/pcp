@@ -247,7 +247,7 @@ pmdaIndom indomtab[] = {
     { PARTITIONS_INDOM, 0, NULL }, /* cached */
     { SCSI_INDOM, 0, NULL },
     { SLAB_INDOM, 0, NULL },
-    { IB_INDOM, 0, NULL }, /* deprecated */
+    { IB_INDOM, 0, NULL },	/* migrated to the infiniband PMDA */
     { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS, nfs4_cli_indom_id },
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
     { QUOTA_PRJ_INDOM, 0, NULL },	/* migrated to the xfs PMDA */
@@ -3033,117 +3033,6 @@ pmdaMetric linux_metrictab[] = {
     {PMDA_PMID(28,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-
-/* deprecated: network.ib.in.bytes, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
-
-/* deprecated: network.ib.in.packets, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.in.errors.drop, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.in.errors.filter, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.in.errors.local, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.in.errors.remote, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.out.bytes, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
-
-/* deprecated: network.ib.out.packets, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.out.errors.drop, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.out.errors.filter, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.bytes, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,0,PM_SPACE_BYTE,0) }, },
-
-/* deprecated: network.ib.total.packets, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.drop, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.filter, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.link, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.recover, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.integrity, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.vl15, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.overrun, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.total.errors.symbol, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-
-/* deprecated: network.ib.status, use infiniband.* */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_IB,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* deprecated: network.ib.control, use infiniband.* */
-    { NULL,
-      { PMDA_PMID(CLUSTER_IB,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
 /*
  * sysfs_kernel cluster
  */
@@ -4592,9 +4481,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
 
-    case CLUSTER_IB: /* deprecated: network.ib, use infiniband.* */
+    case CLUSTER_IB: /* deprecated: network.ib, use infiniband PMDA */
         return PM_ERR_APPVERSION;
-	break;
 
     case CLUSTER_NUMA_MEMINFO:
 	/* NUMA memory metrics from /sys/devices/system/node/nodeX */

@@ -313,6 +313,14 @@ Description: Tool for importing data from collectl into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-pmda-infiniband
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Infiniband performance metrics domain agent (PMDA)
+ Performance Metrics Domain Agent (PMDA) for collecting Infiniband
+ staticstics.  By default, it monitors the local HCAs but can also
+ be configured to monitor remote GUIDs such as IB switches.
+
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Architecture: any
