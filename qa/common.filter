@@ -250,6 +250,7 @@ _filter_optional_pmdas()
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
 	-e '/pmdawebping/d' \
+	-e '/pmdaxfs/d' \
 	-e '/pmdaxvm/d' \
 	-e '/pmdazimbra/d' \
 
