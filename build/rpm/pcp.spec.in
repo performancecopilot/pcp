@@ -45,6 +45,25 @@ Requires: initscripts
 %endif
 %define _tmpdir %{_localstatedir}/lib/pcp/tmp
 
+# There is a problem here ... some distros are resisting adding more
+# repackaged perl-Foo-Bar rpms, but the default find-requires script
+# will turn all perl module we use into rpm package Requires clauses.
+#
+# The fix is to over-ride the default find-requires script and strip
+# out the dodgey perl modules that don't have official rpms, based
+# on the distro ... see the filter-requires script in this directory
+#
+# Recipe is a refinement of the one described at
+# http://fedoraproject.org/wiki/PackagingDrafts/FilteringAutomaticDependencies#Disabling_dependency_auto-generation
+#
+# override the default automatic requires/provides generation
+%define _use_internal_dependency_generator 0
+# remember the real find-requires path (%global avoids recursive %define
+# macros below
+%global __find_requires_save %{__find_requires}
+# slip our filter into place
+%define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
+
 Requires: pcp-libs = @package_version@
 Requires: python-pcp = @package_version@
 Requires: perl-PCP-PMDA = @package_version@
@@ -205,7 +224,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-sheet2pcp
 Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data

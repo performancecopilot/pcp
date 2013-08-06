@@ -21,7 +21,7 @@ SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros
 
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
-LSRCFILES = macros.template fedora.spec pcp.spec.in $(PERLFILES)
+LSRCFILES = macros.template fedora.spec pcp.spec.in $(PERLFILES) filter-requires
 
 default install install_pcp default_pcp :
 
