@@ -41,7 +41,7 @@ endif
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
-LSRCFILES	+= pmtop.1 pmdahotproc.1 
+LSRCFILES	+= pmtop.1 pmdahotproc.1 pmdaib.h
 
 default :: default_pcp 
 

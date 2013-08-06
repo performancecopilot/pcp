@@ -1,0 +1,58 @@
+#! /bin/sh
+# 
+# Copyright (C) 2007,2008 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+. /etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=ib
+pmda_interface=3
+daemon_opt=true
+dso_opt=false
+pipe_opt=true
+socket_opt=false
+
+#
+# override "choose mode"
+__choose_mode()
+{
+    do_pmda=true
+}
+
+#
+# override "choose IPC method"
+__choose_ipc()
+{
+    ipc_type=pipe
+    type="pipe  binary       $PCP_PMDAS_DIR/$iam/pmda$iam"
+}
+
+# Do it
+#
+if [ -f /usr/sbin/unifdef ]
+then
+    # IRIX
+    CPP=/usr/sbin/unifdef
+else
+    # Linux
+    CPP=cpp
+fi
+
+pmdaSetup
+cat domain.h pmns | $CPP -DPCP_PMNS >$tmp.pmns
+pmns_source=$tmp.pmns
+pmns_name=infiniband
+
+pmdaInstall
+exit 0
