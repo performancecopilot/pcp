@@ -28,6 +28,7 @@ pmcd {
     build	PMCD:0:20
     license	PMCD:0:16
     openfds	PMCD:0:17
+    hostname	PMCD:0:21
     pmie
     buf
     client

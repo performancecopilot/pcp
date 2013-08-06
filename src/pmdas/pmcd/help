@@ -306,6 +306,12 @@ Value for the $TZ environment variable where the PMCD is running.
 Enables determination of "local" time for timestamps returned via
 PMCD from a remote host.
 
+@ pmcd.hostname local hostname
+A reasonably unique identifier of the PMCD installation, for use
+by pmlogger or other tools to identify the source principal of
+the data (as distinct from identifying the connection/protocol
+used to reach it).
+
 @ pmcd.simabi Procedure call model and ABI version of this PMCD
 SIM is the subprogram interface model (originally from the MIPS object
 code formats), and ABI is the application binary interface.  Both
