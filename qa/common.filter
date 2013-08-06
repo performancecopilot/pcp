@@ -201,6 +201,7 @@ _filter_optional_pmdas()
 	-e '/pmdagluster/d' \
 	-e '/pmdahippi/d' \
 	-e '/pmdahotproc/d' \
+	-e '/pmdaib/d' \
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
 	-e '/pmdajstat/d' \
@@ -637,6 +638,7 @@ _filter_torture_api()
 	-e '/^    feature /d' \
 	-e '/^    idiot /d' \
 	-e '/^    idl /d' \
+	-e '/^    infiniband /d' \
 	-e '/^    ipc /d' \
 	-e '/^    kaio /d' \
 	-e '/^    kpreempt /d' \

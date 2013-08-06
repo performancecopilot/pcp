@@ -16,8 +16,7 @@
 . /etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=ib
-pmns_name=infiniband
+iam=infiniband
 
 pmdaSetup
 pmdaRemove
