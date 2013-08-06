@@ -68,7 +68,8 @@ For example:
 + on Fedora, the contents of /etc/fedora-release
 + on RedHat, the contents of /etc/redhat-release
 
-@ kernel.percpu.cpu.user percpu user CPU time metric from /proc/stat
+@ kernel.percpu.cpu.user percpu user CPU time metric from /proc/stat, including guest CPU time
+@ kernel.percpu.cpu.vuser percpu user CPU time metric from /proc/stat, excluding guest CPU time
 @ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat
 @ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
 @ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
@@ -712,7 +713,8 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ swap.used swap used metric from /proc/meminfo
 @ swap.free swap free metric from /proc/meminfo
 @ kernel.all.load 1, 5 and 15 minute load average
-@ kernel.all.cpu.user total user CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.user total user CPU time from /proc/stat for all CPUs, including guest CPU time
+@ kernel.all.cpu.vuser total user CPU time from /proc/stat for all CPUs, excluding guest CPU time
 @ kernel.all.cpu.intr total interrupt CPU time from /proc/stat for all CPUs
 Total time spent processing interrupts on all CPUs.
 This value includes both soft and hard interrupt processing time.

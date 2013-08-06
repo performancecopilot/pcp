@@ -100,6 +100,7 @@ kernel.all.cpu {
     irq
     steal		60:0:55
     guest		60:0:60
+    vuser		60:0:78
 }
 
 kernel.all.cpu.wait {
@@ -126,6 +127,7 @@ kernel.percpu.cpu {
     irq
     steal		60:0:58
     guest		60:0:61
+    vuser		60:0:76
 }
 
 kernel.percpu.cpu.wait {
@@ -151,6 +153,7 @@ kernel.pernode.cpu {
     irq
     steal		60:0:67
     guest		60:0:68
+    vuser		60:0:77
 }
 
 kernel.pernode.cpu.wait {
