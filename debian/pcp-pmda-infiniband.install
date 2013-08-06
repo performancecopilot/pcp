@@ -1,5 +1,4 @@
 usr/share/man/man1/pmdaib.1.gz
-var/lib/pcp/pmdas/infiniband
 var/lib/pcp/pmdas/infiniband/Install
 var/lib/pcp/pmdas/infiniband/Remove
 var/lib/pcp/pmdas/infiniband/domain.h

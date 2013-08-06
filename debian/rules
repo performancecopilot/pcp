@@ -21,6 +21,8 @@ pcp_import_sar = pcp-import-sar2pcp
 pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
+pcp_import_collectl = pcp-import-collectl2pcp
+pcp_pmda_infiniband = pcp-pmda-infiniband
 pcp_testsuite = pcp-testsuite
 pcp_python = python-pcp
 
@@ -45,6 +47,8 @@ dirpcp_import_sar = debian/$(pcp_import_sar)
 dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
+dirpcp_import_collectl = debian/$(pcp_import_collectl)
+dirpcp_pmda_infiniband = debian/$(pcp_pmda_infiniband)
 dirpcp_testsuite = debian/$(pcp_testsuite)
 dirpcp_python = debian/$(pcp_python)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
@@ -90,6 +94,7 @@ uninstallpy = cat python-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
+uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
@@ -147,6 +152,7 @@ binary-arch: checkroot build-stamp
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
+	@$(uninstallib)
 	@$(uninstalldirs)
 	@$(uninstalltest)
 	@$(uninstallpydir)

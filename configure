@@ -688,8 +688,8 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
-PMDA_INFINIBAND
 IB_LIBS
+PMDA_INFINIBAND
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
@@ -849,6 +849,7 @@ with_64bit
 with_threads
 with_tmpdir
 with_secure_sockets
+with_infiniband
 with_user
 with_group
 enable_ssp
@@ -1511,6 +1512,8 @@ Optional Packages:
   --with-threads          enable support for multiple threads (default is on)
   --with-tmpdir           define a temporary directory (default is /var/tmp)
   --with-secure-sockets   enable support for secure sockets (default is on)
+  --with-infiniband       enable support for Infiniband metrics (default is
+                          on)
   --with-user             user account under which daemons run (default is
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
@@ -2420,6 +2423,15 @@ if test "${with_secure_sockets+set}" = set; then :
   withval=$with_secure_sockets; do_secure=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-secure-sockets=$withval"
 else
   do_secure=check
+fi
+
+
+
+# Check whether --with-infiniband was given.
+if test "${with_infiniband+set}" = set; then :
+  withval=$with_infiniband; do_infiniband=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-infiniband=$withval"
+else
+  do_infiniband=check
 fi
 
 
@@ -8225,7 +8237,9 @@ PMDA_SYSTEMD=$pmda_systemd
 
 
 have_infiniband=false
-for ac_header in infiniband/umad.h infiniband/mad.h
+if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
+then
+    for ac_header in infiniband/umad.h infiniband/mad.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8238,8 +8252,6 @@ fi
 
 done
 
-if test $have_infiniband
-then
     IB_LIBS=""
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for madrpc_init in -libmad" >&5
 $as_echo_n "checking for madrpc_init in -libmad... " >&6; }
@@ -8333,11 +8345,11 @@ fi
 
     if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
-        IB_LIBS="-libmad -libumad"
+	IB_LIBS="-libmad -libumad"
 	savedLIBS=$LIBS
 	LIBS="$IB_LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OFED version (port_performance_query_via API)" >&5
-$as_echo_n "checking for OFED version (port_performance_query_via API)... " >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for port_performance_query_via" >&5
+$as_echo_n "checking for port_performance_query_via... " >&6; }
 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -8358,18 +8370,62 @@ return port_performance_query_via ();
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   $as_echo "#define HAVE_PORT_PERFORMANCE_QUERY_VIA 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: OFED < 1.5" >&5
-$as_echo "OFED < 1.5" >&6; }
+
+		have_port_performance_query_via=true
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: OFED >= 1.5" >&5
-$as_echo "OFED >= 1.5" >&6; }
+  have_port_performance_query_via=false
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pma_query_via" >&5
+$as_echo_n "checking for pma_query_via... " >&6; }
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pma_query_via ();
+int
+main ()
+{
+return pma_query_via ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  $as_echo "#define HAVE_PMA_QUERY_VIA 1" >>confdefs.h
+
+                have_pma_query_via=true
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  have_pma_query_via=false
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 	LIBS=$savedLIBS
+	if test $have_pma_query_via -o $have_port_performance_query_via
+	then
+	    :
+	else
+	    have_infiniband=false
+	fi
+    else
+	have_infiniband=false
     fi
-
     PMDA_INFINIBAND=infiniband
+
 
 fi
 

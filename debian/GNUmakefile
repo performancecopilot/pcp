@@ -33,7 +33,7 @@ PCPIMPORTCOLLECTL_FILES = pcp-import-collectl2pcp.install
 PCPIMPORTCOLLECTL_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-collectl2pcp
 
 PCPPMDAINFINIBAND = pcp-pmda-infiniband
-PCPPMDAINFINIBAND_FILES = pcp-pmda-infiniband.install
+PCPPMDAINFINIBAND_FILES = pcp-pmda-infiniband.dirs pcp-pmda-infiniband.install
 PCPPMDAINFINIBAND_DOC_DIR = $(PCP_DOC_DIR)/../pcp-pmda-infiniband
 
 LIBPCPPCP = libpcp3

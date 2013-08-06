@@ -21,7 +21,7 @@
 #include <pcp/pmda.h>
 #include "domain.h"
 
-#ifdef HAVE_PORT_PERfORMANCE_QUERY_VIA
+#ifdef HAVE_PORT_PERFORMANCE_QUERY_VIA
 #define port_perf_query(data, dst, port, timeout, srcport) \
 	port_performance_query_via(data, dst, port, timeout, srcport)
 #define port_perf_reset(data, dst, port, mask, timeout, srcport) \
