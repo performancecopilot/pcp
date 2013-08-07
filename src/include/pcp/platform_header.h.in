@@ -287,6 +287,9 @@ extern "C" {
 /* if the /proc pseudo filesystem exists */
 #undef HAVE_PROCFS
 
+/* Infiniband API version information */
+#undef HAVE_PORT_PERFORMANCE_QUERY_VIA
+
 #ifndef ULONGLONG_MAX 
 #define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
 #endif

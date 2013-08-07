@@ -18,7 +18,7 @@
 #define _INDOM_H
 
 /*
- * indom cluster numbers ... to manage the indom migration after the
+ * indom serial numbers ... to manage the indom migration after the
  * linux -> linux + proc PMDAs split, these need to match the enum
  * assigned values for *_INDOM from the linux PMDA. Consequently,
  * the proc indom table is sparse.
@@ -31,7 +31,7 @@
 #define MIN_INDOM  0		/* first indom number we use here */
 #define NUM_INDOMS 22		/* one more than highest indom number we use here */
 
-#define INDOM(x) (indomtab[x].it_indom)
-extern pmdaIndom indomtab[];
+#define INDOM(x) (proc_indomtab[x].it_indom)
+extern pmdaIndom proc_indomtab[];
 
 #endif /* _INDOM_H */
