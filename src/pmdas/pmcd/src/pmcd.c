@@ -1006,15 +1006,21 @@ tzinfo(void)
 static char *
 hostnameinfo(void)
 {
-#ifdef HOST_NAME_MAX
-#define PCP_HOST_NAME_MAX HOST_NAME_MAX
-#else
-#define PCP_HOST_NAME_MAX 1024
-#endif
-    static char the_hostname[PCP_HOST_NAME_MAX];
-    (void) gethostname(the_hostname, PCP_HOST_NAME_MAX);
-    the_hostname[PCP_HOST_NAME_MAX-1]='\0';
-    return the_hostname;
+    static char	host[MAXHOSTNAMELEN];
+    char	*name, *hename = NULL;
+    __pmHostEnt	*hep;
+
+    (void)gethostname(host, MAXHOSTNAMELEN);
+    name = host;
+
+    if ((hep = __pmGetAddrInfo(name)) != NULL) {
+	hename = __pmHostEntGetName(hep);
+	strncpy(host, hename ? hename : name, MAXHOSTNAMELEN-1);
+	host[MAXHOSTNAMELEN-1] = '\0';
+	__pmHostEntFree(hep);
+	name = host;
+    }
+    return name;
 }
 
 static int
@@ -1090,7 +1096,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     unsigned long	datasize;
     static pmResult	*res = NULL;
     static int		maxnpmids = 0;
-    static char		*hostname = NULL;
+    char		*host = NULL;	/* refresh max once per fetch */
     pmiestats_t		*pmie;
     pmValueSet		*vset;
     pmDesc		*dp = NULL;	/* initialize to pander to gcc */
@@ -1274,7 +1280,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 
 			case 21:	/* hostname */
-                                atom.cp = hostnameinfo();
+                                if (!host)
+				    host = hostnameinfo();
+                                atom.cp = host;
 				break;
 			default:
 				sts = atom.l = PM_ERR_PMID;
@@ -1346,16 +1354,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.cp = lpp[j].archive ? lpp[j].archive : "";
 				break;
 			    case 3:		/* pmlogger.host */
-				if (hostname == NULL) {
-				    char		hbuf[MAXHOSTNAMELEN];
-				    struct hostent	*hep;
-				    (void)gethostname(hbuf, MAXHOSTNAMELEN);
-				    hbuf[MAXHOSTNAMELEN-1] = '\0';
-				    hep = gethostbyname(hbuf);
-				    if (hep != NULL)
-					hostname = strdup(hep->h_name);
-				}
-				atom.cp = (hostname != NULL) ? hostname : "";
+                                if (!host)
+				    host = hostnameinfo();
+                                atom.cp = host;
 				break;
 			    default:
 				sts = atom.l = PM_ERR_PMID;

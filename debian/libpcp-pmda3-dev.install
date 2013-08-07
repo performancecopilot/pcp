@@ -35,6 +35,8 @@ usr/share/man/man3/pmdaeventqueue.3.gz
 usr/share/man/man3/pmdaGetHelp.3.gz
 usr/share/man/man3/pmdaGetInDomHelp.3.gz
 usr/share/man/man3/pmdaOpenHelp.3.gz
+usr/share/man/man3/pmdaRehash.3.gz
+usr/share/man/man3/pmdaSetFlags.3.gz
 usr/share/man/man3/pmdaSetCheckCallBack.3.gz
 usr/share/man/man3/pmdaSetDoneCallBack.3.gz
 usr/share/man/man3/pmdaSetFetchCallBack.3.gz
