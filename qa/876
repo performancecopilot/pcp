@@ -33,8 +33,16 @@ _cleanup()
 	$sudo rm /etc/projects
     fi
 
-    $sudo umount $tmp.xfsmount
-    $sudo losetup -d /dev/loop0 >/dev/null 2>&1
+    $sudo umount $tmp.xfsmount >/dev/null 2>&1
+    # dodge kernel race conditions (losetup -d)
+    for i in 1 2 3 4 5
+    do
+	loopcount=`$sudo losetup -a | wc -l`
+	[ $loopcount -eq 0 ] && break
+	( $sudo losetup -d /dev/loop0 ) >/dev/null 2>&1
+	sync
+	sleep $i
+    done
     rm -rf $tmp.*
 }
 
