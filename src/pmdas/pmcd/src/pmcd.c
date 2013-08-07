@@ -67,8 +67,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* control.sighup -- push-button, pmStore to SIGHUP pmcd */
     { PMDA_PMID(0,15), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* license -- bit-vector of license capabilities */
-    { PMDA_PMID(0,16), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* license -- bit-vector of license capabilities -- removed PMDA_PMID(0,16) */
 /* openfds -- number of open file descriptors */
     { PMDA_PMID(0,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* buf.alloc */
@@ -207,6 +206,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.authentication */
     { PMDA_PMID(8,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.creds_required */
+    { PMDA_PMID(8,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.unix_domain_sockets */
+    { PMDA_PMID(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -1000,7 +1003,7 @@ tzinfo(void)
     return __pmTimezone();
 }
 
-static const char *
+static char *
 hostnameinfo(void)
 {
 #ifdef HOST_NAME_MAX
@@ -1219,9 +1222,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
 				break;
-			case 16:	/* license - hysterical raisins */
-				atom.l = 0;
-				break;
 			case 17:	/* openfds */
 				atom.ul = (unsigned int)pmcd_hi_openfds;
 				break;
@@ -1275,6 +1275,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 21:	/* hostname */
                                 atom.cp = hostnameinfo();
+				break;
+			default:
+				sts = atom.l = PM_ERR_PMID;
 				break;
 		    }
 		    break;
@@ -1354,8 +1357,12 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				}
 				atom.cp = (hostname != NULL) ? hostname : "";
 				break;
+			    default:
+				sts = atom.l = PM_ERR_PMID;
+				break;
 			}
-			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+			if (sts >= 0)
+			    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 			if (sts < 0)
 			    break;
 			valfmt = sts;
@@ -1391,8 +1398,12 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    else
 				atom.l = agent[j].reason;
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 		    if (sts < 0)
 			break;
 		    valfmt = sts;
@@ -1456,8 +1467,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 9:		/* pmie.eval.actual */
 			    atom.ul = pmie->eval_actual;
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1510,8 +1526,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    k = strlen(atom.cp);
 			    atom.cp[k-1] = '\0';
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
