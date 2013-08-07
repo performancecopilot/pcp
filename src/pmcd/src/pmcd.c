@@ -808,15 +808,55 @@ do_traceback(FILE *f)
 #endif
     return;
 }
-#endif
+#endif /* HAVE_TRACE_BACK_STACK */
+
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+
+#define MAX_DEPTH 30
+
+static void
+do_traceback(FILE *f)
+{
+    int		nframe;
+    void	*buf[MAX_DEPTH];
+    char	**symbols;
+    int		i;
+
+    nframe = backtrace(buf, MAX_DEPTH);
+    if (nframe < 1) {
+	fprintf(f, "backtrace -> %d frames?\n", nframe);
+	return;
+    }
+    symbols = backtrace_symbols(buf, nframe);
+    if (symbols == NULL) {
+	fprintf(f, "backtrace_symbols failed!\n");
+	return;
+
+    }
+    for (i = 1; i < nframe; i++)
+	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+
+    return;
+}
+#endif /* HAVE_BACKTRACE */
 
 void SigBad(int sig)
 {
     __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-#if HAVE_TRACE_BACK_STACK
-    fprintf(stderr, "\nProcedure call traceback ...\n");
-    do_traceback(stderr);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	/* -D desperate on the command line to enable traceback,
+	 * if we have platform support for it
+	 */
+#if defined(HAVE_TRACE_BACK_STACK) || defined(HAVE_BACKTRACE)
+	fprintf(stderr, "\nProcedure call traceback ...\n");
+	do_traceback(stderr);
+#else
+	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
 #endif
+    }
+#endif /* PCP_DEBUG */
     fprintf(stderr, "\nDumping to core ...\n");
     fflush(stderr);
     abort();

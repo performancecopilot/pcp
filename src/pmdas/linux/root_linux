@@ -28,11 +28,9 @@ root {
     nfs
     nfs3
     nfs4
-    xfs
     pmda
     ipc 
     vfs
-    quota
     tmpfs
     sysfs
 }
@@ -102,6 +100,7 @@ kernel.all.cpu {
     irq
     steal		60:0:55
     guest		60:0:60
+    vuser		60:0:78
 }
 
 kernel.all.cpu.wait {
@@ -128,6 +127,7 @@ kernel.percpu.cpu {
     irq
     steal		60:0:58
     guest		60:0:61
+    vuser		60:0:76
 }
 
 kernel.percpu.cpu.wait {
@@ -153,6 +153,7 @@ kernel.pernode.cpu {
     irq
     steal		60:0:67
     guest		60:0:68
+    vuser		60:0:77
 }
 
 kernel.pernode.cpu.wait {
@@ -402,7 +403,6 @@ network {
     udp
     udplite
     tcpconn
-    ib
 }
 
 network.interface {
@@ -687,243 +687,6 @@ nfs4.server {
     reqs		60:7:67
 }
 
-xfs {
-    allocs
-    alloc_btree
-    block_map
-    bmap_btree
-    dir_ops
-    transactions
-    inode_ops
-    log
-    log_tail
-    xstrat
-    write		60:16:51
-    write_bytes		60:16:52
-    read		60:16:53
-    read_bytes		60:16:54
-    attr
-    quota
-    iflush_count	60:16:67
-    icluster_flushcnt	60:16:68
-    icluster_flushinode	60:16:69
-    buffer
-    vnodes
-    control
-    btree
-}
-
-xfs.allocs {
-    alloc_extent	60:16:0
-    alloc_block		60:16:1
-    free_extent		60:16:2
-    free_block		60:16:3
-}
-
-
-xfs.alloc_btree {
-    lookup		60:16:4
-    compare		60:16:5
-    insrec		60:16:6
-    delrec		60:16:7
-}
-
-xfs.block_map {
-    read_ops		60:16:8
-    write_ops		60:16:9
-    unmap		60:16:10
-    add_exlist		60:16:11
-    del_exlist		60:16:12
-    look_exlist		60:16:13
-    cmp_exlist		60:16:14
-}
-
-xfs.bmap_btree {
-    lookup		60:16:15
-    compare		60:16:16
-    insrec		60:16:17
-    delrec		60:16:18
-}
-
-xfs.dir_ops {
-    lookup		60:16:19
-    create		60:16:20
-    remove		60:16:21
-    getdents		60:16:22
-}
-
-xfs.transactions {
-    sync		60:16:23
-    async		60:16:24
-    empty		60:16:25
-}
-
-xfs.inode_ops {
-    ig_attempts		60:16:26
-    ig_found		60:16:27
-    ig_frecycle		60:16:28
-    ig_missed		60:16:29
-    ig_dup		60:16:30
-    ig_reclaims		60:16:31
-    ig_attrchg		60:16:32
-}
-
-xfs.log {
-    writes		60:16:33
-    blocks		60:16:34
-    write_ratio		60:16:78
-    noiclogs		60:16:35
-    force		60:16:36
-    force_sleep		60:16:37
-}
-
-xfs.log_tail {
-    try_logspace	60:16:38
-    sleep_logspace	60:16:39
-    push_ail
-}
-
-xfs.log_tail.push_ail {
-    pushes		60:16:40
-    success		60:16:41
-    pushbuf		60:16:42
-    pinned		60:16:43
-    locked		60:16:44
-    flushing		60:16:45
-    restarts		60:16:46
-    flush		60:16:47
-}
-
-xfs.xstrat {
-    bytes		60:16:48
-    quick		60:16:49
-    split		60:16:50
-}
-
-xfs.attr {
-    get			60:16:55
-    set			60:16:56
-    remove		60:16:57
-    list		60:16:58
-}
-
-xfs.quota {
-    reclaims		60:16:59
-    reclaim_misses	60:16:60
-    dquot_dups		60:16:61
-    cachemisses		60:16:62
-    cachehits		60:16:63
-    wants		60:16:64
-    shake_reclaims	60:16:65
-    inact_reclaims	60:16:66
-}
-
-xfs.vnodes {
-    active		60:16:70
-    alloc		60:16:71
-    get			60:16:72
-    hold		60:16:73
-    rele		60:16:74
-    reclaim		60:16:75
-    remove		60:16:76
-    free		60:16:77
-}
-
-xfs.control {
-    reset		60:16:79
-}
-
-xfs.buffer {
-    get                 60:17:0
-    create              60:17:1
-    get_locked          60:17:2
-    get_locked_waited   60:17:3
-    busy_locked         60:17:4
-    miss_locked         60:17:5
-    page_retries        60:17:6
-    page_found          60:17:7
-    get_read            60:17:8
-}
-
-xfs.btree {
-    alloc_blocks
-    alloc_contig
-    block_map
-    inode
-}
-
-xfs.btree.alloc_blocks {
-    lookup		60:16:80
-    compare		60:16:81
-    insrec		60:16:82
-    delrec		60:16:83
-    newroot		60:16:84
-    killroot		60:16:85
-    increment		60:16:86
-    decrement		60:16:87
-    lshift		60:16:88
-    rshift		60:16:89
-    split		60:16:90
-    join		60:16:91
-    alloc		60:16:92
-    free		60:16:93
-    moves		60:16:94
-}
-
-xfs.btree.alloc_contig {
-    lookup		60:16:95
-    compare		60:16:96
-    insrec		60:16:97
-    delrec		60:16:98
-    newroot		60:16:99
-    killroot		60:16:100
-    increment		60:16:101
-    decrement		60:16:102
-    lshift		60:16:103
-    rshift		60:16:104
-    split		60:16:105
-    join		60:16:106
-    alloc		60:16:107
-    free		60:16:108
-    moves		60:16:109
-}
-
-xfs.btree.block_map {
-    lookup		60:16:110
-    compare		60:16:111
-    insrec		60:16:112
-    delrec		60:16:113
-    newroot		60:16:114
-    killroot		60:16:115
-    increment		60:16:116
-    decrement		60:16:117
-    lshift		60:16:118
-    rshift		60:16:119
-    split		60:16:120
-    join		60:16:121
-    alloc		60:16:122
-    free		60:16:123
-    moves		60:16:124
-}
-
-xfs.btree.inode {
-    lookup		60:16:125
-    compare		60:16:126
-    insrec		60:16:127
-    delrec		60:16:128
-    newroot		60:16:129
-    killroot		60:16:130
-    increment		60:16:131
-    decrement		60:16:132
-    lshift		60:16:133
-    rshift		60:16:134
-    split		60:16:135
-    join		60:16:136
-    alloc		60:16:137
-    free		60:16:138
-    moves		60:16:139
-}
-
 network.tcpconn {
     established		60:19:1
     syn_sent		60:19:2
@@ -1081,88 +844,6 @@ vfs.inodes {
 vfs.dentry {
     count		60:27:5
     free		60:27:6
-}
-
-network.ib {
-    status		60:29:20
-    control		60:29:21
-    in
-    out
-    total
-}
-
-network.ib.in {
-    bytes		60:29:0
-    packets		60:29:1
-    errors
-}
-
-network.ib.in.errors {
-    drop		60:29:2
-    filter		60:29:3
-    local		60:29:4
-    remote		60:29:5
-}
-
-network.ib.out {
-    bytes		60:29:6
-    packets		60:29:7
-    errors
-}
-
-network.ib.out.errors {
-    drop		60:29:8
-    filter		60:29:9
-}
-
-network.ib.total {
-    bytes               60:29:16
-    packets		60:29:17
-    errors
-}
-
-network.ib.total.errors {
-    drop		60:29:18
-    filter		60:29:19
-    link		60:29:10
-    recover		60:29:11
-    integrity		60:29:12
-    vl15		60:29:13
-    overrun		60:29:14
-    symbol		60:29:15
-}
-
-quota {
-    state
-    project
-}
-
-quota.state {
-    project
-}
-
-quota.state.project {
-    accounting		60:30:0
-    enforcement		60:30:1
-}
-
-quota.project {
-    space
-    files
-}
-
-quota.project.space {
-    hard  		60:30:6
-    soft  		60:30:7
-    used  		60:30:8
-    time_left  		60:30:9
-}
-
-quota.project.files {
-    hard  		60:30:10
-    soft  		60:30:11
-    used  		60:30:12
-    time_left  		60:30:13
 }
 
 sysfs {

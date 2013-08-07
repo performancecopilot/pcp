@@ -67,8 +67,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* control.sighup -- push-button, pmStore to SIGHUP pmcd */
     { PMDA_PMID(0,15), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* license -- bit-vector of license capabilities */
-    { PMDA_PMID(0,16), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* license -- bit-vector of license capabilities -- removed PMDA_PMID(0,16) */
 /* openfds -- number of open file descriptors */
     { PMDA_PMID(0,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* buf.alloc */
@@ -77,6 +76,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,19), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* build -- pcp build number */
     { PMDA_PMID(0,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* hostname -- local hostname -- for pmlogger */
+    { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -205,6 +206,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.authentication */
     { PMDA_PMID(8,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.creds_required */
+    { PMDA_PMID(8,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.unix_domain_sockets */
+    { PMDA_PMID(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -998,6 +1003,26 @@ tzinfo(void)
     return __pmTimezone();
 }
 
+static char *
+hostnameinfo(void)
+{
+    static char	host[MAXHOSTNAMELEN];
+    char	*name, *hename = NULL;
+    __pmHostEnt	*hep;
+
+    (void)gethostname(host, MAXHOSTNAMELEN);
+    name = host;
+
+    if ((hep = __pmGetAddrInfo(name)) != NULL) {
+	hename = __pmHostEntGetName(hep);
+	strncpy(host, hename ? hename : name, MAXHOSTNAMELEN-1);
+	host[MAXHOSTNAMELEN-1] = '\0';
+	__pmHostEntFree(hep);
+	name = host;
+    }
+    return name;
+}
+
 static int
 fetch_feature(int item, pmAtomValue *avp)
 {
@@ -1071,7 +1096,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     unsigned long	datasize;
     static pmResult	*res = NULL;
     static int		maxnpmids = 0;
-    static char		*hostname = NULL;
+    char		*host = NULL;	/* refresh max once per fetch */
     pmiestats_t		*pmie;
     pmValueSet		*vset;
     pmDesc		*dp = NULL;	/* initialize to pander to gcc */
@@ -1203,9 +1228,6 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
 				break;
-			case 16:	/* license - hysterical raisins */
-				atom.l = 0;
-				break;
 			case 17:	/* openfds */
 				atom.ul = (unsigned int)pmcd_hi_openfds;
 				break;
@@ -1255,6 +1277,15 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 			case 20:	/* build */
 				atom.cp = BUILD;
+				break;
+
+			case 21:	/* hostname */
+                                if (!host)
+				    host = hostnameinfo();
+                                atom.cp = host;
+				break;
+			default:
+				sts = atom.l = PM_ERR_PMID;
 				break;
 		    }
 		    break;
@@ -1323,19 +1354,16 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				atom.cp = lpp[j].archive ? lpp[j].archive : "";
 				break;
 			    case 3:		/* pmlogger.host */
-				if (hostname == NULL) {
-				    char		hbuf[MAXHOSTNAMELEN];
-				    struct hostent	*hep;
-				    (void)gethostname(hbuf, MAXHOSTNAMELEN);
-				    hbuf[MAXHOSTNAMELEN-1] = '\0';
-				    hep = gethostbyname(hbuf);
-				    if (hep != NULL)
-					hostname = strdup(hep->h_name);
-				}
-				atom.cp = (hostname != NULL) ? hostname : "";
+                                if (!host)
+				    host = hostnameinfo();
+                                atom.cp = host;
+				break;
+			    default:
+				sts = atom.l = PM_ERR_PMID;
 				break;
 			}
-			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+			if (sts >= 0)
+			    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 			if (sts < 0)
 			    break;
 			valfmt = sts;
@@ -1371,8 +1399,12 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    else
 				atom.l = agent[j].reason;
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
 		    if (sts < 0)
 			break;
 		    valfmt = sts;
@@ -1436,8 +1468,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			case 9:		/* pmie.eval.actual */
 			    atom.ul = pmie->eval_actual;
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts < 0)
 			break;
 		    valfmt = sts;
 		    numval++;
@@ -1490,8 +1527,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			    k = strlen(atom.cp);
 			    atom.cp[k-1] = '\0';
 			    break;
+			default:
+			    sts = atom.l = PM_ERR_PMID;
+			    break;
 		    }
-		    if ((sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type)) < 0)
+		    if (sts >= 0)
+			sts = __pmStuffValue(&atom, &vset->vlist[numval], dp->type);
+		    if (sts < 0)
 			break;
 		    valfmt = sts;
 		    numval++;

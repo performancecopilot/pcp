@@ -38,17 +38,27 @@ static struct {
     unsigned int	certificate_verified : 1;	/* NSS */
     unsigned int	ssl_session_cache_setup : 1;	/* NSS */
     unsigned int	credentials_required : 1;	/* SASL/AF_UNIX */
+    unsigned int	unix_domain_socket : 1;		/* AF_UNIX */
 } secure_server;
 
 int
 __pmServerSetFeature(__pmServerFeature wanted)
 {
-    if (wanted == PM_SERVER_FEATURE_CREDS_REQD) {
+    switch (wanted) {
+    case PM_SERVER_FEATURE_CREDS_REQD:
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
 	secure_server.credentials_required = 1;
 	PM_UNLOCK(__pmLock_libpcp);
 	return 1;
+    case PM_SERVER_FEATURE_UNIX_DOMAIN:
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	secure_server.unix_domain_socket = 1;
+	PM_UNLOCK(__pmLock_libpcp);
+	return 1;
+    default:
+	break;
     }
     return 0;
 }
@@ -59,13 +69,17 @@ __pmServerHasFeature(__pmServerFeature query)
     int sts = 0;
 
     switch (query) {
+    case PM_SERVER_FEATURE_UNIX_DOMAIN:
     case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_SECURE:
 	PM_INIT_LOCKS();
 	PM_LOCK(__pmLock_libpcp);
-	sts = (query == PM_SERVER_FEATURE_SECURE) ?
-		secure_server.certificate_verified:
-		secure_server.credentials_required;
+	if (query == PM_SERVER_FEATURE_SECURE)
+	    sts = secure_server.certificate_verified;
+	if (query == PM_SERVER_FEATURE_CREDS_REQD)
+	    sts = secure_server.credentials_required;
+	if (query == PM_SERVER_FEATURE_UNIX_DOMAIN)
+	    sts = secure_server.unix_domain_socket;
 	PM_UNLOCK(__pmLock_libpcp);
 	break;
     case PM_SERVER_FEATURE_COMPRESS:

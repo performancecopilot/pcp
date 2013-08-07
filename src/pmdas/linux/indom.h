@@ -31,10 +31,10 @@ enum {
 	PARTITIONS_INDOM, 	/* 10 - disk partitions */
 	SCSI_INDOM,		/* 11 - scsi devices */
 	SLAB_INDOM,		/* 12 - kernel slabs */
-	IB_INDOM,		/* 13 - deprecated: do not re-use */
+	IB_INDOM,		/* 13 - ib interfaces -> infiniband PMDA */
 	NFS4_CLI_INDOM,		/* 14 - nfs v4 client operations */
 	NFS4_SVR_INDOM,		/* 15 - nfs n4 server operations */
-	QUOTA_PRJ_INDOM,	/* 16 - project quota */
+	QUOTA_PRJ_INDOM,	/* 16 - project quota -> xfs PMDA */
 	NET_INET_INDOM,		/* 17 - inet addresses */
 	TMPFS_INDOM,		/* 18 - tmpfs mounts */
 	NODE_INDOM,		/* 19 - NUMA nodes */

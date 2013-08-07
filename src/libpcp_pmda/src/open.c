@@ -359,12 +359,90 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 }
 
 /*
- * open the help text file and check for direct mapping into the metric table
+ * Recompute the hash table which maps metric PMIDs to metric table
+ * offsets.  Provides an optimised lookup alternative when a direct
+ * mapping is inappropriate or impossible.
+ */
+void
+pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
+{
+    e_ext_t	*extp = (e_ext_t *)pmda->e_ext;
+    __pmHashCtl *hashp = &extp->hashpmids;
+    pmdaMetric	*metric;
+    char	buf[32];
+    int		m, sts;
+
+    pmda->e_direct = 0;
+    pmda->e_metrics = metrics;
+    pmda->e_nmetrics = nmetrics;
+
+    __pmHashClear(hashp);
+    for (m = 0; m < pmda->e_nmetrics; m++) {
+	metric = &pmda->e_metrics[m];
+
+	sts = __pmHashAdd(metric->m_desc.pmid, metric, hashp);
+	if (sts < 0) {
+	    __pmNotifyErr(LOG_WARNING, "pmdaRehash: PMDA %s: "
+			"Hashed mapping for metrics disabled @ metric[%d] %s\n",
+			pmda->e_name, m,
+			pmIDStr_r(metric->m_desc.pmid, buf, sizeof(buf)));
+	    pmda->e_flags &= ~PMDA_EXT_FLAG_HASHED;
+	    __pmHashClear(hashp);
+	    return;
+	}
+    }
+
+    pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
+}
+
+static void
+pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
+{
+    __pmID_int	*pmidp;
+    char	buf[20];
+    int		m;
+
+    pmda->e_direct = 1;
+    for (m = 0; m < pmda->e_nmetrics; m++) {
+	pmidp = (__pmID_int *)&pmda->e_metrics[m].m_desc.pmid;
+
+	if (pmidp->item == m)
+	    continue;
+
+	pmda->e_direct = 0;
+	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) ||
+	    (pmDebug & DBG_TRACE_LIBPMDA))
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: "
+		"Direct mapping for metrics disabled @ metrics[%d] %s\n",
+		pmda->e_name, m,
+		pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, buf, sizeof(buf)));
+	break;
+    }
+}
+
+void
+pmdaSetFlags(pmdaInterface *dispatch, int flags)
+{
+    pmdaExt	*pmda;
+
+    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
+	__pmNotifyErr(LOG_CRIT, "pmdaSetFlags: PMDA interface version %d not supported (domain=%d)",
+		     dispatch->comm.pmda_interface, dispatch->domain);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+    pmda = dispatch->version.any.ext;
+    pmda->e_flags |= flags;
+}
+
+/*
+ * Open the help text file, check for direct mapping into the metric table
+ * and whether a hash mapping has been requested.
  */
 
 void
-pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *metrics, 
-	 int nmetrics)
+pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
+	 pmdaMetric *metrics, int nmetrics)
 {
     int		        m = 0;
     int                 i = 0;
@@ -493,34 +571,30 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms, pmdaMetric *me
 #endif
     }
 
-    pmda->e_direct = 1;
-
-    for (m = 0; m < pmda->e_nmetrics; m++)
-    {
-    	pmidp = (__pmID_int *)&pmda->e_metrics[m].m_desc.pmid;
+    /*
+     * Stamp the correct domain number in each of the PMIDs
+     */
+    for (m = 0; m < pmda->e_nmetrics; m++) {
+	pmidp = (__pmID_int *)&pmda->e_metrics[m].m_desc.pmid;
 	pmidp->domain = dispatch->domain;
-
-	if (pmda->e_direct && pmidp->item != m) {
-	    pmda->e_direct = 0;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
-		char	strbuf[20];
-		__pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Direct mapping for metrics disabled @ metrics[%d] %s\n", pmda->e_name, m, pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)));
-	    }
-#endif
-	}
     }
 
+    if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
+	pmdaRehash(pmda, metrics, nmetrics);
+    else
+	pmdaDirect(pmda, metrics, nmetrics);
+
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-    {
+    if (pmDebug & DBG_TRACE_LIBPMDA) {
     	__pmNotifyErr(LOG_INFO, "name        = %s\n", pmda->e_name);
         __pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
         if (dispatch->comm.flags)
     	    __pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
     	__pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
     	__pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
-    	__pmNotifyErr(LOG_INFO, "direct map  = %d\n", pmda->e_direct);
+    	__pmNotifyErr(LOG_INFO, "metric map  = %s\n",
+		(pmda->e_flags & PMDA_EXT_FLAG_HASHED) ? "hashed" :
+		(pmda->e_direct ? "direct" : "linear"));
     }
 #endif
 

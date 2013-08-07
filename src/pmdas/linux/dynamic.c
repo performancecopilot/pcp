@@ -158,8 +158,7 @@ linux_dynamic_metrictable(pmdaExt *pmda)
 fallback:
 	if (pmda->e_metrics != linux_metrictab)
 	    free(pmda->e_metrics);
-	pmda->e_metrics = linux_metrictab;
-	pmda->e_nmetrics = linux_metrictable_size();
+	pmdaRehash(pmda, linux_metrictab, linux_metrictable_size());
     } else {
 	resize += linux_metrictable_size();
 	if ((mtab = calloc(resize, sizeof(pmdaMetric))) == NULL)
@@ -170,7 +169,6 @@ fallback:
 	    offset = linux_dynamic_mtab(&dynamic[i], offset);
 	if (pmda->e_metrics != linux_metrictab)
 	    free(pmda->e_metrics);
-	pmda->e_metrics = mtab;
-	pmda->e_nmetrics = resize;
+	pmdaRehash(pmda, mtab, resize);
     }
 }

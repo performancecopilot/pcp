@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.2
+Version: 3.8.3
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -40,6 +40,11 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
+%if 0%{?fedora} >= 20
+%define _with_doc --with-docdir=%{_docdir}/%{name}
+%else
+%define _with_doc %{nil}
+%endif
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -220,6 +225,23 @@ Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
+# pcp-pmda-infiniband
+#
+%package pmda-infiniband
+License: GPLv2
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
+URL: http://oss.sgi.com/projects/pcp/
+Requires: pcp-libs >= %{version}-%{release}
+Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+
+%description import-collectl2pcp
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting Infiniband statistics.  By default, it monitors the local HCAs
+but can also be configured to monitor remote GUIDs such as IB switches.
+
+#
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
@@ -240,7 +262,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir}
+%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir} %{_with_doc}
 make default_pcp
 
 %install
@@ -480,10 +502,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 # PMDAs that ship src and are not for production use
 # straight out-of-the-box, for devel or QA use only.
-%{_localstatedir}/lib/pcp/pmdas/simple
-%{_localstatedir}/lib/pcp/pmdas/sample
-%{_localstatedir}/lib/pcp/pmdas/trivial
-%{_localstatedir}/lib/pcp/pmdas/txmon
+%{_pmdasdir}/simple
+%{_pmdasdir}/sample
+%{_pmdasdir}/trivial
+%{_pmdasdir}/txmon
 
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
@@ -509,6 +531,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
+%files pmda-infiniband
+%defattr(-,root,root)
+%{_pmdasdir}/ib
+%{_pmdasdir}/infiniband
+%{_mandir}/man1/pmdaib.1.gz
+
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
 
@@ -525,10 +553,16 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Mon Aug 05 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
+- Currently under development.
+- Introduces new pcp-pmda-infiniband sub-package.
+
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
 - Update to latest PCP sources.
 - Integrate gluster related stats with PCP (BZ 969348)
 - Fix for iostat2pcp not parsing iostat output (BZ 981545)
+- Start pmlogger with usable config by default (BZ 953759)
+- Fix pmatop failing to start, gives stacktrace (BZ 963085)
 
 * Wed Jun 19 2013 Nathan Scott <nathans@redhat.com> - 3.8.1-1
 - Update to latest PCP sources.
@@ -558,7 +592,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
 * Wed Nov 28 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-2
-- Ensure tmpfile directories created in %files section.
+- Ensure tmpfile directories created in %%files section.
 - Resolve tmpfile create/teardown race conditions.
 
 * Mon Nov 19 2012 Nathan Scott <nathans@redhat.com> - 3.6.10-1
@@ -605,7 +639,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources
 
 * Thu Mar 22 2012 Mark Goodwin - 3.6.0-1
-- use %configure macro for correct libdir logic
+- use %%configure macro for correct libdir logic
 - update to latest PCP sources
 
 * Thu Dec 15 2011 Mark Goodwin - 3.5.11-2
@@ -620,10 +654,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Mon Oct 24 2011 Mark Goodwin - 3.5.9-1
 - Update to latest PCP sources.
 
-* Mon Aug 8 2011 Mark Goodwin - 3.5.8-1
+* Mon Aug 08 2011 Mark Goodwin - 3.5.8-1
 - Update to latest PCP sources.
 
-* Fri Aug 5 2011 Mark Goodwin - 3.5.7-1
+* Fri Aug 05 2011 Mark Goodwin - 3.5.7-1
 - Update to latest PCP sources.
 
 * Fri Jul 22 2011 Mark Goodwin - 3.5.6-1
@@ -632,7 +666,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Tue Jul 19 2011 Mark Goodwin - 3.5.5-1
 - Update to latest PCP sources.
 
-* Wed Feb 3 2011 Mark Goodwin - 3.5.0-1
+* Thu Feb 03 2011 Mark Goodwin - 3.5.0-1
 - Update to latest PCP sources.
 
 * Thu Sep 30 2010 Mark Goodwin - 3.4.0-1
@@ -654,7 +688,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 - Update to latest PCP sources.
 
 * Wed Jan 27 2010 Mark Goodwin - 3.1.0-1
-- BuildRequires: initscripts for %{_vendor} == redhat.
+- BuildRequires: initscripts for %%{_vendor} == redhat.
 
 * Thu Dec 10 2009 Mark Goodwin - 3.0.3-1
 - BuildRequires: initscripts for FC12.
@@ -667,6 +701,6 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
   a stand-alone package.
 - Move cluster PMDA to a stand-alone package.
 
-* Fri Oct 9 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
+* Fri Oct 09 2009 Mark Goodwin <mgoodwin@redhat.com> - 3.0.0-9
 - This is the initial import for Fedora
 - See 3.0.0 details in CHANGELOG

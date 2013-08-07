@@ -1,5 +1,6 @@
 #! /bin/sh
 # 
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,7 +13,8 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Displays the Performance Co-Pilot configuration for a host running pmcd(1)
+# Displays the Performance Co-Pilot configuration for a host running the
+# pmcd(1) daemon or from an archive created by pmlogger(1).
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -24,13 +26,13 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
 errors=0
 prog=`basename $0`
 host=`pmhostname`
-for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone status
+for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname status
 do
     eval $var="unknown?"
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 _usage()
@@ -84,8 +86,9 @@ do
 	[ $hflag = true ] && _usage "$prog: -a and -h mutually exclusive"
 	opts="$opts -a $OPTARG"
 	arch=$OPTARG
-	eval `pmdumplog -lz $arch | $PCP_AWK_PROG '
+	eval `pmdumplog -Lz $arch | $PCP_AWK_PROG '
 /^Performance metrics from host/	{  printf "host=%s\n", $5  }
+/^Archive timezone: /			{  printf "timezone=%s\n", $3  }
 /^  commencing/				{  tmp = substr($5, 7, 6)
 					   sub(tmp, tmp+0.001, $5)
 					   sub("commencing", "@")
@@ -178,6 +181,7 @@ mode == 3		{ inst(); next }
 /pmcd.numagents/	{ mode = 1; quote="numagents"; next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
 /pmcd.timezone/		{ mode = 1; quote="timezone"; next }
+/pmcd.hostname/		{ mode = 1; quote="hostname"; next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
 /pmcd.pmlogger.pmcd_host/ { mode = 3; count = 0; quote="log_host"; next }
@@ -247,6 +251,7 @@ else
 fi
 
 [ "$timezone" = $unknown ] && timezone="Unknown"
+[ "$hostname" = $unknown ] || host="$hostname"
 
 if [ "$cputype" = $unknown ]
 then

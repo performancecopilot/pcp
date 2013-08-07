@@ -158,8 +158,7 @@ gfs2_dynamic_metrictable(pmdaExt *pmda)
 fallback:
 	if (pmda->e_metrics != metrictable)
 	    free(pmda->e_metrics);
-	pmda->e_metrics = metrictable;
-	pmda->e_nmetrics = metrictable_size();
+	pmdaRehash(pmda, metrictable, metrictable_size());
     } else {
 	resize += metrictable_size();
 	if ((mtab = calloc(resize, sizeof(pmdaMetric))) == NULL)
@@ -170,7 +169,6 @@ fallback:
 	    offset = gfs2_dynamic_mtab(&dynamic[i], offset);
 	if (pmda->e_metrics != metrictable)
 	    free(pmda->e_metrics);
-	pmda->e_metrics = mtab;
-	pmda->e_nmetrics = resize;
+	pmdaRehash(pmda, mtab, resize);
     }
 }

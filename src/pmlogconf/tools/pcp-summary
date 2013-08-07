@@ -15,7 +15,6 @@ delta	once
 	pmcd.numclients
 	pmcd.version
 	pmcd.build
-	pmcd.timezone
 	pmcd.agent.status
 	pmcd.pmlogger
 	pmcd.pmie

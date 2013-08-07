@@ -182,6 +182,58 @@ __pmdaNextInst(int *inst, pmdaExt *pmda)
     return 0;
 }
 
+
+/*
+ * Helper routines for performing metric table searches.
+ *
+ * There are currently three ways - using the PMID hash that hangs off
+ * of the e_ext structure, using the direct mapping mechanism (require
+ * PMIDs be allocated one after-the-other, all in one cluster), or via
+ * a linear search of the metric table array.
+ */
+
+static pmdaMetric *
+__pmdaHashedSearch(pmID pmid, __pmHashCtl *hash)
+{
+    __pmHashNode *node;
+
+    if ((node = __pmHashSearch(pmid, hash)) == NULL)
+	return NULL;
+    return (pmdaMetric *)node->data;
+}
+
+static pmdaMetric *
+__pmdaDirectSearch(pmID pmid, pmdaExt *pmda)
+{
+    __pmID_int	*pmidp = (__pmID_int *)&pmid;
+
+    /*
+     * pmidp->domain is correct ... PMCD guarantees this, but
+     * pmda->e_direct only works for a single cluster
+     */
+    if (pmidp->item < pmda->e_nmetrics && 
+	pmidp->cluster == 
+	((__pmID_int *)&pmda->e_metrics[pmidp->item].m_desc.pmid)->cluster) {
+	/* pmidp->item is unsigned, so must be >= 0 */
+	return &pmda->e_metrics[pmidp->item];
+    }
+    return NULL;
+}
+
+static pmdaMetric *
+__pmdaLinearSearch(pmID pmid, pmdaExt *pmda)
+{
+    int		i;
+
+    for (i = 0; i < pmda->e_nmetrics; i++) {
+	if (pmda->e_metrics[i].m_desc.pmid == pmid) {
+	    /* found the hard way */
+	    return &pmda->e_metrics[i];
+	}
+    }
+    return NULL;
+}
+
 /*
  * Save the profile away for use in __pmdaNextInst() during subsequent
  * fetches ... it is the _caller_ of pmdaProfile()'s responsibility to
@@ -398,7 +450,6 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			numval;
     pmValueSet		*vset;
     pmDesc		*dp;
-    __pmID_int		*pmidp;
     pmdaMetric		*metap;
     pmAtomValue		atom;
     int			type;
@@ -422,50 +473,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     extp->res->numpmid = numpmid;
 
     for (i = 0; i < numpmid; i++) {
+	if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
+	    metap = __pmdaHashedSearch(pmidlist[i], &extp->hashpmids);
+	else if (pmda->e_direct)
+	    metap = __pmdaDirectSearch(pmidlist[i], pmda);
+	else
+	    metap = __pmdaLinearSearch(pmidlist[i], pmda);
 
-    	dp = NULL;
-	metap = NULL;
-	pmidp = (__pmID_int *)&pmidlist[i];
-
-	if (pmda->e_direct) {
-/*
- * pmidp->domain is correct ... PMCD gurantees this, but
- * next to check the cluster
- */
-	    if (pmidp->item < pmda->e_nmetrics &&
-		pmidlist[i] == pmda->e_metrics[pmidp->item].m_desc.pmid) {
-/* 
- * pmidp->item is unsigned, so must be >= 0 
- */
-		metap = &pmda->e_metrics[pmidp->item];
-		dp = &(metap->m_desc);
-	    }
-	}
-	else {
-	    for (j = 0; j < pmda->e_nmetrics; j++) {
-		if (pmidlist[i] == pmda->e_metrics[j].m_desc.pmid) {
-/*
- * found the hard way 
- */
-		    metap = &pmda->e_metrics[j];
-		    dp = &(metap->m_desc);
-		    break;
-		}
-	    }
-	}
-	
-	if (dp == NULL) {
-	    /* dynamic name metrics may often vanish, avoid log spam */
-	    if (extp->pmda_interface < PMDA_INTERFACE_4) {
-		char	strbuf[20];
-		__pmNotifyErr(LOG_ERR,
-			"pmdaFetch: Requested metric %s is not defined",
-			 pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
-	    }
-	    numval = PM_ERR_PMID;
-	}
-	else {
-
+	if (metap) {
+	    dp = &(metap->m_desc);
 	    if (dp->indom != PM_INDOM_NULL) {
 		/* count instances in the profile */
 		numval = 0;
@@ -480,6 +496,18 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		numval = 1;
 	    }
 	}
+	else {
+	    dp = NULL;
+	    /* dynamic name metrics may often vanish, avoid log spam */
+	    if (extp->pmda_interface < PMDA_INTERFACE_4) {
+		char	strbuf[20];
+		__pmNotifyErr(LOG_ERR,
+			"pmdaFetch: Requested metric %s is not defined",
+			 pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
+	    }
+	    numval = PM_ERR_PMID;
+	}
+
 
 	/* Must use individual malloc()s because of pmFreeResult() */
 	if (numval >= 1)
@@ -628,48 +656,28 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 int
 pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
-    int			j;
-    int			sts = 0;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+    pmdaMetric		*metric;
+    char		strbuf[32];
 
     if (extp->pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
-    if (pmda->e_direct) {
-	__pmID_int	*pmidp = (__pmID_int *)&pmid;
-	/*
-	 * pmidp->domain is correct ... PMCD gurantees this, but
-	 * pmda->e_direct only works for a single cluster
-	 */
-	if (pmidp->item < pmda->e_nmetrics && 
-	    pmidp->cluster == 
-	     	((__pmID_int *)&pmda->e_metrics[pmidp->item].m_desc.pmid)->cluster) {
-	    /* pmidp->item is unsigned, so must be >= 0 */
-	    *desc = pmda->e_metrics[pmidp->item].m_desc;
-	}
-	else {
-	    char	strbuf[20];
-	    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
-			 pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    sts = PM_ERR_PMID;
-	}
+    if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
+	metric = __pmdaHashedSearch(pmid, &extp->hashpmids);
+    else if (pmda->e_direct)
+	metric = __pmdaDirectSearch(pmid, pmda);
+    else
+	metric = __pmdaLinearSearch(pmid, pmda);
+
+    if (metric) {
+	*desc = metric->m_desc;
+	return 0;
     }
-    else {
-	for (j = 0; j < pmda->e_nmetrics; j++) {
-	    if (pmda->e_metrics[j].m_desc.pmid == pmid) {
-		/* found the hard way */
-		*desc = pmda->e_metrics[j].m_desc;
-		break;
-	    }
-	}
-	if (j == pmda->e_nmetrics) {
-	    char	strbuf[20];
-	    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
-			 pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    sts = PM_ERR_PMID;
-	}
-    }
-    return sts;
+
+    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
+			pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+    return PM_ERR_PMID;
 }
 
 /*

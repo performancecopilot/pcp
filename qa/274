@@ -46,6 +46,8 @@ _filter2()
 {
     sed \
     	-e 's/^\[.*\] broken_pmda_2_.([0-9]*)/broken pmda/g' \
+        -e '/Info: direct map  =/d' \
+        -e '/Info: metric map  =/d' \
 	-e 's/^Log for.*/Log started/g' \
 	-e 's/^Log finished.*/Log finished/g'
 }

@@ -17,11 +17,25 @@ use strict;
 use warnings;
 
 use XML::TokeParser;
-use Spreadsheet::Read;
 use Getopt::Std;
 use Date::Parse;
 use Date::Format;
 use PCP::LogImport;
+
+# Spreadsheet::Read is not include in some distros, so we give some
+# hints here, rather than dying with
+# Can't locate Spreadsheet/Read in @INC ...
+#
+eval
+{
+    require Spreadsheet::Read;
+    Spreadsheet::Read->import();
+};
+
+if ($@) {
+    # failed
+    die "Error: Perl module Spreadsheet::Read needs to be installed either from\nyour distro or downloaded and installed from CPAN\n";
+}
 
 my $skip_rows = 0;	# N from <sheet heading="N">
 my $in_metric = 0;	# XML parser context state ... in <metric> element

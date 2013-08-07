@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -35,8 +36,8 @@ enum {
 	PROC_PROC_RUNQ,		/* 13 number of processes in various states -> proc PMDA */
 	CLUSTER_NET_SNMP,	/* 14 /proc/net/snmp */
 	CLUSTER_SCSI,		/* 15 /proc/scsi/scsi */
-	CLUSTER_XFS,		/* 16 /proc/fs/xfs/stat */
-	CLUSTER_XFSBUF,		/* 17 (deprecated /proc/fs/pagebuf/stat) */
+	CLUSTER_XFS,		/* 16 /proc/fs/xfs/stat -> xfs PMDA */
+	CLUSTER_XFSBUF,		/* 17 /proc/fs/pagebuf/stat -> xfs PMDA */
 	CLUSTER_CPUINFO,	/* 18 /proc/cpuinfo */
 	CLUSTER_NET_TCP,	/* 19 /proc/net/tcp */
 	CLUSTER_SLAB,		/* 20 /proc/slabinfo */
@@ -49,7 +50,7 @@ enum {
 	CLUSTER_VFS,		/* 27 /proc/sys/fs */
 	CLUSTER_VMSTAT,		/* 28 /proc/vmstat */
 	CLUSTER_IB,		/* deprecated: do not re-use 29 infiniband */
-	CLUSTER_QUOTA,		/* 30 quotactl() */
+	CLUSTER_QUOTA,		/* 30 quotactl() -> xfs PMDA */
 	PROC_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat -> proc PMDA */
 	PROC_PID_IO,		/* 32 /proc/<pid>/io -> proc PMDA */
 	CLUSTER_NET_INET,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */

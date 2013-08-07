@@ -149,6 +149,7 @@ pmda.systemd
 pmda.trivial
 pmda.txmon
 pmda.weblog
+pmda.xfs
 
 # tools which use PCP_COUNTER_WRAP 
 wrap
@@ -876,8 +877,10 @@ pcp.py
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 875 libpcp local oss
+876 pmda.xfs local oss
 943 pmprobe pmda.proc local oss
 944 pmcd secure local oss
+945 pmlogrewrite pmda.xfs local oss
 994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi

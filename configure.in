@@ -49,6 +49,13 @@ AC_ARG_WITH(
     [do_secure=check])
 
 AC_ARG_WITH(
+    [infiniband],
+    [AC_HELP_STRING([--with-infiniband],
+		    [enable support for Infiniband metrics (default is on)])],
+    [do_infiniband=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-infiniband=$withval"],
+    [do_infiniband=check])
+
+AC_ARG_WITH(
     [user],
     [AS_HELP_STRING([--with-user],
 		    [user account under which daemons run (default is pcp)])],
@@ -900,6 +907,45 @@ PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
                              [ pmda_systemd=systemd ], [ pmda_systemd= ])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
+have_infiniband=false
+if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
+then
+    AC_CHECK_HEADERS([infiniband/umad.h infiniband/mad.h], [have_infiniband=true], [])
+    IB_LIBS=""
+    AC_CHECK_LIB(ibmad, madrpc_init)
+    AC_CHECK_LIB(ibumad, umad_init)
+    if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
+    then
+	IB_LIBS="-libmad -libumad"
+	savedLIBS=$LIBS
+	LIBS="$IB_LIBS"
+	AC_MSG_CHECKING([for port_performance_query_via])
+	AC_TRY_LINK_FUNC(port_performance_query_via,
+                AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA)
+		have_port_performance_query_via=true
+		AC_MSG_RESULT(yes),
+                have_port_performance_query_via=false
+		AC_MSG_RESULT(no))
+	AC_MSG_CHECKING([for pma_query_via])
+	AC_TRY_LINK_FUNC(pma_query_via,
+		AC_DEFINE(HAVE_PMA_QUERY_VIA)
+                have_pma_query_via=true
+		AC_MSG_RESULT(yes),
+                have_pma_query_via=false
+		AC_MSG_RESULT(no))
+	LIBS=$savedLIBS
+	if test $have_pma_query_via -o $have_port_performance_query_via
+	then
+	    :
+	else
+	    have_infiniband=false
+	fi
+    else
+	have_infiniband=false
+    fi
+    AC_SUBST(PMDA_INFINIBAND, infiniband)
+    AC_SUBST(IB_LIBS)
+fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -916,7 +962,7 @@ AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
-AC_CHECK_FUNCS(sysinfo backtrace)
+AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then

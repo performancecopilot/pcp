@@ -39,9 +39,13 @@ ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 MAN_PAGES	+= pmwebd.1
 endif
 
+ifneq "$(PMDA_INFINIBAND)" ""
+MAN_PAGES	+= pmdaib.1
+endif
+
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
-LSRCFILES	+= pmtop.1 pmdahotproc.1 
+LSRCFILES	+= pmtop.1 pmdahotproc.1
 
 default :: default_pcp 
 
