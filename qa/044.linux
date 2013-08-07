@@ -1,7 +1,7 @@
 QA output created by 044
 
 metric:    sample.noinst
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   1
@@ -11,7 +11,7 @@ sample.noinst
 No value(s) available!
 
 metric:    sampledso.needprofile
-host:      localhost
+host:      local:
 semantics: discrete instantaneous value
 units:     none
 samples:   1

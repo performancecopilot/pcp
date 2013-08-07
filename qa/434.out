@@ -41,14 +41,14 @@ Options:
 usage - exit status 1
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter (converting to rate)
 units:     sec (converting to time utilization)
 samples:   0
 counter -s 0 - exit status 0
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter (converting to rate)
 units:     sec (converting to time utilization)
 samples:   1
@@ -56,7 +56,7 @@ NUMBER
 counter -s 1 - exit status 0
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter (converting to rate)
 units:     sec (converting to time utilization)
 samples:   2
@@ -66,14 +66,14 @@ NUMBER
 counter -s 2 - exit status 0
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter
 units:     sec
 samples:   0
 counter -r -s 0 - exit status 0
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter
 units:     sec
 samples:   1
@@ -81,7 +81,7 @@ NUMBER
 counter -r -s 1 - exit status 0
 
 metric:    sample.seconds
-host:      localhost
+host:      local:
 semantics: cumulative counter
 units:     sec
 samples:   2
@@ -91,14 +91,14 @@ NUMBER
 counter -r -s 2 - exit status 0
 
 metric:    sample.long.ten
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   0
 instantaneuos -s 0 - exit status 0
 
 metric:    sample.long.ten
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   1
@@ -106,7 +106,7 @@ NUMBER
 instantaneuos -s 1 - exit status 0
 
 metric:    sample.long.ten
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   2

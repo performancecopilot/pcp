@@ -7,7 +7,7 @@ sum of src/omen.client ...
 -- -t 0.2 -s 4 --
 
 metric:    sample.milliseconds
-host:      localhost
+host:      local:
 semantics: cumulative counter (converting to rate)
 units:     millisec (converting to time utilization)
 samples:   4
@@ -20,7 +20,7 @@ close to one
 -- -r -t 0.2 -s 4 --
 
 metric:    sample.milliseconds
-host:      localhost
+host:      local:
 semantics: cumulative counter
 units:     millisec
 samples:   4

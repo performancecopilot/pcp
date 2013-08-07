@@ -15,7 +15,7 @@ __dmopencontext: bind metric[1] derived.ctr
 
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.1
 metric:    derived.inst
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   4
@@ -96,7 +96,7 @@ __dmopencontext: bind metric[1] derived.ctr
 
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.2
 metric:    derived.ctr
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     count
 samples:   4

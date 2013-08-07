@@ -1,7 +1,7 @@
 QA output created by 058
 
 metric:    sample.longlong.million
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -10,7 +10,7 @@ interval:  1.00 sec
               1000000
 
 metric:    sample.bin
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -21,7 +21,7 @@ interval:  1.00 sec
         100         200         300         400         500         600         700         800         900 
 
 metric:    sample.part_bin
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -32,7 +32,7 @@ interval:  1.00 sec
         100           ?         300           ?         500           ?         700           ?         900 
 
 metric:    sample.bogus_bin
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     none
 samples:   2
