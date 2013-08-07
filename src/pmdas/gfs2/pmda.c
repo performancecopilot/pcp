@@ -451,6 +451,8 @@ gfs2_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
     gfs2_sbstats_init();
+
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, sizeof(indomtable)/sizeof(indomtable[0]),
                  metrictable, sizeof(metrictable)/sizeof(metrictable[0]));
 }

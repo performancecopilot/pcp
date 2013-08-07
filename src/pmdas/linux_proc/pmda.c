@@ -1501,6 +1501,7 @@ proc_init(pmdaInterface *dp)
     cgroup_init();
     proc_ctx_init();
 
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, proc_indomtab, sizeof(proc_indomtab)/sizeof(proc_indomtab[0]),
 	     proc_metrictab, sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
 

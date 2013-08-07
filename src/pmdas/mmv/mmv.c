@@ -641,9 +641,7 @@ mmv_reload_maybe(pmdaExt *pmda)
 
 	pmda->e_indoms = indoms;
 	pmda->e_nindoms = incnt;
-	pmda->e_metrics = metrics;
-	pmda->e_nmetrics = mcnt;
-	pmda->e_direct = 0;
+	pmdaRehash(pmda, metrics, mcnt);
 
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, 
@@ -846,6 +844,8 @@ mmv_init(pmdaInterface *dp)
 	dp->version.four.name = mmv_name;
 	dp->version.four.children = mmv_children;
 	pmdaSetFetchCallBack(dp, mmv_fetchCallBack);
+
+	pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
 	pmdaInit(dp, indoms, incnt, metrics, mcnt);
     }
 }
