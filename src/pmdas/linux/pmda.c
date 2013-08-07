@@ -4899,6 +4899,7 @@ linux_init(pmdaInterface *dp)
     proc_vmstat_init();
     interrupts_init();
 
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), linux_metrictab,
              sizeof(linux_metrictab)/sizeof(linux_metrictab[0]));
 }

@@ -1203,12 +1203,9 @@ darwin_init(pmdaInterface *dp)
     dp->version.two.fetch = darwin_fetch;
     pmdaSetFetchCallBack(dp, darwin_fetchCallBack);
 
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_DIRECT);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-
-    /* We should have a direct metric table lookup */
-    if (!dp->version.two.ext->e_direct)
-	__pmNotifyErr(LOG_INFO, "pmdadarwin: direct metric lookup disabled\n");
 
     mach_host = mach_host_self();
     host_page_size(mach_host, &mach_page_size);

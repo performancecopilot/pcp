@@ -98,7 +98,7 @@ auxserver.o
     b reqPorts			# single-threaded server scope
     b localSocketPath		# single-threaded server scope
     d localSocketFd		# single-threaded server scope
-    b ?require_credentials	# guarded by __pmLock_libpcp mutex
+    b ?server_features		# single-threaded server scope
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const

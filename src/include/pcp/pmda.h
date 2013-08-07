@@ -119,7 +119,7 @@ typedef struct __pmInResult pmdaInResult;
  */
 typedef struct {
 
-    unsigned int e_flags;	/* usage TBD */
+    unsigned int e_flags;	/* PMDA_EXT_FLAG_* bit field */
     void	*e_ext;		/* used internally within libpcp_pmda */
 
     char	*e_sockname;	/* socket name to pmcd */
@@ -151,6 +151,9 @@ typedef struct {
     int		e_context;	/* client context id from pmcd */
     pmdaEndContextCallBack	e_endCallBack;	/* callback after client context closed */
 } pmdaExt;
+
+#define PMDA_EXT_FLAG_DIRECT	0x1	/* direct mapped PMID metric table */
+#define PMDA_EXT_FLAG_HASHED	0x2	/* hashed PMID metric table lookup */
 
 /*
  * Interface Definitions for PMDA DSO Interface
@@ -276,10 +279,17 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
  * pmdaOpenLog
  *	Redirects stderr to the logfile.
  *
+ * pmdaSetFlags
+ *      Allow behaviour flags to be set to enable features, such as to request
+ *      libpcp_pmda internally use direct or hashed PMID metric table mapping.
+ *      Can be called multiple times - effects are cumulative - no flag can be
+ *      cleared, although libpcp_pmda may disable a flag later on if it cannot
+ *      enact the requested behaviour.
+ *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
  *      metric structures. Unique identifiers are applied to each instance 
- *	domain and metric. Also open the help text file and checks that the 
+ *	domain and metric. Also open the help text file and checks whether the 
  *	metrics can be directly mapped.
  *
  * pmdaConnect
@@ -321,6 +331,7 @@ extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
 extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
 extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 extern void pmdaOpenLog(pmdaInterface *);
+extern void pmdaSetFlags(pmdaInterface *, int);
 extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
 extern void pmdaConnect(pmdaInterface *);
 
@@ -396,6 +407,20 @@ extern int pmdaOpenHelp(char *);
 extern void pmdaCloseHelp(int);
 extern char *pmdaGetHelp(int, pmID, int);
 extern char *pmdaGetInDomHelp(int, pmInDom, int);
+
+/*
+ * Dynamic metric table manipulation
+ *
+ * pmdaRehash
+ *      Update the metrictable within the pmdaExt structure with new (dynamic)
+ *      metrics and recompute the hash table used for optimised lookup.  Aids
+ *      PMDAs with large numbers of metrics to get closer to directly mapped
+ *      PMID lookup time, rather than multiple linear table scans per fetch.
+ *
+ *      [NOTE: can be used by any interface version, not only dynamic metrics]
+ *
+ */
+extern void pmdaRehash(pmdaExt *, pmdaMetric *, int);
 
 /*
  * Dynamic names interface (version 4) helper routines.

@@ -916,6 +916,7 @@ xfs_init(pmdaInterface *dp)
     xfs_indomtab[FILESYS_INDOM].it_indom = FILESYS_INDOM;
     xfs_indomtab[QUOTA_PRJ_INDOM].it_indom = QUOTA_PRJ_INDOM;
 
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, xfs_indomtab, sizeof(xfs_indomtab)/sizeof(xfs_indomtab[0]),
 		xfs_metrictab, sizeof(xfs_metrictab)/sizeof(xfs_metrictab[0]));
     pmdaCacheOp(INDOM(FILESYS_INDOM), PMDA_CACHE_CULL);

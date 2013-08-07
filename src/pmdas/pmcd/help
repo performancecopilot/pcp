@@ -306,6 +306,12 @@ Value for the $TZ environment variable where the PMCD is running.
 Enables determination of "local" time for timestamps returned via
 PMCD from a remote host.
 
+@ pmcd.hostname local hostname
+A reasonably unique identifier of the PMCD installation, for use
+by pmlogger or other tools to identify the source principal of
+the data (as distinct from identifying the connection/protocol
+used to reach it).
+
 @ pmcd.simabi Procedure call model and ABI version of this PMCD
 SIM is the subprogram interface model (originally from the MIPS object
 code formats), and ABI is the application binary interface.  Both
@@ -404,16 +410,6 @@ bits 15..8
 
 bits 23..16
         the number of the signal that terminated the PMDA
-
-@ pmcd.license PCP license capabilities at the PMCD host
-A vector of bit fields that encode the PCP license capabilities at the
-PMCD host.
-
-Current bit-field values are:
-
-       1	PCP collector license
-       2	PCP monitor license
-       8	WebMeter license
 
 @ pmcd.openfds highest PMCD file descriptor
 The highest file descriptor index used by PMCD for a Client or PMDA
@@ -521,4 +517,10 @@ A value of zero indicates no support, one indicates actively available.
 A value of zero indicates no support, one indicates actively available.
 
 @ pmcd.feature.authentication status of per-user authentication support
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.creds_required status of required credentials support
+A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.unix_domain_sockets status of unix domain socket support
 A value of zero indicates no support, one indicates actively available.

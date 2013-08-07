@@ -30,6 +30,7 @@ typedef struct {
     int		pmda_interface;
     pmResult	*res;			/* high-water allocation for */
     int		maxnpmids;		/* pmResult for each PMDA */
+    __pmHashCtl	hashpmids;		/* hashed metrictab lookups */
 } e_ext_t;
 
 #endif /* LIBDEFS_H */

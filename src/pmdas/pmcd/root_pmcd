@@ -26,8 +26,8 @@ pmcd {
     simabi	PMCD:0:6
     version	PMCD:0:7
     build	PMCD:0:20
-    license	PMCD:0:16
     openfds	PMCD:0:17
+    hostname	PMCD:0:21
     pmie
     buf
     client
@@ -144,6 +144,8 @@ pmcd.feature {
     compress		PMCD:8:1
     ipv6		PMCD:8:2
     authentication	PMCD:8:3
+    creds_required	PMCD:8:4
+    unix_domain_sockets	PMCD:8:5
 }
 
 #undef PMCD

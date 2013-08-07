@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,7 +16,9 @@
 .\"
 .TH PMDAINIT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaInit\f1 \- initialize a PMDA
+\f3pmdaInit\f1,
+\f3pmdaRehash\f1,
+\f3pmdaSetFlags\f1 \- initialize a PMDA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -29,6 +32,12 @@
 .in +8n
 .ti -8n
 void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+.br
+.ti -8n
+void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+.br
+.ti -8n
+void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .sp
 .in
 .hy
@@ -152,12 +161,64 @@ argument to
 or
 .BR pmdaDaemon (3).
 .PP
-The final stage determines if the metrics can be directly mapped to the
-metric table using their unique identifiers.  If all of the metric PMID item
-numbers correspond to the position in the 
+The final stage involves preparing the metric table lookup strategy.
+.SH "METRIC LOOKUP"
+When fetch and descriptor requests are made of the PMDA, each
+requested PMID must be mapped to a metric table entry.
+There are currently three strategies for performing this mapping \-
+direct, linear and hashed.
+Each has its own set of tradeoffs and an appropriate strategy
+should be selected for each PMDA.
+.PP
+If all of the metric PMID item numbers correspond to the position
+in the 
 .I metrics
-table, then direct mapping is used.  This can greatly improve the
-efficiency of the callback functions.
+table, then direct mapping is used.
+This is the most efficient of the lookup functions as it involves
+a direct array index (no additional memory is required nor any
+additional processing overhead).
+If the PMID numbering requirement is met by the PMDA, it is ideal.
+This strategy can be explicitly requested by calling
+.BR pmdaSetFlags \c
+(\f2pmda\f1, \f2PMDA_FLAG_EXT_DIRECT\f1)
+before calling
+.BR pmdaInit .
+In this case, if the direct mapping is not possible (e.g. due to
+an oversight on the part of the PMDA developer), a warning is
+logged and the linear strategy is used instead.
+.PP
+The second strategy (linear search) is the default, when a direct
+mapping cannot be established.
+This provides greater flexibility in the PMID numbering scheme,
+as the PMDA item numbers do not have to be unique (hence, the PMID
+cluster numbers can be used more freely, which is often extremely
+convenient for the PMDA developer).
+However, lookup involves a linear walk from the start of the metric
+table until a matching PMID is found, for each requested PMID in a
+request.
+.PP
+The third strategy (hash lookup) can be requested by calling
+.BR pmdaSetFlags \c
+(\f2pmda\f1, \f2PMDA_FLAG_EXT_HASHED\f1)
+before calling
+.BR pmdaInit .
+This strategy is most useful for PMDAs with large numbers of metrics
+(many hundreds, or thousands).
+Such PMDAs will almost always use the cluster numbering scheme, so
+the direct lookup scheme becomes inappropriate.
+They may also be prepared to sacrifice a small amount of additional
+memory for a hash table, mapping PMID to metric table offsets, to
+speed up lookups in their vast metric tables.
+.PP
+This final strategy can also be used by PMDAs serving up dynamically
+numbered metrics.
+For this case, the
+.B pmdaRehash
+function should be used to replace the metric table when new metrics
+become available, or existing metrics are removed.
+The PMID hash mapping will be recomputed at the same time that the
+new metric table is installed.
+
 .SH DIAGNOSTICS
 .B pmdaInit
 will set
@@ -211,6 +272,12 @@ in the
 .I metrics
 table.  This is less efficient but is not fatal and the message is only a 
 warning.
+.TP
+.BI "Hashed mapping for metrics disabled @ " num
+A memory allocation failure occurred while building the hash table to
+index the metric description table.
+This is a non-fatal warning message - a fallback to linear searching
+will be automatically performed should this situation arise.
 .SH CAVEAT
 The PMDA must be using 
 .B PMDA_INTERFACE_2 

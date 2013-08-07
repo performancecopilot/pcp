@@ -19,7 +19,6 @@ rm -rf $tmp.*
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 HOSTS=qa_hosts
-BRAND=pmbrand
 SSH_USER=pcpqa
 
 _usage()
@@ -31,9 +30,7 @@ Options:
 -b 32|64                 kernel binary format
 -D                       debug/trace (see also -V)
 -e big|little            endianess
--i 5.3|6.2|...           version of IRIX
 -h hostfile              name of host file, default is qa_hosts
--l none|full|web         PCP collector license
 -L                       do not consider localhost
 -m {metric}<op>{value}   satisfies metric value predicate
 -n num                   match first num hosts
@@ -58,14 +55,12 @@ file and -h
 }
 
 # 
-# _checkpmcdhost moomba _ 64 6.2 _ _ multi 2 _ _ _
+# _checkpmcdhost moomba _ 64 _ multi 2 _ _ _
 #
 # Parameters:
 #	host	name
 #	agent	name | _
 #	binfmt	32 | n32 | 64 | _
-#	irix	5.3 | 6.2 | 6.3 | 6.4 | 6.5 | _
-#	license	none | full | web | _
 #	primary	true | false
 #	proc	multi | single | _
 #	pcp	1 | 2 | _
@@ -79,14 +74,12 @@ _checkpmcdhost()
     HOST=$1
     AGENT=$2
     BINFMT=$3
-    IRIX=$4
-    LICENSE=$5
-    PRIMARY=$6
-    PROC=$7
-    PCP=$8
-    MSG=$9
-    SYSTEM=${10}
-    ENDIAN=${11}
+    PRIMARY=$4
+    PROC=$5
+    PCP=$6
+    MSG=$7
+    SYSTEM=${8}
+    ENDIAN=${9}
     ERROR=0
 
     # check that host has a running pmcd
@@ -112,7 +105,6 @@ _checkpmcdhost()
         fi
     fi
 
-
     # check binfmt
     #
     if [ "$BINFMT" != "_" ]
@@ -135,22 +127,6 @@ _checkpmcdhost()
 	fi
     fi
 
-    # check that ssh works for user@host
-    #
-    if [ "$LICENSE" != "_" -o "$IRIX" != "_" ]
-    then
-	if ssh -q $SSH_USER@$HOST date 1>/dev/null 2>&1
-	then
-	    :
-	else
-	    if $MSG
-	    then
-		echo "$0: WARNING: \"ssh -q $SSH_USER@$HOST\" failed" >&2
-		return 1
-	    fi
-	fi
-    fi
-
     # check operating system name 
     #
     if [ "$SYSTEM" != "_" ]
@@ -162,51 +138,6 @@ _checkpmcdhost()
         else
 	    $MSG && echo "$HOST: system $SYSTEM no match with $osname " >&2
 	    return 1;
-	fi
-    fi
-
-
-    # check IRIX format
-    #
-    if [ "$IRIX" != "_" ]
-    then
-	irixrev=`ssh -q $SSH_USER@$HOST uname -r | sed -e 's/-ALPHA.*//' -e 's/ .*//'`
-	if [ "$irixrev" != $IRIX ]
-	then
-	    $MSG && echo "$HOST: IRIX $IRIX != $irixrev" >&2
-	    return 1;
-	fi
-    fi
-
-    # check license
-    #
-    if [ "$LICENSE" != "_" ]
-    then
-	$VERBOSE && echo "+ ssh -q $SSH_USER@$HOST $BRAND -l"
-	license=`ssh -q $SSH_USER@$HOST "$BRAND -l" 2>&1`
-	$VERBOSE && echo "-> |$license|"
-	if [ "$LICENSE" = "full" ]
-	then
-	    if echo "$license" | grep "PCP Collector" > /dev/null 2>&1
-	    then
-		:
-	    else
-		$MSG && echo "$HOST: No pcp collector license" >&2
-		return 1
-	    fi
-	elif [ "$LICENSE" = "web" ]
-	then
-	    if echo "$license" | grep "WebMeter Collector" > /dev/null 2>&1
-	    then
-		:
-	    else
-		$MSG && echo "$HOST: No webmeter license" >&2
-		return 1
-	    fi
-	elif echo "$license" | grep "Collector" > /dev/null 2>&1
-	then
-	    $MSG && echo "$HOST: Has a valid license" >&2
-	    return 1
 	fi
     fi
 
@@ -452,8 +383,6 @@ NF >=3	{ if ( $2 < 0 ) {
 # set defaults
 AGENT="_"
 BINFMT="_"
-IRIX="_"
-LICENSE="_"
 PROC="_"
 PCP="_"
 SYSTEM="_"
@@ -466,7 +395,7 @@ MSG=false
 COUNT=0
 VERBOSE=false
 
-while getopts "a:b:De:h:i:l:Lm:n:Pp:s:v:V" c
+while getopts "a:b:De:h:Lm:n:Pp:s:v:V" c
 do
     case $c
     in
@@ -503,12 +432,6 @@ do
 		_usage
 		#NOTREACHED
 	    fi
-	    ;;
-	i)
-	    IRIX=$OPTARG
-	    ;;
-	l)
-	    LICENSE=$OPTARG
 	    ;;
 	L)
 	    LOCAL=true
@@ -611,20 +534,6 @@ then
     err=1
 fi
 
-if [ "$IRIX" != "_" -a "$IRIX" != 5.3 -a "$IRIX" != 6.2 -a "$IRIX" != 6.3 -a \
-     "$IRIX" != 6.4 -a "$IRIX" != 6.5 ]
-then
-    echo "$0: -i option takes 5.3, 6.2, 6.3, 6.4 or 6.5" >&2
-    err=1
-fi
-
-if [ "$LICENSE" != "_" -a "$LICENSE" != "none" -a "$LICENSE" != "full" -a \
-     "$LICENSE" != "web" ]
-then
-    echo "$0: -l option takes none, full or web" >&2
-    err=1
-fi
-
 if [ "$PROC" != "_" -a "$PROC" != "multi" -a "$PROC" != "single" ]
 then
     echo "$0: -p options takes multi or single" >&2
@@ -681,7 +590,7 @@ $MSG && ( echo "Checking hosts:"; echo "$QA_HOSTS"; echo ) >&2
 i=0
 for HOST in $QA_HOSTS
 do
-    if _checkpmcdhost $HOST $AGENT $BINFMT $IRIX $LICENSE $PRIMARY $PROC $PCP $MSG $SYSTEM $ENDIAN
+    if _checkpmcdhost $HOST $AGENT $BINFMT $PRIMARY $PROC $PCP $MSG $SYSTEM $ENDIAN
     then
 	if $LIST
 	then
