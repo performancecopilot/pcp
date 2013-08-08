@@ -382,11 +382,13 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-interrupts_init(void)
+interrupts_init(pmdaMetric *metrictable, int nmetrics)
 {
     int set[] = { CLUSTER_INTERRUPT_LINES, CLUSTER_INTERRUPT_OTHER };
 
-    linux_dynamic_pmns("kernel.percpu.interrupts", set, sizeof(set)/sizeof(int),
+    linux_dynamic_pmns("kernel.percpu.interrupts",
+			set, sizeof(set)/sizeof(int),
 			refresh_interrupts, interrupts_text,
-			refresh_metrictable, size_metrictable);
+			refresh_metrictable, size_metrictable,
+			metrictable, nmetrics);
 }

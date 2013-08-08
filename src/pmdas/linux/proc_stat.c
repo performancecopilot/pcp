@@ -30,7 +30,7 @@
 int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
-    pmdaIndom *idp = &indomtab[CPU_INDOM];
+    pmdaIndom *idp = PMDAINDOM(CPU_INDOM);
     char fmt[64];
     static int fd = -1; /* kept open until exit() */
     static int started;

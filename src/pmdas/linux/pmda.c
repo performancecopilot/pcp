@@ -233,7 +233,7 @@ static pmdaInstid nfs4_svr_indom_id[] = {
 	{ 40, "rellockowner" },
 };
 
-pmdaIndom indomtab[] = {
+static pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL },
     { DISK_INDOM, 0, NULL }, /* cached */
     { LOADAVG_INDOM, 3, loadavg_indom_id },
@@ -265,7 +265,7 @@ pmdaIndom indomtab[] = {
  * all metrics supported in this PMDA - one table entry for each
  */
 
-pmdaMetric linux_metrictab[] = {
+static pmdaMetric metrictab[] = {
 
 /*
  * /proc/stat cluster
@@ -4775,10 +4775,16 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
-int
-linux_metrictable_size(void)
+pmInDom
+linux_indom(int serial)
 {
-    return sizeof(linux_metrictab)/sizeof(linux_metrictab[0]);
+    return indomtab[serial].it_indom;
+}
+
+pmdaIndom *
+linux_pmda_indom(int serial)
+{
+    return &indomtab[serial];
 }
 
 /*
@@ -4789,6 +4795,7 @@ void
 linux_init(pmdaInterface *dp)
 {
     int		i, major, minor, point;
+    size_t	nmetrics, nindoms;
     __pmID_int	*idp;
 
     _pm_system_pagesize = getpagesize();
@@ -4842,8 +4849,8 @@ linux_init(pmdaInterface *dp)
 	    _pm_idletime_size = 4;
 	}
     }
-    for (i = 0; i < sizeof(linux_metrictab)/sizeof(pmdaMetric); i++) {
-	idp = (__pmID_int *)&(linux_metrictab[i].m_desc.pmid);
+    for (i = 0; i < sizeof(metrictab)/sizeof(pmdaMetric); i++) {
+	idp = (__pmID_int *)&(metrictab[i].m_desc.pmid);
 	if (idp->cluster == CLUSTER_STAT) {
 	    switch (idp->item) {
 	    case 0:	/* kernel.percpu.cpu.user */
@@ -4876,32 +4883,34 @@ linux_init(pmdaInterface *dp)
 	    case 67:	/* kernel.pernode.cpu.steal */
 	    case 68:	/* kernel.pernode.cpu.guest */
 	    case 77:	/* kernel.pernode.cpu.vuser */
-		_pm_metric_type(linux_metrictab[i].m_desc.type, _pm_cputime_size);
+		_pm_metric_type(metrictab[i].m_desc.type, _pm_cputime_size);
 		break;
 	    case 3:	/* kernel.percpu.cpu.idle */
 	    case 23:	/* kernel.all.cpu.idle */
 	    case 65:	/* kernel.pernode.cpu.idle */
-		_pm_metric_type(linux_metrictab[i].m_desc.type, _pm_idletime_size);
+		_pm_metric_type(metrictab[i].m_desc.type, _pm_idletime_size);
 		break;
 	    case 12:	/* kernel.all.intr */
-		_pm_metric_type(linux_metrictab[i].m_desc.type, _pm_intr_size);
+		_pm_metric_type(metrictab[i].m_desc.type, _pm_intr_size);
 		break;
 	    case 13:	/* kernel.all.pswitch */
-		_pm_metric_type(linux_metrictab[i].m_desc.type, _pm_ctxt_size);
+		_pm_metric_type(metrictab[i].m_desc.type, _pm_ctxt_size);
 		break;
 	    }
 	}
-	if (linux_metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
+	if (metrictab[i].m_desc.type == PM_TYPE_NOSUPPORT)
 	    fprintf(stderr, "Bad kernel metric descriptor type (%u.%u)\n",
 			    idp->cluster, idp->item);
     }
 
+    nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
+    nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
+
     proc_vmstat_init();
-    interrupts_init();
+    interrupts_init(metrictab, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), linux_metrictab,
-             sizeof(linux_metrictab)/sizeof(linux_metrictab[0]));
+    pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 }
 
 
