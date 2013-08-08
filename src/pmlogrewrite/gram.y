@@ -125,6 +125,7 @@ walk_metric(int mode, int flag, char *which)
 	TOK_ASSIGN
 	TOK_GLOBAL
 	TOK_INDOM
+	TOK_DUPLICATE
 	TOK_METRIC
 	TOK_HOSTNAME
 	TOK_TZ
@@ -149,7 +150,7 @@ walk_metric(int mode, int flag, char *which)
 %type<str>	hname
 %type<indom>	indom_int null_or_indom
 %type<pmid>	pmid_int pmid_or_name
-%type<ival>	signnumber number rescaleopt
+%type<ival>	signnumber number rescaleopt duplicateopt
 %type<dval>	float
 
 %%
@@ -454,7 +455,7 @@ indomoptlist	: indomopt
 		| indomopt indomoptlist
 		;
 
-indomopt	: TOK_INDOM TOK_ASSIGN indom_int
+indomopt	: TOK_INDOM TOK_ASSIGN duplicateopt indom_int
 		    {
 			indomspec_t	*ip;
 			for (ip = walk_indom(W_START); ip != NULL; ip = walk_indom(W_NEXT)) {
@@ -464,9 +465,9 @@ indomopt	: TOK_INDOM TOK_ASSIGN indom_int
 				yyerror(mess);
 			    }
 			    if (current_star_indom)
-				indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(ip->old_indom));
+				indom = pmInDom_build(pmInDom_domain($4), pmInDom_serial(ip->old_indom));
 			    else
-				indom = $3;
+				indom = $4;
 			    if (indom != ip->old_indom)
 				ip->new_indom = indom;
 			    else {
@@ -476,6 +477,7 @@ indomopt	: TOK_INDOM TOK_ASSIGN indom_int
 				    yywarn(mess);
 				}
 			    }
+			    ip->indom_flags |= $3;
 			}
 		    }
 		| TOK_INAME TOK_STRING TOK_ASSIGN TOK_STRING
@@ -553,6 +555,10 @@ indomopt	: TOK_INDOM TOK_ASSIGN indom_int
 			snprintf(mess, sizeof(mess), "Expecting old internal instance identifier in inst clause");
 			yyerror(mess);
 		    }
+		;
+
+duplicateopt	: TOK_DUPLICATE 	{ $$ = INDOM_DUPLICATE; }
+		|			{ $$ = 0; }
 		;
 
 metricspec	: TOK_METRIC pmid_or_name
