@@ -1,6 +1,7 @@
 /*
- * Dynamic namespace metrics for the Linux kernel PMDA
+ * Dynamic namespace metrics, PMDA helper routines.
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,32 +18,31 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "indom.h"
 #include "dynamic.h"
-#include "clusters.h"
 
 static struct dynamic {
-    const char	*prefix;
-    int		prefixlen;
-    int		mtabcount;	/* internal use only */
-    int		extratrees;	/* internal use only */
-    int		nclusters;
-    int		*clusters;
-    pmnsUpdate	pmnsupdate;
-    textUpdate	textupdate;
-    mtabUpdate	mtabupdate;
-    mtabCounts	mtabcounts;
-    __pmnsTree 	*pmns;
-    pmdaMetric	*metrics;	/* original fixed table */
-    int		nmetrics;	/* fixed metrics number */
+    const char		*prefix;
+    int			prefixlen;
+    int			mtabcount;	/* internal use only */
+    int			extratrees;	/* internal use only */
+    int			nclusters;
+    int			*clusters;
+    pmdaUpdatePMNS	pmnsupdate;
+    pmdaUpdateText	textupdate;
+    pmdaUpdateMetric	mtabupdate;
+    pmdaCountMetrics	mtabcounts;
+    pmdaNameSpace	*pmns;
+    pmdaMetric		*metrics;	/* original fixed table */
+    int			nmetrics;	/* fixed metrics number */
 } *dynamic;
 
 static int dynamic_count;
 
 void
-linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
-	    pmnsUpdate pmnsupdate, textUpdate textupdate,
-	    mtabUpdate mtabupdate, mtabCounts mtabcounts,
+pmdaDynamicPMNS(const char *prefix,
+	    int *clusters, int nclusters,
+	    pmdaUpdatePMNS pmnsupdate, pmdaUpdateText textupdate,
+	    pmdaUpdateMetric mtabupdate, pmdaCountMetrics mtabcounts,
 	    pmdaMetric *metrics, int nmetrics)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
@@ -74,23 +74,23 @@ linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
     dynamic_count++;
 }
 
-__pmnsTree *
-linux_dynamic_lookup_name(pmdaExt *pmda, const char *name)
+pmdaNameSpace *
+pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 {
     int i;
 
     for (i = 0; i < dynamic_count; i++) {
 	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
 	    if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
-		linux_dynamic_metrictable(pmda);
+		pmdaDynamicMetricTable(pmda);
 	    return dynamic[i].pmns;
 	}
     }
     return NULL;
 }
 
-__pmnsTree *
-linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
+pmdaNameSpace *
+pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 {
     int i, j;
     int cluster = pmid_cluster(pmid);
@@ -99,7 +99,7 @@ linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 	for (j = 0; j < dynamic[i].nclusters; j++) {
 	    if (cluster == dynamic[i].clusters[j]) {
 		if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
-		    linux_dynamic_metrictable(pmda);
+		    pmdaDynamicMetricTable(pmda);
 		return dynamic[i].pmns;
 	    }
 	}
@@ -108,7 +108,7 @@ linux_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 }
 
 int
-linux_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
+pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
 {
     int i, j;
     int cluster = pmid_cluster(pmid);
@@ -127,7 +127,7 @@ linux_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
  * which needs to be filled in.  All a bit obscure, really.
  */
 static pmdaMetric *
-linux_dynamic_mtab(struct dynamic *dynamic, pmdaMetric *offset)
+dynamic_metric_table(struct dynamic *dynamic, pmdaMetric *offset)
 {
     int m, tree_count = dynamic->extratrees;
 
@@ -151,7 +151,7 @@ linux_dynamic_mtab(struct dynamic *dynamic, pmdaMetric *offset)
  * for libpcp_pmda callback routines subsequent use.
  */
 void
-linux_dynamic_metrictable(pmdaExt *pmda)
+pmdaDynamicMetricTable(pmdaExt *pmda)
 {
     int i, trees, total, resize = 0;
     pmdaMetric *mtab, *fixed, *offset;
@@ -182,7 +182,7 @@ fallback:
 	memcpy(mtab, fixed, total * sizeof(pmdaMetric));
 	offset = mtab + total;
 	for (i = 0; i < dynamic_count; i++)
-	    offset = linux_dynamic_mtab(&dynamic[i], offset);
+	    offset = dynamic_metric_table(&dynamic[i], offset);
 	if (pmda->e_metrics != fixed)
 	    free(pmda->e_metrics);
 	pmdaRehash(pmda, mtab, resize);

@@ -3145,7 +3145,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     	refresh_sysfs_kernel(&sysfs_kernel);
 
     if (need_refresh_mtab)
-	linux_dynamic_metrictable(pmda);
+	pmdaDynamicMetricTable(pmda);
 }
 
 static int
@@ -4747,7 +4747,7 @@ static int
 linux_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = linux_dynamic_lookup_text(ident, type, buf, pmda);
+	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
 	if (sts != -ENOENT)
 	    return sts;
     }
@@ -4757,21 +4757,21 @@ linux_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 linux_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsTree *tree = linux_dynamic_lookup_name(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
 linux_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsTree *tree = linux_dynamic_lookup_pmid(pmda, pmid);
+    pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
 linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsTree *tree = linux_dynamic_lookup_name(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 

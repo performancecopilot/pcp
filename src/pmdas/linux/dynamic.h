@@ -1,6 +1,7 @@
 /*
- * Dynamic namespace metrics for the Linux kernel PMDA
+ * Dynamic namespace metrics, PMDA helper routines.
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,15 +16,17 @@
  */
 
 /* function to refresh a specific subtree */
-typedef int  (*pmnsUpdate)(pmdaExt *, __pmnsTree **);
-typedef int  (*textUpdate)(pmdaExt *, pmID, int, char **);
-typedef void (*mtabUpdate)(pmdaMetric *, pmdaMetric *, int);
-typedef void (*mtabCounts)(int *, int *);
+typedef int  (*pmdaUpdatePMNS)(pmdaExt *, __pmnsTree **);
+typedef int  (*pmdaUpdateText)(pmdaExt *, pmID, int, char **);
+typedef void (*pmdaUpdateMetric)(pmdaMetric *, pmdaMetric *, int);
+typedef void (*pmdaCountMetrics)(int *, int *);
 
-extern void linux_dynamic_pmns(const char *, int *, int,
-			       pmnsUpdate, textUpdate, mtabUpdate, mtabCounts,
-			       pmdaMetric *, int);
-extern __pmnsTree *linux_dynamic_lookup_name(pmdaExt *, const char *);
-extern __pmnsTree *linux_dynamic_lookup_pmid(pmdaExt *, pmID);
-extern int linux_dynamic_lookup_text(pmID, int, char **, pmdaExt *);
-extern void linux_dynamic_metrictable(pmdaExt *);
+extern void pmdaDynamicPMNS(const char *, int *, int,
+			    pmdaUpdatePMNS, pmdaUpdateText,
+			    pmdaUpdateMetric, pmdaCountMetrics,
+			    pmdaMetric *, int);
+
+extern pmdaNameSpace *pmdaDynamicLookupName(pmdaExt *, const char *);
+extern pmdaNameSpace *pmdaDynamicLookupPMID(pmdaExt *, pmID);
+extern int pmdaDynamicLookupText(pmID, int, char **, pmdaExt *);
+extern void pmdaDynamicMetricTable(pmdaExt *);
