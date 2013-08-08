@@ -18,7 +18,6 @@
 #include "pmda.h"
 #include "cgroups.h"
 #include "filesys.h"
-#include "dynamic.h"
 #include "clusters.h"
 #include "proc_pid.h"
 #include <sys/stat.h>
@@ -746,7 +745,7 @@ cgroup_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-cgroup_init(void)
+cgroup_init(pmdaMetric *metrics, int nmetrics)
 {
     int set[] = { CLUSTER_CPUSET_GROUPS, CLUSTER_CPUSET_PROCS,
 		  CLUSTER_CPUACCT_GROUPS, CLUSTER_CPUACCT_PROCS,
@@ -755,7 +754,9 @@ cgroup_init(void)
 		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
 		};
 
-    proc_dynamic_pmns(CGROUP_ROOT, set, sizeof(set)/sizeof(int),
-			refresh_cgroups, cgroup_text,
-			refresh_metrictable, size_metrictable);
+    pmdaDynamicPMNS(CGROUP_ROOT,
+		    set, sizeof(set)/sizeof(int),
+		    refresh_cgroups, cgroup_text,
+		    refresh_metrictable, size_metrictable,
+		    metrics, nmetrics);
 }

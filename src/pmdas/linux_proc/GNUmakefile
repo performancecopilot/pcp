@@ -24,10 +24,10 @@ LIBTARGET	= pmda_proc.so
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
-CFILES		= pmda.c cgroups.c dynamic.c filesys.c proc_pid.c proc_runq.c \
+CFILES		= pmda.c cgroups.c filesys.c proc_pid.c proc_runq.c \
 		  ksym.c getinfo.c contexts.c
 
-HFILES		= cgroups.h clusters.h dynamic.h proc_pid.h indom.h getinfo.h \
+HFILES		= cgroups.h clusters.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h contexts.h
 
 LSRCFILES 	= help root_proc linux_proc_migrate.conf
@@ -70,9 +70,8 @@ install_pcp : install
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-cgroups.o dynamic.o pmda.o: clusters.h
+cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
-cgroups.o dynamic.o pmda.o:	dynamic.h
 cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h
 pmda.o proc_runq.o:	proc_runq.h
 filesys.o:	filesys.h

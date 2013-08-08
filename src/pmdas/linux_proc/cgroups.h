@@ -40,7 +40,7 @@ cgroup_pmid_metric(pmID id)
     return pmid_item(id) & ((1 << 5) - 1);
 }
 
-extern void cgroup_init();
+extern void cgroup_init(pmdaMetric *, int);
 extern char *cgroup_find_subsys(pmInDom, const char *);
 
 extern int refresh_cgroups(pmdaExt *, __pmnsTree **);
