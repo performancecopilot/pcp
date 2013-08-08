@@ -13,15 +13,71 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-_notrun "Not yet ready, problems with the pmlogrewrite config"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
 
+_compare()
+{
+    echo "Label record diffs ..."
+    pmdumplog -z -L $1 >$tmp.1
+    pmdumplog -z -L $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+
+    echo "Instance domain diffs ..."
+    pmdumplog -z -i $1 >$tmp.1
+    pmdumplog -z -i $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+
+    echo "Metadata diffs ..."
+    pmdumplog -z -d $1 \
+    | sed -e '/^PMID/{
+N
+N
+s/\n */ /g
+}' \
+    | sort -k 3 >$tmp.1
+    pmdumplog -z -d $2 \
+    | sed -e '/^PMID/{
+N
+N
+s/\n */ /g
+}' \
+    | sort -k 3 >$tmp.2
+    # interested in these sorts of metrics
+    # PMID: 60.5.1 (filesys.capacity)
+    #    Data Type: 64-bit unsigned int  InDom: 60.5 0xf000005
+    # PMID: 11.30.0 (quota.state.project.accounting)
+    #    Data Type: 32-bit unsigned int  InDom: 11.5 0x2c00005
+    egrep 'filesys.free|quota.state.project.accounting' $tmp.1 >$tmp.1a
+    egrep 'filesys.free|quota.state.project.accounting' $tmp.2 >$tmp.2a
+    diff $tmp.1a $tmp.2a
+    sed -e 's/PMID: 60\./XX./g' -e 's/PMID: 11\./XX./g' \
+        -e '/InDom:/{
+s/m: 60\./m: XX./
+s/m: 11\./m: XX./
+s/ 0xf0/ 0xfXX/
+s/ 0x2c/ 0xfXX/
+}' $tmp.1 >$tmp.1a
+    sed -e 's/PMID: 60\./XX./g' -e 's/PMID: 11\./XX./g' \
+        -e '/InDom:/{
+s/m: 60\./m: XX./
+s/m: 11\./m: XX./
+s/ 0xf0/ 0xfXX/
+s/ 0x2c/ 0xfXX/
+}' $tmp.2 >$tmp.2a
+    diff $tmp.1a $tmp.2a
+
+    echo "Temporal index diffs ..."
+    pmdumplog -z -t $1 >$tmp.1
+    pmdumplog -z -t $2 >$tmp.2
+    diff $tmp.1 $tmp.2
+}
+
 # real QA test starts here
 cat >$tmp.config <<End-of-File
+indom 11.16 { indom -> duplicate 60.16 }
 metric 11.16.* { pmid -> 60.*.* }	# CLUSTER_XFS
 metric 11.17.* { pmid -> 60.*.* }	# CLUSTER_XFSBUF
 metric 11.30.* { pmid -> 60.*.* indom -> 60.* }	# CLUSTER_QUOTA
@@ -31,16 +87,18 @@ pmlogrewrite -c $tmp.config -w src/new_xfs $tmp.old
 
 pmlogrewrite -c $migrate -w $tmp.old $tmp.new
 
-pmdumplog -a $tmp.old >$tmp.old.dump
-pmdumplog -a $tmp.new >$tmp.new.dump
-pmdumplog -a src/new_xfs >$tmp.ref.dump
+echo "=== ref ===" >>$seq.full
+pmdumplog -z -a src/new_xfs >>$seq.full
+echo "=== old ===" >>$seq.full
+pmdumplog -z -a $tmp.old >>$seq.full
+echo "=== new ===" >>$seq.full
+pmdumplog -z -a $tmp.new >>$seq.full
 
 echo "old -> new changes"
-diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
-
+_compare $tmp.old $tmp.new
 echo
-echo "new -> ref changes ... expect none"
-diff -u $tmp.new.dump $tmp.ref.dump | sed -e '/^---/d' -e '/^+++/d'
+echo "new -> ref changes ... expect none for metadata"
+_compare $tmp.new src/new_xfs
 
 # success, all done
 status=0
