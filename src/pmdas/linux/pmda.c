@@ -22,7 +22,6 @@
 #include "pmda.h"
 #undef LINUX /* defined in NSS/NSPR headers as something different, which we do not need. */
 #include "domain.h"
-#include "dynamic.h"
 
 #include <ctype.h>
 #include <sys/vfs.h>

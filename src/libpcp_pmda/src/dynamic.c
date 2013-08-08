@@ -18,7 +18,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "dynamic.h"
 
 static struct dynamic {
     const char		*prefix;

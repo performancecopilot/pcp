@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "filesys.h"
-#include "dynamic.h"
 #include "clusters.h"
 #include "interrupts.h"
 #include <sys/stat.h>
