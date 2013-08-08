@@ -27,7 +27,7 @@ static struct dynamic {
     int		mtabcount;	/* internal use only */
     int		extratrees;	/* internal use only */
     int		nclusters;
-    int		clusters[NUM_CLUSTERS];
+    int		*clusters;
     pmnsUpdate	pmnsupdate;
     textUpdate	textupdate;
     mtabUpdate	mtabupdate;
@@ -43,15 +43,24 @@ linux_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
 	    mtabUpdate mtabupdate, mtabCounts mtabcounts)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
+    int *ctab;
+    size_t ctabsz;
 
     if ((dynamic = (struct dynamic *)realloc(dynamic, size)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
 	return;
     }
+    ctabsz = sizeof(int) * nclusters;
+    if ((ctab = (int *)malloc(ctabsz)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic clusters");
+	free(dynamic);
+	return;
+    }
     dynamic[dynamic_count].prefix = prefix;
     dynamic[dynamic_count].prefixlen = strlen(prefix);
     dynamic[dynamic_count].nclusters = nclusters;
-    memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
+    dynamic[dynamic_count].clusters = ctab;
+    memcpy(dynamic[dynamic_count].clusters, clusters, ctabsz);
     dynamic[dynamic_count].pmnsupdate = pmnsupdate;
     dynamic[dynamic_count].textupdate = textupdate;
     dynamic[dynamic_count].mtabupdate = mtabupdate;
