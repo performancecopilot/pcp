@@ -13,6 +13,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+_notrun "Not yet ready, problems with the pmlogrewrite config"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
@@ -20,10 +22,9 @@ migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
 
 # real QA test starts here
 cat >$tmp.config <<End-of-File
-indom 11.16 { indom -> 60.* }
-metric 11.16.* { pmid -> 60.*.* }
-metric 11.17.* { pmid -> 60.*.* }
-metric 11.30.* { pmid -> 60.*.* indom -> 60.* }
+metric 11.16.* { pmid -> 60.*.* }	# CLUSTER_XFS
+metric 11.17.* { pmid -> 60.*.* }	# CLUSTER_XFSBUF
+metric 11.30.* { pmid -> 60.*.* indom -> 60.* }	# CLUSTER_QUOTA
 End-of-File
 
 pmlogrewrite -c $tmp.config -w src/new_xfs $tmp.old
