@@ -18,7 +18,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
-#include "dynamic.h"
 #include "pmdagfs2.h"
 #include <sys/types.h>
 
@@ -404,7 +403,7 @@ static int
 gfs2_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = gfs2_dynamic_lookup_text(ident, type, buf, pmda);
+	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
 	if (sts != -ENOENT)
 	    return sts;
     }
@@ -414,21 +413,21 @@ gfs2_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 gfs2_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsTree *tree = gfs2_dynamic_lookup_name(pmda, name);
+    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreePMID(tree, name, pmid);
 }
 
 static int
 gfs2_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsTree *tree = gfs2_dynamic_lookup_pmid(pmda, pmid);
+    __pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
     return pmdaTreeName(tree, pmid, nameset);
 }
 
 static int
 gfs2_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsTree *tree = gfs2_dynamic_lookup_name(pmda, name);
+    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
@@ -438,6 +437,9 @@ gfs2_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 void 
 gfs2_init(pmdaInterface *dp)
 {
+    int		nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
+    int		nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
+
     if (dp->status != 0)
 	return;
 
@@ -450,11 +452,10 @@ gfs2_init(pmdaInterface *dp)
     dp->version.four.children = gfs2_children;
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
-    gfs2_sbstats_init();
+    gfs2_sbstats_init(metrictable, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, indomtable, sizeof(indomtable)/sizeof(indomtable[0]),
-                 metrictable, sizeof(metrictable)/sizeof(metrictable[0]));
+    pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
 }
 
 static void

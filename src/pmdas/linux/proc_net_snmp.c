@@ -21,7 +21,6 @@
 
 extern proc_net_snmp_t	_pm_proc_net_snmp;
 extern pmdaInstid _pm_proc_net_snmp_indom_id[];
-extern pmdaIndom indomtab[];
 static char *proc_net_snmp_icmpmsg_names;
 
 typedef struct {
@@ -293,6 +292,7 @@ get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer)
 static void
 init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 {
+    pmdaIndom	*idp;
     char	*s;
     int		i, n;
 
@@ -325,8 +325,9 @@ init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 	_pm_proc_net_snmp_indom_id[n].i_inst = n;
 	s += SNMP_MAX_ICMPMSG_TYPESTR;
     }
-    indomtab[ICMPMSG_INDOM].it_numinst = SNMP_PERLINE;
-    indomtab[ICMPMSG_INDOM].it_set = _pm_proc_net_snmp_indom_id;
+    idp = PMDAINDOM(ICMPMSG_INDOM);
+    idp->it_numinst = SNMP_PERLINE;
+    idp->it_set = _pm_proc_net_snmp_indom_id;
 }
 
 int

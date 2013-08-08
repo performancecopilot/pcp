@@ -31,7 +31,4 @@
 #define MIN_INDOM  0		/* first indom number we use here */
 #define NUM_INDOMS 22		/* one more than highest indom number we use here */
 
-#define INDOM(x) (proc_indomtab[x].it_indom)
-extern pmdaIndom proc_indomtab[];
-
 #endif /* _INDOM_H */

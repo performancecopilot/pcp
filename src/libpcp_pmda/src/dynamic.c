@@ -1,6 +1,7 @@
 /*
- * Dynamic namespace metrics for the proc PMDA -- pinched from the Linux PMDA
+ * Dynamic namespace metrics, PMDA helper routines.
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,66 +18,78 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "indom.h"
-#include "dynamic.h"
-#include "clusters.h"
 
 static struct dynamic {
-    const char	*prefix;
-    int		prefixlen;
-    int		mtabcount;	/* internal use only */
-    int		extratrees;	/* internal use only */
-    int		nclusters;
-    int		clusters[NUM_CLUSTERS];
-    pmnsUpdate	pmnsupdate;
-    textUpdate	textupdate;
-    mtabUpdate	mtabupdate;
-    mtabCounts	mtabcounts;
-    __pmnsTree 	*pmns;
+    const char		*prefix;
+    int			prefixlen;
+    int			mtabcount;	/* internal use only */
+    int			extratrees;	/* internal use only */
+    int			nclusters;
+    int			*clusters;
+    pmdaUpdatePMNS	pmnsupdate;
+    pmdaUpdateText	textupdate;
+    pmdaUpdateMetric	mtabupdate;
+    pmdaCountMetrics	mtabcounts;
+    pmdaNameSpace	*pmns;
+    pmdaMetric		*metrics;	/* original fixed table */
+    int			nmetrics;	/* fixed metrics number */
 } *dynamic;
 
 static int dynamic_count;
 
 void
-proc_dynamic_pmns(const char *prefix, int *clusters, int nclusters,
-	    pmnsUpdate pmnsupdate, textUpdate textupdate,
-	    mtabUpdate mtabupdate, mtabCounts mtabcounts)
+pmdaDynamicPMNS(const char *prefix,
+	    int *clusters, int nclusters,
+	    pmdaUpdatePMNS pmnsupdate, pmdaUpdateText textupdate,
+	    pmdaUpdateMetric mtabupdate, pmdaCountMetrics mtabcounts,
+	    pmdaMetric *metrics, int nmetrics)
 {
     int size = (dynamic_count+1) * sizeof(struct dynamic);
+    int *ctab;
+    size_t ctabsz;
 
     if ((dynamic = (struct dynamic *)realloc(dynamic, size)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
 	return;
     }
+    ctabsz = sizeof(int) * nclusters;
+    if ((ctab = (int *)malloc(ctabsz)) == NULL) {
+	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic clusters");
+	free(dynamic);
+	return;
+    }
     dynamic[dynamic_count].prefix = prefix;
     dynamic[dynamic_count].prefixlen = strlen(prefix);
     dynamic[dynamic_count].nclusters = nclusters;
-    memcpy(dynamic[dynamic_count].clusters, clusters, nclusters * sizeof(int));
+    dynamic[dynamic_count].clusters = ctab;
+    memcpy(dynamic[dynamic_count].clusters, clusters, ctabsz);
     dynamic[dynamic_count].pmnsupdate = pmnsupdate;
     dynamic[dynamic_count].textupdate = textupdate;
     dynamic[dynamic_count].mtabupdate = mtabupdate;
     dynamic[dynamic_count].mtabcounts = mtabcounts;
     dynamic[dynamic_count].pmns = NULL;
+    dynamic[dynamic_count].metrics = metrics;
+    dynamic[dynamic_count].nmetrics = nmetrics;
     dynamic_count++;
 }
 
-__pmnsTree *
-proc_dynamic_lookup_name(pmdaExt *pmda, const char *name)
+pmdaNameSpace *
+pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 {
     int i;
 
     for (i = 0; i < dynamic_count; i++) {
 	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
 	    if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
-		proc_dynamic_metrictable(pmda);
+		pmdaDynamicMetricTable(pmda);
 	    return dynamic[i].pmns;
 	}
     }
     return NULL;
 }
 
-__pmnsTree *
-proc_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
+pmdaNameSpace *
+pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 {
     int i, j;
     int cluster = pmid_cluster(pmid);
@@ -85,7 +98,7 @@ proc_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 	for (j = 0; j < dynamic[i].nclusters; j++) {
 	    if (cluster == dynamic[i].clusters[j]) {
 		if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
-		    proc_dynamic_metrictable(pmda);
+		    pmdaDynamicMetricTable(pmda);
 		return dynamic[i].pmns;
 	    }
 	}
@@ -94,7 +107,7 @@ proc_dynamic_lookup_pmid(pmdaExt *pmda, pmID pmid)
 }
 
 int
-proc_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
+pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
 {
     int i, j;
     int cluster = pmid_cluster(pmid);
@@ -113,19 +126,18 @@ proc_dynamic_lookup_text(pmID pmid, int type, char **buf, pmdaExt *pmda)
  * which needs to be filled in.  All a bit obscure, really.
  */
 static pmdaMetric *
-proc_dynamic_mtab(struct dynamic *dynamic, pmdaMetric *offset)
+dynamic_metric_table(struct dynamic *dynamic, pmdaMetric *offset)
 {
-    int m, metric_count = proc_metrictable_size();
-    int tree_count = dynamic->extratrees;
+    int m, tree_count = dynamic->extratrees;
 
-    for (m = 0; m < metric_count; m++) {
-	int c, id, cluster = pmid_cluster(proc_metrictab[m].m_desc.pmid);
+    for (m = 0; m < dynamic->nmetrics; m++) {
+	int c, id, cluster = pmid_cluster(dynamic->metrics[m].m_desc.pmid);
 	for (c = 0; c < dynamic->nclusters; c++)
 	    if (dynamic->clusters[c] == cluster)
 		break;
 	if (c < dynamic->nclusters)
 	    for (id = 0; id < tree_count; id++)
-		dynamic->mtabupdate(&proc_metrictab[m], offset++, id+1);
+		dynamic->mtabupdate(&dynamic->metrics[m], offset++, id+1);
     }
     return offset;
 }
@@ -134,14 +146,14 @@ proc_dynamic_mtab(struct dynamic *dynamic, pmdaMetric *offset)
  * Iterate through the dynamic table working out how many additional metric
  * table entries are needed.  Then allocate a new metric table, if needed,
  * and run through the dynamic table once again to fill in the additional
- * entries.  Finally, we update the metric table pointer to be the pmdaExt
- * for libpcp_pmda routines subsequent use.
+ * entries.  Finally, we update the metric table pointer within the pmdaExt
+ * for libpcp_pmda callback routines subsequent use.
  */
 void
-proc_dynamic_metrictable(pmdaExt *pmda)
+pmdaDynamicMetricTable(pmdaExt *pmda)
 {
     int i, trees, total, resize = 0;
-    pmdaMetric *mtab, *offset;
+    pmdaMetric *mtab, *fixed, *offset;
 
     for (i = 0; i < dynamic_count; i++)
 	dynamic[i].mtabcount = dynamic[i].extratrees = 0;
@@ -153,21 +165,24 @@ proc_dynamic_metrictable(pmdaExt *pmda)
 	resize += (total * trees);
     }
 
+    fixed = dynamic[0].metrics;		/* fixed metrics */
+    total = dynamic[0].nmetrics;	/* and the count */
+
     if (resize == 0) {
 	/* Fits into the default metric table - reset it to original values */
 fallback:
-	if (pmda->e_metrics != proc_metrictab)
+	if (pmda->e_metrics != fixed)
 	    free(pmda->e_metrics);
-	pmdaRehash(pmda, proc_metrictab, proc_metrictable_size());
+	pmdaRehash(pmda, fixed, total);
     } else {
-	resize += proc_metrictable_size();
+	resize += total;
 	if ((mtab = calloc(resize, sizeof(pmdaMetric))) == NULL)
 	    goto fallback;
-	memcpy(mtab, proc_metrictab, proc_metrictable_size() * sizeof(pmdaMetric));
-	offset = mtab + proc_metrictable_size();
+	memcpy(mtab, fixed, total * sizeof(pmdaMetric));
+	offset = mtab + total;
 	for (i = 0; i < dynamic_count; i++)
-	    offset = proc_dynamic_mtab(&dynamic[i], offset);
-	if (pmda->e_metrics != proc_metrictab)
+	    offset = dynamic_metric_table(&dynamic[i], offset);
+	if (pmda->e_metrics != fixed)
 	    free(pmda->e_metrics);
 	pmdaRehash(pmda, mtab, resize);
     }

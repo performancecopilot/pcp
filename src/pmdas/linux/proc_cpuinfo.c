@@ -60,7 +60,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     struct dirent *de;
     int node, max_node = -1;
     char *cp;
-    pmdaIndom *idp = &indomtab[NODE_INDOM];
+    pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
 
     for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
 	proc_cpuinfo->cpuinfo[i].node = -1;

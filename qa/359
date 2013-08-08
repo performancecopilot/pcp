@@ -33,8 +33,8 @@ _filter()
 	-e '/^proc.psinfo.*: No permission/d' \
 	-e '/^proc.memory.*: No permission/d' \
 	-e '/^proc.id.*: No permission/d' \
-	-e '/^proc.io.*: No permission/d' \
 	-e '/^proc.fd.*: No permission/d' \
+	-e '/^proc.io.*: /d' \
 	-e '/^logger.perfile.reg.records: No permission/d' \
 	-e '/^logger.perfile.fifo.records: Try again./d' \
 	-e '/^logger.perfile.reg.records: Try again./d'

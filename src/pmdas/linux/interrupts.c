@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "filesys.h"
-#include "dynamic.h"
 #include "clusters.h"
 #include "interrupts.h"
 #include <sys/stat.h>
@@ -382,11 +381,13 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-interrupts_init(void)
+interrupts_init(pmdaMetric *metrictable, int nmetrics)
 {
     int set[] = { CLUSTER_INTERRUPT_LINES, CLUSTER_INTERRUPT_OTHER };
 
-    linux_dynamic_pmns("kernel.percpu.interrupts", set, sizeof(set)/sizeof(int),
-			refresh_interrupts, interrupts_text,
-			refresh_metrictable, size_metrictable);
+    pmdaDynamicPMNS("kernel.percpu.interrupts",
+		    set, sizeof(set)/sizeof(int),
+		    refresh_interrupts, interrupts_text,
+		    refresh_metrictable, size_metrictable,
+		    metrictable, nmetrics);
 }

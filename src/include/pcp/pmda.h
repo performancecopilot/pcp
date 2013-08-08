@@ -411,15 +411,47 @@ extern char *pmdaGetInDomHelp(int, pmInDom, int);
 /*
  * Dynamic metric table manipulation
  *
+ * pmdaDynamicPMNS
+ *	Register a new dynamic namespace sub-tree associated with one or more
+ *	PMID clusters.  Callbacks are passed in to deal with PMDA-specific
+ *	components (names, help text, metric duplication, and table sizing).
+ *
+ * pmdaDynamicLookupName
+ *	Perform PMDA name lookup operations for the name callback, for dynamic
+ *	metrics.
+ *
+ * pmdaDynamicLookupPMID
+ *	Perform PMDA reverse name lookup operations for the PMID callback, for
+ *	dynamic metrics.
+ *
+ * pmdaDynamicLookupText
+ *	Perform PMDA help text lookup operations for dynamic metrics.
+ *
+ * pmdaDynamicMetricTable
+ *	Install a new metric table for the PMDA, after changes to the set of
+ *	metrics which the PMDA must export (IOW, dynamic metrics are in use).
+ *
  * pmdaRehash
  *      Update the metrictable within the pmdaExt structure with new (dynamic)
  *      metrics and recompute the hash table used for optimised lookup.  Aids
  *      PMDAs with large numbers of metrics to get closer to directly mapped
  *      PMID lookup time, rather than multiple linear table scans per fetch.
- *
  *      [NOTE: can be used by any interface version, not only dynamic metrics]
- *
  */
+typedef int  (*pmdaUpdatePMNS)(pmdaExt *, pmdaNameSpace **);
+typedef int  (*pmdaUpdateText)(pmdaExt *, pmID, int, char **);
+typedef void (*pmdaUpdateMetric)(pmdaMetric *, pmdaMetric *, int);
+typedef void (*pmdaCountMetrics)(int *, int *);
+extern void pmdaDynamicPMNS(const char *, int *, int,
+                            pmdaUpdatePMNS, pmdaUpdateText,
+                            pmdaUpdateMetric, pmdaCountMetrics,
+                            pmdaMetric *, int);
+
+extern pmdaNameSpace *pmdaDynamicLookupName(pmdaExt *, const char *);
+extern pmdaNameSpace *pmdaDynamicLookupPMID(pmdaExt *, pmID);
+extern int pmdaDynamicLookupText(pmID, int, char **, pmdaExt *);
+extern void pmdaDynamicMetricTable(pmdaExt *);
+
 extern void pmdaRehash(pmdaExt *, pmdaMetric *, int);
 
 /*

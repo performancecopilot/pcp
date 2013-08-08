@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2009,2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
 # 
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -18,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 -include GNUlocaldefs
 
 CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
-	  events.c queues.c
+	  events.c queues.c dynamic.c
 HFILES	= libdefs.h queues.h
 LLDLIBS	= -lpcp
 

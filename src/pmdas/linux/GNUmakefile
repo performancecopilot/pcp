@@ -33,8 +33,7 @@ CFILES		= pmda.c \
 		  proc_scsi.c proc_cpuinfo.c proc_net_tcp.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
 		  proc_uptime.c proc_sys_fs.c proc_vmstat.c \
-		  sysfs_kernel.c linux_table.c numa_meminfo.c \
-		  dynamic.c
+		  sysfs_kernel.c linux_table.c numa_meminfo.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -44,8 +43,7 @@ HFILES		= clusters.h indom.h convert.h \
 		  proc_scsi.h proc_cpuinfo.h proc_net_tcp.h \
 		  proc_slabinfo.h sem_limits.h msg_limits.h shm_limits.h \
 		  proc_uptime.h proc_sys_fs.h proc_vmstat.h \
-		  sysfs_kernel.h linux_table.h numa_meminfo.h \
-		  dynamic.h
+		  sysfs_kernel.h linux_table.h numa_meminfo.h
 
 LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf
 LDIRT		= help.dir help.pag domain.h
@@ -87,14 +85,13 @@ install_pcp : install
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-dynamic.o interrupts.o pmda.o proc_partitions.o:	clusters.h
+interrupts.o pmda.o proc_partitions.o:	clusters.h
 pmda.o proc_partitions.o:	convert.h
 pmda.o:	domain.h
-dynamic.o interrupts.o pmda.o:	dynamic.h
 filesys.o interrupts.o pmda.o:	filesys.h
 pmda.o:	getinfo.h
 pmda.o devmapper.o:	devmapper.h
-dynamic.o numa_meminfo.o pmda.o proc_cpuinfo.o proc_partitions.o proc_stat.o:	indom.h
+numa_meminfo.o pmda.o proc_cpuinfo.o proc_partitions.o proc_stat.o:	indom.h
 interrupts.o pmda.o:	interrupts.h
 linux_table.o numa_meminfo.o pmda.o:	linux_table.h
 msg_limits.o pmda.o:	msg_limits.h

@@ -80,7 +80,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
 {
     int i;
     FILE *fp;
-    pmdaIndom *idp = &indomtab[NODE_INDOM];
+    pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
     static int started;
 
     /* First time only */
