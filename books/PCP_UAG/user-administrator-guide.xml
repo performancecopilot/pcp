@@ -1,20 +1,45 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <book status="final" security="public"><title>Performance Co-Pilot&#x2122; User's and Administrator's Guide</title>
-<bookinfo><invpartnumber condition="sgi_partnumber:PCP_LinuxUAG:sgi-admin">007-4580-001</invpartnumber><edition>
-2.3</edition><othercredit><contrib>Production by Karen Jacobson</contrib><contrib>Engineering and written contributions by David Chatterton, Michael
-Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken
-McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan
-Rayner, Nathan Scott, Timothy Shimmin, and Terry Schultz</contrib></othercredit><legalnotice>
+<bookinfo><edition>3.0</edition>
 
-<title>COPYRIGHT</title>
-<para>&copy; 2000&ndash;2013 Silicon Graphics International Corp. All rights reserved.
-Permission is granted to copy, distribute, and/or modify this document under
+<othercredit><contrib>Production</contrib><firstname>Karen</firstname><surname>Jacobson</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>David</firstname><surname>Chatterton</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Michael</firstname><surname>Gigante</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Mark</firstname><surname>Goodwin</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Tony</firstname><surname>Kavadias</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Seppo</firstname><surname>Keronen</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Johnathon</firstname><surname>Knispel</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ken</firstname><surname>McDonell</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Max</firstname><surname>Matveev</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ania</firstname><surname>Milewska</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Daniel</firstname><surname>Moore</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Heidi</firstname><surname>Muehlebach</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ivan</firstname><surname>Rayner</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Nathan</firstname><surname>Scott</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Timothy</firstname><surname>Shimmin</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Terry</firstname><surname>Schultz</surname></othercredit>
+
+<copyright>
+<year>2000</year>
+<year>2013</year>
+<holder>Silicon Graphics, Inc.</holder>
+</copyright>
+
+<copyright>
+<year>2013</year>
+<holder>Red Hat</holder>
+</copyright>
+
+<legalnotice>
+<title>LICENSE</title>
+<para>Permission is granted to copy, distribute, and/or modify this document under
 the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any
 later version published by the Creative Commons Corp.
 A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
-</legalnotice><legalnotice>
+</legalnotice>
 
+<legalnotice>
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
 <para>Silicon Graphics, SGI and the SGI logo are
 registered trademarks and Performance Co-Pilot is a trademark of Silicon
@@ -23,20 +48,21 @@ Graphics, Inc.</para>
 is a trademark of Cisco Systems, Inc.
 Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX and the X Window System are registered trademarks
-of The Open Group in the United States and other countries. Netscape is a
-trademark of Netscape Communications Corporation. PostScript is a trademark
-of Adobe Systems, Inc. UNIX is a registered trademark in the United States
+of The Open Group in the United States and other countries.
+UNIX is a registered trademark in the United States
 and other countries, licensed exclusively through X/Open Company, Ltd.</para>
-</legalnotice><revhistory>
+</legalnotice>
 
-
-<revision><revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.
-</revremark></revision></revhistory></bookinfo><toc/>
-
-
-
-
-
+<revhistory>
+<revision>
+<revnumber>002</revnumber><date>August 2013</date><revremark>Revised publication. Supports the Performance Co-Pilot 3.8 release.</revremark>
+</revision>
+<revision>
+<revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark>
+</revision>
+</revhistory>
+</bookinfo>
+<toc/>
 
 
 <preface id="id5178699">
@@ -60,7 +86,7 @@ typographical conventions.</para>
 <itemizedlist>
 <listitem><para><xref linkend="LE91944-PARENT"/>, provides an introduction,
 a brief overview of the software components, and conceptual foundations of
-the PCP product.</para>
+the PCP software.</para>
 </listitem>
 <listitem><para><xref linkend="LE17127-PARENT"/>, describes the basic installation
 and configuration steps necessary to get PCP running on your systems.</para>
@@ -82,7 +108,7 @@ utilities that support archive logging for capturing accurate historical perform
 records.</para>
 </listitem>
 <listitem><para><xref linkend="LE83321-PARENT"/>, presents the various options
-for deploying PCP functionality across systems spanning the enterprise.</para>
+for deploying PCP functionality across cooperating systems.</para>
 </listitem>
 <listitem><para><xref linkend="LE62564-PARENT"/>, describes the procedures
 necessary to ensure that the PCP configuration is customized in ways that
@@ -110,31 +136,23 @@ intended for application developers who want to use the PCP framework and
 services for exporting additional collections of performance metrics, or for
 delivering new or customized applications to enhance performance management.
 </para>
-<para>Additional resources include man pages and SGI Web sites.</para>
+<para>Additional resources include man pages, tutorials and online help in the graphical tools.</para>
+</section>
 <section id="id5178967">
 
-<title>SGI Web Sites</title>
-<para>The following Web sites are accessible to everyone with general Internet
-access:</para>
+<title>Web Site</title>
+<para>The following web site is accessible to everyone:</para>
 <variablelist condition="sgi_termlength:wide">
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term>http://oss.sgi.com/projects/pcp</term>
-<listitem><para>The PCP infrastructure is open source software released under 
+<term>http://oss.sgi.com/projects/pcp/</term>
+<listitem><para>PCP is open source software released under 
 the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
-</section>
 <section id="id5179060">
-
-<title>Obtaining Publications</title>
-<para>To obtain SGI documentation, go to the SGI Technical Publications Library
-at <ulink url="http://techpubs.sgi.com">http://docs.sgi.com
-</ulink>.</para>
-</section>
-<section id="Z825545312melby">
 
 <title>Conventions</title>
 <para>The following conventions are used throughout this document:<variablelist>
@@ -142,26 +160,26 @@ at <ulink url="http://techpubs.sgi.com">http://docs.sgi.com
 <term><emphasis role="bold">Convention</emphasis></term><listitem><para><emphasis role="bold">Meaning</emphasis></para></listitem></varlistentry>
 <varlistentry>
 <term><literal>command</literal></term>
-<listitem><para>This fixed-space font denotes literal  items such as commands,
-files, routines,  path names, signals, messages, and  programming language
+<listitem><para>This fixed-space font denotes literal items such as commands,
+files, routines,  path names, signals, messages, and programming language
 structures. </para>
 </listitem>
 </varlistentry>
 
 <varlistentry>
 <term><replaceable>variable</replaceable></term>
-<listitem><para>Italic typeface denotes variable entries  and words or concepts being
+<listitem><para>Italic typeface denotes variable entries and words or concepts being
 defined.</para>
 </listitem></varlistentry>
 
 <varlistentry>
 <term><userinput>user input</userinput></term>
-<listitem><para>This bold, fixed-space font denotes literal  items that the user enters in interactive  sessions.  (Output is shown in nonbold,  fixed-space font.)</para>
+<listitem><para>This bold, fixed-space font denotes literal items that the user enters in interactive sessions.  (Output is shown in nonbold, fixed-space font.)</para>
 </listitem></varlistentry>
 
 <varlistentry>
 <term>[ ]</term>
-<listitem><para>Brackets enclose optional portions of a  command or directive line.</para>
+<listitem><para>Brackets enclose optional portions of a command or directive line.</para>
 </listitem></varlistentry>
 
 <varlistentry>
@@ -176,59 +194,35 @@ names, directives, defined constants, and macros in C programs.</para>
 <varlistentry>
 <term>()</term>
 <listitem><para>Parentheses that follow function names surround function arguments
-or are empty if the function has no arguments; parentheses that follow Linux
-commands surround man page section numbers.</para>
+or are empty if the function has no arguments; parentheses that follow commands
+surround man page section numbers.</para>
 </listitem></varlistentry>
 </variablelist></para>
 </section>
-
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact SGI. Be sure to include the  title and document number of the manual with your comments. (Online,  the document number is located in the front matter of the manual.  In printed manuals, the document number is located at the bottom of each page.)</para>
-<para>You can contact SGI in any of the following ways:<itemizedlist>
-<listitem><para>Send e-mail to the following address:</para>
-<para>techpubs@sgi.com</para>
-</listitem>
-<listitem><para>Use the Feedback option on the Technical Publications Library Web page:</para>
-<para><ulink url="http://docs.sgi.com">http://docs.sgi.com</ulink></para>
-</listitem>
-<listitem><para>Contact your customer service representative and ask that an incident be filed in the SGI incident tracking system.</para>
-</listitem>
-<listitem><para>Send mail to the following address:<simplelist type="horiz" role="address">
-<member>Technical Publications</member>
-<member>SGI</member>
-<member>1600 Amphitheatre Parkway, M/S 535</member>
-<member>Mountain View, California 94043-1351</member></simplelist></para>
-</listitem>
-<listitem><para>Send a fax to the attention of &#x201C;Technical Publications&#x201D; at +1 650 932 0801.</para>
-</listitem></itemizedlist></para>
-<para>SGI values your comments and will respond to them promptly.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP project via the web site.</para>
+<para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>
 
 
-
 <chapter id="LE91944-PARENT">
 
-<title>Introduction to Performance Co-Pilot</title>
+<title>Introduction to PCP</title>
 <para><indexterm id="ITch01-0"><primary>overview</primary></indexterm><indexterm id="IG313718880">
 <primary>PCP</primary><secondary>features</secondary></indexterm><indexterm id="IG313718881">
 <primary>Performance Co-Pilot</primary><see>PCP</see></indexterm>This
 chapter provides an introduction to Performance Co-Pilot (PCP), an overview
 of its individual components, and conceptual information to help you use
-this product.</para>
+this software.</para>
 <para>The following sections are included:</para>
 <itemizedlist>
-<listitem><para><xref linkend="LE92676-PARENT"/> covers the intended purposes
-of PCP.</para>
-</listitem>
-<listitem><para><xref linkend="LE13618-PARENT"/>, describes PCP tools and
-agents.</para>
-</listitem>
-<listitem><para><xref linkend="LE79836-PARENT"/>, discusses the design
-theories behind PCP.</para>
-</listitem></itemizedlist>
+<listitem><para><xref linkend="LE92676-PARENT"/> covers the intended purposes of PCP.</para></listitem>
+<listitem><para><xref linkend="LE13618-PARENT"/>, describes PCP tools and agents.</para></listitem>
+<listitem><para><xref linkend="LE79836-PARENT"/>, discusses the design theories behind PCP.</para></listitem>
+</itemizedlist>
 <section id="LE92676-PARENT">
 
 <title>Objectives</title>
@@ -273,7 +267,7 @@ performance problems.</para>
 <para><indexterm id="IG313718885"><primary>domains</primary></indexterm><indexterm id="IG313718886"><primary>
 metric domains</primary></indexterm>At the lowest level, performance metrics
 are collected and managed in autonomous performance domains such as the
-Linux operating system, a DBMS, a layered service, or an end-user application.
+operating system kernel, a DBMS, a layered service, or an end-user application.
 These domains feature a multitude of access control policies, access methods,
 data semantics, and multiversion support. All this detail is irrelevant
 to the developer or user of a performance monitoring tool, and is hidden
@@ -367,7 +361,7 @@ such as these:</para>
 customization</secondary></indexterm>Archive log rotation, consolidation,
 and culling</para>
 </listitem>
-<listitem><para>WWW-based publishing of charts showing snapshots of performance
+<listitem><para>Web-based publishing of charts showing snapshots of performance
 activity levels in the recent past</para>
 </listitem>
 <listitem><para>Flexible alarm monitoring: parameterized rules to address
@@ -389,7 +383,7 @@ collection infrastructure, and the logging framework. The guiding principle
 is, &#x201C;if it is important for monitoring system performance, and you
 can measure it, you can easily integrate it into the PCP framework.&#x201D;
 </para>
-<para>For many PCP customers, the most important performance metrics are
+<para>For many PCP users, the most important performance metrics are
 not those already supported, but new performance metrics that characterize
 the essence of good or bad performance at their site, or within their
 particular application environment.</para>
@@ -410,11 +404,12 @@ into the PCP framework.</para>
 <section id="LE40772-PARENT">
 
 <title>Metric Coverage</title>
-<para><indexterm id="IG3137188824"><primary>Challenge systems</primary></indexterm>The core
-PCP modules support export of performance metrics that include all kernel
+<para><indexterm id="IG3137188824"><primary>coverage</primary></indexterm>The core
+PCP modules support export of performance metrics that include kernel
 instrumentation, hardware instrumentation, process-level resource utilization,
-and activity in the PCP collection infrastructure.</para>
-<para>The supplied agents support over 1000 distinct performance metrics,
+database and other system services instrumentation, and activity in the PCP
+collection infrastructure.</para>
+<para>The supplied agents support thousands of distinct performance metrics,
 many of which can have multiple values, for example, per disk, per CPU,
 or per process.</para>
 </section>
@@ -424,8 +419,8 @@ or per process.</para>
 <title>Overview of Component Software</title>
 <para><indexterm id="IG3137188825"><primary>software</primary></indexterm><indexterm id="IG3137188826"><primary>
 component software</primary></indexterm>Performance Co-Pilot (PCP) is
-composed of text-based tools and related commands. Each tool or command
-is fully documented by a man page. These man pages are named after the
+composed of both text-based and graphical tools. Each tool is fully
+documented by a man page. These man pages are named after the
 tools or commands they describe, and are accessible through the <command>
 man</command> command. For example, to see the <command>
 pminfo(1)</command> man page for the <command>pminfo</command> command, enter
@@ -453,9 +448,8 @@ text.</para>
 <term><command>pmie</command></term>
 <listitem><para><indexterm id="ITch01-32"><primary>pmie tool</primary>
 <secondary>brief description</secondary></indexterm>Evaluates predicate-action
-rules over performance metrics domain, for performance alarms, automated
-system management tasks, dynamic tuning configuration, and so on. It is
-an inference engine.</para>
+rules over performance metrics for alarms, automated system management tasks,
+dynamic configuration tuning, and so on. It is an inference engine.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmieconf</command></term>
@@ -473,11 +467,11 @@ about arbitrary performance metrics available from PCP, including help
 text with <literal>-T</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmkstat</command></term>
-<listitem><para><indexterm id="ITch01-37"><primary>pmkstat tool</primary>
+<term><command>pmstat</command></term>
+<listitem><para><indexterm id="ITch01-37"><primary>pmstat tool</primary>
 <secondary>brief description</secondary></indexterm>Provides a text-based
-display of metrics that summarize system performance at a high level,
-suitable for ASCII logs or inquiry over a modem.</para>
+display of metrics that summarize the performance of one or more systems
+at a high level, suitable for ASCII logs or inquiry over a slow link.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmlogsummary</command></term>
@@ -491,10 +485,10 @@ from a PCP archive.</para>
 for performance metric availability, values, and instances.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmsocks</command></term>
-<listitem><para><indexterm id="ITch01-38"><primary>pmsocks tool</primary>
+<term><command>pmproxy</command></term>
+<listitem><para><indexterm id="ITch01-38"><primary>pmproxy tool</primary>
 <secondary>brief description</secondary></indexterm>Allows the execution
-of PCP tools through a network firewall system provided <literal>sockd</literal> services are supported.</para>
+of PCP tools through a network firewall system.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmval</command></term>
@@ -566,11 +560,10 @@ items in the <literal>sendmail</literal> queue. It is a PMDA.</para>
 It is a Performance Metrics Domain Agent (PMDA).</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmdampi</command></term>
-<listitem><indexterm id="IG3137188841"><primary>pmdampi tool</primary></indexterm><para>
-Exports metrics from MPI applications linked with the <filename>pcp_mpi
-</filename> shared library. The metrics include counts and accumulated
-time for selected MPI functions and statistics on MPI buffer usage.</para>
+<term><command>pmdammv</command></term>
+<listitem><indexterm id="IG3137188841"><primary>pmdammv tool</primary></indexterm><para>
+Exports metrics from instrumented applications linked with the <filename>pcp_mmv
+</filename> shared library. These metrics are custom developed per application.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdasendmail</command></term>
@@ -580,7 +573,7 @@ mail activity statistics from <command>sendmail</command>. It is a PMDA.
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>pmdashping</literal></term>
-<listitem><para><indexterm id="ITch01-60"><primary>pmdahotproc tool</primary>
+<listitem><para><indexterm id="ITch01-60"><primary>pmdashping tool</primary>
 </indexterm>Exports performance metrics for the availability and quality
 of service (response-time) for arbitrary shell commands. It is a PMDA.
 </para>
@@ -789,8 +782,7 @@ Performance Metrics Application Programming Interface (PMAPI).</para>
 <term><literal>pmclient</literal></term>
 <listitem><para><indexterm id="ITch01-123"><primary>pmclient tool</primary>
 </indexterm>Is a simple client that uses the PMAPI to report some high-level
-system performance metrics. The source code for <command>pmclient</command>
-is included in the distribution.</para>
+system performance metrics. </para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmda</command></term>
@@ -804,7 +796,7 @@ development of new and custom PMDAs.</para>
 <listitem><para><indexterm id="ITch01-125"><primary>pmgenmap tool</primary>
 </indexterm>Generates C declarations and <literal>cpp</literal> macros
 to aid the development of customized programs that use the facilities
-of PCP. It is a program development tool.</para>
+of PCP. It is a PMDA development tool.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -827,8 +819,8 @@ a uniform interface to these metrics, independent of the underlying metric
 data source.</para>
 <para><indexterm id="IG3137188864"><primary>PMNS</primary><secondary>brief description</secondary>
 </indexterm>The Performance Metrics Name Space (PMNS) provides a hierarchical
-classification of external metric names, and a mapping from external names
-to internal metric identifiers. See <xref linkend="LE94677-PARENT"/>, for
+classification of human-readable metric names, and a mapping from these external
+names to internal metric identifiers. See <xref linkend="LE94677-PARENT"/>, for
 a description of the PMNS.</para>
 </section>
 <section id="id5188440">
@@ -837,14 +829,13 @@ a description of the PMNS.</para>
 <para>When performance metric values are returned to a requesting application,
 there may be more than one value instance for a particular metric; for
 example, independent counts for each CPU, process, disk, or local filesystem.
-Internal instance identifiers correspond one to one with external (textual)
+Internal instance identifiers correspond one to one with external (human-readable)
 descriptions of the members of an instance domain.</para>
-<para>Transient performance metrics (such as per-process information,
-per-XLV volume, and so on) cause repeated requests for the same metric
-to return different numbers of values, or changes in the particular instance
-identifiers returned. These changes are expected and fully supported by
-the PCP infrastructure; however, metric instantiation is guaranteed to
-be valid only at the time of collection.</para>
+<para>Transient performance metrics (such as per-process information)
+cause repeated requests for the same metric to return different numbers
+of values, or changes in the particular instance identifiers returned.
+These changes are expected and fully supported by the PCP infrastructure;
+however, metric instantiation is guaranteed to be valid only at the time of collection.</para>
 </section>
 <section id="id5188469">
 
@@ -883,20 +874,20 @@ of Data</title><mediaobject><imageobject><imagedata fileref="figures/a12189.gif"
 of Data</phrase></textobject></mediaobject></figure>
 <para>Each domain has an associated access method:</para>
 <itemizedlist>
-<listitem><para><indexterm id="IG3137188866"><primary>sar data structures</primary></indexterm>The
-Linux kernel, including <command>sar</command> data structures, per-process
+<listitem><para><indexterm id="IG3137188866"><primary>Kernel data structures</primary></indexterm>The
+operating system kernel, including sub-system data structures - per-process
 resource consumption, network statistics, disk activity, or memory management
 instrumentation.</para>
 </listitem>
-<listitem><para><indexterm id="IG3137188867"><primary>NNTP news servers</primary></indexterm><indexterm id="IG3137188868">
+<listitem><para><indexterm id="IG3137188867"><primary>Mail servers</primary></indexterm><indexterm id="IG3137188868">
 <primary>layered software services</primary></indexterm>A layered software
-service such as activity logs for a World Wide Web server or an NNTP news
+service such as activity logs for a World Wide Web server or an email delivery
 server.<indexterm id="IG3137188869"><primary>application programs</primary></indexterm></para>
 </listitem>
 <listitem><para>An application program such as measured response time
 for a production application running a periodic and benign probe transaction
-(as often required in service quality agreements), or rate of computation
-and throughput in jobs per hour for a batch stream.</para>
+(as often required in service level agreements), or rate of computation
+and throughput in jobs per minute for a batch stream.</para>
 </listitem>
 <listitem><para><indexterm id="IG3137188870"><primary>network routers and bridges</primary>
 </indexterm><indexterm id="IG3137188871"><primary>external equipment</primary></indexterm>External
@@ -932,7 +923,7 @@ particular host and distributed across a number of hosts.</para>
 host must be assigned a unique Performance Metric Identifier (PMID). In
 practice, this means unique identifiers are assigned globally for each
 performance metrics domain type. For example, the same identifier would
-be used for the Linux performance metrics domain on all hosts.</para>
+be used for the Apache performance metrics domain on all hosts.</para>
 </section>
 <section id="id5188837">
 
@@ -942,7 +933,7 @@ be used for the Linux performance metrics domain on all hosts.</para>
 </indexterm><indexterm id="IG3137188874"><primary>PMCD</primary><secondary>distributed collection
 </secondary></indexterm>The performance metrics collection architecture
 is distributed, in the sense that any performance tool may be executing
-remotely. However, a PMDA must run on the system for which it is collecting
+remotely. However, a PMDA usually runs on the system for which it is collecting
 performance measurements. In most cases, connecting these tools together
 on the collector host is the responsibility of the PMCD process, as shown
 in <xref linkend="id5188883"/>.</para>
@@ -974,7 +965,7 @@ drawn from a universal set of identifiers, including some that are reserved
 for site-specific, application-specific, and customer-specific use.</para>
 <para><indexterm id="ITch01-148"><primary>performance metrics</primary>
 <secondary>PMNS</secondary></indexterm>An external name space called Performance
-Metrics Name Space (PMNS) maps from a hierarchy (or tree) of external
+Metrics Name Space (PMNS) maps from a hierarchy (or tree) of human-readable
 names to PMIDs.</para>
 <section id="id5189100">
 
@@ -997,10 +988,6 @@ metrics:</para>
 network.tcp.rcvpack
 hw.router.recv.total_util
 </literallayout>
-<para>Although a default PMNS is shipped and updated by the components
-of PCP, individual users may create their own Name Space for metrics of
-interest, and all tools may use a private PMNS, rather than the default
-PMNS.</para>
 </section>
 </section>
 <section id="id5189172">
@@ -1205,7 +1192,7 @@ monitoring with equal facility.</para>
 
 <title>Product Extensibility</title>
 <para><indexterm id="ITch01-160"><primary>PCP</primary><secondary>extensibility
-</secondary></indexterm>Much of the PCP product's potential for attacking
+</secondary></indexterm>Much of the PCP software's potential for attacking
 difficult performance problems in production environments comes from the
 design philosophy that considers extensibility to be critically important.
 </para>
@@ -1642,7 +1629,7 @@ text) or an actual value for a metric.</para>
 <listitem><para>Allows the PMCD to store metric values in PMDAs that permit
 store operations. Be cautious in allowing this operation, because it may be
 a security opening in large networks, although the PMDAs shipped with the
-PCP product typically reject store operations, except for selected performance
+PCP package typically reject store operations, except for selected performance
 metrics where the effect is benign.</para>
 </listitem></varlistentry>
 </variablelist>
@@ -1797,7 +1784,7 @@ Check environ metrics have gone away ... OK</literallayout>
 <para><indexterm id="ITch02-38"><primary>troubleshooting</primary><secondary>
 PMCD</secondary></indexterm>The following sections offer troubleshooting advice
 on the Performance Metrics Name Space (PMNS), missing and incomplete values
-for performance metrics, and Linux metrics and the PMCD.</para>
+for performance metrics, kernel metrics and the PMCD.</para>
 <para>Advice for troubleshooting the archive logging system is provided in <xref linkend="LE93354-PARENT"/>.</para>
 <section id="LE97133-PARENT">
 
@@ -1807,8 +1794,8 @@ for performance metrics, and Linux metrics and the PMCD.</para>
 </secondary></indexterm>To display the PMNS, use the <literal>pminfo</literal>
 command; see the <command>pminfo(1)</command> man page.</para>
 <para>The PMNS at the collector host is updated whenever a PMDA is installed
-or removed, and may also be updated when new versions of the PCP or PCP add-on
-products are installed. During these operations, the ASCII version of the
+or removed, and may also be updated when new versions of PCP are
+installed. During these operations, the ASCII version of the
 PMNS is typically updated, then the binary version is regenerated.</para>
 </section>
 <section id="LE90170-PARENT">
@@ -1854,11 +1841,10 @@ logged.</para>
 </section>
 <section id="LE76751-PARENT">
 
-<title>Linux Metrics and the PMCD</title>
-<para><indexterm id="IG3137188899"><primary>troubleshooting</primary><secondary>Linux metrics
+<title>Kernel Metrics and the PMCD</title>
+<para><indexterm id="IG3137188899"><primary>troubleshooting</primary><secondary>Kernel metrics
 </secondary></indexterm><indexterm id="IG31371888100"><primary>troubleshooting</primary><secondary>
-PMCD</secondary></indexterm>The following issues involve the Linux operating
-system and the PMCD:</para>
+PMCD</secondary></indexterm>The following issues involve the kernel metrics and the PMCD:</para>
 <itemizedlist>
 <listitem><para>Cannot connect to remote PMCD</para>
 </listitem>
@@ -1895,8 +1881,8 @@ the time out, and the attempt is abandoned.</para>
 <varlistentry>
 <term>Resolution:</term>
 <listitem><para>Establish that the PMCD on <replaceable>far-away-host</replaceable>
-is really alive, by connecting to its control port (TCP port number 4321 by
-default):<literallayout class="monospaced"><userinput>telnet far-away-host 4321</userinput></literallayout></para>
+is really alive, by connecting to its control port (TCP port number 44321 by
+default):<literallayout class="monospaced"><userinput>telnet far-away-host 44321</userinput></literallayout></para>
 <para>This response indicates the PMCD is not running and needs restarting:
 </para>
 <literallayout class="monospaced">Unable to connect to remote host: Connection refused</literallayout>
@@ -1946,7 +1932,7 @@ command in another window when reconfiguring PMCD, to watch errors occur:<litera
 <para>If the following messages appear in the PMCD log (<filename>
 /var/log/pcp/pmcd/pmcd.log</filename>), consider the cause
 and resolution:</para>
-<literallayout class="monospaced">pcp[27020] Error: OpenRequestSocket(4321) bind: Address already in
+<literallayout class="monospaced">pcp[27020] Error: OpenRequestSocket(44321) bind: Address already in
 use
 pcp[27020] Error: pmcd is already running
 pcp[27020] Error: pmcd not started due to errors!</literallayout>
@@ -1972,11 +1958,11 @@ the connection and read any outstanding data.</para>
 <para><indexterm id="IG31371888111"><primary>netstat command</primary></indexterm>The only solution
 in these circumstances is to wait until the socket times out and the kernel
 deletes it. This <command>netstat</command> command displays the status of
-the socket and any connections:<literallayout class="monospaced"><userinput>netstat -a | grep 4321</userinput></literallayout></para>
+the socket and any connections:<literallayout class="monospaced"><userinput>netstat -a | grep 44321</userinput></literallayout></para>
 <para>If the socket is in the <literal>FIN_WAIT</literal> or <literal>TIME_WAIT</literal> state, then you must wait for it to be deleted. Once the command
 above produces no output, PMCD may be restarted. Less commonly, you may have
 another program running on your system that uses the same Internet port number
-(4321) that PMCD uses.</para>
+(44321) that PMCD uses.</para>
 <para><indexterm id="IG31371888112"><primary>PCPIntro command</primary></indexterm><indexterm id="IG31371888113">
 <primary>PMCD_PORT variable</primary></indexterm>Refer to the <command>
 PCPIntro(1)</command> man page for a description of how to override the default
@@ -2161,7 +2147,7 @@ Collection Daemon (PMCD). Sets environment variables, including <literal>PATH</l
 </listitem></varlistentry>
 <varlistentry>
 <term><filename>/usr/share/pcp/bin/<replaceable>pcptool</replaceable></filename></term>
-<listitem><para>Directory containing PCP tools such as <command>pmkstat
+<listitem><para>Directory containing PCP tools such as <command>pmstat
 </command>, <command>pminfo</command>, <command>pmlogger</command>, <command>
 pmnewlog</command>, <command>pmnsmerge</command>, <command>pmpost</command>,
 and so on.</para>
@@ -2222,7 +2208,7 @@ per logged host below here.</para>
 <title>Alternate Performance Metric Name Spaces</title>
 <para><indexterm id="ITch03-10"><primary>PMNS</primary><secondary>PMNS
 </secondary></indexterm>The Performance Metrics Name Space (PMNS) defines
-a mapping from a collection of external names for performance metrics
+a mapping from a collection of human-readable names for performance metrics
 (convenient to the user) into corresponding internal identifiers (convenient
 for the underlying implementation).</para>
 <para>The distributed PMNS used in PCP 2.x avoids most requirements for
@@ -2491,7 +2477,7 @@ latencies to establish the connection correctly.</para>
 variable</secondary></indexterm><indexterm id="IG31371888145"><primary>TCP/IP</primary><secondary>
 sockets</secondary></indexterm>This TCP/IP port is used by PMCD to create
 the socket for incoming connections and requests. The default is port
-number 4321, which you may override by setting this variable to a different
+number 44321, which you may override by setting this variable to a different
 port number. If a non-default port is in effect when PMCD is started,
 then every monitoring application connecting to that PMCD must also have
 this variable set in its environment before attempting a connection.</para>
@@ -2568,43 +2554,31 @@ TCP/IP</primary><secondary>collector and monitor hosts</secondary></indexterm>In
 some production environments, the Performance Co-Pilot (PCP) monitoring
 hosts are on one side of a TCP/IP firewall, and the PCP collector hosts
 may be on the other side.</para>
-<para><indexterm id="IG31371888155"><primary>SOCKS protocols</primary></indexterm><indexterm id="IG31371888156">
-<primary>pmsocks tool</primary><secondary>TCP/IP firewall</secondary>
+<para><indexterm id="IG31371888155"><primary>PROXY protocol</primary></indexterm><indexterm id="IG31371888156">
+<primary>pmproxy tool</primary><secondary>TCP/IP firewall</secondary>
 </indexterm><indexterm id="IG31371888157"><primary>PMCD</primary><secondary>TCP/IP firewall
 </secondary></indexterm><indexterm id="IG31371888158"><primary>pmlogger tool</primary><secondary>
 TCP/IP firewall</secondary></indexterm><indexterm id="IG31371888159"><primary>pmlc tool</primary>
 <secondary>TCP/IP firewall</secondary></indexterm><indexterm id="IG31371888160"><primary>
 PMCD_PORT variable</primary></indexterm><indexterm id="IG31371888161"><primary>PMLOGGER_PORT
-variable</primary></indexterm>If the firewall service is being provided
-by a product that supports the <literal>sockd</literal> (SOCKS) protocols
-for packet forwarding through the firewall, then the PCP tool <literal>pmsocks</literal> may be used; see the <command>pmsocks
+variable</primary></indexterm>If the firewall service sits between the
+monitor and collector tools, the <literal>pmproxy</literal> service may
+be used to perform both packet forwarding and DNS proxying through the
+firewall; see the
+<command>pmproxy
 (1)</command> man page. Otherwise, it is necessary to arrange for packet
-forwarding to be enabled for those TCP/IP ports used by PCP, namely 4321
+forwarding to be enabled for those TCP/IP ports used by PCP, namely 44321
 (or the value of the <literal>PMCD_PORT</literal> environment variable)
-for connections to PMCD and a finite range of consecutive port numbers
-starting at 4330 (or the value of the <literal>PMLOGGER_PORT</literal>
-environment variable) to allow <command>pmlc</command> connections to <command>
-pmlogger</command> instances.</para>
+for connections to PMCD.</para>
 <section id="id5196469">
 
-<title>The <command>pmsocks</command> Command</title>
-<para>The <command>pmsocks</command> command and its related files and
-scripts allow PCP clients running on hosts located on the internal side
-of a TCP/IP&#xA0;<literal>sockd</literal> firewall system to monitor remote
-hosts on the other side of the firewall system. The basic syntax is as
+<title>The <command>pmproxy</command> service</title>
+<para>The <command>pmproxy</command> service allows PCP clients running on
+hosts located on one side of a firewall to monitor remote
+hosts on the other side. The basic connection syntax is as
 follows, where <replaceable>tool</replaceable> is an arbitrary PCP application,
 typically a monitoring tool:</para>
-<literallayout class="monospaced">pmsocks <replaceable>tool</replaceable> <replaceable>args</replaceable></literallayout>
-<para><indexterm id="IG31371888162"><primary>dkvis tool</primary><secondary>pmsocks script
-</secondary></indexterm>The <command>pmsocks</command> script prepares
-the necessary environment variables and then executes the PCP tool specified
-in <replaceable>tool</replaceable> across the firewall. For example, this
-command runs <command>dkvis</command> with metrics fetched from <literal>remotehost</literal> on the other side of the firewall:</para>
-<literallayout class="monospaced">pmsocks dkvis -h remotehost </literallayout>
-<para><indexterm id="IG31371888163"><primary>/etc/pcp_socks.conf file</primary></indexterm>The
-configuration file is <filename>/etc/pcp_socks.conf</filename>, and the
-network-specific information in this file is set to correspond with your
-network. Complete information on this customization can be found in the <command>pmsocks(1)</command> man page.</para>
+<literallayout class="monospaced">dkvis -h remotehost@proxyhost</literallayout>
 </section>
 </section>
 <section id="LE17322-PARENT">
@@ -2675,7 +2649,7 @@ by entering the following command:</para>
 <para>The following major sections are covered in this chapter:</para>
 <itemizedlist>
 <listitem id="Z930615099sdc"><para><xref linkend="LE91266-PARENT"/>, discusses <command>
-pmkstat</command>, a utility that provides a periodic one-line summary of
+pmstat</command>, a utility that provides a periodic one-line summary of
 system performance.</para>
 </listitem>
 <listitem><para><xref linkend="Z926977852sdc"/>, discusses <command>pmdumptext
@@ -2700,16 +2674,16 @@ various graphical and text-based PCP tools used to monitor local or remote
 system performance.</para>
 <section id="LE91266-PARENT">
 
-<title>The <command>pmkstat</command> Command</title>
-<para><indexterm id="ITch04-20"><primary>pmkstat tool</primary><secondary>
-description</secondary></indexterm> The <command>pmkstat</command> command
+<title>The <command>pmstat</command> Command</title>
+<para><indexterm id="ITch04-20"><primary>pmstat tool</primary><secondary>
+description</secondary></indexterm> The <command>pmstat</command> command
 provides a periodic, one-line summary of system performance. This command
 is intended to monitor system performance at the highest level, after which
 other tools may be used for examining subsystems to observe potential performance
-problems in greater detail. After entering the <command>pmkstat</command>
+problems in greater detail. After entering the <command>pmstat</command>
 command, you see output similar to the following, with successive lines appearing
 periodically:</para>
-<literallayout class="monospaced"><userinput>pmkstat</userinput>
+<literallayout class="monospaced"><userinput>pmstat</userinput>
 # <literal>hostname</literal> load avg: 0.26, interval: 5 sec, Thu Jan 19 12:30:13 2002
 runq    | memory    |      system      | disks|   cpu 
 mem swp | free page | scall ctxsw  intr| rd wr|usr sys idl wt
@@ -2720,7 +2694,7 @@ mem swp | free page | scall ctxsw  intr| rd wr|usr sys idl wt
 <para>An additional line of output is added every five seconds. The update
 interval may be varied using the <literal>-t </literal><replaceable>interval
 </replaceable> option.</para>
-<para>The output from <command>pmkstat</command> is directed to standard output,
+<para>The output from <command>pmstat</command> is directed to standard output,
 and the columns in the report are interpreted as follows:</para>
 <variablelist>
 <varlistentry>
@@ -2762,7 +2736,7 @@ typically disk I/O.</para>
 <para>For example, the following command uses the PCP archive log <replaceable>
 foo</replaceable> and the timezone of the host (<literal>tokyo</literal>)
 from which performance metrics in the archive were collected:</para>
-<literallayout class="monospaced"><userinput>pmkstat -a </userinput><replaceable>foo</replaceable> <userinput>-z</userinput>
+<literallayout class="monospaced"><userinput>pmstat -a </userinput><replaceable>foo</replaceable> <userinput>-z</userinput>
 Note: timezone set to local timezone of host &quot;tokyo&quot;
 # tokyo load avg: 1.06, interval: 5 sec, Thu Feb  2 08:42:55 2002
 &#xA0;runq  |     memory |     system       |  disks  |      cpu
@@ -2777,8 +2751,8 @@ mem swp|   free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
 &#xA0; 0   0    5384    0    174    63  2296   32   22   0   2   8  89
 &#xA0; 0   0    4736    0    189    65  2197   31   28   0   3   8  89
 pmFetch: End of PCP archive log</literallayout>
-<para>For complete information on <literal>pmkstat</literal> usage and command
-line options, see the <command>pmkstat(1)</command> man page.
+<para>For complete information on <literal>pmstat</literal> usage and command
+line options, see the <command>pmstat(1)</command> man page.
 </para>
 </section>
 <section id="Z926977852sdc">
@@ -3286,7 +3260,7 @@ percent.</para>
 the exceptional and sporadic performance problems. For example, if a network
 packet storm is expected, enable IP header tracing for ten seconds, and send
 e-mail to advise that data has been collected and is awaiting analysis. Or,
-if production batch throughput falls below 50 jobs per hour, activate a pager
+if production batch throughput falls below 50 jobs per minute, activate a pager
 to the systems administrator on duty.</para>
 <para><indexterm id="IG31371888184"><primary>pmie tool</primary><secondary>customization</secondary>
 </indexterm><indexterm id="IG31371888185"><primary>pmieconf tool</primary><secondary>customization
@@ -5151,11 +5125,11 @@ file</primary></indexterm>The default configuration: <filename>/var/pcp/config/p
 <listitem><para><indexterm id="IG31371888274"><primary>dkvis tool</primary><secondary>summary
 configuration</secondary></indexterm><indexterm id="IG31371888275"><primary>mpvis tool</primary>
 <secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888276"><primary>
-pmkstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888277">
+pmstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888277">
 <primary>nfsvis tool</primary><secondary>summary configuration</secondary>
 </indexterm>A broad summary configuration, sufficient to be used with <command>
 dkvis</command>, <command>mpvis</command>, <command>nfsvis</command>, and <command>
-pmkstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
+pmstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
 </listitem>
 <listitem><para><indexterm id="IG31371888278"><primary>config.* files</primary></indexterm><indexterm id="IG31371888279">
 <primary>/var/pcp/config/pmlogger file</primary></indexterm><indexterm id="IG31371888280"><primary>
@@ -5220,11 +5194,11 @@ file</primary></indexterm>The default configuration: <filename>/var/pcp/config/p
 <listitem><para><indexterm id="IG31371888284"><primary>dkvis tool</primary><secondary>summary
 configuration</secondary></indexterm><indexterm id="IG31371888285"><primary>mpvis tool</primary>
 <secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888286"><primary>
-pmkstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888287">
+pmstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888287">
 <primary>nfsvis tool</primary><secondary>summary configuration</secondary>
 </indexterm>A broad summary configuration, sufficient to be used with <command>
 dkvis</command>, <command>mpvis</command>, <command>nfsvis</command>, and <command>
-pmkstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
+pmstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
 </listitem>
 <listitem><para><indexterm id="IG31371888288"><primary>/var/pcp/config/pmlogger directory</primary>
 </indexterm><indexterm id="IG31371888289"><primary>pmview tool</primary><secondary>config.* files
@@ -6704,7 +6678,7 @@ Protocol</para></entry></row></tbody></tgroup></table>
 </indexentry>
 
 <indexentry>
-   <primaryie>Challenge systems <link linkend="IG3137188824">Metric Coverage</link></primaryie>
+   <primaryie>coverage <link linkend="IG3137188824">Metric Coverage</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -6804,7 +6778,6 @@ Protocol</para></entry></row></tbody></tgroup></table>
 <indexentry>
    <primaryie>dkvis tool</primaryie>
       <secondaryie>fetching metrics <link linkend="IG31371888116">Fetching Metrics from Another Host</link></secondaryie>
-      <secondaryie>pmsocks script <link linkend="IG31371888162">The <command>pmsocks</command> Command</link></secondaryie>
       <secondaryie>remote PMCD <link linkend="IG31371888103">Cannot Connect to Remote PMCD</link></secondaryie>
       <secondaryie>summary configuration <link linkend="IG31371888274">Primary Logger</link> <link linkend="IG31371888284">Other Logger Configurations</link></secondaryie>
 </indexentry>
@@ -6839,11 +6812,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/etc/config/pmlogger.options file <link linkend="IG31371888296">Primary Logger</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>/etc/pcp_socks.conf file <link linkend="IG31371888163">The <command>pmsocks</command> Command</link></primaryie>
+   <primaryie>/etc/pcp/pmlogger/control file <link linkend="IG31371888296">Primary Logger</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7051,7 +7020,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>NNTP news servers <link linkend="IG3137188867">Sources of Performance Metrics and Their Domains</link></primaryie>
+   <primaryie>Mail servers <link linkend="IG3137188867">Sources of Performance Metrics and Their Domains</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7343,17 +7312,12 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmdahotproc tool <link linkend="ITch01-60">Collecting, Transporting, and Archiving Performance Information
-</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>pmdamailq tool <link linkend="ITch01-58">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmdampi tool <link linkend="IG3137188841">Collecting, Transporting, and Archiving Performance Information
+   <primaryie>pmdammv tool <link linkend="IG3137188841">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
@@ -7467,9 +7431,9 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmkstat tool</primaryie>
+   <primaryie>pmstat tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-37">Performance Monitoring and Visualization</link></secondaryie>
-      <secondaryie>description <link linkend="ITch04-20">The <command>pmkstat</command> Command</link></secondaryie>
+      <secondaryie>description <link linkend="ITch04-20">The <command>pmstat</command> Command</link></secondaryie>
       <secondaryie>summary configuration <link linkend="IG31371888276">Primary Logger</link> <link linkend="IG31371888286">Other Logger Configurations</link></secondaryie>
 </indexentry>
 
@@ -7611,7 +7575,7 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmsocks tool</primaryie>
+   <primaryie>pmproxy tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-38">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>TCP/IP firewall <link linkend="IG31371888156">Running PCP Tools through a Firewall</link></secondaryie>
 </indexentry>
@@ -7693,7 +7657,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>sar data structures <link linkend="IG3137188866">Sources of Performance Metrics and Their Domains</link></primaryie>
+   <primaryie>kernel data structures <link linkend="IG3137188866">Sources of Performance Metrics and Their Domains</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7730,7 +7694,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>SOCKS protocols <link linkend="IG31371888155">Running PCP Tools through a Firewall</link></primaryie>
+   <primaryie>PROXY protocol <link linkend="IG31371888155">Running PCP Tools through a Firewall</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7814,8 +7778,8 @@ Duration</link></primaryie>
    <primaryie>troubleshooting</primaryie>
       <secondaryie>archive logging <link linkend="ITch07-19">Archive Logging Troubleshooting</link></secondaryie>
       <secondaryie>general utilities <link linkend="ITch02-42">Cannot Connect to Remote PMCD</link></secondaryie>
-      <secondaryie>Linux metrics <link linkend="IG3137188899">Linux Metrics and the PMCD</link></secondaryie>
-      <secondaryie>PMCD <link linkend="ITch02-38">Troubleshooting</link> <link linkend="IG31371888100">Linux Metrics and the PMCD</link></secondaryie>
+      <secondaryie>kernel metrics <link linkend="IG3137188899">Kernel Metrics and the PMCD</link></secondaryie>
+      <secondaryie>PMCD <link linkend="ITch02-38">Troubleshooting</link> <link linkend="IG31371888100">Kernel Metrics and the PMCD</link></secondaryie>
 </indexentry>
 
 <indexentry>
