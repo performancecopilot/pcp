@@ -1,4 +1,5 @@
 QA output created by 655
+enabling gfs2_glock_lock_time tracepoint
 You will need to choose an appropriate configuration for installation of
 the "gfs2" Performance Metrics Domain Agent (PMDA).
 

@@ -172,7 +172,7 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
     struct gfs2_fs *fs;
     struct lock_time *glock;   
 
-    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE);   
+    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE_ACTIVE);   
   
     struct lock_time *glock_array = malloc(array_size * sizeof(struct lock_time));
     if (glock_array == NULL){
@@ -192,7 +192,7 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
         for (pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_REWIND);;) {
 	    if ((j = pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	        break;
-	    if (!pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock) || !glock)
+	    if (!pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock) || !glock || !PMDA_CACHE_ACTIVE)
 	        continue;
 
             /* If our lock belongs to the current filesystem */
