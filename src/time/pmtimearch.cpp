@@ -768,7 +768,6 @@ void PmTimeArch::helpManual()
     bool ok;
     QString documents("file://" HTMLDIR);
     QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
     documents.append(separator).append("timecontrol.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
