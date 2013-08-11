@@ -16,9 +16,9 @@
 <othercredit><contrib>Engineering and written contributions</contrib><firstname>Daniel</firstname><surname>Moore</surname></othercredit>
 <othercredit><contrib>Engineering and written contributions</contrib><firstname>Heidi</firstname><surname>Muehlebach</surname></othercredit>
 <othercredit><contrib>Engineering and written contributions</contrib><firstname>Ivan</firstname><surname>Rayner</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Terry</firstname><surname>Schultz</surname></othercredit>
 <othercredit><contrib>Engineering and written contributions</contrib><firstname>Nathan</firstname><surname>Scott</surname></othercredit>
 <othercredit><contrib>Engineering and written contributions</contrib><firstname>Timothy</firstname><surname>Shimmin</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Terry</firstname><surname>Schultz</surname></othercredit>
 
 <copyright>
 <year>2000</year>
@@ -41,26 +41,19 @@ A copy of the license is available at http://creativecommons.org/licenses/by-sa/
 
 <legalnotice>
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
-<para>Silicon Graphics, SGI and the SGI logo are
-registered trademarks and Performance Co-Pilot is a trademark of Silicon
-Graphics, Inc.</para>
-<para>BROCADE is a trademark of Brocade Communications Systems, Inc. Cisco
-is a trademark of Cisco Systems, Inc.
+<para>Silicon Graphics, SGI and the SGI logo are registered trademarks
+and Performance Co-Pilot is a trademark of Silicon Graphics, Inc.</para>
+<para>BROCADE is a trademark of Brocade Communications Systems, Inc.
+Cisco is a trademark of Cisco Systems, Inc.
 Linux is a registered trademark of Linus Torvalds, used with permission.
-UNIX and the X Window System are registered trademarks
-of The Open Group in the United States and other countries.
-UNIX is a registered trademark in the United States
-and other countries, licensed exclusively through X/Open Company, Ltd.</para>
+UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
 
 <revhistory>
-<revision>
-<revnumber>002</revnumber><date>August 2013</date><revremark>Revised publication. Supports the Performance Co-Pilot 3.8 release.</revremark>
-</revision>
-<revision>
-<revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark>
-</revision>
+<revision><revnumber>002</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
+<revision><revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark></revision>
 </revhistory>
+
 </bookinfo>
 <toc/>
 
@@ -68,14 +61,13 @@ and other countries, licensed exclusively through X/Open Company, Ltd.</para>
 <preface id="id5178699">
 
 <title>About This Guide</title>
-<para>This guide describes the Performance Co-Pilot (PCP) software package
-of advanced performance tools.</para>
-<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>
-documents the open source, cross-platform PCP software package.</para>
+<para>This guide describes the Performance Co-Pilot (PCP) performance analysis toolkit.
+PCP is an open source, cross-platform software package - custom extensions, source code
+inspection, and tinkering in general is actively encouraged.</para>
 <para>PCP provides a systems-level suite of tools that cooperate to deliver
-integrated performance monitoring and performance management services spanning
-the hardware platforms, operating systems, service layers, Database Management
-Systems (DBMSs), and user applications.</para>
+distributed performance monitoring and performance management services spanning
+the hardware platforms, operating systems, service layers, database internals,
+user applications and distributed architectures.</para>
 <para>&#x201C;About This Guide&#x201D; includes short descriptions of the chapters
 in this book, directs you to additional sources of information, and explains
 typographical conventions.</para>
@@ -132,13 +124,26 @@ who is directly using and administering PCP applications.</para>
 <para>The <citetitle>Performance Co-Pilot Programmer's
 Guide</citetitle>, a companion document to the <citetitle>Performance
 Co-Pilot User's and Administrator's Guide</citetitle>, is
-intended for application developers who want to use the PCP framework and
-services for exporting additional collections of performance metrics, or for
-delivering new or customized applications to enhance performance management.
+intended for developers who want to use the PCP framework and services for
+exporting additional collections of performance metrics, or for delivering
+new or customized applications to enhance performance management.
 </para>
-<para>Additional resources include man pages, tutorials and online help in the graphical tools.</para>
+<para>Additional resources include man pages, tutorials and the project web site.</para>
 </section>
 <section id="id5178967">
+
+<title>Man Pages</title>
+<para>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, enter the following command:</para>
+<literallayout class="monospaced"><userinput>man -k performance</userinput></literallayout>
+<para>To see a particular man page, supply its name to the <literal>man</literal> command, for example:</para>
+<literallayout class="monospaced"><userinput>man pcp</userinput></literallayout>
+<para>The man pages are arranged in different sections - user commands, programming interfaces, and so on.
+For a complete list of manual sections on a platform enter the command:</para>
+<literallayout class="monospaced"><userinput>man man</userinput></literallayout>
+<para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item.
+For example, <command>pminfo(1)</command> refers to the man page in section 1 for the <command>pminfo</command> command.</para>
+</section>
+<section id="id5178968">
 
 <title>Web Site</title>
 <para>The following web site is accessible to everyone:</para>
@@ -146,7 +151,7 @@ delivering new or customized applications to enhance performance management.
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term>http://oss.sgi.com/projects/pcp/</term>
+<term><ulink url="http://oss.sgi.com/projects/pcp/">http://oss.sgi.com/projects/pcp/</ulink></term>
 <listitem><para>PCP is open source software released under 
 the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>

@@ -1,38 +1,79 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <book status="final" security="public"><title>Performance Co-Pilot&#x2122; Programmer's Guide</title>
-<bookinfo><invpartnumber condition="sgi_partnumber:PCP_PG:sgi-developer">007-3434-005</invpartnumber><edition>2.3</edition><othercredit><contrib>Illustrated by Dany Galgani</contrib><contrib>Edited by Susan Wilkening</contrib><contrib>Production by Glen Traefald</contrib><contrib>Engineering and written contributions by David Chatterton, Michael Gigante, Mark Goodwin,  Tony Kavadias, Seppo Keronen, Johnathon Knispel, Ken McDonell, Max Matveev, Ania Milewska, Daniel Moore, Heidi Muehlebach, Ivan Rayner, Terry Schultz, Nathan Scott, Timothy Shimmin, and Bill Tuthill</contrib></othercredit><legalnotice>
+<bookinfo><edition>3.0</edition>
 
-<title>COPYRIGHT</title>
-<para>&#xA9; 2000&ndash;2013 Silicon Graphics International Corp. All rights reserved. Permission is granted to copy, distribute, and/or modify this document under the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any later version published by the Creative Commons Corp. A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
-</legalnotice><legalnotice>
+<othercredit><contrib>Illustrated</contrib><firstname>Dany</firstname><surname>Galgani</surname></othercredit>
+<othercredit><contrib>Edited</contrib><firstname>Susan</firstname><surname>Wilkening</surname></othercredit>
+<othercredit><contrib>Production</contrib><firstname>Glen</firstname><surname>Traefald</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>David</firstname><surname>Chatterton</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Michael</firstname><surname>Gigante</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Mark</firstname><surname>Goodwin</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Tony</firstname><surname>Kavadias</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Seppo</firstname><surname>Keronen</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Johnathon</firstname><surname>Knispel</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ken</firstname><surname>McDonell</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Max</firstname><surname>Matveev</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ania</firstname><surname>Milewska</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Daniel</firstname><surname>Moore</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Heidi</firstname><surname>Muehlebach</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ivan</firstname><surname>Rayner</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Terry</firstname><surname>Schultz</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Nathan</firstname><surname>Scott</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Timothy</firstname><surname>Shimmin</surname></othercredit>
+<othercredit><contrib>Engineering and written contributions</contrib><firstname>Bill</firstname><surname>Tuthill</surname></othercredit>
 
+<copyright>
+<year>2000</year>
+<year>2013</year>
+<holder>Silicon Graphics, Inc.</holder>
+</copyright>
+
+<copyright>
+<year>2013</year>
+<holder>Red Hat</holder>
+</copyright>
+
+<legalnotice>
+<title>LICENSE</title>
+<para>Permission is granted to copy, distribute, and/or modify this document under
+the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any
+later version published by the Creative Commons Corp.
+A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
+</legalnotice>
+
+<legalnotice>
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
-<para>Silicon Graphics, SGI, the SGI logo, IRIX are registered trademarks and Performance Co-Pilot is a trademark of Silicon Graphics, Inc. Cisco is a registered trademark of Cisco Systems, Inc. UNIX is a registered trademark of The Open Group.</para>
-<para>Cover design by Sarah Bolles, Sarah Bolles Design, and Dany Galgani, SGI Technical Publications.</para>
-</legalnotice><revhistory>
+<para>Silicon Graphics, SGI and the SGI logo are registered trademarks
+and Performance Co-Pilot is a trademark of Silicon Graphics, Inc.</para>
+<para>Cisco is a registered trademark of Cisco Systems, Inc.
+Linux is a registered trademark of Linus Torvalds, used with permission.
+UNIX is a registered trademark of The Open Group.</para>
+</legalnotice>
 
+<revhistory>
+<revision><revnumber>006</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
+<revision><revnumber>005</revnumber><date>December 2002</date><revremark>Revised to support the Performance Co-Pilot 2.3 release.</revremark></revision>
+<revision><revnumber>004</revnumber><date>March 2001</date><revremark>Revised to support the Performance Co-Pilot 2.2 release.</revremark></revision>
+<revision><revnumber>003</revnumber><date>July 1999</date><revremark>Revised to support the Performance Co-Pilot 2.1 release.</revremark></revision>
+</revhistory>
 
-<revision><revnumber>003</revnumber><date>July 1999</date><revremark>Revised to support the Performance Co-Pilot release 2.1 for SGI systems running the IRIX 6.2, 6.3, 6.4, and 6.5 operating systems.</revremark></revision>
-<revision><revnumber>004</revnumber><date>March 2001</date><revremark>Revised to support the Performance Co-Pilot release 2.2 for SGI systems running the IRIX 6.2, 6.3, 6.4, and 6.5.11 and later operating systems.</revremark></revision>
-<revision><revnumber>005</revnumber><date>December 2002</date><revremark>Revised to support the Performance Co-Pilot release 2.3 for SGI systems running the IRIX 6.5.18 and later operating systems or the SGI ProPack 2.1 for Linux or later operating systems.</revremark></revision></revhistory></bookinfo><toc/><preface>
-
-<title>New Features in This Guide</title>
-<para>This manual has been updated with information to support  Performance Co-Pilot applications running on SGI IA-64 Linux machines.</para>
-<para>Corrected the Example 3-12, PMAPI Metrics Sevices, in <xref linkend="Z1034802678tls"/>.</para>
-<para>In addition, miscellaneous formatting and editing changes were made throughout the document.</para>
-</preface>
-
-
-
-
-
+</bookinfo>
+<toc/>
 
 
 <preface id="id5178752">
 
 <title>About This Guide</title>
-<para>This guide describes how to program Performance Co-Pilot (PCP), a software package of advanced performance management applications for the SGI family of graphical workstations and servers. PCP provides a systems-level suite of tools that cooperate to deliver distributed, integrated performance monitoring and performance management services spanning the hardware platform, the operating system, service layers, user applications, and distributed application architectures.</para>
+<para>This guide describes how to program the Performance Co-Pilot (PCP) performance analysis toolkit.
+PCP is an open source, cross-platform software package - custom extensions, source code inspection and
+inspection, and tinkering in general is actively encouraged.</para>
+<para>PCP provides a systems-level suite of tools that cooperate to deliver
+distributed performance monitoring and performance management services spanning hardware platforms,
+operating systems, service layers, database internals, user applications and distributed architectures.</para>
+<para>&#x201C;About This Guide&#x201D; includes short descriptions of the chapters
+in this book, directs you to additional sources of information, and explains
+typographical conventions.</para>
 <section id="id5178771">
 
 <title>What This Guide Contains</title>
@@ -63,8 +104,9 @@
 <section id="id5178933">
 
 <title>Related Resources</title>
-<para>The <citetitle>Performance Co-Pilot for IRIX Advanced User's and Administrator's Guide</citetitle> and <citetitle>Performance Co-Pilot for IA-64 Linux User's and Administrator's Guide</citetitle>, which are companion documents to the <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>, are intended for system administrators and performance analysts who are directly using and administering PCP applications.</para>
-<para>Additional resources include man pages, release notes (IRIX only), and SGI Web sites.</para>
+<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle> is a companion document to the <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>, and is intended for system administrators and performance analysts who are directly using and administering PCP applications.</para>
+<para>Additional resources include man pages, tutorials and the project web site.</para>
+</section>
 <section id="id5178968">
 
 <title>Man Pages</title>
@@ -72,80 +114,26 @@
 <literallayout class="monospaced"><userinput>man -k performance</userinput></literallayout>
 <para>To see a particular man page, supply its name to the <literal>man</literal> command, for example:</para>
 <literallayout class="monospaced"><userinput>man pcp</userinput></literallayout>
-<para>The man pages are divided into the following seven sections:</para>
-<variablelist condition="sgi_termlength:narrow" id="Z927138113sdc">
-<varlistentry>
-<term>(1)</term>
-<listitem><para>General commands</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(2)</term>
-<listitem><para>System calls and error numbers</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(3)</term>
-<listitem><para>Library subroutines</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(4)</term>
-<listitem><para>File formats</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(5)</term>
-<listitem><para>Miscellaneous</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(6)</term>
-<listitem><para>Demos and games</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>(7)</term>
-<listitem><para>Special files</para>
-</listitem></varlistentry>
-</variablelist>
-<para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, <command>pmda(3)</command> refers to the man page in section 3 for the <command>pmda</command> command.</para>
+<para>The man pages are arranged in different sections separating commands, programming interfaces, and so on.
+For a complete list of manual sections on a platform enter the command:</para>
+<literallayout class="monospaced"><userinput>man man</userinput></literallayout>
+<para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, <command>pminfo(1)</command> refers to the man page in section 1 for the <command>pminfo</command> command.</para>
 </section>
 <section id="id5179157">
 
-<title>Release Notes</title>
-<para>Release notes provide specific information about the current product release, available online through the <command>relnotes</command> command. Exceptions to the printed and online documentation are found in the release notes. The <command>grelnotes</command> command provides a graphical interface to the release notes of all products installed on your system. For additional information, see the <command>relnotes(1)</command> and <command>grelnotes(1)</command> man pages. Release notes are not available on the Linux operating system.</para>
-</section>
-<section id="id5179196">
-
-<title>SGI Web Sites</title>
-<para>The following Web sites are accessible to everyone with general Internet access:</para>
+<title>Web Site</title>
+<para>The following web site is accessible to everyone:</para>
 <variablelist condition="sgi_termlength:wide">
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term><ulink url="http://www.sgi.com">http://www.sgi.com</ulink></term>
-<listitem><para>The SGI general Web site, with search capability</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><ulink url="http://www.sgi.com/software">http://www.sgi.com/software</ulink></term>
-<listitem><para>Links to Performance Co-Pilot product information</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><ulink url="http://oss.sgi.com/projects/pcp">http://oss.sgi.com/projects/pcp</ulink></term>
-<listitem><para>Some parts of the PCP infrastructure that have also been released as open source</para>
+<term><ulink url="http://oss.sgi.com/projects/pcp/">http://oss.sgi.com/projects/pcp/</ulink></term>
+<listitem><para>PCP is open source software released under
+the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
-</section>
 <section id="id5179276">
-
-<title>Obtaining Publications</title>
-<para>You can obtain SGI documentation in the following ways:<itemizedlist>
-<listitem><para>See the SGI Technical Publications Library at: <ulink url="http://docs.sgi.com">http://docs.sgi.com</ulink>. Various formats are available. This library contains the most recent and most comprehensive set of online books, release notes, man pages, and other information.</para>
-</listitem>
-<listitem><para>If it is installed on your SGI system, you can use InfoSearch, an online tool that provides a more limited set of online books, release notes, and man pages. With an IRIX system, select <guilabel>Help</guilabel> from the Toolchest, and then select <guilabel>InfoSearch</guilabel>. Or you can type <command>infosearch</command> on a command line.</para>
-</listitem>
-<listitem><para>You can also view release notes by typing either <command>grelnotes</command> or <command>relnotes</command> on a command line.</para>
-</listitem>
-<listitem><para>You can also view man pages by typing <command>man</command> <replaceable>title</replaceable> on a command line.</para>
-</listitem></itemizedlist></para>
-</section>
-<section id="Z825545312melby">
 
 <title>Conventions</title>
 <para>The following conventions are used throughout this document:<variablelist>
@@ -185,7 +173,7 @@ defined.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>()</term>
-<listitem><para>Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow IRIX commands surround man page section numbers.</para>
+<listitem><para>Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow commands surround man page section numbers.</para>
 </listitem></varlistentry>
 </variablelist></para>
 
@@ -193,25 +181,8 @@ defined.</para>
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact SGI. Be sure to include the  title and document number of the manual with your comments. (Online,  the document number is located in the front matter of the manual.  In printed manuals, the document number is located at the bottom of each page.)</para>
-<para>You can contact SGI in any of the following ways:<itemizedlist>
-<listitem><para>Send e-mail to the following address:</para>
-<para>techpubs@sgi.com</para>
-</listitem>
-<listitem><para>Use the Feedback option on the Technical Publications Library Web page:</para>
-<para><ulink url="http://docs.sgi.com">http://docs.sgi.com</ulink></para>
-</listitem>
-<listitem><para>Contact your customer service representative and ask that an incident be filed in the SGI incident tracking system.</para>
-</listitem>
-<listitem><para>Send mail to the following address:<simplelist type="horiz" role="address">
-<member>Technical Publications</member>
-<member>SGI</member>
-<member>1600 Amphitheatre Parkway, M/S 535</member>
-<member>Mountain View, California 94043-1351</member></simplelist></para>
-</listitem>
-<listitem><para>Send a fax to the attention of &#x201C;Technical Publications&#x201D; at +1 650 932 0801.</para>
-</listitem></itemizedlist></para>
-<para>SGI values your comments and will respond to them promptly.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP project via the web site.</para>
+<para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>
 
@@ -219,7 +190,7 @@ defined.</para>
 <chapter id="LE21795-PARENT">
 
 <title>Programming Performance Co-Pilot</title>
-<para><indexterm id="IG313401770"><primary>PCP</primary><secondary>description</secondary></indexterm>Performance Co-Pilot (PCP) provides a systems-level suite of tools that cooperate to deliver distributed, integrated performance management services. PCP is designed for the in-depth analysis and sophisticated control that are needed to understand and manage the hardest performance problems in our most complex systems.</para>
+<para><indexterm id="IG313401770"><primary>PCP</primary><secondary>description</secondary></indexterm>Performance Co-Pilot (PCP) provides a systems-level suite of tools that cooperate to deliver distributed, integrated performance management services. PCP is designed for the in-depth analysis and sophisticated control that are needed to understand and manage the hardest performance problems in the most complex systems.</para>
 <para>PCP provides unparalleled power to quickly isolate and understand performance behavior, resource utilization, activity levels and performance bottlenecks.</para>
 <para>Performance data may be collected and exported from multiple sources, most notably the hardware platform, the operating system kernel, layered services, and end-user applications.</para>
 <para><indexterm id="IG313401771"><primary>programming components</primary></indexterm> <indexterm id="IG313401772"><primary>audience</primary></indexterm>There are several ways to extend PCP by programming certain of its components:</para>
@@ -230,13 +201,13 @@ defined.</para>
 </listitem>
 <listitem><para><indexterm id="IG313401775"><primary>performance instrumentation</primary></indexterm><indexterm id="IG313401776"><primary>trace facilities</primary></indexterm>By adding performance instrumentation to an application using the trace facilities of the PCP trace library (<filename id="Z963349455sdc">libpcp_trace</filename>) and the trace PMDA (<xref linkend="LE25915-PARENT"/>)</para>
 </listitem></itemizedlist>
-<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>In addition, the topic of customizing a PCP installation is covered in the chapter on customizing and extending PCP service in the <citetitle><citetitle>Performance Co-Pilot for IRIX Advanced User's and Administrator's Guide</citetitle></citetitle> or in the <citetitle>Performance Co-Pilot for IA-64 Linux User's and Administrator's Guide</citetitle>.</para>
+<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>In addition, the topic of customizing a PCP installation is covered in the chapter on customizing and extending PCP service in the <citetitle><citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle></citetitle>.</para>
 <section id="id5177140">
 
 <title>PCP Architecture</title>
 <para><indexterm id="IG313401778"><primary>architecture</primary></indexterm>This section gives a brief overview of PCP architecture. For an explanation of terms and acronyms, refer to <xref linkend="LE54271-PARENT"/>.</para>
 <para><indexterm id="IG313401779"><primary>pmchart command</primary></indexterm></para>
-<para><indexterm id="IG3134017710"><primary>pmview command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of several monitoring and collecting tools. <filename>Monitoring tools</filename> such as <command>pmval</command> and <command>pminfo</command> visualize metrics, but have minimal interaction with target systems. <filename>Collection tools</filename>, called PMDAs, extract performance values from target systems, but do not provide graphical user interfaces.</para>
+<para><indexterm id="IG3134017710"><primary>pmview command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of several monitoring and collecting tools. <filename>Monitoring tools</filename> such as <command>pmval</command> and <command>pminfo</command> report on metrics, but have minimal interaction with target systems. <filename>Collection tools</filename>, called PMDAs, extract performance values from target systems, but do not provide user interfaces.</para>
 <para>Systems supporting PCP services are broadly classified into two categories:</para>
 <variablelist>
 <varlistentry>
@@ -249,16 +220,15 @@ defined.</para>
 </listitem></varlistentry>
 </variablelist>
 <para>Each PCP enabled host can operate as a collector, or a monitor, or both.</para>
-<para>There are separate node-locked licenses for additional tools when available on IRIX systems for collector and monitor functions.</para>
 <para><xref linkend="id5177328"/> shows the architecture of PCP. The monitoring tools consume and process performance data using a public interface, the Performance Metrics Application Programming Interface (PMAPI).</para>
 <para><indexterm id="IG3134017713"><primary>PMCD</primary><secondary>overview</secondary></indexterm><indexterm id="IG3134017714"><primary>Performance Metrics Collection Daemon </primary><see>PMCD</see></indexterm>Below the PMAPI level is the PMCD process, which acts in a  coordinating role, accepting requests from clients, routing requests to one or more PMDAs, aggregating responses from the PMDAs, and responding to the requesting client.</para>
-<para>Each performance metric domain (such as IRIX, Linux, or some Database Management System (DBMS)) has a well-defined name space for referring to the specific performance metrics it knows how to collect.</para>
+<para>Each performance metric domain (such as the operating system kernel or a database management system) has a well-defined name space for referring to the specific performance metrics it knows how to collect.</para>
 <para><figure id="id5177328"><title>PCP Global Process Architecture</title><mediaobject><imageobject><imagedata fileref="figures/PCP_glob_process_architec.gif"/></imageobject><textobject><phrase>PCP Global Process Architecture</phrase></textobject></mediaobject></figure></para>
 <section id="id5177343">
 
 <title>Distributed Collection</title>
-<para><indexterm id="IG3134017715"><primary>distributed performance management</primary><secondary>metrics collection</secondary></indexterm><indexterm id="IG3134017716"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG3134017717"><primary>Array PMDA</primary></indexterm>The performance metrics collection architecture is distributed, in the sense that any monitoring tool may be executing remotely. However, a PMDA is expected to be running on the operating system for which it is collecting performance measurements; there are some notable PMDAs such as Cisco and Array that are exceptions, and collect performance data from remote systems.</para>
-<para><indexterm id="IG3134017718"><primary>PMCD</primary><secondary>distributed collection</secondary></indexterm><indexterm id="IG3134017719"><primary>collector hosts</primary></indexterm>As shown in <xref linkend="id5177408"/>, monitoring tools communicate only with PMCD. The PMDAs are controlled by PMCD and respond to requests from the monitoring tools that are forwarded by PMCD to the relevant PMDAs on the  colllector host.</para>
+<para><indexterm id="IG3134017715"><primary>distributed performance management</primary><secondary>metrics collection</secondary></indexterm><indexterm id="IG3134017716"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG3134017717"><primary>Cluster PMDA</primary></indexterm>The performance metrics collection architecture is distributed, in the sense that any monitoring tool may be executing remotely. However, a PMDA is expected to be running on the operating system for which it is collecting performance measurements; there are some notable PMDAs such as Cisco and Cluster that are exceptions, and collect performance data from remote systems.</para>
+<para><indexterm id="IG3134017718"><primary>PMCD</primary><secondary>distributed collection</secondary></indexterm><indexterm id="IG3134017719"><primary>collector hosts</primary></indexterm>As shown in <xref linkend="id5177408"/>, monitoring tools communicate only with PMCD. The PMDAs are controlled by PMCD and respond to requests from the monitoring tools that are forwarded by PMCD to the relevant PMDAs on the collector host.</para>
 <para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="figures/process_struct_for_dist_op.gif"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
 <para>The host running the monitoring tools does not require any collection tools, including PMCD, since all requests for metrics are sent to the PMCD process on the collector host.</para>
 <para><indexterm id="IG3134017720"><primary>PMDA </primary><secondary>man page</secondary></indexterm><indexterm id="IG3134017721"><primary>PMAPI</primary><secondary>man page</secondary></indexterm>The connections between monitoring tools and PMCD processes are managed in <filename>libpcp</filename>, below the PMAPI level; see the <command>pmapi(3)</command> man page. Connections between PMDAs and PMCD are managed by the PMDA functions; see the <command>pmda(3)</command> and <command>pmcd(1)</command> man pages. There can be multiple monitor clients and multiple PMDAs on the one host, but there may be only one PMCD process.</para>
@@ -290,7 +260,6 @@ defined.</para>
 
 <title>Overview of Component Software</title>
 <para><indexterm id="IG3134017732"><primary>software</primary></indexterm><indexterm id="IG3134017733"><primary>component software</primary></indexterm>Performance Co-Pilot (PCP) is composed of text-based tools, optional graphical tools, and related commands. Each tool or command is fully documented by a man page. These man pages are named after the tools or commands they describe, and are accessible through the <command>man</command> command. For example, to see the <command>pminfo(1)</command> man page for the <command>pminfo</command> command, enter this command:<literallayout class="monospaced"><userinput>man pminfo</userinput></literallayout></para>
-<para>Many PCP tools and commands are accessible from an <guilabel>Icon Catalog</guilabel> on the IRIX desktop, grouped under <guilabel>PerfTools</guilabel>. In the <guilabel>Toolchest</guilabel> <guilabel>Find</guilabel> menu, choose <guilabel>PerfTools</guilabel>; an <guilabel>Icon Catalog</guilabel> appears, containing clickable PCP programs. To bring up a Web-based introduction to Performance Co-Pilot, click the <guilabel>AboutPCP</guilabel> icon.</para>
 <para>A list of PCP tools and commands, grouped by functionality, is provided in the following sections.</para>
 <section id="id5177879">
 
@@ -342,26 +311,25 @@ defined.</para>
 <section id="id5178242">
 
 <title>Building a PMDA</title>
-<para>A PMDA interacts with PMCD across one of several well-defined interfaces and protocol mechanisms. These implementation options are described in the <citetitle>Performance Co-Pilot for IRIX Advanced User's and Administrator's Guide</citetitle> or the <citetitle>Performance Co-Pilot for IA-64 Linux User's and Administrator's Guide</citetitle>.</para>
-<para>It is strongly recommended that code for a new PMDA be based on the source of one of the demonstration PMDAs below the <filename>/var/pcp/pmdas</filename> directory.</para>
+<para>A PMDA interacts with PMCD across one of several well-defined interfaces and protocol mechanisms. These implementation options are described in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
+<para>It is strongly recommended that code for a new PMDA be based on the source of one of the demonstration PMDAs below the <filename>${PCP_PMDAS_DIR}</filename> directory.</para>
 <section id="id5178295">
 
 <title>In-Process (DSO) Method</title>
 <para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using <command>dlopen</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC)  between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read
 the instrumentation behind the performance metrics, or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so care is required when crafting a PMDA in this manner.</para>
-<para>When developing PMDAs for IRIX or Linux, multiple object code formats for the DSO may be required because  PMCD must execute with the same object code format as the running operating system kernel. This would be <literal>o32</literal> for some low-end platforms (IRIX 6.3 and earlier), <literal>n32</literal> for other low-end platforms (IRIX 6.5 and later), and <literal>n64</literal> for high-end platforms.</para>
 </section>
 <section id="id5178384">
 
 <title>Daemon Process Method</title>
-<para><indexterm id="IG3134017750"><primary>daemon process method</primary></indexterm>Functionally, this method may be thought of as a DSO implementation with a standard <command>main</command> routine conversion wrapper so that communication with PMCD uses message passing rather than direct procedure calls. (See <filename>/var/pcp/pmdas/trivial/trivial.c</filename>  file.)</para>
+<para><indexterm id="IG3134017750"><primary>daemon process method</primary></indexterm>Functionally, this method may be thought of as a DSO implementation with a standard <command>main</command> routine conversion wrapper so that communication with PMCD uses message passing rather than direct procedure calls. (See <filename>${PCP_PMDAS_DIR}/trivial/trivial.c</filename>  file.)</para>
 <para>The daemon PMDA is actually the most common, because it allows multiple threads of control, permits linking with existing dynamic libraries, and provides more resilient error encapsulation than the DSO method.</para>
 </section>
 <section id="id5178420">
 
 <title>Shell Process Method</title>
 <para><indexterm id="IG3134017751"><primary>shell process</primary></indexterm>This method offers the least performance, but may be well-suited for rapid prototyping of performance metrics, or for diagnostic metrics that are not going into production.</para>
-<para>Implementation of the ASCII protocols is rather lengthy. The suggested approach is to take the <filename>/var/pcp/pmdas/news/pmdanews</filename> PMDA as an illustrative example, and adapt it for the particular metrics of interest.</para>
+<para>Implementation of the ASCII protocols is rather lengthy. The suggested approach is to take the <filename>${PCP_PMDAS_DIR}/news/pmdanews</filename> PMDA as an illustrative example, and adapt it for the particular metrics of interest.</para>
 <note><para>The ASCII protocols have not been extensively used; so their support may be discontinued in a future PCP release. Newer versions of the PMDA libraries have dramatically reduced the code development effort required for a new PMDA (either the DSO or daemon approach), thereby reducing the need for ASCII protocols.</para>
 </note>
 </section>
@@ -372,7 +340,6 @@ the instrumentation behind the performance metrics, or where the performance met
 <title>Client Development and PMAPI</title>
 <para><indexterm id="IG3134017752"><primary>client development</primary></indexterm>Application developers are encouraged to create new PCP client applications to monitor, display, and analyze performance data in a manner suited to their particular site, application suite, or information processing environment.</para>
 <para><indexterm id="IG3134017753"><primary>Performance Metrics Collection Subsystem</primary><seealso>PMCS</seealso></indexterm><indexterm id="IG3134017754"><primary>PMCS</primary></indexterm><indexterm id="IG3134017755"><primary>PMAPI</primary><secondary>client development</secondary></indexterm>PCP client applications are programmed using the Performance Metrics Application Programming Interface (PMAPI), documented in <xref linkend="LE97135-PARENT"/>. The PMAPI, which provides performance tool developers with access to all of the distributed services of the Performance Metrics Collection Subsystem (PMCS), is the interface used by the standard PCP utilities.</para>
-<para>Source for a sample IRIX PMAPI client may be found in the <filename>/var/pcp/demos/pmclient</filename> directory if the <filename>pcp.sw.demo</filename> subsystem has been installed. Source for a sample Linux PMAPI client may be found in the <filename>/usr/share/pcp/demos/pmclient</filename> directory.</para>
 </section>
 <section id="id5187605">
 
@@ -411,7 +378,7 @@ of export methodology is typically determined by the source of the instrumentati
 <step><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para></step>
 <step><para><indexterm id="IG3134017768"><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command>dbpmda(1)</command> man page.</para></step>
 <step><para>Install and connect the PMDA to a running PMCD process; see the <command>pmcd(1)</command> man page.</para></step>
-<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages (IRIX only). For an examples of text-based tools, see the <command>
+<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages. For an examples of text-based tools, see the <command>
 pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of alarm tools, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
 <step><para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configurations suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogger(1)</command> man page.</para></step>
 </procedure>
@@ -460,51 +427,20 @@ pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of a
 
 <title>DSO PMDA</title>
 <para><indexterm id="IG3134017795"><primary>DSO</primary><secondary>implementation</secondary></indexterm><indexterm id="IG3134017796"><primary>dlopen man page</primary></indexterm>Each PMDA is required to implement a function that handles each of the request types. By implementing these functions as library functions, a PMDA can be implemented as a  dynamically shared object (DSO) and attached by PMCD at run time with the <command>dlopen</command> call; see the <command>dlopen(3)</command> man page. This eliminates the need for an IPC layer (typically a UNIX pipe) between each PMDA and PMCD, because each request becomes a function call rather than a message exchange. The required library functions are detailed in <xref linkend="LE21831-PARENT"/>.</para>
-<para>A PMDA that interacts with PMCD in this fashion must abide by a formal initialization protocol so that PMCD can discover the location of the library functions that are subsequently called with function pointers. When a DSO PMDA is installed, the PMCD configuration file, <filename>/etc/pmcd.conf</filename> on IRIX; <filename>/var/pcp/config/pmcd/pmcd.conf</filename>, is updated to reflect the domain and name of the PMDA, the location of the shared object, and the name of the initialization function. The initialization sequence is discussed in <xref linkend="LE19047-PARENT"/>.</para>
-<para><indexterm id="IG3134017797"><primary>simple PMDA</primary><secondary>DSO</secondary></indexterm>As superuser, install the simple PMDA as a DSO, as shown in <xref linkend="Z963514088sdc"/> and <xref linkend="Z1033502809tls"/>, and observe the changes in the PMCD configuration file. The output may differ slightly depending on the other PMDAs you have installed.</para>
-<example id="Z963514088sdc">
-<title>Simple IRIX PMDA as a DSO</title>
-<programlisting># <userinput>cd /var/pcp/pmdas/simple</userinput>
-# <userinput>cat /etc/pmcd.conf</userinput>
-# Name  Id      IPC     IPC Params      File/Cmd 
-irix    1       dso     irix_init       libirixpmda.so 
-pmcd    2       dso     pmcd_init       pmda_pmcd.so 
-proc    3       dso     proc_init       pmda_proc.so 
-# <userinput>./Install</userinput>
-You will need to choose an appropriate configuration for installation 
-of the &#x201C;simple&#x201D; Performance Metrics Domain Agent (PMDA).
-collector   collect performance statistics on this system
-  monitor     allow this system to monitor local and/or remote systems
-  both         collector and monitor configuration for this system
-Please enter c(ollector) or m(onitor) or b(oth) [b] <userinput>both</userinput>
-
-Updating the Performance Metrics Name Space (PMNS) ... 
-Installing pmchart view(s) ...
-Install simple as a daemon or dso agent? [daemon] <userinput>dso</userinput>
-...
-Check simple metrics have appeared ... 5 metrics and 9 values
-# <userinput>cat /etc/pmcd.conf</userinput>
-# Name  Id      IPC     IPC Params      File/Cmd 
-irix    1       dso     irix_init       libirixpmda.so 
-pmcd    2       dso     pmcd_init       pmda_pmcd.so 
-proc    3       dso     proc_init       pmda_proc.so 
-simple  253     dso     simple_init     pmda_simple.so</programlisting>
-<para>As can be seen from the contents of <filename>/etc/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm id="IG3134017798"><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 253, as shown in the column headed <literal>Id</literal>.</para>
-</example>
+<para>A PMDA that interacts with PMCD in this fashion must abide by a formal initialization protocol so that PMCD can discover the location of the library functions that are subsequently called with function pointers. When a DSO PMDA is installed, the PMCD configuration file, <filename>/etc/pcp/pmcd/pmcd.conf</filename>, is updated to reflect the domain and name of the PMDA, the location of the shared object, and the name of the initialization function. The initialization sequence is discussed in <xref linkend="LE19047-PARENT"/>.</para>
+<para><indexterm id="IG3134017797"><primary>simple PMDA</primary><secondary>DSO</secondary></indexterm>As superuser, install the simple PMDA as a DSO, as shown in <xref linkend="Z1033502809tls"/> and <xref linkend="Z1033502809tls"/>, and observe the changes in the PMCD configuration file. The output may differ slightly depending on the other PMDAs you have installed.</para>
 <para><example id="Z1033502809tls">
-<title>Simple Linux PMDA as a DSO</title>
-<programlisting><userinput>cat /var/pcp/config/pmcd/pmcd.conf</userinput>
+<title>Simple PMDA as a DSO</title>
+<programlisting><userinput>cat /etc/pcp/pmcd/pmcd.conf</userinput>
 # Performance Metrics Domain Specifications
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
-pmcd    2       dso     pmcd_init       /var/pcp/pmdas/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      /var/pcp/pmdas/linux/pmda_linux.so
-
-snia 63 pipe binary /var/pcp/pmdas/snia/pmdasnia -d 63
-simple  254     dso     simple_init     pmda_simple.so</programlisting>
+pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</programlisting>
 </example></para>
-<para>As can be seen from the contents of <filename>/var/pcp/config/pmcd/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm id="IG3134017799"><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 254, as shown in the column headed <literal>Id</literal>.</para>
+<para>As can be seen from the contents of <filename>/etc/pcp/pmcd/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm id="IG3134017799"><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 254, as shown in the column headed <literal>Id</literal>.</para>
 </section>
 <section id="id5188840">
 
@@ -522,40 +458,25 @@ simple  254     dso     simple_init     pmda_simple.so</programlisting>
 <para>Consequently, many PMDAs are implemented as a daemon process.</para>
 <para>The <filename>libpcp_pmda</filename> library is designed to allow simple implementation of a PMDA that runs as a separate process. The library functions provide a message passing layer acting as a generic wrapper that accepts PDUs, makes library calls using the standard DSO PMDA interface, and sends PDUs. Therefore, you can implement a PMDA as a DSO and then install it as either a daemon or a DSO, depending on the presence or absence of the generic wrapper.</para>
 <para><indexterm id="IG31340177101"><primary>fork system call</primary></indexterm><indexterm id="IG31340177102"><primary>execv system call</primary></indexterm><indexterm id="IG31340177103"><primary>pipe</primary></indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command>. You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using TCP/IP or UNIX domain sockets; see the <command>inet(7)</command> or <command>unix(7)</command> man page.</para>
-<para><indexterm id="IG31340177104"><primary>pipe</primary></indexterm><indexterm id="IG31340177105"><primary>simple PMDA</primary><secondary> as daemon</secondary></indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z963516216sdc"/> for IRIX and <xref linkend="Z1033576478tls"/> for Linux. As in <xref linkend="Z963514088sdc"/>, the output may differ due to other PMDAs already installed.</para>
-<example id="Z963516216sdc">
-<title>Simple IRIX PMDA as a Daemon</title>
-<para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>/var/pcp/pmdas/simple/pmdasimple</filename>, using domain number 253.</para>
-<programlisting># <userinput>cd /var/pcp/pmdas/simple</userinput>
-# <userinput>./Install</userinput>&#xA0;
-... 
-Install simple as a daemon or dso agent? [daemon] daemon 
-PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
-...
-# cat /etc/pmcd.conf 
-# Name  Id   IPC     IPC Params File/Cmd 
-irix    1    dso     irix_init  libirixpmda.so 
-pmcd    2    dso     pmcd_init  pmda_pmcd.so 
-proc    3    dso     proc_init  pmda_proc.so 
-simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</programlisting>
-</example>
+<para><indexterm id="IG31340177104"><primary>pipe</primary></indexterm><indexterm id="IG31340177105"><primary>simple PMDA</primary><secondary> as daemon</secondary></indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to other PMDAs already installed.</para>
 <para><example id="Z1033576478tls">
-<title>Simple Linux PMDA as a Daemon</title>
-<para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>/var/pcp/pmdas/simple/pmdasimple</filename>, using domain number 253.<programlisting># <userinput>cd /var/pcp/pmdas/simple</userinput>
+<title>Simple PMDA as a Daemon</title>
+<para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>${PCP_PMDAS_DIR}/simple/pmdasimple</filename>, using domain number 253.<programlisting># <userinput>cd ${PCP_PMDAS_DIR}/simple</userinput>
 # <userinput>./Install</userinput>
 ... 
 Install simple as a daemon or dso agent? [daemon] daemon 
 PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 ...
-# cat /var/pcp/config/pmcd/pmcd.conf 
+# cat /etc/pcp/pmcd/pmcd.conf 
 # Performance Metrics Domain Specifications
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
-pmcd    2       dso     pmcd_init       /var/pcp/pmdas/pmcd/pmda_pmcd.so
-linux   60      dso     linux_init      /var/pcp/pmdas/linux/pmda_linux.so
-snia 63 pipe binary /var/pcp/pmdas/snia/pmdasnia -d 63 
-simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</programlisting></para>
+pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
+linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+proc    3       pipe    proc_init       ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+xfs     11      pipe    proc_init       ${PCP_PMDAS_DIR}/xfs/pmda_xfs.so -d 11
+simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 253</programlisting></para>
 </example></para>
 </section>
 <section id="id5189181">
@@ -563,14 +484,14 @@ simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</program
 <title>Caching PMDA</title>
 <para><indexterm id="IG31340177106"><primary>caching PMDA</primary></indexterm>When either the cost or latency associated with collecting performance metrics is high, the PMDA implementer may choose to trade off the currency of the performance data to reduce the PMDA resource demands or the fetch latency time.</para>
 <para>One scheme for doing this is called a  caching PMDA, which periodically instantiates values for the performance metrics and responds to each request from PMCD with the most recently instantiated (or cached) values, as opposed to instantiating current values on demand when the PMCD asks for them.</para>
-<para><indexterm id="IG31340177107"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG31340177108"><primary>pmdacisco man page</primary></indexterm>The Cisco PMDA is an example of a caching PMDA. For additional information, see the contents of the <filename>/var/pcp/pmdas/cisco</filename> directory and the <command>pmdacisco(1)</command> man page.</para>
+<para><indexterm id="IG31340177107"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG31340177108"><primary>pmdacisco man page</primary></indexterm>The Cisco PMDA is an example of a caching PMDA. For additional information, see the contents of the <filename>${PCP_PMDAS_DIR}/cisco</filename> directory and the <command>pmdacisco(1)</command> man page.</para>
 </section>
 </section>
 <section id="LE97285-PARENT">
 
 <title>Domains, Metrics, and Instances</title>
 <para>This section defines metrics and instances, discusses how they should be designed for a particular target domain, and shows how to implement support for them.</para>
-<para><indexterm id="IG31340177109"><primary>examples</primary><secondary>simple and trivial PMDAs</secondary></indexterm>The examples in this section are drawn from the trivial and simple PMDAs, which are distributed in source format with PCP. Refer to the <filename>/var/pcp/pmdas/trivial</filename> and <filename>/var/pcp/pmdas/simple</filename> directories, respectively.</para>
+<para><indexterm id="IG31340177109"><primary>examples</primary><secondary>simple and trivial PMDAs</secondary></indexterm>The examples in this section are drawn from the trivial and simple PMDAs, which are distributed in source format with PCP. Refer to the <filename>${PCP_PMDAS_DIR}/trivial</filename> and <filename>${PCP_PMDAS_DIR}/simple</filename> directories, respectively.</para>
 <section id="id5189300">
 
 <title>Overview</title>
@@ -609,9 +530,9 @@ simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</program
 
 <title>Domains</title>
 <para>Each PMDA must be uniquely identified by PMCD so that requests from clients can be efficiently routed to the appropriate PMDA. The unique identifier, the PMDA's domain, is encoded within the metrics and instance domain identifiers so that they are associated with the correct PMDA, and so that they are unique, regardless of the number of PMDAs that are connected to the PMCD process.</para>
-<para><indexterm id="IG31340177113"><primary>domains</primary><secondary>numbers</secondary></indexterm>The default  domain number for each PMDA is defined in <filename>/var/pcp/pmns/stdpmid</filename>. This file is a simple table of PMDA names and their corresponding domain number. However, a PMDA does not have to use this domain number--the file is only a guide to help avoid domain number clashes when PMDAs are installed and activated.</para>
+<para><indexterm id="IG31340177113"><primary>domains</primary><secondary>numbers</secondary></indexterm>The default  domain number for each PMDA is defined in <filename>${PCP_VAR_DIR}/pmns/stdpmid</filename>. This file is a simple table of PMDA names and their corresponding domain number. However, a PMDA does not have to use this domain number--the file is only a guide to help avoid domain number clashes when PMDAs are installed and activated.</para>
 <para>The domain number a PMDA uses is passed to the PMDA by PMCD when the PMDA is launched. Therefore, any data structures that require the PMDA's domain number must be set up when the PMDA is initialized, rather than declared statically. The protocol for PMDA initialization provides a standard way for a PMDA to implement this run-time initialization.</para>
-<tip><para>Although uniqueness of the domain number in the <filename>/etc/pmcd.conf</filename> control file used by PMCD is all that is required for successful starting of PMCD and the associated PMDAs, the developer of a new PMDA is encouraged to add the default domain number for each new PMDA to the <filename>/var/pcp/pmns/stdpmid.local</filename> file and then to run the  <filename>Make.stdpmid</filename> script in <filename>/var/pcp/pmns</filename> to recreate <filename>/var/pcp/pmns/stdpmid</filename>; this file acts as a repository for documenting the known default domain numbers.</para>
+<tip><para>Although uniqueness of the domain number in the <filename>/etc/pcp/pmda/pmcd.conf</filename> control file used by PMCD is all that is required for successful starting of PMCD and the associated PMDAs, the developer of a new PMDA is encouraged to add the default domain number for each new PMDA to the <filename>${PCP_VAR_DIR}/pmns/stdpmid.local</filename> file and then to run the  <filename>Make.stdpmid</filename> script in <filename>${PCP_VAR_DIR}/pmns</filename> to recreate <filename>${PCP_VAR_DIR}/pmns/stdpmid</filename>; this file acts as a repository for documenting the known default domain numbers.</para>
 </tip>
 </section>
 <section id="LE98565-PARENT">
@@ -653,24 +574,15 @@ simple  253  pipe    binary     /var/pcp/pmdas/simple/pmdasimple -d 253</program
 <listitem><para>A description of the value's units based on dimension and scale in the three orthogonal dimensions of space, time, and count (or events)</para>
 </listitem></varlistentry>
 </variablelist>
-<para><indexterm id="IG31340177121"><primary>_pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>/usr/include/pcp/pmapi.h</filename> file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>_pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z975969343sdc"/> for IRIX and <xref linkend="Z1033577630tls"/> for Linux:</para>
-<example id="Z975969343sdc">
-<title><filename>_pmID_int</filename> Structure in IRIX</title>
-<programlisting>typedef struct { 
-        int             pad:2; 
-        unsigned int    domain:8; 
-        unsigned int    cluster:12; 
-        unsigned int    item:10; 
-} _pmID_int;</programlisting>
-</example>
+<para><indexterm id="IG31340177121"><primary>_pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>/usr/include/pcp/pmapi.h</filename> file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>_pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z1033577630tls"/>:</para>
 <para><example id="Z1033577630tls">
-<title><filename>_pmID_int</filename> Structure in Linux</title>
+<title><filename>__pmID_int</filename> Structure</title>
 <programlisting>typedef struct { 
-        unsigned int    item:10; 
-        unsigned int    cluster:12; 
-        unsigned int    domain:8; 
-        int             pad:2; 
-} _pmID_int;</programlisting>
+        int             flag:1;
+        unsigned int    domain:9;
+        unsigned int    cluster:12;
+        unsigned int    item:10;
+} __pmID_int;</programlisting>
 </example></para>
 <para>For additional information, see the <filename>/usr/include/pcp/impl.h</filename> file.</para>
 <para><indexterm id="IG31340177122"><primary>PMDA_PMID macro</primary></indexterm>The <literal>pad</literal> field should be ignored. The <literal>domain</literal> number should be set at run time when the PMDA is initialized. The <literal>PMDA_PMID</literal> macro defined in <filename>/usr/include/pcp/pmapi.h</filename> can be used to set the <literal>cluster</literal> and <literal>item</literal> fields at compile time, as these should always be known and fixed for a particular metric.</para>
@@ -781,22 +693,14 @@ Discrete           10  30  60  80  90  90</programlisting>
 } pmdaIndom;</programlisting>
 </example>
 <para><indexterm id="IG31340177140"><primary>arrays</primary><secondary>instance description</secondary></indexterm><indexterm id="IG31340177141"><primary>_pmInDom_int structure</primary></indexterm>The <literal>it_indom</literal> element contains a <literal>pmInDom</literal> that must be unique across every PMDA. The other fields of the <filename>pmdaIndom</filename> structure are the number of instances in the instance domain and a pointer to an array of instance descriptions.</para>
-<para><xref linkend="Z975964872sdc"/> for IRIX and  <xref linkend="Z1033578294tls"/> for Linux shows that the <literal>pmInDom</literal> can be safely cast to <literal>_pmInDom_int</literal>, which specifies the PMDA's domain and the instance number  within the PMDA:</para>
-<example id="Z975964872sdc">
-<title><literal>_pmInDom_int</literal> Structure in IRIX</title>
-<programlisting>typedef struct { 
-        int             pad:2; 
-        unsigned int    domain:8;   /* the administrative PMD */ 
-        unsigned int    serial:22;  /* unique within PMD */ 
-} _pmInDom_int;</programlisting>
-</example>
+<para><xref linkend="Z1033578294tls"/> shows that the <literal>pmInDom</literal> can be safely cast to <literal>__pmInDom_int</literal>, which specifies the PMDA's domain and the instance number  within the PMDA:</para>
 <para><example id="Z1033578294tls">
-<title><literal>_pmInDom_int</literal> Structure in Linux</title>
+<title><literal>__pmInDom_int</literal> Structure</title>
 <programlisting>typedef struct { 
+        int             flag:1;
+        unsigned int    domain:9;   /* the administrative PMD */ 
         unsigned int    serial:22;  /* unique within PMD */         
-        unsigned int    domain:8;   /* the administrative PMD */ 
-        int             pad:2;
-} _pmInDom_int;</programlisting>
+} __pmInDom_int;</programlisting>
 </example></para>
 <para>As with metrics, the PMDA domain number is not necessarily known until run time; so the <literal>domain</literal> field must be set up when the PMDA is initialized.</para>
 <para><indexterm id="IG31340177142"><primary>pmdaInit man page</primary></indexterm>For information about how an instance domain may also be associated with more than one metric, see the <command>pmdaInit(3)</command> man page.</para>
@@ -878,7 +782,7 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 </listitem>
 <listitem><para>Implement a protocol that allows a third party to connect to the target application, send a request, and receive new performance data.</para>
 </listitem>
-<listitem><para>For IRIX, if the data is in the operating system kernel, provide a system call (preferred) or global data (for a <filename>/dev/kmem</filename> reader) to export the performance data.</para>
+<listitem><para>If the data is in the operating system kernel, provide a kernel interface (preferred) to export the performance data.</para>
 </listitem></itemizedlist>
 <para>Most of these approaches require some further data processing by the PMDA.</para>
 </section>
@@ -886,9 +790,8 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 
 <title>Latency and Threads of Control</title>
 <para><indexterm id="IG31340177149"><primary>latency</primary></indexterm><indexterm id="IG31340177150"><primary>control threads</primary></indexterm><indexterm id="IG31340177151"><primary>delays</primary></indexterm>The PCP protocols expect PMDAs to return the current values for performance metrics when requested, and with short delay (low latency). For some target domains, access to the underlying instrumentation may be costly or involve unpredictable  delays (for example, if the real performance data is stored on some remote host or network device). In these cases, it may be necessary to separate probing for new performance data from servicing PMCD requests.</para>
-<para><indexterm id="IG31340177152"><primary>sproc man page</primary></indexterm>An architecture that has been used successfully for several PMDAs is to create one or more <command>sproc</command> child processes to  obtain information while the main process communicates with PMCD; see the <command>sproc(2)</command> man page.<note><para>The <command>sproc(2)</command> function is not available on Linux. You can use the <command>exec(2)</command>/<command>fork(2)</command> and <command>setgpid(2)</command> calls as an alternative.</para>
-</note></para>
-<para>At the simplest deployment of this arrangement, the two processes may execute without synchronization. Pthreads have also been used as a more portable multithreading mechanism; see the <command>pthreads(5)</command> man page.</para>
+<para><indexterm id="IG31340177152"><primary>pthreads man page</primary></indexterm>An architecture that has been used successfully for several PMDAs is to create one or more child processes to obtain information while the main process communicates with PMCD.</para>
+<para>At the simplest deployment of this arrangement, the two processes may execute without synchronization. Pthreads have also been used as a more portable multithreading mechanism; see the <command>pthreads(7)</command> man page.</para>
 <para>By contrast, a complex deployment would be one in which the refreshing of the metric values must be atomic, and this may require double buffering of the data structures. It also requires coordination between parent and child processes.</para>
 <tip><para>Since PMAPI is not thread-safe, only one PMDA process or thread of control should call any PMAPI functions, and this would typically be the thread servicing requests from the PMCD.</para>
 </tip>
@@ -898,7 +801,7 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 
 <title>Name Space</title>
 <para><indexterm id="IG31340177154"><primary>pmns man page</primary></indexterm><indexterm id="IG31340177155"><primary>name space</primary></indexterm>The PMNS file defines the name space of the PMDA. It is a simple text file that is used during installation to expand the Name Space of the PMCD process. The format of this file is described by the <command>pmns(4)</command> man page.</para>
-<para>Client processes will not be able to access the PMDA metrics if the PMNS file is not installed as part of the PMDA installation procedure on the collector host. The installed list of metric names and their corresponding PMIDs can be found in <filename>/var/pcp/pmns/root</filename>.</para>
+<para>Client processes will not be able to access the PMDA metrics if the PMNS file is not installed as part of the PMDA installation procedure on the collector host. The installed list of metric names and their corresponding PMIDs can be found in <filename>${PCP_VAR_DIR}/pmns/root</filename>.</para>
 <para><indexterm id="IG31340177156"><primary>simple PMDA</primary><secondary> 2 branches, 4 metrics</secondary></indexterm><xref linkend="Z963526380sdc"/> shows the simple PMDA, which has five metrics:<itemizedlist>
 <listitem><para>Three metrics immediately under the <literal>simple</literal> node</para>
 </listitem>
@@ -926,14 +829,14 @@ simple.time {
     usertime    SIMPLE:1:2 
     systime     SIMPLE:1:3 
 }</programlisting>
-<para>In this example, the <literal>SIMPLE</literal> macro is replaced by the domain number listed in <filename>/var/pcp/pmns/stdpmid</filename> for the corresponding PMDA during installation (for the simple PMDA, this would normally be the value 253).</para>
+<para>In this example, the <literal>SIMPLE</literal> macro is replaced by the domain number listed in <filename>${PCP_VAR_DIR}/pmns/stdpmid</filename> for the corresponding PMDA during installation (for the simple PMDA, this would normally be the value 253).</para>
 </example>
 </section>
 <section id="LE72473-PARENT">
 
 <title>PMDA Help Text</title>
 <para><indexterm id="IG31340177157"><primary>PMDA</primary><secondary>help text</secondary></indexterm><indexterm id="IG31340177158"><primary>help text</primary><secondary>terse and extended descriptions</secondary></indexterm>For each metric defined within a PMDA, the PMDA developer is strongly encouraged to provide both terse and extended help text to describe the metric, and perhaps provide hints about the expected value ranges.</para>
-<para><indexterm id="IG31340177159"><primary>newhelp man page</primary></indexterm>The help text is used to describe each metric in the visualization tools and <command>pminfo</command> with the <command>-T</command> option. The help text, such as the help text for the simple PMDA in <xref linkend="Z963526754sdc"/>, is specified in a specially formatted file, normally called <filename>help</filename>. This file is converted to the expected run-time format using the <command>newhelp</command> command; see the <command>newhelp(1)</command> man page. Converted help text files are usually placed in the PMDA's directory below <filename>/var/pcp/pmdas</filename> as part of the PMDA installation procedure.</para>
+<para><indexterm id="IG31340177159"><primary>newhelp man page</primary></indexterm>The help text is used to describe each metric in the visualization tools and <command>pminfo</command> with the <command>-T</command> option. The help text, such as the help text for the simple PMDA in <xref linkend="Z963526754sdc"/>, is specified in a specially formatted file, normally called <filename>help</filename>. This file is converted to the expected run-time format using the <command>newhelp</command> command; see the <command>newhelp(1)</command> man page. Converted help text files are usually placed in the PMDA's directory below <filename>${PCP_PMDAS_DIR}</filename> as part of the PMDA installation procedure.</para>
 <example id="Z963526754sdc">
 <title>Help Text for the Simple PMDA</title>
 <para>The two instance domains and five metrics have a short and a verbose description. Each entry begins with a line that starts with the character &#x201C;@&#x201D; and is followed by either the metric name (<literal>simple.numfetch</literal>) or a symbolic reference to the instance domain number (<literal>SIMPLE.1</literal>), followed by the short description. The verbose description is on the following lines, terminated by the next line starting with &#x201C;@&#x201D; or end of file:</para>
@@ -968,7 +871,7 @@ The time in seconds that the CPU has spent executing agent system code.
 The value reflects the current time of day through a dynamically
 reconfigurable instance domain.  On each metric value fetch request,
 the agent checks to see whether the configuration file in
-/var/pcp/pmdas/simple/simple.conf has been modified - if it has then
+${PCP_PMDAS_DIR}/simple/simple.conf has been modified - if it has then
 the file is re-parsed and the instance domain for this metric is again
 constructed according to its contents.
 
@@ -1403,7 +1306,7 @@ void simple_init(pmdaInterface *dp)
 {
    if (isDSO)
        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
-               &#x201C;/var/pcp/pmdas/simple/help&#x201D;);
+               &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
    if (dp-&gt;status != 0)
        return;
    dp-&gt;version.two.fetch = simple_fetch;
@@ -1450,7 +1353,7 @@ main(int argc, char **argv)
    }
    isDSO = 0;
    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
-              &#x201C;simple.log&#x201D;, &#x201C;/var/pcp/pmdas/simple/help&#x201D;);
+              &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
    if (pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:?&#x201D;, &amp;dispatch, &amp;err)) != EOF)
        err++;
    if (err)
@@ -1473,16 +1376,16 @@ main(int argc, char **argv)
 <section id="id5194836">
 
 <title>Overview</title>
-<para><indexterm id="IG31340177228"><primary>dbx man page</primary></indexterm>Thoroughly testing a PMDA with PMCD is difficult, although testing a daemon PMDA is marginally simpler than testing a DSO PMDA. If a DSO PMDA exits, PMCD also exits because they share a single address space and control thread. If the PMDA dumps core, <command>dbx</command> and related tools on IRIX or <command>gdb(1)</command> on Linux cannot reasonably explore the generated core image, which includes the PMCD image and any other active DSO PMDAs. For more information, see the <command>dbx(1)</command> or <command>gdb(1)</command>man page.</para>
-<para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/config/pmcd.options</filename> on IRIX or <filename>/var/pcp/config/pmcd/pmcd.options</filename> on Linux, attaching <command>dbx</command> or <command>gdb</command> to the PMDA process (or any other long delay) might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
-<para>If you suspect a PMDA has been terminated due to a timeout failure, check the PMCD log file, usually <filename>/var/adm/pcplog/pmcd.log</filename> for IRIX or <filename>/var/log/pcp/pmcd/pmcd.log</filename> for Linux.</para>
+<para><indexterm id="IG31340177228"><primary>dbx man page</primary></indexterm>Thoroughly testing a PMDA with PMCD is difficult, although testing a daemon PMDA is marginally simpler than testing a DSO PMDA. If a DSO PMDA exits, PMCD also exits because they share a single address space and control thread.</para>
+<para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/pcp/pmcd/pmcd.options</filename> attaching a debugger (such as <command>gdb</command>) to the PMDA process (or any other long delay) might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
+<para>If you suspect a PMDA has been terminated due to a timeout failure, check the PMCD log file, usually <filename>${PCP_LOG_DIR}/pmcd/pmcd.log</filename>.</para>
 <para><indexterm id="IG31340177229"><primary>dbpmda man page</primary></indexterm>A more robust way of testing a PMDA is to use the <command>dbpmda</command> tool, which is similar to PMCD except that <command>dbpmda</command> provides complete control over the PDUs that are sent to the PMDA, and there are no time limits--it is essentially an interactive debugger for exercising a PMDA. See the <command>dbpmda(3)</command> man page for details.</para>
 <para><indexterm id="IG31340177230"><primary>pmdbg man page</primary></indexterm>In addition, careful use of PCP debugging flags can produce useful information concerning a PMDA's behavior; see the <command>pmapi(3)</command> and <command>pmdbg(1)</command> man pages for a discussion of the PCP debugging and tracing framework.</para>
 </section>
 <section id="id5195016">
 
 <title>Debugging Information</title>
-<para><indexterm id="IG31340177231"><primary>pmdbg man page</primary></indexterm><indexterm id="IG31340177232"><primary>debugging flags</primary><see>flags</see></indexterm><indexterm id="IG31340177233"><primary>flags</primary><secondary>debugging</secondary></indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug flag for PMCD in <filename>/etc/config/pmcd.options</filename> on IRIX or <filename>/var/pcp/config/pmcd/pmcd.options</filename> on Linux might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
+<para><indexterm id="IG31340177231"><primary>pmdbg man page</primary></indexterm><indexterm id="IG31340177232"><primary>debugging flags</primary><see>flags</see></indexterm><indexterm id="IG31340177233"><primary>flags</primary><secondary>debugging</secondary></indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug flag for PMCD in <filename>/etc/pcp/pmcd/pmcd.options</filename> might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
 <para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
 <programlisting># <emphasis role="bold">pmstore pmcd.control.debug 5</emphasis></programlisting>
 <para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>pmda(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
@@ -1510,14 +1413,14 @@ main(int argc, char **argv)
 <section id="id5195283">
 
 <title><command>dbpmda</command> Debug Utility</title>
-<para><indexterm id="IG31340177236"><primary>dbpmda man page</primary></indexterm>The <command>dbpmda</command> utility provides a simple interface to the PDU communication protocol. It allows daemon and DSO PMDAs to be tested with most request types, while the PMDA process may be monitored with <command>dbx</command>, <command>par</command> on IRIX or <command>gdb</command>, <command>strace</command> on Linux, and other diagnostic tools. The <command>dbpmda(1)</command> man page contains a sample session with the <filename>simple</filename> PMDA.</para>
+<para><indexterm id="IG31340177236"><primary>dbpmda man page</primary></indexterm>The <command>dbpmda</command> utility provides a simple interface to the PDU communication protocol. It allows daemon and DSO PMDAs to be tested with most request types, while the PMDA process may be monitored with a debugger, tracing utilities, and other diagnostic tools. The <command>dbpmda(1)</command> man page contains a sample session with the <filename>simple</filename> PMDA.</para>
 </section>
 </section>
 <section id="id5195340">
 
 <title>Integration of PMDA</title>
 <para><indexterm id="IG31340177237"><primary>PMDA</primary><secondary>integration</secondary></indexterm>Several steps are required to install (or remove) a PMDA from a production PMCD environment without affecting the operation of other PMDAs or related visualization and logging tools.<indexterm id="IG31340177238"><primary>integrating a PMDA</primary></indexterm></para>
-<para>The PMDA typically would have its own directory below <filename>/var/pcp/pmdas</filename> into which several files would be installed. In the description in <xref linkend="LE55181-PARENT"/>, the PMDA of interest is assumed to be known by the name <filename>newbie</filename>, hence the PMDA directory would be <filename>/var/pcp/pmdas/newbie</filename>.</para>
+<para>The PMDA typically would have its own directory below <filename>${PCP_PMDAS_DIR}</filename> into which several files would be installed. In the description in <xref linkend="LE55181-PARENT"/>, the PMDA of interest is assumed to be known by the name <filename>newbie</filename>, hence the PMDA directory would be <filename>${PCP_PMDAS_DIR}/newbie</filename>.</para>
 <note><para>Any installation or removal of a PMDA involves updating files and directories that are typically well protected. Hence the procedures described in this section must be executed as the superuser.</para>
 </note>
 <section id="LE55181-PARENT">
@@ -1525,35 +1428,30 @@ main(int argc, char **argv)
 <title>Installing a PMDA</title>
 <para>A PMDA is fully installed when these tasks are completed:</para>
 <itemizedlist>
-<listitem><para><indexterm id="IG31340177239"><primary>help text</primary><secondary>location</secondary></indexterm>Help text has been installed in a place where the PMDA can find it, usually in the PMDA directory <filename>/var/pcp/pmdas/newbie</filename>.</para>
+<listitem><para><indexterm id="IG31340177239"><primary>help text</primary><secondary>location</secondary></indexterm>Help text has been installed in a place where the PMDA can find it, usually in the PMDA directory <filename>${PCP_PMDAS_DIR}/newbie</filename>.</para>
 </listitem>
-<listitem><para>The name space has been updated in the <filename>/var/pcp/pmns</filename> directory.</para>
+<listitem><para>The name space has been updated in the <filename>${PCP_VAR_DIR}/pmns</filename> directory.</para>
 </listitem>
-<listitem><para>The PMDA binary has been installed, usually in the directory <filename>/var/pcp/lib</filename> for a DSO PMDA, or in the PMDA directory <filename>/var/pcp/pmdas/newbie</filename> for a daemon PMDA.</para>
+<listitem><para>The PMDA binary has been installed, usually in the directory <filename>${PCP_PMDAS_DIR}/newbie</filename>.</para>
 </listitem>
-<listitem><para>The <filename>/etc/pmcd.conf</filename> file on IRIX or the <filename>/var/pcp/config/pmcd/pmcd.conf</filename> file on Linux has been updated.</para>
+<listitem><para>The <filename>/etc/pcp/pmcd/pmcd.conf</filename> file has been updated.</para>
 </listitem>
 <listitem><para>The PMCD process has been restarted or notified (with a <literal>SIGHUP</literal> signal) that the new PMDA exists.</para>
 </listitem></itemizedlist>
-<para>The <filename>Makefile</filename> should include an <literal>install</literal> target to compile and link the PMDA (as a DSO, or a daemon or both) in the PMDA directory, and in the case of a DSO PMDA, install the shared library in <filename>/var/pcp/lib</filename> for IRIX and <filename>/usr/share/pcp/lib</filename> for Linux. The <literal>clobber</literal> target should remove any files created as a by-product of the <literal>install</literal> target.<indexterm id="IG31340177240"><primary>PMDA</primary><secondary>Install script</secondary></indexterm></para>
-<para>You may wish to use <filename>/var/pcp/pmdas/simple/Makefile</filename> as a template for constructing a new PMDA <filename>Makefile</filename>; changing the assignment of <literal>IAM</literal> from <literal>simple</literal> to <literal>newbie</literal> would account for most of the required changes.</para>
-<para>Since the object format of a DSO PMDA must match the object format of PMCD, which in turn must match the object format of the booted operating system kernel, there might be multiple DSO targets in the <filename>Makefile</filename>. For an example on IRIX, see targets <literal>mips_o32.pmda_$(IAM).so</literal>, <literal>mips_n32.pmda_$(IAM).so</literal>, and <literal>mips_64.pmda_$(IAM).so</literal> for the simple PMDA.</para>
-<para>The <filename>Install</filename> script should make use of the generic procedures defined in the script <filename>/usr/pcp/lib/pmdaproc.sh</filename> on IRIX and <filename>/usr/share/pcp/lib/pmdaproc.sh</filename> on Linux, and may be as straightforward as the one used for the trivial PMDA, shown in <xref linkend="Z976309325sdc"/>:</para>
+<para>The <filename>Makefile</filename> should include an <literal>install</literal> target to compile and link the PMDA (as a DSO, or a daemon or both) in the PMDA directory, and in the case of a DSO PMDA, install the shared library in <filename>${PCP_VAR_DIR}</filename>. The <literal>clobber</literal> target should remove any files created as a by-product of the <literal>install</literal> target.<indexterm id="IG31340177240"><primary>PMDA</primary><secondary>Install script</secondary></indexterm></para>
+<para>You may wish to use <filename>${PCP_PMDAS_DIR}/simple/Makefile</filename> as a template for constructing a new PMDA <filename>Makefile</filename>; changing the assignment of <literal>IAM</literal> from <literal>simple</literal> to <literal>newbie</literal> would account for most of the required changes.</para>
+<para>The <filename>Install</filename> script should make use of the generic procedures defined in the script <filename>${PCP_SHARE_DIR}/lib/pmdaproc.sh</filename>, and may be as straightforward as the one used for the trivial PMDA, shown in <xref linkend="Z976309325sdc"/>:</para>
 <example id="Z976309325sdc">
 <title><filename>Install</filename> Script for the Trivial PMDA</title>
-<programlisting># Get the common procedures and variable assignments
-#
-. /usr/pcp/lib/pmdaproc.sh
-# The name of the PMDA
-#
+<programlisting>. ${PCP_DIR}/etc/pcp.env
+. ${PCP_SHARE_DIR}/lib/pmdaproc.sh
+
 iam=trivial
-# Do it
-#
 pmdaSetup
 pmdainstall
 exit 0</programlisting>
 </example>
-<para>The variables, shown in <xref linkend="id5195779"/>, may be assigned values to modify the behavior of the <literal>pmdaSetup</literal> and <literal>pmdainstall</literal> procedures from <filename>/usr/pcp/lib/pmdaproc.sh</filename> or  <filename>/usr/share/pcp/lib/pmdaproc.sh</filename> on Linux.</para>
+<para>The variables, shown in <xref linkend="id5195779"/>, may be assigned values to modify the behavior of the <literal>pmdaSetup</literal> and <literal>pmdainstall</literal> procedures from <filename>${PCP_SHARE_DIR}/lib/pmdaproc.sh</filename>.</para>
 <table id="id5195779" frame="topbot" pgwide="wide">
 
 <title>Variables to Control Behavior of Generic <filename>pmdaproc.sh</filename> Procedures</title>
@@ -1655,7 +1553,7 @@ of the ... Performance Metrics Domain Agent (PMDA).
 </listitem>
 <listitem><para>Merge the PMDA's name space into the PCP name space at the non-leaf node identified by <filename>$pmns_name</filename>.</para>
 </listitem>
-<listitem><para>If any <command>pmchart</command> views can be found (files with names ending in &#x201C;.pmchart&#x201D;), copy these to the standard directory (<filename>/var/pcp/config/pmchart</filename>) with the &#x201C;.pmchart&#x201D; suffix removed.</para>
+<listitem><para>If any <command>pmchart</command> views can be found (files with names ending in &#x201C;.pmchart&#x201D;), copy these to the standard directory (<filename>${PCP_VAR_DIR}/config/pmchart</filename>) with the &#x201C;.pmchart&#x201D; suffix removed.</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177241"><primary>help text</primary><secondary>creation</secondary></indexterm>Create new help files from <literal>$help_source</literal> after replacing symbolic references to <literal>SYMDOM</literal> by the desired numeric domain number from <literal>domain</literal>.</para>
 </listitem>
@@ -1663,28 +1561,27 @@ of the ... Performance Metrics Domain Agent (PMDA).
 </listitem>
 <listitem><para>Use the <filename>Makefile</filename> to build the appropriate executables.</para>
 </listitem>
-<listitem><para>Add the PMDA specification to PMCD's configuration file (<filename>/etc/pmcd.conf</filename>).</para>
+<listitem><para>Add the PMDA specification to PMCD's configuration file (<filename>/etc/pcp/pmcd/pmcd.conf</filename>).</para>
 </listitem>
 <listitem><para>Notify PMCD. To minimize the impact on the services PMCD provides, sending a <literal>SIGHUP</literal> to PMCD forces it to reread the configuration file and start, restart, or remove any PMDAs that have changed since the file was last read.</para>
 </listitem>
 <listitem><para>Check that the metrics from the new PMDA are available.</para>
 </listitem></itemizedlist>
-<para>There are some PMDA changes that may trick PMCD into thinking nothing has changed, and not restarting the PMDA. Most notable are changes to the PMDA executable. In these cases, you may need to explicitly remove the PMDA as described in <xref linkend="Z976310185sdc"/>, or more drastically, restart PMCD on IRIX as follows: <indexterm id="IG31340177242"><primary>restarting pmcd</primary></indexterm></para>
-<literallayout class="monospaced"># <userinput>/etc/init.d/pcp start</userinput></literallayout>
-<para>Restart PMCD on Linux as follows:<literallayout class="monospaced"># <userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout></para>
-<para><indexterm id="IG31340177243"><primary>examples</primary><secondary>Install script</secondary></indexterm>The files <filename>/var/pcp/pmdas/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA<filename>Install</filename> script.</para>
+<para>There are some PMDA changes that may trick PMCD into thinking nothing has changed, and not restarting the PMDA. Most notable are changes to the PMDA executable. In these cases, you may need to explicitly remove the PMDA as described in <xref linkend="Z976310185sdc"/>, or more drastically, restart PMCD as follows: <indexterm id="IG31340177242"><primary>restarting pmcd</primary></indexterm></para>
+<literallayout class="monospaced"># <userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout>
+<para><indexterm id="IG31340177243"><primary>examples</primary><secondary>Install script</secondary></indexterm>The files <filename>${PCP_PMDAS_DIR}/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA<filename>Install</filename> script.</para>
 </section>
 <section id="id5197100">
 
 <title>Upgrading a PMNS to Include Metrics from a New PMDA</title>
-<para><indexterm id="IG31340177244"><primary>new PMDA</primary></indexterm><indexterm id="IG31340177245"><primary>PMNS</primary><secondary>upgrade</secondary></indexterm><indexterm id="IG31340177246"><primary>PMDA</primary><secondary> Install script</secondary></indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This is typically used on a monitoring system to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option also installs <command>pmchart</command> views useful on a monitoring system.</para>
+<para><indexterm id="IG31340177244"><primary>new PMDA</primary></indexterm><indexterm id="IG31340177245"><primary>PMNS</primary><secondary>upgrade</secondary></indexterm><indexterm id="IG31340177246"><primary>PMDA</primary><secondary> Install script</secondary></indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This functionality is rarely, if ever, used in modern versions of PCP, but allows one to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option also installs <command>pmchart</command> views useful on a monitoring system.</para>
 </section>
 <section id="Z976310185sdc">
 
 <title>Removing a PMDA</title>
-<para><indexterm id="IG31340177247"><primary>PMDA</primary><secondary>removal</secondary></indexterm>The simplest way to stop a PMDA from running, apart from killing the process, is to remove the entry from <filename>/etc/pmcd.conf</filename> and signal PMCD (with <literal>SIGHUP</literal>) to reread its configuration file. To completely remove a PMDA requires the reverse process of the installation, including an update of the Performance Metrics Name Space (PMNS).</para>
+<para><indexterm id="IG31340177247"><primary>PMDA</primary><secondary>removal</secondary></indexterm>The simplest way to stop a PMDA from running, apart from killing the process, is to remove the entry from <filename>/etc/pcp/pmcd/pmcd.conf</filename> and signal PMCD (with <literal>SIGHUP</literal>) to reread its configuration file. To completely remove a PMDA requires the reverse process of the installation, including an update of the Performance Metrics Name Space (PMNS).</para>
 <para><indexterm id="IG31340177248"><primary>removal script</primary></indexterm>This typically involves a <filename>Remove</filename> script in the PMDA directory that uses the same common procedures as the <filename>Install</filename> script described <xref linkend="LE55181-PARENT"/>.</para>
-<para><indexterm id="IG31340177249"><primary>examples</primary><secondary>Remove script</secondary></indexterm>The <filename>/var/pcp/pmdas/*/Remove</filename> files provide a wealth of examples that may be used to construct a new PMDA <filename>Remove</filename> script.</para>
+<para><indexterm id="IG31340177249"><primary>examples</primary><secondary>Remove script</secondary></indexterm>The <filename>${PCP_PMDAS_DIR}/*/Remove</filename> files provide a wealth of examples that may be used to construct a new PMDA <filename>Remove</filename> script.</para>
 </section>
 <section id="id5197301">
 
@@ -1805,52 +1702,10 @@ typedef struct {
 </listitem>
 <listitem><para>In each dimension, a number of common scale values are defined that may be used to better encode ranges that might otherwise exhaust the precision of a 32-bit value. For example, a metric with dimension Space<superscript>1</superscript>.Time<superscript>-1</superscript> may have values encoded using the scale megabytes per second.</para>
 </listitem></itemizedlist>
-<para><indexterm id="IG31340177274"><primary>pmDesc structure</primary></indexterm>This information is encoded in the <filename>pmUnits</filename> data structure, shown in <xref linkend="Z976557554sdc"/> and <xref linkend="Z1034792511tls"/>. It is embedded in the <filename>pmDesc</filename> structure :</para>
-<example id="Z976557554sdc">
-<title><filename>pmUnits</filename> and <filename>pmDesc</filename> IRIX Structures</title>
-<programlisting>/*
-* Encoding for the units (dimensions and
-* scale) for Performance Metric Values
-*
-* For example, a pmUnits struct of
-* { 1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
-* represents Mbytes/sec, while 
-* { 0, 1, -1, 0, PM_TIME_HOUR, 6 }
-* represents hours/million-events
-*/
-typedef struct {
-    int dimSpace:4;   /* space dimension */
-    int dimTime:4;    /* time dimension */
-    int dimCount:4;   /* event dimension */
-    int scaleSpace:4; /* one of PM_SPACE_* below */
-    int scaleTime:4;  /* one of PM_TIME_* below */
-    int scaleCount:4; /* one of PM_COUNT_* below */
-    int pad:8;
-  } pmUnits;   /* dimensional units and scale of value */
-/* pmUnits.scaleSpace */
-#define PM_SPACE_BYTE 0  /* bytes */
-#define PM_SPACE_KBYTE 1 /* Kilobytes (1024) */
-#define PM_SPACE_MBYTE 2 /* Megabytes (1024^2) */
-#define PM_SPACE_GBYTE 3 /* Gigabytes (1024^3) */
-#define PM_SPACE_TBYTE 4 /* Terabytes (1024^4) */
-/* pmUnits.scaleTime */
-#define PM_TIME_NSEC 0   /* nanoseconds */
-#define PM_TIME_USEC 1   /* microseconds */
-#define PM_TIME_MSEC 2   /* milliseconds */
-#define PM_TIME_SEC 3    /* seconds */
-#define PM_TIME_MIN 4    /* minutes */
-#define PM_TIME_HOUR 5   /* hours */
-/*
- * pmUnits.scaleCount (e.g. count events, syscalls,
- * interrupts, etc.) -- these are simply powers of 10,
- * and not enumerated here.
- * e.g. 6 for 10^6, or -3 for 10^-3
- */
-#define PM_COUNT_ONE 0 /* 1 */</programlisting>
-</example>
-<para>The strucutures in Linux are as follows:</para>
+<para><indexterm id="IG31340177274"><primary>pmDesc structure</primary></indexterm>This information is encoded in the <filename>pmUnits</filename> data structure, shown in <xref linkend="Z1034792511tls"/>. It is embedded in the <filename>pmDesc</filename> structure :</para>
+<para>The strucutures are as follows:</para>
 <example id="Z1034792511tls">
-<title><filename>pmUnits</filename> and <filename>pmDesc</filename> Linux Structures</title>
+<title><filename>pmUnits</filename> and <filename>pmDesc</filename> Structures</title>
 <programlisting>/*
 * Encoding for the units (dimensions and
 * scale) for Performance Metric Values
@@ -1864,10 +1719,8 @@ typedef struct {
 typedef struct {
     int pad:8;
     int scaleCount:4; /* one of PM_COUNT_* below */
- below */
     int scaleTime:4;  /* one of PM_TIME_* below */
     int scaleSpace:4; /* one of PM_SPACE_* below */    
- below */
     int dimCount:4;   /* event dimension */
     int dimTime:4;    /* time dimension */
     int dimSpace:4;   /* space dimension
@@ -1909,17 +1762,9 @@ typedef struct {
 } pmValue;</programlisting>
 </example>
 <para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/struct_results_frm_pmFetch.gif"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
-<para><indexterm id="IG31340177277"><primary>internal instance identifier</primary></indexterm>The internal instance identifier is stored in the <literal>inst</literal> element. If a value for a particular metric-instance pair is a 32-bit integer (signed or unsigned), then it will be stored in the <literal>lval</literal> element. If not, the value will be in a <literal>pmValueBlock</literal> structure, as shown in <xref linkend="Z976812872sdc"/> and <xref linkend="Z1034793414tls"/>, and will be located via <literal>pval</literal>:</para>
-<example id="Z976812872sdc">
-<title> <literal>pmValueBlock</literal> Structure in IRIX</title>
-<programlisting>typedef struct {
-   unsigned int    vtype : 8;    /* value type */
-   unsigned int    vlen : 24;    /* bytes for vtype/vlen + vbuf */
-   char            vbuf[1];      /* the value */
-} pmValueBlock;</programlisting>
-</example>
-<para>The <literal>pmValueBlock</literal> structure in Linux is as follows:<example id="Z1034793414tls">
-<title><literal>pmValueBlock</literal> Structure in Linux</title>
+<para><indexterm id="IG31340177277"><primary>internal instance identifier</primary></indexterm>The internal instance identifier is stored in the <literal>inst</literal> element. If a value for a particular metric-instance pair is a 32-bit integer (signed or unsigned), then it will be stored in the <literal>lval</literal> element. If not, the value will be in a <literal>pmValueBlock</literal> structure, as shown in <xref linkend="Z1034793414tls"/>, and will be located via <literal>pval</literal>:</para>
+<para>The <literal>pmValueBlock</literal> structure is as follows:<example id="Z1034793414tls">
+<title><literal>pmValueBlock</literal> Structure</title>
 <programlisting>typedef struct {
    unsigned int    vlen : 24;    /* bytes for vtype/vlen + vbuf */
    unsigned int    vtype : 8;    /* value type */
@@ -2053,7 +1898,7 @@ pmGetChildrenStatus(const char *<replaceable>name</replaceable>, char ***<replac
 <para><indexterm id="IG31340177297"><primary>pmLoadNameSpace function</primary></indexterm>If the application wants to force using a local Performance Metrics Name Space (PMNS) instead of a distributed PMNS, it must load the PMNS using <command>pmLoadASCIINameSpace</command> or <command>pmLoadNameSpace</command>. If the application wants to use a distributed PMNS, then it should not make a call to load the PMNS explicitly.</para>
 <para><command>pmLoadASCIINameSpace</command> is a variant of <command>pmLoadNameSpace</command>, which only processes an ASCII format PMNS. The <replaceable>dupok</replaceable> argument may be used to control the handling of multiple names in the PMNS that may be associated with a single Performance Metric Identifier (PMID). A value of 0 disallows duplicates; any other value allows duplicates.</para>
 <para>The <replaceable>filename</replaceable> argument designates the PMNS of interest. For applications not requiring a tailored PMNS, the special value <literal>PM_NS_DEFAULT</literal> may be used for <replaceable>filename</replaceable>, to force the default local PMNS to be loaded. Since this PMNS exists in a binary format, <command>pmLoadNameSpace</command> is the more efficient function to use.</para>
-<para>The default local PMNS is found in the <filename>/var/pcp/pmns/root</filename> file unless the <literal>PMNS_DEFAULT</literal> environment variable is set. Then the value is assumed to be the pathname to the file containing the default local PMNS.</para>
+<para>The default local PMNS is found in the <filename>${PCP_VAR_DIR}/pmns/root</filename> file unless the <literal>PMNS_DEFAULT</literal> environment variable is set. Then the value is assumed to be the pathname to the file containing the default local PMNS.</para>
 <para><command>pmLoadASCIINameSpace</command> returns zero on success.</para>
 <para>Syntax and other errors in the parsing of the PMNS are reported on stderr with a message of the form:<literallayout class="monospaced">Error Parsing ASCII PMNS: ....</literallayout></para>
 <para><literal>PM_ERR_DUPPMNS</literal> is an error to try and load more than one PMNS, or to call either <command>pmLoadASCIINameSpace</command> or <command>pmLoadNameSpace</command> more than once. <literal>PM_ERR_PMNS</literal> indicates a syntax error in an ASCII format PMNS.</para>
@@ -2750,7 +2595,7 @@ typedef struct {
 <title><command>pmGetConfig</command> Function</title>
 <literallayout class="monospaced">char *pmGetConfig(const char <replaceable>*variable</replaceable>)</literallayout>
 <para>The <command>pmGetConfig</command> function searches for a variable first in the environment and then, if one is not found, in the PCP configuration file and returns the string result. If a variable is not already in the environment, it is added with a call to the <command>putenv</command> function before returning.</para>
-<para>The default location of the PCP configuration file is <filename>/etc/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp_conf(4)</command> man page.</para>
+<para>The default location of the PCP configuration file is <filename>/etc/pcp/pmcd/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp_conf(4)</command> man page.</para>
 <para>If the variable is not found in either the environment or the PCP configuration file (or the PCP configuration file is not found and <literal>PCP_CONF</literal> is not set in the environment), then a fatal error message is printed and the process will exit. Although this sounds drastic, it is the only course of action available because the PCP configuration or installation is fatally flawed.</para>
 <para>If this function returns, the returned value points to a string in the environment; and so although the function returns the same type as the <command>getenv</command> function (which should probably be a <literal>const char *</literal>), changing the content of the string is not recommended.</para>
 </section>
@@ -3062,8 +2907,7 @@ pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</rep
 
 <title>PMAPI Programming Issues and Examples</title>
 <para><indexterm id="IG31340177443"><primary>PMAPI</primary><secondary>programming issues</secondary></indexterm><indexterm id="IG31340177444"><primary>PMAPI</primary><secondary>programming issues</secondary></indexterm><indexterm id="IG31340177445"><primary>examples</primary><secondary>programming issues</secondary></indexterm>The following issues and examples are provided to enable you to create better custom performance monitoring tools.</para>
-<para>The source code for a sample client (<command>pmclient</command>) using the PMAPI is shipped as part of the <filename>pcp.sw.demo</filename> subsystem of the PCP product. See the <command>pmclient(1)</command> man page, and the source code, located in <filename>/var/pcp/demos/pmclient</filename>.</para>
-<para>On Linux, the <command>pmclient</command> demo appears in the <literal>pcp-2.3-<replaceable>rev</replaceable></literal> package at <filename>/var/share/pcp/demos/pmclient</filename>.</para>
+<para>The source code for a sample client (<command>pmclient</command>) using the PMAPI is shipped as part of the <filename>pcp.sw.demo</filename> subsystem of the PCP product. See the <command>pmclient(1)</command> man page, and the source code, located in <filename>${PCP_DEMOS_DIR}/pmclient</filename>.</para>
 <section id="id5212297">
 
 <title>Symbolic Association between a Metric's Name and Value</title>
@@ -3236,7 +3080,7 @@ main(int argc, char* argv[])
 
 <title>Trace PMDA</title>
 <para><indexterm id="IG31340177462"><primary>trace PMDA</primary><secondary>description</secondary></indexterm><indexterm id="IG31340177463"><primary>PMDA</primary><secondary>trace</secondary></indexterm>This chapter provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA), in an effort to explain how to configure the agent optimally for a particular problem domain. This information supplements the functional coverage which the man pages provide to both the agent and the library interfaces.</para>
-<para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> The chapter also includes information on how to use the trace PMDA and the associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs in IRIX are installed in <filename>/var/pcp/demos/trace</filename> from the <filename>pcp.sw.trace</filename> subsystem. On Linux, the trace PMDA exists in the <literal>pcp-2.3-<replaceable>rev</replaceable></literal> package at <filename>/usr/share/pcp/demo/trace</filename>.</para>
+<para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> The chapter also includes information on how to use the trace PMDA and the associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs are installed in <filename>${PCP_DEMOS_DIR}/trace</filename>.</para>
 <section id="id5213106">
 
 <title>Performance Instrumentation and Tracing</title>
@@ -3506,8 +3350,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </listitem></itemizedlist>
 <para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
 <itemizedlist>
-<listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity. <note><para>On Linux, visualization tools are not provided as part of the PCP for IA-64 Linux distribution.</para>
-</note></para>
+<listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity.</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177561"><primary>distributed performance management</primary><secondary>data transportation</secondary></indexterm>Transport of performance data over the network for distributed performance management.</para>
 </listitem>
@@ -3515,7 +3358,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </listitem>
 <listitem><para><indexterm id="IG31340177563"><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives.</para>
 </listitem>
-<listitem><para><indexterm id="IG31340177564"><primary>toolkit approach</primary></indexterm><indexterm id="IG31340177565"><primary>customization</primary></indexterm>A toolkit approach that encourages customization. For example, a complete PCP for XYZ package could be offered for performance monitoring of application XYZ on SGI and other Linux-based platforms.</para>
+<listitem><para><indexterm id="IG31340177564"><primary>toolkit approach</primary></indexterm><indexterm id="IG31340177565"><primary>customization</primary></indexterm>A toolkit approach that encourages customization. For example, a complete PCP for XYZ package could be offered for performance monitoring of application XYZ.</para>
 </listitem></itemizedlist>
 </section>
 </chapter>
@@ -3637,7 +3480,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>Array PMDA <link linkend="IG3134017717">Distributed Collection</link></primaryie>
+   <primaryie>Cluster PMDA <link linkend="IG3134017717">Distributed Collection</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4747,6 +4590,10 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
+   <primaryie>pthreads man page <link linkend="IG31340177152">Latency and Threads of Control</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>record-mode services <link linkend="IG31340177396"><command>pmRecordAddHost</command> Function</link></primaryie>
 </indexentry>
 
@@ -4812,7 +4659,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>simple_init function <link linkend="IG3134017798">DSO PMDA</link> <link linkend="IG3134017799">DSO PMDA</link> <link linkend="IG31340177189">Simple PMDA</link> <link linkend="IG31340177217">Simple PMDA</link></primaryie>
+   <primaryie>simple_init function <link linkend="IG3134017799">DSO PMDA</link> <link linkend="IG31340177189">Simple PMDA</link> <link linkend="IG31340177217">Simple PMDA</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4845,10 +4692,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>specific instance domain <link linkend="IG31340177346">PMAPI Context Services</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>sproc man page <link linkend="IG31340177152">Latency and Threads of Control</link></primaryie>
 </indexentry>
 
 <indexentry>
