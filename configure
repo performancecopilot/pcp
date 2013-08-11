@@ -8236,7 +8236,7 @@ fi
 PMDA_SYSTEMD=$pmda_systemd
 
 
-pmda_infiniband=
+have_infiniband=false
 if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
 then
     for ac_header in infiniband/umad.h infiniband/mad.h
@@ -8247,7 +8247,7 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
- pmda_infiniband=infiniband
+ have_infiniband=true
 fi
 
 done
@@ -8419,12 +8419,12 @@ rm -f core conftest.err conftest.$ac_objext \
 	then
 	    :
 	else
-	    pmda_infiniband=
+	    have_infiniband=false
 	fi
     else
-	pmda_infiniband=
+	have_infiniband=false
     fi
-    PMDA_INFINIBAND=$pmda_infiniband
+    PMDA_INFINIBAND=infiniband
 
 
 fi
