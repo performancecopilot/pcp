@@ -3,25 +3,18 @@
 <book status="final" security="public"><title>Performance Co-Pilot&#x2122; Programmer's Guide</title>
 <bookinfo><edition>3.0</edition>
 
-<othercredit><contrib>Illustrated</contrib><firstname>Dany</firstname><surname>Galgani</surname></othercredit>
-<othercredit><contrib>Edited</contrib><firstname>Susan</firstname><surname>Wilkening</surname></othercredit>
-<othercredit><contrib>Production</contrib><firstname>Glen</firstname><surname>Traefald</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>David</firstname><surname>Chatterton</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Michael</firstname><surname>Gigante</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Mark</firstname><surname>Goodwin</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Tony</firstname><surname>Kavadias</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Seppo</firstname><surname>Keronen</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Johnathon</firstname><surname>Knispel</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ken</firstname><surname>McDonell</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Max</firstname><surname>Matveev</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ania</firstname><surname>Milewska</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Daniel</firstname><surname>Moore</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Heidi</firstname><surname>Muehlebach</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Ivan</firstname><surname>Rayner</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Terry</firstname><surname>Schultz</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Nathan</firstname><surname>Scott</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Timothy</firstname><surname>Shimmin</surname></othercredit>
-<othercredit><contrib>Engineering and written contributions</contrib><firstname>Bill</firstname><surname>Tuthill</surname></othercredit>
+<othercredit>
+<contrib>Maintained by</contrib>
+<affiliation>
+<orgname>The Performance Co-Pilot Development Team</orgname>
+<address>
+<otheraddr>
+<ulink url="http://oss.sgi.com/projects/pcp/"/>
+<inlinemediaobject><imageobject><imagedata fileref="pcp.svg"/></imageobject></inlinemediaobject>
+</otheraddr>
+</address>
+</affiliation>
+</othercredit>
 
 <copyright>
 <year>2000</year>
@@ -31,7 +24,7 @@
 
 <copyright>
 <year>2013</year>
-<holder>Red Hat</holder>
+<holder>Red Hat, Inc.</holder>
 </copyright>
 
 <legalnotice>
@@ -46,6 +39,8 @@ A copy of the license is available at http://creativecommons.org/licenses/by-sa/
 <title>TRADEMARKS AND ATTRIBUTIONS</title>
 <para>Silicon Graphics, SGI and the SGI logo are registered trademarks
 and Performance Co-Pilot is a trademark of Silicon Graphics, Inc.</para>
+<para>Red Hat and the Shadowman logo are trademarks of Red Hat, Inc.,
+registered in the United States and other countries.</para>
 <para>Cisco is a registered trademark of Cisco Systems, Inc.
 Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX is a registered trademark of The Open Group.</para>

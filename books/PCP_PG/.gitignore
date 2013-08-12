@@ -1,6 +1,4 @@
 pdf
-*.pdf
-*.swp
-built
+html
 en-US
-build.done
+built.*

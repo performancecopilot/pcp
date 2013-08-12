@@ -4,15 +4,12 @@
 
 <bookinfo id="programmer-guide">
 	<title>programmer-guide</title>
-	<subtitle>Introduction to Performance Co-Pilot</subtitle>
-	<edition>3.7</edition>
+	<subtitle>Performance Co-Pilot Programmer's Guide</subtitle>
+	<edition>3</edition>
 	<productname>PCP</productname>
-	<productnumber>3.7</productnumber>
+	<productnumber>3</productnumber>
         <pubsnumber>1</pubsnumber>
  	<xi:include href="Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 <!-- <xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
 	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 </bookinfo>
-
-
-

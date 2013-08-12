@@ -2,48 +2,51 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = user-administrator-guide
-XMLFILES = $(IAM).xml
-PDFFILES = $(IAM).pdf
+XML = $(IAM).xml
+PUB = Book_Info.xml
+CFG = publican.cfg
+PDF = pdf/$(IAM).pdf
 
-SUBDIRS = figures xml
-LSRCFILES = $(XMLFILES) publican.cfg Book_Info.xml
-LDIRT = $(PDFFILES)
+LSRCFILES = $(XML) $(PUB) $(CFG)
+LDIRDIRT = pdf html en-US
+CWD = $(shell pwd)
 
 default: build-me
 
 include $(BUILDRULES)
 
 ifeq "$(BOOK_TOOLCHAIN)" "publican"
-build-me: build.done
-
-build.done: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-	$(LN_S) . en-US
+built.$(BOOK_TOOLCHAIN):	$(XML)
+	@rm -fr pdf html en-US
+	@mkdir -p pdf html en-US/xml
+	$(LN_S) $(CWD)/$(PUB) en-US/
+	$(LN_S) $(CWD)/$(XML) en-US/xml/
 	$(PUBLICAN) build --langs=en-US --formats=pdf
-	touch build.done
-
-install: default
-	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
-	$(INSTALL) -m 644 $(shell echo pdf/*.pdf) $(PKG_BOOKS_DIR)/$(IAM).pdf
+	@# $(PUBLICAN) build --langs=en-US --formats=pdf,html
+	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/
 endif
 
-ifneq "$(findstring $(BOOK_TOOLCHAIN),dblatext xmlto)" ""
-build-me: built
-	$(SUBDIRS_MAKERULE)
-
-built:	$(IAM).pdf
-	touch built
-
-install: default
-	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
-	$(INSTALL) -m 644 pdf/$(IAM).pdf $(PKG_BOOKS_DIR)/$(IAM).pdf
+ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
+built.$(BOOK_TOOLCHAIN):	$(XML)
+	@rm -fr pdf
+	$(DBLATEX) --type=pdf --output-dir=pdf $(XML)
 endif
 
-ifeq "$(findstring $(BOOK_TOOLCHAIN),publican dblatext xmlto)" ""
+ifeq "$(BOOK_TOOLCHAIN)" "xmlto"
+built.$(BOOK_TOOLCHAIN):	$(XML)
+	@rm -fr pdf html
+	$(XMLTO) --with-fop -o pdf pdf $(XML)
+	@# $(XMLTO) --with-fop -o html html $(XML)
+endif
+
+ifneq "$(findstring $(BOOK_TOOLCHAIN),publican dblatext xmlto)" ""
+build-me: built.$(BOOK_TOOLCHAIN)
+	@touch built.$(BOOK_TOOLCHAIN)
+
+install: default
+	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
+	$(INSTALL) -m 644 $(PDFFILES) $(PKG_BOOKS_DIR)/$(IAM).pdf
+else
 build-me:
-	$(SUBDIRS_MAKERULE)
 install:
-	$(SUBDIRS_MAKERULE)
 endif
