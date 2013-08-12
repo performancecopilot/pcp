@@ -168,11 +168,11 @@ lock_comparison(const void *a, const void *b)
 static int
 lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
 {
-    int i, j;
+    int i, j, sts;
     struct gfs2_fs *fs;
     struct lock_time *glock;   
 
-    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE);   
+    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE_ACTIVE);   
   
     struct lock_time *glock_array = malloc(array_size * sizeof(struct lock_time));
     if (glock_array == NULL){
@@ -183,7 +183,8 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
     for (pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((i = pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
-	if (!pmdaCacheLookup(gfs2_fs_indom, i, NULL, (void **)&fs) || !fs)
+	sts = pmdaCacheLookup(gfs2_fs_indom, i, NULL, (void **)&fs);
+	if (sts != PMDA_CACHE_ACTIVE)
 	    continue;
 
         int counter = 0;
@@ -192,7 +193,8 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
         for (pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_REWIND);;) {
 	    if ((j = pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	        break;
-	    if (!pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock) || !glock)
+	    sts = pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock);
+	    if (sts != PMDA_CACHE_ACTIVE)
 	        continue;
 
             /* If our lock belongs to the current filesystem */

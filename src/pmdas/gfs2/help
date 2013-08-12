@@ -97,74 +97,48 @@ kernel/debug/gfs2/<bdev>glstats file entries for this type of glock.
 
 @ gfs2.glock_lock_time.lock_type Glock type number
 The metric contains the value regarding the lock type representing the type of
-lock, this data is collected from the /sys/kernel/tracing/events/trace_pipe and
-requires the gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
-Note: Will return "No value(s) available!" if the metric set is disabled or
-when the file system is idle and no lock data is currently in the trace-pipe.
+lock, this metric requires the gfs2.control.glock_lock_time metric to be set 
+as 1 to be enabled.
 
 @ gfs2.glock_lock_time.number Inode or resource group number
-This metric points to the inode or resource group on which the glock belongs to,
-this data is collected from the /sys/kernel/tracing/events/trace_pipe and requ-
-ires the gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
-Note: Will return "No value(s) available!" if the metric set is disabled or when
-the file system is idle and no lock data is currently in the trace-pipe.
+This metric points to the inode or resource group on which the glock belongs
+to, this metric requires the gfs2.control.glock_lock_time metric to be set as
+1 to be enabled.
 
 @ gfs2.glock_lock_time.srtt Non-blocking smoothed round trip time
-The smoothed round trip time for non-blocking dlm requests, this data is
-collected from the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.
-control.glock_lock_time metrics to be set as 1 to be enabled. Note: Will return
-"No value(s) available!" if the metric set is disabled or when the file system
-is idle and no lock data is currently in the trace-pipe.
+The smoothed round trip time for non-blocking dlm requests, this metric
+requires the gfs2.control.glock_lock_time metric to be set as 1 to be
+enabled.
 
 @ gfs2.glock_lock_time.srttvar Non-blocking smoothed variance
-Variance estimate for the smoothed round trip time, this data is collected
-from the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.
-glock_lock_time metrics to be set as 1 to be enabled. Note: Will return "No
-value(s) available!" if the metric set is disabled or when the file system is
-idle and no lock data is currently in the trace-pipe.
+Variance estimate for the smoothed round trip time, this metric requires
+the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
 
 @ gfs2.glock_lock_time.srttb Blocking smoothed round trip time
-Smoothed round trip time for (potentially) blocking dlm requests, this data
-is collected from the /sys/kernel/tracing/events/trace_pipe and requires the
-gfs2.control.glock_lock_time metrics to be set as 1 to be enabled. Note: Will
-return "No value(s) available!" if the metric set is disabled or when the file
-system is idle and no lock data is currently in the trace-pipe.
+Smoothed round trip time for (potentially) blocking dlm requests, this 
+metric requires the gfs2.control.glock_lock_time metric to be set as 1
+to be enabled.
 
 @ gfs2.glock_lock_time.srttvarb Blocking smoothed variance
-Variance estimate for smoothed round trip time for (potentially) blocking dlm
-requests, this data is collected from the /sys/kernel/tracing/events/trace_pipe
-and requires the gfs2.control.glock_lock_time metrics to be set as 1 to be
-enabled. Note: Will return "No value(s) available!" if the metric set is disab-
-led or when the file system is idle and no lock data is currently in the trace-
-pipe.
+Variance estimate for smoothed round trip time for (potentially) blocking 
+dlm requests, this metric requires the gfs2.control.glock_lock_time metric
+to be set as 1 to be enabled.
 
 @ gfs2.glock_lock_time.sirt Smoothed Inter-request time
-The smoothed inter-request time (for dlm requests), this data is collected from
-the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_
-lock_time metrics to be set as 1 to be enabled. Note: Will return "No value(s)
-available!" if the metric set is disabled or when the file system is idle and
-no lock data is currently in the trace-pipe.
+The smoothed inter-request time (for dlm requests), this metric requires
+the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
 
 @ gfs2.glock_lock_time.sirtvar Smoothed Inter-request variance
-Variance estimate for smoothed inter-request time, this data is collected from
-the /sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_
-lock_time metrics to be set as 1 to be enabled. Note: Will return "No value(s)
-available!" if the metric set is disabled or when the file system is idle and
-no lock data is currently in the trace-pipe.
+Variance estimate for smoothed inter-request time, this metric requires 
+the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
 
 @ gfs2.glock_lock_time.dlm Count of dlm requests
-The number of dlm requests made, this data is collected from the /sys/kernel/
-tracing/events/trace_pipe and requires the the gfs2.control.glock_lock_time
-metrics to be set as 1 to be enabled. Note: Will return "No value(s) available!"
-if the metric set is disabled or when the file system is idle and no lock data
-is currently in the trace-pipe.
+The number of dlm requests made, this metric requires the 
+gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
 
 @ gfs2.glock_lock_time.queue Count of gfs2_holder queues
-The number of glock requests queued, this data is collected from the
-/sys/kernel/tracing/events/trace_pipe and requires the gfs2.control.glock_lock_
-time metrics to be set as 1 to be enabled. Note: Will return "No value(s) ava-
-ilable!" if the metric set is disabled or when the file system is idle and no
-lock data is currently in the trace-pipe.
+The number of glock requests queued, this metric requires the 
+gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
 
 @ gfs2.control.glock_lock_time Indication whether gfs2.glock_lock_time statistics are enabled
 The gfs2.glock_lock_time statistics can be manually controlled using pmstore
