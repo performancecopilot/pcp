@@ -91,6 +91,7 @@ dupstr(char *s, int strip_quotes)
 
 <indom,metric>"delete"	{ return TOK_DELETE; }
 <indom>"indom"		{ return TOK_INDOM; }
+<indom>"duplicate"	{ return TOK_DUPLICATE; }
 <indom>"iname"		{ return TOK_INAME; }
 <indom>"inst"		{ return TOK_INST; }
 

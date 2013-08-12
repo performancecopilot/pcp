@@ -38,6 +38,8 @@ pcp_trace()
             # series of sanity checks first
             [ -n "${BASH_VERSION}" ] || return 0        # wrong shell
             [ "${BASH_VERSINFO[0]}" -ge 4 ] || return 0 # no support
+            [ "${BASH_VERSINFO[0]}" -ne 4 -o "${BASH_VERSINFO[1]}" -ge 2 ] || \
+                return 0 # no support
             [ -z "${PCP_TMP_DIR}" ] && return 0	        # incorrect setup
             [ -z "${PCP_TRACE_DIR}" ] && pcp_trace init $@ # not yet tracing
             [ -d "${PCP_TRACE_DIR}" ] || return 0       # no pcp pmda yet

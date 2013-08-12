@@ -626,14 +626,14 @@ do_result(void)
 		/* rewrite/delete instance ids from the indom map */
 		int	k;
 		for (k = 0; k < mp->ip->numinst; k++) {
-		    if (mp->ip->flags[k] & INST_CHANGE_INST) {
+		    if (mp->ip->inst_flags[k] & INST_CHANGE_INST) {
 			for (j = 0; j < inarch.rp->vset[i]->numval; j++) {
 			    if (inarch.rp->vset[i]->vlist[j].inst == mp->ip->old_inst[k]) {
 				inarch.rp->vset[i]->vlist[j].inst = mp->ip->new_inst[k];
 			    }
 			}
 		    }
-		    if (mp->ip->flags[k] & INST_DELETE) {
+		    if (mp->ip->inst_flags[k] & INST_DELETE) {
 			for (j = 0; j < inarch.rp->vset[i]->numval; j++) {
 			    if (inarch.rp->vset[i]->vlist[j].inst == mp->ip->old_inst[k]) {
 				j++;

@@ -449,21 +449,21 @@ reportconfig(void)
 	    change |= 1;
 	}
 	for (i = 0; i < ip->numinst; i++) {
-	    change |= (ip->flags[i] != 0);
-	    if (ip->flags[i]) {
+	    change |= (ip->inst_flags[i] != 0);
+	    if (ip->inst_flags[i]) {
 		if (hdr_done == 0) {
 		    printf("\nInstance Domain: %s\n", pmInDomStr(ip->old_indom));
 		    hdr_done = 1;
 		}
 		printf("Instance:\t\[%d] \"%s\" -> ", ip->old_inst[i], ip->old_iname[i]);
-		if (ip->flags[i] & INST_DELETE)
+		if (ip->inst_flags[i] & INST_DELETE)
 		    printf("DELETE\n");
 		else {
-		    if (ip->flags[i] & INST_CHANGE_INST)
+		    if (ip->inst_flags[i] & INST_CHANGE_INST)
 			printf("[%d] ", ip->new_inst[i]);
 		    else
 			printf("[%d] ", ip->old_inst[i]);
-		    if (ip->flags[i] & INST_CHANGE_INAME)
+		    if (ip->inst_flags[i] & INST_CHANGE_INAME)
 			printf("\"%s\"\n", ip->new_iname[i]);
 		    else
 			printf("\"%s\"\n", ip->old_iname[i]);
@@ -580,7 +580,7 @@ anychange(void)
 	if (ip->new_indom != ip->old_indom)
 	    return 1;
 	for (i = 0; i < ip->numinst; i++) {
-	    if (ip->flags[i])
+	    if (ip->inst_flags[i])
 		return 1;
 	}
     }
@@ -638,7 +638,7 @@ link_entries(void)
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	change = 0;
 	for (i = 0; i < ip->numinst; i++)
-	    change |= (ip->flags[i] != 0);
+	    change |= (ip->inst_flags[i] != 0);
 	if (change == 0 && ip->new_indom == ip->old_indom)
 	    continue;
 
@@ -735,11 +735,11 @@ check_indoms()
 	    int		insti;
 	    char	*namei;
 	    int		j;
-	    if (ip->flags[i] & INST_CHANGE_INST)
+	    if (ip->inst_flags[i] & INST_CHANGE_INST)
 		insti = ip->new_inst[i];
 	    else
 		insti = ip->old_inst[i];
-	    if (ip->flags[i] & INST_CHANGE_INAME)
+	    if (ip->inst_flags[i] & INST_CHANGE_INAME)
 		namei = ip->new_iname[i];
 	    else
 		namei = ip->old_iname[i];
@@ -748,11 +748,11 @@ check_indoms()
 		char	*namej;
 		if (i == j)
 		    continue;
-		if (ip->flags[j] & INST_CHANGE_INST)
+		if (ip->inst_flags[j] & INST_CHANGE_INST)
 		    instj = ip->new_inst[j];
 		else
 		    instj = ip->old_inst[j];
-		if (ip->flags[j] & INST_CHANGE_INAME)
+		if (ip->inst_flags[j] & INST_CHANGE_INAME)
 		    namej = ip->new_iname[j];
 		else
 		    namej = ip->old_iname[j];

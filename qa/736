@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 736
+# pmlogrewrite - indom duplicate clause testing
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# test for-some-thing || _notrun No support for some-thing
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+indom 29.2 { indom -> duplicate 99.2 }
+metric sample.bucket { indom -> 99.* pmid -> 99.*.* }
+End-of-File
+
+# real QA test starts here
+pmlogrewrite -w -c $tmp.config src/ok-bigbin $tmp
+
+pmdumplog -a src/ok-bigbin >$tmp.old
+pmdumplog -a $tmp >$tmp.new
+
+diff $tmp.old $tmp.new
+
+# success, all done
+status=0
+
+exit

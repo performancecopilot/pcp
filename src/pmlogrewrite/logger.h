@@ -44,7 +44,8 @@ extern global_t global;
  */
 typedef struct indomspec {
     struct indomspec	*i_next;
-    int			*flags;		/* INST_* flags */
+    int			indom_flags;	/* INDOM_* flags */
+    int			*inst_flags;		/* INST_* flags */
     pmInDom		old_indom;
     pmInDom		new_indom;	/* old_indom if no change */
     int			numinst;
@@ -54,7 +55,11 @@ typedef struct indomspec {
     char		**new_iname;
 } indomspec_t;
 
-/* values for indomspec_t flags[] */
+/* values for indomspec_t indom_flags */
+#define INDOM_ADD		 1
+#define INDOM_DELETE		 2
+#define INDOM_DUPLICATE		 4
+/* values for indomspec_t inst_flags[] */
 #define INST_CHANGE_INST	16
 #define INST_CHANGE_INAME	32
 #define INST_DELETE		64

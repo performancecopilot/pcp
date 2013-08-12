@@ -21,7 +21,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "domain.h"
-#include "dynamic.h"
 #include "contexts.h"
 
 #include <ctype.h>
@@ -59,12 +58,13 @@ size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
  * The proc instance domain table is direct lookup and sparse.
  * It is initialized in proc_init(), see below.
  */
-pmdaIndom proc_indomtab[NUM_INDOMS];
+static pmdaIndom indomtab[NUM_INDOMS];
+#define INDOM(x) (indomtab[x].it_indom)
 
 /*
  * all metrics supported in this PMDA - one table entry for each
  */
-pmdaMetric proc_metrictab[] = {
+static pmdaMetric metrictab[] = {
 
 /*
  * proc/<pid>/stat cluster
@@ -794,7 +794,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_runq(&proc_runq);
 
     if (need_refresh_mtab)
-	proc_dynamic_metrictable(pmda);
+	pmdaDynamicMetricTable(pmda);
 }
 
 static int
@@ -1410,7 +1410,7 @@ static int
 proc_text(int ident, int type, char **buf, pmdaExt *pmda)
 {
     if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = proc_dynamic_lookup_text(ident, type, buf, pmda);
+	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
 	if (sts != -ENOENT)
 	    return sts;
     }
@@ -1420,7 +1420,7 @@ proc_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
     return pmdaTreePMID(tree, name, pmid);
@@ -1429,7 +1429,7 @@ proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 static int
 proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    __pmnsTree *tree = proc_dynamic_lookup_pmid(pmda, pmid);
+    pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     if (tree == NULL)
 	return PM_ERR_PMID;
     return pmdaTreeName(tree, pmid, nameset);
@@ -1438,16 +1438,10 @@ proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 static int
 proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
-    __pmnsTree *tree = proc_dynamic_lookup_name(pmda, name);
+    pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
     return pmdaTreeChildren(tree, name, flag, kids, sts);
-}
-
-int
-proc_metrictable_size(void)
-{
-    return sizeof(proc_metrictab)/sizeof(proc_metrictab[0]);
 }
 
 /*
@@ -1457,6 +1451,9 @@ proc_metrictable_size(void)
 void 
 proc_init(pmdaInterface *dp)
 {
+    int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
+    int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
+
     _pm_system_pagesize = getpagesize();
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
@@ -1484,12 +1481,12 @@ proc_init(pmdaInterface *dp)
     /*
      * Initialize the instance domain table.
      */
-    proc_indomtab[CPU_INDOM].it_indom = CPU_INDOM;
-    proc_indomtab[PROC_INDOM].it_indom = PROC_INDOM;
-    proc_indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
-    proc_indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
+    indomtab[CPU_INDOM].it_indom = CPU_INDOM;
+    indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
+    indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
-    proc_pid.indom = &proc_indomtab[PROC_INDOM];
+    proc_pid.indom = &indomtab[PROC_INDOM];
  
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel
@@ -1498,12 +1495,11 @@ proc_init(pmdaInterface *dp)
      */
     read_ksym_sources(kernel_uname.release);
 
-    cgroup_init();
+    cgroup_init(metrictab, nmetrics);
     proc_ctx_init();
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, proc_indomtab, sizeof(proc_indomtab)/sizeof(proc_indomtab[0]),
-	     proc_metrictab, sizeof(proc_metrictab)/sizeof(proc_metrictab[0]));
+    pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);

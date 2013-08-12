@@ -17,7 +17,6 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "dynamic.h"
 #include "pmdagfs2.h"
 #include <ctype.h>
 
@@ -251,11 +250,13 @@ sbstats_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 }
 
 void
-gfs2_sbstats_init(void)
+gfs2_sbstats_init(pmdaMetric *metrics, int nmetrics)
 {
     int set[] = { CLUSTER_SBSTATS };
 
-    gfs2_dynamic_pmns("gfs2.sbstats", set, sizeof(set)/sizeof(int),
-			refresh_sbstats, sbstats_text,
-			refresh_metrictable, size_metrictable);
+    pmdaDynamicPMNS("gfs2.sbstats",
+		    set, sizeof(set)/sizeof(int),
+		    refresh_sbstats, sbstats_text,
+		    refresh_metrictable, size_metrictable,
+		    metrics, nmetrics);
 }

@@ -46,7 +46,10 @@ enum {
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
 
-#define INDOM(x) (indomtab[x].it_indom)
-extern pmdaIndom indomtab[];
+extern pmInDom linux_indom(int);
+#define INDOM(i) linux_indom(i)
+
+extern pmdaIndom *linux_pmda_indom(int);
+#define PMDAINDOM(i) linux_pmda_indom(i)
 
 #endif /* _INDOM_H */

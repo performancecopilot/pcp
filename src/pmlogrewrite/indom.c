@@ -54,14 +54,15 @@ start_indom(pmInDom indom)
 	}
 	ip->i_next = indom_root;
 	indom_root = ip;
-	ip->flags = (int *)malloc(numinst*sizeof(int));
-	if (ip->flags == NULL) {
+	ip->indom_flags = 0;
+	ip->inst_flags = (int *)malloc(numinst*sizeof(int));
+	if (ip->inst_flags == NULL) {
 	    fprintf(stderr, "indomspec flags malloc(%d) failed: %s\n", (int)(numinst*sizeof(int)), strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	for (i = 0; i < numinst; i++)
-	    ip->flags[i] = 0;
+	    ip->inst_flags[i] = 0;
 	ip->old_indom = indom;
 	ip->new_indom = indom;
 	ip->numinst = numinst;
@@ -98,8 +99,8 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
 
     for (i = 0; i < ip->numinst; i++) {
 	if (inst_name_eq(ip->old_iname[i], old) > 0) {
-	    if ((new == NULL && ip->flags[i]) ||
-	        (ip->flags[i] & (INST_CHANGE_INAME|INST_DELETE))) {
+	    if ((new == NULL && ip->inst_flags[i]) ||
+	        (ip->inst_flags[i] & (INST_CHANGE_INAME|INST_DELETE))) {
 		snprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
 		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
 		return -1;
@@ -116,7 +117,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
     }
 
     if (new == NULL) {
-	ip->flags[i] |= INST_DELETE;
+	ip->inst_flags[i] |= INST_DELETE;
 	ip->new_iname[i] = NULL;
 	return 0;
     }
@@ -129,7 +130,7 @@ change_inst_by_name(pmInDom indom, char *old, char *new)
 	}
     }
     else {
-	ip->flags[i] |= INST_CHANGE_INAME;
+	ip->inst_flags[i] |= INST_CHANGE_INAME;
 	ip->new_iname[i] = new;
     }
 
@@ -150,8 +151,8 @@ change_inst_by_inst(pmInDom indom, int old, int new)
 
     for (i = 0; i < ip->numinst; i++) {
 	if (ip->old_inst[i] == old) {
-	    if ((new == PM_IN_NULL && ip->flags[i]) ||
-	        (ip->flags[i] & (INST_CHANGE_INST|INST_DELETE))) {
+	    if ((new == PM_IN_NULL && ip->inst_flags[i]) ||
+	        (ip->inst_flags[i] & (INST_CHANGE_INST|INST_DELETE))) {
 		snprintf(mess, sizeof(mess), "Duplicate or conflicting clauses for instance [%d] \"%s\" of indom %s",
 		    ip->old_inst[i], ip->old_iname[i], pmInDomStr(indom));
 		return -1;
@@ -168,7 +169,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     }
 
     if (new == PM_IN_NULL) {
-	ip->flags[i] |= INST_DELETE;
+	ip->inst_flags[i] |= INST_DELETE;
 	ip->new_inst[i] = PM_IN_NULL;
 	return 0;
     }
@@ -182,7 +183,7 @@ change_inst_by_inst(pmInDom indom, int old, int new)
     }
     else {
 	ip->new_inst[i] = new;
-	ip->flags[i] |= INST_CHANGE_INST;
+	ip->inst_flags[i] |= INST_CHANGE_INST;
     }
 
     return 0;
@@ -272,6 +273,24 @@ do_indom(void)
     for (ip = indom_root; ip != NULL; ip = ip->i_next) {
 	if (ip->old_indom != indom)
 	    continue;
+	if (ip->indom_flags & INDOM_DUPLICATE) {
+	    /*
+	     * save the old indom without changes, then operate on the
+	     * duplicate
+	     */
+	    if ((sts = __pmLogPutInDom(&outarch.logctl, indom, &stamp, numinst, instlist, inamelist)) < 0) {
+		fprintf(stderr, "%s: Error: __pmLogPutInDom: %s: %s\n",
+				pmProgname, pmInDomStr(indom), pmErrStr(sts));
+		abandon();
+		/*NOTREACHED*/
+	    }
+#if PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		fprintf(stderr, "Metadata: write pre-duplicate InDom %s @ offset=%ld\n", pmInDomStr(indom), out_offset);
+	    }
+#endif
+	    out_offset = ftell(outarch.logctl.l_mdfp);
+	}
 	if (ip->new_indom != ip->old_indom)
 	    indom = ip->new_indom;
 	for (i = 0; i < ip->numinst; i++) {
@@ -281,7 +300,7 @@ do_indom(void)
 	    }
 	    if (j == numinst)
 		continue;
-	    if (ip->flags[i] & INST_DELETE) {
+	    if (ip->inst_flags[i] & INST_DELETE) {
 #if PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL1)
 		    fprintf(stderr, "Delete: instance %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));
@@ -296,17 +315,17 @@ do_indom(void)
 		numinst--;
 	    }
 	    else {
-		if (ip->flags[i] & INST_CHANGE_INST)
+		if (ip->inst_flags[i] & INST_CHANGE_INST)
 		    instlist[j] = ip->new_inst[i];
-		if (ip->flags[i] & INST_CHANGE_INAME) {
+		if (ip->inst_flags[i] & INST_CHANGE_INAME) {
 		    inamelist[j] = ip->new_iname[i];
 		    need_alloc = 1;
 		}
 #if PCP_DEBUG
-		if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1)) {
-		    if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
+		if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) && (pmDebug & DBG_TRACE_APPL1)) {
+		    if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == (INST_CHANGE_INST | INST_CHANGE_INAME))
 			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
-		    else if ((ip->flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == INST_CHANGE_INST)
+		    else if ((ip->inst_flags[i] & (INST_CHANGE_INST | INST_CHANGE_INAME)) == INST_CHANGE_INST)
 			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->old_iname[i], ip->new_inst[i], pmInDomStr(ip->old_indom));
 		    else
 			fprintf(stderr, "Rewrite: instance %s (%d) -> %s (%d) for indom %s\n", ip->old_iname[i], ip->old_inst[i], ip->new_iname[i], ip->old_inst[i], pmInDomStr(ip->old_indom));

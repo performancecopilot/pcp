@@ -217,4 +217,13 @@ dist=oss
 echo "$id $ans $dist" >>group
 echo " done."
 
+# sort the tests numerically
+#
+$PCP_AWK_PROG <group '
+BEGIN				{ state = "head" }
+state == "head" && /^[0-9]/	{ state = "list" }
+				{ print >"'$tmp'." state }'
+sort -n $tmp.list >>$tmp.head
+cp $tmp.head group
+
 exit 0

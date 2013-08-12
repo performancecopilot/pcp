@@ -424,6 +424,39 @@ indom 29.* { indom -> 109.* }
 will move all instance domains from domain 29 to domain 109.
 .RE
 .PP
+.KW INDOM
+.KW ->
+.KW DUPLICATE
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP
+.RS +4n
+.PP
+A special case of the previous
+.KW INDOM
+clause where the instance domain is a duplicate copy of the
+\fIdomain\fP\f(BI.\fP\fIserial\fP instance domain from the
+.I indom
+rewriting rule, and then any
+mapping rules are applied to the copied
+\fInewdomain\fP\f(BI.\fP\fInewserial\fP instance domain.  This is
+useful when a PMDA is split and the same instance domain needs to
+be replicated for domain \fIdomain\fP and domain \fInewdomain\fP.
+So for example if the metrics
+.I foo.one
+and
+.I foo.two
+are both defined over instance domain 12.34, and
+.I foo.two
+is moved to another PMDA using domain 27, then the
+following rewriting rules could be used:
+.RS +4n
+.ft CW
+indom 12.34 { indom -> duplicate 27.34 }
+.br
+metric foo.two { indom -> 27.34 pmid -> 27.*.*  }
+.ft P
+.RE
+.RE
+.PP
 .KW INST
 \fIoldid\fP
 .KW ->

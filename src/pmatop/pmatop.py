@@ -189,6 +189,8 @@ class _AtopPrint(object):
         self.ss = ss
         self.p_stdscr = a_stdscr
         self.apyx = a_stdscr.getmaxyx()
+    def end_of_screen(self):
+        return (self.p_stdscr.getyx()[0] >= self.apyx[0]-1)
     def set_line(self):
         self.command_line = self.p_stdscr.getyx()[0]
         self.p_stdscr.addstr ('\n')
@@ -207,9 +209,9 @@ class _AtopPrint(object):
             iform = form.replace(form[form.index("."):form.index(".")+3],"d")
             return iform % value
         if value > 0:
-            return re.sub ("([0-9]*\.*[0-9]+)e\+0", " \\1e", form % value)
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0*", " \\1e", form % value)
         else:
-            return re.sub ("([0-9]*\.*[0-9]+)e\+0", "-\\1e", form % abs(value))
+            return re.sub ("([0-9]*\.*[0-9]+)e\+0*", "-\\1e", form % abs(value))
 
 
 # _ProcessorPrint --------------------------------------------------
@@ -244,13 +246,15 @@ class _ProcessorPrint(_AtopPrint):
         self.p_stdscr.addstr (' wait %6d%% |' % (100 * self.ss.get_metric_value('kernel.all.cpu.wait.total') / self.ss.cpu_total))
         self.next_line()
         ncpu = self.ss.get_metric_value('hinv.ncpu')
+        max_display_cpus = self.apyx[0] / 4
         for k in range(ncpu):
-            if (ncpu > 8 and self.ss.get_scalar_value('kernel.percpu.cpu.sys', 
-k) == 0 and self.ss.get_scalar_value('kernel.percpu.cpu.user', k) == 0):
+            percpu_sys = (100 * self.ss.get_scalar_value('kernel.percpu.cpu.sys', k) / self.ss.cpu_total)
+            percpu_user = (100 * self.ss.get_scalar_value('kernel.percpu.cpu.user', k) / self.ss.cpu_total)
+            if (percpu_sys == 0 and percpu_user == 0):
                 continue
             self.p_stdscr.addstr ('cpu |')
-            self.p_stdscr.addstr (' sys %7d%% |' % (100 * self.ss.get_scalar_value('kernel.percpu.cpu.sys', k) / self.ss.cpu_total))
-            self.p_stdscr.addstr (' user %6d%% |' % (100 * self.ss.get_scalar_value('kernel.percpu.cpu.user', k) / self.ss.cpu_total))
+            self.p_stdscr.addstr (' sys %7d%% |' % percpu_sys)
+            self.p_stdscr.addstr (' user %6d%% |' % percpu_user)
             self.p_stdscr.addstr (' irq %7d%% |' % (
                     100 * self.ss.get_scalar_value('kernel.percpu.cpu.irq.hard', k) / self.ss.cpu_total +
                     100 * self.ss.get_scalar_value('kernel.percpu.cpu.irq.soft', k) / self.ss.cpu_total))
@@ -259,15 +263,15 @@ k) == 0 and self.ss.get_scalar_value('kernel.percpu.cpu.user', k) == 0):
             if (self.apyx[1] >= 95):
                 self.p_stdscr.addstr (self.put_value(' curf %4.2gMHz |', scale(self.ss.get_scalar_value('hinv.cpu.clock', k), 1000)))
             self.next_line()
-            if (ncpu > 8 and k >= 8): # Censor to allow for screensize
+            if (ncpu > max_display_cpus and k >= max_display_cpus):
                 break
 
         self.p_stdscr.addstr ('CPL |')
         self.p_stdscr.addstr (' avg1 %7.3g |' % (self.ss.get_scalar_value('kernel.all.load', 0)))
         self.p_stdscr.addstr (' avg5 %7.3g |' % (self.ss.get_scalar_value('kernel.all.load', 1)))
         self.p_stdscr.addstr (' avg15 %6.3g |' % (self.ss.get_scalar_value('kernel.all.load', 2)))
-        self.p_stdscr.addstr (self.put_value(' csw %9.3g |', self.ss.get_metric_value('kernel.all.pswitch'), 10000))
-        self.p_stdscr.addstr (self.put_value(' intr %7.3g |', self.ss.get_metric_value('kernel.all.intr'), 10000))
+        self.p_stdscr.addstr (self.put_value(' csw %9.2g |', self.ss.get_metric_value('kernel.all.pswitch'), 10000))
+        self.p_stdscr.addstr (self.put_value(' intr %8.2g |', self.ss.get_metric_value('kernel.all.intr'), 10000))
         if (self.apyx[1] >= 110):
             self.p_stdscr.addstr ('              |')
         if (self.apyx[1] >= 95):
@@ -312,20 +316,24 @@ class _DiskPrint(_AtopPrint):
                 if iname[j] not in lvms:
                     continue
                 lvm = lvms[iname[j]]
+            partitions_read = self.ss.get_scalar_value('disk.partitions.read', j)
+            partitions_write = self.ss.get_scalar_value('disk.partitions.write', j)
+            if (partitions_read == 0 and partitions_write == 0):
+                continue
             self.p_stdscr.addstr ('LVM |')
             self.p_stdscr.addstr (' %-12s |' % (lvm[len(lvm)-12:]))
             self.p_stdscr.addstr ('              |')
-            self.p_stdscr.addstr (self.put_value(' read %7.3g |', self.ss.get_scalar_value('disk.partitions.read', j)))
-            self.p_stdscr.addstr (self.put_value(' write %6.3g |', self.ss.get_scalar_value('disk.partitions.write', j)))
+            self.p_stdscr.addstr (self.put_value(' read %7.3g |', partitions_read))
+            self.p_stdscr.addstr (self.put_value(' write %6.2g |', partitions_write,10000))
             if (self.apyx[1] >= 95):
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkread', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr (self.put_value(' MBr/s %6.3g |', val))
             if (self.apyx[1] >= 110):
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr (self.put_value(' MBw/s %6.3g |', val))
+            if (self.end_of_screen()):
+                break;
             self.next_line()
-            if (j > 6):         # Censor to allow for screensize 
-                break
 
         try:
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs [self.ss.metrics_dict['disk.dev.read']])
@@ -336,10 +344,11 @@ class _DiskPrint(_AtopPrint):
             self.p_stdscr.addstr ('DSK |')
             self.p_stdscr.addstr (' %-12s |' % (iname[j]))
             busy = (float(self.ss.get_scalar_value('disk.dev.avactive', j)) / float(self._interval * 1000)) * 100
+            if (busy > 100): busy = 0
             self.p_stdscr.addstr (' busy %6d%% |' % (busy)) # self.ss.get_scalar_value('disk.dev.avactive', j)
             val = self.ss.get_scalar_value('disk.dev.read', j)
             self.p_stdscr.addstr (' read %7d |' % (val))
-            self.p_stdscr.addstr (self.put_value(' write %6.3g |', self.ss.get_scalar_value('disk.dev.write', j)))
+            self.p_stdscr.addstr (self.put_value(' write %6.2g |', self.ss.get_scalar_value('disk.dev.write', j),1000))
             if (self.apyx[1] >= 95):
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkread', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr (self.put_value(' MBr/s %6.3g |', val))
@@ -351,9 +360,9 @@ class _DiskPrint(_AtopPrint):
             except ZeroDivisionError:
                 avio = 0
             self.p_stdscr.addstr (' avio %4.2g ms |' % (avio))
+            if (self.end_of_screen()):
+                break;
             self.next_line()
-            if (j > 4):         # Censor to allow for screensize 
-                break
 
 
 # _MemoryPrint --------------------------------------------------
@@ -394,6 +403,8 @@ class _MemoryPrint(_AtopPrint):
 
 class _NetPrint(_AtopPrint):
     def net(self, context):
+        if (self.end_of_screen()):
+            return
         self.p_stdscr.addstr ('NET | transport    |')
         self.p_stdscr.addstr (self.put_value(' tcpi %6.2gM |', self.ss.get_metric_value('network.tcp.insegs')))
         self.p_stdscr.addstr (self.put_value(' tcpo %6.2gM |', self.ss.get_metric_value('network.tcp.outsegs')))
@@ -425,16 +436,22 @@ class _NetPrint(_AtopPrint):
         net_metric = self.ss.get_metric_value('network.interface.in.bytes')
         if type(net_metric) == type([]):
             for j in xrange(len(self.ss.get_metric_value('network.interface.in.bytes'))):
+                pcki = self.ss.get_scalar_value('network.interface.in.packets', j)
+                pcko = self.ss.get_scalar_value('network.interface.out.packets', j)
+                if (pcki == 0 and pcko == 0):
+                    continue
                 self.p_stdscr.addstr ('NET |')
                 self.p_stdscr.addstr (' %-12s |' % (iname[j]))
-                self.p_stdscr.addstr (self.put_value(' pcki %6.2gM |', self.ss.get_scalar_value('network.interface.in.packets', j)))
-                self.p_stdscr.addstr (self.put_value(' pcko %6.2gM |', self.ss.get_scalar_value('network.interface.out.packets', j)))
+                self.p_stdscr.addstr (self.put_value(' pcki %6.2gM |', pcki))
+                self.p_stdscr.addstr (self.put_value(' pcko %6.2gM |', pcko))
                 self.p_stdscr.addstr (self.put_value(' si %4d Kbps |', scale (self.ss.get_scalar_value('network.interface.in.bytes', j), 100000000)))
                 self.p_stdscr.addstr (self.put_value(' so %4d Kpbs |', scale (self.ss.get_scalar_value('network.interface.out.bytes', j), 100000000)))
                 if (self.apyx[1] >= 95):
                     self.p_stdscr.addstr (self.put_value(' erri %6.2gM |', self.ss.get_scalar_value('network.interface.in.errors', j)))
                 if (self.apyx[1] >= 110):
                     self.p_stdscr.addstr (self.put_value(' erro %6.2gM |', self.ss.get_scalar_value('network.interface.out.errors', j)))
+                if (self.end_of_screen()):
+                    break;
                 self.next_line()
 
 
@@ -477,9 +494,6 @@ class _ProcPrint(_AtopPrint):
 
         for i in xrange(len(cpu_time_sorted)):
             j = cpu_time_sorted[i][0]
-            if (self.apyx[0] == current_yx[0]):
-                break
-
             if self._output_type in ['g', 'm']:
                 self.p_stdscr.addstr ('%5d  ' % (self.ss.get_scalar_value('proc.psinfo.pid', j)))
             if self._output_type in ['g']:
@@ -524,6 +538,8 @@ class _ProcPrint(_AtopPrint):
                 if val > 100: val = 0
                 self.p_stdscr.addstr (self.put_value('%2d%% ', val))
                 self.p_stdscr.addstr ('%-15s' % (self.ss.get_scalar_value('proc.psinfo.cmd', j)))
+            if (self.end_of_screen()):
+                break;
             self.next_line()
 
 
