@@ -21,12 +21,12 @@ end:       DATE
 semantics: discrete instantaneous value
 units:     none
 samples:   all
-TIMESTAMP             0
+TIMESTAMP     DEBUG
 TIMESTAMP     Archive logging suspended
-TIMESTAMP             0
+TIMESTAMP     DEBUG
 TIMESTAMP     Archive logging suspended
-TIMESTAMP             0
+TIMESTAMP     DEBUG
 TIMESTAMP     Archive logging suspended
-TIMESTAMP             0
+TIMESTAMP     DEBUG
 TIMESTAMP     Archive logging suspended
-TIMESTAMP             0
+TIMESTAMP     DEBUG
