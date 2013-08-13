@@ -10,7 +10,7 @@
 <address>
 <otheraddr>
 <ulink url="http://oss.sgi.com/projects/pcp/"/>
-<inlinemediaobject><imageobject><imagedata fileref="pcp.svg"/></imageobject></inlinemediaobject>
+<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
 </affiliation>
@@ -218,13 +218,13 @@ defined.</para>
 <para><xref linkend="id5177328"/> shows the architecture of PCP. The monitoring tools consume and process performance data using a public interface, the Performance Metrics Application Programming Interface (PMAPI).</para>
 <para><indexterm id="IG3134017713"><primary>PMCD</primary><secondary>overview</secondary></indexterm><indexterm id="IG3134017714"><primary>Performance Metrics Collection Daemon </primary><see>PMCD</see></indexterm>Below the PMAPI level is the PMCD process, which acts in a  coordinating role, accepting requests from clients, routing requests to one or more PMDAs, aggregating responses from the PMDAs, and responding to the requesting client.</para>
 <para>Each performance metric domain (such as the operating system kernel or a database management system) has a well-defined name space for referring to the specific performance metrics it knows how to collect.</para>
-<para><figure id="id5177328"><title>PCP Global Process Architecture</title><mediaobject><imageobject><imagedata fileref="figures/PCP_glob_process_architec.gif"/></imageobject><textobject><phrase>PCP Global Process Architecture</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177328"><title>PCP Global Process Architecture</title><mediaobject><imageobject><imagedata fileref="figures/local-collector.svg"/></imageobject><textobject><phrase>PCP Global Process Architecture</phrase></textobject></mediaobject></figure></para>
 <section id="id5177343">
 
 <title>Distributed Collection</title>
 <para><indexterm id="IG3134017715"><primary>distributed performance management</primary><secondary>metrics collection</secondary></indexterm><indexterm id="IG3134017716"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG3134017717"><primary>Cluster PMDA</primary></indexterm>The performance metrics collection architecture is distributed, in the sense that any monitoring tool may be executing remotely. However, a PMDA is expected to be running on the operating system for which it is collecting performance measurements; there are some notable PMDAs such as Cisco and Cluster that are exceptions, and collect performance data from remote systems.</para>
 <para><indexterm id="IG3134017718"><primary>PMCD</primary><secondary>distributed collection</secondary></indexterm><indexterm id="IG3134017719"><primary>collector hosts</primary></indexterm>As shown in <xref linkend="id5177408"/>, monitoring tools communicate only with PMCD. The PMDAs are controlled by PMCD and respond to requests from the monitoring tools that are forwarded by PMCD to the relevant PMDAs on the collector host.</para>
-<para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="figures/process_struct_for_dist_op.gif"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
 <para>The host running the monitoring tools does not require any collection tools, including PMCD, since all requests for metrics are sent to the PMCD process on the collector host.</para>
 <para><indexterm id="IG3134017720"><primary>PMDA </primary><secondary>man page</secondary></indexterm><indexterm id="IG3134017721"><primary>PMAPI</primary><secondary>man page</secondary></indexterm>The connections between monitoring tools and PMCD processes are managed in <filename>libpcp</filename>, below the PMAPI level; see the <command>pmapi(3)</command> man page. Connections between PMDAs and PMCD are managed by the PMDA functions; see the <command>pmda(3)</command> and <command>pmcd(1)</command> man pages. There can be multiple monitor clients and multiple PMDAs on the one host, but there may be only one PMCD process.</para>
 </section>
@@ -248,7 +248,7 @@ defined.</para>
 <title>Retrospective Sources of Performance Metrics</title>
 <para><indexterm id="IG3134017730"><primary>retrospective analysis</primary></indexterm>The distributed collection architecture described in the previous section is used when PMAPI clients are requesting performance metrics from a real-time or live source.</para>
 <para><indexterm id="IG3134017731"><primary>archive logs</primary><secondary>retrospective sources</secondary></indexterm>The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive log. Archive logs  are created using the <command>pmlogger</command> utility, and are replayed in an architecture as shown in <xref linkend="id5177742"/>.</para>
-<para><figure id="id5177742"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospect_analysis_architec.gif"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177742"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure></para>
 </section>
 </section>
 <section id="LE13618-PARENT">
@@ -1756,7 +1756,7 @@ typedef struct {
    } value;
 } pmValue;</programlisting>
 </example>
-<para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/struct_results_frm_pmFetch.gif"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmresult.svg"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
 <para><indexterm id="IG31340177277"><primary>internal instance identifier</primary></indexterm>The internal instance identifier is stored in the <literal>inst</literal> element. If a value for a particular metric-instance pair is a 32-bit integer (signed or unsigned), then it will be stored in the <literal>lval</literal> element. If not, the value will be in a <literal>pmValueBlock</literal> structure, as shown in <xref linkend="Z1034793414tls"/>, and will be located via <literal>pval</literal>:</para>
 <para>The <literal>pmValueBlock</literal> structure is as follows:<example id="Z1034793414tls">
 <title><literal>pmValueBlock</literal> Structure</title>

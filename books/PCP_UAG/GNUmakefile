@@ -40,8 +40,8 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	@rm -fr pdf html figures
 	@mkdir -p pdf html
 	$(LN_S) $(CWD)/$(TOPDIR)/images pdf/figures
-	$(XMLTO) --with-fop -o pdf pdf $(XML)
 	$(LN_S) $(CWD)/$(TOPDIR)/images html/figures
+	$(XMLTO) --with-fop -o pdf pdf $(XML)
 	$(XMLTO) --with-fop -o html html $(XML)
 endif
 
