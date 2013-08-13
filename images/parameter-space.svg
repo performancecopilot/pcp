@@ -592,8 +592,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="194.35961"
-     inkscape:cy="113.14286"
+     inkscape:cx="103.19334"
+     inkscape:cy="112.13271"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -610,7 +610,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
       </cc:Work>
@@ -678,8 +678,8 @@
          y="976.43152"
          id="tspan17927">time</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-end:url(#Arrow1Lend-5-8)"
-       d="M 34.591963,1031.1157 C 195.0959,966.16716 195.0959,966.16716 195.0959,966.16716"
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Lstart-2);marker-end:none"
+       d="M 195.0959,966.16716 C 34.591963,1031.1157 34.591963,1031.1157 34.591963,1031.1157"
        id="path15935-4" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Lstart);marker-end:none"

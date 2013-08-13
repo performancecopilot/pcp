@@ -9,6 +9,7 @@ PDF = pdf/$(IAM).pdf
 
 LSRCFILES = $(XML) $(PUB) $(CFG)
 LDIRDIRT = pdf html en-US
+LDIRT = built.*
 CWD = $(shell pwd)
 
 default: build-me
@@ -40,8 +41,8 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	@mkdir -p pdf html
 	$(LN_S) $(CWD)/$(TOPDIR)/images pdf/figures
 	$(XMLTO) --with-fop -o pdf pdf $(XML)
-	@# $(LN_S) $(CWD)/$(TOPDIR)/images html/figures
-	@# $(XMLTO) --with-fop -o html html $(XML)
+	$(LN_S) $(CWD)/$(TOPDIR)/images html/figures
+	$(XMLTO) --with-fop -o html html $(XML)
 endif
 
 ifneq "$(findstring $(BOOK_TOOLCHAIN),publican dblatext xmlto)" ""

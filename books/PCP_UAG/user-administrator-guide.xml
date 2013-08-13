@@ -10,7 +10,7 @@
 <address>
 <otheraddr>
 <ulink url="http://oss.sgi.com/projects/pcp/"/>
-<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.png"/></imageobject></inlinemediaobject>
+<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
 </affiliation>
@@ -873,7 +873,7 @@ or response-time measures. This instrumentation may exist in one or more
 of the functional domains as shown in <xref linkend="id5188602"/>.
 </para>
 <figure id="id5188602"><title>Performance Metric Domains as Autonomous Collections
-of Data</title><mediaobject><imageobject><imagedata fileref="figures/metric-domains.png"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
+of Data</title><mediaobject><imageobject><imagedata fileref="figures/metric-domains.svg"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
 of Data</phrase></textobject></mediaobject></figure>
 <para>Each domain has an associated access method:</para>
 <itemizedlist>
@@ -941,7 +941,7 @@ performance measurements. In most cases, connecting these tools together
 on the collector host is the responsibility of the PMCD process, as shown
 in <xref linkend="id5188883"/>.</para>
 <figure id="id5188883"><title>Process Structure for Distributed Operation
-</title><mediaobject><imageobject><imagedata fileref="figures/remote-collector.png"/></imageobject><textobject><phrase>Process Structure for Distributed Operation
+</title><mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation
 </phrase></textobject></mediaobject></figure>
 <para>The host running the monitoring tools does not require any collection
 tools, including <command>pmcd</command>, because all requests for metrics
@@ -983,7 +983,7 @@ common prefix <literal>root</literal><emphasis role="bold">.</emphasis> is omitt
 from all names. For example, <xref linkend="id5189137"/> shows the
 nodes in a small subsection of a PMNS.</para>
 <figure id="id5189137"><title>Small Performance Metrics Name Space (PMNS)
-</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small.png"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
+</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
 </phrase></textobject></mediaobject></figure>
 <para>In this subsection, the following are valid names for performance
 metrics:</para>
@@ -1185,7 +1185,7 @@ metrics from a real-time or live source.</para>
 source in the form of a PCP archive log. Archive logs are created using
 the <literal>pmlogger</literal> utility, and are replayed in an architecture
 as shown in <xref linkend="id5189940"/>.</para>
-<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.png"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
+<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
 <para>The PMAPI has been designed to minimize the differences required
 for an application to process performance data from an archive or from
 a real-time source. As a result, most PCP tools support live and retrospective
@@ -3675,7 +3675,7 @@ metric.</para>
 from the current sample 0 to its predecessor 1, whose predecessor was 2, and
 so on. This scheme is illustrated by the time line shown in <xref linkend="id5201070"/>.
 </para>
-<figure id="id5201070"><title>Sampling Time Line</title><mediaobject><imageobject><imagedata fileref="figures/sampling-timeline.png"/></imageobject><textobject><phrase>Sampling Time Line</phrase></textobject></mediaobject></figure>
+<figure id="id5201070"><title>Sampling Time Line</title><mediaobject><imageobject><imagedata fileref="figures/sampling-timeline.svg"/></imageobject><textobject><phrase>Sampling Time Line</phrase></textobject></mediaobject></figure>
 <para>Each sample point is assumed to be separated from its predecessor by
 a constant amount of real time, the <literal>delta</literal>. The most recent
 sample point is always zero. The value of <literal>delta</literal> may vary
@@ -3693,7 +3693,7 @@ associated with the disk instance <literal>#dks0d1</literal> on the host <litera
 parameter space of {<literal>host</literal>} x {<literal>instance</literal>}
 x {<literal>sample time</literal>} as shown in <xref linkend="id5201194"/>.
 </para>
-<figure id="id5201194"><title>Three-Dimensional Parameter Space</title><mediaobject><imageobject><imagedata fileref="figures/parameter-space.png"/></imageobject><textobject><phrase>Three-Dimensional Parameter Space</phrase></textobject></mediaobject></figure>
+<figure id="id5201194"><title>Three-Dimensional Parameter Space</title><mediaobject><imageobject><imagedata fileref="figures/parameter-space.svg"/></imageobject><textobject><phrase>Three-Dimensional Parameter Space</phrase></textobject></mediaobject></figure>
 <para>A metric expression may also identify sets of values corresponding to
 one-, two-, or three-dimensional slices of this space, according to the following
 rules:</para>
@@ -5032,7 +5032,7 @@ directory named after that host. Because each instance of <command>pmlogger
 </command> can only log metrics fetched from a single host, this also simplifies
 some of the archive log management and administration tasks.</para>
 <para>For example, consider the filesystem and naming structure shown in <xref linkend="id5207462"/>.</para>
-<figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="figures/log-directory.png"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
+<figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="figures/log-directory.svg"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
 <para><indexterm id="IG31371888266"><primary>/var/pcp/config/pmlogger/control file</primary>
 </indexterm>The specification of where to place the archive log files for
 particular <command>pmlogger</command> instances is encoded in the configuration
@@ -5699,11 +5699,11 @@ consistent with your needs.</para>
 a collector and a monitor, as shown in <xref linkend="id5210776"/>.
 Because the PCP monitor tools make extensive use of visualization, this
 suggests the single system would be configured with a graphics head.</para>
-<figure id="id5210776"><title>PCP Deployment for a Single System</title><mediaobject><imageobject><imagedata fileref="figures/local-deploy.png"/></imageobject><textobject><phrase>PCP Deployment for a Single System</phrase></textobject></mediaobject></figure>
+<figure id="id5210776"><title>PCP Deployment for a Single System</title><mediaobject><imageobject><imagedata fileref="figures/local-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment for a Single System</phrase></textobject></mediaobject></figure>
 <para>However, most PCP deployments involve at least two systems. For
 example, the setup shown in <xref linkend="id5210808"/> would be representative
 of many common scenarios.</para>
-<figure id="id5210808"><title>Basic PCP Deployment for Two Systems</title><mediaobject><imageobject><imagedata fileref="figures/multi-deploy.png"/></imageobject><textobject><phrase>Basic PCP Deployment for Two Systems</phrase></textobject></mediaobject></figure>
+<figure id="id5210808"><title>Basic PCP Deployment for Two Systems</title><mediaobject><imageobject><imagedata fileref="figures/remote-deploy.svg"/></imageobject><textobject><phrase>Basic PCP Deployment for Two Systems</phrase></textobject></mediaobject></figure>
 <para>But the most common site configuration would include a mixture of
 systems configured as PCP collectors, as PCP monitors, and as both PCP
 monitors and collectors, as shown in <xref linkend="id5210866"/>.</para>
@@ -5714,7 +5714,7 @@ engine (<command>pmie</command>) and the PCP archive logger (<command>
 pmlogger</command>) could be deployed. These options are discussed in
 the following sections of this chapter.</para>
 <figure id="id5210866"><title>General PCP Deployment for Multiple Systems
-</title><mediaobject><imageobject><imagedata fileref="figures/multi-deploy.png"/></imageobject><textobject><phrase>General PCP Deployment for Multiple Systems
+</title><mediaobject><imageobject><imagedata fileref="figures/multi-deploy.svg"/></imageobject><textobject><phrase>General PCP Deployment for Multiple Systems
 </phrase></textobject></mediaobject></figure>
 </section>
 <section id="LE69500-PARENT">
@@ -5765,7 +5765,7 @@ at both the server side and the client side.</para>
 <para>The arrangement in <xref linkend="id5211102"/> illustrates one
 way of measuring quality of service for client-server applications.</para>
 <figure id="id5211102"><title>PCP Deployment to Measure Client-Server Quality
-of Service</title><mediaobject><imageobject><imagedata fileref="figures/qos-deploy.png"/></imageobject><textobject><phrase>PCP Deployment to Measure Client-Server Quality
+of Service</title><mediaobject><imageobject><imagedata fileref="figures/qos-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment to Measure Client-Server Quality
 of Service</phrase></textobject></mediaobject></figure>
 <para>The configuration of the PCP collector components on the Application
 Server System is standard. The new facility is the deployment of some
@@ -5837,7 +5837,7 @@ systems to capture performance data from remote PCP collector systems.
 system to act as the PCP archive site to run all <command>pmlogger</command>
 instances. This arrangement is shown in <xref linkend="id5211413"/>.
 </para>
-<figure id="id5211413"><title>Designated PCP Archive Site</title><mediaobject><imageobject><imagedata fileref="figures/designated-logger.png"/></imageobject><textobject><phrase>Designated PCP Archive Site</phrase></textobject></mediaobject></figure>
+<figure id="id5211413"><title>Designated PCP Archive Site</title><mediaobject><imageobject><imagedata fileref="figures/designated-logger.svg"/></imageobject><textobject><phrase>Designated PCP Archive Site</phrase></textobject></mediaobject></figure>
 </listitem></itemizedlist>
 </section>
 <section id="id5211434">
@@ -5943,7 +5943,7 @@ for site-specific and universal rule evaluation, or to support both tactical
 performance management (operations) and strategic performance management
 (capacity planning). Both situations are depicted in <xref linkend="id5211805"/>.
 </para>
-<figure id="id5211805"><title>PCP Management Site Deployment</title><mediaobject><imageobject><imagedata fileref="figures/designated-manager.png"/></imageobject><textobject><phrase>PCP Management Site Deployment</phrase></textobject></mediaobject></figure>
+<figure id="id5211805"><title>PCP Management Site Deployment</title><mediaobject><imageobject><imagedata fileref="figures/designated-manager.svg"/></imageobject><textobject><phrase>PCP Management Site Deployment</phrase></textobject></mediaobject></figure>
 </section>
 <section id="id5211825">
 
@@ -6384,7 +6384,7 @@ by a period. The root node for the PMNS has the special name <literal>root</lite
 from all other <literal>pathnames</literal>.</para>
 <para>For example, refer to the PMNS shown in <xref linkend="id5213846"/>.
 The correct pathname for the rightmost non-leaf node is <literal>cpu.utilization</literal>, not <literal>root.cpu.utilization</literal>.</para>
-<figure id="id5213846"><title>Small Performance Metrics Name Space (PMNS)</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small2.png"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)</phrase></textobject></mediaobject></figure>
+<figure id="id5213846"><title>Small Performance Metrics Name Space (PMNS)</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small2.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)</phrase></textobject></mediaobject></figure>
 <para>Each component in the pathname must begin with an alphabetic character
 and be followed by zero or more alphanumeric characters or the underscore
 (_) character. For alphabetic characters in a component, uppercase and lowercase
