@@ -32,7 +32,8 @@
 <para>Permission is granted to copy, distribute, and/or modify this document under
 the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any
 later version published by the Creative Commons Corp.
-A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
+A copy of the license is available at
+<ulink url="http://creativecommons.org/licenses/by-sa/3.0/us/"/></para>
 </legalnotice>
 
 <legalnotice>
@@ -60,11 +61,11 @@ UNIX is a registered trademark of The Open Group.</para>
 
 <title>About This Guide</title>
 <para>This guide describes the Performance Co-Pilot (PCP) performance analysis toolkit.
-PCP is an open source, cross-platform software package - custom extensions, source code
-inspection, and tinkering in general is actively encouraged.</para>
+PCP is a cross-platform, open source software package - customizations, extensions,
+source code inspection, and tinkering in general is actively encouraged.</para>
 <para>PCP provides a systems-level suite of tools that cooperate to deliver
 distributed performance monitoring and performance management services spanning
-the hardware platforms, operating systems, service layers, database internals,
+hardware platforms, operating systems, service layers, database internals,
 user applications and distributed architectures.</para>
 <para>&#x201C;About This Guide&#x201D; includes short descriptions of the chapters
 in this book, directs you to additional sources of information, and explains
@@ -85,7 +86,7 @@ and configuration steps necessary to get PCP running on your systems.</para>
 components that are common to most of the text-based utilities that make up
 the monitor portion of PCP.</para>
 </listitem>
-<listitem><para><xref linkend="LE38515-PARENT"/> , describes the performance
+<listitem><para><xref linkend="LE38515-PARENT"/>, describes the performance
 monitoring tools available in Performance Co-Pilot (PCP). </para>
 </listitem>
 <listitem><para><xref linkend="LE21414-PARENT"/>, describes the Performance
@@ -126,7 +127,14 @@ intended for developers who want to use the PCP framework and services for
 exporting additional collections of performance metrics, or for delivering
 new or customized applications to enhance performance management.
 </para>
-<para>Additional resources include man pages, tutorials and the project web site.</para>
+<para>The <citetitle>Performance Co-Pilot Tutorials</citetitle> document
+provides a series of real-world examples of using various PCP tools, and
+lessons learned from deploying the toolkit in production environments.
+It serves to provide reinforcement of the general concepts discussed in the
+other two books with additional case studies, and in some cases very detailed
+discussion of specifics of individual tools.
+</para>
+<para>Additional resources include man pages and the project web site.</para>
 </section>
 <section id="id5178967">
 
@@ -340,13 +348,14 @@ adaptive logging of performance metrics for archive, playback, remote
 diagnosis, and capacity planning. PCP archive logs may be accumulated
 either at the host being monitored, at a monitoring workstation, or both.
 </para>
-<para>A universal replay mechanism, modeled on VCR controls, supports
-play, step, rewind, fast forward at variable speed processing of archived
+<para>A universal replay mechanism, modeled on 
+<ulink url="http://en.wikipedia.org/wiki/Media_controls">media controls</ulink>,
+supports play, step, rewind, fast forward and variable speed processing of archived
 performance data.</para>
 <para>Most PCP applications are able to process archive logs and real-time
 performance data with equal facility. Unification of real-time access
-and access to the archive logs, in conjunction with VCR-like viewing controls,
-provides new and powerful ways to build performance tools and to review
+and access to the archive logs, in conjunction with the media controls,
+provides powerful mechanisms for building performance tools and to review
 both current and historical performance data.</para>
 </section>
 <section id="LE36677-PARENT">
@@ -424,13 +433,12 @@ or per process.</para>
 component software</primary></indexterm>Performance Co-Pilot (PCP) is
 composed of both text-based and graphical tools. Each tool is fully
 documented by a man page. These man pages are named after the
-tools or commands they describe, and are accessible through the <command>
-man</command> command. For example, to see the <command>
-pminfo(1)</command> man page for the <command>pminfo</command> command, enter
-this command:</para>
+tools or commands they describe, and are accessible through the <command>man</command>
+command. For example, to see the <command>pminfo(1)</command> man page for the
+<command>pminfo</command> command, enter this command:</para>
 <literallayout class="monospaced"><userinput>man pminfo</userinput></literallayout>
-<para>A list of PCP tools and commands, grouped by functionality, is provided
-in the following four sections.</para>
+<para>A representative list of PCP tools and commands, grouped by functionality,
+is provided in the following four sections.</para>
 <section id="id5177430">
 
 <title>Performance Monitoring and Visualization</title>
@@ -441,11 +449,32 @@ an interest in monitoring, visualizing, or processing performance information
 collected either in real time or from PCP archive logs:</para>
 <variablelist>
 <varlistentry>
+<term><command>pmatop</command></term>
+<listitem><para><indexterm id="IG3137188800"><primary>pmatop tool</primary>
+<secondary>brief description</secondary></indexterm>Full-screen monitor
+of the load on a system from a kernel, hardware and processes point of view.
+It is modeled on the Linux <command>atop(1)</command> tool
+(<ulink url="http://www.atoptool.nl/">home page</ulink>) and provides a
+showcase for the variety of data available using PCP services and the
+Python scripting interfaces.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmcollectl</command></term>
+<listitem><para><indexterm id="IG3137188801"><primary>pmcollectl tool</primary>
+<secondary>brief description</secondary></indexterm>Statistics collection
+tool with good coverage of a number of Linux kernel subsystems, with the
+everything-in-one-tool approach pioneered by <command>sar(1)</command>.
+It is modeled on the Linux <command>collectl(1)</command> utility
+(<ulink url="http://http://collectl.sourceforge.net/">home page</ulink>) and
+provides another example of use of the Python scripting interfaces to build
+more complex functionality with relative ease, using PCP as a foundation.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><command>pmdumptext</command></term>
 <listitem><para><indexterm id="ITch01-22"><primary>pmdumptext tool</primary>
 <secondary>brief description</secondary></indexterm>Outputs the values
-of performance metrics collected live or from a PCP archive, as ASCII
-text.</para>
+of arbitrary performance metrics collected live or from a PCP archive, in
+textual format.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmie</command></term>
@@ -1237,8 +1266,7 @@ described in the <command>pmapi(3)</command> man page</para>
 
 <chapter id="LE17127-PARENT">
 
-<title>Installing and Configuring Performance Co-Pilot
-</title>
+<title>Installing and Configuring Performance Co-Pilot</title>
 <para><indexterm id="ITch02-0"><primary>installing PCP</primary></indexterm><indexterm id="ITch02-1"><primary>configuring PCP</primary></indexterm><indexterm id="ITch02-3">
 <primary>PCP</primary><secondary>configuring and installing</secondary></indexterm>The
 sections in this chapter describe the basic installation and configuration
@@ -1356,7 +1384,7 @@ files are described in the following sections.</para>
 <section id="id5190706">
 
 <title>The <filename>pmcd.options</filename> File</title>
-<para><indexterm id="ITch02-27"><primary>pcmd.options file</primary></indexterm>Command
+<para><indexterm id="ITch02-27"><primary>pmcd.options file</primary></indexterm>Command
 line options for the PMCD are stored in the <filename>/var/pcp/config/pmcd/pmcd.options</filename>
 file. The PMCD can be invoked directly from a shell prompt, or it can be invoked
 by<literal>&#xA0;/etc/rc.d/init.d/pcp</literal> as part of the boot process.
@@ -7042,7 +7070,12 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pcmd.options file <link linkend="ITch02-27">The <filename>pmcd.options</filename> File</link></primaryie>
+   <primaryie>pmatop tool</primaryie>
+      <secondaryie>brief description <link linkend="IG3137188800">Performance Monitoring and Visualization</link></secondaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmcd.options file <link linkend="ITch02-27">The <filename>pmcd.options</filename> File</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7263,6 +7296,11 @@ Collection Subsystem</link></primaryie>
 
 <indexentry>
    <primaryie>pmclient tool <link linkend="ITch01-121">Application and Agent Development</link> <link linkend="ITch01-123">Application and Agent Development</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmcollectl tool</primaryie>
+      <secondaryie>brief description <link linkend="IG3137188801">Performance Monitoring and Visualization</link></secondaryie>
 </indexentry>
 
 <indexentry>
