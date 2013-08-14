@@ -1593,8 +1593,8 @@ the command:</para>
 the PMCD is invoked, it reads its configuration file, which is <filename>${PCP_PMCDCONF_PATH}</filename>.
 This file contains entries that specify the PMDAs used by this instance of
 the PMCD and which metrics are covered by these PMDAs. Also, you may specify
-access control rules in this file for the various hosts on your network. This
-file is described completely in the <command>pmcd(1)</command> man page.</para>
+access control rules in this file for the various hosts, users and groups on your network.
+This file is described completely in the <command>pmcd(1)</command> man page.</para>
 <para>With standard PCP operation (even if you have not created and added
 your own PMDAs), you might need to edit this file in order to add any additional
 access control you wish to impose. If you do not add access control rules, all access
@@ -1713,7 +1713,7 @@ and reads the configuration file.</para>
 <term><replaceable>protocol</replaceable></term>
 <listitem><para>Specifies whether a text-based or a binary PCP protocol should
 be used over the pipes. Historically, this parameter was able to be &#x201C;text&#x201D;
-or &#x201C;binary.&#x201D; The text-based protocol has since been deprecated and
+or &#x201C;binary.&#x201D; The text-based protocol has long since been deprecated and
 removed, however, so nowadays &#x201C;binary&#x201D; is the only valid value here.
 </para>
 </listitem></varlistentry>
@@ -1734,30 +1734,52 @@ and reads the configuration file.</para>
 <title>Controlling Access to PMCD with <filename>pmcd.conf</filename></title>
 <para><indexterm id="ITch02-30"><primary>pmcd.conf file</primary></indexterm>You
 can place this option extension in the <filename>pmcd.conf</filename> file
-to control system access to performance metric data. To add an access control
-section, begin by placing the following line at the end of your <filename>
-pmcd.conf</filename> file:</para>
+to control access to performance metric data based on hosts, users and groups.
+To add an access control section, begin by placing the following line at the end
+of your <filename>pmcd.conf</filename> file:</para>
 <literallayout class="monospaced">[access] </literallayout>
 <para>Below this line, you can add entries of the following forms:</para>
-<literallayout class="monospaced">allow <replaceable>hostlist </replaceable>: <replaceable>operations</replaceable> ;  disallow <replaceable>hostlist</replaceable> : <replaceable>operations</replaceable> ; </literallayout>
+<literallayout class="monospaced">allow hosts <replaceable>hostlist</replaceable> : <replaceable>operations</replaceable> ;   disallow hosts <replaceable>hostlist</replaceable> : <replaceable>operations</replaceable> ;
+allow users <replaceable>userlist</replaceable> : <replaceable>operations</replaceable> ;   disallow users <replaceable>userlist</replaceable> : <replaceable>operations</replaceable> ;
+allow groups <replaceable>grouplist</replaceable> : <replaceable>operations</replaceable> ;   disallow groups <replaceable>grouplist</replaceable> : <replaceable>operations</replaceable> ;
+</literallayout>
+<para>The keywords <replaceable>users</replaceable>, <replaceable>groups</replaceable>
+and <replaceable>hosts</replaceable> can be used in either plural or singular form.</para>
+<para>The <replaceable>userlist</replaceable> and <replaceable>grouplist</replaceable>
+fields are comma-separated lists of authenticated users and groups from the
+local <filename>/etc/passwd</filename> and <filename>/etc/groups</filename> files,
+NIS (network information service) or LDAP (lightweight directory access protocol) service.</para>
 <para>The <replaceable>hostlist</replaceable> is a comma-separated list of
 host identifiers; the following rules apply:</para>
 <itemizedlist>
 <listitem><para>Host names must be in the local system's <filename>/etc/hosts</filename>
 file or known to the local DNS (domain name service).</para>
 </listitem>
-<listitem><para>IP addresses may be given in the usual four-field numeric
-notation. Subnet addresses may be specified using three or fewer numeric components
-and an asterisk as a wild card for the last component in the address.</para>
-</listitem></itemizedlist>
+<listitem><para>IPv4 and IPv6 addresses may be given in the usual numeric notations.</para>
+</listitem>
+<listitem><para>A wildcarded IPv4 or IPv6 address may be used to specify groups of hosts,
+with the single wildcard character ‘‘*’’ as the last-given component of the address.
+The wildcard ‘‘.*’’ refers to  all inet (IPv4) addresses. The wildcard ‘‘:*’’ refers to all
+IPv6 addresses. The wildcard ‘‘*‘‘ refers to all addresses. If an IPv6 wildcard contains a
+‘‘::’’ component, then the final ‘‘*’’ refers to the final 16 bits of the address only,
+otherwise it refers to the remaining unspecified bits of the address.</para>
+</listitem>
+<listitem><para>Host names may not be wildcarded.</para>
+</listitem>
+</itemizedlist>
 <para>For example, the following <replaceable>hostlist</replaceable> entries
 are all valid:</para>
-<literallayout class="monospaced">whizkid
-gate-wheeler.eng.com
+<literallayout class="monospaced">babylon
+babylon.eng.com
 123.101.27.44
 localhost
 155.116.24.*
 192.*
+.*
+fe80::223:14ff:feaf:b62c
+fe80::223:14ff:feaf:*
+fe80:*
+:*
 *</literallayout>
 <para>The <replaceable>operations</replaceable> field can be any of the following:
 </para>
@@ -1771,7 +1793,13 @@ operations as specified in the first field.</para>
 <listitem><para>The words <firstterm>all except</firstterm> and a list of
 operations. This entry allows or disallows all operations as specified in
 the first field except those listed.</para>
-</listitem></itemizedlist>
+</listitem>
+<listitem><para>The phrase <firstterm>maximum</firstterm> N <firstterm>connections</firstterm>
+to set an upper bound (N) on the number of connections an individual host, user or
+group of users may make. This can only be added to the <replaceable>operations</replaceable>
+list of an allow statement.</para>
+</listitem>
+</itemizedlist>
 <para>The operations that can be allowed or disallowed are as follows:</para>
 <variablelist condition="sgi_termlength:narrow">
 <varlistentry>
@@ -1789,14 +1817,16 @@ PCP package typically reject store operations, except for selected performance
 metrics where the effect is benign.</para>
 </listitem></varlistentry>
 </variablelist>
-<para>For example, here is a sample access control portion of an <filename>
-/var/pcp/config/pmcd/pmcd.conf</filename> file:</para>
-<literallayout class="monospaced">allow whizkid :  all ; 
-allow 192.127.4.* : fetch ; 
-disallow gate-inet : store ; </literallayout>
-<para>Complete information on access control syntax rules in the <filename>
-pmcd.conf</filename> file can be found in the <command>pmcd
-(1)</command> man page.</para>
+<para>For example, here is a sample access control portion of a
+<filename>${PCP_PMCDCONF_PATH}</filename> file:</para>
+<literallayout class="monospaced">allow hosts babylon, moomba : all ; 
+disallow user sam : all ;
+allow group dev : fetch ; 
+allow hosts 192.127.4.* : fetch ; 
+disallow host gate-inet : store ; </literallayout>
+<para>Complete information on access control syntax rules in the
+<filename>pmcd.conf</filename> file can be found in the <command>pmcd(1)</command>
+man page.</para>
 </section>
 </section>
 </section>
