@@ -42,8 +42,7 @@ A copy of the license is available at
 and Performance Co-Pilot is a trademark of Silicon Graphics, Inc.</para>
 <para>Red Hat and the Shadowman logo are trademarks of Red Hat, Inc.,
 registered in the United States and other countries.</para>
-<para>BROCADE is a trademark of Brocade Communications Systems, Inc.
-Cisco is a trademark of Cisco Systems, Inc.
+<para>Cisco is a trademark of Cisco Systems, Inc.
 Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
@@ -465,9 +464,9 @@ Python scripting interfaces.</para>
 tool with good coverage of a number of Linux kernel subsystems, with the
 everything-in-one-tool approach pioneered by <command>sar(1)</command>.
 It is modeled on the Linux <command>collectl(1)</command> utility
-(<ulink url="http://http://collectl.sourceforge.net/">home page</ulink>) and
+(<ulink url="http://collectl.sourceforge.net/">home page</ulink>) and
 provides another example of use of the Python scripting interfaces to build
-more complex functionality with relative ease, using PCP as a foundation.</para>
+more complex functionality with relative ease, with PCP as a foundation.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdumptext</command></term>
@@ -489,7 +488,8 @@ dynamic configuration tuning, and so on. It is an inference engine.</para>
 brief description</secondary></indexterm><indexterm id="IG3137188830"><primary>pmie tool
 </primary><secondary>pmieconf rules</secondary></indexterm>Creates parameterized
 rules to be used with the PCP inference engine (<command>pmie</command>).
-</para>
+It can be run either interactively or from scripts for automating the setup of inference
+(the PCP start scripts do this, for example, to generate a default configuration).</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pminfo</command></term>
@@ -503,7 +503,7 @@ text with <literal>-T</literal>.</para>
 <listitem><para><indexterm id="ITch01-37"><primary>pmstat tool</primary>
 <secondary>brief description</secondary></indexterm>Provides a text-based
 display of metrics that summarize the performance of one or more systems
-at a high level, suitable for ASCII logs or inquiry over a slow link.</para>
+at a high level.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmlogsummary</command></term>
@@ -517,17 +517,11 @@ from a PCP archive.</para>
 for performance metric availability, values, and instances.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmproxy</command></term>
-<listitem><para><indexterm id="ITch01-38"><primary>pmproxy tool</primary>
-<secondary>brief description</secondary></indexterm>Allows the execution
-of PCP tools through a network firewall system.</para>
-</listitem></varlistentry>
-<varlistentry>
 <term><command>pmval</command></term>
 <listitem><para><indexterm id="ITch01-42"><primary>pmval tool</primary>
 <secondary>brief description</secondary></indexterm>Provides a text-based
 display of the values for arbitrary instances of a selected performance
-metric, suitable for ASCII logs or inquiry over a modem.</para>
+metric, suitable for ASCII logs or inquiry over a slow link.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -572,12 +566,6 @@ to monitor the system.</para>
 <listitem><para><indexterm id="IG3137188839"><primary>pmcd_wait tool</primary></indexterm>Waits
 for <command>pmcd</command> to be ready to accept client connections.
 </para>
-</listitem></varlistentry>
-<varlistentry>
-<term><command>pmdabrocade</command></term>
-<listitem><indexterm id="IG3137188840"><primary>pmdabrocade tool</primary></indexterm><para>
-Measures the bytes read and written across each port of a Brocade fiber
-channel switch.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdamailq</command></term>
@@ -650,8 +638,10 @@ integrity check for PCP archives.</para>
 <varlistentry>
 <term><command>pmlogconf</command></term>
 <listitem><para><indexterm id="IG3137188845"><primary>pmlogconf tool</primary></indexterm>Creates
-or modifies <command>pmlogger</command> configuration files for most common
-logging scenarios. It is an interactive script.</para>
+or modifies <command>pmlogger</command> configuration files for many common
+logging scenarios, optionally probing for available metrics and enabled functionality.
+It can be run either interactively or from scripts for automating the setup of data logging
+(the PCP start scripts do this, for example, to generate a default configuration).</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmlogextract</command></term>
@@ -665,6 +655,12 @@ merged and reduced PCP archive log as output.</para>
 brief description</secondary></indexterm>Creates PCP archive logs of performance
 metrics over time. Many tools accept these PCP archive logs as alternative
 sources of metrics for retrospective analysis.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmproxy</command></term>
+<listitem><para><indexterm id="ITch01-38"><primary>pmproxy tool</primary>
+<secondary>brief description</secondary></indexterm>Allows the execution
+of PCP tools through a network firewall system.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmtrace</command></term>
@@ -818,7 +814,7 @@ system performance metrics. </para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmda</command></term>
-<listitem><para><indexterm id="ITch01-127"><primary>pmda tool</primary>
+<listitem><para><indexterm id="ITch01-127"><primary>dbpmda tool</primary>
 <see>PMDA</see></indexterm>Is a library used by many shipped PMDAs to
 communicate with a <command>pmcd</command> process. It can expedite the
 development of new and custom PMDAs.</para>
@@ -7333,17 +7329,7 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmda tool</primaryie>
-      <seeie>PMDA</seeie>
-</indexentry>
-
-<indexentry>
    <primaryie>PMDA_PATH variable <link linkend="ITch03-28">PCP Environment Variables</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmdabrocade tool <link linkend="IG3137188840">Collecting, Transporting, and Archiving Performance Information
-</link></primaryie>
 </indexentry>
 
 <indexentry>
