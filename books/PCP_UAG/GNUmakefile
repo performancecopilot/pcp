@@ -25,7 +25,7 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	$(LN_S) $(CWD)/$(TOPDIR)/images en-US/xml/figures
 	$(PUBLICAN) build --langs=en-US --formats=pdf
 	@# $(PUBLICAN) build --langs=en-US --formats=pdf,html
-	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/
+	$(LN_S) $(CWD)/en-US/pdf/*.pdf $(PDF)
 endif
 
 ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
@@ -51,7 +51,7 @@ build-me: built.$(BOOK_TOOLCHAIN)
 
 install: default
 	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
-	$(INSTALL) -m 644 $(PDFFILES) $(PKG_BOOKS_DIR)/$(IAM).pdf
+	$(INSTALL) -m 644 $(PDF) $(PKG_BOOKS_DIR)/$(IAM).pdf
 else
 build-me:
 install:
