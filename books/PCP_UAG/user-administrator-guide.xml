@@ -594,6 +594,11 @@ It is a Performance Metrics Domain Agent (PMDA).</para>
 </indexterm>Extracts performance metrics from one or more Cisco routers.</para>
 </listitem></varlistentry>
 <varlistentry>
+<term><command>pmdaelasticseach</command></term>
+<listitem><para><indexterm id="IG3137188714"><primary>pmdaelasticsearch tool</primary>
+</indexterm>Extracts performance metrics from an elasticsearch cluster.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><command>pmdagfs2</command></term>
 <listitem><para><indexterm id="IG3137188804"><primary>pmdagfs2 tool</primary>
 </indexterm>Exports performance metrics from the GFS2 clustered filesystem.</para>
@@ -1836,46 +1841,52 @@ man page.</para>
 <para><indexterm id="ITch02-31"><primary>PMDA</primary><secondary>managing
 optional agents</secondary></indexterm>Some Performance Metrics Domain Agents
 (PMDAs) shipped with Performance Co-Pilot (PCP) are designed to be installed
-and activated on every collector host, for example, <literal>linux</literal>, <command>
-pmcd</command>, and <literal>proccess</literal>.</para>
+and activated on every collector host, for example, <literal>linux</literal>,
+<literal>windows</literal>, <literal>darwin</literal>, <literal>pmcd</literal>,
+and <literal>process</literal> PMDAs.</para>
 <para>Other PMDAs are designed for optional activation and require some user
 action to make them operational. In some cases these PMDAs expect local site
 customization to reflect the operational environment, the system configuration,
 or the production workload. This customization is typically supported by interactive
 installation scripts for each PMDA.</para>
-<para>Each PMDA has its own directory located below<filename>/var/pcp/pmdas</filename>.
-In each directory, a <filename>README</filename> file describes the metrics
-provided by the PMDA; a <filename>Remove</filename> script to unconfigure
+<para>Each PMDA has its own directory located below <filename>${PCP_PMDAS_DIR}</filename>.
+Each directory contains a <filename>Remove</filename> script to unconfigure
 the PMDA, remove the associated metrics from the PMNS, and restart the <command>
 pmcd</command> daemon; and an <filename>Install</filename> script to install
 the PMDA, update the PMNS, and restart the PMCD daemon.</para>
+<para>As a shortcut mechanism to support automated PMDA installation, a file named
+<filename>.NeedInstall</filename> can be created in a PMDA directory below
+<filename>${PCP_PMDAS_DIR}</filename>. The next restart of PCP services will
+invoke that PMDAs installation automatically, with default options taken.
+</para>
 <section id="LE31599-PARENT">
 
 <title>PMDA Installation on a PCP Collector Host</title>
 <para><indexterm id="ITch02-32"><primary>PMDA</primary><secondary>installation
 </secondary></indexterm>To install a PMDA you must perform a collector installation
 for each host on which the PMDA is required to export performance metrics.
-Because the PMNS is distributed as of PCP release 2.0, it is no longer necessary
-to install PMDAs with their associated PMNS on PCP monitor hosts.</para>
+PCP provides a distributed metric namespace (PMNS) and metadata, so it is not necessary
+to install PMDAs (with their associated PMNS) on PCP monitor hosts.</para>
 <para><indexterm id="ITch02-33"><primary>collector hosts</primary></indexterm>
-You need to update the PMNS, configure the PMDA, and notify PMCD. The <literal>Install</literal> script for each PMDA automates these operations, as follows:
+You need to update the PMNS, configure the PMDA, and notify PMCD.
+The <literal>Install</literal> script for each PMDA automates these operations, as follows:
 </para>
 <orderedlist><listitem><para>Log in as <literal>root</literal> (the superuser).
 </para>
-</listitem><listitem><para>Move to the PMDA's directory as shown in the following
+</listitem><listitem><para>Change to the PMDA's directory as shown in the following
 example:</para>
-<literallayout class="monospaced"><userinput>cd /var/pcp/pmdas/cisco</userinput></literallayout>
+<literallayout class="monospaced"><userinput>cd ${PCP_PMDAS_DIR}/cisco</userinput></literallayout>
 </listitem><listitem><para><indexterm id="IG3137188893"><primary>PMD</primary></indexterm><indexterm id="IG3137188894">
 <primary>Performance Metrics Domain</primary><see>PMD</see></indexterm>In
 the unlikely event that you wish to use a non-default Performance Metrics
 Domain (PMD) assignment, determine the current PMD assignment:</para>
 <literallayout class="monospaced"><userinput>cat domain.h</userinput></literallayout>
-<para><indexterm id="IG3137188895"><primary>/var/pcp/pmns/stdpmid file</primary></indexterm><indexterm id="IG3137188896">
-<primary>var/pcp/config/pmcd/pmcd.conf file</primary></indexterm>Check that
-there is no conflict in the PMDs as defined in <filename>/var/pcp/pmns/stdpmid</filename>
-and the other PMDAs currently in use (listed in <filename>var/pcp/config/pmcd/pmcd.conf</filename>).
+<para><indexterm id="IG3137188895"><primary>${PCP_VAR_DIR}/pmns/stdpmid file</primary></indexterm><indexterm id="IG3137188896">
+<primary>${PCP_PMCDCONF_PATH} file</primary></indexterm>Check that
+there is no conflict in the PMDs as defined in <filename>${PCP_VAR_DIR}/pmns/stdpmid</filename>
+and the other PMDAs currently in use (listed in <filename>${PCP_PMCDCONF_PATH}</filename>).
 Edit <filename>domain.h</filename> to assign the new domain number if there
-is a conflict.</para>
+is a conflict (this is highly unlikely to occur in a regular PCP installation).</para>
 </listitem><listitem><para>Enter the following command:</para>
 <literallayout class="monospaced"><userinput>./Install</userinput></literallayout>
 <para>You may be prompted to enter some local parameters or configuration
@@ -1941,27 +1952,25 @@ Check cisco metrics have appeared ... 5 metrics and 10 values</literallayout>
 <title>PMDA Removal on a PCP Collector Host</title>
 <para><indexterm id="ITch02-35"><primary>PMDA</primary><secondary>removal
 </secondary></indexterm>To remove a PMDA, you must perform a collector removal
-for each host on which the PMDA is currently installed. Because PMNS is distributed
-as of PCP release 2.0, it is no longer necessary to remove PMDAs or their
-associated PMNS on PCP monitor hosts.</para>
-<para>You need to update the PMNS, unconfigure the PMDA, and notify PMCD.
+for each host on which the PMDA is currently installed.</para>
+<para>The PMNS needs to be updated, the PMDA unconfigured, and PMCD notified.
 The <literal>Remove</literal> script for each PMDA automates these operations,
 as follows:</para>
 <orderedlist><listitem><para>Log in as <literal>root</literal> (the superuser).
 </para>
-</listitem><listitem><para>Move to the PMDA's directory as shown in the following
+</listitem><listitem><para>Change to the PMDA's directory as shown in the following
 example:</para>
-<literallayout class="monospaced"><userinput>cd /var/pcp/pmdas/environ</userinput></literallayout>
+<literallayout class="monospaced"><userinput>cd ${PCP_PMDAS_DIR}/elasticsearch</userinput></literallayout>
 </listitem><listitem><para>Enter the following command:</para>
 <literallayout class="monospaced"><userinput>./Remove</userinput></literallayout>
 <para>The following output illustrates the result:</para>
 <literallayout class="monospaced">Culling the Performance Metrics Name Space ...
-environ ... done
+elasticsearch ... done
 Updating the PMCD control file, and notifying PMCD ...
 </literallayout>
 </listitem></orderedlist>
 <literallayout class="monospaced">Removing files ... 
-Check environ metrics have gone away ... OK</literallayout>
+Check elasticsearch metrics have gone away ... OK</literallayout>
 </section>
 </section>
 <section id="LE70712-PARENT">
@@ -1977,12 +1986,14 @@ for performance metrics, kernel metrics and the PMCD.</para>
 <title>Performance Metrics Name Space</title>
 <para><indexterm id="IG3137188897"><primary>pminfo tool</primary><secondary>displaying the PMNS
 </secondary></indexterm><indexterm id="IG3137188898"><primary>PMNS</primary><secondary>troubleshooting
-</secondary></indexterm>To display the PMNS, use the <literal>pminfo</literal>
+</secondary></indexterm>To display the active PMNS, use the <literal>pminfo</literal>
 command; see the <command>pminfo(1)</command> man page.</para>
 <para>The PMNS at the collector host is updated whenever a PMDA is installed
 or removed, and may also be updated when new versions of PCP are
-installed. During these operations, the ASCII version of the
-PMNS is typically updated, then the binary version is regenerated.</para>
+installed. During these operations, the PMNS is typically updated by merging the
+(plaintext) namespace components from each installed PMDA.
+These separate PMNS components reside in the <filename>${PCP_VAR_DIR}/pmns</filename>
+directory and are merged into the <filename>root</filename> file there.</para>
 </section>
 <section id="LE90170-PARENT">
 
@@ -2004,7 +2015,7 @@ are not available.</para>
 <varlistentry>
 <term>Cause:</term>
 <listitem><para>This can occur as a consequence of changes in the installation
-of modules (for example, a DBMS or an applications package) that provide the
+of modules (for example, a DBMS or an application package) that provide the
 performance instrumentation underpinning the PMDAs. Changes in the selection
 of modules that are installed or operational, along with changes in the version
 of these modules, may make metrics appear and disappear over time.</para>
@@ -2072,12 +2083,12 @@ default):<literallayout class="monospaced"><userinput>telnet far-away-host 44321
 <para>This response indicates the PMCD is not running and needs restarting:
 </para>
 <literallayout class="monospaced">Unable to connect to remote host: Connection refused</literallayout>
-<para>To restart the PMCD on that host, enter the following command:<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout></para>
+<para>To restart the PMCD on that host, enter the following command:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout></para>
 <para>This response indicates the PMCD is running:<literallayout class="monospaced">Connected to far-away-host </literallayout></para>
 <para><indexterm id="IG31371888106"><primary>PMCD_CONNECT_TIMEOUT variable</primary></indexterm>Interrupt
 the <literal>telnet</literal> session, increase the PMAPI time out by setting
 the <literal>PMCD_CONNECT_TIMEOUT</literal> environment variable to some number
-of seconds (60 for instance), and try the PCP tool again.</para>
+of seconds (60 for instance), and try the PCP client tool again.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2094,7 +2105,7 @@ symptom has a known cause and resolution:</para>
 <varlistentry>
 <term>Cause:</term>
 <listitem><para><indexterm id="IG31371888108"><primary>pmcd.conf file</primary>
-</indexterm>If there is a syntax error in ${PCP_PMCDCONF_PATH (<filename>pmcd.conf</filename>),
+</indexterm>If there is a syntax error in <filename>${PCP_PMCDCONF_PATH}</filename>,
 PMCD does not use the contents of the file. This can lead to
 situations in which the configuration file and PMCD's internal state do not
 agree.</para>
@@ -2102,7 +2113,7 @@ agree.</para>
 <varlistentry>
 <term>Resolution:</term>
 <listitem><para>Always monitor PMCD's log. For example, use the following
-command in another window when reconfiguring PMCD, to watch errors occur:<literallayout class="monospaced"><userinput>tail -f /var/log/pcp/pmcd/pmcd.log</userinput></literallayout></para>
+command in another window when reconfiguring PMCD, to watch errors occur:<literallayout class="monospaced"><userinput>tail -f ${PCP_LOG_DIR}/pmcd/pmcd.log</userinput></literallayout></para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2115,8 +2126,8 @@ command in another window when reconfiguring PMCD, to watch errors occur:<litera
 <varlistentry>
 <term>Symptom:</term>
 <listitem><indexterm id="IG31371888110"><primary>/var/log/pcp/pmcd/pmcd.log file</primary></indexterm>
-<para>If the following messages appear in the PMCD log (<filename>
-/var/log/pcp/pmcd/pmcd.log</filename>), consider the cause
+<para>If the following messages appear in the PMCD log
+(<filename>${PCP_LOG_DIR}/pmcd/pmcd.log</filename>), consider the cause
 and resolution:</para>
 <literallayout class="monospaced">pcp[27020] Error: OpenRequestSocket(44321) bind: Address already in
 use
@@ -2131,7 +2142,7 @@ connections is already being used or has not been cleared by the kernel.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
-<listitem><para>Start PMCD as <literal>root</literal> (superuser) by typing:<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout></para>
+<listitem><para>Start PMCD as <literal>root</literal> (superuser) by typing:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout></para>
 <para>Any existing PMCD is shut down, and a new one is started in such a way
 that the symptomatic message should not appear.</para>
 <para>If you are starting PMCD this way and the symptomatic message appears,
@@ -2150,8 +2161,8 @@ above produces no output, PMCD may be restarted. Less commonly, you may have
 another program running on your system that uses the same Internet port number
 (44321) that PMCD uses.</para>
 <para><indexterm id="IG31371888112"><primary>PCPIntro command</primary></indexterm><indexterm id="IG31371888113">
-<primary>PMCD_PORT variable</primary></indexterm>Refer to the <command>
-PCPIntro(1)</command> man page for a description of how to override the default
+<primary>PMCD_PORT variable</primary></indexterm>Refer to the <command>PCPIntro(1)</command>
+man page for a description of how to override the default
 PMCD port assignment using the <literal>PMCD_PORT</literal> environment variable.
 </para>
 </listitem></varlistentry>
@@ -7491,6 +7502,11 @@ Collection Subsystem</link></secondaryie>
 
 <indexentry>
    <primaryie>pmdacisco tool <link linkend="ITch01-54">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaelasticsearch tool <link linkend="IG3137188714">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
