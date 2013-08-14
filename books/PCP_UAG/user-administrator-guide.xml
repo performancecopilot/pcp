@@ -568,16 +568,53 @@ for <command>pmcd</command> to be ready to accept client connections.
 </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmdamailq</command></term>
-<listitem><para><indexterm id="ITch01-58"><primary>pmdamailq tool</primary>
-</indexterm>Exports performance metrics describing the current state of
-items in the <literal>sendmail</literal> queue. It is a PMDA.</para>
+<term><command>pmdaapache</command></term>
+<listitem><para><indexterm id="IG3137188803"><primary>pmdaapache tool</primary>
+</indexterm>Exports performance metrics from the Apache Web Server.
+It is a Performance Metrics Domain Agent (PMDA).</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdacisco</command></term>
 <listitem><para><indexterm id="ITch01-54"><primary>pmdacisco tool</primary>
-</indexterm>Extracts performance metrics from one or more Cisco routers.
-It is a Performance Metrics Domain Agent (PMDA).</para>
+</indexterm>Extracts performance metrics from one or more Cisco routers.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdagfs2</command></term>
+<listitem><para><indexterm id="IG3137188804"><primary>pmdagfs2 tool</primary>
+</indexterm>Exports performance metrics from the GFS2 clustered filesystem.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdagluster</command></term>
+<listitem><para><indexterm id="IG3137188712"><primary>pmdagluster tool</primary>
+</indexterm>Extracts performance metrics from the Gluster filesystem.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdainfiniband</command></term>
+<listitem><para><indexterm id="IG3137188805"><primary>pmdainfiniband tool</primary>
+</indexterm>Exports performance metrics from the Infiniband kernel driver.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdakvm</command></term>
+<listitem><para><indexterm id="IG3137188806"><primary>pmdakvm tool</primary>
+</indexterm>Extracts performance metrics from the Linux Kernel Virtual Machine (KVM)
+infrastructure.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdalustrecomm</command></term>
+<listitem><para><indexterm id="IG3137188807"><primary>pmdalustrecomm tool</primary>
+</indexterm>Exports performance metrics from the Lustre clustered filesystem.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdamailq</command></term>
+<listitem><para><indexterm id="ITch01-58"><primary>pmdamailq tool</primary>
+</indexterm>Exports performance metrics describing the current state of
+items in the <literal>sendmail</literal> queue.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdamemcache</command></term>
+<listitem><para><indexterm id="IG3137188808"><primary>pmdamemcache tool</primary>
+</indexterm>Extracts performance metrics from memcached, a distributed
+memory caching daemon commonly used to improve web serving performance.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdammv</command></term>
@@ -586,34 +623,94 @@ Exports metrics from instrumented applications linked with the <filename>pcp_mmv
 </filename> shared library. These metrics are custom developed per application.</para>
 </listitem></varlistentry>
 <varlistentry>
+<term><command>pmdamysql</command></term>
+<listitem><para><indexterm id="IG3137188809"><primary>pmdamysql tool</primary>
+</indexterm>Extracts performance metrics from the MySQL relational database.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdanamed</command></term>
+<listitem><para><indexterm id="IG3137188701"><primary>pmdanamed tool</primary>
+</indexterm>Exports performance metrics from the Internet domain name server, named.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdanginx</command></term>
+<listitem><para><indexterm id="IG3137188702"><primary>pmdanginx tool</primary>
+</indexterm>Extracts performance metrics from the nginx HTTP and reverse proxy server.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdapostfix</command></term>
+<listitem><para><indexterm id="IG3137188703"><primary>pmdapostfix tool</primary>
+</indexterm>Export performance metrics from the Postfix mail transfer agent.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdapostgres</command></term>
+<listitem><para><indexterm id="IG3137188704"><primary>pmdapostgres tool</primary>
+</indexterm>Extracts performance metrics from the PostgreSQL relational database.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdaproc</command></term>
+<listitem><para><indexterm id="IG3137188705"><primary>pmdaproc tool</primary>
+</indexterm>Exports performance metrics for running processes.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdarsyslog</command></term>
+<listitem><para><indexterm id="IG3137188706"><primary>pmdarsyslog tool</primary>
+</indexterm>Extracts performance metrics from the Reliable System Log daemon.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdasamba</command></term>
+<listitem><para><indexterm id="IG3137188707"><primary>pmdasamba tool</primary>
+</indexterm>Extracts performance metrics from Samba, a Windows SMB/CIFS server.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><command>pmdasendmail</command></term>
 <listitem><para><indexterm id="IG3137188842"><primary>pmdasendmail tool</primary></indexterm>Exports
-mail activity statistics from <command>sendmail</command>. It is a PMDA.
+mail activity statistics from <command>sendmail</command>.
 </para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>pmdashping</literal></term>
 <listitem><para><indexterm id="ITch01-60"><primary>pmdashping tool</primary>
 </indexterm>Exports performance metrics for the availability and quality
-of service (response-time) for arbitrary shell commands. It is a PMDA.
+of service (response-time) for arbitrary shell commands.
 </para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdasnmp</command></term>
+<listitem><para><indexterm id="IG3137188708"><primary>pmdasnmp tool</primary>
+</indexterm>Extracts SNMP performance metrics from local or remote SNMP-enabled devices.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdasummary</command></term>
 <listitem><para><indexterm id="ITch01-62"><primary>pmdasummary tool</primary>
 </indexterm>Derives performance metrics values from values made available
-by other PMDAs. It is a PMDA.</para>
+by other PMDAs. It is a PMDA itself.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdasystemd</command></term>
+<listitem><para><indexterm id="IG3137188709"><primary>pmdasystemd tool</primary>
+</indexterm>Extracts performance metrics from the systemd and journald services.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>pmdatrace</literal></term>
 <listitem><para><indexterm id="ITch01-64"><primary>pmdatrace tool</primary>
 </indexterm>Exports transaction performance metrics from application processes
-that use the <filename>pcp_trace</filename> library. It is a PMDA.</para>
+that use the <filename>pcp_trace</filename> library.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdavmware</command></term>
+<listitem><para><indexterm id="IG3137188710"><primary>pmdavmware tool</primary>
+</indexterm>Extracts performance metrics from a VMWare virtualization host.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdaweblog</command></term>
 <listitem><indexterm id="IG3137188843"><primary>pmdaweblog tool</primary></indexterm><para>
 Scans Web-server logs to extract metrics characterizing.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmdaxfs</command></term>
+<listitem><para><indexterm id="IG3137188711"><primary>pmdaxfs tool</primary>
+</indexterm>Extracts performance metrics from the Linux kernel XFS filesystem implementation.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmdumplog</command></term>
@@ -667,6 +764,13 @@ of PCP tools through a network firewall system.</para>
 <listitem><para><indexterm id="ITch01-74"><primary>pmtrace tool</primary>
 </indexterm>Provides a simple command line interface to the trace PMDA
 and its associated <filename>pcp_trace</filename> library.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmwebd</command></term>
+<listitem><para><indexterm id="IG3137188802"><primary>web daemon</primary>
+</indexterm>Is the Performance Metrics Web Daemon, a front-end to both
+<command>pmcd</command> and PCP archives,
+providing a JSON interface suitable for use by web-based tools.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -7333,7 +7437,37 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmdaapache tool <link linkend="IG3137188803">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmdacisco tool <link linkend="ITch01-54">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdagfs2 tool <link linkend="IG3137188804">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdagluster tool <link linkend="IG3137188712">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdainfiniband tool <link linkend="IG3137188805">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdakvm tool <link linkend="IG3137188806">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdalustrecomm tool <link linkend="IG3137188807">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
@@ -7343,7 +7477,52 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmdamemcache tool <link linkend="IG3137188808">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmdammv tool <link linkend="IG3137188841">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdamysql tool <link linkend="IG3137188809">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdanamed tool <link linkend="IG3137188701">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdanginx tool <link linkend="IG3137188702">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdapostfix tool <link linkend="IG3137188703">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdapostgresql tool <link linkend="IG3137188704">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaproc tool <link linkend="IG3137188705">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdarsyslog tool <link linkend="IG3137188706">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdasamba tool <link linkend="IG3137188707">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
@@ -7353,7 +7532,17 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmdasnmp tool <link linkend="IG3137188708">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmdasummary tool <link linkend="ITch01-62">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdasystemd tool <link linkend="IG3137188709">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
@@ -7363,7 +7552,17 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmdavmware tool <link linkend="IG3137188710">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmdaweblog tool <link linkend="IG3137188843">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaxfs tool <link linkend="IG3137188711">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
 </indexentry>
 
@@ -7628,6 +7827,11 @@ Collection Subsystem</link></secondaryie>
    <primaryie>pmview tool</primaryie>
       <secondaryie>config.* files <link linkend="IG31371888289">Other Logger Configurations</link></secondaryie>
       <secondaryie>record mode <link linkend="IG31371888293">PCP  Archive Folios</link></secondaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmwebd tool <link linkend="IG3137188802">Collecting, Transporting, and Archiving Performance Information
+</link></primaryie>
 </indexentry>
 
 <indexentry>
