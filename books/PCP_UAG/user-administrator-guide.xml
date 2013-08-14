@@ -476,6 +476,12 @@ of arbitrary performance metrics collected live or from a PCP archive, in
 textual format.</para>
 </listitem></varlistentry>
 <varlistentry>
+<term><command>pmevent</command></term>
+<listitem><para><indexterm id="IG3137188713"><primary>pmevent tool</primary>
+<secondary>brief description</secondary></indexterm>Reports on event metrics,
+decoding the timestamp and event parameters for text-based reporting.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><command>pmie</command></term>
 <listitem><para><indexterm id="ITch01-32"><primary>pmie tool</primary>
 <secondary>brief description</secondary></indexterm>Evaluates predicate-action
@@ -499,13 +505,6 @@ about arbitrary performance metrics available from PCP, including help
 text with <literal>-T</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmstat</command></term>
-<listitem><para><indexterm id="ITch01-37"><primary>pmstat tool</primary>
-<secondary>brief description</secondary></indexterm>Provides a text-based
-display of metrics that summarize the performance of one or more systems
-at a high level.</para>
-</listitem></varlistentry>
-<varlistentry>
 <term><command>pmlogsummary</command></term>
 <listitem><para><indexterm id="IG3137188831"><primary>pmlogsummary tool</primary></indexterm>Calculates
 and reports various statistical summaries of the performance metric values
@@ -515,6 +514,13 @@ from a PCP archive.</para>
 <term><command>pmprobe</command></term>
 <listitem><para><indexterm id="IG3137188832"><primary>pmprobe tool</primary></indexterm>Probes
 for performance metric availability, values, and instances.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmstat</command></term>
+<listitem><para><indexterm id="ITch01-37"><primary>pmstat tool</primary>
+<secondary>brief description</secondary></indexterm>Provides a text-based
+display of metrics that summarize the performance of one or more systems
+at a high level.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmval</command></term>
@@ -7635,6 +7641,11 @@ pmieconf</command></link> <link linkend="IG31371888237">Management of <command>p
       <secondaryie>setting evaluation frequency <link linkend="ITch06-12">Setting Evaluation Frequency</link></secondaryie>
       <secondaryie>syntax <link linkend="ITch06-11">Basic <command>pmie</command> Syntax</link></secondaryie>
       <secondaryie>transitional operators <link linkend="IG31371888225">Transitional Operators</link></secondaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmevent tool</primaryie>
+      <secondaryie>brief description <link linkend="IG3137188713">Performance Monitoring and Visualization</link></secondaryie>
 </indexentry>
 
 <indexentry>
