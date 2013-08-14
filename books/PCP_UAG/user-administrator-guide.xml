@@ -169,9 +169,18 @@ the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL
 <varlistentry>
 <term><emphasis role="bold">Convention</emphasis></term><listitem><para><emphasis role="bold">Meaning</emphasis></para></listitem></varlistentry>
 <varlistentry>
+<term><literal>${PCP_VARIABLE}</literal></term>
+<listitem><para>A brace-enclosed all-capital-letters syntax indicates a variable
+that has been sourced from the global <filename>/etc/pcp.conf</filename> file.
+These special variables indicate parameters that affect all PCP commands,
+and are likely to be different between platforms.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><literal>command</literal></term>
 <listitem><para>This fixed-space font denotes literal items such as commands,
-files, routines,  path names, signals, messages, and programming language
+files, routines, path names, signals, messages, and programming language
 structures. </para>
 </listitem>
 </varlistentry>
@@ -1399,15 +1408,20 @@ on one or more hosts, from which the performance information could then be
 collected, and in a monitor configuration on one or more workstations, from
 which the performance of the server systems could then be monitored.</para>
 <para>On some platforms Performance Co-Pilot is presented as multiple packages;
-typically separating the server components from graphical user interfaces.</para>
+typically separating the server components from graphical user interfaces and
+documentation.</para>
 <variablelist id="Z926620168sdc">
 <varlistentry>
-<term>pcp-2.3-<replaceable>rev</replaceable></term>
-<listitem><para>rpm for PCP</para>
+<term>pcp-X.Y.Z-<replaceable>rev</replaceable></term>
+<listitem><para>package for core PCP</para>
 </listitem></varlistentry>
 <varlistentry>
-<term>pcp-snia-2.3-<replaceable>rev</replaceable></term>
-<listitem><para>rpm for PCP on SN-IA</para>
+<term>pcp-gui-X.Y.Z-<replaceable>rev</replaceable></term>
+<listitem><para>package for graphical PCP client tools</para>
+</listitem></varlistentry>
+<varlistentry>
+<term>pcp-doc-X.Y.Z-<replaceable>rev</replaceable></term>
+<listitem><para>package for online PCP documentation</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -1426,27 +1440,27 @@ statistics in response to requests from the PCP monitoring tools.</para>
 <para><indexterm id="IG3137188891"><primary>PMCD</primary><secondary>starting and stopping</secondary>
 </indexterm>To start the daemon, enter the following commands as <literal>root</literal> on each PCP collection system:</para>
 <literallayout class="monospaced"><userinput>chkconfig pmcd on</userinput>&#xA0;
-<userinput>/etc/rc.d/init.d/pcp start</userinput>&#xA0;</literallayout>
+<userinput>${PCP_RC_DIR}/pcp start</userinput>&#xA0;</literallayout>
 <para>These commands instruct the system to start the daemon immediately,
 and again whenever the system is booted. It is not necessary to start the
 daemon on the monitoring system unless you wish to collect performance information
 from it as well.</para>
 <para>To stop <command>pmcd</command> immediately on a PCP collection system,
 enter the following command:</para>
-<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp stop</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp stop</userinput></literallayout>
 </section>
 <section id="LE58493-PARENT">
 
 <title>Restarting an Unresponsive PMCD</title>
-<para>Often, if a daemon is not responding on a PCP collection system, the
+<para>Sometimes, if a daemon is not responding on a PCP collection system, the
 problem can be resolved by stopping and then immediately restarting a fresh
 instance of the daemon. If you need to stop and then immediately restart PMCD
 on a PCP collection system, use the <literal>start</literal> argument provided
-with the script in <filename>/etc/rc.d/init.d</filename>. The command syntax
+with the script in <filename>${PCP_RC_DIR}</filename>. The command syntax
 is, as follows:</para>
-<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp start</userinput>&#xA0;</literallayout>
-<para>On startup, <command>pmcd</command> looks for a configuration file named <filename>
-/var/pcp/config/pmcd/pmcd.conf</filename>. This file specifies which agents
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmcd start</userinput>&#xA0;</literallayout>
+<para>On startup, <command>pmcd</command> looks for a configuration file at
+<filename>${PCP_PMCDCONF_PATH}</filename>. This file specifies which agents
 cover which performance metrics domains and how PMCD should make contact with
 the agents. A comprehensive description of the configuration file syntax and
 semantics can be found in the <command>pmcd(1)</command> man page.
@@ -1454,11 +1468,14 @@ semantics can be found in the <command>pmcd(1)</command> man page.
 <para>If the configuration is changed, <command>pmcd</command> reconfigures
 itself when it receives the <literal>SIGHUP</literal> signal. Use the following
 command to send the <literal>SIGHUP</literal> signal to the daemon:</para>
-<literallayout class="monospaced"><userinput>killall -HUP pmcd</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmsignal -a -s HUP pmcd</userinput></literallayout>
 <para>This is also useful when one of the PMDAs managed by <command>pmcd</command>
 has failed or has been terminated by <command>pmcd</command>. Upon receipt
 of the <literal>SIGHUP</literal> signal, <command>pmcd</command> restarts
-any PMDA that is configured but inactive.</para>
+any PMDA that is configured but inactive.  The exception to this rule is the
+case of a PMDA which must run with superuser privileges (where possible, this
+is avoided) - for these PMDAs, a full <command>pmcd</command> restart must be
+performed, using the process described earlier (not SIGHUP).</para>
 </section>
 <section id="id5190621">
 
@@ -1466,42 +1483,34 @@ any PMDA that is configured but inactive.</para>
 <para><indexterm id="ITch02-23"><primary>PMCD</primary><secondary>diagnostics
 and error messages</secondary></indexterm>If there is a problem with <command>
 pmcd</command>, the first place to investigate should be the <filename>pmcd.log</filename> file.
-By default, this file is in the <filename>${PCP_LOG_DIR}/pmcd</filename> directory,
-although setting the <literal>$PCP_LOG_DIR</literal> environment
-variable before running <literal>/etc/rc.d/init.d/pcp</literal> allows the
-file to be relocated.</para>
+By default, this file is in the <filename>${PCP_LOG_DIR}/pmcd</filename> directory.</para>
 </section>
 <section id="id5190661">
 
-<title>PMCD Options  and Configuration Files</title>
+<title>PMCD Options and Configuration Files</title>
 <para><indexterm id="ITch02-26"><primary>PMCD</primary><secondary>configuration
 files</secondary></indexterm>There are two files that control PMCD operation.
-These are the <filename>/var/pcp/config/pmcd/pmcd.conf</filename> and <filename>
-/var/pcp/config/pmcd/pmcd.options</filename> files. The <filename>pmcd.options</filename>
+These are the <filename>${PCP_PMCDCONF_PATH}</filename> and <filename>${PCP_PMCDOPTIONS_PATH}</filename> files.
+The <filename>pmcd.options</filename>
 file contains the command line options used with PMCD; it is read
 when the daemon is invoked by <literal>${PCP_RC_DIR}/pcp</literal>.
 The <filename>pmcd.conf</filename> file contains configuration information
-regarding domain agents and the metrics that they monitor. These configuration
-files are described in the following sections.</para>
+regarding domain agents and the metrics that they monitor.
+These configuration files are described in the following sections.</para>
 <section id="id5190706">
 
 <title>The <filename>pmcd.options</filename> File</title>
 <para><indexterm id="ITch02-27"><primary>pmcd.options file</primary></indexterm>Command
-line options for the PMCD are stored in the <filename>/var/pcp/config/pmcd/pmcd.options</filename>
+line options for the PMCD are stored in the <filename>${PCP_PMCDOPTIONS_PATH}</filename>
 file. The PMCD can be invoked directly from a shell prompt, or it can be invoked
-by<literal>&#xA0;/etc/rc.d/init.d/pcp</literal> as part of the boot process.
-It is usual and normal to invoke it using <literal>/etc/rc.d/init.d/pcp</literal>,
+by<literal>&#xA0;${PCP_RC_DIR}/pcp</literal> as part of the boot process.
+It is usual and normal to invoke it using <literal>${PCP_RC_DIR}/pcp</literal>,
 reserving shell invocation for debugging purposes.</para>
 <para>The PMCD accepts certain command line options to control its execution,
 and these options are placed in the <filename>pmcd.options</filename> file
-when <filename>/etc/rc.d/init.d/pcp</filename> is being used to start the
-daemon. The following options are available:</para>
+when <filename>${PCP_RC_DIR}/pcp</filename> is being used to start the
+daemon. The following options (amongst others) are available:</para>
 <variablelist>
-<varlistentry>
-<term><literal>-f</literal></term>
-<listitem><para>Causes the PMCD to be run in the foreground. The PMCD is usually
-run in the background, as are most daemons.</para>
-</listitem></varlistentry>
 <varlistentry>
 <term><literal>-i </literal> <replaceable>address</replaceable></term>
 <listitem><para>For hosts with more than one network interface, this option
@@ -1514,8 +1523,13 @@ on all interfaces.</para>
 <term><command>-l </command> <replaceable>file</replaceable></term>
 <listitem><para>Specifies a log file. If no <literal>-l</literal> option is
 specified, the log file name is <filename>pmcd.log</filename> and it is created
-in the directory <filename>/var/log/pcp/pmcd/*</filename> or in a directory
-as specified by the <literal>PCPLOGDIR</literal> environment variable.</para>
+in the directory <filename>${PCP_LOG_DIR}/pmcd/</filename>.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>-s </command> <replaceable>file</replaceable></term>
+<listitem><para>Specifies the path to a local unix domain socket
+(for platforms supporting this socket family only).
+The default value is <filename>${PCP_RUN_DIR}/pmcd.socket</filename>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>-t </command> <replaceable>seconds</replaceable></term>
@@ -1523,10 +1537,10 @@ as specified by the <literal>PCPLOGDIR</literal> environment variable.</para>
 <primary>protocol data units</primary><see>PDU</see></indexterm>Specifies
 the amount of time, in seconds, before PMCD times out on protocol data unit
 (PDU) exchanges with PMDAs. If no time out is specified, the default is five
-seconds. Setting time out to zero disables time outs.</para>
+seconds. Setting time out to zero disables time outs (not recommended, PMDAs
+should always respond quickly).</para>
 <para>The time out may be dynamically modified by storing the number of seconds
-into the metric <literal>pmcd.control.timeout</literal> using <command>pmstore
-</command>.</para>
+into the metric <literal>pmcd.control.timeout</literal> using <command>pmstore</command>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>-T </literal> <replaceable>mask</replaceable></term>
@@ -1538,13 +1552,12 @@ for debugging purposes.</para>
 information on these options.</para>
 <para>The default <filename>pmcd.options</filename> file shipped with PCP
 is similar to the following:</para>
-<literallayout class="monospaced"># $Id: ch02.sgml,v 1.7 2002/11/13 14:39:07 glent Exp $
-# command-line options to pmcd, uncomment/edit lines as required
+<literallayout class="monospaced"># command-line options to pmcd, uncomment/edit lines as required
 
 # longer timeout delay for slow agents
 # -t 10
 
-# supress timeouts
+# suppress timeouts
 # -t 0
 
 # make log go someplace else
@@ -1554,7 +1567,7 @@ is similar to the following:</para>
 # -D N
 # -f
 
-# Restricting incomming PDU size to prevent DOS attacks
+# Restricting (further) incoming PDU size to prevent DOS attacks
 # -L 16384 
 
 # enable event tracing bit fields
@@ -1568,38 +1581,47 @@ is similar to the following:</para>
 # PMCD_WAIT_TIMEOUT=120</literallayout>
 <para>The most commonly used options have been placed in this file for your
 convenience. To uncomment and use an option, simply remove the pound sign
-(#) at the beginning of the line with the option you wish to use. Restart <command>
-pmcd</command> for the change to take effect; that is, as superuser, enter
+(#) at the beginning of the line with the option you wish to use. Restart
+<command>pmcd</command> for the change to take effect; that is, as superuser, enter
 the command:</para>
-<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout>
 </section>
 <section id="LE63226-PARENT">
 
 <title>The <filename>pmcd.conf</filename> File</title>
 <para><indexterm id="ITch02-29"><primary>pmcd.conf file</primary></indexterm>When
-the PMCD is invoked, it reads its configuration file, which is <filename>/var/pcp/config/pmcd/pmcd.conf</filename>.
+the PMCD is invoked, it reads its configuration file, which is <filename>${PCP_PMCDCONF_PATH}</filename>.
 This file contains entries that specify the PMDAs used by this instance of
 the PMCD and which metrics are covered by these PMDAs. Also, you may specify
 access control rules in this file for the various hosts on your network. This
-file is described completely in the <command>pmcd(1)</command>
-man page.</para>
+file is described completely in the <command>pmcd(1)</command> man page.</para>
 <para>With standard PCP operation (even if you have not created and added
-your own PMDAs), you might need to edit this file in order to add any access
-control you wish to impose. If you do not add access control rules, all access
-for all operations is granted to all hosts. The  <filename>pmcd.conf</filename>
-file is automatically generated during the software build process and is similar
-to the following:</para>
+your own PMDAs), you might need to edit this file in order to add any additional
+access control you wish to impose. If you do not add access control rules, all access
+for all operations is granted to the local host, and read-only access is granted to
+remote hosts. The <filename>pmcd.conf</filename> file is automatically generated
+during the software build process and on Linux, for example, is similar to the
+following:</para>
 <literallayout class="monospaced"> Performance Metrics Domain Specifications
 # 
 # This file is automatically generated during the build
 # Name  Id      IPC     IPC Params      File/Cmd
 pmcd    2       dso     pmcd_init       /var/pcp/pmdas/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      /var/pcp/pmdas/linux/pmda_linux.so
-snia 63 pipe binary /var/pcp/pmdas/snia/pmdasnia -d 63</literallayout>
-<note><para>Because the PMCD runs with <literal>root</literal> privilege,
+proc	3	pipe	binary		/var/lib/pcp/pmdas/proc/pmdaproc -d 3
+xfs	11	pipe	binary		/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11
+
+[access]
+disallow * : store;
+allow localhost : all;</literallayout>
+<note><para>Even though PMCD does not run with <literal>root</literal> privileges,
 you must be very careful not to configure PMDAs in this file if you are not
-sure of their action. Pay close attention that permissions on this file are
-not inadvertently downgraded to allow public write access.</para>
+sure of their action. This is because all PMDAs are initially started as
+<literal>root</literal> (allowing them to assume alternate identities, such as
+<literal>postgres</literal> for example), after which <command>pmcd</command>
+drops its privileges.
+Pay close attention that permissions on this file are not
+inadvertently downgraded to allow public write access.</para>
 </note>
 <para>Each entry in this configuration file contains rules that specify how
 to connect the PMCD to a particular PMDA and which metrics the PMDA monitors.
@@ -1641,11 +1663,12 @@ is loaded.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>path</replaceable></term>
-<listitem><para>Designates the location of the DSO. An absolute path must be used.</para>
+<listitem><para>Designates the location of the DSO. An absolute path must be used.
+On most platforms this will be a <literal>so</literal> suffixed file, on Windows it
+is a <literal>dll</literal>, and on Mac OS X it is a <literal>dylib</literal> file.</para>
 </listitem></varlistentry>
 </variablelist>
-<para>Socket entries in the <filename>pmcd.conf</filename> file follow this
-syntax:</para>
+<para>Socket entries in the <filename>pmcd.conf</filename> file follow this syntax:</para>
 <synopsis><replaceable>label_name</replaceable>   <replaceable>domain_number</replaceable> socket <replaceable>addr_family</replaceable>   <replaceable>address</replaceable>   <replaceable>command</replaceable> <optional><replaceable>args</replaceable></optional> </synopsis>
 <para>The following rules apply to the socket syntax:</para>
 <variablelist>
@@ -1655,12 +1678,15 @@ syntax:</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>addr_family</replaceable></term>
-<listitem><para>Specifies if the socket is <literal>AF_INET</literal> or <literal>AF_UNIX</literal>. If the socket is <literal>INET</literal>, the word <literal>inet</literal> appears in this place. If the socket is <literal>UNIX</literal>,
+<listitem><para>Specifies if the socket is <literal>AF_INET</literal>, <literal>AF_IPV6</literal>
+or <literal>AF_UNIX</literal>. If the socket is <literal>INET</literal>, the word <literal>inet</literal>
+appears in this place. If the socket is <literal>IPV6</literal>, the word <literal>ipv6</literal>
+appears in this place. If the socket is <literal>UNIX</literal>,
 the word <literal>unix</literal> appears in this place.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>address</replaceable></term>
-<listitem><para>Specifies the address of the socket. For INET sockets, this
+<listitem><para>Specifies the address of the socket. For INET or IPv6 sockets, this
 is a port number or port name. For UNIX sockets, this is the name of the PMDA's
 socket on the local host.</para>
 </listitem></varlistentry>
@@ -1675,8 +1701,7 @@ and reads the configuration file.</para>
 </para>
 </listitem></varlistentry>
 </variablelist>
-<para>Pipe entries in the <filename>pmcd.conf</filename> file follow this
-syntax:</para>
+<para>Pipe entries in the <filename>pmcd.conf</filename> file follow this syntax:</para>
 <synopsis><replaceable>label_name</replaceable>   <replaceable>domain_number</replaceable> pipe <replaceable>protocol</replaceable>   <replaceable>command</replaceable> <optional><replaceable>args</replaceable></optional></synopsis>
 <para>The following rules apply to the pipe syntax:</para>
 <variablelist>
@@ -1687,9 +1712,10 @@ syntax:</para>
 <varlistentry>
 <term><replaceable>protocol</replaceable></term>
 <listitem><para>Specifies whether a text-based or a binary PCP protocol should
-be used over the pipes. Values for this parameter may be &#x201C;text&#x201D;
-and &#x201C;binary.&#x201D; The text-based protocol is provided for backwards
-compatibility, but otherwise its use is discouraged.</para>
+be used over the pipes. Historically, this parameter was able to be &#x201C;text&#x201D;
+or &#x201C;binary.&#x201D; The text-based protocol has since been deprecated and
+removed, however, so nowadays &#x201C;binary&#x201D; is the only valid value here.
+</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>command</replaceable></term>
@@ -7330,7 +7356,7 @@ Collection Subsystem</link></primaryie>
       <secondaryie>brief description <link linkend="ITch01-52">Collecting, Transporting, and Archiving Performance Information
 </link></secondaryie>
       <secondaryie>collector host <link linkend="IG31371888196"><command>pmie</command> Metric Expressions</link></secondaryie>
-      <secondaryie>configuration files <link linkend="ITch02-26">PMCD Options  and Configuration Files</link></secondaryie>
+      <secondaryie>configuration files <link linkend="ITch02-26">PMCD Options and Configuration Files</link></secondaryie>
       <secondaryie>diagnostics and error messages <link linkend="ITch02-23">PMCD Diagnostics and  Error Messages</link></secondaryie>
       <secondaryie>distributed collection <link linkend="IG3137188874">Distributed Collection</link> <link linkend="IG3137188875">Distributed Collection</link></secondaryie>
       <secondaryie>maintenance <link linkend="ITch02-20">Performance Metrics Collection Daemon (PMCD)</link></secondaryie>
