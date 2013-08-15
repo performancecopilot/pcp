@@ -2125,7 +2125,7 @@ command in another window when reconfiguring PMCD, to watch errors occur:<litera
 <variablelist>
 <varlistentry>
 <term>Symptom:</term>
-<listitem><indexterm id="IG31371888110"><primary>/var/log/pcp/pmcd/pmcd.log file</primary></indexterm>
+<listitem><indexterm id="IG31371888110"><primary>${PCP_LOGDIR}/pmcd/pmcd.log file</primary></indexterm>
 <para>If the following messages appear in the PMCD log
 (<filename>${PCP_LOG_DIR}/pmcd/pmcd.log</filename>), consider the cause
 and resolution:</para>
@@ -2224,44 +2224,52 @@ pass along when starting a PCP application.</para>
 
 <title>Alternate Metrics Source Options</title>
 <para>The default source of performance metrics is from PMCD on the local
-host. This section describes how to obtain metrics from sources other
-than the default.</para>
+host. This default <command>pmcd</command> connection will be made using
+the Unix domain socket, if the platform supports that, else a localhost
+Inet socket connection is made.
+This section describes how to obtain metrics from sources other
+than this default.</para>
 <section id="id5193612">
 
 <title>Fetching Metrics from Another Host</title>
 <para><indexterm id="ITch03-3"><primary>fetching metrics</primary></indexterm><indexterm id="IG31371888115">
 <primary>pmchart tool</primary><secondary>fetching metrics</secondary>
 </indexterm><indexterm id="IG31371888116"><primary>dkvis tool</primary><secondary>fetching
-metrics</secondary></indexterm>The option <literal>-h </literal><replaceable>
-host</replaceable> directs any PCP utility (such as <literal>pmchart</literal>
+metrics</secondary></indexterm>The option <literal>-h</literal> <replaceable>host</replaceable>
+directs any PCP utility (such as <literal>pmchart</literal>
 or <literal>dkvis</literal>) to make a connection with the PMCD instance
 running on <replaceable>host</replaceable>. Once established, this connection
 serves as the principal real-time source of performance metrics and metadata.
-</para>
+The <replaceable>host</replaceable> specification may be more than a simple host
+name or address - it can also contain decorations specifying protocol type (secure
+or not), authentication information, and other connection attributes.
+Refer to the <command>PCPIntro(1)</command> man page for full details of these,
+and examples of use of these specifications can also be found in the
+<citetitle>PCP Tutorial</citetitle>.</para>
 </section>
 <section id="id5193712">
 
 <title>Fetching Metrics from an Archive Log</title>
 <para><indexterm id="ITch03-6"><primary>fetching metrics</primary></indexterm><indexterm id="ITch03-5"><primary>archive logs</primary><secondary>fetching metrics
 </secondary></indexterm><indexterm id="ITch03-8"><primary>PCP</primary>
-<secondary>log file option</secondary></indexterm>The option <literal>-a </literal><replaceable>archive</replaceable> directs the utility to
+<secondary>log file option</secondary></indexterm>The option <literal>-a</literal>
+<replaceable>archive</replaceable> directs the utility to
 treat the PCP archive logs with base name <replaceable>archive</replaceable>
 as the principal source of performance metrics and metadata.</para>
 <para><indexterm id="IG31371888117"><primary>pmlogger tool</primary><secondary>archive logs
-</secondary></indexterm>PCP archive logs are created with <command>pmlogger
-</command>. Most PCP utilities operate with equal facility for performance
+</secondary></indexterm>PCP archive logs are created with <command>pmlogger</command>.
+Most PCP utilities operate with equal facility for performance
 information coming from either a real-time feed via PMCD on some host,
 or for historical data from a PCP archive log. For more information on
 archive logs and their use, see <xref linkend="LE93354-PARENT"/>.</para>
 <para><indexterm id="ITch03-9"><primary>archive logs</primary><secondary>
 physical filenames</secondary></indexterm>The base name (<filename>archive</filename>)
 of the PCP archive log used with the <literal>-a</literal>
-option implies the existence of the files created automatically by <command>
-pmlogger</command>, as listed in <xref linkend="id5193871"/>.</para>
+option implies the existence of the files created automatically by <command>pmlogger</command>,
+as listed in <xref linkend="id5193871"/>.</para>
 <table id="id5193871" frame="topbot">
 
-<title>Physical Filenames for Components of a PCP
-Archive Log</title>
+<title>Physical Filenames for Components of a PCP Archive Log</title>
 <tgroup cols="2" colsep="0" rowsep="0">
 <colspec colwidth="100*"/>
 <colspec colwidth="296*"/>
@@ -2320,80 +2328,76 @@ to set PCP run-time environment variables.</para>
 configuration and environment file.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmcd/pmcd.conf</filename></term>
-<listitem><para><indexterm id="IG31371888123"><primary>/var/pcp/config/pmcd/pmcd.conf file
-</primary></indexterm><indexterm id="IG31371888124"><primary>PMCD</primary><secondary>/var/pcp/config/pmcd/pmcd.conf
-file</secondary></indexterm>Configuration file for Performance Metrics
+<term><filename>${PCP_PMCDCONF_PATH}</filename></term>
+<listitem><para><indexterm id="IG31371888123"><primary>${PCP_PMCDCONF_PATH} file</primary></indexterm>
+<indexterm id="IG31371888124"><primary>PMCD</primary><secondary>${PCP_PMCDCONF_PATH} file
+</secondary></indexterm>Configuration file for Performance Metrics
 Collection Daemon (PMCD). Sets environment variables, including <literal>PATH</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp/bin/pmcd</filename></term>
-<listitem><para><indexterm id="IG31371888125"><primary>/usr/share/pcp/bin/pmcd file</primary>
+<term><filename>${PCP_BINADM_DIR}/pmcd</filename></term>
+<listitem><para><indexterm id="IG31371888125"><primary>${PCP_BINADM_DIR}/pmcd file</primary>
 </indexterm>The PMCD binary.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmcd.options</filename></term>
-<listitem><para><indexterm id="IG31371888126"><primary>/var/pcp/config/pmcd.options file
+<term><filename>${PCP_PMCDOPTIONS_PATH}</filename></term>
+<listitem><para><indexterm id="IG31371888126"><primary>${PCP_PMCDOPTIONS_PATH} file
 </primary></indexterm>Command line options for PMCD.<?sgi-newline?>
 </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/etc/rc.d/init.d/pcp</filename></term>
-<listitem><para><indexterm id="IG31371888127"><primary>/etc/rc.d/init.d/pcp file</primary>
+<term><filename>${PCP_RC_DIR}/pmcd</filename></term>
+<listitem><para><indexterm id="IG31371888127"><primary>${PCP_RC_DIR}/pmcd file</primary>
 </indexterm>The PMCD startup script.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp/bin/<replaceable>pcptool</replaceable></filename></term>
+<term><filename>${PCP_BIN_DIR}/<replaceable>pcptool</replaceable></filename></term>
 <listitem><para>Directory containing PCP tools such as <command>pmstat
-</command>, <command>pminfo</command>, <command>pmlogger</command>, <command>
-pmnewlog</command>, <command>pmnsmerge</command>, <command>pmpost</command>,
-and so on.</para>
+</command>, <command>pminfo</command>, <command>pmlogger</command>, <command>pmlogsummary</command>,
+<command>pmchart</command>, <command>pmie</command>, and so on.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp</filename></term>
+<term><filename>${PCP_SHARE_DIR}</filename></term>
 <listitem><para>Directory containing shareable PCP-specific files and
-repository directories such as <command>bin</command>,  <command>demos
-</command>,  <command>examples</command> and  <command>lib</command>.
-</para>
+repository directories such as <command>bin</command>,  <command>demos</command>,
+<command>examples</command> and <command>lib</command>. </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp</filename></term>
+<term><filename>${PCP_VAR_DIR}</filename></term>
 <listitem><para>Directory containing non-shareable (that is, per-host)
-PCP specific files and repository directories. There are some symbolic
-links from the <filename>/usr/share/pcp</filename> directory hierarchy
-pointing into the <filename>/var/pcp</filename> directory hierarchy.</para>
+PCP specific files and repository directories.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp/bin/<replaceable>pcptool</replaceable></filename></term>
+<term><filename>${PCP_BINADM_DIR}/<replaceable>pcptool</replaceable></filename></term>
 <listitem><para>PCP tools that are typically not executed directly by
 the end user such as <command>pmcd_wait</command>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp/lib/<replaceable>pcplib</replaceable></filename></term>
+<term><filename>${PCP_SHARE_DIR}/lib/<replaceable>pcplib</replaceable></filename></term>
 <listitem><para>Miscellaneous PCP libraries and executables.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/pmdas</filename></term>
+<term><filename>${PCP_PMDAS_DIR}</filename></term>
 <listitem><para> Performance Metric Domain Agents (PMDAs), one directory
 per PMDA.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config</filename></term>
+<term><filename>${PCP_VAR_DIR}/config</filename></term>
 <listitem><para>Configuration files for PCP tools, typically with one
 directory per tool.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/usr/share/pcp/demos</filename></term>
+<term><filename>${PCP_DEMOS_DIR}</filename></term>
 <listitem><para>Demonstration data files and example programs.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/log/pcp</filename></term>
+<term><filename>${PCP_LOG_DIR}</filename></term>
 <listitem><para>By default, diagnostic and trace log files generated by
 PMCD and PMDAs. Also, the PCP archive logs are managed in one directory
 per logged host below here.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/pmns</filename></term>
+<term><filename>${PCP_VAR_DIR}/pmns</filename></term>
 <listitem><para>Files and scripts for the Performance Metrics Name Space
 (PMNS).</para>
 </listitem></varlistentry>
@@ -2407,14 +2411,13 @@ per logged host below here.</para>
 a mapping from a collection of human-readable names for performance metrics
 (convenient to the user) into corresponding internal identifiers (convenient
 for the underlying implementation).</para>
-<para>The distributed PMNS used in PCP 2.x avoids most requirements for
-an alternate PMNS, because clients' PMNS operations are supported at the
+<para>The distributed PMNS used in PCP avoids most requirements for an
+alternate PMNS, because clients' PMNS operations are supported at the
 Performance Metrics Collection Daemon (PMCD) or by means of PMNS data
 in a PCP archive log. The distributed PMNS is the default, but alternates
-may be specified using the <command>-n </command><replaceable>namespace
-</replaceable> argument to the PCP tools. When a PMNS is maintained on
-a host, it is likely to reside in the <filename>/var/pcp/pmns</filename>
-directory.</para>
+may be specified using the <command>-n</command> <replaceable>namespace</replaceable>
+argument to the PCP tools. When a PMNS is maintained on a host, it is likely
+to reside in the <filename>${PCP_VAR_DIR}/pmns</filename> directory.</para>
 </section>
 </section>
 <section id="LE76997-PARENT">
@@ -2431,9 +2434,9 @@ for specifying time positions and intervals are described.</para>
 Duration</title>
 <para><indexterm id="IG31371888130"><primary>reporting frequency</primary></indexterm><indexterm id="IG31371888131">
 <primary>duration</primary></indexterm>Many of the performance monitoring
-utilities have periodic reporting patterns. The <literal>-t </literal> <replaceable>
-interval</replaceable> and <literal>-s </literal><replaceable>samples
-</replaceable> options are used to control the sampling (reporting) interval,
+utilities have periodic reporting patterns. The <literal>-t </literal> <replaceable>interval</replaceable>
+and <literal>-s</literal> <replaceable>samples</replaceable> options
+are used to control the sampling (reporting) interval,
 usually expressed as a real number of seconds (<replaceable>interval</replaceable>),
 and the number of <replaceable>samples</replaceable> to be reported, respectively.
 In the absence of the <literal>-s</literal> flag, the default behavior
@@ -2471,19 +2474,19 @@ mode) simply specify the offset as the <replaceable>duration</replaceable>.
 For example, the following entry retrieves the first sample of data at
 exactly 30 minutes from the beginning of a PCP archive.</para>
 <para><literallayout class="monospaced">-S 30min </literallayout></para>
-<para>To specify an offset from the end of a PCP archive, prefix the <replaceable>
-duration</replaceable> with a minus sign. In this case, the first sample
-time precedes the end of archived data by the given <replaceable>duration
-</replaceable>. For example, the following entry retrieves the first sample
+<para>To specify an offset from the end of a PCP archive, prefix the
+<replaceable>duration</replaceable> with a minus sign. In this case, the first sample
+time precedes the end of archived data by the given <replaceable>duration</replaceable>.
+For example, the following entry retrieves the first sample
 exactly one hour preceding the last sample in a PCP archive.</para>
 <para><literallayout class="monospaced">-S -1hour </literallayout></para>
 <para>To specify the calendar date and time (local time in the reporting
-timezone) for the first sample, use the <literal>ctime</literal> syntax
+timezone) for the first sample, use the <literal>ctime(3)</literal> syntax
 preceded by an &#x201C;at&#x201D; sign (@). For example, the following entry
 specifies the date and time to be used.</para>
-<para><literallayout class="monospaced">-S '@ Mon Mar 4 13:07:47 1996' </literallayout></para>
-<para>Note that this format corresponds to the output format of the <command>
-date</command> command for easy &#x201C;cut and paste.&#x201D; However,
+<para><literallayout class="monospaced">-S '@ Mon Mar 4 13:07:47 2013' </literallayout></para>
+<para>Note that this format corresponds to the output format of the
+<command>date</command> command for easy &#x201C;cut and paste.&#x201D; However,
 be sure to enclose the string in quotes so it is preserved as a single
 argument for the PCP tool.</para>
 <para>For more complete information on the date and time syntax, see the <command>PCPIntro(1)</command> man page.</para>
@@ -2525,8 +2528,8 @@ to display the tail-end of the history up to the end of the time window.
 <term><literal>-A </literal> <replaceable>alignment</replaceable></term>
 <listitem><para>By default, performance data samples do not necessarily
 happen at any natural unit of measured time. The <literal>-A</literal>
-switch may be used to force the initial sample to be on the specified <replaceable>
-alignment</replaceable>. For example, these three options specify alignment
+switch may be used to force the initial sample to be on the specified
+<replaceable>alignment</replaceable>. For example, these three options specify alignment
 on seconds, half hours, and whole hours:<literallayout class="monospaced">-A 1sec 
 -A 30min 
 -A 1hour</literallayout></para>
@@ -2562,9 +2565,8 @@ is to use the timezone from the first named archive.</para>
 <varlistentry>
 <term><literal>-Z </literal> <replaceable>timezone</replaceable> </term>
 <listitem><para><indexterm id="IG31371888135"><primary>environ man page</primary></indexterm>Sets
-the TZ variable to a timezone string, as defined in <command>
-environ(5)</command> , for example, <literal>-Z UTC</literal> for universal
-time.</para>
+the TZ variable to a timezone string, as defined in <command>environ(5)</command>,
+for example, <literal>-Z UTC</literal> for universal time.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2576,17 +2578,18 @@ time.</para>
 variables</secondary></indexterm><indexterm id="IG31371888136"><primary>environment variables
 </primary></indexterm><indexterm id="IG31371888137"><primary>/etc/pcp.conf file</primary>
 </indexterm><indexterm id="IG31371888138"><primary>/etc/pcp.env file</primary></indexterm><indexterm id="IG31371888139">
-<primary>__pmGetConfig function</primary></indexterm>When you are using
+<primary>pmGetConfig function</primary></indexterm>When you are using
 PCP tools and utilities and are calling PCP library functions, a standard
 set of defined environment variables are available in the <filename>/etc/pcp.conf</filename>
 file.  These variables are generally used to specify the location of various
 PCP pieces in the file system and may be loaded into shell scripts by
 sourcing the <filename>/etc/pcp.env</filename> shell script. They may
-also be queried by C and C++ programs using the <command>__pmGetConfig
-</command> library function.  If a variable is already defined in the
+also be queried by C, C++, perl and python programs using the
+<command>pmGetConfig(3)</command> library function.
+If a variable is already defined in the
 environment, the values in the <filename>pcp.conf</filename> file do not
 override those values; that is,  the values in <filename>pcp.conf</filename>
-serve only as installation defaults. For additional information, see the <command>/etc/pcp.conf(5)</command>, <command>/etc/pcp.env(5)</command>, and <command>__pmGetConfig</command>
+serve only as installation defaults. For additional information, see the <command>/etc/pcp.conf(5)</command>, <command>/etc/pcp.env(5)</command>, and <command>pmGetConfig(3)</command>
 man pages.</para>
 <para>The following environment variables are recognized by PCP (these
 definitions are also available on the <command>PCPIntro(1)</command> man page):</para>
@@ -2611,41 +2614,15 @@ the default in versions before the PCP release 1.3.</para>
 <term><literal>PCP_STDERR</literal></term>
 <listitem><para><indexterm id="ITch03-18"><primary>PCP_STDERR variable
 </primary></indexterm><indexterm id="IG31371888140"><primary>pmprintf tool</primary></indexterm><indexterm id="IG31371888141">
-<primary>xconfirm command</primary><secondary>error messages</secondary>
+<primary>pmconfirm command</primary><secondary>error messages</secondary>
 </indexterm>Specifies whether <command>pmprintf()</command> error messages
-are sent to standard error, an <literal>xconfirm</literal> dialog box,
+are sent to standard error, an <literal>pmconfirm</literal> dialog box,
 or to a named file; see the <command>pmprintf(3)</command>
 man page. Messages go to standard error if <literal>PCP_STDERR</literal>
-is unset or set without a value. If this variable is set to <literal>DISPLAY</literal>, then messages go to an <literal>xconfirm</literal>
-dialog box; see the <command>xconfirm(1)</command> man page.
+is unset or set without a value. If this variable is set to <literal>DISPLAY</literal>, then messages go to an <literal>pmconfirm</literal>
+dialog box; see the <command>pmconfirm(1)</command> man page.
 Otherwise, the value of <literal>PCP_STDERR</literal> is assumed to be
 the name of an output file.</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><literal>PCP_TRACE_HOST</literal></term>
-<listitem><para><indexterm id="ITch03-19"><primary>PCP_TRACE_HOST variable
-</primary></indexterm><indexterm id="IG31371888142"><primary>pmdatrace tool</primary></indexterm>The <command>
-pmdatrace</command> library routines use this variable when connecting
-to the <literal>trace</literal> PMDA to determine on which host it is
-running; see the <command>pmdatrace(3)</command> man page.
-</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><literal>PCP_TRACE_PORT</literal></term>
-<listitem><para><indexterm id="ITch03-20"><primary>PCP_TRACE_PORT variable
-</primary></indexterm>This variable is used by both the <literal>trace</literal> PMDA and client programs using the <filename>pmdatrace</filename>
-library to obtain the Internet port through which the client programs
-and the PMDA communicate; see the <command>pmdatrace(3)</command>
-man page.</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><literal>PCP_TRACE_TIMEOUT</literal></term>
-<listitem><para><indexterm id="ITch03-21"><primary>PCP_TRACE_TIMEOUT variable
-</primary></indexterm>When <filename>pmdatrace</filename> client programs
-are connecting to the <literal>trace</literal> PMDA, this variable can
-be set to specify how long the clients should wait before cancelling their
-attempt to connect with the PMDA; see the <command>pmdatrace
-(3)</command> man page.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>PMCD_CONNECT_TIMEOUT</literal></term>
@@ -2680,7 +2657,7 @@ this variable set in its environment before attempting a connection.</para>
 variable</primary></indexterm><indexterm id="IG31371888146"><primary>PMCD</primary><secondary>
 PMCD_RECONNECT_TIMEOUT variable</secondary></indexterm>When a monitor
 or client application loses its connection to a PMCD, the connection may
-be reestablished by calling the <command>pmReconnectContext()</command>
+be reestablished by calling the <command>pmReconnectContext(3)</command>
 PMAPI function. However, attempts to reconnect are controlled by a back-off
 strategy to avoid flooding the network with reconnection requests. By
 default, the back-off delays are 5, 10, 20, 40, and 80 seconds for consecutive
@@ -2706,35 +2683,25 @@ to wait 10 seconds for a response from every PMCD for all applications.
 </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><literal>PMDA_PATH</literal></term>
-<listitem><para><indexterm id="ITch03-28"><primary>PMDA_PATH variable
-</primary></indexterm>This environment variable may be used to modify
-the search path used by PMCD and <command>pmNewContext()</command> (for <literal>PM_CONTEXT_LOCAL</literal> contexts) when searching for a daemon or DSO
-PMDA. The syntax follows the syntax for shell <literal>PATH</literal>:
-a colon-separated list of directories. The default search path is <filename>
-/var/pcp/lib:/usr/pcp/lib</filename>.</para>
-</listitem></varlistentry>
-<varlistentry>
 <term><literal>PMLOGGER_PORT</literal></term>
 <listitem><para><indexterm id="IG31371888148"><primary>PMLOGGER_PORT variable</primary></indexterm><indexterm id="IG31371888149">
 <primary>pmlogger tool</primary></indexterm><indexterm id="IG31371888150"><primary>pmlc tool
 </primary><secondary>PMLOGGER_PORT variable</secondary></indexterm>This
 environment variable may be used to change the base TCP/IP port number
-used by <command>pmlogger</command> to create the socket to which <command>
-pmlc</command> instances try to connect. The default base port number
-is 4330. If used, this variable should be set in the environment before <command>
-pmlogger</command> is executed. If <command>pmlc</command> and <command>
-pmlogger</command> are on different hosts, then obviously <literal>PMLOGGER_PORT</literal> must be set to the same value in both places.</para>
+used by <command>pmlogger</command> to create the socket to which <command>pmlc</command>
+instances try to connect. The default base port number is 4330.
+If used, this variable should be set in the environment before <command>pmlogger</command>
+is executed. If <command>pmlc</command> and <command>pmlogger</command>
+are on different hosts, then obviously <literal>PMLOGGER_PORT</literal>
+must be set to the same value in both places.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><literal>PMNS_DEFAULT</literal></term>
-<listitem><para><indexterm id="ITch03-30"><primary>PMNS_DEFAULT variable
-</primary></indexterm><indexterm id="IG31371888151"><primary>pmLoadNameSpace() default</primary>
-</indexterm><indexterm id="IG31371888152"><primary>/var/pcp/pmns/root file</primary></indexterm>If
-set, this value is interpreted as the full pathname to be used as the
-default PMNS for <command>pmLoadNameSpace()</command>. Otherwise, the
-default PMNS is located at <filename>/var/pcp/pmns/root</filename> for
-base PCP installations.</para>
+<term><literal>PMPROXY_PORT</literal></term>
+<listitem><para><indexterm id="ITch03-30"><primary>PMPROXY_PORT variable
+</primary></indexterm><indexterm id="IG31371888152"><primary>pmproxy port</primary></indexterm>
+This environment variable may be used to change the base TCP/IP port number
+used by <command>pmproxy</command> to create the socket to which proxied
+clients connect, on their way to a distance <command>pmcd</command>.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2756,9 +2723,8 @@ PMCD_PORT variable</primary></indexterm><indexterm id="IG31371888161"><primary>P
 variable</primary></indexterm>If the firewall service sits between the
 monitor and collector tools, the <literal>pmproxy</literal> service may
 be used to perform both packet forwarding and DNS proxying through the
-firewall; see the
-<command>pmproxy
-(1)</command> man page. Otherwise, it is necessary to arrange for packet
+firewall; see the <command>pmproxy (1)</command>
+man page. Otherwise, it is necessary to arrange for packet
 forwarding to be enabled for those TCP/IP ports used by PCP, namely 44321
 (or the value of the <literal>PMCD_PORT</literal> environment variable)
 for connections to PMCD.</para>
@@ -2771,6 +2737,9 @@ hosts on the other side. The basic connection syntax is as
 follows, where <replaceable>tool</replaceable> is an arbitrary PCP application,
 typically a monitoring tool:</para>
 <literallayout class="monospaced">dkvis -h remotehost@proxyhost</literallayout>
+<para>This extended host specification syntax is part of a larger set of
+available extensions to the basic host naming syntax - refer to the 
+<command>PCPIntro(1)</command> man page for further details.</para>
 </section>
 </section>
 <section id="LE17322-PARENT">
@@ -2816,8 +2785,9 @@ and the errors are self-correcting (not cumulative) over consecutive samples.
 <para>A related problem may occur when the system time is not synchronized
 between multiple hosts, and the time stamps for the results returned from
 PMCD reflect the skew in the system times. In this case, it is recommended
-that NTP be used to keep the system clocks on the collector systems synchronized;
-for information on <literal>ntp</literal>(1) see /<literal>usr/share/doc/ntp-4.1.1</literal>.</para>
+that NTP (network time protocol) be used to keep the system clocks on the
+collector systems synchronized;
+for information on NTP refer to the <command>ntpd(1)</command> man page.</para>
 </section>
 </section>
 </chapter>
@@ -3380,9 +3350,9 @@ is arbitrary. Predefined actions include the following:</para>
 <itemizedlist><listitem><para><indexterm id="IG31371888180"><primary>pmconfirm command</primary>
 <secondary>visible alarm</secondary></indexterm>Launch a visible alarm with <literal>pmconfirm</literal>; see the <command>pmconfirm(1)</command> man page.</para>
 </listitem><listitem><para><indexterm id="IG31371888181"><primary>syslog function</primary></indexterm><indexterm id="IG31371888182">
-<primary>system log</primary></indexterm>Post an entry to the system log file;
+<primary>system log file</primary></indexterm>Post an entry to the system log file;
 see the <command>syslog(3)</command> man page.</para>
-</listitem><listitem><para><indexterm id="IG31371888183"><primary>NOTICES file</primary>
+</listitem><listitem><para><indexterm id="IG31371888183"><primary>${PCP_LOG_DIR}/NOTICES file</primary>
 </indexterm>Post an entry to the PCP noticeboard file <filename>${PCP_LOG_DIR}/NOTICES</filename>;
 see the <command>pmpost(1)</command> man page.</para>
 </listitem><listitem><para>Execute a shell command or script, for example,
@@ -4202,7 +4172,7 @@ This action always succeeds.</para>
 <varlistentry>
 <term><literal>print</literal></term>
 <listitem><para><indexterm id="IG31371888210"><primary>time-stamped message</primary></indexterm>A
-message containing a time stamp in <command>ctime</command> format and the
+message containing a time stamp in <command>ctime(3)</command> format and the
 argument is displayed out to standard output (<command>stdout</command>).
 This action always succeeds.</para>
 </listitem></varlistentry>
@@ -4406,8 +4376,7 @@ from <literal>true</literal> to <literal>false</literal> in consecutive samples.
 examples</secondary></indexterm>The examples presented in this section are
 task-oriented and use the full power of the <command>pmie</command> specification
 language as described in <xref linkend="LE90227-PARENT"/>.</para>
-<para><indexterm id="IG31371888227"><primary>pcp.sw.demo subsystems</primary></indexterm><indexterm id="IG31371888228">
-<primary>/var/pcp/demos/pmie file</primary></indexterm>Source code for the <command>pmie</command>
+<para><indexterm id="IG31371888228"><primary>${PCP_DEMOS_DIR}</primary></indexterm>Source code for the <command>pmie</command>
 examples in this chapter, and many more examples, is provided within the
 <citetitle>PCP Tutorial</citetitle>. <xref linkend="Z928441343sdc"/> and <xref linkend="Z928441176sdc"/>
 illustrate monitoring CPU utilization and disk activity.</para>
@@ -6758,7 +6727,7 @@ Protocol</para></entry></row></tbody></tgroup></table>
 </indexentry>
 
 <indexentry>
-   <primaryie>__pmGetConfig function <link linkend="IG31371888139">PCP Environment Variables</link></primaryie>
+   <primaryie>pmGetConfig function <link linkend="IG31371888139">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -6989,7 +6958,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/etc/rc.d/init.d/pcp file <link linkend="IG31371888127">Common Directories and File Locations</link></primaryie>
+   <primaryie>${PCP_RC_DIR}/pcp file <link linkend="IG31371888127">Common Directories and File Locations</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7252,24 +7221,8 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>PCP_TRACE_HOST variable <link linkend="ITch03-19">PCP Environment Variables</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>PCP_TRACE_PORT variable <link linkend="ITch03-20">PCP Environment Variables</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>PCP_TRACE_TIMEOUT variable <link linkend="ITch03-21">PCP Environment Variables</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>PCPIntro command <link linkend="IG31371888112">PMCD Does Not Start</link> <link linkend="IG31371888132">Performance Monitor Reporting Frequency and
 Duration</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pcp.sw.demo subsystems <link linkend="IG31371888227"><command>pmie</command> Examples</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7386,7 +7339,7 @@ Collection Subsystem</link></primaryie>
       <secondaryie>remote connection <link linkend="IG31371888101">Cannot Connect to Remote PMCD</link></secondaryie>
       <secondaryie>starting and stopping <link linkend="IG3137188891">Starting and Stopping the PMCD</link></secondaryie>
       <secondaryie>TCP/IP firewall <link linkend="IG31371888157">Running PCP Tools through a Firewall</link></secondaryie>
-      <secondaryie>/var/pcp/config/pmcd/pmcd.conf file <link linkend="IG31371888124">Common Directories and File Locations</link></secondaryie>
+      <secondaryie>${PCP_PMCDCONF_PATH} file <link linkend="IG31371888124">Common Directories and File Locations</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7439,6 +7392,12 @@ Collection Subsystem</link></primaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmconfirm command</primaryie>
+      <secondaryie>error messages <link linkend="IG31371888141">PCP Environment Variables</link></secondaryie>
+      <secondaryie>visible alarm <link linkend="IG31371888180">Introduction to <command>pmie</command></link></secondaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>PMCS</primaryie>
       <secondaryie>acronym <link linkend="ITchA-8">Acronyms</link></secondaryie>
       <secondaryie>description <link linkend="ITch01-158">Performance Metrics Collection System</link></secondaryie>
@@ -7465,10 +7424,6 @@ Collection Subsystem</link></secondaryie>
       <secondaryie>monitoring utilities <link linkend="IG31371888310">Performance Co-Pilot Deployment Strategies</link></secondaryie>
       <secondaryie>removal <link linkend="ITch02-35">PMDA Removal on a PCP Collector Host</link></secondaryie>
       <secondaryie>unification <link linkend="IG313718887">Unification of Performance Metric Domains</link></secondaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>PMDA_PATH variable <link linkend="ITch03-28">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7584,11 +7539,6 @@ Collection Subsystem</link></secondaryie>
 <indexentry>
    <primaryie>pmdasystemd tool <link linkend="IG3137188709">Collecting, Transporting, and Archiving Performance Information
 </link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmdatrace tool <link linkend="ITch01-64">Collecting, Transporting, and Archiving Performance Information
-</link> <link linkend="IG31371888142">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7721,10 +7671,6 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmLoadNameSpace() default <link linkend="IG31371888151">PCP Environment Variables</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>pmlock tool <link linkend="ITch01-95">Operational and Infrastructure Support</link></primaryie>
 </indexentry>
 
@@ -7808,7 +7754,7 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>PMNS_DEFAULT variable <link linkend="ITch03-30">PCP Environment Variables</link></primaryie>
+   <primaryie>PMPROXY_PORT variable <link linkend="ITch03-30">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7841,6 +7787,7 @@ Collection Subsystem</link></secondaryie>
 <indexentry>
    <primaryie>pmproxy tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-38">Performance Monitoring and Visualization</link></secondaryie>
+      <secondaryie>pmproxy port <link linkend="IG31371888152">PCP Environment Variables</link></secondaryie>
       <secondaryie>TCP/IP firewall <link linkend="IG31371888156">Running PCP Tools through a Firewall</link></secondaryie>
 </indexentry>
 
@@ -7987,6 +7934,10 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>system log file <link linkend="IG31371888182">Introduction to <command>pmie</command></link> <link linkend="IG31371888212"><command>pmie</command> Rule Expressions</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>target usage <link linkend="IG313718883">PCP Target Usage</link></primaryie>
 </indexentry>
 
@@ -8065,7 +8016,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/usr/share/pcp/bin/pmcd file <link linkend="IG31371888125">Common Directories and File Locations</link></primaryie>
+   <primaryie>${PCP_BINADM_DIR}/pmcd file <link linkend="IG31371888125">Common Directories and File Locations</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -8073,23 +8024,19 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/log/messages file <link linkend="IG31371888182">Introduction to <command>pmie</command></link> <link linkend="IG31371888212"><command>pmie</command> Rule Expressions</link></primaryie>
+   <primaryie>${PCP_LOG_DIR}/NOTICES file <link linkend="IG31371888183">Introduction to <command>pmie</command></link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/log/pcp/NOTICES file <link linkend="IG31371888183">Introduction to <command>pmie</command></link></primaryie>
+   <primaryie>${PCP_LOGDIR}/pmcd/pmcd.log file <link linkend="IG31371888110">PMCD Does Not Start</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/log/pcp/pmcd/pmcd.log file <link linkend="IG31371888110">PMCD Does Not Start</link></primaryie>
+   <primaryie>${PCP_PMCDOPTIONS_PATH} file <link linkend="IG31371888126">Common Directories and File Locations</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/pcp/config/pmcd.options file <link linkend="IG31371888126">Common Directories and File Locations</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>var/pcp/config/pmcd/pmcd.conf file <link linkend="IG3137188896">PMDA Installation on a PCP Collector Host</link> <link linkend="IG31371888108">PMCD Not Reconfiguring after <literal>SIGHUP</literal></link> <link linkend="IG31371888123">Common Directories and File Locations</link></primaryie>
+   <primaryie>${PCP_PMCDCONF_PATH} file<link linkend="IG3137188896">PMDA Installation on a PCP Collector Host</link> <link linkend="IG31371888108">PMCD Not Reconfiguring after <literal>SIGHUP</literal></link> <link linkend="IG31371888123">Common Directories and File Locations</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -8110,11 +8057,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/pcp/demos/pmie file <link linkend="IG31371888228"><command>pmie</command> Examples</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>/var/pcp/pmns/root file <link linkend="IG31371888152">PCP Environment Variables</link></primaryie>
+   <primaryie>${PCP_DEMOS_DIR}<link linkend="IG31371888228"><command>pmie</command> Examples</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -8127,12 +8070,6 @@ Duration</link></primaryie>
 
 <indexentry>
    <primaryie>window options <link linkend="IG31371888134">Time Window Options</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>xconfirm command</primaryie>
-      <secondaryie>error messages <link linkend="IG31371888141">PCP Environment Variables</link></secondaryie>
-      <secondaryie>visible alarm <link linkend="IG31371888180">Introduction to <command>pmie</command></link></secondaryie>
 </indexentry>
 
 </index>
