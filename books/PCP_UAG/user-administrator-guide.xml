@@ -2841,19 +2841,17 @@ by entering the following command:</para>
 <literallayout class="monospaced"><userinput>man pmdumptext</userinput></literallayout>
 <para>The following major sections are covered in this chapter:</para>
 <itemizedlist>
-<listitem id="Z930615099sdc"><para><xref linkend="LE91266-PARENT"/>, discusses <command>
-pmstat</command>, a utility that provides a periodic one-line summary of
-system performance.</para>
+<listitem id="Z930615099sdc"><para><xref linkend="LE91266-PARENT"/>, discusses <command>pmstat</command>,
+a utility that provides a periodic one-line summary of system performance.</para>
 </listitem>
-<listitem><para><xref linkend="Z926977852sdc"/>, discusses <command>pmdumptext
-</command>, a utility that shows the current values for named performance
-metrics.</para>
+<listitem><para><xref linkend="Z926977852sdc"/>, discusses <command>pmdumptext</command>,
+a utility that shows the current values for named performance metrics.</para>
 </listitem>
-<listitem><para><xref linkend="LE35315-PARENT"/>, describes <command>pmval
-</command>, a utility that displays performance metrics in ASCII tables.</para>
+<listitem><para><xref linkend="LE35315-PARENT"/>, describes <command>pmval</command>,
+a utility that displays performance metrics in a textual format.</para>
 </listitem>
-<listitem><para><xref linkend="LE60452-PARENT"/>, describes <command>pminfo
-</command>, a utility that displays information about performance metrics.
+<listitem><para><xref linkend="LE60452-PARENT"/>, describes <command>pminfo</command>,
+a utility that displays information about performance metrics.
 </para>
 </listitem>
 <listitem><para><indexterm id="IG31371888169"><primary>pmstore tool</primary><secondary>setting
@@ -2877,72 +2875,80 @@ problems in greater detail. After entering the <command>pmstat</command>
 command, you see output similar to the following, with successive lines appearing
 periodically:</para>
 <literallayout class="monospaced"><userinput>pmstat</userinput>
-# <literal>hostname</literal> load avg: 0.26, interval: 5 sec, Thu Jan 19 12:30:13 2002
-runq    | memory    |      system      | disks|   cpu 
-mem swp | free page | scall ctxsw  intr| rd wr|usr sys idl wt
-0   0     16268 0     64    19     2396  0  0  0   1   99  0
-0   0     16264 0     142   45     2605  0  8  0   2   97  0
-0   0     16268 0     308   62     2532  0  1  1   1   98  0
-0   0     16268 0     423   88     2643  0  0  1   1   97  0</literallayout>
+@ Thu Aug 15 09:25:56 2013
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    1.29 833960  5614m 144744 265824    0    0    0 1664  13K  23K   6   7  81
+    1.51 833956  5607m 144744 265712    0    0    0 1664  13K  24K   5   7  83
+    1.55 833956  5595m 145196 271908    0    0  14K 1056  13K  24K   7   7  74</literallayout>
 <para>An additional line of output is added every five seconds. The update
-interval may be varied using the <literal>-t </literal><replaceable>interval
-</replaceable> option.</para>
+interval may be varied using the <literal>-t </literal><replaceable>interval</replaceable>
+option.</para>
 <para>The output from <command>pmstat</command> is directed to standard output,
 and the columns in the report are interpreted as follows:</para>
 <variablelist>
 <varlistentry>
-<term><literal>runq</literal></term>
-<listitem><para>Average number of runnable processes in main memory (<literal>mem</literal>) and in swap memory (<literal>swp</literal>) during the interval.
-</para>
+<term><literal>loadavg</literal></term>
+<listitem><para>The 1-minute load average (runnable processes).</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>memory</literal></term>
-<listitem><para>The free column indicates average <literal>free</literal>
-memory during the interval, in kilobytes. The <literal>page</literal> column
-is the average number of page-out operations per second during the interval.
-I/O operations caused by these page-out operations are included in the disk
-write I/O rate.</para>
+<listitem><para>The swpd column indicates average swap space used during the
+interval (all columns reported in Kbytes unless otherwise indicated).
+The <literal>free</literal> column indicates average free memory during the
+interval. The <literal>buff</literal> column indicates average buffer memory
+in use during the interval. The <literal>cache</literal> column indicates
+average cached memory in use during the interval.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>swap</literal></term>
+<listitem><para>Reports the average number of pages that are paged-in
+(<literal>pi</literal>) and paged-out (<literal>po</literal>) per
+second during the interval.
+It is normal for the paged-in values to be non-zero, but the system is
+suffering memory stress if the paged-out values are non-zero over an
+extended period.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>io</literal></term>
+<listitem><para>The <literal>bi</literal> and <literal>bo</literal> columns
+indicate the average rate per second of block input and block output
+operations respectfully, during the interval.
+These rates are independent of the I/O block size.
+If the values become large, they are reported as thousands of operations per
+second (K suffix) or millions of operations per second (M suffix).</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>system</literal></term>
-<listitem><para>System call rate (<literal>scall</literal>), context switch
-rate (<literal>ctxsw</literal>), and interrupt rate (<literal>intr</literal>).
+<listitem><para>
+Context switch rate (<literal>cs</literal>) and interrupt rate (<literal>in</literal>).
 Rates are expressed as average operations per second during the interval.
-</para>
-</listitem></varlistentry>
-<varlistentry>
-<term><literal>disks</literal></term>
-<listitem><para>Aggregated physical read (<literal>rd</literal>) and write
-(<literal>wr</literal>) rates over all disks, expressed as physical I/O operations
-issued per second during the interval. These rates are independent of the
-I/O block size.</para>
+Note that the interrupt rate is normally at least HZ (the clock interrupt rate,
+and <literal>kernel.all.hz</literal> metric) interrupts per second.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>cpu</literal></term>
-<listitem><para>Percentage of CPU time spent executing user code (<literal>usr</literal>), system and interrupt code (<literal>sys</literal>), idle loop
-(<literal>idl</literal>) and idle waiting for resources (<literal>wt</literal>),
-typically disk I/O.</para>
+<listitem><para>Percentage of CPU time spent executing user code (<literal>us</literal>),
+system and interrupt code (<literal>sy</literal>), idle loop (<literal>id</literal>).</para>
 </listitem></varlistentry>
 </variablelist>
 <para>As with most PCP utilities, real-time metric, and archive logs are interchangeable.
 </para>
-<para>For example, the following command uses the PCP archive log <replaceable>
-foo</replaceable> and the timezone of the host (<literal>tokyo</literal>)
+<para>For example, the following command uses a local system PCP archive log
+<replaceable>20130731</replaceable> and the timezone of the host (<literal>smash</literal>)
 from which performance metrics in the archive were collected:</para>
-<literallayout class="monospaced"><userinput>pmstat -a </userinput><replaceable>foo</replaceable> <userinput>-z</userinput>
-Note: timezone set to local timezone of host &quot;tokyo&quot;
-# tokyo load avg: 1.06, interval: 5 sec, Thu Feb  2 08:42:55 2002
-&#xA0;runq  |     memory |     system       |  disks  |      cpu
-mem swp|   free page| scall ctxsw  intr|  rd   wr|usr sys idl  wt
-&#xA0; 0   0    4316    0    195    64  2242   32   21   0   3   8  89
-&#xA0; 0   0    3976    0    279    86  2143   50   17   0   5   8  87
-&#xA0; 1   0    3448    0    186    63  2304   35   14   0   4   9  87
-&#xA0; 0   0    4364    0    254    81  2385   35    0   0   4   9  87
-&#xA0; 0   0    3696    0    266    92  2374   41    0   0   3   9  88
-&#xA0; 0   0    2668   42    237    81  2400   44    2   1   4   7  89
-&#xA0; 0   0    4644  100    206    68  2590   25    1   0   3   5  91
-&#xA0; 0   0    5384    0    174    63  2296   32   22   0   2   8  89
-&#xA0; 0   0    4736    0    189    65  2197   31   28   0   3   8  89
+<literallayout class="monospaced"><userinput>pmstat -a </userinput><replaceable>${PCP_LOG_DIR}/pmlogger/smash/20130731</replaceable> <userinput>-t 2hour -A 1hour -z</userinput>
+Note: timezone set to local timezone of host &quot;smash&quot;
+@ Wed Jul 31 10:00:00 2013
+ loadavg                      memory      swap        io    system         cpu
+   1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+    3.90  24648  6234m 239176  2913m    ?    ?    ?    ?    ?    ?   ?   ?   ?
+    1.72  24648  5273m 239320  2921m    0    0    4   86  11K  19K   5   5  84
+    3.12  24648  5194m 241428  2969m    0    0    0   84  10K  19K   5   5  85
+    1.97  24644  4945m 244004  3146m    0    0    0   84  10K  19K   5   5  84
+    3.82  24640  4908m 244116  3147m    0    0    0   83  10K  18K   5   5  85
+    3.38  24620  4860m 244116  3148m    0    0    0   83  10K  18K   5   4  85
+    2.89  24600  4804m 244120  3149m    0    0    0   83  10K  18K   5   4  85
 pmFetch: End of PCP archive log</literallayout>
 <para>For complete information on <literal>pmstat</literal> usage and command
 line options, see the <command>pmstat(1)</command> man page.
@@ -2955,12 +2961,26 @@ line options, see the <command>pmstat(1)</command> man page.
 </secondary></indexterm>The <command>pmdumptext</command> command displays
 performance metrics in ASCII tables, suitable for export into databases or
 report generators. It is a flexible command. For example, the following command
-provides continuous memory statistics on a host named <literal>serv</literal>:
+provides continuous memory statistics on a host named <literal>surf</literal>:
 </para>
-<literallayout class="monospaced"><userinput>pmdumptext -imu -h </userinput><userinput>serv</userinput><userinput> -f `%H:%M:%S' mem.util</userinput>
-Metric        kernel  fs_ctl  _dirty  _clean    free    user 
-      Units             b       b       b       b       b       b 
-20:14:28        99.14M   6.03M   0.85M  98.42M   0.17G   0.16G </literallayout>
+<literallayout class="monospaced"><userinput>pmdumptext -Ximu -h </userinput><userinput>surf</userinput><userinput> -f '%H:%M:%S' xfs.buffer</userinput>
+[ 1] xfs.buffer.get
+[ 2] xfs.buffer.create
+[ 3] xfs.buffer.get_locked
+[ 4] xfs.buffer.get_locked_waited
+[ 5] xfs.buffer.busy_locked
+[ 6] xfs.buffer.miss_locked
+[ 7] xfs.buffer.page_retries
+[ 8] xfs.buffer.page_found
+[ 9] xfs.buffer.get_read
+
+  Column	     1	     2	     3	     4	     5	     6	     7	     8	     9
+  Metric	   get	create	locked	waited	locked	locked	etries	_found	t_read
+   Units	   c/s	   c/s	   c/s	   c/s	   c/s	   c/s	   c/s	   c/s	   c/s
+10:13:23	     ?	     ?	     ?	     ?	     ?	     ?	     ?	     ?	     ?
+10:13:24	 0.16K	 9.00 	 0.15K	 5.00 	 0.00 	 0.00 	 0.00 	12.00 	 9.00 
+10:13:25	 1.21K	38.00 	 1.17K	15.00 	 0.00 	 0.00 	 0.00 	62.01 	38.00 
+10:13:26	 5.80K	 0.12K	 5.69K	41.99 	 0.00 	 0.00 	 0.00 	 0.19K	 0.12K</literallayout>
 <para>See the <command>pmdumptext(1)</command> man page for more
 information.</para>
 </section>
@@ -2973,7 +2993,7 @@ values for the named performance metrics. For example, the following command
 reports the value of performance metric <literal>proc.nprocs</literal> once
 per second (by default), and produces output similar to this:</para>
 <literallayout class="monospaced"><userinput>pmval proc.nprocs</userinput>
-etric:    proc.nprocs
+metric:    proc.nprocs
 host:      localhost
 semantics: discrete instantaneous value
 units:     none
@@ -2981,8 +3001,7 @@ samples:   all
 interval:  1.00 sec
          81
          81
-         81
-         81
+         82
          81</literallayout>
 <para>In this example, the number of running processes was reported once per
 second.</para>
@@ -2990,7 +3009,7 @@ second.</para>
 it would be sensible, <command>pmval</command> reports the rate of change
 or resource utilization.</para>
 <para>For example, the following command reports idle processor utilization
-for each of four CPUs on the remote host <literal>moomba</literal>, each five
+for each of four CPUs on the remote host <literal>dove</literal>, each five
 seconds apart, producing output of this form:</para>
 <literallayout class="monospaced"><userinput>pmval -h dove -t 5sec -s 4 kernel.percpu.cpu.idle</userinput>
 metric:    kernel.percpu.cpu.idle
@@ -3028,10 +3047,11 @@ interval:  60.00 sec
 <para>In the example below, manipulation of the time within the archive is
 achieved by the exchange of time control messages between <command>pmval</command>
 and <command>pmtime</command>.</para>
-<literallayout class="monospaced"><userinput>pmval -g -a /var/log/pcp/pmlogger/myserver/960801</userinput></literallayout>
+<literallayout class="monospaced"><userinput>pmval -g -a ${PCP_LOG_DIR}/pmlogger/myserver/20130731 kernel.all.load</userinput></literallayout>
 <para><indexterm id="IG31371888173"><primary>PCP Tutorial</primary><secondary>pmval command</secondary>
-</indexterm>The <command>pmval</command> command is documented by the <command>pmval(1)</command> man page, and annotated examples of the use
-of <command>pmval</command> are in the <citetitle>PCP Tutorial</citetitle>.
+</indexterm>The <command>pmval</command> command is documented by the <command>pmval(1)</command>
+man page, and annotated examples of the use of <command>pmval</command> can be found in
+the <citetitle>PCP Tutorial</citetitle>.
 </para>
 </section>
 <section id="LE60452-PARENT">
@@ -3043,21 +3063,23 @@ various types of information about performance metrics available through the
 Performance Co-Pilot (PCP) facilities.</para>
 <para>The <literal>-T</literal> option is extremely useful; it provides help
 text about performance metrics:</para>
-<literallayout class="monospaced"><userinput>pminfo -T mem.util.fs_dirty</userinput>
-mem.util.fs_dirty
+<literallayout class="monospaced"><userinput>pminfo -T mem.util.cached</userinput>
+mem.util.cached
 Help:
-The amount of memory in Kbytes that is holding file system data.</literallayout>
+Memory used by the page cache, including buffered file data.
+This is in-memory cache for files read from the disk (the pagecache)
+but doesn't include SwapCached.</literallayout>
 <para>The <literal>-t</literal> option displays the one-line help text associated
 with the selected metrics. The <literal>-T</literal> option prints more verbose
 help text.</para>
 <para>Without any options, <command>pminfo</command> verifies that the specified
-metrics exist in the Name Space, and echoes those names. Metrics may be specified
+metrics exist in the namespace, and echoes those names. Metrics may be specified
 as arguments to <command>pminfo</command> using their full metric names. For
 example, this command returns the following response:</para>
 <literallayout class="monospaced"><userinput>pminfo hinv.ncpu network.interface.total.bytes</userinput>
 hinv.ncpu 
 network.interface.total.bytes </literallayout>
-<para>A group of related metrics in the Name Space may also be specified.
+<para>A group of related metrics in the namespace may also be specified.
 For example, to list all of the <literal>hinv</literal> metrics you would
 use this command:</para>
 <literallayout class="monospaced"><userinput>pminfo hinv</userinput>
@@ -3066,26 +3088,19 @@ hinv.pagesize
 hinv.ncpu
 hinv.ndisk
 hinv.nfilesys
+hinv.ninterface
+hinv.nnode
 hinv.machine
 hinv.map.scsi
 hinv.map.cpu_num
-hinv.map.cpu
-hinv.map.disk
-hinv.map.node
-hinv.map.router
-hinv.map.routerport
-hinv.map.xbow
+hinv.map.cpu_node
+hinv.map.lvname
 hinv.cpu.clock
 hinv.cpu.vendor
 hinv.cpu.model
 hinv.cpu.stepping
 hinv.cpu.cache
-hinv.cpu.bogomips
-hinv.nnode
-hinv.nrouter
-hinv.nrouterport
-hinv.nxbow
-hinv.interconnect</literallayout>
+hinv.cpu.bogomips</literallayout>
 <para>If no metrics are specified, <command>pminfo</command> displays the
 entire collection of metrics. This can be useful for searching for metrics,
 when only part of the full name is known. For example, this command returns
@@ -3098,10 +3113,14 @@ nfs.server.reqs
 nfs3.client.calls
 nfs3.client.reqs
 nfs3.server.calls
-nfs3.server.reqs</literallayout>
+nfs3.server.reqs
+nfs4.client.calls
+nfs4.client.reqs
+nfs4.server.calls
+nfs4.server.reqs</literallayout>
 <para>The <literal>-d</literal> option causes <command>pminfo</command> to
-display descriptive information about metrics (refer to the <command>
-pmLookupDesc(3)</command> man page for an explanation of this metadata information).
+display descriptive information about metrics (refer to the <command>pmLookupDesc(3)</command>
+man page for an explanation of this metadata information).
 The following command and response show use of the <literal>-d</literal> option:
 </para>
 <literallayout class="monospaced"><userinput>pminfo -d proc.nprocs disk.dev.read filesys.free</userinput>
@@ -3135,11 +3154,14 @@ hinv.ndisk
 hinv.nfilesys
     value 2
 
+hinv.ninterface
+    value 8
+
+hinv.nnode
+    value 2
+
 hinv.machine
     value &quot;IP35&quot;
-
-hinv.map.scsi
-No value(s) available!
 
 hinv.map.cpu_num
     inst [0 or &quot;cpu:1.1.0.a&quot;] value 0
@@ -3147,26 +3169,9 @@ hinv.map.cpu_num
     inst [2 or &quot;cpu:1.1.1.a&quot;] value 2
     inst [3 or &quot;cpu:1.1.1.c&quot;] value 3
 
-hinv.map.cpu
-    inst [0 or &quot;cpu:1.1.0.a&quot;] value &quot;/dev/hw/module/001c01/slab/0/node/cpubus/0/a&quot;
-    inst [1 or &quot;cpu:1.1.0.c&quot;] value &quot;/dev/hw/module/001c01/slab/0/node/cpubus/0/c&quot;
-    inst [2 or &quot;cpu:1.1.1.a&quot;] value &quot;/dev/hw/module/001c01/slab/1/node/cpubus/0/a&quot;
-    inst [3 or &quot;cpu:1.1.1.c&quot;] value &quot;/dev/hw/module/001c01/slab/1/node/cpubus/0/c&quot;
-hinv.map.disk
-No value(s) available!
-
-hinv.map.node
+hinv.map.cpu_node
     inst [0 or &quot;node:1.1.0&quot;] value &quot;/dev/hw/module/001c01/slab/0/node&quot;
     inst [1 or &quot;node:1.1.1&quot;] value &quot;/dev/hw/module/001c01/slab/1/node&quot;
-
-hinv.map.router
-No value(s) available!
-
-hinv.map.routerport
-No value(s) available!
-
-hinv.map.xbow
-No value(s) available!
 
 hinv.cpu.clock
     inst [0 or &quot;cpu:1.1.0.a&quot;] value 800
@@ -3202,22 +3207,7 @@ hinv.cpu.bogomips
     inst [0 or &quot;cpu:1.1.0.a&quot;] value 1195.37
     inst [1 or &quot;cpu:1.1.0.c&quot;] value 1195.37
     inst [2 or &quot;cpu:1.1.1.a&quot;] value 1195.37
-    inst [3 or &quot;cpu:1.1.1.c&quot;] value 1195.37
-
-hinv.nnode
-    value 2
-
-hinv.nrouter
-    value 0
-
-hinv.nrouterport
-    value 0
-
-hinv.nxbow
-Error: Functionality not yet implemented
-
-hinv.interconnect
-No value(s) available!</literallayout>
+    inst [3 or &quot;cpu:1.1.1.c&quot;] value 1195.37</literallayout>
 <para>The <literal>-h</literal> option directs <command>pminfo</command> to
 retrieve information from the specified host. If the metric has an instance
 domain, the value associated with each instance of the metric is printed:
@@ -3236,20 +3226,11 @@ environ.extrema.mintemp PMID: 4.0.3 </literallayout>
 the PMNS correspond with supported metrics, and checks that a value is available
 for the metric. Descriptions and values are fetched, but not printed. Only
 errors are reported.</para>
-<para>Some instance domains are not enumerable. That is, it is not possible
-to ask for all of the instances at once. Only explicit instances may be fetched
-from such instance domains. This is because instances in such a domain may
-have a very short lifetime or the cost of obtaining all of the instances at
-once is very high. The <replaceable>proc</replaceable> metrics are an example
-of such an instance domain. The <literal>-f</literal> option is not able to
-fetch metrics with non-enumerable instance domains; however, the <literal>-F</literal> option tells <command>pminfo</command> to obtain a snapshot of
-all of the currently available instances in the instance domain and then to
-retrieve a value for each.</para>
 <para><indexterm id="IG31371888175"><primary>pminfo tool</primary><secondary>PCP Tutorial</secondary>
 </indexterm><indexterm id="IG31371888176"><primary>PCP Tutorial</primary><secondary>pminfo command
 </secondary></indexterm>Complete information on the <command>pminfo</command>
 command is found in the <command>pminfo(1)</command> man page.
-There are examples of the use of <command>pminfo</command> in the <citetitle>
+There are further examples of the use of <command>pminfo</command> in the <citetitle>
 PCP Tutorial</citetitle>.</para>
 </section>
 <section id="LE10170-PARENT">
@@ -3272,15 +3253,15 @@ example, the <literal>-i</literal> option restricts the change to one or more
 instances of the performance metric.</para>
 <para>The <replaceable>value</replaceable> may be in one of several forms,
 according to the following rules:</para>
-<orderedlist><listitem><para>If the metric has an integer type, then <replaceable>
-value</replaceable> should consist of an optional leading hyphen, followed
+<orderedlist><listitem><para>If the metric has an integer type, then
+<replaceable>value</replaceable> should consist of an optional leading hyphen, followed
 either by decimal digits or &#x201C;0x&#x201D; and some hexadecimal digits; &#x201C;0X&#x201D;
 is also acceptable instead of &#x201C;0x.&#x201D;</para>
-</listitem><listitem><para>If the metric has a floating point type, then <replaceable>
-value</replaceable> should be in the form of an integer (described above),
+</listitem><listitem><para>If the metric has a floating point type, then
+<replaceable>value</replaceable> should be in the form of an integer (described above),
 a fixed point number, or a number in scientific notation.</para>
-</listitem><listitem><para>If the metric has a string type, then <replaceable>
-value</replaceable> is interpreted as a literal string of ASCII characters.
+</listitem><listitem><para>If the metric has a string type, then
+<replaceable>value</replaceable> is interpreted as a literal string of ASCII characters.
 </para>
 </listitem><listitem><para>If the metric has an aggregate type, then an attempt
 is made to interpret <replaceable>value</replaceable> as an integer, a floating
@@ -3291,7 +3272,7 @@ an eight-byte aggregate.</para>
 </listitem></orderedlist>
 <para>The following example illustrates the use of <command>pmstore</command>
 to enable performance metrics collection in the <literal>txmon</literal>&#xA0;PMDA
-(see <literal>/var/pcp/pmdas/txmon</literal> for the source code of the txmon
+(see <literal>${PCP_PMDAS_DIR}/txmon</literal> for the source code of the txmon
 PMDA). When the metric <literal>txmon.control.level</literal> has the value
 0, no performance metrics are collected. Values greater than 0 enable progressively
 more verbose instrumentation.</para>
