@@ -2586,11 +2586,10 @@ also be queried by C and C++ programs using the <command>__pmGetConfig
 </command> library function.  If a variable is already defined in the
 environment, the values in the <filename>pcp.conf</filename> file do not
 override those values; that is,  the values in <filename>pcp.conf</filename>
-serve only as installation defaults. For additional information, see the <command>/etc/pcp.conf(4)</command>, <command>/etc/pcp.env(4)</command>, and <command>__pmGetConfig</command>
+serve only as installation defaults. For additional information, see the <command>/etc/pcp.conf(5)</command>, <command>/etc/pcp.env(5)</command>, and <command>__pmGetConfig</command>
 man pages.</para>
 <para>The following environment variables are recognized by PCP (these
-definitions are also available on the <command>PCPIntro
-(1)</command> man page):</para>
+definitions are also available on the <command>PCPIntro(1)</command> man page):</para>
 <variablelist condition="sgi_termlength:nextline">
 <varlistentry>
 <term><literal>PCP_COUNTER_WRAP</literal></term>
@@ -3296,7 +3295,6 @@ see the <command>pmstore(1)</command> man page.</para>
 </chapter>
 
 
-
 <chapter id="LE21414-PARENT">
 
 <title>Performance Metrics Inference Engine</title>
@@ -3307,7 +3305,7 @@ Performance Metrics Inference Engine</primary><see>pmie tool</see></indexterm>Th
 Performance Metrics Inference Engine (<command>pmie</command>) is a tool that
 provides automated monitoring of, and reasoning about, system performance
 within the Performance Co-Pilot (PCP) framework.</para>
-<para>The following major sections in this chapter are as follows:</para>
+<para>The major sections in this chapter are as follows:</para>
 <itemizedlist>
 <listitem><para><xref linkend="LE41170-PARENT"/>, provides an introduction
 to the concepts and design of <command>pmie</command>.</para>
@@ -3315,8 +3313,8 @@ to the concepts and design of <command>pmie</command>.</para>
 <listitem><para><xref linkend="LE15993-PARENT"/>, describes the basic syntax
 and usage of <command>pmie</command>.</para>
 </listitem>
-<listitem><para><xref linkend="LE90227-PARENT"/>, discusses the complete <command>
-pmie</command> rule specification language.</para>
+<listitem><para><xref linkend="LE90227-PARENT"/>, discusses the complete
+<command>pmie</command> rule specification language.</para>
 </listitem>
 <listitem><para><xref linkend="LE60280-PARENT"/>, provides an example, covering
 several common performance scenarios.</para>
@@ -3327,19 +3325,19 @@ for <command>pmie</command> rule development.</para>
 <listitem><para><xref linkend="LE91221-PARENT"/>, presents some important information
 on using <command>pmie</command>.</para>
 </listitem>
-<listitem><para><xref linkend="Z927039566sdc"/>, describes how to use the <command>
-pmieconf</command> command to generate <command>pmie</command> rules.</para>
+<listitem><para><xref linkend="Z927039566sdc"/>, describes how to use the
+<command>pmieconf</command> command to generate <command>pmie</command> rules.</para>
 </listitem>
-<listitem><para><xref linkend="Z927039824sdc"/>, provides support for running <command>
-pmie</command> as a daemon.</para>
+<listitem><para><xref linkend="Z927039824sdc"/>, provides support for running
+<command>pmie</command> as a daemon.</para>
 </listitem></itemizedlist>
 <section id="LE41170-PARENT">
 
 <title>Introduction to <command>pmie</command></title>
 <para><indexterm id="ITch06-4"><primary>pmie tool</primary><secondary>automated
 reasoning</secondary></indexterm>Automated reasoning within Performance Co-Pilot
-(PCP) is provided by the Performance Metrics Inference Engine, (<command>
-pmie</command>), which is an applied artificial intelligence application.
+(PCP) is provided by the Performance Metrics Inference Engine, (<command>pmie</command>),
+which is an applied artificial intelligence application.
 </para>
 <para>The <command>pmie</command> tool accepts expressions describing adverse
 performance scenarios, and periodically evaluates these against streams of
@@ -3350,15 +3348,13 @@ performance scenario. These facilities are very general, and are designed
 to accommodate the automated execution of a mixture of generic and site-specific
 performance monitoring and control functions.</para>
 <para>The stream of performance metrics to be evaluated may be from one or
-more hosts, or from one or more PCP archive logs. In the latter case, <command>
-pmie</command> may be used to retrospectively identify adverse performance
-conditions.</para>
+more hosts, or from one or more PCP archive logs. In the latter case, <command>pmie</command>
+may be used to retrospectively identify adverse performance conditions.</para>
 <para><indexterm id="IG31371888177"><primary>PMCS</primary><secondary>pmie capabilities</secondary>
 </indexterm><indexterm id="IG31371888178"><primary>PMAPI</primary><secondary>pmie capabilities
 </secondary></indexterm>Using <command>pmie</command>, you can filter, interpret,
 and reason about the large volume of performance data made available by the
-Performance Metrics Collection Subsystem (PMCS) and delivered through the
-Performance Metrics Application Programming Interface (PMAPI).</para>
+Performance Metrics Collection System (PMCS).</para>
 <para>Typical <command>pmie</command> uses include the following:</para>
 <itemizedlist>
 <listitem><para>Automated real-time monitoring of a host, a set of hosts,
@@ -3366,11 +3362,11 @@ or client-server pairs of hosts to raise operational alarms when poor performanc
 is detected in a production environment</para>
 </listitem>
 <listitem><para>Nightly processing of archive logs to detect and report performance
-regressions, or quantify quality of service for service agreements or management
+regressions, or quantify quality of service for service level agreements or management
 reports, or produce advance warning of pending performance problems</para>
 </listitem>
 <listitem><para>Strategic performance management, for example, detection of
-abnormal, but not chronic, system behavior, trend analysis, and capacity planning
+slightly abnormal to chronic system behavior, trend analysis, and capacity planning
 </para>
 </listitem></itemizedlist>
 <para><indexterm id="IG31371888179"><primary>pmie tool</primary><secondary>language</secondary>
@@ -3381,16 +3377,14 @@ operators and functions:</para>
 <listitem><para>Generalized predicate-action pairs, where a predicate is a
 logical expression over the available performance metrics, and the action
 is arbitrary. Predefined actions include the following:</para>
-<itemizedlist><listitem><para><indexterm id="IG31371888180"><primary>xconfirm command</primary>
-<secondary>visible alarm</secondary></indexterm>Launch a visible alarm with <literal>xconfirm</literal>; see the <command>xconfirm(1)</command> man
-page.</para>
+<itemizedlist><listitem><para><indexterm id="IG31371888180"><primary>pmconfirm command</primary>
+<secondary>visible alarm</secondary></indexterm>Launch a visible alarm with <literal>pmconfirm</literal>; see the <command>pmconfirm(1)</command> man page.</para>
 </listitem><listitem><para><indexterm id="IG31371888181"><primary>syslog function</primary></indexterm><indexterm id="IG31371888182">
-<primary>/var/log/messages file</primary></indexterm>Post an entry to the
-system log <filename>/var/log/messages</filename>; see the <command>
-syslog(3C)</command> man page.</para>
+<primary>system log</primary></indexterm>Post an entry to the system log file;
+see the <command>syslog(3)</command> man page.</para>
 </listitem><listitem><para><indexterm id="IG31371888183"><primary>NOTICES file</primary>
-</indexterm>Post an entry to the PCP noticeboard file <filename>${PCP_LOG_DIR}/NOTICES</filename>.
-</para>
+</indexterm>Post an entry to the PCP noticeboard file <filename>${PCP_LOG_DIR}/NOTICES</filename>;
+see the <command>pmpost(1)</command> man page.</para>
 </listitem><listitem><para>Execute a shell command or script, for example,
 to send e-mail, initiate a pager call, warn the help desk, and so on.</para>
 </listitem><listitem><para>Echo a message on standard output; useful for scripts
@@ -3427,9 +3421,8 @@ of previously accumulated performance metric values.</para>
 most common of the deterministic system management functions that are responses
 to changes in system performance. For example, disable a batch stream if the
 DBMS transaction commit response time at the ninetieth percentile goes over
-two seconds, or stop accepting news and send e-mail to the <replaceable>sysadmin
-</replaceable> alias if free space in the news file system falls below five
-percent.</para>
+two seconds, or stop accepting uploads and send e-mail to the <replaceable>sysadmin</replaceable>
+alias if free space in a storage system falls below five percent.</para>
 <para>Moreover, the power of <command>pmie</command> can be directed towards
 the exceptional and sporadic performance problems. For example, if a network
 packet storm is expected, enable IP header tracing for ten seconds, and send
@@ -3448,8 +3441,8 @@ for some of the more common performance scenarios.</para>
 
 <title>Basic <command>pmie</command> Usage</title>
 <para><indexterm id="IG31371888186"><primary>pmie tool</primary><secondary>basic examples</secondary>
-</indexterm>This section presents and explains some basic examples of <command>
-pmie</command> usage. The <command>pmie</command> tool accepts the common
+</indexterm>This section presents and explains some basic examples of <command>pmie</command> usage.
+The <command>pmie</command> tool accepts the common
 PCP command line arguments, as described in <xref linkend="LE94335-PARENT"/>.
 In addition, <command>pmie</command> accepts the following command line arguments:
 </para>
@@ -3474,13 +3467,12 @@ expression bindings are displayed.</para>
 </variablelist>
 <para>One of the most basic invocations of this tool is this form:</para>
 <literallayout class="monospaced"><userinput>pmie</userinput> <replaceable>filename</replaceable></literallayout>
-<para>In this form, the expressions to be evaluated are read from <replaceable>
-filename</replaceable>. In the absence of a given <replaceable>filename</replaceable>,
-expressions are read from standard input, usually your system keyboard.</para>
+<para>In this form, the expressions to be evaluated are read from <replaceable>filename</replaceable>.
+In the absence of a given <replaceable>filename</replaceable>,
+expressions are read from standard input, which may be your system keyboard.</para>
 <section id="LE23271-PARENT">
 
-<title><command>pmie</command> and the Performance Metrics
-Collection Subsystem</title>
+<title><command>pmie</command> and the Performance Metrics Collection Subsystem</title>
 <para><indexterm id="ITch06-7"><primary>PMCS</primary><secondary>pmie tool
 </secondary></indexterm>Before you use <command>pmie</command>, familiarize
 yourself with some Performance Metrics Collection System (PMCS) basics. It
@@ -3488,14 +3480,14 @@ is strongly recommended that you familiarize yourself with the concepts from
 the <xref linkend="LE79836-PARENT"/>. The discussion in this section serves
 as a very brief review of these concepts.</para>
 <para><indexterm id="IG31371888187"><primary>pminfo tool</primary><secondary>pmie arguments</secondary>
-</indexterm>The PMCS makes available hundreds of performance metrics that
+</indexterm>The PMCS makes available thousands of performance metrics that
 you can use when formulating expressions for <command>pmie</command> to evaluate.
 If you want to find out which metrics are currently available on your system,
 use this command:</para>
 <literallayout class="monospaced"><userinput>pminfo</userinput>&#xA0;</literallayout>
 <para>Use the <command>pmie</command> command line arguments to find out more
 about a particular metric. In <xref linkend="Z983825969sdc"/>, to fetch new
-metric values from host <literal>moomba</literal>, you use the <literal>-f</literal> flag:</para>
+metric values from host <literal>dove</literal>, you use the <literal>-f</literal> flag:</para>
 <example id="Z983825969sdc">
 <title><command>pmie</command>
 with the <literal>-f</literal> Option</title>
@@ -3514,31 +3506,32 @@ with the <literal>-f</literal> Option</title>
 <para>Use the following command to request help text (specified with the <literal>-T</literal> flag) to provide more information about performance metrics:
 </para>
 <literallayout class="monospaced"><userinput>pminfo -T network.interface.in.packets</userinput></literallayout>
-<para>The metadata associated with a performance metric is used by <command>
-pmie</command> to determine how the value should be interpreted. You can examine
+<para>The metadata associated with a performance metric is used by <command>pmie</command>
+to determine how the value should be interpreted. You can examine
 the descriptor that encodes the metadata by using the <literal>-d</literal>
 flag for <command>pminfo</command>, as shown in <xref linkend="Z983826092sdc"/>:
 </para>
 <example id="Z983826092sdc">
 <title><command>pmie</command>
 with the <literal>-d</literal> and <literal>-h</literal> Options</title>
-<literallayout class="monospaced"><userinput>pminfo -d -h </userinput><replaceable>somehost </replaceable><userinput>mem.freemem kernel.percpu.syscall</userinput></literallayout>
+<literallayout class="monospaced"><userinput>pminfo -d -h </userinput><replaceable>somehost </replaceable><userinput>mem.freemem kernel.percpu.cpu.user</userinput></literallayout>
 <para>In response, you see output similar to this:</para>
 <literallayout class="monospaced">mem.freemem
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 
-kernel.percpu.syscall
-    Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
-    Semantics: counter  Units: count</literallayout>
+kernel.percpu.cpu.user
+    Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
+    Semantics: counter  Units: millisec</literallayout>
 </example>
 <note><para><indexterm id="ITch06-8"><primary>PM_INDOM_NULL</primary></indexterm>A
-cumulative counter such as <literal>kernel.percpu.syscall</literal> is automatically
+cumulative counter such as <literal>kernel.percpu.cpu.user</literal> is automatically
 converted by <command>pmie</command> into a rate (measured in events per second,
-or count/second), while instantaneous values such as <literal>mem.freemem</literal> are not subjected to rate conversion. Metrics with an instance
+or count/second), while instantaneous values such as <literal>mem.freemem</literal>
+are not subjected to rate conversion. Metrics with an instance
 domain (<literal>InDom</literal> in the <command>pminfo</command> output)
 of <literal>PM_INDOM_NULL</literal> are singular and always produce one value
-per source. However, a metric like <literal>kernel.percpu.syscall</literal>
+per source. However, a metric like <literal>kernel.percpu.cpu.user</literal>
 has an instance domain, and may produce multiple values per source (in this
 case, it is one value for each configured CPU).</para>
 </note>
@@ -3580,10 +3573,10 @@ inaccuracy in the actual sampling time (the sample interval is not exactly
 however, that these errors do not accumulate but cancel each other out over
 subsequent samples.</para>
 <para>In <xref linkend="Z983823607sdc"/>, the expression to be evaluated was
-enter (the keyboard), followed by the end-of-file character [<keycap>Ctrl
-</keycap>+<keycap>D</keycap>]. Usually, it is more convenient to enter expressions
-into a file (for example, <filename>myrules</filename>) and ask <command>
-pmie</command> to read the file. Use this command syntax:</para>
+entered using the keyboard, followed by the end-of-file character [<keycap>Ctrl</keycap>+<keycap>D</keycap>].
+Usually, it is more convenient to enter expressions
+into a file (for example, <filename>myrules</filename>) and ask <command>pmie</command>
+to read the file. Use this command syntax:</para>
 <literallayout class="monospaced"><userinput>pmie -v myrules</userinput>&#xA0;</literallayout>
 <para>Please refer to the <command>pmie(1)</command> man page
 for a complete description of <command>pmie</command> command line options.
@@ -3593,8 +3586,8 @@ for a complete description of <command>pmie</command> command line options.
 
 <title>Complex <command>pmie</command> Examples</title>
 <para><indexterm id="ITch06-10"><primary>pmie tool</primary><secondary>examples
-</secondary></indexterm>This section illustrates more complex <command>pmie
-</command> expressions of the specification language. <xref linkend="LE90227-PARENT"/>,
+</secondary></indexterm>This section illustrates more complex <command>pmie</command>
+expressions of the specification language. <xref linkend="LE90227-PARENT"/>,
 provides a complete description of the <command>pmie</command> specification
 language.</para>
 <para>The following arithmetic expression computes the percentage of write
@@ -3613,24 +3606,29 @@ or <literal>false</literal> for each disk:</para>
 <literallayout class="monospaced">disk.dev.total &gt; 10 &amp;&amp; 
 disk.dev.write &gt; disk.dev.read; </literallayout>
 <para>The value is true if the number of writes exceeds the number of reads,
-and if there is significant disk activity (more than 10 transfers per second). <xref linkend="Z983824038sdc"/> demonstrates a simple action:</para>
+and if there is significant disk activity (more than 10 transfers per second).
+<xref linkend="Z983824038sdc"/> demonstrates a simple action:</para>
 <example id="Z983824038sdc">
-<title><command>pmie</command>
-Output Printed</title>
-<literallayout class="monospaced">some_inst disk.dev.total &gt; 60 -&gt; 
-                              print &quot;[%i] high disk i/o &quot;; </literallayout>
+<title>Printed <command>pmie</command> Output</title>
+<literallayout class="monospaced">some_inst disk.dev.total &gt; 60
+           -&gt; print &quot;[%i] high disk i/o&quot;;
+</literallayout>
+</example>
 <para>This prints a message to the standard output whenever the total number
 of transfers for some disk (<literal>some_inst</literal>) exceeds 60 transfers
 per second. The <literal>%i</literal> (instance) in the message is replaced
 with the name(s) of the disk(s) that caused the logical expression to be <literal>true</literal>.</para>
 <para>Using <command>pmie</command> to evaluate the above expressions every
-3 seconds, you see output similar to the following:</para>
+3 seconds, you see output similar to <xref linkend="Z983824037sdc"/>.
+Notice the introduction of labels for each <command>pmie</command> expression.</para>
+<example id="Z983824037sdc">
+<title>Labelled <command>pmie</command> Output</title>
 <literallayout class="monospaced"><userinput>pmie -v -t 3sec</userinput>
 <userinput>pct_wrt = (disk.all.write / disk.all.total) * 100;</userinput>
 <userinput>busy_wrt = disk.dev.total &gt; 10 &amp;&amp;</userinput>
            <userinput>disk.dev.write &gt; disk.dev.read;</userinput>
-<userinput>busy = some_inst disk.dev.total &gt; 60 -&gt;</userinput>
-                           <userinput>print &quot;[%i] high disk i/o &quot;;</userinput>
+<userinput>busy = some_inst disk.dev.total &gt; 60</userinput>
+           <userinput>-&gt; print &quot;[%i] high disk i/o &quot;;</userinput>
 <userinput>Ctrl+D</userinput>
 pct_wrt:       ? 
 busy_wrt:      ?      ?
@@ -3640,7 +3638,7 @@ pct_wrt:   18.43
 busy_wrt:  false  false
 busy:      false
 
-Mon Aug  5 14:56:08 2002: [disk2] high disk i/o
+Mon Aug  5 14:56:08 2012: [disk2] high disk i/o
 pct_wrt:   10.83
 busy_wrt:  false  false
 busy:      true
@@ -3653,25 +3651,25 @@ pct_wrt:       ?
 busy_wrt:  false  false
 busy:      false
 
-Mon Aug  5 14:56:17 2002: [disk1] high disk i/o [disk2] high disk i/o
+Mon Aug  5 14:56:17 2012: [disk1] high disk i/o [disk2] high disk i/o
 pct_wrt:   14.8
 busy_wrt:  false  false
 busy:   true</literallayout>
+</example>
 <para>The first sample contains unknowns, since all expressions depend on
 computing rates. Also notice that the expression <literal>pct_wrt</literal>
 may have an undefined value whenever all disks are idle, as the denominator
 of the expression is zero. If one or more disks is busy, the expression <literal>busy</literal> is true, and the message from the <literal>print</literal>
 in the action part of the rule appears (before the <literal>-v</literal> values).
 </para>
-</example>
 </section>
 </section>
 <section id="LE90227-PARENT">
 
 <title>Specification Language for <command>pmie</command></title>
 <para><indexterm id="IG31371888188"><primary>pmie tool</primary><secondary>language</secondary>
-</indexterm>This section describes the complete syntax of the <command>pmie
-</command> specification language, as well as macro facilities and the issue
+</indexterm>This section describes the complete syntax of the <command>pmie</command>
+specification language, as well as macro facilities and the issue
 of sampling and evaluation frequency. The reader with a preference for learning
 by example may choose to skip this section and go straight to the examples
 in <xref linkend="LE60280-PARENT"/>.</para>
@@ -3698,8 +3696,8 @@ supports a number of basic syntactic elements.</para>
 <section id="id5200293">
 
 <title>Lexical Elements</title>
-<para><indexterm id="IG31371888189"><primary>lexical elements</primary></indexterm>All <command>
-pmie</command> expressions are composed of the following lexical elements:
+<para><indexterm id="IG31371888189"><primary>lexical elements</primary></indexterm>All <command>pmie</command>
+expressions are composed of the following lexical elements:
 </para>
 <variablelist>
 <varlistentry>
@@ -3753,7 +3751,7 @@ of comments.</para>
 
 <title>Macros</title>
 <para><indexterm id="IG31371888191"><primary>macros</primary></indexterm>When they are fully
-specified, expressions in <command>pmie</command> tend to be verbose and repetitious.
+specified, expressions in <command>pmie</command> tend to be verbose and repetitive.
 The use of macros can reduce repetition and improve readability and modularity.
 Any statement of the following form associates the macro name <literal>identifier</literal> with the given string constant.</para>
 <literallayout class="monospaced"><literal>identifier = &quot;<replaceable>string</replaceable>&quot;;</literal></literallayout>
@@ -3821,8 +3819,8 @@ is initially set to be 10 seconds.</para>
 expressions</secondary></indexterm><indexterm id="IG31371888194"><primary>PMNS</primary><secondary>
 metric expressions</secondary></indexterm><indexterm id="IG31371888195"><primary>PMCS</primary>
 <secondary>metric expressions</secondary></indexterm><indexterm id="IG31371888196"><primary>
-PMCD</primary><secondary>collector host</secondary></indexterm>A Performance
-Metrics Name Space (PMNS) provides a means of naming performance metrics,
+PMCD</primary><secondary>collector host</secondary></indexterm>The performance
+metrics namespace (PMNS) provides a means of naming performance metrics,
 for example, <literal>disk.dev.read</literal>. The Performance Metrics Collection
 System (PMCS) allows an application to retrieve one or more values for a performance
 metric from a designated source (a collector host running PMCD, or a PCP archive
@@ -3873,20 +3871,19 @@ name, followed by optional host specifications, followed by optional instance
 specifications, and finally, optional sample time specifications.</para>
 </listitem><listitem><para>A host specification consists of one or more host
 names, each prefixed by a colon (<literal>:</literal>). For example: <literal>:indy :far.away.domain.com :localhost</literal></para>
-</listitem><listitem><para>A missing host specification implies the default <command>
-pmie</command> source of metrics, as defined by a <literal>-h</literal> option
+</listitem><listitem><para>A missing host specification implies the default <command>pmie</command>
+source of metrics, as defined by a <literal>-h</literal> option
 on the command line, or the first named archive in an <literal>-a</literal>
 option on the command line, or PMCD on the local host.</para>
 </listitem><listitem><para>An instance specification consists of one or more
 instance names, each prefixed by a hash or pound (<literal>#</literal>) sign.
-For example: <literal>#ec0 #ec2</literal></para>
+For example: <literal>#eth0 #eth2</literal></para>
 <para>Recall that you can discover the instance names for a particular metric,
 using the <command>pminfo</command> command. See <xref linkend="LE23271-PARENT"/>.
 </para>
 <para>Within the <command>pmie</command> grammar, an instance name is an identifier.
 If the instance name contains characters other than alphanumeric characters,
-enclose the instance name in single quotes; for example, <literal>#'/dev/root'
-#'/dev/usr'</literal></para>
+enclose the instance name in single quotes; for example, <literal>#'/boot' #'/usr'</literal></para>
 </listitem><listitem><para>A missing instance specification implies all instances
 for the associated performance metric from each associated <command>pmie</command>
 source of metrics.</para>
@@ -3988,24 +3985,24 @@ the rule in <xref linkend="Z983832287sdc"/> is given:</para>
 <title>Relational Expressions
 </title>
 <literallayout class="monospaced"><userinput>hosts = &quot;:gonzo&quot;;</userinput>
-<userinput>intfs = &quot;#ec0 #ec2&quot;;</userinput>
+<userinput>intfs = &quot;#eth0 #eth2&quot;;</userinput>
 <userinput>all_intf = network.interface.in.packets</userinput>
                <userinput>$hosts $intfs @0..2 &gt; 300 count/sec;</userinput></literallayout>
 <para>Then the execution of <command>pmie</command> may proceed as follows:
 </para>
 <literallayout class="monospaced"><userinput>pmie -V uag.11</userinput>
 all_intf: 
-       gonzo: [ec0]      ?      ?      ? 
-       gonzo: [ec2]      ?      ?      ?
+       gonzo: [eth0]      ?      ?      ? 
+       gonzo: [eth2]      ?      ?      ?
 all_intf:
-       gonzo: [ec0]  false      ?      ?
-       gonzo: [ec2]  false      ?      ?
+       gonzo: [eth0]  false      ?      ?
+       gonzo: [eth2]  false      ?      ?
 all_intf:
-       gonzo: [ec0]   true  false      ?
-       gonzo: [ec2]  false  false      ?
+       gonzo: [eth0]   true  false      ?
+       gonzo: [eth2]  false  false      ?
 all_intf:
-       gonzo: [ec0]   true   true  false
-       gonzo: [ec2]  false  false  false</literallayout>
+       gonzo: [eth0]   true   true  false
+       gonzo: [eth2]  false  false  false</literallayout>
 </example>
 <para>At each sample, the relational operator greater than (&gt;) produces six
 truth values for the cross-product of the <literal>instance</literal> and <literal>sample time</literal> dimensions.</para>
@@ -4031,13 +4028,13 @@ set-valued operands, and set-valued results.</para>
 accept set-valued operands and produce set-valued results. In many cases,
 rules that are appropriate for performance management require a set of truth
 values to be reduced along one or more of the dimensions of hosts, instances,
-and sample times described in <xref linkend="LE73508-PARENT"/>. The <command>
-pmie</command> quantification operators perform this function.</para>
+and sample times described in <xref linkend="LE73508-PARENT"/>.
+The <command>pmie</command> quantification operators perform this function.</para>
 <para>Each quantification operator takes a one-, two-, or three-dimension
 set of truth values as an operand, and reduces it to a set of smaller dimension,
 by quantification along a single dimension. For example, suppose the expression
 in the previous example is simplified and prefixed by <literal>some_sample</literal>, to produce the following expression:</para>
-<literallayout class="monospaced"><userinput>intfs = &quot;#ec0 #ec2&quot;;</userinput>&#xA0;
+<literallayout class="monospaced"><userinput>intfs = &quot;#eth0 #eth2&quot;;</userinput>&#xA0;
 <userinput>all_intf = some_sample network.interface.in.packets</userinput>
                      <userinput>$intfs @0..2 &gt; 300 count/sec;</userinput></literallayout>
 <para>Then the expression result is reduced from six values to two (one per
@@ -4051,56 +4048,51 @@ operators as follows:</para>
 <variablelist>
 <varlistentry>
 <term><literal>some_host</literal></term>
-<listitem><para>True if the expression is true for at least one <replaceable>
-host</replaceable> for the same <replaceable>instance</replaceable> and <literal>sample time</literal>.</para>
+<listitem><para>True if the expression is true for at least one <replaceable>host</replaceable>
+for the same <replaceable>instance</replaceable> and <literal>sample time</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>all_host</literal></term>
-<listitem><para>True if the expression is true for every <replaceable>host
-</replaceable> for the same <replaceable>instance</replaceable> and <replaceable>
-sample time</replaceable>.</para>
+<listitem><para>True if the expression is true for every <replaceable>host</replaceable>
+for the same <replaceable>instance</replaceable> and <replaceable>sample time</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>N</replaceable><literal>%</literal><literal>_host</literal></term>
-<listitem><para>True if the expression is true for at least <replaceable>
-N</replaceable>% of the <replaceable>hosts</replaceable> for the same <replaceable>
-instance</replaceable> and <replaceable>sample time</replaceable>.</para>
+<listitem><para>True if the expression is true for at least <replaceable>N</replaceable>%
+of the <replaceable>hosts</replaceable> for the same <replaceable>instance</replaceable>
+and <replaceable>sample time</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>some_inst</literal></term>
-<listitem><para>True if the expression is true for at least one <replaceable>
-instance</replaceable> for the same <replaceable>host</replaceable> and <replaceable>
-sample time</replaceable>.</para>
+<listitem><para>True if the expression is true for at least one <replaceable>instance</replaceable>
+for the same <replaceable>host</replaceable> and <replaceable>sample time</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>all_instance</literal></term>
-<listitem><para>True if the expression is true for every <replaceable>instance
-</replaceable> for the same <replaceable>host</replaceable> and <replaceable>
-sample time</replaceable>.</para>
+<listitem><para>True if the expression is true for every <replaceable>instance</replaceable>
+for the same <replaceable>host</replaceable> and <replaceable>sample time</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>N</replaceable><literal>%</literal><literal>_instance</literal></term>
-<listitem><para>True if the expression is true for at least <replaceable>
-N</replaceable>% of the <replaceable>instances</replaceable> for the same <replaceable>
-host</replaceable> and <replaceable>sample time</replaceable>.</para>
+<listitem><para>True if the expression is true for at least <replaceable>N</replaceable>%
+of the <replaceable>instances</replaceable> for the same <replaceable>host</replaceable>
+and <replaceable>sample time</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>some_sample time</literal></term>
-<listitem><para>True if the expression is true for at least one <replaceable>
-sample time</replaceable> for the same <replaceable>host</replaceable> and <replaceable>
-instance</replaceable>.</para>
+<listitem><para>True if the expression is true for at least one <replaceable>sample time</replaceable>
+for the same <replaceable>host</replaceable> and <replaceable>instance</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>all_sample time</literal></term>
-<listitem><para>True if the expression is true for every <replaceable>sample
-time</replaceable> for the same <replaceable>host</replaceable> and <replaceable>
-instance</replaceable>.</para>
+<listitem><para>True if the expression is true for every <replaceable>sample time</replaceable>
+for the same <replaceable>host</replaceable> and <replaceable>instance</replaceable>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><replaceable>N</replaceable><literal>%</literal><literal>_sample time</literal></term>
-<listitem><para>True if the expression is true for at least <replaceable>
-N</replaceable>% of the <replaceable>sample times</replaceable> for the same <replaceable>
-host</replaceable> and <replaceable>instance</replaceable>.</para>
+<listitem><para>True if the expression is true for at least <replaceable>N</replaceable>%
+of the <replaceable>sample times</replaceable> for the same <replaceable>host</replaceable>
+and <replaceable>instance</replaceable>.</para>
 </listitem></varlistentry>
 </variablelist>
 <para>These operators may be nested. For example, the following expression
@@ -4127,10 +4119,10 @@ dimension only, namely <literal>match_inst</literal> and <literal>nomatch_inst</
 is the boolean AND of the expression and the result of matching (or not matching)
 the associated instance name against the regular expression.</para>
 <para>For example, this rule evaluates error rates on various 10BaseT Ethernet
-network interfaces (such as ecN, etN, or efN):</para>
+network interfaces (such as ecN, ethN, or efN):</para>
 <literallayout class="monospaced">some_inst
-                  match_inst &quot;^(ec|et|ef)&quot;
-                      network.interface.total.errors &gt; 10 count/sec
+        match_inst &quot;^(ec|eth|ef)&quot;
+                network.interface.total.errors &gt; 10 count/sec
 -&gt; syslog &quot;Ethernet errors:&quot; &quot; %i&quot;</literallayout>
 </section>
 </section>
@@ -4173,8 +4165,8 @@ the action method, an optional <replaceable>time</replaceable> specification,
 and one or more arguments.</para>
 <para>A <replaceable>time</replaceable> specification uses the same syntax
 as a valid time interval that may be assigned to <literal>delta</literal>,
-as described in <xref linkend="LE88708-PARENT"/>. If the <replaceable>action
-</replaceable> is executed and the <replaceable>time</replaceable> specification
+as described in <xref linkend="LE88708-PARENT"/>. If the <replaceable>action</replaceable>
+is executed and the <replaceable>time</replaceable> specification
 is present, <command>pmie</command> will suppress any subsequent execution
 of this <replaceable>action</replaceable> until the wall clock time has advanced
 by <replaceable>time</replaceable>.</para>
@@ -4202,10 +4194,10 @@ fork fails.</para>
 <listitem><para><indexterm id="IG31371888208"><primary>pmlogger tool</primary></indexterm><indexterm id="IG31371888209">
 <primary>syslog function</primary></indexterm>A message is written into the
 system log. If the first word of the first argument is <literal>-p</literal>,
-the second word is interpreted as the priority (see the <command>
-syslog(3)</command> man page); the message tag is <literal>pcp-pmie</literal>.
-The remaining argument is the message to be written to the system log. The
-action succeeds unless the fork fails.</para>
+the second word is interpreted as the priority (see the <command>syslog(3)</command>
+man page); the message tag is <literal>pcp-pmie</literal>.
+The remaining argument is the message to be written to the system log.
+This action always succeeds.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>print</literal></term>
@@ -4238,8 +4230,8 @@ the expression true.</para>
 <para><indexterm id="IG31371888211"><primary>pmie tool</primary><secondary>%-token</secondary>
 </indexterm>Some ambiguity may occur in respect to which host, instance, or
 performance metric is bound to a %-token. In most cases, the leftmost binding
-in the top-level subexpression is used. You may need to use <command>pmie
-</command> in the interactive debugging mode (specify the <literal>-d</literal>
+in the top-level subexpression is used. You may need to use <command>pmie</command>
+in the interactive debugging mode (specify the <literal>-d</literal>
 command line option) in conjunction with the <literal>-W</literal> command
 line option to discover which subexpressions contributes to the %-token bindings.
 </para>
@@ -4254,15 +4246,15 @@ constructing rule expressions:</para>
                'Disk %i is REALLY busy. Running at %v I/Os per second' \ 
                | Mail -s 'pmie alarm' sysadm&quot;; </literallayout>
 </example>
-<para><indexterm id="IG31371888212"><primary>/var/log/messages file</primary></indexterm>In this
+<para><indexterm id="IG31371888212"><primary>system log file</primary></indexterm>In this
 case, <literal>%v</literal> and <literal>%i</literal> are both associated
 with the instances for the metric <literal>disk.dev.total</literal> that make
 the expression true. If more than one instance makes the expression true (more
 than one disk is busy), then the argument is formed by concatenating the result
-from each %-token binding. The text added to <filename>/var/log/messages</filename>
+from each %-token binding. The text added to the system log file
 might be as shown in <xref linkend="Z983833442sdc"/>:</para>
 <example id="Z983833442sdc">
-<title><filename>/var/log/messages</filename> Text</title>
+<title>System Log Text</title>
 <literallayout class="monospaced">Aug 6 08:12:44 5B:gonzo pcp-pmie[3371]:
                          [disk1] busy, 3.7 IOPS [disk2] busy, 0.3 IOPS</literallayout>
 </example>
@@ -4287,11 +4279,11 @@ cpu_usr_sys = some_inst (
 <para>When evaluated against an archive, the following output is generated
 (the alarm action produces a message on standard output):</para>
 <literallayout class="monospaced"><userinput>pmafm /tmp/f4 pmie cpu.head cpu.00</userinput>
-alarm Wed Aug  7 14:54:48 2002: Unusual sys time: cpu0 
-alarm Wed Aug  7 14:54:50 2002: Unusual sys time: cpu0 
-alarm Wed Aug  7 14:54:52 2002: Unusual sys time: cpu0 
-alarm Wed Aug  7 14:55:02 2002: Unusual sys time: cpu0 
-alarm Wed Aug  7 14:55:06 2002: Unusual sys time: cpu0 </literallayout>
+alarm Wed Aug  7 14:54:48 2012: Unusual sys time: cpu0 
+alarm Wed Aug  7 14:54:50 2012: Unusual sys time: cpu0 
+alarm Wed Aug  7 14:54:52 2012: Unusual sys time: cpu0 
+alarm Wed Aug  7 14:55:02 2012: Unusual sys time: cpu0 
+alarm Wed Aug  7 14:55:06 2012: Unusual sys time: cpu0 </literallayout>
 </example>
 </section>
 <section id="LE87294-PARENT">
@@ -4330,8 +4322,8 @@ same <replaceable>host</replaceable> and <replaceable>sample time</replaceable><
 <varlistentry>
 <term><literal>sum_host</literal></term>
 <listitem><para><indexterm id="IG31371888217"><primary>sum_host operator</primary></indexterm>Computes
-the total value across all <replaceable>instances</replaceable> for the same <replaceable>
-host</replaceable> and <replaceable>sample time</replaceable></para>
+the total value across all <replaceable>instances</replaceable> for the same
+<replaceable>host</replaceable> and <replaceable>sample time</replaceable></para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>count_host</literal></term>
@@ -4415,13 +4407,12 @@ examples</secondary></indexterm>The examples presented in this section are
 task-oriented and use the full power of the <command>pmie</command> specification
 language as described in <xref linkend="LE90227-PARENT"/>.</para>
 <para><indexterm id="IG31371888227"><primary>pcp.sw.demo subsystems</primary></indexterm><indexterm id="IG31371888228">
-<primary>/var/pcp/demos/pmie file</primary></indexterm>Source code for the <command>
-pmie</command> examples in this chapter, and many more examples, is provided
-within the PCP sources. <xref linkend="Z928441343sdc"/> and <xref linkend="Z928441176sdc"/>
+<primary>/var/pcp/demos/pmie file</primary></indexterm>Source code for the <command>pmie</command>
+examples in this chapter, and many more examples, is provided within the
+<citetitle>PCP Tutorial</citetitle>. <xref linkend="Z928441343sdc"/> and <xref linkend="Z928441176sdc"/>
 illustrate monitoring CPU utilization and disk activity.</para>
 <example id="Z928441343sdc">
-<title>Monitoring CPU Utilization
-</title>
+<title>Monitoring CPU Utilization</title>
 <literallayout class="monospaced">// Some Common Performance Monitoring Scenarios
 //
 // The CPU Group
@@ -4579,7 +4570,7 @@ policy circumvents this problem.</para>
 <title><command>pmie</command> Error Detection</title>
 <para><indexterm id="ITch06-24"><primary>pmie tool</primary><secondary>error
 detection</secondary></indexterm><indexterm id="IG31371888233"><primary>error detection</primary>
-</indexterm>The parser used in <command>pmie</command> is currently not robust
+</indexterm>The parser used in <command>pmie</command> is not particularly robust
 in handling syntax errors. It is suggested that you check any problematic
 expressions individually in interactive mode:</para>
 <literallayout class="monospaced"><userinput>pmie -v -d</userinput>
@@ -4598,14 +4589,13 @@ happens when a performance metric descriptor is not available from the named
 host at this time. A warning is issued, and the expression is put on a wait
 list. The wait list is checked periodically (about every five minutes) to
 see if the metric descriptor has become available. If an error is detected
-at this time, a message is printed to the standard error stream (<command>
-stderr</command>) and the offending expression is put aside.</para>
+at this time, a message is printed to the standard error stream
+(<command>stderr</command>) and the offending expression is set aside.</para>
 </section>
 </section>
 <section id="Z927039566sdc">
 
-<title>Creating <command>pmie</command> Rules with <command>
-pmieconf</command></title>
+<title>Creating <command>pmie</command> Rules with <command>pmieconf</command></title>
 <para><indexterm id="IG31371888234"><primary>pmie tool</primary><secondary>pmieconf rules</secondary>
 </indexterm><indexterm id="IG31371888235"><primary>pmieconf tool</primary><secondary>rules</secondary>
 </indexterm>The <command>pmieconf</command> tool is a command line utility
@@ -4617,7 +4607,7 @@ generated <command>pmie</command> rules.</para>
 files and produces a localized <command>pmie</command> configuration file
 as its output.</para>
 <para>The first input form is a generalized <command>pmie</command> rule file
-such as those found below <filename>/var/pcp/config/pmieconf/*/*</filename>.
+such as those found below <filename>${PCP_VAR_DIR}/config/pmieconf/*/*</filename>.
 These files contain the generalized rules which <command>pmieconf</command>
 is able to manipulate. Each of the rules can be enabled or disabled, or the
 individual variables associated with each rule can be edited.</para>
@@ -4628,29 +4618,25 @@ This file is both input to and output from <command>pmieconf</command>.</para>
 <para>The input version of the file contains any changed variables or rule
 states from previous invocations of <command>pmieconf</command>, and the output
 version contains both the changes in state (for any subsequent <command>pmieconf
-</command> sessions) and the generated <command>pmie</command> syntax. The <command>
-pmieconf</command> state is embedded within a <command>pmie</command> comment
-block at the head of the output file and is not interpreted by <command>pmie
-</command> itself.</para>
+</command> sessions) and the generated <command>pmie</command> syntax. The
+<command>pmieconf</command> state is embedded within a <command>pmie</command> comment
+block at the head of the output file and is not interpreted by <command>pmie</command>
+itself.</para>
 <para><indexterm id="IG31371888236"><primary>pmie tool</primary><secondary>procedures</secondary>
-</indexterm><command>pmieconf</command> is an integral part of the <command>
-pmie</command> daemon management process described in <xref linkend="Z927039824sdc"/>. <xref linkend="Z930357839sdc"/> and <xref linkend="Z930357878sdc"/> introduce the <command>
-pmieconf</command> tool through a series of typical operations.</para>
+</indexterm><command>pmieconf</command> is an integral part of the <command>pmie</command>
+daemon management process described in <xref linkend="Z927039824sdc"/>. <xref linkend="Z930357839sdc"/> and <xref linkend="Z930357878sdc"/> introduce the <command>pmieconf</command> tool through a series of typical operations.</para>
 <procedure id="Z930357839sdc">
-<title>Display <command>
-pmieconf</command> Rules</title>
-<step><para>Start <command>pmieconf</command> interactively.<literallayout class="monospaced">$ pmieconf -f /tmp/pmiefile
+<title>Display <command>pmieconf</command> Rules</title>
+<step><para>Start <command>pmieconf</command> interactively.<literallayout class="monospaced"><userinput>pmieconf -f /tmp/pmiefile</userinput>
 Updates will be made to /tmp/pmiefile
 
 pmieconf&gt;</literallayout></para>
 </step><step><para>List the set of available <command>pmieconf</command>
 rules by using the <command>rules</command> command.</para>
-</step><step><para>List the set of rule groups using the <command>
-groups</command> command.</para>
-</step><step><para>List only the enabled rules, using the <command>
-rules enabled</command> command.</para>
+</step><step><para>List the set of rule groups using the <command>groups</command> command.</para>
+</step><step><para>List only the enabled rules, using the <command>rules enabled</command> command.</para>
 </step><step><para>List a single rule:</para>
-<literallayout class="monospaced">pmieconf&gt; list memory.swap_low
+<literallayout class="monospaced">pmieconf&gt; <userinput>list memory.swap_low</userinput>
    rule: memory.swap_low  [Low free swap space]
    help: There is only threshold percent swap space remaining - the system
          may soon run out of virtual memory.  Reduce the number and size of
@@ -4667,7 +4653,7 @@ completely
          threshold = 10%
 
 pmieconf&gt;</literallayout>
-</step><step><para>List one rule variable:<literallayout class="monospaced">pmieconf&gt; list memory.swap_low threshold
+</step><step><para>List one rule variable:<literallayout class="monospaced">pmieconf&gt; <userinput>list memory.swap_low threshold</userinput>
    rule: memory.swap_low  [Low free swap space]
          threshold = 10%
 
@@ -4675,26 +4661,26 @@ pmieconf&gt;</literallayout></para>
 </step>
 </procedure>
 <procedure id="Z930357878sdc">
-<title>Modify <command>pmieconf
-</command> Rules and Generate a <command>pmie</command> File</title>
+<title>Modify <command>pmieconf</command> Rules and Generate a <command>pmie</command> File</title>
 <step><para>Lower the threshold for the <literal>memory.swap_low</literal> rule, and also change the <command>pmie</command> sample interval
 affecting just this rule. The <literal>delta</literal> variable is special
 in that it is not associated with any particular rule; it has been defined
 as a global <command>pmieconf</command> variable. Global variables can be
-displayed using the <command>list global</command> command to <command>pmieconf
-</command>, and can be modified either globally or local to a specific rule.<literallayout class="monospaced">pmieconf&gt; modify memory.swap_low threshold 5
+displayed using the <command>list global</command> command to <command>pmieconf</command>,
+and can be modified either globally or local to a specific rule.
+<literallayout class="monospaced">pmieconf&gt; <userinput>modify memory.swap_low threshold 5</userinput>
 
-pmieconf&gt; modify memory.swap_low delta &quot;1 sec&quot;
+pmieconf&gt; <userinput>modify memory.swap_low delta &quot;1 sec&quot;</userinput>
 
 pmieconf&gt;</literallayout></para>
 </step><step><para>Disable all of the rules except for the <literal>memory.swap_low</literal> rule so that you can see the effects of your change
 in isolation.</para>
 <para>This produces a relatively simple <command>pmie</command> configuration
-file:<literallayout class="monospaced">pmieconf&gt; disable all
+file:<literallayout class="monospaced">pmieconf&gt; <userinput>disable all</userinput>
 
-pmieconf&gt; enable memory.swap_low
+pmieconf&gt; <userinput>enable memory.swap_low</userinput>
 
-pmieconf&gt; status
+pmieconf&gt; <userinput>status</userinput>
   verbose:  off
   enabled rules:  1 of 35
   pmie configuration file:  /tmp/pmiefile
@@ -4707,26 +4693,25 @@ only one rule is enabled at the end of this step.</para>
 </step><step id="Z930357553sdc"><para>Run <command>pmie</command>
 with the new configuration file. Use a text editor to view the newly generated <command>
 pmie</command> configuration file (<filename>/tmp/pmiefile</filename>), and
-then run the command:<literallayout class="monospaced">$ pmie -T &quot;1.5 sec&quot; -v -l /tmp/log /tmp/pmiefile
+then run the command:<literallayout class="monospaced"><userinput>pmie -T &quot;1.5 sec&quot; -v -l /tmp/log /tmp/pmiefile</userinput>
 memory.swap_low: false
 
 memory.swap_low: false
 
-$ cat /tmp/log
-Log for pmie on moomba started Mon Jun 21 16:26:06 2002
+<userinput>cat /tmp/log</userinput>
+Log for pmie on moomba started Mon Jun 21 16:26:06 2012
 
 pmie: PID = 21847, default host = moomba
 
 [Mon Jun 21 16:26:07] pmie(21847) Info: evaluator exiting
 
-Log finished Mon Jun 21 16:26:07 2002
-$</literallayout></para>
+Log finished Mon Jun 21 16:26:07 2012</literallayout></para>
 </step><step><para>Notice that both of the <command>pmieconf</command>
-files used in the previous step are simple text files, as described in the <command>pmieconf(4)</command> man page:</para>
-<literallayout class="monospaced">$ file /tmp/pmiefile
+files used in the previous step are simple text files, as described in the <command>pmieconf(5)</command> man page:</para>
+<literallayout class="monospaced"><userinput>file /tmp/pmiefile</userinput>
 /tmp/pmiefile:  PCP pmie config (V.1)
-$ file /var/pcp/config/pmieconf/memory/swap_low
-/var/pcp/config/pmieconf/memory/swap_low:       PCP pmieconf rules (V.1)</literallayout>
+<userinput>file ${PCP_VAR_DIR}/config/pmieconf/memory/swap_low</userinput>
+${PCP_VAR_DIR}/config/pmieconf/memory/swap_low:       PCP pmieconf rules (V.1)</literallayout>
 </step>
 </procedure>
 </section>
@@ -4738,45 +4723,50 @@ $ file /var/pcp/config/pmieconf/memory/swap_low
 part of the system startup sequence, and can thus be used to perform automated,
 live performance monitoring of a running system. To do this, run these commands
 (as superuser):</para>
-<literallayout class="monospaced"># chkconfig pmie on
-# /etc/rc.d/init.d/pmie start</literallayout>
+<literallayout class="monospaced"><userinput>chkconfig pmie on</userinput>
+<userinput>/etc/rc.d/init.d/pmie start</userinput></literallayout>
 <para>By default, these enable a single <command>pmie</command> process monitoring
 the local host, with the default set of <command>pmieconf</command> rules
-enabled (for more information about <command>pmieconf</command>, see <xref linkend="Z927039566sdc"/> ). <xref linkend="Z930363467sdc"/> illustrates how
+enabled (for more information about <command>pmieconf</command>, see <xref linkend="Z927039566sdc"/>).
+<xref linkend="Z930363467sdc"/> illustrates how
 you can use these commands to start any number of <command>pmie</command>
 processes to monitor local or remote machines.</para>
 <procedure id="Z930363467sdc">
-<title>Add a New <command>
-pmie</command> Instance to the <command>pmie</command> Daemon Management Framework
-</title>
-<step><para>Use a text editor (as superuser) to edit the <command>
-pmie</command> control file <filename>/var/pcp/config/pmie/control</filename>.
+<title>Add a New <command>pmie</command> Instance to the <command>pmie</command> Daemon Management Framework</title>
+<step><para>Use a text editor (as superuser) to edit the <command>pmie</command>
+control file <filename>${PCP_PMIECONTROL_PATH}</filename>.
 Notice the default entry toward the end of the file, which looks like this:
 </para>
 <literallayout class="monospaced">#Host           S?  Log File                                  Arguments
-LOCALHOSTNAME   n   /var/log/pcp/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
+LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
 <para>This entry is used to enable a local <command>pmie</command> process.
 Add a new entry for a remote host on your local network (for example, <literal>moomba</literal>), by using your <command>pmie</command> configuration file
 (see <xref linkend="Z927039566sdc"/>):</para>
 <literallayout class="monospaced">
 #Host           S?  Log File                                  Arguments
-moomba          n   /var/log/pcp/pmie/moomba/pmie.log          -c /tmp/pmiefile
+moomba          n   PCP_LOG_DIR/pmie/moomba/pmie.log          -c /tmp/pmiefile
 </literallayout>
-</step><step><para>Enable <command>pmie</command> daemon management: <literallayout class="monospaced"># chkconfig pmie on</literallayout></para>
+<note><para>For obvious reasons, it is not a good idea to create configuration files
+for long-running processes in a temporary directory - it is done here for illustrative
+purposes only, so as to use the configuration file created in the previous section.</para>
+<para>In fact, one can specify a configuration file that does not exist, and the
+start script will run <command>pmieconf</command> to generate a default configuration.
+Without an absolute path, files will be placed in <filename>${PCP_RC_DIR}/pcp/pmie</filename>.</para>
+</note>
+</step><step><para>Enable <command>pmie</command> daemon management: <literallayout class="monospaced"><userinput>chkconfig pmie on</userinput></literallayout></para>
 <para>This simple step allows <command>pmie</command> to be started as part
 of your machine's boot process.</para>
 </step><step><para>Start the two <command>pmie</command> daemons.
 At the end of this step, you should see two new <command>pmie</command> processes
 monitoring the local and remote hosts:</para>
-<literallayout class="monospaced"># /etc/rc.d/init.d/pmie start
-    Performance Co-Pilot starting inference engine(s) ...
+<literallayout class="monospaced">${PCP_RC_DIR}/pmie start
+Performance Co-Pilot starting inference engine(s) ...
 </literallayout>
-<para>Wait a few moments while the startup scripts run. The <command>pmie
-</command> start script uses the <command>pmie_check</command> script to do
-most of its work.</para>
+<para>Wait a few moments while the startup scripts run. The <command>pmie</command>
+start script uses the <command>pmie_check</command> script to do most of its work.</para>
 <para>Verify that the <command>pmie</command> processes have started using
 the <command>pmie</command> metrics exported by the PMCD PMDA (<literal>wobbly</literal> is the local host):</para>
-<literallayout class="monospaced"># pminfo -f pmcd.pmie.pmcd_host
+<literallayout class="monospaced"><userinput>pminfo -f pmcd.pmie.pmcd_host</userinput>
 
 pmcd.pmie.pmcd_host
     inst [23150 or &quot;23150&quot;] value &quot;wobbly.melbourne.sgi.com&quot;
@@ -4786,30 +4776,34 @@ pmcd.pmie.pmcd_host
 <para>If a remote host is not up at the time when <command>pmie</command>
 is started, the <command>pmie</command> process may exit. <command>pmie</command>
 processes may also exit if the local machine is starved of memory resources.
-To counter these adverse cases, it can be useful to have a <command>crontab
-</command> entry running. Adding an entry as shown in <xref linkend="Z930363412sdc"/>,
+To counter these adverse cases, it can be useful to have a <command>crontab</command>
+entry running.  Adding an entry as shown in <xref linkend="Z930363412sdc"/>,
 ensures that if one of the configured <command>pmie</command> processes exits,
 it is automatically restarted.</para>
+<note><para>Depending on your platform, the <command>crontab</command> entry may already
+have been installed for you, as part of the package installation process.</para>
+</note>
 <procedure id="Z930363412sdc">
-<title>Add a <command>pmie
-</command> <command>crontab</command> Entry</title>
-<step><para>Merge the sample <command>pmie</command> <command>
-crontab</command> entry with your <literal>root</literal> <command>crontab
-</command> entry. The <filename>/var/pcp/config/pmie/crontab</filename>
-file holds this sample entry:<literallayout class="monospaced">$ cat /var/pcp/config/pmie/crontab
+<title>Add a <command>pmie</command> <command>crontab</command> Entry</title>
+<step><para>Merge the default <command>pmie</command> <command>crontab</command>
+entry with your <literal>pcp</literal> user <command>crontab</command> entry.</para>
+<para>So, either the <filename>/etc/cron.d/pmie</filename> or <filename>${PCP_VAR_DIR}/config/pmie/crontab</filename>
+file holds the default entry:<literallayout class="monospaced"><userinput>cat ${PCP_VAR_DIR}/config/pmie/crontab</userinput>
 #
-# standard Performance Co-Pilot crontab entries for a PCP site
+# Performance Co-Pilot crontab entries for a monitored site
 # with one or more pmie instances running
 #
+# daily processing of pmie logs
+08     0  *  *  *  ${PCP_BINADM_DIR}/pmie_daily
 # every 30 minutes, check pmie instances are running
-25,55   *       *       *       *       /usr/share/pcp/bin/pmie_check
+28,58  *  *  *  *  ${PCP_BINADM_DIR}/pmie_check
 </literallayout></para>
 </step><step><para>Use the <command>crontab</command> command and
-a text editor to append the sample <command>pmie</command> <command>crontab
-</command> entry to <literal>root</literal> <command>crontab</command> file.
+a text editor to append the default <command>pmie</command> <command>crontab</command>
+entry to the <literal>pcp</literal> users <command>crontab</command> entries.
 This procedure runs the <command>pmie_check</command> script once every thirty
 minutes to verify that the <command>pmie</command> instances are running.
-If they are not, the procedure restarts them and sends e-mail to <literal>root</literal> indicating which instances needed restarting.</para>
+If they are not running, the <command>cron</command> command will start them.</para>
 </step>
 </procedure>
 <section id="id5205585">
@@ -4821,37 +4815,40 @@ the behavior of <command>pmie</command> and the <command>pmie</command> manageme
 scripts:</para>
 <variablelist condition="sgi_termlength:nextline" id="Z930361086sdc">
 <varlistentry>
-<term><filename>/usr/share/pcp/demos/pmie/*</filename></term>
+<term><filename>${PCP_DEMOS_DIR}/pmie/*</filename></term>
 <listitem><para>Contains sample <command>pmie</command> rules that may be
 used as a basis for developing local rules.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmie/config.default</filename></term>
+<term><filename>${PCP_ETC_DIR}/pmie/config.default</filename></term>
 <listitem><para>Is the default <command>pmie</command> configuration file
 that is used when the <command>pmie</command> daemon facility is enabled.
+Generated by <command>pmieconf</command> if not manually setup beforehand.
 </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmieconf/*/*</filename></term>
+<term><filename>${PCP_VAR_DIR}/config/pmieconf/*/*</filename></term>
 <listitem><para>Contains the <command>pmieconf</command> rule definitions
-in its subdirectories.</para>
+(templates) in its subdirectories.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmie/control</filename></term>
-<listitem><para>Defines which PCP collector hosts require a daemon <command>
-pmie</command> to be launched on the local host, where the configuration file
+<term><filename>${PCP_PMIECONTROL_PATH}</filename></term>
+<listitem><para>Defines which PCP collector hosts require a daemon <command>pmie</command>
+to be launched on the local host, where the configuration file
 comes from, where the <command>pmie</command> log file should be created,
 and <command>pmie</command> startup options.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmlogger/crontab</filename></term>
-<listitem><para>Contains prototype <command>crontab</command> entries that
+<term><filename>${PCP_VAR_DIR}/config/pmlogger/crontab</filename></term>
+<listitem><para>Contains default <command>crontab</command> entries that
 may be merged with the <command>crontab</command> entries for root to schedule
 the periodic execution of the <command>pmie_check</command> script, for verifying
-that <command>pmie</command> instances are running.</para>
+that <command>pmie</command> instances are running.
+Only for platforms where a default <command>crontab</command> is not automatically
+installed during the initial PCP package installation.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/log/pcp/pmie/*</filename></term>
+<term><filename>${PCP_LOG_DIR}/pmie/*</filename></term>
 <listitem><para>Contains the <command>pmie</command> log files for the host.
 These files are created by the default behavior of the <filename>${PCP_RC_DIR}/pmie</filename>
 startup scripts.</para>
@@ -4871,27 +4868,25 @@ rates.</para>
 support script, <command>pmlogger_check</command>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/etc/rc.d/init.d/pmie</filename></term>
-<listitem><para>This control file supports the starting and stopping of multiple <command>
-pmie</command> instances that are monitoring one or more hosts.</para>
+<term><filename>${PCP_RC_DIR}/pmie</filename></term>
+<listitem><para>This start script supports the starting and stopping of multiple
+<command>pmie</command> instances that are monitoring one or more hosts.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/tmp/pmie</filename></term>
+<term><filename>${PCP_TMP_DIR}/pmie</filename></term>
 <listitem><para>The statistics that <command>pmie</command> gathers are maintained
-in binary data structure files. These files are in the <filename>/var/tmp/pmie</filename>
-directory.</para>
+in binary data structure files. These files are located in this directory.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><literal>pmcd.pmie</literal> metrics</term>
 <listitem><para>If <command>pmie</command> is running on a system with a PCP
-collector deployment, the PMCD PMDA exports these metrics via the <filename>
-pmcd.pmie</filename> group of metrics.</para>
+collector deployment, the PMCD PMDA exports these metrics via the
+<filename>pmcd.pmie</filename> group of metrics.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
 </section>
 </chapter>
-
 
 
 <chapter id="LE93354-PARENT">
@@ -5330,9 +5325,9 @@ instance is running:</para>
 pmlc&gt; <userinput>connect primary</userinput>
 pmlc&gt; <userinput>status</userinput>
 pmlogger [primary] on host pluto is logging metrics from host pluto
-log started      Thu Aug  8 14:33:01 2002 (times in local time)
-last log entry   Thu Aug  8 14:34:11 2002
-current time     Thu Aug  8 14:36:54 2002
+log started      Thu Aug  8 14:33:01 2012 (times in local time)
+last log entry   Thu Aug  8 14:34:11 2012
+current time     Thu Aug  8 14:36:54 2012
 log volume       0
 log size         284</literallayout>
 </listitem><listitem><para>Verify that the archive files are being created
@@ -5396,9 +5391,9 @@ The following pmloggers are running on bert:
 pmlc&gt; <userinput>connect 19144</userinput>
 pmlc&gt; <userinput>status</userinput>
 pmlogger [19144] on host ernie is logging metrics from host bert
-log started      Thu Aug  8 10:10:10 2002 (times in local time)
-last log entry   Thu Aug  8 14:50:54 2002
-current time     Thu Aug  8 14:55:48 2002
+log started      Thu Aug  8 10:10:10 2012 (times in local time)
+last log entry   Thu Aug  8 14:50:54 2012
+current time     Thu Aug  8 14:55:48 2012
 log volume       0
 log size         256</literallayout>
 </step>
@@ -6239,12 +6234,12 @@ file. If it is not, perform the postinstall update of this file, as superuser:<l
 </step><step><para><indexterm id="IG31371888315"><primary>PMNS</primary><secondary>names
 </secondary></indexterm>Choose Performance Metric Name Space (PMNS) names
 for the new metrics. These must begin with <literal>summary</literal> and
-follow the rules described in the <command>pmns(4)</command> man
+follow the rules described in the <command>pmns(5)</command> man
 page. For example, you might use <literal>summary.fs.cache_write</literal>
 and <literal>summary.fs.cache_hit</literal>.</para>
 </step><step><para><indexterm id="IG31371888316"><primary>PMID</primary><secondary>PMNS
 names</secondary></indexterm>Edit the <filename>pmns</filename> file in the <literal>/var/pcp/pmdas/summary</literal> directory to add the new metric names in
-the format described in the <command>pmns(4)</command> man page.
+the format described in the <command>pmns(5)</command> man page.
 You must choose a unique performance metric identifier (PMID) for each metric.
 In the <filename>pmns</filename> file, these appear as <literal>SYSSUMMARY:0:x</literal>. The value of <replaceable>x</replaceable> is arbitrary in the
 range 0 to 1023 and unique in this file. Refer to <xref linkend="LE50224-PARENT"/>,
@@ -6604,8 +6599,8 @@ cpu.utilization {
 }</literallayout>
 </example>
 <para>For complete documentation of the PMNS and associated utilities, see
-the <command>pmns(4)</command>, <command>pmnsadd(1)</command>,
-<command>pmnsdel(1)</command>, and <command>pmnsmerge(1)</command> man pages.
+the <command>pmns(5)</command>, <command>pmnsadd(1)</command>
+and <command>pmnsmerge(1)</command> man pages.
 </para>
 </section>
 </section>
