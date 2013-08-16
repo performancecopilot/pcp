@@ -5845,7 +5845,7 @@ based on those judgments. PCP is designed to be fully configurable for
 custom implementation and deployed to meet specific needs in a variety
 of operational environments.</para>
 <para>Because each enterprise and site is different and PCP represents
-a new way of visualizing performance information, some discussion of deployment
+a new way of managing performance information, some discussion of deployment
 strategies is useful.</para>
 <para><indexterm id="IG31371888309"><primary>PMCD</primary><secondary>monitoring utilities
 </secondary></indexterm><indexterm id="IG31371888310"><primary>PMDA</primary><secondary>
@@ -5882,8 +5882,8 @@ consistent with your needs.</para>
 <title>Basic Deployment</title>
 <para>In the simplest PCP deployment, one system is configured as both
 a collector and a monitor, as shown in <xref linkend="id5210776"/>.
-Because the PCP monitor tools make extensive use of visualization, this
-suggests the single system would be configured with a graphics head.</para>
+Because some of the PCP monitor tools make extensive use of visualization, this
+suggests the monitor system should be configured with a graphical display.</para>
 <figure id="id5210776"><title>PCP Deployment for a Single System</title><mediaobject><imageobject><imagedata fileref="figures/local-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment for a Single System</phrase></textobject></mediaobject></figure>
 <para>However, most PCP deployments involve at least two systems. For
 example, the setup shown in <xref linkend="id5210808"/> would be representative
@@ -5894,10 +5894,10 @@ systems configured as PCP collectors, as PCP monitors, and as both PCP
 monitors and collectors, as shown in <xref linkend="id5210866"/>.</para>
 <para>With one or more PCP collector systems and one or more PCP monitor
 systems, there are a number of decisions that need to be made regarding
-the deployment of PCP services across multiple hosts. For example, in <xref linkend="id5210866"/> there are several ways in which both the inference
-engine (<command>pmie</command>) and the PCP archive logger (<command>
-pmlogger</command>) could be deployed. These options are discussed in
-the following sections of this chapter.</para>
+the deployment of PCP services across multiple hosts. For example, in <xref linkend="id5210866"/>
+there are several ways in which both the inference engine (<command>pmie</command>)
+and the PCP archive logger (<command>pmlogger</command>) could be deployed.
+These options are discussed in the following sections of this chapter.</para>
 <figure id="id5210866"><title>General PCP Deployment for Multiple Systems
 </title><mediaobject><imageobject><imagedata fileref="figures/multi-deploy.svg"/></imageobject><textobject><phrase>General PCP Deployment for Multiple Systems
 </phrase></textobject></mediaobject></figure>
@@ -5914,23 +5914,23 @@ an active <literal>pmcd</literal> and, typically, a number of PMDAs installed.
 <title>Principal Server Deployment</title>
 <para>The first hosts selected as PCP collector systems are likely to
 provide some class of service deemed to be critical to the information
-processing activities of the enterprise. These hosts include the following:
+processing activities of the enterprise. These hosts include:
 </para>
 <itemizedlist>
-<listitem><para>A server running a DBMS</para>
+<listitem><para>Database servers</para>
 </listitem>
-<listitem><para>A World Wide Web server for an Internet or Intranet</para>
+<listitem><para>Web servers for an Internet or Intranet presence</para>
 </listitem>
-<listitem><para>An NFS file server</para>
+<listitem><para>NFS or other central storage server</para>
 </listitem>
 <listitem><para>A video server</para>
 </listitem>
-<listitem><para>A supercomputing server</para>
+<listitem><para>A supercomputer</para>
 </listitem>
 <listitem><para>An infrastructure service provider, for example, print,
-Usenet news, DNS, gateway, firewall, packet router, or mail services</para>
+DNS, LDAP, gateway, firewall, router, or mail services</para>
 </listitem>
-<listitem><para>A system running a mission-critical application</para>
+<listitem><para>Any system running a mission-critical application</para>
 </listitem></itemizedlist>
 <para>Your objective may be to improve quality of service on a system
 functioning as a server for many clients. You wish to identify and repair
@@ -5938,8 +5938,8 @@ critical performance bottlenecks and deficiencies in order to maintain
 maximum performance for clients of the server.</para>
 <para>For some of these services, the PCP base product or the PCP add-on
 products provide the necessary collector components. Others would require
-customized PMDA development, as described in the companion <citetitle>
-Performance Co-Pilot Programmer's Guide</citetitle>.</para>
+customized PMDA development, as described in the companion
+<citetitle>Performance Co-Pilot Programmer's Guide</citetitle>.</para>
 </section>
 <section id="id5211030">
 
@@ -5972,11 +5972,11 @@ the <literal>App Server</literal> and the end-user quality of service
 measurements from the system where the <literal>Client App</literal> is
 running can be monitored concurrently.</para>
 <para>PCP add-on products implement a number of examples of this architecture,
-including the <literal>shping</literal> PMDA for IP-based services and
-the <literal>webping</literal> PMDA for Web servers.</para>
-<para>For each of these PMDAs, the full source code is distributed with
-the associated PCP product to encourage adaptation of the agents to the
-local application environment.</para>
+including the <literal>shping</literal> PMDA for IP-based services (including
+HTTP), and the <literal>dbping</literal> PMDA for database servers.</para>
+<para>The (open) source code for each of these PMDAs is made available,
+and users and administrators are encouraged to adapt these agents to the
+needs of the local application environment.</para>
 <para>It is possible to exploit this arrangement even further, with these
 methods:</para>
 <itemizedlist>
@@ -6029,21 +6029,21 @@ instances. This arrangement is shown in <xref linkend="id5211413"/>.
 
 <title>Resource Demands for the Deployment Options</title>
 <para>The <command>pmlogger</command> process is very lightweight in terms
-of computational demand; so most of the (small) CPU cost associated with
-extracting performance metrics at the PCP collector system involves PMCD
-and the PMDAs, which are independent of the host on which <command>pmlogger
-</command> is running.</para>
+of computational demand; most of the (very small) CPU cost is associated with
+extracting performance metrics at the PCP collector system (PMCD and the
+PMDAs), which are independent of the host on which <command>pmlogger</command>
+is running.</para>
 <para>A local <command>pmlogger</command> consumes disk bandwidth and
 disk space on the PCP collector system. A remote <command>pmlogger</command>
 consumes disk space on the site where it is running and network bandwidth
 between that host and the PCP collector host.</para>
-<para>The archive logs typically grow at the rate of between 500 kilobytes
-(KB) and 10 megabytes (MB) per day, depending on how many performance
-metrics are logged and the choice of sampling frequencies. There are some
-advantages in minimizing the number of hosts over which the disk resources
-for PCP archive logs must be allocated; however, the aggregate requirement
-is independent of where the <command>pmlogger</command> instances are
-running.</para>
+<para>The archive logs typically grow at a rate of anywhere between a few
+kilobytes (KB) to tens of megabytes (MB) per day, depending on how many
+performance metrics are logged and the choice of sampling frequencies.
+There are some advantages in minimizing the number of hosts over which the
+disk resources for PCP archive logs must be allocated; however, the aggregate
+requirement is independent of where the <command>pmlogger</command> processes
+are running.</para>
 </section>
 <section id="id5211489">
 
@@ -6054,15 +6054,11 @@ investment to monitor these configurations, perform regular housekeeping
 (such as rotation, compression, and culling of PCP archive log files),
 and execute periodic tasks to process the archives (such as nightly performance
 regression checking with <command>pmie</command>).</para>
-<para>Many of these tasks are handled by the supplied <command>pmlogger
-</command> administrative tools and scripts, as described in <xref linkend="LE92914-PARENT"/>.
+<para>Many of these tasks are handled by the supplied <command>pmlogger</command>
+administrative tools and scripts, as described in <xref linkend="LE92914-PARENT"/>.
 However, the necessity and importance of these tasks favor a centralized <command>
 pmlogger</command> deployment, as shown in <xref linkend="id5211413"/>.
 </para>
-<note><para>The <command>pmlogger</command> utility is not subject to
-any PCP license restrictions, and may be installed and used on any host.
-</para>
-</note>
 </section>
 <section id="id5211573">
 
@@ -6093,8 +6089,8 @@ about system performance, as discussed in <xref linkend="LE21414-PARENT"/>,
 and plays a key role in monitoring system performance for both real-time
 and retrospective analysis, with the performance data being retrieved
 respectively from a PCP collector system and a PCP archive log.</para>
-<para>The following sections discuss the options and trade-offs for <command>
-pmie</command> deployment.</para>
+<para>The following sections discuss the options and trade-offs for
+<command>pmie</command> deployment.</para>
 <section id="id5211669">
 
 <title>Deployment Options</title>
@@ -6116,8 +6112,8 @@ to <command>pmlogger</command> deployment as discussed in <xref linkend="LE56598
 </listitem>
 <listitem><para>As an example of the &#x201C;distributed management with
 centralized control&#x201D; philosophy, designate some system to act as
-the PCP Management Site to run all <command>pmlogger</command> and <command>
-pmie</command> instances. This arrangement is shown in <xref linkend="id5211805"/>.
+the PCP Management Site to run all <command>pmlogger</command> and <command>pmie</command>
+instances. This arrangement is shown in <xref linkend="id5211805"/>.
 </para>
 </listitem></itemizedlist>
 <para>One <command>pmie</command> instance is capable of monitoring multiple
@@ -6145,8 +6141,8 @@ utilization on a heavily loaded server.</para>
 <section id="id5211850">
 
 <title>Operational Management</title>
-<para>An initial administrative cost is associated with configuring each <command>
-pmie</command> instance, particularly in the development of the rule sets
+<para>An initial administrative cost is associated with configuring each
+<command>pmie</command> instance, particularly in the development of the rule sets
 that accurately capture and classify &#x201C;good&#x201D; versus &#x201C;bad&#x201D;
 performance in your environment. These rule sets almost always involve
 some site-specific knowledge, particularly in respect to the &#x201C;normal&#x201D;
