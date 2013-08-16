@@ -60,12 +60,12 @@ UNIX is a registered trademark of The Open Group.</para>
 
 <title>About This Guide</title>
 <para>This guide describes the Performance Co-Pilot (PCP) performance analysis toolkit.
-PCP is a cross-platform, open source software package - customizations, extensions,
-source code inspection, and tinkering in general is actively encouraged.</para>
-<para>PCP provides a systems-level suite of tools that cooperate to deliver
+PCP provides a systems-level suite of tools that cooperate to deliver
 distributed performance monitoring and performance management services spanning
 hardware platforms, operating systems, service layers, database internals,
 user applications and distributed architectures.</para>
+<para>PCP is a cross-platform, open source software package - customizations, extensions,
+source code inspection, and tinkering in general is actively encouraged.</para>
 <para>&#x201C;About This Guide&#x201D; includes short descriptions of the chapters
 in this book, directs you to additional sources of information, and explains
 typographical conventions.</para>
@@ -221,7 +221,7 @@ surround man page section numbers.</para>
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP project via the web site.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers via the web site.</para>
 <para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>
@@ -1498,7 +1498,7 @@ files</secondary></indexterm>There are two files that control PMCD operation.
 These are the <filename>${PCP_PMCDCONF_PATH}</filename> and <filename>${PCP_PMCDOPTIONS_PATH}</filename> files.
 The <filename>pmcd.options</filename>
 file contains the command line options used with PMCD; it is read
-when the daemon is invoked by <literal>${PCP_RC_DIR}/pcp</literal>.
+when the daemon is invoked by <literal>${PCP_RC_DIR}/pmcd</literal>.
 The <filename>pmcd.conf</filename> file contains configuration information
 regarding domain agents and the metrics that they monitor.
 These configuration files are described in the following sections.</para>
@@ -1508,12 +1508,12 @@ These configuration files are described in the following sections.</para>
 <para><indexterm id="ITch02-27"><primary>pmcd.options file</primary></indexterm>Command
 line options for the PMCD are stored in the <filename>${PCP_PMCDOPTIONS_PATH}</filename>
 file. The PMCD can be invoked directly from a shell prompt, or it can be invoked
-by<literal>&#xA0;${PCP_RC_DIR}/pcp</literal> as part of the boot process.
-It is usual and normal to invoke it using <literal>${PCP_RC_DIR}/pcp</literal>,
+by<literal>&#xA0;${PCP_RC_DIR}/pmcd</literal> as part of the boot process.
+It is usual and normal to invoke it using <literal>${PCP_RC_DIR}/pmcd</literal>,
 reserving shell invocation for debugging purposes.</para>
 <para>The PMCD accepts certain command line options to control its execution,
 and these options are placed in the <filename>pmcd.options</filename> file
-when <filename>${PCP_RC_DIR}/pcp</filename> is being used to start the
+when <filename>${PCP_RC_DIR}/pmcd</filename> is being used to start the
 daemon. The following options (amongst others) are available:</para>
 <variablelist>
 <varlistentry>
@@ -1763,10 +1763,10 @@ file or known to the local DNS (domain name service).</para>
 <listitem><para>IPv4 and IPv6 addresses may be given in the usual numeric notations.</para>
 </listitem>
 <listitem><para>A wildcarded IPv4 or IPv6 address may be used to specify groups of hosts,
-with the single wildcard character ‘‘*’’ as the last-given component of the address.
-The wildcard ‘‘.*’’ refers to  all inet (IPv4) addresses. The wildcard ‘‘:*’’ refers to all
-IPv6 addresses. The wildcard ‘‘*‘‘ refers to all addresses. If an IPv6 wildcard contains a
-‘‘::’’ component, then the final ‘‘*’’ refers to the final 16 bits of the address only,
+with the single wildcard character * as the last-given component of the address.
+The wildcard .* refers to  all inet (IPv4) addresses. The wildcard :* refers to all
+IPv6 addresses. The wildcard * refers to all addresses. If an IPv6 wildcard contains a
+:: component, then the final * refers to the final 16 bits of the address only,
 otherwise it refers to the remaining unspecified bits of the address.</para>
 </listitem>
 <listitem><para>Host names may not be wildcarded.</para>
@@ -1775,7 +1775,7 @@ otherwise it refers to the remaining unspecified bits of the address.</para>
 <para>For example, the following <replaceable>hostlist</replaceable> entries
 are all valid:</para>
 <literallayout class="monospaced">babylon
-babylon.sgi.com
+babylon.acme.com
 123.101.27.44
 localhost
 155.116.24.*
@@ -1967,10 +1967,9 @@ example:</para>
 <literallayout class="monospaced">Culling the Performance Metrics Name Space ...
 elasticsearch ... done
 Updating the PMCD control file, and notifying PMCD ...
-</literallayout>
-</listitem></orderedlist>
-<literallayout class="monospaced">Removing files ... 
+Removing files ...
 Check elasticsearch metrics have gone away ... OK</literallayout>
+</listitem></orderedlist>
 </section>
 </section>
 <section id="LE70712-PARENT">
@@ -3181,7 +3180,7 @@ hinv.cpu.bogomips
 retrieve information from the specified host. If the metric has an instance
 domain, the value associated with each instance of the metric is printed:
 </para>
-<literallayout class="monospaced"><userinput>pminfo -h dove.americas.sgi.com -f filesys.mountdir</userinput>
+<literallayout class="monospaced"><userinput>pminfo -h dove -f filesys.mountdir</userinput>
 filesys.mountdir
     inst [0 or &quot;/dev/xscsi/pci00.01.0/target81/lun0/part3&quot;] value &quot;/&quot;
     inst [1 or &quot;/dev/xscsi/pci00.01.0/target81/lun0/part1&quot;] value &quot;/boot/efi&quot;</literallayout>
@@ -4248,7 +4247,7 @@ cpu_usr_sys = some_inst (
    ) -&gt;  alarm &quot;Unusual sys time: &quot; &quot;%i &quot;; </literallayout>
 <para>When evaluated against an archive, the following output is generated
 (the alarm action produces a message on standard output):</para>
-<literallayout class="monospaced"><userinput>pmafm /tmp/f4 pmie cpu.head cpu.00</userinput>
+<literallayout class="monospaced"><userinput>pmafm ${HOME}/f4 pmie cpu.head cpu.00</userinput>
 alarm Wed Aug  7 14:54:48 2012: Unusual sys time: cpu0 
 alarm Wed Aug  7 14:54:50 2012: Unusual sys time: cpu0 
 alarm Wed Aug  7 14:54:52 2012: Unusual sys time: cpu0 
@@ -4576,7 +4575,7 @@ generated <command>pmie</command> rules.</para>
 files and produces a localized <command>pmie</command> configuration file
 as its output.</para>
 <para>The first input form is a generalized <command>pmie</command> rule file
-such as those found below <filename>${PCP_VAR_DIR}/config/pmieconf/*/*</filename>.
+such as those found below <filename>${PCP_VAR_DIR}/config/pmieconf</filename>.
 These files contain the generalized rules which <command>pmieconf</command>
 is able to manipulate. Each of the rules can be enabled or disabled, or the
 individual variables associated with each rule can be edited.</para>
@@ -4596,8 +4595,8 @@ itself.</para>
 daemon management process described in <xref linkend="Z927039824sdc"/>. <xref linkend="Z930357839sdc"/> and <xref linkend="Z930357878sdc"/> introduce the <command>pmieconf</command> tool through a series of typical operations.</para>
 <procedure id="Z930357839sdc">
 <title>Display <command>pmieconf</command> Rules</title>
-<step><para>Start <command>pmieconf</command> interactively.<literallayout class="monospaced"><userinput>pmieconf -f /tmp/pmiefile</userinput>
-Updates will be made to /tmp/pmiefile
+<step><para>Start <command>pmieconf</command> interactively (as the superuser).<literallayout class="monospaced"><userinput>pmieconf -f ${PCP_SYSCONF_DIR}/pmie/config.demo</userinput>
+Updates will be made to ${PCP_SYSCONF_DIR}/pmie/config.demo
 
 pmieconf&gt;</literallayout></para>
 </step><step><para>List the set of available <command>pmieconf</command>
@@ -4652,7 +4651,7 @@ pmieconf&gt; <userinput>enable memory.swap_low</userinput>
 pmieconf&gt; <userinput>status</userinput>
   verbose:  off
   enabled rules:  1 of 35
-  pmie configuration file:  /tmp/pmiefile
+  pmie configuration file:  ${PCP_SYSCONF_DIR}/pmie/config.demo
   pmie processes (PIDs) using this file:  (none found)
 
 pmieconf&gt; quit</literallayout></para>
@@ -4660,25 +4659,25 @@ pmieconf&gt; quit</literallayout></para>
 only one rule is enabled at the end of this step.</para>
 <para/>
 </step><step id="Z930357553sdc"><para>Run <command>pmie</command>
-with the new configuration file. Use a text editor to view the newly generated <command>
-pmie</command> configuration file (<filename>/tmp/pmiefile</filename>), and
-then run the command:<literallayout class="monospaced"><userinput>pmie -T &quot;1.5 sec&quot; -v -l /tmp/log /tmp/pmiefile</userinput>
+with the new configuration file. Use a text editor to view the newly generated
+<command>pmie</command> configuration file (<filename>${PCP_SYSCONF_DIR}/pmie/config.demo</filename>), and
+then run the command:<literallayout class="monospaced"><userinput>pmie -T &quot;1.5 sec&quot; -v -l ${HOME}/demo.log ${PCP_SYSCONF_DIR}/pmie/config.demo</userinput>
 memory.swap_low: false
 
 memory.swap_low: false
 
-<userinput>cat /tmp/log</userinput>
-Log for pmie on moomba started Mon Jun 21 16:26:06 2012
+<userinput>cat ${HOME}/demo.log</userinput>
+Log for pmie on <replaceable>venus</replaceable> started Mon Jun 21 16:26:06 2012
 
-pmie: PID = 21847, default host = moomba
+pmie: PID = 21847, default host = <replaceable>venus</replaceable>
 
 [Mon Jun 21 16:26:07] pmie(21847) Info: evaluator exiting
 
 Log finished Mon Jun 21 16:26:07 2012</literallayout></para>
 </step><step><para>Notice that both of the <command>pmieconf</command>
 files used in the previous step are simple text files, as described in the <command>pmieconf(5)</command> man page:</para>
-<literallayout class="monospaced"><userinput>file /tmp/pmiefile</userinput>
-/tmp/pmiefile:  PCP pmie config (V.1)
+<literallayout class="monospaced"><userinput>file ${PCP_SYSCONF_DIR}/pmie/config.demo</userinput>
+${PCP_SYSCONF_DIR}/pmie/config.demo:  PCP pmie config (V.1)
 <userinput>file ${PCP_VAR_DIR}/config/pmieconf/memory/swap_low</userinput>
 ${PCP_VAR_DIR}/config/pmieconf/memory/swap_low:       PCP pmieconf rules (V.1)</literallayout>
 </step>
@@ -4693,7 +4692,7 @@ part of the system startup sequence, and can thus be used to perform automated,
 live performance monitoring of a running system. To do this, run these commands
 (as superuser):</para>
 <literallayout class="monospaced"><userinput>chkconfig pmie on</userinput>
-<userinput>/etc/rc.d/init.d/pmie start</userinput></literallayout>
+<userinput>${PCP_RC_DIR}/pmie start</userinput></literallayout>
 <para>By default, these enable a single <command>pmie</command> process monitoring
 the local host, with the default set of <command>pmieconf</command> rules
 enabled (for more information about <command>pmieconf</command>, see <xref linkend="Z927039566sdc"/>).
@@ -4709,18 +4708,17 @@ Notice the default entry toward the end of the file, which looks like this:
 <literallayout class="monospaced">#Host           S?  Log File                                  Arguments
 LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
 <para>This entry is used to enable a local <command>pmie</command> process.
-Add a new entry for a remote host on your local network (for example, <literal>moomba</literal>), by using your <command>pmie</command> configuration file
+Add a new entry for a remote host on your local network (for example, <literal>venus</literal>), by using your <command>pmie</command> configuration file
 (see <xref linkend="Z927039566sdc"/>):</para>
 <literallayout class="monospaced">
 #Host           S?  Log File                                  Arguments
-moomba          n   PCP_LOG_DIR/pmie/moomba/pmie.log          -c /tmp/pmiefile
+venus           n   PCP_LOG_DIR/pmie/venus/pmie.log           -c config.demo
 </literallayout>
-<note><para>For obvious reasons, it is not a good idea to create configuration files
-for long-running processes in a temporary directory - it is done here for illustrative
-purposes only, so as to use the configuration file created in the previous section.</para>
-<para>In fact, one can specify a configuration file that does not exist, and the
-start script will run <command>pmieconf</command> to generate a default configuration.
-Without an absolute path, files will be placed in <filename>${PCP_RC_DIR}/pcp/pmie</filename>.</para>
+<note><para>Without an absolute path, the configuration file (<literal>-c</literal> above)
+will be resolved using <filename>${PCP_SYSCONF_DIR}/pmie</filename> - if <filename>config.demo</filename>
+was created in <xref linkend="Z930357878sdc"/> it would be used here for host <literal>venus</literal>,
+otherwise a new configuration file will be generated using the default rules
+(at <filename>${PCP_SYSCONF_DIR}/pmie/config.demo</filename>).</para>
 </note>
 </step><step><para>Enable <command>pmie</command> daemon management: <literallayout class="monospaced"><userinput>chkconfig pmie on</userinput></literallayout></para>
 <para>This simple step allows <command>pmie</command> to be started as part
@@ -4733,48 +4731,53 @@ Performance Co-Pilot starting inference engine(s) ...
 </literallayout>
 <para>Wait a few moments while the startup scripts run. The <command>pmie</command>
 start script uses the <command>pmie_check</command> script to do most of its work.</para>
-<para>Verify that the <command>pmie</command> processes have started using
-the <command>pmie</command> metrics exported by the PMCD PMDA (<literal>wobbly</literal> is the local host):</para>
-<literallayout class="monospaced"><userinput>pminfo -f pmcd.pmie.pmcd_host</userinput>
+<para>Verify that the <command>pmie</command> processes have started:</para>
+<literallayout class="monospaced"><userinput>pcp</userinput>
+Performance Co-Pilot configuration on pluto:
 
-pmcd.pmie.pmcd_host
-    inst [23150 or &quot;23150&quot;] value &quot;wobbly.melbourne.sgi.com&quot;
-    inst [23204 or &quot;23204&quot;] value &quot;moomba.melbourne.sgi.com&quot;</literallayout>
+ platform: Linux pluto 3.10.0-0.rc7.64.el7.x86_64 #1 SMP
+ hardware: 8 cpus, 2 disks, 23960MB RAM
+ timezone: EST-10
+     pmcd: Version 3.8.3-1, 8 agents
+     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch<replaceable>
+     pmie: pluto: ${PCP_LOG_DIR}/pmie/pluto/pmie.log
+           venus: ${PCP_LOG_DIR}/pmie/venus/pmie.log</replaceable></literallayout>
 </step>
 </procedure>
 <para>If a remote host is not up at the time when <command>pmie</command>
 is started, the <command>pmie</command> process may exit. <command>pmie</command>
 processes may also exit if the local machine is starved of memory resources.
 To counter these adverse cases, it can be useful to have a <command>crontab</command>
-entry running.  Adding an entry as shown in <xref linkend="Z930363412sdc"/>,
+entry running.  Adding an entry as shown in <xref linkend="id5208584"/>
 ensures that if one of the configured <command>pmie</command> processes exits,
 it is automatically restarted.</para>
-<note><para>Depending on your platform, the <command>crontab</command> entry may already
-have been installed for you, as part of the package installation process.</para>
+<note><para>Depending on your platform, the <command>crontab</command> entry discussed
+here may already have been installed for you, as part of the package installation process.
+In this case, the file <filename>/etc/cron.d/pmie</filename> will exist, and the rest
+of this section can be skipped.</para>
 </note>
-<procedure id="Z930363412sdc">
+
+<section id="id5208584">
 <title>Add a <command>pmie</command> <command>crontab</command> Entry</title>
-<step><para>Merge the default <command>pmie</command> <command>crontab</command>
-entry with your <literal>pcp</literal> user <command>crontab</command> entry.</para>
-<para>So, either the <filename>/etc/cron.d/pmie</filename> or <filename>${PCP_VAR_DIR}/config/pmie/crontab</filename>
-file holds the default entry:<literallayout class="monospaced"><userinput>cat ${PCP_VAR_DIR}/config/pmie/crontab</userinput>
-#
-# Performance Co-Pilot crontab entries for a monitored site
-# with one or more pmie instances running
-#
-# daily processing of pmie logs
-08     0  *  *  *  ${PCP_BINADM_DIR}/pmie_daily
+<para>To activate the maintenance and housekeeping scripts for a collection
+of inference engines, execute the following tasks while logged into the local host
+as the superuser (<literal>root</literal>):</para>
+<orderedlist><listitem><para>Augment the <filename>crontab</filename> file
+for the <literal>pcp</literal> user. For example:</para>
+<literallayout class="monospaced"><userinput>crontab -l -u pcp &gt; ${HOME}/crontab.txt</userinput></literallayout>
+</listitem><listitem><para>Edit <filename>${HOME}/crontab.txt</filename>, adding lines
+similar to those from the sample <filename>${PCP_VAR_DIR}/config/pmie/crontab</filename>
+file for <literal>pmie_daily</literal> and <literal>pmie_check</literal>;
+for example:</para>
+<literallayout class="monospaced"># daily processing of pmie logs
+10     0     *     *     *    ${PCP_BINADM_DIR}/pmie_daily
 # every 30 minutes, check pmie instances are running
-28,58  *  *  *  *  ${PCP_BINADM_DIR}/pmie_check
-</literallayout></para>
-</step><step><para>Use the <command>crontab</command> command and
-a text editor to append the default <command>pmie</command> <command>crontab</command>
-entry to the <literal>pcp</literal> users <command>crontab</command> entries.
-This procedure runs the <command>pmie_check</command> script once every thirty
-minutes to verify that the <command>pmie</command> instances are running.
-If they are not running, the <command>cron</command> command will start them.</para>
-</step>
-</procedure>
+25,55  *     *     *     *    ${PCP_BINADM_DIR}/pmie_check</literallayout>
+</listitem><listitem><para>Make these changes permanent with this command:
+</para>
+<literallayout class="monospaced"><userinput>crontab -u pcp &lt; ${HOME}/crontab.txt</userinput></literallayout>
+</listitem></orderedlist>
+</section>
 <section id="id5205585">
 
 <title>Global Files and Directories</title>
@@ -5128,9 +5131,9 @@ starts a new volume. Archive log volumes retain the same base filename as
 other files in the archive log, and are differentiated by a numeric suffix
 that is incremented with each volume change. For example, you might have a
 log volume sequence that looks like this:</para>
-<literallayout class="monospaced">netserver.log.0
-netserver.log.1
-netserver.log.2</literallayout>
+<literallayout class="monospaced">netserver-log.0
+netserver-log.1
+netserver-log.2</literallayout>
 <para><indexterm id="IG31371888263"><primary>SIGHUP signal</primary></indexterm><indexterm id="IG31371888264"><primary>
 pmlc tool</primary><secondary>SIGHUP signal</secondary></indexterm>You can
 also cause an existing log to be closed and a new one to be opened by sending
@@ -5182,7 +5185,7 @@ file <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>,
 and this file should be customized on each host running an instance of <command>
 pmlogger</command>.</para>
 <para>If many archives are being created, and the associated PCP collector
-systems form peer classes based upon service type (for example, Web servers,
+systems form peer classes based upon service type (Web servers,
 DBMS servers, NFS servers, and so on), then it may be appropriate to introduce
 another layer into the directory structure, or use symbolic links to group
 together hosts providing similar service types.</para>
@@ -5222,7 +5225,7 @@ log contents</secondary></indexterm>Once a PCP archive log has been created,
 the <command>pmdumplog</command> utility may be used to display various information
 about the contents of the archive. For example, start with the following command:
 </para>
-<para><literal>pmdumplog -l ${PCP_LOG_DIR}/www.sgi.com/19960731</literal></para>
+<para><literal>pmdumplog -l ${PCP_LOG_DIR}/pmlogger/www.sgi.com/19960731</literal></para>
 <para>It might produce the following output:</para>
 <literallayout class="monospaced">Log Label (Log Format Version 1)
 Performance metrics from host www.sgi.com
@@ -5233,7 +5236,7 @@ within an archive is to use <literal>pminfo</literal> as shown in <xref linkend=
 </para>
 <example id="Z984165598sdc">
 <title>Using <literal>pminfo</literal> to Obtain Archive Information</title>
-<literallayout class="monospaced"><literal>pminfo -a ${PCP_LOG_DIR}/www.sgi.com/19960731 network.mbuf</literal>
+<literallayout class="monospaced"><literal>pminfo -a ${PCP_LOG_DIR}/pmlogger/www.sgi.com/19960731 network.mbuf</literal>
 network.mbuf.alloc 
 network.mbuf.typealloc
 network.mbuf.clustalloc
@@ -5278,8 +5281,10 @@ Performance Co-Pilot configuration on pluto:
  hardware: 8 cpus, 2 disks, 23960MB RAM
  timezone: EST-10
      pmcd: Version 3.8.3-1, 8 agents
-     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch
- pmlogger: primary logger: pluto/20130815.10.00</literallayout>
+     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch<replaceable>
+ pmlogger: primary logger: pluto/20130815.10.00</replaceable>
+     pmie: pluto: ${PCP_LOG_DIR}/pmie/pluto/pmie.log
+           venus: ${PCP_LOG_DIR}/pmie/venus/pmie.log</literallayout>
 </listitem><listitem><para>Verify that the archive files are being created
 in the expected place:</para>
 <literallayout class="monospaced"><userinput>ls ${PCP_LOG_DIR}/pmlogger/pluto</userinput>
@@ -5357,7 +5362,7 @@ or arrange to have one put in place by configuration management tools like
 <ulink url="http://www.opscode.com/chef/">Chef</ulink>.</para>
 </listitem>
 </itemizedlist>
-</step><step><para>Edit <filename>${PCP_RC_DIR}/pcp/pmlogger/control</filename>.
+</step><step><para>Edit <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>.
 Using the line for <literal>remote</literal> as a template, add
 the following line to the file:</para>
 <literallayout class="monospaced"><userinput>venus  n  n  PCP_LOG_DIR/pmlogger/venus  -r -T24h10m -c config.venus</userinput></literallayout>
@@ -5373,16 +5378,16 @@ Performance Co-Pilot configuration on pluto:
  hardware: 8 cpus, 2 disks, 23960MB RAM
  timezone: EST-10
      pmcd: Version 3.8.3-1, 8 agents
-     pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch
+     pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch<replaceable>
  pmlogger: primary logger: pluto/20130815.10.00
-           venus.redhat.com: venus/20130815.11.15
+           venus.redhat.com: venus/20130815.11.15</replaceable>
 <userinput>pmlc</userinput>
 pmlc&gt; <userinput>show loggers</userinput>
 The following pmloggers are running on pluto:
         primary (19144) 5141
 pmlc&gt; <userinput>connect 5141</userinput>
-pmlc&gt; <userinput>status</userinput>
-pmlogger [5141] on host pluto is logging metrics from host venus.redhat.com
+pmlc&gt; <userinput>status</userinput><replaceable>
+pmlogger [5141] on host pluto is logging metrics from host venus</replaceable>
 log started      Thu Aug 15 11:15:39 2013 (times in local time)
 last log entry   Thu Aug 15 11:47:39 2013
 current time     Thu Aug 15 11:48:13 2013
@@ -5411,8 +5416,8 @@ of archive logs, execute the following tasks while logged into the local host
 as the superuser (<literal>root</literal>):</para>
 <orderedlist><listitem><para>Augment the <filename>crontab</filename> file
 for the <literal>pcp</literal> user. For example:</para>
-<literallayout class="monospaced"><userinput>crontab -l -u pcp &gt; ~/crontab.txt</userinput></literallayout>
-</listitem><listitem><para>Edit <filename>~/crontab.txt</filename>, adding lines
+<literallayout class="monospaced"><userinput>crontab -l -u pcp &gt; ${HOME}/crontab.txt</userinput></literallayout>
+</listitem><listitem><para>Edit <filename>${HOME}/crontab.txt</filename>, adding lines
 similar to those from the sample <filename>${PCP_VAR_DIR}/config/pmlogger/crontab</filename>
 file for <literal>pmlogger_daily</literal> and <literal>pmlogger_check</literal>;
 for example:</para>
@@ -5422,7 +5427,7 @@ for example:</para>
 25,55  *     *     *     *    ${PCP_BINADM_DIR}/pmlogger_check</literallayout>
 </listitem><listitem><para>Make these changes permanent with this command:
 </para>
-<literallayout class="monospaced"><userinput>crontab -u pcp &lt; ~/crontab.txt</userinput></literallayout>
+<literallayout class="monospaced"><userinput>crontab -u pcp &lt; ${HOME}/crontab.txt</userinput></literallayout>
 </listitem></orderedlist>
 </section>
 </section>
@@ -5536,13 +5541,13 @@ where you want to activate the primary <command>pmlogger</command>:</para>
 <para>The primary logger launches the next time the PMCS is started.
 If you wish this to happen immediately, follow up with this command:</para>
 <literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmlogger start</userinput></literallayout>
-<para><indexterm id="IG31371888296"><primary>${PCP_SYSCONF_DIR}/pmlogger/control file</primary></indexterm><indexterm id="IG31371888297">
-<primary>${PCP_SYSCONF_DIR}/pcp/pmlogger/config.default file</primary></indexterm>When
-it is started in this fashion, the <filename>${PCP_SYSCONF_DIR}/pmlogger/control</filename>
+<para><indexterm id="IG31371888296"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary></indexterm><indexterm id="IG31371888297">
+<primary>${PCP_SYSCONF_DIR}/pmlogger/config.default file</primary></indexterm>When
+it is started in this fashion, the <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>
 must use the second field of one configuration line to designate the primary logger,
 and usually will also use the <command>pmlogger</command> configuration file
-<filename>${PCP_SYSCONF_DIR}/pcp/pmlogger/config.default</filename> (although the latter is
-not required).</para>
+<filename>${PCP_SYSCONF_DIR}/pmlogger/config.default</filename> (although the latter
+is not mandatory).</para>
 </section>
 <section id="id5209191">
 
@@ -5758,7 +5763,7 @@ Performance metrics from host gonzo
 
 <userinput>pminfo -a foo -f pmcd.pmlogger</userinput>&#xA0;
 pmcd.pmlogger.host
-     inst [10728 or &quot;10728&quot;] value &quot;gonzo.melbourne.sgi.com&quot;
+     inst [10728 or &quot;10728&quot;] value &quot;gonzo&quot;
 pmcd.pmlogger.port
      inst [10728 or &quot;10728&quot;] value 4331
 pmcd.pmlogger.archive
@@ -6972,7 +6977,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>${PCP_ETC_DIR}/pmlogger/control file <link linkend="IG31371888296">Primary Logger</link></primaryie>
+   <primaryie>${PCP_PMLOGGERCONTROL_PATH} file <link linkend="IG31371888296">Primary Logger</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -6984,7 +6989,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>${PCP_RC_DIR}/pcp file <link linkend="IG31371888127">Common Directories and File Locations</link></primaryie>
+   <primaryie>${PCP_RC_DIR}/pmcd file <link linkend="IG31371888127">Common Directories and File Locations</link></primaryie>
 </indexentry>
 
 <indexentry>
