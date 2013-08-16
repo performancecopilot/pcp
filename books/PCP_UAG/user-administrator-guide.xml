@@ -1445,14 +1445,14 @@ statistics in response to requests from the PCP monitoring tools.</para>
 <para><indexterm id="IG3137188891"><primary>PMCD</primary><secondary>starting and stopping</secondary>
 </indexterm>To start the daemon, enter the following commands as <literal>root</literal> on each PCP collection system:</para>
 <literallayout class="monospaced"><userinput>chkconfig pmcd on</userinput>&#xA0;
-<userinput>${PCP_RC_DIR}/pcp start</userinput>&#xA0;</literallayout>
+<userinput>${PCP_RC_DIR}/pmcd start</userinput>&#xA0;</literallayout>
 <para>These commands instruct the system to start the daemon immediately,
 and again whenever the system is booted. It is not necessary to start the
 daemon on the monitoring system unless you wish to collect performance information
 from it as well.</para>
 <para>To stop <command>pmcd</command> immediately on a PCP collection system,
 enter the following command:</para>
-<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp stop</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmcd stop</userinput></literallayout>
 </section>
 <section id="LE58493-PARENT">
 
@@ -1589,7 +1589,7 @@ convenience. To uncomment and use an option, simply remove the pound sign
 (#) at the beginning of the line with the option you wish to use. Restart
 <command>pmcd</command> for the change to take effect; that is, as superuser, enter
 the command:</para>
-<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmcd start</userinput></literallayout>
 </section>
 <section id="LE63226-PARENT">
 
@@ -1775,7 +1775,7 @@ otherwise it refers to the remaining unspecified bits of the address.</para>
 <para>For example, the following <replaceable>hostlist</replaceable> entries
 are all valid:</para>
 <literallayout class="monospaced">babylon
-babylon.eng.com
+babylon.sgi.com
 123.101.27.44
 localhost
 155.116.24.*
@@ -2083,7 +2083,7 @@ default):<literallayout class="monospaced"><userinput>telnet far-away-host 44321
 <para>This response indicates the PMCD is not running and needs restarting:
 </para>
 <literallayout class="monospaced">Unable to connect to remote host: Connection refused</literallayout>
-<para>To restart the PMCD on that host, enter the following command:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout></para>
+<para>To restart the PMCD on that host, enter the following command:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmcd start</userinput></literallayout></para>
 <para>This response indicates the PMCD is running:<literallayout class="monospaced">Connected to far-away-host </literallayout></para>
 <para><indexterm id="IG31371888106"><primary>PMCD_CONNECT_TIMEOUT variable</primary></indexterm>Interrupt
 the <literal>telnet</literal> session, increase the PMAPI time out by setting
@@ -2142,7 +2142,7 @@ connections is already being used or has not been cleared by the kernel.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
-<listitem><para>Start PMCD as <literal>root</literal> (superuser) by typing:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout></para>
+<listitem><para>Start PMCD as <literal>root</literal> (superuser) by typing:<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmcd start</userinput></literallayout></para>
 <para>Any existing PMCD is shut down, and a new one is started in such a way
 that the symptomatic message should not appear.</para>
 <para>If you are starting PMCD this way and the symptomatic message appears,
@@ -2701,7 +2701,7 @@ must be set to the same value in both places.</para>
 </primary></indexterm><indexterm id="IG31371888152"><primary>pmproxy port</primary></indexterm>
 This environment variable may be used to change the base TCP/IP port number
 used by <command>pmproxy</command> to create the socket to which proxied
-clients connect, on their way to a distance <command>pmcd</command>.</para>
+clients connect, on their way to a distant <command>pmcd</command>.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2723,7 +2723,7 @@ PMCD_PORT variable</primary></indexterm><indexterm id="IG31371888161"><primary>P
 variable</primary></indexterm>If the firewall service sits between the
 monitor and collector tools, the <literal>pmproxy</literal> service may
 be used to perform both packet forwarding and DNS proxying through the
-firewall; see the <command>pmproxy (1)</command>
+firewall; see the <command>pmproxy(1)</command>
 man page. Otherwise, it is necessary to arrange for packet
 forwarding to be enabled for those TCP/IP ports used by PCP, namely 44321
 (or the value of the <literal>PMCD_PORT</literal> environment variable)
@@ -4889,9 +4889,9 @@ if your archive logging implementation is not functioning correctly.</para>
 
 <title>Introduction to Archive Logging</title>
 <para><indexterm id="ITch07-2"><primary>pmlogger tool</primary><secondary>
-archive logs</secondary></indexterm>Within the PCP, the <command>pmlogger
-</command> utility may be configured to collect archives of performance metrics.
-The archive creation process is easy and very flexible, incorporating the
+archive logs</secondary></indexterm>Within the PCP, the <command>pmlogger</command>
+utility may be configured to collect archives of performance metrics.
+The archive creation process is simple and very flexible, incorporating the
 following features:</para>
 <itemizedlist>
 <listitem><para>Archive log creation at either a PCP collector (typically
@@ -4913,8 +4913,8 @@ adjustment</secondary></indexterm><indexterm id="IG31371888241"><primary>pmlogge
 <secondary>pmlc control</secondary></indexterm>Dynamic adjustment of what
 is to be logged, and how frequently, via <command>pmlc</command>. This feature
 may be used to disable logging or to increase the sample interval during periods
-of low activity or chronic high activity (to minimize logging overhead and
-intrusion). A local <command>pmlc</command> may interrogate and control a
+of low activity or chronic high activity.
+A local <command>pmlc</command> may interrogate and control a
 remote <command>pmlogger</command>, subject to the access control restrictions
 implemented by <command>pmlogger</command>.</para>
 </listitem>
@@ -4922,10 +4922,17 @@ implemented by <command>pmlogger</command>.</para>
 and metadata required to interpret the values in the log. These logs can be
 kept for analysis at a much later time, potentially after the hardware or
 software has been reconfigured and the logs have been stored as discrete,
-autonomous files for remote analysis.</para>
+autonomous files for remote analysis. The logs are endian-neutral and platform
+independent - there is no requirement that the monitor host machine used for
+analysis be similar to the collector machine in any way, nor do they have to
+have the same versions of PCP.  PCP archives created over 15 years ago can
+still be replayed with the current versions of PCP!</para>
 </listitem>
-<listitem><para><indexterm id="IG31371888242"><primary>cron scripts</primary></indexterm><literal>cron</literal>-based scripts to expedite the operational management, for example,
-log rotation, consolidation, and culling.</para>
+<listitem><para><indexterm id="IG31371888242"><primary>cron scripts</primary></indexterm><literal>cron</literal>-based
+scripts to expedite the operational management, for example,
+log rotation, consolidation, and culling. Another helper tool,
+<command>pmlogconf</command> can be used to generate suitable
+logging configurations for a variety of situations.</para>
 </listitem>
 <listitem><para><indexterm id="IG31371888243"><primary>mkaf tool</primary></indexterm><indexterm id="IG31371888244">
 <primary>pmafm tool</primary><secondary>archive folios</secondary></indexterm>Archive
@@ -4947,9 +4954,6 @@ Programming Interface (PMAPI) that preserves the same semantics for both styles
 of metric source. In this way, applications and tools developed against the
 PMAPI can automatically process either live or historical performance data.
 </para>
-<para>The only restriction is that both live and historical data cannot be
-monitored simultaneously with the same invocation of a visualization tool.
-</para>
 </section>
 <section id="id5206362">
 
@@ -4963,19 +4967,19 @@ yesterday's performance. With routine creation of performance archive logs,
 you can concurrently replay pictures of system performance for two or more
 periods in the past.</para>
 <para>Archive logs are also an invaluable source of intelligence when trying
-to diagnose what went wrong, as in a performance postmortem. Because the PCP
+to diagnose what went wrong, as in a performance post-mortem. Because the PCP
 archive logs are entirely self-contained, this analysis can be performed off-site
 if necessary.</para>
 <para>Each archive log contains metric values from only one host. However,
 many PCP tools can simultaneously visualize values from multiple archives
 collected from different hosts.</para>
-<para>The archives can be replayed against the inference engine (<command>
-pmie</command> is an application that uses the PMAPI). This allows you to
+<para>The archives can be replayed using the inference engine (<command>pmie</command>
+is an application that uses the PMAPI). This allows you to
 automate the regular, first-level analysis of system performance.</para>
 <para>Such analysis can be performed by constructing suitable expressions
 to capture the essence of common resource saturation problems, then periodically
 creating an archive and playing it against the expressions. For example, you
-may wish to create a daily performance audit (run by the <literal>cron</literal>
+may wish to create a daily performance audit (perhaps run by the <command>cron</command>
 command) to detect performance regressions.</para>
 <para>For more about <command>pmie</command>, see <xref linkend="LE21414-PARENT"/>.
 </para>
@@ -5005,20 +5009,19 @@ general issues involving archive logs and the PCP tools.</para>
 
 <title>Coordination between <command>pmlogger</command> and PCP tools</title>
 <para><indexterm id="IG31371888251"><primary>pmlogger tool</primary><secondary>PCP tool coordination
-</secondary></indexterm>Most commonly, a PCP tool would be invoked with the <literal>-a</literal> option to process an archive log some time after <command>pmlogger
-</command> had finished creating the archive. However, a tool such as <command>
-oview</command> that uses a Time Control dialog (see <xref linkend="LE76997-PARENT"/>)
+</secondary></indexterm>Most commonly, a PCP tool would be invoked with the <literal>-a</literal> option to process an archive log some time after <command>pmlogger</command> had finished creating the archive. However, a tool such as
+<command>pmchart</command> that uses a Time Control dialog (see <xref linkend="LE76997-PARENT"/>)
 stops when the end of archive is reached, but could resume if more data is
 written to the PCP archive log.<note><para><indexterm id="IG31371888252"><primary>SIGUSR1 signal
 </primary></indexterm><indexterm id="IG31371888253"><primary>flush command</primary></indexterm><indexterm id="IG31371888254">
-<primary>pmlc tool</primary><secondary>flush command</secondary></indexterm><command>
-pmlogger</command> uses buffered I/O to write the archive log so that the
+<primary>pmlc tool</primary><secondary>flush command</secondary></indexterm><command>pmlogger</command>
+uses buffered I/O to write the archive log so that the
 end of the archive may be aligned with an I/O buffer boundary, rather than
 with a logical archive log record. If such an archive was read by a PCP tool,
 it would appear truncated and might confuse the tool. These problems may be
 avoided by sending <command>pmlogger</command> a <literal>SIGUSR1</literal>
-signal, or by using the <command>flush</command> command of <command>pmlc
-</command> to force <command>pmlogger</command> to flush its output buffers.
+signal, or by using the <command>flush</command> command of <command>pmlc</command>
+to force <command>pmlogger</command> to flush its output buffers.
 </para>
 </note></para>
 </section><section id="id5206675">
@@ -5038,32 +5041,41 @@ The following scripts are supplied:</para>
 <varlistentry>
 <term><emphasis role="bold">Script</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term><literal>pmlogger_daily</literal></term>
+<term><literal>pmlogger_daily(1)</literal></term>
 <listitem><para>Performs a daily housecleaning of archive logs and notices.
 </para>
 </listitem></varlistentry>
 <varlistentry>
-<term><literal>pmlogger_merge</literal></term>
+<term><literal>pmlogger_merge(1)</literal></term>
 <listitem><para><literal/>Merges archive logs and is called by <literal>pmlogger_daily</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><literal>pmlogger_check</literal></term>
+<term><literal>pmlogger_check(1)</literal></term>
 <listitem><para>Checks to see that all desired <command>pmlogger</command>
 processes are running on your system, and invokes any that are missing for
 any reason.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><command>pmsnap</command></term>
+<term><literal>pmlogconf(1)</literal></term>
+<listitem><para>Generates suitable <command>pmlogger</command> configuration
+files based on a pre-defined set of templates. It can probe the state of the
+system under observation to make informed decisions about which metrics to
+record. This is an extensible facility, allowing software upgrades and new
+PMDA installations to add to the existing set of templates.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmsnap(1)</command></term>
 <listitem><para>Generates graphic image snapshots of <command>pmchart</command>
 performance charts at regular intervals.</para>
 </listitem></varlistentry>
 </variablelist>
-<para><indexterm id="IG31371888259"><primary>/var/pcp/config/pmlogger/control file</primary>
+<para><indexterm id="IG31371888259"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary>
 </indexterm>The configuration files used by these scripts can be edited to
-suit your particular needs, and are generally controlled by the <filename>
-/var/pcp/config/pmlogger/control</filename> file (<literal>pmsnap</literal>
-has an additional control file). Complete information on these scripts is
-available in the <command>pmlogger_daily(1)</command> and <command>pmsnap(1)</command> man pages.</para>
+suit your particular needs, and are generally controlled by the
+<filename>${PCP_PMLOGGERCONTROL_PATH}</filename> file (<literal>pmsnap</literal>
+has an additional control file, <filename>${PCP_PMSNAPCONTROL_PATH}</filename>).
+Complete information on these scripts is available in the <command>pmlogger_daily(1)</command>
+and <command>pmsnap(1)</command> man pages.</para>
 </section>
 <section id="LE92914-PARENT">
 
@@ -5090,13 +5102,11 @@ must be specified and several physical files are created, as shown in <xref link
 <entry align="left" valign="bottom"><para>Contents</para></entry></row></thead>
 <tbody>
 <row valign="top">
-<entry align="left" valign="top"><para><filename>archive.</filename><emphasis role="bold"/><replaceable>
-index</replaceable></para></entry>
+<entry align="left" valign="top"><para><filename>archive.</filename><emphasis role="bold"/><replaceable>index</replaceable></para></entry>
 <entry align="left" valign="top"><para>Temporal index for rapid access to
 archive contents.</para></entry></row>
 <row valign="top">
-<entry align="left" valign="top"><para><filename>archive.</filename><replaceable>
-meta</replaceable></para></entry>
+<entry align="left" valign="top"><para><filename>archive.</filename><replaceable>meta</replaceable></para></entry>
 <entry align="left" valign="top"><para>Metadata descriptions for performance
 metrics and instance domains appearing in the archive.</para></entry></row>
 <row valign="top">
@@ -5127,8 +5137,8 @@ also cause an existing log to be closed and a new one to be opened by sending
 a <literal>SIGHUP</literal> signal to <command>pmlogger</command>, or by using
 the <command>pmlc</command> command to change the <command>pmlogger</command>
 instructions dynamically, without interrupting <command>pmlogger</command>
-operation. Complete information on log volumes is found in the <command>
-pmlogger(1)</command> man page.</para>
+operation. Complete information on log volumes is found in the <command>pmlogger(1)</command>
+man page.</para>
 </section><section id="id5207300">
 
 <title>Basenames for Managed Archive Log Files</title>
@@ -5136,8 +5146,8 @@ pmlogger(1)</command> man page.</para>
 the basenames for the files in a collection of archives and for mapping these
 files to a suitable directory hierarchy.</para>
 <para>Once configured, the PCP tools that manage archive logs employ a consistent
-scheme for selecting the basename for an archive each time <command>pmlogger
-</command> is launched, namely the current date and time in the format YYYYMMDD.HH.MM.
+scheme for selecting the basename for an archive each time <command>pmlogger</command>
+is launched, namely the current date and time in the format YYYYMMDD.HH.MM.
 Typically, at the end of each day, all archives for a particular host on that
 day would be merged to produce a single archive with a basename constructed
 from the date, namely YYYYMMDD. The <literal>pmlogger_daily</literal> script
@@ -5149,10 +5159,10 @@ performs this action and a number of other routine housekeeping chores.</para>
 from a variety of hosts and storing them all at a central location, you should
 develop an organized strategy for storing and naming your log files.</para>
 <note><para><indexterm id="IG31371888265"><primary>pmchart tool</primary><secondary>short-term
-executions</secondary></indexterm>There are many possible configurations of <command>
-pmlogger</command>, as described in <xref linkend="LE56598-PARENT"/>. The directory
-organization described in this section is recommended for any system on which <command>
-pmlogger</command> is configured for permanent execution (as opposed to short-term
+executions</secondary></indexterm>There are many possible configurations of <command>pmlogger</command>,
+as described in <xref linkend="LE56598-PARENT"/>. The directory
+organization described in this section is recommended for any system on which
+<command>pmlogger</command> is configured for permanent execution (as opposed to short-term
 executions, for example, as launched from <command>pmchart</command> to record
 some performance data of current interest).</para>
 </note>
@@ -5160,15 +5170,15 @@ some performance data of current interest).</para>
 number of hosts for which a <command>pmlogger</command> instance is expected
 to be running locally, obviating the need for lengthy and cumbersome filenames.
 It makes considerable sense to place all logs for a particular host in a separate
-directory named after that host. Because each instance of <command>pmlogger
-</command> can only log metrics fetched from a single host, this also simplifies
+directory named after that host. Because each instance of <command>pmlogger</command>
+can only log metrics fetched from a single host, this also simplifies
 some of the archive log management and administration tasks.</para>
 <para>For example, consider the filesystem and naming structure shown in <xref linkend="id5207462"/>.</para>
 <figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="figures/log-directory.svg"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
-<para><indexterm id="IG31371888266"><primary>/var/pcp/config/pmlogger/control file</primary>
+<para><indexterm id="IG31371888266"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary>
 </indexterm>The specification of where to place the archive log files for
 particular <command>pmlogger</command> instances is encoded in the configuration
-file <filename>/var/pcp/config/pmlogger/control</filename>,
+file <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>,
 and this file should be customized on each host running an instance of <command>
 pmlogger</command>.</para>
 <para>If many archives are being created, and the associated PCP collector
@@ -5181,26 +5191,27 @@ together hosts providing similar service types.</para>
 
 <title>Configuration of <command>pmlogger</command></title>
 <para><indexterm id="IG31371888267"><primary>pmlogger tool</primary><secondary>configuration
-</secondary></indexterm>The configuration files used by <command>pmlogger
-</command> describe which metrics are to be logged. Groups of metrics may
+</secondary></indexterm>The configuration files used by <command>pmlogger</command>
+describe which metrics are to be logged. Groups of metrics may
 be logged at different intervals to other groups of metrics. Two states, mandatory
 and advisory, also apply to each group of metrics, defining whether metrics
 definitely should be logged or not logged, or whether a later advisory definition
 may change that state.</para>
 <para>The mandatory state takes precedence if it is <literal>on</literal>
 or <literal>off</literal>, causing any subsequent request for a change in
-advisory state to have no effect. If the mandatory state is <literal>maybe</literal>, then the advisory state determines if logging is enabled or not.
+advisory state to have no effect. If the mandatory state is <literal>maybe</literal>,
+then the advisory state determines if logging is enabled or not.
 </para>
 <para>The mandatory states are <literal>on</literal>, <literal>off</literal>,
 and <literal>maybe</literal>. The advisory states, which only affect metrics
-that are mandatory <literal>maybe</literal>, are <literal>on</literal> and <literal>off</literal>. Therefore, a metric that is mandatory <literal>maybe</literal>
+that are mandatory <literal>maybe</literal>, are <literal>on</literal> and
+<literal>off</literal>. Therefore, a metric that is mandatory <literal>maybe</literal>
 in one definition and advisory <literal>on</literal> in another definition
 would be logged at the advisory interval. Metrics that are not specified in
-the <command>pmlogger</command> configuration file are mandatory <literal>maybe</literal> and advisory <literal>off</literal> by default and are not
-logged.</para>
+the <command>pmlogger</command> configuration file are mandatory <literal>maybe</literal>
+and advisory <literal>off</literal> by default and are not logged.</para>
 <para>A complete description of the <command>pmlogger</command> configuration
-format can be found on the <command>pmlogger(1)</command> man
-page.</para>
+format can be found on the <command>pmlogger(1)</command> man page.</para>
 </section>
 <section id="id5207708">
 
@@ -5211,7 +5222,7 @@ log contents</secondary></indexterm>Once a PCP archive log has been created,
 the <command>pmdumplog</command> utility may be used to display various information
 about the contents of the archive. For example, start with the following command:
 </para>
-<para><literal>pmdumplog -l /var/adm/pcplog/www.sgi.com/960731</literal></para>
+<para><literal>pmdumplog -l ${PCP_LOG_DIR}/www.sgi.com/19960731</literal></para>
 <para>It might produce the following output:</para>
 <literallayout class="monospaced">Log Label (Log Format Version 1)
 Performance metrics from host www.sgi.com
@@ -5222,7 +5233,7 @@ within an archive is to use <literal>pminfo</literal> as shown in <xref linkend=
 </para>
 <example id="Z984165598sdc">
 <title>Using <literal>pminfo</literal> to Obtain Archive Information</title>
-<literallayout class="monospaced"><literal>pminfo -a /var/adm/pcplog/www.sgi.com/960731 network.mbuf</literal>
+<literallayout class="monospaced"><literal>pminfo -a ${PCP_LOG_DIR}/www.sgi.com/19960731 network.mbuf</literal>
 network.mbuf.alloc 
 network.mbuf.typealloc
 network.mbuf.clustalloc
@@ -5247,129 +5258,141 @@ to the other sections in this chapter and the man pages for <command>pmlogger
 
 <title>Primary Logger</title>
 <para><indexterm id="IG31371888272"><primary>primary archive</primary></indexterm>Assume you
-wish to activate primary archive logging on the PCP collector host <literal>pluto</literal>. Execute all of the following tasks while logged into <literal>pluto</literal> as the superuser (<literal>root</literal>).</para>
-<orderedlist><listitem><para>Create the directory to hold the archive logs:
-</para>
-<literallayout class="monospaced"><userinput>mkdir /var/log/pcp/pmlogger/pluto</userinput></literallayout>
-</listitem><listitem><para>Choose a suitable <command>pmlogger</command> configuration
-file. Here are some examples:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG31371888273"><primary>/var/pcp/config/pmlogger/config.default
-file</primary></indexterm>The default configuration: <filename>/var/pcp/config/pmlogger/config.default.</filename></para>
-</listitem>
-<listitem><para><indexterm id="IG31371888274"><primary>dkvis tool</primary><secondary>summary
-configuration</secondary></indexterm><indexterm id="IG31371888275"><primary>mpvis tool</primary>
-<secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888276"><primary>
-pmstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888277">
-<primary>nfsvis tool</primary><secondary>summary configuration</secondary>
-</indexterm>A broad summary configuration, sufficient to be used with <command>
-dkvis</command>, <command>mpvis</command>, <command>nfsvis</command>, and <command>
-pmstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
-</listitem>
-<listitem><para><indexterm id="IG31371888278"><primary>config.* files</primary></indexterm><indexterm id="IG31371888279">
-<primary>/var/pcp/config/pmlogger file</primary></indexterm><indexterm id="IG31371888280"><primary>
-pmchart tool</primary><secondary>config.* files</secondary></indexterm>One
-of the other <filename>config.*</filename> files in the <filename>${PCP_VAR_DIR}/config/pmlogger</filename>
-directory, tailored for an application, a PCP add-on product,
-a <command>pmchart</command> view, or a PCP monitor tool.</para>
-<para><indexterm id="IG31371888281"><primary>/var/adm/pcplog/pluto/config.default file</primary>
-</indexterm>Copy the chosen configuration file to <filename>${PCP_LOG_DIR}/pmlogger/pluto/config.default</filename>
-(possibly after some customization).</para>
-</listitem></itemizedlist>
-</listitem><listitem><para><indexterm id="IG31371888282"><primary>${PCP_ETC_DIR}/pcp/pmlogger/control file</primary>
-</indexterm>Edit <filename>${PCP_ETC_DIR}/pcp/pmlogger/control</filename>.
-Using the line for the &#x201C;local primary logger&#x201D; as
-a template, add the following line to the file:</para>
-<literallayout class="monospaced"><userinput>pluto  y  n  /var/log/pcp/pmlogger/pluto  -c config.default</userinput>&#xA0;</literallayout>
-</listitem><listitem><para>Make sure PMCD and <command>pmlogger</command>
-are enabled and running:</para>
+wish to activate primary archive logging on the PCP collector host <literal>pluto</literal>.
+Execute the following while logged into <literal>pluto</literal> as the superuser
+(<literal>root</literal>).</para>
+<orderedlist>
+<listitem><para>Start <command>pmcd</command> and <command>pmlogger</command>:</para>
 <literallayout class="monospaced"><userinput>chkconfig pmcd on</userinput>
 <userinput>chkconfig pmlogger on</userinput>
-<userinput>/etc/rc.d/init.d/pcp start</userinput>
-Performance Co-Pilot PMCD started (logfile is .... /pmcd.log)
-Performance Co-Pilot Primary Logger started</literallayout>
+<userinput>${PCP_RC_DIR}/pmcd start</userinput>
+Starting pmcd ...
+<userinput>${PCP_RC_DIR}/pmlogger start</userinput>
+Starting pmlogger ...</literallayout>
 </listitem><listitem><para>Verify that the primary <command>pmlogger</command>
 instance is running:</para>
-<literallayout class="monospaced"><userinput>pmlc</userinput>
-pmlc&gt; <userinput>connect primary</userinput>
-pmlc&gt; <userinput>status</userinput>
-pmlogger [primary] on host pluto is logging metrics from host pluto
-log started      Thu Aug  8 14:33:01 2012 (times in local time)
-last log entry   Thu Aug  8 14:34:11 2012
-current time     Thu Aug  8 14:36:54 2012
-log volume       0
-log size         284</literallayout>
+<literallayout class="monospaced"><userinput>pcp</userinput>
+Performance Co-Pilot configuration on pluto:
+
+ platform: Linux pluto 3.10.0-0.rc7.64.el7.x86_64 #1 SMP
+ hardware: 8 cpus, 2 disks, 23960MB RAM
+ timezone: EST-10
+     pmcd: Version 3.8.3-1, 8 agents
+     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch
+ pmlogger: primary logger: pluto/20130815.10.00</literallayout>
 </listitem><listitem><para>Verify that the archive files are being created
-in the correct place:</para>
-<literallayout class="monospaced"><userinput>ls /var/log/pcp/pmlogger/pluto</userinput>
-960808.14.33.0 
-960808.14.33.index
-960808.14.33.meta
+in the expected place:</para>
+<literallayout class="monospaced"><userinput>ls ${PCP_LOG_DIR}/pmlogger/pluto</userinput>
+20130815.10.00.0
+20130815.10.00.index
+20130815.10.00.meta
 Latest
 pmlogger.log</literallayout>
-</listitem></orderedlist>
+</listitem><listitem><para>Verify that no errors are being logged, and the rate of
+expected growth of the archives:</para>
+<literallayout class="monospaced"><userinput>cat ${PCP_LOG_DIR}/pmlogger/pluto/pmlogger.log</userinput>
+Log for pmlogger on pluto started Thu Aug 15 10:00:11 2013
+
+Config parsed
+Starting primary logger for host "pluto"
+Archive basename: 20130815.00.10
+
+Group [26 metrics] {
+	hinv.map.lvname
+	...
+	hinv.ncpu
+} logged once: 1912 bytes
+
+Group [11 metrics] {
+	kernel.all.cpu.user
+	...
+	kernel.all.load
+} logged every 60 sec: 372 bytes or 0.51 Mbytes/day
+
+...</literallayout>
+</listitem>
+</orderedlist>
 </section>
 <section id="id5208266">
 
 <title>Other Logger Configurations</title>
 <para>Assume you wish to create archive logs on the local host for performance
-metrics collected from the remote host <literal>bert</literal>. Execute all
+metrics collected from the remote host <literal>venus</literal>. Execute all
 of the following tasks while logged into the local host as the superuser (<literal>root</literal>).</para>
 <procedure id="id5208288">
 <title>Creating Archive Logs</title>
-<step><para>Create the directory to hold the archive logs:
-</para>
-<literallayout class="monospaced"><userinput>mkdir /var/log/pcp/pmlogger/bert</userinput>&#xA0;</literallayout>
-</step><step><para>Choose a suitable <command>pmlogger</command> configuration
-file. Here are three examples:</para>
+<step><para>Create a suitable <command>pmlogger</command> configuration
+file. There are several options:</para>
 <itemizedlist>
-<listitem><para><indexterm id="IG31371888283"><primary>/var/pcp/config/pmlogger/config.default
-file</primary></indexterm>The default configuration: <filename>/var/pcp/config/pmlogger/config.default.</filename></para>
+<listitem><para>Run the <command>pmlogconf(1)</command> utility to generate
+a configuration file, and (optionally) interactively customize it further to
+suit local needs.
+</para>
+<literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmlogconf ${PCP_ETC_DIR}/pmlogger/config.venus</userinput>
+Creating config file "${PCP_ETC_DIR}/pmlogger/config.venus" using default settings
+
+<userinput>${PCP_BINADM_DIR}/pmlogconf ${PCP_ETC_DIR}/pmlogger/config.venus</userinput>
+
+Group: utilization per CPU
+Log this group? [n] y
+Logging interval? [default] 
+
+Group: utilization (usr, sys, idle, ...) over all CPUs
+Log this group? [y] y
+Logging interval? [default] 
+
+Group: per spindle disk activity
+Log this group? [n] y
+
+...</literallayout>
 </listitem>
-<listitem><para><indexterm id="IG31371888284"><primary>dkvis tool</primary><secondary>summary
-configuration</secondary></indexterm><indexterm id="IG31371888285"><primary>mpvis tool</primary>
-<secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888286"><primary>
-pmstat tool</primary><secondary>summary configuration</secondary></indexterm><indexterm id="IG31371888287">
-<primary>nfsvis tool</primary><secondary>summary configuration</secondary>
-</indexterm>A broad summary configuration, sufficient to be used with <command>
-dkvis</command>, <command>mpvis</command>, <command>nfsvis</command>, and <command>
-pmstat</command>: <filename>/var/pcp/config/pmlogger/config.Summary.</filename></para>
+<listitem><para>Do nothing - a default configuration will be created in the
+following step, using <command>pmlogconf(1)</command> probing and automatic file
+generation based on the metrics available at the remote host. The
+<filename>${PCP_RC_DIR}/pmlogger</filename> start script handles this.</para>
 </listitem>
-<listitem><para><indexterm id="IG31371888288"><primary>/var/pcp/config/pmlogger directory</primary>
-</indexterm><indexterm id="IG31371888289"><primary>pmview tool</primary><secondary>config.* files
-</secondary></indexterm>One of the other <filename>config.*</filename> files
-in the <filename>/var/pcp/config/pmlogger</filename> directory, tailored for
-an application, a PCP add-on product, a <command>pmchart</command> view, or
-a PCP monitor tool.</para>
-<para>Copy the chosen configuration file to <filename>/var/log/pcp/pmlogger/config.default</filename>
-(possibly after some customization).</para>
-</listitem></itemizedlist>
+<listitem><para>Manually - create a configuration file with a text editor,
+or arrange to have one put in place by configuration management tools like
+<ulink url="https://puppetlabs.com/">Puppet</ulink> or
+<ulink url="http://www.opscode.com/chef/">Chef</ulink>.</para>
+</listitem>
+</itemizedlist>
 </step><step><para>Edit <filename>${PCP_RC_DIR}/pcp/pmlogger/control</filename>.
 Using the line for <literal>remote</literal> as a template, add
 the following line to the file:</para>
-<literallayout class="monospaced"><userinput>bert  n  n  /var/log/pcp/pmlogger/bert  -c ./config.default</userinput></literallayout>
+<literallayout class="monospaced"><userinput>venus  n  n  PCP_LOG_DIR/pmlogger/venus  -r -T24h10m -c config.venus</userinput></literallayout>
 </step><step><para>Start <command>pmlogger</command>:</para>
-<literallayout class="monospaced"><userinput>/usr/share/pcp/bin/pmlogger_check</userinput>
-Restarting pmlogger for host &quot;bert&quot; ..... done</literallayout>
+<literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmlogger_check</userinput>
+Restarting pmlogger for host &quot;venus&quot; ..... done</literallayout>
 </step><step><para>Verify that the <command>pmlogger</command> instance
 is running:</para>
-<literallayout class="monospaced"><userinput>pmlc</userinput>
+<literallayout class="monospaced"><userinput>pcp</userinput>
+Performance Co-Pilot configuration on pluto:
+
+ platform: Linux pluto 3.10.0-0.rc7.64.el7.x86_64 #1 SMP
+ hardware: 8 cpus, 2 disks, 23960MB RAM
+ timezone: EST-10
+     pmcd: Version 3.8.3-1, 8 agents
+     pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch
+ pmlogger: primary logger: pluto/20130815.10.00
+           venus.redhat.com: venus/20130815.11.15
+<userinput>pmlc</userinput>
 pmlc&gt; <userinput>show loggers</userinput>
-The following pmloggers are running on bert:
-        primary (19144)
-pmlc&gt; <userinput>connect 19144</userinput>
+The following pmloggers are running on pluto:
+        primary (19144) 5141
+pmlc&gt; <userinput>connect 5141</userinput>
 pmlc&gt; <userinput>status</userinput>
-pmlogger [19144] on host ernie is logging metrics from host bert
-log started      Thu Aug  8 10:10:10 2012 (times in local time)
-last log entry   Thu Aug  8 14:50:54 2012
-current time     Thu Aug  8 14:55:48 2012
+pmlogger [5141] on host pluto is logging metrics from host venus.redhat.com
+log started      Thu Aug 15 11:15:39 2013 (times in local time)
+last log entry   Thu Aug 15 11:47:39 2013
+current time     Thu Aug 15 11:48:13 2013
 log volume       0
-log size         256</literallayout>
+log size         146160</literallayout>
 </step>
 </procedure>
 <para>To create archive logs on the local host for performance metrics collected
 from multiple remote hosts, repeat the steps in <xref linkend="id5208288"/>
-for each remote host.</para>
+for each remote host (each with a new <filename>control</filename> file entry).</para>
 </section>
 <section id="id5208588">
 
@@ -5378,23 +5401,28 @@ for each remote host.</para>
 </secondary></indexterm>Assume the local host has been set up to create archive
 logs of performance metrics collected from one or more hosts (which may be
 either the local host or a remote host).</para>
+<note><para>Depending on your platform, the <command>crontab</command> entry discussed
+here may already have been installed for you, as part of the package installation process.
+In this case, the file <filename>/etc/cron.d/pmlogger</filename> will exist, and the rest
+of this section can be skipped.</para>
+</note>
 <para>To activate the maintenance and housekeeping scripts for a collection
 of archive logs, execute the following tasks while logged into the local host
 as the superuser (<literal>root</literal>):</para>
 <orderedlist><listitem><para>Augment the <filename>crontab</filename> file
-for <literal>root</literal>. For example:</para>
-<literallayout class="monospaced"><userinput>crontab -l &gt;/tmp/foo</userinput></literallayout>
-</listitem><listitem><para>Edit <filename>/tmp/foo</filename>, adding lines
-similar to those from <filename>/var/pcp/config/pmlogger/crontab</filename>
-for <literal>pmlogger_daily</literal> and <literal>pmlogger_check</literal>;
+for the <literal>pcp</literal> user. For example:</para>
+<literallayout class="monospaced"><userinput>crontab -l -u pcp &gt; ~/crontab.txt</userinput></literallayout>
+</listitem><listitem><para>Edit <filename>~/crontab.txt</filename>, adding lines
+similar to those from the sample <filename>${PCP_VAR_DIR}/config/pmlogger/crontab</filename>
+file for <literal>pmlogger_daily</literal> and <literal>pmlogger_check</literal>;
 for example:</para>
 <literallayout class="monospaced"># daily processing of archive logs
-10     0     *     *     *    /usr/share/pcp/bin/pmlogger_daily
+10     0     *     *     *    ${PCP_BINADM_DIR}/pmlogger_daily
 # every 30 minutes, check pmlogger instances are running
-25,55  *     *     *     *    /usr/share/pcp/bin/pmlogger_check</literallayout>
+25,55  *     *     *     *    ${PCP_BINADM_DIR}/pmlogger_check</literallayout>
 </listitem><listitem><para>Make these changes permanent with this command:
 </para>
-<literallayout class="monospaced"><userinput>crontab &lt;/tmp/foo</userinput></literallayout>
+<literallayout class="monospaced"><userinput>crontab -u pcp &lt; ~/crontab.txt</userinput></literallayout>
 </listitem></orderedlist>
 </section>
 </section>
@@ -5410,17 +5438,17 @@ manipulating archive logs, primary logger, and using <command>pmlc</command>.
 <para><indexterm id="ITch07-9"><primary>folios</primary></indexterm><indexterm id="IG31371888291">
 <primary>archive logs</primary><secondary>folios</secondary></indexterm><indexterm id="IG31371888292">
 <primary>pmchart tool</primary><secondary>record mode</secondary></indexterm><indexterm id="IG31371888293">
+<primary>pmcollectl tool</primary><secondary>record mode</secondary></indexterm><indexterm id="IG31371888292nat">
 <primary>pmview tool</primary><secondary>record mode</secondary></indexterm>A
 collection of one or more PCP archive logs may be combined with a control
-file to produce a PCP archive folio. Archive folios are created using either <literal>mkaf</literal> or the interactive record mode services of various PCP GUI
-monitoring tools.</para>
+file to produce a PCP archive folio. Archive folios are created using either <literal>mkaf</literal> or the interactive record mode services of various PCP monitor tools (e.g. <command>pmchart</command>, <command>pmcollectl</command> and <command>pmview</command>).</para>
 <para><indexterm id="IG31371888294"><primary>pmlogger tool</primary><secondary>folios</secondary>
 </indexterm>The automated archive log management services also create an archive
 folio named <filename>Latest</filename> for each managed <command>pmlogger
 </command> instance, to provide a symbolic name to the most recent archive
 log. With reference to <xref linkend="id5207462"/>, this would mean the
-creation of the folios <filename>/var/log/pcp/pmlogger/one/Latest</filename>
-and <filename>/var/log/pcp/pmlogger/two/Latest</filename>.</para>
+creation of the folios <filename>${PCP_LOG_DIR}/pmlogger/one/Latest</filename>
+and <filename>${PCP_LOG_DIR}/pmlogger/two/Latest</filename>.</para>
 <para><indexterm id="IG31371888295"><primary>pmafm tool</primary><secondary>interactive commands
 </secondary></indexterm>The <command>pmafm</command> utility is completely
 described in the <command>pmafm(1)</command> man page, and provides
@@ -5459,8 +5487,35 @@ encompass several archive logs.</para>
 logs.</para>
 </listitem></itemizedlist>
 <para>See the <command>pmlogextract(1)</command> man page for
-full information on this command. It replaces functionality of the <literal>pmlogmerge</literal> tool as of PCP release 2.0.<indexterm id="ITch07-12">
-<primary>pmlogmerge tool</primary></indexterm></para>
+full information on this command.</para>
+</section>
+<section id="id5208951">
+
+<title>Summarizing Archive Logs with <command>pmlogsummary</command></title>
+<para><indexterm id="ITch07-11"><primary>pmlogsummary tool</primary></indexterm>
+The <literal>pmlogsummary</literal> tool provides statistical summaries of
+archives, or specific metrics within archives, or specific time windows of
+interest in an archive.  These summaries include various averages, minima,
+maxima, sample counts, histogram bins, and so on.</para>
+<para>As an example, for Linux host <literal>pluto</literal>, report on its
+use of anonymous huge pages - average use, maximum, time at which maximum
+occured, total number of samples in the archive, and the units used for the
+values - as shown in <xref linkend="Z984165598nat"/>:
+</para>
+<example id="Z984165598nat">
+<title>Using <literal>pmlogsummary</literal> to Summarize Archive Information</title>
+<literallayout class="monospaced"><userinput>pmlogsummary -MIly ${PCP_LOG_DIR}/pmlogger/pluto/20130815 mem.util.anonhugepages</userinput>
+Performance metrics from host pluto
+  commencing Thu Aug 15 00:10:12.318 2013
+  ending     Fri Aug 16 00:10:12.299 2013
+
+mem.util.anonhugepages  7987742.326 8116224.000 15:02:12.300 1437 Kbyte
+
+<userinput>pminfo -t mem.util.anonhugepages</userinput>
+mem.util.anonhugepages [amount of memory in anonymous huge pages]</literallayout>
+</example>
+<para>See the <command>pmlogsummary(1)</command> man page for
+detailed information about this commands many options.</para>
 </section>
 <section id="id5209027">
 
@@ -5471,32 +5526,32 @@ collector system), there is an option to have a distinguished instance of
 the archive logger <command>pmlogger</command> (the &#x201C;primary&#x201D;
 logger) launched each time PMCD is started. This may be used to ensure the
 creation of minimalist archive logs required for ongoing system management
-and capacity planning in the event of failure of a system where a remote <command>
-pmlogger</command> may be running, or because the preferred archive logger
+and capacity planning in the event of failure of a system where a remote
+<command>pmlogger</command> may be running, or because the preferred archive logger
 deployment is to activate <command>pmlogger</command> on each PCP collector
 system.</para>
 <para>Run the following command as superuser on each PCP collector system
 where you want to activate the primary <command>pmlogger</command>:</para>
 <literallayout class="monospaced"><userinput>chkconfig pmlogger on</userinput></literallayout>
-<para>The primary logger launches the next time PMCD is started. If you wish
-this to happen immediately, follow up with this command:</para>
-<literallayout class="monospaced"><userinput>/etc/rc.d/init.d/pcp start</userinput></literallayout>
-<para><indexterm id="IG31371888296"><primary>/etc/config/pmlogger.options file</primary></indexterm><indexterm id="IG31371888297">
-<primary>/var/pcp/config/pmlogger/config.default file</primary></indexterm>When
-it is started in this fashion, the <filename>${PCP_ETC_DIR}/pmlogger/pmlogger.options</filename>
-file provides command line options for <command>pmlogger</command>.
-In the default setup, this in turn means that the initial logging state and
-configuration is specified in the file <filename>/var/pcp/config/pmlogger/config.default</filename>.
-Either one or both of these files may be modified to tailor <command>pmlogger
-</command> operation to the local requirements.</para>
+<para>The primary logger launches the next time the PMCS is started.
+If you wish this to happen immediately, follow up with this command:</para>
+<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmlogger start</userinput></literallayout>
+<para><indexterm id="IG31371888296"><primary>${PCP_ETC_DIR}/pmlogger/control file</primary></indexterm><indexterm id="IG31371888297">
+<primary>${PCP_ETC_DIR}/pcp/pmlogger/config.default file</primary></indexterm>When
+it is started in this fashion, the <filename>${PCP_ETC_DIR}/pmlogger/control</filename>
+must use the second field of one configuration line to designate the primary logger,
+and usually will also use the <command>pmlogger</command> configuration file
+<filename>${PCP_ETC_DIR}/pcp/pmlogger/config.default</filename> (although the latter is
+not required).</para>
 </section>
 <section id="id5209191">
 
 <title>Using <command>pmlc</command></title>
 <para><indexterm id="IG31371888298"><primary>pmlogger tool</primary><secondary>configuration
 </secondary></indexterm><indexterm id="ITch07-17"><primary>pmlc tool</primary>
-<secondary>description</secondary></indexterm>You may tailor <command>pmlogger
-</command> dynamically with the <command>pmlc</command> command. Normally,
+<secondary>description</secondary></indexterm>You may tailor <command>pmlogger</command>
+dynamically with the <command>pmlc</command> command (if it is configured to allow access
+to this functionality). Normally,
 the <command>pmlogger</command> configuration is read at startup. If you choose
 to modify the <filename>config</filename> file to change the parameters under
 which <command>pmlogger</command> operates, you must stop and restart the
@@ -5504,9 +5559,9 @@ program for your changes to have effect. Alternatively, you may change parameter
 whenever required by using the <command>pmlc</command> interface.</para>
 <para>To run the <command>pmlc</command> tool, enter:</para>
 <literallayout class="monospaced"><userinput>pmlc</userinput></literallayout>
-<para>By default, <command>pmlc</command> acts on the primary instance of <command>
-pmlogger</command> on the current host. See the <command>pmlc
-(1)</command> man page for a description of command line options. When it is
+<para>By default, <command>pmlc</command> acts on the primary instance of <command>pmlogger</command>
+on the current host. See the <command>pmlc(1)</command>
+man page for a description of command line options. When it is
 invoked, <command>pmlc</command> presents you with a prompt:</para>
 <literallayout class="monospaced">pmlc&gt; </literallayout>
 <para>You may obtain a listing of the available commands by entering a question
@@ -5543,13 +5598,13 @@ disk.dev.read
        adv  on  nl       5 min  [131074 or &#x201C;disk2&#x201D;]
 pmlc&gt; <userinput>quit</userinput></literallayout>
 </example>
-<note><para>Any changes to the set of logged metrics made via <command>pmlc
-</command> are not saved, and are lost the next time <command>pmlogger</command>
+<note><para>Any changes to the set of logged metrics made via <command>pmlc</command>
+are not saved, and are lost the next time <command>pmlogger</command>
 is started with the same configuration file. Permanent changes are made by
 modifying the <command>pmlogger</command> configuration file(s).</para>
 </note>
-<para>Refer to the <command>pmlc(1)</command> and <command>
-pmlogger(1)</command> man pages for complete details.</para>
+<para>Refer to the <command>pmlc(1)</command> and <command>pmlogger(1)</command>
+man pages for complete details.</para>
 </section>
 </section>
 <section id="LE80113-PARENT">
@@ -5569,23 +5624,23 @@ issues concern the creation and use of logs using <command>pmlogger</command>.
 <term>Symptom:</term>
 <listitem><para>The <command>pmlogger</command> utility does not start, and
 you see this message:</para>
-<literallayout class="monospaced"><literal>_pmLogNewFile: &#x201C;foo.index&#x201D; already exists, not over-written</literal></literallayout>
+<literallayout class="monospaced"><literal>__pmLogNewFile: &#x201C;foo.index&#x201D; already exists, not over-written</literal></literallayout>
 </listitem></varlistentry>
 <varlistentry>
 <term>Cause:</term>
-<listitem><para>Archive logs are considered sufficiently precious that <command>
-pmlogger</command> does not empty or overwrite an existing set of archive
+<listitem><para>Archive logs are considered sufficiently precious that
+<command>pmlogger</command> does not empty or overwrite an existing set of archive
 log files. The log named <filename>foo</filename> actually consists of the
 physical file <filename>foo.index</filename>, <filename>foo.meta</filename>,
 and at least one file <filename>foo.N</filename>, where <filename>N</filename>
 is in the range 0, 1, 2, 3, and so on.</para>
-<para>A message similar to the one above is produced when a new <command>
-pmlogger</command> instance encounters one of these files already in existence.
-</para>
+<para>A message similar to the one above is produced when a new <command>pmlogger</command>
+instance encounters one of these files already in existence.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
-<listitem><para>If you are sure, remove all of the parts of the archive log.
+<listitem><para>Move the existing archive aside, or if you are sure,
+remove all of the parts of the archive log.
 For example, use the following command:<literallayout class="monospaced"><userinput>rm -f foo.*</userinput></literallayout></para>
 <para>Then rerun <command>pmlogger</command>.</para>
 </listitem></varlistentry>
@@ -5607,8 +5662,8 @@ utility, or any tool that can read an archive log, displays this message:
 <term>Cause:</term>
 <listitem><para>An archive consists of at least three physical files. If the
 base name for the archive is <filename>mylog</filename>, then the archive
-actually consists of the physical files <filename>mylog.index</filename>, <filename>
-mylog.meta</filename>, and at least one file<filename>&#xA0;mylog.N</filename>,
+actually consists of the physical files <filename>mylog.index</filename>,
+<filename>mylog.meta</filename>, and at least one file <filename>mylog.N</filename>,
 where <filename>N</filename> is in the range 0, 1, 2, 3, and so on.</para>
 <para>The above message is produced if one or more of the files is missing.
 </para>
@@ -5618,7 +5673,7 @@ where <filename>N</filename> is in the range 0, 1, 2, 3, and so on.</para>
 <listitem><para>Use this command to check which files the utility is trying
 to open:</para>
 <para><literallayout class="monospaced"><userinput>ls mylog.*</userinput></literallayout></para>
-<para>Turn on the internal debug flag <literal>DBG_TRACE_LOG</literal> (<literal>-D</literal> 128) to see which files are being inspected by the <literal>_pmOpenLog</literal> routine as shown in the following example:<literallayout class="monospaced"><userinput>pmdumplog -D 128 -l mylog</userinput></literallayout></para>
+<para>Turn on the internal debug flag <literal>DBG_TRACE_LOG</literal> (<literal>-D</literal> 128) to see which files are being inspected by the <literal>__pmOpenLog</literal> routine as shown in the following example:<literallayout class="monospaced"><userinput>pmdumplog -D 128 -l mylog</userinput></literallayout></para>
 <para>Locate the missing files and move them all to the same directory, or
 remove all of the files that are part of the archive, and recreate the archive
 log.</para>
@@ -5651,28 +5706,27 @@ running and you wish to replace it with a new <command>pmlogger</command>,
 use the <literal>show</literal> command in <command>pmlc</command> to determine
 the process ID of the primary <command>pmlogger</command>. The process ID
 of the primary <command>pmlogger</command> appears in parentheses after the
-word &#x201C;primary.&#x201D; Send an <literal>SIGINT</literal> signal to the
-process to shut it down (use the <command>kill</command> command). If the
+word &#x201C;primary.&#x201D; Send a <literal>SIGINT</literal> signal to the
+process to shut it down (use either the <command>kill</command> command if
+the platform supports it, or the <command>pmsignal</command> command). If the
 process does not exist, proceed to the manual cleanup described in the paragraph
-below. If the process did exist, it should now be possible to start the new <command>
-pmlogger</command>.</para>
+below. If the process did exist, it should now be possible to start the new <command>pmlogger</command>.</para>
 <para>If <command>pmlc</command>'s <command>show</command> command displays
 a process ID for a process that does not exist, a <command>pmlogger</command>
-process was terminated before it could clean up. If it was the primary <command>
-pmlogger</command>, the corresponding control files must be removed before
+process was terminated before it could clean up. If it was the primary <command>pmlogger</command>,
+the corresponding control files must be removed before
 one can start a new primary <command>pmlogger</command>. It is a good idea
-to clean up any spurious control files even if they are not for the primary <command>
-pmlogger</command>.</para>
-<para><indexterm id="IG31371888305"><primary>/var/tmp/pmlogger file</primary></indexterm>The
-control files are kept in <filename>/var/tmp/pmlogger</filename>. A control
+to clean up any spurious control files even if they are not for the primary <command>pmlogger</command>.</para>
+<para><indexterm id="IG31371888305"><primary>${PCP_TMP_DIR}/pmlogger file</primary></indexterm>The
+control files are kept in <filename>${PCP_TMP_DIR}/pmlogger</filename>. A control
 file with the process ID of the <command>pmlogger</command> as its name is
 created when the <command>pmlogger</command> is started. In addition, the
 primary <command>pmlogger</command> creates a symbolic link named <literal>primary</literal> to its control file.</para>
 <para>For the primary <command>pmlogger</command>, remove both the symbolic
 link and the file (corresponding to its process ID) to which the link points.
 For other <command>pmlogger</command>s, remove just the process ID file. Do
-not remove any other files in the directory. If the control file for an active <command>
-pmlogger</command> is removed, <command>pmlc</command> is not able to contact
+not remove any other files in the directory. If the control file for an active
+<command>pmlogger</command> is removed, <command>pmlc</command> is not able to contact
 it.</para>
 </listitem></varlistentry>
 </variablelist>
@@ -5701,6 +5755,7 @@ following commands:</para>
 Performance metrics from host gonzo 
      commencing Wed Aug  7 00:10:09.214 1996 
      ending     Wed Aug  7 16:10:09.155 1996 
+
 <userinput>pminfo -a foo -f pmcd.pmlogger</userinput>&#xA0;
 pmcd.pmlogger.host
      inst [10728 or &quot;10728&quot;] value &quot;gonzo.melbourne.sgi.com&quot;
@@ -5709,9 +5764,7 @@ pmcd.pmlogger.port
 pmcd.pmlogger.archive
      inst [10728 or &quot;10728&quot;] value &quot;<replaceable>/usr/var/adm/pcplog/gonzo/foo</replaceable>&quot;</literallayout>
 <para>All of the information describing the creator of the archive is revealed
-and, in particular, the instance identifier for the PMCD metrics (<literal>10728</literal> in the example above) is the PID of the <command>pmlogger
-</command> instance, which may be used to control the process via <command>
-pmlc</command>.</para>
+and, in particular, the instance identifier for the PMCD metrics (<literal>10728</literal> in the example above) is the PID of the <command>pmlogger</command> instance, which may be used to control the process via <command>pmlc</command>.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -5727,20 +5780,17 @@ tools report:</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Cause:</term>
-<listitem><para>Either you are attempting to read a Version 2 archive with
-a PCP 1.<replaceable>x</replaceable> tool, or the archive log has become corrupted.
+<listitem><para>The label record at the start of each of the physical archive
+log files has become either corrupted or one is out of sync with the others.
 </para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
-<listitem><para>By default, <command>pmlogger</command> in PCP release 2.0
-and later generates Version 2 archives that PCP 1.0 to 1.3 tools cannot interpret.
-If you must use older tools, pass the <literal>-V 1</literal> option to <command>
-pmlogger</command>, forcing it to generate Version 1 archives.</para>
-<para>If the PCP tools are from PCP release 2.0 or later, then the archive
-log may have been corrupted, which can be verified using <command>pmlogcheck
-</command>. Refer to the <command>pmlogcheck(1)</command> man
-page.</para>
+<listitem><para>
+If you believe the log may have been corrupted, this can be verified using <command>pmlogcheck</command>.
+If corruption is limited to just the label record at the start, the <command>pmloglabel</command>
+can be used to force the labels back in sync with each other, with known-good values that you supply.</para>
+<para>Refer to the <command>pmlogcheck(1)</command> and <command>pmloglabel(1)</command> man pages.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -5758,7 +5808,7 @@ messages.</para>
 <varlistentry>
 <term>Cause:</term>
 <listitem><para>Either <command>pmlogger</command> encountered errors in the
-configuration file or has not flushed its output buffers yet or some (or all)
+configuration file, has not flushed its output buffers yet, or some (or all)
 metrics specified in the <command>pmlogger</command> configuration file have
 had their state changed to advisory <literal>off</literal> or mandatory <literal>off</literal> via <command>pmlc</command>. It is also possible that the logging
 interval specified in the <command>pmlogger</command> configuration file for
@@ -5768,11 +5818,14 @@ waiting since <command>pmlogger</command> started.</para>
 <varlistentry>
 <term>Resolution:</term>
 <listitem><para>If <command>pmlogger</command> exits immediately with no error
-messages, check the <filename>pmlogger.log</filename> file in the directory <command>
-pmlogger</command> was started in for any error messages. If <command>pmlogger
-</command> has not yet flushed its buffers, enter the following command:<literallayout class="monospaced">killall -SIGUSR1 pmlogger</literallayout></para>
-<para>Otherwise, use the <literal>status</literal> command for <command>pmlc
-</command> to interrogate the internal <command>pmlogger</command> state of
+messages, check the <filename>pmlogger.log</filename> file in the directory
+<command>pmlogger</command> was started in for any error messages.
+If <command>pmlogger</command> has not yet flushed its buffers, enter one of
+the following commands (depending on platform support):
+<literallayout class="monospaced">killall -SIGUSR1 pmlogger
+${PCP_BINADM_DIR}/pmsignal -a -s USR1 pmlogger</literallayout></para>
+<para>Otherwise, use the <literal>status</literal> command for <command>pmlc</command>
+to interrogate the internal <command>pmlogger</command> state of
 specific metrics.</para>
 </listitem></varlistentry>
 </variablelist>
@@ -6341,7 +6394,7 @@ pmlogger</command>:</para>
 this command:<literallayout class="monospaced"><userinput><literal>chkconfig pmlogger on</literal></userinput></literallayout></para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/var/pcp/config/pmlogger/config.default</filename> </term>
+<term><filename>${PCP_ETC_DIR}/pcp/pmlogger/config.default</filename> </term>
 <listitem><para>The default <command>pmlogger</command> configuration file
 that is used for the primary logger when this facility is enabled.</para>
 </listitem></varlistentry>
@@ -6848,10 +6901,6 @@ Protocol</para></entry></row></tbody></tgroup></table>
 </indexentry>
 
 <indexentry>
-   <primaryie>config.* files <link linkend="IG31371888278">Primary Logger</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>configuring PCP <link linkend="ITch02-1">Installing and Configuring Performance Co-Pilot
 </link></primaryie>
 </indexentry>
@@ -6913,7 +6962,6 @@ Protocol</para></entry></row></tbody></tgroup></table>
    <primaryie>dkvis tool</primaryie>
       <secondaryie>fetching metrics <link linkend="IG31371888116">Fetching Metrics from Another Host</link></secondaryie>
       <secondaryie>remote PMCD <link linkend="IG31371888103">Cannot Connect to Remote PMCD</link></secondaryie>
-      <secondaryie>summary configuration <link linkend="IG31371888274">Primary Logger</link> <link linkend="IG31371888284">Other Logger Configurations</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -6946,7 +6994,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/etc/pcp/pmlogger/control file <link linkend="IG31371888296">Primary Logger</link></primaryie>
+   <primaryie>${PCP_ETC_DIR}/pmlogger/control file <link linkend="IG31371888296">Primary Logger</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7122,11 +7170,6 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>mpvis tool</primaryie>
-      <secondaryie>summary configuration <link linkend="IG31371888275">Primary Logger</link> <link linkend="IG31371888285">Other Logger Configurations</link></secondaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>naming scheme <link linkend="IG3137188810">Uniform Naming and Access to Performance Metrics
 </link></primaryie>
 </indexentry>
@@ -7146,11 +7189,6 @@ Duration</link></primaryie>
 
 <indexentry>
    <primaryie>newhelp tool <link linkend="ITch01-119">Application and Agent Development</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>nfsvis tool</primaryie>
-      <secondaryie>summary configuration <link linkend="IG31371888277">Primary Logger</link> <link linkend="IG31371888287">Other Logger Configurations</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7374,10 +7412,9 @@ Collection Subsystem</link></primaryie>
 
 <indexentry>
    <primaryie>pmchart tool</primaryie>
-      <secondaryie>config.* files <link linkend="IG31371888280">Primary Logger</link></secondaryie>
       <secondaryie>fetching metrics <link linkend="IG31371888115">Fetching Metrics from Another Host</link></secondaryie>
       <secondaryie>man example <link linkend="Z1033415772tls">Monitoring System Performance</link></secondaryie>
-      <secondaryie>record mode <link linkend="IG31371888292">PCP  Archive Folios</link></secondaryie>
+      <secondaryie>record mode <link linkend="IG31371888292">PCP Archive Folios</link></secondaryie>
       <secondaryie>remote PMCD <link linkend="IG31371888102">Cannot Connect to Remote PMCD</link></secondaryie>
       <secondaryie>short-term executions <link linkend="IG31371888265">Directory Organization for Archive Log Files</link></secondaryie>
 </indexentry>
@@ -7389,6 +7426,7 @@ Collection Subsystem</link></primaryie>
 <indexentry>
    <primaryie>pmcollectl tool</primaryie>
       <secondaryie>brief description <link linkend="IG3137188801">Performance Monitoring and Visualization</link></secondaryie>
+      <secondaryie>record mode <link linkend="IG31371888292nat">PCP Archive Folios</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7654,7 +7692,6 @@ Collection Subsystem</link></secondaryie>
    <primaryie>pmstat tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-37">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>description <link linkend="ITch04-20">The <command>pmstat</command> Command</link></secondaryie>
-      <secondaryie>summary configuration <link linkend="IG31371888276">Primary Logger</link> <link linkend="IG31371888286">Other Logger Configurations</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7726,11 +7763,8 @@ Collection Subsystem</link></secondaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmlogmerge tool <link linkend="ITch07-12">Manipulating Archive Logs with <command>pmlogextract</command></link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmlogsummary tool <link linkend="IG3137188831">Performance Monitoring and Visualization</link></primaryie>
+   <primaryie>pmlogsummary tool <link linkend="IG3137188831">Performance Monitoring and Visualization
+</link> <link linkend="ITch07-11">Summarizing Archive Logs with <command>pmlogsummary</command></link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7811,8 +7845,7 @@ Collection Subsystem</link></secondaryie>
 
 <indexentry>
    <primaryie>pmview tool</primaryie>
-      <secondaryie>config.* files <link linkend="IG31371888289">Other Logger Configurations</link></secondaryie>
-      <secondaryie>record mode <link linkend="IG31371888293">PCP  Archive Folios</link></secondaryie>
+      <secondaryie>record mode <link linkend="IG31371888293">PCP Archive Folios</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -8020,10 +8053,6 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/adm/pcplog/pluto/config.default file <link linkend="IG31371888281">Primary Logger</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>${PCP_LOG_DIR}/NOTICES file <link linkend="IG31371888183">Introduction to <command>pmie</command></link></primaryie>
 </indexentry>
 
@@ -8040,20 +8069,12 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/pcp/config/pmlogger directory <link linkend="IG31371888288">Other Logger Configurations</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>/var/pcp/config/pmlogger file <link linkend="IG31371888279">Primary Logger</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>/var/pcp/config/pmlogger/config.default file <link linkend="IG31371888273">Primary Logger</link> <link linkend="IG31371888283">Other Logger Configurations</link> <link linkend="IG31371888297">Primary Logger</link></primaryie>
+   <primaryie>${PCP_ETC_DIR}/pcp/pmlogger/config.default file <link linkend="IG31371888297">Primary Logger</link></primaryie>
 </indexentry>
 
 <indexentry>
    <primaryie>/var/pcp/config/pmlogger/control file <link linkend="IG31371888259">Administering PCP Archive Logs Using <command>cron</command> Scripts
-</link> <link linkend="IG31371888266">Directory Organization for Archive Log Files</link> <link linkend="IG31371888282">Primary Logger</link></primaryie>
+</link> <link linkend="IG31371888266">Directory Organization for Archive Log Files</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -8065,7 +8086,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/var/tmp/pmlogger file <link linkend="IG31371888305">Primary <command>pmlogger</command> Cannot Start</link></primaryie>
+   <primaryie>${PCP_TMP_DIR}/pmlogger file <link linkend="IG31371888305">Primary <command>pmlogger</command> Cannot Start</link></primaryie>
 </indexentry>
 
 <indexentry>
