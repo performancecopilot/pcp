@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM = programmer-guide
+IAM = pcp-programmers-guide
 XML = $(IAM).xml
 PUB = Book_Info.xml
 CFG = publican.cfg

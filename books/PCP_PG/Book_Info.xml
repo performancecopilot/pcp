@@ -2,8 +2,8 @@
 <!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 ]>
 
-<bookinfo id="programmer-guide">
-	<title>programmer-guide</title>
+<bookinfo id="pcp-programmers-guide">
+	<title>pcp-programmers-guide</title>
 	<subtitle>Performance Co-Pilot Programmer's Guide</subtitle>
 	<edition>3</edition>
 	<productname>PCP</productname>
