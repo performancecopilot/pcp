@@ -1,8 +1,8 @@
 <?xml version='1.0'?>
 <!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 ]>
-<bookinfo id="user-administrator-guide">
-	<title>user-administrator-guide</title>
+<bookinfo id="pcp-users-and-administrators-guide">
+	<title>pcp-users-and-administrators-guide</title>
 	<subtitle>Performance Co-Pilot User's and Administrator's Guide</subtitle>
 	<edition>3</edition>
 	<productname>PCP</productname>
