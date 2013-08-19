@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 <book status="final" security="public"><title>Performance Co-Pilot&#x2122; Programmer's Guide</title>
-<bookinfo><edition>3.0</edition>
+<bookinfo><edition>3</edition>
 
 <othercredit>
 <contrib>Maintained by</contrib>
@@ -32,7 +32,8 @@
 <para>Permission is granted to copy, distribute, and/or modify this document under
 the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any
 later version published by the Creative Commons Corp.
-A copy of the license is available at http://creativecommons.org/licenses/by-sa/3.0/us/</para>
+A copy of the license is available at
+<ulink url="http://creativecommons.org/licenses/by-sa/3.0/us/"/></para>
 </legalnotice>
 
 <legalnotice>
@@ -61,11 +62,12 @@ UNIX is a registered trademark of The Open Group.</para>
 
 <title>About This Guide</title>
 <para>This guide describes how to program the Performance Co-Pilot (PCP) performance analysis toolkit.
-PCP is an open source, cross-platform software package - custom extensions, source code inspection and
-inspection, and tinkering in general is actively encouraged.</para>
-<para>PCP provides a systems-level suite of tools that cooperate to deliver
-distributed performance monitoring and performance management services spanning hardware platforms,
-operating systems, service layers, database internals, user applications and distributed architectures.</para>
+PCP provides a systems-level suite of tools that cooperate to deliver
+distributed performance monitoring and performance management services spanning
+hardware platforms, operating systems, service layers, database internals,
+user applications and distributed architectures.</para>
+<para>PCP is an open source, cross-platform software package - customizations, extensions,
+source code inspection, and tinkering in general is actively encouraged.</para>
 <para>&#x201C;About This Guide&#x201D; includes short descriptions of the chapters
 in this book, directs you to additional sources of information, and explains
 typographical conventions.</para>
@@ -99,8 +101,18 @@ typographical conventions.</para>
 <section id="id5178933">
 
 <title>Related Resources</title>
-<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle> is a companion document to the <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>, and is intended for system administrators and performance analysts who are directly using and administering PCP applications.</para>
-<para>Additional resources include man pages, tutorials and the project web site.</para>
+<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>
+is a companion document to the <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>,
+and is intended for system administrators and performance analysts who are directly
+using and administering PCP installations.</para>
+<para>The <citetitle>Performance Co-Pilot Tutorials</citetitle> document
+provides a series of real-world examples of using various PCP tools, and
+lessons learned from deploying the toolkit in production environments.
+It serves to provide reinforcement of the general concepts discussed in the
+other two books with additional case studies, and in some cases very detailed
+discussion of specifics of individual tools.
+</para>
+<para>Additional resources include man pages and the project web site.</para>
 </section>
 <section id="id5178968">
 
@@ -135,16 +147,25 @@ the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL
 <varlistentry>
 <term><emphasis role="bold">Convention</emphasis></term><listitem><para><emphasis role="bold">Meaning</emphasis></para></listitem></varlistentry>
 <varlistentry>
+<term><literal>${PCP_VARIABLE}</literal></term>
+<listitem><para>A brace-enclosed all-capital-letters syntax indicates a variable
+that has been sourced from the global <filename>/etc/pcp.conf</filename> file.
+These special variables indicate parameters that affect all PCP commands,
+and are likely to be different between platforms.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><literal>command</literal></term>
-<listitem><para>This fixed-space font denotes literal  items such as commands,
-files, routines,  path names, signals, messages, and  programming language
+<listitem><para>This fixed-space font denotes literal items such as commands,
+files, routines, path names, signals, messages, and programming language
 structures. </para>
 </listitem>
 </varlistentry>
 
 <varlistentry>
 <term><replaceable>variable</replaceable></term>
-<listitem><para>Italic typeface denotes variable entries  and words or concepts being
+<listitem><para>Italic typeface denotes variable entries and words or concepts being
 defined.</para>
 </listitem></varlistentry>
 
@@ -176,7 +197,7 @@ defined.</para>
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP project via the web site.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers via the web site.</para>
 <para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>
