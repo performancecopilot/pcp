@@ -808,7 +808,7 @@ main(int argc, char **argv)
 
     if (errflag) {
 	fprintf(stderr, usage, pmProgname, 
-	    pmGetConfig("PCP_VAR_DIR"), DEFAULT_ROOT_PMIE,
+	    pmGetConfig("PCP_SYSCONF_DIR"), DEFAULT_ROOT_PMIE,
 	    DEFAULT_USER_PMIE, pmGetConfig("PCP_VAR_DIR"), 
 	    DEFAULT_RULES, help);
 	exit(1);

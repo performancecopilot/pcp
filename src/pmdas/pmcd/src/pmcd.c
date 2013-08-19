@@ -1280,9 +1280,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 
 			case 21:	/* hostname */
-                                if (!host)
-				    host = hostnameinfo();
-                                atom.cp = host;
+                                if (_pmcd_hostname) {
+				    atom.cp = _pmcd_hostname;
+				} else {
+                                    if (!host)
+					host = hostnameinfo();
+                                    atom.cp = host;
+				}
 				break;
 			default:
 				sts = atom.l = PM_ERR_PMID;

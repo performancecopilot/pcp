@@ -2212,7 +2212,7 @@ initialise(char *in_rules, char *in_pmie, char *warning, size_t warnlen)
 #else
     if (getuid() == 0) {
 	if (in_pmie == NULL)
-	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_VAR_DIR"), SEP, DEFAULT_ROOT_PMIE);
+	    snprintf(pmiefile, sizeof(pmiefile), "%s%c%s", pmGetConfig("PCP_SYSCONF_DIR"), SEP, DEFAULT_ROOT_PMIE);
 	else if (realpath(in_pmie, pmiefile) == NULL && oserror() != ENOENT) {
 	    snprintf(errmsg, sizeof(errmsg), "failed to resolve realpath for %s: %s",
 		    in_pmie, osstrerror());

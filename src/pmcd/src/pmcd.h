@@ -228,4 +228,7 @@ extern pmResult **SplitResult(pmResult *);
 PMCD_EXTERN int pmcd_hi_openfds;
 extern void pmcd_openfds_sethi(int fd);
 
+/* Explicitly requested hostname (pmcd.hostname metric) */
+PMCD_EXTERN char *_pmcd_hostname;
+
 #endif /* _PMCD_H */

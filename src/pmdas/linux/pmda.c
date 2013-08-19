@@ -606,6 +606,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,33), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.nnode */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* kernel.all.hz */
     { NULL,
       { PMDA_PMID(CLUSTER_STAT,48), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
@@ -3480,6 +3485,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				/ proc_stat.hz);
 	    break;
 
+	case 19: /* hinv.nnode */
+	    atom->ul = indomtab[NODE_INDOM].it_numinst;
+	    break;
 	case 32: /* hinv.ncpu */
 	    atom->ul = indomtab[CPU_INDOM].it_numinst;
 	    break;
