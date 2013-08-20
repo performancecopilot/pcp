@@ -31,12 +31,13 @@ endif
 ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
 built.$(BOOK_TOOLCHAIN):	$(XML)
 	@rm -fr pdf figures
+	$(LN_S) $(CWD)/$(TOPDIR)/images figures
 	$(DBLATEX) --type=pdf --output-dir=pdf $(XML)
 endif
 
 ifeq "$(BOOK_TOOLCHAIN)" "xmlto"
 built.$(BOOK_TOOLCHAIN):	$(XML)
-	@rm -fr pdf html
+	@rm -fr pdf html figures
 	@mkdir -p pdf html
 	$(LN_S) $(CWD)/$(TOPDIR)/images pdf/figures
 	$(LN_S) $(CWD)/$(TOPDIR)/images html/figures

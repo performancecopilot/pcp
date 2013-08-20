@@ -94,7 +94,7 @@ typographical conventions.</para>
 <itemizedlist>
 <listitem><para>Performance analysts or system administrators who want to extend or customize performance monitoring tools available with PCP</para>
 </listitem>
-<listitem><para>Developers who need to integrate their applications into the PCP framework</para>
+<listitem><para>Developers who wish to integrate performance data from within their applications into the PCP framework</para>
 </listitem></itemizedlist>
 <para>This book is written for those who are competent with the C programming language, the UNIX or the Linux operating systems, and the target domain from which the desired performance metrics are to be extracted. Familiarity with the PCP tool suite is assumed.</para>
 </section>
@@ -223,7 +223,7 @@ defined.</para>
 <title>PCP Architecture</title>
 <para><indexterm id="IG313401778"><primary>architecture</primary></indexterm>This section gives a brief overview of PCP architecture. For an explanation of terms and acronyms, refer to <xref linkend="LE54271-PARENT"/>.</para>
 <para><indexterm id="IG313401779"><primary>pmchart command</primary></indexterm></para>
-<para><indexterm id="IG3134017710"><primary>pmview command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of several monitoring and collecting tools. <filename>Monitoring tools</filename> such as <command>pmval</command> and <command>pminfo</command> report on metrics, but have minimal interaction with target systems. <filename>Collection tools</filename>, called PMDAs, extract performance values from target systems, but do not provide user interfaces.</para>
+<para><indexterm id="IG3134017710"><primary>pmview command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of numerous monitoring and collecting tools. <literal>Monitoring tools</literal> such as <command>pmval</command> and <command>pminfo</command> report on metrics, but have minimal interaction with target systems. <literal>Collection tools</literal>, called PMDAs, extract performance values from target systems, but do not provide user interfaces.</para>
 <para>Systems supporting PCP services are broadly classified into two categories:</para>
 <variablelist>
 <varlistentry>
