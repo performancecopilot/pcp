@@ -211,13 +211,13 @@ defined.</para>
 <para>Performance data may be collected and exported from multiple sources, most notably the hardware platform, the operating system kernel, layered services, and end-user applications.</para>
 <para><indexterm id="IG313401771"><primary>programming components</primary></indexterm> <indexterm id="IG313401772"><primary>audience</primary></indexterm>There are several ways to extend PCP by programming certain of its components:</para>
 <itemizedlist>
-<listitem><para><indexterm id="Z963349317sdc"><primary>Performance Metrics Domain Agent </primary><see>PMDA</see></indexterm><indexterm id="IG313401773"><primary>PMDA</primary><secondary>introduction</secondary></indexterm>By writing a  Performance Metrics Domain Agent (PMDA) to collect performance metrics from an uncharted performance domain (<xref linkend="LE98072-PARENT"/>)</para>
+<listitem><para><indexterm id="Z963349317sdc"><primary>Performance Metrics Domain Agent </primary><see>PMDA</see></indexterm><indexterm id="IG313401773"><primary>PMDA</primary><secondary>introduction</secondary></indexterm>By writing a Performance Metrics Domain Agent (PMDA) to collect performance metrics from an uncharted performance domain (<xref linkend="LE98072-PARENT"/>)</para>
 </listitem>
-<listitem><para><indexterm id="Z963349400sdc"><primary>Performance Metrics Application Programming Interface </primary><see>PMAPI</see></indexterm><indexterm id="IG313401774"><primary>PMAPI</primary><secondary>introduction</secondary></indexterm>By creating new analysis or visualization tools using documented functions from the  Performance Metrics Application Programming Interface (PMAPI) (<xref linkend="LE97135-PARENT"/>)</para>
+<listitem><para><indexterm id="Z963349400sdc"><primary>Performance Metrics Application Programming Interface </primary><see>PMAPI</see></indexterm><indexterm id="IG313401774"><primary>PMAPI</primary><secondary>introduction</secondary></indexterm>By creating new analysis or visualization tools using documented functions from the Performance Metrics Application Programming Interface (PMAPI) (<xref linkend="LE97135-PARENT"/>)</para>
 </listitem>
 <listitem><para><indexterm id="IG313401775"><primary>performance instrumentation</primary></indexterm><indexterm id="IG313401776"><primary>trace facilities</primary></indexterm>By adding performance instrumentation to an application using the trace facilities of the PCP trace library (<filename id="Z963349455sdc">libpcp_trace</filename>) and the trace PMDA (<xref linkend="LE25915-PARENT"/>)</para>
 </listitem></itemizedlist>
-<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>In addition, the topic of customizing a PCP installation is covered in the chapter on customizing and extending PCP service in the <citetitle><citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle></citetitle>.</para>
+<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>Finally, the topic of customizing a PCP installation is covered in the chapter on customizing and extending PCP service in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
 <section id="id5177140">
 
 <title>PCP Architecture</title>
@@ -259,10 +259,9 @@ defined.</para>
 <section id="id5177616">
 
 <title>Distributed PMNS</title>
-<para> <indexterm id="IG3134017729"><primary>PMNS</primary><secondary>distributed</secondary></indexterm> As of release 2.0 release, PMNS operations by default are directed to the host or archive that is the source of the desired performance metrics.</para>
+<para> <indexterm id="IG3134017729"><primary>PMNS</primary><secondary>distributed</secondary></indexterm> Performance metric namespace (PMNS) operations are directed by default to the host or archive that is the source of the desired performance metrics.</para>
 <para>In <xref linkend="id5177408"/>, both Performance Metrics Collection Daemon (PMCD) processes would respond to PMNS queries from monitoring tools by referring to their local PMNS. If different PMDAs were installed on the two hosts, then the PMNS used by each PMCD would be different, to reflect variations in available metrics on the two hosts.</para>
-<para>Distributed PMNS services necessitated changes to PCP protocols between client applications and PMCD, and to the internal format of PCP archive files.</para>
-<para>The <command>-n</command>&#xA0;<replaceable>pmnsfile </replaceable>option may be used with all PCP monitoring tools to force use of the local PMNS in preference to the PMNS at the source of the metrics.</para>
+<para>Although extremely rarely used, the <command>-n</command>&#xA0;<replaceable>pmnsfile</replaceable> command line option may be used with many PCP monitoring tools to force use of a local PMNS file in preference to the PMNS at the source of the metrics.</para>
 </section>
 <section id="id5177692">
 
@@ -276,7 +275,7 @@ defined.</para>
 
 <title>Overview of Component Software</title>
 <para><indexterm id="IG3134017732"><primary>software</primary></indexterm><indexterm id="IG3134017733"><primary>component software</primary></indexterm>Performance Co-Pilot (PCP) is composed of text-based tools, optional graphical tools, and related commands. Each tool or command is fully documented by a man page. These man pages are named after the tools or commands they describe, and are accessible through the <command>man</command> command. For example, to see the <command>pminfo(1)</command> man page for the <command>pminfo</command> command, enter this command:<literallayout class="monospaced"><userinput>man pminfo</userinput></literallayout></para>
-<para>A list of PCP tools and commands, grouped by functionality, is provided in the following sections.</para>
+<para>A list of PCP developer tools and commands, grouped by functionality, is provided in the following section.</para>
 <section id="id5177879">
 
 <title>Application and Agent Development</title>
@@ -289,6 +288,10 @@ defined.</para>
 <varlistentry>
 <term><command>dbpmda</command></term>
 <listitem><para><indexterm id="IG3134017736"><primary/></indexterm>Allows PMDA behavior to be exercised and tested. It is an interactive debugger for PMDAs.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>mmv</command></term>
+<listitem><para><indexterm id="IG3134017742nat"><primary>mmv library</primary><see>MMV</see></indexterm>Is used to instrument applications using Memory Mapped Values (MMV). These are values are communicated with <command>pmcd</command> instantly, and very efficiently, using a shared memory mapping. It is a program instrumentation library.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>newhelp</command></term>
@@ -304,7 +307,7 @@ defined.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmda</command></term>
-<listitem><para><indexterm id="IG3134017742"><primary>pmda tool</primary><see>PMDA</see></indexterm>Is a library used by many shipped PMDAs to communicate with a <command>pmcd</command> process. It can expedite the development of new and custom PMDAs.</para>
+<listitem><para><indexterm id="IG3134017742"><primary>pmda library</primary><see>PMDA</see></indexterm>Is a library used by many shipped PMDAs to communicate with a <command>pmcd</command> process. It can expedite the development of new and custom PMDAs.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmgenmap</command></term>
@@ -332,22 +335,14 @@ defined.</para>
 <section id="id5178295">
 
 <title>In-Process (DSO) Method</title>
-<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using <command>dlopen</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC)  between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read
-the instrumentation behind the performance metrics, or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so care is required when crafting a PMDA in this manner.</para>
+<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using the platform-specific shared library manipulation interfaces such as <command>dlopen(3)</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC) between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read the instrumentation behind the performance metrics (<command>pmcd</command> does not run as root), or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so great care is required when crafting a PMDA in this manner (calls to <command>exit(1)</command> in the PMDA, or a library it used, have grave implications).</para>
 </section>
 <section id="id5178384">
 
 <title>Daemon Process Method</title>
-<para><indexterm id="IG3134017750"><primary>daemon process method</primary></indexterm>Functionally, this method may be thought of as a DSO implementation with a standard <command>main</command> routine conversion wrapper so that communication with PMCD uses message passing rather than direct procedure calls. (See <filename>${PCP_PMDAS_DIR}/trivial/trivial.c</filename>  file.)</para>
-<para>The daemon PMDA is actually the most common, because it allows multiple threads of control, permits linking with existing dynamic libraries, and provides more resilient error encapsulation than the DSO method.</para>
-</section>
-<section id="id5178420">
-
-<title>Shell Process Method</title>
-<para><indexterm id="IG3134017751"><primary>shell process</primary></indexterm>This method offers the least performance, but may be well-suited for rapid prototyping of performance metrics, or for diagnostic metrics that are not going into production.</para>
-<para>Implementation of the ASCII protocols is rather lengthy. The suggested approach is to take the <filename>${PCP_PMDAS_DIR}/news/pmdanews</filename> PMDA as an illustrative example, and adapt it for the particular metrics of interest.</para>
-<note><para>The ASCII protocols have not been extensively used; so their support may be discontinued in a future PCP release. Newer versions of the PMDA libraries have dramatically reduced the code development effort required for a new PMDA (either the DSO or daemon approach), thereby reducing the need for ASCII protocols.</para>
-</note>
+<para><indexterm id="IG3134017750"><primary>daemon process method</primary></indexterm>Functionally, this method may be thought of as a DSO implementation with a standard <command>main</command> routine conversion wrapper so that communication with PMCD uses message passing rather than direct procedure calls. For some very basic examples, see the <filename>${PCP_PMDAS_DIR}/trivial/trivial.c</filename> and <filename>${PCP_PMDAS_DIR}/simple/simple.c</filename> source files.</para>
+<para>The daemon PMDA is actually the most common, because it allows multiple threads of control, greater (different user) privileges when executing, and provides more resilient error encapsulation than the DSO method.</para>
+<note><para>Of particular interest for daemon PMDA writers, the <filename>${PCP_PMDAS_DIR}/simple</filename> PMDA has implementations in C, Perl and Python.</para></note>
 </section>
 </section>
 </section>
@@ -360,13 +355,10 @@ the instrumentation behind the performance metrics, or where the performance met
 <section id="id5187605">
 
 <title>Library Reentrancy and Threaded Applications</title>
-<para><indexterm id="IG3134017756"><primary>threaded applications</primary></indexterm><indexterm id="IG3134017757"><primary>multiple threads</primary></indexterm><indexterm id="IG3134017758"><primary>library reentrancy</primary></indexterm>Most of the PCP libraries are not thread safe. This is a deliberate design decision to trade-off commonly required performance and efficiency against the less common requirement for multiple threads of control to call the PCP libraries.</para>
-<para>The simplest and safest programming model is to designate at most one thread to make calls into the PCP libraries. This approach applies to both PMDAs using <filename>libpcp_pmda</filename> and monitoring applications using PMAPI and calling the <filename>libpcp</filename> library.</para>
-<para>An important exception is the <filename>libpcp_trace</filename> library for instrumenting applications; it is thread safe.</para>
-<para>Particular care should be taken with the utility functions in the <filename>libpcp</filename> library; for example, <command>pmprintf</command> and <command>pmflush</command> share a buffer that may be corrupted if calls to these functions from multiple threads are overlapped.</para>
+<para><indexterm id="IG3134017756"><primary>threaded applications</primary></indexterm><indexterm id="IG3134017757"><primary>multiple threads</primary></indexterm><indexterm id="IG3134017758"><primary>library reentrancy</primary></indexterm>While the core PCP library (<command>libpcp</command>) is thread safe, the layered PMDA library (<command>libpcp_pmda</command>) is not. This is a deliberate design decision to trade-off commonly required performance and efficiency against the less common requirement for multiple threads of control to call the PCP libraries.</para>
+<para>The simplest and safest programming model is to designate at most one thread to make calls into the PCP PMDA library.</para>
 </section>
 </chapter>
-
 
 
 <chapter id="LE98072-PARENT">
@@ -4183,8 +4175,13 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmda tool</primaryie>
+   <primaryie>pmda library <link linkend="IG3134017742">Application and Agent Development</link></primaryie>
       <seeie>PMDA</seeie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv library <link linkend="IG3134017742nat">Application and Agent Development</link></primaryie>
+      <seeie>MMV</seeie>
 </indexentry>
 
 <indexentry>
@@ -4655,10 +4652,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>service time <link linkend="IG31340177558">Instrumenting Applications to Export Performance Data</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>shell process <link linkend="IG3134017751">Shell Process Method</link></primaryie>
 </indexentry>
 
 <indexentry>
