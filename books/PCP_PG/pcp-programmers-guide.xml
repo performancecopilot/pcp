@@ -247,7 +247,7 @@ defined.</para>
 <para><indexterm id="IG3134017718"><primary>PMCD</primary><secondary>distributed collection</secondary></indexterm><indexterm id="IG3134017719"><primary>collector hosts</primary></indexterm>As shown in <xref linkend="id5177408"/>, monitoring tools communicate only with PMCD. The PMDAs are controlled by PMCD and respond to requests from the monitoring tools that are forwarded by PMCD to the relevant PMDAs on the collector host.</para>
 <para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
 <para>The host running the monitoring tools does not require any collection tools, including PMCD, since all requests for metrics are sent to the PMCD process on the collector host.</para>
-<para><indexterm id="IG3134017720"><primary>PMDA </primary><secondary>man page</secondary></indexterm><indexterm id="IG3134017721"><primary>PMAPI</primary><secondary>man page</secondary></indexterm>The connections between monitoring tools and PMCD processes are managed in <filename>libpcp</filename>, below the PMAPI level; see the <command>pmapi(3)</command> man page. Connections between PMDAs and PMCD are managed by the PMDA functions; see the <command>pmda(3)</command> and <command>pmcd(1)</command> man pages. There can be multiple monitor clients and multiple PMDAs on the one host, but there may be only one PMCD process.</para>
+<para><indexterm id="IG3134017720"><primary>PMDA </primary><secondary>man page</secondary></indexterm><indexterm id="IG3134017721"><primary>PMAPI</primary><secondary>man page</secondary></indexterm>The connections between monitoring tools and PMCD processes are managed in <filename>libpcp</filename>, below the PMAPI level; see the <command>PMAPI(3)</command> man page. Connections between PMDAs and PMCD are managed by the PMDA functions; see the <command>PMDA(3)</command> and <command>pmcd(1)</command> man pages. There can be multiple monitor clients and multiple PMDAs on the one host, but there may be only one PMCD process.</para>
 </section>
 <section id="id5177529">
 
@@ -331,11 +331,11 @@ defined.</para>
 
 <title>Building a PMDA</title>
 <para>A PMDA interacts with PMCD across one of several well-defined interfaces and protocol mechanisms. These implementation options are described in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
-<para>It is strongly recommended that code for a new PMDA be based on the source of one of the demonstration PMDAs below the <filename>${PCP_PMDAS_DIR}</filename> directory.</para>
+<warning><para>It is strongly recommended that code for a new PMDA be based on the source of one of the existing PMDAs below the <filename>${PCP_PMDAS_DIR}</filename> directory.</para></warning>
 <section id="id5178295">
 
 <title>In-Process (DSO) Method</title>
-<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using the platform-specific shared library manipulation interfaces such as <command>dlopen(3)</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC) between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read the instrumentation behind the performance metrics (<command>pmcd</command> does not run as root), or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so great care is required when crafting a PMDA in this manner (calls to <command>exit(1)</command> in the PMDA, or a library it used, have grave implications).</para>
+<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using the platform-specific shared library manipulation interfaces such as <command>dlopen(3)</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC) between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read the instrumentation behind the performance metrics (<command>pmcd</command> does not run as root), or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so great care is required when crafting a PMDA in this manner. Calls to <command>exit(1)</command> in the PMDA, or a library it uses, have grave implications.</para>
 </section>
 <section id="id5178384">
 
@@ -365,7 +365,7 @@ defined.</para>
 
 <title>Writing a PMDA</title>
 <para><indexterm id="IG3134017759"><primary>PMDA</primary><secondary>writing</secondary></indexterm>This chapter constitutes a programmer's guide to writing a Performance Metrics Domain Agent (PMDA) for Performance Co-Pilot (PCP).</para>
-<para>The presentation assumes the developer is using the standard PCP <filename>libpcp_pmda</filename> library, as documented in the <command>pmda(3)</command> and associated man pages.</para>
+<para>The presentation assumes the developer is using the standard PCP <filename>libpcp_pmda</filename> library, as documented in the <command>PMDA(3)</command> and associated man pages.</para>
 <section id="id5187772">
 
 <title>Implementing a PMDA</title>
@@ -377,7 +377,7 @@ of export methodology is typically determined by the source of the instrumentati
 <procedure id="id5187871">
 <title>Creating a PMDA</title>
 <step><para>Determine how to extract the metrics from the target domain.</para></step>
-<step><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>sproc</command>).</para></step>
+<step><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>pthreads</command> or single threaded).</para></step>
 <step><para>Define the metrics and instances that the PMDA will support.</para></step>
 <step><para>Implement the functionality to extract the metric values.</para></step>
 <step><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS).</para></step>
@@ -386,9 +386,9 @@ of export methodology is typically determined by the source of the instrumentati
 <step><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para></step>
 <step><para><indexterm id="IG3134017768"><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command>dbpmda(1)</command> man page.</para></step>
 <step><para>Install and connect the PMDA to a running PMCD process; see the <command>pmcd(1)</command> man page.</para></step>
-<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages. For an examples of text-based tools, see the <command>
-pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of alarm tools, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
-<step><para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configurations suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogger(1)</command> man page.</para></step>
+<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages. For examples of text-based tools, see the <command>pminfo(1)</command> and <command>pmval(1)</command> man pages. For examples of alarm tools, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
+<step><para><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Where appaopriate, define <command>pmie</command> rule templates suitable for alerting or notification systems. For more information, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
+<step><para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configuration templates suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogconf(1)</command> and <command>pmlogger(1)</command> man pages.</para></step>
 </procedure>
 </section>
 <section id="id5188149">
@@ -403,7 +403,7 @@ pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of a
 
 <title>Overview</title>
 <para><indexterm id="IG3134017780"><primary>PDU</primary></indexterm><indexterm id="IG3134017781"><primary>protocol data units</primary><see>PDU</see></indexterm>All PMDAs are launched and controlled by the PMCD process on the local host. PMCD receives requests from the monitoring tools and forwards them to the PMDAs. Responses, when required, are returned through PMCD to the clients. The requests fall into a small number of categories, and the PMDA must handle each request type. For a DSO PMDA, each request type corresponds to a method in the agent. For a daemon PMDA, each request translates to a message or  protocol data unit (PDU) that may be sent to a PMDA from PMCD.</para>
-<para>For daemon PMDA, the following request PDUs must be supported:<variablelist>
+<para>For a daemon PMDA, the following request PDUs must be supported:<variablelist>
 <varlistentry>
 <term><literal>PDU_FETCH</literal></term>
 <listitem><para><indexterm id="IG3134017782"><primary>pmFetch man page</primary></indexterm><indexterm id="IG3134017783"><primary>PDU_FETCH</primary></indexterm>Request for metric values (see the <command>pmFetch(3)</command> man page.)</para>
@@ -429,14 +429,36 @@ pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of a
 <listitem><para><indexterm id="IG3134017793"><primary>pmstore function</primary></indexterm><indexterm id="IG3134017794"><primary>PDU_RESULT</primary></indexterm>Values to store into metrics (see the <command>pmStore(3)</command> man page).</para>
 </listitem></varlistentry>
 </variablelist></para>
+<para>The following request PDUs may optionally be supported:<variablelist>
+<varlistentry>
+<term><literal>PDU_PMNS_NAMES</literal></term>
+<listitem><para><indexterm id="IG3134017782nat"><primary>pmLookupName function</primary></indexterm><indexterm id="IG3134017783nat"><primary>PDU_PMNS_NAMES</primary></indexterm>Request for metric names, given one or more identifiers (see the <command>pmLookupName(3)</command> man page.)</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>PDU_PMNS_CHILD</literal></term>
+<listitem><para><indexterm id="IG3134017784nat"><primary>pmGetChildren function</primary></indexterm><indexterm id="IG3134017785nat"><primary>PDU_PMNS_CHILD</primary></indexterm>A list of immediate descendent nodes of a given namespace node (see the <command>pmGetChildren(3)</command> man page).</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>PDU_PMNS_TRAVERSE</literal></term>
+<listitem><para><indexterm id="IG3134017786nat"><primary>pmTraversePMNS function</primary></indexterm><indexterm id="IG3134017787nat"><primary>PDU_PMNS_TRAVERSE</primary></indexterm>Request for a particular sub-tree of a given namespace node (see the <command>pmTraversePMNS(3)</command> man page).</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>PDU_PMNS_IDS</literal></term>
+<listitem><para><indexterm id="IG3134017788nat"><primary>pmNameID function</primary></indexterm><indexterm id="IG3134017789nat"><primary>PDU_PMNS_IDS</primary></indexterm>Perform a reverse name lookup, mapping a metric identifier to a name (see the <command>pmNameID(3)</command> man page).</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>PDU_AUTH</literal></term>
+<listitem><para><indexterm id="IG3134017790nat"><primary>__pmParseHostAttrsSpec function</primary></indexterm><indexterm id="IG3134017791nat"><primary>PDU_AUTH</primary></indexterm>Handle connection attributes (key/value pairs), such as client credentials and other authentication information (see the <command>__pmParseHostAttrsSpec(3)</command> man page).</para>
+</listitem></varlistentry>
+</variablelist></para>
 <para>Each PMDA is associated with a unique domain number that is encoded in the domain field of metric and instance identifiers, and PMCD uses the domain number to determine which PMDA can handle the components of any given client request.</para>
 </section>
 <section id="LE82676-PARENT">
 
 <title>DSO PMDA</title>
-<para><indexterm id="IG3134017795"><primary>DSO</primary><secondary>implementation</secondary></indexterm><indexterm id="IG3134017796"><primary>dlopen man page</primary></indexterm>Each PMDA is required to implement a function that handles each of the request types. By implementing these functions as library functions, a PMDA can be implemented as a  dynamically shared object (DSO) and attached by PMCD at run time with the <command>dlopen</command> call; see the <command>dlopen(3)</command> man page. This eliminates the need for an IPC layer (typically a UNIX pipe) between each PMDA and PMCD, because each request becomes a function call rather than a message exchange. The required library functions are detailed in <xref linkend="LE21831-PARENT"/>.</para>
+<para><indexterm id="IG3134017795"><primary>DSO</primary><secondary>implementation</secondary></indexterm><indexterm id="IG3134017796"><primary>dlopen man page</primary></indexterm>Each PMDA is required to implement a function that handles each of the request types. By implementing these functions as library functions, a PMDA can be implemented as a dynamically shared object (DSO) and attached by PMCD at run time with a platform-specific call, such as <command>dlopen</command>; see the <command>dlopen(3)</command> man page. This eliminates the need for an IPC layer (typically a pipe) between each PMDA and PMCD, because each request becomes a function call rather than a message exchange. The required library functions are detailed in <xref linkend="LE21831-PARENT"/>.</para>
 <para>A PMDA that interacts with PMCD in this fashion must abide by a formal initialization protocol so that PMCD can discover the location of the library functions that are subsequently called with function pointers. When a DSO PMDA is installed, the PMCD configuration file, <filename>/etc/pcp/pmcd/pmcd.conf</filename>, is updated to reflect the domain and name of the PMDA, the location of the shared object, and the name of the initialization function. The initialization sequence is discussed in <xref linkend="LE19047-PARENT"/>.</para>
-<para><indexterm id="IG3134017797"><primary>simple PMDA</primary><secondary>DSO</secondary></indexterm>As superuser, install the simple PMDA as a DSO, as shown in <xref linkend="Z1033502809tls"/> and <xref linkend="Z1033502809tls"/>, and observe the changes in the PMCD configuration file. The output may differ slightly depending on the other PMDAs you have installed.</para>
+<para><indexterm id="IG3134017797"><primary>simple PMDA</primary><secondary>DSO</secondary></indexterm>As superuser, install the simple PMDA as a DSO, as shown in <xref linkend="Z1033502809tls"/>, and observe the changes in the PMCD configuration file. The output may differ slightly depending on the operating system you are using, any other PMDAs you have installed or any PMCD access controls you have in place.</para>
 <para><example id="Z1033502809tls">
 <title>Simple PMDA as a DSO</title>
 <programlisting><userinput>cat /etc/pcp/pmcd/pmcd.conf</userinput>
@@ -446,27 +468,30 @@ pmval(1)</command> and <command>pminfo(1)</command> man pages. For examples of a
 # Name  Id      IPC     IPC Params      File/Cmd
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
+proc    3       pipe    proc_init       ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
 simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</programlisting>
 </example></para>
 <para>As can be seen from the contents of <filename>/etc/pcp/pmcd/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm id="IG3134017799"><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 254, as shown in the column headed <literal>Id</literal>.</para>
+<note><para>For some platforms the DSO file name will not be <filename>pmda_simple.so</filename>. On Mac OS X it is <filename>pmda_simple.dylib</filename> and on Windows it is <filename>pmda_simple.dll</filename>.
+</para></note>
 </section>
 <section id="id5188840">
 
 <title>Daemon PMDA</title>
 <para><indexterm id="IG31340177100"><primary>DSO</primary><secondary>disadvantages</secondary></indexterm>A DSO PMDA provides the most efficient communication between the PMDA and PMCD. This approach has some  disadvantages resulting from the DSO PMDA being the same process as PMCD:</para>
 <itemizedlist>
-<listitem><para>An error or bug that causes a DSO PMDA to exit also causes PMCD to exit.</para>
+<listitem><para>An error or bug that causes a DSO PMDA to exit also causes PMCD to exit, which affects all connected client tools.</para>
 </listitem>
 <listitem><para>There is only one thread of control in PMCD; as a result, a computationally expensive PMDA, or worse, a PMDA that blocks for I/O, adversely affects the performance of PMCD.</para>
 </listitem>
-<listitem><para>The PMCD runs as superuser; so any DSO PMDAs also run as superuser.</para>
+<listitem><para>PMCD runs as the &quot;pcp&quot; user; so all DSO PMDAs must also run as this user.</para>
 </listitem>
 <listitem><para>A memory leak in a DSO PMDA also causes a memory leak for PMCD.</para>
 </listitem></itemizedlist>
 <para>Consequently, many PMDAs are implemented as a daemon process.</para>
 <para>The <filename>libpcp_pmda</filename> library is designed to allow simple implementation of a PMDA that runs as a separate process. The library functions provide a message passing layer acting as a generic wrapper that accepts PDUs, makes library calls using the standard DSO PMDA interface, and sends PDUs. Therefore, you can implement a PMDA as a DSO and then install it as either a daemon or a DSO, depending on the presence or absence of the generic wrapper.</para>
-<para><indexterm id="IG31340177101"><primary>fork system call</primary></indexterm><indexterm id="IG31340177102"><primary>execv system call</primary></indexterm><indexterm id="IG31340177103"><primary>pipe</primary></indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command>. You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using TCP/IP or UNIX domain sockets; see the <command>inet(7)</command> or <command>unix(7)</command> man page.</para>
-<para><indexterm id="IG31340177104"><primary>pipe</primary></indexterm><indexterm id="IG31340177105"><primary>simple PMDA</primary><secondary> as daemon</secondary></indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to other PMDAs already installed.</para>
+<para><indexterm id="IG31340177101"><primary>fork system call</primary></indexterm><indexterm id="IG31340177102"><primary>execv system call</primary></indexterm><indexterm id="IG31340177103"><primary>pipe</primary></indexterm>The PMCD process launches a daemon PMDA with  <command>fork</command> and <command>execv</command> (or <command>CreateProcess</command> on Windows). You can easily connect a pipe to the PMDA using standard input and output. The PMCD process may also connect to a daemon PMDA using IPv4 or IPv6 TCP/IP, or UNIX domain sockets if the platform supports that; see the <command>tcp(7)</command>,  <command>ip(7)</command>, <command>ipv6(7)</command> or <command>unix(7)</command> man pages.</para>
+<para><indexterm id="IG31340177104"><primary>pipe</primary></indexterm><indexterm id="IG31340177105"><primary>simple PMDA</primary><secondary> as daemon</secondary></indexterm>As superuser, install the  simple PMDA as a daemon process as shown in <xref linkend="Z1033576478tls"/>. Again, the output may differ due to operating system differences, other PMDAs already installed, or access control sections in the PMCD configuration file.</para>
 <para><example id="Z1033576478tls">
 <title>Simple PMDA as a Daemon</title>
 <para>The specification for the simple PMDA now states the connection type of <command>pipe</command> to PMCD and the executable image for the PMDA is <filename>${PCP_PMDAS_DIR}/simple/pmdasimple</filename>, using domain number 253.<programlisting># <userinput>cd ${PCP_PMDAS_DIR}/simple</userinput>
@@ -475,7 +500,7 @@ simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</
 Install simple as a daemon or dso agent? [daemon] daemon 
 PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 ...
-# cat /etc/pcp/pmcd/pmcd.conf 
+# <userinput>cat /etc/pcp/pmcd/pmcd.conf</userinput>
 # Performance Metrics Domain Specifications
 # 
 # This file is automatically generated during the build
@@ -483,7 +508,6 @@ PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
 proc    3       pipe    proc_init       ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
-xfs     11      pipe    proc_init       ${PCP_PMDAS_DIR}/xfs/pmda_xfs.so -d 11
 simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 253</programlisting></para>
 </example></para>
 </section>
@@ -499,7 +523,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 
 <title>Domains, Metrics, and Instances</title>
 <para>This section defines metrics and instances, discusses how they should be designed for a particular target domain, and shows how to implement support for them.</para>
-<para><indexterm id="IG31340177109"><primary>examples</primary><secondary>simple and trivial PMDAs</secondary></indexterm>The examples in this section are drawn from the trivial and simple PMDAs, which are distributed in source format with PCP. Refer to the <filename>${PCP_PMDAS_DIR}/trivial</filename> and <filename>${PCP_PMDAS_DIR}/simple</filename> directories, respectively.</para>
+<para><indexterm id="IG31340177109"><primary>examples</primary><secondary>simple and trivial PMDAs</secondary></indexterm>The examples in this section are drawn from the trivial and simple PMDAs. Refer to the <filename>${PCP_PMDAS_DIR}/trivial</filename> and <filename>${PCP_PMDAS_DIR}/simple</filename> directories, respectively, where both binaries and source code are available.</para>
 <section id="id5189300">
 
 <title>Overview</title>
@@ -1388,7 +1412,7 @@ main(int argc, char **argv)
 <para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/pcp/pmcd/pmcd.options</filename> attaching a debugger (such as <command>gdb</command>) to the PMDA process (or any other long delay) might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
 <para>If you suspect a PMDA has been terminated due to a timeout failure, check the PMCD log file, usually <filename>${PCP_LOG_DIR}/pmcd/pmcd.log</filename>.</para>
 <para><indexterm id="IG31340177229"><primary>dbpmda man page</primary></indexterm>A more robust way of testing a PMDA is to use the <command>dbpmda</command> tool, which is similar to PMCD except that <command>dbpmda</command> provides complete control over the PDUs that are sent to the PMDA, and there are no time limits--it is essentially an interactive debugger for exercising a PMDA. See the <command>dbpmda(3)</command> man page for details.</para>
-<para><indexterm id="IG31340177230"><primary>pmdbg man page</primary></indexterm>In addition, careful use of PCP debugging flags can produce useful information concerning a PMDA's behavior; see the <command>pmapi(3)</command> and <command>pmdbg(1)</command> man pages for a discussion of the PCP debugging and tracing framework.</para>
+<para><indexterm id="IG31340177230"><primary>pmdbg man page</primary></indexterm>In addition, careful use of PCP debugging flags can produce useful information concerning a PMDA's behavior; see the <command>PMAPI(3)</command> and <command>pmdbg(1)</command> man pages for a discussion of the PCP debugging and tracing framework.</para>
 </section>
 <section id="id5195016">
 
@@ -1396,7 +1420,7 @@ main(int argc, char **argv)
 <para><indexterm id="IG31340177231"><primary>pmdbg man page</primary></indexterm><indexterm id="IG31340177232"><primary>debugging flags</primary><see>flags</see></indexterm><indexterm id="IG31340177233"><primary>flags</primary><secondary>debugging</secondary></indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug flag for PMCD in <filename>/etc/pcp/pmcd/pmcd.options</filename> might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
 <para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
 <programlisting># <emphasis role="bold">pmstore pmcd.control.debug 5</emphasis></programlisting>
-<para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>pmda(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
+<para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
 <para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required.</para>
 <para><indexterm id="IG31340177234"><primary>simple_store function</primary></indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060060sdc"/>:</para>
 <example id="Z976060060sdc">
@@ -3938,6 +3962,10 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
+   <primaryie>PDU_AUTH <link linkend="IG3134017791nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>PDU_DESC_REQ <link linkend="IG3134017789">Overview</link></primaryie>
 </indexentry>
 
@@ -3947,6 +3975,22 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>PDU_INSTANCE_REQ <link linkend="IG3134017787">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PDU_PMNS_CHILD <link linkend="IG3134017785nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PDU_PMNS_NAMES <link linkend="IG3134017783nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PDU_PMNS_TRAVERSE <link linkend="IG3134017787nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PDU_PMNS_IDS <link linkend="IG3134017789nat">Overview</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4333,7 +4377,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmGetChildren function <link linkend="IG31340177288">Variable Length Argument and Results Lists</link> <link linkend="IG31340177293"><command>pmGetChildren</command> Function</link> <link linkend="IG31340177294"><command>pmGetChildrenStatus</command> Function</link> <link linkend="IG31340177329">PMAPI Context Services</link></primaryie>
+   <primaryie>pmGetChildren function <link linkend="IG3134017785nat">Overview</link> <link linkend="IG31340177288">Variable Length Argument and Results Lists</link> <link linkend="IG31340177293"><command>pmGetChildren</command> Function</link> <link linkend="IG31340177294"><command>pmGetChildrenStatus</command> Function</link> <link linkend="IG31340177329">PMAPI Context Services</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4403,7 +4447,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmLookupName function <link linkend="IG31340177298"><command>pmLookupName</command> Function</link> <link linkend="IG31340177338">PMAPI Context Services</link> <link linkend="IG31340177448">Symbolic Association between a Metric's Name and Value</link></primaryie>
+   <primaryie>pmLookupName function <link linkend="IG3134017782nat">Overview</link> <link linkend="IG31340177298"><command>pmLookupName</command> Function</link> <link linkend="IG31340177338">PMAPI Context Services</link> <link linkend="IG31340177448">Symbolic Association between a Metric's Name and Value</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4550,7 +4594,11 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmTraversePMNS function <link linkend="IG31340177301"><command>pmTraversePMNS</command> Function</link> <link linkend="IG31340177345">PMAPI Context Services</link></primaryie>
+   <primaryie>pmTraversePMNS function <link linkend="IG3134017786nat">Overview</link> <link linkend="IG31340177301"><command>pmTraversePMNS</command> Function</link> <link linkend="IG31340177345">PMAPI Context Services</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>__pmParseHostAttrsSpec function <link linkend="IG3134017790nat">Overview</link></primaryie>
 </indexentry>
 
 <indexentry>
