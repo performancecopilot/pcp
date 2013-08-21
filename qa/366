@@ -39,6 +39,7 @@ _filter()
 rm -f $seq.out
 suffix=1
 [ $PCP_VER -ge 3802 ] && suffix=2
+[ $PCP_VER -ge 3803 ] && suffix=3
 if [ -f $seq.$PCP_PLATFORM.$suffix ]
 then
     ln $seq.$PCP_PLATFORM.$suffix $seq.out

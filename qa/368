@@ -13,12 +13,7 @@
 
 seq=`basename $0`
 
-if [ -f $PCP_BINADM_DIR/pmlogconf-setup ]
-then
-    :
-else
-    _notrun "pmlogconf version 2.0 not installed"
-fi
+[ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf v2.0 is not installed"
 
 echo "QA output created by $seq"
 
