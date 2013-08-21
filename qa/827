@@ -27,9 +27,9 @@ pmlogrewrite -c $tmp.config -w src/new_snmp $tmp.old
 
 pmlogrewrite -c $migrate -w $tmp.old $tmp.new
 
-pmdumplog -a $tmp.old >$tmp.old.dump
-pmdumplog -a $tmp.new >$tmp.new.dump
-pmdumplog -a src/new_snmp >$tmp.ref.dump
+pmdumplog -z -a $tmp.old >$tmp.old.dump
+pmdumplog -z -a $tmp.new >$tmp.new.dump
+pmdumplog -z -a src/new_snmp >$tmp.ref.dump
 
 echo "old -> new changes"
 diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
