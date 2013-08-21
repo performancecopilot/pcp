@@ -6519,7 +6519,7 @@ as it might be loaded by the PMAPI routine <command>pmLoadNameSpace</command>;
 see the <command>pmLoadNameSpace(3)</command> man page. This is usually done only
 by <command>pmcd</command>, except in rare circumstances such as <xref linkend="LE43074-PARENT"/>.
 </para>
-<para>The PMNS specification is a simple ASCII source file that can be edited
+<para>The PMNS specification is a simple text source file that can be edited
 easily. For reasons of efficiency, a binary format is also supported; the
 utility <literal>pmnscomp</literal> translates the ASCII source format into
 binary format; see the <command>pmnscomp(1)</command> man page.
@@ -6604,12 +6604,12 @@ cpu {
        utilization
 }
 #define USER 20
-#define KERNEL 21
+#define SYSTEM 21
 #define IDLE 22
 cpu.utilization {
-       user    LINUX:CPU:USER
-       sys     LINUX:CPU:KERNEL
-       idle    LINUX:CPU:IDLE
+       user    KERNEL:CPU:USER
+       sys     KERNEL:CPU:SYSTEM
+       idle    KERNEL:CPU:IDLE
 }</literallayout>
 </example>
 <para>For complete documentation of the PMNS and associated utilities, see

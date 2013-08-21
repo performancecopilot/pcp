@@ -468,7 +468,7 @@ of export methodology is typically determined by the source of the instrumentati
 # Name  Id      IPC     IPC Params      File/Cmd
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
-proc    3       pipe    proc_init       ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
 simple  254     dso     simple_init     ${PCP_PMDAS_DIR}/simple/pmda_simple.so</programlisting>
 </example></para>
 <para>As can be seen from the contents of <filename>/etc/pcp/pmcd/pmcd.conf</filename>, the DSO version of the simple PMDA is in a library named <filename>pmda_simple.so</filename> and has an initialization function called <indexterm id="IG3134017799"><primary>simple_init function</primary></indexterm> <command>simple_init</command>. The domain of the simple PMDA is 254, as shown in the column headed <literal>Id</literal>.</para>
@@ -507,7 +507,7 @@ PMCD should communicate with the daemon via pipe or socket? [pipe] pipe
 # Name  Id      IPC     IPC Params      File/Cmd
 pmcd    2       dso     pmcd_init       ${PCP_PMDAS_DIR}/pmcd/pmda_pmcd.so
 linux   60      dso     linux_init      ${PCP_PMDAS_DIR}/linux/pmda_linux.so
-proc    3       pipe    proc_init       ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
+proc    3       pipe    binary          ${PCP_PMDAS_DIR}/linux/pmda_proc.so -d 3
 simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 253</programlisting></para>
 </example></para>
 </section>
@@ -570,7 +570,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 <section id="LE98565-PARENT">
 
 <title>Metrics</title>
-<para><indexterm id="IG31340177114"><primary>metrics</primary><secondary>definition</secondary></indexterm><indexterm id="IG31340177115"><primary>target domain</primary></indexterm>A PMDA provides support for a collection of metrics. In addition to the obvious performance metrics, and the measures of time, activity and resource utilization, the metrics should also describe how the target domain has been configured, as this can greatly affect the correct interpretation of the observed performance. For example, metrics that describe network transfer rates should also describe the number and type of network interfaces connected to the host.</para>
+<para><indexterm id="IG31340177114"><primary>metrics</primary><secondary>definition</secondary></indexterm><indexterm id="IG31340177115"><primary>target domain</primary></indexterm>A PMDA provides support for a collection of metrics. In addition to the obvious performance metrics, and the measures of time, activity and resource utilization, the metrics should also describe how the target domain has been configured, as this can greatly affect the correct interpretation of the observed performance. For example, metrics that describe network transfer rates should also describe the number and type of network interfaces connected to the host (<literal>hinv.ninterface</literal>, <literal>hinv.interface.speed</literal>, <literal>network.interface.duplex</literal>, and so on)</para>
 <para><indexterm id="IG31340177116"><primary>storage of metrics</primary></indexterm><indexterm id="IG31340177117"><primary>pmstore function</primary></indexterm>In addition, the metrics should describe how the PMDA has been configured. For example, if the PMDA was periodically probing a system to measure quality of service, there should be metrics for the delay between probes, the number of probes attempted, plus probe success and failure counters. It may also be appropriate to allow values to be  stored (see the <command>pmstore(1)</command> man page) into the delay metric, so that the delay used by the PMDA can be altered dynamically.</para>
 <section id="id5189689">
 
@@ -606,7 +606,14 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 <listitem><para>A description of the value's units based on dimension and scale in the three orthogonal dimensions of space, time, and count (or events)</para>
 </listitem></varlistentry>
 </variablelist>
-<para><indexterm id="IG31340177121"><primary>_pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>/usr/include/pcp/pmapi.h</filename> file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>_pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z1033577630tls"/>:</para>
+<note><para>This information can be observed for metrics from any active PMDA using <command>pminfo</command> command line options, for example:
+<literallayout class="monospaced">$ <userinput>pminfo -d -m network.interface.out.drops</userinput>
+
+network.interface.out.drops PMID: 60.3.11
+    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+    Semantics: counter  Units: count</literallayout>
+</para></note>
+<para><indexterm id="IG31340177121"><primary>__pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>&lt;pcp/pmapi.h&gt;</filename> header file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>__pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z1033577630tls"/>:</para>
 <para><example id="Z1033577630tls">
 <title><filename>__pmID_int</filename> Structure</title>
 <programlisting>typedef struct { 
@@ -616,8 +623,8 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
         unsigned int    item:10;
 } __pmID_int;</programlisting>
 </example></para>
-<para>For additional information, see the <filename>/usr/include/pcp/impl.h</filename> file.</para>
-<para><indexterm id="IG31340177122"><primary>PMDA_PMID macro</primary></indexterm>The <literal>pad</literal> field should be ignored. The <literal>domain</literal> number should be set at run time when the PMDA is initialized. The <literal>PMDA_PMID</literal> macro defined in <filename>/usr/include/pcp/pmapi.h</filename> can be used to set the <literal>cluster</literal> and <literal>item</literal> fields at compile time, as these should always be known and fixed for a particular metric.</para>
+<para>For additional information, see the <filename>&lt;pcp/impl.h&gt;</filename> file.</para>
+<para><indexterm id="IG31340177122"><primary>PMDA_PMID macro</primary></indexterm>The <literal>flag</literal> field should be ignored. The <literal>domain</literal> number should be set at run time when the PMDA is initialized. The <literal>PMDA_PMID</literal> macro defined in <filename>&lt;pcp/pmapi.h&gt;</filename> can be used to set the <literal>cluster</literal> and <literal>item</literal> fields at compile time, as these should always be known and fixed for a particular metric.</para>
 <note><para>The three components of the PMID should correspond exactly to the three-part definition of the PMID for the corresponding metric in the PMNS described in <xref linkend="LE83854-PARENT"/>.</para>
 </note>
 <para><indexterm id="IG31340177123"><primary> pmdaMetric structure</primary></indexterm>A table of <filename>pmdaMetric</filename> structures should be defined within the PMDA, with one structure per metric as shown in <xref linkend="Z976036629sdc"/>. </para>
@@ -629,14 +636,14 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 } pmdaMetric;</programlisting>
 </example>
 <para>This structure contains a <filename>pmDesc</filename> structure and a handle that allows PMDA-specific structures to be associated with each metric. For example, <literal>m_user</literal> could be a pointer to a global variable containing the metric value, or a pointer to a function that may be called to instantiate the metric's value.</para>
-<para><indexterm id="IG31340177124"><primary>trivial PMDA</primary><secondary>singular metric</secondary></indexterm>The trivial PMDA, shown in <xref linkend="Z963521873sdc"/>, has only a singular metric (that is, no instance domains):</para>
+<para><indexterm id="IG31340177124"><primary>trivial PMDA</primary><secondary>singular metric</secondary></indexterm>The trivial PMDA, shown in <xref linkend="Z963521873sdc"/>, has only a singular metric (that is, no instance domain):</para>
 <example id="Z963521873sdc">
 <title>Trivial PMDA</title>
 <programlisting>static pmdaMetric metrictab[] = {
-/* time */ 
- { (void *)0,  
-   { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-     PMDA_PMUNITS (0, 1, 0, 0, PM_TIME_SEC, 0) ), ) 
+/* time */
+ { NULL,
+   { PMDA_PMID(0, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+     PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) }, },
 }; </programlisting>
 <para>This single metric (<literal>trivial.time</literal>) has the following:</para>
 <itemizedlist>
@@ -657,14 +664,14 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 <title>Semantics</title>
 <para><indexterm id="IG31340177127"><primary>semantic types</primary></indexterm>The metric's semantics describe how PCP tools should interpret the metric's value. The following are the possible  semantic types:</para>
 <itemizedlist>
-<listitem><para><indexterm id="IG31340177128"><primary>PM_SEM_COUNTER semantic type</primary></indexterm>Counter ( <literal>PM_SEM_COUNTER</literal>)</para>
+<listitem><para><indexterm id="IG31340177128"><primary>PM_SEM_COUNTER semantic type</primary></indexterm>Counter (<literal>PM_SEM_COUNTER</literal>)</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177129"><primary>PM_SEM_INSTANT semantic type</primary></indexterm> Instantaneous value (<literal>PM_SEM_INSTANT</literal>)</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177130"><primary>PM_SEM_DISCRETE semantic type</primary></indexterm>Discrete value (<literal>PM_SEM_DISCRETE</literal>)</para>
 </listitem></itemizedlist>
-<para>A counter should be a value that monotonically increases (or monotonically decreases, which is less likely) with respect to time, so that the rate of change should be used in preference to the actual value. Rate conversion is not appropriate for metrics with instantaneous values, as the value is a snapshot and there is no basis for assuming any values that might have been observed between snapshots. Discrete is similar to instantaneous; however, once observed it is presumed the value will persist for an extended period (for example, system configuration, static tuning parameters and most metrics with nonnumeric values).</para>
-<para><indexterm id="IG31340177131"><primary>counter semantics</primary></indexterm> <indexterm id="IG31340177132"><primary> instantaneous semantics</primary></indexterm> <indexterm id="IG31340177133"><primary>discrete semantics</primary></indexterm>For a given time interval covering six consecutive timestamps, each spanning two units of time, themetric values, in <xref linkend="Z963522765sdc"/>, are exported from a PMDA (&#x201C;N/A&#x201D; implies no value is available): </para>
+<para>A counter should be a value that monotonically increases (or monotonically decreases, which is less likely) with respect to time, so that the rate of change should be used in preference to the actual value. Rate conversion is not appropriate for metrics with instantaneous values, as the value is a snapshot and there is no basis for assuming any values that might have been observed between snapshots. Discrete is similar to instantaneous; however, once observed it is presumed the value will persist for an extended period (for example, system configuration, static tuning parameters and most metrics with non-numeric values).</para>
+<para><indexterm id="IG31340177131"><primary>counter semantics</primary></indexterm> <indexterm id="IG31340177132"><primary> instantaneous semantics</primary></indexterm> <indexterm id="IG31340177133"><primary>discrete semantics</primary></indexterm>For a given time interval covering six consecutive timestamps, each spanning two units of time, the metric values in <xref linkend="Z963522765sdc"/> are exported from a PMDA (&#x201C;N/A&#x201D; implies no value is available): </para>
 <example id="Z963522765sdc">
 <title>Effect of Semantics on a Metric</title>
 <programlisting>Timestamps:         1   3   5   7   9  11 
@@ -701,7 +708,7 @@ Discrete           10  30  60  80  90  90</programlisting>
 <programlisting>  M1[1]  M1[2]  M1[3] 
   M2[1]  M2[2]  M2[3]</programlisting>
 <para>The PMDA implementer must decide and consistently export this encoding from the N-dimensional instrumentation to the 1-dimensional data model of the PCP.</para>
-<para>In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the descriptor is <literal>PM_TYPE_AGGREGATE</literal>). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of the structure and interpretation of the binary data.</para>
+<para>In certain special cases (for example, such as for a histogram), it may be appropriate to export an array of values as raw binary data (the type encoding in the descriptor is <literal>PM_TYPE_AGGREGATE</literal>). However, this requires the development of special PMAPI client tools, because the standard PCP tools have no knowledge of the structure and interpretation of the binary data. The usual issues of platform-depdendence must also be kept in mind for this case - endianness, word-size, alignment and so on - the (possibly remote) special PMAPI client tools may need this information in order to decode the data successfully.</para>
 </section>
 <section id="id5190626">
 
@@ -724,7 +731,7 @@ Discrete           10  30  60  80  90  90</programlisting>
     pmdaInstid  *it_set;        /* instance identifiers */ 
 } pmdaIndom;</programlisting>
 </example>
-<para><indexterm id="IG31340177140"><primary>arrays</primary><secondary>instance description</secondary></indexterm><indexterm id="IG31340177141"><primary>_pmInDom_int structure</primary></indexterm>The <literal>it_indom</literal> element contains a <literal>pmInDom</literal> that must be unique across every PMDA. The other fields of the <filename>pmdaIndom</filename> structure are the number of instances in the instance domain and a pointer to an array of instance descriptions.</para>
+<para><indexterm id="IG31340177140"><primary>arrays</primary><secondary>instance description</secondary></indexterm><indexterm id="IG31340177141"><primary>__pmInDom_int structure</primary></indexterm>The <literal>it_indom</literal> element contains a <literal>pmInDom</literal> that must be unique across every PMDA. The other fields of the <filename>pmdaIndom</filename> structure are the number of instances in the instance domain and a pointer to an array of instance descriptions.</para>
 <para><xref linkend="Z1033578294tls"/> shows that the <literal>pmInDom</literal> can be safely cast to <literal>__pmInDom_int</literal>, which specifies the PMDA's domain and the instance number  within the PMDA:</para>
 <para><example id="Z1033578294tls">
 <title><literal>__pmInDom_int</literal> Structure</title>
@@ -762,28 +769,28 @@ static pmdaIndom indomtab[] = {
 static pmdaMetric metrictab[] = {
 /* numfetch */
     { NULL,
-      { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
-       PMDA_PMUNITS ( 0,0,0,0,0,0) }, },
+      { PMDA_PMID(0, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, },
 /* color */
     { NULL,
-      { PMDA_PMID(0,1), PM_TYPE_32, COLOR_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS ( 0,0,0,0,0,0) }, },
+      { PMDA_PMID(0, 1), PM_TYPE_32, COLOR_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, },
 /* time.user */
     { NULL,
-      { PMDA_PMID(1,2), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-        PMDA_PMUNITS ( 0, 1, 0, 0, PM_TIME_SEC, 0 ) }, },
+      { PMDA_PMID(1, 2), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) }, },
 /* time.sys */
     { NULL,
       { PMDA_PMID(1,3), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-        PMDA_PMUNITS ( 0, 1, 0, 0, PM_TIME_SEC, 0 ) }, },
+        PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0) }, },
 /* now */
     { NULL,
       { PMDA_PMID(2,4), PM_TYPE_U32, NOW_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS { 0,0,0,0,0,0 } }, },
+        PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }, },
 };</programlisting>
 </example>
 <para><indexterm id="IG31340177143"><primary>COLOR_INDOM</primary></indexterm>The metric <literal>simple.color</literal> is associated, via <literal>COLOR_INDOM</literal>,  with the first instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[0].it_indom</filename> and <filename>metrictab[1].m_desc.indom</filename>. This instance domain has three instances: red, green, and blue.</para>
-<para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal>, <indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm> with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
+<para>The metric <literal>simple.now</literal> is associated, via <literal>NOW_INDOM</literal><indexterm id="IG31340177144"><primary>NOW_INDOM</primary></indexterm>, with the second instance domain listed in <filename>indomtab</filename>. PMDA initialization assigns the correct domain portion of the instance domain identifier in <filename>indomtab[1].it_indom</filename> and <filename>metrictab[4].m_desc.indom</filename>. This instance domain is dynamic and initially has no instances.</para>
 <para><indexterm id="IG31340177145"><primary>PM_INDOM_NULL instance domain</primary><secondary>data structures</secondary></indexterm>All other metrics are singular, as specified by <literal>PM_INDOM_NULL</literal>.</para>
 <para>In some cases an instance domain may vary dynamically after PMDA initialization (for example, <literal>simple.now</literal>), and this requires some refinement of the default functions and data structures of the <filename>libpcp_pmda</filename> library. Briefly, this involves providing new functions that act as wrappers for <command>pmdaInstance</command> and <command>pmdaFetch</command> while understanding the dynamics of the instance domain, and then overriding the instance and fetch methods in the <filename>pmdaInterface</filename> structure during PMDA initialization.</para>
 <para>For the simple PMDA, the wrapper functions are <command>simple_fetch</command> and <command>simple_instance</command>, and defaults are over-ridden by the following assignments in the <command>simple_init</command> function:</para>
@@ -795,11 +802,12 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 <section id="id5191164">
 
 <title>Other Issues</title>
-<para>Other issues include extracting the information, latency and threads of control, Name Space , PMDA help text, and management of evolution within a PMDA.</para>
+<para>Other issues include extracting the information, latency and threads of control, Name Space, PMDA help text, and management of evolution within a PMDA.</para>
 <section id="id5191177">
 
 <title>Extracting the Information</title>
-<para><indexterm id="IG31340177146"><primary>information extraction</primary></indexterm>A suggested approach to writing a PMDA is to write a standalone program to extract the values from the target domain and then incorporate this program into the PMDA framework. This approach avoids concurrent debugging of two distinct problems:<itemizedlist>
+<para><indexterm id="IG31340177146"><primary>information extraction</primary></indexterm>A suggested approach to writing a PMDA is to write a standalone program to extract the values from the target domain and then incorporate this program into the PMDA framework. This approach avoids concurrent debugging of two distinct problems:
+<itemizedlist>
 <listitem><para><indexterm id="IG31340177147"><primary>exporting data</primary></indexterm> Extraction of the data</para>
 </listitem>
 <listitem><para>Communication with PMCD</para>
@@ -823,16 +831,16 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 <title>Latency and Threads of Control</title>
 <para><indexterm id="IG31340177149"><primary>latency</primary></indexterm><indexterm id="IG31340177150"><primary>control threads</primary></indexterm><indexterm id="IG31340177151"><primary>delays</primary></indexterm>The PCP protocols expect PMDAs to return the current values for performance metrics when requested, and with short delay (low latency). For some target domains, access to the underlying instrumentation may be costly or involve unpredictable  delays (for example, if the real performance data is stored on some remote host or network device). In these cases, it may be necessary to separate probing for new performance data from servicing PMCD requests.</para>
 <para><indexterm id="IG31340177152"><primary>pthreads man page</primary></indexterm>An architecture that has been used successfully for several PMDAs is to create one or more child processes to obtain information while the main process communicates with PMCD.</para>
-<para>At the simplest deployment of this arrangement, the two processes may execute without synchronization. Pthreads have also been used as a more portable multithreading mechanism; see the <command>pthreads(7)</command> man page.</para>
+<para>At the simplest deployment of this arrangement, the two processes may execute without synchronization. Threads have also been used as a more portable multithreading mechanism; see the <command>pthreads(7)</command> man page.</para>
 <para>By contrast, a complex deployment would be one in which the refreshing of the metric values must be atomic, and this may require double buffering of the data structures. It also requires coordination between parent and child processes.</para>
-<tip><para>Since PMAPI is not thread-safe, only one PMDA process or thread of control should call any PMAPI functions, and this would typically be the thread servicing requests from the PMCD.</para>
-</tip>
+<warning><para>Since certain data structures used by the PMDA library are not thread-aware, only one PMDA thread of control should call PMDA library functions - this would typically be the thread servicing requests from PMCD.</para>
+</warning>
 <para><indexterm id="IG31340177153"><primary>caching PMDA</primary></indexterm>One caveat about this style of  caching PMDA--it is generally better if the PMDA converts counts to rates based upon consecutive periodic sampling from the underlying instrumentation. By exporting precomputed rate metrics with instantaneous semantics, the PMDA prevents the PCP monitor tools from computing their own rates upon consecutive PMCD fetches (which are likely to return identical values from a caching PMDA).</para>
 </section>
 <section id="LE83854-PARENT">
 
 <title>Name Space</title>
-<para><indexterm id="IG31340177154"><primary>pmns man page</primary></indexterm><indexterm id="IG31340177155"><primary>name space</primary></indexterm>The PMNS file defines the name space of the PMDA. It is a simple text file that is used during installation to expand the Name Space of the PMCD process. The format of this file is described by the <command>pmns(4)</command> man page.</para>
+<para><indexterm id="IG31340177154"><primary>pmns man page</primary></indexterm><indexterm id="IG31340177155"><primary>name space</primary></indexterm>The PMNS file defines the name space of the PMDA. It is a simple text file that is used during installation to expand the Name Space of the PMCD process. The format of this file is described by the <command>pmns(5)</command> man page and its hierarchical nature, syntax, and helper tools are further described in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
 <para>Client processes will not be able to access the PMDA metrics if the PMNS file is not installed as part of the PMDA installation procedure on the collector host. The installed list of metric names and their corresponding PMIDs can be found in <filename>${PCP_VAR_DIR}/pmns/root</filename>.</para>
 <para><indexterm id="IG31340177156"><primary>simple PMDA</primary><secondary> 2 branches, 4 metrics</secondary></indexterm><xref linkend="Z963526380sdc"/> shows the simple PMDA, which has five metrics:<itemizedlist>
 <listitem><para>Three metrics immediately under the <literal>simple</literal> node</para>
@@ -863,6 +871,12 @@ simple.time {
 }</programlisting>
 <para>In this example, the <literal>SIMPLE</literal> macro is replaced by the domain number listed in <filename>${PCP_VAR_DIR}/pmns/stdpmid</filename> for the corresponding PMDA during installation (for the simple PMDA, this would normally be the value 253).</para>
 </example>
+<para>If the PMDA implementer so chooses, all or a subset of the metric names and identifiers can be specified programatically. In this situation, a special asterisk syntax is used to denote those subtrees which are to be handles this way.   <xref linkend="Z976046292nat"/> shows this dynamic namespace syntax, for all metrics in the simple PMDA:</para>
+<example id="Z976046292nat">
+<title>Dynamic metrics <filename>pmns</filename> File for the Simple PMDA</title>
+<programlisting>simple         SIMPLE:*:*</programlisting>
+<para>In this example, like the one before, the <literal>SIMPLE</literal> macro is replaced by the domain number, and all (simple.*) metric namespace operations must be handled by the PMDA. This is in contrast to the static metric name model earlier, where the host-wide PMNS file is updated and used by PMCD, acting on behalf of the agent.</para>
+</example>
 </section>
 <section id="LE72473-PARENT">
 
@@ -872,10 +886,10 @@ simple.time {
 <example id="Z963526754sdc">
 <title>Help Text for the Simple PMDA</title>
 <para>The two instance domains and five metrics have a short and a verbose description. Each entry begins with a line that starts with the character &#x201C;@&#x201D; and is followed by either the metric name (<literal>simple.numfetch</literal>) or a symbolic reference to the instance domain number (<literal>SIMPLE.1</literal>), followed by the short description. The verbose description is on the following lines, terminated by the next line starting with &#x201C;@&#x201D; or end of file:</para>
-<programlisting>@ SIMPLE.1 Instance domain &#x201C;colour&#x201D; for simple PMDA
+<programlisting>@ SIMPLE.0 Instance domain &#x201C;colour&#x201D; for simple PMDA
 Universally 3 instances, &#x201C;red&#x201D; (0), &#x201C;green&#x201D; (1) and &#x201C;blue&#x201D; (3).
 
-@ SIMPLE.2 Dynamic instance domain &#x201C;time&#x201D; for simple PMDA
+@ SIMPLE.1 Dynamic instance domain &#x201C;time&#x201D; for simple PMDA
 An instance domain is computed on-the-fly for exporting current time
 information. Refer to the help text for simple.now for more details.
 
@@ -934,11 +948,11 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
 <example id="Z976047129sdc">
 <title> Setting Values</title>
 <programlisting>pmDesc dummy = { 
-     PMDA_PMID(3,0),        /* pmid, fill this in */
-     PM_TYPE_NOSUPPORT,     /* this is the important part */
-     PM_INDOM_NULL,         /* singular,causes no problems */
-    0,                     /* no semantics */
-     { 0, 0, 0, 0, 0, 0 }   /* no units */
+     .pmid  = PMDA_PMID(3,0),           /* pmid, fill this in */
+     .type  = PM_TYPE_NOSUPPORT,        /* this is the important part */
+     .indom = PM_INDOM_NULL,            /* singular,causes no problems */
+     .sem   = 0,                        /* no semantics */
+     .units = PMDA_PMUNITS(0,0,0,0,0,0) /* no units */
 };</programlisting>
 </example>
 </listitem>
@@ -946,7 +960,7 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
 </listitem>
 <listitem><para><indexterm id="IG31340177168"><primary>pmLookupText function</primary></indexterm><indexterm id="IG31340177169"><primary>help text</primary><secondary>pmLookupText function</secondary></indexterm>Help text should be updated with annotations to describe different versions of the underlying product, or product configuration options, for which a specific metric is available. This is so <command>pmLookupText</command> can always respond correctly.</para>
 </listitem>
-<listitem><para><indexterm id="IG31340177170"><primary>type field</primary></indexterm><indexterm id="IG31340177171"><primary>pmStore function</primary></indexterm>The <command>pmStore</command> operation should fail with return status of <literal>-EACCES</literal> if a user or application tries to amend the value of an unsupported metric.</para>
+<listitem><para><indexterm id="IG31340177170"><primary>type field</primary></indexterm><indexterm id="IG31340177171"><primary>pmStore function</primary></indexterm>The <command>pmStore</command> operation should fail with return status of <literal>PM_ERR_PERMISSION</literal> if a user or application tries to amend the value of an unsupported metric.</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177172"><primary>pmExtractValue function</primary></indexterm><indexterm id="IG31340177173"><primary>pmConvScale function</primary></indexterm><indexterm id="IG31340177174"><primary>pmAtomStr function</primary></indexterm><indexterm id="IG31340177175"><primary>pmTypeStr function</primary></indexterm><indexterm id="IG31340177176"><primary>pmPrintValue function</primary></indexterm><indexterm id="IG31340177177"><primary>PM_ERR_CONV error code</primary></indexterm> The value extraction, conversion, and printing functions (<command>pmExtractValue</command>, <command>pmConvScale</command>, <command>pmAtomStr</command>, <command>pmTypeStr</command>, and <command>pmPrintValue</command>) return the  <literal>PM_ERR_CONV</literal> error or an appropriate diagnostic string, if an attempt is made to operate on a value for which <literal>type</literal> is <literal>PM_TYPE_NOSUPPORT</literal>.</para>
 <para>If performance tools take note of the <literal>type</literal> field in the <filename>pmDesc</filename> structure, they should not manipulate values for unsupported metrics. Even if tools ignore <literal>type</literal> in the metric's description, following these development guidelines ensures that no misleading value is ever returned; so there is no reason to call the extraction, conversion, and printing functions.</para>
@@ -955,13 +969,13 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
 </section>
 <section id="LE21831-PARENT">
 
-<title>DSO Interface</title>
-<para><indexterm id="IG31340177178"><primary>DSO</primary><secondary>interface</secondary></indexterm>This section describes an interface for the request handling callbacks in a PMDA. This interface is used by PMCD for communicating with DSO PMDAs, and can also be used by daemon PMDAs with <command>pmdaMain</command>.</para>
+<title>PMDA Interface</title>
+<para><indexterm id="IG31340177178"><primary>PMDA</primary><secondary>interface</secondary></indexterm>This section describes an interface for the request handling callbacks in a PMDA. This interface is used by PMCD for communicating with DSO PMDAs and is also used by daemon PMDAs with <command>pmdaMain</command>.</para>
 <section id="id5192358">
 
 <title>Overview</title>
 <para>Both daemon and DSO PMDAs must handle multiple request types from PMCD. A daemon PMDA communicates with PMCD using the PDU protocol, while a DSO PMDA defines callbacks for each request type. To avoid duplicating this PDU processing (in the case of a PMDA that can be installed either as a daemon or as a DSO), and to allow a consistent framework, <command>pmdaMain</command> can be used by a daemon PMDA as a wrapper to handle the communication protocol using the same callbacks as a DSO PMDA. This allows a PMDA to be built as both a daemon and a DSO, and then to be installed as either.</para>
-<para>To further simplify matters, default callbacks are declared in <filename>/usr/include/pcp/pmda.h</filename>:</para>
+<para>To further simplify matters, default callbacks are declared in <filename>&lt;pcp/pmda.h&gt;</filename>:</para>
 <itemizedlist>
 <listitem><para><indexterm id="IG31340177179"><primary>pmdaFetch callback</primary></indexterm><command>pmdaFetch</command></para>
 </listitem>
@@ -974,6 +988,14 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
 <listitem><para><indexterm id="IG31340177183"><primary>pmdaText callback</primary></indexterm> <command>pmdaText</command></para>
 </listitem>
 <listitem><para><indexterm id="IG31340177184"><primary>pmdaStore callback</primary></indexterm> <command>pmdaStore</command></para>
+</listitem>
+<listitem><para><indexterm id="IG31340177nat"><primary>pmdaPMID callback</primary></indexterm> <command>pmdaPMID</command></para>
+</listitem>
+<listitem><para><indexterm id="IG31340178nat"><primary>pmdaName callback</primary></indexterm> <command>pmdaName</command></para>
+</listitem>
+<listitem><para><indexterm id="IG31340179nat"><primary>pmdaChildren callback</primary></indexterm> <command>pmdaChildren</command></para>
+</listitem>
+<listitem><para><indexterm id="IG31340180nat"><primary>pmdaAttribute callback</primary></indexterm> <command>pmdaAttribute</command></para>
 </listitem></itemizedlist>
 <para><indexterm id="IG31340177185"><primary>pmdaExt structure</primary></indexterm>Each callback takes a <filename>pmdaExt</filename> structure as its last argument. This structure contains all the information that is required by the default callbacks in most cases. The one exception is <command>pmdaFetch</command>, which needs an additional callback to instantiate the current value for each supported combination of a performance metric and an instance.</para>
 <para>Therefore, for most PMDAs all the communication with PMCD is automatically handled by functions in <filename>libpcp.so</filename> and <filename>libpcp_pmda.so</filename>.</para>
@@ -982,14 +1004,15 @@ values reflect the time at which the PMDA processes the fetch.</programlisting>
 <title>Trivial PMDA</title>
 <para><indexterm id="IG31340177186"><primary>trivial PMDA</primary><secondary>callbacks</secondary></indexterm>The trivial PMDA uses all of the default callbacks as shown in <xref linkend="Z964109292sdc"/>. The additional callback for <command>pmdaFetch</command> is defined as <command>trivial_fetchCallBack</command>:</para>
 <example id="Z964109292sdc">
-<title>Request Handing Callbacks in the Trivial PMDA</title>
+<title>Request Handling Callbacks in the Trivial PMDA</title>
 <programlisting>static int
 trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-   __pmID_int          *idp = (__pmID_int *)&amp;(mdesc-&gt;m_desc.pmid);
+   __pmID_int      *idp = (__pmID_int *)&amp;(mdesc-&gt;m_desc.pmid);
+
    if (idp-&gt;cluster != 0 || idp-&gt;item != 0)
        return PM_ERR_PMID;
-   else if (inst != PM_IN_NULL)
+   if (inst != PM_IN_NULL)
        return PM_ERR_INST;
    atom-&gt;l = time(NULL);
    return 0;
@@ -1000,9 +1023,9 @@ trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 <section id="id5192681">
 
 <title>Simple PMDA</title>
-<para><indexterm id="IG31340177188"><primary>simple PMDA</primary><secondary>pmdaFetch callback</secondary></indexterm><indexterm id="IG31340177189"><primary>simple_init function</primary></indexterm>The simple PMDA callback for <command>pmdaFetch</command> is more complicated because it must support more metrics, some metrics are instantiated with each fetch, and one instance domain is dynamic. The default <command>pmdaFetch</command> callback, shown in <xref linkend="Z964110950sdc"/>, is replaced by <command>simple_fetch</command> in <command>simple_init</command>, which increments the number of fetches and updates the instance domain for<literal>INDOM_NOW</literal> before calling <command>pmdaFetch</command>:</para>
+<para><indexterm id="IG31340177188"><primary>simple PMDA</primary><secondary>pmdaFetch callback</secondary></indexterm><indexterm id="IG31340177189"><primary>simple_init function</primary></indexterm>The simple PMDA callback for <command>pmdaFetch</command> is more complicated because it must support more metrics, some metrics are instantiated with each fetch, and one instance domain is dynamic. The default <command>pmdaFetch</command> callback, shown in <xref linkend="Z964110950sdc"/>, is replaced by <command>simple_fetch</command> in <command>simple_init</command>, which increments the number of fetches and updates the instance domain for <literal>INDOM_NOW</literal> before calling <command>pmdaFetch</command>:</para>
 <example id="Z964110950sdc">
-<title>Request Handing Callbacks in the Simple PMDA</title>
+<title>Request Handling Callbacks in the Simple PMDA</title>
 <programlisting>static int
 simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -1019,10 +1042,11 @@ simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 <programlisting>static int
 simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-   int                 i;
-   static int          oldfetch = 0;
-   static struct tms   tms;
-   __pmID_int          *idp = (__pmID_int *)&amp;(mdesc-&gt;m_desc.pmid);
+   int             i;
+   static int      oldfetch;
+   static double   usr, sys;
+   __pmID_int      *idp = (__pmID_int *)&amp;(mdesc-&gt;m_desc.pmid);
+
    if (inst != PM_IN_NULL &amp;&amp;
        !(idp-&gt;cluster == 0 &amp;&amp; idp-&gt;item == 1) &amp;&amp;
        !(idp-&gt;cluster == 2 &amp;&amp; idp-&gt;item == 4))
@@ -1056,37 +1080,36 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
        else
            return PM_ERR_PMID;</programlisting>
 </example>
-<para><indexterm id="IG31340177192"><primary>simple.time metric</primary></indexterm>In <xref linkend="Z976049353sdc"/>, the <literal>simple.time</literal> metric is in a second cluster and has a simple optimization to reduce the overhead of calling <command>times</command> twice on the same fetch and return consistent values from a single call to <command>times</command> when both metrics <literal>simple.time.user</literal> and <literal>simple.time.sys</literal> are requested in a single <command>pmFetch</command>. The previous fetch count is used to determine if the <filename>tms</filename> structure should be updated:</para>
+<para><indexterm id="IG31340177192"><primary>simple.time metric</primary></indexterm>In <xref linkend="Z976049353sdc"/>, the <literal>simple.time</literal> metric is in a second cluster and has a simple optimization to reduce the overhead of calling <command>times</command> twice on the same fetch and return consistent values from a single call to <command>times</command> when both metrics <literal>simple.time.user</literal> and <literal>simple.time.sys</literal> are requested in a single <command>pmFetch</command>. The previous fetch count is used to determine if the <filename>usr</filename> and <filename>sys</filename> values should be updated:</para>
 <example id="Z976049353sdc">
 <title><literal>simple.time</literal> Metric</title>
 <programlisting>   else if (idp-&gt;cluster == 1) {               /* simple.time */
        if (oldfetch &lt; numfetch) {
-           times(&amp;tms);
+           __pmProcessRunTimes(&amp;usr, &amp;sys);
            oldfetch = numfetch;
        }
        if (idp-&gt;item == 2)                     /* simple.time.user */
-           atom-&gt;d = (tms.tms_utime / (double)CLK_TCK);
+           atom-&gt;d = usr;
        else if (idp-&gt;item == 3)                /* simple.time.sys */
-           atom-&gt;d = (tms.tms_stime / (double)CLK_TCK);
+           atom-&gt;d = sys;
        else
            return PM_ERR_PMID;
     }</programlisting>
 </example>
-<para><indexterm id="IG31340177193"><primary>simple.now metric</primary></indexterm>In <xref linkend="Z976049020sdc"/>, the <literal>simple.now</literal> metric is in a third cluster and uses <literal>inst</literal> again to select a specific instance from the <literal>INDOM_NOW</literal> instance domain:</para>
+<para><indexterm id="IG31340177193"><primary>simple.now metric</primary></indexterm>In <xref linkend="Z976049020sdc"/>, the <literal>simple.now</literal> metric is in a third cluster and uses <literal>inst</literal> again to select a specific instance from the <literal>INDOM_NOW</literal> instance domain. The values associated with instances in this instance domain are managed using the <command>pmdaCache(3)</command> helper routines, which provide efficient interfaces for managing more complex instance domains:</para>
 <example id="Z976049020sdc">
 <title><literal>simple.now</literal> Metric</title>
 <programlisting>    else if (idp-&gt;cluster == 2) {
         if (idp-&gt;item == 4) {                 /* simple.now */
-            /* this loop will always match one of the named */
-            /* time constants from the timeslices structure */
-            for (i = 0; i &lt; num_timeslices; i++) {
-                if (inst == timeslices[i].inst_id) {
-                    atom-&gt;l = timeslices[i].tm_field;
-                    break;
-                }
-            }
-            if (i == num_timeslices)
+            struct timeslice *tsp;
+            sts = pmdaCacheLookup(*now_indom, inst, NULL, (void *)&amp;tsp);
+            if (sts != PMDA_CACHE_ACTIVE) {
+                if (sts &lt; 0)
+                    __pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s",
+                                  inst, pmErrStr(sts));
                 return PM_ERR_INST;
+            }
+            atom->l = tsp->tm_field;
         }
         else 
             return PM_ERR_PMID;
@@ -1094,12 +1117,11 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 </example>
 </section>
 <section id="id5193108">
-
 <title><literal>simple_store</literal> in the Simple PMDA</title>
-<para><indexterm id="IG31340177194"><primary>simple.store metric</primary></indexterm><indexterm id="IG31340177195"><primary id="Z980104423sdc">pmstore function</primary></indexterm>The simple PMDA permits some of the metrics it supports to be modified by <command>pmStore</command> as shown in <xref linkend="Z964111850sdc"/>. For additional information, see the <command>pmstore(1)</command> man page.</para>
+<para><indexterm id="IG31340177194"><primary>simple.store metric</primary></indexterm><indexterm id="IG31340177195"><primary id="Z980104423sdc">pmstore function</primary></indexterm>The simple PMDA permits some of the metrics it supports to be modified by <command>pmStore</command> as shown in <xref linkend="Z964111850sdc"/>. For additional information, see the <command>pmstore(1)</command> and <command>pmStore(3)</command> man pages.</para>
 <example id="Z964111850sdc">
 <title><literal>simple_store</literal> in the Simple PMDA</title>
-<para><indexterm id="IG31340177196"><primary>pmdaStore callback</primary></indexterm>The <command>pmdaStore</command> callback (which returns <literal>-EACCESS</literal> to indicate no metrics can be altered) is replaced by <command>simple_store</command> in <command>simple_init</command>. This replacement function must take the same arguments so that it can be assigned to the function pointer in the <filename>pmdaInterface</filename> structure.</para>
+<para><indexterm id="IG31340177196"><primary>pmdaStore callback</primary></indexterm>The <command>pmdaStore</command> callback (which returns <literal>PM_ERR_PERMISSION</literal> to indicate no metrics can be altered) is replaced by <command>simple_store</command> in <command>simple_init</command>. This replacement function must take the same arguments so that it can be assigned to the function pointer in the <filename>pmdaInterface</filename> structure.</para>
 <para>The function traverses the <literal>pmResult</literal> and checks the cluster and unit of each PMID to ensure that it corresponds to a metric that can be changed. Checks are made on the values to ensure they are within range before being assigned to variables in the PMDA that hold the current values for exported metrics:</para>
 <programlisting>static int
 simple_store(pmResult *result, pmdaExt *pmda)
@@ -1108,6 +1130,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
    pmAtomValue av;
    pmValueSet  *vsp = NULL;
    __pmID_int  *pmidp = NULL;
+
    for (i = 0; i &lt; result-&gt;numpmid; i++) {
        vsp = result-&gt;vset[i];
        pmidp = (__pmID_int *)&amp;vsp-&gt;pmid;
@@ -1158,13 +1181,13 @@ simple_store(pmResult *result, pmdaExt *pmda)
            }
        }</programlisting>
 </example>
-<para>Any metrics that cannot be altered should generate an error value of <literal>-EACCES</literal>, and metrics not supported by the PMDA should result in an error value of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976050822sdc"/>:</para>
+<para>Any metrics that cannot be altered should generate an error value of <literal>PM_ERR_PERMISSION</literal>, and metrics not supported by the PMDA should result in an error value of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976050822sdc"/>:</para>
 <example id="Z976050822sdc">
-<title><literal>-EACCES</literal> and <literal>PM_ERR_PMID</literal> Errors</title>
+<title><literal>PM_ERR_PERMISSION</literal> and <literal>PM_ERR_PMID</literal> Errors</title>
 <programlisting>       else if ((pmidp-&gt;cluster == 1 &amp;&amp;
                 (pmidp-&gt;item == 2 || pmidp-&gt;item == 3)) ||
                 (pmidp-&gt;cluster == 2 &amp;&amp; pmidp-&gt;item == 4)) {
-           sts = -EACCES;
+           sts = PM_ERR_PERMISSION;
            break;
        }
        else {
@@ -1174,7 +1197,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
    }
    return sts;
 }</programlisting>
-<para>The structure <filename>pmdaEx</filename><replaceable>t</replaceable> argument is not used by the <command>simple_store</command> function above.</para>
+<para>The structure <literal>pmdaExt</literal> <replaceable>pmda</replaceable> argument is not used by the <command>simple_store</command> function above.</para>
 </example>
 </section>
 <section id="id5193469">
@@ -1195,7 +1218,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
 <listitem><para>Success</para>
 </listitem></varlistentry>
 </variablelist>
-<para>In <literal>PMDA_INTERFACE_3</literal>, the return codes for the <command>pmdaFetch</command> callback function are defined:</para>
+<para>In <literal>PMDA_INTERFACE_3</literal> and all later versions, the return codes for the <command>pmdaFetch</command> callback function are defined:</para>
 <variablelist>
 <varlistentry>
 <term>Value</term>
@@ -1219,42 +1242,69 @@ simple_store(pmResult *result, pmdaExt *pmda)
 <section id="id5193658">
 
 <title>PMDA Structures</title>
-<para><indexterm id="IG31340177199"><primary>PMDA</primary><secondary>structures</secondary></indexterm>PMDA structures used with the <filename>pcp_pmda</filename> library are defined in <filename>/usr/include/pcp/pmda.h</filename>.  <xref linkend="Z964112160sdc"/> and <xref linkend="Z964117744sdc"/> describe the <literal>pmdaInterface</literal> and <literal>pmdaExt</literal> structures.</para>
+<para><indexterm id="IG31340177199"><primary>PMDA</primary><secondary>structures</secondary></indexterm>PMDA structures used with the <filename>pcp_pmda</filename> library are defined in <filename>&lt;pcp/pmda.h&gt;</filename>.  <xref linkend="Z964112160sdc"/> and <xref linkend="Z964117744sdc"/> describe the <literal>pmdaInterface</literal> and <literal>pmdaExt</literal> structures.</para>
 <example id="Z964112160sdc">
-<title><literal>pmdaInterface</literal> Structure</title>
+<title><literal>pmdaInterface</literal> Structure Header</title>
 <para><indexterm id="IG31340177200"><primary>pmdaInterface structure</primary></indexterm>The callbacks must be specified in a <filename>pmdaInterface</filename> structure:</para>
 <programlisting>typedef struct {
    int domain;     /* set/return performance metrics domain id here */
    struct {
        unsigned int pmda_interface : 8;  /* PMDA DSO version */
        unsigned int pmapi_version : 8;   /* PMAPI version */
-       unsigned int flags : 16;          /* usage TBD */
+       unsigned int flags : 16;          /* optional feature flags */
    } comm;             /* set/return communication and version info */
    int status;         /* return initialization status here */
    union {
-/* 
-* Interface Version 2 (PCP 2.0) or later 
-* PMDA_INTERFACE2, PMDA_INTERFACE3, ...
-*/ 
+      ...
+</programlisting>
+</example>
+<para>This structure is passed by PMCD to a DSO PMDA as an argument to the initialization function. This structure supports multiple (binary-compatible) versions--the second and subsequent versions have support for the <filename>pmdaExt</filename> structure. Protocol version one is for backwards compatibility only, and should not be used in any new PMDA.</para>
+<para>To date there have been six revisions of the interface structure:</para>
+<itemizedlist>
+<listitem><para>Version two added the <literal>pmdaExt</literal> structure, as mentioned above.</para>
+</listitem>
+<listitem><para>Version three changed the fetch callback return code semantics, as mentioned in <xref linkend="id5193469"/>.</para>
+</listitem>
+<listitem><para>Version four added support for dynamic metric names, where the PMDA is able to create and remove metric names on-the-fly in response to changes in the performance domain (<command>pmdaPMID</command>, <command>pmdaName</command>, <command>pmdaChildren</command> interfaces)</para>
+</listitem>
+<listitem><para>Version five added support for per-client contexts, where the PMDA is able to track arrival and disconnection of PMAPI client tools via PMCD (<command>pmdaGetContext</command> helper routine). At the same time, support for <literal>PM_TYPE_EVENT</literal> metrics was implemented, which relies on the per-client context concepts (<command>pmdaEvent*</command> helper routines).</para>
+</listitem>
+<listitem><para>Version six added support for authenticated client contexts, where the PMDA is informed of user credentials and other PMCD attributes of the connection between individual PMAPI clients and PMCD (<command>pmdaAttribute</command> interface)</para>
+</listitem>
+</itemizedlist>
+<example id="Z964112160nat">
+<title><literal>pmdaInterface</literal> Structure, Latest Version</title>
+<programlisting>   ...
+   union {
+       ...
+/*
+ * PMDA_INTERFACE6
+ */ 
        struct {
            pmdaExt *ext;
-           int     (*profile)(__pmProfile *, pmdaExt *);
+           int     (*profile)(pmdaInProfile *, pmdaExt *);
            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
            int     (*desc)(pmID, pmDesc *, pmdaExt *);
-           int     (*instance)(pmInDom, int, char *, __pmInResult **,
-                   pmdaExt *);
+           int     (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
            int     (*text)(int, int, char **, pmdaExt *);
            int     (*store)(pmResult *, pmdaExt *);
-       } two;
+           int     (*pmid)(const char *, pmID *, pmdaExt *);
+           int     (*name)(pmID, char ***, pmdaExt *);
+           int     (*children)(const char *, int, char ***, int **, pmdaExt *);
+           int     (*attribute)(int, int, const char *, int, pmdaExt *);
+       } six;
    } version;
 } pmdainterface;</programlisting>
-<para>This structure is passed by PMCD to a DSO PMDA as an argument to the initialization function. This structure supports two versions--the second version adds support for the <filename>pmdaExt</filename> structure. Protocol version one is for backwards compatibility only, and should not be used in any new PMDA.</para>
 </example>
+<note><para>Each new interface version is always defined as a superset of those that preceded it, only adds fields at the end of the new structure in the union, and is always binary backwards-compatible. <literal>And thus it shall remain.</literal>
+For brevity, we have shown only the latest interface version (six) above, but all prior versions still exist, build, and function. In other words, PMDAs built against earlier versions of this header structure (and PMDA library) function correctly with the latest version of the PMDA library.
+</para></note>
+
 <example id="Z964117744sdc">
 <title><literal>pmdaExt</literal> Stucture</title>
 <para><indexterm id="IG31340177201"><primary>pmdaExt structure</primary></indexterm>Additional PMDA information must be specified in a <filename>pmdaExt</filename> structure:</para>
 <programlisting id="Z964117899sdc">typedef struct {
-   unsigned int e_flags;       /* used internally within libpcp_pmda */
+   unsigned int e_flags;       /* PMDA_EXT_FLAG_* bit field */
    void        *e_ext;         /* used internally within libpcp_pmda */
    char        *e_sockname;    /* socket name to pmcd */
    char        *e_name;        /* name of this pmda */
@@ -1280,10 +1330,12 @@ simple_store(pmResult *result, pmdaExt *pmda)
    pmdaFetchCallBack  e_fetchCallBack;  /* to assign metric values in fetch */
    pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
    pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU is processed */
+   /* added for PMDA_INTERFACE_5 */
+   int         e_context;      /* client context id from pmcd */
+   pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
 } pmdaExt;</programlisting>
-<para><indexterm id="IG31340177202"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177203"><primary>pmdaDSO man page</primary></indexterm><indexterm id="IG31340177204"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177205"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177206"><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command>pmdaDaemon(3)</command>, <command>pmdaDSO(3)</command>, <command>pmdaGetOpt(3)</command>, <command>
-pmdaInit(3)</command>, and <command>pmdaConnect(3)</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
 </example>
+<para><indexterm id="IG31340177202"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177203"><primary>pmdaDSO man page</primary></indexterm><indexterm id="IG31340177204"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177205"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177206"><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command>pmdaDaemon(3)</command>, <command>pmdaDSO(3)</command>, <command>pmdaGetOpt(3)</command>, <command>pmdaInit(3)</command>, and <command>pmdaConnect(3)</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
 </section>
 </section>
 <section id="LE19047-PARENT">
@@ -1803,7 +1855,7 @@ typedef struct {
    char            vbuf[1];      /* the value */
 } pmValueBlock;</programlisting>
 </example></para>
-<para><indexterm id="IG31340177278"><primary>arrays</primary><secondary>performance metrics</secondary></indexterm>The length of the <filename>pmValueBlock</filename> (including the <literal>vtype</literal> and <literal>vlen</literal> fields) is stored in <literal>vlen</literal>. Despite the prototype declaration of <literal>vbuf</literal>, this array really accommodates <literal>vlen</literal> minus <command>sizeof</command>(<literal>vlen</literal>) bytes. The <literal>vtype</literal> field encodes the type of the value in the <literal>vbuf[]</literal> array, and is one of the <command>PM_TYPE_*</command> macros defined in <filename>/usr/include/pmapi.h</filename>.</para>
+<para><indexterm id="IG31340177278"><primary>arrays</primary><secondary>performance metrics</secondary></indexterm>The length of the <filename>pmValueBlock</filename> (including the <literal>vtype</literal> and <literal>vlen</literal> fields) is stored in <literal>vlen</literal>. Despite the prototype declaration of <literal>vbuf</literal>, this array really accommodates <literal>vlen</literal> minus <command>sizeof</command>(<literal>vlen</literal>) bytes. The <literal>vtype</literal> field encodes the type of the value in the <literal>vbuf[]</literal> array, and is one of the <command>PM_TYPE_*</command> macros defined in <filename>&lt;pcp/pmapi.h&gt;</filename>.</para>
 <para><indexterm id="IG31340177279"><primary>PM_VAL_INSITU value</primary></indexterm>A <filename>pmValueSet</filename> structure, as shown in <xref linkend="Z976549488sdc"/>, contains all of the values to be returned from <command>pmFetch</command> for a single performance metric identified by the <literal>pmid</literal> field.</para>
 <example id="Z976549488sdc">
 <title><filename>pmValueSet</filename> Structure</title>
@@ -2627,7 +2679,7 @@ typedef struct {
 <title><command>pmGetConfig</command> Function</title>
 <literallayout class="monospaced">char *pmGetConfig(const char <replaceable>*variable</replaceable>)</literallayout>
 <para>The <command>pmGetConfig</command> function searches for a variable first in the environment and then, if one is not found, in the PCP configuration file and returns the string result. If a variable is not already in the environment, it is added with a call to the <command>putenv</command> function before returning.</para>
-<para>The default location of the PCP configuration file is <filename>/etc/pcp/pmcd/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp_conf(4)</command> man page.</para>
+<para>The default location of the PCP configuration file is <filename>/etc/pcp/pmcd/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp.conf(5)</command> man page.</para>
 <para>If the variable is not found in either the environment or the PCP configuration file (or the PCP configuration file is not found and <literal>PCP_CONF</literal> is not set in the environment), then a fatal error message is printed and the process will exit. Although this sounds drastic, it is the only course of action available because the PCP configuration or installation is fatally flawed.</para>
 <para>If this function returns, the returned value points to a string in the environment; and so although the function returns the same type as the <command>getenv</command> function (which should probably be a <literal>const char *</literal>), changing the content of the string is not recommended.</para>
 </section>
@@ -3458,11 +3510,11 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 <index id="sgi-index">
 
 <indexentry>
-   <primaryie>_pmID_int structure <link linkend="IG31340177121">Data Structures</link></primaryie>
+   <primaryie>__pmID_int structure <link linkend="IG31340177121">Data Structures</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>_pmInDom_int structure <link linkend="IG31340177141">Data Structures</link></primaryie>
+   <primaryie>__pmInDom_int structure <link linkend="IG31340177141">Data Structures</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3685,7 +3737,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
       <secondaryie>architecture <link linkend="IG3134017779">PMDA Architecture</link></secondaryie>
       <secondaryie>disadvantages <link linkend="IG31340177100">Daemon PMDA</link></secondaryie>
       <secondaryie>implementation <link linkend="IG3134017795">DSO PMDA</link></secondaryie>
-      <secondaryie>interface <link linkend="IG31340177178">DSO Interface</link></secondaryie>
+      <secondaryie>interface <link linkend="IG31340177178">PMDA Interface</link></secondaryie>
       <secondaryie>PMDA building <link linkend="IG3134017745">In-Process (DSO) Method</link></secondaryie>
       <secondaryie>PMDA initialization <link linkend="IG31340177209">Common Initialization</link></secondaryie>
 </indexentry>
@@ -4210,6 +4262,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
       <secondaryie>initialization <link linkend="IG31340177207">Initializing a PMDA</link></secondaryie>
       <secondaryie>Install script <link linkend="IG31340177240">Installing a PMDA</link> <link linkend="IG31340177246">Upgrading a PMNS to Include Metrics from a New PMDA</link></secondaryie>
       <secondaryie>integration <link linkend="IG31340177237">Integration of PMDA</link></secondaryie>
+      <secondaryie>interface <link linkend="IG31340177178">PMDA Interface</link></secondaryie>
       <secondaryie>introduction <link linkend="IG313401773">Programming Performance Co-Pilot</link></secondaryie>
       <secondaryie>man page <link linkend="IG3134017720">Distributed Collection</link></secondaryie>
       <secondaryie>removal <link linkend="IG31340177247">Removing a PMDA</link></secondaryie>
@@ -4230,6 +4283,14 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>PMDA_PMID macro <link linkend="IG31340177122">Data Structures</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaAttribute callback <link linkend="IG31340180nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaChildren callback <link linkend="IG31340179nat">Overview</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4293,7 +4354,15 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
+   <primaryie>pmdaName callback <link linkend="IG31340178nat">Overview</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmdaOpenLog man page <link linkend="IG31340177222">Daemon Initialization</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmdaPMID callback <link linkend="IG31340177nat">Overview</link></primaryie>
 </indexentry>
 
 <indexentry>
