@@ -25,15 +25,15 @@
 #include "proc_fs_xfs.h"
 
 static proc_fs_xfs_t	proc_fs_xfs;
-static int		_isDSO = 1;	/* =0 I am a daemon */
 
 /*
  * The XFS instance domain table is direct lookup and sparse.
  * It is initialized in xfs_init(), see below.
  */
-pmdaIndom xfs_indomtab[NUM_INDOMS];
+static pmdaIndom xfs_indomtab[NUM_INDOMS];
+#define INDOM(x) (xfs_indomtab[x].it_indom)
 
-pmdaMetric xfs_metrictab[] = {
+static pmdaMetric xfs_metrictab[] = {
 
 /* xfs.allocs.alloc_extent */
     { &proc_fs_xfs.xs_allocx,
@@ -891,20 +891,9 @@ xfs_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
-/*
- * Initialise the agent (both daemon and DSO).
- */
-void 
+static void 
 xfs_init(pmdaInterface *dp)
 {
-    if (_isDSO) {
-	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_3, "xfs DSO", helppath);
-    }
-
     if (dp->status != 0)
 	return;
 
@@ -934,9 +923,6 @@ usage(void)
     exit(1);
 }
 
-/*
- * Set up the agent if running as a daemon.
- */
 int
 main(int argc, char **argv)
 {
@@ -945,7 +931,6 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
-    _isDSO = 0;
     __pmSetProgname(argv[0]);
 
     snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",

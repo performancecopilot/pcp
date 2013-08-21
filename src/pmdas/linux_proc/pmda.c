@@ -47,12 +47,10 @@
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
-
-static int		_isDSO = 1;	/* =0 I am a daemon */
-static int		have_access;	/* =1 recvd uid/gid */
+static int			have_access;	/* =1 recvd uid/gid */
 
 /* globals */
-size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
+static size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
 
 /*
  * The proc instance domain table is direct lookup and sparse.
@@ -1448,20 +1446,13 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
  * Initialise the agent (both daemon and DSO).
  */
 
-void 
+static void 
 proc_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     _pm_system_pagesize = getpagesize();
-    if (_isDSO) {
-	char helppath[MAXPATHLEN];
-	int sep = __pmPathSeparator();
-	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "proc DSO", helppath);
-    }
 
     if (dp->status != 0)
 	return;
@@ -1507,7 +1498,6 @@ proc_init(pmdaInterface *dp)
     pmdaCacheOp(INDOM(CGROUP_MOUNTS_INDOM), PMDA_CACHE_CULL);
 }
 
-
 static void
 usage(void)
 {
@@ -1520,10 +1510,6 @@ usage(void)
     exit(1);
 }
 
-/*
- * Set up the agent if running as a daemon.
- */
-
 int
 main(int argc, char **argv)
 {
@@ -1534,9 +1520,7 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
     char		*username = "root";	/* proc.io.* require root! */
 
-    _isDSO = 0;
     __pmSetProgname(argv[0]);
-
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
@@ -1560,6 +1544,5 @@ main(int argc, char **argv)
     proc_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
-
     exit(0);
 }
