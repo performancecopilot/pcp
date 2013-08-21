@@ -201,7 +201,7 @@ _
 .SH EXAMPLE
 .ft CW
 .nf
-#define IRIX 1
+#define KERNEL 1
 #define FOO 317
 root {
     network
@@ -211,29 +211,29 @@ root {
 
 #define NETWORK 26
 network {
-    intrate     IRIX:NETWORK:1
+    intrate     KERNEL:NETWORK:1
     packetrate
 }
 
 network.packetrate {
-    in          IRIX:NETWORK:35
-    out         IRIX:NETWORK:36
+    in          KERNEL:NETWORK:35
+    out         KERNEL:NETWORK:36
 }
 
 #define CPU 10
 cpu {
-    syscallrate IRIX:CPU:10
+    syscallrate KERNEL:CPU:10
     util
 }
 
 #define USER 20
-#define KERNEL 21
+#define SYSTEM 21
 #define IDLE 22
 
 cpu.util {
-    user        IRIX:CPU:USER
-    sys         IRIX:CPU:KERNEL
-    idle        IRIX:CPU:IDLE
+    user        KERNEL:CPU:USER
+    sys         KERNEL:CPU:SYSTEM
+    idle        KERNEL:CPU:IDLE
 }
 .fi
 .ft R
