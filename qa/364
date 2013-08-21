@@ -11,10 +11,8 @@
 . ./common.check
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
-. ./localconfig
 rm -f $seq.out
 suffix=2
 [ $PCP_VER -lt 3802 ] && suffix=1
@@ -24,6 +22,12 @@ then
 else
     _notrun "Need qualified output for $PCP_PLATFORM"
 fi
+
+# see if unix domain sockets are available (permissions)
+unix_domain_sockets=false
+eval `pmconfig -L 2>/dev/null`
+target="-h localhost"
+$unix_domain_sockets && target="-h unix:"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -60,7 +64,7 @@ p
 | LC_COLLATE=POSIX sort \
 | uniq \
 | tee -a $seq.full \
-| xargs pmprobe \
+| xargs pmprobe $target \
 | _filter \
 | $PCP_AWK_PROG '
 $2 >= 0		{ next }
