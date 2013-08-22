@@ -489,7 +489,7 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
         ++p;
 	if (*p != '*') {
 	    if (*p != ':') {
-		__pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+		__pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
 		return -EINVAL;
 	    }
 	    ipIx = sprintf(ip, ":");
@@ -512,7 +512,7 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 	else {
 	    n = (int)strtol(p, (char **)&p, 16);
 	    if ((*p != ':' && *p != '*') || n < 0 || n > 0xffff) {
-	        __pmNotifyErr(LOG_ERR, "Bad IP address wildcard, %s\n", name);
+	        __pmNotifyErr(LOG_ERR, "Bad IPv6 address wildcard, %s\n", name);
 		return -EINVAL;
 	    }
 	    if (ipIx != 0) {
@@ -554,7 +554,11 @@ parseIPv6WildCard(const char *name, char *ip, char *mask)
 static int
 parseWildCard(const char *name, char *ip, char *mask)
 {
-    /* Names containing ':' are IPv6. The IPv6 full wildcard spec is ":*". */
+    /* We need only handle inet and IPv6 wildcards here. Unix
+     * wildcards are handled separately.
+     *
+     * Names containing ':' are IPv6. The IPv6 full wildcard spec is ":*".
+     */
     if (strchr(name, ':') != NULL)
         return parseIPv6WildCard(name, ip, mask);
 
@@ -574,21 +578,11 @@ struct accessSpec {
     int			level;
 };
 
-/* Construct the proper spec for the given wildcard. */
 static int
-getWildCardSpec(const char *name, struct accessSpec *spec)
+setAccessSpecAddresses(struct accessSpec *spec, const char *addr, const char *mask)
 {
-    char ip[INET6_ADDRSTRLEN];
-    char mask[INET6_ADDRSTRLEN];
-
-    /* Build up strings representing the ip address and the mask. Compute the wildcard
-       level as we go. */
-    spec->level = parseWildCard(name, ip, mask);
-    if (spec->level < 0)
-	return spec->level;
-
-    /* Now create socket addresses for the ip address and mask. */
-    spec->hostid = __pmStringToSockAddr(ip);
+    /* Now create socket addresses for the address and mask. */
+    spec->hostid = __pmStringToSockAddr(addr);
     if (spec->hostid == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmStringToSockAddr failure\n");
 	return -ENOMEM;
@@ -599,10 +593,80 @@ getWildCardSpec(const char *name, struct accessSpec *spec)
 	__pmSockAddrFree(spec->hostid);
 	return -ENOMEM;
     }
+    return 0; /* ok */
+}
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+/* For the Unix spec:
+ * - On input:
+ *   - We're expecting 'name' to be empty or an optional series of '/' followed by
+ *     and optional '*'.
+ * - On output, within the 'spec' structure:
+ *   - The path of the 'hostid' will be '/'.
+ *   - The 'hostmask' will be a copy of the 'hostid'.
+ *   - The 'level' will be 1
+ *   This sets up the spec to match the path of any unix domain socket.
+ */
+static int
+getUnixSpec(const char *name, struct accessSpec *spec)
+{
+    const char *path;
+    size_t addrSize;
+    int sts;
+
+    /* Accept any number of '/', as is done by parseProtocolSpec(). */
+    for (path = name; *path == __pmPathSeparator(); ++path)
+	;
+
+    /* Accept a final '*'. */
+    addrSize = strlen(path);
+    if (addrSize >= 1 && path[addrSize - 1] == '*')
+	--addrSize;
+
+    /* If there is anything remaining, then it is a path, which we will ignore, with a
+     * warning.
+     */
+    if (addrSize)
+	__pmNotifyErr(LOG_WARNING, "Ignoring the path in host pattern \"%s\"\n", name);
+
+    /* Set the address and mask. */
+    sts = setAccessSpecAddresses(spec, "/", "/");
+    if (sts < 0)
+	return sts;
+
+    /* Complete the rest of the spec.
+     * Do this last since a valid name indicates a valid spec.
+     */
+    spec->name = strdup("unix:");
+    if (spec->name == NULL)
+	__pmNoMem("Unix host pattern name buffer", sizeof("unix:"), PM_FATAL_ERR);
+    spec->level = 1;
+
+    return 0; /* ok */
+}
+#endif /* defined(HAVE_STRUCT_SOCKADDR_UN) */
+
+/* Construct the proper spec for the given wildcard. */
+static int
+getWildCardSpec(const char *name, struct accessSpec *spec)
+{
+    char addr[INET6_ADDRSTRLEN];
+    char mask[INET6_ADDRSTRLEN];
+    int sts;
+
+    /* Build up strings representing the ip address and the mask. Compute the wildcard
+       level as we go. */
+    spec->level = parseWildCard(name, addr, mask);
+    if (spec->level < 0)
+	return spec->level;
+
+    /* Set the address and mask. */
+    if ((sts = setAccessSpecAddresses(spec, addr, mask)) < 0)
+	return sts;
 
     /* Do this last since a valid name indicates a valid spec. */
     spec->name = strdup(name);
-    return 0;
+    return sts; /* ok */
 }
 
 /* Determine all of the access specs which result from the given name. */
@@ -618,26 +682,42 @@ getHostAccessSpecs(const char *name, int *sts)
     __pmHostEnt		*servInfo;
     void		*enumIx;
     int			family;
+    int			isWildCard;
     const char		*realname;
     const char		*p;
 
-    /* If the general wildcard ("*") is specified, then generate individual wildcards for
-       inet and, if supported, IPv6. */
-    *sts = 0;
+    /* If the general wildcard ("*") is specified, then generate individual
+     * wildcards for inet, IPv6 (if supported) and unix domain sockets
+     * (if supported). "localhost" is covered by the inet and IPv6 wildcards.
+     */
     if (strcmp(name, "*") == 0) {
 	const char *ipv6 = __pmGetAPIConfig("ipv6");
 
-	/* Use calloc so that the final entry is zeroed. */
-	specs = calloc(3, sizeof(*specs));
+	/* Use calloc so that the final entries are zeroed, if not used. */
+	specs = calloc(4, sizeof(*specs));
 	if (specs == NULL)
-	    __pmNoMem("Access Spec List", 3 * sizeof(*specs), PM_FATAL_ERR);
-	getWildCardSpec(".*", &specs[0]);
-	if (ipv6 != NULL && strcmp(ipv6, "true") == 0)
-	    getWildCardSpec(":*", &specs[1]); /* Guaranteed to succeed. */
+	    __pmNoMem("Access Spec List", 4 * sizeof(*specs), PM_FATAL_ERR);
+
+	/* The inet general wildcard. */
+	specIx = 0;
+	getWildCardSpec(".*", &specs[specIx]); /* Guaranteed to succeed. */
+	++specIx;
+
+	/* The IPv6 general wildcard. */
+	if (ipv6 != NULL && strcmp(ipv6, "true") == 0) {
+	    getWildCardSpec(":*", &specs[specIx]); /* Guaranteed to succeed. */
+	    ++specIx;
+	}
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/* The unix domain socket general wildcard. */
+	getUnixSpec("*", &specs[specIx]); /* Guaranteed to succeed. */
+#endif
+
 	return specs;
     }
 
-    /* If any other wildcard is specified, then our list will contain that single item. */
+    /* If it is any other wildcard, make sure the '*' is at the end. */
     if ((p = strchr(name, '*')) != NULL) {
 	if (p[1] != '\0') {
 	    __pmNotifyErr(LOG_ERR,
@@ -646,7 +726,49 @@ getHostAccessSpecs(const char *name, int *sts)
 	    *sts = -EINVAL;
 	    return NULL;
 	}
-	/* Use calloc so that the final entry is zeroed. */
+	isWildCard = 1;
+    }
+    else
+	isWildCard = 0;
+
+    /* Initialize the specs array controls for general use. */
+    specs = NULL;
+    specSize = 0;
+    specIx = 0;
+
+    /* If a name of the form "local:[xxx]" is specified, then expand it to be
+     * "unix:[xxx]" + "localhost" in order to match the meaning of "local:[xxx]"
+     * for pmcd clients.
+     * If the spec is already "unix:[xxx] then leave it at that.
+     * Note that the above includes wildcards.
+     */
+    if (strncmp(name, "local:", 6) == 0 || strncmp(name, "unix:", 5) == 0) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/* Use calloc so that the final entry is zeroed, if not used. */
+	specSize = 2;
+	specs = calloc(specSize, sizeof(*specs));
+	if (specs == NULL)
+	    __pmNoMem("Access Spec List", specSize * sizeof(*specs), PM_FATAL_ERR);
+
+	/* Process the equivalent unix domain socket spec. */
+	if ((*sts = getUnixSpec(strchr(name, ':') + 1, &specs[specIx])) >= 0) {
+	    /* If the spec was "unix:" then we're done. */
+	    if (name[0] == 'u')
+		return specs;
+	    ++specIx;
+	}
+#else
+	__pmNotifyErr(LOG_WARNING, "Host pattern \"%s\" is not supported. Using \"localhost\"\n",
+		      name);
+#endif
+
+	/* Fall through to handle "localhost". */
+	name = "localhost";
+    }
+    else if (isWildCard) {
+	/* If any other wildcard is specified, then our list will contain that single item.
+	 * Use calloc so that the final entry is zeroed.
+	 */
 	specs = calloc(2, sizeof(*specs));
 	if (specs == NULL)
 	    __pmNoMem("Access Spec List", 2 * sizeof(*specs), PM_FATAL_ERR);
@@ -670,9 +792,6 @@ getHostAccessSpecs(const char *name, int *sts)
 	realname = name;
 
     *sts = -EHOSTUNREACH;
-    specs = NULL;
-    specSize = 0;
-    specIx = 0;
     if ((servInfo = __pmGetAddrInfo(realname)) != NULL) {
 	/* Collect all of the resolved addresses. Check for the end of the list within the
 	   loop since we need to add an empty entry and the code to grow the list is within the
@@ -703,19 +822,24 @@ getHostAccessSpecs(const char *name, int *sts)
 		__pmSockAddrFree(myAddr);
 		continue;
 	    }
-	    /* Add the new address and its corrsponding mask. */
+	    /* Add the new address and its corresponding mask. AF_UNIX socket addresses
+	     * will not appear here.
+	     */
 	    family = __pmSockAddrGetFamily(myAddr);
-	    if (family == AF_INET)
+	    if (family == AF_INET) {
 		specs[specIx].hostmask = __pmStringToSockAddr("255.255.255.255");
-	    else if (family == AF_INET6)
+		specs[specIx].level = 0;
+	    }
+	    else if (family == AF_INET6) {
 		specs[specIx].hostmask = __pmStringToSockAddr("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+		specs[specIx].level = 0;
+	    }
 	    else {
 		__pmNotifyErr(LOG_ERR, "Unsupported socket address family: %d\n", family);
 		__pmSockAddrFree(myAddr);
 		continue;
 	    }
 	    specs[specIx].hostid = myAddr;
-	    specs[specIx].level = 0;
 	    specs[specIx].name = strdup(name);
 	    *sts = 0;
 	    ++specIx;
@@ -992,7 +1116,7 @@ int
 __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int maxcons)
 {
     size_t		need;
-    int			i, sts;
+    int			i, sts = 0;
     struct accessSpec	*specs;
     struct accessSpec	*spec;
     hostinfo		*hp;
@@ -1027,6 +1151,7 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
 	     * 155.23.6.* or 155.23.0.0 and 155.23.* by wildcard level.  IP
 	     * addresses shouldn't have zero in last position but to deal with
 	     * them just in case.
+	     * This test also works for Unix Domain addresses and wildcards.
 	     */
 	    if (__pmSockAddrCompare(spec->hostid, hostlist[i].hostid) == 0 &&
 		spec->level == hostlist[i].level) {
@@ -1209,7 +1334,7 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     int			clientIx;
     __pmSockAddr	**clientIds;
     __pmSockAddr	*clientId;
-    __pmSockAddr	*maskedId;
+    __pmSockAddr	*matchId;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
@@ -1228,15 +1353,18 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 	clientId = clientIds[clientIx];
 	for (i = nhosts - 1; i >= 0; i--) {
 	    hp = &hostlist[i];
-	    maskedId = __pmSockAddrDup(clientId);
-	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
-		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0) {
-		/* Clobber specified ops then set. Leave unspecified ops alone. */
-		*denyOpsResult &= ~hp->specOps;
-		*denyOpsResult |= hp->denyOps;
-		lastmatch = hp;
+	    /* At a minumum, the addresses must be from the same family. */
+	    if (__pmSockAddrGetFamily(clientId) == __pmSockAddrGetFamily(hp->hostmask)) {
+		matchId = __pmSockAddrDup(clientId);
+		__pmSockAddrMask(matchId, hp->hostmask);
+		if (__pmSockAddrCompare(matchId, hp->hostid) == 0) {
+		    /* Clobber specified ops then set. Leave unspecified ops alone. */
+		    *denyOpsResult &= ~hp->specOps;
+		    *denyOpsResult |= hp->denyOps;
+		    lastmatch = hp;
+		}
+		__pmSockAddrFree(matchId);
 	    }
-	    __pmSockAddrFree(maskedId);
 	}
 	/* no matching entry in hostlist => allow all */
 
@@ -1261,12 +1389,16 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
 	 */
 	for (i = 0; i < nhosts; i++) {
 	    hp = &hostlist[i];
-	    maskedId = __pmSockAddrDup(clientId);
-	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
-		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0)
-		if (hp->maxcons)
-		    hp->curcons++;
-	    __pmSockAddrFree(maskedId);
+	    /* At a minumum, the addresses must be from the same family. */
+	    if (__pmSockAddrGetFamily(clientId) == __pmSockAddrGetFamily(hp->hostmask)) {
+		matchId = __pmSockAddrDup(clientId);
+		__pmSockAddrMask(matchId, hp->hostmask);
+		if (__pmSockAddrCompare(matchId, hp->hostid) == 0) {
+		    if (hp->maxcons)
+			hp->curcons++;
+		}
+		__pmSockAddrFree(matchId);
+	    }
 	}
     }
 
@@ -1283,7 +1415,7 @@ __pmAccDelClient(__pmSockAddr *hostid)
     int		clientIx;
     __pmSockAddr **clientIds;
     __pmSockAddr *clientId;
-    __pmSockAddr *maskedId;
+    __pmSockAddr *matchId;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return;
@@ -1301,12 +1433,16 @@ __pmAccDelClient(__pmSockAddr *hostid)
 	clientId = clientIds[clientIx];
 	for (i = 0; i < nhosts; i++) {
 	    hp = &hostlist[i];
-	    maskedId = __pmSockAddrDup(clientId);
-	    if (__pmSockAddrGetFamily(maskedId) == __pmSockAddrGetFamily(hp->hostmask) &&
-		__pmSockAddrCompare(__pmSockAddrMask(maskedId, hp->hostmask), hp->hostid) == 0)
-		if (hp->maxcons)
-		    hp->curcons--;
-	    __pmSockAddrFree(maskedId);
+	    /* At a minumum, the addresses must be from the same family. */
+	    if (__pmSockAddrGetFamily(clientId) == __pmSockAddrGetFamily(hp->hostmask)) {
+		matchId = __pmSockAddrDup(clientId);
+		__pmSockAddrMask(matchId, hp->hostmask);
+		if (__pmSockAddrCompare(matchId, hp->hostid) == 0) {
+		    if (hp->maxcons)
+			hp->curcons--;
+		}
+		__pmSockAddrFree(matchId);
+	    }
 	}
     }
     freeClientIds(clientIds);

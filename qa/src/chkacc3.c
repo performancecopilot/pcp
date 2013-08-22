@@ -24,9 +24,9 @@ main(int argc, char **argv)
     int			errflag = 0;
     int			copt;
     char		name[4*8 + 7 + 1]; /* handles full IPv6 address, if supported */
-    char		*wnames[4] = { "*", "38.*", "38.202.*", "38.202.16.*" };
+    char		*wnames[4] = { ".*", "38.*", "38.202.*", "38.202.16.*" };
 #if PCP_VER >= 3611
-    char		*wnames6[4] = { "*", "26:*", "26:ca:*", "26:ca:10:*" };
+    char		*wnames6[4] = { ":*", "26:*", "26:ca:*", "26:ca:10:*" };
     __pmSockAddr	*inaddr;
 #else
     __pmInAddr		inaddr;

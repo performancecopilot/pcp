@@ -1003,7 +1003,14 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 	for (i = 0; i < sizeof(addr->sockaddr.ipv6.sin6_addr.s6_addr); ++i)
             addrBytes[i] &= maskBytes[i];
     }
-    else /* not applicable to other address families, e.g. AF_UNIX. */
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    else if (addr->sockaddr.raw.sa_family == AF_UNIX) {
+	/* Simply truncate the path in the address to the length of the mask. */
+	i = strlen(mask->sockaddr.local.sun_path);
+	addr->sockaddr.local.sun_path[i] = '\0';
+    }
+#endif
+    else /* not applicable to other address families. */
 	__pmNotifyErr(LOG_ERR,
 		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
 
@@ -1029,7 +1036,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
     if (addr1->sockaddr.raw.sa_family == AF_UNIX) {
         /* Unix Domain: Compare the paths */
 	return strncmp(addr1->sockaddr.local.sun_path, addr2->sockaddr.local.sun_path,
-		       sizeof(addr1->sockaddr.local.sun_path)) == 0;
+		       sizeof(addr1->sockaddr.local.sun_path));
     }
 #endif
 
@@ -1072,13 +1079,28 @@ __pmStringToSockAddr(const char *cp)
 	    addr->sockaddr.raw.sa_family = 0;
 	}
 	else {
-	    int family = (strchr(cp, ':') == NULL) ? AF_INET : AF_INET6;
 	    int sts;
-	    addr->sockaddr.raw.sa_family = family;
-	    if (family == AF_INET)
-	        sts = inet_pton(family, cp, &addr->sockaddr.inet.sin_addr);
+	    /* Determine the address family. */
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	    if (*cp == __pmPathSeparator()) {
+		if (strlen(cp) >= sizeof(addr->sockaddr.local.sun_path))
+		    sts = -1; /* too long */
+		else {
+		    addr->sockaddr.raw.sa_family = AF_UNIX;
+		    strcpy(addr->sockaddr.local.sun_path, cp);
+		    sts = 0;
+		}
+	    }
 	    else
-	        sts = inet_pton(family, cp, &addr->sockaddr.ipv6.sin6_addr);
+#endif
+	    if (strchr(cp, ':') != NULL) {
+		addr->sockaddr.raw.sa_family = AF_INET6;
+	        sts = inet_pton(AF_INET6, cp, &addr->sockaddr.ipv6.sin6_addr);
+	    }
+	    else {
+		addr->sockaddr.raw.sa_family = AF_INET;
+	        sts = inet_pton(AF_INET, cp, &addr->sockaddr.inet.sin_addr);
+	    }
 	    if (sts <= 0) {
 	        __pmSockAddrFree(addr);
 		addr = NULL;

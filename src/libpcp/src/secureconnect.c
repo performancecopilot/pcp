@@ -2081,6 +2081,13 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 	for (i = 0; i < sizeof(addr->sockaddr.ipv6.ip); ++i)
             addrBytes[i] &= maskBytes[i];
     }
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    else if (addr->sockaddr.raw.family == PR_AF_LOCAL) {
+	/* Simply truncate the path in the address to the length of the mask. */
+	i = strlen(mask->sockaddr.local.path);
+	addr->sockaddr.local.path[i] = '\0';
+    }
+#endif
     else /* not applicable to other address families, e.g. PR_AF_LOCAL. */
 	__pmNotifyErr(LOG_ERR,
 		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
@@ -2106,7 +2113,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
     if (addr1->sockaddr.raw.family == PR_AF_LOCAL) {
         /* Unix Domain: Compare the paths */
 	return strncmp(addr1->sockaddr.local.path, addr2->sockaddr.local.path,
-		       sizeof(addr1->sockaddr.local.path)) == 0;
+		       sizeof(addr1->sockaddr.local.path));
     }
 #endif
 
@@ -2146,6 +2153,17 @@ __pmStringToSockAddr(const char *cp)
 	    /* Set the address family to 0, meaning "not set". */
 	    addr->sockaddr.raw.family = 0;
 	}
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	else if (*cp == __pmPathSeparator()) {
+	    if (strlen(cp) >= sizeof(addr->sockaddr.local.path))
+		prStatus = PR_FAILURE; /* too long */
+	    else {
+		addr->sockaddr.raw.family = PR_AF_LOCAL;
+		strcpy(addr->sockaddr.local.path, cp);
+		prStatus = PR_SUCCESS;
+	    }
+	}
+#endif
 	else
 	    prStatus = PR_StringToNetAddr(cp, &addr->sockaddr);
 
