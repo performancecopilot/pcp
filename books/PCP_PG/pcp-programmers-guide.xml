@@ -1370,14 +1370,37 @@ For brevity, we have shown only the latest interface version (six) above, but al
 <para><indexterm id="IG31340177213"><primary>trivial PMDA</primary><secondary>initialization</secondary></indexterm><indexterm id="IG31340177214"><primary>pmdaFetch callback</primary></indexterm><indexterm id="IG31340177215"><primary>trivial_init function</primary></indexterm><xref linkend="Z976058585sdc"/> shows the trivial PMDA, which has no instances (that is, all metrics have singular values) and a single callback. This callback is for the <command>pmdaFetch</command> function called <command>trivial_fetchCallBack</command>; see the <command>pmdaFetch(3)</command> man page:</para>
 <example id="Z976058585sdc">
 <title>Initialization in the Trivial PMDA</title>
-<programlisting>void trivial_init(pmdaInterface *dp)
+<programlisting>static char     *username;
+static int      isDSO = 1;              /* ==0 if I am a daemon */
+
+void trivial_init(pmdaInterface *dp)
 {
+    if (isDSO)
+        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;trivial DSO&#x201D;,
+               &#x201C;${PCP_PMDAS_DIR}/trivial/help&#x201D;);
+    else
+        __pmSetProcessIdentity(username);
+
+    if (dp-&gt;status != 0)
+        return;
+
    pmdaSetFetchCallBack(dp, trivial_fetchCallBack);
    pmdaInit(dp, NULL, 0,
             metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
 </example>
-<para>The trivial PMDA is always installed as a daemon PMDA.</para>
+<para>The trivial PMDA can execute as either a DSO or daemon PMDA. A default
+installation installs it as a daemon, however, and the <command>main</command>
+routine clears <replaceable>isDSO</replaceable> and sets <replaceable>username</replaceable>
+accordingly.</para>
+<para>The <command>trivial_init</command> routine provides the opportunity to do
+any extra DSO or daemon setup before calling the library <command>pmdaInit</command>.
+In the example, the help text is setup for DSO mode and the daemon is
+switched to run as an unprivileged user (default is <literal>root</literal>,
+but it is generally good form for PMDAs to run with the least privileges possible).
+If <literal>dp-&gt;status</literal> is non-zero after the <command>pmdaDSO</command>
+call, the PMDA will be removed by PMCD and cannot safely continue to use the
+<command>pmdaInterface</command> structure.</para>
 </section>
 <section id="id5194416">
 
@@ -1386,13 +1409,19 @@ For brevity, we have shown only the latest interface version (six) above, but al
 <example id="Z976058770sdc">
 <title>Initialization in the Simple PMDA</title>
 <programlisting>static int      isDSO = 1;              /* =0 I am a daemon */
+static char     *username;
+
 void simple_init(pmdaInterface *dp)
 {
    if (isDSO)
        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
                &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
+   else
+       __pmSetProcessIdentity(username);
+
    if (dp-&gt;status != 0)
        return;
+
    dp-&gt;version.two.fetch = simple_fetch;
    dp-&gt;version.two.store = simple_store;
    dp-&gt;version.two.instance = simple_instance;
@@ -1401,7 +1430,7 @@ void simple_init(pmdaInterface *dp)
             metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
 </example>
-<para>The simple PMDA may be installed either as a daemon PMDA or a DSO PMDA. The static variable <replaceable>isDSO</replaceable> indicates whether the PMDA is running as a DSO or as a daemon. A daemon PMDA should change the value of this variable to 0 in <literal>main</literal>.</para>
+<para>Once again, the simple PMDA may be installed either as a daemon PMDA or a DSO PMDA. The static variable <replaceable>isDSO</replaceable> indicates whether the PMDA is running as a DSO or as a daemon. A daemon PMDA always changes the value of this variable to 0 in <literal>main</literal>, for PMDAs that can operate in both modes.</para>
 </section>
 </section>
 <section id="id5194563">
@@ -1420,35 +1449,42 @@ void simple_init(pmdaInterface *dp)
 <listitem><para>Handle incoming PDUs</para>
 </listitem></itemizedlist>
 <para><indexterm id="IG31340177220"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177221"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177222"><primary>pmdaOpenLog man page</primary></indexterm><indexterm id="IG31340177223"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177224"><primary>pmdaMain man page</primary></indexterm>All these requirements can be handled by default initialization functions in the <filename>pcp_pmda</filename> library; see the <command>pmdaDaemon(3)</command>, <command>pmdaGetOpt(3)</command>, <command>pmdaOpenLog(3)</command>, <command>pmdaConnect(3)</command>, and <command>pmdaMain(3)</command> man pages.</para>
-<para><indexterm id="IG31340177225"><primary>pmdaGetOpt man page</primary></indexterm>The simple PMDA requires no additional command-line arguments other than those handled by <command>pmdaGetOpt</command> as shown in <xref linkend="Z964110483sdc"/>. For additional information, see the <command>pmdaGetOpt(3)</command> man page.</para>
+<note><para>Optionally, a daemon PMDA may wish to reduce or change its privilege level, as seen in <xref linkend="Z976058585sdc"/> and <xref linkend="Z976058770sdc"/>. Some performance domains <literal>require</literal> the extraction process to run as a specific user in order to access the instrumentation. Many domains require the default <literal>root</literal> level of access for a daemon PMDA.</para></note>
+<para><indexterm id="IG31340177225"><primary>pmdaGetOpt man page</primary></indexterm>The simple PMDA requires only one additional command-line arguments to those handled by <command>pmdaGetOpt</command> as shown in <xref linkend="Z964110483sdc"/>. For additional information, see the <command>pmdaGetOpt(3)</command> man page.</para>
 <example id="Z964110483sdc">
 <title><literal>main</literal> in the Simple PMDA</title>
 <programlisting>int
 main(int argc, char **argv)
 {
-   int                 err = 0;
+   int                 c, err = 0;
    pmdaInterface       dispatch;
    char                *p;
-   /* trim cmd name of leading directory components */
-   pmProgname = argv[0];
-   for (p = pmProgname; *p; p++) {
-       if (*p == `/')
-           pmProgname = p+1;
-   }
+
    isDSO = 0;
+   __pmSetProgname(argv[0]);
+   __pmGetUsername(&amp;username);
    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
               &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
-   if (pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:?&#x201D;, &amp;dispatch, &amp;err)) != EOF)
-       err++;
+
+   while ((c = pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:6:U:?&#x201D;, &amp;dispatch, &amp;err)) != EOF) {
+       switch(c) {
+       case 'U':
+           username = optarg;
+           break;
+       default:
+           err++;
+       }
+   }
    if (err)
        usage();
+
    pmdaOpenLog(&amp;dispatch);
    simple_init(&amp;dispatch);
    simple_timenow_check();
    pmdaConnect(&amp;dispatch);
    pmdaMain(&amp;dispatch);
+
    exit(0);
-   /*NOTREACHED*/
 }</programlisting>
 </example>
 </section>
@@ -1461,7 +1497,7 @@ main(int argc, char **argv)
 
 <title>Overview</title>
 <para><indexterm id="IG31340177228"><primary>dbx man page</primary></indexterm>Thoroughly testing a PMDA with PMCD is difficult, although testing a daemon PMDA is marginally simpler than testing a DSO PMDA. If a DSO PMDA exits, PMCD also exits because they share a single address space and control thread.</para>
-<para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/pcp/pmcd/pmcd.options</filename> attaching a debugger (such as <command>gdb</command>) to the PMDA process (or any other long delay) might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
+<para>The difficulty in using PMCD to test a daemon PMDA results from PMCD requiring timely replies from the PMDA in response to request PDUs. Although a timeout period can be set in <filename>/etc/pcp/pmcd/pmcd.options</filename>, attaching a debugger (such as <command>gdb</command>) to the PMDA process might cause an already running PMCD to close its connection with the PMDA. If timeouts are disabled, PMCD could wait forever to connect with the PMDA.</para>
 <para>If you suspect a PMDA has been terminated due to a timeout failure, check the PMCD log file, usually <filename>${PCP_LOG_DIR}/pmcd/pmcd.log</filename>.</para>
 <para><indexterm id="IG31340177229"><primary>dbpmda man page</primary></indexterm>A more robust way of testing a PMDA is to use the <command>dbpmda</command> tool, which is similar to PMCD except that <command>dbpmda</command> provides complete control over the PDUs that are sent to the PMDA, and there are no time limits--it is essentially an interactive debugger for exercising a PMDA. See the <command>dbpmda(3)</command> man page for details.</para>
 <para><indexterm id="IG31340177230"><primary>pmdbg man page</primary></indexterm>In addition, careful use of PCP debugging flags can produce useful information concerning a PMDA's behavior; see the <command>PMAPI(3)</command> and <command>pmdbg(1)</command> man pages for a discussion of the PCP debugging and tracing framework.</para>
@@ -1473,8 +1509,8 @@ main(int argc, char **argv)
 <para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
 <programlisting># <emphasis role="bold">pmstore pmcd.control.debug 5</emphasis></programlisting>
 <para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
-<para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required.</para>
-<para><indexterm id="IG31340177234"><primary>simple_store function</primary></indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060060sdc"/>:</para>
+<para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>PCP_DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required, although this is rarely done in practice.</para>
+<para><indexterm id="IG31340177234"><primary>simple_store function</primary></indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a timestamped log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060060sdc"/>:</para>
 <example id="Z976060060sdc">
 <title><literal>simple.numfetch</literal> in the Simple PMDA</title>
 <programlisting>   case 0: /* simple.numfetch */ 
@@ -1483,9 +1519,9 @@ main(int argc, char **argv)
            sts = PM_ERR_SIGN; 
            val = 0; 
        } 
-#ifdef DEBUG 
+#ifdef PCP_DEBUG 
        if (pmDebug &amp; DBG_TRACE_APPL0) { 
-           fprintf(stderr,  
+           __pmNotifyErr(LOG_DEBUG,
                 &quot;simple: %d stored into numfetch&quot;, val); 
        } 
 #endif 
@@ -1522,7 +1558,7 @@ main(int argc, char **argv)
 </listitem>
 <listitem><para>The PMCD process has been restarted or notified (with a <literal>SIGHUP</literal> signal) that the new PMDA exists.</para>
 </listitem></itemizedlist>
-<para>The <filename>Makefile</filename> should include an <literal>install</literal> target to compile and link the PMDA (as a DSO, or a daemon or both) in the PMDA directory, and in the case of a DSO PMDA, install the shared library in <filename>${PCP_VAR_DIR}</filename>. The <literal>clobber</literal> target should remove any files created as a by-product of the <literal>install</literal> target.<indexterm id="IG31340177240"><primary>PMDA</primary><secondary>Install script</secondary></indexterm></para>
+<para>The <filename>Makefile</filename> should include an <literal>install</literal> target to compile and link the PMDA (as a DSO, or a daemon or both) in the PMDA directory. The <literal>clobber</literal> target should remove any files created as a by-product of the <literal>install</literal> target.<indexterm id="IG31340177240"><primary>PMDA</primary><secondary>Install script</secondary></indexterm></para>
 <para>You may wish to use <filename>${PCP_PMDAS_DIR}/simple/Makefile</filename> as a template for constructing a new PMDA <filename>Makefile</filename>; changing the assignment of <literal>IAM</literal> from <literal>simple</literal> to <literal>newbie</literal> would account for most of the required changes.</para>
 <para>The <filename>Install</filename> script should make use of the generic procedures defined in the script <filename>${PCP_SHARE_DIR}/lib/pmdaproc.sh</filename>, and may be as straightforward as the one used for the trivial PMDA, shown in <xref linkend="Z976309325sdc"/>:</para>
 <example id="Z976309325sdc">
@@ -1531,6 +1567,9 @@ main(int argc, char **argv)
 . ${PCP_SHARE_DIR}/lib/pmdaproc.sh
 
 iam=trivial
+pmda_interface=2
+forced_restart=false
+
 pmdaSetup
 pmdainstall
 exit 0</programlisting>
@@ -1557,6 +1596,18 @@ exit 0</programlisting>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>$daemon_opt</literal></para></entry>
 <entry align="left" valign="top"><para>Can this PMDA be installed as a daemon?</para></entry>
+<entry align="left" valign="top"><para><literal>true</literal></para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para><literal>$perl_opt</literal></para></entry>
+<entry align="left" valign="top"><para>Is this PMDA a perl script?</para></entry>
+<entry align="left" valign="top"><para><literal>false</literal></para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para><literal>$python_opt</literal></para></entry>
+<entry align="left" valign="top"><para>Is this PMDA a python script?</para></entry>
+<entry align="left" valign="top"><para><literal>false</literal></para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para><literal>$forced_restart</literal></para></entry>
+<entry align="left" valign="top"><para>Must this PMDA run as <literal>root</literal> or some other non-default user? (requires PMCD restart)</para></entry>
 <entry align="left" valign="top"><para><literal>true</literal></para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>$pipe_opt</literal></para></entry>
@@ -1605,7 +1656,7 @@ exit 0</programlisting>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>$dso_name</literal></para></entry>
 <entry align="left" valign="top"><para>The name of the shared library for a DSO PMDA.</para></entry>
-<entry align="left" valign="top"><para><literal>pmda$iam.so</literal></para></entry></row>
+<entry align="left" valign="top"><para><literal>pmda$iam.$dso_suffix</literal></para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>$dso_entry</literal></para></entry>
 <entry align="left" valign="top"><para>The name of the initialization function for a DSO PMDA.</para></entry>
@@ -1647,18 +1698,18 @@ of the ... Performance Metrics Domain Agent (PMDA).
 </listitem>
 <listitem><para>Add the PMDA specification to PMCD's configuration file (<filename>/etc/pcp/pmcd/pmcd.conf</filename>).</para>
 </listitem>
-<listitem><para>Notify PMCD. To minimize the impact on the services PMCD provides, sending a <literal>SIGHUP</literal> to PMCD forces it to reread the configuration file and start, restart, or remove any PMDAs that have changed since the file was last read.</para>
+<listitem><para>Notify PMCD. To minimize the impact on the services PMCD provides, sending a <literal>SIGHUP</literal> to PMCD forces it to reread the configuration file and start, restart, or remove any PMDAs that have changed since the file was last read. However, if the newly installed PMDA must run using a different privilege level to PMCD then PMCD must be restarted. This is because PMCD runs unprivileged after initially starting the PMDAs.</para>
 </listitem>
 <listitem><para>Check that the metrics from the new PMDA are available.</para>
 </listitem></itemizedlist>
 <para>There are some PMDA changes that may trick PMCD into thinking nothing has changed, and not restarting the PMDA. Most notable are changes to the PMDA executable. In these cases, you may need to explicitly remove the PMDA as described in <xref linkend="Z976310185sdc"/>, or more drastically, restart PMCD as follows: <indexterm id="IG31340177242"><primary>restarting pmcd</primary></indexterm></para>
 <literallayout class="monospaced"># <userinput>${PCP_RC_DIR}/pcp start</userinput></literallayout>
-<para><indexterm id="IG31340177243"><primary>examples</primary><secondary>Install script</secondary></indexterm>The files <filename>${PCP_PMDAS_DIR}/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA<filename>Install</filename> script.</para>
+<para><indexterm id="IG31340177243"><primary>examples</primary><secondary>Install script</secondary></indexterm>The files <filename>${PCP_PMDAS_DIR}/*/Install</filename> provide a wealth of examples that may be used to construct a new PMDA <filename>Install</filename> script.</para>
 </section>
 <section id="id5197100">
 
 <title>Upgrading a PMNS to Include Metrics from a New PMDA</title>
-<para><indexterm id="IG31340177244"><primary>new PMDA</primary></indexterm><indexterm id="IG31340177245"><primary>PMNS</primary><secondary>upgrade</secondary></indexterm><indexterm id="IG31340177246"><primary>PMDA</primary><secondary> Install script</secondary></indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This functionality is rarely, if ever, used in modern versions of PCP, but allows one to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option also installs <command>pmchart</command> views useful on a monitoring system.</para>
+<para><indexterm id="IG31340177244"><primary>new PMDA</primary></indexterm><indexterm id="IG31340177245"><primary>PMNS</primary><secondary>upgrade</secondary></indexterm><indexterm id="IG31340177246"><primary>PMDA</primary><secondary> Install script</secondary></indexterm>When invoked with a <literal>-N</literal> command-line option, the PMDA <filename>Install</filename> script may be used to update the PMNS without installing the PMDA. This functionality is rarely, if ever, used in modern versions of PCP, but allows one to populate the local PMNS with the names of the performance metrics from a PMDA installed on a remote host. The <literal>-N</literal> option can also install <command>pmchart</command> views useful on a monitoring system, although this also is rarely used now with each platforms package management tools handling this task.</para>
 </section>
 <section id="Z976310185sdc">
 
@@ -1673,8 +1724,8 @@ of the ... Performance Metrics Domain Agent (PMDA).
 <para><indexterm id="IG31340177250"><primary>tool configuration</primary></indexterm><indexterm id="IG31340177251"><primary>configuration</primary></indexterm>Most PCP tools have their own configuration file format for specifying which metrics to view or to log. By using canned configuration files that monitor key metrics of the new PMDA, users can quickly see the performance of the target system, as characterized by key metrics in the new PMDA. </para>
 <para>Any configuration files that are created should be kept with the PMDA and installed into the appropriate directories when the PMDA is installed.</para>
 <para>As with all PCP customization, some of the most valuable tools can be created by defining views, scenes, and control-panel layouts that combine related performance metrics from multiple PMDAs or multiple hosts.</para>
-<para><indexterm id="IG31340177252"><primary>pmie command</primary></indexterm><indexterm id="IG31340177253"><primary>pmieconf command</primary></indexterm>Parameterized alarm configurations can be created using the <command>pmieconf</command> facilities; see the <command>pmieconf(1)</command> and <command>pmie(1)</command> man pages. In addition, <command>pmie</command> rules involving metrics from the new PMDA may be created directly.</para>
-<para><indexterm id="IG31340177254"><primary>pmlogger command</primary></indexterm><indexterm id="IG31340177255"><primary>pmlogger_daily command</primary></indexterm>Daily logs can be specified in <command>pmlogger</command> configuration files, or with the <command>pmlogger_daily</command> mechanism; see the <command>pmlogger(1)</command> and <command>pmlogger_daily(1)</command> man pages. The services of <command>pmsnap</command> may be used to incorporate the new performance metrics into charts that may be periodically regenerated and published via a World Wide Web server.</para>
+<para><indexterm id="IG31340177254"><primary>pmlogger command</primary></indexterm><indexterm id="IG31340177255"><primary>pmlogconf command</primary></indexterm>Metrics suitable for on-going logging can be specified in templated <command>pmlogger</command> configuration files for <command>pmlogconf</command> to automatically add to the <command>pmlogger_daily</command> recorded set; see the <command>pmlogger(1)</command>, <command>pmlogconf(1)</command> and <command>pmlogger_daily(1)</command> man pages.</para>
+<para><indexterm id="IG31340177252"><primary>pmie command</primary></indexterm><indexterm id="IG31340177253"><primary>pmieconf command</primary></indexterm>Parameterized alarm configurations can be created using the <command>pmieconf</command> facilities; see the <command>pmieconf(1)</command> and <command>pmie(1)</command> man pages.</para>
 </section>
 </section>
 </chapter>
@@ -4492,11 +4543,11 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmlogger command <link linkend="IG3134017776">Implementing a PMDA</link> <link linkend="IG31340177254">Configuring PCP Tools</link></primaryie>
+   <primaryie>pmlogconf command <link linkend="IG31340177255">Configuring PCP Tools</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmlogger_daily command <link linkend="IG31340177255">Configuring PCP Tools</link></primaryie>
+   <primaryie>pmlogger command <link linkend="IG3134017776">Implementing a PMDA</link> <link linkend="IG31340177254">Configuring PCP Tools</link></primaryie>
 </indexentry>
 
 <indexentry>
