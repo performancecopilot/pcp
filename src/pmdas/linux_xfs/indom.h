@@ -28,7 +28,4 @@
 #define MIN_INDOM 		5  /* first indom number we use here */
 #define NUM_INDOMS		17 /* one more than highest indom number used */
 
-#define INDOM(x) (xfs_indomtab[x].it_indom)
-extern pmdaIndom xfs_indomtab[];
-
 #endif /* _INDOM_H */

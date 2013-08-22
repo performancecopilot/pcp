@@ -22,8 +22,8 @@ QA output created by 366
 < ## [osvis, pmstat, pmchart:Disk, pmchart:Overview]
 ---
 > #+ disk/summary:y:default:
-> ## summary disk activity (IOPs and bytes for both reads and writes over
-> ## all disks).
+> ## summary disk activity (IOPs and bytes for both reads and writes
+> ## over all disks).
 > log advisory on default {
 > 	disk.all.read
 > 	disk.all.write
@@ -81,18 +81,16 @@ QA output created by 366
 ---
 > #+ kernel/queues-irix:x::
 < #+ K1:n:default:
----
-> #+ kernel/syscalls-irix:n:default:
+< ## context switches, total syscalls and counts for selected calls (e.g. read,
 < ## write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls,
 < ## pmie:cpu]
 ---
-> ## write, fork, exec, select) over all CPUs [Irix]
+> #+ kernel/syscalls-irix:x::
 < #+ K2:n:default:
----
-> #+ kernel/syscalls-percpu-irix:n:default:
+< ## per CPU context switches, total syscalls and counts for selected calls
 < ## [pmie:per_cpu]
 ---
-> ## [Irix]
+> #+ kernel/syscalls-percpu-irix:x::
 < #+ K3:n:default:
 < ## bytes across the read() and write() syscall interfaces
 ---
@@ -105,8 +103,7 @@ QA output created by 366
 < ## buffer cache reads, writes, hits and misses [pmchart:BufferCache,
 < ## pmie:filesys]
 ---
-> #+ kernel/bufcache-activity:n:default:
-> ## kernel buffer cache reads, writes, hits and misses
+> #+ kernel/bufcache-activity:x::
 < #+ K6:n:default:
 < ## all available buffer cache data
 ---
@@ -188,8 +185,7 @@ QA output created by 366
 < #+ N4:n:default:
 < ## UDP packets in and out [pmchart:NetPackets]
 ---
-> #+ networking/udp-packets-irix:n:default:
-> ## UDP packets in and out [Irix]
+> #+ networking/udp-packets-irix:x::
 < #+ N5:n:default:
 ---
 > #+ networking/udp-all:n:default:
@@ -293,8 +289,7 @@ QA output created by 366
 > #----
 > #+ kernel/summary-windows:x::
 > #----
-> #+ kernel/syscalls-linux:n:default:
-> ## context switches and fork system calls over all CPUs [Linux]
+> #+ kernel/syscalls-linux:x::
 > #----
 > #+ mailq/summary:x::
 > #----
@@ -306,11 +301,17 @@ QA output created by 366
 > #+ networking/nfs2-server:n:default:
 > ## NFS v2 server stats
 > #----
-> #+ networking/nfs3-client:n:default:
+> #+ networking/nfs3-client:y:default:
 > ## NFS v3 client stats
+> log advisory on default {
+> 	nfs3.client
+> }
 > #----
-> #+ networking/nfs3-server:n:default:
+> #+ networking/nfs3-server:y:default:
 > ## NFS v3 server stats
+> log advisory on default {
+> 	nfs3.server
+> }
 > #----
 > #+ networking/nfs4-client:n:default:
 > ## NFS v4 client stats
@@ -331,6 +332,15 @@ QA output created by 366
 > #+ shping/summary:x::
 > #----
 > #+ sqlserver/summary:x::
+> #----
+> #+ tools/atop:n:default:
+> ## metrics used by the atop command
+> #----
+> #+ tools/atop-proc:n:120 seconds:
+> ## per-process metrics used by the atop command
+> #----
+> #+ tools/collectl:n:default:
+> ## metrics used by the collectl command
 > #----
 > #+ tools/iostat:n:default:
 > ## metrics used by the iostat(1) command
@@ -355,6 +365,12 @@ QA output created by 366
 > #----
 > #+ tools/pmstat:n:5 second:
 > ## metrics used by the pmstat(1) command
+> #----
+> #+ tools/sar:n:default:
+> ## metrics used by the sar(1) command
+> #----
+> #+ tools/sar-summary:n:once:
+> ## metrics sampled once by the sar(1) command
 > #----
 > #+ tools/vmstat:n:default:
 > ## metrics used by the vmstat(1) command

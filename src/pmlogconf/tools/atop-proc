@@ -1,7 +1,7 @@
 #pmlogconf-setup 2.0
-ident   metrics used by the atop command
+ident   per-process metrics used by the atop command
 force	available
-delta   10 second
+delta   120 seconds
 
 	proc.id.uid_nm
 	proc.memory.datrss

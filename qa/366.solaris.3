@@ -332,6 +332,15 @@ QA output created by 366
 > #----
 > #+ sqlserver/summary:x::
 > #----
+> #+ tools/atop:n:default:
+> ## metrics used by the atop command
+> #----
+> #+ tools/atop-proc:n:120 seconds:
+> ## per-process metrics used by the atop command
+> #----
+> #+ tools/collectl:n:default:
+> ## metrics used by the collectl command
+> #----
 > #+ tools/iostat:n:default:
 > ## metrics used by the iostat(1) command
 > #----
@@ -355,6 +364,12 @@ QA output created by 366
 > #----
 > #+ tools/pmstat:n:5 second:
 > ## metrics used by the pmstat(1) command
+> #----
+> #+ tools/sar:n:default:
+> ## metrics used by the sar(1) command
+> #----
+> #+ tools/sar-summary:n:once:
+> ## metrics sampled once by the sar(1) command
 > #----
 > #+ tools/vmstat:n:default:
 > ## metrics used by the vmstat(1) command

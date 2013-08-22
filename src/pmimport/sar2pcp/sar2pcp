@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -465,7 +465,7 @@ while (defined(my $token = $parser->get_token())) {
 	elsif ($token->tag eq 'queue') {
 	    my $indom = pmInDom_build(PMI_DOMAIN, 1);
 	    put('proc.runq.runnable', $token->attr->{'runq-sz'});
-	    put('proc.nproc', $token->attr->{'plist-sz'});
+	    put('proc.nprocs', $token->attr->{'plist-sz'});
 	    putinst('kernel.all.load', $indom, '1 minute', $token->attr->{'ldavg-1'});
 	    putinst('kernel.all.load', $indom, '5 minute', $token->attr->{'ldavg-5'});
 	    putinst('kernel.all.load', $indom, '15 minute', $token->attr->{'ldavg-15'});

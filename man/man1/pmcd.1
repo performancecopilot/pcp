@@ -22,6 +22,7 @@
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-f\f1]
+[\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
@@ -113,6 +114,19 @@ The
 option indicates that it should run in the foreground.
 This is most useful when trying to diagnose problems with misbehaving
 agents.
+.TP
+\f3\-H\f1 \f2hostname\f1
+This option can be used to set the hostname that 
+.B pmcd
+will use to represent this instance of itself.
+This is used by client tools like
+.BR pmlogger (1)
+when reporting on the (possibly remote) host.
+If this option is not set, the pmcd.hostname metric will match that 
+returned by
+.BR pmhostname (1).
+Refer to the manual page for that tool for full details on how the hostname is
+evaluated.
 .TP
 \f3\-i\f1 \f2ipaddress\f1
 This option is usually only used on hosts with more than one network

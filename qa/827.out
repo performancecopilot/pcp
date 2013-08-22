@@ -1,6 +1,6 @@
 QA output created by 827
 old -> new changes
-@@ -5,223 +5,223 @@
+@@ -7,223 +7,223 @@
  
  Descriptions for Metrics in the Log ...
  PMID: 60.14.4 (network.ip.inaddrerrors)
@@ -294,7 +294,7 @@ old -> new changes
      Semantics: counter  Units: count
  
  Instance Domains in the Log ...
-@@ -232,14 +232,14 @@
+@@ -234,14 +234,14 @@
  Temporal Index
               Log Vol    end(meta)     end(log)
  21:49:30.119       0          132          132
@@ -311,7 +311,7 @@ old -> new changes
  21:49:31.119  60.14.82 (network.udplite.sndbuferrors): value 0
                60.14.81 (network.udplite.recvbuferrors): value 0
                60.14.80 (network.udplite.outdatagrams): value 0
-@@ -311,7 +311,7 @@
+@@ -313,7 +313,7 @@
                60.14.1 (network.ip.defaultttl): value 64
                60.14.0 (network.ip.forwarding): value 1
  

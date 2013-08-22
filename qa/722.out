@@ -4,8 +4,6 @@ PRC | sys 9h9m | user 9h9m | #proc 9 | #zombie 9
 CPU | sys 9% | user 9% | irq 9% | idle 9% | wait 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
-cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
-cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
 CPL | avg9 9 | avg9 9 | avg9 9 | csw 9 | intr 9 |
 MEM | tot 9M | free 9M | cache 9M | buff 9M | slab 9M |
 SWP | tot 9G | free 9G | | vmcom 9G | vmlim 9G |
@@ -390,8 +388,6 @@ PID VDATA VSTACK VGROW RGROW VSIZE RSIZE MEM CMD
 ATOP - Day Month 9 9:9:9 9 9:9:9 elapsed
 PRC | sys 9h9m | user 9h9m | #proc 9 | #zombie 9
 CPU | sys 9% | user 9% | irq 9% | idle 9% | wait 9% |
-cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
-cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
 cpu | sys 9% | user 9% | irq 9% | idle 9% | cpu9 9% |
 CPL | avg9 9 | avg9 9 | avg9 9 | csw 9 | intr 9 |

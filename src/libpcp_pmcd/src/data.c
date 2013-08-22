@@ -24,9 +24,10 @@ PMCD_INTERN int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
 PMCD_INTERN int	_pmcd_done;		/* flag from pmcd pmda */
 PMCD_INTERN int	_pmcd_timeout = 5;	/* Timeout for hung agents */
 
-PMCD_INTERN AgentInfo *agent;		/* Array of agent info structs */
 PMCD_INTERN int	nAgents;		/* Number of active agents */
+PMCD_INTERN AgentInfo *agent;		/* Array of agent info structs */
 
+PMCD_INTERN char *_pmcd_hostname;	/* Explicitly requested hostname */
 /*
  * File descriptors are used as an internal index with the advent
  * of NSPR in libpcp.  We (may) need to first decode the index to

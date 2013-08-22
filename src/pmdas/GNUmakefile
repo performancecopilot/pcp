@@ -24,12 +24,14 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 	lustrecomm linux_proc mmv etw logger bash \
 	systemd gfs2 netbsd linux_xfs infiniband
 
-PERLPMDAS = bonding netfilter zimbra postgresql \
+PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx
 
-SUBDIRS = $(CPMDAS) $(PERLPMDAS)
+PYPMDAS = gluster
+
+SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
 
 default :: default_pcp

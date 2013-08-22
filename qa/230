@@ -57,6 +57,7 @@ _filter()
     sed <$tmp.out \
 	-e 's/^\[.*]/[DATE]/' \
 	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
+	-e "s/`pmhostname`/MYHOST/g" \
 	-e "s/`hostname`/MYHOST/g" \
 	-e '/^PMCD host/s/\(   *\).*/\1HOST/' \
 	-e '/^log started/s/\(   *\).*/\1DATE/' \

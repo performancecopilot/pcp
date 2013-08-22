@@ -73,10 +73,10 @@ static char * metricSubst[] = {
     "swap.in",              
     "swap.out",             
 /*IO*/
-    NULL,
-    NULL,
+    "disk.all.read",
+    "disk.all.write",
 /*System*/
-    "kernel.all.intr.non_vme", /* We don't expect VME in the new systems */
+    NULL,
     NULL,
 /*CPU*/
     NULL,

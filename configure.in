@@ -907,10 +907,10 @@ PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
                              [ pmda_systemd=systemd ], [ pmda_systemd= ])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
-have_infiniband=false
+pmda_infiniband=
 if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
 then
-    AC_CHECK_HEADERS([infiniband/umad.h infiniband/mad.h], [have_infiniband=true], [])
+    AC_CHECK_HEADERS([infiniband/umad.h infiniband/mad.h], [pmda_infiniband=infiniband], [])
     IB_LIBS=""
     AC_CHECK_LIB(ibmad, madrpc_init)
     AC_CHECK_LIB(ibumad, umad_init)
@@ -938,12 +938,12 @@ then
 	then
 	    :
 	else
-	    have_infiniband=false
+	    pmda_infiniband=
 	fi
     else
-	have_infiniband=false
+	pmda_infiniband=
     fi
-    AC_SUBST(PMDA_INFINIBAND, infiniband)
+    AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
     AC_SUBST(IB_LIBS)
 fi
 

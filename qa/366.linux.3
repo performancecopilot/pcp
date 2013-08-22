@@ -81,18 +81,16 @@ QA output created by 366
 ---
 > #+ kernel/queues-irix:x::
 < #+ K1:n:default:
----
-> #+ kernel/syscalls-irix:n:default:
+< ## context switches, total syscalls and counts for selected calls (e.g. read,
 < ## write, fork, exec, select) over all CPUs [pmstat, pmchart:Syscalls,
 < ## pmie:cpu]
 ---
-> ## write, fork, exec, select) over all CPUs [Irix]
+> #+ kernel/syscalls-irix:x::
 < #+ K2:n:default:
----
-> #+ kernel/syscalls-percpu-irix:n:default:
+< ## per CPU context switches, total syscalls and counts for selected calls
 < ## [pmie:per_cpu]
 ---
-> ## [Irix]
+> #+ kernel/syscalls-percpu-irix:x::
 < #+ K3:n:default:
 < ## bytes across the read() and write() syscall interfaces
 ---
@@ -105,8 +103,7 @@ QA output created by 366
 < ## buffer cache reads, writes, hits and misses [pmchart:BufferCache,
 < ## pmie:filesys]
 ---
-> #+ kernel/bufcache-activity:n:default:
-> ## kernel buffer cache reads, writes, hits and misses
+> #+ kernel/bufcache-activity:x::
 < #+ K6:n:default:
 < ## all available buffer cache data
 ---
@@ -188,8 +185,7 @@ QA output created by 366
 < #+ N4:n:default:
 < ## UDP packets in and out [pmchart:NetPackets]
 ---
-> #+ networking/udp-packets-irix:n:default:
-> ## UDP packets in and out [Irix]
+> #+ networking/udp-packets-irix:x::
 < #+ N5:n:default:
 ---
 > #+ networking/udp-all:n:default:
@@ -231,7 +227,8 @@ QA output created by 366
 < #+ F2:n:default:
 < ## all available XFS data
 ---
-> #+ filesystem/xfs-all:x::
+> #+ filesystem/xfs-all:n:default:
+> ## all available XFS information
 < #+ F3:n:default:
 < ## XLV operations and bytes per volume [xlv_vis]
 ---
@@ -282,14 +279,33 @@ QA output created by 366
 > #+ filesystem/summary:n:default:
 > ## filesystem size and fullness
 > #----
-> #+ filesystem/xfs-io-linux:x::
+> #+ filesystem/xfs-io-linux:n:default:
+> ## XFS data and log I/O traffic [Linux]
 > #----
 > #+ kernel/load:n:default:
 > ## load average
 > #----
-> #+ kernel/memory-linux:x::
+> #+ kernel/memory-linux:n:default:
+> ## kernel memory allocation [Linux]
 > #----
-> #+ kernel/summary-linux:x::
+> #+ kernel/summary-linux:y:default:
+> ## summary kernel performance data [Linux]
+> log advisory on default {
+> 	mem.util
+> 	swap.pagesin
+> 	swap.pagesout
+> 	swap.free
+> 	swap.used
+> 	kernel.all.pswitch
+> 	kernel.all.intr
+> 	kernel.all.load
+> 	kernel.all.runnable
+> 	network.interface.collisions
+> 	network.interface.in.drops
+> 	network.interface.out.drops
+> 	disk.dev.avactive
+> 	filesys.full
+> }
 > #----
 > #+ kernel/summary-windows:x::
 > #----
@@ -299,6 +315,10 @@ QA output created by 366
 > #+ mailq/summary:x::
 > #----
 > #+ mysql/summary:x::
+> #----
+> #+ netfilter/config:x::
+> #----
+> #+ netfilter/summary:x::
 > #----
 > #+ networking/nfs2-client:n:default:
 > ## NFS v2 client stats
@@ -318,19 +338,40 @@ QA output created by 366
 > #+ networking/nfs4-server:n:default:
 > ## NFS v4 server stats
 > #----
-> #+ networking/socket-linux:x::
+> #+ networking/socket-linux:n:default:
+> ## socket stats (in use, high-water mark, etc.) [Linux]
 > #----
-> #+ networking/tcp-activity-linux:x::
+> #+ networking/tcp-activity-linux:n:default:
+> ## TCP packets (in and out), errors and retransmits [Linux]
 > #----
-> #+ networking/udp-packets-linux:x::
+> #+ networking/udp-packets-linux:n:default:
+> ## UDP packets in and out [Linux]
 > #----
-> #+ platform/linux:x::
+> #+ platform/linux:y:once:
+> ## Linux swap, cache and networking configuration
+> log advisory on once {
+> 	swap.length
+> 	mem.slabinfo.objects.size
+> 	network.interface.mtu
+> 	network.interface.speed
+> 	network.interface.duplex
+> 	network.interface.inet_addr
+> }
 > #----
 > #+ postgresql/summary:x::
 > #----
 > #+ shping/summary:x::
 > #----
 > #+ sqlserver/summary:x::
+> #----
+> #+ tools/atop:n:default:
+> ## metrics used by the atop command
+> #----
+> #+ tools/atop-proc:n:120 seconds:
+> ## per-process metrics used by the atop command
+> #----
+> #+ tools/collectl:n:default:
+> ## metrics used by the collectl command
 > #----
 > #+ tools/iostat:n:default:
 > ## metrics used by the iostat(1) command
@@ -355,6 +396,12 @@ QA output created by 366
 > #----
 > #+ tools/pmstat:n:5 second:
 > ## metrics used by the pmstat(1) command
+> #----
+> #+ tools/sar:n:default:
+> ## metrics used by the sar(1) command
+> #----
+> #+ tools/sar-summary:n:once:
+> ## metrics sampled once by the sar(1) command
 > #----
 > #+ tools/vmstat:n:default:
 > ## metrics used by the vmstat(1) command

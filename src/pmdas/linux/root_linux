@@ -42,6 +42,7 @@ hinv {
     ndisk		60:0:33
     nfilesys		60:5:0
     ninterface		60:3:27
+    nnode		60:0:19
     machine		60:18:7
     map		
     cpu

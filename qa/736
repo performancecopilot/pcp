@@ -27,8 +27,8 @@ End-of-File
 # real QA test starts here
 pmlogrewrite -w -c $tmp.config src/ok-bigbin $tmp
 
-pmdumplog -a src/ok-bigbin >$tmp.old
-pmdumplog -a $tmp >$tmp.new
+pmdumplog -z -a src/ok-bigbin >$tmp.old
+pmdumplog -z -a $tmp >$tmp.new
 
 diff $tmp.old $tmp.new
 

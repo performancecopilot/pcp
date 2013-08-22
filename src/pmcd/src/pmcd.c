@@ -123,7 +123,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fi:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "c:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
 	switch (c) {
 
 	    case 'c':	/* configuration file */
@@ -152,6 +152,11 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    case 'i':
 		/* one (of possibly several) interfaces for client requests */
 		__pmServerAddInterface(optarg);
+		break;
+
+	    case 'H':
+		/* use the given name as the pmcd.hostname for this host */
+		_pmcd_hostname = optarg;
 		break;
 
 	    case 'l':
@@ -257,6 +262,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 "  -c config       path to configuration file\n"
 "  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
+"  -H hostname     set the hostname to be used for pmcd.hostname metric\n"
 "  -i ipaddress    accept connections on this IP address\n"
 "  -l logfile      redirect diagnostics and trace output\n"
 "  -L bytes        maximum size for PDUs from clients [default 65536]\n"
