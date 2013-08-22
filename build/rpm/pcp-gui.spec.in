@@ -19,7 +19,6 @@ BuildRequires: qt-devel >= 4.2
 Requires: qt4 >= 4.2
 BuildRequires: qt4-devel >= 4.2
 %endif
-BuildRequires: xmlto
 
 %description
 The PCP GUI package primarily includes visualisation tools for
