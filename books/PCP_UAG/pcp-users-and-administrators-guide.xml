@@ -2564,7 +2564,7 @@ is to use the timezone from the first named archive.</para>
 <varlistentry>
 <term><literal>-Z </literal> <replaceable>timezone</replaceable> </term>
 <listitem><para><indexterm id="IG31371888135"><primary>environ man page</primary></indexterm>Sets
-the TZ variable to a timezone string, as defined in <command>environ(5)</command>,
+the TZ variable to a timezone string, as defined in <command>environ(7)</command>,
 for example, <literal>-Z UTC</literal> for universal time.</para>
 </listitem></varlistentry>
 </variablelist>
