@@ -3246,14 +3246,15 @@ main(int argc, char* argv[])
 <title>Trace PMDA</title>
 <para><indexterm id="IG31340177462"><primary>trace PMDA</primary><secondary>description</secondary></indexterm><indexterm id="IG31340177463"><primary>PMDA</primary><secondary>trace</secondary></indexterm>This chapter provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA), in an effort to explain how to configure the agent optimally for a particular problem domain. This information supplements the functional coverage which the man pages provide to both the agent and the library interfaces.</para>
 <para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> The chapter also includes information on how to use the trace PMDA and the associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs are installed in <filename>${PCP_DEMOS_DIR}/trace</filename>.</para>
+<warning><para>The current PCP trace library and PMDA are relatively heavy-weight solutions, and may not be appropriate for production application instrumentation. At this stage they should be considered experimental, and are included primarily for reference. A revised application tracing library and PMDA are planned which will be light-weight, support event metrics, and other advances in end-to-end distributed application tracing.</para></warning>
 <section id="id5213106">
 
 <title>Performance Instrumentation and Tracing</title>
 <para><indexterm id="IG31340177466"><primary>pmdatrace man page</primary></indexterm><indexterm id="IG31340177467"><primary>performance instrumentation</primary></indexterm><indexterm id="IG31340177468"><primary>instrumentation</primary></indexterm>The <filename>pcp_trace</filename> library provides function calls for identifying sections of a program as transactions or events for examination by the trace PMDA, a user command called <command>pmdatrace</command>. The <filename>pcp_trace</filename> library is described in the <command>pmdatrace(3)</command> man page</para>
 <para>The monitoring of transactions using the Performance Co-Pilot (PCP) infrastructure begins with a <command>pmtracebegin</command> call. Time is recorded from there to the corresponding <command>pmtraceend</command> call (with matching tag identifier). A transaction in progress can be cancelled by calling <command>pmtraceabort</command>.</para>
-<para>A second form of program instrumentation is available with the <command>pmtracepoint</command> function. This is a simpler form of monitoring that exports only the number of times a particular point in a program is passed. The <command>pmtraceobs</command> and pmtracecount functions have similar semantics, but allows an arbitrary numeric value to be passed to the trace PMDA.</para>
+<para>A second form of program instrumentation is available with the <command>pmtracepoint</command> function. This is a simpler form of monitoring that exports only the number of times a particular point in a program is passed. The <command>pmtraceobs</command> and <command>pmtracecount</command> functions have similar semantics, but the former allows an arbitrary numeric value to be passed to the trace PMDA.</para>
 <para><indexterm id="IG31340177469"><primary>pmdatrace man page</primary></indexterm>The <command>pmdatrace</command> command is a PMDA that exports transaction performance metrics from application processes using the <filename>pcp_trace</filename> library; see the <command>pmdatrace(1)</command> man page for details.</para>
-<para>For a complete introduction to performance tracing, refer to the <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle>, which contains a tutorial covering this topic.</para>
+<para>For a complete introduction to application tracing, refer to the <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle>, which contains additional material covering this topic.</para>
 </section>
 <section id="id5213287">
 
@@ -3504,14 +3505,6 @@ pmtraceend(&#x201C;pass 1&#x201D;);
 pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </listitem>
 <listitem><para><indexterm id="IG31340177559"><primary>languages</primary></indexterm>Trace routines that are called from C, C++, Fortran, and Java, and that are well suited to macro encapsulation for compile-time inclusion and exclusion.</para>
-</listitem>
-<listitem><para>Shipped source code for a stub version of the library that enables the following:</para>
-<itemizedlist><listitem><para>Replacement by private debugging or development versions</para>
-</listitem><listitem><para>Flexibility based on not being locked into a SGI program</para>
-</listitem><listitem><para>Added functionality on SGI platforms, when the PCP version of the library is present</para>
-</listitem></itemizedlist>
-</listitem>
-<listitem><para><indexterm id="IG31340177560"><primary>environment variables</primary></indexterm>A PCP version of the library that allows numerical observations, measures time between matching begin-end calls, and so on to be shipped to a PCP agent and then exported into the PCP infrastructure. As exporting is controlled by environment variables, the overhead is very low if the metrics are not being exported.</para>
 </listitem></itemizedlist>
 <para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
 <itemizedlist>
@@ -3833,7 +3826,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>environment variables <link linkend="IG31340177522">Configuring the Trace Library</link> <link linkend="IG31340177560">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>environment variables <link linkend="IG31340177522">Configuring the Trace Library</link></primaryie>
 </indexentry>
 
 <indexentry>
