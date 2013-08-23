@@ -1126,76 +1126,76 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 <programlisting>static int
 simple_store(pmResult *result, pmdaExt *pmda)
 {
-   int         i, j, val, sts = 0;
-   pmAtomValue av;
-   pmValueSet  *vsp = NULL;
-   __pmID_int  *pmidp = NULL;
+    int         i, j, val, sts = 0;
+    pmAtomValue av;
+    pmValueSet  *vsp = NULL;
+    __pmID_int  *pmidp = NULL;
 
-   for (i = 0; i &lt; result-&gt;numpmid; i++) {
-       vsp = result-&gt;vset[i];
-       pmidp = (__pmID_int *)&amp;vsp-&gt;pmid;
-       if (pmidp-&gt;cluster == 0) {  /* storable metrics are cluster0 */
-           switch (pmidp-&gt;item) {
-               case 0:                           /* simple.numfetch */
-                   val = vsp-&gt;vlist[0].value.lval;
-                   if (val &lt; 0) {
-                       sts = PM_ERR_SIGN;
-                       val = 0;
-                   }
-                   numfetch = val;
-                   break;
-               case 1:                             /* simple.color */
-                   for (j = 0; j &lt; vsp-&gt;numval &amp;&amp; sts == 0; j++) {
-                       val = vsp-&gt;vlist[j].value.lval;
-                       if (val &lt; 0) {
-                           sts = PM_ERR_SIGN;
-                           val = 0;
-                       } if (val &gt; 255) {
-                           sts = PM_ERR_CONV;
-                           val = 255;
-                       }</programlisting>
+    for (i = 0; i &lt; result-&gt;numpmid; i++) {
+        vsp = result-&gt;vset[i];
+        pmidp = (__pmID_int *)&amp;vsp-&gt;pmid;
+        if (pmidp-&gt;cluster == 0) {  /* storable metrics are cluster0 */
+            switch (pmidp-&gt;item) {
+            case 0:                           /* simple.numfetch */
+                val = vsp-&gt;vlist[0].value.lval;
+                if (val &lt; 0) {
+                    sts = PM_ERR_SIGN;
+                    val = 0;
+                }
+                numfetch = val;
+                break;
+            case 1:                             /* simple.color */
+                for (j = 0; j &lt; vsp-&gt;numval &amp;&amp; sts == 0; j++) {
+                    val = vsp-&gt;vlist[j].value.lval;
+                    if (val &lt; 0) {
+                        sts = PM_ERR_SIGN;
+                        val = 0;
+                    } if (val &gt; 255) {
+                        sts = PM_ERR_CONV;
+                        val = 255;
+                    }</programlisting>
 </example>
 <para><indexterm id="IG31340177197"><primary>PM_ERR_INST error code</primary></indexterm>The <literal>simple.color</literal> metric has an instance domain that must be searched because any or all instances may be specified. Any instances that are not supported in this instance domain should cause an error value of <literal>PM_ERR_INST</literal> to be returned as shown in <xref linkend="Z976051081sdc"/>:</para>
 <example id="Z976051081sdc">
 <title><literal>simple.color</literal> and <literal>PM_ERR_INST</literal> Errors</title>
 <programlisting>                       switch (vsp-&gt;vlist[j].inst) {
-                           case 0:                         /* red */
-                               red = val;
-                               break;
-                           case 1:                         /* green */
-                               green = val;
-                               break;
-                           case 2:                         /* blue */
-                               blue = val;
-                               break;
-                           default:
-                               sts = PM_ERR_INST;
+                       case 0:                         /* red */
+                           red = val;
+                           break;
+                       case 1:                         /* green */
+                           green = val;
+                           break;
+                       case 2:                         /* blue */
+                           blue = val;
+                           break;
+                       default:
+                           sts = PM_ERR_INST;
                        }</programlisting>
 </example>
 <para><indexterm id="IG31340177198"><primary>PM_ERR_PMID error code</primary></indexterm>Any other PMIDs in cluster 0 that are not supported by the simple PMDA should result in an error value  of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976307148sdc"/>:</para>
 <example id="Z976307148sdc">
 <title><literal>PM_ERR_PMID</literal> Errors</title>
-<programlisting>               default:
-                   sts = PM_ERR_PMID;
-                   break;
-           }
-       }</programlisting>
+<programlisting>                default:
+                    sts = PM_ERR_PMID;
+                    break;
+            }
+        }</programlisting>
 </example>
 <para>Any metrics that cannot be altered should generate an error value of <literal>PM_ERR_PERMISSION</literal>, and metrics not supported by the PMDA should result in an error value of <literal>PM_ERR_PMID</literal> as shown in <xref linkend="Z976050822sdc"/>:</para>
 <example id="Z976050822sdc">
 <title><literal>PM_ERR_PERMISSION</literal> and <literal>PM_ERR_PMID</literal> Errors</title>
-<programlisting>       else if ((pmidp-&gt;cluster == 1 &amp;&amp;
-                (pmidp-&gt;item == 2 || pmidp-&gt;item == 3)) ||
-                (pmidp-&gt;cluster == 2 &amp;&amp; pmidp-&gt;item == 4)) {
-           sts = PM_ERR_PERMISSION;
-           break;
-       }
-       else {
-           sts = PM_ERR_PMID;
-           break;
-       }
-   }
-   return sts;
+<programlisting>        else if ((pmidp-&gt;cluster == 1 &amp;&amp;
+                 (pmidp-&gt;item == 2 || pmidp-&gt;item == 3)) ||
+                 (pmidp-&gt;cluster == 2 &amp;&amp; pmidp-&gt;item == 4)) {
+            sts = PM_ERR_PERMISSION;
+            break;
+        }
+        else {
+            sts = PM_ERR_PMID;
+            break;
+        }
+    }
+    return sts;
 }</programlisting>
 <para>The structure <literal>pmdaExt</literal> <replaceable>pmda</replaceable> argument is not used by the <command>simple_store</command> function above.</para>
 </example>
@@ -1247,15 +1247,15 @@ simple_store(pmResult *result, pmdaExt *pmda)
 <title><literal>pmdaInterface</literal> Structure Header</title>
 <para><indexterm id="IG31340177200"><primary>pmdaInterface structure</primary></indexterm>The callbacks must be specified in a <filename>pmdaInterface</filename> structure:</para>
 <programlisting>typedef struct {
-   int domain;     /* set/return performance metrics domain id here */
-   struct {
-       unsigned int pmda_interface : 8;  /* PMDA DSO version */
-       unsigned int pmapi_version : 8;   /* PMAPI version */
-       unsigned int flags : 16;          /* optional feature flags */
-   } comm;             /* set/return communication and version info */
-   int status;         /* return initialization status here */
-   union {
-      ...
+    int domain;     /* set/return performance metrics domain id here */
+    struct {
+        unsigned int pmda_interface : 8;  /* PMDA DSO version */
+        unsigned int pmapi_version : 8;   /* PMAPI version */
+        unsigned int flags : 16;          /* optional feature flags */
+    } comm;             /* set/return communication and version info */
+    int status;         /* return initialization status here */
+    union {
+        ...
 </programlisting>
 </example>
 <para>This structure is passed by PMCD to a DSO PMDA as an argument to the initialization function. This structure supports multiple (binary-compatible) versions--the second and subsequent versions have support for the <filename>pmdaExt</filename> structure. Protocol version one is for backwards compatibility only, and should not be used in any new PMDA.</para>
@@ -1275,25 +1275,25 @@ simple_store(pmResult *result, pmdaExt *pmda)
 <example id="Z964112160nat">
 <title><literal>pmdaInterface</literal> Structure, Latest Version</title>
 <programlisting>   ...
-   union {
-       ...
-/*
- * PMDA_INTERFACE6
- */ 
-       struct {
-           pmdaExt *ext;
-           int     (*profile)(pmdaInProfile *, pmdaExt *);
-           int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
-           int     (*desc)(pmID, pmDesc *, pmdaExt *);
-           int     (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
-           int     (*text)(int, int, char **, pmdaExt *);
-           int     (*store)(pmResult *, pmdaExt *);
-           int     (*pmid)(const char *, pmID *, pmdaExt *);
-           int     (*name)(pmID, char ***, pmdaExt *);
-           int     (*children)(const char *, int, char ***, int **, pmdaExt *);
-           int     (*attribute)(int, int, const char *, int, pmdaExt *);
-       } six;
-   } version;
+    union {
+        ...
+        /*
+         * PMDA_INTERFACE6
+         */ 
+        struct {
+            pmdaExt *ext;
+            int     (*profile)(pmdaInProfile *, pmdaExt *);
+            int     (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+            int     (*desc)(pmID, pmDesc *, pmdaExt *);
+            int     (*instance)(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+            int     (*text)(int, int, char **, pmdaExt *);
+            int     (*store)(pmResult *, pmdaExt *);
+            int     (*pmid)(const char *, pmID *, pmdaExt *);
+            int     (*name)(pmID, char ***, pmdaExt *);
+            int     (*children)(const char *, int, char ***, int **, pmdaExt *);
+            int     (*attribute)(int, int, const char *, int, pmdaExt *);
+        } six;
+    } version;
 } pmdainterface;</programlisting>
 </example>
 <note><para>Each new interface version is always defined as a superset of those that preceded it, only adds fields at the end of the new structure in the union, and is always binary backwards-compatible. <literal>And thus it shall remain.</literal>
@@ -1304,35 +1304,35 @@ For brevity, we have shown only the latest interface version (six) above, but al
 <title><literal>pmdaExt</literal> Stucture</title>
 <para><indexterm id="IG31340177201"><primary>pmdaExt structure</primary></indexterm>Additional PMDA information must be specified in a <filename>pmdaExt</filename> structure:</para>
 <programlisting id="Z964117899sdc">typedef struct {
-   unsigned int e_flags;       /* PMDA_EXT_FLAG_* bit field */
-   void        *e_ext;         /* used internally within libpcp_pmda */
-   char        *e_sockname;    /* socket name to pmcd */
-   char        *e_name;        /* name of this pmda */
-   char        *e_logfile;     /* path to log file */
-   char        *e_helptext;    /* path to help text */
-   int         e_status;       /* =0 is OK */
-   int         e_infd;         /* input file descriptor from pmcd */
-   int         e_outfd;        /* output file descriptor to pmcd */
-   int         e_port;         /* port to pmcd */
-   int         e_singular;     /* =0 for singular values */
-   int         e_ordinal;      /* &gt;=0 for non-singular values */
-   int         e_direct;       /* =1 if pmid map to meta table */
-   int         e_domain;       /* metrics domain */
-   int         e_nmetrics;     /* number of metrics */
-   int         e_nindoms;      /* number of instance domains */
-   int         e_help;         /* help text comes via this handle */
-   __pmProfile *e_prof;        /* last received profile */
-   pmdaIoType  e_io;           /* connection type to pmcd */
-   pmdaIndom   *e_indoms;      /* instance domain table */
-   pmdaIndom   *e_idp;         /* instance domain expansion */
-   pmdaMetric  *e_metrics;     /* metric description table */
-   pmdaResultCallBack e_resultCallBack; /* to clean up pmResult after fetch */
-   pmdaFetchCallBack  e_fetchCallBack;  /* to assign metric values in fetch */
-   pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
-   pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU is processed */
-   /* added for PMDA_INTERFACE_5 */
-   int         e_context;      /* client context id from pmcd */
-   pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
+    unsigned int e_flags;       /* PMDA_EXT_FLAG_* bit field */
+    void        *e_ext;         /* used internally within libpcp_pmda */
+    char        *e_sockname;    /* socket name to pmcd */
+    char        *e_name;        /* name of this pmda */
+    char        *e_logfile;     /* path to log file */
+    char        *e_helptext;    /* path to help text */
+    int         e_status;       /* =0 is OK */
+    int         e_infd;         /* input file descriptor from pmcd */
+    int         e_outfd;        /* output file descriptor to pmcd */
+    int         e_port;         /* port to pmcd */
+    int         e_singular;     /* =0 for singular values */
+    int         e_ordinal;      /* &gt;=0 for non-singular values */
+    int         e_direct;       /* =1 if pmid map to meta table */
+    int         e_domain;       /* metrics domain */
+    int         e_nmetrics;     /* number of metrics */
+    int         e_nindoms;      /* number of instance domains */
+    int         e_help;         /* help text comes via this handle */
+    __pmProfile *e_prof;        /* last received profile */
+    pmdaIoType  e_io;           /* connection type to pmcd */
+    pmdaIndom   *e_indoms;      /* instance domain table */
+    pmdaIndom   *e_idp;         /* instance domain expansion */
+    pmdaMetric  *e_metrics;     /* metric description table */
+    pmdaResultCallBack e_resultCallBack; /* to clean up pmResult after fetch */
+    pmdaFetchCallBack  e_fetchCallBack;  /* to assign metric values in fetch */
+    pmdaCheckCallBack  e_checkCallBack;  /* callback on receipt of a PDU */
+    pmdaDoneCallBack   e_doneCallBack;   /* callback after PDU is processed */
+    /* added for PMDA_INTERFACE_5 */
+    int         e_context;      /* client context id from pmcd */
+    pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
 } pmdaExt;</programlisting>
 </example>
 <para><indexterm id="IG31340177202"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177203"><primary>pmdaDSO man page</primary></indexterm><indexterm id="IG31340177204"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177205"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177206"><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command>pmdaDaemon(3)</command>, <command>pmdaDSO(3)</command>, <command>pmdaGetOpt(3)</command>, <command>pmdaInit(3)</command>, and <command>pmdaConnect(3)</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
@@ -1377,16 +1377,16 @@ void trivial_init(pmdaInterface *dp)
 {
     if (isDSO)
         pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;trivial DSO&#x201D;,
-               &#x201C;${PCP_PMDAS_DIR}/trivial/help&#x201D;);
+                &#x201C;${PCP_PMDAS_DIR}/trivial/help&#x201D;);
     else
         __pmSetProcessIdentity(username);
 
     if (dp-&gt;status != 0)
         return;
 
-   pmdaSetFetchCallBack(dp, trivial_fetchCallBack);
-   pmdaInit(dp, NULL, 0,
-            metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+    pmdaSetFetchCallBack(dp, trivial_fetchCallBack);
+    pmdaInit(dp, NULL, 0,
+             metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
 </example>
 <para>The trivial PMDA can execute as either a DSO or daemon PMDA. A default
@@ -1413,21 +1413,21 @@ static char     *username;
 
 void simple_init(pmdaInterface *dp)
 {
-   if (isDSO)
-       pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
-               &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
-   else
-       __pmSetProcessIdentity(username);
+    if (isDSO)
+        pmdaDSO(dp, PMDA_INTERFACE_2, &#x201C;simple DSO&#x201D;,
+                &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
+    else
+        __pmSetProcessIdentity(username);
 
-   if (dp-&gt;status != 0)
-       return;
+    if (dp-&gt;status != 0)
+        return;
 
-   dp-&gt;version.two.fetch = simple_fetch;
-   dp-&gt;version.two.store = simple_store;
-   dp-&gt;version.two.instance = simple_instance;
-   pmdaSetFetchCallBack(dp, simple_fetchCallBack);
-   pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
-            metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+    dp-&gt;version.two.fetch = simple_fetch;
+    dp-&gt;version.two.store = simple_store;
+    dp-&gt;version.two.instance = simple_instance;
+    pmdaSetFetchCallBack(dp, simple_fetchCallBack);
+    pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
+             metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
 </example>
 <para>Once again, the simple PMDA may be installed either as a daemon PMDA or a DSO PMDA. The static variable <replaceable>isDSO</replaceable> indicates whether the PMDA is running as a DSO or as a daemon. A daemon PMDA always changes the value of this variable to 0 in <literal>main</literal>, for PMDAs that can operate in both modes.</para>
@@ -1456,35 +1456,35 @@ void simple_init(pmdaInterface *dp)
 <programlisting>int
 main(int argc, char **argv)
 {
-   int                 c, err = 0;
-   pmdaInterface       dispatch;
-   char                *p;
+    int                 c, err = 0;
+    pmdaInterface       dispatch;
+    char                *p;
 
-   isDSO = 0;
-   __pmSetProgname(argv[0]);
-   __pmGetUsername(&amp;username);
-   pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
-              &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
+    isDSO = 0;
+    __pmSetProgname(argv[0]);
+    __pmGetUsername(&amp;username);
+    pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
+               &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
-   while ((c = pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:6:U:?&#x201D;, &amp;dispatch, &amp;err)) != EOF) {
-       switch(c) {
-       case 'U':
-           username = optarg;
-           break;
-       default:
-           err++;
-       }
-   }
-   if (err)
-       usage();
+    while ((c = pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:6:U:?&#x201D;, &amp;dispatch, &amp;err)) != EOF) {
+        switch(c) {
+        case 'U':
+            username = optarg;
+            break;
+        default:
+            err++;
+        }
+    }
+    if (err)
+        usage();
 
-   pmdaOpenLog(&amp;dispatch);
-   simple_init(&amp;dispatch);
-   simple_timenow_check();
-   pmdaConnect(&amp;dispatch);
-   pmdaMain(&amp;dispatch);
+    pmdaOpenLog(&amp;dispatch);
+    simple_init(&amp;dispatch);
+    simple_timenow_check();
+    pmdaConnect(&amp;dispatch);
+    pmdaMain(&amp;dispatch);
 
-   exit(0);
+    exit(0);
 }</programlisting>
 </example>
 </section>
@@ -1514,19 +1514,20 @@ main(int argc, char **argv)
 <example id="Z976060060sdc">
 <title><literal>simple.numfetch</literal> in the Simple PMDA</title>
 <programlisting>   case 0: /* simple.numfetch */ 
-       val = vsp-&gt;vlist[0].value.lval; 
-       if (val &lt; 0) { 
-           sts = PM_ERR_SIGN; 
-           val = 0; 
-       } 
+       	x
+        val = vsp-&gt;vlist[0].value.lval; 
+        if (val &lt; 0) { 
+            sts = PM_ERR_SIGN; 
+            val = 0; 
+        } 
 #ifdef PCP_DEBUG 
-       if (pmDebug &amp; DBG_TRACE_APPL0) { 
-           __pmNotifyErr(LOG_DEBUG,
-                &quot;simple: %d stored into numfetch&quot;, val); 
-       } 
+        if (pmDebug &amp; DBG_TRACE_APPL0) { 
+            __pmNotifyErr(LOG_DEBUG,
+                  &quot;simple: %d stored into numfetch&quot;, val); 
+        } 
 #endif 
-       numfetch = val; 
-       break;</programlisting>
+        numfetch = val; 
+        break;</programlisting>
 </example>
 <para><indexterm id="IG31340177235"><primary>pmstore function</primary></indexterm>For a description of <command>pmstore</command>, see the <command>pmstore(1)</command> man page.</para>
 </section>
@@ -1731,7 +1732,6 @@ of the ... Performance Metrics Domain Agent (PMDA).
 </chapter>
 
 
-
 <chapter id="LE97135-PARENT">
 
 <title>PMAPI--The Performance Metrics API</title>
@@ -1842,15 +1842,15 @@ typedef struct {
 <example id="Z1034792511tls">
 <title><filename>pmUnits</filename> and <filename>pmDesc</filename> Structures</title>
 <programlisting>/*
-* Encoding for the units (dimensions and
-* scale) for Performance Metric Values
-*
-* For example, a pmUnits struct of
-* { 1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
-* represents Mbytes/sec, while 
-* { 0, 1, -1, 0, PM_TIME_HOUR, 6 }
-* represents hours/million-events
-*/
+ * Encoding for the units (dimensions and
+ * scale) for Performance Metric Values
+ *
+ * For example, a pmUnits struct of
+ * { 1, -1, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0 }
+ * represents Mbytes/sec, while 
+ * { 0, 1, -1, 0, PM_TIME_HOUR, 6 }
+ * represents hours/million-events
+ */
 typedef struct {
     int pad:8;
     int scaleCount:4; /* one of PM_COUNT_* below */
@@ -1859,7 +1859,7 @@ typedef struct {
     int dimCount:4;   /* event dimension */
     int dimTime:4;    /* time dimension */
     int dimSpace:4;   /* space dimension
- } pmUnits;   /* dimensional units and scale of value */
+} pmUnits;   /* dimensional units and scale of value */
 /* pmUnits.scaleSpace */
 #define PM_SPACE_BYTE 0  /* bytes */
 #define PM_SPACE_KBYTE 1 /* Kilobytes (1024) */
@@ -1889,11 +1889,11 @@ typedef struct {
 <example id="Z976557818sdc">
 <title><command>pmValueBlock</command> and <command>pmValue</command> Structures</title>
 <programlisting>typedef struct {
-   int inst;                 /* instance identifier */
-   union {
-       pmValueBlock *pval;   /* pointer to value-block */
-       int           lval;   /* integer value insitu */
-   } value;
+    int inst;                 /* instance identifier */
+    union {
+        pmValueBlock *pval;   /* pointer to value-block */
+        int           lval;   /* integer value insitu */
+    } value;
 } pmValue;</programlisting>
 </example>
 <para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmresult.svg"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
@@ -1901,9 +1901,9 @@ typedef struct {
 <para>The <literal>pmValueBlock</literal> structure is as follows:<example id="Z1034793414tls">
 <title><literal>pmValueBlock</literal> Structure</title>
 <programlisting>typedef struct {
-   unsigned int    vlen : 24;    /* bytes for vtype/vlen + vbuf */
-   unsigned int    vtype : 8;    /* value type */
-   char            vbuf[1];      /* the value */
+    unsigned int    vlen : 24;    /* bytes for vtype/vlen + vbuf */
+    unsigned int    vtype : 8;    /* value type */
+    char            vbuf[1];      /* the value */
 } pmValueBlock;</programlisting>
 </example></para>
 <para><indexterm id="IG31340177278"><primary>arrays</primary><secondary>performance metrics</secondary></indexterm>The length of the <filename>pmValueBlock</filename> (including the <literal>vtype</literal> and <literal>vlen</literal> fields) is stored in <literal>vlen</literal>. Despite the prototype declaration of <literal>vbuf</literal>, this array really accommodates <literal>vlen</literal> minus <command>sizeof</command>(<literal>vlen</literal>) bytes. The <literal>vtype</literal> field encodes the type of the value in the <literal>vbuf[]</literal> array, and is one of the <command>PM_TYPE_*</command> macros defined in <filename>&lt;pcp/pmapi.h&gt;</filename>.</para>
@@ -1911,10 +1911,10 @@ typedef struct {
 <example id="Z976549488sdc">
 <title><filename>pmValueSet</filename> Structure</title>
 <programlisting>typedef struct {
-   pmID    pmid;          /* metric identifier */
-   int     numval;        /* number of values */
-   int     valfmt;        /* value style, insitu or ptr */
-   pmValue vlist[1];      /* set of instances/values */ 
+    pmID    pmid;          /* metric identifier */
+    int     numval;        /* number of values */
+    int     valfmt;        /* value style, insitu or ptr */
+    pmValue vlist[1];      /* set of instances/values */ 
 } pmValueSet;</programlisting>
 </example>
 <para>If positive, the <literal>numval</literal> field identifies the number of value-instance pairs in the <literal>vlist</literal> array (despite the prototype declaration of size 1). If <literal>numval</literal> is zero, there are no values available for the associated performance metric and <literal>vlist</literal>[0] is undefined. A negative value for <literal>numval</literal> indicates an error condition (see the <command>pmErrStr(3)</command> man page) and <literal>vlist</literal>[0] is undefined. The <literal>valfmt</literal> field has the value <literal>PM_VAL_INSITU</literal> to indicate that the values for the performance metrics should be located directly via the <literal>lval</literal> member of the <literal>value</literal> union embedded in the elements of <literal>vlist</literal>; otherwise, metric values are located indirectly via the <literal>pval</literal> member of the elements of <literal>vlist</literal>.</para>
@@ -1923,9 +1923,9 @@ typedef struct {
 <title><filename>pmResult</filename> Structure</title>
 <programlisting>/* Result returned by pmFetch() */
 typedef struct {
-   struct timeval timestamp;    /* stamped by collector */
-   int            numpmid;      /* number of PMIDs */
-   pmValueSet     *vset[1];     /* set of value sets */
+    struct timeval timestamp;    /* stamped by collector */
+    int            numpmid;      /* number of PMIDs */
+    pmValueSet     *vset[1];     /* set of value sets */
 } pmResult</programlisting>
 </example>
 <para>There is one <literal>pmValueSet</literal> pointer per PMID, with a one-to-one correspondence to the set of requested PMIDs passed to <command>pmFetch</command>.</para>
@@ -1937,7 +1937,7 @@ typedef struct {
 <section id="id5199202">
 
 <title>Performance Event Metrics</title>
-<para>New section!</para>
+<para>New section!  [nathans]</para>
 </section>
 <section id="id5199203">
 
@@ -2450,7 +2450,7 @@ see the <command>PCPIntro(1)</command> man page.</para>
 <title><command>pmNewZone</command> Function</title>
 <literallayout class="monospaced">int pmNewZone(const char *<replaceable>tz</replaceable>)</literallayout>
 <para><indexterm id="IG31340177380"><primary>pmNewZone function</primary></indexterm>The <command>pmNewZone</command> function sets the current reporting timezone, and returns a value that may be used in a subsequent call to <command>pmUseZone</command> to restore this reporting timezone. The current reporting timezone affects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
-<para>The <replaceable>tz</replaceable> argument defines a timezone string, in the format described for the <literal>TZ</literal> environment variable. See the <command>environ(5)</command> man page.</para>
+<para>The <replaceable>tz</replaceable> argument defines a timezone string, in the format described for the <literal>TZ</literal> environment variable. See the <command>environ(7)</command> man page.</para>
 <para>A return value less than zero indicates a fatal error from a system call, most likely <command>malloc</command>.</para>
 </section>
 <section id="id5205362">
@@ -2486,24 +2486,25 @@ see the <command>PCPIntro(1)</command> man page.</para>
 <para>In <xref linkend="Z976559487sdc"/>, the code fragment dumps the values (assumed to be stored in the <replaceable>lval</replaceable> element of the <filename>pmValue</filename> structure) of selected performance metrics once every 10 seconds:</para>
 <example id="Z976559487sdc">
 <title>PMAPI Metrics Services</title>
-<programlisting>int       i, j, sts;
-pmID      pmidlist[10];
-pmResult  *result;
-time_t    now;
-/* set up PMAPI context, numpmid and pmidlist[] ... */
-while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
-    now = (time_t)result-&gt;timestamp.tv_sec;
-    printf(&quot;\n@ %s&quot;, ctime(&amp;now));
-    for (i = 0; i &lt; result-&gt;numpmid; i++) {
-        printf(&quot;PMID: %s&quot;, pmIDStr(result-&gt;vset[i]-&gt;pmid));
-        for (j = 0; j &lt; result-&gt;vset[i]-&gt;numval; j++) {
-            printf(&quot; 0x%x&quot;, result-&gt;vset[i]-&gt;vlist[j].value.lval);
-            putchar('\n');
+<programlisting>    int       i, j, sts;
+    pmID      pmidlist[10];
+    pmResult  *result;
+    time_t    now;
+
+    /* set up PMAPI context, numpmid and pmidlist[] ... */
+    while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
+        now = (time_t)result-&gt;timestamp.tv_sec;
+        printf(&quot;\n@ %s&quot;, ctime(&amp;now));
+        for (i = 0; i &lt; result-&gt;numpmid; i++) {
+            printf(&quot;PMID: %s&quot;, pmIDStr(result-&gt;vset[i]-&gt;pmid));
+            for (j = 0; j &lt; result-&gt;vset[i]-&gt;numval; j++) {
+                printf(&quot; 0x%x&quot;, result-&gt;vset[i]-&gt;vlist[j].value.lval);
+                putchar('\n');
+            }
         }
-    }
-    pmFreeResult(result);
-    sleep(10);
-}</programlisting>
+        pmFreeResult(result);
+        sleep(10);
+    }</programlisting>
 </example>
 <note><para><indexterm id="IG31340177388"><primary>PM_ERR_TIMEOUT error code</primary></indexterm><indexterm id="IG31340177389"><primary>PMCD_REQUEST_TIMOUT variable</primary></indexterm>If a response is not received back from PMCD within 10 seconds, the <command>pmFetch</command> times out and returns <literal>PM_ERR_TIMEOUT</literal>. This is most likely to occur when the PMAPI client and PMCD are communicating over a slow network connection, but may also occur when one of the hosts is extremely busy. The time out period may be modified using the <literal>PMCD_REQUEST_TIMEOUT</literal> environment variable; see the <command>PCPIntro(1)</command> man page.</para>
 </note>
@@ -2535,7 +2536,7 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <para><command>pmRecordAddHost</command> is called for each host that is to be included in the recording session. A new <filename>pmRecordHost</filename> structure is returned via <replaceable>rhp</replaceable>. It is assumed that PMCD is running on the host as this is how <command>pmlogger</command> retrieves the required performance metrics.</para>
 <para>If this host is the default host for the recording session, <replaceable>isdefault</replaceable> is nonzero. This ensures that the corresponding archive appears first in the PCP archive <replaceable>folio</replaceable>. Hence the tools used to replay the archive <replaceable>folio</replaceable> make the correct determination of the archive associated with the default host. At most one host per recording session may be nominated as the default host.</para>
 <para>The calling application writes the desired <command>pmlogger</command> configuration onto the stdio stream returned via the <literal>f_config</literal> field in the <filename>pmRecordHost</filename> structure.</para>
-<para><command>pmRecordAddHost</command> returns 0 on success and a value less than 0 suitable for decoding with <command>pmErrStr</command> on failure. The value <literal>EINVAL</literal> has the same interpretation as <literal>errno</literal> being set to <literal>EINVA</literal>.</para>
+<para><command>pmRecordAddHost</command> returns 0 on success and a value less than 0 suitable for decoding with <command>pmErrStr</command> on failure. The value <literal>EINVAL</literal> has the same interpretation as <literal>errno</literal> being set to <literal>EINVAL</literal>.</para>
 </section>
 <section id="LE35969-PARENT">
 
@@ -2548,7 +2549,7 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <para>To terminate a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_OFF</literal>. If the <replaceable>rhp</replaceable> argument to <command>pmRecordControl</command> is NULL, the termination request is broadcast to all <command>pmlogger</command> processes in the current recording session. An informative dialogue is generated directly by each <command>pmlogger</command> process.</para>
 <para>To display the current status of the <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_STATUS</literal>. If the <replaceable>rhp</replaceable> argument to <command>pmRecordControl</command> is NULL, the status request is broadcast to all <command>pmlogger</command> processes in the current recording session. The display is generated directly by each <command>pmlogger</command> process.</para>
 <para>To detach a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, allow it to continue independent of the application that launched the recording session and call <command>pmRecordControl</command> with a request of <literal>PM_REC_DETACH</literal>. If the <replaceable>rhp</replaceable> argument to <command>pmRecordControl</command> is NULL, the detach request is broadcast to all <command>pmlogger</command> processes in the current recording session.</para>
-<para><command>pmRecordControl</command> returns 0 on success and a value less than 0 suitable for decoding with <command>pmErrStr</command> on failure. The value <literal>EINVAL</literal> has the same interpretation as <literal>errno</literal> being set to <literal>EINVA</literal>.</para>
+<para><command>pmRecordControl</command> returns 0 on success and a value less than 0 suitable for decoding with <command>pmErrStr</command> on failure. The value <literal>EINVAL</literal> has the same interpretation as <literal>errno</literal> being set to <literal>EINVAL</literal>.</para>
 <para><command>pmRecordControl</command> returns <literal>PM_ERR_IPC</literal> if the associated <command>pmlogger</command> process has already exited.</para>
 </section>
 <section id="id5206798">
@@ -2561,11 +2562,11 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <example id="Z976560662sdc">
 <title><filename>pmRecordHost</filename> Structure</title>
 <programlisting>typedef struct {
-  FILE   *f_config;    /* caller writes pmlogger configuration here */
-  int    fd_ipc;       /* IPC channel to pmlogger */
-  char   *logfile;     /* full pathname for pmlogger error logfile */
-  pid_t  pid;          /* process id for pmlogger */
-  int    status;       /* exit status, -1 if unknown */
+    FILE   *f_config;    /* caller writes pmlogger configuration here */
+    int    fd_ipc;       /* IPC channel to pmlogger */
+    char   *logfile;     /* full pathname for pmlogger error logfile */
+    pid_t  pid;          /* process id for pmlogger */
+    int    status;       /* exit status, -1 if unknown */
 } pmRecordHost;</programlisting>
 </example>
 <para>In <xref linkend="id5206969"/>, the functions are used in combination to create a recording session.</para>
@@ -2576,25 +2577,25 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <step><para>Optionally, add arguments to the command line that is used to launch <command>pmlogger</command> by calling <command>pmRecordControl</command> with a request of <literal>PM_REC_SETARG</literal>. The argument is passed via options and one call to <command>pmRecordControl</command> is required for each distinct argument. See <xref linkend="LE35969-PARENT"/> for more information.</para></step>
 <step><para>To commence the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_ON</literal>, and <replaceable>rhp</replaceable> must be NULL.</para></step>
 <step><para>To terminate a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_OFF</literal>.</para></step>
-<step><para>To display the current status of the <command>pmlogger</command> instance identified by, <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_STATUS</literal>.</para></step>
+<step><para>To display the current status of the <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, call <command>pmRecordControl</command> with a request of <literal>PM_REC_STATUS</literal>.</para></step>
 <step><para>To detach a <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>, allow it to continue independent of the application that launched the recording session, call <command>pmRecordControl</command> with a request of <literal>PM_REC_DETACH</literal>.</para></step>
 </procedure>
 <para>The calling application should not close any of the returned stdio streams; <command>pmRecordControl</command> performs this task when recording is commenced.</para>
 <para>Once <command>pmlogger</command> has been started for a recording session, <command>pmlogger</command> assumes responsibility for any dialogue with the user in the event that the application that launched the recording session should exit, particularly without terminating the recording session.</para>
-<para>By default, information and dialogues from <command>pmlogger</command> is displayed using <command>xconfirrn</command>. This default is based on the assumption that most applications launching a recording session are GUI-based. In the event that <command>xconfirm</command> fails to display the information (for example, because the <literal>DISPLAY</literal> environment variable is not set), <command>pmlogger</command> writes on its own stderr stream (not the stderr stream of the launching process). The output is assigned to the <filename><replaceable>XXXXXX</replaceable>.host.log</filename> file. For convenience, the full pathname to this file is provided via the <literal>logfile</literal> field in the <filename>pmRecordHost</filename> structure.</para>
-<para>If the <replaceable>options</replaceable> argument to <command>pmRecordControl</command> is not NULL, this string may be used to pass additional arguments to <command>xconfirm</command> in those cases where a dialogue is to be displayed. One use of this capability is to provide a -geometry string to control the placement of the dialogue.</para>
+<para>By default, information and dialogues from <command>pmlogger</command> is displayed using <command>pmconfirm</command>. This default is based on the assumption that most applications launching a recording session are GUI-based. In the event that <command>pmconfirm</command> fails to display the information (for example, because the <literal>DISPLAY</literal> environment variable is not set), <command>pmlogger</command> writes on its own stderr stream (not the stderr stream of the launching process). The output is assigned to the <filename><replaceable>xxxxxx</replaceable>.host.log</filename> file. For convenience, the full pathname to this file is provided via the <literal>logfile</literal> field in the <filename>pmRecordHost</filename> structure.</para>
+<para>If the <replaceable>options</replaceable> argument to <command>pmRecordControl</command> is not NULL, this string may be used to pass additional arguments to <command>pmconfirm</command> in those cases where a dialogue is to be displayed. One use of this capability is to provide a -geometry string to control the placement of the dialogue.</para>
 <para>Premature termination of a launched <command>pmlogger</command> process may be determined using the <filename>pmRecordHost</filename> structure, by calling <command>select</command> on the <literal>fd_ipc</literal> field or polling the <literal>status</literal> field that will contain the termination status from <command>waitpid</command> if known, or -1.</para>
-<para>These functions create a number of files in the same directory as the <replaceable>folio</replaceable> file named in the call to <command>pmRecordSetup</command>. In all cases, the <replaceable>XXXXXX</replaceable> component is the result of calling <command>mktemp</command>.</para>
+<para>These functions create a number of files in the same directory as the <replaceable>folio</replaceable> file named in the call to <command>pmRecordSetup</command>. In all cases, the <replaceable>xxxxxx</replaceable> component is the result of calling <command>mkstemp</command>.</para>
 <itemizedlist>
-<listitem><para>If replay is nonzero, <replaceable>XXXXXX</replaceable> is the creator's replay configuration file, else an empty control file, used to guarantee uniqueness.</para>
+<listitem><para>If replay is nonzero, <replaceable>xxxxxx</replaceable> is the creator's replay configuration file, else an empty control file, used to guarantee uniqueness.</para>
 </listitem>
 <listitem><para>The <replaceable>folio</replaceable> file is the PCP Archive Folio, suitable for use with the <command>pmafm</command> command.</para>
 </listitem>
-<listitem><para>The <filename><replaceable>XXXXXX</replaceable>.host.confi</filename>g file is the <command>pmlogger</command> configuration for each host. If the same host is used in different calls to <command>pmRecordAddHost</command> within the same recording session, one of the letters 'a' through 'z' is appended to the <replaceable>XXXXXX</replaceable> part of all associated file names to ensure uniqueness.</para>
+<listitem><para>The <filename><replaceable>xxxxxx</replaceable>.host.confi</filename>g file is the <command>pmlogger</command> configuration for each host. If the same host is used in different calls to <command>pmRecordAddHost</command> within the same recording session, one of the letters 'a' through 'z' is appended to the <replaceable>xxxxxx</replaceable> part of all associated file names to ensure uniqueness.</para>
 </listitem>
-<listitem><para><filename><replaceable>XXXXXX</replaceable>.host.log</filename> is stdout and stderr for the <command>pmlogger</command> instance for each host.</para>
+<listitem><para><filename><replaceable>xxxxxx</replaceable>.host.log</filename> is stdout and stderr for the <command>pmlogger</command> instance for each host.</para>
 </listitem>
-<listitem><para>The <filename><replaceable>XXXXXX</replaceable>.host.{0,meta,index}</filename> files comprise a single PCP archive for each host.</para>
+<listitem><para>The <filename><replaceable>xxxxxx</replaceable>.host.{0,meta,index}</filename> files comprise a single PCP archive for each host.</para>
 </listitem></itemizedlist>
 <para><command>pmRecordSetup</command> may return NULL in the event of an error. Check <literal>errno</literal> for the real cause. The value <literal>EINVAL</literal> typically means that the order of calls to these functions is not correct; that is, there is an obvious state associated with the current recording session that is maintained across calls to the functions.</para>
 <para>For example, calling <command>pmRecordControl</command> before calling <command>pmRecordAddHost</command> at least once, or calling <command>pmRecordAddHost</command> before calling <command>pmRecordSetup</command> would produce an <literal>EINVAL</literal> error.</para>
@@ -2612,10 +2613,10 @@ while ((sts = pmFetch(10, pmidlist, &amp;result)) &gt;= 0) {
 <example id="Z976561683sdc">
 <title><filename>pmLogLabel</filename> Structure</title>
 <programlisting>/*
-* Label Record at the start of every log file - as exported above the PMAPI ...
-*/
-#define PM_TZ_MAXLEN                    40
-#define PM_LOG_MAXHOSTLEN               64
+ * Label Record at the start of every log file - as exported above the PMAPI ...
+ */
+#define PM_TZ_MAXLEN    40
+#define PM_LOG_MAXHOSTLEN   64
 #define PM_LOG_MAGIC    0x50052600
 #define PM_LOG_VERS01   0x1
 #define PM_LOG_VERS02   0x2
@@ -2634,7 +2635,7 @@ typedef struct {
 
 <title><command>pmGetArchiveEnd</command> Function</title>
 <programlisting>int pmGetArchiveEnd(struct timeval *<replaceable>tvp</replaceable>)</programlisting>
-<para><indexterm id="IG31340177402"><primary>archive logs</primary><secondary>pmGetArchiveEnd function</secondary></indexterm><indexterm id="IG31340177403"><primary>pmGetArchiveEnd function</primary></indexterm><indexterm id="IG31340177404"><primary>pmSetMode function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetArchiveEnd</command> finds the logical end of file (after the last complete record in the archive), and returns the last recorded time stamp with <replaceable>tvp</replaceable>. This times tamp may be passed to <command>pmSetMode</command> to reliably position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.</para>
+<para><indexterm id="IG31340177402"><primary>archive logs</primary><secondary>pmGetArchiveEnd function</secondary></indexterm><indexterm id="IG31340177403"><primary>pmGetArchiveEnd function</primary></indexterm><indexterm id="IG31340177404"><primary>pmSetMode function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetArchiveEnd</command> finds the logical end of file (after the last complete record in the archive), and returns the last recorded time stamp with <replaceable>tvp</replaceable>. This timestamp may be passed to <command>pmSetMode</command> to reliably position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.</para>
 <para>For archive logs that are not concurrently being written, the physical end of file and the logical end of file are co-incident. However, if an archive log is being written by <command>pmlogger</command> at the same time that an application is trying to read the archive, the logical end of file may be before the physical end of file due to write buffering that is not aligned with the logical record boundaries.</para>
 </section>
 <section id="id5207751">
@@ -2667,14 +2668,14 @@ typedef struct {
 <title><command>pmFetchArchive</command> Function</title>
 <literallayout class="monospaced">int pmFetchArchive(pmResult **<replaceable>result</replaceable>)</literallayout>
 <para><indexterm id="IG31340177411"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177412"><primary>pmFetchArchive function</primary></indexterm>This is a variant of <command>pmFetch</command> that may be used only when the current PMAPI context is associated with a PCP archive log. The <replaceable>result</replaceable> is instantiated with all of the metrics (and instances) from the next archive record; consequently, there is no notion of a list of desired metrics, and the instance profile is ignored.</para>
-<para>It is expected that <command>pmFetchArchive</command> would be used to create utilities that scan archive logs (for example, <command>pmdumplog</command>), and the more common access to the archives would be through the <command>pmFetch</command> interface.</para>
+<para>It is expected that <command>pmFetchArchive</command> would be used to create utilities that scan archive logs (for example, <command>pmdumplog</command> and <command>pmlogsummary</command>), and the more common access to the archives would be through the <command>pmFetch</command> interface.</para>
 </section>
 </section>
 <section id="LE73955-PARENT">
 
 <title>PMAPI Time Control Services</title>
 <para><indexterm id="IG31340177413"><primary>PMAPI</primary><secondary>time control services</secondary></indexterm><indexterm id="IG31340177414"><primary>time control services</primary></indexterm>The PMAPI provides a common framework for client applications to control time and to synchronize time with other applications. The user interface component of this service is fully described in the companion <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>. See also the <command>pmtime(1)</command> man page.</para>
-<para><indexterm id="IG31340177415"><primary>archive logs</primary><secondary>time control services</secondary></indexterm>This service is most useful when processing PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmview</command>, <command>oview</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
+<para><indexterm id="IG31340177415"><primary>archive logs</primary><secondary>time control services</secondary></indexterm>This service is most useful when processing PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmview</command>, <command>pmstat</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
 <para><indexterm id="IG31340177416"><primary>examples</primary><secondary>time control functions </secondary></indexterm>A full description of the PMAPI time control functions along with code examples can be found in man pages as listed in <xref linkend="id5208351"/>:</para>
 <table id="id5208351" frame="topbot" pgwide="wide">
 
@@ -2745,9 +2746,10 @@ typedef struct {
 <section id="id5209050">
 
 <title><command>pmErrStr</command> Function</title>
-<literallayout class="monospaced">char *pmErrStr(int <replaceable>code</replaceable>)</literallayout>
-<para><indexterm id="IG31340177419"><primary>pmErrStr function</primary></indexterm>This function translates an error code into a text string, suitable for generating a diagnostic message. By convention within PCP, all error codes are negative. The small values are assumed to be negated versions of the UNIX error codes as defined in <filename>errno.h</filename>, and the strings returned are according to <command>strerror</command>. The large, negative error codes are PMAPI error conditions, and <command>pmErrStr</command> returns an appropriate PMAPI error string, as determined by <replaceable>code</replaceable>.</para>
-<para>The string value is held in a single static buffer; so the returned value is valid only until the next call to <command>pmErrStr</command>.</para>
+<literallayout class="monospaced">const char *pmErrStr(int <replaceable>code</replaceable>)
+char *pmErrStr_r(int <replaceable>code</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>);</literallayout>
+<para><indexterm id="IG31340177419"><primary>pmErrStr function</primary></indexterm>This function translates an error code into a text string, suitable for generating a diagnostic message. By convention within PCP, all error codes are negative. The small values are assumed to be negated versions of the platform error codes as defined in <filename>errno.h</filename>, and the strings returned are according to <command>strerror</command>. The large, negative error codes are PMAPI error conditions, and <command>pmErrStr</command> returns an appropriate PMAPI error string, as determined by <replaceable>code</replaceable>.</para>
+<para>In the case of <command>pmErrStr</command>, the string value is held in a single static buffer, so concurrent calls may not produce the desired results. The <command>pmErrStr_r</command> function allows a buffer and length to be passed in, into which the message is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5209112">
 
@@ -2785,23 +2787,14 @@ typedef union {
 <listitem><para><indexterm id="IG31340177424"><primary>PM_ERR_SIGN error code</primary></indexterm>S means the conversion may be impossible due to the sign of the input value (if this occurs the function returns <literal>PM_ERR_SIGN</literal>).</para>
 </listitem></itemizedlist>
 <para><indexterm id="IG31340177425"><primary>PM_TYPE_STRING type</primary></indexterm>If an error occurs, <replaceable>oval</replaceable> is set to zero (or NULL).</para>
-<para><note><para> Note that some of the conversions involving the <literal>PM_TYPE_STRING</literal> and <literal>PM_TYPE_AGGREGATE</literal> types are indeed possible, but are marked N; the rationale is that <command>pmExtractValue</command> should not attempt to duplicate functionality already available in the C library through <command>sscanf</command> and <command>sprintf</command>.</para>
+<para><note><para> Note that some of the conversions involving the <literal>PM_TYPE_STRING</literal> and <literal>PM_TYPE_AGGREGATE</literal> types are indeed possible, but are marked N; the rationale is that <command>pmExtractValue</command> should not attempt to duplicate functionality already available in the C library through <command>sscanf</command> and <command>sprintf</command>. No conversion involving the type <literal>PM_TYPE_EVENT</literal> is supported.</para>
 </note></para>
 <table id="id5209524" frame="topbot">
 
 <title>PMAPI Type Conversion</title>
-<tgroup cols="9" colsep="0" rowsep="0">
-<colspec colwidth="53*"/>
-<colspec colwidth="43*"/>
-<colspec colwidth="42*"/>
-<colspec colwidth="43*"/>
-<colspec colwidth="44*"/>
-<colspec colwidth="42*"/>
-<colspec colwidth="43*"/>
-<colspec colwidth="43*"/>
-<colspec colwidth="43*"/>
+<tgroup cols="10" colsep="0" rowsep="0">
 <thead>
-<row rowsep="1" valign="top"><entry align="left" valign="bottom"><para>TYPE</para></entry><entry align="left" valign="bottom"><para>32</para></entry><entry align="left" valign="bottom"><para>U32</para></entry><entry align="left" valign="bottom"><para>64</para></entry><entry align="left" valign="bottom"><para>U64</para></entry><entry align="left" valign="bottom"><para>FLOAT</para></entry><entry align="left" valign="bottom"><para>DBLE</para></entry><entry align="left" valign="bottom"><para>STRIN G</para></entry><entry align="left" valign="bottom"><para>AGGR</para></entry></row></thead>
+<row rowsep="1" valign="top"><entry align="left" valign="bottom"><para>TYPE</para></entry><entry align="left" valign="bottom"><para>32</para></entry><entry align="left" valign="bottom"><para>U32</para></entry><entry align="left" valign="bottom"><para>64</para></entry><entry align="left" valign="bottom"><para>U64</para></entry><entry align="left" valign="bottom"><para>FLOAT</para></entry><entry align="left" valign="bottom"><para>DBLE</para></entry><entry align="left" valign="bottom"><para>STRING</para></entry><entry align="left" valign="bottom"><para>AGGR</para></entry><entry align="left" valign="bottom"><para>EVENT</para></entry></row></thead>
 <tbody>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>32</literal></para></entry>
@@ -2811,6 +2804,7 @@ typedef union {
 <entry align="left" valign="top"><para>S</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
@@ -2822,6 +2816,7 @@ typedef union {
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>64</literal></para></entry>
@@ -2831,6 +2826,7 @@ typedef union {
 <entry align="left" valign="top"><para>S</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
@@ -2842,6 +2838,7 @@ typedef union {
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>FLOAT</literal></para></entry>
@@ -2851,6 +2848,7 @@ typedef union {
 <entry align="left" valign="top"><para>P, T, S</para></entry>
 <entry align="left" valign="top"><para>Y</para></entry>
 <entry align="left" valign="top"><para>Y</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
@@ -2862,6 +2860,7 @@ typedef union {
 <entry align="left" valign="top"><para>P</para></entry>
 <entry align="left" valign="top"><para>Y</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>STRING</literal></para></entry>
@@ -2872,6 +2871,7 @@ typedef union {
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>Y</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><literal>AGGR</literal></para></entry>
@@ -2882,7 +2882,19 @@ typedef union {
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
 <entry align="left" valign="top"><para>N</para></entry>
-<entry align="left" valign="top"><para>Y</para></entry></row></tbody></tgroup></table>
+<entry align="left" valign="top"><para>Y</para></entry>
+<entry align="left" valign="top"><para>N</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para><literal>EVENT</literal></para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry>
+<entry align="left" valign="top"><para>N</para></entry></row></tbody></tgroup></table>
 <para>In the cases where multiple conversion errors could occur, the first encountered error is returned, and the order of checking is not defined.</para>
 <para>If the output conversion is to one of the pointer types, such as <replaceable>otype</replaceable> <literal>PM_TYPE_STRING</literal> or <literal>PM_TYPE_AGGREGATE</literal>, then the value buffer is allocated by <command>pmExtractValue</command> using <command>malloc</command>, and it is the caller's responsibility to free the space when it is no longer required; see the <command>malloc(3)</command> and <command>free(3)</command> man pages.</para>
 <para>Although this function appears rather complex, it has been constructed to assist the development of performance tools that convert values, whose type is known only through the <literal>type</literal> field in a <command>pmDesc</command> structure, into a canonical type for local processing.</para>
@@ -2900,45 +2912,52 @@ pmAtomValue *<replaceable>oval</replaceable>, pmUnits *<replaceable>ounit</repla
 <section id="id5210895">
 
 <title><command>pmUnitsStr</command> Function</title>
-<literallayout class="monospaced">const char *pmUnitsStr(const pmUnits *<replaceable>pu</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmUnitsStr(const pmUnits *<replaceable>pu</replaceable>)
+char *pmUnitsStr_r(const pmUnits *<replaceable>pu</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)</literallayout>
 <para><indexterm id="IG31340177429"><primary>pmUnitsStr function</primary></indexterm>As an aid to labeling graphs and tables, or for error messages, <command>pmUnitsStr</command> takes a dimension and scale specification as per <replaceable>pu</replaceable>, and returns the corresponding text string.</para>
 <para><replaceable>pu</replaceable> is typically from a <filename>pmDesc</filename> structure, for example, as returned by <command>pmLookupDesc</command>.</para>
 <para>If <replaceable>*pu</replaceable> were <literal>{1, -2, 0, PM_SPACE_MBYTE, PM_TIME_MSEC, 0}</literal>, then the result string would be <literal>Mbyte/sec^2</literal>.</para>
-<para>The string value is held in a single static buffer; so concurrent calls to <command>pmUnitsStr</command> may not produce the desired results.</para>
+<para>In the case of <command>pmUnitsStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmUnitsStr_r</command> function allows a buffer and length to be passed in, into which the units are stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5210994">
 
 <title><command>pmIDStr</command> Function</title>
-<literallayout class="monospaced">const char *pmIDStr(pmID <replaceable>pmid</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmIDStr(pmID <replaceable>pmid</replaceable>)
+char *pmIDStr_r(pmID <replaceable>pmid</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
+</literallayout>
 <para><indexterm id="IG31340177430"><primary>pmIDStr function</primary></indexterm>For use in error and diagnostic messages, return a human readable version of the specified PMID, with each of the internal <literal>domain</literal>, <literal>cluster</literal>, and <literal>item</literal> subfields appearing as decimal numbers, separated by periods.</para>
-<para>The string value is held in a single static buffer; so concurrent calls to <command>pmIDStr</command> may not produce the desired results.</para>
+<para>In the case of <command>pmIDStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmIDStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5211046">
 
 <title><command>pmInDomStr</command> Function</title>
-<literallayout class="monospaced">const char *pmInDomStr(pmInDom <replaceable>indom</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmInDomStr(pmInDom <replaceable>indom</replaceable>)
+char *pmInDomStr_r(pmInDom <replaceable>indom</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)</literallayout>
 <para><indexterm id="IG31340177431"><primary>pmInDomStr function</primary></indexterm>For use in error and diagnostic messages, return a human readable version of the specified instance domain identifier, with each of the internal <literal>domain</literal> and <literal>serial</literal> subfields appearing as decimal numbers, separated by periods.</para>
-<para>The string value is held in a single static buffer; so concurrent calls to <command>pmInDomStr</command> may not produce the desired results.</para>
+<para>In the case of <command>pmInDomStrr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmInDomStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5211095">
 
 <title><command>pmTypeStr</command> Function</title>
-<literallayout class="monospaced">const char *pmTypeStr(int <replaceable>type</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmTypeStr(int <replaceable>type</replaceable>)
+char *pmTypeStr_r(int <replaceable>type</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)</literallayout>
 <para><indexterm id="IG31340177432"><primary>pmTypeStr function</primary></indexterm>Given a performance metric type, produce a terse ASCII equivalent, appropriate for use in error and diagnostic messages.</para>
 <para>Examples are &#x201C;32&#x201D; (for <literal>PM_TYPE_32</literal>), &#x201C;U64&#x201D; (for <literal>PM_TYPE_U64</literal>), &#x201C;AGGREGATE&#x201D; (for <literal>PM_TYPE_AGGREGATE</literal>), and so on.</para>
-<para>The string value is held in a single static buffer; so concurrent calls to <command>pmTypeStr</command> may not produce the desired results.</para>
+<para>In the case of <command>pmTypeStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmTypeStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5211169">
 
 <title><command>pmAtomStr</command> Function</title>
-<literallayout class="monospaced">const char *pmAtomStr(const pmAtomValue *<replaceable>avp</replaceable>, int <replaceable>type</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmAtomStr(const pmAtomValue *<replaceable>avp</replaceable>, int <replaceable>type</replaceable>)
+char *pmAtomStr_r(const pmAtomValue *<replaceable>avp</replaceable>, int <replaceable>type</replaceable>char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)</literallayout>
 <para><indexterm id="IG31340177433"><primary>pmAtomStr function</primary></indexterm>Given the <command>pmAtomValue</command> identified by <replaceable>avp</replaceable>, and a performance metric <replaceable>type</replaceable>, generate the corresponding metric value as a string, suitable for diagnostic or report output.</para>
-<para>The string value is held in a single static buffer; so concurrent calls to <command>pmAtomStr</command> may not produce the desired results.</para>
+<para>In the case of <command>pmAtomStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmAtomStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 </section>
 <section id="id5211303">
 
 <title><command>pmNumberStr</command> Function</title>
-<literallayout class="monospaced">const char *pmNumberStr(double <replaceable>value</replaceable>)</literallayout>
+<literallayout class="monospaced">const char *pmNumberStr(double <replaceable>value</replaceable>)
+char *pmNumberStr_r(double <replaceable>value</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)</literallayout>
 <para><indexterm id="IG31340177434"><primary>pmNumberStr function</primary></indexterm>The <command>pmNumberStr</command> function returns the address of a static 8-byte buffer that holds a null-byte terminated representation of value suitable for output with fixed-width fields.</para>
 <para>The value is scaled using multipliers in powers of one thousand (the decimal kilo) and has a bias that provides greater precision for positive numbers as opposed to negative numbers. The format depends on the sign and magnitude of <replaceable>value</replaceable>.</para>
 </section>
@@ -2952,37 +2971,38 @@ int <replaceable>minwidth</replaceable>)</literallayout>
 <para><xref linkend="Z976565414sdc"/> illustrates using <command>pmPrintValue</command> to print the values from a <filename>pmResult</filename> structure returned via <command>pmFetch</command>:</para>
 <example id="Z976565414sdc">
 <title>Using <command>pmPrintValue</command> to Print Values</title>
-<programlisting>int         numpmid, i, j, sts;
-pmID        pmidlist[10];
-pmDesc      desc[10];
-pmResult    *result;
-/* set up PMAPI context, numpmid and pmidlist[] ... */
-/* get metric descriptors */
-for (i = 0; i &lt; numpmid; i++) {
-    if ((sts = pmLookupDesc(pmidlist[i], &amp;desc[i])) &lt; 0) {
-        printf(&quot;pmLookupDesc(pmid=%s): %s\n&quot;,
-                      pmIDStr(pmidlist[i]), pmErrStr(sts));
-        exit(1);
-    }
-}
-if ((sts = pmFetch(numpmid, pmidlist, &amp;result)) &gt;= 0) {
-    /* once per metric */
-    for (i = 0; i &lt; result-&gt;numpmid; i++) {
-        printf(&quot;PMID: %s&quot;, pmIDStr(result-&gt;vset[i]-&gt;pmid));
-        /* once per instance for this metric */
-        for (j = 0; j &lt; result-&gt;vset[i]-&gt;numval; j++) {
-            printf(&quot; [%d]&quot;, result-&gt;vset[i]-&gt;vlist[j].inst);
-            pmPrintValue(stdout, result-&gt;vset[i]-&gt;valfmt,
-                                desc[i].type,
-                                &amp;result-&gt;vset[i]-&gt;vlist[j],
-                                8);
+<programlisting>    int         numpmid, i, j, sts;
+    pmID        pmidlist[10];
+    pmDesc      desc[10];
+    pmResult    *result;
+
+    /* set up PMAPI context, numpmid and pmidlist[] ... */
+    /* get metric descriptors */
+    for (i = 0; i &lt; numpmid; i++) {
+        if ((sts = pmLookupDesc(pmidlist[i], &amp;desc[i])) &lt; 0) {
+            printf(&quot;pmLookupDesc(pmid=%s): %s\n&quot;,
+                          pmIDStr(pmidlist[i]), pmErrStr(sts));
+            exit(1);
         }
-        putchar('\n');
     }
-    pmFreeResult(result);
-}
-else
-   printf(&quot;pmFetch: %s\n&quot;, pmErrStr(sts));</programlisting>
+    if ((sts = pmFetch(numpmid, pmidlist, &amp;result)) &gt;= 0) {
+        /* once per metric */
+        for (i = 0; i &lt; result-&gt;numpmid; i++) {
+            printf(&quot;PMID: %s&quot;, pmIDStr(result-&gt;vset[i]-&gt;pmid));
+            /* once per instance for this metric */
+            for (j = 0; j &lt; result-&gt;vset[i]-&gt;numval; j++) {
+                printf(&quot; [%d]&quot;, result-&gt;vset[i]-&gt;vlist[j].inst);
+                pmPrintValue(stdout, result-&gt;vset[i]-&gt;valfmt,
+                             desc[i].type,
+                             &amp;result-&gt;vset[i]-&gt;vlist[j],
+                             8);
+            }
+            putchar('\n');
+        }
+        pmFreeResult(result);
+    }
+    else
+        printf(&quot;pmFetch: %s\n&quot;, pmErrStr(sts));</programlisting>
 </example>
 </section>
 <section id="id5211504">
@@ -2994,7 +3014,7 @@ else
 <itemizedlist>
 <listitem><para>If <literal>PCP_STDERR</literal> is unset, the text is written onto the stderr stream of the caller.</para>
 </listitem>
-<listitem><para>If <literal>PCP_STDERR</literal> is set to the literal reserved word <literal>DISPLAY</literal>, then the text is displayed as a GUI dialogue using <command>xconfirm</command>.</para>
+<listitem><para>If <literal>PCP_STDERR</literal> is set to the literal reserved word <literal>DISPLAY</literal>, then the text is displayed as a GUI dialogue using <command>pmconfirm</command>.</para>
 </listitem></itemizedlist>
 <para>The <command>pmflush</command> function returns a value of zero on successful completion. A negative value is returned if an error was encountered, and this can be passed to <command>pmErrStr</command> to obtain the associated error message.</para>
 </section>
@@ -3003,7 +3023,7 @@ else
 <title><command>pmprintf</command> Function</title>
 <literallayout class="monospaced">int pmprintf(const char *<replaceable>fmt</replaceable>, ... /*<replaceable>args</replaceable>*/);</literallayout>
 <para><indexterm id="IG31340177438"><primary>pmprintf function</primary></indexterm>The <command>pmprintf</command> function appends the formatted message string to an internal buffer shared by the <command>pmprintf</command> and <command>pmflush </command> functions, without actually producing any output. The <replaceable>fmt</replaceable> argument is used to control the conversion, formatting, and printing of the variable length <replaceable>args</replaceable> list.</para>
-<para>The <command>pmprintf</command> function uses the <command>tempnam</command> function to create a temporary file, using the value of the global variable <replaceable>pmProgname</replaceable> as a prefix. This temporary file is deleted when <command>pmflush</command> is called.</para>
+<para>The <command>pmprintf</command> function uses the <command>mkstemp</command> function to securely create a <literal>pcp</literal>-prefixed temporary file in <filename>${PCP_TMP_DIR}</filename>. This temporary file is deleted when <command>pmflush</command> is called.</para>
 <para>On successful completion, <command>pmprintf</command> returns the number of characters transmitted. A negative value is returned if an error was encountered, and this can be passed to <command>pmErrStr</command> to obtain the associated error message.</para>
 </section>
 <section id="id5211762">
@@ -3015,30 +3035,29 @@ else
 <section id="id5211834">
 
 <title><command>pmParseInterval</command> Function</title>
-<literallayout class="monospaced">int pmParseInterval(const char *<replaceable>string</replaceable>, struct timeval *<replaceable>rslt</replaceable>,
-char **<replaceable>errmsg</replaceable>)</literallayout>
+<literallayout class="monospaced">int pmParseInterval(const char *<replaceable>string</replaceable>, struct timeval *<replaceable>rslt</replaceable>, char **<replaceable>errmsg</replaceable>)</literallayout>
 <para><indexterm id="IG31340177441"><primary>pmParseInterval function</primary></indexterm>The <command>pmParseInterval</command> function parses the argument string specifying an interval of time and fills in the <literal>tv_sec</literal> and <literal>tv_usec</literal> components of the <filename>rslt</filename> structure to represent that interval. The input string is most commonly the argument following a <literal>-t</literal> command line option to a PCP application, and the syntax is fully described in the <command>PCPIntro(1)</command> man page.</para>
 <para><command>pmParseInterval</command> returns 0 and <replaceable>errmsg</replaceable> is undefined if the parsing is successful. If the given string does not conform to the required syntax, the function returns -1 and a dynamically allocated error message string in <replaceable>errmsg</replaceable>.</para>
 <para>The error message is terminated with a newline and includes the text of the input string along with an indicator of the position at which the error was detected as shown in the following example:</para>
 <programlisting>              4minutes 30mumble
                          ^ -- unexpected value</programlisting>
-<para>In the case of an error, the caller is responsible for calling <command>free </command> to release the space allocated for <replaceable>errmsg</replaceable>.</para>
+<para>In the case of an error, the caller is responsible for calling <command>free</command> to release the space allocated for <replaceable>errmsg</replaceable>.</para>
 </section>
 <section id="id5211943">
 
 <title><command>pmParseMetricSpec</command> Function</title>
-<literallayout class="monospaced">int pmParseMetricSpec(const char *<replaceable>string</replaceable>, int <replaceable>isarch</replaceable>, char *<replaceable>source</replaceable>, 
-pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</replaceable>)</literallayout>
-<para><indexterm id="IG31340177442"><primary>pmParseMetricSpec function</primary></indexterm>The <command>pmParseMetricSpec</command> function accepts a <replaceable>string</replaceable> specifying the name of a PCP performance metric, and optionally the source (either a hostname or a PCP archive log filename) and instances for that metric. The syntax is described in the <command>PCPIntro(1)</command> man page.</para>
+<literallayout class="monospaced">int pmParseMetricSpec(const char *<replaceable>string</replaceable>, int <replaceable>isarch</replaceable>, char *<replaceable>source</replaceable>,
+                      pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</replaceable>)</literallayout>
+<para><indexterm id="IG31340177442"><primary>pmParseMetricSpec function</primary></indexterm>The <command>pmParseMetricSpec</command> function accepts a <replaceable>string</replaceable> specifying the name of a PCP performance metric, and optionally the source (either a hostname, a PCP archive log filename, or a local context) and instances for that metric. The syntax is described in the <command>PCPIntro(1)</command> man page.</para>
 <para>If neither host nor archive component of the metric specification is provided, the <literal>isarch</literal> and <literal>source</literal> arguments are used to fill in the returned <filename>pmMetricSpec</filename> structure. In <xref linkend="Z976566126sdc"/>, the <filename>pmMetricSpec</filename> structure, which is returned via <replaceable>rsltp,</replaceable> represents the parsed string.</para>
 <example id="Z976566126sdc">
 <title><filename>pmMetricSpec</filename> Structure</title>
 <programlisting>typedef struct {
-    int     isarch;      /* source type: 0 -&gt; host, 1 -&gt; archive */
+    int     isarch;      /* source type: 0 -&gt; host, 1 -&gt; archive, 2 -&gt; local context */
     char    *source;     /* name of source host or archive */
     char    *metric;     /* name of metric */
     int     ninst;       /* number of instances, 0 -&gt; all */
-    char    *inst[1];    /* array of instance  names */
+    char    *inst[1];    /* array of instance names */
 } pmMetricSpec;</programlisting>
 </example>
 <para>The <command>pmParseMetricSpec</command> function returns 0 if the given string was successfully parsed. In this case, all the storage allocated by <command>pmParseMetricSpec</command> can be released by a single call to the <command>free</command> function by using the address returned from <command>pmMetricSpec</command> via <replaceable>rsltp</replaceable>. The convenience macro <command>pmFreeMetricSpec</command> is a thinly disguised wrapper for <command>free</command>.</para>
@@ -3050,7 +3069,7 @@ pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</rep
 
 <title>PMAPI Programming Issues and Examples</title>
 <para><indexterm id="IG31340177443"><primary>PMAPI</primary><secondary>programming issues</secondary></indexterm><indexterm id="IG31340177444"><primary>PMAPI</primary><secondary>programming issues</secondary></indexterm><indexterm id="IG31340177445"><primary>examples</primary><secondary>programming issues</secondary></indexterm>The following issues and examples are provided to enable you to create better custom performance monitoring tools.</para>
-<para>The source code for a sample client (<command>pmclient</command>) using the PMAPI is shipped as part of the <filename>pcp.sw.demo</filename> subsystem of the PCP product. See the <command>pmclient(1)</command> man page, and the source code, located in <filename>${PCP_DEMOS_DIR}/pmclient</filename>.</para>
+<para>The source code for a sample client (<command>pmclient</command>) using the PMAPI is shipped as part of the PCP package. See the <command>pmclient(1)</command> man page, and the source code, located in <filename>${PCP_DEMOS_DIR}/pmclient</filename>.</para>
 <section id="id5212297">
 
 <title>Symbolic Association between a Metric's Name and Value</title>
@@ -3058,22 +3077,24 @@ pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</rep
 <para>Fundamentally, the goal is to be able to name a metric and reference the metric's value in a manner that is independent of the order of operations on other metrics; for example, to associate the <command>BINGO</command> macro with the name <command>sys.statistic.bingo</command>, and then be able to use <command>BINGO</command> to get at the value of the corresponding metric.</para>
 <para><indexterm id="IG31340177448"><primary>pmLookupName function</primary></indexterm><indexterm id="IG31340177449"><primary>pmFetch function</primary></indexterm>The one-to-one association between the ordinal position of the metric names is input to <command>pmLookupName</command> and the PMIDs returned by this function, and the one-to-one association between the PMIDs input to <command>pmFetch</command> and the values returned by this function provide the basis for an automated solution.</para>
 <para>The tool <command>pmgenmap</command> takes the specification of a list of metric names and symbolic tags, in the order they should be passed to <command>pmLookupName</command> and <command>pmFetch</command>. For example:</para>
-<programlisting># one line comment
+<programlisting><userinput>cat ${PCP_TMP_DIR}/map</userinput>
+# one line comment
 mystuff {
     sys.statistic.bingo  BINGO
     sys.statistic.cache.miss  MISSED
 }</programlisting>
-<para>This <command>pmgenmap</command> input produces the  C code, in <xref linkend="Z976566536sdc"/>. It is suitable for including with the <literal>#include</literal> statement:</para>
+<para>This <command>pmgenmap</command> input produces the C code in <xref linkend="Z976566536sdc"/>. It is suitable for including with the <literal>#include</literal> statement:</para>
 <example id="Z976566536sdc">
 <title>C Code Produced by <command>pmgenmap</command> Input</title>
 <programlisting>/*
  * Performance Metrics Name Space Map
  * Built by pmgenmap from the file
- * /usr/people/kenmcd/swa/ptg/src/kstat.pcp/x
- * on Thu Feb 24 20:37:53 EST 1994
+ * ${PCP_TMP_DIR}/map
+ * on Fri Aug 23 11:53:45 EST 2013
  *
  * Do not edit this file!
  */
+
 /* one line comment */
 char *mystuff[] = {
 #define BINGO 0
@@ -3096,6 +3117,7 @@ double    duration;
 pmResult  *resp;
 pmResult  *prev;
 pmID      pmidlist[MAX_MID];
+
 pmLookupName(numpmid, mystuff, pmidlist);</programlisting>
 </example>
 <para>At this stage, <command>pmidlist</command> contains the PMID for the two metrics of interest.</para>
@@ -3113,20 +3135,20 @@ pmLookupName(numpmid, mystuff, pmidlist);</programlisting>
         duration = tv_sub(&amp;resp-&gt;timestamp, &amp;prev-&gt;timestamp);
         /*
          * sys.boring.bozo is an instantaneous value,
-         * so report the most recent value
+         *     so report the most recent value.
          * sys.statistic.cache.miss is a free running counter,
-         * so report the rate over the last two samples
+         *     so report the rate over the last two samples.
          */
         printf(&quot;%6d %5.2f\n&quot;, resp-&gt;vset[BOZO]-&gt;vlist[0].value.lval,
             (resp-&gt;vset[MISSED]-&gt;vlist[0].value.lval - 
              prev-&gt;vset[MISSED]-&gt;vlist[0].value.lval) / duration);
-   }
-   if (trip &gt;= 1)
-       pmFreeResult(prev);
-   else
-       trip++;
-   prev = resp;
-   sleep(5);
+    }
+    if (trip &gt;= 1)
+        pmFreeResult(prev);
+    else
+        trip++;
+    prev = resp;
+    sleep(5);
 }</programlisting>
 </example>
 </section>
@@ -3151,58 +3173,58 @@ pmLookupName(numpmid, mystuff, pmidlist);</programlisting>
 <para><indexterm id="IG31340177457"><primary>PMAPI</primary><secondary>error handling</secondary></indexterm><indexterm id="IG31340177458"><primary>error handling</primary></indexterm>In <xref linkend="id5212839"/>, the simple but complete PMAPI application demonstrates the recommended style for handling PMAPI error conditions.</para>
 <example id="id5212839">
 <title>PMAPI Error Handling</title>
-<programlisting>#include &lt;stdio.h&gt;
-#include &lt;pcp/pmapi.h&gt;
+<programlisting>#include &lt;pcp/pmapi.h&gt;
+
 int
 main(int argc, char* argv[])
 {
-   int                 sts = 0;
-   char                *host = &quot;localhost&quot;;
-   char                *metric = &quot;mem.freemem&quot;;
-   pmID                pmid;
-   pmDesc              desc;
-   pmResult            *result;
+    int                 sts = 0;
+    char                *host = &quot;localhost&quot;;
+    char                *metric = &quot;mem.freemem&quot;;
+    pmID                pmid;
+    pmDesc              desc;
+    pmResult            *result;
 
-   sts = pmNewContext(PM_CONTEXT_HOST, host);
-   if (sts &lt; 0) {
-       fprintf(stderr, &quot;Error connecting to pmcd on %s: %s\n&quot;,
-               host, pmErrStr(sts));
-       exit(1);
-   }
-   sts = pmLookupName(1, &amp;metric, &amp;pmid);
-   if (sts &lt; 0) {
-       fprintf(stderr, &quot;Error looking up %s: %s\n&quot;, metric,
-               pmErrStr(sts));
-       exit(1);
-   }
-   sts = pmLookupDesc(pmid, &amp;desc);
-   if (sts &lt; 0) {
-       fprintf(stderr, &quot;Error getting descriptor for %s:%s: %s\n&quot;,
-               host, metric, pmErrStr(sts));
-       exit(1);
-   }
-   sts = pmFetch(1, &amp;pmid, &amp;result);
-   if (sts &lt; 0) {
-       fprintf(stderr, &quot;Error fetching %s:%s: %s\n&quot;, host, metric,
-               pmErrStr(sts));
-       exit(1);
-   }
-   sts = result-&gt;vset[0]-&gt;numval;
-   if (sts &lt; 0) {
-       fprintf(stderr, &quot;Error fetching %s:%s: %s\n&quot;, host, metric,
-               pmErrStr(sts));
-       exit(1);
-   }
-   fprintf(stdout, &quot;%s:%s = &quot;, host, metric);
-   if (sts == 0)
-       puts(&quot;(no value)&quot;);
-   else {
-       pmValueSet      *vsp = result-&gt;vset[0];
-       pmPrintValue(stdout, vsp-&gt;valfmt, desc.type,
-                            &amp;vsp-&gt;vlist[0], 5);
-       printf(&quot; %s\n&quot;, pmUnitsStr(&amp;desc.units));
-   }
-   return 0;
+    sts = pmNewContext(PM_CONTEXT_HOST, host);
+    if (sts &lt; 0) {
+        fprintf(stderr, &quot;Error connecting to pmcd on %s: %s\n&quot;,
+                host, pmErrStr(sts));
+        exit(1);
+    }
+    sts = pmLookupName(1, &amp;metric, &amp;pmid);
+    if (sts &lt; 0) {
+        fprintf(stderr, &quot;Error looking up %s: %s\n&quot;, metric,
+                pmErrStr(sts));
+        exit(1);
+    }
+    sts = pmLookupDesc(pmid, &amp;desc);
+    if (sts &lt; 0) {
+        fprintf(stderr, &quot;Error getting descriptor for %s:%s: %s\n&quot;,
+                host, metric, pmErrStr(sts));
+        exit(1);
+    }
+    sts = pmFetch(1, &amp;pmid, &amp;result);
+    if (sts &lt; 0) {
+        fprintf(stderr, &quot;Error fetching %s:%s: %s\n&quot;, host, metric,
+                pmErrStr(sts));
+        exit(1);
+    }
+    sts = result-&gt;vset[0]-&gt;numval;
+    if (sts &lt; 0) {
+        fprintf(stderr, &quot;Error fetching %s:%s: %s\n&quot;, host, metric,
+                pmErrStr(sts));
+        exit(1);
+    }
+    fprintf(stdout, &quot;%s:%s = &quot;, host, metric);
+    if (sts == 0)
+        puts(&quot;(no value)&quot;);
+    else {
+        pmValueSet      *vsp = result-&gt;vset[0];
+        pmPrintValue(stdout, vsp-&gt;valfmt, desc.type,
+                             &amp;vsp-&gt;vlist[0], 5);
+        printf(&quot; %s\n&quot;, pmUnitsStr(&amp;desc.units));
+    }
+    return 0;
 }</programlisting>
 </example>
 </section>
@@ -3211,8 +3233,8 @@ main(int argc, char* argv[])
 <title>Compiling and Linking PMAPI Applications</title>
 <para><indexterm id="IG31340177459"><primary>PMAPI</primary><secondary>application compiling </secondary></indexterm><indexterm id="IG31340177460"><primary>applications</primary><secondary>compiling </secondary></indexterm><indexterm id="IG31340177461"><primary>compiling and linking</primary></indexterm>Typical PMAPI applications require the following line to include the function prototype and data structure definitions used by the PMAPI. </para>
 <programlisting>#include &lt;pcp/pmapi.h&gt;</programlisting>
-<para>Some applications may also require these header files: <filename>pcp/impl.h</filename> and <filename>pcp/pmda.h</filename>.</para>
-<para>The run-time environment of the PMAPI is mostly found in <filename>libpcp.so</filename>; so to link a generic PMAPI application requires something akin to the following command:</para>
+<para>Some applications may also require these header files: <filename>&lt;pcp/impl.h&gt;</filename> and <filename>&lt;pcp/pmda.h&gt;</filename>.</para>
+<para>The run-time environment of the PMAPI is mostly found in the <filename>libpcp</filename> library; so to link a generic PMAPI application requires something akin to the following command:</para>
 <literallayout class="monospaced"><userinput>cc</userinput> <replaceable>mycode</replaceable><userinput>.c -lpcp</userinput></literallayout>
 </section>
 </section>
@@ -3231,7 +3253,7 @@ main(int argc, char* argv[])
 <para>The monitoring of transactions using the Performance Co-Pilot (PCP) infrastructure begins with a <command>pmtracebegin</command> call. Time is recorded from there to the corresponding <command>pmtraceend</command> call (with matching tag identifier). A transaction in progress can be cancelled by calling <command>pmtraceabort</command>.</para>
 <para>A second form of program instrumentation is available with the <command>pmtracepoint</command> function. This is a simpler form of monitoring that exports only the number of times a particular point in a program is passed. The <command>pmtraceobs</command> and pmtracecount functions have similar semantics, but allows an arbitrary numeric value to be passed to the trace PMDA.</para>
 <para><indexterm id="IG31340177469"><primary>pmdatrace man page</primary></indexterm>The <command>pmdatrace</command> command is a PMDA that exports transaction performance metrics from application processes using the <filename>pcp_trace</filename> library; see the <command>pmdatrace(1)</command> man page for details.</para>
-<para>For a complete introduction to performance tracing, refer to the Web-based <citetitle>PCP Tutorial</citetitle>, which contains the <filename>trace.html</filename> file covering this topic.</para>
+<para>For a complete introduction to performance tracing, refer to the <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle>, which contains a tutorial covering this topic.</para>
 </section>
 <section id="id5213287">
 
