@@ -138,8 +138,8 @@ discussion of specifics of individual tools.
 <section id="id5178967">
 
 <title>Man Pages</title>
-<para>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, enter the following command:</para>
-<literallayout class="monospaced"><userinput>man -k performance</userinput></literallayout>
+<para>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, start from the following command:</para>
+<literallayout class="monospaced"><userinput>man PCPIntro</userinput></literallayout>
 <para>To see a particular man page, supply its name to the <literal>man</literal> command, for example:</para>
 <literallayout class="monospaced"><userinput>man pcp</userinput></literallayout>
 <para>The man pages are arranged in different sections - user commands, programming interfaces, and so on.
@@ -147,6 +147,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 <literallayout class="monospaced"><userinput>man man</userinput></literallayout>
 <para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item.
 For example, <command>pminfo(1)</command> refers to the man page in section 1 for the <command>pminfo</command> command.</para>
+<para>Each man page usually has a &quot;SEE ALSO&quot; section, linking to other, related entries</para>
 </section>
 <section id="id5178968">
 
@@ -171,7 +172,7 @@ the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL
 <varlistentry>
 <term><literal>${PCP_VARIABLE}</literal></term>
 <listitem><para>A brace-enclosed all-capital-letters syntax indicates a variable
-that has been sourced from the global <filename>/etc/pcp.conf</filename> file.
+that has been sourced from the global <filename>${PCP_DIR}/etc/pcp.conf</filename> file.
 These special variables indicate parameters that affect all PCP commands,
 and are likely to be different between platforms.</para>
 </listitem>
@@ -359,7 +360,8 @@ either at the host being monitored, at a monitoring workstation, or both.
 <para>A universal replay mechanism, modeled on 
 <ulink url="http://en.wikipedia.org/wiki/Media_controls">media controls</ulink>,
 supports play, step, rewind, fast forward and variable speed processing of archived
-performance data.</para>
+performance data. Replay for multiple archives, from multiple hosts, is facilitated
+by an archive aggregation concept.</para>
 <para>Most PCP applications are able to process archive logs and real-time
 performance data with equal facility. Unification of real-time access
 and access to the archive logs, in conjunction with the media controls,
@@ -432,6 +434,431 @@ collection infrastructure.</para>
 <para>The supplied agents support thousands of distinct performance metrics,
 many of which can have multiple values, for example, per disk, per CPU,
 or per process.</para>
+</section>
+</section>
+<section id="LE79836-PARENT">
+
+<title>Conceptual Foundations</title>
+<para><indexterm id="ITch01-129"><primary>conceptual foundations</primary>
+</indexterm>The following sections provide a detailed overview of concepts
+that underpin Performance Co-Pilot (PCP).</para>
+<section id="id5188366">
+
+<title>Performance Metrics</title>
+<para><indexterm id="ITch01-130"><primary>PMAPI</primary><secondary>naming
+metrics</secondary></indexterm><indexterm id="IG3137188863"><primary>performance metrics
+</primary><secondary>concept</secondary></indexterm> Across all of the
+supported performance metric domains, there are a large number of performance
+metrics. Each metric has its own structure and semantics. PCP presents
+a uniform interface to these metrics, independent of the underlying metric
+data source.</para>
+<para><indexterm id="IG3137188864"><primary>PMNS</primary><secondary>brief description</secondary>
+</indexterm>The Performance Metrics Name Space (PMNS) provides a hierarchical
+classification of human-readable metric names, and a mapping from these external
+names to internal metric identifiers. See <xref linkend="LE94677-PARENT"/>, for
+a description of the PMNS.</para>
+</section>
+<section id="id5188440">
+
+<title>Performance Metric Instances</title>
+<para>When performance metric values are returned to a requesting application,
+there may be more than one value instance for a particular metric; for
+example, independent counts for each CPU, process, disk, or local filesystem.
+Internal instance identifiers correspond one to one with external (human-readable)
+descriptions of the members of an instance domain.</para>
+<para>Transient performance metrics (such as per-process information)
+cause repeated requests for the same metric to return different numbers
+of values, or changes in the particular instance identifiers returned.
+These changes are expected and fully supported by the PCP infrastructure;
+however, metric instantiation is guaranteed to be valid only at the time of collection.</para>
+</section>
+<section id="id5188469">
+
+<title>Current Metric Context</title>
+<para>When performance metrics are retrieved, they are delivered in the
+context of a particular source of metrics, a point in time, and a profile
+of desired instances. This means that the application making the request
+has already negotiated to establish the context in which the request should
+be executed.</para>
+<para><indexterm id="IG3137188865"><primary>pmlogger tool</primary><secondary>current metric
+context</secondary></indexterm>A metric source may be the current performance
+data from a particular host (a live or real-time source), or an archive
+log of performance data collected by <command>pmlogger</command> at some
+distant host or at an earlier time (a retrospective or archive source).
+</para>
+<para><indexterm id="ITch01-134"><primary>collection time</primary></indexterm>By
+default, the collection time for a performance metric is the current time
+of day for real-time sources, or current point within an archive source.
+For archives, the collection time may be reset to an arbitrary time within
+the bounds of the archive log.<indexterm id="ITch01-135"><primary>archive logs</primary>
+<secondary>collection time</secondary></indexterm></para>
+</section>
+<section id="id5188562">
+
+<title>Sources of Performance Metrics and Their Domains</title>
+<para><indexterm id="ITch01-137"><primary>performance metrics</primary>
+<secondary>sources</secondary></indexterm><indexterm id="ITch01-138">
+<primary>functional domains</primary></indexterm> Instrumentation for
+the purpose of performance monitoring typically consists of counts of
+activity or events, attribution of resource consumption, and service-time
+or response-time measures. This instrumentation may exist in one or more
+of the functional domains as shown in <xref linkend="id5188602"/>.
+</para>
+<figure id="id5188602"><title>Performance Metric Domains as Autonomous Collections
+of Data</title><mediaobject><imageobject><imagedata fileref="figures/metric-domains.svg"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
+of Data</phrase></textobject></mediaobject></figure>
+<para>Each domain has an associated access method:</para>
+<itemizedlist>
+<listitem><para><indexterm id="IG3137188866"><primary>Kernel data structures</primary></indexterm>The
+operating system kernel, including sub-system data structures - per-process
+resource consumption, network statistics, disk activity, or memory management
+instrumentation.</para>
+</listitem>
+<listitem><para><indexterm id="IG3137188867"><primary>Mail servers</primary></indexterm><indexterm id="IG3137188868">
+<primary>layered software services</primary></indexterm>A layered software
+service such as activity logs for a World Wide Web server or an email delivery
+server.<indexterm id="IG3137188869"><primary>application programs</primary></indexterm></para>
+</listitem>
+<listitem><para>An application program such as measured response time
+for a production application running a periodic and benign probe transaction
+(as often required in service level agreements), or rate of computation
+and throughput in jobs per minute for a batch stream.</para>
+</listitem>
+<listitem><para><indexterm id="IG3137188870"><primary>network routers and bridges</primary>
+</indexterm><indexterm id="IG3137188871"><primary>external equipment</primary></indexterm>External
+equipment such as network routers and bridges.</para>
+</listitem></itemizedlist>
+<para><indexterm id="ITch01-139"><primary>performance metrics</primary>
+<secondary>methods</secondary></indexterm>For each domain, the set of
+performance metrics may be viewed as an abstract data type, with an associated
+set of methods that may be used to perform the following tasks:</para>
+<itemizedlist>
+<listitem><para>Interrogate the metadata that describes the syntax and
+semantics of the performance metrics</para>
+</listitem>
+<listitem><para>Control (enable or disable) the collection of some or
+all of the metrics</para>
+</listitem>
+<listitem><para>Extract instantiations (current values) for some or all
+of the metrics</para>
+</listitem></itemizedlist>
+<para>We refer to each functional domain as a performance metrics domain
+and assume that domains are functionally, architecturally, and administratively
+independent and autonomous. Obviously the set of performance metrics domains
+available on any host is variable, and changes with time as software and
+hardware are installed and removed.</para>
+<para>The number of performance metrics domains may be further enlarged
+in cluster-based or network-based configurations, where there is potentially
+an instance of each performance metrics domain on each node. Hence, the
+management of performance metrics domains must be both extensible at a
+particular host and distributed across a number of hosts.</para>
+<para><indexterm id="IG3137188872"><primary>PMID</primary><secondary>description</secondary>
+</indexterm><indexterm id="IG3137188873"><primary>Performance Metric Identifier</primary>
+<see>PMID</see></indexterm>Each performance metrics domain on a particular
+host must be assigned a unique Performance Metric Identifier (PMID). In
+practice, this means unique identifiers are assigned globally for each
+performance metrics domain type. For example, the same identifier would
+be used for the Apache Web Server performance metrics domain on all hosts.</para>
+</section>
+<section id="id5188837">
+
+<title>Distributed Collection</title>
+<para><indexterm id="ITch01-142"><primary>distributed collection</primary>
+</indexterm><indexterm id="ITch01-143"><primary>collector hosts</primary>
+</indexterm><indexterm id="IG3137188874"><primary>PMCD</primary><secondary>distributed collection
+</secondary></indexterm>The performance metrics collection architecture
+is distributed, in the sense that any performance tool may be executing
+remotely. However, a PMDA usually runs on the system for which it is collecting
+performance measurements. In most cases, connecting these tools together
+on the collector host is the responsibility of the PMCD process, as shown
+in <xref linkend="id5188883"/>.</para>
+<figure id="id5188883"><title>Process Structure for Distributed Operation</title>
+<mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure>
+<para>The host running the monitoring tools does not require any collection
+tools, including <command>pmcd</command>, because all requests for metrics
+are sent to the <command>pmcd</command> process on the collector host.
+These requests are then forwarded to the appropriate PMDAs, which respond
+with metric descriptions, help text, and most importantly, metric values.
+</para>
+<para><indexterm id="IG3137188875"><primary>PMCD</primary><secondary>distributed collection
+</secondary></indexterm>The connections between monitor clients and <literal>pmcd</literal> processes are managed in <filename>libpcp</filename>, below
+the PMAPI level; see the <command>pmapi(3)</command> man page.
+Connections between PMDAs and <command>pmcd</command> are managed by the
+PMDA routines; see the <command>pmda(3)</command> man page.
+There can be multiple monitor clients and multiple PMDAs on the one host,
+but normally there would be only one <literal>pmcd</literal> process.</para>
+</section>
+<section id="LE94677-PARENT">
+
+<title>Performance Metrics Name Space</title>
+<para><indexterm id="ITch01-144"><primary>PMNS</primary><secondary>description
+</secondary></indexterm> <indexterm id="ITch01-146"><primary>PMID</primary>
+<secondary>description</secondary></indexterm>Internally, each unique
+performance metric is identified by a Performance Metric Identifier (PMID)
+drawn from a universal set of identifiers, including some that are reserved
+for site-specific, application-specific, and customer-specific use.</para>
+<para><indexterm id="ITch01-148"><primary>performance metrics</primary>
+<secondary>PMNS</secondary></indexterm>An external name space - the Performance
+Metrics Name Space (PMNS) - maps from a hierarchy (or tree) of human-readable
+names to PMIDs.</para>
+<section id="id5189100">
+
+<title>Performance Metrics Name Space Diagram</title>
+<para>Each node in the PMNS tree is assigned a label that must begin with
+an alphabet character, and be followed by zero or more alphanumeric characters
+or the underscore (_) character. The root node of the tree has the special
+label of <literal>root</literal>.</para>
+<para>A metric name is formed by traversing the tree from the root to
+a leaf node with each node label on the path separated by a period. The
+common prefix <literal>root</literal><emphasis role="bold">.</emphasis> is omitted
+from all names. For example, <xref linkend="id5189137"/> shows the
+nodes in a small subsection of a PMNS.</para>
+<figure id="id5189137"><title>Small Performance Metrics Name Space (PMNS)
+</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
+</phrase></textobject></mediaobject></figure>
+<para>In this subsection, the following are valid names for performance
+metrics:</para>
+<literallayout class="monospaced">kernel.percpu.syscall
+network.tcp.rcvpack
+hw.router.recv.total_util
+</literallayout>
+</section>
+</section>
+<section id="id5189172">
+
+<title>Descriptions for Performance Metrics</title>
+<para><indexterm id="ITch01-149"><primary>performance metrics</primary>
+<secondary>descriptions</secondary></indexterm><indexterm id="ITch01-150">
+<primary>metadata</primary></indexterm> Through the various performance
+metric domains, the PCP must support a wide range of formats and semantics
+for performance metrics. This <firstterm>metadata</firstterm> describing
+the performance metrics includes the following:</para>
+<itemizedlist>
+<listitem><para>The internal identifier, Performance Metric Identifier
+(PMID), for the metric</para>
+</listitem>
+<listitem><para><indexterm id="IG3137188876"><primary>64-bit IEEE format</primary></indexterm>The
+format and encoding for the values of the metric, for example, an unsigned
+32-bit integer or a string or a 64-bit IEEE format floating point number
+</para>
+</listitem>
+<listitem><para>The semantics of the metric, particularly the interpretation
+of the values as free-running counters or instantaneous values</para>
+</listitem>
+<listitem><para>The dimensionality of the values, in the dimensions of
+events, space, and time</para>
+</listitem>
+<listitem><para>The scale of values; for example, bytes, kilobytes (KB),
+or megabytes (MB) for the space dimension</para>
+</listitem>
+<listitem><para>An indication if the metric may have one or many associated
+values</para>
+</listitem>
+<listitem><para>Short (and extended) help text describing the metric</para>
+</listitem></itemizedlist>
+<para>For each metric, this metadata is defined within the associated
+PMDA, and PCP arranges for the information to be exported to performance
+tools that use the metadata when interpreting the values for each metric.</para>
+</section>
+<section id="id5189302">
+
+<title>Values for Performance Metrics</title>
+<para>The following sections describe two types of performance metrics,
+single-valued and set-valued.</para>
+<section id="id5189314">
+
+<title>Single-Valued Performance Metrics</title>
+<para><indexterm id="IG3137188877"><primary>single-valued performance metrics</primary>
+</indexterm>Some performance metrics have a singular value within their
+performance metric domains. For example, available memory (or the total
+number of context switches) has only one value per performance metric
+domain, that is, one value per host. The metadata describing the metric
+makes this fact known to applications that process values for these metrics.
+</para>
+</section>
+<section id="id5189346">
+
+<title>Set-Valued Performance Metrics</title>
+<para><indexterm id="IG3137188878"><primary>set-valued performance metrics</primary></indexterm>Some
+performance metrics have a set of values or instances in each implementing
+performance metric domain. For example, one value for each disk, one value
+for each process, one value for each CPU, or one value for each activation
+of a given application.</para>
+<para>When a metric has multiple instances, the PCP framework does not
+pollute the Name Space with additional metric names; rather, a single
+metric may have an associated set of values. These multiple values are
+associated with the members of an <firstterm>instance domain</firstterm>,
+such that each instance has a unique instance identifier within the associated
+instance domain. For example, the &#x201C;per CPU&#x201D; instance domain
+may use the instance identifiers 0, 1, 2, 3, and so on to identify the
+configured processors in the system.</para>
+<para>Internally, instance identifiers are encoded as binary values, but
+each performance metric domain also supports corresponding strings as
+external names for the instance identifiers, and these names are used
+at the user interface to the PCP utilities.</para>
+<para>For example, the performance metric <literal>disk.dev.total</literal>
+counts I/O operations for each disk spindle, and the associated instance
+domain contains one member for each disk spindle. On a system with five
+specific disks, one value would be associated with each of the external
+and internal instance identifier pairs shown in <xref linkend="id5189432"/>.
+</para>
+<table id="id5189432" frame="topbot">
+
+<title>Sample Instance Identifiers for Disk Statistics
+</title>
+<tgroup cols="2" colsep="0" rowsep="0">
+<colspec colwidth="198*"/>
+<colspec colwidth="198*"/>
+<thead>
+<row rowsep="1" valign="top"><entry align="left" valign="bottom"><para>External Instance
+Identifier</para></entry><entry align="left" valign="bottom"><para>Internal
+Instance Identifier</para></entry></row></thead>
+<tbody>
+<row valign="top">
+<entry align="left" valign="top"><para>disk0</para></entry>
+<entry align="left" valign="top"><para>131329</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para>disk1</para></entry>
+<entry align="left" valign="top"><para>131330</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para>disk2</para></entry>
+<entry align="left" valign="top"><para>131331</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para>disk3</para></entry>
+<entry align="left" valign="top"><para>131841</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para>disk4</para></entry>
+<entry align="left" valign="top"><para>131842</para></entry></row></tbody>
+</tgroup></table>
+<para>Multiple performance metrics may be associated with a single instance
+domain.</para>
+<para>Each performance metric domain may dynamically establish the instances
+within an instance domain. For example, there may be one instance for
+the metric <literal>kernel.percpu.idle</literal> on a workstation, but
+multiple instances on a multiprocessor server. Even more dynamic is <literal>filesys.free</literal>, where the values report the amount of free space
+per file system, and the number of values tracks the mounting and unmounting
+of local filesystems.</para>
+<para>PCP arranges for information describing instance domains to be exported
+from the performance metric domains to the applications that require this
+information. Applications may also choose to retrieve values for all instances
+of a performance metric, or some arbitrary subset of the available instances.
+</para>
+</section>
+</section>
+<section id="id5189653">
+
+<title>Collector and Monitor Roles</title>
+<para><indexterm id="ITch01-155"><primary>roles</primary><secondary>collector
+</secondary></indexterm><indexterm id="IG3137188879"><primary>roles</primary><secondary>
+monitor</secondary></indexterm>Hosts supporting PCP services are broadly
+classified into two categories:</para>
+<variablelist id="Z926617459sdc">
+<varlistentry>
+<term>Collector</term>
+<listitem><para><indexterm id="ITch01-156"><primary>collector hosts</primary>
+</indexterm><indexterm id="IG3137188880"><primary>PMDA</primary><secondary>collectors</secondary>
+</indexterm>Hosts that have <literal>pmcd</literal> and one or more performance
+metric domain agents (PMDAs) running to collect and export performance
+metrics</para>
+</listitem></varlistentry>
+<varlistentry>
+<term>Monitor</term>
+<listitem><para><indexterm id="IG3137188881"><primary>monitor hosts</primary></indexterm>Hosts
+that import performance metrics from one or more collector hosts to be
+consumed by tools to monitor, manage, or record the performance of the
+collector hosts</para>
+</listitem></varlistentry>
+</variablelist>
+<para>Each PCP enabled host can operate as a collector, a monitor, or
+both.</para>
+</section>
+<section id="LE75000-PARENT">
+
+<title>Performance Metrics Collection System</title>
+<para><indexterm id="ITch01-158"><primary>PMCS</primary><secondary>description
+</secondary></indexterm><indexterm id="IG3137188882"><primary>Performance Metrics Collection
+System</primary><see>PMCS</see></indexterm> PCP provides an infrastructure
+through the Performance Metrics Collection System (PMCS). It unifies
+the autonomous and distributed PMDAs into a cohesive pool of performance
+data, and provides the services required to create generalized and powerful
+performance tools.</para>
+<para>The PMCS provides the framework that underpins the PMAPI, which
+is described in the <citetitle>Performance
+Co-Pilot Programmer's Guide</citetitle>. The PMCS is responsible
+for the following services on behalf of the performance tools developed
+on top of the PMAPI:</para>
+<itemizedlist>
+<listitem><para><indexterm id="IG3137188883"><primary>PMNS</primary><secondary>services
+</secondary></indexterm>Distributed Name Space services</para>
+</listitem>
+<listitem><para><indexterm id="IG3137188884"><primary>instance domain services</primary>
+</indexterm>Instance domain services</para>
+</listitem>
+<listitem><para>Coordination with the processes and procedures required
+to control the description, collection, and extraction of performance
+metric values from agents that interface to the performance metric domains
+</para>
+</listitem>
+<listitem><para>Servicing incoming requests for local performance metric
+values and metadata from applications running either locally or on a remote
+system</para>
+</listitem></itemizedlist>
+</section>
+<section id="id5189901">
+
+<title>Retrospective Sources of Performance Metrics</title>
+<para><indexterm id="ITch01-159"><primary>performance metrics</primary>
+<secondary>retrospective sources</secondary></indexterm>The PMCS described
+in the previous section is used when PMAPI clients are requesting performance
+metrics from a real-time or live source.</para>
+<para>The PMAPI also supports delivery of performance metrics from a historical
+source in the form of a PCP archive log. Archive logs are created using
+the <literal>pmlogger</literal> utility, and are replayed in an architecture
+as shown in <xref linkend="id5189940"/>.</para>
+<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
+<para>The PMAPI has been designed to minimize the differences required
+for an application to process performance data from an archive or from
+a real-time source. As a result, most PCP tools support live and retrospective
+monitoring with equal facility.</para>
+</section>
+<section id="id5189964">
+
+<title>Product Extensibility</title>
+<para><indexterm id="ITch01-160"><primary>PCP</primary><secondary>extensibility
+</secondary></indexterm>Much of the PCP software's potential for attacking
+difficult performance problems in production environments comes from the
+design philosophy that considers extensibility to be critically important.
+</para>
+<para>The performance analyst can take advantage of the PCP infrastructure
+to deploy value-added performance monitoring tools and services. Here
+are some examples:</para>
+<itemizedlist>
+<listitem><para>Easy extension of the PMCS and PMNS to accommodate new
+performance metrics and new sources of performance metrics, in particular
+using the interfaces of a special-purpose library to develop new PMDAs
+(see the <command>pmda(3)</command> man page)</para>
+</listitem>
+<listitem><para><indexterm id="IG3137188885"><primary>libpcp_pmda library</primary></indexterm><indexterm id="IG3137188886">
+<primary>libpcp_mmv library</primary></indexterm>Use of libraries
+(<filename>libpcp_pmda</filename> and <filename>libpcp_mmv</filename>)
+to aid in the development of new capabilities to export performance metrics
+from local applications</para>
+</listitem>
+<listitem><para>Operation on any performance metric using generalized
+toolkits</para>
+</listitem>
+<listitem><para>Distribution of PCP components such as collectors across
+the network, placing the service where it can do the most good</para>
+</listitem>
+<listitem><para>Dynamic adjustment to changes in system configuration
+</para>
+</listitem>
+<listitem><para>Flexible customization built into the design of all PCP
+tools</para>
+</listitem>
+<listitem><para>Creation of new monitor applications, using the routines
+described in the <command>pmapi(3)</command> man page</para>
+</listitem></itemizedlist>
 </section>
 </section>
 <section id="LE13618-PARENT">
@@ -794,7 +1221,8 @@ and its associated <filename>pcp_trace</filename> library.</para>
 <listitem><para><indexterm id="IG3137188802"><primary>web daemon</primary>
 </indexterm>Is the Performance Metrics Web Daemon, a front-end to both
 <command>pmcd</command> and PCP archives,
-providing a JSON interface suitable for use by web-based tools.</para>
+providing a JSON interface suitable for use by web-based tools wishing to
+access performance data over HTTP.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -807,11 +1235,6 @@ provides the following tools to support the PCP infrastructure and assist
 operational procedures for PCP deployment in a production environment:
 </para>
 <variablelist>
-<varlistentry>
-<term><command>hipprobe</command></term>
-<listitem><para><indexterm id="IG3137188849"><primary>hipprobe tool</primary></indexterm>Probes
-the state of the configured HIPPI interfaces. Used by the <literal>shping</literal> PMDA.</para>
-</listitem></varlistentry>
 <varlistentry>
 <term><command>pcp</command></term>
 <listitem><para><indexterm id="IG3137188850"><primary>pcp tool</primary></indexterm>Summarizes
@@ -949,431 +1372,6 @@ to aid the development of customized programs that use the facilities
 of PCP. It is a PMDA development tool.</para>
 </listitem></varlistentry>
 </variablelist>
-</section>
-</section>
-<section id="LE79836-PARENT">
-
-<title>Conceptual Foundations</title>
-<para><indexterm id="ITch01-129"><primary>conceptual foundations</primary>
-</indexterm>The following sections provide a detailed overview of concepts
-that underpin Performance Co-Pilot (PCP).</para>
-<section id="id5188366">
-
-<title>Performance Metrics</title>
-<para><indexterm id="ITch01-130"><primary>PMAPI</primary><secondary>naming
-metrics</secondary></indexterm><indexterm id="IG3137188863"><primary>performance metrics
-</primary><secondary>concept</secondary></indexterm> Across all of the
-supported performance metric domains, there are a large number of performance
-metrics. Each metric has its own structure and semantics. PCP presents
-a uniform interface to these metrics, independent of the underlying metric
-data source.</para>
-<para><indexterm id="IG3137188864"><primary>PMNS</primary><secondary>brief description</secondary>
-</indexterm>The Performance Metrics Name Space (PMNS) provides a hierarchical
-classification of human-readable metric names, and a mapping from these external
-names to internal metric identifiers. See <xref linkend="LE94677-PARENT"/>, for
-a description of the PMNS.</para>
-</section>
-<section id="id5188440">
-
-<title>Performance Metric Instances</title>
-<para>When performance metric values are returned to a requesting application,
-there may be more than one value instance for a particular metric; for
-example, independent counts for each CPU, process, disk, or local filesystem.
-Internal instance identifiers correspond one to one with external (human-readable)
-descriptions of the members of an instance domain.</para>
-<para>Transient performance metrics (such as per-process information)
-cause repeated requests for the same metric to return different numbers
-of values, or changes in the particular instance identifiers returned.
-These changes are expected and fully supported by the PCP infrastructure;
-however, metric instantiation is guaranteed to be valid only at the time of collection.</para>
-</section>
-<section id="id5188469">
-
-<title>Current Metric Context</title>
-<para>When performance metrics are retrieved, they are delivered in the
-context of a particular source of metrics, a point in time, and a profile
-of desired instances. This means that the application making the request
-has already negotiated to establish the context in which the request should
-be executed.</para>
-<para><indexterm id="IG3137188865"><primary>pmlogger tool</primary><secondary>current metric
-context</secondary></indexterm>A metric source may be the current performance
-data from a particular host (a live or real-time source), or an archive
-log of performance data collected by <command>pmlogger</command> at some
-distant host or at an earlier time (a retrospective or archive source).
-</para>
-<para><indexterm id="ITch01-134"><primary>collection time</primary></indexterm>By
-default, the collection time for a performance metric is the current time
-of day for real-time sources, or current point within an archive source.
-For archives, the collection time may be reset to an arbitrary time within
-the bounds of the archive log.<indexterm id="ITch01-135"><primary>archive logs</primary>
-<secondary>collection time</secondary></indexterm></para>
-</section>
-<section id="id5188562">
-
-<title>Sources of Performance Metrics and Their Domains</title>
-<para><indexterm id="ITch01-137"><primary>performance metrics</primary>
-<secondary>sources</secondary></indexterm><indexterm id="ITch01-138">
-<primary>functional domains</primary></indexterm> Instrumentation for
-the purpose of performance monitoring typically consists of counts of
-activity or events, attribution of resource consumption, and service-time
-or response-time measures. This instrumentation may exist in one or more
-of the functional domains as shown in <xref linkend="id5188602"/>.
-</para>
-<figure id="id5188602"><title>Performance Metric Domains as Autonomous Collections
-of Data</title><mediaobject><imageobject><imagedata fileref="figures/metric-domains.svg"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
-of Data</phrase></textobject></mediaobject></figure>
-<para>Each domain has an associated access method:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG3137188866"><primary>Kernel data structures</primary></indexterm>The
-operating system kernel, including sub-system data structures - per-process
-resource consumption, network statistics, disk activity, or memory management
-instrumentation.</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188867"><primary>Mail servers</primary></indexterm><indexterm id="IG3137188868">
-<primary>layered software services</primary></indexterm>A layered software
-service such as activity logs for a World Wide Web server or an email delivery
-server.<indexterm id="IG3137188869"><primary>application programs</primary></indexterm></para>
-</listitem>
-<listitem><para>An application program such as measured response time
-for a production application running a periodic and benign probe transaction
-(as often required in service level agreements), or rate of computation
-and throughput in jobs per minute for a batch stream.</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188870"><primary>network routers and bridges</primary>
-</indexterm><indexterm id="IG3137188871"><primary>external equipment</primary></indexterm>External
-equipment such as network routers and bridges.</para>
-</listitem></itemizedlist>
-<para><indexterm id="ITch01-139"><primary>performance metrics</primary>
-<secondary>methods</secondary></indexterm>For each domain, the set of
-performance metrics may be viewed as an abstract data type, with an associated
-set of methods that may be used to perform the following tasks:</para>
-<itemizedlist>
-<listitem><para>Interrogate the metadata that describes the syntax and
-semantics of the performance metrics</para>
-</listitem>
-<listitem><para>Control (enable or disable) the collection of some or
-all of the metrics</para>
-</listitem>
-<listitem><para>Extract instantiations (current values) for some or all
-of the metrics</para>
-</listitem></itemizedlist>
-<para>We refer to each functional domain as a performance metrics domain
-and assume that domains are functionally, architecturally, and administratively
-independent and autonomous. Obviously the set of performance metrics domains
-available on any host is variable, and changes with time as software and
-hardware are installed and removed.</para>
-<para>The number of performance metrics domains may be further enlarged
-in cluster-based or network-based configurations, where there is potentially
-an instance of each performance metrics domain on each node. Hence, the
-management of performance metrics domains must be both extensible at a
-particular host and distributed across a number of hosts.</para>
-<para><indexterm id="IG3137188872"><primary>PMID</primary><secondary>description</secondary>
-</indexterm><indexterm id="IG3137188873"><primary>Performance Metric Identifier</primary>
-<see>PMID</see></indexterm>Each performance metrics domain on a particular
-host must be assigned a unique Performance Metric Identifier (PMID). In
-practice, this means unique identifiers are assigned globally for each
-performance metrics domain type. For example, the same identifier would
-be used for the Apache Web Server performance metrics domain on all hosts.</para>
-</section>
-<section id="id5188837">
-
-<title>Distributed Collection</title>
-<para><indexterm id="ITch01-142"><primary>distributed collection</primary>
-</indexterm><indexterm id="ITch01-143"><primary>collector hosts</primary>
-</indexterm><indexterm id="IG3137188874"><primary>PMCD</primary><secondary>distributed collection
-</secondary></indexterm>The performance metrics collection architecture
-is distributed, in the sense that any performance tool may be executing
-remotely. However, a PMDA usually runs on the system for which it is collecting
-performance measurements. In most cases, connecting these tools together
-on the collector host is the responsibility of the PMCD process, as shown
-in <xref linkend="id5188883"/>.</para>
-<figure id="id5188883"><title>Process Structure for Distributed Operation</title>
-<mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure>
-<para>The host running the monitoring tools does not require any collection
-tools, including <command>pmcd</command>, because all requests for metrics
-are sent to the <command>pmcd</command> process on the collector host.
-These requests are then forwarded to the appropriate PMDAs, which respond
-with metric descriptions, help text, and most importantly, metric values.
-</para>
-<para><indexterm id="IG3137188875"><primary>PMCD</primary><secondary>distributed collection
-</secondary></indexterm>The connections between monitor clients and <literal>pmcd</literal> processes are managed in <filename>libpcp</filename>, below
-the PMAPI level; see the <command>pmapi(3)</command> man page.
-Connections between PMDAs and <command>pmcd</command> are managed by the
-PMDA routines; see the <command>pmda(3)</command> man page.
-There can be multiple monitor clients and multiple PMDAs on the one host,
-but there may be at most one <literal>pmcd</literal> process.</para>
-</section>
-<section id="LE94677-PARENT">
-
-<title>Performance Metrics Name Space</title>
-<para><indexterm id="ITch01-144"><primary>PMNS</primary><secondary>description
-</secondary></indexterm> <indexterm id="ITch01-146"><primary>PMID</primary>
-<secondary>description</secondary></indexterm>Internally, each unique
-performance metric is identified by a Performance Metric Identifier (PMID)
-drawn from a universal set of identifiers, including some that are reserved
-for site-specific, application-specific, and customer-specific use.</para>
-<para><indexterm id="ITch01-148"><primary>performance metrics</primary>
-<secondary>PMNS</secondary></indexterm>An external name space - the Performance
-Metrics Name Space (PMNS) - maps from a hierarchy (or tree) of human-readable
-names to PMIDs.</para>
-<section id="id5189100">
-
-<title>Performance Metrics Name Space Diagram</title>
-<para>Each node in the PMNS tree is assigned a label that must begin with
-an alphabet character, and be followed by zero or more alphanumeric characters
-or the underscore (_) character. The root node of the tree has the special
-label of <literal>root</literal>.</para>
-<para>A metric name is formed by traversing the tree from the root to
-a leaf node with each node label on the path separated by a period. The
-common prefix <literal>root</literal><emphasis role="bold">.</emphasis> is omitted
-from all names. For example, <xref linkend="id5189137"/> shows the
-nodes in a small subsection of a PMNS.</para>
-<figure id="id5189137"><title>Small Performance Metrics Name Space (PMNS)
-</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
-</phrase></textobject></mediaobject></figure>
-<para>In this subsection, the following are valid names for performance
-metrics:</para>
-<literallayout class="monospaced">kernel.percpu.syscall
-network.tcp.rcvpack
-hw.router.recv.total_util
-</literallayout>
-</section>
-</section>
-<section id="id5189172">
-
-<title>Descriptions for Performance Metrics</title>
-<para><indexterm id="ITch01-149"><primary>performance metrics</primary>
-<secondary>descriptions</secondary></indexterm><indexterm id="ITch01-150">
-<primary>metadata</primary></indexterm> Through the various performance
-metric domains, the PCP must support a wide range of formats and semantics
-for performance metrics. This <firstterm>metadata</firstterm> describing
-the performance metrics includes the following:</para>
-<itemizedlist>
-<listitem><para>The internal identifier, Performance Metric Identifier
-(PMID), for the metric</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188876"><primary>64-bit IEEE format</primary></indexterm>The
-format and encoding for the values of the metric, for example, an unsigned
-32-bit integer or a string or a 64-bit IEEE format floating point number
-</para>
-</listitem>
-<listitem><para>The semantics of the metric, particularly the interpretation
-of the values as free-running counters or instantaneous values</para>
-</listitem>
-<listitem><para>The dimensionality of the values, in the dimensions of
-events, space, and time</para>
-</listitem>
-<listitem><para>The scale of values; for example, bytes, kilobytes (KB),
-or megabytes (MB) for the space dimension</para>
-</listitem>
-<listitem><para>An indication if the metric may have one or many associated
-values</para>
-</listitem>
-<listitem><para>Short (and extended) help text describing the metric</para>
-</listitem></itemizedlist>
-<para>For each metric, this metadata is defined within the associated
-PMDA, and PCP arranges for the information to be exported to performance
-tools that use the metadata when interpreting the values for each metric.</para>
-</section>
-<section id="id5189302">
-
-<title>Values for Performance Metrics</title>
-<para>The following sections describe two types of performance metrics,
-single-valued and set-valued.</para>
-<section id="id5189314">
-
-<title>Single-Valued Performance Metrics</title>
-<para><indexterm id="IG3137188877"><primary>single-valued performance metrics</primary>
-</indexterm>Some performance metrics have a singular value within their
-performance metric domains. For example, available memory (or the total
-number of context switches) has only one value per performance metric
-domain, that is, one value per host. The metadata describing the metric
-makes this fact known to applications that process values for these metrics.
-</para>
-</section>
-<section id="id5189346">
-
-<title>Set-Valued Performance Metrics</title>
-<para><indexterm id="IG3137188878"><primary>set-valued performance metrics</primary></indexterm>Some
-performance metrics have a set of values or instances in each implementing
-performance metric domain. For example, one value for each disk, one value
-for each process, one value for each CPU, or one value for each activation
-of a given application.</para>
-<para>When a metric has multiple instances, the PCP framework does not
-pollute the Name Space with additional metric names; rather, a single
-metric may have an associated set of values. These multiple values are
-associated with the members of an <firstterm>instance domain</firstterm>,
-such that each instance has a unique instance identifier within the associated
-instance domain. For example, the &#x201C;per CPU&#x201D; instance domain
-may use the instance identifiers 0, 1, 2, 3, and so on to identify the
-configured processors in the system.</para>
-<para>Internally, instance identifiers are encoded as binary values, but
-each performance metric domain also supports corresponding strings as
-external names for the instance identifiers, and these names are used
-at the user interface to the PCP utilities.</para>
-<para>For example, the performance metric <literal>disk.dev.total</literal>
-counts I/O operations for each disk spindle, and the associated instance
-domain contains one member for each disk spindle. On a system with five
-specific disks, one value would be associated with each of the external
-and internal instance identifier pairs shown in <xref linkend="id5189432"/>.
-</para>
-<table id="id5189432" frame="topbot">
-
-<title>Sample Instance Identifiers for Disk Statistics
-</title>
-<tgroup cols="2" colsep="0" rowsep="0">
-<colspec colwidth="198*"/>
-<colspec colwidth="198*"/>
-<thead>
-<row rowsep="1" valign="top"><entry align="left" valign="bottom"><para>External Instance
-Identifier</para></entry><entry align="left" valign="bottom"><para>Internal
-Instance Identifier</para></entry></row></thead>
-<tbody>
-<row valign="top">
-<entry align="left" valign="top"><para>disk0</para></entry>
-<entry align="left" valign="top"><para>131329</para></entry></row>
-<row valign="top">
-<entry align="left" valign="top"><para>disk1</para></entry>
-<entry align="left" valign="top"><para>131330</para></entry></row>
-<row valign="top">
-<entry align="left" valign="top"><para>disk2</para></entry>
-<entry align="left" valign="top"><para>131331</para></entry></row>
-<row valign="top">
-<entry align="left" valign="top"><para>disk3</para></entry>
-<entry align="left" valign="top"><para>131841</para></entry></row>
-<row valign="top">
-<entry align="left" valign="top"><para>disk4</para></entry>
-<entry align="left" valign="top"><para>131842</para></entry></row></tbody>
-</tgroup></table>
-<para>Multiple performance metrics may be associated with a single instance
-domain.</para>
-<para>Each performance metric domain may dynamically establish the instances
-within an instance domain. For example, there may be one instance for
-the metric <literal>kernel.percpu.idle</literal> on a workstation, but
-multiple instances on a multiprocessor server. Even more dynamic is <literal>filesys.free</literal>, where the values report the amount of free space
-per file system, and the number of values tracks the mounting and unmounting
-of local filesystems.</para>
-<para>PCP arranges for information describing instance domains to be exported
-from the performance metric domains to the applications that require this
-information. Applications may also choose to retrieve values for all instances
-of a performance metric, or some arbitrary subset of the available instances.
-</para>
-</section>
-</section>
-<section id="id5189653">
-
-<title>Collector and Monitor Roles</title>
-<para><indexterm id="ITch01-155"><primary>roles</primary><secondary>collector
-</secondary></indexterm><indexterm id="IG3137188879"><primary>roles</primary><secondary>
-monitor</secondary></indexterm>Hosts supporting PCP services are broadly
-classified into two categories:</para>
-<variablelist id="Z926617459sdc">
-<varlistentry>
-<term>Collector</term>
-<listitem><para><indexterm id="ITch01-156"><primary>collector hosts</primary>
-</indexterm><indexterm id="IG3137188880"><primary>PMDA</primary><secondary>collectors</secondary>
-</indexterm>Hosts that have <literal>pmcd</literal> and one or more performance
-metric domain agents (PMDAs) running to collect and export performance
-metrics</para>
-</listitem></varlistentry>
-<varlistentry>
-<term>Monitor</term>
-<listitem><para><indexterm id="IG3137188881"><primary>monitor hosts</primary></indexterm>Hosts
-that import performance metrics from one or more collector hosts to be
-consumed by tools to monitor, manage, or record the performance of the
-collector hosts</para>
-</listitem></varlistentry>
-</variablelist>
-<para>Each PCP enabled host can operate as a collector, a monitor, or
-both.</para>
-</section>
-<section id="LE75000-PARENT">
-
-<title>Performance Metrics Collection System</title>
-<para><indexterm id="ITch01-158"><primary>PMCS</primary><secondary>description
-</secondary></indexterm><indexterm id="IG3137188882"><primary>Performance Metrics Collection
-System</primary><see>PMCS</see></indexterm> PCP provides an infrastructure
-through the Performance Metrics Collection System (PMCS). It unifies
-the autonomous and distributed PMDAs into a cohesive pool of performance
-data, and provides the services required to create generalized and powerful
-performance tools.</para>
-<para>The PMCS provides the framework that underpins the PMAPI, which
-is described in the <citetitle>Performance
-Co-Pilot Programmer's Guide</citetitle>. The PMCS is responsible
-for the following services on behalf of the performance tools developed
-on top of the PMAPI:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG3137188883"><primary>PMNS</primary><secondary>services
-</secondary></indexterm>Distributed Name Space services</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188884"><primary>instance domain services</primary>
-</indexterm>Instance domain services</para>
-</listitem>
-<listitem><para>Coordination with the processes and procedures required
-to control the description, collection, and extraction of performance
-metric values from agents that interface to the performance metric domains
-</para>
-</listitem>
-<listitem><para>Servicing incoming requests for local performance metric
-values and metadata from applications running either locally or on a remote
-system</para>
-</listitem></itemizedlist>
-</section>
-<section id="id5189901">
-
-<title>Retrospective Sources of Performance Metrics</title>
-<para><indexterm id="ITch01-159"><primary>performance metrics</primary>
-<secondary>retrospective sources</secondary></indexterm>The PMCS described
-in the previous section is used when PMAPI clients are requesting performance
-metrics from a real-time or live source.</para>
-<para>The PMAPI also supports delivery of performance metrics from a historical
-source in the form of a PCP archive log. Archive logs are created using
-the <literal>pmlogger</literal> utility, and are replayed in an architecture
-as shown in <xref linkend="id5189940"/>.</para>
-<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
-<para>The PMAPI has been designed to minimize the differences required
-for an application to process performance data from an archive or from
-a real-time source. As a result, most PCP tools support live and retrospective
-monitoring with equal facility.</para>
-</section>
-<section id="id5189964">
-
-<title>Product Extensibility</title>
-<para><indexterm id="ITch01-160"><primary>PCP</primary><secondary>extensibility
-</secondary></indexterm>Much of the PCP software's potential for attacking
-difficult performance problems in production environments comes from the
-design philosophy that considers extensibility to be critically important.
-</para>
-<para>The performance analyst can take advantage of the PCP infrastructure
-to deploy value-added performance monitoring tools and services. Here
-are some examples:</para>
-<itemizedlist>
-<listitem><para>Easy extension of the PMCS and PMNS to accommodate new
-performance metrics and new sources of performance metrics, in particular
-using the interfaces of a special-purpose library to develop new PMDAs
-(see the <command>pmda(3)</command> man page)</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188885"><primary>libpcp_pmda library</primary></indexterm><indexterm id="IG3137188886">
-<primary>libpcp_trace library</primary></indexterm>Use of libraries
-(<filename>libpcp_pmda</filename> and <filename>libpcp_trace</filename>)
-to aid in the development of new PMDAs to export performance metrics
-from local applications</para>
-</listitem>
-<listitem><para>Operation on any performance metric using generalized
-toolkits</para>
-</listitem>
-<listitem><para>Distribution of PCP components such as collectors across
-the network, placing the service where it can do the most good</para>
-</listitem>
-<listitem><para>Dynamic adjustment to changes in system configuration
-</para>
-</listitem>
-<listitem><para>Flexible customization built into the design of all PCP
-tools</para>
-</listitem>
-<listitem><para>Creation of new monitor applications, using the routines
-described in the <command>pmapi(3)</command> man page</para>
-</listitem></itemizedlist>
 </section>
 </section>
 </chapter>
@@ -2059,9 +2057,9 @@ cause and resolution:</para>
 <varlistentry>
 <term>Symptom:</term>
 <listitem><para><indexterm id="IG31371888102"><primary>pmchart tool</primary><secondary>remote
-PMCD</secondary></indexterm><indexterm id="IG31371888103"><primary>dkvis tool</primary><secondary>
+PMCD</secondary></indexterm><indexterm id="IG31371888103"><primary>pmie tool</primary><secondary>
 remote PMCD</secondary></indexterm><indexterm id="IG31371888104"><primary>pmlogger tool</primary>
-<secondary>remote PMCD</secondary></indexterm>A PCP client tool (such as <literal>pmchart</literal>, <literal>dkvis</literal>, or <literal>pmlogger</literal>)
+<secondary>remote PMCD</secondary></indexterm>A PCP client tool (such as <literal>pmchart</literal>, <literal>pmie</literal>, or <literal>pmlogger</literal>)
 complains that it is unable to connect to a remote PMCD (or establish a PMAPI
 context), but you are sure that PMCD is active on the remote host.</para>
 </listitem></varlistentry>
@@ -2073,6 +2071,7 @@ outs, the PMAPI library implements its own time out when trying to establish
 a connection to a PMCD. If the connection to the host is over a slow network,
 then successful establishment of the connection may not be possible before
 the time out, and the attempt is abandoned.</para>
+<para>Alternatively, there may be a firewall in-between the client tool and PMCD which is blocking the connection attempt.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
@@ -2088,6 +2087,7 @@ default):<literallayout class="monospaced"><userinput>telnet far-away-host 44321
 the <literal>telnet</literal> session, increase the PMAPI time out by setting
 the <literal>PMCD_CONNECT_TIMEOUT</literal> environment variable to some number
 of seconds (60 for instance), and try the PCP client tool again.</para>
+<para>If these techniques are ineffective, it is likely an intermediary firewall is blocking the client from accessing the PMCD port - resolving such issues is firewall-host platform-specific and cannot practically be covered here.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -2154,7 +2154,7 @@ the connection and read any outstanding data.</para>
 <para><indexterm id="IG31371888111"><primary>netstat command</primary></indexterm>The only solution
 in these circumstances is to wait until the socket times out and the kernel
 deletes it. This <command>netstat</command> command displays the status of
-the socket and any connections:<literallayout class="monospaced"><userinput>netstat -a | grep 44321</userinput></literallayout></para>
+the socket and any connections:<literallayout class="monospaced"><userinput>netstat -ant | grep 44321</userinput></literallayout></para>
 <para>If the socket is in the <literal>FIN_WAIT</literal> or <literal>TIME_WAIT</literal> state, then you must wait for it to be deleted. Once the command
 above produces no output, PMCD may be restarted. Less commonly, you may have
 another program running on your system that uses the same Internet port number
@@ -2233,10 +2233,10 @@ than this default.</para>
 <title>Fetching Metrics from Another Host</title>
 <para><indexterm id="ITch03-3"><primary>fetching metrics</primary></indexterm><indexterm id="IG31371888115">
 <primary>pmchart tool</primary><secondary>fetching metrics</secondary>
-</indexterm><indexterm id="IG31371888116"><primary>dkvis tool</primary><secondary>fetching
+</indexterm><indexterm id="IG31371888116"><primary>pmie tool</primary><secondary>fetching
 metrics</secondary></indexterm>The option <literal>-h</literal> <replaceable>host</replaceable>
 directs any PCP utility (such as <literal>pmchart</literal>
-or <literal>dkvis</literal>) to make a connection with the PMCD instance
+or <literal>pmie</literal>) to make a connection with the PMCD instance
 running on <replaceable>host</replaceable>. Once established, this connection
 serves as the principal real-time source of performance metrics and metadata.
 The <replaceable>host</replaceable> specification may be more than a simple host
@@ -2244,7 +2244,7 @@ name or address - it can also contain decorations specifying protocol type (secu
 or not), authentication information, and other connection attributes.
 Refer to the <command>PCPIntro(1)</command> man page for full details of these,
 and examples of use of these specifications can also be found in the
-<citetitle>PCP Tutorial</citetitle>.</para>
+<citetitle>PCP Tutorials and Case Studies</citetitle> companion document.</para>
 </section>
 <section id="id5193712">
 
@@ -2298,7 +2298,9 @@ hosts), and accept either multiple <command>-a</command> options or a
 comma separated list of archive names following the <command>-a</command>
 option.</para>
 <note><para>The <command>-h</command> and <command>-a</command> options
-are mutually exclusive in all cases.</para>
+are almost always mutually exclusive.  Currently, <command>pmchart</command>
+is the exception to this rule but other tools may continue to blur this
+line in the future.</para>
 </note>
 </section>
 </section>
@@ -2317,13 +2319,13 @@ are used by the PCP tools as repositories for option and configuration
 files and for binaries:</para>
 <variablelist condition="sgi_termlength:wide">
 <varlistentry>
-<term><filename>/etc/pcp.env</filename></term>
-<listitem><para><indexterm id="IG31371888121"><primary>/etc/pcp.env file</primary></indexterm>Script
+<term><filename>${PCP_DIR}/etc/pcp.env</filename></term>
+<listitem><para><indexterm id="IG31371888121"><primary>${PCP_DIR}/etc/pcp.env file</primary></indexterm>Script
 to set PCP run-time environment variables.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/etc/pcp.conf</filename></term>
-<listitem><para><indexterm id="IG31371888122"><primary>/etc/pcp.conf file</primary></indexterm>PCP
+<term><filename>${PCP_DIR}/etc/pcp.conf</filename></term>
+<listitem><para><indexterm id="IG31371888122"><primary>${PCP_DIR}/etc/pcp.conf file</primary></indexterm>PCP
 configuration and environment file.</para>
 </listitem></varlistentry>
 <varlistentry>
@@ -2575,20 +2577,20 @@ for example, <literal>-Z UTC</literal> for universal time.</para>
 <title>PCP Environment Variables</title>
 <para><indexterm id="ITch03-14"><primary>PCP</primary><secondary>environment
 variables</secondary></indexterm><indexterm id="IG31371888136"><primary>environment variables
-</primary></indexterm><indexterm id="IG31371888137"><primary>/etc/pcp.conf file</primary>
+</primary></indexterm><indexterm id="IG31371888137"><primary>${PCP_DIR}/etc/pcp.conf file</primary>
 </indexterm><indexterm id="IG31371888138"><primary>/etc/pcp.env file</primary></indexterm><indexterm id="IG31371888139">
 <primary>pmGetConfig function</primary></indexterm>When you are using
 PCP tools and utilities and are calling PCP library functions, a standard
-set of defined environment variables are available in the <filename>/etc/pcp.conf</filename>
+set of defined environment variables are available in the <filename>${PCP_DIR}/etc/pcp.conf</filename>
 file.  These variables are generally used to specify the location of various
 PCP pieces in the file system and may be loaded into shell scripts by
-sourcing the <filename>/etc/pcp.env</filename> shell script. They may
+sourcing the <filename>${PCP_DIR}/etc/pcp.env</filename> shell script. They may
 also be queried by C, C++, perl and python programs using the
-<command>pmGetConfig(3)</command> library function.
+<command>pmGetConfig</command> library function.
 If a variable is already defined in the
 environment, the values in the <filename>pcp.conf</filename> file do not
 override those values; that is,  the values in <filename>pcp.conf</filename>
-serve only as installation defaults. For additional information, see the <command>/etc/pcp.conf(5)</command>, <command>/etc/pcp.env(5)</command>, and <command>pmGetConfig(3)</command>
+serve only as installation defaults. For additional information, see the <command>pcp.conf(5)</command>, <command>pcp.env(5)</command>, and <command>pmGetConfig(3)</command>
 man pages.</para>
 <para>The following environment variables are recognized by PCP (these
 definitions are also available on the <command>PCPIntro(1)</command> man page):</para>
@@ -2735,7 +2737,7 @@ hosts located on one side of a firewall to monitor remote
 hosts on the other side. The basic connection syntax is as
 follows, where <replaceable>tool</replaceable> is an arbitrary PCP application,
 typically a monitoring tool:</para>
-<literallayout class="monospaced">dkvis -h remotehost@proxyhost</literallayout>
+<literallayout class="monospaced">pmprobe -h remotehost@proxyhost</literallayout>
 <para>This extended host specification syntax is part of a larger set of
 available extensions to the basic host naming syntax - refer to the 
 <command>PCPIntro(1)</command> man page for further details.</para>
@@ -2849,9 +2851,9 @@ periodically:</para>
     1.29 833960  5614m 144744 265824    0    0    0 1664  13K  23K   6   7  81
     1.51 833956  5607m 144744 265712    0    0    0 1664  13K  24K   5   7  83
     1.55 833956  5595m 145196 271908    0    0  14K 1056  13K  24K   7   7  74</literallayout>
-<para>An additional line of output is added every five seconds. The update
-interval may be varied using the <literal>-t </literal><replaceable>interval</replaceable>
-option.</para>
+<para>An additional line of output is added every five seconds. The
+<literal>-t </literal><replaceable>interval</replaceable> option may be
+used to vary the update interval (i.e. the sampling interval).</para>
 <para>The output from <command>pmstat</command> is directed to standard output,
 and the columns in the report are interpreted as follows:</para>
 <variablelist>
@@ -3016,10 +3018,10 @@ interval:  60.00 sec
 achieved by the exchange of time control messages between <command>pmval</command>
 and <command>pmtime</command>.</para>
 <literallayout class="monospaced"><userinput>pmval -g -a ${PCP_LOG_DIR}/pmlogger/myserver/20130731 kernel.all.load</userinput></literallayout>
-<para><indexterm id="IG31371888173"><primary>PCP Tutorial</primary><secondary>pmval command</secondary>
+<para><indexterm id="IG31371888173"><primary>PCP Tutorials and Case Studies</primary><secondary>pmval command</secondary>
 </indexterm>The <command>pmval</command> command is documented by the <command>pmval(1)</command>
 man page, and annotated examples of the use of <command>pmval</command> can be found in
-the <citetitle>PCP Tutorial</citetitle>.
+the <citetitle>PCP Tutorials and Case Studies</citetitle> companion document.
 </para>
 </section>
 <section id="LE60452-PARENT">
@@ -3194,12 +3196,12 @@ environ.extrema.mintemp PMID: 4.0.3 </literallayout>
 the PMNS correspond with supported metrics, and checks that a value is available
 for the metric. Descriptions and values are fetched, but not printed. Only
 errors are reported.</para>
-<para><indexterm id="IG31371888175"><primary>pminfo tool</primary><secondary>PCP Tutorial</secondary>
-</indexterm><indexterm id="IG31371888176"><primary>PCP Tutorial</primary><secondary>pminfo command
+<para><indexterm id="IG31371888175"><primary>pminfo tool</primary><secondary>PCP Tutorials and Case Studies</secondary>
+</indexterm><indexterm id="IG31371888176"><primary>PCP Tutorials and Case Studies</primary><secondary>pminfo command
 </secondary></indexterm>Complete information on the <command>pminfo</command>
 command is found in the <command>pminfo(1)</command> man page.
 There are further examples of the use of <command>pminfo</command> in the <citetitle>
-PCP Tutorial</citetitle>.</para>
+PCP Tutorials and Case Studies</citetitle>.</para>
 </section>
 <section id="LE10170-PARENT">
 
@@ -3483,9 +3485,9 @@ flag for <command>pminfo</command>, as shown in <xref linkend="Z983826092sdc"/>:
 <example id="Z983826092sdc">
 <title><command>pmie</command>
 with the <literal>-d</literal> and <literal>-h</literal> Options</title>
-<literallayout class="monospaced"><userinput>pminfo -d -h </userinput><replaceable>somehost </replaceable><userinput>mem.freemem kernel.percpu.cpu.user</userinput></literallayout>
+<literallayout class="monospaced"><userinput>pminfo -d -h </userinput><replaceable>somehost </replaceable><userinput>mem.util.cached kernel.percpu.cpu.user</userinput></literallayout>
 <para>In response, you see output similar to this:</para>
-<literallayout class="monospaced">mem.freemem
+<literallayout class="monospaced">mem.util.cached
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Kbyte
 
@@ -3496,7 +3498,7 @@ kernel.percpu.cpu.user
 <note><para><indexterm id="ITch06-8"><primary>PM_INDOM_NULL</primary></indexterm>A
 cumulative counter such as <literal>kernel.percpu.cpu.user</literal> is automatically
 converted by <command>pmie</command> into a rate (measured in events per second,
-or count/second), while instantaneous values such as <literal>mem.freemem</literal>
+or count/second), while instantaneous values such as <literal>mem.util.cached</literal>
 are not subjected to rate conversion. Metrics with an instance
 domain (<literal>InDom</literal> in the <command>pminfo</command> output)
 of <literal>PM_INDOM_NULL</literal> are singular and always produce one value
@@ -3695,7 +3697,7 @@ point number; for example, 124, 0.05, and -45.67</para>
 marks (<literal>&quot;x&quot;</literal>).</para>
 </listitem></varlistentry>
 </variablelist>
-<para>Within quotes of any sort, the backslash (<literal>/</literal>) may
+<para>Within quotes of any sort, the backslash (<literal>\</literal>) may
 be used as an escape character as shown in the following example:</para>
 <literallayout class="monospaced">&quot;A \&quot;gentle\&quot; reminder&quot;</literallayout>
 </section>
@@ -3751,13 +3753,13 @@ slash (<literal>/</literal>), to denote per: <literal>byte</literal>, <literal>K
 </para>
 <para>The following are examples of units usage:</para>
 <literallayout class="monospaced">disk.dev.blktotal &gt; 1 Mbyte / second; 
-mem.freemem &lt; 500 Kbyte;</literallayout>
+mem.util.cached &lt; 500 Kbyte;</literallayout>
 <note><para>If you do not specify the units for numeric constants, it is assumed
 that the constant is in the canonical units of seconds for time, bytes for
 space, and events for count, and the dimensionality of the constant is assumed
 to be correct. Thus, in the following expression, the <literal>500</literal>
 is interpreted as 500 bytes.</para>
-<literallayout class="monospaced">mem.freemem &lt; 500</literallayout>
+<literallayout class="monospaced">mem.util.cached &lt; 500</literallayout>
 </note>
 </section>
 </section>
@@ -4333,10 +4335,10 @@ some_host (
 <para><indexterm id="IG31371888223"><primary>pmie tool</primary><secondary>rate operator</secondary>
 </indexterm><indexterm id="IG31371888224"><primary>rate operator</primary></indexterm>The <literal>rate</literal> operator computes the rate of change of an arithmetic expression
 as shown in the following example:</para>
-<literallayout class="monospaced">rate mem.freemem </literallayout>
-<para>It returns the rate of change for the <literal>mem.freemem</literal>
-performance metric; that is, the rate at which free physical memory is being
-allocated or released.</para>
+<literallayout class="monospaced">rate mem.util.cached </literallayout>
+<para>It returns the rate of change for the <literal>mem.util.cached</literal>
+performance metric; that is, the rate at which page cache memory is being
+allocated and released.</para>
 <para>The <literal>rate</literal> intrinsic operator is most useful for metrics
 with instantaneous value semantics. For metrics with counter semantics, <command>
 pmie</command> already performs an implicit rate calculation (see the <xref linkend="LE59099-PARENT"/>) and the <literal>rate</literal> operator would
@@ -4377,7 +4379,7 @@ task-oriented and use the full power of the <command>pmie</command> specificatio
 language as described in <xref linkend="LE90227-PARENT"/>.</para>
 <para><indexterm id="IG31371888228"><primary>${PCP_DEMOS_DIR}</primary></indexterm>Source code for the <command>pmie</command>
 examples in this chapter, and many more examples, is provided within the
-<citetitle>PCP Tutorial</citetitle>. <xref linkend="Z928441343sdc"/> and <xref linkend="Z928441176sdc"/>
+<citetitle>PCP Tutorials and Case Studies</citetitle>. <xref linkend="Z928441343sdc"/> and <xref linkend="Z928441176sdc"/>
 illustrate monitoring CPU utilization and disk activity.</para>
 <example id="Z928441343sdc">
 <title>Monitoring CPU Utilization</title>
@@ -5443,10 +5445,9 @@ manipulating archive logs, primary logger, and using <command>pmlc</command>.
 <para><indexterm id="ITch07-9"><primary>folios</primary></indexterm><indexterm id="IG31371888291">
 <primary>archive logs</primary><secondary>folios</secondary></indexterm><indexterm id="IG31371888292">
 <primary>pmchart tool</primary><secondary>record mode</secondary></indexterm><indexterm id="IG31371888293">
-<primary>pmcollectl tool</primary><secondary>record mode</secondary></indexterm><indexterm id="IG31371888292nat">
-<primary>pmview tool</primary><secondary>record mode</secondary></indexterm>A
+<primary>pmcollectl tool</primary><secondary>record mode</secondary></indexterm>A
 collection of one or more PCP archive logs may be combined with a control
-file to produce a PCP archive folio. Archive folios are created using either <literal>mkaf</literal> or the interactive record mode services of various PCP monitor tools (e.g. <command>pmchart</command>, <command>pmcollectl</command> and <command>pmview</command>).</para>
+file to produce a PCP archive folio. Archive folios are created using either <literal>mkaf</literal> or the interactive record mode services of various PCP monitor tools (e.g. <command>pmchart</command> and <command>pmcollectl</command>).</para>
 <para><indexterm id="IG31371888294"><primary>pmlogger tool</primary><secondary>folios</secondary>
 </indexterm>The automated archive log management services also create an archive
 folio named <filename>Latest</filename> for each managed <command>pmlogger
@@ -5942,7 +5943,7 @@ functioning as a server for many clients. You wish to identify and repair
 critical performance bottlenecks and deficiencies in order to maintain
 maximum performance for clients of the server.</para>
 <para>For some of these services, the PCP base product or the PCP add-on
-products provide the necessary collector components. Others would require
+packages provide the necessary collector components. Others would require
 customized PMDA development, as described in the companion
 <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>.</para>
 </section>
@@ -5976,11 +5977,11 @@ exports these into the PCP framework.</para>
 the <literal>App Server</literal> and the end-user quality of service
 measurements from the system where the <literal>Client App</literal> is
 running can be monitored concurrently.</para>
-<para>PCP add-on products implement a number of examples of this architecture,
-including the <literal>shping</literal> PMDA for IP-based services (including
+<para>PCP contains a number of examples of this architecture, including
+the <literal>shping</literal> PMDA for IP-based services (including
 HTTP), and the <literal>dbping</literal> PMDA for database servers.</para>
-<para>The (open) source code for each of these PMDAs is made available,
-and users and administrators are encouraged to adapt these agents to the
+<para>The source code for each of these PMDAs is readily available;
+users and administrators are encouraged to adapt these agents to the
 needs of the local application environment.</para>
 <para>It is possible to exploit this arrangement even further, with these
 methods:</para>
@@ -6942,12 +6943,6 @@ Protocol</para></entry></row></tbody></tgroup></table>
 </indexentry>
 
 <indexentry>
-   <primaryie>dkvis tool</primaryie>
-      <secondaryie>fetching metrics <link linkend="IG31371888116">Fetching Metrics from Another Host</link></secondaryie>
-      <secondaryie>remote PMCD <link linkend="IG31371888103">Cannot Connect to Remote PMCD</link></secondaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>domains <link linkend="IG313718885">Unification of Performance Metric Domains</link></primaryie>
 </indexentry>
 
@@ -6981,11 +6976,11 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/etc/pcp.conf file <link linkend="IG31371888122">Common Directories and File Locations</link> <link linkend="IG31371888137">PCP Environment Variables</link></primaryie>
+   <primaryie>${PCP_DIR}/etc/pcp.conf file <link linkend="IG31371888122">Common Directories and File Locations</link> <link linkend="IG31371888137">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>/etc/pcp.env file <link linkend="IG31371888121">Common Directories and File Locations</link> <link linkend="IG31371888138">PCP Environment Variables</link></primaryie>
+   <primaryie>${PCP_DIR}/etc/pcp.env file <link linkend="IG31371888121">Common Directories and File Locations</link> <link linkend="IG31371888138">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7030,10 +7025,6 @@ Duration</link></primaryie>
 
 <indexentry>
    <primaryie>glossary <link linkend="ITchA-1">Acronyms</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>hipprobe tool <link linkend="IG3137188849">Operational and Infrastructure Support</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7082,11 +7073,11 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>libpcp_pmda library <link linkend="IG3137188885">Product Extensibility</link></primaryie>
+   <primaryie>libpcp_mmv library <link linkend="IG3137188886">Product Extensibility</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>libpcp_trace library <link linkend="IG3137188886">Product Extensibility</link></primaryie>
+   <primaryie>libpcp_pmda library <link linkend="IG3137188885">Product Extensibility</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7409,7 +7400,7 @@ Collection System</link></primaryie>
 <indexentry>
    <primaryie>pmcollectl tool</primaryie>
       <secondaryie>brief description <link linkend="IG3137188801">Performance Monitoring and Visualization</link></secondaryie>
-      <secondaryie>record mode <link linkend="IG31371888292nat">PCP Archive Folios</link></secondaryie>
+      <secondaryie>record mode <link linkend="IG31371888293">PCP Archive Folios</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7628,6 +7619,7 @@ Collection System</link></secondaryie>
 Rules</link></secondaryie>
       <secondaryie>error detection <link linkend="ITch06-24"><command>pmie</command> Error Detection</link></secondaryie>
       <secondaryie>examples <link linkend="ITch06-9">Simple <command>pmie</command> Usage</link> <link linkend="ITch06-10">Complex <command>pmie</command> Examples</link></secondaryie>
+      <secondaryie>fetching metrics <link linkend="IG31371888116">Fetching Metrics from Another Host</link></secondaryie>
       <secondaryie>global files and directories <link linkend="IG31371888238">Global Files and Directories</link></secondaryie>
       <secondaryie>instance names <link linkend="ITch06-23"><command>pmie</command> Instance Names</link></secondaryie>
       <secondaryie>intrinsic operators <link linkend="ITch06-17"><command>pmie</command> Intrinsic Operators</link></secondaryie>
@@ -7642,6 +7634,7 @@ pmieconf</command></link> <link linkend="IG31371888237">Management of <command>p
       <secondaryie>rate conversion <link linkend="ITch06-14"><command>pmie</command> Rate Conversion</link></secondaryie>
       <secondaryie>rate operator <link linkend="IG31371888223">The <command>rate</command> Operator</link></secondaryie>
       <secondaryie>real examples <link linkend="ITch06-18"><command>pmie</command> Examples</link></secondaryie>
+      <secondaryie>remote PMCD <link linkend="IG31371888103">Cannot Connect to Remote PMCD</link></secondaryie>
       <secondaryie>sample intervals <link linkend="ITch06-22"><command>pmie</command> Sample Intervals</link></secondaryie>
       <secondaryie>setting evaluation frequency <link linkend="ITch06-12">Setting Evaluation Frequency</link></secondaryie>
       <secondaryie>syntax <link linkend="ITch06-11">Basic <command>pmie</command> Syntax</link></secondaryie>
@@ -7824,11 +7817,6 @@ Collection System</link></secondaryie>
    <primaryie>pmval tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-42">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>description <link linkend="ITch04-23">The <command>pmval</command> Command</link></secondaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmview tool</primaryie>
-      <secondaryie>record mode <link linkend="IG31371888293">PCP Archive Folios</link></secondaryie>
 </indexentry>
 
 <indexentry>
