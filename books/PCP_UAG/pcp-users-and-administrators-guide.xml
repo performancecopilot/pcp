@@ -772,46 +772,12 @@ collector hosts</para>
 <para>Each PCP enabled host can operate as a collector, a monitor, or
 both.</para>
 </section>
-<section id="LE75000-PARENT">
-
-<title>Performance Metrics Collection System</title>
-<para><indexterm id="ITch01-158"><primary>PMCS</primary><secondary>description
-</secondary></indexterm><indexterm id="IG3137188882"><primary>Performance Metrics Collection
-System</primary><see>PMCS</see></indexterm> PCP provides an infrastructure
-through the Performance Metrics Collection System (PMCS). It unifies
-the autonomous and distributed PMDAs into a cohesive pool of performance
-data, and provides the services required to create generalized and powerful
-performance tools.</para>
-<para>The PMCS provides the framework that underpins the PMAPI, which
-is described in the <citetitle>Performance
-Co-Pilot Programmer's Guide</citetitle>. The PMCS is responsible
-for the following services on behalf of the performance tools developed
-on top of the PMAPI:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG3137188883"><primary>PMNS</primary><secondary>services
-</secondary></indexterm>Distributed Name Space services</para>
-</listitem>
-<listitem><para><indexterm id="IG3137188884"><primary>instance domain services</primary>
-</indexterm>Instance domain services</para>
-</listitem>
-<listitem><para>Coordination with the processes and procedures required
-to control the description, collection, and extraction of performance
-metric values from agents that interface to the performance metric domains
-</para>
-</listitem>
-<listitem><para>Servicing incoming requests for local performance metric
-values and metadata from applications running either locally or on a remote
-system</para>
-</listitem></itemizedlist>
-</section>
 <section id="id5189901">
 
 <title>Retrospective Sources of Performance Metrics</title>
 <para><indexterm id="ITch01-159"><primary>performance metrics</primary>
-<secondary>retrospective sources</secondary></indexterm>The PMCS described
-in the previous section is used when PMAPI clients are requesting performance
-metrics from a real-time or live source.</para>
-<para>The PMAPI also supports delivery of performance metrics from a historical
+<secondary>retrospective sources</secondary></indexterm>The PMAPI also
+supports delivery of performance metrics from a historical
 source in the form of a PCP archive log. Archive logs are created using
 the <literal>pmlogger</literal> utility, and are replayed in an architecture
 as shown in <xref linkend="id5189940"/>.</para>
@@ -833,7 +799,7 @@ design philosophy that considers extensibility to be critically important.
 to deploy value-added performance monitoring tools and services. Here
 are some examples:</para>
 <itemizedlist>
-<listitem><para>Easy extension of the PMCS and PMNS to accommodate new
+<listitem><para>Easy extension of the PCP collector to accommodate new
 performance metrics and new sources of performance metrics, in particular
 using the interfaces of a special-purpose library to develop new PMDAs
 (see the <command>pmda(3)</command> man page)</para>
@@ -3213,8 +3179,8 @@ to be reset, and some are simply control variables for agents that collect
 performance metrics. When you need to change the value of a metric for any
 reason, the command to use is <command>pmstore</command>.</para>
 <note><para>For obvious reasons, the ability to arbitrarily change the value
-of a performance metric is not supported. Rather, the PMCS selectively allows
-some metrics to be modified in a very controlled fashion.</para>
+of a performance metric is not supported. Rather, PCP collectors selectively
+allow some metrics to be modified in a very controlled fashion.</para>
 </note>
 <para>The basic syntax of the command is as follows:</para>
 <literallayout class="monospaced">pmstore <replaceable>metricname</replaceable> <replaceable>value</replaceable>&#xA0;</literallayout>
@@ -3321,11 +3287,11 @@ performance monitoring and control functions.</para>
 <para>The stream of performance metrics to be evaluated may be from one or
 more hosts, or from one or more PCP archive logs. In the latter case, <command>pmie</command>
 may be used to retrospectively identify adverse performance conditions.</para>
-<para><indexterm id="IG31371888177"><primary>PMCS</primary><secondary>pmie capabilities</secondary>
+<para><indexterm id="IG31371888177"><primary>PCP</primary><secondary>pmie capabilities</secondary>
 </indexterm><indexterm id="IG31371888178"><primary>PMAPI</primary><secondary>pmie capabilities
 </secondary></indexterm>Using <command>pmie</command>, you can filter, interpret,
-and reason about the large volume of performance data made available by the
-Performance Metrics Collection System (PMCS).</para>
+and reason about the large volume of performance data made available from PCP
+collector systems or PCP archives.</para>
 <para>Typical <command>pmie</command> uses include the following:</para>
 <itemizedlist>
 <listitem><para>Automated real-time monitoring of a host, a set of hosts,
@@ -3443,15 +3409,14 @@ In the absence of a given <replaceable>filename</replaceable>,
 expressions are read from standard input, which may be your system keyboard.</para>
 <section id="LE23271-PARENT">
 
-<title><command>pmie</command> and the Performance Metrics Collection System</title>
-<para><indexterm id="ITch06-7"><primary>PMCS</primary><secondary>pmie tool
-</secondary></indexterm>Before you use <command>pmie</command>, familiarize
-yourself with some Performance Metrics Collection System (PMCS) basics. It
+<title><command>pmie</command> use of PCP services</title>
+<para><indexterm id="ITch06-7"><primary>PCP</primary><secondary>pmie tool
+</secondary></indexterm>Before you use <command>pmie</command>, it
 is strongly recommended that you familiarize yourself with the concepts from
 the <xref linkend="LE79836-PARENT"/>. The discussion in this section serves
 as a very brief review of these concepts.</para>
 <para><indexterm id="IG31371888187"><primary>pminfo tool</primary><secondary>pmie arguments</secondary>
-</indexterm>The PMCS makes available thousands of performance metrics that
+</indexterm>PCP makes available thousands of performance metrics that
 you can use when formulating expressions for <command>pmie</command> to evaluate.
 If you want to find out which metrics are currently available on your system,
 use this command:</para>
@@ -3538,7 +3503,7 @@ samples are available. The subsequent samples are produced every ten seconds
 by default. The second sample reports that during the preceding ten seconds
 there was an average of 14.4 transfers per second on one disk and no transfers
 on the other disk.</para>
-<para>Rates are computed using time stamps delivered by the PMCS. Due to unavoidable
+<para>Rates are computed using time stamps delivered by PMCD. Due to unavoidable
 inaccuracy in the actual sampling time (the sample interval is not exactly
 10 seconds), you may see more decimal places in values than you expect. Notice,
 however, that these errors do not accumulate but cancel each other out over
@@ -3788,12 +3753,11 @@ is initially set to be 10 seconds.</para>
 <title><command>pmie</command> Metric Expressions</title>
 <para><indexterm id="ITch06-13"><primary>pmie tool</primary><secondary>metric
 expressions</secondary></indexterm><indexterm id="IG31371888194"><primary>PMNS</primary><secondary>
-metric expressions</secondary></indexterm><indexterm id="IG31371888195"><primary>PMCS</primary>
-<secondary>metric expressions</secondary></indexterm><indexterm id="IG31371888196"><primary>
+metric expressions</secondary></indexterm><indexterm id="IG31371888196"><primary>
 PMCD</primary><secondary>collector host</secondary></indexterm>The performance
 metrics namespace (PMNS) provides a means of naming performance metrics,
-for example, <literal>disk.dev.read</literal>. The Performance Metrics Collection
-System (PMCS) allows an application to retrieve one or more values for a performance
+for example, <literal>disk.dev.read</literal>. 
+PCP allows an application to retrieve one or more values for a performance
 metric from a designated source (a collector host running PMCD, or a PCP archive
 log). To specify a single value for some performance metric requires the metric
 name to be associated with all three of the following:</para>
@@ -3876,7 +3840,7 @@ of configured disk spindles on the two hosts.</para>
 <title><command>pmie</command> Rate Conversion</title>
 <para><indexterm id="ITch06-14"><primary>pmie tool</primary><secondary>rate
 conversion</secondary></indexterm><indexterm id="IG31371888198"><primary>rate conversion</primary>
-</indexterm>Many of the metrics delivered by the PMCS are cumulative counters.
+</indexterm>Many of the metrics delivered by PCP are cumulative counters.
 Consider the following metric:</para>
 <literallayout class="monospaced">disk.all.total </literallayout>
 <para>A single value for this metric tells you only that a certain number
@@ -3888,9 +3852,9 @@ be this:</para>
 <literallayout class="monospaced">(disk.all.total @0 - disk.all.total @1) / delta </literallayout>
 <para>The accuracy of <literal>delta</literal> as a measure of actual inter-sample
 delay is an issue. <command>pmie</command> requests samples, at intervals
-of approximately <literal>delta</literal>, while the results exported to the
-PMCS are time stamped with the high-resolution system clock time when the
-samples were exported. For these reasons, a built-in and implicit rate conversion
+of approximately <literal>delta</literal>, while the results exported from
+PMCD are time stamped with the high-resolution system clock time when the
+samples were extracted. For these reasons, a built-in and implicit rate conversion
 using accurate time stamps is provided by <command>pmie</command> for performance
 metrics that have counter semantics. For example, the following expression
 is unconditionally converted to a rate by <command>pmie</command>.</para>
@@ -4512,7 +4476,7 @@ intervals</secondary></indexterm><indexterm id="IG31371888232"><primary>sample i
 long enough, particularly in the case of rates, to ensure that a meaningful
 value is computed. Interval may vary according to the metric and your needs.
 A reasonable minimum is in the range of ten seconds or several minutes. Although
-the PMCS supports sampling rates up to hundreds of times per second, using
+PCP supports sampling rates up to hundreds of times per second, using
 small sample intervals creates unnecessary load on the monitored system.</para>
 </section>
 <section id="id5204396">
@@ -4520,18 +4484,18 @@ small sample intervals creates unnecessary load on the monitored system.</para>
 <title><command>pmie</command> Instance Names</title>
 <para><indexterm id="ITch06-23"><primary>pmie tool</primary><secondary>instance
 names</secondary></indexterm>When you specify a metric instance name (<literal>#</literal><replaceable>identifier</replaceable>) in a <command>pmie</command>
-expression, it is compared against the instance name supplied by the PMCS
-as follows:</para>
+expression, it is compared against the instance name looked up from either
+a live collector system or an archive as follows:</para>
 <itemizedlist>
-<listitem><para>If the given instance name and the PMCS name are the same,
+<listitem><para>If the given instance name and the looked up name are the same,
 they are considered to match.</para>
 </listitem>
 <listitem><para>Otherwise, the first two space separated tokens are extracted
-from the PMCS name. If the given instance name is the same as either of these
+from the looked up name. If the given instance name is the same as either of these
 tokens, they are considered a match.</para>
 </listitem></itemizedlist>
 <para>For some metrics, notably the per process (<literal>proc.xxx.xxx</literal>)
-metrics, the first token in the PMCS instance name is impossible to determine
+metrics, the first token in the looked up instance name is impossible to determine
 at the time you are writing <command>pmie</command> expressions. The above
 policy circumvents this problem.</para>
 </section>
@@ -5539,9 +5503,9 @@ system.</para>
 <para>Run the following command as superuser on each PCP collector system
 where you want to activate the primary <command>pmlogger</command>:</para>
 <literallayout class="monospaced"><userinput>chkconfig pmlogger on</userinput></literallayout>
-<para>The primary logger launches the next time the PMCS is started.
+<para>The primary logger launches the next time the <command>${PCP_RC_DIR}/pmlogger start</command> script runs.
 If you wish this to happen immediately, follow up with this command:</para>
-<literallayout class="monospaced"><userinput>${PCP_RC_DIR}/pmlogger start</userinput></literallayout>
+<literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmlogger_check -V</userinput></literallayout>
 <para><indexterm id="IG31371888296"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary></indexterm><indexterm id="IG31371888297">
 <primary>${PCP_SYSCONF_DIR}/pmlogger/config.default file</primary></indexterm>When
 it is started in this fashion, the <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>
@@ -6715,11 +6679,6 @@ PMCD</primary><secondary>acronym</secondary></indexterm> PMCD</para></entry>
 <entry align="left" valign="top"><para>Performance Metrics Collection
 Daemon</para></entry></row>
 <row valign="top">
-<entry align="left" valign="top"><para><indexterm id="ITchA-8"><primary>
-PMCS</primary><secondary>acronym</secondary></indexterm> PMCS</para></entry>
-<entry align="left" valign="top"><para>Performance Metrics Collection
-System</para></entry></row>
-<row valign="top">
 <entry align="left" valign="top"><para><indexterm id="ITchA-9"><primary>
 PMD</primary></indexterm> PMD</para></entry>
 <entry align="left" valign="top"><para>Performance Metrics Domain</para></entry>
@@ -7045,10 +7004,6 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>instance domain services <link linkend="IG3137188884">Performance Metrics Collection System</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>intrinsic operators <link linkend="IG31371888213"><command>pmie</command> Intrinsic Operators</link></primaryie>
 </indexentry>
 
@@ -7208,6 +7163,8 @@ Duration</link></primaryie>
       <secondaryie>features <link linkend="IG313718880">Introduction to Performance Co-Pilot</link></secondaryie>
       <secondaryie>log file option <link linkend="ITch03-8">Fetching Metrics from an Archive Log</link></secondaryie>
       <secondaryie>naming conventions <link linkend="ITch03-2">Common Conventions and Arguments</link></secondaryie>
+      <secondaryie>pmie capabilities <link linkend="IG31371888177">Introduction to <command>pmie</command></link></secondaryie>
+      <secondaryie>pmie tool <link linkend="ITch06-7"><command>pmie</command> use of PCP services</link></secondaryie>
       <secondaryie>tool customization <link linkend="ITch09-2">PCP Tool Customization</link></secondaryie>
       <secondaryie>tool development <link linkend="ITch09-6">PCP Tool Development</link></secondaryie>
       <secondaryie>tool summaries <link linkend="IG3137188827">Performance Monitoring and Visualization</link> <link linkend="IG3137188833">Collecting, Transporting, and Archiving Performance Information
@@ -7275,11 +7232,6 @@ Duration</link></primaryie>
 <indexentry>
    <primaryie>Performance Metrics Collection Daemon</primaryie>
       <seeie>PMCD</seeie>
-</indexentry>
-
-<indexentry>
-   <primaryie>Performance Metrics Collection System</primaryie>
-      <seeie>PMCS</seeie>
 </indexentry>
 
 <indexentry>
@@ -7407,16 +7359,6 @@ Collection System</link></primaryie>
    <primaryie>pmconfirm command</primaryie>
       <secondaryie>error messages <link linkend="IG31371888141">PCP Environment Variables</link></secondaryie>
       <secondaryie>visible alarm <link linkend="IG31371888180">Introduction to <command>pmie</command></link></secondaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>PMCS</primaryie>
-      <secondaryie>acronym <link linkend="ITchA-8">Acronyms</link></secondaryie>
-      <secondaryie>description <link linkend="ITch01-158">Performance Metrics Collection System</link></secondaryie>
-      <secondaryie>metric expressions <link linkend="IG31371888195"><command>pmie</command> Metric Expressions</link></secondaryie>
-      <secondaryie>pmie capabilities <link linkend="IG31371888177">Introduction to <command>pmie</command></link></secondaryie>
-      <secondaryie>pmie tool <link linkend="ITch06-7"><command>pmie</command> and the Performance Metrics
-Collection System</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -7758,7 +7700,6 @@ Collection System</link></secondaryie>
       <secondaryie>metric expressions <link linkend="IG31371888194"><command>pmie</command> Metric Expressions</link></secondaryie>
       <secondaryie>names <link linkend="IG31371888315">Customizing the Summary PMDA</link></secondaryie>
       <secondaryie>PMNS <link linkend="ITch03-10">Alternate Performance Metric Name Spaces</link></secondaryie>
-      <secondaryie>services <link linkend="IG3137188883">Performance Metrics Collection System</link></secondaryie>
       <secondaryie>syntax <link linkend="ITch09-4">PMNS Syntax</link></secondaryie>
       <secondaryie>troubleshooting <link linkend="IG3137188898">Performance Metrics Name Space</link></secondaryie>
 </indexentry>
