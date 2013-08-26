@@ -140,6 +140,7 @@ discussion of specifics of individual tools.
 <title>Man Pages</title>
 <para>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, start from the following command:</para>
 <literallayout class="monospaced"><userinput>man PCPIntro</userinput></literallayout>
+<para>Each man page usually has a &quot;SEE ALSO&quot; section, linking to other, related entries.</para>
 <para>To see a particular man page, supply its name to the <literal>man</literal> command, for example:</para>
 <literallayout class="monospaced"><userinput>man pcp</userinput></literallayout>
 <para>The man pages are arranged in different sections - user commands, programming interfaces, and so on.
@@ -147,7 +148,6 @@ For a complete list of manual sections on a platform enter the command:</para>
 <literallayout class="monospaced"><userinput>man man</userinput></literallayout>
 <para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item.
 For example, <command>pminfo(1)</command> refers to the man page in section 1 for the <command>pminfo</command> command.</para>
-<para>Each man page usually has a &quot;SEE ALSO&quot; section, linking to other, related entries</para>
 </section>
 <section id="id5178968">
 
@@ -858,6 +858,14 @@ It is modeled on the Linux <command>atop(1)</command> tool
 (<ulink url="http://www.atoptool.nl/">home page</ulink>) and provides a
 showcase for the variety of data available using PCP services and the
 Python scripting interfaces.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><command>pmchart</command></term>
+<listitem><para><indexterm id="IG3137188800nat"><primary>pmchart tool</primary>
+<secondary>brief description</secondary></indexterm>Strip chart tool for
+arbitrary performance metrics. Interactive graphical utility that can display
+multiple charts simultaneously, from multiple hosts or archives, aligned on a
+unified time axis (X-axis), or on multiple tabs.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmcollectl</command></term>
@@ -7338,6 +7346,7 @@ Collection System</link></primaryie>
 
 <indexentry>
    <primaryie>pmchart tool</primaryie>
+      <secondaryie>brief description <link linkend="IG3137188800nat">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>fetching metrics <link linkend="IG31371888115">Fetching Metrics from Another Host</link></secondaryie>
       <secondaryie>man example <link linkend="Z1033415772tls">Monitoring System Performance</link></secondaryie>
       <secondaryie>record mode <link linkend="IG31371888292">PCP Archive Folios</link></secondaryie>
