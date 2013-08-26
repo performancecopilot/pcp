@@ -351,7 +351,7 @@ defined.</para>
 
 <title>Client Development and PMAPI</title>
 <para><indexterm id="IG3134017752"><primary>client development</primary></indexterm>Application developers are encouraged to create new PCP client applications to monitor, display, and analyze performance data in a manner suited to their particular site, application suite, or information processing environment.</para>
-<para><indexterm id="IG3134017753"><primary>Performance Metrics Collection Subsystem</primary><seealso>PMCS</seealso></indexterm><indexterm id="IG3134017754"><primary>PMCS</primary></indexterm><indexterm id="IG3134017755"><primary>PMAPI</primary><secondary>client development</secondary></indexterm>PCP client applications are programmed using the Performance Metrics Application Programming Interface (PMAPI), documented in <xref linkend="LE97135-PARENT"/>. The PMAPI, which provides performance tool developers with access to all of the distributed services of the Performance Metrics Collection Subsystem (PMCS), is the interface used by the standard PCP utilities.</para>
+<para><indexterm id="IG3134017755"><primary>PMAPI</primary><secondary>client development</secondary></indexterm>PCP client applications are programmed using the Performance Metrics Application Programming Interface (PMAPI), documented in <xref linkend="LE97135-PARENT"/>. The PMAPI, which provides performance tool developers with access to all of the historical and live distributed services of PCP, is the interface used by the standard PCP utilities.</para>
 </section>
 <section id="id5187605">
 
@@ -3567,9 +3567,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 <entry align="left" valign="top"><para><indexterm id="IG31340177573"><primary>PMCD</primary><secondary>acronym</secondary></indexterm> PMCD</para></entry>
 <entry align="left" valign="top"><para>Performance Metrics Collection Daemon</para></entry></row>
 <row valign="top">
-<entry align="left" valign="top"><para><indexterm id="IG31340177574"><primary>PMCS</primary></indexterm> PMCS</para></entry>
-<entry align="left" valign="top"><para>Performance Metrics Collection Subsystem</para></entry></row>
-<row valign="top">
 <entry align="left" valign="top"><para><indexterm id="IG31340177575"><primary>PMDA</primary><secondary>acronym</secondary></indexterm> PMDA</para></entry>
 <entry align="left" valign="top"><para>Performance Metrics Domain Agent</para></entry></row>
 <row valign="top">
@@ -4157,11 +4154,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>Performance Metrics Collection Subsystem <link linkend="IG3134017753">Client Development and PMAPI</link></primaryie>
-      <seealsoie>PMCS</seealsoie>
-</indexentry>
-
-<indexentry>
    <primaryie>Performance Metrics Domain Agent</primaryie>
       <seeie>PMDA</seeie>
 </indexentry>
@@ -4324,10 +4316,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>pmConvScale function <link linkend="IG31340177173">Management of Evolution within a PMDA</link> <link linkend="IG31340177426"><command>pmConvScale</command> Function</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>PMCS <link linkend="IG3134017754">Client Development and PMAPI</link> <link linkend="IG31340177574">Acronyms</link></primaryie>
 </indexentry>
 
 <indexentry>
