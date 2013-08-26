@@ -612,6 +612,7 @@ and
 comma (``,'').
 The special characters are not treated as special in the agent configuration
 section.
+Lexical elements may be quoted (double quotes) as necessary.
 .PP
 The access control section of the file must start with a line of the form:
 .TP
@@ -652,14 +653,22 @@ Permission to perform the
 operation should not be given indiscriminately; it has the potential to be
 abused by malicious users.
 .PP
-Hosts may be identified by name, IP address, IPv6 address or a wildcarded IP/IPv6 address with the
-single wildcard character ``*'' as the last-given component of the
-address. The wildcard ``.*'' refers to all inet (IPv4) addresses. The wildcard ``:*'' refers to all
-IPv6 addresses. The wildcard ``*`` refers to all addresses. If an IPv6 wildcard contains a ``::''
+Hosts may be identified by name, IP address, IPv6 address or by the special host
+specifications ``"unix:"'' or ``"local:"''. ``"unix:"'' refers to
+.B pmcd's
+unix domain socket, on supported platforms. ``"local:"'' is equivalent to
+specifying ``"unix:"'' and ``localhost``.
+.PP
+Wildcards may also be specified by ending the host identifier with the
+single wildcard character ``*'' as the last-given component of an
+address. The wildcard ``".*"'' refers to all inet (IPv4) addresses.
+The wildcard ``":*"'' refers to all IPv6 addresses.
+The wildcard ``*`` refers to all addresses, including ``"unix:"''/
+If an IPv6 wildcard contains a ``::''
 component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
 refers to the remaining unspecified bits of the address. Host names may not be wildcarded.
-The
-following are all valid host identifiers:
+.PP
+The following are all valid host identifiers:
 .de CS
 .in +0.5i
 .ft CW
@@ -683,6 +692,8 @@ fe80::223:14ff:feaf:b62c
 fe80::223:14ff:feaf:*
 fe80:*
 :*
+"unix:"
+"local:"
 *
 .CE
 .PP
