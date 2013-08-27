@@ -79,7 +79,7 @@ is used instead).
 .SH FILES
 .B pmprintf
 uses the
-.BR tmpnam (3)
+.BR mkstemp (3)
 function to create a temporary file.
 This temporary file is deleted when
 .B pmflush
@@ -98,7 +98,7 @@ to obtain the associated error message.
 .SH SEE ALSO
 .BR pmdbg (1),
 .BR fprintf (3),
-.BR PMAPI (3),
+.BR mkstemp (3),
 .BR pmErrStr (3)
 and
-.BR tmpnam (3).
+.BR PMAPI (3).
