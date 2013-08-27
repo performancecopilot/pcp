@@ -2,8 +2,7 @@ Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
-License: GPLv2
-Vendor: SGI
+License: GPLv2+ and LGPLv2.1+
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
