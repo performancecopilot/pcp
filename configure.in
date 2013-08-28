@@ -945,7 +945,9 @@ AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 pmda_infiniband=
 if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
 then
-    AC_CHECK_HEADERS([infiniband/umad.h infiniband/mad.h], [pmda_infiniband=infiniband], [])
+    AC_CHECK_HEADERS([infiniband/umad.h], [
+	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=infiniband], [])
+    ], [])
     IB_LIBS=""
     AC_CHECK_LIB(ibmad, madrpc_init)
     AC_CHECK_LIB(ibumad, umad_init)

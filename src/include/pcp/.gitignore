@@ -1,4 +1,3 @@
-platform_header.h
-platform_trailer
 platform_defs.h
+config.h
 pmdbg.h
