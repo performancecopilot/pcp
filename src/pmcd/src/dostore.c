@@ -166,8 +166,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	else {
 	    if (ap->status.notReady == 0) {
 		/* agent is ready for PDUs */
-		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
+		pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
 		s = __pmSendResult(ap->inFd, cp - client, dResult[i]);
 		if (s >= 0) {
 		    ap->status.busy = 1;
@@ -178,7 +177,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		    nWait++;
 		}
 		else if (s == PM_ERR_IPC || sts == PM_ERR_TIMEOUT || s == -EPIPE) {
-		    pmcd_trace(TR_XMIT_ERR, ap->inFd, PDU_RESULT, sts);
+		    pmcd_trace(TR_MASK_PDU, TR_XMIT_ERR, ap->inFd, PDU_RESULT, sts);
 		    CleanupAgent(ap, AT_COMM, ap->inFd);
 		}
 	    }
@@ -214,7 +213,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		/* Timeout, terminate agents that haven't responded */
 		for (i = 0; i < nAgents; i++) {
 		    if (agent[i].status.busy) {
-			pmcd_trace(TR_RECV_TIMEOUT, agent[i].outFd, PDU_ERROR, 0);
+			pmcd_trace(TR_MASK_PDU, TR_RECV_TIMEOUT, agent[i].outFd, PDU_ERROR, 0);
 			CleanupAgent(&agent[i], AT_COMM, agent[i].inFd);
 		    }
 		}
@@ -239,8 +238,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
-	    if (s > 0 && _pmcd_trace_mask)
-		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
+	    if (s > 0)
+		pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
 		int ss;
 		if ((ss = __pmDecodeError(pb, &s)) < 0)
@@ -250,16 +249,16 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 			extern int CheckError(AgentInfo *, int);
 
 			sts = CheckError(ap, s);
-			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
+			pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		    }
 		}
 	    }
 	    else {
 		/* Agent protocol error */
 		if (s < 0)
-		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, s);
+		    pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_RESULT, s);
 		else
-		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, s);
+		    pmcd_trace(TR_MASK_PDU, TR_WRONG_PDU, ap->outFd, PDU_ERROR, s);
 		sts = PM_ERR_IPC;
 	    }
 
@@ -294,8 +293,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     if (sts >= 0) {
 	/* send PDU_ERROR, even if result was 0 */
 	int s;
-	if (_pmcd_trace_mask)
-	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
+	pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
 	s = __pmSendError(cp->fd, FROM_ANON, 0);
 	if (s < 0)
 	    CleanupClient(cp, s);

@@ -187,7 +187,7 @@ PMCD_EXTERN int		_pmcd_trace_nbufs;
  * routines
  */
 extern void pmcd_init_trace(int);
-extern void pmcd_trace(int, int, int, int);
+extern void pmcd_trace(int, int, int, int, int);
 extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
 
