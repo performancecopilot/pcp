@@ -239,9 +239,9 @@ endif
 
 install-pcppmdainfiniband: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
+#	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
+#	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
+#	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
 endif
 
 pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
