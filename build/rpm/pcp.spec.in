@@ -17,6 +17,9 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: nss-devel
 BuildRequires: cyrus-sasl-devel
 %endif
+%if "@enable_probes@" == "true"
+BuildRequires: systemtap-sdt-devel
+%endif
 %if @have_libmicrohttpd@ == 1
 BuildRequires: libmicrohttpd-devel
 %endif

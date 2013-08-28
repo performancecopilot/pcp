@@ -23,10 +23,10 @@ include $(TOPDIR)/src/include/builddefs
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h pmiestats.h \
 	 trace.h trace_dev.h trace_hash.h mmv_stats.h mmv_dev.h \
 	 import.h
-GENERATED_HFILES = pmdbg.h platform_defs.h platform_header.h
-CONFFILES = platform_header.h platform_defs.h
+GENERATED_HFILES = pmdbg.h platform_defs.h config.h
+CONFFILES = config.h platform_defs.h
 
-LSRCFILES = platform_header.h.in platform_defs.h.in mk_pmdbg fault.h
+LSRCFILES = config.h.in platform_defs.h.in mk_pmdbg fault.h
 LDIRT = $(GENERATED_HFILES)
 
 default :: default_pcp

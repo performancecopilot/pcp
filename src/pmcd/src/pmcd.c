@@ -306,9 +306,9 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	this_client_id = i;
 
 	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
-	if (sts > 0)
-	    pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
-	if (sts <= 0) {
+	if (sts > 0) {
+	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
+	} else {
 	    CleanupClient(cp, sts);
 	    continue;
 	}
@@ -394,7 +394,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 #endif
 	    /* Make sure client still alive before sending. */
 	    if (cp->status.connected) {
-		pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 		sts = __pmSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
@@ -553,12 +553,12 @@ HandleReadyAgents(__pmFdSet *readyFds)
 		reason = AT_COMM;	/* most errors are protocol failures */
 		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 		if (sts > 0)
-		    pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
 		    s = __pmDecodeError(pb, &sts);
 		    if (s < 0) {
 			sts = s;
-			pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
 		    }
 		    else {
 			/* sts is the status code from the error PDU */
@@ -576,16 +576,16 @@ HandleReadyAgents(__pmFdSet *readyFds)
 			    ready++;
 			}
 			else {
-			    pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
+			    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_ERROR, sts);
 			    sts = PM_ERR_IPC;
 			}
 		    }
 		}
 		else {
 		    if (sts < 0)
-			pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
+			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		    else
-			pmcd_trace(TR_MASK_PDU, TR_WRONG_PDU, ap->outFd, PDU_ERROR, sts);
+			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, sts);
  		    sts = PM_ERR_IPC; /* Wrong PDU type */
 		}
 		if (pinpdu > 0)
@@ -640,7 +640,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    accepted = 0;
 	}
 
-	pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 	xchallenge = *(__pmPDUInfo *)&challenge;
 	xchallenge = __htonpmPDUInfo(xchallenge);
 
@@ -1055,7 +1055,7 @@ CleanupClient(ClientInfo *cp, int sts)
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
         __pmAccDelClient(cp->addr);
 
-    pmcd_trace(TR_MASK_CONN, TR_DEL_CLIENT, cp->fd, sts, 0);
+    pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
     DeleteClient(cp);
 
     if (maxClientFd < maxReqPortFd)

@@ -68,7 +68,7 @@ NotifyEndContext(int ctx)
 		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
 #endif
-	    pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
+	    pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
 	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
     }
@@ -129,7 +129,7 @@ AcceptNewClient(int reqfd)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "AcceptNewClient(%d): client[%d] (fd %d)\n", reqfd, i, fd);
 #endif
-    pmcd_trace(TR_MASK_CONN, TR_ADD_CLIENT, i, 0, 0);
+    pmcd_trace(TR_ADD_CLIENT, i, 0, 0);
 
     return &client[i];
 }

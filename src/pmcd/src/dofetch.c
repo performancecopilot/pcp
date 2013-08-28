@@ -240,10 +240,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	}
 	else {
 	    if (aPtr->status.notReady == 0) {
-		pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, ctxnum);
+		pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_PROFILE, ctxnum);
 		if ((sts = __pmSendProfile(aPtr->inFd, cPtr - client,
 					   ctxnum, cPtr->profile[ctxnum])) < 0) {
-		    pmcd_trace(TR_MASK_PDU, TR_XMIT_ERR, aPtr->inFd, PDU_PROFILE, sts);
+		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_PROFILE, sts);
 		}
 	    } else {
 		sts = PM_ERR_AGAIN;
@@ -286,10 +286,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 	else {
 	    if (aPtr->status.notReady == 0) {
 		/* agent is ready for PDUs */
-		pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
+		pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_FETCH, dpList->listSize);
 		if ((sts = __pmSendFetch(aPtr->inFd, cPtr - client, ctxnum, &when,
 				   dpList->listSize, dpList->list)) < 0)
-		    pmcd_trace(TR_MASK_PDU, TR_XMIT_ERR, aPtr->inFd, PDU_FETCH, sts);
+		    pmcd_trace(TR_XMIT_ERR, aPtr->inFd, PDU_FETCH, sts);
 	    }
 	    else {
 		/* agent is not ready for PDUs */
@@ -440,7 +440,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			results[i] = MakeBadResult(dList[j].listSize,
 						   dList[j].list,
 						   PM_ERR_NOAGENT);
-			pmcd_trace(TR_MASK_PDU, TR_RECV_TIMEOUT, agent[i].outFd, PDU_RESULT, 0);
+			pmcd_trace(TR_RECV_TIMEOUT, agent[i].outFd, PDU_RESULT, 0);
 			CleanupAgent(&agent[i], AT_COMM, agent[i].inFd);
 		    }
 		}
@@ -466,7 +466,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    nWait--;
 	    pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
 	    if (sts > 0)
-		pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+		pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 	    if (sts == PDU_RESULT) {
 		if ((sts = __pmDecodeResult(pb, &results[i])) >= 0)
 		    if (results[i]->numpmid != aFreq[i]) {
@@ -486,10 +486,10 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 			sts = s;
 		    else if (sts >= 0)
 			sts = PM_ERR_GENERIC;
-		    pmcd_trace(TR_MASK_PDU, TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
+		    pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		}
 		else if (sts >= 0) {
-		    pmcd_trace(TR_MASK_PDU, TR_WRONG_PDU, ap->outFd, PDU_RESULT, sts);
+		    pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_RESULT, sts);
 		    sts = PM_ERR_IPC;
 		}
 	    }
@@ -539,7 +539,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	j = mapdom[((__pmID_int *)&pmidList[i])->domain];
 	endResult->vset[i] = results[j]->vset[resIndex[j]++];
     }
-    pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, cip->fd, PDU_RESULT, endResult->numpmid);
+    pmcd_trace(TR_XMIT_PDU, cip->fd, PDU_RESULT, endResult->numpmid);
 
     sts = 0;
     if (cip->status.changes) {
@@ -553,7 +553,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	sts = __pmSendResult(cip->fd, FROM_ANON, endResult);
 
     if (sts < 0) {
-	pmcd_trace(TR_MASK_PDU, TR_XMIT_ERR, cip->fd, PDU_RESULT, sts);
+	pmcd_trace(TR_XMIT_ERR, cip->fd, PDU_RESULT, sts);
 	CleanupClient(cip, sts);
     }
 

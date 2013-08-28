@@ -30,6 +30,12 @@ ifeq "$(ENABLE_SECURE)" "true"
 LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
 endif
 
+ifeq "$(ENABLE_PROBES)" "true"
+LSRCFILES += probes.d
+OBJECTS += probes.o
+LDIRT += probes.h
+endif
+
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
 LDIRT	+= libpcp_pmcd.a
@@ -39,6 +45,14 @@ LDIRT	+= libpcp_pmcd.$(DSOSUFFIX)
 endif
 
 default : $(LIBTARGET) $(STATICLIBTARGET)
+
+ifeq "$(ENABLE_PROBES)" "true"
+trace.c: probes.h
+probes.h: probes.d
+	$(DTRACE) -h -s $< -o $@
+probes.o: probes.d
+	$(DTRACE) -G -s $< -o $@
+endif
 
 include $(BUILDRULES)
 

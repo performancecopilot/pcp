@@ -54,10 +54,10 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	    dlclose(aPtr->ipc.dso.dlHandle);
 #endif
 	}
-	pmcd_trace(TR_MASK_CONN, TR_DEL_AGENT, aPtr->pmDomainId, -1, -1);
+	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, -1, -1);
     }
     else {
-	pmcd_trace(TR_MASK_CONN, TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
+	pmcd_trace(TR_DEL_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	if (aPtr->inFd != -1) {
 	    if (aPtr->ipcType == AGENT_SOCKET)
 	      __pmCloseSocket(aPtr->inFd);

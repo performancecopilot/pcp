@@ -1448,8 +1448,8 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
-    else
-	pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+    pmcd_trace(TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+
     for (i = 0; i < credcount; i++) {
 	switch (credlist[i].c_type) {
 	case CVERSION:
@@ -1482,7 +1482,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake.c_flags = (flags & PDU_FLAG_AUTH);
 	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
 	    return sts;
-	else pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
+	pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
 
 	/* send auth attributes for existing connected clients */
 	if ((flags & PDU_FLAG_AUTH) != 0 &&
@@ -2104,9 +2104,9 @@ ContactAgents(void)
 	aPtr->status.connected = sts == 0;
 	if (aPtr->status.connected) {
 	    if (aPtr->ipcType == AGENT_DSO)
-		pmcd_trace(TR_MASK_CONN, TR_ADD_AGENT, aPtr->pmDomainId, -1, -1);
+		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, -1, -1);
 	    else
-		pmcd_trace(TR_MASK_CONN, TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
+		pmcd_trace(TR_ADD_AGENT, aPtr->pmDomainId, aPtr->inFd, aPtr->outFd);
 	    MarkStateChanges(PMCD_ADD_AGENT);
 	    aPtr->status.notReady = aPtr->status.startNotReady;
 	}
@@ -2348,11 +2348,11 @@ ParseRestartAgents(char *fileName)
 		    __pmPDU	*pb;
 		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, TIMEOUT_NEVER, &pb);
 		    if (sts > 0)
-			pmcd_trace(_pmcd_trace_mask, TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)
-			pmcd_trace(TR_MASK_PDU, TR_EOF, ap->outFd, -1, -1);
+			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
 		    else {
-			pmcd_trace(TR_MASK_PDU, TR_WRONG_PDU, ap->outFd, -1, sts);
+			pmcd_trace(TR_WRONG_PDU, ap->outFd, -1, sts);
 			if (sts > 0)
 			    __pmUnpinPDUBuf(pb);
 		    }
@@ -2509,13 +2509,11 @@ ParseRestartAgents(char *fileName)
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
 
-	if (cp->status.connected == 0)
-	    continue;
 	if ((sts = CheckClientAccess(cp)) >= 0)
 	    sts = CheckAccountAccess(cp);
 	if (sts < 0) {
 	    /* ignore errors, the client is being terminated in any case */
-	    pmcd_trace(_pmcd_trace_mask, TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 	    __pmSendError(cp->fd, FROM_ANON, sts);
 	    CleanupClient(cp, sts);
 	}

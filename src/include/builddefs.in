@@ -157,6 +157,8 @@ ECHO	= @echo@
 LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
+PYTHON	= @PYTHON@
+DTRACE  = @DTRACE@
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
@@ -185,8 +187,6 @@ MAKEPKG	= @makepkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
 PKGMK	= @pkgmk@
 MD5SUM	= @md5sum@
-DTRACE  = @DTRACE@
-enable_dtrace  = @enable_dtrace@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
@@ -198,6 +198,7 @@ NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
+ENABLE_PROBES = @enable_probes@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -493,7 +494,6 @@ PMDA_INFINIBAND=@PMDA_INFINIBAND@
 
 #
 # Python platform-specific installation quirks
-PYTHON=@PYTHON@
 PYTHON_PREFIX=@python_prefix@
 SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src

@@ -17,6 +17,7 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
+BuildRequires: systemtap-sdt-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
