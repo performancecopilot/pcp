@@ -210,6 +210,24 @@ AC_ARG_ENABLE([shared],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
 AC_SUBST(enable_shared)
 
+#
+# DTrace
+#
+
+AC_ARG_ENABLE([dtrace],
+  [AS_HELP_STRING([--enable-dtrace], [enable DTrace support.])],
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-dtrace"]  )
+AC_CHECK_PROGS(DTRACE, dtrace)
+if test -z "$DTRACE"; then
+   AC_MSG_ERROR([dtrace not found])
+fi
+AS_IF([test "x$enable_dtrace" == xyes],[
+   AC_DEFINE([ENABLE_DTRACE], 1,
+             [Define to 1 to enable DTrace support. (--enable-dtrace)])
+])
+AC_SUBST(DTRACE)
+AC_SUBST(enable_dtrace)
+
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""
 case $target_os
@@ -2217,6 +2235,8 @@ AC_SUBST(PACKAGE_CONFIGURE)
 dnl
 dnl output files
 dnl
+
+AC_CONFIG_HEADERS([src/include/pcp/config.h])
 
 AC_OUTPUT(
 dnl   Build definitions for use in Makefiles

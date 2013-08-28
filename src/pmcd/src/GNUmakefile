@@ -18,14 +18,30 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmcd$(EXECSUFFIX)
 HFILES = client.h pmcd.h
+LSRCFILES += probes.h
 CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
+ifeq ($(enable_dtrace), yes)
+OBJECTS += probes.o
+endif
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
 LCFLAGS += $(PIECFLAGS)
 
 default:	$(CMDTARGET)
+
+DIRT += probes.h
+pmcd.c: probes.h
+ifeq ($(enable_dtrace), yes)
+probes.h: probes.d
+	$(DTRACE) -h -s $< -o $@
+endif
+
+ifeq ($(enable_dtrace), yes)
+probes.o: probes.d
+	$(DTRACE) -G -s $< -o $@
+endif
 
 include $(BUILDRULES)
 

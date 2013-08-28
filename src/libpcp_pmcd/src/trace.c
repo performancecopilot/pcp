@@ -17,7 +17,12 @@
  */
 
 #include "pmcd.h"
-
+#include "config.h"
+#if ENABLE_DTRACE
+#include "probes.h"
+#else
+#define PROBE_PMCD(arg1,arg2,arg3,arg4)
+#endif
 #ifdef IS_SOLARIS
 #define _REENTRANT
 #include <time.h>
@@ -65,9 +70,14 @@ pmcd_init_trace(int n)
 }
 
 void
-pmcd_trace(int type, int who, int p1, int p2)
+pmcd_trace(int trace_mask, int type, int who, int p1, int p2)
 {
     int		p;
+
+    PROBE_PMCD (type, who, p1, p2);
+    
+    if (! trace_mask)
+	return;
 
     if (trace == NULL) {
 	pmcd_init_trace(_pmcd_trace_nbufs);
