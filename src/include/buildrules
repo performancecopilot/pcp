@@ -95,8 +95,7 @@ clean clobber :: $(SUBDIRS) $(PRO_SUBDIRS) $(SNIA_SUBDIRS)
 realclean distclean: clean
 	rm -f $(TOPDIR)/src/include/builddefs \
 	      $(TOPDIR)/src/include/pcp.conf \
-	      $(TOPDIR)/src/include/pcp/platform_header.h \
-	      $(TOPDIR)/src/include/pcp/platform_trailer \
+	      $(TOPDIR)/src/include/pcp/config.h \
 	      $(TOPDIR)/src/include/pcp/platform_defs.h \
 	      $(TOPDIR)/src/include/pcp/pmdbg.h
 	rm -f $(TOPDIR)/pcp.lsm

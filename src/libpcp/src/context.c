@@ -553,11 +553,11 @@ pmReconnectContext(int handle)
     if (handle < 0 || handle >= contexts_len ||
 	contexts[handle]->c_type == PM_CONTEXT_FREE) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
+	if (pmDebug & DBG_TRACE_CONTEXT)
+	    fprintf(stderr, "pmReconnectContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
 #endif
-	    PM_UNLOCK(__pmLock_libpcp);
-	    return PM_ERR_NOCONTEXT;
+	PM_UNLOCK(__pmLock_libpcp);
+	return PM_ERR_NOCONTEXT;
     }
 
     ctxp = contexts[handle];

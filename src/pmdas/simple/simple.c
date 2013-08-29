@@ -496,7 +496,7 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
 		"simple.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:6:U:?", &dispatch, &err)) != EOF) {
 	switch(c) {
 	case 'U':
 	    username = optarg;

@@ -306,9 +306,9 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	this_client_id = i;
 
 	pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
-	if (sts > 0 && _pmcd_trace_mask)
+	if (sts > 0) {
 	    pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
-	if (sts <= 0) {
+	} else {
 	    CleanupClient(cp, sts);
 	    continue;
 	}
@@ -394,8 +394,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 #endif
 	    /* Make sure client still alive before sending. */
 	    if (cp->status.connected) {
-		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 		sts = __pmSendError(cp->fd, FROM_ANON, sts);
 		if (sts < 0)
 		    __pmNotifyErr(LOG_ERR, "HandleClientInput: "
@@ -553,7 +552,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 		/* Expect an error PDU containing PM_ERR_PMDAREADY */
 		reason = AT_COMM;	/* most errors are protocol failures */
 		pinpdu = sts = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
-		if (sts > 0 && _pmcd_trace_mask)
+		if (sts > 0)
 		    pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		if (sts == PDU_ERROR) {
 		    s = __pmDecodeError(pb, &sts);
@@ -587,7 +586,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 			pmcd_trace(TR_RECV_ERR, ap->outFd, PDU_RESULT, sts);
 		    else
 			pmcd_trace(TR_WRONG_PDU, ap->outFd, PDU_ERROR, sts);
-		    sts = PM_ERR_IPC; /* Wrong PDU type */
+ 		    sts = PM_ERR_IPC; /* Wrong PDU type */
 		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
@@ -641,8 +640,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    accepted = 0;
 	}
 
-	if (_pmcd_trace_mask)
-	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 	xchallenge = *(__pmPDUInfo *)&challenge;
 	xchallenge = __htonpmPDUInfo(xchallenge);
 

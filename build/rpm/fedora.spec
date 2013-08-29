@@ -4,7 +4,7 @@ Version: 3.8.3
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
-License: GPLv2
+License: GPLv2+ and LGPLv2.1+
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
@@ -17,6 +17,7 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
+BuildRequires: systemtap-sdt-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man /bin/hostname
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7

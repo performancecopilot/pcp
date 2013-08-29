@@ -4,7 +4,7 @@
 #ifndef _PCP_PLATFORM_DEFS_H
 #define _PCP_PLATFORM_DEFS_H
 
-#include "platform_header.h"
+#include "config.h"
 
 /* printf candy ... */
 #define FMT_PID @fmt_pid@

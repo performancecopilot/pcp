@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,7 +16,7 @@
 .\"
 .TH PMGETCONTEXTHOSTNAME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetContextHostName\f1 \- return the hostname associated with a Performance Co-Pilot context identifier
+\f3pmGetContextHostName\f1 \- return the hostname associated with a Performance Co-Pilot context
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -33,13 +34,29 @@ the
 .B pmGetContextHostName
 function returns the hostname associated with 
 .IR id .
-The context
+.PP
+If the context
 .I id
-may be associated with either a live (host)
-or archive source of data.
-In the latter case, the hostname returned
-is extracted from the archive label using
+is associated with an archive source of data, the
+hostname returned is extracted from the archive label using
 .BR pmGetArchiveLabel (3).
+.PP
+For live contexts, an attempt will first be made to retrieve
+the hostname from the PCP collector system using
+.BR pmFetch (3)
+with the
+.I pmcd.hostname
+metric.
+This allows client tools using this interface to retrieve an
+accurate host identifier even in the presence of port forwarding
+and tunnelled connections.
+.PP
+Should this not succeed, then a fallback method is used.
+For local contexts \- with local meaning any of DSO, ``localhost''
+or Unix domain socket connection \- a hostname will be sought via
+.BR gethostname (3).
+For other contexts, the hostname extracted from the initial
+context host specification will be used.
 .SH "RETURN VALUE"
 If
 .I id
@@ -67,7 +84,9 @@ function.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),
+.BR gethostname (3),
 .BR pmDupContext (3),
+.BR pmFetch (3),
 .BR pmGetArchiveLabel (3),
 .BR pmNewContext (3),
 .BR pcp.conf (5)

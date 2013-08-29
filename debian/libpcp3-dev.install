@@ -1,6 +1,6 @@
 usr/include/pcp/impl.h
 usr/include/pcp/platform_defs.h
-usr/include/pcp/platform_header.h
+usr/include/pcp/config.h
 usr/include/pcp/pmapi.h
 usr/include/pcp/pmdbg.h
 usr/include/pcp/pmiestats.h

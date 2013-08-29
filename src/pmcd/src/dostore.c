@@ -166,8 +166,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	else {
 	    if (ap->status.notReady == 0) {
 		/* agent is ready for PDUs */
-		if (_pmcd_trace_mask)
-		    pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
+		pmcd_trace(TR_XMIT_PDU, ap->inFd, PDU_RESULT, dResult[i]->numpmid);
 		s = __pmSendResult(ap->inFd, cp - client, dResult[i]);
 		if (s >= 0) {
 		    ap->status.busy = 1;
@@ -239,7 +238,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    __pmFD_CLR(ap->outFd, &waitFds);
 	    nWait--;
 	    pinpdu = s = __pmGetPDU(ap->outFd, ANY_SIZE, _pmcd_timeout, &pb);
-	    if (s > 0 && _pmcd_trace_mask)
+	    if (s > 0)
 		pmcd_trace(TR_RECV_PDU, ap->outFd, s, (int)((__psint_t)pb & 0xffffffff));
 	    if (s == PDU_ERROR) {
 		int ss;
@@ -294,8 +293,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
     if (sts >= 0) {
 	/* send PDU_ERROR, even if result was 0 */
 	int s;
-	if (_pmcd_trace_mask)
-	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
+	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, 0);
 	s = __pmSendError(cp->fd, FROM_ANON, 0);
 	if (s < 0)
 	    CleanupClient(cp, s);

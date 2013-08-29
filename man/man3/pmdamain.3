@@ -17,9 +17,11 @@
 .TH PMDAMAIN 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaMain\f1,
+\f3pmdaGetContext\f1,
 \f3pmdaSetResultCallBack\f1,
 \f3pmdaSetCheckCallBack\f1,
-\f3pmdaSetDoneCallBack\f1 \- generic PDU processing for a PMDA
+\f3pmdaSetDoneCallBack\f1,
+\f3pmdaSetEndContextCallBack\f1 \- generic PDU processing for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -44,6 +46,9 @@ void pmdaSetCheckCallBack(pmdaInterface *\fIdispatch\fP, pmdaCheckCallBack\ \fIc
 .br
 .ti -8n
 void pmdaSetDoneCallBack(pmdaInterface *\fIdispatch\fP, pmdaDoneCallBack\ \fIcallback\fP);
+.br
+.ti -8n
+void pmdaSetEndContextCallBack(pmdaInterface *\fIdispatch\fP, pmdaEndContextCallBack\ \fIcallback\fP);
 .sp
 .in
 .hy
@@ -57,20 +62,6 @@ using the binary PDU protocols to communicate with
 the routine
 .B pmdaMain
 provides a generic implementation of the PDU-driven main loop. 
-.PP
-The arguments that are now encapsulated in
-.B pmdaExt
-that were passed to 
-.B pmdaMainLoop
-include the 
-.I name
-of the PMDA (used only in error messages) and the file descriptors
-.I infd
-and
-.I outfd
-used to receive and send PDUs to the
-.BR pmcd (1)
-process.
 .PP
 .I dispatch
 describes how to process each incoming PDU. It
@@ -184,11 +175,34 @@ though it were a DSO, with
 providing a convenient wrapper that may be used to convert from the
 DSO interface to the binary PDU (daemon PMDA) interface.
 .PP
-.B pmdaMainLoop
-provided two additional callbacks, 
-.I check
+.B pmdaMain
+executes as a continuous loop, returning only when an end of file
+is encountered on the PDU input file descriptor.
+.SH CALLBACKS
+In addition to the individual PDU processing callbacks \-
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaInstance (3),
+.BR pmdaText (3),
+.BR pmdaStore (3),
+.BR pmdaPMID (3),
+.BR pmdaName (3),
+.BR pmdaChildren (3),
 and
-.IR done .
+.BR pmdaAttribute (3)
+there are other callbacks that can affect or inform all PDU
+processing within a PMDA, namely
+.IR check ,
+.I done
+and
+.IR end .
+These callbacks should be set with 
+.BR pmdaSetCheckCallBack ,
+.B pmdaSetDoneCallBack
+and
+.BR pmdaSetEndContextCallBack .
+.PP
 If not null, 
 .I check 
 is called after each PDU is received (but before it was processed), and 
@@ -197,8 +211,7 @@ is called after each PDU is sent.
 If
 .I check
 returns a value less than zero (typically PM_ERR_AGAIN),
-the PDU processing is skipped and
-in most cases the
+the PDU processing is skipped and in most cases the
 function value is returned as an error PDU to
 .BR pmcd (1)
 \- this may be used for
@@ -210,22 +223,25 @@ is not passed back to
 .BR pmcd (1)
 in the cases where no acknowledgment is expected, e.g. for a PDU_PROFILE.
 .PP
-The callback
-.I done
-would typically be used to monitor termination conditions, or do
-PMDA housekeeping required after
-PDU processing.
+The
+.I end
+callback allows a PMDA to keep track of state for individual clients that
+are requesting it to perform actions (PDU processing).
+Using
+.B pmdaGetContext
+a PMDA can determine, at any point, an integer identifier that uniquely
+identifies the client tools at the remote end of PMCD (for local context
+modes, this identifier is always zero).
+This becomes very important for handling event metrics, where each
+event must be propogated once only to each interested client.
+It also underlies the mechanism whereby connection information is passed
+to the PMDA, such as the the credentials (user and group identifiers) for
+the client tool.
 .PP
-These callbacks should now be set with 
-.B pmdaSetCheckCallBack
-and
-.B pmdaSetDoneCallBack
-when using
-.BR pmdaMain .
-.PP
-One further callback mechanism is provided for handling the
+One final callback mechanism is provided for handling the
 .B pmResult
-built for a PDU_RESULT in response to a PDU_FETCH request.  By default,
+built for a PDU_RESULT in response to a PDU_FETCH request.
+By default,
 .B pmdaMain
 will free the
 .B pmResult
@@ -240,20 +256,6 @@ may be used to define an alternative
 .B callback
 from
 .BR pmdaMain .
-The routine
-.B pmdaMainLoopFreeResultCallback
-has been replaced by 
-.BR pmdaSetResultCallBack .
-.PP
-.B pmdaMain
-executes as a continuous loop, returning only when an end of file
-is encountered on the PDU input file descriptor.
-.SH SEE ALSO
-.BR pmcd (1),
-.BR pmdbg (1),
-.BR PMAPI (3)
-and
-.BR PMDA (3).
 .SH DIAGNOSTICS
 These messages may be appended to the PMDA's log file:
 .TP 25
@@ -277,3 +279,18 @@ debug control variable
 .RB ( pmdebug )
 has the DBG_TRACE_LIBPMDA flag set then each PDU that is received is reported
 in the PMDA's log file.
+.SH SEE ALSO
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaProfile (3),
+.BR pmdaFetch (3),
+.BR pmdaDesc (3),
+.BR pmdaInstance (3),
+.BR pmdaText (3),
+.BR pmdaStore (3),
+.BR pmdaPMID (3),
+.BR pmdaName (3),
+.BR pmdaChildren (3),
+and
+.BR pmdaAttribute (3).

@@ -19,7 +19,11 @@ else
     _notrun libpcp not built with fault injection enabled
 fi
 
-if [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+if [ -f $PCP_DIR/usr/include/pcp/config.h ]
+then
+    # PCP 3.8.3 or later
+    defs=$PCP_DIR/usr/include/pcp/config.h
+elif [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
 then
     # PCP 3.6 or later
     defs=$PCP_DIR/usr/include/pcp/platform_header.h
@@ -28,7 +32,7 @@ then
     # older PCP versions
     defs=$PCP_DIR/usr/include/pcp/platform_defs.h
 else
-    _notrun "No $PCP_DIR/usr/include/pcp/platform_{header,defs}.h?"
+    _notrun "No $PCP_DIR/usr/include/pcp header files found"
 fi
 
 rm -f $seq.out

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -11,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 # License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation,
-# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
 TOPDIR = ../../..
@@ -30,6 +27,14 @@ ifeq "$(ENABLE_SECURE)" "true"
 LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
 endif
 
+ifeq "$(ENABLE_PROBES)" "true"
+LSRCFILES += probes.d
+ifeq "$(TARGET_OS)" "linux"
+OBJECTS += probes.o
+endif
+LDIRT += probes.h
+endif
+
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
 LDIRT	+= libpcp_pmcd.a
@@ -39,6 +44,14 @@ LDIRT	+= libpcp_pmcd.$(DSOSUFFIX)
 endif
 
 default : $(LIBTARGET) $(STATICLIBTARGET)
+
+ifeq "$(ENABLE_PROBES)" "true"
+trace.o: probes.h
+probes.h: probes.d
+	$(DTRACE) -h -s $< -o $@
+probes.o: probes.d
+	$(DTRACE) -G -s $< -o $@
+endif
 
 include $(BUILDRULES)
 

@@ -26,11 +26,6 @@ else
     _notrun "PCP source not found at ../src"
 fi
 
-if [ ! -f $SRC/include/pcp/platform_header.h ]
-then
-    _notrun "Need to run configure (probably admin/myconfigure)"
-fi
-
 echo "QA output created by $seq"
 
 status=0	# success is the default!

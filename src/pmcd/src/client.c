@@ -68,8 +68,7 @@ NotifyEndContext(int ctx)
 		    agent[i].pmDomainLabel, agent[i].pmDomainId, ctx);
 	    }
 #endif
-	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
+	    pmcd_trace(TR_XMIT_PDU, agent[i].inFd, PDU_ERROR, PM_ERR_NOTCONN);
 	    __pmSendError(agent[i].inFd, ctx, PM_ERR_NOTCONN);
 	}
     }

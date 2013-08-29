@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,14 +11,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmcd.h"
-
+#include "config.h"
+#if HAVE_STATIC_PROBES
+#include "probes.h"
+#else
+#define PCP_PROBE_PMCD_PDU(type,who,p1,p2)
+#define PCP_PROBE_PMCD(type,who,p1,p2)
+#endif
 #ifdef IS_SOLARIS
 #define _REENTRANT
 #include <time.h>
@@ -69,20 +72,22 @@ pmcd_trace(int type, int who, int p1, int p2)
 {
     int		p;
 
+    switch (type) {
+	case TR_XMIT_PDU:
+	case TR_RECV_PDU:
+	    PCP_PROBE_PMCD_PDU(type, who, p1, p2);
+	    if ((_pmcd_trace_mask & TR_MASK_PDU) == 0)
+		return;
+	default:
+	    PCP_PROBE_PMCD(type, who, p1, p2);
+	    if ((_pmcd_trace_mask & TR_MASK_CONN) == 0)
+		return;
+    }
+
     if (trace == NULL) {
 	pmcd_init_trace(_pmcd_trace_nbufs);
 	if (trace == NULL)
 	    return;
-    }
-
-    switch (type) {
-	case TR_XMIT_PDU:
-	case TR_RECV_PDU:
-	    if ((_pmcd_trace_mask & TR_MASK_PDU) == 0)
-		return;
-	default:
-	    if ((_pmcd_trace_mask & TR_MASK_CONN) == 0)
-		return;
     }
 
     p = (next++) % _pmcd_trace_nbufs;

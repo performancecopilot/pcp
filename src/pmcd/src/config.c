@@ -1450,8 +1450,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
-    else if (_pmcd_trace_mask)
-	pmcd_trace(TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
+    pmcd_trace(TR_RECV_PDU, aPtr->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 
     for (i = 0; i < credcount; i++) {
 	switch (credlist[i].c_type) {
@@ -1485,8 +1484,7 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	handshake.c_flags = (flags & PDU_FLAG_AUTH);
 	if ((sts = __pmSendCreds(aPtr->inFd, (int)getpid(), 1, cp)) < 0)
 	    return sts;
-	else if (_pmcd_trace_mask)
-	    pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
+	pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
 
 	/* send auth attributes for existing connected clients */
 	if ((flags & PDU_FLAG_AUTH) != 0 &&
@@ -2351,7 +2349,7 @@ ParseRestartAgents(char *fileName)
 		    /* try to discover more ... */
 		    __pmPDU	*pb;
 		    sts = __pmGetPDU(ap->outFd, ANY_SIZE, TIMEOUT_NEVER, &pb);
-		    if (sts > 0 && _pmcd_trace_mask)
+		    if (sts > 0)
 			pmcd_trace(TR_RECV_PDU, ap->outFd, sts, (int)((__psint_t)pb & 0xffffffff));
 		    if (sts == 0)
 			pmcd_trace(TR_EOF, ap->outFd, -1, -1);
@@ -2513,14 +2511,11 @@ ParseRestartAgents(char *fileName)
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
 
-	if (cp->status.connected == 0)
-	    continue;
 	if ((sts = CheckClientAccess(cp)) >= 0)
 	    sts = CheckAccountAccess(cp);
 	if (sts < 0) {
 	    /* ignore errors, the client is being terminated in any case */
-	    if (_pmcd_trace_mask)
-		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
+	    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
 	    __pmSendError(cp->fd, FROM_ANON, sts);
 	    CleanupClient(cp, sts);
 	}
