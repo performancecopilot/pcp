@@ -511,11 +511,11 @@ static pmdaMetric metrictab[] = {
 /* proc.io.rchar */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,0), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 /* proc.io.wchar */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,1), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 /* proc.io.syscr */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_IO,2), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
