@@ -1732,18 +1732,18 @@ host identifiers; the following rules apply:</para>
 <listitem><para>Host names must be in the local system's <filename>/etc/hosts</filename>
 file or known to the local DNS (domain name service).</para>
 </listitem>
-<listitem><para>IPv4 and IPv6 addresses may be given in the usual numeric notations.</para>
+<listitem><para>IP and IPv6 addresses may be given in the usual numeric notations.</para>
 </listitem>
-<listitem><para>A wildcarded IPv4 or IPv6 address may be used to specify groups of hosts,
+<listitem><para>A wildcarded IP or IPv6 address may be used to specify groups of hosts,
 with the single wildcard character * as the last-given component of the address.
-The wildcard .* refers to  all inet (IPv4) addresses. The wildcard :* refers to all
-IPv6 addresses. The wildcard * refers to all addresses. If an IPv6 wildcard contains a
-:: component, then the final * refers to the final 16 bits of the address only,
-otherwise it refers to the remaining unspecified bits of the address.</para>
-</listitem>
-<listitem><para>Host names may not be wildcarded.</para>
+The wildcard .* refers to  all IP (IPv4) addresses.
+The wildcard :* refers to all IPv6 addresses.
+If an IPv6 wildcard contains a :: component, then the final * refers to the final 16 bits of
+the address only, otherwise it refers to the remaining unspecified bits of the address.</para>
 </listitem>
 </itemizedlist>
+<para>The wildcard ``*'' refers to all users, groups or host addresses.
+Names of users, groups or hosts may not be wildcarded.</para>
 <para>For example, the following <replaceable>hostlist</replaceable> entries
 are all valid:</para>
 <literallayout class="monospaced">babylon
