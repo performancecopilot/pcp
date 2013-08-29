@@ -2197,13 +2197,19 @@ malloc(3)</command> and <command>free(3)</command> man pages.</para>
 <entry align="left" valign="top"><para>Yes</para></entry>
 <entry align="left" valign="top"><para>&#xA0;</para></entry>
 <entry align="left" valign="top"><para>&#xA0;</para></entry>
-<entry align="left" valign="top"><para>(5)</para></entry></row>
+<entry align="left" valign="top"><para>&#xA0;</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><command>pmGetChildrenStatus<indexterm id="IG31340177330"><primary>pmGetChildrenStatus function</primary></indexterm></command></para></entry>
 <entry align="left" valign="top"><para>Yes</para></entry>
 <entry align="left" valign="top"><para>&#xA0;</para></entry>
 <entry align="left" valign="top"><para>&#xA0;</para></entry>
-<entry align="left" valign="top"><para>(5)</para></entry></row>
+<entry align="left" valign="top"><para>&#xA0;</para></entry></row>
+<row valign="top">
+<entry align="left" valign="top"><para><command>pmGetContextHostName<indexterm id="IG31340177330nat"><primary>pmGetContextHostName function</primary></indexterm></command></para></entry>
+<entry align="left" valign="top"><para>Yes</para></entry>
+<entry align="left" valign="top"><para>&#xA0;</para></entry>
+<entry align="left" valign="top"><para>&#xA0;</para></entry>
+<entry align="left" valign="top"><para>&#xA0;</para></entry></row>
 <row valign="top">
 <entry align="left" valign="top"><para><command>pmGetPMNSLocation<indexterm id="IG31340177331"><primary>pmGetPMNSLocation function</primary></indexterm></command></para></entry>
 <entry align="left" valign="top"><para>Yes</para></entry>
@@ -2430,6 +2436,7 @@ see the <command>PCPIntro(1)</command> man page.</para>
 <title><command>pmGetContextHostName</command> Function</title>
 <programlisting>const char *pmGetContextHostName(int <replaceable>id</replaceable>)</programlisting>
 <para>Given a valid PCP context identifier previously created with <command>pmNewContext</command> or <command>pmDupContext</command>, the <command>pmGetContextHostName</command> function provides a possibility to retrieve a host name associated with a context regardless of the context type.</para>
+<para>This function will use the <literal>pmcd.hostname</literal> metric if it is available, and so is able to provide an accurate hostname in the presence of connection tunnelling and port forwarding.</para>
 <para>If <replaceable>id</replaceable> is not a valid PCP context identifier, this function returns a zero length string and therefore never fails.</para>
 </section>
 </section>
@@ -4518,6 +4525,10 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>pmGetChildrenStatus function <link linkend="IG31340177330">PMAPI Context Services</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmGetContextHostName function <link linkend="IG31340177330nat">PMAPI Context Services</link></primaryie>
 </indexentry>
 
 <indexentry>
