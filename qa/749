@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 749
+# Check pmcd static probes
+#
+# Copyright (c) 2013 Red Hat.
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# If no dtrace or stap just pass the test
+if [ -e /usr/bin/dtrace -a -e /usr/bin/stap -a -e /usr/libexec/pcp/bin/pmcd ] ; then
+# start systemtap and count pmcd probe hits
+(stap -e \
+'global probe_hits 
+ probe process("/usr/libexec/pcp/bin/pmcd").mark("*") {
+       probe_hits <<< 1}
+ probe timer.ms(4000) {
+       if (@count(probe_hits) > 0) 
+          println ("PASS")
+       else
+          println ("FAIL")
+       exit()}' |& tee -a $tmp.out) & 
+STAP=$!
+sleep 1
+
+pminfo -f hinv >/dev/null
+pminfo -f kernel >/dev/null
+pminfo -f mem >/dev/null
+pminfo -f network >/dev/null
+pminfo -f disk >/dev/null
+
+wait $STAP
+cat $tmp.out >>$here/$seq.full
+
+
+else
+    echo PASS |& tee -a $tmp.out
+fi				# if -e dtrace -a stap
+
+# success, all done
+
+status=0
+exit
