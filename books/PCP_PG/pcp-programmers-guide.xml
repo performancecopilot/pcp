@@ -105,7 +105,7 @@ typographical conventions.</para>
 is a companion document to the <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>,
 and is intended for system administrators and performance analysts who are directly
 using and administering PCP installations.</para>
-<para>The <citetitle>Performance Co-Pilot Tutorials</citetitle> document
+<para>The <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle>
 provides a series of real-world examples of using various PCP tools, and
 lessons learned from deploying the toolkit in production environments.
 It serves to provide reinforcement of the general concepts discussed in the

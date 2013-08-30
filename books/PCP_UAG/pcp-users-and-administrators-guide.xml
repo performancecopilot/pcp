@@ -119,14 +119,14 @@ who is directly using and administering PCP applications.</para>
 <section id="id5178935">
 
 <title>Related Resources</title>
-<para>The <citetitle>Performance Co-Pilot Programmer's
-Guide</citetitle>, a companion document to the <citetitle>Performance
-Co-Pilot User's and Administrator's Guide</citetitle>, is
-intended for developers who want to use the PCP framework and services for
+<para>The <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>,
+a companion document to the
+<citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>,
+is intended for developers who want to use the PCP framework and services for
 exporting additional collections of performance metrics, or for delivering
 new or customized applications to enhance performance management.
 </para>
-<para>The <citetitle>Performance Co-Pilot Tutorials</citetitle> document
+<para>The <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle> 
 provides a series of real-world examples of using various PCP tools, and
 lessons learned from deploying the toolkit in production environments.
 It serves to provide reinforcement of the general concepts discussed in the
@@ -3174,8 +3174,8 @@ errors are reported.</para>
 </indexterm><indexterm id="IG31371888176"><primary>PCP Tutorials and Case Studies</primary><secondary>pminfo command
 </secondary></indexterm>Complete information on the <command>pminfo</command>
 command is found in the <command>pminfo(1)</command> man page.
-There are further examples of the use of <command>pminfo</command> in the <citetitle>
-PCP Tutorials and Case Studies</citetitle>.</para>
+There are further examples of the use of <command>pminfo</command> in the
+<citetitle>PCP Tutorials and Case Studies</citetitle>.</para>
 </section>
 <section id="LE10170-PARENT">
 
@@ -7184,7 +7184,7 @@ Duration</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>PCP Tutorial</primaryie>
+   <primaryie>PCP Tutorials and Case Studies</primaryie>
       <secondaryie>pminfo command <link linkend="IG31371888176">The <command>pminfo</command> Command</link></secondaryie>
       <secondaryie>pmval command <link linkend="IG31371888173">The <command>pmval</command> Command</link></secondaryie>
 </indexentry>
@@ -7610,7 +7610,7 @@ pmieconf</command></link></secondaryie>
       <secondaryie>brief description <link linkend="ITch01-34">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>description <link linkend="ITch04-25">The <command>pminfo</command> Command</link></secondaryie>
       <secondaryie>displaying the PMNS <link linkend="IG3137188897">Performance Metrics Name Space</link></secondaryie>
-      <secondaryie>PCP Tutorial <link linkend="IG31371888175">The <command>pminfo</command> Command</link></secondaryie>
+      <secondaryie>PCP Tutorials and Case Studies <link linkend="IG31371888175">The <command>pminfo</command> Command</link></secondaryie>
       <secondaryie>pmie arguments <link linkend="IG31371888187"><command>pmie</command> and the Performance Metrics
 Collection System</link></secondaryie>
 </indexentry>
