@@ -755,8 +755,10 @@ __pmListen(int fd, int backlog)
 int
 __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
-    __pmSockAddr *sock = (__pmSockAddr *)addr;
-    return accept(fd, &sock->sockaddr.raw, addrlen);
+    __pmSockAddr *sockAddr = (__pmSockAddr *)addr;
+    fd = accept(fd, &sockAddr->sockaddr.raw, addrlen);
+    __pmCheckAcceptedAddress(sockAddr);
+    return fd;
 }
 
 int
@@ -923,6 +925,12 @@ __pmGetNameInfo(__pmSockAddr *address)
         sts = getnameinfo(&address->sockaddr.raw, sizeof(address->sockaddr.ipv6),
 			  buf, sizeof(buf), NULL, 0, 0);
     }
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    else if (address->sockaddr.raw.sa_family == AF_UNIX) {
+	/* The name info is the socket path. */
+	return strdup(address->sockaddr.local.sun_path);
+    }
+#endif
     else {
 	__pmNotifyErr(LOG_ERR,
 		"__pmGetNameInfo: Invalid address family: %d\n", address->sockaddr.raw.sa_family);
@@ -1088,7 +1096,7 @@ __pmStringToSockAddr(const char *cp)
 		else {
 		    addr->sockaddr.raw.sa_family = AF_UNIX;
 		    strcpy(addr->sockaddr.local.sun_path, cp);
-		    sts = 0;
+		    sts = 1;
 		}
 	    }
 	    else

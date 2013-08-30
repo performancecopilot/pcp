@@ -61,6 +61,7 @@ __pmTPDGet(void)
 #define PM_HOST_SPEC_NPORTS_LOCAL (-1)
 #define PM_HOST_SPEC_NPORTS_UNIX  (-2)
 extern const char *__pmPMCDLocalSocketDefault(void);
+extern void __pmCheckAcceptedAddress(__pmSockAddr *);
 
 #ifdef SOCKET_INTERNAL
 #ifdef HAVE_SECURE_SOCKETS
