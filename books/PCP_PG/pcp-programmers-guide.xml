@@ -2770,7 +2770,6 @@ typedef struct {
 <entry align="left" valign="top"><para><command>pmTimeGetStatePixmap(3)</command></para></entry>
 <entry align="left" valign="top"><para>Returns array of pixmaps representing supplied time control state.</para></entry></row></tbody></tgroup></table>
 </section>
-</section>
 <section id="LE44064-PARENT">
 
 <title>PMAPI Ancillary Support Services</title>
@@ -3104,6 +3103,7 @@ int <replaceable>minwidth</replaceable>)</literallayout>
 <para>The <command>pmParseMetricSpec</command> function returns 0 if the given string was successfully parsed. In this case, all the storage allocated by <command>pmParseMetricSpec</command> can be released by a single call to the <command>free</command> function by using the address returned from <command>pmMetricSpec</command> via <replaceable>rsltp</replaceable>. The convenience macro <command>pmFreeMetricSpec</command> is a thinly disguised wrapper for <command>free</command>.</para>
 <para>The <command>pmParseMetricSpec</command> function returns 0 if the given string was successfully parsed. It returns <literal>PM_ERR_GENERIC</literal> and a dynamically allocated error message string in <replaceable>errmsg</replaceable> if the given string does not parse.  In this situation, the error message string can be released with the <command>free</command> function.</para>
 <para>In the case of an error, <replaceable>rsltp</replaceable> is undefined. In the case of success, <replaceable>errmsg</replaceable> is undefined. If <replaceable>rsltp</replaceable>-&gt;<replaceable>ninst</replaceable> is 0, then <replaceable>rsltp</replaceable>-&gt;<replaceable>inst</replaceable>[0] is undefined.</para>
+</section>
 </section>
 </section>
 <section id="id5212196">
