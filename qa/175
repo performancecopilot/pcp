@@ -16,7 +16,8 @@ BEGIN			{ ctr = 0 }
 NF == 0			{ print; next }
 ctr > 0 && NF > 0	{ print "sample #" ctr; ctr++; next }
 $1 == "interval:"	{ ctr = 1 }
-			{ print }'
+			{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
 }
 
 # get standard filters

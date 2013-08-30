@@ -137,10 +137,11 @@ do
 done \
 | perl $tmp.perl
 
+
 wait
 
 echo "Filtered pmval output ..."
-grep '^[a-z]' $tmp.out
+grep '^[a-z]' $tmp.out | sed -e '/^host:.*$/s/.*/HOST/'
 grep '^[^a-z]' $tmp.out | LC_COLLATE=POSIX sort -u
 
 # success, all done
