@@ -1938,7 +1938,40 @@ typedef struct {
 <section id="id5199202">
 
 <title>Performance Event Metrics</title>
-<para>New section!  [nathans]</para>
+<para>Insert New Section here!  [nathans]</para>
+<para>This encoding is illustrated in <xref linkend="id5198719"/>, and uses the component data structures in <xref linkend="Z976557818nat"/>:</para>
+<example id="Z976557818nat">
+<title><command>pmEventArray</command> and <command>pmEventRecord</command> Structures</title>
+<programlisting>
+typedef struct {
+    unsigned int     ea_len :  24;  /* bytes for type/len + records */
+    unsigned int     ea_type : 8;   /* value type */
+    int              ea_nrecords;   /* number of ea_record entries */
+    pmEventRecord    ea_record[1];
+} pmEventArray;</programlisting>
+</example>
+<para><figure id="id5198719"><title>Result Format for Event Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmevents.svg"/></imageobject><textobject><phrase>Result Format for Event Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
+<para>...</para>
+<para>The <literal>pmEventRecord</literal> structure is as follows:<example id="Z1034793414nat">
+<title><literal>pmEventRecord</literal> Structure</title>
+<programlisting>typedef struct {
+    __pmTimval       er_timestamp;  /* 2 x 32-bit timestamp format */
+    unsigned int     er_flags;      /* event record characteristics */
+    int              ea_nparams;    /* number of ea_param[] entries */
+    pmEventParameter ea_record[1];
+} pmEventRecord;</programlisting>
+</example></para>
+<para>...</para>
+<para>The <literal>pmEventParameter</literal> structure is as follows:<example id="Z1034793415nat">
+<title><literal>pmEventParameter</literal> Structure</title>
+<programlisting>typedef struct {
+    pmID             ep_pmid;       /* parameter identifier */
+    unsigned int     ep_type;       /* value type */
+    int              ep_len;        /* bytes for type/len + vbuf */
+    /* actual value (vbuf) here */
+} pmEventParameter;</programlisting>
+</example></para>
+<note><para>Monitor helper: pmUnpackEventRecords, event.flags, event.missed derived metrics</para></note>
 </section>
 <section id="id5199203">
 
