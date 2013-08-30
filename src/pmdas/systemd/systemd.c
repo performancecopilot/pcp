@@ -87,6 +87,16 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(2,1), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* journal.count */
+#define METRICTAB_JOURNAL_COUNT metrictab[7].m_desc.pmid
+    { NULL,
+      { PMDA_PMID(2,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* journal.bytes */
+#define METRICTAB_JOURNAL_BYTES metrictab[8].m_desc.pmid
+    { NULL,
+      { PMDA_PMID(2,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
 
@@ -300,6 +310,10 @@ systemd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         sts = PMDA_FETCH_NOVALUES;
     } else if (id == METRICTAB_JOURNAL_BLOB_PMID) {
         sts = PMDA_FETCH_NOVALUES;
+    } else if (id == METRICTAB_JOURNAL_COUNT) {
+	sts = pmdaEventQueueCounter(queue_entries, atom);
+    } else if (id == METRICTAB_JOURNAL_BYTES) {
+	sts = pmdaEventQueueBytes(queue_entries, atom);
     } else if (id == METRICTAB_JOURNAL_RECORDS_PMID) {
         enum journald_field_encoding jfe = JFE_STRING_BLOB_AUTO;
         sts = pmdaEventSetAccess(pmdaGetContext(), queue_entries, 1);
