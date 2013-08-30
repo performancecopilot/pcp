@@ -6,8 +6,18 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-if [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+if [ -f $PCP_DIR/usr/include/pcp/config.h ]
+then
+    # PCP 3.8.3 or later
+    defs=$PCP_DIR/usr/include/pcp/config.h
+elif [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
 then
     # PCP 3.6 or later
     defs=$PCP_DIR/usr/include/pcp/platform_header.h
@@ -16,25 +26,10 @@ then
     # older PCP versions
     defs=$PCP_DIR/usr/include/pcp/platform_defs.h
 else
-    echo "No $PCP_DIR/usr/include/pcp/platform_{header,defs}.h?" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No $PCP_DIR/usr/include/pcp headers found"
 fi
-if grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1
-then
-    : OK, run it
-else
-    echo "HAVE_BITFIELDS_LTOR is false" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
+grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1 || \
+    _notrun "HAVE_BITFIELDS_LTOR is false"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

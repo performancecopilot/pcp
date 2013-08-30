@@ -2,6 +2,8 @@ usr/include/pcp/pmda.h
 usr/lib/libpcp_pmda.a
 usr/lib/libpcp_pmda.so
 usr/share/man/man3/PMDA.3.gz
+usr/share/man/man3/pmdaattribute.3.gz
+usr/share/man/man3/pmdaAttribute.3.gz
 usr/share/man/man3/pmdaCacheLookup.3.gz
 usr/share/man/man3/pmdaCacheLookupName.3.gz
 usr/share/man/man3/pmdaCacheLookupKey.3.gz
@@ -32,6 +34,7 @@ usr/share/man/man3/pmdaEventQueueHandle.3.gz
 usr/share/man/man3/pmdaEventQueueMemory.3.gz
 usr/share/man/man3/pmdaEventQueueRecords.3.gz
 usr/share/man/man3/pmdaeventqueue.3.gz
+usr/share/man/man3/pmdaGetContext.3.gz
 usr/share/man/man3/pmdaGetHelp.3.gz
 usr/share/man/man3/pmdaGetInDomHelp.3.gz
 usr/share/man/man3/pmdaOpenHelp.3.gz
@@ -39,6 +42,7 @@ usr/share/man/man3/pmdaRehash.3.gz
 usr/share/man/man3/pmdaSetFlags.3.gz
 usr/share/man/man3/pmdaSetCheckCallBack.3.gz
 usr/share/man/man3/pmdaSetDoneCallBack.3.gz
+usr/share/man/man3/pmdaSetEndContextCallBack.3.gz
 usr/share/man/man3/pmdaSetFetchCallBack.3.gz
 usr/share/man/man3/pmdaSetResultCallBack.3.gz
 usr/share/man/man3/pmdacache.3.gz

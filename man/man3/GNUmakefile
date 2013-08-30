@@ -40,7 +40,7 @@ MAN_PAGES	= \
 	pmsortinstances.3 pmstore.3 pmtraversepmns.3 \
 	pmtrimnamespace.3 pmtypestr.3 pmunitsstr.3 pmunloadnamespace.3 \
 	pmusecontext.3 pmusezone.3 pmwhichcontext.3 pmwhichzone.3 \
-	pmdacache.3 pmdahelp.3 \
+	pmdacache.3 pmdahelp.3 pmdaattribute.3 \
 	pmafm.3 pmtime.3 \
 	pmdaname.3 pmdachildren.3 pmdapmid.3 \
 	mmv_inc_value.3 mmv_lookup_value_desc.3 mmv_stats_init.3 \
@@ -54,7 +54,8 @@ MAN_PAGES	= \
 	pmdaeventarray.3 pmdaeventclient.3 pmdaeventqueue.3 \
 	pmconverttime.3 pmmktime.3 pmparsectime.3 pmfreeprofile.3 \
 	pmlookupipc.3 pmopenlog.3 pmparsedebug.3 pmparsetime.3 pmaf.3 \
-	pmconnectlogger.3 pmcontrollog.3 pmparsehostattrsspec.3 pmwebapi.3
+	pmconnectlogger.3 pmcontrollog.3 pmparsehostattrsspec.3 \
+	pmwebapi.3
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)

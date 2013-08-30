@@ -351,10 +351,11 @@ protocol failure and the agent is disconnected from
 Any subsequent requests for information from the agent will fail with a status
 indicating that there is no agent to provide it.
 .PP
-It is possible to specify host-level access control to
-.BR pmcd .
-This allows one to prevent users from certain hosts from accessing the
-metrics provided by
+It is possible to specify access control to
+.B pmcd
+based on users, groups and hosts.
+This allows one to prevent users, groups of users, and certain hosts from
+accessing the metrics provided by
 .B pmcd
 and is described in more detail in the Section on ACCESS CONTROL below.
 .SH CONFIGURATION
@@ -366,8 +367,8 @@ This file specifies which agents cover which performance metrics domains and
 how
 .B pmcd
 should make contact with the agents.
-An optional section specifying host-based
-access controls may follow the agent configuration data.
+An optional section specifying access controls may follow the agent
+configuration data.
 .PP
 \f3Warning\f1:
 .B pmcd
@@ -599,10 +600,8 @@ to instantiate the agent.
 .SH "ACCESS CONTROL CONFIGURATION"
 The access control section of the configuration file is optional, but if
 present it must follow the agent configuration data.
-The case of reserved
-words is ignored, but elsewhere case is preserved.
-Lexical elements in the
-access control section are separated by whitespace
+The case of reserved words is ignored, but elsewhere case is preserved.
+Lexical elements in the access control section are separated by whitespace
 or the special delimiter characters:
 square brackets (``['' and ``]''),
 braces (``{'' and ``}''),
@@ -621,8 +620,7 @@ Leading and trailing whitespace may appear around and within the brackets and
 the case of the
 .B access
 keyword is ignored.
-No other text may appear on the line except a trailing
-comment.
+No other text may appear on the line except a trailing comment.
 .PP
 Following this line, the remainder of the configuration file should contain
 lines that allow or disallow operations from particular hosts or groups of
@@ -641,25 +639,41 @@ or help text) or a value for a metric.
 allows
 .B pmcd
 to be used to store metric values in agents that permit store operations.
+This may be the actual value of the metric (e.g. resetting a counter to
+zero).  Alternatively, it may be a value used by the PMDA to introduce a
+change to some aspect of monitoring of that metric (e.g. server side event
+filtering) \- possibly even only for the active client tool performing the
+store operation, and not others.
 .PP
 Access to
 .B pmcd
-is granted at the host level, i.e. \c
-all users on a host are granted the same level
-of access.
-Permission to perform the
-.B store
-operation should not be given indiscriminately; it has the potential to be
-abused by malicious users.
+can be granted in three ways - by user, group of users, or at a host level.
+In the latter, all users on a host are granted the same level of access,
+unless the user or group access control mechanism is also in use.
 .PP
-Hosts may be identified by name, IP address, IPv6 address or a wildcarded IP/IPv6 address with the
-single wildcard character ``*'' as the last-given component of the
-address. The wildcard ``.*'' refers to all inet (IPv4) addresses. The wildcard ``:*'' refers to all
-IPv6 addresses. The wildcard ``*`` refers to all addresses. If an IPv6 wildcard contains a ``::''
-component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
-refers to the remaining unspecified bits of the address. Host names may not be wildcarded.
-The
-following are all valid host identifiers:
+User names and group names will be verified using the local
+.B /etc/passwd
+and
+.B /etc/groups
+files (or an alternative directory service), using the
+.BR getpwent (3)
+and
+.BR getgrent (3)
+routines.
+.PP
+Hosts may be identified by name, IP address, IPv6 address or a wildcarded
+IP/IPv6 address with the single wildcard character ``*'' as the last-given
+component of the address.
+The wildcard ``.*'' refers to all inet (IPv4) addresses.
+The wildcard ``:*'' refers to all IPv6 addresses.
+If an IPv6 wildcard contains a ``::'' component, then the final ``*'' refers
+to the final 16 bits of the address only, otherwise it refers to the remaining
+unspecified bits of the address.
+.PP
+The wildcard ``*'' refers to all users, groups or host addresses.
+Names of users, groups or hosts may not be wildcarded.
+.PP
+The following are all valid host identifiers:
 .de CS
 .in +0.5i
 .ft CW
@@ -718,17 +732,29 @@ Beware of this when running
 .B pmcd
 on multi-homed hosts.
 .PP
-Access for hosts are allowed or disallowed by specifying statements of the
-form:
+Access for users, groups or hosts are allowed or disallowed by specifying
+statements of the form:
 .TP
 \&
-\f3allow\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+\f3allow users\f1 \f2userlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
 .br
-\f3disallow\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+\f3disallow users\f1 \f2userlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3allow groups\f1 \f2grouplist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3disallow groups\f1 \f2grouplist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3allow hosts\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
+.br
+\f3disallow hosts\f1 \f2hostlist\f1 \f3:\f1 \f2operations\f1 \f3;\f1
 .PP
 .TP 14
+.IR list
+.IR userlist ,
+.I grouplist
+and
 .I hostlist
-is a comma separated list of host identifiers.
+are comma separated lists of one or more users, groups or host identifiers.
 .TP 14
 .I operations
 is a comma separated list of the operation types described above,
@@ -738,22 +764,33 @@ is a comma separated list of the operation types described above,
 .I operations
 (which allows/disallows all operations except those listed).
 .PP
+Either plural or singular forms of
+.BR users ,
+.BR groups ,
+and
+.B hosts
+keywords are allowed.
+If this keyword is omitted, a default of
+.B hosts
+will be used.
+This behaviour is for backward-compatibility only, it is preferable to be explicit.
+.PP
 Where no specific
 .B allow
 or
 .B disallow
-statement applies to an operation for some host, the default is to allow the
-operation from that host.
-In the trivial case when there is no access control
-section in the configuration file, all operations from all hosts are permitted.
+statement applies to an operation, the default is to allow the
+operation from all users, groups and hosts.
+In the trivial case when there is no access control section in
+the configuration file, all operations from all users, groups,
+and hosts are permitted.
 .PP
 If a new connection to
 .B pmcd
-is attempted from a host that is not permitted to perform any operations, the
-connection will be closed immediately after an error response
+is attempted by a user, group or host that is not permitted to perform any
+operations, the connection will be closed immediately after an error response
 .B PM_ERR_PERMISSION
-has been sent to the
-client attempting the connection.
+has been sent to the client attempting the connection.
 .PP
 Statements with the same level of wildcarding specifying identical hosts may
 not contradict each other.
@@ -763,8 +800,8 @@ had an IP address of 129.127.112.2, specifying the following two rules would be
 erroneous:
 .PP
 .CS
-allow clank : fetch, store;
-disallow 129.127.112.2 : all except fetch;
+allow host clank : fetch, store;
+disallow host 129.127.112.2 : all except fetch;
 .CE
 .PP
 because they both refer to the same host, but disagree as to whether the
@@ -776,25 +813,24 @@ ones according to the level of wildcarding.
 For example a rule of the form
 .PP
 .CS
-allow clank : all;
+allow host clank : all;
 .CE
 .PP
 overrides
 .PP
 .CS
-disallow 129.127.112.* : all except fetch;
+disallow host 129.127.112.* : all except fetch;
 .CE
 .PP
 because the former contains a specific host name (equivalent to a fully
 specified IP address), whereas the latter has a wildcard.
-In turn, the latter
-would override
+In turn, the latter would override
 .PP
 .CS
-disallow * : all;
+disallow host * : all;
 .CE
 .PP
-It is possible to limit the number of connections from a host to
+It is possible to limit the number of connections from a user, group or host to
 .BR pmcd .
 This may be done by adding a clause of the form
 .TP
@@ -811,15 +847,15 @@ Such a clause may not be used in a
 statement.
 Here,
 .I n
-is the maximum number of connections that will be accepted from hosts matching
-the host identifier(s) used in the statement.
+is the maximum number of connections that will be accepted from the user, group
+or host matching the identifier(s) used in the statement.
 .PP
-An access control statement with a list of host identifiers is equivalent to a
-group of access control statements, with each specifying one of the host
-identifiers in the list and all with the same access controls (both permissions
+An access control statement with a list of user, group or host identifiers is
+equivalent to a set of access control statements, with each specifying one of
+the identifiers in the list and all with the same access controls (both permissions
 and connection limits).
-A wildcard should be used if you want hosts to
-contribute to a shared connection limit.
+A group should be used if you want users to contribute to a shared connection limit.
+A wildcard should be used if you want hosts to contribute to a shared connection limit.
 .PP
 When a
 new client requests a connection, and
@@ -833,35 +869,47 @@ If there is no limiting statement, the client is granted a
 connection.
 If there is a limiting statement and the number of
 .B pmcd
-clients with IP addresses that match the host identifier in the limiting
-statement is less than the connection limit in the statement, the connection is
-allowed.
+clients with user ID, group ID, or IP addresses that match the identifier in
+the limiting statement is less than the connection limit in the statement,
+the connection is allowed.
 Otherwise the connection limit has been reached and the client is
 refused a connection.
 .PP
-The wildcarding in host identifiers means that once
+Group access controls and the wildcarding in host identifiers means that once
 .B pmcd
 actually accepts a connection from a client, the connection may contribute to
-the current connection count of more than one access control statement (the
-client's host may match more than one access control statement).
-This may be
-significant for subsequent connection requests.
+the current connection count of more than one access control statement \- the
+client's host may match more than one access control statement, and similarly
+the user ID may be in more than one group.
+This may be significant for subsequent connection requests.
 .PP
-Note that because most specific match semantics are used when checking the
-connection limit, priority is given to clients with more specific host
-identifiers.
-It is also possible to exceed connection limits in some
-situations.
+Note that
+.B pmcd
+enters a mode where it runs effectively with a higher-level of security as
+soon as a user or group access control section is added to the configuration.
+In this mode only authenticated connections are allowed \- either from a SASL
+authenticated connection, or a Unix domain socket (which implicitly passes
+client credentials).
+This is the same mode that is entered explicitly using the \f3\-S\f1 option.
+Assuming permission is allowed, one can determine whether
+.B pmcd
+is running in this mode by querying the value of the
+.I pmcd.feature.creds_required
+metric.
+.PP
+Note also that because most specific match semantics are used when checking the
+connection limit, for the host-based access control case, priority is given
+to clients with more specific host identifiers.
+It is also possible to exceed connection limits in some situations.
 Consider the following:
 .IP
-allow clank : all, maximum 5 connections;
+allow host clank : all, maximum 5 connections;
 .br
-allow * : all except store, maximum 2 connections;
+allow host * : all except store, maximum 2 connections;
 .PP
 This says that only 2 client connections at a time are permitted for all
 hosts other than "clank", which is permitted 5.
-If a client from host "boing"
-is the first to connect to
+If a client from host "boing" is the first to connect to
 .BR pmcd ,
 its connection is checked against the second statement (that is the most
 specific match with a connection limit).
@@ -1093,6 +1141,12 @@ directory, used for optional Secure Socket Layer connections.
 This database can be created and queried using the NSS
 .B certutil
 tool, amongst others.
+.TP
+.B /etc/passwd
+user names, user identifiers and primary group identifiers, used for access control specifications
+.TP
+.B /etc/groups
+group names, group identifiers and group members, used for access control specifications
 .PD
 .SH ENVIRONMENT
 In addition to the PCP environment variables described in the
@@ -1102,7 +1156,11 @@ section below, the
 variable is also recognised
 as the TCP/IP port for incoming connections
 (default 
-.IR 44321 ).
+.IR 44321 ),
+and the
+.B PMCD_SOCKET
+variable is also recognised
+as the path to be used for the Unix domain socket.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -1117,18 +1175,6 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
-.SH SEE ALSO
-.BR PCPIntro (1),
-.BR pmdbg (1),
-.BR pmerr (1),
-.BR pmgenmap (1),
-.BR pminfo (1),
-.BR pmstat (1),
-.BR pmstore (1),
-.BR pmval (1),
-.BR pcp.conf (5),
-and
-.BR pcp.env (5).
 .SH DIAGNOSTICS
 If
 .B pmcd
@@ -1150,7 +1196,7 @@ currently uses
 .B DBG_TRACE_APPL0
 for tracing I/O and termination of agents,
 .B DBG_TRACE_APPL1
-for tracing host access control (see below) and
+for tracing access control and
 .B DBG_TRACE_APPL2
 for tracing the configuration file scanner and parser.
 .SH CAVEATS
@@ -1179,3 +1225,17 @@ trying to connect to
 .B pmcd
 and trying to receive information from
 .BR pmcd .
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdbg (1),
+.BR pmerr (1),
+.BR pmgenmap (1),
+.BR pminfo (1),
+.BR pmstat (1),
+.BR pmstore (1),
+.BR pmval (1),
+.BR getpwent (3),
+.BR getgrent (3),
+.BR pcp.conf (5),
+and
+.BR pcp.env (5).

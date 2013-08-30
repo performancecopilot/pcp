@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -73,11 +74,11 @@ This allows the library to keep track of when events can be discarded
 from a queue, for example, for the
 .I context
 specified.
-This parameter is passed into the EndContext callback directly,
-and for all other callbacks is available via the e_context field of the
-pmdaExt structure.
+This parameter is passed into the e_endCallBack function directly,
+and for other callback functions is available via the e_context field
+of the pmdaExt structure.
 Additionally, it can be queried at any time using
-.BR pmdaGetContext .
+.BR pmdaGetContext (3).
 .PP
 Sometimes it is useful for the PMDA to export a metric indicating the
 current count of attached clients \- this is available using the

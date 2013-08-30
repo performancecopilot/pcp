@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmcd.h"
@@ -21,7 +18,8 @@
 #if HAVE_STATIC_PROBES
 #include "probes.h"
 #else
-#define PROBE_PMCD(arg1,arg2,arg3,arg4)
+#define PCP_PROBE_PMCD_PDU(type,who,p1,p2)
+#define PCP_PROBE_PMCD(type,who,p1,p2)
 #endif
 #ifdef IS_SOLARIS
 #define _REENTRANT
@@ -74,14 +72,14 @@ pmcd_trace(int type, int who, int p1, int p2)
 {
     int		p;
 
-    PROBE_PMCD(type, who, p1, p2);
-    
     switch (type) {
 	case TR_XMIT_PDU:
 	case TR_RECV_PDU:
+	    PCP_PROBE_PMCD_PDU(type, who, p1, p2);
 	    if ((_pmcd_trace_mask & TR_MASK_PDU) == 0)
 		return;
 	default:
+	    PCP_PROBE_PMCD(type, who, p1, p2);
 	    if ((_pmcd_trace_mask & TR_MASK_CONN) == 0)
 		return;
     }

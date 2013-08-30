@@ -33,8 +33,7 @@ cc ... \-lpcp_pmda \-lpcp
 As part of the Performance Metrics Domain Agent (PMDA) API (see
 .BR PMDA (3)),
 .BR pmdaPMID
-is the generic callback for
-translating a dynamic metric
+is the generic callback for translating a dynamic metric
 .I name
 into a PMID (\c
 .IR pmid ).
@@ -61,8 +60,7 @@ and implements the translation from a dynamic performance metric
 into the associated
 .IR pmid .
 .SH DIAGNOSTICS
-.B 
-pmdaPMID
+.B pmdaPMID
 returns
 .B PM_ERR_NAME
 if the name is not recognized or cannot be translated, else returns 0.
