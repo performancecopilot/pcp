@@ -729,8 +729,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.2539168"
-     inkscape:cx="258.88416"
-     inkscape:cy="108.31081"
+     inkscape:cx="178.80135"
+     inkscape:cy="106.53613"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -748,7 +748,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -769,7 +769,7 @@
          x="4.7277079"
          y="862.2254">/usr/bin/acme</tspan></text>
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:#000000;stroke-width:0.18600319;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#676767;fill-opacity:1;stroke:#000000;stroke-width:0.18600319000000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 158.71497,1027.8206 c -1.92126,-2.4497 -12.5221,-8.4282 -16.00585,-11.1891 l -22.69891,-7.8451 0.97338,-11.24517 c 0,-6.29554 0.11129,-6.78374 1.47978,-6.49276 0.81387,0.17303 4.0766,-0.93584 6.86707,-0.54697 2.79045,0.38884 4.78782,-0.64948 5.39248,-0.51576 0.65645,0.14517 4.16544,-1.20297 6.20873,-0.96009 2.04327,0.2429 8.80549,-3.64849 16.94434,-2.12902 l 22.16412,-14.75008 -6.83112,45.41925 c 0.12178,9.6545 1.06295,16.9517 0.94117,26.5689 l -1.69163,-3.5716 -2.76326,-6.7818 -10.9803,-5.9607 z"
        id="path4451-4"
        sodipodi:nodetypes="ccccssssccccccc" />
@@ -788,7 +788,7 @@
        d="m 6.372596,959.65105 0,-9.43364 57.142857,0 57.142857,0 0,9.43364 0,9.43365 -57.142857,0 -57.142857,0 0,-9.43365 z"
        id="path4447" />
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:none"
+       style="fill:#676767;fill-opacity:1;stroke:none"
        d="m 6.1466171,999.7746 0,-9.8941 57.8136319,0 57.813641,0 0,9.8941 0,9.8941 -57.813641,0 -57.8136319,0 0,-9.8941 z"
        id="path4453-3" />
     <path
@@ -833,7 +833,7 @@
          y="874.24414"
          style="font-size:6px">base = <tspan
    style="font-style:italic"
-   id="tspan3930">mmv_stat_init</tspan>(</tspan><tspan
+   id="tspan3930">mmv_stats_init</tspan>(</tspan><tspan
          sodipodi:role="line"
          x="8.9893951"
          y="881.74414"
@@ -853,7 +853,7 @@
        d="m 80.727733,1037.348 0,-3.8332 6.63297,0 6.632969,0 0,3.8332 0,3.8331 -6.632969,0 -6.63297,0 0,-3.8331 z"
        id="path4453-4-1" />
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:none"
+       style="fill:#676767;fill-opacity:1;stroke:none"
        d="m 80.34686,1029.2644 0,-3.8332 12.123132,0 12.123128,0 0,3.8332 0,3.8331 -12.123128,0 -12.123132,0 0,-3.8331 z"
        id="path4453-4-1-4" />
     <text
@@ -872,7 +872,7 @@
          x="7.0872927"
          y="1024.0941"
          style="font-size:6px"
-         id="tspan3042">    sz = acme_make_widget()</tspan><tspan
+         id="tspan3042">    sz = acme_build_one_widget()</tspan><tspan
          sodipodi:role="line"
          x="7.0872927"
          y="1031.5941"
@@ -901,7 +901,7 @@
        d="m 49.448543,910.15147 0,-4.38288 7.645381,0 7.64538,0 0,4.38288 0,4.38289 -7.64538,0 -7.645381,0 0,-4.38289 z"
        id="path4447-1-5" />
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:none"
+       style="fill:#676767;fill-opacity:1;stroke:none"
        d="m 8.229697,916.7946 0,-3.8332 12.279994,0 12.279992,0 0,3.8332 0,3.8331 -12.279992,0 -12.279994,0 0,-3.8331 z"
        id="path4453-4-1-4-4" />
     <path
@@ -931,7 +931,9 @@
          x="9.0839186"
          y="919.16742"
          style="font-size:6px"
-         id="tspan4771">thruput = mmv_lookup_value_desc(</tspan><tspan
+         id="tspan4771">thruput = <tspan
+   style="font-style:italic"
+   id="tspan3017">mmv_lookup_value_desc</tspan>(</tspan><tspan
          sodipodi:role="line"
          x="9.0839186"
          y="926.66742"
@@ -950,17 +952,17 @@
        x="173.34959"
        y="892.28796" />
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:none"
+       style="fill:#676767;fill-opacity:1;stroke:none"
        d="m 279.90991,1000.1667 0,-9.89409 57.81363,0 57.81364,0 0,9.89409 0,9.8941 -57.81364,0 -57.81363,0 0,-9.8941 z"
        id="path4453-8-0"
        sodipodi:nodetypes="ccccccccc" />
     <path
-       style="fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:0.15594403;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#676767;fill-opacity:1;stroke:#000000;stroke-width:0.15594403000000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 256.81654,1019.3028 c 4.48714,-4.6468 5.49178,-5.2927 12.01792,-7.741 l 11.11554,-1.8865 -0.37019,-13.44591 c 0,-6.2982 -0.0782,-6.78661 -1.03971,-6.49549 -0.57184,0.17318 -2.86427,-0.93619 -4.82489,-0.54723 -1.9606,0.38907 -3.36398,-0.64967 -3.78882,-0.51591 -0.46123,0.14526 -2.92668,-1.2035 -4.36232,-0.9605 -1.43563,0.243 -6.18684,-3.65003 -11.9053,-2.12989 l -15.57277,-14.75626 4.79963,45.43819 c -0.0856,9.6586 -4.27366,16.9588 -4.1881,26.58 l 4.42729,-8.5951 5.97683,-7.7258 7.71489,-7.2186 z"
        id="path4451-4-8"
        sodipodi:nodetypes="ccccssssccccccc" />
     <rect
-       style="fill:#4d4d4d;fill-opacity:1;stroke:#000000;stroke-width:0.76293188;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#676767;fill-opacity:1;stroke:#000000;stroke-width:0.76293188000000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect2928-0-9-7-8-8"
        width="58.789825"
        height="71.131462"
@@ -1012,7 +1014,7 @@
        x="279.75128"
        y="969.46851" />
     <path
-       style="fill:#4d4d4d;fill-opacity:1;stroke:none"
+       style="fill:#676767;fill-opacity:1;stroke:none"
        d="m 351.79618,939.89254 0,-4.30376 19.02504,0 19.02506,0 0,4.30376 0,4.30375 -19.02506,0 -19.02504,0 0,-4.30375 z"
        id="path4453-4-4-6" />
     <rect
@@ -1221,12 +1223,12 @@
          id="tspan4639"
          x="354.89972"
          y="906.01038"
-         style="font-size:6px">base + X</tspan><tspan
+         style="font-size:6px">base (+X)</tspan><tspan
          sodipodi:role="line"
          x="354.89972"
          y="913.51038"
          style="font-size:6px"
-         id="tspan4641">base + Y</tspan></text>
+         id="tspan4641">base (+Y)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"

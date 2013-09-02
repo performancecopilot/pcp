@@ -3284,10 +3284,65 @@ main(int argc, char* argv[])
 
 <chapter id="LE25915-PARENT">
 
-<title>Trace PMDA</title>
-<para><indexterm id="IG31340177462"><primary>trace PMDA</primary><secondary>description</secondary></indexterm><indexterm id="IG31340177463"><primary>PMDA</primary><secondary>trace</secondary></indexterm>This chapter provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA), in an effort to explain how to configure the agent optimally for a particular problem domain. This information supplements the functional coverage which the man pages provide to both the agent and the library interfaces.</para>
-<para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> The chapter also includes information on how to use the trace PMDA and the associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs are installed in <filename>${PCP_DEMOS_DIR}/trace</filename>.</para>
-<warning><para>The current PCP trace library and PMDA are relatively heavy-weight solutions, and may not be appropriate for production application instrumentation. At this stage they should be considered experimental, and are included primarily for reference. A revised application tracing library and PMDA are planned which will be light-weight, support event metrics, and other advances in end-to-end distributed application tracing.</para></warning>
+<title>Instrumenting Applications</title>
+<para><indexterm id="IG31340177462nat"><primary>MMV PMDA</primary><secondary>description</secondary></indexterm><indexterm id="IG31340177462"><primary>trace PMDA</primary><secondary>description</secondary></indexterm><indexterm id="IG31340177463"><primary>PMDA</primary><secondary>trace</secondary></indexterm>This chapter provides an introduction to ways of instrumenting applications using PCP.</para>
+<para><indexterm id="IG31340177565"><primary>customization</primary></indexterm> The first section covers the use of the Memory Mapped Value (MMV) Performance Metrics Domain Agent (PMDA) to generate customized metrics from an application. This provides a robust, extremely efficient mechanism for transferring custom instrumentation into the PCP infrastructure. It has been successfully deployed in production environments for many years, has proven immensely valuable in these situations, and can be used to instrument applications written in a number of programming languages.</para>
+<para>The Memory Mapped Value library and PMDA is supported on every PCP platform, and is enabled by default.</para>
+<note><para>A particularly expansive Java API is available from the separate
+<ulink url="http://code.google.com/p/parfait/">Parfait</ulink> 
+project. It supports both the existing JVM instrumentation, and custom application metric extensions.</para></note>
+<para> <indexterm id="IG31340177464nat"><primary>libpcp_mmv library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465nat"><primary>examples</primary><secondary>MMV PMDA</secondary></indexterm> The chapter also includes information on how to use the MMV library (<filename>libpcp_mmv</filename>) for instrumenting an application. The example programs are installed in <filename>${PCP_DEMOS_DIR}/mmv</filename>.</para>
+<para>The second section covers the design of the Trace PMDA, in an effort to explain how to configure the agent optimally for a particular problem domain. This information supplements the functional coverage which the man pages provide to both the agent and the library interfaces.</para>
+<para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> This part of the chapter also includes information on how to use the Trace PMDA and its associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs are installed in <filename>${PCP_DEMOS_DIR}/trace</filename>.</para>
+<warning><para>The current PCP trace library is a relatively heavy-weight solution, issuing multiple system calls per trace point, runs over a TCP/IP socket even locally and performs no event batching. As such it is not appropriate for production application instrumentation at this stage.</para></warning>
+<para>A revised application tracing library and PMDA are planned which will be light-weight, suitable for production system tracing, and support event metrics and other advances in end-to-end distributed application tracing.</para>
+<section id="id5213105">
+
+<title>Application and Performance Co-Pilot Relationship</title>
+<para><indexterm id="IG31340177550"><primary>applications</primary><secondary>instrumentation</secondary></indexterm><indexterm id="IG31340177551"><primary>instrumentation</primary></indexterm> <indexterm id="IG31340177552"><primary>data export</primary></indexterm>The relationship between an application, the <filename>pcp_mmv</filename> and <filename>pcp_trace</filename> instrumentation libraries, the MMV and Trace PMDAs, and the rest of the PCP infrastructure is shown in <xref linkend="id5216302"/>:</para>
+<para><figure id="id5216302"><title>Application and PCP Relationship</title><mediaobject><imageobject><imagedata fileref="figures/instrumentation.svg"/></imageobject><textobject><phrase>Application and PCP Relationship</phrase></textobject></mediaobject></figure></para>
+<para><indexterm id="IG31340177553"><primary>independent software vendors</primary></indexterm> <indexterm id="IG31340177554"><primary>customers</primary></indexterm> <indexterm id="IG31340177555"><primary>embedded calls</primary></indexterm>The application instrumentation libraries are designed to encourage application developers to embed calls in their code that enable application performance data to be exported. When combined with system-level performance data, this feature allows total performance and resource demands of an application to be correlated with application activity.</para>
+<para>For example, developers can provide the following application performance metrics:</para>
+<itemizedlist>
+<listitem><para><indexterm id="IG31340177556"><primary>computation state</primary></indexterm>Computation state (especially for codes with major shifts in resource demands between phases of their execution)</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177557"><primary>parallelism</primary></indexterm>Problem size and parameters, that is, degree of parallelism throughput in terms of subproblems solved, iteration count, transactions, data sets inspected, and so on</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177558"><primary>service time</primary></indexterm>Service time by operation type</para>
+</listitem></itemizedlist>
+<para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
+<itemizedlist>
+<listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity.</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177561"><primary>distributed performance management</primary><secondary>data transportation</secondary></indexterm>Transport of performance data over the network for distributed performance management.</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177562"><primary>archive logs</primary><secondary>performance management</secondary></indexterm>Archive logging for historical records of performance, most useful for problem diagnosis, postmortem analysis, performance regression testing, capacity planning, and benchmarking.</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177563"><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives.</para>
+</listitem></itemizedlist>
+</section>
+<section id="id5213104">
+
+<title>Performance Instrumentation and Sampling</title>
+<para><indexterm id="IG31340177467nat"><primary>performance instrumentation</primary></indexterm><indexterm id="IG31340177468nat"><primary>instrumentation</primary></indexterm>The <filename>pcp_mmv</filename> library provides function calls to assist with extracing important performance variables from a program into a shared in-memory location, such that the MMV PMDA can examine and serve that information on behalf of PCP client tool requests. The <filename>pcp_mmv</filename> library is described in the <command>mmv_stats_init(3)</command>, <command>mmv_lookup_value_desc(3)</command>, <command>mmv_inc_value(3)</command> man pages. Additionally, the format of the shared memory mappings is descibed in detail in <command>mmv(5)</command>.</para>
+</section>
+<section id="id5213287nat">
+
+<title>MMV PMDA Design</title>
+<para><indexterm id="IG31340177470nat"><primary>MMV PMDA</primary><secondary>design</secondary></indexterm>An application instrumented with memory mapped values directly updates the memory that backs the metric values it exports. The MMV PMDA reads those values directly, from the <literal>same</literal> memory that the application is updating, when current values are sampled on behalf of PMAPI client tools. This relationship, and a simplified MMV API, are shown in <xref linkend="id5214410nat"/>.</para>
+<para><figure id="id5214410nat"><title>Memory Mapped Page Sharing</title><mediaobject><imageobject><imagedata fileref="figures/pmdammv.svg"/></imageobject></mediaobject></figure></para>
+</section>
+<section id="id5213288nat">
+
+<title>Memory Mapped Values API</title>
+<para><indexterm id="IG31340177502nat"><primary>Application Programming Interface</primary></indexterm> <indexterm id="IG31340177503nat"><primary>libpcp_mmv library</primary><secondary>Application Programming Interface</secondary></indexterm>The <filename>libpcp_mmv</filename> Application Programming Interface (API) can be called from C, C++, Perl and Python (a separate project, Parfait, services the needs of Java applications). Each language has access to the complete set of functionality offered by <filename>libpcp_mmv</filename>. In some cases, the calling conventions differ slightly between languages.</para>
+<section id="id5214320nat">
+
+<title>Starting and Stopping Instrumentation</title>
+<para><indexterm id="IG31340177504nat"><primary>mmv_stats_init function</primary></indexterm> <indexterm id="IG31340177505nat"><primary>mmv_stats_stop function</primary></indexterm>
+Instrumentation is begun with an initial call to <command>mmv_stats_init</command>, and ended with a call to <command>mmv_stats_stop</command>. These calls manipulate global state shared by the library and application. These are the only calls requiring synchonization and a single call to each is typically performed early and late in the life of the application (although they can be used to reset the library state as well, at any time). As such, the choice of synchonization primitive is left to the application, and none is currently performed by the library.</para>
+</section>
+</section>
 <section id="id5213106">
 
 <title>Performance Instrumentation and Tracing</title>
@@ -3295,7 +3350,6 @@ main(int argc, char* argv[])
 <para>The monitoring of transactions using the Performance Co-Pilot (PCP) infrastructure begins with a <command>pmtracebegin</command> call. Time is recorded from there to the corresponding <command>pmtraceend</command> call (with matching tag identifier). A transaction in progress can be cancelled by calling <command>pmtraceabort</command>.</para>
 <para>A second form of program instrumentation is available with the <command>pmtracepoint</command> function. This is a simpler form of monitoring that exports only the number of times a particular point in a program is passed. The <command>pmtraceobs</command> and <command>pmtracecount</command> functions have similar semantics, but the former allows an arbitrary numeric value to be passed to the trace PMDA.</para>
 <para><indexterm id="IG31340177469"><primary>pmdatrace man page</primary></indexterm>The <command>pmdatrace</command> command is a PMDA that exports transaction performance metrics from application processes using the <filename>pcp_trace</filename> library; see the <command>pmdatrace(1)</command> man page for details.</para>
-<para>For a complete introduction to application tracing, refer to the <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle>, which contains additional material covering this topic.</para>
 </section>
 <section id="id5213287">
 
@@ -3522,44 +3576,14 @@ trace.transact.rate</literallayout>
 <entry align="left" valign="top"><para><indexterm id="IG31340177548"><primary>asynchronous trace protocol</primary></indexterm> <indexterm id="IG31340177549"><primary>libpcp_trace library</primary><secondary>entry points</secondary></indexterm> Asynchronous trace protocol. This flag enables the asynchronous trace protocol so that the application does not block awaiting acknowledgment PDUs from the trace PMDA. In order for the flag to be effective, it must be set before using the other <filename/><filename>libpcp_trace</filename> entry points.</para></entry></row></tbody></tgroup></table>
 </section>
 </section>
-<section id="id5216224">
 
-<title>Instrumenting Applications to Export Performance Data</title>
-<para><indexterm id="IG31340177550"><primary>applications</primary><secondary>instrumentation</secondary></indexterm><indexterm id="IG31340177551"><primary>instrumentation</primary></indexterm> <indexterm id="IG31340177552"><primary>data export</primary></indexterm>The relationship between an application, the <filename>libpcp_trace</filename> library, the trace PMDA and the rest of the PCP infrastructure is shown in <xref linkend="id5216302"/>:</para>
-<para><figure id="id5216302"><title>Application and PCP Relationship</title><mediaobject><imageobject><imagedata fileref="figures/trace-libpcp.svg"/></imageobject><textobject><phrase>Application and PCP Relationship</phrase></textobject></mediaobject></figure></para>
-<para><indexterm id="IG31340177553"><primary>independent software vendors</primary></indexterm> <indexterm id="IG31340177554"><primary>customers</primary></indexterm> <indexterm id="IG31340177555"><primary>embedded calls</primary></indexterm>The <filename>libpcp_trace</filename> library is designed to encourage application developers (independent software vendors and end-user customers) to embed calls in their code that enable application performance data to be exported. When combined with system-level performance data, this feature allows total performance and resource demands of an application to be correlated with application activity.</para>
-<para>For example, developers can provide the following application performance metrics:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG31340177556"><primary>computation state</primary></indexterm>Computation state (especially for codes with major shifts in resource demands between phases of their execution)</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177557"><primary>parallelism</primary></indexterm>Problem size and parameters, that is, degree of parallelism throughput in terms of subproblems solved, iteration count, transactions, data sets inspected, and so on</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177558"><primary>service time</primary></indexterm>Service time by operation type</para>
-</listitem></itemizedlist>
-<para>The <filename>libpcp_trace</filename> library approach offers a number of attractive features:</para>
-<itemizedlist>
-<listitem><para>A simple API for inserting instrumentation calls into an application as shown in the following example:</para>
-<programlisting>pmtracebegin(&#x201C;pass 1&#x201D;);
-... 
-pmtraceend(&#x201C;pass 1&#x201D;); 
-...
-pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
-</listitem>
-<listitem><para><indexterm id="IG31340177559"><primary>languages</primary></indexterm>Trace routines that are called from C, C++, Fortran, and Java, and that are well suited to macro encapsulation for compile-time inclusion and exclusion.</para>
-</listitem></itemizedlist>
-<para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
-<itemizedlist>
-<listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity.</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177561"><primary>distributed performance management</primary><secondary>data transportation</secondary></indexterm>Transport of performance data over the network for distributed performance management.</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177562"><primary>archive logs</primary><secondary>performance management</secondary></indexterm>Archive logging for historical records of performance, most useful for problem diagnosis, postmortem analysis, performance regression testing, capacity planning, and benchmarking.</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177563"><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives.</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177564"><primary>toolkit approach</primary></indexterm><indexterm id="IG31340177565"><primary>customization</primary></indexterm>A toolkit approach that encourages customization. For example, a complete PCP for XYZ package could be offered for performance monitoring of application XYZ.</para>
-</listitem></itemizedlist>
-</section>
+
+
+
+
+
+
+
 </chapter>
 
 
@@ -3652,7 +3676,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 <indexentry>
    <primaryie>applications</primaryie>
       <secondaryie>compiling <link linkend="IG31340177460">Compiling and Linking PMAPI Applications</link></secondaryie>
-      <secondaryie>instrumentation <link linkend="IG31340177550">Instrumenting Applications to Export Performance Data</link></secondaryie>
+      <secondaryie>instrumentation <link linkend="IG31340177550">Instrumenting Applications</link></secondaryie>
       <secondaryie>interaction <link linkend="IG31340177471">Application Interaction</link></secondaryie>
 </indexentry>
 
@@ -3664,7 +3688,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
    <primaryie>archive logs</primaryie>
       <secondaryie>context services <link linkend="IG31340177347">PMAPI Context Services</link></secondaryie>
       <secondaryie>performance data <link linkend="IG31340177258">PMAPI--The Performance Metrics API</link> <link linkend="IG31340177266">Current PMAPI Context</link></secondaryie>
-      <secondaryie>performance management <link linkend="IG31340177562">Instrumenting Applications to Export Performance Data</link></secondaryie>
+      <secondaryie>performance management <link linkend="IG31340177562">Instrumenting Applications</link></secondaryie>
       <secondaryie>pmGetArchiveEnd function <link linkend="IG31340177402"><command>pmGetArchiveEnd</command> Function</link></secondaryie>
       <secondaryie>pmGetInDomArchive function <link linkend="IG31340177405"><command>pmGetInDomArchive</command> Function</link></secondaryie>
       <secondaryie>retrospective sources <link linkend="IG3134017731">Retrospective Sources of Performance Metrics</link></secondaryie>
@@ -3695,7 +3719,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>automated alarms <link linkend="IG31340177563">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>automated alarms <link linkend="IG31340177563">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3743,7 +3767,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>computation state <link linkend="IG31340177556">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>computation state <link linkend="IG31340177556">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3763,11 +3787,11 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>customers <link linkend="IG31340177554">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>customers <link linkend="IG31340177554">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
-   <primaryie>customization <link linkend="IG313401777">Programming Performance Co-Pilot</link> <link linkend="IG31340177565">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>customization <link linkend="IG313401777">Programming Performance Co-Pilot</link> <link linkend="IG31340177565">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3775,7 +3799,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>data export <link linkend="IG31340177552">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>data export <link linkend="IG31340177552">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3821,7 +3845,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 
 <indexentry>
    <primaryie>distributed performance management</primaryie>
-      <secondaryie>data transportation <link linkend="IG31340177561">Instrumenting Applications to Export Performance Data</link></secondaryie>
+      <secondaryie>data transportation <link linkend="IG31340177561">Instrumenting Applications</link></secondaryie>
       <secondaryie>metrics collection <link linkend="IG3134017715">Distributed Collection</link></secondaryie>
 </indexentry>
 
@@ -3860,7 +3884,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>embedded calls <link linkend="IG31340177555">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>embedded calls <link linkend="IG31340177555">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3875,12 +3899,13 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
    <primaryie>examples</primaryie>
       <secondaryie>alarm tools <link linkend="IG3134017775">Implementing a PMDA</link></secondaryie>
       <secondaryie>Install script <link linkend="IG31340177243">Installing a PMDA</link></secondaryie>
+      <secondaryie>MMV PMDA <link linkend="IG31340177465nat">Instrumenting Applications</link></secondaryie>
       <secondaryie>programming issues <link linkend="IG31340177445">PMAPI Programming Issues and Examples</link></secondaryie>
       <secondaryie>Remove script <link linkend="IG31340177249">Removing a PMDA</link></secondaryie>
       <secondaryie>rolling-window sampling <link linkend="IG31340177493">Rolling-Window Periodic Sampling Example</link></secondaryie>
       <secondaryie>simple and trivial PMDAs <link linkend="IG31340177109">Domains, Metrics, and Instances</link></secondaryie>
       <secondaryie>time control functions <link linkend="IG31340177416">PMAPI Time Control Services</link></secondaryie>
-      <secondaryie>trace PMDA <link linkend="IG31340177465">Trace PMDA</link></secondaryie>
+      <secondaryie>trace PMDA <link linkend="IG31340177465">Instrumenting Applications</link></secondaryie>
       <secondaryie>visualization tools <link linkend="IG3134017774">Implementing a PMDA</link></secondaryie>
 </indexentry>
 
@@ -3935,7 +3960,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>independent software vendors <link linkend="IG31340177553">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>independent software vendors <link linkend="IG31340177553">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3967,7 +3992,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>instrumentation <link linkend="IG31340177468">Performance Instrumentation and Tracing</link> <link linkend="IG31340177551">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>instrumentation <link linkend="IG31340177468">Performance Instrumentation and Tracing</link> <link linkend="IG31340177551">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4004,10 +4029,6 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>languages <link linkend="IG31340177559">Instrumenting Applications to Export Performance Data</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>latency <link linkend="IG31340177149">Latency and Threads of Control</link></primaryie>
 </indexentry>
 
@@ -4016,11 +4037,16 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
+   <primaryie>libpcp_mmv library</primaryie>
+      <secondaryie>instrumenting applications <link linkend="IG31340177464nat">Instrumenting Applications</link></secondaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>libpcp_trace library</primaryie>
       <secondaryie>Application Programming Interface <link linkend="IG31340177503">Trace API</link></secondaryie>
       <secondaryie>entry points <link linkend="IG31340177549">Configuring the Trace Library</link></secondaryie>
       <secondaryie>functions <link linkend="IG31340177535">Configuring the Trace Library</link></secondaryie>
-      <secondaryie>instrumenting applications <link linkend="IG31340177464">Trace PMDA</link></secondaryie>
+      <secondaryie>instrumenting applications <link linkend="IG31340177464">Instrumenting Applications</link></secondaryie>
 </indexentry>
 
 <indexentry>
@@ -4063,6 +4089,12 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
+   <primaryie>MMV PMDA</primaryie>
+      <secondaryie>description <link linkend="IG31340177462nat">Instrumenting Applications</link></secondaryie>
+      <secondaryie>design <link linkend="IG31340177470nat">MMV PMDA Design</link></secondaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>name space <link linkend="IG3134017722">Name Space</link> <link linkend="IG31340177155">Name Space</link></primaryie>
 </indexentry>
 
@@ -4091,7 +4123,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>parallelism <link linkend="IG31340177557">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>parallelism <link linkend="IG31340177557">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4374,7 +4406,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
       <secondaryie>man page <link linkend="IG3134017720">Distributed Collection</link></secondaryie>
       <secondaryie>removal <link linkend="IG31340177247">Removing a PMDA</link></secondaryie>
       <secondaryie>structures <link linkend="IG31340177199">PMDA Structures</link></secondaryie>
-      <secondaryie>trace <link linkend="IG31340177463">Trace PMDA</link></secondaryie>
+      <secondaryie>trace <link linkend="IG31340177463">Instrumenting Applications</link></secondaryie>
       <secondaryie>writing <link linkend="IG3134017759">Writing a PMDA</link></secondaryie>
 </indexentry>
 
@@ -4879,7 +4911,7 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>service time <link linkend="IG31340177558">Instrumenting Applications to Export Performance Data</link></primaryie>
+   <primaryie>service time <link linkend="IG31340177558">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4976,17 +5008,13 @@ pmtraceobs(&#x201C;threads&#x201D;, N);</programlisting>
 </indexentry>
 
 <indexentry>
-   <primaryie>toolkit approach <link linkend="IG31340177564">Instrumenting Applications to Export Performance Data</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>trace facilities <link linkend="IG313401776">Programming Performance Co-Pilot</link></primaryie>
 </indexentry>
 
 <indexentry>
    <primaryie>trace PMDA</primaryie>
       <secondaryie>command-line options <link linkend="IG31340177494">Configuring the Trace PMDA</link></secondaryie>
-      <secondaryie>description <link linkend="IG31340177462">Trace PMDA</link></secondaryie>
+      <secondaryie>description <link linkend="IG31340177462">Instrumenting Applications</link></secondaryie>
       <secondaryie>design <link linkend="IG31340177470">Trace PMDA Design</link></secondaryie>
 </indexentry>
 
