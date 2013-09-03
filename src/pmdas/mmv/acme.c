@@ -25,7 +25,7 @@ static mmv_instances_t products[] = {
 #define ACME_PRODUCTS_COUNT (sizeof(products)/sizeof(products[0]))
 
 static mmv_indom_t indoms[] = {
-    {        .serial = ACME_PRODUCTS_INDOM,
+    {   .serial = ACME_PRODUCTS_INDOM,
         .count = ACME_PRODUCTS_COUNT,
         .instances = products,
         .shorttext = "Acme products",
@@ -34,34 +34,34 @@ static mmv_indom_t indoms[] = {
 };
 
 static mmv_metric_t metrics[] = {
-    {        .name = "factory.products.count",
+    {   .name = "products.count",
         .item = 7,
         .type = MMV_TYPE_U64,
         .semantics = MMV_SEM_COUNTER,
         .dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
-        .indom = 1,
+        .indom = ACME_PRODUCTS_INDOM,
         .shorttext = "Acme factory product throughput",
         .helptext =
 "Monotonic increasing counter of products produced in the Acme Corporation\n"
 "factory since starting the Acme production application.  Quality guaranteed.",
     },
-    {        .name = "factory.products.time",
+    {   .name = "products.time",
         .item = 8,
         .type = MMV_TYPE_U64,
         .semantics = MMV_SEM_COUNTER,
         .dimension = MMV_UNITS(0,1,0,0,PM_TIME_USEC,0),
-        .indom = 1,
+        .indom = ACME_PRODUCTS_INDOM,
         .shorttext = "Machine time spent producing Acme products",
         .helptext =
 "Machine time spent producing Acme Corporation products.  Does not include\n"
 "time in queues waiting for production machinery.",
     },
-    {        .name = "factory.products.elapsed",
+    {   .name = "products.queuetime",
         .item = 10,
         .type = MMV_TYPE_U64,
         .semantics = MMV_SEM_COUNTER,
         .dimension = MMV_UNITS(0,1,0,0,PM_TIME_USEC,0),
-        .indom = 1,
+        .indom = ACME_PRODUCTS_INDOM,
         .shorttext = "Queued time while producing Acme products",
         .helptext =
 "Time spent in the queue waiting to build Acme Corporation products,\n"
@@ -80,9 +80,9 @@ main(int argc, char * argv[])
     void *count[ACME_PRODUCTS_COUNT];
     void *machine[ACME_PRODUCTS_COUNT];
     void *inqueue[ACME_PRODUCTS_COUNT];
-    int working;
-    int product;
-    int i;
+    unsigned int working;
+    unsigned int product;
+    unsigned int i;
 
     base = mmv_stats_init("acme", ACME_CLUSTER, 0,
                         metrics, METRIC_COUNT, indoms, INDOM_COUNT);
@@ -97,15 +97,15 @@ main(int argc, char * argv[])
         machine[i] = mmv_lookup_value_desc(base,
                         "products.time", products[i].external);
         inqueue[i] = mmv_lookup_value_desc(base,
-                        "products.queue", products[i].external);
+                        "products.queuetime", products[i].external);
     }
 
     while (1) {
         /* choose a random number between 0-N -> product */
-        product = rand() % (ACME_PRODUCTS_COUNT + 1);
+        product = rand() % ACME_PRODUCTS_COUNT;
 
         /* assign a time spent "working" on this product */
-        working = rand() % 500;
+        working = rand() % 5000;
 
         /* pretend to "work" so process doesn't burn CPU */
         usleep(working);
@@ -118,7 +118,7 @@ main(int argc, char * argv[])
         /* all other products are "queued" for this time */
         for (i = 0; i < ACME_PRODUCTS_COUNT; i++)
             if (i != product)
-                mmv_inc_value(base, inqueue[product], working);
+                mmv_inc_value(base, inqueue[i], working);
     }
 
     mmv_stats_stop("acme", base);
