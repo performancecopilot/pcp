@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -16,50 +16,35 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM		= mmv
-DOMAIN		= MMV
-CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
-LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
-TARGETS		= $(CMDTARGET) $(LIBTARGET) mmvdump$(EXECSUFFIX)
-DUMPDIRT	= mmvdump$(EXECSUFFIX) mmvdump.o
-LDIRT		= domain.h *.log *.dir *.pag so_locations $(DUMPDIRT) pmns
+IAM = mmv
+TARGET = mmvdump$(EXECSUFFIX)
+CFILES = mmvdump.c
 
-CFILES		= mmv.c
-LSRCFILES	= Install Remove mmvdump.c root_mmv
+LCFILES = acme.c
+LTARGET = acme$(EXECSUFFIX)
+LSRCFILES = $(LCFILES) README.demos Makefile.demos
 
-LCFLAGS		= -I.
-LLDFLAGS	= -L$(TOPDIR)/src/libpcp_mmv/src
-LLDLIBS		= $(PCP_PMDALIB)
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src
+LLDLIBS = -lpcp_mmv
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
+DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
+DEMOFILES = README.demos Makefile.demos
 
-default_pcp default: $(TARGETS) pmns
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	fi
+default_pcp default: $(TARGET) $(LTARGET)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 
-install_pcp install: default
+install_pcp install: $(SUBDIRS) default
+	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv
-	$(INSTALL) -m 644 root_mmv $(PCP_VAR_DIR)/pmns/root_mmv
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/mmv
-endif
+	$(INSTALL) -m 755 $(TARGET) $(PMDADIR)/$(TARGET)
+	$(INSTALL) -m 755 -d $(DEMODIR)
+	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
+	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
+	$(INSTALL) -m 644 $(CFILES) $(LCFILES) $(DEMODIR)
 
-$(CMDTARGET):	$(OBJECTS)
-
-$(IAM).o : domain.h
-
-domain.h: ../../pmns/stdpmid
-	$(DOMAIN_MAKERULE)
-
-pmns :
-	$(LN_S) -f root_mmv pmns
-
-mmvdump$(EXECSUFFIX):    mmvdump.o
-	$(CCF) -o $@ mmvdump.o $(LDFLAGS) $(PCPLIB) -lpcp_mmv
+# check-build only, binary not installed (but source is)
+$(LTARGET):	acme.c
+	$(CCF) -o $@ $^ $(LDFLAGS) $(LDLIBS)
