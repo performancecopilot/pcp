@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
-[ $PCP_VER -ge 3610 ] || _notrun "Installed pmdasystemd is too old"
 if which journalctl >/dev/null 2>&1
 then
     echo Found journalctl
@@ -27,6 +26,12 @@ if [ "$journal_version" -ge 193 ]; then
 else
     _notrun journalctl too old "$journal_version"
 fi
+
+[ $PCP_VER -ge 3610 ] || _notrun "Installed pmdasystemd is too old"
+suffix=2
+[ $PCP_VER -le 3802 ] || suffix=1
+rm -f $seq.out
+ln $seq.out.$suffix $seq.out
 
 _cleanup()
 {
@@ -42,6 +47,13 @@ _filter()
 	-e "s,$tmp,TMPFILE,g" \
 	-e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g'
+}
+
+_filter_probe()
+{
+    sed \
+	-e 's/^\(systemd.journal.count 1\) [0-9][0-9]*/\1 COUNT/g' \
+	-e 's/^\(systemd.journal.bytes 1\) [0-9][0-9]*/\1 BYTES/g'
 }
 
 _filter_events()
@@ -71,7 +83,7 @@ cat $tmp.out | _filter_pmda_install | _filter
 
 echo
 echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
-pminfo -f systemd | tee -a $here/$seq.full | _filter
+pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 
 echo | tee -a $here/$seq.full
 echo "=== 2. journald.records  ===" | tee -a $here/$seq.full

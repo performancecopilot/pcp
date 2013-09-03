@@ -48,3 +48,5 @@ to identify it, and a collection of string and blob fields (as appropriate).
 Each new journald event field is given a systemd.parameters.cursor string
 to identify it, and a blob fields the reproduce the FIELD=value bit-for-bit.
 
+@ systemd.journal.count Count of journal entries observed
+@ systemd.journal.bytes Sum of sizes of all journal entries observed

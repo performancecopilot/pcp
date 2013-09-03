@@ -1210,7 +1210,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     chn = __pmHashSearch ((int)webapi_ctx, & contexts);
     if (chn == NULL) {
         pmweb_notify (LOG_WARNING, connection, "unknown web context #%ld\n", webapi_ctx);
-        rc = -EBADRQC;
+        rc = PM_ERR_NOCONTEXT;
         goto out;
     }
     c = (struct webcontext *) chn->data;

@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 749
+# Check pmcd static probes
+#
+# Copyright (c) 2013 Red Hat.
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+
+# If no systemtap, we cannot run the script
+which stap >/dev/null 2>&1 || _notrun "No systemtap stap executable found"
+
+# If no PCP support for probes, also bail out
+static_probes=false
+eval `pmconfig -L 2>/dev/null`
+$static_probes || _notrun "No static probe support available in PCP build"
+
+# real QA test starts here
+cat <<End-of-File >$tmp.stap
+global probe_hits 
+probe process("$PCP_BINADM_DIR/pmcd").mark("*") {
+       probe_hits <<< 1
+}
+probe timer.ms(4000) {
+       if (@count(probe_hits) > 0) 
+          println("PASS")
+       else
+          println("FAIL")
+       exit()
+}
+End-of-File
+echo "Using stap config:" >> $seq.full
+cat $tmp.stap >> $seq.full
+
+# start systemtap and count pmcd probe hits
+$sudo stap $tmp.stap | tee -a $tmp.out 2>&1 &
+STAP=$!
+sleep 1
+
+pminfo -f hinv >/dev/null
+pminfo -f kernel >/dev/null
+pminfo -d mem >/dev/null
+pminfo -f network >/dev/null
+pminfo -tT disk >/dev/null
+
+wait $STAP
+echo "Output from stap:" >> $seq.full
+cat $tmp.out >> $seq.full
+
+# success, all done
+
+status=0
+exit
