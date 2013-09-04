@@ -361,24 +361,20 @@ Chart::changeTitle(QString title, int expand)
                 if ((*item)->removed())
                     continue;
 
-                QString shortHost = (*item)->metricContext()->source().host();
-                QStringList::Iterator host;
+                // QString shortHost = (*item)->metricContext()->source().host();
+                // ... but .host() is a possibly-munged of the pmchart -h STRING 
+                // argument, not the actual host name.  So get the data source's
+                // self-declared host name.  This string will not have pmproxy @
+                // stuff, or pcp://....&attr=... miscellanea.
+                QString shortHost = (*item)->metricContext()->source().context_hostname();
 
-                /* shorten hostname(s) - may be multiple (proxied) */
-                QStringList hosts = shortHost.split(QChar('@'));
-                for (host = hosts.begin(); host != hosts.end(); ++host) {
-                    /* decide whether or not to truncate this hostname */
-                    int dot = host->indexOf(QChar('.'));
-                    if (dot != -1)
-                        /* no change if it looks even vaguely like an IP address */
-                        if (!host->contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
-                            !host->contains(QChar(':')))		/* IPv6 */
-                            host->remove(dot, host->size());
-                }
-                host = hosts.begin();
-                shortHost = *host++;
-                for (; host != hosts.end(); ++host)
-                    shortHost.append(QString("@")).append(*host);
+                /* decide whether or not to truncate this hostname */
+                int dot = shortHost.indexOf(QChar('.'));
+                if (dot != -1)
+                    /* no change if it looks even vaguely like an IP address */
+                    if (!shortHost.contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
+                        !shortHost.contains(QChar(':')))		/* IPv6 */
+                        shortHost.remove(dot, shortHost.size());
 
                 shortHosts.insert(shortHost);
             }

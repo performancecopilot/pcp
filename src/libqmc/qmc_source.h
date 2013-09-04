@@ -49,6 +49,7 @@ public:
     QString endTime() { return timeString(&my.end); }
     QString desc() const { return my.desc; }
     char *descAscii() const { return strdup((const char *)my.desc.toAscii()); }
+    QString context_hostname() const { return my.context_hostname; }
 
     // Number of active contexts to this source
     uint numContexts() const { return my.handles.size(); }
@@ -90,6 +91,7 @@ private:
 	QString proxy;
 	QString attrs;
 	QString host;
+	QString context_hostname; // from pmcd/archive, not from -h/-a argument
 	QString	desc;
 	QString timezone;
 	QList<int> handles;	// Contexts created for this source
