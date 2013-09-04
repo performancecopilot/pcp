@@ -149,6 +149,9 @@ pmGetContextHostName (int ctxid)
     int		rc;
     char	hostbuf[MAXHOSTNAMELEN];
 
+    (void) gethostname(hostbuf, sizeof(hostbuf));
+    hostbuf[sizeof(hostbuf) - 1] = '\0';
+
     sts = "";
     if ( (ctxp = __pmHandleToPtr(ctxid)) != NULL) {
 	switch (ctxp->c_type) {
@@ -178,13 +181,15 @@ pmGetContextHostName (int ctxid)
 		if (ctxp->c_pmcd->pc_hosts[0].name != NULL) {
 		    sts = ctxp->c_pmcd->pc_hosts[0].name;
 		    if (*sts == __pmPathSeparator() || strcmp(sts, "localhost") == 0) {
-			gethostname(hostbuf, sizeof(hostbuf));
-			hostbuf[sizeof(hostbuf) - 1] = '\0';
 			sts = hostbuf;
 		    }
 		}
 	    }
 	    break;
+
+	case PM_CONTEXT_LOCAL:
+            sts = hostbuf;
+            break;
 
 	case PM_CONTEXT_ARCHIVE:
 	    sts = ctxp->c_archctl->ac_log->l_label.ill_hostname;
