@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (C) 2013 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
+ * Copyright (C) 2001 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,10 +14,10 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "mmv_stats.h"
-#include "mmv_dev.h"
-#include "impl.h"
+#include <pcp/pmapi.h>
+#include <pcp/mmv_stats.h>
+#include <pcp/mmv_dev.h>
+#include <pcp/impl.h>
 #include <inttypes.h>
 #include <sys/stat.h>
 

@@ -2652,7 +2652,7 @@ then
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
-    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = darwin
 then
     $as_echo "#define IS_DARWIN 1" >>confdefs.h
@@ -2692,13 +2692,13 @@ then
     $as_echo "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE"
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
     $as_echo "#define IS_NETBSD 1" >>confdefs.h
 
-    export CFLAGS="-fpic -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""

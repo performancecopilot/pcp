@@ -5,11 +5,10 @@ pmtrace
  is a sample application that uses the pcp_trace interface to send
 trace data to the trace PMDA (Performance Metrics Domain Agent).
 
-The binary is shipped as part of pcp.sw.trace and should be
-installed in /usr/sbin/pmtrace.  A "man" page is shipped in
-pcp.man.pages.
+The binary is shipped as part of pcp and should be installed in
+$PCP_BIN_DIR/pmtrace.  A pmtrace(1) man page is available.
 
-The source is shipped as part of pcp.sw.trace and is installed in
+The source is shipped as part of pcp as well and is installed in
 $PCP_DEMOS_DIR/trace.  If you have the C compiler installed, the
 source and Makefile in this directory may be used to create a
 functionally equivalent binary, simply by entering the command
