@@ -608,11 +608,11 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 </listitem></varlistentry>
 </variablelist>
 <note><para>This information can be observed for metrics from any active PMDA using <command>pminfo</command> command line options, for example:
-<literallayout class="monospaced">$ <userinput>pminfo -d -m network.interface.out.drops</userinput>
+<literallayout class="monospaced"> $ <userinput>pminfo -d -m network.interface.out.drops</userinput>
 
-network.interface.out.drops PMID: 60.3.11
-    Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
-    Semantics: counter  Units: count</literallayout>
+ network.interface.out.drops PMID: 60.3.11
+     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
+     Semantics: counter  Units: count</literallayout>
 </para></note>
 <para><indexterm id="IG31340177121"><primary>__pmID_int structure</primary></indexterm>Symbolic constants of the form <literal>PM_TYPE_*</literal>, <literal>PM_SEM_*</literal>, <literal>PM_SPACE_*</literal>, <literal>PM_TIME_*</literal>, and <literal>PM_COUNT_*</literal> are defined in the <filename>&lt;pcp/pmapi.h&gt;</filename> header file. You may use them to initialize the elements of a <literal>pmDesc</literal> structure. The <literal>pmID</literal>  type is an unsigned integer that can be safely cast to a <filename>__pmID_int</filename> structure, which contains fields defining the metric's (PMDA's) domain, cluster, and item number as shown in <xref linkend="Z1033577630tls"/>:</para>
 <para><example id="Z1033577630tls">
@@ -1110,7 +1110,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                                   inst, pmErrStr(sts));
                 return PM_ERR_INST;
             }
-            atom->l = tsp->tm_field;
+            atom-&gt;l = tsp-&gt;tm_field;
         }
         else 
             return PM_ERR_PMID;
@@ -2802,10 +2802,10 @@ pmAtomValue *<replaceable>oval</replaceable>, int <replaceable>otype</replaceabl
 <title><filename>pmAtomValue</filename> Structure</title>
 <programlisting>/* Generic Union for Value-Type conversions */
 typedef union {
-    _int32_t   l;     /* 32-bit signed */
-    _uint32_t  ul;    /* 32-bit unsigned */
-    _int64_t   ll;    /* 64-bit signed */
-    _uint64_t  ull;   /* 64-bit unsigned */
+    __int32_t  l;     /* 32-bit signed */
+    __uint32_t ul;    /* 32-bit unsigned */
+    __int64_t  ll;    /* 64-bit signed */
+    __uint64_t ull;   /* 64-bit unsigned */
     float      f;     /* 32-bit floating point */
     double     d;     /* 64-bit floating point */
     char       *cp;   /* char ptr */
@@ -3324,24 +3324,218 @@ project. It supports both the existing JVM instrumentation, and custom applicati
 <section id="id5213104">
 
 <title>Performance Instrumentation and Sampling</title>
-<para><indexterm id="IG31340177467nat"><primary>performance instrumentation</primary></indexterm><indexterm id="IG31340177468nat"><primary>instrumentation</primary></indexterm>The <filename>pcp_mmv</filename> library provides function calls to assist with extracing important performance variables from a program into a shared in-memory location, such that the MMV PMDA can examine and serve that information on behalf of PCP client tool requests. The <filename>pcp_mmv</filename> library is described in the <command>mmv_stats_init(3)</command>, <command>mmv_lookup_value_desc(3)</command>, <command>mmv_inc_value(3)</command> man pages. Additionally, the format of the shared memory mappings is descibed in detail in <command>mmv(5)</command>.</para>
+<para><indexterm id="IG31340177467nat"><primary>performance instrumentation</primary></indexterm><indexterm id="IG31340177468nat"><primary>instrumentation</primary></indexterm>The <filename>pcp_mmv</filename> library provides function calls to assist with extracing important performance metrics from a program into a shared, in-memory location such that the MMV PMDA can examine and serve that information on behalf of PCP client tool requests. The <filename>pcp_mmv</filename> library is described in the <command>mmv_stats_init(3)</command>, <command>mmv_lookup_value_desc(3)</command>, <command>mmv_inc_value(3)</command> man pages. Additionally, the format of the shared memory mappings is described in detail in <command>mmv(5)</command>.</para>
 </section>
 <section id="id5213287nat">
 
 <title>MMV PMDA Design</title>
 <para><indexterm id="IG31340177470nat"><primary>MMV PMDA</primary><secondary>design</secondary></indexterm>An application instrumented with memory mapped values directly updates the memory that backs the metric values it exports. The MMV PMDA reads those values directly, from the <literal>same</literal> memory that the application is updating, when current values are sampled on behalf of PMAPI client tools. This relationship, and a simplified MMV API, are shown in <xref linkend="id5214410nat"/>.</para>
 <para><figure id="id5214410nat"><title>Memory Mapped Page Sharing</title><mediaobject><imageobject><imagedata fileref="figures/pmdammv.svg"/></imageobject></mediaobject></figure></para>
+<para>It is worth noting that once the metrics of an application have been registered via the <filename>pcp_mmv</filename> library initialisation API, subsequent interactions with the library are not intrusive to the instrumented application. At the points where values are updated, the only cost involved is the memory mapping update, which is a single memory store operation. There is no need to explicitly transfer control to the MMV PMDA, nor allocate memory, nor make system or library calls. The PMDA will only sample the values at times driven by PMAPI client tools, and this places no overhead on the instrumented application.</para>
 </section>
 <section id="id5213288nat">
 
 <title>Memory Mapped Values API</title>
-<para><indexterm id="IG31340177502nat"><primary>Application Programming Interface</primary></indexterm> <indexterm id="IG31340177503nat"><primary>libpcp_mmv library</primary><secondary>Application Programming Interface</secondary></indexterm>The <filename>libpcp_mmv</filename> Application Programming Interface (API) can be called from C, C++, Perl and Python (a separate project, Parfait, services the needs of Java applications). Each language has access to the complete set of functionality offered by <filename>libpcp_mmv</filename>. In some cases, the calling conventions differ slightly between languages.</para>
+<para><indexterm id="IG31340177502nat"><primary>Application Programming Interface</primary></indexterm> <indexterm id="IG31340177503nat"><primary>libpcp_mmv library</primary><secondary>Application Programming Interface</secondary></indexterm>The <filename>libpcp_mmv</filename> Application Programming Interface (API) can be called from C, C++, Perl and Python (a separate project, Parfait, services the needs of Java applications). Each language has access to the complete set of functionality offered by <filename>libpcp_mmv</filename>. In most cases, the calling conventions differ only slightly between languages - in the case of Java and Parfait, they differ significantly however.</para>
 <section id="id5214320nat">
 
 <title>Starting and Stopping Instrumentation</title>
 <para><indexterm id="IG31340177504nat"><primary>mmv_stats_init function</primary></indexterm> <indexterm id="IG31340177505nat"><primary>mmv_stats_stop function</primary></indexterm>
-Instrumentation is begun with an initial call to <command>mmv_stats_init</command>, and ended with a call to <command>mmv_stats_stop</command>. These calls manipulate global state shared by the library and application. These are the only calls requiring synchonization and a single call to each is typically performed early and late in the life of the application (although they can be used to reset the library state as well, at any time). As such, the choice of synchonization primitive is left to the application, and none is currently performed by the library.</para>
+Instrumentation is begun with an initial call to <literal>mmv_stats_init</literal>, and ended with a call to <literal>mmv_stats_stop</literal>. These calls manipulate global state shared by the library and application. These are the only calls requiring synchonization and a single call to each is typically performed early and late in the life of the application (although they can be used to reset the library state as well, at any time). As such, the choice of synchonization primitive is left to the application, and none is currently performed by the library.</para>
+<literallayout class="monospaced">void *mmv_stats_init(const char *<replaceable>name</replaceable>, int <replaceable>cluster</replaceable>, mmv_stats_flags_t <replaceable>flags</replaceable>,
+                     const mmv_metric_t *<replaceable>stats</replaceable>, int <replaceable>nstats</replaceable>,
+                     const mmv_indom_t *<replaceable>indoms</replaceable>, int <replaceable>nindoms</replaceable>)</literallayout>
+<para>The <replaceable>name</replaceable> should be a simple symbolic name identifying the application. It is usually used as the first application-specific part of the exported metric names, as seen from the MMV PMDA. This behavior can be overriden using the <replaceable>flags</replaceable> parameter, with the MMV_FLAG_NOPREFIX flag. In the example below, full metric names such as <literal>mmv.acme.products.count</literal> will be created by the MMV PMDA. With the MMV_FLAG_NOPREFIX flag set, that would instead become <literal>mmv.products.count</literal>. It is recommended to not disable the prefix - doing so requires the applications to ensure naming conflicts do not arise in the MMV PMDA metric names.</para>
+<para>The <replaceable>cluster</replaceable> identifier is used by the MMV PMDA to further distinguish different applications, and is directly used for the MMV PMDA PMID cluster field described in <xref linkend="Z1033577630tls"/>, for all MMV PMDA metrics.</para>
+<para>All remaining parameters to <literal>mmv_stats_init</literal> define the metrics and instance domains that exist within the application. These are somewhat analagous to the final parameters of <literal>pmdaInit(3)</literal>, and are best explained using <xref linkend="Z1033577630nat"/> and <xref linkend="Z1033577631nat"/>. As mentioned earlier, the full source code for this example instrumented application can be found in <filename>${PCP_DEMOS_DIR}/mmv</filename>.</para>
+<para><example id="Z1033577630nat">
+<title>Memory Mapped Value Instance Structures</title>
+<programlisting>#include &lt;pcp/pmapi.h&gt;
+#include &lt;pcp/mmv_stats.h&gt;
+
+static mmv_instances_t products[] = {
+    {   .internal = 0, .external = "Anvils" },
+    {   .internal = 1, .external = "Rockets" },
+    {   .internal = 2, .external = "Giant_Rubber_Bands" },
+};
+#define ACME_PRODUCTS_INDOM 61
+#define ACME_PRODUCTS_COUNT (sizeof(products)/sizeof(products[0]))
+
+static mmv_indom_t indoms[] = {
+    {   .serial = ACME_PRODUCTS_INDOM,
+        .count = ACME_PRODUCTS_COUNT,
+        .instances = products,
+        .shorttext = "Acme products",
+        .helptext = "Most popular products produced by the Acme Corporation",
+    },
+};</programlisting>
+</example></para>
+<para>The above data structures initialize an instance domain
+of the set of products produced in a factory by the fictional
+"Acme Corporation". These structures are directly comparable to
+several concepts we have seen already (and for good reason - the
+MMV PMDA must interpret the applications intentions and properly
+export instances on its behalf):</para>
+<itemizedlist>
+<listitem><para>mmv_instances_t maps to pmdaInstid, as in <xref linkend="Z975964618sdc"/></para>
+</listitem>
+<listitem><para>mmv_indom_t maps to pmdaIndom, as in <xref linkend="Z975964773sdc"/> - the
+major difference is the addition of oneline and long help text, the purpose of which should
+be self-explanatory at this stage.</para>
+</listitem>
+<listitem><para><replaceable>serial</replaceable> numbers, as in <xref linkend="Z1033578294tls"/></para>
+</listitem>
+</itemizedlist>
+<para>Next, we shall create three metrics, all of which use this instance domain.
+These are the <literal>mmv.acme.products</literal> metrics, and they reflect the
+rates at which products are built by the machines in the factory, how long these
+builds take for each product, and how long each product type spends queued (while
+waiting for factory capacity to become available).</para>
+<para><example id="Z1033577631nat">
+<title>Memory Mapped Value Metrics Structures</title>
+<programlisting>static mmv_metric_t metrics[] = {
+    {   .name = "products.count",
+        .item = 7,
+        .type = MMV_TYPE_U64,
+        .semantics = MMV_SEM_COUNTER,
+        .dimension = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE),
+        .indom = ACME_PRODUCTS_INDOM,
+        .shorttext = "Acme factory product throughput",
+        .helptext =
+"Monotonic increasing counter of products produced in the Acme Corporation\n"
+"factory since starting the Acme production application.  Quality guaranteed.",
+    },
+    {   .name = "products.time",
+        .item = 8,
+        .type = MMV_TYPE_U64,
+        .semantics = MMV_SEM_COUNTER,
+        .dimension = MMV_UNITS(0,1,0,0,PM_TIME_USEC,0),
+        .indom = ACME_PRODUCTS_INDOM,
+        .shorttext = "Machine time spent producing Acme products",
+        .helptext =
+"Machine time spent producing Acme Corporation products.  Does not include\n"
+"time in queues waiting for production machinery.",
+    },
+    {   .name = "products.queuetime",
+        .item = 10,
+        .type = MMV_TYPE_U64,
+        .semantics = MMV_SEM_COUNTER,
+        .dimension = MMV_UNITS(0,1,0,0,PM_TIME_USEC,0),
+        .indom = ACME_PRODUCTS_INDOM,
+        .shorttext = "Queued time while producing Acme products",
+        .helptext =
+"Time spent in the queue waiting to build Acme Corporation products,\n"
+"while some other Acme product was being built instead of this one.",
+    },
+};
+#define INDOM_COUNT (sizeof(indoms)/sizeof(indoms[0]))
+#define METRIC_COUNT (sizeof(metrics)/sizeof(metrics[0]))</programlisting>
+</example></para>
+<para>As was the case with the "products" instance domain before, these metric-defining
+data structures are directly comparable to PMDA data structures described earlier:</para>
+<itemizedlist>
+<listitem><para>mmv_metric_t maps to a pmDesc structure, as in <xref linkend="Z975964618sdc"/></para>
+</listitem>
+<listitem><para>MMV_TYPE, MMV_SEM, and MMV_UNITS map to PMAPI constructs for type, semantics, dimensionality and scale, as in <xref linkend="Z1034792511tls"/></para>
+</listitem>
+<listitem><para><replaceable>item</replaceable> number, as in <xref linkend="Z1033577630tls"/></para>
+</listitem>
+</itemizedlist>
+<para>For the most part, all types and macros map directly to their core PCP counterparts, which the MMV PMDA will use when exporting the metrics. One important exception is the introduction of the metric type MMV_TYPE_ELAPSED, which is discussed further in <xref linkend="id5214734"/>.</para>
+<para>The complex types (aggregate and event type metrics) are not supported by the MMV format - a custom PMDA is required to use these.</para>
 </section>
+
+<section>
+<title>Getting a Handle on Mapped Values</title>
+<para><indexterm id="Z1033577633nat"><primary>mmv_lookup_value_desc function</primary></indexterm>Once metrics (and the instance domains they use) have been registered, the memory mapped file has been created and is ready for use. In order to be able to update the individual metric values, however, we must find get a handle to the value. This is done using the <command>mmv_lookup_value_desc</command> function, as shown in <xref linkend="Z1033577632nat"/>.</para>
+<para><example id="Z1033577632nat">
+<title>Memory Mapped Value Handles</title>
+<programlisting>#define ACME_CLUSTER 321        /* PMID cluster identifier */
+
+int
+main(int argc, char * argv[])
+{
+    void *base;
+    pmAtomValue *count[ACME_PRODUCTS_COUNT];
+    pmAtomValue *machine[ACME_PRODUCTS_COUNT];
+    pmAtomValue *inqueue[ACME_PRODUCTS_COUNT];
+    unsigned int working;
+    unsigned int product;
+    unsigned int i;
+
+    base = mmv_stats_init("acme", ACME_CLUSTER, 0,
+                          metrics, METRIC_COUNT, indoms, INDOM_COUNT);
+    if (!base) {
+        perror("mmv_stats_init");
+        return 1;
+    }
+
+    for (i = 0; i &lt; ACME_PRODUCTS_COUNT; i++) {
+        count[i] = mmv_lookup_value_desc(base,
+                        "products.count", products[i].external);
+        machine[i] = mmv_lookup_value_desc(base,
+                        "products.time", products[i].external);
+        inqueue[i] = mmv_lookup_value_desc(base,
+                        "products.queuetime", products[i].external);
+    }</programlisting>
+</example></para>
+<para>Space in the mapping file for every value is set aside at initialization time (by the <command>mmv_stats_init</command> function) - that is, space for each and every metric, and each value (instance) of each metric when an instance domain is used. To find the handle to the space set aside for one individual value requires the tuple of base memory address of the mapping, metric name, and instance name. In the case of metrics with no instance domain, the final instance name parameter should be either NULL or the empty string.</para>
+</section>
+<section>
+
+<title>Updating Mapped Values</title>
+<para><indexterm id="Z1033577634nat"><primary>mmv_stats_inc function</primary></indexterm>At this stage we have individual handles (pointers) to each instrumentation point, we can now start modifying these values and observing changes through the PCP infrastructure. Notice that each handle is simply the canonical <command>pmAtomValue</command> pointer, as defined in <xref linkend="Z976562908sdc"/>, which is a union providing sufficient space to hold any single value. This pointer can be either manipulated directly, or using helper functions provided by the <command>pcp_mmv</command> API.</para>
+<para><example id="Z1033577636">
+<title>Memory Mapped Value Updates</title>
+<programlisting>    while (1) {
+        /* choose a random number between 0-N -&gt; product */
+        product = rand() % ACME_PRODUCTS_COUNT;
+
+        /* assign a time spent "working" on this product */
+        working = rand() % 50000;
+
+        /* pretend to "work" so process doesn't burn CPU */
+        usleep(working);
+
+        /* update the memory mapped values for this one: */
+        /* one more product produced and work time spent */
+        mmv_inc_value(base, machine[product], working); /* API */
+        count[product]-&gt;ull += 1;     /* or direct mmap update */
+
+        /* all other products are "queued" for this time */
+        for (i = 0; i &lt; ACME_PRODUCTS_COUNT; i++)
+            if (i != product)
+                mmv_inc_value(base, inqueue[i], working);
+    }</programlisting>
+</example></para>
+<para>At this stage, it will be informative to compile and run the complete example program, which can be found in <filename>${PCP_DEMOS_DIR}/mmv/acme.c</filename>. There is an associated <filename>Makefile</filename> to build it, in the same directory. Running the <filename>acme</filename> binary creates the instrumentation shown in <xref linkend="Z1033577637"/>, with live values letting us explore simple queueing effects in products being created on the ACME factory floor. Experimentation with the algorithm from <xref linkend="Z1033577636"/> is highly encouraged. In particular, observe the effects of rate conversion (counter metric type) of a metric with units of "time" (PM_TIME_*). The reported values are calculated over a sampling interval, which also has units of "time", forming a utilization. This is extremely valuable performance analysis currency - comparable metrics would include processor utilization, disk spindle utilization, and so forth.</para>
+<para><example id="Z1033577637">
+<title>Memory Mapped Value Reports</title>
+<programlisting><userinput>pminfo -m mmv.acme</userinput>
+mmv.acme.products.queuetime PMID: 70.321.10
+mmv.acme.products.time PMID: 70.321.8
+mmv.acme.products.count PMID: 70.321.7
+
+<userinput>pmval -f2 -s3 mmv.acme.products.time</userinput>
+metric:    mmv.acme.products.time
+host:      localhost
+semantics: cumulative counter (converting to rate)
+units:     microsec (converting to time utilization)
+samples:   3
+interval:  1.00 sec
+
+               Anvils               Rockets    Giant_Rubber_Bands 
+                 0.37                  0.12                  0.50 
+                 0.35                  0.25                  0.38 
+                 0.57                  0.20                  0.23</programlisting>
+</example></para>
+</section>
+
+<section id="id5214734">
+<title>Elapsed Time Measures</title>
+<para><indexterm id="Z1033577635nat"><primary>mmv_stats_interval_start function</primary></indexterm>XXX.</para>
+</section>
+
 </section>
 <section id="id5213106">
 
