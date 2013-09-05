@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2009 Max Matveev
+.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2009 Max Matveev.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -37,10 +38,14 @@ cc ... \-lpcp_mmv \-lpcp
 .SH DESCRIPTION
 .P
 \f3mmv_stats_init\f1 creates and initializes the content of the 
-\f2MMV\f1(5) file.
+\f2MMV\f1(5) file, returning a handle that is used in subsequent
+MMV API calls.
+.P
+\f3mmv_stats_stop\f1 performs an orderly shutdown of the mapping
+handle returned by an earlier initialization call.
 .P
 The file is created in the $PCP_TMP_DIR/mmv directory, \f2name\f1
-argument is expected to be just a name of the file, not the full path.
+argument is expected to be a basename of the file, not the full path.
 The metadata content of the file does not change after the file has
 been created. 
 .P

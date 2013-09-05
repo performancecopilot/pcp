@@ -16,10 +16,9 @@
 #include <pcp/mmv_stats.h>
 
 static mmv_instances_t products[] = {
-    {  0, "Anvils" },
-    {  1, "Rockets" },
-    {  2, "Giant_Rubber_Bands" },
-    {  3, "Rocket_Powered_Anvils" },
+    {   .internal = 0, .external = "Anvils" },
+    {   .internal = 1, .external = "Rockets" },
+    {   .internal = 2, .external = "Giant_Rubber_Bands" },
 };
 #define ACME_PRODUCTS_INDOM 61
 #define ACME_PRODUCTS_COUNT (sizeof(products)/sizeof(products[0]))
@@ -77,9 +76,9 @@ int
 main(int argc, char * argv[])
 {
     void *base;
-    void *count[ACME_PRODUCTS_COUNT];
-    void *machine[ACME_PRODUCTS_COUNT];
-    void *inqueue[ACME_PRODUCTS_COUNT];
+    pmAtomValue *count[ACME_PRODUCTS_COUNT];
+    pmAtomValue *machine[ACME_PRODUCTS_COUNT];
+    pmAtomValue *inqueue[ACME_PRODUCTS_COUNT];
     unsigned int working;
     unsigned int product;
     unsigned int i;
@@ -105,15 +104,15 @@ main(int argc, char * argv[])
         product = rand() % ACME_PRODUCTS_COUNT;
 
         /* assign a time spent "working" on this product */
-        working = rand() % 5000;
+        working = rand() % 50000;
 
         /* pretend to "work" so process doesn't burn CPU */
         usleep(working);
 
         /* update the memory mapped values for this one: */
         /* one more product produced and work time spent */
-        mmv_inc_value(base, count[product], 1);
-        mmv_inc_value(base, machine[product], working);
+        mmv_inc_value(base, machine[product], working); /* API */
+        count[product]->ull += 1;     /* or direct mmap update */
 
         /* all other products are "queued" for this time */
         for (i = 0; i < ACME_PRODUCTS_COUNT; i++)
