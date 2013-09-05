@@ -695,7 +695,7 @@ pmda_inst_name(index,instance)
 	pmdaIndom *	p;
 	pmdaInstid	*instp;
     CODE:
-	if (index >= itab_size || index < 0)	/* is this a valid indom */
+	if (index >= itab_size)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
 	p = indomtab + index;
 	if (!p->it_set)	/* was this indom previously setup via a hash? */
@@ -723,7 +723,7 @@ pmda_inst_lookup(index,instance)
 	SV *		svp;
 	int		i, sts;
     CODE:
-	if (index >= itab_size || index < 0)	/* is this a valid indom */
+	if (index >= itab_size)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
 	p = indomtab + index;
 	if (p->it_set)	/* was this indom previously setup via an array? */
@@ -1016,13 +1016,13 @@ add_indom(self,indom,insts,help,longhelp)
 int
 replace_indom(self,index,insts)
 	pmdaInterface *	self
-	int	index
-	SV *	insts
+	unsigned int	index
+	SV *		insts
     PREINIT:
 	pmdaIndom *	p;
 	int		sts;
     CODE:
-	if (index >= itab_size || index < 0) {
+	if (index >= itab_size) {
 	    warn("attempt to replace non-existent instance domain");
 	    XSRETURN_UNDEF;
 	}
