@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2008-2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -498,7 +499,7 @@ update_hash_indom(SV *insts, pmInDom indom)
 
     hv_iterinit(ihash);
     while ((data = hv_iternextsv(ihash, &instance, &instsize)) != NULL)
-	pmdaCacheStore(indom, PMDA_CACHE_ADD, instance, data);
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, instance, SvREFCNT_inc(data));
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     if (sts < 0)
