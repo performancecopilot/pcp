@@ -3296,20 +3296,20 @@ project. It supports both the existing JVM instrumentation, and custom applicati
 <para> <indexterm id="IG31340177464"><primary>libpcp_trace library</primary><secondary>instrumenting applications</secondary></indexterm><indexterm id="IG31340177465"><primary>examples</primary><secondary>trace PMDA</secondary></indexterm> This part of the chapter also includes information on how to use the Trace PMDA and its associated library (<filename>libpcp_trace</filename>) for instrumenting applications. The example programs are installed in <filename>${PCP_DEMOS_DIR}/trace</filename>.</para>
 <warning><para>The current PCP trace library is a relatively heavy-weight solution, issuing multiple system calls per trace point, runs over a TCP/IP socket even locally and performs no event batching. As such it is not appropriate for production application instrumentation at this stage.</para></warning>
 <para>A revised application tracing library and PMDA are planned which will be light-weight, suitable for production system tracing, and support event metrics and other advances in end-to-end distributed application tracing.</para>
+<para><indexterm id="IG31340177554"><primary>application developers</primary></indexterm> <indexterm id="IG31340177555"><primary>embedded calls</primary></indexterm>The application instrumentation libraries are designed to encourage application developers to embed calls in their code that enable application performance data to be exported. When combined with system-level performance data, this feature allows total performance and resource demands of an application to be correlated with application activity.</para>
+<para>For example, developers can provide the following application performance metrics:</para>
+<itemizedlist>
+<listitem><para><indexterm id="IG31340177556"><primary>computation state</primary></indexterm>Computation state (especially for codes with major shifts in resource demands between phases of their execution)</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177557"><primary>parallelism</primary></indexterm>Problem size and parameters, that is, degree of parallelism throughput in terms of sub-problems solved, iteration count, transactions, data sets inspected, and so on</para>
+</listitem>
+<listitem><para><indexterm id="IG31340177558"><primary>service time</primary></indexterm>Service time by operation type</para>
+</listitem></itemizedlist>
 <section id="id5213105">
 
 <title>Application and Performance Co-Pilot Relationship</title>
 <para><indexterm id="IG31340177550"><primary>applications</primary><secondary>instrumentation</secondary></indexterm><indexterm id="IG31340177551"><primary>instrumentation</primary></indexterm> <indexterm id="IG31340177552"><primary>data export</primary></indexterm>The relationship between an application, the <filename>pcp_mmv</filename> and <filename>pcp_trace</filename> instrumentation libraries, the MMV and Trace PMDAs, and the rest of the PCP infrastructure is shown in <xref linkend="id5216302"/>:</para>
 <para><figure id="id5216302"><title>Application and PCP Relationship</title><mediaobject><imageobject><imagedata fileref="figures/instrumentation.svg"/></imageobject><textobject><phrase>Application and PCP Relationship</phrase></textobject></mediaobject></figure></para>
-<para><indexterm id="IG31340177553"><primary>independent software vendors</primary></indexterm> <indexterm id="IG31340177554"><primary>customers</primary></indexterm> <indexterm id="IG31340177555"><primary>embedded calls</primary></indexterm>The application instrumentation libraries are designed to encourage application developers to embed calls in their code that enable application performance data to be exported. When combined with system-level performance data, this feature allows total performance and resource demands of an application to be correlated with application activity.</para>
-<para>For example, developers can provide the following application performance metrics:</para>
-<itemizedlist>
-<listitem><para><indexterm id="IG31340177556"><primary>computation state</primary></indexterm>Computation state (especially for codes with major shifts in resource demands between phases of their execution)</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177557"><primary>parallelism</primary></indexterm>Problem size and parameters, that is, degree of parallelism throughput in terms of subproblems solved, iteration count, transactions, data sets inspected, and so on</para>
-</listitem>
-<listitem><para><indexterm id="IG31340177558"><primary>service time</primary></indexterm>Service time by operation type</para>
-</listitem></itemizedlist>
 <para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
 <itemizedlist>
 <listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity.</para>
@@ -3318,7 +3318,7 @@ project. It supports both the existing JVM instrumentation, and custom applicati
 </listitem>
 <listitem><para><indexterm id="IG31340177562"><primary>archive logs</primary><secondary>performance management</secondary></indexterm>Archive logging for historical records of performance, most useful for problem diagnosis, postmortem analysis, performance regression testing, capacity planning, and benchmarking.</para>
 </listitem>
-<listitem><para><indexterm id="IG31340177563"><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives.</para>
+<listitem><para><indexterm id="IG31340177563"><primary>automated alarms</primary></indexterm>Automated alarms when bad performance is observed. These apply both in real-time or when scanning archives of historical application performance.</para>
 </listitem></itemizedlist>
 </section>
 <section id="id5213104">
@@ -3442,7 +3442,7 @@ data structures are directly comparable to PMDA data structures described earlie
 </listitem>
 </itemizedlist>
 <para>For the most part, all types and macros map directly to their core PCP counterparts, which the MMV PMDA will use when exporting the metrics. One important exception is the introduction of the metric type MMV_TYPE_ELAPSED, which is discussed further in <xref linkend="id5214734"/>.</para>
-<para>The complex types (aggregate and event type metrics) are not supported by the MMV format - a custom PMDA is required to use these.</para>
+<para>The compound metric types - aggregate and event type metrics - are not supported by the MMV format.</para>
 </section>
 
 <section>
@@ -3484,7 +3484,8 @@ main(int argc, char * argv[])
 <section>
 
 <title>Updating Mapped Values</title>
-<para><indexterm id="Z1033577634nat"><primary>mmv_stats_inc function</primary></indexterm>At this stage we have individual handles (pointers) to each instrumentation point, we can now start modifying these values and observing changes through the PCP infrastructure. Notice that each handle is simply the canonical <command>pmAtomValue</command> pointer, as defined in <xref linkend="Z976562908sdc"/>, which is a union providing sufficient space to hold any single value. This pointer can be either manipulated directly, or using helper functions provided by the <command>pcp_mmv</command> API.</para>
+<para><indexterm id="Z1033577634nat"><primary>mmv_stats_inc function</primary></indexterm>At this stage we have individual handles (pointers) to each instrumentation point, we can now start modifying these values and observing changes through the PCP infrastructure. Notice that each handle is simply the canonical <command>pmAtomValue</command> pointer, as defined in <xref linkend="Z976562908sdc"/>, which is a union providing sufficient space to hold any single value.</para>
+<para>This pointer can be either manipulated directly, or using helper functions provided by the <command>pcp_mmv</command> API, such as the <command>mmv_stats_inc</command> and <command>mmv_stats_set</command> functions.</para>
 <para><example id="Z1033577636">
 <title>Memory Mapped Value Updates</title>
 <programlisting>    while (1) {
@@ -3508,7 +3509,7 @@ main(int argc, char * argv[])
                 mmv_inc_value(base, inqueue[i], working);
     }</programlisting>
 </example></para>
-<para>At this stage, it will be informative to compile and run the complete example program, which can be found in <filename>${PCP_DEMOS_DIR}/mmv/acme.c</filename>. There is an associated <filename>Makefile</filename> to build it, in the same directory. Running the <filename>acme</filename> binary creates the instrumentation shown in <xref linkend="Z1033577637"/>, with live values letting us explore simple queueing effects in products being created on the ACME factory floor. Experimentation with the algorithm from <xref linkend="Z1033577636"/> is highly encouraged. In particular, observe the effects of rate conversion (counter metric type) of a metric with units of "time" (PM_TIME_*). The reported values are calculated over a sampling interval, which also has units of "time", forming a utilization. This is extremely valuable performance analysis currency - comparable metrics would include processor utilization, disk spindle utilization, and so forth.</para>
+<para>At this stage, it will be informative to compile and run the complete example program, which can be found in <filename>${PCP_DEMOS_DIR}/mmv/acme.c</filename>. There is an associated <filename>Makefile</filename> to build it, in the same directory. Running the <filename>acme</filename> binary creates the instrumentation shown in <xref linkend="Z1033577637"/>, with live values letting us explore simple queueing effects in products being created on the ACME factory floor.</para>
 <para><example id="Z1033577637">
 <title>Memory Mapped Value Reports</title>
 <programlisting><userinput>pminfo -m mmv.acme</userinput>
@@ -3529,11 +3530,14 @@ interval:  1.00 sec
                  0.35                  0.25                  0.38 
                  0.57                  0.20                  0.23</programlisting>
 </example></para>
+<para>Experimentation with the algorithm from <xref linkend="Z1033577636"/> is encouraged. In particular, observe the effects of rate conversion (counter metric type) of a metric with units of "time" (PM_TIME_*). The reported values are calculated over a sampling interval, which also has units of "time", forming a utilization. This is extremely valuable performance analysis currency - comparable metrics would include processor utilization, disk spindle utilization, and so forth.</para>
 </section>
 
 <section id="id5214734">
 <title>Elapsed Time Measures</title>
-<para><indexterm id="Z1033577635nat"><primary>mmv_stats_interval_start function</primary></indexterm>XXX.</para>
+<para><indexterm id="Z1033577635nat"><primary>mmv_stats_interval_start function</primary></indexterm><indexterm id="Z1033577636nat"><primary>mmv_stats_interval_end function</primary></indexterm>One problem with the instrumentation model embodied by the <command>pcp_mmv</command> library is providing timing information for long-running operations. For instrumenting long-running operations, like uploading downloading a file, the overall operation may be broken into smaller, discrete units of work which can be easily instrumented in terms of operations and througput measures. In other cases, there are no divisible units for long-running operations (for example a black-box library call) and instrumenting these operations presents a challenge. Sometimes the best that can be done is adding the instrumentation point at the completion of the operation, and simply accept the "bursty" nature of this approach. In these problematic cases, the work completed in one sampling-interval may have begun several intervals before, from the point of view of the monitoring tool, which can lead to misleading results.</para>
+<para>One technique that is available to combat this is through use of the MMV_TYPE_ELAPSED metric type, which provides the concept of a "timed section" of code. This mechanism stores the start time of an operation along with the mapped metric value (an "elapsed time" counter), via the <command>mmv_stats_interval_start</command> instrumentation function. Then, with help from the MMV PMDA which recognizes this type, the act of sampling the metric value causes an <emphasis role="bold">interim</emphasis> timestamp to be taken (by the MMV PMDA, not the application) and <emphasis role="bold">combined</emphasis> with the initial timestamp to form a more accurate reflection of time spent within the timed section, which effectively smooths out the bursty nature of the instrumentation.</para>
+<para>The completion of each timed section of code is marked by a call to <command>mmv_stats_interval_end</command> which signifies to the MMV PMDA that the operation is not active, and no extra "in-progress" time should be applied to the exported value. At that time, the elapsed time for the entire operation is calculated and accounted toward metrics value.</para>
 </section>
 
 </section>
@@ -3860,7 +3864,11 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>Application Programming Interface <link linkend="IG31340177257">PMAPI--The Performance Metrics API</link> <link linkend="IG31340177472">Application Interaction</link> <link linkend="IG31340177502">Trace API</link></primaryie>
+   <primaryie>Application Programming Interface <link linkend="IG31340177257">PMAPI--The Performance Metrics API</link> <link linkend="IG31340177502nat">Memory Mapped Values API</link> <link linkend="IG31340177502">Trace API</link> <link linkend="IG31340177472">Application Interaction</link> <link linkend="IG31340177502">Trace API</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>application developers<link linkend="IG31340177554">Instrumenting Applications</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3870,7 +3878,7 @@ trace.transact.rate</literallayout>
 <indexentry>
    <primaryie>applications</primaryie>
       <secondaryie>compiling <link linkend="IG31340177460">Compiling and Linking PMAPI Applications</link></secondaryie>
-      <secondaryie>instrumentation <link linkend="IG31340177550">Instrumenting Applications</link></secondaryie>
+      <secondaryie>instrumentation <link linkend="IG31340177550">Application and PCP Relationship</link></secondaryie>
       <secondaryie>interaction <link linkend="IG31340177471">Application Interaction</link></secondaryie>
 </indexentry>
 
@@ -3882,7 +3890,7 @@ trace.transact.rate</literallayout>
    <primaryie>archive logs</primaryie>
       <secondaryie>context services <link linkend="IG31340177347">PMAPI Context Services</link></secondaryie>
       <secondaryie>performance data <link linkend="IG31340177258">PMAPI--The Performance Metrics API</link> <link linkend="IG31340177266">Current PMAPI Context</link></secondaryie>
-      <secondaryie>performance management <link linkend="IG31340177562">Instrumenting Applications</link></secondaryie>
+      <secondaryie>performance management <link linkend="IG31340177562">Application and PCP Relationship</link></secondaryie>
       <secondaryie>pmGetArchiveEnd function <link linkend="IG31340177402"><command>pmGetArchiveEnd</command> Function</link></secondaryie>
       <secondaryie>pmGetInDomArchive function <link linkend="IG31340177405"><command>pmGetInDomArchive</command> Function</link></secondaryie>
       <secondaryie>retrospective sources <link linkend="IG3134017731">Retrospective Sources of Performance Metrics</link></secondaryie>
@@ -3913,7 +3921,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>automated alarms <link linkend="IG31340177563">Instrumenting Applications</link></primaryie>
+   <primaryie>automated alarms <link linkend="IG31340177563">Application and PCP Relationship</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -3981,10 +3989,6 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>customers <link linkend="IG31340177554">Instrumenting Applications</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>customization <link linkend="IG313401777">Programming Performance Co-Pilot</link> <link linkend="IG31340177565">Instrumenting Applications</link></primaryie>
 </indexentry>
 
@@ -3993,7 +3997,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>data export <link linkend="IG31340177552">Instrumenting Applications</link></primaryie>
+   <primaryie>data export <link linkend="IG31340177552">Application and PCP Relationship</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4039,7 +4043,7 @@ trace.transact.rate</literallayout>
 
 <indexentry>
    <primaryie>distributed performance management</primaryie>
-      <secondaryie>data transportation <link linkend="IG31340177561">Instrumenting Applications</link></secondaryie>
+      <secondaryie>data transportation <link linkend="IG31340177561">Application and PCP Relationship</link></secondaryie>
       <secondaryie>metrics collection <link linkend="IG3134017715">Distributed Collection</link></secondaryie>
 </indexentry>
 
@@ -4154,10 +4158,6 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>independent software vendors <link linkend="IG31340177553">Instrumenting Applications</link></primaryie>
-</indexentry>
-
-<indexentry>
    <primaryie>indom instance domain <link linkend="IG31340177309"><command>pmLookupInDomText</command> Function</link> <link linkend="IG31340177359"><command>pmAddProfile</command> Function</link> <link linkend="IG31340177406"><command>pmGetInDomArchive</command> Function</link></primaryie>
 </indexentry>
 
@@ -4186,7 +4186,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>instrumentation <link linkend="IG31340177468">Performance Instrumentation and Tracing</link> <link linkend="IG31340177551">Instrumenting Applications</link></primaryie>
+   <primaryie>instrumentation <link linkend="IG31340177468nat">Performance Instrumentation and Sampling</link> <link linkend="IG31340177468">Performance Instrumentation and Tracing</link> <link linkend="IG31340177551">Application and PCP Relationship</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4232,6 +4232,7 @@ trace.transact.rate</literallayout>
 
 <indexentry>
    <primaryie>libpcp_mmv library</primaryie>
+      <secondaryie>Application Programming Interface <link linkend="IG31340177503nat">Memory Mapped Values API</link></secondaryie>
       <secondaryie>instrumenting applications <link linkend="IG31340177464nat">Instrumenting Applications</link></secondaryie>
 </indexentry>
 
@@ -4268,6 +4269,30 @@ trace.transact.rate</literallayout>
 
 <indexentry>
    <primaryie>metrics services <link linkend="IG31340177384"><command>pmFetch</command> Function</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_lookup_value_desc function <link linkend="Z1033577633nat">Getting a Handle on Mapped Values</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_stats_init function <link linkend="IG31340177504nat">Starting and Stopping Instrumentation</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_stats_stop function <link linkend="IG31340177505nat">Starting and Stopping Instrumentation</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_stats_inc function <link linkend="Z1033577634nat">Updating Mapped Values</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_stats_interval_start function <link linkend="Z1033577635nat">Elapsed Time Measures</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>mmv_stats_interval_end function <link linkend="Z1033577636nat">Elapsed Time Measures</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -4396,7 +4421,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>performance instrumentation <link linkend="IG313401775">Programming Performance Co-Pilot</link> <link linkend="IG31340177467">Performance Instrumentation and Tracing</link></primaryie>
+   <primaryie>performance instrumentation <link linkend="IG313401775">Programming Performance Co-Pilot</link> <link linkend="IG31340177467nat">Performance Instrumentation and Sampling</link> <link linkend="IG31340177467">Performance Instrumentation and Tracing</link></primaryie>
 </indexentry>
 
 <indexentry>
