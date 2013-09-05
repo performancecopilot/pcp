@@ -1,5 +1,11 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.15  Thu Sep  5 11:22:34 EST 2013
+	- Fix a subtle reference counting problem in the hash
+	  indom code.
+        - Consistently use unsigned type to index the indom
+	  table.
+
 1.14  Tue Jul 10 11:40:14 EST 2012
 	- Add support for hash-based indom handling via PMDA
 	  cache interfaces in libpcp_pmda.  This introduces a
