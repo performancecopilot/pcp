@@ -34,6 +34,8 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 
+%global tapsetdir      %{_datadir}/systemtap/tapset
+
 %define _confdir  %{_sysconfdir}/pcp
 %define _initddir %{_sysconfdir}/rc.d/init.d
 %define _logsdir  %{_localstatedir}/log/pcp
@@ -469,6 +471,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
 %{_localstatedir}/lib/pcp/config/*
+%{tapsetdir}/pmcd.stp
 
 %files libs
 %defattr(-,root,root)
