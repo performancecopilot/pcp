@@ -1825,7 +1825,7 @@ typedef struct {
 #define PM_TYPE_UNKNOWN   255  /* used in pmValueBlock not pmDesc */</programlisting>
 <para><indexterm id="IG31340177269"><primary>PM_TYPE_STRING type</primary></indexterm>By convention <literal>PM_TYPE_STRING</literal> is interpreted as a classic C-style null byte terminated string.</para>
 <para><indexterm id="IG31340177269nat"><primary>PM_TYPE_EVENT type</primary></indexterm>Event records are encoded as a packed array of strongly-typed, well-defined records within a <literal>pmResult</literal> structure, using a container metric with a value of type <literal>PM_TYPE_EVENT</literal>.</para>
-<para><indexterm id="IG31340177270"><primary>PM_TYPE_AGGREGATE type</primary></indexterm>If the value of a performance metric is of type <literal>PM_TYPE_STRING</literal>, <literal>PM_TYPE_AGGREGATE</literal>, <literal>PM_TYPE_AGGREGATE_STATIC</literal>, or <literal>PM_TYPE_EVENT</literal>, the interpretation of that value is unknown to many PCP components. In the case of the aggregate types, the application using the value and the Performance Metrics Domain Agent (PMDA) providing the value must have some common understanding about how the value is structured and interpreted. Strings can be manipulated using the standard C libraries. Event records contain timestamps, event flags and event parameters, and the PMAPI provides support for unpackaing an event record - see the <command>pmUnpackEventRecords(3)</command> man page for details. Further discussion on event metrics and event records can be found in <xref linkend="id5199202"/>.</para>
+<para><indexterm id="IG31340177270"><primary>PM_TYPE_AGGREGATE type</primary></indexterm>If the value of a performance metric is of type <literal>PM_TYPE_STRING</literal>, <literal>PM_TYPE_AGGREGATE</literal>, <literal>PM_TYPE_AGGREGATE_STATIC</literal>, or <literal>PM_TYPE_EVENT</literal>, the interpretation of that value is unknown to many PCP components. In the case of the aggregate types, the application using the value and the Performance Metrics Domain Agent (PMDA) providing the value must have some common understanding about how the value is structured and interpreted. Strings can be manipulated using the standard C libraries. Event records contain timestamps, event flags and event parameters, and the PMAPI provides support for unpacking an event record - see the <command>pmUnpackEventRecords(3)</command> man page for details. Further discussion on event metrics and event records can be found in <xref linkend="id5199202"/>.</para>
 <para><indexterm id="IG31340177271"><primary>PM_TYPE_NOSUPPORT value</primary></indexterm><literal>PM_TYPE_NOSUPPORT</literal> indicates that the PCP collection framework knows about the metric, but the corresponding service or application is either not configured or is at a revision level that does not provide support for this performance metric.</para>
 <para>The semantics of the performance metric is described by the <literal>sem</literal> field of a <filename>pmDesc</filename> structure and uses the following constants:</para>
 <programlisting>/* pmDesc.sem - semantics of metric values */
@@ -1839,7 +1839,7 @@ typedef struct {
 <listitem><para>In each dimension, a number of common scale values are defined that may be used to better encode ranges that might otherwise exhaust the precision of a 32-bit value. For example, a metric with dimension Space<superscript>1</superscript>.Time<superscript>-1</superscript> may have values encoded using the scale megabytes per second.</para>
 </listitem></itemizedlist>
 <para><indexterm id="IG31340177274"><primary>pmDesc structure</primary></indexterm>This information is encoded in the <filename>pmUnits</filename> data structure, shown in <xref linkend="Z1034792511tls"/>. It is embedded in the <filename>pmDesc</filename> structure :</para>
-<para>The strucutures are as follows:</para>
+<para>The structures are as follows:</para>
 <example id="Z1034792511tls">
 <title><filename>pmUnits</filename> and <filename>pmDesc</filename> Structures</title>
 <programlisting>/*
@@ -1938,11 +1938,64 @@ typedef struct {
 <section id="id5199202">
 
 <title>Performance Event Metrics</title>
-<para>Insert New Section here!  [nathans]</para>
-<para>This encoding is illustrated in <xref linkend="id5198719"/>, and uses the component data structures in <xref linkend="Z976557818nat"/>:</para>
+<para>In addition to performance metric values which are sampled by monitor tools,
+PCP supports the notion of performance event metrics which occur independently to
+any sampling frequency. These event metrics (PM_TYPE_EVENT) are delivered using a
+novel approach which allows both sampled and event trace data to be delivered via
+the same live wire protocol, the same on-disk archive format, and fundamentally
+using the same PMAPI services. In other words, a monitor tool may be sample and
+trace, simultaneously, using the PMAPI services discussed here.</para>
+<para>Event metrics are characterised by certain key properties, distinguishing
+them from the other metric types (counters, instantaneous, and discrete):</para>
+<itemizedlist>
+<listitem><para>Occur at times outside of any monitor tools control, and often
+have a fine-grained timestamp associated with each event.
+</para></listitem>
+<listitem><para>Often have parameters associated with the event, which further
+describe each individual event, as shown in <xref linkend="id5198719nat"/>.
+</para></listitem>
+<listitem><para>May occur in very rapid succession, at rates such that both the
+collector and monitor sides may not be able to track all events. This property
+requires the PCP protocol to support the notion of "dropped" or "missed" events.
+</para></listitem>
+<listitem><para>There may be inherent relationships between events, for example
+the start and commit (or rollback) of a database transaction could be separate
+events, linked by a common transaction identifier (which would likely also be
+one of the parameters to each event).
+Begin-end and parent-child relationships are relatively common, and these
+properties require the PCP protocol to support the notion of "flags" that
+can be associated with events.
+</para></listitem>
+</itemizedlist>
+<para>These differences aside, the representation of event metrics within PCP shares
+many aspects of the other metric types - event metrics appear in the Name Space (as
+do each of the event parameters), each has an associated Performance Metric Identifier
+and Descriptor, may have an instance domain associated with them, and may be recorded
+by <command>pmlogger</command> for subsequent replay.</para>
+<para><figure id="id5198719nat"><title>Sample <command>write(2)</command> syscall entry point encoding</title><mediaobject><imageobject><imagedata fileref="figures/syscallevent.svg"/></imageobject><textobject><phrase>Sample syscall entry point encoding</phrase></textobject></mediaobject></figure></para>
+<para>Event metrics and their associated information (parameters, timestamps, flags,
+and so on) are delivered to monitoring tools alongside sampled metrics as part of the
+<command>pmResult</command> structure seen previously in <xref linkend="Z976549833sdc"/>.
+</para>
+<para>The semantics of <command>pmFetch(3)</command> specifying an event metric PMID
+are such that all events observed on the collector since the previous fetch (by this
+specific monitor client) are to transfered to the monitor. Each event will have the
+metadata described earlier encoded with it (timestamps, flags, and so on) for each
+event. The encoding of the series of events involves a compound data structure within
+the <command>pmValueSet</command> associated with the event metric PMID, as illustrated
+in <xref linkend="id5198719"/>.</para>
+<para><figure id="id5198719"><title>Result Format for Event Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmevents.svg"/></imageobject><textobject><phrase>Result Format for Event Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
+<para>At the highest level, the "series of events" is encapsulated within a
+<command>pmEventArray</command> structure, as in <xref linkend="Z976557818nat"/>:</para>
 <example id="Z976557818nat">
 <title><command>pmEventArray</command> and <command>pmEventRecord</command> Structures</title>
-<programlisting>
+<programlisting>typedef struct {
+    __pmTimeval      er_timestamp;  /* 2 x 32-bit timestamp format */
+    unsigned int     er_flags;      /* event record characteristics */
+    int              er_nparams;    /* number of ea_param[] entries */
+    pmEventParameter er_param[1];
+} pmEventRecord;
+
 typedef struct {
     unsigned int     ea_len :  24;  /* bytes for type/len + records */
     unsigned int     ea_type : 8;   /* value type */
@@ -1950,19 +2003,12 @@ typedef struct {
     pmEventRecord    ea_record[1];
 } pmEventArray;</programlisting>
 </example>
-<para><figure id="id5198719"><title>Result Format for Event Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmevents.svg"/></imageobject><textobject><phrase>Result Format for Event Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
-<para>...</para>
-<para>The <literal>pmEventRecord</literal> structure is as follows:<example id="Z1034793414nat">
-<title><literal>pmEventRecord</literal> Structure</title>
-<programlisting>typedef struct {
-    __pmTimval       er_timestamp;  /* 2 x 32-bit timestamp format */
-    unsigned int     er_flags;      /* event record characteristics */
-    int              ea_nparams;    /* number of ea_param[] entries */
-    pmEventParameter ea_record[1];
-} pmEventRecord;</programlisting>
-</example></para>
-<para>...</para>
-<para>The <literal>pmEventParameter</literal> structure is as follows:<example id="Z1034793415nat">
+<para>Note that in the case of dropped events, the <command>pmEventRecord</command>
+structure is used to convey the number of events dropped - <replaceable>er_flags</replaceable> is used to
+indicate the presence of dropped events, and <replaceable>er_nparams</replaceable> is used to hold a count.
+Unsurprisingly, the parameters (<replaceable>er_param</replaceable>) will be empty in this situation.</para>
+<para>The <literal>pmEventParameter</literal> structure is as follows:</para>
+<example id="Z1034793415nat">
 <title><literal>pmEventParameter</literal> Structure</title>
 <programlisting>typedef struct {
     pmID             ep_pmid;       /* parameter identifier */
@@ -1970,8 +2016,172 @@ typedef struct {
     int              ep_len;        /* bytes for type/len + vbuf */
     /* actual value (vbuf) here */
 } pmEventParameter;</programlisting>
-</example></para>
-<note><para>Monitor helper: pmUnpackEventRecords, event.flags, event.missed derived metrics</para></note>
+</example>
+
+<section id="id5199203nat">
+
+<title>Event Monitor Considerations</title>
+<para><indexterm id="IG31340177280nat"><primary>pmUnpackEventRecords function</primary></indexterm>In order to simplify
+the decoding of event record arrays, the PMAPI provides the <command>pmUnpackEventRecords</command> function
+for monitor tools. This function is passed a pointer to a <command>pmValueSet</command> associated with an event
+metric (within a <command>pmResult</command>) from a <command>pmFetch(3)</command>. For a given instance of
+that event metric, it returns an array of "unpacked" <command>pmResult</command> structures for each event.</para>
+<para>The control information (flags and optionally dropped events) is included as derived metrics
+within each result structure. As such, these values can be queried similarly to other metrics, using
+their names - <literal>event.flags</literal> and <literal>event.missed</literal>. Note that these
+metrics will only exist after the first call to <command>pmUnpackEventRecords</command>.</para>
+<para>An example of decoding event metrics in this way is presented in <xref linkend="Z976557819nat"/>:</para>
+<example id="Z976557819nat">
+<title>Unpacking Event Records from an Event Metric <literal>pmValueSet</literal></title>
+<programlisting>enum { event_flags = 0, event_missed = 1 };
+static char *metadata[] = { "event.flags", "event.missed" };
+static pmID metapmid[2];
+
+void dump_event(pmValueSet *vsp, int idx)
+{
+    pmResult    **res;
+    int	        r, sts, nrecords;
+
+    nrecords = pmUnpackEventRecords(vsp, idx, &amp;res);
+    if (nrecords &lt; 0)
+        fprintf(stderr, " pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
+    else
+        printf(" %d event records\n", nrecords);
+
+    if ((sts = pmLookupName(2, &amp;metadata, &amp;metapmid)) &lt; 0) {
+        fprintf(stderr, "Event metadata error: %s\n", pmErrStr(sts));
+        exit(1);
+    }
+
+    for (r = 0; r &lt; nrecords; r++)
+        dump_event_record(res, r);
+
+    if (nrecords &gt;= 0)
+        pmFreeEventResult(res);
+}
+
+void dump_event_record(pmResult *res, int r)
+{
+    int         p;
+
+    __pmPrintStamp(stdout, &amp;res[r]-&gt;timestamp);
+    if (res[r]-&gt;numpmid == 0)
+       	printf(" ==&gt; No parameters\n");
+    for (p = 0; p &lt; res[r]-&gt;numpmid; p++) {
+        pmValueSet  *vsp = res[r]-&gt;vset[p];
+
+        if (vsp-&gt;numval &lt; 0) {
+            int error = vsp-&gt;numval;
+            printf("%s: %s\n", pmIDStr(vsp-&gt;pmid), pmErrStr(error));
+        } else if (vsp-&gt;pmid == metapmid[event_flags]) {
+            int flags = vsp-&gt;vlist[0].value.lval;
+            printf(" flags 0x%x (%s)\n", flags, pmEventFlagsStr(flags));
+        } else if (vsp-&gt;pmid == metapmid[event_missed]) {
+            int count = vsp-&gt;vlist[0].value.lval;
+            printf(" ==&gt; %d missed event records\n", count);
+        } else {
+            dump_event_record_parameters(vsp);
+        }
+    }
+}
+
+void dump_event_record_parameters(pmValueSet *vsp)
+{
+    pmDesc      desc;
+    char        *name;
+    int         sts, j;
+
+    if ((sts = pmLookupDesc(vsp-&gt;pmid, &amp;desc)) &lt; 0) {
+        fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
+    } else
+    if ((sts = pmNameID(vsp-&gt;pmid, &amp;name)) &lt; 0) {
+        fprintf(stderr, "pmNameID: %s\n", pmErrStr(sts));
+    } else {
+        printf("parameter %s", name);
+        for (j = 0; j &lt; vsp-&gt;numval; j++) {
+            pmValue *vp = &amp;vsp-&gt;vlist[j];
+            if (vsp-&gt;numval &gt; 1) {
+                printf("[%d]", vp-&gt;inst);
+                pmPrintValue(stdout, vsp-&gt;valfmt, desc.type, vp, 1);
+                putchar('\n');
+            }
+        }
+        free(name);
+    }
+}</programlisting>
+</example>
+
+</section>
+<section id="id5199204nat">
+
+<title>Event Collector Considerations</title>
+<para>There is a feedback mechanism that is inherent in the design of the PCP
+monitor-collector event metric value exchange, which protects both monitor
+and collector components from becoming overrun by high frequency event arrivals.
+It is important that PMDA developers are aware of this mechanism and all of
+its implications.</para>
+<para>Monitor tools can query new event arrival on whatever schedule they
+choose. There are no guarantees that this is a fixed interval, and no way
+for the PMDA to attempt to dictate this interval (nor should there be).</para>
+<para>As a result, a PMDA that provides event metrics must:</para>
+<itemizedlist>
+<listitem><para>Track individual client connections using the per-client PMDA
+extensions (PMDA_INTERFACE_5 or later).</para>
+</listitem>
+<listitem><para>Queue events, preferably in a memory-efficient manner, such
+that each interested monitor tool (there may be more than one) is informed
+of those events that arrived since their last request.</para>
+</listitem>
+<listitem><para>Control the memory allocated to in-memory event storage.
+If monitors are requesting new events too slowly, compared to event arrival
+on the collector, the "missed events" feedback mechanism must be used to
+inform the monitor.
+This mechanism is also part of the model by which a PMDA can fix the amount
+of memory it uses. Once a fixed space is consumed, events can be dropped
+from the tail of the queue for each client, provided a counter is incremented
+and the client is subsequently informed.</para>
+</listitem>
+</itemizedlist>
+<note><para>It is important that PMDAs are part of the performance solution,
+and not part of the performance problem! With event metrics, this is much
+more difficult to achieve than with counters or other sampled values.</para></note>
+
+<para>There is certainly elegance to this approach for event metrics, and
+the way they dovetail with other, sampled performance metrics is unique to
+PCP. Notice also how the scheme naturally allows multiple monitor tools to
+consume the same events, no matter what the source of events is.
+The downside to this flexibility is increased complexity in the PMDA when
+event metrics are used.</para>
+<para>This complexity comes in the form of event queueing and memory
+management, as well as per-client state tracking. Routines are available as
+part of the <command>pcp_pmda</command> library to assist, however - refer
+to the man page entries for <command>pmdaEventNewQueue(3)</command> and
+<command>pmdaEventNewClient(3)</command> for further details.</para>
+
+<para>One final set of helper APIs is available to PMDA developers who
+incorporate event metrics.
+There is a need to build the <command>pmEventArray</command> structure,
+introduced in <xref linkend="Z976557818nat"/>. This can be done directly,
+or using the helper routine <command>pmdaEventNewArray(3)</command>.
+If the latter, simpler model is chosen, the closely related routines
+<command>pmdaEventAddRecord</command>, <command>pmdaEventAddParam</command>
+and <command>pmdaEventAddMissedRecord</command> would also usually be used.</para>
+
+<para>Depending on the nature of the events being exported by a PMDA, it
+can be desirable to perform <emphasis role="bold">filtering</emphasis>
+of events on the collector system. This reduces the amount of event traffic
+between monitor and collector systems (which may be filtered further on the
+monitor system, before presenting results). Some PMDAs have had success using
+the <command>pmStore(3)</command> mechanism to allow monitor tools to send a
+filter to the PMDA - using either a special control metric for the store
+operation, or the event metric itself. The filter sent will depend on the
+event metric, but it might be a regular expression, or a tracing script,
+or something else.</para>
+<para>This technique has also been used to <emphasis role="bold">enable</emphasis>
+and <emphasis role="bold">disable</emphasis> event tracing entirely. It is often
+appropriate to make use of authentication and user credentials when providing
+such a facility (PMDA_INTERFACE_6 or later).</para>
+</section>
 </section>
 <section id="id5199203">
 
@@ -5042,6 +5252,10 @@ trace.transact.rate</literallayout>
 
 <indexentry>
    <primaryie>pmUnloadNameSpace function <link linkend="IG31340177304"><command>pmUnloadNameSpace</command> Function</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>pmUnpackEventRecords function <link linkend="IG31340177280nat">Event Monitor Considerations</link></primaryie>
 </indexentry>
 
 <indexentry>
