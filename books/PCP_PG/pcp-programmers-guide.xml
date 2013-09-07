@@ -48,6 +48,7 @@ UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
 
 <revhistory>
+<revision><revnumber>007</revnumber><date>September 2013</date><revremark>Revised to include event metrics and the MMV PMDA coverage.</revremark></revision>
 <revision><revnumber>006</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
 <revision><revnumber>005</revnumber><date>December 2002</date><revremark>Revised to support the Performance Co-Pilot 2.3 release.</revremark></revision>
 <revision><revnumber>004</revnumber><date>March 2001</date><revremark>Revised to support the Performance Co-Pilot 2.2 release.</revremark></revision>

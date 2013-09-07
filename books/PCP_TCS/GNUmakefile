@@ -3,11 +3,11 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = pcp-tutorials-and-case-studies
 XML = $(IAM).xml
+PDF = #$(IAM).pdf
 PUB = Book_Info.xml
 CFG = publican.cfg
-PDF = pdf/$(IAM).pdf
 
-LSRCFILES = $(XML) $(PUB) $(CFG)
+LSRCFILES = $(XML) $(PUB) $(CFG) $(PDF)
 LDIRDIRT = pdf html en-US
 LDIRT = built.*
 CWD = $(shell pwd)
@@ -25,7 +25,7 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	$(LN_S) $(CWD)/$(TOPDIR)/images en-US/xml/figures
 	$(PUBLICAN) build --langs=en-US --formats=pdf
 	@# $(PUBLICAN) build --langs=en-US --formats=pdf,html
-	$(LN_S) $(CWD)/en-US/pdf/*.pdf $(PDF)
+	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/$(IAM).pdf
 endif
 
 ifeq "$(BOOK_TOOLCHAIN)" "dblatex"
@@ -48,11 +48,10 @@ endif
 ifneq "$(findstring $(BOOK_TOOLCHAIN),publican dblatext xmlto)" ""
 build-me: built.$(BOOK_TOOLCHAIN)
 	@touch built.$(BOOK_TOOLCHAIN)
-
-install: default
-	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
-	$(INSTALL) -m 644 $(PDF) $(PKG_BOOKS_DIR)/$(IAM).pdf
 else
 build-me:
-install:
 endif
+
+install: default
+#	$(INSTALL) -m 755 -d $(PKG_BOOKS_DIR)
+#	$(INSTALL) -m 644 $(PDF) $(PKG_BOOKS_DIR)/$(PDF)
