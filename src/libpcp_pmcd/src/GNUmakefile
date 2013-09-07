@@ -19,6 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CFILES = data.c trace.c client.c
+LSRCFILES = pmcd.stp.in probes.d
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = -lpcp
@@ -28,8 +29,6 @@ LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS)
 endif
 
 ifeq "$(ENABLE_PROBES)" "true"
-LSRCFILES += probes.d
-LSRCFILES += pmcd.stp.in
 ifeq "$(TARGET_OS)" "linux"
 OBJECTS += probes.o
 endif
