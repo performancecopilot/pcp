@@ -33,7 +33,7 @@ src-pcp-gui : $(SRCFILES) $(SUBDIRS)
 	@test -z "$$DIR" && DIR="."; \
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
-		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \
 		$(ECHO) $$DIR/$$f; \
 	    fi; \
@@ -45,7 +45,7 @@ src-link-pcp-gui : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	for f in `echo $^`; do \
 	    if test -d $$f ; then \
 		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-		$(MAKEF) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
 	    else \
 		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
 	    fi; \
@@ -65,7 +65,7 @@ LNMAKE =
 WINDOW = win
 endif
 ifeq "$(findstring $(PKG_PLATFORM),darwin mingw)" ""
-QTMAKE = $(QMAKE) && $(MAKE) -f Makefile
+QTMAKE = +$(QMAKE) && $(MAKE) $(MAKEOPTS) -f Makefile
 BINARY = $(COMMAND)
 LNMAKE =
 WINDOW = x11

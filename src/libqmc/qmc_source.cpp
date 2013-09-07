@@ -86,6 +86,11 @@ QmcSource::retryConnect(int type, QString &source)
     if (my.status >= 0) {
 	my.handles.append(my.status);
 
+        // Fetch the server-side host name for this context, properly as of pcp 3.8.3+.
+        my.context_hostname = pmGetContextHostName (my.status); // NB: may leak memory
+        if (my.context_hostname == "") // may be returned for errors or PM_CONTEXT_LOCAL
+            my.context_hostname = localHost;
+
 	if (my.type == PM_CONTEXT_ARCHIVE) {
 	    pmLogLabel lp;
 	    sts = pmGetArchiveLabel(&lp);

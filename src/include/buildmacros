@@ -5,7 +5,8 @@
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 MAKEOPTS = --no-print-directory
-MAKEF = $(MAKE) $(MAKEOPTS)
+# NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
+#MAKEF = $(MAKE) $(MAKEOPTS)
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(LSRCFILES) $(LFILES) $(YFILES)
 
 ifdef PROJECT
@@ -55,10 +56,10 @@ INSTALL_MAN = \
 endif
 
 SUBDIRS_MAKERULE = \
-	@for d in $(SUBDIRS) ""; do \
+	+for d in $(SUBDIRS) ""; do \
 		if test -d "$$d" -a ! -z "$$d"; then \
 			$(ECHO) === $$d ===; \
-			$(MAKEF) -C $$d $@ || exit $$?; \
+			$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
 		fi; \
 	done
 
@@ -78,6 +79,6 @@ SOURCE_MAKERULE = \
 	for d in `echo $(SUBDIRS)` ""; do \
 	    test -z "$$d" && break; \
 	    if test -d "$$d"; then \
-		$(MAKEF) DIR=$$DIR/$$d -C $$d $@ || exit $$?; \
+		$(MAKE) $(MAKEOPTS) DIR=$$DIR/$$d -C $$d $@ || exit $$?; \
 	    fi; \
 	done

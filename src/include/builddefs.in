@@ -51,7 +51,8 @@ SED		= @sed@
 TAR		= @tar@
 ZIP		= @zip@
 BZIP2		= @bzip2@
-MAKE		= @make@
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE		= @make@
 LEX		= @lex@
 YACC		= @yacc@
 ECHO		= @echo@

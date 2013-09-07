@@ -24,13 +24,13 @@ pack-pcp-gui : pcp-gui.src
 	rm -f $$DIST_MANIFEST; \
 	echo === install === && $(MAKE) -j 1 -C $(TOPDIR) install || exit $$?; \
 	if test ! -z "$(TAR)"; then \
-	    ( echo "=== tar ===" && $(MAKEF) -j 1 -C tar $@ || exit $$? ); \
+	    ( echo "=== tar ===" && $(MAKE) $(MAKEOPTS) -j 1 -C tar $@ || exit $$? ); \
 	fi; \
 	if test ! -z "$(RPMBUILD)"; then \
-	    ( echo "=== rpm ===" && $(MAKEF) -j 1 -C rpm $@ || exit $$? ); \
+	    ( echo "=== rpm ===" && $(MAKE) $(MAKEOPTS) -j 1 -C rpm $@ || exit $$? ); \
 	fi; \
 	if test ! -z "$(PACKAGE_MAKER)"; then \
-	    ( echo "=== mac ===" && $(MAKEF) -j 1 -C mac $@ || exit $$? ); \
+	    ( echo "=== mac ===" && $(MAKE) $(MAKEOPTS) -j 1 -C mac $@ || exit $$? ); \
 	fi; \
 	test -z "$$KEEP_DIST_ROOT" || rm -rf $$DIST_ROOT; echo Done
 
