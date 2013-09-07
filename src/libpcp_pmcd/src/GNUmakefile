@@ -32,7 +32,7 @@ ifeq "$(ENABLE_PROBES)" "true"
 ifeq "$(TARGET_OS)" "linux"
 OBJECTS += probes.o
 endif
-LDIRT += probes.h
+LDIRT += probes.h pmcd.stp
 endif
 
 ifeq "$(TARGET_OS)" "mingw"
