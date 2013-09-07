@@ -29,6 +29,7 @@ endif
 
 ifeq "$(ENABLE_PROBES)" "true"
 LSRCFILES += probes.d
+LSRCFILES += pmcd.stp.in
 ifeq "$(TARGET_OS)" "linux"
 OBJECTS += probes.o
 endif
@@ -47,17 +48,25 @@ default : $(LIBTARGET) $(STATICLIBTARGET)
 
 ifeq "$(ENABLE_PROBES)" "true"
 trace.o: probes.h
-probes.h: probes.d
+probes.h: probes.d pmcd.stp
 	$(DTRACE) -h -s $< -o $@
 probes.o: probes.d
 	$(DTRACE) -G -s $< -o $@
 endif
+
+pmcd.stp : pmcd.stp.in
+	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)/';' $< > $@
 
 include $(BUILDRULES)
 
 install : default
 ifeq "$(TARGET_OS)" "mingw"
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
+endif
+
+ifeq "$(TARGET_OS)" "linux"
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/../systemtap/tapset
+	$(INSTALL) -m 444 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
 endif
 
 default_pcp : default
