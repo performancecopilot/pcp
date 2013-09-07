@@ -1,6 +1,6 @@
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.9
+Version: 1.5.10
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -105,6 +105,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
+* Sun Sep 07 2013 Nathan Scott <nathans@redhat.com> - 1.5.10-1
+- Updates to the PCP Users and Administrators Guide.
+- Updates to the PCP Programmers Guide.
+- Install a known-good pdf version of each book.
+- Improve pmchart hostname reporting via pmGetContextHostName.
+
 * Sun Jul 28 2013 Nathan Scott <nathans@redhat.com> - 1.5.9-1
 - Fix problems with pmchart Samples/Visible History (BZ 968825)
 - Fix pmchart startup handling lack of metrics source (BZ 957007)

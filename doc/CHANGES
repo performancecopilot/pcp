@@ -1,3 +1,9 @@
+pcp-gui 1.5.10 (7 September 2013)
+    - Updates to the PCP Users and Administrators Guide.
+    - Updates to the PCP Programmers Guide.
+    - Convert pmchart over to use pmGetContextHostName for more
+      accurate hostname reporting.
+
 pcp-gui 1.5.9 (28 July 2013)
     - Fix problems with pmchart Samples/Visible History.
     - Support authenticated connections in New Host dialog.
