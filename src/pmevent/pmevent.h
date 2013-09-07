@@ -40,6 +40,7 @@ void doargs(int, char **);
 extern char		*host;
 extern char		*archive;
 extern int		ahtype;
+extern int		ctxhandle;
 extern int		verbose;
 extern struct timeval	now;
 extern struct timeval	first;

@@ -29,6 +29,7 @@ static pmTime		*pmtime;
 char		*host;				/* original host */
 char		*archive;			/* archive source */
 int		ahtype = -1;			/* archive or host or local context */
+int		ctxhandle = -1;			/* handle for the active context */
 int		verbose;			/* verbose diagnostic output */
 struct timeval	now;				/* current reporting time */
 struct timeval	first;				/* start reporting time */
@@ -118,8 +119,12 @@ printhdr(void)
 {
     char		timebuf[26];
 
-    if (archive == NULL)
-	printf("host:      %s\n", host);
+    if (archive == NULL) {
+	if (ctxhandle != -1)
+	    printf("host:      %s\n", pmGetContextHostName(ctxhandle));
+	else
+	    printf("host:      %s\n", host);
+    }
     else {
 	printf("archive:   %s\n", archive);
 	printf("host:      %s\n", host);
