@@ -484,7 +484,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # match $logfile and $fqdn from control file to running pmies
     pid=""
-    fqdn=`pmhostname $host`
+    # if using proxy real-host@proxy-host, need to strip the proxy
+    # part here so that the match with the $PCP_TMP_DIR files works
+    # below
+    #
+    fqdn=`pmhostname $host | sed -e 's/@.*//'`
     for file in $PCP_TMP_DIR/pmie/[0-9]*
     do
 	[ "$file" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue

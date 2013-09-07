@@ -568,7 +568,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	fi
     else
-	fqdn=`pmhostname $host`
+	# if using proxy real-host@proxy-host, need to strip the proxy
+	# part here so that the match with the $PCP_TMP_DIR files works
+	# below
+	#
+	fqdn=`pmhostname $host | sed -e 's/@.*//'`
 	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
 	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
