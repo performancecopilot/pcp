@@ -63,7 +63,7 @@ ifeq "$(TARGET_OS)" "mingw"
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(ENABLE_PROBES)" "true"
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/../systemtap/tapset
 	$(INSTALL) -m 444 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
 endif
