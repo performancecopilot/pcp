@@ -44,8 +44,9 @@ default_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	@echo >> pmcd.conf
 	@echo '[access]' >> pmcd.conf
-	@echo 'disallow * : store;' >> pmcd.conf
-	@echo 'allow localhost : all;' >> pmcd.conf
+	@echo 'disallow ".*" : store;' >> pmcd.conf
+	@echo 'disallow ":*" : store;' >> pmcd.conf
+	@echo 'allow "local:*" : all;' >> pmcd.conf
 
 install :: install_pcp
 

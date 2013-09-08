@@ -39,7 +39,7 @@ sleep 10
 $signal -s TERM $!
 
 _filter_pmie_log <$tmp.log \
-| sed -e "s/$HOST/HOST/g" > $tmp.flog
+| sed -e "s/$HOST/HOST/g" -e "s/local:/HOST/g" > $tmp.flog
 
 grep "Cannot connect" $tmp.flog | uniq
 grep "Re-established connection" $tmp.flog | sort | uniq

@@ -1,6 +1,6 @@
 QA output created by 294
 
-+++ pminfo -d pmcd.agent +++
++++ pminfo -h localhost -d pmcd.agent +++
 
 pmcd.agent.type
     Data Type: 32-bit unsigned int  InDom: 2.3 0x800003
@@ -12,7 +12,7 @@ pmcd.agent.status
 1 connects
 1 disconnects
 
-+++ pminfo -f sample.hordes +++
++++ pminfo -h localhost -f sample.hordes +++
 
 sample.hordes.one
     inst [0 or "0"] value 0
@@ -1041,7 +1041,7 @@ interval:  0.50 sec
 4 connects
 4 disconnects
 
-+++ pmie -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h localhost -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: N N N
 
 expr_1: N N N
@@ -1054,7 +1054,7 @@ expr_1: N N N
 6 connects
 6 disconnects
 
-+++ pmie -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h localhost -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: ?
 
 expr_1: N

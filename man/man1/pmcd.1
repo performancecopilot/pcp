@@ -611,6 +611,7 @@ and
 comma (``,'').
 The special characters are not treated as special in the agent configuration
 section.
+Lexical elements may be quoted (double quotes) as necessary.
 .PP
 The access control section of the file must start with a line of the form:
 .TP
@@ -661,17 +662,22 @@ and
 .BR getgrent (3)
 routines.
 .PP
-Hosts may be identified by name, IP address, IPv6 address or a wildcarded
-IP/IPv6 address with the single wildcard character ``*'' as the last-given
-component of the address.
-The wildcard ``.*'' refers to all inet (IPv4) addresses.
-The wildcard ``:*'' refers to all IPv6 addresses.
+Hosts may be identified by name, IP address, IPv6 address or by the special host
+specifications ``"unix:"'' or ``"local:"''. ``"unix:"'' refers to
+.B pmcd's
+unix domain socket, on supported platforms. ``"local:"'' is equivalent to
+specifying ``"unix:"'' and ``localhost``.
+.PP
+Wildcards may also be specified by ending the host identifier with the
+single wildcard character ``*'' as the last-given component of an
+address. The wildcard ``".*"'' refers to all inet (IPv4) addresses.
+The wildcard ``":*"'' refers to all IPv6 addresses.
+The wildcard ``*'' refers to all users, groups or host addresses,
+including ``"unix:"''.
+Names of users, groups or hosts may not be wildcarded.
 If an IPv6 wildcard contains a ``::'' component, then the final ``*'' refers
 to the final 16 bits of the address only, otherwise it refers to the remaining
 unspecified bits of the address.
-.PP
-The wildcard ``*'' refers to all users, groups or host addresses.
-Names of users, groups or hosts may not be wildcarded.
 .PP
 The following are all valid host identifiers:
 .de CS
@@ -697,6 +703,8 @@ fe80::223:14ff:feaf:b62c
 fe80::223:14ff:feaf:*
 fe80:*
 :*
+"unix:"
+"local:"
 *
 .CE
 .PP

@@ -115,6 +115,17 @@ AcceptNewClient(int reqfd)
     client[i].status.changes = 0;
     memset(&client[i].attrs, 0, sizeof(__pmHashCtl));
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /*
+     * The OS level functions below __pmAccept() don't set the peer address
+     * for unix domain sockets. We need to do it ourselves. The address family
+     * is set, so we can use it to test. There is only one unix domain socket
+     * open, so we know its path.
+     */
+    if (__pmSockAddrGetFamily(client[i].addr) == AF_UNIX)
+	__pmSockAddrSetPath(client[i].addr, __pmServerGetLocalSocket());
+#endif
+
     /*
      * Note seq needs to be unique, but we're using a free running counter
      * and not bothering to check here ... unless we churn through

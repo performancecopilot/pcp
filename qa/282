@@ -106,6 +106,7 @@ _poke_pmcd()
 	-e '/UID .* PID /d' \
 	-e '/USER .* PID /d' \
 	-e "s/$LOCALHOST/HOST/g" \
+	-e 's|local:/*|HOST|g' \
     | _filter_pcp_start \
     | _filter_pmcd_log \
     | _filter_cron_scripts \
@@ -136,7 +137,7 @@ _poke_pmcd()
     done
     
     $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmcd: ""$PCP_ECHO_C"
-    x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
+    x=`pmprobe pmcd.control.debug 2>&1 | sed -e "s/$LOCALHOST/HOST/g" -e 's|local:/*|HOST|g'`
     if [ "$x" = "pmcd.control.debug 1" ]
     then
 	$PCP_ECHO_PROG OK
@@ -165,7 +166,7 @@ _poke_pmcd_n_logger()
     done
 
     $PCP_ECHO_PROG $PCP_ECHO_N "=== probe pmlogger: ""$PCP_ECHO_C"
-    x=`echo connect primary | pmlc 2>&1 | sed -e "s/$LOCALHOST/HOST/g"`
+    x=`echo connect primary | pmlc 2>&1 | sed -e "s/$LOCALHOST/HOST/g" -e 's|local:/*|HOST|g'`
     sleep 2
     if [ -z "$x" ]
     then

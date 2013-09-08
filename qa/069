@@ -100,7 +100,8 @@ skip == 1			{ next }
 				{ print }' \
     | _filter_pmcd_log | \
     sed \
-	-e '/UNIX_DOMAIN_SOCKET/d'
+	-e '/UNIX_DOMAIN_SOCKET/d' \
+	-e '/unix:/d'
 }
 
 if [ -d $PCP_LOG_DIR/pmlogger ]

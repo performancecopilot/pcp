@@ -61,11 +61,11 @@ PMPROXY_HOST=localhost
 export PMPROXY_HOST
 
 # real QA test starts here
-pidlist=`sh -c "pmval hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
-pid=`sh -c "pmstat >$tmp.2 2>&1 & echo \\\$!"`
+pidlist=`sh -c "pmval -h $PMPROXY_HOST hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
+pid=`sh -c "pmstat -h $PMPROXY_HOST >$tmp.2 2>&1 & echo \\\$!"`
 pidlist="$pidlist $pid"
 echo "kernel.all.load;" >$tmp.in
-pid=`sh -c "pmie -v -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
+pid=`sh -c "pmie -v -h $PMPROXY_HOST -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
 pidlist="$pidlist $pid"
 
 sleep 3

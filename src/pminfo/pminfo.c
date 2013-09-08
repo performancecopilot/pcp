@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -663,7 +664,6 @@ main(int argc, char **argv)
 {
     int		sts;
     int		exitsts = 0;
-    char	local[MAXHOSTNAMELEN];
     pmLogLabel	label;
     char	*host;
     char	*msg;
@@ -698,9 +698,7 @@ main(int argc, char **argv)
     if (need_context) {
 	if (type == 0) {
 	    type = PM_CONTEXT_HOST;
-	    (void)gethostname(local, MAXHOSTNAMELEN);
-	    local[MAXHOSTNAMELEN-1] = '\0';
-	    hostname = local;
+	    hostname = "local:";
 	}
 	if ((sts = pmNewContext(type, hostname)) < 0) {
 	    if (type == PM_CONTEXT_HOST)

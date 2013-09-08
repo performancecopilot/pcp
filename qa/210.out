@@ -61,7 +61,7 @@ sampledso.secret.foo.bar.grunt.snort.six 1 6
 pmval ...
 
 metric:    sampledso.secret.foo.bar.grunt.five
-host:      localhost
+host:      local:
 semantics: instantaneous value
 units:     count
 samples:   3

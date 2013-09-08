@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -750,11 +751,10 @@ main(int argc, char *argv[])
 	 * PM_CONTEXT_ARCHIVE.  If we fail to talk to pmcd we fallback
 	 * to local context mode automagically.
 	 */
-	char local[MAXHOSTNAMELEN];
-	gethostname (local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-
-	if ((pd = getNewContext (ctxType, local, 1)) == NULL) {
+	if ((pd = getNewContext (ctxType, "local:", 1)) == NULL) {
+	    char local[MAXHOSTNAMELEN];
+	    gethostname (local, MAXHOSTNAMELEN);
+	    local[MAXHOSTNAMELEN-1] = '\0';
 	    ctxType = PM_CONTEXT_LOCAL;
 	    pd = getNewContext (ctxType, local, 0);
 	}

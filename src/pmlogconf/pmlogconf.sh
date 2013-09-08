@@ -485,8 +485,9 @@ End-of-File
 #
 
 [access]
-disallow * : all;
-allow localhost : enquire;
+disallow ".*" : all;
+disallow ":*" : all;
+allow "local:*" : enquire;
 End-of-File
 
 else

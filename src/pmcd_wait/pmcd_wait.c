@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +26,6 @@
 #define EXIT_STS_UNIXERR 	3
 #define EXIT_STS_PCPERR 	4
 
-static char     localhost[MAXHOSTNAMELEN];
 static char	*hostname = NULL;
 static long	delta = 60;
 static int	verbose = 0;
@@ -134,9 +134,7 @@ main(int argc, char **argv)
     ParseOptions(argc, argv);
 
     if (hostname == NULL) {
-	(void)gethostname(localhost, MAXHOSTNAMELEN);
-	localhost[MAXHOSTNAMELEN-1] = '\0';
-	hostname = localhost;
+	hostname = "local:";
     }
 
     sts = sprintf(env, "PMCD_CONNECT_TIMEOUT=%ld", delta);

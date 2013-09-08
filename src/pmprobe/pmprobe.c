@@ -1,6 +1,7 @@
 /*
  * pmprobe - light-weight pminfo for configuring monitor apps
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -94,7 +95,6 @@ main(int argc, char **argv)
     struct timeval	start;		/* start of sample window */
     struct timeval	first;		/* initial sample time */
     struct timeval	last;		/* final sample time */
-    char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     char	*Oflag = NULL;		/* -O for archive offset */
     char	*tz = NULL;
@@ -262,9 +262,7 @@ Options:\n\
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	host = local;
+	host = "local:";
     }
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)

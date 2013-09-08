@@ -2,6 +2,7 @@
  * procmemstat - sample, simple PMAPI client to report your own memory
  * usage
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -99,7 +100,6 @@ main(int argc, char **argv)
     char		*p;
     char		*q;
     int			errflag = 0;
-    char		host[MAXHOSTNAMELEN];
 
     __pmSetProgname(argv[0]);
     setlinebuf(stdout);
@@ -129,11 +129,9 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    (void)gethostname(host, MAXHOSTNAMELEN);
-    host[MAXHOSTNAMELEN-1] = '\0';
-    if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+    if ((sts = pmNewContext(PM_CONTEXT_HOST, "local:")) < 0) {
+	fprintf(stderr, "%s: Cannot connect to PMCD on host \"local:\": %s\n",
+		pmProgname, pmErrStr(sts));
 	exit(1);
     }
 

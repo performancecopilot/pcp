@@ -1,6 +1,7 @@
 /*
  * pmclient - sample, simple PMAPI client
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -243,7 +244,6 @@ main(int argc, char **argv)
     int			type = 0;
     char		*host = NULL;		/* initialize to pander to gcc */
     char		*archive = NULL;
-    char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
     int			samples = -1;		/* number of samples */
     struct timeval	delta = { 5, 0 };	/* initial interval (seconds) */
@@ -398,9 +398,7 @@ Options\n\
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	host = local;
+	host = "local:";
     }
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)

@@ -185,7 +185,9 @@ echo
 _filter_pmie_log <$tmp.out \
 | sed \
     -e "/ Error: /s/$HOST/HOST/g" \
+    -e "/ Error: /s/local:/HOST/g" \
     -e "/ Info: /s/$HOST/HOST/g" \
+    -e "/ Info: /s/local:/HOST/g" \
     -e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
     -e '/^DATE: *$/d' \
     -e '/^FILESYS \/dev\//d' \

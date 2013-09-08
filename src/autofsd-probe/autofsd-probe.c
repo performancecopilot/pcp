@@ -34,7 +34,7 @@ main(int argc, char **argv)
     enum clnt_stat	stat;
     int			c;
     char		*p;
-    char		*host = "localhost";
+    char		*host = "local:";
     int			errflag = 0;
 
     __pmSetProgname(argv[0]);

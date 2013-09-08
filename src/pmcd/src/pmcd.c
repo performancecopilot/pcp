@@ -887,6 +887,11 @@ main(int argc, char *argv[])
     ParseOptions(argc, argv, &nport);
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
+
+    /* Set the local socket path. A message will be generated into the log
+     * if this fails, but it is not fatal, since other connection options
+     * may exist. 
+     */
     __pmServerSetLocalSocket(sockpath);
 
     if (run_daemon) {

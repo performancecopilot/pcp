@@ -67,6 +67,7 @@ _filter_pmie_log <$tmp.log \
     -e "s/ host $HOST/ host HOST\/localhost/g" \
     -e "s/ from $HOST/ from HOST\/localhost/g" \
     -e "s/$HOST/HOST/g" \
+    -e "s/local:/HOST/g" \
     -e "s/ host localhost/ host HOST\/localhost/g" \
     -e "s/ from localhost/ from HOST\/localhost/g" \
     -e 's/failed: IPC protocol failure/failed: [IPC shutdown]/' \

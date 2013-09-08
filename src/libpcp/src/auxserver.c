@@ -102,6 +102,12 @@ __pmServerSetLocalSocket(const char *path)
 	localSocketPath = __pmPMCDLocalSocketDefault();
 }
 
+const char *
+__pmServerGetLocalSocket(void)
+{
+    return localSocketPath;
+}
+
 /* Increase the capacity of the reqPorts array (maintain the contents) */
 static void
 GrowRequestPorts(void)

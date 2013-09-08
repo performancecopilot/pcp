@@ -2,6 +2,7 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +41,7 @@
  * constants
  ***********************************************************************/
 
-char	localHost[MAXHOSTNAMELEN+1];	/* "official" name of localhost */
+char	*localHost;			/* "official" name of localhost */
 double	mynan;				/* not-a-number run time initialized */
 
 
@@ -898,8 +899,7 @@ void dstructInit(void)
     mynan = zero / zero;
 
     /* initialize default host */
-    gethostname(localHost, MAXHOSTNAMELEN);
-    localHost[MAXHOSTNAMELEN-1] = '\0';
+    localHost = "local:";
     dfltHost = localHost;
 
     /* set up symbol tables */

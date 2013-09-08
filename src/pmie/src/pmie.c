@@ -2,6 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -319,7 +320,6 @@ stopmonitor(void)
 static void
 startmonitor(void)
 {
-    struct hostent	*hep = noDnsFlag ? NULL : gethostbyname(dfltHost);
     void		*ptr;
     int			fd;
     char		zero = '\0';
@@ -364,7 +364,7 @@ startmonitor(void)
 
     perf = (pmiestats_t *)ptr;
     strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
-    strcpy(perf->defaultfqdn, hep == NULL? dfltHost : hep->h_name);
+    strcpy(perf->defaultfqdn, dfltHost);
     perf->version = 1;
 }
 

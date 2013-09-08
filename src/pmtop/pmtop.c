@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1999 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -58,7 +59,6 @@ int	pu_rss;
 int	pu_vctx;
 int	pu_ictx;
 
-char	local[MAXHOSTNAMELEN];
 char	*hostname;
 struct timeval	delta = { 2, 0 };	/* default interval */
 int	top = 5;
@@ -1033,9 +1033,7 @@ main(int argc, char *argv[])
     create_namelist();
 
     if (hostname == NULL) {
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	hostname = local;
+	hostname = "local:";
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, hostname)) < 0) {

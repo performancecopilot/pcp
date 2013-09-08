@@ -2,6 +2,7 @@
  * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -214,7 +215,6 @@ main(int argc, char **argv)
     int		type = 0;
     int		force = 0;
     char	*host = NULL;		/* initialize to pander to gcc */
-    char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     int		errflag = 0;
     char	*namelist[1];
@@ -312,9 +312,7 @@ main(int argc, char **argv)
 
     if (type == 0) {
 	type = PM_CONTEXT_HOST;
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	host = local;
+	host = "local:";
     }
     if ((sts = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)

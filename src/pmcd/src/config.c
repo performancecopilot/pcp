@@ -965,7 +965,9 @@ ParseNames(char ***namesp, const char *nametype)
     static char	**names;
     static int	szNames;
 
-    while (*token && another && *token != ':' && *token != ';') {
+    /* Beware of quoted tokens of length longer than 1. e.g. ":*" */
+    while (*token && another &&
+	   ((tokenend - token > 1) || (*token != ':' && *token != ';'))) {
 	if (nnames == szNames) {
 	    int		need;
 

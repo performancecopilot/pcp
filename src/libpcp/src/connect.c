@@ -367,9 +367,9 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	PM_UNLOCK(__pmLock_libpcp);
 
 	sts = -1;
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-	/* Try connecting via the local unix domain socket, if requested. */
+	/* Try connecting via the local unix domain socket, if requested and supported. */
 	if (nports == PM_HOST_SPEC_NPORTS_LOCAL || nports == PM_HOST_SPEC_NPORTS_UNIX) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 	    if ((fd = __pmAuxConnectPMCDUnixSocket(name)) >= 0) {
 		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
@@ -378,9 +378,10 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 		    sts = fd;
 		portIx = -1; /* no port */
 	    }
+#endif
 	    /*
-	     * If the connection failed and the protocol was 'local:', then try
-	     * connecting to localhost via the default port(s).
+	     * If the connection failed, or is not supported, and the protocol was 'local:',
+	     * then try connecting to localhost via the default port(s).
 	     */
 	    if (sts < 0) {
 		if (nports == PM_HOST_SPEC_NPORTS_LOCAL) {
@@ -393,7 +394,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 		    sts = -2; /* no more connection attempts. */
 	    }
 	}
-#endif
 
 	/* If still not connected, try via the given host name and ports, if requested. */
 	if (sts == -1) {
