@@ -40,6 +40,7 @@ _filter()
 	-e 's/left=0x[0-9a-f]*/left=<addr>/' \
 	-e 's/right=0x[0-9a-f]*/right=<addr>/' \
 	-e "s;$tmp;TMP;g" \
+	-e '/^host:.*$/s/.*/HOST/' \
 	-e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
 

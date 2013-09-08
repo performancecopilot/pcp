@@ -23,14 +23,16 @@ _one()
 {
     $PCP_AWK_PROG '
 NF == 1 && $1 >= 0.95 && $1 <= 1.07		{ print "close to one"; next }
-						{ print }'
+						{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
 }
 
 _not_one()
 {
     $PCP_AWK_PROG '
 NF == 1 && $1 ~ /^[0-9][0-9.eE+]*$/ &&  $1 != 1	{ print "number, not one"; next }
-						{ print }'
+						{ print }' \
+    | sed -e '/^host:.*$/s/.*/HOST/'
 }
 
 status=0	# success by default

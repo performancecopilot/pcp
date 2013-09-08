@@ -8,7 +8,8 @@
 
 _filter()
 {
-    sed -e '/Warning.*license/d'
+    sed -e '/Warning.*license/d' \
+	-e '/^host:.*$/s/.*/HOST/'
 }
 
 seq=`basename $0`

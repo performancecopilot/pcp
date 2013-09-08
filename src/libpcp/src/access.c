@@ -612,6 +612,7 @@ getUnixSpec(const char *name, struct accessSpec *spec)
 {
     const char *path;
     size_t addrSize;
+    char rootPath[2];
     int sts;
 
     /* Accept any number of '/', as is done by parseProtocolSpec(). */
@@ -630,7 +631,9 @@ getUnixSpec(const char *name, struct accessSpec *spec)
 	__pmNotifyErr(LOG_WARNING, "Ignoring the path in host pattern \"%s\"\n", name);
 
     /* Set the address and mask. */
-    sts = setAccessSpecAddresses(spec, "/", "/");
+    rootPath[0] = __pmPathSeparator();
+    rootPath[1] = '\0';
+    sts = setAccessSpecAddresses(spec, rootPath, rootPath);
     if (sts < 0)
 	return sts;
 

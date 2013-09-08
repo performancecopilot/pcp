@@ -24,7 +24,7 @@ LCFILES = acme.c
 LTARGET = acme$(EXECSUFFIX)
 LSRCFILES = $(LCFILES) README.demos Makefile.demos
 
-LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src
+LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)

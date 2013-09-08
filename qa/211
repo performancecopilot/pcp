@@ -59,7 +59,8 @@ _do sample.secret.foo.bar.grunt
 
 echo
 echo "pmval ..."
-pmval -s 3 -t 0.1 sample.secret.foo.bar.grunt.five
+pmval -s 3 -t 0.1 sample.secret.foo.bar.grunt.five \
+| sed -e '/^host:.*$/s/.*/HOST/' \
 
 echo
 echo "pmie ..."

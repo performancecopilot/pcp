@@ -1014,6 +1014,7 @@ ResetBadHosts(void)
     }
     nBadHosts = 0;
     szBadHosts = 0;
+    badHost = NULL;
 }
 
 void
@@ -1036,7 +1037,7 @@ CleanupClient(ClientInfo *cp, int sts)
 	if (sts == PM_ERR_PERMISSION || sts == PM_ERR_CONNLIMIT) {
 	    if ( (msg = AddBadHost(cp->addr)) ) {
 		caddr = __pmSockAddrToString(cp->addr);
-		fprintf(stderr, "access violation from host %s:\n", caddr);
+		fprintf(stderr, "access violation from host %s\n", caddr);
 		free(caddr);
 	    }
 	}

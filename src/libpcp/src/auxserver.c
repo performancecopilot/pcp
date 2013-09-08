@@ -102,10 +102,19 @@ __pmServerSetLocalSocket(const char *path)
 	localSocketPath = __pmPMCDLocalSocketDefault();
 }
 
-const char *
-__pmServerGetLocalSocket(void)
+void
+__pmCheckAcceptedAddress(__pmSockAddr *addr)
 {
-    return localSocketPath;
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /*
+     * accept(3) doesn't set the peer address for unix domain sockets.
+     * We need to do it ourselves. The address family
+     * is set, so we can use it to test. There is only one unix domain socket
+     * open, so we know its path.
+     */
+    if (__pmSockAddrGetFamily(addr) == AF_UNIX)
+	__pmSockAddrSetPath(addr, localSocketPath);
+#endif
 }
 
 /* Increase the capacity of the reqPorts array (maintain the contents) */

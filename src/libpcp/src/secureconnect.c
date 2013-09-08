@@ -1600,16 +1600,16 @@ int
 __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 {
     __pmSecureSocket socket;
+    __pmSockAddr *sockAddr = (__pmSockAddr *)addr;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
 	PRIntervalTime timer;
 	PRFileDesc *nsprFd;
 	int msec;
 
 	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
 	timer = PR_MillisecondsToInterval(msec);
-	nsprFd = PR_Accept(socket.nsprFd, &nsprAddr->sockaddr, timer);
+	nsprFd = PR_Accept(socket.nsprFd, &sockAddr->sockaddr, timer);
 	if (nsprFd == NULL)
 	    return -1;
 
@@ -1617,9 +1617,12 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 	fd = newNSPRHandle();
 	socket.nsprFd = nsprFd;
 	__pmSetDataIPC(fd, (void *)&socket);
-	return fd;
     }
-    return accept(fd, (struct sockaddr *)addr, addrlen);
+    else
+	fd = accept(fd, (struct sockaddr *)sockAddr, addrlen);
+
+    __pmCheckAcceptedAddress(sockAddr);
+    return fd;
 }
 
 int

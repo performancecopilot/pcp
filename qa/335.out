@@ -159,7 +159,7 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=1 [sample.scramble
 [3] inst=100, val=100
 
 metric:    my.scramble.delta
-host:      local:
+HOST
 semantics: instantaneous value
 units:     none
 samples:   5

@@ -393,7 +393,7 @@ printhdr(Context *x, long smpls, struct timeval delta, struct timeval first)
 
     /* live host */
     if (archive == NULL)
-	printf("host:      %s\n", x->host);
+	printf("host:      %s\n", pmGetContextHostName(x->handle));
 
     /* archive */
     else {

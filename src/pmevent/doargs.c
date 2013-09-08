@@ -289,6 +289,7 @@ doargs(int argc, char **argv)
 			pmProgname, msp->source, pmErrStr(sts));
 		    exit(EXIT_FAILURE);
 		}
+		ctxhandle = sts;
 		if ((sts = pmGetArchiveLabel(&label)) < 0) {
 		    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 			pmProgname, pmErrStr(sts));
@@ -314,6 +315,7 @@ doargs(int argc, char **argv)
 			    pmProgname, pmErrStr(sts));
 		    exit(EXIT_FAILURE);
 		}
+		ctxhandle = sts;
 		have_context = 1;
 		__pmtimevalNow(&logStart);
 	    }

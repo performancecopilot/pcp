@@ -672,12 +672,13 @@ Wildcards may also be specified by ending the host identifier with the
 single wildcard character ``*'' as the last-given component of an
 address. The wildcard ``".*"'' refers to all inet (IPv4) addresses.
 The wildcard ``":*"'' refers to all IPv6 addresses.
+If an IPv6 wildcard contains a ``::''
+component, then the final ``*'' refers to the final 16 bits of the address only, otherwise it
+refers to the remaining unspecified bits of the address.
+.PP
 The wildcard ``*'' refers to all users, groups or host addresses,
 including ``"unix:"''.
 Names of users, groups or hosts may not be wildcarded.
-If an IPv6 wildcard contains a ``::'' component, then the final ``*'' refers
-to the final 16 bits of the address only, otherwise it refers to the remaining
-unspecified bits of the address.
 .PP
 The following are all valid host identifiers:
 .de CS

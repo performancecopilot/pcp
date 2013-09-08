@@ -650,7 +650,6 @@ extern int __pmServerSetFeature(__pmServerFeature);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);
-extern const char *__pmServerGetLocalSocket(void);
 extern int __pmServerSetLocalCreds(int,  __pmHashCtl *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
