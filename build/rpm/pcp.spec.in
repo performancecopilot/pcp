@@ -306,10 +306,11 @@ rm -Rf $RPM_BUILD_ROOT
 
 %install
 rm -Rf $RPM_BUILD_ROOT
+NO_CHOWN=true
 BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
 DIST_MANIFEST=`pwd`/install.manifest
-export DIST_ROOT DIST_MANIFEST
+export NO_CHOWN DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
 

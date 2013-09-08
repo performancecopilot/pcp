@@ -65,7 +65,7 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirpcp_pmda_infiniband) \
 		$(dirpcp_python)
 
-pkgpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp);
+pkgpcp = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
 pkglibpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp);
 pkglibpcp_gui = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_mmv = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv);

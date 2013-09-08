@@ -270,7 +270,7 @@ make default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
-export DIST_ROOT=$RPM_BUILD_ROOT
+export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
 make install_pcp
 
 # Fix stuff we do/don't want to ship
