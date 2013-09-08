@@ -19,34 +19,97 @@
 #include "pmapi.h"
 #include "impl.h"
 
+#ifdef PCP_DEBUG
+/* need these from libpcp's internal.h */
+typedef struct addrinfo __pmAddrInfo;
+struct __pmHostEnt {
+    char                *name;
+    __pmAddrInfo        *addresses;
+};
+#endif
+
+
+static void
+usage()
+{
+    fprintf(stderr, "Usage: pmhostname [hostname]\n");
+}
+
 int
 main(int argc, char **argv)
 {
     char	*name, *hename;
     char       	host[MAXHOSTNAMELEN];
     __pmHostEnt	*hep;
+    int		c;
+    int		sts;
+    int		errflag = 0;
 
     __pmSetProgname(argv[0]);
 
-    if (argc == 1) {
+    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+	switch (c) {
+
+	    case 'D':	/* debug flag */
+		sts = __pmParseDebug(optarg);
+		if (sts < 0) {
+		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, optarg);
+		    errflag++;
+		}
+		else
+		    pmDebug |= sts;
+		break;
+
+	    case '?':
+		if (errflag == 0) {
+		    usage();
+		    exit(0);
+		}
+	}
+    }
+    if (errflag || argc > optind+1) {
+	usage();
+	exit(1);
+    }
+
+    if (argc == optind) {
 	if (gethostname(host, MAXHOSTNAMELEN) < 0) {
 	    __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmProgname);
 	    exit(1);
 	}
 	name = host;
     }
-    else if (argc == 2 && argv[1][0] != '-')
-	name = argv[1];
-    else {
-	fprintf(stderr, "Usage: pmhostname [hostname]\n");
-	exit(0);
-    }
+    else
+	name = argv[optind];
 
     hep = __pmGetAddrInfo(name);
-    if (hep == NULL)
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	if (hep == NULL)
+	    fprintf(stderr, "__pmGetAddrInfo(%s) -> NULL\n", name);
+	else
+	    fprintf(stderr, "__pmGetAddrInfo(%s) -> %s\n", name, hep->name);
+    }
+#endif
+    if (hep == NULL) {
         printf("%s\n", name);
+    }
     else {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_DESPERATE) {
+	    fprintf(stderr, "__pmHostEntGetName(%s) -> ", hep->name);
+	}
+#endif
 	hename = __pmHostEntGetName(hep);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_DESPERATE) {
+	    if (hename == NULL)
+		fprintf(stderr, "NULL\n");
+	    else
+		fprintf(stderr, "%s\n", hename);
+	}
+#endif
         printf("%s\n", hename ? hename : name);
     }
 
