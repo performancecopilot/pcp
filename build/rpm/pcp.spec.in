@@ -371,7 +371,11 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
+%if "@pmda_infiniband@" == "infiniband"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
+%else
+touch pmda_infiniband_files
+%endif
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
