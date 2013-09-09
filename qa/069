@@ -32,13 +32,17 @@ test $? -eq 0 && pmcdx=true
 rm -f $seq.out
 if [ $PCP_VER -ge 3700 ]; then
     if $ipv6 ; then
-	if [ $PCP_VER -ge 3702 ]; then
+	if [ $PCP_VER -ge 3803 ]; then
+	    ln $seq.out.7 $seq.out || exit 1
+	elif [ $PCP_VER -ge 3702 ]; then
 	    ln $seq.out.5 $seq.out || exit 1
 	else
 	    ln $seq.out.4 $seq.out || exit 1
 	fi
     else
-	if [ $PCP_VER -ge 3702 ]; then
+	if [ $PCP_VER -ge 3803 ]; then
+	    ln $seq.out.8 $seq.out || exit 1
+	elif [ $PCP_VER -ge 3702 ]; then
 	    ln $seq.out.6 $seq.out || exit 1
 	else
 	    ln $seq.out.3 $seq.out || exit 1
@@ -74,9 +78,10 @@ _filter_log()
 	-e '/^00[08]:/d' \
 	-e 's/ \[0x[0-9a-f]*]//' \
 	-e 's/ \[(nil)]//' \
+	-e "s,$PCP_RUN_DIR,PCP_RUN_DIR,g" \
 	-e "/$LOCALHOST\$/s/$LOCALHOSTe/ME/" \
 	-e "s/ 127\.0\.0\.1:/ MY_IP:/" \
-	-e "s/$me_ip/MY_IP/" \
+	-e "s/$me_ip/MY_IP:/" \
 	-e "s/$other1_ip/OTHER1_IP/" \
 	-e "s/$other2_ip/OTHER2_IP/" \
 	-e "s/\(OTHER._IP\) *\( 255.255.255.255\)/\1 ${fixed_width_ip} \2/" \
@@ -237,11 +242,15 @@ echo "expect two access control errors:"
 # to be a timing issue, and the results are semantically equivalent for
 # the purposes of this test, so ...
 pminfo -f pmcd.numclients 2>&1 \
-| sed -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
-      -e 's/Connection reset by peer/No permission to perform requested operation/'
+| sed \
+    -e "s/\"local:\"/\"LOCALHOST\"/" \
+    -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
+    -e 's/Connection reset by peer/No permission to perform requested operation/'
 pminfo -f pmcd.numclients 2>&1 \
-| sed -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
-      -e 's/Connection reset by peer/No permission to perform requested operation/'
+| sed \
+    -e "s/\"local:\"/\"LOCALHOST\"/" \
+    -e 's/"'$LOCALHOST'"/"LOCALHOST"/' \
+    -e 's/Connection reset by peer/No permission to perform requested operation/'
 echo
 
 echo "expect two connection limit errors:"
