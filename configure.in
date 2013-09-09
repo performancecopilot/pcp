@@ -2262,3 +2262,7 @@ dnl   preamble for tar install scripts
     build/tar/preinstall.head
     build/tar/postinstall.head
 )
+
+echo config.status: settings dump begin
+grep '^S.".*=' config.status
+echo config.status: settings dump end
