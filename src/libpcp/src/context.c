@@ -153,6 +153,7 @@ pmGetContextHostName (int ctxid)
     if ( (ctxp = __pmHandleToPtr(ctxid)) != NULL) {
 	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
+	case PM_CONTEXT_LOCAL:
 	    /*
 	     * Try and establish the hostname from the remote PMCD.
 	     * Do not nest the successive actions. That way, if any one of
@@ -175,13 +176,21 @@ pmGetContextHostName (int ctxid)
 		 * or is 'localhost', then use gethostname(). Otherwise, use the
 		 * name from the context.
 		 */
-		if (ctxp->c_pmcd->pc_hosts[0].name != NULL) {
+		if (ctxp->c_type == PM_CONTEXT_LOCAL)
+		    goto failsafe;
+		else if (ctxp->c_pmcd->pc_hosts[0].name == NULL)
+		    goto failsafe;
+		else {
 		    sts = ctxp->c_pmcd->pc_hosts[0].name;
-		    if (*sts == __pmPathSeparator() || strcmp(sts, "localhost") == 0) {
-			gethostname(hostbuf, sizeof(hostbuf));
-			hostbuf[sizeof(hostbuf) - 1] = '\0';
-			sts = hostbuf;
-		    }
+		    if (*sts == __pmPathSeparator())
+			goto failsafe;
+		    else if (strcmp(sts, "localhost") == 0)
+			goto failsafe;
+		    break;
+failsafe:
+		    gethostname(hostbuf, sizeof(hostbuf));
+		    hostbuf[sizeof(hostbuf) - 1] = '\0';
+		    sts = hostbuf;
 		}
 	    }
 	    break;
