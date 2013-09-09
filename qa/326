@@ -41,6 +41,13 @@ $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 
+_filter_host()
+{
+    # filter this, as we now fetch pmcd.hostname, sneakily
+    sed \
+	-e "/   value \"$LOCALHOST\"/d"
+}
+
 _filter_pmval()
 {
     sed \
@@ -58,16 +65,7 @@ trap "_cleanup" 0 1 2 3 15
 rm -f $seq.full
 
 # real QA test starts here
-
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
-then
-	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
-elif [ $PCP_PLATFORM = darwin ]
-then
-	PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
-else
-	PMDA_PMCD_PATH=/usr/pcp/lib/`pmobjstyle`.pmda_pmcd.so
-fi
+PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 
 # copy the pmcd config file to restore state later.
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
@@ -139,6 +137,7 @@ wait
 echo
 echo "Trace of observed state changes and PMDA count ..."
 egrep '(state changes)|( value )' $tmp.pmval \
+| _filter_host \
 | uniq
 
 echo
