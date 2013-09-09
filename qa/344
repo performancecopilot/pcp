@@ -164,7 +164,7 @@ pminfo -Dcontext -fmL -n $tmp.pmns -K clear \
 
 echo
 echo "=== other tools than know about -K ..."
-pmval -s 3 -t 0.1 -K clear -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init '@:sampledso.bin["bin-100","bin-900"]'
+pmval -s 3 -t 0.1 -K clear -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init '@:sampledso.bin["bin-100","bin-900"]' | _filter
 echo
 pmprobe -K clear -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init -I sampledso.bin
 
