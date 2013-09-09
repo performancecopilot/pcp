@@ -25,6 +25,7 @@ fi
 echo "QA output created by $seq"
 
 status=0	# success is the default!
+host=`hostname`
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -40,7 +41,8 @@ _filter()
 	-e 's/left=0x[0-9a-f]*/left=<addr>/' \
 	-e 's/right=0x[0-9a-f]*/right=<addr>/' \
 	-e "s;$tmp;TMP;g" \
-	-e '/^host:.*$/s/.*/HOST/' \
+	-e "s/host:      $host/host:      HOST/g" \
+	-e "s/   value \"$host\"/   value \"HOST\"/g" \
 	-e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
 

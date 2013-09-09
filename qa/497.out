@@ -26,9 +26,8 @@ log advisory on default {
 #
 
 [access]
-disallow ".*" : all;
-disallow ":*" : all;
-allow "local:*" : enquire;
+disallow * : all;
+allow localhost : enquire;
 --- end initial config file ---
 
 === bad condition in probe clause ===
@@ -132,7 +131,6 @@ log advisory on default {
 #
 
 [access]
-disallow ".*" : all;
-disallow ":*" : all;
-allow "local:*" : enquire;
+disallow * : all;
+allow localhost : enquire;
 --- end final config file ---

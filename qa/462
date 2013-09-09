@@ -28,7 +28,7 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
-LOCALHOST=`hostname`
+host=`hostname`
 
 _cleanup()
 {
@@ -42,12 +42,13 @@ _cleanup()
 _filter()
 {
     _filter_pcp_start \
-    | _filter_pcp_stop
+    | _filter_pcp_stop \
+    | sed -e '/^$PCP_RC_DIR\/pmlogger: pmlogger not running/d'
 }
 
 _wait_filter()
 {
-    sed -e "s/$LOCALHOST/LOCALHOST/g" -e "s/local:/LOCALHOST/g"
+    sed -e "s/$host/LOCALHOST/g" -e "s/local:/LOCALHOST/g"
 }
 
 _start()

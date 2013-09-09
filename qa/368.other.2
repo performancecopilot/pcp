@@ -39,9 +39,8 @@ log advisory on default {
 #
 
 [access]
-disallow ".*" : all;
-disallow ":*" : all;
-allow "local:*" : enquire;
+disallow * : all;
+allow localhost : enquire;
 --- end initial config file ---
 need to add new group tag=00
 TMP/00: 

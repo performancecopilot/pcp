@@ -18,8 +18,8 @@ metric:    derived.inst
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
-   value "brolley-t510"
-HOST
+   value "HOST"
+host:      HOST
 semantics: instantaneous value
 units:     none
 samples:   4
@@ -103,8 +103,8 @@ metric:    derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
-   value "brolley-t510"
-HOST
+   value "HOST"
+host:      HOST
 semantics: instantaneous value
 units:     count
 samples:   4

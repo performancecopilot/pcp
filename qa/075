@@ -12,6 +12,15 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+host=`hostname`
+
+_filter()
+{
+    sed \
+	-e "s/$host/localhost/g" \
+	-e 's/Permission denied/No permission to perform requested operation/'
+}
+
 _cmd()
 {
     echo ""
@@ -47,7 +56,7 @@ _cmd()
 	    exit 1
 	    ;;
     esac \
-    | sed -e 's/Permission denied/No permission to perform requested operation/'
+    | _filter
 }
 
 rm -f $seq.out

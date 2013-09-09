@@ -13,9 +13,13 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+host=`pmhostname`
+
 _filter()
 {
-    sed -e '/Warning.*license/d'
+    sed \
+	-e '/Warning.*license/d' \
+	-e "s/^host:      $host/host:      local:/g"
 }
 
 _doit()
