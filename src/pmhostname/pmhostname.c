@@ -10,24 +10,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
 #include "impl.h"
-
-#ifdef PCP_DEBUG
-/* need these from libpcp's internal.h */
-typedef struct addrinfo __pmAddrInfo;
-struct __pmHostEnt {
-    char                *name;
-    __pmAddrInfo        *addresses;
-};
-#endif
-
 
 static void
 usage()
@@ -84,32 +70,11 @@ main(int argc, char **argv)
 	name = argv[optind];
 
     hep = __pmGetAddrInfo(name);
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
-	if (hep == NULL)
-	    fprintf(stderr, "__pmGetAddrInfo(%s) -> NULL\n", name);
-	else
-	    fprintf(stderr, "__pmGetAddrInfo(%s) -> %s\n", name, hep->name);
-    }
-#endif
     if (hep == NULL) {
         printf("%s\n", name);
     }
     else {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DESPERATE) {
-	    fprintf(stderr, "__pmHostEntGetName(%s) -> ", hep->name);
-	}
-#endif
 	hename = __pmHostEntGetName(hep);
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_DESPERATE) {
-	    if (hename == NULL)
-		fprintf(stderr, "NULL\n");
-	    else
-		fprintf(stderr, "%s\n", hename);
-	}
-#endif
         printf("%s\n", hename ? hename : name);
     }
 

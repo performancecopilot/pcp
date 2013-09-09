@@ -478,8 +478,9 @@ __pmHostEntGetName(__pmHostEnt *he)
     void		*enumIx;
 
     if (he->name == NULL) {
-	/* Try to reverse lookup the host name. Check each address until the reverse lookup
-	   succeeds. */
+	/* Try to reverse lookup the host name.
+	 * Check each address until the reverse lookup succeeds.
+	 */
 	enumIx = NULL;
 	for (addr = __pmHostEntGetSockAddr(he, &enumIx);
 	     addr != NULL;
@@ -492,6 +493,12 @@ __pmHostEntGetName(__pmHostEnt *he)
 	if (he->name == NULL)
 	    he->name = "Unknown Host";
     }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+        fprintf(stderr, "%s\n", he->name);
+    }
+#endif
+
     return strdup(he->name);
 }
 
@@ -958,10 +965,18 @@ __pmGetAddrInfo(const char *hostName)
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	if (sts != 0) {
 	    __pmHostEntFree(hostEntry);
-	    return NULL;
+	    hostEntry = NULL;
 	}
 	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
     }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	if (hostEntry == NULL)
+	    fprintf(stderr, "__pmGetAddrInfo(%s) -> NULL\n", hostName);
+	else
+	    fprintf(stderr, "__pmGetAddrInfo(%s) -> %s\n", hostName, hostEntry->name);
+    }
+#endif
     return hostEntry;
 }
 
