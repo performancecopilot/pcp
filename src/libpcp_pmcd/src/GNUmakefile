@@ -64,8 +64,10 @@ ifeq "$(TARGET_OS)" "mingw"
 endif
 
 ifeq "$(ENABLE_PROBES)" "true"
+ifeq "$(TARGET_OS)" "linux"
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/../systemtap/tapset
 	$(INSTALL) -m 444 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
+endif
 endif
 
 default_pcp : default
