@@ -7,13 +7,12 @@
 // later version.
 
 
-global pmid_domain
-global pmid_cluster
-global pmid_item
-global pmindom_domain
-global pmindom_serial
-
-global pdu_types
+global pmid_domain[2]
+global pmid_cluster[2]
+global pmid_item[2]
+global pmindom_domain[2]
+global pmindom_serial[2]
+global pdu_types[25]
 
 # from impl.h
 global PDU_ERROR	=	0x7000
@@ -54,10 +53,11 @@ global TR_RECV_TIMEOUT	=	11
 global TR_RECV_ERR	=	12
 
 # Use the same naming scheme as trace.c::tracebuf
-@define t_type %( $arg1 %)
-@define t_who %( $arg2 %)
-@define t_p1 %( $arg3 %)
-@define t_p2 %( $arg4 %)
+# We sadly eschew stap 2.0+ feature to make $argN more symbolic:
+# @define t_type %( $arg1 %)
+# @define t_who %( $arg2 %)
+# @define t_p1 %( $arg3 %)
+# @define t_p2 %( $arg4 %)
 
 
 probe begin {
@@ -131,9 +131,9 @@ probe pmcd.add_client = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_ADD_CLIENT)
+    if ($arg1 != TR_ADD_CLIENT)
 	next
-    t_desc = sprintf("New client: [%d]", @t_who)
+    t_desc = sprintf("New client: [%d]", $arg2)
 }
 
 
@@ -141,9 +141,9 @@ probe pmcd.del_client = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_DEL_CLIENT)
+    if ($arg1 != TR_DEL_CLIENT)
 	next
-    t_desc = sprintf("End client: fd=%d err=%d", @t_who, @t_p1)
+    t_desc = sprintf("End client: fd=%d err=%d", $arg2, $arg3)
 }
 
 
@@ -151,13 +151,13 @@ probe pmcd.add_agent = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_ADD_AGENT)
+    if ($arg1 != TR_ADD_AGENT)
 	next
-    t_desc = sprintf("Add PMDA: domain=%d ", @t_who)
-    if (@t_p1 == -1 && @t_p2 == -1)
+    t_desc = sprintf("Add PMDA: domain=%d ", $arg2)
+    if ($arg3 == -1 && $arg4 == -1)
 	t_desc = t_desc . "DSO"
     else
-	t_desc = t_desc . sprintf("infd=%d, outfd=%d", @t_p1, @t_p2)
+	t_desc = t_desc . sprintf("infd=%d, outfd=%d", $arg3, $arg4)
 }
 
 
@@ -165,14 +165,14 @@ probe pmcd.del_agent = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_DEL_AGENT)
+    if ($arg1 != TR_DEL_AGENT)
 	next
 
-    t_desc = sprintf("Drop PMDA: domain=%d ", @t_who)
-    if (@t_p1 == -1 && @t_p2 == -1)
+    t_desc = sprintf("Drop PMDA: domain=%d ", $arg2)
+    if ($arg3 == -1 && $arg4 == -1)
 	t_desc = t_desc . "DSO"
     else
-	t_desc = t_desc . sprintf("infd=%d, outfd=%d", @t_p1, @t_p2)
+	t_desc = t_desc . sprintf("infd=%d, outfd=%d", $arg3, $arg4)
 }
 
 
@@ -180,10 +180,10 @@ probe pmcd.eof = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_EOF)
+    if ($arg1 != TR_EOF)
 	next;
   
-    t_desc = sprintf("Premature EOF: expecting %s PDU, fd=%d", pdu_type(@t_p1), @t_who)
+    t_desc = sprintf("Premature EOF: expecting %s PDU, fd=%d", pdu_type($arg3), $arg2)
 }
 
 
@@ -191,16 +191,16 @@ probe pmcd.wrong_pdu = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_WRONG_PDU)
+    if ($arg1 != TR_WRONG_PDU)
 	next
 
-    t_desc = sprintf("Wrong PDU type: expecting %s PDU, fd=%d, ", pdu_type(@t_p1), @t_who)
-    if (@t_p1 > 0)
-	t_desc = t_desc . sprintf("got %s PDU", pdu_type(@t_p2))
-    else if (@t_p1 == 0)
+    t_desc = sprintf("Wrong PDU type: expecting %s PDU, fd=%d, ", pdu_type($arg3), $arg2)
+    if ($arg3 > 0)
+	t_desc = t_desc . sprintf("got %s PDU", pdu_type($arg4))
+    else if ($arg3 == 0)
 	t_desc = t_desc . "got EOF"
     else
-	t_desc = t_desc . sprintf("got err=%d", @t_p2)
+	t_desc = t_desc . sprintf("got err=%d", $arg4)
 }
 
 
@@ -208,10 +208,10 @@ probe pmcd.xmit_err = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_XMIT_ERR)
+    if ($arg1 != TR_XMIT_ERR)
 	next
 
-    t_desc = sprintf("Send %s PDU failed: fd=%d, err=%d", pdu_type(@t_p1), @t_who, @t_p2)
+    t_desc = sprintf("Send %s PDU failed: fd=%d, err=%d", pdu_type($arg3), $arg2, $arg4)
 }
 
 
@@ -219,10 +219,10 @@ probe pmcd.recv_timeout = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_RECV_TIMEOUT)
+    if ($arg1 != TR_RECV_TIMEOUT)
 	next
 
-    t_desc = sprintf("Recv timeout: expecting %s PDU, fd=%d", pdu_type(@t_p1), @t_who)
+    t_desc = sprintf("Recv timeout: expecting %s PDU, fd=%d", pdu_type($arg3), $arg2)
 }
 
 
@@ -230,10 +230,10 @@ probe pmcd.recv_err = process("@path@").mark("PMCD")
 {
     t_desc = ""
 
-    if (@t_type != TR_RECV_ERR)
+    if ($arg1 != TR_RECV_ERR)
 	next;
 
-    t_desc = sprintf("Recv error: expecting %s PDU, fd=%d, err=%d", pdu_type(@t_p1), @t_who, @t_p2)
+    t_desc = sprintf("Recv error: expecting %s PDU, fd=%d, err=%d", pdu_type($arg3), $arg2, $arg4)
 }
 
 
@@ -241,43 +241,43 @@ probe pmcd.pdu.xmit = process("@path@").mark("PMCD_PDU")
 {
     t_desc = ""
 
-    if (@t_type != TR_XMIT_PDU)
+    if ($arg1 != TR_XMIT_PDU)
 	next
 
-    t_desc = sprintf("Xmit: %s PDU, fd=%d, ", pdu_type(@t_p1), @t_who)
-    if (@t_p1 == PDU_ERROR)
-	t_desc = t_desc . sprintf(" err=%d", @t_p2)
-    else if (@t_p1 == PDU_RESULT)
-	t_desc = t_desc . sprintf("numpmid=%d", @t_p2)
-    else if (@t_p1 == PDU_TEXT || @t_p1 == PDU_TEXT_REQ)
-	t_desc = t_desc . sprintf("id=%#lx", @t_p2)
-    else if (@t_p1 == PDU_DESC || @t_p1 == PDU_DESC_REQ)
+    t_desc = sprintf("Xmit: %s PDU, fd=%d, ", pdu_type($arg3), $arg2)
+    if ($arg3 == PDU_ERROR)
+	t_desc = t_desc . sprintf(" err=%d", $arg4)
+    else if ($arg3 == PDU_RESULT)
+	t_desc = t_desc . sprintf("numpmid=%d", $arg4)
+    else if ($arg3 == PDU_TEXT || $arg3 == PDU_TEXT_REQ)
+	t_desc = t_desc . sprintf("id=%#lx", $arg4)
+    else if ($arg3 == PDU_DESC || $arg3 == PDU_DESC_REQ)
     {
-	domain = bitextract (@t_p2, pmid_domain[0],pmid_domain[1])
-	cluster = bitextract (@t_p2, pmid_cluster[0],pmid_cluster[1])
-	item = bitextract (@t_p2, pmid_item[0],pmid_item[1])
-	if (@t_p2 == PM_ID_NULL)
+	domain = bitextract ($arg4, pmid_domain[0],pmid_domain[1])
+	cluster = bitextract ($arg4, pmid_cluster[0],pmid_cluster[1])
+	item = bitextract ($arg4, pmid_item[0],pmid_item[1])
+	if ($arg4 == PM_ID_NULL)
 	    t_desc = t_desc . sprintf("pmid=PM_ID_NULL")
 	else if (domain == DYNAMIC_PMID && item == 0)
-	    t_desc = t_desc . sprintf("pmid=%d.*.*", @t_p2)
+	    t_desc = t_desc . sprintf("pmid=%d.*.*", $arg4)
 	else
 	    t_desc = t_desc . sprintf("pmid=%d.%d.%d", domain, cluster, item)
     }
-    else if (@t_p1 == PDU_INSTANCE_REQ || @t_p1 == PDU_INSTANCE)
+    else if ($arg3 == PDU_INSTANCE_REQ || $arg3 == PDU_INSTANCE)
     {
-	domain = bitextract (@t_p2, pmindom_domain[0],pmindom_domain[1])
-	serial = bitextract (@t_p2, pmindom_serial[0],pmindom_serial[1])
-	if (@t_p2 == PM_INDOM_NULL)
+	domain = bitextract ($arg4, pmindom_domain[0],pmindom_domain[1])
+	serial = bitextract ($arg4, pmindom_serial[0],pmindom_serial[1])
+	if ($arg4 == PM_INDOM_NULL)
 	    t_desc = t_desc . sprintf("pmid=PM_INDOM_NULL")
 	else
 	    t_desc = t_desc . sprintf("indom=%d.%d", domain, serial)
     }
-    else if (@t_who == PDU_PMNS_NAMES)
-	t_desc = t_desc . sprintf("numpmid=%d", @t_p2)
-    else if (@t_who == PDU_PMNS_IDS)
-	t_desc = t_desc . sprintf("numpmid=%d", @t_p2)
-    else if (@t_who == PDU_CREDS)
-	t_desc = t_desc . sprintf("numcreds=%d", @t_p2)
+    else if ($arg2 == PDU_PMNS_NAMES)
+	t_desc = t_desc . sprintf("numpmid=%d", $arg4)
+    else if ($arg2 == PDU_PMNS_IDS)
+	t_desc = t_desc . sprintf("numpmid=%d", $arg4)
+    else if ($arg2 == PDU_CREDS)
+	t_desc = t_desc . sprintf("numcreds=%d", $arg4)
 }
 
 
@@ -285,10 +285,10 @@ probe pmcd.pdu.recv = process("@path@").mark("PMCD_PDU")
 {
     t_desc = ""
 
-    if (@t_type != TR_RECV_PDU)
+    if ($arg1 != TR_RECV_PDU)
 	next;
 
-    t_desc = sprintf("Recv: %s PDU, fd=%d, pdubuf=%#x", pdu_type(@t_p1), @t_who, @t_p2)
+    t_desc = sprintf("Recv: %s PDU, fd=%d, pdubuf=%#x", pdu_type($arg3), $arg2, $arg4)
 }
 
 
