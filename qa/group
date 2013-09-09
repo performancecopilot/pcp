@@ -873,7 +873,7 @@ pcp.py
 722 python local oss
 736 pmlogrewrite local oss
 748 pmlogrewrite pmda.mysql local oss
-749 pmcd local oss
+749 pmcd local oss flakey
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
