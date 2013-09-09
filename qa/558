@@ -29,11 +29,14 @@ DEBUG="-v -Dappl1,appl2"
 DEBUG=
 HOST=`hostname`
 
+target=""
+test $PCP_VER -ge 3803 && target="-h $HOST"
+
 PMCD_RECONNECT_TIMEOUT=1; export PMCD_RECONNECT_TIMEOUT
 
 # real QA test starts here
 
-cat <<End-of-File | pmie -t 1sec $DEBUG >$tmp.log 2>&1 &
+cat <<End-of-File | pmie $target -t 1sec $DEBUG >$tmp.log 2>&1 &
 sample.long.million > hinv.ncpu
     -> print 5 sec "singular" " %v";
 sample.float.million + sample.double.million >= sample.long.million
