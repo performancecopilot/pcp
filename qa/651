@@ -20,6 +20,11 @@ hostname=`_get_fqdn`
 [ "$hostname" = "localhost" -o "$hostname" = "localhost.localdomain" ] && \
     _notrun "need sensible setup, not simply hostname => localhost"
 
+# for newer versions, we default to local sockets with different
+# access controls.  dodge that, and test the usual pmproxy path.
+target=""
+test $PCP_VER -ge 3803 && target="-h $hostname"
+
 _filter()
 {
     sed \
@@ -45,18 +50,19 @@ _cleanup()
 $sudo $signal -a pmproxy
 sleep 1
 
+export PMCD_HOST=localhost
 export PMPROXY_HOST=$hostname
 proxyargs=""
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 
 echo "== pmproxy not running =="
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== simplest default case =="
 $PCP_BINADM_DIR/pmproxy $proxyargs
 sleep 1
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== simple explicit host case =="
@@ -65,14 +71,14 @@ pmprobe -v -h localhost hinv.ncpu 2>&1 | _filter
 echo
 echo "== non-standard PMPROXY_PORT, expect failure =="
 export PMPROXY_PORT=94322
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== non-standard PMPROXY_PORT, expect success =="
 $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
 $PCP_BINADM_DIR/pmproxy $proxyargs
 sleep 1
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== restricted interface for connections, expect failure =="
@@ -80,12 +86,12 @@ unset PMPROXY_PORT
 $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy
 $PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs
 sleep 1
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
 echo "== restricted interface for connections, expect success =="
 export PMPROXY_HOST=localhost
-pmprobe -v sample.long.hundred 2>&1 | _filter
+pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 # success, all done
 exit
