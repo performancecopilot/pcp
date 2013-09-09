@@ -9,55 +9,14 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-hostsfile="/etc/hosts"
-
 _cleanup()
 {
-   [ -f $tmp.etc.hosts.bak ] && $sudo cp $tmp.etc.hosts.bak $hostsfile
    $sudo rm -f $tmp.*
-}
-
-_update_hostsfile()
-{
-    # save old hosts file
-    $sudo cp $hostsfile $tmp.etc.hosts.bak
-
-    # 65 char fname
-    bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
-    realhost=`pmhostname`
-
-    # update /etc/hosts
-    # add an entry for bighostname
-    $PCP_AWK_PROG < $hostsfile -v realhost=$realhost -v bighostname=$bighostname '
-	$2 == realhost && gotit == 0 && $1 !~ /#/ {  
-			   print; 
-			   printf("%s\t%s\n", $1, bighostname);
-			   gotit = 1;
-			   next;
-			}
-	{ print; }
-    ' > $tmp.etc.hosts 
-
-    # extra check
-    # we only want to add one line
-    diff $tmp.etc.hosts $hostsfile > $tmp.diff
-    len=`wc -l $tmp.diff | $PCP_AWK_PROG '{print $1}' `
-    if [ $len -ne 2 ]
-    then
-	echo "Diff is not what was expected:"
-	cat $tmp.diff
-	exit 1
-    fi
-
-    # create new hosts file
-    $sudo cp $tmp.etc.hosts $hostsfile
 }
 
 # real QA test starts here
 
 rm -f $seq.full
-
-_update_hostsfile
 
 metric="sample.control"
 cat <<EOF >$tmp.config
@@ -66,8 +25,11 @@ log mandatory on 1 sec {
 }
 EOF
 
-pmlogger -s1 -h $bighostname -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
+pmlogger -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
 cat $tmp.log >> $seq.full
+
+bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
+pmloglabel -h $bighostname $tmp.arch >> $seq.full
 
 pmdumplog -l $tmp.arch | sed -e '/commencing/d' -e '/ending/d'
 
