@@ -76,31 +76,17 @@ s/ 0x2c/ 0xfXX/
 }
 
 # real QA test starts here
-cat >$tmp.config <<End-of-File
-indom 11.16 { indom -> duplicate 60.16 }
-metric 11.16.* { pmid -> 60.*.* }	# CLUSTER_XFS
-metric 11.17.* { pmid -> 60.*.* }	# CLUSTER_XFSBUF
-metric 11.30.* { pmid -> 60.*.* indom -> 60.* }	# CLUSTER_QUOTA
-End-of-File
+original=src/old_xfs
+pmlogrewrite -c $migrate -w $original $tmp.new
 
-pmlogrewrite -c $tmp.config -w src/new_xfs $tmp.old
-
-pmlogrewrite -c $migrate -w $tmp.old $tmp.new
-
-echo "=== ref ===" >>$seq.full
-pmdumplog -z -a src/new_xfs >>$seq.full
 echo "=== old ===" >>$seq.full
-pmdumplog -z -a $tmp.old >>$seq.full
+pmdumplog -z -a $original >>$seq.full
 echo "=== new ===" >>$seq.full
 pmdumplog -z -a $tmp.new >>$seq.full
 
 echo "old -> new changes"
-_compare $tmp.old $tmp.new
-echo
-echo "new -> ref changes ... expect none for metadata"
-_compare $tmp.new src/new_xfs
+_compare $original $tmp.new
 
 # success, all done
 status=0
-
 exit

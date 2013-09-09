@@ -2,28 +2,15 @@ QA output created by 945
 old -> new changes
 Label record diffs ...
 Instance domain diffs ...
-10c10
-< InDom: 60.16
----
+7a8,10
 > InDom: 11.16
-13d12
-< InDom: 11.16
-Metadata diffs ...
-3c3
-< PMID: 60.30.0 (quota.state.project.accounting) Data Type: 32-bit unsigned int  InDom: 60.5 0xf000005 Semantics: discrete  Units: none
----
-> PMID: 11.30.0 (quota.state.project.accounting) Data Type: 32-bit unsigned int  InDom: 11.5 0x2c00005 Semantics: discrete  Units: none
-Temporal index diffs ...
-
-new -> ref changes ... expect none for metadata
-Label record diffs ...
-Instance domain diffs ...
-13,14d12
-< 15:47:45.337 1 instances
-<                  0 or "0:/dev/loop0"
+> 15:47:45.337 1 instances
+>                  0 or "0:/dev/loop0"
 Metadata diffs ...
 Temporal index diffs ...
-8c8
-< 15:47:46.336       0        11284         4524
+7,8c7,8
+< 19:48:58.367       0         1426         2500
+< 19:49:58.367       0        11011        74836
 ---
-> 15:47:46.336       0        11235         4524
+> 19:48:58.367       0         1475         2500
+> 19:49:58.367       0        11060        74836
