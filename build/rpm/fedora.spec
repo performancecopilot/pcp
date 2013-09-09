@@ -105,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
-* Mon Sep 08 2013 Nathan Scott <nathans@redhat.com> - 1.5.10-1
+* Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 1.5.10-1
 - Updates to the PCP Users and Administrators Guide.
 - Updates to the PCP Programmers Guide.
 - Install a known-good pdf version of each book.
