@@ -20,6 +20,8 @@ IAM = mmv
 TARGET = mmvdump$(EXECSUFFIX)
 CFILES = mmvdump.c
 
+SUBDIRS = src
+
 LCFILES = acme.c
 LTARGET = acme$(EXECSUFFIX)
 LSRCFILES = $(LCFILES) README.demos Makefile.demos

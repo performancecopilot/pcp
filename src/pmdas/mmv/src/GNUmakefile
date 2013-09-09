@@ -52,7 +52,7 @@ $(CMDTARGET):	$(OBJECTS)
 
 $(IAM).o : domain.h
 
-domain.h: ../../pmns/stdpmid
+domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 pmns :
