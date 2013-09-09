@@ -239,7 +239,7 @@ Requires: pcp-libs >= %{version}-%{release}
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 
-%description import-collectl2pcp
+%description pmda-infiniband
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
