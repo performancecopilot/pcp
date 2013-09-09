@@ -1,3 +1,26 @@
+pcp-3.8.3 (9 September 2013)
+    - Split the XFS and XFS quota metrics into a separate PMDA
+    - Optional hash-based metric table lookups for PMDAs
+    - pmdagfs2: updates
+    - pmlogrewrite: add support for indom replication
+    - pmatop: Decrease screen real estate used for display.
+    - Fix the pmdabash shell version support validation code
+    - Add gluster PMDA into the build, really this time
+    - Add hinv.nnode metric to pmdalinux, mirroring the original IRIX metric
+    - Add an option allowing custom pmcd.hostname settings
+    - Implement host access checking for unix domain sockets.
+    - Man page updates, esp. to pmcd.1 re access controls.
+    - Add static probe support for pmcd probes (systemtap/dtrace)
+    - Change pmGetContextHostName to be pmcd.hostname aware and thus
+      able to report the correct remote hostname through a tunnel.
+    - Update numerous tools to use pmGetContextHostName now.
+    - Demonstration programs for the MMV API
+    - Add pmdasystemd journal event count and total bytes metrics
+    - Use -fPIC over -fpic, resolving build issues on some platforms.
+    - Ensure Perl refcount bumped on PMDA.pm pmdacache stored variables
+    - Fix pmie/pmlogger control scripts - bad pmproxy handling
+    - Add a mechanism for packaging to avoid chown use, for Debian.
+
 pcp-3.8.2 (31 July 2013)
     - Support for the Unix domain socket transport between pmcd
       and client tools, using the "unix:" host specifier (and the

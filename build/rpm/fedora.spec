@@ -557,8 +557,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Mon Aug 05 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
-- Currently under development.
+* Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
+- Default to Unix domain socket (authenticated) local connections.
 - Introduces new pcp-pmda-infiniband sub-package.
 
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1

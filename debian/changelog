@@ -5,7 +5,7 @@ pcp (3.8.3) unstable; urgency=low
   * Resolve FTBFS on s390x via -fPIC (closes: 721500)
   * Tackle a buildd issue with chown (closes: 719734)
 
- -- Nathan Scott <nathans@debian.org>  Sun, 08 Sep 2013 18:18:02 +1000
+ -- Nathan Scott <nathans@debian.org>  Mon, 09 Sep 2013 18:20:08 +1000
 
 pcp (3.8.2) unstable; urgency=low
 
