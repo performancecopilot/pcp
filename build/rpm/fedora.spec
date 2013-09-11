@@ -471,7 +471,16 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
 %{_localstatedir}/lib/pcp/config/*
+
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5 
 %{tapsetdir}/pmcd.stp
+%else				# rhel5
+%ifarch ppc ppc64
+# no systemtap-sdt-devel
+%else				# ! ppc
+%{tapsetdir}/pmcd.stp
+%endif				# ppc
+%endif
 
 %files libs
 %defattr(-,root,root)
