@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,6 @@ use warnings;
 use PCP::PMDA;
 
 use vars qw( $pmda %metrics );
-my $smbstats = 'smbstatus --profile';
 
 #
 # This is the main workhorse routine, both value extraction and
@@ -31,12 +30,14 @@ sub samba_fetch
     my $item = 0;
     my $cluster = 0;
     my $prefix = '';
+    my $generated_cluster = 20; # start well above hard-coded ones
 
+    my $smbstats = "smbstatus --profile";
     open(STATS, "$smbstats |") ||
 	$pmda->err("pmdasamba failed to open $smbstats pipe: $!");
 
     while (<STATS>) {
-	if (m/^\*\*\*\*\s+(\w+.*)$/) {
+	if (m/^\*\*\*\*\s+(\w+[^*]*)\**$/) {
 	    my $heading = $1;
 	    $heading =~ s/ +$//g;
 	    $item = 0;
@@ -59,9 +60,14 @@ sub samba_fetch
 	    } elsif ($heading eq 'NMBD Calls') {
 		$cluster = 9; $prefix = 'nmb';
 	    } else {
-		$pmda->log("pmdasamba failed to parse $smbstats heading: $1");
-		$cluster = 0; $prefix = '';
+                # samba 4.1 renames several clusters of statistics.
+                # Let's generate cluster names instead of hard-coding them.
+                $cluster = $generated_cluster++;
+                $prefix = $heading;
+                $prefix =~ s/ /_/g;
+                $prefix =~ tr/A-Z/a-z/;
 	    }
+	    # $pmda->log("metric cluster: $cluster = $prefix");
 	}
 	# we've found a real name/value pair, work out PMID and hash it
 	elsif (m/^(\w+):\s+(\d+)$/) {
@@ -77,6 +83,9 @@ sub samba_fetch
 	    $metrics{$pmid} = \@metric;
 	    # $pmda->log("metric: $metric[0], ID = $pmid, value = $metric[1]");
 	}
+        else {
+	    $pmda->log("pmdasamba failed to parse line $_");
+        }
     }
     close STATS;
 }
@@ -87,7 +96,7 @@ sub samba_fetch_callback
     my $pmid = pmda_pmid($cluster, $item);
     my $value;
 
-    # $pmda->log("samba_fetch_callback $metric_name $cluster:$item ($inst)\n");
+#    $pmda->log("samba_fetch_callback $metric_name $cluster:$item ($inst)\n");
 
     if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
@@ -117,11 +126,11 @@ foreach my $pmid (sort(keys %metrics)) {
     }
     # $pmda->log("pmdasamba added metric $name\n");
 }
-close STATS;
+# close STATS;
 
 $pmda->set_fetch(\&samba_fetch);
 $pmda->set_fetch_callback(\&samba_fetch_callback);
-$pmda->set_user('pcp');
+# NB: needs to run as root, as smb usually does
 $pmda->run;
 
 =pod
