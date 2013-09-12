@@ -70,9 +70,11 @@ sub samba_fetch
 	    # $pmda->log("metric cluster: $cluster = $prefix");
 	}
 	# we've found a real name/value pair, work out PMID and hash it
-	elsif (m/^(\w+):\s+(\d+)$/) {
+	elsif (m/^([\[\]\w]+):\s+(\d+)$/) {
 	    my @metric = ( $1, $2 );
 	    my $pmid;
+
+            $metric[0] =~ tr/\[\]/_/d;
 
 	    if ($cluster == 0) {
 		$metric[0] = "samba.$metric[0]";
