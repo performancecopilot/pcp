@@ -13,9 +13,11 @@ echo "QA output created by $seq"
 authentication=false
 eval `pmconfig -L 2>/dev/null`
 $authentication || _notrun "No authentication support available"
-for helper in saslpasswd2 sasldblistusers2; do
+for helper in pluginviewer saslpasswd2 sasldblistusers2; do
     which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
 done
+pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
+test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
 
 cleanup()
 {
