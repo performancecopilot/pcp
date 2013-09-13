@@ -11,17 +11,6 @@
 . ./common.check
 
 seq=`basename $0`
-
-rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    # Note - not sure what 110.out.2 is for - Ken
-    ln $seq.out.3 $seq.out || exit 1
-fi
-
-echo "[expect no compiler warnings]"
 echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -73,25 +62,10 @@ _failed()
 
 _filter()
 {
+    _filter_pmda_install | \
     sed \
-	-e '/^	- /d' \
-	-e '/^[ 	]*rm /d' \
-	-e '/^[ 	]*mv /d' \
-	-e '/^[ 	]*cp /d' \
-	-e '/^[ 	]*.*cc /d' \
-	-e '/^[ 	]*.*install /d' \
-	-e '/^[ 	]*.*tag /d' \
-	-e '/^pmda.c:$/d' \
-	-e '/^simple.c:$/d' \
-	-e '/make: Nothing to be done/d' \
-	-e '/In function .vpmprintf.:/d' \
-	-e '/warning: the use of .tempnam./d' \
 	-e 's/ or perl//' \
 	-e 's/ or python//' \
-	-e 's/.* \(hash table entries\)/  NNN \1/' \
-	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
 	-e "s;$tmp;TMP;" \
 	-e "s/$port1/PORT1/" \
 	-e "s/$port2/PORT2/"

@@ -11,15 +11,6 @@
 . ./common.check
 
 seq=`basename $0`
-
-rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
@@ -81,32 +72,7 @@ trap "_cleanup" 0 1 2 3 15
 
 _filter()
 {
-    sed \
-	-e '/^	- /d' \
-	-e '/	rm/d' \
-	-e '/	.*cc /d' \
-	-e '/.*\/usr\/sbin\/tag/d' \
-	-e '/^cc/d' \
-	-e '/^gcc/d' \
-	-e '/^x86_64-mandriva-linux-gnu-gcc/d' \
-	-e '/\/usr\/bin\/gcc/d' \
-	-e '/make: Nothing to be done/d' \
-	-e '/In function .vpmprintf.:/d' \
-	-e '/warning: the use of .tempnam./d' \
-	-e '/^pmda.c:$/d' \
-	-e '/^trivial.c:$/d' \
-	-e 's/.* \(hash table entries\)/  NNN \1/' \
-	-e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(leaf nodes\)/  NNN \1/' \
-	-e 's/.* \(bytes of symbol table\)/  NNN \1/' \
-    | $PCP_AWK_PROG '
-	/^cc-/ { noprint=1 }
-        /pmdatrivial/ { noprint=0 }
-	{ if (noprint==0) print }' \
-    | $PCP_AWK_PROG '
-	/The variable/ { noprint=1 }
-        /^Updating/ { noprint=0 }
-	{ if (noprint==0) print }'
+    _filter_pmda_install
 }
 
 # real QA test starts here

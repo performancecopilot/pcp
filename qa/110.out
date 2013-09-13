@@ -1,4 +1,3 @@
-[expect no compiler warnings]
 QA output created by 110
 
 === pipe daemon agent ===
@@ -18,13 +17,10 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] daemon
 PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] pipe
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 
@@ -47,13 +43,10 @@ PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] so
 Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
 Unix FIFO name? TMP.fifo-1
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 You will need to choose an appropriate configuration for installation of
@@ -69,13 +62,10 @@ PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] so
 Use Internet, IPv6 or Unix domain sockets? [Internet] Unix
 Unix FIFO name? TMP.fifo-2
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 
@@ -98,13 +88,10 @@ PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] so
 Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
 Internet port number or service name? [2078] PORT1
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 You will need to choose an appropriate configuration for installation of
@@ -120,13 +107,10 @@ PMCD should communicate with the simple daemon via a pipe or a socket? [pipe] so
 Use Internet, IPv6 or Unix domain sockets? [Internet] Internet
 Internet port number or service name? [2078] PORT2
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 
@@ -146,13 +130,10 @@ the "simple" Performance Metrics Domain Agent (PMDA).
 Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] dso
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 You will need to choose an appropriate configuration for installation of
@@ -165,13 +146,10 @@ the "simple" Performance Metrics Domain Agent (PMDA).
 Please enter c(ollector) or m(onitor) or b(oth) [b] both
 Install simple as a daemon or dso agent? [daemon] dso
 Installing files ...
+[...install files, make output...]
 Updating the Performance Metrics Name Space (PMNS) ...
-Compiled PMNS contains
-  NNN hash table entries
-  NNN leaf nodes
-  NNN non-leaf nodes
-  NNN bytes of symbol table
 Terminate PMDA if already installed ...
+[...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
 Check simple metrics have appeared ... 5 metrics and 9 values
 Culling the Performance Metrics Name Space ...
