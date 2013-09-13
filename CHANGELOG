@@ -1,3 +1,16 @@
+pcp-3.8.4 (15 September 2013)
+    - Allow numerous of the pmlogconf/tools templates to be probed
+      and enabled.  These are Linux tools, so we probe for (remote
+      possibly) Linux hosts only for these.
+    - Numerous QA test updates, resolving small amounts of fallout
+      from the previous release reported by Red Hat QE folks.
+    - Updates to the Samba PMDA.
+    - Improvements to the Debian build - remove Infiniband deps as
+      we're not attempting to build that anymore there (evidently,
+      poor cross platform support?  Can revisit if anyone needs it).
+    - Remove Debian dependence on deprecated sysv rc package.
+    - Resolve Debian packaging override disparities.
+
 pcp-3.8.3 (9 September 2013)
     - Split the XFS and XFS quota metrics into a separate PMDA
     - Optional hash-based metric table lookups for PMDAs
@@ -6,7 +19,7 @@ pcp-3.8.3 (9 September 2013)
     - pmatop: Decrease screen real estate used for display.
     - Fix the pmdabash shell version support validation code
     - Add gluster PMDA into the build, really this time
-    - Add hinv.nnode metric to pmdalinux, mirroring the original IRIX metric
+    - Add hinv.nnode metric to pmdalinux, mirroring the IRIX metric
     - Add an option allowing custom pmcd.hostname settings
     - Implement host access checking for unix domain sockets.
     - Man page updates, esp. to pmcd.1 re access controls.

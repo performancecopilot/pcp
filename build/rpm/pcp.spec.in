@@ -82,7 +82,7 @@ applications to easily retrieve and process any subset of that data.
 # pcp-libs
 #
 %package libs
-License: LGPLv2+
+License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 Vendor: SGI
@@ -97,7 +97,7 @@ Performance Co-Pilot (PCP) run-time libraries
 # pcp-libs-devel
 #
 %package libs-devel
-License: GPLv2
+License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -111,7 +111,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 # pcp-testsuite
 #
 %package testsuite
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
@@ -126,7 +126,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 # perl-PCP-PMDA. This is the PCP agent perl binding.
 #
 %package -n perl-PCP-PMDA
-License: GPLv2
+License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -143,7 +143,7 @@ an application, etc.
 # perl-PCP-MMV
 #
 %package -n perl-PCP-MMV
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
@@ -161,7 +161,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 # perl-PCP-LogImport
 #
 %package -n perl-PCP-LogImport
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
@@ -176,7 +176,7 @@ they can be replayed with standard PCP monitoring tools.
 # perl-PCP-LogSummary
 #
 %package -n perl-PCP-LogSummary
-License: GPLv2
+License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
@@ -264,7 +264,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -279,7 +279,7 @@ building Performance Metric API (PMAPI) tools using Python.
 # pcp-pmda-infiniband
 #
 %package pmda-infiniband
-License: GPLv2
+License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://oss.sgi.com/projects/pcp/
