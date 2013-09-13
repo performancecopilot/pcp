@@ -35,8 +35,16 @@ cleanup()
 }
 
 status=1	# failure is the default!
+hostname=`hostname`
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
+
+_filter_listusers2()
+{
+    sed \
+        -e "s/^$username/USER/" \
+        -e "s/@$hostname:/@HOST:/"
+}
 
 # real QA test starts here
 $sudo mv $PCP_SASLCONF_DIR/pmcd.conf $PCP_SASLCONF_DIR/pmcd.conf.$seq
@@ -49,7 +57,7 @@ echo "Creating temporary sasldb, add user running QA to it"
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
 echo "Verify saslpasswd2 has successfully added a new user"
-sasldblistusers2 -f $tmp.passwd.db | sed -e "s/^$username/USER/"
+sasldblistusers2 -f $tmp.passwd.db | _filter_listusers2
 
 echo "Ensure pmcd can read the password file"
 id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $tmp.passwd.db
