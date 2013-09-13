@@ -21,12 +21,11 @@
 iam=samba
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 if ! test -x /usr/sbin/smbd; then
     echo "Samba \"smbd\" daemon is not installed" && exit 1
 fi
-/usr/sbin/smbd -b | grep HAVE_PROFILE >/dev/null
+/usr/sbin/smbd -b | egrep 'WITH_PROFILE|HAVE_PROFILE' >/dev/null
 if test $? -ne 0; then
     echo "Samba \"smbd\" not built with profiling support" && exit 1
 fi

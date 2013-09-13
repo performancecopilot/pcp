@@ -54,7 +54,7 @@ probes.o: probes.d
 endif
 
 pmcd.stp : pmcd.stp.in
-	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)/';' $< > $@
+	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)/pmcd';' $< > $@
 
 include $(BUILDRULES)
 

@@ -13993,3 +13993,7 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+echo config.status: settings dump begin
+grep '^S.".*=' config.status
+echo config.status: settings dump end
