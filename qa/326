@@ -16,7 +16,8 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 done_clean=false
-LOCALHOST=`hostname | sed -e 's/\..*//'`
+REALHOST=`hostname`
+LOCALHOST=`echo $REALHOST | sed -e 's/\..*//'`
 
 _cleanup()
 {
@@ -45,6 +46,7 @@ _filter_host()
 {
     # filter this, as we now fetch pmcd.hostname, sneakily
     sed \
+	-e "/   value \"$REALHOST\"/d" \
 	-e "/   value \"$LOCALHOST\"/d"
 }
 
