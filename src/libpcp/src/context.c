@@ -198,10 +198,6 @@ failsafe:
 	    }
 	    break;
 
-	case PM_CONTEXT_LOCAL:
-            sts = hostbuf;
-            break;
-
 	case PM_CONTEXT_ARCHIVE:
 	    sts = ctxp->c_archctl->ac_log->l_label.ill_hostname;
 	    break;
