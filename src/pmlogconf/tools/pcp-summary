@@ -5,11 +5,7 @@ delta	once
 	hinv.ncpu
 	hinv.ndisk
 	hinv.nnode
-	hinv.nrouter
-	hinv.nxbow
-	hinv.ncell
 	hinv.physmem
-	hinv.cputype
 	pmda.uname
 	pmcd.numagents
 	pmcd.numclients
