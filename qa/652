@@ -29,7 +29,7 @@ fi
 
 [ $PCP_VER -ge 3610 ] || _notrun "Installed pmdasystemd is too old"
 suffix=2
-[ $PCP_VER -le 3802 ] || suffix=1
+[ $PCP_VER -ge 3803 ] || suffix=1
 rm -f $seq.out
 ln $seq.out.$suffix $seq.out
 
