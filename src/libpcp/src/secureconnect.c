@@ -359,7 +359,7 @@ dbphrase(PK11SlotInfo *slot, PRBool retry, void *arg)
     if (retry)
 	return NULL;
     assert(PK11_IsInternal(slot));
-    return PL_strdup(SECURE_USERDB_DEFAULT_KEY);
+    return strdup(SECURE_USERDB_DEFAULT_KEY);
 }
 
 int
