@@ -17,4 +17,5 @@ delta   120 seconds
 	proc.psinfo.stime
 	proc.psinfo.utime
 	proc.psinfo.vsize
-	proc.schedstat.cpu_time
+	proc.psinfo.nswap
+	proc.psinfo.threads
