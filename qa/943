@@ -30,9 +30,10 @@ _filter_counts()
 
 # lists of metrics
 unprivileged="proc.nprocs proc.runq"
-privileged="proc.psinfo proc.memory proc.id proc.fd proc.schedstat"
+privileged="proc.psinfo proc.memory proc.id proc.fd"
 
 # notes:
+# proc.schedstat not present in older nor newer kernels (farewell!)
 # proc.io file permissions sometimes prevent reading after seteuid?
 # debug: pminfo -L -K add,3,proc/pmda_proc.so,proc_init proc.io -f
 

@@ -89,9 +89,6 @@ proc.id.egid_nm -12387 No permission to perform requested operation
 proc.id.sgid_nm -12387 No permission to perform requested operation
 proc.id.fsgid_nm -12387 No permission to perform requested operation
 proc.fd.count -12387 No permission to perform requested operation
-proc.schedstat.cpu_time -12387 No permission to perform requested operation
-proc.schedstat.run_delay -12387 No permission to perform requested operation
-proc.schedstat.pcount -12387 No permission to perform requested operation
 == Check authentic per-process metric fetches (expect values)
 proc.psinfo.pid COUNT
 proc.psinfo.cmd COUNT
@@ -172,6 +169,3 @@ proc.id.egid_nm COUNT
 proc.id.sgid_nm COUNT
 proc.id.fsgid_nm COUNT
 proc.fd.count COUNT
-proc.schedstat.cpu_time COUNT
-proc.schedstat.run_delay COUNT
-proc.schedstat.pcount COUNT
