@@ -1,3 +1,10 @@
+pcp (3.8.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Remove Infiniband build deps, not there on all arches.
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 15 Sep 2013 10:53:16 +1000
+
 pcp (3.8.3) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

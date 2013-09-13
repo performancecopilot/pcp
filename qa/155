@@ -14,8 +14,10 @@ echo "QA output created by $seq"
 
 trap "pmstore sample.long.write_me 13 >/dev/null; rm -f $tmp.*; exit" 0 1 2 3 15
 
-# for newer versions, we default to local sockets with different
-# access controls.  dodge that, and test the original path.
+# for newer versions, we default to local sockets (without
+# auto-credential transfer to the PMDA, which causes early
+# protocol exchange between PMCD/PMDA, and circumvents the
+# goal of this test).
 target=""
 hostname=`hostname`
 test $PCP_VER -ge 3803 && target="-h $hostname"
@@ -44,9 +46,9 @@ echo "long help text request:"
     pminfo $target -T sample.long.ten
     echo
 echo "fetch request:"
-    src/fetchpdu
+    src/fetchpdu $target
     echo
 echo "store request:"
-    src/storepdu
+    src/storepdu $target
 
 done
