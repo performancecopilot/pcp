@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.4
+Version: 3.8.5
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -227,6 +227,7 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%ifnarch s390 s390x
 #
 # pcp-pmda-infiniband
 #
@@ -243,6 +244,7 @@ BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
+%endif
 
 #
 # python-pcp. This is the PCP library bindings for python.
@@ -279,6 +281,12 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
+
+%ifarch s390 s390x
+# remove pmdainfiniband on platforms lacking IB devel packages.
+rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
+rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
+%endif
 
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmproxy}; do
@@ -535,11 +543,13 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
+%ifnarch s390 s390x
 %files pmda-infiniband
 %defattr(-,root,root)
 %{_pmdasdir}/ib
 %{_pmdasdir}/infiniband
 %{_mandir}/man1/pmdaib.1.gz
+%endif
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
@@ -557,6 +567,12 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Tue Sep 17 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
+- Under development.
+
+* Mon Sep 16 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-2
+- Disable the pcp-pmda-infiniband sub-package on s390 platforms.
+
 * Sun Sep 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-1
 - Very minor release containing mostly QA related changes.
 - Enables many more metrics to be logged for Linux hosts.
@@ -564,6 +580,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
 - Default to Unix domain socket (authenticated) local connections.
 - Introduces new pcp-pmda-infiniband sub-package.
+
+* Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 3.8.2-1.1
+- Perl 5.18 rebuild
 
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
 - Update to latest PCP sources.
