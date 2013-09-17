@@ -23,9 +23,9 @@
 #include <sys/stat.h>
 #include "proc_pid.h"
 
-static proc_pid_list_t allpids;
+static proc_pid_list_t pids;
 
-int
+static int
 compare_pid(const void *pa, const void *pb)
 {
     int a = *(int *)pa;
@@ -33,49 +33,95 @@ compare_pid(const void *pa, const void *pb)
     return a - b;
 }
 
-void
-pidlist_append(proc_pid_list_t *list, const char *pidname)
+static void
+pidlist_append_pid(proc_pid_list_t *list, int pid)
 {
     if (list->count >= list->size) {
 	list->size += 64;
 	if (!(list->pids = (int *)realloc(list->pids, list->size * sizeof(int)))) {
 	    perror("pidlist_append: out of memory");
-	    exit(1); /* no recovery from this */
+	    list->size = list->count = 0;
+	    return;	/* soldier on bravely */
 	}
     }
-    list->pids[list->count++] = atoi(pidname);
+    list->pids[list->count++] = pid;
+}
+
+static void
+pidlist_append(proc_pid_list_t *list, const char *pidname)
+{
+    pidlist_append_pid(list, atoi(pidname));
+}
+
+static void
+tasklist_append(proc_pid_list_t *pidlist, const char *pid)
+{
+    DIR *taskdirp;
+    struct dirent *tdp;
+    char taskpath[1024];
+
+    sprintf(taskpath, "/proc/%s/task", pid);
+    if ((taskdirp = opendir(taskpath)) != NULL) {
+	while ((tdp = readdir(taskdirp)) != NULL) {
+	    if (!isdigit((int)tdp->d_name[0]) || strcmp(pid, tdp->d_name) == 0)
+		continue;
+	    pidlist_append(pidlist, tdp->d_name);
+	}
+	closedir(taskdirp);
+    }
 }
 
 static int
-refresh_pidlist()
+refresh_cgroup_pidlist(int want_threads, const char *cgroup)
 {
-    DIR *dirp, *taskdirp;
-    struct dirent *dp, *tdp;
-    char taskpath[1024];
+    char path[MAXPATHLEN];
+    FILE *fp;
+    int pid;
+
+    /*
+     * We're running in cgroups mode where a subset of the processes is
+     * going to be returned based on the cgroup specified earlier via a
+     * store into the proc.control.{all,perclient}.cgroups metric.
+     *
+     * Use the "cgroup.procs" or "tasks" file depending on want_threads.
+     * Note that both these files are already sorted, ascending numeric.
+     */
+    if (want_threads)
+	snprintf(path, sizeof(path), "%s/tasks", cgroup);
+    else
+	snprintf(path, sizeof(path), "%s/cgroup.procs", cgroup);
+
+    pids.count = 0;
+    if ((fp = fopen(path, "r")) != NULL) {
+	while (fscanf(fp, "%d\n", &pid) == 1)
+	    pidlist_append_pid(&pids, pid);
+	fclose(fp);
+    }
+    return pids.count;
+}
+
+static int
+refresh_global_pidlist(int want_threads)
+{
+    DIR *dirp;
+    struct dirent *dp;
 
     if ((dirp = opendir("/proc")) == NULL)
 	return -oserror();
 
-    allpids.count = 0;
+    pids.count = 0;
+    /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
 	if (isdigit((int)dp->d_name[0])) {
-	    pidlist_append(&allpids, dp->d_name);
-	    /* readdir on /proc ignores threads */ 
-	    sprintf(taskpath, "/proc/%s/task", dp->d_name);
-	    if ((taskdirp = opendir(taskpath)) != NULL) {
-		while ((tdp = readdir(taskdirp)) != NULL) {
-		    if (!isdigit((int)tdp->d_name[0]) || strcmp(dp->d_name, tdp->d_name) == 0)
-		    	continue;
-		    pidlist_append(&allpids, tdp->d_name);
-		}
-		closedir(taskdirp);
-	    }
+	    pidlist_append(&pids, dp->d_name);
+	    if (want_threads)
+		tasklist_append(&pids, dp->d_name);
 	}
     }
     closedir(dirp);
 
-    qsort(allpids.pids, allpids.count, sizeof(int), compare_pid);
-    return allpids.count;
+    qsort(pids.pids, pids.count, sizeof(int), compare_pid);
+    return pids.count;
 }
 
 int
@@ -251,15 +297,20 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 }
 
 int
-refresh_proc_pid(proc_pid_t *proc_pid)
+refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 {
-    if (refresh_pidlist() <= 0)
-    	return -oserror();
+    int sts = (cgroups && cgroups[0] != '\0') ?
+		refresh_cgroup_pidlist(threads, cgroups) :
+		refresh_global_pidlist(threads);
+    if (sts < 0)
+	return sts;
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-	fprintf(stderr, "refresh_proc_pid: found %d pids\n", allpids.count);
+	fprintf(stderr,
+		"refresh_proc_pid: %d pids (threads=%d, cgroups=\"%s\")\n",
+		pids.count, threads, cgroups ? cgroups : "");
 
-    return refresh_proc_pidlist(proc_pid, &allpids);
+    return refresh_proc_pidlist(proc_pid, &pids);
 }
 
 

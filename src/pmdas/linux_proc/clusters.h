@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +23,7 @@
  */
 #define CLUSTER_PID_STAT	 8 /*  /proc/<pid>/stat */
 #define CLUSTER_PID_STATM	 9 /*  /proc/<pid>/statm + /proc/<pid>/maps */
+#define CLUSTER_CONTROL		10 /* instance + value fetch control metrics */
 #define CLUSTER_PROC_RUNQ	13 /* number of processes in various states */
 #define CLUSTER_PID_STATUS	24 /* /proc/<pid>/status */
 #define CLUSTER_PID_SCHEDSTAT	31 /* /proc/<pid>/schedstat */
@@ -29,18 +31,13 @@
 #define CLUSTER_CGROUP_SUBSYS	37 /* /proc/cgroups control group subsystems */
 #define CLUSTER_CGROUP_MOUNTS	38 /* /proc/mounts active control groups */
 #define CLUSTER_CPUSET_GROUPS	39 /* cpuset control groups */
-#define CLUSTER_CPUSET_PROCS	40 /* cpuset control group processes */
 #define CLUSTER_CPUACCT_GROUPS	41 /* cpu accounting control groups */
-#define CLUSTER_CPUACCT_PROCS	42 /* cpu accounting group processes */
 #define CLUSTER_CPUSCHED_GROUPS	43 /* scheduler control groups */
-#define CLUSTER_CPUSCHED_PROCS	44 /* scheduler group processes */
 #define CLUSTER_MEMORY_GROUPS	45 /* memory control groups */
-#define CLUSTER_MEMORY_PROCS	46 /* memory group processes */
 #define CLUSTER_NET_CLS_GROUPS	47 /* network classification control groups */
-#define CLUSTER_NET_CLS_PROCS	48 /* network classification group processes */
 #define CLUSTER_PID_FD		51 /* /proc/<pid>/fd */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define NUM_CLUSTERS 52		/* one more than highest cluster number we use here */
+#define NUM_CLUSTERS 52		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

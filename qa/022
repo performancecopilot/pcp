@@ -22,7 +22,10 @@ target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3801 -a -f $seq.$PCP_PLATFORM.3 ]
+if [ $PCP_VER -ge 3805 -a -f $seq.$PCP_PLATFORM.4 ]
+then
+    ln $seq.$PCP_PLATFORM.4 $seq.out
+elif [ $PCP_VER -ge 3801 -a -f $seq.$PCP_PLATFORM.3 ]
 then
     ln $seq.$PCP_PLATFORM.3 $seq.out
 elif [ $PCP_VER -ge 2704 -a -f $seq.$PCP_PLATFORM.2 ]

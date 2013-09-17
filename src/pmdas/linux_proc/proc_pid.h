@@ -233,16 +233,7 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *);
-
-/* add a process onto a process list */
-extern void pidlist_append(proc_pid_list_t *, const char *);
-
-/* comparator routine for sorting a process list */
-extern int compare_pid(const void *, const void *);
-
-/* refresh a proc indom (subset), reset all "fetched" flags */
-extern int refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *);
+extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);
@@ -264,8 +255,6 @@ extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
 
 /* fetch a proc/<pid>/fd entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
-
-extern int _pm_pid_io_fields;	/* count of fields in proc/<pid>/io */
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);

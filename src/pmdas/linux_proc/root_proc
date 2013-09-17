@@ -24,6 +24,7 @@ proc {
     io
     schedstat
     fd
+    control
 }
 
 proc.psinfo {
@@ -143,6 +144,21 @@ proc.schedstat {
 
 proc.fd {
     count		PROC:51:0
+}
+
+proc.control {
+    all
+    perclient
+}
+
+proc.control.all {
+    threads		PROC:10:0
+    cgroups		PROC:10:1
+}
+
+proc.control.perclient {
+    threads		PROC:10:2
+    cgroups		PROC:10:3
 }
 
 #undef PROC

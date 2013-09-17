@@ -2,6 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
+# Portions Copyright (c) 2013 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -181,3 +182,44 @@ when it is added to the run queue).
 @ proc.fd.count open file descriptors
 Number of file descriptors this process has open.
 
+@ proc.control.all.threads process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is persistent for the life of pmdaproc and affects all
+client tools that request instances and values from pmdaproc.
+Use either pmstore(1) or pmStore(3) to modify this metric.
+
+@ proc.control.all.cgroups process indom reflects specific cgroups
+If set to the empty string (the default), the process instance domain
+as reported by pmdaproc contains all processes.  However, a cgroup
+name (full path) can be stored into this metric in order to restrict
+the set of processes reported to only those within the specified cgroup.
+This set is further affected by the value of proc.control.all.threads.
+
+This setting is persistent for the life of pmdaproc and affects all
+client tools that request instances and values from pmdaproc.
+Use either pmstore(1) or pmStore(3) to modify this metric.
+
+@ proc.control.perclient.threads for a client, process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is only visible to the active client context.  In other
+words, storing into this metric has no effect for other monitoring
+tools.  See proc.control.all.threads, if that is the desired outcome.
+Only pmStore(3) can effectively set this metric (pmstore(1) cannot).
+
+@ proc.control.perclient.cgroups for a client, process indom reflects specific cgroups
+If set to the empty string (the default), the process instance domain
+as reported by pmdaproc contains all processes.  However, a cgroup
+name (full path) can be stored into this metric in order to restrict
+processes reported to only those within the specified cgroup.  This
+set is further affected by the value of proc.control.perclient.threads.
+
+This setting is only visible to the active client context.  In other
+words, storing into this metric has no effect for other monitoring
+tools.  See proc.control.all.cgroups, if that is the desired outcome.
+Only pmStore(3) can effectively set this metric (pmstore(1) cannot).

@@ -28,6 +28,8 @@ proc_ctx_clear(int ctx)
     ctxtab[ctx].state = CTX_INACTIVE;
     ctxtab[ctx].uid = -1;
     ctxtab[ctx].gid = -1;
+    ctxtab[ctx].threads = 1;
+    ctxtab[ctx].cgroups = NULL;
 }
 
 void
@@ -35,6 +37,8 @@ proc_ctx_end(int ctx)
 {
     if (ctx < 0 || ctx >= num_ctx || ctxtab[ctx].state == CTX_INACTIVE)
 	return;
+    if (ctxtab[ctx].state & CTX_CGROUPS)
+	free((void *)ctxtab[ctx].cgroups);
     proc_ctx_clear(ctx);
 }
 
@@ -160,5 +164,75 @@ proc_ctx_revert(int ctx)
 	    __pmNotifyErr(LOG_ERR, "setegid(%d) revert failed: %s\n",
 			  basegid, osstrerror());
     }
+    return 0;
+}
+
+unsigned int
+proc_ctx_threads(int ctx, unsigned int threads)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return threads;	/* fallback to default */
+    pp = &ctxtab[ctx];
+    if (pp->state == CTX_INACTIVE)
+	return threads;	/* fallback to default */
+
+    if (pp->state & CTX_THREADS)
+	return pp->threads;	/* client setting */
+
+    return threads;	/* fallback to default */
+}
+
+int
+proc_ctx_set_threads(int ctx, unsigned int threads)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return PM_ERR_NOCONTEXT;
+    pp = &ctxtab[ctx];
+    if (pp->state == CTX_INACTIVE)
+	return PM_ERR_NOCONTEXT;
+    if (threads > 1)
+	return PM_ERR_CONV;
+
+    pp->state |= CTX_THREADS;
+    pp->threads = threads;
+    return 0;
+}
+
+const char *
+proc_ctx_cgroups(int ctx, const char *cgroups)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return cgroups;	/* fallback to default */
+    pp = &ctxtab[ctx];
+    if (pp->state == CTX_INACTIVE)
+	return cgroups;	/* fallback to default */
+
+    if (pp->state & CTX_CGROUPS)
+	return pp->cgroups;	/* client setting */
+
+    return cgroups;	/* fallback to default */
+}
+
+int
+proc_ctx_set_cgroups(int ctx, const char *cgroups)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return PM_ERR_NOCONTEXT;
+    pp = &ctxtab[ctx];
+    if (pp->state == CTX_INACTIVE)
+	return PM_ERR_NOCONTEXT;
+    if (cgroups == NULL || cgroups[0] == '\0')
+	return PM_ERR_CONV;
+
+    pp->state |= CTX_CGROUPS;
+    pp->cgroups = cgroups;
     return 0;
 }
