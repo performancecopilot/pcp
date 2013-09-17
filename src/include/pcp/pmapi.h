@@ -288,7 +288,7 @@ extern int pmGetInDomArchive(pmInDom, int **, char ***);
  * Given context ID, return a host name, associated with the id
  * or empty string if no name can be found
  */
-extern char *pmGetContextHostName(int);
+extern const char *pmGetContextHostName(int);
 
 /*
  * return the handle of the current context

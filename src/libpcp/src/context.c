@@ -138,18 +138,19 @@ __pmPtrToHandle(__pmContext *ctxp)
 /*
  * Determine the hostname associated with the given context.
  */
-char * 
+const char *
 pmGetContextHostName (int ctxid)
 {
     __pmContext *ctxp;
-    char	*sts;
+    const char	*sts;
     char	*name;
     pmID	pmid;
     pmResult	*resp;
     int		rc;
-    char	hostbuf[MAXHOSTNAMELEN];
+    static char	hostbuf[MAXHOSTNAMELEN];
 
-    sts = "";
+    hostbuf[0]='\0';
+
     if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
 	switch (ctxp->c_type) {
 	case PM_CONTEXT_HOST:
@@ -163,57 +164,48 @@ pmGetContextHostName (int ctxid)
 	    if (rc >= 0)
 		rc = pmFetch(1, &pmid, &resp);
 	    if (rc >= 0) {
-		if (resp->vset[0]->numval > 0) /* pmcd.hostname present */
-		    sts = resp->vset[0]->vlist[0].value.pval->vbuf;
-		else
-		    rc = -1;
-		pmFreeResult(resp);
-	    }
-	    if (rc < 0) {
-		/* We could not get the hostname from the remote PMCD. If the
-		 * name in the context is a filesystem path (AF_UNIX address)
-		 * or is 'localhost', then use gethostname(). Otherwise, use the
-		 * name from the context.
-		 */
-		if (ctxp->c_pmcd->pc_hosts[0].name == NULL)
-		    goto failsafe;
-		else {
-		    sts = ctxp->c_pmcd->pc_hosts[0].name;
-		    if (*sts == __pmPathSeparator())
-			goto failsafe;
-		    else if (strcmp(sts, "localhost") == 0)
-			goto failsafe;
+		if (resp->vset[0]->numval > 0) { /* pmcd.hostname present */
+		    strncpy(hostbuf, resp->vset[0]->vlist[0].value.pval->vbuf, sizeof(hostbuf)-1);
+		    pmFreeResult(resp);
 		    break;
-failsafe:
-		    gethostname(hostbuf, sizeof(hostbuf));
-		    hostbuf[sizeof(hostbuf) - 1] = '\0';
-		    sts = hostbuf;
 		}
+		pmFreeResult(resp);
+		/* FALLTHROUGH */
 	    }
+
+	    /* We could not get the hostname from the remote PMCD. If the
+	     * name in the context is a filesystem path (AF_UNIX address)
+	     * or is 'localhost', then use gethostname(). Otherwise, use the
+	     * name from the context.
+	     */
+	    sts = ctxp->c_pmcd->pc_hosts[0].name;
+	    if (sts == NULL ||			 /* no name ?! */
+		*sts == __pmPathSeparator() ||	 /* AF_UNIX /path */
+		(strcmp(sts, "localhost") == 0)) /* localhost XXX: localhost6 etc.? */
+		gethostname(hostbuf, sizeof(hostbuf));
+	    else
+		strncpy(hostbuf, sts, sizeof(hostbuf)-1);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
-	    goto failsafe;
+	    gethostname(hostbuf, sizeof(hostbuf));
+	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    sts = ctxp->c_archctl->ac_log->l_label.ill_hostname;
+	    strncpy(hostbuf, ctxp->c_archctl->ac_log->l_label.ill_hostname, sizeof(hostbuf)-1);
 	    break;
 	}
 
-	/*
-	 * In order to avoid race conditions associated with the
-	 * returned name, a buffer will always be allocated which
-	 * must be freed by the caller in order to avoid leaks.
-	 * Older clients will become leaky because of this, but
-	 * one could argue that leaky and correct is better than
-	 * non-leaky and corruptable.
-	 */
-	sts = strdup(sts);
+	hostbuf[sizeof(hostbuf)-1] = '\0';
 	PM_UNLOCK(ctxp->c_lock);
-	return sts;
     }
 
-    return strdup(sts);
+    /* By using the static buffer, there exists a natural race
+     * condition in multiple threads calling this function at the same
+     * time.  Still, it's better than passing back pointers directly
+     * from ctxp->..., and slightly better than strdup()'ing results
+     * thus leaking memory or mishandling OOM. */
+    return hostbuf;
 }
 
 int
