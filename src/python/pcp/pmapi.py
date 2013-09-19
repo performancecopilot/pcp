@@ -32,7 +32,7 @@
     import cpmapi as c_api
 
     # Create a pcp class
-    context = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "localhost")
+    context = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
 
     # Get ids for number cpus and load metrics
     metric_ids = context.pmLookupName(("hinv.ncpu","kernel.all.load"))
@@ -625,7 +625,7 @@ ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
 class pmContext(object):
     """Defines a metrics source context (e.g. host, archive, etc) to operate on
 
-    pmContext(c_api.PM_CONTEXT_HOST,"localhost")
+    pmContext(c_api.PM_CONTEXT_HOST,"local:")
     pmContext(c_api.PM_CONTEXT_ARCHIVE,"FILENAME")
 
     This object defines a PMAPI context, and its methods wrap calls to PMAPI
@@ -666,7 +666,7 @@ class pmContext(object):
     ##
     # overloads
 
-    def __init__(self, typed = c_api.PM_CONTEXT_HOST, target = "localhost"):
+    def __init__(self, typed = c_api.PM_CONTEXT_HOST, target = "local:"):
         self._type = typed                              # the context type
         self._target = target                            # the context target
         self._ctx = LIBPCP.pmNewContext(typed, target)    # the context handle
