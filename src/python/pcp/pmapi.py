@@ -1092,19 +1092,16 @@ class pmContext(object):
             raise pmErr, status
         return status
 
-    def pmGetContextHostName( self ):
+    def pmGetContextHostName(self):
         """PMAPI - Lookup the hostname for the given context
 
         Unlike the underlying PMAPI function, this method takes no parameter.
-        This method simply returns the name of the context belonging to its
-        pmContext instance object.
+        This method simply returns the hostname for the context belonging to
+        its pmContext instance object.
 
         "hostname" = pmGetContextHostName()
         """
-        status = LIBPCP.pmGetContextHostName(self.ctx)
-        if status < 0:
-            raise pmErr, status
-        return status
+        return LIBPCP.pmGetContextHostName(self.ctx)
 
     ##
     # PMAPI Timezone Services
