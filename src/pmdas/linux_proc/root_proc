@@ -152,8 +152,7 @@ proc.control {
 }
 
 proc.control.all {
-    threads		PROC:10:0
-    cgroups		PROC:10:1
+    threads		PROC:10:1
 }
 
 proc.control.perclient {

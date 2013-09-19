@@ -191,17 +191,6 @@ This setting is persistent for the life of pmdaproc and affects all
 client tools that request instances and values from pmdaproc.
 Use either pmstore(1) or pmStore(3) to modify this metric.
 
-@ proc.control.all.cgroups process indom reflects specific cgroups
-If set to the empty string (the default), the process instance domain
-as reported by pmdaproc contains all processes.  However, a cgroup
-name (full path) can be stored into this metric in order to restrict
-the set of processes reported to only those within the specified cgroup.
-This set is further affected by the value of proc.control.all.threads.
-
-This setting is persistent for the life of pmdaproc and affects all
-client tools that request instances and values from pmdaproc.
-Use either pmstore(1) or pmStore(3) to modify this metric.
-
 @ proc.control.perclient.threads for a client, process indom includes threads
 If set to one, the process instance domain as reported by pmdaproc
 contains all threads as well as the processes that started them.
@@ -221,5 +210,4 @@ set is further affected by the value of proc.control.perclient.threads.
 
 This setting is only visible to the active client context.  In other
 words, storing into this metric has no effect for other monitoring
-tools.  See proc.control.all.cgroups, if that is the desired outcome.
-Only pmStore(3) can effectively set this metric (pmstore(1) cannot).
+tools.  pmStore(3) must be used to set this metric (not pmstore(1)).

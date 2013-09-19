@@ -686,10 +686,7 @@ static pmdaMetric metrictab[] = {
  */
 
     /* proc.control.all.threads */
-    { &threads, { PMDA_PMID(CLUSTER_CONTROL, 0), PM_TYPE_U32,
-    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
-    /* proc.control.all.cgroups */
-    { &cgroups, { PMDA_PMID(CLUSTER_CONTROL, 1), PM_TYPE_STRING,
+    { &threads, { PMDA_PMID(CLUSTER_CONTROL, 1), PM_TYPE_U32,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* proc.control.perclient.threads */
     { NULL, { PMDA_PMID(CLUSTER_CONTROL, 2), PM_TYPE_U32,
@@ -1352,8 +1349,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_CONTROL:
 	switch (idp->item) {
-	/* case 0: not reached -- proc.control.all.threads is direct */
-	/* case 1: not reached -- proc.control.all.cgroups is direct */
+	/* case 1: not reached -- proc.control.all.threads is direct */
 	case 2:	/* proc.control.perclient.threads */
 	    atom->ul = proc_ctx_threads(pmdaGetContext(), threads);
 	    break;
@@ -1409,7 +1405,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	else if (vsp->numval != 1)
 	    sts = PM_ERR_INST;
 	else switch (idp->item) {
-	case 0: /* proc.control.all.threads */
+	case 1: /* proc.control.all.threads */
 	    if (!have_access)
 		sts = PM_ERR_PERMISSION;
 	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -1418,16 +1414,6 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		    sts = PM_ERR_CONV;
 		else
 		    threads = av.ul;
-	    }
-	    break;
-	case 1: /* proc.control.all.cgroups */
-	    if (!have_access)
-		sts = PM_ERR_PERMISSION;
-	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-		if (cgroups)
-		    free(cgroups);
-		cgroups = av.cp;
 	    }
 	    break;
 	case 2: /* proc.control.perclient.threads */
@@ -1568,15 +1554,18 @@ main(int argc, char **argv)
     int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
-    char		*username = "root";	/* proc.io.* require root! */
+    char		*username = "root";
 
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:pU:?", &dispatch, &err)) != EOF) {
 	switch (c) {
+	case 'p':
+	    threads = 0;
+	    break;
 	case 'U':
 	    username = optarg;
 	    break;
