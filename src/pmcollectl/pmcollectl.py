@@ -604,7 +604,7 @@ if __name__ == '__main__':
             sys.exit(1)
     else:
         if host == "":
-            host = "localhost"
+            host = "local:"
         try:
             pm = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:
@@ -665,8 +665,6 @@ if __name__ == '__main__':
         print
 
     host = pm.pmGetContextHostName()
-    if host == "localhost":
-        host = os.uname()[1]
 
     try:
         i_samples = 0
