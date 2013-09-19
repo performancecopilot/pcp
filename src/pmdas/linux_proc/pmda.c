@@ -1541,7 +1541,8 @@ usage(void)
     fputs("Options:\n"
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
-	  "  -U username account to run under (default is root, for proc.io metrics)\n",
+	  "  -p          do not include threads in the all-processes instance domain\n"
+	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
 }
