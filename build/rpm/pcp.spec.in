@@ -344,8 +344,8 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 cat >conf_files <<EOFEOF
 etc/pcp.sh
 etc/pcp.env
-etc/cron.d/pmie
-etc/cron.d/pmlogger
+etc/cron.d/pcp-pmie
+etc/cron.d/pcp-pmlogger
 pmcd/pmcd.conf
 pmcd/pmcd.options
 pmcd/rc.local
@@ -435,6 +435,13 @@ getent passwd pcp >/dev/null || \
 # new directories; they should match /etc/pcp.conf settings after install
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
+PCP_ETC_DIR=@pcp_etc_dir@
+# rename crontab files to align with current Fedora packaging guidelines
+for crontab in pmlogger pmie
+do
+    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
+    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
+done
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {

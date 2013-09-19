@@ -25,7 +25,7 @@ LDIRT	= crontab
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pmlogger
+CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmlogger
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab

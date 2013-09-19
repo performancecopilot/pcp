@@ -24,7 +24,7 @@ LDIRT	= crontab
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pmie
+CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmie
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
