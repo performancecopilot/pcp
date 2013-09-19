@@ -222,8 +222,13 @@ if test "$do_probes" = "check" -o "$do_probes" = "yes"
 then
     enable_probes=true
 
-    AC_CHECK_HEADERS([sys/sdt.h],, [
-        enable_probes=false
+    AC_CHECK_PROGS(DTRACE, dtrace, [enable_probes=false
+        if test "$do_probes" = "yes"
+        then
+            AC_MSG_ERROR(cannot enable static probes - no toolchain)
+        fi
+    ])
+    AC_CHECK_HEADERS([sys/sdt.h],, [enable_probes=false
         if test "$do_probes" = "yes"
         then
             AC_MSG_ERROR(cannot enable static probes - no SDT header)
@@ -234,6 +239,7 @@ then
         AC_DEFINE(HAVE_STATIC_PROBES)
     fi
     AC_SUBST(enable_probes)
+    AC_SUBST(DTRACE)
 fi
 
 # setup additional platform-specific binary search PATH components
@@ -317,9 +323,6 @@ AC_SUBST(GIT)
 
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
-
-AC_CHECK_PROGS(DTRACE, dtrace)
-AC_SUBST(DTRACE)
 
 dnl check if user wants their own C compiler
 cflags_abi=
