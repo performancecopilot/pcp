@@ -123,6 +123,7 @@ context.o
     b n_backoff			# guarded by __pmLock_libpcp mutex
     b contexts			# guarded by __pmLock_libpcp mutex
     b contexts_len		# guarded by __pmLock_libpcp mutex
+    b hostbuf.[0-9]*		# single-threaded
     d ?curcontext		# thread private
     r ?__emutls_t.curcontext	# thread private (MinGW)
     d ?__emutls_v.curcontext	# thread private (MinGW)

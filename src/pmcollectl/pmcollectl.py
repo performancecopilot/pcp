@@ -47,7 +47,7 @@ from pcp.pmsubsys import Subsystem
 ME = "pmcollectl"
 
 def usage ():
-    print "\nUsage:", sys.argv[0], "\n\t[-sSUBSYS] [-f|--filename FILE] [-p|--playback FILE]"
+    print "\nUsage:", sys.argv[0], "\n\t[-h HOST] [-sSUBSYS] [-f|--filename FILE] [-p|--playback FILE]"
     print '''\t[-R|--runtime N] [-c|--count N] [-i|--interval N] [--verbose]
 '''
 
@@ -61,13 +61,13 @@ def scale (value, magnitude):
 
 # record ---------------------------------------------------------------
 
-def record (context, config, interval, path):
+def record (context, config, interval, path, host):
     
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-    (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
+    (status, rhp) = context.pmRecordAddHost (host, 1, config) # just a filename
     status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
     status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
     # sleep +1 to make sure pmlogger gets to the -T limit
@@ -611,6 +611,9 @@ if __name__ == '__main__':
             print "Cannot connect to pmcd on " + host
             sys.exit(1)
 
+    # Find server-side pmcd host-name
+    host = pm.pmGetContextHostName()
+
     if duration_arg != 0:
         (code, timeval, errmsg) = pm.pmParseInterval(duration_arg)
         if code < 0:
@@ -630,7 +633,7 @@ if __name__ == '__main__':
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        record (pmgui.GuiClient(), configuration, duration, output_file)
+        record (pmgui.GuiClient(), configuration, duration, output_file, host)
         record_add_creator (output_file)
         sys.exit(0)
 
@@ -663,8 +666,6 @@ if __name__ == '__main__':
                 continue
             ssx.print_header2()
         print
-
-    host = pm.pmGetContextHostName()
 
     try:
         i_samples = 0
