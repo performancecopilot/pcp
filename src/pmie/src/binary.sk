@@ -17,7 +17,7 @@
  */
 
 /***********************************************************************
- * skeletom: binary.sk - binary operator
+ * skeleton: binary.sk - binary operator
  ***********************************************************************/
 
 /*
@@ -44,7 +44,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan && x->tspan == arg2->tspan) {
 	ip1 = (@ITYPE *)is1->ptr;
 	ip2 = (@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;
@@ -85,7 +85,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg1->tspan) {
 	ip1 = (@ITYPE *)is1->ptr;
 	iv2 = *(@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;
@@ -125,7 +125,7 @@ void
     EVALARG(arg2)
     ROTATE(x)
 
-    if (arg1->valid && arg2->valid && x->tspan > 0) {
+    if (arg1->valid && arg2->valid && x->tspan > 0 && x->tspan == arg2->tspan) {
 	iv1 = *(@ITYPE *)is1->ptr;
 	ip2 = (@ITYPE *)is2->ptr;
 	op = (@OTYPE *)os->ptr;
