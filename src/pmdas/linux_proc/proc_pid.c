@@ -1,6 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,maps} Clusters
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -147,15 +148,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
     for (i=0; i < proc_pid->pidhash.hsize; i++) {
 	for (node=proc_pid->pidhash.hash[i]; node != NULL; node = node->next) {
 	    ep = (proc_pid_entry_t *)node->data;
-	    ep->valid = 0;
-	    ep->stat_fetched = 0;
-	    ep->statm_fetched = 0;
-	    ep->status_fetched = 0;
-	    ep->schedstat_fetched = 0;
-	    ep->maps_fetched = 0;
-	    ep->io_fetched = 0;
-	    ep->wchan_fetched = 0;
-	    ep->fd_fetched = 0;
+	    ep->flags = 0;
 	}
     }
 
@@ -244,7 +237,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 	    ep = (proc_pid_entry_t *)node->data;
 	
 	/* mark pid as still existing */
-	ep->valid = 1;
+	ep->flags |= PROC_PID_FLAG_VALID;
 
 	/* refresh the indom pointer */
 	indomp->it_set[i].i_inst = ep->id;
@@ -260,7 +253,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 	    ep = (proc_pid_entry_t *)node->data;
 	    // fprintf(stderr, "CHECKING key=%d node=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p ep=" PRINTF_P_PFX "%p valid=%d\n",
 	    	// ep->id, node, prev, node->next, ep, ep->valid);
-	    if (ep->valid == 0) {
+	    if (!(ep->flags & PROC_PID_FLAG_VALID)) {
 	        // fprintf(stderr, "DELETED key=%d name=\"%s\"\n", ep->id, ep->name);
 		if (ep->name != NULL)
 		    free(ep->name);
@@ -332,7 +325,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->stat_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
 	sprintf(buf, "/proc/%d/stat", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = -oserror();
@@ -355,10 +348,10 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 		close(fd);
-	ep->stat_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
     }
 
-    if (ep->wchan_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
 	sprintf(buf, "/proc/%d/wchan", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = 0;	/* ignore failure here, backwards compat */
@@ -382,7 +375,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 	    close(fd);
-	ep->wchan_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
 
     if (sts < 0)
@@ -405,7 +398,7 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->status_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_STATUS_FETCHED)) {
 	int	fd;
 	int	n;
 	char	buf[1024];
@@ -475,13 +468,11 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 		    curline = index(curline, '\n') + 1;
 		}
 	    }
-
 	}
 	if (fd >= 0)
 	    close(fd);
+	ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
     }
-
-    ep->status_fetched = 1;
 
     return (sts < 0) ? NULL : ep;
 }
@@ -503,7 +494,7 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->statm_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_STATM_FETCHED)) {
 	sprintf(buf, "/proc/%d/statm", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = -oserror();
@@ -526,12 +517,10 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 
 	if (fd >= 0)
 	    close(fd);
-	ep->statm_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
     }
 
-    if (sts < 0)
-    	return NULL;
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 
@@ -554,10 +543,9 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 
     if (node == NULL)
 	return NULL;
-
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->maps_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
 	sprintf(buf, "/proc/%d/maps", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = -oserror();
@@ -571,7 +559,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 		maps_bufptr = ep->maps_buf + len - n;
 		memcpy(maps_bufptr, buf, n);
 	    }
-	    ep->maps_fetched = 1;
+	    ep->flags |= PROC_PID_FLAG_MAPS_FETCHED;
 	    /* If there are no maps, make maps_buf point to a zero length string. */
 	    if (ep->maps_buflen == 0) {
 		ep->maps_buf = (char *)malloc(1);
@@ -582,9 +570,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 	}
     }
 
-    if (sts < 0)
-	return NULL;
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 /*
@@ -604,7 +590,7 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->schedstat_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_SCHEDSTAT_FETCHED)) {
 	sprintf(buf, "/proc/%d/schedstat", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
 	    sts = -oserror();
@@ -626,8 +612,8 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0) {
 	    close(fd);
-	    ep->schedstat_fetched = 1;
 	}
+	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
     }
 
     if (sts < 0)
@@ -655,7 +641,7 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->io_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_IO_FETCHED)) {
 	int	fd;
 	int	n;
 	char	buf[1024];
@@ -694,7 +680,7 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 	    ep->io_lines.readb = strsep(&curline, "\n");
 	    ep->io_lines.writeb = strsep(&curline, "\n");
 	    ep->io_lines.cancel = strsep(&curline, "\n");
-	    ep->io_fetched = 1;
+	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
 	}
 	if (fd >= 0)
 	    close(fd);
@@ -716,7 +702,7 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->fd_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_FD_FETCHED)) {
 	char	buf[PATH_MAX];
 	uint32_t de_count = 0;
 	DIR	*dir;
@@ -733,8 +719,8 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	}
 	closedir(dir);
 	ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
+	ep->flags |= PROC_PID_FLAG_FD_FETCHED;
     }
-    ep->fd_fetched = 1;
 
     return ep;
 }
@@ -777,15 +763,16 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid)
 {
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
+    int sts = 0;
 
     if (node == NULL)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->cgroup_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
 	char	buf[1024];
 	char	fmt[1024];
-	int	n, fd, sts = 0;
+	int	n, fd;
 
 	sprintf(buf, "/proc/%d/cgroup", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
@@ -803,16 +790,10 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 	    close(fd);
-
-	if (sts < 0) {
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		fprintf(stderr, "failed to extract pid %d cgroups\n", id);
-	    return NULL;
-	}
+	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;
     }
-    ep->cgroup_fetched = 1;
 
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 /*
@@ -823,14 +804,15 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
 {
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
+    int sts = 0;
 
     if (node == NULL)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->label_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_LABEL_FETCHED)) {
 	char	buf[1024];
-	int	n, fd, sts = 0;
+	int	n, fd;
 
 	sprintf(buf, "/proc/%d/attr/current", ep->id);
 	if ((fd = open(buf, O_RDONLY)) < 0)
@@ -847,16 +829,10 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 	    close(fd);
-
-	if (sts < 0) {
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		fprintf(stderr, "failed to extract pid %d cgroups\n", id);
-	    return NULL;
-	}
+	ep->flags |= PROC_PID_FLAG_LABEL_FETCHED;
     }
-    ep->label_fetched = 1;
 
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 /*

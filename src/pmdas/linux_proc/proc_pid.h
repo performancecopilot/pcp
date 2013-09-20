@@ -1,5 +1,5 @@
 /*
- * Linux /proc/<pid>/* Clusters
+ * Linux /proc/<pid>/... Clusters
  *
  * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -182,58 +182,62 @@ typedef struct {	/* /proc/<pid>/io */
     char *cancel;
 } io_lines_t;
 
+enum {
+    PROC_PID_FLAG_VALID			= 1<<0,
+    PROC_PID_FLAG_STAT_FETCHED		= 1<<1,
+    PROC_PID_FLAG_STATM_FETCHED		= 1<<2,
+    PROC_PID_FLAG_MAPS_FETCHED		= 1<<3,
+    PROC_PID_FLAG_STATUS_FETCHED	= 1<<4,
+    PROC_PID_FLAG_SCHEDSTAT_FETCHED	= 1<<5,
+    PROC_PID_FLAG_IO_FETCHED		= 1<<6,
+    PROC_PID_FLAG_WCHAN_FETCHED		= 1<<7,
+    PROC_PID_FLAG_FD_FETCHED		= 1<<8,
+    PROC_PID_FLAG_CGROUP_FETCHED	= 1<<9,
+    PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
+};
+
 typedef struct {
     int			id;	/* pid, hash key and internal instance id */
-    int			valid;	/* flag (zero if process has exited) */
+    int			flags;	/* combinations of PROC_PID_FLAG_* values */
     char		*name;	/* external instance name (<pid> cmdline) */
 
     /* /proc/<pid>/stat cluster */
-    int			stat_fetched;
     int			stat_buflen;
     char		*stat_buf;
 
     /* /proc/<pid>/statm and /proc/<pid>/maps cluster */
-    int			statm_fetched;
     int			statm_buflen;
     char		*statm_buf;
-    int			maps_fetched;
     int			maps_buflen;
     char		*maps_buf;
 
     /* /proc/<pid>/status cluster */
-    int			status_fetched;
     int			status_buflen;
     char		*status_buf;
     status_lines_t	status_lines;
 
     /* /proc/<pid>/schedstat cluster */
-    int			schedstat_fetched;
     int			schedstat_buflen;
     char		*schedstat_buf;
 
     /* /proc/<pid>/io cluster */
-    int			io_fetched;
     int			io_buflen;
     char		*io_buf;
     io_lines_t		io_lines;
 
     /* /proc/<pid>/wchan cluster */
-    int			wchan_fetched;
     int			wchan_buflen;
     char		*wchan_buf;
 
     /* /proc/<pid>/fd cluster */
-    int			fd_fetched;
     int			fd_buflen;
-    char		*fd_buf;
     uint32_t		fd_count;
+    char		*fd_buf;
 
     /* /proc/<pid>/cgroup cluster */
-    int			cgroup_fetched;
     int			cgroup_id;
 
     /* /proc/<pid>/attr/current cluster */
-    int			label_fetched;
     int			label_id;
 } proc_pid_entry_t;
 
