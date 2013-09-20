@@ -19,6 +19,14 @@ $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
+rm -f $seq.out
+if [ $PCP_VER -ge 3805 ]
+then
+    ln $seq.out.2 $seq.out || exit 1
+else
+    ln $seq.out.1 $seq.out || exit 1
+fi
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
