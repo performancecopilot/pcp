@@ -1,6 +1,7 @@
 /*
- * Linux /proc/<pid>/{stat,statm} Clusters
+ * Linux /proc/<pid>/* Clusters
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _PROC_PID_H
@@ -146,6 +143,17 @@
  */
 #define PROC_PID_FD_COUNT		0
 
+
+/*
+ * metrics in /proc/<pid>/cgroup
+ */
+#define PROC_PID_CGROUP			0
+
+/*
+ * metrics in /proc/<pid>/attr/current
+ */
+#define PROC_PID_LABEL			0
+
 typedef struct {	/* /proc/<pid>/status */
     char *uid;
     char *gid;
@@ -219,6 +227,14 @@ typedef struct {
     int			fd_buflen;
     char		*fd_buf;
     uint32_t		fd_count;
+
+    /* /proc/<pid>/cgroup cluster */
+    int			cgroup_fetched;
+    int			cgroup_id;
+
+    /* /proc/<pid>/attr/current cluster */
+    int			label_fetched;
+    int			label_id;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -255,6 +271,12 @@ extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
 
 /* fetch a proc/<pid>/fd entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/cgroup entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/attr/current entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);

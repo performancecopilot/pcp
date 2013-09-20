@@ -444,6 +444,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.cgroups */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.labels */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_LABEL,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 
 /*
  * proc/<pid>/statm cluster
@@ -761,9 +771,14 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh_mtab |= refresh_cgroups(pmda, NULL);
     }
 
-    if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
-	need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
-	need_refresh[CLUSTER_PID_SCHEDSTAT] || need_refresh[CLUSTER_PID_FD]) {
+    if (need_refresh[CLUSTER_PID_STAT] ||
+	need_refresh[CLUSTER_PID_STATM] || 
+	need_refresh[CLUSTER_PID_STATUS] ||
+	need_refresh[CLUSTER_PID_IO] ||
+	need_refresh[CLUSTER_PID_LABEL] ||
+	need_refresh[CLUSTER_PID_CGROUP] ||
+	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
+	need_refresh[CLUSTER_PID_FD]) {
 	refresh_proc_pid(&proc_pid,
 			proc_ctx_threads(pmda->e_context, threads),
 			proc_ctx_cgroups(pmda->e_context, cgroups));
@@ -796,6 +811,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
         need_refresh[CLUSTER_PID_STATUS]++;
+        need_refresh[CLUSTER_PID_LABEL]++;
+        need_refresh[CLUSTER_PID_CGROUP]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
@@ -1339,12 +1356,31 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_FD_COUNT)
+	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
 	    return PM_ERR_INST;
-	if (idp->item != PROC_PID_FD_COUNT)
-	    return PM_ERR_INST;
-
 	atom->ul = entry->fd_count;
+	break;
+
+    case CLUSTER_PID_CGROUP:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_CGROUP)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	break;
+
+    case CLUSTER_PID_LABEL:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_LABEL)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->label_id);
 	break;
 
     case CLUSTER_CONTROL:
@@ -1479,6 +1515,28 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 }
 
 /*
+ * Helper routines for accessing a generic static string dictionary
+ */
+
+char *
+proc_strings_lookup(int index)
+{
+    char *value;
+    pmInDom dict = INDOM(STRINGS_INDOM);
+
+    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+	return value;
+    return "";
+}
+
+int
+proc_strings_insert(const char *buf)
+{
+    pmInDom dict = INDOM(STRINGS_INDOM);
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, buf, NULL);
+}
+
+/*
  * Initialise the agent (both daemon and DSO).
  */
 
@@ -1510,6 +1568,7 @@ proc_init(pmdaInterface *dp)
      */
     indomtab[CPU_INDOM].it_indom = CPU_INDOM;
     indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;
     indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
     indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
@@ -1527,6 +1586,9 @@ proc_init(pmdaInterface *dp)
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
+
+    /* string metrics use the pmdaCache API for value indexing */
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
 
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);

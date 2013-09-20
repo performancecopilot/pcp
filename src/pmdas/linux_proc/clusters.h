@@ -24,6 +24,8 @@
 #define CLUSTER_PID_STAT	 8 /*  /proc/<pid>/stat */
 #define CLUSTER_PID_STATM	 9 /*  /proc/<pid>/statm + /proc/<pid>/maps */
 #define CLUSTER_CONTROL		10 /* instance + value fetch control metrics */
+#define CLUSTER_PID_CGROUP	11 /* /proc/<pid>/cgroup */
+#define CLUSTER_PID_LABEL	12 /* /proc/<pid>/attr/current (label) */
 #define CLUSTER_PROC_RUNQ	13 /* number of processes in various states */
 #define CLUSTER_PID_STATUS	24 /* /proc/<pid>/status */
 #define CLUSTER_PID_SCHEDSTAT	31 /* /proc/<pid>/schedstat */

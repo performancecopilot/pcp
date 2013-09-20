@@ -22,6 +22,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "proc_pid.h"
+#include "indom.h"
 
 static proc_pid_list_t pids;
 
@@ -734,6 +735,126 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
     }
     ep->fd_fetched = 1;
+
+    return ep;
+}
+
+/*
+ * From the kernel format for a single process cgroup set:
+ *     2:cpu:/
+ *     1:cpuset:/
+ *
+ * Produce the same one-line format string that "ps" uses:
+ *     "cpu:/;cpuset:/"
+ */
+static void
+proc_cgroup_reformat(char *buf, int len, char *fmt)
+{
+    char *target = fmt, *p, *s = NULL;
+
+    *target = '\0';
+    for (p = buf; p - buf < len; p++) {
+	if (*p == '\0')
+	    break;
+        if (*p == ':' && !s)	/* position "s" at start */
+            s = p + 1;
+        if (*p != '\n' || !s)	/* find end of this line */
+            continue;
+        if (target != fmt)      /* not the first cgroup? */
+            strncat(target, ";", 2);
+	/* have a complete cgroup line now, copy it over */
+        strncat(target, s, (p - s));
+        target += (p - s);
+        s = NULL;		/* reset it for new line */
+    }
+}
+
+/*
+ * fetch a proc/<pid>/cgroup entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+
+    if (node == NULL)
+	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (ep->cgroup_fetched == 0) {
+	char	buf[1024];
+	char	fmt[1024];
+	int	n, fd, sts = 0;
+
+	sprintf(buf, "/proc/%d/cgroup", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = -oserror();
+	else if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -oserror();
+	else {
+	    if (n == 0)
+		sts = -1;
+	    else {
+		/* reformat the buffer to match "ps" output format, then hash */
+		proc_cgroup_reformat(&buf[0], n, &fmt[0]);
+		ep->cgroup_id = proc_strings_insert(fmt);
+	    }
+	}
+	if (fd >= 0)
+	    close(fd);
+
+	if (sts < 0) {
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "failed to extract pid %d cgroups\n", id);
+	    return NULL;
+	}
+    }
+    ep->cgroup_fetched = 1;
+
+    return ep;
+}
+
+/*
+ * fetch a proc/<pid>/attr/current entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+
+    if (node == NULL)
+	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (ep->label_fetched == 0) {
+	char	buf[1024];
+	int	n, fd, sts = 0;
+
+	sprintf(buf, "/proc/%d/attr/current", ep->id);
+	if ((fd = open(buf, O_RDONLY)) < 0)
+	    sts = -oserror();
+	else if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -oserror();
+	else {
+	    if (n == 0)
+		sts = -1;
+	    else {
+		/* buffer matches "ps" output format, direct hash */
+		ep->label_id = proc_strings_insert(buf);
+	    }
+	}
+	if (fd >= 0)
+	    close(fd);
+
+	if (sts < 0) {
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "failed to extract pid %d cgroups\n", id);
+	    return NULL;
+	}
+    }
+    ep->label_fetched = 1;
 
     return ep;
 }

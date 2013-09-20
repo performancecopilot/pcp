@@ -23,12 +23,20 @@
  * assigned values for *_INDOM from the linux PMDA. Consequently,
  * the proc indom table is sparse.
  */
-#define CPU_INDOM		 0 /* 0 - percpu */
+#define CPU_INDOM		 0 /* - percpu */
 #define PROC_INDOM		 9 /* - processes */
+#define STRINGS_INDOM		10 /* - fake indom, string hash */
 #define CGROUP_SUBSYS_INDOM	20 /* - control group subsystems */
 #define CGROUP_MOUNTS_INDOM	21 /* - control group mounts */
 
 #define MIN_INDOM  0		/* first indom number we use here */
 #define NUM_INDOMS 22		/* one more than highest indom number we use here */
+
+/*
+ * static string dictionary - one copy of oft-repeated strings;
+ * implemented using STRINGS_INDOM and pmdaCache(3) routines.
+ */
+char *proc_strings_lookup(int);
+int proc_strings_insert(const char *);
 
 #endif /* _INDOM_H */
