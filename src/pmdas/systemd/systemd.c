@@ -33,22 +33,17 @@
 #include <assert.h>
 #include <ctype.h>
 
-
-static int _isDSO = 1;
-static char *username = "adm";
-
 #define DEFAULT_MAXMEM  (2 * 1024 * 1024)       /* 2 megabytes */
 long maxmem;
 int maxfd;
 fd_set fds;
 static int interval_expired;
 static struct timeval interval = { 2, 0 };
-
-static sd_journal* journald_context = NULL; /* Used for monitoring only. */
-static sd_journal* journald_context_seeky = NULL; /* Used for event detail extraction,
-                                                     involving seeks. */
+static sd_journal *journald_context; /* Used for monitoring only. */
+static sd_journal *journald_context_seeky; /* Used for event detail extraction,
+                                              involving seeks. */
 static int queue_entries = -1;
-
+static char *username = "adm";
 static __pmnsTree *pmns;
 
 static pmdaMetric metrictab[] = {
@@ -88,21 +83,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(2,1), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* journal.count */
-#define METRICTAB_JOURNAL_COUNT metrictab[7].m_desc.pmid
+#define METRICTAB_JOURNAL_COUNT_PMID metrictab[7].m_desc.pmid
     { NULL,
       { PMDA_PMID(2,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* journal.bytes */
-#define METRICTAB_JOURNAL_BYTES metrictab[8].m_desc.pmid
+#define METRICTAB_JOURNAL_BYTES_PMID metrictab[8].m_desc.pmid
     { NULL,
       { PMDA_PMID(2,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
         PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
-
-
-
-
-
 
 void systemd_shutdown(void)
 {
@@ -114,7 +104,6 @@ void systemd_shutdown(void)
 
     /* XXX: pmdaEvent zap queues? */
 }
-
 
 void systemd_refresh(void)
 {
@@ -273,22 +262,9 @@ systemd_journal_decoder(int eventarray, void *buffer, size_t size,
    return sts < 0 ? sts : 1;    /* added one event array */
 }
 
-
-
-static int
-systemd_profile(__pmProfile *prof, pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return 0;
-}
-
 static int
 systemd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    if (_isDSO) { /* poll, in lieu of systemdMain(). */
-        systemd_refresh();
-    }
-
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
@@ -310,9 +286,9 @@ systemd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         sts = PMDA_FETCH_NOVALUES;
     } else if (id == METRICTAB_JOURNAL_BLOB_PMID) {
         sts = PMDA_FETCH_NOVALUES;
-    } else if (id == METRICTAB_JOURNAL_COUNT) {
+    } else if (id == METRICTAB_JOURNAL_COUNT_PMID) {
 	sts = pmdaEventQueueCounter(queue_entries, atom);
-    } else if (id == METRICTAB_JOURNAL_BYTES) {
+    } else if (id == METRICTAB_JOURNAL_BYTES_PMID) {
 	sts = pmdaEventQueueBytes(queue_entries, atom);
     } else if (id == METRICTAB_JOURNAL_RECORDS_PMID) {
         enum journald_field_encoding jfe = JFE_STRING_BLOB_AUTO;
@@ -347,7 +323,7 @@ systemd_store(pmResult *result, pmdaExt *pmda)
         (void) id;
         /* NB: nothing writeable at the moment. */
         sts = PM_ERR_PERMISSION;
-        if (sts < 0 )
+        if (sts < 0)
             return sts;
     }
     return 0;
@@ -360,25 +336,10 @@ systemd_end_contextCallBack(int context)
 }
 
 static int
-systemd_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+systemd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
-    return pmdaTreePMID(pmns, name, pmid);
-}
-
-static int
-systemd_name(pmID pmid, char ***nameset, pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return pmdaTreeName(pmns, pmid, nameset);
-}
-
-static int
-systemd_children(const char *name, int traverse, char ***kids, int **sts,
-                pmdaExt *pmda)
-{
-    pmdaEventNewClient(pmda->e_context);
-    return pmdaTreeChildren(pmns, name, traverse, kids, sts);
+    return pmdaDesc(pmid, desc, pmda);
 }
 
 static int
@@ -388,34 +349,19 @@ systemd_text(int ident, int type, char **buffer, pmdaExt *pmda)
     return pmdaText(ident, type, buffer, pmda);
 }
 
-
-
 void
 systemd_init(pmdaInterface *dp)
 {
     int sts;
     int journal_fd;
 
-    if (_isDSO) {
-        char helppath[MAXPATHLEN];
-        int sep = __pmPathSeparator();
-        snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
-                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-        pmdaDSO(dp, PMDA_INTERFACE_5, "systemd DSO", helppath);
-        /* A user's own journal may be accessed without process
-           identity changes. */
-    } else {
-        /* The systemwide journal may be accessed by the adm user (group);
-           root access is not necessary. */
-        __pmSetProcessIdentity(username);
-    }
+    /* The systemwide journal may be accessed by the adm user (group);
+       root access is not necessary. */
+    __pmSetProcessIdentity(username);
 
+    dp->version.four.desc = systemd_desc;
     dp->version.four.fetch = systemd_fetch;
     dp->version.four.store = systemd_store;
-    dp->version.four.profile = systemd_profile;
-    dp->version.four.pmid = systemd_pmid;
-    dp->version.four.name = systemd_name;
-    dp->version.four.children = systemd_children;
     dp->version.four.text = systemd_text;
 
     pmdaSetFetchCallBack(dp, systemd_fetchCallBack);
@@ -433,24 +379,26 @@ systemd_init(pmdaInterface *dp)
 
     /* Initialize the systemd side.  This is failure-tolerant.  */
     /* XXX: SD_JOURNAL_{LOCAL|RUNTIME|SYSTEM}_ONLY */
-    int rc = sd_journal_open(& journald_context, 0);
-    if (rc < 0) {
+    sts = sd_journal_open(& journald_context, 0);
+    if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_open failure: %s",
-                      strerror(-rc));
+                      strerror(-sts));
+        dispatch->status = sts;
         return;
     }
 
-    rc = sd_journal_open(& journald_context_seeky, 0);
-    if (rc < 0) {
+    sts = sd_journal_open(& journald_context_seeky, 0);
+    if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_open #2 failure: %s",
-                      strerror(-rc));
+                      strerror(-sts));
+        dispatch->status = sts;
         return;
     }
 
-    rc = sd_journal_seek_tail(journald_context);
-    if (rc < 0) {
+    sts = sd_journal_seek_tail(journald_context);
+    if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_seek_tail failure: %s",
-                      strerror(-rc));
+                      strerror(-sts));
     }
 
     /* Arrange to wake up for journal events. */
@@ -474,12 +422,11 @@ systemd_init(pmdaInterface *dp)
                       pmErrStr(queue_entries));
 }
 
-
 void
 systemdMain(pmdaInterface *dispatch)
 {
-    fd_set              readyfds;
-    int                 nready, pmcdfd;
+    fd_set      readyfds;
+    int         nready, pmcdfd;
 
     pmcdfd = __pmdaInFd(dispatch);
     if (pmcdfd > maxfd)
@@ -548,13 +495,12 @@ usage(void)
             "Options:\n"
             "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
             "  -l logfile   write log into logfile rather than using default log name\n"
-            "  -m memory    maximum memory used per logfile (default %ld bytes)\n"
+            "  -m memory    maximum memory used per queue (default %ld bytes)\n"
             "  -s interval  default delay between iterations (default %d sec)\n"
             "  -U username  user account to run under (default \"adm\")\n",
             pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }
-
 
 int
 main(int argc, char **argv)
@@ -564,8 +510,6 @@ main(int argc, char **argv)
     pmdaInterface       desc;
     long                minmem;
     int                 c, err = 0, sep = __pmPathSeparator();
-
-    _isDSO = 0;
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
@@ -618,11 +562,8 @@ main(int argc, char **argv)
     exit(0);
 }
 
-
-
 /*
   Local Variables:
   c-basic-offset: 4
   End:
 */
-

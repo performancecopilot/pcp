@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
- * Copyright (c) 2012 Red Hat, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,7 +67,7 @@ typedef struct { /* contains data for each group users have created, if any */
 typedef struct cgroup_subsys { /* contents covers the known kernel cgroups */
     const char		*name;		/* cpuset/memory/... */
     int			cluster;	/* PMID == domain:cluster:[id:item] */
-    int			process_cluster;/* cluster ID for process metrics */
+    int			unused;		/* unused, just padding now */
     int			group_count;	/* number of groups (dynamic) */
     int			metric_count;	/* number of metrics (fixed)  */
     cgroup_group_t	*groups;	/* array of groups (dynamic)  */
@@ -110,31 +110,26 @@ static cgroup_metrics_t netclass_metrics[] = {
 static cgroup_subsys_t controllers[] = {
     {	.name = "cpu",
 	.cluster = CLUSTER_CPUSCHED_GROUPS,
-	.process_cluster = CLUSTER_CPUSCHED_PROCS,
 	.metrics = cpusched_metrics,
 	.metric_count = sizeof(cpusched_metrics) / sizeof(cpusched_metrics[0]),
     },
     {	.name = "cpuset",
 	.cluster = CLUSTER_CPUSET_GROUPS,
-	.process_cluster = CLUSTER_CPUSET_PROCS,
 	.metrics = cpuset_metrics,
 	.metric_count = sizeof(cpuset_metrics) / sizeof(cpuset_metrics[0]),
     },
     {	.name = "cpuacct",
 	.cluster = CLUSTER_CPUACCT_GROUPS,
-	.process_cluster = CLUSTER_CPUACCT_PROCS,
 	.metrics = cpuacct_metrics,
 	.metric_count = sizeof(cpuacct_metrics) / sizeof(cpuacct_metrics[0]),
     },
     {	.name = "memory",
 	.cluster = CLUSTER_MEMORY_GROUPS,
-	.process_cluster = CLUSTER_MEMORY_PROCS,
 	.metrics = memory_metrics,
 	.metric_count = sizeof(memory_metrics) / sizeof(memory_metrics[0]),
     },
     {	.name = "net_cls",
 	.cluster = CLUSTER_NET_CLS_GROUPS,
-	.process_cluster = CLUSTER_NET_CLS_PROCS,
 	.metrics = netclass_metrics,
 	.metric_count = sizeof(netclass_metrics) / sizeof(netclass_metrics[0]),
     },
@@ -154,33 +149,6 @@ read_values(char *buffer, int size, const char *path, const char *subsys,
     if (count < 0)
 	return -oserror();
     buffer[count-1] = '\0';
-    return 0;
-}
-
-static int
-process_prepare(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
-		const char *name, int group, int domain)
-{
-#if 0	/* not yet implemented */
-    FILE *fp;
-    pmID pmid;
-    char process[64];
-    char taskpath[MAXPATHLEN];
-    proc_pid_list_t *list = &subsys->groups[group].process_list;
-
-    snprintf(taskpath, sizeof(taskpath), "%s/tasks", path);
-    if ((fp = fopen(taskpath, "r")) == NULL)
-	return -oserror();
-    while (fgets(process, sizeof(process), fp) != NULL)
-	pidlist_append(list, process);
-    fclose(fp);
-    qsort(list->pids, list->count, sizeof(int), compare_pid);
-
-    pmid = cgroup_pmid_build(domain, subsys->process_cluster, group, 0);
-    snprintf(taskpath, sizeof(taskpath), "%s.groups.%s%s.tasks.pid",
-			CGROUP_ROOT, subsys->name, name);
-    __pmAddPMNSNode(pmns, pmid, taskpath);
-#endif
     return 0;
 }
 
@@ -360,7 +328,6 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 	cgroup_metrics_t *metrics = &subsys->metrics[i];
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
-    process_prepare(pmns, cgrouppath, subsys, group, id, domain);
     return 1;
 }
 
@@ -659,32 +626,6 @@ cgroup_group_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
     return PM_ERR_PMID;
 }
 
-int
-cgroup_procs_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
-{
-    int i, j, gid;
-
-    gid = cgroup_pmid_group(item);
-    item = cgroup_pmid_metric(item);
-
-    for (i = 0; i < sizeof(controllers)/sizeof(controllers[0]); i++) {
- 	cgroup_subsys_t *subsys = &controllers[i];
-	if (subsys->process_cluster != cluster)
-	    continue;
-
-	for (j = 0; j < subsys->group_count; j++) {
-	    cgroup_group_t *group = &subsys->groups[j];
-
-	    if (group->id != gid)
-		continue;
-
-	    /* TODO: return values for process metrics */
-	    return PM_ERR_NYI;
-	}
-    }
-    return PM_ERR_PMID;
-}
-
 /*
  * Needs to answer the question: how much extra space needs to be allocated
  * in the metric table for (dynamic) cgroup metrics"?  We have static entries
@@ -747,11 +688,11 @@ cgroup_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 void
 cgroup_init(pmdaMetric *metrics, int nmetrics)
 {
-    int set[] = { CLUSTER_CPUSET_GROUPS, CLUSTER_CPUSET_PROCS,
-		  CLUSTER_CPUACCT_GROUPS, CLUSTER_CPUACCT_PROCS,
-		  CLUSTER_CPUSCHED_GROUPS, CLUSTER_CPUSCHED_PROCS,
-		  CLUSTER_MEMORY_GROUPS, CLUSTER_MEMORY_PROCS,
-		  CLUSTER_NET_CLS_GROUPS, CLUSTER_NET_CLS_PROCS,
+    int set[] = { CLUSTER_CPUSET_GROUPS,
+		  CLUSTER_CPUACCT_GROUPS,
+		  CLUSTER_CPUSCHED_GROUPS,
+		  CLUSTER_MEMORY_GROUPS,
+		  CLUSTER_NET_CLS_GROUPS,
 		};
 
     pmdaDynamicPMNS(CGROUP_ROOT,

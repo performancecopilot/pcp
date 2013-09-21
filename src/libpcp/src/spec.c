@@ -424,7 +424,7 @@ parseHostSpec(
     int nhosts = 0, sts = 0;
 
     for (s = start = *position; s != NULL; s++) {
-	if (*s == ':' || *s == '@' || *s == '\0' || *s == '?') {
+	if (*s == ':' || *s == '@' || *s == '\0' || *s == '/' || *s == '?') {
 	    if (s == *position)
 		break;
 	    else if (s == start)
@@ -436,7 +436,7 @@ parseHostSpec(
 	    }
 	    if (*s == ':') {
 		for (++s, start = s; s != NULL; s++) {
-		    if (*s == ',' || *s == '@' || *s == '\0' || *s == '?') {
+		    if (*s == ',' || *s == '@' || *s == '\0' || *s == '/' || *s == '?') {
 			if (s - start < 1) {
 			    hostError(spec, s, "missing port", errmsg);
 			    sts = PM_ERR_GENERIC;
@@ -447,7 +447,7 @@ parseHostSpec(
 			if (sts < 0)
 			    goto fail;
 			start = s + 1;
-			if (*s == '@' || *s == '\0' || *s == '?')
+			if (*s == '@' || *s == '\0' || *s == '/' || *s == '?')
 			    break;
 			continue;
 		    }
@@ -777,8 +777,8 @@ parseAttributeSpec(
 
     for (s = start = *position; s != NULL; s++) {
 	/* parse: foo=bar&moo&goo=blah ... go! */
-	if (*s == '\0' || *s == '&') {
-	    if (*s == '\0' && s == start)
+	if (*s == '\0' || *s == '/' || *s == '&') {
+	    if ((*s == '\0' || *s == '/') && s == start)
 		break;
 	    len = v ? (v - start - 1) : (s - start);
 	    buflen = (len < sizeof(buffer)-1) ? len : sizeof(buffer)-1;
@@ -798,7 +798,7 @@ parseAttributeSpec(
 		}
 	    }
 	    v = NULL;
-	    if (*s == '\0')
+	    if (*s == '\0' || *s == '/')
 		break;
 	    start = s + 1;	/* start of attribute name */
 	    continue;
@@ -858,7 +858,7 @@ __pmParseHostAttrsSpec(
     /* skip over an attributes delimiter */
     if (*s == '?') {
 	s++;	/* optionally skip over the question mark */
-    } else if (*s != '\0') {
+    } else if (*s != '\0' && *s != '/') {
 	hostError(spec, s, "unexpected terminal character", errmsg);
 	sts = PM_ERR_GENERIC;
 	goto fail;

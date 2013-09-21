@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.3
+Version: 3.8.5
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -61,7 +61,7 @@ applications to easily retrieve and process any subset of that data.
 # pcp-libs
 #
 %package libs
-License: LGPLv2
+License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://oss.sgi.com/projects/pcp/
@@ -73,7 +73,7 @@ Performance Co-Pilot (PCP) run-time libraries
 # pcp-libs-devel
 #
 %package libs-devel
-License: GPLv2
+License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -87,7 +87,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 # pcp-testsuite
 #
 %package testsuite
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
@@ -102,7 +102,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 # perl-PCP-PMDA. This is the PCP agent perl binding.
 #
 %package -n perl-PCP-PMDA
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -119,7 +119,7 @@ an application, etc.
 # perl-PCP-MMV
 #
 %package -n perl-PCP-MMV
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
@@ -137,7 +137,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 # perl-PCP-LogImport
 #
 %package -n perl-PCP-LogImport
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
@@ -152,7 +152,7 @@ they can be replayed with standard PCP monitoring tools.
 # perl-PCP-LogSummary
 #
 %package -n perl-PCP-LogSummary
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
@@ -227,11 +227,12 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%ifnarch s390 s390x
 #
 # pcp-pmda-infiniband
 #
 %package pmda-infiniband
-License: GPLv2
+License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://oss.sgi.com/projects/pcp/
@@ -243,12 +244,13 @@ BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
+%endif
 
 #
 # python-pcp. This is the PCP library bindings for python.
 #
 %package -n python-pcp
-License: GPLv2
+License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://oss.sgi.com/projects/pcp/
@@ -279,6 +281,12 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
+
+%ifarch s390 s390x
+# remove pmdainfiniband on platforms lacking IB devel packages.
+rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
+rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
+%endif
 
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmproxy}; do
@@ -313,6 +321,13 @@ getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 PCP_SYSCONF_DIR=%{_confdir}
 PCP_LOG_DIR=%{_logsdir}
+PCP_ETC_DIR=%{_sysconfdir}
+# rename crontab files to align with current Fedora packaging guidelines
+for crontab in pmlogger pmie
+do
+    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
+    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
+done
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {
@@ -455,8 +470,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
-%config(noreplace) %{_sysconfdir}/cron.d/pmlogger
-%config(noreplace) %{_sysconfdir}/cron.d/pmie
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
@@ -544,11 +559,13 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
+%ifnarch s390 s390x
 %files pmda-infiniband
 %defattr(-,root,root)
 %{_pmdasdir}/ib
 %{_pmdasdir}/infiniband
 %{_mandir}/man1/pmdaib.1.gz
+%endif
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 %defattr(-,root,root)
@@ -566,9 +583,22 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Tue Sep 17 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
+- Under development.
+
+* Mon Sep 16 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-2
+- Disable the pcp-pmda-infiniband sub-package on s390 platforms.
+
+* Sun Sep 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-1
+- Very minor release containing mostly QA related changes.
+- Enables many more metrics to be logged for Linux hosts.
+
 * Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 3.8.3-1
 - Default to Unix domain socket (authenticated) local connections.
 - Introduces new pcp-pmda-infiniband sub-package.
+
+* Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 3.8.2-1.1
+- Perl 5.18 rebuild
 
 * Wed Jul 31 2013 Nathan Scott <nathans@redhat.com> - 3.8.2-1
 - Update to latest PCP sources.

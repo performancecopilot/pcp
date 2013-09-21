@@ -248,7 +248,7 @@ int
 pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, 
 	   int *err)
 {
-    int 	c;
+    int 	c = EOF;
     int		flag = 0;
     int		sts;
     char	*endnum = NULL;
@@ -256,14 +256,14 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 
     if (dispatch->status != 0) {
 	(*err)++;
-	return EOF;
+	goto done;
     }
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaGetOpt: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
 	(*err)++;
-	return EOF;
+	goto done;
     }
     pmda = dispatch->version.any.ext;
 
@@ -355,6 +355,15 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 	}
     }
 
+done:
+#ifdef HAVE_UNSETENV
+    if (c == EOF) {
+	/* Clear this environment variable PMCD set for us.
+         * This is for any commands that the PMDA may run.
+         */
+	unsetenv("POSIXLY_CORRECT");
+    }
+#endif
     return c;
 }
 

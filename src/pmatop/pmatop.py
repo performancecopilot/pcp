@@ -631,7 +631,7 @@ def main (stdscr_p):
             return "Cannot open PCP archive: " + archive
     else:
         if host == "":
-            host = "localhost"
+            host = "local:"
         try:
             pmc = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:

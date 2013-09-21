@@ -344,10 +344,6 @@ chkconfig_on_msg()
 	then
 	    _cmd=`$PCP_WHICH_PROG chkconfig`
 	    echo "    # $_cmd $_flag on"
-	elif $_have_sysvrcconf
-	then
-	    _cmd=`which sysv-rc-conf`
-	    echo "    # $_cmd $_flag on"
 	else
 	    _start=`_runlevel_start $_flag`
 	    _stop=`_runlevel_stop $_flag`

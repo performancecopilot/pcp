@@ -1,6 +1,7 @@
 /*
- * Linux /proc/<pid>/{stat,statm} Clusters
+ * Linux /proc/<pid>/... Clusters
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _PROC_PID_H
@@ -146,6 +143,17 @@
  */
 #define PROC_PID_FD_COUNT		0
 
+
+/*
+ * metrics in /proc/<pid>/cgroup
+ */
+#define PROC_PID_CGROUP			0
+
+/*
+ * metrics in /proc/<pid>/attr/current
+ */
+#define PROC_PID_LABEL			0
+
 typedef struct {	/* /proc/<pid>/status */
     char *uid;
     char *gid;
@@ -174,51 +182,63 @@ typedef struct {	/* /proc/<pid>/io */
     char *cancel;
 } io_lines_t;
 
+enum {
+    PROC_PID_FLAG_VALID			= 1<<0,
+    PROC_PID_FLAG_STAT_FETCHED		= 1<<1,
+    PROC_PID_FLAG_STATM_FETCHED		= 1<<2,
+    PROC_PID_FLAG_MAPS_FETCHED		= 1<<3,
+    PROC_PID_FLAG_STATUS_FETCHED	= 1<<4,
+    PROC_PID_FLAG_SCHEDSTAT_FETCHED	= 1<<5,
+    PROC_PID_FLAG_IO_FETCHED		= 1<<6,
+    PROC_PID_FLAG_WCHAN_FETCHED		= 1<<7,
+    PROC_PID_FLAG_FD_FETCHED		= 1<<8,
+    PROC_PID_FLAG_CGROUP_FETCHED	= 1<<9,
+    PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
+};
+
 typedef struct {
     int			id;	/* pid, hash key and internal instance id */
-    int			valid;	/* flag (zero if process has exited) */
+    int			flags;	/* combinations of PROC_PID_FLAG_* values */
     char		*name;	/* external instance name (<pid> cmdline) */
 
     /* /proc/<pid>/stat cluster */
-    int			stat_fetched;
     int			stat_buflen;
     char		*stat_buf;
 
     /* /proc/<pid>/statm and /proc/<pid>/maps cluster */
-    int			statm_fetched;
     int			statm_buflen;
     char		*statm_buf;
-    int			maps_fetched;
     int			maps_buflen;
     char		*maps_buf;
 
     /* /proc/<pid>/status cluster */
-    int			status_fetched;
     int			status_buflen;
     char		*status_buf;
     status_lines_t	status_lines;
 
     /* /proc/<pid>/schedstat cluster */
-    int			schedstat_fetched;
     int			schedstat_buflen;
     char		*schedstat_buf;
 
     /* /proc/<pid>/io cluster */
-    int			io_fetched;
     int			io_buflen;
     char		*io_buf;
     io_lines_t		io_lines;
 
     /* /proc/<pid>/wchan cluster */
-    int			wchan_fetched;
     int			wchan_buflen;
     char		*wchan_buf;
 
     /* /proc/<pid>/fd cluster */
-    int			fd_fetched;
     int			fd_buflen;
-    char		*fd_buf;
     uint32_t		fd_count;
+    char		*fd_buf;
+
+    /* /proc/<pid>/cgroup cluster */
+    int			cgroup_id;
+
+    /* /proc/<pid>/attr/current cluster */
+    int			label_id;
 } proc_pid_entry_t;
 
 typedef struct {
@@ -233,16 +253,7 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *);
-
-/* add a process onto a process list */
-extern void pidlist_append(proc_pid_list_t *, const char *);
-
-/* comparator routine for sorting a process list */
-extern int compare_pid(const void *, const void *);
-
-/* refresh a proc indom (subset), reset all "fetched" flags */
-extern int refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *);
+extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);
@@ -265,7 +276,11 @@ extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
 /* fetch a proc/<pid>/fd entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
 
-extern int _pm_pid_io_fields;	/* count of fields in proc/<pid>/io */
+/* fetch a proc/<pid>/cgroup entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *);
+
+/* fetch a proc/<pid>/attr/current entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);

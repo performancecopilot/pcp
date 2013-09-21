@@ -26,6 +26,7 @@
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -39,18 +40,6 @@ _filter()
 	-e '/^[0-9]/d'
 }
 
-. ./localconfig
-rm -f $seq.out
-suffix=1
-[ $PCP_VER -ge 3802 ] && suffix=2
-[ $PCP_VER -ge 3803 ] && suffix=3
-if [ -f $seq.$PCP_PLATFORM.$suffix ]
-then
-    ln $seq.$PCP_PLATFORM.$suffix $seq.out
-else
-    _notrun "Need qualified output for $PCP_PLATFORM"
-fi
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -62,6 +51,15 @@ networking/nfs3-client
 networking/nfs3-server
 networking/nfs4-client
 networking/nfs4-server
+tools/atop
+tools/collectl
+tools/mpstat
+tools/vmstat
+tools/iostat
+tools/sar
+postgresql/summary
+sqlserver/summary
+mysql/summary
 End-of-File
 
 # turn $tmp.cull-list into an awk program to cull groups like

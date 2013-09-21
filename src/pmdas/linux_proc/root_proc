@@ -24,6 +24,7 @@ proc {
     io
     schedstat
     fd
+    control
 }
 
 proc.psinfo {
@@ -74,7 +75,9 @@ proc.psinfo {
     sigignore_s         PROC:24:18
     sigcatch_s          PROC:24:19
     threads		PROC:24:28
-}    
+    cgroups		PROC:11:0
+    labels		PROC:12:0
+}
 
 proc.id {
     uid                 PROC:24:0
@@ -143,6 +146,20 @@ proc.schedstat {
 
 proc.fd {
     count		PROC:51:0
+}
+
+proc.control {
+    all
+    perclient
+}
+
+proc.control.all {
+    threads		PROC:10:1
+}
+
+proc.control.perclient {
+    threads		PROC:10:2
+    cgroups		PROC:10:3
 }
 
 #undef PROC

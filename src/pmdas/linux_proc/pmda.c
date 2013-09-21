@@ -44,13 +44,14 @@
 #include "ksym.h"
 #include "cgroups.h"
 
+/* globals */
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 static int			have_access;	/* =1 recvd uid/gid */
-
-/* globals */
-static size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
+static size_t			_pm_system_pagesize;
+static unsigned int		threads = 1;	/* control.all.threads */
+static char *			cgroups;	/* control.all.cgroups */
 
 /*
  * The proc instance domain table is direct lookup and sparse.
@@ -443,6 +444,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.cgroups */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.labels */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_LABEL,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 
 /*
  * proc/<pid>/statm cluster
@@ -581,8 +592,6 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PROC_RUNQ, 7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-
-
 /*
  * control groups cluster
  */
@@ -602,12 +611,6 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_CGROUP_MOUNTS,1), PM_TYPE_U32,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-#if 0	/* not yet implemented */
-    /* cgroup.groups.cpuset.[<group>.]tasks.pid */
-    { NULL, {PMDA_PMID(CLUSTER_CPUSET_PROCS,0), PM_TYPE_U32,
-    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#endif
-
     /* cgroup.groups.cpuset.[<group>.]cpus */
     { NULL, {PMDA_PMID(CLUSTER_CPUSET_GROUPS,0), PM_TYPE_STRING,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -615,12 +618,6 @@ static pmdaMetric metrictab[] = {
     /* cgroup.groups.cpuset.[<group>.]mems */
     { NULL, {PMDA_PMID(CLUSTER_CPUSET_GROUPS,1), PM_TYPE_STRING,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-#if 0	/* not yet implemented */
-    /* cgroup.groups.cpuacct.[<group>.]tasks.pid */
-    { NULL, {PMDA_PMID(CLUSTER_CPUACCT_PROCS,0), PM_TYPE_U32,
-    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#endif
 
     /* cgroup.groups.cpuacct.[<group>.]stat.user */
     { NULL, {PMDA_PMID(CLUSTER_CPUACCT_GROUPS,0), PM_TYPE_U64,
@@ -638,21 +635,9 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_CPUACCT_GROUPS,3), PM_TYPE_U64,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
 
-#if 0
-    /* cgroup.groups.cpusched.[<group>.]tasks.pid */
-    { NULL, {PMDA_PMID(CLUSTER_CPUSCHED_PROCS,0), PM_TYPE_U32,
-    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#endif
-
     /* cgroup.groups.cpusched.[<group>.]shares */
     { NULL, {PMDA_PMID(CLUSTER_CPUSCHED_GROUPS,0), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-#if 0
-    /* cgroup.groups.memory.[<group>.]tasks.pid */
-    { NULL, {PMDA_PMID(CLUSTER_MEMORY_PROCS,0), PM_TYPE_U32,
-    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#endif
 
     /* cgroup.groups.memory.[<group>.]stat.cache */
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,0), PM_TYPE_U64,
@@ -694,12 +679,6 @@ static pmdaMetric metrictab[] = {
     { NULL, {PMDA_PMID(CLUSTER_MEMORY_GROUPS,9), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-#if 0
-    /* cgroup.groups.netclass.[<group>.]tasks.pid */
-    { NULL, {PMDA_PMID(CLUSTER_NET_CLS_PROCS,0), PM_TYPE_U32,
-    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
-#endif
-
     /* cgroup.groups.netclass.[<group>.]classid */
     { NULL, {PMDA_PMID(CLUSTER_NET_CLS_GROUPS,0), PM_TYPE_U64,
     PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
@@ -709,8 +688,22 @@ static pmdaMetric metrictab[] = {
  */
 
     /* proc.fd.count */
-    { NULL, {PMDA_PMID(CLUSTER_PID_FD,0), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { NULL, { PMDA_PMID(CLUSTER_PID_FD,0), PM_TYPE_U32,
+    PROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/*
+ * Metrics control cluster
+ */
+
+    /* proc.control.all.threads */
+    { &threads, { PMDA_PMID(CLUSTER_CONTROL, 1), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* proc.control.perclient.threads */
+    { NULL, { PMDA_PMID(CLUSTER_CONTROL, 2), PM_TYPE_U32,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* proc.control.perclient.cgroups */
+    { NULL, { PMDA_PMID(CLUSTER_CONTROL, 3), PM_TYPE_STRING,
+    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 };
 
 static int
@@ -770,23 +763,26 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 
     if (need_refresh[CLUSTER_CGROUP_SUBSYS] ||
 	need_refresh[CLUSTER_CGROUP_MOUNTS] ||
-	need_refresh[CLUSTER_CPUSET_PROCS] ||
 	need_refresh[CLUSTER_CPUSET_GROUPS] ||
-	need_refresh[CLUSTER_CPUACCT_PROCS] || 
 	need_refresh[CLUSTER_CPUACCT_GROUPS] || 
-	need_refresh[CLUSTER_CPUSCHED_PROCS] ||
 	need_refresh[CLUSTER_CPUSCHED_GROUPS] ||
-	need_refresh[CLUSTER_MEMORY_PROCS] ||
 	need_refresh[CLUSTER_MEMORY_GROUPS] ||
-        need_refresh[CLUSTER_NET_CLS_PROCS] ||
-        need_refresh[CLUSTER_NET_CLS_GROUPS]) {
+	need_refresh[CLUSTER_NET_CLS_GROUPS]) {
 	need_refresh_mtab |= refresh_cgroups(pmda, NULL);
     }
 
-    if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
-	need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
-	need_refresh[CLUSTER_PID_SCHEDSTAT] || need_refresh[CLUSTER_PID_FD])
-	refresh_proc_pid(&proc_pid);
+    if (need_refresh[CLUSTER_PID_STAT] ||
+	need_refresh[CLUSTER_PID_STATM] || 
+	need_refresh[CLUSTER_PID_STATUS] ||
+	need_refresh[CLUSTER_PID_IO] ||
+	need_refresh[CLUSTER_PID_LABEL] ||
+	need_refresh[CLUSTER_PID_CGROUP] ||
+	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
+	need_refresh[CLUSTER_PID_FD]) {
+	refresh_proc_pid(&proc_pid,
+			proc_ctx_threads(pmda->e_context, threads),
+			proc_ctx_cgroups(pmda->e_context, cgroups));
+    }
 
     if (need_refresh[CLUSTER_PROC_RUNQ])
 	refresh_proc_runq(&proc_runq);
@@ -815,6 +811,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
         need_refresh[CLUSTER_PID_STATUS]++;
+        need_refresh[CLUSTER_PID_LABEL]++;
+        need_refresh[CLUSTER_PID_CGROUP]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
@@ -871,8 +869,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int			sts;
-    char		*f;
     unsigned long	ul;
+    const char		*cp;
+    char		*f;
     int			*ip;
     proc_pid_entry_t	*entry;
     struct filesys	*fs;
@@ -909,7 +908,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->d = *(double *)mdesc->m_user;
 	    break;
 	case PM_TYPE_STRING:
-	    atom->cp = (char *)mdesc->m_user;
+	    cp = *(char **)mdesc->m_user;
+	    atom->cp = (char *)(cp ? cp : "");
 	    break;
 	default:
 	    return 0;
@@ -1353,22 +1353,49 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_NET_CLS_GROUPS:
 	return cgroup_group_fetch(idp->cluster, idp->item, inst, atom);
 
-    case CLUSTER_CPUSET_PROCS:
-    case CLUSTER_CPUACCT_PROCS:
-    case CLUSTER_CPUSCHED_PROCS:
-    case CLUSTER_MEMORY_PROCS:
-    case CLUSTER_NET_CLS_PROCS:
-	return cgroup_procs_fetch(idp->cluster, idp->item, inst, atom);
-
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_FD_COUNT)
+	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
 	    return PM_ERR_INST;
-	if (idp->item != PROC_PID_FD_COUNT)
-	    return PM_ERR_INST;
-
 	atom->ul = entry->fd_count;
+	break;
+
+    case CLUSTER_PID_CGROUP:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_CGROUP)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	break;
+
+    case CLUSTER_PID_LABEL:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_LABEL)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->label_id);
+	break;
+
+    case CLUSTER_CONTROL:
+	switch (idp->item) {
+	/* case 1: not reached -- proc.control.all.threads is direct */
+	case 2:	/* proc.control.perclient.threads */
+	    atom->ul = proc_ctx_threads(pmdaGetContext(), threads);
+	    break;
+	case 3:	/* proc.control.perclient.cgroups */
+	    cp = proc_ctx_cgroups(pmdaGetContext(), cgroups);
+	    atom->cp = (char *)(cp ? cp : "");
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
 	break;
 
     default: /* unknown cluster */
@@ -1377,7 +1404,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     return PMDA_FETCH_STATIC;
 }
-
 
 static int
 proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
@@ -1401,7 +1427,53 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 proc_store(pmResult *result, pmdaExt *pmda)
 {
-    return PM_ERR_PERMISSION;
+    int i, sts = 0;
+
+    have_access = proc_ctx_access(pmda->e_context);
+
+    for (i = 0; i < result->numpmid; i++) {
+	pmValueSet *vsp = result->vset[i];
+	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
+	pmAtomValue av;
+
+	if (idp->cluster != CLUSTER_CONTROL)
+	    sts = PM_ERR_PERMISSION;
+	else if (vsp->numval != 1)
+	    sts = PM_ERR_INST;
+	else switch (idp->item) {
+	case 1: /* proc.control.all.threads */
+	    if (!have_access)
+		sts = PM_ERR_PERMISSION;
+	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+	        if (av.ul > 1)	/* only zero or one allowed */
+		    sts = PM_ERR_CONV;
+		else
+		    threads = av.ul;
+	    }
+	    break;
+	case 2: /* proc.control.perclient.threads */
+	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		sts = proc_ctx_set_threads(pmda->e_context, av.ul);
+	    }
+	    break;
+	case 3:	/* proc.control.perclient.cgroups */
+	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+		if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
+		    free(av.cp);
+	    }
+	    break;
+	default:
+	    sts = PM_ERR_PERMISSION;
+	}
+	if (sts < 0)
+	    break;
+    }
+
+    have_access = proc_ctx_revert(pmda->e_context);
+    return sts;
 }
 
 static int
@@ -1443,6 +1515,28 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 }
 
 /*
+ * Helper routines for accessing a generic static string dictionary
+ */
+
+char *
+proc_strings_lookup(int index)
+{
+    char *value;
+    pmInDom dict = INDOM(STRINGS_INDOM);
+
+    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+	return value;
+    return "";
+}
+
+int
+proc_strings_insert(const char *buf)
+{
+    pmInDom dict = INDOM(STRINGS_INDOM);
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, buf, NULL);
+}
+
+/*
  * Initialise the agent (both daemon and DSO).
  */
 
@@ -1474,6 +1568,7 @@ proc_init(pmdaInterface *dp)
      */
     indomtab[CPU_INDOM].it_indom = CPU_INDOM;
     indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;
     indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
     indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
@@ -1492,6 +1587,9 @@ proc_init(pmdaInterface *dp)
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
+    /* string metrics use the pmdaCache API for value indexing */
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
+
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);
     pmdaCacheOp(INDOM(CGROUP_SUBSYS_INDOM), PMDA_CACHE_CULL);
@@ -1505,7 +1603,8 @@ usage(void)
     fputs("Options:\n"
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
-	  "  -U username account to run under (default is root, for proc.io metrics)\n",
+	  "  -p          do not include threads in the all-processes instance domain\n"
+	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
 }
@@ -1518,15 +1617,18 @@ main(int argc, char **argv)
     int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
-    char		*username = "root";	/* proc.io.* require root! */
+    char		*username = "root";
 
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:pU:?", &dispatch, &err)) != EOF) {
 	switch (c) {
+	case 'p':
+	    threads = 0;
+	    break;
 	case 'U':
 	    username = optarg;
 	    break;

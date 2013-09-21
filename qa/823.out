@@ -1,7 +1,7 @@
 QA output created by 823
 Creating temporary sasldb, add user running QA to it
 Verify saslpasswd2 has successfully added a new user
-USER@smash: userPassword
+USER@HOST: userPassword
 Ensure pmcd can read the password file
 Start pmcd with this shiny new sasldb
 Enabling sample PMDA tracing

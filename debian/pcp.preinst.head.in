@@ -13,3 +13,9 @@ PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 [ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
 
+PCP_ETC_DIR=@pcp_etc_dir@
+for crontab in pmlogger pmie
+do
+    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
+    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
+done

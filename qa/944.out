@@ -10,7 +10,7 @@ Host access list empty: access control turned off
 User access list:
 00 01 Cur/MaxCons     uid user-name                       group-list
 == == =========== ======= =============================== ==========================================================
- y  n     0     0     USERID USERNAME GROUPID(GROUPNAME),...
+ y  n     0     0 USERID USERNAME GROUPID(GROUPNAME),...
  n  n     0     0       * *                              
 
 
@@ -41,7 +41,7 @@ Host access list empty: access control turned off
 User access list:
 00 01 Cur/MaxCons     uid user-name                       group-list
 == == =========== ======= =============================== ==========================================================
- y  n     0     0     USERID USERNAME GROUPID(GROUPNAME),...
+ y  n     0     0 USERID USERNAME GROUPID(GROUPNAME),...
  n  n     0     0       * *                              
 
 
@@ -69,7 +69,7 @@ Host access list empty: access control turned off
 Group access list:
 00 01 Cur/MaxCons     gid group-name                      user-list
 == == =========== ======= =============================== ==========================================================
- y  n     0     0     GROUPID GROUPNAME USERID(USERNAME),...
+ y  n     0     0 GROUPID GROUPNAME USERID(USERNAME),...
  n  n     0     0       * *                              
 
 
@@ -100,7 +100,7 @@ Host access list empty: access control turned off
 Group access list:
 00 01 Cur/MaxCons     gid group-name                      user-list
 == == =========== ======= =============================== ==========================================================
- y  n     0     0     GROUPID GROUPNAME USERID(USERNAME),...
+ y  n     0     0 GROUPID GROUPNAME USERID(USERNAME),...
  n  n     0     0       * *                              
 
 

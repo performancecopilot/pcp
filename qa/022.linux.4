@@ -1,0 +1,198 @@
+QA output created by 022
+proc.nprocs
+proc.psinfo.pid
+proc.psinfo.cmd
+proc.psinfo.sname
+proc.psinfo.ppid
+proc.psinfo.pgrp
+proc.psinfo.session
+proc.psinfo.tty
+proc.psinfo.tty_pgrp
+proc.psinfo.flags
+proc.psinfo.minflt
+proc.psinfo.cmin_flt
+proc.psinfo.maj_flt
+proc.psinfo.cmaj_flt
+proc.psinfo.utime
+proc.psinfo.stime
+proc.psinfo.cutime
+proc.psinfo.cstime
+proc.psinfo.priority
+proc.psinfo.nice
+proc.psinfo.start_time
+proc.psinfo.vsize
+proc.psinfo.rss
+proc.psinfo.rss_rlim
+proc.psinfo.start_code
+proc.psinfo.end_code
+proc.psinfo.start_stack
+proc.psinfo.esp
+proc.psinfo.eip
+proc.psinfo.signal
+proc.psinfo.blocked
+proc.psinfo.sigignore
+proc.psinfo.sigcatch
+proc.psinfo.wchan
+proc.psinfo.nswap
+proc.psinfo.cnswap
+proc.psinfo.exit_signal
+proc.psinfo.processor
+proc.psinfo.ttyname
+proc.psinfo.wchan_s
+proc.psinfo.psargs
+proc.psinfo.signal_s
+proc.psinfo.blocked_s
+proc.psinfo.sigignore_s
+proc.psinfo.sigcatch_s
+proc.psinfo.threads
+proc.psinfo.cgroups
+proc.psinfo.labels
+proc.memory.size
+proc.memory.rss
+proc.memory.share
+proc.memory.textrss
+proc.memory.librss
+proc.memory.datrss
+proc.memory.dirty
+proc.memory.maps
+proc.memory.vmsize
+proc.memory.vmlock
+proc.memory.vmrss
+proc.memory.vmdata
+proc.memory.vmstack
+proc.memory.vmexe
+proc.memory.vmlib
+proc.memory.vmswap
+proc.runq.runnable
+proc.runq.blocked
+proc.runq.sleeping
+proc.runq.stopped
+proc.runq.swapped
+proc.runq.defunct
+proc.runq.unknown
+proc.runq.kernel
+proc.id.uid
+proc.id.euid
+proc.id.suid
+proc.id.fsuid
+proc.id.gid
+proc.id.egid
+proc.id.sgid
+proc.id.fsgid
+proc.id.uid_nm
+proc.id.euid_nm
+proc.id.suid_nm
+proc.id.fsuid_nm
+proc.id.gid_nm
+proc.id.egid_nm
+proc.id.sgid_nm
+proc.id.fsgid_nm
+proc.io.rchar
+proc.io.wchar
+proc.io.syscr
+proc.io.syscw
+proc.io.read_bytes
+proc.io.write_bytes
+proc.io.cancelled_write_bytes
+proc.schedstat.cpu_time
+proc.schedstat.run_delay
+proc.schedstat.pcount
+proc.control.all.threads
+proc.control.perclient.threads
+proc.control.perclient.cgroups
+pid=PID ppid=PPID
+metrics[0] = <proc.psinfo.utime>
+metrics[1] = <proc.psinfo.stime>
+metrics[2] = <proc.memory.rss>
+metrics[3] = <proc.memory.size>
+
+==================
+=== Test: PMNS ===
+==================
+
+=========================
+=== End Of Test: PMNS ===
+=========================
+
+==================
+=== Test: desc ===
+==================
+
+=========================
+=== End Of Test: desc ===
+=========================
+
+======================
+=== Test: instance ===
+======================
+cpid=CPID
+
+--- GetInDom ---
+
+--- LookupInDom ---
+  Death of child detected, pid=CPID
+
+--- NameInDom ---
+  Death of child detected
+
+=============================
+=== End Of Test: instance ===
+=============================
+
+===========================
+=== Test: profile/fetch ===
+===========================
+
+--- Check profile in context dump... ---
+Dump Contexts: current context = 0
+Context[0] host localhost: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=0.000000 delta=0
+Dump Instance Profile state=INCLUDE, 1 profiles
+	Profile [0] indom=INDOM [INDOM] state=EXCLUDE 2 instances
+		Instances: [PID] [PPID]
+--- End Check profile in context dump... ---
+
+--- Fetch Over Restricted Instance Domain ... ---
+pmResult ... numpmid: 4
+  PMID (proc.psinfo.utime): numval: 2 valfmt: 0-or-1 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.psinfo.stime): numval: 2 valfmt: 0-or-1 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.memory.rss): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+  PMID (proc.memory.size): numval: 2 valfmt: 0 vlist[]:
+    inst [NNN] value INTEGER
+    inst [NNN] value INTEGER
+--- End Fetch Over Restricted Instance Domain ... ---
+
+--- Fetch Over Entire Instance Domain ... ---
+pmResult ... numpmid: 4
+PMID (proc.psinfo.utime): numval: LOTS valfmt: 0-or-1 vlist[]:
+PMID (proc.psinfo.stime): numval: LOTS valfmt: 0-or-1 vlist[]:
+PMID (proc.memory.rss): numval: LOTS valfmt: 0 vlist[]:
+PMID (proc.memory.size): numval: LOTS valfmt: 0 vlist[]:
+--- End Fetch Over Entire Instance Domain ... ---
+
+==================================
+=== End Of Test: profile/fetch ===
+==================================
+
+===================
+=== Test: store ===
+===================
+
+==========================
+=== End Of Test: store ===
+==========================
+
+All instances for selected metrics ...
+
+proc.nprocs
+
+proc.psinfo.sname
+
+proc.memory.textrss
+
+proc.runq.sleeping

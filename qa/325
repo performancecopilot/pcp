@@ -6,19 +6,19 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 . ./common.product
 . ./common.check
 . ./common.config
 
-if which pmconfirm >/dev/null 2>&1
-then
-    rm -f .notrun
-else
-    _notrun pmconfirm not installed
+which pmconfirm >/dev/null 2>&1 || _notrun pmconfirm not installed
+which xdpyinfo >/dev/null 2>&1
+if test $? -eq 0; then
+    DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	_notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
 fi
 
-echo "QA output created by $seq"
 
 _cleanup()
 {

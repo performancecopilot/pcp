@@ -6,34 +6,13 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 . ./localconfig
-
-if [ $PCP_EOE_VER -eq 2000 -o \
-    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6504 \) ] ; then
-    _notrun "This test is not applicable on PCP 2.0 or Irix 6.5[0-4]"
-fi
-
-echo "QA output created by $seq"
-
-rm -f $seq.out
-case $PCP_PLATFORM
-in
-    irix|linux)
-	ln $seq.$PCP_PLATFORM $seq.out || exit 1
-	;;
-    darwin|solaris)
-	# same output for Mac OS X and OpenSolaris
-	ln $seq.linux $seq.out || exit 1
-	;;
-    *)
-	_notrun "Need qualified output for $PCP_PLATFORM"
-	;;
-esac
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -72,11 +51,7 @@ sed <$tmp.out \
     -e 's/or perl //g' \
     -e 's/or python //g' \
     -e 's/daemon or dso,/"daemon" or "dso",/g' \
-    -e '/.[0-9][0-9]* hash table entries/d' \
-    -e '/.[0-9][0-9]* leaf nodes/d' \
-    -e '/.[0-9][0-9]* non-leaf nodes/d' \
-    -e '/.[0-9][0-9]* bytes of symbol table/d' \
-    -e '/Compiled PMNS contains/d' \
+    | _filter_pmda_install \
     | _filter_make
 
 echo "in \$PCP_PMCDCONF_PATH ..."

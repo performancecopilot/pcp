@@ -1,6 +1,6 @@
 #pmlogconf-setup 2.0
 ident   metrics used by the collectl command
-force	available
+probe	kernel.uname.sysname ~ Linux ? include : exclude
 
 	disk.all.read
 	disk.all.read_bytes

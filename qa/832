@@ -17,6 +17,12 @@ unix_domain_sockets=false
 eval `pmconfig -L 2>/dev/null`
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
+for helper in pluginviewer; do
+    which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
+done
+pluginviewer -s -m plain >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No server support for plain authentication'
+
 export PCP_CONSOLE=none 
 
 cleanup()

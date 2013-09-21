@@ -1,7 +1,6 @@
 #pmlogconf-setup 2.0
 ident	metrics used by the pmstat(1) command
-force	available
-delta	5 second
+force	include
 	kernel.all.load
 	swap.used
 	mem.util.free

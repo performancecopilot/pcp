@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,4 +49,3 @@ extern int refresh_cgroup_subsys(pmInDom);
 extern int refresh_cgroup_groups(pmdaExt *, pmInDom, __pmnsTree **);
 
 extern int cgroup_group_fetch(int, int, unsigned int, pmAtomValue *);
-extern int cgroup_procs_fetch(int, int, unsigned int, pmAtomValue *);
