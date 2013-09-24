@@ -459,15 +459,17 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
     char *cgroupname;
     char cgrouppath[MAXPATHLEN];
 
-    if (root)
+    if (root) {
 	strncpy(cgrouppath, mnt, sizeof(cgrouppath));
-    else
+	length = strlen(cgrouppath);
+    } else {
 	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s", mnt, path);
+	length = strlen(mnt) + 1;
+    }
 
     if ((dirp = opendir(cgrouppath)) == NULL)
 	return -oserror();
 
-    length = strlen(cgrouppath);
     cgroupname = &cgrouppath[length];
 
     sts = cgroup_namespace(pmns, options, cgrouppath, cgroupname, domain);
@@ -500,7 +502,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 	 * also scan for any child cgroups, but cgroup_scan() may return
 	 * an error
 	 */
-	lsts = cgroup_scan(mnt, cgrouppath, options, domain, pmns, 0);
+	lsts = cgroup_scan(mnt, cgroupname, options, domain, pmns, 0);
 	if (lsts > 0)
 	    sts = 1;
     }
