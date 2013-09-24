@@ -1,0 +1,239 @@
+QA output created by 733
+mark records ...
+08:44:01.548  <mark>
+17:41:22.784  <mark>
+
+data present for DISCRETE metrics between marks ...
+Note: timezone set to local timezone of host "billing02" from archive
+
+
+08:44:01.547  60.5.1 (filesys.capacity):
+                inst [0 or "/dev/root"] value 2031440
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+                inst [5 or "/dev/sda1"] value 124427
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+
+08:57:23.222  60.5.1 (filesys.capacity):
+                inst [0 or "/dev/root"] value 2031440
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+                inst [5 or "/dev/sda1"] value 124427
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+
+17:43:43.556  60.5.1 (filesys.capacity):
+                inst [0 or "/dev/root"] value 2031440
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+                inst [5 or "/dev/sda1"] value 124427
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+
+17:44:43.554  60.5.1 (filesys.capacity):
+                inst [0 or "/dev/root"] value 2031440
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 8125880
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 2031440
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 1015704
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 507748
+                inst [5 or "/dev/sda1"] value 124427
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 123834340
+Note: timezone set to local timezone of host "billing02" from archive
+
+metric:    filesys.capacity
+archive:   src/20130706
+host:      billing02
+start:     Sat Jul  6 01:00:00 2013
+end:       Sun Jul  7 00:15:43 2013
+semantics: discrete instantaneous value
+units:     Kbyte
+samples:   24
+interval:  3600.00 sec
+full label for instance[0]: /dev/root
+full label for instance[1]: /dev/mapper/vgsys0-lvvar
+full label for instance[2]: /dev/mapper/vgsys0-lvusr
+full label for instance[3]: /dev/mapper/vgsys0-lvhome
+full label for instance[4]: /dev/mapper/vgsys0-lvtmp
+full label for instance[5]: /dev/sda1
+full label for instance[6]: /dev/mapper/vgdb0-lvmysqldb
+
+                        /dev/root /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv             /dev/sda1 /dev/mapper/vgdb0-lvm 
+01:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+02:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+03:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+04:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+05:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+06:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+07:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+08:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+09:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+10:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+11:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+12:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+13:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+14:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+15:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+16:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+17:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+18:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+19:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+20:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+21:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+22:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+23:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+00:00:00.000              2031440               8125880               2031440               1015704                507748                124427             123834340 
+
+data missing for INSTANTANEOUS metrics between marks ...
+Note: timezone set to local timezone of host "billing02" from archive
+
+
+08:44:01.547  60.5.2 (filesys.used):
+                inst [0 or "/dev/root"] value 315872
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4459304
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+                inst [5 or "/dev/sda1"] value 12722
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104879776
+
+17:43:43.556  60.5.2 (filesys.used):
+                inst [0 or "/dev/root"] value 315872
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+                inst [5 or "/dev/sda1"] value 12722
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104172896
+
+17:44:43.554  60.5.2 (filesys.used):
+                inst [0 or "/dev/root"] value 315872
+                inst [1 or "/dev/mapper/vgsys0-lvvar"] value 4460572
+                inst [2 or "/dev/mapper/vgsys0-lvusr"] value 1471340
+                inst [3 or "/dev/mapper/vgsys0-lvhome"] value 586668
+                inst [4 or "/dev/mapper/vgsys0-lvtmp"] value 19228
+                inst [5 or "/dev/sda1"] value 12722
+                inst [6 or "/dev/mapper/vgdb0-lvmysqldb"] value 104174596
+Note: timezone set to local timezone of host "billing02" from archive
+
+metric:    filesys.used
+archive:   src/20130706
+host:      billing02
+start:     Sat Jul  6 01:00:00 2013
+end:       Sun Jul  7 00:15:43 2013
+semantics: instantaneous value
+units:     Kbyte
+samples:   24
+interval:  3600.00 sec
+full label for instance[0]: /dev/root
+full label for instance[1]: /dev/mapper/vgsys0-lvvar
+full label for instance[2]: /dev/mapper/vgsys0-lvusr
+full label for instance[3]: /dev/mapper/vgsys0-lvhome
+full label for instance[4]: /dev/mapper/vgsys0-lvtmp
+full label for instance[5]: /dev/sda1
+full label for instance[6]: /dev/mapper/vgdb0-lvmysqldb
+
+                        /dev/root /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv             /dev/sda1 /dev/mapper/vgdb0-lvm 
+01:00:00.000               315872               4459760               1471340                586668                 19228                 12722             104869428 
+02:00:00.000               315872               4459904               1471340                586668                 19228                 12722             104352660 
+03:00:00.000               315872               4460056               1471340                586668                 19228                 12722             104560584 
+04:00:00.000               315872               4460204               1471340                586668                 19228                 12722             104758276 
+05:00:00.000               315872               4458764               1471340                586668                 19228                 12722             105097568 
+06:00:00.000               315872               4458912               1471340                586668                 19228                 12722             104358364 
+07:00:00.000               315872               4459052               1471340                586668                 19228                 12722             104555404 
+08:00:00.000               315872               4459188               1471340                586668                 19228                 12722             104731584 
+09:00:00.000  No values available
+10:00:00.000  No values available
+11:00:00.000  No values available
+12:00:00.000  No values available
+13:00:00.000  No values available
+14:00:00.000  No values available
+15:00:00.000  No values available
+16:00:00.000  No values available
+17:00:00.000  No values available
+
+                        /dev/root /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv /dev/mapper/vgsys0-lv             /dev/sda1 /dev/mapper/vgdb0-lvm 
+18:00:00.000               315872               4460596               1471340                586668                 19228                 12722             104200884 
+19:00:00.000               315872               4460740               1471340                586668                 19228                 12722             104303976 
+20:00:00.000               315872               4460880               1471340                586668                 19228                 12722             104408244 
+21:00:00.000               315872               4461016               1471340                586668                 19228                 12722             104507480 
+22:00:00.000               315872               4461164               1471340                586668                 19228                 12722             104608972 
+23:00:00.000               315872               4461312               1471340                586668                 19228                 12722             104729828 
+00:00:00.000               315872               4460960               1471340                586668                 19228                 12722             104901416 
+pmie: timezone set to local timezone of host billing02
+print Sat Jul  6 01:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sat Jul  6 02:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 02:00:00 2013: CPU 34.5
+print Sat Jul  6 02:00:00 2013: PerCPU cpu0 5.7 cpu1 63
+print Sat Jul  6 02:00:00 2013: PageOut 0
+print Sat Jul  6 03:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 03:00:00 2013: CPU 28.3
+print Sat Jul  6 03:00:00 2013: PerCPU cpu0 13.9 cpu1 42.8
+print Sat Jul  6 03:00:00 2013: PageOut 0
+print Sat Jul  6 04:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sat Jul  6 04:00:00 2013: CPU 16.6
+print Sat Jul  6 04:00:00 2013: PerCPU cpu0 3.21 cpu1 29.9
+print Sat Jul  6 04:00:00 2013: PageOut 0
+print Sat Jul  6 05:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sat Jul  6 05:00:00 2013: CPU 18.8
+print Sat Jul  6 05:00:00 2013: PerCPU cpu0 15.8 cpu1 21.7
+print Sat Jul  6 05:00:00 2013: PageOut 0
+print Sat Jul  6 06:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 06:00:00 2013: CPU 15.4
+print Sat Jul  6 06:00:00 2013: PerCPU cpu0 8.9 cpu1 21.9
+print Sat Jul  6 06:00:00 2013: PageOut 0
+print Sat Jul  6 07:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 07:00:00 2013: CPU 10.9
+print Sat Jul  6 07:00:00 2013: PerCPU cpu0 3.59 cpu1 18.2
+print Sat Jul  6 07:00:00 2013: PageOut 0
+print Sat Jul  6 08:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sat Jul  6 08:00:00 2013: CPU 10.0
+print Sat Jul  6 08:00:00 2013: PerCPU cpu0 3.59 cpu1 16.5
+print Sat Jul  6 08:00:00 2013: PageOut 0
+print Sat Jul  6 09:00:00 2013: CPU 11.3
+print Sat Jul  6 09:00:00 2013: PageOut 0
+print Sat Jul  6 10:00:00 2013: CPU 11.7
+print Sat Jul  6 10:00:00 2013: PageOut 0
+print Sat Jul  6 11:00:00 2013: CPU 11.7
+print Sat Jul  6 11:00:00 2013: PageOut 0
+print Sat Jul  6 12:00:00 2013: CPU 10.0
+print Sat Jul  6 12:00:00 2013: PageOut 0
+print Sat Jul  6 13:00:00 2013: CPU 9.5
+print Sat Jul  6 13:00:00 2013: PageOut 0
+print Sat Jul  6 14:00:00 2013: CPU 7.4
+print Sat Jul  6 14:00:00 2013: PageOut 0
+print Sat Jul  6 15:00:00 2013: CPU 6.8
+print Sat Jul  6 15:00:00 2013: PageOut 0
+print Sat Jul  6 16:00:00 2013: CPU 6.3
+print Sat Jul  6 16:00:00 2013: PageOut 0
+print Sat Jul  6 17:00:00 2013: CPU 6.3
+print Sat Jul  6 17:00:00 2013: PageOut 0
+print Sat Jul  6 18:00:00 2013: CPU 6.9
+print Sat Jul  6 18:00:00 2013: PageOut 0
+print Sat Jul  6 19:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 19:00:00 2013: CPU 6.7
+print Sat Jul  6 19:00:00 2013: PerCPU cpu0 2.43 cpu1 11.0
+print Sat Jul  6 19:00:00 2013: PageOut 0
+print Sat Jul  6 20:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 20:00:00 2013: CPU 6.6
+print Sat Jul  6 20:00:00 2013: PerCPU cpu0 3.47 cpu1 9.8
+print Sat Jul  6 20:00:00 2013: PageOut 0
+print Sat Jul  6 21:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 21:00:00 2013: CPU 6.2
+print Sat Jul  6 21:00:00 2013: PerCPU cpu0 9.9 cpu1 2.45
+print Sat Jul  6 21:00:00 2013: PageOut 0
+print Sat Jul  6 22:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 84
+print Sat Jul  6 22:00:00 2013: CPU 6.8
+print Sat Jul  6 22:00:00 2013: PerCPU cpu0 7.2 cpu1 6.3
+print Sat Jul  6 22:00:00 2013: PageOut 0
+print Sat Jul  6 23:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sat Jul  6 23:00:00 2013: CPU 7.1
+print Sat Jul  6 23:00:00 2013: PerCPU cpu0 9.9 cpu1 4.27
+print Sat Jul  6 23:00:00 2013: PageOut 0
+print Sun Jul  7 00:00:00 2013: Filesys /dev/root 15.5 /dev/mapper/vgsys0-lvvar 55 /dev/mapper/vgsys0-lvusr 72 /dev/mapper/vgsys0-lvhome 58 /dev/mapper/vgsys0-lvtmp 3.79 /dev/sda1 10.2 /dev/mapper/vgdb0-lvmysqldb 85
+print Sun Jul  7 00:00:00 2013: CPU 10.1
+print Sun Jul  7 00:00:00 2013: PerCPU cpu0 4.90 cpu1 15.3
+print Sun Jul  7 00:00:00 2013: PageOut 0
