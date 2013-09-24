@@ -26,7 +26,8 @@ CONF_LINE	= "xfs	11	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 11"
 CFILES		= proc_fs_xfs.c filesys.c pmda.c
 HFILES		= proc_fs_xfs.h filesys.h clusters.h indom.h
 
-LSRCFILES 	= help root_xfs linux_xfs_migrate.conf
+SCRIPTS		= Install Remove
+LSRCFILES 	= help root root_xfs linux_xfs_migrate.conf $(SCRIPTS)
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -43,8 +44,8 @@ build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_xfs $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_xfs $(PCP_VAR_DIR)/pmns/root_xfs
 	$(INSTALL) -m 644 linux_xfs_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_xfs_migrate.conf
 else
