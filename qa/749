@@ -40,11 +40,15 @@ probe timer.ms(4000) {
 End-of-File
 echo "Using stap config:" >> $seq.full
 cat $tmp.stap >> $seq.full
+echo "Running pmcd process:" >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
 
 # start systemtap and count pmcd probe hits
 $sudo stap $tmp.stap | tee -a $tmp.out 2>&1 &
 STAP=$!
 sleep 1
+echo "Running stap process:" >> $seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep stap >> $seq.full
 
 pminfo -f hinv >/dev/null
 pminfo -f kernel >/dev/null
