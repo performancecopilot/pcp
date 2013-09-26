@@ -50,7 +50,7 @@ static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
-static unsigned int		threads = 1;	/* control.all.threads */
+static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
 
 /*
@@ -1603,7 +1603,7 @@ usage(void)
     fputs("Options:\n"
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
-	  "  -p          do not include threads in the all-processes instance domain\n"
+	  "  -L          include threads in the all-processes instance domain\n"
 	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
@@ -1624,10 +1624,10 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:pU:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:LU:?", &dispatch, &err)) != EOF) {
 	switch (c) {
-	case 'p':
-	    threads = 0;
+	case 'L':
+	    threads = 1;
 	    break;
 	case 'U':
 	    username = optarg;

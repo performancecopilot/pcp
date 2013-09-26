@@ -250,6 +250,7 @@ typedef struct {
     int			count;		/* number of processes in the list */
     int			size;		/* size of the buffer (pids) allocated */
     int			*pids;		/* array of process identifiers */
+    int			threads;	/* /proc/PID/{xxx,task/PID/xxx} flag */
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
