@@ -483,7 +483,6 @@ main(int argc, char **argv)
     int			sep = __pmPathSeparator();
     int			errflag = 0;
     int			isdaemon = 0;
-    char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*username;
     char		*logfile = "pmlogger.log";
@@ -495,7 +494,7 @@ main(int argc, char **argv)
     __pmFdSet		readyfds;
     char		*p;
     char		*runtime = NULL;
-    int	    		ctx;		/* handle correspondong to ctxp below */
+    int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
 
     __pmSetProgname(argv[0]);
@@ -698,14 +697,8 @@ Options:\n\
     /* base name for archive is here ... */
     archBase = argv[optind];
 
-    if (pmcd_host == NULL ||
-	strcmp(pmcd_host, "localhost") == 0 ||
-	strncmp(pmcd_host, "unix:", 5) == 0 ||
-	strncmp(pmcd_host, "local:", 6) == 0) {
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	pmcd_host = local;
-    }
+    if (pmcd_host == NULL)
+	pmcd_host = "local:";
 
     /* initialise access control */
     if (__pmAccAddOp(PM_OP_LOG_ADV) < 0 ||
@@ -725,6 +718,8 @@ Options:\n\
     if ((ctx = pmNewContext(PM_CONTEXT_HOST, pmcd_host)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, pmcd_host, pmErrStr(ctx));
 	exit(1);
+    } else {
+	pmcd_host = (char *)pmGetContextHostName(ctx);
     }
 
     if (rsc_fd == -1) {
@@ -740,9 +735,6 @@ Options:\n\
 	exit(1);
     }
     pmcdfd = ctxp->c_pmcd->pc_fd;
-    strncpy(local, ctxp->c_pmcd->pc_hosts[0].name, MAXHOSTNAMELEN-1);
-    local[MAXHOSTNAMELEN-1] = '\0';
-    pmcd_host = local;
     PM_UNLOCK(ctxp->c_lock);
 
     if (configfile != NULL) {
