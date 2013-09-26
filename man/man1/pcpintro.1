@@ -30,25 +30,23 @@ to accommodate the most complex system configurations and performance
 problems.
 .PP
 PCP supports many different platforms, including (but not limited
-to) Linux, MacOSX, IRIX, AIX, Solaris and Windows.
+to) Linux, MacOSX, Solaris and Windows.
 From a high-level PCP can be considered to contain two classes of
 software utility:
 .IP "\fIPCP Collectors\fR" 8
 These are the parts of PCP that collect and extract
-performance data from various sources, e.g. the Linux /proc pseudo filesystem.
-These are available under GPL/LPGL from http://oss.sgi.com/projects/pcp.
+performance data from various sources, e.g. the operating system kernel.
 .IP "\fIPCP Monitors\fR" 8
 These are the parts of PCP that display data collected from
 hosts (or archives) that have the
 .I "PCP Collector"
 installed.
-Many monitor tools are available as part of PCP under GPL/LPGL from
-http://oss.sgi.com/projects/pcp.
-Other (typically graphical) monitoring tools are available separately
-in the PCP GUI package.
+Many monitor tools are available as part of the core PCP release,
+while other (typically graphical) monitoring tools are available
+separately in the PCP GUI package.
 .PP
-This manual entry describes the high-level features
-and options common to most PCP utilities available on all platforms.
+This manual entry describes the high-level features and
+options common to most PCP utilities available on all platforms.
 .SH OVERVIEW
 The PCP architecture is distributed in the 
 sense that any PCP tool may be executing remotely.  On
@@ -74,11 +72,10 @@ Clients may also access performance data from a PCP archive
 for retrospective analysis.
 .PP
 The following performance monitoring applications are primarily console
-based, are typically run directly from the command line, and are all
-part of the base PCP package.
+based, typically run directly from the command line, and are just a
+small subset of the tools available as part of the base PCP package.
 .PP
-Each tool or command is documented completely in its
-own reference page.
+Each tool or command is documented completely in its own reference page.
 .TP
 .B pmstat
 Outputs an ASCII high-level summary of system performance.
@@ -183,20 +180,18 @@ option,
 the source of performance metrics will be
 the Performance Metrics Collector Daemon (PMCD)
 on the local host.
+Refer to the
+.B "PMCD HOST SPECIFICATION"
+section later for further details on the many
+options available when forming the
+.I hostname
+specification, as well as a detailed description of
+the default local host connection.
 The
 .B \-a
 and
 .B \-h
 options are mutually exclusive.
-.TP
-.BI "\-n " pmnsfile
-Normally the
-distributed Performance Metrics Name Space (PMNS) is
-used, however if the
-.B \-n
-option is specified an alternative local PMNS is loaded
-from the file
-.IR pmnsfile .
 .TP
 .BI "\-s " samples
 The argument
@@ -255,7 +250,7 @@ is specified as a sequence of one or more elements of the form
 .in
 .fi
 where \f2number\f1 is an integer or floating point constant (parsed using
-.BR strtod (3C))
+.BR strtod (3))
 and the optional \f2units\f1 is one of:
 .BR seconds ,
 .BR second ,
@@ -386,7 +381,7 @@ time of the last sample in a PCP archive log.
 @\f2ctime\f1
 To specify the calendar date and time (local time in the reporting timezone)
 for the start of the time window, use the
-.BR ctime (3C)
+.BR ctime (3)
 syntax preceded by an at sign.  For example
 .B "\-S '@ Mon Mar 4 13:07:47 1996'"
 .RE
@@ -429,7 +424,7 @@ the last sample in a PCP archive log.
 @\f2ctime\f1
 To specify the calendar date and time (local time in the reporting timezone)
 for the end of the time window, use the
-.BR ctime (3C)
+.BR ctime (3)
 syntax preceded by an at sign.  For example
 .B "\-T '@ Mon Mar 4 13:07:47 1996'"
 .RE
@@ -472,7 +467,7 @@ and
 .B \-T
 options is based upon the
 calendar date and time format of
-.BR ctime (3C),
+.BR ctime (3),
 but may be a fully specified time string like
 .B "Mon Mar  4 13:07:47 1996"
 or a partially specified time like 
@@ -507,7 +502,7 @@ corresponds to 10:00:00 on Tue Mar 5, 1996 (note this is the
 following day).
 .PP
 For greater precision than afforded by
-.BR ctime (3C),
+.BR ctime (3),
 the seconds component may be a floating point number.
 .P
 Also the 12 hour clock (am/pm notation) is supported, so for example
@@ -517,7 +512,7 @@ and
 are equivalent.
 .SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
 The number of performance metric names supported by PCP on most
-platforms ranges from many hundreds to a few thousand.
+platforms ranges from many hundreds to several thousand.
 The PCP libraries and applications use an internal
 identification scheme that unambiguously associates a single
 integer with each known performance metric.
@@ -565,20 +560,9 @@ Groups of related PMIDs may be named
 by naming a non-leaf node in the PMNS tree, e.g. \c
 .CW disk .
 .PP
-There may be PMIDs with no associated name in a PMNS; this is most
-likely to occur when specific PMIDs are not available in all systems,
-e.g. if ORACLE is not installed on a system, there is no good reason
-to pollute the PMNS with names for all of the ORACLE performance
-metrics.
-.PP
-Note also that there is no requirement for the
-PMNS to be the same on all systems, however in practice most
-applications would be developed against a stable PMNS that was
-assumed to be a subset of the PMNS on all systems.
-Indeed the PCP distribution
-includes a default local PMNS for just this purpose.
-.PP
-The default local PMNS is located at
+The default local PMNS used by
+.B pmcd
+is located at
 .B $PCP_VAR_DIR/pmns/root
 however the environment
 variable
@@ -586,8 +570,8 @@ variable
 may be set to the full pathname of a different PMNS which will
 then be used as the default local PMNS.
 .PP
-Most applications do not use the local PMNS, but rather
-import parts of the PMNS as required from the
+Most applications do not use the local PMNS directly,
+but rather import parts of the PMNS as required from the
 same place that performance metrics are fetched, i.e. from
 .BR pmcd (1)
 for live monitoring or from a PCP archive for retrospective
@@ -693,13 +677,39 @@ and
 sections for detailed information.
 This includes links to tutorials on the steps involved in setting up the
 available security features.
-.SH PMCD HOSTNAME SPECIFICATION
-Since PCP version 3, the
+.SH PMCD HOST SPECIFICATION
+In the absence of an explicit host name specification, most tools
+will default to the local host in live update mode.
+In PCP releases since 3.8.4 onward, this results in an efficient
+local protocol being selected \- typically a Unix domain socket.
+If this option is used (which can also be explicitly requested
+via the
+.I unix:
+host specification described below), it is important to note that all
+connections will be automatically authenticated. In other words, the
+credentials of the user invoking a client tool will automatically be
+made available to
 .BR pmcd (1)
-hostname specification has been extended to allow an optional
-port number, and also optional
+and all of its PMDAs, on the users behalf, such that results can be
+customized to the privilege levels of individual users.
+.PP
+Names of remote hosts running the
+.BR pmcd (1)
+daemon can of course also be provided to request a remote host be used.
+The most basic form of 
+.B pmcd
+host specification is a simple host name, possibly including the
+domain name if necessary.
+However, this can be extended in a number of ways to further refine
+attributes of the connection made to
+.BR pmcd .
+.PP
+The
+.B pmcd
+port number and also optional
 .BR pmproxy (1)
-hostname and port number.
+hostname and its port number, can be given as part of the host
+specification, since PCP version 3.0.
 These supercede (and override) the old-style PMCD_PORT, PMPROXY_HOST
 and PMPROXY_PORT environment variables.
 .PP
@@ -722,6 +732,52 @@ $ pcp \-h nas1.servers.com:44321
 .ft R
 .fi
 .in
+.PP
+In addition, security attributes and credentials can also be specified.
+These include username, an optional password (can be given interactively
+and may depend on the authentication mechanism employed), whether to use
+secure (encrypted) or native (naked) protocol, and so on. The previous
+examples all default to native protocol, and use no authentication.
+This can be altered, as in the following examples.
+.PP
+.in +0.5i
+.nf
+.ft CW
+$ pcp \-h pcps://nas1.servers.com:44321?username=tanya&method=gssapi
+$ pcp \-h pcps://nas2.servers.com@firewalls.r.us?method=plain
+$ pcp \-h pcps://nas3.servers.com
+$ pcp \-h unix:
+$ pcp \-h local:
+.ft R
+.fi
+.in
+.PP
+The choice of authentication method, and other resulting parameters like
+username, optionally password, etc, depends on the SASL2 configuration
+used by each (remote)
+.BR pmcd .
+Tutorials are available specifying various aspects of configuring the
+authentication module(s) used, these fine details are outside the scope
+of this document.
+.PP
+The final
+.I local:
+example above is now the default for most tools.
+This connection is an automatically authenticated local host connection
+on all platforms that support Unix domain sockets.  No password is required
+and authentication is automatic.  This is also the most efficient (lowest
+overhead) communication channel available.
+.PP
+The difference between
+.I unix:
+and
+.I local:
+is that the former is a strict Unix domain socket specification (connection
+fails if it cannot connect that way),
+whereas the latter has a more forgiving fallback to using
+.I localhost
+(i.e. a regular Inet socket connection is used when Unix domain socket
+connections are unavailable).
 .SH ENVIRONMENT
 In addition to the PCP run-time environment and configuration variables
 described in the 

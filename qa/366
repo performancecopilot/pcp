@@ -57,6 +57,7 @@ tools/mpstat
 tools/vmstat
 tools/iostat
 tools/sar
+shping/summary
 postgresql/summary
 sqlserver/summary
 mysql/summary
