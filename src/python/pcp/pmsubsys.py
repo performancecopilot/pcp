@@ -310,15 +310,13 @@ class Subsystem(object):
                          'proc.memory.datrss', 'proc.memory.librss',
                          'proc.memory.textrss', 'proc.memory.vmstack',
                          'proc.nprocs', 'proc.psinfo.cmd',
-                         'proc.psinfo.maj_flt',
-                         'proc.psinfo.minflt',
+                         'proc.psinfo.maj_flt', 'proc.psinfo.minflt',
                          'proc.psinfo.pid',
                          'proc.psinfo.rss', 'proc.psinfo.sname',
-                         'proc.psinfo.stime','proc.psinfo.utime',
-                         'proc.psinfo.vsize',
+                         'proc.psinfo.stime', 'proc.psinfo.threads',
+                         'proc.psinfo.utime', 'proc.psinfo.vsize',
                          'proc.runq.runnable', 'proc.runq.sleeping',
                          'proc.runq.blocked', 'proc.runq.defunct',
-                         'proc.schedstat.cpu_time',
                          ]
         self.diff_metrics += ['proc.psinfo.rss', 'proc.psinfo.vsize']
 

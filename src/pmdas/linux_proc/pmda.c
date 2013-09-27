@@ -876,6 +876,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     proc_pid_entry_t	*entry;
     struct filesys	*fs;
     static long		hz = -1;
+    char 		*tail;
 
     if (hz == -1)
     	hz = sysconf(_SC_CLK_TCK);
@@ -972,7 +973,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul /= 1024;
 		break;
 
@@ -982,7 +983,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 		break;
 
@@ -996,7 +997,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
 
-		sscanf(f, "%lu", &ul);
+		ul = (__uint32_t)strtoul(f, &tail, 0);
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 		break;
 
@@ -1007,16 +1008,16 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%d", &atom->l);
+		atom->l = (__int32_t)strtol(f, &tail, 0);
 		break;
 
 	    case PROC_PID_STAT_WCHAN:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-		sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 #else
-		sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 		break;
 
@@ -1033,13 +1034,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    if (f == NULL)
 			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-		    sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		    atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 		    if ((wc = wchan(atom->ull)))
 			atom->cp = wc;
 		    else
 			atom->cp = atom->ull ? f : "";
 #else
-		    sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		    atom->ul  = (__uint32_t)strtoul(f, &tail, 0);
 		    if ((wc = wchan((__psint_t)atom->ul)))
 			atom->cp = wc;
 		    else
@@ -1055,7 +1056,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (idp->item >= 0 && idp->item < NR_PROC_PID_STAT) {
 		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    	return PM_ERR_INST;
-		    sscanf(f, "%u", &atom->ul);
+		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		}
 		else
 		    return PM_ERR_PMID;
@@ -1079,7 +1080,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		/* unsigned int */
 		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 	    }
 	    else
@@ -1098,12 +1099,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
 		mdesc->m_desc.type == PM_TYPE_U32)
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    else
 #if defined(HAVE_64BIT_PTR)
-		sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		atom->ull  = (__uint64_t)strtoull(f, &tail, 0);
 #else
-		sscanf(f, "%u", &atom->ul);    /* 32bit address */
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 	}
 	else
@@ -1122,43 +1123,43 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_WCHAR:
 	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_SYSCR:
 	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_SYSCW:
 	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_READ_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_WRITE_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_CANCELLED_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 
 	default:
@@ -1190,7 +1191,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    if ((f = _pm_getfield(entry->status_lines.uid, (idp->item % 4) + 1)) == NULL)
 		return PM_ERR_INST;
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSUID) {
 		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
 		    atom->cp = pwe->pw_name;
@@ -1213,7 +1214,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    if ((f = _pm_getfield(entry->status_lines.gid, (idp->item % 4) + 1)) == NULL)
 		return PM_ERR_INST;
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSGID) {
 		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
 		    atom->cp = gre->gr_name;
@@ -1248,63 +1249,63 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((f = _pm_getfield(entry->status_lines.vmsize, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMLOCK:
 	if ((f = _pm_getfield(entry->status_lines.vmlck, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMRSS:
-	if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL)
-	    atom->ul = 0;
-	else
-	    sscanf(f, "%u", &atom->ul);
-	break;
+        if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL)
+            atom->ul = 0;
+        else
+            atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+        break;
 
 	case PROC_PID_STATUS_VMDATA:
 	if ((f = _pm_getfield(entry->status_lines.vmdata, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMSTACK:
 	if ((f = _pm_getfield(entry->status_lines.vmstk, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMEXE:
 	if ((f = _pm_getfield(entry->status_lines.vmexe, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMLIB:
 	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMSWAP:
 	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_THREADS:
 	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	default:
