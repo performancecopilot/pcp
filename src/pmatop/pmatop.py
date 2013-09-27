@@ -73,14 +73,14 @@ def scale (value, magnitude):
 
 # record ---------------------------------------------------------------
 
-def record (context, config, interval, path):
+def record (host, context, config, interval, path):
 
     # -f saves the metrics in a directory
     if os.path.exists(path):
         return "playback directory %s already exists\n" % path
     try:
         status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-        (status, rhp) = context.pmRecordAddHost ("unix:", 1, config)
+        (status, rhp) = context.pmRecordAddHost (host, 1, config)
         status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
         status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
         time.sleep(interval)
@@ -669,7 +669,7 @@ def main (stdscr_p):
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        status = record (pmgui.GuiClient(), configuration, duration, output_file)
+        status = record (host, pmgui.GuiClient(), configuration, duration, output_file)
         if status != "":
             return status
         record_add_creator (output_file)
