@@ -32,6 +32,24 @@ $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
 				{ print }'
 }
 
+_remote_signal()
+{
+    host="$1"
+    pid="$2"
+    base="$3"
+
+    cat <<end-of-file >$tmp.cmd
+. \$PCP_DIR/etc/pcp.env
+\$PCP_BINADM_DIR/pmsignal -s TERM $pid
+sleep 1
+\$PCP_BINADM_DIR/pmsignal -s KILL $pid
+rm -f /tmp/$base.*
+end-of-file
+    scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
+    ssh -q pcpqa@$host /bin/sh $tmp.cmd >/dev/null 2>&1
+    ssh -q pcpqa@$host "rm -f $tmp.cmd"
+}
+
 _speak_to_me()
 {
     host=$1
@@ -123,7 +141,7 @@ End-of-File
     #
     if [ ! -z "$host" ]
     then
-	ssh -q pcpqa@$host sh -c "pmsignal -s TERM $pid; sleep 1; pmsignal -s KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	_remote_signal $host $pid $base
 	pid=''
 	base=''
     fi
@@ -136,7 +154,7 @@ _cleanup()
     then
 	if [ ! -z "$pid" -a ! -z "$base" -a ! -z "$host" ]
 	then
-	    ssh -q pcpqa@$host sh -c "pmsignal -s TERM $pid; sleep 1; pmsignal -s KILL $pid; rm -f /tmp/$base.*" >/dev/null 2>&1
+	    _remote_signal $host $pid $base
 	    pid=''
 	    base=''
 	fi
