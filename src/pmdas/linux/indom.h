@@ -35,7 +35,7 @@ enum {
 	NFS4_CLI_INDOM,		/* 14 - nfs v4 client operations */
 	NFS4_SVR_INDOM,		/* 15 - nfs n4 server operations */
 	QUOTA_PRJ_INDOM,	/* 16 - project quota -> xfs PMDA */
-	NET_INET_INDOM,		/* 17 - inet addresses */
+	NET_ADDR_INDOM,		/* 17 - inet/ipv6 addresses */
 	TMPFS_INDOM,		/* 18 - tmpfs mounts */
 	NODE_INDOM,		/* 19 - NUMA nodes */
 	PROC_CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems -> proc PMDA */

@@ -53,7 +53,7 @@ enum {
 	CLUSTER_QUOTA,		/* 30 quotactl() -> xfs PMDA */
 	PROC_PID_SCHEDSTAT,	/* 31 /proc/<pid>/schedstat -> proc PMDA */
 	PROC_PID_IO,		/* 32 /proc/<pid>/io -> proc PMDA */
-	CLUSTER_NET_INET,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
+	CLUSTER_NET_ADDR,	/* 33 /proc/net/dev and ioctl(SIOCGIFCONF) */
 	CLUSTER_TMPFS,		/* 34 /proc/mounts + statfs (tmpfs only) */
 	CLUSTER_SYSFS_KERNEL,	/* 35 /sys/kernel metrics */
 	CLUSTER_NUMA_MEMINFO,	/* 36 /sys/devices/system/node* NUMA memory */
