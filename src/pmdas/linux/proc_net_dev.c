@@ -42,11 +42,18 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     int fd;
 
     if ((fd = refresh_inet_socket()) < 0)
-	return -ENOSYS;	/* caller should try ioctl alternatives */
+	return 0;
 
     ecmd.cmd = ETHTOOL_GSET;
     ifr.ifr_data = (caddr_t)&ecmd;
     strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
+	netip->ioc.mtu = ifr.ifr_mtu;
+    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
+	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
+	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
+    }
+    /* ETHTOOL ioctl -> non-root permissions issues for old kernels */
     if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	/*
 	 * speed is defined in ethtool.h and returns the speed in
@@ -54,16 +61,9 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 	 */
 	netip->ioc.speed = ecmd.speed;
 	netip->ioc.duplex = ecmd.duplex + 1;
-    } else {
-	return -ENOSYS;	/* caller should try ioctl alternatives */
+	return 0;
     }
-    if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
-	netip->ioc.mtu = ifr.ifr_mtu;
-    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
-	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
-	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
-    }
-    return 0;
+    return -ENOSYS;	/* caller should try ioctl alternatives */
 }
 
 static void
@@ -86,12 +86,40 @@ refresh_net_addr_ioctl(char *name, net_addr_t *addr)
 /*
  * no ioctl support or no permissions (more likely), so we
  * fall back to grovelling around in /sys/devices in a last
- * ditch attempt to find interface details.
+ * ditch attempt to find the ethtool interface data (duplex
+ * and speed).
  */
+static char *
+read_oneline(const char *path, char *buffer)
+{
+    FILE *fp = fopen(path, "r");
+
+    if (fp) {
+	int i = fscanf(fp, "%s", buffer);
+	fclose(fp);
+	if (i == 1)
+	    return buffer;
+    }
+    return "";
+}
+
 static void
 refresh_net_dev_sysfs(char *name, net_interface_t *netip)
 {
-    /* TODO */
+    char path[256];
+    char line[64];
+    char *duplex;
+
+    snprintf(path, sizeof(path), "/sys/class/net/%s/speed", name);
+    netip->ioc.speed = atoi(read_oneline(path, line));
+    snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", name);
+    duplex = read_oneline(path, line);
+    if (strcmp(duplex, "full") == 0)
+	netip->ioc.duplex = 2;
+    else if (strcmp(duplex, "half") == 0)
+	netip->ioc.duplex = 1;
+    else	/* eh? */
+	netip->ioc.duplex = 0;
 }
 
 int
