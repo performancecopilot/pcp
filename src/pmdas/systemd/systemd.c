@@ -383,7 +383,6 @@ systemd_init(pmdaInterface *dp)
     if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_open failure: %s",
                       strerror(-sts));
-        dispatch->status = sts;
         return;
     }
 
@@ -391,7 +390,6 @@ systemd_init(pmdaInterface *dp)
     if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "sd_journal_open #2 failure: %s",
                       strerror(-sts));
-        dispatch->status = sts;
         return;
     }
 
