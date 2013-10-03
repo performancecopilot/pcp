@@ -166,7 +166,7 @@ then
 else
     _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
     _do_config 
-    _do pmlogger -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+    _do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
     _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
 fi
 

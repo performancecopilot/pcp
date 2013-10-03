@@ -321,6 +321,13 @@ getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
 PCP_SYSCONF_DIR=%{_confdir}
 PCP_LOG_DIR=%{_logsdir}
+PCP_ETC_DIR=%{_sysconfdir}
+# rename crontab files to align with current Fedora packaging guidelines
+for crontab in pmlogger pmie
+do
+    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
+    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
+done
 # produce a script to run post-install to move configs to their new homes
 save_configs_script()
 {
@@ -463,8 +470,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
-%config(noreplace) %{_sysconfdir}/cron.d/pmlogger
-%config(noreplace) %{_sysconfdir}/cron.d/pmie
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
+%config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
@@ -479,7 +486,16 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
 %{_localstatedir}/lib/pcp/config/*
+
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5 
 %{tapsetdir}/pmcd.stp
+%else				# rhel5
+%ifarch ppc ppc64
+# no systemtap-sdt-devel
+%else				# ! ppc
+%{tapsetdir}/pmcd.stp
+%endif				# ppc
+%endif
 
 %files libs
 %defattr(-,root,root)

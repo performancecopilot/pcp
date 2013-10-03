@@ -1,6 +1,7 @@
 /*
- * Linux proc/<pid>/{stat,statm,status,maps} Clusters
+ * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -22,6 +23,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "proc_pid.h"
+#include "indom.h"
 
 static proc_pid_list_t pids;
 
@@ -34,27 +36,27 @@ compare_pid(const void *pa, const void *pb)
 }
 
 static void
-pidlist_append_pid(proc_pid_list_t *list, int pid)
+pidlist_append_pid(int pid)
 {
-    if (list->count >= list->size) {
-	list->size += 64;
-	if (!(list->pids = (int *)realloc(list->pids, list->size * sizeof(int)))) {
+    if (pids.count >= pids.size) {
+	pids.size += 64;
+	if (!(pids.pids = (int *)realloc(pids.pids, pids.size * sizeof(int)))) {
 	    perror("pidlist_append: out of memory");
-	    list->size = list->count = 0;
+	    pids.size = pids.count = 0;
 	    return;	/* soldier on bravely */
 	}
     }
-    list->pids[list->count++] = pid;
+    pids.pids[pids.count++] = pid;
 }
 
 static void
-pidlist_append(proc_pid_list_t *list, const char *pidname)
+pidlist_append(const char *pidname)
 {
-    pidlist_append_pid(list, atoi(pidname));
+    pidlist_append_pid(atoi(pidname));
 }
 
 static void
-tasklist_append(proc_pid_list_t *pidlist, const char *pid)
+tasklist_append(const char *pid)
 {
     DIR *taskdirp;
     struct dirent *tdp;
@@ -65,7 +67,7 @@ tasklist_append(proc_pid_list_t *pidlist, const char *pid)
 	while ((tdp = readdir(taskdirp)) != NULL) {
 	    if (!isdigit((int)tdp->d_name[0]) || strcmp(pid, tdp->d_name) == 0)
 		continue;
-	    pidlist_append(pidlist, tdp->d_name);
+	    pidlist_append(tdp->d_name);
 	}
 	closedir(taskdirp);
     }
@@ -91,13 +93,12 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
     else
 	snprintf(path, sizeof(path), "%s/cgroup.procs", cgroup);
 
-    pids.count = 0;
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1)
-	    pidlist_append_pid(&pids, pid);
+	    pidlist_append_pid(pid);
 	fclose(fp);
     }
-    return pids.count;
+    return 0;
 }
 
 static int
@@ -109,23 +110,22 @@ refresh_global_pidlist(int want_threads)
     if ((dirp = opendir("/proc")) == NULL)
 	return -oserror();
 
-    pids.count = 0;
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
 	if (isdigit((int)dp->d_name[0])) {
-	    pidlist_append(&pids, dp->d_name);
+	    pidlist_append(dp->d_name);
 	    if (want_threads)
-		tasklist_append(&pids, dp->d_name);
+		tasklist_append(dp->d_name);
 	}
     }
     closedir(dirp);
 
     qsort(pids.pids, pids.count, sizeof(int), compare_pid);
-    return pids.count;
+    return 0;
 }
 
-int
-refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
+static void
+refresh_proc_pidlist(proc_pid_t *proc_pid)
 {
     int i;
     int fd;
@@ -135,10 +135,10 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
 
-    if (indomp->it_numinst < pidlist->count)
+    if (indomp->it_numinst < pids.count)
 	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
-						pidlist->count * sizeof(pmdaInstid));
-    indomp->it_numinst = pidlist->count;
+						pids.count * sizeof(pmdaInstid));
+    indomp->it_numinst = pids.count;
 
     /*
      * invalidate all entries so we can harvest pids that have exited
@@ -146,35 +146,27 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
     for (i=0; i < proc_pid->pidhash.hsize; i++) {
 	for (node=proc_pid->pidhash.hash[i]; node != NULL; node = node->next) {
 	    ep = (proc_pid_entry_t *)node->data;
-	    ep->valid = 0;
-	    ep->stat_fetched = 0;
-	    ep->statm_fetched = 0;
-	    ep->status_fetched = 0;
-	    ep->schedstat_fetched = 0;
-	    ep->maps_fetched = 0;
-	    ep->io_fetched = 0;
-	    ep->wchan_fetched = 0;
-	    ep->fd_fetched = 0;
+	    ep->flags = 0;
 	}
     }
 
     /*
-     * walk pidlist and add new pids to the hash table,
+     * walk pid list and add new pids to the hash table,
      * marking entries valid as we go ...
      */
-    for (i=0; i < pidlist->count; i++) {
-	node = __pmHashSearch(pidlist->pids[i], &proc_pid->pidhash);
+    for (i=0; i < pids.count; i++) {
+	node = __pmHashSearch(pids.pids[i], &proc_pid->pidhash);
 	if (node == NULL) {
 	    int k = 0;
 
 	    ep = (proc_pid_entry_t *)malloc(sizeof(proc_pid_entry_t));
 	    memset(ep, 0, sizeof(proc_pid_entry_t));
 
-	    ep->id = pidlist->pids[i];
+	    ep->id = pids.pids[i];
 
-	    sprintf(buf, "/proc/%d/cmdline", pidlist->pids[i]);
+	    sprintf(buf, "/proc/%d/cmdline", pids.pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		sprintf(buf, "%06d ", pidlist->pids[i]);
+		sprintf(buf, "%06d ", pids.pids[i]);
 		if ((k = read(fd, buf+7, sizeof(buf)-8)) > 0) {
 		    p = buf + k +7;
 		    *p-- = '\0';
@@ -200,7 +192,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 		 * returns an empty string so we have to get it
 		 * from /proc/<pid>/status or /proc/<pid>/stat
 		 */
-		sprintf(buf, "/proc/%d/status", pidlist->pids[i]);
+		sprintf(buf, "/proc/%d/status", pids.pids[i]);
 		if ((fd = open(buf, O_RDONLY)) >= 0) {
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
@@ -222,7 +214,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 			    p = buf+k;
 			p[0] = ')'; 
 			p[1] = '\0';
-			bc = sprintf(buf, "%06d ", pidlist->pids[i]); 
+			bc = sprintf(buf, "%06d ", pids.pids[i]); 
 			buf[bc] = '(';
 		    }
 		    close(fd);
@@ -231,19 +223,19 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 
 	    if (k <= 0) {
 		/* hmm .. must be exiting */
-	    	sprintf(buf, "%06d <exiting>", pidlist->pids[i]);
+	    	sprintf(buf, "%06d <exiting>", pids.pids[i]);
 	    }
 
 	    ep->name = strdup(buf);
 
-	    __pmHashAdd(pidlist->pids[i], (void *)ep, &proc_pid->pidhash);
+	    __pmHashAdd(pids.pids[i], (void *)ep, &proc_pid->pidhash);
 	    // fprintf(stderr, "## ADDED \"%s\" to hash table\n", buf);
 	}
 	else
 	    ep = (proc_pid_entry_t *)node->data;
 	
 	/* mark pid as still existing */
-	ep->valid = 1;
+	ep->flags |= PROC_PID_FLAG_VALID;
 
 	/* refresh the indom pointer */
 	indomp->it_set[i].i_inst = ep->id;
@@ -259,7 +251,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 	    ep = (proc_pid_entry_t *)node->data;
 	    // fprintf(stderr, "CHECKING key=%d node=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p ep=" PRINTF_P_PFX "%p valid=%d\n",
 	    	// ep->id, node, prev, node->next, ep, ep->valid);
-	    if (ep->valid == 0) {
+	    if (!(ep->flags & PROC_PID_FLAG_VALID)) {
 	        // fprintf(stderr, "DELETED key=%d name=\"%s\"\n", ep->id, ep->name);
 		if (ep->name != NULL)
 		    free(ep->name);
@@ -292,27 +284,72 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pidlist)
 	    	break;
 	}
     }
-
-    return pidlist->count;
 }
 
 int
 refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 {
-    int sts = (cgroups && cgroups[0] != '\0') ?
+    int sts;
+
+    pids.count = 0;
+    pids.threads = threads;
+
+    sts = (cgroups && cgroups[0] != '\0') ?
 		refresh_cgroup_pidlist(threads, cgroups) :
 		refresh_global_pidlist(threads);
     if (sts < 0)
 	return sts;
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
+//    if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr,
 		"refresh_proc_pid: %d pids (threads=%d, cgroups=\"%s\")\n",
-		pids.count, threads, cgroups ? cgroups : "");
+		sts, threads, cgroups ? cgroups : "");
 
-    return refresh_proc_pidlist(proc_pid, &pids);
+    refresh_proc_pidlist(proc_pid);
+    return 0;
 }
 
+
+/*
+ * Open a proc file, taking into account that we may want thread info
+ * rather than process information.
+ *
+ * We make (ab)use of some obscure Linux procfs mechanisms here!
+ * Even though readdir(/proc) does not contain tasks, we can still open
+ * taskid directory files; on top of that, the tasks sub-directory in a
+ * task group has all (peer) tasks in that group, even for "children".
+ */
+static int
+proc_open(const char *base, proc_pid_entry_t *ep)
+{
+    int fd;
+    char buf[128];
+
+    if (pids.threads) {
+	sprintf(buf, "/proc/%d/task/%d/%s", ep->id, ep->id, base);
+	if ((fd = open(buf, O_RDONLY)) >= 0)
+	    return fd;
+	/* fallback to /proc path if task path open fails */
+    }
+    sprintf(buf, "/proc/%d/%s", ep->id, base);
+    return open(buf, O_RDONLY);
+}
+
+static DIR *
+proc_opendir(const char *base, proc_pid_entry_t *ep)
+{
+    DIR *dir;
+    char buf[128];
+
+    if (pids.threads) {
+	sprintf(buf, "/proc/%d/task/%d/%s", ep->id, ep->id, base);
+	if ((dir = opendir(buf)) != NULL)
+	    return dir;
+	/* fallback to /proc path if task path opendir fails */
+    }
+    sprintf(buf, "/proc/%d/%s", ep->id, base);
+    return opendir(buf);
+}
 
 /*
  * fetch a proc/<pid>/stat entry for pid
@@ -331,9 +368,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->stat_fetched == 0) {
-	sprintf(buf, "/proc/%d/stat", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+    if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
+	if ((fd = proc_open("stat", ep)) < 0)
 	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
@@ -354,12 +390,11 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 		close(fd);
-	ep->stat_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_STAT_FETCHED;
     }
 
-    if (ep->wchan_fetched == 0) {
-	sprintf(buf, "/proc/%d/wchan", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+    if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
+	if ((fd = proc_open("wchan", ep)) < 0)
 	    sts = 0;	/* ignore failure here, backwards compat */
 	else
 	if ((n = read(fd, buf, sizeof(buf)-1)) < 0)
@@ -381,7 +416,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0)
 	    close(fd);
-	ep->wchan_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
 
     if (sts < 0)
@@ -404,14 +439,13 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->status_fetched == 0) {
+    if (!(ep->flags & PROC_PID_FLAG_STATUS_FETCHED)) {
 	int	fd;
 	int	n;
 	char	buf[1024];
 	char	*curline;
 
-	sprintf(buf, "/proc/%d/status", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+	if ((fd = proc_open("status", ep)) < 0)
 	    sts = -oserror();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
 	    sts = -oserror();
@@ -474,13 +508,11 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 		    curline = index(curline, '\n') + 1;
 		}
 	    }
-
 	}
 	if (fd >= 0)
 	    close(fd);
+	ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
     }
-
-    ep->status_fetched = 1;
 
     return (sts < 0) ? NULL : ep;
 }
@@ -491,20 +523,19 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 proc_pid_entry_t *
 fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 {
-    int fd;
     int sts = 0;
-    int n;
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
-    char buf[1024];
 
     if (node == NULL)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->statm_fetched == 0) {
-	sprintf(buf, "/proc/%d/statm", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+    if (!(ep->flags & PROC_PID_FLAG_STATM_FETCHED)) {
+	char buf[1024];
+	int fd, n;
+
+	if ((fd = proc_open("statm", ep)) < 0)
 	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
@@ -525,12 +556,10 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 
 	if (fd >= 0)
 	    close(fd);
-	ep->statm_fetched = 1;
+	ep->flags |= PROC_PID_FLAG_STATM_FETCHED;
     }
 
-    if (sts < 0)
-    	return NULL;
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 
@@ -542,25 +571,24 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid)
 proc_pid_entry_t *
 fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 {
-    int fd;
     int sts = 0;
-    int n;
-    int len = 0;
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
-    char buf[1024];
     char *maps_bufptr = NULL;
 
     if (node == NULL)
 	return NULL;
-
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->maps_fetched == 0) {
-	sprintf(buf, "/proc/%d/maps", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+    if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
+	int fd;
+
+	if ((fd = proc_open("maps", ep)) < 0)
 	    sts = -oserror();
 	else {
+	    char buf[1024];
+	    int n, len = 0;
+
 	    while ((n = read(fd, buf, sizeof(buf))) > 0) {
 		len += n;
 		if (ep->maps_buflen <= len) {
@@ -570,7 +598,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 		maps_bufptr = ep->maps_buf + len - n;
 		memcpy(maps_bufptr, buf, n);
 	    }
-	    ep->maps_fetched = 1;
+	    ep->flags |= PROC_PID_FLAG_MAPS_FETCHED;
 	    /* If there are no maps, make maps_buf point to a zero length string. */
 	    if (ep->maps_buflen == 0) {
 		ep->maps_buf = (char *)malloc(1);
@@ -581,9 +609,7 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 	}
     }
 
-    if (sts < 0)
-	return NULL;
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 /*
@@ -592,20 +618,19 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid)
 proc_pid_entry_t *
 fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 {
-    int fd;
     int sts = 0;
-    int n;
     __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
     proc_pid_entry_t *ep;
-    char buf[1024];
 
     if (node == NULL)
     	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->schedstat_fetched == 0) {
-	sprintf(buf, "/proc/%d/schedstat", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+    if (!(ep->flags & PROC_PID_FLAG_SCHEDSTAT_FETCHED)) {
+	int fd, n;
+	char buf[1024];
+
+	if ((fd = proc_open("schedstat", ep)) < 0)
 	    sts = -oserror();
 	else
 	if ((n = read(fd, buf, sizeof(buf))) < 0)
@@ -625,13 +650,11 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid)
 	}
 	if (fd >= 0) {
 	    close(fd);
-	    ep->schedstat_fetched = 1;
 	}
+	ep->flags |= PROC_PID_FLAG_SCHEDSTAT_FETCHED;
     }
 
-    if (sts < 0)
-	return NULL;
-    return ep;
+    return (sts < 0) ? NULL : ep;
 }
 
 /*
@@ -654,14 +677,12 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->io_fetched == 0) {
-	int	fd;
-	int	n;
+    if (!(ep->flags & PROC_PID_FLAG_IO_FETCHED)) {
+	int	fd, n;
 	char	buf[1024];
 	char	*curline;
 
-	sprintf(buf, "/proc/%d/io", ep->id);
-	if ((fd = open(buf, O_RDONLY)) < 0)
+	if ((fd = proc_open("io", ep)) < 0)
 	    sts = -oserror();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
 	    sts = -oserror();
@@ -693,7 +714,7 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid)
 	    ep->io_lines.readb = strsep(&curline, "\n");
 	    ep->io_lines.writeb = strsep(&curline, "\n");
 	    ep->io_lines.cancel = strsep(&curline, "\n");
-	    ep->io_fetched = 1;
+	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
 	}
 	if (fd >= 0)
 	    close(fd);
@@ -715,16 +736,13 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	return NULL;
     ep = (proc_pid_entry_t *)node->data;
 
-    if (ep->fd_fetched == 0) {
-	char	buf[PATH_MAX];
+    if (!(ep->flags & PROC_PID_FLAG_FD_FETCHED)) {
 	uint32_t de_count = 0;
-	DIR	*dir;
+	DIR	*dir = proc_opendir("fd", ep);
 
-	sprintf(buf, "/proc/%d/fd", ep->id);
-	dir = opendir(buf);
 	if (dir == NULL) {
 	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		fprintf(stderr, "failed to open pid fd path %s\n", buf);
+		fprintf(stderr, "failed to open fd path for pid %d\n", ep->id);
 	    return NULL;
 	}
 	while (readdir(dir) != NULL) {
@@ -732,10 +750,118 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	}
 	closedir(dir);
 	ep->fd_count = de_count - 2; /* subtract cwd and parent entries */
+	ep->flags |= PROC_PID_FLAG_FD_FETCHED;
     }
-    ep->fd_fetched = 1;
 
     return ep;
+}
+
+/*
+ * From the kernel format for a single process cgroup set:
+ *     2:cpu:/
+ *     1:cpuset:/
+ *
+ * Produce the same one-line format string that "ps" uses:
+ *     "cpu:/;cpuset:/"
+ */
+static void
+proc_cgroup_reformat(char *buf, int len, char *fmt)
+{
+    char *target = fmt, *p, *s = NULL;
+
+    *target = '\0';
+    for (p = buf; p - buf < len; p++) {
+	if (*p == '\0')
+	    break;
+        if (*p == ':' && !s)	/* position "s" at start */
+            s = p + 1;
+        if (*p != '\n' || !s)	/* find end of this line */
+            continue;
+        if (target != fmt)      /* not the first cgroup? */
+            strncat(target, ";", 2);
+	/* have a complete cgroup line now, copy it over */
+        strncat(target, s, (p - s));
+        target += (p - s);
+        s = NULL;		/* reset it for new line */
+    }
+}
+
+/*
+ * fetch a proc/<pid>/cgroup entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+    int sts = 0;
+
+    if (node == NULL)
+	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (!(ep->flags & PROC_PID_FLAG_CGROUP_FETCHED)) {
+	char	buf[1024];
+	char	fmt[1024];
+	int	n, fd;
+
+	if ((fd = proc_open("cgroup", ep)) < 0)
+	    sts = -oserror();
+	else if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -oserror();
+	else {
+	    if (n == 0)
+		sts = -1;
+	    else {
+		/* reformat the buffer to match "ps" output format, then hash */
+		proc_cgroup_reformat(&buf[0], n, &fmt[0]);
+		ep->cgroup_id = proc_strings_insert(fmt);
+	    }
+	}
+	if (fd >= 0)
+	    close(fd);
+	ep->flags |= PROC_PID_FLAG_CGROUP_FETCHED;
+    }
+
+    return (sts < 0) ? NULL : ep;
+}
+
+/*
+ * fetch a proc/<pid>/attr/current entry for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
+{
+    __pmHashNode *node = __pmHashSearch(id, &proc_pid->pidhash);
+    proc_pid_entry_t *ep;
+    int sts = 0;
+
+    if (node == NULL)
+	return NULL;
+    ep = (proc_pid_entry_t *)node->data;
+
+    if (!(ep->flags & PROC_PID_FLAG_LABEL_FETCHED)) {
+	char	buf[1024];
+	int	n, fd;
+
+	if ((fd = proc_open("attr/current", ep)) < 0)
+	    sts = -oserror();
+	else if ((n = read(fd, buf, sizeof(buf))) < 0)
+	    sts = -oserror();
+	else {
+	    if (n == 0)
+		sts = -1;
+	    else {
+		/* buffer matches "ps" output format, direct hash */
+		ep->label_id = proc_strings_insert(buf);
+	    }
+	}
+	if (fd >= 0)
+	    close(fd);
+	ep->flags |= PROC_PID_FLAG_LABEL_FETCHED;
+    }
+
+    return (sts < 0) ? NULL : ep;
 }
 
 /*

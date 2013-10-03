@@ -32,8 +32,8 @@ PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
 default_pcp default: $(TARGETS) pmns
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	@if [ `grep -c $(CONF_LINE) ../../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../../pmcd.conf ; \
 	fi
 
 include $(BUILDRULES)

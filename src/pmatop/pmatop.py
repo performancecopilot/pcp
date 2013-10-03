@@ -73,21 +73,22 @@ def scale (value, magnitude):
 
 # record ---------------------------------------------------------------
 
-def record (context, config, interval, path):
+def record (host, context, config, interval, path):
 
     # -f saves the metrics in a directory
     if os.path.exists(path):
         return "playback directory %s already exists\n" % path
-    status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-    (status, rhp) = context.pmRecordAddHost ("localhost", 1, config)
-    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
-    status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    time.sleep(interval)
-    context.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
-    status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
-    if status < 0 and status != c_api.PM_ERR_IPC:
-        check_status (status)
-
+    try:
+        status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
+        (status, rhp) = context.pmRecordAddHost (host, 1, config)
+        status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
+        status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
+        time.sleep(interval)
+        context.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
+        status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    except pmapi.pmErr, e:
+        return "Cannot create PCP archive: " + path + " " + str(e)
+    return ""
 
 # record_add_creator ------------------------------------------------------
 
@@ -104,16 +105,19 @@ def record_add_creator (path):
 
 
 def minutes_seconds (milli):
+    milli = abs(milli)
     sec, milli = divmod(milli, 1000)
     tenth, milli = divmod(milli, 100)
     milli = milli / 10
-    min, sec = divmod(sec, 60)
-    hour, min = divmod(min, 60)
+    minute, sec = divmod(sec, 60)
+    hour, minute = divmod(minute, 60)
     day, hour = divmod(hour, 24)
-    if hour > 0:
-        return "%dh%dm" % (day, hour)
-    elif min > 0:
-        return "%dm%ds" % (min, sec)
+    if day > 0:
+        return "%dd" % (day)
+    elif hour > 0:
+        return "%dh%dm" % (hour, minute)
+    elif minute > 0:
+        return "%dm%ds" % (minute, sec)
     else:
         return "%d.%d%1ds" % (sec, tenth, milli)
 
@@ -204,7 +208,12 @@ class _AtopPrint(object):
             apy += 1
         self.p_stdscr.addstr (' ' * (self.apyx[1] - line[1]))
         self.p_stdscr.move(apy, 0)
-    def put_value(self, form, value, try_percentd=0):
+    def put_value(self, form, value, try_percentd=0, try_magnitude=""):
+        # Increase units of value
+        if try_magnitude == "KM" and abs(value) > 1000:
+            value /= 1000
+            form = form.replace(try_magnitude[0], try_magnitude[1])
+        # Use %d instead
         if try_percentd > 0 and abs(value) < try_percentd:
             iform = form.replace(form[form.index("."):form.index(".")+3],"d")
             return iform % value
@@ -489,7 +498,8 @@ class _ProcPrint(_AtopPrint):
         # TODO Remember this state for Next/Previous Page
         cpu_time_sorted = list()
         for j in xrange(self.ss.get_metric_value('proc.nprocs')):
-            cpu_time_sorted.append((j, self.ss.get_scalar_value('proc.schedstat.cpu_time', j)))
+            cpu_time_sorted.append((j, self.ss.get_scalar_value('proc.psinfo.utime', j)
+                                    +  self.ss.get_scalar_value('proc.psinfo.stime', j)))
         cpu_time_sorted.sort(self.sort_l,reverse=True)
 
         for i in xrange(len(cpu_time_sorted)):
@@ -499,11 +509,10 @@ class _ProcPrint(_AtopPrint):
             if self._output_type in ['g']:
                 self.p_stdscr.addstr ('%5s ' % minutes_seconds (self.ss.get_scalar_value('proc.psinfo.stime', j)))
                 self.p_stdscr.addstr (' %5s ' % minutes_seconds (self.ss.get_scalar_value('proc.psinfo.utime', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.vsize', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.rss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.vsize', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.rss', j), 10000, "KM"))
                 self.p_stdscr.addstr ('%5s ' % (self.ss.get_scalar_value('proc.id.uid_nm', j)))
-                # Missing: THR # threads is in /proc/NNN/status
-                self.p_stdscr.addstr ('%5s ' % '-')
+                self.p_stdscr.addstr ('%5d ' % self.ss.get_scalar_value('proc.psinfo.threads', j))
                 self.p_stdscr.addstr ('%3s ' % '--')
                 state = self.ss.get_scalar_value('proc.psinfo.sname', j)
                 self.p_stdscr.addstr ('%2s ' % '-')
@@ -511,7 +520,12 @@ class _ProcPrint(_AtopPrint):
                     state = 'S'
                 self.p_stdscr.addstr ('%2s ' % (state))
                 cpu_total = float(self.ss.cpu_total - self.ss.get_metric_value('kernel.all.cpu.idle'))
-                self.p_stdscr.addstr ('%2d%% ' % ((float(self.ss.get_scalar_value('proc.schedstat.cpu_time', j) / 1000000) / cpu_total) * 100))
+                proc_cpu_total = (self.ss.get_scalar_value('proc.psinfo.utime', j) + self.ss.get_scalar_value('proc.psinfo.stime', j))
+                if proc_cpu_total > cpu_total:
+                    proc_percent = 0
+                else:
+                    proc_percent = (100 * proc_cpu_total / cpu_total)
+                self.p_stdscr.addstr ('%2d%% ' % proc_percent)
                 self.p_stdscr.addstr ('%-15s ' % (self.ss.get_scalar_value('proc.psinfo.cmd', j)))
             if self._output_type in ['m']:
                 # Missing: SWAPSZ, proc.psinfo.nswap frequently returns -1
@@ -522,18 +536,18 @@ class _ProcPrint(_AtopPrint):
                         minf = 0
                     if majf < 0:
                         majf = 0
-                    # self.p_stdscr.addstr (self.put_value('%3.0g ', minf))
-                    # self.p_stdscr.addstr (self.put_value('%3.0g ', majf))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', minf, 1000))
+                    self.p_stdscr.addstr (self.put_value('%3.0g ', majf, 1000))
                 if (self.apyx[1] >= 95):
                     self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.memory.textrss', j), 10000))
                     # Missing: VSLIBS librss seems to always be 0
                     self.p_stdscr.addstr (self.put_value('%4.2gK ', self.ss.get_scalar_value('proc.memory.librss', j)))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.memory.datrss', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.memory.vmstack', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.vsize', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.rss', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_old_scalar_value('proc.psinfo.vsize', j), 10000))
-                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_old_scalar_value('proc.psinfo.rss', j), 10000))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.memory.datrss', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.memory.vmstack', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.vsize', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_scalar_value('proc.psinfo.rss', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_old_scalar_value('proc.psinfo.vsize', j), 10000, "KM"))
+                self.p_stdscr.addstr (self.put_value('%6.3gK ', self.ss.get_old_scalar_value('proc.psinfo.rss', j), 10000, "KM"))
                 val = float(self.ss.get_old_scalar_value('proc.psinfo.rss', j)) / float(self.ss.get_metric_value('mem.physmem')) * 100
                 if val > 100: val = 0
                 self.p_stdscr.addstr (self.put_value('%2d%% ', val))
@@ -631,7 +645,7 @@ def main (stdscr_p):
             return "Cannot open PCP archive: " + archive
     else:
         if host == "":
-            host = "localhost"
+            host = "local:"
         try:
             pmc = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:
@@ -655,7 +669,7 @@ def main (stdscr_p):
                 duration = n_samples * interval_arg
             else:
                 duration = 10 * interval_arg
-        status = record (pmgui.GuiClient(), configuration, duration, output_file)
+        status = record (host, pmgui.GuiClient(), configuration, duration, output_file)
         if status != "":
             return status
         record_add_creator (output_file)

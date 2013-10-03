@@ -1,7 +1,6 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Copyright (c) 2011-2013 Red Hat Inc.
-# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,17 +12,18 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Install the systemd PMDA and/or PMNS
+# Install the Linux XFS PMDA and/or PMNS
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=systemd
-pmda_interface=5
-pipe_opt=true
+iam=xfs
+pmda_interface=3
 daemon_opt=true
+pipe_opt=true
+pmns_source=root_xfs
+
 pmdaSetup
 pmdaInstall
-
 exit 0

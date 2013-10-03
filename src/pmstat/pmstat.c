@@ -751,12 +751,9 @@ main(int argc, char *argv[])
 	 * PM_CONTEXT_ARCHIVE.  If we fail to talk to pmcd we fallback
 	 * to local context mode automagically.
 	 */
-	if ((pd = getNewContext (ctxType, "local:", 1)) == NULL) {
-	    char local[MAXHOSTNAMELEN];
-	    gethostname (local, MAXHOSTNAMELEN);
-	    local[MAXHOSTNAMELEN-1] = '\0';
+	if ((pd = getNewContext(ctxType, "local:", 1)) == NULL) {
 	    ctxType = PM_CONTEXT_LOCAL;
-	    pd = getNewContext (ctxType, local, 0);
+	    pd = getNewContext(ctxType, NULL, 0);
 	}
 	if (!pd) {
 	    exit (1);

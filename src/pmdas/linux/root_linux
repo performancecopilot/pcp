@@ -418,6 +418,8 @@ network.interface {
     up			60:3:25
     running		60:3:26
     inet_addr		60:33:0
+    ipv6_addr		60:33:1
+    ipv6_scope		60:33:2
 }
 
 network.interface.in {

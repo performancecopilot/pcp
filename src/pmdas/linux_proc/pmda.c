@@ -50,7 +50,7 @@ static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
-static unsigned int		threads = 1;	/* control.all.threads */
+static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
 
 /*
@@ -444,6 +444,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.cgroups */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.labels */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_LABEL,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 
 /*
  * proc/<pid>/statm cluster
@@ -686,10 +696,7 @@ static pmdaMetric metrictab[] = {
  */
 
     /* proc.control.all.threads */
-    { &threads, { PMDA_PMID(CLUSTER_CONTROL, 0), PM_TYPE_U32,
-    PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
-    /* proc.control.all.cgroups */
-    { &cgroups, { PMDA_PMID(CLUSTER_CONTROL, 1), PM_TYPE_STRING,
+    { &threads, { PMDA_PMID(CLUSTER_CONTROL, 1), PM_TYPE_U32,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* proc.control.perclient.threads */
     { NULL, { PMDA_PMID(CLUSTER_CONTROL, 2), PM_TYPE_U32,
@@ -764,9 +771,14 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh_mtab |= refresh_cgroups(pmda, NULL);
     }
 
-    if (need_refresh[CLUSTER_PID_STAT] || need_refresh[CLUSTER_PID_STATM] || 
-	need_refresh[CLUSTER_PID_STATUS] || need_refresh[CLUSTER_PID_IO] ||
-	need_refresh[CLUSTER_PID_SCHEDSTAT] || need_refresh[CLUSTER_PID_FD]) {
+    if (need_refresh[CLUSTER_PID_STAT] ||
+	need_refresh[CLUSTER_PID_STATM] || 
+	need_refresh[CLUSTER_PID_STATUS] ||
+	need_refresh[CLUSTER_PID_IO] ||
+	need_refresh[CLUSTER_PID_LABEL] ||
+	need_refresh[CLUSTER_PID_CGROUP] ||
+	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
+	need_refresh[CLUSTER_PID_FD]) {
 	refresh_proc_pid(&proc_pid,
 			proc_ctx_threads(pmda->e_context, threads),
 			proc_ctx_cgroups(pmda->e_context, cgroups));
@@ -799,6 +811,8 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     	need_refresh[CLUSTER_PID_STAT]++;
     	need_refresh[CLUSTER_PID_STATM]++;
         need_refresh[CLUSTER_PID_STATUS]++;
+        need_refresh[CLUSTER_PID_LABEL]++;
+        need_refresh[CLUSTER_PID_CGROUP]++;
         need_refresh[CLUSTER_PID_SCHEDSTAT]++;
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
@@ -862,6 +876,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     proc_pid_entry_t	*entry;
     struct filesys	*fs;
     static long		hz = -1;
+    char 		*tail;
 
     if (hz == -1)
     	hz = sysconf(_SC_CLK_TCK);
@@ -958,7 +973,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul /= 1024;
 		break;
 
@@ -968,7 +983,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 		break;
 
@@ -982,7 +997,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
 
-		sscanf(f, "%lu", &ul);
+		ul = (__uint32_t)strtoul(f, &tail, 0);
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 		break;
 
@@ -993,16 +1008,16 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%d", &atom->l);
+		atom->l = (__int32_t)strtol(f, &tail, 0);
 		break;
 
 	    case PROC_PID_STAT_WCHAN:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-		sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 #else
-		sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 		break;
 
@@ -1019,13 +1034,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    if (f == NULL)
 			return PM_ERR_INST;
 #if defined(HAVE_64BIT_PTR)
-		    sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		    atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 		    if ((wc = wchan(atom->ull)))
 			atom->cp = wc;
 		    else
 			atom->cp = atom->ull ? f : "";
 #else
-		    sscanf(f, "%u", &atom->ul);    /* 32bit address */
+		    atom->ul  = (__uint32_t)strtoul(f, &tail, 0);
 		    if ((wc = wchan((__psint_t)atom->ul)))
 			atom->cp = wc;
 		    else
@@ -1041,7 +1056,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (idp->item >= 0 && idp->item < NR_PROC_PID_STAT) {
 		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    	return PM_ERR_INST;
-		    sscanf(f, "%u", &atom->ul);
+		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		}
 		else
 		    return PM_ERR_PMID;
@@ -1065,7 +1080,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		/* unsigned int */
 		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 	    }
 	    else
@@ -1084,12 +1099,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
 		mdesc->m_desc.type == PM_TYPE_U32)
-		sscanf(f, "%u", &atom->ul);
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    else
 #if defined(HAVE_64BIT_PTR)
-		sscanf(f, "%lu", &atom->ull); /* 64bit address */
+		atom->ull  = (__uint64_t)strtoull(f, &tail, 0);
 #else
-		sscanf(f, "%u", &atom->ul);    /* 32bit address */
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 	}
 	else
@@ -1108,43 +1123,43 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_WCHAR:
 	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_SYSCR:
 	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_SYSCW:
 	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_READ_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_WRITE_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 	case PROC_PID_IO_CANCELLED_BYTES:
 	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
 		atom->ull = 0;
 	    else
-		sscanf(f, "%llu", (unsigned long long *)&atom->ull);
+		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
 
 	default:
@@ -1176,7 +1191,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    if ((f = _pm_getfield(entry->status_lines.uid, (idp->item % 4) + 1)) == NULL)
 		return PM_ERR_INST;
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSUID) {
 		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
 		    atom->cp = pwe->pw_name;
@@ -1199,7 +1214,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    if ((f = _pm_getfield(entry->status_lines.gid, (idp->item % 4) + 1)) == NULL)
 		return PM_ERR_INST;
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSGID) {
 		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
 		    atom->cp = gre->gr_name;
@@ -1234,63 +1249,63 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((f = _pm_getfield(entry->status_lines.vmsize, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMLOCK:
 	if ((f = _pm_getfield(entry->status_lines.vmlck, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMRSS:
-	if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL)
-	    atom->ul = 0;
-	else
-	    sscanf(f, "%u", &atom->ul);
-	break;
+        if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL)
+            atom->ul = 0;
+        else
+            atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+        break;
 
 	case PROC_PID_STATUS_VMDATA:
 	if ((f = _pm_getfield(entry->status_lines.vmdata, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMSTACK:
 	if ((f = _pm_getfield(entry->status_lines.vmstk, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMEXE:
 	if ((f = _pm_getfield(entry->status_lines.vmexe, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMLIB:
 	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_VMSWAP:
 	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_THREADS:
 	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
 	    atom->ul = 0;
 	else
-	    sscanf(f, "%u", &atom->ul);
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	default:
@@ -1342,18 +1357,36 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_FD_COUNT)
+	    return PM_ERR_PMID;
 	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
 	    return PM_ERR_INST;
-	if (idp->item != PROC_PID_FD_COUNT)
-	    return PM_ERR_INST;
-
 	atom->ul = entry->fd_count;
+	break;
+
+    case CLUSTER_PID_CGROUP:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_CGROUP)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	break;
+
+    case CLUSTER_PID_LABEL:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if (idp->item > PROC_PID_LABEL)
+	    return PM_ERR_PMID;
+	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL)
+	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	atom->cp = proc_strings_lookup(entry->label_id);
 	break;
 
     case CLUSTER_CONTROL:
 	switch (idp->item) {
-	/* case 0: not reached -- proc.control.all.threads is direct */
-	/* case 1: not reached -- proc.control.all.cgroups is direct */
+	/* case 1: not reached -- proc.control.all.threads is direct */
 	case 2:	/* proc.control.perclient.threads */
 	    atom->ul = proc_ctx_threads(pmdaGetContext(), threads);
 	    break;
@@ -1409,7 +1442,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	else if (vsp->numval != 1)
 	    sts = PM_ERR_INST;
 	else switch (idp->item) {
-	case 0: /* proc.control.all.threads */
+	case 1: /* proc.control.all.threads */
 	    if (!have_access)
 		sts = PM_ERR_PERMISSION;
 	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -1418,16 +1451,6 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		    sts = PM_ERR_CONV;
 		else
 		    threads = av.ul;
-	    }
-	    break;
-	case 1: /* proc.control.all.cgroups */
-	    if (!have_access)
-		sts = PM_ERR_PERMISSION;
-	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-		if (cgroups)
-		    free(cgroups);
-		cgroups = av.cp;
 	    }
 	    break;
 	case 2: /* proc.control.perclient.threads */
@@ -1493,6 +1516,28 @@ proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda
 }
 
 /*
+ * Helper routines for accessing a generic static string dictionary
+ */
+
+char *
+proc_strings_lookup(int index)
+{
+    char *value;
+    pmInDom dict = INDOM(STRINGS_INDOM);
+
+    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+	return value;
+    return "";
+}
+
+int
+proc_strings_insert(const char *buf)
+{
+    pmInDom dict = INDOM(STRINGS_INDOM);
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, buf, NULL);
+}
+
+/*
  * Initialise the agent (both daemon and DSO).
  */
 
@@ -1524,6 +1569,7 @@ proc_init(pmdaInterface *dp)
      */
     indomtab[CPU_INDOM].it_indom = CPU_INDOM;
     indomtab[PROC_INDOM].it_indom = PROC_INDOM;
+    indomtab[STRINGS_INDOM].it_indom = STRINGS_INDOM;
     indomtab[CGROUP_SUBSYS_INDOM].it_indom = CGROUP_SUBSYS_INDOM;
     indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
@@ -1542,6 +1588,9 @@ proc_init(pmdaInterface *dp)
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
+    /* string metrics use the pmdaCache API for value indexing */
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
+
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);
     pmdaCacheOp(INDOM(CGROUP_SUBSYS_INDOM), PMDA_CACHE_CULL);
@@ -1555,7 +1604,8 @@ usage(void)
     fputs("Options:\n"
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
-	  "  -U username account to run under (default is root, for proc.io metrics)\n",
+	  "  -L          include threads in the all-processes instance domain\n"
+	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
 }
@@ -1568,15 +1618,18 @@ main(int argc, char **argv)
     int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
-    char		*username = "root";	/* proc.io.* require root! */
+    char		*username = "root";
 
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:LU:?", &dispatch, &err)) != EOF) {
 	switch (c) {
+	case 'L':
+	    threads = 1;
+	    break;
 	case 'U':
 	    username = optarg;
 	    break;

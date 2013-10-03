@@ -1,6 +1,7 @@
 /*
  * Linux /proc/net_dev metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +25,8 @@
 #include <ctype.h>
 #include "proc_net_dev.h"
 
-int
-refresh_net_socket()
+static int
+refresh_inet_socket()
 {
     static int netfd = -1;
     if (netfd < 0)
@@ -33,20 +34,26 @@ refresh_net_socket()
     return netfd;
 }
 
-void
+static int
 refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 {
     struct ethtool_cmd ecmd;
     struct ifreq ifr;
     int fd;
 
-    memset(&netip->ioc, 0, sizeof(netip->ioc));
-    if ((fd = refresh_net_socket()) < 0)
-	return;
+    if ((fd = refresh_inet_socket()) < 0)
+	return 0;
 
     ecmd.cmd = ETHTOOL_GSET;
     ifr.ifr_data = (caddr_t)&ecmd;
     strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
+	netip->ioc.mtu = ifr.ifr_mtu;
+    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
+	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
+	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
+    }
+    /* ETHTOOL ioctl -> non-root permissions issues for old kernels */
     if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	/*
 	 * speed is defined in ethtool.h and returns the speed in
@@ -54,32 +61,65 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 	 */
 	netip->ioc.speed = ecmd.speed;
 	netip->ioc.duplex = ecmd.duplex + 1;
+	return 0;
     }
-    if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
-	netip->ioc.mtu = ifr.ifr_mtu;
-    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
-	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
-	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
-    }
+    return -ENOSYS;	/* caller should try ioctl alternatives */
 }
 
-void
-refresh_net_inet_ioctl(char *name, net_inet_t *netip)
+static void
+refresh_net_addr_ioctl(char *name, net_addr_t *addr)
 {
-    struct sockaddr_in *sin;
     struct ifreq ifr;
     int fd;
 
-    if ((fd = refresh_net_socket()) < 0)
+    if ((fd = refresh_inet_socket()) < 0)
 	return;
-
     strcpy(ifr.ifr_name, name);
     ifr.ifr_addr.sa_family = AF_INET;
-    if (!(ioctl(fd, SIOCGIFADDR, &ifr) < 0)) {
-	netip->hasip = 1;
-	sin = (struct sockaddr_in *)&ifr.ifr_addr;
-	netip->addr = sin->sin_addr;
+    if (ioctl(fd, SIOCGIFADDR, &ifr) >= 0) {
+	struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
+	if (inet_ntop(AF_INET, &sin->sin_addr, addr->inet, INET_ADDRSTRLEN))
+	    addr->hasinet = 1;
     }
+}
+
+/*
+ * no ioctl support or no permissions (more likely), so we
+ * fall back to grovelling around in /sys/devices in a last
+ * ditch attempt to find the ethtool interface data (duplex
+ * and speed).
+ */
+static char *
+read_oneline(const char *path, char *buffer)
+{
+    FILE *fp = fopen(path, "r");
+
+    if (fp) {
+	int i = fscanf(fp, "%s", buffer);
+	fclose(fp);
+	if (i == 1)
+	    return buffer;
+    }
+    return "";
+}
+
+static void
+refresh_net_dev_sysfs(char *name, net_interface_t *netip)
+{
+    char path[256];
+    char line[64];
+    char *duplex;
+
+    snprintf(path, sizeof(path), "/sys/class/net/%s/speed", name);
+    netip->ioc.speed = atoi(read_oneline(path, line));
+    snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", name);
+    duplex = read_oneline(path, line);
+    if (strcmp(duplex, "full") == 0)
+	netip->ioc.duplex = 2;
+    else if (strcmp(duplex, "half") == 0)
+	netip->ioc.duplex = 1;
+    else	/* eh? */
+	netip->ioc.duplex = 0;
 }
 
 int
@@ -160,7 +200,9 @@ Inter-|   Receive                                                |  Transmit
 	}
 
 	/* Issue ioctls for remaining data, not exported through proc */
-	refresh_net_dev_ioctl(p, netip);
+	memset(&netip->ioc, 0, sizeof(netip->ioc));
+	if (refresh_net_dev_ioctl(p, netip) < 0)
+	    refresh_net_dev_sysfs(p, netip);
 
 	for (p=v, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
 	    for (; !isdigit((int)*p); p++) {;}
@@ -186,22 +228,16 @@ Inter-|   Receive                                                |  Transmit
     return 0;
 }
 
-/*
- * This separate indom provides the IP addresses for all interfaces including
- * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
- */
-int
-refresh_net_dev_inet(pmInDom indom)
+static int
+refresh_net_dev_ipv4_addr(pmInDom indom)
 {
     int n, fd, sts, numreqs = 30;
     struct ifconf ifc;
     struct ifreq *ifr;
-    net_inet_t *netip;
+    net_addr_t *netip;
     static uint32_t cache_err;
 
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-    if ((fd = refresh_net_socket()) < 0)
+    if ((fd = refresh_inet_socket()) < 0)
 	return fd;
 
     ifc.ifc_buf = NULL;
@@ -227,27 +263,134 @@ refresh_net_dev_inet(pmInDom indom)
 	sts = pmdaCacheLookupName(indom, ifr->ifr_name, NULL, (void **)&netip);
 	if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
 	    /* first time since re-loaded, else new one */
-	    netip = (net_inet_t *)calloc(1, sizeof(net_inet_t));
+	    netip = (net_addr_t *)calloc(1, sizeof(net_addr_t));
 	}
 	else if (sts < 0) {
 	    if (cache_err++ < 10) {
-		fprintf(stderr, "refresh_net_dev_inet: pmdaCacheLookupName(%s, %s, ...) failed: %s\n",
+		fprintf(stderr, "refresh_net_dev_ipv4_addr: "
+			"pmdaCacheLookupName(%s, %s, ...) failed: %s\n",
 		    pmInDomStr(indom), ifr->ifr_name, pmErrStr(sts));
 	    }
 	    continue;
 	}
 	if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, ifr->ifr_name, (void *)netip)) < 0) {
 	    if (cache_err++ < 10) {
-		fprintf(stderr, "refresh_net_dev_inet: pmdaCacheStore(%s, PMDA_CACHE_ADD, %s, " PRINTF_P_PFX "%p) failed: %s\n",
+		fprintf(stderr, "refresh_net_dev_ipv4_addr: "
+			"pmdaCacheStore(%s, PMDA_CACHE_ADD, %s, "
+			PRINTF_P_PFX "%p) failed: %s\n",
 		    pmInDomStr(indom), ifr->ifr_name, netip, pmErrStr(sts));
 	    }
 	    continue;
 	}
 
-	refresh_net_inet_ioctl(ifr->ifr_name, netip);
+	refresh_net_addr_ioctl(ifr->ifr_name, netip);
     }
     free(ifc.ifc_buf);
+    return 0;
+}
+
+static int
+refresh_net_dev_ipv6_addr(pmInDom indom)
+{
+    FILE *fp;
+    char addr6p[8][5];
+    char addr6[40], devname[20];
+    char addr[INET6_ADDRSTRLEN];
+    struct sockaddr_in6 sin6;
+    int sts, plen, scope, dad_status, if_idx;
+    net_addr_t *netip;
+    static uint32_t cache_err;
+
+    if ((fp = fopen("/proc/net/if_inet6", "r")) == NULL)
+	return 0;
+
+    while (fscanf(fp, "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %20s\n",
+		  addr6p[0], addr6p[1], addr6p[2], addr6p[3],
+		  addr6p[4], addr6p[5], addr6p[6], addr6p[7],
+		  &if_idx, &plen, &scope, &dad_status, devname) != EOF) {
+	sts = pmdaCacheLookupName(indom, devname, NULL, (void **)&netip);
+	if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
+	    /* first time since re-loaded, else new one */
+	    netip = (net_addr_t *)calloc(1, sizeof(net_addr_t));
+	}
+	else if (sts < 0) {
+	    if (cache_err++ < 10) {
+		fprintf(stderr, "refresh_net_dev_ipv6_addr: "
+				"pmdaCacheLookupName(%s, %s, ...) failed: %s\n",
+		    pmInDomStr(indom), devname, pmErrStr(sts));
+	    }
+	    continue;
+	}
+	if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, devname, (void *)netip)) < 0) {
+	    if (cache_err++ < 10) {
+		fprintf(stderr, "refresh_net_dev_ipv6_addr: "
+			"pmdaCacheStore(%s, PMDA_CACHE_ADD, %s, "
+			PRINTF_P_PFX "%p) failed: %s\n",
+		    pmInDomStr(indom), devname, netip, pmErrStr(sts));
+	    }
+	    continue;
+	}
+
+	sprintf(addr6, "%s:%s:%s:%s:%s:%s:%s:%s",
+		addr6p[0], addr6p[1], addr6p[2], addr6p[3],
+		addr6p[4], addr6p[5], addr6p[6], addr6p[7]);
+	if (inet_pton(AF_INET6, addr6, sin6.sin6_addr.s6_addr) != 1)
+	    continue;
+
+	sin6.sin6_family = AF_INET6;
+	sin6.sin6_port = 0;
+	if (!inet_ntop(AF_INET6, &sin6.sin6_addr, addr, INET6_ADDRSTRLEN))
+	    continue;
+	snprintf(netip->ipv6, sizeof(netip->ipv6), "%s/%d", addr, plen);
+	netip->ipv6scope = (uint16_t)scope;
+	netip->hasipv6 = 1;
+    }
+    fclose(fp);
+    return 0;
+}
+
+/*
+ * This separate indom provides the addresses for all interfaces including
+ * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
+ */
+int
+refresh_net_dev_addr(pmInDom indom)
+{
+    int sts = 0;
+    net_addr_t*p;
+
+    for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(indom, sts, NULL, (void **)&p) || !p)
+	    continue;
+	p->hasinet = 0;
+	p->hasipv6 = 0;
+    }
+
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+    sts |= refresh_net_dev_ipv4_addr(indom);
+    sts |= refresh_net_dev_ipv6_addr(indom);
 
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);
-    return 0;
+    return sts;
+}
+
+char *
+lookup_ipv6_scope(int scope)
+{
+    switch (scope) {
+    case IPV6_ADDR_ANY:
+        return "Global";
+    case IPV6_ADDR_LINKLOCAL:
+        return "Link";
+    case IPV6_ADDR_SITELOCAL:
+        return "Site";
+    case IPV6_ADDR_COMPATv4:
+        return "Compat";
+    case IPV6_ADDR_LOOPBACK:
+        return "Host";
+    }
+    return "Unknown";
 }

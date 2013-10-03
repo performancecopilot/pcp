@@ -1,6 +1,7 @@
 /*
  * Linux /proc/net/dev metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 typedef struct {
@@ -28,9 +25,12 @@ typedef struct {
 } net_dev_t;
 
 typedef struct {
-    uint8_t	hasip;
-    struct in_addr addr;
-} net_inet_t;
+    uint8_t	hasinet;
+    uint8_t	hasipv6;
+    uint16_t	ipv6scope;
+    char	inet[INET_ADDRSTRLEN];
+    char	ipv6[INET6_ADDRSTRLEN+16];	/* extra for /plen */
+} net_addr_t;
 
 #define PROC_DEV_COUNTERS_PER_LINE   16
 
@@ -39,6 +39,7 @@ typedef struct {
     uint64_t	last_counters[PROC_DEV_COUNTERS_PER_LINE];
     uint64_t	counters[PROC_DEV_COUNTERS_PER_LINE];
     net_dev_t	ioc;
+    char	*path;	/* sysfs path, for non-ioctl refresh */
 } net_interface_t;
 
 #ifndef ETHTOOL_GSET
@@ -81,5 +82,15 @@ struct ethtool_cmd {
     uint32_t	reserved[4];
 };
 
+#define IPV6_ADDR_ANY           0x0000U
+#define IPV6_ADDR_UNICAST       0x0001U
+#define IPV6_ADDR_MULTICAST     0x0002U
+#define IPV6_ADDR_ANYCAST       0x0004U
+#define IPV6_ADDR_LOOPBACK      0x0010U
+#define IPV6_ADDR_LINKLOCAL     0x0020U
+#define IPV6_ADDR_SITELOCAL     0x0040U
+#define IPV6_ADDR_COMPATv4      0x0080U
+
 extern int refresh_proc_net_dev(pmInDom);
-extern int refresh_net_dev_inet(pmInDom);
+extern int refresh_net_dev_addr(pmInDom);
+extern char *lookup_ipv6_scope(int);

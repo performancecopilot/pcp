@@ -445,21 +445,28 @@ class _netCollectPrint(_CollectPrint):
             sum(self.ss.get_metric_value('network.interface.in.packets')),
             sum(self.ss.get_metric_value('network.interface.out.bytes')) / 1024,
             sum(self.ss.get_metric_value('network.interface.out.packets'))),
+    def average_packet_size(self, bytes, packets):
+        # calculate mean packet size safely (note that divisor may be zero)
+        result = 0
+        bin = sum(self.ss.get_metric_value('network.interface.' + bytes))
+        pin = sum(self.ss.get_metric_value('network.interface.' + packets))
+        if pin > 0:
+           result = bin / pin
+        return result
     def print_verbose(self):
-        self.ss.get_metric_value('network.interface.in.bytes')[0] = 0 # don't include loopback
-        self.ss.get_metric_value('network.interface.in.bytes')[1] = 0
+        # don't include loopback; TODO: pmDelProfile would be more appropriate
+        self.ss.get_metric_value('network.interface.in.bytes')[0] = 0
+        self.ss.get_metric_value('network.interface.out.bytes')[0] = 0
         print '%6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
             sum(self.ss.get_metric_value('network.interface.in.bytes')) / 1024,
             sum(self.ss.get_metric_value('network.interface.in.packets')),
-            sum(self.ss.get_metric_value('network.interface.in.bytes')) /
-            sum(self.ss.get_metric_value('network.interface.in.packets')),
+            self.average_packet_size('in.bytes', 'in.packets'),
             sum(self.ss.get_metric_value('network.interface.in.mcasts')),
             sum(self.ss.get_metric_value('network.interface.in.compressed')),
             sum(self.ss.get_metric_value('network.interface.in.errors')),
             sum(self.ss.get_metric_value('network.interface.out.bytes')) / 1024,
             sum(self.ss.get_metric_value('network.interface.out.packets')),
-            sum(self.ss.get_metric_value('network.interface.out.bytes')) /
-            sum(self.ss.get_metric_value('network.interface.out.packets')),
+            self.average_packet_size('out.bytes', 'out.packets'),
             sum(self.ss.get_metric_value('network.interface.total.mcasts')),
             sum(self.ss.get_metric_value('network.interface.out.errors')))
     def print_detail(self):
@@ -613,8 +620,6 @@ if __name__ == '__main__':
 
     # Find server-side pmcd host-name
     host = pm.pmGetContextHostName()
-    if host == "localhost":  # (should not happen)
-        host = os.uname()[1]
 
     if duration_arg != 0:
         (code, timeval, errmsg) = pm.pmParseInterval(duration_arg)

@@ -250,7 +250,7 @@ static pmdaIndom indomtab[] = {
     { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS, nfs4_cli_indom_id },
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
     { QUOTA_PRJ_INDOM, 0, NULL },	/* migrated to the xfs PMDA */
-    { NET_INET_INDOM, 0, NULL },
+    { NET_ADDR_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
     { NODE_INDOM, 0, NULL },
     { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
@@ -1323,9 +1323,19 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_DEV,27), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* network.interface.ipaddr */
+/* network.interface.inet_addr */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_INET,0), PM_TYPE_STRING, NET_INET_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,0), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.ipv6_addr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,1), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.interface.ipv6_scope */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,2), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
@@ -3089,8 +3099,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_NET_DEV])
 	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
 
-    if (need_refresh[CLUSTER_NET_INET])
-	refresh_net_dev_inet(INDOM(NET_INET_INDOM));
+    if (need_refresh[CLUSTER_NET_ADDR])
+	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM));
 
     if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
 	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM));
@@ -3222,7 +3232,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts;
     long		sl;
     struct filesys	*fs;
-    net_inet_t		*inetp;
+    net_addr_t		*addrp;
     net_interface_t	*netip;
 
     if (mdesc->m_user != NULL) {
@@ -3942,16 +3952,27 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-    case CLUSTER_NET_INET:
-	sts = pmdaCacheLookup(INDOM(NET_INET_INDOM), inst, NULL, (void **)&inetp);
+    case CLUSTER_NET_ADDR:
+	sts = pmdaCacheLookup(INDOM(NET_ADDR_INDOM), inst, NULL, (void **)&addrp);
 	if (sts < 0)
 	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE)
+	    return PM_ERR_INST;
 	switch (idp->item) {
 	case 0: /* network.interface.inet_addr */
-	    if (!inetp->hasip)
+	    if (addrp->hasinet == 0)
 		return 0;
-	    if ((atom->cp = inet_ntoa(inetp->addr)) == NULL)
+	    atom->cp = addrp->inet;
+	    break;
+	case 1: /* network.interface.ipv6_addr */
+	    if (addrp->hasipv6 == 0)
 		return 0;
+	    atom->cp = addrp->ipv6;
+	    break;
+	case 2: /* network.interface.ipv6_scope */
+	    if (addrp->hasipv6 == 0)
+		return 0;
+	    atom->cp = lookup_ipv6_scope(addrp->ipv6scope);
 	    break;
 	default:
 	    return PM_ERR_PMID;
