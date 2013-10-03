@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <grp.h>
 
 #define DEFAULT_MAXMEM  (2 * 1024 * 1024)       /* 2 megabytes */
 long maxmem;
@@ -44,7 +45,18 @@ static sd_journal *journald_context_seeky; /* Used for event detail extraction,
                                               involving seeks. */
 static int queue_entries = -1;
 static char *username = "adm";
-static __pmnsTree *pmns;
+
+
+/* Track per-context PCP_ATTR_USERID | _GROUPID, so we
+   can filter event records for that context. */
+static int uid_gid_filter_p = 1;
+struct uid_gid_tuple {
+    char wildcard_p; /* do not filter for this context. */
+    char uid_p; char gid_p; /* uid/gid received flags. */
+    int uid; int gid; }; /* uid/gid received from PCP_ATTR_* */
+static struct uid_gid_tuple *ctxtab = NULL;
+int ctxtab_size = 0;
+
 
 static pmdaMetric metrictab[] = {
 /* numclients */
@@ -94,6 +106,7 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
+
 void systemd_shutdown(void)
 {
     if (journald_context >= 0)
@@ -104,6 +117,29 @@ void systemd_shutdown(void)
 
     /* XXX: pmdaEvent zap queues? */
 }
+
+
+/* Return a strndup (or NULL) of a field of the current journal entry,
+   since sd_journal_get_data returns data that is not
+   \0-terminated. */
+char *
+my_sd_journal_get_data(sd_journal *j, const char *field)
+{
+    int rc;
+    const char* str;
+    size_t str_len;
+
+    assert (j != NULL);
+    assert (field != NULL);
+
+    rc = sd_journal_get_data(j, field,
+                             (const void**) & str, & str_len);
+    if (rc < 0)
+        return NULL;
+
+    return strndup (str, str_len);
+}
+
 
 void systemd_refresh(void)
 {
@@ -117,7 +153,6 @@ void systemd_refresh(void)
     while (--max_iterations > 0) {
         char *cursor = NULL;
         char *timestamp_str = NULL;
-        size_t timestamp_len = 0;
         struct timeval timestamp;
 
         int rc = sd_journal_next(journald_context);
@@ -140,26 +175,28 @@ void systemd_refresh(void)
         }
 
         /* Extract a timestamp from the journald event fields. */
-        rc = sd_journal_get_data(journald_context, "_SOURCE_REALTIME_TIMESTAMP",
-                                 (const void**) & timestamp_str, & timestamp_len);
-        if (rc < 0)
-            rc = sd_journal_get_data(journald_context, "__REALTIME_TIMESTAMP",
-                                     (const void**) & timestamp_str, & timestamp_len);
-        if (rc == 0) {
+        timestamp_str = my_sd_journal_get_data(journald_context,
+                                               "_SOURCE_REALTIME_TIMESTAMP");
+        if (timestamp_str == NULL)
+            timestamp_str = my_sd_journal_get_data(journald_context,
+                                                   "__REALTIME_TIMESTAMP");
+        if (timestamp_str == NULL)
+            rc = -ENOMEM;
+        else {
+            const char* curse;
             unsigned long long epoch_us;
-            assert (timestamp_str != NULL);
             /* defined in systemd.journal-fields(7) as
                FIELD_NAME=NNNN, where NNNN is decimal us since epoch. */
-            timestamp_str = strchr (timestamp_str, '=');
-            if (timestamp_str == NULL)
-                rc = -1;
+            curse = strchr (timestamp_str, '=');
+            if (curse == NULL)
+                rc = -EINVAL;
             else {
-                assert (timestamp_str != NULL);
-                timestamp_str ++;
-                epoch_us = strtoull (timestamp_str, NULL, 10);
+                curse ++;
+                epoch_us = strtoull (curse, NULL, 10);
                 timestamp.tv_sec  = epoch_us / 1000000;
                 timestamp.tv_usec = epoch_us % 1000000;
             }
+            free (timestamp_str);
         }
         /* Improvise. */
         if (rc < 0)
@@ -183,6 +220,103 @@ enum journald_field_encoding {
     JFE_BLOB_ONLY
 };
 
+
+
+int
+systemd_journal_event_filter (void *rp, void *data, size_t size)
+{
+    int rc;
+    struct uid_gid_tuple* ugt = rp;
+
+    assert (ugt == & ctxtab[pmdaGetContext()]);
+    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
+                      pmdaGetContext(), ugt->uid, ugt->gid, data, (unsigned)size);
+
+    /* The data/size pair gives the object in the event queue, i.e.,
+       the systemd journal cursor string.  It has not yet been turned
+       into a PM_TYPE_EVENT tuple yet, and if we have our way, it won't
+       be (for non-participating clients). */
+
+    /* The general filtering idea is to only feed journal records to clients
+       if their uid matches the _UID=NNN field -or- gid matches _GID=MMM
+       -or- the client is highly authenticated (wildcard_p) -or- per-uid filtering
+       was turned off at the pmda level. */
+
+    /* Reminder: function rc == 0 passes the filter. */
+
+    /* Unfiltered?  Everyone gets egg soup! */
+    if (! uid_gid_filter_p)
+        return 0;
+
+    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "filter (%d) uid%s%d gid%s%d wildcard=%d\n",
+                      pmdaGetContext(),
+                      ugt->uid_p?"=":"?", ugt->uid,
+                      ugt->gid_p?"=":"?", ugt->gid,
+                      ugt->wildcard_p);
+
+    /* Superuser?  May we offer some goulash? */
+    if (ugt->wildcard_p)
+        return 0;
+
+    /* Unauthenticated context?  No soup for you! */
+    if (! ugt->uid_p && ! ugt->gid_p)
+        return 1;
+
+    /* OK, we need to take a look at the journal record in question. */
+
+    __pmNotifyErr(LOG_ERR, "filter cursor=%s\n", (const char*) data);
+
+    (void) size; /* already known \0-terminated */
+    rc = sd_journal_seek_cursor(journald_context_seeky, (char*) data);
+    if (rc < 0) {
+        __pmNotifyErr(LOG_ERR, "filter cannot seek to cursor=%s\n",
+                      (const char*) data);
+        return 1; /* No point trying again in systemd_journal_decoder. */
+    }
+
+    rc = sd_journal_next(journald_context_seeky);
+    if (rc < 0) {
+        __pmNotifyErr(LOG_ERR, "filter cannot advance to next\n");
+        return 1; /* No point trying again in systemd_journal_decoder. */
+    }
+
+    if (ugt->uid_p) {
+        char *uid_str = my_sd_journal_get_data(journald_context_seeky, "_UID");
+        if (uid_str) {
+            int uid = atoi (& uid_str[5]); /* skip over _UID= */
+            free (uid_str);
+            if (uid == ugt->uid)
+                return 0; /* You're a somebody.  Here's a bowl of stew. */
+        }
+    }
+
+    if (ugt->gid_p) {
+        char *gid_str = my_sd_journal_get_data(journald_context_seeky, "_GID");
+        if (gid_str) {
+            int gid = atoi (& gid_str[5]); /* skip over _GID= */
+            free (gid_str);
+            if (gid == ugt->gid)
+                return 0; /* You're with pals.  Here's a bowl of miso. */
+        }
+    }
+
+    /* No soup for you! */
+    return 1;
+}
+
+
+void
+systemd_journal_event_filter_release (void *rp)
+{
+    /* NB: We have nothing to release, as we don't do memory allocation
+       for the filter per se - we clean up during end-context time.
+       We can't send a NULL to pmdaEventSetFilter for release purposes
+       (since it'll blindly call it), so need this dummy function. */
+
+    (void) rp;
+}
 
 
 int
@@ -262,12 +396,38 @@ systemd_journal_decoder(int eventarray, void *buffer, size_t size,
    return sts < 0 ? sts : 1;    /* added one event array */
 }
 
+
+void enlarge_ctxtab(int context)
+{
+    /* Grow the context table if necessary. */
+    if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
+        size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
+        ctxtab = realloc (ctxtab, need);
+        if (ctxtab == NULL)
+            __pmNoMem("systemd ctx table", need, PM_FATAL_ERR);
+        /* Blank out new entries. */
+        while (ctxtab_size <= context)
+            memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
+    }
+}
+
+
 static int
 systemd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    pmdaEventNewClient(pmda->e_context);
+    int sts;
+    int queueid;
+    queueid = pmdaEventNewClient(pmda->e_context);
+    enlarge_ctxtab(pmda->e_context);
+    sts = pmdaEventSetFilter(pmda->e_context, queueid,
+                             & ctxtab[pmda->e_context], /* any non-NULL value */
+                             systemd_journal_event_filter,
+                             systemd_journal_event_filter_release /* NULL */);
+    if (sts < 0)
+        return sts;
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
+
 
 static int
 systemd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
@@ -308,46 +468,101 @@ systemd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return sts;
 }
 
+
 static int
-systemd_store(pmResult *result, pmdaExt *pmda)
+systemd_contextAttributeCallBack(int context,
+                                 int attr, const char *value, int length, pmdaExt *pmda)
 {
-    int i;
+    static int rootlike_gids_found = 0;
+    static int adm_gid = -1;
+    static int wheel_gid = -1;
+    static int systemd_journal_gid = -1;
+    int id;
 
-    pmdaEventNewClient(pmda->e_context); /* since there is no storeCallback */
-
-    for (i = 0; i < result->numpmid; i++) {
-        pmValueSet *vsp = result->vset[i];
-        pmID id = vsp->pmid;
-        int sts;
-
-        (void) id;
-        /* NB: nothing writeable at the moment. */
-        sts = PM_ERR_PERMISSION;
-        if (sts < 0)
-            return sts;
+    /* Look up root-like gids if needed.  A later PCP client that
+       matches any of these group-id's is treated as if root/adm,
+       i.e., journal records are not filtered for them (wildcard_p).
+       XXX: we could  examine group-membership lists and check against
+       uid to also set wildcard_p. */
+    if (! rootlike_gids_found) {
+        struct group *grp;
+        grp = getgrnam("adm");
+        if (grp) adm_gid = grp->gr_gid;
+        grp = getgrnam("wheel");
+        if (grp) wheel_gid = grp->gr_gid;
+        grp = getgrnam("systemd-journal");
+        if (grp) systemd_journal_gid = grp->gr_gid;
+        rootlike_gids_found = 1;
     }
+
+    enlarge_ctxtab(context);
+    assert (ctxtab != NULL && context < ctxtab_size);
+
+    /* NB: we maintain separate uid_p and gid_p for filtering
+       purposes; it's possible that a pcp client might send only
+       PCP_ATTR_USERID, leaving gid=0, possibly leading us to
+       misinterpret that as GROUPID=0 (root) and sending back _GID=0
+       records. */
+    switch (attr) {
+    case PCP_ATTR_USERID:
+        ctxtab[context].uid_p = 1;
+        id = atoi(value);
+        ctxtab[context].uid = id;
+        if (id == 0) /* root */
+            ctxtab[context].wildcard_p = 1;
+        break;
+
+    case PCP_ATTR_GROUPID:
+        ctxtab[context].gid_p = 1;
+        id = atoi(value);
+        ctxtab[context].gid = id;
+        if (id == adm_gid ||
+            id == wheel_gid ||
+            id == systemd_journal_gid)
+            ctxtab[context].wildcard_p = 1;
+        break;
+    }
+
+    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
+                      context,
+                      ctxtab[context].uid_p?"=":"?", ctxtab[context].uid,
+                      ctxtab[context].gid_p?"=":"?", ctxtab[context].gid,
+                      ctxtab[context].wildcard_p);
+
     return 0;
 }
+
 
 static void
 systemd_end_contextCallBack(int context)
 {
     pmdaEventEndClient(context);
+
+    /* assert (ctxtab != NULL && context < ctxtab_size); */
+
+    /* NB: don't do that; this callback may be hit without any fetch
+       calls having been performed, this ctxtab not stretching all the
+       way to [context]. */
+
+    if (context < ctxtab_size)
+        memset (& ctxtab[context], 0, sizeof(struct uid_gid_tuple));
 }
+
 
 static int
 systemd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
-    pmdaEventNewClient(pmda->e_context);
     return pmdaDesc(pmid, desc, pmda);
 }
+
 
 static int
 systemd_text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
-    pmdaEventNewClient(pmda->e_context);
     return pmdaText(ident, type, buffer, pmda);
 }
+
 
 void
 systemd_init(pmdaInterface *dp)
@@ -359,23 +574,14 @@ systemd_init(pmdaInterface *dp)
        root access is not necessary. */
     __pmSetProcessIdentity(username);
 
-    dp->version.four.desc = systemd_desc;
-    dp->version.four.fetch = systemd_fetch;
-    dp->version.four.store = systemd_store;
-    dp->version.four.text = systemd_text;
-
+    dp->comm.flags |= PDU_FLAG_AUTH;
+    dp->version.six.desc = systemd_desc;
+    dp->version.six.fetch = systemd_fetch;
+    dp->version.six.text = systemd_text;
+    dp->version.six.attribute = systemd_contextAttributeCallBack;
     pmdaSetFetchCallBack(dp, systemd_fetchCallBack);
     pmdaSetEndContextCallBack(dp, systemd_end_contextCallBack);
-
     pmdaInit(dp, NULL, 0, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-
-    /* Create the dynamic PMNS tree and populate it. */
-    if ((sts = __pmNewPMNS(&pmns)) < 0) {
-        __pmNotifyErr(LOG_ERR, "%s: failed to create new pmns: %s\n",
-                        pmProgname, pmErrStr(sts));
-        pmns = NULL;
-        return;
-    }
 
     /* Initialize the systemd side.  This is failure-tolerant.  */
     /* XXX: SD_JOURNAL_{LOCAL|RUNTIME|SYSTEM}_ONLY */
@@ -401,6 +607,13 @@ systemd_init(pmdaInterface *dp)
                       strerror(-sts));
     }
 
+    /* Work around RHBZ979487. */
+    sts = sd_journal_previous_skip(journald_context, 1);
+    if (sts < 0) {
+        __pmNotifyErr(LOG_ERR, "sd_journal_previous_skip failure: %s",
+                      strerror(-sts));
+    }
+
     /* Arrange to wake up for journal events. */
     journal_fd = sd_journal_get_fd(journald_context);
     if (journal_fd < 0) {
@@ -421,6 +634,7 @@ systemd_init(pmdaInterface *dp)
         __pmNotifyErr(LOG_ERR, "pmdaEventNewQueue failure: %s",
                       pmErrStr(queue_entries));
 }
+
 
 void
 systemdMain(pmdaInterface *dispatch)
@@ -464,6 +678,7 @@ systemdMain(pmdaInterface *dispatch)
     }
 }
 
+
 static void
 convertUnits(char **endnum, long *maxmem)
 {
@@ -487,6 +702,7 @@ convertUnits(char **endnum, long *maxmem)
     (*endnum)++;
 }
 
+
 static void
 usage(void)
 {
@@ -497,10 +713,12 @@ usage(void)
             "  -l logfile   write log into logfile rather than using default log name\n"
             "  -m memory    maximum memory used per queue (default %ld bytes)\n"
             "  -s interval  default delay between iterations (default %d sec)\n"
-            "  -U username  user account to run under (default \"adm\")\n",
+            "  -U username  user account to run under (default \"adm\")\n"
+            "  -f           disable per-uid/gid record filtering (default on)\n",
             pmProgname, maxmem, (int)interval.tv_sec);
     exit(1);
 }
+
 
 int
 main(int argc, char **argv)
@@ -516,10 +734,10 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "systemd" "%c" "help",
                 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, SYSTEMD,
+    pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
                 "systemd.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f:?", &desc, &err)) != EOF) {
         switch (c) {
             case 'm':
                 maxmem = strtol(optarg, &endnum, 10);
@@ -543,6 +761,10 @@ main(int argc, char **argv)
 
             case 'U':
                 username = optarg;
+                break;
+
+            case 'f':
+                uid_gid_filter_p = 0;
                 break;
 
             default:
