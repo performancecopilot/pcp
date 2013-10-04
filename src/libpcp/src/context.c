@@ -579,7 +579,6 @@ FAILED:
 	new->c_type = PM_CONTEXT_FREE;
 	if (new->c_instprof != NULL)
 	    free(new->c_instprof);
-        free (new);
     }
     PM_TPD(curcontext) = old_curcontext;
     contexts_len = old_contexts_len;
