@@ -31,7 +31,8 @@ HFILES		= cgroups.h clusters.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h contexts.h
 
 SCRIPTS		= Install Remove
-LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS)
+LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS) \
+	pmlogconf.memory
 LDIRT		= help.dir help.pag domain.h
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -56,6 +57,7 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_proc $(PCP_VAR_DIR)/pmns/root_proc
 	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
+	$(INSTALL) -m 644 pmlogconf.memory $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/memory
 else
 build-me:
 install:
