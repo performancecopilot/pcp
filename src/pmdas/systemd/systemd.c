@@ -266,7 +266,8 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
 
     /* OK, we need to take a look at the journal record in question. */
 
-    __pmNotifyErr(LOG_ERR, "filter cursor=%s\n", (const char*) data);
+    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "filter cursor=%s\n", (const char*) data);
 
     (void) size; /* already known \0-terminated */
     rc = sd_journal_seek_cursor(journald_context_seeky, (char*) data);
@@ -737,7 +738,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
                 "systemd.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f?", &desc, &err)) != EOF) {
         switch (c) {
             case 'm':
                 maxmem = strtol(optarg, &endnum, 10);
