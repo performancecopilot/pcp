@@ -39,7 +39,7 @@ long maxmem;
 int maxfd;
 fd_set fds;
 static int interval_expired;
-static struct timeval interval = { 2, 0 };
+static struct timeval interval = { 60, 0 };
 static sd_journal *journald_context; /* Used for monitoring only. */
 static sd_journal *journald_context_seeky; /* Used for event detail extraction,
                                               involving seeks. */
@@ -417,10 +417,9 @@ static int
 systemd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int sts;
-    int queueid;
-    queueid = pmdaEventNewClient(pmda->e_context);
+    (void) pmdaEventNewClient(pmda->e_context);
     enlarge_ctxtab(pmda->e_context);
-    sts = pmdaEventSetFilter(pmda->e_context, queueid,
+    sts = pmdaEventSetFilter(pmda->e_context, queue_entries,
                              & ctxtab[pmda->e_context], /* any non-NULL value */
                              systemd_journal_event_filter,
                              systemd_journal_event_filter_release /* NULL */);
