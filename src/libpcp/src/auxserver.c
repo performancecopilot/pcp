@@ -31,6 +31,7 @@ typedef struct {
     int			fds[FAMILIES];	/* Inet and IPv6 File descriptors */
     int			port;		/* Listening port */
     const char		*address;	/* Network address string (or NULL) */
+    __pmServerPresence	*presence;	/* For advertising server presence on the network. */
 } ReqPortInfo;
 
 static unsigned         nReqPorts;		/* number of ports */
@@ -54,6 +55,8 @@ static int	*portlist;
  */
 static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
+static const char *serviceName;
+static const char *serviceTag;
 
 int
 __pmServerAddInterface(const char *address)
@@ -103,6 +106,24 @@ __pmServerSetLocalSocket(const char *path)
 }
 
 void
+__pmServerSetServiceName(const char *name)
+{
+    if (name != NULL && *name != '\0')
+	serviceName = strdup(name);
+    else
+	serviceName = SERVER_SERVICE_NAME;
+}
+
+void
+__pmServerSetServiceTag(const char *tag)
+{
+    if (tag != NULL && *tag != '\0')
+	serviceTag = strdup(tag);
+    else
+	serviceTag = SERVER_SERVICE_TAG;
+}
+
+void
 __pmCheckAcceptedAddress(__pmSockAddr *addr)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -148,6 +169,7 @@ AddRequestPort(const char *address, int port)
     rp->fds[IPV6_FD] = -1;
     rp->address = address;
     rp->port = port;
+    rp->presence = NULL;
     nReqPorts++;
 
 #ifdef PCP_DEBUG
@@ -385,8 +407,21 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
     int i, fd, family, success = 0, maximum = -1;
     int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
+    /* If only one of serviceName or serviceTag has been set, set the other
+     * to the default.
+     */
+    if (serviceName != NULL) {
+	if (serviceTag == NULL)
+	    __pmServerSetServiceTag(NULL); /* sets the default */
+    }
+    else if (serviceTag != NULL) {
+	if (serviceName == NULL)
+	    __pmServerSetServiceName(NULL); /* sets the default */
+    }
+
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
+	int		portsOpened = 0;;
 
 	/*
 	 * If the spec is NULL or "INADDR_ANY", then we open one socket
@@ -399,6 +434,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					backlog, fdset, &maximum)) >= 0) {
 	        rp->fds[INET_FD] = fd;
+		++portsOpened;
 		success = 1;
 	    }
 	    if (with_ipv6) {
@@ -406,6 +442,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					    backlog, fdset, &maximum)) >= 0) {
 		    rp->fds[IPV6_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
 	    }
@@ -418,12 +455,22 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
 		    rp->fds[INET_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
 		else if (family == AF_INET6) {
 		    rp->fds[IPV6_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
+	    }
+	}
+	if (portsOpened > 0) {
+	    /* Advertise our presence on the network, if requested. */
+	    if (serviceName != NULL && serviceTag != NULL) {
+		rp->presence =  __pmServerAdvertisePresence(serviceName,
+							    serviceTag,
+							    rp->port);
 	    }
 	}
     }
@@ -467,6 +514,9 @@ __pmServerCloseRequestPorts(void)
     int i, fd;
 
     for (i = 0; i < nReqPorts; i++) {
+	/* No longer advertise our presence on the network. */
+	if (reqPorts[i].presence != NULL)
+	    __pmServerUnadvertisePresence(reqPorts[i].presence);
 	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
 	    __pmCloseSocket(fd);
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)

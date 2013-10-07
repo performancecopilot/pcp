@@ -78,6 +78,12 @@ AC_ARG_WITH(
     [pcp_group=pcp])
 AC_SUBST(pcp_group)
 
+AC_ARG_WITH([dns-sd],
+    [AC_HELP_STRING([--with-dns-sd],
+                   [enable support for pmcd dns-sd announcements (default is on)])]
+    [do_dns_sd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dns-sd=$withval"],
+    [do_dns_sd=no])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -241,6 +247,28 @@ then
     AC_SUBST(enable_probes)
     AC_SUBST(DTRACE)
 fi
+
+dnl Check for DNS-SD
+AS_IF([test "x$do_dns_sd" != "xno"], [
+    # on linux, avahi
+    PKG_CHECK_MODULES([avahi], [avahi-client],
+        [enable_dns_sd=true
+         AC_CHECK_LIB(avahi-client, avahi_client_new,
+    		      [lib_for_avahi="-lavahi-common -lavahi-client"],
+	              [enable_dns_sd=false])
+         AC_DEFINE([HAVE_AVAHI],[1],[Define to 1 if you have the avahi libraries.])
+        ],
+        [enable_dns_sd=false])
+    AC_CHECK_HEADERS([avahi-client/publish.h], [], [enable_dns_sd=false])
+    AC_CHECK_HEADERS([avahi-common/alternative.h], [], [enable_dns_sd=false])
+    if test "$enable_dns_sd" != "true"
+    then
+        AC_MSG_ERROR(cannot enable DNS-SD. Avahi not found)
+    fi
+])
+AC_SUBST(enable_dns_sd)
+AC_SUBST(lib_for_avahi)
+AC_SUBST(avahi_CFLAGS)
 
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""

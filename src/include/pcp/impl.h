@@ -80,6 +80,8 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
+#define SERVER_SERVICE_NAME "PCP PMCD daemon"
+#define SERVER_SERVICE_TAG "_pmcd._tcp"
 
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
@@ -645,12 +647,16 @@ typedef enum {
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
+typedef struct __pmServerPresence __pmServerPresence;
+
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerSetFeature(__pmServerFeature);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);
 extern int __pmServerSetLocalCreds(int,  __pmHashCtl *);
+extern void __pmServerSetServiceName(const char *);
+extern void __pmServerSetServiceTag(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
@@ -658,6 +664,8 @@ extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
 extern void __pmServerCloseRequestPorts(void);
 extern void __pmServerDumpRequestPorts(FILE *);
 extern char *__pmServerRequestPortString(int, char *, size_t);
+extern __pmServerPresence *__pmServerAdvertisePresence(const char *, const char *, int);
+extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 
 /*
  * Per-context controls for archives and logs

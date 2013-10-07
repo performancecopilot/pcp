@@ -893,6 +893,8 @@ main(int argc, char *argv[])
      * may exist. 
      */
     __pmServerSetLocalSocket(sockpath);
+    __pmServerSetServiceName(SERVER_SERVICE_NAME); /* XXX: for now: should be configurable */
+    __pmServerSetServiceTag(SERVER_SERVICE_TAG); /* XXX: for now: should be configurable */
 
     if (run_daemon) {
 	fflush(stderr);
