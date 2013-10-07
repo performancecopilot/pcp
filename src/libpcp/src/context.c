@@ -576,9 +576,17 @@ INIT_CONTEXT:
 
 FAILED:
     if (new != NULL) {
-	new->c_type = PM_CONTEXT_FREE;
 	if (new->c_instprof != NULL)
 	    free(new->c_instprof);
+	/* only free this pointer if it was not reclaimed from old contexts */
+	for (i = 0; i < old_contexts_len; i++) {
+	    if (contexts[i] != new)
+		continue;
+	    new->c_type = PM_CONTEXT_FREE;
+	    break;
+	}
+	if (i == old_contexts_len)
+	    free(new);
     }
     PM_TPD(curcontext) = old_curcontext;
     contexts_len = old_contexts_len;

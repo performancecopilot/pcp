@@ -21,7 +21,7 @@
 \f3pmlogger_merge\f1 \- administration of Performance Co-Pilot archive log files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-NsTV\f1]
+[\f3\-CNsTV\f1]
 [\f3\-c\f1 \f2control\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
@@ -122,6 +122,11 @@ Use of the
 option provides the reverse functionality, allowing the set of
 .B pmlogger
 processes to be cleanly shutdown.
+Use of the
+.B \-C
+option queries the system service runlevel information for
+.BR pmlogger ,
+and uses that to determine whether to start or stop processes.
 .PP
 .B pmlogger_merge
 is a wrapper script for

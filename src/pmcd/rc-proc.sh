@@ -160,6 +160,12 @@ is_chkconfig_on()
 		    _ret=0
 		fi
 		;;
+	    pmwebd)
+		if [ "`. /etc/hostconfig; echo $PMWEBD`" = "-YES-" ]
+		then
+		    _ret=0
+		fi
+		;;
 	esac
     elif $_have_chkconfig
     then
@@ -241,6 +247,12 @@ chkconfig_on()
 		;;
 	    pmie)
 		echo "PMIE=-YES-"
+		;;
+	    pmproxy)
+		echo "PMPROXY=-YES-"
+		;;
+	    pmwebd)
+		echo "PMWEBD=-YES-"
 		;;
 	esac
     elif $_have_chkconfig
