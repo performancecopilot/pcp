@@ -8,6 +8,7 @@
 <affiliation>
 <orgname>The Performance Co-Pilot Development Team</orgname>
 <address>
+<email>pcp@oss.sgi.com</email>
 <otheraddr>
 <ulink url="http://oss.sgi.com/projects/pcp/"/>
 <inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
@@ -199,7 +200,7 @@ defined.</para>
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers via the web site.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers using either the email address or the web site listed earlier.</para>
 <para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>

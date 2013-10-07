@@ -8,6 +8,7 @@
 <affiliation>
 <orgname>The Performance Co-Pilot Development Team</orgname>
 <address>
+<email>pcp@oss.sgi.com</email>
 <otheraddr>
 <ulink url="http://oss.sgi.com/projects/pcp/"/>
 <inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
@@ -199,7 +200,7 @@ defined.</para>
 <section id="z825546061melby">
 
 <title>Reader Comments</title>
-<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers via the web site.</para>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers using either the email address or the web site listed earlier.</para>
 <para>We value your comments and will respond to them promptly.</para>
 </section>
 </preface>
@@ -333,11 +334,11 @@ defined.</para>
 
 <title>Building a PMDA</title>
 <para>A PMDA interacts with PMCD across one of several well-defined interfaces and protocol mechanisms. These implementation options are described in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
-<warning><para>It is strongly recommended that code for a new PMDA be based on the source of one of the existing PMDAs below the <filename>${PCP_PMDAS_DIR}</filename> directory.</para></warning>
+<note><para>It is strongly recommended that code for a new PMDA be based on the source of one of the existing PMDAs below the <filename>${PCP_PMDAS_DIR}</filename> directory.</para></note>
 <section id="id5178295">
 
 <title>In-Process (DSO) Method</title>
-<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using the platform-specific shared library manipulation interfaces such as <command>dlopen(3)</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC) between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read the instrumentation behind the performance metrics (<command>pmcd</command> does not run as root), or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so great care is required when crafting a PMDA in this manner. Calls to <command>exit(1)</command> in the PMDA, or a library it uses, have grave implications.</para>
+<para><indexterm id="IG3134017745"><primary>DSO</primary><secondary>PMDA building</secondary></indexterm><indexterm id="IG3134017746"><primary>dlopen man page</primary></indexterm><indexterm id="IG3134017747"><primary>dynamic shared object</primary><see>DSO</see></indexterm><indexterm id="IG3134017748"><primary>interprocess communication</primary><see>IPC</see></indexterm><indexterm id="IG3134017749"><primary>IPC</primary><secondary>DSO</secondary></indexterm>This method of building a PMDA uses a Dynamic Shared Object (DSO) that is attached by PMCD, using the platform-specific shared library manipulation interfaces such as <command>dlopen(3)</command>, at initialization time. This is the highest performance option (there is no context switching and no interprocess communication (IPC) between the PMCD and the PMDA), but is operationally intractable in some situations. For example, difficulties arise where special access permissions are required to read the instrumentation behind the performance metrics (<command>pmcd</command> does not run as root), or where the performance metrics are provided by an existing process with a different protocol interface. The DSO PMDA effectively executes as part of PMCD; so great care is required when crafting a PMDA in this manner. Calls to <command>exit(1)</command> in the PMDA, or a library it uses, would cause PMCD to exit and end monitoring of that host. Other implications are discussed in <xref linkend="id5188840"/>.</para>
 </section>
 <section id="id5178384">
 
@@ -373,8 +374,8 @@ defined.</para>
 <title>Implementing a PMDA</title>
 <para><indexterm id="IG3134017760"><primary>implementation</primary></indexterm><indexterm id="IG3134017761"><primary>design requirements</primary></indexterm>The job of a PMDA is to gather performance data and report them to the  Performance Metrics Collection Daemon (PMCD) in response to requests from PCP monitoring tools routed to the PMDA via PMCD.</para>
 <para>An important  requirement for any PMDA is that it have low latency response to requests from PMCD. Either the PMDA must use a quick access method and a single thread of control, or it must have asynchronous refresh and two threads of control: one for communicating with PMCD, the other for updating the performance data.</para>
-<para><indexterm id="IG3134017762"><primary>target domain</primary></indexterm><indexterm id="IG3134017763"><primary>sequential log files</primary></indexterm><indexterm id="IG3134017764"><primary>snapshot files</primary></indexterm><indexterm id="IG3134017765"><primary>IPC</primary><secondary> PMDA</secondary></indexterm>The PMDA is typically acting as a gateway between the target domain (that is, the performance instrumentation in an application program or service) and the PCP framework. The PMDA may extract the information using one of a number of possible  export options that include a shared memory segment or <command>mmap</command> file; a sequential log  file (where the PMDA parses the tail of the log file to extract the information); a snapshot file (the PMDA rereads the file as required); or application-specific communication services  (IPC). The choice
-of export methodology is typically determined by the source of the instrumentation (the target domain) rather than by the PMDA.</para>
+<para><indexterm id="IG3134017762"><primary>target domain</primary></indexterm><indexterm id="IG3134017763"><primary>sequential log files</primary></indexterm><indexterm id="IG3134017764"><primary>snapshot files</primary></indexterm><indexterm id="IG3134017765"><primary>IPC</primary><secondary> PMDA</secondary></indexterm>The PMDA is typically acting as a gateway between the target domain (that is, the performance instrumentation in an application program or service) and the PCP framework. The PMDA may extract the information using one of a number of possible  export options that include a shared memory segment or <command>mmap</command> file; a sequential log  file (where the PMDA parses the tail of the log file to extract the information); a snapshot file (the PMDA rereads the file as required); or application-specific communication services (IPC).</para>
+<note><para>The choice of export methodology is typically determined by the source of the instrumentation (the target domain) rather than by the PMDA.</para></note>
 <para><indexterm id="IG3134017766"><primary>PMDA</primary><secondary> checklist</secondary></indexterm><xref linkend="id5187871"/> describes the suggested steps for designing and implementing a PMDA:</para>
 <procedure id="id5187871">
 <title>Creating a PMDA</title>
@@ -382,7 +383,7 @@ of export methodology is typically determined by the source of the instrumentati
 <step><para>Select an appropriate architecture for the PMDA (daemon or DSO, IPC, <command>pthreads</command> or single threaded).</para></step>
 <step><para>Define the metrics and instances that the PMDA will support.</para></step>
 <step><para>Implement the functionality to extract the metric values.</para></step>
-<step><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS).</para></step>
+<step><para>Assign Performance Metric Identifiers (PMIDs) for the metrics, along with names for the metrics in the Performance Metrics Name Space (PMNS). These concepts will be further expanded in <xref linkend="LE97285-PARENT"/></para></step>
 <step><para><indexterm id="IG3134017767"><primary>help text</primary><secondary>structure specification</secondary></indexterm>Specify the help file and control data structures for metrics and instances that are required by the standard PMDA implementation library functions.</para></step>
 <step><para>Write code to supply the metrics and associated information to PMCD.</para></step>
 <step><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para></step>
@@ -649,9 +650,9 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 }; </programlisting>
 <para>This single metric (<literal>trivial.time</literal>) has the following:</para>
 <itemizedlist>
-<listitem><para>A PMID with a cluster of 0 and an item of 1</para>
+<listitem><para>A PMID with a cluster of 0 and an item of 1. Note that this is not yet a complete PMID, the domain number which identifies the PMDA will be combined with it at runtime.</para>
 </listitem>
-<listitem><para>An unsigned 32-bit integer (<literal>PM_TYPE_U32</literal> )</para>
+<listitem><para>An unsigned 32-bit integer (<literal>PM_TYPE_U32</literal>)</para>
 </listitem>
 <listitem><para><indexterm id="IG31340177125"><primary>PM_INDOM_NULL instance domain</primary><secondary>data structures</secondary></indexterm>A singular value and hence no instance domain (<literal>PM_INDOM_NULL</literal>)</para>
 </listitem>
@@ -685,14 +686,32 @@ Counter           N/A  10  15  10   5 N/A
 Instantaneous      10  30  60  80  90 N/A 
 Discrete           10  30  60  80  90  90</programlisting>
 </example>
+<para>Note that these interpretations of metric semantics are performed by
+the monitor tool, automatically, before displaying a value and they are not
+transformations that the PMDA performs.</para>
 </section>
 </section>
 <section id="id5190481">
 
 <title>Instances</title>
 <para>Singular metrics have only one value and no associated instance domain. Some metrics contain a set of values that share a common set of semantics for a specific instance, such as one value per processor, or one value per disk spindle, and so on.</para>
-<note><para>The PMDA implementation is solely responsible for choosing the instance identifiers that differentiate instances within the instance domain. The PMDA is also responsible for ensuring the uniqueness of instance identifiers in any instance domain.</para>
+<note><para>The PMDA implementation is solely responsible for choosing the instance identifiers that differentiate instances within the instance domain. The PMDA is also responsible for ensuring the uniqueness of instance identifiers in any instance domain, as described in <xref linkend="id5190505"/>.</para>
 </note>
+<section id="id5190505">
+<title>Instance Identification</title>
+<para>Consistent interpretation of instances and instance domains require a few simple rules to be followed by PMDA authors. The PMDA library provides a series of <command>pmdaCache</command> routines to assist.</para>
+<itemizedlist>
+<listitem><para>Each internal instance identifier (numeric) must be a unique 31-bit number.</para>
+</listitem>
+<listitem><para>The external instance name (string) must be unique.</para>
+</listitem>
+<listitem><para>When the instance name contains a space, the name to the left of the first space (the short name) must also be unique.</para>
+</listitem>
+<listitem><para>Where an external instance name corresponds to some object or entity, there is an expectation that the association between the name and the object is fixed.</para>
+</listitem>
+<listitem><para>It is preferable, although not mandatory, for the association between and external instance name (string) and internal instance identifier (numeric) to be persistent.</para>
+</listitem></itemizedlist>
+</section>
 <section id="id5190506">
 
 <title>N Dimensional Data</title>
@@ -796,8 +815,8 @@ static pmdaMetric metrictab[] = {
 <para><indexterm id="IG31340177145"><primary>PM_INDOM_NULL instance domain</primary><secondary>data structures</secondary></indexterm>All other metrics are singular, as specified by <literal>PM_INDOM_NULL</literal>.</para>
 <para>In some cases an instance domain may vary dynamically after PMDA initialization (for example, <literal>simple.now</literal>), and this requires some refinement of the default functions and data structures of the <filename>libpcp_pmda</filename> library. Briefly, this involves providing new functions that act as wrappers for <command>pmdaInstance</command> and <command>pmdaFetch</command> while understanding the dynamics of the instance domain, and then overriding the instance and fetch methods in the <filename>pmdaInterface</filename> structure during PMDA initialization.</para>
 <para>For the simple PMDA, the wrapper functions are <command>simple_fetch</command> and <command>simple_instance</command>, and defaults are over-ridden by the following assignments in the <command>simple_init</command> function:</para>
-<programlisting>dp-&gt;version.two.fetch = simple_fetch;
-dp-&gt;version.two.instance = simple_instance;</programlisting>
+<programlisting>dp-&gt;version.any.fetch = simple_fetch;
+dp-&gt;version.any.instance = simple_instance;</programlisting>
 </section>
 </section>
 </section>
@@ -837,7 +856,7 @@ dp-&gt;version.two.instance = simple_instance;</programlisting>
 <para>By contrast, a complex deployment would be one in which the refreshing of the metric values must be atomic, and this may require double buffering of the data structures. It also requires coordination between parent and child processes.</para>
 <warning><para>Since certain data structures used by the PMDA library are not thread-aware, only one PMDA thread of control should call PMDA library functions - this would typically be the thread servicing requests from PMCD.</para>
 </warning>
-<para><indexterm id="IG31340177153"><primary>caching PMDA</primary></indexterm>One caveat about this style of  caching PMDA--it is generally better if the PMDA converts counts to rates based upon consecutive periodic sampling from the underlying instrumentation. By exporting precomputed rate metrics with instantaneous semantics, the PMDA prevents the PCP monitor tools from computing their own rates upon consecutive PMCD fetches (which are likely to return identical values from a caching PMDA).</para>
+<para><indexterm id="IG31340177153"><primary>caching PMDA</primary></indexterm>One caveat about this style of caching PMDA--in this (special) case it is better if the PMDA converts counts to rates based upon consecutive periodic sampling from the underlying instrumentation. By exporting precomputed rate metrics with instantaneous semantics, the PMDA prevents the PCP monitor tools from computing their own rates upon consecutive PMCD fetches (which are likely to return identical values from a caching PMDA). The finer points of metric semantics are discussed in <xref linkend="id5190312"/></para>
 </section>
 <section id="LE83854-PARENT">
 
