@@ -84,7 +84,7 @@ typographical conventions.</para>
 </listitem>
 <listitem><para><xref linkend="LE97135-PARENT"/>, describes the interface that allows you to design custom performance monitoring tools.</para>
 </listitem>
-<listitem><para><xref linkend="LE25915-PARENT"/>, provides an introduction to the design of the trace Performance Metrics Domain Agent (PMDA).</para>
+<listitem><para><xref linkend="LE25915-PARENT"/>, introduces techniques, tools and interfaces to assist with exporting performance data from within applications.</para>
 </listitem>
 <listitem><para><xref linkend="LE54271-PARENT"/>, provides a comprehensive list of the acronyms used in this guide, in the PCP man pages, and in the release notes.</para>
 </listitem></itemizedlist>
@@ -218,15 +218,14 @@ defined.</para>
 </listitem>
 <listitem><para><indexterm id="Z963349400sdc"><primary>Performance Metrics Application Programming Interface </primary><see>PMAPI</see></indexterm><indexterm id="IG313401774"><primary>PMAPI</primary><secondary>introduction</secondary></indexterm>By creating new analysis or visualization tools using documented functions from the Performance Metrics Application Programming Interface (PMAPI) (<xref linkend="LE97135-PARENT"/>)</para>
 </listitem>
-<listitem><para><indexterm id="IG313401775"><primary>performance instrumentation</primary></indexterm><indexterm id="IG313401776"><primary>trace facilities</primary></indexterm>By adding performance instrumentation to an application using the trace facilities of the PCP trace library (<filename id="Z963349455sdc">libpcp_trace</filename>) and the trace PMDA (<xref linkend="LE25915-PARENT"/>)</para>
+<listitem><para><indexterm id="IG313401775"><primary>performance instrumentation</primary></indexterm><indexterm id="IG313401776"><primary>trace facilities</primary></indexterm>By adding performance instrumentation to an application using facilities from PCP libraries, which offer both sampling and event tracing models.</para>
 </listitem></itemizedlist>
-<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>Finally, the topic of customizing a PCP installation is covered in the chapter on customizing and extending PCP service in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
+<para><indexterm id="IG313401777"><primary>customization</primary></indexterm>Finally, the topic of customizing an installation is covered in the chapter on customizing and extending PCP service in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
 <section id="id5177140">
 
 <title>PCP Architecture</title>
 <para><indexterm id="IG313401778"><primary>architecture</primary></indexterm>This section gives a brief overview of PCP architecture. For an explanation of terms and acronyms, refer to <xref linkend="LE54271-PARENT"/>.</para>
-<para><indexterm id="IG313401779"><primary>pmchart command</primary></indexterm></para>
-<para><indexterm id="IG3134017710"><primary>pmview command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of numerous monitoring and collecting tools. <literal>Monitoring tools</literal> such as <command>pmval</command> and <command>pminfo</command> report on metrics, but have minimal interaction with target systems. <literal>Collection tools</literal>, called PMDAs, extract performance values from target systems, but do not provide user interfaces.</para>
+<para><indexterm id="IG313401779"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017711"><primary>monitoring tools</primary></indexterm><indexterm id="IG3134017712"><primary>collection tools</primary></indexterm>PCP consists of numerous monitoring and collecting tools. <literal>Monitoring tools</literal> such as <command>pmval</command> and <command>pminfo</command> report on metrics, but have minimal interaction with target systems. <literal>Collection tools</literal>, called PMDAs, extract performance values from target systems, but do not provide user interfaces.</para>
 <para>Systems supporting PCP services are broadly classified into two categories:</para>
 <variablelist>
 <varlistentry>
@@ -294,7 +293,7 @@ defined.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>mmv</command></term>
-<listitem><para><indexterm id="IG3134017742nat"><primary>mmv library</primary><see>MMV</see></indexterm>Is used to instrument applications using Memory Mapped Values (MMV). These are values are communicated with <command>pmcd</command> instantly, and very efficiently, using a shared memory mapping. It is a program instrumentation library.</para>
+<listitem><para><indexterm id="IG3134017742nat"><primary>mmv library</primary><see>MMV</see></indexterm>Is used to instrument applications using Memory Mapped Values (MMV). These are values that are communicated with <command>pmcd</command> instantly, and very efficiently, using a shared memory mapping. It is a program instrumentation library.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>newhelp</command></term>
@@ -389,7 +388,7 @@ defined.</para>
 <step><para>Implement any PMDA-specific callbacks, and PMDA initialization functions.</para></step>
 <step><para><indexterm id="IG3134017768"><primary>dbpmda man page</primary></indexterm>Exercise and test the PMDA with the purpose-built PMDA debugger; see the <command>dbpmda(1)</command> man page.</para></step>
 <step><para>Install and connect the PMDA to a running PMCD process; see the <command>pmcd(1)</command> man page.</para></step>
-<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017771"><primary>pmview command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command>, <command>pmgadgets(1)</command>, and <command>pmview(1)</command> man pages. For examples of text-based tools, see the <command>pminfo(1)</command> and <command>pmval(1)</command> man pages.</para></step>
+<step><para><indexterm id="IG3134017769"><primary>pmchart command</primary></indexterm><indexterm id="IG3134017770"><primary>pmgadgets command</primary></indexterm><indexterm id="IG3134017774"><primary>examples</primary><secondary>visualization tools</secondary></indexterm>Configure or develop tools to use the new metrics. For examples of visualization tools, see the <command>pmchart(1)</command> and <command>pmgadgets(1)</command> man pages. For examples of text-based tools, see the <command>pminfo(1)</command> and <command>pmval(1)</command> man pages.</para></step>
 <step><para><indexterm id="IG3134017772"><primary>pmie command</primary></indexterm><indexterm id="IG3134017773"><primary>pmieconf command</primary></indexterm><indexterm id="IG3134017775"><primary>examples</primary><secondary>alarm tools</secondary></indexterm>Where appropriate, define <command>pmie</command> rule templates suitable for alerting or notification systems. For more information, see the <command>pmie(1)</command> and <command>pmieconf(1)</command> man pages.</para></step>
 <step><para><indexterm id="IG3134017776"><primary>pmlogger command</primary></indexterm>Where appropriate, define <command>pmlogger</command> configuration templates suitable for creating PCP archives containing the new metrics. For more information, see the <command>pmlogconf(1)</command> and <command>pmlogger(1)</command> man pages.</para></step>
 </procedure>
@@ -573,7 +572,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
 <section id="LE98565-PARENT">
 
 <title>Metrics</title>
-<para><indexterm id="IG31340177114"><primary>metrics</primary><secondary>definition</secondary></indexterm><indexterm id="IG31340177115"><primary>target domain</primary></indexterm>A PMDA provides support for a collection of metrics. In addition to the obvious performance metrics, and the measures of time, activity and resource utilization, the metrics should also describe how the target domain has been configured, as this can greatly affect the correct interpretation of the observed performance. For example, metrics that describe network transfer rates should also describe the number and type of network interfaces connected to the host (<literal>hinv.ninterface</literal>, <literal>hinv.interface.speed</literal>, <literal>network.interface.duplex</literal>, and so on)</para>
+<para><indexterm id="IG31340177114"><primary>metrics</primary><secondary>definition</secondary></indexterm><indexterm id="IG31340177115"><primary>target domain</primary></indexterm>A PMDA provides support for a collection of metrics. In addition to the obvious performance metrics, and the measures of time, activity and resource utilization, the metrics should also describe how the target domain has been configured, as this can greatly affect the correct interpretation of the observed performance. For example, metrics that describe network transfer rates should also describe the number and type of network interfaces connected to the host (<literal>hinv.ninterface</literal>, <literal>network.interface.speed</literal>, <literal>network.interface.duplex</literal>, and so on)</para>
 <para><indexterm id="IG31340177116"><primary>storage of metrics</primary></indexterm><indexterm id="IG31340177117"><primary>pmstore function</primary></indexterm>In addition, the metrics should describe how the PMDA has been configured. For example, if the PMDA was periodically probing a system to measure quality of service, there should be metrics for the delay between probes, the number of probes attempted, plus probe success and failure counters. It may also be appropriate to allow values to be  stored (see the <command>pmstore(1)</command> man page) into the delay metric, so that the delay used by the PMDA can be altered dynamically.</para>
 <section id="id5189689">
 
@@ -1038,13 +1037,14 @@ trivial_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
    atom-&gt;l = time(NULL);
    return 0;
 }</programlisting>
-<para><indexterm id="IG31340177187"><primary>trivial_init function</primary></indexterm>This function checks that the PMID and instance are valid, and then places the metric value for the current time into the <filename>pmAtomValue</filename> structure. The callback is set up by a call to <command>pmdaSetFetchCallBack</command> in <command>trivial_init</command>.</para>
+<para><indexterm id="IG31340177187"><primary>trivial_init function</primary></indexterm>This function checks that the PMID and instance are valid, and then places the metric value for the current time into the <filename>pmAtomValue</filename> structure.</para>
 </example>
+<para>The callback is set up by a call to <command>pmdaSetFetchCallBack</command> in <command>trivial_init</command>. As a rule of thumb, the API routines with named ending with <command>CallBack</command> are helpers for the higher PDU handling routines like <command>pmdaFetch</command>. The latter are set directly using the PMDA Interface Structures, as described in <xref linkend="id5193658"/>.</para>
 </section>
 <section id="id5192681">
 
 <title>Simple PMDA</title>
-<para><indexterm id="IG31340177188"><primary>simple PMDA</primary><secondary>pmdaFetch callback</secondary></indexterm><indexterm id="IG31340177189"><primary>simple_init function</primary></indexterm>The simple PMDA callback for <command>pmdaFetch</command> is more complicated because it must support more metrics, some metrics are instantiated with each fetch, and one instance domain is dynamic. The default <command>pmdaFetch</command> callback, shown in <xref linkend="Z964110950sdc"/>, is replaced by <command>simple_fetch</command> in <command>simple_init</command>, which increments the number of fetches and updates the instance domain for <literal>INDOM_NOW</literal> before calling <command>pmdaFetch</command>:</para>
+<para><indexterm id="IG31340177188"><primary>simple PMDA</primary><secondary>pmdaFetch callback</secondary></indexterm><indexterm id="IG31340177189"><primary>simple_init function</primary></indexterm>The simple PMDA callback for <command>pmdaFetch</command> is more complicated because it supports more metrics, some metrics are instantiated with each fetch, and one instance domain is dynamic. The default <command>pmdaFetch</command> callback, shown in <xref linkend="Z964110950sdc"/>, is replaced by <command>simple_fetch</command> in <command>simple_init</command>, which increments the number of fetches and updates the instance domain for <literal>INDOM_NOW</literal> before calling <command>pmdaFetch</command>:</para>
 <example id="Z964110950sdc">
 <title>Request Handling Callbacks in the Simple PMDA</title>
 <programlisting>static int
@@ -1056,7 +1056,8 @@ simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }</programlisting>
 </example>
-<para><indexterm id="IG31340177190"><primary>pmAtomValue structure</primary></indexterm>The callback for <command>pmdaFetch</command> is defined as <command>simple_fetchCallBack</command>. The PMID is extracted from the <filename>pmdaMetric</filename> structure, and if valid, the appropriate field in the <filename>pmAtomValue</filename> structure is set.</para>
+<para><indexterm id="IG31340177190"><primary>pmAtomValue structure</primary></indexterm>The callback for <command>pmdaFetch</command> is defined as <command>simple_fetchCallBack</command>. The PMID is extracted from the <filename>pmdaMetric</filename> structure, and if valid, the appropriate field in the <filename>pmAtomValue</filename> structure is set. The available types and associated fields are described further in <xref linkend="LE11914-PARENT"/> and <xref linkend="Z976562908sdc"/>.</para>
+<note><para>Note that PMID validity checking need only check the cluster and item numbers, the domain number is guaranteed to be valid and the PMDA should make no assumptions about the actual domain number being used at this point.</para></note>
 <para>The <literal>simple.numfetch</literal> metric has no instance domain and is easily handled first as shown in <xref linkend="Z976306482sdc"/>:</para>
 <example id="Z976306482sdc">
 <title><literal>simple.numfetch</literal> Metric</title>
@@ -1152,10 +1153,11 @@ simple_store(pmResult *result, pmdaExt *pmda)
     pmValueSet  *vsp = NULL;
     __pmID_int  *pmidp = NULL;
 
+    /* a store request may affect multiple metrics at once */
     for (i = 0; i &lt; result-&gt;numpmid; i++) {
         vsp = result-&gt;vset[i];
         pmidp = (__pmID_int *)&amp;vsp-&gt;pmid;
-        if (pmidp-&gt;cluster == 0) {  /* storable metrics are cluster0 */
+        if (pmidp-&gt;cluster == 0) {  /* storable metrics are cluster 0 */
             switch (pmidp-&gt;item) {
             case 0:                           /* simple.numfetch */
                 val = vsp-&gt;vlist[0].value.lval;
@@ -1166,6 +1168,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
                 numfetch = val;
                 break;
             case 1:                             /* simple.color */
+                /* a store request may affect multiple instances at once */
                 for (j = 0; j &lt; vsp-&gt;numval &amp;&amp; sts == 0; j++) {
                     val = vsp-&gt;vlist[j].value.lval;
                     if (val &lt; 0) {
@@ -1220,6 +1223,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
 }</programlisting>
 <para>The structure <literal>pmdaExt</literal> <replaceable>pmda</replaceable> argument is not used by the <command>simple_store</command> function above.</para>
 </example>
+<note><para>When using storable metrics, it is important to consider the implications. It is possible <command>pmlogger</command> is actively sampling the metric being modified, for example, which may cause unexpected results to be persisted in an archive. Consider also the use of client credentials, available via the <command>attribute</command> callback of the <filename>pmdaInterface</filename> structure, to appropriately limit access to any modifications that might be made via your storable metrics.</para></note>
 </section>
 <section id="id5193469">
 
@@ -1315,7 +1319,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
             int     (*attribute)(int, int, const char *, int, pmdaExt *);
         } six;
     } version;
-} pmdainterface;</programlisting>
+} pmdaInterface;</programlisting>
 </example>
 <note><para>Each new interface version is always defined as a superset of those that preceded it, only adds fields at the end of the new structure in the union, and is always binary backwards-compatible. <literal>And thus it shall remain.</literal>
 For brevity, we have shown only the latest interface version (six) above, but all prior versions still exist, build, and function. In other words, PMDAs built against earlier versions of this header structure (and PMDA library) function correctly with the latest version of the PMDA library.
@@ -1443,15 +1447,16 @@ void simple_init(pmdaInterface *dp)
     if (dp-&gt;status != 0)
         return;
 
-    dp-&gt;version.two.fetch = simple_fetch;
-    dp-&gt;version.two.store = simple_store;
-    dp-&gt;version.two.instance = simple_instance;
+    dp-&gt;version.any.fetch = simple_fetch;
+    dp-&gt;version.any.store = simple_store;
+    dp-&gt;version.any.instance = simple_instance;
     pmdaSetFetchCallBack(dp, simple_fetchCallBack);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
              metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }</programlisting>
 </example>
 <para>Once again, the simple PMDA may be installed either as a daemon PMDA or a DSO PMDA. The static variable <replaceable>isDSO</replaceable> indicates whether the PMDA is running as a DSO or as a daemon. A daemon PMDA always changes the value of this variable to 0 in <literal>main</literal>, for PMDAs that can operate in both modes.</para>
+<para>Remember also, as described earlier, <command>simple_fetch</command> is dealing with a single request for (possibly many) values for metrics from the PMDA, and <command>simple_fetchCallBack</command> is its little helper, dealing with just one metric and one instance (optionally, if the metric happens to have an instance domain) within that larger request.</para>
 </section>
 </section>
 <section id="id5194563">
@@ -1508,6 +1513,7 @@ main(int argc, char **argv)
     exit(0);
 }</programlisting>
 </example>
+<para>The conditions under which <command>pmdaMain</command> will return are either unexpected error conditions (often from failed initialisation, which would already have been logged), or when PMCD closes the connection to the PMDA. In all cases the correct action to take is simply to exit cleanly, possibly after any final cleanup the PMDA may need to perform.</para>
 </section>
 </section>
 <section id="id5194770">
@@ -1810,9 +1816,10 @@ filesys.free
 
 <title>Current PMAPI Context</title>
 <para><indexterm id="IG31340177265"><primary>PMAPI</primary><secondary>current context</secondary></indexterm>When performance metrics are retrieved across the PMAPI, they are delivered in the context of a particular source of metrics, a point in time, and a profile of desired instances. This means that the application making the request has already negotiated across the PMAPI to establish the context in which the request should be executed.</para>
-<para><indexterm id="IG31340177266"><primary>archive logs</primary><secondary>performance data</secondary></indexterm>A metric's source may be the current performance data from a particular host (a live or real-time source), or an archive log of performance data collected by <command>pmlogger</command> at some remote host or earlier time (a retrospective or archive source). The metric's source is specified when the PMAPI context is created by calling the <command>pmNewContext</command> function.</para>
+<para><indexterm id="IG31340177266"><primary>archive logs</primary><secondary>performance data</secondary></indexterm>A metric's source may be the current performance data from a particular host (a live or real-time source), or an archive log of performance data collected by <command>pmlogger</command> at some remote host or earlier time (a retrospective or archive source). The metric's source is specified when the PMAPI context is created by calling the <command>pmNewContext</command> function. This function returns an opaque handle which can be used to identify the context.</para>
 <para><indexterm id="IG31340177267"><primary>collection time</primary></indexterm>The collection time for a performance metric is always the current time of day for a real-time source, or current position for an archive source. For archives, the collection time may be set to an arbitrary time within the bounds of the archive log by calling the <command>pmSetMode</command> function.</para>
 <para>The last component of a PMAPI context is an instance profile that may be used to control which particular instances from an instance domain should be retrieved. When a new PMAPI context is created, the initial state expresses an interest in all possible instances, to be collected at the current time. The instance profile can be manipulated using the <command>pmAddProfile</command> and <command>pmDelProfile</command> functions.</para>
+<para>The current context can be changed by passing a context handle to <command>pmUseContext</command>. If a live context connection fails, the <command>pmReconnectContext</command> function can be used to attempt to reconnect it.</para>
 </section>
 <section id="LE11914-PARENT">
 
@@ -2231,6 +2238,7 @@ in the called function, with the caller responsible for subsequently calling <co
 <para>A PMAPI library function along the lines of <command>strerror</command> is provided to translate error conditions into error messages; see the <command>pmErrStr(3)</command> and <command>pmErrStr_r(3)</command> man pages. The error condition is returned as the function value from a previous PMAPI call; there is no global error indicator (unlike <literal>errno</literal>). This is to accommodate multi-threaded performance tools.</para>
 <para>The available error codes may be displayed with the following command:</para>
 <programlisting><userinput>pmerr -l</userinput></programlisting>
+<para>Where possible, PMAPI routines are made as tolerant to failure as possible. In particular, routines which deal with compound data structures - results structures, multiple name lookups in one call and so on, will attempt to return all data that can be returned successfully, and errors embedded in the result where there were (partial) failures. In such cases a negative failure return code from the routine indicates catastrophic failure, otherwise success is returned and indicators for the partial failures are returned embedded in the results.</para>
 </section>
 </section>
 <section id="id5199561">
@@ -2290,22 +2298,10 @@ in the called function, with the caller responsible for subsequently calling <co
 
 <title><command>pmLoadNameSpace</command> Function</title>
 <literallayout class="monospaced">int pmLoadNameSpace(const char *<replaceable>filename</replaceable>)</literallayout>
-<para><indexterm id="IG31340177296"><primary>pmLoadNameSpace function</primary></indexterm>Before requesting any services involving a local Performance Metrics Name Space (PMNS), the application must load the PMNS using <command>pmLoadNameSpace</command>.</para>
+<para><indexterm id="IG31340177296"><primary>pmLoadNameSpace function</primary></indexterm>In the highly unusual situation that an application wants to force using a local Performance Metrics Name Space (PMNS), the application can load the PMNS using <command>pmLoadNameSpace</command>.</para>
 <para>The <replaceable>filename</replaceable> argument designates the PMNS of interest. For applications that do not require a tailored Name Space, the special value <literal>PM_NS_DEFAULT</literal> may be used for <replaceable>filename</replaceable>, to force a default local PMNS to be established. Externally, a PMNS is stored in an ASCII format.</para>
-<note><para>The distributed PMNS services avoid the need for a local PMNS; so applications typically would <emphasis role="bold">not</emphasis> use <command>pmLoadNameSpace</command>. If applications do not call <command>pmLoadNameSpace</command>, the default PMNS is the one at the source of the performance metrics (PMCD or an archive).</para>
+<note><para>Do not use this routine in monitor tools. The distributed PMNS services avoid the need for a local PMNS; so applications should <emphasis role="bold">not</emphasis> use <command>pmLoadNameSpace</command>. Without this call, the default PMNS is the one at the source of the performance metrics (PMCD or an archive).</para>
 </note>
-</section>
-<section id="id5200158">
-
-<title><command>pmLoadASCIINameSpace</command> Function</title>
-<literallayout class="monospaced">int pmLoadASCIINameSpace(const char *<replaceable>filename</replaceable>, int <replaceable>dupok</replaceable>)</literallayout>
-<para><indexterm id="IG31340177297"><primary>pmLoadNameSpace function</primary></indexterm>If the application wants to force using a local Performance Metrics Name Space (PMNS) instead of a distributed PMNS, it must load the PMNS using either <command>pmLoadASCIINameSpace</command> or <command>pmLoadNameSpace</command>. If the application wants to use a distributed PMNS, which it almost certainly does, then it should <emphasis role="bold">not</emphasis> make a call to load the PMNS explicitly.</para>
-<para><command>pmLoadASCIINameSpace</command> is a slight variant of <command>pmLoadNameSpace</command>. The name is slightly misleading, as ASCII is the only format of PMNS that exists in modern PCP (previously, a binary namespace format existed as well). The <replaceable>dupok</replaceable> argument may be used to control the handling of multiple names in the PMNS that may be associated with a single Performance Metric Identifier (PMID). A value of 0 disallows duplicates; any other value allows duplicates.</para>
-<para>The <replaceable>filename</replaceable> argument designates the PMNS of interest. For applications not requiring a tailored PMNS, the special value <literal>PM_NS_DEFAULT</literal> may be used for <replaceable>filename</replaceable>, to force the default local PMNS to be loaded. Since this PMNS exists in a binary format, <command>pmLoadNameSpace</command> is the more efficient function to use.</para>
-<para>The default local PMNS is found in the <filename>${PCP_VAR_DIR}/pmns/root</filename> file unless the <literal>PMNS_DEFAULT</literal> environment variable is set. Then the value is assumed to be the pathname to the file containing the default local PMNS.</para>
-<para><command>pmLoadASCIINameSpace</command> returns zero on success.</para>
-<para>Syntax and other errors in the parsing of the PMNS are reported on stderr with a message of the form:<literallayout class="monospaced">Error Parsing ASCII PMNS: ....</literallayout></para>
-<para><literal>PM_ERR_DUPPMNS</literal> is an error to try and load more than one PMNS, or to call either <command>pmLoadASCIINameSpace</command> or <command>pmLoadNameSpace</command> more than once. <literal>PM_ERR_PMNS</literal> indicates a syntax error in an ASCII format PMNS.</para>
 </section>
 <section id="id5200342">
 
@@ -2701,6 +2697,7 @@ see the <command>PCPIntro(1)</command> man page.</para>
 <para>Given a valid PCP context identifier previously created with <command>pmNewContext</command> or <command>pmDupContext</command>, the <command>pmGetContextHostName</command> function provides a possibility to retrieve a host name associated with a context regardless of the context type.</para>
 <para>This function will use the <literal>pmcd.hostname</literal> metric if it is available, and so is able to provide an accurate hostname in the presence of connection tunnelling and port forwarding.</para>
 <para>If <replaceable>id</replaceable> is not a valid PCP context identifier, this function returns a zero length string and therefore never fails.</para>
+<warning><para>As it uses a static buffer, there exists a natural race condition if multiple threads calling this function at the same time, and it should thus not be considered thread safe.</para></warning>
 </section>
 </section>
 <section id="LE34685-PARENT">
@@ -2798,7 +2795,7 @@ see the <command>PCPIntro(1)</command> man page.</para>
 <section id="LE40692-PARENT">
 
 <title>PMAPI Record-Mode Services</title>
-<para>The functions described in this section provide Performance Metrics Application Programming Interface (PMAPI) record-mode  services.</para>
+<para>The functions described in this section provide Performance Metrics Application Programming Interface (PMAPI) record-mode services. These services allow a monitor tool to establish connections to <command>pmlogger</command> co-processes, which they create and control for the purposes of recording live performance data from (possibly) multiple hosts. Since <command>pmlogger</command> records for one host only, these services can administer a group of loggers, and set up archive folios to track the logs. Tools like <command>pmafm</command> can subsequently use those folios to replay recorded data with the initiating tool. <command>pmchart</command> uses these concepts when providing its Record mode functionality.</para>
 <section id="LE13213-PARENT">
 
 <title><command>pmRecordAddHost</command> Function</title>
@@ -2946,7 +2943,7 @@ typedef struct {
 
 <title>PMAPI Time Control Services</title>
 <para><indexterm id="IG31340177413"><primary>PMAPI</primary><secondary>time control services</secondary></indexterm><indexterm id="IG31340177414"><primary>time control services</primary></indexterm>The PMAPI provides a common framework for client applications to control time and to synchronize time with other applications. The user interface component of this service is fully described in the companion <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>. See also the <command>pmtime(1)</command> man page.</para>
-<para><indexterm id="IG31340177415"><primary>archive logs</primary><secondary>time control services</secondary></indexterm>This service is most useful when processing PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmview</command>, <command>pmstat</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
+<para><indexterm id="IG31340177415"><primary>archive logs</primary><secondary>time control services</secondary></indexterm>This service is most useful when processing PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmgadgets</command>, <command>pmstat</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
 <para><indexterm id="IG31340177416"><primary>examples</primary><secondary>time control functions </secondary></indexterm>A full description of the PMAPI time control functions along with code examples can be found in man pages as listed in <xref linkend="id5208351"/>:</para>
 <table id="id5208351" frame="topbot" pgwide="wide">
 
@@ -5080,7 +5077,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmLoadNameSpace function <link linkend="IG31340177296"><command>pmLoadNameSpace</command> Function</link> <link linkend="IG31340177297"><command>pmLoadASCIINameSpace</command> Function</link></primaryie>
+   <primaryie>pmLoadNameSpace function <link linkend="IG31340177296"><command>pmLoadNameSpace</command> Function</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -5284,10 +5281,6 @@ trace.transact.rate</literallayout>
 
 <indexentry>
    <primaryie>pmUseZone function <link linkend="IG31340177381"><command>pmUseZone</command> Function</link></primaryie>
-</indexentry>
-
-<indexentry>
-   <primaryie>pmview command <link linkend="IG3134017710">PCP Architecture</link> <link linkend="IG3134017771">Implementing a PMDA</link></primaryie>
 </indexentry>
 
 <indexentry>
