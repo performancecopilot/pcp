@@ -146,3 +146,8 @@ gfs2.control.glock_lock_time 0 [off] or 1 [on]. setting the value of the metric
 controls the behavior of the PMDA to whether it tries to collect the lock_time
 metrics or not. The machine must have the gfs2 trace-points available for the
 glock_lock_time based metrics to function.
+
+@ gfs2.control.glock_threshold Threshold for maximum number of glocks accepted per fetch
+The number of glocks that will be processed and accepted over all ftrace read
+trace statistics. This number can be manually altered using pmstore in order
+to tailor the number of glocks processed. This value must be positive.

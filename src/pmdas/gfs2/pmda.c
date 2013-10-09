@@ -26,7 +26,6 @@ static char *gfs2_sysdir = "/sys/fs/gfs2";
 
 pmdaIndom indomtable[] = { 
     { .it_indom = GFS_FS_INDOM }, 
-    { GLOCK_LOCK_TIME_INDOM, 0, NULL}
 };
 
 #define INDOM(x) (indomtable[x].it_indom)
@@ -173,6 +172,10 @@ pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_CONTROL, CONTROL_GLOCK_LOCK_TIME),
         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL, {
+        PMDA_PMID(CLUSTER_CONTROL, CONTROL_FTRACE_GLOCK_THRESHOLD),
+        PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 int
@@ -302,7 +305,7 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
     }
 
     if (need_refresh[CLUSTER_LOCKTIME])
-        gfs2_refresh_lock_time(INDOM(GLOCK_LOCK_TIME_INDOM), indom);
+        gfs2_refresh_ftrace_stats(indom);
 
     return sts;
 }
@@ -368,6 +371,9 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         case CONTROL_GLOCK_LOCK_TIME: /* gfs2.control.glock_lock_time */
             atom->ul = gfs2_control_fetch(idp->item);
             break;
+        case CONTROL_FTRACE_GLOCK_THRESHOLD: /* gfs2.control.glock_threshold */
+            atom->ul = gfs2_ftrace_get_threshold();
+            break;
         default:
             return PM_ERR_PMID;
         }
@@ -394,7 +400,11 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
 
 	if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_GLOCK_LOCK_TIME) {
             sts = gfs2_control_set_value(control_locations[CONTROL_GLOCK_LOCK_TIME], vsp);
-       }
+        }
+
+        if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
+            sts = gfs2_ftrace_set_threshold(vsp);
+        }
     }
     return sts;
 }

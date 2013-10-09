@@ -19,6 +19,9 @@
 
 #include <inttypes.h>
 
+#define COUNT_THRESHOLD 350
+#define GLOCK_ARRAY_CAPACITY 100000
+
 enum {
     LOCKTIME_LOCK_TYPE = 0,
     LOCKTIME_NUMBER,
@@ -58,9 +61,8 @@ struct lock_time {
     __int64_t queue;         /* Count of gfs2_holder queues */
 };
 
-#define COUNT_THRESHOLD 25
-
 extern int gfs2_lock_time_fetch(int, struct lock_time *, pmAtomValue *);
-extern int gfs2_refresh_lock_time(pmInDom, pmInDom);
+extern int gfs2_extract_glock_lock_time(char *);
+extern void lock_time_assign_glocks(pmInDom);
 
 #endif /* LOCK_TIME_H */
