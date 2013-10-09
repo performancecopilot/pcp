@@ -109,10 +109,10 @@ static pmdaMetric metrictab[] = {
 
 void systemd_shutdown(void)
 {
-    if (journald_context >= 0)
+    if (journald_context != 0)
         sd_journal_close (journald_context);
 
-    if (journald_context_seeky >= 0)
+    if (journald_context_seeky != 0)
         sd_journal_close (journald_context_seeky);
 
     /* XXX: pmdaEvent zap queues? */
