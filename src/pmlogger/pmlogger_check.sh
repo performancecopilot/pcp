@@ -42,9 +42,10 @@ prog=`basename $0`
 #
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -374,10 +375,18 @@ rm -f $tmp/err $tmp/pmloggers
 
 line=0
 cat $CONTROL \
- | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-       -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+ | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
  | while read host primary socks dir args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    dir_hostname=`hostname || echo localhost`
+    dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
     case "$host"
@@ -553,12 +562,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     pid=''
     if [ "X$primary" = Xy ]
     then
-        if [ "X$host" != "X$LOCALHOSTNAME" -a "X$host" != "X`pmhostname`" ]
-	then
-	    _error "\"primary\" only allowed for $LOCALHOSTNAME (localhost, not $host)"
-	    _unlock
-	    continue
-	fi
+        # NB: FQDN cleanup: previously, we used to quietly accept several
+        # putative-aliases in the first (hostname) slot for a primary logger,
+        # which were all supposed to refer to the local host.  So now we
+        # squash them all to the officially pcp-preferred way to access it.
+        if [ "X$host" != "Xlocal:" ]
+        then
+            _warning "Using local: for primary logger."
+            host=local:
+        fi
 
 	if is_chkconfig_on pmlogger
 	then

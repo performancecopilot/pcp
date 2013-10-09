@@ -57,10 +57,6 @@ tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-LOCALHOSTNAME="localhost"
-which hostname >/dev/null 2>&1 && LOCALHOSTNAME=`hostname`
-LOGDIR=$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME
-
 if is_chkconfig_on pmlogger
 then
     PMLOGGER_CTL=on

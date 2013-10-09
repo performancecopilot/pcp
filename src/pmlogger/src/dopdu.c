@@ -1267,7 +1267,6 @@ sendstatus(void)
     static int			firsttime = 1;
     static char			*tzlogger;
     struct timeval		now;
-    struct hostent		*hep = NULL;
 
     if (firsttime) {
         tzlogger = __pmTimezone();
@@ -1296,14 +1295,18 @@ sendstatus(void)
 	end = sizeof(ls.ls_hostname) - 1;
 	strncpy(ls.ls_hostname, logctl.l_label.ill_hostname, end);
 	ls.ls_hostname[end] = '\0';
+        /* BTW, that string should equal pmcd_host[]. */
+
+        /* NB: FQDN cleanup: there is no such thing as 'the fully
+           qualified domain name' of a server: it may have several or
+           none; the set may have changed since the time the log
+           archive was collected.  Now that we store the then-current
+           pmcd.hostname in the ill_hostname (and thus get it reported
+           in ls_hostname), we could pass something else informative
+           in the ls_fqdn slot.  Namely, pmcd_host_conn[], which is the
+           access path pmlogger's using to get to the pmcd. */
 	end = sizeof(ls.ls_fqdn) - 1;
-	hep = gethostbyname(logctl.l_label.ill_hostname);
-	if (hep != NULL)
-	    /* send the fully qualified domain name */
-	    strncpy(ls.ls_fqdn, hep->h_name, end);
-	else
-	    /* use the hostname from -h ... on command line */
-	    strncpy(ls.ls_fqdn, logctl.l_label.ill_hostname, end);
+        strncpy(ls.ls_fqdn, pmcd_host_conn, end);
 	ls.ls_fqdn[end] = '\0';
 
 	end = sizeof(ls.ls_tz) - 1;
