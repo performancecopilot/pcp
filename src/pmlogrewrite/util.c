@@ -108,12 +108,14 @@ __pmLogRename(const char *old, const char *new)
     struct dirent	*dp;
 
     strncpy(path, old, sizeof(path));
+    path[sizeof(path)-1] = '\0';
     dname = dirname(path);
 
     if ((dirp = opendir(dname)) == NULL)
 	return -oserror();
 
     strncpy(path, old, sizeof(path));
+    path[sizeof(path)-1] = '\0';
     obase = basename(path);
 
     for ( ; ; ) {
@@ -227,6 +229,7 @@ __pmLogRemove(const char *name)
     struct dirent	*dp;
 
     strncpy(path, name, sizeof(path));
+    path[sizeof(path)-1] = '\0';
     dname = strdup(dirname(path));
     if (dname == NULL) {
 	__pmNoMem("__pmLogRemove: dirname strdup", strlen(dirname(path))+1, PM_RECOV_ERR);
@@ -240,6 +243,7 @@ __pmLogRemove(const char *name)
     }
 
     strncpy(path, name, sizeof(path));
+    path[sizeof(path)-1] = '\0';
     base = strdup(basename(path));
     if (base == NULL) {
 	__pmNoMem("__pmLogRemove: basename strdup", strlen(basename(path))+1, PM_RECOV_ERR);

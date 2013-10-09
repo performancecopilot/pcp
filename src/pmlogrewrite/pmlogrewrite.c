@@ -137,10 +137,12 @@ newlabel(void)
 	strncpy(lp->ill_hostname, global.hostname, PM_LOG_MAXHOSTLEN);
     else
 	strncpy(lp->ill_hostname, inarch.label.ll_hostname, PM_LOG_MAXHOSTLEN);
+    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
     if (global.flags & GLOBAL_CHANGE_TZ)
 	strncpy(lp->ill_tz, global.tz, PM_TZ_MAXLEN);
     else
 	strncpy(lp->ill_tz, inarch.label.ll_tz, PM_TZ_MAXLEN);
+    lp->ill_tz[PM_TZ_MAXLEN-1] = '\0';
 }
 
 /*
@@ -940,9 +942,12 @@ main(int argc, char **argv)
 	char	dname[MAXPATHLEN+1];
 	int	tmp_f1;			/* fd for first temp basename */
 	int	tmp_f2;			/* fd for second temp basename */
-	strncpy(path, argv[argc-1], sizeof(path));
-	strncpy(dname, dirname(path), sizeof(dname));
+
 #if HAVE_MKSTEMP
+	strncpy(path, argv[argc-1], sizeof(path));
+	path[sizeof(path)-1] = '\0';
+	strncpy(dname, dirname(path), sizeof(dname));
+	dname[sizeof(dname)-1] = '\0';
 	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
 	tmp_f1 = mkstemp(path);
 	outarch.name = strdup(path);
@@ -956,8 +961,14 @@ main(int argc, char **argv)
 #else
 	char	fname[MAXPATHLEN+1];
 	char	*s;
+
 	strncpy(path, argv[argc-1], sizeof(path));
+	path[sizeof(path)-1] = '\0';
 	strncpy(fname, basename(path), sizeof(fname));
+	fname[sizeof(fname)-1] = '\0';
+	strncpy(dname, dirname(path), sizeof(dname));
+	dname[sizeof(dname)-1] = '\0';
+
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
 	    abandon();
