@@ -54,12 +54,9 @@ _filter_log()
 	-e 's/^$//' \
 	-e '/^->/d' \
 	-e '/^00[08]:/d' \
-	-e '/^irix/s/\/var\//\/usr\//' \
 	-e '/^sample/s/.*/sample agent.../' \
-	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
 	-e 's/fd=[0-9][0-9]*/fd=<n>/g' \
 	-e 's/^  ok    [0-9]*/  ok  <n>/g' \
-	-e '/^irix/s/... ... ... dso/<n> <n> <n> dso/' \
 	-e '/^test/s/  *[0-9][0-9]*  *[0-9][0-9]* ... bin/ <n> <n> <n> bin/' \
 	-e '/Resource busy/d' \
 	-e 's/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/' \
@@ -114,13 +111,6 @@ linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 test	3	socket	inet 2222
 End-of-file
-elif [ $PCP_PLATFORM = linux ]
-then
-    cat >$tmp  <<End-of-file
-irix	1	dso	irix_init	libirixpmda.so
-pmcd	2	dso	pmcd_init	pmda_pmcd.so
-test	3	socket	inet 2222
-End-of-file
 elif [ $PCP_PLATFORM = darwin ]
 then
     cat >$tmp  <<End-of-file
@@ -141,9 +131,6 @@ else
 fi
 
 # netstat -an formats
-#
-# IRIX
-# tcp      0      0  *.2222                 *.*                    LISTEN
 #
 # Redhat 7.3 and 9
 # tcp        0      0 0.0.0.0:2222            0.0.0.0:*               LISTEN
