@@ -751,6 +751,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      * find file name component
      */
     strncpy(filename, name, MAXPATHLEN);
+    filename[MAXPATHLEN-1] = '\0';
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
