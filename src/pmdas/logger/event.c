@@ -240,7 +240,9 @@ event_config(const char *fname)
 	memset(logfile, 0, sizeof(*logfile));
 	logfile->noaccess = (noaccess[0] == 'y' || noaccess[0] == 'Y');
 	strncpy(logfile->pmnsname, name, sizeof(logfile->pmnsname));
+	logfile->pmnsname[sizeof(logfile->pmnsname)-1] = '\0';
 	strncpy(logfile->pathname, ptr, sizeof(logfile->pathname));
+	logfile->pathname[sizeof(logfile->pathname)-1] = '\0';
 	/* remaining fields filled in after pmdaInit() is called. */
 	numlogfiles++;
 

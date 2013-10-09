@@ -25,6 +25,7 @@ scan_filesys_options(const char *options, const char *option)
     char *s;
 
     strncpy(buffer, options, sizeof(buffer));
+    buffer[sizeof(buffer)-1] = '\0';
 
     s = strtok(buffer, ",");
     while (s) {
