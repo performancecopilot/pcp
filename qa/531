@@ -43,6 +43,7 @@ _filter()
 $PCP_PMDAS_DIR/sample/pmdasample -i $port -U $username -l $tmp.log &
 pid=$!
 echo "PMDA sample PID = $pid" > $seq.full
+sleep 2	# allow socket setup to occur
 
 dbpmda -n $PCP_PMDAS_DIR/sample/root -ie <<End-of-File 2>&1 | _filter
 open socket inet $port
