@@ -1,1 +1,1 @@
-FILES = tlb-irix swap-all swap-config swap-activity
+FILES = tlb-irix swap-all swap-config swap-activity proc-linux

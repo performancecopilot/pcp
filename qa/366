@@ -61,6 +61,7 @@ shping/summary
 postgresql/summary
 sqlserver/summary
 mysql/summary
+memory/proc-linux
 End-of-File
 
 # turn $tmp.cull-list into an awk program to cull groups like
