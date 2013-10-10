@@ -1342,14 +1342,14 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
+    *denyOpsResult = 0;			/* deny nothing == allow all */
+    if (nhosts == 0)			/* No access controls => allow all */
+	return 0;
+
     /* There could be more than one address associated with this host.*/
     clientIds = getClientIds(hostid, &sts);
     if (clientIds == NULL)
 	return sts;
-
-    *denyOpsResult = 0;			/* deny nothing == allow all */
-    if (nhosts == 0)			/* No access controls => allow all */
-	return 0;
 
     /* Accumulate permissions for each client address. */
     for (clientIx = 0; clientIds[clientIx] != NULL; ++clientIx) {
