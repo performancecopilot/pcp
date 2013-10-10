@@ -1716,7 +1716,8 @@ __pmAccDumpHosts(FILE *stream)
 	hp = &hostlist[h];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (hp->specOps & mask)
 		    fputs((hp->denyOps & mask) ? " n " : " y ", stream);
 		else
@@ -1777,7 +1778,8 @@ __pmAccDumpUsers(FILE *stream)
 	up = &userlist[u];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (up->specOps & mask)
 		    fputs((up->denyOps & mask) ? " n " : " y ", stream);
 		else
@@ -1839,7 +1841,8 @@ __pmAccDumpGroups(FILE *stream)
 	gp = &grouplist[g];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (gp->specOps & mask)
 		    fputs((gp->denyOps & mask) ? " n " : " y ", stream);
 		else
