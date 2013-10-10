@@ -53,7 +53,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
     __pmInDom_int	*ip;
     static void		*seen = (void *)0xfeedbabe;
     void		*sp;
-    char		*p, *q, *name;
+    char		*p, *q, *name = NULL;
     int			sts, ok = 0;
 
     if (mp->desc.indom == PM_INDOM_NULL)
@@ -118,6 +118,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 		if (pmDebug & DBG_TRACE_LIBPMDA)
 		    __pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized disk instance: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
@@ -151,6 +152,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    if (!ok) {
 		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized cpu instance: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
@@ -194,6 +196,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    if (!ok) {
 		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 			"unrecognized network interface instance: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
@@ -240,6 +243,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    if (!ok) {
 		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 			"unrecognized logical disk instance: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
@@ -299,6 +303,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    if (!ok) {
 		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized SQLServer instance: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
@@ -348,6 +353,7 @@ windows_lookup_instance(char *path, pdh_metric_t *mp)
 	    if (!ok) {
 		__pmNotifyErr(LOG_ERR, "windows_check_instance: Error: "
 				"unrecognized process/thread name: %s\n", path);
+		free(name);
 		return -1;
 	    }
 	    break;
