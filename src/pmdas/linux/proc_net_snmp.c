@@ -213,7 +213,7 @@ get_fields(snmp_fields_t *fields, char *header, char *buffer)
     char *p, *indices[SNMP_MAX_COLUMNS];
 
     /* first get pointers to each of the column headings */
-    p = strtok(header, " ");
+    strtok(header, " ");
     for (i = 0; i < SNMP_MAX_COLUMNS; i++) {
 	if ((p = strtok(NULL, " \n")) == NULL)
 	    break;
@@ -229,7 +229,7 @@ get_fields(snmp_fields_t *fields, char *header, char *buffer)
      * passed in "fields" table which typically matches the
      * kernel - but may be out-of-order for older kernels).
      */
-    p = strtok(buffer, " ");
+    strtok(buffer, " ");
     for (i = j = 0; j < count && fields[i].field; j++, i++) {
         if ((p = strtok(NULL, " \n")) == NULL)
             break;
@@ -255,7 +255,7 @@ get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer)
     unsigned int inst;
     char *p, *indices[SNMP_MAX_COLUMNS];
 
-    p = strtok(header, " ");
+    strtok(header, " ");
     for (i = 0; i < SNMP_MAX_COLUMNS; i++) {
 	if ((p = strtok(NULL, " \n")) == NULL)
 	    break;
@@ -263,7 +263,7 @@ get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer)
     }
     count = i;
 
-    p = strtok(buffer, " ");
+    strtok(buffer, " ");
     for (j = 0; j < count; j++) {
         if ((p = strtok(NULL, " \n")) == NULL)
             break;
