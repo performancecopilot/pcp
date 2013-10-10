@@ -76,12 +76,15 @@ __pmFindPDUBuf(int need)
 	    break;
     }
     if (pcp == NULL) {
-	if ((pcp = (bufctl_t *)malloc(sizeof(*pcp))) == NULL)
+	if ((pcp = (bufctl_t *)malloc(sizeof(*pcp))) == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return NULL;
+	}
 	pcp->bc_pincnt = 0;
 	pcp->bc_size = PDU_CHUNK * (1 + need/PDU_CHUNK);
 	if ((pcp->bc_buf = (char *)valloc(pcp->bc_size)) == NULL) {
 	    free(pcp);
+	    PM_UNLOCK(__pmLock_libpcp);
 	    return NULL;
 	}
 	pcp->bc_next = buf_free;

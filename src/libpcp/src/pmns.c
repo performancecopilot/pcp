@@ -1867,6 +1867,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		if (xname == NULL) {
 		    __pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
 		    num = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto report;
 		}
 		while ((xp = rindex(xname, '.')) != NULL) {
