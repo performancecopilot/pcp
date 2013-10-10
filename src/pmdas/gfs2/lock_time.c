@@ -18,6 +18,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "pmdagfs2.h"
+#include "ftrace.h"
 #include "lock_time.h"
 #include <ctype.h>
 #include <string.h>
@@ -138,7 +139,7 @@ gfs2_extract_glock_lock_time(char *buffer)
             /* Allocate and increase counters */        
             glock_array[num_entries] = glock;
             num_entries++;
-            gfs2_ftrace_increase_num_accepted_locks();
+            ftrace_increase_num_accepted_locks();
         }
     }
 

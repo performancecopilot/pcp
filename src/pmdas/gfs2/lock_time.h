@@ -20,7 +20,7 @@
 #include <inttypes.h>
 
 #define COUNT_THRESHOLD 350
-#define GLOCK_ARRAY_CAPACITY 100000
+#define GLOCK_ARRAY_CAPACITY 2048
 
 enum {
     LOCKTIME_LOCK_TYPE = 0,

@@ -21,7 +21,7 @@
 #include "sbstats.h"
 #include "glstats.h"
 #include "lock_time.h"
-#include "gfs2_ftrace.h"
+#include "ftrace.h"
 #include "control.h"
 
 enum {

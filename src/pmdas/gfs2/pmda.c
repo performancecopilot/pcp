@@ -253,11 +253,15 @@ gfs2_instance_refresh(void)
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&fs);
 	if (sts == PM_ERR_INST || (sts >= 0 && fs == NULL)){
 	    fs = calloc(1, sizeof(struct gfs2_fs));
-            fs->dev_id = gfs2_device_identifier(name);
-
-            if ((major(fs->dev_id) == 0) && (minor(fs->dev_id) == 0))
+            if (fs == NULL)
                 return PM_ERR_AGAIN;
 
+            fs->dev_id = gfs2_device_identifier(name);
+
+            if ((major(fs->dev_id) == 0) && (minor(fs->dev_id) == 0)) {
+                free(fs);
+                return PM_ERR_AGAIN;
+            }
         }   
 	else if (sts < 0)
 	    continue;
@@ -372,7 +376,7 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             atom->ul = gfs2_control_fetch(idp->item);
             break;
         case CONTROL_FTRACE_GLOCK_THRESHOLD: /* gfs2.control.glock_threshold */
-            atom->ul = gfs2_ftrace_get_threshold();
+            atom->ul = ftrace_get_threshold();
             break;
         default:
             return PM_ERR_PMID;
@@ -403,7 +407,7 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
         }
 
         if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
-            sts = gfs2_ftrace_set_threshold(vsp);
+            sts = ftrace_set_threshold(vsp);
         }
     }
     return sts;
