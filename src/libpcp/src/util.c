@@ -1431,12 +1431,18 @@ scandir(const char *dirname, struct dirent ***namelist,
 	    continue;
 
 	n++;
-	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL)
+	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    closedir(dirp);
 	    return -1;
+	}
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
-		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL)
+		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    closedir(dirp);
 	    return -1;
+	}
 
 	tp->d_ino = dp->d_ino;
 #if defined(HAVE_DIRENT_D_OFF)
