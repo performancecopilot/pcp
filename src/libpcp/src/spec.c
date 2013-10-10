@@ -973,12 +973,12 @@ __pmUnparseHostAttrsSpec(
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
-    else if ((node = __pmHashSearch(PCP_ATTR_UNIXSOCK, attrs)) != NULL) {
+    else if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL) {
 	if ((sts = snprintf(string, len, "unix://")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
-    else if ((node = __pmHashSearch(PCP_ATTR_LOCAL, attrs)) != NULL) {
+    else if (__pmHashSearch(PCP_ATTR_LOCAL, attrs) != NULL) {
 	if ((sts = snprintf(string, len, "local://")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
