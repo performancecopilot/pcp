@@ -769,7 +769,6 @@ PYTHON
 GIT
 LTLIBOBJS
 LIBOBJS
-package_builder
 PACKAGE_DISTRIBUTION
 PACKAGE_BUILD_DATE
 PACKAGE_BUILD
@@ -4098,27 +4097,6 @@ fi
 
 if test -z "$PACKAGE_DISTRIBUTION" ; then
     PACKAGE_DISTRIBUTION=$target_distro
-fi
-
-
-if test -z "$PACKAGE_BUILDER"
-then
-    case "$target_os"
-    in
-	solaris)
-	    if test -x /usr/xpg4/bin/id
-	    then
-		package_builder=`/usr/xpg4/bin/id -u -n`@`hostname`
-	    else
-		package_builder=`whoami`@`hostname`
-	    fi
-	    ;;
-	*)
-	    package_builder=`id -u -n`@`hostname | sed -e 's/\..*//'`
-	    ;;
-    esac
-else
-    package_builder="$PACKAGE_BUILDER"
 fi
 
 

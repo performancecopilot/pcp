@@ -59,7 +59,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
-	    -e's|@package_builder@|$(PACKAGE_BUILDER)|g' \
 	    -e's|@have_libmicrohttpd@|$(HAVE_LIBMICROHTTPD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \

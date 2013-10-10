@@ -293,27 +293,6 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
-if test -z "$PACKAGE_BUILDER"
-then
-    case "$target_os"
-    in
-	solaris)
-	    if test -x /usr/xpg4/bin/id
-	    then
-		package_builder=`/usr/xpg4/bin/id -u -n`@`hostname`
-	    else
-		package_builder=`whoami`@`hostname`
-	    fi
-	    ;;
-	*)
-	    package_builder=`id -u -n`@`hostname | sed -e 's/\..*//'`
-	    ;;
-    esac
-else
-    package_builder="$PACKAGE_BUILDER"
-fi
-AC_SUBST(package_builder)
-
 dnl output header with cpp defs HAVE_*, etc
 AC_CONFIG_HEADER(src/include/pcp/config.h)
 AC_OUTPUT(src/include/pcp/platform_defs.h)
