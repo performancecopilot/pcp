@@ -1621,8 +1621,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	if (ctxp != NULL)
-	    PM_UNLOCK(ctxp->c_lock);
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     if (sts < 0 || nfail > 0) {
