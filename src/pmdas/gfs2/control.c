@@ -31,8 +31,8 @@ const char *control_locations[] = {
 extern int
 gfs2_control_fetch(int item)
 {
-    if (item >= 0 && item < NUM_CONTROL_STATS)
-        return gfs2_control_check_value(control_locations[item]); 
+    if (item >= 0 && item < NUM_CONTROL_STATS && item != CONTROL_FTRACE_GLOCK_THRESHOLD)
+        return gfs2_control_check_value(control_locations[item]);
     return PM_ERR_PMID;
 }
 

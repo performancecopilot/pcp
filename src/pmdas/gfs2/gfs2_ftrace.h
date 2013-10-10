@@ -1,5 +1,5 @@
 /*
- * GFS2 trace-point enable controls.
+ * GFS2 gfs2_glock_lock_time trace-point metrics.
  *
  * Copyright (c) 2013 Red Hat.
  * 
@@ -14,19 +14,23 @@
  * for more details.
  */
 
-#ifndef CONTROL_H
-#define CONTROL_H
+#ifndef GFS2_FTRACE_H
+#define GFS2_FTRACE_H
 
 enum {
-        CONTROL_GLOCK_LOCK_TIME = 0,
-        CONTROL_FTRACE_GLOCK_THRESHOLD = 1,
-        NUM_CONTROL_STATS
+    GLOCK_LOCK_TIME = 0,
+    NUM_FTRACE_ARRAYS
 };
 
-extern const char *control_locations[];
+enum {
+    FALSE = 0,
+    TRUE = 1
+};
 
-extern int gfs2_control_fetch(int);
-extern int gfs2_control_set_value(const char *, pmValueSet *);
-extern int gfs2_control_check_value(const char *);
+extern void gfs2_ftrace_increase_num_accepted_locks();
+extern int gfs2_refresh_ftrace_stats(pmInDom);
 
-#endif /* CONTROL_H */
+extern int gfs2_ftrace_get_threshold();
+extern int gfs2_ftrace_set_threshold(pmValueSet *vsp);
+
+#endif	/*GFS2_FTRACE_H*/
