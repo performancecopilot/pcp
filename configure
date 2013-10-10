@@ -12694,7 +12694,7 @@ LIBS=$savedLIBS
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -13394,6 +13394,7 @@ do
     "debian/pcp.postinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.postinst.head" ;;
     "build/tar/preinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/preinstall.head" ;;
     "build/tar/postinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/postinstall.head" ;;
+    "build/GNUlocaldefs") CONFIG_FILES="$CONFIG_FILES build/GNUlocaldefs" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

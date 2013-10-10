@@ -15,6 +15,7 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+-include ../GNUlocaldefs
 -include ./GNUlocaldefs
 
 SPEC = pcp.spec

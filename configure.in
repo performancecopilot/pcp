@@ -2237,12 +2237,14 @@ dnl   PCP paths and other defs
     src/include/pcp.conf
 dnl   Linux Software Map entry
     pcp.lsm
-dnl   preamble for deb install scripts
+dnl   Preamble for deb install scripts
     debian/pcp.preinst.head
     debian/pcp.postinst.head
-dnl   preamble for tar install scripts
+dnl   Preamble for tar install scripts
     build/tar/preinstall.head
     build/tar/postinstall.head
+dnl   Build definitions for use in packaging
+    build/GNUlocaldefs
 )
 
 echo config.status: settings dump begin

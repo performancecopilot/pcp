@@ -1,0 +1,5 @@
+TARGET_VENDOR = @target_vendor@
+TARGET_CPU = @target_cpu@
+BUILD_VENDOR = @build_vendor@
+BUILD_CPU = @build_cpu@
+BUILD_OS = @build_os@
