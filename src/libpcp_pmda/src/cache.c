@@ -793,6 +793,7 @@ load_cache(hdr_t *h)
 		__pmNotifyErr(LOG_ERR, 
 		     "load_cache: indom %s: unable to allocate memory for keylen=%d",
 		     pmInDomStr(h->indom), keylen);
+		fclose(fp);
 		return PM_ERR_GENERIC;
 	    }
 	    q = key;
