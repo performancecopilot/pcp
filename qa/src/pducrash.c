@@ -1077,6 +1077,7 @@ decode_text(const char *name)
     text->buflen = htonl(INT_MAX - 1);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0) free(buffer);
     free(text);
 
     fprintf(stderr, "[%s] checking negative buflen field\n", name);
@@ -1086,6 +1087,7 @@ decode_text(const char *name)
     text->buflen = htonl(-2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0) free(buffer);
     free(text);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
@@ -1095,6 +1097,7 @@ decode_text(const char *name)
     text->buflen = htonl(2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0) free(buffer);
     free(text);
 }
 
