@@ -37,7 +37,7 @@ void doargs(int, char **);
 /*
  * globals ... see declarations in pmevent.c for explanations
  */
-extern char		*host;
+extern char		*host; /* as per pmGetContextHostName */
 extern char		*archive;
 extern int		ahtype;
 extern int		ctxhandle;

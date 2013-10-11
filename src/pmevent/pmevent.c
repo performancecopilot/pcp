@@ -26,7 +26,7 @@
 static int		amode = PM_MODE_FORW;		/* archive scan mode */
 static pmTime		*pmtime;
 
-char		*host;				/* original host */
+char		*host;				/* hostname according to pmGetContextHostName */
 char		*archive;			/* archive source */
 int		ahtype = -1;			/* archive or host or local context */
 int		ctxhandle = -1;			/* handle for the active context */
@@ -120,12 +120,8 @@ printhdr(void)
     char		timebuf[26];
 
     if (archive == NULL) {
-	if (ctxhandle != -1)
-	    printf("host:      %s\n", pmGetContextHostName(ctxhandle));
-	else
-	    printf("host:      %s\n", host);
-    }
-    else {
+        printf("host:      %s\n", host);
+    } else {
 	printf("archive:   %s\n", archive);
 	printf("host:      %s\n", host);
 	printf("start:     %s", pmCtime(&first.tv_sec, timebuf));
