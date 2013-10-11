@@ -64,7 +64,7 @@ doargs(int argc, char **argv)
     pmMetricSpec	*msp;
     char		*msg;
     static pmLogLabel	label;
-    static char		local[] = "localhost";
+    char                *host_conn = "local:";  /* argument of -h flag */
 
     delta.tv_sec = 1;
     delta.tv_usec = 0;
@@ -76,7 +76,7 @@ doargs(int argc, char **argv)
 
 	case 'a':		/* archive */
 	    if (++src > 1) {
-	    	fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+	    	fprintf(stderr, "%s: at most one of -a/-h/-L allowed\n", pmProgname);
 	    	errflag++;
 	    }
 	    ahtype = PM_CONTEXT_ARCHIVE;
@@ -105,11 +105,11 @@ doargs(int argc, char **argv)
 
 	case 'h':		/* host name */
 	    if (++src > 1) {
-		fprintf(stderr, "%s: at most one of -a and -h allowed\n", pmProgname);
+		fprintf(stderr, "%s: at most one of -a/-h/-L allowed\n", pmProgname);
 		errflag++;
 	    }
 	    ahtype = PM_CONTEXT_HOST;
-	    host = optarg;
+	    host_conn = optarg;
 	    break;
 
 	case 'K':		/* update local PMDA table */
@@ -122,8 +122,11 @@ doargs(int argc, char **argv)
 	    break;
 
 	case 'L':		/* use local context */
+	    if (++src > 1) {
+		fprintf(stderr, "%s: at most one of -a/-h/-L allowed\n", pmProgname);
+		errflag++;
+	    }
 	    ahtype = PM_CONTEXT_LOCAL;
-	    host = local;
 	    break;
 
 	case 'O':		/* start report time offset */
@@ -223,17 +226,12 @@ doargs(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
-    if (ahtype == -1) {
-	/* default */
-	host = local;
-    }
-
     /* parse uniform metric spec */
     for ( ; optind < argc; optind++) {
 	if (ahtype == PM_CONTEXT_ARCHIVE)
 	    sts = pmParseMetricSpec(argv[optind], 1, archive, &msp, &msg);
 	else
-	    sts = pmParseMetricSpec(argv[optind], 0, host, &msp, &msg);
+	    sts = pmParseMetricSpec(argv[optind], 0, host_conn, &msp, &msg);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: bad metric specification\n", pmProgname);
 	    fputs(msg, stderr);
@@ -244,15 +242,15 @@ doargs(int argc, char **argv)
 	if (msp->isarch == 0) {
 	    if (ahtype == -1) {
 		ahtype = PM_CONTEXT_HOST;
-		host = msp->source;
+		host_conn = msp->source;
 	    }
 	    else if (ahtype == PM_CONTEXT_ARCHIVE ||
-	             (ahtype == PM_CONTEXT_LOCAL && strcmp(local, msp->source) != 0)) {
+	             (ahtype == PM_CONTEXT_LOCAL)) {
 		fprintf(stderr, "%s: %s: only one type of metric source allowed\n", pmProgname, argv[optind]);
 		exit(EXIT_FAILURE);
 	    }
-	    else if (strcmp(host, msp->source) != 0) {
-		fprintf(stderr, "%s: %s: only one metric source allowed, found hosts %s and %s\n", pmProgname, argv[optind], host, msp->source);
+	    else if (strcmp(host_conn, msp->source) != 0) {
+		fprintf(stderr, "%s: %s: only one metric source allowed, found hosts %s and %s\n", pmProgname, argv[optind], host_conn, msp->source);
 		exit(EXIT_FAILURE);
 	    }
 	}
@@ -273,7 +271,6 @@ doargs(int argc, char **argv)
 	else if (msp->isarch == 2) {
 	    if (ahtype == -1) {
 		ahtype = PM_CONTEXT_LOCAL;
-		host = local;
 	    }
 	    else if (ahtype != PM_CONTEXT_LOCAL) {
 		fprintf(stderr, "%s: %s: only one type of metric source allowed\n", pmProgname, argv[optind]);
@@ -306,7 +303,7 @@ doargs(int argc, char **argv)
 	    }
 	    else {
 		/* open connection to host or local context */
-		if ((sts = pmNewContext(ahtype, host)) < 0) {
+		if ((sts = pmNewContext(ahtype, host_conn)) < 0) {
 		    if (ahtype == PM_CONTEXT_HOST)
 			fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 			    pmProgname, msp->source, pmErrStr(sts));
@@ -320,6 +317,11 @@ doargs(int argc, char **argv)
 		__pmtimevalNow(&logStart);
 	    }
 	}
+
+        /* Look up the host name according to the pmcd or the archive. */
+        host = strdup(pmGetContextHostName(ctxhandle));
+        if (host == NULL)
+            __pmNoMem("host name copy", 0, PM_FATAL_ERR);
 
 	for (m = 0; m < nmetric; m++) {
 	    if (strcmp(msp->metric, metrictab[m].name) == 0)
