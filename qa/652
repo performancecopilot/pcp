@@ -67,7 +67,7 @@ status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
 
 $sudo rm -fr $tmp.dir
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.* $seq.full
 
 # real QA test starts here
 _prepare_pmda_install $iam
