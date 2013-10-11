@@ -20,7 +20,7 @@ Check systemd metrics have appeared ... 9 metrics and 4 values
 === 1. scalar metrics  ===
 systemd.numclients 1 1
 systemd.maxmem 1 2097152
-systemd.journal.records 1 [0 event records]
+systemd.journal.records 0
 systemd.journal.records_raw 0
 systemd.journal.count 1 COUNT
 systemd.journal.bytes 1 BYTES
