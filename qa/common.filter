@@ -243,6 +243,7 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
+	-e '/pmdasystemd/d' \
 	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \
