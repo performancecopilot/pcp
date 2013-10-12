@@ -22,6 +22,7 @@
 
 PMIE=pmie
 PMIECONF="$PCP_BIN_DIR/pmieconf"
+PMIE_PID=pmie.pid  # file in pmie log directory
 
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
@@ -55,9 +56,10 @@ prog=`basename $0`
 #
 CONTROL=$PCP_PMIECONTROL_PATH
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the third column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -402,11 +404,19 @@ rm -f $tmp/err $tmp/pmies
 
 line=0
 cat "$CONTROL" \
-    | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-	  -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+    | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
     | while read host socks logfile args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    logfile_hostname=`hostname || echo localhost`
+    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     case "$host"
     in
@@ -482,48 +492,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	_lock
     fi
 
-    # match $logfile and $fqdn from control file to running pmies
-    pid=""
-    # if using proxy real-host@proxy-host, need to strip the proxy
-    # part here so that the match with the $PCP_TMP_DIR files works
-    # below
-    #
-    fqdn=`pmhostname $host | sed -e 's/@.*//'`
-    for file in $PCP_TMP_DIR/pmie/[0-9]*
-    do
-	[ "$file" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $file: ""$PCP_ECHO_C"
+    # find pmie responsible for this logfile
+    pid=`cat $PMIE_PID 2>/dev/null`
 
-	p_id=`echo $file | sed -e 's,.*/,,'`
-	p_logfile=""
-	p_pmcd_host=""
-
-	# throw away stderr in case $file has been removed by now
-	eval `$PCP_BINADM_DIR/pmiestatus $file 2>/dev/null | $PCP_AWK_PROG '
-NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
-NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
-	{ next }'`
-
-	p_logfile=`_unsymlink_path $p_logfile`
-	if [ "$p_logfile" != $logfile ]
-	then
-	    $VERY_VERBOSE && echo "different logfile, skip"
-	    $VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
-	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
-	then
-	    if [ "$p_pmcd_host" != "$host" -a "$p_pmcd_host" != "$fqdn" ]
-	    then
-		echo "Ignoring $p_id mismatched hostname (possible DNS oddity)"
-		echo "=> $p_pmcd_host differs to $host ($fqdn), but same log $p_logfile"
-	    fi
-	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
-	    pid=$p_id
-	    break
-	else
-	    $VERY_VERBOSE && echo "pmie process $p_id not running, skip"
-	    $VERY_VERBOSE && _get_pids_by_name pmie
-	fi
-    done
+    # check whether the pid is still valid (maybe process died)
+    if _get_pids_by_name pmie | grep "^$pid\$" >/dev/null
+    then
+        $VERY_VERBOSE && echo "pmie process $pid identified, OK"
+    else
+	$VERY_VERBOSE && echo "pmie process $pid not running, skip"
+        pid=
+	$VERY_VERBOSE && _get_pids_by_name pmie
+    fi
 
     if $VERY_VERBOSE
     then
@@ -533,7 +513,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	else
 	    echo "Found pmie process $pid monitoring:"
 	fi
-	echo "    host = $fqdn"
+	echo "    host = $host"
 	echo "    log file = $logfile"
     fi
 
@@ -597,6 +577,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    pmpost "start pmie from $prog for host $host"
 	    ${sock_me}$PMIE -b $args &
 	    pid=$!
+            echo $pid > $PMIE_PID
 	fi
 
 	# wait for pmie to get started, and check on its health
@@ -610,6 +591,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
 	eval $KILL -s TERM $pid
 	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmies
+        rm -f $PMIE_PID
     fi
 
     _unlock
