@@ -399,8 +399,8 @@ extern char        *pmnsfile;	/* alternate namespace */
 extern Archive	   *archives;	/* archives given on command line */
 extern RealTime	   first;	/* archive starting point */
 extern RealTime	   last;	/* archive end point */
-extern char	   *localHost;	/* local host name */
-extern char	   *dfltHost;	/* default host name */
+extern char	   *dfltHostConn;  /* default PM_CONTEXT_HOST parameter  */
+extern char	   *dfltHostName;  /* pmContextGetHostName of host name */
 extern RealTime	   dfltDelta;	/* default sample interval */
 extern char        *startFlag;  /* start time specified? */
 extern char        *stopFlag;   /* end time specified? */
