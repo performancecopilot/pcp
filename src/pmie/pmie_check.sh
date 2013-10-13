@@ -89,7 +89,14 @@ KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
-START_PMIE=true
+
+if is_chkconfig_on pmie
+then
+    START_PMIE=true # default, may be overridden by -s
+else
+    START_PMIE=false
+fi
+
 usage="Usage: $prog [-NsTV] [-c control]"
 while getopts c:NsTV? c
 do
@@ -373,13 +380,6 @@ _configure_pmie()
     fi
 }
 
-if [ $START_PMIE = false ]
-then
-    # if pmie has never been started, there's no work to do to stop it
-    [ ! -d $PCP_TMP_DIR/pmie ] && exit
-    pmpost "stop pmie from $prog"
-fi
-
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
@@ -500,7 +500,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     then
         $VERY_VERBOSE && echo "pmie process $pid identified, OK"
     else
-	$VERY_VERBOSE && echo "pmie process $pid not running, skip"
+	$VERY_VERBOSE && echo "pmie process $pid not running"
+        rm -f $PMIE_PID
         pid=
 	$VERY_VERBOSE && _get_pids_by_name pmie
     fi
@@ -588,6 +589,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# Send pmie a SIGTERM, which is noted as a pending shutdown.
 	# Add pid to list of pmies sent SIGTERM - may need SIGKILL later.
 	#
+        # XXX: $SHOWME?
+        #
 	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
 	eval $KILL -s TERM $pid
 	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmies

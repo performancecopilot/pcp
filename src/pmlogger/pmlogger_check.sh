@@ -22,6 +22,7 @@
 
 PMLOGGER=pmlogger
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
+PMLOGGER_PID=pmlogger.pid # file in pmlogger log directory
 
 # Get the portable PCP rc script functions
 [ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] && . $PCP_SHARE_DIR/lib/rc-proc.sh
@@ -68,10 +69,18 @@ logfile=pmlogger.log
 SHOWME=false
 MV=mv
 CP=cp
+KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
-START_PMLOGGER=true
+
+if is_chkconfig_on pmlogger
+then
+    START_PMLOGGER=true # default, may be overridden by -s
+else
+    START_PMLOGGER=false
+fi
+
 usage="Usage: $prog [-NTV] [-c control]"
 while getopts c:NsTV? c
 do
@@ -82,6 +91,7 @@ do
 	N)	SHOWME=true
 		MV="echo + mv"
 		CP="echo + cp"
+		KILL="echo + kill"
 		;;
         s)	START_PMLOGGER=false
 		;;
@@ -107,13 +117,6 @@ then
     echo "$usage"
     status=1
     exit
-fi
-
-if [ $START_PMLOGGER = false ]
-then
-    # if pmlogger has never been started, there's no work to do to stop it
-    [ ! -d $PCP_TMP_DIR/pmlogger ] && exit
-    pmpost "stop pmlogger from $prog"
 fi
 
 if [ ! -f $CONTROL ]
@@ -559,7 +562,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
     fi
     
-    pid=''
+    pid=`cat $PMLOGGER_PID 2>/dev/null`
+
     if [ "X$primary" = Xy ]
     then
         # NB: FQDN cleanup: previously, we used to quietly accept several
@@ -569,106 +573,19 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         if [ "X$host" != "Xlocal:" ]
         then
             _warning "Using local: for primary logger."
-            host=local:
+            host=local: # though -P is actually passed to pmlogger instead
         fi
+    fi
 
-	if is_chkconfig_on pmlogger
-	then
-	    :
-	else
-	    _error "primary logging disabled via chkconfig for $host"
-	    _unlock
-	    continue
-	fi
-
-	if test -f $PCP_TMP_DIR/pmlogger/primary
-	then
-	    if $VERY_VERBOSE
-	    then 
-		_host=`sed -n 2p <$PCP_TMP_DIR/pmlogger/primary`
-		_arch=`sed -n 3p <$PCP_TMP_DIR/pmlogger/primary`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
-	    fi
-	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    pid=''
-	    for file in $PCP_TMP_DIR/pmlogger/*
-	    do
-		case "$file"
-		in
-		    */primary|*\*)
-			;;
-		    */[0-9]*)
-			inode=`_get_ino "$file"`
-			$VERY_VERBOSE && echo $file inode=$inode
-			if [ "$primary_inode" = "$inode" ]
-			then
-			    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-			    break
-			fi
-			;;
-		esac
-	    done
-	    if [ -z "$pid" ]
-	    then
-		if $VERY_VERBOSE
-		then
-		    echo "primary pmlogger process pid not found"
-		    ls -l $PCP_TMP_DIR/pmlogger
-		fi
-	    else
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		else
-		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		    pid=''
-		fi
-	    fi
-	fi
+    # check whether the pid is still valid (maybe process died)
+    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
+    then
+	$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
     else
-	# if using proxy real-host@proxy-host, need to strip the proxy
-	# part here so that the match with the $PCP_TMP_DIR files works
-	# below
-	#
-	fqdn=`pmhostname $host | sed -e 's/@.*//'`
-	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
-        do
-	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
-	    if $VERY_VERBOSE
-	    then 
-		_host=`sed -n 2p <$log`
-		_arch=`sed -n 3p <$log`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log fqdn=$fqdn host=$_host arch=$_arch: ""$PCP_ECHO_C"
-	    fi
-	    # throw away stderr in case $log has been removed by now
-	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null \
-                   | $PCP_AWK_PROG '
-BEGIN							{ m = 0 }
-NR == 2	&& $1 == "'$fqdn'"				{ m = 1; next }
-NR == 2	&& "'$fqdn'" == "'$host'" &&
-	( $1 ~ /^'$host'\./ || $1 ~ /^'$host'$/ )	{ m = 1; next }
-NR == 3 && m == 1 && $0 == "'$dir'"			{ m = 2; next }
-END							{ print m }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
-	    if [ "$match" = 2 ]
-	    then
-		pid=`echo $log | sed -e 's,.*/,,'`
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-		    break
-		fi
-		$VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		pid=''
-	    elif [ "$match" = 0 ]
-	    then
-		$VERY_VERBOSE && echo "different host, skip"
-	    elif [ "$match" = 1 ]
-	    then
-		$VERY_VERBOSE && echo "different directory, skip"
-	    fi
-	done
+	$VERY_VERBOSE && echo "pmlogger process $pid not running"
+        rm -f $PMLOGGER_PID
+	pid=
+        $VERY_VERBOSE && _get_pids_by_name pmlogger
     fi
 
     if [ -z "$pid" -a $START_PMLOGGER = true ]
@@ -782,6 +699,7 @@ END							{ print m }'`
 	    pmpost "start pmlogger from $prog for host $host"
 	    ${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &
 	    pid=$!
+            echo $pid > $PMLOGGER_PID
 	fi
 
 	# wait for pmlogger to get started, and check on its health
@@ -812,9 +730,12 @@ END							{ print m }'`
 	# Send pmlogger a SIGTERM, which is noted as a pending shutdown.
         # Add pid to list of loggers sent SIGTERM - may need SIGKILL later.
 	#
+        # XXX: $SHOWME?
+        #
 	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
 	eval $KILL -s TERM $pid
 	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmloggers
+        rm -f $PMLOGGER_PID
     fi
 
     _unlock
