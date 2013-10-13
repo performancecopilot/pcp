@@ -455,7 +455,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
-%{_logsdir}
+%attr(0774,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
