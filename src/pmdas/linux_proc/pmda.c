@@ -1613,6 +1613,7 @@ usage(void)
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
 	  "  -L          include threads in the all-processes instance domain\n"
+	  "  -r cgroup   restrict monitoring to processes in the named cgroup\n"
 	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
@@ -1634,10 +1635,13 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:LU:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:Lr:U:?", &dispatch, &err)) != EOF) {
 	switch (c) {
 	case 'L':
 	    threads = 1;
+	    break;
+	case 'r':
+	    cgroups = optarg;
 	    break;
 	case 'U':
 	    username = optarg;
