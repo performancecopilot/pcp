@@ -18,6 +18,8 @@ for helper in pluginviewer saslpasswd2 sasldblistusers2; do
 done
 pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
 test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
+pluginviewer -s -m plain >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No server support for plain authentication'
 
 cleanup()
 {
