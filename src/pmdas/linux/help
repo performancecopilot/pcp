@@ -105,97 +105,29 @@ for any and all errors that occur while handling interrupts.
 Cumulative number of disk read operations since system boot time (subject
 to counter wrap).
 
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
-
 @ disk.dev.write per-disk write operations
 Cumulative number of disk write operations since system boot time (subject
 to counter wrap).
-
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
 
 @ disk.dev.total per-disk total (read+write) operations
 Cumulative number of disk read and write operations since system boot
 time (subject to counter wrap).
 
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
-
 @ disk.dev.blkread per-disk block read operations
 Cumulative number of disk block read operations since system boot time
 (subject to counter wrap).
-
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
 
 @ disk.dev.blkwrite per-disk block write operations
 Cumulative number of disk block write operations since system boot time
 (subject to counter wrap).
 
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
-
 @ disk.dev.blktotal per-disk total (read+write) block operations
 Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap).
 
-If the "sard" patch has been applied, the values are obtained from
-/proc/partitions, otherwise they are obtained from /proc/stat. In the
-latter case, (a) some metric values may be shared by multiple disks
-(this may happen if both scsi and ide disks are present in the system),
-in which case the disk instance name will show multiple device names
-separated by "+", and (b) metric values may not be available at all for
-some disks - this only happens if there are more than four disk devices
-installed in the system, and is the unfortunate end result of a
-limitation in the kernel's I/O accounting.
-
 @ disk.dev.read_bytes per-disk count of bytes read
-This metric is not available if the "sard" patch has not been applied.
-See disk.dev.read for further details.
-
 @ disk.dev.write_bytes per-disk count of bytes written
-This metric is not available if the "sard" patch has not been applied.
-See disk.dev.write for further details.
-
 @ disk.dev.total_bytes per-disk count of total bytes read and written
-This metric is not available if the "sard" patch has not been applied.
-See disk.dev.total for further details.
 
 @ disk.dev.scheduler per-disk I/O scheduler
 The name of the I/O scheduler in use for each device.  The scheduler
@@ -302,80 +234,52 @@ Cumulative number of disk block write operations since system boot time
 Cumulative number of disk block read and write operations since system
 boot time (subject to counter wrap), summed over all disk devices.
 
-@ disk.partitions.read read operations metric from /proc/partitions
-Cumulative number of disk read operations since system boot time
-(subject to counter wrap) for individual disk partitions.
-
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
 @ disk.all.read_bytes count of bytes read for all disk devices
-This metric is not available if the "sard" patch has not been applied.
-See disk.all.read for further details.
-
 @ disk.all.write_bytes count of bytes written for all disk devices
-This metric is not available if the "sard" patch has not been applied.
-See disk.all.write for further details.
-
 @ disk.all.total_bytes total count of bytes read and written for all disk devices
-This metric is not available if the "sard" patch has not been applied.
-See disk.all.total for further details.
 
-@ disk.partitions.write write operations metric from /proc/partitions
+@ disk.partitions.read read operations metric for storage partitions
+Cumulative number of disk read operations since system boot time
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
+
+@ disk.partitions.write write operations metric for storage partitions
 Cumulative number of disk write operations since system boot time
-(subject to counter wrap) for individual disk partitions.
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.total total (read+write) I/O operations metric from /proc/partitions
+@ disk.partitions.total total (read+write) I/O operations metric for storage partitions
 Cumulative number of disk read and write operations since system boot
-time (subject to counter wrap) for individual disk partitions.
+time (subject to counter wrap) for individual disk partitions or
+logical volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.blkread block read operations metric from /proc/partitions
+@ disk.partitions.blkread block read operations metric for storage partitions
 Cumulative number of disk block read operations since system boot time
-(subject to counter wrap) for individual disk partitions.
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.blkwrite block write operations metric from /proc/partitions
+@ disk.partitions.blkwrite block write operations metric for storage partitions
 Cumulative number of disk block write operations since system boot time
-(subject to counter wrap) for individual disk partitions.
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.blktotal total (read+write) block operations metric from /proc/partitions
+@ disk.partitions.blktotal total (read+write) block operations metric for storage partitions
 Cumulative number of disk block read and write operations since system
-boot time (subject to counter wrap) for individual disk partitions.
+boot time (subject to counter wrap) for individual disk partitions or
+logical volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.read_bytes number of bytes read, from /proc/partitions
+@ disk.partitions.read_bytes number of bytes read for storage partitions
 Cumulative number of bytes read since system boot time (subject to
-counter wrap) for individual disk partitions.
+counter wrap) for individual disk partitions or logical volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.write_bytes number of bytes written, from /proc/partitions
+@ disk.partitions.write_bytes number of bytes written for storage partitions
 Cumulative number of bytes written since system boot time (subject to
-counter wrap) for individual disk partitions.
+counter wrap) for individual disk partitions or logical volumes.
 
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
-
-@ disk.partitions.total_bytes total number of bytes read and written, from /proc/partitions
+@ disk.partitions.total_bytes total number of bytes read and written for storage partitions
 Cumulative number of bytes read and written since system boot time
-(subject to counter wrap) for individual disk partitions.
-
-If the "sard" patch has not been applied, the values for this metric
-are unavailable.
+(subject to counter wrap) for individual disk partitions or logical
+volumes.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
@@ -799,6 +703,7 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
+@ hinv.nlv number of logical volumes
 @ hinv.map.lvname mapping of logical volume names for devices
 Provides a logical-volume-name to device-name mapping for the device
 mapper subsystem.
