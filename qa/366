@@ -62,6 +62,7 @@ postgresql/summary
 sqlserver/summary
 mysql/summary
 memory/proc-linux
+disk/perpartition
 End-of-File
 
 # turn $tmp.cull-list into an awk program to cull groups like
