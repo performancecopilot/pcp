@@ -12,8 +12,8 @@ _filter()
 {
     sed \
 	-e "s/$host/HOST/g" \
-	-e "/^sample\.seconds/s/= 0.9[0-9]*/= 1/g" \
-	-e "/^sample\.seconds/s/= 1.0[0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 0.[0-9][0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1.[0-9][0-9]*/= 1/g" \
 	-e "/^sample\.seconds/s/= 1 /= NUMBER /g" \
 	-e "/^sample\.seconds/s/= 0 /= NUMBER /g" \
 	-e "/::genProfile/s/id = [0-9]*,/id = NNN,/" \
