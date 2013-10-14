@@ -30,7 +30,7 @@ global probe_hits
 probe process("$PCP_BINADM_DIR/pmcd").mark("*") {
        probe_hits <<< 1
 }
-probe timer.ms(4000) {
+probe timer.ms(5000) {
        if (@count(probe_hits) > 0) 
           println("PASS")
        else
@@ -46,7 +46,7 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
 # start systemtap and count pmcd probe hits
 $sudo stap $tmp.stap | tee -a $tmp.out 2>&1 &
 STAP=$!
-sleep 1
+sleep 3	# give stap a decent chance to fire up completely
 echo "Running stap process:" >> $seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep stap >> $seq.full
 
