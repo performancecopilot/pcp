@@ -1,15 +1,15 @@
 QA output created by 443
 === -a foo -a bar ===
-pmevent: at most one of -a and -h allowed
+pmevent: at most one of -a/-h/-L allowed
 Usage: pmevent [options] metricname ...
 === -h foo -h bar ===
-pmevent: at most one of -a and -h allowed
+pmevent: at most one of -a/-h/-L allowed
 Usage: pmevent [options] metricname ...
 === -a foo -h bar ===
-pmevent: at most one of -a and -h allowed
+pmevent: at most one of -a/-h/-L allowed
 Usage: pmevent [options] metricname ...
 === -h foo -a bar ===
-pmevent: at most one of -a and -h allowed
+pmevent: at most one of -a/-h/-L allowed
 Usage: pmevent [options] metricname ...
 === -D blah ===
 pmevent: unrecognized debug flag specification (blah)

@@ -64,7 +64,8 @@ doargs(int argc, char **argv)
     pmMetricSpec	*msp;
     char		*msg;
     static pmLogLabel	label;
-    char                *host_conn = "local:";  /* argument of -h flag */
+    static char		*default_host_conn = "local:"; 
+    char		*host_conn = default_host_conn;	/* argument of -h */
 
     delta.tv_sec = 1;
     delta.tv_usec = 0;
@@ -244,8 +245,9 @@ doargs(int argc, char **argv)
 		ahtype = PM_CONTEXT_HOST;
 		host_conn = msp->source;
 	    }
-	    else if (ahtype == PM_CONTEXT_ARCHIVE ||
-	             (ahtype == PM_CONTEXT_LOCAL)) {
+	    else if ((ahtype == PM_CONTEXT_ARCHIVE) ||
+		     (ahtype == PM_CONTEXT_LOCAL &&
+		     (strcmp(msp->source, default_host_conn)))) {
 		fprintf(stderr, "%s: %s: only one type of metric source allowed\n", pmProgname, argv[optind]);
 		exit(EXIT_FAILURE);
 	    }
