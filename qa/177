@@ -46,17 +46,17 @@ _filter_err()
 BEGIN           {
 		  min["0.1-interp"] = 116; max["0.1-interp"] = 120
 		  min["0.1-back"] = 1; max["0.1-back"] = 5
-		  min["0.1-forw"] = 51; max["0.1-forw"] = 56
+		  min["0.1-forw"] = 51; max["0.1-forw"] = 57
 		  min["0.1-peek"] = 1; max["0.1-peek"] = 1
 
 		  min["0.2-interp"] = 58; max["0.2-interp"] = 60
 		  min["0.2-back"] = 1; max["0.2-back"] = 5
-		  min["0.2-forw"] = 51; max["0.2-forw"] = 56
+		  min["0.2-forw"] = 51; max["0.2-forw"] = 57
 		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
 
 		  min["0.4-interp"] = 29; max["0.4-interp"] = 30
 		  min["0.4-back"] = 5; max["0.4-back"] = 20
-		  min["0.4-forw"] = 51; max["0.4-forw"] = 56
+		  min["0.4-forw"] = 51; max["0.4-forw"] = 57
 		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
 		  xx = "'$1'"
 		}
