@@ -511,6 +511,12 @@ Chart::setAntiAliasing(bool enabled)
     my.engine->setAntiAliasing(enabled);
 }
 
+QString
+Chart::YAxisTitle(void) const
+{
+    return axisTitle(QwtPlot::yLeft).text();
+}
+
 void
 Chart::setYAxisTitle(const char *p)
 {

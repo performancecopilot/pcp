@@ -260,10 +260,17 @@ SamplingItem::containsPoint(const QRectF &, int)
 void
 SamplingItem::updateCursor(const QPointF &p, int)
 {
-    my.info.sprintf("[%.2f %s at %s]",
-		(float)p.y(),
-		pmUnitsStr(&ChartItem::my.units),
-		timeHiResString(p.x()));
+    QString title = my.chart->YAxisTitle();
+
+    my.info.sprintf("[%.2f", (float)p.y());
+    if (title != QString::null) {
+	my.info.append(" ");
+	my.info.append(title);
+    }
+    my.info.append(" at ");
+    my.info.append(timeHiResString(p.x()));
+    my.info.append("]");
+
     pmchart->setValueText(my.info);
 }
 

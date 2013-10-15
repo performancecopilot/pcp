@@ -88,6 +88,7 @@ public:
 			// return autoscale state and fixed scale parameters
     void setScale(bool, double, double);
 			// set autoscale state and fixed scale parameters
+    QString YAxisTitle() const;
     void setYAxisTitle(const char *);
     bool legendVisible();
     void setLegendVisible(bool);
@@ -303,7 +304,7 @@ public:
 protected:
     struct {
 	QmcMetric *metric;
-	pmUnits units;
+	pmUnits units;	// base units, *not* scaled
 
 	QString name;
 	char *legend;	// from config
