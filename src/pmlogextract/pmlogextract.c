@@ -332,6 +332,7 @@ newlabel(void)
     lp->ill_magic = iap->label.ll_magic;
     lp->ill_pid = (int)getpid();
     strncpy(lp->ill_hostname, iap->label.ll_hostname, PM_LOG_MAXHOSTLEN);
+    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
     if (farg) {
 	/*
 	 * use timezone from first archive ... this is the OLD default

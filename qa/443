@@ -11,15 +11,9 @@
 . ./common.check
 
 seq=`basename $0`
-
-if which pmevent >/dev/null 2>&1
-then
-    rm -f .notrun
-else
-    _notrun pmevent executable not found
-fi
-
 echo "QA output created by $seq"
+
+[ $PCP_VER -ge 3805 ] || _notrun "PCP version is too old"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

@@ -494,9 +494,8 @@ __pmHostEntGetName(__pmHostEnt *he)
 	    he->name = "Unknown Host";
     }
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
-        fprintf(stderr, "%s\n", he->name);
-    }
+    if (pmDebug & DBG_TRACE_DESPERATE)
+        fprintf(stderr, "__pmHostEntGetName -> %s\n", he->name);
 #endif
 
     return strdup(he->name);

@@ -1,1 +1,1 @@
-FILES = summary percontroller perdisk
+FILES = summary percontroller perdisk perpartition

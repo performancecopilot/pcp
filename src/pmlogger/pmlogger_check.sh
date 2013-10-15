@@ -74,20 +74,14 @@ KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
-
-if is_chkconfig_on pmlogger
-then
-    START_PMLOGGER=true # default, may be overridden by -s
-else
-    START_PMLOGGER=false
-fi
-
-usage="Usage: $prog [-NTV] [-c control]"
-while getopts c:NsTV? c
+usage="Usage: $prog [-CsNTV] [-c control]"
+while getopts c:CNsTV? c
 do
     case $c
     in
 	c)	CONTROL="$OPTARG"
+		;;
+	C)	CHECK_RUNLEVEL=true
 		;;
 	N)	SHOWME=true
 		MV="echo + mv"
@@ -118,6 +112,31 @@ then
     echo "$usage"
     status=1
     exit
+fi
+
+QUIETLY=false
+if [ $CHECK_RUNLEVEL = true ]
+then
+    # determine whether to start/stop based on runlevel settings - we
+    # need to do this when running unilaterally from cron, else we'll
+    # always start pmlogger up (even when we shouldn't).
+    #
+    . $PCP_SHARE_DIR/lib/rc-proc.sh
+
+    QUIETLY=true
+    if is_chkconfig_on pmlogger
+    then
+	START_PMLOGGER=true
+    else
+	START_PMLOGGER=false
+    fi
+fi
+
+if [ $START_PMLOGGER = false ]
+then
+    # if pmlogger has never been started, there's no work to do to stop it
+    [ ! -d $PCP_TMP_DIR/pmlogger ] && exit
+    $QUIETLY || pmpost "stop pmlogger from $prog"
 fi
 
 if [ ! -f $CONTROL ]

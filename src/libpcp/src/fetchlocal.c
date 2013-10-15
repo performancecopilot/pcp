@@ -67,11 +67,14 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **resul
      */
     if (splitmax < numpmid) {
 	splitmax = numpmid;
-	if ((splitlist = (pmID *)realloc (splitlist,
-					  sizeof (pmID)*splitmax)) == NULL) {
+	pmID *tmp_list = (pmID *)realloc(splitlist, sizeof(pmID)*splitmax);
+	if (tmp_list == NULL) {
+	    free(splitlist);
 	    splitmax = 0;
+	    free(ans);
 	    return -oserror();
 	}
+	splitlist = tmp_list;
     }
 
     ans->numpmid = numpmid;

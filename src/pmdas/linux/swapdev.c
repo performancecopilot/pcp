@@ -26,7 +26,6 @@ refresh_swapdev(pmInDom swapdev_indom)
     swapdev_t *swap;
     FILE *fp;
     char *path;
-    char *type;
     char *size;
     char *used;
     char *priority;
@@ -42,7 +41,7 @@ refresh_swapdev(pmInDom swapdev_indom)
 	    continue;
 	if ((path = strtok(buf, " \t")) == 0)
 	    continue;
-	if ((type = strtok(NULL, " \t")) == NULL ||
+	if ((/*type: */ strtok(NULL, " \t")) == NULL ||
 	    (size = strtok(NULL, " \t")) == NULL ||
 	    (used = strtok(NULL, " \t")) == NULL ||
 	    (priority = strtok(NULL, " \t")) == NULL)

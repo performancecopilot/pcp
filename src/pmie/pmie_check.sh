@@ -90,20 +90,16 @@ KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
-
-if is_chkconfig_on pmie
-then
-    START_PMIE=true # default, may be overridden by -s
-else
-    START_PMIE=false
-fi
-
-usage="Usage: $prog [-NsTV] [-c control]"
-while getopts c:NsTV? c
+CHECK_RUNLEVEL=false
+START_PMIE=true
+usage="Usage: $prog [-CNsTV] [-c control]"
+while getopts c:CNsTV? c
 do
     case $c
     in
 	c)	CONTROL="$OPTARG"
+		;;
+	C)	CHECK_RUNLEVEL=true
 		;;
 	N)	SHOWME=true
 		MV="echo + mv"
@@ -380,6 +376,31 @@ _configure_pmie()
 	fi
     fi
 }
+
+QUIETLY=false
+if [ $CHECK_RUNLEVEL = true ]
+then
+    # determine whether to start/stop based on runlevel settings - we
+    # need to do this when running unilaterally from cron, else we'll
+    # always start pmie up (even when we shouldn't).
+    #
+    . $PCP_SHARE_DIR/lib/rc-proc.sh
+
+    QUIETLY=true
+    if is_chkconfig_on pmie
+    then
+	START_PMIE=true
+    else
+	START_PMIE=false
+    fi
+fi
+
+if [ $START_PMIE = false ]
+then
+    # if pmie has never been started, there's no work to do to stop it
+    [ ! -d $PCP_TMP_DIR/pmie ] && exit
+    $QUIETLY || pmpost "stop pmie from $prog"
+fi
 
 if [ ! -f "$CONTROL" ]
 then

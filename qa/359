@@ -29,6 +29,7 @@ _filter()
 	-e '/^sampledso.needprofile:/d' \
 	-e '/^sampledso.bad.unknown:/d' \
 	-e '/^sampledso.bad.nosupport:/d' \
+	-e '/^proc.schedstat.*: Unknown or .*/d' \
 	-e '/^proc.schedstat.*: No permission/d' \
 	-e '/^proc.psinfo.*: No permission/d' \
 	-e '/^proc.memory.*: No permission/d' \

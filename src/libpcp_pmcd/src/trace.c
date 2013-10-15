@@ -78,10 +78,12 @@ pmcd_trace(int type, int who, int p1, int p2)
 	    PCP_PROBE_PMCD_PDU(type, who, p1, p2);
 	    if ((_pmcd_trace_mask & TR_MASK_PDU) == 0)
 		return;
+	    break;
 	default:
 	    PCP_PROBE_PMCD(type, who, p1, p2);
 	    if ((_pmcd_trace_mask & TR_MASK_CONN) == 0)
 		return;
+	    break;
     }
 
     if (trace == NULL) {

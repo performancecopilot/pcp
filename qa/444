@@ -14,19 +14,15 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3803 ]
+if [ $PCP_VER -ge 3805 ]
 then
-    ln $seq.out.1 $seq.out || exit 1
-    hostresult=0
-else
+    ln $seq.out.3 $seq.out || exit 1
+elif [ $PCP_VER -ge 3803 ]
+then
     ln $seq.out.2 $seq.out || exit 1
-    # extract the length of the hostname to make output deterministic
-    # later on when pmevent fetches pmcd.hostname.  note: name quoted.
-    hostlen=`pmprobe -v pmcd.hostname | $PCP_AWK_PROG '{print length($3)}'`
-    hostresult=`expr $hostlen - 2 + 51`
+else
+    ln $seq.out.1 $seq.out || exit 1
 fi
-
-which pmevent >/dev/null 2>&1 || _notrun pmevent executable not found
 
 status=0	# success is the default!
 host=`hostname`
@@ -51,8 +47,9 @@ sed <$tmp.out \
     -e "s/host:      $host/host:      localhost/g" \
     -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
     -e 's/fd=[0-9][0-9]*/fd=<fd>/g' \
-    -e "s/RESULT fd=<fd> len=$hostresult/RESULT fd=<fd> len=PMCDHOSTLEN/" \
-| $PCP_AWK_PROG '
+| $PCP_AWK_PROG ' BEGIN { hostskip=0 }
+/^pmXmitPDU: FETCH fd=<fd> len=/	{ hostskip++; }
+/^pmGetPDU: RESULT fd=<fd> len=/	{ if (hostskip < 2) { next } }
 /pmcd.client.whoami/	{ print; skip=2; next }
 skip > 0		{ print "blah blah ..."; skip--; next }
 			{ print }'

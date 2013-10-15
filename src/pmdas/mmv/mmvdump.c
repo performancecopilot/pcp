@@ -329,6 +329,7 @@ main(int argc, char * argv[])
 	snprintf(file, MAXPATHLEN, "%s%cmmv%ctest",
 		pmGetConfig("PCP_TMP_DIR"),
 		__pmPathSeparator(), __pmPathSeparator());
+    file[MAXPATHLEN-1] = '\0';
 
     if ((fd = open(file, O_RDONLY)) < 0)
 	perror(file);

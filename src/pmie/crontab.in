@@ -5,4 +5,4 @@
 # daily processing of pmie logs
 08     0  *  *  *  @user@  @path@/pmie_daily
 # every 30 minutes, check pmie instances are running
-28,58  *  *  *  *  @user@  @path@/pmie_check
+28,58  *  *  *  *  @user@  @path@/pmie_check -C

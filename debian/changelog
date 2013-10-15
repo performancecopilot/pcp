@@ -1,6 +1,7 @@
 pcp (3.8.5) unstable; urgency=low
 
   * Work-in-progress.
+  * Resolve FTBFS for kfreebsd probes.h (closes: #725627)
 
  -- Nathan Scott <nathans@debian.org>  Tue, 17 Sep 2013 18:56:46 +1000
 
@@ -14,9 +15,9 @@ pcp (3.8.4) unstable; urgency=low
 pcp (3.8.3) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
-  * Resolve FTBFS for kfreebsd errno (closes: 721499)
-  * Resolve FTBFS on s390x via -fPIC (closes: 721500)
-  * Tackle a buildd issue with chown (closes: 719734)
+  * Resolve FTBFS for kfreebsd errno (closes: #721499)
+  * Resolve FTBFS on s390x via -fPIC (closes: #721500)
+  * Tackle a buildd issue with chown (closes: #719734)
 
  -- Nathan Scott <nathans@debian.org>  Mon, 09 Sep 2013 18:20:08 +1000
 

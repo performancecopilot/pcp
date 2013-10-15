@@ -513,6 +513,7 @@ typedef enum {
     PCP_ATTR_USERID	= 11,	/* uid - user identifier (posix) */
     PCP_ATTR_GROUPID	= 12,	/* gid - group identifier (posix) */
     PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
+    PCP_ATTR_PROCESSID	= 14,	/* pid - process identifier (posix) */
 } __pmAttrKey;
 
 extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);

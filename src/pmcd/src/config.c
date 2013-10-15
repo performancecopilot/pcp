@@ -2511,6 +2511,8 @@ ParseRestartAgents(char *fileName)
     for (i = 0; i < nClients; i++) {
 	ClientInfo	*cp = &client[i];
 
+	if (!cp->status.connected)
+	    continue;
 	if ((sts = CheckClientAccess(cp)) >= 0)
 	    sts = CheckAccountAccess(cp);
 	if (sts < 0) {

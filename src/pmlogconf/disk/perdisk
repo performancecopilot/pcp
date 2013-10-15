@@ -6,7 +6,5 @@ force	available
 	disk.dev.total
 	disk.dev.read_bytes
 	disk.dev.write_bytes
-	disk.dev.bytes			# for irix
-	disk.dev.total_bytes		# for linux
-	disk.dev.avg_disk.active	# for irix
-	disk.dev.avactive		# for linux
+	disk.dev.total_bytes
+	disk.dev.avactive

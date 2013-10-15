@@ -264,7 +264,8 @@ mmv_stats_init(const char *fname,
 	    inlist->padding = 0;
 	    inlist->internal = insts[j].internal;
 	    strncpy(inlist->external, insts[j].external, MMV_NAMEMAX);
- 	    inlist++;
+	    inlist->external[MMV_NAMEMAX-1] = '\0';
+	    inlist++;
 	}
     }
 
@@ -272,6 +273,7 @@ mmv_stats_init(const char *fname,
     mlist = (mmv_disk_metric_t *)((char *)addr + metrics_offset);
     for (i = 0; i < nmetrics; i++) {
 	strncpy(mlist[i].name, st[i].name, MMV_NAMEMAX);
+	mlist[i].name[MMV_NAMEMAX-1] = '\0';
 	mlist[i].item = st[i].item;
 	mlist[i].type = st[i].type;
 	mlist[i].indom = st[i].indom;
@@ -327,12 +329,14 @@ mmv_stats_init(const char *fname,
 	    mlist[i].shorttext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 	    strncpy(slist[stridx].payload, st[i].shorttext, MMV_STRINGMAX);
+	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
 	if (st[i].helptext) {
 	    mlist[i].helptext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 	    strncpy(slist[stridx].payload, st[i].helptext, MMV_STRINGMAX);
+	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
     }
@@ -341,12 +345,14 @@ mmv_stats_init(const char *fname,
 	    domlist[i].shorttext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 	    strncpy(slist[stridx].payload, in[i].shorttext, MMV_STRINGMAX);
+	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
 	if (in[i].helptext) {
 	    domlist[i].helptext = strings_offset +
 				(stridx * sizeof(mmv_disk_string_t));
 	    strncpy(slist[stridx].payload, in[i].helptext, MMV_STRINGMAX);
+	    slist[stridx].payload[MMV_STRINGMAX-1] = '\0';
 	    stridx++;
 	}
     }

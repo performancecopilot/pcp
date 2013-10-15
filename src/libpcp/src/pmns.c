@@ -1621,8 +1621,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 #endif
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
-	if (ctxp != NULL)
-	    PM_UNLOCK(ctxp->c_lock);
+	PM_UNLOCK(ctxp->c_lock);
     }
 
     if (sts < 0 || nfail > 0) {
@@ -1867,6 +1866,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		if (xname == NULL) {
 		    __pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
 		    num = -oserror();
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto report;
 		}
 		while ((xp = rindex(xname, '.')) != NULL) {

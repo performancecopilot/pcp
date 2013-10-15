@@ -18,15 +18,18 @@
 #include "impl.h"
 #include "pmda.h"
 #include "pmdagfs2.h"
+#include "ftrace.h"
 #include "lock_time.h"
 #include <ctype.h>
-#include <stdio.h>
-#include <fcntl.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
+
+static int num_entries;
+static size_t capacity = GLOCK_ARRAY_CAPACITY;
+
+static struct lock_time *glock_array;
 
 /*
  * Refreshing of the metrics for gfs2.lock_time, some of metrics are of
@@ -78,12 +81,20 @@ gfs2_lock_time_fetch(int item, struct lock_time *glstats, pmAtomValue *atom)
     }
 }
 
-static void
-gfs2_extract_glock_lock_time(char *buffer, pmInDom lock_time_indom)
+extern int
+gfs2_extract_glock_lock_time(char *buffer)
 {
+    /* If we havent already set the array, have a go */
+    if (glock_array == NULL) {
+        glock_array = malloc(capacity * sizeof(struct lock_time));
+        if (glock_array == NULL) { /* If we fail, return */
+            return -oserror();
+        } 
+    }
+
     struct lock_time glock;
     unsigned int major, minor;
-    char *p, hash[256];
+    char *p;
 
     if ( (p = strstr(buffer, "gfs2_glock_lock_time: ")) ) {
 
@@ -106,23 +117,33 @@ gfs2_extract_glock_lock_time(char *buffer, pmInDom lock_time_indom)
         glock.dev_id = makedev(major, minor);
 
         /* Filter on required lock types */
-        if (glock.lock_type == LOCKTIME_INODE || glock.lock_type == LOCKTIME_RGRP) {
+        if ((glock.lock_type == LOCKTIME_INODE || 
+            glock.lock_type == LOCKTIME_RGRP) &&
+            (glock.dlm > COUNT_THRESHOLD || 
+            glock.queue > COUNT_THRESHOLD)) {
 
-            if (glock.dlm > COUNT_THRESHOLD && glock.queue > COUNT_THRESHOLD) {
-
-                /* Create unique hash for pmdaCache */
-                snprintf(hash, sizeof(hash), "%d:%d|%"PRIu32"|%"PRIu64"", 
-                    major(glock.dev_id),
-                    minor(glock.dev_id),
-                    glock.lock_type, 
-                    glock.number);
-                hash[sizeof(hash)-1] = '\0';
-        
-                /* Store in pmdaCache */
-                pmdaCacheStore(lock_time_indom, PMDA_CACHE_ADD, hash, (void *)&glock);
+            /* Re-allocate and extend array if we are near capacity */
+            if (num_entries == capacity) {
+                struct lock_time *glock_array_realloc = realloc(glock_array, (capacity + GLOCK_ARRAY_CAPACITY) * sizeof(struct lock_time));
+            
+                if (glock_array_realloc == NULL) {
+                    free(glock_array);
+                    return -oserror();
+                } else {
+                    glock_array = glock_array_realloc;
+                    glock_array_realloc = NULL;
+                    capacity += GLOCK_ARRAY_CAPACITY;
+                }
             }
+          
+            /* Allocate and increase counters */        
+            glock_array[num_entries] = glock;
+            num_entries++;
+            ftrace_increase_num_accepted_locks();
         }
     }
+
+    return 0;
 }
 
 /*
@@ -165,19 +186,14 @@ lock_comparison(const void *a, const void *b)
  * to the filesystem before returning the metric values.
  *
  */
-static int
-lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
+extern void
+lock_time_assign_glocks(pmInDom gfs2_fs_indom)
 {
     int i, j, sts;
     struct gfs2_fs *fs;
-    struct lock_time *glock;   
 
-    int array_size = pmdaCacheOp(glock_indom, PMDA_CACHE_SIZE_ACTIVE);   
-  
-    struct lock_time *glock_array = malloc(array_size * sizeof(struct lock_time));
-    if (glock_array == NULL){
-        return -oserror();
-    }   
+    /* Sort our values with our comparator */
+    qsort(glock_array, num_entries, sizeof(struct lock_time), lock_comparison);  
 
     /* We walk through for each filesystem */
     for (pmdaCacheOp(gfs2_fs_indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -185,87 +201,20 @@ lock_time_assign_glocks(pmInDom glock_indom, pmInDom gfs2_fs_indom)
 	    break;
 	sts = pmdaCacheLookup(gfs2_fs_indom, i, NULL, (void **)&fs);
 	if (sts != PMDA_CACHE_ACTIVE)
-	    continue;
+	    continue;         
 
-        int counter = 0;
+        /* Assign our worst glock */
+        for (j = 0; j < num_entries; j++) {
+            if (fs->dev_id != glock_array[j].dev_id)
+                continue;
 
-        /* We walk through each lock we have */
-        for (pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_REWIND);;) {
-	    if ((j = pmdaCacheOp(glock_indom, PMDA_CACHE_WALK_NEXT)) < 0)
-	        break;
-	    sts = pmdaCacheLookup(glock_indom, j, NULL, (void **)&glock);
-	    if (sts != PMDA_CACHE_ACTIVE)
-	        continue;
-
-            /* If our lock belongs to the current filesystem */
-            if (fs->dev_id == glock->dev_id){
-
-                    /* Assign values in array */
-                    glock_array[counter] = *glock;
-                    counter++;
-            }    
+            fs->lock_time = glock_array[j];
+            break;  
         }
 
-        if (counter > 0){
-            /* Sort our values with our comparator */
-            qsort(glock_array, counter, sizeof(struct lock_time), lock_comparison);           
-
-            /* Assign our worst glock */
-            fs->lock_time = glock_array[0];
-        }    
-
-        /* Clear array for next filesystem */
-        memset(glock_array, 0, array_size * sizeof(struct lock_time));
     }
     /* Free memory used for array */
     free(glock_array);
-
-    return 0;
-}
-
-/* 
- * Gathering of the required data for the gfs2.lock_time metrics. We take all 
- * required data from the trace_pipe and the trace values come from the 
- * gfs2_glock_lock_time trace-point. Items are read in and stored within a 
- * pmdaCache. Locks are later compared in order to find the worse lock this 
- * refresh for each mounted filesystem. 
- *
- */
-int 
-gfs2_refresh_lock_time(pmInDom lock_time_indom, pmInDom gfs_fs_indom)
-{
-    FILE *fp;
-    int fd, flags;
-    char buffer[8196];
-    static char *TRACE_PIPE = "/sys/kernel/debug/tracing/trace_pipe";
-
-    /* Clear old lock data from the cache */
-    pmdaCacheOp(lock_time_indom, PMDA_CACHE_CULL);
-
-    /* We open the pipe in both read-only and non-blocking mode */
-    if ((fp = fopen(TRACE_PIPE, "r")) == NULL)
-	return -oserror();
-
-    /* Set flags of fp as non-blocking */
-    fd = fileno(fp);
-    flags = fcntl(fd, F_GETFL);
-    fcntl(fd, F_SETFL, flags | O_RDONLY | O_NONBLOCK);
-
-    /*
-     * Read through glocks file accumulating statistics as we go.
-     *
-     */
-    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        gfs2_extract_glock_lock_time(buffer, lock_time_indom);
-    }
-    fclose(fp);
-
-    /* 
-     * We have collected our data from the trace_pipe, now it is time to take
-     * the data and find the worst glocks for each of our mounted file-systems,
-     * finally assign the worst locks.
-     *
-     */
-    lock_time_assign_glocks(lock_time_indom, gfs_fs_indom);
-    return 0;
+    glock_array = NULL;
+    num_entries = 0;
 }

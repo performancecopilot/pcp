@@ -137,10 +137,12 @@ newlabel(void)
 	strncpy(lp->ill_hostname, global.hostname, PM_LOG_MAXHOSTLEN);
     else
 	strncpy(lp->ill_hostname, inarch.label.ll_hostname, PM_LOG_MAXHOSTLEN);
+    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
     if (global.flags & GLOBAL_CHANGE_TZ)
 	strncpy(lp->ill_tz, global.tz, PM_TZ_MAXLEN);
     else
 	strncpy(lp->ill_tz, inarch.label.ll_tz, PM_TZ_MAXLEN);
+    lp->ill_tz[PM_TZ_MAXLEN-1] = '\0';
 }
 
 /*
@@ -938,13 +940,19 @@ main(int argc, char **argv)
 	 */
 	char	path[MAXPATHLEN+1];
 	char	dname[MAXPATHLEN+1];
+	mode_t	cur_umask;
 	int	tmp_f1;			/* fd for first temp basename */
 	int	tmp_f2;			/* fd for second temp basename */
-	strncpy(path, argv[argc-1], sizeof(path));
-	strncpy(dname, dirname(path), sizeof(dname));
+
 #if HAVE_MKSTEMP
+	strncpy(path, argv[argc-1], sizeof(path));
+	path[sizeof(path)-1] = '\0';
+	strncpy(dname, dirname(path), sizeof(dname));
+	dname[sizeof(dname)-1] = '\0';
 	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
+	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f1 = mkstemp(path);
+	umask(cur_umask);
 	outarch.name = strdup(path);
 	if (outarch.name == NULL) {
 	    fprintf(stderr, "temp file strdup(%s) failed: %s\n", path, strerror(errno));
@@ -952,12 +960,20 @@ main(int argc, char **argv)
 	    /*NOTREACHED*/
 	}
 	sprintf(bak_base, "%s%cXXXXXX", dname, __pmPathSeparator());
+	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f2 = mkstemp(bak_base);
+	umask(cur_umask);
 #else
 	char	fname[MAXPATHLEN+1];
 	char	*s;
+
 	strncpy(path, argv[argc-1], sizeof(path));
+	path[sizeof(path)-1] = '\0';
 	strncpy(fname, basename(path), sizeof(fname));
+	fname[sizeof(fname)-1] = '\0';
+	strncpy(dname, dirname(path), sizeof(dname));
+	dname[sizeof(dname)-1] = '\0';
+
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
 	    abandon();
@@ -970,7 +986,9 @@ main(int argc, char **argv)
 		abandon();
 		/*NOTREACHED*/
 	    }
+	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    tmp_f1 = open(outarch.name, O_WRONLY|O_CREAT|O_EXCL, 0600);
+	    umask(cur_umask);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
 	    fprintf(stderr, "Error: second tempnam() failed: %s\n", strerror(errno));
@@ -979,7 +997,9 @@ main(int argc, char **argv)
 	}
 	else {
 	    strcpy(bak_base, s);
+	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    tmp_f2 = open(bak_base, O_WRONLY|O_CREAT|O_EXCL, 0600);
+	    umask(cur_umask);
 	}
 #endif
 	if (tmp_f1 < 0) {

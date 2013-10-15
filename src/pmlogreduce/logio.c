@@ -208,7 +208,9 @@ newlabel(void)
     lp->ill_magic = ilabel.ll_magic;
     lp->ill_pid = (int)getpid();
     strncpy(lp->ill_hostname, ilabel.ll_hostname, PM_LOG_MAXHOSTLEN);
-    strcpy(lp->ill_tz, ilabel.ll_tz);
+    lp->ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
+    strncpy(lp->ill_tz, ilabel.ll_tz, PM_TZ_MAXLEN);
+    lp->ill_tz[PM_TZ_MAXLEN-1] = '\0';
 }
 
 

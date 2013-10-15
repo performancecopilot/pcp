@@ -26,17 +26,6 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-check_sample_log()
-{
-    grep Info $PCP_LOG_DIR/pmcd/sample.log | \
-    sed \
-	-e '/ctx=[0-9][0-9]*/s//ctx=N/' \
-	-e "s/userid=$userid/userid=UID/g" \
-	-e "s/groupid=$groupid/groupid=GID/g" \
-	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
-        -e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
-}
-
 # real QA test starts here
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd		# sample.log is now sure to be clean

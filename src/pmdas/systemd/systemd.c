@@ -109,10 +109,10 @@ static pmdaMetric metrictab[] = {
 
 void systemd_shutdown(void)
 {
-    if (journald_context >= 0)
+    if (journald_context != 0)
         sd_journal_close (journald_context);
 
-    if (journald_context_seeky >= 0)
+    if (journald_context_seeky != 0)
         sd_journal_close (journald_context_seeky);
 
     /* XXX: pmdaEvent zap queues? */
@@ -143,14 +143,7 @@ my_sd_journal_get_data(sd_journal *j, const char *field)
 
 void systemd_refresh(void)
 {
-    /* We limit the number of journald entries we yank out per
-       refresh, due to apparent systemd bugs (rhbz979487) that may
-       want to feed us thousands upon thousands of older entries at
-       pmda startup.  That can make the pmda unresponsive and make
-       pmcd vewy vewy upset. */
-    unsigned max_iterations = 100;
-
-    while (--max_iterations > 0) {
+    while (1) {
         char *cursor = NULL;
         char *timestamp_str = NULL;
         struct timeval timestamp;

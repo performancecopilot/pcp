@@ -11,7 +11,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check gfs2 metrics have appeared ... 105 metrics and 105 values
+Check gfs2 metrics have appeared ... 106 metrics and 106 values
 enabling gfs2_glock_lock_time tracepoint
 
 === Check for successful install of pmda ===

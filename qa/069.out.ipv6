@@ -37,6 +37,7 @@ pmcd request port(s):
   sts fd   port  family address
   === ==== ===== ====== =======
 ok FD 4340 inet INADDR_ANY
+ok FD 4340 ipv6 INADDR_ANY
 [DATE] pmcd(PID) Info: 
 
 pmcd RESTARTED at DATE
@@ -46,7 +47,7 @@ Current PMCD clients ...
      fd  client connection from                    ipc ver  operations denied
 ...
 
-access violation from host MY_IP:
+access violation from host PCP_RUN_DIR/pmcd.socket
 endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
 
 active agent dom   pid  in out ver protocol parameters
@@ -60,11 +61,14 @@ Host access list:
  y  n     0     1 OTHER1_IP                           255.255.255.255                           0 OTHER_1
  y  y     0     1 OTHER2_IP                           255.255.255.255                           0 OTHER_2
  n  n     0     0 0.0.0.0                                 0.0.0.0                                   4 .*
+ n  n     0     0 ::                                      ::                                        8 :*
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
-access violation from host OTHER1_IP:
+access violation from host ::1
+endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
+access violation from host OTHER1_IP
 endclient client[N]: (fd <n>) PMCD connection limit for this host exceeded (-12388)
-access violation from host OTHER2_IP:
+access violation from host OTHER2_IP
 endclient client[N]: (fd <n>) PMCD connection limit for this host exceeded (-12388)
 
 If failure, check 069.full

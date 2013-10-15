@@ -22,7 +22,7 @@ refresh_proc_uptime(proc_uptime_t *proc_uptime)
 {
     char buf[80];
     int fd, n;
-    float uptime, idletime;
+    float uptime = 0.0, idletime = 0.0;
 
     memset(proc_uptime, 0, sizeof(proc_uptime_t));
 
@@ -33,6 +33,8 @@ refresh_proc_uptime(proc_uptime_t *proc_uptime)
     close(fd);
     if (n < 0)
 	return -oserror();
+    else if (n > 0)
+	n--;
     buf[n] = '\0';
 
     sscanf((const char *)buf, "%f %f", &uptime, &idletime);

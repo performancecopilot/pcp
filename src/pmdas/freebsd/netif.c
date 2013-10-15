@@ -133,7 +133,7 @@ int
 do_netif_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     struct ifnet	*ifp;
-    int			sts;
+    int			sts = 0;
 
     if (inst != PM_IN_NULL) {
 	/*

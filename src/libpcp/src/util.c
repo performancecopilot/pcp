@@ -1105,6 +1105,8 @@ vpmprintf(const char *msg, va_list arg)
 	char	*tmpdir = pmGetConfig("PCP_TMP_DIR");
 
 	if (tmpdir[0] != '\0') {
+	    mode_t cur_umask;
+
 	    /*
 	     * PCP_TMP_DIR found in the configuration/environment,
 	     * otherwise fall through to the stderr case
@@ -1114,11 +1116,15 @@ vpmprintf(const char *msg, va_list arg)
 	    fname = (char *)malloc(MAXPATHLEN+1);
 	    if (fname == NULL) goto fail;
 	    snprintf(fname, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    fd = mkstemp(fname);
+	    umask(cur_umask);
 #else
 	    fname = tempnam(tmpdir, "pcp-");
 	    if (fname == NULL) goto fail;
+	    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	    fd = open(fname, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
+	    umask(cur_umask);
 #endif /* HAVE_MKSTEMP */
 
 	    if (fd < 0) goto fail;
@@ -1425,12 +1431,18 @@ scandir(const char *dirname, struct dirent ***namelist,
 	    continue;
 
 	n++;
-	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL)
+	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    closedir(dirp);
 	    return -1;
+	}
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
-		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL)
+		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    closedir(dirp);
 	    return -1;
+	}
 
 	tp->d_ino = dp->d_ino;
 #if defined(HAVE_DIRENT_D_OFF)

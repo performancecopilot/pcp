@@ -134,7 +134,6 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts;
     static int		oldfetch;
     static double	usr, sys;
-
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
     if (inst != PM_IN_NULL &&
@@ -367,6 +366,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
     pmValueSet	*vsp = NULL;
     __pmID_int	*pmidp = NULL;
 
+    /* a store request may affect multiple metrics at once */
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
 	pmidp = (__pmID_int *)&vsp->pmid;
@@ -384,6 +384,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
 		    break;
 
 		case 1:					/* simple.color */
+		    /* a store request may affect multiple instances at once */
 		    for (j = 0; j < vsp->numval && sts == 0; j++) {
 
 			val = vsp->vlist[j].value.lval;
@@ -450,9 +451,9 @@ simple_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    dp->version.two.fetch = simple_fetch;
-    dp->version.two.store = simple_store;
-    dp->version.two.instance = simple_instance;
+    dp->version.any.fetch = simple_fetch;
+    dp->version.any.store = simple_store;
+    dp->version.any.instance = simple_instance;
 
     pmdaSetFetchCallBack(dp, simple_fetchCallBack);
 

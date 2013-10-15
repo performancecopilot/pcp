@@ -2323,6 +2323,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_LV,0), PM_TYPE_STRING, LV_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.nlv */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_LV,1), PM_TYPE_U32, LV_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
@@ -4308,10 +4313,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     	break;
 
     case CLUSTER_LV:
-	if (dev_mapper.nlv == 0)
-	    return 0; /* no values available */
 	switch(idp->item) {
-	case 0: /* hinv.map.lv */
+	case 0: /* hinv.map.lvname */
+	    if (dev_mapper.nlv == 0)
+		return 0; /* no values available */
 	    atom->cp = (char *)NULL;
 	    for (i = 0; i < dev_mapper.nlv; i++) {
 		if (dev_mapper.lv[i].id == inst) {
@@ -4321,6 +4326,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    }
 	    if (i == dev_mapper.nlv)
 	    	return PM_ERR_INST;
+	    break;
+	case 1:	/* hinv.nlv */
+	    atom->ul = dev_mapper.nlv;
 	    break;
 	default:
 	    return PM_ERR_PMID;

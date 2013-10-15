@@ -13,16 +13,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-rm -f $seq.out
-suffix=2
-[ $PCP_VER -lt 3802 ] && suffix=1
-if [ -f $seq.$PCP_PLATFORM.$suffix ]
-then
-    ln $seq.$PCP_PLATFORM.$suffix $seq.out
-else
-    _notrun "Need qualified output for $PCP_PLATFORM"
-fi
-
 # see if unix domain sockets are available (permissions)
 unix_domain_sockets=false
 eval `pmconfig -L 2>/dev/null`
@@ -33,11 +23,69 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter()
+_filter_solaris()
 {
+    if [ $PCP_PLATFORM != solaris ]
+    then
+	cat
+    else
+	sed \
+	    -e '/disk.dev.avactive .* Unknown metric name/d' \
+	    -e '/network.icmp.* Unknown metric name/d' \
+	    -e '/network.igmp.* Unknown metric name/d' \
+	    -e '/network.ip.* Unknown metric name/d' \
+	    -e '/network.tcp.* Unknown metric name/d' \
+	    -e '/network.udp.* Unknown metric name/d' \
+	    -e '/filesys.* Unknown metric name/d' \
+	    -e '/nfs.* Unknown metric name/d' \
+	    -e '/rpc.* Unknown metric name/d' \
+	    -e '/swap .* Unknown metric name/d' \
+	    -e '/swap.pages.* Unknown metric name/d' \
+	    -e '/swapdev .* Unknown metric name/d' \
+	# solaris
+    fi
+}
+
+_filter_darwin()
+{
+    if [ $PCP_PLATFORM != darwin ]
+    then
+	cat
+    else
+	sed \
+	    -e '/disk.dev.avactive .* Unknown metric name/d' \
+	    -e '/network.icmp.* Unknown metric name/d' \
+	    -e '/network.igmp.* Unknown metric name/d' \
+	    -e '/network.ip.* Unknown metric name/d' \
+	    -e '/network.tcp.* Unknown metric name/d' \
+	    -e '/network.udp.* Unknown metric name/d' \
+	    -e '/nfs.* Unknown metric name/d' \
+	    -e '/swap .* Unknown metric name/d' \
+	    -e '/swap.pages.* Unknown metric name/d' \
+	    -e '/swapdev .* Unknown metric name/d' \
+	# darwin
+    fi
+}
+
+_filter_irix()
+{
+    # these are always-on in older oss versions of pcp
     sed \
+	-e '/disk.dev.avg_disk.active .* metric name/d' \
+	-e '/disk.all.avg_disk.active .* metric name/d' \
+	-e '/disk.dev.bytes .* Unknown metric name/d' \
+	-e '/disk.all.bytes .* Unknown metric name/d' \
+	-e '/network.igmp .* Unknown metric name/d' \
 	-e '/swap.in .* Metric not supported/d' \
 	-e '/swap.out .* Metric not supported/d'
+}
+
+# remove all known platform-dependencies from output
+# (ideally leaving any genuine failures behind)
+#
+_filter()
+{
+    _filter_irix | _filter_solaris | _filter_darwin
 }
 
 # real QA test starts here
@@ -70,5 +118,6 @@ p
 $2 >= 0		{ next }
 		{ print }'
 
+echo Silence is golden
 # success, all done
 exit

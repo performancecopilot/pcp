@@ -16,6 +16,8 @@ _filter_pmcd_log()
 /ok .*pmcd.socket$/			{ $2 = "FD"; $4 = "UNIX_DOMAIN_SOCKET" }
 					{ print }' \
     | sed \
+	-e '/^__pmGetAddrInfo/d' \
+	-e '/^__pmHostEntGetName/d' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \
 	-e '/pcp([0-9][0-9]*)/s//pcp(PID)/' \
@@ -241,6 +243,7 @@ _filter_optional_pmdas()
 	-e '/pmdasnmp/d' \
 	-e '/pmdassping/d' \
 	-e '/pmdasummary/d' \
+	-e '/pmdasystemd/d' \
 	-e '/pmdasystemtap/d' \
 	-e '/pmdasyb10/d' \
 	-e '/pmdasybping/d' \

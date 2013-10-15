@@ -1,0 +1,425 @@
+QA output created by 444
+pmGetPDU: ERROR fd=<fd> len=20 from=0
+pmXmitPDU: CREDS fd=<fd> len=20
+pmXmitPDU: PMNS_NAMES fd=<fd> len=44
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmXmitPDU: PROFILE fd=<fd> len=28
+pmXmitPDU: FETCH fd=<fd> len=32
+pmResult ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value "HOST"
+pmXmitPDU: PMNS_NAMES fd=<fd> len=48
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+pmXmitPDU: PMNS_NAMES fd=<fd> len=48
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmResult ... numpmid: 1
+  2.6.0 (pmcd.client.whoami): numval: 1 valfmt: 2 vlist[]:
+blah blah ...
+blah blah ...
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+host:      localhost
+samples:   20
+interval:  0.01 sec
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=132 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+pmXmitPDU: INSTANCE_REQ fd=<fd> len=32
+pmGetPDU: INSTANCE fd=<fd> len=36 from=0
+sample.event.records[fungus]: 0 event records
+pmXmitPDU: PMNS_NAMES fd=<fd> len=40
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmXmitPDU: PMNS_NAMES fd=<fd> len=40
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmXmitPDU: INSTANCE_REQ fd=<fd> len=32
+pmGetPDU: INSTANCE fd=<fd> len=36 from=0
+pmXmitPDU: PMNS_NAMES fd=<fd> len=40
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+sample.event.records[bogus]: 2 event records
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=56 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=116 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=172 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=48 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=52 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_64 -3
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=420 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+pmXmitPDU: PMNS_NAMES fd=<fd> len=40
+pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=52 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=56 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=52 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_32 -14
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=52 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=52 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_float -17
+pmXmitPDU: PMNS_IDS fd=<fd> len=24
+pmGetPDU: PMNS_NAMES fd=<fd> len=56 from=0
+pmXmitPDU: DESC_REQ fd=<fd> len=16
+pmGetPDU: DESC fd=<fd> len=32 from=0
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=100 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #4"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=116 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #5"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=204 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=388 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #7"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=100 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #8"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=148 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #9"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=176 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #10"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=392 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #11"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=136 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #12"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=120 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #13"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=176 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #14"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=424 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #15"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=104 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [0 event records]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #16"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=120 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [1 event record timestamp TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #17"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=208 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
+sample.event.records[fungus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #18"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+pmXmitPDU: FETCH fd=<fd> len=32
+pmGetPDU: RESULT fd=<fd> len=392 from=0
+pmResult ... numpmid: 1
+  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
+    inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
+    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
+sample.event.records[fungus]: 5 event records
+  TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  TIMESTAMP --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  TIMESTAMP --- event record [3] flags 0x80000000 (missed) ---
+    ==> 7 missed event records
+  TIMESTAMP --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.records[bogus]: 1 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #19"
