@@ -293,6 +293,7 @@ lex(void)
 	if (p == NULL) {
 	    tokbuflen = 128;
 	    if ((p = tokbuf = (char *)malloc(tokbuflen)) == NULL) {
+		PM_UNLOCK(registered.mutex);
 		__pmNoMem("pmRegisterDerived: alloc tokbuf", tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -301,6 +302,7 @@ lex(void)
 	    int		x = p - tokbuf;
 	    tokbuflen *= 2;
 	    if ((tokbuf = (char *)realloc(tokbuf, tokbuflen)) == NULL) {
+		PM_UNLOCK(registered.mutex);
 		__pmNoMem("pmRegisterDerived: realloc tokbuf", tokbuflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -390,6 +392,7 @@ newnode(int type)
     node_t	*np;
     np = (node_t *)malloc(sizeof(node_t));
     if (np == NULL) {
+	PM_UNLOCK(registered.mutex);
 	__pmNoMem("pmRegisterDerived: newnode", sizeof(node_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
@@ -440,6 +443,7 @@ bind_expr(int n, node_t *np)
 	}
     }
     if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+	PM_UNLOCK(registered.mutex);
 	__pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
@@ -1089,6 +1093,7 @@ parse(int level)
 		if (type == L_NAME || type == L_NUMBER) {
 		    expr = curr = newnode(type);
 		    if ((curr->value = strdup(tokbuf)) == NULL) {
+			PM_UNLOCK(registered.mutex);
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1166,6 +1171,7 @@ parse(int level)
 		if (type == L_NAME || type == L_NUMBER) {
 		    np = newnode(type);
 		    if ((np->value = strdup(tokbuf)) == NULL) {
+			PM_UNLOCK(registered.mutex);
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1205,6 +1211,7 @@ parse(int level)
 		if (type == L_NAME) {
 		    np = newnode(type);
 		    if ((np->value = strdup(tokbuf)) == NULL) {
+			PM_UNLOCK(registered.mutex);
 			__pmNoMem("pmRegisterDerived: func op node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1324,6 +1331,7 @@ pmRegisterDerived(const char *name, const char *expr)
     registered.nmetric++;
     registered.mlist = (dm_t *)realloc(registered.mlist, registered.nmetric*sizeof(dm_t));
     if (registered.mlist == NULL) {
+	PM_UNLOCK(registered.mutex);
 	__pmNoMem("pmRegisterDerived: registered mlist", registered.nmetric*sizeof(dm_t), PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
@@ -1372,6 +1380,7 @@ pmLoadDerivedConfig(const char *fname)
     }
     buflen = 128;
     if ((buf = (char *)malloc(buflen)) == NULL) {
+	/* registered.mutex not locked in this case */
 	__pmNoMem("pmLoadDerivedConfig: alloc buf", buflen, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
@@ -1379,6 +1388,7 @@ pmLoadDerivedConfig(const char *fname)
     while ((c = fgetc(fp)) != EOF) {
 	if (p == &buf[buflen]) {
 	    if ((buf = (char *)realloc(buf, 2*buflen)) == NULL) {
+		/* registered.mutex not locked in this case */
 		__pmNoMem("pmLoadDerivedConfig: expand buf", 2*buflen, PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -1405,6 +1415,7 @@ pmLoadDerivedConfig(const char *fname)
 		char	*errp;
 		buf[eq] = '\0';
 		if ((np = strdup(buf)) == NULL) {
+		    /* registered.mutex not locked in this case */
 		    __pmNoMem("pmLoadDerivedConfig: dupname", strlen(buf), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
@@ -1513,6 +1524,7 @@ __dmtraverse(const char *name, char ***namelist)
 	      registered.mlist[i].name[matchlen] == '\0'))) {
 	    sts++;
 	    if ((list = (char **)realloc(list, sts*sizeof(list[0]))) == NULL) {
+		PM_UNLOCK(registered.mutex);
 		__pmNoMem("__dmtraverse: list", sts*sizeof(list[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
@@ -1576,12 +1588,14 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 		/* first time for this one */
 		sts++;
 		if ((children = (char **)realloc(children, sts*sizeof(children[0]))) == NULL) {
+		    PM_UNLOCK(registered.mutex);
 		    __pmNoMem("__dmchildren: children", sts*sizeof(children[0]), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		for (len = 0; registered.mlist[i].name[start+len] != '\0' && registered.mlist[i].name[start+len] != '.'; len++)
 		    ;
 		if ((children[sts-1] = (char *)malloc(len+1)) == NULL) {
+		    PM_UNLOCK(registered.mutex);
 		    __pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
@@ -1595,6 +1609,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 
 		if (statuslist != NULL) {
 		    if ((status = (int *)realloc(status, sts*sizeof(status[0]))) == NULL) {
+			PM_UNLOCK(registered.mutex);
 			__pmNoMem("__dmchildren: statrus", sts*sizeof(status[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
@@ -1707,12 +1722,14 @@ __dmopencontext(__pmContext *ctxp)
 	return;
     }
     if ((cp = (void *)malloc(sizeof(ctl_t))) == NULL) {
+	PM_UNLOCK(registered.mutex);
 	__pmNoMem("pmNewContext: derived metrics (ctl)", sizeof(ctl_t), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
     ctxp->c_dm = (void *)cp;
     cp->nmetric = registered.nmetric;
     if ((cp->mlist = (dm_t *)malloc(cp->nmetric*sizeof(dm_t))) == NULL) {
+	PM_UNLOCK(registered.mutex);
 	__pmNoMem("pmNewContext: derived metrics (mlist)", cp->nmetric*sizeof(dm_t), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
