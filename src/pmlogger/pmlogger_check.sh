@@ -74,6 +74,8 @@ KILL=pmsignal
 TERSE=false
 VERBOSE=false
 VERY_VERBOSE=false
+CHECK_RUNLEVEL=false
+START_PMLOGGER=true
 usage="Usage: $prog [-CsNTV] [-c control]"
 while getopts c:CNsTV? c
 do
