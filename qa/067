@@ -104,26 +104,27 @@ cleanup()
 trap interrupt 1 2 3 15
 trap cleanup 0
 
+domain=246
 if [ $PCP_PLATFORM = linux ]
 then
     cat >$tmp  <<End-of-file
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
-test	3	socket	inet 2222
+test	$domain	socket	inet 2222
 End-of-file
 elif [ $PCP_PLATFORM = darwin ]
 then
     cat >$tmp  <<End-of-file
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
-test	3	socket	inet 2222
+test	$domain	socket	inet 2222
 End-of-file
 elif [ $PCP_PLATFORM = solaris ]
 then
     cat >>$tmp  <<End-of-File
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
-test	3	socket	inet 2222
+test	$domain	socket	inet 2222
 End-of-File
 else
     echo "Error - need pmcd.conf setup for $PCP_PLATFORM"
@@ -143,7 +144,7 @@ fi
 #
 
 $sudo $signal -a pmgadgets pmchart pmview pmie >/dev/null 2>&1
-src/pmdashutdown -i 2222 -d 3 -l $tmp.pmdalog &
+src/pmdashutdown -i 2222 -d $domain -l $tmp.pmdalog &
 pid=$!
 echo "pmdashutdown pid: $pid" >$seq.full
 sleep 1
