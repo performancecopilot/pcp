@@ -2,6 +2,7 @@
 #
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -58,6 +59,7 @@ fi
 # file to reflect your local configuration (see also -c option below)
 #
 CONTROL=$PCP_PMIECONTROL_PATH
+PMIE_PID=pmie.pid  # file in pmie log directory
 
 # default number of days to keep pmie logfiles
 #
@@ -85,9 +87,10 @@ do
     fi
 done
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the third column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 # (see BugWorks ID #595416).
@@ -259,11 +262,19 @@ rm -f $tmp/err $tmp/mail
 line=0
 version=''
 cat $CONTROL \
-| sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-      -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+| sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host socks logfile args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    logfile_hostname=`hostname || echo localhost`
+    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
     case "$host"
@@ -383,44 +394,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
     fi
 
-    # match $logfile and $fqdn from control file to running pmies
-    pid=""
-    # if using proxy real-host@proxy-host, need to strip the proxy
-    # part here so that the match with the $PCP_TMP_DIR files works
-    # below
-    #
-    fqdn=`pmhostname $host | sed -e 's/@.*//'`
-    $VERY_VERBOSE && echo "Looking for logfile=$logfile fqdn=$fqdn"
-    for file in `ls $PCP_TMP_DIR/pmie`
-    do
-	p_id=$file
-	file="$PCP_TMP_DIR/pmie/$file"
-	p_logfile=""
-	p_pmcd_host=""
+    # find pmie responsible for this logfile
+    pid=`cat $PMIE_PID 2>/dev/null`
 
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Check p_id=$p_id ... ""$PCP_ECHO_C"
-	if ps -p "$p_id" >/dev/null 2>&1
-	then
-	    eval `$PCP_BINADM_DIR/pmiestatus $file | $PCP_AWK_PROG '
-NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
-NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
-	{ next }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "p_pmcd_host=$p_pmcd_host p_logfile=$p_logfile""$PCP_ECHO_C"
-	    p_logfile=`_unsymlink_path $p_logfile`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "->$p_logfile ... ""$PCP_ECHO_C"
-	    if [ "$p_logfile" = $logfile -a "$p_pmcd_host" = "$fqdn" ]
-	    then
-		pid=$p_id
-		$VERY_VERBOSE && $PCP_ECHO_PROG match
-		break
-	    fi
-	    $VERY_VERBOSE && $PCP_ECHO_PROG "no match"
-	else
-	    # ignore, its not a running process
-	    eval $RM -f $file
-	    $VERY_VERBOSE && $PCP_ECHO_PROG "process has vanished"
-	fi
-    done
+    # check whether the pid is still valid (maybe process died)
+    if _get_pids_by_name pmie | grep "^$pid\$" >/dev/null
+    then
+        $VERY_VERBOSE && echo "pmie process $pid identified, OK"
+    else
+	$VERY_VERBOSE && echo "pmie process $pid not running"
+        pid=
+	$VERY_VERBOSE && _get_pids_by_name pmie
+    fi
 
     if [ -z "$pid" ]
     then
@@ -429,13 +414,6 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    _error "no pmie instance running for host \"$host\""
 	fi
     else
-	if [ "`echo $pid | wc -w`" -gt 1 ]
-	then
-	    _error "multiple pmie instances running for host \"$host\", processes: $pid"
-	    _unlock
-	    continue
-	fi
-
 	# now move current logfile name aside and SIGHUP to "roll the logs"
 	# creating a new logfile with the old name in the process.
 	#

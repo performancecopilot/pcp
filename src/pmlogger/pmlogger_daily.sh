@@ -1,6 +1,7 @@
 #! /bin/sh
 #
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat, Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -41,6 +42,7 @@ fi
 # file to reflect your local configuration (see also -c option below)
 #
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
+PMLOGGER_PID=pmlogger.pid  # file in pmlogger log directory
 
 # default number of days to keep archive logs
 #
@@ -74,9 +76,10 @@ do
     fi
 done
 
-# determine real name for localhost
-LOCALHOST=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOST" ] && LOCALHOST=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 # (see BugWorks ID #595416).
@@ -306,10 +309,10 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
     then
 	if [ ! -z "$MAIL" ]
 	then
-	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp/pcp
+	    $MAIL -s "PCP NOTICES summary for `hostname`" $MAILME <$tmp/pcp
 	else
 	    echo "$prog: Warning: cannot find a mail agent to send mail ..."
-	    echo "PCP NOTICES summary for $LOCALHOST"
+	    echo "PCP NOTICES summary for `hostname`"
 	    cat $tmp/pcp
 	fi
         [ -w `dirname "$NOTICES"` ] && mv $tmp/pcp "$MAILFILE"
@@ -373,10 +376,17 @@ rm -f $tmp/err
 line=0
 version=''
 cat $CONTROL \
-| sed -e "s/LOCALHOSTNAME/$LOCALHOST/g" \
-      -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+| sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host primary socks dir args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    dir_hostname=`hostname || echo localhost`
+    dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
     case "$host"
@@ -509,101 +519,16 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
     fi
 
-    pid=''
+    pid=`cat $PMLOGGER_PID 2>/dev/null`
 
-    if [ X"$primary" = Xy ]
+    # check whether the pid is still valid (maybe process died)
+    if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
     then
-	if [ X"$host" != X"$LOCALHOST" ]
-	then
-	    _error "\"primary\" only allowed for $LOCALHOST (localhost, not $host)"
-	    _unlock
-	    continue
-	fi
-
-	if [ "$PMLOGGER_CTL" = "off" ]
-	then
-	    $VERBOSE && _warning "primary logging disabled for $host"
-	    _unlock
-	    continue
-	fi
-
-	if test -f $PCP_TMP_DIR/pmlogger/primary
-	then
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
-	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    pid=''
-	    for file in $PCP_TMP_DIR/pmlogger/*
-	    do
-		case "$file"
-		in
-		    */primary|*\*)
-			;;
-		    */[0-9]*)
-			inode=`_get_ino "$file"`
-			$VERY_VERBOSE && echo $file inode=$inode
-			if [ "$primary_inode" = "$inode" ]
-			then
-			    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-			    break
-			fi
-			;;
-		esac
-	    done
-	    if [ -z "$pid" ]
-	    then
-		if $VERY_VERBOSE
-		then
-		    echo "primary pmlogger process pid not found"
-		    ls -l $PCP_TMP_DIR/pmlogger
-		fi
-	    else
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		else
-		    $VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		    pid=``
-		fi
-	    fi
-	fi
+	$VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
     else
-	# if using proxy real-host@proxy-host, need to strip the proxy
-	# part here so that the match with the $PCP_TMP_DIR files works
-	# below
-	#
-	fqdn=`pmhostname $host | sed -e 's/@.*//'`
-	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
-	do
-	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $log: ""$PCP_ECHO_C"
-	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log \
-		   | $PCP_AWK_PROG '
-BEGIN							{ m = 0 }
-NR == 2	&& $1 == "'$fqdn'"				{ m = 1; next }
-NR == 2	&& "'$fqdn'" == "'$host'" &&
-	( $1 ~ /^'$host'\./ || $1 ~ /^'$host'$/ )	{ m = 1; next }
-NR == 3 && m == 1 && $0 == "'$dir'"			{ m = 2; next }
-END							{ print m }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
-	    if [ "$match" = 2 ]
-	    then
-		pid=`echo $log | sed -e 's,.*/,,'`
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-		    break
-		fi
-		$VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		pid=''
-	    elif [ "$match" = 0 ]
-	    then
-		$VERY_VERBOSE && echo "different host, skip"
-	    elif [ "$match" = 1 ]
-	    then
-		$VERY_VERBOSE && echo "different directory, skip"
-	    fi
-	done
+	$VERY_VERBOSE && echo "pmlogger process $pid not running"
+	pid=
+        $VERY_VERBOSE && _get_pids_by_name pmlogger
     fi
 
     if [ -z "$pid" ]
@@ -613,16 +538,10 @@ END							{ print m }'`
 	    _error "no pmlogger instance running for host \"$host\""
 	fi
     else
-	if [ "`echo $pid | wc -w`" -gt 1 ]
-	then
-	    _error "multiple pmlogger instances running for host \"$host\", processes: $pid"
-	    _unlock
-	    continue
-	fi
-
 	# now execute pmnewlog to "roll the archive logs"
 	#
 	[ X"$primary" != Xy ] && args="-p $pid $args"
+        # else: -P is already the default
 	[ X"$socks" = Xy ] && args="-s $args"
 	args="$args -m pmlogger_daily"
 	$SHOWME && echo "+ pmnewlog$MYARGS $args $LOGNAME"

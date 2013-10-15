@@ -19,6 +19,7 @@
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMLOGGER=pmlogger
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
