@@ -10,7 +10,7 @@ pmlc still running ... killing it off
 
 Expect no hang and unable to connect to pmlogger ...
 pmlc has exited
-Unable to connect to primary pmlogger at localhost: Timeout, closed connection to the pmlogger instance
+Unable to connect to primary pmlogger at MYHOST: Timeout, closed connection to the pmlogger instance
 
 === Timeout on pmlc commands cases ===
 
