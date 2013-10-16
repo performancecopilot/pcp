@@ -474,12 +474,14 @@ __pmServerCloseRequestPorts(void)
     }
     if (localSocketFd >= 0) {
         __pmCloseSocket(localSocketFd);
+	localSocketFd = -EPROTO;
 
 	/* We must remove the socket file. */
-	if (unlink(localSocketPath) != 0) {
+	if (unlink(localSocketPath) != 0 && oserror() != ENOENT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
 			  pmProgname, localSocketPath, getuid(), geteuid(),
-			  strerror(errno));
+			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
     }
 }
