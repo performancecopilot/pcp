@@ -33,7 +33,9 @@ _filter()
     | sed \
 	-e "s/for host $hostname/for host HOSTNAME/g" \
 	-e "s/for host localhost/for host HOSTNAME/g" \
-	-e "s/for host local:/for host HOSTNAME/g" \
+	-e "s/for host \"localhost\"/for host HOSTNAME/g" \
+	-e "s/for host \"localhost.localdomain\"/for host HOSTNAME/g" \
+	-e "s/for host \"local:\"/for host HOSTNAME/g" \
 	-e "s/for host \"$hostname\"/for host \"HOSTNAME\"/g" \
 	-e "s;$tmp;TMP;g" \
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
