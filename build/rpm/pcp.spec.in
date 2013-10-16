@@ -422,7 +422,7 @@ $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %post testsuite

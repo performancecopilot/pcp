@@ -326,7 +326,7 @@ cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.l
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %post testsuite
