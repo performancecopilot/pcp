@@ -27,10 +27,17 @@ $static_probes || _notrun "No static probe support available in PCP build"
 # real QA test starts here
 cat <<End-of-File >$tmp.stap
 global probe_hits 
+probe begin {
+       system("pminfo -f hinv >/dev/null")
+       system("pminfo -f kernel >/dev/null")
+       system("pminfo -d mem >/dev/null")
+       system("pminfo -f network >/dev/null")
+       system("pminfo -tT disk >/dev/null")
+}
 probe process("$PCP_BINADM_DIR/pmcd").mark("*") {
        probe_hits <<< 1
 }
-probe timer.ms(5000) {
+probe timer.ms(1000) {
        if (@count(probe_hits) > 0) 
           println("PASS")
        else
@@ -44,23 +51,11 @@ echo "Running pmcd process:" >> $seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
 
 # start systemtap and count pmcd probe hits
-$sudo stap $tmp.stap | tee -a $tmp.out 2>&1 &
-STAP=$!
-sleep 3	# give stap a decent chance to fire up completely
-echo "Running stap process:" >> $seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep stap >> $seq.full
+$sudo stap $tmp.stap | tee -a $tmp.out 2>&1
 
-pminfo -f hinv >/dev/null
-pminfo -f kernel >/dev/null
-pminfo -d mem >/dev/null
-pminfo -f network >/dev/null
-pminfo -tT disk >/dev/null
-
-wait $STAP
 echo "Output from stap:" >> $seq.full
 cat $tmp.out >> $seq.full
 
 # success, all done
-
 status=0
 exit
