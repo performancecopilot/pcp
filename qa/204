@@ -13,17 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-host=`pmhostname`
-
-# short host name possible in log label
-short_host=`echo $host | sed 's/\..*//'`
 
 _filter()
 {
     pmdumplog -l $tmp \
     | grep host \
-    | sed -e "s/$host/REALHOSTNAME/" \
-          -e "s/$short_host/REALHOSTNAME/"
+    | sed -e "s/metrics from host .*/metrics from host REALHOSTNAME/"
 }
 
 # real QA test starts here

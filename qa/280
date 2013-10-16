@@ -30,6 +30,8 @@ _filter()
 	-e 's;/usr/var;/var;g' \
 	-e "s/`hostname`/LOCALHOST/g" \
 	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e "s/localhost/LOCALHOST/g" \
+	-e "s/local:/LOCALHOST/g" \
 	-e 's/^Reconfigured: .*pmlogconf.//g' \
 	-e 's;/private/;/;g' \
 	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \

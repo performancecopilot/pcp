@@ -61,6 +61,8 @@ s/[0-9][0-9]*/N/g
 	-e '/^pmReconnectContext.* too soon/d' \
 	-e '/^pmNewContext/{
 s/'$fqdn'/MY_HOST/g
+s/localhost/MY_HOST/g
+s/local:/MY_HOST/g
 s/'$hostname'/MY_HOST/g
 }' \
 	-e '/^Context\[/{
