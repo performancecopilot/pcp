@@ -568,23 +568,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	fi
     else
-	# if using proxy real-host@proxy-host, need to strip the proxy
-	# part here so that the match with the $PCP_TMP_DIR files works
-	# below
-	#
-	fqdn=`pmhostname $host | sed -e 's/@.*//'`
 	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
 	do
 	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $log: ""$PCP_ECHO_C"
 	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log \
 		   | $PCP_AWK_PROG '
-BEGIN							{ m = 0 }
-NR == 2	&& $1 == "'$fqdn'"				{ m = 1; next }
-NR == 2	&& "'$fqdn'" == "'$host'" &&
-	( $1 ~ /^'$host'\./ || $1 ~ /^'$host'$/ )	{ m = 1; next }
-NR == 3 && m == 1 && $0 == "'$dir'"			{ m = 2; next }
-END							{ print m }'`
+BEGIN				{ m = 0 }
+NR == 3 && $0 == "'$dir'"	{ m = 2; next }
+END				{ print m }'`
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
 	    if [ "$match" = 2 ]
 	    then
@@ -596,11 +588,7 @@ END							{ print m }'`
 		fi
 		$VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
 		pid=''
-	    elif [ "$match" = 0 ]
-	    then
-		$VERY_VERBOSE && echo "different host, skip"
-	    elif [ "$match" = 1 ]
-	    then
+	    else
 		$VERY_VERBOSE && echo "different directory, skip"
 	    fi
 	done

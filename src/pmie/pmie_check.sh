@@ -503,13 +503,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	_lock
     fi
 
-    # match $logfile and $fqdn from control file to running pmies
+    # match $logfile from control file to running pmies
     pid=""
-    # if using proxy real-host@proxy-host, need to strip the proxy
-    # part here so that the match with the $PCP_TMP_DIR files works
-    # below
-    #
-    fqdn=`pmhostname $host | sed -e 's/@.*//'`
     for file in $PCP_TMP_DIR/pmie/[0-9]*
     do
 	[ "$file" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue
@@ -532,11 +527,6 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    $VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
 	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
 	then
-	    if [ "$p_pmcd_host" != "$host" -a "$p_pmcd_host" != "$fqdn" ]
-	    then
-		echo "Ignoring $p_id mismatched hostname (possible DNS oddity)"
-		echo "=> $p_pmcd_host differs to $host ($fqdn), but same log $p_logfile"
-	    fi
 	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
 	    pid=$p_id
 	    break
@@ -554,6 +544,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	else
 	    echo "Found pmie process $pid monitoring:"
 	fi
+	fqdn=`pmhostname $host | sed -e 's/@.*//'`
 	echo "    host = $fqdn"
 	echo "    log file = $logfile"
     fi

@@ -385,11 +385,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # match $logfile and $fqdn from control file to running pmies
     pid=""
-    # if using proxy real-host@proxy-host, need to strip the proxy
-    # part here so that the match with the $PCP_TMP_DIR files works
-    # below
-    #
-    fqdn=`pmhostname $host | sed -e 's/@.*//'`
     $VERY_VERBOSE && echo "Looking for logfile=$logfile fqdn=$fqdn"
     for file in `ls $PCP_TMP_DIR/pmie`
     do
@@ -408,7 +403,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "p_pmcd_host=$p_pmcd_host p_logfile=$p_logfile""$PCP_ECHO_C"
 	    p_logfile=`_unsymlink_path $p_logfile`
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "->$p_logfile ... ""$PCP_ECHO_C"
-	    if [ "$p_logfile" = $logfile -a "$p_pmcd_host" = "$fqdn" ]
+	    if [ "$p_logfile" = $logfile ]
 	    then
 		pid=$p_id
 		$VERY_VERBOSE && $PCP_ECHO_PROG match
@@ -426,7 +421,8 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
     then
 	if [ "$PMIE_CTL" = "on" ]
 	then
-	    _error "no pmie instance running for host \"$host\""
+	    fqdn=`pmhostname $host | sed -e 's/@.*//'`
+	    _error "no pmie instance running for host \"$fqdn\""
 	fi
     else
 	if [ "`echo $pid | wc -w`" -gt 1 ]
