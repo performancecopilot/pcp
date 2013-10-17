@@ -27,6 +27,8 @@ LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
+SUBDIRS = jsdemos
+
 default:	build-me
 
 include $(BUILDRULES)
@@ -45,7 +47,12 @@ build-me:
 install:
 endif
 
-default_pcp:	default
+default_pcp ::	default
 
-install_pcp:	install
+default_pcp :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
+install_pcp :: install
+
+install_pcp :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
