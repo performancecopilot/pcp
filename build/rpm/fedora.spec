@@ -252,8 +252,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp-libs = %{version}-%{release}
-Requires: libibmad >= 1.3.8 libibumad >= 1.3.8
-BuildRequires: libibmad-devel >= 1.3.8 libibumad-devel >= 1.3.8
+Requires: libibmad >= 1.3.7 libibumad >= 1.3.7
+BuildRequires: libibmad-devel >= 1.3.7 libibumad-devel >= 1.3.7
 
 %description pmda-infiniband
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
