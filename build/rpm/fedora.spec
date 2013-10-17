@@ -601,7 +601,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Thu Oct 17 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
+* Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
 - Update to latest PCP sources.
 - Disable pcp-pmda-infiniband sub-package on RHEL5 (BZ 1016368)
 

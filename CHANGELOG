@@ -1,4 +1,4 @@
-pcp-3.8.5 (17 October 2013)
+pcp-3.8.5 (18 October 2013)
     - Add jsdemos for the web API into the source tarball.
     - Resolve Fedora/EPEL build issue for Infiniband PMDA.
     - Resolve Debian build issue for kfreebsd probes.h
