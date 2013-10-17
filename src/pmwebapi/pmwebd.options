@@ -1,13 +1,13 @@
 # command-line options and environment variables for pmwebd
 # uncomment/edit lines as required
+# note: environment variables are *not* expanded - use full path
+
+# expose resources for non PMAPI requests, e.g.
+# -R $(PCP_VAR_DIR)/pmwebd/resources
 
 # expose archives from local pmloggers, e.g.
 # -A $(PCP_LOG_DIR)/pmlogger
-#
-# default is pmwebd's private log directory:
-# $(PCP_LOG_DIR)/pmwebd
-#
-# note: environment variables *not* expanded - use full path
+# default is pmwebd's private log directory: $(PCP_LOG_DIR)/pmwebd
 
 # run in the foreground
 # -f
