@@ -55,7 +55,8 @@ In addition to the API binding, pmwebd may be optionally configured as a
 simple HTTP file server, in order to feed the web application itself
 to a web browser.  URIs not matching the 
 .B /pmapi
-prefix are mapped to files under the configured resource directory.
+prefix are mapped to files under the configured resource directory, if
+the \f3\-R\f1 option was given.
 .PP
 The options to
 .B pmwebd
@@ -71,7 +72,8 @@ protocols, if possible.
 .TP
 \f3\-R\f1 \f2resdir\f1
 Activate file serving beneath the given resource directory.  All regular
-files there may be read & transcribed to remote clients.
+files there may be read & transcribed to remote clients.  By default,
+file serving is disabled.
 .TP
 \f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a web
@@ -171,9 +173,11 @@ The pmwebd program is does not currently support HTTPS (SSL/TLS), so
 the HTTP traffic is not protected against network-level attacks.
 .TP
 authentication
-At present, the PMAPI layer does not possess an authentication mechanism, 
-so any remote connection can access any metric exposed by the connected
-PMAPI contexts.
+The PMAPI layer does not possess a mandatory authentication mechanism,
+so any remote connection can access any metric exposed by suchly connected
+PMAPI contexts.  However, a new host-context string may use
+authentication clauses of the longer host URLs, for example
+.IR pcps://hostname?method=plain&user=userid&pass=password .
 .TP
 inbound admission control
 The pmwebd program does not impose ACLs on the origin or rate of its
@@ -194,10 +198,13 @@ You may assign them arbitrary context numbers with the
 option.
 .TP
 context ownership 
-Different web clients are kept distinct solely by the assignment of
-large pseudorandom identifiers.  It may be possible to find these by
-brute-force search or other techniques, thereby letting a web client
-impersonate another.  For more privacy of the permanent contexts, use the
+Authenticated PCP contexts are protected by requiring the same HTTP
+PLAIN/simple userid/password credentials for related /pmapi requests.
+However, unauthenticated contexts for different web clients are kept
+distinct only by the assignment of large pseudorandom identifiers.  It
+may be possible to find these by brute-force search or other
+techniques, thereby letting a web client impersonate another.  For
+more privacy of the permanent contexts, use the
 .B \-c
 option to reset their starting web context identifiers to a number
 much different from 1.  On the other hand, context ownership is not
