@@ -72,8 +72,10 @@ createServices(AvahiClient *c, __pmServerPresence *s)
 	if ((ret = avahi_entry_group_add_service(s->avahi_group, AVAHI_IF_UNSPEC,
 						 AVAHI_PROTO_UNSPEC,
 						 (AvahiPublishFlags)0,
-						 s->avahi_service_name, s->avahi_service_tag,
-						 NULL, NULL, s->port, NULL)) < 0) {
+						 s->avahi_service_name,
+						 s->avahi_service_tag,
+						 NULL, NULL, s->port, NULL))
+	    < 0) {
 	    if (ret == AVAHI_ERR_COLLISION)
 		goto collision;
 
@@ -84,7 +86,8 @@ createServices(AvahiClient *c, __pmServerPresence *s)
 
 	/* Tell the server to register the service. */
 	if ((ret = avahi_entry_group_commit(s->avahi_group)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s", avahi_strerror(ret));
+	    __pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s",
+			  avahi_strerror(ret));
 	    goto fail;
 	}
     }
@@ -185,16 +188,19 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userdata) {
 	    if (avahi_client_errno (c) == AVAHI_ERR_DISCONNECTED) {
 		int error;
 		/*
-		 * The client has been disconnected; probably because the avahi daemon has been
-		 * restarted. We can free the client here and try to reconnect using a new one.
+		 * The client has been disconnected; probably because the
+		 * avahi daemon has been restarted. We can free the client
+		 * here and try to reconnect using a new one.
 		 * Passing AVAHI_CLIENT_NO_FAIL allows the new client to be
-		 * created, even if the avahi daemon is not running. Our service will be advertised
-		 * if/when the daemon is started.
+		 * created, even if the avahi daemon is not running. Our
+		 * service will be advertised if/when the daemon is started.
 		 */
 		cleanupClient(s);
-		s->avahi_client = avahi_client_new(avahi_threaded_poll_get(s->avahi_threaded_poll),
-						   (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-						   clientCallback, s, & error);
+		s->avahi_client =
+		    avahi_client_new(
+			avahi_threaded_poll_get(s->avahi_threaded_poll),
+			(AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
+			clientCallback, s, & error);
 	    }
 	    break;
 
@@ -218,8 +224,8 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userdata) {
 
 	case AVAHI_CLIENT_CONNECTING:
 	    /*
-	     * The avahi-daemon is not currently running. Our service will be advertised
-	     * if/when the deamon is started.
+	     * The avahi-daemon is not currently running. Our service will be
+	     * advertised if/when the deamon is started.
 	     */
 	    __pmNotifyErr(LOG_WARNING,
 			  "The Avahi daemon is not running. Avahi service '%s' will be established when the deamon is started",
@@ -234,7 +240,8 @@ cleanup(__pmServerPresence *s) {
 	return;
 
     if (s->avahi_service_name)
-	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'", s->avahi_service_name);
+	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'",
+		      s->avahi_service_name);
 
     /* Stop the avahi client, if it's running. */
     if (s->avahi_threaded_poll)
@@ -276,13 +283,15 @@ publishService(const char *serviceName, const char *serviceTag, int port)
        * created, even if the avahi daemon is not running. Our service will be advertised
        * if/when the daemon is started.
        */
-      s->avahi_client = avahi_client_new(avahi_threaded_poll_get(s->avahi_threaded_poll),
-					(AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-					clientCallback, s, &error);
+      s->avahi_client =
+	  avahi_client_new(avahi_threaded_poll_get(s->avahi_threaded_poll),
+			   (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
+			   clientCallback, s, &error);
 
       /* Check whether creating the client object succeeded. */
       if (! s->avahi_client) {
-	  __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s", avahi_strerror(error));
+	  __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
+			avahi_strerror(error));
 	  goto fail;
       }
 
