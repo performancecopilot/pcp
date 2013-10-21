@@ -90,7 +90,7 @@ while (<INFILE>) {
   $_ = pmiPutValue("gfs.inodes", "", $part[3]);
   $_ == 0 || die "pmiPutValue(gfs.inodes): " . pmiErrStr($_);
 
-  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00"), 0);
+  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00", 'UTC'), 0);
   $_ == 0 || die "pmiWrite(gfs.fmb): " . pmiErrStr($_);
 }
 close(INFILE);
@@ -112,7 +112,7 @@ while (<INFILE>) {
   $_ = pmiPutValue("gfs.fmb", "", $part[3]);
   $_ == 0 || die "pmiPutValue(gfs.fmb): " . pmiErrStr($_);
 
-  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00"), 0);
+  $_ = pmiWrite(str2time($part[0] . "T" . $part[1] . ":00", 'UTC'), 0);
   $_ == 0 || die "pmiWrite(gfs.fmb): " . pmiErrStr($_);
 }
 close(INFILE);

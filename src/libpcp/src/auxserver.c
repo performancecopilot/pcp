@@ -524,12 +524,14 @@ __pmServerCloseRequestPorts(void)
     }
     if (localSocketFd >= 0) {
         __pmCloseSocket(localSocketFd);
+	localSocketFd = -EPROTO;
 
 	/* We must remove the socket file. */
-	if (unlink(localSocketPath) != 0) {
+	if (unlink(localSocketPath) != 0 && oserror() != ENOENT) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    __pmNotifyErr(LOG_ERR, "%s: can't unlink %s (uid=%d,euid=%d): %s",
 			  pmProgname, localSocketPath, getuid(), geteuid(),
-			  strerror(errno));
+			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
     }
 }
@@ -558,7 +560,7 @@ __pmServerAddNewClients(__pmFdSet *fdset, __pmServerCallback NewClient)
 }
 
 static int
-SetCredentialAttrs(__pmHashCtl *attrs, unsigned int uid, unsigned int gid)
+SetCredentialAttrs(__pmHashCtl *attrs, unsigned int pid, unsigned int uid, unsigned int gid)
 {
     char name[32], *namep;
 
@@ -571,6 +573,14 @@ SetCredentialAttrs(__pmHashCtl *attrs, unsigned int uid, unsigned int gid)
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
         __pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+
+    if (!pid)	/* not available on all platforms */
+	return 0;
+
+    snprintf(name, sizeof(name), "%u", pid);
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+        __pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
 
     return 0;
 }
@@ -587,7 +597,7 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 
     if (__pmGetSockOpt(fd, SOL_SOCKET, SO_PEERCRED, &ucred, &length) < 0)
 	return -oserror();
-    return SetCredentialAttrs(attrs, ucred.uid, ucred.gid);
+    return SetCredentialAttrs(attrs, ucred.pid, ucred.uid, ucred.gid);
 
 #elif defined(HAVE_GETPEEREID)		/* MacOSX */
     uid_t uid;
@@ -595,17 +605,18 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 
     if (getpeereid(__pmFD(fd), &uid, &gid) < 0)
 	return -oserror();
-    return SetCredentialAttrs(attrs, uid, gid);
+    return SetCredentialAttrs(attrs, 0, uid, gid);
 
 #elif defined(HAVE_GETPEERUCRED)	/* Solaris */
-    unsigned int uid, gid;
+    unsigned int uid, gid, pid;
     ucred_t ucred;
 
     if (getpeerucred(__pmFD(fd), &ucred) < 0)
 	return -oserror();
+    pid = ucred_getpid(&ucred);
     uid = ucred_geteuid(&ucred);
     gid = ucred_getegid(&ucred);
-    return SetCredentialAttrs(attrs, uid, gid);
+    return SetCredentialAttrs(attrs, pid, uid, gid);
 
 #else
     return -EOPNOTSUPP;

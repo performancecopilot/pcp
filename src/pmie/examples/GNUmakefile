@@ -11,24 +11,20 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-UAG_SOURCE	= uag.head $(wildcard uag.[0-9][0-9])
-UPM_SOURCE	= upm.head $(wildcard upm.[0-9][0-9])
-CPU_SOURCE	= cpu.head $(wildcard cpu.[0-9][0-9])
-DISK_SOURCE	= disk.head $(wildcard disk.[0-9][0-9])
-FILESYS_SOURCE	= filesys.head $(wildcard filesys.[0-9][0-9])
-RAS_SOURCE	= ras.head $(wildcard ras.[0-9][0-9])
-SWAP_SOURCE	= swap.head $(wildcard swap.[0-9][0-9])
-NETWORK_SOURCE	= network.head $(wildcard network.[0-9][0-9])
-ENVIRON_SOURCE	= environ.head $(wildcard environ.[0-9][0-9])
-WEBREPORT_SOURCE= webreport.head $(wildcard webreport.[0-9][0-9])
+UAG_SOURCE	= uag.head $(sort $(wildcard uag.[0-9][0-9]))
+UPM_SOURCE	= upm.head $(sort $(wildcard upm.[0-9][0-9]))
+CPU_SOURCE	= cpu.head $(sort $(wildcard cpu.[0-9][0-9]))
+DISK_SOURCE	= disk.head $(sort $(wildcard disk.[0-9][0-9]))
+FILESYS_SOURCE	= filesys.head $(sort $(wildcard filesys.[0-9][0-9]))
+RAS_SOURCE	= ras.head $(sort $(wildcard ras.[0-9][0-9]))
+SWAP_SOURCE	= swap.head $(sort $(wildcard swap.[0-9][0-9]))
+NETWORK_SOURCE	= network.head $(sort $(wildcard network.[0-9][0-9]))
+ENVIRON_SOURCE	= environ.head $(sort $(wildcard environ.[0-9][0-9]))
+WEBREPORT_SOURCE= webreport.head $(sort $(wildcard webreport.[0-9][0-9]))
 
 TARGETS		= UAG UPM CPU DISK FILESYS RAS SWAP NETWORK ENVIRON \
 		  WEBREPORT

@@ -45,6 +45,7 @@
 #include "cgroups.h"
 
 /* globals */
+static int			_isDSO = 1;	/* for local contexts */
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
@@ -1541,13 +1542,20 @@ proc_strings_insert(const char *buf)
  * Initialise the agent (both daemon and DSO).
  */
 
-static void 
+void 
 proc_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     _pm_system_pagesize = getpagesize();
+    if (_isDSO) {
+	char helppath[MAXPATHLEN];
+	int sep = __pmPathSeparator();
+	snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "proc DSO", helppath);
+    }
 
     if (dp->status != 0)
 	return;
@@ -1605,6 +1613,7 @@ usage(void)
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
 	  "  -L          include threads in the all-processes instance domain\n"
+	  "  -r cgroup   restrict monitoring to processes in the named cgroup\n"
 	  "  -U username account to run under (default is root)\n",
 	  stderr);		
     exit(1);
@@ -1620,15 +1629,19 @@ main(int argc, char **argv)
     char		helppath[MAXPATHLEN];
     char		*username = "root";
 
+    _isDSO = 0;
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "proc" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:LU:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:Lr:U:?", &dispatch, &err)) != EOF) {
 	switch (c) {
 	case 'L':
 	    threads = 1;
+	    break;
+	case 'r':
+	    cgroups = optarg;
 	    break;
 	case 'U':
 	    username = optarg;

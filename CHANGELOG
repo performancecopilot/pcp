@@ -1,3 +1,41 @@
+pcp-3.8.5 (18 October 2013)
+    - Add jsdemos for the web API into the source tarball.
+    - Resolve Fedora/EPEL build issue for Infiniband PMDA.
+    - Resolve Debian build issue for kfreebsd probes.h
+    - Remove hostname checks in pmie/pmlogger script PID search.
+    - Much work on QA.  Zero test failures on release for RHEL6,
+      and there was much rejoicing.
+    - Many Coverity scan issues resolved, nothing major though.
+    - Ensure MMV PMDA entry exists in default pmcd.conf once more.
+    - Add Linux disk.partitions metrics to the default logged set.
+    - New hinv.nlv (logical volume count) metric into Linux PMDA.
+    - Update pmevent to use local: as the default mechanism.
+    - Numerous updates to the GFS2 PMDA.
+    - Reinstate a pmcd sigsegv fix, lost in an earlier merge.
+    - Fix handling multiple concurrent clients in pmdasystemd.
+    - Fix memory leak in pmNewContext failure path seen via pmie.
+    - Make default crontab install cooperate with runlevel settings.
+    - Add a privacy-protecting pmdasystemd uid/gid-filtering mode.
+    - Functional network.interface speed/duplex metrics on older
+      kernels (2.6.32 vintage and earlier, for example).
+    - Support for IPv6 address and scope metrics (ifconfig-style)
+    - Numerous updates to the pmatop utility.
+    - Updates to the PCPIntro(1) manual page.
+    - Improvements to the Linux per-process metrics values for any
+      threads being reported.
+    - Options for restricting Linux pmdaproc to a named cgroup.
+    - Update pmlogger to default to local: connection mode.
+    - Allow opt-out with the default-enabled xfs and proc PMDAs.
+    - Resolve a pmcollectl divide-by-zero (python stack trace).
+    - Fix recursive expansion of child cgroups in Linux pmdaproc.
+    - Fix a pmie core dump with archives, interp and mark records.
+    - Reduce memory footprint of Linux per-process metrics.
+    - Add proc.psinfo metrics for cgroups and security labels.
+    - Use local: connection by default in pmatop and pmcollectl.
+    - Update the python API wrapper to default to local: connection.
+    - Improvements to pmcollectl host name handling.
+    - pmGetContextHostName return to static char[] return value.
+
 pcp-3.8.4 (15 September 2013)
     - Allow numerous of the pmlogconf/tools templates to be probed
       and enabled.  These are Linux tools, so we probe for (remote

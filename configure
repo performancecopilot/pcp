@@ -746,7 +746,6 @@ PYTHON
 GIT
 LTLIBOBJS
 LIBOBJS
-package_builder
 PACKAGE_DISTRIBUTION
 PACKAGE_BUILD_DATE
 PACKAGE_BUILD
@@ -4376,27 +4375,6 @@ fi
 
 if test -z "$PACKAGE_DISTRIBUTION" ; then
     PACKAGE_DISTRIBUTION=$target_distro
-fi
-
-
-if test -z "$PACKAGE_BUILDER"
-then
-    case "$target_os"
-    in
-	solaris)
-	    if test -x /usr/xpg4/bin/id
-	    then
-		package_builder=`/usr/xpg4/bin/id -u -n`@`hostname`
-	    else
-		package_builder=`whoami`@`hostname`
-	    fi
-	    ;;
-	*)
-	    package_builder=`id -u -n`@`hostname | sed -e 's/\..*//'`
-	    ;;
-    esac
-else
-    package_builder="$PACKAGE_BUILDER"
 fi
 
 
@@ -12886,7 +12864,7 @@ LIBS=$savedLIBS
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -13598,6 +13576,7 @@ do
     "debian/pcp.postinst.head") CONFIG_FILES="$CONFIG_FILES debian/pcp.postinst.head" ;;
     "build/tar/preinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/preinstall.head" ;;
     "build/tar/postinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/postinstall.head" ;;
+    "build/GNUlocaldefs") CONFIG_FILES="$CONFIG_FILES build/GNUlocaldefs" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

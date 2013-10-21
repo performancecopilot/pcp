@@ -461,6 +461,7 @@ cgroup_scan(const char *mnt, const char *path, const char *options,
 
     if (root) {
 	strncpy(cgrouppath, mnt, sizeof(cgrouppath));
+	cgrouppath[sizeof(cgrouppath)-1] = '\0';
 	length = strlen(cgrouppath);
     } else {
 	snprintf(cgrouppath, sizeof(cgrouppath), "%s/%s", mnt, path);

@@ -21,6 +21,7 @@
 #include "sbstats.h"
 #include "glstats.h"
 #include "lock_time.h"
+#include "ftrace.h"
 #include "control.h"
 
 enum {
@@ -34,7 +35,6 @@ enum {
 
 enum {
 	GFS_FS_INDOM = 0,	      /* 0 -- mounted gfs filesystem names */
-        GLOCK_LOCK_TIME_INDOM = 1,    /* 1 -- glock_lock_time statistics */
 	NUM_INDOMS
 };
 

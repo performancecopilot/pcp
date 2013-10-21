@@ -40,16 +40,6 @@ SGI_ISSP_BUILD ?= 0
 
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
-TARGET_OS = @target_os@
-TARGET_VENDOR = @target_vendor@
-TARGET_CPU = @target_cpu@
-
-BUILD_OS = @build_os@
-BUILD_VENDOR = @build_vendor@
-BUILD_CPU = @build_cpu@
-
-PACKAGE_BUILDER = @package_builder@
-
 # LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
 # user Makefiles. Note: LSRCFILES is anything other than Makefile,
 # $(CFILES), or $(HFILES) and is used to construct the manifest list
@@ -70,7 +60,8 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 # 	Need PCFLAGS setting here to match the CFLAGS settings in
 # 	../../configure.in
 #
-PCFLAGS=@PCFLAGS@
+TARGET_OS = @target_os@
+PCFLAGS = @PCFLAGS@
 ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 DSOSUFFIX = so
 endif

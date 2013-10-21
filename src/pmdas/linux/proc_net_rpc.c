@@ -168,8 +168,8 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 	    }
 	    else
 	    if (strncmp(buf, "proc4", 5) == 0) {
-		if ((p = strtok(buf, " ")) != NULL &&
-		    (p = strtok(NULL, " ")) != NULL &&
+		if ((strtok(buf, " ")) != NULL &&
+		    (strtok(NULL, " ")) != NULL &&
 		    (p = strtok(NULL, " ")) != NULL) { /* 3rd token is NULL count */
 		    proc_net_rpc->server.reqcounts4[0] = strtoul(p, (char **)NULL, 10);
 		}

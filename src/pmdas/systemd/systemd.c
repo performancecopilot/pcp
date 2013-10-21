@@ -39,7 +39,7 @@ long maxmem;
 int maxfd;
 fd_set fds;
 static int interval_expired;
-static struct timeval interval = { 2, 0 };
+static struct timeval interval = { 60, 0 };
 static sd_journal *journald_context; /* Used for monitoring only. */
 static sd_journal *journald_context_seeky; /* Used for event detail extraction,
                                               involving seeks. */
@@ -109,10 +109,10 @@ static pmdaMetric metrictab[] = {
 
 void systemd_shutdown(void)
 {
-    if (journald_context >= 0)
+    if (journald_context != 0)
         sd_journal_close (journald_context);
 
-    if (journald_context_seeky >= 0)
+    if (journald_context_seeky != 0)
         sd_journal_close (journald_context_seeky);
 
     /* XXX: pmdaEvent zap queues? */
@@ -143,14 +143,7 @@ my_sd_journal_get_data(sd_journal *j, const char *field)
 
 void systemd_refresh(void)
 {
-    /* We limit the number of journald entries we yank out per
-       refresh, due to apparent systemd bugs (rhbz979487) that may
-       want to feed us thousands upon thousands of older entries at
-       pmda startup.  That can make the pmda unresponsive and make
-       pmcd vewy vewy upset. */
-    unsigned max_iterations = 100;
-
-    while (--max_iterations > 0) {
+    while (1) {
         char *cursor = NULL;
         char *timestamp_str = NULL;
         struct timeval timestamp;
@@ -266,7 +259,8 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
 
     /* OK, we need to take a look at the journal record in question. */
 
-    __pmNotifyErr(LOG_ERR, "filter cursor=%s\n", (const char*) data);
+    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "filter cursor=%s\n", (const char*) data);
 
     (void) size; /* already known \0-terminated */
     rc = sd_journal_seek_cursor(journald_context_seeky, (char*) data);
@@ -416,10 +410,9 @@ static int
 systemd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int sts;
-    int queueid;
-    queueid = pmdaEventNewClient(pmda->e_context);
+    (void) pmdaEventNewClient(pmda->e_context);
     enlarge_ctxtab(pmda->e_context);
-    sts = pmdaEventSetFilter(pmda->e_context, queueid,
+    sts = pmdaEventSetFilter(pmda->e_context, queue_entries,
                              & ctxtab[pmda->e_context], /* any non-NULL value */
                              systemd_journal_event_filter,
                              systemd_journal_event_filter_release /* NULL */);
@@ -737,7 +730,7 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, SYSTEMD,
                 "systemd.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:f?", &desc, &err)) != EOF) {
         switch (c) {
             case 'm':
                 maxmem = strtol(optarg, &endnum, 10);

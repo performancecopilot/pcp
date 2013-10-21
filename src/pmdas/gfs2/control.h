@@ -19,6 +19,7 @@
 
 enum {
         CONTROL_GLOCK_LOCK_TIME = 0,
+        CONTROL_FTRACE_GLOCK_THRESHOLD = 1,
         NUM_CONTROL_STATS
 };
 

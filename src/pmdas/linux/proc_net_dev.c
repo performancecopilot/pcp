@@ -47,6 +47,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     ecmd.cmd = ETHTOOL_GSET;
     ifr.ifr_data = (caddr_t)&ecmd;
     strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
     if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
 	netip->ioc.mtu = ifr.ifr_mtu;
     if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {

@@ -862,8 +862,8 @@ build_vset(pmID pmid, int usehist)
     int			i, numindom = 0;
     pmDesc		desc;
     int			have_desc;
-    int			*instlist;
-    char		**namelist;
+    int			*instlist = NULL;
+    char		**namelist = NULL;
     pmValueSet		*vsp;
 
    if (usehist) {
@@ -951,9 +951,11 @@ no_info:
 		    vsp->vlist[i++].inst = ihp->ih_inst;
 	}
 	vsp->numval = i;
-	free(instlist);
-	free(namelist);
     }
+    if (instlist)
+	free(instlist);
+    if (namelist)
+	free(namelist);
     
     return vsp;
 }

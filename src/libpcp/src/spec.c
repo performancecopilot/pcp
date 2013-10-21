@@ -747,6 +747,11 @@ __pmLookupAttrKey(const char *attribute, size_t size)
 	(size == sizeof("groupid") &&
 	strncmp(attribute, "groupid", size) == 0))
 	return PCP_ATTR_GROUPID;
+    if ((size == sizeof("pid") &&
+	strncmp(attribute, "pid", size) == 0) ||
+	(size == sizeof("processid") &&
+	strncmp(attribute, "processid", size) == 0))
+	return PCP_ATTR_PROCESSID;
     if (size == sizeof("secure") &&
 	strncmp(attribute, "secure", size) == 0)
 	return PCP_ATTR_SECURE;
@@ -916,6 +921,8 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
 	return snprintf(string, size, "userid");
     case PCP_ATTR_GROUPID:
 	return snprintf(string, size, "groupid");
+    case PCP_ATTR_PROCESSID:
+	return snprintf(string, size, "processid");
     case PCP_ATTR_NONE:
     default:
 	break;
@@ -941,6 +948,7 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     case PCP_ATTR_SECURE:
     case PCP_ATTR_USERID:
     case PCP_ATTR_GROUPID:
+    case PCP_ATTR_PROCESSID:
 	return snprintf(string, size, "%s=%s", name, data ? data : "");
 
     case PCP_ATTR_UNIXSOCK:
@@ -973,12 +981,12 @@ __pmUnparseHostAttrsSpec(
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
-    else if ((node = __pmHashSearch(PCP_ATTR_UNIXSOCK, attrs)) != NULL) {
+    else if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL) {
 	if ((sts = snprintf(string, len, "unix://")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
-    else if ((node = __pmHashSearch(PCP_ATTR_LOCAL, attrs)) != NULL) {
+    else if (__pmHashSearch(PCP_ATTR_LOCAL, attrs) != NULL) {
 	if ((sts = snprintf(string, len, "local://")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;

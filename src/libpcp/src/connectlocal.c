@@ -193,6 +193,11 @@ build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
 
+    snprintf(name, sizeof(name), "%u", getpid());
+    name[sizeof(name)-1] = '\0';
+    if ((namep = strdup(name)) != NULL)
+	__pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
+
     if (dispatch->version.six.attribute != NULL) {
 	for (node = __pmHashWalk(attrs, PM_HASH_WALK_START);
 	     node != NULL;

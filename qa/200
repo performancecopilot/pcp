@@ -22,7 +22,6 @@ fi
 
 echo "QA output created by $seq"
 
-LOCALHOST=`hostname`
 status=1
 rm -f $seq.full
 
@@ -66,16 +65,18 @@ cat >$tmp.new <<End-of-File
 # From QA 200
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
-irix	1	dso	irix_init	$PCP_PMDAS_DIR/irix/libirixpmda.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
-proc	3	dso	proc_init	$PCP_PMDAS_DIR/proc/pmda_proc.so
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
-sampledso	30	dso	sample_init	$PCP_PMDAS_DIR/sample/pmda_sample.so 
 End-of-File
 
 # copy the pmcd config file to restore state later.
 $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 $sudo cp $tmp.new $PCP_PMCDCONF_PATH
+
+# ensure we have pmcd ready for the first iteration.
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
 
 _cleanup()
 {

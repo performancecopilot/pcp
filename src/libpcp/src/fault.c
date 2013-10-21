@@ -167,6 +167,7 @@ __pmFaultInject(const char *ident, int class)
 			fprintf(stderr, "%s[%d]: %s\n", fname, lineno, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		    }
 		}
+		fclose(f);
 	    }
 	}
 #ifdef HAVE_ATEXIT

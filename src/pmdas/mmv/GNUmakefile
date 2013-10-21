@@ -25,6 +25,7 @@ SUBDIRS = src
 LCFILES = acme.c
 LTARGET = acme$(EXECSUFFIX)
 LSRCFILES = $(LCFILES) README.demos Makefile.demos
+TARGETS = $(TARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB)
@@ -32,14 +33,22 @@ LLDLIBS = -lpcp_mmv $(PCPLIB)
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
 DEMOFILES = README.demos Makefile.demos
+CONF_LINE = "mmv	70	dso	mmv_init	$(PCP_PMDAS_DIR)/mmv/pmda_mmv.$(DSOSUFFIX)"
 
-default_pcp default: $(TARGET) $(LTARGET)
+default_pcp default :: $(TARGETS)
+
+default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	fi
 
 include $(BUILDRULES)
 
-install_pcp install: $(SUBDIRS) default
+install_pcp install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(TARGET) $(PMDADIR)/$(TARGET)
 	$(INSTALL) -m 755 -d $(DEMODIR)

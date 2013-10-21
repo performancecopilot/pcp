@@ -167,6 +167,7 @@ read_ksyms(__psint_t *end_addr)
     int		len;
     int		err;
     FILE	*fp;
+    struct ksym	*ksym_tmp;
     char	*ksyms_path = "/proc/ksyms";
 
     *end_addr = 0;
@@ -199,12 +200,14 @@ read_ksyms(__psint_t *end_addr)
 		ksym_a_sz += INCR_KSIZE;
 	    else
 		ksym_a_sz = INIT_KSIZE;
-	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
-	    if (ksym_a == NULL) {
+	    ksym_tmp = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
+	    if (ksym_tmp == NULL) {
 		err = -oserror();
+		free(ksym_a);
 		fclose(fp);
 		return err;
 	    }
+	    ksym_a = ksym_tmp;
 	}
 
 	ip = inbuf;
@@ -319,9 +322,13 @@ next:
 
     /* release unused ksym array entries */
     if (ix) {
-	ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
-	if (ksym_a == NULL)
+	ksym_tmp = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
+	if (ksym_tmp == NULL) {
+	    free(ksym_a);
+	    fclose(fp);
 	    return -oserror();
+	}
+	ksym_a = ksym_tmp;
     }
 
     ksym_a_sz = ix;
@@ -348,6 +355,7 @@ static int
 read_sysmap(const char *release, __psint_t end_addr)
 {
     char	inbuf[256], path[MAXPATHLEN], **fmt;
+    struct ksym	*ksym_tmp;
     __psint_t	addr;
     int		ix, res, i, e;
     int		l = 0;
@@ -446,9 +454,12 @@ read_sysmap(const char *release, __psint_t end_addr)
 	/* Increase array size, if necessary */
 	if (ksym_a_sz < ix+1) {
 	    ksym_a_sz += INCR_KSIZE;
-	    ksym_a = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
-	    if (ksym_a == NULL)
+	    ksym_tmp = (struct ksym *)realloc(ksym_a, ksym_a_sz * sizeof(struct ksym));
+	    if (ksym_tmp == NULL) {
+		free(ksym_a);
 		goto fail;
+	    }
+	    ksym_a = ksym_tmp;
 	}
 
 	ip = inbuf;
@@ -513,10 +524,12 @@ read_sysmap(const char *release, __psint_t end_addr)
     }
 
     /* release unused ksym array entries */
-    ksym_a = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
-    if (ksym_a == NULL)
+    ksym_tmp = (struct ksym *)realloc(ksym_a, ix * sizeof(struct ksym));
+    if (ksym_tmp == NULL) {
+	free(ksym_a);
 	goto fail;
-
+    }
+    ksym_a = ksym_tmp;
     ksym_a_sz = ix;
 
     qsort(ksym_a, ksym_a_sz, sizeof(struct ksym), ksym_compare_addr);
@@ -531,6 +544,8 @@ read_sysmap(const char *release, __psint_t end_addr)
 	}
     }
 #endif
+
+    fclose(fp);
 
     return ksym_a_sz;
 

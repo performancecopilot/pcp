@@ -240,6 +240,7 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		    if ((n = __pmDecodeInstance(pb, &result)) < 0) {
 			if (pinpdu > 0)
 			    __pmUnpinPDUBuf(pb);
+			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			return n;
 		    }
 		    n = inresult_to_lists(result, instlist, namelist);

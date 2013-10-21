@@ -72,6 +72,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     static char	host[MAXHOSTNAMELEN];
     char	foliopath[MAXPATHLEN];
     record_t	*rp;
+    mode_t	cur_umask;
 
     if (state != PM_REC_OFF) {
 	/* already begun w/out end */
@@ -122,14 +123,22 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     }
     strcat(tbuf, "XXXXXX");
 #if HAVE_MKSTEMP
-    if ((fd = mkstemp(tbuf)) < 0)
+    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+    if ((fd = mkstemp(tbuf)) < 0) {
+	umask(cur_umask);
 	goto failed;
+    }
+    umask(cur_umask);
 #else
     if (mktemp(tbuf) == NULL)
 	goto failed;
 
-    if ((fd = open(tbuf, O_CREAT | O_EXCL | O_RDWR, 0644)) < 0)
+    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+    if ((fd = open(tbuf, O_CREAT | O_EXCL | O_RDWR, 0600)) < 0) {
+	umask(cur_umask);
 	goto failed;
+    }
+    umask(cur_umask);
 #endif
 
     if (dir == NULL)

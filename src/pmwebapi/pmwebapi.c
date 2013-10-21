@@ -243,6 +243,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
 	    __pmHashClear (& hostAttrs);
         } else {
             /* Ignore the parse error at this stage; pmNewContext will give it to us. */
+	    free (hostAttrsError);
         }
         
         context = pmNewContext (PM_CONTEXT_HOST, val); /* XXX: limit access */

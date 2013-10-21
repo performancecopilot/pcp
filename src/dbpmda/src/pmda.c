@@ -697,7 +697,7 @@ dopmda(int pdu)
             printf("Metric: %s\n", param.name);
 	    if ((sts = __pmSendTraversePMNSReq(outfd, FROM_ANON, param.name)) >= 0) {
 		if ((pinpdu = sts = __pmGetPDU(infd, ANY_SIZE, TIMEOUT_NEVER, &pb)) == PDU_PMNS_NAMES) {
-		    if ((sts = __pmDecodeNameList(pb, &numnames, &namelist, &statuslist)) >= 0) {
+		    if ((sts = __pmDecodeNameList(pb, &numnames, &namelist, NULL)) >= 0) {
 			for (i = 0; i < numnames; i++) {
 			    printf("   %s\n", namelist[i]);
 			}

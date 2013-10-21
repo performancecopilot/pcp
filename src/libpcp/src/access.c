@@ -1342,14 +1342,14 @@ __pmAccAddClient(__pmSockAddr *hostid, unsigned int *denyOpsResult)
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 
+    *denyOpsResult = 0;			/* deny nothing == allow all */
+    if (nhosts == 0)			/* No access controls => allow all */
+	return 0;
+
     /* There could be more than one address associated with this host.*/
     clientIds = getClientIds(hostid, &sts);
     if (clientIds == NULL)
 	return sts;
-
-    *denyOpsResult = 0;			/* deny nothing == allow all */
-    if (nhosts == 0)			/* No access controls => allow all */
-	return 0;
 
     /* Accumulate permissions for each client address. */
     for (clientIx = 0; clientIds[clientIx] != NULL; ++clientIx) {
@@ -1716,7 +1716,8 @@ __pmAccDumpHosts(FILE *stream)
 	hp = &hostlist[h];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (hp->specOps & mask)
 		    fputs((hp->denyOps & mask) ? " n " : " y ", stream);
 		else
@@ -1777,7 +1778,8 @@ __pmAccDumpUsers(FILE *stream)
 	up = &userlist[u];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (up->specOps & mask)
 		    fputs((up->denyOps & mask) ? " n " : " y ", stream);
 		else
@@ -1839,7 +1841,8 @@ __pmAccDumpGroups(FILE *stream)
 	gp = &grouplist[g];
 
 	for (i = minbit; i <= maxbit; i++) {
-	    if (all_ops & (mask = 1 << i)) {
+	    mask = 1 << i;
+	    if (all_ops & mask) {
 		if (gp->specOps & mask)
 		    fputs((gp->denyOps & mask) ? " n " : " y ", stream);
 		else

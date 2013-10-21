@@ -258,6 +258,7 @@ fopen_compress(const char *fname)
     char	*msg;
     FILE	*fp;
     char	tmpname[MAXPATHLEN];
+    mode_t	cur_umask;
 
     for (i = 0; i < ncompress; i++) {
 	snprintf(tmpname, sizeof(tmpname), "%s%s", fname, compress_ctl[i].suff);
@@ -278,15 +279,19 @@ fopen_compress(const char *fname)
 	return NULL;
     }
 
+    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 #if HAVE_MKSTEMP
     snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", pmGetConfig("PCP_TMP_DIR"));
     msg = tmpname;
     fd = mkstemp(tmpname);
 #else
-    if ((msg = tmpnam(NULL)) == NULL)
+    if ((msg = tmpnam(NULL)) == NULL) {
+	umask(cur_umask);
 	return NULL;
+    }
     fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
 #endif
+    umask(cur_umask);
 
     if (fd < 0) {
 	sts = oserror();
@@ -751,6 +756,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      * find file name component
      */
     strncpy(filename, name, MAXPATHLEN);
+    filename[MAXPATHLEN-1] = '\0';
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);

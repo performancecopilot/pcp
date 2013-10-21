@@ -175,6 +175,7 @@ filter_sample_log_credentials()
 {
     grep Info $PCP_LOG_DIR/pmcd/sample.log | \
     sed \
+	-e '/processid=/d' \
         -e '/ctx=[0-9][0-9]*/s//ctx=N/' \
         -e "s/userid=$userid/userid=UID/g" \
         -e "s/groupid=$groupid/groupid=GID/g" \

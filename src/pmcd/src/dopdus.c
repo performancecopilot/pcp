@@ -264,7 +264,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
     pmInDom		indom;
     int			inst;
     char		*name;
-    __pmInResult		*inresult = NULL;
+    __pmInResult	*inresult = NULL;
     AgentInfo		*ap;
     int			fdfail = -1;
 
@@ -343,8 +343,7 @@ DoInstance(ClientInfo *cp, __pmPDU* pb)
 	    pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_INSTANCE, sts);
 	    CleanupClient(cp, sts);
 	}
-	if (inresult != NULL)
-	    __pmFreeInResult(inresult);
+	__pmFreeInResult(inresult);
     }
     else
 	if (ap->ipcType != AGENT_DSO &&

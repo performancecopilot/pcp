@@ -1,0 +1,7 @@
+#pmlogconf-setup 2.0
+ident	per logical block device activity
+force	available
+	disk.partitions.read
+	disk.partitions.write
+	disk.partitions.read_bytes
+	disk.partitions.write_bytes

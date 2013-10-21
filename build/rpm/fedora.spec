@@ -44,10 +44,27 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
+
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
+%endif
+
+# we never want Infiniband on s390 platforms
+%ifarch s390 s390x
+%define disable_infiniband 1
 %else
-%define _with_doc %{nil}
+
+# we never want Infiniband on RHEL5 or earlier
+%if 0%{?rhel} != 0 && 0%{?rhel} < 6
+%define disable_infiniband 1
+%else
+%define disable_infiniband 0
+%endif
+
+%endif
+
+%if %{disable_infiniband}
+%define _with_ib --with-infiniband=no
 %endif
 
 %description
@@ -78,7 +95,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://oss.sgi.com/projects/pcp/
-
 Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
@@ -94,7 +110,6 @@ Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
-# Requires: valgrind	# arch-specific
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
@@ -124,7 +139,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -142,7 +157,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -157,7 +172,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -175,8 +190,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
+Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
 
 %description import-sar2pcp
@@ -191,8 +206,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
+Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
 
 %description import-iostat2pcp
@@ -207,8 +222,8 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: perl-PCP-LogImport >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
+Requires: perl-PCP-LogImport = %{version}-%{release}
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
@@ -222,13 +237,13 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
-%ifnarch s390 s390x
+%if !%{disable_infiniband}
 #
 # pcp-pmda-infiniband
 #
@@ -237,9 +252,9 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://oss.sgi.com/projects/pcp/
-Requires: pcp-libs >= %{version}-%{release}
-Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
-BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+Requires: pcp-libs = %{version}-%{release}
+Requires: libibmad >= 1.3.7 libibumad >= 1.3.7
+BuildRequires: libibmad-devel >= 1.3.7 libibumad-devel >= 1.3.7
 
 %description pmda-infiniband
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -268,7 +283,8 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir} %{_with_doc}
+%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir} \
+%{?_with_doc} %{?_with_ib}
 make default_pcp
 
 %install
@@ -283,7 +299,7 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
 
-%ifarch s390 s390x
+%if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
@@ -295,13 +311,15 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmproxy}; d
 done
 
 # list of PMDAs in the base pkg
-ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} | egrep -v 'simple|sample|trivial|txmon' |\
+ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
+egrep -v 'simple|sample|trivial|txmon' |\
+egrep -v '^ib$|infiniband' |\
 sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # bin and man1 files except those split out into sub packages
-ls -1 $RPM_BUILD_ROOT/%{_bindir} | grep -v '2pcp' |\
+ls -1 $RPM_BUILD_ROOT/%{_bindir} | egrep -v '2pcp' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_binfiles.list
-ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 | grep -v '2pcp' |\
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep -v '2pcp|pmdaib' |\
 sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man1files.list
 
 cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.list
@@ -456,7 +474,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
-%{_logsdir}
+%attr(0775,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
@@ -560,7 +578,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
-%ifnarch s390 s390x
+%if !%{disable_infiniband}
 %files pmda-infiniband
 %defattr(-,root,root)
 %{_pmdasdir}/ib
@@ -584,8 +602,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Tue Sep 17 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
-- Under development.
+* Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
+- Update to latest PCP sources.
+- Disable pcp-pmda-infiniband sub-package on RHEL5 (BZ 1016368)
 
 * Mon Sep 16 2013 Nathan Scott <nathans@redhat.com> - 3.8.4-2
 - Disable the pcp-pmda-infiniband sub-package on s390 platforms.

@@ -59,4 +59,5 @@ gfs2.glock_lock_time {
 
 gfs2.control {
     glock_lock_time     GFS2:4:0
+    glock_threshold     GFS2:4:1
 }
