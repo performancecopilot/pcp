@@ -334,6 +334,7 @@ mem.util {
     quicklists		60:1:54
     corrupthardware	60:1:55
     anonhugepages	60:1:56
+    directMap1G		60:1:57
 }
 
 mem.numa {
