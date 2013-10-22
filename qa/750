@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 750
+# Exercise the python collectl implementation
+#
+# Copyright (c) 2012, 2013 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+status=0	# success is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+
+canonicalize()
+{
+    sed \
+	-e 's/[0-9]/9/g' \
+	-e 's/9[9]*/9/g' \
+	-e 's/  *$//' \
+	-e '/^ *$/d' \
+	-e 's/  */ /g' \
+	-e 's/^ *//' \
+	-e '/host:/d' \
+	-e '/semantics:/d' \
+	-e '/units:/d' \
+	-e '/samples:/d' \
+        -e 's/[a-z0-9]*\.src\.rpm/src.rpm/' \
+	-e 's/[0-9]*\.[0-9]*\.[0-9]*-[0-9]*\.[a-z0-9]*/9.9.9-9.rel9/' \
+	-e "s|\[[' /A-Za-z0-9\_\.\,\(\)\-]*\]|['/PATH/NAME', /PATH/NAME']|g"
+}
+
+# real QA test starts here
+mkdir $tmp.$seq
+cd $tmp.$seq
+
+pmval -s 1 rpm.arch -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.basenames -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.buildtime -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.description -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.dirnames -i python | canonicalize | tee -a $tmp.out 2>&1
+# pmval -s 1 rpm.distribution -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.evr -i python | canonicalize | tee -a $tmp.out 2>&1
+# pmval -s 1 rpm.file.class -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.linktos -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.md5s -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.modes -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.names -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.require -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.file.sizes -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.group -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.instfilenames -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.license -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.list -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.name -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.obsoletes -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.platform -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.provides -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.release -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.requires -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.size -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.sourcerpm -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.summary -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.url -i python | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.version -i python | canonicalize | tee -a $tmp.out 2>&1
+
+
+cat $tmp.out >>$here/$seq.full
+
+# success, all done
+cd $here
+
+status=0
+exit
