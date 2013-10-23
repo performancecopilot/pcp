@@ -72,6 +72,8 @@ use PCP::LogImport;
 End-of-File
 echo "pmiStart(\"$tmp.gfs\", 0);" >>$tmp.pl
 cat <<'End-of-File' >>$tmp.pl
+$_ = pmiSetTimezone('UTC');
+$_ == 0 || die "pmiSetTimezone(UTC): " . pmiErrStr($_);
 
 $_ = pmiAddMetric("gfs.inodes",
 	     PM_ID_NULL, PM_TYPE_DOUBLE, PM_INDOM_NULL,
@@ -120,8 +122,6 @@ close(INFILE);
 
 pmiEnd();
 End-of-File
-
-cp $tmp.pl gfs-conv.pl
 
 # real QA test starts here
 perl $tmp.pl 2>&1 | _filter
