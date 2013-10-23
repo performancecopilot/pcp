@@ -206,7 +206,7 @@ gfs2_device_identifier(const char *name)
 	return oserror();
 
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        sscanf(buffer, "%u:%u", &major, &minor);
+        sscanf(buffer, "%d:%d", &major, &minor);
         dev_id = makedev(major, minor);
     }     
     fclose(fp);
