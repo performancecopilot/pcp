@@ -2013,8 +2013,6 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	        }
 	    }
 	}
-	else
-	    i = 0;
 
 	*offspring = result;
 	if (statuslist != NULL)
