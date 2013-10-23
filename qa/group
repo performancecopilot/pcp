@@ -872,6 +872,7 @@ pcp.py
 721 dbpmda local oss
 722 python local oss
 723 pmda.proc local oss
+725 pmda.jbd2 local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss

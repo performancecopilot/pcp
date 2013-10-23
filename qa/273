@@ -11,46 +11,7 @@
 . ./common.check
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
-
-rm -f $seq.out
-if [ $PCP_VER -ge 3605 ]
-then
-    # proc metrics may not be available
-    #
-    if pminfo proc.nprocs >/dev/null 2>&1
-    then
-	# available, but if not a DSO agent, then pminfo -L will
-	# know about the metric, but not find the PMDA
-	#
-	type=`pminfo -f pmcd.agent.type | sed -n -e '/"proc"/{
-s/.*value //
-p
-}'`
-	case "$type"
-	in
-	    0)  # DSO
-		ln $seq.out.3 $seq.out || exit 1
-		;;
-	    2|4)# daemon
-		ln $seq.out.4 $seq.out || exit 1
-		;;
-	    *)
-		echo "Botch ... don't understand proc PMDA type ($type)"
-		pminfo -f pmcd.agent.type
-		exit 1
-		;;
-	esac
-    else
-	ln $seq.out.2 $seq.out || exit 1
-    fi
-elif [ $PCP_VER -ge 3600 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
 
 _cleanup()
 {
@@ -76,7 +37,8 @@ _filter2()
 	-e '/build_dsotab/s/parsing .*/ parsing .../' \
 	-e '/^\[[0-9][0-9]*]/d' \
 	-e '/^0x[0-9a-f][0-9a-f]* \[[0-9][0-9]*]/d' \
-	-e '/__pmLocalPMDA/s/, .*/, .../' \
+	-e '/^__pmLocalPMDA/d' \
+	-e '/^Local Context PMDA Table$/d' \
 	-e '/__pmConnectLogger:/s/pid = [0-9][0-9]*/pid = PID/' \
 	-e 's/fd=[0-9][0-9]*/fd=N/g' \
 	-e '/IPC table fd/s/:.*/: .../' \
