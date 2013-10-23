@@ -208,7 +208,7 @@ pmdaEventQueueAppend(int handle, void *data, size_t bytes, struct timeval *tv)
 	return -EINVAL;
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO, "Appending event: queue#%d \"%s\" (%ld bytes)",
-			handle, queue->name : "?", (long)bytes);
+			handle, queue->name, (long)bytes);
     if (bytes > queue->maxmemory) {
 	__pmNotifyErr(LOG_WARNING, "Event too large for queue %s (%ld > %ld)",
 			queue->name, (long)bytes, (long)queue->maxmemory);
