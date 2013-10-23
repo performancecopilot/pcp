@@ -3911,7 +3911,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	sts = pmdaCacheLookup(INDOM(NET_DEV_INDOM), inst, NULL, (void **)&netip);
 	if (sts < 0)
 	    return sts;
-	if (idp->item >= 0 && idp->item <= 15) {
+	if (idp->item <= 15) {
 	    /* network.interface.{in,out} */
 	    atom->ull = netip->counters[idp->item];
 	}
@@ -4158,7 +4158,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 4: /* nfs.client.reqs */
 	    if (proc_net_rpc.client.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC_COUNTERS)
+	    if (inst < NR_RPC_COUNTERS)
 		atom->ul = proc_net_rpc.client.reqcounts[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4167,7 +4167,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 12: /* nfs.server.reqs */
 	    if (proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC_COUNTERS)
+	    if (inst < NR_RPC_COUNTERS)
 		atom->ul = proc_net_rpc.server.reqcounts[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4192,7 +4192,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 61: /* nfs3.client.reqs */
 	    if (proc_net_rpc.client.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC3_COUNTERS)
+	    if (inst < NR_RPC3_COUNTERS)
 		atom->ul = proc_net_rpc.client.reqcounts3[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4201,7 +4201,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 63: /* nfs3.server.reqs */
 	    if (proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC3_COUNTERS)
+	    if (inst < NR_RPC3_COUNTERS)
 		atom->ul = proc_net_rpc.server.reqcounts3[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4226,7 +4226,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 65: /* nfs4.client.reqs */
 	    if (proc_net_rpc.client.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC4_CLI_COUNTERS)
+	    if (inst < NR_RPC4_CLI_COUNTERS)
 		atom->ul = proc_net_rpc.client.reqcounts4[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4235,7 +4235,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 67: /* nfs4.server.reqs */
 	    if (proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst >= 0 && inst < NR_RPC4_SVR_COUNTERS)
+	    if (inst < NR_RPC4_SVR_COUNTERS)
 		atom->ul = proc_net_rpc.server.reqcounts4[inst];
 	    else
 	    	return PM_ERR_INST;
@@ -4254,7 +4254,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (proc_slabinfo.ncaches == 0)
 	    return 0; /* no values available */
 
-	if (inst < 0 || inst >= proc_slabinfo.ncaches)
+	if (inst >= proc_slabinfo.ncaches)
 	    return PM_ERR_INST;
 
 	switch(idp->item) {
@@ -4372,7 +4372,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_CPUINFO:
 	if (idp->item != 7 && /* hinv.machine is singular */
-	    (inst < 0 || inst >= proc_cpuinfo.cpuindom->it_numinst))
+	    (inst >= proc_cpuinfo.cpuindom->it_numinst))
 	    return PM_ERR_INST;
 	switch(idp->item) {
 	case 0: /* hinv.cpu.clock */
@@ -4532,7 +4532,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_NUMA_MEMINFO:
 	/* NUMA memory metrics from /sys/devices/system/node/nodeX */
-	if (inst < 0 || inst >= numa_meminfo.node_indom->it_numinst)
+	if (inst >= numa_meminfo.node_indom->it_numinst)
 	    return PM_ERR_INST;
 
 	switch(idp->item) {
@@ -4763,7 +4763,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     memset(need_refresh, 0, sizeof(need_refresh));
     for (i=0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS) {
+	if (idp->cluster < NUM_CLUSTERS) {
 	    need_refresh[idp->cluster]++;
 
 	    if (idp->cluster == CLUSTER_STAT && 
