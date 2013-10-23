@@ -72,7 +72,7 @@ output(__pmnsNode *p, int depth, char *path)
 	return;
     }
     else if (depth < 0) {
-	if (lastdepth > 0 || (lastdepth == 1 && depth == -2))
+	if (lastdepth > 0)
 	    fprintf(outf, "}\n");
 	lastdepth = -1;
 	return;
