@@ -802,8 +802,10 @@ mmv_init(pmdaInterface *dp)
     pcpvardir = pmGetConfig("PCP_VAR_DIR");
     pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
 
-    sprintf(statsdir, "%s%c%s", pcptmpdir, sep, prefix);
-    sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
+    snprintf(statsdir, sizeof(statsdir), "%s%c%s", pcptmpdir, sep, prefix);
+    snprintf(pmnsdir, sizeof(pmnsdir), "%s%c" "pmns", pcpvardir, sep);
+    statsdir[sizeof(statsdir)-1] = '\0';
+    pmnsdir[sizeof(pmnsdir)-1] = '\0';
 
     /* Initialize internal dispatch table */
     if (dp->status == 0) {
