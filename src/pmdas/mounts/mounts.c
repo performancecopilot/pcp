@@ -321,8 +321,8 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (idp->cluster != 0) {
       return PM_ERR_PMID;
     }
-    if ((idp->item > 3) || (idp->item < 0)) {
-      return PM_ERR_PMID;
+    if (inst >= indomtab[MOUNTS_INDOM].it_numinst) {
+      return PM_ERR_INST;
     }
 
     if (idp->item == 0) {
@@ -333,9 +333,8 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
       atom->cp = (mount_list[inst]).options;
     } else if (idp->item == 3) {
       atom->d = (mount_list[inst]).up;
-      //      atom->d = 1;
     } else {
-      return PM_ERR_INST;
+      return PM_ERR_PMID;
     }
 
     return 0;
