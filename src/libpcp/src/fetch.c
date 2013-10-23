@@ -200,8 +200,8 @@ pmFetchArchive(pmResult **result)
 		    ctxp->c_origin.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 		}
 	    }
+	    PM_UNLOCK(ctxp->c_lock);
 	}
-	PM_UNLOCK(ctxp->c_lock);
     }
 
     return n;
