@@ -60,6 +60,7 @@ start_metric(pmID pmid)
 		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
+	    free(name);
 	    return NULL;
 	}
 
