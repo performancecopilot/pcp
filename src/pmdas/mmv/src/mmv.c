@@ -428,7 +428,7 @@ map_stats(pmdaExt *pmda)
     if (num > 0)
 	free(files);
 
-    for (i = 0; i < scnt; i++) {
+    for (i = 0; slist && i < scnt; i++) {
 	stats_t * s = slist + i;
 	mmv_disk_header_t * hdr = (mmv_disk_header_t *)s->addr;
 	mmv_disk_toc_t * toc = (mmv_disk_toc_t *)
