@@ -33,7 +33,7 @@ main(int argc, char **argv)
 {
     int i, sts;
     int	mode = 1;
-    int		limit;
+    int	limit = 0;
     pmAtomValue value, newvalue;
     char olds[64], news[64];
 
@@ -111,8 +111,6 @@ main(int argc, char **argv)
 	limit = n_sscales;
     else if (mode == 3)
 	limit = n_tscales;
-    else
-	limit = 0;
 
     for (i=0; i < limit; i++) {
 	if (mode == 1)
