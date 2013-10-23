@@ -647,7 +647,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
    lm75 sensor75;
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    if ((idp->cluster < 0 || idp->cluster > 5) || (idp->item < 0 || idp->item > 16))
+    if (idp->cluster > 5)
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
@@ -673,8 +673,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			atom->l = schips.n_mtp008;
 			break ;
 		default:
-			printf ("No chips for you today\n");
-			break ;
+			return PM_ERR_PMID;
 	   }
 	}
 	if (idp->cluster == 1) {	/*lmsensors.lm75*/
@@ -685,8 +684,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->f = sensor75.temp;
 				break ;
 			default:
-				printf ("The magic 8 ball says: Not likely \n");
-				break ;
+				return PM_ERR_PMID;
 			}
 		} else atom->f=9999;
 	}
@@ -737,8 +735,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->f = sensor79.vid;
 				break ;
 			default:
-				printf ("Zis one ... e be tricky\n");
-				break ;
+				return PM_ERR_PMID;
 			}
 		} else atom->f=9999;
 	}
@@ -780,8 +777,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->f = sensor87.vid;
 				break ;
 			default:
-				printf ("Zis one ... e be tricky\n");
-				break ;
+				return PM_ERR_PMID;
 			}
 		} else atom->f=9999;
 	}
@@ -841,8 +837,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->f = sensorw83781d.vid;
 				break ;
 			default:
-				printf ("Zis one ... e be tricky\n");
-				break ;
+				return PM_ERR_PMID;
 			}
 		} else atom->f=9999;
 	}
@@ -887,8 +882,7 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->f = sensormtp008.vtt;
 				break ;
 			default:
-				printf ("Zis one ... e be tricky\n");
-				break ;
+				return PM_ERR_PMID;
 			}
 		} else atom->f=9999;
 	}
