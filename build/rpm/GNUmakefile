@@ -64,6 +64,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
+	    -e's|@enable_dns_sd@|$(ENABLE_DNS_SD)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \

@@ -191,6 +191,8 @@ RDYNAMIC_FLAG = @rdynamic_flag@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
+ENABLE_DNS_SD = @enable_dns_sd@
+ENABLE_AVAHI  = @enable_avahi@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@

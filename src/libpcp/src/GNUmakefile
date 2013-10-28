@@ -27,18 +27,27 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c avahi.c
+	fault.c access.c
 
-HFILES = derive.h internal.h avahi.h
+HFILES = derive.h internal.h
 
 LSRCFILES = check-statics
 
 ifeq "$(ENABLE_SECURE)" "true"
-LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL) $(LIB_FOR_AVAHI)
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS) $(AVAHICFLAGS)
+LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
+LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
 CFILES += secureserver.c secureconnect.c
 else
 LSRCFILES += secureserver.c secureconnect.c
+endif
+
+ifeq "$(ENABLE_AVAHI)" "true"
+LLDLIBS += $(LIB_FOR_AVAHI)
+LCFLAGS += $(AVAHICFLAGS)
+CFILES += avahi.c
+HFILES += avahi.h
+else
+LSRCFILES += avahi.c avahi.h
 endif
 
 ifneq "$(TARGET_OS)" "mingw"

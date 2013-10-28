@@ -18,7 +18,15 @@
 #include "impl.h"
 #include "avahi.h"
 
-#if HAVE_AVAHI
+typedef struct __pmServerAvahiPresence {
+    char		*avahi_service_name;
+    const char		*avahi_service_tag;
+    int			port;
+    AvahiThreadedPoll	*avahi_threaded_poll;
+    AvahiClient		*avahi_client;
+    AvahiEntryGroup	*avahi_group;
+} __pmServerAvahiPresence;
+
 static void entryGroupCallback(
     AvahiEntryGroup *g,
     AvahiEntryGroupState state,
@@ -292,12 +300,10 @@ publishService(const char *serviceName, const char *serviceTag, int port)
   free(s);
   return NULL;
 }
-#endif // HAVE_AVAHI
 
 __pmServerAvahiPresence *
 __pmServerAvahiAdvertisePresence(const char *serviceSpec, int port)
 {
-#if HAVE_AVAHI
     size_t size;
     char *serviceName;
     char *serviceTag;
@@ -327,15 +333,9 @@ __pmServerAvahiAdvertisePresence(const char *serviceSpec, int port)
     free(serviceName);
     free(serviceTag);
     return p;
-#else
-    __pmNotifyErr(LOG_ERR, "Unable to advertise presence for %s on port %d using Avahi. Avahi is not available", serviceSpec, port);
-    return NULL;
-#endif
 }
 
 void
-__pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *s __attribute__ ((unused))) {
-#if HAVE_AVAHI
+__pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *s) {
     cleanup(s);
-#endif
 }

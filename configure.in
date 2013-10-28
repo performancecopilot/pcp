@@ -80,9 +80,9 @@ AC_SUBST(pcp_group)
 
 AC_ARG_WITH([dns-sd],
     [AC_HELP_STRING([--with-dns-sd],
-                   [enable support for pmcd dns-sd announcements (default is on)])]
+                   [enable support for DNS Service Discovery (default is on)])],
     [do_dns_sd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dns-sd=$withval"],
-    [do_dns_sd=no])
+    [do_dns_sd=check])
 
 #
 # Note: the following environment variables may be
@@ -248,27 +248,35 @@ then
     AC_SUBST(DTRACE)
 fi
 
-dnl Check for DNS-SD
+dnl Check for DNS-SD (Service Discovery)
 AS_IF([test "x$do_dns_sd" != "xno"], [
-    # on linux, avahi
+    # on Mac OS X, dns_sd.h
+
+    # on Linux, aloha Avahi
+    enable_avahi=true
     PKG_CHECK_MODULES([avahi], [avahi-client],
-        [enable_dns_sd=true
-         AC_CHECK_LIB(avahi-client, avahi_client_new,
+        [AC_CHECK_LIB(avahi-client, avahi_client_new,
     		      [lib_for_avahi="-lavahi-common -lavahi-client"],
-	              [enable_dns_sd=false])
-         AC_DEFINE([HAVE_AVAHI],[1],[Define to 1 if you have the avahi libraries.])
-        ],
-        [enable_dns_sd=false])
-    AC_CHECK_HEADERS([avahi-client/publish.h], [], [enable_dns_sd=false])
-    AC_CHECK_HEADERS([avahi-common/alternative.h], [], [enable_dns_sd=false])
-    if test "$enable_dns_sd" != "true"
+                      [enable_avahi=false])
+        ])
+    AC_CHECK_HEADERS([avahi-client/publish.h],, [enable_avahi=false])
+    AC_CHECK_HEADERS([avahi-common/alternative.h],, [enable_avahi=false])
+
+    if test "$enable_avahi" = "true"
     then
-        AC_MSG_ERROR(cannot enable DNS-SD. Avahi not found)
+	AC_SUBST(lib_for_avahi)
+	AC_SUBST(avahi_CFLAGS)
+	AC_DEFINE(HAVE_AVAHI)
+	enable_dns_sd=true
+    fi
+
+    if test "$do_dns_sd" != "check" -a "$enable_dns_sd" != "true"
+    then
+        AC_MSG_ERROR(cannot enable DNS-SD - no platform support)
     fi
 ])
 AC_SUBST(enable_dns_sd)
-AC_SUBST(lib_for_avahi)
-AC_SUBST(avahi_CFLAGS)
+AC_SUBST(enable_avahi)
 
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""

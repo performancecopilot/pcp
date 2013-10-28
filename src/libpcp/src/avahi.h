@@ -13,26 +13,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#if HAVE_AVAHI
 #include <avahi-client/publish.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/thread-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
-#endif
 
-typedef struct __pmServerAvahiPresence {
-#if HAVE_AVAHI
-    char		*avahi_service_name;
-    const char		*avahi_service_tag;
-    int			port;
-    AvahiThreadedPoll	*avahi_threaded_poll;
-    AvahiClient		*avahi_client;
-    AvahiEntryGroup	*avahi_group;
-#else
-    char unused; /* we need something */
-#endif
-} __pmServerAvahiPresence;
+typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
 
 __pmServerAvahiPresence *__pmServerAvahiAdvertisePresence(const char *, int);
 void __pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *);

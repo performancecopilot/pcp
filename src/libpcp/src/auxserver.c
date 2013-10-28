@@ -18,7 +18,9 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#if HAVE_AVAHI
 #include "avahi.h"
+#endif
 
 /*
  * Info about a request port that clients may connect to a server on
@@ -601,39 +603,6 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 #endif
 }
 
-__pmServerPresence *
-__pmServerAdvertisePresence(const char *serviceSpec, int port)
-{
-    /* Allocate the server presence data structure. */
-    __pmServerPresence *s;
-    if ((s = malloc(sizeof(*s))) == NULL) {
-	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
-		  sizeof(*s), PM_FATAL_ERR);
-    }
-
-    /* Now advertise our presence using all available means. If a particular
-     * method is not available or not configured, then the respective call
-     * will have no effect.
-     * Currently, only avahi is supported.
-     */
-    s->avahi = __pmServerAvahiAdvertisePresence(serviceSpec, port);
-
-    return s;
-}
-
-void
-__pmServerUnadvertisePresence(__pmServerPresence *s) {
-    /* Unadvertise our presence for all available means. If a particular
-     * method is not active, then the respective call will have no effect.
-     * Currently, only avahi is supported.
-     */
-    if (s->avahi != NULL) {
-	__pmServerAvahiUnadvertisePresence(s->avahi);
-	free(s->avahi);
-	s->avahi = NULL;
-    }
-}
-
 static const char *
 RequestFamilyString(int index)
 {
@@ -762,3 +731,58 @@ __pmServerHasFeature(__pmServerFeature query)
 }
 
 #endif /* !HAVE_SECURE_SOCKETS */
+
+/* XXX TODO: HAVE_SERVICE_DISCOVERY not defined yet. Waiting on Nathan.
+ * For now, enable this code if we have Avahi. */
+#if HAVE_AVAHI /* defined(HAVE_SERVICE_DISCOVERY) */
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
+{
+    /* Allocate the server presence data structure. */
+    __pmServerPresence *s;
+    if ((s = malloc(sizeof(*s))) == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
+		  sizeof(*s), PM_FATAL_ERR);
+    }
+
+    /* Now advertise our presence using all available means. If a particular
+     * method is not available or not configured, then the respective call
+     * will have no effect.
+     * Currently, only avahi is supported.
+     */
+    s->avahi = __pmServerAvahiAdvertisePresence(serviceSpec, port);
+
+    return s;
+}
+
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s) {
+    /* Unadvertise our presence for all available means. If a particular
+     * method is not active, then the respective call will have no effect.
+     * Currently, only avahi is supported.
+     */
+    if (s->avahi != NULL) {
+	__pmServerAvahiUnadvertisePresence(s->avahi);
+	free(s->avahi);
+	s->avahi = NULL;
+    }
+}
+
+#else /* !HAVE_SERVICE_DISCOVERY */
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
+{
+    (void)serviceSpec;
+    (void)port;
+    return NULL;
+}
+
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s)
+{
+    (void)s;
+}
+
+#endif /* !HAVE_SERVICE_DISCOVERY */
