@@ -97,8 +97,7 @@ auxserver.o
     b szReqPorts		# single-threaded server scope
     b reqPorts			# single-threaded server scope
     b localSocketPath		# single-threaded server scope
-    b serviceName		# single-threaded server scope
-    b serviceTag		# single-threaded server scope
+    b serviceSpec		# single-threaded server scope
     d localSocketFd		# single-threaded server scope
     b ?server_features		# single-threaded server scope
 avahi.o

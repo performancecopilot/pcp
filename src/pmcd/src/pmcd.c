@@ -893,8 +893,11 @@ main(int argc, char *argv[])
      * may exist. 
      */
     __pmServerSetLocalSocket(sockpath);
-    __pmServerSetServiceName(SERVER_SERVICE_NAME); /* XXX: for now: should be configurable */
-    __pmServerSetServiceTag(SERVER_SERVICE_TAG); /* XXX: for now: should be configurable */
+
+    /* Set the service spec. This will cause our service to be advertised on
+     * the network if that is supported.
+     */
+    __pmServerSetServiceSpec(SERVER_SERVICE_SPEC);
 
     if (run_daemon) {
 	fflush(stderr);
@@ -914,11 +917,12 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+
     if ((sts = __pmServerOpenRequestPorts(&clientFds, MAXPENDING)) < 0)
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));

@@ -16,23 +16,9 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "avahi.h"
 
 #if HAVE_AVAHI
-#include <avahi-client/publish.h>
-#include <avahi-common/alternative.h>
-#include <avahi-common/thread-watch.h>
-#include <avahi-common/malloc.h>
-#include <avahi-common/error.h>
-
-struct __pmServerPresence {
-    char *avahi_service_name;
-    const char *avahi_service_tag;
-    int port;
-    AvahiThreadedPoll *avahi_threaded_poll;
-    AvahiClient *avahi_client;
-    AvahiEntryGroup *avahi_group;
-};
-
 static void entryGroupCallback(
     AvahiEntryGroup *g,
     AvahiEntryGroupState state,
@@ -40,7 +26,7 @@ static void entryGroupCallback(
 );
 
 static void
-createServices(AvahiClient *c, __pmServerPresence *s)
+createServices(AvahiClient *c, __pmServerAvahiPresence *s)
 {
     char *n;
     int ret;
@@ -118,7 +104,7 @@ entryGroupCallback(
     void *userdata
 )
 {
-    __pmServerPresence *s = (__pmServerPresence *)userdata;
+    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)userdata;
     assert(g == s->avahi_group || s->avahi_group == NULL);
     s->avahi_group = g;
 
@@ -158,7 +144,7 @@ entryGroupCallback(
     }
 }
 
-static void cleanupClient(__pmServerPresence *s) {
+static void cleanupClient(__pmServerAvahiPresence *s) {
     /* This also frees the entry group, if any. */
     if (s->avahi_client) {
 	avahi_client_free(s->avahi_client);
@@ -170,7 +156,7 @@ static void cleanupClient(__pmServerPresence *s) {
 static void
 clientCallback(AvahiClient *c, AvahiClientState state, void *userdata) {
     assert(c);
-    __pmServerPresence *s = (__pmServerPresence *)userdata;
+    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)userdata;
 
     /* Called whenever the client or server state changes. */
     switch (state) {
@@ -235,7 +221,7 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userdata) {
 }
 
 static void
-cleanup(__pmServerPresence *s) {
+cleanup(__pmServerAvahiPresence *s) {
     if (s == NULL)
 	return;
 
@@ -260,11 +246,11 @@ cleanup(__pmServerPresence *s) {
 }
 
 /* The entry point for the avahi client thread. */
-static __pmServerPresence *
+static __pmServerAvahiPresence *
 publishService(const char *serviceName, const char *serviceTag, int port)
 {
   int error;
-  __pmServerPresence *s = calloc(1, sizeof(*s));
+  __pmServerAvahiPresence *s = calloc(1, sizeof(*s));
 
   if (s) {
       /* Save the given parameters. */
@@ -308,22 +294,47 @@ publishService(const char *serviceName, const char *serviceTag, int port)
 }
 #endif // HAVE_AVAHI
 
-__pmServerPresence *
-__pmServerAdvertisePresence(
-    const char *serviceName __attribute__ ((unused)),
-    const char *serviceTag __attribute__ ((unused)),
-    int port __attribute__ ((unused))
-) {
+__pmServerAvahiPresence *
+__pmServerAvahiAdvertisePresence(const char *serviceSpec, int port)
+{
 #if HAVE_AVAHI
-    return publishService (serviceName, serviceTag, port);
+    size_t size;
+    char *serviceName;
+    char *serviceTag;
+    __pmServerAvahiPresence *p;
+
+    /* The service spec is simply the name of the server. Use it to
+     * construct the avahi service name and service tag.
+     */
+    size = sizeof("PCP ") + strlen(serviceSpec); /* includes room for the nul */
+    if ((serviceName = malloc(size)) == NULL) {
+	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
+		  size, PM_FATAL_ERR);
+    }
+    sprintf(serviceName, "PCP %s", serviceSpec);
+
+    size = sizeof("_._tcp") + strlen(serviceSpec); /* includes room for the nul */
+    if ((serviceTag = malloc(size)) == NULL) {
+	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
+		  size, PM_FATAL_ERR);
+    }
+    sprintf(serviceTag, "_%s._tcp", serviceSpec);
+    
+    /* Now publish the avahi service. */
+    p = publishService (serviceName, serviceTag, port);
+
+    /* Clean up. */
+    free(serviceName);
+    free(serviceTag);
+    return p;
 #else
-    __pmNotifyErr(LOG_ERR, "Unable to advertise presence on the network. Avahi is not available");
+    __pmNotifyErr(LOG_ERR, "Unable to advertise presence for %s on port %d using Avahi. Avahi is not available", serviceSpec, port);
     return NULL;
 #endif
 }
 
 void
-__pmServerUnadvertisePresence(__pmServerPresence *s __attribute__ ((unused))) {
+__pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *s __attribute__ ((unused))) {
 #if HAVE_AVAHI
     cleanup(s);
 #endif

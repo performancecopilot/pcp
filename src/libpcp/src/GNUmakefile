@@ -29,7 +29,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c avahi.c
 
-HFILES = derive.h internal.h
+HFILES = derive.h internal.h avahi.h
 
 LSRCFILES = check-statics
 

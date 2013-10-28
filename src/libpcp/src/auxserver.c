@@ -18,6 +18,7 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#include "avahi.h"
 
 /*
  * Info about a request port that clients may connect to a server on
@@ -55,8 +56,7 @@ static int	*portlist;
  */
 static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
-static const char *serviceName;
-static const char *serviceTag;
+static const char *serviceSpec;
 
 int
 __pmServerAddInterface(const char *address)
@@ -106,21 +106,12 @@ __pmServerSetLocalSocket(const char *path)
 }
 
 void
-__pmServerSetServiceName(const char *name)
+__pmServerSetServiceSpec(const char *spec)
 {
-    if (name != NULL && *name != '\0')
-	serviceName = strdup(name);
+    if (spec != NULL && *spec != '\0')
+	serviceSpec = strdup(spec);
     else
-	serviceName = SERVER_SERVICE_NAME;
-}
-
-void
-__pmServerSetServiceTag(const char *tag)
-{
-    if (tag != NULL && *tag != '\0')
-	serviceTag = strdup(tag);
-    else
-	serviceTag = SERVER_SERVICE_TAG;
+	serviceSpec = SERVER_SERVICE_SPEC;
 }
 
 void
@@ -407,18 +398,6 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
     int i, fd, family, success = 0, maximum = -1;
     int with_ipv6 = strcmp(__pmGetAPIConfig("ipv6"), "true") == 0;
 
-    /* If only one of serviceName or serviceTag has been set, set the other
-     * to the default.
-     */
-    if (serviceName != NULL) {
-	if (serviceTag == NULL)
-	    __pmServerSetServiceTag(NULL); /* sets the default */
-    }
-    else if (serviceTag != NULL) {
-	if (serviceName == NULL)
-	    __pmServerSetServiceName(NULL); /* sets the default */
-    }
-
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
 	int		portsOpened = 0;;
@@ -467,9 +446,8 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
 	if (portsOpened > 0) {
 	    /* Advertise our presence on the network, if requested. */
-	    if (serviceName != NULL && serviceTag != NULL) {
-		rp->presence =  __pmServerAdvertisePresence(serviceName,
-							    serviceTag,
+	    if (serviceSpec != NULL) {
+		rp->presence =  __pmServerAdvertisePresence(serviceSpec,
 							    rp->port);
 	    }
 	}
@@ -621,6 +599,39 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 #else
     return -EOPNOTSUPP;
 #endif
+}
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
+{
+    /* Allocate the server presence data structure. */
+    __pmServerPresence *s;
+    if ((s = malloc(sizeof(*s))) == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
+		  sizeof(*s), PM_FATAL_ERR);
+    }
+
+    /* Now advertise our presence using all available means. If a particular
+     * method is not available or not configured, then the respective call
+     * will have no effect.
+     * Currently, only avahi is supported.
+     */
+    s->avahi = __pmServerAvahiAdvertisePresence(serviceSpec, port);
+
+    return s;
+}
+
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s) {
+    /* Unadvertise our presence for all available means. If a particular
+     * method is not active, then the respective call will have no effect.
+     * Currently, only avahi is supported.
+     */
+    if (s->avahi != NULL) {
+	__pmServerAvahiUnadvertisePresence(s->avahi);
+	free(s->avahi);
+	s->avahi = NULL;
+    }
 }
 
 static const char *
