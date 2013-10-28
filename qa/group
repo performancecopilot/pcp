@@ -845,7 +845,7 @@ pcp.py
 649 pmda.mmv local oss
 650 pmlogger local oss pmdumplog
 651 pmproxy local oss
-652 pmda.systemd event local oss
+652 pmda.systemd event flakey oss
 653 libpcp local oss
 654 pmda.gfs2 local oss
 655 pmda.gfs2 local oss
@@ -872,6 +872,7 @@ pcp.py
 721 dbpmda local oss
 722 python local oss
 723 pmda.proc local oss
+725 pmda.jbd2 local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss

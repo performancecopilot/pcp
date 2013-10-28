@@ -58,6 +58,7 @@ linux_filter()
 	-e "/mem\.util\.active_file: $unavailable/d" \
 	-e "/mem\.util\.anonhugepages: $unavailable/d" \
 	-e "/mem\.util\.corrupthardware: $unavailable/d" \
+	-e "/mem\.util\.directMap1G: $unavailable/d" \
 	-e "/mem\.util\.directMap2M: $unavailable/d" \
 	-e "/mem\.util\.directMap4k: $unavailable/d" \
 	-e "/mem\.util\.highFree: $unavailable/d" \

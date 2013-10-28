@@ -113,7 +113,6 @@ gfs2_extract_trace_values(char *buffer)
  * We take all required data from the trace_pipe. Whilst keeping track of
  * the number of locks we have seen so far. After locks have been collected
  * we assign values and return.
- *
  */
 extern int 
 gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
@@ -133,8 +132,8 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
     /* Set flags of fp as non-blocking */
     fd = fileno(fp);
     flags = fcntl(fd, F_GETFL);
-    if (fcntl(fd, F_SETFL, flags | O_RDONLY | O_NONBLOCK) > 0) {
-        free(fp);
+    if (fcntl(fd, F_SETFL, flags | O_RDONLY | O_NONBLOCK) < 0) {
+        fclose(fp);
         return -oserror();
     }
 
@@ -147,7 +146,7 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
     }
     fclose(fp);
 
-    /* We clear the rest of the ring buffer after passing max_glock_throughput */
+    /* Clear the rest of the ring buffer after passing max_glock_throughput */
     ftrace_clear_buffer();
 
     /* Check for and call the processing here */

@@ -295,7 +295,7 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 {
     FILE *fp;
     char addr6p[8][5];
-    char addr6[40], devname[20];
+    char addr6[40], devname[20+1];
     char addr[INET6_ADDRSTRLEN];
     struct sockaddr_in6 sin6;
     int sts, plen, scope, dad_status, if_idx;

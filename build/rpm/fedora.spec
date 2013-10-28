@@ -20,7 +20,7 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
 BuildRequires: systemtap-sdt-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: initscripts man /bin/hostname
+BuildRequires: initscripts man
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 BuildRequires: systemd-devel
 %endif
@@ -602,6 +602,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Wed Oct 23 2013 Nathan Scott <nathans@redhat.com> - 3.8.6-1
+- In-progress.
+
 * Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
 - Update to latest PCP sources.
 - Disable pcp-pmda-infiniband sub-package on RHEL5 (BZ 1016368)

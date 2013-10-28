@@ -1,3 +1,9 @@
+pcp (3.8.6) unstable; urgency=low
+
+  * In-progress.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Oct 2013 16:24:57 +1100
+
 pcp (3.8.5) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

@@ -853,6 +853,7 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
 		sts = -1;
 	    else {
 		/* buffer matches "ps" output format, direct hash */
+		buf[sizeof(buf)-1] = '\0';
 		ep->label_id = proc_strings_insert(buf);
 	    }
 	}

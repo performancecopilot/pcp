@@ -206,6 +206,7 @@ _filter_optional_pmdas()
 	-e '/pmdaib/d' \
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
+	-e '/pmdajbd2/d' \
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
@@ -287,6 +288,7 @@ _filter_top_pmns()
 	-e '/^    hw /d' \
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
+	-e '/^    jbd2 /d' \
 	-e '/^    jstat /d' \
 	-e '/^    lab /d' \
 	-e '/^    lmsensors /d' \

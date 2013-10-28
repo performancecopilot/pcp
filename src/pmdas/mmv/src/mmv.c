@@ -428,7 +428,7 @@ map_stats(pmdaExt *pmda)
     if (num > 0)
 	free(files);
 
-    for (i = 0; i < scnt; i++) {
+    for (i = 0; slist && i < scnt; i++) {
 	stats_t * s = slist + i;
 	mmv_disk_header_t * hdr = (mmv_disk_header_t *)s->addr;
 	mmv_disk_toc_t * toc = (mmv_disk_toc_t *)
@@ -802,8 +802,10 @@ mmv_init(pmdaInterface *dp)
     pcpvardir = pmGetConfig("PCP_VAR_DIR");
     pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
 
-    sprintf(statsdir, "%s%c%s", pcptmpdir, sep, prefix);
-    sprintf(pmnsdir, "%s%c" "pmns", pcpvardir, sep);
+    snprintf(statsdir, sizeof(statsdir), "%s%c%s", pcptmpdir, sep, prefix);
+    snprintf(pmnsdir, sizeof(pmnsdir), "%s%c" "pmns", pcpvardir, sep);
+    statsdir[sizeof(statsdir)-1] = '\0';
+    pmnsdir[sizeof(pmnsdir)-1] = '\0';
 
     /* Initialize internal dispatch table */
     if (dp->status == 0) {

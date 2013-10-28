@@ -218,7 +218,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	}
 	else {
 	    /* /proc/partitions */
-	    if ((n = sscanf(buf, "%d %d %lld %s", &devmaj, &devmin, &blocks, namebuf)) != 4)
+	    if ((n = sscanf(buf, "%d %d %llu %s", &devmaj, &devmin, &blocks, namebuf)) != 4)
 		continue;
 	}
 
@@ -250,7 +250,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    p->nr_blocks = 0;
 	    namebuf[0] = '\0';
 	    /* Linux source: block/genhd.c::diskstats_show(1) */
-	    n = sscanf(buf, "%d %d %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	    n = sscanf(buf, "%u %u %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors, &p->rd_ticks,
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
@@ -259,7 +259,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
 		/* Linux source: block/genhd.c::diskstats_show(2) */
-		n = sscanf(buf, "%d %d %s %u %u %u %u\n",
+		n = sscanf(buf, "%u %u %s %u %u %u %u\n",
 		    &p->major, &p->minor, namebuf,
 		    (unsigned int *)&p->rd_ios, (unsigned int *)&p->rd_sectors,
 		    (unsigned int *)&p->wr_ios, (unsigned int *)&p->wr_sectors);
@@ -268,7 +268,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	else {
 	    /* 2.4 style /proc/partitions */
 	    namebuf[0] = '\0';
-	    n = sscanf(buf, "%d %d %ld %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	    n = sscanf(buf, "%u %u %lu %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, &p->nr_blocks, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
