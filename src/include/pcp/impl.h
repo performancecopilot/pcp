@@ -274,7 +274,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
-/* not yet allocated, bits (1<<25) ... (1<<29) */
+#define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
+/* not yet allocated, bits (1<<26) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);

@@ -54,11 +54,12 @@ createServices(AvahiClient *c, __pmServerAvahiPresence *s)
      * because it was reset previously, add our entries.
      */
     if (avahi_entry_group_is_empty(s->group)) {
-	__pmNotifyErr(LOG_INFO, "Adding Avahi service '%s'", s->serviceName);
+	if (pmDebug & DBG_TRACE_DISCOVERY)
+	    __pmNotifyErr(LOG_INFO, "Adding %s Avahi service", s->serviceName);
 
 	/*
-	 * We will now add our service to the entry group. Only services with the
-	 * same name should be put in the same entry group.
+	 * We will now add our service to the entry group. Only services with
+	 * the same name should be put in the same entry group.
 	 */
 	if ((ret = avahi_entry_group_add_service(s->group, AVAHI_IF_UNSPEC,
 						 AVAHI_PROTO_UNSPEC,
@@ -114,8 +115,9 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
     switch (state) {
 	case AVAHI_ENTRY_GROUP_ESTABLISHED:
 	    /* The entry group has been established successfully. */
-	    __pmNotifyErr(LOG_INFO, "Avahi service '%s' successfully established.",
-			  s->serviceName);
+	    if (pmDebug & DBG_TRACE_DISCOVERY)
+		__pmNotifyErr(LOG_INFO, "Avahi service '%s' successfully established.",
+			      s->serviceName);
 	    break;
 
 	case AVAHI_ENTRY_GROUP_COLLISION: {
@@ -230,8 +232,9 @@ cleanup(__pmServerAvahiPresence *s)
     if (s == NULL)
 	return;
 
-    if (s->serviceName)
-	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'", s->serviceName);
+    if (pmDebug & DBG_TRACE_DISCOVERY)
+	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'",
+			s->serviceName ? s->serviceName : "?");
 
     /* Stop the avahi client, if it's running. */
     if (s->threadedPoll)
