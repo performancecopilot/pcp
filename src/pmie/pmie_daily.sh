@@ -2,6 +2,7 @@
 #
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -85,9 +86,10 @@ do
     fi
 done
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the third column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 # (see BugWorks ID #595416).
@@ -259,11 +261,19 @@ rm -f $tmp/err $tmp/mail
 line=0
 version=''
 cat $CONTROL \
-| sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-      -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+| sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host socks logfile args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    logfile_hostname=`hostname || echo localhost`
+    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
     case "$host"
@@ -383,9 +393,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
     fi
 
-    # match $logfile and $fqdn from control file to running pmies
+    # match $logfile from control file to running pmies
     pid=""
-    $VERY_VERBOSE && echo "Looking for logfile=$logfile fqdn=$fqdn"
+    $VERY_VERBOSE && echo "Looking for logfile=$logfile"
     for file in `ls $PCP_TMP_DIR/pmie`
     do
 	p_id=$file
@@ -421,17 +431,9 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
     then
 	if [ "$PMIE_CTL" = "on" ]
 	then
-	    fqdn=`pmhostname $host | sed -e 's/@.*//'`
-	    _error "no pmie instance running for host \"$fqdn\""
+	    _error "no pmie instance running for host \"$host\""
 	fi
     else
-	if [ "`echo $pid | wc -w`" -gt 1 ]
-	then
-	    _error "multiple pmie instances running for host \"$host\", processes: $pid"
-	    _unlock
-	    continue
-	fi
-
 	# now move current logfile name aside and SIGHUP to "roll the logs"
 	# creating a new logfile with the old name in the process.
 	#

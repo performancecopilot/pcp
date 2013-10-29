@@ -1,6 +1,7 @@
 #! /bin/sh
 #
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat, Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -74,9 +75,10 @@ do
     fi
 done
 
-# determine real name for localhost
-LOCALHOST=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOST" ] && LOCALHOST=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 # (see BugWorks ID #595416).
@@ -306,10 +308,10 @@ $1 == "DATE" && $3 == my && $4 == dy && $8 == yy { yday = 1; print; next }
     then
 	if [ ! -z "$MAIL" ]
 	then
-	    $MAIL -s "PCP NOTICES summary for $LOCALHOST" $MAILME <$tmp/pcp
+	    $MAIL -s "PCP NOTICES summary for `hostname`" $MAILME <$tmp/pcp
 	else
 	    echo "$prog: Warning: cannot find a mail agent to send mail ..."
-	    echo "PCP NOTICES summary for $LOCALHOST"
+	    echo "PCP NOTICES summary for `hostname`"
 	    cat $tmp/pcp
 	fi
         [ -w `dirname "$NOTICES"` ] && mv $tmp/pcp "$MAILFILE"
@@ -373,10 +375,17 @@ rm -f $tmp/err
 line=0
 version=''
 cat $CONTROL \
-| sed -e "s/LOCALHOSTNAME/$LOCALHOST/g" \
-      -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+| sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host primary socks dir args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    dir_hostname=`hostname || echo localhost`
+    dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
     case "$host"
@@ -510,29 +519,19 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     fi
 
     pid=''
-
     if [ X"$primary" = Xy ]
     then
-	if [ X"$host" != X"$LOCALHOST" ]
-	then
-	    _error "\"primary\" only allowed for $LOCALHOST (localhost, not $host)"
-	    _unlock
-	    continue
-	fi
-
-	if [ "$PMLOGGER_CTL" = "off" ]
-	then
-	    $VERBOSE && _warning "primary logging disabled for $host"
-	    _unlock
-	    continue
-	fi
+        # NB: FQDN cleanup: previously, we used to quietly accept several
+        # putative-aliases in the first (hostname) slot for a primary logger,
+        # which were all supposed to refer to the local host.  So now we
+        # squash them all to the officially pcp-preferred way to access it.
+        host=local:
 
 	if test -f $PCP_TMP_DIR/pmlogger/primary
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
 	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
 	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    pid=''
 	    for file in $PCP_TMP_DIR/pmlogger/*
 	    do
 		case "$file"
@@ -601,16 +600,10 @@ END				{ print m }'`
 	    _error "no pmlogger instance running for host \"$host\""
 	fi
     else
-	if [ "`echo $pid | wc -w`" -gt 1 ]
-	then
-	    _error "multiple pmlogger instances running for host \"$host\", processes: $pid"
-	    _unlock
-	    continue
-	fi
-
 	# now execute pmnewlog to "roll the archive logs"
 	#
 	[ X"$primary" != Xy ] && args="-p $pid $args"
+        # else: -P is already the default
 	[ X"$socks" = Xy ] && args="-s $args"
 	args="$args -m pmlogger_daily"
 	$SHOWME && echo "+ pmnewlog$MYARGS $args $LOGNAME"

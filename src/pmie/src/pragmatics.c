@@ -2,6 +2,7 @@
  * pragmatics.c - inference engine pragmatics analysis
  * 
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -506,6 +507,8 @@ initArchive(Archive *a)
     }
     handle = sts;
 
+    a->hname = strdup (pmGetContextHostName (handle));
+
     /* get the goodies from archive label */
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: cannot read label from archive %s\n"
@@ -514,9 +517,6 @@ initArchive(Archive *a)
 	pmDestroyContext(handle);
 	return 0;
     }
-    n = (int) strlen(label.ll_hostname);
-    a->hname = (char *) alloc(n + 1);
-    strcpy(a->hname, label.ll_hostname);
     a->first = realize(label.ll_start);
     if ((sts = pmGetArchiveEnd(&tv)) < 0) {
 	fprintf(stderr, "%s: archive %s is corrupted\n"
@@ -569,40 +569,40 @@ zoneInit(void)
 		    pmErrStr(sts));
     }
     else if (! archives && hostZone) {	/* TZ from live host */
-	if ((handle = pmNewContext(PM_CONTEXT_HOST, dfltHost)) < 0)
+	if ((handle = pmNewContext(PM_CONTEXT_HOST, dfltHostConn)) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\n"
 		    "pmNewContext failed: %s\n", pmProgname,
-		    findsource(dfltHost), pmErrStr(handle));
+		    findsource(dfltHostConn), pmErrStr(handle));
 	else if ((sts = pmNewContextZone()) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\n"
 		    "pmNewContextZone failed: %s\n", pmProgname,
-		    findsource(dfltHost), pmErrStr(sts));
+		    findsource(dfltHostConn), pmErrStr(sts));
 	else
 	    fprintf(stdout, "%s: timezone set to local timezone of host %s\n",
-		    pmProgname, dfltHost);
+		    pmProgname, dfltHostConn);
 	if (handle >= 0)
 	    pmDestroyContext(handle);
     }
     else if (hostZone) {		/* TZ from an archive */
 	a = archives;
 	while (a) {
-	    if (strcmp(dfltHost, a->hname) == 0)
+	    if (strcmp(dfltHostName, a->hname) == 0)
 		break;
 	    a = a->next;
 	}
 	if (! a)
 	    fprintf(stderr, "%s: no archive supplied for host %s\n",
-		    pmProgname, dfltHost);
+		    pmProgname, dfltHostName);
 	else if ((handle = pmNewContext(PM_CONTEXT_ARCHIVE, a->fname)) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\npmNewContext failed: %s\n",
-		    pmProgname, findsource(dfltHost), pmErrStr(handle));
+		    pmProgname, findsource(dfltHostName), pmErrStr(handle));
 	else if ((sts = pmNewContextZone()) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\n"
 		    "pmNewContextZone failed: %s\n",
-		    pmProgname, findsource(dfltHost), pmErrStr(sts));
+		    pmProgname, findsource(dfltHostName), pmErrStr(sts));
 	else
 	    fprintf(stdout, "%s: timezone set to local timezone of host %s\n",
-		    pmProgname, dfltHost);
+		    pmProgname, dfltHostName);
 	if (handle >= 0)
 	    pmDestroyContext(handle);
     }

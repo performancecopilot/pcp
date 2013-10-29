@@ -1013,6 +1013,12 @@ hostnameinfo(void)
     (void)gethostname(host, MAXHOSTNAMELEN);
     name = host;
 
+#if 0
+    /* NB: FQDN cleanup: Formerly, in order to match qa testcases' use
+       of pmhostname, a bunch of DNS lookups was done here to try to
+       get an 'official' name for the host.  It turns out that the
+       heuristics do as much harm as good sometimes. */
+
     if ((hep = __pmGetAddrInfo(name)) != NULL) {
 	hename = __pmHostEntGetName(hep);
 	strncpy(host, hename ? hename : name, MAXHOSTNAMELEN-1);
@@ -1020,6 +1026,8 @@ hostnameinfo(void)
 	__pmHostEntFree(hep);
 	name = host;
     }
+#endif
+
     return name;
 }
 

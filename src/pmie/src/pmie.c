@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 Red Hat, Inc.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <sys/stat.h>
+#include <assert.h>
 
 #include "dstruct.h"
 #include "stomp.h"
@@ -364,7 +365,7 @@ startmonitor(void)
 
     perf = (pmiestats_t *)ptr;
     strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
-    strcpy(perf->defaultfqdn, dfltHost);
+    strcpy(perf->defaultfqdn, dfltHostName);
     perf->version = 1;
 }
 
@@ -413,8 +414,8 @@ sighupproc(int sig)
 
     fp = __pmRotateLog(pmProgname, logfile, logfp, &sts);
     if (sts != 0) {
-	fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s\n\n",
-			getpid(), dfltHost);
+	fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
+                getpid(), dfltHostName, dfltHostConn);
 	remap_stdout_stderr();
 	logfp = fp;
     } else {
@@ -488,6 +489,7 @@ getargs(int argc, char *argv[])
 
 	case 'a':			/* archives */
 	    if (dfltConn && dfltConn != PM_CONTEXT_ARCHIVE) {
+                /* (technically, multiple -a's are allowed.) */
 		fprintf(stderr, "%s: at most one of -a or -h allowed\n",
 			pmProgname);
 		err++;
@@ -574,7 +576,8 @@ getargs(int argc, char *argv[])
 		break;
 	    }
 	    dfltConn = PM_CONTEXT_HOST;
-	    dfltHost = optarg;
+	    dfltHostConn = optarg;
+            dfltHostName = ""; /* unknown until newContext */
 	    break;
 
         case 'j':			/* stomp protocol (JMS) config */
@@ -731,21 +734,37 @@ getargs(int argc, char *argv[])
     if (dfltConn == 0) {
 	/* default case, no -a or -h */
 	dfltConn = PM_CONTEXT_HOST;
-	dfltHost = localHost;
+	dfltHostConn = "local:";
     }
 
-    if (!archives && !interactive) {
-	if (commandlog != NULL)
-	    fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s\n\n", getpid(), dfltHost);
-	startmonitor();
-    }
-
-    /* default host from leftmost archive on command line */
-    if (archives && dfltHost == localHost) {
+    /* default host from leftmost archive on command line, or from
+       discovery after a brief connection */
+    if (archives) {
 	a = archives;
 	while (a->next)
 	    a = a->next;
-	dfltHost = a->hname;
+	dfltHostName = a->hname; /* already filled in during initArchive() */
+    } else if (dfltConn == PM_CONTEXT_HOST) {
+        sts = pmNewContext (dfltConn, dfltHostConn);
+        if (sts < 0) {
+            __pmNotifyErr(LOG_ERR, "%s: cannot find host name for %s\n"
+                          "pmNewContext failed: %s\n",
+                          pmProgname, dfltHostConn, pmErrStr(sts));
+            dfltHostName = "?";
+        } else {
+            dfltHostName = strdup (pmGetContextHostName (sts));
+            if (! dfltHostName)
+                __pmNoMem("host name copy", 0, PM_FATAL_ERR);
+            pmDestroyContext (sts);
+        }
+    }
+    assert (dfltHostName != NULL);
+
+    if (!archives && !interactive) {
+	if (commandlog != NULL)
+            fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
+                    getpid(), dfltHostName, dfltHostConn);
+	startmonitor();
     }
 
     /* initialize time */

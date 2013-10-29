@@ -59,6 +59,8 @@ _filter()
 	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
 	-e "s/`pmhostname`/MYHOST/g" \
 	-e "s/`hostname`/MYHOST/g" \
+	-e "s/localhost/MYHOST/g" \
+	-e "s/local:/MYHOST/g" \
 	-e '/^PMCD host/s/\(   *\).*/\1HOST/' \
 	-e '/^log started/s/\(   *\).*/\1DATE/' \
 	-e '/^last log entry/s/\(   *\).*/\1DATE/' \

@@ -62,13 +62,6 @@ else
     VERBOSE_CTL=off
 fi
 
-LOCALHOSTNAME=`hostname`
-if [ -z "$LOCALHOSTNAME" ] ; then
-    LOCALHOSTNAME="localhost"
-    [ -x /usr/bsd/hostname ] && LOCALHOSTNAME=`/usr/bsd/hostname`
-fi
-LOGDIR=$RUNDIR/$LOCALHOSTNAME
-
 id=`id | sed -e "s/(.*//" -e "s/.*=//"`
 if [ "$id" != 0 -a "$1" != "status" ]
 then
@@ -109,8 +102,6 @@ _reboot_setup()
 	rm -f $tmp/ent $tmp/pid
 	cd "$here"
     fi
-
-    [ ! -d "$LOGDIR" ] && mkdir -p "$LOGDIR" && chown pcp:pcp "$LOGDIR"
 }
 
 # Note: _start_pmie is running in the background, in parallel with

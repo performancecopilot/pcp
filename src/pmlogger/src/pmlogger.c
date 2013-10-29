@@ -33,6 +33,7 @@ int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
 char		*pmcd_host;
+char		*pmcd_host_conn;
 struct timeval	epoch;
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger;			/* linger with no tasks/events */
@@ -542,7 +543,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'h':		/* hostname for PMCD to contact */
-	    pmcd_host = optarg;
+	    pmcd_host_conn = optarg;
 	    break;
 
 	case 'l':		/* log file name */
@@ -697,8 +698,8 @@ Options:\n\
     /* base name for archive is here ... */
     archBase = argv[optind];
 
-    if (pmcd_host == NULL)
-	pmcd_host = "local:";
+    if (pmcd_host_conn == NULL)
+	pmcd_host_conn = "local:";
 
     /* initialise access control */
     if (__pmAccAddOp(PM_OP_LOG_ADV) < 0 ||
@@ -715,12 +716,11 @@ Options:\n\
 	}
     }
 
-    if ((ctx = pmNewContext(PM_CONTEXT_HOST, pmcd_host)) < 0) {
-	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, pmcd_host, pmErrStr(ctx));
+    if ((ctx = pmNewContext(PM_CONTEXT_HOST, pmcd_host_conn)) < 0) {
+	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, pmcd_host_conn, pmErrStr(ctx));
 	exit(1);
-    } else {
-	pmcd_host = (char *)pmGetContextHostName(ctx);
     }
+    pmcd_host = (char *)pmGetContextHostName(ctx);
 
     if (rsc_fd == -1) {
 	/* no -x, so register client id with pmcd */
@@ -767,8 +767,8 @@ Options:\n\
     fprintf(stderr, "Config parsed\n");
 #endif
 
-    fprintf(stderr, "Starting %slogger for host \"%s\"\n",
-	primary ? "primary " : "", pmcd_host);
+    fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
+            primary ? "primary " : "", pmcd_host, pmcd_host_conn);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
