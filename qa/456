@@ -19,12 +19,8 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 LOCALHOST=`hostname | sed -e 's/\..*//'`
-if [ $PCP_PLATFORM = irix ]
-then
-    FULLLOCALHOST=`pmhostname`
-else
-    FULLLOCALHOST=`hostname`
-fi
+FULLLOCALHOST=`hostname`
+
 hostsfile="/etc/hosts"
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

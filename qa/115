@@ -55,7 +55,7 @@ _filter()
 	-e 's/\([ "]\)'"$remote"'\([ "]\)/\1REMOTEHOST\2/g' \
 	-e 's/\([ "]\)'"$rhost"'\([ "]\)/\1REMOTEHOST\2/g' \
 	-e 's/\([ "]\)'"$host"'\([ "]\)/\1LOCALHOST\2/g' \
-	-e 's/\([ "]\)'"$lhost"'\([ "]\)/\1LOCALHOST\2/g' \
+	-e 's/\([ "]\)local:\([ "]\)/\1LOCALHOST\2/g' \
 	-e "s;/private/tmp;/tmp;g" \
 	-e 's/ $//'
 }
