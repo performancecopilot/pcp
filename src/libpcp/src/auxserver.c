@@ -697,6 +697,22 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     return -EOPNOTSUPP;
 }
 
+int
+__pmSecureServerHasFeature(__pmServerFeature query)
+{
+    (void)query;
+    return 0;
+}
+
+int
+__pmSecureServerSetFeature(__pmServerFeature wanted)
+{
+    (void)wanted;
+    return 0;
+}
+
+#endif /* !HAVE_SECURE_SOCKETS */
+
 static unsigned int server_features;
 
 int
@@ -707,7 +723,7 @@ __pmServerSetFeature(__pmServerFeature wanted)
 	server_features |= (1 << wanted);
 	return 1;
     }
-    return 0;
+    return __pmSecureServerSetFeature(wanted);
 }
 
 int
@@ -719,28 +735,26 @@ __pmServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_IPV6:
 	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
+    case PM_SERVER_FEATURE_DISCOVERY:
     case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_UNIX_DOMAIN:
 	if (server_features & (1 << query))
 	    sts = 1;
 	break;
     default:
+	sts = __pmSecureServerHasFeature(query);
 	break;
     }
     return sts;
 }
 
-#endif /* !HAVE_SECURE_SOCKETS */
-
-/* XXX TODO: HAVE_SERVICE_DISCOVERY not defined yet. Waiting on Nathan.
- * For now, enable this code if we have Avahi. */
-#if HAVE_AVAHI /* defined(HAVE_SERVICE_DISCOVERY) */
+#if defined(HAVE_SERVICE_DISCOVERY)
 
 __pmServerPresence *
 __pmServerAdvertisePresence(const char *serviceSpec, int port)
 {
-    /* Allocate the server presence data structure. */
     __pmServerPresence *s;
+
     if ((s = malloc(sizeof(*s))) == NULL) {
 	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
 		  sizeof(*s), PM_FATAL_ERR);
@@ -749,24 +763,20 @@ __pmServerAdvertisePresence(const char *serviceSpec, int port)
     /* Now advertise our presence using all available means. If a particular
      * method is not available or not configured, then the respective call
      * will have no effect.
-     * Currently, only avahi is supported.
      */
-    s->avahi = __pmServerAvahiAdvertisePresence(serviceSpec, port);
-
+    __pmServerAvahiAdvertisePresence(s, serviceSpec, port);
+    server_features |= PM_SERVER_FEATURE_DISCOVERY;
     return s;
 }
 
 void
-__pmServerUnadvertisePresence(__pmServerPresence *s) {
+__pmServerUnadvertisePresence(__pmServerPresence *s)
+{
     /* Unadvertise our presence for all available means. If a particular
      * method is not active, then the respective call will have no effect.
-     * Currently, only avahi is supported.
      */
-    if (s->avahi != NULL) {
-	__pmServerAvahiUnadvertisePresence(s->avahi);
-	free(s->avahi);
-	s->avahi = NULL;
-    }
+    __pmServerAvahiUnadvertisePresence(s);
+    free(s);
 }
 
 #else /* !HAVE_SERVICE_DISCOVERY */

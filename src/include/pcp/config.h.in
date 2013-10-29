@@ -193,8 +193,9 @@ extern "C" {
 
 /* define which libraries are available */
 #undef HAVE_SECURE_SOCKETS
-#undef HAVE_AVAHI
 #undef HAVE_STATIC_PROBES
+#undef HAVE_SERVICE_DISCOVERY
+#undef HAVE_AVAHI
 #undef HAVE_LIBREGEX
 #undef HAVE_READLINE
 

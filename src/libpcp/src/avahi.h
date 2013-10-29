@@ -19,9 +19,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
 
-typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
-
-__pmServerAvahiPresence *__pmServerAvahiAdvertisePresence(const char *, int);
-void __pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *);
+void __pmServerAvahiAdvertisePresence(__pmServerPresence *, const char *, int);
+void __pmServerAvahiUnadvertisePresence(__pmServerPresence *);
 
 #endif /* AVAHI_H */

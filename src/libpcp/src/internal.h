@@ -120,6 +120,8 @@ extern int __pmConnectCheckError(int);
 extern void *__pmGetSecureSocket(int);
 extern void *__pmGetUserAuthData(int);
 extern int __pmSecureServerIPCFlags(int, int);
+extern int __pmSecureServerHasFeature(__pmServerFeature);
+extern int __pmSecureServerSetFeature(__pmServerFeature);
 
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
 #define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
@@ -152,9 +154,9 @@ extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int);
  */
 typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
 
-typedef struct __pmServerPresence {
+struct __pmServerPresence {
     __pmServerAvahiPresence	*avahi;
-} __pmServerPresence;
+};
 
 #ifdef __cplusplus
 }

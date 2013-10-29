@@ -774,7 +774,7 @@ PACKAGE_MINOR
 PACKAGE_MAJOR
 pcp_platform_paths
 enable_avahi
-enable_dns_sd
+enable_discovery
 lib_for_avahi
 avahi_LIBS
 avahi_CFLAGS
@@ -859,7 +859,7 @@ with_static_probes
 with_infiniband
 with_user
 with_group
-with_dns_sd
+with_discovery
 enable_ssp
 enable_pie
 enable_shared
@@ -1528,8 +1528,7 @@ Optional Packages:
   --with-user             user account under which daemons run (default is
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
-  --with-dns-sd           enable support for DNS Service Discovery (default is
-                          on)
+  --with-discovery        enable support for service discovery (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2481,11 +2480,11 @@ fi
 
 
 
-# Check whether --with-dns-sd was given.
-if test "${with_dns_sd+set}" = set; then :
-  withval=$with_dns_sd; do_dns_sd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dns-sd=$withval"
+# Check whether --with-discovery was given.
+if test "${with_discovery+set}" = set; then :
+  withval=$with_discovery; do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"
 else
-  do_dns_sd=check
+  do_discovery=check
 fi
 
 
@@ -4190,7 +4189,7 @@ $as_echo "no" >&6; }
 		PKG_CONFIG=""
 	fi
 fi
-if test "x$do_dns_sd" != "xno"; then :
+if test "x$do_discovery" != "xno"; then :
 
     # on Mac OS X, dns_sd.h
 
@@ -4364,12 +4363,17 @@ done
 
 	$as_echo "#define HAVE_AVAHI 1" >>confdefs.h
 
-	enable_dns_sd=true
+	enable_discovery=true
     fi
 
-    if test "$do_dns_sd" != "check" -a "$enable_dns_sd" != "true"
+    if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
     then
         as_fn_error $? "cannot enable DNS-SD - no platform support" "$LINENO" 5
+    fi
+    if test "$enable_discovery" = "true"
+    then
+        $as_echo "#define HAVE_SERVICE_DISCOVERY 1" >>confdefs.h
+
     fi
 
 fi

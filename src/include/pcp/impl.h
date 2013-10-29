@@ -644,10 +644,9 @@ typedef enum {
     PM_SERVER_FEATURE_AUTH,
     PM_SERVER_FEATURE_CREDS_REQD,
     PM_SERVER_FEATURE_UNIX_DOMAIN,
+    PM_SERVER_FEATURE_DISCOVERY,
     PM_SERVER_FEATURES
 } __pmServerFeature;
-
-typedef struct __pmServerPresence __pmServerPresence;
 
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerSetFeature(__pmServerFeature);
@@ -663,6 +662,8 @@ extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
 extern void __pmServerCloseRequestPorts(void);
 extern void __pmServerDumpRequestPorts(FILE *);
 extern char *__pmServerRequestPortString(int, char *, size_t);
+
+typedef struct __pmServerPresence __pmServerPresence;
 extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
 extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 

@@ -78,11 +78,11 @@ AC_ARG_WITH(
     [pcp_group=pcp])
 AC_SUBST(pcp_group)
 
-AC_ARG_WITH([dns-sd],
-    [AC_HELP_STRING([--with-dns-sd],
-                   [enable support for DNS Service Discovery (default is on)])],
-    [do_dns_sd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-dns-sd=$withval"],
-    [do_dns_sd=check])
+AC_ARG_WITH([discovery],
+    [AC_HELP_STRING([--with-discovery],
+                   [enable support for service discovery (default is on)])],
+    [do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"],
+    [do_discovery=check])
 
 #
 # Note: the following environment variables may be
@@ -248,8 +248,8 @@ then
     AC_SUBST(DTRACE)
 fi
 
-dnl Check for DNS-SD (Service Discovery)
-AS_IF([test "x$do_dns_sd" != "xno"], [
+dnl Check for service discovery mechanisms (DNS-SD, Avahi)
+AS_IF([test "x$do_discovery" != "xno"], [
     # on Mac OS X, dns_sd.h
 
     # on Linux, aloha Avahi
@@ -267,15 +267,19 @@ AS_IF([test "x$do_dns_sd" != "xno"], [
 	AC_SUBST(lib_for_avahi)
 	AC_SUBST(avahi_CFLAGS)
 	AC_DEFINE(HAVE_AVAHI)
-	enable_dns_sd=true
+	enable_discovery=true
     fi
 
-    if test "$do_dns_sd" != "check" -a "$enable_dns_sd" != "true"
+    if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
     then
-        AC_MSG_ERROR(cannot enable DNS-SD - no platform support)
+	AC_MSG_ERROR(cannot enable service discovery - no supported mechanisms)
+    fi
+    if test "$enable_discovery" = "true"
+    then
+	AC_DEFINE(HAVE_SERVICE_DISCOVERY)
     fi
 ])
-AC_SUBST(enable_dns_sd)
+AC_SUBST(enable_discovery)
 AC_SUBST(enable_avahi)
 
 # setup additional platform-specific binary search PATH components

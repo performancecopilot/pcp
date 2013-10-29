@@ -16,16 +16,17 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #include "avahi.h"
 
-typedef struct __pmServerAvahiPresence {
+struct __pmServerAvahiPresence {
     char		*avahi_service_name;
     const char		*avahi_service_tag;
     int			port;
     AvahiThreadedPoll	*avahi_threaded_poll;
     AvahiClient		*avahi_client;
     AvahiEntryGroup	*avahi_group;
-} __pmServerAvahiPresence;
+};
 
 static void entryGroupCallback(
     AvahiEntryGroup *g,
@@ -301,13 +302,12 @@ publishService(const char *serviceName, const char *serviceTag, int port)
   return NULL;
 }
 
-__pmServerAvahiPresence *
-__pmServerAvahiAdvertisePresence(const char *serviceSpec, int port)
+void
+__pmServerAvahiAdvertisePresence(__pmServerPresence *s, const char *serviceSpec, int port)
 {
     size_t size;
     char *serviceName;
     char *serviceTag;
-    __pmServerAvahiPresence *p;
 
     /* The service spec is simply the name of the server. Use it to
      * construct the avahi service name and service tag.
@@ -327,15 +327,19 @@ __pmServerAvahiAdvertisePresence(const char *serviceSpec, int port)
     sprintf(serviceTag, "_%s._tcp", serviceSpec);
     
     /* Now publish the avahi service. */
-    p = publishService (serviceName, serviceTag, port);
+    s->avahi = publishService(serviceName, serviceTag, port);
 
     /* Clean up. */
     free(serviceName);
     free(serviceTag);
-    return p;
 }
 
 void
-__pmServerAvahiUnadvertisePresence(__pmServerAvahiPresence *s) {
-    cleanup(s);
+__pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
+{
+    if (s->avahi != NULL) {
+	cleanup(s->avahi);
+	free(s->avahi);
+	s->avahi = NULL;
+    }
 }
