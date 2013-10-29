@@ -637,6 +637,8 @@ void Status(int pid, int primary)
 	printf("[%d]", pid);
     printf(" on host %s is logging metrics from host %s\n",
 	lasthost, hostname);
+    /* NB: FQDN cleanup: note that this is not 'the fqdn' of the
+       pmlogger host or that of its target.  */
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
 	printf("PMCD host        %s\n", lsp->ls_fqdn);
     if (state == PM_LOG_STATE_NEW) {

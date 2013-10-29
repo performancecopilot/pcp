@@ -92,19 +92,25 @@ END	{ if (NR > 0) {
 
 	    if [ ! -z "$notrun" ]
 	    then
+		[ $color = true ] && tput bold && tput setaf 4 # blue
 		echo "Not run:$notrun"
+		[ $color = true ] && tput sgr0 # reset
 		echo "Not run:$notrun" | fmt >>check.log
 	    fi
 	    if [ ! -z "$n_bad" -a "$n_bad" != 0 ]
 	    then
+		[ $color = true ] && tput bold && tput setaf 1 # red
 		echo "Failures:$bad"
 		echo "Failed $n_bad of $try tests"
+		[ $color = true ] && tput sgr0 # reset
 		echo "Failures:$bad" | fmt >>check.log
 		echo "Failed $n_bad of $try tests" >>check.log
 	    else
 		if [ $try != 0 ]
 		then
+		    [ $color = true ] && tput bold && tput setaf 2 # green
 		    echo "Passed all $try tests"
+		    [ $color = true ] && tput sgr0 # reset
 		    echo "Passed all $try tests" >>check.log
 		fi
 	    fi

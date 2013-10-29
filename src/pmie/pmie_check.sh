@@ -19,6 +19,7 @@
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMIE=pmie
 PMIECONF="$PCP_BIN_DIR/pmieconf"
@@ -55,9 +56,10 @@ prog=`basename $0`
 #
 CONTROL=$PCP_PMIECONTROL_PATH
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the third column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -381,8 +383,6 @@ then
     # need to do this when running unilaterally from cron, else we'll
     # always start pmie up (even when we shouldn't).
     #
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-
     QUIETLY=true
     if is_chkconfig_on pmie
     then
@@ -423,11 +423,19 @@ rm -f $tmp/err $tmp/pmies
 
 line=0
 cat "$CONTROL" \
-    | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-	  -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+    | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
     | while read host socks logfile args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    logfile_hostname=`hostname || echo localhost`
+    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     case "$host"
     in
@@ -544,8 +552,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	else
 	    echo "Found pmie process $pid monitoring:"
 	fi
-	fqdn=`pmhostname $host | sed -e 's/@.*//'`
-	echo "    host = $fqdn"
+	echo "    host = $host"
 	echo "    log file = $logfile"
     fi
 

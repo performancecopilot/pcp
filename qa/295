@@ -13,13 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if which pmproxy >/dev/null 2>&1
+which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
+
+rm -f $seq.out
+if [ $PCP_VER -ge 3806 ]
 then
-    :
+    ln $seq.out.2 $seq.out
 else
-    echo "No pmproxy binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    ln $seq.out.1 $seq.out
 fi
 
 signal=$PCP_BINADM_DIR/pmsignal

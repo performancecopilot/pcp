@@ -46,11 +46,13 @@ endif
 default : $(LIBTARGET) $(STATICLIBTARGET)
 
 ifeq "$(ENABLE_PROBES)" "true"
+ifeq "$(TARGET_OS)" "linux"
 trace.o: probes.h
 probes.h: probes.d pmcd.stp
 	$(DTRACE) -h -s $< -o $@
 probes.o: probes.d
 	$(DTRACE) -G -s $< -o $@
+endif
 endif
 
 pmcd.stp : pmcd.stp.in

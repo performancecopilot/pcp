@@ -1066,9 +1066,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     }
     else {
 	ti.ti_meta = (__pm_off_t)ftell(lcp->l_mdfp);
-	assert(ti.ti_meta >= 0);
 	ti.ti_log = (__pm_off_t)ftell(lcp->l_mfp);
-	assert(ti.ti_log >= 0);
     }
 
 #ifdef PCP_DEBUG

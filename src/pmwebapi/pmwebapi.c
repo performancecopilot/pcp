@@ -317,7 +317,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
             }
     
         webapi_ctx = random(); /* we hope RAND_MAX is large enough */
-        if (webapi_ctx <= 0 || webapi_ctx > INT_MAX) 
+        if (webapi_ctx <= 0)
             continue;
 
         rc = webcontext_allocate (webapi_ctx, & c);

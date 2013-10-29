@@ -6,29 +6,30 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-echo "QA output created by $seq"
+which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    if which pmdumptext >/dev/null 2>&1
+    if [ $PCP_VER -ge 3806 ]
     then
-	ln $seq.out.3 $seq.out
-    else
 	ln $seq.out.4 $seq.out
+    else
+	ln $seq.out.3 $seq.out
     fi
 else
-    if which pmdumptext >/dev/null 2>&1
+    if [ $PCP_VER -ge 3806 ]
     then
-	ln $seq.out.1 $seq.out
-    else
 	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.1 $seq.out
     fi
 fi
 
@@ -80,6 +81,8 @@ _filter_me()
     sed \
 	-e "s/`pmhostname`/MY_HOSTNAME/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
+	-e "s/local:/MY_HOSTNAME/" \
+	-e "s/localhost/MY_HOSTNAME/" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
 	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
 	-e "s,$tmp.config,TMP.logger.config,g" \

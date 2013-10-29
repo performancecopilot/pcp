@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.5
+Version: 3.8.6
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -327,7 +327,7 @@ cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.l
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %post testsuite
@@ -602,8 +602,8 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
-* Wed Oct 23 2013 Nathan Scott <nathans@redhat.com> - 3.8.6-1
-- In-progress.
+* Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 3.8.6-1
+- Update to latest PCP sources.
 
 * Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
 - Update to latest PCP sources.

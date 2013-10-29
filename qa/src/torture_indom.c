@@ -238,7 +238,6 @@ main(int argc, char **argv)
     char	*errmsg;
     int		type = 0;
     char	*host = NULL;			/* pander to gcc */
-    int		mode = PM_MODE_INTERP;		/* mode for archives */
     pmLogLabel	label;				/* get hostname for archives */
     char	local[MAXHOSTNAMELEN];
     char	*namespace = PM_NS_DEFAULT;
@@ -367,12 +366,6 @@ Options\n\
 	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 		pmProgname, pmErrStr(sts));
 	    exit(1);
-	}
-	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
-		fprintf(stderr, "%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
-		exit(1);
-	    }
 	}
     }
 

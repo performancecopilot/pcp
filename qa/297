@@ -54,6 +54,7 @@ _filter()
 	-e '/^__pmConnect(fd=[0-9][0-9]*(nsprFd=/d' \
 	-e '/^__pmConnectPMCD/{
 s/'$fqdn'/MY_HOST/g
+s/localhost/MY_HOST/g
 s/'$hostname'/MY_HOST/g
 s/[0-9][0-9]*/N/g
 }' \

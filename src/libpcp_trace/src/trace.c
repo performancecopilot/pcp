@@ -816,14 +816,6 @@ _pmauxtraceconnect(void)
     }
 #endif
 
-    if (rc < 0) {
-	if (sts == EINTR)
-	    sts = -ETIMEDOUT;
-	close(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
-	__pmfd = -1;
-	return sts;
-    }
-
     _pmtimedout = 0;
 
     /* make sure this file descriptor is closed if exec() is called */

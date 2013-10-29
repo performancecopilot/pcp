@@ -54,6 +54,8 @@ END				{ if ( eatlines ) {
     | sed \
 	-e "s;$tmp;TMP;g" \
 	-e "s/`hostname`/HOST/g" \
+	-e "s/localhost/HOST/g" \
+	-e "s/local:/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \

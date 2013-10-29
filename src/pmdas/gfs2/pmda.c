@@ -321,7 +321,7 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster >= 0 && idp->cluster < NUM_CLUSTERS)
+	if (idp->cluster < NUM_CLUSTERS)
 	    need_refresh[idp->cluster]++;
     }
 

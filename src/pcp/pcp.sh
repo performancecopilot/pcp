@@ -25,7 +25,7 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
 
 errors=0
 prog=`basename $0`
-host=`pmhostname`
+host=`hostname` # may match pmcd.hostname
 for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname status
 do
     eval $var="unknown?"

@@ -1054,7 +1054,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		/*
 		 * unsigned decimal int
 		 */
-		if (idp->item >= 0 && idp->item < NR_PROC_PID_STAT) {
+		if (idp->item < NR_PROC_PID_STAT) {
 		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    	return PM_ERR_INST;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
@@ -1077,7 +1077,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid)) == NULL)
 		return PM_ERR_INST;
 
-	    if (idp->item >= 0 && idp->item <= PROC_PID_STATM_DIRTY) {
+	    if (idp->item <= PROC_PID_STATM_DIRTY) {
 		/* unsigned int */
 		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
@@ -1095,7 +1095,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
 	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
 
-	if (idp->item >= 0 && idp->item < NR_PROC_PID_SCHED) {
+	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
 		return PM_ERR_INST;
 	    if (idp->item == PROC_PID_SCHED_PCOUNT &&

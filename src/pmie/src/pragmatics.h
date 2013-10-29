@@ -95,9 +95,6 @@ void unwaitMetric(Metric *);
 extern pmUnits	noUnits;
 extern pmUnits	countUnits;
 
-/* default context type */
-extern int	dfltConn;
-
 /* flag processes spawned */
 extern int	need_wait;
 

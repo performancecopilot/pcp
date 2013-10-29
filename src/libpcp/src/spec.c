@@ -214,8 +214,6 @@ pmParseMetricSpec(
 		for (;;) {
 		    if (scan >= i_end) {
 			metricError(spec, scan, "closing \" expected (pmParseMetricSpec botch?)", errmsg);
-			if (msp)
-			    pmFreeMetricSpec(msp);
 			if (i_str)
 			    free(i_str);
 			return PM_ERR_GENERIC;

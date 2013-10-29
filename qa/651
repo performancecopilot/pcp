@@ -30,6 +30,7 @@ _filter()
     sed \
 	-e "s/$hostname/MYHOST/" \
 	-e "s/`hostname`/MYHOST/" \
+	-e "s/localhost/MYHOST/" \
 	-e "s/local:/MYHOST/" \
 	-e '/hinv.ncpu/s/ 1 [0-9][0-9]*/ 1 <n>/'
 }

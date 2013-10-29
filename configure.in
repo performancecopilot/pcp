@@ -227,14 +227,14 @@ dnl Check for static probes (dtrace, systemtap)
 if test "$do_probes" = "check" -o "$do_probes" = "yes"
 then
     enable_probes=true
+    AC_CHECK_PROGS(DTRACE, dtrace, [enable_probes=false])
+    if test "$do_probes" = "yes" -a $enable_probes = "false"
+    then
+        AC_MSG_ERROR(cannot enable static probes - no toolchain)
+    fi
 
-    AC_CHECK_PROGS(DTRACE, dtrace, [enable_probes=false
-        if test "$do_probes" = "yes"
-        then
-            AC_MSG_ERROR(cannot enable static probes - no toolchain)
-        fi
-    ])
-    AC_CHECK_HEADERS([sys/sdt.h],, [enable_probes=false
+    AC_CHECK_HEADERS([sys/sdt.h],, [
+        enable_probes=false
         if test "$do_probes" = "yes"
         then
             AC_MSG_ERROR(cannot enable static probes - no SDT header)

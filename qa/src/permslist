@@ -1,4 +1,5 @@
 GNUmakefile|1777|root|root|$(PCP_TMP_DIR)
+GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_RUN_DIR)|optional
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmda
 src/pmcd/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmcd
