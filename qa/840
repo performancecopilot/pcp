@@ -16,13 +16,14 @@ echo "QA output created by $seq"
 # Does PMCD support service discovery?
 service_discovery=false
 eval `pmconfig -L 2>/dev/null`	# get service_discovery status
-[ $service_discovery = true ] || _notrun PMCD does not support service discvovery
+[ $service_discovery = true ] || _notrun PMCD does not support service discovery
 
 # Is avahi-browse installed?
 which avahi-browse >/dev/null 2>&1 || _notrun avahi-browse is not installed
 
-# Is the avahi-daemon running?
-/sbin/avahi-daemon --check || _notrun avahi-daemon is not running
+# Is the avahi-daemon installed and running?  (maybe /sbin or /usr/sbin?)
+which avahi-daemon >/dev/null 2>&1 || _notrun avahi-daemon is not installed
+avahi-daemon --check || _notrun avahi-daemon is not running
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
