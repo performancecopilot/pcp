@@ -372,10 +372,9 @@ configuration data.
 .PP
 \f3Warning\f1:
 .B pmcd
-is usually started as part of the boot sequence and runs as root.
-The
-configuration file may contain shell commands to create agents, which will be
-executed by root.
+is usually started as part of the boot sequence and runs initially as root.
+The configuration file may contain shell commands to create agents,
+which will be executed by root.
 To prevent security breaches the configuration file should
 be writable only by root.
 The use of absolute path names is also recommended.
