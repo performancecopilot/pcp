@@ -474,8 +474,10 @@ getargs(int argc, char *argv[])
     int			sts;
     int			c;
     int			bflag = 0;
+    int			dfltConn = 0;	/* default context type */
     Archive		*a;
     struct timeval	tv, tv1, tv2;
+
     extern int		showTimeFlag;
     extern int		errs;		/* syntax errors from syntax.c */
 
@@ -731,12 +733,6 @@ getargs(int argc, char *argv[])
     if ((bflag || isdaemon) && !agent)
 	remap_stdout_stderr();
 
-    if (dfltConn == 0) {
-	/* default case, no -a or -h */
-	dfltConn = PM_CONTEXT_HOST;
-	dfltHostConn = "local:";
-    }
-
     /* default host from leftmost archive on command line, or from
        discovery after a brief connection */
     if (archives) {
@@ -744,18 +740,25 @@ getargs(int argc, char *argv[])
 	while (a->next)
 	    a = a->next;
 	dfltHostName = a->hname; /* already filled in during initArchive() */
-    } else if (dfltConn == PM_CONTEXT_HOST) {
-        sts = pmNewContext (dfltConn, dfltHostConn);
-        if (sts < 0) {
-            __pmNotifyErr(LOG_ERR, "%s: cannot find host name for %s\n"
-                          "pmNewContext failed: %s\n",
-                          pmProgname, dfltHostConn, pmErrStr(sts));
-            dfltHostName = "?";
-        } else {
-            dfltHostName = strdup (pmGetContextHostName (sts));
-            if (! dfltHostName)
-                __pmNoMem("host name copy", 0, PM_FATAL_ERR);
-            pmDestroyContext (sts);
+    } else if (!dfltConn || dfltConn == PM_CONTEXT_HOST) {
+	if (dfltConn == 0)	/* default case, no -a or -h */
+	    dfltHostConn = "local:";
+	sts = pmNewContext(PM_CONTEXT_HOST, dfltHostConn);
+	/* pmcd down locally, try to extract hostname manually */
+	if (sts < 0 && (!dfltConn ||
+			!strcmp(dfltHostConn, "localhost") ||
+			!strcmp(dfltHostConn, "local:") ||
+			!strcmp(dfltHostConn, "unix:")))
+	    sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+	if (sts < 0) {
+	    __pmNotifyErr(LOG_ERR, "%s: cannot find host name for %s\n"
+			"pmNewContext failed: %s\n",
+			pmProgname, dfltHostConn, pmErrStr(sts));
+	    dfltHostName = "?";
+	} else {
+	    if ((dfltHostName = strdup(pmGetContextHostName(sts))) == NULL)
+		__pmNoMem("host name copy", 0, PM_FATAL_ERR);
+	    pmDestroyContext(sts);
         }
     }
     assert (dfltHostName != NULL);

@@ -36,8 +36,6 @@
 
 extern char	*clientid;
 
-int	dfltConn;	/* default context type */
-
 /* for initialization of pmUnits struct */
 pmUnits noUnits;
 pmUnits countUnits = { .dimCount = 1 };
@@ -495,7 +493,6 @@ initArchive(Archive *a)
     struct timeval  tv;
     int		    sts;
     int		    handle;
-    int		    n;
     Archive	    *b;
 
     /* setup temorary context for the archive */
