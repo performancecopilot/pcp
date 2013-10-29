@@ -28,11 +28,7 @@ struct __pmServerAvahiPresence {
     AvahiEntryGroup	*group;
 };
 
-static void entryGroupCallback(
-    AvahiEntryGroup *g,
-    AvahiEntryGroupState state,
-    void *userData
-);
+static void entryGroupCallback(AvahiEntryGroup *, AvahiEntryGroupState, void *);
 
 static void
 createServices(AvahiClient *c, __pmServerAvahiPresence *s)
@@ -99,7 +95,7 @@ createServices(AvahiClient *c, __pmServerAvahiPresence *s)
     __pmNotifyErr(LOG_WARNING, "Avahi service name collision, renaming service to '%s'",
 		  s->serviceName);
     avahi_entry_group_reset(s->group);
-    createServices (c, s);
+    createServices(c, s);
     return;
 
  fail:
@@ -107,13 +103,10 @@ createServices(AvahiClient *c, __pmServerAvahiPresence *s)
 }
 
 static void
-entryGroupCallback(
-    AvahiEntryGroup *g,
-    AvahiEntryGroupState state,
-    void *userData
-)
+entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 {
-    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)userData;
+    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)data;
+
     assert(g == s->group || s->group == NULL);
     s->group = g;
 
@@ -153,7 +146,9 @@ entryGroupCallback(
     }
 }
 
-static void cleanupClient(__pmServerAvahiPresence *s) {
+static void
+cleanupClient(__pmServerAvahiPresence *s)
+{
     /* This also frees the entry group, if any. */
     if (s->client) {
 	avahi_client_free(s->client);
@@ -163,7 +158,8 @@ static void cleanupClient(__pmServerAvahiPresence *s) {
 }
  
 static void
-clientCallback(AvahiClient *c, AvahiClientState state, void *userData) {
+clientCallback(AvahiClient *c, AvahiClientState state, void *userData)
+{
     assert(c);
     __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)userData;
 
@@ -229,13 +225,13 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userData) {
 }
 
 static void
-cleanup(__pmServerAvahiPresence *s) {
+cleanup(__pmServerAvahiPresence *s)
+{
     if (s == NULL)
 	return;
 
     if (s->serviceName)
-	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'",
-		      s->serviceName);
+	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'", s->serviceName);
 
     /* Stop the avahi client, if it's running. */
     if (s->threadedPoll)
@@ -257,48 +253,47 @@ cleanup(__pmServerAvahiPresence *s) {
 static __pmServerAvahiPresence *
 publishService(const char *serviceName, const char *serviceTag, int port)
 {
-  int error;
-  __pmServerAvahiPresence *s = calloc(1, sizeof(*s));
+    int error;
+    __pmServerAvahiPresence *s = calloc(1, sizeof(*s));
 
-  if (s) {
-      /* Save the given parameters. */
-      s->serviceName = avahi_strdup(serviceName); /* may get reallocated */
-      s->serviceTag = serviceTag;
-      s->port = port;
+    if (s) {
+	/* Save the given parameters. */
+	s->serviceName = avahi_strdup(serviceName); /* may get reallocated */
+	s->serviceTag = serviceTag;
+	s->port = port;
 
-      /* Allocate main loop object. */
-      if (! (s->threadedPoll = avahi_threaded_poll_new())) {
-	  __pmNotifyErr(LOG_ERR, "Failed to create avahi threaded poll object.");
-	  goto fail;
-      }
+	/* Allocate main loop object. */
+	if (! (s->threadedPoll = avahi_threaded_poll_new())) {
+	    __pmNotifyErr(LOG_ERR, "Failed to create avahi threaded poll object.");
+	    goto fail;
+	}
 
-      /*
-       * Always allocate a new client. Passing AVAHI_CLIENT_NO_FAIL allows the client to be
-       * created, even if the avahi daemon is not running. Our service will be advertised
-       * if/when the daemon is started.
-       */
-      s->client =
-	  avahi_client_new(avahi_threaded_poll_get(s->threadedPoll),
-			   (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-			   clientCallback, s, &error);
+	/*
+	 * Always allocate a new client. Passing AVAHI_CLIENT_NO_FAIL allows
+	 * the client to be created, even if the avahi daemon is not running.
+	 * Our service will be advertised if/when the daemon is started.
+	 */
+	s->client = avahi_client_new(avahi_threaded_poll_get(s->threadedPoll),
+				     (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
+				     clientCallback, s, &error);
 
-      /* Check whether creating the client object succeeded. */
-      if (! s->client) {
-	  __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
-			avahi_strerror(error));
-	  goto fail;
-      }
+	/* Check whether creating the client object succeeded. */
+	if (! s->client) {
+	    __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
+			  avahi_strerror(error));
+	    goto fail;
+	}
 
-      /* Run the main loop. */
-      avahi_threaded_poll_start(s->threadedPoll);
-  }
+	/* Run the main loop. */
+	avahi_threaded_poll_start(s->threadedPoll);
+    }
       
-  return s;
+    return s;
 
  fail:
-  cleanup(s);
-  free(s);
-  return NULL;
+    cleanup(s);
+    free(s);
+    return NULL;
 }
 
 void
