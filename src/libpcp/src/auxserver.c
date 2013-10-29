@@ -18,6 +18,9 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#if HAVE_AVAHI
+#include "avahi.h"
+#endif
 
 /*
  * Info about a request port that clients may connect to a server on
@@ -31,6 +34,7 @@ typedef struct {
     int			fds[FAMILIES];	/* Inet and IPv6 File descriptors */
     int			port;		/* Listening port */
     const char		*address;	/* Network address string (or NULL) */
+    __pmServerPresence	*presence;	/* For advertising server presence on the network. */
 } ReqPortInfo;
 
 static unsigned         nReqPorts;		/* number of ports */
@@ -54,6 +58,7 @@ static int	*portlist;
  */
 static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
+static const char *serviceSpec;
 
 int
 __pmServerAddInterface(const char *address)
@@ -103,6 +108,15 @@ __pmServerSetLocalSocket(const char *path)
 }
 
 void
+__pmServerSetServiceSpec(const char *spec)
+{
+    if (spec != NULL && *spec != '\0')
+	serviceSpec = strdup(spec);
+    else
+	serviceSpec = SERVER_SERVICE_SPEC;
+}
+
+void
 __pmCheckAcceptedAddress(__pmSockAddr *addr)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -148,6 +162,7 @@ AddRequestPort(const char *address, int port)
     rp->fds[IPV6_FD] = -1;
     rp->address = address;
     rp->port = port;
+    rp->presence = NULL;
     nReqPorts++;
 
 #ifdef PCP_DEBUG
@@ -387,6 +402,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
+	int		portsOpened = 0;;
 
 	/*
 	 * If the spec is NULL or "INADDR_ANY", then we open one socket
@@ -399,6 +415,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					backlog, fdset, &maximum)) >= 0) {
 	        rp->fds[INET_FD] = fd;
+		++portsOpened;
 		success = 1;
 	    }
 	    if (with_ipv6) {
@@ -406,6 +423,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					    backlog, fdset, &maximum)) >= 0) {
 		    rp->fds[IPV6_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
 	    }
@@ -418,12 +436,21 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 					backlog, fdset, &maximum)) >= 0) {
 	        if (family == AF_INET) {
 		    rp->fds[INET_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
 		else if (family == AF_INET6) {
 		    rp->fds[IPV6_FD] = fd;
+		    ++portsOpened;
 		    success = 1;
 		}
+	    }
+	}
+	if (portsOpened > 0) {
+	    /* Advertise our presence on the network, if requested. */
+	    if (serviceSpec != NULL) {
+		rp->presence =  __pmServerAdvertisePresence(serviceSpec,
+							    rp->port);
 	    }
 	}
     }
@@ -467,6 +494,9 @@ __pmServerCloseRequestPorts(void)
     int i, fd;
 
     for (i = 0; i < nReqPorts; i++) {
+	/* No longer advertise our presence on the network. */
+	if (reqPorts[i].presence != NULL)
+	    __pmServerUnadvertisePresence(reqPorts[i].presence);
 	if ((fd = reqPorts[i].fds[INET_FD]) >= 0)
 	    __pmCloseSocket(fd);
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
@@ -667,6 +697,22 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     return -EOPNOTSUPP;
 }
 
+int
+__pmSecureServerHasFeature(__pmServerFeature query)
+{
+    (void)query;
+    return 0;
+}
+
+int
+__pmSecureServerSetFeature(__pmServerFeature wanted)
+{
+    (void)wanted;
+    return 0;
+}
+
+#endif /* !HAVE_SECURE_SOCKETS */
+
 static unsigned int server_features;
 
 int
@@ -677,7 +723,7 @@ __pmServerSetFeature(__pmServerFeature wanted)
 	server_features |= (1 << wanted);
 	return 1;
     }
-    return 0;
+    return __pmSecureServerSetFeature(wanted);
 }
 
 int
@@ -689,15 +735,64 @@ __pmServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_IPV6:
 	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
+    case PM_SERVER_FEATURE_DISCOVERY:
     case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_UNIX_DOMAIN:
 	if (server_features & (1 << query))
 	    sts = 1;
 	break;
     default:
+	sts = __pmSecureServerHasFeature(query);
 	break;
     }
     return sts;
 }
 
-#endif /* !HAVE_SECURE_SOCKETS */
+#if defined(HAVE_SERVICE_DISCOVERY)
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
+{
+    __pmServerPresence *s;
+
+    if ((s = malloc(sizeof(*s))) == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
+		  sizeof(*s), PM_FATAL_ERR);
+    }
+
+    /* Now advertise our presence using all available means. If a particular
+     * method is not available or not configured, then the respective call
+     * will have no effect.
+     */
+    __pmServerAvahiAdvertisePresence(s, serviceSpec, port);
+    server_features |= PM_SERVER_FEATURE_DISCOVERY;
+    return s;
+}
+
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s)
+{
+    /* Unadvertise our presence for all available means. If a particular
+     * method is not active, then the respective call will have no effect.
+     */
+    __pmServerAvahiUnadvertisePresence(s);
+    free(s);
+}
+
+#else /* !HAVE_SERVICE_DISCOVERY */
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
+{
+    (void)serviceSpec;
+    (void)port;
+    return NULL;
+}
+
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s)
+{
+    (void)s;
+}
+
+#endif /* !HAVE_SERVICE_DISCOVERY */

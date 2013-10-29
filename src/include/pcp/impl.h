@@ -80,6 +80,7 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
+#define SERVER_SERVICE_SPEC "pmcd"
 
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
@@ -273,7 +274,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_LOOP		(1<<22) /* pmLoop tracing */
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
-/* not yet allocated, bits (1<<25) ... (1<<29) */
+#define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
+/* not yet allocated, bits (1<<26) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
@@ -643,6 +645,7 @@ typedef enum {
     PM_SERVER_FEATURE_AUTH,
     PM_SERVER_FEATURE_CREDS_REQD,
     PM_SERVER_FEATURE_UNIX_DOMAIN,
+    PM_SERVER_FEATURE_DISCOVERY,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -652,6 +655,7 @@ extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);
 extern int __pmServerSetLocalCreds(int,  __pmHashCtl *);
+extern void __pmServerSetServiceSpec(const char *);
 typedef void (*__pmServerCallback)(__pmFdSet *, int, int);
 extern void __pmServerAddNewClients(__pmFdSet *, __pmServerCallback);
 extern int __pmServerAddToClientFdSet(__pmFdSet *, int);
@@ -659,6 +663,10 @@ extern int __pmServerOpenRequestPorts(__pmFdSet *, int);
 extern void __pmServerCloseRequestPorts(void);
 extern void __pmServerDumpRequestPorts(FILE *);
 extern char *__pmServerRequestPortString(int, char *, size_t);
+
+typedef struct __pmServerPresence __pmServerPresence;
+extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
+extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 
 /*
  * Per-context controls for archives and logs

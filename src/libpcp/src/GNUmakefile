@@ -41,6 +41,15 @@ else
 LSRCFILES += secureserver.c secureconnect.c
 endif
 
+ifeq "$(ENABLE_AVAHI)" "true"
+LLDLIBS += $(LIB_FOR_AVAHI)
+LCFLAGS += $(AVAHICFLAGS)
+CFILES += avahi.c
+HFILES += avahi.h
+else
+LSRCFILES += avahi.c avahi.h
+endif
+
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += accounts.c
 LSRCFILES += win32.c

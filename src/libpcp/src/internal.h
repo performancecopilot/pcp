@@ -120,6 +120,8 @@ extern int __pmConnectCheckError(int);
 extern void *__pmGetSecureSocket(int);
 extern void *__pmGetUserAuthData(int);
 extern int __pmSecureServerIPCFlags(int, int);
+extern int __pmSecureServerHasFeature(__pmServerFeature);
+extern int __pmSecureServerSetFeature(__pmServerFeature);
 
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
 #define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
@@ -145,6 +147,16 @@ extern char *__pmGroupnameFromID(__pmGroupID, char *, size_t);
 extern int __pmUsersGroupIDs(const char *, __pmGroupID **, unsigned int *);
 extern int __pmGroupsUserIDs(const char *, __pmUserID **, unsigned int *);
 extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int);
+
+/* Representations of server presence on the network.
+ * Currently only avahi is supported. As new methods
+ * are supported, add their representations here.
+ */
+typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
+
+struct __pmServerPresence {
+    __pmServerAvahiPresence	*avahi;
+};
 
 #ifdef __cplusplus
 }

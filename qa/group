@@ -238,6 +238,9 @@ pmlogcheck
 # Python
 pcp.py
 
+# Uses avahi
+avahi
+
 # test-group association ... one line per test
 # add :retired as a tag immediately after the test number to keep the
 # test number allocated, but prevent the test from being run
@@ -883,6 +886,7 @@ pcp.py
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
+840 avahi local oss
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
 876 pmda.xfs local oss

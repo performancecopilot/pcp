@@ -116,6 +116,7 @@ PIELDFLAGS = @PIELDFLAGS@
 NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
+AVAHICFLAGS = @avahi_CFLAGS@
 
 LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -190,6 +191,7 @@ RDYNAMIC_FLAG = @rdynamic_flag@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
+ENABLE_AVAHI  = @enable_avahi@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -204,6 +206,7 @@ LIB_FOR_NSS = @lib_for_nss@
 LIB_FOR_NSPR = @lib_for_nspr@
 LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
+LIB_FOR_AVAHI = @lib_for_avahi@
 
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 

@@ -13,6 +13,9 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
+%if "@enable_avahi@" == "true"
+BuildRequires: avahi-devel
+%endif
 %if "@enable_secure@" == "true"
 BuildRequires: nss-devel
 BuildRequires: cyrus-sasl-devel
