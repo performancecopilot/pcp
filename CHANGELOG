@@ -1,7 +1,15 @@
 pcp-3.8.6 (1 November 2013)
     - Added a new Linux JDB2 PMDA (ext3, ext4, ocfs journals).
+    - Added Linux kernel PMDA mem.util.directMap1G metric.
     - Rework previous fix for Debian kfreebsd port wrt probes.
     - Further work on Coverity scan issues, again nothing big.
+    - Further work on removing the hostname-as-DNS-entity, add
+      more use of pmGetContextHostName, more default-to-local:
+      tools.
+    - Initial support for DNS-SD via Avahi in pmcd for service
+      discovery.
+    - Change pcpqa to default to $PCP_VAR_DIR/testsuite as its
+      home directory.
 
 pcp-3.8.5 (18 October 2013)
     - Add jsdemos for the web API into the source tarball.
