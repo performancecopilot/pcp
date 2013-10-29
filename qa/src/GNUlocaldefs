@@ -135,7 +135,7 @@ endif
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
-	pmpost-exploit.c 779246.c 
+	779246.c 
 
 TRACEFILES = \
 	obs.c tstate.c tabort.c 
