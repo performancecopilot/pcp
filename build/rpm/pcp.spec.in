@@ -422,16 +422,16 @@ $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 %pre testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %post testsuite
-chown -R pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null
+chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 
 %pre
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
-    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /sbin/nologin pcp
+    useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 # new directories; they should match /etc/pcp.conf settings after install
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
