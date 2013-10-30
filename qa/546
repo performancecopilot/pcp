@@ -24,6 +24,7 @@ _filter()
     _filter_pmcd_log \
     | sed \
 	-e "s:$tmp:TMP:g" \
+	-e "/Avahi service name collision/d" \
 	-e "s:$userid $username:USERID USERNAME:g" \
 	-e "s:$groupid $groupname:GROUPID GROUPNAME:g" \
 	-e "s:$userid\($username\):USERID(USERNAME):g" \

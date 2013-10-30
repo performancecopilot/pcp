@@ -77,6 +77,7 @@ _filter_common()
     _filter_pmcd_log \
     | sed \
         -e "s:$tmp:TMP:g" \
+	-e "/Avahi service name collision/d" \
         -e "s:-U $username:-U USERNAME:g" \
         -e "s:$PCP_PMDAS_DIR:PCP_PMDAS_DIR:g" \
         -e "s:$nobodyuid nobody:NOBODYID nobody:g" \
