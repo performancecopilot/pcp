@@ -98,7 +98,9 @@ $PCP_PMCD_PROG -f -l $tmp.log $pmcd_opt &
 echo \$!
 END
 
-    pmcd_pid=`$sudo $sudoopts sh $tmp.sh`
+    # Filter the stderr of this using a temp file
+    pmcd_pid=`$sudo $sudoopts sh $tmp.sh 2>$tmp.tmp`
+    cat $tmp.tmp | sed -e '/Avahi service name collision/d' 1>&2
     sleep 1
 
     for client_o in 1 2
