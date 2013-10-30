@@ -21,7 +21,7 @@
 
 struct __pmServerAvahiPresence {
     char		*serviceName;
-    const char		*serviceTag;
+    char		*serviceTag;
     int			port;
     AvahiThreadedPoll	*threadedPoll;
     AvahiClient		*client;
@@ -154,8 +154,8 @@ cleanupClient(__pmServerAvahiPresence *s)
     /* This also frees the entry group, if any. */
     if (s->client) {
 	avahi_client_free(s->client);
-	s->client = 0;
-	s->group = 0;
+	s->client = NULL;
+	s->group = NULL;
     }
 }
  
@@ -244,11 +244,15 @@ cleanup(__pmServerAvahiPresence *s)
     cleanupClient(s);
     if (s->threadedPoll) {
 	avahi_threaded_poll_free(s->threadedPoll);
-	s->threadedPoll = 0;
+	s->threadedPoll = NULL;
     }
     if (s->serviceName) {
 	avahi_free(s->serviceName);
-	s->serviceName = 0;
+	s->serviceName = NULL;
+    }
+    if (s->serviceTag) {
+	avahi_free(s->serviceTag);
+	s->serviceTag = NULL;
     }
 }
 
@@ -261,8 +265,8 @@ publishService(const char *serviceName, const char *serviceTag, int port)
 
     if (s) {
 	/* Save the given parameters. */
-	s->serviceName = avahi_strdup(serviceName); /* may get reallocated */
-	s->serviceTag = serviceTag;
+	s->serviceName = avahi_strdup(serviceName);
+	s->serviceTag = avahi_strdup(serviceTag);
 	s->port = port;
 
 	/* Allocate main loop object. */
