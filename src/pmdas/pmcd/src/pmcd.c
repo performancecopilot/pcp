@@ -1007,13 +1007,14 @@ static char *
 hostnameinfo(void)
 {
     static char	host[MAXHOSTNAMELEN];
-    char	*name, *hename = NULL;
-    __pmHostEnt	*hep;
+    char	*name;
 
     (void)gethostname(host, MAXHOSTNAMELEN);
     name = host;
 
 #if 0
+    char	*hename = NULL;
+    __pmHostEnt	*hep;
     /* NB: FQDN cleanup: Formerly, in order to match qa testcases' use
        of pmhostname, a bunch of DNS lookups was done here to try to
        get an 'official' name for the host.  It turns out that the
