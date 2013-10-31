@@ -88,13 +88,18 @@ createServices(AvahiClient *c, __pmServerAvahiPresence *s)
  collision:
     /*
      * A service name collision with a local service happened.
-     * pick a new name.
+     * pick a new name.  Since a service may be listening on
+     * multiple ports, this is expected to happen sometimes -
+     * do not issue warnings here.
      */
     n = avahi_alternative_service_name(s->serviceName);
     avahi_free(s->serviceName);
     s->serviceName = n;
-    __pmNotifyErr(LOG_WARNING, "Avahi service name collision, renaming service to '%s'",
-		  s->serviceName);
+    if (pmDebug & DBG_TRACE_DISCOVERY) {
+	__pmNotifyErr(LOG_INFO,
+		      "Avahi service name collision, renaming service to '%s'",
+		      s->serviceName);
+    }
     avahi_entry_group_reset(s->group);
     createServices(c, s);
     return;

@@ -22,7 +22,6 @@ _filter()
 {
     _filter_pmcd_log \
     | sed \
-	-e "/Avahi service name collision/d" \
 	-e "s:$tmp:TMP:g"
 }
 
