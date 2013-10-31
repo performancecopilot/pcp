@@ -39,6 +39,15 @@ typedef struct {
     char	ls_tzlogger[40]; /* $TZ at pmlogger */
 } __pmLoggerStatus_v1;
 
+static int
+IsLocal(const char *hostspec)
+{
+    if (strcmp(hostspec, "localhost") == 0 ||
+	strcmp(hostspec, "local:") == 0 ||
+	strcmp(hostspec, "unix:") == 0)
+	return 1;
+    return 0;
+}
 int
 ConnectPMCD(void)
 {
@@ -77,10 +86,10 @@ ConnectPMCD(void)
 		fprintf(stderr, "%s\n", pmErrStr(sts));
 	    goto done;
 	} 
-	if (strcmp(lsp->ls_fqdn, "localhost") == 0) {
+	if (IsLocal(lsp->ls_fqdn)) {
 	    /*
-	     * if pmcd host is "localhost" then use hostname that was
-	     * used to contact pmlogger, as from here (where pmlc is
+	     * if pmcd host is "localhost"-alike then use hostname that
+	     * was used to contact pmlogger, as from here (where pmlc is
 	     * running) "localhost" is likely to connect us to the wrong
 	     * pmcd or no pmcd at all
 	     */
@@ -640,7 +649,8 @@ void Status(int pid, int primary)
     /* NB: FQDN cleanup: note that this is not 'the fqdn' of the
        pmlogger host or that of its target.  */
     if (__pmVersionIPC(logger_fd) >= LOG_PDU_VERSION2)
-	printf("PMCD host        %s\n", lsp->ls_fqdn);
+	printf("PMCD host        %s\n",
+		IsLocal(lsp->ls_fqdn) ? hostname : lsp->ls_fqdn);
     if (state == PM_LOG_STATE_NEW) {
 	puts("logging hasn't started yet");
 	goto done;
