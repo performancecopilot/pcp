@@ -3,7 +3,7 @@ pcp (3.8.6) unstable; urgency=low
   * New release (full details in CHANGELOG).
   * Really resolve FTBFS for kfreebsd probes.h (closes: #725627)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 01 Nov 2013 08:27:57 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 01 Nov 2013 10:27:24 +1100
 
 pcp (3.8.5) unstable; urgency=low
 
