@@ -711,14 +711,32 @@ __pmSecureServerSetFeature(__pmServerFeature wanted)
     return 0;
 }
 
+int
+__pmSecureServerClearFeature(__pmServerFeature clear)
+{
+    (void)clear;
+    return 0;
+}
+
 #endif /* !HAVE_SECURE_SOCKETS */
 
 static unsigned int server_features;
 
 int
+__pmServerClearFeature(__pmServerFeature clear)
+{
+    if (clear == PM_SERVER_FEATURE_DISCOVERY) {
+	server_features &= ~(1<<clear);
+	return 1;
+    }
+    return __pmSecureServerClearFeature(clear);
+}
+
+int
 __pmServerSetFeature(__pmServerFeature wanted)
 {
-    if (wanted == PM_SERVER_FEATURE_CREDS_REQD ||
+    if (wanted == PM_SERVER_FEATURE_DISCOVERY ||
+        wanted == PM_SERVER_FEATURE_CREDS_REQD ||
 	wanted == PM_SERVER_FEATURE_UNIX_DOMAIN) {
 	server_features |= (1 << wanted);
 	return 1;
@@ -765,7 +783,6 @@ __pmServerAdvertisePresence(const char *serviceSpec, int port)
      * will have no effect.
      */
     __pmServerAvahiAdvertisePresence(s, serviceSpec, port);
-    server_features |= PM_SERVER_FEATURE_DISCOVERY;
     return s;
 }
 

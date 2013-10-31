@@ -651,6 +651,7 @@ typedef enum {
 
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerSetFeature(__pmServerFeature);
+extern int __pmServerClearFeature(__pmServerFeature);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);

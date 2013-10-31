@@ -47,6 +47,13 @@ __pmSecureServerSetFeature(__pmServerFeature wanted)
 }
 
 int
+__pmSecureServerClearFeature(__pmServerFeature clear)
+{
+    (void)clear;
+    return 0;	/* nothing dynamically disabled at this stage */
+}
+
+int
 __pmSecureServerHasFeature(__pmServerFeature query)
 {
     int sts = 0;

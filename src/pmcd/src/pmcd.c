@@ -123,8 +123,12 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
 	switch (c) {
+
+	    case 'A':	/* disable pmcd service advertising */
+		__pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+		break;
 
 	    case 'c':	/* configuration file */
 		strncpy(configFileName, optarg, sizeof(configFileName)-1);
@@ -259,6 +263,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
+"  -A              disable service advertisement\n" 
 "  -c config       path to configuration file\n"
 "  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
@@ -881,6 +886,7 @@ main(int argc, char *argv[])
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
+    __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
