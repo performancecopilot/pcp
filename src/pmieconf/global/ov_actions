@@ -4,7 +4,7 @@
 
 shell	global.ov_action
 	enabled	= no
-	default	= "OID=.1.3.6.1.4.1.11.2.17; export OID; $ov_bin$/ovevent -c '$ov_category$' -s '$ov_severity$' '$ov_node$' ^\\\\${OID}.1.0.58916872 \\\\${OID}.2.1.0 Integer 0 \\\\${OID}.2.2.0 OctetString `/usr/bsd/hostname` \\\\${OID}.2.4.0 OctetString '$rule$^ $action_expand$^'"
+	default	= "OID=.1.3.6.1.4.1.11.2.17; export OID; $ov_bin$/ovevent -c '$ov_category$' -s '$ov_severity$' '$ov_node$' ^\\\\${OID}.1.0.58916872 \\\\${OID}.2.1.0 Integer 0 \\\\${OID}.2.2.0 OctetString '%h' \\\\${OID}.2.4.0 OctetString '$rule$^ $action_expand$^'"
 	# 4 backquotes gives a shell variable - '$' is a special character
 	# to pmieconf, pmie, and the shell - so need to backquote it up the
 	# whazoo to get this to come out right!
@@ -16,7 +16,7 @@ This action requires the ovevent(1) program which is part of the HP
 OpenView package (refer to the ov_bin variable description also).";
 
 string	global.ov_bin
-	default	= "/usr/OV/bin"
+	default	= "/opt/OV/bin"
 	help	=
 "The full path to the HP OpenView ovevent(1) program, which is used to
 propagate external events into the OpenView framework.";
