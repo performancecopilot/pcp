@@ -133,8 +133,9 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 	    n = avahi_alternative_service_name(s->serviceName);
 	    avahi_free(s->serviceName);
 	    s->serviceName = n;
-	    __pmNotifyErr(LOG_WARNING, "Avahi service name collision, renaming service to '%s'",
-			  s->serviceName);
+	    if (pmDebug & DBG_TRACE_DISCOVERY)
+		__pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service to '%s'",
+			      s->serviceName);
 
 	    /* ... and recreate the services. */
 	    createServices(avahi_entry_group_get_client(g), s);
@@ -222,10 +223,11 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userData)
 	case AVAHI_CLIENT_CONNECTING:
 	    /*
 	     * The avahi-daemon is not currently running. Our service will be
-	     * advertised if/when the deamon is started.
+	     * advertised if/when the daemon is started.
 	     */
-	    __pmNotifyErr(LOG_WARNING,
-			  "The Avahi daemon is not running. Avahi service '%s' will be established when the deamon is started",
+	    if (pmDebug & DBG_TRACE_DISCOVERY)
+		__pmNotifyErr(LOG_INFO,
+			  "The Avahi daemon is not running. Avahi service '%s' will be established when the daemon is started",
 			  s->serviceName);
 	    break;
     }
