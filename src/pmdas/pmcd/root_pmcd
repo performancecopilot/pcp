@@ -146,6 +146,7 @@ pmcd.feature {
     authentication	PMCD:8:3
     creds_required	PMCD:8:4
     unix_domain_sockets	PMCD:8:5
+    service_discovery	PMCD:8:6
 }
 
 #undef PMCD
