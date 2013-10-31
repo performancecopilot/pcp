@@ -605,6 +605,7 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 * Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 3.8.6-1
 - Update to latest PCP sources.
 - Rework pmpost test which confused virus checkers (BZ 1024850)
+- Tackle pmatop reporting issues via alternate metrics (BZ 998735)
 
 * Fri Oct 18 2013 Nathan Scott <nathans@redhat.com> - 3.8.5-1
 - Update to latest PCP sources.
