@@ -25,7 +25,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 host=$PCPQA_HYPHEN_HOST
-realhost=`pmhostname $PCPQA_HYPHEN_HOST`
+eval realhost=`pmprobe -v -h $PCPQA_HYPHEN_HOST pmcd.hostname | \
+	$PCP_AWK_PROG '{ print $3 }'`
+[ $realhost = Unknown ] && realhost=`pmhostname $PCPQA_HYPHEN_HOST`
 
 _filter_pmlc()
 {
