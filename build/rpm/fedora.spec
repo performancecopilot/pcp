@@ -1,6 +1,6 @@
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.10
+Version: 1.5.11
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -105,6 +105,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
+* Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 1.5.11-1
+- Updates to the PCP Programmers Guide.
+- Fix pmchart value/units reporting issue on chart selection.
+
 * Mon Sep 09 2013 Nathan Scott <nathans@redhat.com> - 1.5.10-1
 - Updates to the PCP Users and Administrators Guide.
 - Updates to the PCP Programmers Guide.
