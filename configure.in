@@ -258,7 +258,7 @@ AS_IF([test "x$do_discovery" != "xno"], [
         [AC_CHECK_LIB(avahi-client, avahi_client_new,
     		      [lib_for_avahi="-lavahi-common -lavahi-client"],
                       [enable_avahi=false])
-        ])
+        ],[enable_avahi=false])
     AC_CHECK_HEADERS([avahi-client/publish.h],, [enable_avahi=false])
     AC_CHECK_HEADERS([avahi-common/alternative.h],, [enable_avahi=false])
 
