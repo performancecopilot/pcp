@@ -1,3 +1,6 @@
+pcp-3.8.7 (3 November 2013)
+    - Resolve Debian build issues related to pkg-config/Avahi.
+
 pcp-3.8.6 (1 November 2013)
     - Added a new Linux JDB2 PMDA (ext3, ext4, ocfs journals).
     - Added Linux kernel PMDA mem.util.directMap1G metric.

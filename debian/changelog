@@ -1,3 +1,10 @@
+pcp (3.8.7) unstable; urgency=low
+
+  * New release to resolve build issues only.
+  * Add pkg-config to the Build-depends list (closes: #728453)
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 03 Nov 2013 07:25:23 +1100
+
 pcp (3.8.6) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
