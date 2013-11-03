@@ -233,7 +233,13 @@ then
         AC_MSG_ERROR(cannot enable static probes - no toolchain)
     fi
 
-    AC_CHECK_HEADERS([sys/sdt.h],, [
+    AC_CHECK_HEADERS([sys/sdt.h], [
+        enable_probes=true
+        if test $target_os = kfreebsd
+        then
+            enable_probes=false
+        fi
+    ], [
         enable_probes=false
         if test "$do_probes" = "yes"
         then

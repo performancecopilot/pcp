@@ -4049,6 +4049,12 @@ if test "x$ac_cv_header_sys_sdt_h" = xyes; then :
 #define HAVE_SYS_SDT_H 1
 _ACEOF
 
+        enable_probes=true
+        if test $target_os = kfreebsd
+        then
+            enable_probes=false
+        fi
+
 else
 
         enable_probes=false
