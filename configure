@@ -9782,7 +9782,7 @@ cat <<End-of-File >conftest.c
 #include <dirent.h>
 static int
 my_select(const struct dirent *foo) { return 0; }
-int main() { return scandir(NULL, NULL, my_select, NULL); }
+int main() { struct dirent **list; return scandir(".", &list, my_select, NULL); }
 End-of-File
 (eval $ac_compile) 2>conftest.out
 cat conftest.out >&5
