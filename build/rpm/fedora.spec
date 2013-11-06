@@ -604,6 +604,9 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %defattr(-,root,root)
 
 %changelog
+* Wed Nov 06 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
+- Currently under development.
+
 * Sun Nov 03 2013 Nathan Scott <nathans@redhat.com> - 3.8.8-1
 - Update to latest PCP sources (simple build fixes only).
 
