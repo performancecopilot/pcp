@@ -53,30 +53,32 @@ _filter_log()
 {
     fixed_width_ip="                        "
     sed <$log \
-	-e 's/^$//' \
+	-e 's/$/ /' \
 	-e '/^irix/s/\/var\//\/usr\//' \
 	-e '/^00[08]:/d' \
 	-e 's/ \[0x[0-9a-f]*]//' \
 	-e 's/ \[(nil)]//' \
 	-e "s,$PCP_RUN_DIR,PCP_RUN_DIR,g" \
-	-e "/$LOCALHOST\$/s/$LOCALHOSTe/ME/" \
-	-e "s/ 127\.0\.0\.1:/ MY_IP:/" \
-	-e "s/$me_ip/MY_IP:/" \
-	-e "s/$other1_ip/OTHER1_IP/" \
-	-e "s/$other2_ip/OTHER2_IP/" \
-	-e "s/\(OTHER._IP\) *\( 255.255.255.255\)/\1 ${fixed_width_ip} \2/" \
+	-e "/$LOCALHOST\$/s/$LOCALHOST\$/ME/" \
+	-e "s/ 127\.0\.0\.1 / MY_IP /" \
+	-e "s/ ::1 / MY_IP /" \
+	-e "s/ $me_ip / MY_IP /" \
+	-e "s/ $other1_ip / OTHER1_IP /" \
+	-e "s/ $other2_ip / OTHER2_IP /" \
+	-e "s/ \(OTHER._IP\) *\( 255.255.255.255\) / \1 ${fixed_width_ip} \2 /" \
 	-e '/access violation .* [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9]/{
 N
 d
 }' \
-	-e "s/$me_xip/MY_HEXIP/" \
-	-e "s/$other1/OTHER_1/" \
-	-e "s/$other1_xip/OTHER1_HEXIP/" \
-	-e "s/$other2/OTHER_2/" \
-	-e "s/$other2_xip/OTHER2_HEXIP/" \
+	-e "s/ $me_xip / MY_HEXIP /" \
+	-e "s/ $other1 / OTHER_1 /" \
+	-e "s/ $other1_xip / OTHER1_HEXIP /" \
+	-e "s/ $other2 / OTHER_2 /" \
+	-e "s/ $other2_xip / OTHER2_HEXIP /" \
 	-e 's/fd [0-9-][0-9]*/fd <n>/g' \
 	-e '/client\[[0-9][0-9]*\]/s//client[N]/' \
 	-e '/lib=.*\.'"$DSO_SUFFIX"'/s/[0-9] dso/N dso/' \
+	-e 's/ $//' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }
