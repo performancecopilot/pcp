@@ -400,10 +400,12 @@ __pmInitCertificates(void)
 	PK11_FreeSlot(slot);
     }
 
-    secsts = NSS_SetExportPolicy();
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
-
+    /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
+    do {
+        const PRUint16 *cipher;
+        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
+            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
+    } while (0);
     SSL_ClearSessionCache();
 
     return 0;
