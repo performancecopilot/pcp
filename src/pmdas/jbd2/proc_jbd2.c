@@ -108,9 +108,13 @@ refresh_journal(const char *path, const char *dev, pmInDom indom)
 	    break;
 	}
     }
+    fclose(fp);
 
-    if (state != AVERAGE_STATS)
+    if (state != AVERAGE_STATS) {
+	if (indom_changed)
+	    free(jp);
 	return 0;
+    }
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, dev, jp);
     return indom_changed;
