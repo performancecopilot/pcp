@@ -322,6 +322,7 @@ static void
 startmonitor(void)
 {
     void		*ptr;
+    char		*path;
     int			fd;
     char		zero = '\0';
     char		pmie_dir[MAXPATHLEN];
@@ -364,8 +365,11 @@ startmonitor(void)
     close(fd);
 
     perf = (pmiestats_t *)ptr;
-    strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
-    strcpy(perf->defaultfqdn, dfltHostName);
+    path = (logfile[0] == '\0') ? "<none>" : logfile;
+    strncpy(perf->logfile, path, sizeof(perf->logfile));
+    perf->logfile[sizeof(perf->logfile)-1] = '\0';
+    strncpy(perf->defaultfqdn, dfltHostName, sizeof(perf->defaultfqdn));
+    perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
     perf->version = 1;
 }
 
