@@ -97,7 +97,6 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmchart
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)
