@@ -441,6 +441,8 @@ chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
+touch "$PCP_PMNS_DIR/.NeedRebuild"
+chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 # we only need this manual Rebuild as long as pmcd is condstart below
 [ -f "$PCP_PMNS_DIR/root" ] || ( cd "$PCP_PMNS_DIR" && ./Rebuild -sud )
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
