@@ -82,6 +82,7 @@ linux_filter()
 	-e "/mem\.util\.unevictable: $unavailable/d" \
 	-e "/network\.interface\.ipv6_addr: $unavailable/d" \
 	-e "/network\.interface\.ipv6_scope: $unavailable/d" \
+	-e "/network\.interface\.hw_addr: $unavailable/d" \
 	-e "/mem\.vmstat\..*: $unavailable/d" \
 	-e "/swapdev\.free: $unavailable/d" \
 	-e "/swapdev\.length: $unavailable/d" \

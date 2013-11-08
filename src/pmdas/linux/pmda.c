@@ -1343,6 +1343,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NET_ADDR,2), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.interface.hw_addr */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_NET_ADDR,3), PM_TYPE_STRING, NET_ADDR_INDOM, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /*
  * filesys cluster
  */
@@ -3975,19 +3980,24 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	switch (idp->item) {
 	case 0: /* network.interface.inet_addr */
-	    if (addrp->hasinet == 0)
+	    if (addrp->has_inet == 0)
 		return 0;
 	    atom->cp = addrp->inet;
 	    break;
 	case 1: /* network.interface.ipv6_addr */
-	    if (addrp->hasipv6 == 0)
+	    if (addrp->has_ipv6 == 0)
 		return 0;
 	    atom->cp = addrp->ipv6;
 	    break;
 	case 2: /* network.interface.ipv6_scope */
-	    if (addrp->hasipv6 == 0)
+	    if (addrp->has_ipv6 == 0)
 		return 0;
 	    atom->cp = lookup_ipv6_scope(addrp->ipv6scope);
+	    break;
+	case 3: /* network.interface.hw_addr */
+	    if (addrp->has_hw == 0)
+		return 0;
+	    atom->cp = addrp->hw_addr;
 	    break;
 	default:
 	    return PM_ERR_PMID;
