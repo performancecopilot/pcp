@@ -473,6 +473,10 @@ chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 %dir %{_localstatedir}/lib/pcp/config
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 %dir %attr(1777,root,root) %{_tempsdir}
+%dir %attr(1777,root,root) %{_tempsdir}/mmv
+%dir %attr(1777,root,root) %{_tempsdir}/pmie
+%dir %attr(1777,root,root) %{_tempsdir}/pmlogger
+%dir %attr(1777,root,root) %{_tempsdir}/pmdabash
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib
