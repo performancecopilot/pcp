@@ -132,13 +132,20 @@ $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo rm -f $cache	# local host indom cache
 $sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd
 
+jbd2filter()
+{
+    sed \
+	-e 's/64-bit unsigned int/NN-bit unsigned int/g' \
+	# the end
+}
+
 jbd2fetch()
 {
     if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
     then
 	for name in `cat $tmp.names`
 	do
-	    pminfo -fdmtT $name | LC_COLLATE=POSIX sort -n
+	    pminfo -fdmtT $name | jbd2filter | LC_COLLATE=POSIX sort -n
 	done
     else
 	echo "... failed!"
