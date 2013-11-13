@@ -24,12 +24,17 @@ typedef struct {
     uint8_t	pad;
 } net_dev_t;
 
+#define HWADDRSTRLEN 64
+
 typedef struct {
-    uint8_t	hasinet;
-    uint8_t	hasipv6;
+    int		has_inet : 1;
+    int		has_ipv6 : 1;
+    int		has_hw   : 1;
+    int		padding : 13;
     uint16_t	ipv6scope;
     char	inet[INET_ADDRSTRLEN];
     char	ipv6[INET6_ADDRSTRLEN+16];	/* extra for /plen */
+    char	hw_addr[HWADDRSTRLEN];
 } net_addr_t;
 
 #define PROC_DEV_COUNTERS_PER_LINE   16

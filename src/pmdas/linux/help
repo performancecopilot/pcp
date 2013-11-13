@@ -680,6 +680,7 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
+@ network.interface.hw_addr hardware address (from sysfs)
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
 @ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
 @ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)

@@ -422,6 +422,7 @@ network.interface {
     inet_addr		60:33:0
     ipv6_addr		60:33:1
     ipv6_scope		60:33:2
+    hw_addr		60:33:3
 }
 
 network.interface.in {
