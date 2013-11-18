@@ -300,10 +300,12 @@ refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
     if (sts < 0)
 	return sts;
 
-//    if (pmDebug & DBG_TRACE_LIBPMDA)
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr,
 		"refresh_proc_pid: %d pids (threads=%d, cgroups=\"%s\")\n",
 		sts, threads, cgroups ? cgroups : "");
+#endif
 
     refresh_proc_pidlist(proc_pid);
     return 0;
@@ -364,28 +366,59 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
     proc_pid_entry_t *ep;
     char buf[1024];
 
-    if (node == NULL)
+    if (node == NULL) {
+#if PCP_DEBUG
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ibuf[1024];
+	    fprintf(stderr, "fetch_proc_pid_stat: __pmHashSearch(%d, hash[%s]) -> NULL\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
+	}
+#endif
     	return NULL;
+    }
     ep = (proc_pid_entry_t *)node->data;
 
     if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
-	if ((fd = proc_open("stat", ep)) < 0)
+	if ((fd = proc_open("stat", ep)) < 0) {
 	    sts = -oserror();
-	else
-	if ((n = read(fd, buf, sizeof(buf))) < 0)
-	    sts = -oserror();
+#if PCP_DEBUG
+	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		char ibuf[1024];
+		char ebuf[1024];
+		fprintf(stderr, "fetch_proc_pid_stat: proc_open(\"stat\", ...) failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(sts, ebuf, sizeof(ebuf)));
+	    }
+#endif
+	}
 	else {
-	    if (n == 0)
-		/* eh? */
-	    	sts = -1;
-	    else {
-		if (ep->stat_buflen <= n) {
-		    ep->stat_buflen = n;
-		    ep->stat_buf = (char *)realloc(ep->stat_buf, n);
+	    if ((n = read(fd, buf, sizeof(buf))) < 0) {
+		sts = -oserror();
+#if PCP_DEBUG
+		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    char ibuf[1024];
+		    char ebuf[1024];
+		    fprintf(stderr, "fetch_proc_pid_stat: read \"stat\" failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(sts, ebuf, sizeof(ebuf)));
 		}
-		memcpy(ep->stat_buf, buf, n);
-		ep->stat_buf[n-1] = '\0';
-		sts = 0;
+#endif
+	    }
+	    else {
+		if (n == 0) {
+		    /* eh? */
+		    sts = -1;
+#if PCP_DEBUG
+		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+			char ibuf[1024];
+			fprintf(stderr, "fetch_proc_pid_stat: read \"stat\" EOF?: id=%d, indom=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)));
+		    }
+#endif
+		}
+		else {
+		    if (ep->stat_buflen <= n) {
+			ep->stat_buflen = n;
+			ep->stat_buf = (char *)realloc(ep->stat_buf, n);
+		    }
+		    memcpy(ep->stat_buf, buf, n);
+		    ep->stat_buf[n-1] = '\0';
+		    sts = 0;
+		}
 	    }
 	}
 	if (fd >= 0)
@@ -394,24 +427,35 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid)
     }
 
     if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
-	if ((fd = proc_open("wchan", ep)) < 0)
-	    sts = 0;	/* ignore failure here, backwards compat */
-	else
-	if ((n = read(fd, buf, sizeof(buf)-1)) < 0)
-	    sts = -oserror();
+	if ((fd = proc_open("wchan", ep)) < 0) {
+	    /* ignore failure here, backwards compat */
+	    ;
+	}
 	else {
-	    if (n == 0)
-		/* eh? */
-	    	sts = -1;
-	    else {
-		n++;	/* no terminating null (from kernel) */
-		if (ep->wchan_buflen <= n) {
-		    ep->wchan_buflen = n;
-		    ep->wchan_buf = (char *)realloc(ep->wchan_buf, n);
+	    if ((n = read(fd, buf, sizeof(buf)-1)) < 0) {
+		sts = -oserror();
+#if PCP_DEBUG
+		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    char ibuf[1024];
+		    char ebuf[1024];
+		    fprintf(stderr, "fetch_proc_pid_stat: read \"wchan\" failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(sts, ebuf, sizeof(ebuf)));
 		}
-		memcpy(ep->wchan_buf, buf, n);
-		ep->wchan_buf[n-1] = '\0';
-		sts = 0;
+#endif
+	    }
+	    else {
+		if (n == 0) {
+		    /* wchan is empty, nothing to add here */
+		    ;
+		}
+		else {
+		    n++;	/* no terminating null (from kernel) */
+		    if (ep->wchan_buflen <= n) {
+			ep->wchan_buflen = n;
+			ep->wchan_buf = (char *)realloc(ep->wchan_buf, n);
+		    }
+		    memcpy(ep->wchan_buf, buf, n-1);
+		    ep->wchan_buf[n-1] = '\0';
+		}
 	    }
 	}
 	if (fd >= 0)
@@ -741,8 +785,10 @@ fetch_proc_pid_fd(int id, proc_pid_t *proc_pid)
 	DIR	*dir = proc_opendir("fd", ep);
 
 	if (dir == NULL) {
+#if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		fprintf(stderr, "failed to open fd path for pid %d\n", ep->id);
+#endif
 	    return NULL;
 	}
 	while (readdir(dir) != NULL) {

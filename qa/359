@@ -32,6 +32,8 @@ _filter()
 	-e '/^proc.schedstat.*: Unknown or .*/d' \
 	-e '/^proc.schedstat.*: No permission/d' \
 	-e '/^proc.psinfo.*: No permission/d' \
+	-e '/^proc.psinfo.cgroups: Unknown or illegal instance identifier/d' \
+	-e '/^proc.psinfo.labels: Unknown or illegal instance identifier/d' \
 	-e '/^proc.memory.*: No permission/d' \
 	-e '/^proc.id.*: No permission/d' \
 	-e '/^proc.fd.*: No permission/d' \
