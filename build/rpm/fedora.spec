@@ -105,6 +105,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
+* Sat Nov 02 2013 Nathan Scott <nathans@redhat.com> - 1.5.12-1
+- Under development.
+
 * Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 1.5.11-1
 - Updates to the PCP Programmers Guide.
 - Fix pmchart value/units reporting issue on chart selection.

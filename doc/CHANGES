@@ -1,3 +1,6 @@
+pcp-gui 1.5.12 (git)
+    - Currently under development.
+
 pcp-gui 1.5.11 (1 November 2013)
     - Updates to the PCP Programmers Guide (now complete).
     - Fix bug where chart selection showed incorrect units for
