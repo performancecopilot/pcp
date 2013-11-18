@@ -373,13 +373,15 @@ echo "     pmcd: ${version},${numagents}$numclients"
 if [ "$numloggers" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N " pmlogger: ""$PCP_ECHO_C"
-    _fmt < $tmp/loggers
+    LC_COLLATE=POSIX sort < $tmp/loggers \
+    | sed -e '/^$/d' | sed -e '1!s/^/           /'
 fi
 
 if [ "$numpmies" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "     pmie: ""$PCP_ECHO_C"
-    _fmt < $tmp/pmies
+    LC_COLLATE=POSIX sort < $tmp/pmies  \
+    | sed -e '/^$/d' | sed -e '1!s/^/           /'
 fi
 
 sts=0
