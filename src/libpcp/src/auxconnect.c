@@ -494,13 +494,8 @@ __pmHostEntGetName(__pmHostEnt *he)
 	    if (he->name != NULL)
 		break;
 	}
-	if (he->name == NULL) {
-	    /* need strdup() or __pmHostEntFree() causes SEGV when trying
-	     * to free(he->name)
-	     * remove embedded space to prevent death by awk in pmlogger_check
-             */
-	    he->name = strdup("UnknownHost");
-	}
+	if (he->name == NULL)
+	    return NULL;
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)

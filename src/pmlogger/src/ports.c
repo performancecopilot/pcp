@@ -258,19 +258,8 @@ GetPort(char *file)
     /* first the port number */
     fprintf(mapstream, "%d\n", ctlport);
 
-    /* then the PMCD host */
-    if ((host = __pmGetAddrInfo(pmcd_host)) != NULL) {
-        hostname = __pmHostEntGetName(host);
-	if (hostname != NULL) {
-	    fprintf(mapstream, "%s\n", hostname);
-	    free(hostname);
-	} else {
-	    fprintf(mapstream, "%s\n", pmcd_host);
-        }
-	__pmHostEntFree(host);
-    } else {
-	fprintf(mapstream, "%s\n", pmcd_host);
-    }
+    /* then the PMCD host (but don't bother try DNS-canonicalize) */
+    fprintf(mapstream, "%s\n", pmcd_host);
 
     /* then the full pathname to the archive base */
     __pmNativePath(archBase);
