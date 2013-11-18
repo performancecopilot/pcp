@@ -486,12 +486,21 @@ __pmHostEntGetName(__pmHostEnt *he)
 	     addr != NULL;
 	     addr = __pmHostEntGetSockAddr(he, &enumIx)) {
 	    he->name = __pmGetNameInfo(addr);
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DESPERATE)
+		fprintf(stderr, "__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __pmSockAddrToString(addr), he->name);
+#endif
 	    __pmSockAddrFree(addr);
 	    if (he->name != NULL)
 		break;
 	}
-	if (he->name == NULL)
-	    he->name = "Unknown Host";
+	if (he->name == NULL) {
+	    /* need strdup() or __pmHostEntFree() causes SEGV when trying
+	     * to free(he->name)
+	     * remove embedded space to prevent death by awk in pmlogger_check
+             */
+	    he->name = strdup("UnknownHost");
+	}
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)
@@ -506,6 +515,10 @@ __pmHostEntGetName(__pmHostEnt *he)
 void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE)
+        fprintf(stderr, "auxconnect.c:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", hostent, hostent->name, hostent->name, hostent-> addresses);
+#endif
     if (hostent->name != NULL)
         free(hostent->name);
     if (hostent->addresses != NULL)
@@ -941,7 +954,16 @@ __pmGetNameInfo(__pmSockAddr *address)
 	__pmNotifyErr(LOG_ERR,
 		"__pmGetNameInfo: Invalid address family: %d\n", address->sockaddr.raw.sa_family);
         sts = EAI_FAMILY;
+    } 
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+        if (sts != 0) {
+            fprintf(stderr, "auxconnect.c:__pmGetNameInfo: family=%d getnameinfo()-> %d %s\n", address->sockaddr.raw.sa_family, sts, gai_strerror(sts));
+        }
     }
+#endif
+
 
     return sts == 0 ? strdup(buf) : NULL;
 }
