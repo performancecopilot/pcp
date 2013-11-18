@@ -69,8 +69,8 @@ pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
 
 cat <<End-of-File >$tmp.conf
-# double quotes (for some strange lexer reason!)
-first	1	pipe	binary		mypmda "foo""bar"
+# unterminated quote
+first	1	pipe	binary		mypmda "foo""
 End-of-File
 pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
@@ -154,12 +154,17 @@ cat <<End-of-File >$tmp.conf
 sample	29	pipe	binary		$PCP_PMDAS_DIR/sample/pmdasample -d 29
 [access]
 allow localhost ;
+allow "unix:" ;
 allow localhost : ;
+allow "local:" : ;
 allow localhost : fetch, ;
 disallow localhist, 127.0.0.* : all except all;
+disallow "unix:" , "local:" : all except all;
 disallow 127.0.* : all, store;
 allow localhost : fetch, maximum 7 connections, store, maximum 3 connections;
+allow "local:" : fetch, maximum 7 connections, store, maximum 3 connections;
 allow localhost : fetch, maximum foo connections;
+allow "local:" : fetch, maximum foo connections;
 End-of-File
 pmcd -f -p 9876 -x $seq.full -l $tmp.log
 _filter <$tmp.log
