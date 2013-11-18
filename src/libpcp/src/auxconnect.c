@@ -491,7 +491,7 @@ __pmHostEntGetName(__pmHostEnt *he)
 		break;
 	}
 	if (he->name == NULL)
-	    he->name = "Unknown Host";
+	    return NULL;
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)
