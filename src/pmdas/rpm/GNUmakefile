@@ -15,23 +15,32 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= rpm
-PYSCRIPT = pmda$(IAM).python
-LSRCFILES = Install Remove $(PYSCRIPT)
+CFILES	= rpm.c
+CMDTARGET = pmdarpm$(EXECSUFFIX)
+LIBTARGET = pmda_rpm.so
+LLDLIBS = $(PCP_PMDALIB) -lrpm -lgc -lpthread
 
-DOMAIN	= GLUSTER
+LCFLAGS = -I.
+LSRCFILES = Install Remove pmns root help
+
+IAM	= rpm
+DOMAIN	= RPM
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h $(IAM).log
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so help.dir help.pag
 
-default_pcp default:	check_domain
+default_pcp default: domain.h $(CMDTARGET) $(LIBTARGET) help.dir help.pag
 
 include $(BUILDRULES)
 
+help.dir help.pag : help
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root -v 2 -o help < help
+
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+	$(INSTALL) -m 644 root pmns domain.h help help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
 
-check_domain:	../../pmns/stdpmid
-	$(DOMAIN_PYTHONRULE)
+domain.h: ../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
+ 
