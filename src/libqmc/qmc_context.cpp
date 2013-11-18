@@ -54,6 +54,9 @@ QmcContext::lookupName(pmID pmid, QString **name)
     char *value;
     int sts = 0;
 
+    if ((sts = pmUseContext(my.context)) < 0)
+	return sts;
+
     if (my.pmidCache.contains(pmid) == false) {
 	if ((sts = pmNameID(pmid, &value)) >= 0) {
 	    *name = new QString(value);
@@ -77,6 +80,9 @@ QmcContext::lookupPMID(const char *name, pmID& id)
 {
     QString key = name;
     int sts;
+
+    if ((sts = pmUseContext(my.context)) < 0)
+	return sts;
 
     if (my.nameCache.contains(key) == false) {
         if ((sts = pmLookupName(1, (char **)(&name), &id)) >= 0)
@@ -108,6 +114,9 @@ QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
 {
     int sts;
     QmcDesc *descPtr;
+
+    if ((sts = pmUseContext(my.context)) < 0)
+	return sts;
 
     if (my.descCache.contains(pmid) == false) {
 	descPtr = new QmcDesc(pmid);
@@ -167,6 +176,9 @@ QmcContext::lookupInDom(QmcDesc *descPtr, uint_t& indom)
 {
     int i, sts;
     QmcIndom *indomPtr;
+
+    if ((sts = pmUseContext(my.context)) < 0)
+	return sts;
 
     indom = UINT_MAX;
     if (descPtr->desc().indom != PM_INDOM_NULL) {
@@ -369,6 +381,9 @@ QmcContext::traverse(const char *name, QStringList &list)
 
     theStringList = &list;
     theStringList->clear();
+
+    if ((sts = pmUseContext(my.context)) < 0)
+	return sts;
 
     sts = pmTraversePMNS(name, QmcContext::dometric);
 
