@@ -70,7 +70,36 @@ Clients may also access performance data from a PCP archive
 (created using
 .BR pmlogger (1))
 for retrospective analysis.
+.SS Security philosophy
+PCP redistributes a wealth of performance information within
+a host and across its networks.  The following security
+philosophy underlies the setting of several
+.I defaults
+that control how much information is sent and received.
 .PP
+By default, the information exposed by PMCD about a host is
+approximately of the same level of confidentiality as available
+to a completely unprivileged user on that host.  So, performance
+data that is available to be
+.I read
+completely freely on a machine may be made available by PMCD to
+the network.
+.PP
+However, the host running PMCD and its network is
+.I not
+assumed to run only friendly applications.  Therefore,
+.I write
+type operations, including from the local host, are not
+permitted by default.
+.PP
+These defaults may be overridden (expanded or reduced) in several
+ways, including by specifying network ACLs in
+.BR pmcd.conf ,
+activating non-default PMDAs, or by using PMCD connections
+that pass user credentials.  For example, some PMDAs automatically
+provide greater information for particular credentialed users or groups.
+.PP
+.SS Applications
 The following performance monitoring applications are primarily console
 based, typically run directly from the command line, and are just a
 small subset of the tools available as part of the base PCP package.
