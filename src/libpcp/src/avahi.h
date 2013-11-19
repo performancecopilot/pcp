@@ -13,13 +13,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <avahi-client/publish.h>
-#include <avahi-common/alternative.h>
-#include <avahi-common/thread-watch.h>
-#include <avahi-common/malloc.h>
-#include <avahi-common/error.h>
+typedef struct __pmServerPresence __pmServerPresence;
 
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *, const char *, int);
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *);
+
+int __pmAvahiDiscoverServices(char ***, const char *);
 
 #endif /* AVAHI_H */

@@ -18,9 +18,7 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
-#if HAVE_AVAHI
 #include "avahi.h"
-#endif
 
 /*
  * Info about a request port that clients may connect to a server on
@@ -780,7 +778,7 @@ __pmServerAdvertisePresence(const char *serviceSpec, int port)
 
     /* Now advertise our presence using all available means. If a particular
      * method is not available or not configured, then the respective call
-     * will have no effect.
+     * will have no effect. Currently, only Avahi is supported.
      */
     __pmServerAvahiAdvertisePresence(s, serviceSpec, port);
     return s;

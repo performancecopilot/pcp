@@ -26,7 +26,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
         sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
-        stuffvalue.c endian.c config.c access.c auxconnect.c \
+        stuffvalue.c endian.c config.c access.c auxconnect.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c
