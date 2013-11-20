@@ -82,6 +82,7 @@ _filter_me()
 	-e "s/`pmhostname`/MY_HOSTNAME/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
 	-e "s/local:/MY_HOSTNAME/" \
+	-e "s/localhost\.localdomain/MY_HOSTNAME/" \
 	-e "s/localhost/MY_HOSTNAME/" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
 	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
