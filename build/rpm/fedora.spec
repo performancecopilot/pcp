@@ -327,6 +327,7 @@ sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man1files.list
 cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.list
 
 %pre testsuite
+test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
