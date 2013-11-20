@@ -151,13 +151,16 @@ chk_all(task_t *tp, pmID pmid)
 		PMLC_GET_MAND(tp->t_state) ? "M" : "A",
 		PMLC_GET_ON(tp->t_state) ? "Y" : "N",
 		(int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec);
-	fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
-		ctp,
-		PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
-		PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
-		PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
-		PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
-		(int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
+	if (ctp == NULL)
+	    fprintf(stderr, "compared to: NULL\n");
+	else
+	    fprintf(stderr, "compared to: optreq task=" PRINTF_P_PFX "%p state=%s%s%s%s delta=%d.%06d\n",
+		    ctp,
+		    PMLC_GET_INLOG(ctp->t_state) ? " " : "N",
+		    PMLC_GET_AVAIL(ctp->t_state) ? " " : "N",
+		    PMLC_GET_MAND(ctp->t_state) ? "M" : "A",
+		    PMLC_GET_ON(ctp->t_state) ? "Y" : "N",
+		    (int)ctp->t_delta.tv_sec, (int)ctp->t_delta.tv_usec);
     }
 #endif
     return 0;

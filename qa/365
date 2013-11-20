@@ -134,10 +134,16 @@ echo >> $tmp.tmp
 echo "# from qa/$seq" >> $tmp.tmp
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+echo >>$seq.full
+echo "=== pmcd.conf ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 cat $PCP_PMCDLOG_PATH >>$seq.full
+echo >>$seq.full
+echo "=== pmcd.log ===" >>$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '/^linux/{

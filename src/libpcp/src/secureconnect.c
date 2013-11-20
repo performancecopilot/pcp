@@ -31,6 +31,10 @@
 void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE)
+        fprintf(stderr, "secureconnect.c:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", hostent, hostent->name, hostent->name, hostent-> addresses);
+#endif
     if (hostent->name != NULL)
         free(hostent->name);
     if (hostent->addresses != NULL)
@@ -2028,6 +2032,13 @@ __pmGetNameInfo(__pmSockAddr *address)
     char *name;
     PRHostEnt he;
     PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+        if (prStatus != PR_SUCCESS) {
+            fprintf(stderr, "secureconnect.c:PR_GetHostByAddr(%s) returns %d (%s)\n", __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
+        }
+    }
+#endif
     name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
     return name;
 }
