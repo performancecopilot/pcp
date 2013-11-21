@@ -619,6 +619,7 @@ extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
 extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
+extern void	     __pmSockAddrSetScope(__pmSockAddr *, int);
 extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 extern int	     __pmSockAddrIsInet(const __pmSockAddr *);

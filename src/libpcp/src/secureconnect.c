@@ -1592,6 +1592,13 @@ __pmSockAddrGetPort(const __pmSockAddr *addr)
 }
 
 void
+__pmSockAddrSetScope(__pmSockAddr *addr, int scope)
+{
+    if (addr->sockaddr.raw.family == PR_AF_INET6)
+        addr->sockaddr.ipv6.scope_id = scope;
+}
+
+void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)

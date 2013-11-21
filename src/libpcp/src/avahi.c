@@ -392,7 +392,6 @@ resolveCallback(
     __pmServiceInfo serviceInfo;
 
     /* Unused arguments. */
-    (void)interface;
     (void)protocol;
     (void)hostName;
     (void)txt;
@@ -417,6 +416,7 @@ resolveCallback(
 		    __pmNoMem("resolveCallback", __pmSockAddrSize(), PM_FATAL_ERR);
 		}
 		__pmSockAddrSetPort(serviceInfo.address, port);
+		__pmSockAddrSetScope(serviceInfo.address, interface);
 		__pmAddDiscoveredService(urls, &serviceInfo);
 		__pmSockAddrFree(serviceInfo.address);
 	    }
