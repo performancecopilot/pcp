@@ -45,6 +45,7 @@ _filter()
 	-e "s;/privateTMP;TMP;g" \
 	-e "s/$host/HOST/g" \
 	-e "s/`hostname`/HOST/g" \
+	-e "s/localhost\.localdomain/MYHOST/g" \
 	-e "s/localhost/HOST/g" \
 	-e "s/local:/HOST/g" \
     | $PCP_AWK_PROG '

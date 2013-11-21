@@ -632,18 +632,19 @@ systemd_init(pmdaInterface *dp)
 void
 systemdMain(pmdaInterface *dispatch)
 {
-    fd_set      readyfds;
-    int         nready, pmcdfd;
+    int pmcdfd;
 
     pmcdfd = __pmdaInFd(dispatch);
     if (pmcdfd > maxfd)
         maxfd = pmcdfd;
 
-    FD_ZERO(&fds);
     FD_SET(pmcdfd, &fds);
 
     for (;;) {
+        fd_set readyfds;
+        int nready;
         struct timeval select_timeout = interval;
+
         memcpy(&readyfds, &fds, sizeof(readyfds));
         nready = select(maxfd+1, &readyfds, NULL, NULL, & select_timeout);
         if (pmDebug & DBG_TRACE_APPL2)
@@ -769,10 +770,11 @@ main(int argc, char **argv)
     if (err)
         usage();
 
+    FD_ZERO (&fds);
     pmdaOpenLog(&desc);
-    systemd_init(&desc);
+    systemd_init(&desc); // sets some fds
     pmdaConnect(&desc);
-    systemdMain(&desc);
+    systemdMain(&desc); // sets some more fds
     systemd_shutdown();
     exit(0);
 }

@@ -44,7 +44,6 @@ typedef struct {
     uint64_t	last_counters[PROC_DEV_COUNTERS_PER_LINE];
     uint64_t	counters[PROC_DEV_COUNTERS_PER_LINE];
     net_dev_t	ioc;
-    char	*path;	/* sysfs path, for non-ioctl refresh */
 } net_interface_t;
 
 #ifndef ETHTOOL_GSET
