@@ -63,6 +63,7 @@ hinv.cpu {
     stepping		60:18:3
     cache		60:18:4
     bogomips		60:18:5
+    model_name		60:18:9
 }
 
 kernel {

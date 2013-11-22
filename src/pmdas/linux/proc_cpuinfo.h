@@ -34,6 +34,7 @@ typedef struct {
     float		clock;
     char		*vendor;
     char		*model;
+    char		*model_name;
     char		*stepping;
     unsigned int	cache;
     float		bogomips;

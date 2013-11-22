@@ -2387,6 +2387,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_CPUINFO, 8), PM_TYPE_U32, CPU_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* hinv.cpu.model_name */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUINFO, 9), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -4389,15 +4394,16 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->f = proc_cpuinfo.cpuinfo[inst].clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].vendor) == (char *)NULL)
+	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].vendor) == NULL)
 	    	atom->cp = "unknown";
 	    break;
 	case 2: /* hinv.cpu.model */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].model) == (char *)NULL)
-	    	atom->cp = "unknown";
+	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].model) == NULL &&
+	        (atom->cp = proc_cpuinfo.cpuinfo[inst].model_name) == NULL)
+		atom->cp = "unknown";
 	    break;
 	case 3: /* hinv.cpu.stepping */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].stepping) == (char *)NULL)
+	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].stepping) == NULL)
 	    	atom->cp = "unknown";
 	    break;
 	case 4: /* hinv.cpu.cache */
@@ -4414,6 +4420,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 8: /* hinv.map.cpu_node */
 	    atom->ul = proc_cpuinfo.cpuinfo[inst].node;
+	    break;
+	case 9: /* hinv.cpu.model_name */
+	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].model_name) == NULL &&
+	        (atom->cp = proc_cpuinfo.cpuinfo[inst].model) == NULL)
+	    	atom->cp = "unknown";
 	    break;
 	default:
 	    return PM_ERR_PMID;

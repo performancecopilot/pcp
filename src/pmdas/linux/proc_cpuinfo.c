@@ -184,8 +184,8 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 
 	if (info->sapic == NULL && strncasecmp(buf, "sapic", 5) == 0)
 	    info->sapic = strdup(val);
-	if (info->model == NULL && strncasecmp(buf, "model name", 10) == 0)
-	    info->model = strdup(val);
+	if (info->model_name == NULL && strncasecmp(buf, "model name", 10) == 0)
+	    info->model_name = strdup(val);
 	if (info->model == NULL && strncasecmp(buf, "model", 5) == 0)
 	    info->model = strdup(val);
 	if (info->model == NULL && strncasecmp(buf, "cpu model", 9) == 0)
