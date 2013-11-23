@@ -131,7 +131,7 @@ fi
 if [ $START_PMLOGGER = false ]
 then
     # if pmlogger has never been started, there's no work to do to stop it
-    [ ! -d $PCP_TMP_DIR/pmlogger ] && exit
+    [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
     $QUIETLY || pmpost "stop pmlogger from $prog"
 fi
 
@@ -251,7 +251,7 @@ _configure_pmlogger()
             cat "$configfile"
             echo "=== end pmlogconf file ==="
         else
-            ( id pcp && chown pcp:pcp "$configfile" ) >/dev/null 2>&1
+            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP "$configfile") >/dev/null 2>&1
         fi
     fi
 }
@@ -484,7 +484,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	else
 	    _warning "creating directory ($dir) for PCP archive files"
 	fi
-	chown pcp:pcp $dir 2>/dev/null
+	chown $PCP_USER:$PCP_GROUP "$dir" 2>/dev/null
     fi
 
     [ ! -d "$dir" ] && continue
@@ -505,8 +505,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # ensure pcp user will be able to write there
     #
-    ( id pcp && chown -R pcp:pcp "$dir" ) >/dev/null 2>&1
-    if [ ! -w $dir ]
+    (id "$PCP_USER" && chown -R $PCP_USER:$PCP_GROUP "$dir") >/dev/null 2>&1
+    if [ ! -w "$dir" ]
     then
         echo "$prog: Warning: no write access in $dir, skip lock file processing"
     else
@@ -589,12 +589,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         # in the primary logger case), but it *does* matter for pmlogconf.
         host=local:
 
-	if test -f $PCP_TMP_DIR/pmlogger/primary
+	if test -f "$PCP_TMP_DIR/pmlogger/primary"
 	then
 	    if $VERY_VERBOSE
 	    then 
-		_host=`sed -n 2p <$PCP_TMP_DIR/pmlogger/primary`
-		_arch=`sed -n 3p <$PCP_TMP_DIR/pmlogger/primary`
+		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
+		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
 		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
 	    fi
 	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
@@ -621,7 +621,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if $VERY_VERBOSE
 		then
 		    echo "primary pmlogger process pid not found"
-		    ls -l $PCP_TMP_DIR/pmlogger
+		    ls -l "$PCP_TMP_DIR/pmlogger"
 		fi
 	    else
 		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
@@ -676,8 +676,8 @@ END				{ print m }'`
 	    iam=" primary"
 	    # clean up port-map, just in case
 	    #
-	    PM_LOG_PORT_DIR=$PCP_TMP_DIR/pmlogger
-	    rm -f $PM_LOG_PORT_DIR/primary
+	    PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
+	    rm -f "$PM_LOG_PORT_DIR/primary"
 	else
 	    args="-h $host $args"
 	    iam=""
@@ -789,7 +789,7 @@ END				{ print m }'`
 	then
 	    $VERBOSE && echo "Latest folio created for $LOGNAME"
             mkaf $LOGNAME.0 >Latest
-            ( id pcp && chown pcp:pcp Latest ) >/dev/null 2>&1
+            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP Latest) >/dev/null 2>&1
 	else
 	    logdir=`dirname $LOGNAME`
 	    if $TERSE

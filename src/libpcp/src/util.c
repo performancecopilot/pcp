@@ -1102,13 +1102,13 @@ vpmprintf(const char *msg, va_list arg)
     PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
-	char	*tmpdir = pmGetConfig("PCP_TMP_DIR");
+	char	*tmpdir = pmGetConfig("PCP_TMPFILE_DIR");
 
 	if (tmpdir[0] != '\0') {
 	    mode_t cur_umask;
 
 	    /*
-	     * PCP_TMP_DIR found in the configuration/environment,
+	     * PCP_TMPFILE_DIR found in the configuration/environment,
 	     * otherwise fall through to the stderr case
 	     */
 

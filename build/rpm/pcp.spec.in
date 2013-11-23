@@ -304,7 +304,7 @@ but can also be configured to monitor remote GUIDs such as IB switches.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure @package_configure@ --with-rcdir=%{_rcdir} --with-tmpdir=%{_tmpdir}
+%configure @package_configure@ --with-rcdir=%{_rcdir}
 @make@ default_pcp
 
 %install

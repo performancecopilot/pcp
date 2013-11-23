@@ -46,13 +46,11 @@ install: $(SUBDIRS) crontab
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
 ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
-endif
 
 default_pcp : default
 

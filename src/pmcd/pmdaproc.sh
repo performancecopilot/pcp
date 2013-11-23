@@ -18,7 +18,7 @@
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-tmp=`mktemp -d $PCP_TMP_DIR/pmdaproc.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_TMPFILE_DIR/pmdaproc.XXXXXXXXX` || exit 1
 pmdatmp=$tmp
 trap "rm -rf $pmdatmp $pcptmp; exit" 0 1 2 3 15
 
@@ -165,7 +165,7 @@ pmda_interface=1
 # Other variables and constants
 #
 prog=`basename $0`
-tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
 pcptmp=$tmp
 do_pmda=true
 do_check=true

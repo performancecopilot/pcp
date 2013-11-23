@@ -46,6 +46,7 @@ install::	default
 	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
 ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif

@@ -11,11 +11,11 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 signal=$PCP_BINADM_DIR/pmsignal
-trap "$signal -a pmlogger >/dev/null 2>&1; rm -f $tmp.*; exit" 0 1 2 3 15
-
-. ./common.check
+newlog=$PCP_BINADM_DIR/pmnewlog
+trap "$sudo $signal -a pmlogger >/dev/null 2>&1; $sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter_dumplog()
 {
@@ -38,8 +38,6 @@ _filter_dumplog()
 $1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
 				{ print }'
 }
-
-
 
 _filter_newlog()
 {
@@ -82,9 +80,9 @@ _filter_newlog()
 cat <<End-of-File >$tmp.config
 log mandatory on once pmcd.control.register["0"]
 End-of-File
-rm -f $tmp.arch.*
-pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1 &
-logger_pid=$!
+$sudo rm -f $tmp.arch.*
+_start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1
+logger_pid=$pid
 _wait_for_pmlogger $logger_pid $tmp.log
 
 echo "=== old log ===" | tee $seq.full
@@ -92,12 +90,12 @@ pmdumplog -a $tmp.arch | tee -a $seq.full | _filter_dumplog
 
 echo | tee -a $seq.full
 echo "=== pmnewlog ==" | tee -a $seq.full
-pmnewlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
+$sudo $newlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
 cat $tmp.out >>$seq.full
 _filter_newlog <$tmp.out | _filter_dumplog
 
 # Cleanup after youself
-rm -f `dirname $tmp`/Latest
+$sudo rm -f `dirname $tmp`/Latest
 
 echo
 echo "=== check old pmlogger has gone ==="

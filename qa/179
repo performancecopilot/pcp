@@ -11,8 +11,9 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter_pmlc()
 {
@@ -41,17 +42,15 @@ s/[0-9]*\.[0-9]*\.[0-9]*/PMID/
 # real QA test starts here
 
 echo "=== just bin.sample ==="
-rm -f $tmp.*
-pmlogger -s4 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1 &
-pid=$!
-
-sleep 3
+$sudo rm -f $tmp.*
+_start_up_pmlogger -s4 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
+pmsleep 1.1
 
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on 20 msec sample.bin
 End-of-File
-wait
+_wait_pmlogger_end $pid
 
 pmdumplog -im $tmp | _filter
 echo "pmval ..."
@@ -60,18 +59,16 @@ _filter <$tmp.err
 
 echo
 echo "=== hinv.ndisk, then bin.sample ==="
-rm -f $tmp.*
-pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp &
-pid=$!
-
-sleep 3
+$sudo rm -f $tmp.*
+_start_up_pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp
+pmsleep 1.1
 
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on once hinv.ndisk
 log mandatory on 20 msec sample.bin
 End-of-File
-wait
+_wait_pmlogger_end $pid
 
 pmdumplog -im $tmp | _filter
 echo "pmval ..."

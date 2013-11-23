@@ -168,9 +168,9 @@ _shutdown()
     #
     for pid in `cat $tmp/tmp`
     do
-	if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
+	if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
 	then
-	    note=`sed -n -e 4p <$PCP_TMP_DIR/pmlogger/$pid`
+	    note=`sed -n -e 4p <"$PCP_TMP_DIR/pmlogger/$pid"`
 	    if [ "$note" = pmlogger_check -o "$note" = pmlogger_daily ]
 	    then
 		pmsignal -s TERM $pid

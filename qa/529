@@ -32,7 +32,7 @@ _cleanup()
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 username=`id -u -n`
 host=`pmhostname`
 
@@ -68,12 +68,39 @@ sample.long.ten < 10 -> print "rule3: (BAD)" " %v < 10";
 sample.long.ten >= 10 -> print "rule4: (OK)" " %v >= 10";
 End-of-File
 
+__user=root
+id pcp >/dev/null 2>&1 && __user=pcp
+
+_start_up_pmie1()
+{
+    cat >$tmp.cmd1 <<End-of-File
+#!/bin/sh
+pmie \$@ &
+echo pid=\$!
+End-of-File
+
+    $sudo -u $__user sh $tmp.cmd1 $@ $tmp.conf >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
+_start_up_pmie2()
+{
+    cat >$tmp.cmd2 <<End-of-File
+#!/bin/sh
+cat | pmie \$@ &
+echo pid=\$!
+End-of-File
+
+    $sudo -u $__user sh $tmp.cmd2 $@ <$tmp.conf >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
 pmieopts="-v -b"
-id pcp >/dev/null 2>&1 && pmieopts="$pmieopts -U $username"
-pmie -t 1sec -T 4sec $pmieopts -l $tmp.out1 $tmp.conf &
-pid1=$!
-cat $tmp.conf | pmie -t 1sec -T 4sec $pmieopts -l $tmp.out2 &
-pid2=$!
+_start_up_pmie1 -t 1sec -T 4sec $pmieopts -l $tmp.out1
+pid1=$pid
+_start_up_pmie2 -t 1sec -T 4sec $pmieopts -l $tmp.out2
+pid2=$pid
+echo "self=$$ pid1=$pid1 and pid2=$pid2" >> $seq.full
 
 sleep 2
 
