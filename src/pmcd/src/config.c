@@ -953,10 +953,10 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 static int
 ParseNames(char ***namesp, const char *nametype)
 {
-    int		nnames = 0;
-    int		another = 1;
     static char	**names;
     static int	szNames;
+    int		nnames = 0;
+    int		another = 1;
 
     /* Beware of quoted tokens of length longer than 1. e.g. ":*" */
     while (*token && another &&
@@ -969,13 +969,13 @@ ParseNames(char ***namesp, const char *nametype)
 	    if ((names = (char **)realloc(names, need)) == NULL)
 		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
 	}
-	if ((names[nnames] = CopyToken()) == NULL)
+	if ((names[nnames++] = CopyToken()) == NULL)
 	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
-			 nLines, names[nnames]);
+			 nLines, names[nnames-1]);
 	    return -1;
 	}
 	if (*token == ',') {
@@ -984,7 +984,6 @@ ParseNames(char ***namesp, const char *nametype)
 	}
 	else
 	    another = 0;
-	nnames++;
     }
     if (nnames == 0) {
 	fprintf(stderr,
