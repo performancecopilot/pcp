@@ -2392,6 +2392,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_CPUINFO, 9), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
+/* hinv.cpu.flags */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUINFO, 10), PM_TYPE_STRING, CPU_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* hinv.cpu.cache_alignment */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUINFO, 11), PM_TYPE_U32, CPU_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) } },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -4391,6 +4401,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	switch(idp->item) {
 	case 0: /* hinv.cpu.clock */
+	    if (proc_cpuinfo.cpuinfo[inst].clock == 0.0)
+		return 0;
 	    atom->f = proc_cpuinfo.cpuinfo[inst].clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
@@ -4413,9 +4425,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->cp = "unknown";
 	    break;
 	case 4: /* hinv.cpu.cache */
+	    if (!proc_cpuinfo.cpuinfo[inst].cache)
+		return 0;
 	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache;
 	    break;
 	case 5: /* hinv.cpu.bogomips */
+	    if (proc_cpuinfo.cpuinfo[inst].bogomips == 0.0)
+		return 0;
 	    atom->f = proc_cpuinfo.cpuinfo[inst].bogomips;
 	    break;
 	case 6: /* hinv.map.cpu_num */
@@ -4433,6 +4449,17 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = linux_strings_lookup(i);
 	    if (atom->cp == NULL)
 		atom->cp = "unknown";
+	    break;
+	case 10: /* hinv.cpu.flags */
+	    i = proc_cpuinfo.cpuinfo[inst].flags;
+	    atom->cp = linux_strings_lookup(i);
+	    if (atom->cp == NULL)
+		atom->cp = "unknown";
+	    break;
+	case 11: /* hinv.cpu.cache_alignment */
+	    if (!proc_cpuinfo.cpuinfo[inst].cache_align)
+		return 0;
+	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache_align;
 	    break;
 	default:
 	    return PM_ERR_PMID;

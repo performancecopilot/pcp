@@ -64,6 +64,8 @@ hinv.cpu {
     cache		60:18:4
     bogomips		60:18:5
     model_name		60:18:9
+    flags		60:18:10
+    cache_alignment	60:18:11
 }
 
 kernel {

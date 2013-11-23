@@ -157,6 +157,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    proc_cpuinfo->cpuinfo[cpunum].model = -1;
 	    proc_cpuinfo->cpuinfo[cpunum].model_name = -1;
 	    proc_cpuinfo->cpuinfo[cpunum].stepping = -1;
+	    proc_cpuinfo->cpuinfo[cpunum].flags = -1;
 	}
     	started = 1;
     }
@@ -186,36 +187,40 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 
 	info = &proc_cpuinfo->cpuinfo[cpunum];
 
+	/* note: order is important due to strNcmp comparisons */
 	if (info->sapic < 0 && strncasecmp(buf, "sapic", 5) == 0)
 	    info->sapic = linux_strings_insert(val);
-	if (info->model_name < 0 && strncasecmp(buf, "model name", 10) == 0)
+	else if (info->model_name < 0 && strncasecmp(buf, "model name", 10) == 0)
 	    info->model_name = linux_strings_insert(val);
-	if (info->model < 0 && strncasecmp(buf, "model", 5) == 0)
+	else if (info->model < 0 && strncasecmp(buf, "model", 5) == 0)
 	    info->model = linux_strings_insert(val);
-	if (info->model < 0 && strncasecmp(buf, "cpu model", 9) == 0)
+	else if (info->model < 0 && strncasecmp(buf, "cpu model", 9) == 0)
 	    info->model = linux_strings_insert(val);
-	if (info->vendor < 0 && strncasecmp(buf, "vendor", 6) == 0)
+	else if (info->vendor < 0 && strncasecmp(buf, "vendor", 6) == 0)
 	    info->vendor = linux_strings_insert(val);
-	if (info->stepping < 0 && strncasecmp(buf, "step", 4) == 0)
+	else if (info->stepping < 0 && strncasecmp(buf, "step", 4) == 0)
 	    info->stepping = linux_strings_insert(val);
-	if (info->stepping < 0 && strncasecmp(buf, "revision", 8) == 0)
+	else if (info->stepping < 0 && strncasecmp(buf, "revision", 8) == 0)
 	    info->stepping = linux_strings_insert(val);
-	if (info->stepping < 0 && strncasecmp(buf, "cpu revision", 12) == 0)
+	else if (info->stepping < 0 && strncasecmp(buf, "cpu revision", 12) == 0)
 	    info->stepping = linux_strings_insert(val);
-
-	if (info->clock == 0.0 && strncasecmp(buf, "cpu MHz", 7) == 0)
+	else if (info->flags < 0 && strncasecmp(buf, "flags", 5) == 0)
+	    info->flags = linux_strings_insert(val);
+	else if (info->flags < 0 && strncasecmp(buf, "features", 8) == 0)
+	    info->flags = linux_strings_insert(val);
+	else if (info->cache == 0 && strncasecmp(buf, "cache size", 10) == 0)
+	    info->cache = atoi(val);
+	else if (info->cache_align == 0 && strncasecmp(buf, "cache_align", 11) == 0)
+	    info->cache_align = atoi(val);
+	else if (info->bogomips == 0.0 && strncasecmp(buf, "bogo", 4) == 0)
+	    info->bogomips = atof(val);
+	else if (info->clock == 0.0 && strncasecmp(buf, "cpu MHz", 7) == 0)
 	    info->clock = atof(val);
-	if (info->clock == 0.0 && strncasecmp(buf, "cycle frequency", 15) == 0) {
+	else if (info->clock == 0.0 && strncasecmp(buf, "cycle frequency", 15) == 0) {
 	    if ((p = strchr(val, ' ')) != NULL)
 		*p = '\0';
 	    info->clock = (atof(val))/1000000;
 	}
-	if (info->cache == 0 && strncasecmp(buf, "cache", 5) == 0)
-	    info->cache = atoi(val);
-	if (info->bogomips == 0.0 && strncasecmp(buf, "bogo", 4) == 0)
-	    info->bogomips = atof(val);
-	if (info->bogomips == 0.0 && strncasecmp(buf, "BogoMIPS", 8) == 0)
-	    info->bogomips = atof(val);
     }
     fclose(fp);
 

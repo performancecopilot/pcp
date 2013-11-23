@@ -27,13 +27,15 @@ typedef struct {
     int			node;
     char		*name;
     float		clock;
+    float		bogomips;
     int			sapic;		/* strings dictionary hash key */
     int			vendor;		/* strings dictionary hash key */
     int			model;		/* strings dictionary hash key */
     int			model_name;	/* strings dictionary hash key */
     int			stepping;	/* strings dictionary hash key */
+    int			flags;		/* strings dictionary hash key */
     unsigned int	cache;
-    float		bogomips;
+    unsigned int	cache_align;
 } cpuinfo_t;
 
 typedef struct {
