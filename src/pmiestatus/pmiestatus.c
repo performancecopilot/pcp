@@ -36,27 +36,29 @@ main(int argc, char **argv)
 	if (fstat(f, &st) < 0) {
 	    fprintf(stderr, "%s: cannot get size of %s - %s\n",
 		    pmProgname, argv[i], osstrerror());
-	    continue;
+	    goto closefile;
 	}
 
 	if (st.st_size != sizeof(ps)) {
 	    fprintf(stderr, "%s: %s is not a valid pmie stats file\n",
 		    pmProgname, argv[i]);
-	    continue;
+	    goto closefile;
 	}
 	if (read(f, &ps, sizeof(ps)) != sizeof(ps)) {
 	    fprintf(stderr, "%s: cannot read %ld bytes from %s\n",
 		    pmProgname, (long)sizeof(ps), argv[i]);
-	    continue;
+	    goto closefile;
 	}
 
 	if (ps.version != 1) {
 	    fprintf(stderr, "%s: unsupported version %d in %s\n",
 		    pmProgname, ps.version, argv[i]);
-	    continue;
+	    goto closefile;
 	}
 
 	printf ("%s\n%s\n%s\n", ps.config, ps.logfile, ps.defaultfqdn);
+closefile:
+	close(f);
     }
     return 0;
 }
