@@ -1,6 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2001 Gilly Ran (gilly@exanet.com) for the
  * portions of the code supporting the Alpha platform.
  * All rights reserved.
@@ -15,10 +16,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifdef  __alpha__
@@ -27,15 +24,14 @@
 
 typedef struct {
     int			cpu_num;
-    char		*sapic;
-    char		*name;
-    char		cpu_char;
     int			node;
+    char		*name;
     float		clock;
-    char		*vendor;
-    char		*model;
-    char		*model_name;
-    char		*stepping;
+    int			sapic;		/* strings dictionary hash key */
+    int			vendor;		/* strings dictionary hash key */
+    int			model;		/* strings dictionary hash key */
+    int			model_name;	/* strings dictionary hash key */
+    int			stepping;	/* strings dictionary hash key */
     unsigned int	cache;
     float		bogomips;
 } cpuinfo_t;

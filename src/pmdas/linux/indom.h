@@ -31,7 +31,7 @@ enum {
 	PARTITIONS_INDOM, 	/* 10 - disk partitions */
 	SCSI_INDOM,		/* 11 - scsi devices */
 	SLAB_INDOM,		/* 12 - kernel slabs */
-	IB_INDOM,		/* 13 - ib interfaces -> infiniband PMDA */
+	STRINGS_INDOM,		/* 13 - string dictionary */
 	NFS4_CLI_INDOM,		/* 14 - nfs v4 client operations */
 	NFS4_SVR_INDOM,		/* 15 - nfs n4 server operations */
 	QUOTA_PRJ_INDOM,	/* 16 - project quota -> xfs PMDA */
@@ -51,5 +51,12 @@ extern pmInDom linux_indom(int);
 
 extern pmdaIndom *linux_pmda_indom(int);
 #define PMDAINDOM(i) linux_pmda_indom(i)
+
+/*
+ * static string dictionary - one copy of oft-repeated strings;
+ * implemented using STRINGS_INDOM and pmdaCache(3) routines.
+ */
+char *linux_strings_lookup(int);
+int linux_strings_insert(const char *);
 
 #endif /* _INDOM_H */

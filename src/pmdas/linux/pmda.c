@@ -246,7 +246,7 @@ static pmdaIndom indomtab[] = {
     { PARTITIONS_INDOM, 0, NULL }, /* cached */
     { SCSI_INDOM, 0, NULL },
     { SLAB_INDOM, 0, NULL },
-    { IB_INDOM, 0, NULL },	/* migrated to the infiniband PMDA */
+    { STRINGS_INDOM, 0, NULL },
     { NFS4_CLI_INDOM, NR_RPC4_CLI_COUNTERS, nfs4_cli_indom_id },
     { NFS4_SVR_INDOM, NR_RPC4_SVR_COUNTERS, nfs4_svr_indom_id },
     { QUOTA_PRJ_INDOM, 0, NULL },	/* migrated to the xfs PMDA */
@@ -4394,17 +4394,23 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->f = proc_cpuinfo.cpuinfo[inst].clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].vendor) == NULL)
-	    	atom->cp = "unknown";
+	    i = proc_cpuinfo.cpuinfo[inst].vendor;
+	    atom->cp = linux_strings_lookup(i);
+	    if (atom->cp == NULL)
+		atom->cp = "unknown";
 	    break;
 	case 2: /* hinv.cpu.model */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].model) == NULL &&
-	        (atom->cp = proc_cpuinfo.cpuinfo[inst].model_name) == NULL)
+	    if ((i = proc_cpuinfo.cpuinfo[inst].model) < 0)
+		i = proc_cpuinfo.cpuinfo[inst].model_name;
+	    atom->cp = linux_strings_lookup(i);
+	    if (atom->cp == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 3: /* hinv.cpu.stepping */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].stepping) == NULL)
-	    	atom->cp = "unknown";
+	    i = proc_cpuinfo.cpuinfo[inst].stepping;
+	    atom->cp = linux_strings_lookup(i);
+	    if (atom->cp == NULL)
+		atom->cp = "unknown";
 	    break;
 	case 4: /* hinv.cpu.cache */
 	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache;
@@ -4422,9 +4428,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = proc_cpuinfo.cpuinfo[inst].node;
 	    break;
 	case 9: /* hinv.cpu.model_name */
-	    if ((atom->cp = proc_cpuinfo.cpuinfo[inst].model_name) == NULL &&
-	        (atom->cp = proc_cpuinfo.cpuinfo[inst].model) == NULL)
-	    	atom->cp = "unknown";
+	    if ((i = proc_cpuinfo.cpuinfo[inst].model_name) < 0)
+		i = proc_cpuinfo.cpuinfo[inst].model;
+	    atom->cp = linux_strings_lookup(i);
+	    if (atom->cp == NULL)
+		atom->cp = "unknown";
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -4855,6 +4863,28 @@ linux_pmda_indom(int serial)
 }
 
 /*
+ * Helper routines for accessing a generic static string dictionary
+ */
+
+char *
+linux_strings_lookup(int index)
+{
+    char *value;
+    pmInDom dict = INDOM(STRINGS_INDOM);
+
+    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+	return value;
+    return NULL;
+}
+
+int
+linux_strings_insert(const char *buf)
+{
+    pmInDom dict = INDOM(STRINGS_INDOM);
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, buf, NULL);
+}
+
+/*
  * Initialise the agent (both daemon and DSO).
  */
 
@@ -4978,6 +5008,9 @@ linux_init(pmdaInterface *dp)
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
+
+    /* string metrics use the pmdaCache API for value indexing */
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
 }
 
 

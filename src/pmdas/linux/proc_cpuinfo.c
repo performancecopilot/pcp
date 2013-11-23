@@ -1,6 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -148,12 +149,15 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     static int started = 0;
 
     if (!started) {
-	int need;
-	if (proc_cpuinfo->cpuindom == NULL || proc_cpuinfo->cpuindom->it_numinst == 0)
-	    abort();
-	need = proc_cpuinfo->cpuindom->it_numinst * sizeof(cpuinfo_t);
-	proc_cpuinfo->cpuinfo = (cpuinfo_t *)malloc(need);
-	memset(proc_cpuinfo->cpuinfo, 0, need);
+	int need = proc_cpuinfo->cpuindom->it_numinst * sizeof(cpuinfo_t);
+	proc_cpuinfo->cpuinfo = (cpuinfo_t *)calloc(1, need);
+	for (cpunum=0; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++) {
+	    proc_cpuinfo->cpuinfo[cpunum].sapic = -1;
+	    proc_cpuinfo->cpuinfo[cpunum].vendor = -1;
+	    proc_cpuinfo->cpuinfo[cpunum].model = -1;
+	    proc_cpuinfo->cpuinfo[cpunum].model_name = -1;
+	    proc_cpuinfo->cpuinfo[cpunum].stepping = -1;
+	}
     	started = 1;
     }
 
@@ -182,22 +186,23 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 
 	info = &proc_cpuinfo->cpuinfo[cpunum];
 
-	if (info->sapic == NULL && strncasecmp(buf, "sapic", 5) == 0)
-	    info->sapic = strdup(val);
-	if (info->model_name == NULL && strncasecmp(buf, "model name", 10) == 0)
-	    info->model_name = strdup(val);
-	if (info->model == NULL && strncasecmp(buf, "model", 5) == 0)
-	    info->model = strdup(val);
-	if (info->model == NULL && strncasecmp(buf, "cpu model", 9) == 0)
-	    info->model = strdup(val);
-	if (info->vendor == NULL && strncasecmp(buf, "vendor", 6) == 0)
-	    info->vendor = strdup(val);
-	if (info->stepping == NULL && strncasecmp(buf, "step", 4) == 0)
-	    info->stepping = strdup(val);
-	if (info->stepping == NULL && strncasecmp(buf, "revision", 8) == 0)
-	    info->stepping = strdup(val);
-	if (info->stepping == NULL && strncasecmp(buf, "cpu revision", 12) == 0)
-	    info->stepping = strdup(val);
+	if (info->sapic < 0 && strncasecmp(buf, "sapic", 5) == 0)
+	    info->sapic = linux_strings_insert(val);
+	if (info->model_name < 0 && strncasecmp(buf, "model name", 10) == 0)
+	    info->model_name = linux_strings_insert(val);
+	if (info->model < 0 && strncasecmp(buf, "model", 5) == 0)
+	    info->model = linux_strings_insert(val);
+	if (info->model < 0 && strncasecmp(buf, "cpu model", 9) == 0)
+	    info->model = linux_strings_insert(val);
+	if (info->vendor < 0 && strncasecmp(buf, "vendor", 6) == 0)
+	    info->vendor = linux_strings_insert(val);
+	if (info->stepping < 0 && strncasecmp(buf, "step", 4) == 0)
+	    info->stepping = linux_strings_insert(val);
+	if (info->stepping < 0 && strncasecmp(buf, "revision", 8) == 0)
+	    info->stepping = linux_strings_insert(val);
+	if (info->stepping < 0 && strncasecmp(buf, "cpu revision", 12) == 0)
+	    info->stepping = linux_strings_insert(val);
+
 	if (info->clock == 0.0 && strncasecmp(buf, "cpu MHz", 7) == 0)
 	    info->clock = atof(val);
 	if (info->clock == 0.0 && strncasecmp(buf, "cycle frequency", 15) == 0) {
