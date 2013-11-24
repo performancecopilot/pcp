@@ -884,7 +884,8 @@ See also the kernel.uname.* metrics
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo
-@ hinv.cpu.model model name of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model model number of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model_name model name of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.stepping stepping of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.cache primary cache size of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.bogomips bogo mips rating for each CPU as reported by /proc/cpuinfo

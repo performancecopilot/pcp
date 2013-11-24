@@ -8,9 +8,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-tmpdir=/tmp/$$
+# create our own tmpdir to ensure we can write to it
+tmpdir=/tmp/$seq.$$
 rm -rf $tmpdir
-mkdir $tmpdir
+mkdir -p $tmpdir/pmlogger
+export PCP_TMP_DIR=$tmpdir
 
 # get standard filters
 . ./common.product

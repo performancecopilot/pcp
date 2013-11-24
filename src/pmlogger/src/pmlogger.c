@@ -401,7 +401,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	sprintf(tmp, "%s%cmsgXXXXXX", pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
+	sprintf(tmp, "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else

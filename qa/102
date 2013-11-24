@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     _restore_primary_logger
-    rm -f $tmp $tmp.*
+    $sudo rm -f $tmp $tmp.*
     exit $status
 }
 
@@ -70,26 +70,25 @@ _filter_pmlc <$tmp.out
 
 for delta in "-1 msec" "75 hours" "599 hours" "1200 hours"
 do
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
     cat <<End-of-File >$tmp.config
 log advisory on $delta sample.bin [100]
 End-of-File
     # pmlogger -c $tmp.config -T 4 $tmp
-    rm -f $tmp.*
-    pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp &
-    pid=$!
-    sleep 2
+    $sudo rm -f $tmp.*
+    _start_up_pmlogger -L -c /dev/null -l $tmp.log -T 4 $tmp
+    pmsleep 0.5
     pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 connect $pid
 log advisory on $delta sample.bin [100]
 End-of-File
 _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
-    $signal -s TERM $pid
-    wait
+    $sudo $signal -s TERM $pid
+    _wait_pmlogger_end $pid
     _filter_pmlogger_log <$tmp.log
 done
-sleep 2
+pmsleep 0.5
 
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 connect primary
@@ -100,7 +99,7 @@ _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
 $sudo $signal -a pmdasample
-sleep 2					# time to cleanup
+pmsleep 0.5				# time to cleanup
 pminfo -f sample >/dev/null 2>&1	# and make sure pmcd notices
 
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
@@ -112,7 +111,7 @@ _filter_pmlc <$tmp.err
 _filter_pmlc <$tmp.out
 
 $sudo $signal -a -s HUP pmcd
-sleep 2		# time to cleanup
+pmsleep 0.5				# time to cleanup
 pmlc -ie <<End-of-File >$tmp.out 2>$tmp.err
 connect primary
 query sample.bin[100]

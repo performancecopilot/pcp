@@ -14,14 +14,14 @@ echo "QA output created by $seq"
 . ./common.check
 
 signal=$PCP_BINADM_DIR/pmsignal
-trap "rm -f $tmp.*; $signal -s TERM \$pid; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; $sudo $signal -s TERM \$pid; exit" 0 1 2 3 15
 
 # just like the kill builtin, just do it quietly
 _silent_kill()
 {
     if [ $# -eq 1 ]
     then
-	(( $signal $1 )&) >/dev/null 2>&1
+	(( $sudo $signal $1 )&) >/dev/null 2>&1
     else
 	echo "_silent_kill: needs 1 arg, not $#"
     fi
@@ -44,8 +44,7 @@ _filter_errs()
 }
 
 # real QA test starts here
-pmlogger -L -c /dev/null -l $tmp.log $tmp &
-pid=$!
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log 10
 
 cat <<End-of-File >$tmp.cmd
@@ -55,19 +54,18 @@ query kernel
 query kernel
 E-O-F
 End-of-File
-chmod u+x $tmp.cmd
 
 for i in 1 2 3
 do
     echo "=== start and abort pmlc ==="
     echo >>$tmp.out
     echo "=== iteration $i ===" >>$tmp.out
-    ( $tmp.cmd & eval echo '$!' >$tmp.pid ) &
+    ( sh $tmp.cmd & eval echo '$!' >$tmp.pid ) &
 
-    sleep 5
+    pmsleep 2.5
     pmlc_pid=`cat $tmp.pid`
     [ ! -z "$pmlc_pid" ] && _silent_kill $pmlc_pid
-    sleep 2
+    pmsleep 1.1
     have=`ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '"$pmlc_pid"' { print }' \
 	  | wc -l | sed -e 's/  *//g'`
     echo "$have pmlc processes are running"
@@ -75,7 +73,7 @@ do
 
     # ready to accept again on the socket?
     #
-    sleep 5
+    pmsleep 2.5
 
 done
 

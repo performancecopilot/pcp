@@ -23,6 +23,7 @@ fi
 echo "QA output created by $seq"
 
 status=1
+username=`id -u -n`
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 
@@ -42,7 +43,7 @@ _cleanup()
 	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	if [ -d $tmp.mmv.dir ]
 	then
-	    rm -fr "$MMV_STATS_DIR"
+	    $sudo rm -fr "$MMV_STATS_DIR"
 	    $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
 	fi
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -90,8 +91,10 @@ cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
-mkdir "$MMV_STATS_DIR"
-chmod 1777 "$MMV_STATS_DIR"
+# create a directory we can write and pcp group can read
+$sudo mkdir -m 755 "$MMV_STATS_DIR"
+$sudo chown $username "$MMV_STATS_DIR"
+$sudo chgrp pcp "$MMV_STATS_DIR"
 
 echo
 echo "=== $iam agent installation ==="

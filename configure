@@ -637,6 +637,7 @@ ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
 pcp_tmp_dir
+pcp_tmpfile_dir
 pcp_run_dir
 pcp_log_dir
 pcp_sysconfig_dir
@@ -853,7 +854,6 @@ ac_user_opts='
 enable_option_checking
 with_64bit
 with_threads
-with_tmpdir
 with_secure_sockets
 with_static_probes
 with_infiniband
@@ -872,6 +872,7 @@ with_rcdir
 with_sysconfigdir
 with_logdir
 with_rundir
+with_tmpdir
 with_docdir
 with_demosdir
 '
@@ -1520,7 +1521,6 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
   --with-threads          enable support for multiple threads (default is on)
-  --with-tmpdir           define a temporary directory (default is /var/tmp)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-static-probes    enable support for static probes (default is on)
   --with-infiniband       enable support for Infiniband metrics (default is
@@ -1539,6 +1539,7 @@ Optional Packages:
   --with-sysconfigdir     sysconfig directory [SYSCONFDIR/sysconfig]
   --with-logdir           log directory [LOCALSTATEDIR/log/pcp]
   --with-rundir           run directory [LOCALSTATEDIR/run/pcp]
+  --with-tmpdir           tmp directory [LOCALSTATEDIR/tmp]
   --with-docdir           docs directory [DOCDIR/pcp-VERSION]
   --with-demosdir         run directory [DATADIR/pcp/demos]
 
@@ -2420,15 +2421,6 @@ if test "${with_threads+set}" = set; then :
   withval=$with_threads; do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"
 else
   do_threads=check
-fi
-
-
-
-# Check whether --with-tmpdir was given.
-if test "${with_tmpdir+set}" = set; then :
-  withval=$with_tmpdir; with_tmpdir=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tmpdir=$withval"
-else
-  with_tmpdir=default
 fi
 
 
@@ -11916,17 +11908,19 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 
 
-if test "$with_tmpdir" = default
-then
-    if test -d /var/tmp
-    then
-        pcp_tmp_dir=/var/tmp
-    else
-        pcp_tmp_dir=/tmp
-    fi
+
+# Check whether --with-tmpdir was given.
+if test "${with_tmpdir+set}" = set; then :
+  withval=$with_tmpdir; pcp_tmpfile_dir=$withval
 else
-    pcp_tmp_dir=`eval echo $with_tmpdir`
+  pcp_tmpfile_dir=$localstatedir/tmp
 fi
+
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+
+
+pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 
 
 

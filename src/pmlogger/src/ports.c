@@ -246,14 +246,21 @@ GetPort(char *file)
     mapfd = open(file, O_WRONLY | O_EXCL | O_CREAT,
 		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (mapfd == -1) {
+	/* not a fatal error; continue on without control file */
+#ifdef DESPERATE
 	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
 		pmProgname, file, osstrerror());
-	exit(1);
+#endif
+	return fd;
     }
     /* write the port number to the port map file */
     if ((mapstream = fdopen(mapfd, "w")) == NULL) {
+	/* not a fatal error; continue on without control file */
+	close(mapfd);
+#ifdef DESPERATE
 	perror("GetPort: fdopen");
-	exit(1);
+#endif
+	return fd;
     }
     /* first the port number */
     fprintf(mapstream, "%d\n", ctlport);
@@ -347,12 +354,15 @@ init_ports(void)
 
     /* try to create the port file directory. OK if it already exists */
     sts = mkdir2(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO);
-    if (sts < 0 && oserror() != EEXIST) {
-	fprintf(stderr, "%s: error creating port file dir %s: %s\n",
+    if (sts < 0) {
+	if (oserror() != EEXIST) {
+	    fprintf(stderr, "%s: error creating port file dir %s: %s\n",
 		pmProgname, ctlfile, osstrerror());
-	exit(1);
+	    exit(1);
+	}
+    } else {
+	chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
-    chmod(ctlfile, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
 
     /* remove any existing port file with my name (it's old) */
     snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);

@@ -281,7 +281,8 @@ fopen_compress(const char *fname)
 
     cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 #if HAVE_MKSTEMP
-    snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", pmGetConfig("PCP_TMP_DIR"));
+    snprintf(tmpname, sizeof(tmpname),
+		"%s/XXXXXX", pmGetConfig("PCP_TMPFILE_DIR"));
     msg = tmpname;
     fd = mkstemp(tmpname);
 #else

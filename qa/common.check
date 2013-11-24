@@ -350,6 +350,44 @@ _wait_for_pmlogger()
     fi
 }
 
+# Start a pmlogger with appropriate privs that it can create
+# portmap files in PCP_TMP_DIR (requires pcp or root account)
+#
+# Couple of side-effects to be aware of:
+# Returns with $pid containing the backgrounded pmlogger PID;
+# Creates the pmlogger archive, logfile, etc as root/pcp, not
+# as the user running QA (so, tmp cleanup needs to use sudo).
+#
+_start_up_pmlogger()
+{
+    cat >$tmp.cmd <<End-of-File
+#!/bin/sh
+pmlogger $@ &
+echo pid=\$!
+End-of-File
+
+    __user=root
+    id pcp >/dev/null 2>&1 && __user=pcp
+
+    $sudo -u $__user sh $tmp.cmd $@ >$tmp.pid
+    eval `cat $tmp.pid`
+}
+
+# wait for a pmlogger process to end that is not our child
+# (else we could just use shell wait command).  Instead we
+# must keep tabs on the PID file and bail when its gone.
+#
+_wait_pmlogger_end()
+{
+    pid=$1
+
+    while true
+    do
+        test -f "$PCP_TMP_DIR/pmlogger/$pid" || return
+	pmsleep 0.1
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()

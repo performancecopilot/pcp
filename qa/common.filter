@@ -17,6 +17,7 @@ _filter_pmcd_log()
 					{ print }' \
     | sed \
 	-e '/^__pmGetAddrInfo/d' \
+	-e '/:__pmHostEntFree(/d' \
 	-e '/^__pmHostEntGetName/d' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATE]/' \

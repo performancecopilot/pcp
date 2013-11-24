@@ -34,12 +34,15 @@ mmv_mapping_init(const char *fname, size_t size)
 {
     char path[MAXPATHLEN];
     void *addr = NULL;
+    mode_t cur_umask;
     int fd, sts = 0;
 
     /* unlink+creat will cause the pmda to reload on next fetch */
     mmv_stats_path(fname, path, sizeof(path));
     unlink(path);
+    cur_umask = umask(S_IWGRP | S_IWOTH);
     fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644);
+    umask(cur_umask);
     if (fd < 0)
 	return NULL;
 

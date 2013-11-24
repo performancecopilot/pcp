@@ -118,7 +118,8 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
     then
-	mkdir -p -m 1777 "$PCP_TMP_DIR/pmlogger"
+	mkdir -p -m 777 "$PCP_TMP_DIR/pmlogger"
+	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
     else
 	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
@@ -132,13 +133,6 @@ _reboot_setup()
 	rm -f `comm -23 $tmp/ent $tmp/pid`
 	rm -f $tmp/ent $tmp/pid
 	cd "$here"
-    fi
-
-    # base directory for Memory Mapped Value PMDA and clients
-    #
-    if [ ! -d "$PCP_TMP_DIR/mmv" ]
-    then
-	mkdir -p -m 1777 "$PCP_TMP_DIR/mmv"
     fi
 
     # Rebuild PMNS?
@@ -457,7 +451,11 @@ case "$1" in
 Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		exit
 	    fi
-	    [ ! -d "$RUNDIR" ] && mkdir -p "$RUNDIR" && chown pcp:pcp "$RUNDIR"
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
 	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any PMCD and PMDA logfiles
@@ -495,7 +493,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    # force removal of primary pmlogger link ... if primary
 	    # pmlogger is started, this will re-create the link
 	    #
-	    rm -f $PCP_TMP_DIR/pmlogger/primary
+	    rm -f "$PCP_TMP_DIR/pmlogger/primary"
 
 	    # site-local customisations after PMCD startup
 	    #

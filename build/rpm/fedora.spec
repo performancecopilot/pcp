@@ -285,8 +285,7 @@ building Performance Metric API (PMAPI) tools using Python.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} --with-tmpdir=%{_tempsdir} \
-%{?_with_doc} %{?_with_ib}
+%configure --with-rcdir=%{_initddir} %{?_with_doc} %{?_with_ib}
 make default_pcp
 
 %install
@@ -327,6 +326,7 @@ sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man1files.list
 cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.list
 
 %pre testsuite
+test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
@@ -474,11 +474,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
-%dir %attr(1777,root,root) %{_tempsdir}
-%dir %attr(1777,root,root) %{_tempsdir}/mmv
-%dir %attr(1777,root,root) %{_tempsdir}/pmie
-%dir %attr(1777,root,root) %{_tempsdir}/pmlogger
-%dir %attr(1777,root,root) %{_tempsdir}/pmdabash
+%dir %attr(0775,pcp,pcp) %{_tempsdir}
+%dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
+%dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
 
 %{_libexecdir}/pcp
 %{_datadir}/pcp/lib

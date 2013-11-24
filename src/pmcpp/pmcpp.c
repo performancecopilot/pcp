@@ -38,6 +38,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <ctype.h>
+#include <sys/stat.h>
 
 static char	ibuf[256];		/* input line buffer */
 
@@ -312,8 +313,29 @@ do_macro(void)
 	*op = '\0';
 	strcpy(ibuf, tmp);
     }
+}
 
-    return;
+/*
+ * Open a regular file for reading, checking that its regular and accessible
+ */
+FILE *
+openfile(const char *fname)
+{
+    struct stat sbuf;
+    FILE *fp = fopen(fname, "r");
+
+    if (!fp)
+	return NULL;
+    if (fstat(fileno(fp), &sbuf) < 0) {
+	fclose(fp);
+	return NULL;
+    }
+    if (!S_ISREG(sbuf.st_mode)) {
+	fclose(fp);
+	setoserror(ENOENT);
+	return NULL;
+    }
+    return fp;
 }
 
 int
@@ -361,7 +383,7 @@ main(int argc, char **argv)
     }
     else {
 	currfile->fname = argv[optind];
-	currfile->fin = fopen(currfile->fname, "r");
+	currfile->fin = openfile(currfile->fname);
 	if (currfile->fin == NULL) {
 	    err((char *)pmErrStr(-oserror()));
 	    /*NOTREACHED*/
@@ -452,7 +474,7 @@ main(int argc, char **argv)
 		}
 		c = *pend;
 		*pend = '\0';
-		f = fopen(p, "r");
+		f = openfile(p);
 		if (f == NULL && file_ctl[0].fin != stdin) {
 		    /* check in directory of file from command line */
 		    static int	sep;
@@ -473,7 +495,7 @@ main(int argc, char **argv)
 			sep = __pmPathSeparator();
 		    }
 		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", dir, sep, p);
-		    f = fopen(tmpbuf, "r");
+		    f = openfile(tmpbuf);
 		    if (f != NULL)
 			p = tmpbuf;
 		}
@@ -486,7 +508,7 @@ main(int argc, char **argv)
 			sep = __pmPathSeparator();
 		    }
 		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns%c%s", var_dir, sep, sep, p);
-		    f = fopen(tmpbuf, "r");
+		    f = openfile(tmpbuf);
 		    if (f != NULL)
 			p = tmpbuf;
 		}

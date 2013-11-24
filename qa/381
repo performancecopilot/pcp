@@ -6,7 +6,6 @@
 #
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
 # get standard filters
@@ -72,7 +71,7 @@ _cleanup()
     then
 	if [ ! -z "$pid" ]
 	then
-	    $signal -s TERM $pid
+	    $sudo $signal -s TERM $pid
 	    sleep 1
 	    pid=''
 	fi
@@ -84,7 +83,7 @@ _cleanup()
 	_wait_for_pmlogger
 	need_clean=false
     fi
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
     exit
 }
 
@@ -97,7 +96,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 myhost=`hostname`
 pid=''
 
-rm -f $tmp.*
+$sudo rm -f $tmp.*
 
 rem_pid=`pminfo -f -h $rem_host pmcd.pmlogger.port \
 	 | sed -n -e '/primary/d' -e '/ value 4330 *$/{
@@ -111,10 +110,7 @@ then
     exit
 fi
 
-
-( pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp </dev/null >/dev/null 2>&1 ) &
-pid=$!
-
+_start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
 _wait_for_pmlogger $pid $tmp.log
 
 port=`pminfo -f pmcd.pmlogger.port \

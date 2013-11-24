@@ -35,13 +35,6 @@ AC_ARG_WITH(
     [do_threads=check])
 
 AC_ARG_WITH(
-    [tmpdir],
-    [AS_HELP_STRING([--with-tmpdir],
-		    [define a temporary directory (default is /var/tmp)])],
-    [with_tmpdir=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tmpdir=$withval"],
-    [with_tmpdir=default])
-
-AC_ARG_WITH(
     [secure-sockets],
     [AC_HELP_STRING([--with-secure-sockets],
 		    [enable support for secure sockets (default is on)])],
@@ -1986,18 +1979,16 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 
-dnl temp files; these can go into system /tmp independent of $prefix
-if test "$with_tmpdir" = default
-then
-    if test -d /var/tmp
-    then
-        pcp_tmp_dir=/var/tmp
-    else
-        pcp_tmp_dir=/tmp
-    fi
-else
-    pcp_tmp_dir=`eval echo $with_tmpdir`
-fi
+dnl world-writeable temporary files directory
+AC_ARG_WITH(tmpdir,[AC_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],
+                   [pcp_tmpfile_dir=$withval],
+                   [pcp_tmpfile_dir=$localstatedir/tmp])
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+AC_SUBST(pcp_tmpfile_dir)
+
+dnl non-world-writeable status files directory
+pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 AC_SUBST(pcp_tmp_dir)
 
 dnl doc directory

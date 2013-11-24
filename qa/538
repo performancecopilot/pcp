@@ -8,16 +8,23 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# create our own tmpdir to ensure we can write to it
+tmpdir=/tmp/$seq.$$
+rm -rf $tmpdir
+mkdir -p $tmpdir/pmlogger
+export PCP_TMP_DIR=$tmpdir
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 
 _cleanup()
 {
-    rm -f $tmp.*
+    rm -fr $tmpdir
     pmstore sample.write_me 2 >/dev/null	# reset value
 }
 
+tmp=$tmpdir/$$
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
