@@ -56,7 +56,11 @@ update-rc.d pmie defaults >/dev/null
 update-rc.d pmwebd defaults >/dev/null
 update-rc.d pmproxy defaults >/dev/null
 
-_clean_tmpdirs $PCP_TMP_DIR /var/tmp mmv pmdabash pmie pmlogger
+for dir in mmv pmdabash
+do
+    [ ! -k /var/tmp/$dir ] || mv /var/tmp/$dir /var/lib/pcp/tmp
+done
+_clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger
 
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d pmcd start
