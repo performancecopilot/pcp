@@ -43,6 +43,7 @@ _remote_signal()
 \$PCP_BINADM_DIR/pmsignal -s TERM $pid
 sleep 1
 \$PCP_BINADM_DIR/pmsignal -s KILL $pid
+test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o-w \$PCP_TMP_DIR/pmlogger
 rm -f /tmp/$base.*
 end-of-file
     scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
@@ -64,6 +65,7 @@ else
     exit 1
 fi
 rm -f /tmp/$$.*
+test -k $PCP_TMP_DIR/pmlogger || sudo chmod o+w $PCP_TMP_DIR/pmlogger
 ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
 echo pid=$! base=$$
 End-of-File
@@ -145,7 +147,6 @@ End-of-File
 	pid=''
 	base=''
     fi
-
 }
 
 _cleanup()
