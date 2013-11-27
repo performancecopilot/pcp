@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= rpm.c
 CMDTARGET = pmdarpm$(EXECSUFFIX)
 LIBTARGET = pmda_rpm.so
-LLDLIBS = $(PCP_PMDALIB) -lrpm -lgc -lpthread
+LLDLIBS = $(PCP_PMDALIB) -lrpm -lpthread
 
 LCFLAGS = -I.
 LSRCFILES = Install Remove pmns root help
