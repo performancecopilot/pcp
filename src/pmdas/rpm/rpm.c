@@ -18,6 +18,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <search.h>
+
 #include <sys/inotify.h>
 
 
@@ -34,111 +36,284 @@
 
 // List of metrics corresponding to rpm --querytags
 
-// corresponds to metrictab to give the tag rpm uses to fetch the given value
+// corresponds to metrictab to give the tag rpm uses to fetch the given
+// value
 
-static int metric_tags[] = {
-    /* arch */	    	RPMTAG_ARCH,
-    /* basenames */	RPMTAG_BASENAMES,
-    /* buildtime */    	RPMTAG_BUILDTIME,
-    /* description */	RPMTAG_DESCRIPTION,
-    /* dirnames */	RPMTAG_DIRNAMES,
-    /* distribution */	RPMTAG_DISTRIBUTION,
-    /* evr */    	RPMTAG_EVR,
-    /* file.class */    RPMTAG_FILECLASS,
-    /* file.linktos */  RPMTAG_FILELINKTOS,
-    /* file.md5s */    	RPMTAG_FILEMD5S,
-    /* file.modes */    RPMTAG_FILEMODES,
-    /* file.names */    RPMTAG_FILENAMES,
-    /* file.require */  RPMTAG_FILEREQUIRE,
-    /* file.sizes */    RPMTAG_FILESIZES,
-    /* group */    	RPMTAG_GROUP,
-    /* license */    	RPMTAG_LICENSE,
-    /* name */      	RPMTAG_NAME,
-    /* obsoletes */    	RPMTAG_OBSOLETES,
-    /* packageid */	RPMTAG_PKGID,
-    /* platform */    	RPMTAG_PLATFORM,
-    /* provideversion */ RPMTAG_PROVIDEVERSION,
-    /* provides */    	RPMTAG_PROVIDES,
-    /* release */   	RPMTAG_RELEASE,
-    /* requires */    	RPMTAG_REQUIRES,
-    /* rpmversion */	RPMTAG_RPMVERSION,
-    /* size */	    	RPMTAG_SIZE,
-    /* sourcerpm */ 	RPMTAG_SOURCERPM,
-    /* summary */	RPMTAG_SUMMARY,
-    /* url */		RPMTAG_URL,
-    /* version */	RPMTAG_VERSION,
+static struct metrics {
+    int tag;
+    int type;
+} metrics[] = {
+    /*
+     * arch 
+     */  {
+    RPMTAG_ARCH, 0},
+	/*
+	 * basenames 
+	 */  {
+    RPMTAG_BASENAMES, 0},
+	/*
+	 * buildtime 
+	 */  {
+    RPMTAG_BUILDTIME, 0},
+	/*
+	 * description 
+	 */  {
+    RPMTAG_DESCRIPTION, 0},
+	/*
+	 * dirnames 
+	 */  {
+    RPMTAG_DIRNAMES, 0},
+	/*
+	 * distribution 
+	 */  {
+    RPMTAG_DISTRIBUTION, 0},
+	/*
+	 * evr 
+	 */  {
+    RPMTAG_EVR, 0},
+	/*
+	 * file.class 
+	 */  {
+    RPMTAG_FILECLASS, 0},
+	/*
+	 * file.linktos 
+	 */  {
+    RPMTAG_FILELINKTOS, 0},
+	/*
+	 * file.md5s 
+	 */  {
+    RPMTAG_FILEMD5S, 0},
+	/*
+	 * file.modes 
+	 */  {
+    RPMTAG_FILEMODES, 0},
+	/*
+	 * file.names 
+	 */  {
+    RPMTAG_FILENAMES, 0},
+	/*
+	 * file.require 
+	 */  {
+    RPMTAG_FILEREQUIRE, 0},
+	/*
+	 * file.sizes 
+	 */  {
+    RPMTAG_FILESIZES, 0},
+	/*
+	 * group 
+	 */  {
+    RPMTAG_GROUP, 0},
+	/*
+	 * license 
+	 */  {
+    RPMTAG_LICENSE, 0},
+	/*
+	 * name 
+	 */  {
+    RPMTAG_NAME, 0},
+	/*
+	 * obsoletes 
+	 */  {
+    RPMTAG_OBSOLETES, 0},
+	/*
+	 * packageid 
+	 */  {
+    RPMTAG_PKGID, 0},
+	/*
+	 * platform 
+	 */  {
+    RPMTAG_PLATFORM, 0},
+	/*
+	 * provideversion 
+	 */  {
+    RPMTAG_PROVIDEVERSION, 0},
+	/*
+	 * provides 
+	 */  {
+    RPMTAG_PROVIDES, 0},
+	/*
+	 * release 
+	 */  {
+    RPMTAG_RELEASE, 0},
+	/*
+	 * requires 
+	 */  {
+    RPMTAG_REQUIRES, 0},
+	/*
+	 * rpmversion 
+	 */  {
+    RPMTAG_RPMVERSION, 0},
+	/*
+	 * size 
+	 */  {
+    RPMTAG_SIZE, 0},
+	/*
+	 * sourcerpm 
+	 */  {
+    RPMTAG_SOURCERPM, 0},
+	/*
+	 * summary 
+	 */  {
+    RPMTAG_SUMMARY, 0},
+	/*
+	 * url 
+	 */  {
+    RPMTAG_URL, 0},
+	/*
+	 * version 
+	 */  {
+    RPMTAG_VERSION, 0}
 };
 
 
-#define METRICTAB_ENTRY(M,N,T) (&metric_tags[N]), { PMDA_PMID (M, N), T, 0, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+#define METRICTAB_ENTRY(M,N,T) (&metrics[N].tag), { PMDA_PMID (M, N), T, 0, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 static pmdaMetric metrictab[] = {
-    /* refresh.count */
-    {NULL, { PMDA_PMID (0, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },  },
-    /* refresh.time */
-    {NULL, { PMDA_PMID (0, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },  },
-    /* arch */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* basenames */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* buildtime */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_U32) },
-    /* description */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* dirnames */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* distribution */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* evr */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* file.class */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.linktos */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.md5s */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.modes */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.names */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.require */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_STRING) },
-    /* file.sizes */
-    { METRICTAB_ENTRY (2, __COUNTER__, PM_TYPE_U32) },
-    /* group */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* license */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* name */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* obsoletes */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* packageid */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* platform */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* provideversion */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* provides */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* release */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* requires */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* rpmversion */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* size */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_U32) },
-    /* sourcerpm */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* summary */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* url */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) },
-    /* version */
-    { METRICTAB_ENTRY (1, __COUNTER__, PM_TYPE_STRING) }
+    /*
+     * refresh.count 
+     */
+    {NULL,
+     {PMDA_PMID(0, 0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0)},},
+    /*
+     * refresh.time 
+     */
+    {NULL,
+     {PMDA_PMID(0, 1), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0)},},
+    /*
+     * arch 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * basenames 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * buildtime 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_U32)},
+    /*
+     * description 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * dirnames 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * distribution 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * evr 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.class 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.linktos 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.md5s 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.modes 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.names 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.require 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * file.sizes 
+     */
+    {METRICTAB_ENTRY(2, __COUNTER__, PM_TYPE_U32)},
+    /*
+     * group 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * license 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * name 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * obsoletes 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * packageid 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * platform 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * provideversion 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * provides 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * release 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * requires 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * rpmversion 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * size 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_U32)},
+    /*
+     * sourcerpm 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * summary 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * url 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)},
+    /*
+     * version 
+     */
+    {METRICTAB_ENTRY(1, __COUNTER__, PM_TYPE_STRING)}
 };
 
+// RPM cache information.  A linked list of pcp pmAtonValue structures.
+// RPMTAG_NAME will yield the name.  The type for each metric is stored and
+// saved in metrics.
+
+typedef struct cache_entry {
+    pmAtomValue entry[(RPMTAG_NVRA - RPMTAG_NAME) + 1 +
+		      (RPMTAG_FIRSTFREE_TAG - RPMTAG_FILENAMES)];
+    struct cache_entry *next;
+} cache_entry;
+cache_entry *cache;
+cache_entry *current_cache_entry;
 
 // To load the instances
 static pthread_t indom_thread;
@@ -146,155 +321,100 @@ static pthread_t indom_thread;
 static pthread_t inotify_thread;
 static long numrefresh = 0;
 
+// hash table info used by hsearch_r
+
+#define HASH_HBOUND 5000
+struct hsearch_data htab;
 
 pthread_rwlock_t indom_lock;
 
 // Load the instances dynamically
 pmdaIndom indomtab[] = {
 #define RPM_INDOM	0
-		{ RPM_INDOM, 0, NULL },
+    {RPM_INDOM, 0, NULL},
 };
-static pmInDom	*rpm_indom = &indomtab[0].it_indom;
+static pmInDom *rpm_indom = &indomtab[0].it_indom;
 
 // Invoked as a .so or as a daemon?
-static int	isDSO = 1;
-static char	*username;
+static int isDSO = 1;
+static char *username;
 
 #define RPM_BUFSIZE		256
 
-static char	mypath[MAXPATHLEN];
+static char mypath[MAXPATHLEN];
 
 /*
  * Callback provided to pmdaFetch to fetch values from rpm db corresponding to metric_querytags
  */
 
 static int
-rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+rpm_fetchCallBack(pmdaMetric * mdesc, unsigned int inst,
+		  pmAtomValue * atom)
 {
-    static int is_rpm_init = 0;
-    Header h;
-    rpmdbMatchIterator mi;
-    rpmtd tn;
-    rpmts ts;
-    int rpmtag = 0;
-    int idx;
-
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    if (idp->cluster == 0) {
-    	if (idp->item == 0) {			/* rpm.refresh.count */
-    		atom->ll = numrefresh;
-    		return PMDA_FETCH_STATIC;
-    	}
-    	else if (idp->item== 1) {
-    		double	usr, sys;
-    		__pmProcessRunTimes(&usr, &sys);
-    		atom->d = usr + sys;
-    		return PMDA_FETCH_STATIC;
-    	}
-    }
-
-    rpmtag = *((int*)mdesc->m_user);
-
-    // Fire up rpm only the first time
-    if (! is_rpm_init) {
-    	rpmReadConfigFiles( NULL, NULL );
-    	is_rpm_init = 1;
-    }
-    tn = rpmtdNew();
-    ts = rpmtsCreate();
-
+    int ret_type;
+    ENTRY e,
+    *ep;
+    __pmID_int *idp = (__pmID_int *) & (mdesc->m_desc.pmid);
+    pmAtomValue this_atom;
+    int type;
+    int tag;
     // Get the instance name for this instance
+    char *rpm_inst_name;
+    int cacheidx = pmdaCacheLookup(*rpm_indom, inst, &rpm_inst_name, NULL);
+    if (cacheidx < 0) {
+	__pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst,
+		      pmErrStr(cacheidx));
+	return PM_ERR_INST;
+    }
+
+    if (idp->cluster == 0) {
+	if (idp->item == 0) {	/* rpm.refresh.count */
+	    atom->ll = numrefresh;
+	    return PMDA_FETCH_STATIC;
+//	} else if (idp->item == 1) { /* rpm.refresh.time */
+	    double usr,
+	     sys;
+	    __pmProcessRunTimes(&usr, &sys);
+	    atom->d = usr + sys;
+	    return PMDA_FETCH_STATIC;
+	}
+    }
+
+    type = ((struct metrics *) mdesc->m_user)->type;
+    tag = ((struct metrics *) mdesc->m_user)->tag;
+    int metric_idx;	// index of this rpms' metric
+    for (metric_idx = 0;
+	 metric_idx < (sizeof(metrics) / sizeof(struct metrics));
+	 metric_idx++)
+	if (metrics[metric_idx].tag == tag)
+	    break;
+
+    // search for this rpm
     pthread_rwlock_rdlock(&indom_lock);
-    char * rpm_inst_name;
-    idx = pmdaCacheLookup(*rpm_indom, inst, &rpm_inst_name, NULL);
-    if (idx < 0) {
-    	__pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst, pmErrStr(idx));
-    	return PM_ERR_INST;
+    e.key = rpm_inst_name;
+    e.data = NULL;
+    if (hsearch_r(e, FIND, &ep, &htab) == 0)
+	return PM_ERR_INST;
+
+    // the hash table points to the metrics for this rpm
+    this_atom = ((cache_entry *) (ep->data))->entry[metric_idx];
+
+    switch (type) {
+    case PM_TYPE_STRING:
+	atom->cp = this_atom.cp;
+	ret_type = PMDA_FETCH_DYNAMIC;
+	break;
+    case PM_TYPE_32:
+	atom->l = this_atom.l;
+	ret_type = PMDA_FETCH_STATIC;
+	break;
+    case PM_TYPE_64:
+	atom->ll = this_atom.ll;
+	ret_type = PMDA_FETCH_STATIC;
+	break;
     }
+
     pthread_rwlock_unlock(&indom_lock);
-
-    // Setup the rpm iterator for this instance
-    mi = rpmtsInitIterator(ts, RPMTAG_NAME, rpm_inst_name, 0);
-
-    int ret_type = PMDA_FETCH_STATIC;
-    while (NULL != (h = rpmdbNextIterator(mi))) {
-    	h = headerLink(h);
-    	headerGet(h, rpmtag, tn, HEADERGET_EXT);
-    	switch(tn->type) {
-    	// The rpm value is a string
-    	case RPM_STRING_TYPE:
-    	{
-    		if (mdesc->m_desc.type != PM_TYPE_STRING) {
-    			__pmNotifyErr(LOG_ERR, "Expected string type %d got %d.", PM_TYPE_STRING, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		const char* rpmval = rpmtdGetString(tn);
-            if ((atom->cp = strdup(rpmval)) == NULL)
-            	ret_type = -ENOMEM;
-            else
-            	ret_type = PMDA_FETCH_DYNAMIC;
-    		break;
-    	}
-    	// The rpm value is an array of strings
-    	case RPM_STRING_ARRAY_TYPE:
-    	{
-    		if (mdesc->m_desc.type != PM_TYPE_STRING) {
-    			__pmNotifyErr(LOG_ERR, "Expected string type %d got %d.", PM_TYPE_STRING, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		char ** strings;
-    		strings = tn->data;
-    		for (idx = 0; idx < tn->count; idx++) {
-    			if (idx == 0) {
-    				atom->cp = malloc(strlen(strings[idx]) + 1);
-    				strcpy(atom->cp, strings[idx]);
-    			}
-    			else {
-    				atom->cp = realloc(atom->cp, strlen(atom->cp) + strlen(strings[idx]) + 2);
-    				strcat (atom->cp, "\n");
-    				strcat (atom->cp, strings[idx]);
-    			}
-    		}
-    		free (tn->data);
-    		ret_type = PMDA_FETCH_DYNAMIC;
-    		break;
-    	}
-    	// The rpm value is an int
-    	// ?? Handle array of ints
-    	case RPM_INT8_TYPE:
-    		if (mdesc->m_desc.type != PM_TYPE_U32) {
-    			__pmNotifyErr(LOG_ERR, "Expected integer type %d got %d.", PM_TYPE_U32, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		atom->l = ((char*)(tn->data))[0];
-    		break;
-    	case RPM_INT16_TYPE:
-    		if (mdesc->m_desc.type != PM_TYPE_U32) {
-    			__pmNotifyErr(LOG_ERR, "Expected integer type %d got %d.", PM_TYPE_U32, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		atom->l = ((short*)(tn->data))[0];
-    		break;
-    	case RPM_INT32_TYPE:
-    		if (mdesc->m_desc.type != PM_TYPE_U32) {
-    			__pmNotifyErr(LOG_ERR, "Expected integer type %d got %d.", PM_TYPE_U32, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		atom->l = ((int*)(tn->data))[0];
-    		break;
-    	case RPM_INT64_TYPE:
-    		if (mdesc->m_desc.type != PM_TYPE_U64) {
-    			__pmNotifyErr(LOG_ERR, "Expected integer type %d got %d.", PM_TYPE_U32, mdesc->m_desc.type);
-    			return EINVAL;
-    		}
-    		atom->ll = ((long long*)(tn->data))[0];
-    	}
-        rpmtdReset(tn);
-        headerFree(h);
-    }
-
-    rpmdbFreeIterator(mi);
-    rpmtsFree(ts);
 
     return ret_type;
 }
@@ -304,10 +424,9 @@ rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  */
 
 static int
-rpm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+rpm_fetch(int numpmid, pmID pmidlist[], pmResult ** resp, pmdaExt * pmda)
 {
-	__pmNotifyErr(LOG_NOTICE, "in rpm_fetch %d", numpmid);
-	pthread_join (indom_thread, NULL);
+    pthread_join(indom_thread, NULL);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -316,120 +435,285 @@ rpm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * Load the rpm module names into the instance table
  */
 
-void*
-rpm_update_indom (void* ptr)
+int
+rpm_update_cache(void *ptr)
 {
-    int		sts;
     rpmts ts = NULL;
     Header h;
     rpmdbMatchIterator mi;
-    rpmtd tn;
+    rpmtd td;
+    double usr1,
+     usr2,
+     sys1,
+     sys2;
 
     numrefresh++;
 
-    int cache_entry_count = pmdaCacheOp(*rpm_indom, PMDA_CACHE_SIZE_ACTIVE);
+    __pmProcessRunTimes(&usr1, &sys1);
+    pthread_rwlock_wrlock(&indom_lock);
 
-    sts = pmdaCacheOp(*rpm_indom, PMDA_CACHE_INACTIVE);
-    if (sts < 0)
-    	__pmNotifyErr(LOG_ERR, "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-			pmInDomStr(*rpm_indom), pmErrStr(sts));
-    else
-    __pmNotifyErr(LOG_INFO, "pmdaCacheOp(INACTIVE) success: indom=%s",
-			pmInDomStr(*rpm_indom));
-
-    tn = rpmtdNew();
+    td = rpmtdNew();
     ts = rpmtsCreate();
-    __pmNotifyErr(LOG_INFO, "rpm_update_indom hello1!");
 
-    rpmReadConfigFiles( NULL, NULL );
-    __pmNotifyErr(LOG_INFO, "rpm_update_indom hello2!");
+    rpmReadConfigFiles(NULL, NULL);
 
+    cache_entry *this_cache_entry;
+    // Is this an inotify rpm reload?
+    if (!cache) {
+	cache = current_cache_entry = malloc(sizeof(cache_entry));
+	memset(cache, 0, sizeof(cache_entry));
+    }
     // Iterate through the entire list of rpms
-    mi = rpmtsInitIterator( ts, RPMDBI_PACKAGES, NULL, 0);
-    __pmNotifyErr(LOG_INFO, "rpm_update_indom hello3!");
+    mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
 
     while ((h = rpmdbNextIterator(mi)) != NULL) {
-    	h = headerLink(h);
-    	headerGet(h, RPMTAG_NAME, tn, HEADERGET_EXT);
-    	const char* rpm_name = rpmtdGetString(tn);
+	this_cache_entry = malloc(sizeof(cache_entry));
+	memset(this_cache_entry, 0, sizeof(cache_entry));
+	current_cache_entry->next = this_cache_entry;
+	current_cache_entry = this_cache_entry;
+	current_cache_entry->next = NULL;
 
-    	// If we are doing an initial load then do not bother looking up names
-    	if (0 && cache_entry_count != 0) {
-    		sts = pmdaCacheLookupName(*rpm_indom, rpm_name, NULL, NULL);
-    		if (sts < 0)
-    			__pmNotifyErr(LOG_ERR, "pmdaCacheLookupName failed: indom=%s: %s",
-    					pmInDomStr(*rpm_indom), pmErrStr(sts));
-    	}
-    	pthread_rwlock_wrlock(&indom_lock);
-    	sts = pmdaCacheStore(*rpm_indom, PMDA_CACHE_ADD, rpm_name, NULL);
-    	if (sts < 0)
-    		__pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: indom=%s: %s",
-    				pmInDomStr(*rpm_indom), pmErrStr(sts));
-    	pthread_rwlock_unlock(&indom_lock);
-    	rpmtdReset(tn);
-    	headerFree(h);
+	int i;
+	for (i = 0; i < (sizeof(metrics) / sizeof(struct metrics)); i++) {
+	    headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT);
+	    const char *rpmname = rpmtdGetString(td);
+	    ENTRY e,
+	    *ep;
+	    e.key = rpmname;
+	    e.data = 0;
+	    // If we already have this rpm then grab the next one
+	    // ?? we need to check the rpm version and reload if it is a newer rpm version
+	    if (hsearch_r(e, FIND, &ep, &htab) != 0)
+		continue;
+
+	    headerGet(h, metrics[i].tag, td, HEADERGET_EXT);
+	    switch (td->type) {
+		// The rpm value is a string
+	    case RPM_STRING_TYPE:
+		{
+		    const char *rpmval = rpmtdGetString(td);
+		    current_cache_entry->entry[i].cp = strdup(rpmval);
+		    if (current_cache_entry == NULL) {
+			__pmNotifyErr(LOG_INFO, "strdup(%d) for %d failed",
+				      (int) strlen(rpmval), i);
+			return -ENOMEM;
+		    }
+		    metrics[i].type = PM_TYPE_STRING;
+		    break;
+		}
+		// The rpm value is an array of strings
+	    case RPM_STRING_ARRAY_TYPE:
+		{
+		    // concatenate the string parts
+		    char **strings;
+		    strings = td->data;
+		    char *ccecp;
+		    int idx;
+		    int string_length = 0;
+
+		    for (idx = 0; idx < td->count; idx++) {
+			if (string_length > 2000) {
+			    ccecp = realloc(ccecp, string_length + 3);
+			    strcat(ccecp, "...");
+			    break;
+			}
+			if (idx == 0) {
+			    string_length = strlen(strings[idx]) + 1;
+			    ccecp = malloc(string_length);
+			    if (ccecp == NULL)
+				__pmNotifyErr(LOG_INFO,
+					      "malloc(%d) for %d failed",
+					      (int) strlen(strings[idx]),
+					      i);
+			    strcpy(ccecp, strings[idx]);
+			} else {
+			    string_length = strlen(ccecp) +
+				strlen(strings[idx]) + 2;
+			    ccecp = realloc(ccecp, string_length);
+			    if (ccecp == NULL)
+				__pmNotifyErr(LOG_INFO,
+					      "realloc(%d) for %d failed",
+					      (int) strlen(ccecp) +
+					      (int) strlen(strings[idx]),
+					      i);
+			    strcat(ccecp, "\n");
+			    strcat(ccecp, strings[idx]);
+			}
+		    }
+		    current_cache_entry->entry[i].cp = ccecp;
+		    /*
+		     * printf 
+		     */
+		    /*
+		     * ("STRING_ARRAY count=%d[%#lx][%d]=%s/%s\n", 
+		     */
+		    /*
+		     * td->count, current_cache_entry, i, 
+		     */
+		    /*
+		     * current_cache_entry->entry[i].cp, ccecp); 
+		     */
+		    free(td->data);
+		    metrics[i].type = PM_TYPE_STRING;
+		    break;
+		}
+		// The rpm value is an int
+		// ?? Handle array of ints
+	    case RPM_INT8_TYPE:
+		current_cache_entry->entry[i].l = ((char *) (td->data))[0];
+		// type defaults to 0 == PM_TYPE_32
+		break;
+	    case RPM_INT16_TYPE:
+		current_cache_entry->entry[i].l =
+		    ((short *) (td->data))[0];
+		// type defaults to 0 == PM_TYPE_32
+		break;
+	    case RPM_INT32_TYPE:
+		current_cache_entry->entry[i].l = ((int *) (td->data))[0];
+		// type defaults to 0 == PM_TYPE_32
+		break;
+	    case RPM_INT64_TYPE:
+		current_cache_entry->entry[i].ll =
+		    ((long long *) (td->data))[0];
+		metrics[i].type = PM_TYPE_64;
+		break;
+	    }
+	    rpmtdReset(td);
+	}
+	// headerFree(h);
     }
-    __pmNotifyErr(LOG_INFO, "rpm_update_indom hello4!");
-    sts = pmdaCacheLookupName(*rpm_indom, "gcc", NULL, NULL);
-    __pmNotifyErr(LOG_NOTICE, "%d", sts);
-    __pmNotifyErr(LOG_NOTICE, "updated %d instances from rpm database", pmdaCacheOp(*rpm_indom, PMDA_CACHE_SIZE_ACTIVE));
-
     rpmdbFreeIterator(mi);
+    rpmtsFree(ts);
 
-	return NULL;
+    ENTRY e, *ep;
+    int code;
+    // run through the cache and load the hash table
+    for (this_cache_entry = cache; this_cache_entry != NULL;
+	 this_cache_entry = this_cache_entry->next) {
+	e.key = this_cache_entry->entry[16].cp;
+	if (!e.key)
+	    continue;
+	e.data = this_cache_entry;
+	if (hsearch_r(e, ENTER, &ep, &htab) == 0)
+	    return PM_ERR_INST;
+    }
+
+    __pmProcessRunTimes(&usr2, &sys2);
+    __pmNotifyErr(LOG_NOTICE, "user/%g sys/%g", (usr2 - usr1) / 100,
+		  (sys2 - sys1) / 100);
+
+    pthread_rwlock_unlock(&indom_lock);
+    return 0;
+}
+
+
+/*
+ * Load the rpm module names into the instance table
+ */
+
+void *
+rpm_update_indom(void *ptr)
+{
+    int sts;
+    cache_entry *this_cache_entry;
+    double usr1,
+     usr2,
+     sys1,
+     sys2;
+
+    numrefresh++;
+
+    // For rebuilding the hash table
+    hdestroy_r(&htab);
+    memset((void *) &htab, 0, sizeof(htab));
+    hcreate_r(HASH_HBOUND, &htab);
+
+    rpm_update_cache(NULL);
+
+    __pmProcessRunTimes(&usr1, &sys1);
+    pthread_rwlock_wrlock(&indom_lock);
+    sts = pmdaCacheOp(*rpm_indom, PMDA_CACHE_INACTIVE);
+    if (sts < 0)
+	__pmNotifyErr(LOG_ERR,
+		      "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
+		      pmInDomStr(*rpm_indom), pmErrStr(sts));
+
+    // Iterate through the entire list of rpms.  The pmda cache are the rpm module names
+
+    for (this_cache_entry = cache; this_cache_entry != NULL;
+	 this_cache_entry = this_cache_entry->next) {
+	ENTRY e;
+	e.key = this_cache_entry->entry[16].cp;
+	if (!e.key)
+	    continue;
+	sts =
+	    pmdaCacheStore(*rpm_indom, PMDA_CACHE_ADD, e.key,
+			   (void *) e.data);
+	if (sts < 0)
+	    __pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: indom=%s: %s",
+			  pmInDomStr(*rpm_indom), pmErrStr(sts));
+    }
+
+    __pmProcessRunTimes(&usr2, &sys2);
+    __pmNotifyErr(LOG_NOTICE, "user/%g sys/%g", (usr2 - usr1) / 100,
+		  (sys2 - sys1) / 100);
+    pthread_rwlock_unlock(&indom_lock);
+
+    return NULL;
 }
 
 /*
  * Notice when the rpm database changes and reload the instances.
  */
 
-void*
-rpm_inotify (void* ptr)
+void *
+rpm_inotify(void *ptr)
 {
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
-	char buffer[EVENT_BUF_LEN];
-	int fd;
+    char buffer[EVENT_BUF_LEN];
+    int fd;
 
-	fd = inotify_init();
+    fd = inotify_init();
 
-	// ?? parameterize the path, check return code
-	inotify_add_watch( fd, "/var/lib/rpm/", IN_CLOSE_WRITE);
-	while (1) {
-		int i = 0;
-		int read_count;
-		int need_refresh = 0;
-		// Wait for changes in the rpm database
-		__pmNotifyErr(LOG_INFO, "rpm_inotify: awaiting...");
-		read_count = read( fd, buffer, EVENT_BUF_LEN );
-		__pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
-		while (i < read_count ) {
-			struct inotify_event *event = (struct inotify_event *) &buffer[ i ];
-			if (event->mask & IN_CLOSE_WRITE)
-				need_refresh++;
-			i++;
-		}
-		__pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d", need_refresh);
-		if (!need_refresh)
-			continue;
-		rpm_update_indom(NULL);
-		__pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+    // ?? parameterize the path, check return code
+    inotify_add_watch(fd, "/var/lib/rpm/", IN_CLOSE_WRITE);
+
+    while (1) {
+	int i = 0;
+	int read_count;
+	int need_refresh = 0;
+	// Wait for changes in the rpm database
+	read_count = read(fd, buffer, EVENT_BUF_LEN);
+	__pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
+	while (i < read_count) {
+	    struct inotify_event *event =
+		(struct inotify_event *) &buffer[i];
+	    if (event->mask & IN_CLOSE_WRITE)
+		need_refresh++;
+	    i++;
 	}
-	return NULL;
+	__pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
+		      need_refresh);
+	if (!need_refresh)
+	    continue;
+	rpm_update_indom(NULL);
+	__pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+    }
+    return NULL;
 }
 
 /*
  * Initialize the daemon/.so agent.
  */
 
-void 
-rpm_init(pmdaInterface *dp)
+void
+rpm_init(pmdaInterface * dp)
 {
     if (isDSO) {
-    	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", mypath);
-    }
-    else {
-    	__pmSetProcessIdentity(username);
+	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", mypath);
+    } else {
+	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -445,10 +729,11 @@ rpm_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, rpm_fetchCallBack);
 
 
-    pmdaInit(dp, indomtab, 1, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+    pmdaInit(dp, indomtab, 1, metrictab,
+	     sizeof(metrictab) / sizeof(metrictab[0]));
 
     if (dp->status != 0)
-    	__pmNotifyErr(LOG_ERR, "pmdaInit failed %d", dp->status);
+	__pmNotifyErr(LOG_ERR, "pmdaInit failed %d", dp->status);
 }
 
 static void
@@ -464,7 +749,7 @@ usage(void)
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
 	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
 	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
-	  stderr);		
+	  stderr);
     exit(1);
 }
 
@@ -475,30 +760,33 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-	int			c, err = 0;
-    int			sep = __pmPathSeparator();
-    pmdaInterface	dispatch;
+    int c,
+     err = 0;
+    int sep = __pmPathSeparator();
+    pmdaInterface dispatch;
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     snprintf(mypath, sizeof(mypath), "%s%c" "rpm" "%c" "help",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, RPM,
-		"rpm.log", mypath);
+	       "rpm.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:6:U:?", &dispatch, &err)) != EOF) {
-    	switch(c) {
-    	case 'U':
-    		username = optarg;
-    		break;
-    	default:
-    		err++;
-    	}
+    while ((c =
+	    pmdaGetOpt(argc, argv, "D:d:i:l:pu:6:U:?", &dispatch,
+		       &err)) != EOF) {
+	switch (c) {
+	case 'U':
+	    username = optarg;
+	    break;
+	default:
+	    err++;
+	}
     }
     if (err)
-    	usage();
+	usage();
 
     pmdaOpenLog(&dispatch);
     rpm_init(&dispatch);
