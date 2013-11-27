@@ -35,8 +35,8 @@ _cleanup()
     $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
 }
 
-fqdn=`pmhostname`
-hostname=`hostname | sed -e 's/\..*//'`
+realname=`hostname`
+chopname=`echo $realname | sed -e 's/\..*//'`
 
 _filter()
 {
@@ -53,21 +53,21 @@ _filter()
 	-e '/^__pmConnectPMCD.* failed/d' \
 	-e '/^__pmConnect(fd=[0-9][0-9]*(nsprFd=/d' \
 	-e '/^__pmConnectPMCD/{
-s/'$fqdn'/MY_HOST/g
+s/'$realname'/MY_HOST/g
 s/localhost\.localdomain/MY_HOST/g
 s/localhost/MY_HOST/g
-s/'$hostname'/MY_HOST/g
+s/'$chopname'/MY_HOST/g
 s/[0-9][0-9]*/N/g
 }' \
 	-e '/^pmReconnectContext.* failed/d' \
 	-e '/^pmReconnectContext.* too soon/d' \
 	-e '/^pmNewContext/{
-s/'$fqdn'/MY_HOST/g
-s/'$hostname'/MY_HOST/g
+s/'$realname'/MY_HOST/g
+s/'$chopname'/MY_HOST/g
 }' \
 	-e '/^Context\[/{
-s/'$fqdn'/MY_HOST/g
-s/'$hostname'/MY_HOST/g
+s/'$realname'/MY_HOST/g
+s/'$chopname'/MY_HOST/g
 s/[0-9][0-9]*/N/g
 }' \
 	-e '/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/{
