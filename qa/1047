@@ -40,7 +40,7 @@ _run_pmieconf()
 {
     pmieconf -f $tmp.pmie -r $tmp.test list all >$tmp.out 2>&1
     pstatus=$?
-    sed -e "s/$$/[PID]/g" $tmp.out
+    sed -e "s/$seq-$$/[SEQ-PID]/g" $tmp.out
     echo status=$pstatus
 }
 

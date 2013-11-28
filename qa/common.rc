@@ -83,3 +83,4 @@ then
 fi
 here=`pwd`
 tmp=/tmp/$$
+[ "X$seq" != X ] && tmp=/tmp/$seq-$$

@@ -63,7 +63,7 @@ EOF
 echo
 echo "=== check unsupported pmie config  version"
 pmieconf -F -r ./pconf -f $tmp.pmie 2>$tmp.stderr
-sed -e "s/$$/[PID]/g" $tmp.stderr
+sed -e "s/$seq-$$/[SEQ-PID]/g" $tmp.stderr
 echo status=$?
 
 cat > $tmp.pmie <<EOF
