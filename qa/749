@@ -19,6 +19,12 @@ trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 # If no systemtap, we cannot run the script
 which stap >/dev/null 2>&1 || _notrun "No systemtap stap executable found"
 
+# If running in FIPS mode, we cannot run this either
+fips_enabled=0
+fips_stsfile="/proc/sys/crypto/fips_enabled"
+[ -f $fips_stsfile ] && fips_enabled=`cat $fips_stsfile`
+test $fips_enabled -eq 0 || _notrun "FIPS enabled, no kernel stap testing"
+
 # If no PCP support for probes, also bail out
 static_probes=false
 eval `pmconfig -L 2>/dev/null`

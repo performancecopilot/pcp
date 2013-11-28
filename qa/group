@@ -881,7 +881,7 @@ avahi
 736 pmlogrewrite local oss
 740 pmda.sample pmstore secure local oss
 748 pmlogrewrite pmda.mysql local oss
-749 pmcd local oss flakey
+749 pmcd local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
