@@ -18,6 +18,9 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#if defined(HAVE_GETPEERUCRED)
+#include <ucred.h>
+#endif
 #if HAVE_AVAHI
 #include "avahi.h"
 #endif
@@ -589,13 +592,14 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 
 #elif defined(HAVE_GETPEERUCRED)	/* Solaris */
     unsigned int uid, gid, pid;
-    ucred_t ucred;
+    ucred_t *ucred = NULL;
 
     if (getpeerucred(__pmFD(fd), &ucred) < 0)
 	return -oserror();
-    pid = ucred_getpid(&ucred);
-    uid = ucred_geteuid(&ucred);
-    gid = ucred_getegid(&ucred);
+    pid = ucred_getpid(ucred);
+    uid = ucred_geteuid(ucred);
+    gid = ucred_getegid(ucred);
+    ucred_free(ucred);
     return SetCredentialAttrs(attrs, pid, uid, gid);
 
 #else
