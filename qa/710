@@ -5,13 +5,13 @@
 # Copyright (c) 2012 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -f $tmp.* $seq.full

@@ -7,32 +7,18 @@
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if grep 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h >/dev/null
-then
-    :
-else
-    echo "No derived metric support" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-if grep __pmLocalPMDA $PCP_DIR/usr/include/pcp/impl.h >/dev/null
-then
-    :
-else
-    echo "No libpcp support for __pmLocalPMDA" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-echo "QA output created by $seq"
+grep 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h >/dev/null ||
+    _notrun "No derived metric support"
+grep __pmLocalPMDA $PCP_DIR/usr/include/pcp/impl.h >/dev/null ||
+    _notrun "No libpcp support for __pmLocalPMDA"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

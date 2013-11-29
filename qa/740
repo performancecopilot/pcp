@@ -6,13 +6,13 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
-echo "QA output created by $seq"
 
 [ $PCP_VER -ge 3805 ] || _notrun "Installed libpcp version too old for test"
 

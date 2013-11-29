@@ -7,7 +7,6 @@
 #
 
 seq=`basename $0`
-host=`hostname`
 echo "QA output created by $seq"
 
 rm -f $seq.out
@@ -29,6 +28,11 @@ esac
 . ./common.filter
 . ./common.check
 
+status=0	# success is the default!
+host=`hostname`
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f core* $seq.core*
+
 _filter()
 {
     _filter_pmie_log \
@@ -40,11 +44,6 @@ _filter()
         -e "s/$host/HOST/" \
 	-e "s/local:/HOST/"
 }
-
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-$sudo rm -f core* $seq.core*
 
 # real QA test starts here
 

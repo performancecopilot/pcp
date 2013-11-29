@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -24,9 +25,6 @@ fi
 # check for a working purify - note purify no longer works on 7.3
 # compiled binaries - this isn't checked yet: fix-on-fail
 _check_purify $PCP_BIN_DIR/pmie 
-
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15

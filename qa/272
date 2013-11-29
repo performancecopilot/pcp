@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # preliminary check
 #
@@ -15,8 +16,6 @@ if [ $? -eq 1 ]; then
     exit
 fi
 rm -f $seq.notrun
-
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product

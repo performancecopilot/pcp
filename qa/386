@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -13,8 +14,6 @@ seq=`basename $0`
 . ./common.check
 
 _check_valgrind
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

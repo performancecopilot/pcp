@@ -7,6 +7,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -24,8 +25,6 @@ then
     echo "Cannot find second remote host running pmcd" >$seq.notrun
     exit
 fi
-
-echo "QA output created by $seq"
 
 case $PCP_PLATFORM
 in

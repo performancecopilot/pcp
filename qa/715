@@ -5,12 +5,13 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 rm -f $seq.out $seq.full
 if [ $PCP_VER -ge 3801 ]
@@ -19,8 +20,6 @@ then
 else
     ln $seq.out.1 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"

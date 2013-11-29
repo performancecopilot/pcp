@@ -6,21 +6,14 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
-if which pmieconf >/dev/null 2>&1
-then
-    :
-else
-    _notrun "No pmieconf binary installed"
-fi
-
-echo "QA output created by $seq"
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 rm -f $seq.out
 case $PCP_PLATFORM

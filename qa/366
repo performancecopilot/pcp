@@ -22,14 +22,14 @@
 # file below, using the pmlogconf "tag", e.g. networking/nfs2-client, and
 # possibly removing the block of related changes in all the *.out files
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 . ./localconfig
-
-seq=`basename $0`
-echo "QA output created by $seq"
 
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf version 2.0 not installed"
 

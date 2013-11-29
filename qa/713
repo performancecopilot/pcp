@@ -6,10 +6,10 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
 . ./common.secure
 nss_notrun_checks
-
-echo "QA output created by $seq"
 
 _cleanup()
 {

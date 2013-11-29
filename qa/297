@@ -5,19 +5,18 @@
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
 which pmdumptext >/dev/null 2>&1 || \
     _notrun "No pmdumptext binary installed"
 which pmproxy >/dev/null 2>&1 || \
     _notrun "No pmproxy binary installed"
-
-echo "QA output created by $seq"
 
 PMCDLOG=$PCP_LOG_DIR/pmcd/pmcd.log
 

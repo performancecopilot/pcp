@@ -5,21 +5,15 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if which pmlogrewrite >/dev/null 2>&1
-then
-    rm -f .notrun
-else
-    _notrun pmlogrewrite not installed
-fi
-
-echo "QA output created by $seq"
+which pmlogrewrite >/dev/null 2>&1 || _notrun "pmlogrewrite not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -29,7 +23,7 @@ _filter()
 {
     sed \
 	-e "s;$tmp;TMP;g" \
-	-e "s;/$$\.;/PID.;g" \
+	-e "s;/$seq-$$\.;/SEQ-PID.;g" \
 	-e '/[-+ ]\[[0-9][0-9]* bytes]/d' \
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
 }
@@ -120,14 +114,14 @@ for i in 1 2 3
 do
     ln -s $tmp.conf.$i $tmp.conf.dir
 done
-echo "metric sampledso.ulong.hundred { type -> U32 }" >$tmp.conf.dir/.$$.conf.4
+echo "metric sampledso.ulong.hundred { type -> U32 }" >$tmp.conf.dir/.$seq-$$.conf.4
 rm -f $tmp.new.*
 pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 | _filter
 _cmp $tmp.baseline $tmp.new
 
 echo
 echo "=== config dir unhide bad file ==="
-mv $tmp.conf.dir/.$$.conf.4 $tmp.conf.dir/$$.conf.4
+mv $tmp.conf.dir/.$seq-$$.conf.4 $tmp.conf.dir/$seq-$$.conf.4
 rm -f $tmp.new.*
 # need to sort here because the order in which the files are processed
 # depends in readdir() and is not deterministic

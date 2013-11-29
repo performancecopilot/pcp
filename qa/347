@@ -5,12 +5,13 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
@@ -22,8 +23,6 @@ then
 else
     ln $seq.out.2 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 status=1
 done_clean=false
