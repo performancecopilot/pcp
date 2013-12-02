@@ -3520,7 +3520,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
-   save_CXXFLAGS="$CXXFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -3590,7 +3589,7 @@ if test "x$enable_visibility" != xno; then :
 
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -c $(INVISIBILITY)"
+   CFLAGS="$CFLAGS -c $INVISIBILITY"
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 int visible () { return 0; }

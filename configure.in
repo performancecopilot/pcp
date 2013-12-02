@@ -179,7 +179,6 @@ AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
 AS_IF([test "x$enable_ssp" != xno],[
    save_CFLAGS="$CFLAGS"
-   save_CXXFLAGS="$CXXFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
        AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
@@ -216,7 +215,7 @@ AC_ARG_ENABLE([visibility],
 AS_IF([test "x$enable_visibility" != xno],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -c $(INVISIBILITY)"
+   CFLAGS="$CFLAGS -c $INVISIBILITY"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int visible () { return 0; }])], [
        AC_MSG_NOTICE([Compiling DSO PMDAs with gcc -fvisibility=hidden])
    ], [
