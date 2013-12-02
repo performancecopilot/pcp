@@ -60,6 +60,7 @@ LLDLIBS	+= -lpsapi
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
+# enables standards compliant thread-safe interfaces (accounts.c)
 LCFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 endif
 
