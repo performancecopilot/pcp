@@ -455,6 +455,7 @@ sendmail_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  * Initialise the agent
  */
 void 
+__PMDA_INIT_CALL
 sendmail_init(pmdaInterface *dp)
 {
     if (dp->status != 0)

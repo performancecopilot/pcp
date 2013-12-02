@@ -609,6 +609,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Nov 06 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
+- Reduce set of exported symbols from DSO PMDAs (BZ 1025694)
 - Currently under development.
 
 * Sun Nov 03 2013 Nathan Scott <nathans@redhat.com> - 3.8.8-1

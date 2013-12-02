@@ -4915,7 +4915,8 @@ linux_strings_insert(const char *buf)
  * Initialise the agent (both daemon and DSO).
  */
 
-void 
+void
+__PMDA_INIT_CALL
 linux_init(pmdaInterface *dp)
 {
     int		i, major, minor, point;

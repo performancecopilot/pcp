@@ -21,6 +21,7 @@ IAM		= proc
 DOMAIN		= PROC
 CMDTARGET	= pmdaproc
 LIBTARGET	= pmda_proc.so
+PMDAINIT	= proc_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
@@ -31,21 +32,24 @@ HFILES		= cgroups.h clusters.h proc_pid.h indom.h getinfo.h \
 		  proc_runq.h ksym.h filesys.h contexts.h
 
 SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
 LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS)
-LDIRT		= help.dir help.pag domain.h
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
 
 # Uncomment these flags for profiling
-# LCFLAGS	= -pg
-# LLDFLAGS	= -pg
+# LCFLAGS	+= -pg
+# LLDFLAGS	+= -pg
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
@@ -61,12 +65,15 @@ build-me:
 install:
 endif
 
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_proc -v 2 -o help < help
-
 default_pcp : default
 
 install_pcp : install
+
+$(HELPTARGETS) : help
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_proc -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -80,3 +87,4 @@ ksym.o pmda.o:		ksym.h
 pmda.o:	domain.h
 pmda.o:	indom.h
 pmda.o:	getinfo.h
+pmda.o:	$(VERSION_SCRIPT)

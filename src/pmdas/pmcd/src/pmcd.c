@@ -1751,6 +1751,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 }
 
 void
+__PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];

@@ -787,6 +787,7 @@ mmv_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *p
 }
 
 void
+__PMDA_INIT_CALL
 mmv_init(pmdaInterface *dp)
 {
     int	m;

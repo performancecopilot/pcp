@@ -112,6 +112,7 @@ CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
+INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
 
 NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
@@ -238,11 +239,20 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
+# prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
+VERSION_SCRIPT_MAKERULE = \
+	@rm -f $@; \
+	echo "{" >$@; \
+	echo "    global: $(PMDAINIT);" >>$@; \
+	echo "    local: *;" >>$@; \
+	echo "};" >>$@; \
+
+# prepare domain.h used during the PMDA build process for each PMDA
 DOMAIN_MAKERULE = \
-	@rm -f domain.h; \
-	echo "/*" >domain.h; \
-	echo " * built from $<" >>domain.h; \
-	echo " */" >>domain.h; \
+	@rm -f $@; \
+	echo "/*" >$@; \
+	echo " * built from $<" >>$@; \
+	echo " */" >>$@; \
 	$(AWK) <$< '\
 	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
 		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \

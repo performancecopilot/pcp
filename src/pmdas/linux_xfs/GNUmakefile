@@ -18,8 +18,9 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= xfs
 DOMAIN		= XFS
-CMDTARGET	= pmdaxfs
-LIBTARGET	= pmda_xfs.so
+CMDTARGET	= pmda$(IAM)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "xfs	11	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 11"
 
@@ -27,17 +28,20 @@ CFILES		= proc_fs_xfs.c filesys.c pmda.c
 HFILES		= proc_fs_xfs.h filesys.h clusters.h indom.h
 
 SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
 LSRCFILES 	= help root root_xfs linux_xfs_migrate.conf $(SCRIPTS)
-LDIRT		= help.dir help.pag domain.h
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
@@ -53,15 +57,20 @@ build-me:
 install:
 endif
 
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_xfs -v 2 -o help < help
-
 default_pcp : default
 
 install_pcp : install
 
+$(HELPTARGETS) : help
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_xfs -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
+
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
+pmda.o: domain.h
 pmda.o proc_fs_xfs.o:	proc_fs_xfs.h
 filesys.o pmda.o:	filesys.h
+pmda.o: $(VERSION_SCRIPT)
