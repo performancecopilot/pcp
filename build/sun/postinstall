@@ -36,19 +36,13 @@ then
     done
 fi
 
-getent group pcp >/dev/null || groupadd -r pcp
-getent passwd pcp >/dev/null || \
-  useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/bin/false pcp
 chown -R pcp:pcp /var/log/pcp/pmcd 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmlogger 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null
 
+touch /var/lib/pcp/pmns/.NeedRebuild 2>/dev/null
+chmod 644 /var/lib/pcp/pmns/.NeedRebuild 2>/dev/null
 svccfg import /var/svc/manifest/application/pcp.xml
 
-# only needed if you're making changes to the namespace for the
-# pre-installed PMDAs like solaris
-#
-#. /etc/pcp.env
-#rm -f $PCP_VAR_DIR/pmns/root $PCP_VAR_DIR/pmns/root.bin
