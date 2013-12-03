@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
+ */
+#ifndef _PRIVATE_H
+#define _PRIVATE_H
+
 typedef struct {
     char	*name;
     pmID	pmid;
@@ -41,6 +58,14 @@ typedef struct {
 #define CONTEXT_ACTIVE	2
 #define CONTEXT_END	3
 
-extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *);
-extern int _pmi_put_result(pmi_context *, pmResult *);
-extern int _pmi_end(pmi_context *);
+#ifdef __GNUC__
+# define _PMI_HIDDEN __attribute__ ((visibility ("hidden")))
+#else
+# define _PMI_HIDDEN
+#endif
+
+extern int _PMI_HIDDEN _pmi_stuff_value(pmi_context *, pmi_handle *, const char *);
+extern int _PMI_HIDDEN _pmi_put_result(pmi_context *, pmResult *);
+extern int _PMI_HIDDEN _pmi_end(pmi_context *);
+
+#endif /* _PRIVATE_H */

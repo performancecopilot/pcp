@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -18,6 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= import.c stuff.c archive.c
 HFILES	= private.h
+VERSION_SCRIPT = exports
 
 STATICLIBTARGET	= libpcp_import.a
 DSOVERSION = 1
@@ -38,6 +40,7 @@ endif
 
 LCFLAGS =
 LLDLIBS = -lpcp
+LSRCFILES = $(VERSION_SCRIPT)
 LDIRT = $(SYMTARGET) domain.h
 
 DOMAIN = PMI_DOMAIN
@@ -49,15 +52,15 @@ $(OBJECTS):	$(HFILES)
 include $(BUILDRULES)
 
 install: default
-ifneq "$(LIBTARGET)" ""
+ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
 		$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
-ifneq "$(STATICLIBTARGET)" ""
+ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
@@ -65,19 +68,14 @@ default_pcp: default
 
 install_pcp: install
 
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
 endif
 
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
+endif
+
 domain.h: $(TOPDIR)/src/pmns/stdpmid
-	rm -f domain.h
-	@echo "/*" >domain.h
-	@echo " * built from $<" >>domain.h
-	@echo " */" >>domain.h
-	@$(AWK) <$< '\
-$$1=="#define" && $$2 == "$(DOMAIN)" { print "#define $(DOMAIN) " $$3 >>"$@"; found++ }\
-END	{ if (found == 0) { print "Botch: no #define for domain $(DOMAIN) in $<";  exit(1) }\
-          if (found > 1) { print "Botch: multiple #defines for domain $(DOMAIN) in $<"; print "... see $@ for details"; exit(1) }\
-	  exit(0)\
-	}'
+	$(DOMAIN_MAKERULE)
