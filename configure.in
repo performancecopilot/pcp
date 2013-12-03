@@ -398,6 +398,8 @@ AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
 PCFLAGS=$CFLAGS
 AC_SUBST(PCFLAGS)
+PLDFLAGS=$LDFLAGS
+AC_SUBST(PLDFLAGS)
 
 dnl for cc use locally in configure (not exported via $PCFLAGS),
 dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,

@@ -758,6 +758,7 @@ LD
 cpp
 make
 MAKE
+PLDFLAGS
 PCFLAGS
 cflags_abi
 cc_is_gcc
@@ -6234,6 +6235,8 @@ cc_is_gcc=$GCC
 
 
 PCFLAGS=$CFLAGS
+
+PLDFLAGS=$LDFLAGS
 
 
 CFLAGS="-O $CFLAGS"

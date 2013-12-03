@@ -18,6 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 LSRCFILES = pcp.xml preinstall postinstall preremove
 LDIRT += pkginfo proto pcp pcp-$(PACKAGE_VERSION)
+PACKAGE_ARCH = $(shell uname -p)
 
 default install default_pcp :
 
@@ -47,7 +48,7 @@ pkginfo : $(_FORCE)
 	@rm -f $@
 	@echo "PKG=$(PACKAGE_NAME)" > $@
 	@echo "NAME=Performance Co-Pilot" >> $@
-	@echo "ARCH=$(TARGET_CPU)" >> $@
+	@echo "ARCH=$(PACKAGE_ARCH)" >> $@
 	@echo "VERSION=$(PACKAGE_VERSION)" >> $@
 	@echo "EMAIL=pcp@oss.sgi.com" >> $@
 	@echo "CATEGORY=application" >> $@
