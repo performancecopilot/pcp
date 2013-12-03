@@ -42,8 +42,8 @@ BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 # LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
 # user Makefiles. Note: LSRCFILES is anything other than Makefile,
-# $(CFILES), or $(HFILES) and is used to construct the manifest list
-# during the "dist" phase (packaging).
+# $(CXXFILES), $(CFILES), or $(HFILES) and is used to construct the
+# manifest list during the "dist" phase (packaging).
 
 # turn on all warnings by default
 ifeq "@cc_is_gcc@" "yes"
@@ -122,7 +122,7 @@ AVAHICFLAGS = @avahi_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
-SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
+SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
@@ -134,6 +134,7 @@ DIRDIRT = $(LDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
           $(CFILES:.c=.o) \
+          $(CXXFILES:.cxx=.o) \
           $(FFILES:.f=.o) \
           $(LFILES:.l=.o) \
           $(YFILES:%.y=%.tab.o)
@@ -141,6 +142,7 @@ OBJECTS = $(ASFILES:.s=.o) \
 #NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
 #MAKE	= @make@
 CC	= @cc@
+CXX	= @cxx@
 LD	= @ld@
 AWK	= @awk@
 SED	= @sed@
@@ -158,6 +160,7 @@ INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
 
 CCF	= $(CC) $(CFLAGS)
+CXXF	= $(CXX) $(CFLAGS) $(CXXFLAGS)
 # NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
 #MAKEF	= $(MAKE) $(MAKEOPTS)
 LDF	= $(LD) $(LDFLAGS)

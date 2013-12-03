@@ -27,6 +27,15 @@ ifdef CMDTARGET
 $(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
 	$(CCF) -o $(CMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
 endif
+ifdef CXXMDTARGET
+$(CXXMDTARGET) : $(SUBDIRS) $(OBJECTS)
+	$(CXXF) -o $(CXXMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+endif
+
+# GNU make has a built-in recipe for .cc / .C / .cpp, but not for .cxx -> .o
+.cxx.o:
+	$(CXXF) $(CXXFLAGS) -c $< -o $@
+.SUFFIXES: .cxx
 
 ifdef LIBTARGET
 ifneq (, $(filter linux freebsd kfreebsd netbsd mingw, $(TARGET_OS)))
