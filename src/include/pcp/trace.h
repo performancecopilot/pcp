@@ -10,24 +10,18 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+#ifndef _TRACE_H
+#define _TRACE_H
 
 /*
- * trace.h
- *
  * Transaction monitoring PMDA (trace) public interface.
  *
  * An example program using this interface can be found at
- * /var/pcp/pmdas/demos/trace/demo.c and contains further doumentation.
- * Also refer to the pmdatrace(1) and pmdatrace(3) man pages.
+ * $PCP_DEMOS_DIR/trace/demo.c and contains further doumentation.
+ * Also refer to the pmdatrace(1) and pmdatrace(3) man pages and
+ * the Performance Co-Pilot Programmer's Guide.
  */
-
-#ifndef _TRACE_H
-#define _TRACE_H
 
 #ifdef __cplusplus
 extern "C" {

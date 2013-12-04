@@ -10,19 +10,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef TRACE_DATA_H
 #define TRACE_DATA_H
 
+#include "hash.h"
 #include "trace.h"
 #include "trace_dev.h"
-#include "trace_hash.h"
-
 
 typedef struct {
     char		*tag;
@@ -30,10 +25,11 @@ typedef struct {
     unsigned int	instid;
 } instdata_t;
 
+typedef struct __pmHashTab hashtable_t;
+
 int instcmp(void *a, void *b);
 void instdel(void *a);
-void instprint(__pmHashTable *t, void *e);
-
+void instprint(hashtable_t *t, void *e);
 
 typedef struct {
     char		*tag;
@@ -52,13 +48,12 @@ typedef struct {
 
 int datacmp(void *a, void *b);
 void datadel(void *a);
-void dataprint(__pmHashTable *t, void *e);
-
+void dataprint(hashtable_t *t, void *e);
 
 typedef struct {
     unsigned int	numstats : 8;	/* number of entries in this table */
     unsigned int	working  : 1;	/* this the current working table? */
-    __pmHashTable	*stats;		
+    hashtable_t		*stats;		
 } statlist_t;
 
 typedef struct {
@@ -66,9 +61,8 @@ typedef struct {
     unsigned int	level;		/* controls reporting level */
 } ringbuf_t;
 
-
 #ifdef PCP_DEBUG
 void debuglibrary(int);
 #endif
 
-#endif
+#endif	/* TRACE_DATA_H */

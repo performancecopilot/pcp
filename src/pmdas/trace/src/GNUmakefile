@@ -19,15 +19,8 @@ TARGETS	= trace$(EXECSUFFIX)
 CFILES	= trace.c client.c comms.c data.c pmda.c
 HFILES	= data.h client.h comms.h
 
+LCFLAGS = -I$(TOPDIR)/src/libpcp_trace/src
 LLDFLAGS= -L$(TOPDIR)/src/libpcp_trace/src
-ifeq "$(TARGET_OS)" "darwin"
-# __htonll() is in libpcp and libpcp_trace ... ld on Mac OS X has a
-# fit over this, sigh ... thanks to Nick Blievers for finding the
-# magic spell needed to workaround this.
-#LLDFLAGS += -Wl,-m -Wl,-bind_at_load
-# Update: -Wl,-m is apparently now obsolete
-LLDFLAGS += -Wl,-bind_at_load
-endif
 LLDLIBS	= -lpcp_trace $(PCP_PMDALIB)
 
 IAM	= trace

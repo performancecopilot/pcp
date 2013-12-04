@@ -26,8 +26,6 @@ typedef struct {
 static more_ctl		*more;
 static int		maxfd = -1;
 
-extern int	__pmfd;
-
 static char *
 pdutypestr(int type)
 {
@@ -212,9 +210,6 @@ __pmtracexmitPDU(int fd, __pmTracePDU *pdubuf)
 	signal(SIGPIPE, user_onpipe);
 #endif
 
-    if (__pmfd == -1)
-	return PMTRACE_ERR_IPC;
-
     php->from = (__int32_t)getpid();
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDU) {
@@ -263,9 +258,6 @@ __pmtracegetPDU(int fd, int timeout, __pmTracePDU **result)
     __pmTracePDU	*pdubuf;
     __pmTracePDU	*pdubuf_prev;
     __pmTracePDUHdr	*php;
-
-    if (__pmfd == -1)
-	return PMTRACE_ERR_IPC;
 
     /*
      *	This stuff is a little tricky.  What we try to do is read()
