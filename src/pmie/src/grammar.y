@@ -27,6 +27,7 @@
 #include "syslog.h"
 #include "stomp.h"
 #include "show.h"
+#include "systemlog.h"
 
 /* strings for error reporting */
 char precede[]	 = "precede";
