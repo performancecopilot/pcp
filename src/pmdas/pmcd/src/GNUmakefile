@@ -25,6 +25,7 @@ LDIRT = $(VERSION_SCRIPT)
 
 # Add to CFLAGS to find files in pmcd/src...
 LCFLAGS = -I$(TOPDIR)/src
+LCFLAGS += -I$(TOPDIR)/src/pmie/src
 
 ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 ABI = $(shell ./objstyle)
