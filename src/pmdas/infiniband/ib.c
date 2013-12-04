@@ -210,12 +210,31 @@ foreachport(hca_state_t *hst, void (*cb)(hca_state_t *, umad_port_t *, void *),
     return (nports);
 }
 
+#ifdef HAVE_NETWORK_BYTEORDER
+#define guid_htonll(a) do { } while (0) /* noop */
+#define guid_ntohll(a) do { } while (0) /* noop */
+#else
+static void
+guid_htonll(char *p)
+{
+    char        c;
+    int         i;
+
+    for (i = 0; i < 4; i++) {
+        c = p[i];
+        p[i] = p[7-i];
+        p[7-i] = c;
+    }
+}
+#define guid_ntohll(v) guid_htonll(v)
+#endif
+
 static void
 printportconfig (hca_state_t *hst, umad_port_t *port, void *arg)
 {
     uint64_t hguid = port->port_guid;
 
-    __ntohll((char *)&hguid);
+    guid_ntohll((char *)&hguid);
 
     fprintf (fconf, "%s:%d 0x%llx %d via %s:%d\n",
 	     port->ca_name, port->portnum, (unsigned long long)hguid,
@@ -229,7 +248,7 @@ monitorport(hca_state_t *hst, umad_port_t *port, void *arg)
     uint64_t hguid = port->port_guid;
     char name[128];
 
-    __ntohll((char *)&hguid);
+    guid_ntohll((char *)&hguid);
     sprintf(name, "%s:%d", port->ca_name, port->portnum);
 
     monitor_guid(itab, name, hguid, port->portnum, port->ca_name, port->portnum);
