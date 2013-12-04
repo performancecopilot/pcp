@@ -19,9 +19,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=rpm
-python_opt=true
-daemon_opt=false
-forced_restart=true
+daemon_opt=true
+pipe_opt=true
 
 pmdaSetup
 pmdaInstall

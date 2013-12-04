@@ -15,32 +15,50 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= rpm.c
-CMDTARGET = pmdarpm$(EXECSUFFIX)
-LIBTARGET = pmda_rpm.so
-LLDLIBS = $(PCP_PMDALIB) -lrpm -lgc -lpthread
 
-LCFLAGS = -I.
-LSRCFILES = Install Remove pmns root help
+CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
+TARGETS = $(CMDTARGET) $(LIBTARGET)
 
 IAM	= rpm
 DOMAIN	= RPM
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so help.dir help.pag
+HFILES	= timer.h
+CFILES	= rpm.c timer.c
+LSRCFILES = Install Remove pmns root help
+LDIRT	= $(TARGETS) domain.h *.o $(IAM).log
 
-default_pcp default: domain.h $(CMDTARGET) $(LIBTARGET) help.dir help.pag
+# XXX: move these to configure/builddefs
+LIB_FOR_RPM = -lrpm
+HAVE_RPM_SUPPORT = 1
+
+LCFLAGS = -I.
+LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RPM) $(LIB_FOR_PTHREADS)
+
+
+default:	build-me
 
 include $(BUILDRULES)
 
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root -v 2 -o help < help
+ifeq "$(HAVE_RPM_SUPPORT)" "1"
+build-me: domain.h $(CMDTARGET) $(LIBTARGET)
 
-install_pcp install:	default 
+install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h help help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
+else
+build-me:
+install:
+endif
+
+default_pcp : default
+
+install_pcp : install
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+rpm.o timer.o: timer.h
  

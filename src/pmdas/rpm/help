@@ -48,6 +48,10 @@ Distribution of the package.
 @ rpm.evr package version
 Version of the package.
 
+@ rpm.refresh.count Cumulative count of rpmdb scans performed
+@ rpm.refresh.time.user Cumulative count of user mode scan time
+@ rpm.refresh.time.kernel Cumulative count of kernel mode scan time
+@ rpm.refresh.time.elapsed Cumulative count of elapsed scan time
 @ rpm.file.class package file class
 File class of the package
 
