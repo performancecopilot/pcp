@@ -15,7 +15,6 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-
 CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 TARGETS = $(CMDTARGET) $(LIBTARGET)
