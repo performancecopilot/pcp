@@ -64,8 +64,8 @@ typedef struct {
 # define _PMI_HIDDEN
 #endif
 
-extern int _PMI_HIDDEN _pmi_stuff_value(pmi_context *, pmi_handle *, const char *);
-extern int _PMI_HIDDEN _pmi_put_result(pmi_context *, pmResult *);
-extern int _PMI_HIDDEN _pmi_end(pmi_context *);
+extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *) _PMI_HIDDEN;
+extern int _pmi_put_result(pmi_context *, pmResult *) _PMI_HIDDEN;
+extern int _pmi_end(pmi_context *) _PMI_HIDDEN;
 
 #endif /* _PRIVATE_H */
