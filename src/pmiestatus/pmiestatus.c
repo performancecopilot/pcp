@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
-#include "pmiestats.h"
+#include "stats.h"
 
 int
 main(int argc, char **argv)
