@@ -19,27 +19,35 @@ include $(TOPDIR)/src/include/builddefs
 # The TARGETS macro must be set to the name of the executable we
 # are building.
 #
-CMDTARGET = pmdasample$(EXECSUFFIX)
-LIBTARGET = pmda_sample.$(DSOSUFFIX)
+IAM = sample
+CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 TARGETS = $(CMDTARGET) $(LIBTARGET)
 
+PMDAINIT = $(IAM)_init
 PMDADIR = $(PCP_PMDAS_DIR)/sample
-
-LDIRT = $(TARGETS)
 
 CFILES = pmda.c sample.c percontext.c events.c
 HFILES = percontext.h events.h
+VERSION_SCRIPT = exports
+
+LDIRT = $(TARGETS) $(VERSION_SCRIPT)
 
 LCFLAGS = -DDYNAMIC_SPEC=\"$(PCP_PMDAS_DIR)/sample/dynamic.indom\"
+LCFLAGS += $(INVISIBILITY)
 LLDLIBS = $(PCP_PMDALIB)
 
 default:	../domain.h $(TARGETS)
 
 pmda.o sample.o percontext.o: percontext.h
 sample.o events.o: events.h
+pmda.o: $(VERSION_SCRIPT)
 
 ../domain.h:
 	$(MAKE) -C .. domain.h
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)

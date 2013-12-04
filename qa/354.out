@@ -4,31 +4,31 @@ QA output created by 354
 
 host: HOST
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 sleeping ...
 
 host: HOST
 f_config: NULL f_ipc: 6 pid: pmlogger-pid-1 status: -1
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: NULL f_ipc: 7 pid: pmlogger-pid-2 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: NULL f_ipc: 8 pid: pmlogger-pid-3 status: -1
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: 9 pid: pmlogger-pid-4 status: -1
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 send some control requests ...
 host: HOST
@@ -57,16 +57,16 @@ discover what's happened ...
 
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-2 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-3 status: 0
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 pmlogger processes:
 ps: pmlogger-pid-2 pmlogger -x 6 -h localhost
@@ -193,31 +193,31 @@ Log finished DATE
 
 host: HOST
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: OK f_ipc: -1 pid: 0 status: -1
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 sleeping ...
 
 host: HOST
 f_config: NULL f_ipc: 7 pid: pmlogger-pid-1 status: -1
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: NULL f_ipc: 8 pid: pmlogger-pid-2 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: NULL f_ipc: 9 pid: pmlogger-pid-3 status: -1
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: 10 pid: pmlogger-pid-4 status: -1
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 send some control requests ...
 host: HOST
@@ -246,16 +246,16 @@ discover what's happened ...
 
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-1 status: 0
-logfile: /tmp/PID/MKTEMP.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMP.HOST.log
 host: localhost
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-2 status: -1
-logfile: /tmp/PID/MKTEMP.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMP.localhost.log
 host: HOST
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-3 status: 0
-logfile: /tmp/PID/MKTEMPa.HOST.log
+logfile: /tmp/SEQ-PID/MKTEMPa.HOST.log
 host: localhost
 f_config: NULL f_ipc: -1 pid: pmlogger-pid-4 status: 0
-logfile: /tmp/PID/MKTEMPa.localhost.log
+logfile: /tmp/SEQ-PID/MKTEMPa.localhost.log
 
 pmlogger processes:
 ps: pmlogger-pid-2 pmlogger -x 7 -h localhost
@@ -293,7 +293,7 @@ Archive basename: ARCHIVE
 
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
-PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
@@ -309,7 +309,7 @@ Archive basename: ARCHIVE
 
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
-PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
 
 The application that launched pmlogger has asked pmlogger to continue independently and the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
 
@@ -328,14 +328,14 @@ Archive basename: ARCHIVE
 
 Warning: pmconfirm(1) failed for recording session dialog
 Dialog:
-PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
 
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM pmlogger-pid-3
 
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
-PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
 
 The application that launched pmlogger has terminated this PCP recording session.
 pmlogger: Recording session terminated, exiting
@@ -351,7 +351,7 @@ Archive basename: ARCHIVE
 
 Error: pmconfirm(1) failed for recording session dialog
 Dialog:
-PCP recording for the archive folio "/tmp/PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
+PCP recording for the archive folio "/tmp/SEQ-PID/foo" and the host "HOST" has been in progress for SOME seconds and in that time the pmlogger process has created an archive of SOME bytes.
 
 The application that launched pmlogger has exited and you must decide if the PCP recording session should be terminated or continued.  If recording is continued the PCP archive will grow at the rate of SOME bytes per hour or SOME bytes per day.
 

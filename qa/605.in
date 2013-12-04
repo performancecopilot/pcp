@@ -1,3 +1,4 @@
+QA output created by 605
 Checking trace stub library builds ...
 make succeeded.
 app1: start: No error (state=0x7)

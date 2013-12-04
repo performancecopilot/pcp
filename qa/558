@@ -7,18 +7,15 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-
-rm -f $seq.out
-ln $seq.out.linux $seq.out
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+rm -f $seq.out
+ln $seq.out.linux $seq.out
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!

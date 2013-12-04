@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2009 Max Matveev.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -14,10 +15,10 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
--include ../GNUlocaldefs
 
-LSRCFILES = pcp.xml postinstall preremove
+LSRCFILES = pcp.xml preinstall postinstall preremove
 LDIRT += pkginfo proto pcp pcp-$(PACKAGE_VERSION)
+PACKAGE_ARCH = $(shell uname -p)
 
 default install default_pcp :
 
@@ -36,6 +37,7 @@ proto : $(_FORCE)
 	@sort -u ../pack_pcp.bin | \
 	    awk 'BEGIN { print "i pkginfo=pkginfo"; \
 			 print "i preremove=preremove"; \
+			 print "i preinstall=preinstall"; \
 			 print "i postinstall=postinstall"; \
 			} \
 	     $$1 == "l" {printf "s none %s=%s\n", substr($$3, 2), $$2; next; } \
@@ -46,7 +48,7 @@ pkginfo : $(_FORCE)
 	@rm -f $@
 	@echo "PKG=$(PACKAGE_NAME)" > $@
 	@echo "NAME=Performance Co-Pilot" >> $@
-	@echo "ARCH=$(TARGET_CPU)" >> $@
+	@echo "ARCH=$(PACKAGE_ARCH)" >> $@
 	@echo "VERSION=$(PACKAGE_VERSION)" >> $@
 	@echo "EMAIL=pcp@oss.sgi.com" >> $@
 	@echo "CATEGORY=application" >> $@

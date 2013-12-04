@@ -9,7 +9,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # create our own tmpdir to ensure we can write to it
-tmpdir=/tmp/$seq.$$
+tmpdir=/tmp/$seq-$$
 rm -rf $tmpdir
 mkdir -p $tmpdir/pmlogger
 export PCP_TMP_DIR=$tmpdir

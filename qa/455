@@ -5,20 +5,19 @@
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
-
-seq=`basename $0`
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
 
 grep rsyslog.elasticsearch.submits $PCP_PMDAS_DIR/rsyslog/pmdarsyslog.pl >/dev/null
 [ $? -eq 0 ] || _notrun "Newer version of rsyslog PMDA needed"
-
-echo "QA output created by $seq"
 
 install_on_cleanup=false
 pminfo rsyslog >/dev/null 2>&1 && install_on_cleanup=true

@@ -14,10 +14,13 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include <math.h>
 #include <inttypes.h>
 
-#ifndef ABS
+#if defined(HAVE_MATH_H)
+#include <math.h>
+#endif
+
+#if !defined(ABS)
 #define    ABS(a)          ((a) < 0 ? -(a) : (a))
 #endif
 

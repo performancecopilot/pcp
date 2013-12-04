@@ -6,21 +6,20 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_VER -lt 2200 -o \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -lt 6508 \) -o $PCP_EOE_VER -lt 2200 ]
-then
-    echo "needs sample.many metrics & new pmlogger (pv#779495)" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+if [ $PCP_VER -lt 2200 -o \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -lt 6508 \) -o $PCP_EOE_VER -lt 2200 ]
+then
+    echo "needs sample.many metrics & new pmlogger (pv#779495)" >$seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
 
 cleanup()
 {

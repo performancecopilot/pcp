@@ -6,7 +6,6 @@
 #
 
 seq=`basename $0`
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks

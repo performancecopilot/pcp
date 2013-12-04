@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 . ./localconfig
 if [ $PCP_PLATFORM != irix ]
@@ -14,8 +15,6 @@ then
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
-
-echo "QA output created by $seq"
 
 . ./common.product
 . ./common.check

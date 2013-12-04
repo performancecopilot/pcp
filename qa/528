@@ -5,20 +5,19 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 test $PCP_VER -ge 3801 || _notrun "No support for log import batching"
 [ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
 	_notrun "No support for libpcp_import"
 perl -e "use PCP::LogImport" 2>/dev/null || \
 	_notrun "Perl PCP::LogImport module is not installed"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

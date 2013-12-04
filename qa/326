@@ -16,8 +16,8 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 done_clean=false
-REALHOST=`hostname`
-LOCALHOST=`echo $REALHOST | sed -e 's/\..*//'`
+LOCALHOST=`hostname`
+[ $PCP_VER -lt 3806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
 
 _cleanup()
 {

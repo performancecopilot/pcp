@@ -31,7 +31,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <ctype.h>
-#include <math.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -45,6 +44,9 @@
 #endif
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
+#endif
+#if defined(HAVE_MATH_H)
+#include <math.h>
 #endif
 
 static FILE	**filelog;

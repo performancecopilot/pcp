@@ -6,8 +6,13 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
+# get standard filters
+. ./common.product
+. ./common.filter
 . ./localconfig
+
 rm -f $seq.out
 if [ $PCP_EOE_VER -ge 6512 -o \
      \( $PCP_EOE_VER -ge 2200 -a $PCP_EOE_VER -lt 6500 \) ]
@@ -27,12 +32,6 @@ else
     rm -f $seq.out
     ln $seq.out.3 $seq.out
 fi
-
-echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

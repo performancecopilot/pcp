@@ -112,7 +112,7 @@ $sudo mv $tmp.log3 $tmp.$otherfqdn_pid
 # check entries
 _check
 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start | sed -e '/^Stopping pmlogger/d'
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

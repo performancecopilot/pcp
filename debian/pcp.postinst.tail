@@ -9,6 +9,8 @@ useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nolo
 # must match GNUmakefile
 chown pcp:pcp /var/lib/pcp/config/pmda
 chmod 775 /var/lib/pcp/config/pmda
+chown pcp:pcp /var/lib/pcp/tmp
+chmod 775 /var/lib/pcp/tmp
 
 # must match src/pmcd/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmcd
@@ -19,6 +21,8 @@ chown pcp:pcp /etc/pcp/pmie
 chmod 775 /etc/pcp/pmie
 chown pcp:pcp /etc/pcp/pmie/control
 chmod 664 /etc/pcp/pmie/control
+chown pcp:pcp /var/lib/pcp/tmp/pmie
+chmod 775 /var/lib/pcp/tmp/pmie
 chown pcp:pcp /var/log/pcp/pmie
 chmod 775 /var/log/pcp/pmie
 
@@ -27,6 +31,8 @@ chown pcp:pcp /etc/pcp/pmlogger
 chmod 775 /etc/pcp/pmlogger
 chown pcp:pcp /etc/pcp/pmlogger/control
 chmod 664 /etc/pcp/pmlogger/control
+chown pcp:pcp /var/lib/pcp/tmp/pmlogger
+chmod 775 /var/lib/pcp/tmp/pmlogger
 chown pcp:pcp /var/log/pcp/pmlogger
 chmod 775 /var/log/pcp/pmlogger
 
@@ -50,7 +56,11 @@ update-rc.d pmie defaults >/dev/null
 update-rc.d pmwebd defaults >/dev/null
 update-rc.d pmproxy defaults >/dev/null
 
-_clean_tmpdirs $PCP_TMP_DIR /var/tmp mmv pmdabash pmie pmlogger
+for dir in mmv pmdabash
+do
+    [ ! -k /var/tmp/$dir ] || mv /var/tmp/$dir /var/lib/pcp/tmp
+done
+_clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger
 
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d pmcd start

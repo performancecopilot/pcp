@@ -14,10 +14,10 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "trace_dev.h"
 #include "pmda.h"
 #include "domain.h"
 #include "data.h"
+#include "trace_dev.h"
 
 static pmdaIndom indomtab[] = {	/* list of trace metric instance domains */
 #define TRANSACT_INDOM	0
@@ -131,8 +131,8 @@ extern struct timeval	timespan;
 extern struct timeval	interval;
 
 static ringbuf_t	ringbuf;	/*  *THE* ring buffer of trace data */
-static __pmHashTable	summary;	/* globals + recent ringbuf summary */
-static __pmHashTable	history;	/* holds every instance seen so far */
+static hashtable_t	summary;	/* globals + recent ringbuf summary */
+static hashtable_t	history;	/* holds every instance seen so far */
 static unsigned int	rpos;		/* `working' buffer, within ringbuf */
 static unsigned int	dosummary = 1;	/* summary refreshed this interval? */
 static unsigned int	tindomsize = 0;	/*   updated local to fetch only    */
@@ -485,7 +485,7 @@ readData(int clientfd, int *protocol)
 }
 
 static void
-clearTable(__pmHashTable *t, void *entry)
+clearTable(hashtable_t *t, void *entry)
 {
     hashdata_t	*h = (hashdata_t *)entry;
     h->txcount = -1;	/* flag as out-of-date */
@@ -526,7 +526,7 @@ timerUpdate(void)
 }
 
 static void
-summariseDataAux(__pmHashTable *t, void *entry)
+summariseDataAux(hashtable_t *t, void *entry)
 {
     hashdata_t	*hptr;
     hashdata_t	*base = (hashdata_t *)entry;
@@ -1112,8 +1112,8 @@ traceInit(pmdaInterface *dp)
 	exit(1);
     }
     for (rsize=0; rsize < rbufsize; rsize++) {
-	if ((ringbuf.ring[rsize].stats = (__pmHashTable *)
-	 			malloc(sizeof(__pmHashTable))) == NULL) {
+	if ((ringbuf.ring[rsize].stats = (hashtable_t *)
+	 			malloc(sizeof(hashtable_t))) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "ring buffer initialise failed: %s",
 		osstrerror());
 	    exit(1);

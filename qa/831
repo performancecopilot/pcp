@@ -10,11 +10,11 @@
 # Copyright (c) 2013 Red Hat.
 #
 
-# get standard environment, filters and checks
-. ./common.secure
-
 seq=`basename $0`
 echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.secure
 
 authentication=false
 unix_domain_sockets=false

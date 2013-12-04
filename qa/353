@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -17,8 +18,6 @@ if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
     _notrun "pmsocks is not installed and/or not configured"
 fi
-
-echo "QA output created by $seq"
 
 _filter() {
     sed -e '/not QAing/d'

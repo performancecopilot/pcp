@@ -179,7 +179,6 @@ AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
 AS_IF([test "x$enable_ssp" != xno],[
    save_CFLAGS="$CFLAGS"
-   save_CXXFLAGS="$CXXFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
        AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
@@ -209,6 +208,23 @@ AS_IF([test "x$enable_pie" != xno],[
 ])
 AC_SUBST(PIELDFLAGS)
 AC_SUBST(PIECFLAGS)
+
+# Check for support for symbol hiding via gcc flags
+AC_ARG_ENABLE([visibility],
+  [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
+AS_IF([test "x$enable_visibility" != xno],[
+   INVISIBILITY="-fvisibility=hidden"
+   save_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS -c $INVISIBILITY"
+   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int visible () { return 0; }])], [
+       AC_MSG_NOTICE([Compiling DSO PMDAs with gcc -fvisibility=hidden])
+   ], [
+       AC_MSG_NOTICE([Compiler does not support -fvisibility.])
+       INVISIBILITY=""
+   ])
+   CFLAGS="$save_CFLAGS"
+])
+AC_SUBST(INVISIBILITY)
 
 # Prevent shared libaries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
@@ -382,6 +398,8 @@ AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
 PCFLAGS=$CFLAGS
 AC_SUBST(PCFLAGS)
+PLDFLAGS=$LDFLAGS
+AC_SUBST(PLDFLAGS)
 
 dnl for cc use locally in configure (not exported via $PCFLAGS),
 dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
@@ -900,12 +918,13 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
-AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h)
+AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
 AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
-AC_CHECK_HEADERS(values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h)
+AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
+AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)

@@ -758,6 +758,7 @@ LD
 cpp
 make
 MAKE
+PLDFLAGS
 PCFLAGS
 cflags_abi
 cc_is_gcc
@@ -788,6 +789,7 @@ GREP
 CPP
 DTRACE
 enable_shared
+INVISIBILITY
 PIECFLAGS
 PIELDFLAGS
 OBJEXT
@@ -862,6 +864,7 @@ with_group
 with_discovery
 enable_ssp
 enable_pie
+enable_visibility
 enable_shared
 with_configdir
 with_perl_installdirs
@@ -1513,6 +1516,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-ssp           disable gcc stack-protector
   --disable-pie           disable position-independent-executable
+  --disable-visibility    disable gcc symbol visibility
   --disable-shared        disable core shared libary generation
 
 Optional Packages:
@@ -3517,7 +3521,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
-   save_CXXFLAGS="$CXXFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -3575,6 +3578,39 @@ rm -f core conftest.err conftest.$ac_objext \
 
 fi
 
+
+
+# Check for support for symbol hiding via gcc flags
+# Check whether --enable-visibility was given.
+if test "${enable_visibility+set}" = set; then :
+  enableval=$enable_visibility;
+fi
+
+if test "x$enable_visibility" != xno; then :
+
+   INVISIBILITY="-fvisibility=hidden"
+   save_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS -c $INVISIBILITY"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+int visible () { return 0; }
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+       { $as_echo "$as_me:${as_lineno-$LINENO}: Compiling DSO PMDAs with gcc -fvisibility=hidden" >&5
+$as_echo "$as_me: Compiling DSO PMDAs with gcc -fvisibility=hidden" >&6;}
+
+else
+
+       { $as_echo "$as_me:${as_lineno-$LINENO}: Compiler does not support -fvisibility." >&5
+$as_echo "$as_me: Compiler does not support -fvisibility." >&6;}
+       INVISIBILITY=""
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+   CFLAGS="$save_CFLAGS"
+
+fi
 
 
 # Prevent shared libaries from being built for libpcp and other core libraries
@@ -6200,6 +6236,8 @@ cc_is_gcc=$GCC
 
 PCFLAGS=$CFLAGS
 
+PLDFLAGS=$LDFLAGS
+
 
 CFLAGS="-O $CFLAGS"
 
@@ -8246,7 +8284,7 @@ fi
 
 done
 
-for ac_header in unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h
+for ac_header in unistd.h stddef.h sched.h dlfcn.h dl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8311,7 +8349,20 @@ fi
 
 done
 
-for ac_header in values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h
+for ac_header in libgen.h sys/param.h sys/mman.h sys/un.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in values.h stdint.h ieeefp.h math.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"

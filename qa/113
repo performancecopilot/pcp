@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -20,8 +21,6 @@ then
     loopcount=`$sudo losetup -a | wc -l`
     [ $loopcount -eq 0 ] || _notrun "System has active loop devices, bailing"
 fi
-
-echo "QA output created by $seq"
 
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

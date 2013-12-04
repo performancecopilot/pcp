@@ -46,7 +46,7 @@ _filter_newlog()
 	-e '/pmlogger -L/s/.*/-- ps line removed --/' \
 	-e '/ \/usr\/pcp\/bin\/pmlogger /s/.*/-- ps line removed --/' \
 	-e 's/^\/usr\/pcp\/bin\/pmlogger/pmlogger/' \
-	-e '/^pmlogger/s/[0-9][0-9]*/PID/g' \
+	-e "/^pmlogger/s/$seq-[0-9][0-9]*/SEQ-PID/g" \
 	-e '/configuration file saved as/s/[0-9][0-9]*/PID/g' \
 	-e 's/\[[0-9][0-9]*]/[PID]/' \
 	-e '/PMCD host/d' \

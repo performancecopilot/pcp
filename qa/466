@@ -6,21 +6,20 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_EOE_VER -eq 2000 -o \
-    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6501 \) ] ; then
-    echo "This test is applicable on PCP 2.1 or Irix 6.5.2 or later" > $seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./localconfig
+
+if [ $PCP_EOE_VER -eq 2000 -o \
+    \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6501 \) ] ; then
+    echo "This test is applicable on PCP 2.1 or Irix 6.5.2 or later" > $seq.notrun
+    echo "$seq: [not run] `cat $seq.notrun`"
+    exit 0
+fi
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

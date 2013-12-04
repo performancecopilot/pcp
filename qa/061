@@ -32,7 +32,7 @@ _filter_pmlogger()
     _filter_pmlogger_log \
     | sed \
 	-e '/[Ss]ignalled (signal=.*), exiting/d' \
-	-e "/Warning /s/[0-9]*\.config/MYPID.config/" \
+	-e "/Warning /s/[0-9]*-[0-9]*\.config/SEQ-MYPID.config/" \
 	-e 's/0x00000000/NULL/g' \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/(nil)/ADDR/g' \

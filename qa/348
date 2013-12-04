@@ -5,12 +5,13 @@
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 [ $PCP_PLATFORM = linux ] || _notrun "KVM only exists on Linux"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
@@ -25,8 +26,6 @@ then
 else
     ln $seq.out.2 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 status=1
 done_clean=false

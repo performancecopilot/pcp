@@ -46,7 +46,11 @@ BUILDRULES = $(TOPDIR)/src/include/buildrules
 # during the "dist" phase (packaging).
 
 # turn on all warnings by default
+ifeq "@cc_is_gcc@" "yes"
 WARN_OFF = -Wall
+else
+WARN_OFF =
+endif
 
 LIBPCP_ABIDIR ?= src
 PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
@@ -58,10 +62,11 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 #
 # Note:
 # 	Need PCFLAGS setting here to match the CFLAGS settings in
-# 	../../configure.in
+# 	../../configure.in (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
 PCFLAGS = @PCFLAGS@
+PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
@@ -76,11 +81,7 @@ SHELLSUFFIX = .sh
 PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
 endif
 ifeq "$(TARGET_OS)" "solaris"
-ifneq "@cc_is_gcc@" "yes"
-# Assume that this is the Sun compiler which does not grok -Wall
-WARN_OFF =
-endif
-PLDLAGS = -fPIC
+PLDFLAGS += -fPIC
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
 DSOSUFFIX = so
 endif
@@ -94,7 +95,7 @@ DSOSUFFIX = so
 #       do not use path to DSOs from the build, use default search path
 #       rules
 # (and does not accept -Wall as a valid option)
-PLDFLAGS = -brtl -bnoipath
+PLDFLAGS += -brtl -bnoipath
 WARN_OFF =
 endif
 ifeq "$(TARGET_OS)" "freebsd"
@@ -106,19 +107,20 @@ endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = -O2 -g
-CFLAGS += $(CFLAGS_ABI) $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
+CFLAGS += $(PCFLAGS) $(LCFLAGS) $(WARN_OFF) $(CFLAGS_OPT) \
 	-DPCP_DEBUG -DPCP_VERSION=\"$(PCP_VERSION)\" \
 	-I$(TOPDIR)/src/include -I$(TOPDIR)/src/include/pcp
 
 PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
+INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
 
 NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
 
-LDFLAGS += $(CFLAGS_ABI) $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
+LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
 SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(MFILES) \
 	$(LSRCFILES) $(LFILES) $(YFILES) $(PYFILES)
@@ -238,11 +240,20 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
+# prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
+VERSION_SCRIPT_MAKERULE = \
+	@rm -f $@; \
+	echo "{" >$@; \
+	echo "    global: $(PMDAINIT);" >>$@; \
+	echo "    local: *;" >>$@; \
+	echo "};" >>$@; \
+
+# prepare domain.h used during the PMDA build process for each PMDA
 DOMAIN_MAKERULE = \
-	@rm -f domain.h; \
-	echo "/*" >domain.h; \
-	echo " * built from $<" >>domain.h; \
-	echo " */" >>domain.h; \
+	@rm -f $@; \
+	echo "/*" >$@; \
+	echo " * built from $<" >>$@; \
+	echo " */" >>$@; \
 	$(AWK) <$< '\
 	    $$1=="\#define" && $$2 == "$(DOMAIN)" {\
 		print "\#define $(DOMAIN) " $$3 >>"$@"; found++ \

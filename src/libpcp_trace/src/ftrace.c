@@ -94,7 +94,11 @@ pmtracecounter_(const char *tag, double *value, int tag_len)
 }
 
 int
+#ifdef __GNUC__
+pmtraceobs_(const char *tag, int tag_len, double *value)
+#else
 pmtraceobs_(const char *tag, double *value, int tag_len)
+#endif
 {
     char	*tmp = NULL;
     int		sts;

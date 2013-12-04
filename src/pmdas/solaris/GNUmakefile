@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,17 +19,22 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= solaris
 DOMAIN	= SOLARIS
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAINIT = solaris_init
 CMDTARGET = pmdasolaris
 LIBTARGET = pmda_solaris.so
-CONF_LINE = "solaris	75	dso	solaris_init	$(PMDADIR)/$(LIBTARGET)"
+CONF_LINE = "solaris	75	dso	$(PMDAINIT)	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES	= solaris.c data.c sysinfo.c disk.c zpool.c zfs.c \
 	 zpool_perdisk.c netmib2.c netlink.c kvm.c arcstats.c vnops.c
 
 BARE_NS = disk kernel mem network hinv zpool zfs zpool_perdisk
 PMNS	= $(BARE_NS:%=pmns.%)
+
 LSRCFILES = $(PMNS) help root common.h clusters.h netmib2.h
-LDIRT	= domain.h *.log *.dir *.pag root_solaris
+HELPTARGETS = help.dir help.pag
+VERSION_SCRIPT = exports
+
+LDIRT	= domain.h *.log $(HELPTARGETS) root_solaris
 
 LLDLIBS = $(PCP_PMDALIB) -lkstat -lzfs -lnvpair -lkvm -ldevinfo
 
@@ -37,14 +43,14 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "solaris"
-build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 domain.h $(HELPTARGETS) $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_solaris $(PCP_VAR_DIR)/pmns/root_solaris
 else
@@ -58,7 +64,7 @@ install_pcp : install
 
 $(OBJECTS):	common.h
 
-help.dir help.pag: help root_solaris
+$(HELPTARGETS): help root_solaris
 	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
 
 root_solaris: ../../pmns/stdpmid $(PMNS) root
@@ -69,3 +75,8 @@ root_solaris: ../../pmns/stdpmid $(PMNS) root
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
+
+$(LIBTARGET): $(VERSION_SCRIPT)

@@ -183,8 +183,6 @@ GetPort(char *file)
     FILE		*mapstream;
     int			sts;
     __pmSockAddr	*myAddr;
-    __pmHostEnt		*host;
-    char		*hostname;
     static int		port_base = -1;
 
     fd = __pmCreateSocket();

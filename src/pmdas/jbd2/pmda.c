@@ -237,6 +237,7 @@ jbd2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 jbd2_init(pmdaInterface *dp)
 {
     size_t	nmetrics, nindoms;

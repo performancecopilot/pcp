@@ -6,15 +6,15 @@
 # Copyright (c) 2012 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
 rm -f src/big2.*
-
 rm -f $seq.full
 ./src/mkbig1 > $seq.full 2>&1
 [ $? -eq 0 ] || _notrun `cat $seq.full`
@@ -22,8 +22,6 @@ rm -f $seq.full
 # 10GB should keep us out of trouble
 free=`_check_freespace 10240`
 [ -z "$free" ] || _notrun $free
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

@@ -16,12 +16,17 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 LIBTARGET = pmda_pmcd.$(DSOSUFFIX)
+PMDAINIT = pmcd_init
 
 CFILES	= pmcd.c
 LSRCFILES = objstyle
+VERSION_SCRIPT = exports
+LDIRT = $(VERSION_SCRIPT)
 
 # Add to CFLAGS to find files in pmcd/src...
 LCFLAGS = -I$(TOPDIR)/src
+LCFLAGS += -I$(TOPDIR)/src/pmie/src
+
 ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
 ABI = $(shell ./objstyle)
 LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
@@ -37,6 +42,8 @@ BUILD = unknown
 endif
 
 LCFLAGS += -DBUILD=\"$(BUILD)\"
+LCFLAGS += $(INVISIBILITY)
+
 LLDLIBS = $(PCP_PMDALIB)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lpcp_pmcd
@@ -54,3 +61,8 @@ include $(BUILDRULES)
 default_pcp : default
 
 install_pcp : install
+
+$(LIBTARGET): $(VERSION_SCRIPT)
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)

@@ -10,6 +10,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 . ./localconfig
 rm -f $seq.out
@@ -26,8 +27,6 @@ else
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
-
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
