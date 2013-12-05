@@ -242,6 +242,10 @@ extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int) _
 typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
 
 struct __pmServerPresence {
+    /* Common data. */
+    char			*serviceSpec;
+    int				port;
+    /* API-specific data. */
     __pmServerAvahiPresence	*avahi;
 };
 

@@ -101,6 +101,12 @@ auxserver.o
     d localSocketFd		# single-threaded server scope
     b server_features		# single-threaded server scope
 ?avahi.o
+    b nActiveServices		# single-threaded server scope
+    b szActiveServices		# single-threaded server scope
+    b activeServices		# single-threaded server scope
+    b threadedPoll		# single-threaded server scope
+    b client			# single-threaded server scope
+    b group			# single-threaded server scope
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const

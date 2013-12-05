@@ -12,7 +12,7 @@
  * for more details.
  */
 #ifndef AVAHI_H
-#define AVAHI_H 1
+#define AVAHI_H
 
 #include <avahi-client/publish.h>
 #include <avahi-common/alternative.h>
@@ -20,7 +20,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
 
-void __pmServerAvahiAdvertisePresence(__pmServerPresence *, const char *, int) _PCP_HIDDEN;
+void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 
 #endif /* AVAHI_H */
