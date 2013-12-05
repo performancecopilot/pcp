@@ -209,11 +209,6 @@ char	*Oarg = NULL;			/* -O arg - non-existent */
 
 /*--- START FUNCTIONS -------------------------------------------------------*/
 
-extern int _pmLogGet(__pmLogCtl *, int, __pmPDU **);
-extern int _pmLogPut(FILE *, __pmPDU *);
-extern void insertresult(rlist_t **, pmResult *);
-extern pmResult *searchmlist(pmResult *);
-
 /*
  * return -1, 0 or 1 as the __pmTimeval's compare
  * a < b, a == b or a > b
@@ -557,30 +552,30 @@ update_descreclist(int i)
     else {
 	curr = rdesc;
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.pmid != __ntohpmID(iap->pb[META][2]))
+	while (curr->next != NULL && curr->desc.pmid != ntoh_pmID(iap->pb[META][2]))
 	    curr = curr->next;
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
 	    fprintf(stderr, "update_descreclist: pmid: last/match %s", metricname(curr->desc.pmid));
-	    fprintf(stderr, " new %s", metricname(__ntohpmID(iap->pb[META][2])));
+	    fprintf(stderr, " new %s", metricname(ntoh_pmID(iap->pb[META][2])));
 	    fputc('\n', stderr);
 	}
 #endif
     }
 
-    if (curr->desc.pmid == __ntohpmID(iap->pb[META][2])) {
+    if (curr->desc.pmid == ntoh_pmID(iap->pb[META][2])) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
 	    fprintf(stderr, " type: old %s", pmTypeStr(curr->desc.type));
 	    fprintf(stderr, " new %s", pmTypeStr(ntohl(iap->pb[META][3])));
 	    fprintf(stderr, " indom: old %s", pmInDomStr(curr->desc.indom));
-	    fprintf(stderr, " new %s", pmInDomStr(__ntohpmInDom(iap->pb[META][4])));
+	    fprintf(stderr, " new %s", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
 	    fprintf(stderr, " sem: old %d", curr->desc.sem);
 	    fprintf(stderr, " new %d", (int)ntohl(iap->pb[META][5]));
 	    fprintf(stderr, " units: old %s", pmUnitsStr(&curr->desc.units));
 	    pmup = (pmUnits *)&iap->pb[META][6];
-	    pmu = __ntohpmUnits(*pmup);
+	    pmu = ntoh_pmUnits(*pmup);
 	    fprintf(stderr, " new %s", pmUnitsStr(&pmu));
 	    fputc('\n', stderr);
 	}
@@ -593,12 +588,12 @@ update_descreclist(int i)
 	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
 	    abandon();
 	}
-	if (curr->desc.indom != __ntohpmInDom(iap->pb[META][4])) {
+	if (curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
 	    fprintf(stderr,
 		"%s: Error: metric %s: indom changed from",
 		pmProgname, metricname(curr->desc.pmid));
 	    fprintf(stderr, " %s", pmInDomStr(curr->desc.indom));
-	    fprintf(stderr, " to %s!\n", pmInDomStr(__ntohpmInDom(iap->pb[META][4])));
+	    fprintf(stderr, " to %s!\n", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
 	    abandon();
 	}
 	if (curr->desc.sem != ntohl(iap->pb[META][5])) {
@@ -610,7 +605,7 @@ update_descreclist(int i)
 	    abandon();
 	}
 	pmup = (pmUnits *)&iap->pb[META][6];
-	pmu = __ntohpmUnits(*pmup);
+	pmu = ntoh_pmUnits(*pmup);
 	if (curr->desc.units.dimSpace != pmu.dimSpace ||
 	    curr->desc.units.dimTime != pmu.dimTime ||
 	    curr->desc.units.dimCount != pmu.dimCount ||
@@ -633,12 +628,12 @@ update_descreclist(int i)
 	curr->next = mk_reclist_t();
 	curr = curr->next;
 	curr->pdu = iap->pb[META];
-	curr->desc.pmid = __ntohpmID(iap->pb[META][2]);
+	curr->desc.pmid = ntoh_pmID(iap->pb[META][2]);
 	curr->desc.type = ntohl(iap->pb[META][3]);
-	curr->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
 	curr->desc.sem = ntohl(iap->pb[META][5]);
 	pmup =(pmUnits *)&iap->pb[META][6];
-	curr->desc.units = __ntohpmUnits(*pmup);
+	curr->desc.units = ntoh_pmUnits(*pmup);
 	curr->ptr = findnadd_indomreclist(curr->desc.indom);
 	iap->pb[META] = NULL;
     }
@@ -661,7 +656,7 @@ append_indomreclist(int i)
 	rindom->pdu = iap->pb[META];
 	rindom->desc.pmid = PM_ID_NULL;
 	rindom->desc.type = PM_TYPE_NOSUPPORT;
-	rindom->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	rindom->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
 	rindom->desc.sem = 0;
 	rindom->desc.units = nullunits;	/* struct assignment */
     }
@@ -669,11 +664,11 @@ append_indomreclist(int i)
 	curr = rindom;
 
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.indom != __ntohpmInDom(iap->pb[META][4])) {
+	while (curr->next != NULL && curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
 	    curr = curr->next;
 	}
 
-	if (curr->desc.indom == __ntohpmInDom(iap->pb[META][4])) {
+	if (curr->desc.indom == ntoh_pmInDom(iap->pb[META][4])) {
 	    if (curr->pdu == NULL) {
 		/* insert new record */
 		curr->pdu = iap->pb[META];
@@ -684,7 +679,7 @@ append_indomreclist(int i)
 		rec->pdu = iap->pb[META];
 		rec->desc.pmid = PM_ID_NULL;
 		rec->desc.type = PM_TYPE_NOSUPPORT;
-		rec->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+		rec->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
 		rec->desc.sem = 0;
 		rec->desc.units = nullunits;	/* struct assignment */
 		rec->next = curr->next;
@@ -698,7 +693,7 @@ append_indomreclist(int i)
 	    curr->pdu = iap->pb[META];
 	    curr->desc.pmid = PM_ID_NULL;
 	    curr->desc.type = PM_TYPE_NOSUPPORT;
-	    curr->desc.indom = __ntohpmInDom(iap->pb[META][4]);
+	    curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
 	    curr->desc.sem = 0;
 	    curr->desc.units = nullunits;	/* struct assignment */
 	}
@@ -966,7 +961,7 @@ againmeta:
 	 *	then append to desc list
 	 */
 	if (ntohl(iap->pb[META][1]) == TYPE_DESC) {
-	    pmid = __ntohpmID(iap->pb[META][2]);
+	    pmid = ntoh_pmID(iap->pb[META][2]);
 
 	    /* if ml is defined, then look for pmid in the list
 	     * if pmid is not in the list then discard it immediately
@@ -1002,7 +997,7 @@ againmeta:
 	    /* if ml is defined, then look for instance domain in the list
 	     * if indom is not in the list then discard it immediately
 	     */
-	    indom = __ntohpmInDom(iap->pb[META][4]);
+	    indom = ntoh_pmInDom(iap->pb[META][4]);
 	    want = 0;
 	    if (ml == NULL)
 	        want = 1;
@@ -1289,7 +1284,6 @@ int
 parseconfig(void)
 {
     int		errflag = 0;
-    extern FILE * yyin;
 
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
