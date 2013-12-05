@@ -145,7 +145,7 @@ derive.o
     b string			# guarded by registered.mutex
     b lexpeek			# guarded by registered.mutex
     b this			# guarded by registered.mutex
-    d registered		# guarded by registered.mutex
+    [bd] ?registered		# guarded by registered.mutex
     b pmid.[0-9]*		# guarded by registered.mutex
     b ?derive_errmsg		# thread private
     d ?__emutls_v.derive_errmsg	# thread private (MinGW)
@@ -191,8 +191,8 @@ lock.o
     [bd] ?init.[0-9]*		# local __pmInitLocks mutex
     b ?done.[0-9]*		# guarded by local __pmInitLocks mutex
     [CD] ?__pmTPDKey		# one-trip initialization then read-only
-    b multi_init		# guarded by __pmLock_libpcp mutex
-    b multi_seen		# guarded by __pmLock_libpcp mutex
+    b ?multi_init		# guarded by __pmLock_libpcp mutex
+    b ?multi_seen		# guarded by __pmLock_libpcp mutex
     b ?hashctl.[0-9]*		# for lock debug tracing
     B ?__pmTPDKey		# if don't have __thread support
 

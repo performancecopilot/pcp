@@ -35,6 +35,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmdbg.h"
+#include "internal.h"
 
 #if defined(HAVE_SYS_TIMES_H)
 #include <sys/times.h>

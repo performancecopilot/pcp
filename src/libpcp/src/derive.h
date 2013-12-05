@@ -11,10 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-
-#include <ctype.h>
-#include "pmapi.h"
-#include "impl.h"
+#ifndef _DERIVE_H
+#define _DERIVE_H
 
 /*
  * Derived Metrics support
@@ -59,9 +57,7 @@ typedef struct {		/* one derived metric */
  * tree of expressions maintained per context.
  */
 typedef struct {
-#ifdef PM_MULTI_THREAD
-    pthread_mutex_t	mutex;
-#endif
+    __pmMutex		mutex;
     int			nmetric;	/* derived metrics */
     dm_t		*mlist;
     int			fetch_has_dm;	/* ==1 if pmResult rewrite needed */
@@ -88,4 +84,15 @@ typedef struct {
 #define L_SUM		14
 #define L_ANON		15
 
-void __dmdumpexpr(node_t *, int);
+extern int __dmtraverse(const char *, char ***) _PCP_HIDDEN;
+extern int __dmchildren(const char *, char ***, int **) _PCP_HIDDEN;
+extern int __dmgetpmid(const char *, pmID *) _PCP_HIDDEN;
+extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
+extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;
+extern void __dmclosecontext(__pmContext *) _PCP_HIDDEN;
+extern int __dmdesc(__pmContext *, pmID, pmDesc *) _PCP_HIDDEN;
+extern int __dmprefetch(__pmContext *, int, const pmID *, pmID **) _PCP_HIDDEN;
+extern void __dmpostfetch(__pmContext *, pmResult **) _PCP_HIDDEN;
+extern void __dmdumpexpr(node_t *, int) _PCP_HIDDEN;
+
+#endif	/* _DERIVE_H */

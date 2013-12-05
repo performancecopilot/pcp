@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -14,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 #define LIMIT_CREDS	1024
 

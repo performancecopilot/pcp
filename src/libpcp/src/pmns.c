@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -25,6 +26,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "internal.h"
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
@@ -2349,7 +2351,7 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
     return sts;
 }
 
-int
+static int
 TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
     int pmns_location = GetLocation();
