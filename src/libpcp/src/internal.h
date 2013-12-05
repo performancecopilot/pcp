@@ -20,7 +20,7 @@
  * but which we do not want to expose via impl.h or pmapi.h.
  */
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && (__GNUC__ >= 4)
 # define _PCP_HIDDEN __attribute__ ((visibility ("hidden")))
 #else
 # define _PCP_HIDDEN
