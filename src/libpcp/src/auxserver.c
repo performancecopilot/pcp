@@ -18,6 +18,9 @@
 #include "impl.h"
 #define SOCKET_INTERNAL
 #include "internal.h"
+#if defined(HAVE_GETPEERUCRED)
+#include <ucred.h>
+#endif
 #include "avahi.h"
 
 /*
@@ -587,13 +590,14 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 
 #elif defined(HAVE_GETPEERUCRED)	/* Solaris */
     unsigned int uid, gid, pid;
-    ucred_t ucred;
+    ucred_t *ucred = NULL;
 
     if (getpeerucred(__pmFD(fd), &ucred) < 0)
 	return -oserror();
-    pid = ucred_getpid(&ucred);
-    uid = ucred_geteuid(&ucred);
-    gid = ucred_getegid(&ucred);
+    pid = ucred_getpid(ucred);
+    uid = ucred_geteuid(ucred);
+    gid = ucred_getegid(ucred);
+    ucred_free(ucred);
     return SetCredentialAttrs(attrs, pid, uid, gid);
 
 #else
@@ -766,24 +770,41 @@ __pmServerHasFeature(__pmServerFeature query)
 
 #if defined(HAVE_SERVICE_DISCOVERY)
 
+/*
+ * Advertise the given service using all available means. The implementation
+ * must support adding and removing individual service specs on the fly.
+ * e.g. "pmcd" on port 1234
+ */
 __pmServerPresence *
 __pmServerAdvertisePresence(const char *serviceSpec, int port)
 {
     __pmServerPresence *s;
 
+    /* Allocate a server presence and copy the given data. */
     if ((s = malloc(sizeof(*s))) == NULL) {
 	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
 		  sizeof(*s), PM_FATAL_ERR);
     }
+    s->serviceSpec = strdup(serviceSpec);
+    if (s->serviceSpec == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate service spec",
+		  strlen(serviceSpec) + 1, PM_FATAL_ERR);
+    }
+    s->port = port;
 
     /* Now advertise our presence using all available means. If a particular
      * method is not available or not configured, then the respective call
      * will have no effect. Currently, only Avahi is supported.
      */
-    __pmServerAvahiAdvertisePresence(s, serviceSpec, port);
+    __pmServerAvahiAdvertisePresence(s);
     return s;
 }
 
+/*
+ * Unadvertise the given service using all available means. The implementation
+ * must support removing individual service specs on the fly.
+ * e.g. "pmcd" on port 1234
+ */
 void
 __pmServerUnadvertisePresence(__pmServerPresence *s)
 {
@@ -791,6 +812,7 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
      * method is not active, then the respective call will have no effect.
      */
     __pmServerAvahiUnadvertisePresence(s);
+    free(s->serviceSpec);
     free(s);
 }
 

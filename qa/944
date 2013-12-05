@@ -11,10 +11,10 @@
 # Copyright (c) 2013 Red Hat.
 #
 
-. ./common.secure
-
 seq=`basename $0`
 echo "QA output created by $seq"
+
+. ./common.secure
 
 unix_domain_sockets=false
 eval `pmconfig -L 2>/dev/null`

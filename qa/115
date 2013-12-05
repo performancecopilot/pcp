@@ -50,7 +50,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e "s/$$/PID/g" \
+	-e "s/$seq-$$/SEQ-PID/g" \
 	-e 's/$/ /' \
 	-e 's/\([ "]\)'"$remote"'\([ "]\)/\1REMOTEHOST\2/g' \
 	-e 's/\([ "]\)'"$rhost"'\([ "]\)/\1REMOTEHOST\2/g' \

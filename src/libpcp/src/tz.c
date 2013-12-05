@@ -78,7 +78,7 @@ _popTZ(void)
  * Assumes TZ= is in the start of tzbuffer and this is not touched.
  * And finally set TZ in the environment.
  */
-void
+static void
 __pmSquashTZ(char *tzbuffer)
 {
     time_t	now = time(NULL);

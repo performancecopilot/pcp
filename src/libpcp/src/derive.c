@@ -63,7 +63,9 @@
 
 #include <inttypes.h>
 #include <assert.h>
-#include "derive.h"
+#include <ctype.h>
+#include "pmapi.h"
+#include "impl.h"
 #include "internal.h"
 #include "fault.h"
 #ifdef IS_MINGW

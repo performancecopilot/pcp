@@ -13,26 +13,26 @@ pmie count after attempt without control file: 0
 === check pmie_check and custom config ===
 # $version=1.0   
 + export version; version=1.0   
-Check pmie -h REMOTEHOST -l /tmp/PID.log1 ...
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log1 ...
 + cd /tmp
 No current pmie process exists for:
     host = REMOTEHOST
-    log file = /tmp/PID.log1
+    log file = /tmp/SEQ-PID.log1
 Restarting pmie for host "REMOTEHOST" ...
-+ pmie -b -h REMOTEHOST -l /tmp/PID.log1 -c /tmp/PID.conf
-Check pmie -h REMOTEHOST -l /tmp/PID.log2 ...
++ pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log1 -c /tmp/SEQ-PID.conf
+Check pmie -h REMOTEHOST -l /tmp/SEQ-PID.log2 ...
 + cd /tmp
 No current pmie process exists for:
     host = REMOTEHOST
-    log file = /tmp/PID.log2
+    log file = /tmp/SEQ-PID.log2
 Restarting pmie for host "REMOTEHOST" ...
-+ pmie -b -h REMOTEHOST -l /tmp/PID.log2 -c /tmp/PID.conf
-Check pmie -h LOCALHOST -l /tmp/PID.log0 ...
++ pmie -b -h REMOTEHOST -l /tmp/SEQ-PID.log2 -c /tmp/SEQ-PID.conf
+Check pmie -h LOCALHOST -l /tmp/SEQ-PID.log0 ...
 + cd /tmp
 No current pmie process exists for:
     host = LOCALHOST
-    log file = /tmp/PID.log0
+    log file = /tmp/SEQ-PID.log0
 Restarting pmie for host "LOCALHOST" ...
-+ pmie -b -h LOCALHOST -l /tmp/PID.log0 /tmp/PID.conf
++ pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 /tmp/SEQ-PID.conf
 
 $PCP_RC_DIR/pmie: PMIE not running

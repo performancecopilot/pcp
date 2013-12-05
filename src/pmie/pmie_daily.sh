@@ -396,7 +396,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     # match $logfile from control file to running pmies
     pid=""
     $VERY_VERBOSE && echo "Looking for logfile=$logfile"
-    for file in `ls $PCP_TMP_DIR/pmie`
+    for file in `ls "$PCP_TMP_DIR/pmie"`
     do
 	p_id=$file
 	file="$PCP_TMP_DIR/pmie/$file"

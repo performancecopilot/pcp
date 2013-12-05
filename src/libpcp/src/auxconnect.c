@@ -451,6 +451,8 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
  
     if (sts != 0) {
 	/* Unsuccessful connection. */
+	if (sts == ENOENT)
+	    sts = ECONNREFUSED;
 	__pmCloseSocket(fd);
 	fd = -sts;
     }
@@ -1033,7 +1035,7 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
         return NULL; /* no (more) addresses in the chain. */
 
     /* Now allocate a socket address and copy the data. */
-     addr = __pmSockAddrAlloc();
+    addr = __pmSockAddrAlloc();
     if (addr == NULL) {
         __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
         *ei = NULL;

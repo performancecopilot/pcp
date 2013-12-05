@@ -21,12 +21,15 @@ IAM		= mmv
 DOMAIN		= MMV
 CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
 TARGETS		= $(CMDTARGET) $(LIBTARGET)
 
 CFILES		= mmv.c
+VERSION_SCRIPT	= exports
 LSRCFILES	= Install Remove root_mmv
 LLDLIBS		= $(PCP_PMDALIB)
-LDIRT		= domain.h *.log *.dir *.pag pmns
+LCFLAGS		= $(INVISIBILITY)
+LDIRT		= domain.h *.log pmns $(VERSION_SCRIPT)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -40,13 +43,14 @@ install_pcp install: default
 	$(INSTALL) -m 755 $(TARGETS) Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmns $(PMDADIR)/root_mmv
 	$(INSTALL) -m 644 root_mmv $(PCP_VAR_DIR)/pmns/root_mmv
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/mmv
-endif
 
 $(CMDTARGET):	$(OBJECTS)
 
 $(IAM).o : domain.h
+$(LIBTARGET) : $(VERSION_SCRIPT)
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

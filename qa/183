@@ -6,8 +6,12 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-. ./localconfig
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
 if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
@@ -16,13 +20,8 @@ else
     ln $seq.out.irix $seq.out
 fi
 
-echo "QA output created by $seq"
-
-. ./common.product
-. ./common.check
-. ./common.filter
-
 signal=$PCP_BINADM_DIR/pmsignal
+newlog=$PCP_BINADM_DIR/pmnewlog
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 status=1
 
@@ -68,16 +67,15 @@ End-of-File
 
 # real QA test starts here
 echo "=== usage ==="
-pmnewlog
+$newlog
 
 echo
 echo "=== archive exists ==="
 echo "=== archive exists ===" >>$seq.full
-rm -f $tmp.save.*
-pmlogger -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
-pid=$!
+$sudo rm -f $tmp.save.*
+_start_up_pmlogger -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1
 _wait_for_pmlogger $pid $tmp.log
-pmnewlog -p $pid $tmp.save >$tmp.out 2>&1
+$sudo $newlog -p $pid $tmp.save >$tmp.out 2>&1
 ok=true
 for base in $tmp.save $tmp.save-00
 do
@@ -95,21 +93,21 @@ else
     echo "output from pmnewlog ..."
     cat $tmp.out
 fi
-$signal -a -s TERM pmlogger >/dev/null 2>&1
+$sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
 
 echo
 echo "=== no non-primary logger ==="
 echo "=== no non-primary logger ===" >>$seq.full
 date >/dev/null &
-wait
-pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+_wait_pmlogger_end $pid
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
 
 echo
 echo "=== no primary logger ==="
 echo "=== no primary logger ===" >>$seq.full
 $sudo $signal -a -s TERM pmlogger
-sleep 2
-pmnewlog $tmp 2>&1 | tee -a $seq.full | _filter
+pmsleep 1.1
+$sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
@@ -117,49 +115,47 @@ _wait_for_pmlogger
 echo
 echo "=== process is not called pmlogger ==="
 echo "=== process is not called pmlogger ===" >>$seq.full
-sleep 10 &
-pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
+pmsleep 10 &
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter
 
 echo
 echo "=== process is not really pmlogger ==="
 echo "=== process is not really pmlogger ===" >>$seq.full
 cp `which sleep` $tmp.pmlogger
 $tmp.pmlogger 10 &
-pmnewlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
+$sudo $newlog -p $! $tmp 2>&1 | tee -a $seq.full | _filter \
 | sed -e "/\.pmlogger/s/.*/-- ps line removed --/" -e "s/$!/PID/"
 
 echo
 echo "=== non-primary logger busy ==="
 echo "=== non-primary logger busy ===" >>$seq.full
-rm -f $tmp.save.*
-pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1 &
-pid=$!
+$sudo rm -f $tmp.save.*
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1
 _wait_for_pmlogger $pid $tmp.log
-(( echo "connect $pid"; sleep 3 ) | pmlc ) &
-pmnewlog -p $pid $tmp 2>&1 | tee -a $seq.full | _filter \
+(( echo "connect $pid"; pmsleep 3.0 ) | pmlc ) &
+$sudo $newlog -p $pid $tmp 2>&1 | tee -a $seq.full | _filter \
 | sed -e "/\.save/s/.*/-- ps line removed --/" -e "s/$pid/PID/"
-$signal -s TERM $pid
+$sudo $signal -s TERM $pid
 
 echo
 echo "=== primary logger busy ==="
 echo "=== primary logger busy ===" >>$seq.full
 (( echo "connect primary"; sleep 3 ) | pmlc ) &
-pmnewlog $tmp 2>&1 | tee -a $seq.full | _filter \
+$sudo $newlog $tmp 2>&1 | tee -a $seq.full | _filter \
 | sed -e "/\/pmlogger/s/.*/-- ps line removed --/"
 
 echo
 echo "=== no extracted configuration ==="
 echo "=== no extracted configuration ===" >>$seq.full
-rm -f $tmp.save.*
-pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1 &
-pid=$!
+$sudo rm -f $tmp.save.*
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp.save >$tmp.err 2>&1
 _wait_for_pmlogger $pid $tmp.log
 
 echo "pid=$pid" >>$seq.full
 ps $PCP_PS_ALL_FLAGS | grep pmlogger >>$seq.full
 
-sleep 3
-pmnewlog -p $pid $tmp 2>&1 \
+pmsleep 1.1
+$sudo $newlog -p $pid $tmp 2>&1 \
 | tee -a $seq.full \
 | _filter \
 | sed \
@@ -172,9 +168,9 @@ pmnewlog -p $pid $tmp 2>&1 \
     -e '/Reason: IPC protocol failure/d' \
     -e '/^$/d'
 
-$signal -s TERM $pid
+$sudo $signal -s TERM $pid
 
-wait
+_wait_pmlogger_end $pid
 echo "-- tmp.log --" >>$seq.full
 cat $tmp.log  >>$seq.full
 echo "-- tmp.err --" >>$seq.full
@@ -195,11 +191,9 @@ ps $PCP_PS_ALL_FLAGS \
 $1 == "root"	{ print $2 }' >$tmp.old
 cat $tmp.old >>$seq.full
 
-rm -f $tmp.save.*
-logger=`which pmlogger`
-$sudo $logger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1 &
-parent=$!
-sleep 2
+$sudo rm -f $tmp.save.*
+_start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1
+pmsleep 1.1
 
 echo "=== final pmloggers ===" >>$seq.full
 ps $PCP_PS_ALL_FLAGS \
@@ -210,43 +204,20 @@ ps $PCP_PS_ALL_FLAGS \
 $1 == "root"	{ print $2 }' >$tmp.new
 cat $tmp.new >>$seq.full
 
-for pid in `cat $tmp.new`
-do
-    if grep "^$pid"'$' $tmp.old >/dev/null
-    then
-	:
-    else
-	break
-    fi
-done
+#for pid in `cat $tmp.new`
+#do
+#    if grep "^$pid"'$' $tmp.old >/dev/null
+#    then
+#	:
+#    else
+#	break
+#    fi
+#done
 
 echo "target pmlogger pid=$pid" >>$seq.full
+pmsleep 1.1
 
-
-if false
-then
-# parent is the pid of sudo
-# get pid for sh -c (if it exists)
-pid="`ps $PCP_PS_ALL_FLAGS | grep 'sh -c' | $PCP_AWK_PROG '$3 == '$parent' { print $2 }'`"
-if [ -z "$pid" ]
-then
-    pid=$parent
-fi
-
-# get pid for pmlogger
-parent=$pid
-pid="`ps $PCP_PS_ALL_FLAGS | grep pmlogger | $PCP_AWK_PROG '$3 == '$parent' { print $2 }'`"
-if [ -z "$pid" ]
-then
-    echo "Error: cannot find pmlogger process (parent pid: $parent)!"
-    ps $PCP_PS_ALL_FLAGS
-    exit 1
-fi
-fi
-
-sleep 2
-
-pmnewlog -p $pid $tmp 2>&1 \
+$newlog -p $pid $tmp 2>&1 \
 | tee -a $seq.full \
 | _filter \
 | sed \

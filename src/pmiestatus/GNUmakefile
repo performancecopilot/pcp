@@ -17,8 +17,10 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = pmiestatus.c
-LLDLIBS = $(PCPLIB)
 CMDTARGET = pmiestatus$(EXECSUFFIX)
+
+LLDLIBS = $(PCPLIB)
+LCFLAGS = -I$(TOPDIR)/src/pmie/src
 
 default : $(CMDTARGET)
 

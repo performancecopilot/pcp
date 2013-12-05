@@ -16,7 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "pmiestats.h"
+#include "stats.h"
 #include "pmcd/src/pmcd.h"
 #include "pmcd/src/client.h"
 #include <sys/stat.h>
@@ -1751,6 +1751,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 }
 
 void
+__PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];

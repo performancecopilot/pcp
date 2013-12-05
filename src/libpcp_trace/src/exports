@@ -1,0 +1,42 @@
+PCP_TRACE_2.0 {
+  global:
+    /* C and Fortran calling interfaces */
+    pmtraceabort;
+    pmtraceabort_;
+    pmtracebegin;
+    pmtracebegin_;
+    pmtracecounter;
+    pmtracecounter_;
+    pmtraceend;
+    pmtraceend_;
+    pmtraceobs;
+    pmtraceobs_;
+    pmtracepoint;
+    pmtracepoint_;
+    pmtracestate;
+    pmtracestate_;
+    pmtraceerrstr;
+    pmtraceerrstr_;
+
+    /* Internals shared between pmdatrace and libpcp_trace */
+    __pmhashinit;
+    __pmhashinsert;
+    __pmhashlookup;
+    __pmhashtraverse;
+    __pmhashtrunc;
+    __pmstate;
+    __pmtracedecodeack;
+    __pmtracedecodedata;
+    __pmtracefindPDUbuf;
+    __pmtracegetPDU;
+    __pmtracemoreinput;
+    __pmtracenomoreinput;
+    __pmtracepinPDUbuf;
+    __pmtraceprotocol;
+    __pmtracesendack;
+    __pmtracesenddata;
+    __pmtraceunpinPDUbuf;
+    __pmtracexmitPDU;
+
+  local: *;
+};

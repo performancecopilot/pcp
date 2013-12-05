@@ -377,8 +377,6 @@ parseargs(int argc, char *argv[])
 static void
 parseconfig(char *file)
 {
-    extern FILE * yyin;
-
     configfile = file;
     if ((yyin = fopen(configfile, "r")) == NULL) {
 	fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
@@ -1149,7 +1147,7 @@ main(int argc, char **argv)
 	    }
 	    if (stsmeta == TYPE_DESC) {
 		int	i;
-		pmid = __ntohpmID(inarch.metarec[2]);
+		pmid = ntoh_pmID(inarch.metarec[2]);
 #if PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
 		    fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(pmid), in_offset);
@@ -1171,7 +1169,7 @@ main(int argc, char **argv)
 	    else if (stsmeta == TYPE_INDOM) {
 		struct timeval	stamp;
 		__pmTimeval	*tvp = (__pmTimeval *)&inarch.metarec[2];
-		indom = __ntohpmInDom((unsigned int)inarch.metarec[4]);
+		indom = ntoh_pmInDom((unsigned int)inarch.metarec[4]);
 #if PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
 		    fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(indom), in_offset);
@@ -1247,15 +1245,15 @@ main(int argc, char **argv)
     }
 
     if (iflag) {
-	if (__pmLogRename(inarch.name, bak_base) < 0) {
+	if (_pmLogRename(inarch.name, bak_base) < 0) {
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	if (__pmLogRename(outarch.name, inarch.name) < 0) {
+	if (_pmLogRename(outarch.name, inarch.name) < 0) {
 	    abandon();
 	    /*NOTREACHED*/
 	}
-	__pmLogRemove(bak_base);
+	_pmLogRemove(bak_base);
     }
 
     exit(0);
@@ -1269,9 +1267,9 @@ abandon(void)
 	if (Cflag == 0 && iflag == 0)
 	    fprintf(stderr, "Archive \"%s\" not created.\n", outarch.name);
 
-	__pmLogRemove(outarch.name);
+	_pmLogRemove(outarch.name);
 	if (iflag)
-	    __pmLogRename(bak_base, inarch.name);
+	    _pmLogRename(bak_base, inarch.name);
 	while (outarch.logctl.l_curvol >= 0) {
 	    snprintf(path, sizeof(path), "%s.%d", outarch.name, outarch.logctl.l_curvol);
 	    unlink(path);

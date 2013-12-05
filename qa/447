@@ -5,21 +5,15 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if which pmevent >/dev/null 2>&1
-then
-    rm -f .notrun
-else
-    _notrun pmevent executable not found
-fi
-
-echo "QA output created by $seq"
+which pmevent >/dev/null 2>&1 || _notrun "pmevent executable not found"
 
 status=0	# success is the default!
 host=`hostname`

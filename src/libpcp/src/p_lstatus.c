@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -26,6 +27,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 /*
  * PDU for logger status information transfer (PDU_LOG_STATUS)

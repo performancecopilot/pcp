@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # preliminary check
 #
@@ -15,8 +16,6 @@ if [ $? -eq 1 ]; then
     exit
 fi
 rm -f $seq.notrun
-
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -35,10 +34,6 @@ NETSTAT=netstat
 
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT NETSTAT
 
-# --- from here on down, originally copied _to_ 339, so need to push
-# --- changes into that qa test ... but the tests have now diverged, sigh!
-#
-
 # real QA test starts here
 
 config=$PCP_PMCDCONF_PATH
@@ -46,7 +41,7 @@ oconfig=$tmp.config
 
 # get FQDN
 #
-host=`hostname | sed -e 's/\..*//'`
+host=`hostname`
 me=`_host_to_fqdn $host`
 if [ -z "$me" ]
 then

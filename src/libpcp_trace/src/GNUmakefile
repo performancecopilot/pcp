@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This library is free software; you can redistribute it and/or modify it
@@ -15,9 +16,13 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+HFILES = hash.h
 CFILES	= trace.c hash.c pdu.c pdubuf.c p_ack.c p_data.c ftrace.c
+VERSION_SCRIPT = exports
+
 LCFLAGS = -DPMTRACE_DEBUG
 LLDLIBS = $(LIB_FOR_PTHREADS) -lpcp
+LSRCFILES = $(VERSION_SCRIPT)
 
 STATICLIBTARGET = libpcp_trace.a
 
@@ -42,7 +47,7 @@ LDIRT = $(SYMTARGET)
 
 base default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $(SYMTARGET)
 endif
@@ -50,16 +55,20 @@ endif
 include $(BUILDRULES)
 
 install : default
-ifneq "$(LIBTARGET)" ""
+ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(SYMTARGET)
 endif
-ifneq "$(STATICLIBTARGET)" ""
+ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
 default_pcp : default
 
 install_pcp : install
+
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
+endif

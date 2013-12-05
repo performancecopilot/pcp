@@ -4,3 +4,4 @@ pmda_sendmail.so
 pmda_sendmail.dll
 pmda_sendmail.dylib
 sendmail
+exports

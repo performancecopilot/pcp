@@ -380,8 +380,12 @@ fi
 if [ "$numpmies" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "     pmie: ""$PCP_ECHO_C"
-    LC_COLLATE=POSIX sort < $tmp/pmies  \
-    | sed -e '/^$/d' | sed -e '1!s/^/           /'
+    if [ $pflag = "true" ]; then
+	_fmt < $tmp/pmies
+    else
+	LC_COLLATE=POSIX sort < $tmp/pmies  \
+	| sed -e '/^$/d' | sed -e '1!s/^/           /'
+    fi
 fi
 
 sts=0

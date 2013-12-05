@@ -24,11 +24,14 @@ SCRIPTS	= Install Remove
 DFILES	= README
 LSRCFILES= $(SCRIPTS) pmns help root Sendmail.pmchart $(DFILES)
 
+VERSION_SCRIPT = exports
+PMDAINIT = $(IAM)_init
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) $(LIBTARGET) $(CMDTARGET)
+LDIRT	= domain.h *.o $(IAM).log $(LIBTARGET) $(CMDTARGET) $(VERSION_SCRIPT)
 LLDLIBS	= $(PCP_PMDALIB)
+LCFLAGS = $(INVISIBILITY)
 
 default_pcp default:	$(CMDTARGET) $(LIBTARGET)
 
@@ -42,9 +45,14 @@ install install_pcp:	default
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Sendmail.pmchart $(PMCHART)/Sendmail
 
-$(IAM)$(EXECSUFFIX):	$(OBJECTS)
+$(CMDTARGET):	$(OBJECTS)
+
+$(LIBTARGET):	$(OBJECTS) $(VERSION_SCRIPT)
 
 sendmail.o:	domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)

@@ -10,18 +10,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _TRACE_HASH_H
 #define _TRACE_HASH_H
-
-#ifdef __cplusplus      
-extern "C" {
-#endif
 
 typedef int  (*__pmHashCmpFunc)(void *, void *);
 typedef int  (*__pmHashKeyCmpFunc)(void *, const char *);
@@ -33,15 +25,15 @@ struct __pmHashEl {
 };
 typedef struct __pmHashEl __pmHashEnt;
 
-typedef struct {
+struct __pmHashTab {
     size_t		tsize;
     size_t		esize;
     unsigned int	entries;
     __pmHashCmpFunc	cmp;
     __pmHashDelFunc	del;
     __pmHashEnt		**rows;
-    /*void		**pool;*/
-} __pmHashTable;
+};
+typedef struct __pmHashTab __pmHashTable;
 
 extern int __pmhashinit(__pmHashTable *, size_t, size_t, __pmHashCmpFunc, __pmHashDelFunc);
 
@@ -57,10 +49,6 @@ extern void __pmhashtraverse(__pmHashTable *, __pmHashIterFunc);
 #ifndef PM_HASH_TUNE
 #define PM_HASH_SHFT	5
 #define PM_HASH_SIZE	31
-#endif
-
-#ifdef __cplusplus      
-}
 #endif
 
 #endif /* _TRACE_HASH_H */

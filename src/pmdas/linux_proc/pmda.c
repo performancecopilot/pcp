@@ -1544,6 +1544,7 @@ proc_strings_insert(const char *buf)
  */
 
 void 
+__PMDA_INIT_CALL
 proc_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);

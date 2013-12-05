@@ -28,128 +28,147 @@
 #include "avahi.h"
 
 /* Support for servers advertising their presence. */
+static AvahiThreadedPoll	*threadedPoll;
+static AvahiClient		*client;
+static AvahiEntryGroup		*group;
+
+static __pmServerPresence	**activeServices;
+static int			nActiveServices;
+static int			szActiveServices;
+
 struct __pmServerAvahiPresence {
-    char		*serviceName;
-    char		*serviceTag;
-    int			port;
-    AvahiThreadedPoll	*threadedPoll;
-    AvahiClient		*client;
-    AvahiEntryGroup	*group;
+    char	*serviceName;
+    char	*serviceTag;
 };
 
 static void entryGroupCallback(AvahiEntryGroup *, AvahiEntryGroupState, void *);
 
 static void
-createServices(AvahiClient *c, __pmServerAvahiPresence *s)
+renameService(__pmServerPresence *s)
 {
-    char *n;
+    char *n = avahi_alternative_service_name(s->avahi->serviceName);
+
+    if (pmDebug & DBG_TRACE_DISCOVERY)
+	__pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service '%s' to '%s'",
+		      s->avahi->serviceName, n);
+    avahi_free(s->avahi->serviceName);
+    s->avahi->serviceName = n;
+}
+
+static void
+renameServices(void)
+{
+    int i;
+    __pmServerPresence *s;
+
+    for (i = 0; i < szActiveServices; ++i) {
+	s = activeServices[i];
+	if (s == NULL)
+	    continue; /* empty entry */
+	renameService(s);
+    }
+}
+
+static void
+createServices(AvahiClient *c)
+{
+    __pmServerPresence *s;
     int ret;
+    int i;
+
     assert (c);
 
-    /*
-     * If this is the first time we're called, create a new
-     * entry group if necessary.
-     */
-    if (! s->group) {
-	if (! (s->group = avahi_entry_group_new(c, entryGroupCallback, s))) {
-	    __pmNotifyErr(LOG_ERR, "avahi_entry_group_new () failed: %s",
-			  avahi_strerror (avahi_client_errno(c)));
-	    goto fail;
-	}
+     /*
+      * Create a new entry group, if necessary, or reset the existing one.
+      */
+    if (group == NULL) {
+	if ((group = avahi_entry_group_new(c, entryGroupCallback, NULL)) == NULL) {
+ 	    __pmNotifyErr(LOG_ERR, "avahi_entry_group_new () failed: %s",
+ 			  avahi_strerror (avahi_client_errno(c)));
+	    return;
+ 	}
     }
+    else
+	avahi_entry_group_reset(group);
 
     /*
-     * If the group is empty (either because it was just created, or
-     * because it was reset previously, add our entries.
+     * We will now add our services to the entry group.
      */
-    if (avahi_entry_group_is_empty(s->group)) {
+    for (i = 0; i < szActiveServices; ++i) {
+	s = activeServices[i];
+	if (s == NULL)
+	    continue; /* empty table entry */
+
 	if (pmDebug & DBG_TRACE_DISCOVERY)
-	    __pmNotifyErr(LOG_INFO, "Adding %s Avahi service", s->serviceName);
+	    __pmNotifyErr(LOG_INFO, "Adding %s Avahi service on port %d",
+			  s->avahi->serviceName, s->port);
 
-	/*
-	 * We will now add our service to the entry group. Only services with
-	 * the same name should be put in the same entry group.
-	 */
-	if ((ret = avahi_entry_group_add_service(s->group, AVAHI_IF_UNSPEC,
-						 AVAHI_PROTO_UNSPEC,
-						 (AvahiPublishFlags)0,
-						 s->serviceName,
-						 s->serviceTag,
-						 NULL, NULL, s->port, NULL))
-	    < 0) {
-	    if (ret == AVAHI_ERR_COLLISION)
-		goto collision;
+	/* Loop until no collisions */
+	for (;;) {
+	    ret = avahi_entry_group_add_service(group, AVAHI_IF_UNSPEC,
+						AVAHI_PROTO_UNSPEC,
+						(AvahiPublishFlags)0,
+						s->avahi->serviceName,
+						s->avahi->serviceTag,
+						NULL, NULL, s->port, NULL);
+	    if (ret == AVAHI_OK)
+		break; /* success! */
+	    if (ret == AVAHI_ERR_COLLISION) {
+		/*
+		 * A service name collision with a local service happened.
+		 * Pick a new name.  Since a service may be listening on
+		 * multiple ports, this is expected to happen sometimes -
+		 * do not issue warnings here.
+		 */
+		renameService(s);
+		continue; /* try again */
+	    }
 
-	    __pmNotifyErr(LOG_ERR, "Failed to add %s service: %s",
-			  s->serviceTag, avahi_strerror(ret));
-	    goto fail;
-	}
-
-	/* Tell the server to register the service. */
-	if ((ret = avahi_entry_group_commit(s->group)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s",
-			  avahi_strerror(ret));
+	    __pmNotifyErr(LOG_ERR, "Failed to add %s Avahi service on port %d: %s",
+			  s->avahi->serviceName, s->port, avahi_strerror(ret));
 	    goto fail;
 	}
     }
-    return;
 
- collision:
-    /*
-     * A service name collision with a local service happened.
-     * pick a new name.  Since a service may be listening on
-     * multiple ports, this is expected to happen sometimes -
-     * do not issue warnings here.
-     */
-    n = avahi_alternative_service_name(s->serviceName);
-    avahi_free(s->serviceName);
-    s->serviceName = n;
-    if (pmDebug & DBG_TRACE_DISCOVERY) {
-	__pmNotifyErr(LOG_INFO,
-		      "Avahi service name collision, renaming service to '%s'",
-		      s->serviceName);
+    /* Tell the server to register the services. */
+    if ((ret = avahi_entry_group_commit(group)) < 0) {
+	__pmNotifyErr(LOG_ERR, "Failed to commit avahi entry group: %s",
+		      avahi_strerror(ret));
+	goto fail;
     }
-    avahi_entry_group_reset(s->group);
-    createServices(c, s);
+
     return;
 
  fail:
-    avahi_entry_group_reset(s->group);
+    avahi_entry_group_reset(group);
 }
 
 static void
 entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 {
-    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)data;
+    (void)data;
 
-    assert(g == s->group || s->group == NULL);
-    s->group = g;
+    assert(g != NULL);
+    assert(group == NULL || group == g);
+    group = g;
 
     /* Called whenever the entry group state changes. */
     switch (state) {
 	case AVAHI_ENTRY_GROUP_ESTABLISHED:
 	    /* The entry group has been established successfully. */
 	    if (pmDebug & DBG_TRACE_DISCOVERY)
-		__pmNotifyErr(LOG_INFO, "Avahi service '%s' successfully established.",
-			      s->serviceName);
+		__pmNotifyErr(LOG_INFO, "Avahi services successfully established.");
 	    break;
 
-	case AVAHI_ENTRY_GROUP_COLLISION: {
-	    char *n;
-	    /* A service name collision with a remote service happened.
-	     * Let's pick a new name ...
+	case AVAHI_ENTRY_GROUP_COLLISION:
+	    /*
+	     * A service name collision with a remote service happened.
+	     * Unfortunately, we don't know which entry collided.
+	     * We need to rename them all and recreate the services.
 	     */
-	    n = avahi_alternative_service_name(s->serviceName);
-	    avahi_free(s->serviceName);
-	    s->serviceName = n;
-	    if (pmDebug & DBG_TRACE_DISCOVERY)
-		__pmNotifyErr(LOG_INFO, "Avahi service name collision, renaming service to '%s'",
-			      s->serviceName);
-
-	    /* ... and recreate the services. */
-	    createServices(avahi_entry_group_get_client(g), s);
+	    renameServices();
+	    createServices(avahi_entry_group_get_client(g));
 	    break;
-	}
 
 	case AVAHI_ENTRY_GROUP_FAILURE:
 	    /* Some kind of failure happened. */
@@ -164,13 +183,13 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 }
 
 static void
-cleanupClient(__pmServerAvahiPresence *s)
+cleanupClient(void)
 {
     /* This also frees the entry group, if any. */
-    if (s->client) {
-	avahi_client_free(s->client);
-	s->client = NULL;
-	s->group = NULL;
+    if (client) {
+	avahi_client_free(client);
+	client = NULL;
+	group = NULL;
     }
 }
  
@@ -178,7 +197,7 @@ static void
 advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData)
 {
     assert(c);
-    __pmServerAvahiPresence *s = (__pmServerAvahiPresence *)userData;
+    (void)userData;
 
     /* Called whenever the client or server state changes. */
     switch (state) {
@@ -187,7 +206,7 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	     * The server has started successfully and registered its host
 	     * name on the network, so it's time to create our services.
 	     */
-	    createServices(c, s);
+	    createServices(c);
 	    break;
 
 	case AVAHI_CLIENT_FAILURE:
@@ -203,11 +222,10 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 		 * created, even if the avahi daemon is not running. Our
 		 * service will be advertised if/when the daemon is started.
 		 */
-		cleanupClient(s);
-		s->client =
-		    avahi_client_new(avahi_threaded_poll_get(s->threadedPoll),
-				     (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-				     advertisingClientCallback, s, & error);
+		cleanupClient();
+		client = avahi_client_new(avahi_threaded_poll_get(threadedPoll),
+					  (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
+					  advertisingClientCallback, NULL, & error);
 	    }
 	    break;
 
@@ -225,8 +243,8 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	     * for our own records to register until the host name is
 	     * properly esatblished.
 	     */
-	    if (s->group)
-		avahi_entry_group_reset (s->group);
+	    if (group)
+		avahi_entry_group_reset (group);
 	    break;
 
 	case AVAHI_CLIENT_CONNECTING:
@@ -236,8 +254,8 @@ advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData
 	     */
 	    if (pmDebug & DBG_TRACE_DISCOVERY)
 		__pmNotifyErr(LOG_INFO,
-			  "The Avahi daemon is not running. Avahi service '%s' will be established when the daemon is started",
-			  s->serviceName);
+			      "The Avahi daemon is not running. "
+			      "Avahi services will be established when the daemon is started");
 	    break;
     }
 }
@@ -248,20 +266,6 @@ cleanup(__pmServerAvahiPresence *s)
     if (s == NULL)
 	return;
 
-    if (pmDebug & DBG_TRACE_DISCOVERY)
-	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s'",
-			s->serviceName ? s->serviceName : "?");
-
-    /* Stop the avahi client, if it's running. */
-    if (s->threadedPoll)
-	avahi_threaded_poll_stop(s->threadedPoll);
-
-    /* Clean up the avahi objects. The order of freeing these is significant. */
-    cleanupClient(s);
-    if (s->threadedPoll) {
-	avahi_threaded_poll_free(s->threadedPoll);
-	s->threadedPoll = NULL;
-    }
     if (s->serviceName) {
 	avahi_free(s->serviceName);
 	s->serviceName = NULL;
@@ -272,21 +276,72 @@ cleanup(__pmServerAvahiPresence *s)
     }
 }
 
-/* The entry point for the avahi client thread. */
-static __pmServerAvahiPresence *
-publishService(const char *serviceName, const char *serviceTag, int port)
+/* Publish a new service. */
+static void
+addService(__pmServerPresence *s)
+{
+    int i;
+    size_t size;
+
+    /* Find an empty slot in the table of active services. */
+    for (i = 0; i < szActiveServices; ++i) {
+	if (activeServices[i] == NULL)
+	    break;
+    }
+
+    /* Do we need to grow the table? */
+    if (i >= szActiveServices) {
+	++szActiveServices;
+	size = szActiveServices * sizeof(*activeServices);
+	activeServices = realloc(activeServices, size);
+	if (activeServices == NULL) {
+	    __pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service table",
+		  size, PM_FATAL_ERR);
+	}
+    }
+
+    /* Add the service to the table. */
+    activeServices[i] = s;
+    ++nActiveServices;
+}
+
+/* Publish a new service. */
+static void
+removeService(__pmServerPresence *s)
+{
+    int i;
+
+    /*
+     * Find the service in the table of active services.
+     * We can do this by comparing the pointers directly, since
+     * that's how the services were added.
+     */
+    for (i = 0; i < szActiveServices; ++i) {
+	/*
+	 * Did we find it? If so, clear the entry.
+	 * We don't free it here.
+	 */
+	if (activeServices[i] == s) {
+	    activeServices[i] = NULL;
+	    --nActiveServices;
+	    return;
+	}
+    }
+}
+
+/* Publish a new service. */
+static void
+publishService(__pmServerPresence *s)
 {
     int error;
-    __pmServerAvahiPresence *s = calloc(1, sizeof(*s));
 
-    if (s) {
-	/* Save the given parameters. */
-	s->serviceName = avahi_strdup(serviceName);
-	s->serviceTag = avahi_strdup(serviceTag);
-	s->port = port;
+    /* Add the service to our list of active services. */
+    addService(s);
 
+    /* Is this the first service to be added? */
+    if (threadedPoll == NULL) {
 	/* Allocate main loop object. */
-	if (! (s->threadedPoll = avahi_threaded_poll_new())) {
+	if ((threadedPoll = avahi_threaded_poll_new()) == NULL) {
 	    __pmNotifyErr(LOG_ERR, "Failed to create avahi threaded poll object.");
 	    goto fail;
 	}
@@ -296,69 +351,105 @@ publishService(const char *serviceName, const char *serviceTag, int port)
 	 * the client to be created, even if the avahi daemon is not running.
 	 * Our service will be advertised if/when the daemon is started.
 	 */
-	s->client = avahi_client_new(avahi_threaded_poll_get(s->threadedPoll),
-				     (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-				     advertisingClientCallback, s, &error);
+	client = avahi_client_new(avahi_threaded_poll_get(threadedPoll),
+				  (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
+				  advertisingClientCallback, NULL, &error);
 
 	/* Check whether creating the client object succeeded. */
-	if (! s->client) {
+	if (! client) {
 	    __pmNotifyErr(LOG_ERR, "Failed to create avahi client: %s",
 			  avahi_strerror(error));
 	    goto fail;
 	}
 
-	/* Run the main loop. */
-	avahi_threaded_poll_start(s->threadedPoll);
+	/* Start the main loop. */
+	avahi_threaded_poll_start(threadedPoll);
     }
-      
-    return s;
+    else {
+	/* Stop the main loop while we recreate the services. */
+	avahi_threaded_poll_lock(threadedPoll);
+	createServices(client);
+	avahi_threaded_poll_unlock(threadedPoll);
+    }
+
+    return;
 
  fail:
-    cleanup(s);
-    free(s);
-    return NULL;
+    cleanup(s->avahi);
+    free(s->avahi);
 }
 
 void
-__pmServerAvahiAdvertisePresence(__pmServerPresence *s, const char *serviceSpec, int port)
+__pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 {
     size_t size;
-    char *serviceName;
-    char *serviceTag;
 
-    /* The service spec is simply the name of the server. Use it to
+    /* Allocate the avahi server presence. */
+    s->avahi = malloc(sizeof(*s->avahi));
+    if (s->avahi == NULL) {
+	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate avahi service data",
+		  sizeof(*s->avahi), PM_FATAL_ERR);
+    }
+
+    /*
+     * The service spec is simply the name of the server. Use it to
      * construct the avahi service name and service tag.
      */
-    size = sizeof("PCP ") + strlen(serviceSpec); /* includes room for the nul */
-    if ((serviceName = malloc(size)) == NULL) {
+    size = sizeof("PCP ") + strlen(s->serviceSpec); /* includes room for the nul */
+    if ((s->avahi->serviceName = avahi_malloc(size)) == NULL) {
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
-    sprintf(serviceName, "PCP %s", serviceSpec);
+    sprintf(s->avahi->serviceName, "PCP %s", s->serviceSpec);
 
-    size = sizeof("_._tcp") + strlen(serviceSpec); /* includes room for the nul */
-    if ((serviceTag = malloc(size)) == NULL) {
+    size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
+    if ((s->avahi->serviceTag = avahi_malloc(size)) == NULL) {
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service tag",
 		  size, PM_FATAL_ERR);
     }
-    sprintf(serviceTag, "_%s._tcp", serviceSpec);
+    sprintf(s->avahi->serviceTag, "_%s._tcp", s->serviceSpec);
     
     /* Now publish the avahi service. */
-    s->avahi = publishService(serviceName, serviceTag, port);
-
-    /* Clean up. */
-    free(serviceName);
-    free(serviceTag);
+    publishService(s);
 }
 
 void
 __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 {
-    if (s->avahi != NULL) {
-	cleanup(s->avahi);
-	free(s->avahi);
-	s->avahi = NULL;
+    /* Not an avahi service? */
+    if (s->avahi == NULL)
+	return;
+
+    if (pmDebug & DBG_TRACE_DISCOVERY)
+	__pmNotifyErr(LOG_INFO, "Removing Avahi service '%s' on port %d",
+		      s->avahi->serviceName , s->port);
+
+    /* Remove and cleanup the service. */
+    removeService(s);
+    cleanup(s->avahi);
+    free(s->avahi);
+    s->avahi = NULL;
+
+    /* Nothing to do if the client is not running. */
+    if (threadedPoll == NULL)
+	return;
+
+    /* Stop the main loop. */
+
+    /* If no services remain, then shut down the avahi client. */
+    if (nActiveServices == 0) {
+	/* Clean up the avahi objects. The order of freeing these is significant. */
+	avahi_threaded_poll_stop(threadedPoll);
+	cleanupClient();
+	avahi_threaded_poll_free(threadedPoll);
+	threadedPoll = NULL;
+	return;
     }
+
+    /* Otherwise, stop the main loop while we recreate the services. */
+    avahi_threaded_poll_lock(threadedPoll);
+    createServices(client);
+    avahi_threaded_poll_unlock(threadedPoll);
 }
 
 /* Support for clients searching for services. */

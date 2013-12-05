@@ -330,14 +330,15 @@ startmonitor(void)
     /* try to create the port file directory. OK if it already exists */
     snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
-    if ( (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
-	 (oserror() != EEXIST) ) {
-	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
-		pmProgname, pmie_dir, osstrerror());
-	exit(1);
+    if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+	if (oserror() != EEXIST) {
+	    fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
+		    pmProgname, pmie_dir, osstrerror());
+	    exit(1);
+	}
+    } else {
+	chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
-
-    chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
@@ -345,9 +346,9 @@ startmonitor(void)
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
-	fprintf(stderr, "%s: cannot create stats file %s: %s\n",
-		pmProgname, perffile, osstrerror());
-	exit(1);
+	/* cannot create stats file; too bad, so sad, continue on without it */
+	perf = &instrument;
+	return;
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
@@ -360,7 +361,7 @@ startmonitor(void)
     if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {
 	fprintf(stderr, "%s: memory map failed for stats file %s: %s\n",
 		pmProgname, perffile, osstrerror());
-	exit(1);
+	perf = &instrument;
     }
     close(fd);
 

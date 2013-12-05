@@ -20,7 +20,9 @@
 
 #include <inttypes.h>
 #include <assert.h>
-#include "derive.h"
+#include "pmapi.h"
+#include "impl.h"
+#include "internal.h"
 
 static void
 get_pmids(node_t *np, int *cnt, pmID **list)
@@ -51,7 +53,7 @@ get_pmids(node_t *np, int *cnt, pmID **list)
  * of the pmResult in __dmpostfetch()
  */
 int
-__dmprefetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, pmID **newlist)
+__dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlist)
 {
     int		i;
     int		j;

@@ -5,19 +5,18 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
 [ $PCP_VER -ge 3801 ] || _notrun "No dbpmda support for IPv6 sockets"
 ipv6=false
 eval `pmconfig -L 2>/dev/null`          # get IPv6 status
 $ipv6 || _notrun "No IPv6 support, so cannot test dbpmda IPv6 support"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "internal.h"
 
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)

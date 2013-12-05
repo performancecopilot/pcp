@@ -7,6 +7,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -52,8 +53,6 @@ if [ -z "$host2" ]
 then
     _notrun "Cannot get second remote pmcd host with proc.psinfo.ppid metrics"
 fi
-
-echo "QA output created by $seq"
 
 rm -f $seq.full
 echo "host1=$host1" >>$seq.full

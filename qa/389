@@ -23,11 +23,11 @@ _filter()
 	-e '/pmlogger: Error: IPC protocol failure/d'
 }
 
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== empty config and _no_ -L, should exit immediately ==="
-rm -f $tmp.*
+$sudo rm -f $tmp.*
 pmlogger -c /dev/null -l $tmp.log $tmp &
 sleep 2
 echo "expect no pmlogger process ..."
@@ -36,9 +36,9 @@ _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
 
 echo
 echo "=== empty config and -L, should exit when pmcd restarted ==="
-rm -f $tmp.*
-pmlogger -L -c /dev/null -l $tmp.log $tmp &
-_wait_for_pmlogger $! $tmp.log 5
+$sudo rm -f $tmp.*
+_start_up_pmlogger -L -c /dev/null -l $tmp.log $tmp
+_wait_for_pmlogger $pid $tmp.log 5
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 echo "expect no pmlogger process ..."
@@ -47,10 +47,10 @@ _filter_pmlogger_log <$tmp.log | sed -e "s/$host/HOST/"
 
 echo
 echo "=== non-empty config, should exit when pmcd restarted ==="
-rm -f $tmp.*
+$sudo rm -f $tmp.*
 echo "log mandatory on 1 sec pmcd.version" >$tmp.config
-pmlogger -c $tmp.config -l $tmp.log $tmp &
-_wait_for_pmlogger $! $tmp.log 5
+_start_up_pmlogger -c $tmp.config -l $tmp.log $tmp
+_wait_for_pmlogger $pid $tmp.log 5
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 echo "expect no pmlogger process ..."

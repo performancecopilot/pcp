@@ -51,6 +51,9 @@
 #if defined(HAVE_PTHREAD_H) && defined(HAVE_PTHREAD_MUTEX_T)
 #define PM_MULTI_THREAD 1
 #include <pthread.h>
+typedef pthread_mutex_t __pmMutex;
+#else
+typedef void * __pmMutex;
 #endif
 
 #ifdef __cplusplus
@@ -401,22 +404,14 @@ typedef struct {
 #define PM_LOG_STATE_INIT	1
 
 /*
- * Dump the current context (source details + instance profile),
- * for a particular instance domain.
- * If indom == PM_INDOM_NULL, then print all all instance domains
- */
-extern void __pmDumpContext(FILE *, int, pmInDom);
-
-/*
- * return the argument if it's a valid filename
- * else return NULL (note: this function could
- * be replaced with a call to access(), but is
- * retained for historical reasons).
+ * Return the argument if it's a valid filename else return NULL
+ * (note: this function could be replaced with a call to access(),
+ * but is retained for historical reasons).
  */
 extern const char *__pmFindPMDA(const char *);
 
 /*
- * internal instance profile states 
+ * Internal instance profile states 
  */
 #define PM_PROFILE_INCLUDE 0	/* include all, exclude some */
 #define PM_PROFILE_EXCLUDE 1	/* exclude all, include some */
@@ -533,9 +528,7 @@ extern void __pmFreeAttrsSpec(__pmHashCtl *);
  * Control for connection to a PMCD
  */
 typedef struct {
-#ifdef PM_MULTI_THREAD
-    pthread_mutex_t	pc_lock;	/* mutex pmcd ipc */
-#endif
+    __pmMutex		pc_lock;	/* mutex pmcd ipc */
     int			pc_refcnt;	/* number of contexts using this socket */
     int			pc_fd;		/* socket for comm with pmcd */
 					/* ... -1 means no connection */
@@ -593,11 +586,6 @@ extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
-
-extern int __pmGetFileStatusFlags(int);
-extern int __pmSetFileStatusFlags(int, int);
-extern int __pmGetFileDescriptorFlags(int);
-extern int __pmSetFileDescriptorFlags(int, int);
 
 extern int  __pmFD(int);
 extern void __pmFD_CLR(int, __pmFdSet *);
@@ -705,9 +693,7 @@ typedef struct {
  * one for each context created by the application.
  */
 typedef struct {
-#ifdef PM_MULTI_THREAD
-    pthread_mutex_t	c_lock;		/* mutex for multi-thread access */
-#endif
+    __pmMutex		c_lock;		/* mutex for multi-thread access */
     int			c_type;		/* HOST, ARCHIVE, LOCAL or FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
@@ -723,16 +709,25 @@ typedef struct {
 
 #define __PM_MODE_MASK	0xffff
 
-#define PM_CONTEXT_FREE		-1	/* special type */
+#define PM_CONTEXT_FREE	-1		/* special type */
 
-/* handle to __pmContext pointer */
+/*
+ * Convert opaque context handle to __pmContext pointer
+ */
 extern __pmContext *__pmHandleToPtr(int);
-extern int __pmPtrToHandle(__pmContext *);
 
-/* timeout helper functions */
-extern const struct timeval * __pmDefaultRequestTimeout(void);
-extern const struct timeval *__pmConnectTimeout(void);
-extern int __pmLoggerTimeout(void);
+/*
+ * Dump the current context (source details + instance profile),
+ * for a particular instance domain.
+ * If indom == PM_INDOM_NULL, then print all all instance domains
+ */
+extern void __pmDumpContext(FILE *, int, pmInDom);
+
+/*
+ * pmFetch helper routines, providing hooks for derivations.
+ */
+extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
+extern int __pmFinishResult(__pmContext *, int, pmResult **);
 
 /*
  * Protocol data unit support
@@ -792,20 +787,18 @@ typedef struct {
 
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
-extern int __pmGetPDUCeiling (void);
-extern int __pmSetPDUCeiling (int);
+extern int __pmGetPDUCeiling(void);
+extern int __pmSetPDUCeiling(int);
 
 EXTERN unsigned int *__pmPDUCntIn;
 EXTERN unsigned int *__pmPDUCntOut;
 extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 
-/* timeout options for __pmConvertTimeout */
+/* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
 #define TIMEOUT_ASYNC	-2
 #define TIMEOUT_CONNECT	-3
-#define GETPDU_ASYNC	TIMEOUT_ASYNC	/* backward-compatibility */
-extern int __pmConvertTimeout(int);
 
 /* mode options for __pmGetPDU */
 #define ANY_SIZE	0	/* replacement for old PDU_BINARY */
@@ -962,11 +955,10 @@ extern int __pmGetUsername(char **);
  * (local context PMDAs, any global NSS socket state, etc).
  */
 extern int __pmShutdown(void);
-extern int __pmShutdownLocal(void);
-extern int __pmShutdownCertificates(void);
-extern int __pmShutdownSecureSockets(void);
 
-/* map Unix errno values to PMAPI errors */
+/*
+ * Map platform error values to PMAPI error codes.
+ */
 extern int __pmMapErrno(int);
 
 /*
@@ -1085,7 +1077,7 @@ extern int __pmConvertTime(struct tm *, struct timeval *, struct timeval *);
 extern int __pmParseTime(const char *, struct timeval *, struct timeval *,
 			 struct timeval *, char **);
 
-/* mainupulate internal timestamps */
+/* manipulate internal timestamps */
 extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
 
 /* 32-bit file checksum */
@@ -1139,8 +1131,7 @@ extern void __pmResetIPC(int);
 extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
 /*
- * "optfetch" api
- * (currently not documented)
+ * Optimized fetch bundling ("optfetch") services
  */
 typedef struct __optreq {
     struct __optreq	*r_next;	/* next request */
@@ -1218,69 +1209,11 @@ extern void __pmOptFetchPutParams(optcost_t *);
 extern char *__pmTimezone(void);			/* NOT thread-safe */
 extern char *__pmTimezone_r(char *, int);
 
-#ifdef HAVE_NETWORK_BYTEORDER
 /*
- * no-ops if already in network byte order but
- * the value may be used in an expression.
  */
-#define __htonpmUnits(a)	(a)
-#define __ntohpmUnits(a)	(a)
-#define __htonpmID(a)		(a)
-#define __ntohpmID(a)		(a)
-#define __htonpmInDom(a)	(a)
-#define __ntohpmInDom(a)	(a)
-#define __htonpmPDUInfo(a)	(a)
-#define __ntohpmPDUInfo(a)	(a)
-#define __htonpmCred(a)		(a)
-#define __ntohpmCred(a)		(a)
 
 /*
- * For network byte order, the following are noops,
- * but otherwise the function is void, so they are
- * defined as comments to catch code that tries to
- * use them in an expression or assignment.
- */
-#define __htonpmValueBlock(a)	/* noop */
-#define __ntohpmValueBlock(a)	/* noop */
-#define __htonf(a)		/* noop */
-#define __ntohf(a)		/* noop */
-#define __htond(a)		/* noop */
-#define __ntohd(a)		/* noop */
-#define __htonll(a)		/* noop */
-#define __ntohll(a)		/* noop */
-
-#else
-
-/*
- * Functions to convert to/from network byte order
- * for little-endian platforms (e.g. Intel).
- */
-#define __htonpmID(a)		htonl(a)
-#define __ntohpmID(a)		ntohl(a)
-#define __htonpmInDom(a)	htonl(a)
-#define __ntohpmInDom(a)	ntohl(a)
-
-extern pmUnits __htonpmUnits(pmUnits);
-extern pmUnits __ntohpmUnits(pmUnits);
-extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo);
-extern __pmPDUInfo __ntohpmPDUInfo(__pmPDUInfo);
-extern __pmCred __htonpmCred(__pmCred);
-extern __pmCred __ntohpmCred(__pmCred);
-
-/* insitu swab for these */
-extern void __htonpmValueBlock(pmValueBlock * const);
-extern void __ntohpmValueBlock(pmValueBlock * const);
-extern void __htonf(char *);		/* float */
-#define __ntohf(v) __htonf(v)
-#define __htond(v) __htonll(v)		/* double */
-#define __ntohd(v) __ntohll(v)
-extern void __htonll(char *);		/* 64bit int */
-#define __ntohll(v) __htonll(v)
-
-#endif /* HAVE_NETWORK_BYTEORDER */
-
-/*
- * access control routines
+ * Generic access control routines
  */
 extern int __pmAccAddOp(unsigned int);
 
@@ -1400,6 +1333,9 @@ extern int __pmDecodeLogRequest(const __pmPDU *, int *);
 extern int __pmSendLogStatus(int, __pmLoggerStatus *);
 extern int __pmDecodeLogStatus(__pmPDU *, __pmLoggerStatus **);
 
+/* logger timeout helper function */
+extern int __pmLoggerTimeout(void);
+
 /*
  * other interfaces shared by pmlc and pmlogger
  */
@@ -1416,34 +1352,34 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
 
 /* macros for logging control values from __pmControlLog() */
 #define PMLC_SET_ON(val, flag) \
-        val = (val & ~0x1) | (flag & 0x1)
+        (val) = ((val) & ~0x1) | ((flag) & 0x1)
 #define PMLC_GET_ON(val) \
-        (val & 0x1)
+        ((val) & 0x1)
 #define PMLC_SET_MAND(val, flag) \
-        val = (val & ~0x2) | ((flag & 0x1) << 1)
+        (val) = ((val) & ~0x2) | (((flag) & 0x1) << 1)
 #define PMLC_GET_MAND(val) \
-        ((val & 0x2) >> 1)
+        (((val) & 0x2) >> 1)
 #define PMLC_SET_AVAIL(val, flag) \
-        val = (val & ~0x4) | ((flag & 0x1) << 2)
+        (val) = ((val) & ~0x4) | (((flag) & 0x1) << 2)
 #define PMLC_GET_AVAIL(val) \
-        ((val & 0x4) >> 2)
+        (((val) & 0x4) >> 2)
 #define PMLC_SET_INLOG(val, flag) \
-        val = (val & ~0x8) | ((flag & 0x1) << 3)
+        (val) = ((val) & ~0x8) | (((flag) & 0x1) << 3)
 #define PMLC_GET_INLOG(val) \
-        ((val & 0x8) >> 3)
+        (((val) & 0x8) >> 3)
 
 #define PMLC_SET_STATE(val, state) \
-        val = (val & ~0xf) | (state & 0xf)
+        (val) = ((val) & ~0xf) | ((state) & 0xf)
 #define PMLC_GET_STATE(val) \
-        (val & 0xf)
+        ((val) & 0xf)
 
 /* 28 bits of delta, 32 bits of state */
 #define PMLC_MAX_DELTA  0x0fffffff
 
 #define PMLC_SET_DELTA(val, delta) \
-        val = (val & 0xf) | (delta << 4)
+        (val) = ((val) & 0xf) | ((delta) << 4)
 #define PMLC_GET_DELTA(val) \
-        (((val & ~0xf) >> 4) & PMLC_MAX_DELTA)
+        ((((val) & ~0xf) >> 4) & PMLC_MAX_DELTA)
 
 /*
  * helper functions to register client identity with pmcd for export
@@ -1452,19 +1388,6 @@ extern int __pmControlLog(int, const pmResult *, int, int, int, pmResult **);
 extern char *__pmGetClientId(int, char **);
 extern int __pmSetClientIdArgv(int, char **);
 extern int __pmSetClientId(const char *);
-
-/*
- * internal methods to support callbacks for derived metrics
- */
-extern int __dmtraverse(const char *, char ***);
-extern int __dmchildren(const char *, char ***, int **);
-extern int __dmgetpmid(const char *, pmID *);
-extern int __dmgetname(pmID, char **);
-extern void __dmopencontext(__pmContext *);
-extern void __dmclosecontext(__pmContext *);
-extern int __dmdesc(__pmContext *, pmID, pmDesc *);
-extern int __dmprefetch(__pmContext *, int, pmID *, pmID **);
-extern void __dmpostfetch(__pmContext *, pmResult **);
 
 /*
  * Adding/deleting/clearing the list of DSO PMDAs supported for
@@ -1485,7 +1408,14 @@ extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 /* anonymous metric registration (uses derived metrics support) */
 extern int __pmRegisterAnon(const char *, int);
 
-/* Multi-thread support */
+/*
+ * Multi-thread support
+ * Use PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
+ */
+
+extern void __pmInitLocks(void);
+extern int __pmLock(void *, const char *, int);
+extern int __pmUnlock(void *, const char *, int);
 
 /*
  * Each of these scopes defines one or more PMAPI routines that will
@@ -1498,39 +1428,15 @@ extern int __pmRegisterAnon(const char *, int);
 #define PM_SCOPE_MAX		3
 extern int __pmMultiThreaded(int);
 
-extern void __pmInitLocks(void);
-#ifdef PM_MULTI_THREAD
-/*
- * define PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
- */
-#define PM_MULTIPLE_THREADS(x) __pmMultiThreaded(x)
-#define PM_INIT_LOCKS() __pmInitLocks()
-#ifdef HAVE_PTHREAD_MUTEX_T
-#ifdef PM_MULTI_THREAD_DEBUG
-extern void __pmDebugLock(int, void *, char *, int);
-#define PM_LOCK_OP	1
-#define PM_UNLOCK_OP	2
-#define PM_LOCK(lock) { int __sts__; if (pmDebug & DBG_TRACE_LOCK) __pmDebugLock(PM_LOCK_OP, &lock, __FILE__, __LINE__); if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
-#define PM_UNLOCK(lock) { int __sts__; if (pmDebug & DBG_TRACE_LOCK) __pmDebugLock(PM_UNLOCK_OP, &lock, __FILE__, __LINE__); if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
-#else
-#define PM_LOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_lock(&lock)) != 0) { fprintf(stderr, "%s:%d: lock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
-#define PM_UNLOCK(lock) { int __sts__; if ((__sts__ = pthread_mutex_unlock(&lock)) != 0) { fprintf(stderr, "%s:%d: unlock failed: %s\n", __FILE__, __LINE__, pmErrStr(-__sts__)); exit(1); } }
-#endif /* PM_MULTI_THREAD_DEBUG */
+#define PM_INIT_LOCKS()		__pmInitLocks()
+#define PM_MULTIPLE_THREADS(x)	__pmMultiThreaded(x)
+#define PM_LOCK(lock)		__pmLock(&(lock), __FILE__, __LINE__)
+#define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
 
-/* the big libpcp lock */
-extern pthread_mutex_t	__pmLock_libpcp;
+#ifdef HAVE_PTHREAD_MUTEX_T
+extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
 #else
-bozo - need pthreads to support multi-thread capabilities !!!
-#endif
-#else
-/*
- * No multi-thread support, code still works correctly for single-threaded
- * applications.
- */
-#define PM_MULTIPLE_THREADS(x) (0)
-#define PM_INIT_LOCKS()
-#define PM_LOCK(x)
-#define PM_UNLOCK(x)
+extern void *__pmLock_libpcp;			/* symbol exposure */
 #endif
 
 #ifdef __cplusplus

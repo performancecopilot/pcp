@@ -340,7 +340,7 @@ then
 	    echo "*** rotated by $prog: `date`" >>"$NOTICES"
 	    mv -f "$NOTICES" "$NOTICES.old"
 	    echo "Started by $prog: `date`" >"$NOTICES"
-	    ( id pcp && chown pcp:pcp "$NOTICES" ) >/dev/null 2>&1
+	    (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP "$NOTICES") >/dev/null 2>&1
 	fi
     fi
 fi
@@ -527,7 +527,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         # squash them all to the officially pcp-preferred way to access it.
         host=local:
 
-	if test -f $PCP_TMP_DIR/pmlogger/primary
+	if test -f "$PCP_TMP_DIR/pmlogger/primary"
 	then
 	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
 	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
@@ -554,7 +554,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if $VERY_VERBOSE
 		then
 		    echo "primary pmlogger process pid not found"
-		    ls -l $PCP_TMP_DIR/pmlogger
+		    ls -l "$PCP_TMP_DIR/pmlogger"
 		fi
 	    else
 		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null

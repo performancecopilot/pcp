@@ -5,13 +5,14 @@
 # Copyright (c) 2013 Red Hat.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-echo "QA output created by $seq"
 pid=$$
 
 test $PCP_VER -ge 3805 || _notrun "No support for new proc cgroup metric"

@@ -853,7 +853,6 @@ avahi
 654 pmda.gfs2 local oss
 655 pmda.gfs2 local oss
 660 pmwebapi local oss
-701 libpcp local oss
 703 pmda.weblog local oss
 704 pmda.mmv python mmv local oss
 705 libpcp local oss
@@ -881,7 +880,7 @@ avahi
 736 pmlogrewrite local oss
 740 pmda.sample pmstore secure local oss
 748 pmlogrewrite pmda.mysql local oss
-749 pmcd local oss flakey
+749 pmcd local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss

@@ -1,7 +1,7 @@
 QA output created by 315
 # $version=1.1   
 + export version; version=1.1   
-+ cd TMP/PID.distdir
++ cd TMP/SEQ-PID.distdir
 
 === daily maintenance of pmie log files for host dist.engr ===
 
@@ -11,7 +11,7 @@ Log files older than 14 days being removed ...
 Log files older than 3 days being compressed ...
     pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
 + compress pmie.log.FIVEMONTHS pmie.log.FIVEDAYS
-+ cd TMP/PID.relaydir
++ cd TMP/SEQ-PID.relaydir
 
 === daily maintenance of pmie log files for host relay.engr ===
 

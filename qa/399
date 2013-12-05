@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -14,8 +15,6 @@ seq=`basename $0`
 
 [ $PCP_PLATFORM = darwin ] && \
     _notrun "Neither disk.dev.response nor disk.dev.avactive for darwin"
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

@@ -129,10 +129,14 @@ PCP_RUN_DIR=@pcp_run_dir@
 # Subdirectories: pmcd pmlogger pmie
 PCP_LOG_DIR=@pcp_log_dir@
 
-# directory for PCP temp files
-# Standard path: /var/tmp
+# directory for PCP temp status files
+# Standard path: /var/lib/pcp/tmp
 # Subdirectories: pmie pmlogger
 PCP_TMP_DIR=@pcp_tmp_dir@
+
+# directory for PCP temp work files
+# Standard path: /var/tmp
+PCP_TMPFILE_DIR=@pcp_tmpfile_dir@
 
 # directory for PCP documentation
 # Standard path: /usr/share/doc/pcp

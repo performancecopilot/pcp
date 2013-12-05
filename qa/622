@@ -42,7 +42,7 @@ EOF
 mkPMIEConfig
 pmie -D APPL0 -C -c $tmp.rule 2>&1 \
 | sed \
-    -e 's,/tmp/[0-9]*\.rule,TMPFILE,' \
+    -e "s,/tmp/$seq-[0-9]*\.rule,TMPFILE," \
     -e '/pmLookupName failed: /d' \
     -e "s/$PCPQA_HYPHEN_HOST/PCPQA_HYPHEN_HOST/g"
 

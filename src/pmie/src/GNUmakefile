@@ -18,10 +18,10 @@ include	$(TOPDIR)/src/include/builddefs
 TARGET = pmie$(EXECSUFFIX)
 
 CFILES	= pmie.c symbol.c dstruct.c lexicon.c syntax.c pragmatics.c eval.c \
-	  show.c match_inst.c syslog.c stomp.c andor.c
+	  show.c match_inst.c systemlog.c stomp.c andor.c
 
-HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h \
-	  show.h symbol.h syntax.h syslog.h stomp.h andor.h
+HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
+	  show.h symbol.h syntax.h systemlog.h stomp.h andor.h
 
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
 	merge.sk act.sk
@@ -64,16 +64,16 @@ default_pcp:	default
 install_pcp:	install
 
 fun.h: andor.h
-andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o syntax.o syslog.o: dstruct.h
-dstruct.o eval.o pmie.o pragmatics.o syntax.o syslog.o: eval.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o syntax.o systemlog.o: dstruct.h
+dstruct.o eval.o pmie.o pragmatics.o syntax.o systemlog.o: eval.h
 andor.o dstruct.o eval.o fun.o match_inst.o: fun.h
 lexicon.o syntax.o: grammar.h
 grammar.tab.o lexicon.o show.o syntax.o: lexicon.h
-syslog.o: logger.h
+systemlog.o: logger.h
 andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o pmie.o pragmatics.o show.o syntax.o: pragmatics.h
 andor.o dstruct.o eval.o fun.o grammar.tab.o match_inst.o pmie.o show.o syntax.o: show.h
 andor.o fun.o grammar.tab.o pmie.o stomp.o: stomp.h
-andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o symbol.o syntax.o syslog.o: symbol.h
-grammar.tab.o lexicon.o pmie.o syntax.o syslog.o: syntax.h
-fun.o grammar.tab.o syslog.o: syslog.h
+andor.o dstruct.o eval.o fun.o grammar.tab.o lexicon.o match_inst.o pmie.o pragmatics.o show.o symbol.o syntax.o systemlog.o: symbol.h
+grammar.tab.o lexicon.o pmie.o syntax.o systemlog.o: syntax.h
+fun.o grammar.tab.o systemlog.o: systemlog.h
 

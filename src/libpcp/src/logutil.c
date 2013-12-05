@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
 #endif
@@ -281,7 +282,8 @@ fopen_compress(const char *fname)
 
     cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 #if HAVE_MKSTEMP
-    snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", pmGetConfig("PCP_TMP_DIR"));
+    snprintf(tmpname, sizeof(tmpname),
+		"%s/XXXXXX", pmGetConfig("PCP_TMPFILE_DIR"));
     msg = tmpname;
     fd = mkstemp(tmpname);
 #else
@@ -291,6 +293,11 @@ fopen_compress(const char *fname)
     }
     fd = open(msg, O_RDWR|O_CREAT|O_EXCL, 0600);
 #endif
+    /*
+     * unlink temporary file to avoid namespace pollution and allow O/S
+     * space cleanup on last close
+     */
+    unlink(msg);
     umask(cur_umask);
 
     if (fd < 0) {
@@ -313,7 +320,6 @@ fopen_compress(const char *fname)
 	}
 #endif
 	close(fd);
-	unlink(msg);
 	setoserror(sts);
 	return NULL;
     }
@@ -331,7 +337,6 @@ fopen_compress(const char *fname)
 	}
 #endif
 	close(fd);
-	unlink(msg);
 	/* not a great error code, but the best we can do */
 	setoserror(-PM_ERR_LOGREC);
 	return NULL;
@@ -339,15 +344,10 @@ fopen_compress(const char *fname)
     if ((fp = fdopen(fd, "r")) == NULL) {
 	sts = oserror();
 	close(fd);
-	unlink(msg);
 	setoserror(sts);
 	return NULL;
     }
-    /*
-     * success, unlink to avoid namespace pollution and allow O/S
-     * space cleanup on last close
-     */
-    unlink(msg);
+    /* success */
     return fp;
 }
 

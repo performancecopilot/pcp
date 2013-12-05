@@ -246,7 +246,7 @@ _check_pmie()
 	    # $logfile was previously removed, if it has appeared again then
 	    # we know pmie has started ... if not just sleep and try again
 	    #
-	    if ls $PCP_TMP_DIR/pmie/$1 >$tmp/out 2>&1
+	    if ls "$PCP_TMP_DIR/pmie/$1" >$tmp/out 2>&1
 	    then
 		if grep "No such file or directory" $tmp/out >/dev/null
 		then
@@ -395,7 +395,7 @@ fi
 if [ $START_PMIE = false ]
 then
     # if pmie has never been started, there's no work to do to stop it
-    [ ! -d $PCP_TMP_DIR/pmie ] && exit
+    [ ! -d "$PCP_TMP_DIR/pmie" ] && exit
     $QUIETLY || pmpost "stop pmie from $prog"
 fi
 

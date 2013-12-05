@@ -24,21 +24,21 @@ else
     ln $seq.out.1 $seq.out || exit 1
 fi
 
-realhost=`pmhostname`
+realhost=`hostname`
+LOCALHOST=`echo $realhost | sed -e 's/\..*//'`
 hostsfile="/etc/hosts"
 egrep '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >/dev/null || \
     _notrun "No entry for hostname of local host in $hostsfile"
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
-LOCALHOST=`hostname | sed -e 's/\..*//'`
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
     sed \
 	-e 's/\.\.\.*/[dots]/' \
-	-e "s/`pmhostname`/LOCALHOST/g" \
+	-e "s/$realhost/LOCALHOST/g" \
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s/local:/LOCALHOST/g" \
 	-e 's/control:[0-9][0-9]*]/control:LINE]/' \

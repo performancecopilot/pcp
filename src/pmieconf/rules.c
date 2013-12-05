@@ -28,13 +28,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "rules.h"
-#include "pmiestats.h" 
+#include "stats.h" 
 
-#ifdef IS_MINGW
-#define SEP '\\'
-#else
-#define SEP '/'
-#endif
+#define SEP __pmPathSeparator()
 
 
 #define PMIE_FILE	"pmieconf-pmie"

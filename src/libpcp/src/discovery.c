@@ -13,6 +13,7 @@
  */
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #include "avahi.h"
 
 #if defined(HAVE_SERVICE_DISCOVERY)

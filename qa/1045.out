@@ -1,7 +1,7 @@
 QA output created by 1045
 
 === check unsupported pmie config  version
-pmieconf: error - unknown version number in /tmp/[PID].pmie: "0" (expected 1)
+pmieconf: error - unknown version number in /tmp/[SEQ-PID].pmie: "0" (expected 1)
 status=0
 
 === check that unneeded changes for unsupported versions are dumped

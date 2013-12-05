@@ -30,7 +30,7 @@ fi
 
 _merge_filter()
 {
-    sed -e "s/.tmp.$$/TMP/"
+    sed -e "s/.tmp.$seq-$$/TMP/"
 }
 
 _dump_filter()
@@ -38,7 +38,7 @@ _dump_filter()
     # temp file name, but also this archive is V1 and hence not endian
     # safe ... so the strange value mappings!
     #
-    sed -e "s/.tmp.$$/TMP/" \
+    sed -e "s/.tmp.$seq-$$/TMP/" \
 	-e "s/2928894505887203328/159819048/" \
 	-e "s/8135338249615835136/159901296/" \
     | $PCP_AWK_PROG '

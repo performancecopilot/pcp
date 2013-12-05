@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -34,6 +35,7 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 /*
  * PDU for pmResult (PDU_RESULT)

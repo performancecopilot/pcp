@@ -161,16 +161,18 @@ _shutdown()
 	return 0
     fi
 
+    [ "$1" = quietly ] || \
     $ECHO $PCP_ECHO_N "Stopping pmlogger ...""$PCP_ECHO_C"
+
     # Terminate those pmloggers started by either pmlogger_check or
     # pmlogger_daily ... relies on the -m option to pmlogger and the
     # annotation in the (optional) 4th line of the port map files
     #
     for pid in `cat $tmp/tmp`
     do
-	if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
+	if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
 	then
-	    note=`sed -n -e 4p <$PCP_TMP_DIR/pmlogger/$pid`
+	    note=`sed -n -e 4p <"$PCP_TMP_DIR/pmlogger/$pid"`
 	    if [ "$note" = pmlogger_check -o "$note" = pmlogger_daily ]
 	    then
 		pmsignal -s TERM $pid

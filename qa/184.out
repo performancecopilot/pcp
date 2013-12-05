@@ -59,7 +59,7 @@ Looking for pmlogger (process PID) ... found
 Getting logged host name from pmlogger (process PID) ... done
 Terminating pmlogger (process PID) ... signal stuff ... done
 Launching new pmlogger in directory "/tmp" as ...
-pmlogger -l /tmp/PID.log -h HOST -c CONF PID.newarch
+pmlogger -l /tmp/SEQ-PID.log -h HOST -c CONF SEQ-PID.newarch
 Waiting for new pmlogger to start ... done
 New pmlogger status ...
 pmlogger [PID] on host HOST is logging metrics from host HOST

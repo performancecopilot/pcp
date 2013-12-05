@@ -5,26 +5,18 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if src/check_fault_injection >/dev/null 2>&1
-then
-    rm -f .notrun
-else
-    _notrun libpcp not built with fault injection enabled
-fi
-
-if [ $PCP_PLATFORM = solaris ]
-then
-    _notrun fault injection point in libpcp/err.c not executed for Solaris
-fi
-
-echo "QA output created by $seq"
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+[ $PCP_PLATFORM != solaris ] || \
+    _notrun "fault injection point in libpcp/err.c not executed for Solaris"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

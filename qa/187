@@ -14,11 +14,11 @@ echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
-. ./common.check
 . ./common.filter
+. ./common.check
 
 sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
 rm -f $seq.full
@@ -85,34 +85,34 @@ fi
 echo "otherip=$otherip" >>$seq.full
 
 # real QA test starts here
-pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1 &
-this_pid=$!
+_start_up_pmlogger -L -c /dev/null -l $tmp.log1 -s1 $tmp.this >/dev/null 2>&1
+this_pid=$pid
 echo "this logger pid=$this_pid" >>$seq.full
 _wait_for_pmlogger $this_pid $tmp.log1
-mv $tmp.log1 $tmp.$this_pid
+$sudo mv $tmp.log1 $tmp.$this_pid
 
-trap "$signal -a pmlogger >/dev/null 2>&1; wait; rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "$signal $this_pid $other_pid $otherfqdn_pid >/dev/null 2>&1; wait; $sudo rm -fr $tmp.*; exit \$sts" 0 1 2 3 15
 
 _burn_pids
 
-pmlogger -h $otherhost -L -c /dev/null -l $tmp.log2 -s1 $tmp.other >/dev/null 2>&1 &
-other_pid=$!
+_start_up_pmlogger -h $otherhost -L -c /dev/null -l $tmp.log2 -s1 $tmp.other >/dev/null 2>&1
+other_pid=$pid
 echo "other host=$otherhost logger pid=$other_pid" >>$seq.full
 _wait_for_pmlogger $other_pid $tmp.log2
-mv $tmp.log2 $tmp.$other_pid
+$sudo mv $tmp.log2 $tmp.$other_pid
 
 _burn_pids
 
-pmlogger -h $otherip -L -c /dev/null -l $tmp.log3 -s1 $tmp.other.fqdn >/dev/null 2>&1 &
-otherfqdn_pid=$!
+_start_up_pmlogger -h $otherip -L -c /dev/null -l $tmp.log3 -s1 $tmp.other.fqdn >/dev/null 2>&1
+otherfqdn_pid=$pid
 echo "other fqdnhost=$otherip logger pid=$otherfqdn_pid" >>$seq.full
 _wait_for_pmlogger $otherfqdn_pid $tmp.log3
-mv $tmp.log3 $tmp.$otherfqdn_pid
+$sudo mv $tmp.log3 $tmp.$otherfqdn_pid
 
 # check entries
 _check
 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start | sed -e '/^Stopping pmlogger/d'
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

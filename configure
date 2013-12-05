@@ -637,6 +637,7 @@ ac_xconfirm_prog
 pcp_demos_dir
 pcp_doc_dir
 pcp_tmp_dir
+pcp_tmpfile_dir
 pcp_run_dir
 pcp_log_dir
 pcp_sysconfig_dir
@@ -757,6 +758,7 @@ LD
 cpp
 make
 MAKE
+PLDFLAGS
 PCFLAGS
 cflags_abi
 cc_is_gcc
@@ -787,6 +789,7 @@ GREP
 CPP
 DTRACE
 enable_shared
+INVISIBILITY
 PIECFLAGS
 PIELDFLAGS
 OBJEXT
@@ -853,7 +856,6 @@ ac_user_opts='
 enable_option_checking
 with_64bit
 with_threads
-with_tmpdir
 with_secure_sockets
 with_static_probes
 with_infiniband
@@ -862,6 +864,7 @@ with_group
 with_discovery
 enable_ssp
 enable_pie
+enable_visibility
 enable_shared
 with_configdir
 with_perl_installdirs
@@ -872,6 +875,7 @@ with_rcdir
 with_sysconfigdir
 with_logdir
 with_rundir
+with_tmpdir
 with_docdir
 with_demosdir
 '
@@ -1512,6 +1516,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-ssp           disable gcc stack-protector
   --disable-pie           disable position-independent-executable
+  --disable-visibility    disable gcc symbol visibility
   --disable-shared        disable core shared libary generation
 
 Optional Packages:
@@ -1520,7 +1525,6 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
   --with-threads          enable support for multiple threads (default is on)
-  --with-tmpdir           define a temporary directory (default is /var/tmp)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-static-probes    enable support for static probes (default is on)
   --with-infiniband       enable support for Infiniband metrics (default is
@@ -1539,6 +1543,7 @@ Optional Packages:
   --with-sysconfigdir     sysconfig directory [SYSCONFDIR/sysconfig]
   --with-logdir           log directory [LOCALSTATEDIR/log/pcp]
   --with-rundir           run directory [LOCALSTATEDIR/run/pcp]
+  --with-tmpdir           tmp directory [LOCALSTATEDIR/tmp]
   --with-docdir           docs directory [DOCDIR/pcp-VERSION]
   --with-demosdir         run directory [DATADIR/pcp/demos]
 
@@ -2420,15 +2425,6 @@ if test "${with_threads+set}" = set; then :
   withval=$with_threads; do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"
 else
   do_threads=check
-fi
-
-
-
-# Check whether --with-tmpdir was given.
-if test "${with_tmpdir+set}" = set; then :
-  withval=$with_tmpdir; with_tmpdir=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tmpdir=$withval"
-else
-  with_tmpdir=default
 fi
 
 
@@ -3525,7 +3521,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
-   save_CXXFLAGS="$CXXFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -3583,6 +3578,39 @@ rm -f core conftest.err conftest.$ac_objext \
 
 fi
 
+
+
+# Check for support for symbol hiding via gcc flags
+# Check whether --enable-visibility was given.
+if test "${enable_visibility+set}" = set; then :
+  enableval=$enable_visibility;
+fi
+
+if test "x$enable_visibility" != xno; then :
+
+   INVISIBILITY="-fvisibility=hidden"
+   save_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS -c $INVISIBILITY"
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+int visible () { return 0; }
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+       { $as_echo "$as_me:${as_lineno-$LINENO}: Compiling DSO PMDAs with gcc -fvisibility=hidden" >&5
+$as_echo "$as_me: Compiling DSO PMDAs with gcc -fvisibility=hidden" >&6;}
+
+else
+
+       { $as_echo "$as_me:${as_lineno-$LINENO}: Compiler does not support -fvisibility." >&5
+$as_echo "$as_me: Compiler does not support -fvisibility." >&6;}
+       INVISIBILITY=""
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+   CFLAGS="$save_CFLAGS"
+
+fi
 
 
 # Prevent shared libaries from being built for libpcp and other core libraries
@@ -6208,6 +6236,8 @@ cc_is_gcc=$GCC
 
 PCFLAGS=$CFLAGS
 
+PLDFLAGS=$LDFLAGS
+
 
 CFLAGS="-O $CFLAGS"
 
@@ -8254,7 +8284,7 @@ fi
 
 done
 
-for ac_header in unistd.h stddef.h sched.h dlfcn.h dl.h ieeefp.h
+for ac_header in unistd.h stddef.h sched.h dlfcn.h dl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8319,7 +8349,20 @@ fi
 
 done
 
-for ac_header in values.h libgen.h sys/param.h sys/mman.h sys/un.h stdint.h
+for ac_header in libgen.h sys/param.h sys/mman.h sys/un.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in values.h stdint.h ieeefp.h math.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -11916,17 +11959,19 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 
 
-if test "$with_tmpdir" = default
-then
-    if test -d /var/tmp
-    then
-        pcp_tmp_dir=/var/tmp
-    else
-        pcp_tmp_dir=/tmp
-    fi
+
+# Check whether --with-tmpdir was given.
+if test "${with_tmpdir+set}" = set; then :
+  withval=$with_tmpdir; pcp_tmpfile_dir=$withval
 else
-    pcp_tmp_dir=`eval echo $with_tmpdir`
+  pcp_tmpfile_dir=$localstatedir/tmp
 fi
+
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+pcp_tmpfile_dir=`eval echo $pcp_tmpfile_dir`
+
+
+pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 
 
 

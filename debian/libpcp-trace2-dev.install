@@ -1,6 +1,5 @@
 usr/include/pcp/trace.h
 usr/include/pcp/trace_dev.h
-usr/include/pcp/trace_hash.h
 usr/lib/libpcp_trace.a
 usr/lib/libpcp_trace.so
 usr/share/man/man3/pmdatrace.3.gz
