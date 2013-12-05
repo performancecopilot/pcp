@@ -607,9 +607,9 @@ HandleReadyAgents(__pmFdSet *readyFds)
 static void
 CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 {
-    int		s, sts, challenge, accepted = 1;
+    int		s, sts, accepted = 1;
+    __uint32_t	challenge;
     ClientInfo	*cp;
-    __pmPDUInfo	xchallenge;
 
     if (__pmFD_ISSET(rfd, fdset)) {
 	if ((cp = AcceptNewClient(rfd)) == NULL)
@@ -637,7 +637,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /* required */
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
-	    challenge = *(int*)(&cp->pduInfo);
+	    challenge = *(__uint32_t *)(&cp->pduInfo);
 	    sts = 0;
 	}
 	else {
@@ -646,13 +646,11 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	}
 
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-	xchallenge = *(__pmPDUInfo *)&challenge;
-	xchallenge = __htonpmPDUInfo(xchallenge);
 
 	/* reset (no meaning, use fd table to version) */
 	cp->pduInfo.version = UNKNOWN_VERSION;
 
-	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
+	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, htonl(challenge));
 	if (s < 0) {
 	    __pmNotifyErr(LOG_ERR,
 		"ClientLoop: error sending Conn ACK PDU to new client %s\n",
