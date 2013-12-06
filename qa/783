@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 783
+# Exercise some of the tricker aspects of pmdarpm indom handling
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which rpmbuild >/dev/null 2>&1 || _notrun "No rpmbuild binary found"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+#
+# Build a spec file and source tarball for a test RPM.
+# Sample specfile based on the Maximum RPM book example
+# cos I'm too lame to come up with my own lame example.
+#
+prepare()
+{
+    dir=$tmp.build
+    mkdir -p $tmp.build
+    tar=$dir/cdplayer-1.0.tgz
+    cat >$dir/qaplayer.spec <<End-of-file
+Summary: A QA CD player app that rocks!
+Name: qaplayer
+Version: 1.0
+Release: 1
+License: GPL
+Group: Applications/Sound
+Source: qaplayer-1.0.tgz
+URL: http://www.gnomovision.com/qaplayer/qaplayer.html
+Distribution: WSS Linux
+Vendor: White Socks Software, Inc.
+Packager: Santa Claus <sclaus@northpole.com>
+
+%description
+It slices!  It dices!  It's a CD player app that
+can't be beat.  By using the resonant frequency
+of the CD itself, it is able to simulate 20X
+oversampling.  This leads to sound quality that
+cannot be equaled with more mundane software...
+End-of-file
+
+    cat $dir/qaplayer.spec
+    echo file: $dir/qaplayer.spec
+    tar czf $dir/qaplayer-1.0.tgz $seq
+    rpmbuild -ba \
+	--define "_topdir $dir" \
+	--define '_builddir %{_topdir}' \
+	--define '_sourcedir %{_topdir}' \
+	--define '_rpmdir %{_topdir}' \
+	--define '_srcrpmdir %{_topdir}' \
+	--define '_specdir %{_topdir}' \
+	--define '_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.noarch.rpm' \
+	$dir/qaplayer.spec
+    ls $dir
+}
+
+# real QA test starts here
+prepare
+
+# success, all done
+status=0
+
+exit
