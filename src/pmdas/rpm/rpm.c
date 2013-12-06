@@ -121,8 +121,8 @@ typedef struct cache_entry {
 		      (RPMTAG_FIRSTFREE_TAG - RPMTAG_FILENAMES)];
     struct cache_entry *next;
 } cache_entry;
-cache_entry *cache;
-cache_entry *current_cache_entry;
+static cache_entry *cache;
+static cache_entry *current_cache_entry;
 
 // To load the instances
 static pthread_t indom_thread;
@@ -130,7 +130,7 @@ static pthread_t indom_thread;
 static pthread_t inotify_thread;
 static unsigned long long numrefresh = 0;
 
-pthread_mutex_t indom_mutex;
+static pthread_mutex_t indom_mutex;
 
 // Load the instances dynamically
 pmdaIndom indomtab[] = {
@@ -142,10 +142,7 @@ static pmInDom *rpm_indom = &indomtab[0].it_indom;
 // Invoked as a .so or as a daemon?
 static int isDSO = 1;
 static char *username;
-
-#define RPM_BUFSIZE		256
-
-static char mypath[MAXPATHLEN];
+static char *dbpath = "/var/lib/rpm";
 
 /*
  * Callback provided to pmdaFetch to fetch values from rpm db corresponding to metric_querytags
@@ -241,10 +238,10 @@ rpm_fetchCallBack(pmdaMetric * mdesc, unsigned int inst,
 
 static int
 notready(pmdaExt *pmda)
- {
-     __pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
-     pthread_join(indom_thread, NULL);
-     return PM_ERR_PMDAREADY;
+{
+    __pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
+    pthread_join(indom_thread, NULL);
+    return PM_ERR_PMDAREADY;
 }
 
 /*
@@ -473,7 +470,7 @@ rpm_inotify(void *ptr)
     fd = inotify_init();
 
     // ?? parameterize the path, check return code
-    inotify_add_watch(fd, "/var/lib/rpm/", IN_CLOSE_WRITE);
+    inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
 
     while (1) {
 	int i = 0;
@@ -528,28 +525,25 @@ rpm_init(pmdaInterface * dp)
 
     pmdaSetFetchCallBack(dp, rpm_fetchCallBack);
 
-
     pmdaInit(dp, indomtab, sizeof(indomtab) / sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab) / sizeof(metrictab[0]));
-
-    if (dp->status != 0)
-	__pmNotifyErr(LOG_ERR, "pmdaInit failed %d", dp->status);
 }
 
 static void
 usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
+    fprintf(stderr, "Options:\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
+	  "  -r path      path to directory containing rpm database (default %s)\n"
 	  "  -U username  user account to run under (default \"pcp\")\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
 	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
 	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
 	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
-	  stderr);
+	  dbpath);
     exit(1);
 }
 
@@ -560,8 +554,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int c,
-     err = 0;
+    int c, err = 0;
     int sep = __pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
@@ -571,18 +564,20 @@ main(int argc, char **argv)
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
 
-    __pmNotifyErr(LOG_INFO, "in rpm_instance");
     snprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, RPM,
 	       "rpm.log", helppath);
 
     while ((c =
-	    pmdaGetOpt(argc, argv, "D:d:i:l:pu:6:U:?", &dispatch,
+	    pmdaGetOpt(argc, argv, "D:d:i:l:pr:u:6:U:?", &dispatch,
 		       &err)) != EOF) {
 	switch (c) {
 	case 'U':
 	    username = optarg;
+	    break;
+	case 'r':
+	    dbpath = optarg;
 	    break;
 	default:
 	    err++;
