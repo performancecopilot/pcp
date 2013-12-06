@@ -5,14 +5,13 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 . ./common.product
 . ./common.check
 . ./common.filter
 . ./localconfig
-
-seq=`basename $0`
-
-echo "QA output created by $seq"
 
 trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 

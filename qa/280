@@ -30,6 +30,8 @@ _filter()
 	-e 's;/usr/var;/var;g' \
 	-e "s/`hostname`/LOCALHOST/g" \
 	-e "s/$LOCALHOST/LOCALHOST/g" \
+	-e "s/localhost/LOCALHOST/g" \
+	-e "s/local:/LOCALHOST/g" \
 	-e 's/^Reconfigured: .*pmlogconf.//g' \
 	-e 's;/private/;/;g' \
 	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
@@ -45,7 +47,8 @@ _filter()
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-LOCALHOST=`hostname | sed -e 's/\..*//'`
+LOCALHOST=`hostname`
+[ $PCP_VER -lt 3806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
 trap "rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full

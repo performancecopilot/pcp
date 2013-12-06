@@ -21,7 +21,7 @@ New log volume 6, via pmlc request at DATE
 pmlogger: Signalled (signal=15), exiting
 
 Log finished DATE
-Created 10 log files.
+Created 9 archive pieces.
 
 Temporal Index
              Log Vol    end(meta)     end(log)

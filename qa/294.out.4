@@ -1,6 +1,6 @@
 QA output created by 294
 
-+++ pminfo -h localhost -d pmcd.agent +++
++++ pminfo -h MY_HOSTNAME -d pmcd.agent +++
 
 pmcd.agent.type
     Data Type: 32-bit unsigned int  InDom: 2.3 0x800003
@@ -12,7 +12,7 @@ pmcd.agent.status
 1 connects
 1 disconnects
 
-+++ pminfo -h localhost -f sample.hordes +++
++++ pminfo -h MY_HOSTNAME -f sample.hordes +++
 
 sample.hordes.one
     inst [0 or "0"] value 0
@@ -1020,7 +1020,7 @@ sample.hordes.two
 2 connects
 2 disconnects
 
-+++ pmprobe -v -h localhost hinv.ncpu +++
++++ pmprobe -v -h MY_HOSTNAME hinv.ncpu +++
 hinv.ncpu 1 N
 3 connects
 3 disconnects
@@ -1041,7 +1041,7 @@ interval:  0.50 sec
 4 connects
 4 disconnects
 
-+++ pmie -h localhost -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: N N N
 
 expr_1: N N N
@@ -1051,10 +1051,10 @@ expr_1: N N N
 expr_1: N N N
 
 [DATE] pmie(PID) Info: evaluator exiting
-6 connects
-6 disconnects
+7 connects
+7 disconnects
 
-+++ pmie -h localhost -c TMP.in -v -t 0.5 -T 1.5 +++
++++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: ?
 
 expr_1: N
@@ -1064,14 +1064,23 @@ expr_1: N
 expr_1: N
 
 [DATE] pmie(PID) Info: evaluator exiting
-8 connects
-8 disconnects
+10 connects
+10 disconnects
 
 +++ pmdumptext -h MY_HOSTNAME -t 0.5 -s 2 sample.string.hullo +++
-Skipped, no pmdumptext binary installed
+DATE	"hullo world!"
+DATE	"hullo world!"
+11 connects
+11 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:sample.string.hullo +++
-Skipped, no pmdumptext binary installed
+DATE	"hullo world!"
+DATE	"hullo world!"
+12 connects
+12 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:kernel.all.load +++
-Skipped, no pmdumptext binary installed
+DATE	N	N	N
+DATE	N	N	N
+13 connects
+13 disconnects

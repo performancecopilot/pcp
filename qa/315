@@ -63,7 +63,7 @@ pmie_daily -V -N -x 3 -X compress -c $tmp.ctl | sed \
 	-e "s/$FIVEDAYS/FIVEDAYS/g" \
 	-e "s/$FIVEMONTHS/FIVEMONTHS/g" \
 	-e "s,$PCP_TMP_DIR,TMP,g" \
-	-e "s/$$/PID/g" \
+	-e "s/$seq-$$/SEQ-PID/g" \
 	-e "s;/private/;/;g" \
 	-e "s,/tmp,TMP,g" \
 	-e '/^+ rm -f TMP\/pmie\/[0-9][0-9]*$/d' \

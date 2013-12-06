@@ -524,3 +524,6 @@ A value of zero indicates no support, one indicates actively available.
 
 @ pmcd.feature.unix_domain_sockets status of unix domain socket support
 A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.service_discovery status of service advertising and discovery
+A value of zero indicates no support, one indicates actively available.

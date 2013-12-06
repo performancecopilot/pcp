@@ -41,7 +41,6 @@
  * constants
  ***********************************************************************/
 
-char	*localHost;			/* "official" name of localhost */
 double	mynan;				/* not-a-number run time initialized */
 
 
@@ -53,7 +52,8 @@ char		*pmnsfile = PM_NS_DEFAULT;	/* alternate name space */
 Archive		*archives;			/* list of open archives */
 RealTime	first = -1;			/* archive starting point */
 RealTime	last = 0.0;			/* archive end point */
-char		*dfltHost;			/* default host */
+char		*dfltHostConn;			/* default host connection string */
+char		*dfltHostName;			/* default host name */
 RealTime	dfltDelta = DELTA_DFLT;		/* default sample interval */
 char		*startFlag;			/* start time specified? */
 char		*stopFlag;			/* end time specified? */
@@ -898,9 +898,7 @@ void dstructInit(void)
     /* not-a-number initialization */
     mynan = zero / zero;
 
-    /* initialize default host */
-    localHost = "local:";
-    dfltHost = localHost;
+    /* don't initialize dfltHost*; let pmie.c do it after getopt. */
 
     /* set up symbol tables */
     symSetTable(&hosts);

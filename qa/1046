@@ -4,26 +4,16 @@
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
-
-if which pmieconf >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmieconf binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

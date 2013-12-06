@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /***********************************************************************
@@ -29,7 +25,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "symbol.h"
-#include "pmiestats.h"
+#include "stats.h"
 
 
 /***********************************************************************
@@ -399,8 +395,8 @@ extern char        *pmnsfile;	/* alternate namespace */
 extern Archive	   *archives;	/* archives given on command line */
 extern RealTime	   first;	/* archive starting point */
 extern RealTime	   last;	/* archive end point */
-extern char	   *localHost;	/* local host name */
-extern char	   *dfltHost;	/* default host name */
+extern char	   *dfltHostConn;  /* default PM_CONTEXT_HOST parameter  */
+extern char	   *dfltHostName;  /* pmContextGetHostName of host name */
 extern RealTime	   dfltDelta;	/* default sample interval */
 extern char        *startFlag;  /* start time specified? */
 extern char        *stopFlag;   /* end time specified? */

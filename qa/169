@@ -10,13 +10,15 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
-echo ""
-echo "Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout"
-echo ""
 
+# get standard environment, filters and checks
 . ./common.product
 . ./common.check
 . ./common.filter
+
+echo ""
+echo "Test pmcd timeouts with the pmcd PMDA's pmcd.control.timeout"
+echo ""
 
 LOCALHOST=`hostname`
 signal=$PCP_BINADM_DIR/pmsignal

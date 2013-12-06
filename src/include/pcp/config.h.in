@@ -97,7 +97,6 @@ extern "C" {
 #undef HAVE_SCHED_H
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
-#undef HAVE_IEEEFP_H
 #undef HAVE_SYS_TIME_H
 #undef HAVE_SYS_TIMEB_H
 #undef HAVE_SYS_TIMES_H
@@ -110,12 +109,14 @@ extern "C" {
 #undef HAVE_SYS_BYTEORDER_H
 #undef HAVE_PTHREAD_H
 #undef HAVE_GETOPT_H
-#undef HAVE_VALUES_H
 #undef HAVE_LIBGEN_H
 #undef HAVE_SYS_PARAM_H
 #undef HAVE_SYS_MMAN_H
 #undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
+#undef HAVE_VALUES_H
+#undef HAVE_IEEEFP_H
+#undef HAVE_MATH_H
 #undef HAVE_PWD_H
 #undef HAVE_GRP_H
 #undef HAVE_REGEX_H
@@ -194,6 +195,8 @@ extern "C" {
 /* define which libraries are available */
 #undef HAVE_SECURE_SOCKETS
 #undef HAVE_STATIC_PROBES
+#undef HAVE_SERVICE_DISCOVERY
+#undef HAVE_AVAHI
 #undef HAVE_LIBREGEX
 #undef HAVE_READLINE
 

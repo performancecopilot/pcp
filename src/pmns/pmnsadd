@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # Add a subtree of new names into the namespace in the current directory
 #
 
@@ -24,7 +20,7 @@
 
 umask 22		# anything else is pretty silly
 exitsts=1
-tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
+tmp=`mktemp -d $PCP_TMPFILE_DIR/pcp.XXXXXXXXX` || exit 1
 prog=`basename $0`
 trap "rm -rf $tmp; exit \$exitsts" 0 1 2 3 15
 

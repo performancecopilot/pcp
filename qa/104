@@ -13,8 +13,9 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 _filter_pmlc()
 {
@@ -87,11 +88,11 @@ _do_cmds()
 		      echo "# $ctl $state -> $req_ctl $req_state"; \
 		      echo "log $ctl $state sample.bin "'[ "bin-100", "bin-200", "bin-300"]'; \
 		    ) | pmlc -ie $1
-		    sleep 1
+		    pmsleep 0.5
 		    ( echo "log $req_ctl $req_state sample.bin"; \
 		      echo "query sample.bin"; \
 		    ) | pmlc -ie $1
-		    sleep 1
+		    pmsleep 0.5
 		    # need sleeps to allow pmlogger to get a look in and
 		    # to allow the pmlogger socket to be closed so the
 		    # next pmlc invocation can get connected
@@ -105,15 +106,15 @@ _do_cmds()
 x=3
 
 # real QA test starts here
-rm -f $tmp.0 $tmp.meta $tmp.index
+$sudo rm -f $tmp.0 $tmp.meta $tmp.index
 
 # start pmlogger with the expected number of samples plus a few more
 # to detect extra log output
 #
-pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1 &
-logger_pid=$!
+_start_up_pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
+logger_pid=$pid
 
-sleep 2
+pmsleep 1.1
 _do_cmds $logger_pid >$tmp.out 2>&1
 
 # this chews up any remaining samples quickly so pmlogger terminates
@@ -123,9 +124,7 @@ echo "log mandatory on 25 msec sample.long.one" \
 
 _filter_pmlc <$tmp.out
 
-# wait for pmlogger to terminate
-#
-wait
+_wait_pmlogger_end $logger_pid
 cat $tmp.err $tmp.log | _filter_logger
 
 echo

@@ -218,7 +218,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	}
 	else {
 	    /* /proc/partitions */
-	    if ((n = sscanf(buf, "%d %d %lld %s", &devmaj, &devmin, &blocks, namebuf)) != 4)
+	    if ((n = sscanf(buf, "%d %d %llu %s", &devmaj, &devmin, &blocks, namebuf)) != 4)
 		continue;
 	}
 
@@ -250,7 +250,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    p->nr_blocks = 0;
 	    namebuf[0] = '\0';
 	    /* Linux source: block/genhd.c::diskstats_show(1) */
-	    n = sscanf(buf, "%d %d %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	    n = sscanf(buf, "%u %u %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors, &p->rd_ticks,
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
@@ -259,7 +259,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
 		/* Linux source: block/genhd.c::diskstats_show(2) */
-		n = sscanf(buf, "%d %d %s %u %u %u %u\n",
+		n = sscanf(buf, "%u %u %s %u %u %u %u\n",
 		    &p->major, &p->minor, namebuf,
 		    (unsigned int *)&p->rd_ios, (unsigned int *)&p->rd_sectors,
 		    (unsigned int *)&p->wr_ios, (unsigned int *)&p->wr_sectors);
@@ -268,7 +268,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	else {
 	    /* 2.4 style /proc/partitions */
 	    namebuf[0] = '\0';
-	    n = sscanf(buf, "%d %d %ld %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
+	    n = sscanf(buf, "%u %u %lu %s %lu %lu %llu %u %lu %lu %llu %u %u %u %u",
 		&p->major, &p->minor, &p->nr_blocks, namebuf,
 		&p->rd_ios, &p->rd_merges, &p->rd_sectors,
 		&p->rd_ticks, &p->wr_ios, &p->wr_merges,
@@ -439,8 +439,7 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     partitions_entry_t	*p = NULL;
 
     if (inst != PM_IN_NULL) {
-	i = pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&p);
-	if (i < 0 || !p)
+	if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&p) < 0)
 	    return PM_ERR_INST;
     }
 
@@ -451,51 +450,83 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
 	switch(idp->item) {
 	case 4: /* disk.dev.read */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    _pm_assign_ulong(atom, p->rd_ios);
 	    break;
 	case 5: /* disk.dev.write */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    _pm_assign_ulong(atom, p->wr_ios);
 	    break;
 	case 6: /* disk.dev.blkread */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->rd_sectors;
 	    break;
 	case 7: /* disk.dev.blkwrite */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->wr_sectors;
 	    break;
 	case 28: /* disk.dev.total */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->rd_ios + p->wr_ios;
 	    break;
 	case 36: /* disk.dev.blktotal */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->rd_sectors + p->wr_sectors;
 	    break;
 	case 38: /* disk.dev.read_bytes */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->rd_sectors / 2;
 	    break;
 	case 39: /* disk.dev.write_bytes */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = p->wr_sectors / 2;
 	    break;
 	case 40: /* disk.dev.total_bytes */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ull = (p->rd_sectors + p->wr_sectors) / 2;
 	    break;
 	case 46: /* disk.dev.avactive ... already msec from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ul = p->io_ticks;
 	    break;
 	case 47: /* disk.dev.aveq ... already msec from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ul = p->aveq;
 	    break;
 	case 49: /* disk.dev.read_merge */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    _pm_assign_ulong(atom, p->rd_merges);
 	    break;
 	case 50: /* disk.dev.write_merge */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    _pm_assign_ulong(atom, p->wr_merges);
 	    break;
 	case 59: /* disk.dev.scheduler */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->cp = _pm_ioscheduler(p->namebuf);
 	    break;
-	case 72: /* disk.dev.read_rawactive ... already msec from /proc/diskstats */
+	case 72: /* disk.dev.read_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ul = p->rd_ticks;
 	    break;
-	case 73: /* disk.dev.write_rawactive ... already msec from /proc/diskstats */
+	case 73: /* disk.dev.write_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
 	    atom->ul = p->wr_ticks;
 	    break;
 	default:

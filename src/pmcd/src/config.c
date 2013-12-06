@@ -282,8 +282,10 @@ FindNextToken(void)
     char	ch;
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL2)
-	fprintf(stderr, "FindNextToken()\n");
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "FindNextToken() ");
+	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
+    }
 #endif
 
     do {
@@ -296,8 +298,10 @@ FindNextToken(void)
 	    if (*token == '\n')		/* If at end of line, get next line */
 		GetNextLine();
 	    else {			/* Otherwise move past "old" token */
-		if (tokenQuoted)	/* Move past last quote */
+		if (tokenQuoted) {	/* Move past last quote */ 
 		    tokenend++;
+		    tokenQuoted = 0;
+		}
 		token = tokenend;
 	    }
 	    SkipWhitespace();		/* Find null, newline or non-space  */
@@ -356,21 +360,9 @@ FindNextToken(void)
 			if (*(tokenend - 1) == '\\')
 			    fixToken = 1;
 			else {
-			    int	err = 1;
-
 			    if (inQuotes) {
 				inQuotes = 0;
-				err = tokenend[1] && !isspace((int)tokenend[1]);
 				gotEnd = 1;
-			    }
-			    if (err) {
-				scanError = 1;
-				*token = '\0';
-				tokenend = token;
-				fprintf(stderr,
-					     "pmcd config[line %d]: Error: quoted string must have whitespace either side\n",
-					     nLines);
-				return;
 			    }
 			}
 			break;
@@ -426,7 +418,8 @@ FindNextToken(void)
     if (pmDebug & DBG_TRACE_APPL2) {
 	fputs("TOKEN = '", stderr);
 	PrintToken(stderr);
-	fputs("'\n", stderr);
+	fputs("' ", stderr);
+	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
     }
 #endif
 }
@@ -960,10 +953,10 @@ ParseAccessSpec(int allow, int *specOps, int *denyOps, int *maxCons, int recursi
 static int
 ParseNames(char ***namesp, const char *nametype)
 {
-    int		nnames = 0;
-    int		another = 1;
     static char	**names;
     static int	szNames;
+    int		nnames = 0;
+    int		another = 1;
 
     /* Beware of quoted tokens of length longer than 1. e.g. ":*" */
     while (*token && another &&
@@ -976,13 +969,13 @@ ParseNames(char ***namesp, const char *nametype)
 	    if ((names = (char **)realloc(names, need)) == NULL)
 		__pmNoMem("pmcd ParseNames name list", need, PM_FATAL_ERR);
 	}
-	if ((names[nnames] = CopyToken()) == NULL)
+	if ((names[nnames++] = CopyToken()) == NULL)
 	    __pmNoMem("pmcd ParseNames name", tokenend - token, PM_FATAL_ERR);
 	FindNextToken();
 	if (*token != ',' && *token != ':') {
 	    fprintf(stderr,
 			 "pmcd config[line %d]: Error: ',' or ':' expected after \"%s\"\n",
-			 nLines, names[nnames]);
+			 nLines, names[nnames-1]);
 	    return -1;
 	}
 	if (*token == ',') {
@@ -991,7 +984,6 @@ ParseNames(char ***namesp, const char *nametype)
 	}
 	else
 	    another = 0;
-	nnames++;
     }
     if (nnames == 0) {
 	fprintf(stderr,

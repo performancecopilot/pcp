@@ -5,13 +5,13 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
-echo "QA output created by $seq"
 
 which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
 pmprobe -I pmcd.agent.type 2>&1 | grep '"xfs"' >/dev/null

@@ -5,11 +5,11 @@
 # Copyright (c) 2012-2013 Red Hat.
 #
 
-. ./common.secure
-
 seq=`basename $0`
-nss_notrun_checks
 echo "QA output created by $seq"
+
+. ./common.secure
+nss_notrun_checks
 
 _cleanup()
 {

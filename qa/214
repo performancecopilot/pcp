@@ -5,12 +5,13 @@
 # Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 if pmlogextract -\? 2>&1 | grep -q .-f
 then
@@ -19,8 +20,6 @@ else
     echo "No -f option for pmlogextract to select output timezone" >$seq.notrun
     exit
 fi
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

@@ -32,6 +32,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -160,8 +161,6 @@ then
 else
     ln $seq.out.irix $seq.out
 fi
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

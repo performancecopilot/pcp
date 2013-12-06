@@ -5,12 +5,13 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.check
 . ./common.filter
-
-seq=`basename $0`
 
 rm -f $seq.out
 if pminfo -f simple.now | grep '3600 or "hour"' >/dev/null
@@ -26,8 +27,6 @@ else
 	ln $seq.out.2 $seq.out || exit 1
     fi
 fi
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15

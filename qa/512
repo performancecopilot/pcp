@@ -5,19 +5,16 @@
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if src/check_fault_injection >/dev/null 2>&1
-then
-    rm -f .notrun
-else
+src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection & lock tracing enabled"
-fi
 
 if [ -d ../src ]
 then
@@ -25,8 +22,6 @@ then
 else
     _notrun "PCP source not found at ../src"
 fi
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

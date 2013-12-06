@@ -12,20 +12,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 
 # source the PCP configuration environment variables
 . $PCP_DIR/etc/pcp.env
 
-if [ -d $PCP_TMP_DIR ]
+if [ -d "$PCP_TMPFILE_DIR" ]
 then
-    tmp=`mktemp -d $PCP_TMP_DIR/pcp.XXXXXXXXX` || exit 1
+    tmp=`mktemp -d "$PCP_TMPFILE_DIR/pcp.XXXXXXXXX"` || exit 1
 else
-    # if configure --prefix is used in a the build, then $PCP_TMP_DIR may
-    # not yet exist ... /tmp is a safe bet
+    # if configure --prefix is used in a the build, then $PCP_TMPFILE_DIR
+    # may not yet exist ... /tmp is a safe bet
     #
     tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 fi

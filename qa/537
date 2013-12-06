@@ -5,16 +5,15 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
 [ $PCP_VER -ge 3801 ] || _notrun "Too-old libpcp_import version"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

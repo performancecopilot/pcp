@@ -6,10 +6,10 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
+
 . ./common.secure
 nss_notrun_checks
-
-echo "QA output created by $seq"
 
 _cleanup()
 {
@@ -43,6 +43,7 @@ proxyargs="-C $PCP_SECURE_DB_METHOD$collectordb -P $collectorpw"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1
 echo "Checking pmproxy.log for unexpected messages" | tee -a $seq.full
+sleep 1	# allow log file creation to complete
 egrep 'Error:|Info:' $tmp.log
 cat $tmp.log >> $seq.full
 

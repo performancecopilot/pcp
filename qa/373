@@ -4,26 +4,21 @@
 # iostat2pcp exerciser
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
 
-# creator
-owner=kenj
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
 which iostat2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "iostat2pcp not installed"
 perl -e "use Date::Parse" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl Date::Parse module not installed"
 
-echo "QA output created by $seq"
-
-tmp=/tmp/$$
-here=`pwd`
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

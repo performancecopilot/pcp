@@ -24,7 +24,7 @@
 #include "syntax.h"
 #include "lexicon.h"
 #include "pragmatics.h"
-#include "syslog.h"
+#include "systemlog.h"
 #include "stomp.h"
 #include "show.h"
 

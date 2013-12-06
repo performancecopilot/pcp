@@ -1,0 +1,93 @@
+PCP_PMDA_3.0 {
+  global:
+    pmdaInit;
+    pmdaMain;
+    pmdaGetOpt;
+    pmdaConnect;
+    pmdaOpenLog;
+    pmdaOpenHelp;
+    pmdaSetFlags;
+    pmdaGetContext;
+    pmdaGetInDomHelp;
+
+    pmdaDaemon;
+    pmdaDSO;
+
+    __pmdaInFd;
+    __pmdaMainPDU;
+    __pmdaSetContext;
+
+    pmdaPMID;
+    pmdaRehash;
+
+    pmdaSetCheckCallBack;
+    pmdaSetDoneCallBack;
+    pmdaSetEndContextCallBack;
+    pmdaSetFetchCallBack;
+    pmdaSetResultCallBack;
+
+    pmdaAttribute;
+    pmdaDesc;
+    pmdaFetch;
+    pmdaInstance;
+    pmdaProfile;
+    pmdaStore;
+    pmdaText;
+    pmdaName;
+    pmdaChildren;
+
+    pmdaCacheLookup;
+    pmdaCacheLookupKey;
+    pmdaCacheLookupName;
+    pmdaCacheOp;
+    pmdaCachePurge;
+    pmdaCacheStore;
+    pmdaCacheStoreKey;
+
+    __pmdaCacheDump;
+    __pmdaCacheDumpAll;
+    __pmdaStartInst;
+    __pmdaNextInst;
+    __pmdaCntInst;
+
+    pmdaCloseHelp;
+    pmdaGetHelp;
+    __pmdaHelpTab;
+
+    pmdaTreeChildren;
+    pmdaTreeName;
+    pmdaTreePMID;
+    pmdaTreeRebuildHash;
+    pmdaTreeSize;
+
+    pmdaEventAddMissedRecord;
+    pmdaEventAddParam;
+    pmdaEventAddRecord;
+    pmdaEventClients;
+    pmdaEventEndClient;
+    pmdaEventGetAddr;
+    pmdaEventNewActiveQueue;
+    pmdaEventNewArray;
+    pmdaEventNewClient;
+    pmdaEventNewQueue;
+    pmdaEventQueueAppend;
+    pmdaEventQueueBytes;
+    pmdaEventQueueClients;
+    pmdaEventQueueCounter;
+    pmdaEventQueueHandle;
+    pmdaEventQueueMemory;
+    pmdaEventQueueRecords;
+    pmdaEventReleaseArray;
+    pmdaEventResetArray;
+    pmdaEventSetAccess;
+    pmdaEventSetFilter;
+    __pmdaEventPrint;
+
+    pmdaDynamicLookupName;
+    pmdaDynamicLookupPMID;
+    pmdaDynamicLookupText;
+    pmdaDynamicMetricTable;
+    pmdaDynamicPMNS;
+
+  local: *;
+};

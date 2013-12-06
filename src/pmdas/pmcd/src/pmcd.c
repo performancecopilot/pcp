@@ -16,7 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "pmiestats.h"
+#include "stats.h"
 #include "pmcd/src/pmcd.h"
 #include "pmcd/src/client.h"
 #include <sys/stat.h>
@@ -210,6 +210,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.unix_domain_sockets */
     { PMDA_PMID(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.service_discovery */
+    { PMDA_PMID(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -1007,19 +1009,11 @@ static char *
 hostnameinfo(void)
 {
     static char	host[MAXHOSTNAMELEN];
-    char	*name, *hename = NULL;
-    __pmHostEnt	*hep;
+    char	*name;
 
     (void)gethostname(host, MAXHOSTNAMELEN);
     name = host;
 
-    if ((hep = __pmGetAddrInfo(name)) != NULL) {
-	hename = __pmHostEntGetName(hep);
-	strncpy(host, hename ? hename : name, MAXHOSTNAMELEN-1);
-	host[MAXHOSTNAMELEN-1] = '\0';
-	__pmHostEntFree(hep);
-	name = host;
-    }
     return name;
 }
 
@@ -1757,6 +1751,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 }
 
 void
+__PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
 {
     char helppath[MAXPATHLEN];

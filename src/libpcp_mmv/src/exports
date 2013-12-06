@@ -1,0 +1,26 @@
+PCP_MMV_1.0 {
+  global:
+    mmv_stats_init;
+    mmv_stats_stop;
+
+    mmv_inc_value;
+    mmv_set_value;
+    mmv_set_string;
+
+    mmv_lookup_value_desc;
+
+    mmv_stats_add;
+    mmv_stats_add_fallback;
+
+    mmv_stats_inc;
+    mmv_stats_inc_fallback;
+
+    mmv_stats_interval_end;
+    mmv_stats_interval_start;
+
+    mmv_stats_set;
+    mmv_stats_set_string;
+    mmv_stats_set_strlen;
+
+  local: *;
+};

@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -19,8 +20,6 @@ then
 else
     ln $seq.out.1 $seq.out
 fi
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

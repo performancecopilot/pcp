@@ -31,11 +31,11 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <ctype.h>
-#include <math.h>
 
 #include "pmapi.h"
 #include "impl.h"
 #include "pmdbg.h"
+#include "internal.h"
 
 #if defined(HAVE_SYS_TIMES_H)
 #include <sys/times.h>
@@ -45,6 +45,9 @@
 #endif
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
+#endif
+#if defined(HAVE_MATH_H)
+#include <math.h>
 #endif
 
 static FILE	**filelog;
@@ -1102,13 +1105,13 @@ vpmprintf(const char *msg, va_list arg)
     PM_LOCK(__pmLock_libpcp);
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
-	char	*tmpdir = pmGetConfig("PCP_TMP_DIR");
+	char	*tmpdir = pmGetConfig("PCP_TMPFILE_DIR");
 
 	if (tmpdir[0] != '\0') {
 	    mode_t cur_umask;
 
 	    /*
-	     * PCP_TMP_DIR found in the configuration/environment,
+	     * PCP_TMPFILE_DIR found in the configuration/environment,
 	     * otherwise fall through to the stderr case
 	     */
 

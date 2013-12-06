@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -31,8 +32,6 @@ in
 	_notrun "Need qualified output for $PCP_PLATFORM"
 	;;
 esac
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 done_clean=false

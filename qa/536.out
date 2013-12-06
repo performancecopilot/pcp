@@ -1,4 +1,3 @@
-/usr/bin/collectl2pcp
 QA output created by 536
 ## Testing host mismatch in headers
 FATAL Error: host mismatch: "./collectl/wrong_host.raw" contains data for host "wronghost", not "somehost"

@@ -89,7 +89,7 @@ roomtemp_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			numval = 0;
 
     if (idp->cluster == 0) {
-	if (inst < 0 || inst >= indomtab[DEVICE].it_numinst)
+	if (inst >= indomtab[DEVICE].it_numinst)
 	    return PM_ERR_INST;
 	switch (idp->item) {
 	    case 0:		/* roomtemp.celsius */

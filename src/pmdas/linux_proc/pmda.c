@@ -49,6 +49,7 @@ static int			_isDSO = 1;	/* for local contexts */
 static proc_pid_t		proc_pid;
 static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
+static int			all_access;	/* =1 no access checks */
 static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
@@ -851,7 +852,7 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     }
 
     sts = PM_ERR_PERMISSION;
-    have_access = proc_ctx_access(pmda->e_context);
+    have_access = proc_ctx_access(pmda->e_context) || all_access;
     if (have_access || indomp->serial != PROC_INDOM) {
 	proc_refresh(pmda, need_refresh);
 	sts = pmdaInstance(indom, inst, name, result, pmda);
@@ -1054,7 +1055,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		/*
 		 * unsigned decimal int
 		 */
-		if (idp->item >= 0 && idp->item < NR_PROC_PID_STAT) {
+		if (idp->item < NR_PROC_PID_STAT) {
 		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    	return PM_ERR_INST;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
@@ -1077,7 +1078,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid)) == NULL)
 		return PM_ERR_INST;
 
-	    if (idp->item >= 0 && idp->item <= PROC_PID_STATM_DIRTY) {
+	    if (idp->item <= PROC_PID_STATM_DIRTY) {
 		/* unsigned int */
 		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
 		    return PM_ERR_INST;
@@ -1095,7 +1096,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
 	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
 
-	if (idp->item >= 0 && idp->item < NR_PROC_PID_SCHED) {
+	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
 		return PM_ERR_INST;
 	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
@@ -1419,7 +1420,7 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[idp->cluster]++;
     }
 
-    have_access = proc_ctx_access(pmda->e_context);
+    have_access = proc_ctx_access(pmda->e_context) || all_access;
     proc_refresh(pmda, need_refresh);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     have_access = proc_ctx_revert(pmda->e_context);
@@ -1431,7 +1432,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
-    have_access = proc_ctx_access(pmda->e_context);
+    have_access = proc_ctx_access(pmda->e_context) || all_access;
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
@@ -1543,6 +1544,7 @@ proc_strings_insert(const char *buf)
  */
 
 void 
+__PMDA_INIT_CALL
 proc_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
@@ -1610,6 +1612,7 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
+	  "  -A          no access checks will be performed (insecure, beware!)\n"
 	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile  write log into logfile rather than using default log name\n"
 	  "  -L          include threads in the all-processes instance domain\n"
@@ -1635,8 +1638,11 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:Lr:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "AD:d:l:Lr:U:?", &dispatch, &err)) != EOF) {
 	switch (c) {
+	case 'A':
+	    all_access = 1;
+	    break;
 	case 'L':
 	    threads = 1;
 	    break;

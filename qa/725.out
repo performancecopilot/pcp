@@ -1,0 +1,571 @@
+QA output created by 725
+
+=== jbd2 agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "jbd2" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Install jbd2 as a daemon or dso agent? [daemon] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check jbd2 metrics have appeared ... ok
+
+=== validate values, no instances ===
+
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 0
+Count of active JBD2 (Journal Block Device v2) devices
+Help:
+jbd2.njournals PMID: 122.0.0 [Count of active JBD2 (Journal Block Device v2) devices]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+Average number of blocks per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.blocks PMID: 122.0.20 [Average transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+Average number of blocks logged per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.blocks_logged PMID: 122.0.21 [Average logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+Average number of handles used per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.handles PMID: 122.0.22 [Average handle count per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average transaction locked time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.time.being_locked PMID: 122.0.16 [Average locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: microsec
+Average time spent committing transactions for all transactions since
+Help:
+No value(s) available!
+jbd2.transaction.average.time.committing PMID: 122.0.19 [Average commit time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average time flushing data (ordered mode) for all transactions since
+Help:
+No value(s) available!
+jbd2.transaction.average.time.flushing_ordered_mode_data PMID: 122.0.17 [Average data flush time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average time spent logging transactions for all transactions since
+Help:
+No value(s) available!
+jbd2.transaction.average.time.logging PMID: 122.0.18 [Average logging time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average request delay for all transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.time.request_delay PMID: 122.0.14 [Average request delay per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average transaction running time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.time.running PMID: 122.0.15 [Average running time per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average time spent waiting for transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.time.waiting PMID: 122.0.13 [Average time waiting per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Help:
+No value(s) available!
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.count PMID: 122.0.1 [Total transactions committed per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: none
+Help:
+No value(s) available!
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.max_blocks PMID: 122.0.3 [Maximum transaction blocks (buffers) per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Help:
+No value(s) available!
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.requested PMID: 122.0.2 [Total journal transactions requested per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total number of blocks in all transactions since device mounted.
+jbd2.transaction.total.blocks PMID: 122.0.10 [Total transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total number of blocks logged in all transactions since mount.
+jbd2.transaction.total.blocks_logged PMID: 122.0.11 [Total logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total count of handles used in all transactions since mount.
+jbd2.transaction.total.handles PMID: 122.0.12 [Total handle count per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total transaction locked time over all transactions since mount.
+jbd2.transaction.total.time.being_locked PMID: 122.0.7 [Total locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Help:
+No value(s) available!
+Total time flushing data (ordered mode) for all transactions since
+jbd2.transaction.total.time.flushing_ordered_mode_data PMID: 122.0.8 [Total data flush time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Help:
+No value(s) available!
+Total time spent logging transactions for all transactions since
+jbd2.transaction.total.time.logging PMID: 122.0.9 [Total logging time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total request delay for all transactions to complete since mount.
+jbd2.transaction.total.time.request_delay PMID: 122.0.5 [Total request delay per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total transaction running time over all transactions since mount.
+jbd2.transaction.total.time.running PMID: 122.0.6 [Total running time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total time spent waiting for transactions to complete since mount.
+jbd2.transaction.total.time.waiting PMID: 122.0.4 [Total time waiting per journal]
+
+=== add some older-format instances ===
+
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 1
+Count of active JBD2 (Journal Block Device v2) devices
+Help:
+jbd2.njournals PMID: 122.0.0 [Count of active JBD2 (Journal Block Device v2) devices]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [0 or "sda1-8"] value 4
+Average number of blocks per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.blocks PMID: 122.0.20 [Average transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [0 or "sda1-8"] value 5
+Average number of blocks logged per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.blocks_logged PMID: 122.0.21 [Average logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [0 or "sda1-8"] value 262
+Average number of handles used per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.handles PMID: 122.0.22 [Average handle count per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Average transaction locked time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.being_locked PMID: 122.0.16 [Average locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: microsec
+    inst [0 or "sda1-8"] value 52335
+Average time spent committing transactions for all transactions since
+Help:
+jbd2.transaction.average.time.committing PMID: 122.0.19 [Average commit time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Average time flushing data (ordered mode) for all transactions since
+Help:
+jbd2.transaction.average.time.flushing_ordered_mode_data PMID: 122.0.17 [Average data flush time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [0 or "sda1-8"] value 35
+Average time spent logging transactions for all transactions since
+Help:
+jbd2.transaction.average.time.logging PMID: 122.0.18 [Average logging time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+Average request delay for all transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+jbd2.transaction.average.time.request_delay PMID: 122.0.14 [Average request delay per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [0 or "sda1-8"] value 5327
+Average transaction running time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.running PMID: 122.0.15 [Average running time per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Average time spent waiting for transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.waiting PMID: 122.0.13 [Average time waiting per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [0 or "sda1-8"] value 24
+Help:
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.count PMID: 122.0.1 [Total transactions committed per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: none
+    inst [0 or "sda1-8"] value 2048
+Help:
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.max_blocks PMID: 122.0.3 [Maximum transaction blocks (buffers) per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+Help:
+No value(s) available!
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.requested PMID: 122.0.2 [Total journal transactions requested per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [0 or "sda1-8"] value 96
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total number of blocks in all transactions since device mounted.
+jbd2.transaction.total.blocks PMID: 122.0.10 [Total transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [0 or "sda1-8"] value 120
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total number of blocks logged in all transactions since mount.
+jbd2.transaction.total.blocks_logged PMID: 122.0.11 [Total logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [0 or "sda1-8"] value 6288
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total count of handles used in all transactions since mount.
+jbd2.transaction.total.handles PMID: 122.0.12 [Total handle count per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total transaction locked time over all transactions since mount.
+jbd2.transaction.total.time.being_locked PMID: 122.0.7 [Total locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Help:
+Total time flushing data (ordered mode) for all transactions since
+jbd2.transaction.total.time.flushing_ordered_mode_data PMID: 122.0.8 [Total data flush time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [0 or "sda1-8"] value 840
+Help:
+Total time spent logging transactions for all transactions since
+jbd2.transaction.total.time.logging PMID: 122.0.9 [Total logging time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+No value(s) available!
+Total request delay for all transactions to complete since mount.
+jbd2.transaction.total.time.request_delay PMID: 122.0.5 [Total request delay per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [0 or "sda1-8"] value 127848
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total transaction running time over all transactions since mount.
+jbd2.transaction.total.time.running PMID: 122.0.6 [Total running time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [0 or "sda1-8"] value 0
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total time spent waiting for transactions to complete since mount.
+jbd2.transaction.total.time.waiting PMID: 122.0.4 [Total time waiting per journal]
+
+=== add some newer-format instances ===
+
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 1
+Count of active JBD2 (Journal Block Device v2) devices
+Help:
+jbd2.njournals PMID: 122.0.0 [Count of active JBD2 (Journal Block Device v2) devices]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [1 or "dm-1-8"] value 5
+Average number of blocks per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.blocks PMID: 122.0.20 [Average transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [1 or "dm-1-8"] value 6
+Average number of blocks logged per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.blocks_logged PMID: 122.0.21 [Average logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: count
+    inst [1 or "dm-1-8"] value 72
+Average number of handles used per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.handles PMID: 122.0.22 [Average handle count per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Average transaction locked time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.being_locked PMID: 122.0.16 [Average locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: microsec
+    inst [1 or "dm-1-8"] value 22584
+Average time spent committing transactions for all transactions since
+Help:
+jbd2.transaction.average.time.committing PMID: 122.0.19 [Average commit time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Average time flushing data (ordered mode) for all transactions since
+Help:
+jbd2.transaction.average.time.flushing_ordered_mode_data PMID: 122.0.17 [Average data flush time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 26
+Average time spent logging transactions for all transactions since
+Help:
+jbd2.transaction.average.time.logging PMID: 122.0.18 [Average logging time per journal]
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Average request delay for all transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.request_delay PMID: 122.0.14 [Average request delay per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 4019
+Average transaction running time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.running PMID: 122.0.15 [Average running time per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Average time spent waiting for transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+Help:
+jbd2.transaction.average.time.waiting PMID: 122.0.13 [Average time waiting per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [1 or "dm-1-8"] value 6117
+Help:
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.count PMID: 122.0.1 [Total transactions committed per journal]
+
+    Data Type: 32-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: instant  Units: none
+    inst [1 or "dm-1-8"] value 8192
+Help:
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.max_blocks PMID: 122.0.3 [Maximum transaction blocks (buffers) per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [1 or "dm-1-8"] value 19053
+Help:
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+jbd2.transaction.requested PMID: 122.0.2 [Total journal transactions requested per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [1 or "dm-1-8"] value 30585
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total number of blocks in all transactions since device mounted.
+jbd2.transaction.total.blocks PMID: 122.0.10 [Total transaction blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [1 or "dm-1-8"] value 36702
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total number of blocks logged in all transactions since mount.
+jbd2.transaction.total.blocks_logged PMID: 122.0.11 [Total logged blocks per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: count
+    inst [1 or "dm-1-8"] value 440424
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total count of handles used in all transactions since mount.
+jbd2.transaction.total.handles PMID: 122.0.12 [Total handle count per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total transaction locked time over all transactions since mount.
+jbd2.transaction.total.time.being_locked PMID: 122.0.7 [Total locked time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Help:
+Total time flushing data (ordered mode) for all transactions since
+jbd2.transaction.total.time.flushing_ordered_mode_data PMID: 122.0.8 [Total data flush time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 159042
+Help:
+Total time spent logging transactions for all transactions since
+jbd2.transaction.total.time.logging PMID: 122.0.9 [Total logging time per journal]
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total request delay for all transactions to complete since mount.
+jbd2.transaction.total.time.request_delay PMID: 122.0.5 [Total request delay per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 24584223
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total transaction running time over all transactions since mount.
+jbd2.transaction.total.time.running PMID: 122.0.6 [Total running time per journal]
+
+    Data Type: NN-bit unsigned int  InDom: 122.0 0x1e800000
+    Semantics: counter  Units: millisec
+    inst [1 or "dm-1-8"] value 0
+Derived from values in the per-device /proc/fs/jbd2 info files.
+Help:
+Total time spent waiting for transactions to complete since mount.
+jbd2.transaction.total.time.waiting PMID: 122.0.4 [Total time waiting per journal]
+
+=== remove jbd2 agent ===
+Culling the Performance Metrics Name Space ...
+jbd2 ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check jbd2 metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

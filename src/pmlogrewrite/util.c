@@ -94,7 +94,7 @@ inst_name_eq(const char *p, const char *q)
  *        to libpcp
  */
 int
-__pmLogRename(const char *old, const char *new)
+_pmLogRename(const char *old, const char *new)
 {
     int			sts;
     int			nfound = 0;
@@ -218,7 +218,7 @@ cleanup:
  *        to libpcp
  */
 int
-__pmLogRemove(const char *name)
+_pmLogRemove(const char *name)
 {
     int			sts;
     int			nfound = 0;

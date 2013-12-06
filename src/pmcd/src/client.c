@@ -220,7 +220,7 @@ DeleteClient(ClientInfo *cp)
 	}
     }
     __pmFreeAttrsSpec(&cp->attrs);
-    memset(&cp->attrs, 0, sizeof(cp->attrs));
+    __pmHashClear(&cp->attrs);
     __pmSockAddrFree(cp->addr);
     cp->addr = NULL;
     cp->status.connected = 0;

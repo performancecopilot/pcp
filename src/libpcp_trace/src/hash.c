@@ -15,7 +15,7 @@
  */
 
 #include "pmapi.h"
-#include "trace_hash.h"
+#include "hash.h"
 
 
 static unsigned int

@@ -37,11 +37,11 @@ else
     ln $seq.out.1 $seq.out
 fi
 
-localhost=`hostname | sed -e 's/\..*//'`
+qahost=`hostname`
 eval `./getpmcdhosts -L -n 2 2>$tmp.out | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 echo "other1=$other1" >$seq.full
 echo "other2=$other2" >>$seq.full
-echo "localhost=$localhost" >>$seq.full
+echo "qahost=$qahost" >>$seq.full
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
@@ -118,18 +118,32 @@ cat <<End-of-File >>$tmp.tmp
 
 [access]
 allow not.a.real.host : all;
-allow nohost.engr.sgi.com, $localhost : all;
+allow nohost.engr.sgi.com, $qahost : all;
 allow $other1, not.a.real.host, localhost : fetch;
 allow localhost, $other2, nohost.melbourne.sgi.com : store;
-
-# from qa/$seq
 End-of-File
 
+if [ $PCP_VER -gt 3806 ]
+then
+    cat <<End-of-File >>$tmp.tmp
+allow "local:" , "unix:" : all;
+End-of-File
+fi
+
+echo >> $tmp.tmp
+echo "# from qa/$seq" >> $tmp.tmp
+
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+echo >>$seq.full
+echo "=== pmcd.conf ===" >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
+
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 cat $PCP_PMCDLOG_PATH >>$seq.full
+echo >>$seq.full
+echo "=== pmcd.log ===" >>$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
     -e '/^linux/{
@@ -142,7 +156,7 @@ s/lib=\/var\//lib=\/usr-or-var\//
     -e '/gethostbyname(/s/ Unknown host/ No address associated with name/' \
     -e '/gethostbyname(/s/ Host name lookup failure/ No address associated with name/' \
     -e '/gethostbyname(/s/ Resolver Error 0 (no error)/ No address associated with name/' \
-    -e "/$localhost\$/"'{
+    -e "/$qahost\$/"'{
 s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / LOCALIP  /
 s/  */ /g
 }' \
@@ -154,10 +168,12 @@ s/  */ /g
 s/ [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]* / OTHERIP2 /
 s/  */ /g
 }' \
-    -e "s/$localhost\$/LOCALHOST/g" \
+    -e "s/$qahost\$/LOCALHOST/g" \
     -e "s/$other1\$/OTHERHOST1/g" \
     -e "s/$other2\$/OTHERHOST2/g" \
     -e '/UNIX_DOMAIN_SOCKET/d' \
+    -e '/1 unix:$/d' \
+    -e '/error sending Conn ACK PDU/d' \
     -e "s/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/<hexnum>/" \
     | $PCP_AWK_PROG '
 $8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
@@ -166,6 +182,9 @@ $8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
 			  sub(/^[0-9a-f:][0-9a-f:]*$/,"<ipaddr>",$5)
 			}
 			{ print }'
+
+echo "check pmcd is up and we can get local access" >> $seq.full
+pmprobe hinv.ncpu >>$seq.full 2>&1 || echo "ACCESS DENIED"
 
 status=0
 exit

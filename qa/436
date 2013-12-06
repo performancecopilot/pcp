@@ -5,21 +5,15 @@
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if which bzip2 >/dev/null 2>&1
-then
-    rm -f $seq.notrun
-else
-    _notrun No bzip2 binary installed
-fi
-
-echo "QA output created by $seq"
+which bzip2 >/dev/null 2>&1 || _notrun No bzip2 binary installed
 
 status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full

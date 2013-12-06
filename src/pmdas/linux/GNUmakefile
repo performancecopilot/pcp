@@ -21,9 +21,10 @@ IAM		= linux
 DOMAIN		= LINUX
 CMDTARGET	= pmdalinux
 LIBTARGET	= pmda_linux.so
+PMDAINIT	= linux_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "linux	60	dso	linux_init	$(PMDADIR)/$(LIBTARGET)"
+CONF_LINE	= "linux	60	dso	$(PMDAINIT)	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \
@@ -45,28 +46,31 @@ HFILES		= clusters.h indom.h convert.h \
 		  proc_uptime.h proc_sys_fs.h proc_vmstat.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h
 
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
 LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf
-LDIRT		= help.dir help.pag domain.h
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_PMDALIB)
+LCFLAGS		= $(INVISIBILITY)
 
 # Uncomment these flags for profiling
-# LCFLAGS	= -pg
-# LLDFLAGS	= -pg
+# LCFLAGS	+= -pg
+# LLDFLAGS	+= -pg
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
@@ -75,12 +79,15 @@ build-me:
 install:
 endif
 
-help.dir help.pag : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_linux -v 2 -o help < help
-
 default_pcp : default
 
 install_pcp : install
+
+$(HELPTARGETS) : help
+	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_linux -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -115,3 +122,4 @@ pmda.o sem_limits.o:	sem_limits.h
 pmda.o shm_limits.o:	shm_limits.h
 pmda.o swapdev.o:	swapdev.h
 pmda.o sysfs_kernel.o:	sysfs_kernel.h
+pmda.o:	$(VERSION_SCRIPT)

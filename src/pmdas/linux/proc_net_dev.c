@@ -68,7 +68,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 }
 
 static void
-refresh_net_addr_ioctl(char *name, net_addr_t *addr)
+refresh_net_ipv4_addr(char *name, net_addr_t *addr)
 {
     struct ifreq ifr;
     int fd;
@@ -80,13 +80,13 @@ refresh_net_addr_ioctl(char *name, net_addr_t *addr)
     if (ioctl(fd, SIOCGIFADDR, &ifr) >= 0) {
 	struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
 	if (inet_ntop(AF_INET, &sin->sin_addr, addr->inet, INET_ADDRSTRLEN))
-	    addr->hasinet = 1;
+	    addr->has_inet = 1;
     }
 }
 
 /*
- * no ioctl support or no permissions (more likely), so we
- * fall back to grovelling around in /sys/devices in a last
+ * No ioctl support or no permissions (more likely), so we
+ * fall back to grovelling about in /sys/class/net in a last
  * ditch attempt to find the ethtool interface data (duplex
  * and speed).
  */
@@ -96,7 +96,7 @@ read_oneline(const char *path, char *buffer)
     FILE *fp = fopen(path, "r");
 
     if (fp) {
-	int i = fscanf(fp, "%s", buffer);
+	int i = fscanf(fp, "%63s", buffer);
 	fclose(fp);
 	if (i == 1)
 	    return buffer;
@@ -112,15 +112,37 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip)
     char *duplex;
 
     snprintf(path, sizeof(path), "/sys/class/net/%s/speed", name);
+    path[sizeof(path)-1] = '\0';
     netip->ioc.speed = atoi(read_oneline(path, line));
+
     snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", name);
+    path[sizeof(path)-1] = '\0';
     duplex = read_oneline(path, line);
+
     if (strcmp(duplex, "full") == 0)
 	netip->ioc.duplex = 2;
     else if (strcmp(duplex, "half") == 0)
 	netip->ioc.duplex = 1;
     else	/* eh? */
 	netip->ioc.duplex = 0;
+}
+
+static void
+refresh_net_hw_addr(char *name, net_addr_t *netip)
+{
+    char path[256];
+    char line[64];
+    char *value;
+
+    snprintf(path, sizeof(path), "/sys/class/net/%s/address", name);
+    path[sizeof(path)-1] = '\0';
+
+    value = read_oneline(path, line);
+
+    if (value[0] != '\0')
+	netip->has_hw = 1;
+    strncpy(netip->hw_addr, value, sizeof(netip->hw_addr));
+    netip->hw_addr[sizeof(netip->hw_addr)-1] = '\0';
 }
 
 int
@@ -284,7 +306,8 @@ refresh_net_dev_ipv4_addr(pmInDom indom)
 	    continue;
 	}
 
-	refresh_net_addr_ioctl(ifr->ifr_name, netip);
+	refresh_net_ipv4_addr(ifr->ifr_name, netip);
+	refresh_net_hw_addr(ifr->ifr_name, netip);
     }
     free(ifc.ifc_buf);
     return 0;
@@ -295,7 +318,7 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 {
     FILE *fp;
     char addr6p[8][5];
-    char addr6[40], devname[20];
+    char addr6[40], devname[20+1];
     char addr[INET6_ADDRSTRLEN];
     struct sockaddr_in6 sin6;
     int sts, plen, scope, dad_status, if_idx;
@@ -344,7 +367,9 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 	    continue;
 	snprintf(netip->ipv6, sizeof(netip->ipv6), "%s/%d", addr, plen);
 	netip->ipv6scope = (uint16_t)scope;
-	netip->hasipv6 = 1;
+	netip->has_ipv6 = 1;
+
+	refresh_net_hw_addr(devname, netip);
     }
     fclose(fp);
     return 0;
@@ -365,8 +390,9 @@ refresh_net_dev_addr(pmInDom indom)
 	    break;
 	if (!pmdaCacheLookup(indom, sts, NULL, (void **)&p) || !p)
 	    continue;
-	p->hasinet = 0;
-	p->hasipv6 = 0;
+	p->has_inet = 0;
+	p->has_ipv6 = 0;
+	p->has_hw   = 0;
     }
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);

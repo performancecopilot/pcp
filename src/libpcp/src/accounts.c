@@ -234,8 +234,13 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
     setgrent();
     while (1) {
 	grp = NULL;
+#ifdef IS_SOLARIS
+	if ((grp = getgrent_r(&gr, grbuf, sizeof(grbuf))) == NULL)
+	    break;
+#else
 	if (getgrent_r(&gr, grbuf, sizeof(grbuf), &grp) != 0 || grp == NULL)
 	    break;
+#endif
 	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
@@ -345,10 +350,14 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     /* for a given list of usernames, lookup the user IDs */
     setpwent();
     while (1) {
-	pwp = NULL;
-	getpwent_r(&pw, buf, sizeof(buf), &pwp);
-	if (pwp == NULL)
+#ifdef IS_SOLARIS
+	if ((pwp = getpwent_r(&pw, buf, sizeof(buf))) == NULL)
 	    break;
+#else
+	pwp = NULL;
+	if (getpwent_r(&pw, buf, sizeof(buf), &pwp) != 0 || pwp == NULL)
+	    break;
+#endif
 	/* check to see if this user has given group as primary */
 	if (pwp->pw_gid == groupid &&
 	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {

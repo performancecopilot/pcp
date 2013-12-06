@@ -190,3 +190,13 @@ _pmLogPut(FILE *f, __pmPDU *pb)
     }
     return 0;
 }
+
+pmUnits
+ntoh_pmUnits(pmUnits units)
+{
+    unsigned int x;
+
+    x = ntohl(*(unsigned int *)&units);
+    units = *(pmUnits *)&x;
+    return units;
+}

@@ -29,6 +29,7 @@ PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
 LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
 
 LLDLIBS = $(PCPLIB)
+LCFLAGS = -I$(TOPDIR)/src/pmie/src
 LDIRT = rules local $(CMDTARGET) rate-syscalls \
 	pmlogconf.tmp pmlogconf \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \

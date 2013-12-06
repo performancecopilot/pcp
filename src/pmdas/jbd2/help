@@ -1,0 +1,115 @@
+#
+# Copyright (c) 2013 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# JBD2 PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ jbd2.njournals Count of active JBD2 (Journal Block Device v2) devices
+
+@ jbd2.transaction.count Total transactions committed per journal
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+
+@ jbd2.transaction.requested Total journal transactions requested per journal
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+
+@ jbd2.transaction.max_blocks Maximum transaction blocks (buffers) per journal
+This metric is sourced from the per-device /proc/fs/jbd2 info file.
+
+@ jbd2.transaction.average.time.waiting Average time waiting per journal
+Average time spent waiting for transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.request_delay Average request delay per journal
+Average request delay for all transactions to complete since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.running Average running time per journal
+Average transaction running time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.being_locked Average locked time per journal
+Average transaction locked time over all transactions since mount.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.flushing_ordered_mode_data Average data flush time per journal
+Average time flushing data (ordered mode) for all transactions since
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.logging Average logging time per journal
+Average time spent logging transactions for all transactions since
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.time.committing Average commit time per journal
+Average time spent committing transactions for all transactions since
+mount.  Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.blocks Average transaction blocks per journal
+Average number of blocks per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.blocks_logged Average logged blocks per journal
+Average number of blocks logged per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.average.handles Average handle count per journal
+Average number of handles used per transaction for all transactions.
+Exported directly from per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.waiting Total time waiting per journal
+Total time spent waiting for transactions to complete since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.request_delay Total request delay per journal
+Total request delay for all transactions to complete since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.running Total running time per journal
+Total transaction running time over all transactions since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.being_locked Total locked time per journal
+Total transaction locked time over all transactions since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.flushing_ordered_mode_data Total data flush time per journal
+Total time flushing data (ordered mode) for all transactions since
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.time.logging Total logging time per journal
+Total time spent logging transactions for all transactions since
+mount.  Derived from values in per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.blocks Total transaction blocks per journal
+Total number of blocks in all transactions since device mounted.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.blocks_logged Total logged blocks per journal
+Total number of blocks logged in all transactions since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.
+
+@ jbd2.transaction.total.handles Total handle count per journal
+Total count of handles used in all transactions since mount.
+Derived from values in the per-device /proc/fs/jbd2 info files.

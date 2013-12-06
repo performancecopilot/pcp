@@ -26,9 +26,9 @@
 #error !bozo!
 #endif
 
+#include "hash.h"
 #include "trace.h"
 #include "trace_dev.h"
-#include "trace_hash.h"
 
 static int	_pmtimedout = 1;
 static time_t	_pmttimeout = 0;
@@ -44,7 +44,7 @@ static __uint64_t _pmtraceid(void);
 int	__pmstate = PMTRACE_STATE_NONE;
 
 
-double
+static double
 __pmtracetvsub(const struct timeval *a, const struct timeval *b)
 {
     return (double)(a->tv_sec - b->tv_sec + (double)(a->tv_usec - b->tv_usec)/1000000.0);
@@ -88,7 +88,7 @@ _pmlibdel(void *entry)
 	free(data);
 }
 
-int			__pmfd = 0;
+static int		__pmfd;
 static __pmHashTable	_pmtable;
 
 #if defined(HAVE_PTHREAD_MUTEX_T)
@@ -815,14 +815,6 @@ _pmauxtraceconnect(void)
 	setitimer(ITIMER_REAL, &_pmolditimer, &_pmmyitimer);
     }
 #endif
-
-    if (rc < 0) {
-	if (sts == EINTR)
-	    sts = -ETIMEDOUT;
-	close(__pmfd);	/* safe for tracemoreinput(), as no PDUs yet */
-	__pmfd = -1;
-	return sts;
-    }
 
     _pmtimedout = 0;
 

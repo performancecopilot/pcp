@@ -51,6 +51,9 @@ _needclean=true
 
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
 
+myhost=`hostname`
+[ $PCP_VER -lt 3806 ] && myhost=`echo $myhost | sed -e 's/\..*//'`
+
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -65,8 +68,8 @@ _cleanup()
 	_needclean=false
     fi
     $sudo rm -f $tmp.*
-    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-one
-    $sudo rm -rf $LOGGING_DIR/`hostname | sed -e 's/\..*//'`-two
+    $sudo rm -rf $LOGGING_DIR/${myhost}-one
+    $sudo rm -rf $LOGGING_DIR/${myhost}-two
     $sudo rm -rf $LOGGING_DIR/no.such.host
     exit $status
 }
@@ -74,7 +77,7 @@ _cleanup()
 _filter()
 {
     sed \
-	-e "s/`hostname | sed -e 's/\..*//'`/LOCALHOST/g" \
+	-e "s/$myhost/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
 	-e "/USER.*PID/d" \
 	-e "s/.* pmlogger .*-c .*/<pmlogger process>/" \
@@ -103,8 +106,6 @@ LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
 no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
-
-myhost=`hostname | sed -e 's/\..*//'`
 
 # stop pmcd, create the archive directories, start pmcd ...
 #

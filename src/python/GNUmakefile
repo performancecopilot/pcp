@@ -20,13 +20,16 @@ CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
 LSRCFILES = setup.py
 LDIRDIRT = build dist
 LDIRT = build_python
+ifneq ($(CFLAGS_ABI),)
+ENV = CFLAGS=$(CFLAGS_ABI)
+endif
 
 default default_pcp: build_python
 
 ifneq "$(PYTHON)" ""
 build_python: setup.py $(CFILES)
-	$(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
-	$(PYTHON) setup.py build
+	$(ENV) $(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
+	$(ENV) $(PYTHON) setup.py build
 	touch build_python
 
 install_python: default

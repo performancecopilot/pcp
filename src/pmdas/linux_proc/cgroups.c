@@ -336,7 +336,8 @@ refresh_cgroup_subsys(pmInDom indom)
 {
     char buf[4096];
     char name[MAXPATHLEN];
-    int numcgroups, enabled, sts;
+    unsigned int numcgroups, enabled;
+    int sts;
     long *data;
     long hierarchy;
     FILE *fp;
@@ -348,7 +349,7 @@ refresh_cgroup_subsys(pmInDom indom)
 	/* skip lines starting with hash (header) */
 	if (buf[0] == '#')
 	    continue;
-	if (sscanf(buf, "%s %lu %u %u", &name[0],
+	if (sscanf(buf, "%s %ld %u %u", &name[0],
 			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);

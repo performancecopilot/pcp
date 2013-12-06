@@ -60,6 +60,7 @@ start_metric(pmID pmid)
 		snprintf(mess, sizeof(mess), "Metric %s: pmLookupDesc: %s", pmIDStr(pmid), pmErrStr(sts));
 		yywarn(mess);
 	    }
+	    free(name);
 	    return NULL;
 	}
 
@@ -109,9 +110,9 @@ _pmUnpackDesc(__pmPDU *pdubuf, pmDesc *desc, int *numnames, char ***names)
     pp = (desc_t *)pdubuf;
     desc->type = ntohl(pp->desc.type);
     desc->sem = ntohl(pp->desc.sem);
-    desc->indom = __ntohpmInDom(pp->desc.indom);
-    desc->units = __ntohpmUnits(pp->desc.units);
-    desc->pmid = __ntohpmID(pp->desc.pmid);
+    desc->indom = ntoh_pmInDom(pp->desc.indom);
+    desc->units = ntoh_pmUnits(pp->desc.units);
+    desc->pmid = ntoh_pmID(pp->desc.pmid);
     *numnames = ntohl(pp->numnames);
     *names = (char **)malloc(*numnames * sizeof(*names[1]));
     if (*names == NULL) {

@@ -5,18 +5,16 @@
 # Copyright (c) 2013, Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-_check_valgrind
-
 [ $PCP_VER -ge 3800 ] || _notrun "Installed libpcp_import lacks name checks"
-
-echo "QA output created by $seq"
+_check_valgrind
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

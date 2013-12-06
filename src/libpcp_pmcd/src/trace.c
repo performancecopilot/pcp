@@ -13,6 +13,7 @@
  * for more details.
  */
 
+#include <time.h>
 #include "pmcd.h"
 #include "config.h"
 #if HAVE_STATIC_PROBES
@@ -20,13 +21,6 @@
 #else
 #define PCP_PROBE_PMCD_PDU(type,who,p1,p2)
 #define PCP_PROBE_PMCD(type,who,p1,p2)
-#endif
-#ifdef IS_SOLARIS
-#define _REENTRANT
-#include <time.h>
-#undef _REENTRANT
-#else
-#include <time.h>
 #endif
 
 /*

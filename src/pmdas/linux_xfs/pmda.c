@@ -891,7 +891,8 @@ xfs_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
-static void 
+void 
+__PMDA_INIT_CALL
 xfs_init(pmdaInterface *dp)
 {
     if (dp->status != 0)
