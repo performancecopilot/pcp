@@ -1,17 +1,19 @@
 #!/bin/sh
 # PCP QA Test No. 750
-# Exercise the python collectl implementation
+# Exercise the RPM PMDA
 #
 # Copyright (c) 2012, 2013 Red Hat.
 #
+
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-echo "QA output created by $seq"
+which rpm >/dev/null 2>&1 || _notrun "rpm not installed"
 
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
@@ -35,6 +37,9 @@ canonicalize()
 	-e "s|\[[' /A-Za-z0-9\_\.\,\(\)\-]*\]|['/PATH/NAME', /PATH/NAME']|g"
 }
 
+# TODO: need to conditionally Install and Remove the PMDA (see test 348)
+#       currently we're assuming its already there.
+
 # real QA test starts here
 mkdir $tmp.$seq
 cd $tmp.$seq
@@ -46,13 +51,6 @@ pmval -s 1 rpm.description -i python | canonicalize | tee -a $tmp.out 2>&1
 pmval -s 1 rpm.dirnames -i python | canonicalize | tee -a $tmp.out 2>&1
 # pmval -s 1 rpm.distribution -i python | canonicalize | tee -a $tmp.out 2>&1
 pmval -s 1 rpm.evr -i python | canonicalize | tee -a $tmp.out 2>&1
-# pmval -s 1 rpm.file.class -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.linktos -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.md5s -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.modes -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.names -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.require -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.file.sizes -i python | canonicalize | tee -a $tmp.out 2>&1
 pmval -s 1 rpm.group -i python | canonicalize | tee -a $tmp.out 2>&1
 pmval -s 1 rpm.instfilenames -i python | canonicalize | tee -a $tmp.out 2>&1
 pmval -s 1 rpm.license -i python | canonicalize | tee -a $tmp.out 2>&1

@@ -28,93 +28,30 @@
 #
 
 @ rpm.arch package architecture
-Architecture of the package.
-
 @ rpm.basenames package basenames
-Basenames of the package.
-
+@ rpm.buildhost package build host
 @ rpm.buildtime package buildtime
-Buildtime of the package.
-
 @ rpm.description package description
-Description of the package.
-
 @ rpm.dirnames package dirnames
-Dirnames of the package.
-
 @ rpm.distribution package distribution
-Distribution of the package.
-
-@ rpm.evr package version
-Version of the package.
+@ rpm.evr package epoch-version-release number
+@ rpm.epoch package install epoch
+@ rpm.group group of the package
+@ rpm.installtime package install time
+@ rpm.license package license
+@ rpm.name name of the package
+@ rpm.obsoletes obsolete list of the package
+@ rpm.platform target package platform
+@ rpm.provides provide list of the package
+@ rpm.release release list of the package
+@ rpm.requires require list of the package
+@ rpm.size size of the package in bytes
+@ rpm.sourcerpm package source rpm
+@ rpm.summary summary of the package
+@ rpm.url url of the package
+@ rpm.version package version
 
 @ rpm.refresh.count Cumulative count of rpmdb scans performed
 @ rpm.refresh.time.user Cumulative count of user mode scan time
 @ rpm.refresh.time.kernel Cumulative count of kernel mode scan time
 @ rpm.refresh.time.elapsed Cumulative count of elapsed scan time
-@ rpm.file.class package file class
-File class of the package
-
-@ rpm.file.linktos Package file linktos
-File linktos of the package.
-
-@ rpm.file.md5s Package file Md5s
-File md5s of the package.
-
-@ rpm.file.modes Package file modes
-File modes of the package.
-
-@ rpm.file.names Package file names
-File names of the package.
-
-@ rpm.file.require Package file requires
-File requires of the package.
-
-@ rpm.file.sizes Package file sizes
-File sizes of the package.
-
-@ rpm.group package group
-Group of the package.
-
-@ rpm.instfilenames package install filenames
-Install filenames of the package.
-
-@ rpm.license package license
-License of the package.
-
-@ rpm.list package list
-File namelist of the package.
-
-@ rpm.name package name
-Name of the package.
-
-@ rpm.obsoletes package obsoletes
-Obsolete list of the package.
-
-@ rpm.platform package platform
-Platform of the package.
-
-@ rpm.provides package provides
-Provide list of the package.
-
-@ rpm.release package release
-Release list of the package.
-
-@ rpm.requires package requires
-Require list of the package.
-
-@ rpm.size package size
-Size of the package.
-
-@ rpm.sourcerpm package source rpm
-Source rpm of the package.
-
-@ rpm.summary package summary
-Summary of the package.
-
-@ rpm.url package url
-Url of the package.
-
-@ rpm.version package version
-Version of the package.
-
