@@ -12,6 +12,7 @@
  * for more details.
  */
 
+
 #include "pmmgr.h"
 #include "impl.h"
 
@@ -20,9 +21,23 @@
 #include <fstream>
 #include <iostream>
 
+extern "C" {
+#include <glob.h>
+#include <sys/wait.h>
+}
+
 
 using namespace std;
 
+
+// ------------------------------------------------------------------------
+
+
+#ifdef IS_MINGW /* ie. not posix */
+#error "posix required"
+so is #error
+// since we use fork / glob / etc.
+#endif
 
 
 // ------------------------------------------------------------------------
@@ -504,6 +519,94 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       pmlogger_options += " -c " + pmlogconf_output_file;
     }
 
+  // collect -h direction
+  pmlogger_options += " -h " + string(spec);
+
+  // collect subsidiary pmlogger diagnostics
+  pmlogger_options += " -l " + host_log_dir + (char)__pmPathSeparator() + "pmlogger.log";
+
+  // do log merging
+  if (get_config_exists ("pmlogmerge"))
+    {
+      string pmlogextract_options = 
+        string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogextract";
+
+      string retention = get_config_single ("pmlogmerge-retain");
+      if (retention == "") retention = "14days";
+      pmlogextract_options += " -S -" + retention;
+
+      // Arrange our new pmlogger to kill itself after the given
+      // period, to give us a chance to rerun.
+      string period = get_config_single ("pmlogmerge");
+      if (period == "") period = "24hours";
+      pmlogger_options += " -s " + period;
+      
+      // Find prior archives by globbing for *.index files, 
+      // just like pmlogger_merge does
+      vector<string> old_archives;
+      glob_t the_blob;
+      string glob_pattern = host_log_dir + (char)__pmPathSeparator() + "*.index";
+      int rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
+      if (rc == 0)
+        {
+          for (unsigned i=0; i<the_blob.gl_pathc; i++)
+            {
+              string index_name = the_blob.gl_pathv[i];
+              string base_name = index_name.substr(0,index_name.length()-6); // trim .index
+              old_archives.push_back (base_name);
+            }
+          globfree (& the_blob);
+        }
+
+      string timestr = "merged-archive";
+      time_t now2 = time(NULL);
+      struct tm *now = gmtime(& now2);
+      if (now != NULL)
+        {
+          char timestr2[100];
+          int rc = strftime(timestr2, sizeof(timestr2), "-%Y%m%d.%H%M%S", now);
+          if (rc > 0)
+            timestr += timestr2;
+        }
+      string merged_archive_name = host_log_dir + (char)__pmPathSeparator() + timestr;
+
+      if (old_archives.size() > 1) // 1 or 0 are not worth merging!
+        {
+          // assemble final bits of pmlogextract command line: the inputs and the output
+          for (unsigned i=0; i<old_archives.size(); i++)
+            pmlogextract_options += " " + old_archives[i];
+
+          pmlogextract_options += " " + merged_archive_name;
+
+          if (pmDebug & DBG_TRACE_APPL0)
+            cerr << "running " << pmlogextract_options << endl;
+
+          rc = system(pmlogextract_options.c_str());
+          if (rc != 0) 
+            // will try again later
+            cerr << "system(" << pmlogextract_options << ") failed: rc=" << rc << endl;
+          else
+            {
+              // zap the previous archive files 
+              for (unsigned i=0; i<old_archives.size(); i++)
+                {
+                  string base_name = old_archives[i];
+                  string cleanup_cmd = string("/bin/rm -f")
+                    + " " + base_name + ".[0-9]*"
+                    + " " + base_name + ".index" + 
+                    + " " + base_name + ".meta";
+
+                  if (pmDebug & DBG_TRACE_APPL0)
+                    cerr << "running " << cleanup_cmd << endl;
+
+                  rc = system(cleanup_cmd.c_str());
+                  if (rc != 0) 
+                    cerr << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+                }
+            }
+        }
+    }
+  
   // synthesize a logfile name similarly as pmlogger_check, but add %S (seconds)
   // to reduce likelihood of conflict with a short poll interval
   string timestr = "archive";
@@ -516,15 +619,10 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       if (rc > 0)
         timestr += timestr2;
     }
-
-  // collect -h direction
-  pmlogger_options += " -h " + string(spec);
-
-  // collect subsidiary pmlogger diagnostics
-  pmlogger_options += " -l " + host_log_dir + (char)__pmPathSeparator() + "pmlogger.log";
-
   string pmlogger_logfile = host_log_dir + (char)__pmPathSeparator() + timestr;
-  pmlogger_options += " " + pmlogger_logfile; // last argument
+
+  // last argument
+  pmlogger_options += " " + pmlogger_logfile; 
 
   return pmlogger_options;
 }
@@ -595,6 +693,7 @@ void handle_interrupt (int sig)
       char msg[] = "Too many interrupts received, exiting.\n";
       int rc = write (2, msg, sizeof(msg)-1);
       if (rc) {/* Do nothing; we don't care if our last gasp went out. */ ;}
+      // XXX: send a suicide signal to the process group?
       _exit (1);
     }
 }
@@ -701,6 +800,16 @@ int main (int argc, char *argv[])
 
   while (! quit)
     {
+      // Absorb any zombie child processes, which a subsequent poll may look for.
+      // NB: don't tweak signal(SIGCHLD...) due to interference with system(3).
+      while (1)
+        {
+          int ignored;
+          int rc = waitpid ((pid_t) -1, &ignored, WNOHANG);
+          if (rc <= 0)
+            break;
+        }
+
       for (unsigned i=0; i<js.size(); i++)
         try
           {
@@ -715,4 +824,7 @@ int main (int argc, char *argv[])
 
   for (unsigned i=0; i<js.size(); i++)
     delete js[i];
+
+  // XXX: send a suicide signal to the process group?
+  return 0;
 }
