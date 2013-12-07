@@ -128,7 +128,8 @@ public:
   void poll(); // check targets, daemons
 
 private:
-  std::vector<pmMetricSpec*> hostid_metrics;
+  std::map<std::string,pmMetricSpec*> parsed_metric_cache;
+  pmMetricSpec* parse_metric_spec(const std::string&);
 
   pmmgr_hostid compute_hostid (const pcp_context_spec&);
   std::map<pmmgr_hostid,pcp_context_spec> known_targets;

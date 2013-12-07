@@ -117,6 +117,30 @@ operator << (std::ostream& o, const pmmgr_exception& e)
 // ------------------------------------------------------------------------
 
 
+pmMetricSpec*
+pmmgr_job_spec::parse_metric_spec (const string& spec)
+{
+  if (parsed_metric_cache.find(spec) != parsed_metric_cache.end())
+    return parsed_metric_cache[spec];
+
+  const char* specstr =  spec.c_str();
+  pmMetricSpec* pms = 0;
+  char *errmsg;
+  char dummy_host[] = "";
+  int rc = pmParseMetricSpec (specstr,
+                              0, dummy_host, /* both ignored */
+                              & pms, & errmsg);
+  if (rc < 0) {
+    string errmsg2 = errmsg;
+    cerr << "hostid-metrics parse error: " << errmsg << endl;
+    free (errmsg);
+  }
+
+  parsed_metric_cache[spec] = pms;
+  return pms;
+}
+
+
 pmmgr_hostid
 pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 {
@@ -124,12 +148,16 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
   if (pmc < 0)
     return "";
 
-  // fetch all hostid metrics in sequence; they've already been
-  // fed to pmParseMetricSpec().
+  // parse all the hostid metric specifications
+  vector<string> hostid_specs = get_config_multi("hostid-metrics");
+  if (hostid_specs.size() == 0)
+    hostid_specs.push_back(string("pmcd.hostname"));
+
+  // fetch all hostid metrics in sequence
   vector<string> hostid_fields;
-  for (unsigned i=0; i<hostid_metrics.size(); i++)
+  for (unsigned i=0; i<hostid_specs.size(); i++)
     {
-      pmMetricSpec* pms = hostid_metrics[i];
+      pmMetricSpec* pms = parse_metric_spec (hostid_specs[i]);
 
       pmID pmid;
       int rc = pmLookupName (1, & pms->metric, &pmid);
@@ -203,7 +231,6 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 
   (void) pmDestroyContext (pmc);
 
-
   // Sanitize the host-id metric values into a single string that is
   // suitable for posix-portable-filenames, and not too ugly for
   // someone to look at or type in.
@@ -237,47 +264,19 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 pmmgr_job_spec::pmmgr_job_spec(const std::string& config_directory):
   pmmgr_configurable(config_directory)
 {
-  vector<string> hostid_specs = get_config_multi("hostid-metrics");
-  if (hostid_specs.size() == 0)
-    hostid_specs.push_back(string("pmcd.hostname"));
-
-  for (unsigned i=0; i<hostid_specs.size(); i++)
-    {
-      const char* spec = hostid_specs[i].c_str();
-      pmMetricSpec* pms;
-      char *errmsg;
-      char dummy_host[] = "";
-      int rc = pmParseMetricSpec (spec,
-                                  0, dummy_host, /* both ignored */
-                                  & pms, & errmsg);
-      if (rc < 0) {
-        string errmsg2 = errmsg;
-        free (errmsg);
-        // we can't parse the metric expression: FAIL
-        throw pmmgr_exception (rc, errmsg2);
-      }
-
-      hostid_metrics.push_back (pms);
-    }
-
-  // check for compulsory configuration
-  vector<string> target_host = get_config_multi("target-host");
-  vector<string> target_discovery = get_config_multi("target-discovery");
-  if (target_host.size() == 0 &&
-      target_discovery.size() == 0)
-    throw pmmgr_exception (-ENOENT, string("empty target-* files in ") + config_directory);
-
-  // We don't actually have to do any other configuration parsing at
-  // this time.  Let's do it during poll(), which makes us more
-  // responsive to run-time changes anyway.
+  // We don't actually have to do any configuration parsing at this
+  // time.  Let's do it during poll(), which makes us more responsive
+  // to run-time changes.
 }
 
 
 pmmgr_job_spec::~pmmgr_job_spec()
 {
-  // free the pmMetricSpec's allocated in the ctor
-  for (unsigned i=0; i<hostid_metrics.size(); i++)  
-    free(hostid_metrics[i]); // aka pmFreeMetricSpec
+  // free any cached pmMetricSpec's
+  for (map<string,pmMetricSpec*>::iterator it = parsed_metric_cache.begin();
+       it != parsed_metric_cache.end();
+       it++)
+    free (it->second); // aka pmFreeMetricSpec
 
   // kill all our daemons created during poll()
   for (map<pmmgr_hostid,pcp_context_spec>::iterator it = known_targets.begin();
@@ -313,6 +312,11 @@ pmmgr_job_spec::poll()
       free ((void*) urls);
 #endif
     }
+
+  // fallback to logging the local server, if nothing else is configured/discovered
+  if (target_hosts.size() == 0 &&
+      target_discovery.size() == 0)
+    new_specs.insert("local:");
 
   // phase 2: move previously-identified targets over, so we can tell who
   // has come or gone
