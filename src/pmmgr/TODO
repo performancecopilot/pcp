@@ -1,0 +1,6 @@
+- rc file
+- man page
+- switch from system() to execve() to avoid having to quote incidental paths
+- test buildability on non-linux
+- port to mingw?
+- more standard error handling / stderr redirection
