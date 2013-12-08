@@ -492,6 +492,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
     string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
+  // XXX: sanitize log_dir
+
   (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
 
   string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
@@ -639,6 +641,8 @@ pmmgr_pmie_daemon::daemon_command_line()
     string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
   string log_dir = get_config_single ("log-directory");
   if (log_dir == "") log_dir = default_log_dir;
+  // XXX: sanitize log_dir
+
   (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
 
   string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
