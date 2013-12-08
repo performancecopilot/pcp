@@ -899,7 +899,7 @@ write_metareclist(pmResult *result, int *needti)
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
-	    if (othr_indom != NULL && othr_indom->written != WRITTEN) {
+	    if (othr_indom != NULL && othr_indom->pdu != NULL && othr_indom->written != WRITTEN) {
 		othr_indom->written = MARK_FOR_WRITE;
 		othr_indom->pdu[2] = htonl(this->tv_sec);
 		othr_indom->pdu[3] = htonl(this->tv_usec);
