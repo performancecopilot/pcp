@@ -212,7 +212,7 @@ _pmUnpackInDom(__pmPDU *pdubuf, pmInDom *indom, __pmTimeval *tp, int *numinst, i
 
     tp->tv_sec = ntohl(idp->stamp.tv_sec);
     tp->tv_usec = ntohl(idp->stamp.tv_usec);
-    *indom = __ntohpmInDom(idp->indom);
+    *indom = ntoh_pmInDom(idp->indom);
     *numinst = ntohl(idp->numinst);
     *instlist = (int *)malloc(*numinst * sizeof(int));
     if (*instlist == NULL) {

@@ -1,6 +1,3 @@
-#ifndef _PMDA_H
-#define _PMDA_H
-
 /*
  * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
@@ -15,6 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#ifndef _PMDA_H
+#define _PMDA_H
 
 #include <stdarg.h>
 
@@ -261,7 +260,7 @@ typedef struct {
 extern __pmDSO *__pmLookupDSO(int /*domain*/);
 
 /* Macro that can be used to create each metrics' PMID. */
-#define PMDA_PMID(x,y) 	((x<<10)|y)
+#define PMDA_PMID(x,y) 	(((x)<<10)|(y))
 
 /* macro for pmUnits bitmap in a pmDesc declaration */
 #ifdef HAVE_BITFIELDS_LTOR

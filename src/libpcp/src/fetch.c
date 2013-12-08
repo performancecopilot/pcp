@@ -49,6 +49,20 @@ request_fetch(int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
 }
 
 int
+__pmPrepareFetch(__pmContext *ctxp, int numpmid, const pmID *ids, pmID **newids)
+{
+    return __dmprefetch(ctxp, numpmid, ids, newids);
+}
+
+int
+__pmFinishResult(__pmContext *ctxp, int count, pmResult **resultp)
+{
+    if (count >= 0)
+	__dmpostfetch(ctxp, resultp);
+    return count;
+}
+
+int
 pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 {
     int		n;
@@ -76,7 +90,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 	}
 
 	/* for derived metrics, may need to rewrite the pmidlist */
-	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+	have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
 	if (newcnt > numpmid) {
 	    /* replace args passed into pmFetch */
 	    numpmid = newcnt;
@@ -143,8 +157,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 
 	/* process derived metrics, if any */
 	if (have_dm) {
-	    if (n >= 0)
-		__dmpostfetch(ctxp, result);
+	    __pmFinishResult(ctxp, n, result);
 	    if (newlist != NULL)
 		free(newlist);
 	}

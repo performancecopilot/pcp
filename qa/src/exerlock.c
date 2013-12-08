@@ -4,8 +4,6 @@
  * exercise low-level libpcp locking primitives
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -15,7 +13,6 @@ timeout(int i, void *j)
   fprintf(stderr, "Timeout!\n");
   exit(2);
 }
-
 
 static void
 _usage()
@@ -34,6 +31,9 @@ main(int argc, char **argv)
     if (argc != 2) _usage();
 
     __pmAFregister(&delta, NULL, timeout);
+#ifdef DBG_TRACE_DESPERATE
+    pmDebug |= DBG_TRACE_DESPERATE;
+#endif
 
     for (p = argv[1]; *p; p++) {
 	switch (*p) {

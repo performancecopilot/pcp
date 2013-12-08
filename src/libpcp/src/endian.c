@@ -24,6 +24,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
 #ifndef __htonpmUnits
 pmUnits

@@ -28,10 +28,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c
-
 HFILES = derive.h internal.h
+VERSION_SCRIPT = exports
 
-LSRCFILES = check-statics
+LSRCFILES = check-statics $(VERSION_SCRIPT)
 
 ifeq "$(ENABLE_SECURE)" "true"
 LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
@@ -107,13 +107,9 @@ endif
 
 include $(BUILDRULES)
 
+*.o: internal.h
 derive.o derive_fetch.o: derive.h
-
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
-
-auxserver.o auxconnect.o: internal.h
-secureserver.o secureconnect.o: internal.h
-access.o accounts.o context.o derive.o fetch.o lock.o: internal.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
@@ -126,15 +122,15 @@ kernel_pmda_dso	= $(TARGET_OS)
 endif
 
 install : default
-ifneq "$(LIBTARGET)" ""
+ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
 	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
-ifneq "$(STATICLIBTARGET)" ""
+ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
@@ -153,3 +149,7 @@ $(TOPDIR)/src/pmns/stdpmid:
 check.done:	$(OBJECTS)
 	./check-statics
 	touch check.done
+
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
+endif

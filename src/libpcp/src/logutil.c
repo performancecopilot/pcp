@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 #if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
 #endif

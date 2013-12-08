@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,14 +16,23 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
-#ifdef PM_MULTI_THREAD_DEBUG
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
-#endif
+
+#ifdef PM_MULTI_THREAD
+typedef struct {
+    void	*lock;
+    int		count;
+} lockdbg_t;
+
+#define PM_LOCK_OP	1
+#define PM_UNLOCK_OP	2
+
+static int		multi_init[PM_SCOPE_MAX+1];
+static pthread_t	multi_seen[PM_SCOPE_MAX+1];
 
 /* the big libpcp lock */
-#ifdef PM_MULTI_THREAD
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #else
@@ -38,12 +48,10 @@ __pmTPD__destroy(void *addr)
 }
 #endif
 #endif
-#endif
 
 void
 __pmInitLocks(void)
 {
-#ifdef PM_MULTI_THREAD
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
     static int			done = 0;
     int				psts;
@@ -107,19 +115,12 @@ __pmInitLocks(void)
 	tpd->curcontext = PM_CONTEXT_UNDEF;
     }
 #endif
-#endif
 }
-
-#ifdef PM_MULTI_THREAD
-static int		multi_init[PM_SCOPE_MAX+1];
-static pthread_t	multi_seen[PM_SCOPE_MAX+1];
-#endif
 
 int
 __pmMultiThreaded(int scope)
 {
-#ifdef PM_MULTI_THREAD
-    int			sts = 0;
+    int		sts = 0;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -133,23 +134,11 @@ __pmMultiThreaded(int scope)
     }
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
-#else
-    return 0;
-#endif
 }
 
-#ifdef PM_MULTI_THREAD
 #ifdef PM_MULTI_THREAD_DEBUG
-extern int __pmIsContextLock(void *);
-extern int __pmIsChannelLock(void *);
-extern int __pmIsDeriveLock(void *);
-
-typedef struct {
-    void	*lock;
-    int		count;
-} lockdbg_t;
-
-void __pmDebugLock(int op, void *lock, char *file, int line)
+static void
+__pmDebugLock(int op, void *lock, const char *file, int line)
 {
     int			report = 0;
     int			ctx;
@@ -171,7 +160,7 @@ void __pmDebugLock(int op, void *lock, char *file, int line)
 	if ((pmDebug & DBG_TRACE_APPL2) | ((pmDebug & (DBG_TRACE_APPL0 | DBG_TRACE_APPL1 | DBG_TRACE_APPL2)) == 0))
 	    report = DBG_TRACE_APPL2;
     }
-    
+
     if (report) {
 	fprintf(stderr, "%s:%d %s", file, line, op == PM_LOCK_OP ? "lock" : "unlock");
 	try = 0;
@@ -249,5 +238,46 @@ again:
 #endif
     }
 }
+#else
+#define __pmDebugLock(op, lock, file, line) do { } while (0)
 #endif
+
+int
+__pmLock(void *lock, const char *file, int line)
+{
+    int		sts;
+
+    if (pmDebug & DBG_TRACE_LOCK)
+	__pmDebugLock(PM_LOCK_OP, lock, file, line);
+
+    if ((sts = pthread_mutex_lock(lock)) != 0) {
+	sts = -sts;
+	if (pmDebug & DBG_TRACE_DESPERATE)
+	    fprintf(stderr, "%s:%d: lock failed: %s\n", file, line, pmErrStr(sts));
+    }
+    return sts;
+}
+
+int
+__pmUnlock(void *lock, const char *file, int line)
+{
+    int		sts; 
+
+    if (pmDebug & DBG_TRACE_LOCK)
+	__pmDebugLock(PM_UNLOCK_OP, lock, file, line);
+
+    if ((sts = pthread_mutex_unlock(lock)) != 0) {
+	sts = -sts;
+	if (pmDebug & DBG_TRACE_DESPERATE)
+	    fprintf(stderr, "%s:%d: unlock failed: %s\n", file, line, pmErrStr(sts));
+    }
+    return sts;
+}
+
+#else /* !PM_MULTI_THREAD - symbols exposed at the shlib ABI level */
+void *__pmLock_libpcp;
+void __pmInitLocks(void) { }
+int __pmMultiThreaded(int scope) { (void)scope; return 0; }
+int __pmLock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
+int __pmUnlock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
 #endif
