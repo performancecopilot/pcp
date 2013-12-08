@@ -528,6 +528,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   // collect -h direction
   pmlogger_options += " -h " + string(spec);
 
+  // hard-code -r to report metrics & expected disk usage rate
+  pmlogger_options += " -r";
+
   // collect subsidiary pmlogger diagnostics
   pmlogger_options += " -l " + host_log_dir + (char)__pmPathSeparator() + "pmlogger.log";
 
