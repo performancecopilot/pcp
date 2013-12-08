@@ -43,3 +43,8 @@ lex.o gram.tab.o:	gram.tab.h
 default_pcp:	default
 
 install_pcp:	install
+
+gram.tab.o:	logger.h
+lex.o:		logger.h
+metriclist.o:	logger.h
+pmlogextract.o:	logger.h
