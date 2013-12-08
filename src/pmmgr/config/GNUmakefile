@@ -15,32 +15,26 @@
 
 LLDIRT =
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILE=TODO
+LSRCFILES = hostid-metrics.default log-directory.default pmie		\
+	 pmieconf pmlogconf pmlogger pmlogmerge.default			\
+	 pmlogmerge-retain.default README target-discover.default	\
+	 target-host.default
 
-SUBDIRS = config
-# ... but only built on posix platforms with a c++ compiler
-ifneq ($(TARGET_OS),mingw)
-ifneq ($(CXX),"")
-SUBDIRS += src
-endif
-endif
+PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 
-LSRCFILES =
+default:
 
-default : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+install:
+	$(INSTALL) -m 755 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PMMGR_SYSCONF_DIR)
+	for file in $(LSRCFILES); do \
+	 	$(INSTALL) -m 644 -o $(PCP_USER) -g $(PCP_GROUP) $$file $(PMMGR_SYSCONF_DIR)/$$file; \
+	done
 
-install :: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-clean :: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+clean:
 
 default_pcp : default
 
 install_pcp : install
-
-# Hey, does anyone have a spare vowel?
