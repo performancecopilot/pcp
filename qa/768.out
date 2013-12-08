@@ -1,0 +1,47 @@
+QA output created by 768
+Note: timezone set to "TZ=UTC"
+
+Note: timezone set to "TZ=UTC"
+
+Log Label (Log Format Version 2)
+Performance metrics from host k05n26
+  commencing Wed Nov 27 15:52:44.652 2013
+  ending     Wed Nov 27 15:54:14.652 2013
+
+Descriptions for Metrics in the Log ...
+PMID: 3.8.0 (proc.psinfo.pid)
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 3.9
+15:52:44.652 2 instances
+                 1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"
+                 1516 or "001516 /usr/bin/python /ifs/user/tyearke/test/wait.py"
+15:53:14.653 2 instances
+                 1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"
+                 1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+15:52:44.652       0          132          132
+15:53:14.653       0          350          180
+15:54:14.652       0          513          276
+
+[48 bytes]
+15:52:44.652  3.8.0 (proc.psinfo.pid):
+                inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
+                inst [1516 or "001516 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1516
+
+[48 bytes]
+15:53:14.653  3.8.0 (proc.psinfo.pid):
+                inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
+                inst [1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1533
+
+[48 bytes]
+15:53:44.652  3.8.0 (proc.psinfo.pid):
+                inst [1472 or "001472 /usr/bin/python /ifs/user/tyearke/test/./wait_launcher.py"] value 1472
+                inst [1533 or "001533 /usr/bin/python /ifs/user/tyearke/test/wait.py"] value 1533
+
+[28 bytes]
+15:54:14.652  3.8.0 (proc.psinfo.pid): No values returned!
