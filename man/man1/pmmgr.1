@@ -35,8 +35,8 @@ the older
 .IR pmlogger_* " and " pmie_*
 check/daily management shell scripts.
 .P
-pmmgr is largely self-configuring and perserveres despite most run-time
-errors.  pmmgr runs in the foreground until interrupted.  When signalled,
+pmmgr is largely self-configuring and perseveres despite most run-time
+errors.  pmmgr runs in the foreground until interrupted.  When signaled,
 it will stop its running daemons before exiting.
 .P
 A description of the command line options specific to
@@ -97,7 +97,7 @@ they don't, you should add other pcp metric specifications to set them apart
 at your site.  The more you add, the longer the host-id string, but the more
 likely that accidental duplication is prevented.  
 
-However, it may be desirablefor a host-id to also be
+However, it may be desirable for a host-id to also be
 .IR persistent ,
 so that if the target host goes offline and later returns, the new
 host-id matches the previous one, because then old and new histories can be joined.
@@ -127,13 +127,13 @@ man page.  Each poll interval, pmmgr will attempt to make a brief
 .IR pmNewContext
 connection to the host to check liveness.  It is not a problem if more than
 one specification for the same host is listed, because the host-id processing
-eliminates duplicates, and chooses an arbitrary specification amongst them. 
+eliminates duplicates, and chooses an arbitrary specification among them. 
 The default is to target pmcd at
 .BR local: .
 
 .TP
 target\-discovery
-This file contains oen or more lines containing specifications for the
+This file contains one or more lines containing specifications for the
 .IR pmDiscoverService
 PMAPI call, each of which may map onto a fluctuating set of local or remote
 pmcd servers.  Each poll interval, pmmgr will attempt to rerun discovery with
@@ -165,7 +165,7 @@ If and only if this file exists, pmmgr will run
 .IR pmlogconf
 to generate a configuration
 file for each target pmcd.  The file contains one line of space-separated additional 
-options for the pmieconf program.  pmlogconf generated output file will be stored under
+options for the pmlogconf program.  pmlogconf's generated output file will be stored under
 the log\-directory/hostid subdirectory.  (pmmgr already adds \-c, \-r, and \-h.)  The
 default is 
 .BR "no pmlogconf" ,
@@ -240,7 +240,7 @@ default logging directory
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
-are used to parameterize the file and directory names
+are used to parametrize the file and directory names
 used by PCP.
 On each installation, the file
 .I /etc/pcp.conf
@@ -258,7 +258,7 @@ as described in
 .BR pmcd (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
-.BR pmieonf (1),
+.BR pmieconf (1),
 .BR pmie (1),
 .BR pmlogreduce (1),
 .BR pcp.conf (5)
