@@ -18,7 +18,7 @@ LLDIRT =
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILE=TODO
+LSRCFILES=TODO
 
 SUBDIRS = config
 # ... but only built on posix platforms with a c++ compiler
@@ -28,10 +28,10 @@ SUBDIRS += src
 endif
 endif
 
-LSRCFILES =
-
 default : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+include $(BUILDRULES)
 
 install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

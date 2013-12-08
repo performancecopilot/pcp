@@ -27,13 +27,13 @@ PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 
 default:
 
+include $(BUILDRULES)
+
 install:
 	$(INSTALL) -m 755 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PMMGR_SYSCONF_DIR)
 	for file in $(LSRCFILES); do \
 	 	$(INSTALL) -m 644 -o $(PCP_USER) -g $(PCP_GROUP) $$file $(PMMGR_SYSCONF_DIR)/$$file; \
 	done
-
-clean:
 
 default_pcp : default
 
