@@ -2279,6 +2279,19 @@ dnl AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmic
 AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
 LIBS=$savedLIBS
 
+dnl Do you have RPM Package Manager libraries for pmdarpm?
+savedLIBS=$LIBS
+AC_MSG_CHECKING([for rpmlib])
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <rpm/rpmlib.h>]],
+                    [[(void)RPMTAG_ARCH;]])],
+   [AC_MSG_RESULT([yes])
+    have_rpmlib=1],
+   [AC_MSG_RESULT([no])
+    have_rpmlib=0])
+AC_SUBST(HAVE_RPMLIB,[$have_rpmlib])
+LIBS=$savedLIBS
+
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)
 
