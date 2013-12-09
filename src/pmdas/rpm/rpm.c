@@ -1,5 +1,5 @@
 /*
- * RPM PMDA
+ * RPM Package Manager PMDA
  *
  * Copyright (c) 2013 Red Hat.
  * 
@@ -28,15 +28,19 @@
 #include "domain.h"
 #include "timer.h"
 
-// List of metrics corresponding to rpm --querytags
-
-// corresponds to metrictab to give the tag rpm uses to fetch the given
-// value
-
+/*
+ * Metrics describing internals of pmdarpm operation  (Cluster 0)
+ */
 #define REFRESH_COUNT_IDX 0
 #define REFRESH_TIME_USER_IDX 1
 #define REFRESH_TIME_KERNEL_IDX 2
 #define REFRESH_TIME_ELAPSED_IDX 3
+#define DATASIZE_IDX 4
+
+/*
+ * List of metrics corresponding to rpm --querytags  (Cluster 1)
+ * corresponds to metrictab to give the tag rpm uses to fetch the given value
+ */
 #define RPMTAG_ARCH_IDX 0
 #define RPMTAG_BUILDHOST_IDX 1
 #define RPMTAG_BUILDTIME_IDX 2
@@ -81,18 +85,24 @@ static struct metrics {
 #define METRICTAB_ENTRY(M,N,T) (&metrics[N].tag), { PMDA_PMID (M, N), T, 0, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 static pmdaMetric metrictab[] = {
-    {NULL,
-     {PMDA_PMID(0, REFRESH_COUNT_IDX), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)},},
-    {NULL,
-     {PMDA_PMID(0, REFRESH_TIME_USER_IDX), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)},},
-    {NULL,
-     {PMDA_PMID(0, REFRESH_TIME_KERNEL_IDX), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)},},
-    {NULL,
-     {PMDA_PMID(0, REFRESH_TIME_ELAPSED_IDX), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)},},
+    { NULL, {PMDA_PMID(0, REFRESH_COUNT_IDX),
+      PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)} },
+    { NULL, {PMDA_PMID(0, REFRESH_TIME_USER_IDX),
+      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
+    { NULL, {PMDA_PMID(0, REFRESH_TIME_KERNEL_IDX),
+      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
+    { NULL, {PMDA_PMID(0, REFRESH_TIME_ELAPSED_IDX),
+      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
+    { NULL, {PMDA_PMID(0, REFRESH_TIME_ELAPSED_IDX),
+      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
+    { NULL, {PMDA_PMID(0, DATASIZE_IDX),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)} },
     {METRICTAB_ENTRY (1, RPMTAG_ARCH_IDX, PM_TYPE_STRING)},
     {METRICTAB_ENTRY (1, RPMTAG_BUILDHOST_IDX, PM_TYPE_STRING)},
     {METRICTAB_ENTRY (1, RPMTAG_BUILDTIME_IDX, PM_TYPE_U32)},
@@ -163,6 +173,8 @@ rpm_fetchCallBack(pmdaMetric * mdesc, unsigned int inst,
     cache_entry *this_cache_entry;
 
     if (idp->cluster == 0) {
+	unsigned long	datasize;
+
 	sts = PMDA_FETCH_STATIC;
 	pthread_mutex_lock(&indom_mutex);
 	switch (idp->item) {
@@ -177,6 +189,10 @@ rpm_fetchCallBack(pmdaMetric * mdesc, unsigned int inst,
 	    break;
 	case REFRESH_TIME_ELAPSED_IDX:	/* rpm.refresh.time.elapsed */
 	    atom->d = get_elapsed_timer();
+	    break;
+	case DATASIZE_IDX:		/* rpm.datasize */
+	    __pmProcessDataSize(&datasize);
+	    atom->ul = datasize;
 	    break;
 	default:
 	    sts = PM_ERR_PMID;
