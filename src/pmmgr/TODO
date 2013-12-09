@@ -1,7 +1,6 @@
-- rc file
 - switch from system() to execve() ... or else having to quote incidental paths
 - test buildability on non-linux
 - qa
 - port to mingw?
-- more standard error handling / stderr redirection
+- more standard error handling
 - pmlogger/pmie .log rotation
