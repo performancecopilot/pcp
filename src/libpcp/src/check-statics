@@ -108,6 +108,8 @@ discovery.o
     b threadedPoll		# single-threaded server scope
     b client			# single-threaded server scope
     b group			# single-threaded server scope
+    b done_default		# guarded by __pmLock_libpcp mutex
+    b def_timeout		# guarded by __pmLock_libpcp mutex
 checksum.o
 config.o
     [SDR] ?__pmNativeConfig	# const

@@ -19,6 +19,6 @@ typedef struct __pmServerPresence __pmServerPresence;
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 
-int __pmAvahiDiscoverServices(char ***, const char *) _PCP_HIDDEN;
+int __pmAvahiDiscoverServices(const char *, int, char ***) _PCP_HIDDEN;
 
 #endif /* AVAHI_H */

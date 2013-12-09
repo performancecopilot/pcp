@@ -32,7 +32,6 @@ static int	type;
 static char	*hostname;
 static char	*pmnsfile = PM_NS_DEFAULT;
 static int	dupok = 0;
-static int	discover_pmcd = 0;
 
 static char	**namelist;
 static pmID	*pmidlist;
@@ -456,7 +455,6 @@ Options:\n\
   -n pmnsfile 	use an alternative PMNS\n\
   -N pmnsfile 	use an alternative PMNS (duplicate PMIDs are allowed)\n\
   -O time	origin for a fetch from the archive\n\
-  -p		discover local pmcd servers\n\
   -t		get and display (terse) oneline text\n\
   -T		get and display (verbose) help text\n\
   -v		verify mode, be quiet and only report errors\n\
@@ -475,7 +473,7 @@ ParseOptions(int argc, char *argv[])
     int		errflag = 0;
     char	*endnum;
     char	*errmsg;
-    char	*opts = "a:b:c:dD:Ffh:K:LMmN:n:O:ptTvxzZ:?";
+    char	*opts = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvxzZ:?";
 
     while ((c = getopt(argc, argv, opts)) != EOF) {
 	switch (c) {
@@ -582,10 +580,6 @@ ParseOptions(int argc, char *argv[])
 
 	    case 'O':		/* sample origin */
 		Oflag = optarg;
-		break;
-
-	    case 'p':
-		discover_pmcd = 1;
 		break;
 
 	    case 'T':
@@ -766,21 +760,6 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: %s", pmProgname, msg);
 		exit(1);
 	    }
-	}
-    }
-
-    if (discover_pmcd) {
-	char **urls;
-	if ((sts = __pmDiscoverServices(&urls, SERVER_SERVICE_SPEC, NULL)) == 0) {
-	    if (urls != NULL) {
-		char **p;
-		printf("Local PMCD servers:\n");
-		for (p = urls; *p != NULL; ++p)
-		    printf("  %s\n", *p);
-		__pmServiceListFree(urls);
-	    }
-	    else
-		printf("No local PMCD servers found\n");
 	}
     }
 

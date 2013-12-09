@@ -455,8 +455,9 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 /* Support for clients searching for services. */
 typedef struct browsingContext {
     AvahiSimplePoll	*simplePoll;
-    AvahiClient		*client;
     char		***urls;
+    int			numUrls;
+    int			error;
 } browsingContext;
 
 /* Called whenever a service has been resolved successfully or timed out. */
@@ -478,8 +479,9 @@ resolveCallback(
 )
 {
     char addressString[AVAHI_ADDRESS_STR_MAX];
-    const browsingContext *context = (browsingContext *)userdata;
+    browsingContext *context = (browsingContext *)userdata;
     char ***urls = context->urls;
+    int numUrls = context->numUrls;
     __pmServiceInfo serviceInfo;
 
     /* Unused arguments. */
@@ -491,10 +493,7 @@ resolveCallback(
 
     switch (event) {
 	case AVAHI_RESOLVER_FAILURE:
-	    __pmNotifyErr(LOG_ERR,
-			  "Failed to resolve service '%s' of type '%s' in domain '%s': %s",
-			  name, type, domain,
-			  avahi_strerror(avahi_client_errno(avahi_service_resolver_get_client(r))));
+	    context->error = avahi_client_errno(avahi_service_resolver_get_client(r));
             break;
 
 	case AVAHI_RESOLVER_FOUND:
@@ -504,16 +503,16 @@ resolveCallback(
 		avahi_address_snprint(addressString, sizeof(addressString), address);
 		serviceInfo.address = __pmStringToSockAddr(addressString);
 		if (serviceInfo.address == NULL) {
-		    __pmNoMem("resolveCallback", __pmSockAddrSize(), PM_FATAL_ERR);
+		    context->error = ENOMEM;
+		    break;
 		}
 		__pmSockAddrSetPort(serviceInfo.address, port);
 		__pmSockAddrSetScope(serviceInfo.address, interface);
-		__pmAddDiscoveredService(urls, &serviceInfo);
+		context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
 		__pmSockAddrFree(serviceInfo.address);
 	    }
-	    else {
-		__pmNotifyErr(LOG_ERR, "Unsupported Avahi service type '%s'", type);
-	    }
+	    else
+		context->error = EINVAL;
 	    break;
 	default:
 	    break;
@@ -540,7 +539,7 @@ browseCallback(
 )
 {
     browsingContext *context = (browsingContext *)userdata;
-    AvahiClient *c = context->client;
+    AvahiClient *c = avahi_service_browser_get_client(b);
     AvahiSimplePoll *simplePoll = context->simplePoll;
     assert(b);
 
@@ -549,9 +548,7 @@ browseCallback(
     
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
-	    __pmNotifyErr(LOG_ERR,
-			  "Avahi browse failed: %s",
-			  avahi_strerror(avahi_client_errno(avahi_service_browser_get_client(b))));
+	    context->error = avahi_client_errno(c);
 	    avahi_simple_poll_quit(simplePoll);
 	    break;
 
@@ -566,9 +563,7 @@ browseCallback(
 					     name, type, domain,
 					     AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0,
 					     resolveCallback, context))) {
-		__pmNotifyErr(LOG_ERR,
-			      "Failed to resolve service '%s': %s",
-			      name, avahi_strerror(avahi_client_errno(c)));
+		context->error = avahi_client_errno(c);
 	    }
             break;
 
@@ -587,9 +582,7 @@ browsingClientCallback(AvahiClient *c, AvahiClientState state, void *userdata)
     if (state == AVAHI_CLIENT_FAILURE) {
 	browsingContext *context = (browsingContext *)userdata;
 	AvahiSimplePoll *simplePoll = context->simplePoll;
-	__pmNotifyErr(LOG_ERR,
-		      "Avahi Server connection failure: %s",
-		      avahi_strerror(avahi_client_errno(c)));
+	context->error = avahi_client_errno(c);
         avahi_simple_poll_quit(simplePoll);
     }
 }
@@ -603,7 +596,37 @@ timeoutCallback(AvahiTimeout *e, void *userdata)
     avahi_simple_poll_quit(simplePoll);
 }
 
-int __pmAvahiDiscoverServices(char ***urls, const char *service)
+
+static double
+discoveryTimeout(void)
+{
+    static int		done_default = 0;
+    static double	def_timeout = 0.5; /* 0.5 seconds */
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (!done_default) {
+	char	*timeout_str;
+	char	*end_ptr;
+	double	new_timeout;
+	if ((timeout_str = getenv("AVAHI_DISCOVERY_TIMEOUT")) != NULL) {
+	    new_timeout = strtod(timeout_str, &end_ptr);
+	    if (*end_ptr != '\0' || def_timeout < 0.0) {
+		__pmNotifyErr(LOG_WARNING,
+			      "ignored bad AVAHI_DISCOVERY_TIMEOUT = '%s'\n",
+			      timeout_str);
+	    }
+	    else
+		def_timeout = new_timeout;
+	}
+	done_default = 1;
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return def_timeout;
+}
+
+int
+__pmAvahiDiscoverServices(const char *service, int numUrls, char ***urls)
 {
     AvahiClient		*client = NULL;
     AvahiServiceBrowser	*sb = NULL;
@@ -612,37 +635,30 @@ int __pmAvahiDiscoverServices(char ***urls, const char *service)
     browsingContext	context;
     char		*serviceTag;
     size_t		size;
-    int			error;
-    int			sts;
     
     /* Allocate the main loop object. */
-    if (!(simplePoll = avahi_simple_poll_new())) {
-	__pmNotifyErr(LOG_ERR, "__pmAvahiDiscoverServices: Failed to create Avahi simple poll object");
-	sts = -1;
-	goto done;
-    }
+    if (!(simplePoll = avahi_simple_poll_new()))
+	return -ENOMEM;
+
+    context.error = 0;
     context.simplePoll = simplePoll;
     context.urls = urls;
+    context.numUrls = numUrls;
 
     /* Allocate a new Avahi client */
     client = avahi_client_new(avahi_simple_poll_get(simplePoll),
 			      (AvahiClientFlags)0,
-			      browsingClientCallback, &context, &error);
+			      browsingClientCallback, &context, &context.error);
 
     /* Check whether creating the client object succeeded. */
-    if (! client) {
-	__pmNotifyErr(LOG_ERR, "__pmAvahiDiscoverServices: Failed to create Avahi client: %s",
-		      avahi_strerror(error));
-	sts = -1;
+    if (! client)
 	goto done;
-    }
-    context.client = client;
     
     /* Create the service browser. */
     size = sizeof("_._tcp") + strlen(service); /* includes room for the nul */
     if ((serviceTag = malloc(size)) == NULL) {
-	__pmNoMem("__pmAvahiDiscoverServices: can't allocate service tag",
-		  size, PM_FATAL_ERR);
+	context.error = ENOMEM;
+	goto done;
     }
     sprintf(serviceTag, "_%s._tcp", service);
     sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
@@ -651,16 +667,14 @@ int __pmAvahiDiscoverServices(char ***urls, const char *service)
 				   browseCallback, & context);
     free(serviceTag);
     if (sb == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmAvahiDiscoverServices: Failed to create Avahi service browser: %s",
-		      avahi_strerror(avahi_client_errno(client)));
-	sts = -1;
+	context.error = ENOMEM;
 	goto done;
     }
 
-    /* Timeout after 2 seconds. */
+    /* Set the timeout. */
     avahi_simple_poll_get(simplePoll)->timeout_new(
         avahi_simple_poll_get(simplePoll),
-	avahi_elapse_time(&tv, 1000*2, 0),
+	avahi_elapse_time(&tv, (unsigned)(discoveryTimeout() * 1000), 0),
 	timeoutCallback, &context);
 
     /*
@@ -668,7 +682,7 @@ int __pmAvahiDiscoverServices(char ***urls, const char *service)
      * during the call back to resolveCallback
      */
     avahi_simple_poll_loop(simplePoll);
-    sts = 0;
+    numUrls = context.numUrls;
 
  done:
     /* Cleanup. */
@@ -679,5 +693,9 @@ int __pmAvahiDiscoverServices(char ***urls, const char *service)
     if (simplePoll)
         avahi_simple_poll_free(simplePoll);
 
-    return sts;
+    /* Check to see if there was an error. */
+    if (context.error)
+	return -context.error;
+
+    return numUrls;
 }

@@ -660,20 +660,6 @@ typedef struct __pmServerPresence __pmServerPresence;
 extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
 extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 
-/* Service discovery, for clients. */
-typedef struct {
-    const char		*spec;
-    __pmSockAddr	*address;
-} __pmServiceInfo;
-
-
-extern int __pmDiscoverServices(char ***, const char *, const char *);
-
-extern __pmServiceInfo *__pmServiceInfoAlloc();
-extern void __pmServiceInfoFree(__pmServiceInfo *);
-extern void __pmAddDiscoveredService(char ***, __pmServiceInfo *);
-extern void __pmServiceListFree(char **);
-
 /*
  * Per-context controls for archives and logs
  */

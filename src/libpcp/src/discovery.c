@@ -18,44 +18,77 @@
 
 #if defined(HAVE_SERVICE_DISCOVERY)
 
-int __pmDiscoverServices(char ***urls, const char *service,
-			 const char *discovery_domain)
+/*
+ * Advertise the given service using all available means. The implementation
+ * must support adding and removing individual service specs on the fly.
+ * e.g. "pmcd" on port 1234
+ */
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
 {
-    int sts;
+    __pmServerPresence *s;
+
+    /* Allocate a server presence and copy the given data. */
+    if ((s = malloc(sizeof(*s))) == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate __pmServerPresence",
+		  sizeof(*s), PM_FATAL_ERR);
+    }
+    s->serviceSpec = strdup(serviceSpec);
+    if (s->serviceSpec == NULL) {
+	__pmNoMem("__pmServerAdvertisePresence: can't allocate service spec",
+		  strlen(serviceSpec) + 1, PM_FATAL_ERR);
+    }
+    s->port = port;
+
+    /* Now advertise our presence using all available means. If a particular
+     * method is not available or not configured, then the respective call
+     * will have no effect. Currently, only Avahi is supported.
+     */
+    __pmServerAvahiAdvertisePresence(s);
+    return s;
+}
+
+/*
+ * Unadvertise the given service using all available means. The implementation
+ * must support removing individual service specs on the fly.
+ * e.g. "pmcd" on port 1234
+ */
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s)
+{
+    /* Unadvertise our presence for all available means. If a particular
+     * method is not active, then the respective call will have no effect.
+     */
+    __pmServerAvahiUnadvertisePresence(s);
+    free(s->serviceSpec);
+    free(s);
+}
+
+int pmDiscoverServices(const char *service,
+		       const char *discovery_domain,
+		       int numUrls, char ***urls)
+{
     /*
      * Attempt to discover the requested service(s) using the requested/available means.
      * If a particular method is not available or not configured, then the
      * respective call will have no effect.
-     *
-     * Currently, only Avahi is supported, so ignore the discovery_domain
      */
-    (void)discovery_domain;
-    *urls = NULL;
-    sts = __pmAvahiDiscoverServices(urls, service);
-    return sts;
+    if (discovery_domain == NULL || strcmp(discovery_domain, "avahi") == 0)
+	numUrls = __pmAvahiDiscoverServices(service, numUrls, urls);
+    else
+	return -EOPNOTSUPP;
+
+    return numUrls;
 }
 
-#else /* !HAVE_SERVICE_DISCOVERY */
 
-int __pmDiscoverServices(char ***urls, const char *service,
-			 const char *discovery_domain)
-{
-    /* No services to discover. */
-    (void)service;
-    (void)discovery_domain;
-    *urls = NULL;
-    return 0;
-}
-
-#endif /* !HAVE_SERVICE_DISCOVERY */
-
-/* For manually adding a service. Also used by __pmDiscoverServices(). */
-void __pmAddDiscoveredService(char ***urls, __pmServiceInfo *info)
+/* For manually adding a service. Also used by pmDiscoverServices(). */
+int
+__pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 {
     const char* prefix;
     char *addressString;
     char *url;
-    size_t next;
     size_t size;
     int isIPv6;
     int port;
@@ -71,7 +104,7 @@ void __pmAddDiscoveredService(char ***urls, __pmServiceInfo *info)
 	__pmNotifyErr(LOG_ERR,
 		      "__pmAddDiscoveredService: Unsupported service: '%s'",
 		      info->spec);
-	return;
+	return EOPNOTSUPP;
     }
 
     /*
@@ -101,56 +134,40 @@ void __pmAddDiscoveredService(char ***urls, __pmServiceInfo *info)
 
     /*
      * Now search the current list for the new entry.
+     * Add it if not found. We don't want any duplicates.
      */
-    if (*urls == NULL)
-	next = 0; /* no list to search */
-    else {
-	for (next = 0; (*urls)[next] != NULL; ++next) {
-	    if (strcmp(url, (*urls)[next]) == 0) {
-		/* Found a duplicate. */
-		free(url);
-		return;
-	    }
-	}
-    }
+    if (__pmStringListFind(url, numUrls, *urls) == NULL)
+	numUrls = __pmStringListAdd(url, numUrls, urls);
 
-    /*
-     * It's not a duplicate, so add it to the end of the list.
-     * We grow the list each time, since it is likely to be
-     * small.
-     */
-    size = (next + 2) * sizeof(**urls);
-    *urls = realloc(*urls, size);
-    if (*urls == NULL) {
-	__pmNoMem("__pmAddDiscoveredService: can't allocate service table",
-		  size, PM_FATAL_ERR);
-    }
-    (*urls)[next] = url;
-
-    /* Terminate the list. */
-    (*urls)[next + 1] = NULL;
+    free(url);
+    return numUrls;
 }
 
-/* For freeing a service list. */
-void __pmServiceListFree(char **urls)
+#else /* !HAVE_SERVICE_DISCOVERY */
+
+__pmServerPresence *
+__pmServerAdvertisePresence(const char *serviceSpec, int port)
 {
-    char **p;
-    /* The list may be completely empty. */
-    if (urls == NULL)
-	return;
-
-    /* Each entry and the entire list, must be freed. */
-    for (p = urls; *p != NULL; ++p)
-	free(*p);
-    free(urls);
+    (void)serviceSpec;
+    (void)port;
+    return NULL;
 }
 
-__pmServiceInfo *__pmServiceInfoAlloc()
+void
+__pmServerUnadvertisePresence(__pmServerPresence *s)
 {
-    return malloc(sizeof(__pmServiceInfo));
+    (void)s;
 }
 
-void __pmServiceInfoFree(__pmServiceInfo *info)
+int pmDiscoverServices(const char *service, const char *discovery_domain,
+		       int numUrls, char ***urls)
 {
-    free(info);
+    /* No services to discover. */
+    (void)service;
+    (void)discovery_domain;
+    (void)numUrls;
+    (void)urls;
+    return -EOPNOTSUPP;
 }
+
+#endif /* !HAVE_SERVICE_DISCOVERY */
