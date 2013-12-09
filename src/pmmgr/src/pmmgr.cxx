@@ -302,13 +302,12 @@ pmmgr_job_spec::poll()
   vector<string> target_discovery = get_config_multi("target-discovery");
   for (unsigned i=0; i<target_discovery.size(); i++)
     {
-      char **urls;
-      int numUrls = 0;
+      char **urls = NULL;
       const char *discovery = (target_discovery[i] == "") 
         ? NULL
         : target_discovery[i].c_str();
-      int rc = pmDiscoverServices (SERVER_SERVICE_SPEC, discovery, numUrls, &urls);
-      if (rc < 0)
+      int numUrls = pmDiscoverServices (PM_SERVER_SERVICE_SPEC, discovery, &urls);
+      if (numUrls <= 0)
         continue;
       for (int i=0; i<numUrls; i++)
         new_specs.insert(string(urls[i]));
