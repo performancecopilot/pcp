@@ -323,6 +323,11 @@ ipv6_enabled(void)
 #else
 #define STATIC_PROBES_ENABLED	disabled
 #endif
+#if defined(HAVE_SERVICE_DISCOVERY)
+#define SERVICE_DISCOVERY_ENABLED	enabled
+#else
+#define SERVICE_DISCOVERY_ENABLED	disabled
+#endif
 
 typedef const char *(*feature_detector)(void);
 static struct {
@@ -343,6 +348,7 @@ static struct {
 	{ "authentication",	AUTHENTICATION_ENABLED },	/* from pcp-3.8.x */
 	{ "unix_domain_sockets",UNIX_DOMAIN_SOCKETS_ENABLED },	/* from pcp-3.8.2 */
 	{ "static_probes",	STATIC_PROBES_ENABLED },	/* from pcp-3.8.3 */
+	{ "service_discovery",	SERVICE_DISCOVERY_ENABLED },	/* from pcp-3.8.6 */
 };
 
 void

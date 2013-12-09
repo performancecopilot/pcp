@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 if ps l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
 then
@@ -47,8 +47,8 @@ log mandatory on 5 msec {
 }
 End-of-File
 
-pmlogger -c $tmp.config -l $tmp.log -s 3000 $tmp &
-mylogger=$!
+_start_up_pmlogger -c $tmp.config -l $tmp.log -s 3000 $tmp
+mylogger=$pid
 _wait_for_pmlogger $mylogger $tmp.log
 
 seen=0
@@ -86,7 +86,7 @@ done
 
 echo "OK"
 
-wait
+_wait_pmlogger_end $mylogger
 echo
 echo "pmlogger log"
 _filter_pmlogger_log <$tmp.log

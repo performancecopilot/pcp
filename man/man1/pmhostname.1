@@ -38,8 +38,10 @@ and this is than passed to
 .PP
 .B pmhostname
 provides a service for shell scripts that
-mimics the logic used by Performance Co-Pilot applications
-when trying to determine the official name of a host.
+mimics the logic formerly used by Performance Co-Pilot applications
+when trying to determine the official name of a host.  PCP applications
+no longer use DNS-based heuristics, and therefore this command is
+.IR deprecated .
 .PP
 If
 .BR gethostbyname (3N)

@@ -46,7 +46,7 @@ and \"user_action\" is enabled.";
 
 shell	global.email_action
 	enabled	= no
-	default	= "/usr/pcp/lib/pmie_email '$email_recipients$|$rule$^|$email_expand$^'"
+	default	= "pmie_email '$email_recipients$|$rule$^|$email_expand$^'"
 	help	=
 "A mail message will be sent to \"email_recipients\" when the rule
 condition is true.";
@@ -60,7 +60,7 @@ string	global.email_recipients
 
 shell	global.pcplog_action
 	enabled	= no
-	default	= "/usr/pcp/bin/pmpost pmie: $rule$^ $action_expand$"
+	default	= "pmpost pmie: $rule$^ $action_expand$"
 	help	=
 "The PCP notices file $PCP_LOG_DIR/NOTICES will be updated when
 the rule condition is true.";
@@ -70,7 +70,7 @@ syslog	global.syslog_action
 	enabled	= yes
 	default	= "$syslog_prefix$$rule$^ $action_expand$"
 	help	=
-"The system log file /var/adm/SYSLOG or /var/log/messages will be updated
+"The system log file (usually /var/log/messages) will be updated
 when the rule condition is true.";
 
 string	global.syslog_prefix
@@ -86,5 +86,4 @@ string	global.esp_prefix
 	default = "|\\\\$($esp_type$)";
 
 # 
-# $Id: pcp_actions,v 1.1 2009/10/06 15:17:10 mort Exp $
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(4)

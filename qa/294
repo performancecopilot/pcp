@@ -6,29 +6,30 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-echo "QA output created by $seq"
+which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    if which pmdumptext >/dev/null 2>&1
+    if [ $PCP_VER -ge 3806 ]
     then
-	ln $seq.out.3 $seq.out
-    else
 	ln $seq.out.4 $seq.out
+    else
+	ln $seq.out.3 $seq.out
     fi
 else
-    if which pmdumptext >/dev/null 2>&1
+    if [ $PCP_VER -ge 3806 ]
     then
-	ln $seq.out.1 $seq.out
-    else
 	ln $seq.out.2 $seq.out
+    else
+	ln $seq.out.1 $seq.out
     fi
 fi
 
@@ -78,8 +79,11 @@ s/  *[0-9.]*[0-9Km]/ N/g
 _filter_me()
 {
     sed \
-	-e "s/`pmhostname`/MY_HOSTNAME/g" \
+	-e "s/`hostname`/MY_HOSTNAME/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
+	-e "s/local:/MY_HOSTNAME/" \
+	-e "s/localhost\.localdomain/MY_HOSTNAME/" \
+	-e "s/localhost/MY_HOSTNAME/" \
 	-e "s#$PCP_VAR_DIR#PCP_VAR_DIR#g" \
 	-e "s#$PCP_SYSCONF_DIR/pmlogger/config.pmstat#TMP.logger.config#g" \
 	-e "s,$tmp.config,TMP.logger.config,g" \
@@ -150,15 +154,15 @@ rm -f $seq.full
 _do pminfo -h $PMPROXY_HOST -d pmcd.agent
 _do pminfo -h $PMPROXY_HOST -f sample.hordes
 _do pmprobe -v -h localhost hinv.ncpu
-_do pmval -h `pmhostname` -t 0.5 -s 3 sample.bin
+_do pmval -h `hostname` -t 0.5 -s 3 sample.bin
 
 echo "kernel.all.load;" >$tmp.in
 _do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
 echo "kernel.all.cpu.user :localhost;" >$tmp.in
 _do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5 
-_do pmdumptext -h `hostname | sed -e 's/\..*//'` -t 0.5 -s 2 sample.string.hullo
-_do pmdumptext -t 0.5 -s 2 `hostname | sed -e 's/\..*//'`:sample.string.hullo
-_do pmdumptext -t 0.5 -s 2 `pmhostname`:kernel.all.load
+_do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
+_do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
 if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     : not much to do, as metrics for pmstat are largely missing

@@ -1,3 +1,29 @@
+pcp (3.8.9) unstable; urgency=low
+
+  * Currently under development.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 06 Nov 2013 17:36:59 +1100
+
+pcp (3.8.8) unstable; urgency=low
+
+  * New release to resolve build issues only.
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 03 Nov 2013 13:28:27 +1100
+
+pcp (3.8.7) unstable; urgency=low
+
+  * New release to resolve build issues only.
+  * Add pkg-config to the Build-depends list (closes: #728453)
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 03 Nov 2013 07:25:23 +1100
+
+pcp (3.8.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Really resolve FTBFS for kfreebsd probes.h (closes: #725627)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 01 Nov 2013 10:27:24 +1100
+
 pcp (3.8.5) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

@@ -7,11 +7,10 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 . ./common.setup
 . ./common.pcpweb
-
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product

@@ -17,6 +17,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "internal.h"
 
 /*
  * Called with valid context locked ...

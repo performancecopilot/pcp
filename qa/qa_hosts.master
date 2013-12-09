@@ -7,6 +7,7 @@
 
 # Kenj Section
 bozo.localdomain
+bozo-vm.localdomain
 bozo-laptop.localdomain
 comma.localdomain
 colleens-imac.local
@@ -56,6 +57,7 @@ deb32.bork.org
 #order	.scott.net.au		.scott.net.au
 # Kenj Section
 #order	bozo			.localdomain
+#order	bozo-vm		.localdomain
 #order	bozo-laptop		.localdomain
 #order	colleens-imac.local	.local
 #order	comma			.localdomain

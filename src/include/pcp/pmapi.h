@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -550,8 +550,8 @@ extern char *pmEventFlagsStr_r(int, char *, int);
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000
 
-#define PM_XTB_SET(type) (PM_XTB_FLAG | (type << 16))
-#define PM_XTB_GET(x) ( (x & PM_XTB_FLAG) ? ( (x & 0xff0000) >> 16) : -1)
+#define PM_XTB_SET(type) (PM_XTB_FLAG | ((type) << 16))
+#define PM_XTB_GET(x) (((x) & PM_XTB_FLAG) ? (((x) & 0xff0000) >> 16) : -1)
 
 /* parse -t, -S, -T, -A and -O options */
 extern int pmParseInterval(const char *, struct timeval *, char **);

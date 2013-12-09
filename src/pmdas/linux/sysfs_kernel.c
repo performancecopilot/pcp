@@ -20,16 +20,17 @@ int
 refresh_sysfs_kernel(sysfs_kernel_t *sk)
 {
     char buf[64];
-    int fd;
+    int fd, n;
 
     if ((fd = open("/sys/kernel/uevent_seqnum", O_RDONLY)) < 0) {
     	sk->valid_uevent_seqnum = 0;
 	return -oserror();
     }
 
-    if (read(fd, buf, sizeof(buf)) <= 0)
+    if ((n = read(fd, buf, sizeof(buf))) <= 0)
     	sk->valid_uevent_seqnum = 0;
     else {
+	buf[n-1] = '\0';
     	sscanf(buf, "%llu", (long long unsigned int *)&sk->uevent_seqnum);
 	sk->valid_uevent_seqnum = 1;
     }

@@ -7,12 +7,13 @@
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 which sar >/dev/null 2>&1 || _notrun "sar not installed"
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
@@ -56,8 +57,6 @@ in
 esac
 [ -f src/sa-sysstat-$file_version ] || \
     _notrun "no data file (sa-sysstat-$file_version) for sysstat version $version"
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -200,8 +199,14 @@ $PCP_AWK_PROG <$tmp.both '
 
 echo
 echo "full dump ..."
+# note proc.nprocs -> proc.nproc mapping needed after sar2pcp changes in
+# commit 48e373f0609a0a0804bc052d5e9dec41a5a2928e so output matches 370's
+# "out" files
+#
 pmdumplog -lm -z $tmp 2>&1 \
-| sed -e 's/245\.0\.[0-9][0-9]*/245.0.NN/g'
+| sed \
+	-e 's/245\.0\.[0-9][0-9]*/245.0.NN/g' \
+	-e 's/(proc.nprocs)/(proc.nproc)/'
 
 # success, all done
 exit

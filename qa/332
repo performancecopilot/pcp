@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -30,8 +31,6 @@ skip == 0		{ print }' \
 }
 
 _check_purify src/interp3
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15

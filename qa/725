@@ -1,0 +1,178 @@
+#!/bin/sh
+# PCP QA Test No. 725
+# Exercise the JBD2 driver PMDA.
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "JBD2 test, only works with Linux"
+
+status=1	# failure is the default!
+done_clean=false
+$sudo rm -rf $tmp.* $seq.full
+
+# for QA the default install for jbd2 PMDA is as dso not a daemon
+#
+cat <<End-of-File >$tmp.input
+b
+dso
+End-of-File
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	fi
+	if [ -f $tmp.cache ]
+	then
+	    $sudo mv $tmp.cache $cache
+	fi
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/jbd2; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/jbd2; $sudo ./Remove </dev/null >/dev/null 2>&1 )
+	fi
+	rm -fr ${tmp}.jbd2.dir
+	rm -f $tmp.*
+	done_clean=true
+    fi
+    exit $status
+}
+
+install_on_cleanup=false
+pminfo jbd2 >/dev/null 2>&1 && install_on_cleanup=true
+
+trap "_cleanup" 0 1 2 3 15
+
+# create some test data, various formats
+format_v2()
+{
+    mkdir -p ${tmp}.jbd2.dir/sda1-8
+    cat << End-of-file > ${tmp}.jbd2.dir/sda1-8/info
+24 transaction, each up to 2048 blocks
+average: 
+  0ms waiting for transaction
+  5327ms running transaction
+  0ms transaction was being locked
+  0ms flushing data (in ordered mode)
+  35ms logging transaction
+  52335us average transaction commit time
+  262 handles per transaction
+  4 blocks per transaction
+  5 logged blocks per transaction
+End-of-file
+}
+
+format_v3()
+{
+    mkdir -p ${tmp}.jbd2.dir/dm-1-8
+    cat << End-of-file > ${tmp}.jbd2.dir/dm-1-8/info
+6117 transactions (19053 requested), each up to 8192 blocks
+average: 
+  0ms waiting for transaction
+  0ms request delay
+  4019ms running transaction
+  0ms transaction was being locked
+  0ms flushing data (in ordered mode)
+  26ms logging transaction
+  22584us average transaction commit time
+  72 handles per transaction
+  5 blocks per transaction
+  6 logged blocks per transaction
+End-of-file
+}
+
+# real QA test starts here
+home="$PCP_PMDAS_DIR"
+iam=jbd2
+domain=122
+cd "$home/$iam"
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+cache=$PCP_VAR_DIR/config/pmda/${domain}.0
+[ -f $cache ] && $sudo mv $cache $tmp.cache
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+
+# create a temporary directory for testing
+mkdir "$tmp.jbd2.dir"
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_filter_pmda_install <$tmp.out | \
+sed -e 's/[0-9][0-9]* metrics and [0-9][0-9]* values/ok/g'
+
+# append option to look from /proc/fs/jbd2
+sed < $PCP_PMCDCONF_PATH \
+	-e "/^$iam.*/s/$/ -j JBD2PATH/" \
+	-e "s,JBD2PATH,$tmp.jbd2.dir,g" \
+	> $tmp.conf
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo rm -f $cache	# local host indom cache
+$sudo $PCP_BINADM_DIR/pmsignal -a -s HUP pmcd
+
+jbd2filter()
+{
+    sed \
+	-e 's/64-bit unsigned int/NN-bit unsigned int/g' \
+	# the end
+}
+
+jbd2fetch()
+{
+    if pminfo $iam | LC_COLLATE=POSIX sort >$tmp.names
+    then
+	for name in `cat $tmp.names`
+	do
+	    pminfo -fdmtT $name | jbd2filter | LC_COLLATE=POSIX sort -n
+	done
+    else
+	echo "... failed!"
+    fi
+}
+
+echo
+echo "=== validate values, no instances ==="
+rm -fr ${tmp}.jbd2.dir/*
+jbd2fetch
+
+echo
+echo "=== add some older-format instances ==="
+format_v2
+jbd2fetch
+rm -fr ${tmp}.jbd2.dir/*
+
+echo
+echo "=== add some newer-format instances ==="
+format_v3
+jbd2fetch
+rm -fr ${tmp}.jbd2.dir/*
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit

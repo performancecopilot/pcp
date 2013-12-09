@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2006 Aconex.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -24,6 +25,8 @@ DSOVERSION = 2
 LIBTARGET = libpcp_gui.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_gui.$(DSOSUFFIX) libpcp_gui.$(DSOSUFFIX).1
 
+VERSION_SCRIPT = exports
+
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SYMTARGET = libpcp_gui.$(DSOSUFFIX)
 endif
@@ -41,10 +44,11 @@ SYMTARGET =
 endif
 
 LDIRT = $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+LSRCFILES = $(VERSION_SCRIPT)
 
 default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
 endif
@@ -52,18 +56,22 @@ endif
 include $(BUILDRULES)
 
 install: default
-ifneq "$(LIBTARGET)" ""
+ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
 	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
-ifneq "$(STATICLIBTARGET)" ""
+ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
 default_pcp:	default
 
 install_pcp:	install
+
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
+endif

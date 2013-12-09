@@ -182,11 +182,14 @@ getNewContext (int type, char * host, int quiet)
 			
 			if (metricSubst[i] == NULL) {
 			    /* skip these, as archives may not contain 'em */
-			    if (i != CPU+2 && i != CPU+5 && i != CPU+6)
-				fprintf(stderr, 
-				    "%s: %s: no metric \"%s\": %s\n",
-				    pmProgname, host, metrics[i],
-				    pmErrStr(sts));
+			    if (i != CPU+2 && i != CPU+5 && i != CPU+6) {
+				int e2 = pmLookupName(1,metrics+i, s->pmids+i);
+				if (e2 != 1)
+				    fprintf(stderr, 
+					"%s: %s: no metric \"%s\": %s\n",
+					pmProgname, host, metrics[i],
+					pmErrStr(e2));
+			    }
 			} else {
 			    int e2 = pmLookupName(1,metricSubst+i, s->pmids+i);
 			    if (e2 != 1) {

@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 Red Hat, Inc.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <sys/stat.h>
+#include <assert.h>
 
 #include "dstruct.h"
 #include "stomp.h"
@@ -321,6 +322,7 @@ static void
 startmonitor(void)
 {
     void		*ptr;
+    char		*path;
     int			fd;
     char		zero = '\0';
     char		pmie_dir[MAXPATHLEN];
@@ -328,14 +330,15 @@ startmonitor(void)
     /* try to create the port file directory. OK if it already exists */
     snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
-    if ( (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) &&
-	 (oserror() != EEXIST) ) {
-	fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
-		pmProgname, pmie_dir, osstrerror());
-	exit(1);
+    if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
+	if (oserror() != EEXIST) {
+	    fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
+		    pmProgname, pmie_dir, osstrerror());
+	    exit(1);
+	}
+    } else {
+	chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
-
-    chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     atexit(stopmonitor);
 
     /* create and initialize memory mapped performance data file */
@@ -343,9 +346,9 @@ startmonitor(void)
     unlink(perffile);
     if ((fd = open(perffile, O_RDWR | O_CREAT | O_EXCL | O_TRUNC,
 			     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
-	fprintf(stderr, "%s: cannot create stats file %s: %s\n",
-		pmProgname, perffile, osstrerror());
-	exit(1);
+	/* cannot create stats file; too bad, so sad, continue on without it */
+	perf = &instrument;
+	return;
     }
     /* seek to struct size and write one zero */
     lseek(fd, sizeof(pmiestats_t)-1, SEEK_SET);
@@ -358,13 +361,16 @@ startmonitor(void)
     if ((ptr = __pmMemoryMap(fd, sizeof(pmiestats_t), 1)) == NULL) {
 	fprintf(stderr, "%s: memory map failed for stats file %s: %s\n",
 		pmProgname, perffile, osstrerror());
-	exit(1);
+	perf = &instrument;
     }
     close(fd);
 
     perf = (pmiestats_t *)ptr;
-    strcpy(perf->logfile, logfile[0] == '\0'? "<none>" : logfile);
-    strcpy(perf->defaultfqdn, dfltHost);
+    path = (logfile[0] == '\0') ? "<none>" : logfile;
+    strncpy(perf->logfile, path, sizeof(perf->logfile));
+    perf->logfile[sizeof(perf->logfile)-1] = '\0';
+    strncpy(perf->defaultfqdn, dfltHostName, sizeof(perf->defaultfqdn));
+    perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
     perf->version = 1;
 }
 
@@ -413,8 +419,8 @@ sighupproc(int sig)
 
     fp = __pmRotateLog(pmProgname, logfile, logfp, &sts);
     if (sts != 0) {
-	fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s\n\n",
-			getpid(), dfltHost);
+	fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
+                getpid(), dfltHostName, dfltHostConn);
 	remap_stdout_stderr();
 	logfp = fp;
     } else {
@@ -473,8 +479,10 @@ getargs(int argc, char *argv[])
     int			sts;
     int			c;
     int			bflag = 0;
+    int			dfltConn = 0;	/* default context type */
     Archive		*a;
     struct timeval	tv, tv1, tv2;
+
     extern int		showTimeFlag;
     extern int		errs;		/* syntax errors from syntax.c */
 
@@ -488,6 +496,7 @@ getargs(int argc, char *argv[])
 
 	case 'a':			/* archives */
 	    if (dfltConn && dfltConn != PM_CONTEXT_ARCHIVE) {
+                /* (technically, multiple -a's are allowed.) */
 		fprintf(stderr, "%s: at most one of -a or -h allowed\n",
 			pmProgname);
 		err++;
@@ -574,7 +583,8 @@ getargs(int argc, char *argv[])
 		break;
 	    }
 	    dfltConn = PM_CONTEXT_HOST;
-	    dfltHost = optarg;
+	    dfltHostConn = optarg;
+            dfltHostName = ""; /* unknown until newContext */
 	    break;
 
         case 'j':			/* stomp protocol (JMS) config */
@@ -728,24 +738,41 @@ getargs(int argc, char *argv[])
     if ((bflag || isdaemon) && !agent)
 	remap_stdout_stderr();
 
-    if (dfltConn == 0) {
-	/* default case, no -a or -h */
-	dfltConn = PM_CONTEXT_HOST;
-	dfltHost = localHost;
-    }
-
-    if (!archives && !interactive) {
-	if (commandlog != NULL)
-	    fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s\n\n", getpid(), dfltHost);
-	startmonitor();
-    }
-
-    /* default host from leftmost archive on command line */
-    if (archives && dfltHost == localHost) {
+    /* default host from leftmost archive on command line, or from
+       discovery after a brief connection */
+    if (archives) {
 	a = archives;
 	while (a->next)
 	    a = a->next;
-	dfltHost = a->hname;
+	dfltHostName = a->hname; /* already filled in during initArchive() */
+    } else if (!dfltConn || dfltConn == PM_CONTEXT_HOST) {
+	if (dfltConn == 0)	/* default case, no -a or -h */
+	    dfltHostConn = "local:";
+	sts = pmNewContext(PM_CONTEXT_HOST, dfltHostConn);
+	/* pmcd down locally, try to extract hostname manually */
+	if (sts < 0 && (!dfltConn ||
+			!strcmp(dfltHostConn, "localhost") ||
+			!strcmp(dfltHostConn, "local:") ||
+			!strcmp(dfltHostConn, "unix:")))
+	    sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+	if (sts < 0) {
+	    __pmNotifyErr(LOG_ERR, "%s: cannot find host name for %s\n"
+			"pmNewContext failed: %s\n",
+			pmProgname, dfltHostConn, pmErrStr(sts));
+	    dfltHostName = "?";
+	} else {
+	    if ((dfltHostName = strdup(pmGetContextHostName(sts))) == NULL)
+		__pmNoMem("host name copy", 0, PM_FATAL_ERR);
+	    pmDestroyContext(sts);
+        }
+    }
+    assert (dfltHostName != NULL);
+
+    if (!archives && !interactive) {
+	if (commandlog != NULL)
+            fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
+                    getpid(), dfltHostName, dfltHostConn);
+	startmonitor();
     }
 
     /* initialize time */

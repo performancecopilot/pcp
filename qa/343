@@ -6,23 +6,15 @@
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
-if which pmlogreduce >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmlogreduce binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-echo "QA output created by $seq"
+which pmlogreduce >/dev/null 2>&1 || _notrun "No pmlogreduce binary installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

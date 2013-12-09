@@ -6,22 +6,14 @@
 #
 
 seq=`basename $0`
-
-if which pmieconf >/dev/null 2>&1
-then
-    :
-else
-    echo "No pmieconf binary installed" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -40,7 +32,7 @@ _run_pmieconf()
 {
     pmieconf -f $tmp.pmie -r $tmp.test list all >$tmp.out 2>&1
     pstatus=$?
-    sed -e "s/$$/[PID]/g" $tmp.out
+    sed -e "s/$seq-$$/[SEQ-PID]/g" $tmp.out
     echo status=$pstatus
 }
 

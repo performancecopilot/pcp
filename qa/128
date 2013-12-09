@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -16,8 +17,6 @@ if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     _notrun "no nfs metrics for $PCP_PLATFORM"
 fi
-
-echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal

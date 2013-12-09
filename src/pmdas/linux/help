@@ -392,6 +392,7 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.hugepagesSurp a count of surplus hugepages
 @ mem.util.directMap4k amount of memory that is directly mapped in 4kB pages
 @ mem.util.directMap2M amount of memory that is directly mapped in 2MB pages
+@ mem.util.directMap1G amount of memory that is directly mapped in 1GB pages
 @ mem.util.vmallocTotal amount of kernel memory allocated via vmalloc
 @ mem.util.vmallocUsed amount of used vmalloc memory
 @ mem.util.vmallocChunk amount of vmalloc chunk memory
@@ -679,6 +680,7 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.interface.inet_addr string INET interface address (ifconfig style)
 @ network.interface.ipv6_addr string IPv6 interface address (ifconfig style)
 @ network.interface.ipv6_scope string IPv6 interface scope (ifconfig style)
+@ network.interface.hw_addr hardware address (from sysfs)
 @ network.sockstat.tcp.inuse instantaneous number of tcp sockets currently in use
 @ network.sockstat.tcp.highest highest number of tcp sockets in use at any one time since boot
 @ network.sockstat.tcp.util instantaneous tcp socket utilization (100 * inuse/highest)
@@ -882,7 +884,8 @@ See also the kernel.uname.* metrics
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo
-@ hinv.cpu.model model name of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model model number of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.model_name model name of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.stepping stepping of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.cache primary cache size of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.bogomips bogo mips rating for each CPU as reported by /proc/cpuinfo

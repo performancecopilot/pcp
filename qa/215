@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
@@ -25,8 +26,6 @@ then
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
-
-echo "QA output created by $seq"
 
 # get standard filters
 . ./common.filter

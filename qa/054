@@ -17,11 +17,9 @@ trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 host=`./getpmcdhosts -L -n1 2>$tmp.out` # choose a non-local host (foreign server)
-if [ -z "$host" ]
-then
-    cat $tmp.out >$seq.notrun
-    exit
-fi
+[ -z "$host" ] && cat $tmp.out >$seq.notrun
+eval realhost=`pmprobe -v -h $host pmcd.hostname | $PCP_AWK_PROG '{ print $3 }'`
+[ $realhost = Unknown ] && realhost=`pmhostname $host`
 
 echo "log mandatory on once { hinv.ncpu }" >$tmp.config
 
@@ -31,6 +29,7 @@ _filter_pmlogger_log <$tmp.log
 echo "host should be HOST ..."
 pmdumplog -l $tmp 2>&1 \
 | sed -e 's/host /Host /' \
+      -e "s/$realhost/HOST/" \
       -e "s/$host/HOST/" \
 | _filter_pmdumplog \
 | sed -e 's/Host /host /'

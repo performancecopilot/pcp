@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2013 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+root {
+    jbd2
+}
+
+jbd2 {
+    njournals			122:0:0
+    transaction
+}
+
+jbd2.transaction {
+    count			122:0:1
+    requested			122:0:2
+    max_blocks			122:0:3
+    total
+    average
+}
+
+jbd2.transaction.total {
+    time
+    blocks			122:0:10
+    blocks_logged		122:0:11
+    handles			122:0:12
+}
+
+jbd2.transaction.total.time {
+    waiting			122:0:4
+    request_delay		122:0:5
+    running			122:0:6
+    being_locked		122:0:7
+    flushing_ordered_mode_data	122:0:8
+    logging			122:0:9
+}
+
+jbd2.transaction.average {
+    time
+    blocks			122:0:20
+    blocks_logged		122:0:21
+    handles			122:0:22
+}
+
+jbd2.transaction.average.time {
+    waiting			122:0:13
+    request_delay		122:0:14
+    running			122:0:15
+    being_locked		122:0:16
+    flushing_ordered_mode_data	122:0:17
+    logging			122:0:18
+    committing			122:0:19
+}

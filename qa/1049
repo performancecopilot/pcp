@@ -2,13 +2,11 @@
 # PCP QA Test No. 1049 (formerly 552)
 # make sure that installed pmie rule files are syntactically OK.
 #
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
-# creator
-owner=nathans
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -17,8 +15,6 @@ seq=`basename $0`
 . ./localconfig
 
 which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 username=`id -u -n`

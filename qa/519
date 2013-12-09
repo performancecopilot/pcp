@@ -16,6 +16,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -71,8 +72,6 @@ then
     _notrun "Cannot find second remote host running pmcd"
     exit
 fi
-
-echo "QA output created by $seq"
 
 # real QA test starts here
 $sudo rm -f core* $seq.core*

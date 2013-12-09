@@ -45,12 +45,25 @@ endif
 
 default : $(LIBTARGET) $(STATICLIBTARGET)
 
+# Static probing for Linux, Mac OS X and Solaris.
 ifeq "$(ENABLE_PROBES)" "true"
+ifeq "$(TARGET_OS)" "linux"
 trace.o: probes.h
 probes.h: probes.d pmcd.stp
 	$(DTRACE) -h -s $< -o $@
 probes.o: probes.d
 	$(DTRACE) -G -s $< -o $@
+endif
+ifeq "$(TARGET_OS)" "solaris"
+$(STATICLIBTARGET): rewrite
+trace.o: probes.h
+probes.h: probes.d
+	$(DTRACE) -h -s $< -o $@
+rewrite: trace.o
+	$(DTRACE) -G -s probes.d trace.o
+	touch rewrite
+LDIRT += rewrite
+endif
 endif
 
 pmcd.stp : pmcd.stp.in

@@ -19,9 +19,9 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
+[\f3\-AfS\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
-[\f3\-f\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -31,7 +31,6 @@
 [\f3\-P\f1 \f2passfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-s\f1 \f2sockname\f1]
-[\f3\-S\f1]
 [\f3\-T\f1 \f2traceflag\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -77,6 +76,14 @@ agents are specified.
 The options to
 .B pmcd
 are as follows.
+.TP
+.B \-A
+Disable service advertisement.
+By default,
+.B pmcd
+will advertise its presence on the network using any available mechanisms
+(such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
+These mechanisms are disabled with this option.
 .TP
 \f3\-c\f1 \f2config\f1
 On startup
@@ -222,7 +229,7 @@ but the
 option allows an alternative timeout interval (which must be greater than
 zero) to be specified.  The unit of time is seconds.
 .TP
-\f3\-S\f1
+.B \-S
 Require that all client connections provide user credentials.
 This means that only unix domain sockets, or authenticated connections are
 permitted (requires secure sockets support).
@@ -372,10 +379,9 @@ configuration data.
 .PP
 \f3Warning\f1:
 .B pmcd
-is usually started as part of the boot sequence and runs as root.
-The
-configuration file may contain shell commands to create agents, which will be
-executed by root.
+is usually started as part of the boot sequence and runs initially as root.
+The configuration file may contain shell commands to create agents,
+which will be executed by root.
 To prevent security breaches the configuration file should
 be writable only by root.
 The use of absolute path names is also recommended.
@@ -393,8 +399,7 @@ ensuring that the last character on the line is a ``\\''
 A comment on a continued line ends at the end of the continued
 line.
 Spaces may be included in lexical elements by enclosing the entire
-element in double quotes (there must be whitespace before the opening and after
-the closing quote).
+element in double quotes.
 A double quote preceded by a backslash is always a
 literal double quote.
 A ``#''

@@ -5,18 +5,18 @@
 # Copyright (c) 2013 Red Hat.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 . ./localconfig
 
-seq=`basename $0`
 [ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux logical volume manager"
 [ $PCP_VER -ge 3801 ] || _notrun "Requires more recent Linux kernel PMDA"
 [ -d /dev/mapper ] || _notrun "Requires kernel support for Device Mapper"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

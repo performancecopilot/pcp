@@ -32,6 +32,10 @@ $PMCD_REQUEST_TIMEOUT=120
 #Host		P?  S?	directory				args
 
 # local primary logger
+#
+# (LOCALHOSTNAME is expanded to local: in the first column,
+# and to `hostname` in the fourth (directory) column.)
+#
 LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default
 
 # Note:	if multiple pmloggers for the same host (e.g. both primary and

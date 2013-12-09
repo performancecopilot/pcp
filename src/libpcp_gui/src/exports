@@ -1,0 +1,19 @@
+PCP_GUI_2.0 {
+  global:
+    pmRecordSetup;
+    pmRecordControl;
+    pmRecordAddHost;
+
+    pmTimeConnect;
+    pmTimeDisconnect;
+    pmTimeRecv;
+    pmTimeSendAck;
+    pmTimeShowDialog;
+    pmTimeStateAck;
+    pmTimeStateBounds;
+    pmTimeStateMode;
+    pmTimeStateSetup;
+    pmTimeStateVector;
+
+  local: *;
+};

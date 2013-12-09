@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -17,6 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CFILES	= mmv_stats.c
+VERSION_SCRIPT = exports
+LSRCFILES = $(VERSION_SCRIPT)
 
 STATICLIBTARGET	= libpcp_mmv.a
 DSOVERSION = 1
@@ -44,15 +47,15 @@ default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 include $(BUILDRULES)
 
 install: default
-ifneq "$(LIBTARGET)" ""
+ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 	for tt in $(SYMTARGET); do \
 		$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
 	done
 endif
-ifneq "$(STATICLIBTARGET)" ""
+ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
@@ -60,7 +63,11 @@ default_pcp: default
 
 install_pcp: install
 
-ifneq "$(SYMTARGET)" ""
+ifneq ($(SYMTARGET),)
 $(SYMTARGET):
 	$(LN_S) -f $(LIBTARGET) $@
+endif
+
+ifneq ($(LIBTARGET),)
+$(LIBTARGET): $(VERSION_SCRIPT)
 endif

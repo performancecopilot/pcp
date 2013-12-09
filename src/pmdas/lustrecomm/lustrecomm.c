@@ -133,8 +133,8 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
     void *vp;
 
 	/* check for PMID errors */
-    if ( !((idp->cluster == 0) && (idp->item >= 0 && idp->item <= 4)) &&
-	 !((idp->cluster == 1) && (idp->item >= 0 && idp->item <= 10)) )
+    if ( !((idp->cluster == 0) && (idp->item <= 4)) &&
+	 !((idp->cluster == 1) && (idp->item <= 10)) )
 	return PM_ERR_PMID;
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;

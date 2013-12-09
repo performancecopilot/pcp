@@ -9,16 +9,23 @@
 # 	but passes when rerun
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-# check for new version ... may need -o to force "old style" behaviour
-#
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3809 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
+
 if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
 then
     oflag='-o'
@@ -32,6 +39,7 @@ _filter()
     | sed -f $tmp/sed \
     | sed \
 	-e "s;$tmp;TMP;g" \
+	-e "s/local:/HOST/g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
@@ -146,6 +154,8 @@ cat $tmp.out.1 >>$seq.full
 echo
 echo "After ..."
 ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort | tee $tmp.after
+
+pmdumplog -a $tmp/$yesterday >>$seq.full
 
 echo
 echo "Differences ..."

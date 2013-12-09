@@ -76,6 +76,8 @@ static struct {
     		"Trace fault injection (if enabled)" },
     { DBG_TRACE_AUTH,		"AUTH",
     		"Authentication services (if enabled)" },
+    { DBG_TRACE_DISCOVERY,	"DISCOVERY",
+    		"Service discovery (if enabled)" },
     { DBG_TRACE_DESPERATE,		"DESPERATE",
     		"Desperate/verbose level" },
 };

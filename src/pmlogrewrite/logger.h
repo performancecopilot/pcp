@@ -140,6 +140,7 @@ extern char	mess[256];
 extern char	*configfile;
 extern FILE	*fconfig;
 extern int	lineno;
+extern FILE	*yyin;
 
 extern void	yyerror(char *);
 extern void	yywarn(char *);
@@ -151,8 +152,13 @@ extern int	yyparse(void);
 #define W_NEXT	2
 #define W_NONE	3
 
-extern int		__pmLogRename(const char *, const char *);
-extern int		__pmLogRemove(const char *);
+extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
+extern int	_pmLogPut(FILE *, __pmPDU *);
+extern int	_pmLogRename(const char *, const char *);
+extern int	_pmLogRemove(const char *);
+extern pmUnits	ntoh_pmUnits(pmUnits);
+#define ntoh_pmInDom(indom) ntohl(indom)
+#define ntoh_pmID(pmid)     ntohl(pmid)
 
 extern metricspec_t	*start_metric(pmID);
 extern indomspec_t	*start_indom(pmInDom);
@@ -161,8 +167,6 @@ extern int		change_inst_by_name(pmInDom, char *, char *);
 extern int		inst_name_eq(const char *, const char *);
 
 extern char	*SemStr(int);
-extern int	_pmLogGet(__pmLogCtl *, int, __pmPDU **);
-extern int	_pmLogPut(FILE *, __pmPDU *);
 extern void	newvolume(int);
 
 extern void	do_desc(void);

@@ -123,8 +123,12 @@ ParseOptions(int argc, char *argv[], int *nports)
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "c:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
+    while ((c = getopt(argc, argv, "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
 	switch (c) {
+
+	    case 'A':	/* disable pmcd service advertising */
+		__pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+		break;
 
 	    case 'c':	/* configuration file */
 		strncpy(configFileName, optarg, sizeof(configFileName)-1);
@@ -259,6 +263,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 	fprintf(stderr,
 "Usage: %s [options]\n\n"
 "Options:\n"
+"  -A              disable service advertisement\n" 
 "  -c config       path to configuration file\n"
 "  -C dirname      path to NSS certificate database\n"
 "  -f              run in the foreground\n" 
@@ -602,9 +607,9 @@ HandleReadyAgents(__pmFdSet *readyFds)
 static void
 CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 {
-    int		s, sts, challenge, accepted = 1;
+    int		s, sts, accepted = 1;
+    __uint32_t	challenge;
     ClientInfo	*cp;
-    __pmPDUInfo	xchallenge;
 
     if (__pmFD_ISSET(rfd, fdset)) {
 	if ((cp = AcceptNewClient(rfd)) == NULL)
@@ -632,7 +637,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /* required */
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
-	    challenge = *(int*)(&cp->pduInfo);
+	    challenge = *(__uint32_t *)(&cp->pduInfo);
 	    sts = 0;
 	}
 	else {
@@ -641,13 +646,11 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	}
 
 	pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
-	xchallenge = *(__pmPDUInfo *)&challenge;
-	xchallenge = __htonpmPDUInfo(xchallenge);
 
 	/* reset (no meaning, use fd table to version) */
 	cp->pduInfo.version = UNKNOWN_VERSION;
 
-	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, *(unsigned int *)&xchallenge);
+	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, htonl(challenge));
 	if (s < 0) {
 	    __pmNotifyErr(LOG_ERR,
 		"ClientLoop: error sending Conn ACK PDU to new client %s\n",
@@ -881,6 +884,7 @@ main(int argc, char *argv[])
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
+    __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
@@ -893,6 +897,11 @@ main(int argc, char *argv[])
      * may exist. 
      */
     __pmServerSetLocalSocket(sockpath);
+
+    /* Set the service spec. This will cause our service to be advertised on
+     * the network if that is supported.
+     */
+    __pmServerSetServiceSpec(SERVER_SERVICE_SPEC);
 
     if (run_daemon) {
 	fflush(stderr);

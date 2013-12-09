@@ -2,7 +2,7 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2013 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -82,6 +82,13 @@ in
 	    then
 		configure_options="$configure_options --libdir=/usr/lib64"
 	    fi
+	fi
+	;;
+    SunOS)
+	ARCH=`isainfo -k`
+	if [ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ]
+	then
+	    configure_options="$configure_options --libdir=/usr/lib/64"
 	fi
 	;;
 esac

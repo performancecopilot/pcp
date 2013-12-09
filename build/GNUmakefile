@@ -72,7 +72,11 @@ pcp.src : $(_FORCE)
 	fi; export PKG_ROOT SRC_ROOT; \
 	CDIR=`pwd`; cd $(TOPDIR); \
 	$(MAKE) -j 1 $(MAKEOPTS) $(@:%.src=src-%) >/tmp/$$$$.makesrc; \
-	s=$$?; if [ $$s -ne 0 ] ; then exit $$s; \
+	s=$$?; \
+	if [ $$s -ne 0 ]; \
+	then \
+	    rm -f /tmp/$$$$.makesrc; \
+	    exit $$s; \
 	else \
 	    sed -e "s;^\.;$$SRC_ROOT;" </tmp/$$$$.makesrc >$$CDIR/$@ ;\
 	    rm -f /tmp/$$$$.makesrc; \

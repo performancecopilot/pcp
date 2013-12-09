@@ -51,6 +51,25 @@ typedef struct {
      */
 } tracedata_t;
 
+#ifdef HAVE_NETWORK_BYTEORDER
+#define trace_htonll(a) do { } while (0) /* noop */
+#define trace_ntohll(a) do { } while (0) /* noop */
+#else
+static void
+trace_htonll(char *p)
+{   
+    char        c;
+    int         i;
+
+    for (i = 0; i < 4; i++) {
+        c = p[i];
+        p[i] = p[7-i];
+        p[7-i] = c; 
+    }
+}
+#define trace_ntohll(v) trace_htonll(v)
+#endif
+
 int
 __pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
 {
@@ -89,7 +108,7 @@ __pmtracesenddata(int fd, char *tag, int taglen, int tagtype, double data)
     cp = (char *)pp;
     cp += sizeof(tracedata_t);
     memcpy((void *)cp, (void *)&data, sizeof(double));
-    __htonll((char *)cp);	/* send in network byte order */
+    trace_htonll(cp);	/* send in network byte order */
     cp += sizeof(double);
     strcpy(cp, tag);
 #ifdef PCP_DEBUG
@@ -145,7 +164,7 @@ __pmtracedecodedata(__pmTracePDU *pdubuf, char **tag, int *taglenp,
     cp = (char *)pp;
     cp += sizeof(tracedata_t);
     memcpy((void *)data, (void *)cp, sizeof(double));
-    __ntohll((char *)data);	/* receive in network byte order */
+    trace_ntohll((char *)data);	/* receive in network byte order */
     cp += sizeof(double);
     if ((*tag = (char *)malloc(taglen+1)) == NULL)
 	return -oserror();

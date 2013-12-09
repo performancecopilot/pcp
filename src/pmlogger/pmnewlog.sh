@@ -523,7 +523,7 @@ eval $RM -f $dir/Latest
 
 # clean up port-map, just in case
 #
-PM_LOG_PORT_DIR=$PCP_TMP_DIR/pmlogger
+PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
 eval $RM -f $PM_LOG_PORT_DIR/$pid
 $primary && eval $RM -f $PM_LOG_PORT_DIR/primary
 

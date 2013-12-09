@@ -155,7 +155,7 @@ foo(FILE *f, char *fn, int i, void *closure)
 	free(tmpset);
 	fprintf(f, " pmGetChildren OK");
 	*((int *)closure) = 0;
-	if ((sts == pmTraversePMNS_r(namelist[i], dometric, closure)) < 0) {
+	if ((sts = pmTraversePMNS_r(namelist[i], dometric, closure)) < 0) {
 	    fprintf(f, "\n%s: %s ...: pmTraversePMNS_r Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	    pthread_exit("botch");
 	}

@@ -77,9 +77,7 @@ else
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
-ifeq "$(findstring $(PCP_TMP_DIR),/var/tmp /tmp)" ""
-	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)
-endif
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 	# $PCP_RUN_DIR usually -> /var/run which may be a mounted filesystem
 	# and Debian's lintian complains about packages including /var/run/xxx
@@ -97,12 +95,11 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmchart
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmieconf
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
-	$(INSTALL) -m 755 -d $(PCP_LOG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)
 	#

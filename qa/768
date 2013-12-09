@@ -1,0 +1,31 @@
+#!/bin/sh
+# PCP QA Test No. 768
+# pmlogextract bug - reported by Tom Yearke
+#
+# Copyright (c) 2013 Ken McDonell, Tom Yearke.  All Rights Reserved.
+#
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+[ $PCP_VER -lt 3809 ] && _notrun "pmlogextract fix in PCP 3.8.9"
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogextract -Z UTC -S "@ Nov 27 15:52:30" -T "@ Nov 27 15:54:30" src/node_archive $tmp
+
+pmdumplog -a -Z UTC $tmp
+
+# success, all done
+status=0
+
+exit

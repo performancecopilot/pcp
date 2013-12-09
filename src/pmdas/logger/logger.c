@@ -164,7 +164,7 @@ logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 static int
 valid_pmid(unsigned int cluster, unsigned int item)
 {
-    if (cluster != 0 || item < 0 || item > nummetrics)
+    if (cluster != 0 || item > nummetrics)
 	return PM_ERR_PMID;
     return 0;
 }

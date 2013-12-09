@@ -1,4 +1,3 @@
-/usr/bin/collectl2pcp
 QA output created by 544
 ## Testing RHEL6.4 inst/value extraction, checksums:
 40722 TMP.out.cpus

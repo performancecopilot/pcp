@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -14,8 +15,6 @@ seq=`basename $0`
 
 [ $PCP_PLATFORM = darwin ] && _notrun "No sysinfo on darwin"
 [ $PCP_PLATFORM = solaris ] && _notrun "No sysinfo on solaris"
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

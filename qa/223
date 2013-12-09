@@ -6,20 +6,14 @@
 #
 
 seq=`basename $0`
-
-. ./localconfig
-if [ $PCP_PLATFORM != irix ]
-then
-    echo "functionality which is specific to IRIX Rebuild script" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = irix ] || _notrun "tests the IRIX Rebuild script"
 
 _copy_Rebuild()
 {

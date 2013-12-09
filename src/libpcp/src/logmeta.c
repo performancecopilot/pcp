@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,6 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "fault.h"
+#include "internal.h"
 #include <stddef.h>
 
 /* bytes for a length field in a header/trailer, or a string length field */

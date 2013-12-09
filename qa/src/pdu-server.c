@@ -69,8 +69,8 @@ decode_encode(int fd, __pmPDU *pb, int type)
     int		count;
     __pmCred	*creds;
     idlist_t	*idlist_p;
-    int		numpmidlist = 0;
-    pmID	*pmidlist = NULL;
+    static int	numpmidlist;
+    static pmID	*pmidlist;
     int		numlist;
     char	**namelist;
     int		*statlist;

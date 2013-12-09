@@ -37,57 +37,34 @@ static struct {
     /* status flags (bitfields) */
     unsigned int	certificate_verified : 1;	/* NSS */
     unsigned int	ssl_session_cache_setup : 1;	/* NSS */
-    unsigned int	credentials_required : 1;	/* SASL/AF_UNIX */
-    unsigned int	unix_domain_socket : 1;		/* AF_UNIX */
 } secure_server;
 
 int
-__pmServerSetFeature(__pmServerFeature wanted)
+__pmSecureServerSetFeature(__pmServerFeature wanted)
 {
-    switch (wanted) {
-    case PM_SERVER_FEATURE_CREDS_REQD:
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-	secure_server.credentials_required = 1;
-	PM_UNLOCK(__pmLock_libpcp);
-	return 1;
-    case PM_SERVER_FEATURE_UNIX_DOMAIN:
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-	secure_server.unix_domain_socket = 1;
-	PM_UNLOCK(__pmLock_libpcp);
-	return 1;
-    default:
-	break;
-    }
-    return 0;
+    (void)wanted;
+    return 0;	/* nothing dynamically enabled at this stage */
 }
 
 int
-__pmServerHasFeature(__pmServerFeature query)
+__pmSecureServerClearFeature(__pmServerFeature clear)
+{
+    (void)clear;
+    return 0;	/* nothing dynamically disabled at this stage */
+}
+
+int
+__pmSecureServerHasFeature(__pmServerFeature query)
 {
     int sts = 0;
 
     switch (query) {
-    case PM_SERVER_FEATURE_UNIX_DOMAIN:
-    case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_SECURE:
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-	if (query == PM_SERVER_FEATURE_SECURE)
-	    sts = secure_server.certificate_verified;
-	if (query == PM_SERVER_FEATURE_CREDS_REQD)
-	    sts = secure_server.credentials_required;
-	if (query == PM_SERVER_FEATURE_UNIX_DOMAIN)
-	    sts = secure_server.unix_domain_socket;
-	PM_UNLOCK(__pmLock_libpcp);
+	sts = secure_server.certificate_verified;
 	break;
     case PM_SERVER_FEATURE_COMPRESS:
     case PM_SERVER_FEATURE_AUTH:
 	sts = 1;
-	break;
-    case PM_SERVER_FEATURE_IPV6:
-	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
     default:
 	break;
@@ -302,12 +279,12 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	goto done;
     }
 
-    secsts = NSS_SetExportPolicy();
-    if (secsts != SECSuccess) {
-	__pmNotifyErr(LOG_ERR, "Unable to set NSS export policy: %s",
-		pmErrStr(__pmSecureSocketsError(PR_GetError())));
-	goto done;
-    }
+    /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
+    do {
+        const PRUint16 *cipher;
+        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
+            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
+    } while (0);
 
     /* Configure SSL session cache for multi-process server, using defaults */
     secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);

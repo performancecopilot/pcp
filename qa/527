@@ -7,12 +7,13 @@
 # Copyright (c) 2013 Red Hat, Inc. and Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 [ $PCP_VER -ge 3801 ] || _notrun libpcp_import fix is in PCP 3.8.1
 
@@ -21,8 +22,6 @@ _filter()
     sed \
 	-e "s;$tmp;TMP;g"
 }
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -72,6 +71,8 @@ use PCP::LogImport;
 End-of-File
 echo "pmiStart(\"$tmp.gfs\", 0);" >>$tmp.pl
 cat <<'End-of-File' >>$tmp.pl
+$_ = pmiSetTimezone('UTC');
+$_ == 0 || die "pmiSetTimezone(UTC): " . pmiErrStr($_);
 
 $_ = pmiAddMetric("gfs.inodes",
 	     PM_ID_NULL, PM_TYPE_DOUBLE, PM_INDOM_NULL,
@@ -120,8 +121,6 @@ close(INFILE);
 
 pmiEnd();
 End-of-File
-
-cp $tmp.pl gfs-conv.pl
 
 # real QA test starts here
 perl $tmp.pl 2>&1 | _filter

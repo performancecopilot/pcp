@@ -6,8 +6,8 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
-# real QA test starts here
 # get standard filters
 . ./common.product
 . ./common.filter
@@ -20,8 +20,6 @@ elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     _notrun "no network.ip metrics for $PCP_PLATFORM"
 fi
-
-echo "QA output created by $seq"
 
 compare=`pwd`/src/compare
 rm -rf $tmp.*
@@ -42,6 +40,7 @@ else
     exit 1
 fi
 
+# real QA test starts here
 ns1=$tmp.netstat1
 pcp=$tmp.pcp
 ns2=$tmp.netstat2

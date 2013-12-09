@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Thread-safe note
  *
@@ -77,7 +74,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	int		have_dm;
 
 	/* for derived metrics, may need to rewrite the pmidlist */
-	have_dm = newcnt = __dmprefetch(ctxp, numpmid, pmidlist, &newlist);
+	have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
 	if (newcnt > numpmid) {
 	    /* replace args passed into myFetch */
 	    numpmid = newcnt;
@@ -116,7 +113,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			    n = sts;
 			}
 			else {
-			    __dmpostfetch(ctxp, &result);
+			    __pmFinishResult(ctxp, sts, &result);
 			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
 				n = sts;
 			    else {

@@ -13,6 +13,9 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
+%if "@enable_avahi@" == "true"
+BuildRequires: avahi-devel
+%endif
 %if "@enable_secure@" == "true"
 BuildRequires: nss-devel
 BuildRequires: cyrus-sasl-devel
@@ -301,7 +304,7 @@ but can also be configured to monitor remote GUIDs such as IB switches.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure @package_configure@ --with-rcdir=%{_rcdir} --with-tmpdir=%{_tmpdir}
+%configure @package_configure@ --with-rcdir=%{_rcdir}
 @make@ default_pcp
 
 %install
@@ -420,18 +423,19 @@ $1 == "f" {
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 %pre testsuite
+test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
 exit 0
 
 %post testsuite
-chown -R pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null
+chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 
 %pre
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
-    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /sbin/nologin pcp
+    useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 # new directories; they should match /etc/pcp.conf settings after install
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@

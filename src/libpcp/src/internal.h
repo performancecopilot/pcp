@@ -12,7 +12,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-
 #ifndef _INTERNAL_H
 #define _INTERNAL_H
 
@@ -21,11 +20,85 @@
  * but which we do not want to expose via impl.h or pmapi.h.
  */
 
-#ifdef __cplusplus
-extern "C" {
+#if defined(__GNUC__) && (__GNUC__ >= 4)
+# define _PCP_HIDDEN __attribute__ ((visibility ("hidden")))
+#else
+# define _PCP_HIDDEN
 #endif
 
-extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
+#include "derive.h"
+
+extern int __pmConvertTimeout(int) _PCP_HIDDEN;
+extern const struct timeval *__pmConnectTimeout(void) _PCP_HIDDEN;
+extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
+
+extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
+extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
+
+extern int __pmGetFileStatusFlags(int) _PCP_HIDDEN;
+extern int __pmSetFileStatusFlags(int, int) _PCP_HIDDEN;
+extern int __pmGetFileDescriptorFlags(int) _PCP_HIDDEN;
+extern int __pmSetFileDescriptorFlags(int, int) _PCP_HIDDEN;
+
+#ifdef HAVE_NETWORK_BYTEORDER
+/*
+ * no-ops if already in network byte order but
+ * the value may be used in an expression.
+ */
+#define __htonpmUnits(a)	(a)
+#define __ntohpmUnits(a)	(a)
+#define __htonpmID(a)		(a)
+#define __ntohpmID(a)		(a)
+#define __htonpmInDom(a)	(a)
+#define __ntohpmInDom(a)	(a)
+#define __htonpmPDUInfo(a)	(a)
+#define __ntohpmPDUInfo(a)	(a)
+#define __htonpmCred(a)		(a)
+#define __ntohpmCred(a)		(a)
+
+/*
+ * For network byte order, the following are noops,
+ * but otherwise the function is void, so they are
+ * defined as comments to catch code that tries to
+ * use them in an expression or assignment.
+ */
+#define __htonpmValueBlock(a)	/* noop */
+#define __ntohpmValueBlock(a)	/* noop */
+#define __htonf(a)		/* noop */
+#define __ntohf(a)		/* noop */
+#define __htond(a)		/* noop */
+#define __ntohd(a)		/* noop */
+#define __htonll(a)		/* noop */
+#define __ntohll(a)		/* noop */
+
+#else
+/*
+ * Functions to convert to/from network byte order
+ * for little-endian platforms (e.g. Intel).
+ */
+#define __htonpmID(a)		htonl(a)
+#define __ntohpmID(a)		ntohl(a)
+#define __htonpmInDom(a)	htonl(a)
+#define __ntohpmInDom(a)	ntohl(a)
+
+extern pmUnits __htonpmUnits(pmUnits) _PCP_HIDDEN;
+extern pmUnits __ntohpmUnits(pmUnits) _PCP_HIDDEN;
+extern __pmPDUInfo __htonpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
+extern __pmPDUInfo __ntohpmPDUInfo(__pmPDUInfo) _PCP_HIDDEN;
+extern __pmCred __htonpmCred(__pmCred) _PCP_HIDDEN;
+extern __pmCred __ntohpmCred(__pmCred) _PCP_HIDDEN;
+
+/* insitu swab for these */
+extern void __htonpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
+extern void __ntohpmValueBlock(pmValueBlock * const) _PCP_HIDDEN;
+extern void __htonf(char *) _PCP_HIDDEN;	/* float */
+#define __ntohf(v) __htonf(v)
+#define __htond(v) __htonll(v)			/* double */
+#define __ntohd(v) __ntohll(v)
+extern void __htonll(char *) _PCP_HIDDEN;	/* 64bit int */
+#define __ntohll(v) __htonll(v)
+
+#endif /* HAVE_NETWORK_BYTEORDER */
 
 #ifdef PM_MULTI_THREAD
 #ifdef HAVE___THREAD
@@ -37,7 +110,7 @@ extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 /*
  * Roll-your-own Thread Private Data support
  */
-extern pthread_key_t __pmTPDKey;
+extern pthread_key_t __pmTPDKey _PCP_HIDDEN;
 
 typedef struct {
     int		curcontext;	/* current context */
@@ -52,16 +125,23 @@ __pmTPDGet(void)
 
 #define PM_TPD(x)  __pmTPDGet()->x
 #endif
-#else
-/* No threads - just access global variables as is */
+#else /* !PM_MULTI_THREAD */
+/* No threads - just access global variables as-is */
 #define PM_TPD(x) x
+#endif
+
+#ifdef PM_MULTI_THREAD_DEBUG
+extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
+extern int __pmIsContextLock(void *) _PCP_HIDDEN;
+extern int __pmIsChannelLock(void *) _PCP_HIDDEN;
+extern int __pmIsDeriveLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */
 #define PM_HOST_SPEC_NPORTS_LOCAL (-1)
 #define PM_HOST_SPEC_NPORTS_UNIX  (-2)
-extern const char *__pmPMCDLocalSocketDefault(void);
-extern void __pmCheckAcceptedAddress(__pmSockAddr *);
+extern const char *__pmPMCDLocalSocketDefault(void) _PCP_HIDDEN;
+extern void __pmCheckAcceptedAddress(__pmSockAddr *) _PCP_HIDDEN;
 
 #ifdef SOCKET_INTERNAL
 #ifdef HAVE_SECURE_SOCKETS
@@ -82,7 +162,7 @@ struct __pmSockAddr {
 typedef PRAddrInfo __pmAddrInfo;
 
 /* internal NSS/NSPR/SSL/SASL implementation details */
-extern int __pmSecureSocketsError(int);
+extern int __pmSecureSocketsError(int) _PCP_HIDDEN;
 
 #else /* native sockets only */
 
@@ -111,15 +191,22 @@ struct __pmHostEnt {
 };
 #endif
 
-extern int __pmInitSecureSockets(void);
-extern int __pmInitCertificates(void);
-extern int __pmInitSocket(int, int);
-extern int __pmSocketReady(int, struct timeval *);
-extern int __pmSocketClosed(void);
-extern int __pmConnectCheckError(int);
-extern void *__pmGetSecureSocket(int);
-extern void *__pmGetUserAuthData(int);
-extern int __pmSecureServerIPCFlags(int, int);
+extern int __pmInitSecureSockets(void) _PCP_HIDDEN;
+extern int __pmInitCertificates(void) _PCP_HIDDEN;
+extern int __pmInitSocket(int, int) _PCP_HIDDEN;
+extern int __pmSocketReady(int, struct timeval *) _PCP_HIDDEN;
+extern int __pmSocketClosed(void) _PCP_HIDDEN;
+extern int __pmConnectCheckError(int) _PCP_HIDDEN;
+extern void *__pmGetSecureSocket(int) _PCP_HIDDEN;
+extern void *__pmGetUserAuthData(int) _PCP_HIDDEN;
+extern int __pmSecureServerIPCFlags(int, int) _PCP_HIDDEN;
+extern int __pmSecureServerHasFeature(__pmServerFeature) _PCP_HIDDEN;
+extern int __pmSecureServerSetFeature(__pmServerFeature) _PCP_HIDDEN;
+extern int __pmSecureServerClearFeature(__pmServerFeature) _PCP_HIDDEN;
+
+extern int __pmShutdownLocal(void) _PCP_HIDDEN;
+extern int __pmShutdownCertificates(void) _PCP_HIDDEN;
+extern int __pmShutdownSecureSockets(void) _PCP_HIDDEN;
 
 #define SECURE_SERVER_SASL_SERVICE "PCP Collector"
 #define LIMIT_AUTH_PDU	2048	/* maximum size of a SASL transfer (in bytes) */
@@ -127,27 +214,39 @@ extern int __pmSecureServerIPCFlags(int, int);
 #define DEFAULT_SECURITY_STRENGTH 0	/* SASL security strength factor */
 
 typedef int (*sasl_callback_func)(void);
-extern int __pmInitAuthClients(void);
-extern int __pmInitAuthServer(void);
+extern int __pmInitAuthClients(void) _PCP_HIDDEN;
+extern int __pmInitAuthServer(void) _PCP_HIDDEN;
 
-extern int __pmValidUserID(__pmUserID);
-extern int __pmValidGroupID(__pmGroupID);
-extern int __pmEqualUserIDs(__pmUserID, __pmUserID);
-extern int __pmEqualGroupIDs(__pmGroupID, __pmGroupID);
-extern void __pmUserIDFromString(const char *, __pmUserID *);
-extern void __pmGroupIDFromString(const char *, __pmGroupID *);
-extern char *__pmUserIDToString(__pmUserID, char *, size_t);
-extern char *__pmGroupIDToString(__pmGroupID, char *, size_t);
-extern int __pmUsernameToID(const char *, __pmUserID *);
-extern int __pmGroupnameToID(const char *, __pmGroupID *);
-extern char *__pmUsernameFromID(__pmUserID, char *, size_t);
-extern char *__pmGroupnameFromID(__pmGroupID, char *, size_t);
-extern int __pmUsersGroupIDs(const char *, __pmGroupID **, unsigned int *);
-extern int __pmGroupsUserIDs(const char *, __pmUserID **, unsigned int *);
-extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int);
+/*
+ * Platform independent user/group account manipulation
+ */
+extern int __pmValidUserID(__pmUserID) _PCP_HIDDEN;
+extern int __pmValidGroupID(__pmGroupID) _PCP_HIDDEN;
+extern int __pmEqualUserIDs(__pmUserID, __pmUserID) _PCP_HIDDEN;
+extern int __pmEqualGroupIDs(__pmGroupID, __pmGroupID) _PCP_HIDDEN;
+extern void __pmUserIDFromString(const char *, __pmUserID *) _PCP_HIDDEN;
+extern void __pmGroupIDFromString(const char *, __pmGroupID *) _PCP_HIDDEN;
+extern char *__pmUserIDToString(__pmUserID, char *, size_t) _PCP_HIDDEN;
+extern char *__pmGroupIDToString(__pmGroupID, char *, size_t) _PCP_HIDDEN;
+extern int __pmUsernameToID(const char *, __pmUserID *) _PCP_HIDDEN;
+extern int __pmGroupnameToID(const char *, __pmGroupID *) _PCP_HIDDEN;
+extern char *__pmUsernameFromID(__pmUserID, char *, size_t) _PCP_HIDDEN;
+extern char *__pmGroupnameFromID(__pmGroupID, char *, size_t) _PCP_HIDDEN;
+extern int __pmUsersGroupIDs(const char *, __pmGroupID **, unsigned int *) _PCP_HIDDEN;
+extern int __pmGroupsUserIDs(const char *, __pmUserID **, unsigned int *) _PCP_HIDDEN;
+extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int) _PCP_HIDDEN;
 
-#ifdef __cplusplus
-}
-#endif
+/*
+ * Representations of server presence on the network.
+ */
+typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
+
+struct __pmServerPresence {
+    /* Common data. */
+    char			*serviceSpec;
+    int				port;
+    /* API-specific data. */
+    __pmServerAvahiPresence	*avahi;
+};
 
 #endif /* _INTERNAL_H */

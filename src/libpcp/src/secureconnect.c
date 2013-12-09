@@ -31,6 +31,10 @@
 void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE)
+        fprintf(stderr, "secureconnect.c:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", hostent, hostent->name, hostent->name, hostent-> addresses);
+#endif
     if (hostent->name != NULL)
         free(hostent->name);
     if (hostent->addresses != NULL)
@@ -400,10 +404,12 @@ __pmInitCertificates(void)
 	PK11_FreeSlot(slot);
     }
 
-    secsts = NSS_SetExportPolicy();
-    if (secsts != SECSuccess)
-	return __pmSecureSocketsError(PR_GetError());
-
+    /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
+    do {
+        const PRUint16 *cipher;
+        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
+            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
+    } while (0);
     SSL_ClearSessionCache();
 
     return 0;
@@ -1573,6 +1579,13 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 }
 
 void
+__pmSockAddrSetScope(__pmSockAddr *addr, int scope)
+{
+    if (addr->sockaddr.raw.family == PR_AF_INET6)
+        addr->sockaddr.ipv6.scope_id = scope;
+}
+
+void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -2026,6 +2039,13 @@ __pmGetNameInfo(__pmSockAddr *address)
     char *name;
     PRHostEnt he;
     PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+        if (prStatus != PR_SUCCESS) {
+            fprintf(stderr, "secureconnect.c:PR_GetHostByAddr(%s) returns %d (%s)\n", __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
+        }
+    }
+#endif
     name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
     return name;
 }

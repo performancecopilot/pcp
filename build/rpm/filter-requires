@@ -9,7 +9,7 @@
 
 _usage()
 {
-    echo >&2 "Usage: $0 [option] path-to-real-find-requires"
+    echo >&2 "Usage: $0 [option] path-to-real-find-requires [arg]"
     echo >&2 "Options:"
     echo >&2 " -f fedora_version"
     echo >&2 " -r redhat_version"
@@ -38,7 +38,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $# -ne 1 ]
+if [ $# -lt 1 ]
 then
     _usage
     exit 1
@@ -65,11 +65,11 @@ in
 	# See RedHat BZ 830923 and BZ 754678 for Spreadsheet::Read
 	# issues.
 	# Does not seem to matter what version of RH or Fedora.
-	$1 \
+	$* \
 	| sed \
 	    -e '/^perl(Spreadsheet::Read)$/d'
 	;;
     *)
-	$1
+	$*
 	;;
 esac

@@ -87,7 +87,7 @@ __pmDefaultRequestTimeout(void)
     return (&def_wait);
 }
 
-int
+static int
 pduread(int fd, char *buf, int len, int part, int timeout)
 {
     int			socketipc = __pmSocketIPC(fd);

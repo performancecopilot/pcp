@@ -19,12 +19,10 @@
 
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMLOGGER=pmlogger
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
-
-# Get the portable PCP rc script functions
-[ -f $PCP_SHARE_DIR/lib/rc-proc.sh ] && . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 # error messages should go to stderr, not the GUI notifiers
 unset PCP_STDERR
@@ -42,9 +40,10 @@ prog=`basename $0`
 #
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 
-# determine real name for localhost
-LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-[ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
+# NB: FQDN cleanup; don't guess a 'real name for localhost', and
+# definitely don't truncate it a la `hostname -s`.  Instead now
+# we use such a string only for the default log subdirectory, ie.
+# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -120,8 +119,6 @@ then
     # need to do this when running unilaterally from cron, else we'll
     # always start pmlogger up (even when we shouldn't).
     #
-    . $PCP_SHARE_DIR/lib/rc-proc.sh
-
     QUIETLY=true
     if is_chkconfig_on pmlogger
     then
@@ -134,7 +131,7 @@ fi
 if [ $START_PMLOGGER = false ]
 then
     # if pmlogger has never been started, there's no work to do to stop it
-    [ ! -d $PCP_TMP_DIR/pmlogger ] && exit
+    [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
     $QUIETLY || pmpost "stop pmlogger from $prog"
 fi
 
@@ -254,7 +251,7 @@ _configure_pmlogger()
             cat "$configfile"
             echo "=== end pmlogconf file ==="
         else
-            ( id pcp && chown pcp:pcp "$configfile" ) >/dev/null 2>&1
+            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP "$configfile") >/dev/null 2>&1
         fi
     fi
 }
@@ -397,10 +394,18 @@ rm -f $tmp/err $tmp/pmloggers
 
 line=0
 cat $CONTROL \
- | sed -e "s/LOCALHOSTNAME/$LOCALHOSTNAME/g" \
-       -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
+ | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
  | while read host primary socks dir args
 do
+    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
+    # differently for the directory and the pcp -h HOST arguments.
+    dir_hostname=`hostname || echo localhost`
+    dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
+    if [ "x$host" = "xLOCALHOSTNAME" ]
+    then
+        host=local:
+    fi
+
     line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
     case "$host"
@@ -479,7 +484,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	else
 	    _warning "creating directory ($dir) for PCP archive files"
 	fi
-	chown pcp:pcp $dir 2>/dev/null
+	chown $PCP_USER:$PCP_GROUP "$dir" 2>/dev/null
     fi
 
     [ ! -d "$dir" ] && continue
@@ -500,8 +505,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # ensure pcp user will be able to write there
     #
-    ( id pcp && chown -R pcp:pcp "$dir" ) >/dev/null 2>&1
-    if [ ! -w $dir ]
+    (id "$PCP_USER" && chown -R $PCP_USER:$PCP_GROUP "$dir") >/dev/null 2>&1
+    if [ ! -w "$dir" ]
     then
         echo "$prog: Warning: no write access in $dir, skip lock file processing"
     else
@@ -572,37 +577,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
     fi
-    
+
     pid=''
     if [ "X$primary" = Xy ]
     then
-        if [ "X$host" != "X$LOCALHOSTNAME" -a "X$host" != "X`pmhostname`" ]
-	then
-	    _error "\"primary\" only allowed for $LOCALHOSTNAME (localhost, not $host)"
-	    _unlock
-	    continue
-	fi
+        # NB: FQDN cleanup: previously, we used to quietly accept several
+        # putative-aliases in the first (hostname) slot for a primary logger,
+        # which were all supposed to refer to the local host.  So now we
+        # squash them all to the officially pcp-preferred way to access it.
+        # This does not get used by pmlogger in the end (gets -P and not -h
+        # in the primary logger case), but it *does* matter for pmlogconf.
+        host=local:
 
-	if is_chkconfig_on pmlogger
-	then
-	    :
-	else
-	    _error "primary logging disabled via chkconfig for $host"
-	    _unlock
-	    continue
-	fi
-
-	if test -f $PCP_TMP_DIR/pmlogger/primary
+	if test -f "$PCP_TMP_DIR/pmlogger/primary"
 	then
 	    if $VERY_VERBOSE
 	    then 
-		_host=`sed -n 2p <$PCP_TMP_DIR/pmlogger/primary`
-		_arch=`sed -n 3p <$PCP_TMP_DIR/pmlogger/primary`
+		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
+		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
 		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
 	    fi
 	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
 	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    pid=''
 	    for file in $PCP_TMP_DIR/pmlogger/*
 	    do
 		case "$file"
@@ -625,7 +621,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		if $VERY_VERBOSE
 		then
 		    echo "primary pmlogger process pid not found"
-		    ls -l $PCP_TMP_DIR/pmlogger
+		    ls -l "$PCP_TMP_DIR/pmlogger"
 		fi
 	    else
 		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
@@ -643,10 +639,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
 	    if $VERY_VERBOSE
 	    then
-		_fqdn=`pmhostname $host | sed -e 's/@.*//'`
 		_host=`sed -n 2p <$log`
 		_arch=`sed -n 3p <$log`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log fqdn=$_fqdn host=$_host arch=$_arch: ""$PCP_ECHO_C"
+		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
 	    fi
 	    # throw away stderr in case $log has been removed by now
 	    match=`sed -e '3s/\/[0-9][0-9][0-9][0-9][0-9.]*$//' $log 2>/dev/null \
@@ -681,8 +676,8 @@ END				{ print m }'`
 	    iam=" primary"
 	    # clean up port-map, just in case
 	    #
-	    PM_LOG_PORT_DIR=$PCP_TMP_DIR/pmlogger
-	    rm -f $PM_LOG_PORT_DIR/primary
+	    PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
+	    rm -f "$PM_LOG_PORT_DIR/primary"
 	else
 	    args="-h $host $args"
 	    iam=""
@@ -794,7 +789,7 @@ END				{ print m }'`
 	then
 	    $VERBOSE && echo "Latest folio created for $LOGNAME"
             mkaf $LOGNAME.0 >Latest
-            ( id pcp && chown pcp:pcp Latest ) >/dev/null 2>&1
+            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP Latest) >/dev/null 2>&1
 	else
 	    logdir=`dirname $LOGNAME`
 	    if $TERSE

@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter()
 {
@@ -89,10 +89,10 @@ BEGIN		{ min = 31; max = 31 }
 }
 
 # real QA test starts here
-rm -f $tmp.* $seq.full
-pmlogger -s 30 -L -c /dev/null -l $tmp.log $tmp &
-pid=$!
-sleep 1
+$sudo rm -f $tmp.* $seq.full
+_start_up_pmlogger -s 30 -L -c /dev/null -l $tmp.log $tmp
+
+pmsleep 0.5
 
 echo
 echo "=== log sample.bin[bin-100] ===" | tee -a $seq.full
@@ -100,7 +100,7 @@ pmlc <<End-of-File
 connect $pid
 log mandatory on 200 msec sample.bin ["bin-100"]
 End-of-File
-sleep 4
+pmsleep 4.0
 
 echo
 echo "=== log sample.bin[bin-200] ===" | tee -a $seq.full
@@ -109,7 +109,7 @@ connect $pid
 log mandatory on 200 msec sample.bin ["bin-200"]
 End-of-File
 
-wait
+_wait_pmlogger_end $pid
 _filter_pmlogger_log <$tmp.log
 cat $tmp.log >>$seq.full
 

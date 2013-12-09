@@ -9,13 +9,15 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-seq=`basename $0`
-
+rm -f $seq.full
 rm -f $seq.out
 if [ $PCP_VER -lt 3800 ]
 then
@@ -23,8 +25,6 @@ then
 else
     ln $seq.out.2 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 _filter()
 {
@@ -53,6 +53,7 @@ _remote_signal()
 \$PCP_BINADM_DIR/pmsignal -s TERM $pid
 sleep 1
 \$PCP_BINADM_DIR/pmsignal -s KILL $pid
+test -k \$PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o-w \$PCP_TMP_DIR/pmlogger
 rm -f /tmp/$base.*
 end-of-file
     scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
@@ -71,9 +72,10 @@ then
     . $PCP_DIR/etc/pcp.env
 else
     echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
-    exit
+    exit 1
 fi
 rm -f /tmp/$$.*
+test -k $PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o+w $PCP_TMP_DIR/pmlogger
 ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
 echo pid=$! base=$$
 End-of-File
@@ -105,7 +107,7 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
-		exit
+		exit 1
 	    fi
 	fi
 	sleep 2
@@ -155,7 +157,6 @@ End-of-File
 	pid=''
 	base=''
     fi
-
 }
 
 _cleanup()
@@ -171,7 +172,6 @@ _cleanup()
 	need_clean=false
     fi
     rm -f $tmp.*
-    exit
 }
 
 need_clean=true
@@ -187,8 +187,6 @@ base=''
 PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
-
-rm -f $seq.full
 
 # real QA test starts here
 

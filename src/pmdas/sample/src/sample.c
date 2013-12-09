@@ -755,7 +755,7 @@ redo_many(void)
 
     /* realloc string buffer */
 
-    tags=realloc(tags,many_count*MANY_MAX_LEN);
+    tags = realloc(tags, many_count*MANY_MAX_LEN);
     if (!idp->it_set) {
 	idp->it_numinst=0;
 	many_count=0;
@@ -1299,7 +1299,7 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     return 0;
 }
 
-int
+static int
 sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
     int		i;
@@ -1320,7 +1320,7 @@ sample_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
     return PM_ERR_NAME;
 }
 
-int
+static int
 sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
     size_t	len = 0;
@@ -1367,7 +1367,7 @@ sample_name(pmID pmid, char ***nameset, pmdaExt *pmda)
     return nmatch;
 }
 
-int
+static int
 sample_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
     int		i;
@@ -1505,7 +1505,7 @@ fail:
      return j;
 }
 
-int
+static int
 sample_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
     /*
@@ -2661,7 +2661,9 @@ sample_store(pmResult *result, pmdaExt *ep)
     return sts;
 }
 
-void sample_init(pmdaInterface *dp)
+void
+__PMDA_INIT_CALL
+sample_init(pmdaInterface *dp)
 {
     char	helppath[MAXPATHLEN];
     int		i;
@@ -2723,6 +2725,4 @@ void sample_init(pmdaInterface *dp)
     _dodgey[2].i_name = strdup("d3");
     _dodgey[3].i_name = strdup("d4");
     _dodgey[4].i_name = strdup("d5");
-
-    return;
 }

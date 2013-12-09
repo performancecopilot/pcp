@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.filter
@@ -26,8 +27,6 @@ then
 else
     ln $seq.out.2 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 status=1	# failure is the default!
 

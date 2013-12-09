@@ -29,7 +29,7 @@ $(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
 endif
 
 ifdef LIBTARGET
-ifneq (, $(filter linux kfreebsd netbsd, $(TARGET_OS)))
+ifneq (, $(filter linux freebsd kfreebsd netbsd mingw, $(TARGET_OS)))
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), solaris)
@@ -42,15 +42,16 @@ ifeq ($(PACKAGE_DISTRIBUTION), cocoa)
 _SHAREDOPTS	+= -arch x86_64
 endif
 endif
-ifeq ($(TARGET_OS), mingw)
-_SHAREDOPTS	= -shared -Wl,-export-all-symbols,-soname,$(LIBTARGET)
-endif
 ifeq ($(TARGET_OS), aix)
 _SHAREDOPTS	= -qmkshrobj
 endif
-ifeq ($(TARGET_OS), freebsd)
-_SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
+
+ifdef VERSION_SCRIPT
+ifneq ($(INVISIBILITY),)
+_SHAREDOPTS	+=  -Wl,--version-script=$(VERSION_SCRIPT)
 endif
+endif
+
 $(LIBTARGET) : $(SUBDIRS) $(OBJECTS)
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
 endif

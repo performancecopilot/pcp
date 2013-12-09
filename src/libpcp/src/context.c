@@ -822,8 +822,10 @@ pmDestroyContext(int handle)
 {
     __pmContext		*ctxp;
     struct linger       dolinger = {0, 1};
+#ifdef PM_MULTI_THREAD
     int			psts;
     char		errmsg[PM_MAXERRMSGLEN];
+#endif
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);

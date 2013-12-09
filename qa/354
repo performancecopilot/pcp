@@ -54,7 +54,7 @@ _filter()
 	-e "s/$host/HOST/" \
 	-e 's/[0-9][^ ]* [kmKM]*bytes/SOME bytes/g' \
 	-e 's/[0-9][^ ]* seconds/SOME seconds/g' \
-	-e "s/$$/PID/g" \
+	-e "s/$seq-$$/SEQ-PID/g" \
 	-e '/xconfirm: Not found/d' \
 	-e '/pmRecordControl/s/Bad file descriptor/Invalid argument/' \
     | _filter_pmlogger_log \

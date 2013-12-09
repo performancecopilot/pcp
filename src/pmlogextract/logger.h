@@ -28,6 +28,7 @@
  */
 typedef struct _reclist_t {
     __pmPDU		*pdu;		/* PDU ptr */
+    __pmTimeval		stamp;		/* for indom records */
     pmDesc		desc;
     int			written;	/* written status */
     struct _reclist_t	*ptr;		/* ptr to record in another reclist */
@@ -81,6 +82,8 @@ extern int	ml_size;		/* actual size of ml array */
 extern mlist_t	*ml;			/* list of pmids with indoms */
 extern rlist_t	*rl;			/* list of pmResults */
 
+extern int	ilog;
+
 
 /* config file parser states */
 #define GLOBAL	0
@@ -89,14 +92,26 @@ extern rlist_t	*rl;			/* list of pmResults */
 /* generic error message buffer */
 extern char	emess[];
 
-
 /* yylex() gets intput from here ... */
 extern FILE	*fconfig;
+extern FILE	*yyin;
 
 extern void	yyerror(char *);
 extern void	yywarn(char *);
 extern int	yylex(void);
 extern int	yyparse(void);
 extern void	dometric(const char *);
+
+/* log I/O helper routines */
+extern int _pmLogGet(__pmLogCtl *, int, __pmPDU **);
+extern int _pmLogPut(FILE *, __pmPDU *);
+extern pmUnits ntoh_pmUnits(pmUnits);
+#define ntoh_pmInDom(indom) ntohl(indom)
+#define ntoh_pmID(pmid) ntohl(pmid)
+
+/* internal routines */
+extern void insertresult(rlist_t **, pmResult *);
+extern pmResult *searchmlist(pmResult *);
+
 
 #endif /* _LOGGER_H */

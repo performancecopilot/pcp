@@ -900,8 +900,7 @@ __pmAccAddGroup(const char *name, unsigned int specOps, unsigned int denyOps, in
     if (!wildcard) {
 	if ((sts = __pmGroupnameToID(name, &groupid)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Failed to lookup group \"%s\": %s\n",
-				name, sts == 0 ? "no such group exists" :
-				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+				name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return -EINVAL;
 	}
 
@@ -1019,8 +1018,7 @@ __pmAccAddUser(const char *name, unsigned int specOps, unsigned int denyOps, int
     if (!wildcard) {
 	if ((sts = __pmUsernameToID(name, &userid)) < 0) {
 	    __pmNotifyErr(LOG_ERR, "Failed to lookup user \"%s\": %s\n",
-				name, sts == 0 ? "no such user exists" :
-				pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+				name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return -EINVAL;
 	}
 
@@ -1632,7 +1630,7 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     updateGroupAccountConnections(gid, 1, +1);
 
     /* Return code indicates access controls OK and have credentials */
-    return (userid || groupid);
+    return 1;
 }
 
 void

@@ -51,10 +51,8 @@ $1 == "log" && $2 == "size"	{ if ($3 > 100 && $3 <= 200) $3 = "more than 100"
 _speak_to_me()
 {
     host=$1
-    rm -f /tmp/$$.*
-    ( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
-    pid=$!
-
+    $sudo rm -f /tmp/$$.*
+    _start_up_pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
     _wait_for_pmlogger $pid /tmp/$$.log
 
     # the success cases
@@ -94,7 +92,7 @@ End-of-File
     #
     if [ ! -z "$host" ]
     then
-	$signal -s TERM $pid
+	$sudo $signal -s TERM $pid
 	pid=''
     fi
 
@@ -106,14 +104,14 @@ _cleanup()
     then
 	if [ ! -z "$pid" ]
 	then
-	    $signal -s TERM $pid
+	    $sudo $signal -s TERM $pid
 	    sleep 1
-	    $signal -s KILL $pid
+	    $sudo $signal -s KILL $pid
 	    pid=''
 	fi
 	need_clean=false
     fi
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
     exit
 }
 

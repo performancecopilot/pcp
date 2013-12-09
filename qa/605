@@ -6,6 +6,7 @@
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -14,7 +15,6 @@ seq=`basename $0`
 . ./localconfig
 
 rm -f $seq.out
-echo "QA output created by $seq" | tee $seq.out
 if [ $PCP_VER -lt 2200 ]; then
     cat $seq.in >>$seq.out
 else

@@ -3,6 +3,7 @@
  *********************************************************************** 
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2013 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -618,7 +619,7 @@ fetchExpr(char *mname,
     for (i = 0; i < hnames.n; i++) {
         m->mname = symIntern(&metrics, mname);
 	if (hnames.ss) m->hname = symIntern(&hosts, hnames.ss[i]);
-	else m->hname = symIntern(&hosts, dfltHost);
+	else m->hname = symIntern(&hosts, dfltHostName);
 	m->desc.sem = SEM_UNKNOWN;
 	m->m_idom = -1;
 	if (inames.n > 0) {

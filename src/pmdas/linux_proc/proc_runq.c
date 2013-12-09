@@ -101,8 +101,8 @@ refresh_proc_runq(proc_runq_t *proc_runq)
 	case 'D':
 	    proc_runq->blocked++;
 	    break;
-	case 'Z':
-	    break; /* already counted above */
+	/* case 'Z':
+	    break; -- already counted above */
 	default:
 	    fprintf(stderr, "UNKNOWN %c : %s\n", sname, buf);
 	    proc_runq->unknown++;

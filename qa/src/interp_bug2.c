@@ -356,7 +356,7 @@ Options\n\
 	}
 	else {
 	    if (result->vset[0]->numval != 1 ||
-		result->vset[0]->numval != 1) {
+		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
 		__pmDumpResult(stdout, result);
@@ -399,7 +399,7 @@ Options\n\
 	}
 	else {
 	    if (result->vset[0]->numval != 1 ||
-		result->vset[0]->numval != 1) {
+		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
 		__pmDumpResult(stdout, result);

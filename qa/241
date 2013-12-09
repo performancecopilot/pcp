@@ -7,12 +7,13 @@
 # Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
 #
 
+seq=`basename $0`
+echo "QA output created by $seq"
+
 # get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
-
-seq=`basename $0`
 
 perl -e "use PCP::MMV" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::MMV module not installed"
@@ -24,8 +25,6 @@ then
 else
     ln $seq.out.2 $seq.out || exit 1
 fi
-
-echo "QA output created by $seq"
 
 status=0	# success is the default!
 done_clean=false

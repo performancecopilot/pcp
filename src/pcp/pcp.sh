@@ -25,7 +25,7 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
 
 errors=0
 prog=`basename $0`
-host=`pmhostname`
+host=`hostname` # may match pmcd.hostname
 for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname status
 do
     eval $var="unknown?"
@@ -373,13 +373,19 @@ echo "     pmcd: ${version},${numagents}$numclients"
 if [ "$numloggers" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N " pmlogger: ""$PCP_ECHO_C"
-    _fmt < $tmp/loggers
+    LC_COLLATE=POSIX sort < $tmp/loggers \
+    | sed -e '/^$/d' | sed -e '1!s/^/           /'
 fi
 
 if [ "$numpmies" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "     pmie: ""$PCP_ECHO_C"
-    _fmt < $tmp/pmies
+    if [ $pflag = "true" ]; then
+	_fmt < $tmp/pmies
+    else
+	LC_COLLATE=POSIX sort < $tmp/pmies  \
+	| sed -e '/^$/d' | sed -e '1!s/^/           /'
+    fi
 fi
 
 sts=0
