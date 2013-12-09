@@ -110,16 +110,7 @@ protected:
 // It is configured from a djb-style control directory with files containing
 // 100% pure content.  Multiple values within the files, where permitted,
 // are newline-separated.
-//
-// /hostid: METRIC [METRIC]*
-// /target-host: HOSTNAME [HOSTNAME*]
-// /target-discover: PARAM [PARAM*]
-// /pmlogreduce: MODE
-// /pmlogconf: PARAMETERS
-// /pmlogger: PARAMETERS
-// /pmieconf: PARAMETERS
-// /pmie: PARAMETERS
-//
+
 class pmmgr_job_spec: pmmgr_configurable
 {
 public:

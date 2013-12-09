@@ -20,7 +20,7 @@ include $(TOPDIR)/src/include/builddefs
 
 LSRCFILES = hostid-metrics.default log-directory.default pmie		\
 	 pmieconf pmlogconf pmlogger pmlogmerge.default			\
-	 pmlogmerge-retain.default README target-discover.default	\
+	 pmlogmerge-retain.default README target-discovery.default	\
 	 target-host.default
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
