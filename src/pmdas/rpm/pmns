@@ -17,6 +17,7 @@ rpm {
     vendor	RPM:1:15
     version	RPM:1:16
     refresh
+    datasize	RPM:0:4
 }
 
 rpm.refresh {
