@@ -15,38 +15,37 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
-LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
-TARGETS = $(CMDTARGET) $(LIBTARGET)
+IAM		= rpm
+DOMAIN		= RPM
+CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 
-IAM	= rpm
-DOMAIN	= RPM
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAINIT	 = $(IAM)_init
 
-HFILES	= timer.h
-CFILES	= rpm.c timer.c
-LSRCFILES = Install Remove pmns root help
-LDIRT	= $(TARGETS) domain.h *.o $(IAM).log
+HFILES		= timer.h
+CFILES		= rpm.c timer.c
 
-# XXX: move these to configure/builddefs
-LIB_FOR_RPM = -lrpm
-HAVE_RPM_SUPPORT = 1
+SCRIPTS		= Install Remove
+VERSION_SCRIPT	= exports
+LSRCFILES	= Install Remove pmns root help
+LDIRT		= domain.h $(IAM).log $(VERSION_SCRIPT)
 
-LCFLAGS = -I.
-LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RPM) $(LIB_FOR_PTHREADS)
-
+LIB_FOR_RPM	= -lrpm
+LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_RPM) $(LIB_FOR_PTHREADS)
+LCFLAGS		= $(INVISIBILITY)
 
 default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(HAVE_RPM_SUPPORT)" "1"
+ifeq ($(HAVE_RPMLIB),1)
 build-me: domain.h $(CMDTARGET) $(LIBTARGET)
 
 install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDADIR)
 else
 build-me:
 install:
@@ -56,8 +55,11 @@ default_pcp : default
 
 install_pcp : install
 
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
+
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 rpm.o timer.o: timer.h
- 
+rpm.o: $(VERSION_SCRIPT)
