@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which rpmbuild >/dev/null 2>&1 || _notrun "No rpmbuild binary found"
+test -x "$PCP_PMDAS_DIR/rpm/pmdarpm" || _notrun "pmdarpm not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

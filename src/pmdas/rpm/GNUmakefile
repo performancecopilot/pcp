@@ -23,7 +23,7 @@ LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT	 = $(IAM)_init
 
-HFILES		= timer.h
+HFILES		= rpm.h timer.h
 CFILES		= rpm.c timer.c
 
 SCRIPTS		= Install Remove

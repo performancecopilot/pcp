@@ -35,7 +35,6 @@
 @ rpm.group group of the package
 @ rpm.installtime package install time
 @ rpm.license package license
-@ rpm.name name of the package
 @ rpm.packager entity responsible for packaging
 @ rpm.release release list of the package
 @ rpm.size size of the package in bytes

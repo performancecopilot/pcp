@@ -2,93 +2,48 @@ QA output created by 750
 metric: rpm.arch
 python
 "x9_9"
-metric: rpm.basenames
+metric: rpm.buildhost
 python
-"['/PATH/NAME', /PATH/NAME']"
+"x9-9.build.bos.redhat.com"
 metric: rpm.buildtime
 python
-"9"
+9
 metric: rpm.description
 python
-"Python is an interpreted, interactive, object-oriented programming
-language often compared to Tcl, Perl, Scheme or Java. Python includes
-modules, classes, exceptions, very high level dynamic data types and
-dynamic typing. Python supports interfaces to many system calls and
-libraries, as well as to various windowing systems (X9, Motif, Tk,
-Mac and MFC).
-Programmers can write new built-in modules for Python in C or C++.
-Python can be used as an extension language for applications that need
-a programmable interface.
-Note that documentation for Python is provided in the python-docs
-package.
-This package provides the "python" executable; most of the actual
-implementation is within the "python-libs" package."
-metric: rpm.dirnames
+""
+metric: rpm.epoch
 python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.evr
-python
-"9.9.9-9.rel9"
-metric: rpm.file.linktos
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.file.md9s
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.file.modes
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.file.names
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.file.require
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.file.sizes
-python
-"['/PATH/NAME', /PATH/NAME']"
+9
 metric: rpm.group
 python
 "Development/Languages"
-metric: rpm.instfilenames
+metric: rpm.installtime
 python
-"['/PATH/NAME', /PATH/NAME']"
+9
 metric: rpm.license
 python
-"Python"
-metric: rpm.list
+"Python bindings for interacting with gnome-vfs"
+metric: rpm.packager
 python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.name
-python
-"python"
-metric: rpm.obsoletes
-python
-"['/PATH/NAME', /PATH/NAME']"
-metric: rpm.platform
-python
-"x9_9-redhat-linux-gnu"
-metric: rpm.provides
-python
-"['/PATH/NAME', /PATH/NAME']"
+"Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>"
 metric: rpm.release
 python
-"9.fc9"
-metric: rpm.requires
-python
-"['/PATH/NAME', /PATH/NAME']"
+"9.el9_9.9"
 metric: rpm.size
 python
-"9"
+9
 metric: rpm.sourcerpm
 python
-"python-9.9.9-9.rel9.rpm"
+"python-9.9.9-9.rel9_9.src.rpm"
 metric: rpm.summary
 python
-"An interpreted, interactive, object-oriented programming language"
+""
 metric: rpm.url
 python
 "http://www.python.org/"
+metric: rpm.vendor
+python
+""
 metric: rpm.version
 python
 "9.9.9"
