@@ -66,13 +66,16 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 
 int pmDiscoverServices(const char *service,
 		       const char *discovery_domain,
-		       int numUrls, char ***urls)
+		       char ***urls)
 {
+    int numUrls;
     /*
      * Attempt to discover the requested service(s) using the requested/available means.
      * If a particular method is not available or not configured, then the
      * respective call will have no effect.
      */
+    *urls = NULL;
+    numUrls = 0;
     if (discovery_domain == NULL || strcmp(discovery_domain, "avahi") == 0)
 	numUrls = __pmAvahiDiscoverServices(service, numUrls, urls);
     else
@@ -160,12 +163,11 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 }
 
 int pmDiscoverServices(const char *service, const char *discovery_domain,
-		       int numUrls, char ***urls)
+		       char ***urls)
 {
     /* No services to discover. */
     (void)service;
     (void)discovery_domain;
-    (void)numUrls;
     (void)urls;
     return -EOPNOTSUPP;
 }
