@@ -5,13 +5,22 @@
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-# get standard environment, filters and checks
+# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
+
+seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3809 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
+echo "QA output created by $seq"
 
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection & lock tracing enabled"
@@ -104,9 +113,9 @@ _filter <$tmp.trace
 echo | tee -a $seq.full
 echo "== pmlogger ==" | tee -a $seq.full
 sed -e 's/1 sec/50 msec/' <src/config.foo >$tmp.config
-_pre $SRC/pmlogger pmlogger
-$SRC/pmlogger/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
-_post $SRC/pmlogger pmlogger
+_pre $SRC/pmlogger/src pmlogger
+$SRC/pmlogger/src/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
+_post $SRC/pmlogger/src pmlogger
 _filter <$tmp.log
 
 echo | tee -a $seq.full
