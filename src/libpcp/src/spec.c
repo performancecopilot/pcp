@@ -397,6 +397,9 @@ __pmDropHostPort(pmHostSpec *specp)
  *	pcp -h app1.aconex.com:44321@firewall.aconex.com
  *	pcp -h app1.aconex.com@firewall.aconex.com
  *	pcp -h app1.aconex.com:44321
+ *      pcp -h 192.168.122.1:44321
+ *      pcp -h [fe80::5eff:35ff:fe07:55ca]:44321,4321@[fe80::5eff:35ff:fe07:55cc]:44322
+ *      pcp -h [fe80::5eff:35ff:fe07:55ca]:44321
  *
  * Basic algorithm:
  *	look for first colon, @ or null; preceding text is hostname
@@ -404,6 +407,12 @@ __pmDropHostPort(pmHostSpec *specp)
  *	  while comma, look for comma, @ or null, preceding text is next port
  *	if @, start following host specification at the following character,
  *	 by returning to the start and repeating the above for the next chunk.
+ * Note:
+ *      IPv6 addresses contain colons and, so, must be separated from the
+ *      rest of the spec somehow. A common notation among ipv6-enabled
+ *      applications is to enclose the address within brackets, as in
+ *      [fe80::5eff:35ff:fe07:55ca]:44321. We keep it simple, however,
+ *      and allow any host spec to be enclosed in brackets.
  * Note:
  *	Currently only two hosts are useful, but ability to handle more than
  *	one optional proxy host is there (i.e. proxy ->proxy ->... ->pmcd),
@@ -418,11 +427,30 @@ parseHostSpec(
     char **errmsg)              /* error message */
 {
     pmHostSpec *hsp = NULL;
-    const char *s, *start;
+    const char *s, *start, *next;
     int nhosts = 0, sts = 0;
 
     for (s = start = *position; s != NULL; s++) {
-	if (*s == ':' || *s == '@' || *s == '\0' || *s == '/' || *s == '?') {
+	/* Allow the host spec to be enclosed in brackets. */
+	if (s == start && *s == '[') {
+	    for (s++; *s != ']' && *s != '\0'; s++)
+		;
+	    if (*s != ']') {
+		hostError(spec, s, "missing closing ']' for host spec", errmsg);
+		sts = PM_ERR_GENERIC;
+		goto fail;
+	    }
+	    next = s + 1; /* past the trailing ']' */
+	    if (*next != ':' && *next != '@' && *next != '\0' && *next != '/' && *next != '?') {
+		hostError(spec, next, "extra characters after host spec", errmsg);
+		sts = PM_ERR_GENERIC;
+		goto fail;
+	    }
+	    start++; /* past the initial '[' */
+	}
+	else
+	    next = s;
+	if (*next == ':' || *next == '@' || *next == '\0' || *next == '/' || *next == '?') {
 	    if (s == *position)
 		break;
 	    else if (s == start)
@@ -432,6 +460,7 @@ parseHostSpec(
 		sts = -ENOMEM;
 		goto fail;
 	    }
+	    s = next;
 	    if (*s == ':') {
 		for (++s, start = s; s != NULL; s++) {
 		    if (*s == ',' || *s == '@' || *s == '\0' || *s == '/' || *s == '?') {

@@ -659,6 +659,9 @@ extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 /* Free set of pmResults from pmUnpackEventRecords */
 extern void pmFreeEventResult(pmResult **);
 
+/* Service discovery, for clients. */
+extern int pmDiscoverServices(const char *, const char *, int, char ***);
+
 #ifdef __cplusplus
 }
 #endif

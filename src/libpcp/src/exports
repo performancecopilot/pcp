@@ -369,6 +369,7 @@ PCP_3.0 {
     __pmSockAddrSetFamily;
     __pmSockAddrSetPath;
     __pmSockAddrSetPort;
+    __pmSockAddrSetScope;
     __pmSockAddrSize;
     __pmSockAddrToString;
     __pmSocketIPC;
@@ -397,3 +398,8 @@ PCP_3.0 {
 
   local: *;
 };
+
+PCP_3.1 {
+  global:
+    pmDiscoverServices;
+} PCP_3.0;

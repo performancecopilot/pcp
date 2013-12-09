@@ -1,0 +1,150 @@
+QA output created by 532
+
+Before ...
+NOW-2.1H.MM-00.0
+NOW-2.1H.MM-00.index
+NOW-2.1H.MM-00.meta
+NOW-2.1H.MM-01.0
+NOW-2.1H.MM-01.index
+NOW-2.1H.MM-01.meta
+NOW-2.1H.MM.0
+NOW-2.1H.MM.index
+NOW-2.1H.MM.meta
+NOW-3.1H.MM-00.0
+NOW-3.1H.MM-00.index
+NOW-3.1H.MM-00.meta
+NOW-3.1H.MM-01.0
+NOW-3.1H.MM-01.index
+NOW-3.1H.MM-01.meta
+NOW-3.1H.MM.0
+NOW-3.1H.MM.index
+NOW-3.1H.MM.meta
+TODAY.16H.MM-00.0
+TODAY.16H.MM-00.index
+TODAY.16H.MM-00.meta
+TODAY.16H.MM-01.0
+TODAY.16H.MM-01.index
+TODAY.16H.MM-01.meta
+TODAY.16H.MM.0
+TODAY.16H.MM.index
+TODAY.16H.MM.meta
+TODAY.1H.MM-00.0
+TODAY.1H.MM-00.index
+TODAY.1H.MM-00.meta
+TODAY.1H.MM-01.0
+TODAY.1H.MM-01.index
+TODAY.1H.MM-01.meta
+TODAY.1H.MM.0
+TODAY.1H.MM.index
+TODAY.1H.MM.meta
+TODAY.4H.MM-00.0
+TODAY.4H.MM-00.index
+TODAY.4H.MM-00.meta
+TODAY.4H.MM-01.0
+TODAY.4H.MM-01.index
+TODAY.4H.MM-01.meta
+YESTERDAY.1H.MM-00.0
+YESTERDAY.1H.MM-00.index
+YESTERDAY.1H.MM-00.meta
+YESTERDAY.1H.MM-01.0
+YESTERDAY.1H.MM-01.index
+YESTERDAY.1H.MM-01.meta
+YESTERDAY.1H.MM.0
+YESTERDAY.1H.MM.index
+YESTERDAY.1H.MM.meta
+control
+foo
+sed
+
+
+=== daily maintenance of PCP archives for host HOST ===
+
+PMLOGGER.DAILY: Error: no pmlogger instance running for host "HOST"
+[TMP/control:2] ... logging for host "HOST" unchanged
+
+Input archives to be merged:
+	YESTERDAY.1H.MM
+	YESTERDAY.1H.MM-00
+	YESTERDAY.1H.MM-01
+Output archive files:
+-rw-r--r-- ... 455 ... YESTERDAY.meta
+-rw-r--r-- ... 192 ... YESTERDAY.index
+-rw-r--r-- ... 1240 ... YESTERDAY.0
+Removing input archive files ... done
+Archive files older than 2 days being removed ...
+NOW-3.1H.MM-00.0
+NOW-3.1H.MM-00.index
+NOW-3.1H.MM-00.meta
+NOW-3.1H.MM-01.0
+NOW-3.1H.MM-01.index
+NOW-3.1H.MM-01.meta
+NOW-3.1H.MM.0
+NOW-3.1H.MM.index
+NOW-3.1H.MM.meta
+
+After ...
+NOW-2.1H.MM-00.0
+NOW-2.1H.MM-00.index
+NOW-2.1H.MM-00.meta
+NOW-2.1H.MM-01.0
+NOW-2.1H.MM-01.index
+NOW-2.1H.MM-01.meta
+NOW-2.1H.MM.0
+NOW-2.1H.MM.index
+NOW-2.1H.MM.meta
+TODAY.16H.MM-00.0
+TODAY.16H.MM-00.index
+TODAY.16H.MM-00.meta
+TODAY.16H.MM-01.0
+TODAY.16H.MM-01.index
+TODAY.16H.MM-01.meta
+TODAY.16H.MM.0
+TODAY.16H.MM.index
+TODAY.16H.MM.meta
+TODAY.1H.MM-00.0
+TODAY.1H.MM-00.index
+TODAY.1H.MM-00.meta
+TODAY.1H.MM-01.0
+TODAY.1H.MM-01.index
+TODAY.1H.MM-01.meta
+TODAY.1H.MM.0
+TODAY.1H.MM.index
+TODAY.1H.MM.meta
+TODAY.4H.MM-00.0
+TODAY.4H.MM-00.index
+TODAY.4H.MM-00.meta
+TODAY.4H.MM-01.0
+TODAY.4H.MM-01.index
+TODAY.4H.MM-01.meta
+YESTERDAY.0
+YESTERDAY.index
+YESTERDAY.meta
+control
+foo
+sed
+
+Differences ...
+10,18d9
+< NOW-3.1H.MM-00.0
+< NOW-3.1H.MM-00.index
+< NOW-3.1H.MM-00.meta
+< NOW-3.1H.MM-01.0
+< NOW-3.1H.MM-01.index
+< NOW-3.1H.MM-01.meta
+< NOW-3.1H.MM.0
+< NOW-3.1H.MM.index
+< NOW-3.1H.MM.meta
+43,51c34,36
+< YESTERDAY.1H.MM-00.0
+< YESTERDAY.1H.MM-00.index
+< YESTERDAY.1H.MM-00.meta
+< YESTERDAY.1H.MM-01.0
+< YESTERDAY.1H.MM-01.index
+< YESTERDAY.1H.MM-01.meta
+< YESTERDAY.1H.MM.0
+< YESTERDAY.1H.MM.index
+< YESTERDAY.1H.MM.meta
+---
+> YESTERDAY.0
+> YESTERDAY.index
+> YESTERDAY.meta

@@ -13,12 +13,21 @@
  */
 
 #include <assert.h>
+#include <avahi-client/publish.h>
+#include <avahi-client/lookup.h>
+#include <avahi-common/alternative.h>
+#include <avahi-common/simple-watch.h>
+#include <avahi-common/thread-watch.h>
+#include <avahi-common/timeval.h>
+#include <avahi-common/malloc.h>
+#include <avahi-common/error.h>
 
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
 #include "avahi.h"
 
+/* Support for servers advertising their presence. */
 static AvahiThreadedPoll	*threadedPoll;
 static AvahiClient		*client;
 static AvahiEntryGroup		*group;
@@ -185,7 +194,7 @@ cleanupClient(void)
 }
  
 static void
-clientCallback(AvahiClient *c, AvahiClientState state, void *userData)
+advertisingClientCallback(AvahiClient *c, AvahiClientState state, void *userData)
 {
     assert(c);
     (void)userData;
@@ -216,7 +225,7 @@ clientCallback(AvahiClient *c, AvahiClientState state, void *userData)
 		cleanupClient();
 		client = avahi_client_new(avahi_threaded_poll_get(threadedPoll),
 					  (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-					  clientCallback, NULL, & error);
+					  advertisingClientCallback, NULL, & error);
 	    }
 	    break;
 
@@ -344,7 +353,7 @@ publishService(__pmServerPresence *s)
 	 */
 	client = avahi_client_new(avahi_threaded_poll_get(threadedPoll),
 				  (AvahiClientFlags)AVAHI_CLIENT_NO_FAIL,
-				  clientCallback, NULL, &error);
+				  advertisingClientCallback, NULL, &error);
 
 	/* Check whether creating the client object succeeded. */
 	if (! client) {
@@ -441,4 +450,252 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
     avahi_threaded_poll_lock(threadedPoll);
     createServices(client);
     avahi_threaded_poll_unlock(threadedPoll);
+}
+
+/* Support for clients searching for services. */
+typedef struct browsingContext {
+    AvahiSimplePoll	*simplePoll;
+    char		***urls;
+    int			numUrls;
+    int			error;
+} browsingContext;
+
+/* Called whenever a service has been resolved successfully or timed out. */
+static void
+resolveCallback(
+    AvahiServiceResolver	*r,
+    AvahiIfIndex		interface,
+    AvahiProtocol		protocol,
+    AvahiResolverEvent		event,
+    const char			*name,
+    const char			*type,
+    const char			*domain,
+    const char			*hostName,
+    const AvahiAddress		*address,
+    uint16_t			port,
+    AvahiStringList		*txt,
+    AvahiLookupResultFlags	flags,
+    void			*userdata
+)
+{
+    char addressString[AVAHI_ADDRESS_STR_MAX];
+    browsingContext *context = (browsingContext *)userdata;
+    char ***urls = context->urls;
+    int numUrls = context->numUrls;
+    __pmServiceInfo serviceInfo;
+
+    /* Unused arguments. */
+    (void)protocol;
+    (void)hostName;
+    (void)txt;
+    (void)flags;
+    assert(r);
+
+    switch (event) {
+	case AVAHI_RESOLVER_FAILURE:
+	    context->error = avahi_client_errno(avahi_service_resolver_get_client(r));
+            break;
+
+	case AVAHI_RESOLVER_FOUND:
+	    /* Currently, only pmcd is supported. */
+	    if (strcmp(type, "_pmcd._tcp") == 0) {
+		serviceInfo.spec = SERVER_SERVICE_SPEC;
+		avahi_address_snprint(addressString, sizeof(addressString), address);
+		serviceInfo.address = __pmStringToSockAddr(addressString);
+		if (serviceInfo.address == NULL) {
+		    context->error = ENOMEM;
+		    break;
+		}
+		__pmSockAddrSetPort(serviceInfo.address, port);
+		__pmSockAddrSetScope(serviceInfo.address, interface);
+		context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+		__pmSockAddrFree(serviceInfo.address);
+	    }
+	    else
+		context->error = EINVAL;
+	    break;
+	default:
+	    break;
+    }
+
+    avahi_service_resolver_free(r);
+}
+
+/*
+ * Called whenever a new service becomes available on the LAN
+ * or is removed from the LAN.
+ */
+static void
+browseCallback(
+    AvahiServiceBrowser		*b,
+    AvahiIfIndex		interface,
+    AvahiProtocol		protocol,
+    AvahiBrowserEvent		event,
+    const char			*name,
+    const char			*type,
+    const char			*domain,
+    AvahiLookupResultFlags	flags,
+    void			*userdata
+)
+{
+    browsingContext *context = (browsingContext *)userdata;
+    AvahiClient *c = avahi_service_browser_get_client(b);
+    AvahiSimplePoll *simplePoll = context->simplePoll;
+    assert(b);
+
+    /* Unused argument. */
+    (void)flags;
+    
+    switch (event) {
+        case AVAHI_BROWSER_FAILURE:
+	    context->error = avahi_client_errno(c);
+	    avahi_simple_poll_quit(simplePoll);
+	    break;
+
+        case AVAHI_BROWSER_NEW:
+	    /*
+	     * We ignore the returned resolver object. In the callback
+	     * function we free it. If the server is terminated before
+	     * the callback function is called the server will free
+	     * the resolver for us.
+	     */
+            if (!(avahi_service_resolver_new(c, interface, protocol,
+					     name, type, domain,
+					     AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0,
+					     resolveCallback, context))) {
+		context->error = avahi_client_errno(c);
+	    }
+            break;
+
+        case AVAHI_BROWSER_REMOVE:
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            break;
+    }
+}
+
+/* Called whenever the client or server state changes. */
+static void
+browsingClientCallback(AvahiClient *c, AvahiClientState state, void *userdata)
+{
+    assert(c);
+    if (state == AVAHI_CLIENT_FAILURE) {
+	browsingContext *context = (browsingContext *)userdata;
+	AvahiSimplePoll *simplePoll = context->simplePoll;
+	context->error = avahi_client_errno(c);
+        avahi_simple_poll_quit(simplePoll);
+    }
+}
+
+static void
+timeoutCallback(AvahiTimeout *e, void *userdata)
+{
+    browsingContext *context = (browsingContext *)userdata;
+    AvahiSimplePoll *simplePoll = context->simplePoll;
+    (void)e;
+    avahi_simple_poll_quit(simplePoll);
+}
+
+
+static double
+discoveryTimeout(void)
+{
+    static int		done_default = 0;
+    static double	def_timeout = 0.5; /* 0.5 seconds */
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (!done_default) {
+	char	*timeout_str;
+	char	*end_ptr;
+	double	new_timeout;
+	if ((timeout_str = getenv("AVAHI_DISCOVERY_TIMEOUT")) != NULL) {
+	    new_timeout = strtod(timeout_str, &end_ptr);
+	    if (*end_ptr != '\0' || def_timeout < 0.0) {
+		__pmNotifyErr(LOG_WARNING,
+			      "ignored bad AVAHI_DISCOVERY_TIMEOUT = '%s'\n",
+			      timeout_str);
+	    }
+	    else
+		def_timeout = new_timeout;
+	}
+	done_default = 1;
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return def_timeout;
+}
+
+int
+__pmAvahiDiscoverServices(const char *service, int numUrls, char ***urls)
+{
+    AvahiClient		*client = NULL;
+    AvahiServiceBrowser	*sb = NULL;
+    AvahiSimplePoll	*simplePoll;
+    struct timeval	tv;
+    browsingContext	context;
+    char		*serviceTag;
+    size_t		size;
+    
+    /* Allocate the main loop object. */
+    if (!(simplePoll = avahi_simple_poll_new()))
+	return -ENOMEM;
+
+    context.error = 0;
+    context.simplePoll = simplePoll;
+    context.urls = urls;
+    context.numUrls = numUrls;
+
+    /* Allocate a new Avahi client */
+    client = avahi_client_new(avahi_simple_poll_get(simplePoll),
+			      (AvahiClientFlags)0,
+			      browsingClientCallback, &context, &context.error);
+
+    /* Check whether creating the client object succeeded. */
+    if (! client)
+	goto done;
+    
+    /* Create the service browser. */
+    size = sizeof("_._tcp") + strlen(service); /* includes room for the nul */
+    if ((serviceTag = malloc(size)) == NULL) {
+	context.error = ENOMEM;
+	goto done;
+    }
+    sprintf(serviceTag, "_%s._tcp", service);
+    sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
+				   AVAHI_PROTO_UNSPEC, serviceTag,
+				   NULL, (AvahiLookupFlags)0,
+				   browseCallback, & context);
+    free(serviceTag);
+    if (sb == NULL) {
+	context.error = ENOMEM;
+	goto done;
+    }
+
+    /* Set the timeout. */
+    avahi_simple_poll_get(simplePoll)->timeout_new(
+        avahi_simple_poll_get(simplePoll),
+	avahi_elapse_time(&tv, (unsigned)(discoveryTimeout() * 1000), 0),
+	timeoutCallback, &context);
+
+    /*
+     * Run the main loop. The discovered services will be added to 'urls'
+     * during the call back to resolveCallback
+     */
+    avahi_simple_poll_loop(simplePoll);
+    numUrls = context.numUrls;
+
+ done:
+    /* Cleanup. */
+    if (client) {
+	/* Also frees the service browser. */
+        avahi_client_free(client);
+    }
+    if (simplePoll)
+        avahi_simple_poll_free(simplePoll);
+
+    /* Check to see if there was an error. */
+    if (context.error)
+	return -context.error;
+
+    return numUrls;
 }
