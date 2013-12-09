@@ -302,15 +302,17 @@ pmmgr_job_spec::poll()
   vector<string> target_discovery = get_config_multi("target-discovery");
   for (unsigned i=0; i<target_discovery.size(); i++)
     {
-#if HAVE_DISCOVERY_API
       char **urls;
-      int rc = pmDiscoverServices (& urls, "pmcd", target_discovery[i].c_str());
+      int numUrls = 0;
+      const char *discovery = (target_discovery[i] == "") 
+        ? NULL
+        : target_discovery[i].c_str();
+      int rc = pmDiscoverServices (SERVER_SERVICE_SPEC, discovery, numUrls, &urls);
       if (rc < 0)
         continue;
-      for (char **url = urls; *url != NULL; url ++)
-        new_specs.insert(string(*url));
+      for (int i=0; i<numUrls; i++)
+        new_specs.insert(string(urls[i]));
       free ((void*) urls);
-#endif
     }
 
   // fallback to logging the local server, if nothing else is configured/discovered
