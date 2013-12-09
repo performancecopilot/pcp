@@ -83,7 +83,6 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
-#define SERVER_SERVICE_SPEC "pmcd"
 
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
