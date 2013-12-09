@@ -7,15 +7,14 @@ rpm {
     group	RPM:1:5
     installtime	RPM:1:6
     license	RPM:1:7
-    name	RPM:1:8
-    packager	RPM:1:9
-    release	RPM:1:10
-    size	RPM:1:11
-    sourcerpm	RPM:1:12
-    summary	RPM:1:13
-    url		RPM:1:14
-    vendor	RPM:1:15
-    version	RPM:1:16
+    packager	RPM:1:8
+    release	RPM:1:9
+    size	RPM:1:10
+    sourcerpm	RPM:1:11
+    summary	RPM:1:12
+    url		RPM:1:13
+    vendor	RPM:1:14
+    version	RPM:1:15
     refresh
     datasize	RPM:0:4
 }

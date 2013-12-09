@@ -27,231 +27,248 @@
 #include <pcp/pmda.h>
 #include "domain.h"
 #include "timer.h"
+#include "rpm.h"
 
-/*
- * Metrics describing internals of pmdarpm operation  (Cluster 0)
- */
-#define REFRESH_COUNT_IDX 0
-#define REFRESH_TIME_USER_IDX 1
-#define REFRESH_TIME_KERNEL_IDX 2
-#define REFRESH_TIME_ELAPSED_IDX 3
-#define DATASIZE_IDX 4
-
-/*
- * List of metrics corresponding to rpm --querytags  (Cluster 1)
- * corresponds to metrictab to give the tag rpm uses to fetch the given value
- */
-#define RPMTAG_ARCH_IDX 0
-#define RPMTAG_BUILDHOST_IDX 1
-#define RPMTAG_BUILDTIME_IDX 2
-#define RPMTAG_DESCRIPTION_IDX 3
-#define RPMTAG_EPOCH_IDX 4
-#define RPMTAG_GROUP_IDX 5
-#define RPMTAG_INSTALLTIME_IDX 6
-#define RPMTAG_LICENSE_IDX 7
-#define RPMTAG_NAME_IDX 8
-#define RPMTAG_PACKAGER_IDX 9
-#define RPMTAG_RELEASE_IDX 10
-#define RPMTAG_SIZE_IDX 11
-#define RPMTAG_SOURCERPM_IDX 12
-#define RPMTAG_SUMMARY_IDX 13
-#define RPMTAG_URL_IDX 14
-#define RPMTAG_VENDOR_IDX 15
-#define RPMTAG_VERSION_IDX 16
-static struct metrics {
-    int tag;
-    int type;
-} metrics[] = {
-    [RPMTAG_ARCH_IDX] = {RPMTAG_ARCH, 0},
-    [RPMTAG_BUILDHOST_IDX] = {RPMTAG_BUILDHOST, 0},
-    [RPMTAG_BUILDTIME_IDX] = {RPMTAG_BUILDTIME, 0},
-    [RPMTAG_DESCRIPTION_IDX] = {RPMTAG_DESCRIPTION, 0},
-    [RPMTAG_EPOCH_IDX] = {RPMTAG_EPOCH, 0},
-    [RPMTAG_GROUP_IDX] = {RPMTAG_GROUP, 0},
-    [RPMTAG_INSTALLTIME_IDX] = {RPMTAG_INSTALLTIME, 0},
-    [RPMTAG_LICENSE_IDX] = {RPMTAG_LICENSE, 0},
-    [RPMTAG_NAME_IDX] = {RPMTAG_NAME, 0},
-    [RPMTAG_PACKAGER_IDX] = {RPMTAG_PACKAGER, 0},
-    [RPMTAG_RELEASE_IDX] = {RPMTAG_RELEASE, 0},
-    [RPMTAG_SIZE_IDX] = {RPMTAG_SIZE, 0},
-    [RPMTAG_SOURCERPM_IDX] = {RPMTAG_SOURCERPM, 0},
-    [RPMTAG_SUMMARY_IDX] = {RPMTAG_SUMMARY, 0},
-    [RPMTAG_URL_IDX] = {RPMTAG_URL, 0},
-    [RPMTAG_VENDOR_IDX] = {RPMTAG_VENDOR, 0},
-    [RPMTAG_VERSION_IDX] = {RPMTAG_VERSION, 0}
+static pmdaIndom indomtab[] = {
+    {RPM_INDOM, 0, NULL},
+    {CACHE_INDOM, 1, NULL},
+    {STRINGS_INDOM, 2, NULL},
 };
-
-
-#define METRICTAB_ENTRY(M,N,T) (&metrics[N].tag), { PMDA_PMID (M, N), T, 0, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 static pmdaMetric metrictab[] = {
-    { NULL, {PMDA_PMID(0, REFRESH_COUNT_IDX),
-      PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 0, 1, 0, 0, PM_COUNT_ONE)} },
-    { NULL, {PMDA_PMID(0, REFRESH_TIME_USER_IDX),
-      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
-    { NULL, {PMDA_PMID(0, REFRESH_TIME_KERNEL_IDX),
-      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
-    { NULL, {PMDA_PMID(0, REFRESH_TIME_ELAPSED_IDX),
-      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
-    { NULL, {PMDA_PMID(0, REFRESH_TIME_ELAPSED_IDX),
-      PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(0, 1, 0, 0, PM_TIME_SEC, 0)} },
-    { NULL, {PMDA_PMID(0, DATASIZE_IDX),
-      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-      PMDA_PMUNITS(1, 0, 0, PM_SPACE_KBYTE, 0, 0)} },
-    {METRICTAB_ENTRY (1, RPMTAG_ARCH_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_BUILDHOST_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_BUILDTIME_IDX, PM_TYPE_U32)},
-    {METRICTAB_ENTRY (1, RPMTAG_DESCRIPTION_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_EPOCH_IDX, PM_TYPE_U32)},
-    {METRICTAB_ENTRY (1, RPMTAG_GROUP_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_INSTALLTIME_IDX, PM_TYPE_U32)},
-    {METRICTAB_ENTRY (1, RPMTAG_LICENSE_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_NAME_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_PACKAGER_IDX, PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_RELEASE_IDX , PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_SIZE_IDX , PM_TYPE_U32)},
-    {METRICTAB_ENTRY (1, RPMTAG_SOURCERPM_IDX , PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_SUMMARY_IDX , PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_URL_IDX , PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_VENDOR_IDX , PM_TYPE_STRING)},
-    {METRICTAB_ENTRY (1, RPMTAG_VERSION_IDX , PM_TYPE_STRING)},
+    /* PMDA internals metrics - timing, count of refreshes, memory */
+    { NULL, { PMDA_PMID(0, REFRESH_COUNT_ID), PM_TYPE_U64,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+    { NULL, { PMDA_PMID(0, REFRESH_TIME_USER_ID), PM_TYPE_DOUBLE,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(0, REFRESH_TIME_KERNEL_ID), PM_TYPE_DOUBLE,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(0, REFRESH_TIME_ELAPSED_ID), PM_TYPE_DOUBLE,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(0, REFRESH_TIME_ELAPSED_ID), PM_TYPE_DOUBLE,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(0, DATASIZE_ID), PM_TYPE_U32,
+	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+    /* rpm package metrics */
+    { NULL, { PMDA_PMID(1, ARCH_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, BUILDHOST_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, BUILDTIME_ID), PM_TYPE_U32,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(1, DESCRIPTION_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, EPOCH_ID), PM_TYPE_U32,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, GROUP_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, INSTALLTIME_ID), PM_TYPE_U32,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
+    { NULL, { PMDA_PMID(1, LICENSE_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, PACKAGER_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, RELEASE_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, SIZE_ID), PM_TYPE_U32,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+    { NULL, { PMDA_PMID(1, SOURCERPM_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, SUMMARY_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, URL_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, VENDOR_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, VERSION_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
 };
 
-// RPM cache information.  A linked list of pcp pmAtonValue structures.
-// RPMTAG_NAME will yield the name.  The type for each metric is stored and
-// saved in metrics.
-
-typedef struct cache_entry {
-    pmAtomValue entry[(RPMTAG_NVRA - RPMTAG_NAME) + 1 +
-		      (RPMTAG_FIRSTFREE_TAG - RPMTAG_FILENAMES)];
-    struct cache_entry *next;
-} cache_entry;
-static cache_entry *cache;
-static cache_entry *current_cache_entry;
-
-// To load the instances
-static pthread_t indom_thread;
-// To notice when the rpm database changes
-static pthread_t inotify_thread;
-static unsigned long long numrefresh = 0;
-
+static pthread_t indom_thread;		/* load the instances initially */
+static pthread_t inotify_thread;	/* runs when the rpmdb changes */
+static unsigned long long numrefresh;	/* updated by background threads */
 static pthread_mutex_t indom_mutex;
 
-// Load the instances dynamically
-pmdaIndom indomtab[] = {
-#define RPM_INDOM	0
-    {RPM_INDOM, 0, NULL},
-};
-static pmInDom *rpm_indom = &indomtab[0].it_indom;
-
-// Invoked as a .so or as a daemon?
-static int isDSO = 1;
+static int isDSO = 1;			/* invoked as shlib or daemon */
 static char *username;
 static char *dbpath = "/var/lib/rpm";
 
-/*
- * Callback provided to pmdaFetch to fetch values from rpm db corresponding to metric_querytags
- */
+static pmInDom
+INDOM(int serial)
+{
+    return indomtab[serial].it_indom;
+}
+
+static char *
+dict_lookup(int index)
+{
+    char *value;
+    pmInDom dict = INDOM(STRINGS_INDOM);
+
+    if (pmdaCacheLookup(dict, index, &value, NULL) == PMDA_CACHE_ACTIVE)
+        return value;
+    return "";
+}
 
 static int
-rpm_fetchCallBack(pmdaMetric * mdesc, unsigned int inst,
-		  pmAtomValue * atom)
+dict_insert(const char *string)
+{
+    pmInDom dict = INDOM(STRINGS_INDOM);
+    if (!string)
+	string = "";
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, string, NULL);
+}
+
+static int
+rpm_fetch_pmda(int item, pmAtomValue *atom)
 {
     int sts = PMDA_FETCH_STATIC;
-    __pmID_int *idp = (__pmID_int *) & (mdesc->m_desc.pmid);
-    pmAtomValue this_atom;
-    int type;
-    int tag;
-
-    // Get the instance name for this instance
-    char *rpm_inst_name;
-    cache_entry *this_cache_entry;
-
-    if (idp->cluster == 0) {
-	unsigned long	datasize;
-
-	sts = PMDA_FETCH_STATIC;
-	pthread_mutex_lock(&indom_mutex);
-	switch (idp->item) {
-	case REFRESH_COUNT_IDX:		/* rpm.refresh.count */
-	    atom->ull = numrefresh;
-	    break;
-	case REFRESH_TIME_USER_IDX:	/* rpm.refresh.time.user */
-	    atom->d = get_user_timer();
-	    break;
-	case REFRESH_TIME_KERNEL_IDX:	/* rpm.refresh.time.kernel */
-	    atom->d = get_kernel_timer();
-	    break;
-	case REFRESH_TIME_ELAPSED_IDX:	/* rpm.refresh.time.elapsed */
-	    atom->d = get_elapsed_timer();
-	    break;
-	case DATASIZE_IDX:		/* rpm.datasize */
-	    __pmProcessDataSize(&datasize);
-	    atom->ul = datasize;
-	    break;
-	default:
-	    sts = PM_ERR_PMID;
-	    break;
- 	}
-	pthread_mutex_unlock(&indom_mutex);
-	return sts;
-    }
+    unsigned long datasize;
 
     pthread_mutex_lock(&indom_mutex);
-
-    int cacheidx = pmdaCacheLookup(*rpm_indom, inst, &rpm_inst_name, (void*)&this_cache_entry);
-
-    pthread_mutex_unlock(&indom_mutex);
-
-    if (cacheidx < 0) {
-	__pmNotifyErr(LOG_ERR, "pmdaCacheLookup failed: inst=%d: %s", inst,
-		      pmErrStr(cacheidx));
-	return PM_ERR_INST;
-    }
-
-    type = ((struct metrics *) mdesc->m_user)->type;
-    tag = ((struct metrics *) mdesc->m_user)->tag;
-    int metric_idx;	// index of this rpms' metric
-    for (metric_idx = 0;
-	 metric_idx < (sizeof(metrics) / sizeof(struct metrics));
-	 metric_idx++)
-	if (metrics[metric_idx].tag == tag)
-	    break;
-
-    this_atom = this_cache_entry->entry[metric_idx];
-
-    switch (type) {
-    case PM_TYPE_STRING:
-	if (this_atom.cp)
-	    atom->cp = strdup(this_atom.cp);
-	else
-	    atom->cp = strdup("");
-	sts = PMDA_FETCH_DYNAMIC;
+    switch (item) {
+    case REFRESH_COUNT_ID:		/* rpm.refresh.count */
+	atom->ull = numrefresh;
 	break;
-    case PM_TYPE_32:
-	atom->l = this_atom.l;
-	sts = PMDA_FETCH_STATIC;
+    case REFRESH_TIME_USER_ID:		/* rpm.refresh.time.user */
+	atom->d = get_user_timer();
 	break;
-    case PM_TYPE_64:
-	atom->ll = this_atom.ll;
-	sts = PMDA_FETCH_STATIC;
+    case REFRESH_TIME_KERNEL_ID:	/* rpm.refresh.time.kernel */
+	atom->d = get_kernel_timer();
+	break;
+    case REFRESH_TIME_ELAPSED_ID:	/* rpm.refresh.time.elapsed */
+	atom->d = get_elapsed_timer();
+	break;
+    case DATASIZE_ID:			/* rpm.datasize */
+	__pmProcessDataSize(&datasize);
+	atom->ul = datasize;
 	break;
     default:
-	return PM_ERR_TYPE;
+	sts = PM_ERR_PMID;
+	break;
     }
-
+    pthread_mutex_unlock(&indom_mutex);
     return sts;
 }
 
-/*
-  Sync up with the (initial) indom loading thread
- */
+static int
+rpm_fetch_package(int item, unsigned int inst, pmAtomValue *atom)
+{
+    package *p;
+    char *name;
+    int sts;
 
+    sts = pmdaCacheLookup(INDOM(RPM_INDOM), inst, &name, (void **)&p);
+    if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	return PM_ERR_INST;
+
+    sts = PMDA_FETCH_STATIC;
+    switch (item) {
+    case ARCH_ID:
+	atom->cp = dict_lookup(p->values.arch);
+	break;
+    case BUILDHOST_ID:
+	atom->cp = dict_lookup(p->values.buildhost);
+	break;
+    case BUILDTIME_ID:
+	atom->ul = p->values.buildtime;
+	break;
+    case DESCRIPTION_ID:
+	atom->cp = dict_lookup(p->values.description);
+	break;
+    case EPOCH_ID:
+	atom->ul = p->values.epoch;
+	break;
+    case GROUP_ID:
+	atom->cp = dict_lookup(p->values.group);
+	break;
+    case INSTALLTIME_ID:
+	atom->ul = p->values.installtime;
+	break;
+    case LICENSE_ID:
+	atom->cp = dict_lookup(p->values.license);
+	break;
+    case PACKAGER_ID:
+	atom->cp = dict_lookup(p->values.packager);
+	break;
+    case RELEASE_ID:
+	atom->cp = dict_lookup(p->values.release);
+	break;
+    case SIZE_ID:
+	atom->ul = p->values.size;
+	break;
+    case SOURCERPM_ID:
+	atom->cp = dict_lookup(p->values.sourcerpm);
+	break;
+    case SUMMARY_ID:
+	atom->cp = dict_lookup(p->values.summary);
+	break;
+    case URL_ID:
+	atom->cp = dict_lookup(p->values.url);
+	break;
+    case VENDOR_ID:
+	atom->cp = dict_lookup(p->values.vendor);
+	break;
+    case VERSION_ID:
+	atom->cp = dict_lookup(p->values.version);
+	break;
+    default:
+	sts = PM_ERR_PMID;
+	break;
+    }
+    return sts;
+}
+
+static int
+rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+    __pmID_int *idp = (__pmID_int *) &mdesc->m_desc.pmid;
+
+    switch (idp->cluster) {
+    case 0:
+	if (inst != PM_IN_NULL)
+	    return PM_ERR_INST;
+	return rpm_fetch_pmda(idp->item, atom);
+    case 1:
+	return rpm_fetch_package(idp->item, inst, atom);
+    }
+    return PM_ERR_PMID;
+}
+
+/*
+ * Sync the active rpm package instances with the reference database
+ * maintained by the background threads.
+ */
+static void
+rpm_indom_refresh(unsigned long long refresh)
+{
+    pmInDom rpmdb, cache;
+    package *p;
+    char *name;
+    int sts;
+
+    rpmdb = INDOM(RPM_INDOM);
+    cache = INDOM(CACHE_INDOM);
+
+    pmdaCacheOp(rpmdb, PMDA_CACHE_INACTIVE);
+
+    pthread_mutex_lock(&indom_mutex);
+    for (pmdaCacheOp(cache, PMDA_CACHE_WALK_REWIND);;) {
+	if ((sts = pmdaCacheOp(cache, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if ((pmdaCacheLookup(cache, sts, &name, (void **)&p) < 0) || !p)
+	    continue;
+	if (p->refresh < refresh)
+	    continue;
+	pmdaCacheStore(rpmdb, PMDA_CACHE_ADD, name, (void *)p);
+    }
+    pthread_mutex_unlock(&indom_mutex);
+}
+
+/*
+ * Sync up with the (initial) indom loading thread
+ */
 static int
 notready(pmdaExt *pmda)
 {
@@ -261,240 +278,197 @@ notready(pmdaExt *pmda)
 }
 
 /*
-  Called once for each pmFetch(3) operation
-*/
+ * Called once for each pmFetch(3) operation
+ */
 static int
 rpm_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    if (numrefresh == 0)
+    unsigned long long refresh;
+
+    pthread_mutex_lock(&indom_mutex);
+    refresh = numrefresh;
+    pthread_mutex_unlock(&indom_mutex);
+
+    if (refresh == 0)
 	return notready(pmda);
+    rpm_indom_refresh(refresh);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-
 /*
-  Called once for each pmGetInDom(3) operation
-*/
+ * Called once for each pmGetInDom(3) operation
+ */
 static int
 rpm_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
 {
-    if (numrefresh == 0)
+    unsigned long long refresh;
+
+    pthread_mutex_lock(&indom_mutex);
+    refresh = numrefresh;
+    pthread_mutex_unlock(&indom_mutex);
+
+    if (refresh == 0)
 	return notready(pmda);
+    rpm_indom_refresh(refresh);
     return pmdaInstance(id, i, name, in, pmda);
 }
- 
-/*
- * Load the rpm module names into the instance table
- */
 
-int
+static const char *
+rpm_extract_string(rpmtd td, Header h, int tag)
+{
+    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    /*
+     * RPM_STRING_ARRAY_TYPE being the alternative, e.g. filenames
+     * (which we never expect to see, for the metrics we export).
+     */
+    if (td->type == RPM_STRING_ARRAY_TYPE)
+	__pmNotifyErr(LOG_ERR,
+		"rpm_extract_string: unexpected string array: %d", tag);
+
+    return rpmtdGetString(td);
+}
+
+static __uint32_t
+rpm_extract_value(rpmtd td, Header h, int tag)
+{
+    __uint32_t value;
+
+    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    switch (td->type) {
+    case RPM_INT8_TYPE:
+	value = ((char *)(td->data))[0];
+	break;
+    case RPM_INT16_TYPE:
+	value = ((short *)(td->data))[0];
+	break;
+    case RPM_INT32_TYPE:
+	value = ((int *)(td->data))[0];
+	break;
+    case RPM_INT64_TYPE:
+	value = ((long long *)(td->data))[0];
+	break;
+    default:
+	value = 0;
+	break;
+    }
+    return value;
+}
+
+static void
+rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
+{
+    (void)name;
+    m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
+    m->buildhost = dict_insert(rpm_extract_string(td, h, RPMTAG_BUILDHOST));
+    m->buildtime = rpm_extract_value(td, h, RPMTAG_BUILDTIME);
+    m->description = dict_insert(rpm_extract_string(td, h, RPMTAG_DESCRIPTION));
+    m->epoch = rpm_extract_value(td, h, RPMTAG_EPOCH);
+    m->group = dict_insert(rpm_extract_string(td, h, RPMTAG_GROUP));
+    m->installtime = rpm_extract_value(td, h, RPMTAG_INSTALLTIME);
+    m->license = dict_insert(rpm_extract_string(td, h, RPMTAG_LICENSE));
+    m->packager = dict_insert(rpm_extract_string(td, h, RPMTAG_PACKAGER));
+    m->release = dict_insert(rpm_extract_string(td, h, RPMTAG_RELEASE));
+    m->size = rpm_extract_value(td, h, RPMTAG_SIZE);
+    m->sourcerpm = dict_insert(rpm_extract_string(td, h, RPMTAG_SOURCERPM));
+    m->summary = dict_insert(rpm_extract_string(td, h, RPMTAG_SUMMARY));
+    m->url = dict_insert(rpm_extract_string(td, h, RPMTAG_URL));
+    m->vendor = dict_insert(rpm_extract_string(td, h, RPMTAG_VENDOR));
+    m->version = dict_insert(rpm_extract_string(td, h, RPMTAG_VERSION));
+}
+
+/*
+ * Refresh the RPM package names and values in the cache
+ */
+void *
 rpm_update_cache(void *ptr)
 {
-    rpmts ts = NULL;
-    Header h;
-    rpmdbMatchIterator mi;
     rpmtd td;
-    int sts = 0;
+    rpmts ts;
+    rpmdbMatchIterator mi;
+    unsigned long long refresh;
+    Header h;
+    static int cache_err = 0;
 
-
+    pthread_mutex_lock(&indom_mutex);
     start_timing();
+    refresh = numrefresh + 1;	/* current iteration */
+    pthread_mutex_unlock(&indom_mutex);
+
     td = rpmtdNew();
     ts = rpmtsCreate();
 
     rpmReadConfigFiles(NULL, NULL);
 
-    pthread_mutex_lock(&indom_mutex);
-    cache_entry *this_cache_entry;
-    // Is this an inotify rpm reload?
-    if (!cache) {
-	cache = current_cache_entry = malloc(sizeof(cache_entry));
-	memset(cache, 0, sizeof(cache_entry));
-    }
-    // Iterate through the entire list of rpms
+    /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
-
     while ((h = rpmdbNextIterator(mi)) != NULL) {
-	this_cache_entry = malloc(sizeof(cache_entry));
-	memset(this_cache_entry, 0, sizeof(cache_entry));
-	current_cache_entry->next = this_cache_entry;
-	current_cache_entry = this_cache_entry;
-	current_cache_entry->next = NULL;
+	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+	const char *name = rpmtdGetString(td);
+	metadata meta;
+	package *pp = NULL;
+	int sts, err = 0;
 
-	int i;
-	for (i = 0; i < (sizeof(metrics) / sizeof(struct metrics)); i++) {
-	    headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT);
-	    const char *rpmname = rpmtdGetString(td);
+	/* extract an on-stack copy of the package metadata, may do I/O */
+	rpm_extract_metadata(name, td, h, &meta);
 
-	    // If we already have this rpm then grab the next one
-	    // ?? we need to check the rpm version and reload if it is a newer rpm version
-	    if (pmdaCacheLookupName (*rpm_indom, rpmname, NULL, NULL) > 0)
-		continue;
-
-	    headerGet(h, metrics[i].tag, td, HEADERGET_EXT);
-	    switch (td->type) {
-		// The rpm value is a string
-	    case RPM_STRING_TYPE:
-		{
-		    const char *rpmval = rpmtdGetString(td);
-		    current_cache_entry->entry[i].cp = strdup(rpmval);
-		    if (current_cache_entry == NULL) {
-			__pmNotifyErr(LOG_INFO, "strdup(%d) for %d failed",
-				      (int) strlen(rpmval), i);
-			sts = -ENOMEM;
-			break;
-		    }
-		    metrics[i].type = PM_TYPE_STRING;
-		    break;
-		}
-		// The rpm value is an array of strings
-	    case RPM_STRING_ARRAY_TYPE:
-		{
-		    // concatenate the string parts
-		    char **strings;
-		    strings = td->data;
-		    char *ccecp = 0;
-		    int idx;
-		    int string_length = 0;
-
-		    for (idx = 0; idx < td->count; idx++) {
-			if (string_length > 2000) {
-			    ccecp = realloc(ccecp, string_length + 3);
-			    strcat(ccecp, "...");
-			    break;
-			}
-			if (idx == 0) {
-			    string_length = strlen(strings[idx]) + 1;
-			    ccecp = malloc(string_length);
-			    if (ccecp == NULL)
-				__pmNotifyErr(LOG_INFO,
-					      "malloc(%d) for %d failed",
-					      (int) strlen(strings[idx]),
-					      i);
-			    strcpy(ccecp, strings[idx]);
-			}
-			else {
-			    string_length = strlen(ccecp) +
-				strlen(strings[idx]) + 2;
-			    ccecp = realloc(ccecp, string_length);
-			    if (ccecp == NULL)
-				__pmNotifyErr(LOG_INFO,
-					      "realloc(%d) for %d failed",
-					      (int) strlen(ccecp) +
-					      (int) strlen(strings[idx]),
-					      i);
-			    strcat(ccecp, "\n");
-			    strcat(ccecp, strings[idx]);
-			}
-		    }
-		    current_cache_entry->entry[i].cp = ccecp;
-		    free(td->data);
-		    metrics[i].type = PM_TYPE_STRING;
-		    break;
-		}
-		// The rpm value is an int
-		// ?? Handle array of ints
-	    case RPM_INT8_TYPE:
-		current_cache_entry->entry[i].l = ((char *) (td->data))[0];
-		// type defaults to 0 == PM_TYPE_32
-		break;
-	    case RPM_INT16_TYPE:
-		current_cache_entry->entry[i].l =
-		    ((short *) (td->data))[0];
-		// type defaults to 0 == PM_TYPE_32
-		break;
-	    case RPM_INT32_TYPE:
-		current_cache_entry->entry[i].l = ((int *) (td->data))[0];
-		// type defaults to 0 == PM_TYPE_32
-		break;
-	    case RPM_INT64_TYPE:
-		current_cache_entry->entry[i].ll =
-		    ((long long *) (td->data))[0];
-		metrics[i].type = PM_TYPE_64;
-		break;
-	    default:
-		break;
-	    }
-	    rpmtdReset(td);
+	/* we now have our data and cannot need more I/O; lock and load */
+	pthread_mutex_lock(&indom_mutex);
+	sts = pmdaCacheLookupName(INDOM(CACHE_INDOM), name, NULL, (void **)&pp);
+	if (sts == PM_ERR_INST || (sts >= 0 && pp == NULL)) {
+	    /* allocate space for new package entry for the cache */
+	    if ((pp = calloc(1, sizeof(package))) == NULL)
+		err = 1;
+	} else if (sts < 0) {
+	    err = 1;
 	}
-	// headerFree(h);
+
+	if (!err) {
+	    /* update values in cache entry for this package (locked) */
+	    pp->refresh = refresh;
+	    memcpy(&pp->values, &meta, sizeof(metadata));
+	    pmdaCacheStore(INDOM(CACHE_INDOM), PMDA_CACHE_ADD, name, (void *)pp);
+	} else {
+	    /* ensure the logfile isn't spammed over and over */
+	    if (cache_err++ < 10) {
+		fprintf(stderr, "rpm_refresh_cache: "
+			"pmdaCacheLookupName(%s, %s, ... %p) failed: %s\n",
+			pmInDomStr(INDOM(CACHE_INDOM)), name, pp, pmErrStr(sts));
+	    }
+	}
+	pthread_mutex_unlock(&indom_mutex);
+	rpmtdReset(td);
     }
     rpmdbFreeIterator(mi);
     rpmtsFree(ts);
 
-    pthread_mutex_unlock(&indom_mutex);
-    stop_timing();
-    return sts;
-}
-
-
-/*
- * Load the rpm module names into the instance table
- */
-
-void *
-rpm_update_indom(void *ptr)
-{
-    int sts;
-    cache_entry *this_cache_entry;
-
-    rpm_update_cache(NULL);
-
-    start_timing();
     pthread_mutex_lock(&indom_mutex);
-    sts = pmdaCacheOp(*rpm_indom, PMDA_CACHE_INACTIVE);
-    if (sts < 0)
-	__pmNotifyErr(LOG_ERR,
-		      "pmdaCacheOp(INACTIVE) failed: indom=%s: %s",
-		      pmInDomStr(*rpm_indom), pmErrStr(sts));
-
-    // Iterate through the entire list of rpms.  The pmda cache are the rpm module names
-
-    for (this_cache_entry = cache; this_cache_entry != NULL;
-	 this_cache_entry = this_cache_entry->next) {
-	ENTRY e;
-	e.key = this_cache_entry->entry[RPMTAG_NAME_IDX].cp;
-	if (!e.key)
-	    continue;
-	sts =
-	    pmdaCacheStore(*rpm_indom, PMDA_CACHE_ADD, e.key,
-			   (void *) this_cache_entry);
-
-	if (sts < 0)
-	    __pmNotifyErr(LOG_ERR, "pmdaCacheStore failed: indom=%s: %s",
-			  pmInDomStr(*rpm_indom), pmErrStr(sts));
-    }
-
     stop_timing();
+    numrefresh = refresh;	/* current iteration complete */
     pthread_mutex_unlock(&indom_mutex);
-    numrefresh++;
-
     return NULL;
 }
 
 /*
  * Notice when the rpm database changes and reload the instances.
  */
-
 void *
 rpm_inotify(void *ptr)
 {
-#define EVENT_SIZE  ( sizeof (struct inotify_event) )
-#define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
     char buffer[EVENT_BUF_LEN];
     int fd;
 
     fd = inotify_init();
-
-    // ?? parameterize the path, check return code
     inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
 
     while (1) {
 	int i = 0;
 	int read_count;
 	int need_refresh = 0;
-	// Wait for changes in the rpm database
+
+	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
-	__pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 	while (i < read_count) {
 	    struct inotify_event *event =
 		(struct inotify_event *) &buffer[i];
@@ -502,12 +476,14 @@ rpm_inotify(void *ptr)
 		need_refresh++;
 	    i++;
 	}
-	__pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
 		      need_refresh);
 	if (!need_refresh)
 	    continue;
-	rpm_update_indom(NULL);
-	__pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+	rpm_update_cache(ptr);
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
     return NULL;
 }
@@ -517,6 +493,7 @@ rpm_inotify(void *ptr)
  */
 
 void
+__PMDA_INIT_CALL
 rpm_init(pmdaInterface * dp)
 {
     if (isDSO) {
@@ -531,9 +508,9 @@ rpm_init(pmdaInterface * dp)
 	return;
 
     pthread_mutex_init(&indom_mutex, NULL);
-    // Load rpms into instance table
-    pthread_create(&indom_thread, NULL, rpm_update_indom, NULL);
-    // Note changes to the rpm database
+    /* Load rpms into instance table */
+    pthread_create(&indom_thread, NULL, rpm_update_cache, NULL);
+    /* Note changes to the rpm database */
     pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
 
     dp->version.any.fetch = rpm_fetch;
@@ -543,6 +520,9 @@ rpm_init(pmdaInterface * dp)
 
     pmdaInit(dp, indomtab, sizeof(indomtab) / sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab) / sizeof(metrictab[0]));
+
+    pmdaCacheOp(INDOM(CACHE_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
 }
 
 static void

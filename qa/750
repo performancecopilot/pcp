@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which rpm >/dev/null 2>&1 || _notrun "rpm not installed"
+test -x "$PCP_PMDAS_DIR/rpm/pmdarpm" || _notrun "pmdarpm not installed"
 
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
@@ -40,33 +41,31 @@ canonicalize()
 # TODO: need to conditionally Install and Remove the PMDA (see test 348)
 #       currently we're assuming its already there.
 
+# TODO: output for package "python" is not deterministic across all
+#       hosts - perhaps use the test rpm we install in 783 instead?
+#       Will need a common.rpm script to facilitate sharing.
+inst=python
+
 # real QA test starts here
 mkdir $tmp.$seq
 cd $tmp.$seq
 
-pmval -s 1 rpm.arch -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.basenames -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.buildtime -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.description -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.dirnames -i python | canonicalize | tee -a $tmp.out 2>&1
-# pmval -s 1 rpm.distribution -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.evr -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.group -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.instfilenames -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.license -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.list -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.name -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.obsoletes -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.platform -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.provides -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.release -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.requires -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.size -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.sourcerpm -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.summary -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.url -i python | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.version -i python | canonicalize | tee -a $tmp.out 2>&1
-
+pmval -s 1 rpm.arch -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.buildhost -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.buildtime -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.description -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.epoch -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.group -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.installtime -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.license -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.packager -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.release -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.size -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.sourcerpm -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.summary -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.url -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.vendor -i $inst | canonicalize | tee -a $tmp.out 2>&1
+pmval -s 1 rpm.version -i $inst | canonicalize | tee -a $tmp.out 2>&1
 
 cat $tmp.out >>$here/$seq.full
 
