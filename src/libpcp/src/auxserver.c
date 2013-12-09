@@ -114,7 +114,7 @@ __pmServerSetServiceSpec(const char *spec)
     if (spec != NULL && *spec != '\0')
 	serviceSpec = strdup(spec);
     else
-	serviceSpec = SERVER_SERVICE_SPEC;
+	serviceSpec = PM_SERVER_SERVICE_SPEC;
 }
 
 void

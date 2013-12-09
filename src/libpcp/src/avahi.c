@@ -499,7 +499,7 @@ resolveCallback(
 	case AVAHI_RESOLVER_FOUND:
 	    /* Currently, only pmcd is supported. */
 	    if (strcmp(type, "_pmcd._tcp") == 0) {
-		serviceInfo.spec = SERVER_SERVICE_SPEC;
+		serviceInfo.spec = PM_SERVER_SERVICE_SPEC;
 		avahi_address_snprint(addressString, sizeof(addressString), address);
 		serviceInfo.address = __pmStringToSockAddr(addressString);
 		if (serviceInfo.address == NULL) {

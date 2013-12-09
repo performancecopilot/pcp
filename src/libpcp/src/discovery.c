@@ -97,7 +97,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
      * Build the new entry first, so that we can filter out duplicates.
      * Currently, only "pmcd" is supported.
      */
-    if (strcmp(info->spec, SERVER_SERVICE_SPEC) == 0) {
+    if (strcmp(info->spec, PM_SERVER_SERVICE_SPEC) == 0) {
 	prefix = "pcp://";
     }
     else {

@@ -91,7 +91,7 @@ main(int argc, char **argv)
     if (discover_pmcd) {
 	char **urls = NULL;
 	int numUrls = 0;
-	if ((numUrls = pmDiscoverServices(SERVER_SERVICE_SPEC, NULL, numUrls, &urls)) > 0) {
+	if ((numUrls = pmDiscoverServices(PM_SERVER_SERVICE_SPEC, NULL, numUrls, &urls)) > 0) {
 	    int i;
 	    printf("Discovered PMCD servers:\n");
 	    for (i = 0; i < numUrls; ++i)
