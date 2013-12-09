@@ -28,23 +28,15 @@
 #
 
 @ rpm.arch package architecture
-@ rpm.basenames package basenames
 @ rpm.buildhost package build host
 @ rpm.buildtime package buildtime
 @ rpm.description package description
-@ rpm.dirnames package dirnames
-@ rpm.distribution package distribution
-@ rpm.evr package epoch-version-release number
 @ rpm.epoch package install epoch
 @ rpm.group group of the package
 @ rpm.installtime package install time
 @ rpm.license package license
 @ rpm.name name of the package
-@ rpm.obsoletes obsolete list of the package
-@ rpm.platform target package platform
-@ rpm.provides provide list of the package
 @ rpm.release release list of the package
-@ rpm.requires require list of the package
 @ rpm.size size of the package in bytes
 @ rpm.sourcerpm package source rpm
 @ rpm.summary summary of the package
@@ -53,5 +45,5 @@
 
 @ rpm.refresh.count Cumulative count of rpmdb scans performed
 @ rpm.refresh.time.user Cumulative count of user mode scan time
-@ rpm.refresh.time.kernel Cumulative count of kernel mode scan time
+@ rpm.refresh.time.sys Cumulative count of kernel mode scan time
 @ rpm.refresh.time.elapsed Cumulative count of elapsed scan time
