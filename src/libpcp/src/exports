@@ -369,6 +369,7 @@ PCP_3.0 {
     __pmSockAddrSetFamily;
     __pmSockAddrSetPath;
     __pmSockAddrSetPort;
+    __pmSockAddrSetScope;
     __pmSockAddrSize;
     __pmSockAddrToString;
     __pmSocketIPC;

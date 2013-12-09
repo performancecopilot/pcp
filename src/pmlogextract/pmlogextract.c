@@ -654,6 +654,8 @@ append_indomreclist(int i)
     if (rindom == NULL) {
 	rindom = mk_reclist_t();
 	rindom->pdu = iap->pb[META];
+	rindom->stamp.tv_sec = ntohl(rindom->pdu[2]);
+	rindom->stamp.tv_usec = ntohl(rindom->pdu[3]);
 	rindom->desc.pmid = PM_ID_NULL;
 	rindom->desc.type = PM_TYPE_NOSUPPORT;
 	rindom->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
@@ -672,11 +674,15 @@ append_indomreclist(int i)
 	    if (curr->pdu == NULL) {
 		/* insert new record */
 		curr->pdu = iap->pb[META];
+		curr->stamp.tv_sec = ntohl(curr->pdu[2]);
+		curr->stamp.tv_usec = ntohl(curr->pdu[3]);
 	    }
 	    else {
 		/* do NOT discard old record; insert new record */
 		rec = mk_reclist_t();
 		rec->pdu = iap->pb[META];
+		rec->stamp.tv_sec = ntohl(rec->pdu[2]);
+		rec->stamp.tv_usec = ntohl(rec->pdu[3]);
 		rec->desc.pmid = PM_ID_NULL;
 		rec->desc.type = PM_TYPE_NOSUPPORT;
 		rec->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
@@ -691,6 +697,8 @@ append_indomreclist(int i)
 	    curr->next = mk_reclist_t();
 	    curr = curr->next;
 	    curr->pdu = iap->pb[META];
+	    curr->stamp.tv_sec = ntohl(curr->pdu[2]);
+	    curr->stamp.tv_usec = ntohl(curr->pdu[3]);
 	    curr->desc.pmid = PM_ID_NULL;
 	    curr->desc.type = PM_TYPE_NOSUPPORT;
 	    curr->desc.indom = ntoh_pmInDom(iap->pb[META][4]);
@@ -716,6 +724,67 @@ write_rec(reclist_t *rec)
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
 	    abandon();
 	}
+
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LOGMETA) {
+	    __pmLogHdr	*h;
+	    int		len;
+	    int		type;
+	    h = (__pmLogHdr *)rec->pdu;
+	    len = ntohl(h->len);
+	    type = ntohl(h->type);
+	    fprintf(stderr, "write_rec: record len=%d, type=%d @ offset=%d\n",
+	    	len, type, (int)(ftell(logctl.l_mdfp) - sizeof(__pmLogHdr)));
+	    if (type == TYPE_DESC) {
+		pmDesc	*dp;
+		pmDesc	desc;
+		int	*namelen;
+		char	*name;	/* just first name for diag */
+		dp = (pmDesc *)((void *)rec->pdu + sizeof(__pmLogHdr));
+		desc.type = ntohl(dp->type);
+		desc.sem = ntohl(dp->sem);
+		desc.indom = ntoh_pmInDom(dp->indom);
+		desc.units = ntoh_pmUnits(dp->units);
+		desc.pmid = ntoh_pmID(dp->pmid);
+		namelen = (int *)((void *)rec->pdu + sizeof(__pmLogHdr) + sizeof(pmDesc) + sizeof(int));
+		len = ntohl(*namelen);
+		name = (char *)((void *)rec->pdu + sizeof(__pmLogHdr) + sizeof(pmDesc) + sizeof(int) + sizeof(int));
+		fprintf(stderr, "PMID: %s name: %*.*s\n", pmIDStr(desc.pmid), len, len, name);
+		__pmPrintDesc(stderr, &desc);
+	    }
+	    else if (type == TYPE_INDOM) {
+		__pmTimeval	*tvp;
+		__pmTimeval	when;
+		int		k = 2;
+		pmInDom		indom;
+		int		numinst;
+		int		*instlist;
+		int		inst;
+
+		tvp = (__pmTimeval *)&rec->pdu[k];
+		when.tv_sec = ntohl(tvp->tv_sec);
+		when.tv_usec = ntohl(tvp->tv_usec);
+		k += sizeof(__pmTimeval)/sizeof(rec->pdu[0]);
+		indom = ntoh_pmInDom((unsigned int)rec->pdu[k++]);
+		fprintf(stderr, "INDOM: %s when: ", pmInDomStr(indom));
+		__pmPrintTimeval(stderr, &when);
+		numinst = ntohl(rec->pdu[k++]);
+		fprintf(stderr, " numinst: %d", numinst);
+		if (numinst > 0) {
+		    int		i;
+		    instlist = (int *)&rec->pdu[k];
+		    for (i = 0; i < numinst; i++) {
+			inst = ntohl(instlist[i]);
+			fprintf(stderr, " [%d] %d", i, inst);
+		    }
+		}
+		fputc('\n', stderr);
+	    }
+	    else {
+		fprintf(stderr, "Botch: bad type\n");
+	    }
+	}
+#endif
 
 	/* write out the pdu ; exit if write failed */
 	if ((sts = _pmLogPut(logctl.l_mdfp, rec->pdu)) < 0) {
@@ -804,42 +873,33 @@ write_metareclist(pmResult *result, int *needti)
 	     * to traverse the entire list
 	     *	- we can safely ignore all indoms after the current timestamp
 	     *	- we want the latest indom at, or before the current timestamp
-	     *  - all others before the current timestamp can be discarded(?)
 	     */
 	    othr_indom = NULL;
 	    while (curr_indom != NULL && curr_indom->desc.indom == indom) {
-		if (curr_indom->written != WRITTEN) {
-		    if (curr_indom->pdu == NULL) {
-			/* indom is in list, has not been written,
-			 * but has no pdu - this is possible and acceptable
-			 * behaviour; do nothing
-			 */
-	    	    }
-		    else if (ntohl(curr_indom->pdu[2]) < this->tv_sec ||
-			(ntohl(curr_indom->pdu[2]) == this->tv_sec &&
-			ntohl(curr_indom->pdu[3]) <= this->tv_usec))
+		if (curr_indom->stamp.tv_sec < this->tv_sec ||
+		         (curr_indom->stamp.tv_sec == this->tv_sec &&
+		          curr_indom->stamp.tv_usec <= this->tv_usec))
+		{
+		    /* indom is in list, indom has pdu
+		     * and timestamp in pdu suits us
+		     */
+		    if (othr_indom == NULL) {
+			othr_indom = curr_indom;
+		    }
+		    else if (othr_indom->stamp.tv_sec < curr_indom->stamp.tv_sec ||
+			     (othr_indom->stamp.tv_sec == curr_indom->stamp.tv_sec &&
+			      othr_indom->stamp.tv_usec <= curr_indom->stamp.tv_usec))
 		    {
-			/* indom is in list, indom has pdu
-			 * and timestamp in pdu suits us
+			/* we already have a perfectly good indom,
+			 * but curr_indom has a better timestamp
 			 */
-			if (othr_indom == NULL) {
-			    othr_indom = curr_indom;
-			}
-			else if (ntohl(othr_indom->pdu[2]) < ntohl(curr_indom->pdu[2]) ||
-				 (ntohl(othr_indom->pdu[2]) == ntohl(curr_indom->pdu[2]) &&
-				 ntohl(othr_indom->pdu[3]) <= ntohl(curr_indom->pdu[3])))
-			{
-			    /* we already have a perfectly good indom,
-			     * but curr_indom has a better timestamp
-			     */
-			    othr_indom = curr_indom;
-			}
+			othr_indom = curr_indom;
 		    }
 		}
 		curr_indom = curr_indom->next;
 	    } /*while()*/
 
-	    if (othr_indom != NULL) {
+	    if (othr_indom != NULL && othr_indom->pdu != NULL && othr_indom->written != WRITTEN) {
 		othr_indom->written = MARK_FOR_WRITE;
 		othr_indom->pdu[2] = htonl(this->tv_sec);
 		othr_indom->pdu[3] = htonl(this->tv_usec);
