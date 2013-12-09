@@ -762,29 +762,29 @@ makes the rule true, then the action
 .nf
 .in +0.5i
 \&...
--> shell myscript "Warning: %h-%i busy ";
+-> shell myscript "Warning: %h:%i busy ";
 .in
 .fi
 .ft 1
 will execute
 .B myscript
-with the argument string "Warning: mumble-grunt busy Warning: mumble-snort busy Warning: fumble-puff busy".
+with the argument string "Warning: mumble:grunt busy Warning: mumble:snort busy Warning: fumble:puff busy".
 .P
 By comparison, if the action
 .ft CW
 .nf
 .in +0.5i
 \&...
--> shell myscript "'Warning! busy:" " %i@%h" "'";
+-> shell myscript "Warning! busy:" " %h:%i";
 .in
 .fi
 .ft 1
 were executed under the same circumstances, then
 .B myscript
-would be executed with the argument string '"Warning! busy: grunt@mumble snort@mumble puff@fumble"'.
+would be executed with the argument string "Warning! busy: mumble:grunt mumble:snort fumble:puff".
 .P
 The semantics of the expansion of the special selectors leads to a
-common usage, where one argument is a constant (contains no
+common usage pattern in an action, where one argument is a constant (contains no
 special selectors) the second argument contains the desired
 special selectors with minimal separator characters, and
 an optional third argument provides a constant postscript (e.g. to terminate
