@@ -5038,7 +5038,7 @@ linux_init(pmdaInterface *dp)
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
     /* string metrics use the pmdaCache API for value indexing */
-    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
 }
 
 
