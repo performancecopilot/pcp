@@ -62,9 +62,9 @@ typedef struct hdr {
 } hdr_t;
 
 /* bitfields for hstate */
-#define DIRTY_INSTANCE	1
-#define DIRTY_STAMP	2
-#define CACHE_STRINGS	3
+#define DIRTY_INSTANCE	0x1
+#define DIRTY_STAMP	0x2
+#define CACHE_STRINGS	0x4
 
 static hdr_t	*base;		/* start of cache headers */
 static char 	filename[MAXPATHLEN];
