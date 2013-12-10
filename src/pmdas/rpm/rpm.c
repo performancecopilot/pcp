@@ -496,7 +496,11 @@ __PMDA_INIT_CALL
 rpm_init(pmdaInterface * dp)
 {
     if (isDSO) {
+	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
+
+	snprintf(helppath, sizeof(helppath), "%s%c" "rpm" "%c" "help",
+                pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_5, "rpm DSO", helppath);
     }
     else {
