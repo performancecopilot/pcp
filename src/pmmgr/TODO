@@ -1,6 +1,7 @@
-- switch from system() to execve() ... or else having to quote incidental paths
 - test buildability on non-linux
 - qa
+- non-root operation!
+- log/conf files in rpm
 - port to mingw?
 - more standard error handling
 - pmlogger/pmie .log rotation

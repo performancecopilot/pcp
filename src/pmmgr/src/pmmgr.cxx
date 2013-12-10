@@ -43,6 +43,26 @@ so is #error
 // ------------------------------------------------------------------------
 
 
+// Create a string that is safe to pass to system(3), i.e.,
+// sh -c, by quoting metacharacters.
+string
+sh_quote(const string& input)
+{
+  string output;
+  for (unsigned i=0; i<input.length(); i++)
+    {
+      char c = input[i];
+      if ((ispunct(c) || isspace(c)) && // quite aggressive
+          (c != ':' && c != '.' && c != '_' && c != '/' && c != '-')) // safe & popular punctuation
+        output += '\\';
+      output += c;
+    }
+
+  return output;
+}
+
+
+
 pmmgr_configurable::pmmgr_configurable(const string& dir):
   config_directory(dir)
 {
@@ -501,55 +521,58 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
-  string pmlogger_options = 
+  string pmlogger_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogger";
+  string pmlogger_options = sh_quote(pmlogger_command);
   pmlogger_options += " " + get_config_single ("pmlogger");
 
   // run pmlogconf if requested
   if (get_config_exists("pmlogconf"))
     {
-      string pmlogconf_options = get_config_single ("pmlogconf");
       string pmlogconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmlogger";
-
       (void) unlink (pmlogconf_output_file.c_str());
-
       string pmlogconf_command = 
         string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogconf";
-      string pmlogconf = 
-        pmlogconf_command + " -c -r -h " + string(spec) + " " + pmlogconf_options + pmlogconf_output_file;
+      string pmlogconf_options = 
+        sh_quote(pmlogconf_command)
+        + " -c -r -h " + sh_quote(spec)
+        + " " + get_config_single ("pmlogconf")
+        + " " + sh_quote(pmlogconf_output_file);
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "running " << pmlogconf << endl;
-      int rc = system(pmlogconf.c_str());
+        cerr << "running " << pmlogconf_options << endl;
+      int rc = system(pmlogconf_options.c_str());
       if (rc != 0) 
-        cerr << "system(" << pmlogconf << ") failed: rc=" << rc << endl;
+        cerr << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
 
-      pmlogger_options += " -c " + pmlogconf_output_file;
+      pmlogger_options += " -c " + sh_quote(pmlogconf_output_file);
     }
 
   // collect -h direction
-  pmlogger_options += " -h " + string(spec);
+  pmlogger_options += " -h " + sh_quote(spec);
 
   // hard-code -r to report metrics & expected disk usage rate
   pmlogger_options += " -r";
 
   // collect subsidiary pmlogger diagnostics
-  pmlogger_options += " -l " + host_log_dir + (char)__pmPathSeparator() + "pmlogger.log";
+  pmlogger_options += " -l " + sh_quote(host_log_dir + (char)__pmPathSeparator() + "pmlogger.log");
 
   // do log merging
   if (get_config_exists ("pmlogmerge"))
     {
-      string pmlogextract_options = 
+      string pmlogextract_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogextract";
+
+      string pmlogextract_options = sh_quote(pmlogextract_command);
 
       string retention = get_config_single ("pmlogmerge-retain");
       if (retention == "") retention = "14days";
-      pmlogextract_options += " -S -" + retention;
+      pmlogextract_options += " -S -" + sh_quote(retention);
 
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");
       if (period == "") period = "24hours";
-      pmlogger_options += " -s " + period;
+      pmlogger_options += " -s " + sh_quote(period);
       
       // Find prior archives by globbing for *.index files, 
       // just like pmlogger_merge does
@@ -584,9 +607,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
         {
           // assemble final bits of pmlogextract command line: the inputs and the output
           for (unsigned i=0; i<old_archives.size(); i++)
-            pmlogextract_options += " " + old_archives[i];
+            pmlogextract_options += " " + sh_quote(old_archives[i]);
 
-          pmlogextract_options += " " + merged_archive_name;
+          pmlogextract_options += " " + sh_quote(merged_archive_name);
 
           if (pmDebug & DBG_TRACE_APPL0)
             cerr << "running " << pmlogextract_options << endl;
@@ -600,7 +623,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
               // zap the previous archive files 
               for (unsigned i=0; i<old_archives.size(); i++)
                 {
-                  string base_name = old_archives[i];
+                  string base_name = sh_quote(old_archives[i]);
                   string cleanup_cmd = string("/bin/rm -f")
                     + " " + base_name + ".[0-9]*"
                     + " " + base_name + ".index" + 
@@ -629,10 +652,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       if (rc > 0)
         timestr += timestr2;
     }
-  string pmlogger_logfile = host_log_dir + (char)__pmPathSeparator() + timestr;
 
   // last argument
-  pmlogger_options += " " + pmlogger_logfile; 
+  pmlogger_options += " " + sh_quote(host_log_dir + (char)__pmPathSeparator() + timestr);
 
   return pmlogger_options;
 }
@@ -653,38 +675,41 @@ pmmgr_pmie_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
-  string pmie_options = 
+  string pmie_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmie";
+  string pmie_options = sh_quote (pmie_command);
+
   pmie_options += " " + get_config_single ("pmie");
 
   // run pmieconf if requested
   if (get_config_exists ("pmieconf"))
     {
-      string pmieconf_options = get_config_single ("pmieconf");
       string pmieconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmie";
       string pmieconf_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmieconf";
 
       // NB: pmieconf doesn't take a host name as an argument, unlike pmlogconf
-      string pmieconf = 
-        pmieconf_command + " -F -c " + pmieconf_options + " -f " + pmieconf_output_file;
+      string pmieconf_options = 
+        sh_quote(pmieconf_command)
+        + " -F -c " + get_config_single ("pmieconf")
+        + " -f " + sh_quote(pmieconf_output_file);
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "running " << pmieconf << endl;
-      int rc = system(pmieconf.c_str());
+        cerr << "running " << pmieconf_options << endl;
+      int rc = system(pmieconf_options.c_str());
       if (rc != 0) 
-        cerr << "system(" << pmieconf << ") failed: rc=" << rc << endl;
+        cerr << "system(" << pmieconf_options << ") failed: rc=" << rc << endl;
 
-      pmie_options += "-c " + pmieconf_output_file;
+      pmie_options += "-c " + sh_quote(pmieconf_output_file);
     }
 
   // collect -h direction
-  pmie_options += " -h " + string(spec);
+  pmie_options += " -h " + sh_quote(spec);
 
   // collect -f, to get it to run in the foreground, avoid setuid
   pmie_options += " -f";
  
   // collect subsidiary pmlogger diagnostics
-  pmie_options += " -l " + host_log_dir + (char)__pmPathSeparator() + "pmie.log";
+  pmie_options += " -l " + sh_quote(host_log_dir + (char)__pmPathSeparator() + "pmie.log");
 
   return pmie_options;
 }
@@ -699,6 +724,7 @@ int quit;
 extern "C"
 void handle_interrupt (int sig)
 {
+  (void) sig;
   quit ++;
   if (quit > 2)
     {
@@ -713,24 +739,12 @@ void handle_interrupt (int sig)
 
 void setup_signals()
 {
-  struct sigaction sa;
-  memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = handle_interrupt;
-  sigemptyset (&sa.sa_mask);
-  sigaddset (&sa.sa_mask, SIGHUP);
-  sigaddset (&sa.sa_mask, SIGPIPE);
-  sigaddset (&sa.sa_mask, SIGINT);
-  sigaddset (&sa.sa_mask, SIGTERM);
-  sigaddset (&sa.sa_mask, SIGXFSZ);
-  sigaddset (&sa.sa_mask, SIGXCPU);
-  sa.sa_flags = SA_RESTART;
-
-  sigaction (SIGHUP, &sa, NULL);
-  sigaction (SIGPIPE, &sa, NULL);
-  sigaction (SIGINT, &sa, NULL);
-  sigaction (SIGTERM, &sa, NULL);
-  sigaction (SIGXFSZ, &sa, NULL);
-  sigaction (SIGXCPU, &sa, NULL);
+  __pmSetSignalHandler (SIGHUP, handle_interrupt);
+  __pmSetSignalHandler (SIGPIPE, handle_interrupt);
+  __pmSetSignalHandler (SIGINT, handle_interrupt);
+  __pmSetSignalHandler (SIGTERM, handle_interrupt);
+  __pmSetSignalHandler (SIGXFSZ, handle_interrupt);
+  __pmSetSignalHandler (SIGXCPU, handle_interrupt);
 }
 
 
