@@ -537,6 +537,7 @@ extern int pmdaCachePurge(pmInDom, time_t);
 #define PMDA_CACHE_CULL			4
 #define PMDA_CACHE_EMPTY		5
 #define PMDA_CACHE_SAVE			6
+#define PMDA_CACHE_STRINGS		7
 #define PMDA_CACHE_ACTIVE		8
 #define PMDA_CACHE_INACTIVE		9
 #define PMDA_CACHE_SIZE			10
