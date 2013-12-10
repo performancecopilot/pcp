@@ -1,76 +1,67 @@
 #!/bin/sh
 # PCP QA Test No. 750
-# Exercise the RPM PMDA
+# Exercise the RPM Package Manager PMDA
 #
-# Copyright (c) 2012, 2013 Red Hat.
+# Copyright (c) 2013 Red Hat.
 #
-
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-which rpm >/dev/null 2>&1 || _notrun "rpm not installed"
-test -x "$PCP_PMDAS_DIR/rpm/pmdarpm" || _notrun "pmdarpm not installed"
+. ./common.rpm
+_rpm_support_tests
 
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
-trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+trap "_rpm_cleanup" 0 1 2 3 15
 
-canonicalize()
+BUILDHOST=`hostname`
+HOSTARCH=`uname -m`
+
+filter_pmval()
 {
     sed \
-	-e 's/[0-9]/9/g' \
-	-e 's/9[9]*/9/g' \
-	-e 's/  *$//' \
-	-e '/^ *$/d' \
-	-e 's/  */ /g' \
-	-e 's/^ *//' \
-	-e '/host:/d' \
-	-e '/semantics:/d' \
-	-e '/units:/d' \
-	-e '/samples:/d' \
-        -e 's/[a-z0-9]*\.src\.rpm/src.rpm/' \
-	-e 's/[0-9]*\.[0-9]*\.[0-9]*-[0-9]*\.[a-z0-9]*/9.9.9-9.rel9/' \
-	-e "s|\[[' /A-Za-z0-9\_\.\,\(\)\-]*\]|['/PATH/NAME', /PATH/NAME']|g"
+	-e "s/\"$HOSTARCH\"/\"HOSTARCH\"/g" \
+	-e "s/\"$BUILDHOST\"/\"BUILDHOST\"/g" \
+	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
+    # end
 }
 
-# TODO: need to conditionally Install and Remove the PMDA (see test 348)
-#       currently we're assuming its already there.
-
-# TODO: output for package "python" is not deterministic across all
-#       hosts - perhaps use the test rpm we install in 783 instead?
-#       Will need a common.rpm script to facilitate sharing.
-inst=python
+report_package()
+{
+    inst="$1"
+ 
+    pmsleep 1.1	# time for pmdarpm to complete background refresh
+    pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.description -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.epoch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.group -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.installtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.license -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.packager -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.release -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.size -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.sourcerpm -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.summary -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+}
 
 # real QA test starts here
-mkdir $tmp.$seq
-cd $tmp.$seq
 
-pmval -s 1 rpm.arch -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.buildhost -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.buildtime -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.description -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.epoch -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.group -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.installtime -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.license -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.packager -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.release -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.size -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.sourcerpm -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.summary -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.url -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.vendor -i $inst | canonicalize | tee -a $tmp.out 2>&1
-pmval -s 1 rpm.version -i $inst | canonicalize | tee -a $tmp.out 2>&1
+_rpm_pmda_prepare
+_rpm_package_prepare
 
-cat $tmp.out >>$here/$seq.full
+_rpm_package_install
+report_package qaplayer
+
+echo "========================================================================"
+_rpm_package_remove
+report_package qaplayer
 
 # success, all done
 cd $here
-
 status=0
 exit
