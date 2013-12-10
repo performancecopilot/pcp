@@ -436,7 +436,6 @@ rpm_update_cache(void *ptr)
 	    }
 	}
 	pthread_mutex_unlock(&indom_mutex);
-	rpmtdReset(td);
     }
     rpmdbFreeIterator(mi);
     rpmtsFree(ts);
@@ -507,22 +506,20 @@ rpm_init(pmdaInterface * dp)
     if (dp->status != 0)
 	return;
 
-    pthread_mutex_init(&indom_mutex, NULL);
-    /* Load rpms into instance table */
-    pthread_create(&indom_thread, NULL, rpm_update_cache, NULL);
-    /* Note changes to the rpm database */
-    pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
-
     dp->version.any.fetch = rpm_fetch;
     dp->version.any.instance = rpm_instance;
-
     pmdaSetFetchCallBack(dp, rpm_fetchCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab) / sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab) / sizeof(metrictab[0]));
 
-    pmdaCacheOp(INDOM(CACHE_INDOM), PMDA_CACHE_CULL);
-    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
+
+    pthread_mutex_init(&indom_mutex, NULL);
+    /* Load rpms into instance table */
+    pthread_create(&indom_thread, NULL, rpm_update_cache, NULL);
+    /* Note changes to the rpm database */
+    pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
 }
 
 static void
