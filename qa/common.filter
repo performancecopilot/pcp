@@ -234,6 +234,7 @@ _filter_optional_pmdas()
 	-e '/pmdapmcd/d' \
 	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
+	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdasamba/d' \
@@ -310,6 +311,7 @@ _filter_top_pmns()
 	-e '/^    pdns /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
+	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    sendmail /d' \
@@ -664,6 +666,7 @@ _filter_torture_api()
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
 	-e '/^    roomtemp /d' \
+	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
 	-e '/^    softtemp /d' \
