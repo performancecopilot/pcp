@@ -12938,11 +12938,11 @@ savedLIBS=$LIBS
 $as_echo_n "checking for rpmlib... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <rpm/rpmlib.h>
+#include <rpm/header.h>
 int
 main ()
 {
-(void)RPMTAG_ARCH;
+(void)headerGet(NULL, 0, NULL, 0);
   ;
   return 0;
 }
