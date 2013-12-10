@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013 Red Hat.
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -56,13 +57,14 @@ typedef struct hdr {
     int			hbits;
     int			nentry;		/* number of entries */
     int			ins_mode;	/* see insert_cache() */
-    int			hstate;		/* dirty/clean state for save_cache() */
+    int			hstate;		/* dirty/clean/string state */
     int			keyhash_cnt[MAX_HASH_TRY];
 } hdr_t;
 
 /* bitfields for hstate */
 #define DIRTY_INSTANCE	1
 #define DIRTY_STAMP	2
+#define CACHE_STRINGS	3
 
 static hdr_t	*base;		/* start of cache headers */
 static char 	filename[MAXPATHLEN];
@@ -70,15 +72,15 @@ static char 	filename[MAXPATHLEN];
 static char	*vdp;		/* first trip mkdir for load/save */
 
 /*
- * count character to end of string or first space, whichever comes
- * first
+ * Count character to end of string or first space, whichever comes
+ * first.  In the special case of string caches, spaces are allowed.
  */
 static int
-get_hashlen(const char *str)
+get_hashlen(hdr_t *h, const char *str)
 {
     const char	*q = str;
 
-    while (*q && *q != ' ')
+    while (*q && (*q != ' ' || (h->hstate & CACHE_STRINGS) != 0))
 	q++;
     return (int)(q-str);
 }
@@ -306,7 +308,7 @@ static entry_t *
 find_name(hdr_t *h, const char *name, int *sts)
 {
     entry_t	*e;
-    int		hashlen = get_hashlen(name);
+    int		hashlen = get_hashlen(h, name);
 
     *sts = 0;
     for (e = h->first; e != NULL; e = e->next) {
@@ -329,7 +331,6 @@ find_inst(hdr_t *h, int inst)
     }
     return e;
 }
-
 
 /*
  * supports find by instance identifier (name == NULL) else
@@ -357,7 +358,7 @@ find_entry(hdr_t *h, const char *name, int inst, int *sts)
 	/*
 	 * search by instance name
 	 */
-	int	hashlen = get_hashlen(name);
+	int	hashlen = get_hashlen(h, name);
 
 	if (h->ctl_name == NULL)
 	    /* no hash, use linear search */
@@ -552,7 +553,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
     entry_t	*last_e = NULL;
     char	*dup;
     int		i;
-    int		hashlen = get_hashlen(name);
+    int		hashlen = get_hashlen(h, name);
 
     *sts = 0;
 
@@ -674,7 +675,7 @@ retry:
     }
     e->inst = inst;
     e->name = dup;
-    e->hashlen = get_hashlen(dup);
+    e->hashlen = get_hashlen(h, dup);
     e->key = NULL;
     e->state = PMDA_CACHE_INACTIVE;
     e->private = NULL;
@@ -856,7 +857,7 @@ save_cache(hdr_t *h, int hstate)
     int		sep = __pmPathSeparator();
     char	strbuf[20];
 
-    if ((h->hstate & hstate) == 0) {
+    if ((h->hstate & hstate) == 0 || (h->hstate & CACHE_STRINGS) != 0) {
 	/* nothing to be done */
 	return 0;
     }
@@ -1181,6 +1182,13 @@ int pmdaCacheOp(pmInDom indom, int op)
 
 	case PMDA_CACHE_SYNC:
 	    return save_cache(h, DIRTY_INSTANCE|DIRTY_STAMP);
+
+	case PMDA_CACHE_STRINGS:
+	    /* must be set before any cache entries are added */
+	    if (h->nentry > 0)
+		return -E2BIG;
+	    h->hstate |= CACHE_STRINGS;
+	    return 0;
 
 	case PMDA_CACHE_ACTIVE:
 	    sts = 0;
