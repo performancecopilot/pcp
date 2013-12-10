@@ -10,7 +10,7 @@ echo "QA output created by $seq"
 . ./common.rpm
 _rpm_support_tests
 
-status=0	# success is the default!
+status=1	# failure is the default!
 $sudo rm -fr $tmp.* $seq.full
 trap "_rpm_cleanup" 0 1 2 3 15
 
@@ -62,6 +62,5 @@ _rpm_package_remove
 report_package qaplayer
 
 # success, all done
-cd $here
 status=0
 exit

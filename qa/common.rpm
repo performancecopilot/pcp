@@ -153,7 +153,7 @@ _rpm_cleanup()
     $remove_on_cleanup && _remove_rpm_pmda
 
     # replace the pmcd setup with original
-    _restore_pmda_install rpm
+    _rpm_pmda_restore
 
     # remove any newly installed RPM
     _rpm_package_remove
