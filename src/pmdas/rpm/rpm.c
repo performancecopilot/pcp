@@ -126,7 +126,6 @@ rpm_fetch_pmda(int item, pmAtomValue *atom)
     int sts = PMDA_FETCH_STATIC;
     unsigned long datasize;
 
-    pthread_mutex_lock(&indom_mutex);
     switch (item) {
     case REFRESH_COUNT_ID:		/* rpm.refresh.count */
 	atom->ull = numrefresh;
@@ -148,7 +147,6 @@ rpm_fetch_pmda(int item, pmAtomValue *atom)
 	sts = PM_ERR_PMID;
 	break;
     }
-    pthread_mutex_unlock(&indom_mutex);
     return sts;
 }
 
@@ -224,16 +222,25 @@ static int
 rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *) &mdesc->m_desc.pmid;
+    int sts;
 
+    pthread_mutex_lock(&indom_mutex);
     switch (idp->cluster) {
     case 0:
 	if (inst != PM_IN_NULL)
-	    return PM_ERR_INST;
-	return rpm_fetch_pmda(idp->item, atom);
+	    sts = PM_ERR_INST;
+	else
+	    sts = rpm_fetch_pmda(idp->item, atom);
+	break;
     case 1:
-	return rpm_fetch_package(idp->item, inst, atom);
+	sts = rpm_fetch_package(idp->item, inst, atom);
+	break;
+    default:
+	sts = PM_ERR_PMID;
+	break;
     }
-    return PM_ERR_PMID;
+    pthread_mutex_unlock(&indom_mutex);
+    return sts;
 }
 
 /*
