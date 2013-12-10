@@ -321,7 +321,7 @@ rpm_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
 static const char *
 rpm_extract_string(rpmtd td, Header h, int tag)
 {
-    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     /*
      * RPM_STRING_ARRAY_TYPE being the alternative, e.g. filenames
      * (which we never expect to see, for the metrics we export).
@@ -338,7 +338,7 @@ rpm_extract_value(rpmtd td, Header h, int tag)
 {
     __uint32_t value;
 
-    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     switch (td->type) {
     case RPM_INT8_TYPE:
 	value = ((char *)(td->data))[0];
@@ -407,7 +407,7 @@ rpm_update_cache(void *ptr)
     /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
     while ((h = rpmdbNextIterator(mi)) != NULL) {
-	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT | HEADERGET_MINMEM);
 	const char *name = rpmtdGetString(td);
 	metadata meta;
 	package *pp = NULL;
