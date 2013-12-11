@@ -50,11 +50,20 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     ifr.ifr_name[IF_NAMESIZE-1] = '\0';
     if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
 	netip->ioc.mtu = ifr.ifr_mtu;
+
+    ecmd.cmd = ETHTOOL_GSET;
+    ifr.ifr_data = (caddr_t)&ecmd;
+    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
     if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
 	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
 	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
     }
     /* ETHTOOL ioctl -> non-root permissions issues for old kernels */
+    ecmd.cmd = ETHTOOL_GSET;
+    ifr.ifr_data = (caddr_t)&ecmd;
+    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
     if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	/*
 	 * speed is defined in ethtool.h and returns the speed in
@@ -75,7 +84,8 @@ refresh_net_ipv4_addr(char *name, net_addr_t *addr)
 
     if ((fd = refresh_inet_socket()) < 0)
 	return;
-    strcpy(ifr.ifr_name, name);
+    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
     ifr.ifr_addr.sa_family = AF_INET;
     if (ioctl(fd, SIOCGIFADDR, &ifr) >= 0) {
 	struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
