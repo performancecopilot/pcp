@@ -86,11 +86,11 @@ _start_up_pmie2()
 {
     cat >$tmp.cmd2 <<End-of-File
 #!/bin/sh
-cat | pmie \$@ &
+pmie \$@ <$tmp.conf &
 echo pid=\$!
 End-of-File
 
-    $sudo -u $__user sh $tmp.cmd2 $@ <$tmp.conf >$tmp.pid
+    $sudo -u $__user sh $tmp.cmd2 $@ >$tmp.pid
     eval `cat $tmp.pid`
 }
 
@@ -117,6 +117,11 @@ echo "log mandatory on default { pmcd.pmie }" \
 | pmlogger -t 0.25sec -T 5sec $tmp
 
 sleep 4
+
+echo "log from pid=$pid1" >> $seq.full
+cat $tmp.out1 >> $seq.full
+echo "log from pid=$pid2" >> $seq.full
+cat $tmp.out2 >> $seq.full
 
 # values at the end of the run should be deterministic for these metrics...
 # ... metrics are instantaneous, so 10 samples reported in 9 secs

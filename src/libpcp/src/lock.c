@@ -137,7 +137,7 @@ __pmMultiThreaded(int scope)
 }
 
 #ifdef PM_MULTI_THREAD_DEBUG
-static void
+void
 __pmDebugLock(int op, void *lock, const char *file, int line)
 {
     int			report = 0;
@@ -162,10 +162,11 @@ __pmDebugLock(int op, void *lock, const char *file, int line)
     }
 
     if (report) {
+	__psint_t		key = (__psint_t)lock;
 	fprintf(stderr, "%s:%d %s", file, line, op == PM_LOCK_OP ? "lock" : "unlock");
 	try = 0;
 again:
-	hp = __pmHashSearch((unsigned int)lock, &hashctl);
+	hp = __pmHashSearch((unsigned int)key, &hashctl);
 	while (hp != NULL) {
 	    ldp = (lockdbg_t *)hp->data;
 	    if (ldp->lock == lock)
@@ -177,7 +178,7 @@ again:
 	    ldp = (lockdbg_t *)malloc(sizeof(lockdbg_t));
 	    ldp->lock = lock;
 	    ldp->count = 0;
-	    sts = __pmHashAdd((unsigned int)lock, (void *)ldp, &hashctl);
+	    sts = __pmHashAdd((unsigned int)key, (void *)ldp, &hashctl);
 	    if (sts == 1) {
 		try++;
 		if (try == 1)
