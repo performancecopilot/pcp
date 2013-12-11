@@ -362,7 +362,9 @@ rpm_extract_value(rpmtd td, Header h, int tag)
 static void
 rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 {
-    (void)name;
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
+
     m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
     m->buildhost = dict_insert(rpm_extract_string(td, h, RPMTAG_BUILDHOST));
     m->buildtime = rpm_extract_value(td, h, RPMTAG_BUILDTIME);
@@ -536,9 +538,10 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fprintf(stderr, "Options:\n"
+	  "  -C           parse the RPM database, and exit\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -r path      path to directory containing rpm database (default %s)\n"
+	  "  -r path      path to directory containing RPM database (default %s)\n"
 	  "  -U username  user account to run under (default \"pcp\")\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
@@ -557,9 +560,9 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
-    int sep = __pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
+    int sep = __pmPathSeparator();
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -572,9 +575,12 @@ main(int argc, char **argv)
 	       "rpm.log", helppath);
 
     while ((c =
-	    pmdaGetOpt(argc, argv, "D:d:i:l:pr:u:6:U:?", &dispatch,
+	    pmdaGetOpt(argc, argv, "CD:d:i:l:pr:u:6:U:?", &dispatch,
 		       &err)) != EOF) {
 	switch (c) {
+	case 'C':
+	    Cflag++;
+	    break;
 	case 'U':
 	    username = optarg;
 	    break;
@@ -590,6 +596,10 @@ main(int argc, char **argv)
 
     pmdaOpenLog(&dispatch);
     rpm_init(&dispatch);
+    if (Cflag) {
+	rpm_update_cache(NULL);
+	exit(0);
+    }
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 
