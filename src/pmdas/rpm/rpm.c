@@ -560,9 +560,9 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
+    int Cflag, sep = __pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
-    int sep = __pmPathSeparator();
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
