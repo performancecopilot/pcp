@@ -459,30 +459,30 @@ rpm_inotify(void *ptr)
     fd = inotify_init();
     inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
 
+    int need_refresh = 0;
     while (1) {
 	int i = 0;
 	int read_count;
-	int need_refresh = 0;
 
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 	while (i < read_count) {
-	    struct inotify_event *event =
-		(struct inotify_event *) &buffer[i];
-	    if (event->mask & IN_CLOSE_WRITE)
-		need_refresh++;
-	    i++;
+	    struct inotify_event *event = (struct inotify_event *) &buffer[i];
+
+	    if (event->len && event->mask & IN_CLOSE_WRITE) 
+		{
+		    need_refresh++;
+		    if (pmDebug & DBG_TRACE_APPL1)
+			__pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
+				      need_refresh);
+		    rpm_update_cache(ptr);
+		    if (pmDebug & DBG_TRACE_APPL1)
+			__pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
+		    i += sizeof (struct inotify_event) + event->len; /* sizeof struct + length of name */
+		}
 	}
-	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
-		      need_refresh);
-	if (!need_refresh)
-	    continue;
-	rpm_update_cache(ptr);
-	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
     return NULL;
 }
