@@ -30,13 +30,33 @@ static int			szActiveServices;
 struct __pmServerAvahiPresence {
     char	*serviceName;
     char	*serviceTag;
+    int		collisions;
 };
 
 static void entryGroupCallback(AvahiEntryGroup *, AvahiEntryGroupState, void *);
 
-static void
+static int
 renameService(__pmServerPresence *s)
 {
+    /*
+     * Each service must have a unique name on the local network.
+     * When there is a collision, we try to rename the service.
+     * However, we need to limit the number of attempts, since the
+     * service namespace could be maliciously flooded with service
+     * names designed to maximize collisions.
+     * Arbitrarily choose a limit of 65535, which is the number of
+     * TCP ports.
+     */
+    ++s->avahi->collisions;
+    if (s->avahi->collisions >= 65535) {
+	__pmNotifyErr(LOG_ERR, "Too many service name collisions for Avahi service %s",
+		      s->avahi->serviceTag);
+	return -EBUSY;
+    }
+
+    /*
+     * Use the avahi-supplied function to generate a new service name.
+     */
     char *n = avahi_alternative_service_name(s->avahi->serviceName);
 
     if (pmDebug & DBG_TRACE_DISCOVERY)
@@ -44,20 +64,26 @@ renameService(__pmServerPresence *s)
 		      s->avahi->serviceName, n);
     avahi_free(s->avahi->serviceName);
     s->avahi->serviceName = n;
+
+    return 0;
 }
 
-static void
+static int
 renameServices(void)
 {
     int i;
+    int rc = 0;
     __pmServerPresence *s;
 
     for (i = 0; i < szActiveServices; ++i) {
 	s = activeServices[i];
 	if (s == NULL)
 	    continue; /* empty entry */
-	renameService(s);
+	if ((rc = renameService(s)) < 0)
+	    break;
     }
+
+    return rc;
 }
 
 static void
@@ -111,7 +137,10 @@ createServices(AvahiClient *c)
 		 * multiple ports, this is expected to happen sometimes -
 		 * do not issue warnings here.
 		 */
-		renameService(s);
+		if (renameService(s) < 0) {
+		    /* Too many collisions. Message already issued */
+		    goto fail;
+		}
 		continue; /* try again */
 	    }
 
@@ -157,8 +186,8 @@ entryGroupCallback(AvahiEntryGroup *g, AvahiEntryGroupState state, void *data)
 	     * Unfortunately, we don't know which entry collided.
 	     * We need to rename them all and recreate the services.
 	     */
-	    renameServices();
-	    createServices(avahi_entry_group_get_client(g));
+	    if (renameServices() == 0)
+		createServices(avahi_entry_group_get_client(g));
 	    break;
 
 	case AVAHI_ENTRY_GROUP_FAILURE:
@@ -399,6 +428,7 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 		  size, PM_FATAL_ERR);
     }
     sprintf(s->avahi->serviceTag, "_%s._tcp", s->serviceSpec);
+    s->avahi->collisions = 0;
     
     /* Now publish the avahi service. */
     publishService(s);
