@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 783
+# Check for memory issues in RPM PMDA instance handling
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.rpm
+_rpm_support_tests
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_rpm_cleanup" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+    # end
+}
+
+# real QA test starts here
+_rpm_package_prepare
+_rpm_package_install
+cd $here
+
+# valgrind check on DSO RPM PMDA
+pmns=$PCP_PMDAS_DIR/rpm/root
+list=`pminfo -n $pmns | egrep -v 'rpm.refresh|rpm.datasize'`
+dsoinit="add,123,rpm/pmda_rpm.$DSO_SUFFIX,rpm_init"
+_run_valgrind dbpmda -n $pmns -ie <<End-of-File 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/rpm/pmda_rpm.$DSO_SUFFIX rpm_init 123
+wait 2
+desc rpm.size
+fetch rpm.refresh.count
+End-of-File
+
+# success, all done
+status=0
+exit

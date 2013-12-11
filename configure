@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+HAVE_RPMLIB
 HAVE_LIBMICROHTTPD
 lib_for_rt
 lib_for_curses
@@ -12929,6 +12930,34 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 HAVE_LIBMICROHTTPD=$have_libmicrohttpd
+
+LIBS=$savedLIBS
+
+savedLIBS=$LIBS
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib" >&5
+$as_echo_n "checking for rpmlib... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <rpm/header.h>
+int
+main ()
+{
+(void)headerGet(NULL, 0, NULL, 0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    have_rpmlib=1
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    have_rpmlib=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+HAVE_RPMLIB=$have_rpmlib
 
 LIBS=$savedLIBS
 
