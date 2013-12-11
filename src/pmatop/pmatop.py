@@ -41,13 +41,18 @@ import datetime
 import re
 import time
 import sys
-import curses
 import select
 import signal
 import cpmapi as c_api
 import cpmgui as c_gui
 from pcp import pmapi, pmgui
 from pcp.pmsubsys import Subsystem
+try:
+    import curses
+except ImportError as e:
+    print(e)
+    print("pmatop requires curses.py")
+    sys.exit(0)
 
 ME = "pmatop"
 

@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 783
+# Check for memory issues in RPM PMDA instance handling
+#
+# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.rpm
+_rpm_support_tests
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/g' \
+    # end
+}
+
+# real QA test starts here
+_run_valgrind $PCP_PMDAS_DIR/rpm/pmdarpm -C 2>&1 | _filter
+
+# success, all done
+status=0
+exit

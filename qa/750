@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 750
+# Exercise the RPM Package Manager PMDA
+#
+# Copyright (c) 2013 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.rpm
+_rpm_support_tests
+
+status=1	# failure is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "_rpm_cleanup" 0 1 2 3 15
+
+BUILDHOST=`hostname`
+HOSTARCH=`uname -m`
+
+filter_pmval()
+{
+    sed \
+	-e "s/\"$HOSTARCH\"/\"HOSTARCH\"/g" \
+	-e "s/\"$BUILDHOST\"/\"BUILDHOST\"/g" \
+	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
+    # end
+}
+
+report_package()
+{
+    inst="$1"
+ 
+    pmsleep 1.1	# time for pmdarpm to complete background refresh
+    pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.description -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.epoch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.group -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.installtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.license -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.packager -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.release -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.size -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.sourcerpm -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.summary -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+}
+
+# real QA test starts here
+
+_rpm_pmda_prepare
+_rpm_package_prepare
+
+_rpm_package_install
+report_package qaplayer
+
+echo "========================================================================"
+_rpm_package_remove
+report_package qaplayer
+
+# success, all done
+status=0
+exit

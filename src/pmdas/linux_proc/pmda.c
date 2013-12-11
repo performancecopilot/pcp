@@ -1599,7 +1599,7 @@ proc_init(pmdaInterface *dp)
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
     /* string metrics use the pmdaCache API for value indexing */
-    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_CULL);
+    pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
 
     /* cgroup metrics use the pmdaCache API for indom indexing */
     pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_CULL);

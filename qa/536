@@ -61,7 +61,7 @@ pmprobe -I -a $TA network.interface.in.bytes
 
 echo '## Testing some hinv metrics'
 collectl2pcp -F $C/some_host.raw $TA
-pminfo -a $TA -f hinv.{ncpu,ndisk}
+pminfo -a $TA -f hinv.ncpu hinv.ndisk
 
 echo '## Testing handling of corrupted or truncated metric values'
 collectl2pcp -F $C/truncated.raw $TA 2>&1

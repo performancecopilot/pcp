@@ -1,8 +1,9 @@
 pcp (3.8.9) unstable; urgency=low
 
-  * Currently under development.
+  * New release (full details in CHANGELOG).
+  * Resolve installation bug for config files (closes: #729857)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 06 Nov 2013 17:36:59 +1100
+ -- Nathan Scott <nathans@debian.org>  Thu, 12 Dec 2013 11:49:03 +1100
 
 pcp (3.8.8) unstable; urgency=low
 
