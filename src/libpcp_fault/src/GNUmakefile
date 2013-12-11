@@ -35,7 +35,7 @@ VERSION_SCRIPT = exports
 
 LSRCFILES = check-statics $(VERSION_SCRIPT)
 
-LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) -lpcp_pmda
+LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 
 ifeq "$(ENABLE_SECURE)" "true"
 LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
@@ -79,9 +79,9 @@ LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
 DSOVERSION = 3
-STATICLIBTARGET = libpcp_default.a
-LIBTARGET = libpcp_default.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_default.$(DSOSUFFIX) libpcp_default.$(DSOSUFFIX).2
+STATICLIBTARGET = libpcp_fault.a
+LIBTARGET = libpcp_fault.$(DSOSUFFIX).$(DSOVERSION)
+SYMTARGET = libpcp_fault.$(DSOSUFFIX) libpcp_fault.$(DSOSUFFIX).2
 
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SYMTARGET = libpcp_fault.$(DSOSUFFIX)

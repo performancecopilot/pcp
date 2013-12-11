@@ -330,7 +330,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     if [ ! -d "$dir" ]
     then
-	_error "logfile directory ($dir) does not exist"
+	if [ "$PMIE_CTL" = "on" ]
+	then
+	    _error "logfile directory ($dir) does not exist"
+	fi
 	continue
     fi
 
