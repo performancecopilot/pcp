@@ -61,5 +61,6 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
+rpm.o: rpm.h
 rpm.o timer.o: timer.h
 rpm.o: $(VERSION_SCRIPT)
