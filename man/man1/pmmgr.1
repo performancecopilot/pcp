@@ -113,8 +113,9 @@ Some candidate metrics to consider:
 
 .TP
 log\-directory
-This file contains the full path of a directory beneath which the per-host-id 
-subdirectories are to be created by pmmgr.  The default is
+This file contains the path of a directory beneath which the per-host-id 
+subdirectories are to be created by pmmgr.  If it is not a full path, it
+is implicitly relative to the configuration directory itself.  The default is
 .BR $PCP_LOG_DIR/pmmgr/ .
 
 .TP
