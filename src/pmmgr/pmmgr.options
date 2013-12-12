@@ -1,0 +1,16 @@
+# command-line options and environment variables for pmmgr
+# uncomment/edit lines as required
+# note: environment variables are *not* expanded - use full path
+
+# make log go someplace else
+# -l /some/place/else
+
+# assume identity of some user other than "pcp"
+# -U pcp
+
+# setting of environment variables for pmwebd
+
+# timeouts for interactions with pmcd on behalf of clients
+# PMCD_CONNECT_TIMEOUT=10
+# PMCD_RECONNECT_TIMEOUT=10,20,30
+# PMCD_REQUEST_TIMEOUT=10

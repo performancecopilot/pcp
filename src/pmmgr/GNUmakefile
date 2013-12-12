@@ -18,7 +18,7 @@ LLDIRT =
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES=TODO rc_pmmgr
+LSRCFILES=TODO rc_pmmgr pmmgr.options
 
 SUBDIRS = config
 # ... but only built on posix platforms with a c++ compiler
@@ -35,6 +35,7 @@ include $(BUILDRULES)
 
 install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 644 pmmgr.options $(PCP_PMMGROPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmmgr $(PCP_RC_DIR)/pmmgr
 
 clean :: $(SUBDIRS)

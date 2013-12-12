@@ -37,6 +37,7 @@
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMMGR=$PCP_BINADM_DIR/pmmgr
+PMMGROPTS=$PCP_PMMGRPTIONS_PATH
 RUNDIR=$PCP_LOG_DIR/pmmgr
 pmprog=$PCP_RC_DIR/pmmgr
 prog=$PCP_RC_DIR/`basename $0`
@@ -208,6 +209,12 @@ case "$1" in
 
 	if [ -x $PMMGR ]
 	then
+	    if [ ! -f $PMMGROPTS ]
+	    then
+		echo "$prog:"'
+Error: pmmgr control file "$PMMGROPTS" is missing, cannot start pmmgr.'
+		exit
+	    fi
 	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
 	    cd $RUNDIR
 
@@ -220,12 +227,33 @@ case "$1" in
 	    fi
 
 	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmmgr (logfile is $RUNDIR/pmmgr.log) ..." "$PCP_ECHO_C"
+	    # options file processing ...
+	    # only consider lines which start with a hyphen
+	    # get rid of the -f option
+	    # ensure multiple lines concat onto 1 line
+	    OPTS=`sed <$PMMGROPTS 2>/dev/null \
+			    -e '/^[^-]/d' \
+			    -e 's/^/ /' \
+			    -e 's/$/ /' \
+			    -e 's/ -f / /g' \
+			    -e 's/^ //' \
+			    -e 's/ $//' \
+		    | tr '\012' ' ' `
+ 
+	    # environment stuff
+	    #
+	    eval `sed -e 's/"/\\"/g' $PMMGROPTS \
+	    | awk -F= '
+BEGIN			{ exports="" }
+/^[A-Z]/ && NF == 2	{ exports=exports" "$1
+			  printf "%s=${%s:-\"%s\"}\n", $1, $1, $2
+			}
+END			{ if (exports != "") print "export", exports }'`
 
 	    $PMMGR $OPTS > pmmgr.log 2>&1 &
 	    $RC_STATUS -v
 
 	    pmpost "start pwmebd from $pmprog"
-
 	fi
 	status=0
         ;;
