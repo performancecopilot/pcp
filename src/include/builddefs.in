@@ -127,7 +127,7 @@ SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
-DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) \
+DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(CXXMDTARGET) \
 	$(LIBTARGET) $(STATICLIBTARGET) \
 	*.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
 DIRDIRT = $(LDIRDIRT)

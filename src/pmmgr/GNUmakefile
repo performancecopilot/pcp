@@ -21,14 +21,21 @@ include $(TOPDIR)/src/include/builddefs
 LSRCFILES=TODO rc_pmmgr pmmgr.options
 
 SUBDIRS = config
+
 # ... but only built on posix platforms with a c++ compiler
 ifneq ($(TARGET_OS),mingw)
 ifneq ($(CXX),"")
-SUBDIRS += src
+CXXMDTARGET = pmmgr$(EXECSUFFIX)
+HFILES = pmmgr.h
+CXXFILES = pmmgr.cxx
+LLDLIBS	= $(PCPLIB)
+PCPLIB_LDFLAGS +=
+LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
+LCFLAGS += $(PIECFLAGS)
 endif
 endif
 
-default : $(SUBDIRS)
+default : $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -37,12 +44,16 @@ install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 644 pmmgr.options $(PCP_PMMGROPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmmgr $(PCP_RC_DIR)/pmmgr
-
-clean :: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+ifneq ($(TARGET_OS),mingw)
+ifneq ($(CXX),"")
+	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
+endif
+endif
 
 default_pcp : default
 
 install_pcp : install
+
+pmmgr.o: $(HFILES)
 
 # Hey, does anyone have a spare vowel?
