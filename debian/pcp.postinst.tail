@@ -1,4 +1,9 @@
 
+if dpkg-maintscript-helper supports mv_conffile
+then
+    _version_configs "$@"
+fi
+
 touch /var/lib/pcp/pmns/.NeedRebuild
 chmod 644 /var/lib/pcp/pmns/.NeedRebuild
 

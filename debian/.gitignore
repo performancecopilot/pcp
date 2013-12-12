@@ -2,3 +2,4 @@ pcp.preinst
 pcp.preinst.head
 pcp.postinst
 pcp.postinst.head
+pcp.postrm
