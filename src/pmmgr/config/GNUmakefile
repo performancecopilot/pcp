@@ -21,7 +21,7 @@ include $(TOPDIR)/src/include/builddefs
 LSRCFILES = hostid-metrics.default log-directory.default pmie		\
 	 pmieconf pmlogconf pmlogger pmlogmerge.default			\
 	 pmlogmerge-retain.default README target-discovery.default	\
-	 target-host.default
+	 target-host.default target-discovery.avahi
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 
