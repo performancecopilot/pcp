@@ -776,7 +776,6 @@ int main (int argc, char *argv[])
 {
   __pmSetProgname(argv[0]);
 
-  timestamp(cout) << "Log started" << endl;
   setup_signals();
 
   string default_config_dir = 
@@ -826,7 +825,7 @@ int main (int argc, char *argv[])
                <<                "(default " << default_config_dir << ")" << endl
                << "  -p NUM   set pmcd polling interval "
                <<                "(default " << polltime << ")" << endl
-               << "  -U USER  switch to userid " << endl
+               << "  -U USER  switch to userid "
                <<                "(default " << username << ")" << endl
                << "  -v       verbose diagnostics to stderr" << endl
                << endl;
@@ -841,6 +840,7 @@ int main (int argc, char *argv[])
   // lose root privileges if we have them
   __pmSetProcessIdentity(username.c_str());
 
+  timestamp(cout) << "Log started" << endl;
   while (! quit)
     {
       // Absorb any zombie child processes, which a subsequent poll may look for.

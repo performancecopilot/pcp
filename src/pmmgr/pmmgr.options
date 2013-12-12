@@ -2,11 +2,18 @@
 # uncomment/edit lines as required
 # note: environment variables are *not* expanded - use full path
 
-# make log go someplace else
-# -l /some/place/else
+# make log more verbose
+# -v
+
+# poll less frequently 
+# -p 300
+
+# add more configuration directories
+# -c DIR1
+# -c DIR2
 
 # assume identity of some user other than "pcp"
-# -U pcp
+# -U foobar
 
 # setting of environment variables for pmwebd
 
