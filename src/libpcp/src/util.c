@@ -98,7 +98,9 @@ __pmNotifyErr(int priority, const char *message, ...)
     if (dosyslog) {
 	char	syslogmsg[2048];
 
-	snprintf(syslogmsg, sizeof(syslogmsg), message, arg);
+	vsnprintf(syslogmsg, sizeof(syslogmsg), message, arg);
+	va_end(arg);
+	va_start(arg, message);
 	syslog(priority, "%s", syslogmsg);
     }
     PM_UNLOCK(__pmLock_libpcp);
