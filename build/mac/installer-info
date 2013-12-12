@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
         <key>CFBundleGetInfoString</key>
-        <string>SGI Performance Co-Pilot @package_version@</string>
+        <string>Performance Co-Pilot @package_version@</string>
         <key>CFBundleIdentifier</key>
         <string>com.sgi.pkg.pcp</string>
         <key>CFBundleName</key>
-        <string>SGI Performance Co-Pilot</string>
+        <string>Performance Co-Pilot</string>
         <key>CFBundleShortVersionString</key>
         <string>@package_version@</string>
 	<key>IFMajorVersion</key>

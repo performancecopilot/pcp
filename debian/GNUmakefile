@@ -73,7 +73,7 @@ LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
 SUBDIRS = source
-LDIRT = *.debhelper *.substvars *.log pcp files \
+LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
@@ -85,6 +85,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files \
 LSRCFILES = changelog compat control copyright rules \
 	pcp.preinst.head.in pcp.preinst.head pcp.preinst.tail \
 	pcp.postinst.head.in pcp.postinst.head pcp.postinst.tail \
+	pcp.postrm.head pcp.postrm.tail configversions \
 	$(LINTIAN) $(PCP_LINT) \
 	$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
 	$(PCPTESTSUITE_FILES) \
@@ -244,10 +245,14 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 #	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
 endif
 
-pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail
+pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail
 	rm -f $@
-	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs pcp.preinst.tail > $@
+	cat pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail > $@
 
-pcp.postinst:	pcp.postinst.head $(SCRIPTS)/cleantmpdirs pcp.postinst.tail
+pcp.postinst:	pcp.postinst.head $(SCRIPTS)/cleantmpdirs configversions pcp.postinst.tail
 	rm -f $@
-	cat pcp.postinst.head $(SCRIPTS)/cleantmpdirs pcp.postinst.tail > $@
+	cat pcp.postinst.head $(SCRIPTS)/cleantmpdirs configversions pcp.postinst.tail > $@
+
+pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
+	rm -f $@
+	cat pcp.postrm.head configversions pcp.postrm.tail > $@

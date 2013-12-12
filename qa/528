@@ -54,8 +54,8 @@ NF == 0		{ part = "part2" }
     [ -f part2 ] && _filter1 <part2
 }
 
-mkdir $tmp
-cd $tmp
+mkdir $tmp.dir
+cd $tmp.dir
 
 # real QA test starts here
 rm -f myarchive.*

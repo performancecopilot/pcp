@@ -1,5 +1,9 @@
-#!/bin/sh -e
-#DEBHELPER#
+
+if dpkg-maintscript-helper supports mv_conffile
+then
+    _version_configs "$@"
+fi
+
 if [ "$1" = purge ]; then
     update-rc.d pmproxy remove >/dev/null
     [ ! -f /etc/init.d/pmwebd ] || \
