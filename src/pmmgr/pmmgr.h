@@ -29,16 +29,6 @@ extern "C" {
 typedef std::string pcp_context_spec; // pmNewContext PM_CONTEXT_HOST parameter
 typedef std::string pmmgr_hostid; // a unique id for a pmcd
 
-struct pmmgr_exception: public std::runtime_error {
-  ~pmmgr_exception() throw () {} 
-  pmmgr_exception(int rc);
-  pmmgr_exception(int rc, const std::string& m);
-  int pmerror;
-};
-
-std::ostream& operator << (std::ostream& o, const pmmgr_exception& e);
-
-
 
 // Instances of pmmgr_configurable represent a configurable object,
 // which reads one or more lines of djb-style directories. 
@@ -54,6 +44,8 @@ protected:
 
   // private: maybe?
   std::string config_directory;
+
+  std::ostream& timestamp(std::ostream&);
 };
 
 

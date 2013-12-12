@@ -29,13 +29,18 @@ extern "C" {
 
 using namespace std;
 
+// ------------------------------------------------------------------------
+
+
+int quit;
+
 
 // ------------------------------------------------------------------------
 
 
 #ifdef IS_MINGW /* ie. not posix */
 #error "posix required"
-so is #error
+so is #error ;
 // since we use fork / glob / etc.
 #endif
 
@@ -43,8 +48,9 @@ so is #error
 // ------------------------------------------------------------------------
 
 
-// Create a string that is safe to pass to system(3), i.e.,
-// sh -c, by quoting metacharacters.
+// Create a string that is safe to pass to system(3), i.e., sh -c,
+// by quoting metacharacters.  This transform generally should be
+// applied only once.
 string
 sh_quote(const string& input)
 {
@@ -61,6 +67,24 @@ sh_quote(const string& input)
   return output;
 }
 
+
+// Print a string to cout/cerr progress reports, similar to the
+// stuff produced by __pmNotifyErr
+ostream&
+timestamp(ostream &o)
+{
+  time_t now;
+  time (&now);
+  char *now2 = ctime (&now);
+  if (now2)
+    now2[19] = '\0'; // overwrite \n
+
+  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid() << "): ";
+}
+
+
+
+// ------------------------------------------------------------------------
 
 
 pmmgr_configurable::pmmgr_configurable(const string& dir):
@@ -108,30 +132,12 @@ pmmgr_configurable::get_config_single(const string& file)
     return "";
 }
 
-
-// ------------------------------------------------------------------------
-
-
-pmmgr_exception::pmmgr_exception(int rc): 
-  runtime_error (pmErrStr(rc)),
-  pmerror(rc)
+ostream&
+pmmgr_configurable::timestamp(ostream& o)
 {
+  return ::timestamp(o) << config_directory << ": ";
 }
 
-
-pmmgr_exception::pmmgr_exception(int rc, const std::string& m):
-  runtime_error (m),
-  pmerror(rc) 
-{
-}
-
-
-std::ostream&
-operator << (std::ostream& o, const pmmgr_exception& e)
-{
-  o << "error: " << e.what() << " (code " << e.pmerror << ")";
-  return o;
-}
 
 
 // ------------------------------------------------------------------------
@@ -152,7 +158,7 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
                               & pms, & errmsg);
   if (rc < 0) {
     string errmsg2 = errmsg;
-    cerr << "hostid-metrics parse error: " << errmsg << endl;
+    timestamp(cerr) << "hostid-metrics '" << specstr << "' parse error: " << errmsg << endl;
     free (errmsg);
   }
 
@@ -312,6 +318,8 @@ pmmgr_job_spec::~pmmgr_job_spec()
 void
 pmmgr_job_spec::poll()
 {
+  if (quit) return;
+
   // phase 1: run all discovery/probing functions to collect context-spec's
   set<pcp_context_spec> new_specs;
 
@@ -392,9 +400,7 @@ pmmgr_job_spec::poll()
 void
 pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec& spec)
 {
-  if (pmDebug & DBG_TRACE_APPL0)
-    cerr << pmProgname << " " << config_directory
-         << ": new hostid " << hid << " at " << string(spec) << endl;
+  timestamp(cout) << "new hostid " << hid << " at " << string(spec) << endl;
 
   if (get_config_exists("pmlogger"))
     daemons.insert(make_pair(hid, new pmmgr_pmlogger_daemon(config_directory, hid, spec)));
@@ -407,8 +413,7 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 void
 pmmgr_job_spec::note_dead_hostid(const pmmgr_hostid& hid)
 {
-  if (pmDebug & DBG_TRACE_APPL0)
-    cerr << pmProgname << " " << config_directory << ": dead hostid " << hid << endl;
+  timestamp(cout) << "dead hostid " << hid << endl;
 
   pair<multimap<pmmgr_hostid,pmmgr_daemon*>::iterator,
        multimap<pmmgr_hostid,pmmgr_daemon*>::iterator> range =
@@ -459,20 +464,22 @@ pmmgr_daemon::~pmmgr_daemon()
     {
       (void) kill ((pid_t) pid, SIGTERM);
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "daemon pid " << pid << " killed" << endl;
+        timestamp(cout) << "daemon pid " << pid << " killed" << endl;
     }
 }
 
 
 void pmmgr_daemon::poll()
 {
+  if (quit) return;
+
   if (pid != 0) // test if it's still alive
     {
       int rc = kill ((pid_t) pid, 0);
       if (rc < 0) 
         {
           if (pmDebug & DBG_TRACE_APPL0)
-            cerr << "daemon pid " << pid << " found dead" << endl;
+            timestamp(cout) << "daemon pid " << pid << " found dead" << endl;
           pid = 0;
           // we will try again immediately
         }
@@ -482,25 +489,25 @@ void pmmgr_daemon::poll()
     {
       string commandline = daemon_command_line();
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "spawning sh -c " << commandline << endl;
+        timestamp(cout) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
       if (pid == 0) // child process
         {
           int rc = execl ("/bin/sh", "sh", "-c", commandline.c_str(), NULL);
-          cerr << "failed to execl sh -c " << commandline << " rc=" << rc << endl;
+          timestamp(cerr) << "failed to execl sh -c " << commandline << " rc=" << rc << endl;
           _exit (1);
           // parent will try again at next poll
         }
       else if (pid < 0) // failed fork
         {
-          cerr << "failed to fork for sh -c " << commandline << endl;
+          timestamp(cerr) << "failed to fork for sh -c " << commandline << endl;
           pid = 0;
           // we will try again at next poll
         }
       else // congratulations!  we're a parent
         {
           if (pmDebug & DBG_TRACE_APPL0)
-            cerr << "daemon pid " << pid << " started: " << commandline << endl;
+            timestamp(cout) << "daemon pid " << pid << " started: " << commandline << endl;
         }
     }
 }
@@ -537,12 +544,14 @@ pmmgr_pmlogger_daemon::daemon_command_line()
         sh_quote(pmlogconf_command)
         + " -c -r -h " + sh_quote(spec)
         + " " + get_config_single ("pmlogconf")
-        + " " + sh_quote(pmlogconf_output_file);
+        + " " + sh_quote(pmlogconf_output_file)
+        + " >/dev/null"; // pmlogconf is too chatty
+       
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "running " << pmlogconf_options << endl;
+        timestamp(cout) << "running " << pmlogconf_options << endl;
       int rc = system(pmlogconf_options.c_str());
       if (rc != 0) 
-        cerr << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
+        timestamp(cerr) << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
 
       pmlogger_options += " -c " + sh_quote(pmlogconf_output_file);
     }
@@ -612,12 +621,12 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           pmlogextract_options += " " + sh_quote(merged_archive_name);
 
           if (pmDebug & DBG_TRACE_APPL0)
-            cerr << "running " << pmlogextract_options << endl;
+            timestamp(cout) << "running " << pmlogextract_options << endl;
 
           rc = system(pmlogextract_options.c_str());
           if (rc != 0) 
             // will try again later
-            cerr << "system(" << pmlogextract_options << ") failed: rc=" << rc << endl;
+            timestamp(cerr) << "system(" << pmlogextract_options << ") failed: rc=" << rc << endl;
           else
             {
               // zap the previous archive files 
@@ -630,11 +639,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                     + " " + base_name + ".meta";
 
                   if (pmDebug & DBG_TRACE_APPL0)
-                    cerr << "running " << cleanup_cmd << endl;
+                    timestamp(cout) << "running " << cleanup_cmd << endl;
 
                   rc = system(cleanup_cmd.c_str());
                   if (rc != 0) 
-                    cerr << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+                    timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
                 }
             }
         }
@@ -694,10 +703,10 @@ pmmgr_pmie_daemon::daemon_command_line()
         + " -F -c " + get_config_single ("pmieconf")
         + " -f " + sh_quote(pmieconf_output_file);
       if (pmDebug & DBG_TRACE_APPL0)
-        cerr << "running " << pmieconf_options << endl;
+        timestamp(cout) << "running " << pmieconf_options << endl;
       int rc = system(pmieconf_options.c_str());
       if (rc != 0) 
-        cerr << "system(" << pmieconf_options << ") failed: rc=" << rc << endl;
+        timestamp(cerr) << "system(" << pmieconf_options << ") failed: rc=" << rc << endl;
 
       pmie_options += "-c " + sh_quote(pmieconf_output_file);
     }
@@ -719,12 +728,9 @@ pmmgr_pmie_daemon::daemon_command_line()
 // ------------------------------------------------------------------------
 
 
-int quit;
-
 extern "C"
 void handle_interrupt (int sig)
 {
-  (void) sig;
   quit ++;
   if (quit > 2)
     {
@@ -739,12 +745,26 @@ void handle_interrupt (int sig)
 
 void setup_signals()
 {
-  __pmSetSignalHandler (SIGHUP, handle_interrupt);
-  __pmSetSignalHandler (SIGPIPE, handle_interrupt);
-  __pmSetSignalHandler (SIGINT, handle_interrupt);
-  __pmSetSignalHandler (SIGTERM, handle_interrupt);
-  __pmSetSignalHandler (SIGXFSZ, handle_interrupt);
-  __pmSetSignalHandler (SIGXCPU, handle_interrupt);
+  // NB: we eschew __pmSetSignalHandler, since it uses signal(3),
+  // whose behavior is less predictable than sigaction(2).
+
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = handle_interrupt;
+  sigemptyset (&sa.sa_mask);
+  sigaddset (&sa.sa_mask, SIGHUP);
+  sigaddset (&sa.sa_mask, SIGPIPE);
+  sigaddset (&sa.sa_mask, SIGINT);
+  sigaddset (&sa.sa_mask, SIGTERM);
+  sigaddset (&sa.sa_mask, SIGXFSZ);
+  sigaddset (&sa.sa_mask, SIGXCPU);
+  sa.sa_flags = SA_RESTART;
+  sigaction (SIGHUP, &sa, NULL);
+  sigaction (SIGPIPE, &sa, NULL);
+  sigaction (SIGINT, &sa, NULL);
+  sigaction (SIGTERM, &sa, NULL);
+  sigaction (SIGXFSZ, &sa, NULL);
+  sigaction (SIGXCPU, &sa, NULL);
 }
 
 
@@ -752,10 +772,11 @@ void setup_signals()
 // ------------------------------------------------------------------------
 
 
-
 int main (int argc, char *argv[])
 {
   __pmSetProgname(argv[0]);
+
+  timestamp(cout) << "Log started" << endl;
   setup_signals();
 
   string default_config_dir = 
@@ -764,11 +785,15 @@ int main (int argc, char *argv[])
 
   int c;
   int polltime = 60;
-  while ((c = getopt(argc, argv, "D:c:vp:")) != EOF)
+  char* username_str;
+  __pmGetUsername(& username_str);
+  string username = username_str;
+
+  while ((c = getopt(argc, argv, "D:c:vp:U:h")) != EOF)
     {
       switch (c)
         {
-        case 'D':
+        case 'D': // undocumented
           (void) __pmParseDebug(optarg);
           break;
 
@@ -786,25 +811,23 @@ int main (int argc, char *argv[])
           break;
 
         case 'c':
-          try 
-            {
-              pmmgr_job_spec* j = new pmmgr_job_spec(optarg);
-              js.push_back (j);
-            }
-          catch (const pmmgr_exception& pme)
-            {
-              cerr << pme << endl;
-              exit (1);
-            }
+          js.push_back (new pmmgr_job_spec(optarg));
           break;
 
+        case 'U':
+          username = optarg;
+          break;
+
+        case 'h':
         default:
           cerr << "Usage: " << pmProgname << " [options] ..." << endl
                << "Options:" << endl
-               << "  -c DIR   add given configuration directory "
+               << "  -c DIR   add another configuration directory "
                <<                "(default " << default_config_dir << ")" << endl
                << "  -p NUM   set pmcd polling interval "
                <<                "(default " << polltime << ")" << endl
+               << "  -U USER  switch to userid " << endl
+               <<                "(default " << username << ")" << endl
                << "  -v       verbose diagnostics to stderr" << endl
                << endl;
           exit (1);
@@ -813,16 +836,10 @@ int main (int argc, char *argv[])
 
   // default
   if (js.size() == 0)
-    try 
-      {
-        pmmgr_job_spec* j = new pmmgr_job_spec(default_config_dir);
-        js.push_back (j);
-      }
-    catch (const pmmgr_exception& pme)
-      {
-        cerr << pme << endl;
-        exit (1);
-      }
+    js.push_back (new pmmgr_job_spec(default_config_dir));
+
+  // lose root privileges if we have them
+  __pmSetProcessIdentity(username.c_str());
 
   while (! quit)
     {
@@ -837,20 +854,14 @@ int main (int argc, char *argv[])
         }
 
       for (unsigned i=0; i<js.size(); i++)
-        try
-          {
-            js[i]->poll();
-          }
-        catch (const pmmgr_exception& pme)
-          {
-            cerr << pme << endl;
-          }
+        js[i]->poll();
       sleep (polltime);
     }
 
   for (unsigned i=0; i<js.size(); i++)
     delete js[i];
+  // XXX: send a suicide signal to the process group
 
-  // XXX: send a suicide signal to the process group?
+  timestamp(cout) << "Log finished" << endl;
   return 0;
 }
