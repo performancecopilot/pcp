@@ -1,0 +1,37 @@
+_version_configs()
+{
+    # Use the supported conffile move method (no prompts)
+    local FILE
+
+    local NPMCD=/etc/pcp/pmcd
+    local PMCD1=/etc/pmcd
+    local PMCD2=/var/lib/pcp/config/pmcd
+    for FILE in pmcd.conf pmcd.options rc.local; do
+        dpkg-maintscript-helper mv_conffile $PMCD2/$FILE $NPMCD/$FILE 3.7.0~ pcp -- "$@"
+        dpkg-maintscript-helper mv_conffile $PMCD1/$FILE $NPMCD/$FILE 3.6.1~ pcp -- "$@"
+    done
+
+    local NPMIE=/etc/pcp/pmie
+    local PMIE1=/etc/pmie
+    local PMIE2=/var/lib/pcp/config/pmie
+    for FILE in control; do
+        dpkg-maintscript-helper mv_conffile $PMIE2/$FILE $NPMIE/$FILE 3.7.0~ pcp -- "$@"
+        dpkg-maintscript-helper mv_conffile $PMIE1/$FILE $NPMIE/$FILE 3.6.1~ pcp -- "$@"
+    done
+
+    local NPMPROXY=/etc/pcp/pmproxy
+    local PMPROXY1=/etc/pmproxy
+    local PMPROXY2=/var/lib/pcp/config/pmproxy
+    for FILE in pmproxy.options; do
+        dpkg-maintscript-helper mv_conffile $PMPROXY2/$FILE $NPMPROXY/$FILE 3.7.0~ pcp -- "$@"
+        dpkg-maintscript-helper mv_conffile $PMPROXY1/$FILE $NPMPROXY/$FILE 3.6.1~ pcp -- "$@"
+    done
+
+    local NPMLOGGER=/etc/pcp/pmlogger
+    local PMLOGGER1=/etc/pmlogger
+    local PMLOGGER2=/var/lib/pcp/config/pmlogger
+    for FILE in control; do
+        dpkg-maintscript-helper mv_conffile $PMLOGGER2/control $NPMLOGGER/control 3.7.0~ pcp -- "$@"
+        dpkg-maintscript-helper mv_conffile $PMLOGGER1/control $NPMLOGGER/control 3.6.1~ pcp -- "$@"
+    done
+}

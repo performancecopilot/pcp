@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -57,7 +58,12 @@ endif
 
 ifdef VERSION_SCRIPT
 ifneq ($(INVISIBILITY),)
+ifeq ($(TARGET_OS), darwin)
+# Mac OS X ld(1) takes a different format for the symbols file
+# _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(VERSION_SCRIPT)
+else
 _SHAREDOPTS	+=  -Wl,--version-script=$(VERSION_SCRIPT)
+endif
 endif
 endif
 
