@@ -25,6 +25,7 @@ echo python ok
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
+rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -42,7 +43,8 @@ _cleanup()
 
 _filter()
 {
-    sed -e 's,#[0-9]*,####,g' -e 's/PMWEBAPI error,.*/PMWEBAPI error, XXX/g'
+    tee -a $seq.full \
+    | sed -e 's,#[0-9]*,####,g' -e 's/PMWEBAPI error,.*/PMWEBAPI error, XXX/g'
 }
 
 
@@ -54,15 +56,47 @@ $sudo $signal -a pmwebd >/dev/null 2>&1
 
 webargs="-U $username -f"
 
-echo
-echo "=== 1. pmwebd default startup  ==="
+echo | tee -a $seq.full
+echo "=== 1. pmwebd default startup  ===" | tee -a $seq.full
+echo "$PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out" >>$seq.full
 $PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out 2>&1 &
+echo "pid=$!" >>$seq.full
 sleep 2		# let it start up
-curl -s -S 'http://localhost:44323/pmapi/context?local=ANYTHING' | awk '{print $2}'
+
+if [ -f $tmp.out ]
+then
+    cat $tmp.out >>$seq.full
+else
+    echo "Arrgh ... pmwebd failed to start, $tmp.out not created"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
+    exit
+fi
+curl -s -S "http://localhost:44323/pmapi/context?local=ANYTHING" | awk '{print $2}'
+
+if [ ! -f /etc/hosts ]
+then
+    echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
+    exit
+fi
+ipv6local=''
+for sniff in localhost6 ip6-localhost
+do
+    if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
+    then
+	ipv6local=$sniff
+	break
+    fi
+done
+if [ -z "$ipv6local" ]
+then
+    echo "Arrgh ... cannot determine IPv6 localhost name from /etc/hosts"
+    exit
+fi
+echo "ipv6local=$ipv6local" >>$seq.full
 
 rm -f $seq.out
 if grep -q IPv6 $tmp.out; then
-    curl -s -S 'http://localhost6:44323/pmapi/context?local=ANYTHING'  | awk '{print $2}'
+    curl -s -S "http://$ipv6local:44323/pmapi/context?local=ANYTHING"  | awk '{print $2}'
     # ipv6 + ipv4
     ln $seq.out.46 $seq.out
 else
@@ -71,18 +105,18 @@ else
 fi
 # NB: we don't anticipate an ipv6-only host
 
-echo
-echo "=== 2. pmwebd exercise via python ==="
+echo | tee -a $seq.full
+echo "=== 2. pmwebd exercise via python ===" | tee -a $seq.full
 # pmwebd still running in default mode
 if grep -q IPv4 $tmp.out; then
     python $pyscript --host localhost | _filter
 fi
 if grep -q IPv6 $tmp.out; then
-    python $pyscript --host localhost6 | _filter
+    python $pyscript --host $ipv6local | _filter
 fi
 
-echo
-echo "=== 3. pmwebd security constraints, file service ==="
+echo | tee -a $seq.full
+echo "=== 3. pmwebd security constraints, file service ===" | tee -a $seq.full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shutdown
 
@@ -90,16 +124,16 @@ $PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -N 2>/dev/null &
 sleep 2		# let it start up
 
 # should fail due to -N
-curl -s -S 'http://localhost:44323/pmapi/context?local=anything' | _filter
+curl -s -S "http://localhost:44323/pmapi/context?local=anything" | _filter
 echo
 # should fail due to nonexistent context#
-curl -s -S 'http://localhost:44323/pmapi/2223/_fetch' | _filter
+curl -s -S "http://localhost:44323/pmapi/2223/_fetch" | _filter
 echo
 # should fail with a different error (insufficient elements; ie pmFetch failed) 
-curl -s -S 'http://localhost:44323/pmapi/2222/_fetch' | _filter
+curl -s -S "http://localhost:44323/pmapi/2222/_fetch" | _filter
 echo
 # should fail due to suspicious pmresapi path name
-curl -s -S 'http://localhost:44323/../../etc/passwd' | _filter
+curl -s -S "http://localhost:44323/../../etc/passwd" | _filter
 echo
 # should pass, feed this very script
 curl -s -S "http://localhost:44323/$seq" > $tmp.out

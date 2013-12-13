@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.6
+Version: 3.8.9
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -608,9 +608,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Wed Nov 06 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
+* Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
 - Reduce set of exported symbols from DSO PMDAs (BZ 1025694)
-- Currently under development.
+- Symbol-versioning for PCP shared libraries (BZ 1037771)
+- Fix pmcd/Avahi interaction with multiple ports (BZ 1035513)
+- Update to latest PCP sources.
 
 * Sun Nov 03 2013 Nathan Scott <nathans@redhat.com> - 3.8.8-1
 - Update to latest PCP sources (simple build fixes only).

@@ -29,7 +29,7 @@ from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
 
 import ctypes
 from ctypes import c_int, c_long, c_char_p, c_void_p, cast, byref
-from ctypes import sizeof, CDLL, POINTER, Structure, create_string_buffer
+from ctypes import addressof, sizeof, CDLL, POINTER, Structure, create_string_buffer
 
 ## Performance Co-Pilot PMDA library (C)
 LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))

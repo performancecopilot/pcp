@@ -1,0 +1,53 @@
+#
+# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# rpm PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ rpm.arch package architecture
+@ rpm.buildhost package build host
+@ rpm.buildtime package buildtime
+@ rpm.description package description
+@ rpm.epoch package install epoch
+@ rpm.group group of the package
+@ rpm.installtime package install time
+@ rpm.license package license
+@ rpm.packager entity responsible for packaging
+@ rpm.release release list of the package
+@ rpm.size size of the package in bytes
+@ rpm.sourcerpm package source rpm
+@ rpm.summary summary of the package
+@ rpm.url url of the package
+@ rpm.vendor package vendor
+@ rpm.version package version
+
+@ rpm.refresh.count Cumulative count of rpmdb scans performed
+@ rpm.refresh.time.user Cumulative count of user mode scan time
+@ rpm.refresh.time.sys Cumulative count of kernel mode scan time
+@ rpm.refresh.time.elapsed Cumulative count of elapsed scan time
+@ rpm.datasize Space allocated for pmdarpms data segment (K)
+This metric returns the amount of memory in kilobytes allocated for the
+data segment of pmdarpm.  This is handy for tracking memory utilization.

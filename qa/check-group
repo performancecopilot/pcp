@@ -16,7 +16,13 @@ then
     exit 1
 fi
 
-egrep -l "(^$1([ \'\"]|$))|([ \'\"_]$1([ \'\"_]|$))" [0-9][0-9]*[0-9] | sort >$tmp.scripts
+for seq in [0-9][0-9]*[0-9]
+do
+    ( grep -v '^#' $seq \
+       | egrep -q "(^$1([ \'\"]|$))|([ /\'\"_]$1([ \'\"_]|$))" ) && echo $seq >>$tmp.tmp
+done
+
+sort -o $tmp.scripts $tmp.tmp
 
 check -r -n -g "$1" | sort \
 | while read f
@@ -28,7 +34,7 @@ comm -23 $tmp.scripts $tmp.group >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     echo "$1 in QA scripts and NOT in group ..."
-    sed -e 's/^/    /' $tmp.tmp
+    sort -n $tmp.tmp | sed -e 's/^/    /'
     echo
 fi
 
@@ -36,7 +42,7 @@ comm -13 $tmp.scripts $tmp.group >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     echo "$1 in group and NOT in QA scripts ..."
-    sed -e 's/^/    /' $tmp.tmp
+    sort -n $tmp.tmp | sed -e 's/^/    /'
 fi
 
 comm -12 $tmp.scripts $tmp.group >$tmp.tmp

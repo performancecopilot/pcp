@@ -1,5 +1,43 @@
-pcp-3.8.9 (not yet released)
-    - Currently under development.
+pcp-3.8.9 (12 December 2013)
+    - Fix pmdalinux stack blowout during ioctl() for network
+      interfaces.
+    - Add a generic string cache concept for PMDAs to use when
+      needing to perform string value de-duplication.
+    - Add a PMDA for the RPM Package Manager exporting package
+      metadata and state.
+    - Fix bug in pmlogextract handling time windows and metrics
+      with dynamic indoms.
+    - Allow the host part of the host spec to be enclosed with
+      square brackets - needed for IPv6 addresses in order to
+      separate the address from the port.
+    - Fix an Avahi and pmcd conflict when using multiple ports.
+    - Introduce shared library symbol versioning and hidden
+      attributes for all PCP libraries.
+    - Reduce internal API/ABI leakage in libpcp with respect to
+      endian code, locking code, and derived metrics.
+    - Bring the Solaris port back up to date with latest source.
+    - Tag temporary files created by qa tests with test prefix.
+    - Split PCP_TMP_DIR setting into its two distinct use-cases
+      removing the need to install world-writable-sticky-bit-set
+      directories.
+    - Add /proc/cpuinfo flags and cache_alignement fields (x86).
+    - Improvements to the hinv.cpu.model metric value we export.
+    - Ensure pmcpp does not accidentally #include directories.
+    - Better cleanup of uncompressed temporary files in libpcp.
+    - Correct pmdasystemd fd_set usage.
+    - Gracefully handle missing python curses module scenario.
+    - Improvements to pmstat error handling.
+    - Update pmcds config file parser - cleaner quotes handling.
+    - pcp.sh - change formatting for pmie and pmlogger details.
+    - Unknown Host fixups in libpcp __pmHostEnt code.
+    - Add a security philosophy section to PCPIntro(1) man page.
+    - Dodge wchan in Linux proc PMDA if procfs file not found.
+    - Add network.interface.hw_addr metric (exported from sysfs)
+    - Remove a nowadays-empty config directory from installation
+    - Resolve rpm upgrade warning from missing .NeedRebuild file
+    - Add pmdaproc option to skip access checking, for secure /
+      isolated environments.
+    - Make NSS use a stronger default cipher suite.
 
 pcp-3.8.8 (3 November 2013)
     - Dodge Debian build issues related to kfreebsd sys/sdt.h.

@@ -26,6 +26,9 @@ BuildRequires: systemtap-sdt-devel
 %if @have_libmicrohttpd@ == 1
 BuildRequires: libmicrohttpd-devel
 %endif
+%if @have_rpmlib@ == 1
+BuildRequires: rpm-devel
+%endif
 %if "%{_vendor}" == "redhat"
 BuildRequires: initscripts man /bin/hostname
 %endif

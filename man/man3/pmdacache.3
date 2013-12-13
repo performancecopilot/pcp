@@ -1,6 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -26,8 +27,6 @@
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
-.br
-#include <pcp/impl.h>
 .br
 #include <pcp/pmda.h>
 .sp
@@ -462,6 +461,16 @@ Returns the number of instances saved to the external file, else 0
 if the external file was already up to date.
 .RE
 .TP
+PMDA_CACHE_STRINGS
+Annotates this cache as being a special-purpose cache used for string
+de-duplication in PMDAs exporting large numbers of string valued metrics.
+This can be used to reduce the memory footprint of the PMDA (duplicate
+strings hash to the same bucket, and are stored in memory once only).
+Key comparisons are not terminated at the first space but rather the
+entire string is used for matching.
+These are specialised caches not useful for general purpose instance
+domain handling.
+.TP
 PMDA_CACHE_SYNC
 Within an instance domain,
 if any instance has been added to, or deleted from, or marked
@@ -659,7 +668,7 @@ or
 .SH INSTANCE NAME MATCHING
 .PP
 The following table summarizes the ``short name'' matching semantics
-for an instance domain.
+for an instance domain (caches other than PMDA_CACHE_STRINGS style).
 .TS
 box, center;
 l | l | l

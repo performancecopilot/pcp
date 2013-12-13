@@ -214,6 +214,7 @@ LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
+HAVE_RPMLIB = @HAVE_RPMLIB@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
