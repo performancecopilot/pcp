@@ -253,13 +253,13 @@ refresh_interrupt_values(void)
     }
 
     /* next we parse each interrupt line row (starting with a digit) */
-    i = lines_count = 0;
+    i = 0;
     while (fgets(buf, sizeof(buf), fp))
 	if (!extract_interrupt_lines(buf, ncolumns, i++))
 	    break;
 
     /* parse other per-CPU interrupt counter rows (starts non-digit) */
-    i = other_count = 0;
+    i = 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if (extract_interrupt_errors(buf))
 	    continue;
