@@ -8,4 +8,6 @@ to act as a system's primary pmlogger and pmie.  The exceptions are the
 actual enablement of pmlogger & pmie, and their auto-generated configuration,
 which are enabled by some empty files here.
 
-Other built-in configuration items are noted as .default files.
+Additional possible but non-default configurations are given in .example*
+files here.  Rename them to drop the .example* filename extension to 
+activate them.
