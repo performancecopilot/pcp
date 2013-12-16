@@ -18,6 +18,7 @@
 
 #include <sys/stat.h>
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -70,6 +71,13 @@ timestamp(ostream &o)
     now2[19] = '\0'; // overwrite \n
 
   return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid() << "): ";
+}
+
+
+extern "C" int
+pmValue_compare (const void* a, const void* b)
+{
+  return ((pmValue *)a)->inst - ((pmValue *)b)->inst;
 }
 
 
@@ -226,21 +234,28 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 
       // only vset[0] will be set, for csb->pmid
       if (r->vset[0]->numval > 0)
-        // XXX: sort the vlist[j] over indom numbers?
-        for (int j=0; j<r->vset[0]->numval; j++) // iterate over instances
-          {
-            // fetch the string value
-            pmAtomValue av;
-            rc = pmExtractValue(r->vset[0]->valfmt,
-                                & r->vset[0]->vlist[j],
-                                PM_TYPE_STRING, & av, PM_TYPE_STRING);
-            if (rc < 0)
-              continue;
+        {
+          // in-place sort value list by indom number
+          qsort (r->vset[0]->vlist,
+                 (size_t) r->vset[0]->numval,
+                 sizeof(pmValue),
+                 pmValue_compare);
 
-            // at last!  we have a string we can accumulate
-            hostid_fields.push_back (av.cp);
-            free (av.cp);
-          }
+          for (int j=0; j<r->vset[0]->numval; j++) // iterate over instances
+            {
+              // fetch the string value
+              pmAtomValue av;
+              rc = pmExtractValue(r->vset[0]->valfmt,
+                                  & r->vset[0]->vlist[j],
+                                  PM_TYPE_STRING, & av, PM_TYPE_STRING);
+              if (rc < 0)
+                continue;
+              
+              // at last!  we have a string we can accumulate
+              hostid_fields.push_back (av.cp);
+              free (av.cp);
+            }
+        }
 
       (void) pmFreeResult (r);
     }
