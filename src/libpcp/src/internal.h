@@ -252,7 +252,6 @@ struct __pmServerPresence {
     __pmServerAvahiPresence	*avahi;
 };
 
-#if defined(HAVE_SERVICE_DISCOVERY)
 /* Service discovery internals. */
 typedef struct {
     const char		*spec;
@@ -260,6 +259,5 @@ typedef struct {
 } __pmServiceInfo;
 
 extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
-#endif
 
 #endif /* _INTERNAL_H */
