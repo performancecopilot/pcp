@@ -38,16 +38,6 @@ int quit;
 // ------------------------------------------------------------------------
 
 
-#ifdef IS_MINGW /* ie. not posix */
-#error "posix required"
-so is #error ;
-// since we use fork / glob / etc.
-#endif
-
-
-// ------------------------------------------------------------------------
-
-
 // Create a string that is safe to pass to system(3), i.e., sh -c,
 // by quoting metacharacters.  This transform generally should be
 // applied only once.

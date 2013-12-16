@@ -19,12 +19,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 LSRCFILES=TODO rc_pmmgr pmmgr.options
-
 SUBDIRS = config
-
-# ... but only built on posix platforms with a c++ compiler
-ifneq ($(TARGET_OS),mingw)
-ifneq ($(CXX),"")
 CXXMDTARGET = pmmgr$(EXECSUFFIX)
 HFILES = pmmgr.h
 CXXFILES = pmmgr.cxx
@@ -32,28 +27,33 @@ LLDLIBS	= $(PCPLIB)
 PCPLIB_LDFLAGS +=
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
 LCFLAGS += $(PIECFLAGS)
-endif
-endif
 
-default : $(SUBDIRS) $(CXXMDTARGET)
+default: build-me
+
+ifeq ($(BUILD_PMMGR),yes)
+build-me: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
 
-include $(BUILDRULES)
-
-install :: $(SUBDIRS)
+install: build-me
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 644 pmmgr.options $(PCP_PMMGROPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmmgr $(PCP_RC_DIR)/pmmgr
-ifneq ($(TARGET_OS),mingw)
-ifneq ($(CXX),"")
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
+else
+build-me:
+	@echo not building pmmgr
+install:
+	@echo not installing pmmgr
 endif
-endif
+
+$(OBJECTS): $(HFILES)
+
+include $(BUILDRULES)
 
 default_pcp : default
 
 install_pcp : install
 
-pmmgr.o: $(HFILES)
-
 # Hey, does anyone have a spare vowel?
+
+.PHONY: build-me

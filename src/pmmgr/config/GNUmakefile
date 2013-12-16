@@ -25,6 +25,8 @@ PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 
 default:
 
+build-me:
+
 include $(BUILDRULES)
 
 install:

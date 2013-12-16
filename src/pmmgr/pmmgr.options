@@ -15,7 +15,7 @@
 # assume identity of some user other than "pcp"
 # -U foobar
 
-# setting of environment variables for pmwebd
+# setting of environment variables for pmmgr
 
 # timeouts for interactions with pmcd on behalf of clients
 # PMCD_CONNECT_TIMEOUT=10

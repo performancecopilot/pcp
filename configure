@@ -620,6 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
+BUILD_PMMGR
 HAVE_RPMLIB
 HAVE_LIBMICROHTTPD
 lib_for_rt
@@ -674,6 +675,7 @@ pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
 pcp_pmproxyoptions_path
+pcp_pmmgroptions_path
 pcp_pmwebdoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
@@ -11395,10 +11397,12 @@ pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
 pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
+pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+
 
 
 
@@ -13271,6 +13275,22 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 HAVE_RPMLIB=$have_rpmlib
 
 LIBS=$savedLIBS
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pmmgr prerequisites" >&5
+$as_echo_n "checking for pmmgr prerequisites... " >&6; }
+if test $target_os != mingw -a "$cxx" != ""
+then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+        build_pmmgr=yes
+else
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+        build_pmmgr=no
+fi
+BUILD_PMMGR=$build_pmmgr
+
+
 
 
 

@@ -589,4 +589,6 @@ endif
 endif
 endif
 
+BUILD_PMMGR=@BUILD_PMMGR@
+
 endif # _BUILDDEFS_INCLUDED_

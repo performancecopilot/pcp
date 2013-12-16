@@ -253,7 +253,7 @@ END			{ if (exports != "") print "export", exports }'`
 	    $PMMGR $OPTS > pmmgr.log 2>&1 &
 	    $RC_STATUS -v
 
-	    pmpost "start pwmebd from $pmprog"
+	    pmpost "start pmmgr from $pmprog"
 	fi
 	status=0
         ;;
