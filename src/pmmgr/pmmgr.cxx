@@ -523,7 +523,11 @@ void pmmgr_daemon::poll()
 
   if (pid != 0) // test if it's still alive
     {
-      int rc = kill ((pid_t) pid, 0);
+      // reap it if it might have died
+      int ignored;
+      int rc = waitpid ((pid_t) pid, &ignored, WNOHANG);
+
+      rc = kill ((pid_t) pid, 0);
       if (rc < 0) 
         {
           if (pmDebug & DBG_TRACE_APPL0)
@@ -779,6 +783,12 @@ pmmgr_pmie_daemon::daemon_command_line()
 extern "C"
 void handle_interrupt (int sig)
 {
+  // Propagate signal to inferior processes (just once, to prevent
+  // recursive signals or whatnot, despite sa_mask in
+  // setup_signals()).
+  if (quit == 0)
+    kill(-getpid(), sig);
+
   quit ++;
   if (quit > 2)
     {
@@ -789,6 +799,13 @@ void handle_interrupt (int sig)
       _exit (1);
     }
 }
+
+extern "C"
+void ignore_signal (int sig)
+{
+  (void) sig;
+}
+
 
 
 void setup_signals()
@@ -889,21 +906,23 @@ int main (int argc, char *argv[])
   __pmSetProcessIdentity(username.c_str());
 
   timestamp(cout) << "Log started" << endl;
-  while (! quit)
+  while (1)
     {
-      // Absorb any zombie child processes, which a subsequent poll may look for.
-      // NB: don't tweak signal(SIGCHLD...) due to interference with system(3).
-      while (1)
-        {
-          int ignored;
-          int rc = waitpid ((pid_t) -1, &ignored, WNOHANG);
-          if (rc <= 0)
-            break;
-        }
-
-      for (unsigned i=0; i<js.size(); i++)
+      // In this section, we must not fidget with SIGCHLD, due to use of system(3).
+      for (unsigned i=0; i<js.size() && !quit; i++)
         js[i]->poll();
-      sleep (polltime);
+
+      if (quit)
+        break;
+
+      // We want to respond quickly if a child daemon process dies.
+      (void) signal (SIGCHLD, ignore_signal);
+      (void) signal (SIGALRM, ignore_signal);
+      alarm (polltime);
+      pause ();
+      alarm (0);
+      (void) signal (SIGCHLD, SIG_DFL);
+      (void) signal (SIGALRM, SIG_DFL);
     }
 
   for (unsigned i=0; i<js.size(); i++)
