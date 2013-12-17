@@ -25,6 +25,12 @@
 extern "C" {
 #include <glob.h>
 #include <sys/wait.h>
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
+#ifdef IS_LINUX
+#include <sys/syscall.h>
+#endif
 }
 
 
@@ -70,7 +76,16 @@ timestamp(ostream &o)
   if (now2)
     now2[19] = '\0'; // overwrite \n
 
-  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid() << "): ";
+  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" 
+           << getpid()
+#ifdef HAVE_PTHREAD_H
+#ifdef IS_LINUX
+           << "/" << syscall(SYS_gettid)
+#else
+           << "/" << pthread_self()
+#endif
+#endif
+           << "): ";
 }
 
 
@@ -78,6 +93,15 @@ extern "C" int
 pmValue_compare (const void* a, const void* b)
 {
   return ((pmValue *)a)->inst - ((pmValue *)b)->inst;
+}
+
+
+extern "C" void *
+pmmgr_daemon_poll_thread (void* a)
+{
+  pmmgr_daemon* d = (pmmgr_daemon*) a;
+  d->poll();
+  return 0;
 }
 
 
@@ -392,10 +416,29 @@ pmmgr_job_spec::poll()
   // phase 5: poll all the live daemons
   // NB: there is a parallelism opportunity, as running many pmlogconf/etc.'s in series
   // is a possible bottleneck.
+#ifdef HAVE_PTHREAD_H  
+  vector<pthread_t> threads;
+#endif
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = daemons.begin();
        it != daemons.end();
        it ++)
-    it->second->poll();
+    {
+#ifdef HAVE_PTHREAD_H
+      pthread_t foo;
+      int rc = pthread_create(&foo, NULL, &pmmgr_daemon_poll_thread, it->second);
+      if (rc == 0)
+        threads.push_back (foo);
+#else
+      int rc = -ENOSUPP;
+#endif
+      if (rc) // threading failed or running single-threaded
+        it->second->poll();
+    }
+
+#ifdef HAVE_PTHREAD_H
+  for (unsigned i=0; i<threads.size(); i++)
+    pthread_join (threads[i], NULL);
+#endif
 }
 
 
@@ -509,7 +552,7 @@ void pmmgr_daemon::poll()
           pid = 0;
           // we will try again at next poll
         }
-      else // congratulations!  we're a parent
+      else // congratulations!  we're apparently a parent
         {
           if (pmDebug & DBG_TRACE_APPL0)
             timestamp(cout) << "daemon pid " << pid << " started: " << commandline << endl;
