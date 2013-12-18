@@ -116,7 +116,7 @@ pmmgr_configurable::pmmgr_configurable(const string& dir):
 
 
 vector<string>
-pmmgr_configurable::get_config_multi(const string& file)
+pmmgr_configurable::get_config_multi(const string& file) const
 {
   vector<string> lines;
 
@@ -136,7 +136,7 @@ pmmgr_configurable::get_config_multi(const string& file)
 
 
 bool
-pmmgr_configurable::get_config_exists(const string& file)
+pmmgr_configurable::get_config_exists(const string& file) const
 {
   string complete_filename = config_directory + (char)__pmPathSeparator() + file;
   ifstream f (complete_filename.c_str());
@@ -145,7 +145,7 @@ pmmgr_configurable::get_config_exists(const string& file)
 
 
 string
-pmmgr_configurable::get_config_single(const string& file)
+pmmgr_configurable::get_config_single(const string& file) const
 {
   vector<string> lines = get_config_multi (file);
   if (lines.size() == 1)
@@ -179,7 +179,6 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
                               0, dummy_host, /* both ignored */
                               & pms, & errmsg);
   if (rc < 0) {
-    string errmsg2 = errmsg;
     timestamp(cerr) << "hostid-metrics '" << specstr << "' parse error: " << errmsg << endl;
     free (errmsg);
   }
@@ -330,13 +329,13 @@ pmmgr_job_spec::~pmmgr_job_spec()
   // free any cached pmMetricSpec's
   for (map<string,pmMetricSpec*>::iterator it = parsed_metric_cache.begin();
        it != parsed_metric_cache.end();
-       it++)
+       ++it)
     free (it->second); // aka pmFreeMetricSpec
 
   // kill all our daemons created during poll()
   for (map<pmmgr_hostid,pcp_context_spec>::iterator it = known_targets.begin();
        it != known_targets.end();
-       it++)
+       ++it)
     note_dead_hostid (it->first);
 }
 
@@ -384,7 +383,7 @@ pmmgr_job_spec::poll()
   // phase 3: map the context-specs to hostids to find new hosts
   for (set<pcp_context_spec>::iterator it = new_specs.begin();
        it != new_specs.end();
-       it++)
+       ++it)
     {
       pmmgr_hostid hostid = compute_hostid (*it);
       if (hostid != "") // verified existence/liveness
@@ -396,7 +395,7 @@ pmmgr_job_spec::poll()
   // phase 4a: compare old_known_targets vs. known_targets: look for any recently died
   for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = old_known_targets.begin();
        it != old_known_targets.end();
-       it++)
+       ++it)
     {
       const pmmgr_hostid& hostid = it->first;
       if (known_targets.find(hostid) == known_targets.end())
@@ -406,7 +405,7 @@ pmmgr_job_spec::poll()
   // phase 4b: compare new known_targets & old_known_targets: look for recently born
   for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = known_targets.begin();
        it != known_targets.end();
-       it++)
+       ++it)
     {
       const pmmgr_hostid& hostid = it->first;
       if (old_known_targets.find(hostid) == old_known_targets.end())
@@ -421,7 +420,7 @@ pmmgr_job_spec::poll()
 #endif
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = daemons.begin();
        it != daemons.end();
-       it ++)
+       ++it)
     {
 #ifdef HAVE_PTHREAD_H
       pthread_t foo;
@@ -469,7 +468,7 @@ pmmgr_job_spec::note_dead_hostid(const pmmgr_hostid& hid)
 
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = range.first;
        it != range.second;
-       it ++)
+       ++it)
     delete (it->second);
 
   daemons.erase(range.first, range.second);

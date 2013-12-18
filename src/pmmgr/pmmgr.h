@@ -38,9 +38,9 @@ protected:
   pmmgr_configurable(const std::string& dir);
   virtual ~pmmgr_configurable() {}
 
-  std::vector<std::string> get_config_multi(const std::string&);
-  std::string get_config_single(const std::string&);
-  bool get_config_exists(const std::string&);
+  std::vector<std::string> get_config_multi(const std::string&) const;
+  std::string get_config_single(const std::string&) const;
+  bool get_config_exists(const std::string&) const;
 
   // private: maybe?
   std::string config_directory;
