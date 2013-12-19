@@ -143,6 +143,10 @@ my_sd_journal_get_data(sd_journal *j, const char *field)
 
 void systemd_refresh(void)
 {
+    /* Absorb any changes such as inotify() messages. */
+    (void) sd_journal_process(journald_context);
+    (void) sd_journal_process(journald_context_seeky);
+
     while (1) {
         char *cursor = NULL;
         char *timestamp_str = NULL;
