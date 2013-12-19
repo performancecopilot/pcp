@@ -411,7 +411,8 @@ publishService(__pmServerPresence *s)
 void
 __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
 {
-    size_t size;
+    size_t	size;
+    char	host[MAXHOSTNAMELEN];
 
     /* Allocate the avahi server presence. */
     s->avahi = malloc(sizeof(*s->avahi));
@@ -424,12 +425,16 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
      * The service spec is simply the name of the server. Use it to
      * construct the avahi service name and service tag.
      */
-    size = sizeof("PCP ") + strlen(s->serviceSpec); /* includes room for the nul */
+    
+    size = sizeof("PCP on ") + sizeof(host) +
+	strlen(s->serviceSpec); /* includes room for the nul */
     if ((s->avahi->serviceName = avahi_malloc(size)) == NULL) {
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
-    sprintf(s->avahi->serviceName, "PCP %s", s->serviceSpec);
+    gethostname(host, sizeof(host));
+    host[sizeof(host)-1] = '\0';
+    sprintf(s->avahi->serviceName, "PCP %s on %s", s->serviceSpec, host);
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
     if ((s->avahi->serviceTag = avahi_malloc(size)) == NULL) {
