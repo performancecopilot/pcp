@@ -112,7 +112,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 
 echo
 echo "=== remove agent ==="
-pmpost "start watching for qa/159"
+$PCP_BINADM_DIR/pmpost "start watching for qa/159"
 pmstore pmcd.control.tracenobuf 1>/dev/null 2>&1
 $sudo ./Remove \
 | sed -e 's/not found in Name Space, this is OK/done/'
@@ -130,7 +130,7 @@ then
     tail $PCP_LOG_DIR/NOTICES
 fi
 pmstore pmcd.control.tracenobuf 0 1>/dev/null 2>&1
-pmpost "end watching for qa/159"
+$PCP_BINADM_DIR/pmpost "end watching for qa/159"
 
 cat <<End-of-File >$tmp.in
 both

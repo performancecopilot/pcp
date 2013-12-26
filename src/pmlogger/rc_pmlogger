@@ -104,7 +104,7 @@ _start_pmcheck()
     bgstatus=$?
     if [ -s $bgtmp/pmcheck ]
     then
-	pmpost "pmlogger_check failed in $prog, mailing output to root"
+	$PCP_BINADM_DIR/pmpost "pmlogger_check failed in $prog, mailing output to root"
 	if [ ! -z "$MAIL" ]
 	then
 	    $MAIL -s "pmlogger_check failed in $prog" root <$bgtmp/pmcheck
@@ -180,7 +180,7 @@ _shutdown()
 	fi
     done
     $RC_STATUS -v
-    pmpost "stop pmlogger from $prog"
+    $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
 }
 
 _usage()

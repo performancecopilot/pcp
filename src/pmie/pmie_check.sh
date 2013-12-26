@@ -396,7 +396,7 @@ if [ $START_PMIE = false ]
 then
     # if pmie has never been started, there's no work to do to stop it
     [ ! -d "$PCP_TMP_DIR/pmie" ] && exit
-    $QUIETLY || pmpost "stop pmie from $prog"
+    $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmie from $prog"
 fi
 
 if [ ! -f "$CONTROL" ]
@@ -613,7 +613,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    # go on pmie's stderr, i.e. $logfile ... use -b for this
 	    #
 	    $VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
-	    pmpost "start pmie from $prog for host $host"
+	    $PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
 	    ${sock_me}$PMIE -b $args &
 	    pid=$!
 	fi
