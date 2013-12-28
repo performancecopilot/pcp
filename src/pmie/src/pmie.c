@@ -332,12 +332,9 @@ startmonitor(void)
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
     if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 	if (oserror() != EEXIST) {
-	    fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
+	    fprintf(stderr, "%s: warning cannot create stats file dir %s: %s\n",
 		    pmProgname, pmie_dir, osstrerror());
-	    exit(1);
 	}
-    } else {
-	chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
     atexit(stopmonitor);
 
