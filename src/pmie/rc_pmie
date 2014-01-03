@@ -236,7 +236,7 @@ case "$1" in
 Error: PCP inference engine control file '$PMIECTRL'
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
 		    else
-			$ECHO $PCP_ECHO_N "Performance Co-Pilot starting inference engine(s) ..." "$PCP_ECHO_C"
+			$ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
 			_start_pmie &
 			$RC_STATUS -v
 		    fi

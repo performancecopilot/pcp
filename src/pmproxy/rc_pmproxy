@@ -229,7 +229,7 @@ Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmp
 		mv pmproxy.log pmproxy.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmproxy (logfile is $RUNDIR/pmproxy.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
 
 	    # options file processing ...
 	    # only consider lines which start with a hyphen
