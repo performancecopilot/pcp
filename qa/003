@@ -80,6 +80,7 @@ linux_filter()
 	-e "/mem\.util\.slabReclaimable: $unavailable/d" \
 	-e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
 	-e "/mem\.util\.unevictable: $unavailable/d" \
+	-e "/network\.icmpmsg\..*: $unavailable/d" \
 	-e "/network\.interface\.ipv6_addr: $unavailable/d" \
 	-e "/network\.interface\.ipv6_scope: $unavailable/d" \
 	-e "/network\.interface\.hw_addr: $unavailable/d" \
