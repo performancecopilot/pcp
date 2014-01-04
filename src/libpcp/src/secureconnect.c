@@ -1578,6 +1578,21 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.family);
 }
 
+int
+__pmSockAddrGetPort(__pmSockAddr *addr)
+{
+    if (addr->sockaddr.raw.family == PR_AF_INET)
+        return ntohs(addr->sockaddr.inet.port);
+    else if (addr->sockaddr.raw.family == AF_INET6)
+        return ntohs(addr->sockaddr.ipv6.port);
+    else {
+	__pmNotifyErr(LOG_ERR,
+		"%s:__pmSockAddrGetPort: Invalid address family: %d\n",
+		__FILE__, addr->sockaddr.raw.family);
+	return -1;
+    }
+}
+
 void
 __pmSockAddrSetScope(__pmSockAddr *addr, int scope)
 {
