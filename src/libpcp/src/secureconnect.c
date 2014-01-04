@@ -33,7 +33,7 @@ __pmHostEntFree(__pmHostEnt *hostent)
 {
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)
-        fprintf(stderr, "secureconnect.c:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", hostent, hostent->name, hostent->name, hostent-> addresses);
+        fprintf(stderr, "%s:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", __FILE__, hostent, hostent->name, hostent->name, hostent-> addresses);
 #endif
     if (hostent->name != NULL)
         free(hostent->name);
@@ -251,7 +251,7 @@ __pmCreateIPv6Socket(void)
     on = 0;
     sts = getsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
     if (sts < 0 || on != 1) {
-	__pmNotifyErr(LOG_ERR, "__pmCreateIPv6Socket: IPV6 is not supported\n");
+	__pmNotifyErr(LOG_ERR, "%s:__pmCreateIPv6Socket: IPV6 is not supported\n", __FILE__);
 	PR_Close(fdp);
 	return -EOPNOTSUPP;
     }
@@ -270,7 +270,7 @@ __pmCreateUnixSocket(void)
 	return -neterror();
     return __pmSetupSocket(fdp, AF_UNIX);
 #else
-    __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
+    __pmNotifyErr(LOG_ERR, "%s:__pmCreateUnixSocket: AF_UNIX is not supported\n", __FILE__);
     return -EOPNOTSUPP;
 #endif
 }
@@ -635,7 +635,7 @@ static int
 __pmAuthLogCB(void *context, int priority, const char *message)
 {
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthLogCB enter ctx=%p pri=%d\n", context, priority);
+	fprintf(stderr, "%s:__pmAuthLogCB enter ctx=%p pri=%d\n", __FILE__, context, priority);
 
     if (!message)
 	return SASL_BADPARAM;
@@ -821,7 +821,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     char *value = NULL;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthRealmCB enter ctx=%p id=%#x\n", context, id);
+	fprintf(stderr, "%s:__pmAuthRealmCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (id != SASL_CB_GETREALM)
 	return SASL_FAIL;
@@ -830,7 +830,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     *result = (const char *)value;
 
     if (pmDebug & DBG_TRACE_AUTH) {
-	fprintf(stderr, "__pmAuthRealmCB ctx=%p, id=%#x, realms=(", context, id);
+	fprintf(stderr, "%s:__pmAuthRealmCB ctx=%p, id=%#x, realms=(", __FILE__, context, id);
 	if (realms) {
 	    if (*realms)
 		fprintf(stderr, "%s", *realms);
@@ -850,7 +850,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     int sts;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSimpleCB enter ctx=%p id=%#x\n", context, id);
+	fprintf(stderr, "%s:__pmAuthSimpleCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (!result)
 	return SASL_BADPARAM;
@@ -873,8 +873,8 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     *result = value;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSimpleCB ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
-		context, id, sts, *result, len ? *len : -1);
+	fprintf(stderr, "%s:__pmAuthSimpleCB ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
+		__FILE__, context, id, sts, *result, len ? *len : -1);
     return sts;
 }
 
@@ -886,7 +886,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     char *password;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSecretCB enter ctx=%p id=%#x\n", context, id);
+	fprintf(stderr, "%s:__pmAuthSecretCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
 	return SASL_BADPARAM;
@@ -906,8 +906,8 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     }
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
-		context, id, password, (unsigned)length);
+	fprintf(stderr, "%s:__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
+		__FILE__, context, id, password, (unsigned)length);
     free(password);
 
     return SASL_OK;
@@ -920,7 +920,7 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     char *value, message[512];
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthPromptCB enter ctx=%p id=%#x\n", context, id);
+	fprintf(stderr, "%s:__pmAuthPromptCB enter ctx=%p id=%#x\n", __FILE__, context, id);
 
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)
 	return SASL_BADPARAM;
@@ -1140,8 +1140,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
     __pmPDU *pb;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthClientNegotiation(fd=%d, ssf=%d, host=%s)\n",
-		fd, ssf, hostname);
+	fprintf(stderr, "%s:__pmAuthClientNegotiation(fd=%d, ssf=%d, host=%s)\n",
+		__FILE__, fd, ssf, hostname);
 
     if ((saslconn = (sasl_conn_t *)__pmGetUserAuthData(fd)) == NULL)
 	return -EINVAL;
@@ -1155,8 +1155,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	method = (const char *)node->data;
 
     if (pmDebug & DBG_TRACE_AUTH)
-	fprintf(stderr, "__pmAuthClientNegotiation requesting \"%s\" method\n",
-		method ? method : "default");
+	fprintf(stderr, "%s:__pmAuthClientNegotiation requesting \"%s\" method\n",
+		__FILE__, method ? method : "default");
 
     /* get security mechanism list */ 
     sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
@@ -1167,8 +1167,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    buffer[length] = '\0';
 
 	    if (pmDebug & DBG_TRACE_AUTH)
-		fprintf(stderr, "__pmAuthClientNegotiation got methods: "
-				"\"%s\" (%d)\n", buffer, length);
+		fprintf(stderr, "%s:__pmAuthClientNegotiation got methods: "
+				"\"%s\" (%d)\n", __FILE__, buffer, length);
 	    /*
 	     * buffer now contains the list of server mechanisms -
 	     * override using users preference (if any) and proceed.
@@ -1227,7 +1227,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 
     while (saslsts == SASL_CONTINUE) {
 	if (pmDebug & DBG_TRACE_AUTH)
-	    fprintf(stderr, "__pmAuthClientNegotiation awaiting server reply\n");
+	    fprintf(stderr, "%s:__pmAuthClientNegotiation awaiting server reply\n", __FILE__);
 
 	sts = pinned = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &pb);
 	if (sts == PDU_AUTH) {
@@ -1244,8 +1244,8 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 		    break;
 		}
 		if (pmDebug & DBG_TRACE_AUTH) {
-		    fprintf(stderr, "__pmAuthClientNegotiation"
-				    " step recv (%d bytes)", length);
+		    fprintf(stderr, "%s:__pmAuthClientNegotiation"
+				    " step recv (%d bytes)", __FILE__, length);
 		}
 	    }
 	} else if (sts == PDU_ERROR) {
@@ -1264,11 +1264,11 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 
     if (pmDebug & DBG_TRACE_AUTH) {
 	if (sts < 0)
-	    fprintf(stderr, "__pmAuthClientNegotiation loop failed\n");
+	    fprintf(stderr, "%s:__pmAuthClientNegotiation loop failed\n", __FILE__);
 	else {
 	    saslsts = sasl_getprop(saslconn, SASL_USERNAME, (const void **)&payload);
-	    fprintf(stderr, "__pmAuthClientNegotiation success, username=%s\n",
-			    saslsts != SASL_OK ? "?" : payload);
+	    fprintf(stderr, "%s:__pmAuthClientNegotiation success, username=%s\n",
+			    __FILE__, saslsts != SASL_OK ? "?" : payload);
 	}
     }
 
@@ -1362,7 +1362,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 				NULL, NULL, NULL, /*iplocal,ipremote,callbacks*/
 				0, &socket.saslConn);
 	if (pmDebug & DBG_TRACE_AUTH)
-	    fprintf(stderr, "__pmSecureServerIPCFlags SASL server: %d\n", saslsts);
+	    fprintf(stderr, "%s:__pmSecureServerIPCFlags SASL server: %d\n", __FILE__, saslsts);
 	if (saslsts != SASL_OK && saslsts != SASL_CONTINUE)
 	    return __pmSecureSocketsError(saslsts);
     }
@@ -1428,8 +1428,8 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		option_data.value.reuse_addr = sockOptValue(option_value, option_len);
 		break;
 	    default:
-	        __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
-			      option_name);
+	        __pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
+			      __FILE__, option_name);
 		return -1;
 	    }
 	    break;
@@ -1439,8 +1439,8 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 		option_data.value.no_delay = sockOptValue(option_value, option_len);
 		break;
 	    }
-	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
-			  option_name);
+	    __pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for IPPROTO_TCP: %d\n",
+			  __FILE__, option_name);
 	    return -1;
 	case IPPROTO_IPV6:
 	    if (option_name == IPV6_V6ONLY) {
@@ -1452,11 +1452,11 @@ __pmSetSockOpt(int fd, int level, int option_name, const void *option_value,
 	        fd = PR_FileDesc2NativeHandle(socket.nsprFd);
 		return setsockopt(fd, level, option_name, option_value, option_len);
 	    }
-	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
-			  option_name);
+	    __pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented option_name for IPPROTO_IPV6: %d\n",
+			  __FILE__, option_name);
 	    return -1;
 	default:
-	    __pmNotifyErr(LOG_ERR, "__pmSetSockOpt: unimplemented level: %d\n", level);
+	    __pmNotifyErr(LOG_ERR, "%s:__pmSetSockOpt: unimplemented level: %d\n", __FILE__, level);
 	    return -1;
 	}
 
@@ -1493,14 +1493,14 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
 	  }
 	  default:
 	      __pmNotifyErr(LOG_ERR,
-			"__pmGetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
-			option_name);
+			"%s:__pmGetSockOpt: unimplemented option_name for SOL_SOCKET: %d\n",
+			__FILE__, option_name);
 	      return -1;
 	  }
 	  break;
 
 	default:
-	    __pmNotifyErr(LOG_ERR, "__pmGetSockOpt: unimplemented level: %d\n", level);
+	    __pmNotifyErr(LOG_ERR, "%s:__pmGetSockOpt: unimplemented level: %d\n", __FILE__, level);
 	    break;
 	}
 	return -1;
@@ -1526,12 +1526,12 @@ __pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
         prStatus = PR_SetNetAddr(PR_IpAddrLoopback, family, port, &addr->sockaddr);
 	break;
     default:
-	__pmNotifyErr(LOG_ERR, "__pmSockAddrInit: Invalid address %d\n", address);
+	__pmNotifyErr(LOG_ERR, "%s:__pmSockAddrInit: Invalid address %d\n", __FILE__, address);
 	return;
     }
     if (prStatus != PR_SUCCESS)
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrInit: PR_InitializeNetAddr failure: %d\n", PR_GetError());
+		"%s:__pmSockAddrInit: PR_InitializeNetAddr failure: %d\n", __FILE__, PR_GetError());
 }
 
 void
@@ -1547,7 +1547,7 @@ __pmSockAddrSetFamily(__pmSockAddr *addr, int family)
 #endif
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetFamily: Invalid address family: %d\n", family);
+		"%s:__pmSockAddrSetFamily: Invalid address family: %d\n", __FILE__, family);
 }
 
 int
@@ -1561,8 +1561,8 @@ __pmSockAddrGetFamily(const __pmSockAddr *addr)
     if (addr->sockaddr.raw.family == PR_AF_LOCAL)
         return AF_UNIX;
 #endif
-    __pmNotifyErr(LOG_ERR, "__pmSockAddrGetFamily: Invalid address family: %d\n",
-		  addr->sockaddr.raw.family);
+    __pmNotifyErr(LOG_ERR, "%s:__pmSockAddrGetFamily: Invalid address family: %d\n",
+		  __FILE__, addr->sockaddr.raw.family);
     return 0; /* not set */
 }
 
@@ -1575,7 +1575,7 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
         addr->sockaddr.ipv6.port = htons(port);
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.family);
+		"%s:__pmSockAddrSetPort: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.family);
 }
 
 int
@@ -1609,10 +1609,10 @@ __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 	addr->sockaddr.local.path[sizeof(addr->sockaddr.local.path)-1] = '\0';
     } else {
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetPath: Invalid address family: %d\n", addr->sockaddr.raw.family);
+		"%s:__pmSockAddrSetPath: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.family);
     }
 #else
-    __pmNotifyErr(LOG_ERR, "__pmSockAddrSetPath: AF_UNIX is not supported\n");
+    __pmNotifyErr(LOG_ERR, "%s:__pmSockAddrSetPath: AF_UNIX is not supported\n", __FILE__);
 #endif
 }
 
@@ -1658,12 +1658,24 @@ __pmAccept(int fd, void *addr, __pmSockLen *addrlen)
 int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
-    __pmSecureSocket socket;
+    __pmSecureSocket	socket;
+    int			family;
+    family = __pmSockAddrGetFamily((__pmSockAddr *)addr);
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	__pmSockAddr *nsprAddr = (__pmSockAddr *)addr;
 	PRSocketOptionData socketOption;
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    PRStatus	prStatus;
+	    char	buf[1024]; // at least PM_NET_ADDR_STRING_SIZE
 
+	    prStatus = PR_NetAddrToString((PRNetAddr *)addr, buf, sizeof(buf));
+	    fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s) using PR_Bind\n",
+		__FILE__, fd, family, __pmSockAddrGetPort(nsprAddr),
+		prStatus == PR_SUCCESS ? buf : "<unknown addr>");
+	}
+#endif
 	/*
 	 * Allow the socket address to be reused, in case we want the
 	 * same port across a service restart.
@@ -1675,6 +1687,13 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 	return (PR_Bind(socket.nsprFd, &nsprAddr->sockaddr)
 		== PR_SUCCESS) ? 0 : -1;
     }
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s) using bind\n",
+	    __FILE__, fd, family, __pmSockAddrGetPort((__pmSockAddr *)addr),
+	    __pmSockAddrToString((__pmSockAddr *)addr));
+    }
+#endif
     return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
@@ -1697,8 +1716,8 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 	    char	buf[1024]; // at least PM_NET_ADDR_STRING_SIZE
 
 	    prStatus = PR_NetAddrToString((PRNetAddr *)addr, buf, sizeof(buf));
-	    fprintf(stderr, "__pmConnect(fd=%d(nsprFd=%p), %s) ->",
-		fd, socket.nsprFd,
+	    fprintf(stderr, "%s:__pmConnect(fd=%d(nsprFd=%p), %s) ->",
+		__FILE__, fd, socket.nsprFd,
 		prStatus == PR_SUCCESS ? buf : "<unknown addr>");
 	    if (sts == PR_SUCCESS)
 		fprintf(stderr, " OK\n");
@@ -2057,7 +2076,7 @@ __pmGetNameInfo(__pmSockAddr *address)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE) {
         if (prStatus != PR_SUCCESS) {
-            fprintf(stderr, "secureconnect.c:PR_GetHostByAddr(%s) returns %d (%s)\n", __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
+            fprintf(stderr, "%s:PR_GetHostByAddr(%s) returns %d (%s)\n", __FILE__, __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
         }
     }
 #endif
@@ -2089,7 +2108,7 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
 
     addr = __pmSockAddrAlloc();
     if (addr == NULL) {
-        __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
+        __pmNotifyErr(LOG_ERR, "%s:__pmHostEntGetSockAddr: out of memory\n", __FILE__);
         *ei = NULL;
 	return NULL;
     }
@@ -2109,8 +2128,8 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
     int i;
     if (addr->sockaddr.raw.family != mask->sockaddr.raw.family) {
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
-		addr->sockaddr.raw.family, mask->sockaddr.raw.family);
+		"%s:__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
+		__FILE__, addr->sockaddr.raw.family, mask->sockaddr.raw.family);
     }
     else if (addr->sockaddr.raw.family == PR_AF_INET)
         addr->sockaddr.inet.ip &= mask->sockaddr.inet.ip;
@@ -2130,7 +2149,7 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 #endif
     else /* not applicable to other address families, e.g. PR_AF_LOCAL. */
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.family);
+		"%s:__pmSockAddrMask: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.family);
     return addr;
 }
 
@@ -2159,7 +2178,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 
     /* not applicable to other address families, e.g. PR_AF_LOCAL. */
     __pmNotifyErr(LOG_ERR,
-		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.family);
+		  "%s:__pmSockAddrCompare: Invalid address family: %d\n", __FILE__, addr1->sockaddr.raw.family);
     return 1; /* not equal */
 }
 
