@@ -1,5 +1,4 @@
 - pmlogrewrite
-- more tolerance for broken archives interfering with merge
 - garbage-collection for HOSTID subdirs
 - email error reporting?
 - test buildability on non-linux

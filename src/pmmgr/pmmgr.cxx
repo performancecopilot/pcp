@@ -622,6 +622,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       string pmlogextract_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogextract";
 
+      string pmlogcheck_command = 
+        string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogcheck";
+
       string pmlogextract_options = sh_quote(pmlogextract_command);
 
       string retention = get_config_single ("pmlogmerge-retain");
@@ -646,6 +649,25 @@ pmmgr_pmlogger_daemon::daemon_command_line()
             {
               string index_name = the_blob.gl_pathv[i];
               string base_name = index_name.substr(0,index_name.length()-6); // trim .index
+
+              // sic pmlogcheck on it; if it is broken, pmlogextract
+              // will give up and make no progress
+
+              string pmlogcheck_options = sh_quote(pmlogcheck_command);
+              pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
+
+              if (pmDebug & DBG_TRACE_APPL0)
+                timestamp(cout) << "running " << pmlogcheck_options << endl;
+              rc = system(pmlogcheck_options.c_str());
+              if (rc != 0)
+                {
+                  timestamp(cerr) << "system(" << pmlogcheck_options << ") failed: rc=" << rc << endl;
+                  timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
+                  continue;
+                }
+
+              // XXX: pmlogrewrite here
+
               old_archives.push_back (base_name);
             }
           globfree (& the_blob);
