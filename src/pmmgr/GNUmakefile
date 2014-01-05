@@ -33,7 +33,7 @@ ifeq ($(BUILD_PMMGR),yes)
 build-me: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
 
-install: build-me
+install: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 644 pmmgr.options $(PCP_PMMGROPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmmgr $(PCP_RC_DIR)/pmmgr
