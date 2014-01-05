@@ -1711,7 +1711,7 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 	timer = PR_MillisecondsToInterval(msec);
 	sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer);
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
+	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    PRStatus	prStatus;
 	    char	buf[1024]; // at least PM_NET_ADDR_STRING_SIZE
 
