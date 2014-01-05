@@ -78,7 +78,7 @@ opts=""
 hflag=false
 aflag=false
 pflag=false
-while getopts "?a:h:n:p" c
+while getopts "?a:D:h:n:p" c
 do
     case $c in
       a)
@@ -97,6 +97,9 @@ do
 	[ "X$host" = X ] && host="unknown host"
 	[ "X$offset" != X ] && opts="$opts -O '$offset' -z"
 	aflag=true
+	;;
+      D) # debug flags
+	opts="$opts -D $OPTARG"
 	;;
       h)
 	[ $hflag = true ] && _usage "$prog: only one -h option permitted"
@@ -119,7 +122,7 @@ done
 shift `expr $OPTIND - 1`
 [ $# -ge 1 ] && _usage "$prog: too many arguments"
 
-if eval pminfo $opts -f $metrics > $tmp/metrics 2>&1
+if eval pminfo $opts -f $metrics > $tmp/metrics 2>$tmp/err
 then
     :
 else
@@ -131,6 +134,8 @@ else
 	exit
     fi
 fi
+
+[ -s $tmp/err ] && sed -e '/Unknown metric name/d' <$tmp/err >&2
 
 eval `$PCP_AWK_PROG < $tmp/metrics -v out=$tmp '
 BEGIN			{ mode = 0; count = 0; errors = 0; quote="" }

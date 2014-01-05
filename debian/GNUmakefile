@@ -98,7 +98,7 @@ LSRCFILES = changelog compat control copyright rules \
 	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES) \
 	$(PCPIMPORTCOLLECTL_FILES) $(PCPPMDAINFINIBAND_FILES)
 
-default: pcp.preinst pcp.postinst
+default: pcp.preinst pcp.postinst pcp.postrm
 
 include $(BUILDRULES)
 

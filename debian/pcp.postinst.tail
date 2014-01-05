@@ -16,6 +16,8 @@ chown pcp:pcp /var/lib/pcp/config/pmda
 chmod 775 /var/lib/pcp/config/pmda
 chown pcp:pcp /var/lib/pcp/tmp
 chmod 775 /var/lib/pcp/tmp
+chown pcp:pcp /var/log/pcp
+chmod 775 /var/log/pcp
 
 # must match src/pmcd/GNUmakefile
 chown pcp:pcp /var/log/pcp/pmcd

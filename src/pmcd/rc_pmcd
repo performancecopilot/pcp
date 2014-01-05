@@ -191,11 +191,11 @@ _pmda_setup()
 		if ./Install </dev/null >/dev/null
 		then
 		    # success
-		    pmpost "PMDA setup: automated install: $pmda"
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated install: $pmda"
 		    rm -f .NeedInstall.sav
 		else
 		    # put the file back, maybe we'll be luckier next time
-		    pmpost "PMDA setup: automated install FAILED (exit=$?): $pmda"
+		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated install FAILED (exit=$?): $pmda"
 		    mv .NeedInstall.sav .NeedInstall
 		fi
 
@@ -220,7 +220,7 @@ _start_pmcheck()
 	:
     else
 	status=$?
-	pmpost "pmcd_wait failed in $prog: exit status: $status" 
+	$PCP_BINADM_DIR/pmpost "pmcd_wait failed in $prog: exit status: $status" 
 	if [ ! -z "$MAIL" ]
 	then
 	    echo "pmcd_wait exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
@@ -361,7 +361,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     done
     _killpmdas
     $RC_STATUS -v
-    pmpost "stop pmcd from $prog"
+    $PCP_BINADM_DIR/pmpost "stop pmcd from $prog"
 }
 
 _usage()
@@ -486,7 +486,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    $PMCD $OPTS
 	    $RC_STATUS -v
 
-	    pmpost "start pmcd from $prog"
+	    $PCP_BINADM_DIR/pmpost "start pmcd from $prog"
 
 	    _pmda_setup
 

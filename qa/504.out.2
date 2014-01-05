@@ -1,0 +1,32 @@
+QA output created by 504
+pmie count at start of QA testing: 0
+
+=== check pmie_check and custom config ===
+# $version=1.0   
++ export version; version=1.0   
+Check pmie -h LOCALHOST -l /tmp/PID.log0 ...
++ cd /tmp
+No current pmie process exists for:
+    host = LOCALHOST
+    log file = /tmp/PID.log0
+Restarting pmie for host "LOCALHOST" ...
++ pmsocks pmie -b -h LOCALHOST -l /tmp/PID.log0 /tmp/PID.conf
+Check pmie -h REMOTEHOST -l /tmp/PID.log1 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/PID.log1
+Restarting pmie for host "REMOTEHOST" ...
++ pmie -b -h REMOTEHOST -l /tmp/PID.log1 -c /tmp/PID.conf
+Check pmie -h REMOTEHOST -l /tmp/PID.log2 ...
++ cd /tmp
+No current pmie process exists for:
+    host = REMOTEHOST
+    log file = /tmp/PID.log2
+Restarting pmie for host "REMOTEHOST" ...
++ pmsocks pmie -b -h REMOTEHOST -l /tmp/PID.log2 -c /tmp/PID.conf
+
+=== check customised control file ===
+Starting pmie ... 
+pmie count with custom config (expect 3): 3
+

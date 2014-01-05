@@ -71,7 +71,10 @@ else
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
     exit
 fi
-curl -s -S "http://localhost:44323/pmapi/context?local=ANYTHING" | awk '{print $2}'
+curl -s -S "http://localhost:44323/pmapi/context?local=ANYTHING" \
+| tee -a $seq.full \
+| awk '{print $2}'
+echo >>$seq.full
 
 if [ ! -f /etc/hosts ]
 then
@@ -96,7 +99,10 @@ echo "ipv6local=$ipv6local" >>$seq.full
 
 rm -f $seq.out
 if grep -q IPv6 $tmp.out; then
-    curl -s -S "http://$ipv6local:44323/pmapi/context?local=ANYTHING"  | awk '{print $2}'
+    curl -s -S "http://$ipv6local:44323/pmapi/context?local=ANYTHING" \
+    | tee -a $seq.full \
+    | awk '{print $2}'
+    echo >>$seq.full
     # ipv6 + ipv4
     ln $seq.out.46 $seq.out
 else
@@ -112,7 +118,7 @@ if grep -q IPv4 $tmp.out; then
     python $pyscript --host localhost | _filter
 fi
 if grep -q IPv6 $tmp.out; then
-    python $pyscript --host $ipv6local | _filter
+    python $pyscript --host "$ipv6local" | _filter
 fi
 
 echo | tee -a $seq.full

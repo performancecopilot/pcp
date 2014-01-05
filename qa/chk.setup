@@ -247,35 +247,38 @@ done
 #
 $fail && _fail_check
 
-# down to the common.config things ... these are the most contentious
-# and the ones that need local tuning ...
-#
-#   $PCPQA_CLOSE_X_SERVER is set here, but is hard to check so skip that one.
-#
-for var in PCPQA_FAR_PMCD PCPQA_HYPHEN_HOST
-do
-    eval host=\$$var
-    if [ -z "$host" ]
-    then
-	echo "$0: Warning: variable \$$var is not set from common.config"
-    elif [ "$host" = "some-host" -o "$host" = "far_away_pmcd" ]
-    then
-	echo "$0: Warning: variable \$$var using bogus default from common.config"
-    else
-	# try to contact pmcd ...
-	#
-	$PCP_ECHO_PROG $PCP_ECHO_N "Contacting pmcd at $host ... ""$PCP_ECHO_C"
-	_check_pmcd $host
-	if [ -f $tmp.ok ]
+if [ $# -eq 0 ]
+then
+    # down to the common.config things ... these are the most contentious
+    # and the ones that need local tuning ...
+    #
+    #   $PCPQA_CLOSE_X_SERVER is set here, but is hard to check so skip that one.
+    #
+    for var in PCPQA_FAR_PMCD PCPQA_HYPHEN_HOST
+    do
+	eval host=\$$var
+	if [ -z "$host" ]
 	then
-	    echo "OK"
-	    _check_pmlogger $host
-	    _check_pmdas $host
+	    echo "$0: Warning: variable \$$var is not set from common.config"
+	elif [ "$host" = "some-host" -o "$host" = "far_away_pmcd" ]
+	then
+	    echo "$0: Warning: variable \$$var using bogus default from common.config"
 	else
-	    echo "no response (warning)"
+	    # try to contact pmcd ...
+	    #
+	    $PCP_ECHO_PROG $PCP_ECHO_N "Contacting pmcd at $host ... ""$PCP_ECHO_C"
+	    _check_pmcd $host
+	    if [ -f $tmp.ok ]
+	    then
+		echo "OK"
+		_check_pmlogger $host
+		_check_pmdas $host
+	    else
+		echo "no response (warning)"
+	    fi
 	fi
-    fi
-done
+    done
+fi
 
 # no point proceeding if any of these variables are not set
 #
@@ -300,7 +303,8 @@ fi
 # pixies
 #
 echo "hullo world" >$tmp.hullo
-for host in `cat qa_hosts`
+[ $# -eq 0 ] && set -- `cat qa_hosts`
+for host
 do
     # try to contact remote pmcd ...
     #
