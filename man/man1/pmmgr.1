@@ -29,10 +29,10 @@ manages a collection of PCP daemons for a set of discovered local and
 remote hosts running the Performance Metrics Collection Daemon (PMCD),
 according to zero or more configuration directories.  It keeps a
 matching set of 
-.IR pmlogger " and/or " pmie
+.BR pmlogger " and/or " pmie
 daemons running, and their archives/logs merged/rotated.  It supplants
 the older
-.IR pmlogger_* " and " pmie_*
+.BR pmlogger_* " and " pmie_*
 check/daily management shell scripts.
 .P
 pmmgr is largely self-configuring and perseveres despite most run-time
@@ -147,14 +147,14 @@ to rely on pmcd self-announcements on the local network.
 .SS PMLOGGER CONFIGURATION
 
 This group of configuration options controls a 
-.IR pmlogger
+.BR pmlogger
 daemon for each host.  This may include generating its configuration,
 and managing its archives.
 
 .TP
 pmlogger
 If and only if this file exists, pmmgr will maintain a 
-.IR pmlogger
+.BR pmlogger
 daemon for each
 targeted host.  This file contains one line of additional space-separated options
 for the pmie daemon.  (pmmgr already adds \-h, \-f, \-r, \-l, and perhaps \-c.)  The
@@ -165,7 +165,7 @@ default is to maintain
 .TP
 pmlogconf
 If and only if this file exists, pmmgr will run 
-.IR pmlogconf
+.BR pmlogconf
 to generate a configuration
 file for each target pmcd.  The file contains one line of space-separated additional 
 options for the pmlogconf program.  pmlogconf's generated output file will be stored under
@@ -178,7 +178,7 @@ specify a fixed pmlogger configuration.
 .TP
 pmlogmerge
 If and only if this file exists, pmmgr will run 
-.IR pmlogextract
+.BR pmlogextract
 to periodically merge together all preexisting log archives for each target pmcd
 into one.  (When pmlogger is started, it always creates a new archive, so in the
 steady state, there will be one merged archive from history, and one current archive
@@ -199,14 +199,14 @@ be thrown away.  The default is
 .SS PMIE CONFIGURATION
 
 This group of configuration options controls a 
-.IR pmie
+.BR pmie
 daemon for each host.  This may include generating a custom
 configuration.
 
 .TP
 pmie
 If and only if this file exists, pmmgr will maintain a 
-.IR pmie
+.BR pmie
 daemon for each
 targeted pmcd.  This file contains one line of additional space-separated options
 for the pmie daemon.  (pmmgr already adds \-h, \-f, \-l, and perhaps \-c.)  The
@@ -217,7 +217,7 @@ default is to maintain
 .TP
 pmieconf
 If and only if this file exists, pmmgr will run
-.IR pmieconf
+.BR pmieconf
 to generate a configuration
 file for each target pmcd.  The file  contains one line of space-separated additional 
 options for the pmieconf program.  pmieconf's generated output file will be stored under
