@@ -18,7 +18,7 @@ LLDIRT =
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pmie pmieconf pmlogconf pmlogger \
+LSRCFILES = pmie pmieconf pmlogconf pmlogger pmlogmerge \
 	README target-discovery.example-avahi 
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
