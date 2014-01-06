@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -438,6 +438,70 @@ pmmgr_job_spec::poll()
   for (unsigned i=0; i<threads.size(); i++)
     pthread_join (threads[i], NULL);
 #endif
+
+  // phase 6: garbage-collect ancient log-directory subdirs
+  string subdir_gc = get_config_single("log-subdirectory-gc");
+  if (subdir_gc == "")
+    subdir_gc = "90days";
+  struct timeval tv;
+  char *errmsg;
+  int rc = pmParseInterval(subdir_gc.c_str(), & tv, & errmsg);
+  if (rc < 0)
+    {
+      timestamp(cerr) << "log-subdirectory-gc '" << subdir_gc << "' parse error: " << errmsg << endl;
+      free (errmsg);
+      // default to 90days in another way
+      tv.tv_sec = 60 * 60 * 24 * 90;
+      tv.tv_usec = 0;
+    }
+  time_t now;
+  (void) time(& now);
+
+  // NB: check less frequently?
+
+  // XXX: getting a bit duplicative
+  string default_log_dir =
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+  string log_dir = get_config_single ("log-directory");
+  if (log_dir == "") log_dir = default_log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+
+  glob_t the_blob;
+  string glob_pattern = log_dir + (char)__pmPathSeparator() + "*";
+  rc = glob (glob_pattern.c_str(), 
+             GLOB_NOESCAPE
+#ifdef GLOB_ONLYDIR
+             | GLOB_ONLYDIR
+#endif
+             , NULL, & the_blob);
+  if (rc == 0)
+    {
+      for (unsigned i=0; i<the_blob.gl_pathc; i++)
+        {
+          string item_name = the_blob.gl_pathv[i];
+          
+          // Reject if currently live hostid
+          if (known_targets.find(item_name) != known_targets.end())
+            continue;
+
+          struct stat foo;
+          rc = stat (item_name.c_str(), & foo);
+          if (rc == 0 &&
+              S_ISDIR(foo.st_mode) &&
+              (foo.st_mtime + tv.tv_sec) < now)
+            {
+              // <Janine Melnitz>We've got one!!!!!</>
+              timestamp(cout) << "gc subdirectory " << item_name << endl;
+              string cleanup_cmd = "/bin/rm -rf " + sh_quote(item_name);
+              if (pmDebug & DBG_TRACE_APPL0)
+                timestamp(cout) << "running " << cleanup_cmd << endl;
+              rc = system(cleanup_cmd.c_str());
+              if (rc != 0) 
+                timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+            }
+        }
+    }
+  globfree (& the_blob);
 }
 
 
@@ -713,7 +777,6 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
                   if (pmDebug & DBG_TRACE_APPL0)
                     timestamp(cout) << "running " << cleanup_cmd << endl;
-
                   rc = system(cleanup_cmd.c_str());
                   if (rc != 0) 
                     timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;

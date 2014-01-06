@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -140,9 +140,25 @@ pmcd servers.  Each poll interval, pmmgr will attempt to rerun discovery with
 all of the given specifications.  Again it is not a problem if more than one
 specification matches the same actual pmcd.  The default value is to do
 .BR "no discovery" .
-Consider using
+Consider including
 .IR avahi 
 to rely on pmcd self-announcements on the local network.
+
+.TP
+log\-subdirectory\-gc
+This file may contain a time interval specification as per the
+.IR PCPintro
+man page.  All subdirectories of the log\-directory are
+presumed to contain data for pmmgr-monitored servers.  Those that
+have not been touched (in the
+.BR stat/mtime
+sense) in at least that long, and not associated with a currently
+monitored target, are deleted entirely.  This value should be
+longer than the longest interval that pmmgr normally recreates
+archives (such as due to pmmgr restarts, and 
+.BR pmlogmerge
+intervals).  The default value is
+.BR 90days .
 
 .SS PMLOGGER CONFIGURATION
 
@@ -182,7 +198,8 @@ If and only if this file exists, pmmgr will run
 to periodically merge together all preexisting log archives for each target pmcd
 into one.  (When pmlogger is started, it always creates a new archive, so in the
 steady state, there will be one merged archive from history, and one current archive
-being written-to by pmlogger.)  The file contains an interval specification as per the
+being written-to by pmlogger.)  The file may contain a time interval specification
+as per the
 .IR PCPintro
 man page, representing the period at which pmlogger should be temporarily stopped,
 and archives merged.  The default is 

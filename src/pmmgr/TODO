@@ -1,5 +1,4 @@
 - pmlogrewrite
-- garbage-collection for HOSTID subdirs
 - email error reporting?
 - test buildability on non-linux
 - qa
