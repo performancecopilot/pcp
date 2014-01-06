@@ -129,12 +129,22 @@ PCP internet resources, and the pmchart utility.
 
        $ ./Makepkgs --verbose
 
-2. If you want to build the package and install it manually, use the
-   following steps (use configure options to suit your preferences,
-   see also section D below for additional details):
+2. If you want to build the package and install it manually you will
+   first need to ensure the "user" pcp is created so that key parts
+   of the PCP installation can run as a user other than root.
+   For Debian this means the following (equivalent commands are
+   available on all distributions):
 
-       # create pcp & pcpqa users
-       $ ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+       $ su root
+       # groupadd -r pcp
+       # useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
+   	
+   Then use the following steps (use configure options to suit your
+   preferences, refer to the qa/admin/myconfigure script for some
+   guidance and see also section D below for additional details):
+
+       $ ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc \
+		     --localstatedir=/var --with-rcdir=/etc/init.d
        $ make
        $ su root
        # make install
@@ -265,7 +275,8 @@ PCP internet resources, and the pmchart utility.
 == D. Non-default build, install and run
 
    To run build and run a version of PCP that is installed in a private
-   location (and does not require root privileges)
+   location (and does not require root privileges), first create the
+   pcp "user" as described in section B.2 above), then
 
    $ ./configure --prefix=/some/path
 

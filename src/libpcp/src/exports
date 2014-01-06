@@ -360,6 +360,7 @@ PCP_3.0 {
     __pmSockAddrDup;
     __pmSockAddrFree;
     __pmSockAddrGetFamily;
+    __pmSockAddrGetPort;
     __pmSockAddrInit;
     __pmSockAddrIsInet;
     __pmSockAddrIsIPv6;

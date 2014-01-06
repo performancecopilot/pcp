@@ -193,8 +193,8 @@ _save_setup()
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
-	    [ -f $file.$$ ] && $sudo rm -f $file.$$
-	    [ -f $file ] && $sudo cp $file $file.$$
+	    [ -f $file.$seq ] && $sudo rm -f $file.$seq
+	    [ -f $file ] && $sudo cp -p $file $file.$seq
 	done
 }
 
@@ -210,7 +210,12 @@ _cleanup()
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
-	    [ -f $file.$$ ] && $sudo mv $file.$$ $file
+	    if [ -f $file.$seq ]
+	    then
+		$sudo rm -f $file
+		$sudo cp -p $file.$seq $file
+		$sudo rm -f $file.$seq
+	    fi
 	done
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -305,7 +310,7 @@ End-of-File
     $sudo rm $PCP_PMCD_PROG 
     $sudo cp `which true` $PCP_PMCD_PROG
     _poke_pmcd_n_logger
-    $sudo cp $PCP_PMCD_PROG.$$ $PCP_PMCD_PROG
+    $sudo cp -p $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
     echo "=== start again ==="
     _poke_pmcd_n_logger
 
@@ -326,7 +331,7 @@ End-of-File
     echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ==="
     $sudo rm $CHECK 
     _poke_pmcd_n_logger
-    $sudo cp $CHECK.$$ $CHECK
+    $sudo cp -p $CHECK.$seq $CHECK
     _disable_loggers
 
     echo 
@@ -348,7 +353,7 @@ End-of-File
 	_poke_pmcd_n_logger
 	sleepy=false
 	# added by mg
-	$sudo cp $PCP_PMLOGGERCONTROL_PATH.$$ $PCP_PMLOGGERCONTROL_PATH
+	$sudo cp -p $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
 
 	echo
 	echo "=== expect pmlogger connect failure: same case, but pmlogger.options is bogus ==="
@@ -356,7 +361,7 @@ End-of-File
 	sed -e "/LOCALHOSTNAME/d" -e "/`hostname`/d" <$PCP_PMLOGGERCONTROL_PATH.$$ >$tmp.out
 	$sudo cp $tmp.out $PCP_PMLOGGERCONTROL_PATH
 	echo "-c /no/such/config" >$tmp.tmp
-	$sudo mv $tmp.tmp $PCP_PMLOGGEROPTIONS_PATH
+	$sudo cp $tmp.tmp $PCP_PMLOGGEROPTIONS_PATH
 	_poke_pmcd_n_logger \
 	| sed \
 	    -e '/^-rw/d' \
@@ -366,7 +371,7 @@ End-of-File
 	    -e '/^total /s/.*/.../' \
 	    -e '/missing$/s/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' 
 	$sudo rm -f $PCP_PMLOGGEROPTIONS_PATH
-	$sudo cp $PCP_PMLOGGERCONTROL_PATH.$$ $PCP_PMLOGGERCONTROL_PATH
+	$sudo cp -p $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
     fi
 
     # no chkconfig verbose for Linux

@@ -1,2 +1,4 @@
 *.c
 *.h
+exports
+libpcp_fault.*
