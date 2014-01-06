@@ -4728,7 +4728,7 @@ ensures that if one of the configured <command>pmie</command> processes exits,
 it is automatically restarted.</para>
 <note><para>Depending on your platform, the <command>crontab</command> entry discussed
 here may already have been installed for you, as part of the package installation process.
-In this case, the file <filename>/etc/cron.d/pmie</filename> will exist, and the rest
+In this case, the file <filename>/etc/cron.d/pcp-pmie</filename> will exist, and the rest
 of this section can be skipped.</para>
 </note>
 
@@ -5157,8 +5157,7 @@ some of the archive log management and administration tasks.</para>
 </indexterm>The specification of where to place the archive log files for
 particular <command>pmlogger</command> instances is encoded in the configuration
 file <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>,
-and this file should be customized on each host running an instance of <command>
-pmlogger</command>.</para>
+and this file should be customized on each host running an instance of <command>pmlogger</command>.</para>
 <para>If many archives are being created, and the associated PCP collector
 systems form peer classes based upon service type (Web servers,
 DBMS servers, NFS servers, and so on), then it may be appropriate to introduce
@@ -5383,7 +5382,7 @@ logs of performance metrics collected from one or more hosts (which may be
 either the local host or a remote host).</para>
 <note><para>Depending on your platform, the <command>crontab</command> entry discussed
 here may already have been installed for you, as part of the package installation process.
-In this case, the file <filename>/etc/cron.d/pmlogger</filename> will exist, and the rest
+In this case, the file <filename>/etc/cron.d/pcp-pmlogger</filename> will exist, and the rest
 of this section can be skipped.</para>
 </note>
 <para>To activate the maintenance and housekeeping scripts for a collection
@@ -6393,7 +6392,7 @@ startup options.</para>
 <command>pmlogger</command> instances that monitor local or remote hosts.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/etc/cron.d/pmlogger</filename> or <filename>${PCP_VAR_DIR}/config/pmlogger/crontab</filename> </term>
+<term><filename>/etc/cron.d/pcp-pmlogger</filename> or <filename>${PCP_VAR_DIR}/config/pmlogger/crontab</filename> </term>
 <listitem><para>Default <literal>crontab</literal> entries that may be merged
 with the <literal>crontab</literal> entries for the <literal>pcp</literal> user
 to schedule the periodic execution of the archive log management scripts, for
@@ -6447,7 +6446,7 @@ and <command>pmie</command> startup options.</para>
 below one of these subdirectories.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>/etc/cron.d/pmie</filename> or <filename>${PCP_VAR_DIR}/config/pmie/crontab</filename> </term>
+<term><filename>/etc/cron.d/pcp-pmie</filename> or <filename>${PCP_VAR_DIR}/config/pmie/crontab</filename> </term>
 <listitem><para>Default <literal>crontab</literal> entries that may be merged
 with the <literal>crontab</literal> entries for the <literal>pcp</literal> user
 to schedule the periodic execution of the <command>pmie_check</command> and
