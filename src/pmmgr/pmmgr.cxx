@@ -481,7 +481,10 @@ pmmgr_job_spec::poll()
           string item_name = the_blob.gl_pathv[i];
           
           // Reject if currently live hostid
-          if (known_targets.find(item_name) != known_targets.end())
+          // NB: basename(3) might modify the argument string, so we don't feed
+          // it item_name.c_str().
+          string target_name = basename(the_blob.gl_pathv[i]);
+          if (known_targets.find(target_name) != known_targets.end())
             continue;
 
           struct stat foo;
@@ -573,7 +576,9 @@ pmmgr_daemon::~pmmgr_daemon()
 {
   if (pid != 0)
     {
+      int ignored;
       (void) kill ((pid_t) pid, SIGTERM);
+      (void) waitpid ((pid_t) pid, &ignored, 0); // collect zombie
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "daemon pid " << pid << " killed" << endl;
     }
