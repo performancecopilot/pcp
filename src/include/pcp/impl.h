@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -605,7 +605,7 @@ extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
-extern int	     __pmSockAddrGetPort(__pmSockAddr *);
+extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
 extern void	     __pmSockAddrSetScope(__pmSockAddr *, int);
 extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
