@@ -361,6 +361,11 @@ pmlogger/control
 pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOFEOF
+%if "@BUILD_PMMGR@" == "yes"
+cat >>conf_files <<EOF
+etc/pcp/pmmgr
+EOF
+%endif
 %if @have_libmicrohttpd@ == 1
 cat >>conf_files <<WEBEOF
 pmwebd/pmwebd.options

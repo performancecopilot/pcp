@@ -71,6 +71,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
+	    -e's|@BUILD_PMMGR@|$(BUILD_PMMGR)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 
 include $(BUILDRULES)
