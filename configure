@@ -12934,15 +12934,15 @@ HAVE_LIBMICROHTTPD=$have_libmicrohttpd
 LIBS=$savedLIBS
 
 savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib" >&5
-$as_echo_n "checking for rpmlib... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
+$as_echo_n "checking for rpmlib > 4.4.2... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <rpm/header.h>
 int
 main ()
 {
-(void)headerGet(NULL, 0, NULL, 0);
+(void)HEADERGET_EXT;
   ;
   return 0;
 }

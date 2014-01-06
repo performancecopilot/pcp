@@ -2281,10 +2281,10 @@ LIBS=$savedLIBS
 
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 savedLIBS=$LIBS
-AC_MSG_CHECKING([for rpmlib])
+AC_MSG_CHECKING([for rpmlib > 4.4.2])
 AC_COMPILE_IFELSE(
    [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
-                    [[(void)headerGet(NULL, 0, NULL, 0);]])],
+                    [[(void)HEADERGET_EXT;]])],
    [AC_MSG_RESULT([yes])
     have_rpmlib=1],
    [AC_MSG_RESULT([no])
