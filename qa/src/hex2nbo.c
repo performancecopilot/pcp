@@ -70,8 +70,8 @@ main(int argc, char **argv)
 		last = t;
 		type = 2;
 	    }
-	    if ((t = strstr(p, "pmid:")) >= last) {
-		last = t;
+	    /* final check, no assignment needed */
+	    if (strstr(p, "pmid:") >= last) {
 		type = 2;
 	    }
 	    *q = c;
