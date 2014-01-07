@@ -128,9 +128,12 @@ getmyhostid(void)
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
     if ((myhostid = __pmGetAddrInfo(myhostname)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
-		     myhostname, hoststrerror());
-	return -1;
+	/* fallback to localhost, by passing NULL to getaddrinfo(3) */
+	if ((myhostid = __pmGetAddrInfo(NULL)) == NULL) {
+	    __pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
+			  myhostname, hoststrerror());
+	    return -1;
+	}
     }
     gotmyhostid = 1;
     return 0;
