@@ -36,7 +36,7 @@ main(int argc, char **argv)
 {
     int			err = 0;
     int			sts;
-    pmdaInterface	desc;
+    pmdaInterface	desc = { 0 };
     char		c;
     int			exit_action = 0;
 

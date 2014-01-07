@@ -27,7 +27,7 @@ static void
 dometric(const char *name)
 {
     int		n;
-    pmID	pmid;
+    pmID	pmidlist[] = { PM_ID_NULL };
     pmDesc	desc;
     int		*instlist;
     char	**instname;
@@ -37,11 +37,11 @@ dometric(const char *name)
     _metrics++;
 
     /* cast const away as pmLookupName will not modify this string */
-    if ((n = pmLookupName(1, (char **)&name, &pmid)) < 0) {
+    if ((n = pmLookupName(1, (char **)&name, pmidlist)) < 0) {
 	printf("%s: pmLookupName: %s\n", name, pmErrStr(n));
 	return;
     }
-    if ((n = pmLookupDesc(pmid, &desc)) < 0) {
+    if ((n = pmLookupDesc(pmidlist[0], &desc)) < 0) {
 	printf("%s: pmLookupDesc: %s\n", name, pmErrStr(n));
 	return;
     }
@@ -56,7 +56,7 @@ dometric(const char *name)
 	    free(instname);
 	}
     }
-    if ((n = pmFetch(1, &pmid, &result)) < 0) {
+    if ((n = pmFetch(1, pmidlist, &result)) < 0) {
 	printf("%s: pmFetch: %s\n", name, pmErrStr(n));
 	return;
     }
