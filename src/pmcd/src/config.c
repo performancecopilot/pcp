@@ -1530,9 +1530,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	__pmHostEnt	*host;
 	void		*enumIx;
 
-	if ((host = __pmGetAddrInfo(NULL)) == NULL) {
-	    fprintf(stderr, "pmcd: Error getting %s address for localhost\n",
-		    aPtr->ipc.socket.addrDomain == AF_INET ? "inet" : "ipv6");
+	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
+	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
 	}
 	enumIx = NULL;
