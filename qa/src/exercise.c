@@ -29,8 +29,8 @@ dometric(const char *name)
     int		n;
     pmID	pmidlist[] = { PM_ID_NULL };
     pmDesc	desc;
-    int		*instlist;
-    char	**instname;
+    int		*instlist = NULL;
+    char	**instname = NULL;
     pmResult	*result;
     extern int	pmDebug;
 
@@ -51,10 +51,10 @@ dometric(const char *name)
 	    printf("%s: pmGetInDom: %s\n", name, pmErrStr(n));
 	    return;
 	}
-	if (n) {
+	if (instlist)
 	    free(instlist);
+	if (instname)
 	    free(instname);
-	}
     }
     if ((n = pmFetch(1, pmidlist, &result)) < 0) {
 	printf("%s: pmFetch: %s\n", name, pmErrStr(n));
