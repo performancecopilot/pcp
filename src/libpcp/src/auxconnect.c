@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -656,18 +656,23 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 }
 
 int
-__pmSockAddrGetPort(__pmSockAddr *addr)
+__pmSockAddrGetPort(const __pmSockAddr *addr)
 {
     if (addr->sockaddr.raw.sa_family == AF_INET)
         return ntohs(addr->sockaddr.inet.sin_port);
-    else if (addr->sockaddr.raw.sa_family == AF_INET6)
+    if (addr->sockaddr.raw.sa_family == AF_INET6)
         return ntohs(addr->sockaddr.ipv6.sin6_port);
-    else {
-	__pmNotifyErr(LOG_ERR,
-		"%s:__pmSockAddrGetPort: Invalid address family: %d\n",
-		__FILE__, addr->sockaddr.raw.sa_family);
-	return -1;
-    }
+    __pmNotifyErr(LOG_ERR,
+		  "__pmSockAddrGetPort: Invalid address family: %d\n",
+		  addr->sockaddr.raw.sa_family);
+    return 0; /* not set */
+}
+
+void
+__pmSockAddrSetScope(__pmSockAddr *addr, int scope)
+{
+    if (addr->sockaddr.raw.sa_family == AF_INET6)
+        addr->sockaddr.ipv6.sin6_scope_id = scope;
 }
 
 void

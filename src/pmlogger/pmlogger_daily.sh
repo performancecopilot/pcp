@@ -639,7 +639,7 @@ END				{ print m }'`
 	     \( -name "*.[0-2][0-9].[0-5][0-9].meta" \
 		-o -name "*.[0-2][0-9].[0-5][0-9]-[0-9][0-9].meta" \
 	     \) \
-	     -print \
+	     -print 2>/dev/null \
     | sed \
 	-e "/^$TODAY\./d" \
 	-e 's/\.meta//' \

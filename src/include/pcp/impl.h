@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -83,7 +83,6 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
-#define SERVER_SERVICE_SPEC "pmcd"
 
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
@@ -606,7 +605,7 @@ extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
 extern int	     __pmSockAddrGetFamily(const __pmSockAddr *);
 extern void	     __pmSockAddrSetPort(__pmSockAddr *, int);
-extern int	     __pmSockAddrGetPort(__pmSockAddr *);
+extern int	     __pmSockAddrGetPort(const __pmSockAddr *);
 extern void	     __pmSockAddrSetScope(__pmSockAddr *, int);
 extern void	     __pmSockAddrSetPath(__pmSockAddr *, const char *);
 extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
@@ -655,6 +654,7 @@ extern void __pmServerCloseRequestPorts(void);
 extern void __pmServerDumpRequestPorts(FILE *);
 extern char *__pmServerRequestPortString(int, char *, size_t);
 
+/* Service broadcasting, for servers. */
 typedef struct __pmServerPresence __pmServerPresence;
 extern __pmServerPresence *__pmServerAdvertisePresence(const char *, int);
 extern void __pmServerUnadvertisePresence(__pmServerPresence *);

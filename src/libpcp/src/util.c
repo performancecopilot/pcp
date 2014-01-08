@@ -466,6 +466,86 @@ pmEventFlagsStr(int flags)
     return ebuf;
 }
 
+/*
+ * Several PMAPI interfaces allocate a list of strings into a buffer
+ * pointed to by (char **) which can be safely freed simply by
+ * freeing the pointer to the buffer.
+ *
+ * Here we provide some functions for manipulating these lists.
+ */
+
+/* Add the given item to the list, which may be empty. */
+int
+__pmStringListAdd(char *item, int numElements, char ***list) {
+    size_t	ptrSize;
+    size_t	dataSize;
+    size_t	newSize;
+    char	*initialString;
+    char	*finalString;
+    char	**newList;
+    int		i;
+
+    /* Compute the sizes of the pointers and data for the current list. */
+    if (*list != NULL) {
+	ptrSize = numElements * sizeof(**list);
+	initialString = **list;
+	finalString = (*list)[numElements - 1];
+	dataSize = (finalString + strlen(finalString) + 1) - initialString;
+    }
+    else {
+	ptrSize = 0;
+	dataSize = 0;
+    }
+
+    /*
+     * Now allocate a new buffer for the expanded list. 
+     * We need room for a new pointer and for the new item.
+     */
+    newSize = ptrSize + sizeof(**list) + dataSize + strlen(item) + 1;
+    newList = realloc(*list, newSize);
+    if (newList == NULL) {
+	__pmNoMem("__pmStringListAdd", newSize, PM_FATAL_ERR);
+    }
+
+    /*
+     * Shift the existing data to make room for the new pointer and
+     * recompute each existing pointer.
+     */
+    finalString = (char *)(newList + numElements + 1);
+    if (dataSize != 0) {
+	initialString = (char *)(newList + numElements);
+	memmove(finalString, initialString, dataSize);
+	for (i = 0; i < numElements; ++i) {
+	    newList[i] = finalString;
+	    finalString += strlen(finalString) + 1;
+	}
+    }
+
+    /* Now add the new item. */
+    newList[numElements] = finalString;
+    strcpy(finalString, item);
+
+    *list = newList;
+    return numElements + 1;
+}
+
+/* Search for the given string in the given string list. */
+char *
+__pmStringListFind(const char *item, int numElements, char **list) {
+    int e;
+
+    if (list == NULL)
+	return NULL; /* no list to search */
+
+    for (e = 0; e < numElements; ++e) {
+	if (strcmp(item, list[e]) == 0)
+	    return list[e];
+    }
+
+    /* Not found. */
+    return NULL;
+}
+
 void
 __pmDumpResult(FILE *f, const pmResult *resp)
 {

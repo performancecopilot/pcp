@@ -901,7 +901,7 @@ main(int argc, char *argv[])
     /* Set the service spec. This will cause our service to be advertised on
      * the network if that is supported.
      */
-    __pmServerSetServiceSpec(SERVER_SERVICE_SPEC);
+    __pmServerSetServiceSpec(PM_SERVER_SERVICE_SPEC);
 
     if (run_daemon) {
 	fflush(stderr);
