@@ -233,7 +233,7 @@ parse_args(int argc, char **argv)
     }
     else {
 	int	i;
-	if ((midlist = (pmID *)malloc(numpmid*sizeof(pmID *))) == NULL) {
+	if ((midlist = (pmID *)malloc(numpmid*sizeof(pmID))) == NULL) {
 	    fprintf(stderr, "malloc failed for midlist[]: %s\n", strerror(errno));
 	    exit(1);
 	}
