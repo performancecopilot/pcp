@@ -52,7 +52,7 @@ main(int argc, char *argv[])
     long	client_cache_hits, proxy_cache_hits, remote_fetches;
     double	proxy_bytes, remote_bytes;
 #if (defined HAVE_REGEXEC) && (defined HAVE_REGCOMP)
-    regex_t	re;
+    regex_t	re = {0};
     regmatch_t	pmatch[5];
     size_t	nmatch = 5;
 #endif    

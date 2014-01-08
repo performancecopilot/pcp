@@ -288,10 +288,8 @@ mounts_refresh_mounts(void) {
       memset(type, 0, sizeof(type));
       memset(options, 0, sizeof(options));
     }
+    fclose(fd);
   }
-
-  fclose(fd);
-
 }
 
 
