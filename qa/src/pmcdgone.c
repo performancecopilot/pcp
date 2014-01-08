@@ -108,7 +108,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
     int		err = 0;
     pmDesc	desc;
     char	*buf;
-    pmResult	*resp;
+    pmResult	*resp, *lresp;
 
     for (i = 0; i < 4; i++) {
 	if (!xpecterr)
@@ -204,7 +204,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
 	else if (xpecterr)
 	    err++;
 
-	if ((n = __pmControlLog(ctlport, _store, PM_LOG_ENQUIRE, 0, 0, &resp)) < 0) {
+	if ((n = __pmControlLog(ctlport, _store, PM_LOG_ENQUIRE, 0, 0, &lresp)) < 0) {
 	    fprintf(stderr, "__pmControlLog: %s", pmErrStr(n));
 	    if (xpecterr)
 		fprintf(stderr, " -- error expected\n");
@@ -214,7 +214,7 @@ exer(int numpmid, pmID *pmidlist, int xpecterr)
 	    }
 	}
 	else {
-	    pmFreeResult(resp);
+	    pmFreeResult(lresp);
 	}
 
     }
