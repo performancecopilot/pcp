@@ -78,7 +78,7 @@ decode_creds(const char *name)
     memset(creds, 0, sizeof(*creds));
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outcreds);
+    if (sts >= 0) { free(outcreds); }
 
     fprintf(stderr, "[%s] checking large numcred field\n", name);
     memset(creds, 0, sizeof(*creds));
@@ -87,7 +87,7 @@ decode_creds(const char *name)
     creds->numcreds = htonl(INT_MAX - 1);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outcreds);
+    if (sts >= 0) { free(outcreds); }
 
     fprintf(stderr, "[%s] checking negative numcred field\n", name);
     memset(creds, 0, sizeof(*creds));
@@ -96,7 +96,7 @@ decode_creds(const char *name)
     creds->numcreds = htonl(-2);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outcreds);
+    if (sts >= 0) { free(outcreds); }
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(creds, 0, sizeof(*creds));
@@ -105,7 +105,7 @@ decode_creds(const char *name)
     creds->numcreds = htonl(2);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outcreds);
+    if (sts >= 0) { free(outcreds); }
 
     free(creds);
 }
@@ -179,7 +179,7 @@ decode_profile(const char *name)
     memset(profile, 0, sizeof(*profile));
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking large numprof field\n", name);
     memset(profile, 0, sizeof(*profile));
@@ -188,7 +188,7 @@ decode_profile(const char *name)
     profile->numprof = htonl(INT_MAX - 42);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking negative numprof field\n", name);
     memset(profile, 0, sizeof(*profile));
@@ -197,7 +197,7 @@ decode_profile(const char *name)
     profile->numprof = htonl(-2);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
     memset(profile, 0, sizeof(*profile));
@@ -206,7 +206,7 @@ decode_profile(const char *name)
     profile->numprof = htonl(2);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking large numinst field\n", name);
     memset(instprof, 0, sizeof(*instprof));
@@ -216,7 +216,7 @@ decode_profile(const char *name)
     instprof->numinst = htonl(INT_MAX - 3);
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking negative numinst field\n", name);
     memset(instprof, 0, sizeof(*instprof));
@@ -226,7 +226,7 @@ decode_profile(const char *name)
     instprof->numinst = htonl(-3);
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
     memset(instprof, 0, sizeof(*instprof));
@@ -236,7 +236,7 @@ decode_profile(const char *name)
     instprof->numinst = htonl(2);
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(outprofs);
+    if (sts >= 0) { free(outprofs); }
 
     free(instprof);
     free(profile);
@@ -262,7 +262,7 @@ decode_fetch(const char *name)
     memset(fetch, 0, sizeof(*fetch));
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(pmidlist);
+    if (sts >= 0) { free(pmidlist); }
 
     fprintf(stderr, "[%s] checking large numpmid field\n", name);
     memset(fetch, 0, sizeof(*fetch));
@@ -271,7 +271,7 @@ decode_fetch(const char *name)
     fetch->numpmid = htonl(INT_MAX - 1);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(pmidlist);
+    if (sts >= 0) { free(pmidlist); }
 
     fprintf(stderr, "[%s] checking negative numpmid field\n", name);
     memset(fetch, 0, sizeof(*fetch));
@@ -280,7 +280,7 @@ decode_fetch(const char *name)
     fetch->numpmid = htonl(-2);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(pmidlist);
+    if (sts >= 0) { free(pmidlist); }
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(fetch, 0, sizeof(*fetch));
@@ -289,7 +289,7 @@ decode_fetch(const char *name)
     fetch->numpmid = htonl(2);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(pmidlist);
+    if (sts >= 0) { free(pmidlist); }
 
     free(fetch);
 }
@@ -369,7 +369,7 @@ decode_instance_req(const char *name)
     memset(instance_req, 0, sizeof(*instance_req));
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(resname);
+    if (sts >= 0) { free(resname); }
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
     memset(instance_req, 0, sizeof(*instance_req));
@@ -378,7 +378,7 @@ decode_instance_req(const char *name)
     instance_req->namelen = htonl(INT_MAX - 1);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(resname);
+    if (sts >= 0) { free(resname); }
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
     memset(instance_req, 0, sizeof(*instance_req));
@@ -387,7 +387,7 @@ decode_instance_req(const char *name)
     instance_req->namelen = htonl(-2);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(resname);
+    if (sts >= 0) { free(resname); }
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
     memset(instance_req, 0, sizeof(*instance_req));
@@ -396,7 +396,7 @@ decode_instance_req(const char *name)
     instance_req->namelen = htonl(1);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(resname);
+    if (sts >= 0) { free(resname); }
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
     memset(xinstance_req, 0, sizeof(*xinstance_req) + 16);
@@ -405,7 +405,7 @@ decode_instance_req(const char *name)
     xinstance_req->namelen = htonl(32);
     sts = __pmDecodeInstanceReq((__pmPDU *)xinstance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(resname);
+    if (sts >= 0) {free(resname); }
 
     free(xinstance_req);
     free(instance_req);
@@ -705,7 +705,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
-    if (sts >= 0) free(resnames);
+    if (sts >= 0) { free(resnames); }
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
     memset(name_req, 0, sizeof(*name_req));
@@ -716,7 +716,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
-    if (sts >= 0) free(resnames);
+    if (sts >= 0) { free(resnames); }
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
     memset(name_req, 0, sizeof(*name_req));
@@ -727,7 +727,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
-    if (sts >= 0) free(resnames);
+    if (sts >= 0) { free(resnames); }
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
     memset(name_req, 0, sizeof(*name_req));
@@ -738,7 +738,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
-    if (sts >= 0) free(resnames);
+    if (sts >= 0) { free(resnames); }
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
     memset(xname_req, 0, sizeof(*xname_req));
@@ -749,7 +749,7 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeTraversePMNSReq((__pmPDU *)xname_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)xname_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
-    if (sts >= 0) free(resnames);
+    if (sts >= 0) { free(resnames); }
 
     free(xname_req);
     free(name_req);
@@ -1072,7 +1072,7 @@ decode_text(const char *name)
     memset(text, 0, sizeof(*text));
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(buffer);
+    if (sts >= 0) { free(buffer); }
 
     fprintf(stderr, "[%s] checking large buflen field\n", name);
     memset(text, 0, sizeof(*text));
@@ -1081,7 +1081,7 @@ decode_text(const char *name)
     text->buflen = htonl(INT_MAX - 1);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(buffer);
+    if (sts >= 0) { free(buffer); }
 
     fprintf(stderr, "[%s] checking negative buflen field\n", name);
     memset(text, 0, sizeof(*text));
@@ -1090,7 +1090,7 @@ decode_text(const char *name)
     text->buflen = htonl(-2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(buffer);
+    if (sts >= 0) { free(buffer); }
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(text, 0, sizeof(*text));
@@ -1099,7 +1099,7 @@ decode_text(const char *name)
     text->buflen = htonl(2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
-    if (sts >= 0) free(buffer);
+    if (sts >= 0) { free(buffer); }
 
     free(text);
 }
@@ -1162,7 +1162,7 @@ decode_trace_data(const char *name)
     memset(trace_data, 0, sizeof(*trace_data));
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    if (sts >= 0) free(tag);
+    if (sts >= 0) { free(tag); }
 
     fprintf(stderr, "[%s] checking large taglen field\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1174,7 +1174,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    if (sts >= 0) free(tag);
+    if (sts >= 0) { free(tag); }
 
     fprintf(stderr, "[%s] checking negative taglen field\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1186,7 +1186,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    if (sts >= 0) free(tag);
+    if (sts >= 0) { free(tag); }
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1198,7 +1198,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    if (sts >= 0) free(tag);
+    if (sts >= 0) { free(tag); }
 
     free(trace_data);
 }
