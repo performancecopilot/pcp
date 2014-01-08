@@ -77,7 +77,7 @@ int pmDiscoverServices(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (discovery_domain == NULL || strcmp(discovery_domain, "avahi") == 0)
-	numUrls = __pmAvahiDiscoverServices(service, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 
