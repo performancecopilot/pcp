@@ -789,6 +789,8 @@ getHostAccessSpecs(const char *name, int *sts)
 	    if (getmyhostid() < 0) {
 		__pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
 		*sts = -EHOSTDOWN;
+		if (specs)
+		    free(specs);
 		return NULL;	/* should never happen! */
 	    }
 	}
@@ -1306,7 +1308,7 @@ getClientIds(const __pmSockAddr *hostid, int *sts)
     }
 
     /* If no addresses were discovered, then return NULL. *sts is already set. */
-    if (clientIx == 0 && clientIds != NULL) {
+    if (clientIx == 0) {
 	free(clientIds);
 	clientIds = NULL;
     }
