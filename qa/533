@@ -42,7 +42,7 @@ _filter()
 }
 
 # real QA test starts here
-$PCP_PMDAS_DIR/sample/pmdasample -6 $port -U $username -l $tmp.log &
+$PCP_PMDAS_DIR/sample/pmdasample -Dcontext,desperate -6 $port -U $username -l $tmp.log &
 pid=$!
 echo "PMDA sample PID = $pid" > $seq.full
 sleep 2	# allow socket setup to occur
@@ -55,6 +55,10 @@ fetch sample.daemon_pid
 text sample.daemon_pid
 close
 End-of-File
+
+echo >>$seq.full
+echo "=== sample pmda log ===" >>$seq.full
+cat $tmp.log >>$seq.full
 
 # success, all done
 status=0
