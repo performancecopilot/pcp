@@ -876,7 +876,7 @@ main(int argc, char **argv)
     int		ti_idx;			/* next slot for input temporal index */
     int		needti = 0;
     int		doneti = 0;
-    __pmTimeval	tstamp;			/* for last log record */
+    __pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
 

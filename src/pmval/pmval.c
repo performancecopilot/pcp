@@ -813,10 +813,7 @@ getargs(int		argc,		/* in - command line argument count */
 
     /* fill in default values */
     cntxt->iall = 1;
-    cntxt->inum = 0;
-    cntxt->inames = NULL;
     delta->tv_sec = 1;
-    delta->tv_usec = 0;
     *smpls = ALL_SAMPLES;
     *cols = 0;
 
@@ -1206,11 +1203,11 @@ getargs(int		argc,		/* in - command line argument count */
 int
 main(int argc, char *argv[])
 {
-    struct timeval  delta;		/* sample interval */
+    struct timeval  delta = { 0 };	/* sample interval */
     long	    smpls;		/* number of samples */
     int             cols;		/* width of output column */
-    struct timeval  now;		/* current task start time */
-    Context	    cntxt;		/* performance metric description */
+    struct timeval  now = { 0 };	/* current task start time */
+    Context	    cntxt = { 0 };	/* performance metric description */
     pmResult	    *rslt1;		/* current values */
     pmResult	    *rslt2;		/* previous values */
     int		    forever;
