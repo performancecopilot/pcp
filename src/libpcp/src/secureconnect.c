@@ -735,6 +735,8 @@ static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
 
     memset(phrase, 0, sizeof(phrase));
     value = fgetsQuietly(phrase, sizeof(phrase)-1, in);
+    if (!value)
+	return strdup("");
     length = strlen(value) - 1;
     while (length && (value[length] == '\n' || value[length] == '\r'))
 	value[length] = '\0';
