@@ -399,3 +399,8 @@ PCP_3.0 {
 
   local: *;
 };
+
+PCP_3.1 {
+  global:
+    pmDiscoverServices;
+} PCP_3.0;

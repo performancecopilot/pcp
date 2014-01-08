@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Security and Authentication (NSS and SASL) support.  Client side.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -735,6 +735,8 @@ static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
 
     memset(phrase, 0, sizeof(phrase));
     value = fgetsQuietly(phrase, sizeof(phrase)-1, in);
+    if (!value)
+	return strdup("");
     length = strlen(value) - 1;
     while (length && (value[length] == '\n' || value[length] == '\r'))
 	value[length] = '\0';
@@ -1579,18 +1581,16 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
 }
 
 int
-__pmSockAddrGetPort(__pmSockAddr *addr)
+__pmSockAddrGetPort(const __pmSockAddr *addr)
 {
     if (addr->sockaddr.raw.family == PR_AF_INET)
         return ntohs(addr->sockaddr.inet.port);
-    else if (addr->sockaddr.raw.family == AF_INET6)
+    if (addr->sockaddr.raw.family == PR_AF_INET6)
         return ntohs(addr->sockaddr.ipv6.port);
-    else {
-	__pmNotifyErr(LOG_ERR,
-		"%s:__pmSockAddrGetPort: Invalid address family: %d\n",
-		__FILE__, addr->sockaddr.raw.family);
-	return -1;
-    }
+    __pmNotifyErr(LOG_ERR,
+		  "__pmSockAddrGetPort: Invalid address family: %d\n",
+		  addr->sockaddr.raw.family);
+    return 0; /* not set */
 }
 
 void
@@ -2090,7 +2090,7 @@ __pmGetAddrInfo(const char *hostName)
     __pmHostEnt *he = __pmHostEntAlloc();
 
     if (he != NULL) {
-        he->addresses = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
+        he->addresses = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG | PR_AI_NOCANONNAME);
 	if (he->addresses == NULL) {
 	    __pmHostEntFree(he);
 	    return NULL;

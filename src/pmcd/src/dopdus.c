@@ -64,7 +64,7 @@ DoText(ClientInfo *cp, __pmPDU* pb)
     int		ident;
     int		type;
     AgentInfo	*ap;
-    char	*buffer;
+    char	*buffer = NULL;
 
     if ((sts = __pmDecodeTextReq(pb, &ident, &type)) < 0)
 	return sts;
@@ -188,7 +188,7 @@ DoDesc(ClientInfo *cp, __pmPDU *pb)
     int		sts, s;
     pmID	pmid;
     AgentInfo	*ap;
-    pmDesc	desc;
+    pmDesc	desc = {0};
     int		fdfail = -1;
 
     if ((sts = __pmDecodeDescReq(pb, &pmid)) < 0)
@@ -467,7 +467,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
     if ((sts = __pmDecodeNameList(pb, &numids, &namelist, NULL)) < 0)
 	goto done;
 
-    if ((idlist = (pmID*)malloc(sizeof(int)*numids)) == NULL) {
+    if ((idlist = (pmID *)calloc(numids, sizeof(int))) == NULL) {
         sts = -oserror();
 	goto done;
     }

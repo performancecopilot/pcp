@@ -128,9 +128,12 @@ getmyhostid(void)
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
     if ((myhostid = __pmGetAddrInfo(myhostname)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
-		     myhostname, hoststrerror());
-	return -1;
+	if ((myhostid = __pmGetAddrInfo("localhost")) == NULL) {
+	    __pmNotifyErr(LOG_ERR,
+			"__pmGetAddrInfo failure for both %s and localhost\n",
+			myhostname);
+	    return -1;
+	}
     }
     gotmyhostid = 1;
     return 0;
@@ -786,6 +789,8 @@ getHostAccessSpecs(const char *name, int *sts)
 	    if (getmyhostid() < 0) {
 		__pmNotifyErr(LOG_ERR, "Can't get host name/IP address, giving up\n");
 		*sts = -EHOSTDOWN;
+		if (specs)
+		    free(specs);
 		return NULL;	/* should never happen! */
 	    }
 	}
@@ -1303,7 +1308,7 @@ getClientIds(const __pmSockAddr *hostid, int *sts)
     }
 
     /* If no addresses were discovered, then return NULL. *sts is already set. */
-    if (clientIx == 0 && clientIds != NULL) {
+    if (clientIx == 0) {
 	free(clientIds);
 	clientIds = NULL;
     }

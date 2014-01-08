@@ -659,6 +659,11 @@ extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 /* Free set of pmResults from pmUnpackEventRecords */
 extern void pmFreeEventResult(pmResult **);
 
+/* Service discovery, for clients. */
+#define PM_SERVER_SERVICE_SPEC "pmcd"
+
+extern int pmDiscoverServices(const char *, const char *, char ***);
+
 #ifdef __cplusplus
 }
 #endif

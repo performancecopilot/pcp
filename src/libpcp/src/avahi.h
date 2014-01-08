@@ -14,13 +14,9 @@
 #ifndef AVAHI_H
 #define AVAHI_H
 
-#include <avahi-client/publish.h>
-#include <avahi-common/alternative.h>
-#include <avahi-common/thread-watch.h>
-#include <avahi-common/malloc.h>
-#include <avahi-common/error.h>
-
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
+
+int __pmAvahiDiscoverServices(const char *, int, char ***) _PCP_HIDDEN;
 
 #endif /* AVAHI_H */

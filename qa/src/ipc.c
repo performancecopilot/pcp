@@ -33,17 +33,24 @@ static int npmids;
 static pmID pmids[sizeof(metrics) / sizeof(metrics[0])];
 
 static void
-_force_err(pmInDom indom, int inst, pmID pmid)
+_force_err_noprofile(pmInDom indom, pmID pmid)
 {
     pmResult	*result;
     int		sts;
-    int		i;
 
     pmAddProfile(indom, 0, NULL);
     sts = pmFetch(1, &pmid, &result);
     fprintf(stderr, "\n\ndeliberate error check (no explicit profile) : %s\n", pmErrStr(sts));
     __pmDumpResult(stderr, result);
     pmFreeResult(result);
+}
+
+static void
+_force_err_unknown_inst(pmInDom indom, pmID pmid)
+{
+    pmResult	*result;
+    int		sts;
+    int		i;
 
     pmDelProfile(indom, 0, NULL);
     i = -3;
@@ -52,6 +59,14 @@ _force_err(pmInDom indom, int inst, pmID pmid)
     fprintf(stderr, "\n\ndeliberate error check (1 unknown instance) : %s\n", pmErrStr(sts));
     __pmDumpResult(stderr, result);
     pmFreeResult(result);
+}
+
+static void
+_force_err_unknown_and_known_inst(pmInDom indom, int inst, pmID pmid)
+{
+    pmResult	*result;
+    int		sts;
+    int		i;
 
     pmDelProfile(indom, 0, NULL);
     i = -3; pmAddProfile(indom, 1, &i);
@@ -60,6 +75,14 @@ _force_err(pmInDom indom, int inst, pmID pmid)
     fprintf(stderr, "\n\ndeliberate error check (1 unknown instance + 1 known) : %s\n", pmErrStr(sts));
     __pmDumpResult(stderr, result);
     pmFreeResult(result);
+}
+
+static void
+_force_err(pmInDom indom, int inst, pmID pmid)
+{
+    _force_err_noprofile(indom, pmid);
+    _force_err_unknown_inst(indom, pmid);
+    _force_err_unknown_and_known_inst(indom, inst, pmid);
 }
 
 int
