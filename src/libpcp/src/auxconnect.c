@@ -807,7 +807,7 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
     __pmSockAddr *sock = (__pmSockAddr *)addr;
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	fprintf(stderr, "%s:__pmBind(fd=%d, family=INET, port=%d, addr=%s)\n",
+	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s)\n",
 	    __FILE__, fd, __pmSockAddrGetFamily(sock), __pmSockAddrGetPort(sock),
 	    __pmSockAddrToString(sock));
     }
