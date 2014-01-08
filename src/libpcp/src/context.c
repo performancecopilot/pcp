@@ -396,7 +396,9 @@ pmNewContext(int type, const char *name)
 	list = (__pmContext **)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext *));
     new = (__pmContext *)malloc(sizeof(__pmContext));
     if (list == NULL || new == NULL) {
-	/* fail : nothing changed */
+	/* fail : nothing changed, but new may have been allocated (in theory) */
+	if (new)
+	    memset(new, 0, sizeof(__pmContext));
 	sts = -oserror();
 	goto FAILED;
     }
