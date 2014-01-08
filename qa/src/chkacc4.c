@@ -30,7 +30,7 @@ check_users(void)
     for (c = 0; c < nusers; c++) {
 	usr = &users[c];
 	if ((s = __pmAccAddUser(usr->pw_name, 1 << c, 1 << c, 0)) < 0) {
-	    printf("cannot add user for op%d: %s\n", c, strerror(s));
+	    printf("cannot add user for op%d: %s\n", c, pmErrStr(s));
 	    sts = s;
 	}
     }
@@ -67,7 +67,7 @@ check_groups(void)
     for (c = 0; c < ngroups; c++) {
 	grp = &groups[c];
 	if ((s = __pmAccAddGroup(grp->gr_name, 1 << c, 1 << c, 0)) < 0) {
-	    printf("cannot add group for op%d: %s\n", c, strerror(s));
+	    printf("cannot add group for op%d: %s\n", c, pmErrStr(s));
 	    sts = s;
 	}
     }
@@ -175,7 +175,7 @@ Options:\n\
     sts = 0;
     for (op = 0; op < WORD_BIT; op++) {
 	if ((c = __pmAccAddOp(1 << op)) < 0) {
-	    printf("Bad op %d: %s\n", op, strerror(c));
+	    printf("Bad op %d: %s\n", op, pmErrStr(c));
 	    sts = c;
 	}
 	if ((c = __pmAccAddOp(1 << op)) >= 0) {

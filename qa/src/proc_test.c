@@ -479,7 +479,7 @@ test_prof_fetch(void)
     int 	sts;
     int		i;
     int		pids[2];
-    pmResult	*result;
+    pmResult	*result1, *result2;
 
     print_banner_start("profile/fetch");
 
@@ -500,16 +500,16 @@ test_prof_fetch(void)
     for (i=0; i < iterations; i++) {
 	int j,k;
 
-	sts = pmFetch(nmetrics, pmids, &result);
+	sts = pmFetch(nmetrics, pmids, &result1);
 	if (sts < 0) {
 	    printf("%s: iteration %d : %s\n", pmProgname, i, pmErrStr(sts));
 	    exit(1);
 	}
-	__pmDumpResult(stdout, result);
+	__pmDumpResult(stdout, result1);
 
 
-	for (j = 0; j < result->numpmid; j++) {
-	    pmValueSet *set = result->vset[j];
+	for (j = 0; j < result1->numpmid; j++) {
+	    pmValueSet *set = result1->vset[j];
 
 	    if (set->numval != 2) {
 		printf("%s: Error: num of inst == %d\n", pmProgname, set->numval);
@@ -524,7 +524,7 @@ test_prof_fetch(void)
 	    } 
 	}
 
-	pmFreeResult(result);
+	pmFreeResult(result1);
     }
     printf("--- End Fetch Over Restricted Instance Domain ... ---\n");
 
@@ -535,13 +535,13 @@ test_prof_fetch(void)
 	pmDelProfile(indom, 0, NULL);
 	pmAddProfile(indom, all_n, all_inst);
     }
-    sts = pmFetch(nmetrics, pmids, &result);
+    sts = pmFetch(nmetrics, pmids, &result2);
     if (sts < 0) {
 	printf("%s: fetch all %d instances : %s\n", pmProgname, all_n, pmErrStr(sts));
 	exit(1);
     }
-    __pmDumpResult(stdout, result);
-    pmFreeResult(result);
+    __pmDumpResult(stdout, result2);
+    pmFreeResult(result2);
     printf("--- End Fetch Over Entire Instance Domain ... ---\n");
 
     print_banner_end("profile/fetch");

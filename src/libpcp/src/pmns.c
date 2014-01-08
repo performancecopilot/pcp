@@ -1456,15 +1456,19 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	return PM_ERR_THREAD;
     }
 
+    /*
+     * Guarantee that derived metrics preparation is done, for all possible
+     * paths through this routine which might end at "Try derived metrics.."
+     * below.
+     */
+    memset(pmidlist, PM_ID_NULL, numpmid * sizeof(pmID));
+
     if (pmns_location < 0) {
 	if (ctxp != NULL)
 	    PM_UNLOCK(ctxp->c_lock);
 	sts = pmns_location;
 	/* only hope is derived metrics ... set up for this */
-	for (i = 0; i < numpmid; i++) {
-	    pmidlist[i] = PM_ID_NULL;
-	    nfail++;
-	}
+	nfail += numpmid;
     }
     else if (pmns_location == PMNS_LOCAL) {
 	char		*xname;
@@ -1486,12 +1490,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		    pmidlist[i] = np->pmid;
 		else {
 		    sts = PM_ERR_NONLEAF;
-		    pmidlist[i] = PM_ID_NULL;
 		    nfail++;
 		}
 		continue;
 	    }
-	    pmidlist[i] = PM_ID_NULL;
 	    nfail++;
 	    /*
 	     * did not match name in PMNS ... try for prefix matching

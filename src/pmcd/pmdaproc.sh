@@ -330,7 +330,7 @@ END					{ exit status }'
 	
 	# log change to the PCP NOTICES file
 	#
-	pmpost "PMDA cull: from $PCP_PMCDCONF_PATH: $1 $2"
+	$PCP_BINADM_DIR/pmpost "PMDA cull: from $PCP_PMCDCONF_PATH: $1 $2"
 
 	# save pmcd.conf in case we encounter a problem, and then
 	# install updated $PCP_PMCDCONF_PATH
@@ -425,7 +425,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 
     # log change to pcplog/NOTICES
     #
-    pmpost "PMDA add: to $PCP_PMCDCONF_PATH: $1"
+    $PCP_BINADM_DIR/pmpost "PMDA add: to $PCP_PMCDCONF_PATH: $1"
 
     # signal pmcd if it is running (and ok to do so), else start it
     #

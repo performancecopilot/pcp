@@ -317,8 +317,7 @@ static int refreshData(time_t now)
 
     if (pmDebug & DBG_TRACE_APPL2)
 	dumpData();
-    if (res)
-	free(res);
+    free(res);
     return 1;
 }
 

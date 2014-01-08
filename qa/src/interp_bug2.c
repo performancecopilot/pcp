@@ -326,8 +326,7 @@ Options\n\
 	    result->timestamp.tv_usec > eol.tv_usec)
 		done = 1;
 
-	if (result != (pmResult *)0)
-	    pmFreeResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
@@ -369,8 +368,7 @@ Options\n\
 	    result->timestamp.tv_usec > eol.tv_usec)
 		done = 1;
 
-	if (result != (pmResult *)0)
-	    pmFreeResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Three: rewind and fetch metrics_c until end of log\n");
@@ -412,8 +410,7 @@ Options\n\
 	    result->timestamp.tv_usec > eol.tv_usec)
 		done = 1;
 
-	if (result != (pmResult *)0)
-	    pmFreeResult(result);
+	pmFreeResult(result);
     }
 
     exit(status);

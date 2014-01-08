@@ -130,7 +130,7 @@ then
     haveLock=true	# duplicate: minimise race condition (see note above)
 else
     haveLock=true	# duplicate: minimise race condition (see note above)
-    pmpost "PCP: PMNS lock stolen by: $*"
+    $PCP_BINADM_DIR/pmpost "PCP: PMNS lock stolen by: $*"
 fi
 
 # Namespace is locked, back up affected files.  Once backup completes, enable

@@ -124,14 +124,14 @@ LDIRT += chkacc4
 endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
-# only include these ones if the fault injection version of libpcp
-# appears to have been installed (assumes PCP >= 3.5)
+# only make these ones if the fault injection version of libpcp
+# appears to have been installed (assumes PCP >= 3.5), and then
+# only for the setup target (so not in the build)
 #
-CFILES += check_fault_injection.c exercise_fault.c
-else
+XTRATARGETS += check_fault_injection exercise_fault
+endif
 MYFILES += check_fault_injection.c exercise_fault.c
 LDIRT += check_fault_injection exercise_fault
-endif
 
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
@@ -236,7 +236,7 @@ default default_pcp: \
 	$(PLFILES) $(PYFILES) \
 	ipcs_clear
 
-setup: default $(MKARCH) 
+setup: default $(MKARCH) $(XTRATARGETS)
 
 $(TARGETS):
 

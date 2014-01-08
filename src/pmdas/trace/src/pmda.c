@@ -89,8 +89,11 @@ parseAuth(char *spec)
     char *p, *endnum;
 
     if (first) {
+	if (__pmAccAddOp(TR_OP_SEND) < 0) {
+	    __pmNotifyErr(LOG_ERR, "failed to add send auth operation");
+	    return -1;
+	}
 	first = 0;
-	__pmAccAddOp(TR_OP_SEND);
     }
 
     if (strncasecmp(spec, "disallow:", 9) == 0) {

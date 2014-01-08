@@ -307,9 +307,7 @@ Options\n\
 	    else
 		printf("correct result\n");
 	}
-
-	if (result != (pmResult *)0)
-	    pmFreeResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
@@ -344,9 +342,7 @@ Options\n\
 	    else
 		printf("correct result\n");
 	}
-
-	if (result != (pmResult *)0)
-	    pmFreeResult(result);
+	pmFreeResult(result);
     }
 
     exit(status);

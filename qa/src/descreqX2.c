@@ -11,9 +11,7 @@
 #include <pcp/impl.h>
 
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char **argv)
 {
     int		c;
     int		fd;
@@ -31,8 +29,7 @@ char *argv[];
     if (argc > 1) {
 	while ((c = getopt(argc, argv, "D:")) != EOF) {
 	    switch (c) {
-#ifdef PCP_DEBUG
-	case 'D':	/* debug flag */
+	    case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
@@ -42,8 +39,6 @@ char *argv[];
 	    else
 		pmDebug |= sts;
 	    break;
-
-#endif
 
 	    case '?':
 	    default:
@@ -63,7 +58,11 @@ char *argv[];
 	exit(1);
     }
 
-    ctxp = __pmHandleToPtr(ctx);
+    if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
+	fprintf(stderr, "__pmHandleToPtr failed: eh?\n");
+	exit(1);
+    }
+
     fd = ctxp->c_pmcd->pc_fd;
 
     if ((e = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {

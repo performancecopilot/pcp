@@ -332,12 +332,9 @@ startmonitor(void)
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
     if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 	if (oserror() != EEXIST) {
-	    fprintf(stderr, "%s: error creating stats file dir %s: %s\n",
+	    fprintf(stderr, "%s: warning cannot create stats file dir %s: %s\n",
 		    pmProgname, pmie_dir, osstrerror());
-	    exit(1);
 	}
-    } else {
-	chmod(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
     }
     atexit(stopmonitor);
 
@@ -782,10 +779,12 @@ getargs(int argc, char *argv[])
 
     /* parse time window - just to check argument syntax */
     unrealize(now, &tv1);
-    if (archives)
+    if (archives) {
 	unrealize(last, &tv2);
-    else
+    } else {
 	tv2.tv_sec = INT_MAX;		/* sizeof(time_t) == sizeof(int) */
+	tv2.tv_usec = 0;
+    }
     if (pmParseTimeWindow(startFlag, stopFlag, alignFlag, offsetFlag,
                           &tv1, &tv2,
                           &tv, &tv2, &tv1,
@@ -852,10 +851,12 @@ getargs(int argc, char *argv[])
 	reflectTime(dfltDelta);
     }
     unrealize(now, &tv1);
-    if (archives)
+    if (archives) {
 	unrealize(last, &tv2);
-    else
+    } else {
 	tv2.tv_sec = INT_MAX;
+	tv2.tv_usec = 0;
+    }
     if (pmParseTimeWindow(startFlag, stopFlag, alignFlag, offsetFlag,
 		          &tv1, &tv2,
                           &tv, &tv2, &tv1,
@@ -936,10 +937,12 @@ interact(void)
 		    break;
 		}
 		unrealize(start, &tv1);
-		if (archives)
+		if (archives) {
 		    unrealize(last, &tv2);
-		else
+		} else {
 		    tv2.tv_sec = INT_MAX;
+		    tv2.tv_usec = 0;
+		}
 		if (__pmParseTime(token, &tv1, &tv2, &tv1, &msg) < 0) {
 		    fputs(msg, stderr);
 		    free(msg);

@@ -223,7 +223,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    fprintf(stderr, " name=\"%s\"\n", name);
 	    }
 #endif
-	    if ((e = __pmSendInstanceReq(fd, mypid, &now, indom, inst, name)) < 0) {
+	    e = __pmSendInstanceReq(fd, mypid, &now, indom, inst, name);
+	    if (name)
+		free(name);
+	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendInstanceReq: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -350,7 +353,10 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		}
 	    }
 #endif
-	    if ((e = __pmSendCreds(fd, mypid, count, creds)) < 0) {
+	    e = __pmSendCreds(fd, mypid, count, creds);
+	    if (count > 0)
+		free(creds);
+	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendCreds: %s\n", pmProgname, pmErrStr(e));
 		break;
 	    }
@@ -425,8 +431,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 #endif
 	    e = __pmSendChildReq(fd, mypid, name, code);
-	    if (name != NULL)
-		free(name);
+	    free(name);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendChildReq: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -445,8 +450,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 	    }
 #endif
 	    e = __pmSendTraversePMNSReq(fd, mypid, name);
-	    if (name != NULL)
-		free(name);
+	    free(name);
 	    if (e < 0) {
 		fprintf(stderr, "%s: Error: SendTraversePMNSReq: %s\n", pmProgname, pmErrStr(e));
 		break;
@@ -574,7 +578,9 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		fprintf(stderr, " value=%g\n", value);
 	    }
 #endif
-	    if ((e = __pmtracesenddata(fd, name, xlen, xtype, value)) < 0) {
+	    e = __pmtracesenddata(fd, name, xlen, xtype, value);
+	    free(name);
+	    if (e < 0) {
 		fprintf(stderr, "%s: Error: tracesenddata: %s\n", pmProgname, pmtraceerrstr(e));
 		break;
 	    }

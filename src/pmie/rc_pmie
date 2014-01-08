@@ -123,7 +123,7 @@ _start_pmie()
 	bgstatus=$?
 	if [ -s $bgtmp/pmie ]
 	then
-	    pmpost "pmie_check start failed in $prog, mailing output to root"
+	    $PCP_BINADM_DIR/pmpost "pmie_check start failed in $prog, mailing output to root"
 	    if [ ! -z "$MAIL" ]
 	    then
 		$MAIL -s "pmie_check start failed in $prog" root <$bgtmp/pmie >/dev/null 2>&1
@@ -134,7 +134,7 @@ _start_pmie()
 	fi
     else
 	bgstatus=$?
-	pmpost "pmcd_wait failed in $prog: exit status: $bgstatus" 
+	$PCP_BINADM_DIR/pmpost "pmcd_wait failed in $prog: exit status: $bgstatus" 
 	if [ ! -z "$MAIL" ]
 	then
 	    echo "pmcd_wait: exit status: $bgstatus" | $MAIL -s "pmcd_wait failed in $prog" root
@@ -161,7 +161,7 @@ _shutdown()
     pmie_check -s >$tmp/pmie 2>&1
     if [ -s $tmp/pmie ]
     then
-	pmpost "pmie_check stop failed in $prog, mailing output to root"
+	$PCP_BINADM_DIR/pmpost "pmie_check stop failed in $prog, mailing output to root"
 	if [ ! -z "$MAIL" ]
 	then
 	    $MAIL -s "pmie_check stop failed in $prog" root <$tmp/pmie
@@ -174,7 +174,7 @@ _shutdown()
     true
     $RC_STATUS -v
     rm -fr "$tmp/pmie" "$PCP_TMP_DIR/pmie"
-    pmpost "stop pmie from $pmprog"
+    $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
 }
 
 while getopts v c
@@ -236,7 +236,7 @@ case "$1" in
 Error: PCP inference engine control file '$PMIECTRL'
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
 		    else
-			$ECHO $PCP_ECHO_N "Performance Co-Pilot starting inference engine(s) ..." "$PCP_ECHO_C"
+			$ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
 			_start_pmie &
 			$RC_STATUS -v
 		    fi

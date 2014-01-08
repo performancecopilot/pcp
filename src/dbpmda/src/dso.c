@@ -292,7 +292,8 @@ dodso(int pdu)
             
             printf("PMID: %s\n", pmIDStr(param.pmid));
 	    printf("Getting description...\n");
-            if ((sts = dodso_desc(param.pmid, &desc)) < 0) {
+	    desc_list = &desc;
+            if ((sts = dodso_desc(param.pmid, desc_list)) < 0) {
 	    	printf("Error: DSO desc() failed: %s\n", pmErrStr(sts));
                 return;
             }
@@ -318,7 +319,7 @@ dodso(int pdu)
 
 #ifdef PCP_DEBUG
 	    else if (pmDebug & DBG_TRACE_FETCH)
-		_dbDumpResult(stdout, result, &desc);
+		_dbDumpResult(stdout, result, desc_list);
 #endif
 	 
 	    sts = fillResult(result, desc.type);
@@ -449,7 +450,10 @@ dodso(int pdu)
 	    }
 	    j = param.number;			/* attribute key */
 	    buffer = param.name;		/* attribute value */
-	    length = strlen(buffer) + 1;	/* length of value */
+	    if (buffer)
+	        length = strlen(buffer) + 1;	/* length of value */
+	    else
+		length = 0;
 	    i = 0;				/* client ID */
 
 	    __pmAttrKeyStr_r(j, name, sizeof(name)-1);

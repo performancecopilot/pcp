@@ -148,7 +148,7 @@ local_tail(char *file, scalar_t *callback, int cookie)
 int
 local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
-    __pmSockAddr *myaddr = NULL;
+    __pmSockAddr *myaddr;
     __pmHostEnt  *servinfo = NULL;
     void	 *enumIx;
     int		 sts = -1;
@@ -208,8 +208,6 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
         __pmCloseSocket(fd);
     if (servinfo)
         __pmHostEntFree(servinfo);
-    if (myaddr)
-        __pmSockAddrFree(myaddr);
     exit(1);
 }
 

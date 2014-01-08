@@ -136,7 +136,7 @@ _shutdown()
 	exit
     fi
     $RC_STATUS -v 
-    pmpost "stop pmproxy from $pmprog"
+    $PCP_BINADM_DIR/pmpost "stop pmproxy from $pmprog"
 }
 
 _usage()
@@ -229,7 +229,7 @@ Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmp
 		mv pmproxy.log pmproxy.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmproxy (logfile is $RUNDIR/pmproxy.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
 
 	    # options file processing ...
 	    # only consider lines which start with a hyphen
@@ -257,7 +257,7 @@ END			{ if (exports != "") print "export", exports }'`
 	    $PMPROXY $OPTS
 	    $RC_STATUS -v
 
-	    pmpost "start pmproxy from $pmprog"
+	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
 
 	fi
 	status=0

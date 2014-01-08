@@ -39,18 +39,15 @@ seek_magic_and_reposition_for_hostname(int fd)
     for (i = 0; i < sizeof(magic) / sizeof(struct magic); i++) {
 	if ((lseek(fd, magic[i].magic_offset, SEEK_SET)) < 0) {
 	    perror("lseek magic");
-	    close(fd);
 	    continue;
 	}
 	if (read(fd, &sa_magic, sizeof(sa_magic)) < 0) {
 	    perror("read magic");
-	    close(fd);
 	    continue;
 	}
 	if (sa_magic == magic[i].numeric || sa_magic == magic[i].swabbed) {
 	    if ((lseek(fd, magic[i].utsname_offset, SEEK_SET)) < 0) {
 		perror("hostname lseek");
-		close(fd);
 		return -1;
 	    }
 	    return magic[i].utsname_offset;	/* all good */
