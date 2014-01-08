@@ -1162,6 +1162,7 @@ decode_trace_data(const char *name)
     memset(trace_data, 0, sizeof(*trace_data));
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+    if (sts >= 0) free(tag);
 
     fprintf(stderr, "[%s] checking large taglen field\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1173,6 +1174,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+    if (sts >= 0) free(tag);
 
     fprintf(stderr, "[%s] checking negative taglen field\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1184,6 +1186,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+    if (sts >= 0) free(tag);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
     memset(trace_data, 0, sizeof(*trace_data));
@@ -1195,6 +1198,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+    if (sts >= 0) free(tag);
 
     free(trace_data);
 }
