@@ -73,11 +73,15 @@ func1(void *arg)
     int		j;
     FILE	*f;
 
-    f = fopen("/tmp/func1.out", "w");
+    if ((f = fopen("/tmp/func1.out", "w")) == NULL) {
+	perror("func1 fopen");
+	pthread_exit("botch");
+    }
 
     j = pmUseContext(ctx1);
     if ( j < 0) {
 	fprintf(f, "Error: %s: pmUseContext(%d) -> %s\n", fn, ctx1, pmErrStr(j));
+	fclose(f);
 	pthread_exit("botch");
     }
 
@@ -89,6 +93,7 @@ func1(void *arg)
 	}
     }
 
+    fclose(f);
     pthread_exit(NULL);
 }
 
@@ -101,11 +106,15 @@ func2(void *arg)
     int		sts;
     FILE	*f;
 
-    f = fopen("/tmp/func2.out", "w");
+    if ((f = fopen("/tmp/func2.out", "w")) == NULL) {
+	perror("func2 fopen");
+	pthread_exit("botch");
+    }
 
     j = pmUseContext(ctx2);
     if ( j < 0) {
 	fprintf(f, "Error: %s: pmUseContext(%d) -> %s\n", fn, ctx2, pmErrStr(j));
+	fclose(f);
 	pthread_exit("botch");
     }
 
@@ -122,10 +131,12 @@ func2(void *arg)
 		pthread_mutex_lock(&mymutex);
 		if ((sts = pmDelProfile(desclist[1].indom, 0, NULL)) < 0) {
 		    fprintf(f, "Error: pmDelProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 		if ((sts = pmAddProfile(desclist[1].indom, sizeof(instlist)/sizeof(instlist[0]), instlist)) < 0) {
 		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 	    }
@@ -135,6 +146,7 @@ func2(void *arg)
 	}
     }
 
+    fclose(f);
     pthread_exit(NULL);
 }
 
@@ -147,11 +159,15 @@ func3(void *arg)
     int		sts;
     FILE	*f;
 
-    f = fopen("/tmp/func3.out", "w");
+    if ((f = fopen("/tmp/func3.out", "w")) == NULL) {
+	perror("func3 fopen");
+	pthread_exit("botch");
+    }
 
     j = pmUseContext(ctx3);
     if ( j < 0) {
 	fprintf(f, "Error: %s: pmUseContext(%d) -> %s\n", fn, ctx3, pmErrStr(j));
+	fclose(f);
 	pthread_exit("botch");
     }
 
@@ -167,10 +183,12 @@ func3(void *arg)
 		int	instlist[] = { 100, 900 };
 		if ((sts = pmAddProfile(desclist[2].indom, 0, NULL)) < 0) {
 		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[2], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 		if ((sts = pmDelProfile(desclist[2].indom, sizeof(instlist)/sizeof(instlist[0]), instlist)) < 0) {
 		    fprintf(f, "Error: pmDelProfile(%s) -> %s\n", namelist[2], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 	    }
@@ -178,6 +196,7 @@ func3(void *arg)
 		pthread_mutex_lock(&mymutex);
 		if ((sts = pmAddProfile(desclist[1].indom, 0, NULL)) < 0) {
 		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 	    }
@@ -191,6 +210,7 @@ func3(void *arg)
 		pthread_mutex_lock(&mymutex);
 		if ((sts = pmAddProfile(desclist[1].indom, 0, NULL)) < 0) {
 		    fprintf(f, "Error: pmAddProfile(%s) -> %s\n", namelist[1], pmErrStr(sts));
+		    fclose(f);
 		    pthread_exit("botch");
 		}
 	    }
@@ -200,6 +220,7 @@ func3(void *arg)
 	}
     }
 
+    fclose(f);
     pthread_exit(NULL);
 }
 
@@ -220,7 +241,6 @@ main(int argc, char **argv)
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -231,7 +251,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:
