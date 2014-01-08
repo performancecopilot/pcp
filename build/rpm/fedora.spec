@@ -608,8 +608,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Fri Dec 13 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
-- Currently under development.
+* Fri Jan 10 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
+- Update to latest PCP sources.
 
 * Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
 - Reduce set of exported symbols from DSO PMDAs (BZ 1025694)
