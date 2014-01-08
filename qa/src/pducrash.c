@@ -24,37 +24,37 @@ decode_auth(const char *name)
 	char		value[0];
     } *auth;
 
+    auth = (struct auth *)malloc(sizeof(*auth));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    auth = (struct auth *)calloc(1, sizeof(*auth));
+    memset(auth, 0, sizeof(*auth));
     sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
     fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(auth);
 
     fprintf(stderr, "[%s] checking negative length\n", name);
-    auth = (struct auth *)calloc(1, sizeof(*auth));
+    memset(auth, 0, sizeof(*auth));
     auth->hdr.len = -512;
     auth->hdr.type = PDU_AUTH;
     auth->attr = htonl(PCP_ATTR_USERID);
     sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
     fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(auth);
 
     fprintf(stderr, "[%s] checking empty value\n", name);
-    auth = (struct auth *)calloc(1, sizeof(*auth));
+    memset(auth, 0, sizeof(*auth));
     auth->hdr.len = sizeof(*auth);
     auth->hdr.type = PDU_AUTH;
     auth->attr = htonl(PCP_ATTR_USERID);
     sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
     fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(auth);
 
     fprintf(stderr, "[%s] checking access beyond limit\n", name);
-    auth = (struct auth *)calloc(1, sizeof(*auth));
+    memset(auth, 0, sizeof(*auth));
     auth->hdr.len = INT_MAX;
     auth->hdr.type = PDU_AUTH;
     auth->attr = htonl(PCP_ATTR_USERID);
     sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
     fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(auth);
 }
 #else
@@ -72,41 +72,41 @@ decode_creds(const char *name)
 	__pmCred	credslist[0];
     } *creds;
 
+    creds = (struct creds *)malloc(sizeof(*creds));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    creds = (struct creds *)calloc(1, sizeof(*creds));
+    memset(creds, 0, sizeof(*creds));
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outcreds);
-    free(creds);
 
     fprintf(stderr, "[%s] checking large numcred field\n", name);
-    creds = (struct creds *)calloc(1, sizeof(*creds));
+    memset(creds, 0, sizeof(*creds));
     creds->hdr.len = sizeof(*creds);
     creds->hdr.type = PDU_CREDS;
     creds->numcreds = htonl(INT_MAX - 1);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outcreds);
-    free(creds);
 
     fprintf(stderr, "[%s] checking negative numcred field\n", name);
-    creds = (struct creds *)calloc(1, sizeof(*creds));
+    memset(creds, 0, sizeof(*creds));
     creds->hdr.len = sizeof(*creds);
     creds->hdr.type = PDU_CREDS;
     creds->numcreds = htonl(-2);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outcreds);
-    free(creds);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    creds = (struct creds *)calloc(1, sizeof(*creds));
+    memset(creds, 0, sizeof(*creds));
     creds->hdr.len = sizeof(*creds);
     creds->hdr.type = PDU_CREDS;
     creds->numcreds = htonl(2);
     sts = __pmDecodeCreds((__pmPDU *)creds, &sender, &count, &outcreds);
     fprintf(stderr, "  __pmDecodeCreds: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outcreds);
+
     free(creds);
 }
 
@@ -122,33 +122,35 @@ decode_error(const char *name)
 	int		code[1];
     } *xerror;
 
+    error = (struct error *)malloc(sizeof(*error));
+    xerror = (struct xerror *)malloc(sizeof(*xerror));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    error = (struct error *)calloc(1, sizeof(*error));
+    memset(error, 0, sizeof(*error));
     sts = __pmDecodeError((__pmPDU *)error, &code);
     fprintf(stderr, "  __pmDecodeError: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(error);
 
     fprintf(stderr, "[%s] checking all-zeroes extended structure\n", name);
-    xerror = (struct xerror *)calloc(1, sizeof(*xerror));
+    memset(xerror, 0, sizeof(*xerror));
     sts = __pmDecodeXtendError((__pmPDU *)xerror, &code, &data);
     fprintf(stderr, "  __pmDecodeXtendError: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(xerror);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    error = (struct error *)calloc(1, sizeof(*error));
+    memset(error, 0, sizeof(*error));
     error->hdr.len = sizeof(*error);
     error->hdr.type = PDU_ERROR;
     sts = __pmDecodeError((__pmPDU *)error, &code);
     fprintf(stderr, "  __pmDecodeError: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(error);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    xerror = (struct xerror *)calloc(1, sizeof(*xerror));
+    memset(xerror, 0, sizeof(*xerror));
     xerror->hdr.len = sizeof(*xerror);
     xerror->hdr.type = PDU_ERROR;
     sts = __pmDecodeXtendError((__pmPDU *)xerror, &code, &data);
     fprintf(stderr, "  __pmDecodeXtendError: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(xerror);
+    free(error);
 }
 
 static void
@@ -170,46 +172,44 @@ decode_profile(const char *name)
 	int		padding;
     } *instprof;
 
+    profile = (struct profile *)malloc(sizeof(*profile));
+    instprof = (struct instprof *)malloc(sizeof(*instprof));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    profile = (struct profile *)calloc(1, sizeof(*profile));
     memset(profile, 0, sizeof(*profile));
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(profile);
 
     fprintf(stderr, "[%s] checking large numprof field\n", name);
-    profile = (struct profile *)calloc(1, sizeof(*profile));
+    memset(profile, 0, sizeof(*profile));
     profile->hdr.len = sizeof(*profile);
     profile->hdr.type = PDU_PROFILE;
     profile->numprof = htonl(INT_MAX - 42);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(profile);
 
     fprintf(stderr, "[%s] checking negative numprof field\n", name);
-    profile = (struct profile *)calloc(1, sizeof(*profile));
+    memset(profile, 0, sizeof(*profile));
     profile->hdr.len = sizeof(*profile);
     profile->hdr.type = PDU_PROFILE;
     profile->numprof = htonl(-2);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(profile);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    profile = (struct profile *)calloc(1, sizeof(*profile));
+    memset(profile, 0, sizeof(*profile));
     profile->hdr.len = sizeof(*profile);
     profile->hdr.type = PDU_PROFILE;
     profile->numprof = htonl(2);
     sts = __pmDecodeProfile((__pmPDU *)profile, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(profile);
 
     fprintf(stderr, "[%s] checking large numinst field\n", name);
-    instprof = (struct instprof *)calloc(1, sizeof(*instprof));
+    memset(instprof, 0, sizeof(*instprof));
     instprof->profile.hdr.len = sizeof(*instprof);
     instprof->profile.hdr.type = PDU_PROFILE;
     instprof->profile.numprof = htonl(1);
@@ -217,10 +217,9 @@ decode_profile(const char *name)
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(instprof);
 
     fprintf(stderr, "[%s] checking negative numinst field\n", name);
-    instprof = (struct instprof *)calloc(1, sizeof(*instprof));
+    memset(instprof, 0, sizeof(*instprof));
     instprof->profile.hdr.len = sizeof(*instprof);
     instprof->profile.hdr.type = PDU_PROFILE;
     instprof->profile.numprof = htonl(1);
@@ -228,10 +227,9 @@ decode_profile(const char *name)
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
-    free(instprof);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    instprof = (struct instprof *)calloc(1, sizeof(*instprof));
+    memset(instprof, 0, sizeof(*instprof));
     instprof->profile.hdr.len = sizeof(*instprof);
     instprof->profile.hdr.type = PDU_PROFILE;
     instprof->profile.numprof = htonl(1);
@@ -239,7 +237,9 @@ decode_profile(const char *name)
     sts = __pmDecodeProfile((__pmPDU *)instprof, &ctxnum, &outprofs);
     fprintf(stderr, "  __pmDecodeProfile: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(outprofs);
+
     free(instprof);
+    free(profile);
 }
 
 static void
@@ -256,41 +256,41 @@ decode_fetch(const char *name)
 	pmID		pmidlist[0];
     } *fetch;
 
+    fetch = (struct fetch *)malloc(sizeof(*fetch));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    fetch = (struct fetch *)calloc(1, sizeof(*fetch));
+    memset(fetch, 0, sizeof(*fetch));
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(pmidlist);
-    free(fetch);
 
     fprintf(stderr, "[%s] checking large numpmid field\n", name);
-    fetch = (struct fetch *)calloc(1, sizeof(*fetch));
+    memset(fetch, 0, sizeof(*fetch));
     fetch->hdr.len = sizeof(*fetch);
     fetch->hdr.type = PDU_FETCH;
     fetch->numpmid = htonl(INT_MAX - 1);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(pmidlist);
-    free(fetch);
 
     fprintf(stderr, "[%s] checking negative numpmid field\n", name);
-    fetch = (struct fetch *)calloc(1, sizeof(*fetch));
+    memset(fetch, 0, sizeof(*fetch));
     fetch->hdr.len = sizeof(*fetch);
     fetch->hdr.type = PDU_FETCH;
     fetch->numpmid = htonl(-2);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(pmidlist);
-    free(fetch);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    fetch = (struct fetch *)calloc(1, sizeof(*fetch));
+    memset(fetch, 0, sizeof(*fetch));
     fetch->hdr.len = sizeof(*fetch);
     fetch->hdr.type = PDU_FETCH;
     fetch->numpmid = htonl(2);
     sts = __pmDecodeFetch((__pmPDU *)fetch, &ctx, &when, &count, &pmidlist);
     fprintf(stderr, "  __pmDecodeFetch: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(pmidlist);
+
     free(fetch);
 }
 
@@ -303,18 +303,20 @@ decode_desc_req(const char *name)
 	__pmPDUHdr	hdr;
     } *desc_req;
 
+    desc_req = (struct desc_req *)malloc(sizeof(*desc_req));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    desc_req = (struct desc_req *)calloc(1, sizeof(*desc_req));
+    memset(desc_req, 0, sizeof(*desc_req));
     sts = __pmDecodeDescReq((__pmPDU *)desc_req, &pmid);
     fprintf(stderr, "  __pmDecodeDescReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(desc_req);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    desc_req = (struct desc_req *)calloc(1, sizeof(*desc_req));
+    memset(desc_req, 0, sizeof(*desc_req));
     desc_req->hdr.len = sizeof(*desc_req);
     desc_req->hdr.type = PDU_DESC_REQ;
     sts = __pmDecodeDescReq((__pmPDU *)desc_req, &pmid);
     fprintf(stderr, "  __pmDecodeDescReq: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(desc_req);
 }
 
@@ -327,18 +329,20 @@ decode_desc(const char *name)
 	__pmPDUHdr	hdr;
     } *desc;
 
+    desc = (struct desc *)malloc(sizeof(*desc));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    desc = (struct desc *)calloc(1, sizeof(*desc));
+    memset(desc, 0, sizeof(*desc));
     sts = __pmDecodeDesc((__pmPDU *)desc, &pmdesc);
     fprintf(stderr, "  __pmDecodeDesc: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(desc);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    desc = (struct desc *)calloc(1, sizeof(*desc));
+    memset(desc, 0, sizeof(*desc));
     desc->hdr.len = sizeof(*desc);
     desc->hdr.type = PDU_DESC;
     sts = __pmDecodeDesc((__pmPDU *)desc, &pmdesc);
     fprintf(stderr, "  __pmDecodeDesc: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(desc);
 }
 
@@ -356,53 +360,54 @@ decode_instance_req(const char *name)
 	int		inst;
 	int		namelen;
 	char		name[0];
-    } *instance_req;
+    } *instance_req, *xinstance_req;
+
+    instance_req = (struct instance_req *)malloc(sizeof(*instance_req));
+    xinstance_req = (struct instance_req *)malloc(sizeof(*xinstance_req)+16);
 
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    instance_req = (struct instance_req *)calloc(1, sizeof(*instance_req));
+    memset(instance_req, 0, sizeof(*instance_req));
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(resname);
-    free(instance_req);
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
-    instance_req = (struct instance_req *)calloc(1, sizeof(*instance_req));
+    memset(instance_req, 0, sizeof(*instance_req));
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(INT_MAX - 1);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(resname);
-    free(instance_req);
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
-    instance_req = (struct instance_req *)calloc(1, sizeof(*instance_req));
+    memset(instance_req, 0, sizeof(*instance_req));
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(-2);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(resname);
-    free(instance_req);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    instance_req = (struct instance_req *)calloc(1, sizeof(*instance_req));
+    memset(instance_req, 0, sizeof(*instance_req));
     instance_req->hdr.len = sizeof(*instance_req);
     instance_req->hdr.type = PDU_INSTANCE_REQ;
     instance_req->namelen = htonl(1);
     sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(resname);
-    free(instance_req);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    instance_req = (struct instance_req *)calloc(1, sizeof(*instance_req) + 16);
-    instance_req->hdr.len = sizeof(*instance_req) + 16;
-    instance_req->hdr.type = PDU_INSTANCE_REQ;
-    instance_req->namelen = htonl(32);
-    sts = __pmDecodeInstanceReq((__pmPDU *)instance_req, &when, &indom, &inst, &resname);
+    memset(xinstance_req, 0, sizeof(*xinstance_req) + 16);
+    xinstance_req->hdr.len = sizeof(*xinstance_req) + 16;
+    xinstance_req->hdr.type = PDU_INSTANCE_REQ;
+    xinstance_req->namelen = htonl(32);
+    sts = __pmDecodeInstanceReq((__pmPDU *)xinstance_req, &when, &indom, &inst, &resname);
     fprintf(stderr, "  __pmDecodeInstanceReq: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(resname);
+
+    free(xinstance_req);
     free(instance_req);
 }
 
@@ -424,45 +429,44 @@ decode_instance(const char *name)
 	char		name[0];
     } *instlist;
 
+    instance = (struct instance *)malloc(sizeof(*instance));
+    instlist = (struct instlist *)malloc(sizeof(*instlist));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    instance = (struct instance *)calloc(1, sizeof(*instance));
+    memset(instance, 0, sizeof(*instance));
     sts = __pmDecodeInstance((__pmPDU *)instance, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instance);
 
     fprintf(stderr, "[%s] checking large numinst field\n", name);
-    instance = (struct instance *)calloc(1, sizeof(*instance));
+    memset(instance, 0, sizeof(*instance));
     instance->hdr.len = sizeof(*instance);
     instance->hdr.type = PDU_INSTANCE;
     instance->numinst = htonl(INT_MAX - 42);
     sts = __pmDecodeInstance((__pmPDU *)instance, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instance);
 
     fprintf(stderr, "[%s] checking negative numinst field\n", name);
-    instance = (struct instance *)calloc(1, sizeof(*instance));
+    memset(instance, 0, sizeof(*instance));
     instance->hdr.len = sizeof(*instance);
     instance->hdr.type = PDU_INSTANCE;
     instance->numinst = htonl(-2);
     sts = __pmDecodeInstance((__pmPDU *)instance, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instance);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    instance = (struct instance *)calloc(1, sizeof(*instance));
+    memset(instance, 0, sizeof(*instance));
     instance->hdr.len = sizeof(*instance);
     instance->hdr.type = PDU_INSTANCE;
     instance->numinst = htonl(1);
     sts = __pmDecodeInstance((__pmPDU *)instance, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instance);
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
-    instlist = (struct instlist *)calloc(1, sizeof(*instlist));
+    memset(instlist, 0, sizeof(*instlist));
     instlist->instance.hdr.len = sizeof(*instlist);
     instlist->instance.hdr.type = PDU_INSTANCE;
     instlist->instance.numinst = htonl(1);
@@ -470,10 +474,9 @@ decode_instance(const char *name)
     sts = __pmDecodeInstance((__pmPDU *)instlist, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instlist);
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
-    instlist = (struct instlist *)calloc(1, sizeof(*instlist));
+    memset(instlist, 0, sizeof(*instlist));
     instlist->instance.hdr.len = sizeof(*instlist);
     instlist->instance.hdr.type = PDU_INSTANCE;
     instlist->instance.numinst = htonl(1);
@@ -481,10 +484,9 @@ decode_instance(const char *name)
     sts = __pmDecodeInstance((__pmPDU *)instlist, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
-    free(instlist);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    instlist = (struct instlist *)calloc(1, sizeof(*instlist));
+    memset(instlist, 0, sizeof(*instlist));
     instlist->instance.hdr.len = sizeof(*instlist);
     instlist->instance.hdr.type = PDU_INSTANCE;
     instlist->instance.numinst = htonl(1);
@@ -492,7 +494,9 @@ decode_instance(const char *name)
     sts = __pmDecodeInstance((__pmPDU *)instlist, &inresult);
     fprintf(stderr, "  __pmDecodeInstance: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) __pmFreeInResult(inresult);
+
     free(instlist);
+    free(instance);
 }
 
 static void
@@ -507,37 +511,37 @@ decode_pmns_ids(const char *name)
 	pmID		idlist[0];
     } *idlist;
 
+    idlist = (struct idlist *)malloc(sizeof(*idlist));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    idlist = (struct idlist *)calloc(1, sizeof(*idlist));
+    memset(idlist, 0, sizeof(*idlist));
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(idlist);
 
     fprintf(stderr, "[%s] checking large numids field\n", name);
-    idlist = (struct idlist *)calloc(1, sizeof(*idlist));
+    memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
     idlist->hdr.type = PDU_PMNS_IDS;
     idlist->numids = htonl(INT_MAX - 1);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(idlist);
 
     fprintf(stderr, "[%s] checking negative numids field\n", name);
-    idlist = (struct idlist *)calloc(1, sizeof(*idlist));
+    memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
     idlist->hdr.type = PDU_PMNS_IDS;
     idlist->numids = htonl(-2);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(idlist);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    idlist = (struct idlist *)calloc(1, sizeof(*idlist));
+    memset(idlist, 0, sizeof(*idlist));
     idlist->hdr.len = sizeof(*idlist);
     idlist->hdr.type = PDU_PMNS_IDS;
     idlist->numids = htonl(2);
     sts = __pmDecodeIDList((__pmPDU *)idlist, 10, idarray, &idsts);
     fprintf(stderr, "  __pmDecodeIDList: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(idlist);
 }
 
@@ -560,34 +564,34 @@ decode_pmns_names(const char *name)
 	char		name[0];
     } *namestatus;
 
+    namelist = (struct namelist *)malloc(sizeof(*namelist));
+    namestatus = (struct namestatus *)malloc(sizeof(*namestatus));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(namelist);
 
     fprintf(stderr, "[%s] checking large numnames field\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
     namelist->numnames = htonl(INT_MAX - 42);
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namelist);
 
     fprintf(stderr, "[%s] checking negative numnames field\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
     namelist->numnames = htonl(-42);
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namelist);
 
     fprintf(stderr, "[%s] checking large nstrbytes field\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
     namelist->numnames = htonl(42);
@@ -595,10 +599,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namelist);
 
     fprintf(stderr, "[%s] checking negative nstrbytes field\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
     namelist->numnames = htonl(42);
@@ -606,20 +609,18 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namelist);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    namelist = (struct namelist *)calloc(1, sizeof(*namelist));
+    memset(namelist, 0, sizeof(*namelist));
     namelist->hdr.len = sizeof(*namelist);
     namelist->hdr.type = PDU_PMNS_NAMES;
     namelist->numnames = htonl(1);
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namelist);
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = htonl(1);
@@ -627,10 +628,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namestatus);
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = htonl(1);
@@ -638,10 +638,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namestatus);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = htonl(1);
@@ -649,10 +648,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namestatus);
 
     fprintf(stderr, "[%s] checking large namelen field (+statuslist)\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = namestatus->namelist.numstatus = htonl(1);
@@ -660,10 +658,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namestatus);
 
     fprintf(stderr, "[%s] checking negative namelen field (+statuslist)\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = namestatus->namelist.numstatus = htonl(1);
@@ -671,10 +668,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
-    free(namestatus);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer (+statuslist)\n", name);
-    namestatus = (struct namestatus *)calloc(1, sizeof(*namestatus));
+    memset(namestatus, 0, sizeof(*namestatus));
     namestatus->namelist.hdr.len = sizeof(*namestatus);
     namestatus->namelist.hdr.type = PDU_PMNS_NAMES;
     namestatus->namelist.numnames = namestatus->namelist.numstatus = htonl(1);
@@ -682,7 +678,9 @@ decode_pmns_names(const char *name)
     sts = __pmDecodeNameList((__pmPDU *)namestatus, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) { free(status); free(names); }
+
     free(namestatus);
+    free(namelist);
 }
 
 /* Wraps __pmDecodeChildReq and __pmDecodeTraversePMNSReq interfaces */
@@ -696,19 +694,21 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	int		subtype;
 	int		namelen;
 	char		name[0];
-    } *name_req;
+    } *name_req, *xname_req;
+
+    name_req = (struct name_req *)malloc(sizeof(*name_req));
+    xname_req = (struct name_req *)malloc(sizeof(*name_req) + 16);
 
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    name_req = (struct name_req *)calloc(1, sizeof(*name_req));
+    memset(name_req, 0, sizeof(*name_req));
     sts = (pdutype == PDU_PMNS_TRAVERSE) ?
 	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
     if (sts >= 0) free(resnames);
-    free(name_req);
 
     fprintf(stderr, "[%s] checking large namelen field\n", name);
-    name_req = (struct name_req *)calloc(1, sizeof(*name_req));
+    memset(name_req, 0, sizeof(*name_req));
     name_req->hdr.len = sizeof(*name_req);
     name_req->hdr.type = pdutype;
     name_req->namelen = htonl(INT_MAX - 1);
@@ -717,10 +717,9 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
     if (sts >= 0) free(resnames);
-    free(name_req);
 
     fprintf(stderr, "[%s] checking negative namelen field\n", name);
-    name_req = (struct name_req *)calloc(1, sizeof(*name_req));
+    memset(name_req, 0, sizeof(*name_req));
     name_req->hdr.len = sizeof(*name_req);
     name_req->hdr.type = pdutype;
     name_req->namelen = htonl(-2);
@@ -729,10 +728,9 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
     if (sts >= 0) free(resnames);
-    free(name_req);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    name_req = (struct name_req *)calloc(1, sizeof(*name_req));
+    memset(name_req, 0, sizeof(*name_req));
     name_req->hdr.len = sizeof(*name_req);
     name_req->hdr.type = pdutype;
     name_req->namelen = htonl(1);
@@ -741,18 +739,19 @@ decode_name_request(const char *name, const char *caller, int pdutype)
 	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
     if (sts >= 0) free(resnames);
-    free(name_req);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    name_req = (struct name_req *)calloc(1, sizeof(*name_req) + 16);
-    name_req->hdr.len = sizeof(*name_req) + 16;
-    name_req->hdr.type = pdutype;
-    name_req->namelen = htonl(32);
+    memset(xname_req, 0, sizeof(*xname_req));
+    xname_req->hdr.len = sizeof(*xname_req) + 16;
+    xname_req->hdr.type = pdutype;
+    xname_req->namelen = htonl(32);
     sts = (pdutype == PDU_PMNS_TRAVERSE) ?
-	__pmDecodeTraversePMNSReq((__pmPDU *)name_req, &resnames) :
-	__pmDecodeChildReq((__pmPDU *)name_req, &resnames, &restype);
+	__pmDecodeTraversePMNSReq((__pmPDU *)xname_req, &resnames) :
+	__pmDecodeChildReq((__pmPDU *)xname_req, &resnames, &restype);
     fprintf(stderr, "  __pmDecode%sReq: sts = %d (%s)\n", caller, sts, pmErrStr(sts));
     if (sts >= 0) free(resnames);
+
+    free(xname_req);
     free(name_req);
 }
 
@@ -786,45 +785,44 @@ decode_log_control(const char *name)
 	__pmValue_PDU	vlist[0];
     } *logvlist;
 
+    log_ctl = (struct log_ctl *)malloc(sizeof(*log_ctl));
+    logvlist = (struct logvlist *)malloc(sizeof(*logvlist));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    log_ctl = (struct log_ctl *)calloc(1, sizeof(*log_ctl));
+    memset(log_ctl, 0, sizeof(*log_ctl));
     sts = __pmDecodeLogControl((__pmPDU *)log_ctl, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
-    free(log_ctl);
 
     fprintf(stderr, "[%s] checking large numpmid field\n", name);
-    log_ctl = (struct log_ctl *)calloc(1, sizeof(*log_ctl));
+    memset(log_ctl, 0, sizeof(*log_ctl));
     log_ctl->hdr.len = sizeof(*log_ctl);
     log_ctl->hdr.type = PDU_LOG_CONTROL;
     log_ctl->numpmid = htonl(INT_MAX - 42);
     sts = __pmDecodeLogControl((__pmPDU *)log_ctl, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
-    free(log_ctl);
 
     fprintf(stderr, "[%s] checking negative numpmid field\n", name);
-    log_ctl = (struct log_ctl *)calloc(1, sizeof(*log_ctl));
+    memset(log_ctl, 0, sizeof(*log_ctl));
     log_ctl->hdr.len = sizeof(*log_ctl);
     log_ctl->hdr.type = PDU_LOG_CONTROL;
     log_ctl->numpmid = htonl(-42);
     sts = __pmDecodeLogControl((__pmPDU *)log_ctl, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
-    free(log_ctl);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    log_ctl = (struct log_ctl *)calloc(1, sizeof(*log_ctl));
+    memset(log_ctl, 0, sizeof(*log_ctl));
     log_ctl->hdr.len = sizeof(*log_ctl);
     log_ctl->hdr.type = PDU_LOG_CONTROL;
     log_ctl->numpmid = htonl(2);
     sts = __pmDecodeLogControl((__pmPDU *)log_ctl, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
-    free(log_ctl);
 
     fprintf(stderr, "[%s] checking large numval field\n", name);
-    logvlist = (struct logvlist *)calloc(1, sizeof(*logvlist));
+    memset(logvlist, 0, sizeof(*logvlist));
     logvlist->log_ctl.hdr.len = sizeof(*logvlist);
     logvlist->log_ctl.hdr.type = PDU_LOG_CONTROL;
     logvlist->log_ctl.numpmid = htonl(1);
@@ -832,10 +830,9 @@ decode_log_control(const char *name)
     sts = __pmDecodeLogControl((__pmPDU *)logvlist, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
-    free(logvlist);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    logvlist = (struct logvlist *)calloc(1, sizeof(*logvlist));
+    memset(logvlist, 0, sizeof(*logvlist));
     logvlist->log_ctl.hdr.len = sizeof(*logvlist);
     logvlist->log_ctl.hdr.type = PDU_LOG_CONTROL;
     logvlist->log_ctl.numpmid = htonl(1);
@@ -843,6 +840,8 @@ decode_log_control(const char *name)
     sts = __pmDecodeLogControl((__pmPDU *)logvlist, &result, &ctl, &state, &delta);
     fprintf(stderr, "  __pmDecodeLogControl: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(result);
+
+    free(log_ctl);
     free(logvlist);
 }
 
@@ -857,18 +856,20 @@ decode_log_status(const char *name)
 	__pmLoggerStatus sts;
     } *log_sts;
 
+    log_sts = (struct log_sts *)malloc(sizeof(*log_sts));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    log_sts = (struct log_sts *)calloc(1, sizeof(*log_sts));
+    memset(log_sts, 0, sizeof(*log_sts));
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(log_sts);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    log_sts = (struct log_sts *)calloc(1, sizeof(*log_sts));
+    memset(log_sts, 0, sizeof(*log_sts));
     log_sts->hdr.len = sizeof(*log_sts) - 4;
     log_sts->hdr.type = PDU_LOG_STATUS;
     sts = __pmDecodeLogStatus((__pmPDU *)log_sts, &log);
     fprintf(stderr, "  __pmDecodeLogStatus: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(log_sts);
 }
 
@@ -880,18 +881,20 @@ decode_log_request(const char *name)
 	__pmPDUHdr	hdr;
     } *log_req;
 
+    log_req = (struct log_req *)malloc(sizeof(*log_req));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    log_req = (struct log_req *)calloc(1, sizeof(*log_req));
+    memset(log_req, 0, sizeof(*log_req));
     sts = __pmDecodeLogRequest((__pmPDU *)log_req, &type);
     fprintf(stderr, "  __pmDecodeLogRequest: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(log_req);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    log_req = (struct log_req *)calloc(1, sizeof(*log_req));
+    memset(log_req, 0, sizeof(*log_req));
     log_req->hdr.len = sizeof(*log_req);
     log_req->hdr.type = PDU_LOG_REQUEST;
     sts = __pmDecodeLogRequest((__pmPDU *)log_req, &type);
     fprintf(stderr, "  __pmDecodeLogRequest: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(log_req);
 }
 
@@ -919,45 +922,45 @@ decode_result(const char *name)
 	pmValueBlock	block[0];
     } *resultdynlist;
 
+    result = (struct result *)malloc(sizeof(*result));
+    resultlist = (struct resultlist *)malloc(sizeof(*resultlist));
+    resultdynlist = (struct resultdynlist *)malloc(sizeof(*resultdynlist));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    result = (struct result *)calloc(1, sizeof(*result));
+    memset(result, 0, sizeof(*result));
     sts = __pmDecodeResult((__pmPDU *)result, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(result);
 
     fprintf(stderr, "[%s] checking large numpmid field\n", name);
-    result = (struct result *)calloc(1, sizeof(*result));
+    memset(result, 0, sizeof(*result));
     result->hdr.len = sizeof(*result);
     result->hdr.type = PDU_RESULT;
     result->numpmid = htonl(INT_MAX - 42);
     sts = __pmDecodeResult((__pmPDU *)result, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(result);
 
     fprintf(stderr, "[%s] checking negative numpmid field\n", name);
-    result = (struct result *)calloc(1, sizeof(*result));
+    memset(result, 0, sizeof(*result));
     result->hdr.len = sizeof(*result);
     result->hdr.type = PDU_RESULT;
     result->numpmid = htonl(-42);
     sts = __pmDecodeResult((__pmPDU *)result, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(result);
 
     fprintf(stderr, "[%s] checking access beyond basic buffer\n", name);
-    result = (struct result *)calloc(1, sizeof(*result));
+    memset(result, 0, sizeof(*result));
     result->hdr.len = sizeof(*result);
     result->hdr.type = PDU_RESULT;
     result->numpmid = htonl(4);
     sts = __pmDecodeResult((__pmPDU *)result, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(result);
 
     fprintf(stderr, "[%s] checking large numval field\n", name);
-    resultlist = (struct resultlist *)calloc(1, sizeof(*resultlist));
+    memset(resultlist, 0, sizeof(*resultlist));
     resultlist->result.hdr.len = sizeof(*resultlist);
     resultlist->result.hdr.type = PDU_RESULT;
     resultlist->result.numpmid = htonl(1);
@@ -965,10 +968,9 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(resultlist);
 
     fprintf(stderr, "[%s] checking negative numval field\n", name);
-    resultlist = (struct resultlist *)calloc(1, sizeof(*resultlist));
+    memset(resultlist, 0, sizeof(*resultlist));
     resultlist->result.hdr.len = sizeof(*resultlist);
     resultlist->result.hdr.type = PDU_RESULT;
     resultlist->result.numpmid = htonl(1);
@@ -976,10 +978,9 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(resultlist);
 
     fprintf(stderr, "[%s] checking access beyond extended buffer\n", name);
-    resultlist = (struct resultlist *)calloc(1, sizeof(*resultlist));
+    memset(resultlist, 0, sizeof(*resultlist));
     resultlist->result.hdr.len = sizeof(*resultlist);
     resultlist->result.hdr.type = PDU_LOG_CONTROL;
     resultlist->result.numpmid = htonl(1);
@@ -987,10 +988,9 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(resultlist);
 
     fprintf(stderr, "[%s] checking insitu valfmt field\n", name);
-    resultlist = (struct resultlist *)calloc(1, sizeof(*resultlist));
+    memset(resultlist, 0, sizeof(*resultlist));
     resultlist->result.hdr.len = sizeof(*resultlist);
     resultlist->result.hdr.type = PDU_RESULT;
     resultlist->result.numpmid = htonl(1);
@@ -999,10 +999,9 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(resultlist);
 
     fprintf(stderr, "[%s] checking non-insitu valfmt field\n", name);
-    resultlist = (struct resultlist *)calloc(1, sizeof(*resultlist));
+    memset(resultlist, 0, sizeof(*resultlist));
     resultlist->result.hdr.len = sizeof(*resultlist);
     resultlist->result.hdr.type = PDU_RESULT;
     resultlist->result.numpmid = htonl(1);
@@ -1011,10 +1010,9 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
-    free(resultlist);
 
     fprintf(stderr, "[%s] checking access beyond non-insitu valfmt field\n", name);
-    resultdynlist = (struct resultdynlist *)calloc(1, sizeof(*resultdynlist));
+    memset(resultdynlist, 0, sizeof(*resultdynlist));
     resultdynlist->vlist.result.hdr.len = sizeof(*resultdynlist);
     resultdynlist->vlist.result.hdr.type = PDU_RESULT;
     resultdynlist->vlist.result.numpmid = htonl(1);
@@ -1024,7 +1022,10 @@ decode_result(const char *name)
     sts = __pmDecodeResult((__pmPDU *)resultdynlist, &resp);
     fprintf(stderr, "  __pmDecodeResult: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) pmFreeResult(resp);
+
     free(resultdynlist);
+    free(resultlist);
+    free(result);
 }
 
 static void
@@ -1036,18 +1037,20 @@ decode_text_req(const char *name)
 	int		val[1];
     } *text_req;
 
+    text_req = (struct text_req *)malloc(sizeof(*text_req));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    text_req = (struct text_req *)calloc(1, sizeof(*text_req));
+    memset(text_req, 0, sizeof(*text_req));
     sts = __pmDecodeTextReq((__pmPDU *)text_req, &ident, &type);
     fprintf(stderr, "  __pmDecodeTextReq: sts = %d (%s)\n", sts, pmErrStr(sts));
-    free(text_req);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    text_req = (struct text_req *)calloc(1, sizeof(*text_req));
+    memset(text_req, 0, sizeof(*text_req));
     text_req->hdr.len = sizeof(*text_req);
     text_req->hdr.type = PDU_TEXT_REQ;
     sts = __pmDecodeTextReq((__pmPDU *)text_req, &ident, &type);
     fprintf(stderr, "  __pmDecodeTextReq: sts = %d (%s)\n", sts, pmErrStr(sts));
+
     free(text_req);
 }
 
@@ -1063,41 +1066,41 @@ decode_text(const char *name)
 	char		buffer[0];
     } *text;
 
+    text = (struct text *)malloc(sizeof(*text));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    text = (struct text *)calloc(1, sizeof(*text));
+    memset(text, 0, sizeof(*text));
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(buffer);
-    free(text);
 
     fprintf(stderr, "[%s] checking large buflen field\n", name);
-    text = (struct text *)calloc(1, sizeof(*text));
+    memset(text, 0, sizeof(*text));
     text->hdr.len = sizeof(*text);
     text->hdr.type = PDU_TEXT;
     text->buflen = htonl(INT_MAX - 1);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(buffer);
-    free(text);
 
     fprintf(stderr, "[%s] checking negative buflen field\n", name);
-    text = (struct text *)calloc(1, sizeof(*text));
+    memset(text, 0, sizeof(*text));
     text->hdr.len = sizeof(*text);
     text->hdr.type = PDU_TEXT;
     text->buflen = htonl(-2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(buffer);
-    free(text);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    text = (struct text *)calloc(1, sizeof(*text));
+    memset(text, 0, sizeof(*text));
     text->hdr.len = sizeof(*text);
     text->hdr.type = PDU_TEXT;
     text->buflen = htonl(2);
     sts = __pmDecodeText((__pmPDU *)text, &ident, &buffer);
     fprintf(stderr, "  __pmDecodeText: sts = %d (%s)\n", sts, pmErrStr(sts));
     if (sts >= 0) free(buffer);
+
     free(text);
 }
 
@@ -1109,18 +1112,20 @@ decode_trace_ack(const char *name)
 	__pmTracePDUHdr	hdr;
     } *trace_ack;
 
+    trace_ack = (struct trace_ack *)malloc(sizeof(*trace_ack));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    trace_ack = (struct trace_ack *)calloc(1, sizeof(*trace_ack));
+    memset(trace_ack, 0, sizeof(*trace_ack));
     sts = __pmtracedecodeack((__pmPDU *)trace_ack, &ack);
     fprintf(stderr, "  __pmtracedecodeack: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    free(trace_ack);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    trace_ack = (struct trace_ack *)calloc(1, sizeof(*trace_ack));
+    memset(trace_ack, 0, sizeof(*trace_ack));
     trace_ack->hdr.len = sizeof(*trace_ack);
     trace_ack->hdr.type = TRACE_PDU_ACK;
     sts = __pmtracedecodeack((__pmPDU *)trace_ack, &ack);
     fprintf(stderr, "  __pmtracedecodeack: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+
     free(trace_ack);
 }
 
@@ -1151,14 +1156,15 @@ decode_trace_data(const char *name)
 	char		tag[0];
     } *trace_data;
 
+    trace_data = (struct trace_data *)malloc(sizeof(*trace_data));
+
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    trace_data = (struct trace_data *)calloc(1, sizeof(*trace_data));
+    memset(trace_data, 0, sizeof(*trace_data));
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    free(trace_data);
 
     fprintf(stderr, "[%s] checking large taglen field\n", name);
-    trace_data = (struct trace_data *)calloc(1, sizeof(*trace_data));
+    memset(trace_data, 0, sizeof(*trace_data));
     trace_data->hdr.len = sizeof(*trace_data);
     trace_data->hdr.type = TRACE_PDU_DATA;
     trace_data->bits.version = TRACE_PDU_VERSION;
@@ -1167,10 +1173,9 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    free(trace_data);
 
     fprintf(stderr, "[%s] checking negative taglen field\n", name);
-    trace_data = (struct trace_data *)calloc(1, sizeof(*trace_data));
+    memset(trace_data, 0, sizeof(*trace_data));
     trace_data->hdr.len = sizeof(*trace_data);
     trace_data->hdr.type = TRACE_PDU_DATA;
     trace_data->bits.version = TRACE_PDU_VERSION;
@@ -1179,10 +1184,9 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
-    free(trace_data);
 
     fprintf(stderr, "[%s] checking access beyond buffer\n", name);
-    trace_data = (struct trace_data *)calloc(1, sizeof(*trace_data));
+    memset(trace_data, 0, sizeof(*trace_data));
     trace_data->hdr.len = sizeof(*trace_data);
     trace_data->hdr.type = TRACE_PDU_DATA;
     trace_data->bits.version = TRACE_PDU_VERSION;
@@ -1191,6 +1195,7 @@ decode_trace_data(const char *name)
     *ip = htonl(*ip);
     sts = __pmtracedecodedata((__pmPDU *)trace_data, &tag, &len, &type, &p, &data);
     fprintf(stderr, "  __pmtracedecodedata: sts = %d (%s)\n", sts, pmtraceerrstr(sts));
+
     free(trace_data);
 }
 
