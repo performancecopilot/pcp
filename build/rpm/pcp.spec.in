@@ -500,6 +500,7 @@ then
     /sbin/service pmwebd stop >/dev/null 2>&1
     /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
+
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
     /sbin/chkconfig --del pmlogger >/dev/null 2>&1
@@ -507,6 +508,10 @@ then
     /sbin/chkconfig --del pmmgr >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
+
+    # cleanup namespace state/flag, may still exist
+    PCP_PMNS_DIR=@pcp_var_dir@/pmns
+    rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&
 fi
 
 %post

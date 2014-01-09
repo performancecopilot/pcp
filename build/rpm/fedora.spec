@@ -388,9 +388,7 @@ exit 0
 %preun
 if [ "$1" -eq 0 ]
 then
-    #
-    # Stop daemons before erasing the package
-    #
+    # stop daemons before erasing the package
     /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
@@ -405,6 +403,10 @@ then
     /sbin/chkconfig --del pmmgr >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
+
+    # cleanup namespace state/flag, may still exist
+    PCP_PMNS_DIR=%{_pmnsdir}
+    rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&
 fi
 
 %post
