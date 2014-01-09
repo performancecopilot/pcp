@@ -10,5 +10,6 @@ if [ "$1" = purge ]; then
     update-rc.d pmwebd remove >/dev/null
     update-rc.d pmie remove >/dev/null
     update-rc.d pmlogger remove >/dev/null
+    update-rc.d pmmgr remove >/dev/null
     update-rc.d pmcd remove >/dev/null
 fi

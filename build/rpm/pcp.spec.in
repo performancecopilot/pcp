@@ -498,11 +498,13 @@ then
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
     /sbin/service pmwebd stop >/dev/null 2>&1
+    /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
     /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
+    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 fi
@@ -541,20 +543,21 @@ done
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
-[ -f "$PCP_LOG_DIR/pmwebd" ] && chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd"
+chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
+chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
-[ -f "$PCP_PMNS_DIR/root" ] || ( cd "$PCP_PMNS_DIR" && ./Rebuild -sud )
+touch "$PCP_PMNS_DIR/.NeedRebuild"
+chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1
 /sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
-if [ -f /etc/init.d/pmwebd ] 
-then
-    /sbin/chkconfig --add pmwebd >/dev/null 2>&1
-    /sbin/service pmwebd condrestart
-fi
+#/sbin/chkconfig --add pmmgr >/dev/null 2>&1
+#/sbin/service pmmgr condrestart
+/sbin/chkconfig --add pmwebd >/dev/null 2>&1 && \
+/sbin/service pmwebd condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
 /sbin/service pmproxy condrestart
 
