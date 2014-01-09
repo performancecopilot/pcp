@@ -307,7 +307,7 @@ rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
 # default chkconfig off for Fedora and RHEL
-for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmproxy}; do
+for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
@@ -388,21 +388,25 @@ exit 0
 %preun
 if [ "$1" -eq 0 ]
 then
-    #
-    # Stop daemons before erasing the package
-    #
+    # stop daemons before erasing the package
     /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
     /sbin/service pmwebd stop >/dev/null 2>&1
+    /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
     /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
+    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
+
+    # cleanup namespace state/flag, may still exist
+    PCP_PMNS_DIR=%{_pmnsdir}
+    rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&
 fi
 
 %post
@@ -439,18 +443,19 @@ done
 chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
+chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
-# we only need this manual Rebuild as long as pmcd is condstart below
-[ -f "$PCP_PMNS_DIR/root" ] || ( cd "$PCP_PMNS_DIR" && ./Rebuild -sud )
 /sbin/chkconfig --add pmcd >/dev/null 2>&1
 /sbin/service pmcd condrestart
 /sbin/chkconfig --add pmlogger >/dev/null 2>&1
 /sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
+/sbin/chkconfig --add pmmgr >/dev/null 2>&1
+/sbin/service pmmgr condrestart
 /sbin/chkconfig --add pmwebd >/dev/null 2>&1
 /sbin/service pmwebd condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
@@ -491,6 +496,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
 %{_initddir}/pmie
+%{_initddir}/pmmgr
 %{_initddir}/pmwebd
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
@@ -504,6 +510,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
+%config(noreplace) %{_confdir}/pmmgr/pmmgr.options
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmie
@@ -608,8 +615,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Fri Dec 13 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
-- Currently under development.
+* Fri Jan 10 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
+- Update to latest PCP sources.
 
 * Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
 - Reduce set of exported symbols from DSO PMDAs (BZ 1025694)
