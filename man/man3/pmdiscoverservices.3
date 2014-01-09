@@ -1,0 +1,116 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDISCOVERSERVICES 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmDiscoverServices\f1 \- discover PCP services on the network
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fIdiscovery_domain\fP, char ***\fIurls\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+Given a PCP service name, as identified by
+.IR service ,
+and using the discovery mechanism(s) specified in
+.IR discovery_domain ,
+.B pmDiscoverServices
+returns, via
+.I urls ,
+a list of urls representing the services discovered on the network.
+.PP 
+.IR service
+specifies the PCP service to be discovered. Currently, only
+.B PM_SERVER_SERVICE_SPEC
+is supported, which searches for
+.B PMCD
+servers.
+.PP 
+.IR discovery_domain
+specifies the discovery mechanism(s) to be used. Currently, only \fB"avahi"\fP
+is supported. This searches for services which are broacasting using mDNS via
+.B avahi-daemon.
+.IR discovery_domain
+may also be NULL, which means to use all available discovery mechanisims.
+.PP 
+Normally,
+.B pmDiscoverServices
+will return the number of services discovered, else a value
+less than zero for an error.
+The value zero indicates that no services were discovered.
+.PP
+The resulting list of pointers,
+.IR urls ,
+.B and
+the values
+(the urls) that the pointers reference will have been
+allocated by
+.B pmDiscoverServices
+with a single call to
+.BR malloc (3C),
+and it is the
+responsibility of the
+.B pmDiscoverServices
+caller to
+.BR free (\c
+.IR urls )
+to release the space
+when it is no longer required.
+.PP
+When an error occurs, or no services are discovered,
+.I urls
+is undefined (no space will have been
+allocated, and so calling
+.BR free (3C)
+is a singularly bad idea).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetConfig (3)
+function.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmcd (1),
+.BR pmfind (1),
+.BR pmGetConfig (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR avahi-daemon (8).
+.SH DIAGNOSTICS
+.IP \f3EOPNOTSUPP\f1
+The specified \fIdiscovery_domain\fP is not valid.

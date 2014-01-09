@@ -1,0 +1,61 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFIND 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmfind\f1 \- find PCP services on the network
+.SH SYNOPSIS
+\f3pmfind\f1
+[\f3\-p\f1]
+.SH DESCRIPTION
+.B pmfind
+finds the specified PCP services on the network and prints a list of urls
+corresponding to the services discovered.
+.PP
+By default,
+.B pmfind
+will seach for
+.B PMCD
+servers and, currently, this is the only supported service.
+.PP
+The
+.B \-p
+option specifically directs
+.B pmfind
+to search for
+.B PMCD
+servers.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR pmDiscoverServices (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
