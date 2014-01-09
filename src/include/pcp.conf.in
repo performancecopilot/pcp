@@ -103,6 +103,10 @@ PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
 # Standard path: $PCP_SYSCONF_DIR/pmwebd/pmwebd.options
 PCP_PMWEBDOPTIONS_PATH=@pcp_pmwebdoptions_path@
 
+# path to pmmgr options file
+# Standard path: $PCP_SYSCONF_DIR/pmmgr/pmmgr.options
+PCP_PMMGROPTIONS_PATH=@pcp_pmmgroptions_path@
+
 # path to pmie control file
 # Standard path: $PCP_SYSCONF_DIR/pmie/control
 PCP_PMIECONTROL_PATH=@pcp_pmiecontrol_path@

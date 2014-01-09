@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -104,8 +104,8 @@ __pmInitSocket(int fd, int family)
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (__pmSockLen)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_WARNING,
-		      "__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
-		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
+		      "%s:__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
+		      __FILE__, fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -117,8 +117,8 @@ __pmInitSocket(int fd, int family)
     if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		       (__pmSockLen)sizeof(nodelay)) < 0) {
 	__pmNotifyErr(LOG_WARNING,
-		      "__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
-		      fd, netstrerror_r(errmsg, sizeof(errmsg)));
+		      "%s:__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
+		      __FILE__, fd, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
@@ -137,9 +137,9 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
     if (__pmSetFileStatusFlags(fd, fdFlags | FNDELAY) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
 
-        __pmNotifyErr(LOG_ERR, "__pmConnectTo: cannot set FNDELAY - "
+        __pmNotifyErr(LOG_ERR, "%s:__pmConnectTo: cannot set FNDELAY - "
 		      "fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
+		      __FILE__, fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
     if (__pmConnect(fd, &myAddr, sizeof(myAddr)) < 0) {
@@ -163,8 +163,8 @@ __pmConnectCheckError(int fd)
     if (__pmGetSockOpt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_err, &olen) < 0) {
 	so_err = neterror();
 	__pmNotifyErr(LOG_ERR, 
-		"__pmConnectCheckError: __pmGetSockOpt(SO_ERROR) failed: %s\n",
-		netstrerror_r(errmsg, sizeof(errmsg)));
+		"%s:__pmConnectCheckError: __pmGetSockOpt(SO_ERROR) failed: %s\n",
+		__FILE__, netstrerror_r(errmsg, sizeof(errmsg)));
     }
     return so_err;
 }
@@ -176,9 +176,9 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     char errmsg[PM_MAXERRMSGLEN];
 
     if (__pmSetFileStatusFlags(fd, fdFlags) < 0) {
-	__pmNotifyErr(LOG_WARNING,"__pmConnectRestoreFlags: cannot restore "
+	__pmNotifyErr(LOG_WARNING, "%s:__pmConnectRestoreFlags: cannot restore "
 		      "flags fcntl(%d,F_SETFL,0x%x) failed: %s\n",
-		      fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
+		      __FILE__, fd, fdFlags, osstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
@@ -187,9 +187,9 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
         sts = fdFlags;
 
     if (sts == -1) {
-        __pmNotifyErr(LOG_WARNING, "__pmConnectRestoreFlags: "
+        __pmNotifyErr(LOG_WARNING, "%s:__pmConnectRestoreFlags: "
 		      "fcntl(%d) get/set flags failed: %s\n",
-		      fd, osstrerror_r(errmsg, sizeof(errmsg)));
+		      __FILE__, fd, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmCloseSocket(fd);
 	return sts;
     }
@@ -217,9 +217,9 @@ __pmConnectTimeout(void)
 	    char	*end_ptr;
 	    double	timeout = strtod(env_str, &end_ptr);
 	    if (*end_ptr != '\0' || timeout < 0.0)
-		__pmNotifyErr(LOG_WARNING, "__pmAuxConnectPMCDPort: "
+		__pmNotifyErr(LOG_WARNING, "%s:__pmAuxConnectPMCDPort: "
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
-			      env_str);
+			      __FILE__, env_str);
 	    else {
 		canwait.tv_sec = (time_t)timeout;
 		canwait.tv_usec = (int)((timeout - 
@@ -257,8 +257,8 @@ __pmAuxConnectPMCD(const char *hostname)
 	    pmcd_port = (int)strtol(env_str, &end_ptr, 0);
 	    if (*end_ptr != '\0' || pmcd_port < 0) {
 		__pmNotifyErr(LOG_WARNING,
-			      "__pmAuxConnectPMCD: ignored bad PMCD_PORT = '%s'\n",
-			      env_str);
+			      "%s:__pmAuxConnectPMCD: ignored bad PMCD_PORT = '%s'\n",
+			      __FILE__, env_str);
 		pmcd_port = SERVER_PORT;
 	    }
 	}
@@ -283,8 +283,8 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
-		    hostname, pmcd_port, hosterror(), hoststrerror());
+	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
+		    __FILE__, hostname, pmcd_port, hosterror(), hoststrerror());
 	}
 #endif
 	return -EHOSTUNREACH;
@@ -303,8 +303,8 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	    fd = __pmCreateIPv6Socket();
 	else {
 	    __pmNotifyErr(LOG_ERR, 
-			  "__pmAuxConnectPMCDPort(%s, %d) : invalid address family %d\n",
-			  hostname, pmcd_port, __pmSockAddrGetFamily(myAddr));
+			  "%s:__pmAuxConnectPMCDPort(%s, %d) : invalid address family %d\n",
+			  __FILE__, hostname, pmcd_port, __pmSockAddrGetFamily(myAddr));
 	    fd = -EINVAL;
 	}
 	if (fd < 0) {
@@ -409,7 +409,7 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     /* Initialize the socket address. */
     myAddr = __pmSockAddrAlloc();
     if (myAddr == NULL) {
-        __pmNotifyErr(LOG_ERR, "__pmAuxConnectPMCDUnixSocket(%s): out of memory\n", sock_path);
+        __pmNotifyErr(LOG_ERR, "%s:__pmAuxConnectPMCDUnixSocket(%s): out of memory\n", __FILE__, sock_path);
 	return -1;
     }
     __pmSockAddrSetFamily(myAddr, AF_UNIX);
@@ -421,8 +421,8 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
 	char	errmsg[PM_MAXERRMSGLEN];
 
 	__pmNotifyErr(LOG_ERR, 
-		      "__pmAuxConnectPMCDUnixSocket(%s): unable to create socket: %s\n",
-		      sock_path, osstrerror_r(errmsg, sizeof(errmsg)));
+		      "%s:__pmAuxConnectPMCDUnixSocket(%s): unable to create socket: %s\n",
+		      __FILE__, sock_path, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmSockAddrFree(myAddr);
 	return fd;
     }
@@ -468,7 +468,7 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     return __pmConnectRestoreFlags(fd, fdFlags);
 #else
     __pmNotifyErr(LOG_ERR, 
-		  "__pmAuxConnectPMCDUnixSocket(%s) is not supported\n", sock_path);
+		  "%s:__pmAuxConnectPMCDUnixSocket(%s) is not supported\n", __FILE__, sock_path);
     return -1;
 #endif
 }
@@ -490,7 +490,7 @@ __pmHostEntGetName(__pmHostEnt *he)
 	    he->name = __pmGetNameInfo(addr);
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DESPERATE)
-		fprintf(stderr, "__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __pmSockAddrToString(addr), he->name);
+		fprintf(stderr, "%s:__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __FILE__, __pmSockAddrToString(addr), he->name);
 #endif
 	    __pmSockAddrFree(addr);
 	    if (he->name != NULL)
@@ -501,7 +501,7 @@ __pmHostEntGetName(__pmHostEnt *he)
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)
-        fprintf(stderr, "__pmHostEntGetName -> %s\n", he->name);
+        fprintf(stderr, "%s:__pmHostEntGetName -> %s\n", __FILE__, he->name);
 #endif
 
     return strdup(he->name);
@@ -514,7 +514,7 @@ __pmHostEntFree(__pmHostEnt *hostent)
 {
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE)
-        fprintf(stderr, "auxconnect.c:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", hostent, hostent->name, hostent->name, hostent-> addresses);
+        fprintf(stderr, "%s:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", __FILE__, hostent, hostent->name, hostent->name, hostent-> addresses);
 #endif
     if (hostent->name != NULL)
         free(hostent->name);
@@ -554,7 +554,7 @@ __pmCreateIPv6Socket(void)
     on = 0;
     sts = __pmGetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
     if (sts < 0 || on != 1) {
-	__pmNotifyErr(LOG_ERR, "__pmCreateIPv6Socket: IPV6 is not supported\n");
+	__pmNotifyErr(LOG_ERR, "%s:__pmCreateIPv6Socket: IPV6 is not supported\n", __FILE__);
 	close(fd);
 	return -EOPNOTSUPP;
     }
@@ -578,7 +578,7 @@ __pmCreateUnixSocket(void)
 
     return fd;
 #else
-    __pmNotifyErr(LOG_ERR, "__pmCreateUnixSocket: AF_UNIX is not supported\n");
+    __pmNotifyErr(LOG_ERR, "%s:__pmCreateUnixSocket: AF_UNIX is not supported\n", __FILE__);
     return -EOPNOTSUPP;
 #endif
 }
@@ -627,7 +627,7 @@ __pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
     }
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrInit: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
+		"%s:__pmSockAddrInit: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.sa_family);
 }
 
 void
@@ -651,7 +651,21 @@ __pmSockAddrSetPort(__pmSockAddr *addr, int port)
         addr->sockaddr.ipv6.sin6_port = htons(port);
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetPort: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
+		"%s:__pmSockAddrSetPort: Invalid address family: %d\n",
+		__FILE__, addr->sockaddr.raw.sa_family);
+}
+
+int
+__pmSockAddrGetPort(const __pmSockAddr *addr)
+{
+    if (addr->sockaddr.raw.sa_family == AF_INET)
+        return ntohs(addr->sockaddr.inet.sin_port);
+    if (addr->sockaddr.raw.sa_family == AF_INET6)
+        return ntohs(addr->sockaddr.ipv6.sin6_port);
+    __pmNotifyErr(LOG_ERR,
+		  "__pmSockAddrGetPort: Invalid address family: %d\n",
+		  addr->sockaddr.raw.sa_family);
+    return 0; /* not set */
 }
 
 void
@@ -669,9 +683,10 @@ __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 	strncpy(addr->sockaddr.local.sun_path, path, sizeof(addr->sockaddr.local.sun_path));
     else
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrSetPath: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
+		"%s:__pmSockAddrSetPath: Invalid address family: %d\n",
+		__FILE__, addr->sockaddr.raw.sa_family);
 #else
-    __pmNotifyErr(LOG_ERR, "__pmSockAddrSetPath: AF_UNIX is not supported\n");
+    __pmNotifyErr(LOG_ERR, "%s:__pmSockAddrSetPath: AF_UNIX is not supported\n", __FILE__);
 #endif
 }
 
@@ -788,6 +803,14 @@ int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s)\n",
+	    __FILE__, fd, __pmSockAddrGetFamily(sock), __pmSockAddrGetPort(sock),
+	    __pmSockAddrToString(sock));
+    }
+#endif
     if (sock->sockaddr.raw.sa_family == AF_INET)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.inet));
     if (sock->sockaddr.raw.sa_family == AF_INET6)
@@ -797,7 +820,7 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
         return bind(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
 #endif
     __pmNotifyErr(LOG_ERR,
-		"__pmBind: Invalid address family: %d\n", sock->sockaddr.raw.sa_family);
+		"%s:__pmBind: Invalid address family: %d\n", __FILE__, sock->sockaddr.raw.sa_family);
     errno = EAFNOSUPPORT;
     return -1; /* failure */
 }
@@ -815,7 +838,7 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
         return connect(fd, &sock->sockaddr.raw, sizeof(sock->sockaddr.local));
 #endif
     __pmNotifyErr(LOG_ERR,
-		"__pmConnect: Invalid address family: %d\n", sock->sockaddr.raw.sa_family);
+		"%s:__pmConnect: Invalid address family: %d\n", __FILE__, sock->sockaddr.raw.sa_family);
     errno = EAFNOSUPPORT;
     return -1; /* failure */
 }
@@ -956,14 +979,14 @@ __pmGetNameInfo(__pmSockAddr *address)
 #endif
     else {
 	__pmNotifyErr(LOG_ERR,
-		"__pmGetNameInfo: Invalid address family: %d\n", address->sockaddr.raw.sa_family);
+		"%s:__pmGetNameInfo: Invalid address family: %d\n", __FILE__, address->sockaddr.raw.sa_family);
         sts = EAI_FAMILY;
     } 
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE) {
         if (sts != 0) {
-            fprintf(stderr, "auxconnect.c:__pmGetNameInfo: family=%d getnameinfo()-> %d %s\n", address->sockaddr.raw.sa_family, sts, gai_strerror(sts));
+            fprintf(stderr, "%s:__pmGetNameInfo: family=%d getnameinfo()-> %d %s\n", __FILE__, address->sockaddr.raw.sa_family, sts, gai_strerror(sts));
         }
     }
 #endif
@@ -997,9 +1020,9 @@ __pmGetAddrInfo(const char *hostName)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE) {
 	if (hostEntry == NULL)
-	    fprintf(stderr, "__pmGetAddrInfo(%s) -> NULL\n", hostName);
+	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> NULL\n", __FILE__, hostName);
 	else
-	    fprintf(stderr, "__pmGetAddrInfo(%s) -> %s\n", hostName, hostEntry->name);
+	    fprintf(stderr, "%s:__pmGetAddrInfo(%s) -> %s\n", __FILE__, hostName, hostEntry->name);
     }
 #endif
     return hostEntry;
@@ -1024,7 +1047,7 @@ __pmHostEntGetSockAddr(const __pmHostEnt *he, void **ei)
     /* Now allocate a socket address and copy the data. */
     addr = __pmSockAddrAlloc();
     if (addr == NULL) {
-        __pmNotifyErr(LOG_ERR, "__pmHostEntGetSockAddr: out of memory\n");
+        __pmNotifyErr(LOG_ERR, "%s:__pmHostEntGetSockAddr: out of memory\n", __FILE__);
         *ei = NULL;
 	return NULL;
     }
@@ -1039,8 +1062,8 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
     int i;
     if (addr->sockaddr.raw.sa_family != mask->sockaddr.raw.sa_family) {
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
-		addr->sockaddr.raw.sa_family, mask->sockaddr.raw.sa_family);
+		"%s:__pmSockAddrMask: Address family of the address (%d) must match that of the mask (%d)\n",
+		__FILE__, addr->sockaddr.raw.sa_family, mask->sockaddr.raw.sa_family);
     }
     else if (addr->sockaddr.raw.sa_family == AF_INET)
         addr->sockaddr.inet.sin_addr.s_addr &= mask->sockaddr.inet.sin_addr.s_addr;
@@ -1060,7 +1083,7 @@ __pmSockAddrMask(__pmSockAddr *addr, const __pmSockAddr *mask)
 #endif
     else /* not applicable to other address families. */
 	__pmNotifyErr(LOG_ERR,
-		"__pmSockAddrMask: Invalid address family: %d\n", addr->sockaddr.raw.sa_family);
+		"%s:__pmSockAddrMask: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.sa_family);
 
     return addr;
 }
@@ -1090,7 +1113,7 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 
     /* Unknown address family. */
     __pmNotifyErr(LOG_ERR,
-		  "__pmSockAddrCompare: Invalid address family: %d\n", addr1->sockaddr.raw.sa_family);
+		  "%s:__pmSockAddrCompare: Invalid address family: %d\n", __FILE__, addr1->sockaddr.raw.sa_family);
     return 1; /* not equal */
 }
 

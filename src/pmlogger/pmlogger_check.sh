@@ -132,7 +132,7 @@ if [ $START_PMLOGGER = false ]
 then
     # if pmlogger has never been started, there's no work to do to stop it
     [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
-    $QUIETLY || pmpost "stop pmlogger from $prog"
+    $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
 fi
 
 if [ ! -f $CONTROL ]
@@ -774,7 +774,7 @@ END				{ print m }'`
 	    _unlock
 	    continue
 	else
-	    pmpost "start pmlogger from $prog for host $host"
+	    $PCP_BINADM_DIR/pmpost "start pmlogger from $prog for host $host"
 	    ${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &
 	    pid=$!
 	fi

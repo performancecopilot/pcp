@@ -6,7 +6,21 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
 seq=`basename $0`
+
+rm -f $seq.out
+if [ $PCP_VER -lt 3810 ]
+then
+    ln $seq.out.1 $seq.out || exit 1
+else
+    ln $seq.out.2 $seq.out || exit 1
+fi
+
 echo "QA output created by $seq"
 
 if [ "`pmsocks echo ok 2>&1`" != ok ]
@@ -59,6 +73,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
+	-e "s/$seq-$$/PID/g" \
 	-e "s/$$/PID/g" \
 	-e "s/$remote/REMOTEHOST/g" \
 	-e "s/$host/LOCALHOST/g" \

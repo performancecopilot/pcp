@@ -227,7 +227,7 @@ _
 Should any of the
 .I pcp_trace
 library functions return a negative value,
-an error has occured.  This can be diagnosed further using the
+an error has occurred.  This can be diagnosed further using the
 .B pmtraceerrstr
 routine, which takes the negative return value as its \f2code\f1 argument,
 and in the C-callable interface returns a pointer to the associated error
@@ -291,7 +291,7 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
-Values for these variables may be obtained programatically
+Values for these variables may be obtained programmatically
 using the
 .IR pmGetConfig (3)
 function.
@@ -310,7 +310,7 @@ and
 from your web browser.
 .SH DIAGNOSTICS
 A negative return value from a \f2pcp_trace\f1 function indicates that an
-error has occured \- if this is the case, the return value can be passed
+error has occurred \- if this is the case, the return value can be passed
 to 
 .B pmtraceerrstr
 to obtain the associated error message.

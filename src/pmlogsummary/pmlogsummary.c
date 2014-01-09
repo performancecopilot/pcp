@@ -238,11 +238,11 @@ printsummary(const char *name)
     /* cast away const, pmLookupName should never modify name */
     if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0) {
 	fprintf(stderr, "%s: failed to lookup metric name (pmid=%s): %s\n",
-		pmProgname, pmIDStr(pmid), pmErrStr(sts));
+		pmProgname, name, pmErrStr(sts));
 	return;
     }
 
-    /* lookup id, & print values according to set flags */
+    /* lookup using pmid, print values according to set flags */
     if ((hptr = __pmHashSearch(pmid, &hashlist)) != NULL) {
 	avedata = (aveData*)hptr->data;
 	for (i = 0; i < avedata->listsize; i++) {

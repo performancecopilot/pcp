@@ -265,7 +265,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	    int			*stridx;
 	    int			i;
 	    int			k;
-	    int			allinbuf;
+	    int			allinbuf = 0;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    if ((tbuf = (int *)malloc(rlen)) == NULL) {

@@ -13,7 +13,7 @@ _check_valgrind
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "_rpm_cleanup" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -23,20 +23,7 @@ _filter()
 }
 
 # real QA test starts here
-_rpm_package_prepare
-_rpm_package_install
-cd $here
-
-# valgrind check on DSO RPM PMDA
-pmns=$PCP_PMDAS_DIR/rpm/root
-list=`pminfo -n $pmns | egrep -v 'rpm.refresh|rpm.datasize'`
-dsoinit="add,123,rpm/pmda_rpm.$DSO_SUFFIX,rpm_init"
-_run_valgrind dbpmda -n $pmns -ie <<End-of-File 2>&1 | _filter
-open dso $PCP_PMDAS_DIR/rpm/pmda_rpm.$DSO_SUFFIX rpm_init 123
-wait 2
-desc rpm.size
-fetch rpm.refresh.count
-End-of-File
+_run_valgrind $PCP_PMDAS_DIR/rpm/pmdarpm -C 2>&1 | _filter
 
 # success, all done
 status=0

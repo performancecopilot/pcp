@@ -391,7 +391,7 @@ avahi
 148 libirixpmda local oss
 149 libirixpmda local oss
 150 pmlogreduce local oss pmval
-151 logutil local oss
+151 logutil local oss pmlogextract
 152 pmda.pmcd pmval local oss
 153 folio local oss sanity
 154 pmda.cisco help local oss sanity
@@ -696,7 +696,7 @@ avahi
 453 perl local oss sanity
 454 pmcd local oss
 455 pmda.rsyslog local flakey pmda.install oss
-456 logutil local #591459 folio oss
+456 logutil local #591459 folio oss pmlogextract
 457 pmda.logger pmda.install event local oss
 458 pmda.logger pmda.install event local oss
 459 pmlogreduce local oss valgrind
@@ -735,7 +735,7 @@ avahi
 492 pmlogrewrite local oss
 493 pmlogrewrite local oss
 494 pmlogrewrite pmdumplog local oss
-495 pmlogrewrite pmval local oss
+495 pmlogrewrite pmval local oss pmlogextract
 496 pmlogrewrite pmdumplog local oss
 497 pmlogconf local oss
 498 event pmda local oss
@@ -743,7 +743,7 @@ avahi
 500 logutil local #636417 folio oss
 501 pmie remote oss
 502 pmlogrewrite local oss
-503 logutil pmlogrewrite local oss
+503 logutil pmlogrewrite local oss pmlogextract
 504 pmie remote pmsocks oss
 505 pmlogrewrite local oss
 506 pmlogrewrite local oss
@@ -752,7 +752,7 @@ avahi
 509 derive pmns local oss
 510 pmlogger local oss
 511 pmimport pmdumplog pmlogsummary perl local oss
-512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss
+512 threads pminfo pmlogger pmlogextract pmdumplog dbpmda local oss fault
 513 libpcp pdu local oss
 514 pmie local oss
 515 pmie local oss
@@ -783,7 +783,7 @@ avahi
 540 pmda.linux local pminfo oss
 541 pmie #535080 local pmprobe oss
 542 pmdate #666344 local oss
-543 logutil remote oss
+543 logutil remote oss pmlogextract
 544 pmimport local oss
 545 pmsocks local oss
 546 pmcd local oss
@@ -801,7 +801,7 @@ avahi
 558 pmie local oss
 559 pmlogsummary local oss
 560 pmda.simple local pmda.install oss
-564 logutil local oss
+564 logutil local oss pmlogextract
 565 pmda.sendmail local pmda.install oss
 566 pmlogcheck local oss
 569 pmprobe #679693 local oss sanity
@@ -882,6 +882,7 @@ avahi
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss
+768 pmlogextract local oss
 783 pmda.rpm local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
@@ -902,4 +903,4 @@ avahi
 1049 pmie pmieconf local sgi
 1050 pmieconf local sgi
 1051 pmieconf #696008 local sgi
-1108 logutil local folio sgi
+1108 logutil local folio sgi pmlogextract

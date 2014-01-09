@@ -65,6 +65,14 @@ p
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 
+	src/libpcp_pmcd/src/GNUmakefile)
+	    # this INSTALL line is optional depending on platform and
+	    # build options
+	    # $(INSTALL) -m 444 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
+	    sed -e '/pmcd.stp$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
 	src/perl/GNUmakefile)
 	    # this INSTALL line is safe because mode is 0644 or 0755
 	    #	if [ -x $$src ] ; then mode=0755; else mode=0644; fi; \

@@ -45,10 +45,8 @@ static pmdaMetric metrictab[] = {
 	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
     { NULL, { PMDA_PMID(0, REFRESH_TIME_ELAPSED_ID), PM_TYPE_DOUBLE,
 	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
-    { NULL, { PMDA_PMID(0, REFRESH_TIME_ELAPSED_ID), PM_TYPE_DOUBLE,
-	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0)}},
     { NULL, { PMDA_PMID(0, DATASIZE_ID), PM_TYPE_U32,
-	PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
     /* rpm package metrics */
     { NULL, { PMDA_PMID(1, ARCH_ID), PM_TYPE_STRING,
@@ -126,7 +124,6 @@ rpm_fetch_pmda(int item, pmAtomValue *atom)
     int sts = PMDA_FETCH_STATIC;
     unsigned long datasize;
 
-    pthread_mutex_lock(&indom_mutex);
     switch (item) {
     case REFRESH_COUNT_ID:		/* rpm.refresh.count */
 	atom->ull = numrefresh;
@@ -148,7 +145,6 @@ rpm_fetch_pmda(int item, pmAtomValue *atom)
 	sts = PM_ERR_PMID;
 	break;
     }
-    pthread_mutex_unlock(&indom_mutex);
     return sts;
 }
 
@@ -224,16 +220,25 @@ static int
 rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *) &mdesc->m_desc.pmid;
+    int sts;
 
+    pthread_mutex_lock(&indom_mutex);
     switch (idp->cluster) {
     case 0:
 	if (inst != PM_IN_NULL)
-	    return PM_ERR_INST;
-	return rpm_fetch_pmda(idp->item, atom);
+	    sts = PM_ERR_INST;
+	else
+	    sts = rpm_fetch_pmda(idp->item, atom);
+	break;
     case 1:
-	return rpm_fetch_package(idp->item, inst, atom);
+	sts = rpm_fetch_package(idp->item, inst, atom);
+	break;
+    default:
+	sts = PM_ERR_PMID;
+	break;
     }
-    return PM_ERR_PMID;
+    pthread_mutex_unlock(&indom_mutex);
+    return sts;
 }
 
 /*
@@ -316,7 +321,7 @@ rpm_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
 static const char *
 rpm_extract_string(rpmtd td, Header h, int tag)
 {
-    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     /*
      * RPM_STRING_ARRAY_TYPE being the alternative, e.g. filenames
      * (which we never expect to see, for the metrics we export).
@@ -333,7 +338,7 @@ rpm_extract_value(rpmtd td, Header h, int tag)
 {
     __uint32_t value;
 
-    headerGet(h, tag, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+    headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     switch (td->type) {
     case RPM_INT8_TYPE:
 	value = ((char *)(td->data))[0];
@@ -357,7 +362,9 @@ rpm_extract_value(rpmtd td, Header h, int tag)
 static void
 rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 {
-    (void)name;
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
+
     m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
     m->buildhost = dict_insert(rpm_extract_string(td, h, RPMTAG_BUILDHOST));
     m->buildtime = rpm_extract_value(td, h, RPMTAG_BUILDTIME);
@@ -402,7 +409,7 @@ rpm_update_cache(void *ptr)
     /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
     while ((h = rpmdbNextIterator(mi)) != NULL) {
-	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT);	/* TODO: HEADERGET_MINMEM? */
+	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT | HEADERGET_MINMEM);
 	const char *name = rpmtdGetString(td);
 	metadata meta;
 	package *pp = NULL;
@@ -459,30 +466,30 @@ rpm_inotify(void *ptr)
     fd = inotify_init();
     inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
 
-    int need_refresh = 0;
     while (1) {
 	int i = 0;
 	int read_count;
+	int need_refresh = 0;
 
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 	while (i < read_count) {
-	    struct inotify_event *event = (struct inotify_event *) &buffer[i];
-
-	    if (event->len && event->mask & IN_CLOSE_WRITE) 
-		{
-		    need_refresh++;
-		    if (pmDebug & DBG_TRACE_APPL1)
-			__pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
-				      need_refresh);
-		    rpm_update_cache(ptr);
-		    if (pmDebug & DBG_TRACE_APPL1)
-			__pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
-		    i += sizeof (struct inotify_event) + event->len; /* sizeof struct + length of name */
-		}
+	    struct inotify_event *event =
+		(struct inotify_event *) &buffer[i];
+	    if (event->mask & IN_CLOSE_WRITE)
+		need_refresh++;
+	    i++;
 	}
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
+		      need_refresh);
+	if (!need_refresh)
+	    continue;
+	rpm_update_cache(ptr);
+	if (pmDebug & DBG_TRACE_APPL1)
+	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
     return NULL;
 }
@@ -531,9 +538,10 @@ usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fprintf(stderr, "Options:\n"
+	  "  -C           parse the RPM database, and exit\n"
 	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
 	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -r path      path to directory containing rpm database (default %s)\n"
+	  "  -r path      path to directory containing RPM database (default %s)\n"
 	  "  -U username  user account to run under (default \"pcp\")\n"
 	  "\nExactly one of the following options may appear:\n"
 	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
@@ -552,7 +560,7 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
-    int sep = __pmPathSeparator();
+    int Cflag = 0, sep = __pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
 
@@ -567,9 +575,12 @@ main(int argc, char **argv)
 	       "rpm.log", helppath);
 
     while ((c =
-	    pmdaGetOpt(argc, argv, "D:d:i:l:pr:u:6:U:?", &dispatch,
+	    pmdaGetOpt(argc, argv, "CD:d:i:l:pr:u:6:U:?", &dispatch,
 		       &err)) != EOF) {
 	switch (c) {
+	case 'C':
+	    Cflag++;
+	    break;
 	case 'U':
 	    username = optarg;
 	    break;
@@ -585,6 +596,10 @@ main(int argc, char **argv)
 
     pmdaOpenLog(&dispatch);
     rpm_init(&dispatch);
+    if (Cflag) {
+	rpm_update_cache(NULL);
+	exit(0);
+    }
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 

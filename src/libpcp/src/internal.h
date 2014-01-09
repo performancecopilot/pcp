@@ -236,6 +236,9 @@ extern int __pmUsersGroupIDs(const char *, __pmGroupID **, unsigned int *) _PCP_
 extern int __pmGroupsUserIDs(const char *, __pmUserID **, unsigned int *) _PCP_HIDDEN;
 extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int) _PCP_HIDDEN;
 
+extern int __pmStringListAdd(char *, int, char ***) _PCP_HIDDEN;
+extern char *__pmStringListFind(const char *, int, char **) _PCP_HIDDEN;
+
 /*
  * Representations of server presence on the network.
  */
@@ -248,5 +251,13 @@ struct __pmServerPresence {
     /* API-specific data. */
     __pmServerAvahiPresence	*avahi;
 };
+
+/* Service discovery internals. */
+typedef struct {
+    const char		*spec;
+    __pmSockAddr	*address;
+} __pmServiceInfo;
+
+extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
 
 #endif /* _INTERNAL_H */

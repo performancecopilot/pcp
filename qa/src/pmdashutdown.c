@@ -28,7 +28,7 @@ int
 main(int argc, char *argv[])
 {
     int			err = 0;
-    pmdaInterface	desc;
+    pmdaInterface	desc = { 0 };
 
     __pmSetProgname(argv[0]);
 

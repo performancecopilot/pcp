@@ -133,7 +133,7 @@ _shutdown()
 	exit
     fi
     $RC_STATUS -v 
-    pmpost "stop pmwebd from $pmprog"
+    $PCP_BINADM_DIR/pmpost "stop pmwebd from $pmprog"
 }
 
 _usage()
@@ -254,7 +254,7 @@ END			{ if (exports != "") print "export", exports }'`
 	    $PMWEBD $OPTS
 	    $RC_STATUS -v
 
-	    pmpost "start pwmebd from $pmprog"
+	    $PCP_BINADM_DIR/pmpost "start pmwebd from $pmprog"
 
 	fi
 	status=0

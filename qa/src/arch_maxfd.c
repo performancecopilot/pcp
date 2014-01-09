@@ -73,6 +73,10 @@ main(int argc, char **argv)
 	    exit(1);
 	}
 	sts = dup(0);
+	if (sts < 0) {
+	    fprintf(stderr, "dup(0) failed: %s\n", strerror(errno));
+	    exit(1);
+	}
 	max_ctx = (max_nofile + 2 - sts) / 3;
 	close(sts);
 
