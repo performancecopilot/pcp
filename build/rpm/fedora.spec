@@ -406,7 +406,7 @@ then
 
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=%{_pmnsdir}
-    rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&
+    rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
 fi
 
 %post
