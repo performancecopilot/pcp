@@ -47,12 +47,28 @@ echo "-s pmcd"
 pmfind -s pmcd | _success_filter
 echo "Exit status: $?"
 
+echo "-m all"
+pmfind -m all | _success_filter
+echo "Exit status: $?"
+
+echo "-s pmcd -m all"
+pmfind -s pmcd -m all | _success_filter
+echo "Exit status: $?"
+
 echo "-q"
 pmfind -q
 echo "Exit status: $?"
 
 echo "-q -s pmcd"
 pmfind -q -s pmcd
+echo "Exit status: $?"
+
+echo "-q -m all"
+pmfind -q -m all
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m all"
+pmfind -q -s pmcd -m all
 echo "Exit status: $?"
 
 # success, all done
