@@ -13,6 +13,7 @@ other
 
 # sanity check ... quick coverage of much functionality
 # expectation is to run in 3-5 minutes, and must pass 100%
+# in the sense of no failure; _notrun is OK.
 # NOTE: used by testing orgs beyond developers, must pass!
 sanity
 
