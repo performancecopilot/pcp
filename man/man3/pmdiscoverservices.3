@@ -21,7 +21,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmDiscoverServices(const char *\fIservice\fP, const char *\fIdiscovery_domain\fP, char ***\fIurls\fP);
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -33,26 +33,26 @@ cc ... \-lpcp
 ..
 Given a PCP service name, as identified by
 .IR service ,
-and using the discovery mechanism(s) specified in
-.IR discovery_domain ,
+and using the type of discovery optionally specified in
+.IR mechanism ,
 .B pmDiscoverServices
 returns, via
-.I urls ,
-a list of urls representing the services discovered on the network.
+.IR urls ,
+a list of URLs representing the services discovered on the network.
 .PP 
-.IR service
+.I service
 specifies the PCP service to be discovered. Currently, only
 .B PM_SERVER_SERVICE_SPEC
 is supported, which searches for
-.B PMCD
+.BR pmcd (1)
 servers.
 .PP 
-.IR discovery_domain
-specifies the discovery mechanism(s) to be used. Currently, only \fB"avahi"\fP
-is supported. This searches for services which are broacasting using mDNS via
-.B avahi-daemon.
-.IR discovery_domain
-may also be NULL, which means to use all available discovery mechanisims.
+.IR mechanism
+specifies the style of discovery to be used. Currently, only \fB"avahi"\fP
+is supported. This searches for services which are broadcasting using mDNS via
+.BR avahi-daemon (8).
+.IR mechanism
+may also be NULL, which means to use all available discovery mechanisms.
 .PP 
 Normally,
 .B pmDiscoverServices
@@ -64,7 +64,7 @@ The resulting list of pointers,
 .IR urls ,
 .B and
 the values
-(the urls) that the pointers reference will have been
+(the URLs) that the pointers reference will have been
 allocated by
 .B pmDiscoverServices
 with a single call to
@@ -113,4 +113,4 @@ and
 .BR avahi-daemon (8).
 .SH DIAGNOSTICS
 .IP \f3EOPNOTSUPP\f1
-The specified \fIdiscovery_domain\fP is not valid.
+The specified \fImechanism\fP is not supported.

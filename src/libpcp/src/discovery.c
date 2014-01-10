@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -65,18 +65,19 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 }
 
 int pmDiscoverServices(const char *service,
-		       const char *discovery_domain,
+		       const char *mechanism,
 		       char ***urls)
 {
     int numUrls;
     /*
-     * Attempt to discover the requested service(s) using the requested/available means.
+     * Attempt to discover the requested service(s) using the requested or
+     * all available means.
      * If a particular method is not available or not configured, then the
      * respective call will have no effect.
      */
     *urls = NULL;
     numUrls = 0;
-    if (discovery_domain == NULL || strcmp(discovery_domain, "avahi") == 0)
+    if (mechanism == NULL || strcmp(mechanism, "avahi") == 0)
 	numUrls += __pmAvahiDiscoverServices(service, numUrls, urls);
     else
 	return -EOPNOTSUPP;
@@ -162,12 +163,11 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
     (void)s;
 }
 
-int pmDiscoverServices(const char *service, const char *discovery_domain,
-		       char ***urls)
+int pmDiscoverServices(const char *service, const char *mechanism, char ***urls)
 {
     /* No services to discover. */
     (void)service;
-    (void)discovery_domain;
+    (void)mechanism;
     (void)urls;
     return -EOPNOTSUPP;
 }
