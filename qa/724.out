@@ -1,0 +1,7 @@
+QA output created by 724
+Unknown service
+No unknown servers discovered
+Exit status: 1
+Unknown mechanism
+pmfind: service pmcd discovery failure: Operation not supported
+Exit status: 2

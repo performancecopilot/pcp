@@ -71,7 +71,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:m:p:q?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:m:s:q?")) != EOF) {
 	switch (c) {
 
 	    case 'D':	/* debug flag */
