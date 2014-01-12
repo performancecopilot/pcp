@@ -21,7 +21,10 @@ Group [2 metrics] {
 
 Group [6 metrics] {
 	sample.string.hullo
-	...
+	sample.string.null
+	sample.double.one
+	sample.float.one
+	sample.bin
 	sample.control
 } logged once: 252 bytes
 
@@ -34,7 +37,10 @@ Group [2 metrics] {
 
 Group [6 metrics] {
 	sample.string.hullo
-	...
+	sample.string.null
+	sample.double.one
+	sample.float.one
+	sample.bin
 	sample.control
 } logged every 2 sec: 252 bytes or 10.38 Mbytes/day
 pmlogger: End of run time, exiting
