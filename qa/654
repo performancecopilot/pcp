@@ -33,7 +33,7 @@ touch $here/$seq.full
 
 # real QA test starts here
 _prepare_pmda_install $iam
-_install_pmda
+_install_pmda | _filter_gfs2
 _setup_gfs2_mounts
 
 echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
@@ -41,7 +41,7 @@ pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
 echo "=== Check that the number of metrics are correct ===" | tee -a $here/$seq.full
-[ `_pmcount gfs2` -ge 105 ] || _fail "Too few metrics?"
+[ `_pmcount gfs2` -ge 203 ] || _fail "Too few metrics?"
 
 echo
 echo "=== Basic glock stats from all kernels ===" | tee -a $here/$seq.full

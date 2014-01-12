@@ -20,7 +20,7 @@
 #include "glocks.h"
 #include "sbstats.h"
 #include "glstats.h"
-#include "lock_time.h"
+#include "worst_glock.h"
 #include "ftrace.h"
 #include "control.h"
 
@@ -28,8 +28,9 @@ enum {
 	CLUSTER_GLOCKS = 0,	/* 0 - /sys/kernel/debug/gfs2/<fs>/glocks */
 	CLUSTER_SBSTATS,	/* 1 - /sys/kernel/debug/gfs2/<fs>/sbstats */
 	CLUSTER_GLSTATS,	/* 2 - /sys/kernel/debug/gfs2/<fs>/glstats */
-        CLUSTER_LOCKTIME,       /* 3 - /sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time */
-        CLUSTER_CONTROL,        /* 4 - Control for specific tracepoint enabling (for installs without all of the GFS2 tracepoints) */
+        CLUSTER_TRACEPOINTS,	/* 3 - /sys/kernel/debug/tracing/events/gfs2/ */
+        CLUSTER_WORSTGLOCK,     /* 4 - Custom metric for worst glock */
+        CLUSTER_CONTROL,        /* 5 - Control for specific tracepoint enabling (for installs without all of the GFS2 tracepoints) */
 	NUM_CLUSTERS
 };
 
@@ -39,11 +40,12 @@ enum {
 };
 
 struct gfs2_fs {
-        dev_t            dev_id;
-	struct glocks    glocks;
-	struct sbstats   sbstats;
-        struct glstats   glstats;
-        struct lock_time lock_time;
+        dev_t              dev_id;
+	struct glocks      glocks;
+	struct sbstats     sbstats;
+        struct glstats     glstats;
+        struct ftrace      ftrace;
+        struct worst_glock worst_glock;
 };
 
 extern pmdaMetric metrictable[];

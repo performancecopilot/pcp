@@ -17,7 +17,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
 #include "glocks.h"
+
 #include <ctype.h>
 
 int

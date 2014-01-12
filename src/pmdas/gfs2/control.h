@@ -18,14 +18,29 @@
 #define CONTROL_H
 
 enum {
-        CONTROL_GLOCK_LOCK_TIME = 0,
-        CONTROL_FTRACE_GLOCK_THRESHOLD = 1,
-        NUM_CONTROL_STATS
+    CONTROL_ALL = 0,
+    CONTROL_GLOCK_STATE_CHANGE,
+    CONTROL_GLOCK_PUT,
+    CONTROL_DEMOTE_RQ,
+    CONTROL_PROMOTE,
+    CONTROL_GLOCK_QUEUE,
+    CONTROL_GLOCK_LOCK_TIME,
+    CONTROL_PIN,
+    CONTROL_LOG_FLUSH,
+    CONTROL_LOG_BLOCKS,
+    CONTROL_AIL_FLUSH,
+    CONTROL_BLOCK_ALLOC,
+    CONTROL_BMAP,
+    CONTROL_RS,
+    CONTROL_GLOBAL_TRACING,
+    CONTROL_WORSTGLOCK,
+    CONTROL_FTRACE_GLOCK_THRESHOLD,
+    NUM_CONTROL_STATS
 };
 
 extern const char *control_locations[];
 
-extern int gfs2_control_fetch(int);
+extern int gfs2_control_fetch(int, pmAtomValue *);
 extern int gfs2_control_set_value(const char *, pmValueSet *);
 extern int gfs2_control_check_value(const char *);
 
