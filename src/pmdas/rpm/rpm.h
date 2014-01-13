@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,6 +72,7 @@ enum {
  */
 
 typedef struct metadata {
+    int		name;
     int		arch;
     int		buildhost;
     __uint32_t	buildtime;

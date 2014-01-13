@@ -1,7 +1,7 @@
 /*
  * RPM Package Manager PMDA
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -365,6 +365,7 @@ rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "updating package %s metadata", name);
 
+    m->name = dict_insert(rpm_extract_string(td, h, RPMTAG_NAME));
     m->arch = dict_insert(rpm_extract_string(td, h, RPMTAG_ARCH));
     m->buildhost = dict_insert(rpm_extract_string(td, h, RPMTAG_BUILDHOST));
     m->buildtime = rpm_extract_value(td, h, RPMTAG_BUILDTIME);
@@ -409,7 +410,7 @@ rpm_update_cache(void *ptr)
     /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
     while ((h = rpmdbNextIterator(mi)) != NULL) {
-	headerGet(h, RPMTAG_NAME, td, HEADERGET_EXT | HEADERGET_MINMEM);
+	headerGet(h, RPMTAG_NEVRA, td, HEADERGET_EXT | HEADERGET_MINMEM);
 	const char *name = rpmtdGetString(td);
 	metadata meta;
 	package *pp = NULL;
