@@ -90,7 +90,7 @@ static pthread_mutex_t indom_mutex;
 
 static int isDSO = 1;			/* invoked as shlib or daemon */
 static char *username;
-static char *dbpath = "/var/lib/rpm";
+static char *dbpath = "/var/lib/rpm/Packages";
 
 static pmInDom
 INDOM(int serial)
