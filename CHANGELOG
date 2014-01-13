@@ -1,4 +1,4 @@
-pcp-3.8.10 (10 January 2014)
+pcp-3.8.10 (15 January 2014)
     - Adds pmmgr(1) PCP daemon manager - a cunning new (opt-in)
       approach to managing farms of pmlogger and pmie processes.
     - Adds pmfind(1) utility for discovering advertised pmcd
