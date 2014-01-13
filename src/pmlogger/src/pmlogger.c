@@ -102,19 +102,20 @@ run_done(int sts, char *msg)
 static void
 run_done_callback(int i, void *j)
 {
-  run_done(0, NULL);
+    run_done(0, NULL);
 }
 
 static void
 vol_switch_callback(int i, void *j)
 {
-  newvolume(VOL_SW_TIME);
+    newvolume(VOL_SW_TIME);
 }
 
 static int
 maxfd(void)
 {
     int	max = ctlfd;
+
     if (clientfd > max)
 	max = clientfd;
     if (pmcdfd > max)
@@ -130,11 +131,12 @@ maxfd(void)
 static void 
 tolower_str(char *str)
 {
-  char *s = str;
-  while(*s){
-    *s = tolower((int)*s);
-    s++;
-  }
+    char *s = str;
+
+    while (*s) {
+      *s = tolower((int)*s);
+      s++;
+    }
 }
 
 /*
@@ -152,90 +154,81 @@ static int
 ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size, 
           struct timeval *time_delta)
 {
-  long x = 0; /* the size number */
-  char *ptr = NULL;
-
-  *sample_counter = -1;
-  *byte_size = -1;
-  time_delta->tv_sec = -1;
-  time_delta->tv_usec = -1;
-  
-  x = strtol(size_arg, &ptr, 10);
-
-  /* must be positive */
-  if (x <= 0) {
-    return -1;
-  }
-
-  if (*ptr == '\0') {
-    /* we have consumed entire string as a long */
-    /* => we have a sample counter */
-    *sample_counter = x;
-    return 1;
-  }
-
-  if (ptr != size_arg) {
-    /* we have a number followed by something else */
-
-    tolower_str(ptr);
-
-    /* chomp off plurals */
-    {
-      int len = strlen(ptr);
-      if (ptr[len-1] == 's')
-        ptr[len-1] = '\0';
-    }
-
-    /* if bytes */
-    if (strcmp(ptr, "b") == 0 ||
-        strcmp(ptr, "byte") == 0) {
-      *byte_size = x;
-      return 1;
-    }  
-
-    /* if kilobytes */
-    if (strcmp(ptr, "k") == 0 ||
-        strcmp(ptr, "kb") == 0 ||
-        strcmp(ptr, "kbyte") == 0 ||
-        strcmp(ptr, "kilobyte") == 0) {
-      *byte_size = x*1024;
-      return 1;
-    }
-
-    /* if megabytes */
-    if (strcmp(ptr, "m") == 0 ||
-        strcmp(ptr, "mb") == 0 ||
-        strcmp(ptr, "mbyte") == 0 ||
-        strcmp(ptr, "megabyte") == 0) {
-      *byte_size = x*1024*1024;
-      return 1;
-    }
-
-    /* if gigabytes */
-    if (strcmp(ptr, "g") == 0 ||
-        strcmp(ptr, "gb") == 0 ||
-        strcmp(ptr, "gbyte") == 0 ||
-        strcmp(ptr, "gigabyte") == 0) {
-      *byte_size = ((__int64_t)x)*1024*1024*1024;
-      return 1;
-    }
-
-  }
-  
-  /* Doesn't fit pattern above, try a time interval */
-  {
+    long x = 0; /* the size number */
+    char *ptr = NULL;
     char *interval_err;
 
-    if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0) {
-      return 1;
+    *sample_counter = -1;
+    *byte_size = -1;
+    time_delta->tv_sec = -1;
+    time_delta->tv_usec = -1;
+  
+    x = strtol(size_arg, &ptr, 10);
+
+    /* must be positive */
+    if (x <= 0)
+	return -1;
+
+    if (*ptr == '\0') {
+	/* we have consumed entire string as a long */
+	/* => we have a sample counter */
+	*sample_counter = x;
+	return 1;
     }
+
+    /* we have a number followed by something else */
+    if (ptr != size_arg) {
+	int len;
+
+	tolower_str(ptr);
+
+	/* chomp off plurals */
+	len = strlen(ptr);
+	if (ptr[len-1] == 's')
+	    ptr[len-1] = '\0';
+
+	/* if bytes */
+	if (strcmp(ptr, "b") == 0 ||
+	    strcmp(ptr, "byte") == 0) {
+	    *byte_size = x;
+	    return 1;
+	}  
+
+	/* if kilobytes */
+	if (strcmp(ptr, "k") == 0 || strcmp(ptr, "kb") == 0 ||
+	    strcmp(ptr, "kbyte") == 0 || strcmp(ptr, "kilobyte") == 0) {
+	    *byte_size = x*1024;
+	    return 1;
+	}
+
+	/* if megabytes */
+	if (strcmp(ptr, "m") == 0 ||
+	    strcmp(ptr, "mb") == 0 ||
+	    strcmp(ptr, "mbyte") == 0 ||
+	    strcmp(ptr, "megabyte") == 0) {
+	    *byte_size = x*1024*1024;
+	    return 1;
+	}
+
+	/* if gigabytes */
+	if (strcmp(ptr, "g") == 0 ||
+	    strcmp(ptr, "gb") == 0 ||
+	    strcmp(ptr, "gbyte") == 0 ||
+	    strcmp(ptr, "gigabyte") == 0) {
+	    *byte_size = ((__int64_t)x)*1024*1024*1024;
+	    return 1;
+	}
+    }
+
+    /* Doesn't fit pattern above, try a time interval */
+    if (pmParseInterval(size_arg, time_delta, &interval_err) >= 0)
+        return 1;
     /* error message not used here */
     free(interval_err);
-  }
   
-  /* Doesn't match anything, return an error */
-  return -1;  
-}/*ParseSize*/
+    /* Doesn't match anything, return an error */
+    return -1;
+}
 
 /* time manipulation */
 static void
