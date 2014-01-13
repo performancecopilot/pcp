@@ -1,0 +1,47 @@
+QA output created by 466
+
+Metric sample.control logged once: 40 bytes
+
+Metric sample.long.one logged once: 40 bytes
+
+Metric sample.float.one logged once: 48 bytes
+
+Metric sample.double.one logged once: 52 bytes
+
+Metric sample.string.null logged once: 48 bytes
+
+Metric sample.string.hullo logged once: 60 bytes
+
+Metric sample.bin logged once: 104 bytes
+
+Group [2 metrics] {
+	sample.long.one
+	sample.control
+} logged once: 60 bytes
+
+Group [6 metrics] {
+	sample.string.hullo
+	sample.string.null
+	sample.double.one
+	sample.float.one
+	sample.bin
+	sample.control
+} logged once: 252 bytes
+
+Metric sample.control logged every 0.500 sec: 40 bytes or 6.59 Mbytes/day
+
+Group [2 metrics] {
+	sample.long.one
+	sample.control
+} logged every 1 sec: 60 bytes or 4.94 Mbytes/day
+
+Group [6 metrics] {
+	sample.string.hullo
+	sample.string.null
+	sample.double.one
+	sample.float.one
+	sample.bin
+	sample.control
+} logged every 2 sec: 252 bytes or 10.38 Mbytes/day
+pmlogger: End of run time, exiting
+

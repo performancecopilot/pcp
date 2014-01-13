@@ -363,8 +363,6 @@ log_callback(int afid, void *data)
     long		new_meta_offset;
     int			pdu_bytes = 0;
     int			pdu_metrics = 0;
-    pmID		pdu_first_pmid = 0;	/* initialize to pander to gcc */
-    pmID		pdu_last_pmid = 0;	/* initialize to pander to gcc */
     int			numinst;
     int			*instlist;
     char		**namelist;
@@ -460,7 +458,7 @@ log_callback(int afid, void *data)
 
 	/*
 	 * hook to rewrite PDU buffer ...
-	 */
+	lfp */
 	pb = rewrite_pdu(pb, archive_version);
 
 	if (rflag) {
@@ -473,9 +471,6 @@ log_callback(int afid, void *data)
 	    pdu_bytes += ((__pmPDUHdr *)pb)->len - sizeof (__pmPDUHdr) + 
 		2*sizeof(int); 
 	    pdu_metrics += fp->f_numpmid;
-	    if (fp == tp->t_fetch)
-		pdu_first_pmid = fp->f_pmidlist[0];
-	    pdu_last_pmid = fp->f_pmidlist[fp->f_numpmid-1];
 	}
 
 	/*
@@ -671,27 +666,30 @@ log_callback(int afid, void *data)
     if (rflag && tp->t_size == 0 && pdu_metrics > 0) {
 	char	*name = NULL;
 	int	taskindex;
+        int     i;
 
 	tp->t_size = pdu_bytes;
 
 	if (pdu_metrics > 1)
-	    fprintf(stderr, "\nGroup [%d metrics] {\n\t", pdu_metrics);
+	    fprintf(stderr, "\nGroup [%d metrics] {\n", pdu_metrics);
 	else
 	    fprintf(stderr, "\nMetric ");
-	taskindex = lookupTaskCacheIndex(tp, pdu_first_pmid);
-	if (taskindex >= 0)
-	    name = tp->t_namelist[taskindex];
-	fprintf(stderr, "%s", name ? name : pmIDStr(pdu_first_pmid));
-	if (pdu_metrics > 1) {
-	    fprintf(stderr, "\n\t");
-	    if (pdu_metrics > 2)
-		fprintf(stderr, "...\n\t");
-	    name = NULL;
-	    taskindex = lookupTaskCacheIndex(tp, pdu_last_pmid);
-	    if (taskindex >= 0)
-		name = tp->t_namelist[taskindex];
-	    fprintf(stderr, "%s\n}", name ? name : pmIDStr(pdu_last_pmid));
-	}
+        
+        for (fp = tp->t_fetch; fp != (fetchctl_t *)0; fp = fp->f_next) {
+            for (i = 0; i < fp->f_numpmid; i++) {
+                name = NULL;
+                taskindex = lookupTaskCacheIndex(tp, fp->f_pmidlist[i]);
+                if (taskindex >= 0)
+                    name = tp->t_namelist[taskindex];
+                if (pdu_metrics > 1)
+                    fprintf(stderr, "\t");
+                fprintf(stderr, "%s", name ? name : pmIDStr(fp->f_pmidlist[i]));
+                if (pdu_metrics > 1)
+                    fprintf(stderr, "\n");
+            } 
+            if (pdu_metrics > 1)
+                fprintf(stderr, "}");
+        }
 	fprintf(stderr, " logged ");
 
 	if (tp->t_delta.tv_sec == 0 && tp->t_delta.tv_usec == 0)
