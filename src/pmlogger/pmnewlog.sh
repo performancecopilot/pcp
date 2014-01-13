@@ -358,21 +358,16 @@ else
 	fi
     fi
 
-    if $SHOWME
+    host=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp/out`
+    if [ "X$host" = X ]
     then
-	host=somehost
-    else
-	host=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp/out`
-	if [ "X$host" = X ]
-	then
-	    echo "$prog: Error: failed to get host name from $myname"
-	    echo "This is what was collected from $myname."
-	    echo
-	    sed -e 's/^/	/' $tmp/out
-	    _abandon
-	fi
-	args="$args-h $host "
+	echo "$prog: Error: failed to get host name from $myname"
+	echo "This is what was collected from $myname."
+	echo
+	sed -e 's/^/	/' $tmp/out
+	_abandon
     fi
+    args="$args-h $host "
 fi
 
 # extract/construct config file if required
@@ -393,7 +388,7 @@ then
     then
 	echo "+ ( echo 'connect $connect'; echo 'query ...'; ... ) | pmlc $namespace | $PCP_AWK_PROG ..."
     else
-	( echo "connect $connect" ; for top in `pminfo $namespace \
+	( echo "connect $connect" ; for top in `pminfo -h $host $namespace \
 					| sed -e 's/\..*//' -e '/^proc$/d' \
 					| sort -u`
 	    do

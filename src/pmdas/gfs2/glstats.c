@@ -17,8 +17,8 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
 #include "glstats.h"
-#include <ctype.h>
 
 /*
  * GFS2 glock type identification; note that the glock type 7 is currently not 

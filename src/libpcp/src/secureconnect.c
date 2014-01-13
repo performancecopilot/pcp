@@ -735,6 +735,8 @@ static char *fgetsPrompt(FILE *in, FILE *out, const char *prompt, int secret)
 
     memset(phrase, 0, sizeof(phrase));
     value = fgetsQuietly(phrase, sizeof(phrase)-1, in);
+    if (!value)
+	return strdup("");
     length = strlen(value) - 1;
     while (length && (value[length] == '\n' || value[length] == '\r'))
 	value[length] = '\0';
@@ -2088,7 +2090,7 @@ __pmGetAddrInfo(const char *hostName)
     __pmHostEnt *he = __pmHostEntAlloc();
 
     if (he != NULL) {
-        he->addresses = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
+        he->addresses = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG | PR_AI_NOCANONNAME);
 	if (he->addresses == NULL) {
 	    __pmHostEntFree(he);
 	    return NULL;

@@ -1,0 +1,11 @@
+QA output created by 946
+-m avahi
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd -m avahi
+Discovered pmcd servers:
+Exit status: 0
+-q -m avahi
+Exit status: 0
+-q -s pmcd -m avahi
+Exit status: 0

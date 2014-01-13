@@ -1,5 +1,22 @@
-pcp-3.8.10 (git)
-    - Currently under development.
+pcp-3.8.10 (15 January 2014)
+    - Adds pmmgr(1) PCP daemon manager - a cunning new (opt-in)
+      approach to managing farms of pmlogger and pmie processes.
+    - Adds pmfind(1) utility for discovering advertised pmcd
+      services (initially) on the network.
+    - Adds a new pmDiscoverServices(3) PMAPI routine.
+    - Linux pmda: plug memory leak in /proc/interrupts parsing.
+    - systemd pmda: add sd_journal_process() to avoid inotify()
+      driven spinning
+    - Man page rework for some NAME entries, addressing SGI oss
+      bugzilla #972)
+    - Add notes for creating user pcp before make from source,
+      addressing SGI oss bugzilla #1040)
+    - Improve behavior related to Avahi service name collisions.
+    - Dodge another hostname-does-not-resolve bullet in pmlogger.
+    - Fix the configure check for RHEL5 rpmlib for pmdarpm.
+    - An extensive series of spelling fixes to man pages, thanks
+      to Michele Baldessari
+    - Small fixes here and there from Coverity static analysis.
 
 pcp-3.8.9 (12 December 2013)
     - Fix pmdalinux stack blowout during ioctl() for network

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,8 @@ MAN_PAGES	= \
 	pmdadesc.3 pmdadso.3 pmdafetch.3 pmdagetopt.3 pmdainit.3 \
 	pmdainstance.3 pmdamain.3 pmdaopenlog.3 pmdaprofile.3 \
 	pmdastore.3 pmdatext.3 pmdatrace.3 pmdelprofile.3 \
-	pmdestroycontext.3 pmdupcontext.3 pmerrstr.3 pmextractvalue.3 \
+	pmdestroycontext.3 pmdiscoverservices.3 pmdupcontext.3 pmerrstr.3 \
+	pmextractvalue.3 \
 	pmfetch.3 pmfetcharchive.3 pmfreeresult.3 pmgetarchiveend.3 \
 	pmgetarchivelabel.3 pmgetchildren.3 pmgetchildrenstatus.3 \
 	pmgetconfig.3 pmgetcontexthostname.3 pmgetindom.3 \

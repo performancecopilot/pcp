@@ -20,7 +20,8 @@ gfs2 {
     glocks
     sbstats		GFS2:*:*
     glstats
-    glock_lock_time
+    tracepoints
+    worst_glock
     control
 }
 
@@ -44,20 +45,200 @@ gfs2.glstats {
     journal		GFS2:2:9
 }
 
-gfs2.glock_lock_time {
-    lock_type		GFS2:3:0
-    number		GFS2:3:1
-    srtt		GFS2:3:2
-    srttvar		GFS2:3:3
-    srttb		GFS2:3:4
-    srttvarb		GFS2:3:5
-    sirt		GFS2:3:6
-    sirtvar		GFS2:3:7
-    dlm			GFS2:3:8
-    queue		GFS2:3:9
+gfs2.tracepoints {
+    glock_state_change
+    glock_put
+    demote_rq
+    promote
+    glock_queue
+    glock_lock_time
+    pin
+    log_flush
+    log_block
+    ail_flush
+    block_alloc
+    bmap
+    rs
+}
+
+gfs2.tracepoints.glock_state_change {
+    total		GFS2:3:0
+    null_lock		GFS2:3:1
+    concurrent_read	GFS2:3:2
+    concurrent_write	GFS2:3:3
+    protected_read	GFS2:3:4
+    protected_write	GFS2:3:5
+    exclusive		GFS2:3:6
+    glocks
+}
+
+gfs2.tracepoints.glock_state_change.glocks {
+    changed_target	GFS2:3:7
+    missed_target	GFS2:3:8
+}
+
+gfs2.tracepoints.glock_put {
+    total		GFS2:3:9
+    null_lock		GFS2:3:10
+    concurrent_read	GFS2:3:11
+    concurrent_write	GFS2:3:12
+    protected_read	GFS2:3:13
+    protected_write	GFS2:3:14
+    exclusive		GFS2:3:15
+}
+
+gfs2.tracepoints.demote_rq {
+    total		GFS2:3:16
+    null_lock		GFS2:3:17
+    concurrent_read	GFS2:3:18
+    concurrent_write	GFS2:3:19
+    protected_read	GFS2:3:20
+    protected_write	GFS2:3:21
+    exclusive		GFS2:3:22
+    requested
+}
+
+gfs2.tracepoints.demote_rq.requested {
+    remote		GFS2:3:23
+    local		GFS2:3:24
+}
+
+gfs2.tracepoints.promote {
+    total		GFS2:3:25
+    first
+    other
+}
+
+gfs2.tracepoints.promote.first {
+    null_lock		GFS2:3:26
+    concurrent_read	GFS2:3:27
+    concurrent_write	GFS2:3:28
+    protected_read	GFS2:3:29
+    protected_write	GFS2:3:30
+    exclusive		GFS2:3:31
+}
+
+gfs2.tracepoints.promote.other {
+    null_lock		GFS2:3:32
+    concurrent_read	GFS2:3:33
+    concurrent_write	GFS2:3:34
+    protected_read	GFS2:3:35
+    protected_write	GFS2:3:36
+    exclusive		GFS2:3:37
+}
+
+gfs2.tracepoints.glock_queue {
+    total		GFS2:3:38
+    queue
+    dequeue
+}
+
+gfs2.tracepoints.glock_queue.queue {
+    total		GFS2:3:39
+    null_lock		GFS2:3:40
+    concurrent_read	GFS2:3:41
+    concurrent_write	GFS2:3:42
+    protected_read	GFS2:3:43
+    protected_write	GFS2:3:44
+    exclusive		GFS2:3:45
+}
+
+gfs2.tracepoints.glock_queue.dequeue {
+    total		GFS2:3:46
+    null_lock		GFS2:3:47
+    concurrent_read	GFS2:3:48
+    concurrent_write	GFS2:3:49
+    protected_read	GFS2:3:50
+    protected_write	GFS2:3:51
+    exclusive		GFS2:3:52
+}
+
+gfs2.tracepoints.glock_lock_time {
+    total		GFS2:3:53
+    trans		GFS2:3:54
+    inode		GFS2:3:55
+    rgrp		GFS2:3:56
+    meta		GFS2:3:57
+    iopen		GFS2:3:58
+    flock		GFS2:3:59
+    quota		GFS2:3:60
+    journal		GFS2:3:61
+}
+
+gfs2.tracepoints.pin {
+    total		GFS2:3:62
+    pin_total		GFS2:3:63
+    unpin_total		GFS2:3:64
+    longest_pinned	GFS2:3:65
+}
+
+gfs2.tracepoints.log_flush {
+    total		GFS2:3:66
+}
+
+gfs2.tracepoints.log_block {
+    total		GFS2:3:67
+}
+
+gfs2.tracepoints.ail_flush {
+    total		GFS2:3:68
+}
+
+gfs2.tracepoints.block_alloc {
+    total		GFS2:3:69
+    free		GFS2:3:70
+    used		GFS2:3:71
+    dinode		GFS2:3:72
+    unlinked		GFS2:3:73
+}
+
+gfs2.tracepoints.bmap {
+    total		GFS2:3:74
+    create		GFS2:3:75
+    nocreate		GFS2:3:76
+}
+
+gfs2.tracepoints.rs {
+    total		GFS2:3:77
+    del			GFS2:3:78
+    tdel		GFS2:3:79
+    ins			GFS2:3:80
+    clm			GFS2:3:81
+}
+
+gfs2.worst_glock {
+    lock_type		GFS2:4:0
+    number		GFS2:4:1
+    srtt		GFS2:4:2
+    srttvar		GFS2:4:3
+    srttb		GFS2:4:4
+    srttvarb		GFS2:4:5
+    sirt		GFS2:4:6
+    sirtvar		GFS2:4:7
+    dlm			GFS2:4:8
+    queue		GFS2:4:9
 }
 
 gfs2.control {
-    glock_lock_time     GFS2:4:0
-    glock_threshold     GFS2:4:1
+    tracepoints
+    global_tracing	GFS2:5:14
+    worst_glock		GFS2:5:15
+    glock_threshold	GFS2:5:16
+}
+
+gfs2.control.tracepoints {
+    all			GFS2:5:0
+    glock_state_change	GFS2:5:1
+    glock_put		GFS2:5:2
+    demote_rq		GFS2:5:3
+    promote		GFS2:5:4
+    glock_queue		GFS2:5:5
+    glock_lock_time	GFS2:5:6
+    pin			GFS2:5:7
+    log_flush		GFS2:5:8
+    log_blocks		GFS2:5:9
+    ail_flush		GFS2:5:10
+    block_alloc		GFS2:5:11
+    bmap		GFS2:5:12
+    rs			GFS2:5:13
 }

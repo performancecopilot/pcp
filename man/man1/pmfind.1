@@ -1,0 +1,80 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMFIND 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmfind\f1 \- find PCP services on the network
+.SH SYNOPSIS
+\f3pmfind\f1
+[\f3\-q\f1]
+[\f3\-m\f1 \f2mechanism\f1]
+[\f3\-s\f1 \f2service\f1]
+.SH DESCRIPTION
+.B pmfind
+searches for instances of the specified PCP service being advertised on the
+network and prints a list of URLs corresponding to the services discovered.
+.PP
+By default
+.B pmfind
+will search for servers advertising the
+.BR pmcd (1)
+service, however an alternate PCP
+.I service
+to discover can be specified using the
+.B \-s
+option.
+.PP
+The
+.B \-m
+option sets the
+.I mechanism
+that
+.B pmfind
+uses when performing service discovery.
+By default, or if the keyword "all" is specified, every available
+mechanism will be used (iteratively).
+Currently, "avahi" is the only supported discovery mechanism.
+.PP
+The
+.B \-q
+option suppresses all output on the standard output stream.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH DIAGNOSTICS
+The value of the exit status from the command is zero when services were
+successfully located, one if no services were found, and two if an error
+occurred.
+.PP
+In the event of an error, a message will be generated on standard error
+that is intended to be self-explanatory.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR pmDiscoverServices (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

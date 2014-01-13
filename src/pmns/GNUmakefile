@@ -53,8 +53,8 @@ pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	echo "This file flags the rc scripts to rebuild the PMNS" > .NeedRebuild
 
 # All PMNS config stuff goes in $PCP_VAR_DIR/pmns
-# For platforms with packaging, the .NeedRebuild hook is added there,
-# for the others touch(1) here is as close as it gets unfortunately.
+# For platforms that want it, the .NeedRebuild hook is added there,
+# else a manual touch(1) here is as close as it gets unfortunately.
 #
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(SCRIPTS) $(PMNS_BIN_DIR)
@@ -62,7 +62,9 @@ install:	default
 	$(INSTALL) -m 644 GNUmakefile.install $(PMNS_VAR_DIR)/Makefile
 	$(INSTALL) -m 755 Rebuild $(PMNS_VAR_DIR)/Rebuild
 	$(INSTALL) -m 755 Make.stdpmid $(PMNS_VAR_DIR)/Make.stdpmid
+ifeq (, $(filter redhat debian, $(PACKAGE_DISTRIBUTION)))
 	$(INSTALL) -m 644 .NeedRebuild $(STDPMID) $(PMNS_VAR_DIR)
+endif
 
 stdpmid:	$(STDPMID)
 	rm -f build.script

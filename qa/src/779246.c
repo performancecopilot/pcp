@@ -10,9 +10,9 @@
 #include <string.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-
-#ifdef HAVE_SYSINFO
+#ifdef HAVE_SYS_SYSINFO_H
 #include <sys/sysinfo.h>
+#endif
 
 #define NUM 1
 
@@ -22,10 +22,9 @@ dometric(void)
     int			n;
     pmID		pmid;
     pmDesc		desc;
-    pmResult	*result;
-
-    char 		*namelist[NUM]		={ "sample.sysinfo" };
-    pmID		pmidlist[NUM];
+    pmResult		*result;
+    char 		*namelist[NUM] = { "sample.sysinfo" };
+    pmID		pmidlist[NUM] = { 0 };
 
     if ((n = pmLookupName(NUM, namelist, pmidlist)) < 0) {
 	printf("pmLookupDesc: %s\n", pmErrStr(n));
@@ -65,13 +64,7 @@ dometric(void)
     printf("sample.sysinfo vtype == %d\n",
 	    result->vset[0]->vlist[0].value.pval->vtype);
 
-#if PMAPI_VERSION == 2
     __pmDumpResult(stdout, result);
-#else
-    _pmDumpResult(stdout, result);
-#endif
-
-
     return 0;
 }
 
@@ -83,19 +76,13 @@ main(int argc, char *argv[])
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
-#ifdef PCP_DEBUG
     static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
     static char	*usage = "[-h hostname]";
 
     __pmSetProgname(pmProgname);
 
     while ((c = getopt(argc, argv, "D:h:")) != EOF) {
 	switch (c) {
-#ifdef PCP_DEBUG
-
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -106,7 +93,6 @@ main(int argc, char *argv[])
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    host = optarg;
@@ -136,14 +122,10 @@ main(int argc, char *argv[])
 
     /* Size of struct sysinfo is different on different platforms, so
      * give a hint how many bytes are expected in the output */
+#ifdef HAVE_SYSINFO
     printf("+++ Expect %d bytes\n", (int)sizeof(struct sysinfo));
+#else
+    printf("+++ Local struct sysinfo size unknown\n");
+#endif
     return dometric();
 }
-#else
-int
-main(int argc, char **argv)
-{
-    printf("No sysinfo on this platform\n");
-    exit(1);
-}
-#endif /* HAVE_SYSINFO */

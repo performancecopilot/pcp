@@ -676,13 +676,6 @@ __pmSockAddrSetScope(__pmSockAddr *addr, int scope)
 }
 
 void
-__pmSockAddrSetScope(__pmSockAddr *addr, int scope)
-{
-    if (addr->sockaddr.raw.sa_family == AF_INET6)
-        addr->sockaddr.ipv6.sin6_scope_id = scope;
-}
-
-void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -810,9 +803,10 @@ int
 __pmBind(int fd, void *addr, __pmSockLen addrlen)
 {
     __pmSockAddr *sock = (__pmSockAddr *)addr;
+
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	fprintf(stderr, "%s:__pmBind(fd=%d, family=INET, port=%d, addr=%s)\n",
+	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s)\n",
 	    __FILE__, fd, __pmSockAddrGetFamily(sock), __pmSockAddrGetPort(sock),
 	    __pmSockAddrToString(sock));
     }

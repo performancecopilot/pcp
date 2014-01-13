@@ -1,0 +1,21 @@
+QA output created by 775
+No arguments
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd
+Discovered pmcd servers:
+Exit status: 0
+-m all
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd -m all
+Discovered pmcd servers:
+Exit status: 0
+-q
+Exit status: 0
+-q -s pmcd
+Exit status: 0
+-q -m all
+Exit status: 0
+-q -s pmcd -m all
+Exit status: 0

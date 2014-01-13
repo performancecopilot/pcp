@@ -36,6 +36,10 @@ main(int argc, char *argv[])
 #define whatis(f) (f == (stderr) ? " (stderr)" : (f == (stdout) ? " (stdout)" : (f == NULL ? " (NULL)" : "")))
 
     nextfd = open("/dev/null", 0);
+    if (nextfd < 0) {
+	fprintf(stderr, "chkopenlog: failed /dev/null open\n");
+	exit(2);
+    }
     fprintf(stderr, "Starting with oldstream%s fd=%d, nextfd=%d\n", whatis(fout), fileno(fout), nextfd);
     close(nextfd);
 

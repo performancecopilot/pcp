@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@ MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
 	pmdabash.1 pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1 \
-	pmdagfs2.1 pmdagluster.1 pmmgr.1
+	pmdagfs2.1 pmdagluster.1 pmmgr.1 pmfind.1
 
 # same guard as in src/pmwebapi/GNUmakefile
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"

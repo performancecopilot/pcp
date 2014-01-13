@@ -17,7 +17,9 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
 #include "pmdagfs2.h"
+
 #include <ctype.h>
 
 static const char *stattype[] = {

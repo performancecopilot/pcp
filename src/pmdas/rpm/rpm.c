@@ -560,7 +560,7 @@ int
 main(int argc, char **argv)
 {
     int c, err = 0;
-    int Cflag, sep = __pmPathSeparator();
+    int Cflag = 0, sep = __pmPathSeparator();
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
 

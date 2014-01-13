@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include <avahi-common/timeval.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/domain.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -424,17 +425,21 @@ __pmServerAvahiAdvertisePresence(__pmServerPresence *s)
     /*
      * The service spec is simply the name of the server. Use it to
      * construct the avahi service name and service tag.
+     * The service name cannot be longer than AVAHI_LABEL_MAX - 1.
      */
-    
-    size = sizeof("PCP on ") + sizeof(host) +
+    gethostname(host, sizeof(host));
+    host[sizeof(host)-1] = '\0';
+
+    size = sizeof("PCP..on.") + strlen(host) +
 	strlen(s->serviceSpec); /* includes room for the nul */
+    if (size > AVAHI_LABEL_MAX)
+	size = AVAHI_LABEL_MAX;
     if ((s->avahi->serviceName = avahi_malloc(size)) == NULL) {
 	__pmNoMem("__pmServerAvahiAdvertisePresence: can't allocate service name",
 		  size, PM_FATAL_ERR);
     }
-    gethostname(host, sizeof(host));
-    host[sizeof(host)-1] = '\0';
-    sprintf(s->avahi->serviceName, "PCP %s on %s", s->serviceSpec, host);
+    snprintf(s->avahi->serviceName, size, "PCP %s on %s", s->serviceSpec, host);
+    assert (avahi_is_valid_service_name(s->avahi->serviceName));
 
     size = sizeof("_._tcp") + strlen(s->serviceSpec); /* includes room for the nul */
     if ((s->avahi->serviceTag = avahi_malloc(size)) == NULL) {

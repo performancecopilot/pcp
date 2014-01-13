@@ -869,6 +869,8 @@ __pmParseHostAttrsSpec(
     char *value = NULL, *s = (char *)spec;
     int sts, attr;
 
+    *count = 0;			/* ensure this initialised for fail: code */
+
     /* parse optional protocol section */
     if ((sts = parseProtocolSpec(spec, &s, &attr, &value, errmsg)) < 0)
 	return sts;

@@ -18,61 +18,87 @@
 #include "impl.h"
 #include "pmda.h"
 #include "control.h"
-#include <ctype.h>
+#include "ftrace.h"
+#include "worst_glock.h"
 
+/* Locations of the enable files for the gfs2 tracepoints */
 const char *control_locations[] = {
-	[CONTROL_GLOCK_LOCK_TIME] = "/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time/enable"
+        [CONTROL_ALL]			= "/sys/kernel/debug/tracing/events/gfs2/enable",
+        [CONTROL_GLOCK_STATE_CHANGE]	= "/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_state_change/enable",
+	[CONTROL_GLOCK_PUT]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_put/enable",
+	[CONTROL_DEMOTE_RQ]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_demote_rq/enable",
+	[CONTROL_PROMOTE]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_promote/enable",
+	[CONTROL_GLOCK_QUEUE]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_queue/enable",
+	[CONTROL_GLOCK_LOCK_TIME]	= "/sys/kernel/debug/tracing/events/gfs2/gfs2_glock_lock_time/enable",
+	[CONTROL_PIN]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_pin/enable",
+	[CONTROL_LOG_FLUSH]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_log_flush/enable",
+	[CONTROL_LOG_BLOCKS]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_log_blocks/enable",
+	[CONTROL_AIL_FLUSH]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_ail_flush/enable",
+	[CONTROL_BLOCK_ALLOC]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_block_alloc/enable",
+	[CONTROL_BMAP]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_bmap/enable",
+	[CONTROL_RS]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_rs/enable",
+	[CONTROL_GLOBAL_TRACING]	= "/sys/kernel/debug/tracing/tracing_on"
 };
 
 /*
- * Refreshing of the control metrics.
- *
+ * Refresh callback for the control metrics; For traceppoints that have file
+ * based enabling we use gfs2_control_check_value(), for other metrics we
+ * call their corresponding "get" value.
  */
-extern int
-gfs2_control_fetch(int item)
+int
+gfs2_control_fetch(int item, pmAtomValue *atom)
 {
-    if (item >= 0 && item < NUM_CONTROL_STATS && item != CONTROL_FTRACE_GLOCK_THRESHOLD)
-        return gfs2_control_check_value(control_locations[item]);
-    return PM_ERR_PMID;
+    if (item >= CONTROL_ALL && item <= CONTROL_GLOBAL_TRACING) {
+        atom->ul = gfs2_control_check_value(control_locations[item]);
+
+    } else if (item == CONTROL_WORSTGLOCK) {
+        atom->ul = worst_glock_get_state();
+
+    } else if (item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
+        atom->ul = ftrace_get_threshold();
+
+    } else {
+       return PM_ERR_PMID;
+
+    }
+    return 1;
 }
 
 /*
- * Attempt to open the given file and set a value in this file. We then return
- * any issues with this operation.
- *
+ * Attempt open the enable file for the given filename and set the value
+ * contained in pmValueSet. The enable file for the tracepoint only accept
+ * 0 for disabled or 1 for enabled.
  */
-extern int 
+int 
 gfs2_control_set_value(const char *filename, pmValueSet *vsp)
 {
     FILE *fp;
-    int value;
     int	sts = 0;
 
-    value = vsp->vlist[0].value.lval;
-    if (value < 0)
-	return PM_ERR_SIGN;
+    int value = vsp->vlist[0].value.lval;
+    if (value < 0 || value > 1)
+	return -oserror();
 
     fp = fopen(filename, "w");
     if (!fp) {
 	sts = -oserror(); /* EACCESS, File not found (stats not supported) */;
     } else {
-	fprintf(fp, "%d\n", value);
-	fclose(fp);
+        fprintf(fp, "%d\n", value);
+        fclose(fp);
     }
     return sts;
 }
 
 /*
- * We attempt to open the given file and check the value that is contained with.
- * In the event that the file does not exist or permission errors, we default to
- * 0 which signifies disabled. 
- *
+ * We check the tracepoint enable file given by filename and return the value
+ * contained. This should either be 0 for disabled or 1 for enabled. In the
+ * event of permissions or file not found we will return error.
  */
-extern int 
+int 
 gfs2_control_check_value(const char *filename)
 {
     FILE *fp;
-    char buffer[8];
+    char buffer[2];
     int value = 0;
 
     fp = fopen(filename, "r");

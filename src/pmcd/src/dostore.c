@@ -129,7 +129,7 @@ int
 DoStore(ClientInfo *cp, __pmPDU* pb)
 {
     int		sts;
-    int		s;
+    int		s = 0;
     AgentInfo	*ap;
     pmResult	*result;
     pmResult	**dResult;

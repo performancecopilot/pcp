@@ -10,17 +10,17 @@ int
 dometric(char *name)
 {
     int		i;
-    pmID	pmid;
+    pmID	pmidlist[] = { PM_ID_NULL };
     pmDesc	desc;
     int		sts;
     char	*iname;
     int		*ilist;
     char	**nlist;
 
-    if ((sts = pmLookupName(1, &name, &pmid)) < 0)
+    if ((sts = pmLookupName(1, &name, pmidlist)) < 0)
 	return sts;
 
-    if ((sts = pmLookupDesc(pmid, &desc)) < 0)
+    if ((sts = pmLookupDesc(pmidlist[0], &desc)) < 0)
 	return sts;
 
     for (i = 0; i < 2; i++) {

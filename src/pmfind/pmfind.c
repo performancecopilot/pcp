@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -15,92 +15,107 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static int	discover_pmcd = 0;
-static char	*discovery_domain = NULL;
+static int	quiet;
+static char	*service;
+static char	*mechanism;
+
+static int
+discovery(void)
+{
+    int		i, sts;
+    char	**urls;
+
+    if (!service)
+	service = PM_SERVER_SERVICE_SPEC;	/* pmcd */
+
+    sts = pmDiscoverServices(service, mechanism, &urls);
+    if (sts < 0) {
+	fprintf(stderr, "%s: service %s discovery failure: %s\n",
+		pmProgname, service, pmErrStr(sts));
+	return 2;
+    }
+    if (sts == 0) {
+	if (!quiet)
+	    printf("No %s servers discovered\n", service);
+	return 1;
+    }
+
+    if (!quiet) {
+	printf("Discovered %s servers:\n", service);
+	for (i = 0; i < sts; ++i)
+	    printf("  %s\n", urls[i]);
+    }
+    free(urls);
+    return 0;
+}
 
 static void
-PrintUsage(void)
+usage(void)
 {
     fprintf(stderr,
 "Usage: %s [options]\n\
 \n\
 Options:\n\
-  -p	           discover local pmcd servers\n\
-  -d [avahi|all]   set the discovery domain\n",
+  -m mechanism  set the discovery method to use [avahi|...|all]\n\
+  -q            quiet mode, do not write to stdout\n\
+  -s service    discover local services [pmcd|...]\n",
 	    pmProgname);
 }
-
-static void
-ParseOptions(int argc, char *argv[])
-{
-    int		c;
-    int		errflag = 0;
-    char	*opts = "d:p?";
-
-    /* If no options specified, then use these defaults. */
-    if (argc == 1) {
-	discover_pmcd = 1;
-	return;
-    }
-
-    while ((c = getopt(argc, argv, opts)) != EOF) {
-	switch (c) {
-
-	    case 'd':	/* domain flag */
-		if (strcmp(optarg, "all") == 0)
-		    discovery_domain = NULL;
-		else if (strcmp(optarg, "avahi") == 0)
-		    discovery_domain = optarg;
-		else {
-		    fprintf(stderr, "%s: Unsupported discovery domain '%s'\n",
-			    pmProgname, optarg);
-		    errflag++;
-		}
-		break;
-
-	    case 'p':
-		discover_pmcd = 1;
-		break;
-
-	    case '?':
-	    default:
-		if (errflag == 0) {
-		    PrintUsage();
-		    exit(0);
-		}
-	}
-    }
-
-    if (errflag) {
-	PrintUsage();
-	exit(1);
-    }
-}
-
-/*****************************************************************************/
 
 int
 main(int argc, char **argv)
 {
-    int exitsts = 0;
+    int		c;
+    int		sts;
+    int		errflag = 0;
 
     __pmSetProgname(argv[0]);
 
-    ParseOptions(argc, argv);
+    while ((c = getopt(argc, argv, "D:m:s:q?")) != EOF) {
+	switch (c) {
 
-    if (discover_pmcd) {
-	char **urls;
-	int numUrls;
-	if ((numUrls = pmDiscoverServices(PM_SERVER_SERVICE_SPEC, NULL, &urls)) > 0) {
-	    int i;
-	    printf("Discovered PMCD servers:\n");
-	    for (i = 0; i < numUrls; ++i)
-		printf("  %s\n", urls[i]);
-	    free(urls);
+	    case 'D':	/* debug flag */
+		if ((sts = __pmParseDebug(optarg)) < 0) {
+		    fprintf(stderr,
+			"%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, optarg);
+		    errflag++;
+		} else {
+		    pmDebug |= sts;
+		}
+		break;
+
+	    case 'm':	/* discovery mechanism */
+		if (strcmp(optarg, "all") == 0)
+		    mechanism = NULL;
+		else
+		    mechanism = optarg;
+		break;
+
+	    case 'q':	/* no stdout messages */
+		quiet = 1;
+		break;
+
+	    case 's':	/* discover named service */
+		service = optarg;
+		break;
+
+	    case '?':
+		if (errflag == 0) {
+		    usage();
+		    exit(0);
+		}
+		break;
 	}
-	else
-	    printf("No PMCD servers discovered\n");
     }
 
-    exit(exitsts);
+    if (optind != argc)
+	errflag++;
+
+    if (errflag) {
+	usage();
+	exit(1);
+    }
+
+    return discovery();
 }

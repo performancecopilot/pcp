@@ -357,7 +357,7 @@ read_sysmap(const char *release, __psint_t end_addr)
     char	inbuf[256], path[MAXPATHLEN], **fmt;
     struct ksym	*ksym_tmp;
     __psint_t	addr;
-    int		ix, res, i, e;
+    int		ix, res, e;
     int		l = 0;
     char	*ip;
     char	*sp;
@@ -413,11 +413,11 @@ read_sysmap(const char *release, __psint_t end_addr)
 	fprintf(stderr, "Warning: proc.psinfo.wchan_s symbol names cannot be derived!\n");
 	fprintf(stderr, "Warning: Addresses will be returned for proc.psinfo.wchan_s instead!\n");
 	/* Free symbol array */
-	for (i = 0; i < ksym_a_sz; i++) {
-		if (ksym_a[i].name)
-			free(ksym_a[i].name);
-		if (ksym_a[i].module)
-			free(ksym_a[i].module);
+	for (ix = 0; ix < ksym_a_sz; ix++) {
+		if (ksym_a[ix].name)
+			free(ksym_a[ix].name);
+		if (ksym_a[ix].module)
+			free(ksym_a[ix].module);
 	}
 	free(ksym_a);
 	ksym_a = NULL;
@@ -434,8 +434,6 @@ read_sysmap(const char *release, __psint_t end_addr)
     /* Read each line in System.map */
     ksym_mismatch_count = 0;
     while (fgets(inbuf, sizeof(inbuf), fp) != NULL) {
-	i++;
-
 	/*
 	 * System.map lines look like this on ia32 ...
 	 *

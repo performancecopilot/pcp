@@ -35,9 +35,11 @@ build-me: $(SUBDIRS) $(CXXMDTARGET)
 
 install: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 -d `dirname $(PCP_PMMGROPTIONS_PATH)`
 	$(INSTALL) -m 644 pmmgr.options $(PCP_PMMGROPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmmgr $(PCP_RC_DIR)/pmmgr
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmmgr
 else
 build-me:
 	@echo not building pmmgr

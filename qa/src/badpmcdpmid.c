@@ -21,7 +21,11 @@ main()
     p->domain = 2;		/* pmcd */
     p->cluster = 13;		/* bogus */
 
-    pmNewContext(PM_CONTEXT_HOST, "localhost");
+    sts = pmNewContext(PM_CONTEXT_HOST, "localhost");
+    if (sts < 0) {
+	fprintf(stderr, "pmNewContext(localhost) failed: %s\n", pmErrStr(sts));
+	exit(1);
+    }
 
     sts = pmFetch(1, &pmid, &rp);
     if (sts != 0)

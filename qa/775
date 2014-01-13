@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 775
+# Test using the pmfind app to find pmcd servers
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# Is pmfind supported?
+test $PCP_VER -ge 3810 || _notrun pmfind is not available in this version of PCP
+
+# Does PMCD support service discovery?
+service_discovery=false
+eval `pmconfig -L 2>/dev/null`	# get service_discovery status
+[ $service_discovery = true ] || _notrun PMCD does not support service discovery
+
+# Make sure that at least one of the supported discovery mechanisms is available.
+# Currently only avahi is supported.
+discovery_available=0
+which avahi-daemon >/dev/null 2>&1 && avahi-daemon --check && discovery_available=1
+[ $discovery_available = 0 ] && _notrun no discovery mechanisms are available
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_success_filter()
+{
+    sed \
+	-e '/  pcp:/d'
+}
+
+# real QA test starts here
+
+echo "No arguments"
+pmfind | _success_filter
+echo "Exit status: $?"
+
+echo "-s pmcd"
+pmfind -s pmcd | _success_filter
+echo "Exit status: $?"
+
+echo "-m all"
+pmfind -m all | _success_filter
+echo "Exit status: $?"
+
+echo "-s pmcd -m all"
+pmfind -s pmcd -m all | _success_filter
+echo "Exit status: $?"
+
+echo "-q"
+pmfind -q
+echo "Exit status: $?"
+
+echo "-q -s pmcd"
+pmfind -q -s pmcd
+echo "Exit status: $?"
+
+echo "-q -m all"
+pmfind -q -m all
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m all"
+pmfind -q -s pmcd -m all
+echo "Exit status: $?"
+
+# success, all done
+status=0
+
+exit

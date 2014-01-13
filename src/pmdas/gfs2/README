@@ -75,7 +75,7 @@ data) or 1 (On: collection of metric data) using the provided command
 pmstore whilst specifying the metric to set the value for and a valid
 value.
 
-    + $ pmstore gfs2.control.glock_lock_time 1
+    + $ pmstore gfs2.control.tracepoints.all 1
 
 Any metrics without a corresponding control metric cannot have their
 functionality toggled in this way.
@@ -105,4 +105,4 @@ Troubleshooting
 
           $ pminfo -f gfs2.control
 
-          $ pmstore gfs2.control.glock_lock_time 1
+          $ pmstore gfs2.control.tracepoints.all 1

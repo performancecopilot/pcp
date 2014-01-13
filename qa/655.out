@@ -1,5 +1,5 @@
 QA output created by 655
-enabling gfs2_glock_lock_time tracepoint
+enabling gfs2 tracepoints
 You will need to choose an appropriate configuration for installation of
 the "gfs2" Performance Metrics Domain Agent (PMDA).
 
@@ -11,67 +11,430 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check gfs2 metrics have appeared ... 106 metrics and 106 values
-enabling gfs2_glock_lock_time tracepoint
+Check gfs2 metrics have appeared ... 203 metrics and N values
+enabling gfs2 tracepoints
+
+=== Turning off worst_glock metrics ===
+pmstore gfs2.control.worst_glock 0
 
 === Check for successful install of pmda ===
 
-=== gfs2_glock_lock_time tracepoint for all filesystems ===
+=== Check gfs2.tracepoints metrics for all filesystems ===
 
-gfs2.glock_lock_time.lock_type PMID: 115.3.0
-    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.total PMID: 115.3.0
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.number PMID: 115.3.1
-    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.null_lock PMID: 115.3.1
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.srtt PMID: 115.3.2
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.concurrent_read PMID: 115.3.2
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.srttvar PMID: 115.3.3
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.concurrent_write PMID: 115.3.3
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.srttb PMID: 115.3.4
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.protected_read PMID: 115.3.4
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.srttvarb PMID: 115.3.5
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.protected_write PMID: 115.3.5
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.sirt PMID: 115.3.6
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.exclusive PMID: 115.3.6
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.sirtvar PMID: 115.3.7
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.glocks.changed_target PMID: 115.3.7
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.dlm PMID: 115.3.8
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_state_change.glocks.missed_target PMID: 115.3.8
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
-gfs2.glock_lock_time.queue PMID: 115.3.9
-    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+gfs2.tracepoints.glock_put.total PMID: 115.3.9
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.null_lock PMID: 115.3.10
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.concurrent_read PMID: 115.3.11
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.concurrent_write PMID: 115.3.12
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.protected_read PMID: 115.3.13
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.protected_write PMID: 115.3.14
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_put.exclusive PMID: 115.3.15
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.total PMID: 115.3.16
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.null_lock PMID: 115.3.17
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.concurrent_read PMID: 115.3.18
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.concurrent_write PMID: 115.3.19
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.protected_read PMID: 115.3.20
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.protected_write PMID: 115.3.21
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.exclusive PMID: 115.3.22
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.requested.remote PMID: 115.3.23
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.demote_rq.requested.local PMID: 115.3.24
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.total PMID: 115.3.25
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.null_lock PMID: 115.3.26
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.concurrent_read PMID: 115.3.27
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.concurrent_write PMID: 115.3.28
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.protected_read PMID: 115.3.29
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.protected_write PMID: 115.3.30
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.first.exclusive PMID: 115.3.31
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.null_lock PMID: 115.3.32
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.concurrent_read PMID: 115.3.33
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.concurrent_write PMID: 115.3.34
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.protected_read PMID: 115.3.35
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.protected_write PMID: 115.3.36
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.promote.other.exclusive PMID: 115.3.37
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.total PMID: 115.3.38
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.total PMID: 115.3.39
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.null_lock PMID: 115.3.40
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.concurrent_read PMID: 115.3.41
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.concurrent_write PMID: 115.3.42
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.protected_read PMID: 115.3.43
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.protected_write PMID: 115.3.44
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.queue.exclusive PMID: 115.3.45
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.total PMID: 115.3.46
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.null_lock PMID: 115.3.47
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.concurrent_read PMID: 115.3.48
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.concurrent_write PMID: 115.3.49
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.protected_read PMID: 115.3.50
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.protected_write PMID: 115.3.51
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_queue.dequeue.exclusive PMID: 115.3.52
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.total PMID: 115.3.53
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.trans PMID: 115.3.54
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.inode PMID: 115.3.55
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.rgrp PMID: 115.3.56
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.meta PMID: 115.3.57
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.iopen PMID: 115.3.58
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.flock PMID: 115.3.59
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.quota PMID: 115.3.60
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.glock_lock_time.journal PMID: 115.3.61
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.pin.total PMID: 115.3.62
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.pin.pin_total PMID: 115.3.63
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.pin.unpin_total PMID: 115.3.64
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.pin.longest_pinned PMID: 115.3.65
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.log_flush.total PMID: 115.3.66
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.log_block.total PMID: 115.3.67
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.ail_flush.total PMID: 115.3.68
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.block_alloc.total PMID: 115.3.69
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.block_alloc.free PMID: 115.3.70
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.block_alloc.used PMID: 115.3.71
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.block_alloc.dinode PMID: 115.3.72
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.block_alloc.unlinked PMID: 115.3.73
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.bmap.total PMID: 115.3.74
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.bmap.create PMID: 115.3.75
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.bmap.nocreate PMID: 115.3.76
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.rs.total PMID: 115.3.77
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.rs.del PMID: 115.3.78
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.rs.tdel PMID: 115.3.79
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.rs.ins PMID: 115.3.80
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+    inst [0  or FILESYSTEM] value NUMBER
+
+gfs2.tracepoints.rs.clm PMID: 115.3.81
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count
     inst [0  or FILESYSTEM] value NUMBER
 
 === check functionality of pmstore (off) ===
-gfs2.control.glock_lock_time OLD VALUE new value=0
+gfs2.control.tracepoints.all OLD VALUE new value=0
 
 === check functionality of pmstore (on) === 
-gfs2.control.glock_lock_time OLD VALUE new value=1
+gfs2.control.tracepoints.all OLD VALUE new value=1
 
 === Removing the GFS2 PMDA ===
