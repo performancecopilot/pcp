@@ -616,7 +616,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Wed Jan 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
+* Wed Jan 15 2014 Nathan Scott <nathans@redhat.com> - 3.8.10-1
 - Update to latest PCP sources.
 
 * Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1
