@@ -30,6 +30,7 @@ usr/share/man/man3/pmCtime.3.gz
 usr/share/man/man3/pmDelProfile.3.gz
 usr/share/man/man3/pmDerivedErrStr.3.gz
 usr/share/man/man3/pmDestroyContext.3.gz
+usr/share/man/man3/pmDiscoverServices.3.gz
 usr/share/man/man3/pmDupContext.3.gz
 usr/share/man/man3/pmErrStr.3.gz
 usr/share/man/man3/pmErrStr_r.3.gz
