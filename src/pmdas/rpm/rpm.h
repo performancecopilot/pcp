@@ -54,6 +54,7 @@ enum {
     URL_ID			= 13,
     VENDOR_ID			= 14,
     VERSION_ID			= 15,
+    NAME_ID			= 16,
 };
 
 /*

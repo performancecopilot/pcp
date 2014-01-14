@@ -2,7 +2,7 @@
 # Common pre-test checking and settings for pmdarpm QA. Handles
 # setup for the basic environment needed for all RPM PMDA tests.
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -63,6 +63,7 @@ Name: qaplayer
 Version: 1.0
 Release: 1
 License: GPL
+BuildArch: noarch
 Group: Applications/Sound
 Source: $tgz
 URL: http://www.gnomovision.com/qaplayer/qaplayer.html
@@ -132,6 +133,7 @@ _rpm_package_install()
 	    echo "Installing $rpm_name" | tee -a $seq.full
 	    echo "RPM pathname: $rpm_bin_pkg" >> $seq.full
 	    $sudo rpm -i $rpm_bin_pkg >> $seq.full 2>&1
+	    $sudo rpm -qa >> $seq.full 2>&1
 	fi
     fi
 }

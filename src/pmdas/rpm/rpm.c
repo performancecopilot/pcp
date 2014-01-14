@@ -81,6 +81,8 @@ static pmdaMetric metrictab[] = {
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
     { NULL, { PMDA_PMID(1, VERSION_ID), PM_TYPE_STRING,
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+    { NULL, { PMDA_PMID(1, NAME_ID), PM_TYPE_STRING,
+	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
 };
 
 static pthread_t indom_thread;		/* load the instances initially */
@@ -208,6 +210,9 @@ rpm_fetch_package(int item, unsigned int inst, pmAtomValue *atom)
 	break;
     case VERSION_ID:
 	atom->cp = dict_lookup(p->values.version);
+	break;
+    case NAME_ID:
+	atom->cp = dict_lookup(p->values.name);
 	break;
     default:
 	sts = PM_ERR_PMID;

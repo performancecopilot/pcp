@@ -2,7 +2,7 @@
 # PCP QA Test No. 750
 # Exercise the RPM Package Manager PMDA
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -10,26 +10,35 @@ echo "QA output created by $seq"
 . ./common.rpm
 _rpm_support_tests
 
+rm -f $seq.out
+if [ $PCP_VER -ge 3810 ]
+then
+    ln $seq.out.2 $seq.out
+else
+    ln $seq.out.1 $seq.out
+fi
+
 status=1	# failure is the default!
+hostname=`hostname`
 $sudo rm -fr $tmp.* $seq.full
 trap "_rpm_cleanup" 0 1 2 3 15
-
-BUILDHOST=`hostname`
-HOSTARCH=`uname -m`
 
 filter_pmval()
 {
     sed \
-	-e "s/\"$HOSTARCH\"/\"HOSTARCH\"/g" \
-	-e "s/\"$BUILDHOST\"/\"BUILDHOST\"/g" \
+	-e "s/\"$hostname\"/\"BUILDHOST\"/g" \
 	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
     # end
 }
 
 report_package()
 {
-    inst="$1"
- 
+    if [ $PCP_VER -ge 3810 ]; then
+	inst="$1-$2"
+    else
+	inst="$1"
+    fi
+
     pmsleep 1.1	# time for pmdarpm to complete background refresh
     pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
@@ -47,6 +56,9 @@ report_package()
     pmval -s 1 rpm.url -i $inst		2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.vendor -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.version -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    if [ $PCP_VER -ge 3810 ]; then
+	pmval -s 1 rpm.name -i $inst	2>&1 | filter_pmval | tee -a $seq.full
+    fi
 }
 
 # real QA test starts here
@@ -55,11 +67,11 @@ _rpm_pmda_prepare
 _rpm_package_prepare
 
 _rpm_package_install
-report_package qaplayer
+report_package qaplayer 1.0-1.noarch
 
 echo "========================================================================"
 _rpm_package_remove
-report_package qaplayer
+report_package qaplayer 1.0-1.noarch
 
 # success, all done
 status=0

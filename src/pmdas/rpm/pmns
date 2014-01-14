@@ -15,6 +15,7 @@ rpm {
     url		RPM:1:13
     vendor	RPM:1:14
     version	RPM:1:15
+    name	RPM:1:16
     refresh
     datasize	RPM:0:4
 }
