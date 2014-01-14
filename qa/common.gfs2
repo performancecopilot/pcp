@@ -104,6 +104,7 @@ _setup_gfs2_tracepoints()
 _install_pmda()
 {
     # install the PMDA
+    cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove < /dev/null >/dev/null 2>&1
     $sudo ./Install < /dev/null >$tmp.out 2>&1
     cat $tmp.out | _filter_pmda_install | sed \
@@ -115,6 +116,7 @@ _install_pmda()
 
 _remove_pmda()
 {
+    cd $PCP_PMDAS_DIR/$iam
     $sudo ./Remove < /dev/null > /dev/null 2>&1
 }
 
