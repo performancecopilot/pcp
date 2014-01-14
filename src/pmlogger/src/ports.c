@@ -458,7 +458,7 @@ control_req(void)
     hostName = __pmGetNameInfo(addr);
     if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
-        sprintf(pmlc_host, "%s", abuf);
+        snprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
 	free(abuf);
     }
     else {
