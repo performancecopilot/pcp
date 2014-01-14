@@ -15,7 +15,11 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_VER -gt 2100 -o $PCP_EOE_VER -ge 6510 ]
+if [ $PCP_VER -ge 3810 ]
+then
+    ln $seq.out.3 $seq.out
+    echo "[Version for PCP 3.8.10 or later]"
+elif [ $PCP_VER -gt 2100 -o $PCP_EOE_VER -ge 6510 ]
 then
     echo "[Version for PCP 2.2 or later or IRIX >= 6.5.10]"
     ln $seq.out.2 $seq.out
@@ -34,7 +38,7 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cat <<End-of-File | pmlogger -l $tmp.log -T 3sec $tmp
+cat <<End-of-File | pmlogger -Dappl1 -l $tmp.log -T 3sec $tmp
 log mandatory on once {
     sample.control
 }
