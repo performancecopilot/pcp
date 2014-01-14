@@ -17,6 +17,11 @@ pcp-3.8.10 (15 January 2014)
     - An extensive series of spelling fixes to man pages, thanks
       to Michele Baldessari
     - Small fixes here and there from Coverity static analysis.
+    - GFS2 pmda: add the complete set of GFS2 tracepoint metrics.
+    - RPM pmda: make instance names unique, add rpm.name metric.
+    - RPM pmda: reduce number of inotify events and rpmdb scans.
+    - Add some heuristics to reduce metric duplication from tasks
+      formed via pmlogger configuration file blocks.
 
 pcp-3.8.9 (12 December 2013)
     - Fix pmdalinux stack blowout during ioctl() for network
