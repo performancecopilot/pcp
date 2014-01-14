@@ -113,7 +113,7 @@ on		{ return ctx(ON); }
 
 .		{
 		    char emess[256];
-		    sprintf(emess, "Unexpected character '%c'", yytext[0]);
+		    snprintf(emess, sizeof(emess), "Unexpected character '%c'", yytext[0]);
 		    yyerror(emess);
 		}
 %%

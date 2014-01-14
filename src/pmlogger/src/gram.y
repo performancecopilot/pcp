@@ -135,7 +135,7 @@ dowhat		: logopt action
 		{
                     if ((tp = (task_t *)calloc(1, sizeof(task_t))) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", osstrerror());
+			snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			yyerror(emess);
                     }
                     tp->t_delta.tv_sec = $2 / 1000;
@@ -152,12 +152,12 @@ action		: cntrl ON frequency
 		{ 
 		    char emess[256];
                     if ($3 < 0) {
-			sprintf(emess, 
+			snprintf(emess, sizeof(emess),
 				"Logging delta (%ld msec) must be positive",$3);
 			yyerror(emess);
 		    }
 		    else if ($3 >  PMLC_MAX_DELTA) {
-			sprintf(emess, 
+			snprintf(emess, sizeof(emess),
 				"Logging delta (%ld msec) cannot be bigger "
 				"than %d msec", $3, PMLC_MAX_DELTA);
 			yyerror(emess);
@@ -213,7 +213,7 @@ metricspec	: NAME
 		{ 
                     if ((metricName = strdup($1)) == NULL) {
 			char emess[256];
-			sprintf(emess, "malloc failed: %s", osstrerror());
+			snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
                         yyerror(emess);
 		    }
                 }
@@ -240,7 +240,7 @@ metricspec	: NAME
 			 */
 			if ((sts = pmTraversePMNS(metricName, dometric)) < 0 ) {
 			    char emess[256];
-			    sprintf(emess, "Problem with lookup for metric \"%s\" "
+			    snprintf(emess, sizeof(emess), "Problem with lookup for metric \"%s\" "
 					    "... logging not activated",metricName);
 			    yywarn(emess);
 			    fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
@@ -409,12 +409,12 @@ dometric(const char *name)
 
 	/* Cast away const, pmLookupName should never modify name */
 	if ((sts = pmLookupName(1, (char **)&name, &pmid)) < 0 || pmid == PM_ID_NULL) {
-	   sprintf(emess, "Metric \"%s\" is unknown ... not logged", name);
+            snprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not logged", name);
 	    goto defer;
 	}
 
 	if ((sts = pmLookupDesc(pmid, dp)) < 0) {
-	    sprintf(emess, "Description unavailable for metric \"%s\" ... not logged", name);
+	    snprintf(emess, sizeof(emess), "Description unavailable for metric \"%s\" ... not logged", name);
 
 	    goto defer;
 	}
@@ -457,8 +457,8 @@ dometric(const char *name)
 	    if (extlist[i] != NULL) {
 		sts = pmLookupInDom(dp->indom, extlist[i]);
 		if (sts < 0) {
-			sprintf(emess, "Instance \"%s\" is not defined for the metric \"%s\"", extlist[i], name);
-			yywarn(emess);
+                    snprintf(emess, sizeof(emess), "Instance \"%s\" is not defined for the metric \"%s\"", extlist[i], name);
+                    yywarn(emess);
 		    rqp->r_numinst--;
 		    continue;
 		}
@@ -468,9 +468,8 @@ dometric(const char *name)
 		char	*p;
 		sts = pmNameInDom(dp->indom, intlist[i], &p);
 		if (sts < 0) {
-           sprintf(emess, "Instance \"%d\" is not defined for the metric \"%s\"", intlist[i], name);
-           yywarn(emess);
-
+                    snprintf(emess, sizeof(emess), "Instance \"%d\" is not defined for the metric \"%s\"", intlist[i], name);
+                    yywarn(emess);
 		    rqp->r_numinst--;
 		    continue;
 		}
@@ -478,11 +477,10 @@ dometric(const char *name)
 		inst = intlist[i];
 	    }
 	    if ((sts = chk_one(tp, pmid, inst)) < 0) {
-			sprintf(emess, "Incompatible request for metric \"%s\" and instance \"%s\"", name, extlist[i]);
-			yywarn(emess);
-
-			fprintf(stderr, "%s\n", chk_emess[-sts]);
-			rqp->r_numinst--;
+                snprintf(emess, sizeof(emess), "Incompatible request for metric \"%s\" and instance \"%s\"", name, extlist[i]);
+                yywarn(emess);
+                fprintf(stderr, "%s\n", chk_emess[-sts]);
+                rqp->r_numinst--;
 	    }
 	    else
 		rqp->r_instlist[j++] = inst;
@@ -492,7 +490,7 @@ dometric(const char *name)
     }
     else {
 	if ((sts = chk_all(tp, pmid)) < 0) {
-            sprintf(emess, "Incompatible request for metric \"%s\"", name);
+            snprintf(emess, sizeof(emess), "Incompatible request for metric \"%s\"", name);
             yywarn(emess);
 
 	    skip = 1;
@@ -535,8 +533,8 @@ dometric(const char *name)
 
                     /* Found one! */
 		    if (pmDebug & DBG_TRACE_APPL1) {
-                       sprintf(emess, "Eliminating duplicate metric \"%s\"", name);
-                       yywarn(emess);
+                        snprintf(emess, sizeof(emess), "Eliminating duplicate metric \"%s\"", name);
+                        yywarn(emess);
 		    }
                     skip = 1;
                 }
@@ -547,7 +545,7 @@ dometric(const char *name)
     if (!skip) {
 	__pmOptFetchAdd(&fetchroot, rqp);
 	if ((sts = __pmHashAdd(pmid, (void *)rqp, &pm_hash)) < 0) {
-	    sprintf(emess, "__pmHashAdd failed for metric \"%s\" ... logging not activated", name);
+	    snprintf(emess, sizeof(emess), "__pmHashAdd failed for metric \"%s\" ... logging not activated", name);
 
 	    goto snarf;
 	}
@@ -576,7 +574,7 @@ defer:
     return;
 
 nomem:
-    sprintf(emess, "malloc failed: %s", osstrerror());
+    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
     yyerror(emess);
 
 snarf:

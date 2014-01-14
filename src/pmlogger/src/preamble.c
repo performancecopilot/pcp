@@ -156,7 +156,7 @@ do_preamble(void)
 		goto done;
 	    }
 	    *instid = (int)mypid;
-	    sprintf(path, "%" FMT_PID, mypid);
+	    snprintf(path, sizeof(path), "%" FMT_PID, mypid);
 	    if ((instname = (char **)malloc(sizeof(char *)+strlen(path)+1)) == NULL) {
 		free(instid);
 		sts = -oserror();

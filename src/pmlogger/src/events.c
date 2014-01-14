@@ -76,12 +76,13 @@ do_events(pmValueSet *vsp)
 			 * event_param.<domain>.<cluster>.<item>
 			 */
 			char	*name;
-			names = (char **)malloc(sizeof(char *)+strlen("event_param")+3+1+4+1+4+1);
+                        size_t   name_size = strlen("event_param")+3+1+4+1+4+1;
+                        names = (char **)malloc(sizeof(char*) + name_size);
 			if (names == NULL)
 			    return -oserror();
 			name = (char *)&names[1];
 			names[0] = name;
-			sprintf(name, "event_param.%s", pmIDStr(epp->ep_pmid));
+			snprintf(name, name_size, "event_param.%s", pmIDStr(epp->ep_pmid));
 			fprintf(stderr, "Warning: metric %s has no name, using %s\n", pmIDStr(epp->ep_pmid), name);
 		    }
 		    sts = pmLookupDesc(epp->ep_pmid, &desc);

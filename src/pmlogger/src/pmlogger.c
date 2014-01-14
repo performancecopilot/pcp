@@ -253,13 +253,13 @@ do_size(double d)
     static char nbuf[100];
 
     if (d < 10 * 1024)
-	sprintf(nbuf, "%ld bytes", (long)d);
+	snprintf(nbuf, sizeof(nbuf), "%ld bytes", (long)d);
     else if (d < 10.0 * 1024 * 1024)
-	sprintf(nbuf, "%.1f Kbytes", d/1024);
+	snprintf(nbuf, sizeof(nbuf), "%.1f Kbytes", d/1024);
     else if (d < 10.0 * 1024 * 1024 * 1024)
-	sprintf(nbuf, "%.1f Mbytes", d/(1024 * 1024));
+	snprintf(nbuf, sizeof(nbuf), "%.1f Mbytes", d/(1024 * 1024));
     else
-	sprintf(nbuf, "%ld Mbytes", (long)d/(1024 * 1024));
+	snprintf(nbuf, sizeof(nbuf), "%ld Mbytes", (long)d/(1024 * 1024));
     
     return nbuf;
 }
@@ -332,9 +332,9 @@ do_dialog(char cmd)
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
 
-    sprintf(lbuf, "PCP recording for the archive folio \"%s\" and the host", folio_name);
+    snprintf(lbuf, sizeof(lbuf), "PCP recording for the archive folio \"%s\" and the host", folio_name);
     nchar = add_msg(&p, nchar, lbuf);
-    sprintf(lbuf, " \"%s\" has been in progress for %ld %s",
+    snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld %s",
 	pmcd_host,
 	now < 240 ? now : now/60, now < 240 ? "seconds" : "minutes");
     nchar = add_msg(&p, nchar, lbuf);
@@ -345,7 +345,7 @@ do_dialog(char cmd)
     nchar = add_msg(&p, nchar, ".");
     if (rsc_replay) {
 	nchar = add_msg(&p, nchar, "\n\nThis archive may be replayed with the following command:\n");
-	sprintf(lbuf, "  $ pmafm %s replay", folio_name);
+	snprintf(lbuf, sizeof(lbuf), "  $ pmafm %s replay", folio_name);
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -382,7 +382,7 @@ do_dialog(char cmd)
     if (cmd != 'Q') {
 	nchar = add_msg(&p, nchar, "\n\nAt any time this pmlogger process may be terminated with the");
 	nchar = add_msg(&p, nchar, " following command:\n");
-	sprintf(lbuf, "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
+	snprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -394,7 +394,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	sprintf(tmp, "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
+	snprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else
@@ -415,11 +415,11 @@ do_dialog(char cmd)
 	msgf = NULL;
 
 	if (cmd == 'X')
-	    sprintf(lbuf, "%s -c -header \"%s - %s\" -file %s -icon question "
+	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon question "
 			  "-B Yes -b No 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 	else
-	    sprintf(lbuf, "%s -c -header \"%s - %s\" -file %s -icon info "
+	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon info "
 			  "-b Close 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 
@@ -513,7 +513,7 @@ main(int argc, char **argv)
 		if ( (configfile = (char *)malloc(sz)) == NULL ) {
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
 		}
-		sprintf(configfile,
+		snprintf(configfile, sz,
 			"%s%c" "pmlogger" "%c%s",
 			sysconf, sep, sep, optarg);
 		if (access(configfile, F_OK) != 0) {
