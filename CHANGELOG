@@ -1,3 +1,6 @@
+pcp-3.8.11 (git)
+    - Under development.
+
 pcp-3.8.10 (15 January 2014)
     - Adds pmmgr(1) PCP daemon manager - a cunning new (opt-in)
       approach to managing farms of pmlogger and pmie processes.
