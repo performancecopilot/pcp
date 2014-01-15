@@ -359,10 +359,11 @@ startmonitor(void)
 	fprintf(stderr, "%s: memory map failed for stats file %s: %s\n",
 		pmProgname, perffile, osstrerror());
 	perf = &instrument;
+    } else {
+	perf = (pmiestats_t *)ptr;
     }
     close(fd);
 
-    perf = (pmiestats_t *)ptr;
     path = (logfile[0] == '\0') ? "<none>" : logfile;
     strncpy(perf->logfile, path, sizeof(perf->logfile));
     perf->logfile[sizeof(perf->logfile)-1] = '\0';
