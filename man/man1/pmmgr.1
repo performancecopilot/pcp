@@ -22,6 +22,7 @@
 [\f3\-v\f1]
 [\f3\-c\f1 \f2config-directory\f1]
 [\f3\-p\f1 \f2polling-interval\f1]
+[\f3\-l\f1 \f2log-file\f1]
 
 .SH DESCRIPTION
 .B pmmgr
@@ -55,6 +56,10 @@ missing information with built-in defaults.  The default directory is
 .I polling-interval
 sets the host-discovery polling interval to the given number of seconds.
 The default is 60.
+.TP
+.B \-l
+.I log-file
+redirects standard output & error to the given log file, which is created anew
 .TP
 .B \-v
 adds more verbose tracing to standard error.

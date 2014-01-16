@@ -23,6 +23,8 @@
 #include <iostream>
 
 extern "C" {
+#include <fcntl.h>
+#include <unistd.h>
 #include <glob.h>
 #include <sys/wait.h>
 #ifdef HAVE_PTHREAD_H
@@ -941,13 +943,18 @@ int main (int argc, char *argv[])
   char* username_str;
   __pmGetUsername(& username_str);
   string username = username_str;
+  char* output_filename = NULL;
 
-  while ((c = getopt(argc, argv, "D:c:vp:U:h")) != EOF)
+  while ((c = getopt(argc, argv, "D:c:vp:U:l:h")) != EOF)
     {
       switch (c)
         {
         case 'D': // undocumented
           (void) __pmParseDebug(optarg);
+          break;
+
+        case 'l':
+          output_filename = optarg;
           break;
 
         case 'v':
@@ -993,6 +1000,32 @@ int main (int argc, char *argv[])
 
   // lose root privileges if we have them
   __pmSetProcessIdentity(username.c_str());
+
+  // (re)create log file, redirect stdout/stderr
+  // NB: must be done after __pmSetProcessIdentity() for proper file permissions
+  if (output_filename)
+    {
+      int fd;
+      (void) unlink (output_filename); // in case one's left over from a previous other-uid run
+      fd = open (output_filename, O_WRONLY|O_APPEND|O_CREAT|O_TRUNC, 0666);
+      if (fd < 0)
+        timestamp(cerr) << "Cannot re-create logfile " << output_filename << endl;
+      else
+        {
+          int rc;
+          // Move the new file descriptors on top of stdout/stderr
+          rc = dup2 (fd, STDOUT_FILENO);
+          if (rc < 0) // rather unlikely
+            timestamp(cerr) << "Cannot redirect logfile to stdout" << endl;
+          rc = dup2 (fd, STDERR_FILENO);
+          if (rc < 0) // rather unlikely
+            timestamp(cerr) << "Cannot redirect logfile to stderr" << endl;
+          rc = close (fd);
+          if (rc < 0) // rather unlikely
+            timestamp(cerr) << "Cannot close logfile fd" << endl;
+        }
+
+    }
 
   timestamp(cout) << "Log started" << endl;
   while (1)
