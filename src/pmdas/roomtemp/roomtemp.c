@@ -72,7 +72,7 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(0,0), PM_TYPE_FLOAT, DEVICE, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* roomtemp.fahrehheit */
+/* roomtemp.fahrenheit */
     { NULL, 
       { PMDA_PMID(0,1), PM_TYPE_FLOAT, DEVICE, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
