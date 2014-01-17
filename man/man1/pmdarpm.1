@@ -1,0 +1,151 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDARPM 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdarpm\f1 \- RPM packages performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/rpm/pmdarpm\f1
+[\f3\-C\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2path\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmdarpm
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics reflecting the state of the RPM package
+database managed by
+.BR rpm (1).
+.PP
+The
+.B rpm
+PMDA exports metrics that describe each package installed on a
+system, as well as some cumulative totals.
+When the RPM database changes the PMDA automatically detects this
+and uses a background thread to asynchronously refresh its values.
+.PP
+A brief description of the
+.B pmdarpm
+command line options follows:
+.TP 5
+.B \-C
+Verify the package iteration code by scanning the RPM database
+once, then exiting.
+Only useful for problem diagnosis and testing.
+.TP
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I rpm.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdarpm
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-r
+Specify an alternate path to the RPM database (default is
+.IR /var/lib/rpm/Packages ).
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account.
+.SH INSTALLATION
+If you want access to the names, help text and values for the rpm
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/rpm
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/rpm
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdarpm
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdarpm
+.TP 10
+.B $PCP_PMDAS_DIR/rpm/help
+default help text file for the rpm metrics
+.TP 10
+.B $PCP_PMDAS_DIR/rpm/Install
+installation script for the
+.B pmdarpm
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/rpm/Remove
+undo installation script for the 
+.B pmdarpm
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/rpm.log
+default log file for error messages and other information from
+.B pmdarpm
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

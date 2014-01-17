@@ -19,33 +19,68 @@ include $(TOPDIR)/src/include/builddefs
 
 MAN_SECTION	= 1
 
-MAN_PAGES	= chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 \
-	pmafm.1 pmcd.1 pmcd_wait.1 pmclient.1 pmdacisco.1 pmdamailq.1 \
-	pmdasample.1 pmdasendmail.1 pmdasimple.1 pmdate.1 pmdatrace.1 \
-	pmdatrivial.1 pmdatxmon.1 pmdbg.1 pmdumplog.1 pmerr.1 pmgenmap.1 \
-	pmhostname.1 pmie.1 pmie_check.1 pminfo.1 pmlc.1 pmconfig.1 \
-	pmlock.1 pmlogcheck.1 pmlogconf.1 pmlogextract.1 pmlogger.1 \
-	pmlogger_check.1 pmnewlog.1 pmnsadd.1 pmnsdel.1 \
+MAN_PAGES	= \
+	chkhelp.1 dbpmda.1 mkaf.1 newhelp.1 pcp.1 pcpintro.1 pmafm.1 \
+	pmcd.1 pmcd_wait.1 pmclient.1 pmconfig.1 pmdbg.1 pmdumplog.1 \
+	pmerr.1 pmgenmap.1 pmhostname.1 pmie.1 pmie_check.1 pminfo.1 \
+	pmlc.1 pmlock.1 pmlogcheck.1 pmlogconf.1 pmlogextract.1 \
+	pmlogger.1 pmlogger_check.1 pmnewlog.1 pmnsadd.1 pmnsdel.1 \
 	pmnsmerge.1 pmpost.1 pmprobe.1 pmsocks.1 pmstat.1 pmstore.1 \
-	pmtrace.1 pmval.1 pmdaweblog.1 pmlogsummary.1 pmdashping.1 \
-	pmloglabel.1 genpmda.1 pmproxy.1 pmdasummary.1 pmlogreduce.1 \
+	pmtrace.1 pmval.1 pmlogsummary.1 pmdate.1 \
+	pmloglabel.1 genpmda.1 pmproxy.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
-	pmdabash.1 pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1 \
-	pmdagfs2.1 pmdagluster.1 pmmgr.1 pmfind.1
+	pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1 pmmgr.1 pmfind.1 \
+	\
+	pmdaapache.1 pmdabash.1 pmdacisco.1 \
+	pmdagfs2.1 pmdagluster.1 \
+	pmdakernel.1 \
+	pmdalogger.1 pmdamailq.1 pmdammv.1 pmdamounts.1 \
+	pmdasample.1 pmdasendmail.1 pmdashping.1 pmdasimple.1 \
+	pmdasummary.1 \
+	pmdatrace.1 pmdatrivial.1 pmdatxmon.1 pmdaweblog.1 \
 
-# same guard as in src/pmwebapi/GNUmakefile
-ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-MAN_PAGES	+= pmwebd.1
+LINUX_PMDA_PAGES = \
+	pmdalmsensors.1 pmdalustrecomm.1 pmdaproc.1 pmdaxfs.1 pmdajbd2.1
+ROOMTEMP_PMDA_PAGES = pmdaroomtemp.1
+SYSTEMD_PMDA_PAGES = pmdasystemd.1
+RPM_PMDA_PAGES = pmdarpm.1
+IB_PMDA_PAGES = pmdaib.1
+WEBD_PAGES = pmwebd.1
+
+ifeq "$(TARGET_OS)" "linux"
+MAN_PAGES	+= $(LINUX_PMDA_PAGES)
+else
+LSRCFILES	+= $(LINUX_PMDA_PAGES)
 endif
-
+ifneq "$(findstring $(TARGET_OS),solaris linux)" ""
+MAN_PAGES	+= $(ROOMTEMP_PMDA_PAGES)
+else
+LSRCFILES	+= $(ROOMTEMP_PMDA_PAGES)
+endif
+ifeq "$(HAVE_RPMLIB)" "1"
+MAN_PAGES	+= $(RPM_PMDA_PAGES)
+else
+LSRCFILES	+= $(RPM_PMDA_PAGES)
+endif
+ifneq "$(PMDA_SYSTEMD)" ""
+MAN_PAGES	+= $(SYSTEMD_PMDA_PAGES)
+else
+LSRCFILES	+= $(SYSTEMD_PMDA_PAGES)
+endif
 ifneq "$(PMDA_INFINIBAND)" ""
-MAN_PAGES	+= pmdaib.1
+MAN_PAGES	+= $(IB_PMDA_PAGES)
+else
+LSRCFILES	+= $(IB_PMDA_PAGES)
+endif
+ifeq "$(HAVE_LIBMICROHTTPD)" "1"
+MAN_PAGES	+= $(WEBD_PAGES)
+else
+LSRCFILES	+= $(WEBD_PAGES)
 endif
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
-LSRCFILES	+= pmtop.1 pmdahotproc.1
 
 default :: default_pcp 
 

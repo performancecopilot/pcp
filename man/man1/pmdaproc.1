@@ -1,0 +1,185 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAPROC 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaproc\f1 \- process performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/proc/pmdaproc\f1
+[\f3\-AL\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-r\f1 \f2cgroup\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmdaproc
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics describing the state of the individual
+processes running on a Linux system.
+.PP
+The
+.B proc
+PMDA exports metrics that measure the memory, processor and
+other resource use of each process, as well as summary information
+collated across all of the running processes.
+The PMDA uses credentials passed from the
+.BR PMAPI (3)
+monitoring tool identifying the user requesting the information,
+to ensure that only values the user is allowed to access are
+returned by the PMDA.
+This involves the PMDA temporarily changing its effective user and
+group identifiers for the duration of requests for instances and
+values.
+In other words, system calls to extract information are performed
+as the user originating the request and not as a privileged user.
+The mechanisms available for transfer of user credentials are
+described further in the
+.BR PCPIntro (1)
+page.
+.PP
+A brief description of the
+.B pmdaproc
+command line options follows:
+.TP 5
+.B \-A
+Disables use of the credentials provided by
+.B PMAPI
+client tools,
+and simply runs everything under the "root" account.
+.TP
+.B \-L
+Changes the per-process instance domain used by most
+.B procproc
+metrics to include threads as well.
+.TP
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I proc.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdaproc
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-r
+Restrict the set of processes exported in the per-process instance domain
+to only those processes that are contained by the specified
+.IR cgroup
+resource container.
+This option provides an optional finer granularity to the monitoring, and
+can also be used to reduce the resources consumed by
+.I pmdaproc
+during requests for instances and values.
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the privileged "root" account, with
+seteuid (2)
+and
+setegid (2)
+switching for accessing most information.
+.SH INSTALLATION
+The
+.B proc
+PMDA is installed and available by default.
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/proc
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+If you want to establish access to the names, help text and values for the proc
+performance metrics once more, after removal, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/proc
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+.B pmdaproc
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdaproc
+.TP 10
+.B $PCP_PMDAS_DIR/proc/help
+default help text file for the proc metrics
+.TP 10
+.B $PCP_PMDAS_DIR/proc/Install
+installation script for the
+.B pmdaproc
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/proc/Remove
+undo installation script for the 
+.B pmdaproc
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/proc.log
+default log file for error messages and other information from
+.B pmdaproc
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR seteuid (2),
+.BR setegid (2),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).
