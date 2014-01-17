@@ -11,7 +11,10 @@ echo "QA output created by $seq"
 _rpm_support_tests
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3810 ]
+if [ $PCP_VER -ge 3811 ]
+then
+    ln $seq.out.3 $seq.out
+elif [ $PCP_VER -ge 3810 ]
 then
     ln $seq.out.2 $seq.out
 else
@@ -61,13 +64,51 @@ report_package()
     fi
 }
 
+package_totals_before()
+{
+    [ $PCP_VER -ge 3811 ] || return
+    pre_bytes=`pmprobe -v rpm.total.bytes | awk '{ print $3 }'`
+    pre_count=`pmprobe -v rpm.total.count | awk '{ print $3 }'`
+}
+
+package_totals_after()
+{
+    [ $PCP_VER -ge 3811 ] || return
+    post_bytes=`pmprobe -v rpm.total.bytes | awk '{ print $3 }'`
+    post_count=`pmprobe -v rpm.total.count | awk '{ print $3 }'`
+
+    diff_bytes=`expr $post_bytes - $pre_bytes`
+    echo "bytes diff: $post_bytes - $pre_bytes = $diff_bytes" >> $seq.full
+    pminfo -f rpm.size >> $seq.full
+
+    diff_count=`expr $post_count - $pre_count`
+    echo "count diff: $post_count - $pre_count = $diff_count" >> $seq.full
+
+    echo
+    if [ $diff_bytes -ge 0 ]
+    then
+	echo Total bytes check: OK
+    else
+	echo Total bytes check: FAIL - $diff_bytes delta
+    fi
+
+    if [ $diff_count -eq 1 ]
+    then
+	echo Total count check: OK
+    else
+	echo Total count check: FAIL - $diff_count delta
+    fi
+}
+
 # real QA test starts here
 
 _rpm_pmda_prepare
 _rpm_package_prepare
 
+package_totals_before
 _rpm_package_install
 report_package qaplayer 1.0-1.noarch
+package_totals_after
 
 echo "========================================================================"
 _rpm_package_remove

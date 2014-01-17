@@ -18,6 +18,7 @@ rpm {
     name	RPM:1:16
     refresh
     datasize	RPM:0:4
+    total
 }
 
 rpm.refresh {
@@ -29,4 +30,9 @@ rpm.refresh.time {
     user        RPM:0:1
     sys         RPM:0:2
     elapsed	RPM:0:3
+}
+
+rpm.total {
+    count       RPM:2:0
+    bytes       RPM:2:1
 }
