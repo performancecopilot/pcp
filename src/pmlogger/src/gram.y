@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2014 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -259,6 +258,7 @@ instancelist	: instance
 		| instance instancelist
 		| instance COMMA instancelist
 		;
+
 instance	: NAME		{ buildinst(&numinst, &intlist, &extlist, -1, $1); }
 		| NUMBER	{ buildinst(&numinst, &intlist, &extlist, $1, NULL); }
 		| STRING	{ buildinst(&numinst, &intlist, &extlist, -1, $1); }
@@ -495,51 +495,6 @@ dometric(const char *name)
 
 	    skip = 1;
 	}
-    }
-
-    /* Duplicate-eliminate metrics.  If another task_t / fetchctl_t
-       lists this same metric (pmid & instance-set) with the same
-       task state (incl. interval), then we skip this one.  The matching
-       heuristic is minimal: only some kinds of common exact matches are
-       found. */
-    {
-        task_t *other_task;
-        for (other_task = tasklist; other_task != NULL && !skip; other_task = other_task->t_next) {
-            fetchctl_t *fp;
-
-            /* Reject tasks with different states.  */
-            if (other_task->t_state != tp->t_state) continue;
-
-            /* Reject different polling interval.  NB: this is
-               pessimistic.  If the former's polling interval evenly
-               divides this one, then it should match too. */
-            if(other_task->t_delta.tv_sec != tp->t_delta.tv_sec ||
-               other_task->t_delta.tv_usec != tp->t_delta.tv_usec)
-                continue;
-
-            for (fp = other_task->t_fetch; fp != (fetchctl_t *) 0 && !skip; fp = fp->f_next) {
-                int i;
-                for (i = 0; i < fp->f_numpmid && !skip; i++) {
-
-                    /* Reject different PMID. */
-                    if (pmid != fp->f_pmidlist[i]) continue;
-
-                    /* Reject if any instances specified.  NB: this is
-                       pessimistic.  If the former's instance list is a superset
-                       of this one's, it should match too.  Intersections between
-                       the two instance sets should be subtracted from this one. */
-                    if (numinst != 0) continue;
-                    if (fp->f_idp != NULL && fp->f_idp->i_numinst != 0) continue;
-
-                    /* Found one! */
-                    /* NB: Let's stay quiet; warnings are too wordy.
-                       sprintf(emess, "Eliminating duplicate metric \"%s\"", name);
-                       yywarn(emess);
-                    */
-                    skip = 1;
-                }
-            }
-        }
     }
 
     if (!skip) {
