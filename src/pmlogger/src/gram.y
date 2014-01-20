@@ -532,10 +532,10 @@ dometric(const char *name)
                     if (fp->f_idp != NULL && fp->f_idp->i_numinst != 0) continue;
 
                     /* Found one! */
-		    if (pmDebug & DBG_TRACE_APPL1) {
-                        snprintf(emess, sizeof(emess), "Eliminating duplicate metric \"%s\"", name);
-                        yywarn(emess);
-		    }
+                    /* NB: Let's stay quiet; warnings are too wordy.
+                       sprintf(emess, "Eliminating duplicate metric \"%s\"", name);
+                       yywarn(emess);
+                    */
                     skip = 1;
                 }
             }
