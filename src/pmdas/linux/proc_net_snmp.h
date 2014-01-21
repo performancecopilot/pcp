@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,7 @@
 #define SNMP_MAX_COLUMNS	64	/* arbitrary upper bound */
 #define SNMP_PERLINE		16	/* see net/ipv4/proc.c */
 #define SNMP_MAX_ICMPMSG_TYPESTR 8	/* longest name for type */
-#define NR_ICMPMSG_COUNTERS	SNMP_PERLINE
+#define NR_ICMPMSG_COUNTERS     256     /* half of __ICMPMSG_MIB_MAX from kernel */
 
 enum {
     _PM_SNMP_IP_FORWARDING = 0,
