@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -249,7 +249,8 @@ get_fields(snmp_fields_t *fields, char *header, char *buffer)
 }
 
 static void
-get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer)
+get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer,
+                   unsigned limit)
 {
     int i, j, count;
     unsigned int inst;
@@ -269,6 +270,8 @@ get_ordinal_fields(snmp_fields_t *fields, char *header, char *buffer)
             break;
         for (i = 0; fields[i].field; i++) {
             if (sscanf(indices[j], fields[i].field, &inst) != 1)
+                continue;
+            if (inst >= limit)
                 continue;
             *(fields[i].offset + inst) = strtoull(p, NULL, 10);
             break;
@@ -314,7 +317,7 @@ init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
     /* only need to allocate and setup the names once */
     if (proc_net_snmp_icmpmsg_names)
 	return;
-    i = SNMP_PERLINE * SNMP_MAX_ICMPMSG_TYPESTR;
+    i = NR_ICMPMSG_COUNTERS * SNMP_MAX_ICMPMSG_TYPESTR;
     proc_net_snmp_icmpmsg_names = malloc(i);
     if (!proc_net_snmp_icmpmsg_names)
 	return;
@@ -326,7 +329,7 @@ init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 	s += SNMP_MAX_ICMPMSG_TYPESTR;
     }
     idp = PMDAINDOM(ICMPMSG_INDOM);
-    idp->it_numinst = SNMP_PERLINE;
+    idp->it_numinst = NR_ICMPMSG_COUNTERS;
     idp->it_set = _pm_proc_net_snmp_indom_id;
 }
 
@@ -347,7 +350,8 @@ refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 	    else if (strncmp(values, "Icmp:", 5) == 0)
 		get_fields(icmp_fields, header, values);
 	    else if (strncmp(values, "IcmpMsg:", 8) == 0)
-		get_ordinal_fields(icmpmsg_fields, header, values);
+		get_ordinal_fields(icmpmsg_fields, header, values,
+                                   NR_ICMPMSG_COUNTERS);
 	    else if (strncmp(values, "Tcp:", 4) == 0)
 		get_fields(tcp_fields, header, values);
 	    else if (strncmp(values, "Udp:", 4) == 0)
