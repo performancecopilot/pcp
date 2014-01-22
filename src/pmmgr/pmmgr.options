@@ -15,6 +15,9 @@
 # assume identity of some user other than "pcp"
 # -U foobar
 
+# make log go someplace else
+# -l /some/place/else
+
 # setting of environment variables for pmmgr
 
 # timeouts for interactions with pmcd on behalf of clients

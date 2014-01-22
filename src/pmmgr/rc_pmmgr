@@ -250,7 +250,7 @@ BEGIN			{ exports="" }
 			}
 END			{ if (exports != "") print "export", exports }'`
 
-	    $PMMGR $OPTS > pmmgr.log 2>&1 &
+	    $PMMGR -l pmmgr.log $OPTS &
 	    $RC_STATUS -v
 
 	    pmpost "start pmmgr from $pmprog"

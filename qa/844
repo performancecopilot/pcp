@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 844
+# Exercise fix for Fedora bugzilla #1055818 -
+# pmdalinux segv on unexpected ICMP type field values
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which nmap >/dev/null 2>&1 || _notrun "nmap package not installed"
+which nping >/dev/null 2>&1 || _notrun "nping binary not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_icmp_metrics()
+{
+    sed \
+	-e "/network\..*\.incsumerrors: $unavailable/d" \
+    # end filter
+}
+
+# real QA test starts here
+$sudo nping --icmp --icmp-type 142 --quiet --count 1 localhost >$tmp.out 2>$tmp.err
+status=$?
+echo "nping status=$status"
+cat $tmp.out $tmp.err
+
+# verify we get good data (2x fetch for segv)
+pminfo -v network.icmp 2>&1 | _filter_icmp_metrics
+pminfo -v network.icmp 2>&1 | _filter_icmp_metrics
+
+exit
