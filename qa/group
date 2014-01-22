@@ -894,6 +894,7 @@ avahi
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 840 avahi local oss
+844 pmda.linux local oss
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
 876 pmda.xfs local oss
