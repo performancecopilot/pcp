@@ -112,6 +112,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 
 %description testsuite
