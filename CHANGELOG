@@ -1,5 +1,13 @@
 pcp-3.8.11 (git)
     - Under development.
+    - pmmgr: add -l (logfile) option to fix a permissions issue.
+    - pmdalinux: fix sigsegv on certain icmp procfs file lines.
+    - Further improvements to pmlogger internal data structures
+      dealing with configuration files with duplicate metrics
+      and/or instances - improved in terms of network fetching,
+      as well as on-disk data layout (all backwards compatible).
+    - pmdarpm: added cumulative rpm.total.{count,bytes} metrics.
+    - Add man pages for all of the PMDAs currently missing one.
 
 pcp-3.8.10 (15 January 2014)
     - Adds pmmgr(1) PCP daemon manager - a cunning new (opt-in)
