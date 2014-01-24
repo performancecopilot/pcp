@@ -123,6 +123,12 @@ MYFILES += chkacc4.c
 LDIRT += chkacc4
 endif
 
+ifeq ($(shell test $(PCP_VER) -ge 3811 && echo 1), 1)
+CONFIG_INTERP = config2.interp
+else
+CONFIG_INTERP = config1.interp
+endif
+
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only make these ones if the fault injection version of libpcp
 # appears to have been installed (assumes PCP >= 3.5), and then
@@ -165,8 +171,8 @@ MYFILES += $(SRCARCH) \
 	ok-noti-bigbin.meta err_v1.dump \
 	bigace.pmns \
 	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
-	config.dodgey-some config.foo config.interp kenj-pc-2.config \
-	reduce.config uwrap.config wrap.config \
+	config.dodgey-some config.foo config1.interp config2.interp \
+	kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
 	simple.sxc simple.xls simple.xlsx \
@@ -641,13 +647,13 @@ noti-bigbin.0:	bigbin.0
 	cp bigbin.0 noti-bigbin.0
 	cp bigbin.meta noti-bigbin.meta
 
-interp.0:	config.interp
+interp.0:	$(CONFIG_INTERP)
 	rm -f interp.index interp.meta interp.0
-	$(PMLOGGER) -c config.interp -s 30 interp
+	$(PMLOGGER) -c $(CONFIG_INTERP) -s 30 interp
 
-mv-interp.0:	config.interp
+mv-interp.0:	$(CONFIG_INTERP)
 	rm -f mv-interp.index mv-interp.meta mv-interp.?
-	$(PMLOGGER) -c config.interp -s 30 -v 10 mv-interp
+	$(PMLOGGER) -c $(CONFIG_INTERP) -s 30 -v 10 mv-interp
 
 noti-interp.0:	interp.0
 	cp interp.0 noti-interp.0
