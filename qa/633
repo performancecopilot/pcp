@@ -20,6 +20,8 @@ then
 else
     ln $seq.out.1 $seq.out || exit 1
 fi
+nsamples=2
+[ $PCP_VER -ge 3811 ] && nsamples=1	# improved pmlogger fetching
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -41,7 +43,7 @@ p
 }
 
 # real QA test starts here
-cat <<End-of-File | pmlogger -D pdu -s 2 -l $tmp.log $tmp
+cat <<End-of-File | pmlogger -D pdu -s $nsamples -l $tmp.log $tmp
 log mandatory on once {
     sample.hordes.one["0"]
     sample.hordes.one["1"]

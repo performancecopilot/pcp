@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012-2013 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -751,10 +751,9 @@ Options:\n\
 
     if (yyparse() != 0)
 	exit(1);
-
-    if ( configfile != NULL ) {
+    if (configfile != NULL)
 	fclose(yyin);
-    }
+    yyend();
 
 #ifdef PCP_DEBUG
     fprintf(stderr, "Config parsed\n");
@@ -770,6 +769,8 @@ Options:\n\
 
 	fprintf(stderr, "\nAfter loading config ...\n");
 	for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	    if (tp->t_numvalid == 0)
+		continue;
 	    fprintf(stderr, " state: %sin log, %savail, %s, %s",
 		PMLC_GET_INLOG(tp->t_state) ? "" : "not ",
 		PMLC_GET_AVAIL(tp->t_state) ? "" : "un",
