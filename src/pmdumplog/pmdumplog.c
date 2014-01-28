@@ -23,6 +23,7 @@ static int		numpmid;
 static pmID		*pmid;
 static char		*archbasename;
 static int		sflag;
+static int		xflag;		/* for -x (long timestamps) */
 
 /*
  * return -1, 0 or 1 as the struct timeval's compare
@@ -95,7 +96,20 @@ dumpresult(pmResult *resp)
 	printf("[%d bytes]\n", nbyte);
     }
 
-    __pmPrintStamp(stdout, &resp->timestamp);
+    if (xflag) {
+	char	       *ddmm;
+	char	       *yr;
+	char		timebuf[32];		/* for pmCtime result + .xxx */
+	ddmm = pmCtime(&resp->timestamp.tv_sec, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("%s ", ddmm);
+	__pmPrintStamp(stdout, &resp->timestamp);
+	printf(" %4.4s", yr);
+
+    }
+    else
+	__pmPrintStamp(stdout, &resp->timestamp);
 
     if (resp->numpmid == 0) {
 	printf("  <mark>\n");
@@ -528,7 +542,7 @@ main(int argc, char *argv[])
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "aD:dilLmn:rS:sT:tv:Z:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "aD:dilLmn:rS:sT:tv:xZ:z?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* dump everything */
@@ -596,6 +610,10 @@ main(int argc, char *argv[])
 	    rawfile = optarg;
 	    break;
 
+	case 'x':	/* report Ddd Mmm DD <timestamp> YYYY */
+	    xflag = 1;
+	    break;
+
 	case 'z':	/* timezone from host */
 	    if (tz != NULL) {
 		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
@@ -640,6 +658,7 @@ main(int argc, char *argv[])
 "  -T finish     end of the time window\n"
 "  -t            dump the temporal index\n"
 "  -v file       verbose hex dump of a physical file in raw format\n"
+"  -x            include date in reported imestamps\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time for host from -a\n",
                 pmProgname, pmProgname);

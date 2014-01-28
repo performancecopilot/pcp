@@ -18,7 +18,7 @@
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
 \f3pmdumplog\f1
-[\f3\-adiLlmrstz\f1]
+[\f3\-adiLlmrstxz\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -175,6 +175,11 @@ a digit (one of the volumes of metric values).
 Use of
 .B \-v
 precludes the use of all other options and arguments.
+.TP
+.B \-x
+Extended timestamp reporting format that includes the day of the week, day of the month,
+month and year in addition to the (default) hours, minutes and seconds time.
+This is useful for archives that span multiple days.
 .PP
 By default,
 .B pmdumplog
