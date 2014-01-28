@@ -1,7 +1,9 @@
 - pmlogrewrite
+- pmlogreduce
 - log aging without logmerge (which is high on I/O)
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?
 - qa
 - port to mingw?
 - pmlogger/pmie .log rotation
+- backoff for failing daemon
