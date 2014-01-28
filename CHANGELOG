@@ -1,5 +1,7 @@
-pcp-3.8.11 (git)
-    - Under development.
+pcp-3.8.11 (29 January 2014)
+    - Fix recent (3.8.10) regression for certain platforms where
+      important PMNS files ended up not being installed.  Impact
+      is on new installs only, not upgrades (so my QA missed it).
     - pmmgr: add -l (logfile) option to fix a permissions issue.
     - pmdalinux: fix sigsegv on certain icmp procfs file lines.
     - Further improvements to pmlogger internal data structures

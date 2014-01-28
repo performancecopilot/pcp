@@ -1,8 +1,8 @@
 pcp (3.8.11) unstable; urgency=low
 
-  * Currently under development.
+  * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 15 Jan 2014 14:13:17 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2014 09:47:45 +1100
 
 pcp (3.8.10) unstable; urgency=low
 
