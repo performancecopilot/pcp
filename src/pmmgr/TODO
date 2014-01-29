@@ -2,7 +2,6 @@
 - log aging without logmerge (which is high on I/O)
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?
-- test buildability on non-linux
 - qa
 - port to mingw?
 - pmlogger/pmie .log rotation
