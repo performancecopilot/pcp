@@ -1,0 +1,100 @@
+'\"! tbl | nroff \-man
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat Inc.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PCP-ARCHIVE 5 "" "Performance Co-Pilot"
+
+.SH NAME
+\f3pcp-archive\f1 \- Archive Files for Performance Co-Pilot
+
+.SH SYNOPSIS
+.I $PCP_LOG_DIR/pmlogger/*/*.{meta,idx,0}
+.I $PCP_LOG_DIR/pmmgr/*/*.{meta,idx,0}
+
+.SH DESCRIPTION
+PCP log archives store volumes of historical values of arbitrary
+Performance Co-Pilot metrics recorded from a single host.  Archives
+are self-contained in the sense that they contain all the important
+metadata that would be required for off-line or off-site analysis.
+The format is intended to be stable in order to allow long-term
+historical storage and processing by current tools.  (Compatibility
+in the other direction - new files, old tools - is not as fully
+assured.)
+.PP
+Archives may be read by most PCP client tools, using the 
+.IR "\-a ARCHIVE"
+option, or dumped raw by
+.BR pmdumplog (1).
+Archives may be created by 
+.BR pmlogger (1)
+and bulk-import tools.
+Archives may be merged, analyzed, and subsampled using specialized
+tools such as
+.BR pmlogsummary "(1), " pmlogreduce "(1), " pmlogrewrite "(1), and " pmlogextract (1).
+In addition, PCP archives may be grouped together into PCP "archive folios",
+which are managed by the
+.BR pmafm (1)
+tool.
+.PP
+PCP archives consist of several physical files that share a common arbitrary prefix, 
+e.g.,
+.IR myarchive .
+.TP
+myarchive.0, myarchive.1, ...
+Metric values.  May grow rapidly.
+.TP
+myarchive.meta
+Information for PMAPI functions such as
+.IR pmLookupDesc "(3) and " pmGetInDom (3).
+May grow, as logged instances and instance domains vary.
+.TP
+myarchive.index
+A temporal index, mapping timestamps to offsets in the other files.  Grows slowly.
+
+.SH RECORDS
+All three types of files have a similar record-based structure, and a
+convention of network-byte-order (big-endian) encoding, and 32-bit
+fields and padding for those records.
+
+.TS
+box,center;
+c | c | c
+n | n | l.
+Offset	Length	Name
+_
+0	4	N, length of record, in bytes, including this field
+_
+4	N-8	record payload
+_
+N-4	4	N, length of record (again)
+.TE
+
+.SH ARCHIVE VOLUME FILE FORMAT
+
+.SH METADATA FILE FORMAT
+
+.SH INDEX FILE FORMAT
+
+
+.PP
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3),
+.BR pmlogger (1),
+.BR pmdumplog (1),
+.BR pmafm (1),
+.BR pcp.conf (5),
+and
+.BR pcp.env (5).
