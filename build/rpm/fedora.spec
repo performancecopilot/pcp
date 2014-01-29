@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.11
+Version: 3.8.12
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
