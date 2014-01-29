@@ -617,7 +617,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Wed Jan 15 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
+* Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
 - Resolves SNMP procfs file ICMP line parse issue (BZ 1055818)
 - Update to latest PCP sources.
 
