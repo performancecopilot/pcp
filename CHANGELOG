@@ -1,3 +1,6 @@
+pcp-3.8.13 (git)
+    - Under development.
+
 pcp-3.8.12 (29 January 2014)
     - Fix recent (3.8.10) regression for certain platforms where
       important PMNS files ended up not being installed.  Impact

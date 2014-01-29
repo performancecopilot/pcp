@@ -1,3 +1,9 @@
+pcp (3.8.13) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 30 Jan 2014 10:38:40 +1100
+
 pcp (3.8.12) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

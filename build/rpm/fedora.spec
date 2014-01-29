@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.12
+Version: 3.8.13
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -617,6 +617,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
+* Thu Jan 30 2014 Nathan Scott <nathans@redhat.com> - 3.8.13-1
+- Under development.
+
 * Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
 - Resolves SNMP procfs file ICMP line parse issue (BZ 1055818)
 - Update to latest PCP sources.
