@@ -80,7 +80,7 @@ int Tab::deleteGadget(int index)
     my.gadgetsList.removeAt(index);
     delete gadget;
 
-    if (gadgetCount() > 1)
+    if (gadgetCount() > 0)
 	pmchart->updateHeight(-height);
 
     return my.currentGadget;

@@ -345,7 +345,7 @@ Chart::changeTitle(QString title, int expand)
     my.title = title; /* copy into QString */
 
     if (my.title != QString::null) {
-	if (hadTitle)
+	if (!hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
 	QwtText t = titleLabel()->text();
 	t.setFont(*globalFont);
