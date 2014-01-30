@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +24,8 @@ QStringList Gadget::hosts()
     QStringList hosts;
 
     for (int m = 0; m < metricCount(); m++) {
+	if (activeMetric(m) == false)
+	    continue;
         QString host = metricContext(m)->source().host();
         if (!hosts.contains(host))
             hosts.append(host);
@@ -51,6 +54,8 @@ QString Gadget::pmloggerSyntax()
 
     // discover whether we need separate log-once/log-every sections
     for (int m = 0; m < metricCount(); m++) {
+	if (activeMetric(m) == false)
+	    continue;
 	if (metricDesc(m)->desc().sem == PM_SEM_DISCRETE)
 	    beDiscrete = true;
 	else
@@ -60,6 +65,8 @@ QString Gadget::pmloggerSyntax()
     if (beDiscrete) {
 	config.append("log mandatory on once {\n");
 	for (int m = 0; m < metricCount(); m++) {
+	    if (activeMetric(m) == false)
+	        continue;
 	    if (metricDesc(m)->desc().sem != PM_SEM_DISCRETE)
 		continue;
 	    config.append('\t');
@@ -71,6 +78,8 @@ QString Gadget::pmloggerSyntax()
     if (nonDiscrete) {
 	config.append("log mandatory on default {\n");
 	for (int m = 0; m < metricCount(); m++) {
+	    if (activeMetric(m) == false)
+	        continue;
 	    if (metricDesc(m)->desc().sem == PM_SEM_DISCRETE)
 		continue;
 	    config.append('\t');

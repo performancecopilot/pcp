@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, Red Hat.
+ * Copyright (c) 2012-2014, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
@@ -495,8 +495,7 @@ Chart *PmChart::acceptNewChart()
     cp->setLegendVisible(my.newchart->legend());
     cp->setAntiAliasing(my.newchart->antiAliasing());
     cp->setRateConvert(my.newchart->rateConvert());
-    if (my.newchart->setupChartPlotsShortcut(cp) == false)
-	my.newchart->setupChartPlots(cp);
+    my.newchart->updateChartPlots(cp);
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
     my.newchart->scheme(&scheme, &sequence);
@@ -541,15 +540,11 @@ void PmChart::acceptEditChart()
     cp->setRateConvert(my.newchart->rateConvert());
     my.newchart->scale(&yAutoScale, &yMin, &yMax);
     cp->setScale(yAutoScale, yMin, yMax);
-    my.newchart->setupChartPlots(cp);
+    my.newchart->updateChartPlots(cp);
     my.newchart->scheme(&scheme, &sequence);
     cp->setScheme(scheme, sequence);
-    if (cp->metricCount() > 0) {
-	cp->replot();
-	cp->show();
-    }
-    else
-	activeTab()->deleteGadget(cp);
+    cp->replot();
+    cp->show();
 
     enableUi();
 }

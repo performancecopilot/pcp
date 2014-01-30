@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Red Hat.
+ * Copyright (c) 2013-2014, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -716,14 +716,22 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
 	availableMetricsTreeWidget->setCurrentItem(current);
 }
 
-void ChartDialog::setupChartPlots(Chart *cp)
-{
-    // First iterate over the current Charts metrics, removing any
-    // that are no longer in the chartMetricsTreeWidget.  This is a
-    // no-op in the createChart case, of course.
 
-    int m;
-    int nplots = cp->metricCount(); // Copy, as we change it in the loop body
+void ChartDialog::updateChartPlots(Chart *cp)
+{
+    deleteChartPlots(cp);
+    if (setupChartPlotsShortcut(cp) == false)
+	setupChartPlots(cp);
+}
+
+void ChartDialog::deleteChartPlots(Chart *cp)
+{
+    int m, nplots = cp->metricCount(); // Copy, as we change it in the loop body
+
+    // Iterate over the current Charts metrics, removing any
+    // that are no longer in the chartMetricsTreeWidget.
+    // This is a no-op in the createChart case, of course.
+
     for (m = 0; m < nplots; m++) {
 	QTreeWidgetItemIterator iterator1(chartMetricsTreeWidget,
 				    QTreeWidgetItemIterator::Selectable);
@@ -734,7 +742,10 @@ void ChartDialog::setupChartPlots(Chart *cp)
 	if ((*iterator1) == NULL)
 	    deleteChartPlot(cp, m);
     }
+}
 
+void ChartDialog::setupChartPlots(Chart *cp)
+{
     // Second step is to iterate over all the chartMetricsTreeWidget
     // entries, and either create new plots or edit existing ones.
 
@@ -742,6 +753,8 @@ void ChartDialog::setupChartPlots(Chart *cp)
 				    QTreeWidgetItemIterator::Selectable);
     for (; *iterator2; ++iterator2) {
 	NameSpace *n = (NameSpace *)(*iterator2);
+	int m;
+
 	if (existsChartPlot(cp, n, &m))
 	    changeChartPlot(cp, n, m);
 	else
@@ -751,29 +764,30 @@ void ChartDialog::setupChartPlots(Chart *cp)
 
 bool ChartDialog::setupChartPlotsShortcut(Chart *cp)
 {
-    // This "shortcut" is used in the New Chart case - for speed in
-    // creating new charts (a common operation), we allow the user
-    // to bypass the step of moving plots from the Available Metrics
-    // list to the Chart Metrics list.
-    // IOW, if the Chart Metrics list is empty, but we do find one
-    // or more Available Metrics selections, create a chart with them.
+    // This "shortcut" is used in both the New Chart and Edit Chart
+    // case.  It allows the user to bypass the step of moving plots
+    // from the Available Metrics list to the Chart Plots list.
     // 
-    // Return value indicates whether New Chart creation process is
-    // complete at the end, or whether we need to continue on with
-    // populating the new chart with Chart Metrics list plots.
+    // Return value indicates whether the Chart change is complete
+    // at the end (i.e. used the shortcut), or whether we need to
+    // continue on populating the new chart with Chart Plots.
 
-    if (chartMetricsTreeWidget->invisibleRootItem()->childCount() > 0)
+    if (chartMetricsTreeWidget->topLevelItemCount() > 0)
 	return false;	// go do regular creation paths
 
-    int i, seq = 0;
+    int i, m, seq = 0;
     QTreeWidgetItemIterator iterator(availableMetricsTreeWidget,
 				   QTreeWidgetItemIterator::Selected);
     for (i = 0; (*iterator); ++iterator, i++) {
 	NameSpace *n = (NameSpace *)(*iterator);
-	QColor c = nextColor(cp->scheme(), &seq);
-	n->setCurrentColor(c, NULL);
-	createChartPlot(cp, n);
-	my.sequence = seq;
+	if (existsChartPlot(cp, n, &m)) {
+	    changeChartPlot(cp, n, m);
+	} else {
+	    QColor c = nextColor(cp->scheme(), &seq);
+	    n->setCurrentColor(c, NULL);
+	    createChartPlot(cp, n);
+	    my.sequence = seq;
+	}
     }
     return true;	// either way, we're finished now
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Red Hat.
+ * Copyright (c) 2013-2014, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@ public:
     virtual void reset();
     virtual void reset(Chart *);
     virtual void enableUi();
+
     virtual Chart *chart(void);
     virtual QString title(void);
     virtual bool legend(void);
@@ -46,13 +47,8 @@ public:
     virtual void setupSchemeComboBox();
     virtual void setupChartMetricsTree();
     virtual void setupAvailableMetricsTree(bool);
-    virtual void setupChartPlots(Chart *);
-    virtual bool setupChartPlotsShortcut(Chart *);
-    virtual bool matchChartPlot(Chart *, NameSpace *, int);
-    virtual bool existsChartPlot(Chart *, NameSpace *, int *);
-    virtual void changeChartPlot(Chart *, NameSpace *, int);
-    virtual void createChartPlot(Chart *, NameSpace *);
-    virtual void deleteChartPlot(Chart *, int);
+
+    virtual void updateChartPlots(Chart *);
 
 public slots:
     virtual void buttonOk_clicked();
@@ -121,6 +117,14 @@ private:
     void resetCompletely();
     void resetPartially(Chart *);
     bool validate(QString &, int &);
+    void setupChartPlots(Chart *);
+    bool setupChartPlotsShortcut(Chart *);
+    bool matchChartPlot(Chart *, NameSpace *, int);
+    bool existsChartPlot(Chart *, NameSpace *, int *);
+    void changeChartPlot(Chart *, NameSpace *, int);
+    void createChartPlot(Chart *, NameSpace *);
+    void deleteChartPlot(Chart *, int);
+    void deleteChartPlots(Chart *);
 };
 
 #endif	// CHARTDIALOG_H

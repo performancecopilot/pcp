@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2014, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -50,6 +50,7 @@ public:
     virtual void print(QPainter *, QRect &, bool) { }
 
     virtual int metricCount() const { return 0; }
+    virtual bool activeMetric(int) const { return true; }
     virtual QmcMetric *metric(int) const { return NULL; }
     virtual QmcDesc *metricDesc(int) const { return NULL; }
     virtual QString metricInstance(int) const { return QString::null; }

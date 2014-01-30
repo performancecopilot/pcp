@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, Red Hat.
+ * Copyright (c) 2012-2014, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -291,7 +291,13 @@ Chart::addItem(pmMetricSpec *msp, const char *legend)
 }
 
 bool
-Chart::activeItem(int index)
+Chart::activeMetric(int index) const
+{
+    return activeItem(index);
+}
+
+bool
+Chart::activeItem(int index) const
 {
     return (my.items[index]->removed() == false);
 }
