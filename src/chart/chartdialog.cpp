@@ -313,10 +313,9 @@ void ChartDialog::metricInfoButtonClicked()
 
 void ChartDialog::metricDeleteButtonClicked()
 {
-    QTreeWidgetItemIterator iterator(chartMetricsTreeWidget,
-					QTreeWidgetItemIterator::Selected);
-    for (; (*iterator); ++iterator) {
-	NameSpace *name = (NameSpace *)(*iterator);
+    QList<QTreeWidgetItem *> items = chartMetricsTreeWidget->selectedItems();
+    for (int i = 0; i < items.size(); i++) {
+	NameSpace *name = (NameSpace *)items.at(i);
 	name->removeFromTree(chartMetricsTreeWidget);
     }
 }
