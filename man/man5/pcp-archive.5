@@ -21,8 +21,8 @@
 
 .SH SYNOPSIS
 
-.I $PCP_LOG_DIR/pmlogger/*/*.{meta,idx,0}
-.I $PCP_LOG_DIR/pmmgr/*/*.{meta,idx,0}
+.I $PCP_LOG_DIR/pmlogger/*/*.{meta,index,0}
+.I $PCP_LOG_DIR/pmmgr/*/*.{meta,index,0}
 
 .SH DESCRIPTION
 
@@ -60,10 +60,11 @@ Metric values.  May grow rapidly.
 myarchive.meta
 Information for PMAPI functions such as
 .IR pmLookupDesc "(3) and " pmGetInDom (3).
-May grow, as logged instances and instance domains vary.
+May grow in fits and spurts, as logged instances and instance domains vary.
 .TP
 myarchive.index
-A temporal index, mapping timestamps to offsets in the other files.  Grows slowly.
+A temporal index, mapping timestamps to offsets in the other files.
+Grows slowly.
 
 .SH COMMON FEATURES
 
