@@ -104,7 +104,7 @@ _
 4	4	pid of pmlogger process that wrote file
 8	4	log start time, seconds part (past UNIX epoch)
 12	4	log start time, microseconds part
-16	4	current log volume number (or 0xFFFFFFFF for .meta/.index)
+16	4	current log volume number (or -1=.meta, -2=.index)
 20	64	name of collection host
 80	40	time zone string ($TZ environment variable)
 .TE
