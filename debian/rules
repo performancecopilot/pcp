@@ -109,6 +109,7 @@ config: .census
 .census:
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
+	dh_autotools-dev_updateconfig
 	$(configure_tools) ./configure $(configure_paths)
 	touch .census
 
@@ -119,6 +120,8 @@ clean:
 	$(MAKE) realclean
 	-rm -rf $(alldir)
 	-rm -f debian/*substvars debian/files* debian/*.debhelper
+	dh_autotools-dev_restoreconfig
+	dh_clean
 
 binary-indep:
 
