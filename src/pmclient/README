@@ -6,27 +6,29 @@ Application Programming Interface (PMAPI) to report some performance
 data, collected from either a local host, a remote host, or a
 Performance Co-Pilot (PCP) performance metrics archive log.
 
-The binary is shipped as part of pcp.sw.monitor and should be
-installed in /usr/sbin/pmclient.  A "man" page is shipped in
-pcp.man.pages.
+The binary is shipped as part of pcp and is typically installed in
+/usr/bin/pmclient.  A pmclient(1) "man" page is shipped in the pcp
+package also.
 
-The source is shipped as part of pcp.sw.demo and is installed in
-/var/pcp/demos/pmclient.  If you have the C compiler installed, the
-source and Makefile in this directory may be used to create a
-functionally equivalent binary, simply by entering the command
+The source is shipped as part of the pcp development packages and
+is installed in $PCP_DEMOS_DIR/pmclient.  If you have a C compiler
+installed, the source and Makefile in this directory may be used to
+create a functionally equivalent binary, by entering the command
 
 	% make
 
-The source in pmclient.c demonstrates most of the PMAPI services, and
+The source in pmclient.c demonstrates many of the PMAPI services, and
 may be used as a template and style guide when creating your own PMAPI
 clients.  Note in particular, the use of ./pmnsmap.spec and the shipped
-tool pmgenmap to assist in the creation of arguments to the PMAPI
+tool pmgenmap(1) to assist in the creation of arguments to the PMAPI
 routines, and the manipulation of PMAPI data structures.
 
 To experiment with the archives,
 
 	% rm -f mylog.*
-	% /usr/pcp/bin/pmlogger -c config.pmclient -s 6 mylog
+	% config=$PCP_DEMOS_DIR/pmclient/pmlogger.config
+	% cat $config
+	% pmlogger -c $config -s 6 mylog
 
 this will collect 30 seconds of performance data into the archive
 stored as the files mylog.*.  To play this back,
