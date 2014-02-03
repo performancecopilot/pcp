@@ -1,6 +1,7 @@
 pcp (3.8.13) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Use autotools-dev to update config.{sub,guess} (closes: #737340)
 
  -- Nathan Scott <nathans@debian.org>  Thu, 30 Jan 2014 10:38:40 +1100
 
