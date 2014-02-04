@@ -1,3 +1,4 @@
+- bias connection-string for multiply-reachable pmcd via "fastest" connection? "shortest url"?
 - pmlogrewrite
 - pmlogreduce
 - log aging without logmerge (which is high on I/O)
@@ -5,5 +6,6 @@
 - email error reporting?
 - qa
 - port to mingw?
+- port to cygwin?
 - pmlogger/pmie .log rotation
 - backoff for failing daemon
