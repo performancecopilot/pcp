@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -106,6 +107,8 @@ pmdaTreePMID(__pmnsTree *pmns, const char *name, pmID *pmid)
 {
     __pmnsNode *node;
 
+    if (!pmns || !pmns->root)
+	return PM_ERR_NAME;
     if ((node = __pmdaNodeLookup(pmns->root->first, name)) == NULL)
 	return PM_ERR_NAME;
     if (NONLEAF(node))

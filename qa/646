@@ -34,8 +34,9 @@ then
     [ -w "$PCP_TMP_DIR/mmv" ] || _notrun "Cannot write to $PCP_TMP_DIR/mmv"
 else
     culldir=true
-    mkdir -p "$PCP_TMP_DIR/mmv"			# owned by self - for writing
-    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/mmv"	# group pcp - pmdammv reading
+    $sudo mkdir -p "$PCP_TMP_DIR/mmv"
+    $sudo chown `whoami` "$PCP_TMP_DIR/mmv"    # local user - tmpdir writing
+    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/mmv"  # group pcp - pmdammv reading
 fi
 
 _filter_mmvdump()
