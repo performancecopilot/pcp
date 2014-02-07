@@ -116,6 +116,29 @@ sub nfsclient_parse_proc_mountstats {
 			 $h{$export}->{'nfsclient.bytes.writepages'}) =
 				split(/ /, $1);
 		}
+
+		# xprt
+		if ($line =~ /\txprt:\t(.*)$/) {
+			my @stats = split(/ /, $1);
+			my $xprt_prot = shift(@stats);
+
+			# FIXME ignore protocols other than tcp for now
+			if ($xprt_prot ne "tcp") {
+				next;
+			}
+
+			($h{$export}->{'nfsclient.xprt.tcp.srcport'},
+			 $h{$export}->{'nfsclient.xprt.tcp.bind_count'},
+			 $h{$export}->{'nfsclient.xprt.tcp.connect_count'},
+			 $h{$export}->{'nfsclient.xprt.tcp.connect_time'},
+			 $h{$export}->{'nfsclient.xprt.tcp.idle_time'},
+			 $h{$export}->{'nfsclient.xprt.tcp.sends'},
+			 $h{$export}->{'nfsclient.xprt.tcp.recvs'},
+			 $h{$export}->{'nfsclient.xprt.tcp.bad_xids'},
+			 $h{$export}->{'nfsclient.xprt.tcp.req_u'},
+			 $h{$export}->{'nfsclient.xprt.tcp.bklog_u'}) =
+				@stats;
+		}
 	}
 
 	close STATS;
@@ -362,6 +385,84 @@ $pmda->add_metric(pmda_pmid(6,8), PM_TYPE_U64, $nfsclient_indom,
 		  'nfsclient.bytes.writepages',
 		  'NFSIOS_WRITEPAGES',
 'the number of pages written via nfs_writepage or nfs_writepages');
+
+# xprt - cluster 7
+#
+# TODO We have three possible transports:  udp, tcp, rdma.  At this point all I
+# need is tcp but will need to figure out how to do all of the transports eventually.
+#
+$pmda->add_metric(pmda_pmid(7,1), PM_TYPE_STRING, $nfsclient_indom,
+		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+		  'nfsclient.xprt.tcp.srcport',
+		  'tcp source port',
+'source port on the client');
+
+$pmda->add_metric(pmda_pmid(7,2), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.bind_count',
+		  'count of rpcbind get_port calls',
+'incremented in rpcb_getport_async: \"obtain the port for a given RPC ' .
+'service on a given host\"');
+
+$pmda->add_metric(pmda_pmid(7,3), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.connect_count',
+		  'count of tcp connects',
+'incremented in xs_tcp_finish_connecting and xprt_connect_status.  This is ' .
+'a count of the number of tcp (re)connects (only of which is active at a ' .
+'time) for this mount.');
+
+$pmda->add_metric(pmda_pmid(7,4), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.connect_time',
+		  'jiffies waiting for connect',
+'Summed in xprt_connect_status, it is stored and printed in jiffies.  This ' .
+'the sum of all connection attempts: how long was spent waiting to connect.');
+
+$pmda->add_metric(pmda_pmid(7,5), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  'nfsclient.xprt.tcp.idle_time',
+		  'transport idle time',
+'How long has it been since the transport has been used.  Stored and ' .
+'calculated in jiffies and printed in seconds.');
+
+$pmda->add_metric(pmda_pmid(7,6), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.sends',
+                  'count of tcp transmits',
+'Incremented in xprt_transmit upon transmit completion of each rpc.');
+
+$pmda->add_metric(pmda_pmid(7,7), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.recvs',
+		  'count of tcp receives',
+'Incremented in xprt_complete_rqst when reply processing is complete.');
+
+$pmda->add_metric(pmda_pmid(7,8), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.bad_xids',
+		  'count of bad transaction identifiers',
+'When processing an rpc reply it is necessary to look up the original ' .
+'rpc_rqst using xprt_lookup_rqst.  If the rpc_rqst that prompted the reply ' .
+'cannot be found on the transport bad_xids is incremented.');
+
+$pmda->add_metric(pmda_pmid(7,9), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.req_u',
+                  'average requests on the wire',
+'FIXME:  The comment in struct stat says: \"average requests on the wire\", ' .
+'but the actual calculation in xprt_transmit is: ' .
+'xprt->stat.req_u += xprt->stat.sends - xprt->stat.recvs;\n' .
+'This stat may be broken.');
+
+$pmda->add_metric(pmda_pmid(7,10), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.xprt.tcp.backlog_u',
+		  'backlog queue utilization',
+'FIXME: here is the calculation in xprt_transmit:  ' .
+'xprt->stat.bklog_u += xprt->backlog.qlen;\n ' .
+'qlen is incremented in __rpc_add_wait_queue and decremented in ' .
+'__rpc_remove_wait_queue.');
 
 &nfsclient_parse_proc_mountstats;
 $pmda->add_indom($nfsclient_indom, [%instances], 'NFS mounts', '');
