@@ -74,6 +74,35 @@ sub nfsclient_parse_proc_mountstats {
 		}
 
 		# TODO parse nfs stats and put them in $h
+		# events
+		if ($line =~ /^\tevents:\t(.*)$/) {
+			($h{$export}->{'nfsclient.events.inoderevalidate'},
+			 $h{$export}->{'nfsclient.events.dentryrevalidate'},
+			 $h{$export}->{'nfsclient.events.datainvalidate'},
+			 $h{$export}->{'nfsclient.events.attrinvalidate'},
+			 $h{$export}->{'nfsclient.events.vfsopen'},
+			 $h{$export}->{'nfsclient.events.vfslookup'},
+			 $h{$export}->{'nfsclient.events.vfsaccess'},
+			 $h{$export}->{'nfsclient.events.vfsupdatepage'},
+			 $h{$export}->{'nfsclient.events.vfsreadpage'},
+			 $h{$export}->{'nfsclient.events.vfsreadpages'},
+			 $h{$export}->{'nfsclient.events.vfswritepage'},
+			 $h{$export}->{'nfsclient.events.vfswritepages'},
+			 $h{$export}->{'nfsclient.events.vfsgetdents'},
+			 $h{$export}->{'nfsclient.events.vfssetattr'},
+			 $h{$export}->{'nfsclient.events.vfsflush'},
+			 $h{$export}->{'nfsclient.events.vfsfsync'},
+			 $h{$export}->{'nfsclient.events.vfslock'},
+			 $h{$export}->{'nfsclient.events.vfsrelease'},
+			 $h{$export}->{'nfsclient.events.congestionwait'},
+			 $h{$export}->{'nfsclient.events.setattrtrunc'},
+			 $h{$export}->{'nfsclient.events.extendwrite'},
+			 $h{$export}->{'nfsclient.events.sillyrename'},
+			 $h{$export}->{'nfsclient.events.shortread'},
+			 $h{$export}->{'nfsclient.events.shortwrite'},
+			 $h{$export}->{'nfsclient.events.delay'}) =
+				split(/ /, $1);
+		}
 	}
 
 	close STATS;
@@ -114,6 +143,8 @@ sub nfsclient_fetch_callback {
 our $pmda = PCP::PMDA->new('nfsclient', 111);
 
 # metrics go here, with full descriptions
+
+# general - cluster 0
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_STRING, $nfsclient_indom,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		'nfsclient.export',
@@ -124,6 +155,146 @@ $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, $nfsclient_indom,
 		'nfsclient.mtpt',
 		'Mount Point',
 		'');
+
+# TODO opts - cluster 1
+# TODO age - cluster 2
+# TODO caps - cluster 3
+# TODO sec - cluster 4
+
+# events - cluster 5
+$pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.inoderevalidate',
+		  'NFSIOS_INODEREVALIDATE',
+'incremented in __nfs_revalidate_inode whenever an inode is revalidated');
+
+$pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.dentryrevalidate',
+		  'NFSIOS_DENTRYREVALIDATE',
+'incremented in nfs_lookup_revalidate whenever a dentry is revalidated');
+
+$pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.datainvalidate',
+		  'NFSIOS_DATAINVALIDATE',
+'incremented in nfs_invalidate_mapping_nolock when data cache for an inode ' .
+'is invalidated');
+
+$pmda->add_metric(pmda_pmid(5,4), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.attrinvalidate',
+		  'NFSIOS_ATTRINVALIDATE',
+'incremented in nfs_zap_caches_locked and nfs_update_inode when an the ' .
+'attribute cache for an inode has been invalidated');
+
+$pmda->add_metric(pmda_pmid(5,5), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsopen',
+		  'NFSIOS_VFSOPEN',
+'incremented in nfs_file_open and nfs_opendir whenever a file or directory ' .
+'is opened');
+
+$pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfslookup',
+		  'NFSIOS_VFSLOOKUP',
+'incremented in nfs_lookup on every lookup');
+
+$pmda->add_metric(pmda_pmid(5,7), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsaccess',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,8), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsupdatepage',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,9), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsreadpage',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,10), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsreadpages',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,11), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfswritepage',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,12), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfswritepages',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,13), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsgetdents',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,14), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfssetattr',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,15), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsflush',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,16), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsfsync',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,17), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfslock',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,18), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.vfsrelease',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,19), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.congestionwait',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,20), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.setattrtrunc',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,21), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.extendwrite',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,22), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.sillyrename',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,23), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.shortread',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,24), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.shortwrite',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,25), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.delay',
+		  '', '');
 
 &nfsclient_parse_proc_mountstats;
 $pmda->add_indom($nfsclient_indom, [%instances], 'NFS mounts', '');
