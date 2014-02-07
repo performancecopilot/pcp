@@ -103,6 +103,19 @@ sub nfsclient_parse_proc_mountstats {
 			 $h{$export}->{'nfsclient.events.delay'}) =
 				split(/ /, $1);
 		}
+
+		# bytes
+		if ($line =~ /\tbytes:\t(.*)$/) {
+			($h{$export}->{'nfsclient.bytes.normalreadbytes'},
+			 $h{$export}->{'nfsclient.bytes.normalwrittenbytes'},
+			 $h{$export}->{'nfsclient.bytes.directreadbytes'},
+			 $h{$export}->{'nfsclient.bytes.directwrittenbytes'},
+			 $h{$export}->{'nfsclient.bytes.serverreadbytes'},
+			 $h{$export}->{'nfsclient.bytes.serverwrittenbytes'},
+			 $h{$export}->{'nfsclient.bytes.readpages'},
+			 $h{$export}->{'nfsclient.bytes.writepages'}) =
+				split(/ /, $1);
+		}
 	}
 
 	close STATS;
@@ -295,6 +308,60 @@ $pmda->add_metric(pmda_pmid(5,25), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.delay',
 		  '', '');
+
+# bytes - cluster 6
+$pmda->add_metric(pmda_pmid(6,1), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.normalreadbytes',
+		  'NFSIOS_NORMALREADBYTES',
+'the number of bytes read by applications via the read system call interface');
+
+$pmda->add_metric(pmda_pmid(6,2), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.normalwrittenbytes',
+		  'NFSIOS_NORMALWRITTENBYTES',
+'the number of bytes written by applications via the write system call ' .
+'interface');
+
+$pmda->add_metric(pmda_pmid(6,3), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.directreadbytes',
+		  'NFSIOS_DIRECTREADBYTES',
+'the number of bytes read by applications from files opened with the ' .
+'O_DIRECT flag');
+
+$pmda->add_metric(pmda_pmid(6,4), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.directwrittenbytes',
+		  'NFSIOS_DIRECTWRITTENBYTES',
+'the number of bytes written by applications to files opened with the ' .
+'O_DIRECT flag');
+
+$pmda->add_metric(pmda_pmid(6,5), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.serverreadbytes',
+		  'NFSIOS_SERVERREADBYTES',
+'the number of bytes read from the nfs server by the nfs client via nfs ' .
+'read requests');
+
+$pmda->add_metric(pmda_pmid(6,6), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		  'nfsclient.bytes.serverwrittenbytes',
+		  'NFSIOS_SERVERWRITTENBYTES',
+'the number of bytes written to the nfs server by the nfs client via nfs ' .
+'write requests');
+
+$pmda->add_metric(pmda_pmid(6,7), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.bytes.readpages',
+		  'NFSIOS_READPAGES',
+'the number of pages read via nfs_readpage or nfs_readpages');
+
+$pmda->add_metric(pmda_pmid(6,8), PM_TYPE_U64, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.bytes.writepages',
+		  'NFSIOS_WRITEPAGES',
+'the number of pages written via nfs_writepage or nfs_writepages');
 
 &nfsclient_parse_proc_mountstats;
 $pmda->add_indom($nfsclient_indom, [%instances], 'NFS mounts', '');
