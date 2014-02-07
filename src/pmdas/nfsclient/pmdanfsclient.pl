@@ -139,6 +139,26 @@ sub nfsclient_parse_proc_mountstats {
 			 $h{$export}->{'nfsclient.xprt.tcp.bklog_u'}) =
 				@stats;
 		}
+
+		# per-op statistics
+		if ($line =~ /\tper-op statistics$/) {
+			# We'll do these a bit differently since they are not
+			# all on the same line.  Just loop until we don't match
+			# anymore.
+			while (<STATS> =~
+	/^\s*([A-Z]*): (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*)$/) {
+				my $op_name = $1;
+				($h{$export}->{"nfsclient.ops.$op_name.ops"},
+				 $h{$export}->{"nfsclient.ops.$op_name.ntrans"},
+				 $h{$export}->{"nfsclient.ops.$op_name.timeouts"},
+				 $h{$export}->{"nfsclient.ops.$op_name.bytes_sent"},
+				 $h{$export}->{"nfsclient.ops.$op_name.bytes_recv"},
+				 $h{$export}->{"nfsclient.ops.$op_name.queue"},
+				 $h{$export}->{"nfsclient.ops.$op_name.rtt"},
+				 $h{$export}->{"nfsclinet.ops.$op_name.execute"}) =
+					($2, $3, $4, $5, $6, $7, $8, $9);
+			}
+		}
 	}
 
 	close STATS;
@@ -463,6 +483,70 @@ $pmda->add_metric(pmda_pmid(7,10), PM_TYPE_U64, $nfsclient_indom,
 'xprt->stat.bklog_u += xprt->backlog.qlen;\n ' .
 'qlen is incremented in __rpc_add_wait_queue and decremented in ' .
 '__rpc_remove_wait_queue.');
+
+# ops - cluster 8
+#
+# TODO each nfs version has different ops.  I need to figure out how to do this
+# right for each protocol
+my @ops = ('NULL', 'GETATTR', 'SETATTR', 'LOOKUP', 'ACCESS', 'READLINK',
+           'READ', 'WRITE', 'CREATE', 'MKDIR', 'SYMLINK', 'MKNOD', 'REMOVE',
+           'RMDIR', 'RENAME', 'LINK', 'READDIR', 'READDIRPLUS', 'FSSTAT',
+	   'FSINFO', 'PATHCONF', 'COMMIT');
+my $item = 1;
+for my $op_name (@ops) {
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U32, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+			  "nfsclient.ops.$op_name.ops",
+			  'count of operations',
+'rpc count for this op, only bumped in rpc_count_iostats');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U32, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+			  "nfsclient.ops.$op_name.ntrans",
+			  'count of transmissions',
+'there can be more than one transmission per rpc');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U32, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+			  "nfsclient.ops.$op_name.timeouts",
+			  'count of major timeouts',
+'XXX fill me in');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+			  "nfsclient.ops.$op_name.bytes_sent",
+			  'count of bytes out',
+'How many bytes are sent for this procedure type.  This indicates how much ' .
+'load this procedure is putting on the network.  It includes the RPC and ULP' .
+'headers, and the request payload');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+			  "nfsclient.ops.$op_name.bytes_recv",
+			  'count of bytes in',
+'How many bytes are received for this procedure type.  This indicates how ' .
+'much load this procedure is putting on the network.  It includes RPC and ' .
+'ULP headers, and the request payload');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+			  "nfsclient.ops.$op_name.queue",
+			  'milliseconds queued for transmit',
+'The length of time an RPC request waits in queue before transmission in ' .
+' milliseconds.');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+			  "nfsclient.ops.$op_name.rtt",
+			  'milliseconds for rpc round trip time',
+'The network + server latency of the request in milliseconds.');
+
+	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
+			  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+			  "nfsclient.ops.$op_name.execute",
+			  'milliseconds for rpc execution',
+'The total time the request spent from init to release in milliseconds.');
+}
 
 &nfsclient_parse_proc_mountstats;
 $pmda->add_indom($nfsclient_indom, [%instances], 'NFS mounts', '');
