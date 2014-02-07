@@ -195,8 +195,7 @@ sub nfsclient_fetch_callback {
 # process, so there are special requirements:  no comments, the domain has to
 # be a bare number.
 #
-# domain 111 was chosen since it doesn't exist in ../pmns/stdpmid
-our $pmda = PCP::PMDA->new('nfsclient', 111);
+our $pmda = PCP::PMDA->new('nfsclient', 62);
 
 # metrics go here, with full descriptions
 
