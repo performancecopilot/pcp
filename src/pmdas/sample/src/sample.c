@@ -12,14 +12,14 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "percontext.h"
-#include "events.h"
 #include <limits.h>
 #include <sys/stat.h>
-#include "../domain.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
+#include "percontext.h"
+#include "events.h"
+#include "domain.h"
 #ifdef HAVE_SYSINFO
 /*
  * On Solaris, need <sys/systeminfo.h> and sysinfo() is different.
