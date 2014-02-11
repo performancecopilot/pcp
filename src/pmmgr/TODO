@@ -1,6 +1,7 @@
 - bias connection-string for multiply-reachable pmcd via "fastest" connection? "shortest url"?
 - pmlogrewrite
 - pmlogreduce
+- log aging in background while new pmlogger's already running
 - log aging without logmerge (which is high on I/O)
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?
