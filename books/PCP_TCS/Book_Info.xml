@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+
+<bookinfo id="pcp-tutorials-and-case-studies">
+	<title>pcp-tutorials-and-case-studies</title>
+	<subtitle>Performance Co-Pilot Tutorials and Case Studies</subtitle>
+	<edition>3</edition>
+	<productname>PCP</productname>
+	<productnumber>3</productnumber>
+        <pubsnumber>1</pubsnumber>
+ 	<xi:include href="Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+<!-- <xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
+	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+</bookinfo>
