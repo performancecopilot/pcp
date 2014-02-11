@@ -197,18 +197,40 @@ default is
 so instead, the pmlogger file above should probably contain a \-c option, to
 specify a fixed pmlogger configuration.
 
+.SS ARCHIVE LOG MANAGEMENT
+
+Default pmlogger configurations can collect tens of megabytes of data
+per day (possibly split into multiple archives), per target host.  If
+your disk space is less than infinite, or archive-splitting unwieldy,
+this should be managed.  In the default, unmanaged case, the system
+administrator is responsible for managing the individual
+.IR archive-*
+files from the per-host logging subdirectories.  pmmgr offers several
+other options, representing different performance / usability tradeoffs.
+
+.SS ARCHIVE LOG MANAGEMENT - pmlogmerge
+
+This style of archive log management regularly creates a new merged
+archive from all prior archives for each target host, in effect
+lopping off old data and appending the new.  This merged archive can
+be relatively large (defaults approximately 100-400 MB per host), and
+puts a corresponding I/O load on storage, but is most convenient for a
+detailed long-timeframe analysis.  (Once pmlogger is restarted, it
+always creates a new archive, so in the steady state, there will be
+one merged archive of recent history, and one current archive being
+written-to by pmlogger.)
+
 .TP
 pmlogmerge
 If and only if this file exists, pmmgr will run 
 .BR pmlogextract
-to periodically merge together all preexisting log archives for each target pmcd
-into one.  (When pmlogger is started, it always creates a new archive, so in the
-steady state, there will be one merged archive from history, and one current archive
-being written-to by pmlogger.)  The file may contain a time interval specification
-as per the
+to periodically merge together all preexisting log archives for each
+target pmcd into a single large one.  Then, the preexisting log
+archives are deleted (including any prior merged ones). 
+This configuration file may contain a time interval specification as per the
 .IR PCPintro
-man page, representing the period at which pmlogger should be temporarily stopped,
-and archives merged.  The default is 
+man page, representing the period after which pmlogger should be temporarily
+stopped, and archives merged.  The default is 
 .BR 24hours .
 
 .TP
@@ -218,6 +240,7 @@ archived data.  It will be passed to pmlogextract as a negative parameter to \-S
 It is interpreted as a request that data older than the given interval should
 be thrown away.  The default is
 .BR 14days .
+
 
 .SS PMIE CONFIGURATION
 
