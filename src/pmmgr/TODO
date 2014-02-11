@@ -1,4 +1,4 @@
-- bias connection-string for multiply-reachable pmcd via "fastest" connection? "shortest url"?
+- tie-break connection-string for multiply-reachable pmcd via other criteria? "shortest url"?
 - pmlogrewrite
 - pmlogreduce
 - log aging in background while new pmlogger's already running

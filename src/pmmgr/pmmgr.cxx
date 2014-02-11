@@ -373,15 +373,29 @@ pmmgr_job_spec::poll()
   known_targets.clear();
 
   // phase 3: map the context-specs to hostids to find new hosts
+  map<pmmgr_hostid,double> known_target_scores;
   for (set<pcp_context_spec>::iterator it = new_specs.begin();
        it != new_specs.end();
        ++it)
     {
+      struct timeval before, after;
+      __pmtimevalNow(& before);
       pmmgr_hostid hostid = compute_hostid (*it);
+      __pmtimevalNow(& after);
+      double score = __pmtimevalSub(& after, & before); // the smaller, the preferreder
+
       if (hostid != "") // verified existence/liveness
-        known_targets[hostid] = *it;
-      // NB: for hostid's with multiple specs, this logic will pick an
-      // *arbitrary* one.  Perhaps we want to tie-break deterministically.
+        {
+          if (pmDebug & DBG_TRACE_APPL0)
+            timestamp(cout) << "hostid " << hostid << " via " << *it << " time " << score << endl;
+
+          if (known_target_scores.find(hostid) == known_target_scores.end() ||
+              known_target_scores[hostid] > score) // previous slower than this one
+            {
+              known_targets[hostid] = *it;
+              known_target_scores[hostid] = score;
+            }
+        }
     }
 
   // phase 4a: compare old_known_targets vs. known_targets: look for any recently died
