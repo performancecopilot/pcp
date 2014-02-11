@@ -1,5 +1,4 @@
 - tie-break connection-string for multiply-reachable pmcd via other criteria? "shortest url"?
-- pmlogrewrite
 - pmlogreduce
 - log aging in background while new pmlogger's already running
 - log aging without logmerge (which is high on I/O)

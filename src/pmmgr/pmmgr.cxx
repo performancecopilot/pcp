@@ -700,6 +700,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       string pmlogcheck_command = 
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogcheck";
 
+      string pmlogrewrite_command = 
+        string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogrewrite";
+
       string pmlogextract_options = sh_quote(pmlogextract_command);
 
       string retention = get_config_single ("pmlogmerge-retain");
@@ -740,8 +743,23 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
                   continue;
                 }
+              
+              if (get_config_exists("pmlogmerge-rewrite"))
+                {
+                  string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
+                  pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
+                  pmlogrewrite_options += " " + sh_quote(base_name);
 
-              // XXX: pmlogrewrite here
+                  if (pmDebug & DBG_TRACE_APPL0)
+                    timestamp(cout) << "running " << pmlogrewrite_options << endl;
+                  rc = system(pmlogrewrite_options.c_str());
+                  if (rc != 0)
+                    {
+                      timestamp(cerr) << "system(" << pmlogrewrite_options << ") failed: rc=" << rc << endl;
+                      timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
+                      continue;
+                    }
+                }
 
               old_archives.push_back (base_name);
             }

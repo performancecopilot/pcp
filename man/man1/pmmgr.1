@@ -210,10 +210,10 @@ other options, representing different performance / usability tradeoffs.
 
 .SS ARCHIVE LOG MANAGEMENT - pmlogmerge
 
-This style of archive log management regularly creates a new merged
+This style of archive log management regularly creates a single merged
 archive from all prior archives for each target host, in effect
 lopping off old data and appending the new.  This merged archive can
-be relatively large (defaults approximately 100-400 MB per host), and
+be relatively large (defaults to approximately 100-400 MB per host), and
 puts a corresponding I/O load on storage, but is most convenient for a
 detailed long-timeframe analysis.  (Once pmlogger is restarted, it
 always creates a new archive, so in the steady state, there will be
@@ -241,6 +241,13 @@ It is interpreted as a request that data older than the given interval should
 be thrown away.  The default is
 .BR 14days .
 
+.TP
+pmlogmerge\-rewrite
+If this file exists, pmmgr will run 
+.BR "pmlogrewrite -i"
+(plus any other options listed in this file) on each input archive before
+merging it.  This will naturally require more disk I/O.  The default is
+.BR "no rewriting" .
 
 .SS PMIE CONFIGURATION
 
