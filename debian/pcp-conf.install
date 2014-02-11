@@ -1,0 +1,3 @@
+etc/pcp.conf
+usr/include/pcp/builddefs
+usr/include/pcp/buildrules

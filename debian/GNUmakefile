@@ -36,6 +36,10 @@ PCPPMDAINFINIBAND = pcp-pmda-infiniband
 PCPPMDAINFINIBAND_FILES = pcp-pmda-infiniband.dirs pcp-pmda-infiniband.install
 PCPPMDAINFINIBAND_DOC_DIR = $(PCP_DOC_DIR)/../pcp-pmda-infiniband
 
+PCPCFG = pcp-conf
+PCPCFG_FILES = pcp-conf.dirs pcp-conf.install
+PCPCFG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-conf
+
 LIBPCPPCP = libpcp3
 LIBPCP_FILES = libpcp3.dirs libpcp3.install
 DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
@@ -88,7 +92,7 @@ LSRCFILES = changelog compat control copyright rules \
 	pcp.postrm.head pcp.postrm.tail configversions \
 	$(LINTIAN) $(PCP_LINT) \
 	$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
-	$(PCPTESTSUITE_FILES) \
+	$(PCPCFG_FILES) $(PCPTESTSUITE_FILES) \
 	$(LIBGUI_FILES) $(DEVGUI_FILES) \
 	$(LIBMMV_FILES) $(DEVMMV_FILES) \
 	$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
@@ -117,6 +121,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPTESTSUITEDIR)
 	$(INSTALL) -m 644 copyright $(PCPTESTSUITEDIR)
 	$(INSTALL) -m 644 changelog $(PCPTESTSUITEDIR)/changelog.Debian
+endif
+
+install-pcpcfg: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPCFG_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPCFG_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPCFG_DOC_DIR)/changelog.Debian
 endif
 
 install-libpcp: default

@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 pcp = pcp
+pcpcfg = pcp-conf
 libpcp = libpcp3
 libpcpdev = libpcp3-dev
 libpcp_pmda = libpcp-pmda3
@@ -27,6 +28,7 @@ pcp_testsuite = pcp-testsuite
 pcp_python = python-pcp
 
 dirpcp = debian/$(pcp)
+dirpcpcfg = debian/$(pcpcfg)
 dirlibpcp = debian/$(libpcp)
 dirlibpcpdev = debian/$(libpcpdev)
 dirlibpcp_pmda = debian/$(libpcp_pmda)
@@ -53,7 +55,8 @@ dirpcp_testsuite = debian/$(pcp_testsuite)
 dirpcp_python = debian/$(pcp_python)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
-alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
+alldir = $(dirpcp) $(dirpcpcfg) \
+		$(dirlibpcp) $(dirlibpcpdev) \
 		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
@@ -62,10 +65,11 @@ alldir = $(dirpcp) $(dirlibpcp) $(dirlibpcpdev) $(allperldir) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
-		$(dirpcp_pmda_infiniband) \
+		$(dirpcp_pmda_infiniband) $(allperldir) \
 		$(dirpcp_python)
 
 pkgpcp = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
+pkgpcpcfg = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcpcfg);
 pkglibpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp);
 pkglibpcp_gui = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_gui);
 pkglibpcp_mmv = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv);

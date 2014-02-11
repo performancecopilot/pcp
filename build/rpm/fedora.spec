@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.13
+Version: 3.9.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -79,6 +79,21 @@ the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data. 
 
 #
+# pcp-conf
+#
+%package conf
+License: LGPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot run-time configuration
+URL: http://oss.sgi.com/projects/pcp/
+
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+Conflicts: pcp-libs < 3.9
+
+%description conf
+Performance Co-Pilot (PCP) run-time configuration
+
+#
 # pcp-libs
 #
 %package libs
@@ -86,6 +101,8 @@ License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-conf = %{version}-%{release}
 
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
@@ -531,13 +548,17 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif				# ppc
 %endif
 
-%files libs
+%files conf
 %defattr(-,root,root)
 
 %dir %{_includedir}/pcp
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
+
+%files libs
+%defattr(-,root,root)
+
 %{_libdir}/libpcp.so.3
 %{_libdir}/libpcp_gui.so.2
 %{_libdir}/libpcp_mmv.so.1
@@ -617,7 +638,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Thu Jan 30 2014 Nathan Scott <nathans@redhat.com> - 3.8.13-1
+* Mon Feb 17 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
 - Under development.
 
 * Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
