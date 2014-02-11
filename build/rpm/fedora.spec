@@ -319,6 +319,9 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
 
+# remove configsz.h as this is not multilib friendly.
+rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
+
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz

@@ -4496,7 +4496,7 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 
 
-ac_config_headers="$ac_config_headers src/include/pcp/config.h"
+ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
 
 ac_config_files="$ac_config_files src/include/pcp/platform_defs.h"
 
@@ -5190,6 +5190,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
+    "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
@@ -8739,12 +8740,13 @@ fi
 
 done
 
-for ac_header in execinfo.h
+for ac_header in execinfo.h bits/wordsize.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "execinfo.h" "ac_cv_header_execinfo_h" "$ac_includes_default"
-if test "x$ac_cv_header_execinfo_h" = xyes; then :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_EXECINFO_H 1
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
 fi
@@ -13987,6 +13989,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
+    "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
     "src/include/builddefs") CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;

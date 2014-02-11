@@ -1,3 +1,4 @@
 platform_defs.h
+configsz.h
 config.h
 pmdbg.h
