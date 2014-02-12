@@ -2072,14 +2072,28 @@ __pmGetNameInfo(__pmSockAddr *address)
     char buffer[PR_NETDB_BUF_SIZE];
     char *name;
     PRHostEnt he;
-    PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
+    PRStatus prStatus;
+
+    if (address->sockaddr.raw.family == PR_AF_INET ||
+	address->sockaddr.raw.family == PR_AF_INET6) {
+	prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
-        if (prStatus != PR_SUCCESS) {
-            fprintf(stderr, "%s:PR_GetHostByAddr(%s) returns %d (%s)\n", __FILE__, __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
-        }
-    }
+	if (pmDebug & DBG_TRACE_DESPERATE) {
+	    if (prStatus != PR_SUCCESS) {
+		fprintf(stderr, "%s:PR_GetHostByAddr(%s) returns %d (%s)\n", __FILE__, __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
+	    }
+	}
 #endif
+    }
+    else if (address->sockaddr.raw.family == PR_AF_LOCAL)
+	return strdup(address->sockaddr.local.path);
+    else {
+	__pmNotifyErr(LOG_ERR,
+		      "%s:__pmGetNameInfo: Invalid address family: %d\n", __FILE__,
+		      address->sockaddr.raw.family);
+	return NULL;
+    } 
+
     name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
     return name;
 }
