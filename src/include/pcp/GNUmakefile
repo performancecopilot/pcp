@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,11 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h import.h \
-	 trace.h trace_dev.h mmv_stats.h mmv_dev.h
-GENERATED_HFILES = pmdbg.h platform_defs.h config.h
-CONFFILES = config.h platform_defs.h
+	 trace.h trace_dev.h mmv_stats.h mmv_dev.h \
+	 config32.h config64.h
+INFILES = config.h.in configsz.h.in platform_defs.h.in
+CONFFILES = config.h configsz.h platform_defs.h
+GENERATED_HFILES = pmdbg.h $(CONFFILES)
 
-LSRCFILES = config.h.in platform_defs.h.in mk_pmdbg fault.h
+LSRCFILES = mk_pmdbg fault.h $(INFILES)
 LDIRT = $(GENERATED_HFILES)
 
 default :: default_pcp

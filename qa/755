@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 755
+# Exercise the Apache PMDA Install/Remove, as well as the
+# mechanism by which a PMDA can be installed with no pmcd
+# process running.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+done_clean=false
+rm -f $seq.full
+
+install_on_cleanup=false
+pminfo apache >/dev/null 2>&1 && install_on_cleanup=true
+
+_cleanup()
+{
+    if $done_clean
+    then
+        :
+    else
+        [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+        rm -f $tmp.*
+        $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+        _wait_for_pmcd
+        _wait_for_pmlogger
+        if $install_on_cleanup
+        then
+            ( cd $PCP_PMDAS_DIR/apache; $sudo ./Install </dev/null >/dev/null 2>&1 )
+        else
+            ( cd $PCP_PMDAS_DIR/apache; $sudo ./Remove >/dev/null 2>&1 )
+        fi
+        done_clean=true
+    fi
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_apache()
+{
+    # cull message resulting from no running httpd
+    grep -v 'Information not currently available'
+}
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=apache
+cd $home/$iam
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pmcd stop
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+# Check apache metrics have appeared ... X metrics and Y values
+_filter_pmda_install <$tmp.out \
+| sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+| $PCP_AWK_PROG '
+/Check apache metrics have appeared/    { if ($7 >= 20 && $7 <= 80) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                        }
+                                        { print }'
+
+# pmcd should have been started by the Install process - check
+if pminfo -v $iam > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_apache
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+# success, all done
+status=0
+exit

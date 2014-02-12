@@ -91,13 +91,6 @@ timestamp(ostream &o)
 }
 
 
-extern "C" int
-pmValue_compare (const void* a, const void* b)
-{
-  return ((pmValue *)a)->inst - ((pmValue *)b)->inst;
-}
-
-
 extern "C" void *
 pmmgr_daemon_poll_thread (void* a)
 {
@@ -257,15 +250,12 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
         continue;
       // NB: after this point, 'continue' must also pmFreeResult(r)
 
+      // in-place sort value list by indom number
+      pmSortInstances(r);
+
       // only vset[0] will be set, for csb->pmid
       if (r->vset[0]->numval > 0)
         {
-          // in-place sort value list by indom number
-          qsort (r->vset[0]->vlist,
-                 (size_t) r->vset[0]->numval,
-                 sizeof(pmValue),
-                 pmValue_compare);
-
           for (int j=0; j<r->vset[0]->numval; j++) // iterate over instances
             {
               // fetch the string value

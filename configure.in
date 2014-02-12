@@ -348,8 +348,8 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
-dnl output header with cpp defs HAVE_*, etc
-AC_CONFIG_HEADER(src/include/pcp/config.h)
+dnl output header files with cpp defs HAVE_*, etc
+AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
 AC_OUTPUT(src/include/pcp/platform_defs.h)
 
 AC_CHECK_PROGS(GIT, git)
@@ -932,7 +932,7 @@ AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
-AC_CHECK_HEADERS(execinfo.h)
+AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 
 dnl Check if we have <sys/endian.h> ... standard way

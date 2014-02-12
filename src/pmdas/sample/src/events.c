@@ -15,9 +15,9 @@
  * for more details.
  */
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
 #include "events.h"
 
 static int		nfetch;

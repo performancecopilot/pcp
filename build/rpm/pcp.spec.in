@@ -85,15 +85,30 @@ the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data. 
 
 #
+# pcp-conf
+#
+%package conf
+License: LGPLv2.1+
+Group: Development/Libraries
+Summary: Performance Co-Pilot run-time configuration
+URL: http://oss.sgi.com/projects/pcp/
+
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+Conflicts: pcp-libs < 3.9
+
+%description conf
+Performance Co-Pilot (PCP) run-time configuration
+
+#
 # pcp-libs
 #
 %package libs
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-Vendor: SGI
 URL: http://oss.sgi.com/projects/pcp/
 
+Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
 
 %description libs
@@ -325,20 +340,23 @@ rm -f $DIST_MANIFEST
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
+CFGFILELIST=`ls -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
 LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-testsuite, pcp-import-*
-# -libs gets first pick, then libs-devel, then pcp-testsuite, then pcp-import-*
-# The base package catches-all remaining.
+# Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*} ...
+# -conf gets first pick, then -libs, then libs-devel, then pcp-testsuite,
+# then pcp-import-*.  The base package catches all remaining.
 #
+sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch ia64 x86_64 ppc64
+%ifarch ia64 x86_64 ppc64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
+sed -i -e '/usr\/include\/pcp\/configsz.h/d' devel_files
 
 #
 # some special cases for devel
@@ -393,6 +411,7 @@ touch pmda_infiniband_files
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
+    while( getline < "cfg_files") cfg[$0]=1;
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
@@ -405,7 +424,8 @@ BEGIN {
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
-    if (lib[$NF]) f="libs_files.rpm";
+    if (cfg[$NF]) f="cfg_files.rpm";
+    else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
@@ -572,6 +592,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %postun libs -p /sbin/ldconfig
 
 %files -f base_files.rpm
+%defattr(-,root,root)
+
+%files conf -f cfg_files.rpm
 %defattr(-,root,root)
 
 %files libs -f libs_files.rpm

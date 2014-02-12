@@ -20,10 +20,10 @@
  * Generic driver for a daemon-based PMDA
  */
 
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "../domain.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#include <pcp/pmda.h>
+#include "domain.h"
 #include "percontext.h"
 
 extern void sample_init(pmdaInterface *);

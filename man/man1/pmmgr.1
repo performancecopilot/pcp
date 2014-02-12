@@ -132,7 +132,7 @@ man page.  Each poll interval, pmmgr will attempt to make a brief
 .IR pmNewContext
 connection to the host to check liveness.  It is not a problem if more than
 one specification for the same host is listed, because the host-id processing
-eliminates duplicates, and chooses an arbitrary specification among them. 
+eliminates duplicates, and chooses an arbitrary specification among them.
 The default is to target pmcd at
 .BR local: .
 
@@ -143,7 +143,8 @@ This file contains one or more lines containing specifications for the
 PMAPI call, each of which may map onto a fluctuating set of local or remote
 pmcd servers.  Each poll interval, pmmgr will attempt to rerun discovery with
 all of the given specifications.  Again it is not a problem if more than one
-specification matches the same actual pmcd.  The default value is to do
+specification matches the same actual pmcd: one confirmed access path is
+arbitrarily selected.  The default is to do
 .BR "no discovery" .
 Consider including
 .IR avahi 

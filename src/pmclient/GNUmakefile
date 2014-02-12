@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2013-2013 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,9 +20,10 @@ CFILES	= pmclient.c
 CMDTARGET = pmclient$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB)
 LDIRT	= pmnsmap.h mylog.* runme.sh
-LSRCFILES = README GNUmakefile.install pmnsmap.spec
+CONFIGS	= pmnsmap.spec pmlogger.config
+LSRCFILES = README GNUmakefile.install $(CONFIGS)
 
-DEMODIR=$(PCP_DEMOS_DIR)/pmclient
+DEMODIR	= $(PCP_DEMOS_DIR)/pmclient
 
 default:	$(CMDTARGET)
 
@@ -31,7 +33,7 @@ install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile
-	$(INSTALL) -m 644 $(CFILES) README pmnsmap.spec $(DEMODIR)
+	$(INSTALL) -m 644 $(CFILES) $(CONFIGS) README $(DEMODIR)
 
 pmclient.o:	pmnsmap.h
 

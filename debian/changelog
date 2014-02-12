@@ -1,8 +1,10 @@
-pcp (3.8.13) unstable; urgency=low
+pcp (3.9.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Use autotools-dev to update config.{sub,guess} (closes: #737340)
+  * Split libpcp3 library and configuration files (closes: #655440)
 
- -- Nathan Scott <nathans@debian.org>  Thu, 30 Jan 2014 10:38:40 +1100
+ -- Nathan Scott <nathans@debian.org>  Mon, 17 Feb 2014 10:38:40 +1100
 
 pcp (3.8.12) unstable; urgency=low
 

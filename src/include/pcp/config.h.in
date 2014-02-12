@@ -80,11 +80,25 @@ extern "C" {
 /* if compiler can cast __uint64_t to double */
 #undef HAVE_CAST_U64_DOUBLE
 
-/* long and pointer must be either 32 bit or 64 bit */
-#undef HAVE_64BIT_LONG
-#undef HAVE_32BIT_LONG
-#undef HAVE_32BIT_PTR
-#undef HAVE_64BIT_PTR
+/*
+ * long and pointer must be either 32 bit or 64 bit
+ *
+ * This is complicated by RPMs "multilib" feature, which requires there
+ * to be no differences between header files on 32 and 64 bit platforms.
+ */
+#undef HAVE_BITS_WORDSIZE_H
+#ifdef HAVE_BITS_WORDSIZE_H
+# include <bits/wordsize.h>
+# if __WORDSIZE == 32
+#  include "config32.h"
+# elif __WORDSIZE == 64
+#  include "config64.h"
+# else
+#  error "Unknown word size"
+# endif
+#else
+# include "configsz.h"
+#endif
 
 /* Define if header file is available */
 #undef HAVE_FCNTL_H

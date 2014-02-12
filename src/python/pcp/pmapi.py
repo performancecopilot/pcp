@@ -56,7 +56,7 @@
         # Is this the kernel.all.load id?
         if (results.contents.get_pmid(i) != metric_ids[1]):
             continue
-        # Extrace the kernal.all.load instance
+        # Extract the kernel.all.load instance
         for j in xrange(results.contents.get_numval(i) - 1):
             atom = context.pmExtractValue(results.contents.get_valfmt(i),
                                           results.contents.get_vlist(i, j),
@@ -69,8 +69,8 @@
                 print "load average 5=",atom.f
 """
 
-# for dereferencing times from pmLocaltime function (struct tm)
-from time import struct_time, mktime
+# for reporting on times from pmLocaltime function
+from time import mktime
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -148,13 +148,20 @@ class tm(Structure):
                 ("tm_year", c_int),
                 ("tm_wday", c_int),
                 ("tm_yday", c_int),
-                ("tm_isdst", c_int)]
+                ("tm_isdst", c_int),
+                ("tm_gmtoff", c_long),	# glibc/bsd extension
+                ("tm_zone", c_char_p)]	# glibc/bsd extension
 
     def __str__(self):
-        tmp = mktime(self.tm_year, self.tm_mon, self.tm_mday, self.tm_hour,
-                     self.tm_min, self.tm_sec, self.tm_wday, self.tm_yday,
-                     self.tm_isdst)
-        return "%s" % tmp.__str__()
+        timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
+                     self.tm_hour, self.tm_min, self.tm_sec,
+                     self.tm_wday, self.tm_yday, self.tm_isdst)
+        inseconds = 0.0
+        try:
+            inseconds = mktime(timetuple)
+        except:
+            pass
+        return "%s %s" % (inseconds.__str__(), timetuple)
 
 class pmAtomValue(Union):
     """Union used for unpacking metric values according to type
@@ -512,11 +519,11 @@ LIBPCP.pmUseZone.argtypes = [c_int]
 LIBPCP.pmWhichZone.restype = c_int
 LIBPCP.pmWhichZone.argtypes = [POINTER(c_char_p)]
 
-LIBPCP.pmLocaltime.restype = tm
+LIBPCP.pmLocaltime.restype = POINTER(tm)
 LIBPCP.pmLocaltime.argtypes = [POINTER(c_long), POINTER(tm)]
 
 LIBPCP.pmCtime.restype = c_char_p
-LIBPCP.pmCtime.argtypes = [c_long, c_char_p]
+LIBPCP.pmCtime.argtypes = [POINTER(c_long), c_char_p]
 
 
 ##
@@ -689,7 +696,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmGetChildren(name, byref( offspring))
+        status = LIBPCP.pmGetChildren(name, byref(offspring))
         if status < 0:
             raise pmErr, status
         if status > 0:
@@ -1148,16 +1155,20 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        result = POINTER(tm)()
-        return LIBPCP.pmLocaltime(seconds, byref(result))
+        result = (tm)()
+        timetp = c_long(int(seconds))
+        LIBPCP.pmLocaltime(byref(timetp), byref(result))
+	return result
 
     def pmCtime(self, seconds):
         """PMAPI - format the date and time for a reporting timezone """
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        result = (c_char * 32)()
-        return LIBPCP.pmCtime(seconds, byref(result))
+        result = ctypes.create_string_buffer(32)
+        timetp = c_long(int(seconds))
+        LIBPCP.pmCtime(byref(timetp), result)
+	return str(result.value)
 
     ##
     # PMAPI Metrics Services
