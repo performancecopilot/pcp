@@ -2241,12 +2241,14 @@ A pcp client may be written in the python language by making use of the python b
 <programlisting>from pcp import pmapi</programlisting></para></listitem>
 <listitem><para>pmErr which provides access to the python bindings exception handler
 <programlisting>from pcp.pmapi import pmErr</programlisting></para></listitem>
+<listitem><para>pmgui which provides access to PMAPI record mode functions
+<programlisting>from pcp import ppmgui</programlisting></para></listitem>
 </itemizedlist>
 Creating and destroying a PMAPI context in the python environment is done by creating and destroying an object of the pmapi class:
 <programlisting>pmc = pmapi.pmContext()</programlisting>
 Most PMAPI C functions have python equivalents with similar, although
 not identical, call signatures.  Some of the python functions do not
-return native python types, but instead return native c types wrapped
+return native python types, but instead return native C types wrapped
 by the ctypes library.  In most cases these types are opaque, or
 nearly so; for example <replaceable>pmid</replaceable>:
 <programlisting>   pmid = pmc.pmLookupName("mem.freemem")
@@ -2307,9 +2309,9 @@ See the comparison of a standalone C and python client application in <xref link
 <literallayout class="monospaced">int pmGetChildren(const char*<replaceable>name</replaceable>, char***<replaceable>offspring</replaceable>)
 <command>Python:</command>
 [name1, name2...] = pmGetChildren(<replaceable>name</replaceable>)</literallayout>
-<para><indexterm id="IG31340177292"><primary>PMAPI</primary><secondary>Name Space services</secondary></indexterm><indexterm id="IG31340177293"><primary>pmGetChildren function</primary></indexterm>Given a full pathname to a node in the current PMNS, as identified by <replaceable>name</replaceable>, return through <replaceable>offspring</replaceable> a list of the relative names of all the immediate descendents of <replaceable>name</replaceable> in the current PMNS. As a special case, if <replaceable>name</replaceable> is an empty string, (that is, <literal>&quot;&quot;</literal> but not <literal>NULL</literal> or <literal>(char *)0</literal>), the immediate descendents of the root node in the PMNS are returned.
+<para><indexterm id="IG31340177292"><primary>PMAPI</primary><secondary>Name Space services</secondary></indexterm><indexterm id="IG31340177293"><primary>pmGetChildren function</primary></indexterm>Given a full pathname to a node in the current PMNS, as identified by <replaceable>name</replaceable>, return through <replaceable>offspring</replaceable> a list of the relative names of all the immediate descendents of <replaceable>name</replaceable> in the current PMNS. As a special case, if <replaceable>name</replaceable> is an empty string, (that is, <literal>&quot;&quot;</literal> but not <literal>NULL</literal> or <literal>(char *)0</literal>), the immediate descendents of the root node in the PMNS are returned.</para>
 
-For the python bindings a tuple containing the relative names of all the immediate descendents of <replaceable>name</replaceable> in the current PMNS is returned.
+<para>For the python bindings a tuple containing the relative names of all the immediate descendents of <replaceable>name</replaceable> in the current PMNS is returned.
 </para>
 <para>Normally, <command>pmGetChildren</command> returns the number of descendent names discovered, or a value less than zero for an error. The value zero indicates that the <replaceable>name</replaceable> is valid, and associated with a leaf node in the PMNS.</para>
 <para>The resulting list of pointers (<replaceable>offspring</replaceable>) and the values (relative metric names) that the pointers reference are allocated by <command>pmGetChildren</command> with a single call to <command>malloc</command>, and it is the responsibility of the caller to issue a <command>free</command><replaceable>(offspring)</replaceable> system call to release the space when it is no longer required. When the result of <command>pmGetChildren</command> is less than one, <replaceable>offspring</replaceable> is undefined (no space is allocated, and so calling <command>free</command> is counterproductive).</para>
@@ -2345,7 +2347,7 @@ int loc = pmGetPMNSLocation()</literallayout>
 <title><command>pmLoadNameSpace</command> Function</title>
 <literallayout class="monospaced">int pmLoadNameSpace(const char *<replaceable>filename</replaceable>)
 <command>Python:</command>
-int status = pmLoadNameSpace(<replaceable>filename</replaceable>)</literallayout>
+int <replaceable>status</replaceable> = pmLoadNameSpace(<replaceable>filename</replaceable>)</literallayout>
 <para><indexterm id="IG31340177296"><primary>pmLoadNameSpace function</primary></indexterm>In the highly unusual situation that an application wants to force using a local Performance Metrics Name Space (PMNS), the application can load the PMNS using <command>pmLoadNameSpace</command>.</para>
 <para>The <replaceable>filename</replaceable> argument designates the PMNS of interest. For applications that do not require a tailored Name Space, the special value <literal>PM_NS_DEFAULT</literal> may be used for <replaceable>filename</replaceable>, to force a default local PMNS to be established. Externally, a PMNS is stored in an ASCII format.</para>
 <para>The python bindings load a local tailored Name Space from <replaceable>filename</replaceable>.  </para>
@@ -2357,8 +2359,8 @@ int status = pmLoadNameSpace(<replaceable>filename</replaceable>)</literallayout
 <title><command>pmLookupName</command> Function</title>
 <literallayout class="monospaced">int pmLookupName(int <replaceable>numpmid</replaceable>, char *<replaceable>namelist</replaceable>[], pmID <replaceable>pmidlist</replaceable>[])
 <command>Python:</command>
-c_uint pmid [] = pmLookupName(<replaceable>"MetricName"</replaceable>)
-c_uint pmid [] = pmLookupName((<replaceable>"MetricName1"</replaceable>, <replaceable>"MetricName2"</replaceable>, ...))</literallayout>
+c_uint <replaceable>pmid</replaceable> [] = pmLookupName(<replaceable>"MetricName"</replaceable>)
+c_uint <replaceable>pmid</replaceable> [] = pmLookupName((<replaceable>"MetricName1"</replaceable>, <replaceable>"MetricName2"</replaceable>, ...))</literallayout>
 <para><indexterm id="IG31340177298"><primary>pmLookupName function</primary></indexterm>Given a list in <replaceable>namelist</replaceable> containing <replaceable>numpmid</replaceable> full pathnames for performance metrics from the current PMNS, <command>pmLookupName</command> returns the list of associated PMIDs through the <replaceable>pmidlist</replaceable> parameter. Invalid metrics names are translated to the error PMID value of <literal>PM_ID_NULL</literal>.</para>
 <para>The result from <command>pmLookupName</command> is the number of names translated in the absence of errors, or an error indication. Note that argument definition and the error protocol guarantee a one-to-one relationship between the elements of <replaceable>namelist</replaceable> and <replaceable>pmidlist</replaceable>; both lists contain exactly <replaceable>numpmid</replaceable> elements.</para>
 <para>The python bindings return an array of associated PMIDs corresponding to a tuple of <replaceable>MetricNames</replaceable>.  The returned <replaceable>pmid</replaceable> tuple is passed to <command>pmLookupDescs</command> and <command>pmFetch</command>.</para>
@@ -2368,7 +2370,7 @@ c_uint pmid [] = pmLookupName((<replaceable>"MetricName1"</replaceable>, <replac
 <title><command>pmNameAll</command> Function</title>
 <literallayout class="monospaced">int pmNameAll(pmID <replaceable>pmid</replaceable>, char ***<replaceable>nameset</replaceable>)
 <command>Python:</command>
-[name1, name2...] = pmNameAll(<replaceable>pmid</replaceable>_id)</literallayout>
+[name1, name2...] = pmNameAll(<replaceable>pmid</replaceable>)</literallayout>
 <para><indexterm id="IG31340177299"><primary>pmNameAll function</primary></indexterm>Given a performance metric ID in <replaceable>pmid</replaceable>, <command>pmNameAll</command> determines all the corresponding metric names, if any, in the PMNS, and returns these through <replaceable>nameset</replaceable>.</para>
 <para>The resulting list of pointers <replaceable>nameset</replaceable> and the values (relative names) that the pointers reference are allocated by <command>pmNameAll</command> with a single call to <command>malloc</command>. It is the caller's responsibility to call <command>free</command> and release the space when it is no longer required.</para>
 <para>In the absence of errors, <command>pmNameAll</command> returns the number of names in <command>nameset</command>.</para>
@@ -2380,7 +2382,7 @@ c_uint pmid [] = pmLookupName((<replaceable>"MetricName1"</replaceable>, <replac
 <title><command>pmNameID</command> Function</title>
 <literallayout class="monospaced">int pmNameID(pmID <replaceable>pmid</replaceable>, char **<replaceable>name</replaceable>)
 <command>Python:</command>
-str name = pmNameID(<replaceable>pmid</replaceable>)</literallayout>
+"metric name" = pmNameID(<replaceable>pmid</replaceable>)</literallayout>
 <para><indexterm id="IG31340177300"><primary>pmNameID function</primary></indexterm>Given a performance metric ID in <replaceable>pmid</replaceable>, <command>pmNameID</command> determines the corresponding metric name, if any, in the current PMNS, and returns this through <replaceable>name</replaceable>.</para>
 <para>In the absence of errors, <command>pmNameID</command> returns zero. The <replaceable>name</replaceable> argument is a null byte terminated string, allocated by <command>pmNameID</command> using <command>malloc</command>. It is the caller's responsibility to call <command>free</command> and release the space when it is no longer required.</para>
 <para>The python bindings return a metric name corresponding to a <replaceable>pmid</replaceable>.</para>
@@ -2390,7 +2392,7 @@ str name = pmNameID(<replaceable>pmid</replaceable>)</literallayout>
 <title><command>pmTraversePMNS</command> Function</title>
 <literallayout class="monospaced">int pmTraversePMNS(const char *<replaceable>name</replaceable>, void (*<command>dometric</command>)(const char *))
 <command>Python:</command>
-int status = pmTraversePMNS(<replaceable>name</replaceable>, <replaceable>traverse_callback</replaceable>)</literallayout>
+int <replaceable>status</replaceable> = pmTraversePMNS(<replaceable>name</replaceable>, <replaceable>traverse_callback</replaceable>)</literallayout>
 <para><indexterm id="IG31340177301"><primary>pmTraversePMNS function</primary></indexterm>The function <command>pmTraversePMNS</command> may be used to perform a depth-first traversal of the PMNS. The traversal starts at the node identified by <replaceable>name</replaceable> --if <replaceable>name</replaceable> is an empty string, the traversal starts at the root of the PMNS. Usually, <replaceable>name</replaceable> would be the pathname of a non-leaf node in the PMNS.</para>
 <para><indexterm id="IG31340177302"><primary>dometric function</primary></indexterm><indexterm id="IG31340177303"><primary>leaf node</primary></indexterm>For each leaf node (actual performance metrics) found in the traversal, the user-supplied function <command>dometric</command> is called with the full pathname of that metric in the PMNS as the single argument; this argument is a null byte-terminated string, and is constructed from a buffer that is managed internally to <command>pmTraversePMNS</command>. Consequently, the value is valid only during the call to <command>dometric</command>--if the pathname needs to be retained, it should be copied using <command>strdup</command> before returning from <command>dometric</command>; see the <command>strdup(3)</command> man page.</para>
 <para>The python bindings perform a depth first traversal of the PMNS by scanning <replaceable>namespace</replaceable>, depth first, and call a python function <replaceable>traverse_callback</replaceable> for each node.  
@@ -2415,9 +2417,9 @@ pmUnLoadNameSpace(<replaceable>"NameSpace"</replaceable>)</literallayout>
 <title><command>pmLookupDesc</command> Function</title>
 <literallayout class="monospaced">int pmLookupDesc(pmID <replaceable>pmid</replaceable>, pmDesc *<replaceable>desc</replaceable>)
 <command>Python:</command>
-pmDesc* pmdesc = pmLookupDesc(c_uint <replaceable>pmid</replaceable>)
+pmDesc* <replaceable>pmdesc</replaceable> = pmLookupDesc(c_uint <replaceable>pmid</replaceable>)
 (pmDesc* <replaceable>pmdesc</replaceable>)[] = pmLookupDescs(c_uint <replaceable>pmids</replaceable>[N])
-(pmDesc* pmdesc)[] = pmLookupDescs(c_uint <replaceable>pmid</replaceable>)</literallayout>
+(pmDesc* <replaceable>pmdesc</replaceable>)[] = pmLookupDescs(c_uint <replaceable>pmid</replaceable>)</literallayout>
 <para><indexterm id="IG31340177305"><primary>metrics description services</primary></indexterm><indexterm id="IG31340177306"><primary>metric description services</primary></indexterm><indexterm id="IG31340177307"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG31340177308"><primary>PMAPI</primary><secondary>description services</secondary></indexterm>Given a Performance Metric Identifier (PMID) as <replaceable>pmid</replaceable>, <command>pmLookupDesc</command> returns the associated <literal>pmDesc</literal> structure through the parameter <replaceable>desc</replaceable> from the current PMAPI context. For more information about <literal>pmDesc</literal>, see <xref linkend="LE11914-PARENT"/>.</para>
 <para>
 The python bindings return the metric description structure  <literal>pmDesc</literal> corresponding to <replaceable>pmid</replaceable>.  The returned <replaceable>pmdesc</replaceable> is passed to <command>pmExtractValue</command> and <command>pmLookupInDom</command>. The python bindings provide an entry <command>pmLookupDescs</command> that is similar to pmLookupDesc but does a metric description lookup for each element in a PMID array <replaceable>pmids</replaceable>.</para>
@@ -2425,7 +2427,9 @@ The python bindings return the metric description structure  <literal>pmDesc</li
 <section id="id5200999">
 
 <title><command>pmLookupInDomText</command> Function</title>
-<programlisting>int pmLookupInDomText(pmInDom <replaceable>indom</replaceable>, int <replaceable>level</replaceable>, char **<replaceable>buffer</replaceable>)</programlisting>
+<programlisting>int pmLookupInDomText(pmInDom <replaceable>indom</replaceable>, int <replaceable>level</replaceable>, char **<replaceable>buffer</replaceable>)
+<command>Python:</command>
+"metric description" = pmGetInDomText(pmDesc <replaceable>pmdesc</replaceable>)</programlisting>
 <para><indexterm id="IG31340177309"><primary>indom instance domain</primary></indexterm><indexterm id="IG31340177310"><primary>pmLookupInDomText function</primary></indexterm>Provided the source of metrics from the current PMAPI context is a host, retrieve descriptive text about the performance metrics instance domain identified by <replaceable>indom</replaceable>.</para>
 <para><indexterm id="IG31340177311"><primary>help text</primary><secondary>pmLookupInDomText function</secondary></indexterm>The <replaceable>level</replaceable> argument should be <literal>PM_TEXT_ONELINE</literal> for a one-line summary, or <literal>PM_TEXT_HELP</literal> for a more verbose description suited to a help dialogue. The space pointed to by <replaceable>buffer</replaceable> is allocated in <command>pmLookupInDomText</command> with <command>malloc</command>, and it is the responsibility of the caller to free unneeded space; see the <command>malloc(3)</command> and<command>&#xA0;free(3)</command> man pages.</para>
 <para>The help text files used to implement <filename>pmLookupInDomText</filename> are often created using <command>newhelp</command> and accessed by the appropriate PMDA response to requests forwarded to the PMDA by PMCD. Further details may be found in <xref linkend="LE72473-PARENT"/>.</para>
@@ -2436,7 +2440,9 @@ The python bindings lookup the description text about the performance metrics pm
 <section id="id5201140">
 
 <title><command>pmLookupText</command> Function</title>
-<programlisting>int pmLookupText(pmID <replaceable>pmid</replaceable>, int <replaceable>level</replaceable>, char **<replaceable>buffer</replaceable>)</programlisting>
+<programlisting>int pmLookupText(pmID <replaceable>pmid</replaceable>, int <replaceable>level</replaceable>, char **<replaceable>buffer</replaceable>)
+<command>Python:</command>
+"metric description" = pmLookupText(c_uint <replaceable>pmid</replaceable>)</programlisting>
 <para><indexterm id="IG31340177312"><primary>pmLookupText function</primary></indexterm><indexterm id="IG31340177313"><primary>help text</primary><secondary>pmLookupText function</secondary></indexterm>Provided the source of metrics from the current PMAPI context is a host, retrieve descriptive text about the performance metric identified by <replaceable>pmid</replaceable>. The argument <replaceable>level</replaceable> should be <literal>PM_TEXT_ONELINE</literal> for a one-line summary, or <literal>PM_TEXT_HELP</literal> for a more verbose description, suited to a help dialogue.</para>
 <para>The space pointed to by <replaceable>buffer</replaceable> is allocated in <command>pmLookupText</command> with <command>malloc</command>, and it is the responsibility of the caller to <command>free</command> the space when it is no longer required; see the <command>malloc(3)</command> and <command>free(3)</command> man pages.</para>
 <para>The help text files used to implement <command>pmLookupText</command> are created using <command>newhelp</command> and accessed by the appropriate PMDA in response to requests forwarded to the PMDA by PMCD. Further details may be found in <xref linkend="LE72473-PARENT"/>.</para>
@@ -2466,7 +2472,7 @@ The python bindings return a tuple of the instance identifiers and instance name
 <title><command>pmLookupInDom</command> Function</title>
 <programlisting>int pmLookupInDom(pmInDom <replaceable>indom</replaceable>, const char *<replaceable>name</replaceable>)
 <command>Python:</command>
-int instid = pmLookupInDom(pmDesc <replaceable>pmdesc</replaceable>, <replaceable>"Instance"</replaceable>)</programlisting>
+int <replaceable>instid</replaceable> = pmLookupInDom(pmDesc <replaceable>pmdesc</replaceable>, <replaceable>"Instance"</replaceable>)</programlisting>
 <para><indexterm id="IG31340177318"><primary>pmLookupInDom function</primary></indexterm>For the instance domain <replaceable>indom</replaceable>, in the current PMAPI context, locate the instance with the external identification given by <replaceable>name</replaceable>, and return the internal instance identifier.</para>
 <para>
 The python bindings return the instance id corresponding to <replaceable>"Instance"</replaceable> in the instance domain <replaceable>pmdesc</replaceable>.  
@@ -2477,7 +2483,7 @@ The python bindings return the instance id corresponding to <replaceable>"Instan
 <title><command>pmNameInDom</command> Function</title>
 <programlisting>int pmNameInDom(pmInDom <replaceable>indom</replaceable>, int <replaceable>inst</replaceable>, char **<replaceable>name</replaceable>)
 <command>Python:</command>
-"string" = pmNameInDom(pmDesc <replaceable>pmdesc</replaceable>, c_uint <replaceable>instid</replaceable>)</programlisting>
+"instance id" = pmNameInDom(pmDesc <replaceable>pmdesc</replaceable>, c_uint <replaceable>instid</replaceable>)</programlisting>
 <para><indexterm id="IG31340177319"><primary>pmNameInDom function</primary></indexterm>For the instance domain <replaceable>indom</replaceable>, in the current PMAPI context, locate the instance with the internal instance identifier given by <replaceable>inst</replaceable>, and return the full external identification through <replaceable>name</replaceable>. The space for the value of <replaceable>name</replaceable> is allocated in <command>pmNameInDom</command> with <command>malloc</command>, and it is the responsibility of the caller to free the space when it is no longer required; see the <command>malloc(3)</command> and <command>free(3)</command> man pages.</para>
 <para>
 The python bindings return the text name of an instance corresponding to an instance domain <replaceable>pmdesc</replaceable> with instance identifier <replaceable>instid</replaceable>.  
@@ -2673,6 +2679,7 @@ The python bindings return the text name of an instance corresponding to an inst
 <para><indexterm id="IG31340177351"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177352"><primary>collection time</primary></indexterm>The initial instance profile is set up to select all instances in all instance domains, and the initial collection time is the current time at the time of each request for a host, or the time at the start of the log for an archive. In the case of archives, the initial collection time results in the earliest set of metrics being returned from the archive at the first <command>pmFetch</command>.</para>
 <para>Once established, the association between a PMAPI context and a source of metrics is fixed for the life of the context; however, functions are provided to independently manipulate both the instance profile and the collection time components of a context.</para>
 <para><indexterm id="IG31340177353"><primary>pmUseContext function</primary></indexterm>The function returns a &#x201C;handle&#x201D; that may be used in subsequent calls to <command>pmUseContext</command>. This new PMAPI context stays in effect for all subsequent context sensitive calls across the PMAPI until another call to <command>pmNewContext</command> is made, or the context is explicitly changed with a call to <command>pmDupContext</command> or <command>pmUseContext</command>.</para>
+<para>For the python bindings creating and destroying a PMAPI context is done by creating and destroying an object of the pmapi class.</para>
 </section>
 <section id="id5203964">
 
@@ -2680,10 +2687,13 @@ The python bindings return the text name of an instance corresponding to an inst
 <programlisting>int pmDestroyContext(int <replaceable>handle</replaceable>)</programlisting>
 <para><indexterm id="IG31340177354"><primary>pmDestroyContext function</primary></indexterm>The PMAPI context identified by <replaceable>handle</replaceable> is destroyed. Typically, this implies terminating a connection to PMCD or closing an archive file, and orderly clean-up. The PMAPI context must have been previously created using <command>pmNewContext</command> or <command>pmDupContext</command>.</para>
 <para>On success, <command>pmDestroyContext</command> returns zero. If <replaceable>handle</replaceable> was the current PMAPI context, then the current context becomes undefined. This means the application must explicitly re-establish a valid PMAPI context with <command>pmUseContext</command>, or create a new context with <command>pmNewContext</command> or <command>pmDupContext</command>, before the next PMAPI operation requiring a PMAPI context.</para>
+<para>For the python bindings creating and destroying a PMAPI context is done by creating and destroying an object of the pmapi class.</para>
+
 </section>
 <section id="id5204063">
 
 <title><command>pmDupContext</command> Function</title>
+<programlisting>int pmDupContext(void)</programlisting>
 <programlisting></programlisting>
 <para><indexterm id="IG31340177355"><primary>pmDupContext function</primary></indexterm>Replicate the current PMAPI context (source, instance profile, and collection time). This function returns a handle for the new context, which may be used with subsequent calls to <command>pmUseContext</command>. The newly replicated PMAPI context becomes the current context.</para>
 </section>
@@ -2699,7 +2709,7 @@ The python bindings return the text name of an instance corresponding to an inst
 <title><command>pmWhichContext</command> Function</title>
 <programlisting>int pmWhichContext(void)
 <command>Python:</command>
-int ctx_idx = pmWhichContext()</programlisting>
+int <replaceable>ctx</replaceable>_idx = pmWhichContext()</programlisting>
 <para><indexterm id="IG31340177357"><primary>collection time</primary></indexterm><indexterm id="IG31340177358"><primary>pmWhichContext function</primary></indexterm>Returns the handle for the current PMAPI context (source, instance profile, and collection time).</para>
 <para>
 The python bindings return the handle of the current PMAPI context.  
@@ -2710,7 +2720,7 @@ The python bindings return the handle of the current PMAPI context.
 <title><command>pmAddProfile</command> Function</title>
 <programlisting>int pmAddProfile(pmInDom <replaceable>indom</replaceable>, int <replaceable>numinst</replaceable>, int <replaceable>instlist</replaceable>[])
 <command>Python:</command>
-int status = pmAddProfile(pmDesc pmdesc, [c_uint instid])</programlisting>
+int <replaceable>status</replaceable> = pmAddProfile(pmDesc pmdesc, [c_uint instid])</programlisting>
 <para><indexterm id="IG31340177359"><primary>indom instance domain</primary></indexterm><indexterm id="IG31340177360"><primary>instlist argument</primary></indexterm><indexterm id="IG31340177361"><primary>pmAddProfile function</primary></indexterm>Add new instance specifications to the instance profile of the current PMAPI context. At its simplest, instances identified by the <replaceable>instlist</replaceable> argument for the <replaceable>indom</replaceable> instance domain are added to the instance profile. The list of instance identifiers contains <replaceable>numinst</replaceable> values.</para>
 <para><indexterm id="IG31340177362"><primary>PM_INDOM_NULL instance domain</primary><secondary>pmAddProfile function</secondary></indexterm>If <replaceable>indom</replaceable> equals <literal>PM_INDOM_NULL</literal>, or <replaceable>numinst</replaceable> is zero, then all instance domains are selected. If <replaceable>instlist</replaceable> is NULL, then all instances are selected. To enable all available instances in all domains, use this syntax:</para>
 <programlisting>pmAddProfile(PM_INDOM_NULL,&#xA0;0, NULL).</programlisting>
@@ -2722,9 +2732,9 @@ The python bindings add the list of instances <replaceable>instid</replaceable> 
 
 <title><command>pmDelProfile</command> Function</title>
 <programlisting>int pmDelProfile(pmInDom <replaceable>indom</replaceable>, int <replaceable>numinst</replaceable>, int <replaceable>instlist</replaceable>[])
-Python Bindings:
-int status = pmDelProfile(pmDesc pmdesc, c_uint instid)
-int status = pmDelProfile(pmDesc pmdesc, [c_uint instid])
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmDelProfile(pmDesc pmdesc, c_uint instid)
+int <replaceable>status</replaceable> = pmDelProfile(pmDesc pmdesc, [c_uint instid])
 </programlisting>
 <para><indexterm id="IG31340177363"><primary>PM_INDOM_NULL instance domain</primary><secondary>pmDelProfile function</secondary></indexterm><indexterm id="IG31340177364"><primary>pmDelProfile function</primary></indexterm>Delete instance specifications from the instance profile of the current PMAPI context. In the simplest variant, the list of instances identified by the <replaceable>instlist</replaceable> argument for the <replaceable>indom</replaceable> instance domain is removed from the instance profile. The list of instance identifiers contains <replaceable>numinst</replaceable> values.</para>
 <para>If <replaceable>indom</replaceable> equals <literal>PM_INDOM_NULL</literal>, then all instance domains are selected for deletion. If <replaceable>instlist</replaceable> is NULL, then all instances in the selected domains are removed from the profile. To disable all available instances in all domains, use this syntax:</para>
@@ -2737,8 +2747,8 @@ The python bindings delete the list of instances <replaceable>instid</replaceabl
 
 <title><command>pmSetMode</command> Function</title>
 <programlisting>int pmSetMode(int <replaceable>mode</replaceable>, const struct timeval *<replaceable>when</replaceable>, int <replaceable>delta</replaceable>)
-Python Bindings:
-int status = pmSetMode(mode, timeVal <replaceable>timeval</replaceable>, int <replaceable>delta</replaceable>)</programlisting>
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmSetMode(mode, timeVal <replaceable>timeval</replaceable>, int <replaceable>delta</replaceable>)</programlisting>
 <para><indexterm id="IG31340177365"><primary>pmNameInDom function</primary></indexterm><indexterm id="IG31340177366"><primary>pmLookupInDom function</primary></indexterm><indexterm id="IG31340177367"><primary>pmGetInDom function</primary></indexterm><indexterm id="IG31340177368"><primary>pmLookupDesc function</primary></indexterm><indexterm id="IG31340177369"><primary>pmFetchArchive function</primary></indexterm><indexterm id="IG31340177370"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177371"><primary>pmSetMode function</primary></indexterm>This function defines the collection time and mode for accessing performance metrics and metadata in the current PMAPI context. This mode affects the semantics of subsequent calls to the following PMAPI functions: <command>pmFetch</command>, <command>pmFetchArchive</command>, <command>pmLookupDesc</command>, <command>pmGetInDom</command>, <command>pmLookupInDom
 </command>, and <command>pmNameInDom</command>.</para>
 <para>The <command>pmSetMode</command> function requires the current PMAPI context to be of type <literal>PM_CONTEXT_ARCHIVE</literal>.</para>
@@ -2788,15 +2798,19 @@ int status = pmSetMode(mode, timeVal <replaceable>timeval</replaceable>, int <re
    }</programlisting>
 </example>
 <para>
-The python bindings define the collection <replaceable>time</replaceable> and <replaceable>mode</replaceable> for reading archive files.  <replaceable>mode</replaceable> is defined in the c_api.PM_MODE* constants defined in by importing cpmapi.  
+The python bindings define the collection
+<replaceable>time</replaceable> and <replaceable>mode</replaceable>
+for reading archive files.  <replaceable>mode</replaceable> can be one
+of:  c_api.PM_MODE_LIVE, c_api.PM_MODE_INTERP, c_api.FORW,
+c_api.BACK. wjocj are available by importing cpmapi.
 </para>
 </section>
 <section id="id5204926">
 
 <title><command>pmReconnectContext</command> Function</title>
 <programlisting>int pmReconnectContext(int <replaceable>handle</replaceable>)
-Python Bindings:
-int status = pmReconnectContext()
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmReconnectContext()
 </programlisting>
 <para><indexterm id="IG31340177373"><primary>PMCD</primary><secondary>pmReconnectContext function</secondary></indexterm><indexterm id="IG31340177374"><primary>pmReconnectContext function</primary></indexterm>As a result of network, host, or PMCD (Performance Metrics Collection Daemon) failure, an application's connection to PMCD may be established and then lost.</para>
 <para><indexterm id="IG31340177375"><primary>handle context</primary></indexterm>The function <command>pmReconnectContext</command> allows an application to request that the PMAPI context identified by <replaceable>handle</replaceable> be re-established, provided the associated PMCD is accessible.</para>
@@ -2813,7 +2827,7 @@ The python bindings reestablish the connection for the context.
 
 <title><command>pmGetContextHostName</command> Function</title>
 <programlisting>const char *pmGetContextHostName(int <replaceable>id</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "hostname" = pmGetContextHostName()
 </programlisting>
 <para>Given a valid PCP context identifier previously created with <command>pmNewContext</command> or <command>pmDupContext</command>, the <command>pmGetContextHostName</command> function provides a possibility to retrieve a host name associated with a context regardless of the context type.</para>
@@ -2833,7 +2847,7 @@ The python bindings query and set the current reporting timezone.
 
 <title><command>pmNewContextZone</command> Function</title>
 <literallayout class="monospaced">int pmNewContextZone(void)
-Python Bindings:
+<command>Python:</command>
 pmNewContextZone()
 </literallayout>
 <para><indexterm id="IG31340177377"><primary>PMAPI</primary><secondary>timezone services</secondary></indexterm><indexterm id="IG31340177378"><primary>timezone services</primary></indexterm><indexterm id="IG31340177379"><primary>pmNewContextZone function</primary></indexterm>If the current PMAPI context is an archive, the <command>pmNewContextZone</command> function uses the timezone from the archive label record to set the current reporting timezone. The current reporting timezone affects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
@@ -2845,8 +2859,8 @@ pmNewContextZone()
 
 <title><command>pmNewZone</command> Function</title>
 <literallayout class="monospaced">int pmNewZone(const char *<replaceable>tz</replaceable>)
-Python Bindings:
-int tz_handle = pmNewZone(int <replaceable>tz</replaceable>)</literallayout>
+<command>Python:</command>
+int <replaceable>tz_handle</replaceable> = pmNewZone(int <replaceable>tz</replaceable>)</literallayout>
 <para><indexterm id="IG31340177380"><primary>pmNewZone function</primary></indexterm>The <command>pmNewZone</command> function sets the current reporting timezone, and returns a value that may be used in a subsequent call to <command>pmUseZone</command> to restore this reporting timezone. The current reporting timezone affects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
 <para>The <replaceable>tz</replaceable> argument defines a timezone string, in the format described for the <literal>TZ</literal> environment variable. See the <command>environ(7)</command> man page.</para>
 <para>A return value less than zero indicates a fatal error from a system call, most likely <command>malloc</command>.</para>
@@ -2858,8 +2872,8 @@ The python bindings create a new zone handle and set reporting timezone for the 
 
 <title><command>pmUseZone</command> Function</title>
 <literallayout class="monospaced">int pmUseZone(const int <replaceable>tz_handle</replaceable>)
-Python Bindings:
-int status = pmUseZone(int <replaceable>tz_handle</replaceable>)
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmUseZone(int <replaceable>tz_handle</replaceable>)
 </literallayout>
 <para><indexterm id="IG31340177381"><primary>pmUseZone function</primary></indexterm>In the <command>pmUseZone</command> function, <replaceable>tz_handle</replaceable> identifies a reporting timezone as previously established by a call to <command>pmNewZone</command> or <command>pmNewContextZone</command>, and this becomes the current reporting timezone. The current reporting timezone effects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>).</para>
 <para>A return value less than zero indicates the value of <replaceable>tz_handle</replaceable> is not legal.</para>
@@ -2871,7 +2885,7 @@ The python bindings set the current reporting timezone defined by timezone <repl
 
 <title><command>pmWhichZone</command> Function</title>
 <literallayout class="monospaced">int pmWhichZone(char **<replaceable>tz</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "zone string" = pmWhichZone()</literallayout>
 <para><indexterm id="IG31340177382"><primary>pmWhichZone function</primary></indexterm>The <command>pmWhichZone</command> function returns the handle of the current timezone, as previously established by a call to <command>pmNewZone</command> or <command>pmNewContextZone</command>. If the call is successful (that is, there exists a current reporting timezone), a non-negative integer is returned and <replaceable>tz</replaceable> is set to point to a static buffer containing the timezone string itself. The current reporting timezone effects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
 <para>A return value less than zero indicates there is no current reporting timezone.</para>
@@ -2888,8 +2902,8 @@ The python bindings return the current reporting timezone.
 
 <title><command>pmFetch</command> Function</title>
 <programlisting>int pmFetch(int <replaceable>numpmid</replaceable>, pmID <replaceable>pmidlist</replaceable>[], pmResult **<replaceable>result</replaceable>)
-Python Bindings:
-pmResult* pmresult = pmFetch(c_uint <replaceable>pmid[]</replaceable>)</programlisting>
+<command>Python:</command>
+pmResult* <replaceable>pmresult</replaceable> = pmFetch(c_uint <replaceable>pmid[]</replaceable>)</programlisting>
 <para><indexterm id="IG31340177383"><primary>PMAPI </primary><secondary>metrics services</secondary></indexterm><indexterm id="IG31340177384"><primary>metrics services</primary></indexterm><indexterm id="IG31340177385"><primary>pmFetch function</primary></indexterm>The most common PMAPI operation is likely to be calls to <command>pmFetch</command>, specifying a list of PMIDs (for example, as constructed by <command>pmLookupName</command>) through <replaceable>pmidlist</replaceable> and <replaceable>numpmid</replaceable>. The call to <command>pmFetch</command> is executed in the context of a source of metrics, instance profile, and collection time, previously established by calls to the functions described in <xref linkend="LE94187-PARENT"/>.</para>
 <para>The principal result from <command>pmFetch</command> is returned as a tree structured <replaceable>result</replaceable>, described in the <xref linkend="LE82331-PARENT"/>.</para>
 <para>If one value (for example, associated with a particular instance) for a requested metric is unavailable at the requested time, then there is no associated <command>pmValue</command> structure in the result. If there are no available values for a metric, then <replaceable>numval</replaceable> is zero and the associated <command>pmValue</command>[] instance is empty; <replaceable>valfmt</replaceable> is undefined in these circumstances, but <replaceable>pmid</replaceable> is correctly set to the PMID of the metric with no values.</para>
@@ -2930,7 +2944,7 @@ The python bindings fetch a pmResult corresponding to a <replaceable>pmid</repla
 
 <title><command>pmFreeResult</command> Function</title>
 <programlisting>void pmFreeResult(pmResult *<replaceable>result</replaceable>)
-Python Bindings:
+<command>Python:</command>
 pmFreeResult(pmResult* <replaceable>pmresult</replaceable>)</programlisting>
 <para><indexterm id="IG31340177390"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177391"><primary>pmFreeResult function</primary></indexterm>Release the storage previously allocated for a result by <command>pmFetch</command>.</para>
 <para>
@@ -2941,8 +2955,8 @@ THe python bindings free a <replaceable>pmresult</replaceable> previously alloca
 
 <title><command>pmStore</command> Function</title>
 <programlisting>int pmStore(const pmResult *<replaceable>request</replaceable>)
-Python Bindings:
-pmResult* pmresult = pmStore(pmResult* <replaceable>pmresult</replaceable>)</programlisting>
+<command>Python:</command>
+pmResult* <replaceable>pmresult</replaceable> = pmStore(pmResult* <replaceable>pmresult</replaceable>)</programlisting>
 <para><indexterm id="IG31340177392"><primary>pmStore function</primary></indexterm>In some special cases it may be helpful to modify the current values of performance metrics in one or more underlying domains, for example to reset a counter to zero, or to modify a <firstterm>metric</firstterm>, which is a control variable within a Performance Metric Domain.</para>
 <para><indexterm id="IG31340177393"><primary>pmStore function</primary></indexterm>The <command>pmStore</command> function is a lightweight inverse of <command>pmFetch</command>. The caller must build the <filename>pmResult</filename> data structure (which could have been returned from an earlier <command>pmFetch</command> call) and then call <command>pmStore</command>. It is an error to pass a <replaceable>request</replaceable> to <command>pmStore</command> in which the <literal>numval</literal> field within any of the <command>pmValueSet</command> structure has a value less than one.</para>
 <para>The current PMAPI context must be one with a host as the source of metrics, and the current value of the nominated metrics is changed. For example, <command>pmStore</command> cannot be used to make retrospective changes to information in a PCP archive log.</para>
@@ -2955,7 +2969,9 @@ pmResult* pmresult = pmStore(pmResult* <replaceable>pmresult</replaceable>)</pro
 <section id="LE13213-PARENT">
 
 <title><command>pmRecordAddHost</command> Function</title>
-<literallayout class="monospaced">int pmRecordAddHost(const char *<replaceable>host</replaceable>, int <replaceable>isdefault</replaceable>, pmRecordHost **<replaceable>rhp</replaceable>)</literallayout>
+<literallayout class="monospaced">int pmRecordAddHost(const char *<replaceable>host</replaceable>, int <replaceable>isdefault</replaceable>, pmRecordHost **<replaceable>rhp</replaceable>)
+<command>Python:</command>
+(int <replaceable>status</replaceable>, pmRecordHost* <replaceable>rhp</replaceable>) = pmRecordAddHost("host string", 1, "configure string")</literallayout>
 <para><indexterm id="IG31340177394"><primary>pmRecordAddHost function</primary></indexterm><indexterm id="IG31340177395"><primary>PMAPI</primary><secondary>record-mode services</secondary></indexterm><indexterm id="IG31340177396"><primary>record-mode services</primary></indexterm>The <command>pmRecordAddHost</command> function adds hosts once <command>pmRecordSetup</command> has established a new recording session. The <command>pmRecordAddHost</command> function along with the <command>pmRecordSetup</command> and <command>pmRecordControl</command> functions are used to create a PCP archive.</para>
 <para><command>pmRecordAddHost</command> is called for each host that is to be included in the recording session. A new <filename>pmRecordHost</filename> structure is returned via <replaceable>rhp</replaceable>. It is assumed that PMCD is running on the host as this is how <command>pmlogger</command> retrieves the required performance metrics.</para>
 <para>If this host is the default host for the recording session, <replaceable>isdefault</replaceable> is nonzero. This ensures that the corresponding archive appears first in the PCP archive <replaceable>folio</replaceable>. Hence the tools used to replay the archive <replaceable>folio</replaceable> make the correct determination of the archive associated with the default host. At most one host per recording session may be nominated as the default host.</para>
@@ -2965,7 +2981,9 @@ pmResult* pmresult = pmStore(pmResult* <replaceable>pmresult</replaceable>)</pro
 <section id="LE35969-PARENT">
 
 <title><command>pmRecordControl</command> Function</title>
-<literallayout class="monospaced">int pmRecordControl(pmRecordHost *<replaceable>rhp</replaceable>, int <replaceable>request</replaceable>, const char *<replaceable>options</replaceable>)</literallayout>
+<literallayout class="monospaced">int pmRecordControl(pmRecordHost *<replaceable>rhp</replaceable>, int <replaceable>request</replaceable>, const char *<replaceable>options</replaceable>)
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmRecordControl("host string", 1, "configure string")</literallayout>
 <para><indexterm id="IG31340177397"><primary>pmRecordControl function</primary></indexterm>Arguments may be optionally added to the command line that is used to launch <command>pmlogger</command> by calling the <command>pmRecordControl</command> function with a request of <literal>PM_REC_SETARG</literal>. The <command>pmRecordControl</command> along with the <command>pmRecordSetup</command> and <command>pmRecordAddHost</command> functions are used to create a PCP archive.</para>
 <para>The argument is passed via <replaceable>options</replaceable> and one call to <command>pmRecordControl</command> is required for each distinct argument. An argument may be added for a particular <command>pmlogger</command> instance identified by <replaceable>rhp</replaceable>. If the <replaceable>rhp</replaceable> argument is NULL, the argument is added for all <command>pmlogger</command> instances that are launched in the current recording session.</para>
 <para>Independent of any calls to <command>pmRecordControl</command> with a request of <literal>PM_REC_SETARG</literal>, each <command>pmlogger</command> instance is automatically launched with the following arguments: <literal>-c</literal>, <literal>-h</literal>, <literal>-l</literal>, <literal>-x</literal>, and the basename for the PCP archive log.</para>
@@ -2979,7 +2997,9 @@ pmResult* pmresult = pmStore(pmResult* <replaceable>pmresult</replaceable>)</pro
 <section id="id5206798">
 
 <title><command>pmRecordSetup</command> Function</title>
-<literallayout class="monospaced">FILE *pmRecordSetup(const char *<replaceable>folio</replaceable>, const char *<replaceable>creator</replaceable>, int <replaceable>replay</replaceable>) </literallayout>
+<literallayout class="monospaced">FILE *pmRecordSetup(const char *<replaceable>folio</replaceable>, const char *<replaceable>creator</replaceable>, int <replaceable>replay</replaceable>)
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmRecordSetup("folio string", "creator string", int replay)</literallayout>
 <para><indexterm id="IG31340177398"><primary>pmRecordSetup function</primary></indexterm>The <command>pmRecordSetup</command> function along with the <command>pmRecordAddHost</command> and <command>pmRecordControl</command> functions may be used to create a PCP archive on the fly to support record-mode services for PMAPI client applications.</para>
 <para>Each record mode session involves one or more PCP archive logs; each is created using a dedicated <command>pmlogger</command> process, with an overall Archive Folio format as understood by the <command>pmafm</command> command, to name and collect all of the archive logs associated with a single recording session.</para>
 <para>The <filename>pmRecordHost</filename> structure is used to maintain state information between the creator of the recording session and the associated <command>pmlogger</command> process(es). The structure, shown in <xref linkend="Z976560662sdc"/>, is defined as:</para>
@@ -3033,8 +3053,8 @@ pmResult* pmresult = pmStore(pmResult* <replaceable>pmresult</replaceable>)</pro
 
 <title><command>pmGetArchiveLabel</command> Function</title>
 <programlisting>int pmGetArchiveLabel(pmLogLabel *<replaceable>lp</replaceable>)
-Python Bindings:
-int loglabel = pmGetArchiveLabel()</programlisting>
+<command>Python:</command>
+pmLogLabel <replaceable>loglabel</replaceable> = pmGetArchiveLabel()</programlisting>
 <para><indexterm id="IG31340177399"><primary>pmGetArchiveLabel function</primary></indexterm><indexterm id="IG31340177400"><primary>PMAPI</primary><secondary>archive-specific services</secondary></indexterm><indexterm id="IG31340177401"><primary>archive-specific services</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, the <command>pmGetArchiveLabel</command> function may be used to fetch the label record from the archive. The structure returned through <replaceable>lp</replaceable> is as shown in <xref linkend="Z976561683sdc"/>:</para>
 <example id="Z976561683sdc">
 <title><filename>pmLogLabel</filename> Structure</title>
@@ -3064,8 +3084,8 @@ The python bindings get the label record from the archive.
 
 <title><command>pmGetArchiveEnd</command> Function</title>
 <programlisting>int pmGetArchiveEnd(struct timeval *<replaceable>tvp</replaceable>)
-Python Bindings:
-int status = pmGetArchiveEnd()</programlisting>
+<command>Python:</command>
+timeval <replaceable>tv</replaceable> = <replaceable>status</replaceable> = pmGetArchiveEnd()</programlisting>
 <para><indexterm id="IG31340177402"><primary>archive logs</primary><secondary>pmGetArchiveEnd function</secondary></indexterm><indexterm id="IG31340177403"><primary>pmGetArchiveEnd function</primary></indexterm><indexterm id="IG31340177404"><primary>pmSetMode function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetArchiveEnd</command> finds the logical end of file (after the last complete record in the archive), and returns the last recorded time stamp with <replaceable>tvp</replaceable>. This timestamp may be passed to <command>pmSetMode</command> to reliably position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.</para>
 <para>For archive logs that are not concurrently being written, the physical end of file and the logical end of file are co-incident. However, if an archive log is being written by <command>pmlogger</command> at the same time that an application is trying to read the archive, the logical end of file may be before the physical end of file due to write buffering that is not aligned with the logical record boundaries.</para>
 <para>
@@ -3076,7 +3096,7 @@ int status = pmGetArchiveEnd()</programlisting>
 
 <title><command>pmGetInDomArchive</command> Function</title>
 <programlisting>int pmGetInDomArchive(pmInDom <replaceable>indom</replaceable>, int **<replaceable>instlist</replaceable>, char ***<replaceable>namelist</replaceable> )
-Python Bindings:
+<command>Python:</command>
 ((instance1, instance2...) (name1, name2...)) pmGetInDom(pmDesc <replaceable>pmdesc</replaceable>)</programlisting>
 <para><indexterm id="IG31340177405"><primary>archive logs</primary><secondary>pmGetInDomArchive function</secondary></indexterm><indexterm id="IG31340177406"><primary>indom instance domain</primary></indexterm><indexterm id="IG31340177407"><primary>pmGetInDomArchive function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetInDomArchive</command> scans the metadata to generate the union of all instances for the instance domain <replaceable>indom</replaceable> that can be found in the archive log, and returns through <replaceable>instlist</replaceable> the internal instance identifiers, and through <replaceable>namelist</replaceable> the full external identifiers.</para>
 <para><indexterm id="IG31340177408"><primary>pmGetInDom function</primary></indexterm>This function is a specialized version of the more general PMAPI function <command>pmGetInDom</command>.</para>
@@ -3091,8 +3111,8 @@ Python Bindings:
 
 <title><command>pmLookupInDomArchive</command> Function</title>
 <literallayout class="monospaced">int pmLookupInDomArchive(pmInDom <replaceable>indom</replaceable>, const char *<replaceable>name</replaceable>)
-Python Bindings:
-c_uint instid = pmLookupInDomArchive(pmDesc <replaceable>pmdesc</replaceable>, "Instance")</literallayout>
+<command>Python:</command>
+c_uint <replaceable>instid</replaceable> = pmLookupInDomArchive(pmDesc <replaceable>pmdesc</replaceable>, "Instance")</literallayout>
 <para><indexterm id="IG31340177409"><primary>pmLookupInDomArchive function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmLookupInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the external identification given by <replaceable>name</replaceable>, and returns the internal instance identifier.</para>
 <para>This function is a specialized version of the more general PMAPI function <command>pmLookupInDom</command>.</para>
 <para>The <command>pmLookupInDomArchive</command> function returns a positive instance identifier on success.</para>
@@ -3104,8 +3124,8 @@ c_uint instid = pmLookupInDomArchive(pmDesc <replaceable>pmdesc</replaceable>, "
 
 <title><command>pmNameInDomArchive</command> Function</title>
 <literallayout class="monospaced">int pmNameInDomArchive(pmInDom <replaceable>indom</replaceable>, int <replaceable>inst</replaceable>, char **<replaceable>name</replaceable>)
-Python Bindings:
-"string" = pmNameInDomArchive(pmDesc <replaceable>pmdesc</replaceable>, c_uint <replaceable>instid</replaceable>)</literallayout>
+<command>Python:</command>
+"instance id" = pmNameInDomArchive(pmDesc <replaceable>pmdesc</replaceable>, c_uint <replaceable>instid</replaceable>)</literallayout>
 <para><indexterm id="IG31340177410"><primary>pmNameInDomArchive function</primary></indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmNameInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the internal instance identifier given by <command>inst</command>, and returns the full external instance identification through <replaceable>name</replaceable>. This function is a specialized version of the more general PMAPI function <command>pmNameInDom</command>.</para>
 <para>The space for the value of <replaceable>name</replaceable> is allocated in <command>pmNameInDomArchive</command> with <command>malloc</command>, and it is the responsibility of the caller to free the space when it is no longer required; see the <command>malloc(3)</command> and<command>free(3)</command> man pages.</para>
 <para>
@@ -3116,8 +3136,8 @@ Python Bindings:
 
 <title><command>pmFetchArchive</command> Function</title>
 <literallayout class="monospaced">int pmFetchArchive(pmResult **<replaceable>result</replaceable>)
-Python Bindings:
-pmResult* pmresult = pmFetchArchive()</literallayout>
+<command>Python:</command>
+pmResult* <replaceable>pmresult</replaceable> = pmFetchArchive()</literallayout>
 <para><indexterm id="IG31340177411"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177412"><primary>pmFetchArchive function</primary></indexterm>This is a variant of <command>pmFetch</command> that may be used only when the current PMAPI context is associated with a PCP archive log. The <replaceable>result</replaceable> is instantiated with all of the metrics (and instances) from the next archive record; consequently, there is no notion of a list of desired metrics, and the instance profile is ignored.</para>
 <para>It is expected that <command>pmFetchArchive</command> would be used to create utilities that scan archive logs (for example, <command>pmdumplog</command> and <command>pmlogsummary</command>), and the more common access to the archives would be through the <command>pmFetch</command> interface.</para>
 </section>
@@ -3188,8 +3208,8 @@ pmResult* pmresult = pmFetchArchive()</literallayout>
 
 <title><command>pmGetConfig</command> Function</title>
 <literallayout class="monospaced">char *pmGetConfig(const char <replaceable>*variable</replaceable>)
-Python Bindings:
-"string" = pmGetConfig ("env variable")</literallayout>
+<command>Python:</command>
+"env variable value = pmGetConfig("env variable")</literallayout>
 <para>The <command>pmGetConfig</command> function searches for a variable first in the environment and then, if one is not found, in the PCP configuration file and returns the string result. If a variable is not already in the environment, it is added with a call to the <command>putenv</command> function before returning.</para>
 <para>The default location of the PCP configuration file is <filename>/etc/pcp.conf</filename>, but this location may be changed by setting <literal>PCP_CONF</literal> in the environment to a new location, as described in the <command>pcp.conf(5)</command> man page.</para>
 <para>If the variable is not found in either the environment or the PCP configuration file (or the PCP configuration file is not found and <literal>PCP_CONF</literal> is not set in the environment), then a fatal error message is printed and the process will exit. Although this sounds drastic, it is the only course of action available because the PCP configuration or installation is fatally flawed.</para>
@@ -3203,12 +3223,12 @@ The python bindings return a value for environment variable <replaceable>"env va
 <title><command>pmErrStr</command> Function</title>
 <literallayout class="monospaced">const char *pmErrStr(int <replaceable>code</replaceable>)
 char *pmErrStr_r(int <replaceable>code</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>);
-Python Bindings:
-"string" = pmErrStr (int <replaceable>error_code</replaceable>)</literallayout>
+<command>Python:</command>
+"error string text" = pmErrStr(int <replaceable>error_code</replaceable>)</literallayout>
 <para><indexterm id="IG31340177419"><primary>pmErrStr function</primary></indexterm>This function translates an error code into a text string, suitable for generating a diagnostic message. By convention within PCP, all error codes are negative. The small values are assumed to be negated versions of the platform error codes as defined in <filename>errno.h</filename>, and the strings returned are according to <command>strerror</command>. The large, negative error codes are PMAPI error conditions, and <command>pmErrStr</command> returns an appropriate PMAPI error string, as determined by <replaceable>code</replaceable>.</para>
 <para>In the case of <command>pmErrStr</command>, the string value is held in a single static buffer, so concurrent calls may not produce the desired results. The <command>pmErrStr_r</command> function allows a buffer and length to be passed in, into which the message is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
 <para>
-The python bindings return error string for <replaceable>error code</replaceable>.  
+The python bindings return the error string corresponding to the <replaceable>error code</replaceable>.  
 </para>
 </section>
 <section id="id5209112">
@@ -3216,8 +3236,8 @@ The python bindings return error string for <replaceable>error code</replaceable
 <title><command>pmExtractValue</command> Function</title>
 <literallayout class="monospaced">int pmExtractValue(int <replaceable>valfmt</replaceable>, const pmValue *<replaceable>ival</replaceable>, int <replaceable>itype</replaceable>,
 pmAtomValue *<replaceable>oval</replaceable>, int <replaceable>otype</replaceable>)
-Python Bindings:
-pmAtomValue = pmExtractValue(int <replaceable>valfmt</replaceable>, const pmValue * <replaceable>ival</replaceable>,
+<command>Python:</command>
+pmAtomValue <replaceable>atomval</replaceable> = pmExtractValue(int <replaceable>valfmt</replaceable>, const pmValue * <replaceable>ival</replaceable>,
 	  int <replaceable>itype</replaceable>,
 	  pmAtomValue *<replaceable>oval</replaceable>,
 	  int <replaceable>otype</replaceable>)</literallayout>
@@ -3373,8 +3393,8 @@ The python bindings extract a value from a pmValue struct <replaceable>ival</rep
 <programlisting>int
 pmConvScale(int <replaceable>type</replaceable>, const pmAtomValue *<replaceable>ival</replaceable>, const pmUnits *<replaceable>iunit</replaceable>,
 pmAtomValue *<replaceable>oval</replaceable>, pmUnits *<replaceable>ounit</replaceable>)
-Python Bindings:
-pmAtomValue = pmConvScale(int <replaceable>itype</replaceable>, pmAtomValue value,
+<command>Python:</command>
+pmAtomValue <replaceable>atomval</replaceable> = pmConvScale(int <replaceable>itype</replaceable>, pmAtomValue value,
 	  pmDesc* pmdesc , int descidx, int otype)</programlisting>
 <para><indexterm id="IG31340177426"><primary>pmConvScale function</primary></indexterm>Given a performance metric value pointed to by <replaceable>ival</replaceable>, multiply it by a scale factor and return the value in <replaceable>oval</replaceable>. The scaling takes place from the units defined by <replaceable>iunit</replaceable> into the units defined by <replaceable>ounit</replaceable>. Both input and output units must have the same dimensionality.</para>
 <para><indexterm id="IG31340177427"><primary>pmLookupDesc function</primary></indexterm>The performance metric type for both input and output values is determined by <replaceable>type</replaceable>, the value for which is typically extracted from a <filename>pmDesc</filename> structure, following a call to <command>pmLookupDesc</command> for a particular performance metric.</para>
@@ -3388,7 +3408,7 @@ The python bindings convert a <replaceable>value</replaceable> pointed to by <re
 <title><command>pmUnitsStr</command> Function</title>
 <literallayout class="monospaced">const char *pmUnitsStr(const pmUnits *<replaceable>pu</replaceable>)
 char *pmUnitsStr_r(const pmUnits *<replaceable>pu</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "units string" = pmUnitsStr(pmUnits <replaceable>pmunits</replaceable>)</literallayout>
 <para><indexterm id="IG31340177429"><primary>pmUnitsStr function</primary></indexterm>As an aid to labeling graphs and tables, or for error messages, <command>pmUnitsStr</command> takes a dimension and scale specification as per <replaceable>pu</replaceable>, and returns the corresponding text string.</para>
 <para><replaceable>pu</replaceable> is typically from a <filename>pmDesc</filename> structure, for example, as returned by <command>pmLookupDesc</command>.</para>
@@ -3403,7 +3423,7 @@ The python bindings translate a pmUnits struct <replaceable>pmunits</replaceable
 <title><command>pmIDStr</command> Function</title>
 <literallayout class="monospaced">const char *pmIDStr(pmID <replaceable>pmid</replaceable>)
 char *pmIDStr_r(pmID <replaceable>pmid</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "ID string" = pmIDStr(int <replaceable>pmID</replaceable>)</literallayout>
 <para><indexterm id="IG31340177430"><primary>pmIDStr function</primary></indexterm>For use in error and diagnostic messages, return a human readable version of the specified PMID, with each of the internal <literal>domain</literal>, <literal>cluster</literal>, and <literal>item</literal> subfields appearing as decimal numbers, separated by periods.</para>
 <para>In the case of <command>pmIDStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmIDStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
@@ -3416,7 +3436,7 @@ The python bindings translate a pmID <replaceable>pmid</replaceable> to a readab
 <title><command>pmInDomStr</command> Function</title>
 <literallayout class="monospaced">const char *pmInDomStr(pmInDom <replaceable>indom</replaceable>)
 char *pmInDomStr_r(pmInDom <replaceable>indom</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "indom" = pmGetInDom(pmDesc <replaceable>pmdesc</replaceable>)</literallayout>
 <para><indexterm id="IG31340177431"><primary>pmInDomStr function</primary></indexterm>For use in error and diagnostic messages, return a human readable version of the specified instance domain identifier, with each of the internal <literal>domain</literal> and <literal>serial</literal> subfields appearing as decimal numbers, separated by periods.</para>
 <para>In the case of <command>pmInDomStrr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmInDomStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
@@ -3429,7 +3449,7 @@ The python bindings translate an instance domain ID pointed to by a pmDesc <repl
 <title><command>pmTypeStr</command> Function</title>
 <literallayout class="monospaced">const char *pmTypeStr(int <replaceable>type</replaceable>)
 char *pmTypeStr_r(int <replaceable>type</replaceable>, char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "type" = pmTypeStr(int <replaceable>type</replaceable>)</literallayout>
 <para><indexterm id="IG31340177432"><primary>pmTypeStr function</primary></indexterm>Given a performance metric type, produce a terse ASCII equivalent, appropriate for use in error and diagnostic messages.</para>
 <para>Examples are &#x201C;32&#x201D; (for <literal>PM_TYPE_32</literal>), &#x201C;U64&#x201D; (for <literal>PM_TYPE_U64</literal>), &#x201C;AGGREGATE&#x201D; (for <literal>PM_TYPE_AGGREGATE</literal>), and so on.</para>
@@ -3443,7 +3463,7 @@ The python bindings translate a performance metric type to a readable string.  C
 <title><command>pmAtomStr</command> Function</title>
 <literallayout class="monospaced">const char *pmAtomStr(const pmAtomValue *<replaceable>avp</replaceable>, int <replaceable>type</replaceable>)
 char *pmAtomStr_r(const pmAtomValue *<replaceable>avp</replaceable>, int <replaceable>type</replaceable>char *<replaceable>buf</replaceable>, int <replaceable>buflen</replaceable>)
-Python Bindings:
+<command>Python:</command>
 "value" = pmAtomStr(<replaceable>atom</replaceable>, <replaceable>type</replaceable>)</literallayout>
 <para><indexterm id="IG31340177433"><primary>pmAtomStr function</primary></indexterm>Given the <command>pmAtomValue</command> identified by <replaceable>avp</replaceable>, and a performance metric <replaceable>type</replaceable>, generate the corresponding metric value as a string, suitable for diagnostic or report output.</para>
 <para>In the case of <command>pmAtomStr</command>, the string value is held in a single static buffer; so concurrent calls may not produce the desired results. The <command>pmAtomStr_r</command> function allows a buffer and length to be passed in, into which the identifier is stored; this variant uses no shared storage and can be used in a thread-safe manner.</para>
@@ -3464,8 +3484,8 @@ char *pmNumberStr_r(double <replaceable>value</replaceable>, char *<replaceable>
 <title><command>pmPrintValue</command> Function</title>
 <literallayout class="monospaced">void pmPrintValue(FILE *<replaceable>f</replaceable>, int <replaceable>valfmt</replaceable>, int <replaceable>type</replaceable>, const pmValue *<replaceable>val</replaceable>,
 int <replaceable>minwidth</replaceable>)
-Python Bindings:
-pmPrintValue(FILE* <replaceable>file</replaceable>, pmResult<replaceable>pmresult</replaceable>, <replaceable>pmdesc</replaceable>, <replaceable>vset_index</replaceable>, <replaceable>vlist_index</replaceable>, <replaceable>min_width</replaceable>)</literallayout>
+<command>Python:</command>
+pmPrintValue(FILE* <replaceable>file</replaceable>, pmResult <replaceable>pmresult</replaceable>, <replaceable>pmdesc</replaceable>, <replaceable>vset_index</replaceable>, <replaceable>vlist_index</replaceable>, <replaceable>min_width</replaceable>)</literallayout>
 <para><indexterm id="IG31340177435"><primary>pmFetch function</primary></indexterm><indexterm id="IG31340177436"><primary>pmPrintValue function</primary></indexterm>The value of a single performance metric (as identified by <replaceable>val</replaceable>) is printed on the standard I/O stream identified by <replaceable>f</replaceable>. The value of the performance metric is interpreted according to the format of <replaceable>val</replaceable> as defined by <replaceable>valfmt</replaceable> (from a <command>pmValueSet</command> within a <filename>pmResult</filename>) and the generic description of the metric's type from a <command>pmDesc</command> structure, passed in through.</para>
 <para>If the converted value is less than <replaceable>minwidth</replaceable> characters wide, it will have leading spaces to pad the output to a width of <replaceable>minwidth</replaceable> characters.</para>
 <para><xref linkend="Z976565414sdc"/> illustrates using <command>pmPrintValue</command> to print the values from a <filename>pmResult</filename> structure returned via <command>pmFetch</command>:</para>
@@ -3506,14 +3526,16 @@ pmPrintValue(FILE* <replaceable>file</replaceable>, pmResult<replaceable>pmresul
 </example>
 <para>
 Print the value of a <replaceable>pmresult</replaceable> pointed to by <replaceable>vset_index</replaceable>/<replaceable>vlist_index</replaceable> and described by <replaceable>pmdesc</replaceable>.  The format of a pmResult is described in <link linkend="IG31340177277"><emphasis>pmResult</emphasis></link>  
+
+The python bindings can use sys.__stdout__ as a value for <replaceable>file</replaceable> to display to stdout.
 </para>
 </section>
 <section id="id5211504">
 
 <title><command>pmflush</command> Function</title>
 <literallayout class="monospaced">int pmflush(void);
-Python Bindings:
-int status = pmFlush()</literallayout>
+<command>Python:</command>
+int <replaceable>status</replaceable> = pmflush()</literallayout>
 <para><indexterm id="IG31340177437"><primary>pmflush function</primary></indexterm>The <command>pmflush</command> function causes the internal buffer which is shared with <command>pmprintf</command> to be either displayed in a window, printed on standard error, or flushed to a file and the internal buffer to be cleared.</para>
 <para>The <literal>PCP_STDERR</literal> environment variable controls the output technique used by <command>pmflush</command>:</para>
 <itemizedlist>
@@ -3526,7 +3548,9 @@ int status = pmFlush()</literallayout>
 <section id="id5211641">
 
 <title><command>pmprintf</command> Function</title>
-<literallayout class="monospaced">int pmprintf(const char *<replaceable>fmt</replaceable>, ... /*<replaceable>args</replaceable>*/);</literallayout>
+<literallayout class="monospaced">int pmprintf(const char *<replaceable>fmt</replaceable>, ... /*<replaceable>args</replaceable>*/);
+<command>Python:</command>
+pmprintf("fmt", ... /*<replaceable>args</replaceable>*/);</literallayout>
 <para><indexterm id="IG31340177438"><primary>pmprintf function</primary></indexterm>The <command>pmprintf</command> function appends the formatted message string to an internal buffer shared by the <command>pmprintf</command> and <command>pmflush </command> functions, without actually producing any output. The <replaceable>fmt</replaceable> argument is used to control the conversion, formatting, and printing of the variable length <replaceable>args</replaceable> list.</para>
 <para>The <command>pmprintf</command> function uses the <command>mkstemp</command> function to securely create a <literal>pcp</literal>-prefixed temporary file in <filename>${PCP_TMP_DIR}</filename>. This temporary file is deleted when <command>pmflush</command> is called.</para>
 <para>On successful completion, <command>pmprintf</command> returns the number of characters transmitted. A negative value is returned if an error was encountered, and this can be passed to <command>pmErrStr</command> to obtain the associated error message.</para>
@@ -3535,7 +3559,7 @@ int status = pmFlush()</literallayout>
 
 <title><command>pmSortInstances</command> Function</title>
 <literallayout class="monospaced">void pmSortInstances(pmResult *<replaceable>result</replaceable>)
-Python Bindings:
+<command>Python:</command>
 pmSortInstances (pmResult* pmresult)</literallayout>
 <para><indexterm id="IG31340177439"><primary>pmSortInstances function</primary></indexterm><indexterm id="IG31340177440"><primary>pmFetch function</primary></indexterm>The <command>pmSortInstances</command>  function may be used to guarantee that for each performance metric in the result from <command>pmFetch</command>, the instances are in ascending internal instance identifier sequence. This is useful when trying to compute rates from two consecutive <command>pmFetch</command> results, where the underlying instance domain or metric availability is not static.</para>
 </section>
@@ -3543,8 +3567,8 @@ pmSortInstances (pmResult* pmresult)</literallayout>
 
 <title><command>pmParseInterval</command> Function</title>
 <literallayout class="monospaced">int pmParseInterval(const char *<replaceable>string</replaceable>, struct timeval *<replaceable>rslt</replaceable>, char **<replaceable>errmsg</replaceable>)
-Python Bindings:
-(struct timeval, "error message") = pmParseInterval("time string")</literallayout>
+<command>Python:</command>
+(struct <replaceable>timeval</replaceable>, "error message") = pmParseInterval("time string")</literallayout>
 <para><indexterm id="IG31340177441"><primary>pmParseInterval function</primary></indexterm>The <command>pmParseInterval</command> function parses the argument string specifying an interval of time and fills in the <literal>tv_sec</literal> and <literal>tv_usec</literal> components of the <filename>rslt</filename> structure to represent that interval. The input string is most commonly the argument following a <literal>-t</literal> command line option to a PCP application, and the syntax is fully described in the <command>PCPIntro(1)</command> man page.</para>
 <para><command>pmParseInterval</command> returns 0 and <replaceable>errmsg</replaceable> is undefined if the parsing is successful. If the given string does not conform to the required syntax, the function returns -1 and a dynamically allocated error message string in <replaceable>errmsg</replaceable>.</para>
 <para>The error message is terminated with a newline and includes the text of the input string along with an indicator of the position at which the error was detected as shown in the following example:</para>
@@ -3557,8 +3581,9 @@ Python Bindings:
 <title><command>pmParseMetricSpec</command> Function</title>
 <literallayout class="monospaced">int pmParseMetricSpec(const char *<replaceable>string</replaceable>, int <replaceable>isarch</replaceable>, char *<replaceable>source</replaceable>,
                       pmMetricSpec **<replaceable>rsltp</replaceable>, char **<replaceable>errmsg</replaceable>)
-Python Bindings:
-(pmMetricSpec metricspec ,errormsg) = pmParseMetricSpec("metric specification", isarch, source)</literallayout>
+<command>Python:</command>
+(pmMetricSpec <replaceable>metricspec</replaceable>, "error message") = 
+                      pmParseMetricSpec("metric specification", isarch, source)</literallayout>
 <para><indexterm id="IG31340177442"><primary>pmParseMetricSpec function</primary></indexterm>The <command>pmParseMetricSpec</command> function accepts a <replaceable>string</replaceable> specifying the name of a PCP performance metric, and optionally the source (either a hostname, a PCP archive log filename, or a local context) and instances for that metric. The syntax is described in the <command>PCPIntro(1)</command> man page.</para>
 <para>If neither host nor archive component of the metric specification is provided, the <literal>isarch</literal> and <literal>source</literal> arguments are used to fill in the returned <filename>pmMetricSpec</filename> structure. In <xref linkend="Z976566126sdc"/>, the <filename>pmMetricSpec</filename> structure, which is returned via <replaceable>rsltp,</replaceable> represents the parsed string.</para>
 <example id="Z976566126sdc">
@@ -3642,7 +3667,7 @@ char *pmclient_sample[] = {
 <para><indexterm id="IG31340177450"><primary>PMAPI</primary><secondary>initializing new metrics</secondary></indexterm><indexterm id="IG31340177451"><primary>initialization</primary></indexterm><indexterm id="IG31340177452"><primary>new metrics</primary></indexterm>Using the code generated by <command>pmgenmap</command>, you are now able to easily initialize the application's metric specifications as shown in <xref linkend="Z976566793sdc"/>:</para>
 <example id="Z976566793sdc">
 <title>Initializing Metric Specifications</title>
-<programlisting>// code snippet from pmclient.c 
+<programlisting>// C code fragment from pmclient.c 
 numpmid = sizeof(pmclient_sample) / sizeof(char *);
 if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {...}
 if ((sts = pmLookupName(numpmid, pmclient_sample, pmidlist)) &lt; 0) {...}
@@ -3661,7 +3686,7 @@ pmidlist = pmc.pmLookupName(pmclient_sample)
 <para><indexterm id="IG31340177453"><primary>PMAPI</primary><secondary>iterative processing</secondary></indexterm><indexterm id="IG31340177454"><primary>iterative processing</primary></indexterm>Assuming the tool is required to report values every <replaceable>delta</replaceable> seconds, use code similar to that in <xref linkend="Z976567058sdc"/>:</para>
 <example id="Z976567058sdc">
 <title>Iterative Processing</title>
-<programlisting>// censored code snippet from pmclient.c
+<programlisting>// censored C code fragment from pmclient.c
 while (samples == -1 || samples-- &gt; 0) {
    if ((sts = pmFetch(numpmid, pmidlist, &amp;crp)) &lt; 0) {}
    for (i = 0; i &lt; numpmid; i++)
@@ -3686,7 +3711,8 @@ while (samples &gt; 0):
                              c_api.PM_TYPE_FLOAT)
     atom = ctx.pmConvScale(c_api.PM_TYPE_FLOAT, val, desclist, FREEMEM,
     			   c_api.PM_SPACE_MBYTE)
-    time.sleep(delta)			 
+    (tvdelta, errmsg) = c_api.pmParseInterval(delta)
+    c_api.pmtimevalSleep(delta)			 
 </programlisting>
 </example>
 </section>
@@ -3724,7 +3750,7 @@ int
 main(int argc, char* argv[])
 {
     int                 sts = 0;
-    char                *host = &quot;localhost&quot;;
+    char                *host = &quot;local:&quot;;
     char                *metric = &quot;mem.freemem&quot;;
     pmID                pmid;
     pmDesc              desc;
