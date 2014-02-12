@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -35,8 +35,12 @@
 
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+static const char *socketPath;	  /* Path to unix domain socket. */
+static const char *linkSocketPath;/* Link to socket for primary logger */
+#endif
 
-int		ctlfd;		/* fd for control port */
+int		ctlfds[CFD_NUM] = {-1, -1, -1};/* fds for control ports: */
 int		ctlport;	/* pmlogger control port number */
 int		wantflush;	/* flush via SIGUSR1 flag */
 
@@ -47,6 +51,12 @@ cleanup(void)
 	unlink(linkfile);
     if (ctlfile != NULL)
 	unlink(ctlfile);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (linkSocketPath != NULL)
+	unlink(linkSocketPath);
+    if (socketPath != NULL)
+	unlink(socketPath);
+#endif
 }
 
 static void
@@ -171,122 +181,200 @@ static sig_map_t	sig_handler[] = {
 #endif
 };
 
-/* Create socket for incoming connections and bind to it an address for
- * clients to use.  Only returns if it succeeds (exits on failure).
+/* Create a network socket for incoming connections and bind to it an address for
+ * clients to use.
+ * If supported, also create a unix domain socket for local clients to use.
+ * Only returns if it succeeds (exits on failure).
  */
 
-static int
-GetPort(char *file)
+static void
+GetPorts(char *file)
 {
     int			fd;
-    int			mapfd;
-    FILE		*mapstream;
+    int			mapfd = -1;
+    FILE		*mapstream = NULL;
     int			sts;
+    int			socketsCreated = 0;
+    int			ctlix;
     __pmSockAddr	*myAddr;
     static int		port_base = -1;
 
-    fd = __pmCreateSocket();
-    if (fd < 0) {
-	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
-	exit(1);
-    }
-
-    if (port_base == -1) {
-	/*
-	 * get optional stuff from environment ...
-	 *	PMLOGGER_PORT
-	 */
-	char	*env_str;
-	if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
-	    char	*end_ptr;
-
-	    port_base = strtol(env_str, &end_ptr, 0);
-	    if (*end_ptr != '\0' || port_base < 0) {
-		fprintf(stderr, 
-			 "GetPort: ignored bad PMLOGGER_PORT = '%s'\n", env_str);
-		port_base = PORT_BASE;
+    /* Try to create sockets for control connections. */
+    for (ctlix = 0; ctlix < CFD_NUM; ++ctlix) {
+	if (ctlix == CFD_UNIX) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	    /* Try to create a unix domain socket, if supported. */
+	    fd = __pmCreateUnixSocket();
+	    if (fd < 0) {
+		fprintf(stderr, "GetPorts: unix domain socket failed: %s\n", netstrerror());
+		continue;
 	    }
-	}
-	else
-	    port_base = PORT_BASE;
-    }
-
-    /*
-     * try to allocate ports from port_base.  If port already in use, add one
-     * and try again.
-     */
-    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-	fprintf(stderr, "GetPort: __pmSockAddrAlloc out of memory\n");
-	exit(1);
-    }
-    for (ctlport = port_base; ; ctlport++) {
-        __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
-	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
-	if (sts < 0) {
-	    if (neterror() != EADDRINUSE) {
-	        __pmSockAddrFree(myAddr);
-		fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
 		exit(1);
 	    }
+	    socketPath = __pmLogLocalSocketDefault(getpid());
+	    __pmSockAddrSetFamily(myAddr, AF_UNIX);
+	    __pmSockAddrSetPath(myAddr, socketPath);
+	    __pmServerSetLocalSocket(socketPath);
+	    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+	    __pmSockAddrFree(myAddr);
+
+	    if (sts < 0) {
+		fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
+	    }
+	    else {
+		/*
+		 * For unix domain sockets, grant rw access to the socket for all,
+		 * otherwise, on linux platforms, connection will not be possible.
+		 * This must be done AFTER binding the address. See Unix(7) for details.
+		 */
+		sts = chmod(socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		if (sts != 0) {
+		    fprintf(stderr, "GetPorts: chmod(%s): %s\n", socketPath, strerror(errno));
+		}
+	    }
+	    /* On error, don't leave the socket file lying around. */
+	    if (sts < 0)
+		unlink(socketPath);
+#else
+	    /*
+	     * Unix domain sockets are not supported.
+	     * This is not an error, just don't try to create one.
+	     */
+	    continue;
+#endif
 	}
-	else
-	    break;
-    }
-    __pmSockAddrFree(myAddr);
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == -1) {
-	fprintf(stderr, "__pmListen: %s\n", netstrerror());
-	exit(1);
+	else {
+	    /* Try to create a network socket. */
+	    if (ctlix == CFD_INET) {
+		fd = __pmCreateSocket();
+		if (fd < 0) {
+		    fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
+			    netstrerror());
+		    continue;
+		}
+	    }
+	    else {
+		fd = __pmCreateIPv6Socket();
+		if (fd < 0) {
+		    fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
+			    netstrerror());
+		    continue;
+		}
+	    }
+	    if (port_base == -1) {
+		/*
+		 * get optional stuff from environment ...
+		 *	PMLOGGER_PORT
+		 */
+		char	*env_str;
+		if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
+		    char	*end_ptr;
+
+		    port_base = strtol(env_str, &end_ptr, 0);
+		    if (*end_ptr != '\0' || port_base < 0) {
+			fprintf(stderr, 
+				"GetPorts: ignored bad PMLOGGER_PORT = '%s'\n", env_str);
+			port_base = PORT_BASE;
+		    }
+		}
+		else
+		    port_base = PORT_BASE;
+	    }
+
+	    /*
+	     * try to allocate ports from port_base.  If port already in use, add one
+	     * and try again.
+	     */
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
+		exit(1);
+	    }
+	    for (ctlport = port_base; ; ctlport++) {
+		if (ctlix == CFD_INET)
+		    __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
+		else
+		    __pmSockAddrInit(myAddr, AF_INET6, INADDR_ANY, ctlport);
+		sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		if (sts < 0) {
+		    if (neterror() != EADDRINUSE) {
+			fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
+			break;
+		    }
+		}
+		else
+		    break;
+	    }
+	    __pmSockAddrFree(myAddr);
+	}
+
+	/* Now listen on the new socket. */
+	if (sts >= 0) {
+	    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+	    if (sts == -1) {
+		fprintf(stderr, "__pmListen: %s\n", netstrerror());
+	    }
+	    else {
+		ctlfds[ctlix] = fd;
+		++socketsCreated;
+	    }
+	}
     }
 
-    /* create and initialize the port map file */
-    unlink(file);
-    mapfd = open(file, O_WRONLY | O_EXCL | O_CREAT,
-		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (mapfd == -1) {
-	/* not a fatal error; continue on without control file */
+    if (socketsCreated != 0) {
+	/* create and initialize the port map file */
+	unlink(file);
+	mapfd = open(file, O_WRONLY | O_EXCL | O_CREAT,
+		     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (mapfd == -1) {
+	    /* not a fatal error; continue on without control file */
 #ifdef DESPERATE
-	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		pmProgname, file, osstrerror());
+	    fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
+		    pmProgname, file, osstrerror());
 #endif
-	return fd;
+	    return;
+	}
+	/* write the port number to the port map file */
+	if ((mapstream = fdopen(mapfd, "w")) == NULL) {
+	    /* not a fatal error; continue on without control file */
+	    close(mapfd);
+#ifdef DESPERATE
+	    perror("GetPorts: fdopen");
+#endif
+	    return;
+	}
+	/* first the port number */
+	fprintf(mapstream, "%d\n", ctlport);
+
+	/* then the PMCD host (but don't bother try DNS-canonicalize) */
+	fprintf(mapstream, "%s\n", pmcd_host);
+
+	/* then the full pathname to the archive base */
+	__pmNativePath(archBase);
+	if (__pmAbsolutePath(archBase))
+	    fprintf(mapstream, "%s\n", archBase);
+	else {
+	    char		path[MAXPATHLEN];
+
+	    if (getcwd(path, MAXPATHLEN) == NULL)
+		fprintf(mapstream, "\n");
+	    else
+		fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
+	}
+
+	/* and finally, the annotation from -m or -x */
+	if (note != NULL)
+	    fprintf(mapstream, "%s\n", note);
     }
-    /* write the port number to the port map file */
-    if ((mapstream = fdopen(mapfd, "w")) == NULL) {
-	/* not a fatal error; continue on without control file */
+
+    if (mapstream != NULL)
+	fclose(mapstream);
+    if (mapfd >= 0)
 	close(mapfd);
-#ifdef DESPERATE
-	perror("GetPort: fdopen");
-#endif
-	return fd;
-    }
-    /* first the port number */
-    fprintf(mapstream, "%d\n", ctlport);
-
-    /* then the PMCD host (but don't bother try DNS-canonicalize) */
-    fprintf(mapstream, "%s\n", pmcd_host);
-
-    /* then the full pathname to the archive base */
-    __pmNativePath(archBase);
-    if (__pmAbsolutePath(archBase))
-	fprintf(mapstream, "%s\n", archBase);
-    else {
-	char		path[MAXPATHLEN];
-
-	if (getcwd(path, MAXPATHLEN) == NULL)
-	    fprintf(mapstream, "\n");
-	else
-	    fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
-    }
-
-    /* and finally, the annotation from -m or -x */
-    if (note != NULL)
-	fprintf(mapstream, "%s\n", note);
-
-    fclose(mapstream);
-    close(mapfd);
-
-    return fd;
+    if (socketsCreated == 0)
+	exit(1);
+    return;
 }
 
 /* Create the control port for this pmlogger and the file containing the port
@@ -372,7 +460,7 @@ init_ports(void)
     }
 
     /* get control port and write port map file */
-    ctlfd = GetPort(ctlfile);
+    GetPorts(ctlfile);
 
     /*
      * If this is the primary logger, make the special link for
@@ -399,6 +487,24 @@ init_ports(void)
 			pmProgname, linkfile, osstrerror());
 	    exit(1);
 	}
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/* Create a hard link to the local socket for users wanting the primary logger. */
+	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID);
+#ifndef IS_MINGW
+	sts = link(socketPath, linkSocketPath);
+#else
+	sts = (CreateHardLink(linkSocketPath, socketPath, NULL) == 0);
+#endif
+	if (sts != 0) {
+	    if (oserror() == EEXIST)
+		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
+	    else
+		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
+			pmProgname, linkSocketPath, osstrerror());
+	    exit(1);
+	}
+#endif
     }
 }
 
@@ -412,7 +518,7 @@ char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
 int
-control_req(void)
+control_req(int ctlfd)
 {
     int			fd, sts;
     char		*abuf;
@@ -464,8 +570,9 @@ control_req(void)
     else {
 	/* this is safe, due to strlen() test above */
 	strcpy(pmlc_host, hostName);
-	free(hostName);
     }
+    if (hostName != NULL)
+	free(hostName);
 
     sts = __pmAccAddClient(addr, &clientops);
     if (sts < 0) {

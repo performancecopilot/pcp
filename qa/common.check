@@ -1,6 +1,7 @@
 #
 # common preliminary check procedures for QA scripts
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -405,7 +406,8 @@ _writable_primary_logger()
 	$sudo $PMLOGCONF -q -h localhost "$configfile" >>$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
-    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' "$configfile"
+    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' \
+                 -e 's/^allow local:.*$/allow local:* : all;/g' "$configfile"
 }
 
 # restore primary logger pmlc access restrictions
@@ -417,6 +419,7 @@ _restore_primary_logger()
     # close out access from local pmlc once more
     test -f "$configfile" && \
         $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+	             -e 's/^allow local:.*$/allow local:* : enquire;/g' \
             "$configfile"
 
     # if there was an initial configuration, put it back

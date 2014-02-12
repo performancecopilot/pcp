@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -310,46 +311,38 @@ __pmIsLocalhost(const char *hostname)
 	return 1;
     else {
 	char lhost[MAXHOSTNAMELEN+1];
-	struct hostent *he;
+	__pmHostEnt *servInfo1;
 
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-        if ((he = gethostbyname(lhost)) != NULL ) {
-	    int i;
-	    unsigned int * laddrs;
-	    for (i=0; he->h_addr_list[i] != NULL; i++) ;
+	if ((servInfo1 = __pmGetAddrInfo(lhost)) != NULL) {
+	    __pmHostEnt		*servInfo2;
+	    __pmSockAddr	*addr1, *addr2;
+	    void		*enumIx1, *enumIx2;
 
-	    laddrs = (unsigned int *)calloc(i, sizeof (unsigned int));
-	    if (laddrs != NULL) {
-		int k;
-		for (k=0; k < i; k++) {
-		    laddrs[k] = ((struct in_addr *)he->h_addr_list[k])->s_addr;
-		}
-
-		if ((he = gethostbyname(hostname)) == NULL) {
-		    free(laddrs);
-		    PM_UNLOCK(__pmLock_libpcp);
-		    return -EHOSTUNREACH;
-		}
-
-		for (i--; i >= 0; i--) {
-		    for (k = 0; he->h_addr_list[k] != NULL; k++) {
-			struct in_addr *s=(struct in_addr *)he->h_addr_list[k];
-			if (s->s_addr == laddrs[i]) {
-			    free(laddrs);
-			    PM_UNLOCK(__pmLock_libpcp);
-			    return 1;
-			}
+	    if ((servInfo2 = __pmGetAddrInfo(hostname)) == NULL) {
+		__pmHostEntFree(servInfo1);
+		return -EHOSTUNREACH;
+	    }
+	    enumIx1 = NULL;
+	    for (addr1 = __pmHostEntGetSockAddr(servInfo1, &enumIx1);
+		 addr1 != NULL;
+		 addr1 = __pmHostEntGetSockAddr(servInfo1, &enumIx1)) {
+		enumIx2 = NULL;
+		for (addr2 = __pmHostEntGetSockAddr(servInfo2, &enumIx2);
+		     addr2 != NULL;
+		     addr2 = __pmHostEntGetSockAddr(servInfo2, &enumIx2)) {
+		    if (__pmSockAddrCompare(addr1, addr2) == 0) {
+			__pmHostEntFree(servInfo1);
+			__pmHostEntFree(servInfo2);
+			return 1;
 		    }
 		}
-
-		free(laddrs);
 	    }
+	    __pmHostEntFree(servInfo1);
+	    __pmHostEntFree(servInfo2);
 	}
-	PM_UNLOCK(__pmLock_libpcp);
     }
 
     return sts;
@@ -365,6 +358,7 @@ int
 __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
 {
     int			ctx, oldctx;
+    char		*ctxhost;
     int			sts, numval;
     int			i, j;
     int			findone = pid != PM_LOG_ALL_PIDS;
@@ -386,9 +380,21 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
 	return localcon;
 
     /* note: there may not be a current context */
+    ctx = 0;
     oldctx = pmWhichContext();
 
-    if ((ctx = pmNewContext(PM_CONTEXT_HOST, host)) < 0)
+    /*
+     * Enclose ctxhost in [] in case it is an ipv6 address. This prevents
+     * the first colon from being taken as a port separator by pmNewContext
+     * and does no harm otherwise.
+     */
+    ctxhost = malloc(strlen(host) + 2 + 1);
+    if (ctxhost == NULL) {
+	sts = -ENOMEM;
+	goto ctxErr;
+    }
+    sprintf(ctxhost, "[%s]", host);
+    if ((ctx = pmNewContext(PM_CONTEXT_HOST, ctxhost)) < 0)
 	return ctx;
     if ((sts = pmLookupName(1, namelist, &pmid)) < 0)
 	goto ctxErr;
@@ -434,6 +440,7 @@ resErr:
 ctxErr:
     if (oldctx >= 0)
 	pmUseContext(oldctx);
-    pmDestroyContext(ctx);
+    if (ctx >= 0)
+	pmDestroyContext(ctx);
     return sts;
 }

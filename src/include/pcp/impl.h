@@ -1053,6 +1053,8 @@ extern int __pmLogFindPort(const char *, int, __pmLogPort **);
 #define PM_LOG_NO_PID		-2	/* not a valid pid for pmlogger */
 #define PM_LOG_NO_PORT		-2	/* not a valid port for pmlogger */
 
+extern const char *__pmLogLocalSocketDefault(int);
+
 /* time utils */
 extern time_t __pmMktime(struct tm *);
 

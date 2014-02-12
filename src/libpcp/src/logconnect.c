@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -62,11 +62,157 @@ __pmLoggerTimeout(void)
 }
 
 /*
- * expect one of pid or port to be 0 ... if port is 0, use
- * hostname+pid to find port, assuming pmcd is running there
+ * Return the path to the default PMLOGGER local unix domain socket.
+ * Returns a pointer to a static buffer which can be used directly.
+ * Return the path regardless of whether unix domain sockets are
+ * supported by our build. Other functions can then print reasonable
+ * messages if an attempt is made to use one.
+ */
+const char *
+__pmLogLocalSocketDefault(int pid)
+{
+    static char pmlogger_socket[MAXPATHLEN];
+    static char pmlogger_socket_primary[MAXPATHLEN];
+
+    if (pid == PM_LOG_PRIMARY_PID) { /* primary */
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	if (pmlogger_socket_primary[0] == '\0') {
+	    snprintf(pmlogger_socket_primary, sizeof(pmlogger_socket_primary),
+		     "%s%c" "pmlogger.primary.socket",
+		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+	}
+	PM_UNLOCK(__pmLock_libpcp);
+	return pmlogger_socket_primary;
+    }
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (pmlogger_socket[0] == '\0') {
+	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
+		 "%s%c" "pmlogger.%d.socket",
+		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(),
+		 pid);
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return pmlogger_socket;
+}
+
+/*
+ * Common function for attemmpting connections to pmlogger.
+ */
+static int
+connectLogger (int fd, __pmSockAddr *myAddr)
+{
+    /* Attept the connection. */
+    int sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
+
+    /* Successful connection? */
+    if (sts >= 0)
+	return sts;
+
+    sts = neterror();
+    if (sts == EINPROGRESS) {
+	/* We're in progress - wait on select. */
+	struct timeval stv = { 0, 000000 };
+	struct timeval *pstv;
+	__pmFdSet rfds;
+	int rc;
+	stv.tv_sec = __pmLoggerTimeout();
+	pstv = stv.tv_sec ? &stv : NULL;
+
+	__pmFD_ZERO(&rfds);
+	__pmFD_SET(fd, &rfds);
+	sts = 0;
+	if ((rc = __pmSelectRead(fd+1, &rfds, pstv)) == 1) {
+	    sts = __pmConnectCheckError(fd);
+	}
+	else if (rc == 0) {
+	    sts = ETIMEDOUT;
+	}
+	else {
+	    sts = (rc < 0) ? neterror() : EINVAL;
+	}
+    }
+    sts = -sts;
+
+    /* Successful connection? */
+    if (sts >= 0)
+	return sts;
+
+    /* Unsuccessful connection. */
+    __pmCloseSocket(fd);
+    return -1;
+}
+
+/*
+ * Attemmpt connection to pmlogger via a local socket.
+ */
+static int
+connectLoggerLocal(const char *local_socket)
+{
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    char		socket_path[MAXPATHLEN];
+    int			fd;
+    int			sts;
+    __pmSockAddr	*myAddr;
+
+    /* Create a socket */
+    fd = __pmCreateUnixSocket();
+    if (fd < 0)
+	return -ECONNREFUSED;
+
+    /* Set up the socket address. */
+    myAddr = __pmSockAddrAlloc();
+    if (myAddr == NULL) {
+	__pmNotifyErr(LOG_ERR, "__pmConnectLogger: out of memory\n");
+	return -ENOMEM;
+    }
+    __pmSockAddrSetFamily(myAddr, AF_UNIX);
+
+    /*
+     * Set the socket path. All socket paths are absolute, but strip off any redundant
+     * initial path separators.
+     * snprint is guaranteed to add a nul byte.
+     */
+    while (*local_socket == __pmPathSeparator())
+	++local_socket;
+    snprintf(socket_path, sizeof(socket_path), "%c%s", __pmPathSeparator(), local_socket);
+    __pmSockAddrSetPath(myAddr, socket_path);
+
+    /* Attempt to connect */
+    sts = connectLogger(fd, myAddr);
+    __pmSockAddrFree(myAddr);
+
+    if (sts < 0)
+	fd = sts;
+
+    return fd;
+#else
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "__pmConnectLogger: local_socket == %s is not supported\n",
+		local_socket);
+#endif
+    return -ECONNREFUSED;
+#endif
+}
+
+/*
+ * Determine how to connect based on connectionSpec, pid and port:
+ *
+ * If hostname is "local:[//][path]", then try the socket at
+ * /path, if specified and the socket at PCP_RUN_DIR/pmlogger.<pid>.socket otherwise,
+ * where <pid> is "primary" if pid is PM_LOG_PRIMARY_PID.
+ * If this fails then set connectionSpec to "localhost" and then
+ *
+ * ConnectionSpec is a host name.
+ * If port is set, use hostname:port, otherwise
+ *
+ * Use hostname+pid to find port, assuming pmcd is running there
  */
 int
-__pmConnectLogger(const char *hostname, int *pid, int *port)
+__pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 {
     int			n, sts;
     __pmLogPort		*lpp;
@@ -77,134 +223,141 @@ __pmConnectLogger(const char *hostname, int *pid, int *port)
     __pmHostEnt		*servInfo;
     __pmSockAddr	*myAddr;
     void		*enumIx;
+    const char		*prefix_end;
+    size_t		prefix_len;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
 	fprintf(stderr, "__pmConnectLogger(host=%s, pid=%d, port=%d)\n",
-		hostname, *pid, *port);
+		connectionSpec, *pid, *port);
 #endif
-
-    /*
-     * catch pid == PM_LOG_ALL_PIDS ... this tells __pmLogFindPort
-     * to get all ports
-     */
-    if (*pid == PM_LOG_ALL_PIDS) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
-#endif
-	return -ECONNREFUSED;
-    }
 
     if (*pid == PM_LOG_NO_PID && *port == PM_LOG_PRIMARY_PORT) {
 	/*
-	 * __pmLogFindPort can only lookup based on pid, so xlate
-	 * the request
+	 * __pmLogFindPort and __pmLogLocalSocketDefault can only lookup
+	 * based on pid, so xlate the request
 	 */
 	*pid = PM_LOG_PRIMARY_PID;
 	*port = PM_LOG_NO_PORT;
     }
+    sts = 0;
+    fd = -1;
 
-    if (*port == PM_LOG_NO_PORT) {
-	if ((n = __pmLogFindPort(hostname, *pid, &lpp)) < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+    /* Look for a "local:" or a "unix:" prefix. */
+    prefix_end = strchr(connectionSpec, ':');
+    if (prefix_end != NULL) {
+	prefix_len = prefix_end - connectionSpec + 1;
+	if ((prefix_len == 6 && strncmp(connectionSpec, "local:", prefix_len) == 0) ||
+	    (prefix_len == 5 && strncmp(connectionSpec, "unix:", prefix_len) == 0)) {
+	    if (connectionSpec[prefix_len] != '\0') {
+		/* Try the specified local socket directly. */
+		fd = connectLoggerLocal(connectionSpec + prefix_len);
 	    }
-#endif
-	    return n;
+	    else if (*pid != PM_LOG_NO_PID) {
+		/* Try the socket indicated by the pid. */
+		connectionSpec = __pmLogLocalSocketDefault(*pid);
+		fd = connectLoggerLocal(connectionSpec);
+	    }
+	    if (fd < 0) {
+		if (prefix_len != 6) /* "unix: */
+		    return -ECONNREFUSED;
+		/*
+		 * The prefix was "local:".
+		 * If we have a port or a pid, try the connection as localhost.
+		 * Otherwise, we can't connect.
+		 */
+		if (*port == PM_LOG_NO_PORT && *pid == PM_LOG_NO_PID)
+		    return -ECONNREFUSED;
+		connectionSpec = "localhost";
+	    }
 	}
-	else if (n != 1) {
+    }
+
+    /*
+     * If we still don't have a connection, then connectionSpec is
+     * (now) a host name.
+     */
+    if (fd < 0) {
+	/*
+	 * catch pid == PM_LOG_ALL_PIDS ... this tells __pmLogFindPort
+	 * to get all ports
+	 */
+	if (*pid == PM_LOG_ALL_PIDS) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmcd\n");
+		fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
 #endif
 	    return -ECONNREFUSED;
 	}
-	*port = lpp->port;
+
+	if (*port == PM_LOG_NO_PORT) {
+	    if ((n = __pmLogFindPort(connectionSpec, *pid, &lpp)) < 0) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
+		if (pmDebug & DBG_TRACE_CONTEXT) {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+		}
 #endif
-    }
-
-    if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
+		return n;
+	    }
+	    else if (n != 1) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
-		    hoststrerror());
+		if (pmDebug & DBG_TRACE_CONTEXT)
+		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmcd\n");
 #endif
-	return -EHOSTUNREACH;
-    }
-
-    /* Loop over the addresses resolved for this host name until one of them
-       connects. */
-    sts = -1;
-    fd = -1;
-    enumIx = NULL;
-    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
-	 myAddr != NULL;
-	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
-	/* Create a socket */
-	if (__pmSockAddrIsInet(myAddr))
-	    fd = __pmCreateSocket();
-	else if (__pmSockAddrIsIPv6(myAddr))
-	    fd = __pmCreateIPv6Socket();
-	else {
-	    __pmNotifyErr(LOG_ERR, 
-			  "__pmConnectLogger : invalid address family %d\n",
-			  __pmSockAddrGetFamily(myAddr));
-	    fd = -1;
-	}
-	if (fd < 0) {
-	    __pmSockAddrFree(myAddr);
-	    continue; /* Try the next address */
+		return -ECONNREFUSED;
+	    }
+	    *port = lpp->port;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT)
+		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
+#endif
 	}
 
-	/* Attempt to connect */
-	__pmSockAddrSetPort(myAddr, *port);
-	sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
-	__pmSockAddrFree(myAddr);
-
-	/* Successful connection? */
-	if (sts >= 0)
-	    break;
-
-	sts = neterror();
-	if (sts == EINPROGRESS) {
-	  /* We're in progress - wait on select. */
-	  struct timeval stv = { 0, 000000 };
-	  struct timeval *pstv;
-	  __pmFdSet rfds;
-	  int rc;
-	  stv.tv_sec = __pmLoggerTimeout();
-	  pstv = stv.tv_sec ? &stv : NULL;
-
-	  __pmFD_ZERO(&rfds);
-	  __pmFD_SET(fd, &rfds);
-	  sts = 0;
-	  if ((rc = __pmSelectRead(fd+1, &rfds, pstv)) == 1) {
-	    sts = __pmConnectCheckError(fd);
-	  }
-	  else if (rc == 0) {
-	    sts = ETIMEDOUT;
-	  }
-	  else {
-	    sts = (rc < 0) ? neterror() : EINVAL;
-	  }
+	if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_CONTEXT)
+		fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
+			hoststrerror());
+#endif
+	    return -EHOSTUNREACH;
 	}
-	sts = -sts;
 
-	/* Successful connection? */
-	if (sts >= 0)
-	    break;
-
-	/* Unsuccessful connection. */
-	__pmCloseSocket(fd);
+	/* Loop over the addresses resolved for this host name until one of them
+	   connects. */
+	sts = -1;
 	fd = -1;
+	enumIx = NULL;
+	for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	     myAddr != NULL;
+	     myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	    /* Create a socket */
+	    if (__pmSockAddrIsInet(myAddr))
+		fd = __pmCreateSocket();
+	    else if (__pmSockAddrIsIPv6(myAddr))
+		fd = __pmCreateIPv6Socket();
+	    else {
+		__pmNotifyErr(LOG_ERR, 
+			      "__pmConnectLogger : invalid address family %d\n",
+			      __pmSockAddrGetFamily(myAddr));
+		fd = -1;
+	    }
+	    if (fd < 0) {
+		__pmSockAddrFree(myAddr);
+		continue; /* Try the next address */
+	    }
+
+	    /* Attempt to connect */
+	    __pmSockAddrSetPort(myAddr, *port);
+	    sts = connectLogger(fd, myAddr);
+	    __pmSockAddrFree(myAddr);
+
+	    /* Successful connection? */
+	    if (sts >= 0)
+		break;
+	}
+	__pmHostEntFree(servInfo);
     }
-    __pmHostEntFree(servInfo);
 
     if (sts < 0) {
 #ifdef PCP_DEBUG

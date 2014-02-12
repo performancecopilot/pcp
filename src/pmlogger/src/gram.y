@@ -87,7 +87,7 @@ static task_t *findtask(int, struct timeval *);
 
 	ACCESS ENQUIRE ALLOW DISALLOW ALL EXCEPT
 
-%token<str>  NAME STRING IPSPEC HOSTNAME
+%token<str>  NAME STRING IPSPEC HOSTNAME URL
 %token<lval> NUMBER
 
 %type<lval> frequency timeunits action
@@ -321,6 +321,7 @@ host		: hostspec
 		;
 
 hostspec	: IPSPEC
+		| URL
 		| HOSTNAME
 		| NAME
 		;

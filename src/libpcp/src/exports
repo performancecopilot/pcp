@@ -228,6 +228,7 @@ PCP_3.0 {
     __pmLogChkLabel;
     __pmLogClose;
     __pmLogCreate;
+    __pmLogLocalSocketDefault;
     __pmLogFetch;
     __pmLogFetchInterp;
     __pmLogFindLocalPorts;

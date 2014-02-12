@@ -11,6 +11,7 @@
 #		when the group was added to the configuration file
 #	delta	delta argument for pmlogger "logging ... on delta" clause
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1998,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -485,8 +486,9 @@ End-of-File
 #
 
 [access]
-disallow * : all;
-allow localhost : enquire;
+disallow .* : all;
+disallow :* : all;
+allow local:* : enquire;
 End-of-File
 
 else
