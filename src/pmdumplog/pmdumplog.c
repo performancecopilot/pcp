@@ -658,7 +658,7 @@ main(int argc, char *argv[])
 "  -T finish     end of the time window\n"
 "  -t            dump the temporal index\n"
 "  -v file       verbose hex dump of a physical file in raw format\n"
-"  -x            include date in reported imestamps\n"
+"  -x            include date in reported timestamps\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time for host from -a\n",
                 pmProgname, pmProgname);
