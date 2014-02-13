@@ -4,7 +4,7 @@ Priority: extra
 Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, autotools-dev
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
@@ -19,6 +19,21 @@ Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
  support system-level performance monitoring and performance
  management.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: pcp-conf
+Depends: ${misc:Depends}
+Breaks: libpcp3 (<< 3.9.0)
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot runtime configuration
+ The pcp-conf package contains important runtime configuration
+ files required by all programs and libraries that make up the
+ Performance Co-Pilot (PCP) toolkit.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows
@@ -41,7 +56,7 @@ Description: Performance Co-Pilot library and headers
  that data.
 
 Package: libpcp3
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
 Conflicts: pgpool2
 Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
 Section: libs
@@ -335,3 +350,29 @@ Description: Performance Co-Pilot (PCP) Test Suite
  Provides a series of tests that exercise the many utilities and daemon
  processes that form the PCP toolkit.  Regular users should never have
  any need to install this package, it is for developers and testers only.
+
+Package: pcp-manager
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) manager daemon
+ An optional daemon (pmmgr) that manages a collection of pmlogger and
+ pmie daemons, for a set of discovered local and remote hosts running
+ the performance metrics collection daemon (pmcd).  It ensures these
+ daemons are running when appropriate, and manages their log rotation
+ needs (which are particularly complex in the case of pmlogger).
+ .
+ The base PCP package provides comparable functionality through cron
+ scripts which predate this daemon but do still provide effective and
+ efficient log management services.
+ .
+ The pcp-manager package aims to aggressively enable new PCP features
+ and as a result may not be suited to all production environments.
+
+Package: pcp-webapi
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) web API service
+ Provides a daemon (pmwebd) that binds a large subset of the Performance
+ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
+ HTTP (PMWEBAPI) protocol.
+

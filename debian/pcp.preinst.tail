@@ -7,7 +7,7 @@ else
     # Fallback to our homebrew method (might prompt user)
     #echo >>$PCP_LOG_DIR/install.log
     #date >>$PCP_LOG_DIR/install.log
-    for base in pmcd pmie pmlogger pmproxy pmwebd
+    for base in pmcd pmie pmlogger pmproxy
     do
 	_clean_configs -v $PCP_SYSCONF_DIR/$base \
 		/var/lib/pcp/config/$base \

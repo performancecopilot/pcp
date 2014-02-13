@@ -85,15 +85,30 @@ the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data. 
 
 #
+# pcp-conf
+#
+%package conf
+License: LGPLv2.1+
+Group: Development/Libraries
+Summary: Performance Co-Pilot run-time configuration
+URL: http://oss.sgi.com/projects/pcp/
+
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+Conflicts: pcp-libs < 3.9
+
+%description conf
+Performance Co-Pilot (PCP) run-time configuration
+
+#
 # pcp-libs
 #
 %package libs
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-Vendor: SGI
 URL: http://oss.sgi.com/projects/pcp/
 
+Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
 
 %description libs
@@ -125,10 +140,55 @@ URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
-# Requires: valgrind	# arch-specific
+# Suggests: valgrind, nmap
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
+
+%if "@BUILD_PMMGR@" == "yes"
+#
+# pcp-manager
+#
+%package manager
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) manager daemon
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp = @package_version@
+Requires: pcp-libs = @package_version@
+
+%description manager
+An optional daemon (pmmgr) that manages a collection of pmlogger and
+pmie daemons, for a set of discovered local and remote hosts running
+the performance metrics collection daemon (pmcd).  It ensures these
+daemons are running when appropriate, and manages their log rotation
+needs (which are particularly complex in the case of pmlogger).
+The base PCP package provides comparable functionality through cron
+scripts which predate this daemon but do still provide effective and
+efficient log management services.
+The pcp-manager package aims to aggressively enable new PCP features
+and as a result may not be suited to all production environments.
+%endif
+
+%if @have_libmicrohttpd@ == 1
+#
+# pcp-webapi
+#
+%package webapi
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) web API service
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp = @package_version@
+Requires: pcp-libs = @package_version@
+
+%description webapi
+Provides a daemon (pmwebd) that binds a large subset of the Performance
+Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
+HTTP (PMWEBAPI) protocol.
+%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -325,20 +385,23 @@ rm -f $DIST_MANIFEST
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
+CFGFILELIST=`ls -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
 LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 #
-# Package split: pcp, pcp-libs, pcp-libs-devel, pcp-testsuite, pcp-import-*
-# -libs gets first pick, then libs-devel, then pcp-testsuite, then pcp-import-*
-# The base package catches-all remaining.
-#
+# Package split: pcp{-conf,-libs,-libs-devel,-webapi,-manager,-testsuite,
+# -import-*,-export-*} ...
+# The above list is ordered by file selection; files for each package are
+# removed from a global set, then the base package catches all remaining.
+sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch ia64 x86_64 ppc64
+%ifarch ia64 x86_64 ppc64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
+sed -i -e '/usr\/include\/pcp\/configsz.h/d' devel_files
 
 #
 # some special cases for devel
@@ -349,7 +412,7 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 # Patterns for files to be marked %config(noreplace).
 # Note: /etc/pcp.conf is %config, but not noreplace
 # and is treated specially below.
-cat >conf_files <<EOFEOF
+cat >conf_files <<EOF
 etc/pcp.sh
 etc/pcp.env
 etc/cron.d/pcp-pmie
@@ -362,11 +425,11 @@ pmie/stomp
 pmlogger/control
 pmproxy/pmproxy.options
 bash_completion.d/pcp
-EOFEOF
-%if "@BUILD_PMMGR@" == "yes"
-cat >>conf_files <<EOF
-etc/pcp/pmmgr
 EOF
+%if "@BUILD_PMMGR@" == "yes"
+cat >>conf_files <<MGREOF
+etc/pcp/pmmgr
+MGREOF
 %endif
 %if @have_libmicrohttpd@ == 1
 cat >>conf_files <<WEBEOF
@@ -375,9 +438,15 @@ WEBEOF
 %endif
 
 #
-# Files for the pcp-import subpackages. We use these subpackages
-# to isolate the (somewhat exotic) dependencies for these tools
+# Files for the various subpackages.  We use these subpackages
+# to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
+%if @have_libmicrohttpd@ == 1
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
+%endif
+%if "@BUILD_PMMGR@" == "yes"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
@@ -386,15 +455,17 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 %if "@pmda_infiniband@" == "infiniband"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
-%else
-touch pmda_infiniband_files
 %endif
+touch webapi_files manager_files pmda_infiniband_files
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
+    while( getline < "cfg_files") cfg[$0]=1;
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
+    while( getline < "webapi_files") webapi[$0]=1;
+    while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
@@ -405,8 +476,11 @@ BEGIN {
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
-    if (lib[$NF]) f="libs_files.rpm";
+    if (cfg[$NF]) f="cfg_files.rpm";
+    else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
+    else if (webapi[$NF]) f="webapi_files.rpm";
+    else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
@@ -485,12 +559,40 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmwebd pmproxy
+for daemon in pmcd pmie pmlogger pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
         /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
+
+%if @have_libmicrohttpd@ == 1
+%preun webapi
+if [ "$1" -eq 0 ]
+then
+    /sbin/service pmwebd stop >/dev/null 2>&1
+    /sbin/chkconfig --del pmwebd >/dev/null 2>&1
+fi
+
+%post webapi
+chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
+/sbin/chkconfig --add pmwebd >/dev/null 2>&1 && \
+/sbin/service pmwebd condrestart
+%endif
+
+%if "@BUILD_PMMGR@" == "yes"
+%preun manager
+if [ "$1" -eq 0 ]
+then
+    /sbin/service pmmgr stop >/dev/null 2>&1
+    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
+fi
+
+%post manager
+chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
+/sbin/chkconfig --add pmmgr >/dev/null 2>&1
+/sbin/service pmmgr condrestart
+%endif
 
 %preun
 if [ "$1" -eq 0 ]
@@ -499,16 +601,12 @@ then
     /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
-    /sbin/service pmwebd stop >/dev/null 2>&1
-    /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
     /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
-    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
-    /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 
     # cleanup namespace state/flag, may still exist
@@ -550,8 +648,6 @@ done
 chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
-chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
@@ -561,10 +657,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 /sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
-#/sbin/chkconfig --add pmmgr >/dev/null 2>&1
-#/sbin/service pmmgr condrestart
-/sbin/chkconfig --add pmwebd >/dev/null 2>&1 && \
-/sbin/service pmwebd condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
 /sbin/service pmproxy condrestart
 
@@ -574,11 +666,24 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -f base_files.rpm
 %defattr(-,root,root)
 
+%files conf -f cfg_files.rpm
+%defattr(-,root,root)
+
 %files libs -f libs_files.rpm
 %defattr(-,root,root)
 
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
+
+%if @have_libmicrohttpd@ == 1
+%files webapi -f webapi_files.rpm
+%defattr(-,root,root)
+%endif
+
+%if "@BUILD_PMMGR@" == "yes"
+%files manager -f manager_files.rpm
+%defattr(-,root,root)
+%endif
 
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)

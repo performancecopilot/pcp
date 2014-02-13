@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch snmp nginx
+	rsyslog elasticsearch snmp nginx nfsclient
 
 PYPMDAS = gluster
 
