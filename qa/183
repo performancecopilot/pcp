@@ -2,6 +2,7 @@
 # PCP QA Test No. 183
 # pmnewlog error handling
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -46,7 +47,9 @@ _filter()
         -e "s|${PCP_BINADM_DIR}|PCP_BINADM_DIR|" \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e "s/ at $hostname:/ at HOST:/" \
-	-e "s/ port [0-9][0-9]*/ port PORT/" \
+	-e "s/ at local::/ at HOST:/" \
+	-e "s/ on port [0-9][0-9]*//" \
+	-e "s/ pid [0-9][0-9]*//" \
 	-e '/Error \[<stdin>,/d' \
 	-e '/Warning \[<stdin>,/d' \
 	-e '/Not connected to any/d' \
