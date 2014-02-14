@@ -8,6 +8,16 @@ LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
 PCP_LINT = pcp.lintian 
 
+PCPWEBAPI = pcp-webapi
+PCPWEBAPI_FILES = pcp-webapi.dirs pcp-webapi.install pcp-webapi.prerm \
+		  pcp-webapi.postinst pcp-webapi.postrm
+PCPWEBAPI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-webapi
+
+PCPMANAGER = pcp-manager
+PCPMANAGER_FILES = pcp-manager.dirs pcp-manager.install pcp-manager.prerm \
+		   pcp-manager.postinst pcp-manager.postrm
+PCPMANAGER_DOC_DIR = $(PCP_DOC_DIR)/../pcp-manager
+
 PCPTESTSUITE = pcp-testsuite
 PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
@@ -93,6 +103,7 @@ LSRCFILES = changelog compat control copyright rules \
 	$(LINTIAN) $(PCP_LINT) \
 	$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
 	$(PCPCFG_FILES) $(PCPTESTSUITE_FILES) \
+	$(PCPWEBAPI_FILES) $(PCPMANAGER_FILES) \
 	$(LIBGUI_FILES) $(DEVGUI_FILES) \
 	$(LIBMMV_FILES) $(DEVMMV_FILES) \
 	$(LIBPMDA_FILES) $(DEVPMDA_FILES) \
@@ -116,11 +127,25 @@ default_pcp : default
 
 install_pcp : install
 
+install-webapi: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPWEBAPI_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPWEBAPI_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPWEBAPI_DOC_DIR)/changelog.Debian
+endif
+
+install-manager: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPMANAGER_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPMANAGER_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPMANAGER_DOC_DIR)/changelog.Debian
+endif
+
 install-testsuite: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(PCPTESTSUITEDIR)
-	$(INSTALL) -m 644 copyright $(PCPTESTSUITEDIR)
-	$(INSTALL) -m 644 changelog $(PCPTESTSUITEDIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(PCPTESTSUITE_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPTESTSUITE_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPTESTSUITE_DOC_DIR)/changelog.Debian
 endif
 
 install-pcpcfg: default

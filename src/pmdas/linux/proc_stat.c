@@ -1,7 +1,7 @@
 /*
  * Linux /proc/stat metrics cluster
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -39,22 +39,28 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     static char **bufindex;
     static int nbufindex;
     static int maxbufindex;
+    int size;
     int n;
     int i;
     int j;
 
-    if (fd >= 0)
-    	lseek(fd, 0, SEEK_SET);
-    else
+    if (fd >= 0) {
+	if (lseek(fd, 0, SEEK_SET) < 0)
+	    return -oserror();
+    } else {
 	if ((fd = open("/proc/stat", O_RDONLY)) < 0)
 	    return -oserror();
+    }
 
     for (n=0;;) {
-	if (n >= maxstatbuf) {
-	    maxstatbuf += 512;
-	    statbuf = (char *)realloc(statbuf, maxstatbuf * sizeof(char));
+	while (n >= maxstatbuf) {
+	    size = maxstatbuf + 512;
+	    if ((statbuf = (char *)realloc(statbuf, size)) == NULL)
+		return -ENOMEM;
+	    maxstatbuf = size;
 	}
-	if ((i = read(fd, statbuf+n, 512)) > 0)
+	size = (statbuf + maxstatbuf) - (statbuf + n);
+	if ((i = read(fd, statbuf + n, size)) > 0)
 	    n += i;
 	else
 	    break;
@@ -62,20 +68,24 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
     statbuf[n] = '\0';
 
     if (bufindex == NULL) {
+	size = 4 * sizeof(char *);
+	if ((bufindex = (char **)malloc(size)) == NULL)
+	    return -ENOMEM;
 	maxbufindex = 4;
-	bufindex = (char **)malloc(maxbufindex * sizeof(char *));
     }
 
     nbufindex = 0;
-    bufindex[nbufindex++] = statbuf;
+    bufindex[nbufindex] = statbuf;
     for (i=0; i < n; i++) {
-	if (statbuf[i] == '\n') {
+	if (statbuf[i] == '\n' || statbuf[i] == '\0') {
 	    statbuf[i] = '\0';
-	    if (nbufindex >= maxbufindex) {
+	    if (nbufindex + 1 >= maxbufindex) {
+		size = (maxbufindex + 4) * sizeof(char *);
+		if ((bufindex = (char **)realloc(bufindex, size)) == NULL)
+		    return -ENOMEM;
 	    	maxbufindex += 4;
-		bufindex = (char **)realloc(bufindex, maxbufindex * sizeof(char *));
 	    }
-	    bufindex[nbufindex++] = statbuf + i + 1;
+	    bufindex[++nbufindex] = statbuf + i + 1;
 	}
     }
 
@@ -130,19 +140,19 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->n_steal = calloc(1, n);
 	proc_stat->n_guest = calloc(1, n);
     }
-
-    /* reset per-node stats */
-    n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
-    memset(proc_stat->n_user, 0, n);
-    memset(proc_stat->n_nice, 0, n);
-    memset(proc_stat->n_sys, 0, n);
-    memset(proc_stat->n_idle, 0, n);
-    memset(proc_stat->n_wait, 0, n);
-    memset(proc_stat->n_irq, 0, n);
-    memset(proc_stat->n_sirq, 0, n);
-    memset(proc_stat->n_steal, 0, n);
-    memset(proc_stat->n_guest, 0, n);
-
+    else {
+	/* reset per-node stats */
+	n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
+	memset(proc_stat->n_user, 0, n);
+	memset(proc_stat->n_nice, 0, n);
+	memset(proc_stat->n_sys, 0, n);
+	memset(proc_stat->n_idle, 0, n);
+	memset(proc_stat->n_wait, 0, n);
+	memset(proc_stat->n_irq, 0, n);
+	memset(proc_stat->n_sirq, 0, n);
+	memset(proc_stat->n_steal, 0, n);
+	memset(proc_stat->n_guest, 0, n);
+    }
     /*
      * cpu  95379 4 20053 6502503
      * 2.6 kernels have 3 additional fields

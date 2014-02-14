@@ -350,3 +350,29 @@ Description: Performance Co-Pilot (PCP) Test Suite
  Provides a series of tests that exercise the many utilities and daemon
  processes that form the PCP toolkit.  Regular users should never have
  any need to install this package, it is for developers and testers only.
+
+Package: pcp-manager
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) manager daemon
+ An optional daemon (pmmgr) that manages a collection of pmlogger and
+ pmie daemons, for a set of discovered local and remote hosts running
+ the performance metrics collection daemon (pmcd).  It ensures these
+ daemons are running when appropriate, and manages their log rotation
+ needs (which are particularly complex in the case of pmlogger).
+ .
+ The base PCP package provides comparable functionality through cron
+ scripts which predate this daemon but do still provide effective and
+ efficient log management services.
+ .
+ The pcp-manager package aims to aggressively enable new PCP features
+ and as a result may not be suited to all production environments.
+
+Package: pcp-webapi
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) web API service
+ Provides a daemon (pmwebd) that binds a large subset of the Performance
+ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
+ HTTP (PMWEBAPI) protocol.
+
