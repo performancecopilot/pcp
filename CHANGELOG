@@ -1,12 +1,29 @@
-pcp-3.8.13 (git)
-    - Under development.
+pcp-3.9.0 (19 January 2014)
+    - Packaging changes for multilib pcp-libs{-devel},pcp-conf
+    - Packaging changes for pcp-manager and pcp-webapi split
+    - pmmgr: pmlogrewrite support
+    - pmmgr: latency-based tie-break for multi-URL target pmcds
+    - pmmgr.1 man page: outline archiving strategy tradeoffs
+    - pmdalinux: s390x platform issues in /proc/cpuinfo parser
+    - pmdalinux: valgrind fix for /proc/stat parser
+    - pmlogextract: <mark> record handling fix
+    - pmdas: Install scripts can run even when pmcd is stopped
+    - pmdanfsclient: add source code (not yet enabled in build),
+      thanks to Ben Myers
+    - pcp-archive.5 man page: new, documents on-disk log format
+    - pmdammv: fix sigsegv when no MMV tempdir is present
+    - pmclient: updated to match the Programmers Guide examples
+    - pmapi.py: fix python interface to pmLocaltime and pmCtime
+    - debian: use autotools-dev to update config.{sub,guess},
+      thanks to Logan Rosen
+    - pmdumplog: add a -x option for extended timestamp reports
 
 pcp-3.8.12 (29 January 2014)
     - Fix recent (3.8.10) regression for certain platforms where
       important PMNS files ended up not being installed.  Impact
       is on new installs only, not upgrades (so my QA missed it).
     - pmmgr: add -l (logfile) option to fix a permissions issue.
-    - pmdalinux: fix sigsegv on certain icmp procfs file lines.
+    - pmdalinux: fix sigsegv on certain ICMP procfs file lines.
     - Further improvements to pmlogger internal data structures
       dealing with configuration files with duplicate metrics
       and/or instances - improved in terms of network fetching,
