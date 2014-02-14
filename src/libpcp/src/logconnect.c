@@ -142,7 +142,7 @@ connectLogger (int fd, __pmSockAddr *myAddr)
 
     /* Unsuccessful connection. */
     __pmCloseSocket(fd);
-    return -1;
+    return sts;
 }
 
 /*
