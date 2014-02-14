@@ -119,8 +119,10 @@ on		{ return ctx(ON); }
 
 \*			{ yylval.str = yytext; return IPSPEC; }
 
-[A-Za-z0-9_-]+:[A-Za-z0-9_.-/]*\*	{ yylval.str = yytext; return URL; }
-[A-Za-z0-9_-]+:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
+unix:[A-Za-z0-9_.-/]*\*		{ yylval.str = yytext; return URL; }
+unix:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*\*	{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 
 \#.*		{ }
 
