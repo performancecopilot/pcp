@@ -860,23 +860,6 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   // XXX: What happens for archives that span across granular periods?
                 }
 
-              if (get_config_exists("pmlogmerge-rewrite"))
-                {
-                  string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
-                  pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
-                  pmlogrewrite_options += " " + sh_quote(base_name);
-
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << pmlogrewrite_options << endl;
-                  rc = system(pmlogrewrite_options.c_str());
-                  if (rc != 0)
-                    {
-                      timestamp(cerr) << "system(" << pmlogrewrite_options << ") failed: rc=" << rc << endl;
-                      timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
-                      continue;
-                    }
-                }
-
               mergeable_archives.push_back (base_name);
             }
           globfree (& the_blob);
@@ -898,7 +881,26 @@ pmmgr_pmlogger_daemon::daemon_command_line()
         {
           // assemble final bits of pmlogextract command line: the inputs and the output
           for (unsigned i=0; i<mergeable_archives.size(); i++)
-            pmlogextract_options += " " + sh_quote(mergeable_archives[i]);
+            {
+              if (get_config_exists("pmlogmerge-rewrite"))
+                {
+                  string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
+                  pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
+                  pmlogrewrite_options += " " + sh_quote(mergeable_archives[i]);
+
+                  if (pmDebug & DBG_TRACE_APPL0)
+                    timestamp(cout) << "running " << pmlogrewrite_options << endl;
+                  rc = system(pmlogrewrite_options.c_str());
+                  if (rc != 0)
+                    {
+                      timestamp(cerr) << "system(" << pmlogrewrite_options << ") failed: rc=" << rc << endl;
+                      // But don't break; let's try to merge it anyway.
+                      // Maybe pmlogrewrite will succeed and will get rid of this file.
+                    }
+                }
+
+              pmlogextract_options += " " + sh_quote(mergeable_archives[i]);
+            }
 
           pmlogextract_options += " " + sh_quote(merged_archive_name);
 

@@ -1,8 +1,7 @@
 - signal handling
 	- execve
 	- if (quit) return
-- pmlogrewrite only if merge
-- tie-break connection-string for multiply-reachable pmcd via other criteria? "shortest url"?
+- pmmgr.1 EXAMPLE CONFIGURATIONS
 - optionally delay pm*conf
 - pmlogreduce
 - log aging in background while new pmlogger's already running
