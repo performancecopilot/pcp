@@ -348,7 +348,7 @@ pmmgr_job_spec::poll()
     new_specs.insert(target_hosts[i]);
 
   vector<string> target_discovery = get_config_multi("target-discovery");
-  for (unsigned i=0; i<target_discovery.size(); i++)
+  for (unsigned i=0; i<target_discovery.size() && !quit; i++)
     {
       char **urls = NULL;
       const char *discovery = (target_discovery[i] == "")
@@ -375,7 +375,7 @@ pmmgr_job_spec::poll()
   // phase 3: map the context-specs to hostids to find new hosts
   map<pmmgr_hostid,double> known_target_scores;
   for (set<pcp_context_spec>::iterator it = new_specs.begin();
-       it != new_specs.end();
+       it != new_specs.end() && !quit;
        ++it)
     {
       struct timeval before, after;
@@ -425,7 +425,7 @@ pmmgr_job_spec::poll()
   vector<pthread_t> threads;
 #endif
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = daemons.begin();
-       it != daemons.end();
+       it != daemons.end() && !quit;
        ++it)
     {
 #ifdef HAVE_PTHREAD_H
@@ -482,7 +482,7 @@ pmmgr_job_spec::poll()
              , NULL, & the_blob);
   if (rc == 0)
     {
-      for (unsigned i=0; i<the_blob.gl_pathc; i++)
+      for (unsigned i=0; i<the_blob.gl_pathc && !quit; i++)
         {
           string item_name = the_blob.gl_pathv[i];
 
@@ -614,6 +614,9 @@ void pmmgr_daemon::poll()
   if (pid == 0) // needs a restart
     {
       string commandline = daemon_command_line();
+
+      if (quit) return; // without starting the daemon process
+
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
@@ -678,6 +681,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       int rc = system(pmlogconf_options.c_str());
       if (rc != 0)
         timestamp(cerr) << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
+
+      if (quit) return "";
 
       pmlogger_options += " -c " + sh_quote(pmlogconf_output_file);
     }
@@ -766,6 +771,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
           for (unsigned i=0; i<the_blob.gl_pathc; i++)
             {
+              if (quit) return "";
+
               string index_name = the_blob.gl_pathv[i];
               string base_name = index_name.substr(0,index_name.length()-6); // trim .index
 
@@ -798,6 +805,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   continue; // it's gone now; don't try to merge it or anything
                 }
 
+              if (quit) return "";
+
               // sic pmlogcheck on it; if it is broken, pmlogextract
               // will give up and make no progress
               string pmlogcheck_options = sh_quote(pmlogcheck_command);
@@ -812,6 +821,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
                   continue;
                 }
+
+              if (quit) return "";
 
               // In granular mode, skip if this file is too old or too new.  NB: Decide
               // based upon the log-label, not fstat timestamps, since files postdate
@@ -882,6 +893,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           // assemble final bits of pmlogextract command line: the inputs and the output
           for (unsigned i=0; i<mergeable_archives.size(); i++)
             {
+              if (quit) return "";
+
               if (get_config_exists("pmlogmerge-rewrite"))
                 {
                   string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
@@ -902,6 +915,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
               pmlogextract_options += " " + sh_quote(mergeable_archives[i]);
             }
 
+          if (quit) return "";
+
           pmlogextract_options += " " + sh_quote(merged_archive_name);
 
           if (pmDebug & DBG_TRACE_APPL0)
@@ -914,6 +929,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           else
             {
               // zap the previous archive files
+              //
+              // Don't skip this upon "if (quit)", since the new merged archive is already complete;
+              // it'd be a waste to keep these files around for a future re-merge.
               for (unsigned i=0; i<mergeable_archives.size(); i++)
                 {
                   string base_name = sh_quote(mergeable_archives[i]);
@@ -993,6 +1011,8 @@ pmmgr_pmie_daemon::daemon_command_line()
 
       pmie_options += "-c " + sh_quote(pmieconf_output_file);
     }
+
+  if (quit) return "";
 
   // collect -h direction
   pmie_options += " -h " + sh_quote(spec);
@@ -1168,7 +1188,7 @@ int main (int argc, char *argv[])
     }
 
   timestamp(cout) << "Log started" << endl;
-  while (1)
+  while (! quit)
     {
       // In this section, we must not fidget with SIGCHLD, due to use of system(3).
       for (unsigned i=0; i<js.size() && !quit; i++)
@@ -1187,9 +1207,10 @@ int main (int argc, char *argv[])
       (void) signal (SIGALRM, SIG_DFL);
     }
 
+  // NB: don't let this cleanup be interrupted by pending-quit signals;
+  // we want the daemon pid's killed.
   for (unsigned i=0; i<js.size(); i++)
     delete js[i];
-  // XXX: send a suicide signal to the process group
 
   timestamp(cout) << "Log finished" << endl;
   return 0;
