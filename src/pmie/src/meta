@@ -284,8 +284,8 @@ otype=double
 notvalid="x->valid = 0;"
 
 fun=cndCount
-top="a = *ip;"
-loop="a += *ip;"
+top="a = *ip == TRUE ? 1 : 0;"
+loop="if (*ip == TRUE) a++;"
 bot="*op++ = a;"
 _aggr
 
