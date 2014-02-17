@@ -893,6 +893,7 @@ avahi
 768 pmlogextract local oss
 775 sanity pmfind local oss
 783 pmda.rpm local oss
+815 pmie local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
