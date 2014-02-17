@@ -1,6 +1,3 @@
-- signal handling
-	- execve
-	- if (quit) return
 - pmmgr.1 EXAMPLE CONFIGURATIONS
 - optionally delay pm*conf
 - pmlogreduce

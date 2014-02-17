@@ -12,7 +12,7 @@
  * for more details.
  */
 
-
+#define _XOPEN_SOURCE 600
 #include "pmmgr.h"
 #include "impl.h"
 
@@ -97,6 +97,56 @@ pmmgr_daemon_poll_thread (void* a)
   pmmgr_daemon* d = (pmmgr_daemon*) a;
   d->poll();
   return 0;
+}
+
+
+// A wrapper for something like system(3), but responding quicker to
+// interrupts and standardizing tracing.
+int
+pmmgr_configurable::wrap_system(const std::string& cmd)
+{
+  if (pmDebug & DBG_TRACE_APPL0)
+    timestamp(cout) << "running " << cmd << endl;
+
+  int pid = fork();
+  if (pid == 0)
+    {
+      // child
+      int rc = execl ("/bin/sh", "sh", "-c", cmd.c_str(), NULL);
+      timestamp(cerr) << "failed to execl sh -c " << cmd << " rc=" << rc << endl;
+      _exit (1);
+    }
+  else if (pid < 0)
+    {
+      // error
+      timestamp(cerr) << "fork for " << cmd << " failed: errno=" << errno << endl;
+      return -1;
+    }
+  else 
+    { 
+      // parent
+      int status = 0;
+      int rc;
+      //timestamp(cout) << "waiting for pid=" << pid << endl;
+
+    again:
+      do { rc = waitpid(pid, &status, WNOHANG); } while (rc == -1 && errno == EINTR); // TEMP_FAILURE_RETRY
+      if (rc == 0) // not dead yet
+        {
+          if (quit)
+            {
+              // timestamp(cout) << "killing pid=" << pid << endl;
+              kill (pid, SIGTERM);
+            }
+          usleep (250000);
+          goto again;
+        }
+
+      //timestamp(cout) << "done status=" << status << endl;
+      if (status != 0)
+        timestamp(cerr) << "system(" << cmd << ") failed: rc=" << status << endl;
+      return status;
+    }
 }
 
 
@@ -502,11 +552,7 @@ pmmgr_job_spec::poll()
               // <Janine Melnitz>We've got one!!!!!</>
               timestamp(cout) << "gc subdirectory " << item_name << endl;
               string cleanup_cmd = "/bin/rm -rf " + sh_quote(item_name);
-              if (pmDebug & DBG_TRACE_APPL0)
-                timestamp(cout) << "running " << cleanup_cmd << endl;
-              rc = system(cleanup_cmd.c_str());
-              if (rc != 0)
-                timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+              (void) wrap_system(cleanup_cmd);
             }
         }
     }
@@ -676,13 +722,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
         + " " + sh_quote(pmlogconf_output_file)
         + " >/dev/null"; // pmlogconf is too chatty
 
-      if (pmDebug & DBG_TRACE_APPL0)
-        timestamp(cout) << "running " << pmlogconf_options << endl;
-      int rc = system(pmlogconf_options.c_str());
-      if (rc != 0)
-        timestamp(cerr) << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
-
-      if (quit) return "";
+      int rc = wrap_system(pmlogconf_options);
+      if (rc) return "";
 
       pmlogger_options += " -c " + sh_quote(pmlogconf_output_file);
     }
@@ -796,12 +837,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                     + " " + bnq + ".index" +
                     + " " + bnq + ".meta";
 
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << cleanup_cmd << endl;
-                  rc = system(cleanup_cmd.c_str());
-                  if (rc != 0)
-                    timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
-
+                  (void) wrap_system(cleanup_cmd);
                   continue; // it's gone now; don't try to merge it or anything
                 }
 
@@ -812,12 +848,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
               string pmlogcheck_options = sh_quote(pmlogcheck_command);
               pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
 
-              if (pmDebug & DBG_TRACE_APPL0)
-                timestamp(cout) << "running " << pmlogcheck_options << endl;
-              rc = system(pmlogcheck_options.c_str());
+              rc = wrap_system(pmlogcheck_options);
               if (rc != 0)
                 {
-                  timestamp(cerr) << "system(" << pmlogcheck_options << ") failed: rc=" << rc << endl;
                   timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
                   continue;
                 }
@@ -901,15 +934,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                   pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
                   pmlogrewrite_options += " " + sh_quote(mergeable_archives[i]);
 
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << pmlogrewrite_options << endl;
-                  rc = system(pmlogrewrite_options.c_str());
-                  if (rc != 0)
-                    {
-                      timestamp(cerr) << "system(" << pmlogrewrite_options << ") failed: rc=" << rc << endl;
-                      // But don't break; let's try to merge it anyway.
-                      // Maybe pmlogrewrite will succeed and will get rid of this file.
-                    }
+                  (void) wrap_system(pmlogrewrite_options.c_str());
+                  // In case of error, don't break; let's try to merge it anyway.
+                  // Maybe pmlogrewrite will succeed and will get rid of this file.
                 }
 
               pmlogextract_options += " " + sh_quote(mergeable_archives[i]);
@@ -919,14 +946,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
           pmlogextract_options += " " + sh_quote(merged_archive_name);
 
-          if (pmDebug & DBG_TRACE_APPL0)
-            timestamp(cout) << "running " << pmlogextract_options << endl;
-
-          rc = system(pmlogextract_options.c_str());
-          if (rc != 0)
-            // will try again later
-            timestamp(cerr) << "system(" << pmlogextract_options << ") failed: rc=" << rc << endl;
-          else
+          rc = wrap_system(pmlogextract_options.c_str());
+          if (rc == 0)
             {
               // zap the previous archive files
               //
@@ -940,11 +961,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                     + " " + base_name + ".index" +
                     + " " + base_name + ".meta";
 
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << cleanup_cmd << endl;
-                  rc = system(cleanup_cmd.c_str());
-                  if (rc != 0)
-                    timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+                  (void) wrap_system(cleanup_cmd.c_str());
                 }
             }
         }
@@ -1003,11 +1020,9 @@ pmmgr_pmie_daemon::daemon_command_line()
         sh_quote(pmieconf_command)
         + " -F -c " + get_config_single ("pmieconf")
         + " -f " + sh_quote(pmieconf_output_file);
-      if (pmDebug & DBG_TRACE_APPL0)
-        timestamp(cout) << "running " << pmieconf_options << endl;
-      int rc = system(pmieconf_options.c_str());
-      if (rc != 0)
-        timestamp(cerr) << "system(" << pmieconf_options << ") failed: rc=" << rc << endl;
+
+      int rc = wrap_system(pmieconf_options.c_str());
+      if (rc) return "";
 
       pmie_options += "-c " + sh_quote(pmieconf_output_file);
     }
@@ -1038,7 +1053,7 @@ void handle_interrupt (int sig)
   // recursive signals or whatnot, despite sa_mask in
   // setup_signals()).
   if (quit == 0)
-    kill(-getpid(), sig);
+    kill(-getpid(), SIGTERM);
 
   quit ++;
   if (quit > 2)

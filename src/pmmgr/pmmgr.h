@@ -46,6 +46,7 @@ protected:
   std::string config_directory;
 
   std::ostream& timestamp(std::ostream&);
+  int wrap_system(const std::string& cmd);
 };
 
 
