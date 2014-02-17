@@ -221,7 +221,10 @@ GetPorts(char *file)
 	    __pmSockAddrFree(myAddr);
 
 	    if (sts < 0) {
+#ifdef DESPERATE
+		/* Not a fatal error. Just continue on without this socket. */
 		fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
+#endif
 	    }
 	    else {
 		/*
