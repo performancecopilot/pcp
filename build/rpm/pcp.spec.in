@@ -507,7 +507,8 @@ $1 == "f" {
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 %pre testsuite
-test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
+TESTBASE=@pcp_var_dir@
+test -d "$TESTBASE" || mkdir -p -m 755 "$TESTBASE"
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
