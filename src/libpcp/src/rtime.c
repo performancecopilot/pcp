@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995, 2014 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -14,6 +14,7 @@
 
 #include <limits.h>
 #include <ctype.h>
+#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -519,6 +520,74 @@ __pmConvertTime(
 }
 
 
+/*
+ * Use heuristics to determine the presence of a relative date time and its direction
+ */
+
+static int
+have_relative_date (const char* date_string)
+{
+    char* const relative_time_units[] =
+    {
+        "YEAR",
+        "MONTH",
+        "FORTNIGHT",
+        "WEEK",
+        "DAY",
+        "HOUR",
+        "MINUTE",
+        "MIN",
+        "SECOND",
+        "SEC",
+        "TOMORROW",
+        "YESTERDAY"
+        "TODAY",
+        "NOW",
+        "LAST",
+        "THIS",
+        "NEXT",
+        "FIRST",
+        "SECOND",
+        "THIRD",
+        "FOURTH",
+        "FIFTH",
+        "SIXTH",
+        "SEVENTH",
+        "EIGHTH",
+        "NINTH",
+        "TENTH",
+        "ELEVENTH",
+        "TWELFTH",
+    };
+    int rtu_bound = sizeof (relative_time_units) / sizeof (void*);
+    int rtu_idx;
+    while (isspace((int)*date_string))
+	date_string++;
+    for (rtu_idx = 0; rtu_idx < rtu_bound ; rtu_idx++)
+        if (strcasestr (date_string, relative_time_units[rtu_idx]) != NULL)
+            break;
+    if (rtu_idx == rtu_bound)
+        return NO_OFFSET;
+    if (strcasestr (date_string, "ago") != NULL || strcasestr (date_string, "last") ||
+	    strcasestr (date_string, "yesterday") || date_string[0] == '-')
+        return NEG_OFFSET;
+    else
+        return PLUS_OFFSET;
+}
+
+
+/*
+ * Used by xmalloc/xrealloc/xcalloc which are called by get_date, the datetime parser
+ */
+
+void
+xalloc_die (void)
+{
+    //  error (exit_failure, 0, "%s", _("memory exhausted"));
+    abort ();
+}
+
+
 int	/* 0 -> ok, -1 -> error */
 __pmParseTime(
     const char	    *string,	/* string to be parsed */
@@ -533,7 +602,7 @@ __pmParseTime(
     struct timeval  start;
     struct timeval  end;
     struct timeval  tval;
-
+    int get_date (struct timespec *, char const *, struct timespec const *);
     start = *logStart;
     end = *logEnd;
     if (end.tv_sec == INT_MAX)
@@ -542,32 +611,61 @@ __pmParseTime(
 
     /* ctime string */
     if (parseChar(&scan, '@')) {
-	if (__pmParseCtime(scan, &tm, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = NO_OFFSET;
-	__pmConvertTime(&tm, &start, rslt);
+	if (__pmParseCtime(scan, &tm, errMsg) >= 0) {
+	    tm.tm_wday = NO_OFFSET;
+	    __pmConvertTime(&tm, &start, rslt);
+	    return 0;
+	}
     }
 
     /* relative to end of archive */
     else if (end.tv_sec < INT_MAX && parseChar(&scan, '-')) {
-	if (pmParseInterval(scan, &tval, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = NEG_OFFSET;
-	tm.tm_sec = (int)tval.tv_sec;
-	tm.tm_yday = (int)tval.tv_usec;
-	__pmConvertTime(&tm, &end, rslt);
+	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+	    tm.tm_wday = NEG_OFFSET;
+	    tm.tm_sec = (int)tval.tv_sec;
+	    tm.tm_yday = (int)tval.tv_usec;
+	    __pmConvertTime(&tm, &end, rslt);
+	    return 0;
+	}
     }
 
     /* relative to start of archive or current time */
     else {
 	parseChar(&scan, '+');
-	if (pmParseInterval(scan, &tval, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = PLUS_OFFSET;
-	tm.tm_sec = (int)tval.tv_sec;
-	tm.tm_yday = (int)tval.tv_usec;
-	__pmConvertTime(&tm,  &start, rslt);
+	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+	    tm.tm_wday = PLUS_OFFSET;
+	    tm.tm_sec = (int)tval.tv_sec;
+	    tm.tm_yday = (int)tval.tv_usec;
+	    __pmConvertTime(&tm,  &start, rslt);
+	    return 0;
+	}
     }
+
+    /* datetime is not a pcp defined one, so drop down into the glib get_date case */
+    int status  = -1;
+    int rel_type = have_relative_date (scan);
+    struct timespec tsrslt;
+    struct timespec *tsrsltp = &tsrslt;
+    if (parseChar(&scan, '@'))
+	rel_type = NO_OFFSET;
+
+    if (rel_type == NO_OFFSET)
+	status = get_date (tsrsltp, scan, NULL);
+    else if (rel_type == NEG_OFFSET && end.tv_sec < INT_MAX) {
+	struct timespec tsend;
+	struct timespec *tsendp = &tsend;
+	TIMEVAL_TO_TIMESPEC (&end, tsendp);
+	status = get_date (tsrsltp, scan, &tsend);
+    }
+    else {
+	struct timespec tsstart;
+	struct timespec *tsstartp = &tsstart;
+	TIMEVAL_TO_TIMESPEC (&start, tsstartp);
+	status = get_date (tsrsltp, scan, &tsstart);
+    }
+    if (status < 0)
+	return -1;
+    TIMESPEC_TO_TIMEVAL (rslt, tsrsltp);
 
     return 0;
 }
@@ -690,5 +788,3 @@ pmParseTimeWindow(
     *rsltOffset = offset;
     return sts;
 }
-
-

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -58,6 +58,11 @@ CFILES += win32.c
 LSRCFILES += accounts.c
 LLDLIBS	+= -lpsapi
 endif
+
+CFILES += gettime.c xmalloc.c getdate.c
+.y.c:
+	$(YACC) $<
+	/bin/mv y.tab.c `basename $< .y`.c
 
 ifeq "$(TARGET_OS)" "solaris"
 # enables standards compliant thread-safe interfaces (accounts.c)

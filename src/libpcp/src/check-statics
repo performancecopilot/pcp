@@ -181,6 +181,26 @@ fetchlocal.o
     b splitmax.[0-9]*		# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
 freeresult.o
+getdate.o
+    d dst_table
+    d meridian_table
+    d military_table
+    d month_and_day_table
+    b RELATIVE_TIME_0
+    d relative_time_table
+    d time_units_table
+    d time_zone_table
+    d universal_time_zone_table
+    r yycheck
+    r yydefact
+    r yydefgoto
+    r yypact
+    r yypgoto
+    r yyr1
+    r yyr2
+    r yytable
+    r yytranslate
+gettime.o
 hash.o
 help.o
 instance.o
@@ -341,6 +361,7 @@ util.o
     r ?dp_h			# const
     r ?dp_l			# const
 ?win32.o
+xmalloc.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
 
