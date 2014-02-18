@@ -331,7 +331,7 @@ startmonitor(void)
     snprintf(pmie_dir, sizeof(pmie_dir), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator(), PMIE_SUBDIR);
     if (mkdir2(pmie_dir, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
-	if (oserror() != EEXIST && verbose) {
+	if (oserror() != EEXIST) {
 	    fprintf(stderr, "%s: warning cannot create stats file dir %s: %s\n",
 		    pmProgname, pmie_dir, osstrerror());
 	}
