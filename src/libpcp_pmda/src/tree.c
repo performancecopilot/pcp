@@ -48,18 +48,22 @@ __pmdaTreeReindexHash(__pmnsTree *tree, __pmnsNode *root)
 void
 pmdaTreeRebuildHash(__pmnsTree *tree, int numpmid)
 {
-    int htabsize = numpmid / 5;
+    if (tree) {
+	int htabsize = numpmid / 5;
 
-    if (htabsize % 2 == 0) htabsize++;
-    if (htabsize % 3 == 0) htabsize += 2;
-    if (htabsize % 5 == 0) htabsize += 2;
-    tree->htabsize = htabsize;
-    tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
-    if (tree->htab == NULL)
-	__pmNotifyErr(LOG_ERR, "%s: out of memory in pmns rebuild - %s",
-			pmProgname, osstrerror());
-    else
-	__pmdaTreeReindexHash(tree, tree->root);
+	if (htabsize % 2 == 0) htabsize++;
+	if (htabsize % 3 == 0) htabsize += 2;
+	if (htabsize % 5 == 0) htabsize += 2;
+	tree->htabsize = htabsize;
+	tree->htab = (__pmnsNode **)calloc(htabsize, sizeof(__pmnsNode *));
+	if (tree->htab) {
+	    __pmdaTreeReindexHash(tree, tree->root);
+	} else {
+	    __pmNoMem("pmdaTreeRebuildHash",
+			htabsize * sizeof(__pmnsNode *), PM_RECOV_ERR);
+	    tree->htabsize = 0;
+	}
+    }
 }
 
 static int
@@ -81,9 +85,9 @@ __pmdaNodeCount(__pmnsNode *parent)
 int
 pmdaTreeSize(__pmnsTree *pmns)
 {
-    if (!pmns)
-	return 0;
-    return __pmdaNodeCount(pmns->root);
+    if (pmns && pmns->root)
+	return __pmdaNodeCount(pmns->root);
+    return 0;
 }
 
 static __pmnsNode *
@@ -105,16 +109,17 @@ __pmdaNodeLookup(__pmnsNode *node, const char *name)
 int
 pmdaTreePMID(__pmnsTree *pmns, const char *name, pmID *pmid)
 {
-    __pmnsNode *node;
+    if (pmns && pmns->root) {
+	__pmnsNode *node;
 
-    if (!pmns || !pmns->root)
-	return PM_ERR_NAME;
-    if ((node = __pmdaNodeLookup(pmns->root->first, name)) == NULL)
-	return PM_ERR_NAME;
-    if (NONLEAF(node))
-	return PM_ERR_NAME;
-    *pmid = node->pmid;
-    return 0;
+	if ((node = __pmdaNodeLookup(pmns->root->first, name)) == NULL)
+	    return PM_ERR_NAME;
+	if (NONLEAF(node))
+	    return PM_ERR_NAME;
+	*pmid = node->pmid;
+	return 0;
+    }
+    return PM_ERR_NAME;
 }
 
 static char *
