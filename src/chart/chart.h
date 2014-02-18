@@ -65,7 +65,8 @@ public:
     void reviveItem(int);
 
     QString title(void);		// return copy of chart title
-    void changeTitle(QString, int);     // QString::null to clear; expand_p?
+    void changeTitle(QString, bool);	// QString::null to clear; expand?
+    QString hostNameString(bool);	// short/long host names as qstring
 
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style

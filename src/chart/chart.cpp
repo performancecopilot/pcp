@@ -286,7 +286,7 @@ Chart::addItem(pmMetricSpec *msp, const char *legend)
     my.items.append(item);
     console->post("addItem %p nitems=%d", item, my.items.size());
 
-    changeTitle(title(), true); // regenerate %h expansion
+    changeTitle(title(), true); // regenerate %h and/or %H expansion
     return my.items.size() - 1;
 }
 
@@ -306,14 +306,14 @@ void
 Chart::removeItem(int index)
 {
     my.items[index]->remove();
-    changeTitle(title(), true); // regenerate %h expansion
+    changeTitle(title(), true); // regenerate %h and/or %H expansion
 }
 
 void
 Chart::reviveItem(int index)
 {
     my.items[index]->revive();
-    changeTitle(title(), true); // regenerate %h expansion
+    changeTitle(title(), true); // regenerate %h and/or %H expansion
 }
 
 void
@@ -336,17 +336,66 @@ Chart::title()
     return my.title;
 }
 
-// If expand is true then expand %h to host name in rendered title label
+QString
+Chart::hostNameString(bool shortened)
+{
+    int dot = -1;
+    QSet<QString> hostNameSet;
+    QList<ChartItem*>::Iterator item;
+
+    // iterate across this chart's items, not activeGroup
+    for (item = my.items.begin(); item != my.items.end(); ++item) {
+        // NB: ... but we don't get notified of direct calls to
+        // ChartItem::setRemoved().
+        if ((*item)->removed())
+	    continue;
+
+	// QString host = (*item)->metricContext()->source().host();
+	// ... but .host() is a possibly-munged of the pmchart -h STRING 
+	// argument, not the actual host name.  So get the data source's
+	// self-declared host name.  This string will not have pmproxy @
+	// stuff, or pcp://....&attr=... miscellanea.
+	QString hostName = (*item)->metricContext()->source().context_hostname();
+
+	// decide whether or not to truncate this hostname
+	if (shortened)
+	    dot = hostName.indexOf(QChar('.'));
+	if (dot != -1) {
+	    // no change if it looks even vaguely like an IP address
+	    if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
+		!hostName.contains(QChar(':')))		// IPv6
+		hostName.remove(dot, hostName.size());
+	}
+	hostNameSet.insert(hostName);
+    }
+
+    // extract the duplicate-eliminated host names
+    QSet<QString>::Iterator qsi;
+    QString names;
+    for (qsi = hostNameSet.begin(); qsi != hostNameSet.end(); qsi++) {
+	if (names != "")
+	    names += ",";
+	names += (*qsi);
+    }
+    return names;
+}
+
+//
+// If expand is true then expand %h or %H to host name in rendered title label
 //
 void
-Chart::changeTitle(QString title, int expand)
+Chart::changeTitle(QString title, bool expand)
 {
     bool hadTitle = (my.title != QString::null);
-    my.title = title; /* copy into QString */
+    bool expandHostShort = title.contains("%h");
+    bool expandHostLong = title.contains("%H");
+
+    my.title = title;	// copy into QString
 
     if (my.title != QString::null) {
 	if (!hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
+
 	QwtText t = titleLabel()->text();
 	t.setFont(*globalFont);
 	setTitle(t);
@@ -356,46 +405,13 @@ Chart::changeTitle(QString title, int expand)
 	titleFont.setBold(true);
 	titleLabel()->setFont(titleFont);
 
-	if (expand && title.contains("%h")) {
-            QSet<QString> shortHosts;
-            QList<ChartItem*>::Iterator item;
-
-            /* iterate across this chart's items, not activeGroup */
-            for (item = my.items.begin(); item != my.items.end(); ++item) {
-                // nb: ... but we don't get notified of direct calls to
-                // ChartItem::setRemoved().
-                if ((*item)->removed())
-                    continue;
-
-                // QString shortHost = (*item)->metricContext()->source().host();
-                // ... but .host() is a possibly-munged of the pmchart -h STRING 
-                // argument, not the actual host name.  So get the data source's
-                // self-declared host name.  This string will not have pmproxy @
-                // stuff, or pcp://....&attr=... miscellanea.
-                QString shortHost = (*item)->metricContext()->source().context_hostname();
-
-                /* decide whether or not to truncate this hostname */
-                int dot = shortHost.indexOf(QChar('.'));
-                if (dot != -1)
-                    /* no change if it looks even vaguely like an IP address */
-                    if (!shortHost.contains(QRegExp("^\\d+\\.")) &&	/* IPv4 */
-                        !shortHost.contains(QChar(':')))		/* IPv6 */
-                        shortHost.remove(dot, shortHost.size());
-
-                shortHosts.insert(shortHost);
-            }
-
-            /* extract the duplicate-eliminated host names */
-            QSet<QString>::Iterator qsi;
-            QString hostNames;
-            for (qsi = shortHosts.begin(); qsi != shortHosts.end(); qsi++) {
-                if (hostNames != "")
-                    hostNames += ",";
-                hostNames += (*qsi);
-            }
-            title.replace(QRegExp("%h"), hostNames);
+	if (expand && (expandHostShort || expandHostLong)) {
+	    if (expandHostShort)
+		title.replace(QRegExp("%h"), hostNameString(true));
+	    if (expandHostLong)
+		title.replace(QRegExp("%H"), hostNameString(false));
 	    setTitle(title);
-            /* NB: my.title retains the %h */
+	    // NB: my.title retains the %h and/or %H
 	}
 	else 
 	    setTitle(my.title);

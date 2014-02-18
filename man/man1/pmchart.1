@@ -452,7 +452,10 @@ of the chart.
 The \f(CW<title>\fP is usually enclosed in quotes (") and if it
 contains the sequence "%h" this will be replaced by the short form
 of the hostname for the default source of metrics at the time
-this chart was loaded.
+this chart was loaded.  Alternatively, "%H" can be used to insert
+the full host name.  If the hostname appears to be an inet or IPv6
+address, no shortening will be attempted; it will be used as-is in
+both replacement cases.
 After the view is loaded, the title visibility and setting
 can be manipulated using the
 .I "Chart Title"
