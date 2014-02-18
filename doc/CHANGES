@@ -1,5 +1,13 @@
-pcp-gui 1.5.12 (git)
-    - Currently under development.
+pcp-gui 1.5.12 (19 February 2014)
+    - Updates to the Programmers Guide to cover Python modules
+    - Fix removal of plots from a chart with multiple selections
+    - Fix pmchart window resizing on chart deletion and title
+      changes
+    - Improvements to Edit Chart dialog plot deletion and later
+      re-animation
+    - Ensure correct pmContext is used for several libqmc calls
+    - Support full hostname dynamic expansion via %H, analagous
+      to the existing short hostname dynamic expansion via %h.
 
 pcp-gui 1.5.11 (1 November 2013)
     - Updates to the PCP Programmers Guide (now complete).

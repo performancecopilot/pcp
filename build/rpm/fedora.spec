@@ -1,6 +1,6 @@
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.11
+Version: 1.5.12
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -105,8 +105,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
-* Sat Nov 02 2013 Nathan Scott <nathans@redhat.com> - 1.5.12-1
-- Under development.
+* Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 1.5.12-1
+- Updates to the PCP Programmers Guide for Python modules.
+- Change default pmchart font size from command line (BZ 1066173)
+- Plot labels can expand hostname like chart titles (BZ 1066174)
+- Metric search dialog can now span multiple hosts (BZ 1066175)
+- Fix pmchart autoscaling in chart re-animation case (BZ 1059244)
 
 * Fri Nov 01 2013 Nathan Scott <nathans@redhat.com> - 1.5.11-1
 - Updates to the PCP Programmers Guide.
