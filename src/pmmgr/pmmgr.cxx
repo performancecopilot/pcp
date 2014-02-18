@@ -125,21 +125,16 @@ pmmgr_configurable::wrap_system(const std::string& cmd)
   else 
     { 
       // parent
-      int status = 0;
+      int status = -1;
       int rc;
       //timestamp(cout) << "waiting for pid=" << pid << endl;
 
-    again:
-      do { rc = waitpid(pid, &status, WNOHANG); } while (rc == -1 && errno == EINTR); // TEMP_FAILURE_RETRY
-      if (rc == 0) // not dead yet
+      do { rc = waitpid(pid, &status, 0); } while (!quit && rc == -1 && errno == EINTR); // TEMP_FAILURE_RETRY
+      if (quit)
         {
-          if (quit)
-            {
-              // timestamp(cout) << "killing pid=" << pid << endl;
-              kill (pid, SIGTERM);
-            }
-          usleep (250000);
-          goto again;
+          // timestamp(cout) << "killing pid=" << pid << endl;
+          kill (pid, SIGTERM); // just to be on the safe side
+          // it might linger a few seconds in zombie mode
         }
 
       //timestamp(cout) << "done status=" << status << endl;
@@ -1056,7 +1051,7 @@ void handle_interrupt (int sig)
     kill(-getpid(), SIGTERM);
 
   quit ++;
-  if (quit > 2)
+  if (quit > 3) // ignore 1 from user; 1 from kill(-getpid) above; 1 from same near main() exit
     {
       char msg[] = "Too many interrupts received, exiting.\n";
       int rc = write (2, msg, sizeof(msg)-1);
@@ -1228,5 +1223,9 @@ int main (int argc, char *argv[])
     delete js[i];
 
   timestamp(cout) << "Log finished" << endl;
+
+  // Send a last-gasp signal out, just in case daemons somehow missed 
+  kill(-getpid(), SIGTERM);
+
   return 0;
 }
