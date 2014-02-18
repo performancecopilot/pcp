@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
@@ -535,6 +536,9 @@ main(int argc, char ** argv)
 	case 'g':
 	    outgeometry = optarg;
 	    break;
+
+	case 'h':
+	    hosts.append(optarg);
 
 #ifdef PM_USE_CONTEXT_LOCAL
 	case 'L':		/* local context */
