@@ -1,5 +1,6 @@
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
+.\" Copyright (c) 2014, Red Hat.
 .TH PMCHART 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
@@ -9,6 +10,9 @@
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2configfile\f1]
+[\f3\-f\f1 \f2fontfamily\f1]
+[\f3\-F\f1 \f2fontsize\f1]
+[\f3\-g\f1 \f2geometry\f1]
 [\f3\-g\f1 \f2geometry\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-o\f1 \f2outfile\f1]
@@ -96,6 +100,26 @@ option is presented,
 also connects to
 .BR pmcd (1)
 to check the semantics of metrics.
+.TP
+.B \-f
+Specify the default font
+.I family
+to be used in several chart components,
+such as the chart title, legend, and Y-axis label.
+The default value is "Sans Serif".
+This setting does not affect the rest of the user interface, where
+the value is inherited from the environment in which
+.B pmchart
+operates, and differs according to the look-and-feel of each
+platform.
+.TP
+.B \-F
+Specify the default font
+.I point
+size to be used in several chart components,
+such as the chart title, legend, and Y-axis label.
+The default is platform dependent, but is either 7, 8 or 9.
+This setting does not affect the rest of the user interface.
 .TP
 .B \-g
 Generate image with the specified

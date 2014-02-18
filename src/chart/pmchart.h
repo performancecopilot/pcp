@@ -48,6 +48,7 @@ public:
     } DebugOptions;
 
     static int defaultFontSize();
+    static const char *defaultFontFamily() { return "Sans Serif"; }
     static double defaultChartDelta() { return 1.0; }	// seconds
     static double defaultLoggerDelta() { return 1.0; }
     static int defaultVisibleHistory() { return 60; }	// points

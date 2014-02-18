@@ -24,6 +24,8 @@
 int Cflag;
 int Lflag;
 int Wflag;
+int fontSize;
+char *fontFamily;
 char *outfile;
 char *outgeometry;
 QFont *globalFont;
@@ -45,6 +47,8 @@ static void usage(void)
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
+"  -f font       use font family [default: %s]\n"
+"  -F fontsize   use font of given size [default: %d]\n"
 "  -g geometry   image geometry Width x Height (WxH)\n"
 "  -h host       add host to list of live metrics sources\n"
 #ifdef PM_USE_CONTEXT_LOCAL
@@ -63,8 +67,12 @@ static void usage(void)
 "  -W            export images using an opaque (white) background\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname, PmChart::defaultSampleHistory(),
-	(int)PmChart::defaultChartDelta(), PmChart::defaultVisibleHistory());
+	pmProgname,
+	PmChart::defaultFontFamily(),
+	PmChart::defaultFontSize(),
+	PmChart::defaultSampleHistory(),
+	(int)PmChart::defaultChartDelta(),
+	PmChart::defaultVisibleHistory());
     pmflush();
     exit(1);
 }
@@ -469,7 +477,7 @@ main(int argc, char ** argv)
     QStringList		configs;
     QString		tzLabel;
     QString		tzString;
-    static const char	*options = "A:a:Cc:D:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
+    static const char	*options = "A:a:Cc:D:f:F:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
 
     __pmtimevalNow(&origin);
     __pmSetProgname(argv[0]);
@@ -512,8 +520,16 @@ main(int argc, char ** argv)
 		pmDebug |= sts;
 	    break;
 
-	case 'h':
-	    hosts.append(optarg);
+	case 'f':
+	    fontFamily = optarg;
+	    break;
+
+	case 'F':
+	    fontSize = (int)strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0' || c < 0) {
+		pmprintf("%s: -F requires a numeric argument\n", pmProgname);
+		errflg++;
+	    }
 	    break;
 
 	case 'g':
@@ -733,7 +749,9 @@ main(int argc, char ** argv)
     }
     console->post("Timezones and time window setup complete");
 
-    globalFont = new QFont("Sans Serif", PmChart::defaultFontSize());
+    globalFont = new QFont(
+		fontFamily ? fontFamily : PmChart::defaultFontFamily(),
+		fontSize ? fontSize : PmChart::defaultFontSize());
     fileIconProvider = new FileIconProvider();
     pmchart = new PmChart;
     pmtime = new TimeControl;
