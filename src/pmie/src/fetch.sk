@@ -287,7 +287,6 @@ cndFetch_all(Expr *x)
     int		i, j;
 
     ROTATE(x)
-    x->valid++;
 
     /* preliminary scan through Metrics */
     for (i = 0; i < x->hdom; i++) {
@@ -295,7 +294,6 @@ cndFetch_all(Expr *x)
 	if (indom_changed(m)) {
 	    fix_idom = 1;
 	    m->stomp = 0;
-	    x->valid = 1;
 	}
 	m++;
     }
@@ -307,6 +305,13 @@ cndFetch_all(Expr *x)
 	 */
 	instFetchExpr(x);
     }
+
+    /*
+     * even if ring buffer reshaped in instFetchExpr(), we're
+     * about to populate it with another set of values, so bump
+     * valid counter
+     */
+    x->valid++;
 
     /* extract values */
     op = (double *)x->smpls[0].ptr;

@@ -35,4 +35,3 @@ No current pmie process exists for:
 Restarting pmie for host "LOCALHOST" ...
 + pmie -b -h LOCALHOST -l /tmp/SEQ-PID.log0 /tmp/SEQ-PID.conf
 
-$PCP_RC_DIR/pmie: PMIE not running

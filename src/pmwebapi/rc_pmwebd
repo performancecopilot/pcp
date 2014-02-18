@@ -226,7 +226,7 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 		mv pmwebd.log pmwebd.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmwebd (logfile is $RUNDIR/pmwebd.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Starting pmwebd ..." "$PCP_ECHO_C"
 
 	    # options file processing ...
 	    # only consider lines which start with a hyphen

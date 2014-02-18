@@ -230,7 +230,7 @@ Error: pmmgr control file "$PMMGROPTS" is missing, cannot start pmmgr.'
 		mv pmmgr.log pmmgr.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmmgr (logfile is $RUNDIR/pmmgr.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Starting pmmgr ..." "$PCP_ECHO_C"
 	    # options file processing ...
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option

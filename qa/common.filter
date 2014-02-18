@@ -462,6 +462,7 @@ _filter_pmie_start()
 	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
         -e '/^\.\.*done$/d' \
 	-e "s;/private/tmp;/tmp;g" \
+	-e '/^$/d' \
     | _filter_init_distro
 }
 
