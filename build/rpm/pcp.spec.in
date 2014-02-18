@@ -507,11 +507,11 @@ $1 == "f" {
 $1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
 
 %pre testsuite
-TESTBASE=@pcp_var_dir@
-test -d "$TESTBASE" || mkdir -p -m 755 "$TESTBASE"
+test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d @pcp_var_dir@/testsuite -M -r -s /bin/bash pcpqa 2>/dev/null
+chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
 exit 0
 
 %post testsuite
