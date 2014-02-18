@@ -1049,6 +1049,12 @@ pmmgr_pmie_daemon::daemon_command_line()
 extern "C"
 void handle_interrupt (int sig)
 {
+  // Propagate signal to inferior processes (just once, to prevent
+  // recursive signals or whatnot, despite sa_mask in
+  // setup_signals()).
+  if (quit == 0)
+    kill(-getpid(), SIGTERM);
+
   quit ++;
   if (quit > 2)
     {
