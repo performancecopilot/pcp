@@ -1,12 +1,15 @@
 pcp-3.9.0 (19 January 2014)
     - Packaging changes for multilib pcp-libs{-devel},pcp-conf
     - Packaging changes for pcp-manager and pcp-webapi split
+    - pmmgr: signal-response improvements
+    - pmmgr: add pmlogmerge-granular mode
     - pmmgr: pmlogrewrite support
     - pmmgr: latency-based tie-break for multi-URL target pmcds
     - pmmgr.1 man page: outline archiving strategy tradeoffs
     - pmdalinux: s390x platform issues in /proc/cpuinfo parser
     - pmdalinux: valgrind fix for /proc/stat parser
     - pmlogextract: <mark> record handling fix
+    - pmdas: further robustness improvements to dynamic names
     - pmdas: Install scripts can run even when pmcd is stopped
     - pmdanfsclient: add source code (not yet enabled in build),
       thanks to Ben Myers
@@ -17,6 +20,10 @@ pcp-3.9.0 (19 January 2014)
     - debian: use autotools-dev to update config.{sub,guess},
       thanks to Logan Rosen
     - pmdumplog: add a -x option for extended timestamp reports
+    - pmie: fix count_* operators with dynamic instance domains
+    - pmie: fix fetch logic with dynamic instance domains
+    - testsuite: ensure pcpqa account creation does not warn
+    - testsuite: numerous new tests, updates to existing tests
 
 pcp-3.8.12 (29 January 2014)
     - Fix recent (3.8.10) regression for certain platforms where

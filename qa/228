@@ -15,6 +15,12 @@ echo "QA output created by $seq"
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    _show_pmie_errors \
+    | sed -e '/warning cannot create stats file dir/d'
+}
+
 # real QA test starts here
 echo "special chars in macro name ..."
 cat >$tmp.conf <<'End-of-File'
@@ -27,7 +33,7 @@ y = $f_o_o_.long.ten;
 z = $'f!o!o'.long.ten;
 End-of-File
 pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _filter
 
 echo
 echo "some syntax errors ..."
@@ -37,28 +43,28 @@ cat >$tmp.conf <<'End-of-File'
 x = $'foo-not-bar'.long.ten;
 End-of-File
 pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _filter
 
 cat >$tmp.conf <<'End-of-File'
 // $foo not defined
 x = $foo
 End-of-File
 pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _filter
 
 cat >$tmp.conf <<'End-of-File'
 // e-o-f before end of macro name
 x = $'foo-not-bar
 End-of-File
 pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _filter
 
 cat >$tmp.conf <<'End-of-File'
 // macro name way too long
 x = $'foo.long.ten.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit.this.is.some.long.and.boring.text.to.make.the.macro.name.exceed.the.250-odd.char.limit';
 End-of-File
 pmie -v -t 1 -T 1 <$tmp.conf >$tmp.out 2>$tmp.err
-cat $tmp.out $tmp.err | _show_pmie_errors
+cat $tmp.out $tmp.err | _filter
 
 # all done
 status=0

@@ -1,18 +1,18 @@
 /*
  * Copyright (c) 2013-2014 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
 
-
+#define _XOPEN_SOURCE 600
 #include "pmmgr.h"
 #include "impl.h"
 
@@ -78,7 +78,7 @@ timestamp(ostream &o)
   if (now2)
     now2[19] = '\0'; // overwrite \n
 
-  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" 
+  return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "("
            << getpid()
 #ifdef HAVE_PTHREAD_H
 #ifdef IS_LINUX
@@ -97,6 +97,56 @@ pmmgr_daemon_poll_thread (void* a)
   pmmgr_daemon* d = (pmmgr_daemon*) a;
   d->poll();
   return 0;
+}
+
+
+// A wrapper for something like system(3), but responding quicker to
+// interrupts and standardizing tracing.
+int
+pmmgr_configurable::wrap_system(const std::string& cmd)
+{
+  if (pmDebug & DBG_TRACE_APPL0)
+    timestamp(cout) << "running " << cmd << endl;
+
+  int pid = fork();
+  if (pid == 0)
+    {
+      // child
+      int rc = execl ("/bin/sh", "sh", "-c", cmd.c_str(), NULL);
+      timestamp(cerr) << "failed to execl sh -c " << cmd << " rc=" << rc << endl;
+      _exit (1);
+    }
+  else if (pid < 0)
+    {
+      // error
+      timestamp(cerr) << "fork for " << cmd << " failed: errno=" << errno << endl;
+      return -1;
+    }
+  else 
+    { 
+      // parent
+      int status = 0;
+      int rc;
+      //timestamp(cout) << "waiting for pid=" << pid << endl;
+
+    again:
+      do { rc = waitpid(pid, &status, WNOHANG); } while (rc == -1 && errno == EINTR); // TEMP_FAILURE_RETRY
+      if (rc == 0) // not dead yet
+        {
+          if (quit)
+            {
+              // timestamp(cout) << "killing pid=" << pid << endl;
+              kill (pid, SIGTERM);
+            }
+          usleep (250000);
+          goto again;
+        }
+
+      //timestamp(cout) << "done status=" << status << endl;
+      if (status != 0)
+        timestamp(cerr) << "system(" << cmd << ") failed: rc=" << status << endl;
+      return status;
+    }
 }
 
 
@@ -265,7 +315,7 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
                                   PM_TYPE_STRING, & av, PM_TYPE_STRING);
               if (rc < 0)
                 continue;
-              
+
               // at last!  we have a string we can accumulate
               hostid_fields.push_back (av.cp);
               free (av.cp);
@@ -348,10 +398,10 @@ pmmgr_job_spec::poll()
     new_specs.insert(target_hosts[i]);
 
   vector<string> target_discovery = get_config_multi("target-discovery");
-  for (unsigned i=0; i<target_discovery.size(); i++)
+  for (unsigned i=0; i<target_discovery.size() && !quit; i++)
     {
       char **urls = NULL;
-      const char *discovery = (target_discovery[i] == "") 
+      const char *discovery = (target_discovery[i] == "")
         ? NULL
         : target_discovery[i].c_str();
       int numUrls = pmDiscoverServices (PM_SERVER_SERVICE_SPEC, discovery, &urls);
@@ -375,7 +425,7 @@ pmmgr_job_spec::poll()
   // phase 3: map the context-specs to hostids to find new hosts
   map<pmmgr_hostid,double> known_target_scores;
   for (set<pcp_context_spec>::iterator it = new_specs.begin();
-       it != new_specs.end();
+       it != new_specs.end() && !quit;
        ++it)
     {
       struct timeval before, after;
@@ -421,11 +471,11 @@ pmmgr_job_spec::poll()
   // phase 5: poll all the live daemons
   // NB: there is a parallelism opportunity, as running many pmlogconf/etc.'s in series
   // is a possible bottleneck.
-#ifdef HAVE_PTHREAD_H  
+#ifdef HAVE_PTHREAD_H
   vector<pthread_t> threads;
 #endif
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = daemons.begin();
-       it != daemons.end();
+       it != daemons.end() && !quit;
        ++it)
     {
 #ifdef HAVE_PTHREAD_H
@@ -474,7 +524,7 @@ pmmgr_job_spec::poll()
 
   glob_t the_blob;
   string glob_pattern = log_dir + (char)__pmPathSeparator() + "*";
-  rc = glob (glob_pattern.c_str(), 
+  rc = glob (glob_pattern.c_str(),
              GLOB_NOESCAPE
 #ifdef GLOB_ONLYDIR
              | GLOB_ONLYDIR
@@ -482,10 +532,10 @@ pmmgr_job_spec::poll()
              , NULL, & the_blob);
   if (rc == 0)
     {
-      for (unsigned i=0; i<the_blob.gl_pathc; i++)
+      for (unsigned i=0; i<the_blob.gl_pathc && !quit; i++)
         {
           string item_name = the_blob.gl_pathv[i];
-          
+
           // Reject if currently live hostid
           // NB: basename(3) might modify the argument string, so we don't feed
           // it item_name.c_str().
@@ -502,11 +552,7 @@ pmmgr_job_spec::poll()
               // <Janine Melnitz>We've got one!!!!!</>
               timestamp(cout) << "gc subdirectory " << item_name << endl;
               string cleanup_cmd = "/bin/rm -rf " + sh_quote(item_name);
-              if (pmDebug & DBG_TRACE_APPL0)
-                timestamp(cout) << "running " << cleanup_cmd << endl;
-              rc = system(cleanup_cmd.c_str());
-              if (rc != 0) 
-                timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+              (void) wrap_system(cleanup_cmd);
             }
         }
     }
@@ -552,7 +598,7 @@ pmmgr_job_spec::note_dead_hostid(const pmmgr_hostid& hid)
 
 
 pmmgr_daemon::pmmgr_daemon(const std::string& config_directory,
-                           const pmmgr_hostid& hostid, 
+                           const pmmgr_hostid& hostid,
                            const pcp_context_spec& spec):
   pmmgr_configurable(config_directory),
   hostid(hostid),
@@ -563,7 +609,7 @@ pmmgr_daemon::pmmgr_daemon(const std::string& config_directory,
 
 
 pmmgr_pmlogger_daemon::pmmgr_pmlogger_daemon(const std::string& config_directory,
-                                             const pmmgr_hostid& hostid, 
+                                             const pmmgr_hostid& hostid,
                                              const pcp_context_spec& spec):
   pmmgr_daemon(config_directory, hostid, spec)
 {
@@ -571,7 +617,7 @@ pmmgr_pmlogger_daemon::pmmgr_pmlogger_daemon(const std::string& config_directory
 
 
 pmmgr_pmie_daemon::pmmgr_pmie_daemon(const std::string& config_directory,
-                                         const pmmgr_hostid& hostid, 
+                                         const pmmgr_hostid& hostid,
                                          const pcp_context_spec& spec):
   pmmgr_daemon(config_directory, hostid, spec)
 {
@@ -602,7 +648,7 @@ void pmmgr_daemon::poll()
       int rc = waitpid ((pid_t) pid, &ignored, WNOHANG);
 
       rc = kill ((pid_t) pid, 0);
-      if (rc < 0) 
+      if (rc < 0)
         {
           if (pmDebug & DBG_TRACE_APPL0)
             timestamp(cout) << "daemon pid " << pid << " found dead" << endl;
@@ -614,6 +660,9 @@ void pmmgr_daemon::poll()
   if (pid == 0) // needs a restart
     {
       string commandline = daemon_command_line();
+
+      if (quit) return; // without starting the daemon process
+
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
@@ -639,7 +688,7 @@ void pmmgr_daemon::poll()
 }
 
 
-std::string                                             
+std::string
 pmmgr_pmlogger_daemon::daemon_command_line()
 {
   string default_log_dir =
@@ -654,7 +703,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
-  string pmlogger_command = 
+  string pmlogger_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogger";
   string pmlogger_options = sh_quote(pmlogger_command);
   pmlogger_options += " " + get_config_single ("pmlogger");
@@ -664,20 +713,17 @@ pmmgr_pmlogger_daemon::daemon_command_line()
     {
       string pmlogconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmlogger";
       (void) unlink (pmlogconf_output_file.c_str());
-      string pmlogconf_command = 
+      string pmlogconf_command =
         string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogconf";
-      string pmlogconf_options = 
+      string pmlogconf_options =
         sh_quote(pmlogconf_command)
         + " -c -r -h " + sh_quote(spec)
         + " " + get_config_single ("pmlogconf")
         + " " + sh_quote(pmlogconf_output_file)
         + " >/dev/null"; // pmlogconf is too chatty
-       
-      if (pmDebug & DBG_TRACE_APPL0)
-        timestamp(cout) << "running " << pmlogconf_options << endl;
-      int rc = system(pmlogconf_options.c_str());
-      if (rc != 0) 
-        timestamp(cerr) << "system(" << pmlogconf_options << ") failed: rc=" << rc << endl;
+
+      int rc = wrap_system(pmlogconf_options);
+      if (rc) return "";
 
       pmlogger_options += " -c " + sh_quote(pmlogconf_output_file);
     }
@@ -694,79 +740,176 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   // do log merging
   if (get_config_exists ("pmlogmerge"))
     {
-      string pmlogextract_command = 
+      string pmlogextract_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogextract";
 
-      string pmlogcheck_command = 
+      string pmlogcheck_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogcheck";
 
-      string pmlogrewrite_command = 
+      string pmlogrewrite_command =
         string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogrewrite";
 
       string pmlogextract_options = sh_quote(pmlogextract_command);
 
       string retention = get_config_single ("pmlogmerge-retain");
       if (retention == "") retention = "14days";
+      struct timeval retention_tv;
+      char *errmsg;
+      int rc = pmParseInterval(retention.c_str(), &retention_tv, &errmsg);
+      if (rc)
+        {
+          timestamp(cerr) << "pmlogmerge-retain '" << retention << "' parse error: " << errmsg << endl;
+          free (errmsg);
+          retention = "14days";
+          retention_tv.tv_sec = 14*24*60*60;
+          retention_tv.tv_usec = 0;
+        }
       pmlogextract_options += " -S -" + sh_quote(retention);
 
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");
       if (period == "") period = "24hours";
-      pmlogger_options += " -s " + sh_quote(period);
-      
-      // Find prior archives by globbing for *.index files, 
-      // just like pmlogger_merge does
-      vector<string> old_archives;
+      struct timeval period_tv;
+      rc = pmParseInterval(period.c_str(), &period_tv, &errmsg);
+      if (rc)
+        {
+          timestamp(cerr) << "pmlogmerge '" << period << "' parse error: " << errmsg << endl;
+          free (errmsg);
+          period = "24hours";
+          period_tv.tv_sec = 24*60*60;
+          period_tv.tv_usec = 0;
+        }
+      if (get_config_exists ("pmlogmerge-granular"))
+        {
+          // adjust stopping time to the next multiple of period
+          struct timeval now_tv;
+          __pmtimevalNow (&now_tv);
+          time_t period_s = period_tv.tv_sec;
+          if (period_s < 1) period_s = 1; // at least one second
+          time_t period_end = ((now_tv.tv_sec + period_s - 1) / period_s) * period_s;
+          period = string(" @") +
+            string(ctime(& period_end)).substr(0,24); // 24: ctime(3) magic value, sans \n
+        }
+      pmlogger_options += " -T " + sh_quote(period);
+
+      // Find prior archives by globbing for *.index files,
+      // just like pmlogger_merge does.
+      // Er ... but aren't .index files optional?
+      vector<string> mergeable_archives; // those to merge
       glob_t the_blob;
       string glob_pattern = host_log_dir + (char)__pmPathSeparator() + "*.index";
-      int rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
+      rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
       if (rc == 0)
         {
+          // compute appropriate
+          struct timeval now_tv;
+          __pmtimevalNow (&now_tv);
+          time_t period_s = period_tv.tv_sec;
+          if (period_s < 1) period_s = 1; // at least one second
+          time_t prior_period_start = ((now_tv.tv_sec - period_s) / period_s) * period_s;
+          time_t prior_period_end = prior_period_start + period_s;
+
           for (unsigned i=0; i<the_blob.gl_pathc; i++)
             {
+              if (quit) return "";
+
               string index_name = the_blob.gl_pathv[i];
               string base_name = index_name.substr(0,index_name.length()-6); // trim .index
 
+              // Manage retention based upon the stat timestamps of the .index file,
+              // because the archives might be so corrupt that even loglabel-based
+              // checks could fail.  Non-corrupt archives will have already been merged
+              // into a fresher archive.
+              struct stat foo;
+              rc = stat (the_blob.gl_pathv[i], & foo);
+              if (rc)
+                {
+                  // this apprx. can't happen
+                  timestamp(cerr) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
+                  continue; // likely nothing can be done to this one
+                }
+              else if ((foo.st_mtime + retention_tv.tv_sec) < now_tv.tv_sec)
+                {
+                  string bnq = sh_quote(base_name);
+                  string cleanup_cmd = string("/bin/rm -f")
+                    + " " + bnq + ".[0-9]*"
+                    + " " + bnq + ".index" +
+                    + " " + bnq + ".meta";
+
+                  (void) wrap_system(cleanup_cmd);
+                  continue; // it's gone now; don't try to merge it or anything
+                }
+
+              if (quit) return "";
+
               // sic pmlogcheck on it; if it is broken, pmlogextract
               // will give up and make no progress
-
               string pmlogcheck_options = sh_quote(pmlogcheck_command);
               pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
 
-              if (pmDebug & DBG_TRACE_APPL0)
-                timestamp(cout) << "running " << pmlogcheck_options << endl;
-              rc = system(pmlogcheck_options.c_str());
+              rc = wrap_system(pmlogcheck_options);
               if (rc != 0)
                 {
-                  timestamp(cerr) << "system(" << pmlogcheck_options << ") failed: rc=" << rc << endl;
                   timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
                   continue;
                 }
-              
-              if (get_config_exists("pmlogmerge-rewrite"))
-                {
-                  string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
-                  pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
-                  pmlogrewrite_options += " " + sh_quote(base_name);
 
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << pmlogrewrite_options << endl;
-                  rc = system(pmlogrewrite_options.c_str());
-                  if (rc != 0)
+              if (quit) return "";
+
+              // In granular mode, skip if this file is too old or too new.  NB: Decide
+              // based upon the log-label, not fstat timestamps, since files postdate
+              // the time region they cover.
+              if (get_config_exists ("pmlogmerge-granular"))
+                {
+                  // One could do this the pmloglabel(1) __pmLog* way,
+                  // rather than the pmlogsummary(1) PMAPI way.
+
+                  int ctx = pmNewContext(PM_CONTEXT_ARCHIVE, base_name.c_str());
+                  if (ctx < 0)
+                    continue; // skip; gc later
+
+                  pmLogLabel label;
+                  rc = pmGetArchiveLabel (& label);
+                  if (rc < 0)
+                    continue; // skip; gc later
+
+                  if (label.ll_start.tv_sec >= prior_period_end) // archive too new?
                     {
-                      timestamp(cerr) << "system(" << pmlogrewrite_options << ") failed: rc=" << rc << endl;
-                      timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
+                      if (pmDebug & DBG_TRACE_APPL0)
+                        timestamp(cout) << "skipping merge of too-new archive " << base_name << endl;
+                      pmDestroyContext (ctx);
                       continue;
                     }
+
+                  struct timeval archive_end;
+                  rc = pmGetArchiveEnd(&archive_end);
+                  if (rc < 0)
+                    {
+                      pmDestroyContext (ctx);
+                      continue; // skip; gc later
+                    }
+
+                  if (archive_end.tv_sec < prior_period_start) // archive too old?
+                    {
+                      if (pmDebug & DBG_TRACE_APPL0)
+                        timestamp(cout) << "skipping merge of too-old archive " << base_name << endl;
+                      pmDestroyContext (ctx);
+                      continue; // skip; gc later
+                    }
+
+                  pmDestroyContext (ctx);
+                  // fallthrough: the archive intersects the prior_period_{start,end} interval
+
+                  // XXX: What happens for archives that span across granular periods?
                 }
 
-              old_archives.push_back (base_name);
+              mergeable_archives.push_back (base_name);
             }
           globfree (& the_blob);
         }
 
-      string timestr = "merged-archive";
+      string timestr = "archive";
       time_t now2 = time(NULL);
       struct tm *now = gmtime(& now2);
       if (now != NULL)
@@ -778,42 +921,52 @@ pmmgr_pmlogger_daemon::daemon_command_line()
         }
       string merged_archive_name = host_log_dir + (char)__pmPathSeparator() + timestr;
 
-      if (old_archives.size() > 1) // 1 or 0 are not worth merging!
+      if (mergeable_archives.size() > 1) // 1 or 0 are not worth merging!
         {
           // assemble final bits of pmlogextract command line: the inputs and the output
-          for (unsigned i=0; i<old_archives.size(); i++)
-            pmlogextract_options += " " + sh_quote(old_archives[i]);
+          for (unsigned i=0; i<mergeable_archives.size(); i++)
+            {
+              if (quit) return "";
+
+              if (get_config_exists("pmlogmerge-rewrite"))
+                {
+                  string pmlogrewrite_options = sh_quote(pmlogrewrite_command);
+                  pmlogrewrite_options += " -i " + get_config_single("pmlogmerge-rewrite");
+                  pmlogrewrite_options += " " + sh_quote(mergeable_archives[i]);
+
+                  (void) wrap_system(pmlogrewrite_options.c_str());
+                  // In case of error, don't break; let's try to merge it anyway.
+                  // Maybe pmlogrewrite will succeed and will get rid of this file.
+                }
+
+              pmlogextract_options += " " + sh_quote(mergeable_archives[i]);
+            }
+
+          if (quit) return "";
 
           pmlogextract_options += " " + sh_quote(merged_archive_name);
 
-          if (pmDebug & DBG_TRACE_APPL0)
-            timestamp(cout) << "running " << pmlogextract_options << endl;
-
-          rc = system(pmlogextract_options.c_str());
-          if (rc != 0) 
-            // will try again later
-            timestamp(cerr) << "system(" << pmlogextract_options << ") failed: rc=" << rc << endl;
-          else
+          rc = wrap_system(pmlogextract_options.c_str());
+          if (rc == 0)
             {
-              // zap the previous archive files 
-              for (unsigned i=0; i<old_archives.size(); i++)
+              // zap the previous archive files
+              //
+              // Don't skip this upon "if (quit)", since the new merged archive is already complete;
+              // it'd be a waste to keep these files around for a future re-merge.
+              for (unsigned i=0; i<mergeable_archives.size(); i++)
                 {
-                  string base_name = sh_quote(old_archives[i]);
+                  string base_name = sh_quote(mergeable_archives[i]);
                   string cleanup_cmd = string("/bin/rm -f")
                     + " " + base_name + ".[0-9]*"
-                    + " " + base_name + ".index" + 
+                    + " " + base_name + ".index" +
                     + " " + base_name + ".meta";
 
-                  if (pmDebug & DBG_TRACE_APPL0)
-                    timestamp(cout) << "running " << cleanup_cmd << endl;
-                  rc = system(cleanup_cmd.c_str());
-                  if (rc != 0) 
-                    timestamp(cerr) << "system(" << cleanup_cmd << ") failed: rc=" << rc << endl;
+                  (void) wrap_system(cleanup_cmd.c_str());
                 }
             }
         }
     }
-  
+
   // synthesize a logfile name similarly as pmlogger_check, but add %S (seconds)
   // to reduce likelihood of conflict with a short poll interval
   string timestr = "archive";
@@ -824,7 +977,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       char timestr2[100];
       int rc = strftime(timestr2, sizeof(timestr2), "-%Y%m%d.%H%M%S", now);
       if (rc > 0)
-        timestr += timestr2;
+        timestr += timestr2; // no sh_quote required
     }
 
   // last argument
@@ -834,7 +987,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 }
 
 
-std::string                                             
+std::string
 pmmgr_pmie_daemon::daemon_command_line()
 {
   string default_log_dir =
@@ -849,7 +1002,7 @@ pmmgr_pmie_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
   // (errors creating actual files under host_log_dir will be noted shortly)
 
-  string pmie_command = 
+  string pmie_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmie";
   string pmie_options = sh_quote (pmie_command);
 
@@ -859,29 +1012,29 @@ pmmgr_pmie_daemon::daemon_command_line()
   if (get_config_exists ("pmieconf"))
     {
       string pmieconf_output_file = host_log_dir + (char)__pmPathSeparator() + "config.pmie";
-      string pmieconf_command = 
+      string pmieconf_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmieconf";
 
       // NB: pmieconf doesn't take a host name as an argument, unlike pmlogconf
-      string pmieconf_options = 
+      string pmieconf_options =
         sh_quote(pmieconf_command)
         + " -F -c " + get_config_single ("pmieconf")
         + " -f " + sh_quote(pmieconf_output_file);
-      if (pmDebug & DBG_TRACE_APPL0)
-        timestamp(cout) << "running " << pmieconf_options << endl;
-      int rc = system(pmieconf_options.c_str());
-      if (rc != 0) 
-        timestamp(cerr) << "system(" << pmieconf_options << ") failed: rc=" << rc << endl;
+
+      int rc = wrap_system(pmieconf_options.c_str());
+      if (rc) return "";
 
       pmie_options += "-c " + sh_quote(pmieconf_output_file);
     }
+
+  if (quit) return "";
 
   // collect -h direction
   pmie_options += " -h " + sh_quote(spec);
 
   // collect -f, to get it to run in the foreground, avoid setuid
   pmie_options += " -f";
- 
+
   // collect subsidiary pmlogger diagnostics
   pmie_options += " -l " + sh_quote(host_log_dir + (char)__pmPathSeparator() + "pmie.log");
 
@@ -896,12 +1049,6 @@ pmmgr_pmie_daemon::daemon_command_line()
 extern "C"
 void handle_interrupt (int sig)
 {
-  // Propagate signal to inferior processes (just once, to prevent
-  // recursive signals or whatnot, despite sa_mask in
-  // setup_signals()).
-  if (quit == 0)
-    kill(-getpid(), sig);
-
   quit ++;
   if (quit > 2)
     {
@@ -956,7 +1103,7 @@ int main (int argc, char *argv[])
 
   setup_signals();
 
-  string default_config_dir = 
+  string default_config_dir =
     string(pmGetConfig("PCP_SYSCONF_DIR")) + (char)__pmPathSeparator() + "pmmgr";
   vector<pmmgr_job_spec*> js;
 
@@ -985,7 +1132,7 @@ int main (int argc, char *argv[])
 
         case 'p':
           polltime = atoi(optarg);
-          if (polltime <= 0) 
+          if (polltime <= 0)
             {
               cerr << "Poll time too short." << endl;
               exit(1);
@@ -1050,7 +1197,7 @@ int main (int argc, char *argv[])
     }
 
   timestamp(cout) << "Log started" << endl;
-  while (1)
+  while (! quit)
     {
       // In this section, we must not fidget with SIGCHLD, due to use of system(3).
       for (unsigned i=0; i<js.size() && !quit; i++)
@@ -1069,9 +1216,10 @@ int main (int argc, char *argv[])
       (void) signal (SIGALRM, SIG_DFL);
     }
 
+  // NB: don't let this cleanup be interrupted by pending-quit signals;
+  // we want the daemon pid's killed.
   for (unsigned i=0; i<js.size(); i++)
     delete js[i];
-  // XXX: send a suicide signal to the process group
 
   timestamp(cout) << "Log finished" << endl;
   return 0;
