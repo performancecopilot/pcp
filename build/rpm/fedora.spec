@@ -716,6 +716,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 * Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
 - Create new sub-packages for pcp-webapi and pcp-manager
 - Split configuration from pcp-libs into pcp-conf (multilib)
+- Fix pmdagluster to handle more volumes, fileops (BZ 1066544)
 - Update to latest PCP sources.
 
 * Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1

@@ -8,6 +8,8 @@ pcp-3.9.0 (19 January 2014)
     - pmmgr.1 man page: outline archiving strategy tradeoffs
     - pmdalinux: s390x platform issues in /proc/cpuinfo parser
     - pmdalinux: valgrind fix for /proc/stat parser
+    - pmdagluster: improvements to multiple volume handling
+    - pmdagluster: support for additional file operations
     - pmlogextract: <mark> record handling fix
     - pmdas: further robustness improvements to dynamic names
     - pmdas: Install scripts can run even when pmcd is stopped
