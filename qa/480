@@ -16,7 +16,11 @@ echo "QA output created by $seq"
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
 
-if [ -f $PCP_DIR/usr/include/pcp/config.h ]
+if [ -f $PCP_DIR/usr/include/pcp/configsz.h ]
+then
+    # PCP 3.9.0 or later
+    defs="$PCP_DIR/usr/include/pcp/configsz.h $PCP_DIR/usr/include/pcp/config32.h $PCP_DIR/usr/include/pcp/config64.h"
+elif [ -f $PCP_DIR/usr/include/pcp/config.h ]
 then
     # PCP 3.8.3 or later
     defs=$PCP_DIR/usr/include/pcp/config.h
