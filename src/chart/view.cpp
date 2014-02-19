@@ -1061,25 +1061,7 @@ try_plot:
 		    if (nextinst == numinst)
 			goto skip;
 		}
-		if (legend != NULL && pms.inst[0] != NULL &&
-		    (w = strstr(legend, "%i")) != NULL) {
-		    // replace %i in legend
-		    char	*tmp;
-		    char	c;
-		    tmp = (char *)malloc(strlen(legend) + strlen(pms.inst[0]) - 1);
-		    if (tmp == NULL) nomem();
-		    c = *w;	// copy up to (but not including) the %
-		    *w = '\0';
-		    strcpy(tmp, legend);
-		    *w = c;
-		    strcat(tmp, pms.inst[0]);
-		    w +=2;
-		    strcat(tmp, w);
-		    m = cp->addItem(&pms, tmp);
-		    free(tmp);
-		}
-		else
-		    m = cp->addItem(&pms, legend);
+		m = cp->addItem(&pms, QString(legend));
 		if (m < 0) {
 		    if (!optional) {
 			QString	msg;
@@ -1106,7 +1088,7 @@ try_plot:
 		    cp->setSequence(seq);
 		}
 		if (numinst > 0)
-		    // more instances to be procesed for this metric
+		    // more instances still to be processed for this metric
 		    goto try_plot;
 
 	    }
@@ -1246,13 +1228,13 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	fprintf(f, " antialiasing off");
     fputc('\n', f);
     for (int m = 0; m < cp->metricCount(); m++) {
-	char	*p;
+	QString legend;
 	if (cp->activeItem(m) == false)
 	    continue;
 	fprintf(f, "\tplot");
-	p = cp->legendSpec(m);
-	if (p != NULL)
-	    fprintf(f, " legend \"%s\"", p);
+	legend = cp->legend(m);
+	if (legend != QString::null)
+	    fprintf(f, " legend \"%s\"", (const char *)legend.toAscii());
 	fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
 	if (hostDynamic == false)
 	    fprintf(f, " host %s", (const char *)

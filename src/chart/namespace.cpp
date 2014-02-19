@@ -24,7 +24,7 @@
 
 #define DESPERATE 0
 
-NameSpace::NameSpace(NameSpace *parent, QString name, bool inst)
+NameSpace::NameSpace(NameSpace *parent, const QString &name, bool inst)
     : QTreeWidgetItem(parent, QTreeWidgetItem::UserType)
 {
     my.expanded = false;
@@ -43,7 +43,7 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst)
 	setFont(0, font);
     }
     setText(0, my.basename);
-
+#if DESPERATE
     if (my.type == ChildMinder) {
 	console->post(PmChart::DebugUi, "Added namespace childminder");
     }
@@ -51,6 +51,7 @@ NameSpace::NameSpace(NameSpace *parent, QString name, bool inst)
 	console->post(PmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
 		  (const char *)my.basename.toAscii(), inst);
     }
+#endif
 }
 
 NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)

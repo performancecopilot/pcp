@@ -37,7 +37,7 @@ class SamplingItem : public ChartItem
 public:
     SamplingItem(Chart *,
 		QmcMetric *, pmMetricSpec *, pmDesc *,
-		const char *, Chart::Style, int, int);
+		const QString &, Chart::Style, int, int);
     ~SamplingItem(void);
 
     QwtPlotItem *item();
@@ -118,7 +118,7 @@ public:
     SamplingEngine(Chart *chart, pmDesc &);
 
     bool isCompatible(pmDesc &);
-    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const QString &);
 
     void updateValues(bool, int, int, double, double, double);
     void replot(void);

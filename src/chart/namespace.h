@@ -39,7 +39,7 @@ public:
     } Type;
 
     NameSpace(QTreeWidget *, const QmcContext *);	// for root nodes only
-    NameSpace(NameSpace *, QString, bool);		// for all other nodes
+    NameSpace(NameSpace *, const QString &, bool);	// for all other nodes
 
     QString text(int) const;
     QIcon icon(int) const;
@@ -77,8 +77,8 @@ public:
     QColor originalColor() { return my.original; }
     void setOriginalColor(QColor original) { my.original = original; }
 
-    QString label() { return my.label; }
-    void setLabel(QString label) { my.label = label; }
+    QString label() const { return my.label; }
+    void setLabel(const QString &label) { my.label = label; }
 
     void setSelectable(bool selectable);
     void setExpandable(bool expandable);

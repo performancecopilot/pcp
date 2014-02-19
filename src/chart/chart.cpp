@@ -51,7 +51,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 
     // setup the legend (all charts must have one)
     setLegendVisible(true);
-    legend()->contentsWidget()->setFont(*globalFont);
+    QwtPlot::legend()->contentsWidget()->setFont(*globalFont);
     connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
 		    SLOT(legendChecked(QwtPlotItem *, bool)));
 
@@ -98,38 +98,136 @@ ChartEngine::ChartEngine(Chart *chart)
 }
 
 ChartItem::ChartItem(QmcMetric *mp,
-		pmMetricSpec *msp, pmDesc *dp, const char *legend)
+		pmMetricSpec *msp, pmDesc *dp, const QString &legend)
 {
     my.metric = mp;
     my.units = dp->units;
-
     my.name = QString(msp->metric);
-    if (msp->ninst == 1)
+    if (msp->ninst == 1) {
 	my.name.append("[").append(msp->inst[0]).append("]");
-
-    //
-    // Build the legend label string, even if the chart is declared
-    // "legend off" so that subsequent Edit->Chart Title and Legend
-    // changes can turn the legend on and off dynamically
-    //
-    if (legend != NULL) {
-	my.legend = strdup(legend);
-	my.label = QString(legend);
+	my.inst = QString(msp->inst[0]);
     } else {
-	my.legend = NULL;
-	// show name as ...[end of name]
-	if (my.name.size() > PmChart::maximumLegendLength()) {
-	    int size = PmChart::maximumLegendLength() - 3;
-	    my.label = QString("...");
-	    my.label.append(my.name.right(size));
-	} else {
-	    my.label = my.name;
-	}
+	my.inst = QString::null;
     }
-
+    setLegend(legend);
     my.removed = false;
     my.hidden = false;
 }
+
+//
+// Build the legend label string, even if the chart is declared
+// "legend off" so that subsequent Edit->Chart Title and Legend
+// changes can turn the legend on and off dynamically.
+//
+// NB: "legend" is not expanded (wrt %h, %i, etc), "label" is.
+//
+void
+ChartItem::setLegend(const QString &legend)
+{
+    my.legend = legend;
+    if (legend != QString::null)
+	expandLegendLabel(legend);
+    else
+	clearLegendLabel();
+}
+
+void
+ChartItem::updateLegend()
+{
+    // drive any change to label into QwtLegendItem
+    item()->setTitle(my.label);
+}
+
+void
+ChartItem::expandLegendLabel(const QString &legend)
+{
+    bool expandMetricShort = legend.contains("%m");
+    bool expandMetricLong = legend.contains("%M");
+    bool expandInstShort = legend.contains("%i");
+    bool expandInstLong = legend.contains("%I");
+    bool expandHostShort = legend.contains("%h");
+    bool expandHostLong = legend.contains("%H");
+
+    my.label = legend;
+    if (expandMetricShort)
+	my.label.replace(QRegExp("%m"), shortMetricName());
+    if (expandMetricLong)
+	my.label.replace(QRegExp("%M"), my.metric->name());
+    if (expandInstShort)
+	my.label.replace(QRegExp("%i"), shortInstName());
+    if (expandInstLong)
+	my.label.replace(QRegExp("%I"), my.inst);
+    if (expandHostShort)
+	my.label.replace(QRegExp("%h"), hostNameString(true));
+    if (expandHostLong)
+	my.label.replace(QRegExp("%H"), hostNameString(false));
+}
+
+QString
+ChartItem::hostNameString(bool shortened)
+{
+    QString hostName = my.metric->context()->source().context_hostname();
+    int index;
+
+    // decide whether or not to truncate this hostname
+    if (shortened) {
+        if ((index = hostName.indexOf(QChar('.'))) != -1) {
+        // no change if it looks even vaguely like an IP address
+            if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
+		!hostName.contains(QChar(':')))			// IPv6
+		hostName.truncate(index);
+	}
+    }
+    return hostName;
+}
+
+QString
+ChartItem::shortMetricName(void)
+{
+    QString shortName = my.metric->name();
+    int count, index;
+
+    // heuristic: use final two PMNS components (e.g. dev.bytes)
+    // reason: short, often this is enough to differentiate well
+    while ((count = shortName.count(QChar('.'))) > 1) {
+	index = shortName.indexOf(QChar('.'));
+	shortName.remove(0, index + 1);
+    }
+    return shortName;
+}
+
+QString
+ChartItem::shortInstName(void)
+{
+    QString shortName = my.inst;
+    int index;
+
+    // heuristic: cull from the first space onward
+    // reason: this is required to be unique from PMDAs
+    if ((index = shortName.indexOf(QChar(' '))) != -1) {
+	shortName.truncate(index);
+    }
+    return shortName;
+}
+
+void
+ChartItem::clearLegendLabel(void)
+{
+    //
+    // No legend has been explicitly requested - but something
+    // must be displayed.  Use metric name with optional [inst].
+    // If that goes beyond a limit, truncate from the front and
+    // use ellipses to indicate this has happened.
+    //
+    if (my.name.size() > PmChart::maximumLegendLength()) {
+	int size = PmChart::maximumLegendLength() - 3;
+	my.label = QString("...");
+	my.label.append(my.name.right(size));
+    } else {
+	my.label = my.name;
+    }
+}
+
 
 void
 Chart::setCurrent(bool enable)
@@ -249,7 +347,7 @@ Chart::legendChecked(QwtPlotItem *item, bool down)
 // Add a new chart item (metric, usually with a specific instance)
 //
 int
-Chart::addItem(pmMetricSpec *msp, const char *legend)
+Chart::addItem(pmMetricSpec *msp, const QString &legend)
 {
     console->post("Chart::addItem src=%s", msp->source);
     if (msp->ninst == 0)
@@ -364,7 +462,7 @@ Chart::hostNameString(bool shortened)
 	    // no change if it looks even vaguely like an IP address
 	    if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
 		!hostName.contains(QChar(':')))		// IPv6
-		hostName.remove(dot, hostName.size());
+		hostName.truncate(dot);
 	}
 	hostNameSet.insert(hostName);
     }
@@ -483,10 +581,13 @@ Chart::color(int index)
 }
 
 void
-Chart::setLabel(int index, QString s)
+Chart::setLabel(int index, const QString &s)
 {
-    if (index >= 0 && index < my.items.size())
-	my.items[index]->setLabel(s);
+    if (index >= 0 && index < my.items.size()) {
+	ChartItem *item = my.items[index];
+	item->setLegend(s);
+	item->updateLegend();
+    }
 }
 
 void
@@ -715,7 +816,7 @@ Chart::legendVisible()
 {
     // Legend is on or off for all items, only need to test the first item
     if (my.items.size() > 0)
-	return legend() != NULL;
+	return QwtPlot::legend() != NULL;
     return false;
 }
 
@@ -726,14 +827,14 @@ Chart::legendVisible()
 void
 Chart::setLegendVisible(bool on)
 {
-    console->post("Chart::setLegendVisible(%d) legend()=%p", on, legend());
+    QwtLegend *legend = QwtPlot::legend();
 
     if (on) {
-	if (legend() == NULL) {	// currently disabled, enable it
-	    QwtLegend *l = new QwtLegend;
+	if (legend == NULL) { // currently disabled, enable it
+	    legend = new QwtLegend;
 
-	    l->setItemMode(QwtLegend::CheckableItem);
-	    insertLegend(l, QwtPlot::BottomLegend);
+	    legend->setItemMode(QwtLegend::CheckableItem);
+	    insertLegend(legend, QwtPlot::BottomLegend);
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state
 	    for (int i = 0; i < my.items.size(); i++)
@@ -742,13 +843,13 @@ Chart::setLegendVisible(bool on)
 	}
     }
     else {
-	QwtLegend *l = legend();
-	if (l != NULL) {
+	if (legend != NULL) {
 	    // currently enabled, disable it
 	    insertLegend(NULL, QwtPlot::BottomLegend);
+
+	    // delete legend;
 	    // WISHLIST: this can cause a core dump - needs investigating
 	    // [memleak].  Really, all of the legend code needs reworking.
-	    // delete l;
 	}
     }
 }
@@ -774,9 +875,9 @@ QString Chart::name(int index) const
     return my.items[index]->name();
 }
 
-char *Chart::legendSpec(int index) const
+QString Chart::legend(int index) const
 {
-    return my.items[index]->legendSpec();
+    return my.items[index]->legend();
 }
 
 QmcDesc *Chart::metricDesc(int index) const
@@ -824,13 +925,14 @@ Chart::setupTree(QTreeWidget *tree)
 	    continue;
 	addToTree(tree, item->name(),
 		  item->metricContext(), item->metricHasInstances(), 
-		  item->color(), item->label());
+		  item->color(), item->legend());
     }
 }
 
 void
-Chart::addToTree(QTreeWidget *treeview, QString metric,
-	const QmcContext *context, bool isInst, QColor color, QString label)
+Chart::addToTree(QTreeWidget *treeview, const QString &metric,
+	const QmcContext *context, bool isInst, QColor color,
+	const QString &label)
 {
     QRegExp regexInstance("\\[(.*)\\]$");
     QRegExp regexNameNode(tr("\\."));

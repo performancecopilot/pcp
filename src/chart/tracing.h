@@ -60,7 +60,7 @@ class TracingItem : public ChartItem
 {
 public:
     TracingItem() : ChartItem() { }
-    TracingItem(Chart *, QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    TracingItem(Chart *, QmcMetric *, pmMetricSpec *, pmDesc *, const QString &);
     virtual ~TracingItem();
 
     QwtPlotItem *item();
@@ -177,7 +177,7 @@ public:
     TracingEngine(Chart *);
 
     bool isCompatible(pmDesc &);
-    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const QString &);
 
     void updateValues(bool, int, int, double, double, double);
 

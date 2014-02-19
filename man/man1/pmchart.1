@@ -518,9 +518,13 @@ does not include the specified performance metric and/or instance,
 then this plot is silently dropped from the chart.
 .PP
 If specified, the title will appear in the chart legend.
-The \f(CW<title>\fP is usually enclosed in quotes (") and if it
-contains the sequence "%i" this will be replaced by the metric
-instance name (if any).
+The \f(CW<title>\fP is usually enclosed in quotes (") and it may
+contain one or more wildcard characters which will be expanded
+using metric name, instance name, and host name for the plot.
+The wildcards are "%i" (short unique instance name, up to the first
+whitespace), "%I" (full instance name), "%h" (short host name, up
+to the first dot), %H (full host name), "%m" (metric name shortened
+to the final two PMNS components), and "%M" (full metric name).
 .PP
 For older
 .B pmchart

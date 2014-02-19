@@ -59,7 +59,7 @@ public:
     virtual QString scheme() const;	// return chart color scheme
     virtual void setScheme(QString);	// set the chart color scheme
 
-    int addItem(pmMetricSpec *, const char *);
+    int addItem(pmMetricSpec *, const QString &);
     bool activeItem(int) const;
     void removeItem(int);
     void reviveItem(int);
@@ -82,7 +82,7 @@ public:
 	{ my.sequence = sequence; }
 
     QString label(int);			// return legend label for ith plot
-    void setLabel(int, QString);	// set plot legend label
+    void setLabel(int, const QString &);	// set plot legend label
 
     bool autoScale(void);
     void scale(bool *, double *, double *);
@@ -111,7 +111,7 @@ public:
     virtual int metricCount() const;
     virtual bool activeMetric(int) const;
     virtual QString name(int) const;
-    virtual char *legendSpec(int) const;
+    virtual QString legend(int) const;
     virtual QmcMetric *metric(int) const;
     virtual QString metricName(int) const;
     virtual QmcDesc *metricDesc(int) const;
@@ -122,8 +122,8 @@ public:
     virtual QSize minimumSizeHint() const;
 
     void setupTree(QTreeWidget *);
-    void addToTree(QTreeWidget *, QString, const QmcContext *,
-			  bool, QColor, QString);
+    void addToTree(QTreeWidget *, const QString &, const QmcContext *,
+			  bool, QColor, const QString &);
 
     void activateTime(QMouseEvent *);
     void reactivateTime(QMouseEvent *);
@@ -205,7 +205,7 @@ public:
     virtual bool isCompatible(pmDesc &) { return true; }
 
     // insert a new item (plot curve) into a chart
-    virtual ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *)
+    virtual ChartItem *addItem(QmcMetric *, pmMetricSpec *, pmDesc *, const QString &)
 	{ return NULL; }	// cannot add to an empty engine
 
     // indicates movement forward/backward occurred
@@ -262,7 +262,7 @@ class ChartItem
 {
 public:
     ChartItem() { }
-    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const char *);
+    ChartItem(QmcMetric *, pmMetricSpec *, pmDesc *, const QString &);
     virtual ~ChartItem(void) { }
 
     virtual QwtPlotItem *item(void) = 0;
@@ -283,8 +283,8 @@ public:
     virtual void remove(void) = 0;
 
     QString name(void) const { return my.name; }
-    QString label(void) const { return my.label; }
-    char *legendSpec(void) const { return my.legend; }
+    QString label(void) const { return my.label; } // as displayed, expanded
+    QString legend(void) const { return my.legend; } // no %i/%h/.. expansion
     QString metricName(void) const { return my.metric->name(); }
     QString metricInstance(void) const
         { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
@@ -295,7 +295,8 @@ public:
     QColor color(void) const { return my.color; }
 
     void setColor(QColor color) { my.color = color; }
-    void setLabel(QString label) { my.label = label; }
+    void setLegend(const QString &legend);	// may include wildcards
+    void updateLegend();
 
     bool hidden(void) { return my.hidden; }
     void setHidden(bool hidden) { my.hidden = hidden; }
@@ -309,13 +310,21 @@ protected:
 	pmUnits units;	// base units, *not* scaled
 
 	QString name;
-	char *legend;	// from config
-	QString label;	// as appears in plot legend
+	QString inst;
+	QString legend;	// may contain wildcards (not expanded)
+	QString label;	// as appears visibly, in plot legend
 	QColor color;
 
 	bool removed;
 	bool hidden;	// true if hidden through legend push button
     } my;
+
+private:
+    void expandLegendLabel(const QString &legend);
+    QString hostNameString(bool shortened);
+    QString shortMetricName(void);
+    QString shortInstName(void);
+    void clearLegendLabel(void);
 };
 
 #endif	// CHART_H

@@ -21,7 +21,7 @@
 
 SamplingItem::SamplingItem(Chart *parent,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp,
-	const char *legend, Chart::Style style, int samples, int index)
+	const QString &legend, Chart::Style style, int samples, int index)
 	: ChartItem(mp, msp, dp, legend)
 {
     pmDesc desc = mp->desc().desc();
@@ -463,7 +463,7 @@ SamplingEngine::samplingItem(int index)
 }
 
 ChartItem *
-SamplingEngine::addItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *desc, const char *legend)
+SamplingEngine::addItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *desc, const QString &legend)
 {
     int sampleHistory = my.chart->my.tab->group()->sampleHistory();
     int existingItemCount = my.chart->metricCount();

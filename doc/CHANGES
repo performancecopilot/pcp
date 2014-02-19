@@ -7,7 +7,14 @@ pcp-gui 1.5.12 (19 February 2014)
       re-animation
     - Ensure correct pmContext is used for several libqmc calls
     - Support full hostname dynamic expansion via %H, analagous
-      to the existing short hostname dynamic expansion via %h.
+      to the existing short hostname dynamic expansion via %h,
+      for chart titles.
+    - Fix %i expansion in pmchart plot legend; during the File
+      -> Save View menu option this plot wildcard was not being
+      preserved.
+    - Extend the wildcard set for plot legends - full and short
+      variants for instances, metrics and hosts now exist, with
+      the heuristics used for shortening described in pmchart(1).
 
 pcp-gui 1.5.11 (1 November 2013)
     - Updates to the PCP Programmers Guide (now complete).

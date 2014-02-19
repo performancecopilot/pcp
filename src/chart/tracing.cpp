@@ -22,7 +22,7 @@
 #define DESPERATE 0
 
 TracingItem::TracingItem(Chart *chart,
-	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const char *legend)
+	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const QString &legend)
 	: ChartItem(mp, msp, dp, legend)
 {
     my.chart = chart;
@@ -623,7 +623,7 @@ TracingEngine::TracingEngine(Chart *chart)
 }
 
 ChartItem *
-TracingEngine::addItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *desc, const char *legend)
+TracingEngine::addItem(QmcMetric *mp, pmMetricSpec *msp, pmDesc *desc, const QString &legend)
 {
     return new TracingItem(my.chart, mp, msp, desc, legend);
 }
