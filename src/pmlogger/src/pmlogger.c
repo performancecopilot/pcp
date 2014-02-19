@@ -501,7 +501,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:z?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -634,7 +634,7 @@ main(int argc, char **argv)
 	    time(&rsc_start);
 	    break;
 
-	case 'z':
+	case 'y':
 	    use_localtime = 1;
 	    break;
 
@@ -667,7 +667,7 @@ Options:\n\
   -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
 		via pmRecordControl(3)\n\
-  -z		set timezone for times to local time rather than that of PMCD host\n",
+  -y		set timezone for times to local time rather than that of PMCD host\n",
 			pmProgname);
 	exit(1);
     }

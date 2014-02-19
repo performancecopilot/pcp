@@ -253,7 +253,7 @@ do
 # pmlogger flags passed through
 #
 
-	L|r|z)
+	L|r|y)
 		args="$args-$c "
 		;;
 
