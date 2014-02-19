@@ -788,7 +788,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           period = string(" @") +
             string(ctime(& period_end)).substr(0,24); // 24: ctime(3) magic value, sans \n
         }
-      pmlogger_options += " -T " + sh_quote(period);
+      pmlogger_options += " -z -T " + sh_quote(period); // NB: pmmgr host local time!
 
       // Find prior archives by globbing for *.index files,
       // just like pmlogger_merge does.
