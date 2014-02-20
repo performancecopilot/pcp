@@ -380,15 +380,20 @@ egrep -v 'simple|sample|trivial|txmon' |\
 egrep -v '^ib$|infiniband' |\
 sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
-# bin and man files except those split out into sub packages
-ls -1 $RPM_BUILD_ROOT/%{_bindir} | egrep -v '2pcp' |\
-sed -e 's#^#'%{_bindir}'\/#' >base_binfiles.list
-ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep -v '2pcp|pmdaib|pmmgr|pmweb' |\
-sed -e 's#^#'%{_mandir}'\/man1\/#' >base_manfiles.list
-ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 | egrep -v 'PMWEBAPI' |\
-sed -e 's#^#'%{_mandir}'\/man3\/#' >>base_manfiles.list
+# all base pcp package files except those split out into sub packages
+ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
+sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
+ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
+sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
+sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
+cat base_pmdas.list base_bin.list base_conf.list base_exec.list base_man.list |\
+egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
+egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
-cat base_pmdas.list base_binfiles.list base_manfiles.list > base_specialfiles.list
+# all devel pcp package files except those split out into sub packages
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
+sed -e 's#^#'%{_mandir}'\/man3\/#' | egrep -v '3pm|PMWEBAPI' >devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -544,7 +549,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
-%files -f base_specialfiles.list
+%files -f base.list
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
 # C source files that rpmlint complains about. These are not devel files,
@@ -553,6 +558,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
+%dir %{_confdir}
 %dir %{_pmdasdir}
 %dir %{_datadir}/pcp
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
@@ -562,10 +568,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
+%dir %attr(0775,pcp,pcp) %{_logsdir}
 
-%{_libexecdir}/pcp
 %{_datadir}/pcp/lib
-%attr(0775,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
@@ -583,10 +588,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
-%{_sysconfdir}/pcp
+%dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
+%dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmie
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
@@ -622,7 +628,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_trace.so.2
 %{_libdir}/libpcp_import.so.1
 
-%files libs-devel
+%files libs-devel -f devel.list
 %defattr(-,root,root)
 
 %{_libdir}/libpcp.so
@@ -635,7 +641,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
-%{_mandir}/man3/*.3.gz
 %{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
@@ -653,7 +658,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files webapi
 %defattr(-,root,root)
 %{_initddir}/pmwebd
-%{_libexecdir}/pcp/pmwebd
+%{_libexecdir}/pcp/bin/pmwebd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
@@ -663,7 +668,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files manager
 %defattr(-,root,root)
 %{_initddir}/pmmgr
-%{_libexecdir}/pcp/pmmgr
+%{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
 %{_confdir}/pmmgr
 %config(noreplace) %{_confdir}/pmmgr/pmmgr.options
