@@ -40,7 +40,8 @@ void SearchDialog::reset(QTreeWidget *pmns)
 
 void SearchDialog::clear()
 {
-    this->namePattern->clear();
+    this->hostPattern->clear();
+    this->metricPattern->clear();
     this->instancePattern->clear();
     this->resultStatus->setText("");
     matchList->clear();
@@ -52,7 +53,10 @@ void SearchDialog::clear()
 
 void SearchDialog::changed()
 {
-    buttonSearch->setEnabled(namePattern->text() != NULL || instancePattern->text() != NULL);
+    bool hostEnabled = (hostPattern->text() != QString::null);
+    bool metricEnabled = (metricPattern->text() != QString::null);
+    bool instanceEnabled = (instancePattern->text() != QString::null);
+    buttonSearch->setEnabled(hostEnabled || metricEnabled || instanceEnabled);
 }
 
 void SearchDialog::selectall()
@@ -75,27 +79,35 @@ void SearchDialog::search()
 {
     QString	res;
     QTreeWidgetItemIterator iterator(my.pmns, QTreeWidgetItemIterator::All);
+    int		h_match = 0;
     int		m_match = 0;
     int		i_match;
     int		count;
+    QRegExp	h_rx;
     QRegExp	m_rx;
     QRegExp	i_rx;
 
     console->post(PmChart::DebugUi,
-	 "SearchDialog::search metric pat=\"%s\" instance pat=\"%s\"",
-	 (const char *)namePattern->text().toAscii(),
+	 "SearchDialog::search host=\"%s\" metric=\"%s\" instance=\"%s\"",
+	 (const char *)hostPattern->text().toAscii(),
+	 (const char *)metricPattern->text().toAscii(),
 	 (const char *)instancePattern->text().toAscii());
 
-    if (namePattern->text() == NULL && instancePattern->text() == NULL) {
+    if (hostPattern->text() == QString::null &&
+	metricPattern->text() == QString::null &&
+	instancePattern->text() == QString::null) {
 	// got here via pressing Enter from one of the pattern input fields,
-	// and both patterns are empty ... do nothing
+	// and all the fields are empty ... do nothing
 	return;
     }
 
-    if (namePattern->text() != NULL)
-	m_rx.setPattern(namePattern->text());
+    if (hostPattern->text() != QString::null)
+	h_rx.setPattern(hostPattern->text());
 
-    if (instancePattern->text() != NULL)
+    if (metricPattern->text() != QString::null)
+	m_rx.setPattern(metricPattern->text());
+
+    if (instancePattern->text() != QString::null)
 	i_rx.setPattern(instancePattern->text());
 
     matchList->clear();
@@ -103,20 +115,40 @@ void SearchDialog::search()
     count = 0;
     for (; (*iterator); ++iterator) {
 	NameSpace *item = (NameSpace *)(*iterator);
-	if (item->isMetric()) {
+	if (item->isRoot()) {
+	    // host name
+	    if (hostPattern->text() != QString::null)
+		h_match = h_rx.indexIn(item->sourceName());
+	    else
+		h_match = 0;
+	    if (h_match >= 0) {
+		console->post(PmChart::DebugUi, "SearchDialog::search "
+		    "host=\"%s\" h_match=%d",
+		    (const char *)item->sourceName().toAscii(), h_match);
+	    }
+	    item->setExpanded(true, false);
+	    m_match = -2;
+	}
+	else if (h_match >= 0 && item->isMetric()) {
 	    // metric name
 	    count++;
-	    if (namePattern->text() != NULL)
+	    if (metricPattern->text() != QString::null)
 		m_match = m_rx.indexIn(item->metricName());
 	    else
 		m_match = 0;
 	    if (m_match >= 0) {
-		if (item->isLeaf() && instancePattern->text() == NULL) {
-		    console->post(PmChart::DebugUi,
-			 "SearchDialog::search metric=\"%s\" m_match=%d", (const char *)item->metricName().toAscii(), m_match);
-		    matchList->addItem(item->metricName());
+		if (item->isLeaf() &&
+		    instancePattern->text() == QString::null) {
+		    QString fqn = item->sourceName().append(":");
+		    fqn.append(item->metricName());
+		    matchList->addItem(fqn);
 		    my.pmnsList.append(item);
 		    m_match = -2;
+
+		    console->post(PmChart::DebugUi, "SearchDialog::search "
+			"host=%s h_match=%d metric=%s m_match=%d",
+			(const char *)item->sourceName().toAscii(), h_match,
+			(const char *)item->metricName().toAscii(), m_match);
 		}
 		if (item->isLeaf() == false) {
 		    // has instance domain
@@ -125,24 +157,25 @@ void SearchDialog::search()
 		}
 	    }
 	}
-	else if (m_match >= 0 && item->isInst()) {
+	else if (h_match >= 0 && m_match >= 0 && item->isInst()) {
 	    // matched last metric, now related instance name ... 
 	    count++;
-	    if (instancePattern->text() != NULL)
+	    if (instancePattern->text() != QString::null)
 		i_match = i_rx.indexIn(item->metricInstance());
 	    else
 		i_match = 0;
 	    if (i_match >= 0) {
-		QString fqn = item->metricName();
-		fqn.append("[");
-		fqn.append(item->metricInstance());
-		fqn.append("]");
+		QString fqn = item->sourceName().append(":");
+		fqn.append(item->metricName());
+		fqn.append("[").append(item->metricInstance()).append("]");
 		matchList->addItem(fqn);
 		my.pmnsList.append(item);
-		console->post(PmChart::DebugUi,
-		     "SearchDialog::search metric=\"%s\" m_match=%d inst=\"%s\" i_match=%d",
-		     (const char *)item->metricName().toAscii(), m_match,
-		     (const char *)item->metricInstance().toAscii(), i_match);
+
+		console->post(PmChart::DebugUi, "SearchDialog::search "
+		    "host=%s h_match=%d metric=%s m_match=%d inst=%s i_match=%d",
+		    (const char *)item->sourceName().toAscii(), h_match,
+		    (const char *)item->metricName().toAscii(), m_match,
+		    (const char *)item->metricInstance().toAscii(), i_match);
 	    }
 	}
 	else if (item->isNonLeaf()) {

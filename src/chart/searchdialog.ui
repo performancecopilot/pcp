@@ -39,23 +39,33 @@
       <number>0</number>
      </property>
      <item row="0" column="0" >
-      <widget class="QLabel" name="label" >
+      <widget class="QLabel" name="hostLabel" >
+       <property name="text" >
+        <string>Host Name Pattern:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="metricLabel" >
        <property name="text" >
         <string>Metric Name Pattern:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" >
-      <widget class="QLabel" name="label_2" >
+     <item row="2" column="0" >
+      <widget class="QLabel" name="instanceLabel" >
        <property name="text" >
         <string>Instance Name Pattern:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1" >
-      <widget class="QLineEdit" name="namePattern" />
+      <widget class="QLineEdit" name="hostPattern" />
      </item>
      <item row="1" column="1" >
+      <widget class="QLineEdit" name="metricPattern" />
+     </item>
+     <item row="2" column="1" >
       <widget class="QLineEdit" name="instancePattern" />
      </item>
     </layout>
@@ -184,7 +194,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>namePattern</tabstop>
+  <tabstop>hostPattern</tabstop>
+  <tabstop>metricPattern</tabstop>
   <tabstop>instancePattern</tabstop>
   <tabstop>buttonSearch</tabstop>
   <tabstop>matchList</tabstop>
@@ -259,7 +270,23 @@
    </hints>
   </connection>
   <connection>
-   <sender>namePattern</sender>
+   <sender>hostPattern</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>SearchDialog</receiver>
+   <slot>changed()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>303</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>229</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>metricPattern</sender>
    <signal>textEdited(QString)</signal>
    <receiver>SearchDialog</receiver>
    <slot>changed()</slot>
@@ -282,7 +309,7 @@
    <hints>
     <hint type="sourcelabel" >
      <x>303</x>
-     <y>50</y>
+     <y>79</y>
     </hint>
     <hint type="destinationlabel" >
      <x>229</x>

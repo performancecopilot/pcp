@@ -15,6 +15,11 @@ pcp-gui 1.5.12 (19 February 2014)
     - Extend the wildcard set for plot legends - full and short
       variants for instances, metrics and hosts now exist, with
       the heuristics used for shortening described in pmchart(1).
+    - Update pmchart Metric Search dialog to display hosts also,
+      for all matching search results.
+    - Add to the UI and search logic to allow regular expression
+      matching on host names, in addition to metric and instance
+      names.
 
 pcp-gui 1.5.11 (1 November 2013)
     - Updates to the PCP Programmers Guide (now complete).
