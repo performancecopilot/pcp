@@ -539,6 +539,7 @@ main(int argc, char ** argv)
 
 	case 'h':
 	    hosts.append(optarg);
+	    break;
 
 #ifdef PM_USE_CONTEXT_LOCAL
 	case 'L':		/* local context */
