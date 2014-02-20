@@ -20,6 +20,10 @@ pcp-gui 1.5.12 (19 February 2014)
     - Add to the UI and search logic to allow regular expression
       matching on host names, in addition to metric and instance
       names.
+    - Improve pmchart metric selection with multiple hosts - for
+      this case, do not expand all namespace trees all at once,
+      it results in UI clutter.  Just show the top level hosts,
+      initially, so the user can choose where navigation starts.
 
 pcp-gui 1.5.11 (1 November 2013)
     - Updates to the PCP Programmers Guide (now complete).

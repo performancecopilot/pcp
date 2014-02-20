@@ -702,7 +702,7 @@ void ChartDialog::setupAvailableMetricsTree(bool arch)
 	if (cp->status() < 0)
 	    continue;
 	NameSpace *name = new NameSpace(availableMetricsTreeWidget, cp);
-	name->setExpanded(true, true);
+	name->setExpanded(true, group->numContexts() == 1);
 	name->setSelectable(false);
 	availableMetricsTreeWidget->addTopLevelItem(name);
 	if (i == group->contextIndex())
