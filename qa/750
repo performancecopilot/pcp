@@ -29,8 +29,9 @@ trap "_rpm_cleanup" 0 1 2 3 15
 filter_pmval()
 {
     sed \
-	-e "s/\"$hostname\"/\"BUILDHOST\"/g" \
+	-e "s/^ *\"$hostname\"/\"BUILDHOST\"/g" \
 	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
+	-e "s/^host:      $hostname$/host:      HOST/g" \
     # end
 }
 
