@@ -1,4 +1,7 @@
-pcp-3.9.0 (19 January 2014)
+pcp-3.9.1 (14 March 2014)
+    - Currently under development.
+
+pcp-3.9.0 (19 February 2014)
     - Packaging changes for multilib pcp-libs{-devel},pcp-conf
     - Packaging changes for pcp-manager and pcp-webapi split
     - pmmgr: signal-response improvements
