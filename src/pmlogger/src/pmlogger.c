@@ -884,7 +884,8 @@ Options:\n\
 
 #ifndef IS_MINGW
     /* detach yourself from the launching process */
-    setpgid(getpid(), 0);
+    if (isdaemon)
+        setpgid(getpid(), 0);
 #endif
 
     /* set up control port */

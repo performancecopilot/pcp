@@ -1102,8 +1102,9 @@ void setup_signals()
 
 int main (int argc, char *argv[])
 {
+  /* Become our own process group, to assist signal passing to children. */
+  setpgid(getpid(), 0);
   __pmSetProgname(argv[0]);
-
   setup_signals();
 
   string default_config_dir =
