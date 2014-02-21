@@ -308,31 +308,6 @@ __pmCloseSocket(int fd)
     }
 }
 
-static int
-mkpath(const char *dir, mode_t mode)
-{
-    char path[MAXPATHLEN], *p;
-    int sts;
-
-    sts = access(dir, R_OK|W_OK|X_OK);
-    if (sts == 0)
-	return 0;
-    if (sts < 0 && oserror() != ENOENT)
-	return -1;
-
-    strncpy(path, dir, sizeof(path));
-    path[sizeof(path)-1] = '\0';
-
-    for (p = path+1; *p != '\0'; p++) {
-	if (*p == __pmPathSeparator()) {
-	    *p = '\0';
-	    mkdir2(path, mode);
-	    *p = __pmPathSeparator();
-	}
-    }
-    return mkdir2(path, mode);
-}
-
 static char *
 dbpath(char *path, size_t size, char *db_method)
 {
@@ -383,7 +358,7 @@ __pmInitCertificates(void)
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
      */
-    if (mkpath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
+    if (__pmMkdir(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
     secsts = NSS_InitReadWrite(nssdb);
 

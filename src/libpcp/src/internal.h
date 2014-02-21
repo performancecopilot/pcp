@@ -232,6 +232,7 @@ extern int __pmUsernameToID(const char *, __pmUserID *) _PCP_HIDDEN;
 extern int __pmGroupnameToID(const char *, __pmGroupID *) _PCP_HIDDEN;
 extern char *__pmUsernameFromID(__pmUserID, char *, size_t) _PCP_HIDDEN;
 extern char *__pmGroupnameFromID(__pmGroupID, char *, size_t) _PCP_HIDDEN;
+extern char *__pmHomedirFromID(__pmUserID, char *, size_t) _PCP_HIDDEN;
 extern int __pmUsersGroupIDs(const char *, __pmGroupID **, unsigned int *) _PCP_HIDDEN;
 extern int __pmGroupsUserIDs(const char *, __pmUserID **, unsigned int *) _PCP_HIDDEN;
 extern int __pmGetUserIdentity(const char *, __pmUserID *, __pmGroupID *, int) _PCP_HIDDEN;

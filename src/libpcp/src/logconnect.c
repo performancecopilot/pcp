@@ -99,6 +99,34 @@ __pmLogLocalSocketDefault(int pid)
 }
 
 /*
+ * Return the path to the user's own PMLOGGER local unix domain socket.
+ * Returns a pointer to a static buffer which can be used directly.
+ * Return the path regardless of whether unix domain sockets are
+ * supported by our build. Other functions can then print reasonable
+ * messages if an attempt is made to use one.
+ */
+const char *
+__pmLogLocalSocketUser(int pid)
+{
+    static char pmlogger_socket[MAXPATHLEN];
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (pmlogger_socket[0] == '\0') {
+	char home[MAXPATHLEN];
+	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
+		 "%s%c.pcp%cpmlogger%c" "pmlogger.%d.socket",
+		 __pmHomedirFromID(getuid(), home, sizeof(home)),
+		 __pmPathSeparator(),
+		 __pmPathSeparator(),
+		 __pmPathSeparator(),
+		 pid);
+    }
+    PM_UNLOCK(__pmLock_libpcp);
+    return pmlogger_socket;
+}
+
+/*
  * Common function for attemmpting connections to pmlogger.
  */
 static int
@@ -173,7 +201,7 @@ connectLoggerLocal(const char *local_socket)
     /*
      * Set the socket path. All socket paths are absolute, but strip off any redundant
      * initial path separators.
-     * snprint is guaranteed to add a nul byte.
+     * snprintf is guaranteed to add a nul byte.
      */
     while (*local_socket == __pmPathSeparator())
 	++local_socket;
@@ -257,9 +285,14 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		/* Try the socket indicated by the pid. */
 		connectionSpec = __pmLogLocalSocketDefault(*pid);
 		fd = connectLoggerLocal(connectionSpec);
+		if (fd < 0) {
+		    /* Try the socket in the user's home directory. */
+		    connectionSpec = __pmLogLocalSocketUser(*pid);
+		    fd = connectLoggerLocal(connectionSpec);
+		}
 	    }
 	    if (fd < 0) {
-		if (prefix_len != 6) /* "unix: */
+		if (prefix_len == 5) /* "unix: */
 		    return -ECONNREFUSED;
 		/*
 		 * The prefix was "local:".

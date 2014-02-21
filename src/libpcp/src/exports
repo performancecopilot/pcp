@@ -229,6 +229,7 @@ PCP_3.0 {
     __pmLogClose;
     __pmLogCreate;
     __pmLogLocalSocketDefault;
+    __pmLogLocalSocketUser;
     __pmLogFetch;
     __pmLogFetchInterp;
     __pmLogFindLocalPorts;
@@ -260,6 +261,7 @@ PCP_3.0 {
     __pmMapErrno;
     __pmMemoryMap;
     __pmMemoryUnmap;
+    __pmMkdir;
     __pmMktime;
     __pmMultiThreaded;
     __pmNativeConfig;

@@ -36,7 +36,7 @@
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-static const char *socketPath;	  /* Path to unix domain socket. */
+static const char *socketPath;	/* Path to unix domain sockets. */
 static const char *linkSocketPath;/* Link to socket for primary logger */
 #endif
 
@@ -203,6 +203,8 @@ GetPorts(char *file)
     for (ctlix = 0; ctlix < CFD_NUM; ++ctlix) {
 	if (ctlix == CFD_UNIX) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
+	    const char *socketError;
+	    const char *errorPath;
 	    /* Try to create a unix domain socket, if supported. */
 	    fd = __pmCreateUnixSocket();
 	    if (fd < 0) {
@@ -218,13 +220,40 @@ GetPorts(char *file)
 	    __pmSockAddrSetPath(myAddr, socketPath);
 	    __pmServerSetLocalSocket(socketPath);
 	    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+
+	    /*
+	     * If we cannot bind to the system wide socket path, then try binding
+	     * to the user specific one.
+	     */
+	    if (sts < 0) {
+		char *tmpPath;
+		socketError = netstrerror();
+		errorPath = socketPath;
+		unlink(errorPath);
+		socketPath = __pmLogLocalSocketUser(getpid());
+		/*
+		 * Make sure that the directory exists. dirname may modify the
+		 * contents of its first argument, so use a copy.
+		 */
+		if ((tmpPath = strdup(socketPath)) == NULL) {
+		    fprintf(stderr, "GetPorts: _strdup out of memory\n");
+		    exit(1);
+		}
+		sts = __pmMkdir(dirname(tmpPath),
+				S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		free(tmpPath);
+		if (sts >= 0 || oserror() == EEXIST) {
+		    __pmSockAddrSetPath(myAddr, socketPath);
+		    __pmServerSetLocalSocket(socketPath);
+		    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		}
+	    }
 	    __pmSockAddrFree(myAddr);
 
 	    if (sts < 0) {
-#ifdef DESPERATE
-		/* Not a fatal error. Just continue on without this socket. */
+		/* Could not bind to either socket path. */
+		fprintf(stderr, "__pmBind(%s): %s\n", errorPath, socketError);
 		fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
-#endif
 	    }
 	    else {
 		/*
