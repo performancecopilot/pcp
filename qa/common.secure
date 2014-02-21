@@ -29,6 +29,11 @@ nss_notrun_checks()
     [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"
+
+    fips=false	# testing for exposure to Red Hat bug 1035509
+    fipsfile=/proc/sys/crypto/fips_enabled
+    test -f $fipsfile -a `cat $fipsfile` -ne 0 && fips=true
+    $fips && _notrun "FIPS mode interacts badly with system NSS databases"
 }
 
 nss_cleanup()
