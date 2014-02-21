@@ -2,7 +2,7 @@
 Performance Metrics Domain Agent exporting Gluster filesystem metrics.
 '''
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -36,7 +36,8 @@ FILEOPS = [    # append only, do not change the order (changes PMID)
     'MKNOD', 'OPEN', 'OPENDIR', 'RCHECKSUM', 'READDIR', 'READDIRP',
     'READLINK', 'READV', 'REMOVEXATTR', 'RENAME', 'RMDIR', 'SETATTR',
     'SETXATTR', 'STAT', 'STATFS', 'SYMLINK', 'TRUNCATE', 'UNLINK',
-    'WRITEV', 'XATTROP',
+    'WRITEV', 'XATTROP', 'READ', 'WRITE', 'RELEASE', 'RELEASEDIR',
+    'FORGET'
 ]
 FILEOPS_INDICES = {}
 
@@ -89,17 +90,20 @@ class GlusterPMDA(PMDA):
 
     def parseVolumeInfo(self, xml):
         ''' Extract the set of volume names from given gluster XML string '''
-        volumes = []
-        for volxml in xml.findall('volInfo/volumes'):
-            volname = volxml.find('volume/name').text
-            volumes.append(volname)
+        volumenames = []
+        volsxml = xml.find('volInfo/volumes')
+        if volsxml == None:
+            return volumenames
+        for volxml in volsxml.findall('volume'):
+            volname = volxml.find('name').text
+            volumenames.append(volname)
             volume = GlusterVolume()
-            volume.distCount = int(volxml.find('volume/distCount').text)
-            volume.stripeCount = int(volxml.find('volume/stripeCount').text)
-            volume.replicaCount = int(volxml.find('volume/replicaCount').text)
+            volume.distCount = int(volxml.find('distCount').text)
+            volume.stripeCount = int(volxml.find('stripeCount').text)
+            volume.replicaCount = int(volxml.find('replicaCount').text)
             volume.fopHitsEnabled = 0
             volume.latencyEnabled = 0
-            for option in volxml.findall('volume/options/option'):
+            for option in volxml.findall('options/option'):
                 name = option.find('name').text
                 value = option.find('value').text
                 if (name == 'diagnostics.count-fop-hits' and value == 'on'):
@@ -107,7 +111,7 @@ class GlusterPMDA(PMDA):
                 if (name == 'diagnostics.latency-measurement' and value == 'on'):
                     volume.latencyEnabled = 1
             self.volumes[volname] = volume	# prepare the volume indom cache
-        return volumes
+        return volumenames
 
     def parseVolumeProfileInfo(self, volume, xml):
         ''' Extract the metric values from a given gluster profile string '''
@@ -116,11 +120,16 @@ class GlusterPMDA(PMDA):
             brick = GlusterBrick()
             for fileop in brickxml.findall('cumulativeStats/fopStats/fop'):
                 name = fileop.find('name').text
-                fop = FILEOPS_INDICES[name]
-                brick.count[fop] = long(fileop.find('hits').text)
-                brick.avgtime[fop] = float(fileop.find('avgLatency').text)
-                brick.mintime[fop] = long(float(fileop.find('minLatency').text))
-                brick.maxtime[fop] = long(float(fileop.find('maxLatency').text))
+                try:
+                    fop = FILEOPS_INDICES[name]
+                except KeyError:
+                    # self.log('Unrecognised fileops key %s' % name)
+                    pass
+                else:
+                    brick.count[fop] = long(fileop.find('hits').text)
+                    brick.avgtime[fop] = float(fileop.find('avgLatency').text)
+                    brick.mintime[fop] = long(float(fileop.find('minLatency').text))
+                    brick.maxtime[fop] = long(float(fileop.find('maxLatency').text))
             brick.read_bytes = long(brickxml.find('cumulativeStats/totalRead').text)
             brick.write_bytes = long(brickxml.find('cumulativeStats/totalWrite').text)
             self.bricks[brickname] = brick	# prepare the bricks indom cache

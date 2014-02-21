@@ -54,6 +54,7 @@ linux_filter()
     sed \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
+	-e "/hinv\.cpu\..*: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
 	-e "/mem\.util\.active_file: $unavailable/d" \

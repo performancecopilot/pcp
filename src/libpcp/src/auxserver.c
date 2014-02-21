@@ -21,7 +21,6 @@
 #if defined(HAVE_GETPEERUCRED)
 #include <ucred.h>
 #endif
-#include "avahi.h"
 
 /*
  * Info about a request port that clients may connect to a server on

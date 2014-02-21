@@ -63,6 +63,7 @@ _cleanup()
 	$sudo chown pcp:pcp $PCP_PMIECONTROL_PATH
 	$sudo chmod 664 $PCP_PMIECONTROL_PATH
 	$sudo cp $tmp.pmcd.bak $PCP_PMCDCONF_PATH
+	needclean=false
     fi
     $sudo rm -f $tmp.*
 }

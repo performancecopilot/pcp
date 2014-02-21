@@ -26,11 +26,11 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
         pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
-        stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
+	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c
-HFILES = derive.h internal.h
+HFILES = derive.h internal.h avahi.h
 VERSION_SCRIPT = exports
 
 LSRCFILES = check-statics $(VERSION_SCRIPT)
@@ -49,9 +49,8 @@ ifeq "$(ENABLE_AVAHI)" "true"
 LLDLIBS += $(LIB_FOR_AVAHI)
 LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
-HFILES += avahi.h
 else
-LSRCFILES += avahi.c avahi.h
+LSRCFILES += avahi.c
 endif
 
 ifneq "$(TARGET_OS)" "mingw"

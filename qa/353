@@ -18,6 +18,10 @@ if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
     _notrun "pmsocks is not installed and/or not configured"
 fi
+if [ "$PCPQA_SOCKS_SERVER" = my_socks_server ]
+then
+    _notrun "\$PCPQA_SOCKS_SERVER is not configured"
+fi
 
 _filter() {
     sed -e '/not QAing/d'

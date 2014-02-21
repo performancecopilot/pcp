@@ -32,7 +32,7 @@ are self-contained in the sense that they contain all the important
 metadata that would be required for off-line or off-site analysis.
 The format is intended to be stable in order to allow long-term
 historical storage and processing by current tools.  (Compatibility
-in the other direction - new files, old tools - is not as fully
+in the other direction \- new files, old tools \- is not as fully
 assured.)
 .PP
 Archives may be read by most PCP client tools, using the 
@@ -104,7 +104,7 @@ _
 4	4	pid of pmlogger process that wrote file
 8	4	log start time, seconds part (past UNIX epoch)
 12	4	log start time, microseconds part
-16	4	current log volume number (or -1=.meta, -2=.index)
+16	4	current log volume number (or \-1=.meta, \-2=.index)
 20	64	name of collection host
 80	40	time zone string ($TZ environment variable)
 .TE

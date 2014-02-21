@@ -484,12 +484,7 @@ init_ports(void)
 
     /* remove any existing port file with my name (it's old) */
     snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
-    sts = unlink(ctlfile);
-    if (sts == -1 && oserror() != ENOENT) {
-	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
-		pmProgname, ctlfile, osstrerror());
-	exit(1);
-    }
+    unlink(ctlfile);
 
     /* get control port and write port map file */
     GetPorts(ctlfile);
