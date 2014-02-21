@@ -566,8 +566,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %{_localstatedir}/lib/pcp/config
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
-%dir %attr(0770,pcp,pcp) %{_tempsdir}/pmie
-%dir %attr(0770,pcp,pcp) %{_tempsdir}/pmlogger
+%dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
+%dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
 %dir %attr(0775,pcp,pcp) %{_logsdir}
 
 %{_datadir}/pcp/lib
