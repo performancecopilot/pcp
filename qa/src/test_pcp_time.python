@@ -29,3 +29,5 @@ print "pmLocaltime from float: ", context.pmLocaltime(sample_time_f)
 
 print "pmCtime from int: ", context.pmCtime(sample_time_i),
 print "pmCtime from float: ", context.pmCtime(sample_time_f),
+
+print "pmWhichZone: ", context.pmWhichZone()

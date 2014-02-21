@@ -20,8 +20,13 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter_utc()
+{
+    sed -e 's/UTC+0/UTC/g' -e 's/UTC-0/UTC/g'
+}
+
 # real QA test starts here
-python src/test_pcp_time.python
+python src/test_pcp_time.python | _filter_utc
 
 # success, all done
 status=0
