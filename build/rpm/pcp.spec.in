@@ -401,7 +401,6 @@ sed -e 's/^/\//' $DEVFILELIST >devel_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
-sed -i -e '/usr\/include\/pcp\/configsz.h/d' devel_files
 
 #
 # some special cases for devel

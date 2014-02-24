@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API
 #
-# Copyright (C) 2012-2013 Red Hat
+# Copyright (C) 2012-2014 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -1123,32 +1123,32 @@ class pmContext(object):
             raise pmErr, status
         return status
 
-    def pmNewZone(self, tz):
+    @staticmethod
+    def pmNewZone(tz):
         """PMAPI - Create new zone handle and set reporting timezone """
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr, status
-        status = LIBPCP.pmNewContextZone(tz)
+        status = LIBPCP.pmNewZone(tz)
         if status < 0:
             raise pmErr, status
         return status
 
-    def pmUseZone(self, tz_handle):
+    @staticmethod
+    def pmUseZone(tz_handle):
         """PMAPI - Sets the current reporting timezone """
-        status = LIBPCP.pmUseContext(self.ctx)
-        if status < 0:
-            raise pmErr, status
         status = LIBPCP.pmUseZone(tz_handle)
         if status < 0:
             raise pmErr, status
         return status
 
-    def pmWhichZone(self):
+    @staticmethod
+    def pmWhichZone():
         """PMAPI - Query the current reporting timezone """
-        status = LIBPCP.pmGetContextHostName(self.ctx)
+        tz_p = c_char_p()
+        status = LIBPCP.pmWhichZone(byref(tz_p))
         if status < 0:
             raise pmErr, status
-        return status
+        tz = str(tz_p.value)
+        LIBC.free(tz_p)
+        return tz
 
     def pmLocaltime(self, seconds):
         """PMAPI - convert the date and time for a reporting timezone """
