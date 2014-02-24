@@ -92,8 +92,8 @@ pkgpcp_import_iostat = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
 pkgpcp_import_collectl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
 pkgpcp_pmda_infiniband = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
 pkgpcp_testsuite = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_testsuite);
-pkgpcp_manager = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_manager);
-pkgpcp_webapi = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_webapi);
+pkgpcp_manager = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
+pkgpcp_webapi = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
 pkgpcp_python = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
