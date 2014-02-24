@@ -64,6 +64,7 @@ main ()
   char *tmtmp_str;
  
   ttstart = 1392649730; // time(&ttstart) => time_t
+  ttstart = 1390057730;
   tvstart.tv_sec = ttstart;
   tvstart.tv_usec = 0;
   localtime_r (&ttstart, &tmstart); // time_t => tm
@@ -71,6 +72,7 @@ main ()
   dump_dt ("start ", &tmstart);
   dump_dt ("end   ", &tmend);
 
+  printf ("These time terms are relative to the start/end time.\n");
   set_tm (NULL, &tmtmp, &tmstart, 0, 19, 11, 45);
   tmtmp_str = asctime(&tmtmp);
   char *tmtmp_c = strchr (tmtmp_str, '\n');
@@ -82,15 +84,17 @@ main ()
   // See strftime for a description of the % formats
   char *strftime_fmt [] =  {
     "+1minute",
+    "-1 minute",
     "-1minute",
     "%F",
     "%D",
     "%D %r",
+    "%D %r -1month",
+    "%D %r tomorrow",
+    "%D %r yesterday",
     "%D %R",
     "%D %T",
     "%d %b %Y %X",
-    "yesterday",
-    "next day",
     "1 day ago",
     "1 week ago",
     "@%F",
@@ -99,11 +103,23 @@ main ()
     "@%D %R",
     "@%D %T",
     "@%d %b %Y %X",
-    "@yesterday",
     "@next day",
     "@1 day ago",
     "1 day",
-    "5 minutes 5 seconds"
+    "5 minutes 5 seconds",
+    "last week",
+    "last day",
+    "next day",
+    // relative to current time terms begin here
+    "now",
+    "today",
+    "@yesterday",
+    "yesterday",
+    "tomorrow",
+    "sunday",
+    "first sunday",
+    "last monday",
+    "next tuesday"
   };
 
   int sfx;
@@ -111,6 +127,8 @@ main ()
     int len = strftime (buffer, sizeof (buffer), strftime_fmt[sfx], &tmtmp);
     if (len != 0)
       {
+	  if (strcmp (strftime_fmt[sfx], "now") == 0)
+	      printf ("These time terms for a specific day are relative to the current time.\n");
 	__pmParseTime (buffer, &tvstart, &tvend, &tvrslt, &errmsg);
 	localtime_r (&tvrslt.tv_sec, &tmrslt); // time_t => tm
 	dump_dt (buffer, &tmrslt);

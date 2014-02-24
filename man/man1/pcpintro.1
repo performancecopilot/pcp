@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2013 Red Hat.
+.\" Copyright (c) 2012-2014 Red Hat.
 .\" Copyright (c) 2008 Aconex, Inc.  All Rights Reserved.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
@@ -384,7 +384,7 @@ three forms (\c
 is the same as for the
 .B \-t
 option as described above,
-.I ctime
+.I datetime
 is described below):
 .TP
 \f2interval\f1
@@ -407,12 +407,11 @@ For example
 will set the start of the time window to be exactly one hour before the
 time of the last sample in a PCP archive log.
 .TP
-@\f2ctime\f1
+@\f2datetime\f1
 To specify the calendar date and time (local time in the reporting timezone)
-for the start of the time window, use the
-.BR ctime (3)
-syntax preceded by an at sign.  For example
-.B "\-S '@ Mon Mar 4 13:07:47 1996'"
+for the start of the time window, use the datetime
+syntax preceded by an at sign.  Refer to the datetime description below
+for detailed information.
 .RE
 .TP
 .BI "\-T " endtime
@@ -433,7 +432,7 @@ three forms (\c
 is the same as for the
 .B \-t
 option as described above,
-.I ctime
+.I datetime
 is described below):
 .TP
 \f2interval\f1
@@ -450,12 +449,11 @@ prefix the \f2interval\f1 argument with a minus sign.  For example
 will set the end of the time window to be 90 minutes before the time of
 the last sample in a PCP archive log.
 .TP
-@\f2ctime\f1
+@\f2datetime\f1
 To specify the calendar date and time (local time in the reporting timezone)
-for the end of the time window, use the
-.BR ctime (3)
-syntax preceded by an at sign.  For example
-.B "\-T '@ Mon Mar 4 13:07:47 1996'"
+for the end of the time window, use the datetime
+syntax preceded by an at sign.  Refer to the datetime description below
+for detailed information.
 .RE
 .TP
 .BI "\-O " origin
@@ -489,17 +487,33 @@ time window; this is most useful when wishing to replay ``backwards''
 within the time window.
 .RE
 .PP
-The \f2ctime\f1 argument for the
+The \f2datetime\f1 argument for the
 .BR \-O ,
 .B \-S
 and
 .B \-T
-options is based upon the
-calendar date and time format of
-.BR ctime (3),
-but may be a fully specified time string like
-.B "Mon Mar  4 13:07:47 1996"
-or a partially specified time like 
+options consists of: 
+.br
+.ti +1i
+.B "date time zone day relative"
+.br
+A date can be one of:
+YY-MM-DD, MM/DD/YY, DD Month YYYY, or Month DD YYYY.
+A time can be one of: HH:MM:SS, HH:MM.  HH:MM can use either the
+12 hour (via an am or pm suffix) or 24 hour convention.
+A day of the
+week can be a spelled out day of the week, optionally preceded by an
+ordinal number such as second tuesday.  A zone is a time zone value as
+specified by the
+.B tzselect(1)
+command.  A relative time can be a time
+unit that is: preceded by a cardinal number such as 1 year or 2 months,
+preceded by one of the time words this or last, or succeeded by the time word ago.
+A relative time can also be one of the time words: yesterday, today, tomorrow, now.
+Examples of datetime strings are: 
+.BR "1996-03-04 13:07:47 EST Mon" ,
+.BR "1996-03-05 14:07:47 EST -1hour" ,
+.BR "Mon Mar  4 13:07:47 1996" ,
 .BR "Mar 4 1996" ,
 .BR "Mar 4" , 
 .BR "Mar" , 
@@ -531,14 +545,8 @@ corresponds to 10:00:00 on Tue Mar 5, 1996 (note this is the
 following day).
 .PP
 For greater precision than afforded by
-.BR ctime (3),
+.BR datetime (3),
 the seconds component may be a floating point number.
-.P
-Also the 12 hour clock (am/pm notation) is supported, so for example
-.B "13:07"
-and
-.B "1:07 pm"
-are equivalent.
 .SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
 The number of performance metric names supported by PCP on most
 platforms ranges from many hundreds to several thousand.

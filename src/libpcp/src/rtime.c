@@ -527,52 +527,40 @@ __pmConvertTime(
 static int
 have_relative_date (const char* date_string)
 {
-    char* const relative_time_units[] =
-    {
-        "YEAR",
-        "MONTH",
-        "FORTNIGHT",
-        "WEEK",
-        "DAY",
-        "HOUR",
-        "MINUTE",
-        "MIN",
-        "SECOND",
-        "SEC",
-        "TOMORROW",
-        "YESTERDAY"
-        "TODAY",
-        "NOW",
-        "LAST",
-        "THIS",
-        "NEXT",
-        "FIRST",
-        "SECOND",
-        "THIRD",
-        "FOURTH",
-        "FIFTH",
-        "SIXTH",
-        "SEVENTH",
-        "EIGHTH",
-        "NINTH",
-        "TENTH",
-        "ELEVENTH",
-        "TWELFTH",
-    };
-    int rtu_bound = sizeof (relative_time_units) / sizeof (void*);
+    // Time terms most commonly used with an adjective modifier are relative to the start/end time
+    // e.g. last year, 2 year ago, next hour, -1 minute
+	char* const startend_relative_terms[] =
+	{
+		" YEAR",
+		" MONTH",
+		" FORTNIGHT",
+		" WEEK",
+		" DAY",
+		" HOUR",
+		" MINUTE",
+		" MIN",
+		" SECOND",
+		" SEC"};
+
+    // Time terms for a specific day are relative to the current time
+    // TOMORROW, YESTERDAY, TODAY, NOW, MONDAY-SUNDAY
+
+    int rtu_bound = sizeof (startend_relative_terms) / sizeof (void*);
     int rtu_idx;
     while (isspace((int)*date_string))
-	date_string++;
-    for (rtu_idx = 0; rtu_idx < rtu_bound ; rtu_idx++)
-        if (strcasestr (date_string, relative_time_units[rtu_idx]) != NULL)
+    	date_string++;
+    for (rtu_idx = 0; rtu_idx < rtu_bound; rtu_idx++)
+        if (strcasestr (date_string, startend_relative_terms[rtu_idx]) != NULL)
             break;
-    if (rtu_idx == rtu_bound)
-        return NO_OFFSET;
-    if (strcasestr (date_string, "ago") != NULL || strcasestr (date_string, "last") ||
-	    strcasestr (date_string, "yesterday") || date_string[0] == '-')
-        return NEG_OFFSET;
-    else
-        return PLUS_OFFSET;
+    if (rtu_idx < rtu_bound) {
+	if (strcasestr (date_string, "last") != NULL ||
+	    strcasestr (date_string, "ago") != NULL ||
+	    date_string[0] == '-')
+		return NEG_OFFSET;
+	else
+		return PLUS_OFFSET;
+    }
+    return NO_OFFSET;
 }
 
 
@@ -643,11 +631,11 @@ __pmParseTime(
 
     /* datetime is not a pcp defined one, so drop down into the glib get_date case */
     int status  = -1;
-    int rel_type = have_relative_date (scan);
+    int rel_type;
     struct timespec tsrslt;
     struct timespec *tsrsltp = &tsrslt;
-    if (parseChar(&scan, '@'))
-	rel_type = NO_OFFSET;
+    parseChar(&scan, '@');		// ignore; have_relative_date determines type
+    rel_type = have_relative_date (scan);
 
     if (rel_type == NO_OFFSET)
 	status = get_date (tsrsltp, scan, NULL);
