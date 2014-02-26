@@ -2334,6 +2334,21 @@ dnl   Build definitions for use in packaging
     build/GNUlocaldefs
 )
 
+dnl all done with configuring, now ensure the Debian control file
+dnl is good to go
+cd debian || exit 1
+rm -f control
+if make control >/tmp/$$.make.out 2>&1 
+then
+    rm /tmp/$$.make.out
+else
+    echo "Arrgh ..."
+    cat /tmp/$$.make.out
+    rm /tmp/$$.make.out
+    exit 1
+fi
+cd ..
+
 echo config.status: settings dump begin
 grep '^S.".*=' config.status
 echo config.status: settings dump end

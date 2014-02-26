@@ -367,12 +367,3 @@ Description: Performance Co-Pilot (PCP) manager daemon
  .
  The pcp-manager package aims to aggressively enable new PCP features
  and as a result may not be suited to all production environments.
-
-Package: pcp-webapi
-Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
-Architecture: any
-Description: Performance Co-Pilot (PCP) web API service
- Provides a daemon (pmwebd) that binds a large subset of the Performance
- Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
- HTTP (PMWEBAPI) protocol.
-
