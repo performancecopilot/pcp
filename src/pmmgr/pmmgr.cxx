@@ -44,6 +44,7 @@ using namespace std;
 
 
 int quit;
+int polltime = 60;
 
 
 // ------------------------------------------------------------------------
@@ -600,7 +601,8 @@ pmmgr_daemon::pmmgr_daemon(const std::string& config_directory,
   pmmgr_configurable(config_directory),
   hostid(hostid),
   spec(spec),
-  pid(0)
+  pid(0),
+  last_restart_attempt(0)
 {
 }
 
@@ -656,9 +658,31 @@ void pmmgr_daemon::poll()
 
   if (pid == 0) // needs a restart
     {
-      string commandline = daemon_command_line();
+      time_t now;
+      time (& now);
+
+      // Prevent an error in the environment or the pmmgr daemon
+      // command lines from generating a tight loop of failure /
+      // retry, wasting time and log file space.  Limit retry attempts
+      // to one per poll interval (pmmgr -p N parameter).
+      if (last_restart_attempt && (last_restart_attempt + polltime) >= now)
+        return; // quietly, without attempting to restart
+
+      string commandline = daemon_command_line(); // <--- may take many seconds!
+
+      // NB: Note this time as a restart attempt, even if daemon_command_line() 
+      // returned an empty string, so that we don't try to restart it too soon.
+      // We note this time rather than the beginning of daemon_command_line(), 
+      // to ensure at least polltime seconds of rest between attempts.
+      last_restart_attempt = now;
 
       if (quit) return; // without starting the daemon process
+
+      if (commandline == "") // error in some intermediate processing stage
+        {
+          timestamp(cerr) << "failed to prepare daemon command line" << endl;
+          return;
+        }
 
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "fork/exec sh -c " << commandline << endl;
@@ -1112,7 +1136,6 @@ int main (int argc, char *argv[])
   vector<pmmgr_job_spec*> js;
 
   int c;
-  int polltime = 60;
   char* username_str;
   __pmGetUsername(& username_str);
   string username = username_str;

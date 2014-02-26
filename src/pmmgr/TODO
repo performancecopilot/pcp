@@ -8,4 +8,5 @@
 - port to mingw?
 - port to cygwin?
 - pmlogger/pmie .log rotation
-- backoff for failing daemon
+- pid->pid_t cleanup
+
