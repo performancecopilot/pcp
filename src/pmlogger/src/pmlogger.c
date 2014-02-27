@@ -476,6 +476,7 @@ main(int argc, char **argv)
     int			sts;
     int			sep = __pmPathSeparator();
     int			errflag = 0;
+    int			use_localtime = 0;
     int			isdaemon = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*username;
@@ -500,7 +501,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -633,6 +634,10 @@ main(int argc, char **argv)
 	    time(&rsc_start);
 	    break;
 
+	case 'y':
+	    use_localtime = 1;
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -661,7 +666,8 @@ Options:\n\
   -v volsize	switch log volumes after volsize has been accumulated\n\
   -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
-		via pmRecordControl(3)\n",
+		via pmRecordControl(3)\n\
+  -y		set timezone for times to local time rather than that of PMCD host\n",
 			pmProgname);
 	exit(1);
     }
@@ -818,7 +824,8 @@ Options:\n\
 		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
 		/* prefer to use remote time to avoid clock drift problems */
 		epoch = resp->timestamp;		/* struct assignment */
-		pmNewZone(logctl.l_label.ill_tz);
+		if (! use_localtime)
+		    pmNewZone(logctl.l_label.ill_tz);
 	    }
 #ifdef PCP_DEBUG
 	    else if (pmDebug & DBG_TRACE_LOG) {
@@ -877,7 +884,8 @@ Options:\n\
 
 #ifndef IS_MINGW
     /* detach yourself from the launching process */
-    setpgid(getpid(), 0);
+    if (isdaemon)
+        setpgid(getpid(), 0);
 #endif
 
     /* set up control port */
