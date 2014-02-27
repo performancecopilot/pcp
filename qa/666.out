@@ -1,0 +1,86 @@
+QA output created by 666
+pmmgr ok
+
+=== 1. prepare blank pmmgr config directory  ===
+=== 2. pmmgr barenaked startup  ===
+=== 3. look for pmmgr starting no daemons ===
+target-host
+=== 4. add control files to start pmlogger and pmie ===
+=== 5. restart pmmgr four times to get a bunch of pmlogger archives ===
+1
+2
+3
+4
+=== 6. check the directories ===
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+config.pmie
+config.pmlogger
+pmie.log
+pmlogger.log
+=== 7. add log-merging/rewriting, stop pmFOOconf and kill pmcd once more ===
+=== 8. recheck the directories past regain/merge ===
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+config.pmie
+config.pmlogger
+pmie.log
+pmlogger.log
+=== 9. how about some granular mode ===
+=== 10. wait a minute, nine times ===
+1
+2
+3
+4
+6
+7
+8
+9
+=== 11. admire grained / retained data ===
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
+config.pmie
+config.pmlogger
+pmie.log
+pmlogger.log
+=== ZZZ kill pmmgr, collect its cumulative logs ===
+TIMESTAMP pmmgr(PID/TID): Log started
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): TMPDIR: new hostid HOSTID at LOCAL
+TIMESTAMP pmmgr(PID/TID): TMPDIR: dead hostid HOSTID
+TIMESTAMP pmmgr(PID/TID): Log finished

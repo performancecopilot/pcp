@@ -265,6 +265,10 @@ pcp.py
 # Uses avahi
 avahi
 
+pmmgr
+
+pmwebapi
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -878,6 +882,7 @@ avahi
 655 pmda.gfs2 local oss
 660 pmwebapi local oss
 701 pmlogcheck local oss
+666 pmmgr pmlogger pmlogextract local oss
 702 python libpcp local oss
 703 pmda.weblog local oss
 704:reserved pmda.mmv python mmv local oss
