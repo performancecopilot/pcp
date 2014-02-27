@@ -87,6 +87,8 @@ dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev]
 rpm?	/usr/include/infiniband/mad.h	[libibmad-devel]
 dpkg?	/usr/include/avahi-common	[libavahi-common-dev]
 rpm?	/usr/include/avahi-common	[libavahi-devel]
+dpkg?	g++				[g++]
+rpm?	g++				[gcc-c++]
 # files
 dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
