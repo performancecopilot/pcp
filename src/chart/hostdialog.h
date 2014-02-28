@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Red Hat.
+ * Copyright (c) 2013-2014, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ class HostDialog : public QDialog, public Ui::HostDialog
 public:
     HostDialog(QWidget* parent);
     int getContextFlags() const;
+    QString getHostName(void) const;
     QString getHostSpecification() const;
 
 protected slots:

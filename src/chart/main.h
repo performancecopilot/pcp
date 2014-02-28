@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2014, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,6 +61,18 @@ typedef struct {
 	int toolbarLocationModified;
 	QStringList toolbarActions;
 	bool toolbarActionsModified;
+
+	// Font
+	QString fontFamily;
+	bool fontFamilyModified;
+	QString fontStyle;
+	bool fontStyleModified;
+	int fontSize;
+	bool fontSizeModified;
+
+	// Saved Hosts
+	QStringList savedHosts;
+	bool savedHostsModified;
 } Settings;
 
 extern Settings globalSettings;
@@ -72,6 +85,7 @@ extern int Lflag;
 extern int Wflag;
 extern char *outfile;
 extern char *outgeometry;
+
 extern QFont *globalFont;
 
 extern GroupControl *activeGroup;

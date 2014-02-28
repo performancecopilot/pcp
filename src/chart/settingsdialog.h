@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2007, 2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -48,6 +49,20 @@ public slots:
     virtual void updateSchemeButton_clicked();
     virtual void schemeComboBox_currentIndexChanged(int);
 
+    virtual void familyLineEdit_editingFinished();
+    virtual void familyListWidget_itemClicked(QListWidgetItem *);
+    virtual void styleLineEdit_editingFinished();
+    virtual void styleListWidget_itemClicked(QListWidgetItem *);
+    virtual void sizeLineEdit_editingFinished();
+    virtual void sizeListWidget_itemClicked(QListWidgetItem *);
+    virtual void resetFontButton_clicked();
+    virtual void applyFontButton_clicked();
+
+    virtual void hostButton_clicked();
+    virtual void savedHostsListWidget_itemSelectionChanged();
+    virtual void removeHostButton_clicked();
+    virtual void addHostButton_clicked();
+
     virtual void startupToolbarCheckBox_clicked();
     virtual void nativeToolbarCheckBox_clicked();
     virtual void toolbarAreasComboBox_currentIndexChanged(int);
@@ -80,6 +95,10 @@ protected slots:
     virtual void colorButton22_clicked() { colorButtonClicked(22); }
 
 private:
+    void setupFontLists();
+    void setupSavedHostsList();
+    void setupHostComboBox(const QString &);
+    void setupActionsList();
     void setupSchemePalette();
     void setupSchemeComboBox();
     ColorScheme *lookupScheme(QString);

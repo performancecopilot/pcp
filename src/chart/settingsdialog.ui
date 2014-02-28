@@ -54,7 +54,7 @@
     <attribute name="title">
      <string>Sampling</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget1">
+    <widget class="QWidget" name="samplesLayoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -1093,7 +1093,220 @@
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="fontTab">
+    <attribute name="title">
+     <string>Font</string>
+    </attribute>
+    <widget class="QWidget" name="sizeLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>10</y>
+       <width>48</width>
+       <height>161</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="sizeVerticalLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="sizeLabel">
+        <property name="text">
+         <string>Size</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sizeLineEdit"/>
+      </item>
+      <item>
+       <widget class="QListWidget" name="sizeListWidget"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="styleLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>10</y>
+       <width>82</width>
+       <height>161</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="styleVerticalLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="styleLabel">
+        <property name="text">
+         <string>Style</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="styleLineEdit"/>
+      </item>
+      <item>
+       <widget class="QListWidget" name="styleListWidget"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="familyLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>205</width>
+       <height>161</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="familyVerticalLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="familyLabel">
+        <property name="text">
+         <string>Family</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="familyLineEdit"/>
+      </item>
+      <item>
+       <widget class="QListWidget" name="familyListWidget"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="resetFontButton">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>180</y>
+       <width>75</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reset</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="applyFontButton">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>180</y>
+       <width>75</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Apply</string>
+     </property>
+    </widget>
+   </widget>
    <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Hosts</string>
+    </attribute>
+    <widget class="QPushButton" name="addHostButton">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>180</y>
+       <width>75</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="removeHostButton">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>180</y>
+       <width>75</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Remove</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="hostButton">
+     <property name="text" >
+      <string>...</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="pmchart.qrc" >:/computer.png</iconset>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>16</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>10</y>
+       <width>92</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="hostComboBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>241</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="savedHostsGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>341</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Saved Hosts</string>
+     </property>
+     <widget class="QListWidget" name="savedHostsListWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>321</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="viewMode">
+       <enum>QListView::ListMode</enum>
+      </property>
+      <property name="selectionRectVisible">
+       <bool>false</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="toolbarTab">
     <attribute name="title">
      <string>Toolbar</string>
     </attribute>
@@ -1166,7 +1379,7 @@
        <item>
         <widget class="QLabel" name="toolbarActionsLabel">
          <property name="text">
-           <string>Actions:</string>
+          <string>Actions:</string>
          </property>
         </widget>
        </item>
@@ -1230,11 +1443,11 @@
    <property name="text">
     <string>&amp;Close</string>
    </property>
-   <property name="shortcut" >
-     <string/>
+   <property name="shortcut">
+    <string/>
    </property>
-   <property name="autoDefault" >
-     <bool>true</bool>
+   <property name="autoDefault">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>
@@ -1250,20 +1463,20 @@
  </resources>
  <connections>
   <connection>
-    <sender>closeSettingsButton</sender>
-    <signal>clicked()</signal>
-    <receiver>SettingsDialog</receiver>
-    <slot>reject()</slot>
-    <hints>
-      <hint type="sourcelabel" >
-        <x>20</x>
-        <y>20</y>
-      </hint>
-      <hint type="destinationlabel" >
-        <x>20</x>
-        <y>20</y>
-      </hint>
-    </hints>
+   <sender>closeSettingsButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>defaultBackgroundButton</sender>
@@ -1918,6 +2131,198 @@
     <hint type="destinationlabel">
      <x>194</x>
      <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>familyLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>familyLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>styleLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>styleLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sizeLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>sizeLineEdit_editingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>familyListWidget</sender>
+   <signal>itemClicked(QListWidgetItem*)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>familyListWidget_itemClicked(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>styleListWidget</sender>
+   <signal>itemClicked(QListWidgetItem*)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>styleListWidget_itemClicked(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sizeListWidget</sender>
+   <signal>itemClicked(QListWidgetItem*)</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>sizeListWidget_itemClicked(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>resetFontButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>resetFontButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>applyFontButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>applyFontButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hostButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>hostButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>savedHostsListWidget</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>savedHostsListWidget_itemSelectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeHostButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>removeHostButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addHostButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>addHostButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

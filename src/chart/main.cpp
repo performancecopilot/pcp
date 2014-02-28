@@ -25,8 +25,6 @@
 int Cflag;
 int Lflag;
 int Wflag;
-int fontSize;
-char *fontFamily;
 char *outfile;
 char *outgeometry;
 QFont *globalFont;
@@ -39,6 +37,8 @@ GroupControl *activeGroup;	// currently active metric fetchgroup
 TimeControl *pmtime;		// one timecontrol class for pmtime
 PmChart *pmchart;
 
+static const char *options = "A:a:Cc:D:f:F:g:h:H:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
+
 static void usage(void)
 {
     pmprintf("Usage: %s [options] [sources]\n\n"
@@ -48,29 +48,28 @@ static void usage(void)
 "  -c configfile initial view to load\n"
 "  -C            with -c, parse config, report any errors and exit\n"
 "  -CC           like -C, but also connect to pmcd to check semantics\n"
-"  -f font       use font family [default: %s]\n"
 "  -F fontsize   use font of given size [default: %d]\n"
+"  -f font       use font family [default: %s]\n"
 "  -g geometry   image geometry Width x Height (WxH)\n"
+"  -H hostfile   setup a list of saved hosts for sourcing metrics\n"
 "  -h host       add host to list of live metrics sources\n"
-#ifdef PM_USE_CONTEXT_LOCAL
 "  -L            directly fetch metrics from localhost, PMCD is not used\n"
-#endif
 "  -n pmnsfile   use an alternative PMNS\n"
-"  -o outfile    export image to outfile\n"
 "  -O offset     initial offset into the time window\n"
+"  -o outfile    export image to outfile\n"
 "  -p port       port name for connection to existing time control\n"
-"  -s samples    sample history [default: %d points]\n"
 "  -S starttime  start of the time window\n"
+"  -s samples    sample history [default: %d points]\n"
 "  -T endtime    end of the time window\n"
 "  -t interval   sample interval [default: %d seconds]\n"
-"  -v visible    visible history [default: %d points]\n"
 "  -V            display pmchart version number and exit\n"
+"  -v visible    visible history [default: %d points]\n"
 "  -W            export images using an opaque (white) background\n"
 "  -Z timezone   set reporting timezone\n"
 "  -z            set reporting timezone to local time of metrics source\n",
 	pmProgname,
-	PmChart::defaultFontFamily(),
 	PmChart::defaultFontSize(),
+	PmChart::defaultFontFamily(),
 	PmChart::defaultSampleHistory(),
 	(int)PmChart::defaultChartDelta(),
 	PmChart::defaultVisibleHistory());
@@ -273,6 +272,23 @@ void writeSettings(void)
 	globalSettings.toolbarActionsModified = false;
 	userSettings.setValue("toolbarActions", globalSettings.toolbarActions);
     }
+    if (globalSettings.fontFamilyModified) {
+	globalSettings.fontFamilyModified = false;
+	userSettings.setValue("fontFamily", globalSettings.fontFamily);
+    }
+    if (globalSettings.fontStyleModified) {
+	globalSettings.fontStyleModified = false;
+	userSettings.setValue("fontStyle", globalSettings.fontStyle);
+    }
+    if (globalSettings.fontSizeModified) {
+	globalSettings.fontSizeModified = false;
+	userSettings.setValue("fontSize", globalSettings.fontSize);
+    }
+    if (globalSettings.savedHostsModified) {
+	globalSettings.savedHostsModified = false;
+	userSettings.setValue("savedHosts", globalSettings.savedHosts);
+    }
+
     userSettings.endGroup();
 }
 
@@ -389,6 +405,28 @@ void readSettings(void)
 			userSettings.value("toolbarActions").toStringList();
     // else: (defaults come from the pmchart.ui interface specification)
 
+    //
+    // Font preferences
+    //
+    globalSettings.fontFamilyModified = false;
+    globalSettings.fontFamily = userSettings.value(
+		"fontFamily", PmChart::defaultFontFamily()).toString();
+    globalSettings.fontStyleModified = false;
+	QString fontStyle;
+    globalSettings.fontStyle = userSettings.value(
+		"fontStyle", "Normal").toString();
+    globalSettings.fontSizeModified = false;
+    globalSettings.fontSize = userSettings.value(
+		"fontSize", PmChart::defaultFontSize()).toInt();
+
+    //
+    // Saved Hosts list preferences
+    //
+    globalSettings.savedHostsModified = false;
+    if (userSettings.contains("savedHosts") == true)
+	globalSettings.savedHosts =
+			userSettings.value("savedHosts").toStringList();
+
     userSettings.endGroup();
 }
 
@@ -460,8 +498,8 @@ main(int argc, char ** argv)
     char		*Tflag = NULL;		/* argument of -T flag */
     char		*Aflag = NULL;		/* argument of -A flag */
     char		*Oflag = NULL;		/* argument of -O flag */
-    int			zflag = 0;		/* for -z (source zone) */
     char		*tz = NULL;		/* for -Z timezone */
+    int			zflag = 0;		/* for -z (source zone) */
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
     int			port = -1;		/* pmtime port number */
@@ -478,7 +516,6 @@ main(int argc, char ** argv)
     QStringList		configs;
     QString		tzLabel;
     QString		tzString;
-    static const char	*options = "A:a:Cc:D:f:F:g:h:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
 
     __pmtimevalNow(&origin);
     __pmSetProgname(argv[0]);
@@ -522,14 +559,16 @@ main(int argc, char ** argv)
 	    break;
 
 	case 'f':
-	    fontFamily = optarg;
+	    globalSettings.fontFamily = optarg;
 	    break;
 
 	case 'F':
-	    fontSize = (int)strtol(optarg, &endnum, 10);
+	    sts = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || c < 0) {
 		pmprintf("%s: -F requires a numeric argument\n", pmProgname);
 		errflg++;
+	    } else {
+		globalSettings.fontSize = sts;
 	    }
 	    break;
 
@@ -540,6 +579,23 @@ main(int argc, char ** argv)
 	case 'h':
 	    hosts.append(optarg);
 	    break;
+
+	case 'H': {
+	    QFile file(optarg);
+	    if (!file.open(QIODevice::ReadOnly)) {
+		pmprintf("Cannot open hosts files %s: %s", optarg,
+			 (const char *)file.errorString().toAscii());
+		errflg++;
+	    } else {
+		QTextStream in(&file);
+		while (!in.atEnd()) {
+		    globalSettings.savedHosts.append(in.readLine().trimmed());
+		    globalSettings.savedHostsModified = true;
+		}
+		file.close();
+	    }
+	    break;
+	}
 
 #ifdef PM_USE_CONTEXT_LOCAL
 	case 'L':		/* local context */
@@ -636,9 +692,11 @@ main(int argc, char ** argv)
     if (archives.size() > 0)
 	while (optind < argc)
 	    archives.append(argv[optind++]);
-    else
+    else {
+	hosts = globalSettings.savedHosts + hosts;
 	while (optind < argc)
 	    hosts.append(argv[optind++]);
+    }
 
     if (optind != argc)
 	errflg++;
@@ -754,9 +812,12 @@ main(int argc, char ** argv)
     }
     console->post("Timezones and time window setup complete");
 
-    globalFont = new QFont(
-		fontFamily ? fontFamily : PmChart::defaultFontFamily(),
-		fontSize ? fontSize : PmChart::defaultFontSize());
+    globalFont = new QFont(globalSettings.fontFamily, globalSettings.fontSize);
+    if (globalSettings.fontStyle.contains("Italic"))
+	globalFont->setItalic(true);
+    if (globalSettings.fontStyle.contains("Bold"))
+	globalFont->setBold(true);
+
     fileIconProvider = new FileIconProvider();
     pmchart = new PmChart;
     pmtime = new TimeControl;

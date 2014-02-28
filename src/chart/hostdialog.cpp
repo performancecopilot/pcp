@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Red Hat.
+ * Copyright (c) 2013-2014, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -62,9 +62,21 @@ HostDialog::authenticateCheckBox_toggled(bool enableAuthenticate)
 }
 
 QString
-HostDialog::getHostSpecification(void) const
+HostDialog::getHostName(void) const
 {
     QString host;
+
+    if (hostLineEdit->isModified())
+        host = hostLineEdit->text().trimmed();
+    if (host.length() == 0)
+        return QString::null;
+    return host;
+}
+
+QString
+HostDialog::getHostSpecification(void) const
+{
+    QString host = getHostName();
 
     if (hostLineEdit->isModified())
         host = hostLineEdit->text().trimmed();

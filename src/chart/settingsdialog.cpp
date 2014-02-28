@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2007, 2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,9 +13,12 @@
  * for more details.
  */
 #include "settingsdialog.h"
+#include <QtGui/QCompleter>
 #include <QtGui/QMessageBox>
+#include <QtGui/QFontDatabase>
 #include <QtGui/QListWidgetItem>
 #include "main.h"
+#include "hostdialog.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
 	: QDialog(parent), disabled(Qt::Dense4Pattern)
@@ -25,13 +29,9 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     nativeToolbarCheckBox->setEnabled(false);
 #endif
 
-    QList<QAction*> actionsList = pmchart->toolbarActionsList();
-    for (int i = 0; i < actionsList.size(); i++) {
-	QAction *action = actionsList.at(i);
-	actionListWidget->insertItem(i,
-		new QListWidgetItem(action->icon(), action->iconText()));
-    }
+    setupActionsList();
     enabled = actionListWidget->item(0)->background();
+    setupHostComboBox(activeGroup->context()->source().host());
 
     chartDeltaLineEdit->setValidator(
 		new QDoubleValidator(0.001, INT_MAX, 3, chartDeltaLineEdit));
@@ -74,6 +74,56 @@ void SettingsDialog::enableUi()
     removeSchemeButton->setEnabled(userScheme);
 }
 
+void SettingsDialog::setupFontLists()
+{
+    QFontDatabase database;
+    const QStringList families = database.families();
+
+    console->post(PmChart::DebugForce,
+		    "SettingsDialog::setupFontLists: default %s [%d]",
+		    (const char *)PmChart::defaultFontFamily(),
+		    PmChart::defaultFontSize());
+
+    QCompleter *completeFamily = new QCompleter(families, familyLineEdit);
+    familyLineEdit->setCompleter(completeFamily);
+
+    familyListWidget->insertItems(0, families);
+//    foreach (const QString &family, database.families()) {
+//	console->post(PmChart::DebugForce, "got family: %s",
+//		    (const char *)family.toAscii());
+//   }
+
+    QString family = PmChart::defaultFontFamily();	// TODO: check prefs
+    styleListWidget->insertItems(0, database.styles(family));
+//    foreach (const QString &style, database.styles(family)) {
+//	console->post(PmChart::DebugForce, "got style: %s",
+//		    (const char *)style.toAscii());
+//    }
+
+    QString style("Normal");				// TODO: check prefs
+    QStringList sizes;
+    foreach (int points, database.smoothSizes(family, style))
+	sizes << QString::number(points);
+    sizeListWidget->insertItems(0, sizes);
+}
+
+void SettingsDialog::setupActionsList()
+{
+    QList<QAction*> actionsList = pmchart->toolbarActionsList();
+    QList<QAction*> enabledList = pmchart->enabledActionsList();
+
+    actionListWidget->blockSignals(true);
+    actionListWidget->clear();
+    for (int i = 0; i < actionsList.size(); i++) {
+	QAction *action = actionsList.at(i);
+	QListWidgetItem *item = new QListWidgetItem(action->icon(), action->iconText());
+	actionListWidget->insertItem(i, item);
+	if (enabledList.contains(action) == false)
+	    item->setBackground(disabled);
+    }
+    actionListWidget->blockSignals(false);
+}
+
 void SettingsDialog::reset()
 {
     my.chartUnits = PmTime::Seconds;
@@ -98,15 +148,12 @@ void SettingsDialog::reset()
 
     setupSchemeComboBox();
     setupSchemePalette();
+    setupActionsList();
+    setupFontLists();
 
-    QList<QAction*> actionsList = pmchart->toolbarActionsList();
-    QList<QAction*> enabledList = pmchart->enabledActionsList();
-    for (int i = 0; i < actionsList.size(); i++) {
-	QAction *action = actionsList.at(i);
-	QListWidgetItem *item = actionListWidget->item(i);
-	if (enabledList.contains(action) == false)
-	    item->setBackground(disabled);
-    }
+    setupSavedHostsList();
+    removeHostButton->setEnabled(globalSettings.savedHosts.size() > 0);
+
     startupToolbarCheckBox->setCheckState(
 		globalSettings.initialToolbar ? Qt::Checked : Qt::Unchecked);
     nativeToolbarCheckBox->setCheckState(
@@ -277,6 +324,46 @@ void SettingsDialog::colorButtonClicked(int n)
 	globalSettings.defaultSchemeModified = true;
 	writeSettings();
     }
+}
+
+void SettingsDialog::familyLineEdit_editingFinished()
+{
+    // TODO: save family (from lineedit) to preferences file
+}
+
+void SettingsDialog::familyListWidget_itemClicked(QListWidgetItem *item)
+{
+    // TODO: save family (from item) to preferences file
+}
+
+void SettingsDialog::styleLineEdit_editingFinished()
+{
+    // TODO: save style (from lineedit) to preferences file
+}
+
+void SettingsDialog::styleListWidget_itemClicked(QListWidgetItem *item)
+{
+    // TODO: save style (from item) to preferences file
+}
+
+void SettingsDialog::sizeLineEdit_editingFinished()
+{
+    // TODO: save point size (from item) to preferences file
+}
+
+void SettingsDialog::sizeListWidget_itemClicked(QListWidgetItem *item)
+{
+    // TODO: save point size (from item) to preferences file
+}
+
+void SettingsDialog::resetFontButton_clicked()
+{
+    // TODO: revert to defaults, clear preferences file
+}
+
+void SettingsDialog::applyFontButton_clicked()
+{
+    // TODO: save family/style/size (from list) to preferences file
 }
 
 void SettingsDialog::startupToolbarCheckBox_clicked()
@@ -464,4 +551,119 @@ void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
 	    setupSchemePalette();
 	}
     }
+}
+
+//
+// Preferences -> Host tab
+//
+
+void SettingsDialog::setupSavedHostsList()
+{
+    QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
+    QStringList savedHostsList = globalSettings.savedHosts;
+    const QString hostcombo = hostComboBox->currentText();
+
+    savedHostsListWidget->blockSignals(true);
+    savedHostsListWidget->clear();
+    for (int i = 0; i < savedHostsList.size(); i++) {
+	const QString &hostname = savedHostsList.at(i);
+	QListWidgetItem *item = new QListWidgetItem(hostIcon, hostname);
+	savedHostsListWidget->insertItem(i, item);
+	if (hostname == hostcombo)
+	    savedHostsListWidget->setCurrentItem(item);
+    }
+    savedHostsListWidget->blockSignals(false);
+}
+
+void SettingsDialog::savedHostsListWidget_itemSelectionChanged()
+{
+    QList<QListWidgetItem *>selections = savedHostsListWidget->selectedItems();
+    removeHostButton->setEnabled(selections.size() > 0);
+}
+
+void SettingsDialog::removeHostButton_clicked()
+{
+    QList<QListWidgetItem *>selections = savedHostsListWidget->selectedItems();
+
+    for (int i = 0; i < selections.size(); i++) {
+	QListWidgetItem *item = selections.at(i);
+	savedHostsListWidget->removeItemWidget(item);
+	delete item;
+    }
+    removeHostButton->setEnabled(false);
+    writeSettings();
+}
+
+void SettingsDialog::addHostButton_clicked()
+{
+    QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
+    const QString hostname = hostComboBox->currentText();
+    bool changed = false;
+
+    for (int i = 0; i < savedHostsListWidget->count(); i++) {
+	QListWidgetItem *item = savedHostsListWidget->item(i);
+	if (item->text() != hostname) {
+	    item->setSelected(false);
+	} else {
+	    savedHostsListWidget->setCurrentItem(item);
+	    changed = true;
+	}
+    }
+    if (!changed) {
+	QListWidgetItem *item = new QListWidgetItem(hostIcon, hostname);
+	savedHostsListWidget->addItem(item);
+	savedHostsListWidget->setCurrentItem(item);
+    }
+    removeHostButton->setEnabled(true);
+    writeSettings();
+}
+
+void SettingsDialog::setupHostComboBox(const QString &hostname)
+{
+    QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
+    int index = 0;
+
+    hostComboBox->blockSignals(true);
+    hostComboBox->clear();
+    for (unsigned int i = 0; i < liveGroup->numContexts(); i++) {
+	QmcSource source = liveGroup->context(i)->source();
+	const QString &srchost = source.host();
+
+	if (hostname == srchost)
+	    index = i;
+	hostComboBox->insertItem(i, hostIcon, source.host());
+    }
+    hostComboBox->setCurrentIndex(index);
+    hostComboBox->blockSignals(false);
+}
+
+void SettingsDialog::hostButton_clicked()
+{
+    HostDialog *host = new HostDialog(this);
+
+    if (host->exec() == QDialog::Accepted) {
+	QString hostname = host->getHostName();
+	QString hostspec = host->getHostSpecification();
+	int sts, flags = host->getContextFlags();
+
+	if (hostspec == QString::null || hostspec.length() == 0) {
+	    hostspec.append(tr("Hostname not specified\n"));
+	    QMessageBox::warning(this, pmProgname, hostspec,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+	} else if ((sts = liveGroup->use(PM_CONTEXT_HOST, hostspec, flags)) < 0) {
+	    hostspec.prepend(tr("Cannot connect to host: "));
+	    hostspec.append(tr("\n"));
+	    hostspec.append(tr(pmErrStr(sts)));
+	    QMessageBox::warning(this, pmProgname, hostspec,
+		    QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		    Qt::NoButton, Qt::NoButton);
+	} else {
+	    console->post(PmChart::DebugUi,
+			"OpenViewDialog::newHost: %s (flags=0x%x)",
+			(const char *)hostspec.toAscii(), flags);
+	    setupHostComboBox(hostname);
+	}
+    }
+    delete host;
 }
