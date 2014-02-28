@@ -1,0 +1,23 @@
+#!/bin/sh
+# PCP QA Test No. 751
+# Test supported datetime strings
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+TZ=gmt src/rtimetest |
+sed -e "s/$(date '+%Y-%m-%d' -d '-1day') ..:..:../01\/01\/2000 00:00:00/" \
+    -e "s/$(date '+%Y-%m-%d' -d '+1day') ..:..:../01\/01\/2000 00:00:00/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../01\/01\/2000 00:00:00/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'last monday') ..:..:../01\/01\/2000 00:00:00/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'next tuesday') ..:..:../01\/01\/2000 00:00:00/" \
+    -e "s/$(date '+%Y-%m-%d') ..:..:../01\/01\/2000 00:00:00/" 
