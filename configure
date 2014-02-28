@@ -627,6 +627,7 @@ lib_for_rt
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
+lib_for_atomic
 enable_secure
 lib_for_nspr
 lib_for_nss
@@ -12838,6 +12839,48 @@ fi
     CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"
 fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for __atomic_fetch_add_4 in -latomic" >&5
+$as_echo_n "checking for __atomic_fetch_add_4 in -latomic... " >&6; }
+if ${ac_cv_lib_atomic___atomic_fetch_add_4+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-latomic  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char __atomic_fetch_add_4 ();
+int
+main ()
+{
+return __atomic_fetch_add_4 ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_atomic___atomic_fetch_add_4=yes
+else
+  ac_cv_lib_atomic___atomic_fetch_add_4=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_atomic___atomic_fetch_add_4" >&5
+$as_echo "$ac_cv_lib_atomic___atomic_fetch_add_4" >&6; }
+if test "x$ac_cv_lib_atomic___atomic_fetch_add_4" = xyes; then :
+  lib_for_atomic="-latomic"
+fi
+
+
 
 if test -f /usr/include/sn/arsess.h
 then
