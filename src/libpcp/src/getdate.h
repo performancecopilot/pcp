@@ -19,5 +19,3 @@
 
 #include <stdbool.h>
 #include <time.h>
-
-bool get_date (struct timespec *, char const *, struct timespec const *);

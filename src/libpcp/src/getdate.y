@@ -32,10 +32,7 @@
 /* FIXME: Check for arithmetic overflow in all cases, not just
    some of them.  */
 
-// #include <config.h>
-
 #include "getdate.h"
-#include "timespec.h"
 
 /* There's no need to extend the stack, so there's no need to involve
    alloca.  */
@@ -48,24 +45,14 @@
 #define YYMAXDEPTH 20
 #define YYINITDEPTH YYMAXDEPTH
 
-/* Since the code of getdate.y is not included in the Emacs executable
-   itself, there is no need to #define static in this file.  Even if
-   the code were included in the Emacs executable, it probably
-   wouldn't do any harm to #undef it here; this will only cause
-   problems if we try to write to a static variable, which I don't
-   think this code needs to do.  */
-#ifdef emacs
-# undef static
-#endif
-
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "setenv.h"
-#include "xalloc.h"
+#include "pmapi.h"
+#include "impl.h"
 
 
 /* ISDIGIT differs from isdigit, as follows:
@@ -142,11 +129,7 @@ typedef struct
   long int ns;
 } relative_time;
 
-#if HAVE_COMPOUND_LITERALS
 # define RELATIVE_TIME_0 ((relative_time) { 0, 0, 0, 0, 0, 0, 0 })
-#else
-static relative_time const RELATIVE_TIME_0;
-#endif
 
 /* Information passed to and from the parser.  */
 typedef struct
@@ -845,7 +828,6 @@ lookup_zone (parser_control const *pc, char const *name)
   return NULL;
 }
 
-#if ! HAVE_TM_GMTOFF
 /* Yield the difference between *A and *B,
    measured in seconds, ignoring leap seconds.
    The body of this function is taken directly from the GNU C Library;
@@ -870,7 +852,6 @@ tm_diff (struct tm const *a, struct tm const *b)
 		+ (a->tm_min - b->tm_min))
 	  + (a->tm_sec - b->tm_sec));
 }
-#endif /* ! HAVE_TM_GMTOFF */
 
 static table const *
 lookup_word (parser_control const *pc, char *word)
@@ -1125,7 +1106,7 @@ mktime_ok (struct tm const *tm0, struct tm const *tm1, time_t t)
       /* Guard against falsely reporting an error when parsing a time
 	 stamp that happens to equal (time_t) -1, on a host that
 	 supports such a time stamp.  */
-      tm1 = localtime (&t);
+      tm1 = pmLocaltime (&t, (struct tm*)&tm1);
       if (!tm1)
 	return false;
     }
@@ -1142,92 +1123,45 @@ mktime_ok (struct tm const *tm0, struct tm const *tm1, time_t t)
    Use heap allocation if TZ's length exceeds this.  */
 enum { TZBUFSIZE = 100 };
 
-/* Return a copy of TZ, stored in TZBUF if it fits, and heap-allocated
-   otherwise.  */
-static char *
-get_tz (char tzbuf[TZBUFSIZE])
-{
-  char *tz = getenv ("TZ");
-  if (tz)
-    {
-      size_t tzsize = strlen (tz) + 1;
-      tz = (tzsize <= TZBUFSIZE
-	    ? memcpy (tzbuf, tz, tzsize)
-	    : xmemdup (tz, tzsize));
-    }
-  return tz;
-}
-
 /* Parse a date/time string, storing the resulting time value into *RESULT.
    The string itself is pointed to by P.  Return true if successful.
    P can be an incomplete or relative time specification; if so, use
    *NOW as the basis for the returned time.  */
-bool
+int
 get_date (struct timespec *result, char const *p, struct timespec const *now)
 {
   time_t Start;
   long int Start_ns;
-  struct tm const *tmp;
+  struct tm tmpbuf;
+  struct tm const *tmp = &tmpbuf;
   struct tm tm;
   struct tm tm0;
   parser_control pc;
   struct timespec gettime_buffer;
   unsigned char c;
-  bool tz_was_altered = false;
-  char *tz0 = NULL;
-  char tz0buf[TZBUFSIZE];
-  bool ok = true;
+//  bool tz_was_altered = false;
+//  char *tz0 = NULL;
+//  char tz0buf[TZBUFSIZE];
+  int ok = 0;
 
   if (! now)
     {
-      gettime (&gettime_buffer);
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      gettime_buffer.tv_sec = tv.tv_sec;
+      gettime_buffer.tv_nsec = tv.tv_usec * 1000;
       now = &gettime_buffer;
     }
 
   Start = now->tv_sec;
   Start_ns = now->tv_nsec;
 
-  tmp = localtime (&now->tv_sec);
+  tmp = pmLocaltime (&now->tv_sec, (struct tm*)tmp);
   if (! tmp)
-    return false;
+    return -1;
 
   while (c = *p, isspace (c))
     p++;
-
-  if (strncmp (p, "TZ=\"", 4) == 0)
-    {
-      char const *tzbase = p + 4;
-      size_t tzsize = 1;
-      char const *s;
-
-      for (s = tzbase; *s; s++, tzsize++)
-	if (*s == '\\')
-	  {
-	    s++;
-	    if (! (*s == '\\' || *s == '"'))
-	      break;
-	  }
-	else if (*s == '"')
-	  {
-	    char *z;
-	    char *tz1;
-	    char tz1buf[TZBUFSIZE];
-	    bool large_tz = TZBUFSIZE < tzsize;
-	    bool setenv_ok;
-	    tz0 = get_tz (tz0buf);
-	    z = tz1 = large_tz ? xmalloc (tzsize) : tz1buf;
-	    for (s = tzbase; *s != '"'; s++)
-	      *z++ = *(s += *s == '\\');
-	    *z = '\0';
-	    setenv_ok = setenv ("TZ", tz1, 1) == 0;
-	    if (large_tz)
-	      free (tz1);
-	    if (!setenv_ok)
-	      goto fail;
-	    tz_was_altered = true;
-	    p = s + 1;
-	  }
-    }
 
   pc.input = p;
   pc.year.value = tmp->tm_year;
@@ -1251,53 +1185,9 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
   pc.local_zones_seen = 0;
   pc.dsts_seen = 0;
   pc.zones_seen = 0;
-
-#if HAVE_STRUCT_TM_TM_ZONE
-  pc.local_time_zone_table[0].name = tmp->tm_zone;
-  pc.local_time_zone_table[0].type = tLOCAL_ZONE;
-  pc.local_time_zone_table[0].value = tmp->tm_isdst;
-  pc.local_time_zone_table[1].name = NULL;
-
-  /* Probe the names used in the next three calendar quarters, looking
-     for a tm_isdst different from the one we already have.  */
-  {
-    int quarter;
-    for (quarter = 1; quarter <= 3; quarter++)
-      {
-	time_t probe = Start + quarter * (90 * 24 * 60 * 60);
-	struct tm const *probe_tm = localtime (&probe);
-	if (probe_tm && probe_tm->tm_zone
-	    && probe_tm->tm_isdst != pc.local_time_zone_table[0].value)
-	  {
-	      {
-		pc.local_time_zone_table[1].name = probe_tm->tm_zone;
-		pc.local_time_zone_table[1].type = tLOCAL_ZONE;
-		pc.local_time_zone_table[1].value = probe_tm->tm_isdst;
-		pc.local_time_zone_table[2].name = NULL;
-	      }
-	    break;
-	  }
-      }
-  }
-#else
-#if HAVE_TZNAME
-  {
-# ifndef tzname
-    extern char *tzname[];
-# endif
-    int i;
-    for (i = 0; i < 2; i++)
-      {
-	pc.local_time_zone_table[i].name = tzname[i];
-	pc.local_time_zone_table[i].type = tLOCAL_ZONE;
-	pc.local_time_zone_table[i].value = i;
-      }
-    pc.local_time_zone_table[i].name = NULL;
-  }
-#else
   pc.local_time_zone_table[0].name = NULL;
-#endif
-#endif
+
+  pc.local_time_zone_table[0].name = NULL;
 
   if (pc.local_time_zone_table[0].name && pc.local_time_zone_table[1].name
       && ! strcmp (pc.local_time_zone_table[0].name,
@@ -1352,40 +1242,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
       Start = mktime (&tm);
 
       if (! mktime_ok (&tm0, &tm, Start))
-	{
-	  if (! pc.zones_seen)
-	    goto fail;
-	  else
-	    {
-	      /* Guard against falsely reporting errors near the time_t
-		 boundaries when parsing times in other time zones.  For
-		 example, suppose the input string "1969-12-31 23:00:00 -0100",
-		 the current time zone is 8 hours ahead of UTC, and the min
-		 time_t value is 1970-01-01 00:00:00 UTC.  Then the min
-		 localtime value is 1970-01-01 08:00:00, and mktime will
-		 therefore fail on 1969-12-31 23:00:00.  To work around the
-		 problem, set the time zone to 1 hour behind UTC temporarily
-		 by setting TZ="XXX1:00" and try mktime again.  */
-
-	      long int time_zone = pc.time_zone;
-	      long int abs_time_zone = time_zone < 0 ? - time_zone : time_zone;
-	      long int abs_time_zone_hour = abs_time_zone / 60;
-	      int abs_time_zone_min = abs_time_zone % 60;
-	      char tz1buf[sizeof "XXX+0:00"
-			  + sizeof pc.time_zone * CHAR_BIT / 3];
-	      if (!tz_was_altered)
-		tz0 = get_tz (tz0buf);
-	      sprintf (tz1buf, "XXX%s%ld:%02d", "-" + (time_zone < 0),
-		       abs_time_zone_hour, abs_time_zone_min);
-	      if (setenv ("TZ", tz1buf, 1) != 0)
-		goto fail;
-	      tz_was_altered = true;
-	      tm = tm0;
-	      Start = mktime (&tm);
-	      if (! mktime_ok (&tm0, &tm, Start))
-		goto fail;
-	    }
-	}
+    	  goto fail;
 
       if (pc.days_seen && ! pc.dates_seen)
 	{
@@ -1401,15 +1258,12 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 	{
 	  long int delta = pc.time_zone * 60;
 	  time_t t1;
-#ifdef HAVE_TM_GMTOFF
-	  delta -= tm.tm_gmtoff;
-#else
 	  time_t t = Start;
-	  struct tm const *gmt = gmtime (&t);
+	  struct tm *gmt = NULL;
+	  gmt = gmtime_r (&t, gmt);
 	  if (! gmt)
 	    goto fail;
 	  delta -= tm_diff (&tm, gmt);
-#endif
 	  t1 = Start - delta;
 	  if ((Start < t1) != (delta < 0))
 	    goto fail;	/* time_t overflow */
@@ -1474,47 +1328,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
   goto done;
 
  fail:
-  ok = false;
+  ok = -1;
  done:
-  if (tz_was_altered)
-    ok &= (tz0 ? setenv ("TZ", tz0, 1) : unsetenv ("TZ")) == 0;
-  if (tz0 != tz0buf)
-    free (tz0);
   return ok;
 }
-
-#if TEST
-
-int
-main (int ac, char **av)
-{
-  char buff[BUFSIZ];
-
-  printf ("Enter date, or blank line to exit.\n\t> ");
-  fflush (stdout);
-
-  buff[BUFSIZ - 1] = '\0';
-  while (fgets (buff, BUFSIZ - 1, stdin) && buff[0])
-    {
-      struct timespec d;
-      struct tm const *tm;
-      if (! get_date (&d, buff, NULL))
-	printf ("Bad format - couldn't convert.\n");
-      else if (! (tm = localtime (&d.tv_sec)))
-	{
-	  long int sec = d.tv_sec;
-	  printf ("localtime (%ld) failed\n", sec);
-	}
-      else
-	{
-	  int ns = d.tv_nsec;
-	  printf ("%04ld-%02d-%02d %02d:%02d:%02d.%09d\n",
-		  tm->tm_year + 1900L, tm->tm_mon + 1, tm->tm_mday,
-		  tm->tm_hour, tm->tm_min, tm->tm_sec, ns);
-	}
-      printf ("\t> ");
-      fflush (stdout);
-    }
-  return 0;
-}
-#endif /* TEST */

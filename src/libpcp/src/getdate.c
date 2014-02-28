@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.6.4.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.6.4"
+#define YYBISON_VERSION "2.7"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -62,7 +62,7 @@
 
 
 /* Copy the first part of user declarations.  */
-/* Line 358 of yacc.c  */
+/* Line 371 of yacc.c  */
 #line 1 "getdate.y"
 
 /* Parse a string into an internal time stamp.
@@ -98,10 +98,7 @@
 /* FIXME: Check for arithmetic overflow in all cases, not just
    some of them.  */
 
-// #include <config.h>
-
 #include "getdate.h"
-#include "timespec.h"
 
 /* There's no need to extend the stack, so there's no need to involve
    alloca.  */
@@ -114,24 +111,14 @@
 #define YYMAXDEPTH 20
 #define YYINITDEPTH YYMAXDEPTH
 
-/* Since the code of getdate.y is not included in the Emacs executable
-   itself, there is no need to #define static in this file.  Even if
-   the code were included in the Emacs executable, it probably
-   wouldn't do any harm to #undef it here; this will only cause
-   problems if we try to write to a static variable, which I don't
-   think this code needs to do.  */
-#ifdef emacs
-# undef static
-#endif
-
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "setenv.h"
-#include "xalloc.h"
+#include "pmapi.h"
+#include "impl.h"
 
 
 /* ISDIGIT differs from isdigit, as follows:
@@ -208,11 +195,7 @@ typedef struct
   long int ns;
 } relative_time;
 
-#if HAVE_COMPOUND_LITERALS
 # define RELATIVE_TIME_0 ((relative_time) { 0, 0, 0, 0, 0, 0, 0 })
-#else
-static relative_time const RELATIVE_TIME_0;
-#endif
 
 /* Information passed to and from the parser.  */
 typedef struct
@@ -266,8 +249,8 @@ static int yyerror (parser_control const *, char const *);
 static long int time_zone_hhmm (textint, long int);
 
 
-/* Line 358 of yacc.c  */
-#line 271 "y.tab.c"
+/* Line 371 of yacc.c  */
+#line 254 "getdate.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -347,8 +330,8 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
-/* Line 374 of yacc.c  */
-#line 214 "getdate.y"
+/* Line 387 of yacc.c  */
+#line 197 "getdate.y"
 
   long int intval;
   textint textintval;
@@ -356,8 +339,8 @@ typedef union YYSTYPE
   relative_time rel;
 
 
-/* Line 374 of yacc.c  */
-#line 361 "y.tab.c"
+/* Line 387 of yacc.c  */
+#line 344 "getdate.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -383,8 +366,8 @@ int yyparse ();
 
 /* Copy the second part of user declarations.  */
 
-/* Line 377 of yacc.c  */
-#line 388 "y.tab.c"
+/* Line 390 of yacc.c  */
+#line 371 "getdate.tab.c"
 
 #ifdef short
 # undef short
@@ -701,14 +684,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   240,   240,   241,   245,   252,   254,   258,   260,   262,
-     264,   266,   268,   270,   274,   282,   290,   300,   307,   319,
-     324,   332,   334,   344,   346,   348,   353,   358,   363,   368,
-     376,   381,   401,   408,   416,   424,   429,   435,   440,   449,
-     459,   472,   474,   476,   478,   480,   482,   484,   486,   488,
-     490,   492,   494,   496,   498,   500,   502,   504,   506,   508,
-     510,   512,   516,   518,   520,   522,   524,   526,   530,   530,
-     533,   534,   539,   540,   545,   583,   584,   590,   591
+       0,   223,   223,   224,   228,   235,   237,   241,   243,   245,
+     247,   249,   251,   253,   257,   265,   273,   283,   290,   302,
+     307,   315,   317,   327,   329,   331,   336,   341,   346,   351,
+     359,   364,   384,   391,   399,   407,   412,   418,   423,   432,
+     442,   455,   457,   459,   461,   463,   465,   467,   469,   471,
+     473,   475,   477,   479,   481,   483,   485,   487,   489,   491,
+     493,   495,   499,   501,   503,   505,   507,   509,   513,   513,
+     516,   517,   522,   523,   528,   566,   567,   573,   574
 };
 #endif
 
@@ -911,47 +894,18 @@ do                                                              \
     }								\
 while (YYID (0))
 
-
+/* Error token number */
 #define YYTERROR	1
 #define YYERRCODE	256
 
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-#ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)                                \
-    do                                                                  \
-      if (YYID (N))                                                     \
-        {                                                               \
-          (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;        \
-          (Current).first_column = YYRHSLOC (Rhs, 1).first_column;      \
-          (Current).last_line    = YYRHSLOC (Rhs, N).last_line;         \
-          (Current).last_column  = YYRHSLOC (Rhs, N).last_column;       \
-        }                                                               \
-      else                                                              \
-        {                                                               \
-          (Current).first_line   = (Current).last_line   =              \
-            YYRHSLOC (Rhs, 0).last_line;                                \
-          (Current).first_column = (Current).last_column =              \
-            YYRHSLOC (Rhs, 0).last_column;                              \
-        }                                                               \
-    while (YYID (0))
-#endif
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-
-
 
 /* This macro is provided for backward compatibility. */
-
 #ifndef YY_LOCATION_PRINT
 # define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 #endif
 
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
-
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (&yylval, YYLEX_PARAM)
 #else
@@ -1016,7 +970,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, pc)
   switch (yytype)
     {
       default:
-	break;
+        break;
     }
 }
 
@@ -1260,7 +1214,6 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 {
   YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
-  YYSIZE_T yysize1;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
   const char *yyformat = YY_NULL;
@@ -1323,11 +1276,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                     break;
                   }
                 yyarg[yycount++] = yytname[yyx];
-                yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
-                if (! (yysize <= yysize1
-                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-                  return 2;
-                yysize = yysize1;
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
               }
         }
     }
@@ -1347,10 +1302,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 # undef YYCASE_
     }
 
-  yysize1 = yysize + yystrlen (yyformat);
-  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-    return 2;
-  yysize = yysize1;
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
 
   if (*yymsg_alloc < yysize)
     {
@@ -1412,7 +1369,7 @@ yydestruct (yymsg, yytype, yyvaluep, pc)
     {
 
       default:
-	break;
+        break;
     }
 }
 
@@ -1449,10 +1406,11 @@ yyparse (pc)
 int yychar;
 
 
-#if defined __GNUC__ && (4 < __GNUC__ + (6 <= __GNUC_MINOR__))
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END \
     _Pragma ("GCC diagnostic pop")
@@ -1460,18 +1418,18 @@ int yychar;
 /* Default value used for initialization, for pacifying older GCCs
    or non-GCC compilers.  */
 static YYSTYPE yyval_default;
-# define YYLVAL_INITIALIZE() (yylval = yyval_default)
-#endif
-#ifndef YYLVAL_INITIALIZE
-# define YYLVAL_INITIALIZE()
+# define YY_INITIAL_VALUE(Value) = Value
 #endif
 #ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END
 #endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
 
 /* The semantic value of the lookahead symbol.  */
-YYSTYPE yylval;
+YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
 
     /* Number of syntax errors so far.  */
     int yynerrs;
@@ -1520,8 +1478,8 @@ YYSTYPE yylval;
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
 
-  yyss = yyssa;
-  yyvs = yyvsa;
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1530,15 +1488,6 @@ YYSTYPE yylval;
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
-
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
-  yyssp = yyss;
-  yyvsp = yyvs;
-
-  YYLVAL_INITIALIZE ();
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1718,8 +1667,8 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-/* Line 1813 of yacc.c  */
-#line 246 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 229 "getdate.y"
     {
 	pc->seconds = (yyvsp[(2) - (2)].timespec);
 	pc->timespec_seen = true;
@@ -1727,44 +1676,44 @@ yyreduce:
     break;
 
   case 7:
-/* Line 1813 of yacc.c  */
-#line 259 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 242 "getdate.y"
     { pc->times_seen++; }
     break;
 
   case 8:
-/* Line 1813 of yacc.c  */
-#line 261 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 244 "getdate.y"
     { pc->local_zones_seen++; }
     break;
 
   case 9:
-/* Line 1813 of yacc.c  */
-#line 263 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 246 "getdate.y"
     { pc->zones_seen++; }
     break;
 
   case 10:
-/* Line 1813 of yacc.c  */
-#line 265 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 248 "getdate.y"
     { pc->dates_seen++; }
     break;
 
   case 11:
-/* Line 1813 of yacc.c  */
-#line 267 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 250 "getdate.y"
     { pc->days_seen++; }
     break;
 
   case 12:
-/* Line 1813 of yacc.c  */
-#line 269 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 252 "getdate.y"
     { pc->rels_seen = true; }
     break;
 
   case 14:
-/* Line 1813 of yacc.c  */
-#line 275 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 258 "getdate.y"
     {
 	pc->hour = (yyvsp[(1) - (2)].textintval).value;
 	pc->minutes = 0;
@@ -1775,8 +1724,8 @@ yyreduce:
     break;
 
   case 15:
-/* Line 1813 of yacc.c  */
-#line 283 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 266 "getdate.y"
     {
 	pc->hour = (yyvsp[(1) - (4)].textintval).value;
 	pc->minutes = (yyvsp[(3) - (4)].textintval).value;
@@ -1787,8 +1736,8 @@ yyreduce:
     break;
 
   case 16:
-/* Line 1813 of yacc.c  */
-#line 291 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 274 "getdate.y"
     {
 	pc->hour = (yyvsp[(1) - (5)].textintval).value;
 	pc->minutes = (yyvsp[(3) - (5)].textintval).value;
@@ -1801,8 +1750,8 @@ yyreduce:
     break;
 
   case 17:
-/* Line 1813 of yacc.c  */
-#line 301 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 284 "getdate.y"
     {
 	pc->hour = (yyvsp[(1) - (6)].textintval).value;
 	pc->minutes = (yyvsp[(3) - (6)].textintval).value;
@@ -1812,8 +1761,8 @@ yyreduce:
     break;
 
   case 18:
-/* Line 1813 of yacc.c  */
-#line 308 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 291 "getdate.y"
     {
 	pc->hour = (yyvsp[(1) - (7)].textintval).value;
 	pc->minutes = (yyvsp[(3) - (7)].textintval).value;
@@ -1825,8 +1774,8 @@ yyreduce:
     break;
 
   case 19:
-/* Line 1813 of yacc.c  */
-#line 320 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 303 "getdate.y"
     {
 	pc->local_isdst = (yyvsp[(1) - (1)].intval);
 	pc->dsts_seen += (0 < (yyvsp[(1) - (1)].intval));
@@ -1834,8 +1783,8 @@ yyreduce:
     break;
 
   case 20:
-/* Line 1813 of yacc.c  */
-#line 325 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 308 "getdate.y"
     {
 	pc->local_isdst = 1;
 	pc->dsts_seen += (0 < (yyvsp[(1) - (2)].intval)) + 1;
@@ -1843,14 +1792,14 @@ yyreduce:
     break;
 
   case 21:
-/* Line 1813 of yacc.c  */
-#line 333 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 316 "getdate.y"
     { pc->time_zone = (yyvsp[(1) - (1)].intval); }
     break;
 
   case 22:
-/* Line 1813 of yacc.c  */
-#line 335 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 318 "getdate.y"
     { pc->time_zone = (yyvsp[(1) - (2)].intval);
 	pc->rel.ns += (yyvsp[(2) - (2)].rel).ns;
 	pc->rel.seconds += (yyvsp[(2) - (2)].rel).seconds;
@@ -1863,26 +1812,26 @@ yyreduce:
     break;
 
   case 23:
-/* Line 1813 of yacc.c  */
-#line 345 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 328 "getdate.y"
     { pc->time_zone = (yyvsp[(1) - (3)].intval) + time_zone_hhmm ((yyvsp[(2) - (3)].textintval), (yyvsp[(3) - (3)].intval)); }
     break;
 
   case 24:
-/* Line 1813 of yacc.c  */
-#line 347 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 330 "getdate.y"
     { pc->time_zone = (yyvsp[(1) - (1)].intval) + 60; }
     break;
 
   case 25:
-/* Line 1813 of yacc.c  */
-#line 349 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 332 "getdate.y"
     { pc->time_zone = (yyvsp[(1) - (2)].intval) + 60; }
     break;
 
   case 26:
-/* Line 1813 of yacc.c  */
-#line 354 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 337 "getdate.y"
     {
 	pc->day_ordinal = 1;
 	pc->day_number = (yyvsp[(1) - (1)].intval);
@@ -1890,8 +1839,8 @@ yyreduce:
     break;
 
   case 27:
-/* Line 1813 of yacc.c  */
-#line 359 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 342 "getdate.y"
     {
 	pc->day_ordinal = 1;
 	pc->day_number = (yyvsp[(1) - (2)].intval);
@@ -1899,8 +1848,8 @@ yyreduce:
     break;
 
   case 28:
-/* Line 1813 of yacc.c  */
-#line 364 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 347 "getdate.y"
     {
 	pc->day_ordinal = (yyvsp[(1) - (2)].intval);
 	pc->day_number = (yyvsp[(2) - (2)].intval);
@@ -1908,8 +1857,8 @@ yyreduce:
     break;
 
   case 29:
-/* Line 1813 of yacc.c  */
-#line 369 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 352 "getdate.y"
     {
 	pc->day_ordinal = (yyvsp[(1) - (2)].textintval).value;
 	pc->day_number = (yyvsp[(2) - (2)].intval);
@@ -1917,8 +1866,8 @@ yyreduce:
     break;
 
   case 30:
-/* Line 1813 of yacc.c  */
-#line 377 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 360 "getdate.y"
     {
 	pc->month = (yyvsp[(1) - (3)].textintval).value;
 	pc->day = (yyvsp[(3) - (3)].textintval).value;
@@ -1926,8 +1875,8 @@ yyreduce:
     break;
 
   case 31:
-/* Line 1813 of yacc.c  */
-#line 382 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 365 "getdate.y"
     {
 	/* Interpret as YYYY/MM/DD if the first value has 4 or more digits,
 	   otherwise as MM/DD/YY.
@@ -1950,8 +1899,8 @@ yyreduce:
     break;
 
   case 32:
-/* Line 1813 of yacc.c  */
-#line 402 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 385 "getdate.y"
     {
 	/* ISO 8601 format.  YYYY-MM-DD.  */
 	pc->year = (yyvsp[(1) - (3)].textintval);
@@ -1961,8 +1910,8 @@ yyreduce:
     break;
 
   case 33:
-/* Line 1813 of yacc.c  */
-#line 409 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 392 "getdate.y"
     {
 	/* e.g. 17-JUN-1992.  */
 	pc->day = (yyvsp[(1) - (3)].textintval).value;
@@ -1973,8 +1922,8 @@ yyreduce:
     break;
 
   case 34:
-/* Line 1813 of yacc.c  */
-#line 417 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 400 "getdate.y"
     {
 	/* e.g. JUN-17-1992.  */
 	pc->month = (yyvsp[(1) - (3)].intval);
@@ -1985,8 +1934,8 @@ yyreduce:
     break;
 
   case 35:
-/* Line 1813 of yacc.c  */
-#line 425 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 408 "getdate.y"
     {
 	pc->month = (yyvsp[(1) - (2)].intval);
 	pc->day = (yyvsp[(2) - (2)].textintval).value;
@@ -1994,8 +1943,8 @@ yyreduce:
     break;
 
   case 36:
-/* Line 1813 of yacc.c  */
-#line 430 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 413 "getdate.y"
     {
 	pc->month = (yyvsp[(1) - (4)].intval);
 	pc->day = (yyvsp[(2) - (4)].textintval).value;
@@ -2004,8 +1953,8 @@ yyreduce:
     break;
 
   case 37:
-/* Line 1813 of yacc.c  */
-#line 436 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 419 "getdate.y"
     {
 	pc->day = (yyvsp[(1) - (2)].textintval).value;
 	pc->month = (yyvsp[(2) - (2)].intval);
@@ -2013,8 +1962,8 @@ yyreduce:
     break;
 
   case 38:
-/* Line 1813 of yacc.c  */
-#line 441 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 424 "getdate.y"
     {
 	pc->day = (yyvsp[(1) - (3)].textintval).value;
 	pc->month = (yyvsp[(2) - (3)].intval);
@@ -2023,8 +1972,8 @@ yyreduce:
     break;
 
   case 39:
-/* Line 1813 of yacc.c  */
-#line 450 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 433 "getdate.y"
     {
 	pc->rel.ns -= (yyvsp[(1) - (2)].rel).ns;
 	pc->rel.seconds -= (yyvsp[(1) - (2)].rel).seconds;
@@ -2037,8 +1986,8 @@ yyreduce:
     break;
 
   case 40:
-/* Line 1813 of yacc.c  */
-#line 460 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 443 "getdate.y"
     {
 	pc->rel.ns += (yyvsp[(1) - (1)].rel).ns;
 	pc->rel.seconds += (yyvsp[(1) - (1)].rel).seconds;
@@ -2051,176 +2000,176 @@ yyreduce:
     break;
 
   case 41:
-/* Line 1813 of yacc.c  */
-#line 473 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 456 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).year = (yyvsp[(1) - (2)].intval); }
     break;
 
   case 42:
-/* Line 1813 of yacc.c  */
-#line 475 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 458 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).year = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 43:
-/* Line 1813 of yacc.c  */
-#line 477 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 460 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).year = 1; }
     break;
 
   case 44:
-/* Line 1813 of yacc.c  */
-#line 479 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 462 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).month = (yyvsp[(1) - (2)].intval); }
     break;
 
   case 45:
-/* Line 1813 of yacc.c  */
-#line 481 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 464 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).month = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 46:
-/* Line 1813 of yacc.c  */
-#line 483 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 466 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).month = 1; }
     break;
 
   case 47:
-/* Line 1813 of yacc.c  */
-#line 485 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 468 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).day = (yyvsp[(1) - (2)].intval) * (yyvsp[(2) - (2)].intval); }
     break;
 
   case 48:
-/* Line 1813 of yacc.c  */
-#line 487 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 470 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).day = (yyvsp[(1) - (2)].textintval).value * (yyvsp[(2) - (2)].intval); }
     break;
 
   case 49:
-/* Line 1813 of yacc.c  */
-#line 489 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 472 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).day = (yyvsp[(1) - (1)].intval); }
     break;
 
   case 50:
-/* Line 1813 of yacc.c  */
-#line 491 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 474 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).hour = (yyvsp[(1) - (2)].intval); }
     break;
 
   case 51:
-/* Line 1813 of yacc.c  */
-#line 493 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 476 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).hour = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 52:
-/* Line 1813 of yacc.c  */
-#line 495 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 478 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).hour = 1; }
     break;
 
   case 53:
-/* Line 1813 of yacc.c  */
-#line 497 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 480 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).minutes = (yyvsp[(1) - (2)].intval); }
     break;
 
   case 54:
-/* Line 1813 of yacc.c  */
-#line 499 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 482 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).minutes = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 55:
-/* Line 1813 of yacc.c  */
-#line 501 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 484 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).minutes = 1; }
     break;
 
   case 56:
-/* Line 1813 of yacc.c  */
-#line 503 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 486 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = (yyvsp[(1) - (2)].intval); }
     break;
 
   case 57:
-/* Line 1813 of yacc.c  */
-#line 505 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 488 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 58:
-/* Line 1813 of yacc.c  */
-#line 507 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 490 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = (yyvsp[(1) - (2)].timespec).tv_sec; (yyval.rel).ns = (yyvsp[(1) - (2)].timespec).tv_nsec; }
     break;
 
   case 59:
-/* Line 1813 of yacc.c  */
-#line 509 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 492 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = (yyvsp[(1) - (2)].timespec).tv_sec; (yyval.rel).ns = (yyvsp[(1) - (2)].timespec).tv_nsec; }
     break;
 
   case 60:
-/* Line 1813 of yacc.c  */
-#line 511 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 494 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = 1; }
     break;
 
   case 62:
-/* Line 1813 of yacc.c  */
-#line 517 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 500 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).year = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 63:
-/* Line 1813 of yacc.c  */
-#line 519 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 502 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).month = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 64:
-/* Line 1813 of yacc.c  */
-#line 521 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 504 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).day = (yyvsp[(1) - (2)].textintval).value * (yyvsp[(2) - (2)].intval); }
     break;
 
   case 65:
-/* Line 1813 of yacc.c  */
-#line 523 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 506 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).hour = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 66:
-/* Line 1813 of yacc.c  */
-#line 525 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 508 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).minutes = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 67:
-/* Line 1813 of yacc.c  */
-#line 527 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 510 "getdate.y"
     { (yyval.rel) = RELATIVE_TIME_0; (yyval.rel).seconds = (yyvsp[(1) - (2)].textintval).value; }
     break;
 
   case 71:
-/* Line 1813 of yacc.c  */
-#line 535 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 518 "getdate.y"
     { (yyval.timespec).tv_sec = (yyvsp[(1) - (1)].textintval).value; (yyval.timespec).tv_nsec = 0; }
     break;
 
   case 73:
-/* Line 1813 of yacc.c  */
-#line 541 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 524 "getdate.y"
     { (yyval.timespec).tv_sec = (yyvsp[(1) - (1)].textintval).value; (yyval.timespec).tv_nsec = 0; }
     break;
 
   case 74:
-/* Line 1813 of yacc.c  */
-#line 546 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 529 "getdate.y"
     {
 	if (pc->dates_seen && ! pc->year.digits
 	    && ! pc->rels_seen && (pc->times_seen || 2 < (yyvsp[(1) - (1)].textintval).digits))
@@ -2257,32 +2206,32 @@ yyreduce:
     break;
 
   case 75:
-/* Line 1813 of yacc.c  */
-#line 583 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 566 "getdate.y"
     { (yyval.intval) = -1; }
     break;
 
   case 76:
-/* Line 1813 of yacc.c  */
-#line 585 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 568 "getdate.y"
     { (yyval.intval) = (yyvsp[(2) - (2)].textintval).value; }
     break;
 
   case 77:
-/* Line 1813 of yacc.c  */
-#line 590 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 573 "getdate.y"
     { (yyval.intval) = MER24; }
     break;
 
   case 78:
-/* Line 1813 of yacc.c  */
-#line 592 "getdate.y"
+/* Line 1792 of yacc.c  */
+#line 575 "getdate.y"
     { (yyval.intval) = (yyvsp[(1) - (1)].intval); }
     break;
 
 
-/* Line 1813 of yacc.c  */
-#line 2286 "y.tab.c"
+/* Line 1792 of yacc.c  */
+#line 2235 "getdate.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2513,8 +2462,8 @@ yyreturn:
 }
 
 
-/* Line 2076 of yacc.c  */
-#line 595 "getdate.y"
+/* Line 2055 of yacc.c  */
+#line 578 "getdate.y"
 
 
 static table const meridian_table[] =
@@ -2768,7 +2717,6 @@ lookup_zone (parser_control const *pc, char const *name)
   return NULL;
 }
 
-#if ! HAVE_TM_GMTOFF
 /* Yield the difference between *A and *B,
    measured in seconds, ignoring leap seconds.
    The body of this function is taken directly from the GNU C Library;
@@ -2793,7 +2741,6 @@ tm_diff (struct tm const *a, struct tm const *b)
 		+ (a->tm_min - b->tm_min))
 	  + (a->tm_sec - b->tm_sec));
 }
-#endif /* ! HAVE_TM_GMTOFF */
 
 static table const *
 lookup_word (parser_control const *pc, char *word)
@@ -3048,7 +2995,7 @@ mktime_ok (struct tm const *tm0, struct tm const *tm1, time_t t)
       /* Guard against falsely reporting an error when parsing a time
 	 stamp that happens to equal (time_t) -1, on a host that
 	 supports such a time stamp.  */
-      tm1 = localtime (&t);
+      tm1 = pmLocaltime (&t, (struct tm*)&tm1);
       if (!tm1)
 	return false;
     }
@@ -3065,92 +3012,45 @@ mktime_ok (struct tm const *tm0, struct tm const *tm1, time_t t)
    Use heap allocation if TZ's length exceeds this.  */
 enum { TZBUFSIZE = 100 };
 
-/* Return a copy of TZ, stored in TZBUF if it fits, and heap-allocated
-   otherwise.  */
-static char *
-get_tz (char tzbuf[TZBUFSIZE])
-{
-  char *tz = getenv ("TZ");
-  if (tz)
-    {
-      size_t tzsize = strlen (tz) + 1;
-      tz = (tzsize <= TZBUFSIZE
-	    ? memcpy (tzbuf, tz, tzsize)
-	    : xmemdup (tz, tzsize));
-    }
-  return tz;
-}
-
 /* Parse a date/time string, storing the resulting time value into *RESULT.
    The string itself is pointed to by P.  Return true if successful.
    P can be an incomplete or relative time specification; if so, use
    *NOW as the basis for the returned time.  */
-bool
+int
 get_date (struct timespec *result, char const *p, struct timespec const *now)
 {
   time_t Start;
   long int Start_ns;
-  struct tm const *tmp;
+  struct tm tmpbuf;
+  struct tm const *tmp = &tmpbuf;
   struct tm tm;
   struct tm tm0;
   parser_control pc;
   struct timespec gettime_buffer;
   unsigned char c;
-  bool tz_was_altered = false;
-  char *tz0 = NULL;
-  char tz0buf[TZBUFSIZE];
-  bool ok = true;
+//  bool tz_was_altered = false;
+//  char *tz0 = NULL;
+//  char tz0buf[TZBUFSIZE];
+  int ok = 0;
 
   if (! now)
     {
-      gettime (&gettime_buffer);
+      struct timeval tv;
+      gettimeofday (&tv, NULL);
+      gettime_buffer.tv_sec = tv.tv_sec;
+      gettime_buffer.tv_nsec = tv.tv_usec * 1000;
       now = &gettime_buffer;
     }
 
   Start = now->tv_sec;
   Start_ns = now->tv_nsec;
 
-  tmp = localtime (&now->tv_sec);
+  tmp = pmLocaltime (&now->tv_sec, (struct tm*)tmp);
   if (! tmp)
-    return false;
+    return -1;
 
   while (c = *p, isspace (c))
     p++;
-
-  if (strncmp (p, "TZ=\"", 4) == 0)
-    {
-      char const *tzbase = p + 4;
-      size_t tzsize = 1;
-      char const *s;
-
-      for (s = tzbase; *s; s++, tzsize++)
-	if (*s == '\\')
-	  {
-	    s++;
-	    if (! (*s == '\\' || *s == '"'))
-	      break;
-	  }
-	else if (*s == '"')
-	  {
-	    char *z;
-	    char *tz1;
-	    char tz1buf[TZBUFSIZE];
-	    bool large_tz = TZBUFSIZE < tzsize;
-	    bool setenv_ok;
-	    tz0 = get_tz (tz0buf);
-	    z = tz1 = large_tz ? xmalloc (tzsize) : tz1buf;
-	    for (s = tzbase; *s != '"'; s++)
-	      *z++ = *(s += *s == '\\');
-	    *z = '\0';
-	    setenv_ok = setenv ("TZ", tz1, 1) == 0;
-	    if (large_tz)
-	      free (tz1);
-	    if (!setenv_ok)
-	      goto fail;
-	    tz_was_altered = true;
-	    p = s + 1;
-	  }
-    }
 
   pc.input = p;
   pc.year.value = tmp->tm_year;
@@ -3174,53 +3074,9 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
   pc.local_zones_seen = 0;
   pc.dsts_seen = 0;
   pc.zones_seen = 0;
-
-#if HAVE_STRUCT_TM_TM_ZONE
-  pc.local_time_zone_table[0].name = tmp->tm_zone;
-  pc.local_time_zone_table[0].type = tLOCAL_ZONE;
-  pc.local_time_zone_table[0].value = tmp->tm_isdst;
-  pc.local_time_zone_table[1].name = NULL;
-
-  /* Probe the names used in the next three calendar quarters, looking
-     for a tm_isdst different from the one we already have.  */
-  {
-    int quarter;
-    for (quarter = 1; quarter <= 3; quarter++)
-      {
-	time_t probe = Start + quarter * (90 * 24 * 60 * 60);
-	struct tm const *probe_tm = localtime (&probe);
-	if (probe_tm && probe_tm->tm_zone
-	    && probe_tm->tm_isdst != pc.local_time_zone_table[0].value)
-	  {
-	      {
-		pc.local_time_zone_table[1].name = probe_tm->tm_zone;
-		pc.local_time_zone_table[1].type = tLOCAL_ZONE;
-		pc.local_time_zone_table[1].value = probe_tm->tm_isdst;
-		pc.local_time_zone_table[2].name = NULL;
-	      }
-	    break;
-	  }
-      }
-  }
-#else
-#if HAVE_TZNAME
-  {
-# ifndef tzname
-    extern char *tzname[];
-# endif
-    int i;
-    for (i = 0; i < 2; i++)
-      {
-	pc.local_time_zone_table[i].name = tzname[i];
-	pc.local_time_zone_table[i].type = tLOCAL_ZONE;
-	pc.local_time_zone_table[i].value = i;
-      }
-    pc.local_time_zone_table[i].name = NULL;
-  }
-#else
   pc.local_time_zone_table[0].name = NULL;
-#endif
-#endif
+
+  pc.local_time_zone_table[0].name = NULL;
 
   if (pc.local_time_zone_table[0].name && pc.local_time_zone_table[1].name
       && ! strcmp (pc.local_time_zone_table[0].name,
@@ -3275,40 +3131,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
       Start = mktime (&tm);
 
       if (! mktime_ok (&tm0, &tm, Start))
-	{
-	  if (! pc.zones_seen)
-	    goto fail;
-	  else
-	    {
-	      /* Guard against falsely reporting errors near the time_t
-		 boundaries when parsing times in other time zones.  For
-		 example, suppose the input string "1969-12-31 23:00:00 -0100",
-		 the current time zone is 8 hours ahead of UTC, and the min
-		 time_t value is 1970-01-01 00:00:00 UTC.  Then the min
-		 localtime value is 1970-01-01 08:00:00, and mktime will
-		 therefore fail on 1969-12-31 23:00:00.  To work around the
-		 problem, set the time zone to 1 hour behind UTC temporarily
-		 by setting TZ="XXX1:00" and try mktime again.  */
-
-	      long int time_zone = pc.time_zone;
-	      long int abs_time_zone = time_zone < 0 ? - time_zone : time_zone;
-	      long int abs_time_zone_hour = abs_time_zone / 60;
-	      int abs_time_zone_min = abs_time_zone % 60;
-	      char tz1buf[sizeof "XXX+0:00"
-			  + sizeof pc.time_zone * CHAR_BIT / 3];
-	      if (!tz_was_altered)
-		tz0 = get_tz (tz0buf);
-	      sprintf (tz1buf, "XXX%s%ld:%02d", "-" + (time_zone < 0),
-		       abs_time_zone_hour, abs_time_zone_min);
-	      if (setenv ("TZ", tz1buf, 1) != 0)
-		goto fail;
-	      tz_was_altered = true;
-	      tm = tm0;
-	      Start = mktime (&tm);
-	      if (! mktime_ok (&tm0, &tm, Start))
-		goto fail;
-	    }
-	}
+    	  goto fail;
 
       if (pc.days_seen && ! pc.dates_seen)
 	{
@@ -3324,15 +3147,12 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 	{
 	  long int delta = pc.time_zone * 60;
 	  time_t t1;
-#ifdef HAVE_TM_GMTOFF
-	  delta -= tm.tm_gmtoff;
-#else
 	  time_t t = Start;
-	  struct tm const *gmt = gmtime (&t);
+	  struct tm *gmt = NULL;
+	  gmt = gmtime_r (&t, gmt);
 	  if (! gmt)
 	    goto fail;
 	  delta -= tm_diff (&tm, gmt);
-#endif
 	  t1 = Start - delta;
 	  if ((Start < t1) != (delta < 0))
 	    goto fail;	/* time_t overflow */
@@ -3397,47 +3217,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
   goto done;
 
  fail:
-  ok = false;
+  ok = -1;
  done:
-  if (tz_was_altered)
-    ok &= (tz0 ? setenv ("TZ", tz0, 1) : unsetenv ("TZ")) == 0;
-  if (tz0 != tz0buf)
-    free (tz0);
   return ok;
 }
-
-#if TEST
-
-int
-main (int ac, char **av)
-{
-  char buff[BUFSIZ];
-
-  printf ("Enter date, or blank line to exit.\n\t> ");
-  fflush (stdout);
-
-  buff[BUFSIZ - 1] = '\0';
-  while (fgets (buff, BUFSIZ - 1, stdin) && buff[0])
-    {
-      struct timespec d;
-      struct tm const *tm;
-      if (! get_date (&d, buff, NULL))
-	printf ("Bad format - couldn't convert.\n");
-      else if (! (tm = localtime (&d.tv_sec)))
-	{
-	  long int sec = d.tv_sec;
-	  printf ("localtime (%ld) failed\n", sec);
-	}
-      else
-	{
-	  int ns = d.tv_nsec;
-	  printf ("%04ld-%02d-%02d %02d:%02d:%02d.%09d\n",
-		  tm->tm_year + 1900L, tm->tm_mon + 1, tm->tm_mday,
-		  tm->tm_hour, tm->tm_min, tm->tm_sec, ns);
-	}
-      printf ("\t> ");
-      fflush (stdout);
-    }
-  return 0;
-}
-#endif /* TEST */

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 1995, 2014 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -14,9 +15,10 @@
 
 #include <limits.h>
 #include <ctype.h>
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
+
 
 
 /****************************************************************************
@@ -564,18 +566,6 @@ have_relative_date (const char* date_string)
 }
 
 
-/*
- * Used by xmalloc/xrealloc/xcalloc which are called by get_date, the datetime parser
- */
-
-void
-xalloc_die (void)
-{
-    //  error (exit_failure, 0, "%s", _("memory exhausted"));
-    abort ();
-}
-
-
 int	/* 0 -> ok, -1 -> error */
 __pmParseTime(
     const char	    *string,	/* string to be parsed */
@@ -590,7 +580,7 @@ __pmParseTime(
     struct timeval  start;
     struct timeval  end;
     struct timeval  tval;
-    int get_date (struct timespec *, char const *, struct timespec const *);
+
     start = *logStart;
     end = *logEnd;
     if (end.tv_sec == INT_MAX)
@@ -630,30 +620,33 @@ __pmParseTime(
     }
 
     /* datetime is not a pcp defined one, so drop down into the glib get_date case */
-    int status  = -1;
-    int rel_type;
-    struct timespec tsrslt;
-    struct timespec *tsrsltp = &tsrslt;
-    parseChar(&scan, '@');		// ignore; have_relative_date determines type
-    rel_type = have_relative_date (scan);
+    {
+	int status  = -1;
+	int rel_type;
+	struct timespec tsrslt;
+	struct timespec *tsrsltp = &tsrslt;
 
-    if (rel_type == NO_OFFSET)
-	status = get_date (tsrsltp, scan, NULL);
-    else if (rel_type == NEG_OFFSET && end.tv_sec < INT_MAX) {
-	struct timespec tsend;
-	struct timespec *tsendp = &tsend;
-	TIMEVAL_TO_TIMESPEC (&end, tsendp);
-	status = get_date (tsrsltp, scan, &tsend);
+	parseChar(&scan, '@');		// ignore; have_relative_date determines type
+	rel_type = have_relative_date (scan);
+
+	if (rel_type == NO_OFFSET)
+	    status = get_date (tsrsltp, scan, NULL);
+	else if (rel_type == NEG_OFFSET && end.tv_sec < INT_MAX) {
+	    struct timespec tsend;
+	    struct timespec *tsendp = &tsend;
+	    TIMEVAL_TO_TIMESPEC (&end, tsendp);
+	    status = get_date (tsrsltp, scan, &tsend);
+	}
+	else {
+	    struct timespec tsstart;
+	    struct timespec *tsstartp = &tsstart;
+	    TIMEVAL_TO_TIMESPEC (&start, tsstartp);
+	    status = get_date (tsrsltp, scan, &tsstart);
+	}
+	if (status < 0)
+	    return -1;
+	TIMESPEC_TO_TIMEVAL (rslt, tsrsltp);
     }
-    else {
-	struct timespec tsstart;
-	struct timespec *tsstartp = &tsstart;
-	TIMEVAL_TO_TIMESPEC (&start, tsstartp);
-	status = get_date (tsrsltp, scan, &tsstart);
-    }
-    if (status < 0)
-	return -1;
-    TIMESPEC_TO_TIMEVAL (rslt, tsrsltp);
 
     return 0;
 }

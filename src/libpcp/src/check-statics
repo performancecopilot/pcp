@@ -200,7 +200,6 @@ getdate.o
     r yyr2
     r yytable
     r yytranslate
-gettime.o
 hash.o
 help.o
 instance.o
@@ -361,7 +360,6 @@ util.o
     r ?dp_h			# const
     r ?dp_l			# const
 ?win32.o
-xmalloc.o
 END				# this is magic, DO NOT DELETE THIS LINE
 End-of-File
 
