@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +27,7 @@ class SaveViewDialog : public QDialog, public Ui::SaveViewDialog
 public:
     SaveViewDialog(QWidget* parent);
     ~SaveViewDialog();
-    void reset();
+    void reset(bool);
 
     static void saveChart(FILE *, Chart *, bool);
     static bool saveView(QString, bool, bool, bool, bool);

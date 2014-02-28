@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -61,12 +62,13 @@ SaveViewDialog::~SaveViewDialog()
     delete my.dirModel;
 }
 
-void SaveViewDialog::reset()
+void SaveViewDialog::reset(bool hostDynamic)
 {
     QDir d;
     if (!d.exists(my.userDir))
 	d.mkpath(my.userDir);
     setPath(my.userDir);
+    preserveHostCheckBox->setChecked(hostDynamic == false);
 }
 
 void SaveViewDialog::setPathUi(const QString &path)

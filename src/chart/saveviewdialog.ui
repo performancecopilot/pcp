@@ -241,7 +241,7 @@
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text" >
-          <string>Preserve hostname in View</string>
+          <string>Preserve hostnames in View</string>
          </property>
         </widget>
        </item>

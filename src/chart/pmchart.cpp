@@ -267,8 +267,18 @@ void PmChart::fileOpenView()
 
 void PmChart::fileSaveView()
 {
+    // If we have one host only, we default to "host dynamic" views.
+    // Otherwise (multiple hosts), default to explicit host names.
+    int i, ngadgets = activeTab()->gadgetCount();
+    bool hostDynamic = true;
+    for (i = 0; i < ngadgets; i++) {
+	Gadget *gadget = activeTab()->gadget(i);
+	if (gadget->hosts().size() > 1)
+	    hostDynamic = false;
+    }
+
     setupDialogs();
-    my.saveview->reset();
+    my.saveview->reset(hostDynamic);
     my.saveview->show();
 }
 
