@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing security extensions
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -32,7 +32,10 @@ nss_notrun_checks()
 
     fips=false	# testing for exposure to Red Hat bug 1035509
     fipsfile=/proc/sys/crypto/fips_enabled
-    test -f $fipsfile -a `cat $fipsfile` -ne 0 && fips=true
+    if [ -f $fipsfile ]
+    then
+	test `cat $fipsfile` -ne 0 && fips=true
+    fi
     $fips && _notrun "FIPS mode interacts badly with system NSS databases"
 }
 

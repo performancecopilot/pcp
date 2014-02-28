@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -34,6 +35,7 @@
 [\f3\-v\f1 \f2volsize\f1]
 [\f3\-V\f1 \f2version\f1]
 [\f3\-x\f1 \f2fd\f1]
+[\f3\-y\f1]
 \f2archive\f1
 .SH DESCRIPTION
 .B pmlogger
@@ -328,6 +330,11 @@ The
 option may be used to limit the execution time using the format
 of time as prescribed by 
 .BR PCPIntro (1). 
+The time is interpreted within the time zone of the PMCD server,
+unless the
+.B \-y
+option is given, within which case the time zone at this logger
+host is used.
 .nf
 Some examples of different formats:
 .in 1i

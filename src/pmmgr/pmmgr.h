@@ -65,6 +65,7 @@ protected:
   pmmgr_hostid hostid;
   pcp_context_spec spec;
   int pid;
+  time_t last_restart_attempt;
 
   virtual std::string daemon_command_line() = 0;
 };

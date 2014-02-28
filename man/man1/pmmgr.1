@@ -55,7 +55,8 @@ missing information with built-in defaults.  The default directory is
 .B \-p
 .I polling-interval
 sets the host-discovery polling interval to the given number of seconds.
-The default is 60.
+The default is 60.  Daemons for a particular target host will be restarted
+no more frequently than this interval.
 .TP
 .B \-l
 .I log-file
