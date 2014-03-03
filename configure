@@ -3721,7 +3721,6 @@ test -n "$DTRACE" || DTRACE="enable_probes=false"
     then
         as_fn_error $? "cannot enable static probes - no toolchain" "$LINENO" 5
     fi
-
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4127,23 +4126,49 @@ if test "x$ac_cv_header_sys_sdt_h" = xyes; then :
 #define HAVE_SYS_SDT_H 1
 _ACEOF
 
-        enable_probes=true
-        if test $target_os = kfreebsd
-        then
-            enable_probes=false
-        fi
+	enable_probes=true
+	if test $target_os = kfreebsd
+	then
+	    enable_probes=false
+	elif test $target_os = freebsd
+	then
+	    	    rm -f conftest.d conftest.h
+	    cat <<End-of-File >conftest.d
+provider eek {
+    probe urk(int);
+};
+End-of-File
+	    if dtrace -s conftest.d -h >/dev/null 2>&1
+	    then
+		if test ! -f conftest.h
+		then
+		    enable_probes=false
+		    if test "$do_probes" = "yes"
+		    then
+			as_fn_error $? "cannot enable static probes - no .h from dtrace -h" "$LINENO" 5
+		    fi
+		fi
+	    else
+		enable_probes=false
+		if test "$do_probes" = "yes"
+		then
+		    as_fn_error $? "cannot enable static probes - dtrace failed" "$LINENO" 5
+		fi
+	    fi
+	fi
 
 else
 
-        enable_probes=false
-        if test "$do_probes" = "yes"
-        then
-            as_fn_error $? "cannot enable static probes - no SDT header" "$LINENO" 5
-        fi
+	enable_probes=false
+	if test "$do_probes" = "yes"
+	then
+	    as_fn_error $? "cannot enable static probes - no SDT header" "$LINENO" 5
+	fi
 
 fi
 
 done
+
 
     if test "$enable_probes" = "true"
     then
@@ -14580,6 +14605,19 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+cd debian || exit 1
+rm -f control
+if $MAKE control >/tmp/$$.make.out 2>&1
+then
+    rm /tmp/$$.make.out
+else
+    echo "Arrgh ..."
+    cat /tmp/$$.make.out
+    rm /tmp/$$.make.out
+    exit 1
+fi
+cd ..
 
 echo config.status: settings dump begin
 grep '^S.".*=' config.status

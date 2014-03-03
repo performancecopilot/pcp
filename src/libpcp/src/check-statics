@@ -190,6 +190,7 @@ interp.o
     b nr			# diag counters, no atomic updates
     b nr_cache			# diag counters, no atomic updates
     b cache			# guarded by __pmLock_libpcp mutex
+    d statestr			# const
 ipc.o
     b __pmIPCTable		# guarded by __pmLock_libpcp mutex
     d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex

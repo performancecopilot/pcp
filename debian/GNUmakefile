@@ -96,7 +96,8 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
-LSRCFILES = changelog compat control copyright rules \
+LSRCFILES = changelog compat copyright rules \
+	control.master control.webapi control \
 	pcp.preinst.head.in pcp.preinst.head pcp.preinst.tail \
 	pcp.postinst.head.in pcp.postinst.head pcp.postinst.tail \
 	pcp.postrm.head pcp.postrm.tail configversions \
@@ -113,7 +114,7 @@ LSRCFILES = changelog compat control copyright rules \
 	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES) \
 	$(PCPIMPORTCOLLECTL_FILES) $(PCPPMDAINFINIBAND_FILES)
 
-default: pcp.preinst pcp.postinst pcp.postrm
+default: pcp.preinst pcp.postinst pcp.postrm control
 
 include $(BUILDRULES)
 
@@ -127,11 +128,13 @@ default_pcp : default
 
 install_pcp : install
 
-install-webapi: default
+install-webapi:
+ifeq ($(HAVE_LIBMICROHTTPD), 1)
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPWEBAPI_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPWEBAPI_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPWEBAPI_DOC_DIR)/changelog.Debian
+endif
 endif
 
 install-manager: default
@@ -292,3 +295,9 @@ pcp.postinst:	pcp.postinst.head $(SCRIPTS)/cleantmpdirs configversions pcp.posti
 pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
+
+control:	control.master control.webapi
+	cat control.master >control
+ifeq ($(HAVE_LIBMICROHTTPD), 1)
+	cat control.webapi >>control
+endif

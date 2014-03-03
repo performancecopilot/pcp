@@ -57,7 +57,8 @@ CPU: $(CPU_SOURCE)
 DISK: $(DISK_SOURCE)
 	rm -f DISK
 	for file in $(DISK_SOURCE); do cat $$file >>DISK; echo >>DISK; done
-	sed -i -e "s@/usr/pcp/bin/pmpost@$(PCP_BINADM_DIR)/pmpost@" DISK
+	sed -i.orig -e "s@/usr/pcp/bin/pmpost@$(PCP_BINADM_DIR)/pmpost@" DISK
+	rm -f DISK.orig
 
 FILESYS: $(FILESYS_SOURCE)
 	rm -f FILESYS

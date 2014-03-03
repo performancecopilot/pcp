@@ -1,10 +1,14 @@
+sts=0
+tmp=/var/tmp
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 if [ ! -f /etc/pcp.env ]
 then
     # PCP not installed ... seems odd
     #
     echo "Error: /etc/pcp.env not installed!"
-    exit 1
+    sts=1
+    exit
 fi
 
 . /etc/pcp.env
@@ -72,8 +76,14 @@ then
 	then
 	    groupadd $sys_acc pcp
 	else
-	    echo "postinstall: Error: don't know how to add group \"pcp\""
-	    exit 1
+	    if [ $PCP_PLATFORM = freebsd ]
+	    then
+		: adduser does this for us ...
+	    else
+		echo "postinstall: Error: don't know how to add group \"pcp\""
+		sts=1
+		exit
+	    fi
 	fi
     fi
     if grep '^pcp:' /etc/passwd >/dev/null
@@ -83,9 +93,14 @@ then
 	if which useradd >/dev/null 2>&1
 	then
 	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp $no_home_dir $sys_acc -s $nologin pcp
+	elif which adduser >/dev/null 2>&1
+	then
+	    echo "pcp::::::Performance Co-Pilot:/var/lib/pcp::" \
+	    | adduser -f - -w no
 	else
 	    echo "postinstall: Error: don't know how to add user \"pcp\""
-	    exit 1
+	    sts=1
+	    exit
 	fi
     fi
     if grep '^pcpqa:' /etc/group >/dev/null
@@ -96,8 +111,14 @@ then
 	then
 	    groupadd $sys_acc pcpqa
 	else
-	    echo "postinstall: Error: don't know how to add group \"pcpqa\""
-	    exit 1
+	    if [ $PCP_PLATFORM = freebsd ]
+	    then
+		: adduser does this for us ...
+	    else
+		echo "postinstall: Error: don't know how to add group \"pcpqa\""
+		sts=1
+		exit
+	    fi
 	fi
     fi
     if grep '^pcpqa:' /etc/passwd >/dev/null
@@ -106,10 +127,17 @@ then
     else
 	if which useradd >/dev/null 2>&1
 	then
-	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp $no_home_dir $sys_acc -s $bash pcpqa
+	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite $no_home_dir $sys_acc -s $bash pcpqa
+	elif which adduser >/dev/null 2>&1
+	then
+	    # no bash for default FreeBSD
+	    bash=`which sh`
+	    echo "pcpqa::::::PCP Quality Assurance:/var/lib/pcp/testsuite:$bash:" \
+	    | adduser -f - -w no
 	else
 	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
-	    exit 1
+	    sts=1
+	    exit
 	fi
     fi
 fi
@@ -140,4 +168,4 @@ do
     $PCP_RC_DIR/$svc start
 done
 
-exit 0
+exit
