@@ -51,6 +51,20 @@ typedef union {				/* value from pmResult */
     int			lval;
 } value;
 
+/*
+ * state values for s_prior and s_next
+ */
+#define S_UNDEFINED	0	/* no searching done yet */
+#define S_NOTFOUND	1	/* searched to end or start of archive and
+				   did not find a value or a <mark> */
+#define S_MARK		2	/* searched and found <mark> before value
+				   at t_prior or t_mext */
+#define S_VALUE		3	/* searched and found value at t_prior or
+				   t_next */
+
+static const char *statestr[] = { " <undefined>", " <notfound>", " <mark>", "" };
+
+
 typedef struct instcntl {		/* metric-instance control */
     struct instcntl	*next;		/* next for this metric control */
     struct instcntl	*want;		/* ones of interest */
@@ -59,10 +73,10 @@ typedef struct instcntl {		/* metric-instance control */
     int			inst;		/* instance identifier */
     int			inresult;	/* will be in this result */
     double		t_prior;
-    int			m_prior;	/* mark, not value at t_prior */
+    int			s_prior;	/* state at t_prior */
     value		v_prior;
     double		t_next;
-    int			m_next;		/* mark, not value at t_next */
+    int			s_next;		/* state at t_next */
     value		v_next;
     double		t_first;	/* no records before this */
     double		t_last;		/* no records after this */
@@ -263,7 +277,7 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	    fprintf(stderr, " <undefined>");
 	    return;
 	}
-	mark = icp->m_prior;
+	mark = icp->s_prior == S_MARK;
 	vp = &icp->v_prior;
     }
     else {
@@ -271,7 +285,7 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	    fprintf(stderr, " <undefined>");
 	    return;
 	}
-	mark = icp->m_next;
+	mark = icp->s_next == S_MARK;
 	vp = &icp->v_next;
     }
     if (mark) {
@@ -340,7 +354,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
 		/* <mark> is closer than best lower bound to date */
 		icp->t_prior = t_this;
-		icp->m_prior = 1;
+		icp->s_prior = S_MARK;
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_prior.pval != NULL)
 			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
@@ -363,7 +377,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		  icp->t_next < t_req)) {
 		/* <mark> is closer than best upper bound to date */
 		icp->t_next = t_this;
-		icp->m_next = 1;
+		icp->s_next = S_MARK;
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_next.pval != NULL)
 			__pmUnpinPDUBuf((void *)icp->v_next.pval);
@@ -426,7 +440,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    }
 			}
 			icp->t_prior = t_this;
-			icp->m_prior = 0;
+			icp->s_prior = S_VALUE;
 			if (pcp->valfmt == PM_VAL_INSITU)
 			    icp->v_prior.lval = logrp->vset[k]->vlist[i].value.lval;
 			else {
@@ -452,7 +466,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			if (icp->t_prior < icp->t_next && icp->t_next <= t_req) {
 			    /* shuffle next to prior */
 			    icp->t_prior = icp->t_next;
-			    icp->m_prior = icp->m_next;
+			    icp->s_prior = icp->s_next;
 			    if (pcp->valfmt == PM_VAL_INSITU)
 				icp->v_prior.lval = icp->v_next.lval;
 			    else {
@@ -462,7 +476,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    }
 			}
 			icp->t_next = t_this;
-			icp->m_next = 0;
+			icp->s_next = S_VALUE;
 			if (pcp->valfmt == PM_VAL_INSITU)
 			    icp->v_next.lval = logrp->vset[k]->vlist[i].value.lval;
 			else {
@@ -719,7 +733,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->next = icp->want = icp->unbound = NULL;
 		    icp->inst = instlist[i];
 		    icp->t_prior = icp->t_next = icp->t_first = icp->t_last = -1;
-		    icp->m_prior = icp->m_next = 1;
+		    icp->s_prior = icp->s_next = S_MARK;
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
 		}
 		if (instlist != NULL)
@@ -842,7 +856,7 @@ retry_back:
 		 *  to search back also
 		 */
 		if (icp->t_prior < 0 || icp->t_prior > t_req ||
-		    (icp->t_next >= 0 && icp->m_next && icp->t_next > t_req)) {
+		    (icp->t_next >= 0 && icp->s_next == S_MARK && icp->t_next > t_req)) {
 		    if (back == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta > 0)  {
@@ -860,8 +874,8 @@ retry_back:
 			char	strbuf[20];
 			fprintf(stderr, "search back for inst %d and pmid %s (t_first=%.6f t_prior=%.6f%s t_next=%.6f%s t_last=%.6f)\n",
 			    icp->inst, pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->t_first,
-			    icp->t_prior, icp->m_prior ? " <mark>" : "",
-			    icp->t_next, icp->m_next ? " <mark>" : "",
+			    icp->t_prior, statestr[icp->s_prior],
+			    icp->t_next, statestr[icp->s_next],
 			    icp->t_last);
 		    }
 #endif
@@ -958,7 +972,7 @@ retry_forw:
 		 *  to search forward also
 		 */
 		if (icp->t_next < 0 || icp->t_next < t_req ||
-		    (icp->t_prior >= 0 && icp->m_prior && icp->t_prior < t_req)) {
+		    (icp->t_prior >= 0 && icp->s_prior == S_MARK && icp->t_prior < t_req)) {
 		    if (forw == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta < 0)  {
@@ -976,8 +990,8 @@ retry_forw:
 			char	strbuf[20];
 			fprintf(stderr, "search forw for inst %d and pmid %s (t_first=%.6f t_prior=%.6f%s t_next=%.6f%s t_last=%.6f)\n",
 			    icp->inst, pmIDStr_r(pmidlist[j], strbuf, sizeof(strbuf)), icp->t_first,
-			    icp->t_prior, icp->m_prior ? " <mark>" : "",
-			    icp->t_next, icp->m_next ? " <mark>" : "",
+			    icp->t_prior, statestr[icp->s_prior],
+			    icp->t_next, statestr[icp->s_next],
 			    icp->t_last);
 		    }
 #endif
@@ -1058,7 +1072,7 @@ retry_forw:
 	    if (!icp->inresult)
 		continue;
 	    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-		if (icp->m_prior || icp->t_prior == -1 ||
+		if (icp->s_prior == S_MARK || icp->t_prior == -1 ||
 		    icp->t_prior > t_req) {
 		    /* no earlier value, so no value */
 		    pcp->numval--;
@@ -1067,9 +1081,9 @@ retry_forw:
 	    }
 	    else {
 		/* assume COUNTER or INSTANT */
-		if (icp->m_prior || icp->t_prior == -1 ||
+		if (icp->s_prior == S_MARK || icp->t_prior == -1 ||
 		    icp->t_prior > t_req ||
-		    icp->m_next || icp->t_next == -1 || icp->t_next < t_req) {
+		    icp->s_next == S_MARK || icp->t_next == -1 || icp->t_next < t_req) {
 		    /* in mid-range, and no bound, so no value */
 		    pcp->numval--;
 		    icp->inresult = 0;
