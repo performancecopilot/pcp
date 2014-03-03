@@ -166,6 +166,14 @@ CXXF	= $(CXX) $(CFLAGS) $(CXXFLAGS)
 LDF	= $(LD) $(LDFLAGS)
 MAKEDEPEND = @makedepend@
 
+ifeq "$(TARGET_OS)" "freebsd"
+# gmake on FreeBSD has a strange default rule that passes insufficient
+# flags to cc/ld for the link step.  This change prevents errors like
+# undefined reference to `__stack_chk_fail_local'
+#
+LDFLAGS += $(CFLAGS)
+endif
+
 ZIP	= @gzip@
 BZIP2	= @bzip2@
 LZMA	= @lzma@
