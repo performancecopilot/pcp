@@ -231,21 +231,26 @@ GetPorts(char *file)
 		errorPath = socketPath;
 		unlink(errorPath);
 		socketPath = __pmLogLocalSocketUser(getpid());
-		/*
-		 * Make sure that the directory exists. dirname may modify the
-		 * contents of its first argument, so use a copy.
-		 */
-		if ((tmpPath = strdup(socketPath)) == NULL) {
-		    fprintf(stderr, "GetPorts: _strdup out of memory\n");
-		    exit(1);
+		if (socketPath == NULL) {
+		    sts = -ESRCH;
 		}
-		sts = __pmMkPath(dirname(tmpPath),
-				 S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		free(tmpPath);
-		if (sts >= 0 || oserror() == EEXIST) {
-		    __pmSockAddrSetPath(myAddr, socketPath);
-		    __pmServerSetLocalSocket(socketPath);
-		    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		else {
+		    /*
+		     * Make sure that the directory exists. dirname may modify the
+		     * contents of its first argument, so use a copy.
+		     */
+		    if ((tmpPath = strdup(socketPath)) == NULL) {
+			fprintf(stderr, "GetPorts: _strdup out of memory\n");
+			exit(1);
+		    }
+		    sts = __pmMkPath(dirname(tmpPath),
+				     S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		    free(tmpPath);
+		    if (sts >= 0 || oserror() == EEXIST) {
+			__pmSockAddrSetPath(myAddr, socketPath);
+			__pmServerSetLocalSocket(socketPath);
+			sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		    }
 		}
 	    }
 	    __pmSockAddrFree(myAddr);
@@ -253,7 +258,10 @@ GetPorts(char *file)
 	    if (sts < 0) {
 		/* Could not bind to either socket path. */
 		fprintf(stderr, "__pmBind(%s): %s\n", errorPath, socketError);
-		fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
+		if (sts == -ESRCH)
+		    fprintf(stderr, "__pmLogLocalSocketUser(): %s\n", osstrerror());
+		else
+		    fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
 	    }
 	    else {
 		/*

@@ -114,9 +114,14 @@ __pmLogLocalSocketUser(int pid)
     PM_LOCK(__pmLock_libpcp);
     if (pmlogger_socket[0] == '\0') {
 	char home[MAXPATHLEN];
+	char *homeResult = __pmHomedirFromID(getuid(), home, sizeof(home));
+	if (homeResult == NULL) {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    return NULL;
+	}
 	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
 		 "%s%c.pcp%crun%c" "pmlogger.%d.socket",
-		 __pmHomedirFromID(getuid(), home, sizeof(home)),
+		 home,
 		 __pmPathSeparator(),
 		 __pmPathSeparator(),
 		 __pmPathSeparator(),
@@ -288,7 +293,8 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		if (fd < 0) {
 		    /* Try the socket in the user's home directory. */
 		    connectionSpec = __pmLogLocalSocketUser(*pid);
-		    fd = connectLoggerLocal(connectionSpec);
+		    if (connectionSpec != NULL)
+			fd = connectLoggerLocal(connectionSpec);
 		}
 	    }
 	    if (fd < 0) {
@@ -296,7 +302,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		    return -ECONNREFUSED;
 		/*
 		 * The prefix was "local:".
-		 * If we have a port or a pid, try the connection as localhost.
+		 * If we have a port or a pid, try the connection as "localhost".
 		 * Otherwise, we can't connect.
 		 */
 		if (*port == PM_LOG_NO_PORT && *pid == PM_LOG_NO_PID)

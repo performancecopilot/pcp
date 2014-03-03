@@ -203,7 +203,9 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 	snprintf(buf, size, "%s", env);
     else {
 	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
-	snprintf(buf, size, "%s", result ? result->pw_dir : "unknown");
+	if (result == NULL)
+	    return NULL;
+	snprintf(buf, size, "%s", result->pw_dir);
     }
     buf[size-1] = '\0';
     return buf;
@@ -223,7 +225,9 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
 	snprintf(buf, size, "%s", env);
     else {
 	result = getpwuid(uid);
-	snprintf(buf, size, "%s", result ? result->pw_dir : "unknown");
+	if (result == NULL)
+	    return NULL;
+	snprintf(buf, size, "%s", result->pw_dir);
     }
     buf[size-1] = '\0';
     return buf;
