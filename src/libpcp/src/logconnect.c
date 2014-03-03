@@ -115,7 +115,7 @@ __pmLogLocalSocketUser(int pid)
     if (pmlogger_socket[0] == '\0') {
 	char home[MAXPATHLEN];
 	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
-		 "%s%c.pcp%cpmlogger%c" "pmlogger.%d.socket",
+		 "%s%c.pcp%crun%c" "pmlogger.%d.socket",
 		 __pmHomedirFromID(getuid(), home, sizeof(home)),
 		 __pmPathSeparator(),
 		 __pmPathSeparator(),
