@@ -25,6 +25,7 @@ class Gadget
 public:
     Gadget(QWidget *);
     virtual ~Gadget() { }
+    virtual void resetFont() { }
     virtual void setCurrent(bool) { }
     virtual void setScheme(QString &s) { my.scheme = s; }
     virtual QString scheme() const { return my.scheme; }

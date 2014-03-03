@@ -274,19 +274,31 @@ void writeSettings(void)
     }
     if (globalSettings.fontFamilyModified) {
 	globalSettings.fontFamilyModified = false;
-	userSettings.setValue("fontFamily", globalSettings.fontFamily);
+	if (globalSettings.fontFamily != QString(PmChart::defaultFontFamily()))
+	    userSettings.setValue("fontFamily", globalSettings.fontFamily);
+	else
+	    userSettings.remove("fontFamily");
     }
     if (globalSettings.fontStyleModified) {
 	globalSettings.fontStyleModified = false;
-	userSettings.setValue("fontStyle", globalSettings.fontStyle);
+	if (globalSettings.fontStyle != QString("Normal"))
+	    userSettings.setValue("fontStyle", globalSettings.fontStyle);
+	else
+	    userSettings.remove("fontStyle");
     }
     if (globalSettings.fontSizeModified) {
 	globalSettings.fontSizeModified = false;
-	userSettings.setValue("fontSize", globalSettings.fontSize);
+	if (globalSettings.fontSize != PmChart::defaultFontSize())
+	    userSettings.setValue("fontSize", globalSettings.fontSize);
+	else
+	    userSettings.remove("fontSize");
     }
     if (globalSettings.savedHostsModified) {
 	globalSettings.savedHostsModified = false;
-	userSettings.setValue("savedHosts", globalSettings.savedHosts);
+	if (globalSettings.savedHosts.isEmpty() == false)
+	    userSettings.setValue("savedHosts", globalSettings.savedHosts);
+	else
+	    userSettings.remove("savedHosts");
     }
 
     userSettings.endGroup();

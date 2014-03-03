@@ -95,14 +95,24 @@ protected slots:
     virtual void colorButton22_clicked() { colorButtonClicked(22); }
 
 private:
+    // font preferences
     void setupFontLists();
+    void updateFontList(QListWidget *, const QString &);
+
+    // hosts preferences
     void setupSavedHostsList();
     void setupHostComboBox(const QString &);
+
+    // toolbar preferences
     void setupActionsList();
+
+    // colors preferences
     void setupSchemePalette();
     void setupSchemeComboBox();
     ColorScheme *lookupScheme(QString);
     void updateSchemeColors(ColorScheme *);
+
+    // sampling preferences
     void displayTotalSlider();
     void displayVisibleSlider();
     void displayTotalCounter();

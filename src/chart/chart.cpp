@@ -434,6 +434,27 @@ Chart::title()
     return my.title;
 }
 
+void
+Chart::resetTitleFont(void)
+{
+    QwtText t = titleLabel()->text();
+    t.setFont(*globalFont);
+    setTitle(t);
+    // have to set font for both QwtText and QwtTextLabel because of
+    // the way attributes are cached and restored when printing charts
+    QFont titleFont = *globalFont;
+    titleFont.setBold(true);
+    titleLabel()->setFont(titleFont);
+}
+
+void
+Chart::resetFont(void)
+{
+    QwtPlot::legend()->contentsWidget()->setFont(*globalFont);
+    setAxisFont(QwtPlot::yLeft, *globalFont);
+    resetTitleFont();
+}
+
 QString
 Chart::hostNameString(bool shortened)
 {
@@ -493,16 +514,7 @@ Chart::changeTitle(QString title, bool expand)
     if (my.title != QString::null) {
 	if (!hadTitle)
 	    pmchart->updateHeight(titleLabel()->height());
-
-	QwtText t = titleLabel()->text();
-	t.setFont(*globalFont);
-	setTitle(t);
-	// have to set font for both QwtText and QwtTextLabel because of
-	// the way attributes are cached and restored when printing charts
-	QFont titleFont = *globalFont;
-	titleFont.setBold(true);
-	titleLabel()->setFont(titleFont);
-
+	resetTitleFont();
 	if (expand && (expandHostShort || expandHostLong)) {
 	    if (expandHostShort)
 		title.replace(QRegExp("%h"), hostNameString(true));

@@ -27,6 +27,7 @@ class StatusBar : public QStatusBar
 public:
     StatusBar();
     void init();
+    void resetFont();
 
     static int buttonSize() { return 56; }	// pixels
     static int timeAxisHeight() { return 30; }	// pixels

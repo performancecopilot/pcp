@@ -28,6 +28,7 @@ public:
     TimeAxis(QWidget *);
 
     void init();
+    void resetFont();
     void clearScaleCache();
     double scaleValue(double delta, int count);
     void noArchiveSources();

@@ -94,6 +94,7 @@ public:
     virtual void newScheme();	// request new scheme of settings dialog
     virtual void newScheme(QString);	// reply back to requesting dialog(s)
     virtual void updateBackground();
+    virtual void updateFont(const QString &family, const QString &style, int size);
 
     void painter(QPainter *qp, int pw, int ph, bool transparent, bool currentOnly);
 

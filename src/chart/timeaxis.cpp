@@ -69,6 +69,11 @@ void TimeAxis::init()
     setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignHCenter | Qt::AlignBottom);
 }
 
+void TimeAxis::resetFont()
+{
+    setAxisFont(QwtPlot::xBottom, *globalFont);
+}
+
 void TimeAxis::print(QPainter *qp, QRect &rect, bool transparent)
 {
     QwtPlotRenderer renderer;

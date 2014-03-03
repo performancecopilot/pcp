@@ -311,6 +311,23 @@ void PmChart::filePrint()
     }
 }
 
+void PmChart::updateFont(const QString &family, const QString &style, int size)
+{
+    int i, ngadgets = activeTab()->gadgetCount();
+
+    globalFont->setFamily(family);
+    globalFont->setPointSize(size);
+    globalFont->setStyle(QFont::StyleNormal);
+    if (style.contains("Italic"))
+	globalFont->setItalic(true);
+    if (globalSettings.fontStyle.contains("Bold"))
+	globalFont->setBold(true);
+
+    for (i = 0; i < ngadgets; i++)
+	activeTab()->gadget(i)->resetFont();
+    my.statusBar->resetFont();
+}
+
 void PmChart::painter(QPainter *qp, int pw, int ph, bool transparent, bool currentOnly)
 {
     double scale_h = 0;

@@ -55,6 +55,7 @@ public:
 	EventStyle
     } Style;
 
+    virtual void resetFont();
     virtual void setCurrent(bool);
     virtual QString scheme() const;	// return chart color scheme
     virtual void setScheme(QString);	// set the chart color scheme
@@ -147,6 +148,7 @@ private Q_SLOTS:
 private:
     // changing properties
     void setStroke(ChartItem *, Style, QColor);
+    void resetTitleFont(void);
 
     // handling selection
     void showInfo(void);

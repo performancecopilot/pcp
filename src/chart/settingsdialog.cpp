@@ -74,56 +74,6 @@ void SettingsDialog::enableUi()
     removeSchemeButton->setEnabled(userScheme);
 }
 
-void SettingsDialog::setupFontLists()
-{
-    QFontDatabase database;
-    const QStringList families = database.families();
-
-    console->post(PmChart::DebugForce,
-		    "SettingsDialog::setupFontLists: default %s [%d]",
-		    (const char *)PmChart::defaultFontFamily(),
-		    PmChart::defaultFontSize());
-
-    QCompleter *completeFamily = new QCompleter(families, familyLineEdit);
-    familyLineEdit->setCompleter(completeFamily);
-
-    familyListWidget->insertItems(0, families);
-//    foreach (const QString &family, database.families()) {
-//	console->post(PmChart::DebugForce, "got family: %s",
-//		    (const char *)family.toAscii());
-//   }
-
-    QString family = PmChart::defaultFontFamily();	// TODO: check prefs
-    styleListWidget->insertItems(0, database.styles(family));
-//    foreach (const QString &style, database.styles(family)) {
-//	console->post(PmChart::DebugForce, "got style: %s",
-//		    (const char *)style.toAscii());
-//    }
-
-    QString style("Normal");				// TODO: check prefs
-    QStringList sizes;
-    foreach (int points, database.smoothSizes(family, style))
-	sizes << QString::number(points);
-    sizeListWidget->insertItems(0, sizes);
-}
-
-void SettingsDialog::setupActionsList()
-{
-    QList<QAction*> actionsList = pmchart->toolbarActionsList();
-    QList<QAction*> enabledList = pmchart->enabledActionsList();
-
-    actionListWidget->blockSignals(true);
-    actionListWidget->clear();
-    for (int i = 0; i < actionsList.size(); i++) {
-	QAction *action = actionsList.at(i);
-	QListWidgetItem *item = new QListWidgetItem(action->icon(), action->iconText());
-	actionListWidget->insertItem(i, item);
-	if (enabledList.contains(action) == false)
-	    item->setBackground(disabled);
-    }
-    actionListWidget->blockSignals(false);
-}
-
 void SettingsDialog::reset()
 {
     my.chartUnits = PmTime::Seconds;
@@ -168,6 +118,10 @@ void SettingsDialog::settingsTab_currentChanged(int)
 {
     enableUi();
 }
+
+//
+// Sampling preferences
+//
 
 void SettingsDialog::chartDeltaLineEdit_editingFinished()
 {
@@ -279,6 +233,191 @@ void SettingsDialog::displayVisibleCounter()
     visibleCounter->blockSignals(false);
 }
 
+//
+// Font preferences
+//
+
+void SettingsDialog::setupFontLists()
+{
+    QFontDatabase database;
+    const QStringList families = database.families();
+
+    console->post(PmChart::DebugUi,
+		    "SettingsDialog::setupFontLists: default %s [%d]",
+		    PmChart::defaultFontFamily(),
+		    PmChart::defaultFontSize());
+
+    QCompleter *completeFamily = new QCompleter(families, familyLineEdit);
+    familyLineEdit->setCompleter(completeFamily);
+
+    familyListWidget->insertItems(0, families);
+    QString family = globalSettings.fontFamily;
+    familyLineEdit->setText(family);
+    updateFontList(familyListWidget, family);
+
+    styleListWidget->insertItems(0, database.styles(family));
+    QString style = globalSettings.fontStyle;
+    styleLineEdit->setText(style);
+    updateFontList(styleListWidget, style);
+
+    QStringList sizes;
+    foreach (int points, database.smoothSizes(family, style))
+	sizes << QString::number(points);
+    sizeListWidget->insertItems(0, sizes);
+    QString size = QString::number(globalSettings.fontSize);
+    sizeLineEdit->setText(size);
+    updateFontList(sizeListWidget, size);
+}
+
+void SettingsDialog::updateFontList(QListWidget *list, const QString &text)
+{
+    QList<QListWidgetItem *>items;
+
+    items = list->findItems(text, Qt::MatchExactly);
+    if (items.size() > 0)
+	list->setCurrentItem(items.at(0));
+}
+
+void SettingsDialog::familyLineEdit_editingFinished()
+{
+    updateFontList(familyListWidget, familyLineEdit->text());
+}
+
+void SettingsDialog::familyListWidget_itemClicked(QListWidgetItem *item)
+{
+    familyLineEdit->setText(item->text());
+}
+
+void SettingsDialog::styleLineEdit_editingFinished()
+{
+    updateFontList(styleListWidget, styleLineEdit->text());
+}
+
+void SettingsDialog::styleListWidget_itemClicked(QListWidgetItem *item)
+{
+    styleLineEdit->setText(item->text());
+}
+
+void SettingsDialog::sizeLineEdit_editingFinished()
+{
+    updateFontList(sizeListWidget, sizeLineEdit->text());
+}
+
+void SettingsDialog::sizeListWidget_itemClicked(QListWidgetItem *item)
+{
+    sizeLineEdit->setText(item->text());
+}
+
+void SettingsDialog::resetFontButton_clicked()
+{
+    QString family = PmChart::defaultFontFamily();
+    familyLineEdit->setText(family);
+    updateFontList(familyListWidget, family);
+    globalSettings.fontFamilyModified = true;
+    globalSettings.fontFamily = family;
+
+    QString style = QString("Normal");
+    styleLineEdit->setText(style);
+    updateFontList(styleListWidget, style);
+    globalSettings.fontStyleModified = true;
+    globalSettings.fontStyle = style;
+
+    QString size = QString::number(PmChart::defaultFontSize());
+    int fontSize = size.toInt();
+    sizeLineEdit->setText(size);
+    updateFontList(sizeListWidget, size);
+    globalSettings.fontSizeModified = true;
+    globalSettings.fontSize = fontSize;
+
+    writeSettings();
+    pmchart->updateFont(family, style, fontSize);
+}
+
+void SettingsDialog::applyFontButton_clicked()
+{
+    QString family = familyLineEdit->text();
+    globalSettings.fontFamilyModified = true;
+    globalSettings.fontFamily = family;
+
+    QString style = styleLineEdit->text();
+    globalSettings.fontStyleModified = true;
+    globalSettings.fontStyle = style;
+
+    int size = sizeLineEdit->text().toInt();
+    globalSettings.fontSizeModified = true;
+    globalSettings.fontSize = size;
+
+    writeSettings();
+    pmchart->updateFont(family, style, size);
+}
+
+//
+// Toolbar preferences
+//
+
+void SettingsDialog::setupActionsList()
+{
+    QList<QAction*> actionsList = pmchart->toolbarActionsList();
+    QList<QAction*> enabledList = pmchart->enabledActionsList();
+
+    actionListWidget->blockSignals(true);
+    actionListWidget->clear();
+    for (int i = 0; i < actionsList.size(); i++) {
+	QAction *action = actionsList.at(i);
+	QListWidgetItem *item = new QListWidgetItem(action->icon(), action->iconText());
+	actionListWidget->insertItem(i, item);
+	if (enabledList.contains(action) == false)
+	    item->setBackground(disabled);
+    }
+    actionListWidget->blockSignals(false);
+}
+
+void SettingsDialog::startupToolbarCheckBox_clicked()
+{
+    globalSettings.initialToolbar =
+			startupToolbarCheckBox->checkState() == Qt::Checked;
+    globalSettings.initialToolbarModified = true;
+    writeSettings();
+}
+
+void SettingsDialog::nativeToolbarCheckBox_clicked()
+{
+    globalSettings.nativeToolbar =
+			nativeToolbarCheckBox->checkState() == Qt::Checked;
+    globalSettings.nativeToolbarModified = true;
+    writeSettings();
+    pmchart->updateToolbarLocation();
+}
+
+void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
+{
+    globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
+    globalSettings.toolbarLocationModified = true;
+    writeSettings();
+    pmchart->updateToolbarLocation();
+}
+
+void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
+{
+    QStringList actions;
+
+    item->setBackground(item->background() == disabled ? enabled : disabled);
+    for (int i = 0; i < actionListWidget->count(); i++) {
+	QListWidgetItem *listitem = actionListWidget->item(i);
+	if (listitem->background() != disabled)
+	    actions.append(listitem->text());
+    }
+    globalSettings.toolbarActions = actions;
+    globalSettings.toolbarActionsModified = true;
+    writeSettings();
+    pmchart->setEnabledActionsList(actions, true);
+    pmchart->updateToolbarContents();
+}
+
+//
+// Colors preferences
+//
+
 void SettingsDialog::selectedHighlightButton_clicked()
 {
     selectedHighlightButton->clicked();
@@ -324,88 +463,6 @@ void SettingsDialog::colorButtonClicked(int n)
 	globalSettings.defaultSchemeModified = true;
 	writeSettings();
     }
-}
-
-void SettingsDialog::familyLineEdit_editingFinished()
-{
-    // TODO: save family (from lineedit) to preferences file
-}
-
-void SettingsDialog::familyListWidget_itemClicked(QListWidgetItem *item)
-{
-    // TODO: save family (from item) to preferences file
-}
-
-void SettingsDialog::styleLineEdit_editingFinished()
-{
-    // TODO: save style (from lineedit) to preferences file
-}
-
-void SettingsDialog::styleListWidget_itemClicked(QListWidgetItem *item)
-{
-    // TODO: save style (from item) to preferences file
-}
-
-void SettingsDialog::sizeLineEdit_editingFinished()
-{
-    // TODO: save point size (from item) to preferences file
-}
-
-void SettingsDialog::sizeListWidget_itemClicked(QListWidgetItem *item)
-{
-    // TODO: save point size (from item) to preferences file
-}
-
-void SettingsDialog::resetFontButton_clicked()
-{
-    // TODO: revert to defaults, clear preferences file
-}
-
-void SettingsDialog::applyFontButton_clicked()
-{
-    // TODO: save family/style/size (from list) to preferences file
-}
-
-void SettingsDialog::startupToolbarCheckBox_clicked()
-{
-    globalSettings.initialToolbar =
-			startupToolbarCheckBox->checkState() == Qt::Checked;
-    globalSettings.initialToolbarModified = true;
-    writeSettings();
-}
-
-void SettingsDialog::nativeToolbarCheckBox_clicked()
-{
-    globalSettings.nativeToolbar =
-			nativeToolbarCheckBox->checkState() == Qt::Checked;
-    globalSettings.nativeToolbarModified = true;
-    writeSettings();
-    pmchart->updateToolbarLocation();
-}
-
-void SettingsDialog::toolbarAreasComboBox_currentIndexChanged(int)
-{
-    globalSettings.toolbarLocation = toolbarAreasComboBox->currentIndex();
-    globalSettings.toolbarLocationModified = true;
-    writeSettings();
-    pmchart->updateToolbarLocation();
-}
-
-void SettingsDialog::actionListWidget_itemClicked(QListWidgetItem *item)
-{
-    QStringList actions;
-
-    item->setBackground(item->background() == disabled ? enabled : disabled);
-    for (int i = 0; i < actionListWidget->count(); i++) {
-	QListWidgetItem *listitem = actionListWidget->item(i);
-	if (listitem->background() != disabled)
-	    actions.append(listitem->text());
-    }
-    globalSettings.toolbarActions = actions;
-    globalSettings.toolbarActionsModified = true;
-    writeSettings();
-    pmchart->setEnabledActionsList(actions, true);
-    pmchart->updateToolbarContents();
 }
 
 void SettingsDialog::newScheme()
@@ -554,7 +611,7 @@ void SettingsDialog::schemeComboBox_currentIndexChanged(int index)
 }
 
 //
-// Preferences -> Host tab
+// Host Preferences
 //
 
 void SettingsDialog::setupSavedHostsList()
