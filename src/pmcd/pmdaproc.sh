@@ -1163,6 +1163,22 @@ _install()
     # Install the namespace
     #
 
+    if [ ! -f $NAMESPACE ]
+    then
+	# We may be installing an agent right after an install -
+	# before pmcd startup, which has a pre-execution step of
+	# rebuilding the namespace root.  Do so now.
+	if [ -x $PMNSDIR/Rebuild ]
+	then
+	    echo "$prog: cannot Rebuild the PMNS for \"$NAMESPACE\""
+	    exit 1
+	fi
+	cd $PMNSDIR
+	./Rebuild -dus
+	cd $__here
+	forced_restart=true
+    fi
+
     for __n in $pmns_name
     do
 	if pminfo $__ns_opt $__n >/dev/null 2>&1

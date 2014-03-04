@@ -83,11 +83,20 @@ static pmdaMetric metrictab[] = {
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
     { NULL, { PMDA_PMID(1, NAME_ID), PM_TYPE_STRING,
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+    /* cumulative rpm metrics - total package count, size */
+    { NULL, { PMDA_PMID(2, TOTAL_COUNT_ID), PM_TYPE_U32,
+	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+    { NULL, { PMDA_PMID(2, TOTAL_BYTES_ID), PM_TYPE_U64,
+	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 };
 
 static pthread_t indom_thread;		/* load the instances initially */
 static pthread_t inotify_thread;	/* runs when the rpmdb changes */
-static unsigned long long numrefresh;	/* updated by background threads */
+static unsigned long long numrefresh;	/* updated by background thread */
+static unsigned long long packagesize;	/* sum of sizes of all packages */
+static unsigned long numpackages;	/* total count for all packages */
+
 static pthread_mutex_t indom_mutex;
 
 static int isDSO = 1;			/* invoked as shlib or daemon */
@@ -222,6 +231,25 @@ rpm_fetch_package(int item, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
+rpm_fetch_totals(int item, pmAtomValue *atom)
+{
+    int sts = PMDA_FETCH_STATIC;
+
+    switch (item) {
+    case TOTAL_COUNT_ID:		/* rpm.total.count */
+	atom->ul = numpackages;
+	break;
+    case TOTAL_BYTES_ID:		/* rpm.total.bytes */
+	atom->ull = packagesize;
+	break;
+    default:
+	sts = PM_ERR_PMID;
+	break;
+    }
+    return sts;
+}
+
+static int
 rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *) &mdesc->m_desc.pmid;
@@ -237,6 +265,9 @@ rpm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
     case 1:
 	sts = rpm_fetch_package(idp->item, inst, atom);
+	break;
+    case 2:
+	sts = rpm_fetch_totals(idp->item, atom);
 	break;
     default:
 	sts = PM_ERR_PMID;
@@ -397,9 +428,11 @@ rpm_update_cache(void *ptr)
 {
     rpmtd td;
     rpmts ts;
+    Header h;
     rpmdbMatchIterator mi;
     unsigned long long refresh;
-    Header h;
+    unsigned long long totalsize = 0;
+    unsigned long packages = 0;
     static int cache_err = 0;
 
     pthread_mutex_lock(&indom_mutex);
@@ -423,6 +456,10 @@ rpm_update_cache(void *ptr)
 
 	/* extract an on-stack copy of the package metadata, may do I/O */
 	rpm_extract_metadata(name, td, h, &meta);
+
+	/* update cumulative counts */
+	totalsize += meta.size;
+	packages++;
 
 	/* we now have our data and cannot need more I/O; lock and load */
 	pthread_mutex_lock(&indom_mutex);
@@ -456,6 +493,8 @@ rpm_update_cache(void *ptr)
     pthread_mutex_lock(&indom_mutex);
     stop_timing();
     numrefresh = refresh;	/* current iteration complete */
+    packagesize = totalsize;
+    numpackages = packages;
     pthread_mutex_unlock(&indom_mutex);
     return NULL;
 }

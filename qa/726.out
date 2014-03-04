@@ -1,0 +1,14 @@
+QA output created by 726
+
+[232 bytes]
+TIMESTAMP  29.0.31 (sample.string.hullo): value "hullo world!"
+              29.0.30 (sample.string.null): value ""
+              29.0.25 (sample.double.one): value 1
+              29.0.15 (sample.float.one): value 1
+              29.0.10 (sample.long.one): value 1
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [500 or "bin-500"] value 500
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+              29.0.0 (sample.control): value 0

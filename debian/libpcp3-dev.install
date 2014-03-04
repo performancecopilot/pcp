@@ -1,4 +1,7 @@
 usr/include/pcp/config.h
+usr/include/pcp/config32.h
+usr/include/pcp/config64.h
+usr/include/pcp/configsz.h
 usr/include/pcp/impl.h
 usr/include/pcp/platform_defs.h
 usr/include/pcp/pmapi.h
@@ -30,6 +33,7 @@ usr/share/man/man3/pmCtime.3.gz
 usr/share/man/man3/pmDelProfile.3.gz
 usr/share/man/man3/pmDerivedErrStr.3.gz
 usr/share/man/man3/pmDestroyContext.3.gz
+usr/share/man/man3/pmDiscoverServices.3.gz
 usr/share/man/man3/pmDupContext.3.gz
 usr/share/man/man3/pmErrStr.3.gz
 usr/share/man/man3/pmErrStr_r.3.gz
@@ -155,6 +159,5 @@ usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
 usr/share/man/man3/pmUseContext.3.gz
 usr/share/man/man3/pmUseZone.3.gz
-usr/share/man/man3/PMWEBAPI.3.gz
 usr/share/man/man3/pmWhichContext.3.gz
 usr/share/man/man3/pmWhichZone.3.gz

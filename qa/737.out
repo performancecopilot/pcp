@@ -1,0 +1,6 @@
+QA output created by 737
+pmLocaltime from int:  1388724379.0 (2014, 1, 3, 4, 46, 19, 1, 33, 0)
+pmLocaltime from float:  1388724379.0 (2014, 1, 3, 4, 46, 19, 1, 33, 0)
+pmCtime from int:  Mon Feb  3 04:46:19 2014
+pmCtime from float:  Mon Feb  3 04:46:19 2014
+pmWhichZone:  UTC

@@ -1,8 +1,12 @@
-- pmlogrewrite
-- log aging without logmerge (which is high on I/O)
+- pmmgr.1 EXAMPLE CONFIGURATIONS
+- optionally delay pm*conf
+- pmlogreduce
+- log aging in background while new pmlogger's already running
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?
-- test buildability on non-linux
 - qa
 - port to mingw?
+- port to cygwin?
 - pmlogger/pmie .log rotation
+- pid->pid_t cleanup
+

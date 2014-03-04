@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ LLDIRT =
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pmie pmieconf pmlogconf pmlogger pmlogmerge \
+LSRCFILES = pmie pmieconf pmlogconf pmlogger pmlogmerge pmlogmerge-rewrite pmlogmerge-granular \
 	README target-discovery.example-avahi 
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr

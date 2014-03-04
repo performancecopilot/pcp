@@ -215,7 +215,11 @@ case "$1" in
 Error: pmmgr control file "$PMMGROPTS" is missing, cannot start pmmgr.'
 		exit
 	    fi
-	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
 	    cd $RUNDIR
 
 	    # salvage the previous versions of any pmmgr
@@ -226,7 +230,7 @@ Error: pmmgr control file "$PMMGROPTS" is missing, cannot start pmmgr.'
 		mv pmmgr.log pmmgr.log.prev
 	    fi
 
-	    $ECHO $PCP_ECHO_N "Performance Co-Pilot starting pmmgr (logfile is $RUNDIR/pmmgr.log) ..." "$PCP_ECHO_C"
+	    $ECHO $PCP_ECHO_N "Starting pmmgr ..." "$PCP_ECHO_C"
 	    # options file processing ...
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
@@ -250,7 +254,7 @@ BEGIN			{ exports="" }
 			}
 END			{ if (exports != "") print "export", exports }'`
 
-	    $PMMGR $OPTS > pmmgr.log 2>&1 &
+	    $PMMGR -l pmmgr.log $OPTS &
 	    $RC_STATUS -v
 
 	    pmpost "start pmmgr from $pmprog"

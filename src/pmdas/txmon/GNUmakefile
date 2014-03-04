@@ -43,8 +43,7 @@ build-me:	$(TARGETS)
 
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 txrecord $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root $(HFILES) $(PMDADIR)
 	$(INSTALL) -m 644 help pmns domain.h $(CFILES) $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile

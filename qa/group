@@ -130,6 +130,7 @@ pmda
 pmda.install
 
 # Assorted PMDAs
+pmda.apache
 pmda.cisco
 pmda.environ
 pmda.gfs2
@@ -879,22 +880,27 @@ avahi
 723 pmda.proc local oss
 724 pmfind local oss
 725 pmda.jbd2 local oss
+726 pmlogger pmdumplog local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss
+737 python local oss
 740 pmda.sample pmstore secure local oss
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss
 752 libpcp local oss
+755 pmda.apache pmda.install local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
 783 pmda.rpm local oss
+815 pmie local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 840 avahi local oss
+844 pmda.linux local oss
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
 876 pmda.xfs local oss
@@ -902,6 +908,7 @@ avahi
 944 pmcd secure local oss
 945 pmlogrewrite pmda.xfs local oss
 946 pmfind avahi local oss
+962 archive local oss
 994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi

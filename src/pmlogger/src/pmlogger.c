@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012-2013 Red Hat.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -253,13 +253,13 @@ do_size(double d)
     static char nbuf[100];
 
     if (d < 10 * 1024)
-	sprintf(nbuf, "%ld bytes", (long)d);
+	snprintf(nbuf, sizeof(nbuf), "%ld bytes", (long)d);
     else if (d < 10.0 * 1024 * 1024)
-	sprintf(nbuf, "%.1f Kbytes", d/1024);
+	snprintf(nbuf, sizeof(nbuf), "%.1f Kbytes", d/1024);
     else if (d < 10.0 * 1024 * 1024 * 1024)
-	sprintf(nbuf, "%.1f Mbytes", d/(1024 * 1024));
+	snprintf(nbuf, sizeof(nbuf), "%.1f Mbytes", d/(1024 * 1024));
     else
-	sprintf(nbuf, "%ld Mbytes", (long)d/(1024 * 1024));
+	snprintf(nbuf, sizeof(nbuf), "%ld Mbytes", (long)d/(1024 * 1024));
     
     return nbuf;
 }
@@ -332,9 +332,9 @@ do_dialog(char cmd)
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
 
-    sprintf(lbuf, "PCP recording for the archive folio \"%s\" and the host", folio_name);
+    snprintf(lbuf, sizeof(lbuf), "PCP recording for the archive folio \"%s\" and the host", folio_name);
     nchar = add_msg(&p, nchar, lbuf);
-    sprintf(lbuf, " \"%s\" has been in progress for %ld %s",
+    snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld %s",
 	pmcd_host,
 	now < 240 ? now : now/60, now < 240 ? "seconds" : "minutes");
     nchar = add_msg(&p, nchar, lbuf);
@@ -345,7 +345,7 @@ do_dialog(char cmd)
     nchar = add_msg(&p, nchar, ".");
     if (rsc_replay) {
 	nchar = add_msg(&p, nchar, "\n\nThis archive may be replayed with the following command:\n");
-	sprintf(lbuf, "  $ pmafm %s replay", folio_name);
+	snprintf(lbuf, sizeof(lbuf), "  $ pmafm %s replay", folio_name);
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -382,7 +382,7 @@ do_dialog(char cmd)
     if (cmd != 'Q') {
 	nchar = add_msg(&p, nchar, "\n\nAt any time this pmlogger process may be terminated with the");
 	nchar = add_msg(&p, nchar, " following command:\n");
-	sprintf(lbuf, "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
+	snprintf(lbuf, sizeof(lbuf), "  $ pmsignal -s TERM %" FMT_PID "\n", getpid());
 	nchar = add_msg(&p, nchar, lbuf);
     }
 
@@ -394,7 +394,7 @@ do_dialog(char cmd)
 	int fd = -1;
 
 #if HAVE_MKSTEMP
-	sprintf(tmp, "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
+	snprintf(tmp, sizeof(tmp), "%s%cmsgXXXXXX", pmGetConfig("PCP_TMPFILE_DIR"), __pmPathSeparator());
 	msg = tmp;
 	fd = mkstemp(tmp);
 #else
@@ -415,11 +415,11 @@ do_dialog(char cmd)
 	msgf = NULL;
 
 	if (cmd == 'X')
-	    sprintf(lbuf, "%s -c -header \"%s - %s\" -file %s -icon question "
+	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon question "
 			  "-B Yes -b No 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 	else
-	    sprintf(lbuf, "%s -c -header \"%s - %s\" -file %s -icon info "
+	    snprintf(lbuf, sizeof(lbuf), "%s -c -header \"%s - %s\" -file %s -icon info "
 			  "-b Close 2>/dev/null",
 		    xconfirm, dialog_title, rsc_prog, msg);
 
@@ -476,6 +476,7 @@ main(int argc, char **argv)
     int			sts;
     int			sep = __pmPathSeparator();
     int			errflag = 0;
+    int			use_localtime = 0;
     int			isdaemon = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*username;
@@ -500,7 +501,7 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?")) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
@@ -513,7 +514,7 @@ main(int argc, char **argv)
 		if ( (configfile = (char *)malloc(sz)) == NULL ) {
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
 		}
-		sprintf(configfile,
+		snprintf(configfile, sz,
 			"%s%c" "pmlogger" "%c%s",
 			sysconf, sep, sep, optarg);
 		if (access(configfile, F_OK) != 0) {
@@ -633,6 +634,10 @@ main(int argc, char **argv)
 	    time(&rsc_start);
 	    break;
 
+	case 'y':
+	    use_localtime = 1;
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -661,7 +666,8 @@ Options:\n\
   -v volsize	switch log volumes after volsize has been accumulated\n\
   -V version    version for archive (default and only version is 2)\n\
   -x fd		control file descriptor for application launching pmlogger\n\
-		via pmRecordControl(3)\n",
+		via pmRecordControl(3)\n\
+  -y		set timezone for times to local time rather than that of PMCD host\n",
 			pmProgname);
 	exit(1);
     }
@@ -751,10 +757,9 @@ Options:\n\
 
     if (yyparse() != 0)
 	exit(1);
-
-    if ( configfile != NULL ) {
+    if (configfile != NULL)
 	fclose(yyin);
-    }
+    yyend();
 
 #ifdef PCP_DEBUG
     fprintf(stderr, "Config parsed\n");
@@ -770,6 +775,8 @@ Options:\n\
 
 	fprintf(stderr, "\nAfter loading config ...\n");
 	for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	    if (tp->t_numvalid == 0)
+		continue;
 	    fprintf(stderr, " state: %sin log, %savail, %s, %s",
 		PMLC_GET_INLOG(tp->t_state) ? "" : "not ",
 		PMLC_GET_AVAIL(tp->t_state) ? "" : "un",
@@ -817,7 +824,8 @@ Options:\n\
 		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
 		/* prefer to use remote time to avoid clock drift problems */
 		epoch = resp->timestamp;		/* struct assignment */
-		pmNewZone(logctl.l_label.ill_tz);
+		if (! use_localtime)
+		    pmNewZone(logctl.l_label.ill_tz);
 	    }
 #ifdef PCP_DEBUG
 	    else if (pmDebug & DBG_TRACE_LOG) {
@@ -876,7 +884,8 @@ Options:\n\
 
 #ifndef IS_MINGW
     /* detach yourself from the launching process */
-    setpgid(getpid(), 0);
+    if (isdaemon)
+        setpgid(getpid(), 0);
 #endif
 
     /* set up control port */

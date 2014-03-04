@@ -58,6 +58,14 @@ enum {
 };
 
 /*
+ * Metrics describing cumulative pmdarpm totals  (Cluster 2)
+ */
+enum {
+    TOTAL_COUNT_ID		= 0,
+    TOTAL_BYTES_ID		= 1,
+};
+
+/*
  * Package metadata stored for each installed RPM
  *
  * A "refresh" count is stored to indicate whether this entry

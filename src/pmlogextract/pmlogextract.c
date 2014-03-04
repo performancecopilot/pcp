@@ -1191,7 +1191,12 @@ againlog:
         else {
             /* log is within time window - check whether we want this record
              */
-            if (ml == NULL) {
+            if (iap->_result->numpmid == 0) {
+		/* mark record, process this one as is
+		 */
+                iap->_Nresult = iap->_result;
+	    }
+            else if (ml == NULL) {
                 /* ml is NOT defined, we want everything
                  */
                 iap->_Nresult = iap->_result;

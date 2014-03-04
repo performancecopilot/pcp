@@ -38,7 +38,7 @@ else
     exit
 fi
 
-pmdumplog $tmp | _filter_pmdumplog | grep sample
+pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
 pmdumplog $tmp >>$seq.full
 
 echo
@@ -61,7 +61,7 @@ else
     exit
 fi
 
-pmdumplog $tmp | _filter_pmdumplog | grep sample
+pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
 pmdumplog $tmp >>$seq.full
 
 # success, all done

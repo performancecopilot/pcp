@@ -1,0 +1,176 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDASYSTEMD 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdasystemd\f1 \- systemd performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/systemd/pmdasystemd\f1
+[\f3\-f\f1]
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2memory\f1]
+[\f3\-s\f1 \f2interval\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmdasystemd
+is a systemd log file monitoring Performance Metrics Domain
+Agent (PMDA).
+It can be seen as analagous to the
+.B \-f
+option to
+.BR journalctl (1)
+and converts each new log line into a performance event,
+suitable for consumption by
+.BR PMAPI (3)
+client tools like
+.BR pmevent (1).
+.PP
+The
+.B systemd
+PMDA exports both event-style metrics reflecting timestamped event
+records for messages logged to the system logs, as well as the more
+orthodox sample-style metrics such as message counts and throughput
+size values.
+.PP
+A brief description of the
+.B pmdasystemd
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-f
+Disables per-uid/gid record filtering.
+By default the user and group credentials will be used to
+filter log records returned to the client tool, preventing
+information exposure to arbitrary users.
+This option disables that, so use only with extreme caution.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I systemd.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdasystemd
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-m
+Limit the physical memory used by the PMDA to buffer event records to
+.I maxsize
+bytes.
+As log events arrive at the PMDA, they must be buffered until individual
+client tools request the next batch since their previous batch of events.
+The default maximum is 2 megabytes.
+.TP
+.B \-s
+Sets the polling interval for detecting newly arrived log lines.
+Mirrors the same option from the
+.BR tail (1)
+command.
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the "adm" user account.
+.SH INSTALLATION
+If you want access to the names, help text and values for the systemd
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/systemd
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/systemd
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdasystemd
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdasystemd
+.TP 10
+.B $PCP_PMDAS_DIR/systemd/help
+default help text file for the systemd metrics
+.TP 10
+.B $PCP_PMDAS_DIR/systemd/Install
+installation script for the
+.B pmdasystemd
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/systemd/Remove
+undo installation script for the 
+.B pmdasystemd
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/systemd.log
+default log file for error messages and other information from
+.B pmdasystemd
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmevent (1),
+.BR journalctl (1),
+.BR tail (1),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -173,7 +173,7 @@ _shutdown()
 
     true
     $RC_STATUS -v
-    rm -fr "$tmp/pmie" "$PCP_TMP_DIR/pmie"
+    rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
     $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
 }
 

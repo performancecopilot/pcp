@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,12 +11,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
@@ -24,13 +20,16 @@
 #include <assert.h>
 
 /*
- * a task is a bundle of fetches to be done together
+ * a task is a bundle of fetches to be done together - it
+ * originally corresponded one-to-one with a configuration
+ * file curly-brace-enclosed block, but no longer does.
  */
-typedef struct _task {
-    struct _task	*t_next;
+typedef struct task_s {
+    struct task_s	*t_next;
     struct timeval	t_delta;
     int			t_state;	/* logging state */
     int			t_numpmid;
+    int			t_numvalid;
     pmID		*t_pmidlist;
     char		**t_namelist;
     pmDesc		*t_desclist;
@@ -118,13 +117,14 @@ extern void yyerror(char *);
 extern void yywarn(char *);
 extern int yylex(void);
 extern int yyparse(void);
-extern void dometric(const char *);
+extern void yyend(void);
 extern void buildinst(int *, int **, char ***, int, char *);
 extern void freeinst(int *, int *, char **);
+extern void linkback(task_t *);
+extern optreq_t *findoptreq(pmID, int);
 extern void log_callback(int, void *);
 extern int chk_one(task_t *, pmID, int);
 extern int chk_all(task_t *, pmID);
-extern optreq_t *findoptreq(pmID, int);
 extern int newvolume(int);
 extern void disconnect(int);
 #if CAN_RECONNECT
@@ -135,6 +135,7 @@ extern void run_done(int,char *);
 extern __pmPDU *rewrite_pdu(__pmPDU *, int);
 extern int putmark(void);
 extern int do_flush(void);
+extern void dumpit(void);
 
 #include <sys/param.h>
 extern char pmlc_host[];

@@ -22,6 +22,7 @@
 [\f3\-v\f1]
 [\f3\-c\f1 \f2config-directory\f1]
 [\f3\-p\f1 \f2polling-interval\f1]
+[\f3\-l\f1 \f2log-file\f1]
 
 .SH DESCRIPTION
 .B pmmgr
@@ -54,10 +55,15 @@ missing information with built-in defaults.  The default directory is
 .B \-p
 .I polling-interval
 sets the host-discovery polling interval to the given number of seconds.
-The default is 60.
+The default is 60.  Daemons for a particular target host will be restarted
+no more frequently than this interval.
+.TP
+.B \-l
+.I log-file
+redirects standard output & error to the given log file, which is created anew
 .TP
 .B \-v
-adds more verbose tracing to standard error.
+adds more verbose tracing to standard output.
 
 .SH CONFIGURATION
 A
@@ -127,7 +133,7 @@ man page.  Each poll interval, pmmgr will attempt to make a brief
 .IR pmNewContext
 connection to the host to check liveness.  It is not a problem if more than
 one specification for the same host is listed, because the host-id processing
-eliminates duplicates, and chooses an arbitrary specification among them. 
+eliminates duplicates, and chooses an arbitrary specification among them.
 The default is to target pmcd at
 .BR local: .
 
@@ -138,7 +144,8 @@ This file contains one or more lines containing specifications for the
 PMAPI call, each of which may map onto a fluctuating set of local or remote
 pmcd servers.  Each poll interval, pmmgr will attempt to rerun discovery with
 all of the given specifications.  Again it is not a problem if more than one
-specification matches the same actual pmcd.  The default value is to do
+specification matches the same actual pmcd: one confirmed access path is
+arbitrarily selected.  The default is to do
 .BR "no discovery" .
 Consider including
 .IR avahi 
@@ -191,27 +198,73 @@ default is
 so instead, the pmlogger file above should probably contain a \-c option, to
 specify a fixed pmlogger configuration.
 
+.SS ARCHIVE LOG MANAGEMENT
+
+Default pmlogger configurations can collect tens of megabytes of data
+per day (possibly split into multiple archives), per target host.  If
+your disk space is less than infinite, or archive-splitting unwieldy,
+this should be managed.  In the default, unmanaged case, the system
+administrator is responsible for managing the individual
+.IR archive-*
+files from the per-host logging subdirectories.  pmmgr offers several
+other options, each representing different performance / usability
+tradeoffs.
+
+.SS ARCHIVE LOG MANAGEMENT - pmlogmerge
+
+This style of archive log management regularly creates a single merged
+archive from prior archives for each target host, in effect lopping
+off old data and appending the new.  A single merged archive can be
+relatively large (defaults to approximately 100-400 MB per host), and
+puts a corresponding I/O load on storage, but is most convenient for a
+detailed long-timeframe analysis.  Once pmlogger is restarted, it
+always creates a new archive, so in the steady state, there will be
+one merged archive of recent history, and one current archive being
+written-to by pmlogger.
+
 .TP
 pmlogmerge
-If and only if this file exists, pmmgr will run 
+If this file exists, pmmgr will run 
 .BR pmlogextract
-to periodically merge together all preexisting log archives for each target pmcd
-into one.  (When pmlogger is started, it always creates a new archive, so in the
-steady state, there will be one merged archive from history, and one current archive
-being written-to by pmlogger.)  The file may contain a time interval specification
-as per the
+to periodically merge together preexisting log archives for each
+target pmcd into a single large one.  Then, the preexisting log
+archives are deleted (including any prior merged ones). 
+This configuration file may contain a time interval specification as per the
 .IR PCPintro
-man page, representing the period at which pmlogger should be temporarily stopped,
-and archives merged.  The default is 
+man page, representing the period after which pmlogger should be temporarily
+stopped, and archives merged.  It represents the maximum amount of time that
+the merged archive \fIlags\fR the present time. The default is 
 .BR 24hours .
 
 .TP
+pmlogmerge\-granular
+If this file exists, pmmgr will merge only a subset of preexisting
+log archives into the new one, instead of all of them, so as to
+approximate a granular, aligned set of merged archives.  The subset
+chosen corresponds to the previous time interval specified by the
+\fIpmlogmerge\fR control file.
+The default is
+.BR "no granularity" .
+
+.TP
 pmlogmerge\-retain
-If this file exists, pmmgr will set the relative starting time for retaining old
-archived data.  It will be passed to pmlogextract as a negative parameter to \-S.
-It is interpreted as a request that data older than the given interval should
-be thrown away.  The default is
+If this file exists, pmmgr will set the relative starting time for
+retaining old archived data.  It will be passed to pmlogextract as a
+negative parameter to \-S.  It is interpreted as a request that data
+older than the given interval should be thrown away.  In addition,
+unmerged archive files left around, that are older than this, are
+deleted.  (This can happen if those archive files had errors that
+prevented their merging.)  The default is
 .BR 14days .
+
+.TP
+pmlogmerge\-rewrite
+If this file exists, pmmgr will run 
+.BR "pmlogrewrite -i"
+(plus any other options listed in this file) on each input archive before
+merging it.  This will naturally require more disk I/O.  The default is
+.BR "no rewriting" .
+
 
 .SS PMIE CONFIGURATION
 

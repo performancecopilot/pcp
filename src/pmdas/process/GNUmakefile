@@ -40,19 +40,18 @@ include $(BUILDRULES)
 
 # This PMDA is only valid on platforms with a procfs
 # It is also superceded by the cgroup functionality on Linux
-ifeq "$(findstring $(TARGET_OS),mingw darwin linux)" ""
-build-me: $(TARGETS)
-
-install install_pcp : default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
-	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
-	$(INSTALL) -m 644 process.conf $(PMDADIR)/process.conf
-else
+# thus has not been built for some time, for reference only.
+#build-me: $(TARGETS)
+#install install_pcp : default
+#	$(INSTALL) -m 755 -d $(PMDADIR)
+#	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
+#	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
+#	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
+#	$(INSTALL) -m 644 process.conf $(PMDADIR)/process.conf
+#else
 build-me:
 install:
-endif
+#endif
 
 $(IAM):	$(OBJECTS)
 

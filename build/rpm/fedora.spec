@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.8.10
+Version: 3.9.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -79,6 +79,21 @@ the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data. 
 
 #
+# pcp-conf
+#
+%package conf
+License: LGPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot run-time configuration
+URL: http://oss.sgi.com/projects/pcp/
+
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+Conflicts: pcp-libs < 3.9
+
+%description conf
+Performance Co-Pilot (PCP) run-time configuration
+
+#
 # pcp-libs
 #
 %package libs
@@ -86,6 +101,8 @@ License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp-conf = %{version}-%{release}
 
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
@@ -112,10 +129,52 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://oss.sgi.com/projects/pcp/
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
+
+#
+# pcp-manager
+#
+%package manager
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) manager daemon
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
+
+%description manager
+An optional daemon (pmmgr) that manages a collection of pmlogger and
+pmie daemons, for a set of discovered local and remote hosts running
+the performance metrics collection daemon (pmcd).  It ensures these
+daemons are running when appropriate, and manages their log rotation
+needs (which are particularly complex in the case of pmlogger).
+The base PCP package provides comparable functionality through cron
+scripts which predate this daemon but do still provide effective and
+efficient log management services.
+The pcp-manager package aims to aggressively enable new PCP features
+and as a result may not be suited to all production environments.
+
+#
+# pcp-webapi
+#
+%package webapi
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) web API service
+URL: http://oss.sgi.com/projects/pcp/
+
+Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
+
+%description webapi
+Provides a daemon (pmwebd) that binds a large subset of the Performance
+Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
+HTTP (PMWEBAPI) protocol.
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -301,6 +360,9 @@ mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/run/pcp
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
 
+# remove configsz.h as this is not multilib friendly.
+rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
+
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
@@ -318,19 +380,27 @@ egrep -v 'simple|sample|trivial|txmon' |\
 egrep -v '^ib$|infiniband' |\
 sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
-# bin and man1 files except those split out into sub packages
-ls -1 $RPM_BUILD_ROOT/%{_bindir} | egrep -v '2pcp' |\
-sed -e 's#^#'%{_bindir}'\/#' >base_binfiles.list
-ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep -v '2pcp|pmdaib' |\
-sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man1files.list
+# all base pcp package files except those split out into sub packages
+ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
+sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
+ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
+sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
+sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
+cat base_pmdas.list base_bin.list base_conf.list base_exec.list base_man.list |\
+egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
+egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
-cat base_pmdas.list base_binfiles.list base_man1files.list > base_specialfiles.list
+# all devel pcp package files except those split out into sub packages
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
+sed -e 's#^#'%{_mandir}'\/man3\/#' | egrep -v '3pm|PMWEBAPI' >devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -m -r -s /bin/bash pcpqa 2>/dev/null
+  useradd -c "PCP Quality Assurance" -g pcpqa -d %{_testsdir} -M -r -s /bin/bash pcpqa 2>/dev/null
+chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %post testsuite
@@ -379,12 +449,26 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmwebd pmproxy
+for daemon in pmcd pmie pmlogger pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
         /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
+
+%preun webapi
+if [ "$1" -eq 0 ]
+then
+    /sbin/service pmwebd stop >/dev/null 2>&1
+    /sbin/chkconfig --del pmwebd >/dev/null 2>&1
+fi
+
+%preun manager
+if [ "$1" -eq 0 ]
+then
+    /sbin/service pmmgr stop >/dev/null 2>&1
+    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
+fi
 
 %preun
 if [ "$1" -eq 0 ]
@@ -393,22 +477,28 @@ then
     /sbin/service pmlogger stop >/dev/null 2>&1
     /sbin/service pmie stop >/dev/null 2>&1
     /sbin/service pmproxy stop >/dev/null 2>&1
-    /sbin/service pmwebd stop >/dev/null 2>&1
-    /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/service pmcd stop >/dev/null 2>&1
 
     /sbin/chkconfig --del pcp >/dev/null 2>&1
     /sbin/chkconfig --del pmcd >/dev/null 2>&1
     /sbin/chkconfig --del pmlogger >/dev/null 2>&1
     /sbin/chkconfig --del pmie >/dev/null 2>&1
-    /sbin/chkconfig --del pmmgr >/dev/null 2>&1
-    /sbin/chkconfig --del pmwebd >/dev/null 2>&1
     /sbin/chkconfig --del pmproxy >/dev/null 2>&1
 
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=%{_pmnsdir}
     rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
 fi
+
+%post webapi
+chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
+/sbin/chkconfig --add pmwebd >/dev/null 2>&1
+/sbin/service pmwebd condrestart
+
+%post manager
+chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
+/sbin/chkconfig --add pmmgr >/dev/null 2>&1
+/sbin/service pmmgr condrestart
 
 %post
 PCP_LOG_DIR=%{_logsdir}
@@ -444,8 +534,6 @@ done
 chown -R pcp:pcp %{_logsdir}/pmcd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmlogger 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
-chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
@@ -455,17 +543,13 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 /sbin/service pmlogger condrestart
 /sbin/chkconfig --add pmie >/dev/null 2>&1
 /sbin/service pmie condrestart
-/sbin/chkconfig --add pmmgr >/dev/null 2>&1
-/sbin/service pmmgr condrestart
-/sbin/chkconfig --add pmwebd >/dev/null 2>&1
-/sbin/service pmwebd condrestart
 /sbin/chkconfig --add pmproxy >/dev/null 2>&1
 /sbin/service pmproxy condrestart
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
-%files -f base_specialfiles.list
+%files -f base.list
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
 # C source files that rpmlint complains about. These are not devel files,
@@ -474,6 +558,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
+%dir %{_confdir}
 %dir %{_pmdasdir}
 %dir %{_datadir}/pcp
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/run/pcp
@@ -483,22 +568,18 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
+%dir %attr(0775,pcp,pcp) %{_logsdir}
 
-%{_libexecdir}/pcp
 %{_datadir}/pcp/lib
-%attr(0775,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
-%attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
 %{_initddir}/pcp
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
 %{_initddir}/pmie
-%{_initddir}/pmmgr
-%{_initddir}/pmwebd
 %{_initddir}/pmproxy
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
@@ -507,12 +588,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %{_sysconfdir}/pcp.sh
-%{_sysconfdir}/pcp
+%dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
 %config(noreplace) %{_confdir}/pmcd/rc.local
-%config(noreplace) %{_confdir}/pmmgr/pmmgr.options
-%config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmie
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
@@ -530,13 +610,17 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif				# ppc
 %endif
 
-%files libs
+%files conf
 %defattr(-,root,root)
 
 %dir %{_includedir}/pcp
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
+
+%files libs
+%defattr(-,root,root)
+
 %{_libdir}/libpcp.so.3
 %{_libdir}/libpcp_gui.so.2
 %{_libdir}/libpcp_mmv.so.1
@@ -544,7 +628,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_trace.so.2
 %{_libdir}/libpcp_import.so.1
 
-%files libs-devel
+%files libs-devel -f devel.list
 %defattr(-,root,root)
 
 %{_libdir}/libpcp.so
@@ -557,7 +641,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
-%{_mandir}/man3/*.3.gz
 %{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
@@ -571,6 +654,25 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
+
+%files webapi
+%defattr(-,root,root)
+%{_initddir}/pmwebd
+%{_libexecdir}/pcp/bin/pmwebd
+%attr(0775,pcp,pcp) %{_logsdir}/pmwebd
+%{_confdir}/pmwebd
+%config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%{_mandir}/man1/pmwebd.1.gz
+%{_mandir}/man3/PMWEBAPI.3.gz
+
+%files manager
+%defattr(-,root,root)
+%{_initddir}/pmmgr
+%{_libexecdir}/pcp/bin/pmmgr
+%attr(0775,pcp,pcp) %{_logsdir}/pmmgr
+%{_confdir}/pmmgr
+%config(noreplace) %{_confdir}/pmmgr/pmmgr.options
+%{_mandir}/man1/pmmgr.1.gz
 
 %files import-sar2pcp
 %defattr(-,root,root)
@@ -616,7 +718,20 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Wed Jan 15 2013 Nathan Scott <nathans@redhat.com> - 3.8.10-1
+* Fri Mar 14 2014 Nathan Scott <nathans@redhat.com> - 3.9.1-1
+- Currently under development.
+
+* Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
+- Create new sub-packages for pcp-webapi and pcp-manager
+- Split configuration from pcp-libs into pcp-conf (multilib)
+- Fix pmdagluster to handle more volumes, fileops (BZ 1066544)
+- Update to latest PCP sources.
+
+* Wed Jan 29 2014 Nathan Scott <nathans@redhat.com> - 3.8.12-1
+- Resolves SNMP procfs file ICMP line parse issue (BZ 1055818)
+- Update to latest PCP sources.
+
+* Wed Jan 15 2014 Nathan Scott <nathans@redhat.com> - 3.8.10-1
 - Update to latest PCP sources.
 
 * Thu Dec 12 2013 Nathan Scott <nathans@redhat.com> - 3.8.9-1

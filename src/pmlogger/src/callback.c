@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -317,7 +318,7 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
 
     for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 	for (i = 0; i < tp->t_numpmid; i++) {
-	    if (tp->t_pmidlist[i] != pmid || tp->t_namelist[i] == NULL)
+	    if (tp->t_pmidlist[i] != pmid)
 		continue;
 	    len += strlen(tp->t_namelist[i]) + 1;
 	    numnames++;
@@ -328,7 +329,7 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     data = (char *)names + (numnames * sizeof(names[0]));
     for (tp = tasklist, len = 0; tp != NULL; tp = tp->t_next) {
 	for (i = 0; i < tp->t_numpmid; i++) {
-	    if (tp->t_pmidlist[i] != pmid || tp->t_namelist[i] == NULL)
+	    if (tp->t_pmidlist[i] != pmid)
 		continue;
 	    names[len++] = data;
 	    strcpy(data, tp->t_namelist[i]);

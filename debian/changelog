@@ -1,3 +1,26 @@
+pcp (3.9.1) unstable; urgency=low
+
+  * Currently under development.
+  * Fix build depends for libmicrohttpd-dev
+  * Update debian copyright notices (closes: #739952)
+  * Fix build failure related to pcp-manager (closes: #719734)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 14 Mar 2014 12:00:00 +1100
+
+pcp (3.9.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Use autotools-dev to update config.{sub,guess} (closes: #737340)
+  * Split libpcp3 library and configuration files (closes: #655440)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Feb 2014 10:38:40 +1100
+
+pcp (3.8.12) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2014 13:51:39 +1100
+
 pcp (3.8.10) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 726
+# Exercise optimal pmlogger handling of config duplicates
+# (metrics and instances).
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test $PCP_VER -ge 3811 || _notrun Need newer pmlogger version
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File | pmlogger -r -l $tmp.log -T 1sec $tmp
+log mandatory on once {
+    sample.control
+}
+log mandatory on once {
+    sample.long.one
+}
+log mandatory on once {
+    sample.float.one
+}
+log mandatory on once {
+    sample.double.one
+}
+log mandatory on once {
+    sample.string.null
+}
+log mandatory on once {
+    sample.bin [ "bin-700" ]
+    sample.bin [ "bin-800" ]
+    sample.bin [ "bin-100" ]
+}
+log mandatory on once {
+    sample.control
+    sample.long.one
+    sample.float.one
+    sample.double.one
+    sample.string.null
+    sample.string.hullo
+    sample.bin [ "bin-100", "bin-500" ]
+}
+log mandatory on once {
+    sample.bin [ "bin-500" ]
+}
+log mandatory on once {
+    sample.string.hullo
+}
+End-of-File
+echo "pmlogger log file contents" >> $seq.full
+cat $tmp.log >> $seq.full
+
+echo "pmlogger archive contents" >> $seq.full
+pmdumplog -s $tmp 2>&1 \
+| tee -a $seq.full \
+| _filter_pmdumplog \
+| sed -e '1,/pmcd.pmlogger.archive/d'
+
+# success, all done
+status=0
+exit

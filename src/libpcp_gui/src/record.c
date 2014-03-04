@@ -59,7 +59,7 @@ static int	n_alive;
 static char	tbuf[MAXPATHLEN];	/* used for mktemp(), messages, ... */
 
 /*
- * initialize, and retrun stdio stream for writing replay config
+ * initialize, and return stdio stream for writing replay config
  * (if any)
  */
 FILE *

@@ -2,6 +2,7 @@
 # PCP QA Test No. 465
 # pmdumplog -s
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -15,7 +16,11 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3810 ]
+if [ $PCP_VER -ge 3811 ]
+then
+    ln $seq.out.4 $seq.out
+    echo "[Version for PCP 3.8.11 or later]"
+elif [ $PCP_VER -ge 3810 ]
 then
     ln $seq.out.3 $seq.out
     echo "[Version for PCP 3.8.10 or later]"
@@ -38,7 +43,7 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cat <<End-of-File | pmlogger -Dappl1 -l $tmp.log -T 3sec $tmp
+cat <<End-of-File | pmlogger -Dappl1 -l $tmp.log -T 1sec $tmp
 log mandatory on once {
     sample.control
 }
@@ -67,6 +72,12 @@ log mandatory on once {
     sample.double.one
     sample.string.null
     sample.string.hullo
+    sample.bin
+}
+log mandatory on once {
+    sample.string.hullo
+}
+log mandatory on once {
     sample.bin
 }
 End-of-File

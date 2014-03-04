@@ -44,11 +44,7 @@ do
     esac
 done
 
-if [ -z "$SOURCE" ]
-then
-    echo "$prog: Error: no stdpmid.* files, cannot rebuilt \"stdpmid\""
-    exit
-fi
+[ -z "$SOURCE" ] && exit	# nothing to do - the norm nowadays
 
 # post-processing with sed ...
 #	- removes comments

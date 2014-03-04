@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "logger.h"
@@ -91,12 +88,12 @@ chk_one(task_t *tp, pmID pmid, int inst)
 	return 0;
 
     ctp = rqp->r_fetch->f_aux;
-    if (ctp == NULL)
+    if (ctp == NULL || ctp == tp)
 	/*
 	 * can only happen if same metric+inst appears more than once
 	 * in the same group ... this can never be a conflict
 	 */
-	return 0;
+	return 1;
 
     if (PMLC_GET_MAND(ctp->t_state)) {
 	if (PMLC_GET_ON(ctp->t_state)) {

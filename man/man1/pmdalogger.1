@@ -1,0 +1,184 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDALOGGER 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdalogger\f1 \- log file performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/logger/pmdalogger\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-m\f1 \f2memory\f1]
+[\f3\-s\f1 \f2interval\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f2configfile\f1]
+.SH DESCRIPTION
+.B pmdalogger
+is a configurable log file monitoring Performance Metrics Domain
+Agent (PMDA).
+It can be seen as analagous to the
+.B \-f
+option to
+.BR tail (1)
+and converts each new log line into a performance event.
+It was the first PMDA to make extensive use of event metrics, which
+can be consumed by client tools like
+.BR pmevent (1).
+.PP
+The
+.B logger
+PMDA exports both event-style metrics reflecting timestamped event records
+for text logged to a file (or set of files or output from a process),
+as well as the more orthodox sample-style metrics such as event counts
+and throughput size values.
+.PP
+The PMDA is configured via a
+.I configfile
+which contains one line for each source of events (file or process).
+This file is setup by the Install script described in the later
+section on ``INSTALLATION'' of the PMDA.
+.PP
+A brief description of the
+.B pmdalogger
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I logger.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdalogger
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-m
+Limit the physical memory used by the PMDA to buffer event records to
+.I maxsize
+bytes.
+As log events arrive at the PMDA, they must be buffered until individual
+client tools request the next batch since their previous batch of events.
+The default maximum is 2 megabytes.
+.TP
+.B \-s
+Sets the polling interval for detecting newly arrived log lines.
+Mirrors the same option from the
+.BR tail (1)
+command.
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the unprivileged "pcp" account in current versions of PCP,
+but in older versions the superuser account ("root") was used by default.
+.SH INSTALLATION
+If you want access to the names, help text and values for the logger
+performance metrics, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/logger
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+This is an interactive installation process which prompts for each
+log file path to be monitored (or command to be run), a metric
+instance name to identify it, and whether access should be restricted
+(refer to the
+.B \-x
+option to
+.BR pmevent (1)
+for further details).
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/logger
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdalogger
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdalogger
+.TP 10
+.B $PCP_PMDAS_DIR/logger/logger.conf
+default configuration file for the logger metrics
+.TP 10
+.B $PCP_PMDAS_DIR/logger/help
+default help text file for the logger metrics
+.TP 10
+.B $PCP_PMDAS_DIR/logger/Install
+installation script for the
+.B pmdalogger
+agent
+.TP 10
+.B $PCP_PMDAS_DIR/logger/Remove
+undo installation script for the 
+.B pmdalogger
+agent
+.TP 10
+.B $PCP_LOG_DIR/pmcd/logger.log
+default log file for error messages and other information from
+.B pmdalogger
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmevent (1),
+.BR pmcd (1),
+.BR tail (1),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

@@ -52,3 +52,6 @@
 @ rpm.datasize Space allocated for pmdarpms data segment (K)
 This metric returns the amount of memory in kilobytes allocated for the
 data segment of pmdarpm.  This is handy for tracking memory utilization.
+
+@ rpm.total.count Count of packages returned in last rpmdb scan
+@ rpm.total.bytes Size of all packages from the last rpmdb scan

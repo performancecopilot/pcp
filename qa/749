@@ -2,7 +2,7 @@
 # PCP QA Test No. 749
 # Check pmcd static probes
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -56,8 +56,19 @@ cat $tmp.stap >> $seq.full
 echo "Running pmcd process:" >> $seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd >> $seq.full
 
+# check for stap user probing support
+stap -p4 $tmp.stap >$tmp.out 2>&1
+if [ $? -ne 0 ]
+then
+    echo "Systemtap compile check failed"
+    cat $tmp.out >> $seq.full
+    _notrun "Systemtap userspace probing unsupported here"
+fi
+
 # start systemtap and count pmcd probe hits
-$sudo stap $tmp.stap | tee -a $tmp.out 2>&1
+echo "Fire stap probes:" >> $seq.full
+$sudo stap $tmp.stap >$tmp.out 2>&1
+cat $tmp.out | tee -a $seq.full
 
 echo "Output from stap:" >> $seq.full
 cat $tmp.out >> $seq.full

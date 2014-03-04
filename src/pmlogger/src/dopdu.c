@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.  All Rights Reserved.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -80,11 +80,8 @@ reality_check(void)
 	    }
 	}
     }
-
-    
 }
 
-/* Call this in dbx to dump the task list (dbx doesn't know about stdout) */
 void
 dumpit(void)
 {
@@ -93,7 +90,6 @@ dumpit(void)
 
     reality_check();
     for (tp = tasklist, i = 0; tp != NULL; tp = tp->t_next, i++) {
-	
 	fprintf(stderr,
 		"\ntask[%d] @" PRINTF_P_PFX "%p: %s %s \ndelta = %f\n", i, tp,
 		PMLC_GET_MAND(tp->t_state) ? "mandatory " : "advisory ",
@@ -153,16 +149,6 @@ die(char *name, int sts)
     exit(1);
 }
 
-static void
-linkback(task_t *tp)
-{
-    fetchctl_t	*fcp;
-
-    /* link the new fetch groups back to their task */
-    for (fcp = tp->t_fetch; fcp != NULL; fcp = fcp->f_next)
-	fcp->f_aux = (void *)tp;
-}
-
 optreq_t *
 findoptreq(pmID pmid, int inst)
 {
@@ -180,7 +166,7 @@ findoptreq(pmID pmid, int inst)
      * structures lying about, i.e. MAYBE (mandatory) is the default,
      * and does not have to be explicitly stored, while OFF (advisory)
      * reverts to MAYBE (mandatory).
-     * There is one execption to the above assumption, namely for
+     * There is one exception to the above assumption, namely for
      * cases where the initial specification includes "all" instances,
      * then some later concurrent specification may refer to specific
      * instances ... in this case, the specific optreq_t structure is
@@ -746,29 +732,21 @@ update_metric(pmValueSet *vsp, int reqstate, int mflags, task_t **result)
     return 0;
 }
 
-/* Given a state and a delta, return in result the first matching task.
- * Return true if a matching task was found
+/* Given a state and a delta, return the first matching task.
+ * Return NULL if a matching task was not found.
  */
-static int
-find_task(int state, int delta, task_t **result)
+task_t *
+find_task(int state, struct timeval *delta)
 {
     task_t	*tp;
-    int		tdelta;
-
-    /* Never return a "once only" task, it may have gone off already and just
-     * be hanging around
-     * TODO: cleanup once only tasks after callback invoked
-     */
-    if (delta == 0)
-	return 0;
 
     for (tp = tasklist; tp != NULL; tp = tp->t_next) {
-	tdelta = tp->t_delta.tv_sec * 1000 + (tp->t_delta.tv_usec / 1000);
-	if (state == (tp->t_state & 0x3) && delta == tdelta)
+	if (state == (tp->t_state & 0x3) &&  /* MAND|ON */
+	    delta->tv_sec == tp->t_delta.tv_sec &&
+	    delta->tv_usec == tp->t_delta.tv_usec)
 	    break;
     }
-    *result = tp;
-    return tp != NULL;
+    return tp;
 }
 
 /* Return a mask containing the history flags for a given metric/instance.
@@ -781,7 +759,7 @@ find_task(int state, int delta, task_t **result)
 static int
 gethistflags(pmID pmid, int inst)
 {
-    __pmHashNode		*hp;
+    __pmHashNode	*hp;
     pmidhist_t		*php;
     insthist_t		*ihp;
     int			i, found;
@@ -1051,6 +1029,7 @@ do_control(__pmPDU *pb)
 	/* update the logging status of metrics */
 
 	task_t		*newtp = NULL; /* task for metrics/insts in request */
+	struct timeval	tdelta = { 0 };
 	int		newtask;
 	int		mflags;
 
@@ -1069,8 +1048,16 @@ do_control(__pmPDU *pb)
 		PMLC_SET_MAND(reqstate, 1);
 	}
 
-	/* try to find an existing task for the request */
-	newtask = !find_task(reqstate, delta, &newtp);
+	/* try to find an existing task for the request
+	 * Never return a "once only" task, it may have gone off already and just
+	 * be hanging around like a bad smell.
+	 */
+	if (delta != 0) {
+	    tdelta.tv_sec = delta / 1000;
+	    tdelta.tv_usec = (delta % 1000) * 1000;
+	    newtp = find_task(reqstate, &tdelta);
+	}
+	newtask = (newtp == NULL);
 
 	for (i = 0; i < request->numpmid; i++) {
 	    vsp = request->vset[i];
@@ -1110,16 +1097,15 @@ do_control(__pmPDU *pb)
 		tasklist = newtp;
 
 		/* use only the MAND/ADV and ON/OFF bits of reqstate */
-		newtp->t_state = reqstate & 0x3;
+		newtp->t_state = PMLC_GET_STATE(reqstate);
 		if (PMLC_GET_ON(reqstate)) {
-		    newtp->t_delta.tv_sec = delta / 1000;
-		    newtp->t_delta.tv_usec = (delta % 1000) * 1000;
-		    newtp->t_afid = __pmAFregister(&newtp->t_delta, (void *)newtp,
+		    newtp->t_delta = tdelta;
+		    newtp->t_afid = __pmAFregister(&tdelta, (void *)newtp,
 					       log_callback);
 		}
 		else
 		    newtp->t_delta.tv_sec = newtp->t_delta.tv_usec = 0;
-		linkback(newtp);	/* TODO: really needed? (no) */
+		linkback(newtp);
 	    }
 	}
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2009-2010 Aconex. All Rights Reserved.
  * Copyright (c) 1995-2000,2009 Silicon Graphics, Inc. All Rights Reserved.
  *
@@ -42,6 +42,7 @@ static int incnt;
 
 static int reload;
 static __pmnsTree * pmns;
+static int statsdir_code;		/* last statsdir stat code */
 static time_t statsdir_ts;		/* last statsdir timestamp */
 static char * prefix = "mmv";
 
@@ -628,10 +629,25 @@ mmv_reload_maybe(pmdaExt *pmda)
 	}
     }
 
-    /* check if the directory has been modified */
-    if (stat(statsdir, &s) >= 0 && s.st_mtime != statsdir_ts) {
-	need_reload++;
-	statsdir_ts = s.st_mtime;
+    /*
+     * check if the directory has been modified, reload if so;
+     * note modification may involve removal or newly appeared,
+     * a change in permissions from accessible to not (or vice-
+     * versa), and so on.
+     */
+    if (stat(statsdir, &s) >= 0) {
+	if (s.st_mtime != statsdir_ts) {
+	    need_reload++;
+	    statsdir_code = 0;
+	    statsdir_ts = s.st_mtime;
+	}
+    } else {
+	i = oserror();
+	if (statsdir_code != i) {
+	    statsdir_code = i;
+	    statsdir_ts = 0;
+	    need_reload++;
+	}
     }
 
     if (need_reload) {

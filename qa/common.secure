@@ -1,6 +1,6 @@
 #
 # Common shell routines for testing security extensions
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -29,6 +29,14 @@ nss_notrun_checks()
     [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"
+
+    fips=false	# testing for exposure to Red Hat bug 1035509
+    fipsfile=/proc/sys/crypto/fips_enabled
+    if [ -f $fipsfile ]
+    then
+	test `cat $fipsfile` -ne 0 && fips=true
+    fi
+    $fips && _notrun "FIPS mode interacts badly with system NSS databases"
 }
 
 nss_cleanup()

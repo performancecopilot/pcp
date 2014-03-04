@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -184,6 +184,9 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    continue;
 	}
 #endif
+
+	if (cpunum < 0 || cpunum >= proc_cpuinfo->cpuindom->it_numinst)
+	    continue;
 
 	info = &proc_cpuinfo->cpuinfo[cpunum];
 

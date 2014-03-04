@@ -143,7 +143,9 @@ pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
 #
 echo
 
-$sudo $PCP_RC_DIR/pmie stop 2>&1 | _filter_pmie_start
+$sudo $PCP_RC_DIR/pmie stop 2>&1 \
+| _filter_pmie_start \
+| sed -e '/pmie: PMIE not running/d'
 _change_config pmie off
 
 status=0

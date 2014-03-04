@@ -45,6 +45,7 @@ End-of-File
 
 pmie -v -T 2sec <<'End-of-File' 2>&1 \
 | fgrep -v "evaluator exiting" \
+| sed -e '/warning cannot create stats file dir/d' \
 | _filter_pmie_log
 delta=3sec;
 some_inst sample.hordes.one > 249

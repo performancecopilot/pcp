@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -364,12 +364,7 @@ init_ports(void)
 
     /* remove any existing port file with my name (it's old) */
     snprintf(ctlfile + (baselen-1), n, "%c%" FMT_PID, sep, mypid);
-    sts = unlink(ctlfile);
-    if (sts == -1 && oserror() != ENOENT) {
-	fprintf(stderr, "%s: error removing %s: %s.  Exiting.\n",
-		pmProgname, ctlfile, osstrerror());
-	exit(1);
-    }
+    unlink(ctlfile);
 
     /* get control port and write port map file */
     ctlfd = GetPort(ctlfile);
@@ -458,7 +453,7 @@ control_req(void)
     hostName = __pmGetNameInfo(addr);
     if (hostName == NULL || strlen(hostName) > MAXHOSTNAMELEN-1) {
 	abuf = __pmSockAddrToString(addr);
-        sprintf(pmlc_host, "%s", abuf);
+        snprintf(pmlc_host, sizeof(pmlc_host), "%s", abuf);
 	free(abuf);
     }
     else {

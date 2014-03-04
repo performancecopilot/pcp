@@ -1241,7 +1241,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
             }
 
             /* We need the user to resubmit this with http
-               authentication info, with a custom HTTP authenticaion
+               authentication info, with a custom HTTP authentication
                realm for this context. */
             snprintf (auth_realm, sizeof(auth_realm),
                       "%s/%ld", uriprefix, webapi_ctx);
