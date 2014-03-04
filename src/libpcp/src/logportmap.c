@@ -394,7 +394,9 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
 	goto ctxErr;
     }
     sprintf(ctxhost, "[%s]", host);
-    if ((ctx = pmNewContext(PM_CONTEXT_HOST, ctxhost)) < 0)
+    ctx = pmNewContext(PM_CONTEXT_HOST, ctxhost);
+    free(ctxhost);
+    if (ctx < 0)
 	return ctx;
     if ((sts = pmLookupName(1, namelist, &pmid)) < 0)
 	goto ctxErr;
