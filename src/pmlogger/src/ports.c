@@ -361,6 +361,7 @@ GetPorts(char *file)
 	if (sts >= 0) {
 	    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
 	    if (sts == -1) {
+		__pmCloseSocket(fd);
 		fprintf(stderr, "__pmListen: %s\n", netstrerror());
 	    }
 	    else {
