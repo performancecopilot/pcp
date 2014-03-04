@@ -208,8 +208,6 @@ lock.o
 logconnect.o
     b done_default.[0-9]*	# guarded by __pmLock_libpcp mutex
     b timeout.[0-9]*		# guarded by __pmLock_libpcp mutex
-    b pmlogger_socket.[0-9]*	# guarded by __pmLock_libpcp mutex
-    b pmlogger_socket_primary.[0-9]*	# guarded by __pmLock_libpcp mutex
 logcontrol.o
 logmeta.o
 logportmap.o

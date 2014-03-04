@@ -63,72 +63,50 @@ __pmLoggerTimeout(void)
 
 /*
  * Return the path to the default PMLOGGER local unix domain socket.
- * Returns a pointer to a static buffer which can be used directly.
+ * in the buffer propvided.
  * Return the path regardless of whether unix domain sockets are
  * supported by our build. Other functions can then print reasonable
  * messages if an attempt is made to use one.
  */
 const char *
-__pmLogLocalSocketDefault(int pid)
+__pmLogLocalSocketDefault(int pid, char *buf, size_t bufSize)
 {
-    static char pmlogger_socket[MAXPATHLEN];
-    static char pmlogger_socket_primary[MAXPATHLEN];
-
+    /* snprintf guarantees a terminating nul, even if the output is truncated. */
     if (pid == PM_LOG_PRIMARY_PID) { /* primary */
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
-	if (pmlogger_socket_primary[0] == '\0') {
-	    snprintf(pmlogger_socket_primary, sizeof(pmlogger_socket_primary),
-		     "%s%c" "pmlogger.primary.socket",
-		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
-	}
-	PM_UNLOCK(__pmLock_libpcp);
-	return pmlogger_socket_primary;
+	snprintf(buf, bufSize, "%s%c" "pmlogger.primary.socket",
+		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+    }
+    else {
+	snprintf(buf, bufSize, "%s%c" "pmlogger.%d.socket",
+		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), pid);
     }
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (pmlogger_socket[0] == '\0') {
-	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
-		 "%s%c" "pmlogger.%d.socket",
-		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(),
-		 pid);
-    }
-    PM_UNLOCK(__pmLock_libpcp);
-    return pmlogger_socket;
+    return buf;
 }
 
 /*
- * Return the path to the user's own PMLOGGER local unix domain socket.
- * Returns a pointer to a static buffer which can be used directly.
+ * Return the path to the user's own PMLOGGER local unix domain socket
+ * in the buffer provided.
  * Return the path regardless of whether unix domain sockets are
  * supported by our build. Other functions can then print reasonable
  * messages if an attempt is made to use one.
  */
 const char *
-__pmLogLocalSocketUser(int pid)
+__pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
 {
-    static char pmlogger_socket[MAXPATHLEN];
+    char home[MAXPATHLEN];
+    char *homeResult;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (pmlogger_socket[0] == '\0') {
-	char home[MAXPATHLEN];
-	char *homeResult = __pmHomedirFromID(getuid(), home, sizeof(home));
-	if (homeResult == NULL) {
-	    PM_UNLOCK(__pmLock_libpcp);
-	    return NULL;
-	}
-	snprintf(pmlogger_socket, sizeof(pmlogger_socket),
-		 "%s%c.pcp%crun%c" "pmlogger.%d.socket",
-		 home,
-		 __pmPathSeparator(),
-		 __pmPathSeparator(),
-		 __pmPathSeparator(),
-		 pid);
-    }
-    PM_UNLOCK(__pmLock_libpcp);
-    return pmlogger_socket;
+    homeResult = __pmHomedirFromID(getuid(), home, sizeof(home));
+    if (homeResult == NULL)
+	return NULL;
+
+    /* snprintf guarantees a terminating nul, even if the output is truncated. */
+    snprintf(buf, bufSize, "%s%c.pcp%crun%c" "pmlogger.%d.socket",
+	     homeResult, __pmPathSeparator(), __pmPathSeparator(), __pmPathSeparator(),
+	     pid);
+
+    return buf;
 }
 
 /*
@@ -258,6 +236,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
     void		*enumIx;
     const char		*prefix_end;
     size_t		prefix_len;
+    char		path[MAXPATHLEN];
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -288,11 +267,11 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	    }
 	    else if (*pid != PM_LOG_NO_PID) {
 		/* Try the socket indicated by the pid. */
-		connectionSpec = __pmLogLocalSocketDefault(*pid);
+		connectionSpec = __pmLogLocalSocketDefault(*pid, path, sizeof(path));
 		fd = connectLoggerLocal(connectionSpec);
 		if (fd < 0) {
 		    /* Try the socket in the user's home directory. */
-		    connectionSpec = __pmLogLocalSocketUser(*pid);
+		    connectionSpec = __pmLogLocalSocketUser(*pid, path, sizeof(path));
 		    if (connectionSpec != NULL)
 			fd = connectLoggerLocal(connectionSpec);
 		}

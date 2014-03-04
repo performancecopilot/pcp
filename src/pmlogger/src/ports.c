@@ -197,6 +197,8 @@ GetPorts(char *file)
     int			socketsCreated = 0;
     int			ctlix;
     __pmSockAddr	*myAddr;
+    char		globalPath[MAXPATHLEN];
+    char		localPath[MAXPATHLEN];
     static int		port_base = -1;
 
     /* Try to create sockets for control connections. */
@@ -215,7 +217,7 @@ GetPorts(char *file)
 		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
 		exit(1);
 	    }
-	    socketPath = __pmLogLocalSocketDefault(getpid());
+	    socketPath = __pmLogLocalSocketDefault(getpid(), globalPath, sizeof(globalPath));
 	    __pmSockAddrSetFamily(myAddr, AF_UNIX);
 	    __pmSockAddrSetPath(myAddr, socketPath);
 	    __pmServerSetLocalSocket(socketPath);
@@ -230,7 +232,7 @@ GetPorts(char *file)
 		socketError = netstrerror();
 		errorPath = socketPath;
 		unlink(errorPath);
-		socketPath = __pmLogLocalSocketUser(getpid());
+		socketPath = __pmLogLocalSocketUser(getpid(), localPath, sizeof(localPath));
 		if (socketPath == NULL) {
 		    sts = -ESRCH;
 		}
@@ -240,7 +242,7 @@ GetPorts(char *file)
 		     * contents of its first argument, so use a copy.
 		     */
 		    if ((tmpPath = strdup(socketPath)) == NULL) {
-			fprintf(stderr, "GetPorts: _strdup out of memory\n");
+			fprintf(stderr, "GetPorts: strdup out of memory\n");
 			exit(1);
 		    }
 		    sts = __pmMkPath(dirname(tmpPath),
@@ -275,8 +277,14 @@ GetPorts(char *file)
 		}
 	    }
 	    /* On error, don't leave the socket file lying around. */
-	    if (sts < 0)
+	    if (sts < 0) {
 		unlink(socketPath);
+		socketPath = NULL;
+	    }
+	    else if ((socketPath = strdup(socketPath)) == NULL) {
+		fprintf(stderr, "GetPorts: strdup out of memory\n");
+		exit(1);
+	    }
 #else
 	    /*
 	     * Unix domain sockets are not supported.
@@ -525,7 +533,7 @@ init_ports(void)
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
 	/* Create a hard link to the local socket for users wanting the primary logger. */
-	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID);
+	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
 #ifndef IS_MINGW
 	sts = link(socketPath, linkSocketPath);
 #else
@@ -537,6 +545,10 @@ init_ports(void)
 	    else
 		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
 			pmProgname, linkSocketPath, osstrerror());
+	    exit(1);
+	}
+	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {
+	    fprintf(stderr, "init_ports: strdup out of memory\n");
 	    exit(1);
 	}
 #endif
