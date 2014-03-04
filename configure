@@ -3715,11 +3715,14 @@ fi
 
   test -n "$DTRACE" && break
 done
-test -n "$DTRACE" || DTRACE="enable_probes=false"
 
-    if test "$do_probes" = "yes" -a $enable_probes = "false"
+    if test -z "$DTRACE"
     then
-        as_fn_error $? "cannot enable static probes - no toolchain" "$LINENO" 5
+	if test "$do_probes" = "yes"
+	then
+	    as_fn_error $? "cannot enable static probes - no dtrace executable" "$LINENO" 5
+	fi
+	enable_probes=false
     fi
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -4126,33 +4129,35 @@ if test "x$ac_cv_header_sys_sdt_h" = xyes; then :
 #define HAVE_SYS_SDT_H 1
 _ACEOF
 
-	enable_probes=true
-	if test $target_os = kfreebsd
+	if $enable_probes = true
 	then
-	    enable_probes=false
-	elif test $target_os = freebsd
-	then
-	    	    rm -f conftest.d conftest.h
-	    cat <<End-of-File >conftest.d
+	    if test $target_os = kfreebsd
+	    then
+		enable_probes=false
+	    elif test $target_os = freebsd
+	    then
+				rm -f conftest.d conftest.h
+		cat <<End-of-File >conftest.d
 provider eek {
-    probe urk(int);
+probe urk(int);
 };
 End-of-File
-	    if dtrace -s conftest.d -h >/dev/null 2>&1
-	    then
-		if test ! -f conftest.h
+		if dtrace -s conftest.d -h >/dev/null 2>&1
 		then
+		    if test ! -f conftest.h
+		    then
+			enable_probes=false
+			if test "$do_probes" = "yes"
+			then
+			    as_fn_error $? "cannot enable static probes - no .h from dtrace -h" "$LINENO" 5
+			fi
+		    fi
+		else
 		    enable_probes=false
 		    if test "$do_probes" = "yes"
 		    then
-			as_fn_error $? "cannot enable static probes - no .h from dtrace -h" "$LINENO" 5
+			as_fn_error $? "cannot enable static probes - dtrace failed" "$LINENO" 5
 		    fi
-		fi
-	    else
-		enable_probes=false
-		if test "$do_probes" = "yes"
-		then
-		    as_fn_error $? "cannot enable static probes - dtrace failed" "$LINENO" 5
 		fi
 	    fi
 	fi

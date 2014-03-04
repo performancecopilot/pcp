@@ -236,40 +236,46 @@ dnl Check for static probes (dtrace, systemtap)
 if test "$do_probes" = "check" -o "$do_probes" = "yes"
 then
     enable_probes=true
-    AC_CHECK_PROGS(DTRACE, dtrace, [enable_probes=false])
-    if test "$do_probes" = "yes" -a $enable_probes = "false"
+    AC_CHECK_PROGS(DTRACE, dtrace, [])
+    if test -z "$DTRACE"
     then
-        AC_MSG_ERROR(cannot enable static probes - no toolchain)
+	if test "$do_probes" = "yes"
+	then
+	    AC_MSG_ERROR(cannot enable static probes - no dtrace executable)
+	fi
+	enable_probes=false
     fi
     AC_CHECK_HEADERS([sys/sdt.h], [
-	enable_probes=true
-	if test $target_os = kfreebsd
+	if $enable_probes = true
 	then
-	    enable_probes=false
-	elif test $target_os = freebsd
-	then
-	    dnl dtrace support in FreeBSD depends on configuration of kernel
-	    rm -f conftest.d conftest.h
-	    cat <<End-of-File >conftest.d
+	    if test $target_os = kfreebsd
+	    then
+		enable_probes=false
+	    elif test $target_os = freebsd
+	    then
+		dnl dtrace support in FreeBSD depends on configuration of kernel
+		rm -f conftest.d conftest.h
+		cat <<End-of-File >conftest.d
 provider eek {
-    probe urk(int);
+probe urk(int);
 };
 End-of-File
-	    if dtrace -s conftest.d -h >/dev/null 2>&1
-	    then
-		if test ! -f conftest.h
+		if dtrace -s conftest.d -h >/dev/null 2>&1
 		then
+		    if test ! -f conftest.h
+		    then
+			enable_probes=false
+			if test "$do_probes" = "yes"
+			then
+			    AC_MSG_ERROR(cannot enable static probes - no .h from dtrace -h)
+			fi
+		    fi
+		else
 		    enable_probes=false
 		    if test "$do_probes" = "yes"
 		    then
-			AC_MSG_ERROR(cannot enable static probes - no .h from dtrace -h)
+			AC_MSG_ERROR(cannot enable static probes - dtrace failed)
 		    fi
-		fi
-	    else
-		enable_probes=false
-		if test "$do_probes" = "yes"
-		then
-		    AC_MSG_ERROR(cannot enable static probes - dtrace failed)
 		fi
 	    fi
 	fi
