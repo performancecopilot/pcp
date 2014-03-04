@@ -176,6 +176,7 @@ connectLoggerLocal(const char *local_socket)
     myAddr = __pmSockAddrAlloc();
     if (myAddr == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmConnectLogger: out of memory\n");
+	__pmCloseSocket(fd);
 	return -ENOMEM;
     }
     __pmSockAddrSetFamily(myAddr, AF_UNIX);
@@ -194,8 +195,10 @@ connectLoggerLocal(const char *local_socket)
     sts = connectLogger(fd, myAddr);
     __pmSockAddrFree(myAddr);
 
-    if (sts < 0)
-	fd = sts;
+    if (sts < 0) {
+	__pmCloseSocket(fd);
+	return sts;
+    }
 
     return fd;
 #else
