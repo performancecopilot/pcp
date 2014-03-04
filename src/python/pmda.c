@@ -697,8 +697,8 @@ pmda_dispatch(PyObject *self, PyObject *args)
     if (pmDebug & DBG_TRACE_LIBPMDA)
         fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
 
-    indoms = (pmdaIndom *)iv.buf;
-    metrics = (pmdaMetric *)mv.buf;
+    indoms = nindoms ? (pmdaIndom *)iv.buf : NULL;
+    metrics = nmetrics ? (pmdaMetric *)mv.buf : NULL;
     pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
     PyBuffer_Release(&iv);
     PyBuffer_Release(&mv);
