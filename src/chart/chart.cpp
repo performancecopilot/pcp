@@ -102,7 +102,7 @@ ChartItem::ChartItem(QmcMetric *mp,
 {
     my.metric = mp;
     my.units = dp->units;
-    my.name = QString(msp->metric);
+    my.name = shortHostName().append(':').append(QString(msp->metric));
     if (msp->ninst == 1) {
 	my.name.append("[").append(msp->inst[0]).append("]");
 	my.inst = QString(msp->inst[0]);
@@ -158,31 +158,35 @@ ChartItem::expandLegendLabel(const QString &legend)
     if (expandInstLong)
 	my.label.replace(QRegExp("%I"), my.inst);
     if (expandHostShort)
-	my.label.replace(QRegExp("%h"), hostNameString(true));
+	my.label.replace(QRegExp("%h"), shortHostName());
     if (expandHostLong)
-	my.label.replace(QRegExp("%H"), hostNameString(false));
+	my.label.replace(QRegExp("%H"), hostname());
 }
 
 QString
-ChartItem::hostNameString(bool shortened)
+ChartItem::hostname(void) const
 {
-    QString hostName = my.metric->context()->source().context_hostname();
+    return my.metric->context()->source().context_hostname();
+
+}
+
+QString
+ChartItem::shortHostName(void) const
+{
+    QString hostName = hostname();
     int index;
 
-    // decide whether or not to truncate this hostname
-    if (shortened) {
-        if ((index = hostName.indexOf(QChar('.'))) != -1) {
-        // no change if it looks even vaguely like an IP address
-            if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
-		!hostName.contains(QChar(':')))			// IPv6
-		hostName.truncate(index);
-	}
+    if ((index = hostName.indexOf(QChar('.'))) != -1) {
+	// no change if it looks even vaguely like an IP address
+	if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
+	    !hostName.contains(QChar(':')))		// IPv6
+	    hostName.truncate(index);
     }
     return hostName;
 }
 
 QString
-ChartItem::shortMetricName(void)
+ChartItem::shortMetricName(void) const
 {
     QString shortName = my.metric->name();
     int count, index;
@@ -197,7 +201,7 @@ ChartItem::shortMetricName(void)
 }
 
 QString
-ChartItem::shortInstName(void)
+ChartItem::shortInstName(void) const
 {
     QString shortName = my.inst;
     int index;
@@ -947,11 +951,11 @@ Chart::addToTree(QTreeWidget *treeview, const QString &metric,
 	const QString &label)
 {
     QRegExp regexInstance("\\[(.*)\\]$");
-    QRegExp regexNameNode(tr("\\."));
+    QRegExp regexNameNode("\\.");
     QString source = context->source().source();
     QString inst, name = metric;
     QStringList	namelist;
-    int depth;
+    int depth, index;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
 		(const char *)source.toAscii(), (const char *)metric.toAscii(),
@@ -963,6 +967,11 @@ Chart::addToTree(QTreeWidget *treeview, const QString &metric,
 	inst.chop(1);			// final ']'
 	name = name.mid(0, depth);	// prior '['
     }
+    // note: hostname removal must be done *after* instance removal
+    // and must take into consideration IPv4/IPv6 address types too
+    index = name.lastIndexOf(QChar(':'));
+    if (index > 0)
+	name = name.remove(0, index+1);
 
     namelist = name.split(regexNameNode);
     namelist.prepend(source);	// add the host/archive root as well.

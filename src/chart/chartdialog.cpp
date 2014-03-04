@@ -826,10 +826,9 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 {
     Chart::Style style = (Chart::Style)(typeComboBox->currentIndex() + 1);
     pmMetricSpec pms;
+    QString label;
 
-    char *nlabel = NULL;
-    if (name->label().isEmpty() == false)
-	nlabel = strdup((const char *)name->label().toAscii());
+    label = name->label().isEmpty() ? QString::null : name->label();
     pms.isarch = (name->sourceType() == PM_CONTEXT_LOCAL) ? 2 :
 		((name->sourceType() == PM_CONTEXT_ARCHIVE) ? 1 : 0);
     pms.source = strdup((const char *)name->sourceName().toAscii());
@@ -847,7 +846,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	pms.inst[0] = NULL;
     }
     cp->setStyle(style);
-    int m = cp->addItem(&pms, nlabel);
+    int m = cp->addItem(&pms, label);
     if (m < 0) {
 	QString	msg;
 	if (pms.inst[0] != NULL)
@@ -875,7 +874,6 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
 	free(pms.inst[0]);
     free(pms.metric);
     free(pms.source);
-    free(nlabel);
 }
 
 void ChartDialog::deleteChartPlot(Chart *cp, int m)

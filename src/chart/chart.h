@@ -323,10 +323,12 @@ protected:
 
 private:
     void expandLegendLabel(const QString &legend);
-    QString hostNameString(bool shortened);
-    QString shortMetricName(void);
-    QString shortInstName(void);
     void clearLegendLabel(void);
+
+    QString hostname(void) const;
+    QString shortHostName(void) const;
+    QString shortMetricName(void) const;
+    QString shortInstName(void) const;
 };
 
 #endif	// CHART_H
