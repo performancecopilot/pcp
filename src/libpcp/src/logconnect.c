@@ -113,9 +113,9 @@ __pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
  * Common function for attemmpting connections to pmlogger.
  */
 static int
-connectLogger (int fd, __pmSockAddr *myAddr)
+connectLogger(int fd, __pmSockAddr *myAddr)
 {
-    /* Attept the connection. */
+    /* Attempt the connection. */
     int sts = __pmConnect(fd, myAddr, __pmSockAddrSize());
 
     /* Successful connection? */
@@ -134,7 +134,6 @@ connectLogger (int fd, __pmSockAddr *myAddr)
 
 	__pmFD_ZERO(&rfds);
 	__pmFD_SET(fd, &rfds);
-	sts = 0;
 	if ((rc = __pmSelectRead(fd+1, &rfds, pstv)) == 1) {
 	    sts = __pmConnectCheckError(fd);
 	}
@@ -157,7 +156,7 @@ connectLogger (int fd, __pmSockAddr *myAddr)
 }
 
 /*
- * Attemmpt connection to pmlogger via a local socket.
+ * Attempt connection to pmlogger via a local socket.
  */
 static int
 connectLoggerLocal(const char *local_socket)
@@ -277,7 +276,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		}
 	    }
 	    if (fd < 0) {
-		if (prefix_len == 5) /* "unix: */
+		if (prefix_len == 5) /* "unix:" */
 		    return -ECONNREFUSED;
 		/*
 		 * The prefix was "local:".
@@ -321,7 +320,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	    else if (n != 1) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmcd\n");
+		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger\n");
 #endif
 		return -ECONNREFUSED;
 	    }

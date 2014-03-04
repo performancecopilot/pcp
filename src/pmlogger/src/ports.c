@@ -422,7 +422,6 @@ GetPorts(char *file)
 	close(mapfd);
     if (socketsCreated == 0)
 	exit(1);
-    return;
 }
 
 /* Create the control port for this pmlogger and the file containing the port
