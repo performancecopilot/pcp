@@ -358,7 +358,7 @@ __pmInitCertificates(void)
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
      */
-    if (__pmMkPath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
+    if (__pmMakePath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
     secsts = NSS_InitReadWrite(nssdb);
 

@@ -409,5 +409,5 @@ PCP_3.2 {
   global:
     __pmLogLocalSocketDefault;
     __pmLogLocalSocketUser;
-    __pmMkPath;
+    __pmMakePath;
 } PCP_3.1;

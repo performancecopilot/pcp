@@ -245,8 +245,8 @@ GetPorts(char *file)
 			fprintf(stderr, "GetPorts: strdup out of memory\n");
 			exit(1);
 		    }
-		    sts = __pmMkPath(dirname(tmpPath),
-				     S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		    sts = __pmMakePath(dirname(tmpPath),
+				       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		    free(tmpPath);
 		    if (sts >= 0 || oserror() == EEXIST) {
 			__pmSockAddrSetPath(myAddr, socketPath);

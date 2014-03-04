@@ -1265,7 +1265,7 @@ extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator(void);
-extern int __pmMkPath(const char *, mode_t);
+extern int __pmMakePath(const char *, mode_t);
 
 /*
  * discover configurable features of the shared libraries

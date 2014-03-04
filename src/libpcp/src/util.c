@@ -1479,7 +1479,7 @@ dirname(char *name)
  * Create a directory, including all of its path components.
  */
 int
-__pmMkPath(const char *dir, mode_t mode)
+__pmMakePath(const char *dir, mode_t mode)
 {
     char path[MAXPATHLEN], *p;
     int sts;
