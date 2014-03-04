@@ -1,6 +1,6 @@
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 Name: pcp-gui
-Version: 1.5.12
+Version: 1.5.13
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -36,6 +36,7 @@ to the core PCP infrastructure.
 #
 %package -n pcp-doc
 Group: Documentation
+BuildArch: noarch
 Summary: Documentation and tutorial for the Performance Co-Pilot
 
 %description -n pcp-doc
@@ -105,6 +106,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/pcp-gui/testsuite
 
 %changelog
+* Thu Mar 06 2014 Nathan Scott <nathans@redhat.com> - 1.5.13-1
+- Tackle one-metric-multiple-hosts legend ambiguity (BZ 1069960)
+- Add support for a saved hosts preference setting (BZ 1069947)
+- Add support for a global font preference setting (BZ 1069943)
+- Default to explicit hostname views if multi-host (BZ 1069964)
+- Make pcp-doc a noarch package as nature intended.
+
 * Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 1.5.12-1
 - Updates to the PCP Programmers Guide for Python modules.
 - Change default pmchart font size from command line (BZ 1066173)

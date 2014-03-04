@@ -1,3 +1,14 @@
+pcp-gui 1.5.13 (6 March 2014)
+    - Remove pmchart one-metric-multiple-hosts legend ambiguity
+    - Add support for a global font preference setting
+    - Add support for a saved hosts preference setting
+    - Add -H option to pmchart for initial saved host importing
+      (matching the behaviour of the same pmstat option)
+    - Default to explicit hostname views when saving a chart
+      containing plots from multiple hosts.
+    - Update Fedora/EPEL packaging to make pcp-doc into a noarch
+      package, as nature intended.
+
 pcp-gui 1.5.12 (19 February 2014)
     - Updates to the Programmers Guide to cover Python modules
     - Fix removal of plots from a chart with multiple selections

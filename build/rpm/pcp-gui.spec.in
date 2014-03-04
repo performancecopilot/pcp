@@ -6,8 +6,7 @@ Distribution: @pkg_distribution@
 BuildRoot: @build_root@ 
 Conflicts: pcp-pro
 Source: @pkg_name@-@pkg_version@.src.tar.gz
-License: GPLv2
-Vendor: Silicon Graphics, Inc.
+License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 URL: http://oss.sgi.com/projects/pcp
 Group: Applications/System
 Requires: pcp >= 3.5.0, pcp-libs-devel >= 3.5.0
@@ -33,12 +32,10 @@ to the core PCP infrastructure.
 # pcp-doc package
 #
 %package -n pcp-doc
-License: GPLv2
 BuildArch: noarch
 Group: Documentation
 Conflicts: pcp-gui <= 1.5.5
 Summary: Performance Co-Pilot documentation and tutorials
-Vendor: Silicon Graphics, Inc.
 URL: http://oss.sgi.com/projects/pcp/
 
 %description -n pcp-doc
