@@ -95,13 +95,13 @@ ConnectPMCD(void)
 	     * pmcd or no pmcd at all.
 	     */
 	    srchost = strdup(lasthost);
+	    if (srchost == NULL)
+		__pmNoMem("Error copying host name", strlen(lasthost), PM_FATAL_ERR);
 	}
-	else
+	else {
 	    srchost = strdup(lsp->ls_fqdn);
-
-	if (srchost == NULL) {
-	    sts = -ENOMEM;
-	    goto done;
+	    if (srchost == NULL)
+		__pmNoMem("Error copying host name", strlen(lsp->ls_fqdn), PM_FATAL_ERR);
 	}
     }
 
