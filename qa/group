@@ -908,6 +908,8 @@ avahi
 945 pmlogrewrite pmda.xfs local oss
 946 pmfind avahi local oss
 962 archive local oss
+972 pmda.zswap dbpmda local oss
+973 pmda.zswap pmda.install local oss
 994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
