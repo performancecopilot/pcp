@@ -648,6 +648,8 @@ __pmParseTime(
 	TIMESPEC_TO_TIMEVAL (rslt, tsrsltp);
     }
 
+    if (*errMsg)
+    	free (*errMsg);
     return 0;
 }
 

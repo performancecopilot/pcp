@@ -73,6 +73,7 @@ int main(argc, argv)
     struct tm tmrslt;
     struct tm tmtmp;
     time_t ttstart;
+    char buffer[256];
     char *errmsg;
     char *tmtmp_str;
 
@@ -93,7 +94,6 @@ int main(argc, argv)
     *tmtmp_c = ' ';
     if (__pmParseTime(tmtmp_str, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
 	printf ("%s: %s\n", errmsg, tmtmp_str);
-	free errmsg;
     }
     
     localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
@@ -120,6 +120,7 @@ int main(argc, argv)
 	"@%D %r",
 	"@%D %R",
 	"@%D %T",
+	"@%D %T GMT",
 	"@%d %b %Y %X",
 	"@next day",
 	"@1 day ago",
@@ -152,14 +153,11 @@ int main(argc, argv)
 		    ("These time terms for a specific day are relative to the current time.\n");
 	    if (__pmParseTime(buffer, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
-		free errmsg;
 	    }
 	    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
 	    dump_dt(buffer, &tmrslt);
-	    pmParseTimeWindow;
-	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) != 0) {
+	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
-		free errmsg;
 	    }
 	    localtime_r(&rsltStart.tv_sec, &tmrslt);	// time_t => tm
 	    dump_dt(buffer, &tmrslt);

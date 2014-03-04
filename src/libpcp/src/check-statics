@@ -186,7 +186,6 @@ getdate.o
     d meridian_table
     d military_table
     d month_and_day_table
-    b RELATIVE_TIME_0
     d relative_time_table
     d time_units_table
     d time_zone_table

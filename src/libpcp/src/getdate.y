@@ -1239,7 +1239,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 
       tm0 = tm;
 
-      Start = mktime (&tm);
+      Start = __pmMktime (&tm);
 
       if (! mktime_ok (&tm0, &tm, Start))
     	  goto fail;
@@ -1249,7 +1249,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 	  tm.tm_mday += ((pc.day_number - tm.tm_wday + 7) % 7
 			 + 7 * (pc.day_ordinal - (0 < pc.day_ordinal)));
 	  tm.tm_isdst = -1;
-	  Start = mktime (&tm);
+	  Start = __pmMktime (&tm);
 	  if (Start == (time_t) -1)
 	    goto fail;
 	}
@@ -1259,8 +1259,11 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 	  long int delta = pc.time_zone * 60;
 	  time_t t1;
 	  time_t t = Start;
+	  PM_INIT_LOCKS();
+	  PM_LOCK(__pmLock_libpcp);
 	  struct tm *gmt = NULL;
-	  gmt = gmtime_r (&t, gmt);
+	  gmt = gmtime (&t);
+	  PM_UNLOCK(__pmLock_libpcp);
 	  if (! gmt)
 	    goto fail;
 	  delta -= tm_diff (&tm, gmt);
@@ -1287,7 +1290,7 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
 	  tm.tm_min = tm0.tm_min;
 	  tm.tm_sec = tm0.tm_sec;
 	  tm.tm_isdst = tm0.tm_isdst;
-	  Start = mktime (&tm);
+	  Start = __pmMktime (&tm);
 	  if (Start == (time_t) -1)
 	    goto fail;
 	}
