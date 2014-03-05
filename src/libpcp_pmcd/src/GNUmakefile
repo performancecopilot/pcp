@@ -47,7 +47,7 @@ default : $(LIBTARGET) $(STATICLIBTARGET)
 
 # Static probing for Linux, Mac OS X and Solaris.
 ifeq "$(ENABLE_PROBES)" "true"
-ifneq "$(findstring $(TARGET_OS),linux darwin)" ""
+ifneq "$(findstring $(TARGET_OS),linux darwin freebsd)" ""
 trace.o: probes.h
 probes.h: probes.d pmcd.stp
 	$(DTRACE) -h -s $< -o $@

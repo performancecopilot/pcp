@@ -57,6 +57,7 @@ help.dir help.pag : domain.h help
 	$(SED) <domain.h >help.sed -n -e '/#define/s/#define[ 	]*\([A-Z][A-Z]*\)[ 	]*\([0-9][0-9]*\)/s@\1@\2@/p'
 	$(SED) -f help.sed <help >help.tmp
 	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_freebsd -v 2 -o help <help.tmp
+	rm -f help.tmp help.tmp
 
 default_pcp : default
 

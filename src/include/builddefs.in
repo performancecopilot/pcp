@@ -166,6 +166,14 @@ CXXF	= $(CXX) $(CFLAGS) $(CXXFLAGS)
 LDF	= $(LD) $(LDFLAGS)
 MAKEDEPEND = @makedepend@
 
+ifeq "$(TARGET_OS)" "freebsd"
+# gmake on FreeBSD has a strange default rule that passes insufficient
+# flags to cc/ld for the link step.  This change prevents errors like
+# undefined reference to `__stack_chk_fail_local'
+#
+LDFLAGS += $(CFLAGS)
+endif
+
 ZIP	= @gzip@
 BZIP2	= @bzip2@
 LZMA	= @lzma@
@@ -445,6 +453,13 @@ PERL_GET_FILELIST = \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
 else
+ifeq "$(PACKAGE_DISTRIBUTION)" "freebsd"
+# FreeBSD Perl packaging is a broken mystery at this point in time
+# 1. there is no .packlist files being created
+# 2. $(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT does not work
+# so disable the packaging pro tem
+PERL_GET_FILELIST =
+else
 # Everyone else ... includes the RPM-based packaging platforms
 ifeq "$(PACKAGE_DISTRIBUTION)" "mandriva"
 	man_suffix=lzma
@@ -468,12 +483,14 @@ PERL_GET_FILELIST = \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
 endif
 endif
+endif
 
 # Create perl manifest files explicitly for some distributions
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = macosx \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+                -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
 	      ] && echo 1)" "1"
 # Gather installed Perl files before packaging
 PERL_INSTALL = \
@@ -531,6 +548,7 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = macosx \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
+                -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
 	      ] && echo 1)" "1"
 # Gather installed Python files before packaging
 # Lines in python-pcp.list are like this

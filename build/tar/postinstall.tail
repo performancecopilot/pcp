@@ -1,10 +1,14 @@
+sts=0
+tmp=/var/tmp
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 if [ ! -f /etc/pcp.env ]
 then
     # PCP not installed ... seems odd
     #
     echo "Error: /etc/pcp.env not installed!"
-    exit 1
+    sts=1
+    exit
 fi
 
 . /etc/pcp.env
@@ -58,6 +62,12 @@ then
 	sys_acc=''
 	nologin=/sbin/nologin
 	bash=/usr/pkg/bin/bash
+    elif [ $PCP_PLATFORM = solaris ]
+    then
+	no_home_dir=''
+	sys_acc=''
+	nologin=`which false`
+	bash=`which bash`
     else
 	no_home_dir='-M'
 	sys_acc='-r'
@@ -72,8 +82,14 @@ then
 	then
 	    groupadd $sys_acc pcp
 	else
-	    echo "postinstall: Error: don't know how to add group \"pcp\""
-	    exit 1
+	    if [ $PCP_PLATFORM = freebsd ]
+	    then
+		: adduser does this for us ...
+	    else
+		echo "postinstall: Error: don't know how to add group \"pcp\""
+		sts=1
+		exit
+	    fi
 	fi
     fi
     if grep '^pcp:' /etc/passwd >/dev/null
@@ -83,9 +99,14 @@ then
 	if which useradd >/dev/null 2>&1
 	then
 	    useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp $no_home_dir $sys_acc -s $nologin pcp
+	elif which adduser >/dev/null 2>&1
+	then
+	    echo "pcp::::::Performance Co-Pilot:/var/lib/pcp::" \
+	    | adduser -f - -w no
 	else
 	    echo "postinstall: Error: don't know how to add user \"pcp\""
-	    exit 1
+	    sts=1
+	    exit
 	fi
     fi
     if grep '^pcpqa:' /etc/group >/dev/null
@@ -96,8 +117,14 @@ then
 	then
 	    groupadd $sys_acc pcpqa
 	else
-	    echo "postinstall: Error: don't know how to add group \"pcpqa\""
-	    exit 1
+	    if [ $PCP_PLATFORM = freebsd ]
+	    then
+		: adduser does this for us ...
+	    else
+		echo "postinstall: Error: don't know how to add group \"pcpqa\""
+		sts=1
+		exit
+	    fi
 	fi
     fi
     if grep '^pcpqa:' /etc/passwd >/dev/null
@@ -106,38 +133,81 @@ then
     else
 	if which useradd >/dev/null 2>&1
 	then
-	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp $no_home_dir $sys_acc -s $bash pcpqa
+	    useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite $no_home_dir $sys_acc -s $bash pcpqa
+	elif which adduser >/dev/null 2>&1
+	then
+	    # no bash for default FreeBSD
+	    bash=`which sh`
+	    echo "pcpqa::::::PCP Quality Assurance:/var/lib/pcp/testsuite:$bash:" \
+	    | adduser -f - -w no
 	else
 	    echo "postinstall: Error: don't know how to add user \"pcpqa\""
-	    exit 1
+	    sts=1
+	    exit
 	fi
     fi
 fi
 
 # permissions ...
 #
+[ -d $PCP_LOG_DIR/pmcd ] || mkdir -m 775 $PCP_LOG_DIR/pmcd
 chown -R pcp:pcp $PCP_LOG_DIR/pmcd
+[ -d $PCP_LOG_DIR/pmie ] || mkdir -m 775 $PCP_LOG_DIR/pmie
 chown -R pcp:pcp $PCP_LOG_DIR/pmie
-[ -d $PCP_LOG_DIR/pmwebd ] && chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
+[ -d $PCP_LOG_DIR/pmwebd ] || mkdir -m 775 $PCP_LOG_DIR/pmwebd
+chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
+[ -d $PCP_LOG_DIR/pmproxy ] || mkdir -m 775 $PCP_LOG_DIR/pmproxy
 chown -R pcp:pcp $PCP_LOG_DIR/pmproxy
+[ -d $PCP_LOG_DIR/pmlogger ] || mkdir -m 775 $PCP_LOG_DIR/pmlogger
 chown -R pcp:pcp $PCP_LOG_DIR/pmlogger
+[ -d $PCP_VAR_DIR/testsuite ] || mkdir -m 755 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
-# Note: do not start pmie, pmwebd nor pmproxy by default
+# Note: do not start pcp, pmwebd, pmproxy nor pmmgr by default
 #
-for svc in pmcd pmlogger
-do
-    if which rc-update >/dev/null 2>&1
+if which svcs >/dev/null 2>&1
+then
+    # in Solaris land, we need an XML file to control all of this
+    #
+    if [ ! -f ../sun/pcp.xml ]
     then
-	if rc-update show | grep " $svc " >/dev/null 2>&1
-	then
-	    # service is already installed ...
-	    #
-	    rc-update delete $svc
-	fi
-	rc-update add $svc
+	echo "Warning: Solaris SMF XML missing: ../sun/pcp.xml"
+    else
+	svccfg import ../sun/pcp.xml
     fi
-    $PCP_RC_DIR/$svc start
-done
+else
+    for svc in pcp pmcd pmlogger pmproxy pmwebd pmmgr
+    do
+	if which rc-update >/dev/null 2>&1
+	then
+	    if rc-update show | grep " $svc " >/dev/null 2>&1
+	    then
+		# service is already installed ...
+		#
+		rc-update delete $svc
+	    fi
+	    rc-update add $svc
+	fi
 
-exit 0
+	# disable or enable and start as required by default policy
+	case $svc
+	in
+	    pmcd|pmlogger|pmie)
+		if which rc-update >/dev/null 2>&1
+		then
+		    : TODO?
+		fi
+		$PCP_RC_DIR/$svc start
+		;;
+	    *)
+		if which rc-update >/dev/null 2>&1
+		then
+		    : TODO?
+		fi
+		;;
+	esac
+
+    done
+fi
+
+exit

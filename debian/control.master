@@ -4,7 +4,7 @@ Priority: extra
 Homepage: http://oss.sgi.com/projects/pcp
 Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev (>= 0.9.9), libavahi-common-dev, autotools-dev
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, autotools-dev
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
@@ -367,12 +367,3 @@ Description: Performance Co-Pilot (PCP) manager daemon
  .
  The pcp-manager package aims to aggressively enable new PCP features
  and as a result may not be suited to all production environments.
-
-Package: pcp-webapi
-Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
-Architecture: any
-Description: Performance Co-Pilot (PCP) web API service
- Provides a daemon (pmwebd) that binds a large subset of the Performance
- Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
- HTTP (PMWEBAPI) protocol.
-
