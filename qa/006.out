@@ -27,7 +27,6 @@ exit=0
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
@@ -67,7 +66,6 @@ exit=0
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
@@ -107,7 +105,6 @@ exit=1
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
@@ -161,7 +158,6 @@ exit=0
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
@@ -172,7 +168,6 @@ exit=0
 <timestamp>: addItem metric=sample.byte_ctr
 <timestamp>: SamplingEngine::isCompatible type=0, units=byte
 <timestamp>: addItem <addr> nitems=2
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addItem src=<host>
@@ -182,7 +177,6 @@ exit=0
 <timestamp>: addItem metric=sample.byte_rate
 <timestamp>: SamplingEngine::isCompatible type=0, units=byte / sec
 <timestamp>: addItem <addr> nitems=2
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addItem src=<host>
@@ -192,7 +186,6 @@ exit=0
 <timestamp>: addItem instance sample.mirage_longlong[m-00]
 <timestamp>: SamplingEngine::isCompatible type=2, units=byte / millisec
 <timestamp>: addItem <addr> nitems=2
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Tab::addChart: [0]->Chart <addr>
 <timestamp>: Chart::addItem src=<host>
@@ -232,7 +225,6 @@ exit=1
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
 <timestamp>: Phase2 user interface setup complete
-<timestamp>: Chart::setLegendVisible(1) legend()=(nil)
 <timestamp>: Chart::ctor complete(<addr>)
 <timestamp>: Chart::setCurrent(<addr>) true
 <timestamp>: Tab::addChart: [0]->Chart <addr>
