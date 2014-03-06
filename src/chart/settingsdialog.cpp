@@ -647,6 +647,10 @@ void SettingsDialog::removeHostButton_clicked()
 	savedHostsListWidget->removeItemWidget(item);
 	delete item;
     }
+    globalSettings.savedHosts.clear();
+    for (int i = 0; i < savedHostsListWidget->count(); i++)
+	globalSettings.savedHosts << savedHostsListWidget->item(i)->text();
+    globalSettings.savedHostsModified = true;
     removeHostButton->setEnabled(false);
     writeSettings();
 }
@@ -670,6 +674,8 @@ void SettingsDialog::addHostButton_clicked()
 	QListWidgetItem *item = new QListWidgetItem(hostIcon, hostname);
 	savedHostsListWidget->addItem(item);
 	savedHostsListWidget->setCurrentItem(item);
+	globalSettings.savedHostsModified = true;
+	globalSettings.savedHosts << hostname;
     }
     removeHostButton->setEnabled(true);
     writeSettings();
