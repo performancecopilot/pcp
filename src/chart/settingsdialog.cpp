@@ -659,7 +659,7 @@ void SettingsDialog::addHostButton_clicked()
 {
     QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
     const QString hostname = hostComboBox->currentText();
-    bool changed = false;
+    bool found = false;
 
     for (int i = 0; i < savedHostsListWidget->count(); i++) {
 	QListWidgetItem *item = savedHostsListWidget->item(i);
@@ -667,10 +667,10 @@ void SettingsDialog::addHostButton_clicked()
 	    item->setSelected(false);
 	} else {
 	    savedHostsListWidget->setCurrentItem(item);
-	    changed = true;
+	    found = true;
 	}
     }
-    if (!changed) {
+    if (!found) {
 	QListWidgetItem *item = new QListWidgetItem(hostIcon, hostname);
 	savedHostsListWidget->addItem(item);
 	savedHostsListWidget->setCurrentItem(item);
@@ -726,6 +726,12 @@ void SettingsDialog::hostButton_clicked()
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
 			(const char *)hostspec.toAscii(), flags);
 	    setupHostComboBox(hostname);
+	    if (globalSettings.savedHosts.contains(hostname) == false) {
+		globalSettings.savedHostsModified = true;
+		globalSettings.savedHosts << hostname;
+		setupSavedHostsList();
+		writeSettings();
+	    }
 	}
     }
     delete host;
