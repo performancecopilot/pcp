@@ -78,7 +78,7 @@ touch $tmp.dir/pmieconf
 echo $tmp.dir > $tmp.dir/log-directory  # same dir
 
 echo "=== 5. restart pmmgr four times to get a bunch of pmlogger archives ===" | tee -a $seq.full
-for x in 1 2 3 4
+for x in `seq 4`
 do
 echo $x
 $sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
@@ -129,7 +129,7 @@ $sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
 echo "=== 10. wait a minute, nine times ===" | tee -a $seq.full
 # long enough for all the old archives to age out, only new granular stuff to survive
 # not an exact multiple of the pmlogmerge 2min period, to avoid testing the edge moments
-for x in 1 2 3 4 6 7 8 9
+for x in `seq 9`
 do
 echo $x
 sleep 60
@@ -146,6 +146,7 @@ done
 echo "=== ZZZ kill pmmgr, collect its cumulative logs ===" | tee -a $seq.full
 kill $pid
 pid=
+sleep 2
 cat $tmp.out | _filter
 
 status=0
