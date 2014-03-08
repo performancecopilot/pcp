@@ -1,5 +1,5 @@
 QA output created by 318
-pmie: timezone set to local timezone of host mortenb.oslo.sgi.com
+pmie: timezone set to local timezone from src/20041125.0
 expr_1 (Thu Nov 25 00:11:00 2004): 11
 expr_2 (Thu Nov 25 00:11:00 2004): 0
 expr_3 (Thu Nov 25 00:11:00 2004): false

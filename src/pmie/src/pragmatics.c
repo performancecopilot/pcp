@@ -2,7 +2,7 @@
  * pragmatics.c - inference engine pragmatics analysis
  * 
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2013-2014 Red Hat, Inc.
+ * Copyright (c) 2013-2015 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,81 +41,82 @@ pmUnits noUnits;
 pmUnits countUnits = { .dimCount = 1 };
 
 char *
-findsource(char *host)
+findsource(const char *host, const char *hconn)
 {
     static char	buf[MAXPATHLEN+MAXHOSTNAMELEN+30];
 
-    if (archives) {
-	Archive	*a = archives;
-	while (a) {	/* find archive for host */
-	    if (strcmp(host, a->hname) == 0)
-		break;
-	    a = a->next;
-	}
-	if (a)
-	    snprintf(buf, sizeof(buf), "archive %s (host %s)", a->fname, host);
-	else
-	    snprintf(buf, sizeof(buf), "host %s in unknown archive!", host);
-    }
+    if (archives)
+        snprintf(buf, sizeof(buf), "archive %s (host %s)", hconn, host);
     else
-	snprintf(buf, sizeof(buf), "host %s", host);
+	snprintf(buf, sizeof(buf), "pmcd %s (host %s)", hconn, host);
 
     return buf;
 }
 
 /***********************************************************************
  * PMAPI context creation & destruction
- ***********************************************************************/
+ ***********************************************************************
+ *
+ * Also, compute the host name from the hconn string,
+ * by replacing given interned symbol if necessary.
+ */
 
-int	/* > 0: context handle,  -1: retry later */
-newContext(char *host)
+int	/* >= 0: context handle,  -1: retry later */
+newContext(Symbol *host, const char *hconn)
 {
-    Archive	*a;
     int		sts = -1;
 
     if (archives) {
-	a = archives;
-	while (a) {	/* find archive for host */
-	    if (strcmp(host, a->hname) == 0)
-		break;
-	    a = a->next;
-	}
-	if (a) {	/* archive found */
-	    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, a->fname)) < 0) {
-		fprintf(stderr, "%s: cannot open archive %s\n",
-			pmProgname, a->fname);
-		fprintf(stderr, "pmNewContext: %s\n", pmErrStr(sts));
-		exit(1);
-	    }
-	}
-	else {		/* no archive for host */
-	    fprintf(stderr, "%s: no archive for host %s\n", pmProgname, host);
-	    exit(1);
-	}
+        if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, hconn)) < 0) {
+            fprintf(stderr, "%s: cannot open archive %s\n",
+                    pmProgname, hconn);
+            fprintf(stderr, "pmNewContext: %s\n", pmErrStr(sts));
+            exit(1);
+        }
     }
-    else if ((sts = pmNewContext(PM_CONTEXT_HOST, host)) < 0) {
-	if (host_state_changed(host, STATE_FAILINIT) == 1) {
+    else if ((sts = pmNewContext(PM_CONTEXT_HOST, hconn)) < 0) {
+	if (host_state_changed(hconn, STATE_FAILINIT) == 1) {
 	    if (sts == -ECONNREFUSED)
 		fprintf(stderr, "%s: warning - pmcd "
-			"on host %s does not respond\n",
-			pmProgname, host);
+			"via %s does not respond\n",
+			pmProgname, hconn);
 	    else if (sts == PM_ERR_PERMISSION)
-		fprintf(stderr, "%s: warning - host %s does not "
+		fprintf(stderr, "%s: warning - pmcd via %s does not "
 			"permit delivery of metrics to the local host\n",
-			pmProgname, host);
+			pmProgname, hconn);
 	    else if (sts == PM_ERR_CONNLIMIT)
 		fprintf(stderr, "%s: warning - pmcd "
-			"on host %s has exceeded its connection limit\n",
-			pmProgname, host);
+			"via %s has exceeded its connection limit\n",
+			pmProgname, hconn);
 	    else
-		fprintf(stderr, "%s: warning - host %s is unreachable\n", 
-			pmProgname, host);
+		fprintf(stderr, "%s: warning - pmcd via %s is unreachable\n", 
+			pmProgname, hconn);
 	}
 	sts = -1;
     }
     else if (clientid != NULL)
 	/* register client id with pmcd */
 	__pmSetClientId(clientid);
+
+    /* Update the host name if not already known; for archives it'll
+       already be known, since it'll have been interred back in fetchExpr() */
+    if (sts >= 0 && host) {
+        const char* host_name = pmGetContextHostName(sts);
+        if (strcmp(symName(*host), host_name)) { /* new or changed? */
+            symFree (*host);
+            *host = symIntern(&hosts, host_name);
+        }
+    }
+
+    /* Update the mmv, to identify the pmcd host we've just connected
+       to.  Note that this can change, as different pmie rules can
+       have different host-domain metrics evaluated at different
+       times. */ 
+    if (*host && perf) {
+        strncpy(perf->defaultfqdn, symName(*host), sizeof(perf->defaultfqdn));
+        perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
+    }
+
     return sts;
 }
 
@@ -233,7 +234,7 @@ findHost(Task *t, Metric *m)
 	h = h->next;
     }
 
-    h = newHost(t, m->hname);	/* add new host */
+    h = newHost(t, m->hname, m->hconn);	/* add new host */
     if (t->hosts) {
 	h->next = t->hosts;
 	t->hosts->prev = h;
@@ -277,7 +278,8 @@ findFetch(Host *h, Metric *m)
     /* create new Fetch bundle */
     if (! f) {
 	f = newFetch(h);
-	if ((f->handle = newContext(symName(h->name))) < 0) {
+        f->handle = newContext(&h->name,symName(h->conn));
+	if (f->handle < 0) {
 	    free(f);
 	    h->down = 1;
 	    return NULL;
@@ -564,49 +566,25 @@ zoneInit(void)
 {
     int		sts;
     int		handle = -1;
-    Archive	*a;
 
     if (timeZone) {			/* TZ from timezone string */
 	if ((sts = pmNewZone(timeZone)) < 0)
 	    fprintf(stderr, "%s: cannot set timezone to %s\n"
 		    "pmNewZone failed: %s\n", pmProgname, timeZone,
 		    pmErrStr(sts));
-    }
-    else if (! archives && hostZone) {	/* TZ from live host */
-	if ((handle = pmNewContext(PM_CONTEXT_HOST, dfltHostConn)) < 0)
+    } 
+    else if (hostZone) { /* TZ from live host or archive */
+	if ((handle = pmNewContext(archives ? PM_CONTEXT_ARCHIVE : PM_CONTEXT_HOST, dfltHostConn)) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\n"
 		    "pmNewContext failed: %s\n", pmProgname,
-		    findsource(dfltHostConn), pmErrStr(handle));
+		    dfltHostConn, pmErrStr(handle));
 	else if ((sts = pmNewContextZone()) < 0)
 	    fprintf(stderr, "%s: cannot set timezone from %s\n"
 		    "pmNewContextZone failed: %s\n", pmProgname,
-		    findsource(dfltHostConn), pmErrStr(sts));
+		    dfltHostConn, pmErrStr(sts));
 	else
-	    fprintf(stdout, "%s: timezone set to local timezone of host %s\n",
+	    fprintf(stdout, "%s: timezone set to local timezone from %s\n",
 		    pmProgname, dfltHostConn);
-	if (handle >= 0)
-	    pmDestroyContext(handle);
-    }
-    else if (hostZone) {		/* TZ from an archive */
-	a = archives;
-	while (a) {
-	    if (strcmp(dfltHostName, a->hname) == 0)
-		break;
-	    a = a->next;
-	}
-	if (! a)
-	    fprintf(stderr, "%s: no archive supplied for host %s\n",
-		    pmProgname, dfltHostName);
-	else if ((handle = pmNewContext(PM_CONTEXT_ARCHIVE, a->fname)) < 0)
-	    fprintf(stderr, "%s: cannot set timezone from %s\npmNewContext failed: %s\n",
-		    pmProgname, findsource(dfltHostName), pmErrStr(handle));
-	else if ((sts = pmNewContextZone()) < 0)
-	    fprintf(stderr, "%s: cannot set timezone from %s\n"
-		    "pmNewContextZone failed: %s\n",
-		    pmProgname, findsource(dfltHostName), pmErrStr(sts));
-	else
-	    fprintf(stdout, "%s: timezone set to local timezone of host %s\n",
-		    pmProgname, dfltHostName);
 	if (handle >= 0)
 	    pmDestroyContext(handle);
     }
@@ -652,7 +630,8 @@ scale(pmUnits in)
 int      /* 1: ok, 0: try again later, -1: fail */
 initMetric(Metric *m)
 {
-    char	*hname = symName(m->hname);
+    char	*hname;
+    char	*hconn = symName(m->hconn);
     char	*mname = symName(m->mname);
     char	**inames;
     int		*iids;
@@ -662,15 +641,16 @@ initMetric(Metric *m)
     int		i, j;
 
     /* set up temporary context */
-    if ((handle = newContext(hname)) < 0)
+    if ((handle = newContext(&m->hname, hconn)) < 0)
 	return 0;
+    hname = symName(m->hname);
 
-    host_state_changed(hname, STATE_RECONN);
+    host_state_changed(hconn, STATE_RECONN);
 
     if ((sts = pmLookupName(1, &mname, &m->desc.pmid)) < 0) {
 	fprintf(stderr, "%s: metric %s not in namespace for %s\n"
 		"pmLookupName failed: %s\n",
-		pmProgname, mname, findsource(hname), pmErrStr(sts));
+		pmProgname, mname, findsource(hname, hconn), pmErrStr(sts));
 	ret = 0;
 	goto end;
     }
@@ -679,7 +659,7 @@ initMetric(Metric *m)
     if ((sts = pmLookupDesc(m->desc.pmid, &m->desc)) < 0) {
 	fprintf(stderr, "%s: metric %s not currently available from %s\n"
 		"pmLookupDesc failed: %s\n",
-		pmProgname, mname, findsource(hname), pmErrStr(sts));
+		pmProgname, mname, findsource(hname, hconn), pmErrStr(sts));
 	ret = 0;
 	goto end;
     }
@@ -707,13 +687,13 @@ initMetric(Metric *m)
 	    if ((sts = pmGetInDomArchive(m->desc.indom, &iids, &inames)) < 0) {
 		fprintf(stderr, "Metric %s from %s - instance domain not "
 			"available in archive\npmGetInDomArchive failed: %s\n",
-			mname, findsource(hname), pmErrStr(sts));
+			mname, findsource(hname, hconn), pmErrStr(sts));
 		ret = -1;
 	    }
 	}
 	else if ((sts = pmGetInDom(m->desc.indom, &iids, &inames)) < 0) {
 	    fprintf(stderr, "Instance domain for metric %s from %s not (currently) available\n"
-		    "pmGetIndom failed: %s\n", mname, findsource(hname), pmErrStr(sts));
+		    "pmGetIndom failed: %s\n", mname, findsource(hname, hconn), pmErrStr(sts));
 	    ret = 0;
 	}
 
@@ -742,7 +722,7 @@ initMetric(Metric *m)
 		    if (j == sts) {
 			__pmNotifyErr(LOG_ERR, "metric %s from %s does not "
 				"(currently) have instance \"%s\"\n",
-				mname, findsource(hname), m->inames[i]);
+                                      mname, findsource(hname, hconn), m->inames[i]);
 			m->iids[i] = PM_IN_NULL;
 			ret = 0;
 		    }
@@ -833,7 +813,8 @@ end:
 int      /* 1: ok, 0: try again later, -1: fail */
 reinitMetric(Metric *m)
 {
-    char	*hname = symName(m->hname);
+    char	*hname;
+    char	*hconn = symName(m->hconn);
     char	*mname = symName(m->mname);
     char	**inames;
     int		*iids;
@@ -843,10 +824,11 @@ reinitMetric(Metric *m)
     int		i, j;
 
     /* set up temporary context */
-    if ((handle = newContext(hname)) < 0)
+    if ((handle = newContext(&m->hname, hconn)) < 0)
 	return 0;
+    hname = symName(m->hname);
 
-    host_state_changed(hname, STATE_RECONN);
+    host_state_changed(hconn, STATE_RECONN);
 
     if ((sts = pmLookupName(1, &mname, &m->desc.pmid)) < 0) {
 	ret = 0;
@@ -1136,7 +1118,7 @@ taskFetch(Task *t)
 		    if (! archives) {
 			__pmNotifyErr(LOG_ERR, "pmFetch from %s failed: %s\n",
 				symName(f->host->name), pmErrStr(sts));
-			host_state_changed(symName(f->host->name), STATE_LOSTCONN);
+			host_state_changed(symName(f->host->conn), STATE_LOSTCONN);
 			h->down = 1;
 			mark_all(h);
 		    }

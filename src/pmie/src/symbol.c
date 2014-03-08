@@ -4,6 +4,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,7 +124,7 @@ symClearTable(SymbolTable *st)
 /* Convert string to symbol.  A copy of the name string is made
    on the heap for use by the symbol. */
 Symbol
-symIntern(SymbolTable *st, char *name)
+symIntern(SymbolTable *st, const char *name)
 {
     SymUnion *bckt;
     SymUnion *scoop = NULL;
@@ -181,7 +182,7 @@ symIntern(SymbolTable *st, char *name)
 
 /* lookup symbol by name */
 Symbol
-symLookup(SymbolTable *st, char *name)
+symLookup(SymbolTable *st, const char *name)
 {
     SymUnion *bckt;
     SymUnion *scoop;

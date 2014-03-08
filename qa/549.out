@@ -11,6 +11,6 @@ nosupport: ?
 notknown: ?
 pmLookupDesc failed: Unknown or illegal metric identifier
 pmie: metric sample.aggregate.hullo has non-numeric type
-pmie: metric sample.bad.unknown not currently available from host HOST
+pmie: metric sample.bad.unknown not currently available from pmcd HOST (host HOST)
 pmie: metric sample.string.hullo has non-numeric type
 pmie: syntax error - near line 9 of standard input

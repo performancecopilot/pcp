@@ -7,14 +7,14 @@ expr_1: value(s)
 ...
 
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
-[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
 
 
 
 
 
 
-[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
 
 expr_1: value(s)
 ...

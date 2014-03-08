@@ -61,43 +61,43 @@ Log for pmie on HOST started DATE
 
 pmie: PID,HOST
 
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample not in namespace for host HOST
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Metric name is not a leaf in PMNS
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric sample.string.hullo has non-numeric type
 pmie: metric sample.string.hullo has non-numeric type
@@ -179,43 +179,43 @@ Log for pmie on HOST started DATE
 
 pmie: PID,HOST
 
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample not in namespace for host HOST
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Metric name is not a leaf in PMNS
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric sample.string.hullo has non-numeric type
 pmie: metric sample.string.hullo has non-numeric type
@@ -303,43 +303,43 @@ Log for pmie on HOST started DATE
 
 pmie: PID,HOST
 
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample not in namespace for host HOST
+pmie: metric sample not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Metric name is not a leaf in PMNS
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric no.such.metric not in namespace for host HOST
+pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric sample.string.hullo has non-numeric type
 pmie: metric sample.string.hullo has non-numeric type

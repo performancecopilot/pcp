@@ -3,6 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,7 +105,7 @@ typedef struct hstate {
 static hstate_t	*host_map = NULL;
 
 int
-host_state_changed(char *host, int state)
+host_state_changed(const char *host, int state) /* NB: host == connection string */
 {
     hstate_t	*hsp;
 
@@ -126,11 +127,11 @@ host_state_changed(char *host, int state)
     if (quiet)
 	; /* be quiet */
     else if (state == STATE_FAILINIT)
-	__pmNotifyErr(LOG_INFO, "Cannot connect to pmcd on host %s\n", host);
+	__pmNotifyErr(LOG_INFO, "Cannot connect to pmcd %s\n", host);
     else if (state == STATE_RECONN && hsp->state != STATE_INIT)
-	__pmNotifyErr(LOG_INFO, "Re-established connection to pmcd on host %s\n", host);
+	__pmNotifyErr(LOG_INFO, "Re-established connection to pmcd %s\n", host);
     else if (state == STATE_LOSTCONN)
-	__pmNotifyErr(LOG_INFO, "Lost connection to pmcd on host %s\n", host);
+	__pmNotifyErr(LOG_INFO, "Lost connection to pmcd %s\n", host);
 
     hsp->state = state;
     return 1;
@@ -151,7 +152,7 @@ enable(Task *t)
 	if (h->down) {
 	    if (reconnect(h)) {
 		h->down = 0;
-		host_state_changed(symName(h->name), STATE_RECONN);
+		host_state_changed(symName(h->conn), STATE_RECONN);
 	    }
 	}
 

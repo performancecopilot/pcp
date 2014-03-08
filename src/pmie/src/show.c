@@ -3,6 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -280,7 +281,7 @@ done:
 	*inst = NULL;
     }
     else {
-	*host = symName(m->hname);
+	*host = symName(m->hname); /* NB: not m->hconn */
 	sts++;
 	if (pick >= 0 && x->e_idom > 0 && m->inames) {
 	    *inst = m->inames[pick];
@@ -517,7 +518,7 @@ showSyn(FILE *f, Expr *x)
 	m = x->metrics;
 	fprintf(f, "%s", symName(m->mname));
 	for (i = 0; i < x->hdom; i++) {
-	    fprintf(f, " :%s", symName(m->hname));
+	    fprintf(f, " :%s", symName(m->hname)); /* or m->hconn? */
 	    m++;
 	}
 	m = x->metrics;

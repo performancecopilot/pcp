@@ -4,6 +4,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,10 +79,10 @@ void symSetTable(SymbolTable *);
 void symClearTable(SymbolTable *);
 
 /* convert string to symbol */
-Symbol symIntern(SymbolTable *, char *);
+Symbol symIntern(SymbolTable *, const char *);
 
 /* lookup symbol by name */
-Symbol symLookup(SymbolTable *, char *);
+Symbol symLookup(SymbolTable *, const char *);
 
 /* copy symbol */
 Symbol symCopy(Symbol);

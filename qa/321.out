@@ -1,5 +1,5 @@
 QA output created by 321
-pmie: timezone set to local timezone of host app1
+pmie: timezone set to local timezone from src/conn20070309
 shell Fri Mar  9 17:00:40 2007: echo app1 mel CON_USE OK 64 100 100 100 45 Ctns
 
 shell Fri Mar  9 17:00:50 2007: echo app1 mel CON_USE OK 30 64 100 100 100 Ctns

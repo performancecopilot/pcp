@@ -2,7 +2,7 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -53,7 +53,6 @@ Archive		*archives;			/* list of open archives */
 RealTime	first = -1;			/* archive starting point */
 RealTime	last = 0.0;			/* archive end point */
 char		*dfltHostConn;			/* default host connection string */
-char		*dfltHostName;			/* default host name */
 RealTime	dfltDelta = DELTA_DFLT;		/* default sample interval */
 char		*startFlag;			/* start time specified? */
 char		*stopFlag;			/* end time specified? */
@@ -405,7 +404,7 @@ ralloc(void *p, size_t size)
 }
 
 char *
-sdup(char *p)
+sdup(const char *p)
 {
     char *q;
 
@@ -476,11 +475,12 @@ newFetch(Host *owner)
 
 
 Host *
-newHost(Task *owner, Symbol name)
+newHost(Task *owner, Symbol name, Symbol conn)
 {
     Host *h = (Host *) zalloc(sizeof(Host));
 
     h->name = symCopy(name);
+    h->conn = symCopy(conn);
     h->task = owner;
     return h;
 }
@@ -916,8 +916,6 @@ void dstructInit(void)
     /* not-a-number initialization */
     mynan = zero / zero;
 
-    /* don't initialize dfltHost*; let pmie.c do it after getopt. */
-
     /* set up symbol tables */
     symSetTable(&hosts);
     symSetTable(&metrics);
@@ -1224,8 +1222,8 @@ __dumpMetric(int level, Metric *m)
     fprintf(stderr, "expr=" PRINTF_P_PFX "%p profile=" PRINTF_P_PFX "%p host=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p\n",
 	m->expr, m->profile, m->host, m->next, m->prev);
     for (i = 0; i < level; i++) fprintf(stderr, ".. ");
-    fprintf(stderr, "metric=%s host=%s conv=%g specinst=%d m_indom=%d\n",
-	symName(m->mname), symName(m->hname), m->conv, m->specinst, m->m_idom);
+    fprintf(stderr, "metric=%s host=%s via=%s conv=%g specinst=%d m_indom=%d\n",
+            symName(m->mname), symName(m->hname), symName(m->hconn), m->conv, m->specinst, m->m_idom);
     if (m->desc.indom != PM_INDOM_NULL) {
 	numinst =  m->specinst == 0 ? m->m_idom : m->specinst;
 	for (j = 0; j < numinst; j++) {
@@ -1311,7 +1309,7 @@ dumpTask(Task *t)
     if (t->hosts == NULL)
 	fprintf(stderr, "  host=<null>\n");
     else
-	fprintf(stderr, "  host=%s (%s)\n", symName(t->hosts->name), t->hosts->down ? "down" : "up");
+	fprintf(stderr, "  host=%s via=%s (%s)\n", symName(t->hosts->name), symName(t->hosts->conn), t->hosts->down ? "down" : "up");
     fprintf(stderr, "  rules:\n");
     for (i = 0; i < t->nrules; i++) {
 	fprintf(stderr, "    %s\n", symName(t->rules[i]));
