@@ -666,7 +666,7 @@ discoveryTimeout(void)
 }
 
 int
-__pmAvahiDiscoverServices(const char *service, int numUrls, char ***urls)
+__pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
 {
     AvahiClient		*client = NULL;
     AvahiServiceBrowser	*sb = NULL;
@@ -675,7 +675,10 @@ __pmAvahiDiscoverServices(const char *service, int numUrls, char ***urls)
     browsingContext	context;
     char		*serviceTag;
     size_t		size;
-    
+    const char          *timeoutBegin;
+    char                *timeoutEnd;
+    double              timeout;
+
     /* Allocate the main loop object. */
     if (!(simplePoll = avahi_simple_poll_new()))
 	return -ENOMEM;
@@ -711,10 +714,27 @@ __pmAvahiDiscoverServices(const char *service, int numUrls, char ***urls)
 	goto done;
     }
 
+    /* Extract any ,timeout=NNN parameters. */
+    timeout = discoveryTimeout(); /* default */
+
+    timeoutBegin = strstr(mechanism, ",timeout=");
+    if (timeoutBegin)
+        {
+            timeoutBegin += strlen(",timeout="); /* skip over it */
+            timeout = strtod (timeoutBegin, & timeoutEnd);
+            if ((*timeoutEnd != '\0' && *timeoutEnd != ',') ||
+                (timeout < 0.0)) {
+		__pmNotifyErr(LOG_WARNING,
+			      "ignored bad avahi timeout = '%*s'\n",
+			      (int)(timeoutEnd-timeoutBegin), timeoutBegin);
+                timeout = discoveryTimeout();
+            }
+        }
+
     /* Set the timeout. */
     avahi_simple_poll_get(simplePoll)->timeout_new(
         avahi_simple_poll_get(simplePoll),
-	avahi_elapse_time(&tv, (unsigned)(discoveryTimeout() * 1000), 0),
+	avahi_elapse_time(&tv, (unsigned)(timeout * 1000), 0),
 	timeoutCallback, &context);
 
     /*
