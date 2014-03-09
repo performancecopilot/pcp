@@ -13,3 +13,6 @@ Exit status: 0
 Exit status: 0
 -q -s pmcd -m avahi with AVAHI_DISCOVERY_TIMEOUT=5
 Exit status: 0
+-m all
+Discovered pmcd servers:
+Exit status: 0

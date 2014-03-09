@@ -65,6 +65,10 @@ AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
 # up to 5 seconds may elapse here
 echo "Exit status: $?"
 
+echo "-m all"
+pmfind -m all | _success_filter
+echo "Exit status: $?"
+
 # success, all done
 status=0
 

@@ -717,7 +717,7 @@ __pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrl
     /* Extract any ,timeout=NNN parameters. */
     timeout = discoveryTimeout(); /* default */
 
-    timeoutBegin = strstr(mechanism, ",timeout=");
+    timeoutBegin = strstr(mechanism ? mechanism : "", ",timeout=");
     if (timeoutBegin)
         {
             timeoutBegin += strlen(",timeout="); /* skip over it */
