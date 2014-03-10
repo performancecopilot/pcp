@@ -239,6 +239,8 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
     const char		*prefix_end;
     size_t		prefix_len;
     char		path[MAXPATHLEN];
+    int			originalPid;
+    int			wasLocal;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -254,205 +256,214 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	*pid = PM_LOG_PRIMARY_PID;
 	*port = PM_LOG_NO_PORT;
     }
-    sts = 0;
-    fd = -1;
-
-    /* Look for a "local:" or a "unix:" prefix. */
-    prefix_end = strchr(connectionSpec, ':');
-    if (prefix_end != NULL) {
-	prefix_len = prefix_end - connectionSpec + 1;
-	if ((prefix_len == 6 && strncmp(connectionSpec, "local:", prefix_len) == 0) ||
-	    (prefix_len == 5 && strncmp(connectionSpec, "unix:", prefix_len) == 0)) {
-	    if (connectionSpec[prefix_len] != '\0') {
-		/* Try the specified local socket directly. */
-		fd = connectLoggerLocal(connectionSpec + prefix_len);
-	    }
-	    else if (*pid != PM_LOG_NO_PID) {
-		/* Try the socket indicated by the pid. */
-		connectionSpec = __pmLogLocalSocketDefault(*pid, path, sizeof(path));
-		fd = connectLoggerLocal(connectionSpec);
-		if (fd < 0) {
-		    /* Try the socket in the user's home directory. */
-		    connectionSpec = __pmLogLocalSocketUser(*pid, path, sizeof(path));
-		    if (connectionSpec != NULL)
-			fd = connectLoggerLocal(connectionSpec);
-		}
-	    }
-	    if (fd < 0) {
-		if (prefix_len == 5) /* "unix:" */
-		    return -ECONNREFUSED;
-		/*
-		 * The prefix was "local:".
-		 * If we have a port or a pid, try the connection as "localhost".
-		 * Otherwise, we can't connect.
-		 */
-		if (*port == PM_LOG_NO_PORT && *pid == PM_LOG_NO_PID)
-		    return -ECONNREFUSED;
-		connectionSpec = "localhost";
-	    }
-	}
-    }
 
     /*
-     * If we still don't have a connection, then connectionSpec is
-     * (now) a host name.
+     * If the prefix is "local:[path]", we may try the connection more than once using
+     * "unix:[path]" followed by "localhost".
      */
-    if (fd < 0) {
-	/*
-	 * catch pid == PM_LOG_ALL_PIDS ... this tells __pmLogFindPort
-	 * to get all ports
-	 */
-	if (*pid == PM_LOG_ALL_PIDS) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
-#endif
-	    return -ECONNREFUSED;
-	}
-
-	if (*port == PM_LOG_NO_PORT) {
-	    if ((n = __pmLogFindPort(connectionSpec, *pid, &lpp)) < 0) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT) {
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+    for (originalPid = *pid; /**/; *pid = originalPid) {
+	fd = -1;
+	/* Look for a "local:" or a "unix:" prefix. */
+	wasLocal = 0;
+	prefix_end = strchr(connectionSpec, ':');
+	if (prefix_end != NULL) {
+	    prefix_len = prefix_end - connectionSpec + 1;
+	    if ((wasLocal = (prefix_len == 6 && strncmp(connectionSpec, "local:", prefix_len) == 0)) ||
+		(prefix_len == 5 && strncmp(connectionSpec, "unix:", prefix_len) == 0)) {
+		if (connectionSpec[prefix_len] != '\0') {
+		    /* Try the specified local socket directly. */
+		    fd = connectLoggerLocal(connectionSpec + prefix_len);
 		}
-#endif
-		return n;
+		else if (*pid != PM_LOG_NO_PID) {
+		    /* Try the socket indicated by the pid. */
+		    connectionSpec = __pmLogLocalSocketDefault(*pid, path, sizeof(path));
+		    fd = connectLoggerLocal(connectionSpec);
+		    if (fd < 0) {
+			/* Try the socket in the user's home directory. */
+			connectionSpec = __pmLogLocalSocketUser(*pid, path, sizeof(path));
+			if (connectionSpec != NULL)
+			    fd = connectLoggerLocal(connectionSpec);
+		    }
+		}
 	    }
-	    else if (n != 1) {
+	    if (fd >= 0)
+		sts = 0;
+	    else
+		sts = fd;
+	}
+	else {
+	    /*
+	     * If not a url, then connectionSpec is a host name.
+	     *
+	     * Catch pid == PM_LOG_ALL_PIDS ... this tells __pmLogFindPort
+	     * to get all ports
+	     */
+	    if (*pid == PM_LOG_ALL_PIDS) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger\n");
+		    fprintf(stderr, "__pmConnectLogger: pid == PM_LOG_ALL_PIDS makes no sense here\n");
 #endif
 		return -ECONNREFUSED;
 	    }
-	    *port = lpp->port;
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
-#endif
-	}
 
-	if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
+	    if (*port == PM_LOG_NO_PORT) {
+		if ((n = __pmLogFindPort(connectionSpec, *pid, &lpp)) < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
-			hoststrerror());
+		    if (pmDebug & DBG_TRACE_CONTEXT) {
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort: %s\n", pmErrStr_r(n, errmsg, sizeof(errmsg)));
+		    }
 #endif
-	    return -EHOSTUNREACH;
-	}
-
-	/* Loop over the addresses resolved for this host name until one of them
-	   connects. */
-	sts = -1;
-	fd = -1;
-	enumIx = NULL;
-	for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
-	     myAddr != NULL;
-	     myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
-	    /* Create a socket */
-	    if (__pmSockAddrIsInet(myAddr))
-		fd = __pmCreateSocket();
-	    else if (__pmSockAddrIsIPv6(myAddr))
-		fd = __pmCreateIPv6Socket();
-	    else {
-		__pmNotifyErr(LOG_ERR, 
-			      "__pmConnectLogger : invalid address family %d\n",
-			      __pmSockAddrGetFamily(myAddr));
-		fd = -1;
+		    return n;
+		}
+		else if (n != 1) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT)
+			fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> 1, cannot contact pmlogger\n");
+#endif
+		    return -ECONNREFUSED;
+		}
+		*port = lpp->port;
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_CONTEXT)
+		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
+#endif
 	    }
-	    if (fd < 0) {
+
+	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_CONTEXT)
+		    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
+			    hoststrerror());
+#endif
+		return -EHOSTUNREACH;
+	    }
+
+	    /*
+	     * Loop over the addresses resolved for this host name until one of them
+	     * connects.
+	     */
+	    enumIx = NULL;
+	    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+		 myAddr != NULL;
+		 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+		/* Create a socket */
+		if (__pmSockAddrIsInet(myAddr))
+		    fd = __pmCreateSocket();
+		else if (__pmSockAddrIsIPv6(myAddr))
+		    fd = __pmCreateIPv6Socket();
+		else {
+		    __pmNotifyErr(LOG_ERR, 
+				  "__pmConnectLogger : invalid address family %d\n",
+				  __pmSockAddrGetFamily(myAddr));
+		    fd = -1;
+		}
+		if (fd < 0) {
+		    __pmSockAddrFree(myAddr);
+		    continue; /* Try the next address */
+		}
+
+		/* Attempt to connect */
+		__pmSockAddrSetPort(myAddr, *port);
+		sts = connectLogger(fd, myAddr);
 		__pmSockAddrFree(myAddr);
-		continue; /* Try the next address */
+
+		/* Successful connection? */
+		if (sts >= 0)
+		    break;
 	    }
-
-	    /* Attempt to connect */
-	    __pmSockAddrSetPort(myAddr, *port);
-	    sts = connectLogger(fd, myAddr);
-	    __pmSockAddrFree(myAddr);
-
-	    /* Successful connection? */
-	    if (sts >= 0)
-		break;
+	    __pmHostEntFree(servInfo);
 	}
-	__pmHostEntFree(servInfo);
-    }
-
-    if (sts < 0) {
+	
+	if (sts < 0) {
 #ifdef PCP_DEBUG
-        if (pmDebug & DBG_TRACE_CONTEXT) {
-	  char	errmsg[PM_MAXERRMSGLEN];
-	  fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	}
-#endif
-	return sts;
-    }
-
-    /* Expect an error PDU back: ACK/NACK for connection */
-    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
-    if (sts == PDU_ERROR) {
-	__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
-	__pmDecodeError(pb, &sts);
-	php = (__pmPDUHdr *)pb;
-	if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: ACK response from pid %d, expected pid %d\n",
-			    php->from, *pid);
-#endif
-	    sts = -ECONNREFUSED;
-	}
-	*pid = php->from;
-    }
-    else if (sts < 0) {
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT) {
-	    if (sts == PM_ERR_TIMEOUT)
-		fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
-	    else {
+	    if (pmDebug & DBG_TRACE_CONTEXT) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		fprintf(stderr, "__pmConnectLogger: connect: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
-	}
 #endif
-	;	/* fall through */
-    }
-    else {
-	/* wrong PDU type! */
+	}
+	else {
+	    /* Expect an error PDU back: ACK/NACK for connection */
+	    pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, __pmLoggerTimeout(), &pb);
+	    if (sts == PDU_ERROR) {
+		__pmOverrideLastFd(PDU_OVERRIDE2);	/* don't dink with the value */
+		__pmDecodeError(pb, &sts);
+		php = (__pmPDUHdr *)pb;
+		if (*pid != PM_LOG_NO_PID && *pid != PM_LOG_PRIMARY_PID && php->from != *pid) {
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_CONTEXT)
-	    fprintf(stderr, "__pmConnectLogger: ACK botch PDU type=%d not PDU_ERROR?\n", sts);
+		    if (pmDebug & DBG_TRACE_CONTEXT)
+			fprintf(stderr, "__pmConnectLogger: ACK response from pid %d, expected pid %d\n",
+				php->from, *pid);
 #endif
-	sts = PM_ERR_IPC;
-    }
-
-    if (pinpdu > 0)
-	__pmUnpinPDUBuf(pb);
-
-    if (sts >= 0) {
-	if (sts == LOG_PDU_VERSION2) {
-	    __pmCred	handshake[1];
-
-	    __pmSetVersionIPC(fd, sts);
-	    handshake[0].c_type = CVERSION;
-	    handshake[0].c_vala = LOG_PDU_VERSION;
-	    handshake[0].c_valb = 0;
-	    handshake[0].c_valc = 0;
-	    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
-	}
-	else
-	    sts = PM_ERR_IPC;
-	if (sts >= 0) {
+		    sts = -ECONNREFUSED;
+		}
+		*pid = php->from;
+	    }
+	    else if (sts < 0) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT)
-		fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
-					__pmVersionIPC(fd), fd);
+		if (pmDebug & DBG_TRACE_CONTEXT) {
+		    if (sts == PM_ERR_TIMEOUT)
+			fprintf(stderr, "__pmConnectLogger: timeout (after %d secs)\n", __pmLoggerTimeout());
+		    else {
+			char	errmsg[PM_MAXERRMSGLEN];
+			fprintf(stderr, "__pmConnectLogger: Error: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    }
+		}
 #endif
-	    return fd;
+		;	/* fall through */
+	    }
+	    else {
+		/* wrong PDU type! */
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_CONTEXT)
+		    fprintf(stderr, "__pmConnectLogger: ACK botch PDU type=%d not PDU_ERROR?\n", sts);
+#endif
+		sts = PM_ERR_IPC;
+	    }
+
+	    if (pinpdu > 0)
+		__pmUnpinPDUBuf(pb);
+
+	    if (sts >= 0) {
+		if (sts == LOG_PDU_VERSION2) {
+		    __pmCred	handshake[1];
+
+		    __pmSetVersionIPC(fd, sts);
+		    handshake[0].c_type = CVERSION;
+		    handshake[0].c_vala = LOG_PDU_VERSION;
+		    handshake[0].c_valb = 0;
+		    handshake[0].c_valc = 0;
+		    sts = __pmSendCreds(fd, (int)getpid(), 1, handshake);
+		}
+		else
+		    sts = PM_ERR_IPC;
+		if (sts >= 0) {
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT)
+			fprintf(stderr, "__pmConnectLogger: PDU version=%d fd=%d\n",
+				__pmVersionIPC(fd), fd);
+#endif
+		    return fd;
+		}
+	    }
+
+	    /* Error if we get here */
+	    __pmCloseSocket(fd);
 	}
-    }
-    /* error if we get here */
-    __pmCloseSocket(fd);
+
+	/*
+	 * If the prefix was "local:" and we have a port or a pid, try the
+	 * connection as "localhost". Otherwise, we can't connect.
+	 */
+	if (wasLocal && (*port != PM_LOG_NO_PORT || *pid != PM_LOG_NO_PID)) {
+	    connectionSpec = "localhost";
+	    continue;
+	}
+
+	/* No more ways to connect. */
+	break;
+    } /* Loop over connect specs. */
+
     return sts;
 }
