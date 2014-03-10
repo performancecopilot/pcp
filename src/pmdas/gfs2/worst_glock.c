@@ -128,14 +128,10 @@ gfs2_extract_worst_glock(char *buffer)
     struct worst_glock glock;
     unsigned int major, minor;
 
-    fprintf(stderr, "VALUES TO HAVE A LOOK AT NAE = %d, CAP = %d \n", num_accepted_entries, capacity);
-
     /* If we havent already set the array, have a go */
     if (glock_data == NULL) {
         num_accepted_entries = 0;
         capacity = FTRACE_ARRAY_CAPACITY;
-
-        fprintf(stderr, "HERE WE APPEAR TO BE PEOPLE \n");
 
         glock_data = malloc(capacity * sizeof(struct worst_glock));
 
