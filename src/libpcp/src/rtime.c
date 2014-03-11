@@ -20,17 +20,7 @@
 #include "internal.h"
 
 
-
-/****************************************************************************
- * macros
- ****************************************************************************/
-
 #define CODE3(a,b,c) ((__uint32_t)(a)|((__uint32_t)(b)<<8)|((__uint32_t)(c)<<16))
-
-/****************************************************************************
- * constants
- ****************************************************************************/
-
 #define whatmsg  "unexpected value"
 #define moremsg  "more information expected"
 #define alignmsg "alignment specified by -A switch could not be applied"
@@ -93,10 +83,6 @@ static const int	numint = sizeof(int_tab) / sizeof(int_tab[0]);
 #define PLUS_OFFSET	1
 #define NEG_OFFSET	2
 
-
-/****************************************************************************
- * local functions
- ****************************************************************************/
 
 /* Compare struct timevals */
 static int	/* 0 -> equal, -1 -> tv1 < tv2, 1 -> tv1 > tv2 */
@@ -231,10 +217,6 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
 }
 
 
-/****************************************************************************
- * exported functions
- ****************************************************************************/
-
 int		/* 0 -> ok, -1 -> error */
 pmParseInterval(
     const char *spec,		/* interval to parse */
@@ -249,7 +231,7 @@ pmParseInterval(
     int		len;
 
     if (scan == NULL || *scan == '\0') {
-	char	*empty = "";
+	const char *empty = "";
 	parseError(empty, empty, "Null or empty specification", errmsg);
 	return -1;
     }
@@ -320,19 +302,6 @@ __pmParseCtime(
     /* parse time spec */
     parse3char(&scan, wdays, N_WDAYS, &ignored);
     parse3char(&scan, months, N_MONTHS, &tm.tm_mon);
-
-    /*
-     * (tes & nathans comment):
-     * This used to look like this -
-     *	parseInt(&scan, 1, 31, &tm.tm_mday);
-     *	parseInt(&scan, 0, 23, &tm.tm_hour);
-     *  if (tm.tm_hour == -1 && tm.tm_mday > 0 && tm.tm_mday < 23 &&
-     *	    (tm.tm_mon == -1 || *scan == ':')) {
-     *	    tm.tm_hour = tm.tm_mday;
-     *      tm.tm_mday = -1;
-     *  }
-     * This is busted when the hour is past 11pm.
-     */
 
     parseInt(&scan, 0, 31, &tm.tm_mday);
     parseInt(&scan, 0, 23, &tm.tm_hour);
@@ -523,48 +492,90 @@ __pmConvertTime(
 
 
 /*
- * Use heuristics to determine the presence of a relative date time and its direction
+ * Use heuristics to determine the presence of a relative date time
+ * and its direction
  */
-
 static int
-have_relative_date (const char* date_string)
+glib_relative_date(const char *date_string)
 {
-    // Time terms most commonly used with an adjective modifier are relative to the start/end time
-    // e.g. last year, 2 year ago, next hour, -1 minute
-	char* const startend_relative_terms[] =
-	{
-		" YEAR",
-		" MONTH",
-		" FORTNIGHT",
-		" WEEK",
-		" DAY",
-		" HOUR",
-		" MINUTE",
-		" MIN",
-		" SECOND",
-		" SEC"};
+    /*
+     * Time terms most commonly used with an adjective modifier are
+     * relative to the start/end time
+     * e.g. last year, 2 year ago, next hour, -1 minute
+     */
+    char * const startend_relative_terms[] = {
+	" YEAR",
+	" MONTH",
+	" FORTNIGHT",
+	" WEEK",
+	" DAY",
+	" HOUR",
+	" MINUTE",
+	" MIN",
+	" SECOND",
+	" SEC"
+    };
 
-    // Time terms for a specific day are relative to the current time
-    // TOMORROW, YESTERDAY, TODAY, NOW, MONDAY-SUNDAY
-
-    int rtu_bound = sizeof (startend_relative_terms) / sizeof (void*);
+    /*
+     * Time terms for a specific day are relative to the current time
+     * TOMORROW, YESTERDAY, TODAY, NOW, MONDAY-SUNDAY
+     */
+    int rtu_bound = sizeof(startend_relative_terms) / sizeof(void *);
     int rtu_idx;
+
     while (isspace((int)*date_string))
     	date_string++;
     for (rtu_idx = 0; rtu_idx < rtu_bound; rtu_idx++)
-        if (strcasestr (date_string, startend_relative_terms[rtu_idx]) != NULL)
+        if (strcasestr(date_string, startend_relative_terms[rtu_idx]) != NULL)
             break;
     if (rtu_idx < rtu_bound) {
-	if (strcasestr (date_string, "last") != NULL ||
-	    strcasestr (date_string, "ago") != NULL ||
+	if (strcasestr(date_string, "last") != NULL ||
+	    strcasestr(date_string, "ago") != NULL ||
 	    date_string[0] == '-')
-		return NEG_OFFSET;
+	    return NEG_OFFSET;
 	else
-		return PLUS_OFFSET;
+	    return PLUS_OFFSET;
     }
     return NO_OFFSET;
 }
 
+/*
+ * Helper interface to wrap calls to the get_date interface
+ */
+static int
+glib_get_date(
+    const char		*scan,
+    struct timeval	*start,
+    struct timeval	*end,
+    struct timeval	*rslt)
+{
+    int sts;
+    int rel_type;
+    struct timespec tsrslt;
+    struct timespec *tsrsltp = &tsrslt;
+
+    rel_type = glib_relative_date(scan);
+
+    if (rel_type == NO_OFFSET)
+	sts = get_date(tsrsltp, scan, NULL);
+    else if (rel_type == NEG_OFFSET && end->tv_sec < INT_MAX) {
+	struct timespec tsend;
+	struct timespec *tsendp = &tsend;
+	TIMEVAL_TO_TIMESPEC(end, tsendp);
+	sts = get_date(tsrsltp, scan, &tsend);
+    }
+    else {
+	struct timespec tsstart;
+	struct timespec *tsstartp = &tsstart;
+	TIMEVAL_TO_TIMESPEC(start, tsstartp);
+	sts = get_date(tsrsltp, scan, &tsstart);
+    }
+    if (sts < 0)
+	return sts;
+
+    TIMESPEC_TO_TIMEVAL(rslt, tsrsltp);
+    return 0;
+}
 
 int	/* 0 -> ok, -1 -> error */
 __pmParseTime(
@@ -581,6 +592,7 @@ __pmParseTime(
     struct timeval  end;
     struct timeval  tval;
 
+    *errMsg = NULL;
     start = *logStart;
     end = *logEnd;
     if (end.tv_sec == INT_MAX)
@@ -619,37 +631,13 @@ __pmParseTime(
 	}
     }
 
-    /* datetime is not a pcp defined one, so drop down into the glib get_date case */
-    {
-	int status  = -1;
-	int rel_type;
-	struct timespec tsrslt;
-	struct timespec *tsrsltp = &tsrslt;
-
-	parseChar(&scan, '@');		// ignore; have_relative_date determines type
-	rel_type = have_relative_date (scan);
-
-	if (rel_type == NO_OFFSET)
-	    status = get_date (tsrsltp, scan, NULL);
-	else if (rel_type == NEG_OFFSET && end.tv_sec < INT_MAX) {
-	    struct timespec tsend;
-	    struct timespec *tsendp = &tsend;
-	    TIMEVAL_TO_TIMESPEC (&end, tsendp);
-	    status = get_date (tsrsltp, scan, &tsend);
-	}
-	else {
-	    struct timespec tsstart;
-	    struct timespec *tsstartp = &tsstart;
-	    TIMEVAL_TO_TIMESPEC (&start, tsstartp);
-	    status = get_date (tsrsltp, scan, &tsstart);
-	}
-	if (status < 0)
-	    return -1;
-	TIMESPEC_TO_TIMEVAL (rslt, tsrsltp);
-    }
+    /* datetime is not recognised, try the glib get_date method */
+    parseChar(&scan, '@');	/* ignore; glib_relative_date determines type */
+    if (glib_get_date(scan, &start, &end, rslt) < 0)
+	return -1;
 
     if (*errMsg)
-    	free (*errMsg);
+	free(*errMsg);
     return 0;
 }
 

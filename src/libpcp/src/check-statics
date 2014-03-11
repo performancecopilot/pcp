@@ -181,7 +181,7 @@ fetchlocal.o
     b splitmax.[0-9]*		# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
 freeresult.o
-getdate.o
+getdate.tab.o
     d dst_table
     d meridian_table
     d military_table
