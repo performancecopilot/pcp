@@ -88,7 +88,7 @@ rpm?	/usr/include/infiniband/umad.h	[libibumad-devel]
 dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev]
 rpm?	/usr/include/infiniband/mad.h	[libibmad-devel]
 dpkg?	/usr/include/avahi-common	[libavahi-common-dev]
-rpm?	/usr/include/avahi-common	[libavahi-devel]
+rpm?	/usr/include/avahi-common	[avahi-devel]
 dpkg?	g++				[g++]
 rpm?	g++				[gcc-c++]
 # files
