@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 972
+# Exercise the zswap compressed swap PMDA using dbpmda.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pmda_path="$PCP_PMDAS_DIR/zswap"
+pmda_script="$pmda_path/pmdazswap.python"
+test -f "$pmda_script" || _notrun "pmdazswap not supported"
+python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+        -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+
+    test -f zswap.log && cat zswap.log >> $seq.full
+}
+
+_setup_zswap_values()
+{
+    mkdir -p $ZSWAP_STATS_PATH || exit
+    cd $ZSWAP_STATS_PATH
+
+    echo 309   > duplicate_entry
+    echo 1     > pool_limit_hit
+    echo 2000  > pool_pages
+    echo 32    > reject_alloc_fail
+    echo 11    > reject_compress_poor
+    echo 198   > reject_kmemcache_fail
+    echo 2     > reject_reclaim_fail
+    echo 89123 > stored_pages
+    echo 12435 > written_back_pages
+}
+
+domain=125
+export ZSWAP_STATS_PATH="$tmp.zswap"
+
+# real QA test starts here
+_setup_zswap_values
+PCP_PYTHON_PMNS=root python "$pmda_script" > $tmp.root
+cd "$pmda_dir"
+
+echo "== Testing zswap metrics" | tee -a $seq.full
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/python $pmda_script
+getdesc on
+desc zswap.pool_limit_hit
+desc zswap.reject_reclaim_fail
+desc zswap.reject_alloc_fail
+desc zswap.reject_kmemcache_fail
+desc zswap.reject_compress_poor
+desc zswap.written_back_pages
+desc zswap.duplicate_entry
+desc zswap.pool_pages
+desc zswap.stored_pages
+fetch zswap.pool_limit_hit
+fetch zswap.reject_reclaim_fail
+fetch zswap.reject_alloc_fail
+fetch zswap.reject_kmemcache_fail
+fetch zswap.reject_compress_poor
+fetch zswap.written_back_pages
+fetch zswap.duplicate_entry
+fetch zswap.pool_pages
+fetch zswap.stored_pages
+End-of-File
+
+status=0
+exit

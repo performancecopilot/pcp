@@ -185,7 +185,7 @@ The total number of demote requests which were requested by a remote node of
 the cluster.
 
 @gfs2.tracepoints.demote_rq.requested.local Number of demote requests (local).
-The total number od demote requests which were requested by a local node of
+The total number of demote requests which were requested by a local node of
 the cluster
 
 @ gfs2.tracepoints.promote.total Total number of lock grants. The total number
@@ -285,7 +285,7 @@ requests. The number of lock requests to the exclusive state.
 @ gfs2.tracepoints.glock_lock_time.total Total number of lock updates.
 The total number of lock updates.
 
-@ gfs2.tracepoints.glock_lock_time.trans Number of trasaction lock updates.
+@ gfs2.tracepoints.glock_lock_time.trans Number of transaction lock updates.
 The number of updates for transaction based glocks.
 
 @ gfs2.tracepoints.glock_lock_time.inode Number of inode lock updates.
@@ -318,7 +318,7 @@ requests to pin blocks on the log.
 @ gfs2.tracepoints.pin.unpin_total Number of unpin requests. The total number
 requests to unpin blocks on the log.
 
-@ gfs2.tracepoints.pin.longest_pinned Longests pinned. The longest pinned
+@ gfs2.tracepoints.pin.longest_pinned Longest pinned. The longest pinned
 inode or resource group log block
 
 @ gfs2.tracepoints.log_flush.total Total log flushes. The total number of
@@ -355,15 +355,19 @@ of create bmap allocations.
 number of nocreate bmap allocations.
 
 @ gfs2.tracepoints.rs.total Total multi-block allocations. The total number
-of multiblock allocations. 
+of multi-block allocations. 
 
-@ gfs2.tracepoints.rs.del Number of del blocks. The number of del blocks
+@ gfs2.tracepoints.rs.del Number of resource group delete. The total number of
+resource group delete calls.
 
-@ gfs2.tracepoints.rs.tdel Number of tdel blocks. The number of tdel blocks.
+@ gfs2.tracepoints.rs.tdel Number of resource group tree delete. The total number
+of resource group tree delete calls.
 
-@ gfs2.tracepoints.rs.ins Number of ins blocks. The number of ins blocks.
+@ gfs2.tracepoints.rs.ins Number of resource group insert. The total number of
+resource group insert calls.
 
-@ gfs2.tracepoints.rs.clm Number of clm blocks. The number of clm blocks.
+@ gfs2.tracepoints.rs.clm Number of resource group claims. The total number of 
+resource group claim calls.
 
 @ gfs2.worst_glock.lock_type Glock type number
 The metric contains the value regarding the lock type representing the type of
@@ -412,85 +416,85 @@ gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
 
 @ gfs2.control.tracepoints.all Indication whether all glock statistics are enabled
 The gfs2 tracepoint statistics can be manually controlled using pmstore
-gfs2.control.tracepoints.all 0 [off] or 1 [on]. setting the value of the metric
+gfs2.control.tracepoints.all 0 [off] or 1 [on]. Setting the value of the metric
 controls the behavior of the PMDA to whether it tries to collect from tracepoint
 metrics or not.
 
 @ gfs2.control.tracepoints.glock_state_change Indication whether the glock_state_change
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_state_change 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_state_change 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.glock_put Indication whether the glock_put glock
 statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_put 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_put 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.demote_rq Indication whether the glock_demote_rq
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_demote_rq 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_demote_rq 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.promote Indication whether the glock_promote
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_promte 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_promte 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.glock_queue Indication whether the glock_queue
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_queue 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_queue 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.glock_lock_time Indication whether the glock_lock_time
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.glock_lock_time 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.glock_lock_time 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.pin Indication whether the pin
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.pin 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.pin 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.log_flush Indication whether the log_flush
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.log_flush 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.log_flush 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.log_blocks Indication whether the log_blocks
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.log_blocks 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.log_blocks 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.ail_flush Indication whether the ail_flush
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.ail_flush 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.ail_flush 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.block_alloc Indication whether the block_alloc
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.block_alloc 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.block_alloc 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.bmap Indication whether the bmap
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.bmap 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.bmap 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
 @ gfs2.control.tracepoints.rs Indication whether the rs
 glock statistics are enabled The gfs2 tracepoint statistics can be manually controlled 
-using pmstore gfs2.control.tracepoints.rs 0 [off] or 1 [on]. setting the 
+using pmstore gfs2.control.tracepoints.rs 0 [off] or 1 [on]. Setting the 
 value of the metric controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
@@ -500,7 +504,7 @@ The global tracing can be controlled using pmstore gfs2.control.global_tracing 0
 
 @ gfs2.control.worst_glock Indication whether gfs2.glock_lock_time statistics are enabled
 The gfs2.glock_lock_time statistics can be manually controlled using pmstore
-gfs2.control.glock_lock_time 0 [off] or 1 [on]. setting the value of the metric
+gfs2.control.glock_lock_time 0 [off] or 1 [on]. Setting the value of the metric
 controls the behavior of the PMDA to whether it tries to collect the lock_time
 metrics or not. The machine must have the gfs2 trace-points available for the
 glock_lock_time based metrics to function.

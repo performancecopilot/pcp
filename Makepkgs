@@ -22,7 +22,24 @@ verbose=false
 
 if [ -z "$MAKE" ]
 then
-    MAKE=make
+    MAKE=''
+    # need to find where gmake is hiding ... looking for this line
+    # Report bugs to <bug-make@gnu.org>
+    # at the end of the make --help output
+    #
+    for i in make gmake
+    do
+	if $i --help 2>&1 | grep -q bug-make@gnu.org
+	then
+	    export MAKE=`which $i 2>/dev/null`
+	    break
+	fi
+    done
+    if [ -z "$MAKE" ]
+    then
+	echo "Error: can't find a GNU make in the commands make or gmake"
+	exit 1
+    fi
 else
     # $MAKE in the environment, ensure it is a full path so that
     # configure ends up setting the right thing for $PCP_MAKE_PROG

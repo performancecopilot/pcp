@@ -1,38 +1,19 @@
 %{
 /* Parse a string into an internal time stamp.
-
-   Copyright (C) 1999, 2000, 2002, 2003, 2004, 2005, 2006, 2007 Free Software
-   Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
-
-/* Originally written by Steven M. Bellovin <smb@research.att.com> while
-   at the University of North Carolina at Chapel Hill.  Later tweaked by
-   a couple of people on Usenet.  Completely overhauled by Rich $alz
-   <rsalz@bbn.com> and Jim Berets <jberets@bbn.com> in August, 1990.
-
-   Modified by Paul Eggert <eggert@twinsun.com> in August 1999 to do
-   the right thing about local DST.  Also modified by Paul Eggert
-   <eggert@cs.ucla.edu> in February 2004 to support
-   nanosecond-resolution time stamps, and in October 2004 to support
-   TZ strings in dates.  */
-
-/* FIXME: Check for arithmetic overflow in all cases, not just
-   some of them.  */
-
-#include "getdate.h"
+ *
+ * Copyright (C) 1999, 2000, 2002, 2003, 2004, 2005, 2006, 2007 Free Software
+ * Foundation, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 
 /* There's no need to extend the stack, so there's no need to involve
    alloca.  */
@@ -47,10 +28,7 @@
 
 #include <ctype.h>
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include <stdbool.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -1139,9 +1117,6 @@ get_date (struct timespec *result, char const *p, struct timespec const *now)
   parser_control pc;
   struct timespec gettime_buffer;
   unsigned char c;
-//  bool tz_was_altered = false;
-//  char *tz0 = NULL;
-//  char tz0buf[TZBUFSIZE];
   int ok = 0;
 
   if (! now)

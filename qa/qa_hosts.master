@@ -10,6 +10,7 @@ bozo.localdomain
 bozo-vm.localdomain
 bozo-laptop.localdomain
 comma.localdomain
+fuji.localdomain
 colleens-imac.local
 vm00.localdomain
 vm01.localdomain
@@ -62,6 +63,7 @@ deb32.bork.org
 #order	colleens-imac.local	.local
 #order	comma			.localdomain
 #order	emma			.localdomain
+#order	fuji			.localdomain
 #order	vm00			.localdomain
 #order	vm01			.localdomain
 #order	vm02			.localdomain
@@ -82,5 +84,15 @@ deb32.bork.org
 #order	vm17			.localdomain
 #order	vm18			.localdomain
 #order	vm19			.localdomain
+#order	vm20			.localdomain
+#order	vm21			.localdomain
+#order	vm22			.localdomain
+#order	vm23			.localdomain
+#order	vm24			.localdomain
+#order	vm25			.localdomain
+#order	vm26			.localdomain
+#order	vm27			.localdomain
+#order	vm28			.localdomain
+#order	vm29			.localdomain
 # Mort Section
 #order .bork.org .bork.org

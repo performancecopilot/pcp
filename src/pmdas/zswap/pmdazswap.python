@@ -1,0 +1,188 @@
+'''
+Performance Metrics Domain Agent exporting Linux compressed swap metrics.
+'''
+#
+# Copyright (c) 2014 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+from resource import getpagesize
+from os import getenv, listdir
+
+ZSWAP_STATS_PATH = '/sys/kernel/debug/zswap'
+
+class ZswapPMDA(PMDA):
+    '''
+    Performance Metrics Domain Agent exporting compressed swap metrics.
+    Install it and make basic use of it if you use zswap, as follows:
+
+    # $PCP_PMDAS_DIR/zswap/Install
+    $ pminfo -fmdtT zswap
+    '''
+
+    def zswap_fetch_single(self, name):
+        ''' Extract one value from a single zswap statistics file. '''
+        fullpath = self.path + '/' + name
+        try:
+            with open(fullpath) as file:
+                value = file.readline()
+                self.values[name] = long(value)
+        except:
+            # use a simple approach to avoiding errors on every fetch
+            if self.fileerrors < self.nmetrics:
+                self.err("fetch_single: failed to read %s" % fullpath)
+            self.fileerrors += 1
+            pass
+
+    def zswap_fetch(self):
+        '''
+        Called once per PCP "fetch" PDU from pmcd(1)
+        Iterates over the (sysfs debug) path holding zswap statistics,
+        building a hash of values (one value extracted from each file).
+        '''
+        # self.log("fetch: %s" % self.path)
+        try:
+            self.patherrors = 0
+            files = listdir(self.path)
+            for name in files:
+                self.zswap_fetch_single(name)
+        except:
+            # the kernel module may simply not be loaded currently
+            self.patherrors = 1
+            pass
+
+
+    def zswap_fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback - looks up value associated with requested PMID
+        (from zswap_fetch), converts units if needed, then returns a list of
+        value,status (single pair) for the requested pmid
+        '''
+        # self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if inst != c_api.PM_IN_NULL:
+            return [c_api.PM_ERR_INST, 0]
+        elif cluster != 0:
+            return [c_api.PM_ERR_PMID, 0]
+        if item >= 0 and item < self.nmetrics and self.patherrors == 1:
+            return [c_api.PM_ERR_AGAIN, 0]
+
+        if item == 0:
+            return [self.values['pool_limit_hit'], 1]
+        elif item == 1:
+            return [self.values['reject_reclaim_fail'], 1]
+        elif item == 2:
+            return [self.values['reject_alloc_fail'], 1]
+        elif item == 3:
+            return [self.values['reject_kmemcache_fail'], 1]
+        elif item == 4:
+            return [self.values['reject_compress_poor'], 1]
+        elif item == 5:
+            return [self.values['written_back_pages'] * self.pagesize, 1]
+        elif item == 6:
+            return [self.values['duplicate_entry'], 1]
+        elif item == 7:
+            return [self.values['pool_pages'] * self.pagesize, 1]
+        elif item == 8:
+            return [self.values['stored_pages'] * self.pagesize, 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+
+    def setup_zswap_metrics(self, name):
+        '''
+        Setup the metric table - ensure a values hash entry is setup for
+        each metric; that way we don't need to worry about KeyErrors in
+        the fetch callback routine (e.g. if the kernel interface changes).
+        '''
+        self.values['pool_limit_hit'] = 0
+        self.add_metric(name + '.pool_limit_hit', pmdaMetric(
+                self.pmid(0, 0),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Pool limit was hit (see zswap_max_pool_percent module parameter)')
+
+        self.values['reject_reclaim_fail'] = 0
+        self.add_metric(name + '.reject_reclaim_fail', pmdaMetric(
+                self.pmid(0, 1),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Store failed due to a reclaim failure after pool limit was reached')
+
+        self.values['reject_alloc_fail'] = 0
+        self.add_metric(name + '.reject_alloc_fail', pmdaMetric(
+                self.pmid(0, 2),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Store failed because underlying allocator could not get memory')
+
+        self.values['reject_kmemcache_fail'] = 0
+        self.add_metric(name + '.reject_kmemcache_fail', pmdaMetric(
+                self.pmid(0, 3),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Store failed because the entry metadata could not be allocated (rare)')
+
+        self.values['reject_compress_poor'] = 0
+        self.add_metric(name + '.reject_compress_poor', pmdaMetric(
+                self.pmid(0, 4),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Compressed page was too big for the allocator to (optimally) store')
+
+        self.values['written_back_pages'] = 0
+        self.add_metric(name + '.written_back_pages', pmdaMetric(
+                self.pmid(0, 5),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+        'Pages written back when pool limit was reached')
+
+        self.values['duplicate_entry'] = 0
+        self.add_metric(name + '.duplicate_entry', pmdaMetric(
+                self.pmid(0, 6),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Duplicate store was encountered (rare)')
+
+        self.values['pool_pages'] = 0
+        self.add_metric(name + '.pool_pages', pmdaMetric(
+                self.pmid(0, 7),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+        'Memory pages used by the compressed pool')
+
+        self.values['stored_pages'] = 0
+        self.add_metric(name + '.stored_pages', pmdaMetric(
+                self.pmid(0, 8),
+                c_api.PM_TYPE_U64, c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+        'Compressed pages currently stored in zswap')
+
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+        self.patherrors = 0
+        self.fileerrors = 0
+        self.pagesize = getpagesize()
+        self.path = getenv('ZSWAP_STATS_PATH', ZSWAP_STATS_PATH)
+
+        self.values = {}
+        self.setup_zswap_metrics(name)
+        self.nmetrics = len(self.values)
+
+        self.set_fetch(self.zswap_fetch)
+        self.set_fetch_callback(self.zswap_fetch_callback)
+
+
+if __name__ == '__main__':
+    ZswapPMDA('zswap', 125).run()

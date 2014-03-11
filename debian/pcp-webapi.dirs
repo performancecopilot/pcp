@@ -1,2 +1,2 @@
-etc/pcp/pmmgr
-var/log/pcp/pmmgr
+etc/pcp/pmwebd
+var/log/pcp/pmwebd
