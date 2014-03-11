@@ -15,22 +15,6 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-int __pmParseTime(const char *string,	/* string to be
-					 * parsed */
-		  struct timeval *logStart,	/* start of log or 
-						 * current time */
-		  struct timeval *logEnd,	/* end of log or
-						 * tv_sec ==
-						 * INT_MAX */
-		  /*
-		   * assumes sizeof(t_time) == sizeof(int) 
-		   */
-		  struct timeval *rslt,	/* if parsed ok,
-					 * result filled
-					 * in */
-		  char **errMsg);	/* error message, please
-					 * free */
-
 void
 set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,
        int mday, int hour, int min)
@@ -51,7 +35,8 @@ set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,
     }
 }
 
-void dump_dt(char *str, struct tm *atm)
+void
+dump_dt(char *str, struct tm *atm)
 {
     int pfx;
     printf("\"%s\"%n", str, &pfx);
@@ -62,7 +47,8 @@ void dump_dt(char *str, struct tm *atm)
 	   atm->tm_mday, atm->tm_hour, atm->tm_min, atm->tm_sec);
 }
 
-int main(argc, argv)
+int
+main(argc, argv)
 {
     struct timeval tvstart;	// .tv_sec .tv_usec
     struct timeval tvend;
