@@ -30,7 +30,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient
 
-PYPMDAS = gluster
+PYPMDAS = gluster zswap
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

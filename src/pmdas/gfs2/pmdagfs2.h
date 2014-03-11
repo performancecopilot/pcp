@@ -35,7 +35,7 @@ enum {
 };
 
 enum {
-	GFS_FS_INDOM = 0,	      /* 0 -- mounted gfs filesystem names */
+	GFS_FS_INDOM = 0,       /* 0 -- mounted gfs filesystem names */
 	NUM_INDOMS
 };
 

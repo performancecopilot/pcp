@@ -889,6 +889,7 @@ avahi
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss
+752 libpcp local oss
 755 pmda.apache pmda.install local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
@@ -908,6 +909,8 @@ avahi
 945 pmlogrewrite pmda.xfs local oss
 946 pmfind avahi local oss
 962 archive local oss
+972 pmda.zswap dbpmda local oss
+973 pmda.zswap pmda.install local oss
 994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi

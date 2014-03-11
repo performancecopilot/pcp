@@ -260,6 +260,7 @@ _filter_optional_pmdas()
 	-e '/pmdaxfs/d' \
 	-e '/pmdaxvm/d' \
 	-e '/pmdazimbra/d' \
+	-e '/pmdazswap/d' \
 
 }
 
@@ -292,6 +293,7 @@ _filter_top_pmns()
 	-e '/^    informix /d' \
 	-e '/^    jbd2 /d' \
 	-e '/^    jstat /d' \
+	-e '/^    kvm /d' \
 	-e '/^    lab /d' \
 	-e '/^    lmsensors /d' \
 	-e '/^    logger /d' \
@@ -333,6 +335,7 @@ _filter_top_pmns()
 	-e '/^    web /d' \
 	-e '/^    webping /d' \
 	-e '/^    zimbra /d' \
+	-e '/^    zswap /d' \
 	-e 's/ $//'
 
 }
@@ -681,6 +684,7 @@ _filter_torture_api()
 	-e '/^    waitio /d' \
 	-e '/^    xvm /d' \
 	-e '/^    zimbra /d' \
+	-e '/^    zswap /d' \
 
 }
 
