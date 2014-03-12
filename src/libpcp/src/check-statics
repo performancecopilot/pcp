@@ -182,23 +182,24 @@ fetchlocal.o
 fetch.o
 freeresult.o
 getdate.tab.o
-    d dst_table
-    d meridian_table
-    d military_table
-    d month_and_day_table
-    d relative_time_table
-    d time_units_table
-    d time_zone_table
-    d universal_time_zone_table
-    r yycheck
-    r yydefact
-    r yydefgoto
-    r yypact
-    r yypgoto
-    r yyr1
-    r yyr2
-    r yytable
-    r yytranslate
+    d dst_table			# const
+    d meridian_table		# const
+    d military_table		# const
+    d month_and_day_table	# const
+    d relative_time_table	# const
+    d time_units_table		# const
+    d time_zone_table		# const
+    d universal_time_zone_table	# const
+    r yycheck			# const
+    r yydefact			# const
+    r yydefgoto			# const
+    r yypact			# const
+    r yypgoto			# const
+    r yyr1			# const
+    r yyr2			# const
+    r ?yystos			# const, may be optimized away
+    r yytable			# const
+    r yytranslate		# const
 hash.o
 help.o
 instance.o
