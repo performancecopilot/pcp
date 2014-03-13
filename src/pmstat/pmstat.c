@@ -254,10 +254,14 @@ void
 destroyContext (struct statsrc_t * s) 
 {
     if ( s != NULL && s->ctx >= 0 ) {
-	if ((s->sname = strdup (pmGetContextHostName (s->ctx))) == NULL) {
-	    fprintf (stderr, "%s: bad luck - cannot save context name.\n",
-		     pmProgname);
-	    exit (1);
+	const char	*tmp;
+	tmp = pmGetContextHostName(s->ctx);
+	if (strlen(tmp) == 0) {
+	    fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
+		    pmProgname, s->ctx);
+	}
+	if ((s->sname = strdup(tmp)) == NULL) {
+	    __pmNoMem("cannot save context name", strlen(tmp)+1, PM_FATAL_ERR);
 	}
 
 	pmDestroyContext(s->ctx);

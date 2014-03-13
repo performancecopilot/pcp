@@ -720,6 +720,11 @@ Options:\n\
 	exit(1);
     }
     pmcd_host = (char *)pmGetContextHostName(ctx);
+    if (strlen(pmcd_host) == 0) {
+	fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
+	    pmProgname, ctx);
+	exit(1);
+    }
 
     if (rsc_fd == -1) {
 	/* no -x, so register client id with pmcd */
