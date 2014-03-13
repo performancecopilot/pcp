@@ -76,6 +76,7 @@ dpkg?	chrpath			[chrpath]
 dpkg?	sysv-rc-conf		[sysv-rc-conf]
 rpm?	rpmbuild		[rpm-build]
 # other build prerequisites
+rpm?	/usr/share/doc/packages/python-ctypes	[python-ctypes]
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev]

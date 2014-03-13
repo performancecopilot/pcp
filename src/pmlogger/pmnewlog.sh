@@ -48,6 +48,8 @@ logfile="pmlogger.log"
 namespace=""
 args=""
 sock_me=""
+proxyhost="$PMPROXY_HOST"
+proxyport="$PMPROXY_PORT"
 usage="Usage: $prog [options] archive
 
 options: any combination of pmnewlog and most pmlogger options
@@ -111,10 +113,10 @@ _check_logger()
 	$VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
 	if $SHOWME
 	then
-	    echo "+ echo 'connect $1' | pmlc ..."
+	    echo "+ echo 'connect $1' | $pmlc_prefix pmlc ..."
 	    $VERBOSE && echo " done"
 	    return 0
-	elif echo "connect $1" | pmlc 2>&1 | grep "Unable to connect" >/dev/null
+	elif echo "connect $1" | eval $pmlc_prefix pmlc 2>&1 | grep "Unable to connect" >/dev/null
 	then
             :
         else
@@ -298,7 +300,26 @@ if [ -s $tmp/out ]
 then
     $VERBOSE && echo " found"
     $VERBOSE && cat $tmp/out
+    # expecting something like
+    # pcp      30019   ... pmlogger ...args... -h hostname ...args...
+    # pick pid and hostname (safer to do it here if possible because it
+    # captures the possible -h hostname@proxy construct which is lost
+    # if one gets the hostname from pmlogger via pmlc)
+    #
     pid=`$PCP_AWK_PROG '{ print $2 }' <$tmp/out`
+    hostname=`sed -n <$tmp/out -e '/ -h /{
+s/.* -h //
+s/ .*//
+p
+}'`
+    # may have @proxyhost or @proxyhost:proxyport appended to hostname
+    #
+    proxyhost=`echo "$hostname" | sed -n -e '/@/{
+s/.*@//
+s/:.*//
+p
+}'`
+    proxyport=`echo "$hostname" | sed -n -e '/@.*:/s/.*;//p'`
 else
     if $VERBOSE
     then
@@ -309,6 +330,18 @@ else
     fi
     echo "$prog: Error: process not found"
     _abandon
+fi
+
+if [ -n "$proxyhost" ]
+then
+    if [ -n "$proxyport" ]
+    then
+	pmlc_prefix="PMPROXY_HOST=$proxyhost PMPROXY_PORT=$proxyport"
+    else
+	pmlc_prefix="PMPROXY_HOST=$proxyhost"
+    fi
+else
+    pmlc_prefix=''
 fi
 
 # pass primary/not primary down
@@ -323,15 +356,19 @@ args="$args-l $logfile "
 #
 if $primary
 then
-    host=localhost
-else
+    hostname=localhost
+elif [ -z "$hostname" ]
+then
+    # did not get pmcd hostname from ps output above, talk to pmlogger
+    # via pmlc
+    #
     # start critical section ... no interrupts due to pmlogger SIGPIPE
     # bug in PCP 1.1
     #
     trap "echo; echo $prog:' Interrupt! ... I am talking to pmlogger, please wait ...'" 1 2 3 15
     $VERBOSE && _message get_host
 
-    _do_cmd "( echo 'connect $connect' ; echo status ) | pmlc 2>$tmp/err >$tmp/out"
+    _do_cmd "( echo 'connect $connect' ; echo status ) | eval $pmlc_prefix pmlc 2>$tmp/err >$tmp/out"
 
     # end critical section
     #
@@ -358,21 +395,30 @@ else
 	fi
     fi
 
-    host=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp/out`
-    if [ "X$host" = X ]
+    if $SHOWME
     then
-	echo "$prog: Error: failed to get host name from $myname"
-	echo "This is what was collected from $myname."
-	echo
-	sed -e 's/^/	/' $tmp/out
-	_abandon
+	hostname=somehost
+    else
+	hostname=`sed -n -e '/^pmlogger/s/.* from host //p' <$tmp/out`
+	if [ -z "$hostname" ]
+	then
+	    echo "$prog: Error: failed to get host name from $myname"
+	    echo "This is what was collected from $myname."
+	    echo
+	    sed -e 's/^/	/' $tmp/out
+	    _abandon
+	fi
+	args="$args-h $hostname "
     fi
-    args="$args-h $host "
+else
+    # got hostname from ps output
+    #
+    args="$args-h $hostname "
 fi
 
 # extract/construct config file if required
 #
-if [ "X$config" = X ]
+if [ -z "$config" ]
 then
     # start critical section ... no interrupts due to pmlogger SIGPIPE
     # bug in PCP 1.1
@@ -386,16 +432,16 @@ then
     #
     if $SHOWME
     then
-	echo "+ ( echo 'connect $connect'; echo 'query ...'; ... ) | pmlc $namespace | $PCP_AWK_PROG ..."
+	echo "+ ( echo 'connect $connect'; echo 'query ...'; ... ) | eval $pmlc_prefix pmlc $namespace | $PCP_AWK_PROG ..."
     else
-	( echo "connect $connect" ; for top in `pminfo -h $host $namespace \
-					| sed -e 's/\..*//' -e '/^proc$/d' \
-					| sort -u`
-	    do
-		echo "query $top"
-	    done \
-	) \
-	| pmlc $namespace 2>$tmp/err \
+	echo "connect $connect" >$tmp/pmlc.cmd
+	for top in `pminfo -h $hostname $namespace \
+		    | sed -e 's/\..*//' -e '/^proc$/d' \
+		    | sort -u`
+	do
+	    echo "query $top" >>$tmp/pmlc.cmd
+	done
+	eval $pmlc_prefix pmlc $namespace <$tmp/pmlc.cmd 2>$tmp/err \
 	| $PCP_AWK_PROG >$tmp/out '
 /^[^ ]/						{ metric = $1; next }
 $1 == "mand" || ( $1 == "adv" && $2 == "on" ) 	{ print $0 " " metric }'
@@ -467,7 +513,7 @@ fi
 
 # optionally append access control specifications
 #
-if [ "X$access" != X ]
+if [ -n "$access" ]
 then
     if grep '\[access]' $config >/dev/null
     then
@@ -482,7 +528,7 @@ fi
 # add config file to the args, save config file if -C
 #
 args="$args-c $config "
-if [ "X$saveconfig" != X ]
+if [ -n "$saveconfig" ]
 then
     if eval $CP $config $saveconfig
     then
@@ -519,14 +565,14 @@ eval $RM -f $dir/Latest
 # clean up port-map, just in case
 #
 PM_LOG_PORT_DIR="$PCP_TMP_DIR/pmlogger"
-eval $RM -f $PM_LOG_PORT_DIR/$pid
+eval $RM -f "$PM_LOG_PORT_DIR"/$pid
 $primary && eval $RM -f $PM_LOG_PORT_DIR/primary
 
 # finally do it, ...
 #
 cd $dir
 $SHOWME && echo "+ cd $dir"
-[ "X$dir" = X. ] && dir=`pwd`
+[ "$dir" = . ] && dir=`pwd`
 archive=`basename $archive`
 
 # handle duplicates/aliases (happens when pmlogger is restarted
@@ -585,7 +631,7 @@ $VERBOSE && _message restart
 if _check_logger $new_pid || $SHOWME
 then
     $VERBOSE && echo "New pmlogger status ..."
-    $VERBOSE && _do_cmd "( echo 'connect $new_pid'; echo status ) | pmlc"
+    $VERBOSE && _do_cmd "( echo 'connect $new_pid'; echo status ) | $pmlc_prefix pmlc"
 
     # make the "Latest" archive folio
     #
@@ -617,7 +663,7 @@ then
     if $failed
     then
 	ELAPSED=`expr $STALL_TIME + $WAIT_TIME`
-	echo "Warning: pmlogger [pid=$new_pid host=$host] failed to create archive files within $ELAPSED seconds"
+	echo "Warning: pmlogger [pid=$new_pid host=$hostname] failed to create archive files within $ELAPSED seconds"
 	if [ -f $tmp/err ]
 	then
 	    echo "Warnings/errors from mkaf ..."
