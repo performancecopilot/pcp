@@ -197,6 +197,7 @@ getdate.tab.o
     r yypgoto
     r yyr1
     r yyr2
+    r yystos
     r yytable
     r yytranslate
 hash.o
