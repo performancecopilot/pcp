@@ -1,0 +1,60 @@
+#! /bin/sh
+# PCP QA Test No. 798
+# Exercise dbpmda use with the Perl implementation of nfsclient
+#
+# Copyright (c) 2013 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+trap "rm -f $tmp.*; exit" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s;$script;pmdanfsclient.pl;" \
+    | _filter_dumpresult
+}
+
+domain=62
+script=pmdanfsclient.pl
+[ -f $PCP_PMDAS_DIR/nfsclient/$script ] || script=pmdanfsclient.pl
+
+# ensure help text exists
+cd "$PCP_PMDAS_DIR/nfsclient"
+$sudo ./Install </dev/null >/dev/null 2>&1
+
+#Create root PMNS
+PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+
+# Use our pre-canned mountstats
+test="$here/nfsclient"
+export NFSCLIENT_MOUNTSTATS_PATH="$test/mountstats.qa"
+
+
+# real QA test starts here
+$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe /usr/bin/perl $script
+getdesc on
+desc nfsclient.mountpoint
+desc nfsclient.options.string
+desc nfsclient.options.proto
+desc nfsclient.options.vers
+fetch nfsclient.mountpoint
+fetch nfsclient.options.string
+fetch nfsclient.options.proto
+fetch nfsclient.options.vers
+instance $domain.0
+End-of-File
+
+exit 0
