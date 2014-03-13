@@ -13,10 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+status=1
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -26,24 +27,16 @@ _filter()
     | _filter_dumpresult
 }
 
+# real QA test starts here
 domain=62
 script=pmdanfsclient.pl
-[ -f $PCP_PMDAS_DIR/nfsclient/$script ] || script=pmdanfsclient.pl
-
-# ensure help text exists
 cd "$PCP_PMDAS_DIR/nfsclient"
-$sudo ./Install </dev/null >/dev/null 2>&1
 
-#Create root PMNS
+# create a root namespace file for dbpmda to use
 PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
 
-# Use our pre-canned mountstats
-test="$here/nfsclient"
-export NFSCLIENT_MOUNTSTATS_PATH="$test/mountstats.qa"
-
-
-# real QA test starts here
-$sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+# create a set of commands for dbpmda
+cat >$tmp.cmds <<End-of-File
 open pipe /usr/bin/perl $script
 getdesc on
 desc nfsclient.mountpoint
@@ -57,4 +50,13 @@ fetch nfsclient.options.vers
 instance $domain.0
 End-of-File
 
-exit 0
+# iterate over our pre-canned mountstats files
+test="$here/nfsclient"
+for file in $test/*.qa
+do
+    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    echo === Test case: `basename $file`
+    $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+done
+
+status=0
