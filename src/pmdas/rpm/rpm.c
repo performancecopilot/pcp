@@ -369,10 +369,10 @@ rpm_extract_string(rpmtd td, Header h, int tag)
     return rpmtdGetString(td);
 }
 
-static __uint32_t
+static __uint64_t
 rpm_extract_value(rpmtd td, Header h, int tag)
 {
-    __uint32_t value;
+    __uint64_t value;
 
     headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     switch (td->type) {
