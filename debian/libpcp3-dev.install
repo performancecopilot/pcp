@@ -58,6 +58,7 @@ usr/share/man/man3/pmGetChildren.3.gz
 usr/share/man/man3/pmGetChildrenStatus.3.gz
 usr/share/man/man3/pmGetConfig.3.gz
 usr/share/man/man3/pmGetContextHostName.3.gz
+usr/share/man/man3/pmGetContextHostName_r.3.gz
 usr/share/man/man3/pmGetInDom.3.gz
 usr/share/man/man3/pmGetInDomArchive.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
