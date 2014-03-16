@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 786
+# exercise pmGetContextHostName and pmGetContextHostName_r
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+host=`hostname`
+
+_filter()
+{
+    sed -e "s/$host/HOSTNAME/"
+}
+
+# real QA test starts here
+for arg in "" "-h $host" -L "-a src/babylon.percpu_v2" "-h localhost" \
+	"-h local:" "-h unix:" \
+	"-h no.such.host" "-a /no/such/archive"
+do
+    echo
+    echo "=== $arg ==="
+    src/getcontexthost $arg 2>&1
+done | _filter
+
+# success, all done
+status=0
+
+exit
