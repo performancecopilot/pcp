@@ -1,3 +1,4 @@
+				/*  *INDENT-OFF*  *//* indent -linux -nce -i4 */
 %{
 /* Parse a string into an internal time stamp.
  *
@@ -340,25 +341,25 @@ date:
 	pc->day = $3.value;
       }
   | tUNUMBER '/' tUNUMBER '/' tUNUMBER
-      {
-	/* Interpret as YYYY/MM/DD if the first value has 4 or more digits,
-	   otherwise as MM/DD/YY.
-	   The goal in recognizing YYYY/MM/DD is solely to support legacy
-	   machine-generated dates like those in an RCS log listing.  If
-	   you want portability, use the ISO 8601 format.  */
-	if (4 <= $1.digits)
-	  {
-	    pc->year = $1;
-	    pc->month = $3.value;
-	    pc->day = $5.value;
-	  }
-	else
-	  {
-	    pc->month = $1.value;
-	    pc->day = $3.value;
-	    pc->year = $5;
-	  }
-      }
+/*  *INDENT-ON*  */
+{
+    /* Interpret as YYYY/MM/DD if the first value has 4 or more digits,
+       otherwise as MM/DD/YY.
+       The goal in recognizing YYYY/MM/DD is solely to support legacy
+       machine-generated dates like those in an RCS log listing.  If
+       you want portability, use the ISO 8601 format.  */
+    if (4 <= $1.digits) {
+	pc->year = $1;
+	pc->month = $3.value;
+	pc->day = $5.value;
+    }
+    else {
+	pc->month = $1.value;
+	pc->day = $3.value;
+	pc->year = $5;
+    }
+}
+/*  *INDENT-OFF*  */
   | tUNUMBER tSNUMBER tSNUMBER
       {
 	/* ISO 8601 format.  YYYY-MM-DD.  */
@@ -504,40 +505,39 @@ unsigned_seconds:
 
 number:
     tUNUMBER
-      {
-	if (pc->dates_seen && ! pc->year.digits
-	    && ! pc->rels_seen && (pc->times_seen || 2 < $1.digits))
-	  pc->year = $1;
-	else
-	  {
-	    if (4 < $1.digits)
-	      {
-		pc->dates_seen++;
-		pc->day = $1.value % 100;
-		pc->month = ($1.value / 100) % 100;
-		pc->year.value = $1.value / 10000;
-		pc->year.digits = $1.digits - 4;
-	      }
-	    else
-	      {
-		pc->times_seen++;
-		if ($1.digits <= 2)
-		  {
-		    pc->hour = $1.value;
-		    pc->minutes = 0;
-		  }
-		else
-		  {
-		    pc->hour = $1.value / 100;
-		    pc->minutes = $1.value % 100;
-		  }
-		pc->seconds.tv_sec = 0;
-		pc->seconds.tv_nsec = 0;
-		pc->meridian = MER24;
-	      }
-	  }
-      }
-  ;
+/*  *INDENT-ON*  */
+
+{
+    if (pc->dates_seen && !pc->year.digits
+	&& !pc->rels_seen && (pc->times_seen || 2 < $1.digits))
+	pc->year = $1;
+    else {
+	if (4 < $1.digits) {
+	    pc->dates_seen++;
+	    pc->day = $1.value % 100;
+	    pc->month = ($1.value / 100) % 100;
+	    pc->year.value = $1.value / 10000;
+	    pc->year.digits = $1.digits - 4;
+	}
+	else {
+	    pc->times_seen++;
+	    if ($1.digits <= 2) {
+		pc->hour = $1.value;
+		pc->minutes = 0;
+	    }
+	    else {
+		pc->hour = $1.value / 100;
+		pc->minutes = $1.value % 100;
+	    }
+	    pc->seconds.tv_sec = 0;
+	    pc->seconds.tv_nsec = 0;
+	    pc->meridian = MER24;
+	}
+    }
+}
+
+;
+/*  *INDENT-OFF*  */
 
 o_colon_minutes:
     /* empty */
@@ -738,363 +738,335 @@ static table const military_table[] =
   { NULL, 0, 0 }
 };
 
+/*  *INDENT-ON*  */
 
-
 /* Convert a time zone expressed as HH:MM into an integer count of
    minutes.  If MM is negative, then S is of the form HHMM and needs
    to be picked apart; otherwise, S is of the form HH.  */
 
-static long int
-time_zone_hhmm (textint s, long int mm)
+static long int time_zone_hhmm(textint s, long int mm)
 {
-  if (mm < 0)
-    return (s.value / 100) * 60 + s.value % 100;
-  else
-    return s.value * 60 + (s.negative ? -mm : mm);
+    if (mm < 0)
+	return (s.value / 100) * 60 + s.value % 100;
+    else
+	return s.value * 60 + (s.negative ? -mm : mm);
 }
 
-static int
-to_hour (long int hours, int meridian)
+static int to_hour(long int hours, int meridian)
 {
-  switch (meridian)
-    {
-    default: /* Pacify GCC.  */
+    switch (meridian) {
+    default:			/* Pacify GCC.  */
     case MER24:
-      return 0 <= hours && hours < 24 ? hours : -1;
+	return 0 <= hours && hours < 24 ? hours : -1;
     case MERam:
-      return 0 < hours && hours < 12 ? hours : hours == 12 ? 0 : -1;
+	return 0 < hours && hours < 12 ? hours : hours == 12 ? 0 : -1;
     case MERpm:
-      return 0 < hours && hours < 12 ? hours + 12 : hours == 12 ? 12 : -1;
+	return 0 < hours && hours < 12 ? hours + 12 : hours == 12 ? 12 : -1;
     }
 }
 
-static long int
-to_year (textint textyear)
+static long int to_year(textint textyear)
 {
-  long int year = textyear.value;
+    long int year = textyear.value;
 
-  if (year < 0)
-    year = -year;
+    if (year < 0)
+	year = -year;
 
-  /* XPG4 suggests that years 00-68 map to 2000-2068, and
-     years 69-99 map to 1969-1999.  */
-  else if (textyear.digits == 2)
-    year += year < 69 ? 2000 : 1900;
+    /* XPG4 suggests that years 00-68 map to 2000-2068, and
+       years 69-99 map to 1969-1999.  */
+    else if (textyear.digits == 2)
+	year += year < 69 ? 2000 : 1900;
 
-  return year;
+    return year;
 }
 
-static table const *
-lookup_zone (parser_control const *pc, char const *name)
+static table const *lookup_zone(parser_control const *pc, char const *name)
 {
-  table const *tp;
+    table const *tp;
 
-  for (tp = universal_time_zone_table; tp->name; tp++)
-    if (strcmp (name, tp->name) == 0)
-      return tp;
+    for (tp = universal_time_zone_table; tp->name; tp++)
+	if (strcmp(name, tp->name) == 0)
+	    return tp;
 
-  /* Try local zone abbreviations before those in time_zone_table, as
-     the local ones are more likely to be right.  */
-  for (tp = pc->local_time_zone_table; tp->name; tp++)
-    if (strcmp (name, tp->name) == 0)
-      return tp;
+    /* Try local zone abbreviations before those in time_zone_table, as
+       the local ones are more likely to be right.  */
+    for (tp = pc->local_time_zone_table; tp->name; tp++)
+	if (strcmp(name, tp->name) == 0)
+	    return tp;
 
-  for (tp = time_zone_table; tp->name; tp++)
-    if (strcmp (name, tp->name) == 0)
-      return tp;
+    for (tp = time_zone_table; tp->name; tp++)
+	if (strcmp(name, tp->name) == 0)
+	    return tp;
 
-  return NULL;
+    return NULL;
 }
 
 /* Yield the difference between *A and *B,
    measured in seconds, ignoring leap seconds.
    The body of this function is taken directly from the GNU C Library;
    see src/strftime.c.  */
-static long int
-tm_diff (struct tm const *a, struct tm const *b)
+static long int tm_diff(struct tm const *a, struct tm const *b)
 {
-  /* Compute intervening leap days correctly even if year is negative.
-     Take care to avoid int overflow in leap day calculations.  */
-  int a4 = SHR (a->tm_year, 2) + SHR (TM_YEAR_BASE, 2) - ! (a->tm_year & 3);
-  int b4 = SHR (b->tm_year, 2) + SHR (TM_YEAR_BASE, 2) - ! (b->tm_year & 3);
-  int a100 = a4 / 25 - (a4 % 25 < 0);
-  int b100 = b4 / 25 - (b4 % 25 < 0);
-  int a400 = SHR (a100, 2);
-  int b400 = SHR (b100, 2);
-  int intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
-  long int ayear = a->tm_year;
-  long int years = ayear - b->tm_year;
-  long int days = (365 * years + intervening_leap_days
-		   + (a->tm_yday - b->tm_yday));
-  return (60 * (60 * (24 * days + (a->tm_hour - b->tm_hour))
-		+ (a->tm_min - b->tm_min))
-	  + (a->tm_sec - b->tm_sec));
+    /* Compute intervening leap days correctly even if year is negative.
+       Take care to avoid int overflow in leap day calculations.  */
+    int a4 = SHR(a->tm_year, 2) + SHR(TM_YEAR_BASE, 2) - !(a->tm_year & 3);
+    int b4 = SHR(b->tm_year, 2) + SHR(TM_YEAR_BASE, 2) - !(b->tm_year & 3);
+    int a100 = a4 / 25 - (a4 % 25 < 0);
+    int b100 = b4 / 25 - (b4 % 25 < 0);
+    int a400 = SHR(a100, 2);
+    int b400 = SHR(b100, 2);
+    int intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
+    long int ayear = a->tm_year;
+    long int years = ayear - b->tm_year;
+    long int days = (365 * years + intervening_leap_days
+		     + (a->tm_yday - b->tm_yday));
+    return (60 * (60 * (24 * days + (a->tm_hour - b->tm_hour))
+		  + (a->tm_min - b->tm_min))
+	    + (a->tm_sec - b->tm_sec));
 }
 
-static table const *
-lookup_word (parser_control const *pc, char *word)
+static table const *lookup_word(parser_control const *pc, char *word)
 {
-  char *p;
-  char *q;
-  size_t wordlen;
-  table const *tp;
-  bool period_found;
-  bool abbrev;
+    char *p;
+    char *q;
+    size_t wordlen;
+    table const *tp;
+    bool period_found;
+    bool abbrev;
 
-  /* Make it uppercase.  */
-  for (p = word; *p; p++)
-    {
-      unsigned char ch = *p;
-      *p = toupper (ch);
+    /* Make it uppercase.  */
+    for (p = word; *p; p++) {
+	unsigned char ch = *p;
+	*p = toupper(ch);
     }
 
-  for (tp = meridian_table; tp->name; tp++)
-    if (strcmp (word, tp->name) == 0)
-      return tp;
+    for (tp = meridian_table; tp->name; tp++)
+	if (strcmp(word, tp->name) == 0)
+	    return tp;
 
-  /* See if we have an abbreviation for a month. */
-  wordlen = strlen (word);
-  abbrev = wordlen == 3 || (wordlen == 4 && word[3] == '.');
+    /* See if we have an abbreviation for a month. */
+    wordlen = strlen(word);
+    abbrev = wordlen == 3 || (wordlen == 4 && word[3] == '.');
 
-  for (tp = month_and_day_table; tp->name; tp++)
-    if ((abbrev ? strncmp (word, tp->name, 3) : strcmp (word, tp->name)) == 0)
-      return tp;
+    for (tp = month_and_day_table; tp->name; tp++)
+	if ((abbrev ? strncmp(word, tp->name, 3) : strcmp(word, tp->name)) == 0)
+	    return tp;
 
-  if ((tp = lookup_zone (pc, word)))
-    return tp;
-
-  if (strcmp (word, dst_table[0].name) == 0)
-    return dst_table;
-
-  for (tp = time_units_table; tp->name; tp++)
-    if (strcmp (word, tp->name) == 0)
-      return tp;
-
-  /* Strip off any plural and try the units table again. */
-  if (word[wordlen - 1] == 'S')
-    {
-      word[wordlen - 1] = '\0';
-      for (tp = time_units_table; tp->name; tp++)
-	if (strcmp (word, tp->name) == 0)
-	  return tp;
-      word[wordlen - 1] = 'S';	/* For "this" in relative_time_table.  */
-    }
-
-  for (tp = relative_time_table; tp->name; tp++)
-    if (strcmp (word, tp->name) == 0)
-      return tp;
-
-  /* Military time zones. */
-  if (wordlen == 1)
-    for (tp = military_table; tp->name; tp++)
-      if (word[0] == tp->name[0])
+    if ((tp = lookup_zone(pc, word)))
 	return tp;
 
-  /* Drop out any periods and try the time zone table again. */
-  for (period_found = false, p = q = word; (*p = *q); q++)
-    if (*q == '.')
-      period_found = true;
-    else
-      p++;
-  if (period_found && (tp = lookup_zone (pc, word)))
-    return tp;
+    if (strcmp(word, dst_table[0].name) == 0)
+	return dst_table;
 
-  return NULL;
+    for (tp = time_units_table; tp->name; tp++)
+	if (strcmp(word, tp->name) == 0)
+	    return tp;
+
+    /* Strip off any plural and try the units table again. */
+    if (word[wordlen - 1] == 'S') {
+	word[wordlen - 1] = '\0';
+	for (tp = time_units_table; tp->name; tp++)
+	    if (strcmp(word, tp->name) == 0)
+		return tp;
+	word[wordlen - 1] = 'S';	/* For "this" in relative_time_table.  */
+    }
+
+    for (tp = relative_time_table; tp->name; tp++)
+	if (strcmp(word, tp->name) == 0)
+	    return tp;
+
+    /* Military time zones. */
+    if (wordlen == 1)
+	for (tp = military_table; tp->name; tp++)
+	    if (word[0] == tp->name[0])
+		return tp;
+
+    /* Drop out any periods and try the time zone table again. */
+    for (period_found = false, p = q = word; (*p = *q); q++)
+	if (*q == '.')
+	    period_found = true;
+	else
+	    p++;
+    if (period_found && (tp = lookup_zone(pc, word)))
+	return tp;
+
+    return NULL;
 }
 
-static int
-yylex (YYSTYPE *lvalp, parser_control *pc)
+static int yylex(YYSTYPE * lvalp, parser_control * pc)
 {
-  unsigned char c;
-  size_t count;
+    unsigned char c;
+    size_t count;
 
-  for (;;)
-    {
-      while (c = *pc->input, isspace (c))
-	pc->input++;
+    for (;;) {
+	while (c = *pc->input, isspace(c))
+	    pc->input++;
 
-      if (ISDIGIT (c) || c == '-' || c == '+')
-	{
-	  char const *p;
-	  int sign;
-	  unsigned long int value;
-	  if (c == '-' || c == '+')
-	    {
-	      sign = c == '-' ? -1 : 1;
-	      while (c = *++pc->input, isspace (c))
-		continue;
-	      if (! ISDIGIT (c))
-		/* skip the '-' sign */
-		continue;
+	if (ISDIGIT(c) || c == '-' || c == '+') {
+	    char const *p;
+	    int sign;
+	    unsigned long int value;
+	    if (c == '-' || c == '+') {
+		sign = c == '-' ? -1 : 1;
+		while (c = *++pc->input, isspace(c))
+		    continue;
+		if (!ISDIGIT(c))
+		    /* skip the '-' sign */
+		    continue;
 	    }
-	  else
-	    sign = 0;
-	  p = pc->input;
-	  for (value = 0; ; value *= 10)
-	    {
-	      unsigned long int value1 = value + (c - '0');
-	      if (value1 < value)
-		return '?';
-	      value = value1;
-	      c = *++p;
-	      if (! ISDIGIT (c))
-		break;
-	      if (ULONG_MAX / 10 < value)
-		return '?';
+	    else
+		sign = 0;
+	    p = pc->input;
+	    for (value = 0;; value *= 10) {
+		unsigned long int value1 = value + (c - '0');
+		if (value1 < value)
+		    return '?';
+		value = value1;
+		c = *++p;
+		if (!ISDIGIT(c))
+		    break;
+		if (ULONG_MAX / 10 < value)
+		    return '?';
 	    }
-	  if ((c == '.' || c == ',') && ISDIGIT (p[1]))
-	    {
-	      time_t s;
-	      int ns;
-	      int digits;
-	      unsigned long int value1;
+	    if ((c == '.' || c == ',') && ISDIGIT(p[1])) {
+		time_t s;
+		int ns;
+		int digits;
+		unsigned long int value1;
 
-	      /* Check for overflow when converting value to time_t.  */
-	      if (sign < 0)
-		{
-		  s = - value;
-		  if (0 < s)
+		/* Check for overflow when converting value to time_t.  */
+		if (sign < 0) {
+		    s = -value;
+		    if (0 < s)
+			return '?';
+		    value1 = -s;
+		}
+		else {
+		    s = value;
+		    if (s < 0)
+			return '?';
+		    value1 = s;
+		}
+		if (value != value1)
 		    return '?';
-		  value1 = -s;
-		}
-	      else
-		{
-		  s = value;
-		  if (s < 0)
-		    return '?';
-		  value1 = s;
-		}
-	      if (value != value1)
-		return '?';
 
-	      /* Accumulate fraction, to ns precision.  */
-	      p++;
-	      ns = *p++ - '0';
-	      for (digits = 2; digits <= LOG10_BILLION; digits++)
-		{
-		  ns *= 10;
-		  if (ISDIGIT (*p))
-		    ns += *p++ - '0';
-		}
-
-	      /* Skip excess digits, truncating toward -Infinity.  */
-	      if (sign < 0)
-		for (; ISDIGIT (*p); p++)
-		  if (*p != '0')
-		    {
-		      ns++;
-		      break;
-		    }
-	      while (ISDIGIT (*p))
+		/* Accumulate fraction, to ns precision.  */
 		p++;
-
-	      /* Adjust to the timespec convention, which is that
-		 tv_nsec is always a positive offset even if tv_sec is
-		 negative.  */
-	      if (sign < 0 && ns)
-		{
-		  s--;
-		  if (! (s < 0))
-		    return '?';
-		  ns = BILLION - ns;
+		ns = *p++ - '0';
+		for (digits = 2; digits <= LOG10_BILLION; digits++) {
+		    ns *= 10;
+		    if (ISDIGIT(*p))
+			ns += *p++ - '0';
 		}
 
-	      lvalp->timespec.tv_sec = s;
-	      lvalp->timespec.tv_nsec = ns;
-	      pc->input = p;
-	      return sign ? tSDECIMAL_NUMBER : tUDECIMAL_NUMBER;
+		/* Skip excess digits, truncating toward -Infinity.  */
+		if (sign < 0)
+		    for (; ISDIGIT(*p); p++)
+			if (*p != '0') {
+			    ns++;
+			    break;
+			}
+		while (ISDIGIT(*p))
+		    p++;
+
+		/* Adjust to the timespec convention, which is that
+		   tv_nsec is always a positive offset even if tv_sec is
+		   negative.  */
+		if (sign < 0 && ns) {
+		    s--;
+		    if (!(s < 0))
+			return '?';
+		    ns = BILLION - ns;
+		}
+
+		lvalp->timespec.tv_sec = s;
+		lvalp->timespec.tv_nsec = ns;
+		pc->input = p;
+		return sign ? tSDECIMAL_NUMBER : tUDECIMAL_NUMBER;
 	    }
-	  else
-	    {
-	      lvalp->textintval.negative = sign < 0;
-	      if (sign < 0)
-		{
-		  lvalp->textintval.value = - value;
-		  if (0 < lvalp->textintval.value)
-		    return '?';
+	    else {
+		lvalp->textintval.negative = sign < 0;
+		if (sign < 0) {
+		    lvalp->textintval.value = -value;
+		    if (0 < lvalp->textintval.value)
+			return '?';
 		}
-	      else
-		{
-		  lvalp->textintval.value = value;
-		  if (lvalp->textintval.value < 0)
-		    return '?';
+		else {
+		    lvalp->textintval.value = value;
+		    if (lvalp->textintval.value < 0)
+			return '?';
 		}
-	      lvalp->textintval.digits = p - pc->input;
-	      pc->input = p;
-	      return sign ? tSNUMBER : tUNUMBER;
+		lvalp->textintval.digits = p - pc->input;
+		pc->input = p;
+		return sign ? tSNUMBER : tUNUMBER;
 	    }
 	}
 
-      if (isalpha (c))
-	{
-	  char buff[20];
-	  char *p = buff;
-	  table const *tp;
+	if (isalpha(c)) {
+	    char buff[20];
+	    char *p = buff;
+	    table const *tp;
 
-	  do
-	    {
-	      if (p < buff + sizeof buff - 1)
-		*p++ = c;
-	      c = *++pc->input;
+	    do {
+		if (p < buff + sizeof buff - 1)
+		    *p++ = c;
+		c = *++pc->input;
 	    }
-	  while (isalpha (c) || c == '.');
+	    while (isalpha(c) || c == '.');
 
-	  *p = '\0';
-	  tp = lookup_word (pc, buff);
-	  if (! tp)
-	    return '?';
-	  lvalp->intval = tp->value;
-	  return tp->type;
+	    *p = '\0';
+	    tp = lookup_word(pc, buff);
+	    if (!tp)
+		return '?';
+	    lvalp->intval = tp->value;
+	    return tp->type;
 	}
 
-      if (c != '(')
-	return *pc->input++;
-      count = 0;
-      do
-	{
-	  c = *pc->input++;
-	  if (c == '\0')
-	    return c;
-	  if (c == '(')
-	    count++;
-	  else if (c == ')')
-	    count--;
+	if (c != '(')
+	    return *pc->input++;
+	count = 0;
+	do {
+	    c = *pc->input++;
+	    if (c == '\0')
+		return c;
+	    if (c == '(')
+		count++;
+	    else if (c == ')')
+		count--;
 	}
-      while (count != 0);
+	while (count != 0);
     }
 }
 
 /* Do nothing if the parser reports an error.  */
 static int
-yyerror (parser_control const *pc ATTRIBUTE_UNUSED,
-	 char const *s ATTRIBUTE_UNUSED)
+yyerror(parser_control const *pc ATTRIBUTE_UNUSED,
+	char const *s ATTRIBUTE_UNUSED)
 {
-  return 0;
+    return 0;
 }
 
 /* If *TM0 is the old and *TM1 is the new value of a struct tm after
    passing it to mktime, return true if it's OK that mktime returned T.
    It's not OK if *TM0 has out-of-range members.  */
 
-static bool
-mktime_ok (struct tm const *tm0, struct tm const *tm1, time_t t)
+static bool mktime_ok(struct tm const *tm0, struct tm const *tm1, time_t t)
 {
-  if (t == (time_t) -1)
-    {
-      /* Guard against falsely reporting an error when parsing a time
-	 stamp that happens to equal (time_t) -1, on a host that
-	 supports such a time stamp.  */
-      tm1 = pmLocaltime (&t, (struct tm*)&tm1);
-      if (!tm1)
-	return false;
+    if (t == (time_t) - 1) {
+	/* Guard against falsely reporting an error when parsing a time
+	   stamp that happens to equal (time_t) -1, on a host that
+	   supports such a time stamp.  */
+	tm1 = pmLocaltime(&t, (struct tm *)&tm1);
+	if (!tm1)
+	    return false;
     }
 
-  return ! ((tm0->tm_sec ^ tm1->tm_sec)
-	    | (tm0->tm_min ^ tm1->tm_min)
-	    | (tm0->tm_hour ^ tm1->tm_hour)
-	    | (tm0->tm_mday ^ tm1->tm_mday)
-	    | (tm0->tm_mon ^ tm1->tm_mon)
-	    | (tm0->tm_year ^ tm1->tm_year));
+    return !((tm0->tm_sec ^ tm1->tm_sec)
+	     | (tm0->tm_min ^ tm1->tm_min)
+	     | (tm0->tm_hour ^ tm1->tm_hour)
+	     | (tm0->tm_mday ^ tm1->tm_mday)
+	     | (tm0->tm_mon ^ tm1->tm_mon)
+	     | (tm0->tm_year ^ tm1->tm_year));
 }
 
 /* A reasonable upper bound for the size of ordinary TZ strings.
@@ -1106,207 +1078,200 @@ enum { TZBUFSIZE = 100 };
    P can be an incomplete or relative time specification; if so, use
    *NOW as the basis for the returned time.  */
 int
-get_date (struct timespec *result, char const *p, struct timespec const *now)
+__pmGlibGetDate(struct timespec *result, char const *p,
+		struct timespec const *now)
 {
-  time_t Start;
-  long int Start_ns;
-  struct tm tmpbuf;
-  struct tm const *tmp = &tmpbuf;
-  struct tm tm;
-  struct tm tm0;
-  parser_control pc;
-  struct timespec gettime_buffer;
-  unsigned char c;
-  int ok = 0;
+    time_t Start;
+    long int Start_ns;
+    struct tm tmpbuf;
+    struct tm const *tmp = &tmpbuf;
+    struct tm tm;
+    struct tm tm0;
+    parser_control pc;
+    struct timespec gettime_buffer;
+    unsigned char c;
+    int ok = 0;
 
-  if (! now)
-    {
-      struct timeval tv;
-      gettimeofday (&tv, NULL);
-      gettime_buffer.tv_sec = tv.tv_sec;
-      gettime_buffer.tv_nsec = tv.tv_usec * 1000;
-      now = &gettime_buffer;
+    if (!now) {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	gettime_buffer.tv_sec = tv.tv_sec;
+	gettime_buffer.tv_nsec = tv.tv_usec * 1000;
+	now = &gettime_buffer;
     }
 
-  Start = now->tv_sec;
-  Start_ns = now->tv_nsec;
+    Start = now->tv_sec;
+    Start_ns = now->tv_nsec;
 
-  tmp = pmLocaltime (&now->tv_sec, (struct tm*)tmp);
-  if (! tmp)
-    return -1;
+    tmp = pmLocaltime(&now->tv_sec, (struct tm *)tmp);
+    if (!tmp)
+	return -1;
 
-  while (c = *p, isspace (c))
-    p++;
+    while (c = *p, isspace(c))
+	p++;
 
-  pc.input = p;
-  pc.year.value = tmp->tm_year;
-  pc.year.value += TM_YEAR_BASE;
-  pc.year.digits = 0;
-  pc.month = tmp->tm_mon + 1;
-  pc.day = tmp->tm_mday;
-  pc.hour = tmp->tm_hour;
-  pc.minutes = tmp->tm_min;
-  pc.seconds.tv_sec = tmp->tm_sec;
-  pc.seconds.tv_nsec = Start_ns;
-  tm.tm_isdst = tmp->tm_isdst;
+    pc.input = p;
+    pc.year.value = tmp->tm_year;
+    pc.year.value += TM_YEAR_BASE;
+    pc.year.digits = 0;
+    pc.month = tmp->tm_mon + 1;
+    pc.day = tmp->tm_mday;
+    pc.hour = tmp->tm_hour;
+    pc.minutes = tmp->tm_min;
+    pc.seconds.tv_sec = tmp->tm_sec;
+    pc.seconds.tv_nsec = Start_ns;
+    tm.tm_isdst = tmp->tm_isdst;
 
-  pc.meridian = MER24;
-  pc.rel = RELATIVE_TIME_0;
-  pc.timespec_seen = false;
-  pc.rels_seen = false;
-  pc.dates_seen = 0;
-  pc.days_seen = 0;
-  pc.times_seen = 0;
-  pc.local_zones_seen = 0;
-  pc.dsts_seen = 0;
-  pc.zones_seen = 0;
-  pc.local_time_zone_table[0].name = NULL;
+    pc.meridian = MER24;
+    pc.rel = RELATIVE_TIME_0;
+    pc.timespec_seen = false;
+    pc.rels_seen = false;
+    pc.dates_seen = 0;
+    pc.days_seen = 0;
+    pc.times_seen = 0;
+    pc.local_zones_seen = 0;
+    pc.dsts_seen = 0;
+    pc.zones_seen = 0;
+    pc.local_time_zone_table[0].name = NULL;
 
-  pc.local_time_zone_table[0].name = NULL;
+    pc.local_time_zone_table[0].name = NULL;
 
-  if (pc.local_time_zone_table[0].name && pc.local_time_zone_table[1].name
-      && ! strcmp (pc.local_time_zone_table[0].name,
-		   pc.local_time_zone_table[1].name))
-    {
-      /* This locale uses the same abbrevation for standard and
-	 daylight times.  So if we see that abbreviation, we don't
-	 know whether it's daylight time.  */
-      pc.local_time_zone_table[0].value = -1;
-      pc.local_time_zone_table[1].name = NULL;
+    if (pc.local_time_zone_table[0].name && pc.local_time_zone_table[1].name
+	&& !strcmp(pc.local_time_zone_table[0].name,
+		   pc.local_time_zone_table[1].name)) {
+	/* This locale uses the same abbrevation for standard and
+	   daylight times.  So if we see that abbreviation, we don't
+	   know whether it's daylight time.  */
+	pc.local_time_zone_table[0].value = -1;
+	pc.local_time_zone_table[1].name = NULL;
     }
 
-  if (yyparse (&pc) != 0)
-    goto fail;
-
-  if (pc.timespec_seen)
-    *result = pc.seconds;
-  else
-    {
-      if (1 < (pc.times_seen | pc.dates_seen | pc.days_seen | pc.dsts_seen
-	       | (pc.local_zones_seen + pc.zones_seen)))
+    if (yyparse(&pc) != 0)
 	goto fail;
 
-      tm.tm_year = to_year (pc.year) - TM_YEAR_BASE;
-      tm.tm_mon = pc.month - 1;
-      tm.tm_mday = pc.day;
-      if (pc.times_seen || (pc.rels_seen && ! pc.dates_seen && ! pc.days_seen))
-	{
-	  tm.tm_hour = to_hour (pc.hour, pc.meridian);
-	  if (tm.tm_hour < 0)
+    if (pc.timespec_seen)
+	*result = pc.seconds;
+    else {
+	if (1 < (pc.times_seen | pc.dates_seen | pc.days_seen | pc.dsts_seen
+		 | (pc.local_zones_seen + pc.zones_seen)))
 	    goto fail;
-	  tm.tm_min = pc.minutes;
-	  tm.tm_sec = pc.seconds.tv_sec;
+
+	tm.tm_year = to_year(pc.year) - TM_YEAR_BASE;
+	tm.tm_mon = pc.month - 1;
+	tm.tm_mday = pc.day;
+	if (pc.times_seen || (pc.rels_seen && !pc.dates_seen && !pc.days_seen)) {
+	    tm.tm_hour = to_hour(pc.hour, pc.meridian);
+	    if (tm.tm_hour < 0)
+		goto fail;
+	    tm.tm_min = pc.minutes;
+	    tm.tm_sec = pc.seconds.tv_sec;
 	}
-      else
-	{
-	  tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
-	  pc.seconds.tv_nsec = 0;
-	}
-
-      /* Let mktime deduce tm_isdst if we have an absolute time stamp.  */
-      if (pc.dates_seen | pc.days_seen | pc.times_seen)
-	tm.tm_isdst = -1;
-
-      /* But if the input explicitly specifies local time with or without
-	 DST, give mktime that information.  */
-      if (pc.local_zones_seen)
-	tm.tm_isdst = pc.local_isdst;
-
-      tm0 = tm;
-
-      Start = __pmMktime (&tm);
-
-      if (! mktime_ok (&tm0, &tm, Start))
-    	  goto fail;
-
-      if (pc.days_seen && ! pc.dates_seen)
-	{
-	  tm.tm_mday += ((pc.day_number - tm.tm_wday + 7) % 7
-			 + 7 * (pc.day_ordinal - (0 < pc.day_ordinal)));
-	  tm.tm_isdst = -1;
-	  Start = __pmMktime (&tm);
-	  if (Start == (time_t) -1)
-	    goto fail;
+	else {
+	    tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
+	    pc.seconds.tv_nsec = 0;
 	}
 
-      if (pc.zones_seen)
-	{
-	  long int delta = pc.time_zone * 60;
-	  time_t t1;
-	  time_t t = Start;
-	  PM_INIT_LOCKS();
-	  PM_LOCK(__pmLock_libpcp);
-	  struct tm *gmt = NULL;
-	  gmt = gmtime (&t);
-	  PM_UNLOCK(__pmLock_libpcp);
-	  if (! gmt)
+	/* Let mktime deduce tm_isdst if we have an absolute time stamp.  */
+	if (pc.dates_seen | pc.days_seen | pc.times_seen)
+	    tm.tm_isdst = -1;
+
+	/* But if the input explicitly specifies local time with or without
+	   DST, give mktime that information.  */
+	if (pc.local_zones_seen)
+	    tm.tm_isdst = pc.local_isdst;
+
+	tm0 = tm;
+
+	Start = __pmMktime(&tm);
+
+	if (!mktime_ok(&tm0, &tm, Start))
 	    goto fail;
-	  delta -= tm_diff (&tm, gmt);
-	  t1 = Start - delta;
-	  if ((Start < t1) != (delta < 0))
-	    goto fail;	/* time_t overflow */
-	  Start = t1;
+
+	if (pc.days_seen && !pc.dates_seen) {
+	    tm.tm_mday += ((pc.day_number - tm.tm_wday + 7) % 7
+			   + 7 * (pc.day_ordinal - (0 < pc.day_ordinal)));
+	    tm.tm_isdst = -1;
+	    Start = __pmMktime(&tm);
+	    if (Start == (time_t) - 1)
+		goto fail;
 	}
 
-      /* Add relative date.  */
-      if (pc.rel.year | pc.rel.month | pc.rel.day)
-	{
-	  int year = tm.tm_year + pc.rel.year;
-	  int month = tm.tm_mon + pc.rel.month;
-	  int day = tm.tm_mday + pc.rel.day;
-	  if (((year < tm.tm_year) ^ (pc.rel.year < 0))
-	      | ((month < tm.tm_mon) ^ (pc.rel.month < 0))
-	      | ((day < tm.tm_mday) ^ (pc.rel.day < 0)))
-	    goto fail;
-	  tm.tm_year = year;
-	  tm.tm_mon = month;
-	  tm.tm_mday = day;
-	  tm.tm_hour = tm0.tm_hour;
-	  tm.tm_min = tm0.tm_min;
-	  tm.tm_sec = tm0.tm_sec;
-	  tm.tm_isdst = tm0.tm_isdst;
-	  Start = __pmMktime (&tm);
-	  if (Start == (time_t) -1)
-	    goto fail;
+	if (pc.zones_seen) {
+	    long int delta = pc.time_zone * 60;
+	    time_t t1;
+	    time_t t = Start;
+	    PM_INIT_LOCKS();
+	    PM_LOCK(__pmLock_libpcp);
+	    struct tm *gmt = NULL;
+	    gmt = gmtime(&t);
+	    PM_UNLOCK(__pmLock_libpcp);
+	    if (!gmt)
+		goto fail;
+	    delta -= tm_diff(&tm, gmt);
+	    t1 = Start - delta;
+	    if ((Start < t1) != (delta < 0))
+		goto fail;	/* time_t overflow */
+	    Start = t1;
 	}
 
-      /* Add relative hours, minutes, and seconds.  On hosts that support
-	 leap seconds, ignore the possibility of leap seconds; e.g.,
-	 "+ 10 minutes" adds 600 seconds, even if one of them is a
-	 leap second.  Typically this is not what the user wants, but it's
-	 too hard to do it the other way, because the time zone indicator
-	 must be applied before relative times, and if mktime is applied
-	 again the time zone will be lost.  */
-      {
-	long int sum_ns = pc.seconds.tv_nsec + pc.rel.ns;
-	long int normalized_ns = (sum_ns % BILLION + BILLION) % BILLION;
-	time_t t0 = Start;
-	long int d1 = 60 * 60 * pc.rel.hour;
-	time_t t1 = t0 + d1;
-	long int d2 = 60 * pc.rel.minutes;
-	time_t t2 = t1 + d2;
-	long int d3 = pc.rel.seconds;
-	time_t t3 = t2 + d3;
-	long int d4 = (sum_ns - normalized_ns) / BILLION;
-	time_t t4 = t3 + d4;
+	/* Add relative date.  */
+	if (pc.rel.year | pc.rel.month | pc.rel.day) {
+	    int year = tm.tm_year + pc.rel.year;
+	    int month = tm.tm_mon + pc.rel.month;
+	    int day = tm.tm_mday + pc.rel.day;
+	    if (((year < tm.tm_year) ^ (pc.rel.year < 0))
+		| ((month < tm.tm_mon) ^ (pc.rel.month < 0))
+		| ((day < tm.tm_mday) ^ (pc.rel.day < 0)))
+		goto fail;
+	    tm.tm_year = year;
+	    tm.tm_mon = month;
+	    tm.tm_mday = day;
+	    tm.tm_hour = tm0.tm_hour;
+	    tm.tm_min = tm0.tm_min;
+	    tm.tm_sec = tm0.tm_sec;
+	    tm.tm_isdst = tm0.tm_isdst;
+	    Start = __pmMktime(&tm);
+	    if (Start == (time_t) - 1)
+		goto fail;
+	}
 
-	if ((d1 / (60 * 60) ^ pc.rel.hour)
-	    | (d2 / 60 ^ pc.rel.minutes)
-	    | ((t1 < t0) ^ (d1 < 0))
-	    | ((t2 < t1) ^ (d2 < 0))
-	    | ((t3 < t2) ^ (d3 < 0))
-	    | ((t4 < t3) ^ (d4 < 0)))
-	  goto fail;
+	/* Add relative hours, minutes, and seconds.  On hosts that support
+	   leap seconds, ignore the possibility of leap seconds; e.g.,
+	   "+ 10 minutes" adds 600 seconds, even if one of them is a
+	   leap second.  Typically this is not what the user wants, but it's
+	   too hard to do it the other way, because the time zone indicator
+	   must be applied before relative times, and if mktime is applied
+	   again the time zone will be lost.  */
+	{
+	    long int sum_ns = pc.seconds.tv_nsec + pc.rel.ns;
+	    long int normalized_ns = (sum_ns % BILLION + BILLION) % BILLION;
+	    time_t t0 = Start;
+	    long int d1 = 60 * 60 * pc.rel.hour;
+	    time_t t1 = t0 + d1;
+	    long int d2 = 60 * pc.rel.minutes;
+	    time_t t2 = t1 + d2;
+	    long int d3 = pc.rel.seconds;
+	    time_t t3 = t2 + d3;
+	    long int d4 = (sum_ns - normalized_ns) / BILLION;
+	    time_t t4 = t3 + d4;
 
-	result->tv_sec = t4;
-	result->tv_nsec = normalized_ns;
-      }
+	    if ((d1 / (60 * 60) ^ pc.rel.hour)
+		| (d2 / 60 ^ pc.rel.minutes)
+		| ((t1 < t0) ^ (d1 < 0))
+		| ((t2 < t1) ^ (d2 < 0))
+		| ((t3 < t2) ^ (d3 < 0))
+		| ((t4 < t3) ^ (d4 < 0)))
+		goto fail;
+
+	    result->tv_sec = t4;
+	    result->tv_nsec = normalized_ns;
+	}
     }
 
-  goto done;
+    goto done;
 
  fail:
-  ok = -1;
+    ok = -1;
  done:
-  return ok;
+    return ok;
 }
