@@ -17,6 +17,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include "logger.h"
 
 #if !defined(SIGRTMAX)
@@ -564,6 +565,44 @@ unsigned int	clientops = 0;		/* for access control (deny ops) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+static int
+check_local_creds(__pmHashCtl *attrs)
+{
+    __pmHashNode	*node;
+    const char		*connectingUser;
+    char		*end;
+    __pmUserID		connectingUid;
+
+    /* Get the user name of the connecting process. */
+    connectingUser = ((node = __pmHashSearch(PCP_ATTR_USERID, attrs)) ?
+			(const char *)node->data : NULL);
+    if (connectingUser == NULL) {
+	/* We don't know who is connecting. */
+	return PM_ERR_PERMISSION;
+    }
+
+    /* Get the uid of the connecting process. */
+    errno = 0;
+    connectingUid = strtol(connectingUser, &end, 0);
+    if (errno != 0 || *end != '\0') {
+	/* Can't convert the connecting user to a uid cleanly. */
+	return PM_ERR_PERMISSION;
+    }
+
+    /* Allow connections from root (uid == 0). */
+    if (connectingUid == 0)
+	return 0;
+
+    /* Allow connections from the same user as us. */
+    if (connectingUid == getuid() || connectingUid == geteuid())
+	return 0;
+
+    /* Connection is not allowed. */
+    return PM_ERR_PERMISSION;
+}
+#endif /* defined(HAVE_STRUCT_SOCKADDR_UN) */
+
 int
 control_req(int ctlfd)
 {
@@ -641,6 +680,45 @@ control_req(int ctlfd)
 	__pmCloseSocket(fd);
 	return 0;
     }
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /*
+     * For connections on an AF_UNIX socket, check the user credentials of the
+     * connecting process.
+     */
+    if (__pmSockAddrGetFamily(addr) == AF_UNIX) {
+	__pmHashCtl clientattrs; /* Connection attributes (auth info) */
+	__pmHashInit(&clientattrs);
+
+	/* Get the user credentials. */
+	if ((sts = __pmServerSetLocalCreds(fd, &clientattrs)) < 0) {
+	    sts = __pmSendError(fd, FROM_ANON, sts);
+	    if (sts < 0)
+		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			pmErrStr(sts));
+	    __pmSockAddrFree(addr);
+	    __pmCloseSocket(fd);
+	    return 0;
+	}
+
+	/* Check the user credentials. */
+	if ((sts = check_local_creds(&clientattrs)) < 0) {
+	    sts = __pmSendError(fd, FROM_ANON, sts);
+	    if (sts < 0)
+		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			pmErrStr(sts));
+	    __pmSockAddrFree(addr);
+	    __pmCloseSocket(fd);
+	    return 0;
+	}
+
+	/* This information is no longer needed. */
+	__pmFreeAttrsSpec(&clientattrs);
+	__pmHashClear(&clientattrs);
+    }
+#endif
+
+    /* Done with this address. */
     __pmSockAddrFree(addr);
 
     /*
