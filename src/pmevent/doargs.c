@@ -66,6 +66,7 @@ doargs(int argc, char **argv)
     static pmLogLabel	label;
     static char		*default_host_conn = "local:"; 
     char		*host_conn = default_host_conn;	/* argument of -h */
+    const char		*tmp;
 
     delta.tv_sec = 1;
     delta.tv_usec = 0;
@@ -321,9 +322,14 @@ doargs(int argc, char **argv)
 	}
 
         /* Look up the host name according to the pmcd or the archive. */
-        host = strdup(pmGetContextHostName(ctxhandle));
-        if (host == NULL)
-            __pmNoMem("host name copy", 0, PM_FATAL_ERR);
+        tmp = pmGetContextHostName(ctxhandle);
+	if (strlen(tmp) == 0) {
+	    fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
+		pmProgname, ctxhandle);
+	    exit(EXIT_FAILURE);
+	}
+        if ((host = strdup(tmp)) == NULL)
+            __pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
 	for (m = 0; m < nmetric; m++) {
 	    if (strcmp(msp->metric, metrictab[m].name) == 0)

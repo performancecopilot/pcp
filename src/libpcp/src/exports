@@ -410,4 +410,5 @@ PCP_3.2 {
     __pmLogLocalSocketDefault;
     __pmLogLocalSocketUser;
     __pmMakePath;
+    pmGetContextHostName_r;
 } PCP_3.1;

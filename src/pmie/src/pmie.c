@@ -759,8 +759,15 @@ getargs(int argc, char *argv[])
 			pmProgname, dfltHostConn, pmErrStr(sts));
 	    dfltHostName = "?";
 	} else {
-	    if ((dfltHostName = strdup(pmGetContextHostName(sts))) == NULL)
-		__pmNoMem("host name copy", 0, PM_FATAL_ERR);
+	    const char	*tmp;
+	    tmp = pmGetContextHostName(sts);
+	    if (strlen(tmp) == 0) {
+		fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
+		    pmProgname, sts);
+		exit(EXIT_FAILURE);
+	    }
+	    if ((dfltHostName = strdup(tmp)) == NULL)
+		__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 	    pmDestroyContext(sts);
         }
     }

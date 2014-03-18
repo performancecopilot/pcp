@@ -55,10 +55,10 @@ CPU: $(CPU_SOURCE)
 	for file in $(CPU_SOURCE); do cat $$file >>CPU; echo >>CPU; done
 
 DISK: $(DISK_SOURCE)
-	rm -f DISK
-	for file in $(DISK_SOURCE); do cat $$file >>DISK; echo >>DISK; done
-	sed -i.orig -e "s@/usr/pcp/bin/pmpost@$(PCP_BINADM_DIR)/pmpost@" DISK
-	rm -f DISK.orig
+	rm -f DISK DISK.in
+	for file in $(DISK_SOURCE); do cat $$file >>DISK.in; echo >>DISK.in; done
+	sed -e "s@/usr/pcp/bin/pmpost@$(PCP_BINADM_DIR)/pmpost@" <DISK.in >DISK
+	rm -f DISK.in
 
 FILESYS: $(FILESYS_SOURCE)
 	rm -f FILESYS

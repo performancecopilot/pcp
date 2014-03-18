@@ -40,6 +40,8 @@ extern int __pmSetFileStatusFlags(int, int) _PCP_HIDDEN;
 extern int __pmGetFileDescriptorFlags(int) _PCP_HIDDEN;
 extern int __pmSetFileDescriptorFlags(int, int) _PCP_HIDDEN;
 
+extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
+
 #ifdef HAVE_NETWORK_BYTEORDER
 /*
  * no-ops if already in network byte order but

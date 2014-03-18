@@ -22,6 +22,8 @@ LDIRDIRT = build dist
 LDIRT = build_python
 ifneq ($(CFLAGS_ABI),)
 ENV = CFLAGS=$(CFLAGS_ABI)
+else
+ENV =
 endif
 
 default default_pcp: build_python

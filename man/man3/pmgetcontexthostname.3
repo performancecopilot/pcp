@@ -16,12 +16,15 @@
 .\"
 .TH PMGETCONTEXTHOSTNAME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetContextHostName\f1 \- return the hostname associated with a Performance Co-Pilot context
+\f3pmGetContextHostName\f1,
+\f3pmGetContextHostName_r\f1 \- return the hostname associated with a Performance Co-Pilot context
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 const char *pmGetContextHostName(int \fIid\fP);
+.br
+char *pmGetContextHostName_r(int \fIid\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -34,6 +37,15 @@ the
 .B pmGetContextHostName
 function returns the hostname associated with 
 .IR id .
+The
+.B pmGetContextHostName_r
+function does the same, but stores the result in a user-supplied buffer
+.I buf
+of length
+.IR buflen ,
+which should have room for at least
+.B MAXHOSTNAMELEN
+bytes.
 .PP
 If the context
 .I id
@@ -61,8 +73,16 @@ context host specification will be used.
 If
 .I id
 is not a valid PCP context identifier,
-this function returns a zero length string
-and hence never fails.
+the returned hostname is a zero length string.
+.SH NOTES
+.B pmGetContextHostName
+returns a pointer to a static buffer,
+so the returned value is only valid until the next call to
+.B pmGetContextHostName
+and hence is not thread-safe.
+Multi-threaded applications should use
+.B pmGetContextHostName_r
+instead.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

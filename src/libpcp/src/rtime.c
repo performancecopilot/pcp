@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -16,18 +17,10 @@
 #include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "internal.h"
 
-
-/****************************************************************************
- * macros
- ****************************************************************************/
 
 #define CODE3(a,b,c) ((__uint32_t)(a)|((__uint32_t)(b)<<8)|((__uint32_t)(c)<<16))
-
-/****************************************************************************
- * constants
- ****************************************************************************/
-
 #define whatmsg  "unexpected value"
 #define moremsg  "more information expected"
 #define alignmsg "alignment specified by -A switch could not be applied"
@@ -90,10 +83,6 @@ static const int	numint = sizeof(int_tab) / sizeof(int_tab[0]);
 #define PLUS_OFFSET	1
 #define NEG_OFFSET	2
 
-
-/****************************************************************************
- * local functions
- ****************************************************************************/
 
 /* Compare struct timevals */
 static int	/* 0 -> equal, -1 -> tv1 < tv2, 1 -> tv1 > tv2 */
@@ -228,10 +217,6 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
 }
 
 
-/****************************************************************************
- * exported functions
- ****************************************************************************/
-
 int		/* 0 -> ok, -1 -> error */
 pmParseInterval(
     const char *spec,		/* interval to parse */
@@ -246,7 +231,7 @@ pmParseInterval(
     int		len;
 
     if (scan == NULL || *scan == '\0') {
-	char	*empty = "";
+	const char *empty = "";
 	parseError(empty, empty, "Null or empty specification", errmsg);
 	return -1;
     }
@@ -317,19 +302,6 @@ __pmParseCtime(
     /* parse time spec */
     parse3char(&scan, wdays, N_WDAYS, &ignored);
     parse3char(&scan, months, N_MONTHS, &tm.tm_mon);
-
-    /*
-     * (tes & nathans comment):
-     * This used to look like this -
-     *	parseInt(&scan, 1, 31, &tm.tm_mday);
-     *	parseInt(&scan, 0, 23, &tm.tm_hour);
-     *  if (tm.tm_hour == -1 && tm.tm_mday > 0 && tm.tm_mday < 23 &&
-     *	    (tm.tm_mon == -1 || *scan == ':')) {
-     *	    tm.tm_hour = tm.tm_mday;
-     *      tm.tm_mday = -1;
-     *  }
-     * This is busted when the hour is past 11pm.
-     */
 
     parseInt(&scan, 0, 31, &tm.tm_mday);
     parseInt(&scan, 0, 23, &tm.tm_hour);
@@ -519,6 +491,92 @@ __pmConvertTime(
 }
 
 
+/*
+ * Use heuristics to determine the presence of a relative date time
+ * and its direction
+ */
+static int
+glib_relative_date(const char *date_string)
+{
+    /*
+     * Time terms most commonly used with an adjective modifier are
+     * relative to the start/end time
+     * e.g. last year, 2 year ago, next hour, -1 minute
+     */
+    char * const startend_relative_terms[] = {
+	" YEAR",
+	" MONTH",
+	" FORTNIGHT",
+	" WEEK",
+	" DAY",
+	" HOUR",
+	" MINUTE",
+	" MIN",
+	" SECOND",
+	" SEC"
+    };
+
+    /*
+     * Time terms for a specific day are relative to the current time
+     * TOMORROW, YESTERDAY, TODAY, NOW, MONDAY-SUNDAY
+     */
+    int rtu_bound = sizeof(startend_relative_terms) / sizeof(void *);
+    int rtu_idx;
+
+    while (isspace((int)*date_string))
+    	date_string++;
+    for (rtu_idx = 0; rtu_idx < rtu_bound; rtu_idx++)
+        if (strcasestr(date_string, startend_relative_terms[rtu_idx]) != NULL)
+            break;
+    if (rtu_idx < rtu_bound) {
+	if (strcasestr(date_string, "last") != NULL ||
+	    strcasestr(date_string, "ago") != NULL ||
+	    date_string[0] == '-')
+	    return NEG_OFFSET;
+	else
+	    return PLUS_OFFSET;
+    }
+    return NO_OFFSET;
+}
+
+/*
+ * Helper interface to wrap calls to the __pmGlibGetDate interface
+ */
+static int
+glib_get_date(
+    const char		*scan,
+    struct timeval	*start,
+    struct timeval	*end,
+    struct timeval	*rslt)
+{
+    int sts;
+    int rel_type;
+    struct timespec tsrslt;
+
+    rel_type = glib_relative_date(scan);
+
+    if (rel_type == NO_OFFSET)
+	sts = __pmGlibGetDate(&tsrslt, scan, NULL);
+    else if (rel_type == NEG_OFFSET && end->tv_sec < INT_MAX) {
+	struct timespec tsend;
+	tsend.tv_sec = end->tv_sec;
+	tsend.tv_nsec = end->tv_usec * 1000;
+	sts = __pmGlibGetDate(&tsrslt, scan, &tsend);
+    }
+    else {
+	struct timespec tsstart;
+	tsstart.tv_sec = start->tv_sec;
+	tsstart.tv_nsec = start->tv_usec * 1000;
+	sts = __pmGlibGetDate(&tsrslt, scan, &tsstart);
+    }
+    if (sts < 0)
+	return sts;
+
+    rslt->tv_sec = tsrslt.tv_sec;
+    rslt->tv_usec = tsrslt.tv_nsec / 1000;
+    return 0;
+}
+
 int	/* 0 -> ok, -1 -> error */
 __pmParseTime(
     const char	    *string,	/* string to be parsed */
@@ -534,6 +592,7 @@ __pmParseTime(
     struct timeval  end;
     struct timeval  tval;
 
+    *errMsg = NULL;
     start = *logStart;
     end = *logEnd;
     if (end.tv_sec == INT_MAX)
@@ -542,33 +601,43 @@ __pmParseTime(
 
     /* ctime string */
     if (parseChar(&scan, '@')) {
-	if (__pmParseCtime(scan, &tm, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = NO_OFFSET;
-	__pmConvertTime(&tm, &start, rslt);
+	if (__pmParseCtime(scan, &tm, errMsg) >= 0) {
+	    tm.tm_wday = NO_OFFSET;
+	    __pmConvertTime(&tm, &start, rslt);
+	    return 0;
+	}
     }
 
     /* relative to end of archive */
     else if (end.tv_sec < INT_MAX && parseChar(&scan, '-')) {
-	if (pmParseInterval(scan, &tval, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = NEG_OFFSET;
-	tm.tm_sec = (int)tval.tv_sec;
-	tm.tm_yday = (int)tval.tv_usec;
-	__pmConvertTime(&tm, &end, rslt);
+	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+	    tm.tm_wday = NEG_OFFSET;
+	    tm.tm_sec = (int)tval.tv_sec;
+	    tm.tm_yday = (int)tval.tv_usec;
+	    __pmConvertTime(&tm, &end, rslt);
+	    return 0;
+	}
     }
 
     /* relative to start of archive or current time */
     else {
 	parseChar(&scan, '+');
-	if (pmParseInterval(scan, &tval, errMsg) < 0)
-	    return -1;
-	tm.tm_wday = PLUS_OFFSET;
-	tm.tm_sec = (int)tval.tv_sec;
-	tm.tm_yday = (int)tval.tv_usec;
-	__pmConvertTime(&tm,  &start, rslt);
+	if (pmParseInterval(scan, &tval, errMsg) >= 0) {
+	    tm.tm_wday = PLUS_OFFSET;
+	    tm.tm_sec = (int)tval.tv_sec;
+	    tm.tm_yday = (int)tval.tv_usec;
+	    __pmConvertTime(&tm,  &start, rslt);
+	    return 0;
+	}
     }
 
+    /* datetime is not recognised, try the glib_get_date method */
+    parseChar(&scan, '@');	/* ignore; glib_relative_date determines type */
+    if (glib_get_date(scan, &start, &end, rslt) < 0)
+	return -1;
+
+    if (*errMsg)
+	free(*errMsg);
     return 0;
 }
 
@@ -690,5 +759,3 @@ pmParseTimeWindow(
     *rsltOffset = offset;
     return sts;
 }
-
-

@@ -1,0 +1,84 @@
+QA output created by 786
+
+===  ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -h HOSTNAME ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -L ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -a src/babylon.percpu_v2 ===
+pmGetContextHostName(0)="babylon"
+pmGetContextHostName_r(0, ...) => "babylon"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="babylon"
+dup ctx pmGetContextHostName_r(1, ...) => "babylon"
+original ctx pmGetContextHostName(0)="babylon"
+original ctx pmGetContextHostName_r(0, ...) => "babylon"
+
+=== -h localhost ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -h local: ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -h unix: ===
+pmGetContextHostName(0)="HOSTNAME"
+pmGetContextHostName_r(0, ...) => "HOSTNAME"
+pmDupConext()=1
+dup ctx pmGetContextHostName(1)="HOSTNAME"
+dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
+original ctx pmGetContextHostName(0)="HOSTNAME"
+original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
+
+=== -h no.such.host ===
+getcontexthost: Cannot connect to PMCD on host "no.such.host": No route to host
+pmGetContextHostName(-113)=""
+pmGetContextHostName_r(-113, ...) => ""
+pmDupContext()=-12376 - Attempt to use an illegal context
+dup ctx pmGetContextHostName(-12376)=""
+dup ctx pmGetContextHostName_r(-12376, ...) => ""
+original ctx pmGetContextHostName(-113)=""
+original ctx pmGetContextHostName_r(-113, ...) => ""
+
+=== -a /no/such/archive ===
+getcontexthost: Cannot open archive "/no/such/archive": No such file or directory
+pmGetContextHostName(-2)=""
+pmGetContextHostName_r(-2, ...) => ""
+pmDupContext()=-12376 - Attempt to use an illegal context
+dup ctx pmGetContextHostName(-12376)=""
+dup ctx pmGetContextHostName_r(-12376, ...) => ""
+original ctx pmGetContextHostName(-2)=""
+original ctx pmGetContextHostName_r(-2, ...) => ""

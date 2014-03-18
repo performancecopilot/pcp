@@ -596,32 +596,57 @@ __pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
 
     for (i = 0; i < count; i++) {
 	if (i > 0) {
-	    if ((sts = snprintf(string + off, len, "@")) >= size)
-		return -E2BIG;
+	    if ((sts = snprintf(string + off, len, "@")) >= size) {
+		off = -E2BIG;
+		goto done;
+	    }
 	    len -= sts; off += sts;
 	}
 
-	if (hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL ||
-	    hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
-	    /* These host specs contain a leading path separator as part of the name
-	       which should not be printed. */
-	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name + 1)) >= size)
-		return -E2BIG;
+	if (hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL) {
+	    if ((sts = snprintf(string + off, len, "local:/%s", hostp[i].name + 1)) >= size) {
+		off = -E2BIG;
+		goto done;
+	    }
+	}
+	else if (hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
+	    if ((sts = snprintf(string + off, len, "unix:/%s", hostp[i].name + 1)) >= size) {
+		off = -E2BIG;
+		goto done;
+	    }
 	}
 	else {
-	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size)
-		return -E2BIG;
+	    if ((sts = snprintf(string + off, len, "%s", hostp[i].name)) >= size) {
+		off = -E2BIG;
+		goto done;
+	    }
 	}
 	len -= sts; off += sts;
 
 	for (j = 0; j < hostp[i].nports; j++) {
 	    if ((sts = snprintf(string + off, len,
 			    "%c%u", (j == 0) ? ':' : ',',
-			    hostp[i].ports[j])) >= size)
-		return -E2BIG;
+			    hostp[i].ports[j])) >= size) {
+		off = -E2BIG;
+		goto done;
+	    }
 	    len -= sts; off += sts;
 	}
     }
+
+done:
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT) {
+	fprintf(stderr, "__pmUnparseHostSpec([name=%s ports=%p nport=%d], count=%d, ...) -> ", hostp->name, hostp->ports, hostp->nports, count);
+	if (off < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    pmErrStr_r(off, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "%s\n", errmsg);
+	}
+	else
+	    fprintf(stderr, "%d \"%s\"\n", off, string);
+    }
+#endif
     return off;
 }
 

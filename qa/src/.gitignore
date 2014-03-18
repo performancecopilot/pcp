@@ -197,6 +197,7 @@ record-setarg
 reduce-gap.0
 reduce-gap.index
 reduce-gap.meta
+rtimetest
 scale
 slow_af
 store

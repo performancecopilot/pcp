@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -431,14 +431,13 @@ lex(int reset)
 	    }
 	    if (p[-1] != '\n') {
 		err("Absurdly long line, cannot recover");
-		pclose(fin);	/* wait for pmcpp to finish */
-		exit(1);
+		return PM_ERR_PMNS;
 	    }
 	    *q = '\0';
 	    if (linebuf[0] == '#') {
 		/* pmcpp line number control line */
 		if (sscanf(linebuf, "# %d \"%s", &lineno, fname) != 2) {
-		    err ("Illegal line number control number");
+		    err("Illegal line number control number");
 		    return PM_ERR_PMNS;
 		}
 		--lineno;
@@ -969,9 +968,8 @@ int
 __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
 {
     if (tree->contiguous) {
-	pmprintf("Cannot add node to contiguously allocated tree!\n"); 
-	pmflush();
-	exit(1);
+	/* Cannot add node to contiguously allocated tree! */ 
+	return -EINVAL;
     }
 
     return AddPMNSNode(tree->root, pmid, name);
@@ -2314,20 +2312,17 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
     int		nchildren;
     char	**enfants;
 
-    if ((nchildren = pmGetChildren(name, &enfants)) < 0) {
+    if ((nchildren = pmGetChildren(name, &enfants)) < 0)
 	return nchildren;
-    }
-    else if (nchildren > 0) {
+
+    if (nchildren > 0) {
 	int	j;
 	char	*newname;
 
 	for (j = 0; j < nchildren; j++) {
-	    newname = (char *)malloc(strlen(name) + 1 + strlen(enfants[j]) + 1);
-	    if (newname == NULL) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		printf("pmTraversePMNS: malloc: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-		exit(1);
-	    }
+	    size_t size = strlen(name) + 1 + strlen(enfants[j]) + 1;
+	    if ((newname = (char *)malloc(size)) == NULL)
+		__pmNoMem("pmTraversePMNS", size, PM_FATAL_ERR);
 	    if (*name == '\0')
 		strcpy(newname, enfants[j]);
 	    else {
@@ -2356,7 +2351,8 @@ TraversePMNS_local(const char *name, void(*func)(const char *), void(*func_r)(co
 static int
 TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const char *, void *), void *closure)
 {
-    int pmns_location = GetLocation();
+    int	sts;
+    int	pmns_location = GetLocation();
 
     if (pmns_location < 0)
 	return pmns_location;
@@ -2367,15 +2363,11 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     PM_INIT_LOCKS();
 
     if (pmns_location == PMNS_LOCAL) {
-	int	sts;
-
 	PM_LOCK(__pmLock_libpcp);
 	sts = TraversePMNS_local(name, func, func_r, closure);
 	PM_UNLOCK(__pmLock_libpcp);
-	return sts;
     }
-    else { 
-	int         sts;
+    else {
 	__pmPDU      *pb;
 	__pmContext  *ctxp;
 
@@ -2388,7 +2380,6 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	    sts = __pmMapErrno(sts);
 	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	    PM_UNLOCK(ctxp->c_lock);
-	    return sts;
 	}
 	else {
 	    int		numnames;
@@ -2459,9 +2450,11 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 		free(namelist);
 	    }
 
-	    return sts > 0 ? numnames : sts;
+	    if (sts > 0)
+		return numnames;
 	}
     }
+    return sts;
 }
 
 int

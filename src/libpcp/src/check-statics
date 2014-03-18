@@ -181,6 +181,25 @@ fetchlocal.o
     b splitmax.[0-9]*		# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
 freeresult.o
+getdate.tab.o
+    [ds] dst_table		# const
+    [ds] meridian_table		# const
+    [ds] military_table		# const
+    [ds] month_and_day_table	# const
+    [ds] relative_time_table	# const
+    [ds] time_units_table	# const
+    [ds] time_zone_table	# const
+    [ds] universal_time_zone_table	# const
+    [rs] yycheck		# const
+    [rs] yydefact		# const
+    [rs] yydefgoto		# const
+    [rs] yypact			# const
+    [rs] yypgoto		# const
+    [rs] yyr1			# const
+    [rs] yyr2			# const
+    [rs] ?yystos		# const, may be optimized away
+    [rs] yytable		# const
+    [rs] yytranslate		# const
 hash.o
 help.o
 instance.o
@@ -190,7 +209,7 @@ interp.o
     b nr			# diag counters, no atomic updates
     b nr_cache			# diag counters, no atomic updates
     b cache			# guarded by __pmLock_libpcp mutex
-    d statestr			# const
+    [ds] statestr		# const
 ipc.o
     b __pmIPCTable		# guarded by __pmLock_libpcp mutex
     d __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
@@ -295,6 +314,7 @@ rtime.o
     r ?ampm			# const (MinGW)
     r ?months			# const (MinGW)
     r ?wdays			# const (MinGW)
+    s ?startend_relative_terms.[0-9]*	# const
 sortinst.o
 spec.o
 store.o
