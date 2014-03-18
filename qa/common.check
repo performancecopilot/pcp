@@ -1470,7 +1470,7 @@ p
     fi
 }
 
-# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
+# disable all system pmloggers running via the control file
 #
 _disable_loggers()
 {
@@ -1486,7 +1486,7 @@ _disable_loggers()
 # the goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
-LOCALHOSTNAME y n /var/adm/pcplog/LOCALHOSTNAME -c /dev/null
+LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
 End-of-File
     $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
 }
