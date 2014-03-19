@@ -1,0 +1,323 @@
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMGETOPTIONS 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmGetOptions\f1,
+\f3pmGetContextOptions\f1,
+\f3pmFreeOptions\f1,
+\f3pmUsageMessage\f1 \- command line handling for PMAPI tools
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.br
+int pmGetOptions(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
+.br
+int pmGetContextOptions(int \fIctx\fP, pmOptions *\fIopts\fP);
+.br
+void pmUsageMessage(pmOptions *\fIopts\fP);
+.br
+void pmFreeOptions(pmOptions *\fIopts\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+The
+.B pmGetOptions
+function provides command line option processing services for both
+monitor and collector
+.BR PMAPI (3)
+tools.
+It is modelled on the thread-safe variants of the GNU
+.BR getopt_long (3)
+API, and primarily differs in its focus on providing generalised
+processing for the (de-facto) standard PCP command line options
+described in
+.BR PCPIntro (1).
+These common options include the host and archive specification,
+time windows, timezones, sample counts, time intervals, and so on.
+.PP
+The primary interface is
+.BR pmGetOptions ,
+which should be passed the
+.I argc
+argument count and
+.I argv
+array, as passed to the
+.IR main()
+function on program invocation.
+The final
+.I opts
+argument describes the set of long and short options the tools is
+prepared to process, and other metadata regarding how those options
+should be processed.
+.PP
+The
+.I opts
+argument consists of an array of
+.I pmLongOpts
+entries describing the arguments, as well as the enclosing
+.I pmOptions
+struct, which are defined as follows (internal fields are not
+presented, for brevity):
+.PP
+.sp 0.5v
+.ft CW
+.nf
+.in +0.25i
+typedef struct {
+    const char *        long_opt;
+    int                 has_arg;
+    int                 short_opt;
+    const char *        argname;
+    const char *        message;
+} pmLongOptions;
+
+typedef struct {
+    int                 version;
+    int                 flags;
+    const char *        short_options;
+    pmLongOptions *     long_options;
+    const char *        short_usage;
+    pmOptionOverride    override;
+
+    int                 index;
+    int                 optind;
+    int                 opterr;
+    int                 optopt;
+    char                *optarg;
+    /* [internal fields, undocumented] */
+
+    int                 errors;
+    int                 context; /* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
+    int                 nhosts;
+    int                 narchives;
+    char **             hosts;
+    char **             archives;
+    struct timeval      start;
+    struct timeval      finish;
+    struct timeval      origin;
+    struct timeval      interval;
+    char *              align_optarg;
+    char *              start_optarg;
+    char *              finish_optarg;
+    char *              origin_optarg;
+    char *              guiport_optarg;
+    char *              timezone;
+    int                 samples;
+    int                 guiport;
+    int                 padding;
+    unsigned int        guiflag : 1;
+    unsigned int        tzflag  : 1;
+    unsigned int        nsflag  : 1;
+    unsigned int        Lflag   : 1;
+    unsigned int        zeroes  : 28;
+} pmOptions;
+.in -0.25i
+.fi
+.ft R
+.PP
+The initial
+.I flags
+and
+.I version
+fields describe how the rest of the pmOptions structure is to be
+interpreted.
+These fields can be zeroed, specifying a default interpretation.
+Alternatively, the PMAPI_VERSION macro can be used to specify the
+API level to use (currently, values of 2 or less are allowed).
+The
+.I flags
+field can be used to modify option processing behaviour as
+described in the ``FLAGS VALUES'' section below.
+.PP
+The array of
+.I long_options
+pmLongOpts structures must be sentinel terminated and the
+PMAPI_OPTIONS_END macro can be used to effect this termination.
+Individual records within the
+.I long_options
+array can be of two types \- options headers, or actual options.
+An options header is constructed using the PMAPI_OPTIONS_HEADER
+macro, and is used for usage message option grouping.
+Otherwise, the array entry specifies an option.
+These should be named (\c
+.IR long_opt )
+if a long-option form is allowed,
+specify whether or not they take an argument (\c
+.IR has_arg ),
+specify the single character variant argument (\c
+.IR short_opt )
+if a short-option form is allowed,
+and finally specify how to present the option in the usage message.
+This latter component consists of a short, one-word description of
+the optional argument (\c
+.IR argname )
+and a one-line description of what the command-line option does (\c
+.IR message ).
+.PP
+The
+.I short_usage
+string is also used only when constructing the usage message.
+It forms the component of the usage message that follows the
+program name (i.e. \c
+.IR argv[0] ).
+.PP
+The optional
+.I short_options
+string is the normal
+.I getopt
+command-line option specification string, using individual
+characters (those with arguments are designated as such
+using the ':' character) \- as used by all
+.I getopt
+implementations.
+.PP
+A facility is provided to extend the existing set of common options
+with additional options, as well as to re-task the standard options
+into non-standard roles for individual tools.
+The latter is achieved using the
+.I override
+method, which allows a callback function to be provided which will
+be called on receipt of every argument, prior to common processing.
+If this callback returns a non-zero value the common processing will
+be short-circuited for that option, otherwise processing continues.
+Thus, aach client tool is free to choose exactly which of the standard
+options they wish to support \- this can be all, some, or none, and
+no matter what they choose, each tool always has access to the long
+option parsing capability and the usage message generation facility.
+.PP
+The remaining pmOptions structure fields are filled in as a result
+of processing the arguments, and are largely self-explanatory.
+Further discussion of these is deferred to the ``FLAGS VALUES''
+section below.
+The
+.I error
+field contains a count of errors detected during option processing.
+These can be either usage or runtime errors, as indicated by the
+.I flags
+field (set, and passed out to the caller).
+Typically, a command line tool will fail to start successfully and
+will produce an error message (e.g. via
+.BR pmUsageMessage )
+if the
+.I error
+field is non-zero at the end of either
+.B pmGetOptions
+or
+.BR pmGetContextOptions .
+.PP
+Some command line option post-processing can only be performed once
+the tool has established a PMAPI context via
+.BR pmNewContext (3).
+This processing includes use of context-aware timezones (\-z),
+and similarly time window processing (\-A, \-O, \-S, -\T) that may
+be affected by the timezone.
+The
+.B pmGetContextOptions
+function is available for such situations, and it completes any
+remaining processing of
+.I opts
+with respect to the
+.I ctx
+context identifier given.
+.PP
+The
+.B pmUsageMessage
+function generates a usage message for the tool, and included both
+standard PCP options and custom options for each tool, as specified
+by the pmLongOptions array.
+It supports grouping of options (via PMAPI_OPTIONS_HEADER) as well
+as neat formatting of all options \- short and long \- their
+arguments, and individual explanatory messages.
+It will build this usage message using
+.BR pmprintf (3)
+upon which it will issue a single
+.BR pmflush (3)
+before returning to the caller, provided the PM_OPTFLAG_USAGE_ERR
+flag is set in
+.IR flags ,
+which will happen automatically during option parsing, when usage
+errors are detected.
+.PP
+In certain situations, such as recording lists of host specifications
+or PCP archive paths, the
+.B pmGetOptions
+routine may allocate memory, and store pointers to it within
+.IR opts .
+Should a program wish to free this memory before exiting, it can
+use the
+.B pmFreeOptions
+routine to do so.
+This is safe to call irrespective of whether memory was allocated
+dynamically, provided that
+.I opts
+was zeroed initially.
+.SH "FLAGS VALUES"
+(TODO)
+.SH "RETURN VALUE"
+(TODO)
+When the
+.B pmGetOptions
+function returns detects a command-line option that is not one of
+the standard PCP set, it will return control to the caller in the
+same way that a regular
+.B getopt
+call would, with the return value indicating the single character
+form of the option, and the
+.I opts
+structure containing filled out
+.IR optarg ,
+.IR opterr ,
+.IR optopt ,
+.IR optind ,
+and
+.I index
+fields as normal (do
+.B NOT
+use the global optarg or optind from your platform C library,
+these will
+.B NOT
+be modified).
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+Values for these variables may be obtained programmatically
+using the
+.BR pmGetOptions (3)
+function.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pminfo (1),
+.BR pmstat (1),
+.BR getopt (3),
+.BR getopt_long (3),
+.BR pmNewContext (3),
+.BR pmconfig (3),
+.BR pmprintf (3),
+.BR pmflush (3)
+and
+.BR PMAPI (3).

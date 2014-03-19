@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,10 +29,10 @@
 struct statsrc_t {
     int		ctx;
     int		flip;
-    char	* sname;
-    pmID	* pmids;
-    pmDesc	* pmdesc;
-    pmResult	* res[2];
+    char *	sname;
+    pmID *	pmids;
+    pmDesc *	pmdesc;
+    pmResult *	res[2];
 };
 
 static char * metrics[] = {
@@ -89,97 +89,60 @@ static char * metricSubst[] = {
 };
 
 static const int nummetrics = sizeof(metrics)/sizeof (metrics[0]);
-static int extra_cpu_stats;
-static char swap_op ='p';
 
-static int header;
+pmLongOptions longopts[] = {
+    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("Alternate sources"),
+    PMOPT_HOSTSFILE,
+    PMOPT_LOCALPMDA,
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "suffix", 0, 'l', 0, "print last 7 charcters of the host name(s)" },
+    { "pause", 0, 'P', 0, "pause between updates for archive replay" },
+    { "xcpu", 0, 'x', 0, "extended CPU statistics reporting" },
+    PMAPI_OPTIONS_END
+};
+
+pmOptions opts = {
+    .flags = PM_OPTFLAG_MULTI | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
+    .short_options = PMAPI_OPTIONS "H:LlPx",
+    .long_options = longopts,
+};
+
+static int extraCpuStats;
+static char swapOp = 'p';
 static int rows = 21;
+static int header;
 static float period;
-static struct timeval sleeptime = { 5, 0 };
 static pmTimeControls defaultcontrols;
 
-static char *options = "A:a:D:gh:H:lLn:O:Pp:s:S:t:T:xzZ:?";
-void usage()
+
+static struct statsrc_t *
+getNewContext(int type, char * host, int quiet)
 {
-    fprintf(stderr,
-	"Usage: %s [options]\n\n"
-	"Options:\n"
-	"  -A align	align sample times on natural boundaries\n"
-	"  -a name	read metrics from PCP log archive\n"
-	"  -g		start in GUI mode with new time control\n"
-	"  -h name	read metrics from PMCD on named host\n"
-	"  -H file	read host's names from the file\n"
-	"  -l		print last 7 charcters of the host name\n"
-	"  -L		metrics source is local connection to PMDA, no PMCD\n"
-	"  -n pmnsfile	use an alternative PMNS\n"
-	"  -O offset	initial offset into the time window\n"
-	"  -P		pause between updates for archive replay\n"
-	"  -p port	port number for connection to existing time control\n"
-	"  -S starttime	start of the time window\n"
-	"  -s samples	terminate after this many iterations\n"
-	"  -t interval	sample interval [default 5 seconds]\n"
-	"  -T endtime	end of the time window\n"
-	"  -Z timezone	set reporting timezone\n"
-	"  -z		set reporting timezone to local time of\n"
-	"		metrics source\n",
-		pmProgname);
-}
-
-long long cntDiff(pmDesc * d, pmValueSet * now, pmValueSet * was)
-{
-    long long diff = 0;		/* initialize to pander to gcc */
-    pmAtomValue a;
-    pmAtomValue b;
-
-    pmExtractValue (was->valfmt,  &was->vlist[0], d->type, &a, d->type);
-    pmExtractValue (now->valfmt,  &now->vlist[0], d->type, &b, d->type);
-
-    switch (d->type) {
-    case PM_TYPE_32:
-	diff = b.l - a.l;
-	break;
-
-    case PM_TYPE_U32:
-	diff = b.ul - a.ul;
-	break;
-
-    case PM_TYPE_U64:
-	diff = b.ull - a.ull;
-	break;
-    }
-
-    return (diff);
-}
-
-struct statsrc_t *
-getNewContext (int type, char * host, int quiet)
-{
-    struct statsrc_t * s;
+    struct statsrc_t *s;
 
     if ((s = (struct statsrc_t *)malloc(sizeof (struct statsrc_t))) != NULL) {
-	if ((s->ctx = pmNewContext (type, host)) < 0 ) {
+	if ((s->ctx = pmNewContext(type, host)) < 0 ) {
 	    if (!quiet)
-		fprintf(stderr, 
+		fprintf(stderr,
 			"%s: Cannot create context to get data from %s: %s\n",
 			pmProgname, host, pmErrStr(s->ctx));
-	    free (s);
+	    free(s);
 	    s = NULL;
 	} else {
 	    int sts;
 	    int i;
 	    
-	    if ((s->pmids = calloc (nummetrics, sizeof (pmID))) == NULL) {
-		free (s);
-		return (NULL);
+	    if ((s->pmids = calloc(nummetrics, sizeof(pmID))) == NULL) {
+		free(s);
+		return NULL;
 	    }
 
 	    if ((sts = pmLookupName(nummetrics, metrics, s->pmids)) != nummetrics) {
 		if (sts >= 0) {
 		    for (i = 0; i < nummetrics; i++) {
-			if (s->pmids[i] != PM_ID_NULL) {
+			if (s->pmids[i] != PM_ID_NULL)
 			    continue;
-			}
-			
 			if (metricSubst[i] == NULL) {
 			    /* skip these, as archives may not contain 'em */
 			    if (i != CPU+2 && i != CPU+5 && i != CPU+6) {
@@ -204,24 +167,24 @@ getNewContext (int type, char * host, int quiet)
 					 pmProgname, host,
 					 metricSubst[i], metrics[i]);
 				if (i == SWAP || i == SWAP+1)
-				    swap_op = 's';
+				    swapOp = 's';
 			    }
 			}
 		    }
 		}
 		else {
 		    fprintf(stderr, "%s: pmLookupName: %s\n",
-			pmProgname, pmErrStr(sts));
-		    free (s->pmids);
-		    free (s);
-		    return (NULL);
+			    pmProgname, pmErrStr(sts));
+		    free(s->pmids);
+		    free(s);
+		    return NULL;
 		}
 	    }
 	    
-	    if ((s->pmdesc = calloc (nummetrics, sizeof (pmDesc))) == NULL) {
-		free (s->pmids);
-		free (s);
-		return (NULL);
+	    if ((s->pmdesc = calloc(nummetrics, sizeof (pmDesc))) == NULL) {
+		free(s->pmids);
+		free(s);
+		return NULL;
 	    }
 
 	    for (i = 0; i < nummetrics; i++) {
@@ -247,38 +210,70 @@ getNewContext (int type, char * host, int quiet)
 	}
     }
 
-    return (s);
+    return s;
 }
 
-void
-destroyContext (struct statsrc_t * s) 
+static char *
+saveContextHostName(int ctx)
 {
-    if ( s != NULL && s->ctx >= 0 ) {
-	const char	*tmp;
-	tmp = pmGetContextHostName(s->ctx);
-	if (strlen(tmp) == 0) {
-	    fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
-		    pmProgname, s->ctx);
-	}
-	if ((s->sname = strdup(tmp)) == NULL) {
-	    __pmNoMem("cannot save context name", strlen(tmp)+1, PM_FATAL_ERR);
-	}
+    const char	*tmp = pmGetContextHostName(ctx);
+    size_t	length;
+    char	*name;
 
-	pmDestroyContext(s->ctx);
-	s->ctx = -1;
-	free (s->pmdesc);
-	s->pmdesc = NULL;
-	free (s->pmids);
-	s->pmids = NULL;
-	if ( s->res[1-s->flip] != NULL ) {
-	    pmFreeResult (s->res[1-s->flip]);
-	}
-	s->res[1-s->flip] = NULL;
-    }
+    if ((length = strlen(tmp)) == 0)
+	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
+		pmProgname, ctx);
+    if ((name = strdup(tmp)) == NULL)
+	__pmNoMem("context name", length + 1, PM_FATAL_ERR);
+    return name;
 }
 
 static void
-scale_n_print(long value)
+destroyContext(struct statsrc_t *s)
+{
+    if (s != NULL && s->ctx >= 0) {
+	int	index;
+
+	if (!s->sname)
+	    s->sname = saveContextHostName(s->ctx);
+	pmDestroyContext(s->ctx);
+	s->ctx = -1;
+	free(s->pmdesc);
+	s->pmdesc = NULL;
+	free(s->pmids);
+	s->pmids = NULL;
+	index = 1 - s->flip;
+	if (s->res[index] != NULL)
+	    pmFreeResult(s->res[index]);
+	s->res[index] = NULL;
+    }
+}
+
+static long long
+countDiff(pmDesc *d, pmValueSet *now, pmValueSet *was)
+{
+    long long diff = 0;
+    pmAtomValue a;
+    pmAtomValue b;
+
+    pmExtractValue(was->valfmt, &was->vlist[0], d->type, &a, d->type);
+    pmExtractValue(now->valfmt, &now->vlist[0], d->type, &b, d->type);
+    switch (d->type) {
+    case PM_TYPE_32:
+	diff = b.l - a.l;
+	break;
+    case PM_TYPE_U32:
+	diff = b.ul - a.ul;
+	break;
+    case PM_TYPE_U64:
+	diff = b.ull - a.ull;
+	break;
+    }
+    return diff;
+}
+
+static void
+scalePrint(long value)
 {
     if (value < 10000)
 	printf (" %4ld", value);
@@ -293,35 +288,44 @@ scale_n_print(long value)
     }
 }
 
-static void timeinterval(struct timeval delta)
+static void
+timeinterval(struct timeval delta)
 {
     defaultcontrols.interval(delta);
-    sleeptime = delta;
-    period = (sleeptime.tv_sec * 1.0e6 + sleeptime.tv_usec) / 1e6;
+    opts.interval = delta;
+    period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6;
     header = 1;
 }
-static void timeresumed(void)
+
+static void
+timeresumed(void)
 {
     defaultcontrols.resume();
     header = 1;
 }
-static void timerewind(void)
+
+static void
+timerewind(void)
 {
     defaultcontrols.rewind();
     header = 1;
 }
-static void timenewzone(char *tz, char *label)
+
+static void
+timenewzone(char *tz, char *label)
 {
     defaultcontrols.newzone(tz, label);
     header = 1;
 }
-static void timeposition(struct timeval position)
+
+static void
+timeposition(struct timeval position)
 {
     defaultcontrols.position(position);
     header = 1;
 }
 
-#ifdef TIOCGWINSZ
+#if defined(TIOCGWINSZ)
 static void
 resize(int sig)
 {
@@ -330,474 +334,153 @@ resize(int sig)
     if (ioctl(1, TIOCGWINSZ, &win) != -1 && win.ws_row > 0)
 	rows = win.ws_row - 3;
 }
-#else
-#define resize(a)
 #endif
 
-int 
+static int
+setupTimeOptions(int ctx, pmOptions *opts, char **tzlabel)
+{
+    char *label = (char *)pmGetContextHostName(ctx);
+    char *zone;
+
+    if (pmGetContextOptions(ctx, opts)) {
+	pmflush();
+	exit(1);
+    }
+    if (opts->timezone)
+	*tzlabel = opts->timezone;
+    else
+	*tzlabel = label;
+    return pmWhichZone(&zone);
+}
+
+int
 main(int argc, char *argv[]) 
 {
-    int tzh = -1;
-    struct timeval start;
-    struct timeval finish;
-    struct timeval position;
-    struct timeval rend;
-    struct timeval offt;
-
-    pmTime *pmtime = NULL;		/* initialize to pander to gcc */
-    pmTimeControls controls;
-
-    struct statsrc_t * pd;
-    struct statsrc_t ** ctxList = & pd;
-
-    char * msg;
-
-    int ctxCnt = 0;
-    int ctxType = 0;
-    char * nsFile = PM_NS_DEFAULT;
-    int c;
-    int gui = 0;
-    int port = -1;
-    int pauseFlag = 0;
-    int errflag = 0;
-    int j;
-    int samples = 0;
-    int iter;
-    char * endnum;
-    char ** namelst = 0;
-    int namecnt;
     time_t now;
-
+    pmTime *pmtime = NULL;
+    pmTimeControls controls;
+    struct statsrc_t *pd;
+    struct statsrc_t **ctxList = &pd;
+    int ctxCount = 0;
+    int sts, j;
+    int iteration;
+    int pauseFlag = 0;
     int printTail = 0;
-    int zflag = 0;
-    char * tz = NULL;
-    char * tzlabel = NULL;
-    int allcnt = (argc-1)/2;
-
-    char * Tflag = NULL,
-	* Aflag = NULL,
-	* Sflag = NULL,
-	* Oflag = NULL;
+    int tzh = -1;
+    char *tzlabel = NULL;
+    char **nameList;
+    int nameCount;
 
     setlinebuf(stdout);
-    __pmSetProgname(argv[0]);
-#if defined SIGWINCH && defined TIOCGWINSZ
-    __pmSetSignalHandler(SIGWINCH, resize);
-#endif
 
-    namecnt = 0;
-    if ( argc > 2 ) {
-	if ((namelst = (char **)calloc(allcnt, sizeof(char *))) == NULL) {
-	    fprintf (stderr, "%s: out of memory!\n", pmProgname);
-	    exit (2);
-	}
-    }
-
-    while ((c = getopt(argc, argv, options)) != EOF) {
-	switch (c) {
-	case 'A':	/* sample time alignment */
-	    Aflag = optarg;
-	    break;
-
-	case 'a':	/* treat names as archive names */
-	    if ( ctxType && (ctxType != PM_CONTEXT_ARCHIVE)) {
-		fprintf (stderr, 
-			 "%s: you cannot mix archives and %s together\n",
-			 pmProgname,
-			 (ctxType == PM_CONTEXT_HOST)? "hosts":"local");
-		errflag++;
-	    } else {
-		ctxType = PM_CONTEXT_ARCHIVE;
-		namelst[namecnt++] = optarg;
-	    }
-	    break;
-
-	case 'D':	/* debug flag */
-	    if ((j = __pmParseDebug(optarg)) < 0) {
-		fprintf(stderr, 
-			"%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= j;
-	    break;
-
-	case 'H': /* Read hosts from the file */
-	    if ( ctxType && (ctxType != PM_CONTEXT_HOST)) {
-		fprintf (stderr,
-			 "%s: you cannot mix hosts and %s together\n",
-			 pmProgname,
-			 (ctxType == PM_CONTEXT_ARCHIVE)? "archives":"local");
-		errflag++;
-	    } else {
-		FILE * hl;
-
-		ctxType = PM_CONTEXT_HOST;
-		if ( (hl = fopen (optarg, "r")) != NULL ) {
-		    char s[128];
-		    while ( fgets (s, 127, hl) != NULL ) {
-			char * p = s;
-			while ( isspace ((int)*p) && *p != '\n' ) p++;
-			if ( *p != '\n' && *p != '#' ) {
-			    char * ns = p;
-			    if ( allcnt <= namecnt+1 ) {
-				allcnt *= 2;
-				namelst=(char **)realloc(namelst, 
-							 allcnt*sizeof(char*));
-				if ( namelst == NULL) {
-				    fprintf (stderr, "%s: out of memory!\n",
-					     pmProgname);
-				    exit (2);
-				}
-			    }
-			
-			    while ( *p != '\n' && *p != '#' &&
-				    ! isspace ((int)*p)) p++;
-
-			    *p = '\0';
-			    if ((namelst[namecnt++] = strdup (ns)) == NULL ) {
-				fprintf (stderr, "%s: memory exhausted!\n",
-					 pmProgname);
-				exit (2);
-			    }
-			}
-		    }
-
-		    fclose (hl);
-		} else {
-		    fprintf (stderr, "%s: cannot open %s - %s\n",
-			     pmProgname, optarg, osstrerror());
-		    errflag++;
-		}
-	    }
-	    break;
-
-	case 'h':
-	    if ( ctxType && (ctxType != PM_CONTEXT_HOST)) {
-		fprintf (stderr,
-			 "%s: you cannot mix hosts and %s together\n",
-			 pmProgname,
-			 (ctxType == PM_CONTEXT_ARCHIVE)? "archives":"local");
-		errflag++;
-	    } else {
-		ctxType = PM_CONTEXT_HOST;
-		if ( allcnt <= namecnt+1 ) {
-		    allcnt *= 2;
-		    namelst = (char **)realloc(namelst, allcnt*sizeof(char *));
-		    if ( namelst == NULL) {
-			fprintf (stderr, "%s: out of memory!\n",
-				 pmProgname);
-			exit (2);
-		    }
-		}
-
-		namelst[namecnt++] = optarg;
-	    }
-	    break;
-
-	case 'l':
+    while ((sts = pmGetOptions(argc, argv, &opts)) != EOF) {
+	switch (sts) {
+	case 'l':	/* print last 7 characters of hostname(s) */
 	    printTail++;
 	    break;
-
-	case 'L':	/* local PMDA connection, no PMCD */
-	    if (ctxType) {
-		fprintf(stderr, "%s: -a, -h and -L are mutually exclusive\n",
-			pmProgname);
-		errflag++;
-	    } else {
-		ctxType = PM_CONTEXT_LOCAL;
-	    }
-	    break;
-
-	case 'n':	/* alternative name space file */
-	    nsFile = optarg;
-	    break;
-
-	case 'g':	/* gui time control mode */
-	    if (port != -1) {
-		fprintf(stderr, 
-			"%s: at most one of -g and -p allowed\n", pmProgname);
-		errflag++;
-	    }
-	    gui = 1;
-	    break;
-
-	case 'p':	/* time control port */
-	    if (gui) {
-		fprintf(stderr, 
-			"%s: at most one of -g and -p allowed\n", pmProgname);
-		errflag++;
-	    } else {
-		char * endnum;
-		port = (int)strtol(optarg, &endnum, 10);
-		if (*endnum != '\0' || port < 0) {
-		    fprintf(stderr, 
-			    "%s: -s requires numeric argument\n", pmProgname);
-		    errflag++;
-		}
-	    }
-	    break;
-
 	case 'P':	/* pause between updates when replaying an archive */
 	    pauseFlag++;
 	    break;
-
-	case 's':	/* sample count */
-	    if (Tflag) {
-		fprintf(stderr, 
-			"%s: at most one of -T and -s allowed\n", pmProgname);
-		errflag++;
-	    } else {
-		char * endnum;
-		samples = (int)strtol(optarg, &endnum, 10);
-		if (*endnum != '\0' || samples < 0) {
-		    fprintf(stderr, 
-			    "%s: -s requires numeric argument\n", pmProgname);
-		    errflag++;
-		}
-	    }
-	    break;
-
-	case 't':	/* update interval */
-	    if (pmParseInterval(optarg, &sleeptime, &endnum) < 0) {
-		fprintf(stderr, 
-			"%s: -t argument not in pmParseInterval(3) format:\n",
-			pmProgname);
-		fprintf(stderr, "%s\n", endnum);
-		free(endnum);
-		errflag++;
-	    }
-		
-	    break;
-		
-	case 'O':	/* time window offset */
-	    Oflag = optarg;
-	    break;
-
-	case 'S':	/* time window start */
-	    Sflag = optarg;
-	    break;
-
-	case 'T':	/* time window end */
-	    if (samples) {
-		fprintf(stderr, "%s: at most one of -T and -s allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    Tflag = optarg;
-	    break;
-
 	case 'x':	/* extended CPU reporting */
-	    extra_cpu_stats = 1;
+	    extraCpuStats = 1;
 	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if ( argc != optind ) {
-	fprintf (stderr, "%s: too many options\n", pmProgname);
-	errflag++;
+    if (argc != opts.optind) {
+	pmprintf("%s: too many options\n", pmProgname);
+	opts.errors++;
     }
 
-    if (pauseFlag && (ctxType != PM_CONTEXT_ARCHIVE)) {
-	fprintf(stderr, "%s: -P can only be used with -a\n", pmProgname);
-	errflag++;
+    if (pauseFlag && (opts.context != PM_CONTEXT_ARCHIVE)) {
+	pmprintf("%s: -P can only be used with archives\n", pmProgname);
+	opts.errors++;
     }
 
-    if ((ctxType != PM_CONTEXT_ARCHIVE) && 
-	(Oflag != NULL || Sflag != NULL || Aflag != NULL) ) {
-	fprintf (stderr, "%s: -S, -O and -A are supported for archives only\n",
-		 pmProgname);
-	errflag++;
-    }
-
-    if (zflag && (ctxType != PM_CONTEXT_ARCHIVE) && 
-	(ctxType != PM_CONTEXT_HOST)) {
-	fprintf(stderr, "%s: -z requires an explicit -a or -h option\n",
-		pmProgname);
-	errflag++;
-    }
-
-    if (errflag) {
-	usage();
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if ( ! ctxType )
-	ctxType = PM_CONTEXT_HOST;
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	opts.interval.tv_sec = 5;	/* 5 sec default sampling */
 
-    if (nsFile != PM_NS_DEFAULT) { 
-	int sts;
-	if ((sts = pmLoadNameSpace(nsFile)) < 0) {
-	    printf("%s: Cannot load namespace from \"%s\": %s\n",
-		   pmProgname, nsFile, pmErrStr(sts));
-	    exit(1);
-	}
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	nameCount = opts.narchives;
+	nameList = opts.archives;
+    } else {
+	if (opts.context == 0)
+	    opts.context = PM_CONTEXT_HOST;
+	nameCount = opts.nhosts;
+	nameList = opts.hosts;
     }
 
-    period = (sleeptime.tv_sec * 1.0e6 + sleeptime.tv_usec) / 1e6;
-
-    if (namecnt) {
-	if ((ctxList = calloc (namecnt, sizeof(struct statsrc_t *))) != NULL) {
+    if (nameCount) {
+	if ((ctxList = calloc(nameCount, sizeof(struct statsrc_t *))) != NULL) {
 	    int ct;
-	    double early = INT_MAX;
-	    double late = 0;
 
-	    for (ct=0; ct < namecnt; ct++ ) {
-		if ((pd = getNewContext (ctxType, namelst[ct], 0)) != NULL) {
-		    int sts;
-
-		    /* tzh is used as an initialization flag */
-		    if ( tzh < 0 ) {
-			if (zflag) {
-			    if ((tzh = pmNewContextZone()) < 0) {
-				fprintf(stderr, 
-					"%s: Cannot set context timezone:%s\n",
-					pmProgname, pmErrStr(tzh));
-				exit(1);
-			    }
-			    printf("Note: timezone set to local timezone of "
-				   "host \"%s\"\n\n",
-				   pmGetContextHostName(pd->ctx));
-			}
-			else if (tz != NULL) {
-			    if ((tzh = pmNewZone(tz)) < 0) {
-				fprintf(stderr, 
-					"%s: Cannot set timezone to '%s':%s\n",
-					pmProgname, tz, pmErrStr(tzh));
-				exit(1);
-			    }
-			    printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-			}
-			else {
-			    tzh = pmNewContextZone();
-			}
-		    }
-
-		    pmUseZone (tzh);
-
-		    /* If we're dealing with archives, find the one
-                     * which starts first */
-		    if ( ctxType == PM_CONTEXT_ARCHIVE ) {
-			pmLogLabel label;
-			struct timeval f;
-
-			if ((sts = pmGetArchiveLabel(&label)) < 0) {
-			    fprintf(stderr, 
-				    "%s: Cannot get archive label record:%s\n",
-				    pmProgname, pmErrStr(sts));
-			    exit(1);
-			}
-			if (zflag)
-			    tzlabel = label.ll_hostname;
-
-			if ( early > (label.ll_start.tv_sec*1e6 + 
-				      label.ll_start.tv_usec)/1e6 ) {
-			    start = label.ll_start;
-			    early = (label.ll_start.tv_sec*1e6 + 
-				     label.ll_start.tv_usec) / 1e6;
-			}
-
-			if ((sts = pmGetArchiveEnd(&f)) < 0) {
-			    fprintf(stderr, 
-				    "%s: Cannot determine end of archive: %s",
-				    pmProgname, pmErrStr(sts));
-			    exit(1);
-			}
-
-			if ( late < (f.tv_sec*1e6 + f.tv_usec)/1e6 ) {
-			    finish = f;
-			    late =  (f.tv_sec*1e6 + f.tv_usec)/1e6;
-			}
-		    } else {
-			if ( ! ct ) {
-			    __pmtimevalNow(&start);
-			    finish.tv_sec = INT_MAX;
-			    finish.tv_usec = 0;
-			}
-		    }
-
-		    ctxList[ctxCnt++] = pd;
+	    for (ct = 0; ct < nameCount; ct++) {
+		if ((pd = getNewContext(opts.context, nameList[ct], 0)) != NULL) {
+		    ctxList[ctxCount++] = pd;
+		    if (tzh < 0)
+			tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+		    pmUseZone(tzh);
 		}
 	    }
 	} else {
-	    fprintf (stderr, "%s: out of memory!\n", pmProgname);
-	    exit (1);
-	}
-
-	if ( ! ctxCnt ) {
-	    fprintf (stderr, "%s: No place to get data from!\n", pmProgname);
-	    exit(1);
+	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc_t *), PM_FATAL_ERR);
 	}
     } else {
-	/* Read metrics from the local host. Note, that ctxType can be 
-	 * either PM_CONTEXT_LOCAL or PM_CONTEXT_HOST, but not 
-	 * PM_CONTEXT_ARCHIVE.  If we fail to talk to pmcd we fallback
-	 * to local context mode automagically.
+	/*
+	 * Read metrics from the local host.  Note that context can be 
+	 * either LOCAL or HOST, but not ARCHIVE here.  If we fail to
+	 * talk to pmcd we fallback to local context mode automagically.
 	 */
-	if ((pd = getNewContext(ctxType, "local:", 1)) == NULL) {
-	    ctxType = PM_CONTEXT_LOCAL;
-	    pd = getNewContext(ctxType, NULL, 0);
+	if ((pd = getNewContext(opts.context, "local:", 1)) == NULL) {
+	    opts.context = PM_CONTEXT_LOCAL;
+	    pd = getNewContext(opts.context, NULL, 0);
 	}
-	if (!pd) {
-	    exit (1);
-	} else {
-	    __pmtimevalNow(&start);
-	    finish.tv_sec = INT_MAX;
-	    finish.tv_usec = 0;
+	if (pd) {
+	    tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+	    ctxCount = 1;
 	}
-
-	ctxCnt = 1;
     }
 
+    if (!ctxCount) {
+	fprintf(stderr, "%s: No place to get data from!\n", pmProgname);
+	exit(1);
+    }
+
+#if defined(TIOCGWINSZ)
+# if defined(SIGWINCH)
+    __pmSetSignalHandler(SIGWINCH, resize);
+# endif
     resize(0);
+#endif
 
-    if (pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag, &start, &finish,
-			      &position, &rend, &offt, &msg) < 0) {
-	fprintf(stderr, "%s: %s", pmProgname, msg);
-	destroyContext (pd);
-    } else {
-	now = (time_t)(position.tv_sec + 0.5 + position.tv_usec / 1.0e6);
-
-	if (Tflag) {
-	    double rt = rend.tv_sec - offt.tv_sec + 
-			(rend.tv_usec - offt.tv_usec) / 1e6;
-	    if ( rt / period > samples )
-		samples = (int) (rt/period);
-	}
+    /* calculate the number of samples needed, if given an end time */
+    period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_usec) / 1e6;
+    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
+    if (opts.finish_optarg) {
+	double win = opts.finish.tv_sec - opts.origin.tv_sec + 
+		    (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
+	win /= period;
+	if (win > opts.samples)
+	    opts.samples = (int)win;
     }
-	
-    if (gui || port != -1) {
-	pmWhichZone(&tz);
-	if (!tzlabel)
-	    tzlabel = "localhost";
 
-	pmtime = pmTimeStateSetup(&controls, ctxType, port,
-					sleeptime, position,
-					start, finish, tz, tzlabel);
+    if (opts.guiflag != 0 || opts.guiport != 0) {
+	char *timezone;
+
+	pmWhichZone(&timezone);
+	if (!opts.guiport)
+	    opts.guiport = -1;
+	pmtime = pmTimeStateSetup(&controls, opts.context,
+			opts.guiport, opts.interval, opts.origin,
+			opts.start, opts.finish, timezone, tzlabel);
 
 	/* keep pointers to some default time control functions */
 	defaultcontrols = controls;
@@ -808,170 +491,165 @@ main(int argc, char *argv[])
 	controls.newzone = timenewzone;
 	controls.interval = timeinterval;
 	controls.position = timeposition;
-        gui = 1;
+	opts.guiflag = 1;
     }
 
     /* Do first fetch */
-    for ( c=0; c < ctxCnt; c++ ) {
-	int sts;
-	struct statsrc_t * pd = ctxList[c];
+    for (j = 0; j < ctxCount; j++) {
+	struct statsrc_t *pd = ctxList[j];
 
-	pmUseContext (pd->ctx);
+	pmUseContext(pd->ctx);
 
-	if (! gui && ctxType == PM_CONTEXT_ARCHIVE )
-	    pmTimeStateMode(PM_MODE_INTERP, sleeptime, &position);
+	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
+	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
 
-	if ( pd->ctx >= 0 ) {
-	    if ((sts = pmFetch(nummetrics, pd->pmids, pd->res+pd->flip)) < 0) {
+	if (pd->ctx >= 0) {
+	    if ((sts = pmFetch(nummetrics, pd->pmids, pd->res + pd->flip)) < 0)
 		pd->res[pd->flip] = NULL;
-	    } else {
+	    else
 		pd->flip = 1 - pd->flip;
-	    }
 	}
     }
 
-    for (iter=0; (samples==0) || (iter < samples); iter++ ) {
-	if ( (iter * ctxCnt) % rows < ctxCnt )
+    for (iteration = 0; opts.samples ==0 || iteration < opts.samples; iteration++) {
+	if ((iteration * ctxCount) % rows < ctxCount)
 	    header = 1;
 
-	if ( header ) {
-	    pmResult * r = ctxList[0]->res[1-ctxList[0]->flip];
+	if (header) {
+	    pmResult *r = ctxList[0]->res[1 - ctxList[0]->flip];
 	    char tbuf[26];
 
-	    if ( r != NULL  ) {
+	    if (r != NULL)
 		now = (time_t)(r->timestamp.tv_sec + 0.5 + 
 			       r->timestamp.tv_usec/ 1.0e6);
-	    }
-	    printf ("@ %s", pmCtime (&now, tbuf));
+	    printf("@ %s", pmCtime(&now, tbuf));
 
-	    if ( ctxCnt > 1 ) {
+	    if (ctxCount > 1) {
 		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
 			"node", "loadavg","memory","swap","io","system",
-			extra_cpu_stats ? 20 : 12, "cpu");
-		if (extra_cpu_stats)
+			extraCpuStats ? 20 : 12, "cpu");
+		if (extraCpuStats)
 		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
-			"", "1 min","swpd","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
 			"in","cs","us","sy","id","wa","st");
 		else
 		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-			"", "1 min","swpd","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
 			"in","cs","us","sy","id");
 
 	    } else {
 		printf("%8s%28s%10s%10s%10s%*s\n",
 		       "loadavg","memory","swap","io","system",
-			extra_cpu_stats ? 20 : 12, "cpu");
-		if (extra_cpu_stats)
+			extraCpuStats ? 20 : 12, "cpu");
+		if (extraCpuStats)
 		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
-			"1 min","swpd","free","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
 			"in","cs","us","sy","id","wa","st");
 		else
 		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-			"1 min","swpd","free","buff","cache", swap_op,"i",swap_op,"o","bi","bo",
+			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
 			"in","cs","us","sy","id");
 	    }
 	    header = 0;
 	}
 
-	if ( gui )
+	if (opts.guiflag)
 	    pmTimeStateVector(&controls, pmtime);
-	else if ( ctxType != PM_CONTEXT_ARCHIVE  || pauseFlag )
-	    __pmtimevalSleep(sleeptime);
-	if ( header )
+	else if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
+	    __pmtimevalSleep(opts.interval);
+	if (header)
 	    goto next;
 
-	for ( j=0; j < ctxCnt; j++ ) {
-	    int sts;
+	for (j = 0; j < ctxCount; j++) {
 	    int i;
 	    unsigned long long dtot = 0;
 	    unsigned long long diffs[7];
 	    pmAtomValue la;
-	    struct statsrc_t * s = ctxList[j];
+	    struct statsrc_t *s = ctxList[j];
 
-	    if (ctxCnt > 1 ) {
-		const char * fn = (s->ctx < 0 ) ? s->sname : 
-		    pmGetContextHostName (s->ctx);
-		
-		if ( printTail ) {
-		    printf ("%-7s", 
-			    (strlen (fn) > 7 ) ? fn + strlen (fn) - 7:fn);
-		} else {
-		    printf ("%-7.7s", fn);
-		}
+	    if (ctxCount > 1) {
+		const char *fn;
 
-		if ( s->ctx < 0 ) {
-		    putchar ('\n');
+		if (!s->sname)
+		    s->sname = saveContextHostName(s->ctx);
+		fn = s->sname;
+
+		if (printTail)
+		    printf("%-7s", strlen(fn) <= 7 ? fn : fn + strlen(fn) - 7);
+		else
+		    printf("%-7.7s", fn);
+
+		if (s->ctx < 0) {
+		    putchar('\n');
 		    continue;
 		}
 
-		pmUseContext (s->ctx);
+		pmUseContext(s->ctx);
 	    }
 
 	    if ((sts = pmFetch(nummetrics, s->pmids, s->res + s->flip)) < 0) {
-		if (ctxType == PM_CONTEXT_HOST &&
+		if (opts.context == PM_CONTEXT_HOST &&
 		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
-		    puts (" Fetch failed. Reconnecting ...");
-		    if ( s->res[1-s->flip] != NULL ) {
-			pmFreeResult(s->res[1-s->flip]);
-			s->res[1-s->flip] = NULL;
+		    puts(" Fetch failed. Reconnecting ...");
+		    i = 1 - s->flip;
+		    if (s->res[i] != NULL) {
+			pmFreeResult(s->res[i]);
+			s->res[i] = NULL;
 		    }
-		    pmReconnectContext (s->ctx);
-		} else if ((ctxType == PM_CONTEXT_ARCHIVE) && 
-			   (sts == PM_ERR_EOL) && gui) {
+		    pmReconnectContext(s->ctx);
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) && 
+			   (sts == PM_ERR_EOL) && opts.guiflag) {
 		    pmTimeStateBounds(&controls, pmtime);
-		} else if ((ctxType == PM_CONTEXT_ARCHIVE) && 
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) && 
 			   (sts == PM_ERR_EOL) &&
 			   (s->res[0] == NULL) && (s->res[1] == NULL)) {
-		    /* I'm yet to see smth from this archive - don't
+		    /* I'm yet to see something from this archive - don't
 		     * discard it just yet */
-		    puts (" No data in the archive");
+		    puts(" No data in the archive");
 		} else {
 		    int k;
 		    int valid = 0;
-			
+
 		    printf(" pmFetch: %s\n", pmErrStr(sts));
 
-		    destroyContext (s);
-		    for ( k=0; k < ctxCnt; k++ ) {
+		    destroyContext(s);
+		    for (k = 0; k < ctxCount; k++)
 			valid += (ctxList[k]->ctx >= 0);
-		    }
-			
-		    if ( ! valid ) {
+		    if (!valid)
 			exit(1);
-		    }
 		}
 	    } else {
-		pmResult * cur = s->res[s->flip];
-		pmResult * prev = s->res[1 - s->flip];
+		pmResult *cur = s->res[s->flip];
+		pmResult *prev = s->res[1 - s->flip];
 
 
 		/* LoadAvg - Assume that 1min is the first one */
 		if (s->pmdesc[LOADAVG].pmid == PM_ID_NULL ||
 		    cur->vset[LOADAVG]->numval < 1) 
-		    printf (" %7.7s", "?");
+		    printf(" %7.7s", "?");
 		else {
 		    pmExtractValue(cur->vset[LOADAVG]->valfmt,
 				   &cur->vset[LOADAVG]->vlist[0], 
 				   s->pmdesc[LOADAVG].type,
 				   &la, PM_TYPE_FLOAT);
 		    
-		    printf (" %7.2f", la.f);
+		    printf(" %7.2f", la.f);
 		}
 	    
 		/* Memory state */
-		for ( i=0; i < 4; i++ ) {
-		    if ( i == 2 && ctxCnt > 1 ) 
-			continue; /*Don't report free mem for multiple hosts */
+		for (i = 0; i < 4; i++) {
+		    if (i == 2 && ctxCount > 1) 
+			continue; /* Don't report free mem for multiple hosts */
 
 		    if (cur->vset[MEM+i]->numval == 1) {
-			pmUnits kb =  PMDA_PMUNITS(1, 0, 0, 
-						   PM_SPACE_KBYTE, 0, 0);
+			pmUnits kb = PMDA_PMUNITS(1, 0, 0, 
+						  PM_SPACE_KBYTE, 0, 0);
 
 			pmExtractValue(cur->vset[MEM+i]->valfmt,
 				       &cur->vset[MEM+i]->vlist[0], 
 				       s->pmdesc[MEM+i].type,
 				       &la, PM_TYPE_U32);
-			pmConvScale (s->pmdesc[MEM+i].type, & la, 
+			pmConvScale(s->pmdesc[MEM+i].type, & la, 
 				     & s->pmdesc[MEM+i].units, &la, &kb);
 
 			if (la.ul < 1000000)
@@ -990,55 +668,54 @@ main(int argc, char *argv[])
 		}
 
 		/* Swap in/out */
-		for ( i=0; i < 2; i++ ) {
+		for (i = 0; i < 2; i++) {
 		    if (s->pmdesc[SWAP+i].pmid == PM_ID_NULL || prev == NULL ||
 			prev->vset[SWAP+i]->numval != 1 ||
 			cur->vset[SWAP+i]->numval != 1) 
 			printf(" %4.4s", "?");
 		    else
-			scale_n_print(cntDiff(s->pmdesc+SWAP+i, cur->vset[SWAP+i], prev->vset[SWAP+i])/period);
+			scalePrint(countDiff(s->pmdesc+SWAP+i, cur->vset[SWAP+i], prev->vset[SWAP+i])/period);
 		}
 
 		/* io in/out */
-		for ( i=0; i < 2; i++ ) {
+		for (i = 0; i < 2; i++) {
 		    if (s->pmdesc[IO+i].pmid == PM_ID_NULL || prev == NULL ||
 			prev->vset[IO+i]->numval != 1 ||
 			cur->vset[IO+i]->numval != 1) 
 			printf(" %4.4s", "?");
 		    else 
-			scale_n_print(cntDiff(s->pmdesc+IO+i, cur->vset[IO+i], prev->vset[IO+i])/period);
+			scalePrint(countDiff(s->pmdesc+IO+i, cur->vset[IO+i], prev->vset[IO+i])/period);
 		}
 
 		/* system interrupts */
-		for ( i=0; i < 2; i++ ) {
+		for (i = 0; i < 2; i++) {
 		    if (s->pmdesc[SYSTEM+i].pmid == PM_ID_NULL || 
 			prev == NULL ||
 			prev->vset[SYSTEM+i]->numval != 1 ||
 			cur->vset[SYSTEM+i]->numval != 1) 
 			printf(" %4.4s", "?");
 		    else
-			scale_n_print(cntDiff (s->pmdesc+SYSTEM+i, cur->vset[SYSTEM+i], prev->vset[SYSTEM+i])/period);
+			scalePrint(countDiff(s->pmdesc+SYSTEM+i, cur->vset[SYSTEM+i], prev->vset[SYSTEM+i])/period);
 		}
 
 		/* CPU utilization - report percentage */
-		for ( i=0; i < 7; i++ ) {
+		for (i = 0; i < 7; i++) {
 		    if (s->pmdesc[CPU+i].pmid == PM_ID_NULL || prev == NULL ||
 			cur->vset[CPU+i]->numval != 1 ||
 			prev->vset[CPU+i]->numval != 1) {
-			if ( i > 0 && i < 4 && i != 2) {
+			if (i > 0 && i < 4 && i != 2) {
 			    break;
 			} else { /* Nice, intr, iowait, steal are optional */
 			    diffs[i] = 0;
 			}
 		    } else {
-			diffs[i] = cntDiff (s->pmdesc+CPU+i,
-					    cur->vset[CPU+i],
-					    prev->vset[CPU+i]);
+			diffs[i] = countDiff(s->pmdesc + CPU+i,
+					cur->vset[CPU+i], prev->vset[CPU+i]);
 			dtot += diffs[i];
 		    }
 		}
 
-		if (extra_cpu_stats) {
+		if (extraCpuStats) {
 		    if (i != 7 || dtot == 0) {
 			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
 				"?", "?", "?", "?", "?");
@@ -1061,18 +738,17 @@ main(int argc, char *argv[])
 			   (unsigned int)((100*diffs[4]+fill)/dtot));
 		}
 
-		if ( prev != NULL ) {
-		    pmFreeResult (prev);
-		}
+		if (prev != NULL)
+		    pmFreeResult(prev);
 		s->flip = 1 - s->flip;
 		s->res[s->flip] = NULL;
 
-		putchar ('\n');
+		putchar('\n');
 	    }
 	}
 
 next:
-	if ( gui )
+	if (opts.guiflag)
 	    pmTimeStateAck(&controls, pmtime);
 
 	now += (time_t)period;

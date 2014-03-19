@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 728
+# Basic workout for pmGetOptions PMAPI interfaces.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test $PCP_VER -ge 3901 || _notrun "No support for pmGetOptions"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo '== Arguments: none'
+$here/src/getoptions
+
+echo '== Arguments: usage (x2)'
+$here/src/getoptions -?
+$here/src/getoptions --help
+
+echo '== Arguments: own options (x2)'
+$here/src/getoptions -x -X goodness
+$here/src/getoptions --extra --eXtra goodness
+
+echo '== Arguments: own short-only options'
+$here/src/getoptions -y -Y not
+
+echo '== Arguments: own long-only options'
+$here/src/getoptions --fubar --foobar eek
+
+echo '== Arguments: one archive, all time options (x2)'
+$here/src/getoptions -a src/20041125.0 -z \
+	-A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30" \
+	$here/src/getoptions
+$here/src/getoptions --archive src/20041125.0 --hostzone \
+	--align "1 minute" --origin "@10:10:10" \
+	--start "@10:15" --finish "@10:30" $here/src/getoptions
+
+echo '== Arguments: one host (x2)'
+$here/src/getoptions -h foo.bar.com -t 1sec -s 5
+$here/src/getoptions --host foo.bar.com --interval 1sec --samples 5
+
+echo '== Arguments: environment variables only'
+PM_OPTFLAG_ENV_ONLY=true PCP_HOST=pcp.org $here/src/getoptions -h non.org
+
+echo '== Arguments: host, interval and samples env vars'
+PCP_HOST=pcp.org PCP_INTERVAL="2 seconds" PCP_SAMPLES=5 $here/src/getoptions
+
+echo '== Arguments: host list env var'
+PCP_HOST_LIST=foo.com,bar.org $here/src/getoptions
+
+echo '== Arguments: archive, time window env vars'
+PCP_ARCHIVE=src/20041125.0 PCP_HOSTZONE=true \
+	PCP_ALIGN="1 minute" PCP_ORIGIN="@10:10:10" \
+	PCP_START_TIME="@10:15" PCP_FINISH_TIME="@10:30" $here/src/getoptions
+
+echo '== Arguments: archive list env var'
+PCP_ARCHIVE_LIST=foo,bar,moo $here/src/getoptions
+
+echo '== Arguments: one archive env var'
+PCP_ARCHIVE=foo $here/src/getoptions
+
+echo '== Arguments: timezone env var'
+PCP_TIMEZONE=UTC $here/src/getoptions
+
+echo '== Arguments: hostzone env var'
+PCP_HOSTZONE=true $here/src/getoptions
+
+echo '== Arguments: gui port env var (x2)'
+PCP_GUIPORT=42 $here/src/getoptions
+PCP_GUIPORT=/tmp/socket $here/src/getoptions
+
+echo '== Arguments: gui mode env var'
+PCP_GUIFLAG=true $here/src/getoptions
+
+echo '== Arguments: allow mixed hosts and archives'
+PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log $here/src/getoptions
+
+# success, all done
+status=0
+exit

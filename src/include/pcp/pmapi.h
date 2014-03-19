@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -292,12 +292,12 @@ extern const char *pmGetContextHostName(int);
 extern char *pmGetContextHostName_r(int, char *, int);
 
 /*
- * return the handle of the current context
+ * Return the handle of the current context
  */
 extern int pmWhichContext(void);
 
 /*
- * destroy a context and close it's connection
+ * Destroy a context and close its connection
  */
 extern int pmDestroyContext(int);
 
@@ -455,7 +455,7 @@ extern int pmFetch(int, pmID *, pmResult **);
 #define PMCD_DROP_AGENT		4
 
 /*
- * variant that is used to return a pmResult from an archive
+ * Variant that is used to return a pmResult from an archive
  */
 extern int pmFetchArchive(pmResult **);
 
@@ -492,7 +492,7 @@ typedef struct {
 } pmLogLabel;
 
 /*
- * get the label record from the current archive context, and discover
+ * Get the label record from the current archive context, and discover
  * when the archive ends
  */
 extern int pmGetArchiveLabel(pmLogLabel *);
@@ -531,7 +531,7 @@ extern int pmLookupInDomText(pmInDom, int, char **);
 #define PM_TEXT_HELP	2
 
 /*
- * some handy formatting routines for messages, and other output
+ * Some handy formatting routines for messages, and other output
  */
 extern const char *pmIDStr(pmID);			/* NOT thread-safe */
 extern char *pmIDStr_r(pmID, char *, int);
@@ -554,14 +554,14 @@ extern char *pmEventFlagsStr_r(int, char *, int);
 #define PM_XTB_SET(type) (PM_XTB_FLAG | ((type) << 16))
 #define PM_XTB_GET(x) (((x) & PM_XTB_FLAG) ? (((x) & 0xff0000) >> 16) : -1)
 
-/* parse -t, -S, -T, -A and -O options */
+/* Parse -t, -S, -T, -A and -O options */
 extern int pmParseInterval(const char *, struct timeval *, char **);
 extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timeval *, const struct timeval *,
       struct timeval *, struct timeval *, struct timeval *, char **);
 
-/* reporting timezone */
+/* Reporting timezone */
 extern int pmUseZone(const int);
 extern int pmNewZone(const char *);
 extern int pmNewContextZone(void);
@@ -578,13 +578,13 @@ typedef struct {
     char	*inst[1];       /* array of instance names */
 } pmMetricSpec;
 
-/* parsing of host:metric[instances] or archive/metric[instances] */
+/* Parsing of host:metric[instances] or archive/metric[instances] */
 extern int pmParseMetricSpec(const char *, int, char *, pmMetricSpec **,
 			     char **);
 extern void pmFreeMetricSpec(pmMetricSpec *p);
 
 /*
- * configurable error reporting
+ * Configurable error reporting
  */
 #ifdef __GNUC__
 # define __PM_PRINTFLIKE(idx,cnt) __attribute__ ((format (printf, idx,cnt)))
@@ -601,6 +601,160 @@ extern int pmflush(void);
  * Return values point to strings in the environment.
  */
 extern char *pmGetConfig(const char *);
+
+/*
+ * Common command line argument parsing interfaces
+ */
+
+#define PMAPI_OPTIONS	"A:a:D:gh:n:O:p:S:s:T:t:VZ:z?"
+#define PMAPI_OPTIONS_HEADER(s)	{ "", 0, '-', 0, (s) }
+#define PMAPI_OPTIONS_END	{ NULL, 0, 0, 0 }
+
+#define PMOPT_ALIGN	{ "align",	1, 'A',	"TIME", \
+			"align sample times on natural boundaries" }
+#define PMOPT_ARCHIVE	{ "archive",	1, 'a',	"FILE", \
+			"metrics source is a PCP log archive" }
+#define PMOPT_DEBUG	{ "debug",	1, 'D',	"DBG", \
+			NULL }
+#define PMOPT_GUIMODE	{ "guimode",	0, 'g',	0, \
+			"start in GUI mode with new time control" }
+#define PMOPT_HOST	{ "host",	1, 'h', "HOST", \
+			"metrics source is PMCD on host" }
+#define PMOPT_HOSTSFILE	{ "hostsfile",	1, 'H', "FILE", \
+			"read metric source hosts from a file" }
+#define PMOPT_SPECLOCAL	{ "spec-local",	1, 'K',	"SPEC", \
+			"optional additional PMDA spec for local connection" }
+#define PMOPT_LOCALPMDA	{ "local-PMDA",	0, 'L', 0, \
+			"metrics source is local connection to a PMDA" }
+#define PMOPT_NAMESPACE	{ "namespace",	1, 'n', "FILE", \
+			"use an alternative PMNS" }
+#define PMOPT_DUPNAMES	{ "dupnames",	1, 'N', "FILE", \
+			"use an alternative PMNS (duplicate names allowed)" }
+#define PMOPT_ORIGIN	{ "origin",	1, 'O', "TIME", \
+			"initial sample time within the time window" }
+#define PMOPT_GUIPORT	{ "guiport",	1, 'p', "N", \
+			"port for connection to existing time control" }
+#define PMOPT_START	{ "start",	1, 'S', "TIME", \
+			"start of the time window" }
+#define PMOPT_SAMPLES	{ "samples",	1, 's', "N", \
+			"terminate after this many samples" }
+#define PMOPT_FINISH	{ "finish",	1, 'T', "TIME", \
+			"end of the time window" }
+#define PMOPT_INTERVAL	{ "interval",	1, 't', "DELTA", \
+			"sampling interval" }
+#define PMOPT_VERSION	{ "version",	0, 'V', 0, \
+			"display version number and exit" }
+#define PMOPT_TIMEZONE	{ "timezone",	1, 'Z', "TZ", \
+			"set reporting timezone" }
+#define PMOPT_HOSTZONE	{ "hostzone",	0, 'z', 0, \
+			"set reporting timezone to local time of metrics source" }
+#define PMOPT_HELP	{ "help",	0, '?', 0, \
+			"show this usage message and exit" }
+
+#define PMAPI_GENERAL_OPTIONS	\
+	PMAPI_OPTIONS_HEADER("General options"), \
+	PMOPT_ALIGN, \
+	PMOPT_ARCHIVE, \
+	PMOPT_DEBUG, \
+	PMOPT_GUIMODE, \
+	PMOPT_HOST, \
+	PMOPT_NAMESPACE, \
+	PMOPT_ORIGIN, \
+	PMOPT_GUIPORT, \
+	PMOPT_START, \
+	PMOPT_SAMPLES, \
+	PMOPT_FINISH, \
+	PMOPT_INTERVAL, \
+	PMOPT_TIMEZONE, \
+	PMOPT_HOSTZONE, \
+	PMOPT_VERSION, \
+	PMOPT_HELP
+
+/* pmOptions flags */
+#define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
+#define PM_OPTFLAG_DONE		(1<<1)	/* parsing is complete */
+#define PM_OPTFLAG_MULTI	(1<<2)	/* allow multi-context */
+#define PM_OPTFLAG_USAGE_ERR	(1<<3)	/* argument parse fail */
+#define PM_OPTFLAG_RUNTIME_ERR	(1<<4)	/* any runtime failure */
+#define PM_OPTFLAG_EXIT		(1<<5)	/* tool should exit(0) */
+#define PM_OPTFLAG_POSIX	(1<<6)	/* POSIXLY_CORRECT set */
+#define PM_OPTFLAG_MIXED	(1<<7)	/* allow hosts+archives */
+#define PM_OPTFLAG_ENV_ONLY	(1<<8)	/* use env options only */
+#define PM_OPTFLAG_LONG_ONLY	(1<<9)	/* use long options only */
+#define PM_OPTFLAG_BOUNDARIES	(1<<10)	/* calculate time window */
+#define PM_OPTFLAG_STDOUT_TZ	(1<<11)	/* write timezone change */
+
+struct __pmOptions;
+typedef int (*pmOptionOverride)(int, struct __pmOptions *);
+
+typedef struct {
+    const char *	long_opt;
+    int			has_arg;
+    int			short_opt;
+    const char *	argname;
+    const char *	message;
+} pmLongOptions;
+
+typedef struct __pmOptions {
+    int			version;
+    int			flags;
+
+    /* in: define set of all options */
+    const char *	short_options;
+    pmLongOptions *	long_options;
+    const char *	short_usage;
+
+    /* in: method for general override */
+    pmOptionOverride	override;
+
+    /* out: usual getopt information */
+    int			index;
+    int			optind;
+    int			opterr;
+    int			optopt;
+    char		*optarg;
+
+    /* internals; do not ever access */
+    int			__initialized;
+    char *		__nextchar;
+    int			__ordering;
+    int			__posixly_correct;
+    int			__first_nonopt;
+    int			__last_nonopt;
+
+    /* out: error count */
+    int 		errors;
+
+    /* out: PMAPI options and values */
+    int			context;	/* PM_CONTEXT_{HOST,ARCHIVE,LOCAL} */
+    int			nhosts;
+    int			narchives;
+    char **		hosts;
+    char **		archives;
+    struct timeval	start;
+    struct timeval	finish;
+    struct timeval	origin;
+    struct timeval	interval;
+    char *		align_optarg;
+    char *		start_optarg;
+    char *		finish_optarg;
+    char *		origin_optarg;
+    char *		guiport_optarg;
+    char *		timezone;
+    int			samples;
+    int			guiport;
+    int			padding;
+    unsigned int	guiflag : 1;
+    unsigned int	tzflag  : 1;
+    unsigned int	nsflag  : 1;
+    unsigned int	Lflag   : 1;
+    unsigned int	zeroes  : 28;
+} pmOptions;
+
+extern int pmGetOptions(int, char *const *, pmOptions *);
+extern int pmGetContextOptions(int, pmOptions *);
+extern void pmUsageMessage(pmOptions *);
+extern void pmFreeOptions(pmOptions *);
 
 /*
  * Derived Metrics support
@@ -632,7 +786,7 @@ typedef struct {
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
-/* potential flags bits set in er_flags (above) */
+/* Potential flags bits set in er_flags (above) */
 #define PM_EVENT_FLAG_POINT	(1U<<0)	/* an observation, default type */
 #define PM_EVENT_FLAG_START	(1U<<1)	/* marking start of a new event */
 #define PM_EVENT_FLAG_END	(1U<<2)	/* completion of a traced event */
@@ -654,7 +808,7 @@ typedef struct {
     pmEventRecord	ea_record[1];
 } pmEventArray;
 
-/* unpack a PM_TYPE_EVENT value into a set on pmResults */
+/* Unpack a PM_TYPE_EVENT value into a set on pmResults */
 extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 
 /* Free set of pmResults from pmUnpackEventRecords */

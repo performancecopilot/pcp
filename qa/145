@@ -13,15 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+
+_filter_load()
+{
+    sed -e "s#$tmp#TMP#g"
+}
 
 _filter()
 {
@@ -69,12 +66,5 @@ yet.another {
 }
 End-of-File
 
-pminfo -b1 -n $tmp
-if [ $PCP_VER -lt 3600 ]
-then
-    pmnscomp -df -n $tmp $tmp.bin
-    rm -f $tmp
-    pminfo -b1 -D1 -n $tmp -fdm 2>&1 | _filter
-else
-    pminfo -b1 -D1 -N $tmp -fdm 2>&1 | _filter
-fi
+pminfo -b1 -n $tmp 2>&1 | _filter_load
+pminfo -b1 -D1 -N $tmp -fdm 2>&1 | _filter

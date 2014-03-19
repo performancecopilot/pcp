@@ -1,4 +1,6 @@
 QA output created by 293
+Note: timezone set to local timezone of host "ac15" from archive
+
 @ Sat Jul  9 08:48:29 2005
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id

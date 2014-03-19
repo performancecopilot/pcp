@@ -13,31 +13,40 @@ Error: no metricname specified
 
 Usage: pmval [options] metricname
 
-Options:
-  -A align      align sample times on natural boundaries
-  -a archive    metrics source is a PCP log archive (interpolate values)
-  -d            delay, pause between updates for archive replay
-  -f N          fixed precision output format with N digits to the
-                right of the decimal point
-  -g            start in GUI mode with new time control
-  -h host       metrics source is PMCD on host
-  -i instance   metric instance or list of instances - elements in an
-                instance list are separated by commas or whitespace
-  -K spec       optional additional PMDA spec for local connection
-                spec is of the form op,domain,dso-path,init-routine
-  -n pmnsfile   use an alternative PMNS
-  -O offset     initial offset into the time window
-  -p port       port number for connection to existing time control
-  -r            output raw counter values
-  -S starttime  start of the time window
-  -s samples    terminate after this many samples
-  -T endtime    end of the time window
-  -t interval   sample interval [default 1 second]
-  -U archive    metrics source is a PCP log archive (do not interpolate
-                and -t option ignored)
-  -w width      set the width of each column of output
-  -Z timezone   set reporting timezone
-  -z            set reporting timezone to local time of metrics source
+General options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+
+Reporting options:
+  -d, --delay           delay, pause between updates for archive replay
+  -f N, --precision=N   fixed output format with N digits precision
+  -i INST, --instances=INST
+                        comma-separated metrics instance list
+  -r, --raw             output raw counter values (no rate conversion)
+  -U FILE, --nointerp=FILE
+                        non-interpolated fetching; ignores interval
+  -w N, --width=N       set the width of each column of output
 usage - exit status 1
 
 metric:    sample.seconds

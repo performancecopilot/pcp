@@ -1,7 +1,7 @@
 /*
  * pmclient - sample, simple PMAPI client
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,19 @@
 #include "impl.h"
 #include "pmnsmap.h"
 
+pmLongOptions longopts[] = {
+    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "pause", 0, 'P', 0, "pause between updates for archive replay" },
+    PMAPI_OPTIONS_END
+};
+
+pmOptions opts = {
+    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .short_options = PMAPI_OPTIONS "P",
+    .long_options = longopts,
+};
+
 typedef struct {
     struct timeval	timestamp;	/* last fetched time */
     float		cpu_util;	/* aggregate CPU utilization, usr+sys */
@@ -31,15 +44,6 @@ typedef struct {
 } info_t;
 
 static unsigned int	ncpu;
-
-/*
- * real time difference, *ap minus *bp
- */
-double
-tv_sub(struct timeval *ap, struct timeval *bp)
-{
-     return ap->tv_sec - bp->tv_sec + (double)(ap->tv_usec - bp->tv_usec)/1000000.0;
-}
 
 static unsigned int
 get_ncpu(void)
@@ -161,7 +165,7 @@ get_sample(info_t *ip)
     /* if the second or later sample, pick the results apart */
     if (prp !=  NULL) {
 	
-	dt = tv_sub(&crp->timestamp, &prp->timestamp);
+	dt = __pmtimevalSub(&crp->timestamp, &prp->timestamp);
 	ip->cpu_util = 0;
 	ip->peak_cpu_util = -1;	/* force re-assignment at first CPU */
 	for (i = 0; i < ncpu; i++) {
@@ -240,223 +244,87 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    int			errflag = 0;
-    int			type = 0;
-    char		*host = NULL;		/* initialize to pander to gcc */
-    char		*archive = NULL;
-    char		*pmnsfile = PM_NS_DEFAULT;
-    int			samples = -1;		/* number of samples */
-    struct timeval	delta = { 5, 0 };	/* initial interval (seconds) */
-    int			pauseFlag=0;
-    double		skipSeconds = 0.0;
-    info_t		info;		/* values to report each sample */
+    int			samples;
+    int			pauseFlag = 0;
     int			lines = 0;
-    pmLogLabel		label;			/* get hostname for archives */
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
-    int			tzh;			/* initial timezone handle */
-    char		timebuf[26];		/* for pmCtime result */
-    char		*endnum;
-    char		*msg;			/* error message */
+    char		*source;
+    const char		*host;
+    info_t		info;		/* values to report each sample */
+    char		timebuf[26];	/* for pmCtime result */
 
-    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
 
-    while ((c = getopt(argc, argv, "a:D:h:n:ps:S:t:zZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'a':	/* archive name */
-	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmProgname);
-		errflag++;
-	    }
-	    type = PM_CONTEXT_ARCHIVE;
-	    host = optarg;
-	    break;
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n", pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
-	case 'h':	/* contact PMCD on this hostname */
-	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    host = optarg;
-	    type = PM_CONTEXT_HOST;
-	    break;
-
-	case 'n':	/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
-
-	case 'p':	/* pause between updates when replaying an archive */
+	case 'p':
 	    pauseFlag++;
 	    break;
-
-
-	case 's':	/* sample count */
-	    samples = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || samples < 0.0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n",
-			pmProgname);
-		errflag++;
-	    }
-	    break;
-
-	case 'S':	/* skip from start of archive */
-	    skipSeconds = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || skipSeconds <= 0.0) {
-		fprintf(stderr, "%s: -S requires positive numeric argument\n",
-			pmProgname);
-		errflag++;
-	    }
-	    break;
-
-	case 't':       /* interval between samples */
-	    if ((sts = pmParseInterval(optarg, &delta, &msg)) < 0) {
-		fprintf(stderr, "%s: illegal -t argument\n%s\n",
-			pmProgname, msg);
-		errflag++;
-	    }
-	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a, or -h option\n",
-		pmProgname);
-	errflag++;
+    if (pauseFlag && opts.context != PM_CONTEXT_ARCHIVE) {
+	pmprintf("%s: -p can only be used with -a\n", pmProgname);
+	opts.errors++;
     }
 
-    if (skipSeconds > 0.0 && (type == 0 || type == PM_CONTEXT_HOST)) {
-	fprintf(stderr, "%s: -S can only be used with -a\n", pmProgname);
-	errflag++;
-    }
-
-    if (pauseFlag && (type == 0 || type == PM_CONTEXT_HOST)) {
-	fprintf(stderr, "%s: -p can only be used with -a\n", pmProgname);
-	errflag++;
-    }
-
-    if (errflag || optind < argc-1) {
-	fprintf(stderr,
-"Usage: %s [options]\n\
-\n\
-Options\n\
-  -a   archive	  metrics source is a PCP log archive\n\
-  -h   host       metrics source is PMCD on host\n\
-  -n   pmnsfile   use an alternative PMNS\n\
-  -p              pause between samples for PCP log archive\n\
-  -S   numsec	  skip numsec seconds from start of PCP log archive\n\
-  -s   samples	  terminate after this many samples\n\
-  -t   interval	  sample interval [default 5 seconds]\n\
-  -Z   timezone   set reporting timezone\n\
-  -z              set reporting timezone to local time of metrics source\n",
-		pmProgname);
+    if (opts.errors || opts.optind < argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	    printf("%s: Cannot load namespace from \"%s\": %s\n",
-		    pmProgname, pmnsfile, pmErrStr(sts));
-	    exit(1);
-	}
+    if (opts.context == PM_CONTEXT_ARCHIVE) {
+	source = opts.archives[0];
+    } else if (opts.context == PM_CONTEXT_HOST) {
+	source = opts.hosts[0];
+    } else {
+	opts.context = PM_CONTEXT_HOST;
+	source = "local:";
     }
 
-    if (type == 0) {
-	type = PM_CONTEXT_HOST;
-	host = "local:";
-    }
-    if ((sts = pmNewContext(type, host)) < 0) {
-	if (type == PM_CONTEXT_HOST)
+    if ((sts = c = pmNewContext(opts.context, source)) < 0) {
+	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		    pmProgname, source, pmErrStr(sts));
 	else
 	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		    pmProgname, source, pmErrStr(sts));
 	exit(1);
     }
 
-    if (type == PM_CONTEXT_ARCHIVE) {
-	archive = host;
-	if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	    fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-	host = strdup(label.ll_hostname);
+    /* complete TZ and time window option (origin) setup */
+    if (pmGetContextOptions(c, &opts)) {
+	pmflush();
+	exit(1);
     }
 
-    if (zflag) {
-	if ((tzh = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(tzh));
-	    exit(1);
-	}
-	if (type == PM_CONTEXT_ARCHIVE)
-	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n", label.ll_hostname);
-	else
-	    printf("Note: timezone set to local timezone of host \"%s\"\n\n",
-		    host);
-    }
-    else if (tz != NULL) {
-	if ((tzh = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(tzh));
-	    exit(1);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-
+    host = pmGetContextHostName(c);
     ncpu = get_ncpu();
 
-    if (skipSeconds > 0.0 && type == PM_CONTEXT_ARCHIVE) {
-	label.ll_start.tv_sec += (int)skipSeconds;
-	if ((sts = pmSetMode(PM_MODE_FORW, &label.ll_start, 0)) < 0) {
-	    fprintf(stderr, "%s: warning, can't skip %.1f seconds forward in archive: %s\n", pmProgname, skipSeconds, pmErrStr(sts));
-	    /* don't exit */
+    if ((opts.context == PM_CONTEXT_ARCHIVE) &&
+	(opts.start.tv_sec != 0 || opts.start.tv_usec != 0)) {
+	if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
+	    fprintf(stderr, "%s: pmSetMode failed: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
 	}
     }
 
     get_sample(&info);
 
+    /* set a default sampling interval if none has been requested */
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	opts.interval.tv_sec = 5;
+
+    /* set sampling loop termination via the command line options */
+    samples = opts.samples ? opts.samples : -1;
+
     while (samples == -1 || samples-- > 0) {
 	if (lines % 15 == 0) {
-	    if (archive != NULL)
-		printf("Archive: %s, ", archive);
+	    if (opts.context == PM_CONTEXT_ARCHIVE)
+		printf("Archive: %s, ", opts.archives[0]);
 	    printf("Host: %s, %d cpu(s), %s",
 		    host, ncpu,
 		    pmCtime(&info.timestamp.tv_sec, timebuf));
@@ -474,8 +342,8 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 		printf("   CPU    Util");
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
-	if (type != PM_CONTEXT_ARCHIVE || pauseFlag)
-	    __pmtimevalSleep(delta);
+	if (opts.context != PM_CONTEXT_ARCHIVE || pauseFlag)
+	    __pmtimevalSleep(opts.interval);
 	get_sample(&info);
 	printf("%5.2f", info.cpu_util);
 	if (ncpu > 1)

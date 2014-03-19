@@ -13,15 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if grep -q ' RESERVED_DO_NOT_USE[ 	]*511' $PCP_VAR_DIR/pmns/stdpmid
-then
-    :
-else
-    echo "No support for dynamic PMNS entries" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

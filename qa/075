@@ -59,23 +59,6 @@ _cmd()
     | _filter
 }
 
-rm -f $seq.out
-if [ $PCP_VER -ge 2707 ]
-then
-	ln $seq.out.7 $seq.out
-elif [ $PCP_VER -ge 2701 ]
-then
-	ln $seq.out.6 $seq.out
-elif [ $PCP_VER -ge 2401 ]
-then
-	ln $seq.out.4 $seq.out
-elif [ $PCP_VER -eq 2400 ]
-then
-	ln $seq.out.3 $seq.out
-else
-	ln $seq.out.2 $seq.out
-fi
-
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 PMCD_CONNECT_TIMEOUT=30

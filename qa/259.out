@@ -12,13 +12,14 @@ pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.milli
 pmRegisterDerived: register metric[1] derived.ctr = delta(pmcd.pdu_in.total)
 __dmopencontext: bind metric[0] derived.inst
 __dmopencontext: bind metric[1] derived.ctr
-
-__dmgetpmid: metric "derived.inst" -> PMID 511.0.1
-metric:    derived.inst
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
    value "HOST"
+Note: timezone set to "TZ=UTC"
+
+__dmgetpmid: metric "derived.inst" -> PMID 511.0.1
+metric:    derived.inst
 host:      HOST
 semantics: instantaneous value
 units:     none
@@ -97,13 +98,14 @@ pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.milli
 pmRegisterDerived: register metric[1] derived.ctr = delta(pmcd.pdu_in.total)
 __dmopencontext: bind metric[0] derived.inst
 __dmopencontext: bind metric[1] derived.ctr
-
-__dmgetpmid: metric "derived.ctr" -> PMID 511.0.2
-metric:    derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
    value "HOST"
+Note: timezone set to "TZ=UTC"
+
+__dmgetpmid: metric "derived.ctr" -> PMID 511.0.2
+metric:    derived.ctr
 host:      HOST
 semantics: instantaneous value
 units:     count
@@ -198,6 +200,11 @@ pmRegisterDerived: register metric[0] myname.b = delta + 3
        ^     
 __dmgetpmid: metric "delta" -> Unknown metric name
 bind_expr: error: derived metric myname.b: operand: delta: Unknown metric name
+pmFetch returns ...
+TIMESTAMP ... numpmid: 1
+  2.0.21 (pmcd.hostname): numval: 1 valfmt: 1 vlist[]:
+   value "HOST"
+Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "myname" -> Unknown metric name
 pmval: pmLookupName(myname): Unknown metric name

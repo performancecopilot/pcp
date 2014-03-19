@@ -200,6 +200,7 @@ getdate.tab.o
     [rs] ?yystos		# const, may be optimized away
     [rs] yytable		# const
     [rs] yytranslate		# const
+getopt.o
 hash.o
 help.o
 instance.o
