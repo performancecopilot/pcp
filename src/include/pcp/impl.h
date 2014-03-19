@@ -1275,6 +1275,16 @@ extern void __pmAPIConfig(__pmAPIConfigCallback);
 extern const char *__pmGetAPIConfig(const char *);
 
 /*
+ * internals of argument parsing for special circumstances
+ */
+extern void __pmStartOptions(pmOptions *);
+extern void __pmAddOptArchive(pmOptions *, char *);
+extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptHost(pmOptions *, char *);
+extern void __pmAddOptHostList(pmOptions *, char *);
+extern void __pmEndOptions(pmOptions *);
+
+/*
  * AF - general purpose asynchronous event management routines
  */
 extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));

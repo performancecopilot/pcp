@@ -50,7 +50,9 @@ s/ [0-9][0-9]*/ ... PID/
 	-e '/^+ rm /d' \
 	-e '/^+ pmlogger_merge /d' \
 	-e '/^[12][0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-9][0-9]\.[0-9][0-9]/d' \
-	-e '/Warning: no write access/d'
+	-e '/Warning: no write access/d' \
+	-e 's/ *$//' \
+	| tr -s ' '
 }
 
 # Avoid conflict with normal management of the summary logs ...

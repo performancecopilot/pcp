@@ -123,6 +123,13 @@ MYFILES += chkacc4.c
 LDIRT += chkacc4
 endif
 
+ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
+CFILES += getoptions.c
+else
+MYFILES += getoptions.c
+LDIRT += getoptions
+endif
+
 ifeq ($(shell test $(PCP_VER) -ge 3811 && echo 1), 1)
 CONFIG_INTERP = config2.interp
 else

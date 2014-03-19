@@ -411,4 +411,15 @@ PCP_3.2 {
     __pmLogLocalSocketUser;
     __pmMakePath;
     pmGetContextHostName_r;
+    pmGetContextOptions;
+    pmGetOptions;
+    pmFreeOptions;
+    pmUsageMessage;
+
+    __pmStartOptions;
+    __pmAddOptArchive;
+    __pmAddOptArchiveList;
+    __pmAddOptHost;
+    __pmAddOptHostList;
+    __pmEndOptions;
 } PCP_3.1;

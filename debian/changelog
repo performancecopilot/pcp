@@ -1,11 +1,11 @@
 pcp (3.9.1) unstable; urgency=low
 
-  * Currently under development.
-  * Fix build depends for libmicrohttpd-dev
+  * New release (full details in CHANGELOG).
+  * Fix build depends for libmicrohttpd-dev.
   * Update debian copyright notices (closes: #739952)
   * Fix build failure related to pcp-manager (closes: #719734)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 14 Mar 2014 12:00:00 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Mar 2014 12:55:16 +1100
 
 pcp (3.9.0) unstable; urgency=low
 

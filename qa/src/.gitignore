@@ -79,7 +79,9 @@ gap2.index
 gap2.meta
 gap.index
 gap.meta
+getcontexthost
 getconfig
+getoptions
 grind_conv
 grind_ctx
 hashwalk

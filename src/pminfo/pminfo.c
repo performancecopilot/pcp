@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,38 +17,90 @@
 #include "impl.h"
 #include <limits.h>
 
+static void myeventdump(pmValueSet *, int);
+static int  myoverrides(int, pmOptions *);
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_ARCHIVE,
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    PMOPT_LOCALPMDA,
+    PMOPT_SPECLOCAL,
+    PMOPT_NAMESPACE,
+    PMOPT_DUPNAMES,
+    PMOPT_ORIGIN,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Protocol options"),
+    { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [20]" },
+    { "desc",     0, 'd', 0, "get and print metric description" },
+    { "fetch",    0, 'f', 0, "fetch and print values for all instances" },
+    { "fetchall", 0, 'F', 0, "fetch and print values for non-enumerable indoms" },
+    { "pmid",     0, 'm', 0, "print PMID" },
+    { "fullpmid", 0, 'M', 0, "print PMID in verbose format" },
+    { "oneline",  0, 't', 0, "get and display (terse) oneline text" },
+    { "helptext", 0, 'T', 0, "get and display (verbose) help text" },
+    PMAPI_OPTIONS_HEADER("Metrics options"),
+    { "derived",  1, 'c', "FILE", "load derived metric definitions from FILE" },
+    { "events",   0, 'x', 0, "unpack and report on any fetched event records" },
+    { "verify",   0, 'v', 0, "verify mode, be quiet and only report errors" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvxzZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] [metricname ...]",
+    .override = myoverrides,
+};
+
 static int	p_mid;		/* Print metric IDs of leaf nodes */
 static int	p_fullmid;	/* Print verbose metric IDs of leaf nodes */
 static int	p_desc;		/* Print descriptions for metrics */
-static int	verify;		/* Only print error messages */
 static int	p_oneline;	/* fetch oneline text? */
 static int	p_help;		/* fetch help text? */
 static int	p_value;	/* pmFetch and print value(s)? */
-static int	p_force;	/* pmFetch and print value(s)? for non-enumerable indoms too */
+static int	p_force;	/* pmFetch and print value(s)? for non-enumerable indoms */
 
 static int	need_context;	/* set if need a pmapi context */
 static int	need_pmid;	/* set if need to lookup names */
-static int	type;
-static char	*hostname;
-static char	*pmnsfile = PM_NS_DEFAULT;
-static int	dupok = 0;
-
 static char	**namelist;
 static pmID	*pmidlist;
 static int	batchsize = 20;
 static int	batchidx;
-
-static char	*Oflag;		/* argument of -O flag */
-static int	xflag;		/* for -x */
-static int	zflag;		/* for -z */
-static char 	*tz;		/* for -Z timezone */
-static struct timeval 	start;	/* start of time window */
-
-static void myeventdump(pmValueSet *, int);
+static int	verify;		/* Only print error messages */
+static int	events;		/* Decode event metrics */
 
 /*
- * stolen from pmprobe.c ... cache all of the most recently requested
- * pmInDom ...
+ * pminfo has a few options which do not follow the defacto standards
+ */
+static int
+myoverrides(int opt, pmOptions *opts)
+{
+    switch (opt) {
+	case 't':
+	    p_oneline = 1;
+	    need_context = 1;
+	    need_pmid = 1;
+	    return 1;	/* we've claimed 't' - inform pmGetOptions */
+
+	case 'T':
+	    p_help = 1;
+	    need_context = 1;
+	    need_pmid = 1;
+	    return 1;	/* we've claimed 'T' - inform pmGetOptions */
+
+	default:
+	    break;
+    }
+    return 0;	/* continue processing this option, whatever it is */
+}
+
+/*
+ * Cache all of the most recently requested pmInDom
  */
 static char *
 lookup(pmInDom indom, int inst)
@@ -120,7 +172,7 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	printf(" value ");
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
-	if (dp->type == PM_TYPE_EVENT && xflag)
+	if (dp->type == PM_TYPE_EVENT && events)
 	    myeventdump(vsp, j);
     }
 }
@@ -269,8 +321,8 @@ report(void)
     }
 
     if (p_value || verify) {
-	if (type == PM_CONTEXT_ARCHIVE) {
-	    if ((sts = pmSetMode(PM_MODE_FORW, &start, 0)) < 0) {
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
 		exit(1);
 	    }
@@ -308,8 +360,8 @@ report(void)
 			    pmFreeResult(xresult);
 			    xresult = NULL;
 			}
-			if (type == PM_CONTEXT_ARCHIVE) {
-			    if ((sts = pmSetMode(PM_MODE_FORW, &start, 0)) < 0) {
+			if (opts.context == PM_CONTEXT_ARCHIVE) {
+			    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
 				fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
 				exit(1);
 			    }
@@ -433,71 +485,27 @@ dometric(const char *name)
 	report();
 }
 
-static void
-PrintUsage(void)
+int
+main(int argc, char **argv)
 {
-    fprintf(stderr,
-"Usage: %s [options] [metricname ...]\n\
-\n\
-Options:\n\
-  -a archive    metrics source is a PCP log archive\n\
-  -b batchsize	fetch this many metrics at a time for -f or -v (default 20)\n\
-  -c dmfile	load derived metric definitions from dmfile\n\
-  -d		get and print metric description\n\
-  -f		fetch and print value(s) for all instances\n\
-  -F		fetch and print values for non-enumerable indoms too\n\
-  -h host	metrics source is PMCD on host\n\
-  -K spec	optional additional PMDA spec for local connection\n\
-		spec is of the form op,domain,dso-path,init-routine\n\
-  -L		metrics source is local connection to PMDA, no PMCD\n\
-  -m		print PMID\n\
-  -M		print PMID in verbose format\n\
-  -n pmnsfile 	use an alternative PMNS\n\
-  -N pmnsfile 	use an alternative PMNS (duplicate PMIDs are allowed)\n\
-  -O time	origin for a fetch from the archive\n\
-  -t		get and display (terse) oneline text\n\
-  -T		get and display (verbose) help text\n\
-  -v		verify mode, be quiet and only report errors\n\
-		(forces other output control options off)\n\
-  -x		like -f and expand event records\n\
-  -Z timezone   set timezone for -O\n\
-  -z            set timezone for -O to local time for host from -a\n",
-		pmProgname);
-}
-
-static void
-ParseOptions(int argc, char *argv[])
-{
-    int		c;
+    int		a, c;
     int		sts;
-    int		errflag = 0;
+    int		exitsts = 0;
+    char	*source;
     char	*endnum;
-    char	*errmsg;
-    char	*opts = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvxzZ:?";
 
-    while ((c = getopt(argc, argv, opts)) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	    case 'a':	/* archive name */
-		if (type != 0) {
-		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-		    errflag++;
-		}
-		type = PM_CONTEXT_ARCHIVE;
-		hostname = optarg;
-		need_context = 1;
-		break;
-
 	    case 'b':		/* batchsize */
-		batchsize = (int)strtol(optarg, &endnum, 10);
+		batchsize = (int)strtol(opts.optarg, &endnum, 10);
 		if (*endnum != '\0') {
-		    fprintf(stderr, "%s: -b requires numeric argument\n", pmProgname);
-		    errflag++;
+		    pmprintf("%s: -b requires numeric argument\n", pmProgname);
+		    opts.errors++;
 		}
 		break;
 
 	    case 'c':		/* derived metrics config file */
-		sts = pmLoadDerivedConfig(optarg);
+		sts = pmLoadDerivedConfig(opts.optarg);
 		if (sts < 0) {
 		    fprintf(stderr, "%s: -c error: %s\n", pmProgname, pmErrStr(sts));
 		    /* errors are not necessarily fatal ... */
@@ -508,17 +516,6 @@ ParseOptions(int argc, char *argv[])
 		p_desc = 1;
 		need_context = 1;
 		need_pmid = 1;
-		break;
-
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		}
-		else
-		    pmDebug |= sts;
 		break;
 
 	    case 'F':
@@ -533,33 +530,6 @@ ParseOptions(int argc, char *argv[])
 		need_pmid = 1;
 		break;
 
-	    case 'h':	/* contact PMCD on this hostname */
-		if (type != 0) {
-		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-		    errflag++;
-		}
-		hostname = optarg;
-		type = PM_CONTEXT_HOST;
-		need_context = 1;
-		break;
-
-	    case 'K':	/* update local PMDA table */
-		if ((errmsg = __pmSpecLocalPMDA(optarg)) != NULL) {
-		    fprintf(stderr, "%s: __pmSpecLocalPMDA failed: %s\n", pmProgname, errmsg);
-		    errflag++;
-		}
-		break;
-
-	    case 'L':	/* local PMDA connection, no PMCD */
-		if (type != 0) {
-		    fprintf(stderr, "%s: at most one of -a, -h and -L allowed\n", pmProgname);
-		    errflag++;
-		}
-		hostname = NULL;
-		type = PM_CONTEXT_LOCAL;
-		need_context = 1;
-		break;
-
 	    case 'M':
 		p_fullmid = 1;
 		p_mid = 1;
@@ -571,29 +541,6 @@ ParseOptions(int argc, char *argv[])
 		need_pmid = 1;
 		break;
 
-	    case 'N':
-		dupok = 1;
-		/*FALLTHROUGH*/
-	    case 'n':
-		pmnsfile = optarg;
-		break;
-
-	    case 'O':		/* sample origin */
-		Oflag = optarg;
-		break;
-
-	    case 'T':
-		p_help = 1;
-		need_context = 1;
-		need_pmid = 1;
-		break;
-
-	    case 't':
-		p_oneline = 1;
-		need_context = 1;
-		need_pmid = 1;
-		break;
-
 	    case 'v':
 		verify = 1;
 		need_context = 1;
@@ -601,51 +548,21 @@ ParseOptions(int argc, char *argv[])
 		break;
 
 	    case 'x':
-		xflag = p_value = 1;
+		events = p_value = 1;
 		need_context = 1;
 		need_pmid = 1;
 		break;
-
-	    case 'z':	/* timezone from host */
-		if (tz != NULL) {
-		    fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		    errflag++;
-		}
-		zflag++;
-		break;
-
-	    case 'Z':	/* $TZ timezone */
-		if (zflag) {
-		    fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		    errflag++;
-		}
-		tz = optarg;
-		break;
-
-	    case '?':
-		if (errflag == 0) {
-		    PrintUsage();
-		    exit(0);
-		}
 	}
     }
-
-    if (zflag && type == 0) {
-	fprintf(stderr, "%s: -z requires an explicit -a or -h option\n", pmProgname);
-	errflag++;
-    }
-
-    if (errflag) {
-	PrintUsage();
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (type != PM_CONTEXT_ARCHIVE && Oflag != NULL) {
-	fprintf(stderr, "%s: Warning: -O option requires archive source, and will be ignored\n", pmProgname);
-	Oflag = NULL;
-    }
+    if (opts.context)
+	need_context = 1;
 
-    if (type == PM_CONTEXT_ARCHIVE)
+    if (opts.context == PM_CONTEXT_ARCHIVE)
 	/*
 	 * for archives, one metric per batch and start at beginning of
 	 * archive for each batch so metric will be found if it is in
@@ -655,24 +572,8 @@ ParseOptions(int argc, char *argv[])
 
     if (verify)
 	p_desc = p_mid = p_fullmid = p_help = p_oneline = p_value = p_force = 0;
-}
 
-/*****************************************************************************/
 
-int
-main(int argc, char **argv)
-{
-    int		sts;
-    int		exitsts = 0;
-    pmLogLabel	label;
-    char	*host;
-    char	*msg;
-    struct timeval	first;		/* initial sample time */
-    struct timeval	last;		/* final sample time */
-
-    __pmSetProgname(argv[0]);
-
-    ParseOptions(argc, argv);
 
     if ((namelist = (char **)malloc(batchsize * sizeof(char *))) == NULL) {
 	fprintf(stderr, "%s: namelist malloc: %s\n", pmProgname, osstrerror());
@@ -684,86 +585,47 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
-	    fprintf(stderr, "%s: Error loading namespace: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-    }
-    else {
-   	need_context = 1; /* atleast for PMNS */
-    }
+    if (!opts.nsflag)
+	need_context = 1; /* for distributed PMNS as no PMNS file given */
 
     if (need_context) {
-	if (type == 0) {
-	    type = PM_CONTEXT_HOST;
-	    hostname = "local:";
+	int ctxid;
+
+	if (opts.context == PM_CONTEXT_ARCHIVE)
+	    source = opts.archives[0];
+	else if (opts.context == PM_CONTEXT_HOST)
+	    source = opts.hosts[0];
+	else if (opts.context == PM_CONTEXT_LOCAL)
+	    source = NULL;
+	else {
+	    opts.context = PM_CONTEXT_HOST;
+	    source = "local:";
 	}
-	if ((sts = pmNewContext(type, hostname)) < 0) {
-	    if (type == PM_CONTEXT_HOST)
+	if ((sts = pmNewContext(opts.context, source)) < 0) {
+	    if (opts.context == PM_CONTEXT_HOST)
 		fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-			pmProgname, hostname, pmErrStr(sts));
-	    else if (type == PM_CONTEXT_LOCAL)
+			pmProgname, source, pmErrStr(sts));
+	    else if (opts.context == PM_CONTEXT_LOCAL)
 		fprintf(stderr, "%s: Cannot make standalone connection on localhost: %s\n",
 			pmProgname, pmErrStr(sts));
 	    else
 		fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-			pmProgname, hostname, pmErrStr(sts));
+			pmProgname, source, pmErrStr(sts));
 	    exit(1);
 	}
+	ctxid = sts;
 
-	if (type == PM_CONTEXT_ARCHIVE) {
+	if (opts.context == PM_CONTEXT_ARCHIVE) {
 	    pmTrimNameSpace();
-	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
-		fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		    pmProgname, pmErrStr(sts));
-		exit(1);
-	    }
-	    first = label.ll_start;
-	    host = label.ll_hostname;
-
-	    if ((sts = pmGetArchiveEnd(&last)) < 0) {
-		last.tv_sec = INT_MAX;
-		last.tv_usec = 0;
-		fflush(stdout);
-		fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-		    pmProgname, pmErrStr(sts));
-		fprintf(stderr, "\nWARNING: This archive is sufficiently damaged that it may not be possible to\n");
-		fprintf(stderr, "         produce complete information.  Continuing and hoping for the best.\n\n");
-		fflush(stderr);
-	    }
-
-	    if (zflag) {
-		if ((sts = pmNewContextZone()) < 0) {
-		    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-			pmProgname, pmErrStr(sts));
-		    exit(1);
-		}
-		printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
-	    }
-	    else if (tz != NULL) {
-		if ((sts = pmNewZone(tz)) < 0) {
-		    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-			pmProgname, tz, pmErrStr(sts));
-		    exit(1);
-		}
-		printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-	    }
-	    else {
-		pmNewContextZone();
-	    }
-
-	    if (pmParseTimeWindow(NULL, NULL, NULL, Oflag,
-				   &first, &last,
-				   &last, &first, &start, &msg) < 0) {
-		fprintf(stderr, "%s: %s", pmProgname, msg);
+	    /* complete TZ and time window option (origin) setup */
+	    if (pmGetContextOptions(ctxid, &opts)) {
+		pmflush();
 		exit(1);
 	    }
 	}
     }
 
-    if (optind >= argc) {
+    if (opts.optind >= argc) {
     	sts = pmTraversePMNS("", dometric);
 	if (sts < 0) {
 	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
@@ -771,8 +633,7 @@ main(int argc, char **argv)
 	}
     }
     else {
-	int	a;
-	for (a = optind; a < argc; a++) {
+	for (a = opts.optind; a < argc; a++) {
 	    sts = pmTraversePMNS(argv[a], dometric);
 	    if (sts < 0) {
 		fprintf(stderr, "Error: %s: %s\n", argv[a], pmErrStr(sts));

@@ -101,8 +101,8 @@ These time terms for a specific day are relative to the current time.
 "yesterday"                    01/01/2000 00:00:00
 "yesterday"                    01/01/2000 00:00:00
 "yesterday"                    2014-01-27 11:28:50
-"tomorrow"                     2014-03-14 01:42:00
-"tomorrow"                     2014-03-14 01:42:00
+"tomorrow"                     01/01/2000 00:00:00
+"tomorrow"                     01/01/2000 00:00:00
 "tomorrow"                     2014-01-27 11:28:50
 "sunday"                       01/01/2000 00:00:00
 "sunday"                       01/01/2000 00:00:00

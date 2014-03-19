@@ -1,0 +1,884 @@
+QA output created by 344
+
+qa.colour
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+
+PID check passes
+
+=== expect no sample metrics ===
+
+qa.colour PMID: 400.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+sample.colour: pmLookupDesc: No PMCD agent for domain of request
+
+=== sample metrics this time ===
+
+qa.colour PMID: 400.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+
+sample.colour PMID: 30.0.5
+    inst [0 or "red"] value 101
+    inst [1 or "green"] value 202
+    inst [2 or "blue"] value 303
+
+=== -K spec parsing in pminfo ===
++++ -K clear +++
+sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
++++ -K clear, +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400 +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400, +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400,TMP.$DSO_SUFFIX +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400,TMP.$DSO_SUFFIX, +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400,TMP.$DSO_SUFFIX,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,,,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K clear,400,,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add +++
+pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add, +++
+pminfo: __pmSpecLocalPMDA failed: missing domain in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add,400 +++
+pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add,400, +++
+pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add,400,TMP.$DSO_SUFFIX +++
+pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add,400,TMP.$DSO_SUFFIX, +++
+pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
+
+sample.string.write_me PMID: 30.0.29
+    value 13
+
+qa.string.write_me PMID: 400.0.29
+    value 13
++++ -K del +++
+pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K del, +++
+pminfo: __pmSpecLocalPMDA failed: missing domain in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K del,30 +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
++++ -K del,30, +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
++++ -K del,,sample/pmda_sample.$DSO_SUFFIX +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+__pmLocalPMDA -> Unknown or illegal instance domain identifier
+pminfo: __pmSpecLocalPMDA failed: __pmLocalPMDA: Unknown or illegal instance domain identifier
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K del,30,sample/pmda_sample.$DSO_SUFFIX, +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
++++ -K del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init +++
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
+qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
++++ -K del,, +++
+pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K del,,, +++
+pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
++++ -K del,,,sample_init +++
+pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
+Usage: pminfo [options] [metricname ...]
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --dupnames=FILE
+                        use an alternative PMNS (duplicate names allowed)
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load derived metric definitions from FILE
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
+
+=== some __pmLocalPMDA() exercises ===
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (130) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
+
+tmpsample.bin PMID: 130.0.6
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+    inst [500 or "bin-500"] value 500
+    inst [600 or "bin-600"] value 600
+    inst [700 or "bin-700"] value 700
+    inst [800 or "bin-800"] value 800
+    inst [900 or "bin-900"] value 900
+
+=== other tools than know about -K ...
+
+metric:    sampledso.bin
+host:      HOST
+semantics: instantaneous value
+units:     none
+samples:   3
+interval:  0.10 sec
+
+    bin-100     bin-900 
+        100         900 
+        100         900 
+        100         900 
+
+sampledso.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"

@@ -1,6 +1,6 @@
 QA output created by 1108
-# $version=1.1    
-+ export version; version=1.1    
+# $version=1.1
++ export version; version=1.1
 + cd ...
 + pmnewlog ...
 + kill ... PID

@@ -1,7 +1,7 @@
 QA output created by 145
 Error Parsing ASCII PMNS: Duplicate metric id (29.0.11) in name space for metrics "another_ten" and "ten"
 
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP": Problems parsing PMNS definitions
 [PID]pmGetPDU: ERROR fd=<n> len=20 from=PMCD
 000:       14     7000     FROM        0  2010000 
 [PID]pmXmitPDU: CREDS fd=<n> len=20

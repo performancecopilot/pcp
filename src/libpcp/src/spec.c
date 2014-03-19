@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -588,8 +588,8 @@ __pmParseHostSpec(
     return PM_ERR_GENERIC;
 }
 
-int
-__pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
+static int
+unparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size, int prefix)
 {
     int off = 0, len = size;	/* offset in string and space remaining */
     int i, j, sts;
@@ -603,13 +603,13 @@ __pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
 	    len -= sts; off += sts;
 	}
 
-	if (hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL) {
+	if (prefix && hostp[i].nports == PM_HOST_SPEC_NPORTS_LOCAL) {
 	    if ((sts = snprintf(string + off, len, "local:/%s", hostp[i].name + 1)) >= size) {
 		off = -E2BIG;
 		goto done;
 	    }
 	}
-	else if (hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
+	else if (prefix && hostp[i].nports == PM_HOST_SPEC_NPORTS_UNIX) {
 	    if ((sts = snprintf(string + off, len, "unix:/%s", hostp[i].name + 1)) >= size) {
 		off = -E2BIG;
 		goto done;
@@ -648,6 +648,12 @@ done:
     }
 #endif
     return off;
+}
+
+int
+__pmUnparseHostSpec(pmHostSpec *hostp, int count, char *string, size_t size)
+{
+    return unparseHostSpec(hostp, count, string, size, 1);
 }
 
 void
@@ -1036,17 +1042,17 @@ __pmUnparseHostAttrsSpec(
 	len -= sts; off += sts;
     }
     else if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL) {
-	if ((sts = snprintf(string, len, "unix://")) >= len)
+	if ((sts = snprintf(string, len, "unix:/")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
     else if (__pmHashSearch(PCP_ATTR_LOCAL, attrs) != NULL) {
-	if ((sts = snprintf(string, len, "local://")) >= len)
+	if ((sts = snprintf(string, len, "local:/")) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
 
-    if ((sts = __pmUnparseHostSpec(hosts, count, string + off, len)) >= len)
+    if ((sts = unparseHostSpec(hosts, count, string + off, len, 0)) >= len)
 	return sts;
     len -= sts; off += sts;
 
