@@ -49,7 +49,10 @@ usr/share/man/man3/pmFreeEventResult.3.gz
 usr/share/man/man3/__pmFreeHostAttrsSpec.3.gz
 usr/share/man/man3/__pmFreeHostSpec.3.gz
 usr/share/man/man3/pmFreeMetricSpec.3.gz
+usr/share/man/man3/pmFreeOptions.3.gz
 usr/share/man/man3/pmfreeprofile.3.gz
+usr/share/man/man3/pmGetOptions.3.gz
+usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/__pmFreeProfile.3.gz
 usr/share/man/man3/pmFreeResult.3.gz
 usr/share/man/man3/pmGetArchiveEnd.3.gz
@@ -59,8 +62,11 @@ usr/share/man/man3/pmGetChildrenStatus.3.gz
 usr/share/man/man3/pmGetConfig.3.gz
 usr/share/man/man3/pmGetContextHostName.3.gz
 usr/share/man/man3/pmGetContextHostName_r.3.gz
+usr/share/man/man3/pmGetContextOptions.3.gz
 usr/share/man/man3/pmGetInDom.3.gz
 usr/share/man/man3/pmGetInDomArchive.3.gz
+usr/share/man/man3/pmgetoptions.3.gz
+usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmiAddInstance.3.gz
 usr/share/man/man3/pmiAddMetric.3.gz
@@ -158,6 +164,7 @@ usr/share/man/man3/pmUnloadNameSpace.3.gz
 usr/share/man/man3/pmUnpackEventRecords.3.gz
 usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
+usr/share/man/man3/pmUsageMessage.3.gz
 usr/share/man/man3/pmUseContext.3.gz
 usr/share/man/man3/pmUseZone.3.gz
 usr/share/man/man3/pmWhichContext.3.gz
