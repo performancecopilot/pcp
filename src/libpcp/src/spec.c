@@ -1037,7 +1037,7 @@ __pmUnparseHostAttrsSpec(
     int sts, first;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
-	if ((sts = snprintf(string, len, "%s:/", (char *)node->data)) >= len)
+	if ((sts = snprintf(string, len, "%s://", (char *)node->data)) >= len)
 	    return -E2BIG;
 	len -= sts; off += sts;
     }
