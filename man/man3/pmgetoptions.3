@@ -266,9 +266,104 @@ dynamically, provided that
 .I opts
 was zeroed initially.
 .SH "FLAGS VALUES"
-(TODO)
+.TP
+.B PM_OPTFLAG_INIT
+Used internally within the library to indicate initialisation has been
+done, so that on subsequent calls it will not be done again.
+.TP
+.B PM_OPTFLAG_DONE
+Used primarily internally within the library to indicate that the final
+option processing has been completed.
+This processing involves cross-referencing a number of the options, to
+check for mutual exclusion, for example.
+There may be other post-processing at this stage also, provided it does
+not require a PMAPI context.
+.TP
+.B PM_OPTFLAG_MULTI
+Allow more than one host or archive to be specified.
+The default is to allow one source of metrics only, however some of the
+more sophisticated tools permit multiple metric sources.
+See also
+.BR PM_OPTFLAG_MIXED .
+.TP
+.B PM_OPTFLAG_USAGE_ERR
+Indicates that the library has detected a command-line usage error.
+This is an error such as when an option requires an argument but none
+is supplied, or conflicting options are specified (such as \f3\-s\f1
+and \f3-T\f1).
+.TP
+.B PM_OPTFLAG_RUNTIME_ERR
+Indicates that the library has detected an error at run time.
+This is an error such as failing to retrieve timezone information
+from
+.B pmcd (1)
+or
+failing to load an alternate metric namespace from a local file
+(via the \f3-n\f1 option).
+.TP
+.B PM_OPTFLAG_EXIT
+Indicates a suggestion from the library that the tool exit cleanly.
+This is used when the version number is requested, for example (the
+\f3\-V\f1 option and PMOPT_VERSION macro).
+.TP
+.B PM_OPTFLAG_POSIX
+Use strict POSIX command line argument handling.
+This means options and following arguments will not be reordered,
+so additional options cannot follow command line arguments.
+This may be important for tools where the arguments can be negative
+numbers, for example, as these should not be treated as command line
+options in this case.
+.TP
+.B PM_OPTFLAG_MIXED
+Allow both live and archive metric sources to be specified.
+The default is to allow one type of metric context only, however some
+of the more sophisticated tools permit multiple context types.
+See also
+.BR PM_OPTFLAG_MULTI .
+.TP
+.B PM_OPTFLAG_ENV_ONLY
+Many options can be specified through the either the command line
+or from similarly-named environment variables.
+This flag disables all argument parsing, and only changes
+.I opts
+based on the environment variables.
+This may be useful for tools wishing to ensure no command line option
+conflicts occur between their own set and the standard PCP option set
+(such as an existing tool, reimplemented using PMAPI services).
+.TP
+.B PM_OPTFLAG_LONG_ONLY
+Only process long options, not short options.
+.TP
+.B PM_OPTFLAG_BOUNDARIES
+The default
+.B pmGetOptions
+behaviour is to parse the time window options (namely, \f3\-A\f1,
+\f3\-O\f1, \f3\-S\f1 and \f3\-T\f1), only if one of those options
+has been specified on the command line.
+However, this flag can be used (particularly with archive contexts)
+to find the
+.I start
+and
+.I finish
+times associated with the context(s) even if no time window options
+were specified.
+In the case of multiple archives, the time window is defined as the
+time window spanning all of the archives.
+.TP
+.B PM_OPTFLAG_STDOUT_TZ
+The timezone being used will be reported on the standard output
+stream during option parsing.
+The default behaviour is to not report, but simply return timezone
+information via the
+.I timezone
+(\f3\-Z\f1)
+and
+.I tzflag
+(\f3\-z\f1)
+fields in the
+.I opts
+structure.
 .SH "RETURN VALUE"
-(TODO)
 When the
 .B pmGetOptions
 function returns detects a command-line option that is not one of
@@ -291,6 +386,17 @@ use the global optarg or optind from your platform C library,
 these will
 .B NOT
 be modified).
+.PP
+The
+.B pmGetContextOptions
+function returns zero on success, or a negative PCP error code
+on failure.
+The
+.I error
+field within the
+.I
+opts
+parameter will also be non-zero in the latter case.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -311,6 +417,7 @@ using the
 function.
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmcd (1),
 .BR pminfo (1),
 .BR pmstat (1),
 .BR getopt (3),
