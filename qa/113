@@ -41,7 +41,53 @@ then
     exit
 fi
 
-rootdev=`mount | $PCP_AWK_PROG '$1 ~ /\// && $3 == "/" { print $1 }'`
+rootdev=`df / | $PCP_AWK_PROG 'NR == 2 { print $1 }'`
+echo "rootdev=$rootdev" >>$seq.full
+if [ -z "$rootdev" ]
+then
+    echo "Arrgh, cannot get device for root fs from df(1) ..."
+    df /
+    exit
+fi
+if [ -L "$rootdev" ]
+then
+    if which realpath >/dev/null 2>&1
+    then
+	symroot=`realpath $rootdev`
+    else
+	symroot=`ls -l $rootdev | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l $rootdev
+	    exit
+	fi
+	case "$symroot"
+	in
+	    ../*)
+		# handle case like ...
+		# /dev/disk/by-uuid/467793a8-5191-4940-90fb-38a6f28b035d -> ../../sda1
+		dir=`dirname $rootdev`
+		while true
+		do
+		    case "$symroot"
+		    in
+		    	../*)
+			    dir=`echo $dir | sed -e 's@/[^/]*$@@'`
+			    symroot=`echo $symroot | sed -e 's@\.\./\([^.]\)@\1@'`
+			    ;;
+			*)
+			    symroot=${dir}/${symroot}
+			    break
+			    ;;
+		    esac
+		done
+		;;
+	esac
+    fi
+    echo "symroot=$symroot" >>$seq.full
+    rootdev=$symroot
+fi
 
 # disk name aliases are a real pain ...
 #
@@ -70,33 +116,42 @@ do
     [ ! -L $dev ] && continue
     [ "$dev" = "/dev/root" ] && continue
     echo "mount device: $dev" >>$seq.full
-    link=$dev
-    while true
-    do
-	next=`ls -l $link | sed -n -e '/ -> /s/.* -> //p'`
-	[ -z "$next" ] && break
-	echo "    $link -> $next" >>$seq.full
-	case $next
+    if which realpathx >/dev/null 2>&1
+    then
+	sym=`realpath $dev`
+    else
+	sym=`ls -l $dev | sed -e 's/.*-> //'`
+	if [ -z "$sym" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for fs ..."
+	    ls -l $dev
+	    exit
+	fi
+	case "$sym"
 	in
-	    md/*|xscsi/*)
-		# relative pathname in LBS!
-		link=/dev/$next
-		;;
-	    /*)
-		link=$next
-		;;
 	    ../*)
-		dir=`dirname $link`
-		dir=`dirname $dir`
-		next=`echo $next | sed -e 's/^\.\.\///'`
-		link=$dir/$next
-		;;
-	    *)
-		dir=`dirname $link`
-		link=$dir/$next
+		# handle case like ...
+		# /dev/disk/by-uuid/467793a8-5191-4940-90fb-38a6f28b035d -> ../../sda1
+		dir=`dirname $dev`
+		while true
+		do
+		    case "$sym"
+		    in
+		    	../*)
+			    dir=`echo $dir | sed -e 's@/[^/]*$@@'`
+			    sym=`echo $sym | sed -e 's@\.\./\([^.]\)@\1@'`
+			    ;;
+			*)
+			    sym=${dir}/${sym}
+			    break
+			    ;;
+		    esac
+		done
 		;;
 	esac
-    done
+    fi
+    echo "sym=$sym" >>$seq.full
+    link=$sym
     [ "$link" != "$dev" ] && echo "s;$dev;$link;" >>$tmp.map
 done
 
