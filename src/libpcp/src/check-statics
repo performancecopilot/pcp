@@ -315,7 +315,7 @@ rtime.o
     r ?ampm			# const (MinGW)
     r ?months			# const (MinGW)
     r ?wdays			# const (MinGW)
-    s ?startend_relative_terms.[0-9]*	# const
+    [ds] ?startend_relative_terms.[0-9]*	# const
 sortinst.o
 spec.o
 store.o
