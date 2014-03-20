@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1054,14 +1055,14 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	ti.ti_meta = (__pm_off_t)tmp;
 	if (tmp != ti.ti_meta) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (meta) too big\n");
-	    exit(1);
+	    return;
 	}
 	tmp = ftell(lcp->l_mfp);
 	assert(tmp >= 0);
 	ti.ti_log = (__pm_off_t)tmp;
 	if (tmp != ti.ti_log) {
 	    __pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive file (data) too big\n");
-	    exit(1);
+	    return;
 	}
     }
     else {
@@ -2253,7 +2254,8 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 		__pmNotifyErr(LOG_ERR, "pmGetArchiveEnd: PCP archive file"
 			" (meta) too big (%"PRIi64" bytes)\n",
 			(uint64_t)sbuf.st_size);
-		exit(1);
+		sts = PM_ERR_TOOBIG;
+		break;
 	    }
 	}
 

@@ -37,11 +37,6 @@ root {
 }
 EOF
 
-
-# Try my own libpcp
-#_RLD_LIST="$HOME/isms/pcp/src/libpcp/32/libpcp.so:DEFAULT"
-#export _RLD_LIST
-
 pminfo -n $tmp.pmns_hyphen 2>&1 | _filter
 pminfo -n $tmp.pmns_underscore 2>&1 | _filter
 

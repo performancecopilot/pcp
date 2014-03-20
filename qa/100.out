@@ -3,7 +3,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory on once -> mandatory on once
@@ -13,7 +13,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -27,7 +27,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory on once -> mandatory maybe
@@ -37,7 +37,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory maybe sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -51,7 +51,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory on once -> mandatory off
@@ -61,7 +61,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -75,7 +75,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory on once -> advisory on once
@@ -85,7 +85,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -99,7 +99,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory on once -> advisory off
@@ -109,7 +109,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -123,7 +123,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory maybe -> mandatory on once
@@ -133,7 +133,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -147,7 +147,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory maybe -> mandatory maybe
@@ -157,7 +157,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory maybe sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -171,7 +171,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory maybe -> mandatory off
@@ -181,7 +181,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -195,7 +195,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory maybe -> advisory on once
@@ -205,7 +205,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -219,7 +219,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory maybe -> advisory off
@@ -229,7 +229,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -243,7 +243,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory off -> mandatory on once
@@ -253,7 +253,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -267,7 +267,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory off -> mandatory maybe
@@ -277,7 +277,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory maybe sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -291,7 +291,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory off -> mandatory off
@@ -301,7 +301,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -315,7 +315,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory off -> advisory on once
@@ -325,7 +325,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -339,7 +339,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # mandatory off -> advisory off
@@ -349,7 +349,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -363,7 +363,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory on once -> mandatory on once
@@ -373,7 +373,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -387,7 +387,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory on once -> mandatory maybe
@@ -397,7 +397,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory maybe sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -411,7 +411,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory on once -> mandatory off
@@ -421,7 +421,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -435,7 +435,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory on once -> advisory on once
@@ -445,7 +445,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -459,7 +459,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory on once -> advisory off
@@ -469,7 +469,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -483,7 +483,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory off -> mandatory on once
@@ -493,7 +493,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -507,7 +507,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory off -> mandatory maybe
@@ -517,7 +517,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory maybe sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -531,7 +531,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory off -> mandatory off
@@ -541,7 +541,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -555,7 +555,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory off -> advisory on once
@@ -565,7 +565,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory on once sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -579,7 +579,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> # setup
 pmlc> log mandatory maybe { sample.seconds sample.drift }
 pmlc> # advisory off -> advisory off
@@ -589,7 +589,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log advisory off sample.drift
 pmlc> query { sample.seconds sample.drift }
 sample.seconds
@@ -603,7 +603,7 @@ Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
 [command summary deleted ...]
 
-Connected to pmlogger on port PORT at HOSTNAME
+Connected to pmlogger at HOSTNAME
 pmlc> log mandatory on 25 msec sample.long.one
 pmlc> 
 Log for pmlogger on HOST started DATE

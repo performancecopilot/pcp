@@ -3,6 +3,7 @@
 #
 # pmlogconf - handle changes in installed group files
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
@@ -17,8 +18,15 @@ echo "QA output created by $seq"
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf v2.0 is not installed"
 
 rm -f $seq.out
-suffix=1
-[ $PCP_VER -ge 3802 ] && suffix=2
+if [ $PCP_VER -ge 3901 ]
+then
+    suffix=3
+elif [ $PCP_VER -ge 3802 ]
+then
+    suffix=2
+else
+    suffix=1
+fi
 if [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.darwin.$suffix $seq.out || exit 1

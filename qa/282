@@ -189,7 +189,6 @@ _interrupt()
 _save_setup()
 {
 	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
-		$PCP_PMCD_PROG \
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
@@ -206,7 +205,6 @@ _cleanup()
 	echo
 	echo "Restore the state of the universe ..."
 	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
-		$PCP_PMCD_PROG \
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
@@ -217,6 +215,8 @@ _cleanup()
 		$sudo rm -f $file.$seq
 	    fi
 	done
+	[ -f $PCP_PMCD_PROG.$seq ] && \
+	$sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
@@ -307,10 +307,10 @@ End-of-File
 
     echo 
     echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
-    $sudo rm $PCP_PMCD_PROG 
+    $sudo mv -f $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
     $sudo cp `which true` $PCP_PMCD_PROG
     _poke_pmcd_n_logger
-    $sudo cp -p $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
+    $sudo mv -f $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
     echo "=== start again ==="
     _poke_pmcd_n_logger
 

@@ -1,8 +1,7 @@
 /*
  * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
- *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +31,25 @@
 #define IS_FLOAT	4
 #define IS_HEX		8
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    PMOPT_NAMESPACE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Value options"),
+    { "force", 0, 'f', 0, "store the value even if there is no current value set" },
+    { "insts", 1, 'i', "INSTS", "restrict store to comma-separated list of instances" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_POSIX,
+    .short_options = "D:fh:i:n:?",
+    .long_options = longopts,
+    .short_usage = "[options] metricname value",
+};
+
 #ifndef HAVE_STRTOLL
 /*
  * cheap hack ...won't work for large values!
@@ -53,8 +71,6 @@ strtoull(char *p, char **endp, int base)
     return (__uint64_t)strtoul(p, endp, base);
 }
 #endif
-
-
 
 static void
 mkAtom(pmAtomValue *avp, int type, char *buf)
@@ -153,7 +169,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		break;
 
 	case PM_TYPE_FLOAT:
-		if ( vtype & IS_HEX ) {
+		if (vtype & IS_HEX) {
 		    /* strtod from GNU libc would try to convert it using some
 		     * strange algo - we don't want it */
 		    endbuf = buf;
@@ -169,7 +185,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		break;
 
 	case PM_TYPE_DOUBLE:
-		if ( vtype & IS_HEX ) {
+		if (vtype & IS_HEX) {
 		    /* strtod from GNU libc would try to convert it using some
 		     * strange algo - we don't want it */
 		    endbuf = buf;
@@ -180,7 +196,7 @@ mkAtom(pmAtomValue *avp, int type, char *buf)
 		break;
 
 	case PM_TYPE_STRING:
-		if ((avp->cp = strdup (buf)) == NULL) {
+		if ((avp->cp = strdup(buf)) == NULL) {
 		    __pmNoMem("pmstore", strlen(buf)+1, PM_FATAL_ERR);
 		}
 		endbuf = "";
@@ -210,62 +226,28 @@ main(int argc, char **argv)
     int		n;
     int		c;
     int		i;
-    int		j;
     char	*p;
-    int		type = 0;
-    int		force = 0;
-    char	*host = NULL;		/* initialize to pander to gcc */
-    char	*pmnsfile = PM_NS_DEFAULT;
-    int		errflag = 0;
+    char	*source;
     char	*namelist[1];
     pmID	pmidlist[1];
     pmResult	*result;
     char	**instnames = NULL;
     int		numinst = 0;
+    int		force = 0;
     pmDesc	desc;
     pmAtomValue	nav;
     pmValueSet	*vsp;
     char        *subopt;
 
-    __pmSetProgname(argv[0]);
-
-#ifdef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
-    /*
-     * without this, "pmstore some.metric -1234" fails because
-     * -1234 is interpreted as command line options.
-     */
-    putenv("POSIXLY_CORRECT=");
-#endif
-    while ((c = getopt(argc, argv, "D:fh:i:n:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
         case 'f':
             force++;
             break;
 
-	case 'h':	/* contact PMCD on this hostname */
-	    if (type != 0) {
-		fprintf(stderr, "%s: at most one of -a and/or -h allowed\n", pmProgname);
-		errflag++;
-	    }
-	    host = optarg;
-	    type = PM_CONTEXT_HOST;
-	    break;
-
 	case 'i':	/* list of instances */
 #define WHITESPACE ", \t\n"
-	    subopt = strtok(optarg, WHITESPACE);
+	    subopt = strtok(opts.optarg, WHITESPACE);
 	    while (subopt != NULL) {
 		numinst++;
 		instnames =
@@ -276,55 +258,33 @@ main(int argc, char **argv)
 	       instnames[numinst-1] = subopt;
 	       subopt = strtok(NULL, WHITESPACE);
 	    }
+#undef WHITESPACE
 	    break;
 
-	case 'n':	/* alternative namespace file */
-	    pmnsfile = optarg;
-	    break;
-
-	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind != argc - 2) {
-	fprintf(stderr,
-"Usage: %s [options] metricname value\n"
-"\n"
-"Options:\n"
-"  -f            store the value even if there is no current value set\n"
-"  -h host       metrics source is PMCD on host\n"
-"  -i instance   metric instance or list of instances. Elements in an\n"
-"                instance list are separated by commas and/or newlines\n" 
-"  -n pmnsfile   use an alternative PMNS\n",
-			pmProgname);
+    if (opts.errors || opts.optind != argc - 2) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((n = pmLoadNameSpace(pmnsfile)) < 0) {
-	    fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(n));
-	    exit(1);
-	}
+    if (opts.context == PM_CONTEXT_HOST)
+	source = opts.hosts[0];
+    else {
+	opts.context = PM_CONTEXT_HOST;
+	source = "local:";
     }
-
-    if (type == 0) {
-	type = PM_CONTEXT_HOST;
-	host = "local:";
-    }
-    if ((sts = pmNewContext(type, host)) < 0) {
-	if (type == PM_CONTEXT_HOST)
-	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
-	else
-	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+    if ((sts = pmNewContext(opts.context, source)) < 0) {
+	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
+		pmProgname, source, pmErrStr(sts));
 	exit(1);
     }
 
-    namelist[0] = argv[optind++];
+    namelist[0] = argv[opts.optind++];
     if ((n = pmLookupName(1, namelist, pmidlist)) < 0) {
 	printf("%s: pmLookupName: %s\n", namelist[0], pmErrStr(n));
 	exit(1);
@@ -367,8 +327,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    /* value is argv[optind] */
-    mkAtom(&nav, desc.type, argv[optind]);
+    /* value is argv[opts.optind] */
+    mkAtom(&nav, desc.type, argv[opts.optind]);
 
     vsp = result->vset[0];
     if (vsp->numval < 0) {
@@ -391,8 +351,8 @@ main(int argc, char **argv)
         }
     }
 
-    for (j = 0; j < vsp->numval; j++) {
-	pmValue	*vp = &vsp->vlist[j];
+    for (i = 0; i < vsp->numval; i++) {
+	pmValue	*vp = &vsp->vlist[i];
 	printf("%s", namelist[0]);
 	if (desc.indom != PM_INDOM_NULL) {
 	    if ((n = pmNameInDom(desc.indom, vp->inst, &p)) < 0)
@@ -404,7 +364,7 @@ main(int argc, char **argv)
 	}
 	printf(" old value=");
 	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
-	vsp->valfmt = __pmStuffValue(&nav, &vsp->vlist[j], desc.type);
+	vsp->valfmt = __pmStuffValue(&nav, &vsp->vlist[i], desc.type);
 	printf(" new value=");
 	pmPrintValue(stdout, vsp->valfmt, desc.type, vp, 1);
 	putchar('\n');
@@ -414,6 +374,5 @@ main(int argc, char **argv)
 	exit(1);
     }
     pmFreeResult(result);
-
     exit(0);
 }

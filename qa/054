@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+$sudo rm -f $seq.full
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
@@ -20,6 +21,9 @@ host=`./getpmcdhosts -L -n1 2>$tmp.out` # choose a non-local host (foreign serve
 [ -z "$host" ] && cat $tmp.out >$seq.notrun
 eval realhost=`pmprobe -v -h $host pmcd.hostname | $PCP_AWK_PROG '{ print $3 }'`
 [ $realhost = Unknown ] && realhost=`pmhostname $host`
+
+echo "Using host: $host" >> $seq.full
+echo "Using realhost: $realhost" >> $seq.full
 
 echo "log mandatory on once { hinv.ncpu }" >$tmp.config
 

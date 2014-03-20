@@ -138,8 +138,8 @@ __pmPtrToHandle(__pmContext *ctxp)
 /*
  * Determine the hostname associated with the given context.
  */
-const char *
-pmGetContextHostName (int ctxid)
+char *
+pmGetContextHostName_r(int ctxid, char *buf, int buflen)
 {
     __pmContext *ctxp;
     const char	*sts;
@@ -147,9 +147,8 @@ pmGetContextHostName (int ctxid)
     pmID	pmid;
     pmResult	*resp;
     int		rc;
-    static char	hostbuf[MAXHOSTNAMELEN];
 
-    hostbuf[0]='\0';
+    buf[0]='\0';
 
     if ((ctxp = __pmHandleToPtr(ctxid)) != NULL) {
 	switch (ctxp->c_type) {
@@ -165,7 +164,7 @@ pmGetContextHostName (int ctxid)
 		rc = pmFetch(1, &pmid, &resp);
 	    if (rc >= 0) {
 		if (resp->vset[0]->numval > 0) { /* pmcd.hostname present */
-		    strncpy(hostbuf, resp->vset[0]->vlist[0].value.pval->vbuf, sizeof(hostbuf)-1);
+		    strncpy(buf, resp->vset[0]->vlist[0].value.pval->vbuf, buflen);
 		    pmFreeResult(resp);
 		    break;
 		}
@@ -182,30 +181,35 @@ pmGetContextHostName (int ctxid)
 	    if (sts == NULL ||			 /* no name ?! */
 		*sts == __pmPathSeparator() ||	 /* AF_UNIX /path */
 		(strcmp(sts, "localhost") == 0)) /* localhost XXX: localhost6 etc.? */
-		gethostname(hostbuf, sizeof(hostbuf));
+		gethostname(buf, buflen);
 	    else
-		strncpy(hostbuf, sts, sizeof(hostbuf)-1);
+		strncpy(buf, sts, buflen-1);
 	    break;
 
 	case PM_CONTEXT_LOCAL:
-	    gethostname(hostbuf, sizeof(hostbuf));
+	    gethostname(buf, buflen);
 	    break;
 
 	case PM_CONTEXT_ARCHIVE:
-	    strncpy(hostbuf, ctxp->c_archctl->ac_log->l_label.ill_hostname, sizeof(hostbuf)-1);
+	    strncpy(buf, ctxp->c_archctl->ac_log->l_label.ill_hostname, buflen-1);
 	    break;
 	}
 
-	hostbuf[sizeof(hostbuf)-1] = '\0';
+	buf[buflen-1] = '\0';
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    /* By using the static buffer, there exists a natural race
-     * condition in multiple threads calling this function at the same
-     * time.  Still, it's better than passing back pointers directly
-     * from ctxp->..., and slightly better than strdup()'ing results
-     * thus leaking memory or mishandling OOM. */
-    return hostbuf;
+    return buf;
+}
+
+/*
+ * Backward-compatibility interface, non-thread-safe variant.
+ */
+const char *
+pmGetContextHostName(int ctxid)
+{
+    static char	hostbuf[MAXHOSTNAMELEN];
+    return (const char *)pmGetContextHostName_r(ctxid, hostbuf, (int)sizeof(hostbuf));
 }
 
 int

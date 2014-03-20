@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -91,12 +92,17 @@ ConnectPMCD(void)
 	     * if pmcd host is "localhost"-alike then use hostname that
 	     * was used to contact pmlogger, as from here (where pmlc is
 	     * running) "localhost" is likely to connect us to the wrong
-	     * pmcd or no pmcd at all
+	     * pmcd or no pmcd at all.
 	     */
 	    srchost = strdup(lasthost);
+	    if (srchost == NULL)
+		__pmNoMem("Error copying host name", strlen(lasthost), PM_FATAL_ERR);
 	}
-	else
+	else {
 	    srchost = strdup(lsp->ls_fqdn);
+	    if (srchost == NULL)
+		__pmNoMem("Error copying host name", strlen(lsp->ls_fqdn), PM_FATAL_ERR);
+	}
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_HOST, srchost)) < 0) {

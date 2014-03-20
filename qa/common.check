@@ -1,6 +1,7 @@
 #
 # common preliminary check procedures for QA scripts
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -405,7 +406,8 @@ _writable_primary_logger()
 	$sudo $PMLOGCONF -q -h localhost "$configfile" >>$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
-    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' "$configfile"
+    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' \
+                 -e 's/^allow local:.*$/allow local:* : all;/g' "$configfile"
 }
 
 # restore primary logger pmlc access restrictions
@@ -417,6 +419,7 @@ _restore_primary_logger()
     # close out access from local pmlc once more
     test -f "$configfile" && \
         $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+	             -e 's/^allow local:.*$/allow local:* : enquire;/g' \
             "$configfile"
 
     # if there was an initial configuration, put it back
@@ -1470,7 +1473,7 @@ p
     fi
 }
 
-# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
+# disable all system pmloggers running via the control file
 #
 _disable_loggers()
 {
@@ -1486,7 +1489,7 @@ _disable_loggers()
 # the goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
-LOCALHOSTNAME y n /var/adm/pcplog/LOCALHOSTNAME -c /dev/null
+LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
 End-of-File
     $sudo cp $tmp._tmp $PCP_PMLOGGERCONTROL_PATH
 }

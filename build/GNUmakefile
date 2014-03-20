@@ -67,6 +67,7 @@ pcp.src : $(_FORCE)
 	else \
 	    SRC_ROOT=$$PKG_ROOT; \
 	    if [ ! -L $(TOPDIR)/$$SRC_ROOT ] ; then \
+		rm -rf $(TOPDIR)/$$SRC_ROOT || exit 1; \
 		$(LN_S) . $(TOPDIR)/$$SRC_ROOT || exit 1; \
 	    fi; \
 	fi; export PKG_ROOT SRC_ROOT; \

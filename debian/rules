@@ -157,8 +157,11 @@ binary-arch: checkroot build-stamp
 	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
 	$(pkgpcp_import_collectl) $(MAKE) -C src/pmimport/collectl2pcp install
 	#$(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install
+	# need the make clean when more than one version of Python installed
+	# to ensure make install after the first version works
 	for V in $(shell pyversions -vr); do \
 	    $(pkgpcp_python) $(MAKE) PYTHON=python$$V -C src/python install; \
+	    $(MAKE) -C src/python clean; \
 	done
 
 	dh_installdocs

@@ -74,7 +74,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
-	username.c rtimetest.c
+	username.c rtimetest.c getcontexthost.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -121,6 +121,13 @@ CFILES += chkacc4.c
 else
 MYFILES += chkacc4.c
 LDIRT += chkacc4
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
+CFILES += getoptions.c
+else
+MYFILES += getoptions.c
+LDIRT += getoptions
 endif
 
 ifeq ($(shell test $(PCP_VER) -ge 3811 && echo 1), 1)

@@ -1,0 +1,203 @@
+device rootfs mounted on / with fstype rootfs
+device proc mounted on /proc with fstype proc
+device sysfs mounted on /sys with fstype sysfs
+device devtmpfs mounted on /dev with fstype devtmpfs
+device devpts mounted on /dev/pts with fstype devpts
+device tmpfs mounted on /dev/shm with fstype tmpfs
+device /dev/sda2 mounted on / with fstype ext3
+device /proc/bus/usb mounted on /proc/bus/usb with fstype usbfs
+device /dev/md0 mounted on /scratch with fstype ext3
+device /dev/sda1 mounted on /var with fstype ext3
+device none mounted on /proc/sys/fs/binfmt_misc with fstype binfmt_misc
+device sunrpc mounted on /var/lib/nfs/rpc_pipefs with fstype rpc_pipefs
+device ifs-nas.test.edu:/ifs mounted on /ifs with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.113.10.9,mountvers=3,mountport=300,mountproto=tcp,local_lock=none
+	age:	12515493
+	caps:	caps=0x3fc7,wtmult=512,dtsize=32768,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	17785 787338 294 23041 15373 24424 862832 67472 7 118 45200 34250 3133 4240 4843 5136 4402 12345 0 15 67079 0 0 0 0 0 0 
+	bytes:	479073312 173647641 0 0 12762151 173521215 3167 45200 
+	RPC iostats version: 1.0  p/v: 100003/3 (nfs)
+	xprt:	tcp 789 1 193 0 0 71411 71411 0 180054 0 73 6675888 108644
+	per-op statistics
+	        NULL: 0 0 0 0 0 0 0 0
+	     GETATTR: 17785 17785 0 2834060 1991920 109 11012 11360
+	     SETATTR: 8599 8599 0 1700172 1238256 32 10760 10911
+	      LOOKUP: 20976 20976 0 4017640 2523984 58 4390 4643
+	      ACCESS: 8245 8245 0 1338504 989400 38 4384 4538
+	    READLINK: 1 1 0 172 136 0 0 0
+	        READ: 450 450 0 76688 12819860 3 2638 2658
+	       WRITE: 9523 9523 0 175240916 1523680 3423263 57150 3480542
+	      CREATE: 4592 4592 0 863264 1249024 17 8733 8815
+	       MKDIR: 228 228 0 45540 62016 0 399 403
+	     SYMLINK: 13 13 0 2960 3536 0 16 16
+	       MKNOD: 0 0 0 0 0 0 0 0
+	      REMOVE: 478 478 0 86072 68832 1 1161 1169
+	       RMDIR: 7 7 0 1188 1008 0 29 29
+	      RENAME: 36 36 0 8580 9360 0 44 45
+	        LINK: 0 0 0 0 0 0 0 0
+	     READDIR: 5 5 0 900 37748 0 19 19
+	 READDIRPLUS: 281 281 0 51680 999596 1 7390 7397
+	      FSSTAT: 5 5 0 800 840 0 1 1
+	      FSINFO: 2 2 0 216 328 0 0 0
+	    PATHCONF: 1 1 0 108 140 0 0 0
+	      COMMIT: 182 182 0 31232 27664 1 520 524
+
+device 124.10.30.235:/nfsdata/ mounted on /mnt/nfsv4 with fstype nfs4 statvers=1.1
+	opts:	rw,vers=4,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=124.10.30.234,minorversion=0,local_lock=none
+	age:	19  (time, in seconds, since the NFS is mounted)
+	caps:	caps=0xfff7,wtmult=512,dtsize=32768,bsize=0,namlen=255
+	nfsv4:	bm0=0xfdffafff,bm1=0xf9be3e,acl=0x0
+	sec:	flavor=1,pseudoflavor=1
+	events:	0 168232 0 0 0 10095 217808 0 2 9797 0 9739 0 0 19739 19739 0 19739 0 0 0 0 0 0 0 0 0
+	bytes:	1612840960 0 0 0 627536112 0 158076 0
+	RPC iostats version: 1.0  p/v: 100003/4 (nfs)
+	xprt:	tcp 737 0 1 0 0 69698 69697 0 81817 0 2 1082 12119
+	per-op statistics
+	        NULL: 0 0 0 0 0 0 0 0
+	        READ: 9797 9797 0 1567520 628138612 71 7953 8200
+	       WRITE: 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0
+	        OPEN: 19740 19740 0 4737600 7343280 505 3449 4172
+	OPEN_CONFIRM: 10211 10211 0 1552072 694348 74 836 1008
+	OPEN_NOATTR: 0 0 0 0 0 0 0 0
+	OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0
+	       CLOSE: 19739 19739 0 3316152 2605548 334 3045 3620
+	     SETATTR: 0 0 0 0 0 0 0 0
+	      FSINFO: 1 1 0 132 108 0 0 0
+	       RENEW: 0 0 0 0 0 0 0 0
+	 SETCLIENTID: 0 0 0 0 0 0 0 0
+	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0
+	        LOCK: 0 0 0 0 0 0 0 0
+	       LOCKT: 0 0 0 0 0 0 0 0
+	       LOCKU: 0 0 0 0 0 0 0 0
+	      ACCESS: 96 96 0 14584 19584 0 8 10
+	     GETATTR: 1 1 0 132 188 0 0 0
+	      LOOKUP: 10095 10095 0 1655576 2382420 36 898 1072
+	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0
+	      CREATE: 0 0 0 0 0 0 0 0
+	    PATHCONF: 1 1 0 128 72 0 0 0
+	      STATFS: 0 0 0 0 0 0 0 0
+	    READLINK: 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0
+	 SERVER_CAPS: 2 2 0 256 176 0 0 0
+	 DELEGRETURN: 0 0 0 0 0 0 0 0
+	      GETACL: 0 0 0 0 0 0 0 0
+	      SETACL: 0 0 0 0 0 0 0 0
+	FS_LOCATIONS: 0 0 0 0 0 0 0 0
+	RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0
+	     SECINFO: 0 0 0 0 0 0 0 0
+	 EXCHANGE_ID: 0 0 0 0 0 0 0 0
+	CREATE_SESSION: 0 0 0 0 0 0 0 0
+	DESTROY_SESSION: 0 0 0 0 0 0 0 0
+	    SEQUENCE: 0 0 0 0 0 0 0 0
+	GET_LEASE_TIME: 0 0 0 0 0 0 0 0
+	RECLAIM_COMPLETE: 0 0 0 0 0 0 0 0
+	   LAYOUTGET: 0 0 0 0 0 0 0 0
+	GETDEVICEINFO: 0 0 0 0 0 0 0 0
+	LAYOUTCOMMIT: 0 0 0 0 0 0 0 0
+	LAYOUTRETURN: 0 0 0 0 0 0 0 0
+
+device ifs-nas.test.edu:/ifs/foo mounted on /ifsfoo with fstype nfs statvers=1.1
+	opts:	rw,vers=3,rsize=32768,wsize=32768,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.113.10.9,mountvers=3,mountport=300,mountproto=tcp,local_lock=none
+	age:	12517593
+	caps:	caps=0x3fc7,wtmult=512,dtsize=32768,bsize=0,namlen=255
+	sec:	flavor=1,pseudoflavor=1
+	events:	18208 803179 300 23283 15692 25573 880806 67591 7 119 45315 34974 3195 4261 4906 5245 4638 12448 0 15 67137 0 0 0 0 0 0 
+	bytes:	481069398 174069257 0 0 12770069 173926447 3169 45315 
+	RPC iostats version: 1.0  p/v: 100003/3 (nfs)
+	xprt:	tcp 789 1 193 0 0 73641 73641 0 182290 0 73 6675888 108650
+	per-op statistics
+	        NULL: 0 0 0 0 0 0 0 0
+	     GETATTR: 18208 18208 0 2901740 2039296 111 11080 11435
+	     SETATTR: 8651 8651 0 1710200 1245744 32 10806 10957
+	      LOOKUP: 22280 22280 0 4268744 2694468 62 4569 4837
+	      ACCESS: 8503 8503 0 1380816 1020360 39 4439 4597
+	    READLINK: 1 1 0 172 136 0 0 0
+	        READ: 451 451 0 76860 12827908 3 2653 2673
+	       WRITE: 9605 9605 0 175660936 1536800 3423264 57254 3480649
+	      CREATE: 4640 4640 0 872724 1262080 17 8829 8912
+	       MKDIR: 228 228 0 45540 62016 0 399 403
+	     SYMLINK: 13 13 0 2960 3536 0 16 16
+	       MKNOD: 0 0 0 0 0 0 0 0
+	      REMOVE: 525 525 0 94420 75600 2 1236 1245
+	       RMDIR: 7 7 0 1188 1008 0 29 29
+	      RENAME: 44 44 0 10388 11440 0 53 53
+	        LINK: 0 0 0 0 0 0 0 0
+	     READDIR: 5 5 0 900 37748 0 19 19
+	 READDIRPLUS: 288 288 0 52968 1046580 1 7729 7735
+	      FSSTAT: 5 5 0 800 840 0 1 1
+	      FSINFO: 2 2 0 216 328 0 0 0
+	    PATHCONF: 1 1 0 108 140 0 0 0
+	      COMMIT: 182 182 0 31232 27664 1 520 524
+
+device 124.10.30.235:/nfsdata41 mounted on /mnt/nfs41 with fstype nfs4 statvers=1.1
+	opts:	rw,vers=4.1,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=124.10.30.234,local_lock=none
+	age:	44
+	impl_id:	name='',domain='',date='0,0'
+	caps:	caps=0x3ffff,wtmult=512,dtsize=32768,bsize=0,namlen=255
+	nfsv4:	bm0=0xfdffbfff,bm1=0xf9be3e,bm2=0x800,acl=0x3,sessions,pnfs=not configured
+	sec:	flavor=1,pseudoflavor=1
+	events:	67379 1692812 0 30749 0 980 1984612 0 0 0 0 0 0 0 96611 96611 0 96611 0 0 0 0 0 0 0 0 0 
+	bytes:	0 0 0 0 0 0 0 0 
+	RPC iostats version: 1.0  p/v: 100003/4 (nfs)
+	xprt:	tcp 674 0 1 0 0 279772 279771 0 649944 0 5 1711 90409
+	per-op statistics
+	        NULL: 0 0 0 0 0 0 0 0
+	        READ: 0 0 0 0 0 0 0 0
+	       WRITE: 0 0 0 0 0 0 0 0
+	      COMMIT: 0 0 0 0 0 0 0 0
+	        OPEN: 96612 96612 0 27824256 34007424 13349 16253 32061
+	OPEN_CONFIRM: 0 0 0 0 0 0 0 0
+	 OPEN_NOATTR: 0 0 0 0 0 0 0 0
+	OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0
+	       CLOSE: 96610 96610 0 19708440 17003360 2936 11082 15386
+	     SETATTR: 0 0 0 0 0 0 0 0
+	      FSINFO: 1 1 0 168 152 0 0 0
+	       RENEW: 0 0 0 0 0 0 0 0
+	 SETCLIENTID: 0 0 0 0 0 0 0 0
+	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0
+	        LOCK: 0 0 0 0 0 0 0 0
+	       LOCKT: 0 0 0 0 0 0 0 0
+	       LOCKU: 0 0 0 0 0 0 0 0
+	      ACCESS: 16932 16932 0 3183200 2844576 83 1919 2308
+	     GETATTR: 67380 67380 0 12128380 15632160 336 8367 10644
+	      LOOKUP: 1236 1236 0 247176 167784 7 153 197
+	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0
+	      REMOVE: 0 0 0 0 0 0 0 0
+	      RENAME: 0 0 0 0 0 0 0 0
+	        LINK: 0 0 0 0 0 0 0 0
+	     SYMLINK: 0 0 0 0 0 0 0 0
+	      CREATE: 980 980 0 219516 305760 5 168 197
+	    PATHCONF: 1 1 0 164 116 0 0 0
+	      STATFS: 0 0 0 0 0 0 0 0
+	    READLINK: 0 0 0 0 0 0 0 0
+	     READDIR: 0 0 0 0 0 0 0 0
+	 SERVER_CAPS: 2 2 0 328 280 0 0 0
+	 DELEGRETURN: 0 0 0 0 0 0 0 0
+	      GETACL: 0 0 0 0 0 0 0 0
+	      SETACL: 0 0 0 0 0 0 0 0
+	FS_LOCATIONS: 0 0 0 0 0 0 0 0
+	RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0
+	     SECINFO: 0 0 0 0 0 0 0 0
+	 EXCHANGE_ID: 0 0 0 0 0 0 0 0
+	CREATE_SESSION: 0 0 0 0 0 0 0 0
+	DESTROY_SESSION: 0 0 0 0 0 0 0 0
+	    SEQUENCE: 0 0 0 0 0 0 0 0
+	GET_LEASE_TIME: 0 0 0 0 0 0 0 0
+	RECLAIM_COMPLETE: 0 0 0 0 0 0 0 0
+	   LAYOUTGET: 0 0 0 0 0 0 0 0
+	GETDEVICEINFO: 0 0 0 0 0 0 0 0
+	LAYOUTCOMMIT: 0 0 0 0 0 0 0 0
+	LAYOUTRETURN: 0 0 0 0 0 0 0 0
+	SECINFO_NO_NAME: 0 0 0 0 0 0 0 0
+	TEST_STATEID: 0 0 0 0 0 0 0 0
+	FREE_STATEID: 0 0 0 0 0 0 0 0
+	GETDEVICELIST: 0 0 0 0 0 0 0 0
+	BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0
+	DESTROY_CLIENTID: 0 0 0 0 0 0 0 0
+

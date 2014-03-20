@@ -26,7 +26,7 @@ dynamic.last PMID: 510.*.*
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
                    	^
                    	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal domain field in PMID
     big_domain	512:0:0
@@ -34,7 +34,7 @@ pminfo: Error loading namespace: Problems parsing PMNS definitions
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
               	^
               	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal cluster field in PMID
     big_cluster	0:4096:0
@@ -42,7 +42,7 @@ pminfo: Error loading namespace: Problems parsing PMNS definitions
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
                	^
                	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal item field in PMID
     big_serial	0:0:1024
@@ -50,22 +50,22 @@ pminfo: Error loading namespace: Problems parsing PMNS definitions
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
               	^
               	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bad_domain	x:1:1
               	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bad_cluster	1:x:1
                	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bad_serial	1:1:x
               	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal PMID
     dyn_bad_cluster	13:0:*
@@ -73,7 +73,7 @@ pminfo: Error loading namespace: Problems parsing PMNS definitions
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
                    	^
                    	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions
 
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal PMID
     dyn_bad_serial	13:*:0
@@ -81,4 +81,4 @@ pminfo: Error loading namespace: Problems parsing PMNS definitions
 [TMP.pmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
                   	^
                   	^
-pminfo: Error loading namespace: Problems parsing PMNS definitions
+pminfo: Cannot load namespace from "TMP.pmns": Problems parsing PMNS definitions

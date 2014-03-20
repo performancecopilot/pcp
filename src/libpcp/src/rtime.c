@@ -552,28 +552,28 @@ glib_get_date(
     int sts;
     int rel_type;
     struct timespec tsrslt;
-    struct timespec *tsrsltp = &tsrslt;
 
     rel_type = glib_relative_date(scan);
 
     if (rel_type == NO_OFFSET)
-	sts = __pmGlibGetDate(tsrsltp, scan, NULL);
+	sts = __pmGlibGetDate(&tsrslt, scan, NULL);
     else if (rel_type == NEG_OFFSET && end->tv_sec < INT_MAX) {
 	struct timespec tsend;
-	struct timespec *tsendp = &tsend;
-	TIMEVAL_TO_TIMESPEC(end, tsendp);
-	sts = __pmGlibGetDate(tsrsltp, scan, &tsend);
+	tsend.tv_sec = end->tv_sec;
+	tsend.tv_nsec = end->tv_usec * 1000;
+	sts = __pmGlibGetDate(&tsrslt, scan, &tsend);
     }
     else {
 	struct timespec tsstart;
-	struct timespec *tsstartp = &tsstart;
-	TIMEVAL_TO_TIMESPEC(start, tsstartp);
-	sts = __pmGlibGetDate(tsrsltp, scan, &tsstart);
+	tsstart.tv_sec = start->tv_sec;
+	tsstart.tv_nsec = start->tv_usec * 1000;
+	sts = __pmGlibGetDate(&tsrslt, scan, &tsstart);
     }
     if (sts < 0)
 	return sts;
 
-    TIMESPEC_TO_TIMEVAL(rslt, tsrsltp);
+    rslt->tv_sec = tsrslt.tv_sec;
+    rslt->tv_usec = tsrslt.tv_nsec / 1000;
     return 0;
 }
 

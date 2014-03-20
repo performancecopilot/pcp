@@ -1053,6 +1053,9 @@ extern int __pmLogFindPort(const char *, int, __pmLogPort **);
 #define PM_LOG_NO_PID		-2	/* not a valid pid for pmlogger */
 #define PM_LOG_NO_PORT		-2	/* not a valid port for pmlogger */
 
+extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
+extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
+
 /* time utils */
 extern time_t __pmMktime(struct tm *);
 
@@ -1262,6 +1265,7 @@ extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator(void);
+extern int __pmMakePath(const char *, mode_t);
 
 /*
  * discover configurable features of the shared libraries
@@ -1269,6 +1273,16 @@ extern int __pmPathSeparator(void);
 typedef void (*__pmAPIConfigCallback)(const char *, const char *);
 extern void __pmAPIConfig(__pmAPIConfigCallback);
 extern const char *__pmGetAPIConfig(const char *);
+
+/*
+ * internals of argument parsing for special circumstances
+ */
+extern void __pmStartOptions(pmOptions *);
+extern void __pmAddOptArchive(pmOptions *, char *);
+extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptHost(pmOptions *, char *);
+extern void __pmAddOptHostList(pmOptions *, char *);
+extern void __pmEndOptions(pmOptions *);
 
 /*
  * AF - general purpose asynchronous event management routines
