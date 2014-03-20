@@ -43,6 +43,7 @@ _filter()
     #
     tee -a $here/$seq.full \
     | sed -e "s/$me/ME/" \
+	-e "s/local:/ME/" \
 	-e "s/$shortme/ME/" \
 	-e "s/$other1/OTHER1/" \
 	-e "s/$other2/OTHER2/" \
