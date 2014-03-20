@@ -407,9 +407,6 @@ PCP_3.1 {
 
 PCP_3.2 {
   global:
-    __pmLogLocalSocketDefault;
-    __pmLogLocalSocketUser;
-    __pmMakePath;
     pmGetContextHostName_r;
     pmGetContextOptions;
     pmGetOptions;
@@ -423,3 +420,10 @@ PCP_3.2 {
     __pmAddOptHostList;
     __pmEndOptions;
 } PCP_3.1;
+
+PCP_3.3 {
+  global:
+    __pmLogLocalSocketDefault;
+    __pmLogLocalSocketUser;
+    __pmMakePath;
+} PCP_3.2;
