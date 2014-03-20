@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -42,6 +43,9 @@ static int	sts;
 
 extern int	port;
 extern int	pid;
+extern int	is_local;
+extern int	is_unix;
+extern int	is_socket_path;
 
 %}
 
@@ -65,13 +69,13 @@ extern int	pid;
 	MSEC SECOND MINUTE HOUR
 
 	QUERY SHOW LOGGER CONNECT PRIMARY QUIT STATUS HELP
-	TIMEZONE LOCAL PORT
+	TIMEZONE LOCAL PORT SOCKET
 	NEW VOLUME
 
 	SYNC
 	QA
 
-%token<str>	NAME HOSTNAME STRING
+%token<str>	NAME HOSTNAME STRING URL
 %token<lval>	NUMBER
 
 %type<lval> timeunits
@@ -244,6 +248,31 @@ loggersopt	: LOGGER
 
 hostopt		: AT NAME	{ hostname = strdup($2); }
 		| AT HOSTNAME	{ hostname = strdup($2); }
+		| AT URL
+		{
+		    char	*prefix_end;
+		    size_t	prefix_len;
+		    hostname = strdup($2);
+		    prefix_end = strchr(hostname, ':');
+		    if (prefix_end != NULL) {
+			prefix_len = prefix_end - hostname + 1;
+			if (prefix_len == 6 && strncmp(hostname, "local:", prefix_len) == 0)
+			    is_local = 1;
+			else if (prefix_len == 5 && strncmp(hostname, "unix:", prefix_len) == 0)
+			    is_unix = 1;
+			if (is_local || is_unix) {
+			    const char *p;
+			    /*
+			     * Find out is a path was specified.
+			     * Skip any initial path separators.
+			     */
+			    for (p = hostname + prefix_len; *p == __pmPathSeparator(); ++p)
+				;
+			    if (*p != '\0')
+				is_socket_path = 1;
+			}
+		    }
+		}
 		| AT NUMBER
 		{ 
 			/* That MUST be a mistake! */
@@ -258,6 +287,7 @@ hostopt		: AT NAME	{ hostname = strdup($2); }
 towhom		: PRIMARY	{ pid = PM_LOG_PRIMARY_PID; port = PM_LOG_NO_PORT; }
 		| NUMBER	{ pid = $1; port = PM_LOG_NO_PORT; }
 		| PORT NUMBER	{ pid = PM_LOG_NO_PID; port = $2; }
+		| SOCKET	{ pid = PM_LOG_NO_PID; port = PM_LOG_NO_PORT; }
 		;
 
 tzspec		: LOCAL		{ tztype = TZ_LOCAL; }

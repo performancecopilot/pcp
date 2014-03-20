@@ -1053,6 +1053,9 @@ extern int __pmLogFindPort(const char *, int, __pmLogPort **);
 #define PM_LOG_NO_PID		-2	/* not a valid pid for pmlogger */
 #define PM_LOG_NO_PORT		-2	/* not a valid port for pmlogger */
 
+extern const char *__pmLogLocalSocketDefault(int, char *buf, size_t bufSize);
+extern const char *__pmLogLocalSocketUser(int, char *buf, size_t bufSize);
+
 /* time utils */
 extern time_t __pmMktime(struct tm *);
 
@@ -1262,6 +1265,7 @@ extern void __pmConfig(__pmConfigCallback);
 extern char *__pmNativePath(char *);
 extern int __pmAbsolutePath(char *);
 extern int __pmPathSeparator(void);
+extern int __pmMakePath(const char *, mode_t);
 
 /*
  * discover configurable features of the shared libraries

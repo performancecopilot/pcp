@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +27,9 @@ __pmLogCtl	logctl;
 int		parse_done;
 int		pid = PM_LOG_NO_PID;
 int		port = PM_LOG_NO_PORT;
+int		is_unix = 0;	/* host spec is a unix: url. */
+int		is_local = 0;	/* host spec is a local: url. */
+int		is_socket_path = 0; /* host spec is a url with a path. */
 int		zflag;		/* for -z */
 char 		*tz;		/* for -Z timezone */
 int		tztype = TZ_LOCAL;	/* timezone for status cmd */
@@ -66,10 +70,11 @@ main(int argc, char **argv)
     int			sts = 0;	/* initialize to pander to gcc */
     int			errflag = 0;
     char		*host = NULL;
-    char		local[MAXHOSTNAMELEN];
     char		*pmnsfile = PM_NS_DEFAULT;
     char		*endnum;
     int			primary;
+    char		*prefix_end;
+    size_t		prefix_len;
 
     __pmSetProgname(argv[0]);
 
@@ -93,8 +98,30 @@ main(int argc, char **argv)
 	    eflag++;
 	    break;
 
-	case 'h':		/* hostname for PMCD to contact */
+	case 'h':		/* hostspec */
+	    /*
+	     * We need to know if a socket path has been specified.
+	     */
 	    host = optarg;
+	    prefix_end = strchr(host, ':');
+	    if (prefix_end != NULL) {
+		prefix_len = prefix_end - host + 1;
+		if (prefix_len == 6 && strncmp(host, "local:", prefix_len) == 0)
+		    is_local = 1;
+		else if (prefix_len == 5 && strncmp(host, "unix:", prefix_len) == 0)
+		    is_unix = 1;
+		if (is_local || is_unix) {
+		    const char *p;
+		    /*
+		     * Find out is a path was specified.
+		     * Skip any initial path separators.
+		     */
+		    for (p = host + prefix_len; *p == __pmPathSeparator(); ++p)
+			;
+		    if (*p != '\0')
+			is_socket_path = 1;
+		}
+	    }
 	    break;
 
 	case 'i':		/* be interactive */
@@ -106,8 +133,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'P':		/* connect to primary logger */
-	    if (port != PM_LOG_NO_PORT) {
-		fprintf(stderr, "%s: at most one of -P and/or -p and/or a pid may be specified\n", pmProgname);
+	    if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
+		fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket and/or a pid may be specified\n", pmProgname);
 		errflag++;
 	    }
 	    else {
@@ -116,8 +143,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'p':		/* connect via port */
-	    if (port != PM_LOG_NO_PORT) {
-		fprintf(stderr, "%s: at most one of -P and/or -p and/or a pid may be specified\n", pmProgname);
+	    if (port != PM_LOG_NO_PORT || is_unix) {
+		fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket url and/or a pid may be specified\n", pmProgname);
 		errflag++;
 	    }
 	    else {
@@ -162,8 +189,8 @@ main(int argc, char **argv)
 	errflag++;
     else if (optind == argc-1) {
 	/* pid was specified */
-	if (port != PM_LOG_NO_PORT) {
-	    fprintf(stderr, "%s: at most one of -P and/or -p and/or a pid may be specified\n", pmProgname);
+	if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
+	    fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket path and/or a pid may be specified\n", pmProgname);
 	    errflag++;
 	}
 	else {
@@ -175,8 +202,9 @@ main(int argc, char **argv)
 	}
     }
 
-    if (errflag == 0 && host != NULL && pid == PM_LOG_NO_PID && port == PM_LOG_NO_PORT) {
-	fprintf(stderr, "%s: -h may not be used without -P or -p or a pid\n", pmProgname);
+    if (errflag == 0 && host != NULL && pid == PM_LOG_NO_PID &&
+	port == PM_LOG_NO_PORT && ! is_socket_path) {
+	fprintf(stderr, "%s: -h may not be used without -P or -p or a socket path or a pid\n", pmProgname);
 	errflag++;
     }
 
@@ -185,7 +213,7 @@ main(int argc, char **argv)
 		"Usage: %s [options] [pid]\n\n"
 		"Options:\n"
 		"  -e           echo input\n"
-		"  -h host      connect to pmlogger on host\n"
+		"  -h hostspec  connect to pmlogger using hostspec\n"
 		"  -i           be interactive and prompt\n"
 		"  -n pmnsfile  use an alternative PMNS\n"
 		"  -P           connect to primary pmlogger\n"
@@ -204,26 +232,29 @@ main(int argc, char **argv)
 	}
     }
 
-    if (host == NULL) {
-	(void)gethostname(local, MAXHOSTNAMELEN);
-	local[MAXHOSTNAMELEN-1] = '\0';
-	host = local;
-    }
+    if (host == NULL)
+	host = "local:";
 
     primary = 0;
     if (port == PM_LOG_PRIMARY_PORT || pid == PM_LOG_PRIMARY_PID)
 	primary = 1;
 
-    if (pid != PM_LOG_NO_PID || port != PM_LOG_NO_PORT)
+    if (pid != PM_LOG_NO_PID || port != PM_LOG_NO_PORT || is_socket_path)
 	sts = ConnectLogger(host, &pid, &port);
 
     if (iflag)
 	printf(title, PCP_VERSION, menu);
 
-    if (pid != PM_LOG_NO_PID || port != PM_LOG_NO_PORT) {
+    if (pid != PM_LOG_NO_PID || port != PM_LOG_NO_PORT || is_socket_path) {
 	if (sts < 0) {
 	    if (primary) {
 		fprintf(stderr, "Unable to connect to primary pmlogger at %s: ",
+			host);
+		if (still_connected(sts))
+		    fprintf(stderr, "%s\n", pmErrStr(sts));
+	    }
+	    else if (is_socket_path) {
+		fprintf(stderr, "Unable to connect to pmlogger via the local socket at %s: ",
 			host);
 		if (still_connected(sts))
 		    fprintf(stderr, "%s\n", pmErrStr(sts));
@@ -244,6 +275,8 @@ main(int argc, char **argv)
 	else {
 	    if (primary)
 		printf("Connected to primary pmlogger at %s\n", host);
+	    else if (is_socket_path)
+		printf("Connected to pmlogger via local socket at %s\n", host);
 	    else if (port != PM_LOG_NO_PORT)
 		printf("Connected to pmlogger on port %d at %s\n", port, host);
 	    else
@@ -263,6 +296,9 @@ main(int argc, char **argv)
 	extern void	Qa(void);
 	extern int	yywrap(void);
 
+	is_local = 0;
+	is_unix = 0;
+	is_socket_path = 0;
 	parse_stmt = -1;
 	metric_cnt = 0;
 	yyparse();
@@ -275,7 +311,7 @@ main(int argc, char **argv)
 	    continue;
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1)
-	    printf("stmt=%d, state=%d, control=%d, hostname=%s, pid=%d, port=%d\n",
+	    printf("stmt=%d, state=%d, control=%d, hostspec=%s, pid=%d, port=%d\n",
 		   parse_stmt, state, control, hostname, pid, port);
 #endif
 
@@ -287,12 +323,30 @@ main(int argc, char **argv)
 		break;
 
 	    case CONNECT:
+		/* The unix: url requres either 'primary', a pid or a socket path. */
+		if (is_unix && pid == PM_LOG_NO_PID && ! is_socket_path) {
+		    fprintf(stderr, "The 'unix:' url requires either 'primary', a pid or a socket path");
+		    if (still_connected(sts))
+			fprintf(stderr, "\n");
+		    break;
+		}
+		/* The local: url requres either 'primary', a pid a port or a socket path. */
+		if (is_local && pid == PM_LOG_NO_PID && port == PM_LOG_NO_PORT && ! is_socket_path) {
+		    fprintf(stderr, "The 'local:' url requires either 'primary', a pid, a port or a socket path");
+		    if (still_connected(sts))
+			fprintf(stderr, "\n");
+		    break;
+		}
 		primary = 0;
 		if (port == PM_LOG_PRIMARY_PORT || pid == PM_LOG_PRIMARY_PID)
 		    primary = 1;
 		if ((sts = ConnectLogger(realhost, &pid, &port)) < 0) {
 		    if (primary) {
 			fprintf(stderr, "Unable to connect to primary pmlogger at %s: ",
+				realhost);
+		    }
+		    else if (is_socket_path) {
+			fprintf(stderr, "Unable to connect to pmlogger via local socket at %s: ",
 				realhost);
 		    }
 		    else if (port != PM_LOG_NO_PORT) {

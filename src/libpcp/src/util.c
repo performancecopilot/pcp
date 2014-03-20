@@ -1475,6 +1475,34 @@ dirname(char *name)
 }
 #endif /* HAVE_DIRNAME */
 
+/*
+ * Create a directory, including all of its path components.
+ */
+int
+__pmMakePath(const char *dir, mode_t mode)
+{
+    char path[MAXPATHLEN], *p;
+    int sts;
+
+    sts = access(dir, R_OK|W_OK|X_OK);
+    if (sts == 0)
+	return 0;
+    if (sts < 0 && oserror() != ENOENT)
+	return -1;
+
+    strncpy(path, dir, sizeof(path));
+    path[sizeof(path)-1] = '\0';
+
+    for (p = path+1; *p != '\0'; p++) {
+	if (*p == __pmPathSeparator()) {
+	    *p = '\0';
+	    mkdir2(path, mode);
+	    *p = __pmPathSeparator();
+	}
+    }
+    return mkdir2(path, mode);
+}
+
 #ifndef HAVE_STRNDUP
 char *
 strndup(const char *s, size_t n)

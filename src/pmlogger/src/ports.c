@@ -17,6 +17,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include "logger.h"
 
 #if !defined(SIGRTMAX)
@@ -35,8 +36,12 @@
 
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+static const char *socketPath;	/* Path to unix domain sockets. */
+static const char *linkSocketPath;/* Link to socket for primary logger */
+#endif
 
-int		ctlfd;		/* fd for control port */
+int		ctlfds[CFD_NUM] = {-1, -1, -1};/* fds for control ports: */
 int		ctlport;	/* pmlogger control port number */
 int		wantflush;	/* flush via SIGUSR1 flag */
 
@@ -47,6 +52,12 @@ cleanup(void)
 	unlink(linkfile);
     if (ctlfile != NULL)
 	unlink(ctlfile);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (linkSocketPath != NULL)
+	unlink(linkSocketPath);
+    if (socketPath != NULL)
+	unlink(socketPath);
+#endif
 }
 
 static void
@@ -171,122 +182,248 @@ static sig_map_t	sig_handler[] = {
 #endif
 };
 
-/* Create socket for incoming connections and bind to it an address for
- * clients to use.  Only returns if it succeeds (exits on failure).
+/* Create a network socket for incoming connections and bind to it an address for
+ * clients to use.
+ * If supported, also create a unix domain socket for local clients to use.
+ * Only returns if it succeeds (exits on failure).
  */
 
-static int
-GetPort(char *file)
+static void
+GetPorts(char *file)
 {
     int			fd;
-    int			mapfd;
-    FILE		*mapstream;
+    int			mapfd = -1;
+    FILE		*mapstream = NULL;
     int			sts;
+    int			socketsCreated = 0;
+    int			ctlix;
     __pmSockAddr	*myAddr;
+    char		globalPath[MAXPATHLEN];
+    char		localPath[MAXPATHLEN];
     static int		port_base = -1;
 
-    fd = __pmCreateSocket();
-    if (fd < 0) {
-	fprintf(stderr, "GetPort: socket failed: %s\n", netstrerror());
-	exit(1);
-    }
-
-    if (port_base == -1) {
-	/*
-	 * get optional stuff from environment ...
-	 *	PMLOGGER_PORT
-	 */
-	char	*env_str;
-	if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
-	    char	*end_ptr;
-
-	    port_base = strtol(env_str, &end_ptr, 0);
-	    if (*end_ptr != '\0' || port_base < 0) {
-		fprintf(stderr, 
-			 "GetPort: ignored bad PMLOGGER_PORT = '%s'\n", env_str);
-		port_base = PORT_BASE;
+    /* Try to create sockets for control connections. */
+    for (ctlix = 0; ctlix < CFD_NUM; ++ctlix) {
+	if (ctlix == CFD_UNIX) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	    const char *socketError;
+	    const char *errorPath;
+	    /* Try to create a unix domain socket, if supported. */
+	    fd = __pmCreateUnixSocket();
+	    if (fd < 0) {
+		fprintf(stderr, "GetPorts: unix domain socket failed: %s\n", netstrerror());
+		continue;
 	    }
-	}
-	else
-	    port_base = PORT_BASE;
-    }
-
-    /*
-     * try to allocate ports from port_base.  If port already in use, add one
-     * and try again.
-     */
-    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
-	fprintf(stderr, "GetPort: __pmSockAddrAlloc out of memory\n");
-	exit(1);
-    }
-    for (ctlport = port_base; ; ctlport++) {
-        __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
-	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
-	if (sts < 0) {
-	    if (neterror() != EADDRINUSE) {
-	        __pmSockAddrFree(myAddr);
-		fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
 		exit(1);
 	    }
+	    socketPath = __pmLogLocalSocketDefault(getpid(), globalPath, sizeof(globalPath));
+	    __pmSockAddrSetFamily(myAddr, AF_UNIX);
+	    __pmSockAddrSetPath(myAddr, socketPath);
+	    __pmServerSetLocalSocket(socketPath);
+	    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+
+	    /*
+	     * If we cannot bind to the system wide socket path, then try binding
+	     * to the user specific one.
+	     */
+	    if (sts < 0) {
+		char *tmpPath;
+		socketError = netstrerror();
+		errorPath = socketPath;
+		unlink(errorPath);
+		socketPath = __pmLogLocalSocketUser(getpid(), localPath, sizeof(localPath));
+		if (socketPath == NULL) {
+		    sts = -ESRCH;
+		}
+		else {
+		    /*
+		     * Make sure that the directory exists. dirname may modify the
+		     * contents of its first argument, so use a copy.
+		     */
+		    if ((tmpPath = strdup(socketPath)) == NULL) {
+			fprintf(stderr, "GetPorts: strdup out of memory\n");
+			exit(1);
+		    }
+		    sts = __pmMakePath(dirname(tmpPath),
+				       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		    free(tmpPath);
+		    if (sts >= 0 || oserror() == EEXIST) {
+			__pmSockAddrSetPath(myAddr, socketPath);
+			__pmServerSetLocalSocket(socketPath);
+			sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		    }
+		}
+	    }
+	    __pmSockAddrFree(myAddr);
+
+	    if (sts < 0) {
+		/* Could not bind to either socket path. */
+		fprintf(stderr, "__pmBind(%s): %s\n", errorPath, socketError);
+		if (sts == -ESRCH)
+		    fprintf(stderr, "__pmLogLocalSocketUser(): %s\n", osstrerror());
+		else
+		    fprintf(stderr, "__pmBind(%s): %s\n", socketPath, netstrerror());
+	    }
+	    else {
+		/*
+		 * For unix domain sockets, grant rw access to the socket for all,
+		 * otherwise, on linux platforms, connection will not be possible.
+		 * This must be done AFTER binding the address. See Unix(7) for details.
+		 */
+		sts = chmod(socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		if (sts != 0) {
+		    fprintf(stderr, "GetPorts: chmod(%s): %s\n", socketPath, strerror(errno));
+		}
+	    }
+	    /* On error, don't leave the socket file lying around. */
+	    if (sts < 0) {
+		unlink(socketPath);
+		socketPath = NULL;
+	    }
+	    else if ((socketPath = strdup(socketPath)) == NULL) {
+		fprintf(stderr, "GetPorts: strdup out of memory\n");
+		exit(1);
+	    }
+#else
+	    /*
+	     * Unix domain sockets are not supported.
+	     * This is not an error, just don't try to create one.
+	     */
+	    continue;
+#endif
 	}
-	else
-	    break;
-    }
-    __pmSockAddrFree(myAddr);
-    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
-    if (sts == -1) {
-	fprintf(stderr, "__pmListen: %s\n", netstrerror());
-	exit(1);
+	else {
+	    /* Try to create a network socket. */
+	    if (ctlix == CFD_INET) {
+		fd = __pmCreateSocket();
+		if (fd < 0) {
+		    fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
+			    netstrerror());
+		    continue;
+		}
+	    }
+	    else {
+		fd = __pmCreateIPv6Socket();
+		if (fd < 0) {
+		    fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
+			    netstrerror());
+		    continue;
+		}
+	    }
+	    if (port_base == -1) {
+		/*
+		 * get optional stuff from environment ...
+		 *	PMLOGGER_PORT
+		 */
+		char	*env_str;
+		if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
+		    char	*end_ptr;
+
+		    port_base = strtol(env_str, &end_ptr, 0);
+		    if (*end_ptr != '\0' || port_base < 0) {
+			fprintf(stderr, 
+				"GetPorts: ignored bad PMLOGGER_PORT = '%s'\n", env_str);
+			port_base = PORT_BASE;
+		    }
+		}
+		else
+		    port_base = PORT_BASE;
+	    }
+
+	    /*
+	     * try to allocate ports from port_base.  If port already in use, add one
+	     * and try again.
+	     */
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
+		exit(1);
+	    }
+	    for (ctlport = port_base; ; ctlport++) {
+		if (ctlix == CFD_INET)
+		    __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
+		else
+		    __pmSockAddrInit(myAddr, AF_INET6, INADDR_ANY, ctlport);
+		sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+		if (sts < 0) {
+		    if (neterror() != EADDRINUSE) {
+			fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
+			break;
+		    }
+		}
+		else
+		    break;
+	    }
+	    __pmSockAddrFree(myAddr);
+	}
+
+	/* Now listen on the new socket. */
+	if (sts >= 0) {
+	    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+	    if (sts == -1) {
+		__pmCloseSocket(fd);
+		fprintf(stderr, "__pmListen: %s\n", netstrerror());
+	    }
+	    else {
+		ctlfds[ctlix] = fd;
+		++socketsCreated;
+	    }
+	}
     }
 
-    /* create and initialize the port map file */
-    unlink(file);
-    mapfd = open(file, O_WRONLY | O_EXCL | O_CREAT,
-		 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (mapfd == -1) {
-	/* not a fatal error; continue on without control file */
+    if (socketsCreated != 0) {
+	/* create and initialize the port map file */
+	unlink(file);
+	mapfd = open(file, O_WRONLY | O_EXCL | O_CREAT,
+		     S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (mapfd == -1) {
+	    /* not a fatal error; continue on without control file */
 #ifdef DESPERATE
-	fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
-		pmProgname, file, osstrerror());
+	    fprintf(stderr, "%s: error creating port map file %s: %s.  Exiting.\n",
+		    pmProgname, file, osstrerror());
 #endif
-	return fd;
+	    return;
+	}
+	/* write the port number to the port map file */
+	if ((mapstream = fdopen(mapfd, "w")) == NULL) {
+	    /* not a fatal error; continue on without control file */
+	    close(mapfd);
+#ifdef DESPERATE
+	    perror("GetPorts: fdopen");
+#endif
+	    return;
+	}
+	/* first the port number */
+	fprintf(mapstream, "%d\n", ctlport);
+
+	/* then the PMCD host (but don't bother try DNS-canonicalize) */
+	fprintf(mapstream, "%s\n", pmcd_host);
+
+	/* then the full pathname to the archive base */
+	__pmNativePath(archBase);
+	if (__pmAbsolutePath(archBase))
+	    fprintf(mapstream, "%s\n", archBase);
+	else {
+	    char		path[MAXPATHLEN];
+
+	    if (getcwd(path, MAXPATHLEN) == NULL)
+		fprintf(mapstream, "\n");
+	    else
+		fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
+	}
+
+	/* and finally, the annotation from -m or -x */
+	if (note != NULL)
+	    fprintf(mapstream, "%s\n", note);
     }
-    /* write the port number to the port map file */
-    if ((mapstream = fdopen(mapfd, "w")) == NULL) {
-	/* not a fatal error; continue on without control file */
+
+    if (mapstream != NULL)
+	fclose(mapstream);
+    if (mapfd >= 0)
 	close(mapfd);
-#ifdef DESPERATE
-	perror("GetPort: fdopen");
-#endif
-	return fd;
-    }
-    /* first the port number */
-    fprintf(mapstream, "%d\n", ctlport);
-
-    /* then the PMCD host (but don't bother try DNS-canonicalize) */
-    fprintf(mapstream, "%s\n", pmcd_host);
-
-    /* then the full pathname to the archive base */
-    __pmNativePath(archBase);
-    if (__pmAbsolutePath(archBase))
-	fprintf(mapstream, "%s\n", archBase);
-    else {
-	char		path[MAXPATHLEN];
-
-	if (getcwd(path, MAXPATHLEN) == NULL)
-	    fprintf(mapstream, "\n");
-	else
-	    fprintf(mapstream, "%s%c%s\n", path, __pmPathSeparator(), archBase);
-    }
-
-    /* and finally, the annotation from -m or -x */
-    if (note != NULL)
-	fprintf(mapstream, "%s\n", note);
-
-    fclose(mapstream);
-    close(mapfd);
-
-    return fd;
+    if (socketsCreated == 0)
+	exit(1);
 }
 
 /* Create the control port for this pmlogger and the file containing the port
@@ -367,7 +504,7 @@ init_ports(void)
     unlink(ctlfile);
 
     /* get control port and write port map file */
-    ctlfd = GetPort(ctlfile);
+    GetPorts(ctlfile);
 
     /*
      * If this is the primary logger, make the special link for
@@ -394,6 +531,28 @@ init_ports(void)
 			pmProgname, linkfile, osstrerror());
 	    exit(1);
 	}
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/* Create a hard link to the local socket for users wanting the primary logger. */
+	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
+#ifndef IS_MINGW
+	sts = link(socketPath, linkSocketPath);
+#else
+	sts = (CreateHardLink(linkSocketPath, socketPath, NULL) == 0);
+#endif
+	if (sts != 0) {
+	    if (oserror() == EEXIST)
+		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
+	    else
+		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
+			pmProgname, linkSocketPath, osstrerror());
+	    exit(1);
+	}
+	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {
+	    fprintf(stderr, "init_ports: strdup out of memory\n");
+	    exit(1);
+	}
+#endif
     }
 }
 
@@ -406,8 +565,46 @@ unsigned int	clientops = 0;		/* for access control (deny ops) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+static int
+check_local_creds(__pmHashCtl *attrs)
+{
+    __pmHashNode	*node;
+    const char		*connectingUser;
+    char		*end;
+    __pmUserID		connectingUid;
+
+    /* Get the user name of the connecting process. */
+    connectingUser = ((node = __pmHashSearch(PCP_ATTR_USERID, attrs)) ?
+			(const char *)node->data : NULL);
+    if (connectingUser == NULL) {
+	/* We don't know who is connecting. */
+	return PM_ERR_PERMISSION;
+    }
+
+    /* Get the uid of the connecting process. */
+    errno = 0;
+    connectingUid = strtol(connectingUser, &end, 0);
+    if (errno != 0 || *end != '\0') {
+	/* Can't convert the connecting user to a uid cleanly. */
+	return PM_ERR_PERMISSION;
+    }
+
+    /* Allow connections from root (uid == 0). */
+    if (connectingUid == 0)
+	return 0;
+
+    /* Allow connections from the same user as us. */
+    if (connectingUid == getuid() || connectingUid == geteuid())
+	return 0;
+
+    /* Connection is not allowed. */
+    return PM_ERR_PERMISSION;
+}
+#endif /* defined(HAVE_STRUCT_SOCKADDR_UN) */
+
 int
-control_req(void)
+control_req(int ctlfd)
 {
     int			fd, sts;
     char		*abuf;
@@ -459,8 +656,9 @@ control_req(void)
     else {
 	/* this is safe, due to strlen() test above */
 	strcpy(pmlc_host, hostName);
-	free(hostName);
     }
+    if (hostName != NULL)
+	free(hostName);
 
     sts = __pmAccAddClient(addr, &clientops);
     if (sts < 0) {
@@ -482,6 +680,45 @@ control_req(void)
 	__pmCloseSocket(fd);
 	return 0;
     }
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    /*
+     * For connections on an AF_UNIX socket, check the user credentials of the
+     * connecting process.
+     */
+    if (__pmSockAddrGetFamily(addr) == AF_UNIX) {
+	__pmHashCtl clientattrs; /* Connection attributes (auth info) */
+	__pmHashInit(&clientattrs);
+
+	/* Get the user credentials. */
+	if ((sts = __pmServerSetLocalCreds(fd, &clientattrs)) < 0) {
+	    sts = __pmSendError(fd, FROM_ANON, sts);
+	    if (sts < 0)
+		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			pmErrStr(sts));
+	    __pmSockAddrFree(addr);
+	    __pmCloseSocket(fd);
+	    return 0;
+	}
+
+	/* Check the user credentials. */
+	if ((sts = check_local_creds(&clientattrs)) < 0) {
+	    sts = __pmSendError(fd, FROM_ANON, sts);
+	    if (sts < 0)
+		fprintf(stderr, "error sending connection credentials NACK to client: %s\n",
+			pmErrStr(sts));
+	    __pmSockAddrFree(addr);
+	    __pmCloseSocket(fd);
+	    return 0;
+	}
+
+	/* This information is no longer needed. */
+	__pmFreeAttrsSpec(&clientattrs);
+	__pmHashClear(&clientattrs);
+    }
+#endif
+
+    /* Done with this address. */
     __pmSockAddrFree(addr);
 
     /*
