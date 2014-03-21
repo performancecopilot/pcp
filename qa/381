@@ -30,7 +30,6 @@ _filter()
 	-e "s/_logger_id=[0-9][0-9]*/_logger_id=PMLOGGER-PID/" \
 	-e "s/$rem_host/REMOTE-HOST/" \
 	-e "s/$myhost/LOCAL-HOST/" \
-	-e "s/local:/LOCAL-HOST/" \
 	-e "s/port $port /port QA-PMLOGGER-PORT /" \
 	-e 's/logging metrics from host .*/logging metrics from host .../' \
 	-e '/^log started/d' \
