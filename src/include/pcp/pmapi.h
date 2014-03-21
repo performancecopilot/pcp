@@ -751,6 +751,7 @@ typedef struct __pmOptions {
     unsigned int	zeroes  : 28;
 } pmOptions;
 
+extern int pmgetopt_r(int, char *const *, pmOptions *);
 extern int pmGetOptions(int, char *const *, pmOptions *);
 extern int pmGetContextOptions(int, pmOptions *);
 extern void pmUsageMessage(pmOptions *);

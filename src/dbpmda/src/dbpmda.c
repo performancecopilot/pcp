@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,6 @@ __pmLogCtl	logctl;
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlc */
 pid_t		pid = (pid_t) -1;
-int		zflag;
 char		*pmnsfile = PM_NS_DEFAULT;
 char		*cmd_namespace = NULL; /* namespace given from command */
 int             _creds_timeout = 3;     /* Timeout for agents credential PDU */
@@ -34,6 +33,25 @@ int		eflag;
 int		iflag;
 
 extern int yyparse(void);
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    PMOPT_NAMESPACE,
+    { "creds-timeout", 1, 'q', "N", "initial negotiation timeout (seconds)" },
+    { "username", 1, 'U', "USER", "run under named user account" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Input options"),
+    { "echo-input", 0, 'e', 0, "echo input" },
+    { "interactive", 0, 'i', 0, "be interactive and prompt" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_POSIX,
+    .short_options = "q:D:ein:U:?",
+    .long_options = longopts,
+};
 
 /*
  * called before regular exit() or as atexit() handler
@@ -53,39 +71,23 @@ main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    int			errflag = 0;
     char		*endnum;
-    int			i;
-
-    __pmSetProgname(argv[0]);
-
-#ifdef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
-    /*
-     * dbpmda mimics pmcd wrt POSIX getopt(2) handling, which is:
-     * "pmcd does not really need this for its own options because the
-     * arguments like "arg -x" are not valid.  But the PMDA's launched
-     * by pmcd from pmcd.conf may not be so lucky."
-     */
-    putenv("POSIXLY_CORRECT=");
-#endif
 
     iflag = isatty(0);
 
-    while ((c = getopt(argc, argv, "q:D:ein:U:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-#ifdef PCP_DEBUG
 	case 'D':		/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
 		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		    pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'e':		/* echo input */
 	    eflag++;
@@ -96,61 +98,54 @@ main(int argc, char **argv)
 	    break;
 
 	case 'n':		/* alternative name space file */
-	    pmnsfile = optarg;
+	    pmnsfile = opts.optarg;
 	    break;
 
 	case 'q':
-	    sts = (int)strtol(optarg, &endnum, 10);
+	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || sts <= 0.0) {
-		fprintf(stderr,
-			"pmcd: -q requires a positive numeric argument\n");
-		errflag++;
+		pmprintf("%s: -q requires a positive numeric argument\n",
+			pmProgname);
+		opts.errors++;
 	    } else {
 		_creds_timeout = sts;
 	    }
 	    break;
 
-	case 'U':
-	    __pmSetProcessIdentity(optarg);
+	case 'U':		/* run under alternate user account */
+	    __pmSetProcessIdentity(opts.optarg);
 	    break;
 
-	case '?':
 	default:
-	    errflag++;
+	case '?':
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if ((i = argc - optind) > 0) {
-	if (i > 1)
-	    errflag++;
+    if ((c = argc - opts.optind) > 0) {
+	if (c > 1)
+	    opts.errors++;
 	else {
 	    /* pid was specified */
 	    if (primary) {
-		fprintf(stderr, "%s: you may not specify both -P and a pid\n", pmProgname);
-		errflag++;
+		pmprintf("%s: you may not specify both -P and a pid\n",
+			pmProgname);
+		opts.errors++;
 	    }
 	    else {
-		pid = (int)strtol(argv[optind], &endnum, 10);
+		pid = (int)strtol(argv[opts.optind], &endnum, 10);
 		if (*endnum != '\0') {
-		    fprintf(stderr, "%s: pid must be a numeric process id\n", pmProgname);
-		    errflag++;
+		    pmprintf("%s: pid must be a numeric process id\n",
+			    pmProgname);
+		    opts.errors++;
 		}
 	    }
 	}
     }
 
-    if (errflag) {
-	fprintf(stderr,
-		"Usage: %s [options]\n\n"
-		"Options:\n"
-		"  -e            echo input\n"
-		"  -i            be interactive and prompt\n"
-		"  -n pmnsfile   use an alternative PMNS\n"
-		"  -q timeout    PMDA initial negotiation timeout (seconds) "
-                                "[default 3]\n"
-		"  -U username   run as named user\n",
-		pmProgname);
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 

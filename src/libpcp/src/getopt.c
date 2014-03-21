@@ -28,8 +28,6 @@ enum {
     REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
 };
 
-static int __pmgetopt_r(int, char *const *, pmOptions *);
-
 /*
  * Using the current archive context, extract start and end
  * times and adjust the time window boundaries accordingly.
@@ -636,6 +634,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 
     if (!(opts->flags & PM_OPTFLAG_INIT)) {
 	__pmSetProgname(argv[0]);
+	opts->__initialized = 1;
 	__pmStartOptions(opts);
     }
 
@@ -646,11 +645,11 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
     }
 
     while (!flag) {
-	c = __pmgetopt_r(argc, argv, opts);
+	c = pmgetopt_r(argc, argv, opts);
 
 	/* provide opportunity for overriding the general set of options */
 	if (opts->override && opts->override(c, opts))
-	    continue;
+	    break;
 
 	switch (c) {
 	case 'A':
@@ -942,8 +941,8 @@ typedef struct pmOptList {
     struct pmOptList *	next;
 } pmOptionsList;
 
-static int
-__pmgetopt_r(int argc, char *const *argv, pmOptions *d)
+int
+pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 {
     const char *optstring = d->short_options;
     pmLongOptions *longopts = d->long_options;
@@ -956,11 +955,13 @@ __pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 
     d->optarg = NULL;
 
-    if (d->optind == 0 || !d->__initialized) {
+    if (d->optind == 0 || d->__initialized <= 1) {
 	if (d->optind == 0)
 	    d->optind = 1;	/* Don't scan ARGV[0], the program name.  */
+	if (!d->__initialized)
+	    __pmSetProgname(argv[0]);
 	optstring = __pmgetopt_initialize(argc, argv, d);
-	d->__initialized = 1;
+	d->__initialized = 2;
     }
     else if (optstring[0] == '-' || optstring[0] == '+')
 	optstring++;
