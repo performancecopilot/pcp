@@ -849,7 +849,7 @@ main(int argc, char *argv[])
 	i = 0;
     }
     if (pmParseMetricSpec(argv[opts.optind], i, source, &msp, &errmsg) < 0) {
-	pmprintf(errmsg);
+	pmprintf("%s", errmsg);
 	free(errmsg);
 	opts.errors++;
     }
