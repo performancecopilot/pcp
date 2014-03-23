@@ -376,6 +376,27 @@ and
 fields in the
 .I opts
 structure.
+.TP
+.B PM_OPTFLAG_NOFLUSH
+The final
+.B pmflush
+call issued by
+.B pmUsageMessage
+will be skipped if this flag is set.
+This is useful in situations where the caller wishes to append
+additional test to the generated usage message before flushing.
+.TP
+.B PM_OPTFLAG_QUIET
+Suppress messages from
+.B pmgetopt_r
+about unrecognised command line options.
+This is the equivalent to setting the
+.I opterr
+field in the
+.I opt
+parameter (which mimics the
+.B getopt
+variable of the same name).
 .SH "RETURN VALUE"
 The
 .B pmGetOptions

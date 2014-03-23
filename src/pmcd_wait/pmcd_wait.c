@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,8 +14,6 @@
  */
 
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
 #include "pmapi.h"
 #include "impl.h"
 
@@ -26,91 +24,23 @@
 #define EXIT_STS_UNIXERR 	3
 #define EXIT_STS_PCPERR 	4
 
-static char	*hostname = NULL;
+static char	*hostname;
 static long	delta = 60;
-static int	verbose = 0;
+static int	verbose;
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    { "host", 1, 'h', "HOST", "wait for PMCD on host" },
+    { "interval", 1, 't', "TIME", "maximum interval to wait for PMCD [default 60 seconds]" },
+    { "verbose", 0, 'v', 0, "turn on output messages" },
+    PMAPI_OPTIONS_END
+};
 
-static void
-PrintUsage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options] \n\
-\n\
-Options:\n\
-  -h host	wait for PMCD on host\n\
-  -t interval   maximum interval to wait for PMCD [default 60 seconds]\n\
-  -v		turn on output messages\n",
-		pmProgname);
-}
-
-static void
-ParseOptions(int argc, char *argv[])
-{
-    int		c;
-    int		sts;
-    int		errflag = 0;
-    char	*msg;
-    struct 	timeval delta_time;
-
-    while ((c = getopt(argc, argv, "D:h:t:v?")) != EOF) {
-	switch (c) {
-
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: Unrecognized debug flag specification (%s)\n",
-			    pmProgname, optarg);
-		    errflag++;
-		}
-		else
-		    pmDebug |= sts;
-		break;
-
-
-	    case 'h':	/* contact PMCD on this hostname */
-		hostname = optarg;
-		break;
-
-
-	    case 't':   /* delta to wait */
-		if (pmParseInterval(optarg, &delta_time, &msg) < 0) {
-		    fprintf(stderr, "%s: Illegal -t argument (%s)\n", 
-			pmProgname, optarg);
-		    fputs(msg, stderr);
-		    free(msg);
-		    errflag++;
-		}
-		delta = delta_time.tv_sec;
-		if (delta <= 0) {
-		    fprintf(stderr, "%s: -t argument must be at least 1 second\n",
-			pmProgname);
-		    errflag++;
-		}
-		break;
-
-	    case 'v':
-		verbose = 1;
-		break;
-
-	    default:
-	    case '?':
-		PrintUsage();
-		exit(EXIT_STS_SUCCESS);
-	}
-    }
-
-    if (optind < argc) {
-	fprintf(stderr, "%s: Too many arguments\n", pmProgname);
-	errflag++;
-    }
-
-    if (errflag) {
-	PrintUsage();
-	exit(EXIT_STS_USAGE);
-    }
-
-}
+static pmOptions opts = {
+    .short_options = "D:h:t:v?",
+    .long_options = longopts,
+};
 
 void 
 PrintTimeout(void)
@@ -125,17 +55,42 @@ PrintTimeout(void)
 int
 main(int argc, char **argv)
 {
+    int		c;
     int		sts;
     char	env[256];
     long	delta_count;
 
-    __pmSetProgname(argv[0]);
-
-    ParseOptions(argc, argv);
-
-    if (hostname == NULL) {
-	hostname = "local:";
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	switch (c) {
+	case 'v':
+	    verbose = 1;
+	    break;
+	}
     }
+
+    if (opts.optind < argc) {
+	pmprintf("%s: Too many arguments\n", pmProgname);
+	opts.errors++;
+    }
+
+    if (opts.interval.tv_sec != 0) {
+	delta = opts.interval.tv_sec;
+	if (delta <= 0) {
+	    pmprintf("%s: -t argument must be at least 1 second\n",
+		pmProgname);
+	    opts.errors++;
+	}
+    }
+
+    if (opts.errors) {
+	pmUsageMessage(&opts);
+	exit(EXIT_STS_USAGE);
+    }
+
+    if (opts.nhosts == 0)
+	hostname = "local:";
+    else
+	hostname = opts.hosts[0];
 
     sts = sprintf(env, "PMCD_CONNECT_TIMEOUT=%ld", delta);
     if (sts < 0) {
@@ -163,7 +118,7 @@ main(int argc, char **argv)
 	    exit(EXIT_STS_SUCCESS);
 	}
 	if (sts == -ECONNREFUSED || sts == PM_ERR_IPC) {
-	    static const struct timeval onesec = { 1, 0};
+	    static const struct timeval onesec = { 1, 0 };
 
 	    delta_count--;
 	    if (delta_count < 0) {
@@ -188,5 +143,4 @@ main(int argc, char **argv)
 
 	}
     }
-
 }

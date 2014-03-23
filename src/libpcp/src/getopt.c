@@ -781,7 +781,8 @@ pmUsageMessage(pmOptions *opts)
 	    pmprintf("\n%24s%s\n", "", option->message);
     }
 flush:
-    pmflush();
+    if (!(opts->flags & PM_OPTFLAG_NOFLUSH))
+	pmflush();
 }
 
 /*
@@ -948,7 +949,8 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
     pmLongOptions *longopts = d->long_options;
     int *longind = &d->index;
     int long_only = (d->flags & PM_OPTFLAG_LONG_ONLY);
-    int print_errors = d->opterr;
+    int quiet = (d->flags & PM_OPTFLAG_QUIET);
+    int print_errors = d->opterr || !quiet;
 
     if (argc < 1)
 	return -1;

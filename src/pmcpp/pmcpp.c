@@ -338,51 +338,60 @@ openfile(const char *fname)
     return fp;
 }
 
+static pmLongOptions longopts[] = {
+    PMOPT_HELP,
+    { "define", 1, 'D', "MACRO", "associate a value with a macro" },
+    PMAPI_OPTIONS_END
+};
+static pmOptions opts = {
+    .short_options = "D:?",
+    .long_options = longopts,
+    .short_usage = "[-Dname ...] [file]",
+};
+
 int
 main(int argc, char **argv)
 {
     int		c;
-    int		errflag = 0;
     int		skip_if_false = 0;
     int		incomment = 0;
     char	*ip;
 
     currfile = &file_ctl[0];
 
-    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'D':	/* define */
-	    for (ip = optarg; *ip; ip++) {
+	    for (ip = opts.optarg; *ip; ip++) {
 		if (*ip == '=')
 		    *ip = ' ';
 	    }
-	    snprintf(ibuf, sizeof(ibuf), "#define %s\n", optarg);
+	    snprintf(ibuf, sizeof(ibuf), "#define %s\n", opts.optarg);
 	    currfile->fname = "<arg>";
-	    currfile->lineno = optind;
+	    currfile->lineno = opts.optind;
 	    directive();
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind < argc - 1) {
-	pmprintf("Usage: pmcpp [-Dname ...] [file]\n");
-	pmflush();
+    if (opts.errors || opts.optind < argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
     currfile->lineno = 0;
-    if (optind == argc) {
+    if (opts.optind == argc) {
 	currfile->fname = "<stdin>";
 	currfile->fin = stdin;
     }
     else {
-	currfile->fname = argv[optind];
+	currfile->fname = argv[opts.optind];
 	currfile->fin = openfile(currfile->fname);
 	if (currfile->fin == NULL) {
 	    err((char *)pmErrStr(-oserror()));
