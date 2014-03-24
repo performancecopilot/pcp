@@ -1,0 +1,31 @@
+#
+# Common shell routines for testing python modules
+# Copyright (c) 2012-2014 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# verify output from unittest indicates successful testing
+_check_unittest()
+{
+    mode=$1
+    file=$2
+
+    $PCP_ECHO_PROG $PCP_ECHO_N "$mode - ""$PCP_ECHO_C"
+    if grep OK $file
+    then
+        return 0
+    fi
+
+    # Give some hint as to what went wrong ...
+    #
+    $PCP_AWK_PROG <$file '
+$1 == "FAIL:"			{ want = 1 }
+$1 == "File"			{ want = 1 }
+want == 1 && $1 == "Ran" 	{ exit }
+want == 1			{ print }'
+    return 1
+}
