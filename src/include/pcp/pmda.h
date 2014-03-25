@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -269,16 +269,77 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
 #define PMDA_PMUNITS(a,b,c,d,e,f) {0,f,e,d,c,b,a}
 #endif
 
+/* Command line option processing macros and data structures */
+
+#define PMDA_OPTIONS "D:d:h:i:l:pu:U:"
+#define PMDA_OPTIONS_HEADER(s)	{ "", 0, '-', 0, (s) }
+#define PMDA_OPTIONS_END	{ NULL, 0, 0, 0, NULL }
+
+#define PMDAOPT_DEBUG	{ "debug",      1, 'D', "DBG", \
+			NULL }
+#define PMDAOPT_DOMAIN	{ "domain",	1, 'd', "NUM", \
+			"use domain (numeric) for metrics domain of PMDA" }
+#define PMDAOPT_HELPTEXT { "helpfile",	1, 'h', "FILE", \
+			"path to PMDA metrics help text file" }
+#define PMDAOPT_INET	{ "inet",	1, 'i', "PORT", \
+			"pmcd IPv4 connection service name or numeric port" }
+#define PMDAOPT_IPV6	{ "ipv6",	1, '6', "PORT", \
+			"pmcd IPv6 connection service name or numeric port" }
+#define PMDAOPT_LOGFILE	{ "log",	1, 'l', "FILE", \
+			"write log to FILE rather than using default log name" }
+#define PMDAOPT_PIPE	{ "pipe",	0, 'p', 0, \
+			"use a pipe for communication with pmcd" }
+#define PMDAOPT_UNIX	{ "unix",	1, 'u', "FILE", \
+			"use a unix domain socket for communication with pmcd" }
+#define PMDAOPT_USERNAME { "username",	1, 'U', "USER", \
+			"run the PMDA using the named user account" }
+
+struct __pmdaOptions;
+typedef int (*pmdaOptionOverride)(int, struct __pmdaOptions *);
+
+typedef struct __pmdaOptions {
+    int			version;
+    int			flags;
+    const char *	short_options;
+    pmLongOptions *	long_options;
+    const char *	short_usage;
+    pmdaOptionOverride	override;
+
+    /* out: usual getopt information */
+    int			index;
+    int			optind;
+    int			opterr;
+    int			optopt;
+    char		*optarg;
+
+    /* internals; do not ever access */
+    int			__initialized;
+    char *		__nextchar;
+    int			__ordering;
+    int			__posixly_correct;
+    int			__first_nonopt;
+    int			__last_nonopt;
+
+    /* out: error count */
+    int			errors;
+
+    /* out: PMDA options (non-pmdaInterface options) */
+    char *		username;
+} pmdaOptions;
+
 
 /*
  * PMDA Setup Routines.
  *
  * pmdaGetOpt
- *	Replacement for getopt(3) which strips out the standard PMDA flags
- *	before returning the next command line option. The standard PMDA
- *	flags are "D:d:i:l:pu:" which will initialise the pmdaExt structure
- *	with the IPC details, path to the log file and domain number.
- *	err will be incremented if there was an error parsing these options.
+ * pmdaGetOptions
+ *	Replacements for pmgetopt_r(3) which strip out the standard PMDA flags
+ *	before returning the next command line option.  The standard PMDA
+ *	flags are PMDA_OPTIONS which will initialise the pmdaExt structure
+ *	with the IPC details, path to the log and help file, domain number,
+ *	and the user account under which the PMDA should run.
+ *	An error counter will be incremented if there was an error parsing any
+ *	of these options.
  *
  * pmdaDaemon
  *      Setup the pmdaInterface structure for a daemon and initialise
@@ -342,6 +403,7 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
  */
 
 extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
+extern int pmdaGetOptions(int, char *const *, pmdaOptions *, pmdaInterface *);
 extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
 extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 extern void pmdaOpenLog(pmdaInterface *);

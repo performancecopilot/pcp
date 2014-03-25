@@ -1,3 +1,6 @@
+pcp-3.9.2 (16 April 2014)
+    - Under development
+
 pcp-3.9.1 (19 March 2014)
     - libpcp: extended date parsing with GNU getdate(3) strings
     - libpcp: APIs for tools to share command-line options code

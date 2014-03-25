@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1998-2001, Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,20 +28,6 @@ static int	autocreate;
 static int	interactive = 1;
 static int	pmiefile_modified;
 static char	warn[MAXBUFLEN];	/* buffer for any warning messages */
-
-static char	usage[] = \
-    "Usage: %s [options] [ command [args...] ]\n"
-    "\n"
-    "Options:\n"
-    "  -c           an automated pmie configuration by the system\n"
-    "  -F           force creation/update of pmie file, then exit\n"
-    "  -f filename  location of generated pmie configuration file\n"
-    "               [for root, default is %s/%s and\n"
-    "               for other users, default is $HOME/%s]\n"
-    "  -r rulepath  path specifying groups of rule files [%s/%s]\n"
-    "  -v           verbose mode\n"
-    "\n"
-    "Commands:\n%s\n";
 
 static char	help[] = \
     "  1. help  [ { . | all | global | <rule> | <group> } [<variable>] ]\n"
@@ -748,20 +735,34 @@ interact(void)
     } while (!done);
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "", 0, 'c', 0, "an automated pmie configuration by the system" },
+    { "force", 0, 'F', 0, "force creation/update of pmie file, then exit" },
+    { "config", 1, 'f', "FILE", "location of generated pmie configuration file" },
+    { "rules", 1, 'r', "PATH", "path specifying groups of rule files" },
+    { "verbose", 0, 'v', 0, "increase level of diagnostics" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_NOFLUSH,
+    .short_options = "cFf:r:v?",
+    .long_options = longopts,
+    .short_usage = "[options] [ command [args...] ]",
+};
 
 int
 main(int argc, char **argv)
 {
     int		c;
     int		force = 0;
-    int		errflag = 0;
     char	*p;
     char	*in_rules = NULL;
     char	*in_pmie = NULL;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "cFf:r:v?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'c':
 	    autocreate = 1;
@@ -773,11 +774,11 @@ main(int argc, char **argv)
 	    break;
 
 	case 'f':
-	    in_pmie = optarg;
+	    in_pmie = opts.optarg;
 	    break;
 
 	case 'r':
-	    in_rules = optarg;
+	    in_rules = opts.optarg;
 	    break;
 
 	case 'v':
@@ -786,31 +787,30 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	}
     }
 
-    if (force && optind < argc) {
-	fprintf(stderr, "%s: cannot use -F with a command\n", pmProgname);
-	optind = argc;
-	errflag++;
+    if (force && opts.optind < argc) {
+	pmprintf("%s: cannot use -F option with a command\n", pmProgname);
+	opts.optind = argc;
+	opts.errors++;
     }
 
-    for (c = 0; optind < argc && c < MAXARGS; c++) {
-	strncpy(inbuf[c], argv[optind++], MAXBUFLEN);
+    for (c = 0; opts.optind < argc && c < MAXARGS; c++) {
+	strncpy(inbuf[c], argv[opts.optind++], MAXBUFLEN);
 	inbuf[c][MAXBUFLEN] = '\0';
 	interactive = 0;
     }
-    if (optind < argc) {
-	fprintf(stderr, "%s: too many arguments\n", pmProgname);
-	errflag++;
+    if (opts.optind < argc) {
+	pmprintf("%s: too many arguments\n", pmProgname);
+	opts.errors++;
     }
 
-    if (errflag) {
-	fprintf(stderr, usage, pmProgname, 
-	    pmGetConfig("PCP_SYSCONF_DIR"), DEFAULT_ROOT_PMIE,
-	    DEFAULT_USER_PMIE, pmGetConfig("PCP_VAR_DIR"), 
-	    DEFAULT_RULES, help);
+    if (opts.errors) {
+	pmUsageMessage(&opts);
+	pmprintf("\nCommands:\n%s\n", help);
+	pmflush();
 	exit(1);
     }
 

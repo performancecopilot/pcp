@@ -86,17 +86,26 @@ static int	nfoo = sizeof(foo) / sizeof(foo[0]);
 
 static char	*fmt = "DBG_TRACE_%-11.11s %7d  %s\n";
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    { "list", 0, 'l', 0, "displays mnemonic and decimal values of PCP debug bitfields" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "l?",
+    .long_options = longopts,
+    .short_usage = "[options] [code ..]",
+};
+
 int
 main(int argc, char **argv)
 {
     int		i;
     int		c;
-    int		code;
-    int		errflag = 0;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "l?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'l':	/* list all flags */
@@ -108,49 +117,44 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind >= argc) {
-	fprintf(stderr,
-"Usage: %s [options] [code ..]\n\
-\n\
-Options:\n\
-  -l              displays mnemonic and decimal values of all PCP bit fields\n",
-		pmProgname);
+    if (opts.errors || opts.optind >= argc) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    /* non-flag args are argv[optind] ... argv[argc-1] */
-    while (optind < argc) {
-	char	*p = argv[optind];
-	for (p = argv[optind]; *p && isdigit((int)*p); p++)
+    /* non-flag args are argv[opts.optind] ... argv[argc-1] */
+    while (opts.optind < argc) {
+	char	*p = argv[opts.optind];
+	for (p = argv[opts.optind]; *p && isdigit((int)*p); p++)
 	    ;
 	if (*p == '\0')
-	    sscanf(argv[optind], "%d", &code);
+	    sscanf(argv[opts.optind], "%d", &c);
 	else {
 	    char	*q;
-	    p = argv[optind];
+	    p = argv[opts.optind];
 	    if (*p == '0' && (p[1] == 'x' || p[1] == 'X'))
 		p = &p[2];
 	    for (q = p; isxdigit((int)*q); q++)
 		;
-	    if (*q != '\0' || sscanf(p, "%x", &code) != 1) {
-		printf("Cannot decode \"%s\" - neither decimal nor hexadecimal\n", argv[optind]);
+	    if (*q != '\0' || sscanf(p, "%x", &c) != 1) {
+		printf("Cannot decode \"%s\" - neither decimal nor hexadecimal\n", argv[opts.optind]);
 		goto next;
 	    }
 	}
-	printf("Performance Co-Pilot -- pmDebug value = %d (0x%x)\n", code, code);
-	printf("#define              Value  Meaning\n");
+	printf("Performance Co-Pilot -- pmDebug value = %d (0x%x)\n", c, c);
+	printf("#define                 Value  Meaning\n");
 	for (i = 0; i < nfoo; i++) {
-	    if (code & foo[i].flag)
+	    if (c & foo[i].flag)
 		printf(fmt, foo[i].name, foo[i].flag, foo[i].text);
 	}
 
 next:
-	optind++;
+	opts.optind++;
     }
 
     return 0;

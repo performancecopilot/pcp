@@ -80,23 +80,9 @@ static int	events;		/* Decode event metrics */
 static int
 myoverrides(int opt, pmOptions *opts)
 {
-    switch (opt) {
-	case 't':
-	    p_oneline = 1;
-	    need_context = 1;
-	    need_pmid = 1;
-	    return 1;	/* we've claimed 't' - inform pmGetOptions */
-
-	case 'T':
-	    p_help = 1;
-	    need_context = 1;
-	    need_pmid = 1;
-	    return 1;	/* we've claimed 'T' - inform pmGetOptions */
-
-	default:
-	    break;
-    }
-    return 0;	/* continue processing this option, whatever it is */
+    if (opt == 't' || opt == 'T')
+	return 1;	/* we've claimed these, inform pmGetOptions */
+    return 0;
 }
 
 /*
@@ -538,6 +524,18 @@ main(int argc, char **argv)
 
 	    case 'm':
 		p_mid = 1;
+		need_pmid = 1;
+		break;
+
+	    case 't':
+		p_oneline = 1;
+		need_context = 1;
+		need_pmid = 1;
+		break;
+
+	    case 'T':
+		p_help = 1;
+		need_context = 1;
 		need_pmid = 1;
 		break;
 

@@ -124,6 +124,7 @@ host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2]
 rpm?	httpd			[httpd]
 time				[time(redhat)]
+dpkg?	realpath		[realpath]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake]
 rpm?	qmake			[qt-devel]

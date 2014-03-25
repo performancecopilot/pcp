@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    if (strcmp(argv[1], "-?") == 0) { 
+    if (strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0) { 
 	fprintf(stderr, usage);
 	exit(1);
     }

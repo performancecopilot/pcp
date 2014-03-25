@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -21,11 +22,6 @@
  * version 1 that is based on ndbm.
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include "pmapi.h"
@@ -37,12 +33,12 @@
 #define MAXLINE	128
 #define MAXENTRY 1024
 
-static int	verbose = 0;
-static int	ln = 0;
+static int	verbose;
+static int	ln;
 static char	*filename;
-static int	status = 0;
+static int	status;
 static int	version = DEFAULT_HELP_VERSION;
-static FILE	*f = NULL;
+static FILE	*f;
 
 typedef struct {
     pmID	pmid;
@@ -50,8 +46,8 @@ typedef struct {
     __uint32_t	off_text;
 } help_idx_t;
 
-static help_idx_t	*hindex = NULL;
-static int		numindex = 0;
+static help_idx_t	*hindex;
+static int		numindex;
 static int		thisindex = -1;
 
 static void
@@ -245,6 +241,24 @@ idcomp(const void *a, const void *b)
 	return 1;
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    PMOPT_NAMESPACE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Output options"),
+    { "output", 1, 'o', "FILE", "base name for output files" },
+    { "verbose", 0, 'V', 0, "verbose/diagnostic output" },
+    { "version", 0, 'v', 0, "deprecated (only version 2 format supported)" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:n:o:Vv:?",
+    .long_options = longopts,
+    .short_usage = "[options] [file ...]",
+};
+
 int
 main(int argc, char **argv)
 {
@@ -253,7 +267,6 @@ main(int argc, char **argv)
     int		i;
     int		sts;
     char	*pmnsfile = PM_NS_DEFAULT;
-    int		errflag = 0;
     char	*fname = NULL;
     char	pathname[MAXPATHLEN];
     FILE	*inf;
@@ -264,28 +277,25 @@ main(int argc, char **argv)
     int		skip;
     help_idx_t	hdr;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "D:n:o:Vv:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
 	    break;
 
 	case 'n':	/* alternative namespace file */
-	    pmnsfile = optarg;
+	    pmnsfile = opts.optarg;
 	    break;
 
 	case 'o':	/* alternative output file name */
-	    fname = optarg;
+	    fname = opts.optarg;
 	    break;
 
 	case 'V':	/* more chit-chat */
@@ -293,49 +303,38 @@ main(int argc, char **argv)
 	    break;
 
 	case 'v':	/* version 2 only these days */
-	    version = (int)strtol(optarg, &endnum, 10);
+	    version = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -v requires numeric argument\n",
-			pmProgname);
-		errflag++;
+		pmprintf("%s: -v requires numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
 	    if (version != 2) {
-		fprintf(stderr 
-                       ,"%s: deprecated option - only version 2 is supported\n"
-                       , pmProgname);
-		errflag++;
+		pmprintf("%s: deprecated option - only version 2 is supported\n",
+			pmProgname);
+		opts.errors++;
 	    }
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag) {
-	fprintf(stderr,
-"Usage: %s [options] [file ...]\n\
-\n\
-Options:\n\
-  -n pmnsfile    use an alternative PMNS\n\
-  -o outputfile  base name for output files\n\
-  -V             verbose/diagnostic output\n\
-  -v version     deprecated (only version 2 format supported)\n",
-		pmProgname);
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(2);
     }
 
     if ((n = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "%s: pmLoadNameSpace: %s\n",
-		pmProgname, pmErrStr(n));
+	fprintf(stderr, "%s: pmLoadNameSpace: %s\n", pmProgname, pmErrStr(n));
 	exit(2);
     }
 
     do {
-	if (optind < argc) {
-	    filename = argv[optind];
+	if (opts.optind < argc) {
+	    filename = argv[opts.optind];
 	    if ((inf = fopen(filename, "r")) == NULL) {
 		perror(filename);
 		exit(2);
@@ -433,8 +432,8 @@ Options:\n\
 	}
 
 	fclose(inf);
-	optind++;
-    } while (optind < argc);
+	opts.optind++;
+    } while (opts.optind < argc);
 
     if (f != NULL) {
 	fclose(f);

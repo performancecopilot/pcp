@@ -19,6 +19,22 @@ static int	quiet;
 static char	*service;
 static char	*mechanism;
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Discovery options"),
+    PMOPT_DEBUG,
+    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|...|all]" },
+    { "service", 1, 's', "NAME", "discover local services [pmcd|...]" },
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:m:s:q?",
+    .long_options = longopts,
+};
+
 static int
 discovery(void)
 {
@@ -49,71 +65,45 @@ discovery(void)
     return 0;
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options]\n\
-\n\
-Options:\n\
-  -m mechanism  set the discovery method to use [avahi|...|all]\n\
-  -q            quiet mode, do not write to stdout\n\
-  -s service    discover local services [pmcd|...]\n",
-	    pmProgname);
-}
-
 int
 main(int argc, char **argv)
 {
     int		c;
-    int		sts;
-    int		errflag = 0;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "D:m:s:q?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	    case 'D':	/* debug flag */
-		if ((sts = __pmParseDebug(optarg)) < 0) {
-		    fprintf(stderr,
-			"%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		} else {
-		    pmDebug |= sts;
-		}
-		break;
-
-	    case 'm':	/* discovery mechanism */
-		if (strcmp(optarg, "all") == 0)
-		    mechanism = NULL;
-		else
-		    mechanism = optarg;
-		break;
-
-	    case 'q':	/* no stdout messages */
-		quiet = 1;
-		break;
-
-	    case 's':	/* discover named service */
-		service = optarg;
-		break;
-
-	    case '?':
-		if (errflag == 0) {
-		    usage();
-		    exit(0);
-		}
-		break;
+	case 'D':
+	    if ((c = __pmParseDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
+		pmDebug |= c;
+	    }
+	    break;
+	case 's':
+	    service = opts.optarg;
+	    break;
+	case 'm':	/* discovery mechanism */
+	    if (strcmp(opts.optarg, "all") == 0)
+		mechanism = NULL;
+	    else
+		mechanism = opts.optarg;
+	    break;
+	case 'q':	/* no stdout messages */
+	    quiet = 1;
+	    break;
+	default:
+	    opts.errors++;
+	    break;
 	}
     }
 
-    if (optind != argc)
-	errflag++;
+    if (opts.optind != argc)
+	opts.errors++;
 
-    if (errflag) {
-	usage();
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 

@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.1
+Version: 3.9.2
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -718,6 +718,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
+* Wed Apr 16 2014 Nathan Scott <nathans@redhat.com> - 3.9.2-1
+- Under development.
+
 * Wed Mar 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.1-1
 - Update to latest PCP sources.
 
