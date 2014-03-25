@@ -103,6 +103,7 @@ nss_setup_certificates()
     $sudo certutil $certopts -S -x \
 	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
 	-t "CT,,"  >> $seq.full 2>&1
+    sleep 1 # so that the next cert does not get the same serial number
     $sudo certutil $certopts -S \
 	-n "PCP Collector certificate" -s "cn=PCP Collector" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
