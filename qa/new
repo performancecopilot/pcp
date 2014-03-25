@@ -45,20 +45,27 @@ if [ ! -f group ]
 then
     echo "Creating the group index ..."
     cat <<'End-of-File' >group
-# QA groups control
-#
-# $Id: new,v 2.40 2005/02/21 22:33:43 kenmcd Exp $
-#
-# define groups
-# do not start group name with a digit
-#
+## QA groups control
+##
+## define groups
+##
+## Do not start group name with a digit, expect alphabetic
+##
+## Last comment starting with a single # before a group name is the
+## one-line summary that "new" will report when asked to list groups
+##
+## Comments starting with a ## (or #<anything_other_than_whitesspace>
+## are ignored for the purposes of one-line summaries.
 
 # catch-all
-#
 other
 
-# test-group association ... one line per test
-#
+## test-group association ... one line per test
+## add :retired as a tag immediately after the test number to keep the
+## test number allocated, but prevent the test from being run
+
+## ... use sort -n from here on down to tidy up this mess
+##
 End-of-File
 fi
 
@@ -182,7 +189,7 @@ then
 BEGIN		{ text = "# ???" }
 /^[a-zA-Z]/	{ printf "%-16.16s %s\n",$1,text; text = "# ???"; next }
 NF < 2		{ next }
-		{ text = $0 }' \
+$1 == "#"	{ text = $0 }' \
 	    | LC_COLLATE=POSIX sort
 	else
 	    break

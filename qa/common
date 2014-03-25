@@ -607,6 +607,10 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	    then
 		# in group file ... OK
 		echo $id >>$tmp.list
+	    elif egrep -s "^$id:retired([ 	]|$)" group >/dev/null
+	    then
+		# in group file, but retired
+		echo "$id - retired test, ignored"
 	    else
 		# oops
 		$range || echo "$id - unknown test, ignored"
