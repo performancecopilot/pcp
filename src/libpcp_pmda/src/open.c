@@ -222,7 +222,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 #endif
 
 /*
- * capture PMDA args from getopts 
+ * Capture PMDA args using pmgetopts_r
  */
 
 static char
@@ -244,6 +244,22 @@ pmdaIoTypeToOption(pmdaIoType io)
     return '?';
 }
 
+/*
+ * Backwards compatibility interface, short option support only.
+ * We override username (-U) to preserve backward-compatibility
+ * with the original pmdaGetOpt interface, which does not know
+ * about that option (and uses of -U have been observed in the
+ * wild).  Happily, pmdaGetOptions gives us a much more flexible
+ * route forward.
+ */
+
+static int
+username_override(int opt, pmdaOptions *opts)
+{
+    (void)opts;
+    return opt == 'U';
+}
+
 int
 pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, int *err)
 {
@@ -252,8 +268,11 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
 
     opts.flags |= PM_OPTFLAG_POSIX;
     opts.short_options = optstring;
+    opts.override = username_override;
     opts.errors = 0;
+
     sts = pmdaGetOptions(argc, argv, &opts, dispatch);
+
     optind = opts.optind;
     opterr = opts.opterr;
     optopt = opts.optopt;
@@ -262,6 +281,11 @@ pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *di
     return sts;
 }
 
+/*
+ * New, prefered interface - supports long and short options, allows
+ * caller to select whether POSIX style options are required.  Also,
+ * handles the common -U,--username option setting automatically.
+ */
 int
 pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *dispatch)
 {
@@ -282,7 +306,22 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
 	opts->errors++;
 	return EOF;
     }
+
     pmda = dispatch->version.any.ext;
+
+    /*
+     * We only support one version of pmdaOptions structure so far - tell
+     * the caller the struct size/fields we will be using (version zero),
+     * in case they are of later version (newer PMDA, older library).
+     *
+     * The pmOptions and pmdaOptions structures share initial pmgetopts_r
+     * fields, hence the cast below (and sharing of pmgetopt_r itself).
+     *
+     * So far, the only PMDA-specific field is from --username although,
+     * of course, more may be added in the future (bumping version as we
+     * go of course, and observing the version number the PMDA passes in).
+     */
+    opts->version = 0;
 
     while (!flag && ((c = pmgetopt_r(argc, argv, (pmOptions *)opts)) != EOF)) {
 	int	sts;
@@ -365,6 +404,10 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
 		if (*endnum != '\0')
 		    pmda->e_sockname = opts->optarg;
 	    }
+	    break;
+
+	case 'U':
+	    opts->username = opts->optarg;
 	    break;
 
 	case '?':

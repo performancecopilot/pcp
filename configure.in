@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2013 Red Hat.
+dnl Copyright (c) 2012-2014 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -955,7 +955,7 @@ AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
 AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
-AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h getopt.h)
+AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
 AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
@@ -1240,52 +1240,6 @@ else
     AC_MSG_RESULT(yes)
 fi
 rm -f conftest.*
-
-dnl check if getopt() needs $POSIXLY_CORRECT
-AC_MSG_CHECKING([if getopt() needs \$POSIXLY_CORRECT])
-cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <unistd.h>
-main(int argc, char **argv) {
-    int c;
-    c = getopt(argc, argv, "x");
-    if (c == 'x') putchar('n');
-    if (c == EOF) putchar('y');
-    putchar('\n');
-}
-End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-unset POSIXLY_CORRECT
-ans=`./conftest arg -x`
-echo "./conftest arg -x -> \"$ans\"" >&5
-if test "$ans" = n
-then
-    POSIXLY_CORRECT=
-    export POSIXLY_CORRECT
-    ans=`./conftest arg -x`
-    echo "POSIXLY_CORRECT= ./conftest arg -x -> \"$ans\"" >&5
-    unset POSIXLY_CORRECT
-    if test "$ans" = y
-    then
-	AC_DEFINE(HAVE_GETOPT_NEEDS_POSIXLY_CORRECT)
-	AC_MSG_RESULT(yes)
-    else
-	AC_MSG_RESULT(unknown)
-	echo "FATAL ERROR: could not coerce your getopt() work correctly"
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-elif test "$ans" = y
-then
-    AC_MSG_RESULT(no)
-else
-    AC_MSG_RESULT(unknown)
-    echo "FATAL ERROR: could not make your getopt() work at all"
-    rm -rf conftest conftest.*
-    exit 1
-fi
-rm -rf conftest conftest.*
 
 dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
