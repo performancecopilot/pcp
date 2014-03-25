@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,7 @@
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 
-#ifdef PCP_DEBUG
 static char	*FdToString(int);
-#endif
 
 int		AgentDied;		/* for updating mapdom[] */
 static int	timeToDie;		/* For SIGINT handling */
@@ -101,14 +99,48 @@ CreatePIDfile(void)
     return 0;
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    PMOPT_NAMESPACE,
+    PMOPT_DUPNAMES,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Service options"),
+    { "", 0, 'A', 0, "disable service advertisement" },
+    { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "hostname", 1, 'H', "HOST", "set the hostname to be used for pmcd.hostname metric" },
+    { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
+    PMAPI_OPTIONS_HEADER("Configuration options"),
+    { "config", 1, 'c', "PATH", "path to configuration file" },
+    { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
+    { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
+    { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
+    { "", 1, 't', "TIME", "PMDA response timeout (seconds) [default 5]" },
+    PMAPI_OPTIONS_HEADER("Connection options"),
+    { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
+    { "port", 1, 'p', "N", "accept connections on this port" },
+    { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_RUN_DIR/pmcd.socket]" },
+    PMAPI_OPTIONS_HEADER("Diagnostic options"),
+    { "trace", 1, 'T', "FLAG", "Event trace control" },
+    { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
+    { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_POSIX,
+    .short_options = "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?",
+    .long_options = longopts,
+};
+
 static void
 ParseOptions(int argc, char *argv[], int *nports)
 {
     int		c;
     int		sts;
-    int		errflag = 0;
-    int		usage = 0;
     char	*endptr;
+    int		usage = 0;
     int		val;
 
     endptr = pmGetConfig("PCP_PMCDCONF_PATH");
@@ -119,11 +151,13 @@ ParseOptions(int argc, char *argv[], int *nports)
      * pmcd does not really need this for its own options because the
      * arguments like "arg -x" are not valid.  But the PMDA's launched
      * by pmcd from pmcd.conf may not be so lucky.
+     *
+     * TODO: remove when libpcp_pmda is converted to pmgetopt_r [nathans]
      */
     putenv("POSIXLY_CORRECT=");
 #endif
 
-    while ((c = getopt(argc, argv, "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?")) != EOF)
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF)
 	switch (c) {
 
 	    case 'A':	/* disable pmcd service advertising */
@@ -131,19 +165,19 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 'c':	/* configuration file */
-		strncpy(configFileName, optarg, sizeof(configFileName)-1);
+		strncpy(configFileName, opts.optarg, sizeof(configFileName)-1);
 		break;
 
 	    case 'C':	/* path to NSS certificate database */
-		certdb = optarg;
+		certdb = opts.optarg;
 		break;
 
 	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
+		sts = __pmParseDebug(opts.optarg);
 		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
+		    pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		    opts.errors++;
 		}
 		pmDebug |= sts;
 		break;
@@ -155,26 +189,26 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'i':
 		/* one (of possibly several) interfaces for client requests */
-		__pmServerAddInterface(optarg);
+		__pmServerAddInterface(opts.optarg);
 		break;
 
 	    case 'H':
 		/* use the given name as the pmcd.hostname for this host */
-		_pmcd_hostname = optarg;
+		_pmcd_hostname = opts.optarg;
 		break;
 
 	    case 'l':
 		/* log file name */
-		logfile = optarg;
+		logfile = opts.optarg;
 		break;
 
 	    case 'L': /* Maximum size for PDUs from clients */
-		val = (int)strtol (optarg, NULL, 0);
-		if ( val <= 0 ) {
-		    fputs("pmcd: -L requires a positive value\n", stderr);
-		    errflag++;
+		val = (int)strtol(opts.optarg, NULL, 0);
+		if (val <= 0) {
+		    pmprintf("%s: -L requires a positive value\n", pmProgname);
+		    opts.errors++;
 		} else {
-		    __pmSetPDUCeiling (val);
+		    __pmSetPDUCeiling(val);
 		}
 		break;
 
@@ -183,37 +217,36 @@ ParseOptions(int argc, char *argv[], int *nports)
 		/*FALLTHROUGH*/
 	    case 'n':
 	    	/* name space file name */
-		pmnsfile = optarg;
+		pmnsfile = opts.optarg;
 		break;
 
 	    case 'p':
-		if (__pmServerAddPorts(optarg) < 0) {
-		    fprintf(stderr,
-			"pmcd: -p requires a positive numeric argument (%s)\n",
-			optarg);
-		    errflag++;
+		if (__pmServerAddPorts(opts.optarg) < 0) {
+		    pmprintf("%s: -p requires a positive numeric argument (%s)\n",
+			pmProgname, opts.optarg);
+		    opts.errors++;
 		} else {
 		    *nports += 1;
 		}
 		break;
 		    
 	    case 'P':	/* password file for certificate database access */
-		dbpassfile = optarg;
+		dbpassfile = opts.optarg;
 		break;
 
 	    case 'q':
-		val = (int)strtol(optarg, &endptr, 10);
+		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val <= 0.0) {
-		    fprintf(stderr,
-			    "pmcd: -q requires a positive numeric argument\n");
-		    errflag++;
-		}
-		else
+		    pmprintf("%s: -q requires a positive numeric argument\n",
+			pmProgname);
+		    opts.errors++;
+		} else {
 		    _creds_timeout = val;
+		}
 		break;
 
 	    case 's':	/* path to local unix domain socket */
-		snprintf(sockpath, sizeof(sockpath), "%s", optarg);
+		snprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
 		break;
 
 	    case 'S':	/* only allow authenticated clients */
@@ -221,33 +254,33 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 't':
-		val = (int)strtol(optarg, &endptr, 10);
+		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0.0) {
-		    fprintf(stderr,
-			    "pmcd: -t requires a positive numeric argument\n");
-		    errflag++;
-		}
-		else
+		    pmprintf("%s: -t requires a positive numeric argument\n",
+			pmProgname);
+		    opts.errors++;
+		} else {
 		    _pmcd_timeout = val;
+		}
 		break;
 
 	    case 'T':
-		val = (int)strtol(optarg, &endptr, 10);
+		val = (int)strtol(opts.optarg, &endptr, 10);
 		if (*endptr != '\0' || val < 0) {
-		    fprintf(stderr,
-			    "pmcd: -T requires a positive numeric argument\n");
-		    errflag++;
-		}
-		else
+		    pmprintf("%s: -T requires a positive numeric argument\n",
+			pmProgname);
+		    opts.errors++;
+		} else {
 		    _pmcd_trace_mask = val;
+		}
 		break;
 
 	    case 'U':
-		username = optarg;
+		username = opts.optarg;
 		break;
 
 	    case 'x':
-		fatalfile = optarg;
+		fatalfile = opts.optarg;
 		break;
 
 	    case '?':
@@ -255,37 +288,15 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    default:
-		errflag++;
+		opts.errors++;
 		break;
 	}
 
-    if (usage ||errflag || optind < argc) {
-	fprintf(stderr,
-"Usage: %s [options]\n\n"
-"Options:\n"
-"  -A              disable service advertisement\n" 
-"  -c config       path to configuration file\n"
-"  -C dirname      path to NSS certificate database\n"
-"  -f              run in the foreground\n" 
-"  -H hostname     set the hostname to be used for pmcd.hostname metric\n"
-"  -i ipaddress    accept connections on this IP address\n"
-"  -l logfile      redirect diagnostics and trace output\n"
-"  -L bytes        maximum size for PDUs from clients [default 65536]\n"
-"  -n pmnsfile     use an alternative PMNS\n"
-"  -N pmnsfile     use an alternative PMNS (duplicate PMIDs are allowed)\n"
-"  -p port         accept connections on this port\n"
-"  -P passfile     password file for certificate database access\n"
-"  -q timeout      PMDA initial negotiation timeout (seconds) [default 3]\n"
-"  -s sockname     Unix domain socket file [default $PCP_RUN_DIR/pmcd.socket]\n"
-"  -T traceflag    Event trace control\n"
-"  -t timeout      PMDA response timeout (seconds) [default 5]\n"
-"  -U username     in daemon mode, run as named user [default pcp]\n"
-"  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
-			pmProgname);
+    if (usage || opts.errors || opts.optind < argc) {
+	pmUsageMessage(&opts);
 	if (usage)
 	    exit(0);
-	else
-	    DontStart();
+	DontStart();
     }
 }
 
@@ -327,10 +338,8 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	    continue;
 	}
 
-#ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
 	    ShowClients(stderr);
-#endif
 
 	switch (php->type) {
 	    case PDU_PROFILE:
@@ -391,12 +400,9 @@ HandleClientInput(__pmFdSet *fdsPtr)
 		sts = PM_ERR_IPC;
 	}
 	if (sts < 0) {
-
-#ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "PDU:  %s client[%d]: %s\n",
 		    __pmPDUTypeStr(php->type), i, pmErrStr(sts));
-#endif
 	    /* Make sure client still alive before sending. */
 	    if (cp->status.connected) {
 		pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_ERROR, sts);
@@ -567,14 +573,12 @@ HandleReadyAgents(__pmFdSet *readyFds)
 		    }
 		    else {
 			/* sts is the status code from the error PDU */
-#ifdef PCP_DEBUG
 			if (pmDebug && DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_INFO,
 				 "%s agent (not ready) sent %s status(%d)\n",
 				 ap->pmDomainLabel,
 				 sts == PM_ERR_PMDAREADY ?
 					     "ready" : "unknown", sts);
-#endif
 			if (sts == PM_ERR_PMDAREADY) {
 			    ap->status.notReady = 0;
 			    sts = 1;
@@ -700,23 +704,20 @@ ClientLoop(void)
 		if (fd > maxFd)
 		    maxFd = fd + 1;
 		checkAgents = 1;
-#ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
 		    __pmNotifyErr(LOG_INFO,
 				 "not ready: check %s agent on fd %d (max = %d)\n",
 				 ap->pmDomainLabel, fd, maxFd);
-#endif
 	    }
 	}
 
 	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 	if (sts > 0) {
-#ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxClientFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
-			fprintf(stderr, "DATA: from %s (fd %d)\n", FdToString(i), i);
-#endif
+			fprintf(stderr, "DATA: from %s (fd %d)\n",
+				FdToString(i), i);
 	    __pmServerAddNewClients(&readableFds, CheckNewClient);
 	    if (checkAgents)
 		reload_ns = HandleReadyAgents(&readableFds);
@@ -851,7 +852,6 @@ do_traceback(FILE *f)
 void SigBad(int sig)
 {
     __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-#ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DESPERATE) {
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
@@ -863,7 +863,6 @@ void SigBad(int sig)
 	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
 #endif
     }
-#endif /* PCP_DEBUG */
     fprintf(stderr, "\nDumping to core ...\n");
     fflush(stderr);
     abort();
@@ -880,7 +879,6 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
-    __pmSetProgname(argv[0]);
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
@@ -1033,11 +1031,7 @@ CleanupClient(ClientInfo *cp, int sts)
     int		i, msg;
     int		force;
 
-#ifdef PCP_DEBUG
     force = pmDebug & DBG_TRACE_APPL0;
-#else
-    force = 0;
-#endif
 
     if (sts != 0 || force) {
 	/* for access violations, only print the message if this host hasn't
@@ -1081,7 +1075,6 @@ CleanupClient(ClientInfo *cp, int sts)
 	    agent[i].profClient = NULL;
 }
 
-#ifdef PCP_DEBUG
 /* Convert a file descriptor to a string describing what it is for. */
 static char *
 FdToString(int fd)
@@ -1114,4 +1107,3 @@ FdToString(int fd)
 	}
     return stdFds[0];
 }
-#endif

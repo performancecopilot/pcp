@@ -1,0 +1,207 @@
+QA output created by 957
+
+=== CHECKING SUBTREE: disk
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init disk
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: filesys
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init filesys
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: hinv
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init hinv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: ipc
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init ipc
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: kernel
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init kernel
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: mem
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init mem
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: network
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init network
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: nfs
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init nfs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: nfs3
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init nfs3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: nfs4
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init nfs4
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: pmda
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init pmda
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: rpc
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init rpc
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: swap
+
+=== std out ===
+swap.in: Metric not supported by this version of monitored application
+swap.out: Metric not supported by this version of monitored application
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init swap
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: swapdev
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init swapdev
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: sysfs
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init sysfs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: tmpfs
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init tmpfs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== CHECKING SUBTREE: vfs
+
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -v -L -Kclear -Kadd,60,/var/lib/pcp/pmdas/linux/pmda_linux.so,linux_init vfs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

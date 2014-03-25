@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -99,26 +99,28 @@ int Fflag;
 int kernel_all_hz;
 int utc_offset;
 
-static void usage(void)
-{
-    fprintf(stderr,
-	"Usage: %s [-F] [-v] [-D N] inputfile [inputfile ...] archive\n"
-	"Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).\n"
-	"'archive' is the base name for the PCP archive to be created.\n"
-	"\n"
-	"Options:\n"
-	"  -F      forces overwrite of 'archive' if it already exists.\n"
-	"  -v      enables verbose messages. Use more -v for extra verbosity.\n"
-	"  -D N    switch on debugging bits 'N', see pmdbg(1).\n", pmProgname);
-    exit(1);
-}
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "force", 0, 'f', 0, "forces overwrite of 'archive' if it already exists" },
+    { "verbose", 0, 'v', 0, "enables increasingly verbose messages" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "FD:v?",
+    .long_options = longopts,
+    .short_usage = "inputfile [inputfile ...] archive\n"
+"Each 'inputfile' is a collectl archive, must be for the same host (may be gzipped).\n"
+"'archive' is the base name for the PCP archive to be created."
+};
 
 int
 main(int argc, char *argv[])
 {
     int         sts;
     int         ctx;
-    int         errflag = 0;
     int         c;
     char	*infile;
     int		nfilelist;
@@ -134,42 +136,27 @@ main(int argc, char *argv[])
     handler_t	*h;
     int		unhandled_metric_cnt = 0;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "FD:v")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
         switch (c) {
-
-        case 'D':       /* debug flag */
-            sts = __pmParseDebug(optarg);
-            if (sts < 0) {
-                fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-                    pmProgname, optarg);
-                errflag++;
-            }
-            else
-                pmDebug |= sts;
-            break;
 	case 'F':
 	    Fflag = 1;
 	    break;
 	case 'v':
 	    vflag++;
 	    break;
-        case '?':
-        default:
-            errflag++;
-            break;
         }
     }
 
-    nfilelist = argc - optind - 1;
+    nfilelist = argc - opts.optind - 1;
     if (nfilelist < 1)
-    	errflag++;
+    	opts.errors++;
     else
-	archive = argv[argc-1];
+	archive = argv[argc - 1];
 
-    if (errflag)
-	usage();
+    if (opts.errors) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
 
     if ((buf = malloc(BUFSIZE)) == NULL) {
     	perror("Error: out of memory:");
@@ -214,7 +201,7 @@ main(int argc, char *argv[])
     indom_cnt[LOADAVG_INDOM] = 3;
 
     for (filenum=0; filenum < nfilelist; filenum++) {
-	infile = argv[optind + filenum];
+	infile = argv[opts.optind + filenum];
 	gzipped = strstr(infile, ".gz") != NULL;
 	if (gzipped) {
 	    snprintf(buf, BUFSIZE, "gzip -c -d %s", infile);
@@ -225,8 +212,10 @@ main(int argc, char *argv[])
 	if ((fp = fopen(infile, "r")) == NULL)
 	    perror(infile);
 
-	if (fp == NULL)
-	    usage();
+	if (fp == NULL) {
+	    pmUsageMessage(&opts);
+	    exit(1);
+	}
 
 	/*
 	 * parse the header
