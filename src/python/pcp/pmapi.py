@@ -546,7 +546,7 @@ LIBPCP.pmGetArchiveLabel.restype = c_int
 LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetArchiveEnd.restype = c_int
-LIBPCP.pmGetArchiveEnd.argtypes = [timeval]
+LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timeval)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [
@@ -1228,11 +1228,11 @@ class pmContext(object):
     def pmGetArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
-        tvp = POINTER(timeval)()
+        tvp = timeval()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmGetArchiveEnd(tvp)
+        status = LIBPCP.pmGetArchiveEnd(byref(tvp))
         if status < 0:
             raise pmErr, status
         return tvp
