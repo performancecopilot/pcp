@@ -1,0 +1,13 @@
+QA output created by 824
+Valid transitions ...
+READY: Warning: pmdaControl: recursive PMDA_CONTROL_READY request
+OK
+READY: Warning: pmdaControl: recursive PMDA_CONTROL_READY request
+OK
+BUSY: Functionality not yet implemented
+BUSY: Warning: pmdaControl: recursive PMDA_CONTROL_BUSY request
+OK
+READY: Functionality not yet implemented
+BUSY: Functionality not yet implemented
+NOTREADY (should fail from BUSY): Error: pmdaControl: BUSY -> NOTREADY illegal transition
+Illegal mode specification
