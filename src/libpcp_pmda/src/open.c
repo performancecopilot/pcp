@@ -422,6 +422,12 @@ pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *di
     return c;
 }
 
+void
+pmdaUsageMessage(pmdaOptions *opts)
+{
+    pmUsageMessage((pmOptions *)opts);
+}
+
 /*
  * Recompute the hash table which maps metric PMIDs to metric table
  * offsets.  Provides an optimised lookup alternative when a direct

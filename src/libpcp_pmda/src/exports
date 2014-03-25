@@ -95,4 +95,5 @@ PCP_PMDA_3.0 {
 PCP_PMDA_3.1 {
   global:
     pmdaGetOptions;
+    pmdaUsageMessage;
 } PCP_PMDA_3.0;
