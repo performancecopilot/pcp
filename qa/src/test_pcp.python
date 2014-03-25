@@ -371,9 +371,18 @@ def test_pcp(self):
         try:
             loglabel = ctx.pmGetArchiveLabel()
             print "pmGetArchiveLabel: "
-            self.assertTrue (True)
+            self.assertTrue(True)
         except pmapi.pmErr, error:
             print "pmGetArchiveLabel: ", error
+            self.assertTrue(False)
+
+        # pmGetArchiveEnd
+        try:
+            tval = ctx.pmGetArchiveEnd()
+            print "pmGetArchiveEnd: ", tval
+            self.assertTrue(True)
+        except pmapi.pmErr, error:
+            print "pmGetArchiveEnd: ", error
             self.assertTrue(False)
 
     # pmPrintValue

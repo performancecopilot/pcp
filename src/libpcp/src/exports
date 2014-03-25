@@ -423,6 +423,8 @@ PCP_3.2 {
 
 PCP_3.3 {
   global:
+    pmgetopt_r;
+
     __pmLogLocalSocketDefault;
     __pmLogLocalSocketUser;
     __pmMakePath;

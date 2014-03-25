@@ -500,8 +500,8 @@ LIBPCP.pmSetMode.argtypes = [c_int, POINTER(timeval), c_int]
 LIBPCP.pmReconnectContext.restype = c_int
 LIBPCP.pmReconnectContext.argtypes = [c_int]
 
-LIBPCP.pmGetContextHostName.restype = c_char_p
-LIBPCP.pmGetContextHostName.argtypes = [c_int]
+LIBPCP.pmGetContextHostName_r.restype = c_char_p
+LIBPCP.pmGetContextHostName_r.argtypes = [c_int, c_char_p, c_int]
 
 
 ##
@@ -546,7 +546,7 @@ LIBPCP.pmGetArchiveLabel.restype = c_int
 LIBPCP.pmGetArchiveLabel.argtypes = [POINTER(pmLogLabel)]
 
 LIBPCP.pmGetArchiveEnd.restype = c_int
-LIBPCP.pmGetArchiveEnd.argtypes = [timeval]
+LIBPCP.pmGetArchiveEnd.argtypes = [POINTER(timeval)]
 
 LIBPCP.pmGetInDomArchive.restype = c_int
 LIBPCP.pmGetInDomArchive.argtypes = [
@@ -1102,13 +1102,14 @@ class pmContext(object):
     def pmGetContextHostName(self):
         """PMAPI - Lookup the hostname for the given context
 
-        Unlike the underlying PMAPI function, this method takes no parameter.
         This method simply returns the hostname for the context belonging to
         its pmContext instance object.
 
         "hostname" = pmGetContextHostName()
         """
-        return LIBPCP.pmGetContextHostName(self.ctx)
+        buflen = c_api.PM_LOG_MAXHOSTLEN
+        buffer = ctypes.create_string_buffer(buflen)
+        return str(LIBPCP.pmGetContextHostName_r(self.ctx, buffer, buflen))
 
     ##
     # PMAPI Timezone Services
@@ -1227,11 +1228,11 @@ class pmContext(object):
     def pmGetArchiveEnd(self):
         """PMAPI - Get the last recorded timestamp from the archive
         """
-        tvp = POINTER(timeval)()
+        tvp = timeval()
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmGetArchiveEnd(tvp)
+        status = LIBPCP.pmGetArchiveEnd(byref(tvp))
         if status < 0:
             raise pmErr, status
         return tvp

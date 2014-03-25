@@ -1,0 +1,200 @@
+#!/bin/sh
+# PCP QA Test No. 738
+# Exercise pmlogmv
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+mkdir $tmp
+cd $tmp
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^[rwx-]* /s/.* /... ls data ... /'
+}
+
+# real QA test starts here
+#
+
+echo "=== Usage, no input files, incomplete input archive ==="
+pmlogmv
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv foo
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv foo bar
+sts=$?
+[ $sts -eq 0 ] || echo exit status $sts
+cp $here/src/foo.0 .
+pmlogmv foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+rm foo.0
+cp $here/src/foo.meta .
+pmlogmv foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+rm -f foo.* bar.*
+
+echo
+echo "=== non-pcp archives and output files already exist ==="
+cp $here/src/foo.* .
+touch foo.frog
+pmlogmv -v foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls foo* bar*
+rm -f foo.* bar.*
+cp $here/src/foo.* .
+for i in 0 index meta
+do
+    echo "--- bar.$i already exists ---"
+    cp $here/src/bar.$i .
+    pmlogmv -v foo bar >$tmp.out 2>&1
+    sts=$?
+    _filter <$tmp.out
+    [ $sts -eq 0 ] || echo exit status $sts
+    ls foo* bar*
+    rm bar.$i
+done
+rm -f foo.* bar.*
+
+echo
+echo "=== simplest case ==="
+cp $here/src/foo.* .
+pmlogmv -nv foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+pmlogmv -v foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for part in 0 index meta
+do
+    if cmp $here/src/foo.$part bar.$part
+    then
+	:
+    else
+	echo "Arrgh ... input foo.$part not the same as output bar.$part"
+	ls -l $here/src/foo.$part bar.$part
+    fi
+done
+ls foo* bar*
+rm -f foo.* bar.*
+
+echo
+echo "=== single oldfile name cases ==="
+for ext in meta 0 index
+do
+    echo "--- foo.$ext ---"
+    cp $here/src/foo.* .
+    pmlogmv -v foo.$ext bar >$tmp.out 2>&1
+    sts=$?
+    _filter <$tmp.out
+    [ $sts -eq 0 ] || echo exit status $sts
+    for part in 0 index meta
+    do
+	if cmp $here/src/foo.$part bar.$part
+	then
+	    :
+	else
+	    echo "Arrgh ... input foo.$part not the same as output bar.$part"
+	    ls -l $here/src/foo.$part bar.$part
+	fi
+    done
+    ls foo* bar*
+    rm -f foo.* bar.*
+done
+
+echo
+echo "=== multi-volume case ==="
+cp $here/src/mv-foo.* .
+cp mv-foo.2 mv-foo.123456789
+pmlogmv -v mv-foo bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for opart in 0 1 2 123456789 index meta
+do
+    npart=$opart
+    [ "$opart" = 123456789 ] && opart=2
+    if cmp $here/src/mv-foo.$opart bar.$npart
+    then
+	:
+    else
+	echo "Arrgh ... input mv-foo.$opart not the same as output bar.$npart"
+	ls -l $here/src/mv-foo.$opart bar.$npart
+    fi
+done
+ls foo* bar*
+rm -f foo.* bar.*
+
+echo
+echo "=== old and new in different directories =="
+mkdir new
+cp $here/src/mv-foo.* .
+pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+for part in 0 1 2 index meta
+do
+    if cmp $here/src/mv-foo.$part new/mv-foo.$part
+    then
+	:
+    else
+	echo "Arrgh ... input mv-foo.$part not the same as output new/mv-foo.$part"
+	ls -l $here/src/mv-foo.$part new/mv-foo.$part
+    fi
+done
+ls foo* new/*
+rm -rf foo.* new
+
+echo
+echo "=== error case for ln failing ==="
+mkdir new
+chmod u-w,g-w,o-w new
+cp $here/src/mv-foo.* .
+pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* new/*
+rm -rf foo.* new
+
+echo
+echo "=== error case for rm failing ==="
+mkdir new
+chmod u-w,g-w,o-w .
+cp $here/src/mv-foo.* .
+pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* new/*
+chmod u+w,g+w,o+w .
+rm -rf foo.* new
+
+# success, all done
+status=0
+
+exit
