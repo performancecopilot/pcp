@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 _rpm_support_tests
 
 status=1	# failure is the default!
+fqdn=`_get_fqdn`
 hostname=`hostname`
 $sudo rm -fr $tmp.* $seq.full
 trap "_rpm_cleanup" 0 1 2 3 15
@@ -18,6 +19,7 @@ trap "_rpm_cleanup" 0 1 2 3 15
 filter_pmval()
 {
     sed \
+	-e "s/^ *\"$fqdn\"/\"BUILDHOST\"/g" \
 	-e "s/^ *\"$hostname\"/\"BUILDHOST\"/g" \
 	-e 's/^ [0-9][0-9]* $/ TIMESTAMP /g' \
 	-e "s/^host:      $hostname$/host:      HOST/g" \
