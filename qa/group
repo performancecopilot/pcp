@@ -1,8 +1,14 @@
-# QA groups control
-#
-# define groups
-# do not start group name with a digit
-#
+## QA groups control
+##
+## define groups
+##
+## Do not start group name with a digit, expect alphabetic
+##
+## Last comment starting with a single # before a group name is the
+## one-line summary that "new" will report when asked to list groups
+##
+## Comments starting with a ## (or #<anything_other_than_whitesspace>
+## are ignored for the purposes of one-line summaries.
 
 # separate groups by distribution
 oss
@@ -11,31 +17,32 @@ sgi
 # catch-all
 other
 
-# sanity check ... quick coverage of much functionality
-# expectation is to run in 3-5 minutes, and must pass 100%
-# in the sense of no failure; _notrun is OK.
-# NOTE: used by testing orgs beyond developers, must pass!
+# sanity check ... quick coverage of most functionality
+## Expectation is to run in 3-5 minutes, and must pass 100%
+## in the sense of no failures; _notrun is OK.
+## NOTE: used by testing orgs beyond developers, must pass!
 sanity
 
 # local check ... runs on localhost alone, no remotes used
-# NOTE: used by testing orgs beyond developers, do not add
-# tests here that are known to fail - goal is for 100% pass
-# rate, but due to test volume and chaos theory, some tests
-# do fail sometimes, on some platforms, during a full moon.
+## NOTE: used by testing orgs beyond developers, do not add
+## tests here that are known to fail - goal is for 100% pass
+## rate, but due to test volume and chaos theory, some tests
+## do fail sometimes, on some platforms, during a full moon.
 local
 
-# packaging verification ... suitable for standalone use,
-# particularly immediately after installation to check.
+# packaging verification
+## Suitable for standalone use, particularly immediately after
+## installation to check.
 verify
 
 # flaky checks ... known to have intermittent races/hangs.
-# NOTE: some threading race conditions (possibly in tests),
-# prevent 100% pass rate being achieved here.  Goal is to
-# get this group devoid of any tests.
+## NOTE: some threading race conditions (possibly in tests),
+## prevent 100% pass rate being achieved here.  Goal is to
+## get this group devoid of any tests.
 flakey
 
-# specific apps
-#
+## specific apps
+##
 # pmcd app and control infrastructure
 pmcd
 # pmcd proxy
@@ -129,7 +136,7 @@ pmda
 # pmda installation scripts and procedures
 pmda.install
 
-# Assorted PMDAs
+## Assorted PMDAs
 pmda.apache
 pmda.cisco
 pmda.environ
@@ -886,6 +893,7 @@ avahi
 735 pmda.proc local oss
 736 pmlogrewrite local oss
 737 python local oss
+738 logutil local oss
 740 pmda.sample pmstore secure local oss
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
@@ -899,6 +907,7 @@ avahi
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
+824 pmda local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
