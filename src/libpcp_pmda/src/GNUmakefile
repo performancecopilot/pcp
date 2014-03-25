@@ -18,7 +18,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
-	  events.c queues.c dynamic.c
+	  events.c queues.c dynamic.c control.c
 HFILES	= libdefs.h queues.h
 LLDLIBS	= -lpcp
 

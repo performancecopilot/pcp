@@ -750,8 +750,10 @@ pmdaConnect(pmdaInterface *dispatch)
     sts = __pmdaSetupPDU(pmda->e_infd, pmda->e_outfd, flags, pmda->e_name);
     if (sts < 0)
 	dispatch->status = sts;
-    else
+    else {
 	dispatch->comm.pmapi_version = (unsigned int)sts;
+	pmda->e_flags |= PMDA_EXT_CONNECTED;
+    }
 }
 
 /*
