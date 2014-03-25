@@ -912,6 +912,7 @@ avahi
 945 pmlogrewrite pmda.xfs local oss
 946 pmfind avahi local oss
 962 archive local oss
+966 secure local oss
 972 pmda.zswap dbpmda local oss
 973 pmda.zswap pmda.install local oss
 994 other verify oss
