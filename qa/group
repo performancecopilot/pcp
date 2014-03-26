@@ -908,7 +908,7 @@ avahi
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
-824 pmda local oss
+#824 pmda local oss
 827 pmlogrewrite pmda.linux local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
