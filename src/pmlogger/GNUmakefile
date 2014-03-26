@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
-	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh 
+	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh
 
 LSRCFILES = $(OTHERS) crontab.in
 LDIRT	= crontab
@@ -40,10 +40,11 @@ install: $(SUBDIRS) crontab
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmlogger
 	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMLOGGERCONTROL_PATH)
-	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog
-	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily
-	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check
-	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge
+	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmlogmv.sh $(PCP_BIN_DIR)/pmlogmv$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_RC_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger

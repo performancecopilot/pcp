@@ -177,7 +177,11 @@ fi
 today=`date +%Y-%m-%d`
 mkdir -p $HOME/Logs/by-date/$today
 
-echo "fuji" >$tmp.domains
+rm -f $tmp.domains
+echo "bozo" >>$tmp.domains
+echo "bozo-vm" >>$tmp.domains
+echo "bozo-laptop" >>$tmp.domains
+echo "fuji" >>$tmp.domains
 echo "grundy.sgi.com" >>$tmp.domains
 if which virsh >/dev/null 2>&1
 then

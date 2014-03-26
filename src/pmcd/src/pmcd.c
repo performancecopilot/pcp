@@ -146,18 +146,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     endptr = pmGetConfig("PCP_PMCDCONF_PATH");
     strncpy(configFileName, endptr, sizeof(configFileName)-1);
 
-#ifdef HAVE_GETOPT_NEEDS_POSIXLY_CORRECT
-    /*
-     * pmcd does not really need this for its own options because the
-     * arguments like "arg -x" are not valid.  But the PMDA's launched
-     * by pmcd from pmcd.conf may not be so lucky.
-     *
-     * TODO: remove when libpcp_pmda is converted to pmgetopt_r [nathans]
-     */
-    putenv("POSIXLY_CORRECT=");
-#endif
-
-    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF)
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	    case 'A':	/* disable pmcd service advertising */
@@ -291,6 +280,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		opts.errors++;
 		break;
 	}
+    }
 
     if (usage || opts.errors || opts.optind < argc) {
 	pmUsageMessage(&opts);
