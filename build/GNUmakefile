@@ -24,7 +24,7 @@ LDIRT = $(wildcard *.src.tar.gz) pack_pcp.bin pcp.src \
 	pack_pro.bin pro.src deb
 
 # for clean and clobber
-SUBDIRS = tar rpm mac aix sun slack
+SUBDIRS = tar rpm mac aix sun
 
 # generate scripts/configs
 MD5DIR = slack
