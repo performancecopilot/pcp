@@ -11,8 +11,6 @@ checking client, user certificate only.  should pass...
 hinv.ncpu
     value NUMBER
 == Creating empty certificate DB
-chmod: cannot access ‘COLLECTORDB/*’: No such file or directory
-chown: cannot access ‘COLLECTORDB’: No such file or directory
 Start pmcd, modified $PCP_PMCDOPTIONS_PATH (pmcd.options):
 Starting pmcd ... 
 Checking pmcd.log for unexpected messages

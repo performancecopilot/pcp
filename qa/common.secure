@@ -134,8 +134,11 @@ nss_setup_collector()
 
     $withcerts && nss_setup_certificates $fqdn $host
 
-    $sudo chmod -R 0644 $collectordb/*
-    $sudo chown -R pcp:pcp $collectordb
+    if [ -d $collectordb ]
+    then
+	$sudo chmod -R 0644 $collectordb/*
+	$sudo chown -R pcp:pcp $collectordb
+    fi
 
     cat <<End-Of-File >$tmp.options
 # Dummy lines added by PCP QA test $seq
