@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1355,27 +1355,60 @@ __pmSetClientId(const char *id)
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
-    char        	ipaddr[16] = "";	/* IPv4 xxx.xxx.xxx.xxx */
-    struct hostent      *hep = NULL;
+    char        	*ipaddr = NULL;
+    __pmHostEnt		*servInfo;
     int			vblen;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0)
 	return sts;
 
+    /*
+     * Try to obtain the address and the actual host name.
+     * Compute the vblen as we go.
+     */
+    vblen = 0;
     (void)gethostname(host, MAXHOSTNAMELEN);
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    hep = gethostbyname(host);
-    if (hep != NULL) {
-	strcpy(host, hep->h_name);
-	if (hep->h_addrtype == AF_INET) {
-	    strcpy(ipaddr, inet_ntoa(*((struct in_addr *)hep->h_addr_list[0])));
+    if ((servInfo = __pmGetAddrInfo(host)) != NULL) {
+	__pmSockAddr	*addr;
+	void		*enumIx = NULL;
+	char        	*servInfoName = NULL;
+	for (addr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	     addr != NULL;
+	     addr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	    servInfoName = __pmGetNameInfo(addr);
+	    if (servInfoName != NULL)
+		break;
+	    __pmSockAddrFree(addr);
 	}
-	vblen = strlen(host) + strlen(ipaddr) + strlen(id) + 5;
-    }
-    else
+	__pmHostEntFree(servInfo);
+
+	/* Did we get a name? */
+	if (servInfoName == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmSetClientId: __pmGetNameInfo() failed: %s\n", 
+		    osstrerror_r(errmsg, sizeof(errmsg)));
+	}
+	else {
+	    strncpy(host, servInfoName, sizeof(host));
+	    host[sizeof(host) - 1] = '\0';
+	    free(servInfoName);
+	}
 	vblen = strlen(host) + strlen(id) + 2;
-    PM_UNLOCK(__pmLock_libpcp);
+
+	/* Did we get an address? */
+	if (addr != NULL) {
+	    ipaddr = __pmSockAddrToString(addr);
+	    __pmSockAddrFree(addr);
+	    if (ipaddr == NULL) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "__pmSetClientId: __pmSockAddrToString() failed: %s\n", 
+			osstrerror_r(errmsg, sizeof(errmsg)));
+	    }
+	    else
+		vblen += strlen(ipaddr) + 3;
+	}
+    }
+    vblen += strlen(host) + strlen(id) + 2;
 
     /* build pmResult for pmStore() */
     pmvb = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+vblen);
@@ -1387,10 +1420,11 @@ __pmSetClientId(const char *id)
     pmvb->vlen = PM_VAL_HDR_SIZE+vblen;
     strcpy(pmvb->vbuf, host);
     strcat(pmvb->vbuf, " ");
-    if (ipaddr[0] != '\0') {
+    if (ipaddr != NULL) {
 	strcat(pmvb->vbuf, "(");
 	strcat(pmvb->vbuf, ipaddr);
 	strcat(pmvb->vbuf, ") ");
+	free(ipaddr);
     }
     strcat(pmvb->vbuf, id);
 
