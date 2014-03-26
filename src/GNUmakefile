@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2000,2004,2012 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ SUBDIRS = include libpcp pmns \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
-	  perl python win32ctl pmmgr pmlogmv
+	  perl python win32ctl pmmgr
 
 default :: default_pcp
 
