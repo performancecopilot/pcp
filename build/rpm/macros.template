@@ -11,7 +11,7 @@
 
 # This is where foo.1.99.tar.gz is living in the real world.
 # Be careful not to run full rpm build as it will override the sources 
-%_sourcedir %{_topdir}/build/tar
+%_sourcedir %{_topdir}/../build/tar
 
 # This is where binary RPM and source RPM would end up
 %_rpmdir    @rpmsdir@
