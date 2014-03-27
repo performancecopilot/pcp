@@ -1119,6 +1119,30 @@ err(self,message)
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
+connect(self)
+	pmdaInterface *self
+    CODE:
+	/*
+	 * Need to mimic the same special cases handled in run()
+	 * that explicitly do NOT connect to pmcd and treat these
+	 * as no-ops here
+	 */
+	if (getenv("PCP_PERL_PMNS") != NULL)
+	    ;
+	else if (getenv("PCP_PERL_DOMAIN") != NULL)
+	    ;
+	else {
+	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
+	    /*
+	     * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
+	     * this used in the guard below to stop run() calling
+	     * pmdaConnect() again (in the case where connect() is not
+	     * used.
+	     */
+	    pmdaConnect(self);
+	}
+
+void
 run(self)
 	pmdaInterface *self
     CODE:
@@ -1128,8 +1152,18 @@ run(self)
 	    domain_write();	/* generate the domain header */
 	else {		/* or normal operating mode ... */
 	    pmns_refresh();
-	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
-	    pmdaConnect(self);
+	    if ((self->version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
+		pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
+		pmdaConnect(self);
+	    }
+	    else {
+		/*
+		 * explicit connect(), assume add_metric() and/or add_indom()
+		 * have been called in the interim, and so need to reset
+		 * tables that drive libpcp_pmda routines
+		 */
+		pmdaInitTables(self, indomtab, itab_size, metrictab, mtab_size);
+	    }
 	    local_pmdaMain(self);
 	}
 
