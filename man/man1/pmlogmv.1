@@ -24,8 +24,7 @@ created by
 .BR pmlogger (1).
 .B pmlogmv
 allows all the files of a single PCP archive
-to be moved or renamed in a single atomic
-operation.
+to be moved or renamed in a single operation.
 .PP
 The
 .I oldname
@@ -46,18 +45,16 @@ option.
 .PP
 Because PCP archives are important records of system activity, special
 care is taken to ensure the integrity of an archive's files.
-Should any problem be encountered during the execution of
+For recoverable problems encountered during the execution of
 .BR pmlogmv ,
 all the files associated with
 .I oldname
 will be preserved, and no new files with the
 .I newname
 prefix will be created.
-In the event of a system crash, at least one of
-.I oldname
-or
-.I newname
-will be preserved.
+``Recoverable problems'' include signals that can be caught (such as SIGHUP,
+SIGINT, SIGQUIT and SIGTERM), permissions issues, new files already existing,
+file system full events, etc.
 .PP
 The implementation of
 .B pmlogmv
