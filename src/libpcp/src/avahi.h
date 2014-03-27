@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,6 @@
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 
-int __pmAvahiDiscoverServices(const char *, int, char ***) _PCP_HIDDEN;
+int __pmAvahiDiscoverServices(const char *, const char *, int, char ***) _PCP_HIDDEN;
 
 #endif /* AVAHI_H */

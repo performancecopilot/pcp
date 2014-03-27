@@ -1,8 +1,8 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -15,49 +15,78 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-LOGDIR=`pwd`/Logs
 
 clean=false
+topdir=`pwd`
 verbose=false
+platform=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
+nonrpm=unknown
+nondeb=unknown
 
-if [ -z "$MAKE" ]
+if [ ! -d .git ]
 then
-    MAKE=''
-    # need to find where gmake is hiding ... looking for this line
-    # Report bugs to <bug-make@gnu.org>
-    # at the end of the make --help output
-    #
-    for i in make gmake
-    do
-	if $i --help 2>&1 | grep -q bug-make@gnu.org
-	then
-	    export MAKE=`which $i 2>/dev/null`
-	    break
-	fi
-    done
-    if [ -z "$MAKE" ]
-    then
-	echo "Error: can't find a GNU make in the commands make or gmake"
-	exit 1
-    fi
-else
-    # $MAKE in the environment, ensure it is a full path so that
-    # configure ends up setting the right thing for $PCP_MAKE_PROG
-    #
-    try=`which $MAKE 2>/dev/null`
-    if [ -z "$try" ]
-    then
-	echo "Error: $MAKE (from \$MAKE) does not exist!"
-	exit 1
-    fi
-    export MAKE=$try
+    echo "Error: can only be run from within the PCP git repository"
+    exit 1
 fi
+
+if [ ! -f VERSION.pcp ]
+then
+    echo "Error: can only be run from within the PCP source tree"
+    exit 1
+fi
+
+# Find where a GNU tool is hiding, look for this line:
+# "Report bugs to <bug-$gnutool@gnu.org>"
+# at the end of the $gnutool --help output
+#
+gnu_tool()
+{
+    envvar="$1"
+    oldcmd="$2"
+    gnucmd="$3"
+
+    # Not in the environment, go search for it in the known locations.
+    #
+    if [ -z "$envvar" ]
+    then
+	for command in $oldcmd $gnucmd
+	do
+	    if $command --help 2>&1 | grep -q bug-$oldcmd@gnu.org
+	    then
+		which $command 2>/dev/null
+		return 0
+	    fi
+	done
+	echo "Error: can't find GNU $oldcmd in the commands $oldcmd or $gnucmd"
+	exit 1
+    fi
+
+    # Use the environment request and ensure it is a full path (do not
+    # change this behaviour, it is required for backward-compatibility
+    # - QA failures will result if you choose to ignore this warning).
+    #
+    command=`which $envvar 2>/dev/null`
+    if [ -z "$command" ]
+    then
+	echo "Error: $oldcmd (from the environment) does not exist!"
+	exit 1
+    fi
+    echo $command
+    return 0
+}
+
+export MAKE=`gnu_tool "$MAKE" make gmake`
+export TAR=`gnu_tool "$TAR" tar gtar`
+
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp" 0 1 2 3 15
 
 # Bog-standard options suitable for a package on any platform.
 # Command line can be used to extend this set, and any whacko
 # platform-specific requirements are also appended later on.
 #
-configure_options="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
+configure=./configure
+configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
 
 for opt in $*
 do
@@ -70,55 +99,114 @@ do
 	verbose=true
 	shift
 	;;
+    --nonrpm)
+	nonrpm=true
+	shift
+	;;
+    --nondeb)
+	nondeb=true
+	shift
+	;;
+    --platform)
+	shift
+	platform=$1
+	shift
+	;;
     *)
 	# Add remaining options to the ./configure command line
-	configure_options="$configure_options $opt"
+	configopts="$configopts $opt"
 	shift
 	;;
     esac
 done
 
-test ! -d $LOGDIR && mkdir $LOGDIR
-rm -rf $LOGDIR/* 
+if [ "$nonrpm" = "unknown" ]
+then
+    nonrpm=true
+    test -f /usr/bin/rpmbuild && nonrpm=false
+fi
+if [ "$nondeb" = "unknown" ]
+then
+    nondeb=true
+    test -f /usr/bin/dpkg-buildpackage && nondeb=false
+fi
 
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp" 0 1 2 3 15
-
-ARCH=`uname -m | sed -e 's/i.86/ia32/'`
-VERS=`uname -s | cut -c-5`
-case "$VERS"
+case "$platform"
 in
-    MINGW)
-	configure_options="$configure_options --disable-ssp"
+    mingw)
+	configure="mingw64-configure"
+	configopts="$configopts --disable-ssp"
 	;;
-    Linux)
-	configure_options="$configure_options --libexecdir=/usr/lib"
-	if [ -f /etc/slackware-version ]
-	then
-	    if [ "$ARCH" = x86_64 ]
-	    then
-		configure_options="$configure_options --libdir=/usr/lib64"
-	    fi
-	fi
+    linux)
+	ARCH=`uname -m`
+	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && \
+	configopts="$configopts --libdir=/usr/lib64"
 	;;
-    SunOS)
+    sunos)
 	ARCH=`isainfo -k`
-	if [ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ]
-	then
-	    configure_options="$configure_options --libdir=/usr/lib/64"
-	fi
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && \
+	configopts="$configopts --libdir=/usr/lib/64"
 	;;
 esac
 
-# Sanity checks ... this is sick, but I'm really tired of QA failing
+. ./VERSION.pcp
+VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+
+LOGDIR=$topdir/Logs
+rm -rf $LOGDIR
+mkdir -p "$LOGDIR"
+
+source=pcp-${VERSION}
+SRCDIR=$topdir/$source
+SRCTAR=$topdir/build/tar/$source.src.tar.gz
+
+build_failure()
+{
+    # only print in non-verbose mode, otherwise we see double
+    if ! $verbose ; then
+	echo $@ failed, see log in $LOGDIR/pcp
+	tail $LOGDIR/pcp
+    fi
+    exit 1
+}
+
+clean_packaging()
+{
+    echo
+    echo "== Cleaning build tree for packaging build"
+    rm -rf "$SRCDIR" "$SRCTAR" .gitcensus
+}
+
+# Generate a list of all the files git knows about, create the
+# source tarball and then unpack it.  We'll then do the package
+# build in a guaranteed pristine environment.
+#
+src_tar_build()
+{
+    if [ -f "$SRCTAR" ]
+    then
+	echo "Using: $SRCTAR"
+	return
+    fi
+    test -f .gitcensus || git ls-files | grep -v \\.gitignore > .gitcensus
+    # create gzipped tar archive
+    $TAR -cz --transform="s,^,$source/," --file=$SRCTAR --files-from=.gitcensus
+    echo "Wrote: $SRCTAR"
+}
+
+# On sanity checks :- this is sick, but I'm really tired of QA failing
 # because of bad binaries being built from the Debian/Ubuntu toolchain
 # for # i?86 platforms
 # - Ken McDonell Apr 2010
 #
-if [ "$ARCH" = "ia32" -a -f /usr/bin/dpkg-buildpackage ]
-then
+sanity_check_settings()
+{
     OPT=false
-    if [ -f /etc/lsb-release ]
+    ARCH=`uname -m | sed -e 's/i.86/ia32/'`
+    if [ "$ARCH" != "ia32" ]
+    then
+	OPT=true	# no workarounds needed for non-i?86 platforms
+    elif [ -f /etc/lsb-release ]
     then
 	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
 	then
@@ -145,30 +233,23 @@ then
 	$OPT || echo "Building without optimization for Debian $DISTRIB_RELEASE"
     fi
 
-    if $OPT
+    if ! $OPT
     then
-	:
-    else
-	if [ -f /usr/bin/dpkg-buildpackage ]
+	ok=true
+	if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
 	then
-	    ok=true
-	    if grep -q '^my $default_flags .*O2' /usr/bin/dpkg-buildpackage
-	    then
-		echo '/usr/bin/dpkg-buildpackage: need to remove O2 from $default_flags'
-		ok=false
-	    fi
-	    if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
-	    then
-		echo '/usr/bin/dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
-		ok=false
-	    fi
-	    if $ok
-	    then
-		:
-	    else
-		echo "Refer to Debian/Ubuntu notes in PCP's ./INSTALL"
-		exit 1
-	    fi
+	    echo 'dpkg-buildpackage: need to remove O2 from $default_flags'
+	    ok=false
+	fi
+	if grep -q '^[ 	]*LDFLAGS.*-Bsymbolic-functions' /usr/bin/dpkg-buildpackage
+	then
+	    echo 'dpkg-buildpackage: need to remove -Bsymbolic-function from LDFLAGS'
+	    ok=false
+	fi
+	if ! $ok
+	then
+	    echo "Refer to Debian/Ubuntu notes in PCP's ./INSTALL"
+	    exit 1
 	fi
 	# as of Debian 6.0.1 and Ubuntu 10.10, build flags are hidden and
 	# extracted using dpkg-buildflags which fortunately honours some
@@ -178,115 +259,154 @@ then
 	export DEB_CXXFLAGS_SET=''
 	export DEB_LDFLAGS_SET=''
     fi
-fi
+}
 
-if $clean; then
-    echo "== cleaning, log is in $LOGDIR/clean"
-    if $verbose ; then
-	($MAKE -j 1 distclean 2>&1 || touch $tmp/failed )| tee $LOGDIR/clean
-    else
-	$MAKE -j 1 distclean > $LOGDIR/clean 2>&1  || touch $tmp/failed
-    fi
-    if [ -f $tmp/failed ] ; then
-	if ! $verbose ; then
-	    echo \"$MAKE clean\" failed, see log in $LOGDIR/clean
-	    tail $LOGDIR/clean
-	fi
-	exit 1
-    fi
-fi
-
-echo
-
-echo
-echo "== Building pcp, log is in $LOGDIR/pcp"
-
-. ./VERSION.pcp
-
-echo "== Configuring pcp for vendor/distro installation ($configure_options)"
-if $verbose ; then
-    ./configure $configure_options 2>&1 | tee -a $LOGDIR/pcp || touch $tmp.failed
-else
-    ./configure $configure_options >> $LOGDIR/pcp 2>&1 || touch $tmp.failed
-fi
-if [ -f $tmp.failed ] ; then
-    if ! $verbose ; then
-        echo \"./configure\" failed, see log in $LOGDIR/pcp
-        tail $LOGDIR/pcp
-    fi
-    exit 1
-fi
-
-# Special case removal of build artefacts that might break the build
+# Build Debian packages using the dpkg-buildpackage utility which runs
+# the complete build, from configure through to final deb preparation.
 #
-rm -f qa/qa_outfiles
-
-special=false
-[ "$VERS" = MINGW ] && special=windows
-[ -f /etc/debian_version ] && special=debian
-    
-if [ $special != false ]
-then
+debian_buildpackage()
+{
     echo
-    echo "== src-link-pcp, log is in $LOGDIR/src-link-pcp" | tee -a $LOGDIR/src-link-pcp
+    echo "== Building deb packages using dpkg-buildpackage"
 
-    VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
-    SRCLINK_ROOT=`pwd`/pcp-$VERSION
-    if [ $special = debian ] ; then
-	SRCLINK_ROOT=`pwd`/build/deb/pcp-$VERSION
+    SUDO=${SUDO:-fakeroot}
+    rm -f $tmp/failed
+    if $verbose ; then
+	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) >> $LOGDIR/pcp
     fi
-    export SRCLINK_ROOT
+    [ -f $tmp/failed ] && build_failure debian buildpackage
+}
 
-    rm -fr $SRCLINK_ROOT
-    mkdir -p $SRCLINK_ROOT || exit 1
-    $MAKE -j 1 src-link-pcp >>$LOGDIR/src-link-pcp || exit 1
-    cd $SRCLINK_ROOT
+prepare_debian_sources()
+{
+    # shortcut for dpkg-buildpackage which does everything itself from here
+    SRCDIR="${topdir}/build/deb"
+    mkdir -p "$SRCDIR" 2>/dev/null
+    cd "$SRCDIR" || exit 1
+    $TAR -zxf "$SRCTAR" || exit 1
+    cd "$SRCDIR/$source" || exit 1
+}
 
-    if [ $special = debian ]
+prepare_debian_control()
+{
+    echo
+    echo "== Preparing source tree for dpkg-buildpackage"
+    rm -f $tmp/failed debian/control
+    if $verbose ; then
+	($MAKE -j1 -C debian control 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	($MAKE -j1 -C debian control 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+    fi
+    [ -f $tmp/failed ] && build_failure debian control
+}
+
+debian_build()
+{
+    prepare_debian_sources
+    configure_pcp
+    prepare_debian_control
+    sanity_check_settings
+    debian_buildpackage
+    exit 0
+}
+
+prepare_build()
+{
+    echo
+    echo "== Preparing fresh build tree for packaging build"
+
+    if [ ! -d "$SRCDIR" ]; then
+	# extract gzipped tar archive
+	$TAR -xz --file="$SRCTAR" || exit 1
+    fi
+}
+
+configure_pcp()
+{
+    echo
+    echo "== Configuring pcp, log is in $LOGDIR/pcp ($configopts)"
+
+    rm -f $tmp/failed
+    if $verbose
     then
-	SUDO=${SUDO:-fakeroot}
-	if $verbose ; then
-	    dpkg-buildpackage -r$SUDO | tee -a $LOGDIR/pcp
-	else
-	    dpkg-buildpackage -r$SUDO >> $LOGDIR/pcp || exit 1
-	fi
-	exit 0
+	($configure $configopts 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	($configure $configopts 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
+    [ -f $tmp/failed ] && build_failure Configure
+}
+
+default_build()
+{
+    echo
+    echo "== Building pcp, log is in $LOGDIR/pcp"
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE -j1 default_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	($MAKE -j1 default_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+    fi
+    [ -f $tmp/failed ] && build_failure Make default_pcp
+}
+
+packaging_pcp()
+{
+    echo
+    echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+
+    rm -f $tmp/failed
+    if $verbose ; then
+	($MAKE -j1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	($MAKE -j1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+    fi
+    [ -f $tmp/failed ] && build_failure Packaging
+}
+
+packaging_rpm()
+{
+    echo
+    echo "== Building rpm packages, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+
+    rm -f $tmp/failed
+    export DIST_ROOT=${topdir}/build/rpm/${source}
+    if $verbose ; then
+	($MAKE -j1 -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+    else
+	($MAKE -j1 -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+    fi
+    [ -f $tmp/failed ] && build_failure "Packaging"
+}
+
+# real build starts here
+$clean && clean_packaging
+src_tar_build
+
+# short-circuit for performing builds with dpkg-buildpackage
+$nondeb || debian_build
+
+prepare_build
+
+# shift into the clean packaging build tree from here onward
+cd "$SRCDIR"
+
+configure_pcp
+
+# short-circuit for performing rpm-only builds with rpmbuild
+# (skips over the default_build stage as rpmbuild does that).
+if $nonrpm
+then
+    default_build	# perform a complete build in-situ
+    packaging_pcp	# create all known package formats
+else
+    packaging_rpm
 fi
 
-# Fall through for MinGW (Win32) builds
-if $verbose ; then
-    st=`(($MAKE -j 1 default_pcp 2>&1; echo $? >&3) | tee -a $LOGDIR/pcp 1>&2) 3>&1`
-else
-    $MAKE -j 1 default_pcp >>$LOGDIR/pcp 2>&1; st=$?
+# success!
+if ! $verbose ; then
+    grep '^Wrote:' $LOGDIR/pcp | sed -e 's/\.\.\/\.\.\///'
 fi
-if [ $st -ne 0 ] ; then
-    if ! $verbose ; then
-	echo \"$MAKE default_pcp\" failed, see log in $LOGDIR/pcp
-	tail $LOGDIR/pcp
-    fi
-    exit 1
-fi
-
-rm -f files.rpm
-echo
-echo "== Packaging pcp, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
-if $verbose ; then
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
-else
-    ($MAKE -j 1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
-fi
-if [ -f $tmp/failed ] ; then
-    if ! $verbose ; then
-	echo Packaging failed, see log in $LOGDIR/pcp
-	tail $LOGDIR/pcp
-    fi
-    exit 1
-else
-    if ! $verbose ; then
-	grep '^Wrote:' $LOGDIR/pcp | sed -e 's/\.\.\/\.\.\///'
-    fi
-fi
-
-rm -f $tmp/failed
 exit 0

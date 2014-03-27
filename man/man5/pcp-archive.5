@@ -22,6 +22,7 @@
 .SH SYNOPSIS
 
 .I $PCP_LOG_DIR/pmlogger/*/*.{meta,index,0}
+
 .I $PCP_LOG_DIR/pmmgr/*/*.{meta,index,0}
 
 .SH DESCRIPTION
@@ -79,7 +80,7 @@ types in
 
 .SS RECORD FRAMING
 .PP
-All three types of files are divided into self-identifying records.
+The volume and meta files are divided into self-identifying records.
 .TS
 box,center;
 c | c | c
@@ -183,7 +184,7 @@ c | c | c
 c | c | l.
 Offset	Length	Name
 _
-0	4	number in instance-domain (or PM_IN_NULL=0xFFFFFFFF)
+0	4	number in instance-domain (or PM_IN_NULL=-1)
 4	4	value (INSITU) \fIor\fR
 		offset in pmResult to our pmValueBlock (DPTR)
 .TE
@@ -212,8 +213,8 @@ c | c | l.
 Offset	Length	Name
 _
 0	1	value type (same as \fIpmDesc.type\fR)
-1	3	4 + N, the length of the value plus these subheaders
-4	N	bytes that make up the value
+1	3	4 + N, the length of the subrecord
+4	N	bytes that make up the raw value
 4+N	0-3	padding (not included in the 4+N length field)
 .TE
 
@@ -303,7 +304,7 @@ after this timestamp.
 .SH INDEX FILE (.index) RECORDS
 
 After the archive log label record, the temporal index file contains a
-plainly concatenated group of records, which relate timestamps to
+plainly concatenated, unframed group of tuples, which relate timestamps to
 32-bit seek offsets in the volume and meta files.  (This limits those
 files to 2GB in size.)  These records are fixed-size, fixed-format,
 and are \fInot\fR enclosed in the standard length/payload/length

@@ -103,6 +103,7 @@ nss_setup_certificates()
     $sudo certutil $certopts -S -x \
 	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
 	-t "CT,,"  >> $seq.full 2>&1
+    sleep 1 # so that the next cert does not get the same serial number
     $sudo certutil $certopts -S \
 	-n "PCP Collector certificate" -s "cn=PCP Collector" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
@@ -133,8 +134,11 @@ nss_setup_collector()
 
     $withcerts && nss_setup_certificates $fqdn $host
 
-    $sudo chmod -R 0644 $collectordb/*
-    $sudo chown -R pcp:pcp $collectordb
+    if [ -d $collectordb ]
+    then
+	$sudo chmod -R 0644 $collectordb/*
+	$sudo chown -R pcp:pcp $collectordb
+    fi
 
     cat <<End-Of-File >$tmp.options
 # Dummy lines added by PCP QA test $seq
