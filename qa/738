@@ -24,7 +24,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e '/^[rwx-]* /s/.* /... ls data ... /'
+	-e '/^[rwx-]* /s/.* /... ls data ... /' \
+	-e 's/`'"/'/g"
 }
 
 # real QA test starts here
@@ -192,7 +193,18 @@ _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 ls mv-foo* new/*
 chmod u+w,g+w,o+w .
-rm -rf foo.* new
+rm -rf mv-foo.* new
+
+echo
+echo "=== Frank's error case rm failing after first file ==="
+cp $here/src/mv-foo.* .
+ln mv-foo.2 mv-foo.3
+pmlogmv -v mv-foo mv-bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* mv-bar*
+rm -rf mv-foo.* mv-bar.*
 
 # success, all done
 status=0
