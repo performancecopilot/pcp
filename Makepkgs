@@ -16,7 +16,6 @@
 # for more details.
 #
 
-clean=false
 topdir=`pwd`
 verbose=false
 platform=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
@@ -92,7 +91,7 @@ for opt in $*
 do
     case "$opt" in
     -clean|--clean)
-	clean=true
+	# we always clean nowadays
 	shift
 	;;
     -verbose|--verbose)
@@ -183,12 +182,7 @@ clean_packaging()
 #
 src_tar_build()
 {
-    if [ -f "$SRCTAR" ]
-    then
-	echo "Using: $SRCTAR"
-	return
-    fi
-    test -f .gitcensus || git ls-files | grep -v \\.gitignore > .gitcensus
+    git ls-files | grep -v \\.gitignore > .gitcensus
     # create gzipped tar archive
     $TAR -cz --transform="s,^,$source/," --file=$SRCTAR --files-from=.gitcensus
     echo "Wrote: $SRCTAR"
@@ -363,7 +357,7 @@ packaging_pcp()
     else
 	($MAKE -j1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
-    [ -f $tmp/failed ] && build_failure Packaging
+    [ -f $tmp/failed ] && build_failure Packaging via pack_pcp
 }
 
 packaging_rpm()
@@ -378,11 +372,11 @@ packaging_rpm()
     else
 	($MAKE -j1 -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
-    [ -f $tmp/failed ] && build_failure "Packaging"
+    [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 
 # real build starts here
-$clean && clean_packaging
+clean_packaging
 src_tar_build
 
 # short-circuit for performing builds with dpkg-buildpackage
