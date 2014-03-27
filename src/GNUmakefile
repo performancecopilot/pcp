@@ -28,7 +28,7 @@ SUBDIRS = include libpcp pmns \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
-	  perl python win32ctl pmmgr pmlogmv
+	  perl python win32ctl pmmgr
 
 default :: default_pcp
 
