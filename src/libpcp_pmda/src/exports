@@ -96,4 +96,5 @@ PCP_PMDA_3.1 {
   global:
     pmdaControl;
     pmdaGetOptions;
+    pmdaInitTables;
 } PCP_PMDA_3.0;

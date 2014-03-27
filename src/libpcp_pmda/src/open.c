@@ -461,7 +461,7 @@ pmdaSetFlags(pmdaInterface *dispatch, int flags)
  * domain number into the pmid's and indomid's
  */
 void
-checktables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
+pmdaInitTables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	 pmdaMetric *metrics, int nmetrics)
 {
     int		        m = 0;
@@ -469,28 +469,34 @@ checktables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     __pmID_int	        *pmidp = NULL;
     __pmInDom_int        *indomp = NULL;
     __pmInDom_int        *mindomp = NULL;
-    pmdaExt	        *pmda = NULL;
+    pmdaExt	        *pmda = dispatch->version.any.ext;
+
+    if ((pmda->e_flags & PMDA_EXT_INITDONE) != PMDA_EXT_INITDONE) {
+	__pmNotifyErr(LOG_CRIT, "pmdaInitTables: missing prior call to pmdaInit");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
 
     /* parameter sanity checks */
     if (nmetrics < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
+	__pmNotifyErr(LOG_CRIT, "pmdaInitTables: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if (nindoms < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
+	__pmNotifyErr(LOG_CRIT, "pmdaInitTables: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if ((nmetrics == 0 && metrics != NULL) ||
         (nmetrics != 0 && metrics == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: metrics not consistent with nmetrics", pmda->e_name);
+	__pmNotifyErr(LOG_CRIT, "pmdaInitTables: PMDA %s: metrics not consistent with nmetrics", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if ((nindoms == 0 && indoms != NULL) ||
         (nindoms != 0 && indoms == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: indoms not consistent with nindoms", pmda->e_name);
+	__pmNotifyErr(LOG_CRIT, "pmdaInitTables: PMDA %s: indoms not consistent with nindoms", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -531,7 +537,7 @@ checktables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 			    char	strbuf[20];
 			    char	st2buf[20];
 			    __pmNotifyErr(LOG_DEBUG, 
-				    "pmdaInit: PMDA %s: Metric %s(%d) matched to indom %s(%d)\n",
+				    "pmdaInitTables: PMDA %s: Metric %s(%d) matched to indom %s(%d)\n",
 				    pmda->e_name,
 				    pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m,
 				    pmInDomStr_r(pmda->e_indoms[i].it_indom, st2buf, sizeof(st2buf)), i);
@@ -543,7 +549,7 @@ checktables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 		if (i == pmda->e_nindoms) {
 		    char	strbuf[20];
 		    __pmNotifyErr(LOG_CRIT, 
-				 "pmdaInit: PMDA %s: Undefined instance domain serial (%d) specified in metric %s(%d)\n",
+				 "pmdaInitTables: PMDA %s: Undefined instance domain serial (%d) specified in metric %s(%d)\n",
 				 pmda->e_name, mindomp->serial, 
 				 pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, strbuf, sizeof(strbuf)), m);
 		    dispatch->status = PM_ERR_GENERIC;
@@ -636,11 +642,11 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 		__pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
 #endif
     }
+    pmda->e_flags |= PMDA_EXT_INITDONE;
 
-    checktables(dispatch, indoms, nindoms, metrics, nmetrics);
+    pmdaInitTables(dispatch, indoms, nindoms, metrics, nmetrics);
 
     dispatch->status = pmda->e_status;
-    pmda->e_flags |= PMDA_EXT_INITDONE;
 }
 
 /*

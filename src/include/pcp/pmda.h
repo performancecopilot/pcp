@@ -112,8 +112,8 @@ typedef struct __pmInResult pmdaInResult;
  * libpcp_pmda extension structure.
  *
  * The fields of this structure are initialised using pmdaDaemon() or pmdaDSO()
- * (if the agent is a daemon or a DSO respectively), pmdaGetOpt() and
- * pmdaInit().
+ * (if the agent is a daemon or a DSO respectively), pmdaGetOpt(), 
+ * pmdaInit() and pmdaInitTables().
  * 
  */
 typedef struct {
@@ -366,9 +366,15 @@ typedef struct __pmdaOptions {
  *
  * pmdaInit
  *      Further initialises the pmdaExt structure with the instance domain and
- *      metric structures. Unique identifiers are applied to each instance 
- *	domain and metric. Also open the help text file and checks whether the 
- *	metrics can be directly mapped.
+ *      metric structures.  Open the help text file.  Calls pmdaInitTables
+ *      to check and set up the metrics and instance domains tables.
+ *
+ * pmdaInitTables
+ *      May be called after pmdaInit if there are subsequent changes to
+ *      the tables that define the available metrics and the available
+ *      instance domains.  Checks integrity of tables and stamps domain
+ *      number into metric and instance domain identifiers. Housekeeping
+ *      for direct mapped and hashed acces to the metrics table.
  *
  * pmdaConnect
  *      Connect to the PMCD process using the method set in the pmdaExt e_io
@@ -412,6 +418,7 @@ extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 extern void pmdaOpenLog(pmdaInterface *);
 extern void pmdaSetFlags(pmdaInterface *, int);
 extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
+extern void pmdaInitTables(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
 extern void pmdaConnect(pmdaInterface *);
 
 /*
