@@ -41,10 +41,9 @@ fi
 #
 gnu_tool()
 {
-    local envvar="$1"
-    local oldcmd="$2"
-    local gnucmd="$3"
-    local command
+    envvar="$1"
+    oldcmd="$2"
+    gnucmd="$3"
 
     # Not in the environment, go search for it in the known locations.
     #
