@@ -457,32 +457,40 @@ pmdaSetFlags(pmdaInterface *dispatch, int flags)
 }
 
 /*
- * Open the help text file, check for direct mapping into the metric table
- * and whether a hash mapping has been requested.
+ * Check the validity of the metric and indom tables, and brand the
+ * domain number into the pmid's and indomid's
  */
-
 void
-pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
+checktables(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	 pmdaMetric *metrics, int nmetrics)
 {
     int		        m = 0;
     int                 i = 0;
+    __pmID_int	        *pmidp = NULL;
     __pmInDom_int        *indomp = NULL;
     __pmInDom_int        *mindomp = NULL;
-    __pmID_int	        *pmidp = NULL;
     pmdaExt	        *pmda = NULL;
 
-    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA interface version %d not supported (domain=%d)",
-		     dispatch->comm.pmda_interface, dispatch->domain);
+    /* parameter sanity checks */
+    if (nmetrics < 0) {
+	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
-    pmda = dispatch->version.any.ext;
-
-    if (dispatch->version.any.fetch == pmdaFetch &&
-	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
+    if (nindoms < 0) {
+	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+    if ((nmetrics == 0 && metrics != NULL) ||
+        (nmetrics != 0 && metrics == NULL)){
+	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: metrics not consistent with nmetrics", pmda->e_name);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+    if ((nindoms == 0 && indoms != NULL) ||
+        (nindoms != 0 && indoms == NULL)){
+	__pmNotifyErr(LOG_CRIT, "pmda*nit: PMDA %s: indoms not consistent with nindoms", pmda->e_name);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
@@ -492,30 +500,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     pmda->e_metrics = metrics;
     pmda->e_nmetrics = nmetrics;
 
-    /* parameter sanity checks */
-    if (nmetrics < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
-	dispatch->status = PM_ERR_GENERIC;
-	return;
-    }
-    if (nindoms < 0) {
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nindoms (%d) should be non-negative", pmda->e_name, nindoms);
-	dispatch->status = PM_ERR_GENERIC;
-	return;
-    }
-    if ((nmetrics == 0 && metrics != NULL) ||
-        (nmetrics != 0 && metrics == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: metrics not consistent with nmetrics", pmda->e_name);
-	dispatch->status = PM_ERR_GENERIC;
-	return;
-    }
-    if ((nindoms == 0 && indoms != NULL) ||
-        (nindoms != 0 && indoms == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: indoms not consistent with nindoms", pmda->e_name);
-	dispatch->status = PM_ERR_GENERIC;
-	return;
-    }
-    
     /* fix bit fields in indom for all instance domains */
     for (i = 0; i < pmda->e_nindoms; i++) {
 	unsigned int domain = dispatch->domain;
@@ -570,28 +554,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	}
     }
 
-    if (pmda->e_helptext != NULL) {
-	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
-	if (pmda->e_help < 0) {
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
-		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
-	}
-#ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_LIBPMDA) {
-	    __pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
-	}
-#endif
-    }
-    else {
-	if (dispatch->version.two.text == pmdaText)
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified", pmda->e_name); 
-#ifdef PCP_DEBUG
-	else
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		__pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
-#endif
-    }
-
     /*
      * Stamp the correct domain number in each of the PMIDs
      */
@@ -619,7 +581,66 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     }
 #endif
 
+}
+
+/*
+ * Open the help text file, check for direct mapping into the metric table
+ * and whether a hash mapping has been requested.
+ */
+
+void
+pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
+	 pmdaMetric *metrics, int nmetrics)
+{
+    pmdaExt	        *pmda = NULL;
+
+    if ((dispatch->version.any.ext->e_flags & PMDA_EXT_INITDONE) == PMDA_EXT_INITDONE) {
+	__pmNotifyErr(LOG_CRIT, "pmdaInit: called more than once");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+
+    if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
+	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA interface version %d not supported (domain=%d)",
+		     dispatch->comm.pmda_interface, dispatch->domain);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+    pmda = dispatch->version.any.ext;
+
+    if (dispatch->version.any.fetch == pmdaFetch &&
+	pmda->e_fetchCallBack == (pmdaFetchCallBack)0) {
+	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: using pmdaFetch() but fetch call back not set", pmda->e_name);
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+
+    if (pmda->e_helptext != NULL) {
+	pmda->e_help = pmdaOpenHelp(pmda->e_helptext);
+	if (pmda->e_help < 0) {
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: Unable to open help text file(s) from \"%s\": %s\n",
+		    pmda->e_name, pmda->e_helptext, pmErrStr(pmda->e_help));
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    __pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: help file %s opened\n", pmda->e_name, pmda->e_helptext);
+	}
+#endif
+    }
+    else {
+	if (dispatch->version.two.text == pmdaText)
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified", pmda->e_name); 
+#ifdef PCP_DEBUG
+	else
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		__pmNotifyErr(LOG_DEBUG, "pmdaInit: PMDA %s: No help text path specified", pmda->e_name);
+#endif
+    }
+
+    checktables(dispatch, indoms, nindoms, metrics, nmetrics);
+
     dispatch->status = pmda->e_status;
+    pmda->e_flags |= PMDA_EXT_INITDONE;
 }
 
 /*
@@ -690,6 +711,18 @@ pmdaConnect(pmdaInterface *dispatch)
 {
     pmdaExt	*pmda = NULL;
     int		sts, flags = dispatch->comm.flags;
+
+    if ((dispatch->version.any.ext->e_flags & PMDA_EXT_INITDONE) != PMDA_EXT_INITDONE) {
+	__pmNotifyErr(LOG_CRIT, "pmdaConnect: need to call pmdaInit first");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+
+    if ((dispatch->version.any.ext->e_flags & PMDA_EXT_CONNECTED) == PMDA_EXT_CONNECTED) {
+	__pmNotifyErr(LOG_CRIT, "pmdaConnect: called more than once");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA interface version %d not supported (domain=%d)",

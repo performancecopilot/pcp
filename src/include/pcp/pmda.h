@@ -153,8 +153,9 @@ typedef struct {
 
 #define PMDA_EXT_FLAG_DIRECT	0x1	/* direct mapped PMID metric table */
 #define PMDA_EXT_FLAG_HASHED	0x2	/* hashed PMID metric table lookup */
-#define PMDA_EXT_CONNECTED	0x4	/* pmdaConnect done */
-#define PMDA_EXT_NOTREADY	0x8	/* pmcd connection marked NOTREADY */
+#define PMDA_EXT_INITDONE	0x4	/* pmdaInit done */
+#define PMDA_EXT_CONNECTED	0x8	/* pmdaConnect done */
+#define PMDA_EXT_NOTREADY	0x10	/* pmcd connection marked NOTREADY */
 
 /*
  * Optionally restrict symbol visibility for DSO PMDAs
