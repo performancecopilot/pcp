@@ -128,6 +128,7 @@ sub simple_timenow_check
 }
 
 $pmda = PCP::PMDA->new('simple', 253);
+$pmda->connect;
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
