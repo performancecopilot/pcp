@@ -40,14 +40,15 @@ fi
 gnu_tool()
 {
     envvar="$1"
-    oldcmd="$2"
-    gnucmd="$3"
+    shift
+    oldcmd="$1"
+    shift
 
     # Not in the environment, go search for it in the known locations.
     #
     if [ -z "$envvar" ]
     then
-	for command in $oldcmd $gnucmd
+	for command in $oldcmd $@
 	do
 	    if $command --help 2>&1 | grep -q bug-$oldcmd@gnu.org
 	    then
@@ -55,7 +56,7 @@ gnu_tool()
 		return 0
 	    fi
 	done
-	echo "Error: can't find GNU $oldcmd in the commands $oldcmd or $gnucmd"
+	echo "Error: can't find GNU $oldcmd in the commands $oldcmd or $@"
 	exit 1
     fi
 
@@ -74,7 +75,7 @@ gnu_tool()
 }
 
 export MAKE=`gnu_tool "$MAKE" make gmake`
-export TAR=`gnu_tool "$TAR" tar gtar`
+export TAR=`gnu_tool "$TAR" tar gtar gnutar`
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
