@@ -25,7 +25,24 @@
 static FILE		*outf;		/* output */
 static __pmnsNode	*root;		/* result so far */
 static char		*fullname;	/* full PMNS pathname for newbie */
-static int		verbose = 0;
+static int		verbose;
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "", 0, 'a', 0, "process files in order, ignoring embedded _DATESTAMP control lines" },
+    { "duplicates", 0, 'd', 0, "duplicate PMIDs are allowed" },
+    { "force", 0, 'f', 0, "force overwriting of the output file if it exists" },
+    { "verbose", 0, 'v', 0, "verbose, echo input file names as processed" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "aD:dfv?",
+    .long_options = longopts,
+    .short_usage = "[options] infile [...] outfile",
+};
 
 typedef struct {
     char	*fname;
@@ -188,13 +205,11 @@ main(int argc, char **argv)
     int		force = 0;
     int		asis = 0;
     int		dupok = 0;
-    int		errflag = 0;
     __pmnsNode	*tmp;
 
     umask((mode_t)022);		/* anything else is pretty silly */
-    __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "aD:dfv?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'a':
@@ -206,14 +221,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
+	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
 		pmDebug |= sts;
+	    }
 	    break;
 
 	case 'f':	/* force ... unlink file first */
@@ -226,21 +240,13 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind > argc-2) {
-	fprintf(stderr,
-"Usage: %s [options] infile [...] outfile\n\
-\n\
-Options:\n\
-  -a	process files in order, ignoring embedded _DATESTAMP control lines\n\
-  -d    duplicate PMIDs are acceptable\n\
-  -f	force overwriting of an existing output file, if it exists\n\
-  -v	verbose, echo input file names as processed\n",
-			pmProgname);	
+    if (opts.errors || opts.optind > argc - 2) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
@@ -267,9 +273,9 @@ Options:\n\
     }
 
     if (!asis)
-	sortargs(&argv[optind], argc - optind - 1);
+	sortargs(&argv[opts.optind], argc - opts.optind - 1);
 
-    j = optind;
+    j = opts.optind;
     while (j < argc-1) {
 	if (verbose)
 	    printf("%s:\n", argv[j]);

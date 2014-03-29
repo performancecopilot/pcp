@@ -5,19 +5,21 @@ QA output created by 235
 Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
-  -a	process files in order, ignoring embedded _DATESTAMP control lines
-  -d    duplicate PMIDs are acceptable
-  -f	force overwriting of an existing output file, if it exists
-  -v	verbose, echo input file names as processed
+  -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --duplicates      duplicate PMIDs are allowed
+  -f, --force           force overwriting of the output file if it exists
+  -v, --verbose         verbose, echo input file names as processed
+  -?, --help            show this usage message and exit
 
 === only 1 arg ===
 Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
-  -a	process files in order, ignoring embedded _DATESTAMP control lines
-  -d    duplicate PMIDs are acceptable
-  -f	force overwriting of an existing output file, if it exists
-  -v	verbose, echo input file names as processed
+  -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --duplicates      duplicate PMIDs are allowed
+  -f, --force           force overwriting of the output file if it exists
+  -v, --verbose         verbose, echo input file names as processed
+  -?, --help            show this usage message and exit
 
 === no such input file ===
 pmnsmerge: Error: cannot open input PMNS file "no-such-input"

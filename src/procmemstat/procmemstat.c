@@ -92,40 +92,30 @@ get_sample(void)
     }
 }
 
+pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+pmOptions opts = {
+    .short_options = "D:?",
+    .long_options = longopts,
+};
+
 int
 main(int argc, char **argv)
 {
-    int			c;
     int			sts;
     char		*p;
     char		*q;
-    int			errflag = 0;
 
-    __pmSetProgname(argv[0]);
     setlinebuf(stdout);
+    pmGetOptions(argc, argv, &opts);
 
-    while ((c = getopt(argc, argv, "D:?")) != EOF) {
-	switch (c) {
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n", pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
-	}
-    }
-
-    if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s\n", pmProgname);
+    if (opts.errors || opts.optind < argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
