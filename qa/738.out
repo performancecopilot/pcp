@@ -1,0 +1,254 @@
+QA output created by 738
+=== Usage, no input files, incomplete input archive ===
+Usage: pmlogmv [-nv] oldname newname
+exit status 1
+Usage: pmlogmv [-nv] oldname newname
+exit status 1
+pmlogmv: Error: cannot find any files for the input archive (foo)
+exit status 1
+pmlogmv: Error: cannot find .meta file for the input archive (foo)
+... ls data ... foo.0
+exit status 1
+pmlogmv: Error: cannot find any data files for the input archive (foo)
+... ls data ... foo.meta
+exit status 1
+
+=== non-pcp archives and output files already exist ===
+link foo.0 -> bar.0
+link foo.index -> bar.index
+link foo.meta -> bar.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+bar.0
+bar.index
+bar.meta
+foo.frog
+--- bar.0 already exists ---
+pmlogmv: Error: ln-pass: output file already exists: bar.0
+... ls data ... bar.0
+... ls data ... foo.0
+... ls data ... foo.index
+... ls data ... foo.meta
+exit status 1
+bar.0
+foo.0
+foo.index
+foo.meta
+--- bar.index already exists ---
+link foo.0 -> bar.0
+pmlogmv: Error: ln-pass: output file already exists: bar.index
+... ls data ... bar.0
+... ls data ... bar.index
+... ls data ... foo.0
+... ls data ... foo.index
+... ls data ... foo.meta
+cleanup: remove bar.0
+exit status 1
+bar.index
+foo.0
+foo.index
+foo.meta
+--- bar.meta already exists ---
+link foo.0 -> bar.0
+link foo.index -> bar.index
+pmlogmv: Error: ln-pass: output file already exists: bar.meta
+... ls data ... bar.0
+... ls data ... bar.index
+... ls data ... bar.meta
+... ls data ... foo.0
+... ls data ... foo.index
+... ls data ... foo.meta
+cleanup: remove bar.0
+cleanup: remove bar.index
+exit status 1
+bar.meta
+foo.0
+foo.index
+foo.meta
+
+=== simplest case ===
+link foo.0 -> bar.0
++ ln foo.0 bar.0
+link foo.index -> bar.index
++ ln foo.index bar.index
+link foo.meta -> bar.meta
++ ln foo.meta bar.meta
+remove foo.0
++ rm foo.0
+remove foo.index
++ rm foo.index
+remove foo.meta
++ rm foo.meta
+link foo.0 -> bar.0
+link foo.index -> bar.index
+link foo.meta -> bar.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+ls: cannot access foo*: No such file or directory
+bar.0
+bar.index
+bar.meta
+
+=== single oldfile name cases ===
+--- foo.meta ---
+link foo.0 -> bar.0
+link foo.index -> bar.index
+link foo.meta -> bar.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+ls: cannot access foo*: No such file or directory
+bar.0
+bar.index
+bar.meta
+--- foo.0 ---
+link foo.0 -> bar.0
+link foo.index -> bar.index
+link foo.meta -> bar.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+ls: cannot access foo*: No such file or directory
+bar.0
+bar.index
+bar.meta
+--- foo.index ---
+link foo.0 -> bar.0
+link foo.index -> bar.index
+link foo.meta -> bar.meta
+remove foo.0
+remove foo.index
+remove foo.meta
+ls: cannot access foo*: No such file or directory
+bar.0
+bar.index
+bar.meta
+
+=== multi-volume case ===
+link mv-foo.0 -> bar.0
+link mv-foo.1 -> bar.1
+link mv-foo.123456789 -> bar.123456789
+link mv-foo.2 -> bar.2
+link mv-foo.index -> bar.index
+link mv-foo.meta -> bar.meta
+remove mv-foo.0
+remove mv-foo.1
+remove mv-foo.123456789
+remove mv-foo.2
+remove mv-foo.index
+remove mv-foo.meta
+ls: cannot access foo*: No such file or directory
+bar.0
+bar.1
+bar.123456789
+bar.2
+bar.index
+bar.meta
+
+=== old and new in different directories ==
+link mv-foo.0 -> new/mv-foo.0
+link mv-foo.1 -> new/mv-foo.1
+link mv-foo.2 -> new/mv-foo.2
+link mv-foo.index -> new/mv-foo.index
+link mv-foo.meta -> new/mv-foo.meta
+remove mv-foo.0
+remove mv-foo.1
+remove mv-foo.2
+remove mv-foo.index
+remove mv-foo.meta
+ls: cannot access foo*: No such file or directory
+new/mv-foo.0
+new/mv-foo.1
+new/mv-foo.2
+new/mv-foo.index
+new/mv-foo.meta
+
+=== error case for ln failing ===
+link mv-foo.0 -> new/mv-foo.0
+ln: failed to create hard link 'new/mv-foo.0' => 'mv-foo.0': Permission denied
+pmlogmv: Error: ln mv-foo.0 new/mv-foo.0 failed!
+ls: cannot access new/mv-foo*: No such file or directory
+... ls data ... mv-foo.0
+... ls data ... mv-foo.1
+... ls data ... mv-foo.2
+... ls data ... mv-foo.index
+... ls data ... mv-foo.meta
+cleanup: remove new/mv-foo.0
+exit status 1
+ls: cannot access new/*: No such file or directory
+mv-foo.0
+mv-foo.1
+mv-foo.2
+mv-foo.index
+mv-foo.meta
+
+=== error case for rm failing ===
+link mv-foo.0 -> new/mv-foo.0
+link mv-foo.1 -> new/mv-foo.1
+link mv-foo.2 -> new/mv-foo.2
+link mv-foo.index -> new/mv-foo.index
+link mv-foo.meta -> new/mv-foo.meta
+remove mv-foo.0
+rm: cannot remove 'mv-foo.0': Permission denied
+pmlogmv: Warning: rm mv-foo.0 failed!
+remove mv-foo.1
+rm: cannot remove 'mv-foo.1': Permission denied
+pmlogmv: Warning: rm mv-foo.1 failed!
+remove mv-foo.2
+rm: cannot remove 'mv-foo.2': Permission denied
+pmlogmv: Warning: rm mv-foo.2 failed!
+remove mv-foo.index
+rm: cannot remove 'mv-foo.index': Permission denied
+pmlogmv: Warning: rm mv-foo.index failed!
+remove mv-foo.meta
+rm: cannot remove 'mv-foo.meta': Permission denied
+pmlogmv: Warning: rm mv-foo.meta failed!
+mv-foo.0
+mv-foo.1
+mv-foo.2
+mv-foo.index
+mv-foo.meta
+new/mv-foo.0
+new/mv-foo.1
+new/mv-foo.2
+new/mv-foo.index
+new/mv-foo.meta
+
+=== Frank's error case rm failing after first file ===
+link mv-foo.0 -> mv-bar.0
+link mv-foo.1 -> mv-bar.1
+link mv-foo.2 -> mv-bar.2
+link mv-foo.3 -> mv-bar.3
+link mv-foo.index -> mv-bar.index
+link mv-foo.meta -> mv-bar.meta
+remove mv-foo.0
+remove mv-foo.1
+pmlogmv: Error: rm-pass: link count 4 (not 2): mv-foo.2
+... ls data ... mv-bar.0
+... ls data ... mv-bar.1
+... ls data ... mv-bar.2
+... ls data ... mv-bar.3
+... ls data ... mv-bar.index
+... ls data ... mv-bar.meta
+... ls data ... mv-foo.2
+... ls data ... mv-foo.3
+... ls data ... mv-foo.index
+... ls data ... mv-foo.meta
+cleanup: recover mv-foo.0 from mv-bar.0
+cleanup: recover mv-foo.1 from mv-bar.1
+cleanup: remove mv-bar.0
+cleanup: remove mv-bar.1
+cleanup: remove mv-bar.2
+cleanup: remove mv-bar.3
+cleanup: remove mv-bar.index
+cleanup: remove mv-bar.meta
+exit status 1
+ls: cannot access mv-bar*: No such file or directory
+mv-foo.0
+mv-foo.1
+mv-foo.2
+mv-foo.3
+mv-foo.index
+mv-foo.meta

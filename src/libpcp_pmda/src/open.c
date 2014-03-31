@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -222,7 +222,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 #endif
 
 /*
- * capture PMDA args from getopts 
+ * Capture PMDA args using pmgetopts_r
  */
 
 static char
@@ -244,127 +244,188 @@ pmdaIoTypeToOption(pmdaIoType io)
     return '?';
 }
 
-int 
-pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, 
-	   int *err)
+/*
+ * Backwards compatibility interface, short option support only.
+ * We override username (-U) to preserve backward-compatibility
+ * with the original pmdaGetOpt interface, which does not know
+ * about that option (and uses of -U have been observed in the
+ * wild).  Happily, pmdaGetOptions gives us a much more flexible
+ * route forward.
+ */
+
+static int
+username_override(int opt, pmdaOptions *opts)
+{
+    (void)opts;
+    return opt == 'U';
+}
+
+int
+pmdaGetOpt(int argc, char *const *argv, const char *optstring, pmdaInterface *dispatch, int *err)
+{
+    int sts;
+    static pmdaOptions opts;
+
+    opts.flags |= PM_OPTFLAG_POSIX;
+    opts.short_options = optstring;
+    opts.override = username_override;
+    opts.errors = 0;
+
+    sts = pmdaGetOptions(argc, argv, &opts, dispatch);
+
+    optind = opts.optind;
+    opterr = opts.opterr;
+    optopt = opts.optopt;
+    optarg = opts.optarg;
+    *err += opts.errors;
+    return sts;
+}
+
+/*
+ * New, prefered interface - supports long and short options, allows
+ * caller to select whether POSIX style options are required.  Also,
+ * handles the common -U,--username option setting automatically.
+ */
+int
+pmdaGetOptions(int argc, char *const *argv, pmdaOptions *opts, pmdaInterface *dispatch)
 {
     int 	c = EOF;
     int		flag = 0;
-    int		sts;
     char	*endnum = NULL;
     pmdaExt     *pmda = NULL;
 
     if (dispatch->status != 0) {
-	(*err)++;
-	goto done;
+	opts->errors++;
+	return EOF;
     }
 
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
-	__pmNotifyErr(LOG_CRIT, "pmdaGetOpt: PMDA interface version %d not supported (domain=%d)",
+	__pmNotifyErr(LOG_CRIT, "pmdaGetOptions: "
+		     "PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
-	(*err)++;
-	goto done;
+	opts->errors++;
+	return EOF;
     }
+
     pmda = dispatch->version.any.ext;
 
-    while (!flag && ((c = getopt(argc, argv, optstring)) != EOF)) {
-    	switch (c) {
-	    case 'd':
-		dispatch->domain = (int)strtol(optarg, &endnum, 10);
-		if (*endnum != '\0') {
-		    fprintf(stderr, "%s: -d requires numeric domain number\n",
-		    	    pmda->e_name);
-		    (*err)++;
-		}
-		pmda->e_domain = dispatch->domain;
-		break;
+    /*
+     * We only support one version of pmdaOptions structure so far - tell
+     * the caller the struct size/fields we will be using (version zero),
+     * in case they are of later version (newer PMDA, older library).
+     *
+     * The pmOptions and pmdaOptions structures share initial pmgetopts_r
+     * fields, hence the cast below (and sharing of pmgetopt_r itself).
+     *
+     * So far, the only PMDA-specific field is from --username although,
+     * of course, more may be added in the future (bumping version as we
+     * go of course, and observing the version number the PMDA passes in).
+     */
+    opts->version = 0;
 
-	    case 'D':
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmda->e_name, optarg);
-		    (*err)++;
-		}
-		else
-		    pmDebug |= sts;
-		break;
-	    
-	    case 'h':
-		pmda->e_helptext = optarg;
-		break;
+    while (!flag && ((c = pmgetopt_r(argc, argv, (pmOptions *)opts)) != EOF)) {
+	int	sts;
 
-	    case 'i':
-		if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaInet) {
-		    fprintf(stderr, "%s: -i option clashes with -%c option\n",
+	/* provide opportunity for overriding the general set of options */
+	if (opts->override && opts->override(c, opts))
+	    break;
+
+	switch (c) {
+	case 'd':
+	    dispatch->domain = (int)strtol(opts->optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		pmprintf("%s: -d requires numeric domain number\n",
+			 pmda->e_name);
+		opts->errors++;
+	    }
+	    pmda->e_domain = dispatch->domain;
+	    break;
+
+	case 'D':
+	    if ((sts = __pmParseDebug(opts->optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmda->e_name, opts->optarg);
+		opts->errors++;
+	    } else {
+		pmDebug |= sts;
+	    }
+	    break;
+
+	case 'h':	/* over-ride default help file */
+	    pmda->e_helptext = opts->optarg;
+	    break;
+
+	case 'i':
+	    if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaInet) {
+		pmprintf("%s: -i option clashes with -%c option\n",
 			    pmda->e_name, pmdaIoTypeToOption(pmda->e_io));
-		    (*err)++;
-		    break;
-		}
+		opts->errors++;
+	    } else {
 		pmda->e_io = pmdaInet;
-		pmda->e_port = (int)strtol(optarg, &endnum, 10);
+		pmda->e_port = (int)strtol(opts->optarg, &endnum, 10);
 		if (*endnum != '\0')
-		    pmda->e_sockname = optarg;
-		break;
+		    pmda->e_sockname = opts->optarg;
+	    }
+	    break;
 
-	    case 'l':
-		/* over-ride default log file */
-		pmda->e_logfile = optarg;
-		break;
+	case 'l':	/* over-ride default log file */
+	    pmda->e_logfile = opts->optarg;
+	    break;
 
-	    case 'p':
-		if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaPipe) {
-		    fprintf(stderr, "%s: -p option clashes with -%c option\n",
+	case 'p':
+	    if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaPipe) {
+		pmprintf("%s: -p option clashes with -%c option\n",
 			    pmda->e_name, pmdaIoTypeToOption(pmda->e_io));
-		    (*err)++;
-		    break;
-		}
+		opts->errors++;
+	    } else {
 		pmda->e_io = pmdaPipe;
-		break;
+	    }
+	    break;
 
-	    case 'u':
-		if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaUnix) {
-		    fprintf(stderr, "%s: -u option clashes with -%c option\n",
+	case 'u':
+	    if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaUnix) {
+		pmprintf("%s: -u option clashes with -%c option\n",
 			    pmda->e_name, pmdaIoTypeToOption(pmda->e_io));
-		    (*err)++;
-		    break;
-		}
+		opts->errors++;
+	    } else {
 		pmda->e_io = pmdaUnix;
-		pmda->e_sockname = optarg;
-		break;
+		pmda->e_sockname = opts->optarg;
+	    }
+	    break;
 
-	    case '6':
-		if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaIPv6) {
-		    fprintf(stderr, "%s: -6 option clashes with -%c option\n",
+	case '6':
+	    if (pmda->e_io != pmdaUnknown && pmda->e_io != pmdaIPv6) {
+		pmprintf("%s: -6 option clashes with -%c option\n",
 			    pmda->e_name, pmdaIoTypeToOption(pmda->e_io));
-		    (*err)++;
-		    break;
-		}
+		opts->errors++;
+	    } else {
 		pmda->e_io = pmdaIPv6;
-		pmda->e_port = (int)strtol(optarg, &endnum, 10);
+		pmda->e_port = (int)strtol(opts->optarg, &endnum, 10);
 		if (*endnum != '\0')
-		    pmda->e_sockname = optarg;
-		break;
+		    pmda->e_sockname = opts->optarg;
+	    }
+	    break;
 
-	    case '?':
-		(*err)++;
-		break;
+	case 'U':
+	    opts->username = opts->optarg;
+	    break;
 
-	    default:
-	    	flag = 1;
+	case '?':
+	    opts->errors++;
+	    break;
+
+	default:
+	    flag = 1;
 	}
     }
 
-done:
-#ifdef HAVE_UNSETENV
-    if (c == EOF) {
-	/* Clear this environment variable PMCD set for us.
-         * This is for any commands that the PMDA may run.
-         */
-	unsetenv("POSIXLY_CORRECT");
-    }
-#endif
     return c;
+}
+
+void
+pmdaUsageMessage(pmdaOptions *opts)
+{
+    pmUsageMessage((pmOptions *)opts);
 }
 
 /*

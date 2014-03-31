@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= mailq
 DOMAIN	= MAILQ
 
-CMDTARGET = $(IAM)$(EXECSUFFIX)
+CMDTARGET = pmdamailq$(EXECSUFFIX)
 CFILES	= mailq.c
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES) pmlogconf.summary
@@ -33,7 +33,7 @@ include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/pmda$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)

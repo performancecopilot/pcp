@@ -41,7 +41,8 @@ idb: $(DIST_MANIFEST)
 # Add a 'rule' (eg replace)
 # make destination relative 
 # make source relative to DIST_ROOT
-# ensure that a symlink has a full path for the source
+# ensure that a symlink has a full path for the source (no change needed
+#   if source is already a full path)
 # append the installer scripts
 	@echo Making idb...
 	@echo "# Version 1" > idb
@@ -50,11 +51,13 @@ idb: $(DIST_MANIFEST)
 	$(PCP_AWK_PROG) ' \
 		$$1 == "d" { printf "%s %s %s %s %s src/ replace\n", $$1, $$2, $$3, $$4, $$5 ; next; } \
 		$$1 == "l" { \
-			i = split($$3, a, "/"); \
 			str = ""; \
-			    for( n = 1; n < i; n++ ) { \
-				    str = str a[n] "/"; \
-			    } \
+			if (substr($$2,1,1) != "/") { \
+			    i = split($$3, a, "/"); \
+				for( n = 1; n < i; n++ ) { \
+					str = str a[n] "/"; \
+				} \
+			} \
 			printf "s 0 $(PCP_USER_INSTALL) $(PCP_GROUP_INSTALL) %s %s%s replace\n", $$3, str, $$2 ; \
 			next; \
 		} \

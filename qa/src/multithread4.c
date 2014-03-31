@@ -30,6 +30,7 @@ func1(void *arg)
 {
     int		sts;
     int		i;
+    char	msgbuf[PM_MAXERRMSGLEN];
 
     for (i = 0; i < ITER; i++) {
 	nmetric = 0;
@@ -43,9 +44,16 @@ func1(void *arg)
 	     * other thread
 	     */
 	    if (nmetric > 0 || sts != PM_ERR_NOPMNS)
-		printf("traverse: found %d metrics, sts %s\n", nmetric, pmErrStr(sts));
+		printf("traverse: found %d metrics, sts %s\n", nmetric, pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
+	    else {
+		/* 
+		 * nmetric == 0 && sts == PM_ERR_NOPMNS, so try again ...
+		 * won't loop forever because eventually func2() will
+		 * finish
+		 */
+		i--;
+	    }
 	}
-
     }
 
     pthread_exit(NULL);
@@ -57,11 +65,12 @@ func2(void *arg)
     int		sts;
     char	*fn = "func2";
     int		i;
+    char	msgbuf[PM_MAXERRMSGLEN];
 
     for (i = 0; i < ITER; i++) {
 	pmUnloadNameSpace();
 	if ((sts = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	    printf("%s: pmLoadNameSpace[%d]: %s\n", fn, i, pmErrStr(sts));
+	    printf("%s: pmLoadNameSpace[%d]: %s\n", fn, i, pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
 	    exit(1);
 	}
     }
@@ -79,6 +88,9 @@ main(int argc, char **argv)
     unsigned int	in[PDU_MAX+1];
     unsigned int	out[PDU_MAX+1];
     int			i;
+    char		msgbuf[PM_MAXERRMSGLEN];
+
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     if (argc != 1) {
 	printf("Usage: multithread4\n");
@@ -91,7 +103,7 @@ main(int argc, char **argv)
     __pmSetPDUCntBuf(in, out);
 
     if ((sts = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	printf("%s: pmLoadNameSpace: %s\n", argv[0], pmErrStr(sts));
+	printf("%s: pmLoadNameSpace: %s\n", argv[0], pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
 	exit(1);
     }
 

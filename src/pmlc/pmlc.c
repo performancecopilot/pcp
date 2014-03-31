@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
@@ -27,13 +23,11 @@ __pmLogCtl	logctl;
 int		parse_done;
 int		pid = PM_LOG_NO_PID;
 int		port = PM_LOG_NO_PORT;
-int		is_unix = 0;	/* host spec is a unix: url. */
-int		is_local = 0;	/* host spec is a local: url. */
-int		is_socket_path = 0; /* host spec is a url with a path. */
-int		zflag;		/* for -z */
+int		is_unix;	/* host spec is a unix: url. */
+int		is_local;	/* host spec is a local: url. */
+int		is_socket_path; /* host spec is a url with a path. */
 char 		*tz;		/* for -Z timezone */
 int		tztype = TZ_LOCAL;	/* timezone for status cmd */
-
 int		eflag;
 int		iflag;
 
@@ -62,37 +56,53 @@ static char menu[] =
 "  _metric-list is  _metric-spec | { _metric-spec ... }\n"
 "  _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]\n";
 
+static int overrides(int, pmOptions *);
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "echo", 0, 'e', 0, "echo input" },
+    { "host", 1, 'h', "HOST", "connect to pmlogger using host specification" },
+    { "interactive", 0, 'i', 0, "be interactive and prompt" },
+    PMOPT_NAMESPACE,
+    { "primary", 0, 'P', 0, "connect to primary pmlogger" },
+    { "port", 1, 'p', "N", "connect to pmlogger on this TCP/IP port" },
+    PMOPT_TIMEZONE,
+    { "logzone", 0, 'z', 0, "set reporting timezone to local time for pmlogger" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:eh:in:Pp:zZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] [pid]",
+    .override = overrides,
+};
+
+static int
+overrides(int opt, pmOptions *opts)
+{
+    if (opt == 'h' || opt == 'p')
+	return 1;
+    return 0;
+}
 
 int
 main(int argc, char **argv)
 {
     int			c;
     int			sts = 0;	/* initialize to pander to gcc */
-    int			errflag = 0;
     char		*host = NULL;
-    char		*pmnsfile = PM_NS_DEFAULT;
     char		*endnum;
     int			primary;
-    char		*prefix_end;
     size_t		prefix_len;
-
-    __pmSetProgname(argv[0]);
+    char		*prefix_end;
 
     iflag = isatty(0);
 
-    while ((c = getopt(argc, argv, "D:eh:in:Pp:zZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
 
 	case 'e':		/* echo input */
 	    eflag++;
@@ -102,7 +112,7 @@ main(int argc, char **argv)
 	    /*
 	     * We need to know if a socket path has been specified.
 	     */
-	    host = optarg;
+	    host = opts.optarg;
 	    prefix_end = strchr(host, ':');
 	    if (prefix_end != NULL) {
 		prefix_len = prefix_end - host + 1;
@@ -128,108 +138,71 @@ main(int argc, char **argv)
 	    iflag++;
 	    break;
 
-	case 'n':		/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
-
 	case 'P':		/* connect to primary logger */
 	    if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
-		fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket and/or a pid may be specified\n", pmProgname);
-		errflag++;
-	    }
-	    else {
+		pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
+			pmProgname);
+		opts.errors++;
+	    } else {
 		port = PM_LOG_PRIMARY_PORT;
 	    }
 	    break;
 
 	case 'p':		/* connect via port */
 	    if (port != PM_LOG_NO_PORT || is_unix) {
-		fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket url and/or a pid may be specified\n", pmProgname);
-		errflag++;
-	    }
-	    else {
-		port = (int)strtol(optarg, &endnum, 10);
+		pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
+			pmProgname);
+		opts.errors++;
+	    } else {
+		port = (int)strtol(opts.optarg, &endnum, 10);
 		if (*endnum != '\0' || port <= PM_LOG_PRIMARY_PORT) {
-		    fprintf(stderr, "%s: port must be numeric and greater than %d\n", pmProgname, PM_LOG_PRIMARY_PORT);
-		    errflag++;
+		    pmprintf("%s: port must be numeric and greater than %d\n",
+			    pmProgname, PM_LOG_PRIMARY_PORT);
+		    opts.errors++;
 		}
 	    }
 	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    tztype = TZ_LOGGER;
-	    tzchange = 1;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    if ((tz = strdup(optarg)) == NULL) {
-		__pmNoMem("initialising timezone", strlen(optarg), PM_FATAL_ERR);
-	    }
-	    tztype  = TZ_OTHER;
-	    tzchange = 1;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
 	}
     }
 
-    if (optind < argc-1)
-	errflag++;
-    else if (optind == argc-1) {
+    if (opts.optind < argc - 1)
+	opts.errors++;
+    else if (opts.optind == argc - 1) {
 	/* pid was specified */
 	if (port != PM_LOG_NO_PORT || (is_unix && is_socket_path)) {
-	    fprintf(stderr, "%s: at most one of -P and/or -p and/or a unix socket path and/or a pid may be specified\n", pmProgname);
-	    errflag++;
+	    pmprintf("%s: at most one of -P, -p, unix socket, or PID may be specified\n",
+		    pmProgname);
+	    opts.errors++;
 	}
 	else {
-	    pid = (int)strtol(argv[optind], &endnum, 10);
+	    pid = (int)strtol(argv[opts.optind], &endnum, 10);
 	    if (*endnum != '\0' || pid <= PM_LOG_PRIMARY_PID) {
-		fprintf(stderr, "%s: pid must be a numeric process id and greater than %d\n", pmProgname, PM_LOG_PRIMARY_PID);
-		errflag++;
+		pmprintf("%s: PID must be a numeric process ID and greater than %d\n",
+			pmProgname, PM_LOG_PRIMARY_PID);
+		opts.errors++;
 	    }
 	}
     }
 
-    if (errflag == 0 && host != NULL && pid == PM_LOG_NO_PID &&
-	port == PM_LOG_NO_PORT && ! is_socket_path) {
-	fprintf(stderr, "%s: -h may not be used without -P or -p or a socket path or a pid\n", pmProgname);
-	errflag++;
+    if (!opts.errors && host && pid == PM_LOG_NO_PID &&
+	port == PM_LOG_NO_PORT && !is_socket_path) {
+	pmprintf("%s: -h may not be used without -P or -p or a socket path or a PID\n",
+		pmProgname);
+	opts.errors++;
     }
 
-    if (errflag) {
-	fprintf(stderr,
-		"Usage: %s [options] [pid]\n\n"
-		"Options:\n"
-		"  -e           echo input\n"
-		"  -h hostspec  connect to pmlogger using hostspec\n"
-		"  -i           be interactive and prompt\n"
-		"  -n pmnsfile  use an alternative PMNS\n"
-		"  -P           connect to primary pmlogger\n"
-		"  -p port      connect to pmlogger on this TCP/IP port\n"
-		"  -Z timezone  set reporting timezone\n"
-		"  -z           set reporting timezone to local time for pmlogger\n",
-		pmProgname);
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
-		    pmProgname, pmnsfile, pmErrStr(sts));
-	    exit(1);
-	}
+    if (opts.tzflag) {
+	tztype = TZ_LOGGER;
+	tzchange = 1;
+    } else if (opts.timezone) {
+	tz = opts.timezone;
+	tztype = TZ_OTHER;
+	tzchange = 1;
     }
 
     if (host == NULL)
@@ -286,15 +259,6 @@ main(int argc, char **argv)
 
     for ( ; ; ) {
 	char		*realhost;
-	extern int	logfreq;
-	extern void	ShowLoggers(char *);
-	extern void	Query(void);
-	extern void	LogCtl(int, int, int);
-	extern void	Status(int, int);
-	extern void	NewVolume(void);
-	extern void	Sync(void);
-	extern void	Qa(void);
-	extern int	yywrap(void);
 
 	is_local = 0;
 	is_unix = 0;

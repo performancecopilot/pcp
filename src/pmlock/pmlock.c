@@ -21,13 +21,14 @@ main(int argc, char **argv)
 {
     int		verbose = 0;
 
-    if (argc > 1 && strcmp(argv[1], "-v") == 0) {
+    if (argc > 1 &&
+	(strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--verbose") == 0)) {
 	verbose = 1;
 	argc--;
 	argv++;
     }
     if (argc != 2 || (argc == 2 && strcmp(argv[1], "-?") == 0)) {
-	fprintf(stderr, "Usage: pmlock [-v] file\n");
+	fprintf(stderr, "Usage: pmlock [-v,--verbose] file\n");
 	exit(1);
     }
     if (open(argv[1], O_CREAT|O_EXCL|O_RDONLY, 0) < 0) {

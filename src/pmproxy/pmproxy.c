@@ -24,9 +24,7 @@
 #define STRINGIFY(s)    #s
 #define TO_STRING(s)    STRINGIFY(s)
 
-#ifdef PCP_DEBUG
 static char	*FdToString(int);
-#endif
 
 static int	timeToDie;		/* For SIGINT handling */
 static char	*logfile = "pmproxy.log";	/* log file name */
@@ -62,108 +60,116 @@ DontStart(void)
     exit(1);
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Service options"),
+    { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
+    PMAPI_OPTIONS_HEADER("Configuration options"),
+    { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
+    { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
+    { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
+    PMAPI_OPTIONS_HEADER("Connection options"),
+    { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
+    { "port", 1, 'p', "N", "accept connections on this port" },
+    PMAPI_OPTIONS_HEADER("Diagnostic options"),
+    { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
+    { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "C:D:fi:l:L:p:P:U:x:?",
+    .long_options = longopts,
+};
+
 static void
 ParseOptions(int argc, char *argv[], int *nports)
 {
     int		c;
     int		sts;
-    int		errflag = 0;
     int		usage = 0;
-    int		val;
 
-    while ((c = getopt(argc, argv, "C:D:fi:l:L:p:P:U:x:?")) != EOF)
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
-	    case 'C':	/* path to NSS certificate database */
-		certdb = optarg;
-		break;
+	case 'C':	/* path to NSS certificate database */
+	    certdb = opts.optarg;
+	    break;
 
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		}
+	case 'D':	/* debug flag */
+	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
 		pmDebug |= sts;
-		break;
+	    }
+	    break;
 
-	    case 'f':
-		/* foreground, i.e. do _not_ run as a daemon */
-		run_daemon = 0;
-		break;
+	case 'f':	/* foreground, i.e. do _not_ run as a daemon */
+	    run_daemon = 0;
+	    break;
 
-	    case 'i':
-		/* one (of possibly several) interfaces for client requests */
-		__pmServerAddInterface(optarg);
-		break;
+	case 'i':
+	    /* one (of possibly several) interfaces for client requests */
+	    __pmServerAddInterface(opts.optarg);
+	    break;
 
-	    case 'l':
-		/* log file name */
-		logfile = optarg;
-		break;
+	case 'l':
+	    /* log file name */
+	    logfile = opts.optarg;
+	    break;
 
-	    case 'L': /* Maximum size for PDUs from clients */
-		val = (int)strtol (optarg, NULL, 0);
-		if ( val <= 0 ) {
-		    fputs ("pmproxy: -L requires a positive value\n", stderr);
-		    errflag++;
-		} else {
-		    __pmSetPDUCeiling (val);
-		}
-		break;
+	case 'L': /* Maximum size for PDUs from clients */
+	    sts = (int)strtol(opts.optarg, NULL, 0);
+	    if (sts <= 0) {
+		pmprintf("%s: -L requires a positive value\n", pmProgname);
+		opts.errors++;
+	    } else {
+		__pmSetPDUCeiling(sts);
+	    }
+	    break;
 
-	    case 'p':
-		if (__pmServerAddPorts(optarg) < 0) {
-		    fprintf(stderr,
-			"pmproxy: -p requires a positive numeric argument (%s)\n",
-			optarg);
-		    errflag++;
-		} else {
-		    *nports += 1;
-		}
-		break;
+	case 'p':
+	    if (__pmServerAddPorts(opts.optarg) < 0) {
+		pmprintf("%s: -p requires a positive numeric argument (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
+		*nports += 1;
+	    }
+	    break;
 
-	    case 'P':	/* password file for certificate database access */
-		dbpassfile = optarg;
-		break;
+	case 'P':	/* password file for certificate database access */
+	    dbpassfile = opts.optarg;
+	    break;
 
-	    case 'U':
-		/* run as user username */
-		username = optarg;
-		break;
+	case 'U':	/* run as user username */
+	    username = opts.optarg;
+	    break;
 
-	    case 'x':
-		fatalfile = optarg;
-		break;
+	case 'x':
+	    fatalfile = opts.optarg;
+	    break;
 
-	    case '?':
-		usage = 1;
-		break;
+	case '?':
+	    usage = 1;
+	    break;
 
-	    default:
-		errflag++;
-		break;
+	default:
+	    opts.errors++;
+	    break;
 	}
+    }
 
-    if (usage || errflag || optind < argc) {
-	fprintf(stderr,
-"Usage: %s [options]\n\n"
-"Options:\n"
-"  -C dirname      path to NSS certificate database\n"
-"  -f              run in the foreground\n" 
-"  -i ipaddress    accept connections on this IP address\n"
-"  -l logfile      redirect diagnostics and trace output\n"
-"  -L bytes        maximum size for PDUs from clients [default 65536]\n"
-"  -p port         accept connections on this port\n"
-"  -P passfile     password file for certificate database access\n"
-"  -U username     assume identity of username (only when run as root)\n"
-"  -x file         fatal messages at startup sent to file [default /dev/tty]\n",
-			pmProgname);
+    if (usage || opts.errors || opts.optind < argc) {
+	pmUsageMessage(&opts);
 	if (usage)
 	    exit(0);
-	else
-	    DontStart();
+	DontStart();
     }
 }
 
@@ -369,12 +375,11 @@ ClientLoop(void)
 	sts = __pmSelectRead(maxFd, &readableFds, NULL);
 
 	if (sts > 0) {
-#ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_APPL0)
 		for (i = 0; i <= maxSockFd; i++)
 		    if (__pmFD_ISSET(i, &readableFds))
-			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n", FdToString(i), i);
-#endif
+			fprintf(stderr, "__pmSelectRead(): from %s fd=%d\n",
+				FdToString(i), i);
 	    __pmServerAddNewClients(&readableFds, CheckNewClient);
 	    HandleInput(&readableFds);
 	}
@@ -448,7 +453,6 @@ main(int argc, char *argv[])
     char	*envstr;
 
     umask(022);
-    __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
 
@@ -501,7 +505,6 @@ main(int argc, char *argv[])
     exit(0);
 }
 
-#ifdef PCP_DEBUG
 /* Convert a file descriptor to a string describing what it is for. */
 static char *
 FdToString(int fd)
@@ -526,4 +529,3 @@ FdToString(int fd)
     }
     return stdFds[0];
 }
-#endif

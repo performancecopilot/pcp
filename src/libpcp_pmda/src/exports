@@ -91,3 +91,9 @@ PCP_PMDA_3.0 {
 
   local: *;
 };
+
+PCP_PMDA_3.1 {
+  global:
+    pmdaGetOptions;
+    pmdaUsageMessage;
+} PCP_PMDA_3.0;

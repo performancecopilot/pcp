@@ -7,7 +7,7 @@ tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22"
+list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
 list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
 
 _usage()
@@ -177,7 +177,11 @@ fi
 today=`date +%Y-%m-%d`
 mkdir -p $HOME/Logs/by-date/$today
 
-echo "comma" >$tmp.domains
+rm -f $tmp.domains
+echo "bozo" >>$tmp.domains
+echo "bozo-vm" >>$tmp.domains
+echo "bozo-laptop" >>$tmp.domains
+echo "fuji" >>$tmp.domains
 echo "grundy.sgi.com" >>$tmp.domains
 if which virsh >/dev/null 2>&1
 then
@@ -244,7 +248,7 @@ do
 		fi
 		;;
 	    '')
-		# probably not a VM, like "comma"
+		# probably not a VM, like "fuji"
 		;;
 	    *)
 		echo "No clue what do with virsh state \"$state\""
@@ -692,7 +696,12 @@ End-of-File
 	    then
 		rm -f $HOME/Logs/by-vm/$domain/qa
 		mkdir -p $HOME/Logs/by-vm/$domain/qa
-		( cd $HOME/Logs/by-vm/$domain/qa; ln -s $HOME/src/pcp/qa/common* .; ln -s $HOME/src/pcp/qa/show-me .; ln -s $HOME/src/pcp/qa/localconfig . )
+		( cd $HOME/Logs/by-vm/$domain/qa;
+		    for file in common* group show-me localconfig
+		    do
+		    	ln -s $HOME/src/pcp/qa/$file* .
+		    done
+		)
 	    fi
 	    rm -f $HOME/Logs/by-vm/$domain/qa/[0-9]*
 	    rm -f $tmp.harvest

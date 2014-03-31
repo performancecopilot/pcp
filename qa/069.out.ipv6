@@ -66,8 +66,6 @@ Host access list:
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
 access violation from host MY_IP
 endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
-access violation from host MY_IP
-endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
 access violation from host OTHER1_IP
 endclient client[N]: (fd <n>) PMCD connection limit for this host exceeded (-12388)
 access violation from host OTHER2_IP

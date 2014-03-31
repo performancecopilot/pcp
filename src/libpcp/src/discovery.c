@@ -77,8 +77,8 @@ int pmDiscoverServices(const char *service,
      */
     *urls = NULL;
     numUrls = 0;
-    if (mechanism == NULL || strcmp(mechanism, "avahi") == 0)
-	numUrls += __pmAvahiDiscoverServices(service, numUrls, urls);
+    if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2014 Red Hat.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -38,17 +38,30 @@ api_formatter(const char *var, const char *val)
 	printf("%s=%s\n", var, val);
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "all", 0, 'a', 0, "show all, unmodified format (default)" },
+    { "list", 0, 'l', 0, "synonym for showing \"all\" (above)" },
+    { "library", 0, 'L', 0, "show library features instead of environment" },
+    { "shell", 0, 's', 0, "show all, quoted format for shell expansion" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "alLs?",
+    .long_options = longopts,
+    .short_usage = "[variable ...]",
+};
+
 int
 main(int argc, char **argv)
 {
     int		c;
-    int		errflag = 0;
     int		sflag = 0;
     int		Lflag = 0;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "alLs")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
         switch (c) {
 	case 'a':       /* show all, default (unmodified) list format */
 	case 'l':
@@ -60,26 +73,18 @@ main(int argc, char **argv)
 	case 'L':
 	    Lflag = 1;
 	    break;
-	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag) {
-	fprintf(stderr,
-"Usage: %s [options] [variable ...]\n\
-\n\
-Options:\n\
-  -a | -l      show all, unmodified format (default)\n\
-  -L           show library features instead of environment\n\
-  -s           show all, quoted format for shell expansion\n",
-		pmProgname);
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (optind >= argc) {
+    if (opts.optind >= argc) {
 	if (sflag)
 	    putenv("SHELL=/bin/sh");
 	if (Lflag)
@@ -90,19 +95,19 @@ Options:\n\
     else if (sflag) {
 	putenv("SHELL=/bin/sh");
 	if (Lflag)
-	    for (c = optind; c < argc; c++)
+	    for (c = opts.optind; c < argc; c++)
 		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
 			__pmGetAPIConfig(argv[c]));
 	else
-	    for (c = optind; c < argc; c++)
+	    for (c = opts.optind; c < argc; c++)
 		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
 			pmGetConfig(argv[c]));
     }
     else if (Lflag)
-	for (c = optind; c < argc; c++)
+	for (c = opts.optind; c < argc; c++)
 	    printf("%s=%s\n", argv[c], __pmGetAPIConfig(argv[c]));
     else
-	for (c = optind; c < argc; c++)
+	for (c = opts.optind; c < argc; c++)
 	    printf("%s=%s\n", argv[c], pmGetConfig(argv[c]));
    
     exit(0);

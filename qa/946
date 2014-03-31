@@ -55,6 +55,20 @@ echo "-q -s pmcd -m avahi"
 pmfind -q -s pmcd -m avahi
 echo "Exit status: $?"
 
+echo "-q -s pmcd -m avahi,timeout=5.0"
+pmfind -q -s pmcd -m avahi,timeout=5.0
+# up to 5 seconds may elapse here
+echo "Exit status: $?"
+
+echo "-q -s pmcd -m avahi with AVAHI_DISCOVERY_TIMEOUT=5"
+AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
+# up to 5 seconds may elapse here
+echo "Exit status: $?"
+
+echo "-m all"
+pmfind -m all | _success_filter
+echo "Exit status: $?"
+
 # success, all done
 status=0
 

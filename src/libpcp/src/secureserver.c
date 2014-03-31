@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  *
  * Server side security features - via Network Security Services (NSS) and
  * the Simple Authentication and Security Layer (SASL).
@@ -276,6 +276,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
 			pmErrStr(__pmSecureSocketsError(PR_GetError())));
+	sts = 0;	/* not fatal - just no secure connections */
 	goto done;
     }
 
@@ -291,6 +292,7 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
 		pmErrStr(__pmSecureSocketsError(PR_GetError())));
+	sts = 0;	/* not fatal - just no secure connections */
 	goto done;
     } else {
 	secure_server.ssl_session_cache_setup = 1;
@@ -333,11 +335,13 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 				nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
+		sts = 0;	/* not fatal - just no secure connections */
 		goto done;
 	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
 	    CERT_DestroyCertificate(dbcert);
+	    sts = 0;	/* not fatal - just no secure connections */
 	    goto done;
 	}
     }

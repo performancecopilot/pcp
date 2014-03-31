@@ -49,6 +49,8 @@ usr/share/man/man3/pmdaDaemon.3.gz
 usr/share/man/man3/pmdaDesc.3.gz
 usr/share/man/man3/pmdaDSO.3.gz
 usr/share/man/man3/pmdaFetch.3.gz
+usr/share/man/man3/pmdagetoptions.3.gz
+usr/share/man/man3/pmdaGetOptions.3.gz
 usr/share/man/man3/pmdaGetOpt.3.gz
 usr/share/man/man3/pmdahelp.3.gz
 usr/share/man/man3/pmdaInit.3.gz
