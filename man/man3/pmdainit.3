@@ -17,6 +17,7 @@
 .TH PMDAINIT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdaInit\f1,
+\f3pmdaInitTables\f1,
 \f3pmdaRehash\f1,
 \f3pmdaSetFlags\f1 \- initialize a PMDA
 .SH "C SYNOPSIS"
@@ -32,6 +33,9 @@
 .in +8n
 .ti -8n
 void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+.br
+.ti -8n
+void pmdaInitTables(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
 .br
 .ti -8n
 void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
@@ -59,9 +63,12 @@ and
 should be set to the number of instances and metrics in the tables,
 respectively.
 .PP
+.B pmdaInit
+also sets up the PMDA's help text file (using
+.BR pmdaOpenHelp (3)).
+.PP
 Much of the
-.B
-pmdaInterface
+.B pmdaInterface
 structure can be automatically initialized with 
 .BR pmdaDaemon (3),
 .BR pmdaGetOpt (3)
@@ -96,6 +103,24 @@ to NULL and
 .I nmetrics
 to 0.
 This allows the caller to provide custom Fetch and Descriptor callback functions.
+.PP
+The
+.B pmdaInitTables
+function is used by
+.B pmdaInit
+to do the real work of intializing the metrics and instance domains
+and may be called at any time to redo the set up of these tables.
+Calling
+.B pmdaInitTables
+directly is most useful in cases where the available metrics or instance
+domains may change over time (e.g. when a service or function the PMDA
+is monitoring is turned on or off), or in the case where the PMDA wants
+to establish a connection to
+.BR pmcd (1)
+via a call to
+.BR pmdaConnect (3)
+before the details of the metrics and/or instance domains are fully
+discovered.
 .SH EXAMPLE
 For example, a PMDA has three metrics: A, B and C, and two instance
 domains X and Y, with two instances in each instance domain.  The instance
@@ -290,10 +315,12 @@ or
 .BR pmcd (1),
 .BR PMAPI (3),
 .BR PMDA (3),
+.BR pmdaConnect (3),
 .BR pmdaDaemon (3),
 .BR pmdaDSO (3),
 .BR pmdaFetch (3),
 .BR pmdaGetOpt (3),
+.BR pmdaOpenHelp (3),
 .BR pmdaText (3)
 and
 .BR pmLookupDesc (3).
