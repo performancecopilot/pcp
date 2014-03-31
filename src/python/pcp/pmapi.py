@@ -1333,12 +1333,6 @@ class pmContext(object):
                                         byref(outAtom), outtype)
         if status < 0:
             raise pmErr, status
-        # If value was allocated in C memory, copy to Python memory and free C.
-        if outtype == c_api.PM_TYPE_STRING:
-            c_char_pointer_address = outAtom.vp
-            python_char_array = create_string_buffer(outAtom.cp)
-            outAtom.cp = cast(python_char_array, c_char_p)
-            LIBC.free(c_char_pointer_address)
         return outAtom
 
     @staticmethod
