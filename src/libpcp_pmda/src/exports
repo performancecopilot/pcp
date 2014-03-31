@@ -97,4 +97,5 @@ PCP_PMDA_3.1 {
     pmdaControl;
     pmdaGetOptions;
     pmdaInitTables;
+    pmdaUsageMessage;
 } PCP_PMDA_3.0;

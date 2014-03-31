@@ -70,6 +70,7 @@ in
 	old="$1"
 	;;
 esac
+new="$2"
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 sts=1
@@ -78,6 +79,33 @@ trap "rm -rf $tmp.*; exit \$sts" 0
 
 _cleanup()
 {
+    if [ -f $tmp.old ]
+    then
+	for f in `cat $tmp.old`
+	do
+	    if [ ! -f "$f" ]
+	    then
+		part=`echo "$f" | sed -e 's/.*\.\([^.][^.]*\)$/\1/'`
+		if [ ! -f "$new.$part" ]
+		then
+		    echo >&2 "pmlogmv: Fatal: $f and $new.$part lost"
+		    ls -l "$old"* "$new"*
+		    rm -f $tmp.old
+		    return
+		fi
+		$verbose && echo >&2 "cleanup: recover $f from $new.$part"
+		if eval $LN "$new.$part" "$f"
+		then
+		    :
+		else
+		    echo >&2 "pmlogmv: Fatal: ln $new.$part $f failed!"
+		    ls -l "$old"* "$new"*
+		    rm -f $tmp.old
+		    return
+		fi
+	    fi
+	done
+    fi
     if [ -f $tmp.new ]
     then
 	for f in `cat $tmp.new`
@@ -124,26 +152,26 @@ do
     if [ ! -f "$f" ]
     then
 	echo >&2 "pmlogmv: Error: ln-pass: input file vanished: $f"
-	ls -l "$old"* "$2"*
+	ls -l "$old"* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
     part=`echo "$f" | sed -e 's/.*\.\([^.][^.]*\)$/\1/'`
-    if [ -f "$2.$part" ]
+    if [ -f "$new.$part" ]
     then
-	echo >&2 "pmlogmv: Error: ln-pass: output file already exists: $2.$part"
-	ls -l "$old"* "$2"*
+	echo >&2 "pmlogmv: Error: ln-pass: output file already exists: $new.$part"
+	ls -l "$old"* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
-    $verbose && echo >&2 "link $f -> $2.$part"
-    echo "$2.$part" >>$tmp.new
-    if eval $LN "$f" "$2.$part"
+    $verbose && echo >&2 "link $f -> $new.$part"
+    echo "$new.$part" >>$tmp.new
+    if eval $LN "$f" "$new.$part"
     then
 	:
     else
-	echo >&2 "pmlogmv: Error: ln $f $2.part failed!"
-	ls -l "$old"* "$2"*
+	echo >&2 "pmlogmv: Error: ln $f $new.$part failed!"
+	ls -l "$old"* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
@@ -156,7 +184,7 @@ do
     if [ ! -f "$f" ]
     then
 	echo >&2 "pmlogmv: Error: rm-pass: input file vanished: $f"
-	ls -l "$old"* "$2"*
+	ls -l "$old"* "$new"*
 	_cleanup
 	# NOTREACHED
     fi
@@ -166,7 +194,7 @@ do
     if [ -z "$links" -o "$links" != $xpect ]
     then
 	echo >&2 "pmlogmv: Error: rm-pass: link count "$links" (not $xpect): $f"
-	ls -l "$old"* "$2"*
+	ls -l "$old"* "$new"*
 	_cleanup
     fi
     $verbose && echo >&2 "remove $f"

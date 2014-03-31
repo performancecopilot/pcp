@@ -923,6 +923,7 @@ avahi
 946 pmfind avahi local oss
 957 pmda.linux local oss
 962 archive local oss
+966 secure local oss
 972 pmda.zswap dbpmda local oss
 973 pmda.zswap pmda.install local oss
 994 other verify oss

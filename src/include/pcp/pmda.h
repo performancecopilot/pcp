@@ -265,7 +265,7 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
 /* Macro that can be used to create each metrics' PMID. */
 #define PMDA_PMID(x,y) 	(((x)<<10)|(y))
 
-/* macro for pmUnits bitmap in a pmDesc declaration */
+/* Macro for pmUnits bitmap in a pmDesc declaration */
 #ifdef HAVE_BITFIELDS_LTOR
 #define PMDA_PMUNITS(a,b,c,d,e,f) {a,b,c,d,e,f,0}
 #else
@@ -336,6 +336,7 @@ typedef struct __pmdaOptions {
  *
  * pmdaGetOpt
  * pmdaGetOptions
+ * pmdaUsageMessage
  *	Replacements for pmgetopt_r(3) which strip out the standard PMDA flags
  *	before returning the next command line option.  The standard PMDA
  *	flags are PMDA_OPTIONS which will initialise the pmdaExt structure
@@ -413,6 +414,7 @@ typedef struct __pmdaOptions {
 
 extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
 extern int pmdaGetOptions(int, char *const *, pmdaOptions *, pmdaInterface *);
+extern void pmdaUsageMessage(pmdaOptions *);
 extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
 extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 extern void pmdaOpenLog(pmdaInterface *);

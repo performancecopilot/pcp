@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 mkdir $tmp
@@ -23,8 +21,14 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    # there are a lot of bizarre quoting variants for ln(1) error
+    # messages!
     sed \
-	-e '/^[rwx-]* /s/.* /... ls data ... /'
+	-e '/^[rwx.-]* /s/.* /... ls data ... /' \
+	-e 's/`'"/'/g" \
+	-e 's/‘'"/'/g" \
+	-e 's/’'"/'/g" \
+	-e 's/ln: creating hard link/ln: failed to create hard link/'
 }
 
 # real QA test starts here
@@ -192,7 +196,18 @@ _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 ls mv-foo* new/*
 chmod u+w,g+w,o+w .
-rm -rf foo.* new
+rm -rf mv-foo.* new
+
+echo
+echo "=== Frank's error case rm failing after first file ==="
+cp $here/src/mv-foo.* .
+ln mv-foo.2 mv-foo.3
+pmlogmv -v mv-foo mv-bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* mv-bar*
+rm -rf mv-foo.* mv-bar.*
 
 # success, all done
 status=0

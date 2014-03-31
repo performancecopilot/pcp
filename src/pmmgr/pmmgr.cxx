@@ -727,7 +727,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   string pmlogger_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogger";
   string pmlogger_options = sh_quote(pmlogger_command);
-  pmlogger_options += " " + get_config_single ("pmlogger");
+  pmlogger_options += " " + get_config_single ("pmlogger") + " ";
 
   // run pmlogconf if requested
   if (get_config_exists("pmlogconf"))
@@ -1027,7 +1027,7 @@ pmmgr_pmie_daemon::daemon_command_line()
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmie";
   string pmie_options = sh_quote (pmie_command);
 
-  pmie_options += " " + get_config_single ("pmie");
+  pmie_options += " " + get_config_single ("pmie") + " ";
 
   // run pmieconf if requested
   if (get_config_exists ("pmieconf"))

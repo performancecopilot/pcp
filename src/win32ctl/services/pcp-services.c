@@ -13,7 +13,6 @@
  */
 #include "pmapi.h"
 #include "impl.h"
-#include <getopt.h>
 #include <wtypes.h>
 #include <winnt.h>
 #include <winsvc.h>
