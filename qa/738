@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 mkdir $tmp
@@ -23,9 +21,14 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    # there are a lot of bizarre quoting variants for ln(1) error
+    # messages!
     sed \
-	-e '/^[rwx-]* /s/.* /... ls data ... /' \
-	-e 's/`'"/'/g"
+	-e '/^[rwx.-]* /s/.* /... ls data ... /' \
+	-e 's/`'"/'/g" \
+	-e 's/‘'"/'/g" \
+	-e 's/’'"/'/g" \
+	-e 's/ln: creating hard link/ln: failed to create hard link/'
 }
 
 # real QA test starts here
