@@ -895,7 +895,9 @@ avahi
 736 pmlogrewrite local oss
 737 python local oss
 738 logutil local oss
+739 python local oss
 740 pmda.sample pmstore secure local oss
+741 python local oss
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss

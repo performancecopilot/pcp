@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Red Hat.
+ * Copyright (C) 2012-2014 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -26,6 +26,11 @@
 
 #include <Python.h>
 #include <pcp/pmapi.h>
+
+static pmOptions options;
+static int longOptionsCount;
+static PyObject *optionCallback;
+static PyObject *overridesCallback;
 
 static void
 dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
@@ -126,17 +131,793 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_BuildValue("i", __pmSetProcessIdentity(name));
 }
 
+/*
+ * Common command line option handling code - wrapping pmOptions
+ */
+
+static int
+addLongOption(pmLongOptions *opt, int duplicate)
+{
+    size_t bytes;
+    pmLongOptions *lp;
+    int index = longOptionsCount;
+
+    if (!opt->long_opt)
+	return -EINVAL;
+
+    bytes = (index + 2) * sizeof(pmLongOptions); /* +2 for PMAPI_OPTIONS_END */
+    if ((lp = realloc(options.long_options, bytes)) == NULL)
+	return -ENOMEM;
+
+    if (!duplicate)
+	goto update;
+
+    if ((opt->long_opt = strdup(opt->long_opt)) == NULL)
+	return -ENOMEM;
+    if (opt->argname &&
+	(opt->argname = strdup(opt->argname)) == NULL) {
+	free((char *)opt->long_opt);
+	return -ENOMEM;
+    }
+    if (opt->message &&
+	(opt->message = strdup(opt->message)) == NULL) {
+	free((char *)opt->long_opt);
+	free((char *)opt->argname);
+	return -ENOMEM;
+    }
+
+update:
+    lp[index].long_opt = opt->long_opt;
+    lp[index].has_arg = opt->has_arg;
+    lp[index].short_opt = opt->short_opt;
+    lp[index].argname = opt->argname;
+    lp[index].message = opt->message;
+    memset(&lp[index+1], 0, sizeof(pmLongOptions));	/* PMAPI_OPTIONS_END */
+    options.long_options = lp;
+    longOptionsCount++;
+    return 0;
+}
+
+static PyObject *
+setLongOptionHeader(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    pmLongOptions header = PMAPI_OPTIONS_HEADER("");
+    char *keyword_list[] = {"heading", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetLongOptionHeader", keyword_list,
+			&header.message))
+	return NULL;
+    if ((header.message = strdup(header.message)) == NULL)
+	return PyErr_NoMemory();
+
+    if (addLongOption(&header, 0) < 0) {
+	free((char *)header.message);
+	return PyErr_NoMemory();
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+addLongOptionObject(pmLongOptions *option)
+{
+    if (addLongOption(option, 1) < 0)
+	return PyErr_NoMemory();
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setLongOption(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *short_opt = NULL;
+    pmLongOptions option = { 0 };
+    char *keyword_list[] = {"long_opt", "has_arg", "short_opt",
+			    "argname", "message", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"sisss:pmSetLongOption", keyword_list,
+			&option.long_opt, &option.has_arg, &short_opt,
+			&option.argname, &option.message))
+	return NULL;
+    if (short_opt)
+	option.short_opt = (int)short_opt[0];
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionAlign(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_ALIGN;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionArchive(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_ARCHIVE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionDebug(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_DEBUG;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionGuiMode(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_GUIMODE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionHost(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_HOST;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionHostsFile(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_HOSTSFILE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionSpecLocal(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_SPECLOCAL;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionLocalPMDA(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_LOCALPMDA;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionOrigin(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_ORIGIN;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionGuiPort(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_GUIPORT;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionStart(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_START;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionSamples(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_SAMPLES;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionFinish(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_FINISH;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionInterval(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_INTERVAL;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionVersion(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_VERSION;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionTimeZone(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_TIMEZONE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionHostZone(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_HOSTZONE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionHelp(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_HELP;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+resetAllOptions(PyObject *self, PyObject *args)
+{
+    pmFreeOptions(&options);
+    memset(&options, 0, sizeof(options));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setShortOptions(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *short_opts;
+    char *keyword_list[] = {"short_options", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetShortOptions", keyword_list, &short_opts))
+	return NULL;
+
+    if ((short_opts = strdup(short_opts ? short_opts : "")) == NULL)
+	return PyErr_NoMemory();
+    if (options.short_options)
+	free((void *)options.short_options);
+    options.short_options = short_opts;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setShortUsage(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *short_usage;
+    char *keyword_list[] = {"short_usage", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetShortUsage", keyword_list, &short_usage))
+	return NULL;
+
+    if ((short_usage = strdup(short_usage ? short_usage : "")) == NULL)
+	return PyErr_NoMemory();
+    if (options.short_usage)
+	free((void *)options.short_usage);
+    options.short_usage = short_usage;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionFlags(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int flags;
+    char *keyword_list[] = {"flags", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"i:pmSetOptionFlags", keyword_list, &flags))
+	return NULL;
+
+    options.flags |= flags;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static int
+override_callback(int opt, pmOptions *opts)
+{
+    PyObject *arglist, *result;
+    char argstring[2] = { (char)opt, '\0' };
+    int sts;
+
+    arglist = Py_BuildValue("(s)", argstring);
+    if (!arglist) {
+	PyErr_Print();
+	return -ENOMEM;
+    }
+    result = PyEval_CallObject(overridesCallback, arglist);
+    Py_DECREF(arglist);
+    if (!result) {
+	PyErr_Print();
+	return -EAGAIN; /* exception thrown */
+    }
+    sts = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return sts;
+}
+
+static int
+options_callback(int opt, pmOptions *opts)
+{
+    PyObject *arglist, *result;
+    char argstring[2] = { (char)opt, '\0' };
+    int sts;
+
+    arglist = Py_BuildValue("(ssi)", argstring, options.optarg, options.index);
+    if (!arglist) {
+	PyErr_Print();
+	return -ENOMEM;
+    }
+    result = PyEval_CallObject(optionCallback, arglist);
+    Py_DECREF(arglist);
+    if (!result) {
+	PyErr_Print();
+	return -EAGAIN; /* exception thrown */
+    }
+    sts = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return sts;
+}
+
+static PyObject *
+getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int argc, length, i;
+    PyObject *result;
+    PyObject *pyargv = NULL;
+    char *keyword_list[] = {"argv", NULL};
+
+    /* Caller must perform pmGetOptions before running this, check */
+    if (!(options.flags & PM_OPTFLAG_DONE))
+	return NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"O:pmGetNonOptionsFromList", keyword_list, &pyargv))
+    if (pyargv == NULL)
+	return NULL;
+
+    if (!PyList_Check(pyargv)) {
+	PyErr_SetString(PyExc_TypeError, "pmGetNonOptionsFromList uses a list");
+	Py_DECREF(pyargv);
+	return NULL;
+    }
+
+    length = 0;
+    if ((argc = PyList_GET_SIZE(pyargv)) > 0)
+	length = argc - options.optind;
+
+    if (!length) {
+	Py_DECREF(pyargv);
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
+    if ((result = PyList_New(length)) == NULL) {
+	Py_DECREF(pyargv);
+	return PyErr_NoMemory();
+    }
+
+    for (i = 0; i < length; i++) {
+	PyObject *pyarg = PyList_GET_ITEM(pyargv, options.optind + i);
+	PyList_SET_ITEM(result, i, pyarg);
+    }
+    Py_INCREF(result);
+    return result;
+}
+
+static PyObject *
+getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int i, argc;
+    char **argv;
+    PyObject *pyargv = NULL;
+    char *keyword_list[] = {"argv", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"O:pmGetOptionsFromList", keyword_list, &pyargv))
+	return NULL;
+
+    if (pyargv == NULL)
+	return Py_BuildValue("i", 0);
+
+    if (!PyList_Check(pyargv)) {
+	PyErr_SetString(PyExc_TypeError, "pmGetOptionsFromList uses a list");
+	Py_DECREF(pyargv);
+	return NULL;
+    }
+
+    if ((argc = PyList_GET_SIZE(pyargv)) <= 0) {
+	Py_DECREF(pyargv);
+	return Py_BuildValue("i", 0);
+    }
+
+    if ((argv = malloc(argc * sizeof(char *))) == NULL) {
+	Py_DECREF(pyargv);
+	return PyErr_NoMemory();
+    }
+
+    for (i = 0; i < argc; i++) {
+	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
+	argv[i] = PyString_AsString(pyarg);
+    }
+
+    if (overridesCallback)
+	options.override = override_callback;
+    while ((i = pmGetOptions(argc, argv, &options)) != -1)
+	options_callback(i, &options);
+    free(argv);
+
+    if (options.flags & PM_OPTFLAG_EXIT)
+	return Py_BuildValue("i", PM_ERR_APPVERSION);
+
+    return Py_BuildValue("i", options.errors);
+}
+
+static PyObject *
+getContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int sts, ctx;
+    char *keyword_list[] = {"context", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"i:pmGetContextOptions", keyword_list, &ctx))
+	return NULL;
+
+    sts = pmGetContextOptions(ctx, &options);
+
+    return Py_BuildValue("i", sts);
+}
+
+static PyObject *
+usageMessage(PyObject *self, PyObject *args)
+{
+    pmUsageMessage(&options);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOverrideCallback(PyObject *self, PyObject *args)
+{
+    PyObject *func;
+
+    if (!PyArg_ParseTuple(args, "O:pmSetOverrideCallback", &func))
+	return NULL;
+    if (!PyCallable_Check(func)) {
+	PyErr_SetString(PyExc_TypeError,
+			"pmSetOverrideCallback parameter not callable");
+	return NULL;
+    }
+    Py_XINCREF(func);
+    Py_XDECREF(overridesCallback);
+    overridesCallback = func;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionCallback(PyObject *self, PyObject *args)
+{
+    PyObject *func;
+
+    if (!PyArg_ParseTuple(args, "O:pmSetOptionCallback", &func))
+	return NULL;
+    if (!PyCallable_Check(func)) {
+	PyErr_SetString(PyExc_TypeError,
+			"pmSetOptionCallback parameter not callable");
+	return NULL;
+    }
+    Py_XINCREF(func);
+    Py_XDECREF(optionCallback);
+    optionCallback = func;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionErrors(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", options.errors);
+}
+
+static PyObject *
+getOptionFlags(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", options.flags);
+}
+
+static PyObject *
+getOptionContext(PyObject *self, PyObject *args)
+{
+    if (options.context > 0)
+	return Py_BuildValue("i", options.context);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionHosts(PyObject *self, PyObject *args)
+{
+    PyObject	*result;
+    int		i;
+
+    if (options.nhosts > 0) {
+	if ((result = PyList_New(options.nhosts)) == NULL)
+	    return PyErr_NoMemory();
+	for (i = 0; i < options.nhosts; i++) {
+	    PyObject *pyent = PyString_FromString(options.hosts[i]);
+	    PyList_SET_ITEM(result, i, pyent);
+	}
+	Py_INCREF(result);
+	return result;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionArchives(PyObject *self, PyObject *args)
+{
+    PyObject	*result;
+    int		i;
+
+    if (options.narchives > 0) {
+	if ((result = PyList_New(options.narchives)) == NULL)
+	    return PyErr_NoMemory();
+	for (i = 0; i < options.narchives; i++) {
+	    PyObject *pyent = PyString_FromString(options.archives[i]);
+	    PyList_SET_ITEM(result, i, pyent);
+	}
+	Py_INCREF(result);
+	return result;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionStart_sec(PyObject *self, PyObject *args)
+{
+    if (options.start.tv_sec)
+	return Py_BuildValue("l", options.start.tv_sec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionStart_usec(PyObject *self, PyObject *args)
+{
+    if (options.start.tv_sec)	/* yes, sec */
+	return Py_BuildValue("l", options.start.tv_usec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionFinish_sec(PyObject *self, PyObject *args)
+{
+    if (options.finish.tv_sec)
+	return Py_BuildValue("l", options.finish.tv_sec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionFinish_usec(PyObject *self, PyObject *args)
+{
+    if (options.finish.tv_sec)	/* yes, sec */
+	return Py_BuildValue("l", options.finish.tv_usec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionOrigin_sec(PyObject *self, PyObject *args)
+{
+    if (options.origin.tv_sec)
+	return Py_BuildValue("l", options.origin.tv_sec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionOrigin_usec(PyObject *self, PyObject *args)
+{
+    if (options.origin.tv_sec)	/* yes, sec */
+	return Py_BuildValue("l", options.origin.tv_usec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionInterval_sec(PyObject *self, PyObject *args)
+{
+    if (options.interval.tv_sec)
+	return Py_BuildValue("l", options.interval.tv_sec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionInterval_usec(PyObject *self, PyObject *args)
+{
+    if (options.interval.tv_sec)	/* yes, sec */
+	return Py_BuildValue("l", options.interval.tv_usec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionSamples(PyObject *self, PyObject *args)
+{
+    if (options.samples)
+	return Py_BuildValue("i", options.samples);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionTimezone(PyObject *self, PyObject *args)
+{
+    if (options.timezone)
+	return Py_BuildValue("s", options.timezone);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
 static PyMethodDef methods[] = {
-    { .ml_name = "PM_XTB_SET", .ml_meth = (PyCFunction)setExtendedTimeBase,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "PM_XTB_GET", .ml_meth = (PyCFunction)getExtendedTimeBase,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "pmtimevalSleep", .ml_meth = (PyCFunction)timevalSleep,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "pmtimevalToReal", .ml_meth = (PyCFunction)timevalToReal,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
-    { .ml_name = "pmSetProcessIdentity", .ml_meth = (PyCFunction)setIdentity,
-        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "PM_XTB_SET",
+	.ml_meth = (PyCFunction) setExtendedTimeBase,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "PM_XTB_GET",
+	.ml_meth = (PyCFunction) getExtendedTimeBase,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmtimevalSleep",
+	.ml_meth = (PyCFunction) timevalSleep,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmtimevalToReal",
+	.ml_meth = (PyCFunction) timevalToReal,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetProcessIdentity",
+	.ml_meth = (PyCFunction) setIdentity,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmResetAllOptions",
+	.ml_meth = (PyCFunction) resetAllOptions,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHeader",
+	.ml_meth = (PyCFunction) setLongOptionHeader,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetLongOption",
+	.ml_meth = (PyCFunction) setLongOption,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetLongOptionAlign",
+	.ml_meth = (PyCFunction) setLongOptionAlign,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionArchive",
+	.ml_meth = (PyCFunction) setLongOptionArchive,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionDebug",
+	.ml_meth = (PyCFunction) setLongOptionDebug,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionGuiMode",
+	.ml_meth = (PyCFunction) setLongOptionGuiMode,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHost",
+	.ml_meth = (PyCFunction) setLongOptionHost,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHostsFile",
+	.ml_meth = (PyCFunction) setLongOptionHostsFile,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionSpecLocal",
+	.ml_meth = (PyCFunction) setLongOptionSpecLocal,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionLocalPMDA",
+	.ml_meth = (PyCFunction) setLongOptionLocalPMDA,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionOrigin",
+	.ml_meth = (PyCFunction) setLongOptionOrigin,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionGuiPort",
+	.ml_meth = (PyCFunction) setLongOptionGuiPort,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionStart",
+	.ml_meth = (PyCFunction) setLongOptionStart,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionSamples",
+	.ml_meth = (PyCFunction) setLongOptionSamples,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionFinish",
+	.ml_meth = (PyCFunction) setLongOptionFinish,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionInterval",
+	.ml_meth = (PyCFunction) setLongOptionInterval,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionVersion",
+	.ml_meth = (PyCFunction) setLongOptionVersion,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionTimeZone",
+	.ml_meth = (PyCFunction) setLongOptionTimeZone,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHostZone",
+	.ml_meth = (PyCFunction) setLongOptionHostZone,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHelp",
+	.ml_meth = (PyCFunction) setLongOptionHelp,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetShortOptions",
+	.ml_meth = (PyCFunction) setShortOptions,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetShortUsage",
+	.ml_meth = (PyCFunction) setShortUsage,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionFlags",
+	.ml_meth = (PyCFunction) setOptionFlags,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmGetOptionErrors",
+	.ml_meth = (PyCFunction) getOptionErrors,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFlags",
+	.ml_meth = (PyCFunction) getOptionFlags,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionsFromList",
+	.ml_meth = (PyCFunction) getOptionsFromList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmGetNonOptionsFromList",
+	.ml_meth = (PyCFunction) getNonOptionsFromList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmGetContextOptions",
+	.ml_meth = (PyCFunction) getContextOptions,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS},
+    { .ml_name = "pmUsageMessage",
+	.ml_meth = (PyCFunction) usageMessage,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetOptionCallback",
+	.ml_meth = (PyCFunction) setOptionCallback,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOverrideCallback",
+	.ml_meth = (PyCFunction) setOverrideCallback,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmGetOptionContext",
+	.ml_meth = (PyCFunction) getOptionContext,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionHosts",
+	.ml_meth = (PyCFunction) getOptionHosts,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionArchives",
+	.ml_meth = (PyCFunction) getOptionArchives,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionStart_sec",
+	.ml_meth = (PyCFunction) getOptionStart_sec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionStart_usec",
+	.ml_meth = (PyCFunction) getOptionStart_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFinish_sec",
+	.ml_meth = (PyCFunction) getOptionFinish_sec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFinish_usec",
+	.ml_meth = (PyCFunction) getOptionFinish_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionOrigin_sec",
+	.ml_meth = (PyCFunction) getOptionOrigin_sec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionOrigin_usec",
+	.ml_meth = (PyCFunction) getOptionOrigin_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionInterval_sec",
+	.ml_meth = (PyCFunction) getOptionInterval_sec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionInterval_usec",
+	.ml_meth = (PyCFunction) getOptionInterval_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionSamples",
+	.ml_meth = (PyCFunction) getOptionSamples,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionTimezone",
+	.ml_meth = (PyCFunction) getOptionTimezone,
+        .ml_flags = METH_NOARGS },
     { NULL }
 };
 
@@ -246,6 +1027,21 @@ initcpmapi(void)
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 
     dict_add(dict, "PM_XTB_FLAG", PM_XTB_FLAG);
+
+    dict_add(dict, "PM_OPTFLAG_INIT", PM_OPTFLAG_INIT);
+    dict_add(dict, "PM_OPTFLAG_DONE", PM_OPTFLAG_DONE);
+    dict_add(dict, "PM_OPTFLAG_MULTI", PM_OPTFLAG_MULTI);
+    dict_add(dict, "PM_OPTFLAG_USAGE_ERR", PM_OPTFLAG_USAGE_ERR);
+    dict_add(dict, "PM_OPTFLAG_RUNTIME_ERR", PM_OPTFLAG_RUNTIME_ERR);
+    dict_add(dict, "PM_OPTFLAG_EXIT", PM_OPTFLAG_EXIT);
+    dict_add(dict, "PM_OPTFLAG_POSIX", PM_OPTFLAG_POSIX);
+    dict_add(dict, "PM_OPTFLAG_MIXED", PM_OPTFLAG_MIXED);
+    dict_add(dict, "PM_OPTFLAG_ENV_ONLY", PM_OPTFLAG_ENV_ONLY);
+    dict_add(dict, "PM_OPTFLAG_LONG_ONLY", PM_OPTFLAG_LONG_ONLY);
+    dict_add(dict, "PM_OPTFLAG_BOUNDARIES", PM_OPTFLAG_BOUNDARIES);
+    dict_add(dict, "PM_OPTFLAG_STDOUT_TZ", PM_OPTFLAG_STDOUT_TZ);
+    dict_add(dict, "PM_OPTFLAG_NOFLUSH", PM_OPTFLAG_NOFLUSH);
+    dict_add(dict, "PM_OPTFLAG_QUIET", PM_OPTFLAG_QUIET);
 
     dict_add(dict, "PM_EVENT_FLAG_POINT",  PM_EVENT_FLAG_POINT);
     dict_add(dict, "PM_EVENT_FLAG_START",  PM_EVENT_FLAG_START);
