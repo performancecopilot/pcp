@@ -1119,7 +1119,7 @@ err(self,message)
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
-connect(self)
+connect_pmcd(self)
 	pmdaInterface *self
     CODE:
 	/*
@@ -1136,8 +1136,8 @@ connect(self)
 	    /*
 	     * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
 	     * this used in the guard below to stop run() calling
-	     * pmdaConnect() again (in the case where connect() is not
-	     * used.
+	     * pmdaConnect() again (in the case where connect_pmcd() is
+	     * not used.
 	     */
 	    pmdaConnect(self);
 	}
@@ -1158,9 +1158,9 @@ run(self)
 	    }
 	    else {
 		/*
-		 * explicit connect(), assume add_metric() and/or add_indom()
-		 * have been called in the interim, and so need to reset
-		 * tables that drive libpcp_pmda routines
+		 * explicit connect_pmcd() called earlier, assume add_metric()
+		 * and/or add_indom() have been called in the interim, and
+		 * so need to reset tables that drive libpcp_pmda routines
 		 */
 		pmdaInitTables(self, indomtab, itab_size, metrictab, mtab_size);
 	    }

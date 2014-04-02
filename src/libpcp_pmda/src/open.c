@@ -482,7 +482,7 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 	pmda->e_direct = 0;
 	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) ||
 	    (pmDebug & DBG_TRACE_LIBPMDA))
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: "
+	    __pmNotifyErr(LOG_WARNING, "pmdaDirect: PMDA %s: "
 		"Direct mapping for metrics disabled @ metrics[%d] %s\n",
 		pmda->e_name, m,
 		pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, buf, sizeof(buf)));
