@@ -99,22 +99,22 @@ LIBC = CDLL(find_library("c"))
 #
 
 class pmErr(Exception):
-
     def __str__(self):
-        errNum = self.args[0]
+        errSym = None
         try:
-            errSym = c_api.pmErrSymDict[errNum]
-            errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
-            errStr = LIBPCP.pmErrStr_r(errNum, errStr, c_api.PM_MAXERRMSGLEN)
+            errSym = c_api.pmErrSymDict[self.args[0]]
         except KeyError:
-            errSym = errStr = ""
+            pass
+        if errSym == None:
+            return self.message()
+        return "%s %s" % (errSym, self.message())
 
+    def message(self):
+        errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
+        errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
         if self.args[0] == c_api.PM_ERR_NAME:
-            pmidA = self.args[1]
-            badL = self.args[2]
-            return "%s %s: %s" % (errSym, errStr, badL)
-        else:
-            return "%s %s" % (errSym, errStr)
+            errStr = errStr + " " + str(self.args[2])
+        return errStr
 
 class pmUsageErr(Exception):
     def message(self):
@@ -880,13 +880,14 @@ class pmContext(object):
     def __init__(self, typed = c_api.PM_CONTEXT_HOST, target = "local:"):
         self._type = typed                              # the context type
         self._target = target                            # the context target
+        self._ctx = c_api.PM_ERR_NOCONTEXT                # init'd pre-connect
         self._ctx = LIBPCP.pmNewContext(typed, target)    # the context handle
         if self._ctx < 0:
             raise pmErr, self._ctx
 
     def __del__(self):
-        if LIBPCP:
-            LIBPCP.pmDestroyContext(self.ctx)
+        if LIBPCP and self._ctx != c_api.PM_ERR_NOCONTEXT:
+            LIBPCP.pmDestroyContext(self._ctx)
 
     @classmethod
     def fromOptions(builder, options, argv, typed = 0, index = 0):
@@ -1020,12 +1021,12 @@ class pmContext(object):
             raise pmErr, status
         LIBPCP.pmLookupName.argtypes = [c_int, (c_char_p * n), POINTER(c_uint)]
         status = LIBPCP.pmLookupName(n, names, pmidA)
-        if status != n:
-            badL = [name for (name, pmid) in zip(nameA, pmidA) \
-                                                if pmid == c_api.PM_ID_NULL]
-            raise pmErr, (status, pmidA, badL)
         if status < 0:
             raise pmErr, (status, pmidA)
+        elif status != n:
+            badL = [name for (name, pmid) in zip(nameA, pmidA) \
+                                                if pmid == c_api.PM_ID_NULL]
+            raise pmErr, (c_api.PM_ERR_NAME, pmidA, badL)
         return pmidA
 
     def pmNameAll(self, pmid):
