@@ -10,6 +10,7 @@ arch_maxfd
 atomstr
 badloglabel
 badpmcdpmid
+badpmda
 bar.0
 bar.index
 bar.meta
