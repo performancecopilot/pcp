@@ -121,4 +121,6 @@ Options:\n\
 	    break;
 
     }
+
+    return 0;
 }
