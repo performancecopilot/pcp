@@ -30,7 +30,7 @@ report_package()
 {
     inst="$1-$2"
 
-    pmsleep 1.75 # give some time for pmdarpm to complete a background refresh
+    pmsleep 10 # give some time for pmdarpm to complete a background refresh; flakey
     pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full

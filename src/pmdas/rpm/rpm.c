@@ -91,9 +91,8 @@ static pmdaMetric metrictab[] = {
 	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 };
 
-static pthread_t indom_thread;		/* load the instances initially */
-static pthread_t inotify_thread;	/* runs when the rpmdb changes */
-static unsigned long long numrefresh;	/* updated by background thread */
+static pthread_t inotify_thread;	/* runs all librpm queries, esp. when the rpmdb changes */
+static unsigned long long numrefresh;	/* updated by background thread, protected by indom_mutex */
 static unsigned long long packagesize;	/* sum of sizes of all packages */
 static unsigned long numpackages;	/* total count for all packages */
 
@@ -137,7 +136,7 @@ rpm_fetch_pmda(int item, pmAtomValue *atom)
 
     switch (item) {
     case REFRESH_COUNT_ID:		/* rpm.refresh.count */
-	atom->ull = numrefresh;
+	atom->ull = numrefresh; /* XXX: unlocked */
 	break;
     case REFRESH_TIME_USER_ID:		/* rpm.refresh.time.user */
 	atom->d = get_user_timer();
@@ -313,8 +312,32 @@ rpm_indom_refresh(unsigned long long refresh)
 static int
 notready(pmdaExt *pmda)
 {
+    unsigned iterations = 0;
+
     __pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
-    pthread_join(indom_thread, NULL);
+
+    /* We need to wait for at least the initial rpm_update_cache() cycle to have finished.
+       We could use a pthread condition variable, except that those have timing constraints
+       on wait-precede-signal that we cannot enforce.  So we poll.  */
+    while (1)
+        {
+            unsigned long long refresh;
+
+            pthread_mutex_lock(&indom_mutex);
+            refresh = numrefresh;
+            pthread_mutex_unlock(&indom_mutex);
+
+            if (refresh > 0)
+                break;
+
+            if (iterations++ > 30) /* Complain every 30 seconds. */
+                {
+                    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+                    iterations = 0; /* XXX: or exit? */
+                }
+            sleep (1);
+        }
+
     return PM_ERR_PMDAREADY;
 }
 
@@ -421,7 +444,8 @@ rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
 }
 
 /*
- * Refresh the RPM package names and values in the cache
+ * Refresh the RPM package names and values in the cache.
+ * This is to be only ever invoked from a single thread.
  */
 void *
 rpm_update_cache(void *ptr)
@@ -433,17 +457,26 @@ rpm_update_cache(void *ptr)
     unsigned long long refresh;
     unsigned long long totalsize = 0;
     unsigned long packages = 0;
-    static int cache_err = 0;
+    static int rpmReadConfigFiles_p = 0;
 
     pthread_mutex_lock(&indom_mutex);
     start_timing();
     refresh = numrefresh + 1;	/* current iteration */
     pthread_mutex_unlock(&indom_mutex);
 
+    /* It appears unnecessary to check the rc of these functions,
+       since the only (?) thing that can fail is memory allocation,
+       which rpmlib internally maps to an exit(1). */
     td = rpmtdNew();
     ts = rpmtsCreate();
 
-    rpmReadConfigFiles(NULL, NULL);
+    if (rpmReadConfigFiles_p == 0)
+        {
+            int rc = rpmReadConfigFiles(NULL, NULL);
+            if (rc == -1)
+                __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", rc);
+            rpmReadConfigFiles_p = 1;
+        }
 
     /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
@@ -479,6 +512,7 @@ rpm_update_cache(void *ptr)
 	    pmdaCacheStore(INDOM(CACHE_INDOM), PMDA_CACHE_ADD, name, (void *)pp);
 	} else {
 	    /* ensure the logfile isn't spammed over and over */
+            static int cache_err = 0;
 	    if (cache_err++ < 10) {
 		fprintf(stderr, "rpm_refresh_cache: "
 			"pmdaCacheLookupName(%s, %s, ... %p) failed: %s\n",
@@ -487,6 +521,7 @@ rpm_update_cache(void *ptr)
 	}
 	pthread_mutex_unlock(&indom_mutex);
     }
+
     rpmdbFreeIterator(mi);
     rpmtsFree(ts);
 
@@ -505,37 +540,53 @@ rpm_update_cache(void *ptr)
 void *
 rpm_inotify(void *ptr)
 {
-    char buffer[EVENT_BUF_LEN];
+    char buffer[EVENT_BUF_LEN]; /* space for lots of events */
     int fd;
+    int rc;
+
+    /* Update it the first time. */
+    rpm_update_cache(ptr);
+    /* By this time, the global refresh counter should be >= 1, even
+       if some rpm* or other api failure occurred. */
 
     fd = inotify_init();
-    inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
+    if (fd < 0)
+        {
+            __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
+            return NULL;
+        }
+
+    rc = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
+    if (rc < 0)
+        {
+            __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
+            close (fd);
+            return NULL;
+        }
 
     while (1) {
-	int i = 0;
 	int read_count;
-	int need_refresh = 0;
 
 	/* Wait for changes in the rpm database */
 	read_count = read(fd, buffer, EVENT_BUF_LEN);
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
-	while (i < read_count) {
-	    struct inotify_event *event =
-		(struct inotify_event *) &buffer[i];
-	    if (event->mask & IN_CLOSE_WRITE)
-		need_refresh++;
-	    i++;
-	}
-	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_INFO, "rpm_inotify: need_refresh=%d",
-		      need_refresh);
-	if (!need_refresh)
-	    continue;
-	rpm_update_cache(ptr);
+
+        /* No need to check the contents of the buffer; having received an event at all
+           indicates need to refresh. */
+        if (read_count <= 0)
+            {
+                __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
+                continue;
+            }
+
+        rpm_update_cache(ptr);
+
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: refresh done");
     }
+
+    /* NOTREACHED */
     return NULL;
 }
 
@@ -572,9 +623,7 @@ rpm_init(pmdaInterface * dp)
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
 
     pthread_mutex_init(&indom_mutex, NULL);
-    /* Load rpms into instance table */
-    pthread_create(&indom_thread, NULL, rpm_update_cache, NULL);
-    /* Note changes to the rpm database */
+    /* Monitor changes to the rpm database */
     pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
 }
 
