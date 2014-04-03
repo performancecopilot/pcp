@@ -41,6 +41,7 @@ sub kvm_fetch_callback
 }
 
 $pmda = PCP::PMDA->new('kvm', 95);
+$pmda->connect_pmcd;
 
 # May need to be root to read the directory $kvm_path (/sys/kernel/debug/kvm)
 # and so

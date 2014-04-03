@@ -170,6 +170,7 @@ sub postfix_fetch_callback
 }
 
 $pmda = PCP::PMDA->new('postfix', 103);
+$pmda->connect_pmcd;
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, $postfix_queues_indom,
 	PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
