@@ -316,11 +316,11 @@ notready(pmdaExt *pmda)
 
     __pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
 
-    /* We need to wait for at least the initial rpm_update_cache() cycle to have finished.
-       We could use a pthread condition variable, except that those have timing constraints
-       on wait-precede-signal that we cannot enforce.  So we poll.  */
-    while (1)
-        {
+    /* We need to wait for at least the initial rpm_update_cache()
+     * cycle to have finished.  We could use a pthread condition
+     * variable, except that those have timing constraints on
+     * wait-precede-signal that we cannot enforce.  So we poll.  */
+    while (1) {
             unsigned long long refresh;
 
             pthread_mutex_lock(&indom_mutex);
@@ -330,8 +330,7 @@ notready(pmdaExt *pmda)
             if (refresh > 0)
                 break;
 
-            if (iterations++ > 30) /* Complain every 30 seconds. */
-                {
+            if (iterations++ > 30) { /* Complain every 30 seconds. */
                     __pmNotifyErr(LOG_WARNING, "notready waited too long");
                     iterations = 0; /* XXX: or exit? */
                 }
@@ -465,16 +464,15 @@ rpm_update_cache(void *ptr)
     pthread_mutex_unlock(&indom_mutex);
 
     /* It appears unnecessary to check the rc of these functions,
-       since the only (?) thing that can fail is memory allocation,
-       which rpmlib internally maps to an exit(1). */
+     * since the only (?) thing that can fail is memory allocation,
+     * which rpmlib internally maps to an exit(1). */
     td = rpmtdNew();
     ts = rpmtsCreate();
 
-    if (rpmReadConfigFiles_p == 0)
-        {
-            int rc = rpmReadConfigFiles(NULL, NULL);
-            if (rc == -1)
-                __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", rc);
+    if (rpmReadConfigFiles_p == 0) {
+            int sts = rpmReadConfigFiles(NULL, NULL);
+            if (sts == -1)
+                __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
             rpmReadConfigFiles_p = 1;
         }
 
@@ -542,23 +540,21 @@ rpm_inotify(void *ptr)
 {
     char buffer[EVENT_BUF_LEN]; /* space for lots of events */
     int fd;
-    int rc;
+    int sts;
 
     /* Update it the first time. */
     rpm_update_cache(ptr);
     /* By this time, the global refresh counter should be >= 1, even
-       if some rpm* or other api failure occurred. */
+     * if some rpm* or other api failure occurred. */
 
     fd = inotify_init();
-    if (fd < 0)
-        {
+    if (fd < 0) {
             __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
             return NULL;
         }
 
-    rc = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
-    if (rc < 0)
-        {
+    sts = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
+    if (sts < 0) {
             __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
             close (fd);
             return NULL;
@@ -572,8 +568,8 @@ rpm_inotify(void *ptr)
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 
-        /* No need to check the contents of the buffer; having received an event at all
-           indicates need to refresh. */
+        /* No need to check the contents of the buffer; having
+         * received an event at all indicates need to refresh. */
         if (read_count <= 0)
             {
                 __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
