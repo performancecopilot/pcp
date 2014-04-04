@@ -154,6 +154,10 @@ forced_restart=true
 check_delay=3
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
+#	ditto for perl PMDAs
+perl_args=""
+#	ditto for python PMDAS
+python_args=""
 #	Source for the pmns
 pmns_source=pmns
 #	Source for the helptext
@@ -1062,11 +1066,11 @@ _install()
 	    args="-d $domain $args"
 	elif [ "$pmda_type" = perl ]
 	then
-	    type="pipe	binary		perl $perl_name"
+	    type="pipe	binary		perl $perl_name $perl_args"
 	    args=""
 	elif [ "$pmda_type" = python ]
 	then
-	    type="pipe	binary		python $python_name"
+	    type="pipe	binary		python $python_name $python_args"
 	    args=""
 	else
 	    type="dso	$dso_entry	$dso_name"
