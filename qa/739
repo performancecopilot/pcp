@@ -44,7 +44,7 @@ echo && echo check custom local short options
 python $here/src/test_pcp_options.python -b
 
 echo && echo check version message generation
-python $here/src/test_pcp_options.python -V | _filter_version
+python $here/src/test_pcp_options.python -V 2>&1 | _filter_version
 
 echo && echo check unknown option and usage message
 python $here/src/test_pcp_options.python --munchies

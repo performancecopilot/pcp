@@ -898,6 +898,7 @@ avahi
 739 python local oss
 740 pmda.sample pmstore secure local oss
 741 python local oss
+742 python local oss
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss
@@ -928,6 +929,7 @@ avahi
 966 secure local oss
 972 pmda.zswap dbpmda local oss
 973 pmda.zswap pmda.install local oss
+991 python local oss
 994 other verify oss
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi

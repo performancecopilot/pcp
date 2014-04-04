@@ -112,8 +112,8 @@ class pmErr(Exception):
     def message(self):
         errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
         errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
-        if self.args[0] == c_api.PM_ERR_NAME:
-            errStr = errStr + " " + str(self.args[2])
+        for index in range(1, len(self.args)):
+            errStr += " " + str(self.args[index])
         return errStr
 
 class pmUsageErr(Exception):
@@ -638,20 +638,42 @@ ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
 #
 
 class pmOptions(object):
-    """Command line option parsing for short and long form arguments
-
-       Passed into the pmGetOptions and pmUsageMessage functions.
+    """ Command line option parsing for short and long form arguments
+        Passed into pmGetOptions, pmGetContextOptions, pmUsageMessage.
     """
-    def __init__(self, short_options, short_usage = None, flags = 0):
+    ##
+    # property read methods
+
+    def _R_mode(self):
+        return self._mode
+    def _R_delta(self):
+        return self._delta
+
+    ##
+    # property definitions
+
+    mode = property(_R_mode, None, None, None)
+    delta = property(_R_delta, None, None, None)
+
+    ##
+    # creation and destruction
+
+    def __init__(self, short_options = None, short_usage = None, flags = 0):
         c_api.pmResetAllOptions()
-        c_api.pmSetShortOptions(short_options)
+        if (short_options != None):
+            c_api.pmSetShortOptions(short_options)
         if short_usage != None:
             c_api.pmSetShortUsage(short_usage)
         if flags != 0:
             c_api.pmSetFlags(flags)
+        self._delta = 1			# default archive pmSetMode delta
+        self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
 
     def __del__(self):
         c_api.pmResetAllOptions()
+
+    ##
+    # general command line option access and manipulation
 
     def pmGetOptionFlags(self):
         return c_api.pmGetOptionFlags()
@@ -659,11 +681,36 @@ class pmOptions(object):
     def pmSetOptionFlags(self, flags):
         return c_api.pmSetOptionFlags(flags)
 
+    def pmGetOptionErrors(self):
+        return c_api.pmGetOptionErrors()
+
+    def pmSetOptionErrors(self):
+        errors = c_api.pmGetOptionErrors() + 1
+        return c_api.pmSetOptionErrors(errors)
+
     def pmSetShortUsage(self, short_usage):
         return c_api.pmSetShortUsage(short_usage)
 
+    def pmSetShortOptions(self, short_options):
+        return c_api.pmSetShortOptions(short_options)
+
+    def pmSetOptionSamples(self, count):
+        """ Set sample count (converts string to integer) """
+        return c_api.pmSetOptionSamples(count)
+
+    def pmSetOptionInterval(self, interval):
+        """ Set sampling interval (pmParseInterval string) """
+        return c_api.pmSetOptionInterval(interval)
+
     def pmNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
+
+    def pmSetCallbackObject(self, them):
+        """ When options are being parsed from within an object, the
+            caller will want the "self" of the other object ("them")
+            passed as the first parameter to the callback function.
+        """
+        return c_api.pmSetCallbackObject(them)
 
     def pmSetOptionCallback(self, func):
         """ Handle individual command line options, outside of the PCP
@@ -773,13 +820,6 @@ class pmOptions(object):
         """ Add support for -?/--help into PMAPI monitor tool """
         return c_api.pmSetLongOptionHelp()
 
-    def pmSetOptionErrors(self):
-        errors = c_api.pmGetOptionErrors() + 1
-        return c_api.pmSetOptionErrors(errors)
-
-    def pmGetOptionErrors(self):
-        return c_api.pmGetOptionErrors()
-
     def pmGetOptionContext(self):	# int (typed)
         return c_api.pmGetOptionContext()
 
@@ -881,9 +921,9 @@ class pmContext(object):
         self._type = typed                              # the context type
         self._target = target                            # the context target
         self._ctx = c_api.PM_ERR_NOCONTEXT                # init'd pre-connect
-        self._ctx = LIBPCP.pmNewContext(typed, target)    # the context handle
+        self._ctx = LIBPCP.pmNewContext(typed, target)     # the context handle
         if self._ctx < 0:
-            raise pmErr, self._ctx
+            raise pmErr, (self._ctx, [target])
 
     def __del__(self):
         if LIBPCP and self._ctx != c_api.PM_ERR_NOCONTEXT:
@@ -907,15 +947,15 @@ class pmContext(object):
             contexts based on the given command line parameters.
         """
         if (typed <= 0):
-            if c_api.pmGetOptionsFromList(argv) != 0:
+            if c_api.pmGetOptionsFromList(argv):
                 raise pmUsageErr
-            typed = options.pmGetOptionContext();
+            typed = options.pmGetOptionContext()
 
         if typed == c_api.PM_CONTEXT_ARCHIVE:
             archives = options.pmGetOptionArchives()
             source = archives[index]
         elif typed == c_api.PM_CONTEXT_HOST:
-            hosts = options.pmGetOptionHosts();
+            hosts = options.pmGetOptionHosts()
             source = hosts[index]
         elif typed == c_api.PM_CONTEXT_LOCAL:
             source = None
@@ -926,8 +966,10 @@ class pmContext(object):
         # core work done here - constructs the new pmContext
         context = builder(typed, source)
 
-        if c_api.pmGetContextOptions(context.ctx) != 0:
+        # finish time windows, timezones, archive access mode
+        if c_api.pmSetContextOptions(context.ctx, options.mode, options.delta):
             raise pmUsageErr
+
         return context
 
     ##
@@ -1026,7 +1068,7 @@ class pmContext(object):
         elif status != n:
             badL = [name for (name, pmid) in zip(nameA, pmidA) \
                                                 if pmid == c_api.PM_ID_NULL]
-            raise pmErr, (c_api.PM_ERR_NAME, pmidA, badL)
+            raise pmErr, (c_api.PM_ERR_NAME, badL)
         return pmidA
 
     def pmNameAll(self, pmid):
@@ -1328,7 +1370,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmSetMode( mode, pointer(timeVal), delta )
+        status = LIBPCP.pmSetMode(mode, pointer(timeVal), delta)
         if status < 0:
             raise pmErr, status
         return status

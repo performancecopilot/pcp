@@ -13,21 +13,22 @@
 # for more details.
 # 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh
-SUBDIRS = free uptime
+TARGET = pcp-uptime
+MAN_SECTION = 1
+MAN_PAGES = $(TARGET).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default :: default_pcp
-
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
-	$(SUBDIRS_MAKERULE)
+default: $(TARGET).py $(MAN_PAGES)
 
 include $(BUILDRULES)
+
+install: default
+	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	@$(INSTALL_MAN)
+
+default_pcp : default
+
+install_pcp : install

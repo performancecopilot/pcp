@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident	metrics used by the pcp-uptime(1) command
+force	include
+	kernel.all.load
+	kernel.all.nusers
+	kernel.all.uptime
