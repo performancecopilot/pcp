@@ -206,6 +206,8 @@ class SimplePMDA(PMDA):
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
+	self.connect_pmcd();
+
         self.color_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.color_indom, self.colors))
 
