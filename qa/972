@@ -56,7 +56,6 @@ export ZSWAP_STATS_PATH="$tmp.zswap"
 # real QA test starts here
 _setup_zswap_values
 PCP_PYTHON_PMNS=root python "$pmda_script" > $tmp.root
-cd "$pmda_dir"
 
 echo "== Testing zswap metrics" | tee -a $seq.full
 $sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
