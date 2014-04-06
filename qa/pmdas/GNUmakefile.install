@@ -26,7 +26,7 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-SUBDIRS = broken bigun dynamic slow slow-python
+SUBDIRS = broken bigun dynamic slow slow_python
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

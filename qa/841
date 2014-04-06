@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 841
-# Exercise slow PMDA connect_pmcd() method - Python variant
+# Exercise slow_python PMDA connect_pmcd() method - Python variant
 # [see also qa/763 for the Perl version]
 #
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
@@ -16,9 +16,9 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
+    if pmprobe -I pmcd.agent.status | grep '"slow_python"' >/dev/null
     then
-	cd $PCP_VAR_DIR/pmdas/slow
+	cd $here/pmdas/slow_python
 	$sudo ./Remove >>$here/$seq.full 2>&1
 	cd $here
     fi
@@ -28,10 +28,8 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
-cd pmdas/slow-python
-$sudo make install >>$here/$seq.full 2>&1 
-cd $PCP_VAR_DIR/pmdas/slow
-$sudo make clean >>$here/$seq.full 2>&1
+cd pmdas/slow_python
+make clean >>$here/$seq.full 2>&1
 
 # real QA test starts here
 for start in 0 4 -4
@@ -55,8 +53,8 @@ both
 $start
 End-of-File
     date >>$here/$seq.full
-    pminfo -f slow | tee -a $here/$seq.full
-    $sudo cat $PCP_LOG_DIR/pmcd/slow.log >>$here/$seq.full
+    pminfo -f slow_python | tee -a $here/$seq.full
+    $sudo cat $PCP_LOG_DIR/pmcd/slow_python.log >>$here/$seq.full
     $sudo tail -40 $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
 done
 

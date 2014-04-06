@@ -8,7 +8,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
-SUBDIRS = broken bigun dynamic slow slow-python
+SUBDIRS = broken bigun dynamic slow slow_python
 LSRCFILES = GNUmakefile.install
 
 default default_pcp: $(SUBDIRS)
