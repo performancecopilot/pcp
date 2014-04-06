@@ -341,6 +341,42 @@ QA output created by 366
 > #+ tools/atop-proc:n:120 seconds:
 > ## per-process metrics used by the atop command
 > #----
+> #+ tools/atop-summary:y:default:
+> ## metrics sampled once by the atop command
+> log advisory on default {
+> 	hinv.cpu.clock
+> 	hinv.ncpu
+> 	mem.physmem
+> }
+> #----
+> #+ tools/collectl-summary:y:default:
+> ## metrics sampled once by the collectl command
+> log advisory on default {
+> 	hinv.ncpu
+> 	mem.physmem
+> }
+> #----
+> #+ tools/free:y:default:
+> ## metrics used by the pcp-free(1) command
+> log advisory on default {
+> 	mem.util.free
+> 	mem.util.shared
+> 	mem.util.bufmem
+> 	mem.util.cached
+> 	mem.util.highFree
+> 	mem.util.highTotal
+> 	mem.util.lowFree
+> 	mem.util.lowTotal
+> 	mem.util.swapFree
+> 	mem.util.swapTotal
+> }
+> #----
+> #+ tools/free-summary:y:default:
+> ## metrics sampled once by the pcp-free(1) command
+> log advisory on default {
+> 	mem.physmem
+> }
+> #----
 > #+ tools/ip:y:default:
 > ## metrics used by the ip(1) command
 > log advisory on default {
@@ -403,8 +439,25 @@ QA output created by 366
 > 	kernel.all.cpu
 > }
 > #----
-> #+ tools/sar-summary:n:once:
+> #+ tools/sar-summary:y:once:
 > ## metrics sampled once by the sar(1) command
+> log advisory on once {
+> 	hinv.ncpu
+> }
+> #----
+> #+ tools/uptime:y:default:
+> ## metrics used by the pcp-uptime(1) command
+> log advisory on default {
+> 	kernel.all.load
+> 	kernel.all.nusers
+> 	kernel.all.uptime
+> }
+> #----
+> #+ tools/vmstat-summary:y:once:
+> ## metrics sampled once by the vmstat(1) command
+> log advisory on once {
+> 	mem.physmem 			# K total memory
+> }
 > #----
 > #+ zimbra/all:x::
 > #----

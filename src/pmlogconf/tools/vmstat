@@ -4,8 +4,6 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 
 # -s --------------------------------------------------
 
-        mem.physmem 			# K total memory
-					#- K used memory
         mem.util.active 		# K active memory
 	mem.util.inactive  		# K inactive memory
         mem.freemem 			# K free memory

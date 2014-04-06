@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 741
+# Exercise python script automated sys.argv context creation
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+eval HOST=`pmprobe -v pmcd.hostname | awk '{ print $3 }'`
+
+_filter_live()
+{
+    sed \
+	-e '/^Start: /d' \
+	-e '/^Finish: /d' \
+	-e '/^Origin: /d' \
+	-e "s/hostname: $HOST/hostname: HOST/g" \
+	#
+}
+
+# real QA test starts here
+echo && echo check archive and boundaries
+python $here/src/test_pcp_getopts.python -a src/ace_v2 -z
+
+echo && echo check archive time windows
+python $here/src/test_pcp_getopts.python -a src/ace_v2 -z \
+	--start="@ Mon Oct 30 14:25:10 1995" \
+	--finish="@ Mon Oct 30 14:25:15 1995"
+
+echo && echo check multiple host contexts
+python $here/src/test_pcp_getopts.python -h local: -h local: | _filter_live
+
+# success, all done
+status=0
+exit
