@@ -164,6 +164,9 @@ pmns_source=pmns
 help_source=help
 #	Assume libpcp_pmda.so.1
 pmda_interface=1
+#	Full pathname to directory where PMDA is to be found ...
+#	exectable and/or DSO, domain.h, pmns, control files, etc.
+pmda_dir="`pwd`"
 
 
 # Other variables and constants
@@ -840,7 +843,6 @@ _setup()
     pmda_dso_name="${PCP_PMDAS_DIR}/${iam}/pmda_${iam}.${dso_suffix}"
     dso_name="${dso_name-$pmda_dso_name}"
     dso_entry=${iam}_init
-    pmda_dir="${PCP_PMDAS_DIR}/${iam}"
 
     _check_userroot
     _check_directory
@@ -851,19 +853,31 @@ _setup()
     then
 	perl_name="${pmda_dir}/pmda${iam}.perl"
 	[ -f "$perl_name" ] || perl_name="${pmda_dir}/pmda${iam}.pl"
-	perl_pmns="${pmda_dir}/pmns.perl"
-	perl_dom="${pmda_dir}/domain.h.perl"
-	perl -e 'use PCP::PMDA' 2>/dev/null
-	if test $? -eq 0
+	if [ -f "$perl_name" ]
 	then
-	    eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
-	    eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
-	elif $dso_opt || $daemon_opt
-	then
-	    :	# we have an alternative, so continue on
+	    perl_pmns="${pmda_dir}/pmns.perl"
+	    perl_dom="${pmda_dir}/domain.h.perl"
+	    perl -e 'use PCP::PMDA' 2>/dev/null
+	    if test $? -eq 0
+	    then
+		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
+		eval PCP_PERL_PMNS=1 perl "$perl_name" > "$perl_pmns"
+	    elif $dso_opt || $daemon_opt
+	    then
+		:	# we have an alternative, so continue on
+	    else
+		echo 'Perl PCP::PMDA module is not installed, install it and try again'
+		exit 1
+	    fi
 	else
-	    echo 'Perl PCP::PMDA module is not installed, install it and try again'
-	    exit 1
+	    if $dso_opt || $daemon_opt
+	    then
+		:	# we have an alternative, so continue on
+	    else
+		echo "Neither pmda${iam}.perl nor pmda${iam}.pl found in ${pmda_dir}"
+		echo "Error: no Perl PMDA to install"
+		exit 1
+	    fi
 	fi
     fi
 
@@ -873,19 +887,31 @@ _setup()
     then
 	python_name="${pmda_dir}/pmda${iam}.python"
 	[ -f "$python_name" ] || python_name="${pmda_dir}/pmda${iam}.py"
-	python_pmns="${pmda_dir}/pmns.python"
-	python_dom="${pmda_dir}/domain.h.python"
-	python -c 'from pcp import pmda' 2>/dev/null
-	if test $? -eq 0
+	if [ -f "$python_name" ]
 	then
-	    eval PCP_PYTHON_DOMAIN=1 python "$python_name" > "$python_dom"
-	    eval PCP_PYTHON_PMNS=1 python "$python_name" > "$python_pmns"
-	elif $dso_opt || $daemon_opt
-	then
-	    :	# we have an alternative, so continue on
+	    python_pmns="${pmda_dir}/pmns.python"
+	    python_dom="${pmda_dir}/domain.h.python"
+	    python -c 'from pcp import pmda' 2>/dev/null
+	    if test $? -eq 0
+	    then
+		eval PCP_PYTHON_DOMAIN=1 python "$python_name" > "$python_dom"
+		eval PCP_PYTHON_PMNS=1 python "$python_name" > "$python_pmns"
+	    elif $dso_opt || $daemon_opt
+	    then
+		:	# we have an alternative, so continue on
+	    else
+		echo 'Python pcp.pmda module is not installed, install it and try again'
+		exit 1
+	    fi
 	else
-	    echo 'Python pcp.pmda module is not installed, install it and try again'
-	    exit 1
+	    if $dso_opt || $daemon_opt
+	    then
+		:	# we have an alternative, so continue on
+	    else
+		echo "Neither pmda${iam}.python nor pmda${iam}.py found in ${pmda_dir}"
+		echo "Error: no Python PMDA to install"
+		exit 1
+	    fi
 	fi
     fi
 
