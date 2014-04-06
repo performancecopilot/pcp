@@ -18,7 +18,7 @@ _cleanup()
 {
     if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
     then
-	cd $PCP_VAR_DIR/pmdas/slow
+	cd $here/pmdas/slow
 	$sudo ./Remove >>$here/$seq.full 2>&1
 	cd $here
     fi
@@ -29,9 +29,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
 cd pmdas/slow
-$sudo make install >>$here/$seq.full 2>&1 
-cd $PCP_VAR_DIR/pmdas/slow
-$sudo make clean >>$here/$seq.full 2>&1
+make clean >>$here/$seq.full 2>&1
 
 # real QA test starts here
 for start in 0 4 -4
