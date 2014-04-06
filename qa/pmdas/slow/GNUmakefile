@@ -21,7 +21,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= slow
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/$(IAM)
 LSRCFILES = Install Remove pmda$(IAM).pl GNUmakefile.install
 LDIRT	= domain.h root pmns *.log
 
@@ -30,11 +30,10 @@ default default_pcp setup: check_domain
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/GNUmakefile
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 -d $(TESTDIR)
+	$(INSTALL) -m 755 Install Remove $(TESTDIR)
+	$(INSTALL) -m 644 pmda$(IAM).pl $(TESTDIR)/pmda$(IAM).pl
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 install_pcp: install
 

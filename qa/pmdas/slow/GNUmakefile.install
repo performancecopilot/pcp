@@ -1,7 +1,5 @@
 default default_pcp setup:
 
-# need to clean up for both the Perl and Python variants
-#
 clobber clean:
-	rm -f domain.h domain.h.perl domain.h.python
-	rm -f pmns pmns.perl pmns.python
+	rm -f domain.h domain.h.perl domain.h.save
+	rm -f pmns pmns.perl pmns.save
