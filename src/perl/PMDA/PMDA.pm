@@ -143,6 +143,23 @@ PCP::PMDA - Perl extension for Performance Metrics Domain Agents
 
   use PCP::PMDA;
 
+  $pmda = PCP::PMDA->new('myname', $MYDOMAIN);
+
+  $pmda->connect_pmcd;
+
+  $pmda->add_metric($pmid, $type, $indom, $sem, $units, 'name', '', '');
+  $pmda->add_indom($indom, [0 => 'white', 1 => 'black', ...], '', '');
+
+  $pmda->set_fetch(\&fetch_method);
+  $pmda->set_refresh(\&refresh_method);
+  $pmda->set_instance(\&instance_method);
+  $pmda->set_fetch_callback(\&fetch_callback_method);
+  $pmda->set_store_callback(\&store_callback_method);
+
+  $pmda->set_user('pcp');
+
+  $pmda->run;
+
 =head1 DESCRIPTION
 
 The PCP::PMDA Perl module contains the language bindings for
@@ -150,6 +167,208 @@ building Performance Metric Domain Agents (PMDAs) using Perl.
 Each PMDA exports performance data for one specific domain, for
 example the operating system kernel, Cisco routers, a database,
 an application, etc.
+
+=head1 METHODS
+
+=over
+
+=item PCP::PMDA->new(name, domain)
+
+PCP::PMDA class constructor.  I<name> is a string that becomes the
+name of the PMDA for messages and default prefix for the names of
+external files used by the PMDA.  I<domain> is an integer domain
+number for the PMDA, usually from the register of domain numbers
+found in B<$PCP_VAR_DIR/pmns/stdpmid>.
+
+
+=item $pmda->connect_pmcd()
+
+Allows the PMDA to set up the IPC channel to B<pmcd>(1) and complete
+the credentials handshake with B<pmcd>(1).  If I<connect_pmcd> is not
+explicitly called the setup and handshake will be done when the
+I<run> method is called.
+
+The advantage of explicitly calling I<connect_pmcd> early in the life
+of the PMDA is that this reduces the risk of a fatal timeout during
+the credentials handshake, which may be an issue if the PMDA has
+considerable work to do, e.g. determining which metrics and
+instance domains are available, before calling I<run>.
+
+=item $pmda->add_indom(indom, insts, help, longhelp)
+
+Define a new instance domain.  The instance domain identifier is
+I<indom>, which is an integer and unique across all instance domains
+for single PMDA.
+
+The instances of the instance domain are defined by I<insts> which
+is an associative array mapping from an internal instance identifier
+(a integer, unique across all instances in the instance domain) to
+an external instance name (a string, must by unique up to the first
+space, if any, across all instances in the instance domain).  For example:
+
+ [0 => 'red', 1 => 'green', 2 => 'blue']
+
+If not empty strings, I<help> and I<longhelp> are interpreted as
+filenames to the one-line help and expanded help text respecively.
+
+
+=item $pmda->add_metric(pmid, type, indom, sem, units, name, help, longhelp)
+
+TODO
+
+
+=item $pmda->add_pipe(command, callback, data)
+
+TODO
+
+
+=item $pmda->add_sock(hostname, port, callback, data)
+
+TODO
+
+
+=item $pmda->add_tail(filename, callback, data)
+
+TODO
+
+
+=item $pmda->add_timer(timeout, callback, data)
+
+TODO
+
+
+=item $pmda->err(message)
+
+TODO
+
+
+=item $pmda->error(message)
+
+TODO
+
+
+=item $pmda->log(message)
+
+TODO
+
+
+=item $pmda->put_sock(id, output)
+
+TODO
+
+
+=item $pmda->replace_indom(index, insts)
+
+TODO
+
+
+=item $pmda->set_fetch_callback(cb_function)
+
+TODO
+
+
+=item $pmda->set_fetch(function)
+
+TODO
+
+
+=item $pmda->set_inet_socket(port)
+
+TODO
+
+
+=item $pmda->set_instance(function)
+
+TODO
+
+
+=item $pmda->set_ipv6_socket(port)
+
+TODO
+
+
+=item $pmda->set_refresh(function)
+
+TODO
+
+
+=item $pmda->set_store_callback(cb_function)
+
+TODO
+
+
+=item $pmda->set_unix_socket(socket_name)
+
+TODO
+
+
+=item $pmda->set_user(username)
+
+TODO
+
+
+=back
+
+=head1 HELPER METHODS
+
+
+=over
+
+=item pmda_pmid(cluster, item)
+
+Construct a Performance Metric Identifier (PMID) from the domain
+number (passed as an argument to the I<new> constructor), the
+I<cluster> (an integer in the range 0 to 2^12-1) and the
+I<item> (an integer in the range 0 to 2^10-1).
+
+Every performance metric exported from a PMDA must have a unique
+PMID.
+
+=item pmda_pmid_name(cluster, item)
+
+TODO
+
+=item pmda_pmid_text(cluster, item)
+
+TODO
+
+=item pmda_inst_name(index, instance)
+
+TODO
+
+=item pmda_inst_lookup(index, instance)
+
+TODO
+
+=item pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
+
+TODO
+
+=item pmda_config(name)
+
+TODO
+
+=item pmda_uptime(now)
+
+TODO
+
+=item pmda_long()
+
+TODO
+
+=item pmda_ulong()
+
+=back
+
+=head1 MACROS
+
+Most of the PM_* macros from the PCP C headers are available.
+
+For example the I<type> of a metric's value may be directly
+specified as one of 
+B<PM_TYPE_32>, B<PM_TYPE_U32>, B<PM_TYPE_64>, B<PM_TYPE_U64>,
+B<PM_TYPE_FLOAT>, B<PM_TYPE_DOUBLE>, B<PM_TYPE_STRING> or
+B<PM_TYPE_NOSUPPORT>.
 
 =head1 SEE ALSO
 
