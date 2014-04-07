@@ -404,3 +404,26 @@ PCP_3.1 {
   global:
     pmDiscoverServices;
 } PCP_3.0;
+
+PCP_3.2 {
+  global:
+    pmGetContextHostName_r;
+    pmGetContextOptions;
+    pmGetOptions;
+    pmFreeOptions;
+    pmUsageMessage;
+
+    __pmStartOptions;
+    __pmAddOptArchive;
+    __pmAddOptArchiveList;
+    __pmAddOptHost;
+    __pmAddOptHostList;
+    __pmEndOptions;
+} PCP_3.1;
+
+PCP_3.3 {
+  global:
+    __pmLogLocalSocketDefault;
+    __pmLogLocalSocketUser;
+    __pmMakePath;
+} PCP_3.2;

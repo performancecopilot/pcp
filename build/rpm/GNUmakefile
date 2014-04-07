@@ -28,10 +28,11 @@ default install install_pcp default_pcp :
 
 # Blow the spec away after rpm has finished its work - it IS
 # going to make sure it'll be rebuild next time we come here
+# We used to override --target=FOO, but it's better to let the
+# local build distro defaults do their jobs.
 pack_pcp : rpmmacros $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
 	eval $(RPMPROG) -ba $$DEFS \
-		--target $(TARGET_CPU)-$(TARGET_VENDOR)-$(TARGET_OS) \
 		--clean $(SPEC)
 	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
 		rpmmacros 

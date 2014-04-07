@@ -881,6 +881,7 @@ avahi
 724 pmfind local oss
 725 pmda.jbd2 local oss
 726 pmlogger pmdumplog local oss
+728 libpcp local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss
@@ -894,6 +895,8 @@ avahi
 768 pmlogextract local oss
 775 sanity pmfind local oss
 783 pmda.rpm local oss
+786 context context_local libpcp local oss
+798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss

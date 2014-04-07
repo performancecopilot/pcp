@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -93,6 +94,7 @@ help		{ return ctx(HELP); }
 once		{ return ctx(ONCE); }
 port		{ return ctx(PORT); }
 quit		{ return ctx(QUIT); }
+socket		{ return ctx(SOCKET); }
 show		{ return ctx(SHOW); }
 sync		{ return ctx(SYNC); }
 log		{ return ctx(LOG); }
@@ -104,6 +106,11 @@ at		{ return ctx(AT); }
 h		{ return ctx(HELP); }
 q		{ return ctx(QUIT); }
 \?		{ return ctx(HELP); }
+
+unix:[A-Za-z0-9_.-/]*\*		{ yylval.str = yytext; return URL; }
+unix:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*\*	{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 
 [A-Za-z][A-Za-z0-9_.]*	{ yylval.str = yytext; return NAME; }
 

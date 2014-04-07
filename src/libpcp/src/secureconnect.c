@@ -308,31 +308,6 @@ __pmCloseSocket(int fd)
     }
 }
 
-static int
-mkpath(const char *dir, mode_t mode)
-{
-    char path[MAXPATHLEN], *p;
-    int sts;
-
-    sts = access(dir, R_OK|W_OK|X_OK);
-    if (sts == 0)
-	return 0;
-    if (sts < 0 && oserror() != ENOENT)
-	return -1;
-
-    strncpy(path, dir, sizeof(path));
-    path[sizeof(path)-1] = '\0';
-
-    for (p = path+1; *p != '\0'; p++) {
-	if (*p == __pmPathSeparator()) {
-	    *p = '\0';
-	    mkdir2(path, mode);
-	    *p = __pmPathSeparator();
-	}
-    }
-    return mkdir2(path, mode);
-}
-
 static char *
 dbpath(char *path, size_t size, char *db_method)
 {
@@ -383,7 +358,7 @@ __pmInitCertificates(void)
      * not using secure connections (initially everyone) don't
      * have to diagnose / put up with spurious errors.
      */
-    if (mkpath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
+    if (__pmMakePath(dbpath(nssdb, sizeof(nssdb), "sql:"), 0700) < 0)
 	return 0;
     secsts = NSS_InitReadWrite(nssdb);
 
@@ -2072,16 +2047,31 @@ __pmGetNameInfo(__pmSockAddr *address)
     char buffer[PR_NETDB_BUF_SIZE];
     char *name;
     PRHostEnt he;
-    PRStatus prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
+    PRStatus prStatus;
+
+    if (address->sockaddr.raw.family == PR_AF_INET ||
+	address->sockaddr.raw.family == PR_AF_INET6) {
+	prStatus = PR_GetHostByAddr(&address->sockaddr, &buffer[0], sizeof(buffer), &he);
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_DESPERATE) {
-        if (prStatus != PR_SUCCESS) {
-            fprintf(stderr, "%s:PR_GetHostByAddr(%s) returns %d (%s)\n", __FILE__, __pmSockAddrToString(address), PR_GetError(), PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
-        }
-    }
+	if (pmDebug & DBG_TRACE_DESPERATE) {
+	    if (prStatus != PR_SUCCESS) {
+		fprintf(stderr, "%s:PR_GetHostByAddr(%s) returns %d (%s)\n", __FILE__,
+			__pmSockAddrToString(address), PR_GetError(),
+			PR_ErrorToString(PR_GetError(), PR_LANGUAGE_I_DEFAULT));
+	    }
+	}
 #endif
-    name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
-    return name;
+	name = (prStatus == PR_SUCCESS ? strdup(he.h_name) : NULL);
+	return name;
+    }
+
+    if (address->sockaddr.raw.family == PR_AF_LOCAL)
+	return strdup(address->sockaddr.local.path);
+
+    __pmNotifyErr(LOG_ERR,
+		  "%s:__pmGetNameInfo: Invalid address family: %d\n", __FILE__,
+		  address->sockaddr.raw.family);
+    return NULL;
 }
 
 __pmHostEnt *

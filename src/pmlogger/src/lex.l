@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +104,25 @@ on		{ return ctx(ON); }
 [0-9]+\.[0-9]+\.[0-9]+\.\*	{ yylval.str = yytext; return IPSPEC; }
 [0-9]+\.[0-9]+\.\*	{ yylval.str = yytext; return IPSPEC; }
 [0-9]+\.\*		{ yylval.str = yytext; return IPSPEC; }
+\.\*			{ yylval.str = yytext; return IPSPEC; }
+
+([A-Fa-f0-9]+:)*[A-Fa-f0-9]+			{ yylval.str = yytext; return IPSPEC; }
+::						{ yylval.str = yytext; return IPSPEC; }
+::([A-Fa-f0-9]+:)*[A-Fa-f0-9]+			{ yylval.str = yytext; return IPSPEC; }
+([A-Fa-f0-9]+:)+:([A-Fa-f0-9]+:)*[A-Fa-f0-9]+	{ yylval.str = yytext; return IPSPEC; }
+([A-Fa-f0-9]+:)+:				{ yylval.str = yytext; return IPSPEC; }
+
+([A-Fa-f0-9]+:)+\*			{ yylval.str = yytext; return IPSPEC; }
+::([A-Fa-f0-9]+:)*\*			{ yylval.str = yytext; return IPSPEC; }
+([A-Fa-f0-9]+:)+:([A-Fa-f0-9]+:)*\*	{ yylval.str = yytext; return IPSPEC; }
+:\*					{ yylval.str = yytext; return IPSPEC; }
+
 \*			{ yylval.str = yytext; return IPSPEC; }
+
+unix:[A-Za-z0-9_.-/]*\*		{ yylval.str = yytext; return URL; }
+unix:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*\*	{ yylval.str = yytext; return URL; }
+local:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 
 \#.*		{ }
 

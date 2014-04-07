@@ -1,5 +1,22 @@
-pcp-3.9.1 (14 March 2014)
-    - Currently under development.
+pcp-3.9.2 (16 April 2014)
+    - Under development
+
+pcp-3.9.1 (19 March 2014)
+    - libpcp: extended date parsing with GNU getdate(3) strings
+    - libpcp: APIs for tools to share command-line options code
+    - libpcp: thread-safe API variant for pmGetContexHostName()
+    - libpcp: fix local:/unix: bug in __pmUnparseHostSpec
+    - Begin adding long option support to tools (pminfo, pmval,
+      pmprobe, pmstore, pmstat, pmclient so far)
+    - Fix python module bug for PMDAs without instance domains
+    - pmmgr: -march=i386 build fix
+    - pmlogger_daily: fix problem with pmproxy connections
+    - pmdagfs2: miscellaneous updates
+    - pmdanfsclient: new PMDA exporting NFS client metrics
+    - pmdazswap: new PMDA exporting compressed swap metrics
+    - testsuite: porting, several new tests, updates to existing
+      tests, resolved a couple of SELinux related problems
+    - Series of portability changes for *BSD platforms
 
 pcp-3.9.0 (19 February 2014)
     - Packaging changes for multilib pcp-libs{-devel},pcp-conf

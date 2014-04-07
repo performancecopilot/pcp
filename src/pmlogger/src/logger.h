@@ -155,13 +155,17 @@ extern char		*note;			/* note for port map file */
 
 /* pmlc support */
 extern void init_ports(void);
-extern int control_req(void);
+extern int control_req(int ctlfd);
 extern int client_req(void);
 extern __pmHashCtl	hist_hash;
 extern unsigned int	clientops;	/* access control (deny ops) */
 extern struct timeval	last_stamp;
 extern int		clientfd;
-extern int		ctlfd;
+#define CFD_INET	0
+#define CFD_IPV6	1
+#define CFD_UNIX	2
+#define CFD_NUM		3
+extern int		ctlfds[CFD_NUM];
 extern int		exit_samples;
 extern int		vol_switch_samples;
 extern __int64_t	vol_switch_bytes;

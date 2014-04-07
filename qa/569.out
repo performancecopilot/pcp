@@ -819,42 +819,46 @@ sample.event.param_aggregate 0
 pmprobe: at most one of -v and (-i or -I) allowed
 Usage: pmprobe [options] [metricname ...]
 
-Options:
-  -a archive   metrics source is a PCP log archive
-  -f           report all instances from pmGetIndom or pmGetInDomArchive
-	       (with -i or -I)
-               [default is to report instances from pmFetch]
-  -h host      metrics source is PMCD on host
-  -I           list external instance names
-  -i           list internal instance numbers
-  -K spec      optional additional PMDA spec for local connection
-               spec is of the form op,domain,dso-path,init-routine
-  -L           metrics source is local connection to PMDA, no PMCD
-  -n pmnsfile  use an alternative PMNS
-  -O time      origin for a fetch from the archive
-  -V           report PDU operations (verbose)
-  -v           list metric values
-  -Z timezone  set timezone for -O
-  -z           set timezone for -O to local time for host from -a
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -?, --help            show this usage message and exit
+
+Reporting options:
+  -f, --force           report all pmGetIndom or pmGetInDomArchive instances
+  -I, --external        list external instance names
+  -i, --internal        list internal instance numbers
+  -V, --verbose         report PDU operations (verbose)
+  -v, --values          list metric values
 
 === -iIv ===
 pmprobe: at most one of -v and (-i or -I) allowed
 Usage: pmprobe [options] [metricname ...]
 
-Options:
-  -a archive   metrics source is a PCP log archive
-  -f           report all instances from pmGetIndom or pmGetInDomArchive
-	       (with -i or -I)
-               [default is to report instances from pmFetch]
-  -h host      metrics source is PMCD on host
-  -I           list external instance names
-  -i           list internal instance numbers
-  -K spec      optional additional PMDA spec for local connection
-               spec is of the form op,domain,dso-path,init-routine
-  -L           metrics source is local connection to PMDA, no PMCD
-  -n pmnsfile  use an alternative PMNS
-  -O time      origin for a fetch from the archive
-  -V           report PDU operations (verbose)
-  -v           list metric values
-  -Z timezone  set timezone for -O
-  -z           set timezone for -O to local time for host from -a
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -?, --help            show this usage message and exit
+
+Reporting options:
+  -f, --force           report all pmGetIndom or pmGetInDomArchive instances
+  -I, --external        list external instance names
+  -i, --internal        list internal instance numbers
+  -V, --verbose         report PDU operations (verbose)
+  -v, --values          list metric values

@@ -41,7 +41,7 @@ Conflicts: pcp-pro < 2.2
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils perl
 Requires: python
-%if 0%{?rhel} <= 5
+%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
 Requires: python-ctypes
 %endif
 %if "%{_vendor}" == "suse"
@@ -397,9 +397,15 @@ DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch ia64 x86_64 ppc64 s390x
+%ifarch x86_64 ppc64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
+%endif
+%ifarch ia64
+%if "%{_vendor}" != "suse"
+sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
+%endif
 %endif
 
 #

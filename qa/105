@@ -4,6 +4,7 @@
 # initial: all instances for a metric
 # request: all instances for the same metric
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -25,7 +26,8 @@ s/connect [0-9][0-9]*/connect PID/
 s/@.*/@HOSTNAME/
 }' \
 	-e '/Connected /{
-s/port [0-9][0-9]*/port PORT/
+s/ on port [0-9][0-9]*//
+s/ pid [0-9][0-9]*//
 s/ at .*/ at HOSTNAME/
 }' \
 	-e 's/ nl /    /' \

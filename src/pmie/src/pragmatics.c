@@ -494,6 +494,7 @@ initArchive(Archive *a)
     int		    sts;
     int		    handle;
     Archive	    *b;
+    const char	    *tmp;
 
     /* setup temorary context for the archive */
     if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, a->fname)) < 0) {
@@ -504,7 +505,14 @@ initArchive(Archive *a)
     }
     handle = sts;
 
-    a->hname = strdup (pmGetContextHostName (handle));
+    tmp = pmGetContextHostName(handle);
+    if (strlen(tmp) == 0) {
+	fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
+	    pmProgname, handle);
+	return 0;
+    }
+    if ((a->hname = strdup(tmp)) == NULL)
+	__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
     /* get the goodies from archive label */
     if ((sts = pmGetArchiveLabel(&label)) < 0) {

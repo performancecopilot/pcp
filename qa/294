@@ -15,27 +15,9 @@ echo "QA output created by $seq"
 
 which pmdumptext >/dev/null 2>&1 || _notrun "No installed pmdumptext binary"
 
-rm -f $seq.out
-if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    if [ $PCP_VER -ge 3806 ]
-    then
-	ln $seq.out.4 $seq.out
-    else
-	ln $seq.out.3 $seq.out
-    fi
-else
-    if [ $PCP_VER -ge 3806 ]
-    then
-	ln $seq.out.2 $seq.out
-    else
-	ln $seq.out.1 $seq.out
-    fi
-fi
-
 #debug# tmp=`pwd`/tmp
 signal=$PCP_BINADM_DIR/pmsignal
-status=0	# success is the default!
+status=1	# failure is the default!
 username=`id -u -n`
 $sudo rm -rf $tmp.*
 trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -163,16 +145,16 @@ _do pmie -h $PMPROXY_HOST -c $tmp.in -v -t 0.5 -T 1.5
 _do pmdumptext -h `hostname` -t 0.5 -s 2 sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 localhost:sample.string.hullo
 _do pmdumptext -t 0.5 -s 2 `hostname`:kernel.all.load
-if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    : not much to do, as metrics for pmstat are largely missing
-    : on Mac OS X and OpenSolaris
-else
-    _do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
-    _do_config 
-    _do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
-    _do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch
-fi
+
+# Note: there used to be special casing for Darwin/Solaris platforms
+# here.  This is wrong, pmstat must still run on these platforms and
+# produce no values for some columns.
+
+_do pmstat -h $PMPROXY_HOST -t 0.5 -s 2
+_do_config 
+_do pmlogger -h localhost -c $tmp.config -t 0.5sec -s 3 -l $tmp.logger.log $tmp.arch
+_do pmstat -S +0.25sec -t 0.5sec -a $tmp.arch -z
 
 # success, all done
+status=0
 exit

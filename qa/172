@@ -2,6 +2,7 @@
 # PCP QA Test No. 172
 # Exercise $PMCD_PORT and $PMLOGGER_PORT mechanisms
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -89,6 +90,7 @@ echo "show loggers" | pmlc \
 | sed \
     -e '/primary/s/([0-9][0-9]*)/(LOGGER_PID) .../' \
     -e "s/on `hostname`/on HOST/" \
+    -e "s/on local:/on HOST/" \
     -e 's/ *[0-9][0-9]*//g'
 
 echo

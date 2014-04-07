@@ -186,6 +186,56 @@ __pmGroupnameToID(const char *name, gid_t *gid)
 !bozo!
 #endif
 
+#if defined(HAVE_GETPWUID_R)
+char *
+__pmHomedirFromID(uid_t uid, char *buf, size_t size)
+{
+    char namebuf[1024];
+    struct passwd pwd, *result;
+    char *env;
+
+    /*
+     * Use $HOME, if it is set, otherwise get the information from
+     * getpwuid_r()
+     */
+    env = getenv("HOME");
+    if (env != NULL)
+	snprintf(buf, size, "%s", env);
+    else {
+	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
+	if (result == NULL)
+	    return NULL;
+	snprintf(buf, size, "%s", result->pw_dir);
+    }
+    buf[size-1] = '\0';
+    return buf;
+}
+#elif defined(HAVE_GETPWUID)
+char *
+__pmHomedirFromID(uid_t uid, char *buf, size_t size)
+{
+    struct passwd *result;
+
+    /*
+     * Use $HOME, if it is set, otherwise get the information from
+     * getpwuid()
+     */
+    env = getenv("HOME");
+    if (env != NULL)
+	snprintf(buf, size, "%s", env);
+    else {
+	result = getpwuid(uid);
+	if (result == NULL)
+	    return NULL;
+	snprintf(buf, size, "%s", result->pw_dir);
+    }
+    buf[size-1] = '\0';
+    return buf;
+}
+#else
+!bozo!
+#endif
+
 /*
  * Add a group ID into a group list, if it is not there already.
  * The current group ID list and size are passed in, updated if

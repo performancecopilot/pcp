@@ -114,8 +114,13 @@ vol_switch_callback(int i, void *j)
 static int
 maxfd(void)
 {
-    int	max = ctlfd;
+    int i;
+    int	max = 0;
 
+    for (i = 0; i < CFD_NUM; ++i) {
+	if (ctlfds[i] > max)
+	    max = ctlfds[i];
+    }
     if (clientfd > max)
 	max = clientfd;
     if (pmcdfd > max)
@@ -720,6 +725,11 @@ Options:\n\
 	exit(1);
     }
     pmcd_host = (char *)pmGetContextHostName(ctx);
+    if (strlen(pmcd_host) == 0) {
+	fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
+	    pmProgname, ctx);
+	exit(1);
+    }
 
     if (rsc_fd == -1) {
 	/* no -x, so register client id with pmcd */
@@ -891,7 +901,10 @@ Options:\n\
     /* set up control port */
     init_ports();
     __pmFD_ZERO(&fds);
-    __pmFD_SET(ctlfd, &fds);
+    for (i = 0; i < CFD_NUM; ++i) {
+	if (ctlfds[i] >= 0)
+	    __pmFD_SET(ctlfds[i], &fds);
+    }
 #ifndef IS_MINGW
     __pmFD_SET(pmcdfd, &fds);
 #endif
@@ -926,12 +939,14 @@ Options:\n\
 	    __pmAFblock();
 
 	    /* handle request on control port */
-	    if (__pmFD_ISSET(ctlfd, &readyfds)) {
-		if (control_req()) {
-		    /* new client has connected */
-		    __pmFD_SET(clientfd, &fds);
-		    if (clientfd >= numfds)
-			numfds = clientfd + 1;
+	    for (i = 0; i < CFD_NUM; ++i) {
+		if (ctlfds[i] >= 0 && __pmFD_ISSET(ctlfds[i], &readyfds)) {
+		    if (control_req(ctlfds[i])) {
+			/* new client has connected */
+			__pmFD_SET(clientfd, &fds);
+			if (clientfd >= numfds)
+			    numfds = clientfd + 1;
+		    }
 		}
 	    }
 	    if (clientfd >= 0 && __pmFD_ISSET(clientfd, &readyfds)) {
