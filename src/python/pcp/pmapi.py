@@ -1040,7 +1040,7 @@ class pmContext(object):
             raise pmErr, status
         return status
 
-    def pmLookupName(self, nameA):
+    def pmLookupName(self, nameA, relaxed = 0):
         """PMAPI - Lookup pmIDs from a list of metric names nameA
 
         c_uint pmid [] = pmLookupName("MetricName")
@@ -1065,7 +1065,7 @@ class pmContext(object):
         status = LIBPCP.pmLookupName(n, names, pmidA)
         if status < 0:
             raise pmErr, (status, pmidA)
-        elif status != n:
+        elif relaxed == 0 and status != n:
             badL = [name for (name, pmid) in zip(nameA, pmidA) \
                                                 if pmid == c_api.PM_ID_NULL]
             raise pmErr, (c_api.PM_ERR_NAME, badL)
