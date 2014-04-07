@@ -80,5 +80,5 @@ if len(sys.argv) >= 3:
 #debug# print 'fetch delay: ', fetch_delay, ' sec'
 
 if __name__ == '__main__':
-    SlowPMDA('slow_python', 243).run()
+    SlowPMDA('slow_python', 242).run()
 
