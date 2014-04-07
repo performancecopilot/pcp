@@ -316,26 +316,28 @@ notready(pmdaExt *pmda)
 
     __pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
 
-    /* We need to wait for at least the initial rpm_update_cache()
+    /*
+     * We need to wait for at least the initial rpm_update_cache()
      * cycle to have finished.  We could use a pthread condition
      * variable, except that those have timing constraints on
-     * wait-precede-signal that we cannot enforce.  So we poll.  */
+     * wait-precede-signal that we cannot enforce.  So we poll.
+     */
     while (1) {
-            unsigned long long refresh;
+	unsigned long long refresh;
 
-            pthread_mutex_lock(&indom_mutex);
-            refresh = numrefresh;
-            pthread_mutex_unlock(&indom_mutex);
+	pthread_mutex_lock(&indom_mutex);
+	refresh = numrefresh;
+	pthread_mutex_unlock(&indom_mutex);
 
-            if (refresh > 0)
-                break;
+	if (refresh > 0)
+	    break;
 
-            if (iterations++ > 30) { /* Complain every 30 seconds. */
-                    __pmNotifyErr(LOG_WARNING, "notready waited too long");
-                    iterations = 0; /* XXX: or exit? */
-                }
-            sleep (1);
-        }
+	if (iterations++ > 30) { /* Complain every 30 seconds. */
+	    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+	    iterations = 0; /* XXX: or exit? */
+	}
+	sleep(1);
+    }
 
     return PM_ERR_PMDAREADY;
 }
@@ -463,18 +465,20 @@ rpm_update_cache(void *ptr)
     refresh = numrefresh + 1;	/* current iteration */
     pthread_mutex_unlock(&indom_mutex);
 
-    /* It appears unnecessary to check the rc of these functions,
-     * since the only (?) thing that can fail is memory allocation,
-     * which rpmlib internally maps to an exit(1). */
+    /*
+     * It appears unnecessary to check the return value from these functions,
+     * since the only (?) thing that can fail is memory allocation, which
+     * rpmlib internally maps to an exit(1).
+     */
     td = rpmtdNew();
     ts = rpmtsCreate();
 
     if (rpmReadConfigFiles_p == 0) {
-            int sts = rpmReadConfigFiles(NULL, NULL);
-            if (sts == -1)
-                __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
-            rpmReadConfigFiles_p = 1;
-        }
+	int sts = rpmReadConfigFiles(NULL, NULL);
+	if (sts == -1)
+	    __pmNotifyErr(LOG_WARNING, "rpm_update_cache: rpmReadConfigFiles failed: %d", sts);
+	rpmReadConfigFiles_p = 1;
+    }
 
     /* Iterate through the entire list of RPMs, extract names and values */
     mi = rpmtsInitIterator(ts, RPMDBI_PACKAGES, NULL, 0);
@@ -544,21 +548,23 @@ rpm_inotify(void *ptr)
 
     /* Update it the first time. */
     rpm_update_cache(ptr);
-    /* By this time, the global refresh counter should be >= 1, even
-     * if some rpm* or other api failure occurred. */
 
+    /*
+     * By this time, the global refresh counter should be >= 1, even
+     * if some rpm* or other api failure occurred.
+     */
     fd = inotify_init();
     if (fd < 0) {
-            __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
-            return NULL;
-        }
+	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to create inotify fd");
+	return NULL;
+    }
 
     sts = inotify_add_watch(fd, dbpath, IN_CLOSE_WRITE);
     if (sts < 0) {
-            __pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
-            close (fd);
-            return NULL;
-        }
+	__pmNotifyErr(LOG_ERR, "rpm_inotify: failed to inotify-watch dbpath %s", dbpath);
+	close(fd);
+	return NULL;
+    }
 
     while (1) {
 	int read_count;
@@ -568,13 +574,14 @@ rpm_inotify(void *ptr)
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_INFO, "rpm_inotify: read_count=%d", read_count);
 
-        /* No need to check the contents of the buffer; having
-         * received an event at all indicates need to refresh. */
-        if (read_count <= 0)
-            {
-                __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
-                continue;
-            }
+	/*
+	 * No need to check the contents of the buffer; having
+	 * received an event at all indicates need to refresh.
+	 */
+	if (read_count <= 0) {
+	    __pmNotifyErr(LOG_WARNING, "rpm_inotify: read_count=%d", read_count);
+	    continue;
+	}
 
         rpm_update_cache(ptr);
 
