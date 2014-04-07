@@ -39,6 +39,8 @@ fi
 #
 gnu_tool()
 {
+    prefix="$1"
+    shift
     envvar="$1"
     shift
     oldcmd="$1"
@@ -56,8 +58,9 @@ gnu_tool()
 		return 0
 	    fi
 	done
-	echo "Error: can't find GNU $oldcmd in the commands $oldcmd or $@"
-	exit 1
+	echo "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
+	[ $prefix = Error ] && exit 1
+	return 1
     fi
 
     # Use the environment request and ensure it is a full path (do not
@@ -67,15 +70,17 @@ gnu_tool()
     command=`which $envvar 2>/dev/null`
     if [ -z "$command" ]
     then
-	echo "Error: $oldcmd (from the environment) does not exist!"
-	exit 1
+	echo "$prefix: $oldcmd (from the environment) does not exist!" >&2
+	[ $prefix = Error ] && exit 1
+	return 1
     fi
     echo $command
     return 0
 }
 
-export MAKE=`gnu_tool "$MAKE" make gmake`
-export TAR=`gnu_tool "$TAR" tar gtar gnutar`
+export MAKE=`gnu_tool Error "$MAKE" make gmake`
+export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
+[ -z "$TAR" ] && export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
@@ -183,9 +188,17 @@ clean_packaging()
 #
 src_tar_build()
 {
-    git ls-files | grep -v \\.gitignore > .gitcensus
-    # create gzipped tar archive
-    $TAR -cz --transform="s,^,$source/," --file=$SRCTAR --files-from=.gitcensus
+    if [ -z "$TAR" ]
+    then
+	# no GNU tar is available, use git-archive(1) - no local changes
+	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
+    else
+	# build git file list and make tarball by hand to pick up any changes
+	git ls-files > .gitcensus
+	$TAR -cz --transform="s,^,$source/," --files-from=.gitcensus \
+		--file=$SRCTAR 
+	rm .gitcensus
+    fi
     echo "Wrote: $SRCTAR"
 }
 

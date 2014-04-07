@@ -266,7 +266,7 @@ main(int argc, char **argv)
     }
 
     if (pauseFlag && opts.context != PM_CONTEXT_ARCHIVE) {
-	pmprintf("%s: -p can only be used with -a\n", pmProgname);
+	pmprintf("%s: pause can only be used with archives\n", pmProgname);
 	opts.errors++;
     }
 

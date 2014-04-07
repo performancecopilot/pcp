@@ -99,22 +99,26 @@ LIBC = CDLL(find_library("c"))
 #
 
 class pmErr(Exception):
-
     def __str__(self):
-        errNum = self.args[0]
+        errSym = None
         try:
-            errSym = c_api.pmErrSymDict[errNum]
-            errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
-            errStr = LIBPCP.pmErrStr_r(errNum, errStr, c_api.PM_MAXERRMSGLEN)
+            errSym = c_api.pmErrSymDict[self.args[0]]
         except KeyError:
-            errSym = errStr = ""
+            pass
+        if errSym == None:
+            return self.message()
+        return "%s %s" % (errSym, self.message())
 
-        if self.args[0] == c_api.PM_ERR_NAME:
-            pmidA = self.args[1]
-            badL = self.args[2]
-            return "%s %s: %s" % (errSym, errStr, badL)
-        else:
-            return "%s %s" % (errSym, errStr)
+    def message(self):
+        errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
+        errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
+        for index in range(1, len(self.args)):
+            errStr += " " + str(self.args[index])
+        return errStr
+
+class pmUsageErr(Exception):
+    def message(self):
+        return c_api.pmUsageMessage()
 
 
 ##############################################################################
@@ -125,16 +129,20 @@ class pmErr(Exception):
 # metric information and values.  Detailed information about these data
 # structures can be found in:
 #
-# SGI Document: 007-3434-005
 # Performance Co-Pilot Programmer's Guide
-# Section 3.4 - Performance Metric Descriptions, pp. 59
-# Section 3.5 - Performance Metric Values, pp. 62
+# Section 3.4 - Performance Metric Descriptions
+# Section 3.5 - Performance Metric Values
 #
 
 # these hardcoded decls should be derived from <sys/time.h>
 class timeval(Structure):
     _fields_ = [("tv_sec", c_long),
                 ("tv_usec", c_long)]
+
+    def __init__(self, sec = 0, usec = 0):
+        Structure.__init__(self)
+        self.tv_sec = sec
+        self.tv_usec = usec
 
     def __str__(self):
         return "%.3f" % c_api.pmtimevalToReal(self.tv_sec, self.tv_usec)
@@ -189,7 +197,6 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_NOSUPPORT : lambda x: None,
                   c_api.PM_TYPE_UNKNOWN : lambda x: None
             }
-
 
     def dref(self, typed):
         return self._atomDrefD[typed](self)
@@ -615,10 +622,248 @@ LIBPCP.pmprintf.restype = c_int
 LIBPCP.pmprintf.argtypes = [c_char_p]
 
 LIBPCP.pmSortInstances.restype = None
-# LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
+LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
 
 ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
 ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
+
+
+##############################################################################
+#
+# class pmOptions
+#
+# This class wraps the PMAPI pmGetOptions functionality and can be used
+# to assist with automatic construction of a PMAPI context based on the
+# command line options used.
+#
+
+class pmOptions(object):
+    """ Command line option parsing for short and long form arguments
+        Passed into pmGetOptions, pmGetContextOptions, pmUsageMessage.
+    """
+    ##
+    # property read methods
+
+    def _R_mode(self):
+        return self._mode
+    def _R_delta(self):
+        return self._delta
+
+    ##
+    # property definitions
+
+    mode = property(_R_mode, None, None, None)
+    delta = property(_R_delta, None, None, None)
+
+    ##
+    # creation and destruction
+
+    def __init__(self, short_options = None, short_usage = None, flags = 0):
+        c_api.pmResetAllOptions()
+        if (short_options != None):
+            c_api.pmSetShortOptions(short_options)
+        if short_usage != None:
+            c_api.pmSetShortUsage(short_usage)
+        if flags != 0:
+            c_api.pmSetFlags(flags)
+        self._delta = 1			# default archive pmSetMode delta
+        self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
+
+    def __del__(self):
+        c_api.pmResetAllOptions()
+
+    ##
+    # general command line option access and manipulation
+
+    def pmGetOptionFlags(self):
+        return c_api.pmGetOptionFlags()
+
+    def pmSetOptionFlags(self, flags):
+        return c_api.pmSetOptionFlags(flags)
+
+    def pmGetOptionErrors(self):
+        return c_api.pmGetOptionErrors()
+
+    def pmSetOptionErrors(self):
+        errors = c_api.pmGetOptionErrors() + 1
+        return c_api.pmSetOptionErrors(errors)
+
+    def pmSetShortUsage(self, short_usage):
+        return c_api.pmSetShortUsage(short_usage)
+
+    def pmSetShortOptions(self, short_options):
+        return c_api.pmSetShortOptions(short_options)
+
+    def pmSetOptionSamples(self, count):
+        """ Set sample count (converts string to integer) """
+        return c_api.pmSetOptionSamples(count)
+
+    def pmSetOptionInterval(self, interval):
+        """ Set sampling interval (pmParseInterval string) """
+        return c_api.pmSetOptionInterval(interval)
+
+    def pmNonOptionsFromList(self, argv):
+        return c_api.pmGetNonOptionsFromList(argv)
+
+    def pmSetCallbackObject(self, them):
+        """ When options are being parsed from within an object, the
+            caller will want the "self" of the other object ("them")
+            passed as the first parameter to the callback function.
+        """
+        return c_api.pmSetCallbackObject(them)
+
+    def pmSetOptionCallback(self, func):
+        """ Handle individual command line options, outside of the PCP
+            "standard" set (or overridden).
+
+            For every non-standard or overridden option, this callback
+            will be called with the short option character (as an int)
+            or zero for long-option only, and the usual getopts global
+            state (optind, opterr, optopt, optarg, and index - all int
+            except optarg which is a str).
+        """
+        return c_api.pmSetOptionCallback(func)
+
+    def pmSetOverrideCallback(self, func):
+        """ Allow a "standard" PCP option to be overridden.
+
+            For every option parsed, this callback is called and it may
+            return zero, meaning continue with processing the option in
+            the standard way, or non-zero, meaning the caller wishes to
+            override and interpret the option differently.
+            Callback input: int, output: int
+        """
+        return c_api.pmSetOverrideCallback(func)
+
+    def pmSetLongOption(self, long_opt, has_arg, short_opt, argname, message):
+        """ Add long option into the set of supported long options
+
+            Pass in the option name (str), whether it takes an argument (int),
+            its short option form (int), and two usage message hints (argname
+            (str) and message (str) - see pmGetOptions(3) for details).
+        """
+        return c_api.pmSetLongOption(long_opt, has_arg, short_opt, argname, message)
+
+    def pmSetLongOptionHeader(self, heading):
+        """ Add a new section heading into the long option usage message """
+        return c_api.pmSetLongOptionHeader(heading)
+
+    def pmSetLongOptionAlign(self):
+        """ Add support for -A/--align into PMAPI monitor tool """
+        return c_api.pmSetLongOptionAlign()
+
+    def pmSetLongOptionArchive(self):
+        """ Add support for -a/--archive into PMAPI monitor tool """
+        return c_api.pmSetLongOptionArchive()
+
+    def pmSetLongOptionDebug(self):
+        """ Add support for -D/--debug into PMAPI monitor tool """
+        return c_api.pmSetLongOptionDebug()
+
+    def pmSetLongOptionGuiMode(self):
+        """ Add support for -g/--guimode into PMAPI monitor tool """
+        return c_api.pmSetLongOptionGuiMode()
+
+    def pmSetLongOptionHost(self):
+        """ Add support for -h/--host into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHost()
+
+    def pmSetLongOptionHostsFile(self):
+        """ Add support for -H/--hostsfile into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHostsFile()
+
+    def pmSetLongOptionSpecLocal(self):
+        """ Add support for -K/--spec-local into PMAPI monitor tool """
+        return c_api.pmSetLongOptionSpecLocal()
+
+    def pmSetLongOptionLocalPMDA(self):
+        """ Add support for -L/--local-PMDA into PMAPI monitor tool """
+        return c_api.pmSetLongOptionLocalPMDA()
+
+    def pmSetLongOptionOrigin(self):
+        """ Add support for -O/--origin into PMAPI monitor tool """
+        return c_api.pmSetLongOptionOrigin()
+
+    def pmSetLongOptionGuiPort(self):
+        """ Add support for -p/--guiport into PMAPI monitor tool """
+        return c_api.pmSetLongOptionGuiPort()
+
+    def pmSetLongOptionStart(self):
+        """ Add support for -S/--start into PMAPI monitor tool """
+        return c_api.pmSetLongOptionStart()
+
+    def pmSetLongOptionSamples(self):
+        """ Add support for -s/--samples into PMAPI monitor tool """
+        return c_api.pmSetLongOptionSamples()
+
+    def pmSetLongOptionFinish(self):
+        """ Add support for -T/--finish into PMAPI monitor tool """
+        return c_api.pmSetLongOptionFinish()
+
+    def pmSetLongOptionInterval(self):
+        """ Add support for -t/--interval into PMAPI monitor tool """
+        return c_api.pmSetLongOptionInterval()
+
+    def pmSetLongOptionVersion(self):
+        """ Add support for -V/--version into PMAPI monitor tool """
+        return c_api.pmSetLongOptionVersion()
+
+    def pmSetLongOptionTimeZone(self):
+        """ Add support for -Z/--timezone into PMAPI monitor tool """
+        return c_api.pmSetLongOptionTimeZone()
+
+    def pmSetLongOptionHostZone(self):
+        """ Add support for -z/--hostzone into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHostZone()
+
+    def pmSetLongOptionHelp(self):
+        """ Add support for -?/--help into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHelp()
+
+    def pmGetOptionContext(self):	# int (typed)
+        return c_api.pmGetOptionContext()
+
+    def pmGetOptionHosts(self):		# str list
+        return c_api.pmGetOptionHosts()
+
+    def pmGetOptionArchives(self):	# str list
+        return c_api.pmGetOptionArchives()
+
+    def pmGetOptionAlignment(self):		# timeval
+	sec = c_api.pmGetOptionAlignment_sec()
+        if sec == None:
+            return None
+        return timeval(sec, c_api.pmGetOptionAlignment_sec())
+
+    def pmGetOptionStart(self):		# timeval
+        sec = c_api.pmGetOptionStart_sec()
+        if sec == None:
+            return None
+        return timeval(sec, c_api.pmGetOptionStart_usec())
+
+    def pmGetOptionFinish(self):	# timeval
+        sec = c_api.pmGetOptionFinish_sec()
+        if sec == None:
+            return None
+        return timeval(sec, c_api.pmGetOptionFinish_usec())
+
+    def pmGetOptionOrigin(self):	# timeval
+        sec = c_api.pmGetOptionOrigin_sec()
+        if sec == None:
+            return None
+        return timeval(sec, c_api.pmGetOptionOrigin_usec())
+
+    def pmGetOptionInterval(self):	# timeval
+        sec = c_api.pmGetOptionInterval_sec()
+        if sec == None:
+            return None
+        return timeval(sec, c_api.pmGetOptionInterval_usec())
+
+    def pmGetOptionSamples(self):	# int
+        return c_api.pmGetOptionSamples()
+
+    def pmGetOptionTimezone(self):	# str
+        return c_api.pmGetOptionTimezone()
 
 
 ##############################################################################
@@ -627,7 +872,6 @@ ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
 #
 # This class wraps the PMAPI library functions
 #
-
 
 class pmContext(object):
     """Defines a metrics source context (e.g. host, archive, etc) to operate on
@@ -671,18 +915,62 @@ class pmContext(object):
     ctx    = property(_R_ctx, None, None, None)
 
     ##
-    # overloads
+    # creation and destruction
 
     def __init__(self, typed = c_api.PM_CONTEXT_HOST, target = "local:"):
         self._type = typed                              # the context type
         self._target = target                            # the context target
-        self._ctx = LIBPCP.pmNewContext(typed, target)    # the context handle
+        self._ctx = c_api.PM_ERR_NOCONTEXT                # init'd pre-connect
+        self._ctx = LIBPCP.pmNewContext(typed, target)     # the context handle
         if self._ctx < 0:
-            raise pmErr, self._ctx
+            raise pmErr, (self._ctx, [target])
 
     def __del__(self):
-        if LIBPCP:
-            LIBPCP.pmDestroyContext(self.ctx)
+        if LIBPCP and self._ctx != c_api.PM_ERR_NOCONTEXT:
+            LIBPCP.pmDestroyContext(self._ctx)
+
+    @classmethod
+    def fromOptions(builder, options, argv, typed = 0, index = 0):
+        """ Helper interface, simple PCP monitor argument parsing.
+
+            Take argv list, create a context using pmGetOptions(3)
+            and standard options default values like local: etc
+            based on the contents of the list.
+
+            Caller should have already registered any options of
+            interest using the option family of interfaces, i.e.
+            pmSetShortOptions, pmSetLongOption*, pmSetOptionFlags,
+            pmSetOptionCallback, and pmSetOptionOverrideCallback.
+
+            When the MULTI/MIXED pmGetOptions flags are being used,
+            the typed/index parameters can be used to setup several
+            contexts based on the given command line parameters.
+        """
+        if (typed <= 0):
+            if c_api.pmGetOptionsFromList(argv):
+                raise pmUsageErr
+            typed = options.pmGetOptionContext()
+
+        if typed == c_api.PM_CONTEXT_ARCHIVE:
+            archives = options.pmGetOptionArchives()
+            source = archives[index]
+        elif typed == c_api.PM_CONTEXT_HOST:
+            hosts = options.pmGetOptionHosts()
+            source = hosts[index]
+        elif typed == c_api.PM_CONTEXT_LOCAL:
+            source = None
+        else:
+            typed = c_api.PM_CONTEXT_HOST
+            source = "local:"
+
+        # core work done here - constructs the new pmContext
+        context = builder(typed, source)
+
+        # finish time windows, timezones, archive access mode
+        if c_api.pmSetContextOptions(context.ctx, options.mode, options.delta):
+            raise pmUsageErr
+
+        return context
 
     ##
     # PMAPI Name Space Services
@@ -752,7 +1040,7 @@ class pmContext(object):
             raise pmErr, status
         return status
 
-    def pmLookupName(self, nameA):
+    def pmLookupName(self, nameA, relaxed = 0):
         """PMAPI - Lookup pmIDs from a list of metric names nameA
 
         c_uint pmid [] = pmLookupName("MetricName")
@@ -775,12 +1063,12 @@ class pmContext(object):
             raise pmErr, status
         LIBPCP.pmLookupName.argtypes = [c_int, (c_char_p * n), POINTER(c_uint)]
         status = LIBPCP.pmLookupName(n, names, pmidA)
-        if status != n:
-            badL = [name for (name, pmid) in zip(nameA, pmidA) \
-                                                if pmid == c_api.PM_ID_NULL]
-            raise pmErr, (status, pmidA, badL)
         if status < 0:
             raise pmErr, (status, pmidA)
+        elif relaxed == 0 and status != n:
+            badL = [name for (name, pmid) in zip(nameA, pmidA) \
+                                                if pmid == c_api.PM_ID_NULL]
+            raise pmErr, (c_api.PM_ERR_NAME, badL)
         return pmidA
 
     def pmNameAll(self, pmid):
@@ -1082,7 +1370,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmSetMode( mode, pointer(timeVal), delta )
+        status = LIBPCP.pmSetMode(mode, pointer(timeVal), delta)
         if status < 0:
             raise pmErr, status
         return status
@@ -1419,7 +1707,6 @@ class pmContext(object):
     @staticmethod
     def pmSortInstances(result_p):
         """PMAPI - sort all metric instances in result returned by pmFetch """
-        LIBPCP.pmSortInstances.argtypes = [(type(result_p))]
         LIBPCP.pmSortInstances(result_p)
         return None
 

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2013 Red Hat Inc.
+# Copyright (C) 2012-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -145,6 +145,18 @@ def test_pcp(self):
     except pmapi.pmErr, error:
         print "pmLookupName:", error
         self.assertTrue(True)
+
+    metrics = ("no.such.metric.name", "sample.bin")
+    try:
+        pmidlist = ctx.pmLookupName(metrics, relaxed = 1)
+        print "pmLookupName relaxed mode", metrics
+        self.assertTrue(len(pmidlist) == 2)
+        self.assertTrue(pmidlist[0] == api.PM_ID_NULL)
+        self.assertTrue(pmidlist[1] != api.PM_ID_NULL)
+    except pmapi.pmErr, error:
+        print "pmLookupName relaxed mode:", error
+        self.assertTrue(False)
+
     metrics = ("kernel.all.load", "sample.bin",
                "kernel.percpu.cpu.sys", "mem.freemem")
     self.metric_ids = ctx.pmLookupName(metrics)

@@ -1,0 +1,113 @@
+#
+# Copyright (C) 2014 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys as system
+from pcp import pmapi
+import cpmapi as c_api
+
+""" Create an options object and set/get everything possible """
+
+options = pmapi.pmOptions("a:bfl:D:h:H:K:LS:T:O:A:s:t:VZ:z?")
+options.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
+options.pmSetOptionFlags(c_api.PM_OPTFLAG_MULTI)
+options.pmSetOptionFlags(c_api.PM_OPTFLAG_MIXED)
+
+options.pmSetLongOptionHeader("General Options")
+options.pmSetLongOptionAlign()
+options.pmSetLongOptionArchive()
+options.pmSetLongOptionDebug()
+options.pmSetLongOptionGuiMode()
+options.pmSetLongOptionHost()
+options.pmSetLongOptionHostsFile()
+options.pmSetLongOptionSpecLocal()
+options.pmSetLongOptionLocalPMDA()
+options.pmSetLongOptionOrigin()
+options.pmSetLongOptionGuiPort()
+options.pmSetLongOptionStart()
+options.pmSetLongOptionSamples()
+options.pmSetLongOptionFinish()
+options.pmSetLongOptionInterval()
+options.pmSetLongOptionVersion()
+options.pmSetLongOptionTimeZone()
+options.pmSetLongOptionHostZone()
+options.pmSetLongOptionHelp()
+
+# extract any options we can (many are consumed internally) & dump 'em;
+# this test variant focusses on context creation and using time windows.
+
+ctx = c_api.PM_ERR_NOCONTEXT
+try:
+    ctx = pmapi.pmContext.fromOptions(options, system.argv)
+except pmapi.pmUsageErr, usage:
+    usage.message()
+    system.exit(1)
+except pmapi.pmErr, error:
+    print error
+
+nonoptions = options.pmNonOptionsFromList(system.argv)
+if nonoptions != None:
+    print "Non-option arguments:", nonoptions
+
+# for host and archive lists exercise the creation of multiple contexts
+hosts = options.pmGetOptionHosts()
+if hosts != None:
+    print "Host list:", hosts
+    print "Host", hosts[0], "pmcd.hostname:", ctx.pmGetContextHostName()
+    if len(hosts) > 1:
+        typed = c_api.PM_CONTEXT_HOST
+        for index in range(1, len(hosts)):
+            try:
+                ctx = pmapi.pmContext.fromOptions(options, system.argv, typed, index)
+                print "Host", hosts[index], "pmcd.hostname:", ctx.pmGetContextHostName()
+            except pmapi.pmErr, error:
+                print "pmContext failed for host", hosts[index], "-", error
+
+archives = options.pmGetOptionArchives()
+if archives != None:
+    print "Archive list:", archives
+    print "Archive", archives[0], "hostname:", ctx.pmGetContextHostName()
+    if len(archives) > 1:
+        typed = c_api.PM_CONTEXT_ARCHIVE
+        for index in range(1, len(archives)):
+            try:
+                ctx = pmapi.pmContext.fromOptions(options, system.argv, typed, index)
+                print "Archive", archives[index], "hostname:", ctx.pmGetContextHostName()
+            except pmapi.pmErr, error:
+                print "pmContext failed for archive", archives[index], "-", error
+
+timezone = options.pmGetOptionTimezone()
+if timezone != None:
+    print "Timezone:", timezone
+
+samples = options.pmGetOptionSamples()
+if samples != None:
+    print "Samples:", samples
+
+interval = options.pmGetOptionInterval()
+if interval != None:
+    print "Interval:", interval
+
+start = options.pmGetOptionStart()
+if start != None:
+    print "Start:", start
+
+finish = options.pmGetOptionFinish()
+if finish != None:
+    print "Finish:", finish
+
+origin = options.pmGetOptionOrigin()
+if origin != None:
+    print "Origin:", origin
+
+print "Done!"
