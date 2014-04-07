@@ -214,8 +214,12 @@ filenames to the one-line help and expanded help text respecively.
 
 =item $pmda->add_metric(pmid, type, indom, sem, units, name, help, longhelp)
 
-TODO
+Define a new metric identified by the PMID I<pmid> and the full
+metric name I<name>.
 
+The metric's metadata is defined by I<type>, I<indom>, I<sem> and
+I<units> and these parameters are used to set up the I<pmDesc>
+structure as described in B<pmLookupDesc>(3).
 
 =item $pmda->add_pipe(command, callback, data)
 
