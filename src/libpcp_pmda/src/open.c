@@ -482,7 +482,7 @@ pmdaDirect(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
 	pmda->e_direct = 0;
 	if ((pmda->e_flags & PMDA_EXT_FLAG_DIRECT) ||
 	    (pmDebug & DBG_TRACE_LIBPMDA))
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: "
+	    __pmNotifyErr(LOG_WARNING, "pmdaDirect: PMDA %s: "
 		"Direct mapping for metrics disabled @ metrics[%d] %s\n",
 		pmda->e_name, m,
 		pmIDStr_r(pmda->e_metrics[m].m_desc.pmid, buf, sizeof(buf)));
@@ -536,11 +536,6 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	return;
     }
 
-    pmda->e_indoms = indoms;
-    pmda->e_nindoms = nindoms;
-    pmda->e_metrics = metrics;
-    pmda->e_nmetrics = nmetrics;
-
     /* parameter sanity checks */
     if (nmetrics < 0) {
 	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: nmetrics (%d) should be non-negative", pmda->e_name, nmetrics);
@@ -564,6 +559,11 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
+
+    pmda->e_indoms = indoms;
+    pmda->e_nindoms = nindoms;
+    pmda->e_metrics = metrics;
+    pmda->e_nmetrics = nmetrics;
     
     /* fix bit fields in indom for all instance domains */
     for (i = 0; i < pmda->e_nindoms; i++) {
@@ -660,6 +660,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
         __pmNotifyErr(LOG_INFO, "domain      = %d\n", dispatch->domain);
         if (dispatch->comm.flags)
     	    __pmNotifyErr(LOG_INFO, "comm flags  = %x\n", dispatch->comm.flags);
+	__pmNotifyErr(LOG_INFO, "ext flags  = %x\n", pmda->e_flags);
     	__pmNotifyErr(LOG_INFO, "num metrics = %d\n", pmda->e_nmetrics);
     	__pmNotifyErr(LOG_INFO, "num indom   = %d\n", pmda->e_nindoms);
     	__pmNotifyErr(LOG_INFO, "metric map  = %s\n",
@@ -740,6 +741,19 @@ pmdaConnect(pmdaInterface *dispatch)
     pmdaExt	*pmda = NULL;
     int		sts, flags = dispatch->comm.flags;
 
+    if (dispatch->version.any.ext == NULL ||
+	(dispatch->version.any.ext->e_flags & PMDA_EXT_SETUPDONE) != PMDA_EXT_SETUPDONE) {
+	__pmNotifyErr(LOG_CRIT, "pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+
+    if ((dispatch->version.any.ext->e_flags & PMDA_EXT_CONNECTED) == PMDA_EXT_CONNECTED) {
+	__pmNotifyErr(LOG_CRIT, "pmdaConnect: called more than once");
+	dispatch->status = PM_ERR_GENERIC;
+	return;
+    }
+
     if (!HAVE_ANY(dispatch->comm.pmda_interface)) {
 	__pmNotifyErr(LOG_CRIT, "pmdaConnect: PMDA interface version %d not supported (domain=%d)",
 		     dispatch->comm.pmda_interface, dispatch->domain);
@@ -811,8 +825,10 @@ pmdaConnect(pmdaInterface *dispatch)
     sts = __pmdaSetupPDU(pmda->e_infd, pmda->e_outfd, flags, pmda->e_name);
     if (sts < 0)
 	dispatch->status = sts;
-    else
+    else {
 	dispatch->comm.pmapi_version = (unsigned int)sts;
+	pmda->e_flags |= PMDA_EXT_CONNECTED;
+    }
 }
 
 /*
@@ -873,6 +889,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
     pmda->e_help = -1;
     pmda->e_io = pmdaUnknown;
     pmda->e_ext = (void *)dispatch;
+    pmda->e_flags |= PMDA_EXT_SETUPDONE;
 
     extp = (e_ext_t *)calloc(1, sizeof(*extp));
     if (extp == NULL) {

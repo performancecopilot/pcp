@@ -348,7 +348,6 @@ else
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
     for d in `echo $$MAN_PAGES`; do \
-	echo "=== `pwd`/$$d ===" >>/tmp/eek.raw; \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
 	$(AWK) <$$d ' \
@@ -364,7 +363,6 @@ state==1 { for (i=1;i<=NF;i++) { \
 	     print $$i \
 	   } \
 	 }' \
-	| tee -a /tmp/eek.raw \
 	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
 	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \

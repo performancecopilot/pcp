@@ -649,6 +649,31 @@ init_dispatch(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_None;
 }
 
+static PyObject *
+connect_pmcd(void)
+{
+    /*
+     * Need to mimic the same special cases handled by run() in
+     * pcp/pmda.py that explicitly do NOT connect to pmcd and treat
+     * these as no-ops here.
+     *
+     * Otherwise call pmdaConnet() to complete the PMDA's IPC
+     * channel setup and complete the connection handshake with
+     * pmcd.
+     */
+    if (!pmda_generating_pmns() && !pmda_generating_domain()) {
+	/*
+	 * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
+	 * this used in the guard below to stop pmda_dispatch() calling
+	 * pmdaConnect() again.
+	 */
+	pmdaConnect(&dispatch);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 #ifdef PyBUF_SIMPLE
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args)
@@ -694,19 +719,27 @@ pmda_dispatch(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
-
     indoms = nindoms ? (pmdaIndom *)iv.buf : NULL;
     metrics = nmetrics ? (pmdaMetric *)mv.buf : NULL;
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
     pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+    if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
+	/*
+	 * connect_pmcd() not called before, so need pmdaConnect()
+	 * here before falling into the PDU-driven pmdaMain() loop.
+	 */
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    fprintf(stderr, "pmda_dispatch connect to pmcd\n");
+	pmdaConnect(&dispatch);
+    }
+
     PyBuffer_Release(&iv);
     PyBuffer_Release(&mv);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch connect to pmcd, entering PDU loop\n");
+        fprintf(stderr, "pmda_dispatch entering PDU loop\n");
 
-    pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     Py_INCREF(Py_None);
     return Py_None;
@@ -748,14 +781,25 @@ pmda_dispatch(PyObject *self, PyObject *args)
 
     PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(iv, 0, (void *)&indoms);
     PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mv, 0, (void *)&metrics);
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
     pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+    if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
+	/*
+	 * connect_pmcd() not called before, so need pmdaConnect()
+	 * here before falling into the PDU-driven pmdaMain() loop.
+	 */
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    fprintf(stderr, "pmda_dispatch connect to pmcd\n");
+	pmdaConnect(&dispatch);
+    }
+
     Py_DECREF(ibuf);
     Py_DECREF(mbuf);
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch connect to pmcd, entering PDU loop\n");
+        fprintf(stderr, "pmda_dispatch entering PDU loop\n");
 
-    pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
     Py_INCREF(Py_None);
     return Py_None;
@@ -941,6 +985,8 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
         .ml_flags = METH_VARARGS },
+    { .ml_name = "connect_pmcd", .ml_meth = (PyCFunction)connect_pmcd,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmns_refresh", .ml_meth = (PyCFunction)namespace_refresh,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmid_oneline_refresh",

@@ -180,6 +180,9 @@ class MetricDispatch(object):
     def pmns_refresh(self):
         cpmda.pmns_refresh(self._metric_names)
 
+    def connect_pmcd(self):
+	cpmda.connect_pmcd()
+
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
         if (pmid in self._metric_names):

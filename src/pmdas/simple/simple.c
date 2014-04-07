@@ -510,9 +510,9 @@ main(int argc, char **argv)
 	usage();
 
     pmdaOpenLog(&dispatch);
+    pmdaConnect(&dispatch);
     simple_init(&dispatch);
     simple_timenow_check();
-    pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
 
     exit(0);
