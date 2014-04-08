@@ -1,6 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the

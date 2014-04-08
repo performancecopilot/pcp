@@ -16,7 +16,7 @@ Warning: no version exchange with PMDA ./src/badpmda
 --- case 2 pmdaDaemon() + pmdaInet + pmdaConnect() ---
 pmdaDaemon: OK
 pmdaConnect: OK
-Connect to PMDA on inet port 543210
+Connect to PMDA on inet port MYPORT
 
 --- case 3 pmdaDaemon() + pmdaInet + pmdaConnect() + pmdaConnect() ---
 pmdaDaemon: OK
