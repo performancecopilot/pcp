@@ -159,7 +159,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    proc_cpuinfo->cpuinfo[cpunum].stepping = -1;
 	    proc_cpuinfo->cpuinfo[cpunum].flags = -1;
 	}
-    	started = 1;
+	started = 1;
     }
 
     if ((fp = fopen("/proc/cpuinfo", "r")) == (FILE *)NULL)
@@ -233,7 +233,10 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
 #endif
 
-    map_cpu_nodes(proc_cpuinfo);
+    if (started < 2) {
+	map_cpu_nodes(proc_cpuinfo);
+    	started = 2;
+    }
 
     /* success */
     return 0;
