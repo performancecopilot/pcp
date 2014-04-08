@@ -180,6 +180,20 @@ external files used by the PMDA.  I<domain> is an integer domain
 number for the PMDA, usually from the register of domain numbers
 found in B<$PCP_VAR_DIR/pmns/stdpmid>.
 
+=item $pmda->run()
+
+Once all local setup is complete (i.e. instance domains and metrics
+are registered, callbacks registered - as discussed below) the PMDA
+must connect to B<pmcd>(1) to complete its initialisation and begin
+answering client requests for its metrics.  This is the role performed
+by I<run>, and upon invoking it all interaction within the PMDA is
+done via callback routines (that is to say, under normal cicrumstances,
+the I<run> routine does not return).
+
+The behaviour of the I<run> method is different in the presence of
+either the PCP_PERL_PMNS or PCP_PERL_DOMAIN environment variables.
+These can be used to generate the namespace or domain number files,
+which are used as part of the PMDA installation process.
 
 =item $pmda->connect_pmcd()
 
@@ -201,16 +215,28 @@ I<indom>, which is an integer and unique across all instance domains
 for single PMDA.
 
 The instances of the instance domain are defined by I<insts> which
-is an associative array mapping from an internal instance identifier
-(a integer, unique across all instances in the instance domain) to
-an external instance name (a string, must by unique up to the first
-space, if any, across all instances in the instance domain).  For example:
+can be specified as either a list or a hash.
 
- [0 => 'red', 1 => 'green', 2 => 'blue']
+In list form, the contents of the list must provide consecutive pairs
+of identifier (a integer, unique across all instances in the instance
+domain) and external instance name (a string, must by unique up to the
+first space, if any, across all instances in the instance domain).
+For example:
 
-If not empty strings, I<help> and I<longhelp> are interpreted as
-filenames to the one-line help and expanded help text respecively.
+ @colours = [0 => 'red', 1 => 'green', 2 => 'blue'];
 
+In hash form, the external instance identifier (string) is used as the
+hash key.  An arbitrary value can be stored along with the key (this
+value is often used as a convenient place to hold the latest value for
+each metric instance, for example).
+
+ %timeslices = ('sec' => 42, 'min' => \&min_func, 'hour' => '0');
+
+The I<help> and I<longhelp> strings are interpreted as the one-line and
+expanded help text to be used for this instance domain.
+
+Refer also to the B<replace_indom> discussion below for further details
+about manipulating instance domains.
 
 =item $pmda->add_metric(pmid, type, indom, sem, units, name, help, longhelp)
 
@@ -221,100 +247,132 @@ The metric's metadata is defined by I<type>, I<indom>, I<sem> and
 I<units> and these parameters are used to set up the I<pmDesc>
 structure as described in B<pmLookupDesc>(3).
 
-=item $pmda->add_pipe(command, callback, data)
-
-TODO
-
-
-=item $pmda->add_sock(hostname, port, callback, data)
-
-TODO
-
-
-=item $pmda->add_tail(filename, callback, data)
-
-TODO
-
-
-=item $pmda->add_timer(timeout, callback, data)
-
-TODO
-
-
-=item $pmda->err(message)
-
-TODO
-
-
-=item $pmda->error(message)
-
-TODO
-
-
-=item $pmda->log(message)
-
-TODO
-
-
-=item $pmda->put_sock(id, output)
-
-TODO
-
+The I<help> and I<longhelp> strings are interpreted as the one-line
+and expanded help text to be used for the metric as further described
+in B<pmLookupText>(3).
 
 =item $pmda->replace_indom(index, insts)
 
-TODO
+Whenever an instance domain, previously registered using B<add_indom>,
+changes in any way, this change must be reflected by replacing the
+existing PMDA with a new mapping.
 
+The replacement mapping must be a hash if the indom identified by
+B<index> was registered initially as a hash, otherwise it must be
+a list.
+
+Refer to the earlier B<add_indom> discussion concerning these two
+different types of instance domains.
+
+=item $pmda->add_pipe(command, callback, data)
+
+Allow data to be injected into the PMDA using a B<pipe>(2).
+
+The given I<command> is run early in the life of the PMDA, and a pipe
+is formed between the PMDA and the I<command>.  Line-oriented output
+is assumed (else truncation will occur), and on receipt of each line
+of text on the pipe, the I<callback> function will be called.
+
+The optional I<data> parameter can be used to specify extra data to
+pass into the I<callback> routine.
+
+=item $pmda->add_sock(hostname, port, callback, data)
+
+Create a B<socket>(2) connection to the I<hostname>, I<port> pair.
+Whenever data arrives (as above, a line-oriented protocol is best)
+the I<callback> function will be called.
+
+The optional I<data> parameter can be used to specify extra data to
+pass into the I<callback> routine.
+
+An opaque integer-sized identifier for the socket will be returned,
+which can later be used in calls to B<put_sock> as discussed below.
+
+=item $pmda->put_sock(id, output)
+
+Write an I<output> string to the socket identified by I<id>, which
+must refer to a socket previously registered using B<add_sock>.
+
+=item $pmda->add_tail(filename, callback, data)
+
+Monitor the given I<filename> for the arrival of newly appended
+information.  Line-oriented input is assumed (else truncation
+will occur), and on receipt of each line of text on the pipe,
+the I<callback> function will be called.
+
+The optional I<data> parameter can be used to specify extra data to
+pass into the I<callback> routine.
+
+This interface deals with the issue of the file being renamed (such
+as on daily log file rotation), and will attempt to automatically
+re-route information from the new log file if this occurs.
+
+=item $pmda->add_timer(timeout, callback, data)
+
+Registers a timer with the PMDA, such that on expiry of a I<timeout>
+a I<callback> routine will be called.  This is a repeating timer.
+
+The optional I<data> parameter can be used to specify extra data to
+pass into the I<callback> routine.
+
+=item $pmda->err(message)
+
+Report a timestamped error message into the PMDA log file.
+
+=item $pmda->error(message)
+
+Report a timestamped error message into the PMDA log file.
+
+=item $pmda->log(message)
+
+Report a timestamped informational message into the PMDA log file.
 
 =item $pmda->set_fetch_callback(cb_function)
 
-TODO
-
+Register a callback function akin to B<pmdaSetFetchCallBack>(3).
 
 =item $pmda->set_fetch(function)
 
-TODO
-
-
-=item $pmda->set_inet_socket(port)
-
-TODO
-
+Register a fetch function, as used by B<pmdaInit>(3).
 
 =item $pmda->set_instance(function)
 
-TODO
-
-
-=item $pmda->set_ipv6_socket(port)
-
-TODO
-
+Register an instance function, as used by B<pmdaInit>(3).
 
 =item $pmda->set_refresh(function)
 
-TODO
-
+Register a refresh function, which will be called once per metric
+cluster, during the fetch operation.  Only clusters being requested
+during this fetch will be refreshed, allowing selective metric value
+updates within the PMDA.
 
 =item $pmda->set_store_callback(cb_function)
 
-TODO
+Register an store function, used indirectly by B<pmdaInit>(3).
+The I<cb_function> is called once for each metric/instance pair
+into which a B<pmStore>(3) is performed.
 
+=item $pmda->set_inet_socket(port)
+
+Specify the IPv4 socket I<port> to be used to communicate with B<pmcd>(3).
+
+=item $pmda->set_ipv6_socket(port)
+
+Specify the IPv6 socket I<port> to be used to communicate with B<pmcd>(3).
 
 =item $pmda->set_unix_socket(socket_name)
 
-TODO
-
+Specify the filesystem I<socket_name> path to be used for communication
+with B<pmcd>(3).
 
 =item $pmda->set_user(username)
 
-TODO
-
+Run the PMDA under the I<username> user account, instead of the
+default (root) user.
 
 =back
 
 =head1 HELPER METHODS
-
 
 =over
 
@@ -330,37 +388,48 @@ PMID.
 
 =item pmda_pmid_name(cluster, item)
 
-TODO
+Perform a reverse metric identifier to name lookup - given the metric
+I<cluster> and I<item> numbers, returns the metric name string.
 
 =item pmda_pmid_text(cluster, item)
 
-TODO
+Returns the one-line metric help text string - given the metric
+I<cluster> and I<item> numbers, returns the help text string.
 
 =item pmda_inst_name(index, instance)
 
-TODO
+Perform a reverse instance identifier to metric name lookup - given the
+internal I<instance> identifier, returns the instance name string.
 
 =item pmda_inst_lookup(index, instance)
 
-TODO
+Given an internal I<instance> identifier (key) from an indom hash,
+return the value associated with that key.
+The value can be any scalar value (this includes references, of course,
+so complex data structures can be referenced).
 
 =item pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
-TODO
+Construct a B<pmUnits> structure suitable for registering a metrics metadata.
 
 =item pmda_config(name)
 
-TODO
+Lookup the value for configuration variable I<name> from the /etc/pcp.conf file,
+using B<pmGetConfig>(3).
 
 =item pmda_uptime(now)
 
-TODO
+Return a human-readable uptime string, based on I<now> seconds since the epoch.
 
 =item pmda_long()
 
-TODO
+Return either PM_TYPE_32 or PM_TYPE_64 depending on the platform size for a
+signed long integer.
 
 =item pmda_ulong()
+
+Return either PM_TYPE_U32 or PM_TYPE_U64 depending on the platform size for an
+unsigned long integer.
 
 =back
 
@@ -376,19 +445,20 @@ B<PM_TYPE_NOSUPPORT>.
 
 =head1 SEE ALSO
 
-perl(1) and pcpintro(3).
+perl(1) and PCPIntro(1).
 
 The PCP mailing list pcp@oss.sgi.com can be used for questions about
 this module.
 
-Further details can be found at http://oss.sgi.com/projects/pcp
+Further details can be found at http://www.performancecopilot.org/
 
 =head1 AUTHOR
 
-Nathan Scott, E<lt>nathans@debian.orgE<gt>
+The Performance Co-Pilot development team.
 
-Copyright (C) 2008-2010 by Aconex.
-Copyright (C) 2004 by Silicon Graphics, Inc.
+Copyright (C) 2014 Red Hat.
+Copyright (C) 2008-2010 Aconex.
+Copyright (C) 2004 Silicon Graphics, Inc.
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2 (see
