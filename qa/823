@@ -10,8 +10,7 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
-authentication=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 $authentication || _notrun "No authentication support available"
 for helper in pluginviewer saslpasswd2 sasldblistusers2; do
     which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"

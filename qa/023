@@ -13,8 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 rm -f $seq.out
 if [ "$ipv6" = "true" ]; then
     ln $seq.out.2 $seq.out || exit 1

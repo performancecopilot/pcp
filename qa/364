@@ -14,8 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 # see if unix domain sockets are available (permissions)
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 

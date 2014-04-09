@@ -1646,3 +1646,10 @@ _get_primary_logger_pid()
     done
     echo $_pid
 }
+
+_get_libpcp_config()
+{
+    pmconfig -L -s > $tmp.config
+    source $tmp.config
+    rm $tmp.config
+}

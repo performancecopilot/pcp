@@ -16,26 +16,43 @@
 #include "pmapi.h"
 #include "impl.h"
 
-void
-env_formatter(char *var, char *prefix, char *val)
-{
-    char *v;
+static int apiflag;
+static const char *empty = "";
+static const char *none = "false";
 
-    __pmNativeConfig(var, prefix, val);
-    v = getenv(var);
-    if (!v || v[0] == '\0')
-	printf("%s=\n", var);
-    else
-	printf("%s=%s\n", var, v);
-}
-
-void
-api_formatter(const char *var, const char *val)
+static void
+direct_report(const char *var, const char *val)
 {
     if (!val || val[0] == '\0')
-	printf("%s=false\n", var);
+	val = empty;
+    printf("%s=%s\n", var, val);
+}
+
+static void
+export_report(const char *var, const char *val)
+{
+    if (!val || val[0] == '\0')
+        val = empty;
+    if (apiflag)	/* API mode: no override allowed */
+	printf("export %s=\"%s\"\n", var, val);
     else
-	printf("%s=%s\n", var, val);
+	printf("export %s=${%s:-\"%s\"}\n", var, var, val);
+}
+
+static void
+pcp_conf_extract(char *var, char *prefix, char *val)
+{
+    __pmNativeConfig(var, prefix, val);
+    val = getenv(var);
+    direct_report(var, val);
+}
+
+static void
+pcp_conf_shell_extract(char *var, char *prefix, char *val)
+{
+    __pmNativeConfig(var, prefix, val);
+    val = getenv(var);
+    export_report(var, val);
 }
 
 static pmLongOptions longopts[] = {
@@ -59,7 +76,6 @@ main(int argc, char **argv)
 {
     int		c;
     int		sflag = 0;
-    int		Lflag = 0;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
         switch (c) {
@@ -71,7 +87,7 @@ main(int argc, char **argv)
 	    sflag = 1;
 	    break;
 	case 'L':
-	    Lflag = 1;
+	    apiflag = 1;
 	    break;
 	default:
 	    opts.errors++;
@@ -84,31 +100,35 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (opts.optind >= argc) {
-	if (sflag)
-	    putenv("SHELL=/bin/sh");
-	if (Lflag)
-	    __pmAPIConfig(api_formatter);
-	else
-	    __pmConfig(env_formatter);
-    }
-    else if (sflag) {
+    if (sflag) {
 	putenv("SHELL=/bin/sh");
-	if (Lflag)
+	empty = none;
+    }
+
+    /* the complete list of variables is to be reported */
+    if (opts.optind >= argc) {
+	if (apiflag)
+	    __pmAPIConfig(sflag ? export_report : direct_report);
+	else
+	    __pmConfig(sflag ? pcp_conf_shell_extract : pcp_conf_extract);
+	exit(0);
+    }
+
+    /* an explicit list of variables has been requested */
+    if (sflag) {
+	if (apiflag)
 	    for (c = opts.optind; c < argc; c++)
-		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
-			__pmGetAPIConfig(argv[c]));
+		export_report(argv[c], __pmGetAPIConfig(argv[c]));
 	else
 	    for (c = opts.optind; c < argc; c++)
-		printf("export %s=${%s:-\"%s\"}\n", argv[c], argv[c],
-			pmGetConfig(argv[c]));
+		export_report(argv[c], pmGetConfig(argv[c]));
+    } else {
+	if (apiflag)
+	    for (c = opts.optind; c < argc; c++)
+		direct_report(argv[c], __pmGetAPIConfig(argv[c]));
+	else
+	    for (c = opts.optind; c < argc; c++)
+		direct_report(argv[c], pmGetConfig(argv[c]));
     }
-    else if (Lflag)
-	for (c = opts.optind; c < argc; c++)
-	    printf("%s=%s\n", argv[c], __pmGetAPIConfig(argv[c]));
-    else
-	for (c = opts.optind; c < argc; c++)
-	    printf("%s=%s\n", argv[c], pmGetConfig(argv[c]));
-   
     exit(0);
 }

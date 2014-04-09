@@ -2,11 +2,12 @@
 # PCP QA Test No. 022
 # proc PMDA exerciser
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard filters
 . ./common.product
@@ -16,26 +17,13 @@ seq=`basename $0`
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
 # see if unix domain sockets are available (permissions)
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3805 -a -f $seq.$PCP_PLATFORM.4 ]
-then
-    ln $seq.$PCP_PLATFORM.4 $seq.out
-elif [ $PCP_VER -ge 3801 -a -f $seq.$PCP_PLATFORM.3 ]
-then
-    ln $seq.$PCP_PLATFORM.3 $seq.out
-elif [ $PCP_VER -ge 2704 -a -f $seq.$PCP_PLATFORM.2 ]
-then
-    ln $seq.$PCP_PLATFORM.2 $seq.out
-else
-    echo "Warning: no validated output for $PCP_PLATFORM"
-fi
-
-echo "QA output created by $seq"
+test -f $seq.out.$PCP_PLATFORM || _notrun "No validated output for $PCP_PLATFORM"
+ln $seq.out.$PCP_PLATFORM $seq.out
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
