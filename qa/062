@@ -15,13 +15,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`
 rm -f $seq.out
+_get_libpcp_config
 if [ "$ipv6" = "true" ]; then
-    ln $seq.out.2 $seq.out || exit 1
+    ln $seq.out.ipv6 $seq.out || exit 1
 else
-    ln $seq.out.1 $seq.out || exit 1
+    ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
 src/fixhosts

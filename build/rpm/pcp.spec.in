@@ -3,7 +3,7 @@ Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
 License: GPLv2+ and LGPLv2.1+
-URL: http://oss.sgi.com/projects/pcp
+URL: http://www.performancecopilot.org
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
@@ -91,7 +91,7 @@ applications to easily retrieve and process any subset of that data.
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time configuration
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 # http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
 Conflicts: pcp-libs < 3.9
@@ -106,7 +106,7 @@ Performance Co-Pilot (PCP) run-time configuration
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
@@ -121,7 +121,7 @@ Performance Co-Pilot (PCP) run-time libraries
 License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 Requires: pcp-libs = @package_version@
 
@@ -135,7 +135,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
@@ -153,7 +153,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
@@ -179,7 +179,7 @@ and as a result may not be suited to all production environments.
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
@@ -197,7 +197,7 @@ HTTP (PMWEBAPI) protocol.
 License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs = @package_version@
 
 %description -n perl-PCP-PMDA
@@ -214,7 +214,7 @@ an application, etc.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-MMV
@@ -232,7 +232,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-LogImport
@@ -247,7 +247,7 @@ they can be replayed with standard PCP monitoring tools.
 License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-LogSummary
@@ -265,7 +265,7 @@ exporting this data into third-party tools (e.g. spreadsheets).
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
 
 %description import-sar2pcp
@@ -279,7 +279,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
 
 %description import-iostat2pcp
@@ -293,7 +293,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-sheet2pcp
@@ -307,7 +307,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-mrtg2pcp
@@ -321,7 +321,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs >= %{version}-%{release}
 
 %description import-collectl2pcp
@@ -335,7 +335,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs = @package_version@
 
 %description -n python-pcp
@@ -350,7 +350,7 @@ building Performance Metric API (PMAPI) tools using Python.
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
-URL: http://oss.sgi.com/projects/pcp/
+URL: http://www.performancecopilot.org
 Requires: pcp-libs = @package_version@
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7

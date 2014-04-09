@@ -23,15 +23,12 @@ eval `./getpmcdhosts -L -n2 | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
-
 rm -f $seq.out
-if $ipv6
-then
+_get_libpcp_config
+if $ipv6 ; then
     ln $seq.out.ipv6 $seq.out || exit 1
 else
-    ln $seq.out.ipv4 $seq.out || exit 1
+    ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
 # real QA test starts here

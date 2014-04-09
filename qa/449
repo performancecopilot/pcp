@@ -13,20 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-multi_threaded=false
-eval `pmconfig -L 2>/dev/null`
-[ "$multi_threaded" = "true" ] || _notrun "No libpcp threading support"
-
-rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3800 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
 
 status=0	# success is the default!
-$sudo rm -rf $tmp.*
+$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter1()

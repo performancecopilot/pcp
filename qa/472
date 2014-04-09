@@ -13,9 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-multi_threaded=false
-eval `pmconfig -L 2>/dev/null`
-[ "$multi_threaded" = "true" ] || _notrun "No libpcp threading support"
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
 
 status=0	# success is the default!
 $sudo rm -f $tmp.* /tmp/func?.out  $seq.full

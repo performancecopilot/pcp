@@ -24,8 +24,7 @@ hostname=`hostname | sed -e 's/\..*//'`
 
 nss_notrun_checks()
 {
-    [ $PCP_VER -ge 3611 ] || _notrun "Installed pcp is too old"
-    eval `pmconfig -L`
+    _get_libpcp_config
     [ "$secure_sockets" = "true" ] || _notrun "Secure sockets not supported"
     which certutil >/dev/null 2>&1 || _notrun "certutil not installed (NSS tools)"
     [ -c /dev/urandom ] || _notrun "No random number generator special file found"

@@ -2687,8 +2687,7 @@ then
     echo
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or, if that fails, add it to config.guess and
-	     send a copy to pcp@oss.sgi.com.'
+             using --target or ask pcp@mail.performancecopilot.org'
     rm -rf conftest conftest.*
     exit 1
 else
@@ -11357,8 +11356,7 @@ rm -f conftest*
 fi
 if test $have_stat_type = false
 then
-    echo 'FATAL ERROR: Cannot determine stuct stat time types.'
-    echo 'Please send a copy of sys/stat.h to pcp@oss.sgi.com.'
+    echo 'FATAL ERROR: Cannot determine struct stat time types.'
     rm -rf conftest conftest.*
     exit 1
 fi

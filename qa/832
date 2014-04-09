@@ -13,8 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
 for helper in pluginviewer; do
