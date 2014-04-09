@@ -61,7 +61,7 @@ echo
 echo "=== non-pcp archives and output files already exist ==="
 cp $here/src/foo.* .
 touch foo.frog
-pmlogmv -v foo bar >$tmp.out 2>&1
+pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -72,7 +72,7 @@ for i in 0 index meta
 do
     echo "--- bar.$i already exists ---"
     cp $here/src/bar.$i .
-    pmlogmv -v foo bar >$tmp.out 2>&1
+    pmlogmv -V foo bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
@@ -84,11 +84,11 @@ rm -f foo.* bar.*
 echo
 echo "=== simplest case ==="
 cp $here/src/foo.* .
-pmlogmv -nv foo bar >$tmp.out 2>&1
+pmlogmv -NV foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-pmlogmv -v foo bar >$tmp.out 2>&1
+pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -111,7 +111,7 @@ for ext in meta 0 index
 do
     echo "--- foo.$ext ---"
     cp $here/src/foo.* .
-    pmlogmv -v foo.$ext bar >$tmp.out 2>&1
+    pmlogmv -V foo.$ext bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
@@ -133,7 +133,7 @@ echo
 echo "=== multi-volume case ==="
 cp $here/src/mv-foo.* .
 cp mv-foo.2 mv-foo.123456789
-pmlogmv -v mv-foo bar >$tmp.out 2>&1
+pmlogmv -V mv-foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -156,7 +156,7 @@ echo
 echo "=== old and new in different directories =="
 mkdir new
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -178,7 +178,7 @@ echo "=== error case for ln failing ==="
 mkdir new
 chmod u-w,g-w,o-w new
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -190,7 +190,7 @@ echo "=== error case for rm failing ==="
 mkdir new
 chmod u-w,g-w,o-w .
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -202,7 +202,7 @@ echo
 echo "=== Frank's error case rm failing after first file ==="
 cp $here/src/mv-foo.* .
 ln mv-foo.2 mv-foo.3
-pmlogmv -v mv-foo mv-bar >$tmp.out 2>&1
+pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
