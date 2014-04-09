@@ -46,6 +46,23 @@ Performance Co-Pilot (see
 .BR PCPintro (1))
 archive log files.
 .PP
+The
+.B \-V
+option that is common to all the scipts will enable verbose tracing and
+reporting.
+By default the scripts generate no output unless some error or warning condition is
+encountered.
+.PP
+The common
+.B \-N
+option enables a ``show me'' mode, where the actions are echoed,
+but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
 soon after midnight as practicable.  Its task is to aggregate and rotate
@@ -61,15 +78,16 @@ to keep no archives beyond the current one, and
 .B forever
 to prevent any archives being discarded.
 .PP
-Archive data files can optionally be compressed after some period (\c
-.IR compress ),
+Archive data files can optionally be compressed after some period
 to conserve disk space.  This is particularly useful for large numbers of
 .B pmlogger
 processes under the control of
 .BR pmlogger_check .
+By default no compression is done.
 The
 .B \-x
-option specifies the number of days after which to compress archive data
+option enables compression and
+specifies the number of days after which to compress archive data
 files, and the
 .B \-X
 option specifies the program to use for compression \- by default this is
@@ -85,6 +103,91 @@ is ".meta$|.index$|.Z$|.gz$|.bz2|.zip$" \- such files are filtered using the
 .B \-v
 option to
 .BR egrep (1).
+.PP
+To accommodate the evolution of PMDAs and changes in production
+logging environments,
+.B pmlogger_daily
+is integrated with
+.BR pmlogrewrite (1)
+to allow optional and automatic rewriting of archives before merging.
+If there are global rewriting rules to be applied across all archives
+mentioned in the control file, then create the directory
+.B $PCP_SYSCONF_DIR/pmlogrewrite
+and place any
+.BR pmlogrewrite (1)
+rewriting rules in this directory.
+For rewriting rules that are specific to only one family of archives,
+use the directory name from the control file (the
+.I fourth
+field) and create a file, or a directory, or a symbolic link named
+.B pmlogrewrite
+within this directory
+and place the required rewriting rule(s) in the
+.B pmlogrewrite
+file or in files
+within the
+.B pmlogrewrite
+subdirectory.
+.B pmlogger_daily
+will choose rewriting rules from the archive directory if they
+exist, else rewriting rules from
+.B $PCP_SYSCONF_DIR/pmlogrewrite
+if that directory exists, else no rewriting is attempted.
+.PP
+The
+.B \-r
+command line option acts as an over-ride and
+prevents all archive rewriting with
+.BR pmlogrewrite (1)
+independent of the presence of any rewriting rule files or directories.
+.PP
+By default all possible archives will be merged.  The
+.B \-o
+option reinstates the old behaviour in which only yesterday's archives
+will be considered as merge candidates.
+.PP
+In the special case where only a single input archive
+needs to be merged,
+.BR pmlogmv (1)
+is used to rename the archive, rather than copy the input archive
+using
+.BR pmlogger_merge .
+.PP
+The
+.B \-M
+option may be used to disable archive merging (or renaming) and rewriting
+(\c
+.B \-M
+implies
+.BR \-r ).
+This is most useful in cases where the archives are being incrementally
+copied to a remote repository, e.g. using
+.BR rsync (1).
+Merging, renaming and rewriting all risk an increase in the synchronization
+load, especially immediately after
+.B pmlogger_daily
+has run, so
+.B \-M
+may be useful in these cases.
+.PP
+To assist with debugging or diagnosing intermittent failures the
+.B \-t
+option may be used.  This will turn on very verbose tracing (\c
+.BR \-VV )
+and capture the trace output in a file named
+.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
+where
+.I datestamp
+is the time
+.B pmlogger_daily
+was run in the format YYYYMMDD.HH.MM.
+In addition, the
+.I want
+argument will ensure that trace files created with
+.B \-t
+will be kept for
+.I want
+days and then discarded.
 .PP
 In addition, if the
 PCP ``notices'' file (\c
@@ -112,6 +215,11 @@ This daily summary is stored in the file
 which will be empty when no new ``notices'' entries were made in the previous
 24 hour period.
 .PP
+The script
+.B $PCP_BINADM_DIR/pmlogger_daily
+could be copied and modified to implement a site-specific procedure for
+end-of-week and/or end-of-month management for a set of PCP archives.
+.PP
 .B pmlogger_check
 may be run at any time, and is intended to check that the desired set
 of
@@ -128,9 +236,19 @@ option queries the system service runlevel information for
 .BR pmlogger ,
 and uses that to determine whether to start or stop processes.
 .PP
+The
+.B \-T
+option provides a terser form of output for
+.B pmlogger_check
+that is most suitable for a
+.I pmlogger
+\&``farm'' where many instances of
+.I pmlogger
+are expected to be running.
+.PP
 .B pmlogger_merge
 is a wrapper script for
-.BR pmlogmerge (1)
+.BR pmlogextract (1)
 that merges all of the archive logs matching the
 .I input-basename
 arguments, and creates a new archive using 
@@ -148,30 +266,7 @@ archive has been created.
 .PP
 .B pmlogger_merge
 is used by
-.BR pmlogger_daily ,
-although in the special case of only a single input archive
-needing to be merged,
-.BR pmlogmv (1)
-is used instead to rename, rather than copy the input archive.
-.PP
-To assist with debugging or diagnosing intermittent failures the
-.B \-t
-option may be used.  This will turn on very verbose tracing (\c
-.BR \-VV )
-and capture the trace output in a file named
-.BI $PCP_LOG_DIR/pmlogger/daily. datestamp .trace,
-where
-.I datestamp
-is the time
-.B pmlogger_daily
-was run in the format YYYYMMDD.HH.MM.
-In addition, the
-.I want
-argument will ensure that trace files created with
-.B \-t
-will be kept for
-.I want
-days and then discarded.
+.BR pmlogger_daily .
 .PP
 Both
 .B pmlogger_daily
@@ -355,77 +450,8 @@ The output from the
 .BR cron (1)
 execution of the scripts may be extended using the
 .B \-V
-option to the scripts which will enable verbose tracing of their activity.
-By default the scripts generate no output unless some error or warning condition is
-encountered.
-.PP
-The
-.B \-N
-option enables a ``show me'' mode, where the actions are echoed,
-but not executed, in the style of ``make \-n''.
-Using
-.B \-N
-in conjunction with
-.B \-V
-maximizes the diagnostic capabilities for debugging.
-.PP
-By default all possible archives will be merged.  The
-.B \-o
-option reinstates the old behaviour in which only yesterday's archives
-will be considered as merge candidates.
-.PP
-The
-.B \-T
-option provides a terser form of output for
-.B pmlogger_check
-that is most suitable for a
-.I pmlogger
-\&``farm'' where many instances of
-.I pmlogger
-are expected to be running.
-.PP
-To accommodate the evolution of PMDAs and changes in production
-logging environments,
-.B pmlogger_daily
-is integrated with
-.BR pmlogrewrite (1)
-to allow optional and automatic rewriting of archives before merging.
-If there are global rewriting rules to be applied across all archives
-mentioned in the control file, then create the directory
-.B $PCP_SYSCONF_DIR/pmlogrewrite
-and place any
-.BR pmlogrewrite (1)
-rewriting rules in this directory.
-For rewriting rules that are specific to only one family of archives,
-use the directory name from the control file (the
-.I fourth
-field) and create a file, or a directory, or a symbolic link named
-.B pmlogrewrite
-within this directory
-and place the required rewriting rule(s) in the
-.B pmlogrewrite
-file or in files
-within the
-.B pmlogrewrite
-subdirectory.
-.B pmlogger_daily
-will choose rewriting rules from the archive directory if they
-exist, else rewriting rules from
-.B $PCP_SYSCONF_DIR/pmlogrewrite
-if that directory exists, else no rewriting is attempted.
-.PP
-The
-.B \-r
-command line option acts as an over-ride and
-prevents all archive rewriting with
-.BR pmlogrewrite (1)
-independent of the presence of any rewriting rule files or directories.
+option.
 
-.PP
-The script
-.B $PCP_BINADM_DIR/pmlogger_daily
-could be copied and modified to implement a site-specific procedure for
-end-of-week and/or end-of-month management for a set of PCP archives.
 .SH FILES
 .TP 10
 .B $PCP_PMLOGGERCONTROL_PATH
@@ -493,7 +519,8 @@ as described in
 .BR pmlc (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
-.BR pmlogmerge (1),
+.BR pmlogextract (1),
+.BR pmlogmv (1),
 .BR pmlogrewrite (1),
 .BR pmnewlog (1)
 and
