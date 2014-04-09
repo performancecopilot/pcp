@@ -747,19 +747,44 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 			pmdumplog -L $arch
 		    done
 		fi
-		if $SHOWME
+		narch=`echo $inlist | wc -w | sed -e 's/ //g'`
+		if [ "$narch" = 1 ]
 		then
-		    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
-		else
-		    if pmlogger_merge$MYARGS -f $inlist $outfile
+		    # optimization ... rename don't merge for one input
+		    # archive case
+		    #
+		    if $SHOWME
 		    then
-			if $VERY_VERBOSE
-			then
-			    echo "Merged output archive $outfile ..."
-			    pmdumplog -L $outfile
-			fi
+			echo "+ pmlogmv$MYARGS $inlist $outfile"
 		    else
-			_error "problems executing pmlogger_merge for host \"$host\""
+			if pmlogmv$MYARGS $inlist $outfile
+			then
+			    if $VERY_VERBOSE
+			    then
+				echo "Renamed output archive $outfile ..."
+				pmdumplog -L $outfile
+			    fi
+			else
+			    _error "problems executing pmlogmv for host \"$host\""
+			fi
+		    fi
+		else
+		    # more than one input archive, merge away
+		    #
+		    if $SHOWME
+		    then
+			echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
+		    else
+			if pmlogger_merge$MYARGS -f $inlist $outfile
+			then
+			    if $VERY_VERBOSE
+			    then
+				echo "Merged output archive $outfile ..."
+				pmdumplog -L $outfile
+			    fi
+			else
+			    _error "problems executing pmlogger_merge for host \"$host\""
+			fi
 		    fi
 		fi
 	    fi

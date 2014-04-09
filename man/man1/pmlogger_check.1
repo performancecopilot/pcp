@@ -148,7 +148,11 @@ archive has been created.
 .PP
 .B pmlogger_merge
 is used by
-.BR pmlogger_daily .
+.BR pmlogger_daily ,
+although in the special case of only a single input archive
+needing to be merged,
+.BR pmlogmv (1)
+is used instead to rename, rather than copy the input archive.
 .PP
 To assist with debugging or diagnosing intermittent failures the
 .B \-t
