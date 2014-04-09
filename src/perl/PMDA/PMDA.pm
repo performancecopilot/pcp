@@ -191,7 +191,7 @@ done via callback routines (that is to say, under normal cicrumstances,
 the I<run> routine does not return).
 
 The behaviour of the I<run> method is different in the presence of
-either the PCP_PERL_PMNS or PCP_PERL_DOMAIN environment variables.
+either the B<PCP_PERL_PMNS> or B<PCP_PERL_DOMAIN> environment variables.
 These can be used to generate the namespace or domain number files,
 which are used as part of the PMDA installation process.
 
@@ -233,9 +233,10 @@ each metric instance, for example).
  %timeslices = ('sec' => 42, 'min' => \&min_func, 'hour' => '0');
 
 The I<help> and I<longhelp> strings are interpreted as the one-line and
-expanded help text to be used for this instance domain.
+expanded help text to be used for this instance domain as further
+described in B<pmLookupInDomText>(3).
 
-Refer also to the B<replace_indom> discussion below for further details
+Refer also to the B<replace_indom>() discussion below for further details
 about manipulating instance domains.
 
 =item $pmda->add_metric(pmid, type, indom, sem, units, name, help, longhelp)
@@ -253,16 +254,17 @@ in B<pmLookupText>(3).
 
 =item $pmda->replace_indom(index, insts)
 
-Whenever an instance domain, previously registered using B<add_indom>,
+Whenever an instance domain identified by I<index>,
+previously registered using B<add_indom>(),
 changes in any way, this change must be reflected by replacing the
-existing PMDA with a new mapping.
+existing mapping with a new one (I<insts>).
 
-The replacement mapping must be a hash if the indom identified by
-B<index> was registered initially as a hash, otherwise it must be
+The replacement mapping must be a hash if the instance domain 
+was registered initially with B<add_indom>() as a hash, otherwise it must be
 a list.
 
-Refer to the earlier B<add_indom> discussion concerning these two
-different types of instance domains.
+Refer to the earlier B<add_indom>() discussion concerning these two
+different types of instance domains definitions.
 
 =item $pmda->add_pipe(command, callback, data)
 
@@ -286,12 +288,12 @@ The optional I<data> parameter can be used to specify extra data to
 pass into the I<callback> routine.
 
 An opaque integer-sized identifier for the socket will be returned,
-which can later be used in calls to B<put_sock> as discussed below.
+which can later be used in calls to B<put_sock>() as discussed below.
 
 =item $pmda->put_sock(id, output)
 
 Write an I<output> string to the socket identified by I<id>, which
-must refer to a socket previously registered using B<add_sock>.
+must refer to a socket previously registered using B<add_sock>().
 
 =item $pmda->add_tail(filename, callback, data)
 
@@ -354,16 +356,16 @@ into which a B<pmStore>(3) is performed.
 
 =item $pmda->set_inet_socket(port)
 
-Specify the IPv4 socket I<port> to be used to communicate with B<pmcd>(3).
+Specify the IPv4 socket I<port> to be used to communicate with B<pmcd>(1).
 
 =item $pmda->set_ipv6_socket(port)
 
-Specify the IPv6 socket I<port> to be used to communicate with B<pmcd>(3).
+Specify the IPv6 socket I<port> to be used to communicate with B<pmcd>(1).
 
 =item $pmda->set_unix_socket(socket_name)
 
 Specify the filesystem I<socket_name> path to be used for communication
-with B<pmcd>(3).
+with B<pmcd>(1).
 
 =item $pmda->set_user(username)
 
@@ -398,23 +400,28 @@ I<cluster> and I<item> numbers, returns the help text string.
 
 =item pmda_inst_name(index, instance)
 
-Perform a reverse instance identifier to metric name lookup - given the
-internal I<instance> identifier, returns the instance name string.
+Perform a reverse instance identifier to instance name lookup
+for the instance domain identified by I<index>.
+Given the
+internal I<instance> identifier, returns the external instance name string.
 
 =item pmda_inst_lookup(index, instance)
 
-Given an internal I<instance> identifier (key) from an indom hash,
+Given an internal I<instance> identifier (key) for the
+instance domain identified by I<index> with an associated indom hash,
 return the value associated with that key.
 The value can be any scalar value (this includes references, of course,
 so complex data structures can be referenced).
 
 =item pmda_units(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count)
 
-Construct a B<pmUnits> structure suitable for registering a metrics metadata.
+Construct a B<pmUnits> structure suitable for registering a metrics metadata
+via B<add_metric>().
 
 =item pmda_config(name)
 
-Lookup the value for configuration variable I<name> from the /etc/pcp.conf file,
+Lookup the value for configuration variable I<name> from the
+I</etc/pcp.conf> file,
 using B<pmGetConfig>(3).
 
 =item pmda_uptime(now)
@@ -442,6 +449,27 @@ specified as one of
 B<PM_TYPE_32>, B<PM_TYPE_U32>, B<PM_TYPE_64>, B<PM_TYPE_U64>,
 B<PM_TYPE_FLOAT>, B<PM_TYPE_DOUBLE>, B<PM_TYPE_STRING> or
 B<PM_TYPE_NOSUPPORT>.
+
+=head1 DEBUGGING
+
+Perl PMDAs do not follow the B<-D> convention of other PCP applications
+for enabling run-time diagnostics and tracing.  Rather the environment
+variable B<PCP_PERL_DEBUG> needs to be set to a string value matching
+the syntax accepted for the option value for B<-D> elsewhere, see
+B<__pmParseDebug>(3).
+
+This requires a little trickery.  The B<pmcd>(1) configuration file
+(B<PCP_PMCDCONF_PATH> from I</etc/pcp.conf>) needs hand editing.
+This is best demonstrated by example.
+
+Replace this line
+
+ foo  242  pipe  binary  python  /somepath/foo.py
+
+with
+
+ foo  242  pipe  binary  python  \
+     sh -c "PCP_PERL_DEBUG=pdu,fetch /usr/bin/python /somepath/foo.py"
 
 =head1 SEE ALSO
 
