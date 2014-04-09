@@ -406,7 +406,7 @@ pcp-3.7.0 (11 March 2013)
       APIs, in particular making proper use of getaddrinfo now.
     - Initial version of the NetBSD port
     - Secure connections are now available as described here:
-      oss.sgi.com/projects/pcp/pcp-gui.git/man/html/lab.secure.html
+      performancecopilot.org/pcp-gui.git/man/html/lab.secure.html
     - Added a PCP_USER setting for globally changing the default
       unprivileged user account used by PCP daemons.
     - Resolved Debian packaging issues from previous release to

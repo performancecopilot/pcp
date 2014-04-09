@@ -2,10 +2,8 @@ We welcome your contributions to the Performance Co-Pilot project!
 
 Our preferred method of exchanging code, documentation, tests and new
 ideas is via git.  To participate, create a cloned git tree using a
-public git hosting service (e.g. github) or an account can be created
-for you on oss.sgi.com or sourceware.org if you commit regularly.
-Whenever you're ready, send mail to the list with details of the code
-and its location.
+public git hosting service (e.g. github) and send mail to the list
+with a description of the code and its location.
 
 Patches are fine too - send 'em through to the list at any time - even
 just ideas, pseudo-code, etc - we've found it is often a good idea to
