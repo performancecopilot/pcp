@@ -19,7 +19,6 @@
 #include "impl.h"
 
 #include <sys/stat.h>
-#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -653,6 +652,11 @@ void pmmgr_daemon::poll()
             timestamp(cout) << "daemon pid " << pid << " found dead" << endl;
           pid = 0;
           // we will try again immediately
+          sleep (1);
+          // .. but but quite immediately; if a pmmgr daemon in
+          // granular mode shut down one second before the end of its
+          // period, the restarted form shouldn't be started in that
+          // exact same second.
         }
     }
 
@@ -813,7 +817,14 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           __pmtimevalNow (&now_tv);
           time_t period_s = period_tv.tv_sec;
           if (period_s < 1) period_s = 1; // at least one second
-          time_t period_end = ((now_tv.tv_sec + period_s - 1) / period_s) * period_s;
+          time_t period_end = ((now_tv.tv_sec + 1 + period_s) / period_s) * period_s - 1;
+
+          // Assert calculation sanity: we want to avoid the case
+          // where a daemon launches for 0 seconds.  This should already
+          // be prevented by the "+ 1" above.
+          if (period_end == now_tv.tv_sec)
+            period_end ++;
+
           period = string(" @") +
             string(ctime(& period_end)).substr(0,24); // 24: ctime(3) magic value, sans \n
         }
@@ -833,8 +844,10 @@ pmmgr_pmlogger_daemon::daemon_command_line()
           __pmtimevalNow (&now_tv);
           time_t period_s = period_tv.tv_sec;
           if (period_s < 1) period_s = 1; // at least one second
-          time_t prior_period_start = ((now_tv.tv_sec - period_s) / period_s) * period_s;
-          time_t prior_period_end = prior_period_start + period_s;
+          time_t prior_period_start = ((now_tv.tv_sec + 1 - period_s) / period_s) * period_s;
+          time_t prior_period_end = prior_period_start + period_s - 1; 
+          // schedule end -before- the period boundary, so that the
+          // last recorded metric timestamp is strictly before the end
 
           for (unsigned i=0; i<the_blob.gl_pathc; i++)
             {
