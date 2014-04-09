@@ -1622,6 +1622,15 @@ class pmContext(object):
                                         byref(outAtom), outtype)
         if status < 0:
             raise pmErr, status
+
+        if outtype == c_api.PM_TYPE_STRING:
+            # Get address of C string
+            c_str = outAtom.vp
+            # Convert to a python string and have result point to it
+            python_char_array = ctypes.string_at(c_str)
+            outAtom.cp = cast(python_char_array, c_char_p)
+            # Free the C string
+            LIBC.free(c_str)
         return outAtom
 
     @staticmethod
