@@ -449,6 +449,14 @@ LIBPCP.pmTraversePMNS.argtypes = [c_char_p, traverseCB_type]
 LIBPCP.pmUnloadNameSpace.restype = c_int
 LIBPCP.pmUnloadNameSpace.argtypes = []
 
+LIBPCP.pmRegisterDerived.restype = c_int
+LIBPCP.pmRegisterDerived.argtypes = [c_char_p, c_char_p]
+
+LIBPCP.pmLoadDerivedConfig.restype = c_int
+LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
+
+LIBPCP.pmDerivedErrStr.restype = c_char_p
+LIBPCP.pmDerivedErrStr.argtypes = []
 
 ##
 # PMAPI Metrics Description Services
@@ -1123,6 +1131,37 @@ class pmContext(object):
         status = LIBPCP.pmUnloadNameSpace()
         if status < 0:
             raise pmErr, status
+
+    def pmRegisterDerived(self, name, expr):
+        """PMAPI - Register a derived metric name and definition
+        pm.pmRegisterDerived("MetricName", "MetricName Expression")
+        """
+        status = LIBPCP.pmRegisterDerived(name, expr)
+        if status != 0:
+            raise pmErr, status
+        status = LIBPCP.pmReconnectContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+        
+    def pmLoadDerivedConfig(self, f):
+        """PMAPI - Register derived metric names and definitions from a file
+        pm.pmLoadDerivedConfig("FileName")
+        """
+        status = LIBPCP.pmLoadDerivedConfig(f)
+        if status < 0:
+            raise pmErr, status
+        status = LIBPCP.pmReconnectContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+
+    def pmDerivedErrStr(self):
+        """PMAPI - Return an error message if the pmRegisterDerived metric
+        definition cannot be parsed
+        pm.pmRegisterDerived()
+        """
+        errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
+        errstr = LIBPCP.pmDerivedErrStr()
+        return str(errstr)
 
     ##
     # PMAPI Metrics Description Services
