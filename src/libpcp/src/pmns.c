@@ -1733,10 +1733,18 @@ stitch_list(int *num, char ***offspring, int **statuslist, int x_num, char **x_o
     char	*q;
     size_t	need;
 
-    if (*num > 0)
+    if (x_num == 0) {
+	/* nothing to do */
+	return;
+    }
+    if (*num > 0) {
+	/* appending */
 	n_num = *num + x_num;
-    else
+    }
+    else {
+	/* initializing */
 	n_num = x_num;
+    }
 
     for (i = 0; i < x_num; i++) {
 	for (j = 0; j < *num; j++) {
@@ -1896,7 +1904,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 					dp->dispatch.version.four.ext);
 			    if (x_num < 0)
 				num = x_num;
-			    else
+			    else if (x_num > 0)
 				stitch_list(&num, offspring, statuslist,
 					    x_num, x_offspring, x_statuslist);
 			    free(xname);
@@ -1947,7 +1955,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 					dp->dispatch.version.four.ext);
 			if (x_num < 0)
 			    num = x_num;
-			else
+			else if (x_num > 0)
 			    stitch_list(&num, offspring, statuslist,
 					x_num, x_offspring, x_statuslist);
 			goto check;
