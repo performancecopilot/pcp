@@ -133,8 +133,8 @@ do
 	pcp_origin_time="$OPTARG"
 	;;
       P)
+	Pflag=true
 	metrics="$metrics $pmiemetrics"
-	pflag=true
 	;;
       p)
 	pflag=true
@@ -212,7 +212,7 @@ $hflag && $aflag && _usage "$progname: -a and -h mutually exclusive"
 if $aflag
 then
     eval `pmdumplog -Lz "$pcp_archive" | $PCP_AWK_PROG '
-/^Performance metrics from host/	{  printf "host=%s\n", $5  }
+/^Performance metrics from host/	{  printf "pcp_host=%s\n", $5  }
 /^Archive timezone: /			{  printf "timezone=%s\n", $3  }
 /^  commencing/				{  tmp = substr($5, 7, 6)
 					   sub(tmp, tmp+0.001, $5)
