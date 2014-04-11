@@ -1,0 +1,63 @@
+QA output created by 900
+
+no arguments
+
+align argument
+added:
+> PCP_ALIGN_TIME=1 hour
+
+archive argument
+added:
+> PCP_ARCHIVE=src/rattle
+
+hostname argument
+added:
+> PCP_HOST=moo.cow.com
+
+debug argument
+added:
+> PCP_DEBUG=TRACE_PDU
+
+gui mode argument
+added:
+> PCP_GUIMODE=true
+
+local mode argument
+added:
+> PCP_LOCALMODE=true
+
+namespace argument
+added:
+> PCP_NAMESPACE=/pmns/file
+
+origin argument
+added:
+> PCP_ORIGIN_TIME=@ 1996-03-05 14:07:47 EST -1hour
+
+gui port argument
+added:
+> PCP_GUIPORT=12345
+
+start time argument
+added:
+> PCP_START_TIME=yesterday, 2am
+
+samples argument
+added:
+> PCP_SAMPLES=5
+
+finish time argument
+added:
+> PCP_FINISH_TIME=@ Mar  4 13:07:47 1996
+
+interval argument
+added:
+> PCP_INTERVAL=2.5 seconds
+
+timezone argument
+added:
+> PCP_TIMEZONE=UTC
+
+hostzone argument
+added:
+> PCP_HOSTZONE=true

@@ -3,117 +3,63 @@
 \f3pcp-free\f1 \- report on free and used memory in the system
 .SH SYNOPSIS
 \f3pcp-free\f1
-[\f3\-bkmgoltLVz\f1]
-[\f3\-a\f1 \f2archive\f1]
+[\f3\-bkmgoltV\f1]
 [\f3\-c\f1 \f2count\f1]
 [\f3\-s\f1 \f2interval\f1]
-[\f3\-h\f1 \f2hostname\f1]
-[\f3\-O\f1 \f2time\f1]
-[\f3\-Z\f1 \f2timezone\f1]
 .SH DESCRIPTION
 .B pcp-free
 gives a summary display of the total amount of free and used
 physical memory and swap in the system, as well as the caches
 used by the kernel.
 .PP
-Unless directed to another host by the
-.B \-h
-option,
-.B pcp-free
-will contact the Performance Metrics Collector Daemon
-(PMCD) on the local host by default.
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.SS Options
+The \fB\-b\fP/\fB\-\-bytes\fP switch displays the amount of memory in bytes; the
+\fB\-k\fP/\fB\-\-kilobytes\fP switch (set by default) displays it in kilobytes;
+the \fB\-m\fP/\fB\-\-megabytes\fP switch displays it in megabytes.
 .PP
-The
-.B \-a
-option causes
-.B pcp-free
-to use the specified archive rather than connecting to a PMCD.
-When fetching from an archive, only
-those instances present in the first archive record for a metric will
-be displayed; see also the
-.B \-O
-option.
-.PP
-The
-.B \-L
-option causes
-.B pcp-free
-to use a local context to collect metrics from the kernel PMDA on the
-local host without PMCD.
-.PP
-The
-.BR \-a ,
-.B \-h
-and
-.B \-L
-options are mutually exclusive.
-.PP
-When used in with an archive source of metrics the
-.I time
-argument to the
-.B \-O
-option defines a time origin at which the metrics should be
-fetched from the archive.
-Refer to
-.BR PCPIntro (1)
-for a complete description of this option, and the syntax for the
-.I time
-argument.
-.PP
-When the ``ctime'' format is used for the
-.I time
-argument to the
-.B \-O
-option, the timezone becomes an issue.
-The default is to use the
-local timezone on the
-system where
-.B pcp-free
-is run.
-.PP
-The
-.B \-Z
-option changes the timezone to
-.I timezone
-in the format of the environment variable
-.B TZ
-as described in
-.BR environ (5).
-The
-.B \-z
-option changes the reporting timezone to the local timezone at the
-host that is the source of the performance metrics, as identified via
-either the
-.B \-a
-or
-.B \-h
-option.
-.SS Output Options
-The \fB-b\fP switch displays the amount of memory in bytes; the
-\fB-k\fP switch (set by default) displays it in kilobytes; the \fB-m\fP
-switch displays it in megabytes.
-.PP
-The \fB-t\fP switch displays a line containing the totals.
+The \fB\-t\fP/\fB\-\-total\fP switch displays a line containing the totals.
 .PP
 The \fB-o\fP switch disables the display of a "buffer adjusted" line.
 If the \fB-o\fP option is not specified, \fBfree\fP subtracts buffer memory
 from the used memory and adds it to the free memory reported.
 .PP
-The \fB-s\fP switch activates continuous polling \fIdelay\fP seconds apart.
+The \fB\-s\fP/\fB\-\-interval\fP switch activates continuous polling \fIdelay\fP
+seconds apart.
 You may specify any floating point number for \fIdelay\fP, or indeed any valid
 .BR pmParseInterval (3)
 specification, which includes microsecond resolution delay times.
+This can be used in conjunction with the \fB\-c\fP/\fB\-\-samples\fP option
+to terminate the display after \fIcount\fP iterations.
+.PP
+The \fB\-l\fP switch shows detailed low and high memory statistics.
 .PP
 The current version of
 .B pcp-free
 can be queried using the
-.B \-V
+.BR \-V /\c
+.B \-\-version
 option.
 .SH NOTES
 .B pcp-free
 is inspired by the
 .BR free (1)
-command and aims to be output compatible with it.
+command and aims to be command line and output compatible with it.
 .PP
 The shared memory column should be ignored; it is obsolete.
 .SH "SEE ALSO"

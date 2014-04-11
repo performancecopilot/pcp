@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 518
-# pcp -p workout
+# pcp -P workout
 #
 # Copyright (c) 2012 Ken McDonell.  All Rights Reserved.
 #
@@ -36,7 +36,7 @@ pid=$!
 
 sleep 2	# let stats accumulate via rule firings
 
-pcp -p \
+pcp -P \
 | tee -a $seq.full \
 | $PCP_AWK_PROG '
 /pmie:/		{ want=1 }

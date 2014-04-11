@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2014 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,20 +16,89 @@
 .\"
 .TH PCP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp\f1 \- summarize a Performance Co-Pilot (PCP) installation
+\f3pcp\f1 \- run a command or summarize an installation
 .SH SYNOPSIS
+.ft 3
 \f3pcp\f1
-[\f3\-p\f1]
+[pcp options...]
+pcp-\f2command\f1
+[command options...]
+.br
+\f3pcp\f1
+[\f3\-P\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
+.ft 1
 .SH DESCRIPTION
 The
 .B pcp
-command summarizes the status of a Performance Co-Pilot (PCP) installation.
-The report includes: the OS version, a summary of the hardware inventory,
-the local timezone, details of valid PCP licenses, the PCP software version,
-the state of the
+command is used in one of two modes.
+By default, it summarizes the Performance Co-Pilot (PCP) installation
+on the local host.
+This mode can also be used to summarize the installation from a remote
+.IR host ,
+or a historical installation from a PCP
+.IR archive .
+.PP
+Alternatively, a
+.I command
+can be passed to
+.B pcp
+to run, again possibly in the context of a remote
+.I host
+or historical
+.IR archive .
+.SH "COMMAND MODE"
+When
+.B pcp
+is invoked with a command to run, it will search for the named
+.IR command 
+in
+.B $PCP_BINADM_DIR
+and also
+.B $HOME/.pcp/bin
+(these are usually scripts, and are installed with a "pcp-" prefix).
+This mode of operation allows system performance tools to be
+implemented using
+.BR PMAPI (3)
+services, while still preserving all of their usual command line
+options.
+These options are thus (indirectly) augmented with the standard PCP
+option set, as described in
+.BR PCPIntro (1).
+.PP
+This provides a convenient mechanism for obtaining retrospective or
+remote monitoring capabilities while preserving the behaviour of the
+system tools.
+.PP
+For example, the
+.BR pcp-free (1)
+utility can be invoked as follows, for recorded data from host
+.IR munch :
+.PP
+.nf
+.ft CW
+$ pcp -a $PCP_LOG_DIR/pmlogger/\fImunch\fP/20140317 \-O 11:35:50am \fBfree \-m\fP
+             total       used       free     shared    buffers     cached
+Mem:         23960      14554       9406          0        176       2137
+-/+ buffers/cache:      12240      11720
+Swap         12047          0      12047
+.ft R
+.fi
+.PP
+A complete list of the available and installed tools is provided
+along with the
+.BR pcp (1)
+usage message, but some examples include:
+.BR pcp-free (1),
+.BR pcp-uptime (1)
+and
+.BR pcp-numastat (1).
+.SH "SUMMARY MODE"
+The
+summary report includes: the OS version, a summary of the hardware inventory,
+the local timezone, the PCP software version, the state of the
 .BR pmcd (1)
 process and associated Performance Metrics Domain Agents
 (PMDAs), as well as information about any PCP archive loggers (\c
@@ -36,9 +106,6 @@ process and associated Performance Metrics Domain Agents
 and PCP inference engines (\c
 .BR pmie (1))
 that are running.
-.PP
-For more general information about PCP, refer to
-.BR PCPIntro (1).
 .PP
 With no arguments,
 .B pcp
@@ -57,7 +124,7 @@ Load an alternative Performance Metrics Name Space
 .RB ( pmns (5))
 from the file
 .IR pmnsfile .
-.IP \f3\-p\f1
+.IP \f3\-P\f1
 Display
 .B pmie
 performance information \- counts of rules evaluating to true, false, or
@@ -108,8 +175,18 @@ will be displayed in truncated form.
 .SH FILES
 .PD 0
 .TP 10
-.B $PCP_SYSCONF_DIR/pmlogger/config.pcp
-.B pmlogger
+.B $HOME/.pcp/bin
+Per-user location for
+.I command
+scripts.
+.TP
+.B $PCP_BINADM_DIR
+System location for installed
+.I command
+scripts.
+.TP
+.B $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary
+.BR pmlogconf (1)
 configuration file for collecting all of the metrics required by
 .BR pcp .
 .PD
@@ -129,8 +206,12 @@ as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pcp-free (1),
+.BR pcp-uptime (1),
+.BR pcp-numastat (1),
 .BR pmcd (1),
 .BR pmie (1),
+.BR pmlogconf (1),
 .BR pmlogger (1),
 .BR pcp.conf (5)
 and

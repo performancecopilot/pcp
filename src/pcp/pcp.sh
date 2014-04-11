@@ -1,6 +1,6 @@
 #! /bin/sh
 # 
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -24,11 +24,15 @@ tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
 
 errors=0
-prog=`basename $0`
-host=`hostname` # may match pmcd.hostname
+progname=`basename $0`
+pcp_host=`hostname` # may match pmcd.hostname
 for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname status
 do
     eval $var="unknown?"
+done
+for var in Aflag aflag Dflag gflag hflag Lflag nflag Oflag Pflag pflag Sflag sflag Tflag tflag Zflag zflag
+do
+    eval $var=false
 done
 
 # metrics
@@ -38,13 +42,28 @@ pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmi
 _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options]
+    echo 1>&2 "Usage: $progname [options] [[...] command [...]]
 
-Options:
-  -a archive    metrics source is a PCP log archive
-  -h host       metrics source is PMCD on host
-  -n pmnsfile   use an alternative PMNS
-  -p            display pmie evaluation statistics"
+Summary Options:
+  -a FILE       metrics source is a PCP log archive
+  -h HOST       metrics source is PMCD on host
+  -n FILE       use an alternative PMNS
+  -P            display pmie evaluation statistics
+
+Command Options:
+  -A TIME       align sample times on natural boundaries
+  -a FILE       metrics source is a PCP log archive
+  -g            start in GUI mode with new time control
+  -h HOST       metrics source is PMCD on host
+  -n FILE       use an alternative PMNS
+  -O TIME       initial sample time within the time window
+  -p N          port for connection to existing time control
+  -S TIME       start of the time window
+  -s N          terminate after this many samples
+  -T TIME       end of the time window
+  -t DELTA      sampling interval
+  -Z TZ         set reporting timezone
+  -z            set reporting timezone to local time of metrics source"
     exit
 }
 
@@ -75,18 +94,124 @@ NR > 1	{ printf "           %s\n", $0; next }
 }
 
 opts=""
-hflag=false
-aflag=false
-pflag=false
-while getopts "?a:D:h:n:p" c
+
+while getopts "A:a:D:gh:Ln:O:p:PS:s:T:t:Z:z?" c
 do
     case $c in
+      A)
+	Aflag=true
+	pcp_align_time="$OPTARG"
+	;;
       a)
-	[ $aflag = true ] && _usage "$prog: only one -a option permitted"
-	[ $hflag = true ] && _usage "$prog: -a and -h mutually exclusive"
+	aflag=true
+	pcp_archive="$OPTARG"
 	opts="$opts -a $OPTARG"
-	arch=$OPTARG
-	eval `pmdumplog -Lz $arch | $PCP_AWK_PROG '
+	;;
+      D)
+	Dflag=true
+	pcp_debug="$OPTARG"
+	opts="$opts -D $OPTARG"
+	;;
+      g)
+	gflag=true
+	;;
+      h)
+	hflag=true
+	pcp_host=$OPTARG
+	opts="$opts -h $OPTARG"
+	;;
+      L)
+	Lflag=true
+	;;
+      n)
+	nflag=true
+	pcp_namespace="$OPTARG"
+	opts="$opts -n $OPTARG"
+	;;
+      O)
+	Oflag=true
+	pcp_origin_time="$OPTARG"
+	;;
+      P)
+	metrics="$metrics $pmiemetrics"
+	pflag=true
+	;;
+      p)
+	pflag=true
+	pcp_guiport="$OPTARG"
+	;;
+      S)
+	Sflag=true
+	pcp_start_time="$OPTARG"
+	;;
+      s)
+	sflag=true
+	pcp_samples="$OPTARG"
+	;;
+      T)
+	Tflag=true
+	pcp_finish_time="$OPTARG"
+	;;
+      t)
+	tflag=true
+	pcp_interval="$OPTARG"
+	;;
+      Z)
+	Zflag=true
+	pcp_timezone="$OPTARG"
+	;;
+      z)
+	zflag=true
+	;;
+      ?)
+	_usage ""
+	;;
+    esac
+done
+
+shift `expr $OPTIND - 1`
+
+if [ $# -ge 1 ]
+then
+    # pcp-command mode - seek out a matching command and execute it
+    # with the remaining arguments - pmGetOptions(3) will discover
+    # all of the standard arguments we've set above, automagically.
+    #
+    command=$1
+    shift
+
+    if [ -x "$HOME/.pcp/bin/pcp-$command" ]
+    then
+	command="$HOME/.pcp/bin/pcp-$command"
+    elif [ -x "$PCP_BINADM_DIR/pcp-$command" ]
+    then
+	command="$PCP_BINADM_DIR/pcp-$command"
+    else
+	_usage "Cannot find a pcp-$command command to execute"
+    fi
+    $Aflag && export PCP_ALIGN_TIME="$pcp_align_time"
+    $aflag && export PCP_ARCHIVE="$pcp_archive"
+    $Dflag && export PCP_DEBUG="$pcp_debug"
+    $gflag && export PCP_GUIMODE=true
+    $hflag && export PCP_HOST="$pcp_host"
+    $Lflag && export PCP_LOCALMODE=true
+    $nflag && export PCP_NAMESPACE="$pcp_namespace"
+    $Oflag && export PCP_ORIGIN_TIME="$pcp_origin_time"
+    $pflag && export PCP_GUIPORT="$pcp_guiport"
+    $Sflag && export PCP_START_TIME="$pcp_start_time"
+    $sflag && export PCP_SAMPLES="$pcp_samples"
+    $Tflag && export PCP_FINISH_TIME="$pcp_finish_time"
+    $tflag && export PCP_INTERVAL="$pcp_interval"
+    $Zflag && export PCP_TIMEZONE="$pcp_timezone"
+    $zflag && export PCP_HOSTZONE=true
+    exec $command $@
+fi
+
+$hflag && $aflag && _usage "$progname: -a and -h mutually exclusive"
+
+if $aflag
+then
+    eval `pmdumplog -Lz "$pcp_archive" | $PCP_AWK_PROG '
 /^Performance metrics from host/	{  printf "host=%s\n", $5  }
 /^Archive timezone: /			{  printf "timezone=%s\n", $3  }
 /^  commencing/				{  tmp = substr($5, 7, 6)
@@ -94,33 +219,10 @@ do
 					   sub("commencing", "@")
 					   printf "offset=\"%s\"\n", $0
 					}'`
-	[ "X$host" = X ] && host="unknown host"
-	[ "X$offset" != X ] && opts="$opts -O '$offset' -z"
-	aflag=true
-	;;
-      D) # debug flags
-	opts="$opts -D $OPTARG"
-	;;
-      h)
-	[ $hflag = true ] && _usage "$prog: only one -h option permitted"
-	[ $aflag = true ] && _usage "$prog: -a and -h mutually exclusive"
-	opts="$opts -h $OPTARG"
-	host=$OPTARG
-	hflag=true
-	;;
-      n)
-	opts="$opts -n $OPTARG" ;;
-      p)
-	metrics="$metrics $pmiemetrics"
-	pflag=true
-	;;
-      ?)
-	_usage "" ;;
-    esac
-done
+    [ "X$pcp_host" = X ] && pcp_host="unknown host"
+    [ "X$offset" != X ] && opts="$opts -O '$offset' -z"
+fi
 
-shift `expr $OPTIND - 1`
-[ $# -ge 1 ] && _usage "$prog: too many arguments"
 
 if eval pminfo $opts -f $metrics > $tmp/metrics 2>$tmp/err
 then
@@ -128,7 +230,7 @@ then
 else
     if grep "^pminfo:" $tmp/metrics > /dev/null 2>&1
     then
-	$PCP_ECHO_PROG $PCP_ECHO_N "$prog: ""$PCP_ECHO_C"
+	$PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
 	sed < $tmp/metrics -e 's/^pminfo: //g'
 	sts=1
 	exit
@@ -256,7 +358,7 @@ else
 fi
 
 [ "$timezone" = $unknown ] && timezone="Unknown"
-[ "$hostname" = $unknown ] || host="$hostname"
+[ "$hostname" = $unknown ] || pcp_host="$hostname"
 
 if [ "$cputype" = $unknown ]
 then
@@ -324,7 +426,7 @@ then
     sort $tmp/ie_host -o $tmp/ie_host
     sort $tmp/ie_config -o $tmp/ie_config
     sort $tmp/ie_numrules -o $tmp/ie_numrules
-    if [ $pflag = "true" ]; then
+    if [ $Pflag = "true" ]; then
 	numpmies=`join $tmp/ie_host $tmp/ie_config | join - $tmp/ie_numrules \
 	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
     else
@@ -332,7 +434,7 @@ then
 	    | sort -n | sed -e 's/"//g' | tee $tmp/pmie | wc -l | tr -d ' '`
     fi
 
-    if [ $pflag = "true" -a -f $tmp/ie_actions -a -f $tmp/ie_true -a \
+    if [ $Pflag = "true" -a -f $tmp/ie_actions -a -f $tmp/ie_true -a \
 	-f $tmp/ie_false -a -f $tmp/ie_unknown -a -f $tmp/ie_expected ]
     then
 	sort $tmp/ie_actions -o $tmp/ie_actions
@@ -346,8 +448,8 @@ then
 	mv $tmp/tmp $tmp/pmie
     fi
 
-    $PCP_AWK_PROG -v pflag=$pflag < $tmp/pmie '{
-	if (pflag == "true") {
+    $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '{
+	if (Pflag == "true") {
 	    offset = match($3, "/pmie/")
 	    if (offset != 0)
 		$3=substr($3, offset+6, length($3))
@@ -364,9 +466,9 @@ fi
 
 # finally, display everything we've found...
 # 
-echo "Performance Co-Pilot configuration on ${host}:"
+echo "Performance Co-Pilot configuration on ${pcp_host}:"
 echo
-[ -n "$arch" ] && echo "  archive: $arch"
+[ -n "$pcp_archive" ] && echo "  archive: $pcp_archive"
 echo " platform: ${uname}"
 echo " hardware: "`echo $hardware | _fmt`
 echo " timezone: $timezone"
@@ -385,7 +487,7 @@ fi
 if [ "$numpmies" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "     pmie: ""$PCP_ECHO_C"
-    if [ $pflag = "true" ]; then
+    if [ $Pflag = "true" ]; then
 	_fmt < $tmp/pmies
     else
 	LC_COLLATE=POSIX sort < $tmp/pmies  \

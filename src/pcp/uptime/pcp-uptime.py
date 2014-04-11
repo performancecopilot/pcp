@@ -17,7 +17,7 @@
 
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT, PM_OPTFLAG_BOUNDARIES
+from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT
 
 def print_timestamp(stamp):
     """ Report the sample time (struct tm) in HH:MM:SS form """
@@ -68,16 +68,8 @@ class Uptime(object):
 	""" Construct object - prepare for command line handling """
 	self.context = None
 	self.opts = pmapi.pmOptions()
-	self.opts.pmSetOptionFlags(PM_OPTFLAG_BOUNDARIES)
-	self.opts.pmSetShortOptions("a:D:h:LO:VZ:z?")
+	self.opts.pmSetShortOptions("V?")
 	self.opts.pmSetLongOptionHeader("Options")
-	self.opts.pmSetLongOptionArchive()
-	self.opts.pmSetLongOptionDebug()
-	self.opts.pmSetLongOptionHost()
-	self.opts.pmSetLongOptionLocalPMDA()
-	self.opts.pmSetLongOptionOrigin()
-	self.opts.pmSetLongOptionTimeZone()
-	self.opts.pmSetLongOptionHostZone()
 	self.opts.pmSetLongOptionVersion()
 	self.opts.pmSetLongOptionHelp()
 

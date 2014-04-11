@@ -17,7 +17,7 @@
 
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U64, PM_OPTFLAG_BOUNDARIES, PM_CONTEXT_ARCHIVE
+from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE
 
 class Free(object):
     """ Gives a short summary of kernel virtual memory information,
@@ -45,17 +45,8 @@ class Free(object):
 	opts = pmapi.pmOptions()
 	opts.pmSetOptionCallback(self.option)
 	opts.pmSetOverrideCallback(self.override)
-	opts.pmSetOptionFlags(PM_OPTFLAG_BOUNDARIES)
-	opts.pmSetShortOptions("a:bc:D:gh:kLlmO:ots:VZ:z?")
-	opts.pmSetLongOptionHeader("General Options")
-	opts.pmSetLongOptionArchive()
-	opts.pmSetLongOptionDebug()
-	opts.pmSetLongOptionHost()
-	opts.pmSetLongOptionLocalPMDA()
-	opts.pmSetLongOptionOrigin()
-	opts.pmSetLongOptionTimeZone()
-	opts.pmSetLongOptionHostZone()
-	opts.pmSetLongOptionHeader("Reporting Options")
+	opts.pmSetShortOptions("bc:gklmots:V?")
+	opts.pmSetLongOptionHeader("Options")
 	opts.pmSetLongOption("bytes", 0, 'b', '', "show output in bytes")
 	opts.pmSetLongOption("kilobytes", 0, 'k', '', "show output in KB")
 	opts.pmSetLongOption("megabytes", 0, 'm', '', "show output in MB")
@@ -103,7 +94,6 @@ class Free(object):
 	elif (opt == 'c'):
 	    self.opts.pmSetOptionSamples(optarg)
 	    self.count = self.opts.pmGetOptionSamples()
-	return 0
 
     def scale(self, value):
 	""" Convert a given value in kilobytes into display units """
@@ -200,7 +190,7 @@ class Free(object):
 		    self.scale(used - cache), self.scale(free + cache))
 
 	print "%-7s %10Lu %10Lu %10Lu" % ('Swap', self.scale(swaptotal),
-		self.scale(swapused), self.scale(free + swapfree))
+		self.scale(swapused), self.scale(swapfree))
 
 	if self.show_total == 1:
 	    print "%-7s %10Lu %10Lu %10Lu" % ('Total',

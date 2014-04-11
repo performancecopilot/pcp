@@ -394,6 +394,12 @@ QA output created by 366
 > 	network.interface.total.mcasts
 > }
 > #----
+> #+ tools/numastat:y:default:
+> ## metrics used by the pcp-numastat(1) command
+> log advisory on default {
+> 	mem.numa.alloc
+> }
+> #----
 > #+ tools/pcp-summary:y:once:
 > ## metrics used by the pcp(1) command
 > log advisory on once {

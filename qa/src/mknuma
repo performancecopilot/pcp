@@ -2,7 +2,7 @@
 #
 # remake the numa archive ...
 # this archive is intended to be checked in and not remade, this script is
-# simply a record of how it was
+# simply a record of how it was created
 #
 
 . /etc/pcp.env
