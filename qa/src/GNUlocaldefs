@@ -40,7 +40,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
 	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-722.0 \
 	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
-	pyapi.0 pcp-free.0 pcp-uptime.0
+	pyapi.0 pcp-free.0 pcp-uptime.0 numa.0
 
 SRCARCHPART = ok-noti-bigbin.0 \
 	20130706.0.bz2 20130706.index 20130706.meta
