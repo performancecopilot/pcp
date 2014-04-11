@@ -22,7 +22,18 @@ _cleanup()
 
 _filter()
 {
+    # strip lines like ...
+    # Roll /var/log/pcp/NOTICES -> /var/log/pcp/NOTICES.old
+    # Start new /var/log/pcp/NOTICES
+    # + mv -f /var/log/pcp/NOTICES /var/log/pcp/NOTICES.old
+    # + touch /var/log/pcp/NOTICES
+    # as we have no control over the trigger for this (the size of the
+    # NOTICES file)
+    #
+    # and do the usual config/pid filtering
+    #
     sed \
+	-e '/NOTICES/d' \
 	-e "s,$tmp,TMP,g" \
 	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
 	-e "s/$PAST/PAST/g"
