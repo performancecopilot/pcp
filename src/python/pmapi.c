@@ -512,7 +512,11 @@ options_callback(int opt, pmOptions *opts)
     } else {
 	result = PyEval_CallObject(optionCallback, arglist);
 	Py_DECREF(arglist);
-	Py_DECREF(result);
+        if (!result) {
+            PyErr_Print();
+            return;
+        }
+        Py_DECREF(result);
     }
 }
 
