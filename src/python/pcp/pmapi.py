@@ -81,7 +81,7 @@ from ctypes import c_char, c_int, c_uint, c_long, c_char_p, c_void_p
 from ctypes import c_longlong, c_ulonglong, c_float, c_double
 from ctypes import CDLL, POINTER, CFUNCTYPE, Structure, Union
 from ctypes import addressof, pointer, sizeof, cast, byref
-from ctypes import create_string_buffer
+from ctypes import create_string_buffer, memmove
 from ctypes.util import find_library
 
 ##############################################################################
@@ -1663,11 +1663,12 @@ class pmContext(object):
             raise pmErr, status
 
         if outtype == c_api.PM_TYPE_STRING:
-            # Get address of C string
-            c_str = outAtom.vp
+            # Get pointer to C string
+            c_str = c_char_p()
+            memmove(byref(c_str), addressof(outAtom) + pmAtomValue.cp.offset,
+                    sizeof(c_char_p))
             # Convert to a python string and have result point to it
-            python_char_array = ctypes.string_at(c_str)
-            outAtom.cp = cast(python_char_array, c_char_p)
+            outAtom.cp = outAtom.cp
             # Free the C string
             LIBC.free(c_str)
         return outAtom
