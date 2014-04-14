@@ -64,6 +64,14 @@ Command Options:
   -t DELTA      sampling interval
   -Z TZ         set reporting timezone
   -z            set reporting timezone to local time of metrics source"
+
+    ls $PCP_BINADM_DIR/pcp-* $HOME/.pcp/bin/pcp-* 2>/dev/null | \
+    sed -e "s,^$PCP_BINADM_DIR/pcp-,,g" -e "s,^$HOME/.pcp/bin/pcp-,,g" | \
+    sort -u > $tmp/cmds
+
+    echo
+    ( $PCP_ECHO_PROG $PCP_ECHO_N "Commands:       ""$PCP_ECHO_C" && \
+    cat $tmp/cmds ) | _fmt
     exit
 }
 
