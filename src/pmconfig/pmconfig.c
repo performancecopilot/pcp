@@ -24,8 +24,8 @@ static const char *none = "false";
 static int
 isspecial(int c)
 {
-    if (c == '\n' || c == '\r' || c == '"' || c == '`' ||
-	c == '$' || c == '{' || c == '}' || c == '(' || c == ')')
+    if (c == '\n' || c == '\r' || c == '\\' ||
+	c == '"' || c == '`' || c == '$' || c == '!')
 	return 1;
     return 0;
 }
