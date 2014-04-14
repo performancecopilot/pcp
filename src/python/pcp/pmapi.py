@@ -1633,13 +1633,16 @@ class pmContext(object):
         pmAtomValue = pmConvScale(c_api.PM_TYPE_FLOAT, pmAtomValue,
                                             pmDesc*, 3, c_api.PM_SPACE_MBYTE)
         """
+        if type(outUnits) == type(int()):
+            pmunits = pmUnits()
+            pmunits.dimSpace = 1
+            pmunits.scaleSpace = outUnits
+        else:
+            pmunits = outUnits
         outAtom = pmAtomValue()
-        pmunits = pmUnits()
-        pmunits.dimSpace = 1
-        pmunits.scaleSpace = outUnits
         status = LIBPCP.pmConvScale(inType, byref(inAtom),
-                         byref(desc[metric_idx].contents.units), byref(outAtom),
-                         byref(pmunits))
+                                    byref(desc[metric_idx].contents.units),
+                                    byref(outAtom), byref(pmunits))
         if status < 0:
             raise pmErr, status
         return outAtom

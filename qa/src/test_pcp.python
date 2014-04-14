@@ -338,7 +338,11 @@ def test_pcp(self):
     # pmConvScale
     atom = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
                            api.PM_SPACE_MBYTE)
-    print "pmConvScale", tmpatom.f, atom.f
+    print "pmConvScale, integer arg", tmpatom.f, atom.f
+    self.assertTrue(atom.f > 0)
+    atom = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
+                           pmapi.pmUnits(1,0,0,api.PM_SPACE_MBYTE,0,0))
+    print "pmConvScale, pmUnits arg", tmpatom.f, atom.f
     self.assertTrue(atom.f > 0)
 
     # pmAtomStr
