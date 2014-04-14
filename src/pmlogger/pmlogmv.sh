@@ -21,7 +21,7 @@
 
 _usage()
 {
-    echo >&2 "Usage: pmlogmv [-nv] oldname newname"
+    echo >&2 "Usage: pmlogmv [-NV] oldname newname"
     exit 1
 }
 
@@ -31,17 +31,17 @@ LN=ln
 RM=rm
 RMF="rm -f"
 
-while getopts "nv?" c
+while getopts "NV?" c
 do
     case $c
     in
-	n)	# show me
+	N)	# show me
 	    showme=true
 	    LN='echo >&2 + ln'
 	    RM='echo >&2 + rm'
 	    RMF='echo >&2 + rm -f'
 	    ;;
-	v)	# verbose
+	V)	# verbose
 	    verbose=true
 	    ;;
 	?)

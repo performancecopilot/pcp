@@ -601,9 +601,12 @@ __pmStartOptions(pmOptions *opts)
 	    __pmAddOptHost(opts, value);
 	else if (strcmp(s, "HOST_LIST") == 0)
 	    __pmAddOptHostList(opts, value);
+	else if (strcmp(s, "LOCALMODE") == 0)
+	    __pmSetLocalContextFlag(opts);
 	else if (strcmp(s, "NAMESPACE") == 0)
 	    __pmSetNameSpace(opts, value, 0);
-	else if (strcmp(s, "ORIGIN") == 0)
+	else if (strcmp(s, "ORIGIN") == 0 ||
+		 strcmp(s, "ORIGIN_TIME") == 0)
 	    __pmSetOrigin(opts, value);
 	else if (strcmp(s, "GUIPORT") == 0)
 	    __pmSetGuiPort(opts, value);

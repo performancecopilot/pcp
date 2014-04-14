@@ -1,0 +1,54 @@
+QA output created by 743
+
+1 node numastat output, at archive start, cmd width
+                           node0
+numa_hit                38965423
+numa_miss                      0
+numa_foreign                   0
+interleave_hit             27905
+local_node              38965423
+other_node                     0
+
+1 node numastat output, at archive end, cmd width
+                           node0
+numa_hit                38968471
+numa_miss                      0
+numa_foreign                   0
+interleave_hit             27905
+local_node              38968471
+other_node                     0
+
+3 node numastat output, at archive end, large env width
+                           node0           node1           node2
+numa_hit                    1050            1034       161888165
+numa_miss                      0               0               0
+numa_foreign                   0               0               0
+interleave_hit               873             871             873
+local_node                     0               0       161888165
+other_node                  1050            1034               0
+
+3 node numastat output, at archive end, small env width
+                           node0           node1
+numa_hit                    1050            1034
+                           node2
+numa_hit               161888165
+                           node0           node1
+numa_miss                      0               0
+                           node2
+numa_miss                      0
+                           node0           node1
+numa_foreign                   0               0
+                           node2
+numa_foreign                   0
+                           node0           node1
+interleave_hit               873             871
+                           node2
+interleave_hit               873
+                           node0           node1
+local_node                     0               0
+                           node2
+local_node             161888165
+                           node0           node1
+other_node                  1050            1034
+                           node2
+other_node                     0

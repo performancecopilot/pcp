@@ -106,6 +106,7 @@ Options:
   -c control    pmlogger control file
   -k discard    remove archives after "discard" days
   -m addresses  send daily NOTICES entries to email addresses
+  -M		do not rewrite, merge or rename archives
   -N            show-me mode, no operations performed
   -o            (old style) merge logs only from yesterday
                 [default is to merge all possible logs before today]
@@ -131,8 +132,9 @@ MYARGS=""
 OFLAG=false
 TRACE=0
 RFLAG=false
+MFLAG=false
 
-while getopts c:k:m:Nors:t:Vx:X:Y:? c
+while getopts c:k:m:MNors:t:Vx:X:Y:? c
 do
     case $c
     in
@@ -152,6 +154,9 @@ do
 	N)	SHOWME=true
 		MYARGS="$MYARGS -N"
 		;;
+	M)	MFLAG=true
+		RFLAG=true
+  		;;
 	o)	OFLAG=true
 		;;
 	r)	RFLAG=true
@@ -703,67 +708,100 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	    done
 	fi
     fi
-    rm -f $tmp/skip
-    if [ ! -s $tmp/list ]
-    then
-	if $VERBOSE
-	then
-	    echo "$prog: Warning: no archives found to merge"
-	    $VERY_VERBOSE && ls -l
-	fi
-    else
-	cat $tmp/list \
-	| while read outfile inlist
-	do
-	    if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
-	    then
-		echo "$prog: Warning: output archive ($outfile) already exists"
-		echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
-		touch $tmp/skip
-		break
-	    else
-		if [ -n "$rewrite" ]
-		then
-		    $VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
-		    for arch in $inlist
-		    do
-			if pmlogrewrite -iq -c "$rewrite" $arch
-			then
-			    :
-			else
-			    echo "$prog: Warning: rewrite for $arch using -c $rewrite failed"
-			    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
-			    touch $tmp/skip
-			    break
-			fi
-		    done
 
-		fi
-		if $VERY_VERBOSE
+    rm -f $tmp/skip
+    if $MFLAG
+    then
+	# -M don't rewrite, merge or rename
+	#
+	:
+    else
+	if [ ! -s $tmp/list ]
+	then
+	    if $VERBOSE
+	    then
+		echo "$prog: Warning: no archives found to merge"
+		$VERY_VERBOSE && ls -l
+	    fi
+	else
+	    cat $tmp/list \
+	    | while read outfile inlist
+	    do
+		if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
 		then
-		    for arch in $inlist
-		    do
-			echo "Input archive $arch ..."
-			pmdumplog -L $arch
-		    done
-		fi
-		if $SHOWME
-		then
-		    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
+		    echo "$prog: Warning: output archive ($outfile) already exists"
+		    echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
+		    touch $tmp/skip
+		    break
 		else
-		    if pmlogger_merge$MYARGS -f $inlist $outfile
+		    if [ -n "$rewrite" ]
 		    then
-			if $VERY_VERBOSE
+			$VERY_VERBOSE && echo "Rewriting input archives using $rewrite"
+			for arch in $inlist
+			do
+			    if pmlogrewrite -iq -c "$rewrite" $arch
+			    then
+				:
+			    else
+				echo "$prog: Warning: rewrite for $arch using -c $rewrite failed"
+				echo "[$CONTROL:$line] ... skip log merging, culling and compressing for host \"$host\""
+				touch $tmp/skip
+				break
+			    fi
+			done
+
+		    fi
+		    if $VERY_VERBOSE
+		    then
+			for arch in $inlist
+			do
+			    echo "Input archive $arch ..."
+			    pmdumplog -L $arch
+			done
+		    fi
+		    narch=`echo $inlist | wc -w | sed -e 's/ //g'`
+		    if [ "$narch" = 1 ]
+		    then
+			# optimization ... rename don't merge for one input
+			# archive case
+			#
+			if $SHOWME
 			then
-			    echo "Merged output archive $outfile ..."
-			    pmdumplog -L $outfile
+			    echo "+ pmlogmv$MYARGS $inlist $outfile"
+			else
+			    if pmlogmv$MYARGS $inlist $outfile
+			    then
+				if $VERY_VERBOSE
+				then
+				    echo "Renamed output archive $outfile ..."
+				    pmdumplog -L $outfile
+				fi
+			    else
+				_error "problems executing pmlogmv for host \"$host\""
+			    fi
 			fi
 		    else
-			_error "problems executing pmlogger_merge for host \"$host\""
+			# more than one input archive, merge away
+			#
+			if $SHOWME
+			then
+			    echo "+ pmlogger_merge$MYARGS -f $inlist $outfile"
+			else
+			    if pmlogger_merge$MYARGS -f $inlist $outfile
+			    then
+				if $VERY_VERBOSE
+				then
+				    echo "Merged output archive $outfile ..."
+				    pmdumplog -L $outfile
+				fi
+			    else
+				_error "problems executing pmlogger_merge for host \"$host\""
+			    fi
+			fi
 		    fi
 		fi
-	    fi
-	done
+	    done
+	fi
     fi
 
     if [ -f $tmp/skip ]

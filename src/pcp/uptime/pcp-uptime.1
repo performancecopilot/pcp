@@ -3,11 +3,7 @@
 \f3pcp-uptime\f1 \- tell how long the system has been running
 .SH SYNOPSIS
 \f3pcp-uptime\f1
-[\f3\-LVz\f1]
-[\f3\-a\f1 \f2archive\f1]
-[\f3\-h\f1 \f2hostname\f1]
-[\f3\-O\f1 \f2time\f1]
-[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-V\f1/[\f3\--version\f1]
 .SH DESCRIPTION
 .B pcp-uptime
 gives a one line display of the following information.
@@ -16,89 +12,30 @@ how long the system has been running,
 how many users are currently logged on,
 and the system load averages for the past 1, 5, and 15 minutes.
 .PP
-Unless directed to another host by the
-.B \-h
-option,
-.B pcp-uptime
-will contact the Performance Metrics Collector Daemon
-(PMCD) on the local host by default.
-.PP
-The
-.B \-a
-option causes
-.B pcp-uptime
-to use the specified archive rather than connecting to a PMCD.
-When fetching from an archive, only
-those instances present in the first archive record for a metric will
-be displayed; see also the
-.B \-O
-option.
-.PP
-The
-.B \-L
-option causes
-.B pcp-uptime
-to use a local context to collect metrics from the kernel PMDA on the
-local host without PMCD.
-.PP
-The
-.BR \-a ,
-.B \-h
-and
-.B \-L
-options are mutually exclusive.
-.PP
-When used in with an archive source of metrics the
-.I time
-argument to the
-.B \-O
-option defines a time origin at which the metrics should be
-fetched from the archive.
-Refer to
-.BR PCPIntro (1)
-for a complete description of this option, and the syntax for the
-.I time
-argument.
-.PP
-When the ``ctime'' format is used for the
-.I time
-argument to the
-.B \-O
-option, the timezone becomes an issue.
-The default is to use the
-local timezone on the
-system where
-.B pcp-uptime
-is run.
-.PP
-The
-.B \-Z
-option changes the timezone to
-.I timezone
-in the format of the environment variable
-.B TZ
-as described in
-.BR environ (5).
-The
-.B \-z
-option changes the reporting timezone to the local timezone at the
-host that is the source of the performance metrics, as identified via
-either the
-.B \-a
-or
-.B \-h
-option.
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
 .PP
 The current version of
 .B pcp-uptime
 can be queried using the
-.B \-V
+.BR \-V /\c
+.B \--version
 option.
 .SH NOTES
 .B pcp-uptime
 is inspired by the
 .BR uptime (1)
-command and aims to be output compatible with it.
+command and aims to be command line and output compatible with it.
 .SH "SEE ALSO"
 .BR pcp (1),
 .BR uptime (1),

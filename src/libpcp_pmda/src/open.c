@@ -428,6 +428,21 @@ pmdaUsageMessage(pmdaOptions *opts)
     pmUsageMessage((pmOptions *)opts);
 }
 
+static __pmHashWalkState
+pmdaHashNodeDelete(const __pmHashNode *tp, void *cp)
+{
+    (void)tp;
+    (void)cp;
+    return PM_HASH_WALK_DELETE_NEXT;
+}
+
+static void
+pmdaHashDelete(__pmHashCtl *hashp)
+{
+    __pmHashWalkCB(pmdaHashNodeDelete, NULL, hashp);
+    __pmHashClear(hashp);
+}
+
 /*
  * Recompute the hash table which maps metric PMIDs to metric table
  * offsets.  Provides an optimised lookup alternative when a direct
@@ -440,29 +455,30 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     __pmHashCtl *hashp = &extp->hashpmids;
     pmdaMetric	*metric;
     char	buf[32];
-    int		m, sts;
+    int		m;
 
     pmda->e_direct = 0;
     pmda->e_metrics = metrics;
     pmda->e_nmetrics = nmetrics;
 
-    __pmHashClear(hashp);
+    pmdaHashDelete(hashp);
     for (m = 0; m < pmda->e_nmetrics; m++) {
 	metric = &pmda->e_metrics[m];
 
-	sts = __pmHashAdd(metric->m_desc.pmid, metric, hashp);
-	if (sts < 0) {
+	if (__pmHashAdd(metric->m_desc.pmid, metric, hashp) < 0) {
 	    __pmNotifyErr(LOG_WARNING, "pmdaRehash: PMDA %s: "
 			"Hashed mapping for metrics disabled @ metric[%d] %s\n",
 			pmda->e_name, m,
 			pmIDStr_r(metric->m_desc.pmid, buf, sizeof(buf)));
-	    pmda->e_flags &= ~PMDA_EXT_FLAG_HASHED;
-	    __pmHashClear(hashp);
-	    return;
+	    break;
 	}
     }
-
-    pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
+    if (m == pmda->e_nmetrics)
+	pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
+    else {
+	pmda->e_flags &= ~PMDA_EXT_FLAG_HASHED;
+	pmdaHashDelete(hashp);
+    }
 }
 
 static void

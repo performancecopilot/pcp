@@ -665,7 +665,9 @@ class pmOptions(object):
         if short_usage != None:
             c_api.pmSetShortUsage(short_usage)
         if flags != 0:
-            c_api.pmSetFlags(flags)
+            c_api.pmSetOptionFlags(flags)
+        else:   # good default for scripts - always evaluating log bounds
+            c_api.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
         self._delta = 1			# default archive pmSetMode delta
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
 
@@ -1094,7 +1096,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr, status
-        status = LIBPCP.pmNameID( pmid, byref(k) )
+        status = LIBPCP.pmNameID(pmid, byref(k))
         if status < 0:
             raise pmErr, status
         name = k.value
@@ -1189,8 +1191,8 @@ class pmContext(object):
         status = LIBPCP.pmLookupInDomText(get_indom(pmdesc), kind, byref(buf))
         if status < 0:
             raise pmErr, status
-        text = str( buf.value )
-        LIBC.free( buf )
+        text = str(buf.value)
+        LIBC.free(buf)
         return text
 
     def pmLookupText(self, pmid, kind = c_api.PM_TEXT_ONELINE):
@@ -1205,7 +1207,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         text = buf.value
-        LIBC.free( buf )
+        LIBC.free(buf)
         return text
 
     ##

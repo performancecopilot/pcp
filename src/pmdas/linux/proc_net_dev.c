@@ -37,7 +37,17 @@ refresh_inet_socket()
 static int
 refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 {
-    struct ethtool_cmd ecmd;
+    struct ethtool_cmd ecmd = { 0 };
+    /*
+     * Note:
+     * Initialization of ecmd is not really needed.  If the ioctl()s
+     * work, ecmd is filled in ... but valgrind (at least up to
+     * version 3.9.0) does not know about the SIOCETHTOOL ioctl()
+     * and thinks the use of ecmd after this call propagates
+     * uninitialized data in to ioc.speed and ioc.duplex, causing
+     * failures for qa/957
+     * - Ken McDonell, 11 Apr 2014
+     */
     struct ifreq ifr;
     int fd;
 

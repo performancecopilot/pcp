@@ -14,14 +14,14 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-archive="--archive=$here/src/pcp-uptime --hostzone"
+archive="-a $here/src/pcp-uptime -z"
 
 # real QA test starts here
 echo && echo uptime output, at archive start
-pcp-uptime $archive
+pcp $archive uptime
 
 echo && echo uptime output, at archive end
-pcp-uptime $archive --origin=-0
+pcp $archive -O-0 uptime
 
 # success, all done
 status=0

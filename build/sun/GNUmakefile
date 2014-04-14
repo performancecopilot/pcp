@@ -50,7 +50,7 @@ pkginfo : $(_FORCE)
 	@echo "NAME=Performance Co-Pilot" >> $@
 	@echo "ARCH=$(PACKAGE_ARCH)" >> $@
 	@echo "VERSION=$(PACKAGE_VERSION)" >> $@
-	@echo "EMAIL=pcp@oss.sgi.com" >> $@
+	@echo "EMAIL=pcp@mail.performancecopilot.org" >> $@
 	@echo "CATEGORY=application" >> $@
 	@echo "BASEDIR=/" >> $@
 	@echo "CLASSES=application none" >> $@

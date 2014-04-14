@@ -14,34 +14,34 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-archive="--archive=$here/src/pcp-free --hostzone"
-archive_first="$archive --origin=+1"
-archive_last="$archive --origin=-0"
+archive="-a $here/src/pcp-free -z"
+archive_first="$archive -O +1"
+archive_last="$archive -O -0"
 
 # real QA test starts here
 echo && echo === free output, at first sample
-pcp-free $archive_first
+pcp $archive_first free
 
 echo && echo === free output, at last sample
-pcp-free $archive_last
+pcp $archive_last free
 
 echo && echo === free output, bytes
-pcp-free $archive_first -b
+pcp $archive_first free -b
 
 echo && echo === free output, megabytes
-pcp-free $archive_first -m
+pcp $archive_first free -m
 
 echo && echo === free output, gigabytes
-pcp-free $archive_first -g
+pcp $archive_first free -g
 
 echo && echo === free output, totals + in megabytes
-pcp-free $archive_first -t -m
+pcp $archive_first free -t -m
 
 echo && echo === free output, compat + low/high detail
-pcp-free $archive_first -o -l
+pcp $archive_first free -o -l
 
 echo && echo === free output, multiple samples
-pcp-free $archive_first -c 2 -s 2.5
+pcp $archive_first free -c 2 -s 2.5
 
 status=0
 exit
