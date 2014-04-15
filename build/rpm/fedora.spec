@@ -718,7 +718,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
-* Tue Apr 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.2-1
+* Tue Apr 15 2014 Dave Brolley <brolley@redhat.com> - 3.9.2-1
 - Improve pmdarpm(1) concurrency complications (BZ 1044297)
 - Fix pmconfig(1) shell output string quoting (BZ 1085401)
 - Update to latest PCP sources.
