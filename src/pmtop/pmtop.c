@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1999 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "pmapi.h"
@@ -60,19 +56,16 @@ int	pu_vctx;
 int	pu_ictx;
 
 char	*hostname;
-struct timeval	delta = { 2, 0 };	/* default interval */
 int	top = 5;
-long	num_samples = -1; /* forever */
-int	num_inst = 0;
-int	*instances = NULL;
-char	**instance_names = NULL;
-char	*runtime = NULL;
-int     zflag = 0;                  /* for -z */
-char    *tz = NULL;         /* for -Z timezone */
+long	num_samples = -1;
+int	num_inst;
+int	*instances;
+char	**instance_names;
+char	*runtime;
 char	pid_label_fmt[8];
 char	pid_fmt[8];
 char	*line_fmt = "%.79s";
-int	pid_len = 0;
+int	pid_len;
 pmInDom proc_indom;
 
 /* values of interest */
@@ -98,11 +91,11 @@ pmInDom proc_indom;
 
 int	show_spec = SHOW_CPU|SHOW_SYSCALLS|SHOW_CTX|SHOW_WRITES|SHOW_READS|SHOW_RSS; /* default to show all */
 
-/* copied from pmdbg.h */
 typedef struct {
     char        *name;
     int         bit;
 } show_map_t;
+
 static show_map_t show_map[] = {
     { "CPU",   SHOW_CPU },
     { "SYSC",  SHOW_SYSCALLS },
@@ -116,20 +109,21 @@ static show_map_t show_map[] = {
 static int num_show = sizeof(show_map) / sizeof(show_map[0]);
 
 typedef struct {
-   int inst; /* index into instances and names */
-   double values[NUM_VALUES];
+   int		inst; /* index into instances and names */
+   double	values[NUM_VALUES];
 } rate_entry_t;
-rate_entry_t *rate_tab = NULL;
 
-double global_rates[NUM_VALUES] = {0};
-double sum_rates[NUM_VALUES] = {0};
+static rate_entry_t *rate_tab;
+
+double global_rates[NUM_VALUES];
+double sum_rates[NUM_VALUES];
 
 typedef struct {
-   char *val_fmt;
-   char *label_fmt;
-   char *label;
-   char *units;
-   char *fullname;
+   char		*val_fmt;
+   char		*label_fmt;
+   char		*label;
+   char		*units;
+   char		*fullname;
 } format_entry_t;
 
 /*
@@ -148,11 +142,12 @@ format_entry_t format_tab[] =
 };
 
 /* value table */
-typedef struct val_entry_t {
-    int num;
-    pmValue values[MAX_PMID][2];
+typedef struct {
+    int		num;
+    pmValue	values[MAX_PMID][2];
 } val_entry_t;
-val_entry_t *val_tab = NULL;
+
+val_entry_t *val_tab;
 
 /* index will use high end for globals */
 /* parallels index with other MAX_PMID arrays */
@@ -162,10 +157,31 @@ pmValue global_val[MAX_PMID][2];
 #define min(x,y) (((x)<(y))?(x):(y))
 #endif
 
-void get_indom(void);
+static void get_indom(void);
+static int overrides(int, pmOptions *);
 
-/* copied and modified from __pmParseDebug() from util.c */
-int
+pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General Options"),
+    PMOPT_HOST,
+    PMOPT_SAMPLES,
+    PMOPT_INTERVAL,
+    PMAPI_OPTIONS_HEADER("Reporting Options"),
+    { "", 1, 'm', "N", "report the top N values only" },
+    { "", 1, 'p', "SPEC", "report certain values e.g. cpu,sysc,rss" },
+    { "wide", 0, 'w', 0, "wide output for command name" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+pmOptions opts = {
+    .short_options = "D:h:m:p:s:t:wzZ:?",
+    .long_options = longopts,
+    .override = overrides,
+};
+
+static int
 parse_show_spec(const char *spec)
 {
     int		val = 0;
@@ -226,7 +242,7 @@ get_time(void)
     return str;
 }
 
-__uint64_t
+static __uint64_t
 get_value(int metric, pmValue *value)
 {
     int sts;
@@ -242,116 +258,108 @@ get_value(int metric, pmValue *value)
     return val.ull;
 }
 
-int 
-cpuburn_cmp(const void* x, const void* y)
+static int
+cpuburn_cmp(const void *x, const void *y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[CPU_VAL] == c2->values[CPU_VAL])
-	return 0;
-   else if (c2->values[CPU_VAL] > c1->values[CPU_VAL])
-	return 1;
-   else
+    if (c1->values[CPU_VAL] < c2->values[CPU_VAL])
 	return -1;
+    if (c2->values[CPU_VAL] > c1->values[CPU_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int
 sys_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[SYS_VAL] == c2->values[SYS_VAL])
-	return 0;
-   else if (c2->values[SYS_VAL] > c1->values[SYS_VAL])
-	return 1;
-   else
+    if (c1->values[SYS_VAL] < c2->values[SYS_VAL])
 	return -1;
+    if (c2->values[SYS_VAL] > c1->values[SYS_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int 
 usr_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[USR_VAL] == c2->values[USR_VAL])
-	return 0;
-   else if (c2->values[USR_VAL] > c1->values[USR_VAL])
-	return 1;
-   else
+    if (c1->values[USR_VAL] < c2->values[USR_VAL])
 	return -1;
+    if (c2->values[USR_VAL] > c1->values[USR_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int
 syscall_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[SYSCALLS_VAL] == c2->values[SYSCALLS_VAL])
-	return 0;
-   else if (c2->values[SYSCALLS_VAL] > c1->values[SYSCALLS_VAL])
-	return 1;
-   else
+    if (c1->values[SYSCALLS_VAL] < c2->values[SYSCALLS_VAL])
 	return -1;
+    if (c2->values[SYSCALLS_VAL] > c1->values[SYSCALLS_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int
 ctx_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[CTX_VAL] == c2->values[CTX_VAL])
-	return 0;
-   else if (c2->values[CTX_VAL] > c1->values[CTX_VAL])
-	return 1;
-   else
+    if (c1->values[CTX_VAL] < c2->values[CTX_VAL])
 	return -1;
+    if (c2->values[CTX_VAL] > c1->values[CTX_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int 
 write_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[WRITES_VAL] == c2->values[WRITES_VAL])
-	return 0;
-   else if (c2->values[WRITES_VAL] > c1->values[WRITES_VAL])
-	return 1;
-   else
+    if (c1->values[WRITES_VAL] < c2->values[WRITES_VAL])
 	return -1;
+    if (c2->values[WRITES_VAL] > c1->values[WRITES_VAL])
+	return 1;
+    return 0;
 }
 
-int 
+static int 
 read_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[READS_VAL] == c2->values[READS_VAL])
-	return 0;
-   else if (c2->values[READS_VAL] > c1->values[READS_VAL])
-	return 1;
-   else
+    if (c1->values[READS_VAL] < c2->values[READS_VAL])
 	return -1;
+    if (c2->values[READS_VAL] > c1->values[READS_VAL])
+	return 1;
+    return 0;
 }
 
 int 
 rss_cmp(const void* x, const void* y)
 {
-   rate_entry_t *c1 = (rate_entry_t *)x;
-   rate_entry_t *c2 = (rate_entry_t *)y;
+    rate_entry_t *c1 = (rate_entry_t *)x;
+    rate_entry_t *c2 = (rate_entry_t *)y;
 
-   if (c1->values[RSS_VAL] == c2->values[RSS_VAL])
-	return 0;
-   else if (c2->values[RSS_VAL] > c1->values[RSS_VAL])
-	return 1;
-   else
+    if (c1->values[RSS_VAL] < c2->values[RSS_VAL])
 	return -1;
+    if (c2->values[RSS_VAL] > c1->values[RSS_VAL])
+	return 1;
+    return 0;
 }
 
 /*
@@ -363,7 +371,7 @@ calc_sum_rates(int num_entries, int val_type)
     int i;
     double sum = 0;
 
-    for(i=0; i < min(top, num_entries); i++) {
+    for (i = 0; i < min(top, num_entries); i++) {
 	rate_entry_t *entry = &rate_tab[i];
 	sum += entry->values[val_type];
     }
@@ -384,7 +392,7 @@ print_top(rate_entry_t *rate_tab, int num_entries, int val_type)
 	printf("%s\n", format_tab[val_type].label);
     }
     else {
-	x= 100*sum_rates[val_type]/global_rates[val_type];
+	x = 100*sum_rates[val_type]/global_rates[val_type];
 	printf("%s - top %d processes account for %.0f%% of %s\n",
 	       format_tab[val_type].label,
 	       top, x>100?100:x,
@@ -758,135 +766,6 @@ doit(void)
     }
 }
 
-
-static void
-print_usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options]\n\
-\n\
-Options:\n\
-  -h host	metrics source is PMCD on host\n\
-  -m top	look at top m values\n\
-  -p spec,...	print certain values e.g. cpu,sysc,rss\n\
-  -s num	number of samples to output\n\
-  -t interval   default reporting interval [default 2 seconds]\n\
-  -w		wide output for command name\n\
-  -Z timezone   set reporting timezone\n\
-  -z            set reporting timezone to local time of metrics source\n\
-where spec = cpu|sysc|ctx|read|write|rss|sys|usr\n",
-	pmProgname);
-}
-
-void
-parse_options(int argc, char *argv[])
-{
-    int		c;
-    int		sts;
-    int		errflag = 0;
-    char	*opts = "D:h:m:p:s:t:wzZ:?";
-    char	*p;
-    char	*endnum;
-    int		one_trip = 1;
-
-    while ((c = getopt(argc, argv, opts)) != EOF) {
-	switch (c) {
-	    case 'w':   /* wide flag */
-		line_fmt = "%.1024s";
-		break;
-	    case 'p':	/* show flag */
-		if (one_trip) {
-		    show_spec = 0; one_trip = 0;
-		}
-		sts = parse_show_spec(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized print flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		}
-		else
-		    show_spec |= sts;
-		break;
-
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		}
-		else
-		    pmDebug |= sts;
-		break;
-
-
-	    case 'h':	/* contact PMCD on this hostname */
-		hostname = optarg;
-		break;
-	
-	    case 'm':   /* top m */
-		top = (int)strtol(optarg, &endnum, 10);
-		if (top <= 0) {
-		    fprintf(stderr, "%s: -m requires a positive integer\n", pmProgname);
-		    errflag++;	
-		}
-		break;
-
-	    case 's':   /* number of samples to output */
-		num_samples = (int)strtol(optarg, &endnum, 10);
-		if (top <= 0) {
-		    fprintf(stderr, "%s: -s requires a positive integer\n", pmProgname);
-		    errflag++;	
-		}
-		break;
-
-	    case 't':		/* change default logging interval */
-		if (pmParseInterval(optarg, &delta, &p) < 0) {
-		    fprintf(stderr, "%s: illegal -t argument\n", pmProgname);
-		    fputs(p, stderr);
-		    free(p);
-		    errflag++;
-		}
-		break;
-
-	    case 'z':       /* timezone from host */
-		if (tz != NULL) {
-		    fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		    errflag++;
-		}
-		zflag++;
-		break;
-
-	    case 'Z':       /* $TZ timezone */
-		if (zflag) {
-		    fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		    errflag++;
-		}
-		tz = optarg;
-		break;
-
-
-	    case '?':
-		if (errflag == 0) {
-		    print_usage();
-		    exit(0);
-		}
-	}
-    }
-
-    while (optind < argc) {
-        fprintf(stderr, "%s: Invalid argument: %s\n", pmProgname, argv[optind]);
-        errflag++;
-	optind++;
-    }
-
-    if (errflag) {
-	print_usage();
-	exit(1);
-    }
-
-}
-
 /*
  * go thru show_spec and build up the namelist and
  * index variables into the array
@@ -958,7 +837,7 @@ create_namelist(void)
     num_proc_pmid = i - j;
 }
 
-void
+static void
 get_indom(void)
 {
     static int onetrip = 1;
@@ -1020,50 +899,85 @@ get_indom(void)
     pmAddProfile(proc_indom, num_inst, instances);
 }
 
+static int
+overrides(int opt, pmOptions *opts)
+{
+    if (opt == 'p')
+	return 1;
+
+    if (opt == 's')
+	num_samples = atoi(opts->optarg); /* continue processing 's' */
+    return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
-    pmDesc desc;
-    int sts, i;
+    int		c;
+    int		sts;
+    char	*endnum;
+    pmDesc	desc;
+    int		one_trip = 1;
 
-    __pmSetProgname(argv[0]);
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	switch (c) {
 
-    parse_options(argc, argv);
+	case 'w':	/* wide flag */
+	    line_fmt = "%.1024s";
+	    break;
+
+	case 'p':	/* show flag */
+	    if (one_trip) {
+		show_spec = 0;
+		one_trip = 0;
+	    }
+	    if ((sts = parse_show_spec(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized print flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
+		show_spec |= sts;
+	    }
+	    break;
+
+	case 'm':	/* top N */
+	    top = (int)strtol(opts.optarg, &endnum, 10);
+	    if (top <= 0) {
+		pmprintf("%s: -m requires a positive integer\n", pmProgname);
+		opts.errors++;	
+	    }
+	    break;
+	}
+    }
+
+    if (opts.optind < argc)
+        opts.errors++;
+
+    if (opts.errors) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
 
     create_namelist();
 
-    if (hostname == NULL) {
-	hostname = "local:";
-    }
+    if (opts.interval.tv_sec == 0)
+	opts.interval.tv_sec = 2;
 
-    if ((sts = pmNewContext(PM_CONTEXT_HOST, hostname)) < 0) {
+    if (opts.nhosts > 0)
+	hostname = opts.hosts[0];
+    else
+	hostname = "local:";
+
+    if ((sts = c = pmNewContext(PM_CONTEXT_HOST, hostname)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		pmProgname, hostname, pmErrStr(sts));
 	exit(1);
     }
+    hostname = (char *)pmGetContextHostName(c);
 
-    if (zflag) {
-        if ((sts = pmNewContextZone()) < 0) {
-            fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-                pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-    }
-    else if (tz != NULL) {
-        if ((sts = pmNewZone(tz)) < 0) {
-            fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-                pmProgname, tz, pmErrStr(sts));
-            exit(1);
-        }
-    }
-
-    {
-	char *tz;
-	char buf[80];
-	if (pmWhichZone(&tz) >= 0) {
-	    sprintf(buf, "TZ=%s", tz);
-	    putenv(buf);
-	}
+    if (pmGetContextOptions(c, &opts)) {
+	pmflush();
+	exit(1);
     }
 
     if ((sts = pmLookupName(num_pmid, namelist, pmidlist)) < 0) {
@@ -1072,22 +986,22 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    for(i=0; i<num_pmid; i++) {
-	if ((sts = pmLookupDesc(pmidlist[i], &desc)) < 0) {
+    for (c = 0; c < num_pmid; c++) {
+	if ((sts = pmLookupDesc(pmidlist[c], &desc)) < 0) {
 	    fprintf(stderr, "%s: Failed to lookup descriptor for metric \"%s\": %s\n",
-		    pmProgname, namelist[i], pmErrStr(sts));
+		    pmProgname, namelist[c], pmErrStr(sts));
 	    exit(1);
 	}
-	type_tab[i] = desc.type;	
+	type_tab[c] = desc.type;	
 	/* ASSUMES that the first metric will always be a proc metric */
-	if (i == 0) {
-	   proc_indom = desc.indom;
-	} 
+	if (c == 0) {
+	    proc_indom = desc.indom;
+	}
     }
 
-    for(;;) {
+    for (;;) {
 	doit();
-        sleep(delta.tv_sec);
+	__pmtimevalSleep(opts.interval);
     }
 
     return 0;

@@ -148,8 +148,9 @@ specification matches the same actual pmcd: one confirmed access path is
 arbitrarily selected.  The default is to do
 .BR "no discovery" .
 Consider including
-.IR avahi 
-to rely on pmcd self-announcements on the local network.
+.IR avahi,timeout=5
+to rely in pmcd self-announcements on the local network (searching for up to
+five seconds each time).
 
 .TP
 log\-subdirectory\-gc

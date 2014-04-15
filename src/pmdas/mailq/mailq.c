@@ -1,7 +1,7 @@
 /*
  * Mailq PMDA
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2014 Red Hat.
  * Copyright (c) 1997-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -70,7 +70,33 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
-static int compar(const void *a, const void *b)
+static int
+mailq_histogram(char *option)
+{
+    struct timeval	tv;
+    char		*errmsg;
+    char		*q;
+    int			sts;
+
+    q = strtok(option, ",");
+    while (q != NULL) {
+	if ((sts = pmParseInterval((const char *)q, &tv, &errmsg)) < 0) {
+	    pmprintf("%s: bad historgram bins argument:\n%s\n", pmProgname, errmsg);
+	    free(errmsg);
+	    return -EINVAL;
+	}
+	numhisto++;
+	histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
+	if (histo == NULL)
+	    __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
+	histo[numhisto-1].delay = tv.tv_sec;
+	q = strtok(NULL, ",");
+    }
+    return 0;
+}
+
+static int
+compare_delay(const void *a, const void *b)
 {
     histo_t	*ha = (histo_t *)a;
     histo_t	*hb = (histo_t *)b;
@@ -219,38 +245,36 @@ mailq_init(pmdaInterface *dp)
 	     sizeof(metrictab)/sizeof(metrictab[0]));
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options] [queuedir]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -b binlist   times to be used for histogram bins as comma\n"
-	  "               separated values in pmParseInterval(3) format\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -r regex     regular expression for matching mail file names\n"
-	  "  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
-    exit(1);
-}
+pmdaInterface	dispatch;
+
+pmLongOptions	longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "binlist", 1, 'b', "TIMES", "comma-separated histogram bins times" },
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    { "regex", 1, 'r', "RE", "regular expression for matching mail file names" },
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions	opts = {
+    .short_options = "b:D:d:l:r:U:?",
+    .long_options = longopts,
+    .short_usage = "[options] [queuedir]",
+};
 
 /*
- * Set up the agent if running as a daemon.
+ * Set up the agent, running as a daemon.
  */
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
     int			sep = __pmPathSeparator();
     int			c;
-    int			sts;
     int			i;
-    time_t		tmp;
-    pmdaInterface	dispatch;
-    char		*q;
-    char		*errmsg;
     char		namebuf[30];
-    struct timeval	tv;
     char		mypath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
@@ -267,56 +291,38 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, MAILQ,
 		"mailq.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "b:D:d:l:r:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {
-	    case 'b':
-		q = strtok(optarg, ",");
-		while (q != NULL) {
-		    sts = pmParseInterval((const char *)q, &tv, &errmsg);
-		    if (sts < 0) {
-			fprintf(stderr, "%s: bad -b argument:\n%s\n",
-			    pmProgname, errmsg);
-			err++;
-		    }
-		    numhisto++;
-		    histo = (histo_t *)realloc(histo, numhisto * sizeof(histo[0]));
-		    if (histo == NULL) {
-			 __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
-		    }
-		    histo[numhisto-1].delay = tv.tv_sec;
-		    q = strtok(NULL, ",");
-		}
-		break;
+	case 'b':
+	    if (mailq_histogram(opts.optarg) < 0)
+		opts.errors++;
+	    break;
 
-	    case 'r':
-		regexstring = optarg;
-		c = regcomp(&mq_regex, regexstring, REG_EXTENDED | REG_NOSUB);
-		if (c != 0) {
-		    regerror(c, &mq_regex, mypath, sizeof(mypath));
-		    fprintf(stderr, "Cannot compile regular expression: %s\n",
-				    mypath);
-		    exit(1);
-		}
-		break;
-
-	    case 'U':
-		username = optarg;
-		break;
-
-	    default:
-		err++;
-		break;
+	case 'r':
+	    regexstring = opts.optarg;
+	    c = regcomp(&mq_regex, regexstring, REG_EXTENDED | REG_NOSUB);
+	    if (c != 0) {
+		regerror(c, &mq_regex, mypath, sizeof(mypath));
+		pmprintf("%s: cannot compile regular expression: %s\n",
+			pmProgname, mypath);
+		opts.errors++;
+	    }
+	    break;
 	}
     }
 
-    if (optind == argc-1)
-	queuedir = argv[optind];
-    else if (optind != argc)
-	err++;
+    if (opts.optind == argc - 1)
+	queuedir = argv[opts.optind];
+    else if (opts.optind != argc)
+	opts.errors++;
 
-    if (err) {
-    	usage();
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
+
+    if (opts.username)
+	username = opts.username;
 
     if (histo == NULL) {
 	/* default histo bins, if not already done above ... */
@@ -341,14 +347,15 @@ main(int argc, char **argv)
 	     __pmNoMem("histo", numhisto * sizeof(histo[0]), PM_FATAL_ERR);
 	}
 	histo[numhisto-1].delay = 0;
-	qsort(histo, numhisto, sizeof(histo[0]), compar);
+	qsort(histo, numhisto, sizeof(histo[0]), compare_delay);
     }
 
     _delay = (pmdaInstid *)malloc(numhisto * sizeof(_delay[0]));
-    if (_delay == NULL) {
-	 __pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
-    }
+    if (_delay == NULL)
+	__pmNoMem("_delay", numhisto * sizeof(_delay[0]), PM_FATAL_ERR);
+
     for (i = 0; i < numhisto; i++) {
+	time_t	tmp;
 	_delay[i].i_inst = histo[i].delay;
 	histo[i].count = 0;
 	if (histo[i].delay == 0)

@@ -28,8 +28,6 @@ enum {
     REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
 };
 
-static int __pmgetopt_r(int, char *const *, pmOptions *);
-
 /*
  * Using the current archive context, extract start and end
  * times and adjust the time window boundaries accordingly.
@@ -127,8 +125,9 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
     /* timezone setup */
     if (opts->tzflag) {
-	const char *hostname = pmGetContextHostName(ctxid);
+	char hostname[MAXHOSTNAMELEN];
 
+	pmGetContextHostName_r(ctxid, hostname, MAXHOSTNAMELEN);
 	if ((tzh = pmNewContextZone()) < 0) {
 	    pmprintf("%s: Cannot set context timezone: %s\n",
 			pmProgname, pmErrStr(tzh));
@@ -636,6 +635,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 
     if (!(opts->flags & PM_OPTFLAG_INIT)) {
 	__pmSetProgname(argv[0]);
+	opts->__initialized = 1;
 	__pmStartOptions(opts);
     }
 
@@ -646,11 +646,11 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
     }
 
     while (!flag) {
-	c = __pmgetopt_r(argc, argv, opts);
+	c = pmgetopt_r(argc, argv, opts);
 
 	/* provide opportunity for overriding the general set of options */
-	if (opts->override && opts->override(c, opts))
-	    continue;
+	if (c != EOF && opts->override && opts->override(c, opts))
+	    break;
 
 	switch (c) {
 	case 'A':
@@ -703,7 +703,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    break;
 	case 'V':
 	    opts->flags |= PM_OPTFLAG_EXIT;
-	    pmprintf("%s %s\n", pmProgname, PCP_VERSION);
+	    pmprintf("%s version %s\n", pmProgname, PCP_VERSION);
 	    break;
 	case 'Z':
 	    __pmSetTimeZone(opts, opts->optarg);
@@ -741,7 +741,7 @@ pmUsageMessage(pmOptions *opts)
     const char *message;
     int bytes;
 
-    if (opts->flags & PM_OPTFLAG_RUNTIME_ERR)
+    if (opts->flags & (PM_OPTFLAG_RUNTIME_ERR|PM_OPTFLAG_EXIT))
 	goto flush;
 
     message = opts->short_usage ? opts->short_usage : "[options]";
@@ -782,7 +782,8 @@ pmUsageMessage(pmOptions *opts)
 	    pmprintf("\n%24s%s\n", "", option->message);
     }
 flush:
-    pmflush();
+    if (!(opts->flags & PM_OPTFLAG_NOFLUSH))
+	pmflush();
 }
 
 /*
@@ -942,25 +943,28 @@ typedef struct pmOptList {
     struct pmOptList *	next;
 } pmOptionsList;
 
-static int
-__pmgetopt_r(int argc, char *const *argv, pmOptions *d)
+int
+pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 {
     const char *optstring = d->short_options;
     pmLongOptions *longopts = d->long_options;
     int *longind = &d->index;
     int long_only = (d->flags & PM_OPTFLAG_LONG_ONLY);
-    int print_errors = d->opterr;
+    int quiet = (d->flags & PM_OPTFLAG_QUIET);
+    int print_errors = d->opterr || !quiet;
 
     if (argc < 1)
 	return -1;
 
     d->optarg = NULL;
 
-    if (d->optind == 0 || !d->__initialized) {
+    if (d->optind == 0 || d->__initialized <= 1) {
 	if (d->optind == 0)
 	    d->optind = 1;	/* Don't scan ARGV[0], the program name.  */
+	if (!d->__initialized)
+	    __pmSetProgname(argv[0]);
 	optstring = __pmgetopt_initialize(argc, argv, d);
-	d->__initialized = 1;
+	d->__initialized = 2;
     }
     else if (optstring[0] == '-' || optstring[0] == '+')
 	optstring++;

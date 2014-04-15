@@ -274,7 +274,7 @@ getcport(void)
     myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myAddr.sin_port = htons(ctlport);
 
-    sts = bind(fd, &myAddr, sizeof(myAddr));
+    sts = bind(fd, (const struct sockaddr *)&myAddr, sizeof(myAddr));
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "bind(%d): %s", ctlport, netstrerror());
 	exit(1);

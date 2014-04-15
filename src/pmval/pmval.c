@@ -733,16 +733,12 @@ getinstance(char *p)
 static int
 override(int opt, pmOptions *opts)
 {
-    switch (opt) {
-    case 's':
-	/* need to distinguish between zero argument */
+    /* need to distinguish between zero argument or not requested */
+    if (opt == 's') {
 	if (atoi(opts->optarg) == 0)
 	    nosamples = 1;
-	return 0;	/* continue with common code */
-    default:
-	break;
     }
-    return 0;
+    return 0;	/* continue on with using the common code, always */
 }
 
 int
@@ -853,7 +849,7 @@ main(int argc, char *argv[])
 	i = 0;
     }
     if (pmParseMetricSpec(argv[opts.optind], i, source, &msp, &errmsg) < 0) {
-	pmprintf(errmsg);
+	pmprintf("%s", errmsg);
 	free(errmsg);
 	opts.errors++;
     }

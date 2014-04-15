@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 739
+# Exercise python script automated option handling
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_version()
+{
+    sed -e 's/ [0-9]*\.[0-9]*\.[0-9]*$/ X.Y.Z/g'
+}
+
+# real QA test starts here
+echo && echo check no arguments
+python $here/src/test_pcp_options.python
+
+echo && echo check non arguments
+python $here/src/test_pcp_options.python param1 param2
+
+echo && echo check archive option and non arguments
+python $here/src/test_pcp_options.python -a file param
+
+echo && echo check host option and hostzone
+python $here/src/test_pcp_options.python -h qa.r.us -z
+
+echo && echo check timezone
+python $here/src/test_pcp_options.python --timezone UTC
+
+echo && echo check option samples and interval
+python $here/src/test_pcp_options.python --samples=5 -t1
+
+echo && echo check custom local long options
+python $here/src/test_pcp_options.python --list /tmp --force
+
+echo && echo check custom local short options
+python $here/src/test_pcp_options.python -b
+
+echo && echo check version message generation
+python $here/src/test_pcp_options.python -V 2>&1 | _filter_version
+
+echo && echo check unknown option and usage message
+python $here/src/test_pcp_options.python --munchies
+
+echo && echo check help option and usage message
+python $here/src/test_pcp_options.python --help
+
+# success, all done
+status=0
+exit

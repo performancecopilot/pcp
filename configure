@@ -8678,7 +8678,7 @@ fi
 
 done
 
-for ac_header in endian.h standards.h sys/byteorder.h getopt.h
+for ac_header in endian.h standards.h sys/byteorder.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -10207,57 +10207,6 @@ else
 $as_echo "yes" >&6; }
 fi
 rm -f conftest.*
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if getopt() needs \$POSIXLY_CORRECT" >&5
-$as_echo_n "checking if getopt() needs \$POSIXLY_CORRECT... " >&6; }
-cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <unistd.h>
-main(int argc, char **argv) {
-    int c;
-    c = getopt(argc, argv, "x");
-    if (c == 'x') putchar('n');
-    if (c == EOF) putchar('y');
-    putchar('\n');
-}
-End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-unset POSIXLY_CORRECT
-ans=`./conftest arg -x`
-echo "./conftest arg -x -> \"$ans\"" >&5
-if test "$ans" = n
-then
-    POSIXLY_CORRECT=
-    export POSIXLY_CORRECT
-    ans=`./conftest arg -x`
-    echo "POSIXLY_CORRECT= ./conftest arg -x -> \"$ans\"" >&5
-    unset POSIXLY_CORRECT
-    if test "$ans" = y
-    then
-	$as_echo "#define HAVE_GETOPT_NEEDS_POSIXLY_CORRECT 1" >>confdefs.h
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    else
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-$as_echo "unknown" >&6; }
-	echo "FATAL ERROR: could not coerce your getopt() work correctly"
-	rm -rf conftest conftest.*
-	exit 1
-    fi
-elif test "$ans" = y
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-$as_echo "unknown" >&6; }
-    echo "FATAL ERROR: could not make your getopt() work at all"
-    rm -rf conftest conftest.*
-    exit 1
-fi
-rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if printf %p produces 0x prefix" >&5
 $as_echo_n "checking if printf %p produces 0x prefix... " >&6; }
@@ -14652,19 +14601,3 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-cd debian || exit 1
-rm -f control
-if $MAKE control >/tmp/$$.make.out 2>&1
-then
-    rm /tmp/$$.make.out
-else
-    echo "Arrgh ..."
-    cat /tmp/$$.make.out
-    rm /tmp/$$.make.out
-    exit 1
-fi
-cd ..
-
-echo config.status: settings dump begin
-grep '^S.".*=' config.status
-echo config.status: settings dump end

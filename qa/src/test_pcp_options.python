@@ -1,0 +1,94 @@
+#
+# Copyright (C) 2014 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys as system
+from pcp import pmapi
+import cpmapi as c_api
+
+def optionsCB(opt, optarg, index):
+    arg = "'" + opt + "'"
+    if optarg != None:
+        arg = arg + " (" + optarg + ")"
+    arg = arg + " [index=" + str(index) + "]"
+    print "optionsCB: got option '" + arg
+
+def overrideCB(opt):
+    print "overrideCB: got option '" + str(opt) + "'"
+    if opt == 'b':
+        return 1
+    return 0
+
+""" Create an options object and set/get everything possible """
+
+options = pmapi.pmOptions("a:bfl:D:h:H:K:LS:T:O:A:s:t:VZ:z?")
+options.pmSetShortUsage("[options] parameters ...")
+
+options.pmSetLongOptionHeader("General Options")
+options.pmSetLongOptionAlign()
+options.pmSetLongOptionArchive()
+options.pmSetLongOptionDebug()
+options.pmSetLongOptionGuiMode()
+options.pmSetLongOptionHost()
+options.pmSetLongOptionHostsFile()
+options.pmSetLongOptionSpecLocal()
+options.pmSetLongOptionLocalPMDA()
+options.pmSetLongOptionOrigin()
+options.pmSetLongOptionGuiPort()
+options.pmSetLongOptionStart()
+options.pmSetLongOptionSamples()
+options.pmSetLongOptionFinish()
+options.pmSetLongOptionInterval()
+options.pmSetLongOptionVersion()
+options.pmSetLongOptionTimeZone()
+options.pmSetLongOptionHostZone()
+options.pmSetLongOptionHelp()
+
+options.pmSetLongOptionHeader("Test Options")
+options.pmSetLongOption("force", 0, 'f', '', "force some behaviour")
+options.pmSetLongOption("list", 1, 'l', "FILE", "open a list file")
+
+options.pmSetOptionCallback(optionsCB)
+options.pmSetOverrideCallback(overrideCB)
+
+# parse options, extract values
+if c_api.pmGetOptionsFromList(system.argv) != 0:
+    c_api.pmUsageMessage()
+    system.exit(1)
+
+# extract any options we can (many are consumed internally) & dump
+hosts = options.pmGetOptionHosts()
+if hosts != None:
+    print "Host list:", hosts
+
+archives = options.pmGetOptionArchives()
+if archives != None:
+    print "Archive list:", archives
+
+timezone = options.pmGetOptionTimezone()
+if timezone != None:
+    print "Timezone:", timezone
+
+samples = options.pmGetOptionSamples()
+if samples != None:
+    print "Samples:", samples
+
+interval = options.pmGetOptionInterval()
+if interval != None:
+    print "Interval:", interval
+
+nonoptions = options.pmNonOptionsFromList(system.argv)
+if nonoptions != None:
+    print "Non-option arguments:", nonoptions
+
+print "Done!"

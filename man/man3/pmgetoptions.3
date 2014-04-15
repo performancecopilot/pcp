@@ -13,6 +13,7 @@
 .\"
 .TH PMGETOPTIONS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pmgetopt_r\f1,
 \f3pmGetOptions\f1,
 \f3pmGetContextOptions\f1,
 \f3pmFreeOptions\f1,
@@ -21,6 +22,8 @@
 .ft 3
 #include <pcp/pmapi.h>
 .sp
+.br
+int pmgetopt_r(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
 .br
 int pmGetOptions(int \fIargc\fP, char *const *\fIargv\fP, pmOptions *\fIopts\fP);
 .br
@@ -63,6 +66,16 @@ The final
 argument describes the set of long and short options the tools is
 prepared to process, and other metadata regarding how those options
 should be processed.
+.PP
+The
+.B pmgetopt_r
+interface, used internally by
+.BR pmGetOptions ,
+behaves in a similar fashion, but it does not perform any common
+option processing.
+It is more suited to PCP collector processes, whereas PCP monitor
+tools tend to use
+.BR pmGetOptions .
 .PP
 The
 .I opts
@@ -222,9 +235,9 @@ or
 Some command line option post-processing can only be performed once
 the tool has established a PMAPI context via
 .BR pmNewContext (3).
-This processing includes use of context-aware timezones (\-z),
-and similarly time window processing (\-A, \-O, \-S, -\T) that may
-be affected by the timezone.
+This processing includes use of context-aware timezones (\f3\-z\f1),
+and time window processing (\f3\-A\f1, \f3\-O\f1, \f3\-S\f1, \f3\-T\f1)
+that may be affected by the timezone, for example.
 The
 .B pmGetContextOptions
 function is available for such situations, and it completes any
@@ -363,17 +376,45 @@ and
 fields in the
 .I opts
 structure.
-.SH "RETURN VALUE"
-When the
-.B pmGetOptions
-function returns detects a command-line option that is not one of
-the standard PCP set, it will return control to the caller in the
-same way that a regular
+.TP
+.B PM_OPTFLAG_NOFLUSH
+The final
+.B pmflush
+call issued by
+.B pmUsageMessage
+will be skipped if this flag is set.
+This is useful in situations where the caller wishes to append
+additional test to the generated usage message before flushing.
+.TP
+.B PM_OPTFLAG_QUIET
+Suppress messages from
+.B pmgetopt_r
+about unrecognised command line options.
+This is the equivalent to setting the
+.I opterr
+field in the
+.I opt
+parameter (which mimics the
 .B getopt
-call would, with the return value indicating the single character
-form of the option, and the
+variable of the same name).
+.SH "RETURN VALUE"
+The
+.B pmGetOptions
+function returns either when it detects a command-line option that
+is not one of the standard PCP set, or when the end of the command
+line options has been reached (at which point -1 is returned).
+Both the
+.B pmgetopt_r
+and
+.B pmGetOptions
+routines return control to the caller in the same way that a regular
+.B getopt
+call would, with the return value indicating either the end of all
+processing (-1), or the single character form of the option currently
+being processed, or zero for the special long-option-only case.
+For all option-processing cases, the
 .I opts
-structure containing filled out
+structure is returned containing filled out
 .IR optarg ,
 .IR opterr ,
 .IR optopt ,
@@ -386,6 +427,12 @@ use the global optarg or optind from your platform C library,
 these will
 .B NOT
 be modified).
+.PP
+.B pmGetOptions
+does not return to the caller when any of the standard PCP options are
+being processed (although the
+.I override
+mechanism can be used to still detect such options if needed).
 .PP
 The
 .B pmGetContextOptions

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,11 +16,18 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static void
-usage()
-{
-    fprintf(stderr, "Usage: pmhostname [hostname]\n");
-}
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:?",
+    .long_options = longopts,
+    .short_usage = "[hostname]",
+};
 
 int
 main(int argc, char **argv)
@@ -27,47 +35,24 @@ main(int argc, char **argv)
     char	*name, *hename;
     char       	host[MAXHOSTNAMELEN];
     __pmHostEnt	*hep;
-    int		c;
-    int		sts;
-    int		errflag = 0;
 
-    __pmSetProgname(argv[0]);
+    while (pmGetOptions(argc, argv, &opts) != EOF)
+	opts.errors++;
 
-    while ((c = getopt(argc, argv, "D:?")) != EOF) {
-	switch (c) {
-
-	    case 'D':	/* debug flag */
-		sts = __pmParseDebug(optarg);
-		if (sts < 0) {
-		    fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		    errflag++;
-		}
-		else
-		    pmDebug |= sts;
-		break;
-
-	    case '?':
-		if (errflag == 0) {
-		    usage();
-		    exit(0);
-		}
-	}
-    }
-    if (errflag || argc > optind+1) {
-	usage();
+    if (opts.errors || argc > opts.optind + 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (argc == optind) {
+    if (argc == opts.optind) {
 	if (gethostname(host, MAXHOSTNAMELEN) < 0) {
-	    __pmNotifyErr(LOG_ERR, "%s: gethostname failure\n", pmProgname);
+	    fprintf(stderr, "%s: gethostname failure\n", pmProgname);
 	    exit(1);
 	}
 	name = host;
     }
     else
-	name = argv[optind];
+	name = argv[opts.optind];
 
     hep = __pmGetAddrInfo(name);
     if (hep == NULL) {

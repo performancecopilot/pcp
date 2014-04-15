@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -31,11 +28,13 @@ main(int argc, char **argv)
     char	*p;
     char	*q;
 
-    if (argc > 1 && strcmp(argv[1], "-l") == 0) {
+    if (argc > 1 &&
+	(strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--list") == 0)) {
 	__pmDumpErrTab(stdout); 
 	exit(1);
     }
-    else if (argc > 1 && strcmp(argv[1], "-?") == 0) {
+    else if (argc > 1 &&
+	(strcmp(argv[1], "-?") == 0 || strcmp(argv[1], "--help") == 0)) {
 	argc = 0;
     }
     else if (argc > 1 && argv[1][0] == '-' && !isxdigit((int)argv[1][1])) { 
@@ -46,7 +45,7 @@ main(int argc, char **argv)
     if (argc == 0) {
 	fprintf(stderr,
 "Usage: pmerr [options] [code]\n\n"
-"  -l   causes all known error codes to be listed\n");
+"  -l, --list   causes all known error codes to be listed\n");
 	exit(1);
     }
 

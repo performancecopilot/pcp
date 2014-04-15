@@ -727,7 +727,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
   string pmlogger_command =
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmlogger";
   string pmlogger_options = sh_quote(pmlogger_command);
-  pmlogger_options += " " + get_config_single ("pmlogger");
+  pmlogger_options += " " + get_config_single ("pmlogger") + " ";
 
   // run pmlogconf if requested
   if (get_config_exists("pmlogconf"))
@@ -1027,7 +1027,7 @@ pmmgr_pmie_daemon::daemon_command_line()
         string(pmGetConfig("PCP_BIN_DIR")) + (char)__pmPathSeparator() + "pmie";
   string pmie_options = sh_quote (pmie_command);
 
-  pmie_options += " " + get_config_single ("pmie");
+  pmie_options += " " + get_config_single ("pmie") + " ";
 
   // run pmieconf if requested
   if (get_config_exists ("pmieconf"))
@@ -1123,12 +1123,24 @@ void setup_signals()
 
 // ------------------------------------------------------------------------
 
+static pmOptions opts;
+static pmLongOptions longopts[] =
+  {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "config", 1, 'c', "DIR", "configuration directory [default $PCP_SYSCONF_DIR/pmmgr]" },
+    { "poll", 1, 'p', "NUM", "set pmcd polling interval [default 60]" },
+    { "username", 1, 'U', "USER", "switch to named user account [default pcp]" },
+    { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
+    { "verbose", 0, 'v', 0, "verbose diagnostics to stderr" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+  };
 
 int main (int argc, char *argv[])
 {
   /* Become our own process group, to assist signal passing to children. */
   setpgid(getpid(), 0);
-  __pmSetProgname(argv[0]);
   setup_signals();
 
   string default_config_dir =
@@ -1141,16 +1153,28 @@ int main (int argc, char *argv[])
   string username = username_str;
   char* output_filename = NULL;
 
-  while ((c = getopt(argc, argv, "D:c:vp:U:l:h")) != EOF)
+  opts.long_options = longopts;
+  opts.short_options = "D:c:vp:U:l:?";
+
+  while ((c = pmgetopt_r(argc, argv, &opts)) != EOF)
     {
       switch (c)
         {
         case 'D': // undocumented
-          (void) __pmParseDebug(optarg);
+          if ((c = __pmParseDebug(opts.optarg)) < 0)
+            {
+              pmprintf("%s: unrecognized debug flag specification (%s)\n",
+                       pmProgname, opts.optarg);
+              opts.errors++;
+            }
+          else
+            {
+              pmDebug |= c;
+            }
           break;
 
         case 'l':
-          output_filename = optarg;
+          output_filename = opts.optarg;
           break;
 
         case 'v':
@@ -1158,36 +1182,31 @@ int main (int argc, char *argv[])
           break;
 
         case 'p':
-          polltime = atoi(optarg);
+          polltime = atoi(opts.optarg);
           if (polltime <= 0)
             {
-              cerr << "Poll time too short." << endl;
-              exit(1);
+              pmprintf("%s: poll time too short\n", pmProgname);
+              opts.errors++;
             }
           break;
 
         case 'c':
-          js.push_back (new pmmgr_job_spec(optarg));
+          js.push_back (new pmmgr_job_spec(opts.optarg));
           break;
 
         case 'U':
-          username = optarg;
+          username = opts.optarg;
           break;
 
-        case 'h':
         default:
-          cerr << "Usage: " << pmProgname << " [options] ..." << endl
-               << "Options:" << endl
-               << "  -c DIR   add another configuration directory "
-               <<                "(default " << default_config_dir << ")" << endl
-               << "  -p NUM   set pmcd polling interval "
-               <<                "(default " << polltime << ")" << endl
-               << "  -U USER  switch to userid "
-               <<                "(default " << username << ")" << endl
-               << "  -v       verbose diagnostics to stderr" << endl
-               << endl;
-          exit (1);
+	    opts.errors++;
         }
+    }
+
+  if (opts.errors)
+    {
+      pmUsageMessage(&opts);
+      exit(1);
     }
 
   // default

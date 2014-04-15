@@ -15,17 +15,17 @@
 TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGETS	= trace$(EXECSUFFIX)
-CFILES	= trace.c client.c comms.c data.c pmda.c
-HFILES	= data.h client.h comms.h
+IAM		= trace
+DOMAIN		= TRACE
+CMDTARGET	= pmdatrace$(EXECSUFFIX)
+PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
-LCFLAGS = -I$(TOPDIR)/src/libpcp_trace/src
-LLDFLAGS= -L$(TOPDIR)/src/libpcp_trace/src
-LLDLIBS	= -lpcp_trace $(PCP_PMDALIB)
+CFILES		= trace.c client.c comms.c data.c pmda.c
+HFILES		= data.h client.h comms.h
 
-IAM	= trace
-DOMAIN	= TRACE
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LCFLAGS		= -I$(TOPDIR)/src/libpcp_trace/src
+LLDFLAGS	= -L$(TOPDIR)/src/libpcp_trace/src
+LLDLIBS		= -lpcp_trace $(PCP_PMDALIB)
 
 LDIRT		= *.log *.dir *.pag domain.h $(TARGETS)
 
@@ -34,11 +34,11 @@ default:	build-me
 include $(BUILDRULES)
 
 ifneq "$(TARGET_OS)" "mingw"
-build-me:	$(TARGETS)
+build-me:	$(CMDTARGET)
 
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 else
 build-me:

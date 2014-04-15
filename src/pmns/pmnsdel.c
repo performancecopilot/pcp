@@ -1,8 +1,7 @@
 /*
- * pmnsdel [-d] [-n pmnsfile ] metricpath [...]
- *
  * Cull subtree(s) from a PCP PMNS
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +24,21 @@
 static FILE		*outf;		/* output */
 static __pmnsNode	*root;		/* result so far */
 static char		*fullname;	/* full PMNS pathname for newbie */
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "duplicates", 0, 'd', 0, "duplicate PMIDs are allowed" },
+    PMOPT_NAMESPACE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "dD:n:?",
+    .long_options = longopts,
+    .short_usage = "[options] metricpath [...]",
+};
 
 static void
 delpmns(__pmnsNode *base, char *name)
@@ -93,13 +107,10 @@ main(int argc, char **argv)
     int		sts;
     int		c;
     int		dupok = 0;
-    int		errflag = 0;
     char	*p;
     char	pmnsfile[MAXPATHLEN];
     char	outfname[MAXPATHLEN];
     struct stat	sbuf;
-
-    __pmSetProgname(argv[0]);
 
     if ((p = getenv("PMNS_DEFAULT")) != NULL)
 	strcpy(pmnsfile, p);
@@ -107,7 +118,7 @@ main(int argc, char **argv)
 	snprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep);
 
-    while ((c = getopt(argc, argv, "dD:n:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'd':	/* duplicate PMIDs are OK */
@@ -115,35 +126,34 @@ main(int argc, char **argv)
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
+	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    } else {
 		pmDebug |= sts;
+	    }
 	    break;
 
 	case 'n':	/* alternative name space file */
-	    strcpy(pmnsfile, optarg);
+	    strcpy(pmnsfile, opts.optarg);
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind > argc-1) {
-	fprintf(stderr, "Usage: %s [-d] [-n pmnsfile ] metricpath [...]\n", pmProgname);	
+    if (opts.errors || opts.optind > argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
     if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
 	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
-	    pmProgname, pmnsfile, pmErrStr(sts));
+		pmProgname, pmnsfile, pmErrStr(sts));
 	exit(1);
     }
 
@@ -159,9 +169,9 @@ main(int argc, char **argv)
     }
 
 
-    while (optind < argc) {
-	delpmns(root, fullname = argv[optind]);
-	optind++;
+    while (opts.optind < argc) {
+	delpmns(root, fullname = argv[opts.optind]);
+	opts.optind++;
     }
 
     /*
@@ -175,7 +185,7 @@ main(int argc, char **argv)
     snprintf(outfname, sizeof(outfname), "%s.new", pmnsfile);
     if ((outf = fopen(outfname, "w")) == NULL) {
 	fprintf(stderr, "%s: Error: cannot open PMNS file \"%s\" for writing: %s\n",
-	    pmProgname, outfname, osstrerror());
+		pmProgname, outfname, osstrerror());
 	exit(1);
     }
     if (stat(pmnsfile, &sbuf) == 0) {
@@ -185,7 +195,7 @@ main(int argc, char **argv)
 	chmod(outfname, sbuf.st_mode & ~S_IFMT);
 #if defined(HAVE_CHOWN)
 	if (chown(outfname, sbuf.st_uid, sbuf.st_gid) < 0)
-		fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
+	    fprintf(stderr, "%s: chown(%s, ...) failed: %s\n",
 		    pmProgname, outfname, osstrerror());
 #endif
     }
@@ -195,7 +205,8 @@ main(int argc, char **argv)
 
     /* rename the PMNS */
     if (rename2(outfname, pmnsfile) == -1) {
-	fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n", pmProgname, outfname, pmnsfile, osstrerror());
+	fprintf(stderr, "%s: cannot rename \"%s\" to \"%s\": %s\n",
+		pmProgname, outfname, pmnsfile, osstrerror());
 	/* remove the new PMNS */
 	unlink(outfname);
 	exit(1);

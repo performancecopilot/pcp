@@ -48,9 +48,17 @@ is supported, which searches for
 servers.
 .PP 
 .IR mechanism
-specifies the style of discovery to be used. Currently, only \fB"avahi"\fP
+specifies the style of discovery to be used.
+.PP
+Currently, only \fB"avahi"\fP
 is supported. This searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
+An optional suffix \fB",timeout=NNNN"\fP may be added
+to specify the discovery timeout, in floating-point multiples of one
+second.  The default timeout is 0.5 seconds, which may be overridden
+by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
+specified in floating-point multiples of one second.
+.PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
 .PP 

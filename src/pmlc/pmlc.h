@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,12 +11,7 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 #ifndef _PMLC_H
 #define _PMLC_H
 
@@ -42,6 +38,7 @@ extern int	qa_case;
 
 extern void yyerror(char *);
 extern void yywarn(char *);
+extern int yywrap(void);
 extern int yylex(void);
 extern void skipAhead (void);
 extern int yyparse(void);
@@ -62,6 +59,16 @@ extern void dumpmetrics(FILE *);
 extern int ConnectLogger(char *, int *, int *);
 extern void DisconnectLogger(void);
 extern int ConnectPMCD(void);
+
+/* command routines */
+extern int logfreq;
+extern void ShowLoggers(char *);
+extern void Query(void);
+extern void LogCtl(int, int, int);
+extern void Status(int, int);
+extern void NewVolume(void);
+extern void Sync(void);
+extern void Qa(void);
 
 /* information about an instance domain */
 typedef struct {

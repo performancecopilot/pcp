@@ -608,7 +608,7 @@ extern char *pmGetConfig(const char *);
 
 #define PMAPI_OPTIONS	"A:a:D:gh:n:O:p:S:s:T:t:VZ:z?"
 #define PMAPI_OPTIONS_HEADER(s)	{ "", 0, '-', 0, (s) }
-#define PMAPI_OPTIONS_END	{ NULL, 0, 0, 0 }
+#define PMAPI_OPTIONS_END	{ NULL, 0, 0, 0, NULL }
 
 #define PMOPT_ALIGN	{ "align",	1, 'A',	"TIME", \
 			"align sample times on natural boundaries" }
@@ -683,6 +683,8 @@ extern char *pmGetConfig(const char *);
 #define PM_OPTFLAG_LONG_ONLY	(1<<9)	/* use long options only */
 #define PM_OPTFLAG_BOUNDARIES	(1<<10)	/* calculate time window */
 #define PM_OPTFLAG_STDOUT_TZ	(1<<11)	/* write timezone change */
+#define PM_OPTFLAG_NOFLUSH	(1<<12)	/* caller issues pmflush */
+#define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
 struct __pmOptions;
 typedef int (*pmOptionOverride)(int, struct __pmOptions *);
@@ -751,6 +753,7 @@ typedef struct __pmOptions {
     unsigned int	zeroes  : 28;
 } pmOptions;
 
+extern int pmgetopt_r(int, char *const *, pmOptions *);
 extern int pmGetOptions(int, char *const *, pmOptions *);
 extern int pmGetContextOptions(int, pmOptions *);
 extern void pmUsageMessage(pmOptions *);
