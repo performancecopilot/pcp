@@ -426,28 +426,27 @@ def test_pcp(self):
         self.assertTrue(False)
 
     # pmRegisterDerived
-    if (ARCHIVE == ""):         # pmRegisterDerived not available with archives
-        try:
-            ctx.pmRegisterDerived("disk.dev.avgiosz",
-                "delta(disk.dev.total_bytes) / delta(disk.dev.total)")
-            average = ctx.pmLookupName("disk.dev.avgiosz")
-            descs = ctx.pmLookupDescs(average)
-            results = ctx.pmFetch(average)
-            ctx.pmtimevalSleep(delta)
-            results = ctx.pmFetch(average)
-            atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+    try:
+        ctx.pmRegisterDerived("pcpqa.derivation",
+                "sample.double.bin * delta(sample.double.bin_ctr)")
+        average = ctx.pmLookupName("pcpqa.derivation")
+        descs = ctx.pmLookupDescs(average)
+        results = ctx.pmFetch(average)
+        ctx.pmtimevalSleep(delta)
+        results = ctx.pmFetch(average)
+        atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,
                                       api.PM_TYPE_DOUBLE)
-            self.assertTrue(True)
-        except pmapi.pmErr, error:
-            self.assertTrue(False)
-        try:
-            ctx.pmRegisterDerived("a.bad.expression", "a $ bad @ expression")
-            self.assertTrue(False)
-        except pmapi.pmErr, error:
-            print "pmRegisterDerived: ", ctx.pmDerivedErrStr()
-            self.assertTrue(True)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        self.assertTrue(False)
+    try:
+        ctx.pmRegisterDerived("a.bad.expression", "a $ bad @ expression")
+        self.assertTrue(False)
+    except pmapi.pmErr, error:
+        print "pmRegisterDerived: ", ctx.pmDerivedErrStr()
+        self.assertTrue(True)
 
     # pmFreeResult
     ctx.pmFreeResult(results)
