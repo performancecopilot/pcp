@@ -519,6 +519,7 @@ __pmLogNewFile(const char *base, int vol)
 	setoserror(save_error);
 	return NULL;
     }
+    setvbuf(f, NULL, _IONBF, 0);
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
