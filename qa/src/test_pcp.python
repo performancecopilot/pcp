@@ -80,7 +80,7 @@ def test_pcp(self):
     # Get number of cpus
     # pmLookupName
     try:
-        self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load"))
+        self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load", "hinv.machine"))
         print "pmLookupName:", self.ncpu_id
         self.assertTrue(True)
     except pmapi.pmErr, error:
@@ -92,8 +92,7 @@ def test_pcp(self):
 
     # pmLookupDesc
     try:
-        descs = ctx.pmLookupDesc(self.ncpu_id[0])
-        # dump_array_ptrs("pmLookupDesc", descs)
+        descs = ctx.pmLookupDescs(self.ncpu_id)
         self.assertTrue(True)
     except pmapi.pmErr, error:
         self.assertTrue(False)
@@ -110,10 +109,22 @@ def test_pcp(self):
     # pmExtractValue
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
-                              descs.contents.type,
+                              descs[0].contents.type,
                               api.PM_TYPE_U32)
     self.assertTrue(atom.ul > 0)
     print "pmExtractValue:", atom.ul
+    atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                              results.contents.get_vlist(2, 0),
+                              descs[0].contents.type,
+                              api.PM_TYPE_U32)
+    machine_u32 = atom.ll
+    atom = ctx.pmExtractValue(results.contents.get_valfmt(2),
+                              results.contents.get_vlist(2, 0),
+                              descs[2].contents.type,
+                              api.PM_TYPE_STRING)
+    machine_vp = atom.vp
+    self.assertTrue(machine_u32 != machine_vp)
+    self.assertTrue(type(atom.cp) == type(''))
 
     # pmGetChildren
     if not self.archive_type:
@@ -159,7 +170,12 @@ def test_pcp(self):
 
     metrics = ("kernel.all.load", "sample.bin",
                "kernel.percpu.cpu.sys", "mem.freemem")
-    self.metric_ids = ctx.pmLookupName(metrics)
+    try:
+        self.metric_ids = ctx.pmLookupName(metrics)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmLookupName:", error
+        self.assertTrue(False)
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
@@ -279,13 +295,6 @@ def test_pcp(self):
     except pmapi.pmErr, error:
         print "pmFetch: ", error
         self.assertTrue(False)
-
-    try:
-        inst = ctx.pmLoadNameSpace("NoSuchFile")
-        self.assertTrue(False)
-    except pmapi.pmErr, error:
-        print "pmLoadNameSpace:", error
-        self.assertTrue(True)
 
     # pmFetch
     try:
@@ -415,6 +424,29 @@ def test_pcp(self):
     except pmapi.pmErr, error:
         print "pmReconnectContext: ", error
         self.assertTrue(False)
+
+    # pmRegisterDerived
+    if (ARCHIVE == ""):         # pmRegisterDerived not available with archives
+        try:
+            ctx.pmRegisterDerived("disk.dev.total_bytes", "delta(disk.dev.total_bytes) / delta(disk.dev.total)")
+            total_bytes = ctx.pmLookupName("disk.dev.total_bytes")
+            descs = ctx.pmLookupDescs(total_bytes)
+            results = ctx.pmFetch(total_bytes)
+            ctx.pmtimevalSleep(delta)
+            results = ctx.pmFetch(total_bytes)
+            atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                                      results.contents.get_vlist(0, 0),
+                                      descs[0].contents.type,
+                                      api.PM_TYPE_DOUBLE)
+            self.assertTrue(True)
+        except pmapi.pmErr, error:
+            self.assertTrue(False)
+        try:
+            ctx.pmRegisterDerived("a.bad.expression", "a $ bad @ expression")
+            self.assertTrue(False)
+        except pmapi.pmErr, error:
+            print "pmRegisterDerived: ", ctx.pmDerivedErrStr()
+            self.assertTrue(True)
 
     # pmFreeResult
     ctx.pmFreeResult(results)
