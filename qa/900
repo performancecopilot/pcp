@@ -35,6 +35,7 @@ cat <<EOF > $bindir/pcp-env
 #!/bin/sh
 env | grep ^PCP_
 EOF
+chmod 755 "$bindir/pcp-env"
 
 # compare baseline pcp.conf variables to new additions on each
 # invocation of pcp(1) with a sub-command and the standard PCP
