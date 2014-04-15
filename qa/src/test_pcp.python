@@ -428,12 +428,13 @@ def test_pcp(self):
     # pmRegisterDerived
     if (ARCHIVE == ""):         # pmRegisterDerived not available with archives
         try:
-            ctx.pmRegisterDerived("disk.dev.total_bytes", "delta(disk.dev.total_bytes) / delta(disk.dev.total)")
-            total_bytes = ctx.pmLookupName("disk.dev.total_bytes")
-            descs = ctx.pmLookupDescs(total_bytes)
-            results = ctx.pmFetch(total_bytes)
+            ctx.pmRegisterDerived("disk.dev.avgiosz",
+                "delta(disk.dev.total_bytes) / delta(disk.dev.total)")
+            average = ctx.pmLookupName("disk.dev.avgiosz")
+            descs = ctx.pmLookupDescs(average)
+            results = ctx.pmFetch(average)
             ctx.pmtimevalSleep(delta)
-            results = ctx.pmFetch(total_bytes)
+            results = ctx.pmFetch(average)
             atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,

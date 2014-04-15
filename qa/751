@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 751
+# Exercise RPM Package Manager PMDA log rewriting rules
+#
+# Copyright (c) 2014 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.rpm
+_rpm_support_tests
+
+status=1	# failure is the default!
+$sudo rm -fr $tmp.* $seq.full
+trap "_rpm_cleanup" 0 1 2 3 15
+
+create_rewrite_logs()
+{
+    echo -e 'log mandatory on once {
+rpm.arch\nrpm.buildhost\nrpm.buildtime\nrpm.description\nrpm.epoch\nrpm.group
+rpm.installtime\nrpm.license\nrpm.packager\nrpm.release\nrpm.size
+rpm.sourcerpm\nrpm.summary\nrpm.url\nrpm.vendor\nrpm.version\nrpm.name
+rpm.refresh.count\nrpm.refresh.time.user\nrpm.refresh.time.sys
+rpm.refresh.time.elapsed\nrpm.datasize\nrpm.total.count\nrpm.total.bytes
+}
+' >$tmp.log.conf
+    pmlogger -r -c $tmp.log.conf -T 2sec $tmp.log
+    echo 'metric 123.1.10 { type -> U32 }' > $tmp.lrw.conf
+    pmlogrewrite -c $tmp.lrw.conf -w $tmp.log $tmp.log-1
+    migrate=$PCP_VAR_DIR/config/pmlogrewrite/rpm_migrate.conf
+    pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
+    rm $tmp.log.conf $tmp.lrw.conf
+    pmdumplog -z -dil $tmp.log   >$tmp.log.dump
+    pmdumplog -z -dil $tmp.log-1 >$tmp.log-1.dump
+    pmdumplog -z -dil $tmp.log-2 >$tmp.log-2.dump
+}
+
+# real QA test starts here
+
+_rpm_pmda_prepare
+create_rewrite_logs
+echo -e "\nold -> new changes"
+diff -u $tmp.log-1.dump $tmp.log-2.dump | sed -e '/^---/d' -e '/^+++/d'
+echo "new -> ref changes ... expect none"
+diff -u $tmp.log-2.dump $tmp.log.dump | sed -e '/^---/d' -e '/^+++/d'
+
+# success, all done
+status=0
+exit
