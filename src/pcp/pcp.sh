@@ -66,12 +66,15 @@ Command Options:
   -z            set reporting timezone to local time of metrics source"
 
     ls $PCP_BINADM_DIR/pcp-* $HOME/.pcp/bin/pcp-* 2>/dev/null | \
-    sed -e "s,^$PCP_BINADM_DIR/pcp-,,g" -e "s,^$HOME/.pcp/bin/pcp-,,g" | \
-    sort -u > $tmp/cmds
+    while read command
+    do
+	[ -x "$command" ] || continue
+	basename "$command" | sed -e 's/^pcp-//g' >> $tmp/cmds
+    done
 
     echo
-    ( $PCP_ECHO_PROG $PCP_ECHO_N "Commands:       ""$PCP_ECHO_C" && \
-    cat $tmp/cmds ) | _fmt
+    ( $PCP_ECHO_PROG $PCP_ECHO_N "Available Commands:     ""$PCP_ECHO_C" && \
+    sort -u < $tmp/cmds ) | _fmt
     exit
 }
 
