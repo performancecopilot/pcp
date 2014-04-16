@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.2
+Version: 3.9.3
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -718,6 +718,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %changelog
+* Wed May 14 2014 Dave Brolley <brolley@redhat.com> - 3.9.3-1
+- Under development.
+
 * Tue Apr 15 2014 Dave Brolley <brolley@redhat.com> - 3.9.2-1
 - Improve pmdarpm(1) concurrency complications (BZ 1044297)
 - Fix pmconfig(1) shell output string quoting (BZ 1085401)
