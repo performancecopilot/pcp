@@ -11,8 +11,6 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.partitions.blkwrite
 	disk.partitions.read
 	disk.partitions.write
-	hinv.cpu.clock
-	hinv.ncpu
 	kernel.all.cpu.idle
 	kernel.all.cpu.irq.hard
 	kernel.all.cpu.irq.soft
@@ -32,7 +30,6 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.wait.total
 	kernel.percpu.interrupts
 	mem.freemem
-	mem.physmem
 	mem.util.bufmem
 	mem.util.cached
 	mem.util.commitLimit

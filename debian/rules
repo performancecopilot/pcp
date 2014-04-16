@@ -143,7 +143,6 @@ binary-arch: checkroot build-stamp
 	$(checkdir)
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
-	$(pkgpcp) $(MAKE) -C build pcp.src
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
 	$(pkgpcp_manager) $(MAKE) -C src/pmmgr install
 	$(pkgpcp_webapi) $(MAKE) -C src/pmwebapi install

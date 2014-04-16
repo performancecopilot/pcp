@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2013 Red Hat Inc.
+# Copyright (C) 2012-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -80,7 +80,7 @@ def test_pcp(self):
     # Get number of cpus
     # pmLookupName
     try:
-        self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load"))
+        self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load", "hinv.machine"))
         print "pmLookupName:", self.ncpu_id
         self.assertTrue(True)
     except pmapi.pmErr, error:
@@ -92,8 +92,7 @@ def test_pcp(self):
 
     # pmLookupDesc
     try:
-        descs = ctx.pmLookupDesc(self.ncpu_id[0])
-        # dump_array_ptrs("pmLookupDesc", descs)
+        descs = ctx.pmLookupDescs(self.ncpu_id)
         self.assertTrue(True)
     except pmapi.pmErr, error:
         self.assertTrue(False)
@@ -110,10 +109,22 @@ def test_pcp(self):
     # pmExtractValue
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
-                              descs.contents.type,
+                              descs[0].contents.type,
                               api.PM_TYPE_U32)
     self.assertTrue(atom.ul > 0)
     print "pmExtractValue:", atom.ul
+    atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                              results.contents.get_vlist(2, 0),
+                              descs[0].contents.type,
+                              api.PM_TYPE_U32)
+    machine_u32 = atom.ll
+    atom = ctx.pmExtractValue(results.contents.get_valfmt(2),
+                              results.contents.get_vlist(2, 0),
+                              descs[2].contents.type,
+                              api.PM_TYPE_STRING)
+    machine_vp = atom.vp
+    self.assertTrue(machine_u32 != machine_vp)
+    self.assertTrue(type(atom.cp) == type(''))
 
     # pmGetChildren
     if not self.archive_type:
@@ -145,9 +156,26 @@ def test_pcp(self):
     except pmapi.pmErr, error:
         print "pmLookupName:", error
         self.assertTrue(True)
+
+    metrics = ("no.such.metric.name", "sample.bin")
+    try:
+        pmidlist = ctx.pmLookupName(metrics, relaxed = 1)
+        print "pmLookupName relaxed mode", metrics
+        self.assertTrue(len(pmidlist) == 2)
+        self.assertTrue(pmidlist[0] == api.PM_ID_NULL)
+        self.assertTrue(pmidlist[1] != api.PM_ID_NULL)
+    except pmapi.pmErr, error:
+        print "pmLookupName relaxed mode:", error
+        self.assertTrue(False)
+
     metrics = ("kernel.all.load", "sample.bin",
                "kernel.percpu.cpu.sys", "mem.freemem")
-    self.metric_ids = ctx.pmLookupName(metrics)
+    try:
+        self.metric_ids = ctx.pmLookupName(metrics)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        print "pmLookupName:", error
+        self.assertTrue(False)
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
@@ -268,13 +296,6 @@ def test_pcp(self):
         print "pmFetch: ", error
         self.assertTrue(False)
 
-    try:
-        inst = ctx.pmLoadNameSpace("NoSuchFile")
-        self.assertTrue(False)
-    except pmapi.pmErr, error:
-        print "pmLoadNameSpace:", error
-        self.assertTrue(True)
-
     # pmFetch
     try:
         results = ctx.pmFetch(self.metric_ids)
@@ -326,7 +347,11 @@ def test_pcp(self):
     # pmConvScale
     atom = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
                            api.PM_SPACE_MBYTE)
-    print "pmConvScale", tmpatom.f, atom.f
+    print "pmConvScale, integer arg", tmpatom.f, atom.f
+    self.assertTrue(atom.f > 0)
+    atom = ctx.pmConvScale(api.PM_TYPE_FLOAT, tmpatom, descs, 3,
+                           pmapi.pmUnits(1,0,0,api.PM_SPACE_MBYTE,0,0))
+    print "pmConvScale, pmUnits arg", tmpatom.f, atom.f
     self.assertTrue(atom.f > 0)
 
     # pmAtomStr
@@ -399,6 +424,29 @@ def test_pcp(self):
     except pmapi.pmErr, error:
         print "pmReconnectContext: ", error
         self.assertTrue(False)
+
+    # pmRegisterDerived
+    try:
+        ctx.pmRegisterDerived("pcpqa.derivation",
+                "sample.double.bin * delta(sample.double.bin_ctr)")
+        average = ctx.pmLookupName("pcpqa.derivation")
+        descs = ctx.pmLookupDescs(average)
+        results = ctx.pmFetch(average)
+        ctx.pmtimevalSleep(delta)
+        results = ctx.pmFetch(average)
+        atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                                      results.contents.get_vlist(0, 0),
+                                      descs[0].contents.type,
+                                      api.PM_TYPE_DOUBLE)
+        self.assertTrue(True)
+    except pmapi.pmErr, error:
+        self.assertTrue(False)
+    try:
+        ctx.pmRegisterDerived("a.bad.expression", "a $ bad @ expression")
+        self.assertTrue(False)
+    except pmapi.pmErr, error:
+        print "pmRegisterDerived: ", ctx.pmDerivedErrStr()
+        self.assertTrue(True)
 
     # pmFreeResult
     ctx.pmFreeResult(results)

@@ -49,7 +49,6 @@ export GLUSTER_VOL_START="$test/test.sh start %s $seq $tmp.start"
 
 # real QA test starts here
 PCP_PYTHON_PMNS=root python "$pmda_script" > $tmp.root
-cd "$pmda_dir"
 
 echo "== Testing volume instance domain" | tee -a $seq.full
 $sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter

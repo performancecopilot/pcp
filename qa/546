@@ -11,8 +11,7 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
 status=1	# failure is the default!

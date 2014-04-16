@@ -3,7 +3,7 @@
 # pmlogger silently exits when started in a directory that is
 # not writeable
 #
-# Copyright (c) 2013 [who are you?].  All Rights Reserved.
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`

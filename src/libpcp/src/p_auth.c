@@ -50,7 +50,7 @@ __pmSendAuth(int fd, int from, int attr, const char *value, int length)
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	char buffer[LIMIT_AUTH_PDU];
 	for (i = 0; i < length; i++)
-	    buffer[i] = isprint(value[i]) ? value[i] : '.';
+	    buffer[i] = isprint((int)value[i]) ? value[i] : '.';
 	buffer[length] = buffer[LIMIT_AUTH_PDU-1] = '\0';
 	if (attr)
 	    fprintf(stderr, "__pmSendAuth [len=%d]: attr=%x value=\"%s\"\n",
@@ -88,7 +88,7 @@ __pmDecodeAuth(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	char buffer[LIMIT_AUTH_PDU];
 	for (i = 0; i < length; i++)
-	    buffer[i] = isprint(pp->value[i]) ? pp->value[i] : '.';
+	    buffer[i] = isprint((int)pp->value[i]) ? pp->value[i] : '.';
 	buffer[length] = buffer[LIMIT_AUTH_PDU-1] = '\0';
 	if (*attr)
 	    fprintf(stderr, "__pmDecodeAuth [len=%d]: attr=%x value=\"%s\"\n",

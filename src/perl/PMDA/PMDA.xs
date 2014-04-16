@@ -1119,6 +1119,32 @@ err(self,message)
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
 void
+connect_pmcd(self)
+	pmdaInterface *self
+    CODE:
+	/*
+	 * Need to mimic the same special cases handled in run()
+	 * that explicitly do NOT connect to pmcd and treat these
+	 * as no-ops here
+	 *
+	 * Otherwise call pmdaConnet() to complete the PMDA's IPC
+	 * channel setup and complete the connection handshake with
+	 * pmcd.
+	 */
+	if (getenv("PCP_PERL_PMNS") != NULL)
+	    ;
+	else if (getenv("PCP_PERL_DOMAIN") != NULL)
+	    ;
+	else {
+	    /*
+	     * On success pmdaConnect sets PMDA_EXT_CONNECTED in e_flags ...
+	     * this used in the guard below to stop run() calling
+	     * pmdaConnect() again.
+	     */
+	    pmdaConnect(self);
+	}
+
+void
 run(self)
 	pmdaInterface *self
     CODE:
@@ -1129,7 +1155,13 @@ run(self)
 	else {		/* or normal operating mode ... */
 	    pmns_refresh();
 	    pmdaInit(self, indomtab, itab_size, metrictab, mtab_size);
-	    pmdaConnect(self);
+	    if ((self->version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
+		/*
+		 * connect_pmcd() not called before, so need pmdaConnect()
+		 * here before falling into the PDU-driven mainloop
+		 */
+		pmdaConnect(self);
+	    }
 	    local_pmdaMain(self);
 	}
 

@@ -1,0 +1,377 @@
+Source: pcp
+Section: utils
+Priority: extra
+Homepage: http://www.performancecopilot.org
+Maintainer: PCP Development Team <pcp@mail.performancecopilot.org>
+Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, autotools-dev
+#Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
+Standards-Version: 3.9.3
+X-Python-Version: >= 2.6
+
+Package: pcp
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp, python
+Suggests: tsocks
+Conflicts: pgpool2
+Recommends: pcp-gui, libpcp-import-perl
+Architecture: any
+Description: System level performance monitoring and performance management
+ Performance Co-Pilot (PCP) is a framework and services to
+ support system-level performance monitoring and performance
+ management.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: pcp-conf
+Depends: ${misc:Depends}
+Breaks: libpcp3 (<< 3.9.0)
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot runtime configuration
+ The pcp-conf package contains important runtime configuration
+ files required by all programs and libraries that make up the
+ Performance Co-Pilot (PCP) toolkit.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp3-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp3 (= ${binary:Version}), libc6-dev | libc-dev
+Breaks: pcp (<< 3.8.0)
+Architecture: any
+Description: Performance Co-Pilot library and headers
+ The libpcp-dev package contains the base Performance Co-Pilot (PCP)
+ library and header files needed to develop collector and monitor
+ programs which make use of PCP services.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp3
+Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
+Conflicts: pgpool2
+Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot library
+ The libpcp package contains the runtime environment required by
+ programs that make use of Performance Co-Pilot (PCP) services.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-gui2-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Conflicts: libpcp-gui1-dev
+Architecture: any
+Description: Performance Co-Pilot graphical client tools library and headers
+ The libpcp-gui-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to incorporate graphical time control
+ (pmtime) into a monitoring application.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-gui2
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot graphical client tools library
+ The libpcp-gui package contains the runtime environment required by any
+ monitoring tool that makes use of the time control services of pmtime(1).
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-mmv1-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot Memory Mapped Value library and headers
+ The libpcp-mmv-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to utilise memory mapped value
+ instrumentation into a monitored application.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-mmv1
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot Memory Mapped Value client library
+ The libpcp-mmv package contains the runtime environment required by an
+ application that utilises Memory Mapped Value instrumentation to export
+ runtime instrumentation into the Performance Co-Pilot infrastructure.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-pmda3-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Breaks: pcp (<< 2.8.0)
+Architecture: any
+Description: Performance Co-Pilot Domain Agent library and headers
+ The libpcp-pmda-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to develop Performance Metric Domain
+ Agents (PMDAs).  Each PMDA exports performance data for one domain;
+ for example the operating system kernel, Cisco routers, a database,
+ an application, etc.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-pmda3
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot Domain Agent library
+ The libpcp-pmda package contains the runtime environment required by
+ a Performance Metric Domain Agent (PMDA).  A PMDA exports performance
+ data for one specific domain, for example the operating system kernel,
+ DNS, SMTP, Cisco router, a database, an application, etc.
+
+Package: libpcp-trace2-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp3 (= ${binary:Version})
+Breaks: pcp (<< 2.8.0)
+Architecture: any
+Description: Performance Co-Pilot application tracing library and headers
+ The libpcp-trace-dev package contains the Performance Co-Pilot (PCP)
+ library and header files needed to directly instrument an application
+ for event and value tracking by the pmdatrace(1) PCP Trace Performance
+ Metric Domain Agent.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-trace2
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot application tracing library
+ The libpcp-trace package contains the runtime environment required by
+ an application that is directly instrumented for event and value
+ tracking by pmdatrace(3), the Trace Performance Metric Domain Agent.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-import1-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot data import library and headers
+ The libpcp-import-dev package contains the library and header files
+ needed to build an application that imports performance data from
+ a file or real-time source and creates a Performance Co-Pilot (PCP)
+ archive suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-import1
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot data import library
+ The libpcp-import package contains the runtime environment required
+ by an application that imports performance data from a file or
+ real-time source and creates a Performance Co-Pilot (PCP) archive
+ suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: python-pcp
+Section: python
+Architecture: any
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version})
+Provides: ${python:Provides} 
+Description: Performance Co-Pilot Python PMAPI module
+ The PCP Python module contains the language bindings for
+ building Performance Metric API client tools using Python.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-pmda-perl
+Section: perl
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-pmda3 (= ${binary:Version})
+Description: Performance Co-Pilot Domain Agent Perl module
+ The PCP::PMDA Perl module contains the language bindings for
+ building Performance Metric Domain Agents (PMDAs) using Perl.
+ Each PMDA exports performance data for one specific domain, for
+ example the operating system kernel, Cisco routers, a database,
+ an application, etc.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-import-perl
+Section: perl
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1 (= ${binary:Version})
+Description: Performance Co-Pilot log import Perl module
+ The PCP::LogImport Perl module contains the language bindings for
+ building Perl applications that import performance data from a file
+ or real-time source and create a Performance Co-Pilot (PCP) archive
+ suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-logsummary-perl
+Section: perl
+Architecture: any
+Depends: ${misc:Depends}, ${perl:Depends}, pcp (= ${binary:Version})
+Description: Performance Co-Pilot historical log summary module
+ The PCP::LogSummary module provides a Perl module for using the
+ statistical summary data produced by the Performance Co-Pilot
+ pmlogsummary utility.  This utility produces various averages,
+ minima, maxima, and other calculations based on the performance
+ data stored in a PCP archive.  The Perl interface is ideal for
+ exporting this data into third-party tools (e.g. spreadsheets).
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-mmv-perl
+Section: perl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, libpcp-mmv1 (= ${binary:Version})
+Description: Performance Co-Pilot Memory Mapped Value Perl module
+ The PCP::MMV module contains the Perl language bindings for
+ building scripts instrumented with the Performance Co-Pilot
+ (PCP) Memory Mapped Value (MMV) mechanism.
+ .
+ This mechanism allows arbitrary values to be exported from an
+ instrumented script into the PCP infrastructure for monitoring
+ and analysis with pmchart, pmie, pmlogger and other PCP tools.
+
+Package: pcp-import-sar2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl
+Architecture: all
+Description: Tool for importing data from sar into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from sar
+ into standard PCP archive logs for replay with any PCP monitoring tool
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+
+Package: pcp-import-mrtg2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl
+Architecture: all
+Description: Tool for importing data from MRTG into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from MRTG
+ (the Multi Router Traffic Grapher tool) into standard PCP archive logs
+ for replay with any PCP monitoring tool (such as pmie, pmlogsummary,
+ pmchart or pmdumptext).
+
+Package: pcp-import-sheet2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl, libspreadsheet-read-perl
+Architecture: all
+Description: Tool for importing data from a spreadsheet into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing spreadheet data
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ (such as pmie, pmlogsummary, pmchart, or pmdumptext).
+
+Package: pcp-import-iostat2pcp
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl
+Architecture: all
+Description: Tool for importing data from iostat into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from iostat
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+
+Package: pcp-import-collectl2pcp
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Tool for importing data from collectl into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tool for importing data from collectl
+ into standard PCP archive logs for replay with any PCP monitoring tool.
+ (such as pmie, pmlogsummary, pmchart or pmdumptext).
+
+#Package: pcp-pmda-infiniband
+#Depends: ${misc:Depends}, ${shlibs:Depends}
+#Architecture: any
+#Description: Infiniband performance metrics domain agent (PMDA)
+# Performance Metrics Domain Agent (PMDA) for collecting Infiniband
+# staticstics.  By default, it monitors the local HCAs but can also
+# be configured to monitor remote GUIDs such as IB switches.
+
+Package: pcp-testsuite
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Suggests: valgrind
+Provides: pcpqa
+Conflicts: pcpqa
+Replaces: pcpqa
+Description: Performance Co-Pilot (PCP) Test Suite
+ Quality assurance test suite for Performance Co-Pilot (PCP).
+ .
+ Provides a series of tests that exercise the many utilities and daemon
+ processes that form the PCP toolkit.  Regular users should never have
+ any need to install this package, it is for developers and testers only.
+
+Package: pcp-manager
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) manager daemon
+ An optional daemon (pmmgr) that manages a collection of pmlogger and
+ pmie daemons, for a set of discovered local and remote hosts running
+ the performance metrics collection daemon (pmcd).  It ensures these
+ daemons are running when appropriate, and manages their log rotation
+ needs (which are particularly complex in the case of pmlogger).
+ .
+ The base PCP package provides comparable functionality through cron
+ scripts which predate this daemon but do still provide effective and
+ efficient log management services.
+ .
+ The pcp-manager package aims to aggressively enable new PCP features
+ and as a result may not be suited to all production environments.
+
+Package: pcp-webapi
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Architecture: any
+Description: Performance Co-Pilot (PCP) web API service
+ Provides a daemon (pmwebd) that binds a large subset of the Performance
+ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
+ HTTP (PMWEBAPI) protocol.

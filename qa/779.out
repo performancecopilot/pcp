@@ -1,0 +1,26 @@
+QA output created by 779
+Start badpmda PMDA: ./src/badpmda -c 0
+--- case 0 pmdaConnect() ---
+[DATE] badpmda(PID) Critical: pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first
+pmdaConnect: Error: Generic error, already reported above
+pmdaversion: expecting PDU_CREDS, got PDU type 0
+Warning: no version exchange with PMDA ./src/badpmda
+
+Start badpmda PMDA: ./src/badpmda -c 1
+--- case 1 pmdaExt alloc + pmdaConnect() ---
+[DATE] badpmda(PID) Critical: pmdaConnect: need to call pmdaDaemon() or pmdaDSO() first
+pmdaConnect: Error: Generic error, already reported above
+pmdaversion: expecting PDU_CREDS, got PDU type 0
+Warning: no version exchange with PMDA ./src/badpmda
+
+--- case 2 pmdaDaemon() + pmdaInet + pmdaConnect() ---
+pmdaDaemon: OK
+pmdaConnect: OK
+Connect to PMDA on inet port MYPORT
+
+--- case 3 pmdaDaemon() + pmdaInet + pmdaConnect() + pmdaConnect() ---
+pmdaDaemon: OK
+pmdaConnect: OK
+[DATE] badpmda(PID) Critical: pmdaConnect: called more than once
+pmdaConnect: Error: Generic error, already reported above
+Connect to PMDA on socket TMP.socket

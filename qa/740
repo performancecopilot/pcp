@@ -14,9 +14,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 3805 ] || _notrun "Installed libpcp version too old for test"
-
-eval `pmconfig -L 2>/dev/null`		# get unix domain sockets status
+_get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
 status=1	# failure is the default!

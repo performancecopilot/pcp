@@ -1,0 +1,127 @@
+QA output created by 245
++++ Errors +++
+
+=== no args ===
+Usage: pmnsdel [options] metricpath [...]
+
+Options:
+  -d, --duplicates      duplicate PMIDs are allowed
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -?, --help            show this usage message and exit
+
+=== no such PMNS file ===
+Error Parsing ASCII PMNS: Cannot open "no-such-input"
+pmnsdel: Error: pmLoadNameSpace(no-such-input): No such file or directory
+
+=== cannot open existing output file for writing ===
+
+=== cannot create output file ===
+pmnsdel: Error: cannot open PMNS file "mypmns.new" for writing: Permission denied
+
+=== syntax error in input ===
+[mypmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
+    bogus - this is not correct
+          ^
+pmnsdel: Error: pmLoadNameSpace(mypmns): Problems parsing PMNS definitions
+
++++ Common starting PMNS for all remaing tests ...
+one PMID: 1.1.1
+sub0.five PMID: 5.5.5
+sub0.four PMID: 4.4.4
+sub0.sub2.seven PMID: 7.7.7
+sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+sub1.eight PMID: 8.8.8
+sub1.six PMID: 6.6.6
+three PMID: 3.3.3
+two PMID: 2.2.2
+
+=== assorted undefined metricpaths ===
+pmnsdel: Error: metricpath "leaf" not defined in the PMNS
+pmnsdel: Error: metricpath "sub0.no_leaf" not defined in the PMNS
+pmnsdel: Error: metricpath "sub0.sub2.no_leaf" not defined in the PMNS
+pmnsdel: Error: metricpath "sub0.sub2.sub4.no_leaf" not defined in the PMNS
+pmnsdel: Error: metricpath "sub0.sub2.sub4.sub6.no_leaf" not defined in the PMNS
+pmnsdel: Error: metricpath "sub0.sub2.sub4.sub6.no_nonleaf.no_leaf" not defined in the PMNS
+
++++ Operations +++
+
+=== single metric ===
+one:
+diffs ...
+1d0
+< one PMID: 1.1.1
+sub0.sub2.sub4.sub6.nine:
+diffs ...
+5d4
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+sub0.sub2.seven:
+diffs ...
+4d3
+< sub0.sub2.seven PMID: 7.7.7
+
+=== multiple metrics ===
+delete: one sub0.sub2.sub4.sub6.nine sub0.sub2.seven
+diffs ...
+1d0
+< one PMID: 1.1.1
+4,5d2
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+
+=== non-leaves ===
+delete: sub0
+diffs ...
+2,5d1
+< sub0.five PMID: 5.5.5
+< sub0.four PMID: 4.4.4
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+delete: sub1
+diffs ...
+6,7d5
+< sub1.eight PMID: 8.8.8
+< sub1.six PMID: 6.6.6
+delete: sub0.sub2
+diffs ...
+4,5d3
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+delete: sub0.sub2.sub4
+diffs ...
+5d4
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+delete: sub0.sub2.sub4.sub6
+diffs ...
+5d4
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+delete: sub0.sub2
+diffs ...
+4,5d3
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+delete: sub1 sub0.sub2.sub4.sub6 sub0 
+diffs ...
+2,7d1
+< sub0.five PMID: 5.5.5
+< sub0.four PMID: 4.4.4
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+< sub1.eight PMID: 8.8.8
+< sub1.six PMID: 6.6.6
+
+=== all leaves ===
+delete: one sub0.four sub0.sub2.seven sub0.sub2.sub4.sub6.nine sub0.five two three sub1.six sub1.eight 
+diffs ...
+1,9c1
+< one PMID: 1.1.1
+< sub0.five PMID: 5.5.5
+< sub0.four PMID: 4.4.4
+< sub0.sub2.seven PMID: 7.7.7
+< sub0.sub2.sub4.sub6.nine PMID: 9.9.9
+< sub1.eight PMID: 8.8.8
+< sub1.six PMID: 6.6.6
+< three PMID: 3.3.3
+< two PMID: 2.2.2
+---
+> PMNS appears to be empty!

@@ -25,16 +25,15 @@ echo "QA output created by $seq"
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
 # see if unix domain sockets are available (permissions)
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-#debug=true
 debug=false
+#debug=true
 host=`hostname`
 
 _filter()

@@ -1,1 +1,22 @@
-FILES = pcp-summary pmclient pmclient-summary pmstat iostat ip mpstat vmstat sar sar-summary atop atop-proc collectl
+FILES = \
+	atop \
+	atop-proc \
+	atop-summary \
+	collectl \
+	collectl-summary \
+	free \
+	free-summary \
+	iostat \
+	ip \
+	mpstat \
+	numastat \
+	pcp-summary \
+	pmclient \
+	pmclient-summary \
+	pmstat \
+	sar \
+	sar-summary \
+	uptime \
+	vmstat \
+	vmstat-summary \
+# END

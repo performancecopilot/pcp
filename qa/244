@@ -12,15 +12,13 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
-ipv6=false
-eval `pmconfig -L 2>/dev/null`		# get IPv6, unix domain sockets status
+_get_libpcp_config
 rm -f $seq.out
 if $ipv6 ; then
-    ln $seq.out.2 $seq.out || exit 1
+    ln $seq.out.ipv6 $seq.out || exit 1
 else
-    ln $seq.out.1 $seq.out || exit 1
+    ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
 _filter_log()

@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	metrics used by the pcp-numastat(1) command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+	mem.numa.alloc

@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 900
+# Test pcp(1) invokes other utilities with environment set.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+bindir="$HOME/.pcp/bin"
+$sudo rm -rf $tmp.* $seq.full
+
+_cleanup()
+{
+    rm -f "$bindir/pcp-env"
+    rm -rf $tmp.*
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+mkdir -p "$bindir" 2>/dev/null
+test -d "$HOME/.pcp/bin" || _notrun "Failed making local directory: $bindir"
+test -w "$HOME/.pcp/bin" || _notrun "Cannot write local directory: $bindir"
+
+# build a sub-command for pcp(1), installed locally
+$sudo rm -f $bindir/pcp-env
+cat <<EOF > $bindir/pcp-env
+#!/bin/sh
+env | grep ^PCP_
+EOF
+chmod 755 "$bindir/pcp-env"
+
+# compare baseline pcp.conf variables to new additions on each
+# invocation of pcp(1) with a sub-command and the standard PCP
+# command line options.
+#
+env | grep ^PCP_ > $tmp.baseline
+
+_verify()
+{
+    echo && echo "$1"
+    diff $tmp.baseline $2 | sed \
+	-e 's/^[0-9][0-9]*a[0-9][0-9]*/added:/g'
+}
+
+pcp env > $tmp.env.none
+_verify "no arguments" $tmp.env.none
+
+pcp -A '1 hour' env > $tmp.env.align
+_verify "align argument" $tmp.env.align
+
+pcp -a src/rattle env > $tmp.env.archive
+_verify "archive argument" $tmp.env.archive
+
+pcp -h moo.cow.com env > $tmp.env.host
+_verify "hostname argument" $tmp.env.host
+
+pcp -D TRACE_PDU env > $tmp.env.debug
+_verify "debug argument" $tmp.env.debug
+
+pcp -g env > $tmp.env.guimode
+_verify "gui mode argument" $tmp.env.guimode
+
+pcp -L env > $tmp.env.localmode
+_verify "local mode argument" $tmp.env.localmode
+
+pcp -n /pmns/file env > $tmp.env.pmns
+_verify "namespace argument" $tmp.env.pmns
+
+pcp -O '@ 1996-03-05 14:07:47 EST -1hour' env > $tmp.env.origin
+_verify "origin argument" $tmp.env.origin
+
+pcp -p 12345 env > $tmp.env.guiport
+_verify "gui port argument" $tmp.env.guiport
+
+pcp -S 'yesterday, 2am' env > $tmp.env.start
+_verify "start time argument" $tmp.env.start
+
+pcp -s 5 env > $tmp.env.samples
+_verify "samples argument" $tmp.env.samples
+
+pcp -T '@ Mar  4 13:07:47 1996' env > $tmp.env.finish
+_verify "finish time argument" $tmp.env.finish
+
+pcp -t '2.5 seconds' env > $tmp.env.samples
+_verify "interval argument" $tmp.env.samples
+
+pcp -Z UTC env > $tmp.env.timezone
+_verify "timezone argument" $tmp.env.timezone
+
+pcp -z env > $tmp.env.hostzone
+_verify "hostzone argument" $tmp.env.hostzone
+
+# success, all done
+status=0
+exit

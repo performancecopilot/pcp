@@ -1,0 +1,115 @@
+QA output created by 739
+
+check no arguments
+Done!
+
+check non arguments
+Non-option arguments: ['param1', 'param2']
+Done!
+
+check archive option and non arguments
+overrideCB: got option 'a'
+Archive list: ['file']
+Non-option arguments: ['param']
+Done!
+
+check host option and hostzone
+overrideCB: got option 'h'
+overrideCB: got option 'z'
+Host list: ['qa.r.us']
+Done!
+
+check timezone
+overrideCB: got option 'Z'
+Timezone: UTC
+Done!
+
+check option samples and interval
+overrideCB: got option 's'
+overrideCB: got option 't'
+Samples: 5
+Interval: 1.000
+Done!
+
+check custom local long options
+overrideCB: got option 'l'
+optionsCB: got option ''l' (/tmp) [index=21]
+overrideCB: got option 'f'
+optionsCB: got option ''f' [index=20]
+Done!
+
+check custom local short options
+overrideCB: got option 'b'
+optionsCB: got option ''b' [index=0]
+Done!
+
+check version message generation
+test_pcp_options.python version X.Y.Z
+overrideCB: got option 'V'
+
+check unknown option and usage message
+test_pcp_options.python: unrecognized option '--munchies'
+Usage: test_pcp_options.python [options] parameters ...
+
+General Options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -V, --version         display version number and exit
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Test Options:
+  -f, --force           force some behaviour
+  -l FILE, --list=FILE  open a list file
+overrideCB: got option '?'
+
+check help option and usage message
+Usage: test_pcp_options.python [options] parameters ...
+
+General Options:
+  -A TIME, --align=TIME align sample times on natural boundaries
+  -a FILE, --archive=FILE
+                        metrics source is a PCP log archive
+  -g, --guimode         start in GUI mode with new time control
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  -H FILE, --hostsfile=FILE
+                        read metric source hosts from a file
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -p N, --guiport=N     port for connection to existing time control
+  -S TIME, --start=TIME start of the time window
+  -s N, --samples=N     terminate after this many samples
+  -T TIME, --finish=TIME
+                        end of the time window
+  -t DELTA, --interval=DELTA
+                        sampling interval
+  -V, --version         display version number and exit
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -?, --help            show this usage message and exit
+
+Test Options:
+  -f, --force           force some behaviour
+  -l FILE, --list=FILE  open a list file
+overrideCB: got option '?'

@@ -1,0 +1,38 @@
+#! /bin/sh
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Install the slow PMDA
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=slow
+perl_opt=true
+daemon_opt=false
+forced_restart=false
+
+pmdaSetup
+$PCP_ECHO_PROG $PCP_ECHO_N "Startup delay (secs) [0]? $PCP_ECHO_C"
+read x
+[ -z "$x" ] && x=0
+$PCP_ECHO_PROG $PCP_ECHO_N "Fetch delay (secs) [0]? $PCP_ECHO_C"
+read y
+[ -z "$y" ] && y=0
+perl_args="$perl_args $x $y"
+[ "$x" -lt 0 ] && check_delay=`expr -1 \* $x + 2`
+[ "$x" -gt 0 ] && check_delay=`expr $x + 2`
+
+pmdaInstall
+exit 0

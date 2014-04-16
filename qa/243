@@ -1,5 +1,5 @@
 #! /bin/sh
-# PCP QA Test No. 023
+# PCP QA Test No. 243
 # Multiple PMCDs test
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -14,25 +14,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires' >/dev/null
-then
-    if test $PCP_VER -ge 3611
-    then
-	ipv6=false
-	eval `pmconfig -L 2>/dev/null`
-	if [ "$ipv6" = "true" ]; then
-	    ln $seq.out.5 $seq.out || exit 1
-	else
-	    ln $seq.out.4 $seq.out || exit 1
-	fi
-    elif test $PCP_VER -ge 2704
-    then
-	ln $seq.out.3 $seq.out
-    else
-	ln $seq.out.2 $seq.out
-    fi
+_get_libpcp_config
+if $ipv6 ; then
+    ln $seq.out.ipv6 $seq.out || exit 1
 else
-    ln $seq.out.1 $seq.out
+    ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
 _filter_err()

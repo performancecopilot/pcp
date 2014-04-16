@@ -34,11 +34,11 @@ Description:    A system performance monitoring infrastructure that is
 		tackling the harder system-level performance problems.
 
 Keywords:       performance, monitoring, system, status, distributed
-Author:         pcp@oss.sgi.com (Performance Co-Pilot Development Team)
-Maintained-by:  pcp@oss.sgi.com (Performance Co-Pilot Development Team)
-Primary-site:   ftp://oss.sgi.com/www/projects/pcp/download/
+Author:         pcp@mail.performancecopilot.org (PCP Development Team)
+Maintained-by:  pcp@mail.performancecopilot.org (PCP Development Team)
+Primary-site:   ftp://ftp.performancecopilot.org/download/
 Alternate-site:
-Original-site:  ftp://oss.sgi.com/www/projects/pcp/download/
+Original-site:  ftp://ftp.performancecopilot.org/download/
 Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, Windows
 Copying-policy: GPL (libraries are LGPL)
 End

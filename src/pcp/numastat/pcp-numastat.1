@@ -1,0 +1,57 @@
+.TH PCP-NUMASTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-numastat\f1 \- report on NUMA memory allocation
+.SH SYNOPSIS
+\f3pcp-numastat\f1
+[\f3\-V\f1]
+.SH DESCRIPTION
+.B pcp-numastat
+displays NUMA allocation statistics from the kernel memory
+allocator.
+Each process has NUMA policies that specify on which node
+pages are allocated.
+The performance counters in the kernel track on which
+nodes memory is allocated and these values are sampled and
+reported by
+.BR pcp-numastat .
+.PP
+Counters are maintained individually for each NUMA node.
+Details of the semantics of each reported metric can be
+retrieved using the following command:
+.P
+.ft CW
+.nf
+.in +0.5i
+# pminfo \(hydt mem.numa.alloc
+.in
+.fi
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.PP
+The current version of
+.B pcp-numastat
+can be queried using the
+.BR \-V /\c
+.B \-\-version
+option.
+.SH NOTES
+.B pcp-numastat
+is inspired by the
+.BR numastat (1)
+command and produces exactly the same output.
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR numastat (1)
+and
+.BR PCPIntro (1).

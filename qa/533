@@ -13,9 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 3801 ] || _notrun "No dbpmda support for IPv6 sockets"
-ipv6=false
-eval `pmconfig -L 2>/dev/null`          # get IPv6 status
+_get_libpcp_config
 $ipv6 || _notrun "No IPv6 support, so cannot test dbpmda IPv6 support"
 
 status=1	# failure is the default!

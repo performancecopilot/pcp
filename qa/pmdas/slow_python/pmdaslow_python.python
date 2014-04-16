@@ -1,0 +1,84 @@
+'''
+Python implementation of the "slow_python" Performance Metrics Domain Agent.
+'''
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import sys
+import os
+import time
+import ctypes
+from ctypes import c_int, POINTER, cast
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric
+from pcp.pmapi import pmUnits, pmContext as PCP
+
+class SlowPMDA(PMDA):
+    '''
+    A slow Performance Metrics Domain Agent.
+    DO NOT INSTALL - for QA ONLY.
+    '''
+
+    def slow_fetch_callback(self, cluster, item, inst):
+	global fetch_delay
+
+	if int(fetch_delay) < 0:
+	    time.sleep(-1*int(fetch_delay))
+
+	if int(fetch_delay) > 0:
+	    time.sleep(int(fetch_delay))
+
+        if cluster == 0 and item == 0:
+            return [13, 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+    def __init__(self, name, domain):
+	global start_delay
+
+        PMDA.__init__(self, name, domain)
+
+        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        self.configfile += '/' + name + '/' + name + '.conf'
+
+	if int(start_delay) > 0:
+	    self.connect_pmcd()
+
+	if int(start_delay) < 0:
+	    time.sleep(-1*int(start_delay))
+	if int(start_delay) > 0:
+	    time.sleep(int(start_delay))
+
+        self.add_metric(name + '.thirteen', pmdaMetric(self.pmid(0, 0),
+                c_api.PM_TYPE_32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 0, 0, 0, 0)))
+
+        self.set_fetch_callback(self.slow_fetch_callback)
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
+
+# Usage: pmdaslow [startdelay [fetchdelay]]
+#
+start_delay = 0
+if len(sys.argv) >= 2:
+    start_delay = sys.argv[1]
+fetch_delay = 0
+if len(sys.argv) >= 3:
+    fetch_delay = sys.argv[2]
+
+#debug# print 'start delay: ', start_delay, ' sec'
+#debug# print 'fetch delay: ', fetch_delay, ' sec'
+
+if __name__ == '__main__':
+    SlowPMDA('slow_python', 242).run()
+

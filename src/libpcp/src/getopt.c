@@ -125,8 +125,9 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 
     /* timezone setup */
     if (opts->tzflag) {
-	const char *hostname = pmGetContextHostName(ctxid);
+	char hostname[MAXHOSTNAMELEN];
 
+	pmGetContextHostName_r(ctxid, hostname, MAXHOSTNAMELEN);
 	if ((tzh = pmNewContextZone()) < 0) {
 	    pmprintf("%s: Cannot set context timezone: %s\n",
 			pmProgname, pmErrStr(tzh));
@@ -600,9 +601,12 @@ __pmStartOptions(pmOptions *opts)
 	    __pmAddOptHost(opts, value);
 	else if (strcmp(s, "HOST_LIST") == 0)
 	    __pmAddOptHostList(opts, value);
+	else if (strcmp(s, "LOCALMODE") == 0)
+	    __pmSetLocalContextFlag(opts);
 	else if (strcmp(s, "NAMESPACE") == 0)
 	    __pmSetNameSpace(opts, value, 0);
-	else if (strcmp(s, "ORIGIN") == 0)
+	else if (strcmp(s, "ORIGIN") == 0 ||
+		 strcmp(s, "ORIGIN_TIME") == 0)
 	    __pmSetOrigin(opts, value);
 	else if (strcmp(s, "GUIPORT") == 0)
 	    __pmSetGuiPort(opts, value);
@@ -648,7 +652,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	c = pmgetopt_r(argc, argv, opts);
 
 	/* provide opportunity for overriding the general set of options */
-	if (opts->override && opts->override(c, opts))
+	if (c != EOF && opts->override && opts->override(c, opts))
 	    break;
 
 	switch (c) {
@@ -702,7 +706,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    break;
 	case 'V':
 	    opts->flags |= PM_OPTFLAG_EXIT;
-	    pmprintf("%s %s\n", pmProgname, PCP_VERSION);
+	    pmprintf("%s version %s\n", pmProgname, PCP_VERSION);
 	    break;
 	case 'Z':
 	    __pmSetTimeZone(opts, opts->optarg);
@@ -740,7 +744,7 @@ pmUsageMessage(pmOptions *opts)
     const char *message;
     int bytes;
 
-    if (opts->flags & PM_OPTFLAG_RUNTIME_ERR)
+    if (opts->flags & (PM_OPTFLAG_RUNTIME_ERR|PM_OPTFLAG_EXIT))
 	goto flush;
 
     message = opts->short_usage ? opts->short_usage : "[options]";

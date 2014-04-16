@@ -1,0 +1,71 @@
+.TH PCP-FREE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-free\f1 \- report on free and used memory in the system
+.SH SYNOPSIS
+\f3pcp-free\f1
+[\f3\-bkmgoltV\f1]
+[\f3\-c\f1 \f2count\f1]
+[\f3\-s\f1 \f2interval\f1]
+.SH DESCRIPTION
+.B pcp-free
+gives a summary display of the total amount of free and used
+physical memory and swap in the system, as well as the caches
+used by the kernel.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.SS Options
+The \fB\-b\fP/\fB\-\-bytes\fP switch displays the amount of memory in bytes; the
+\fB\-k\fP/\fB\-\-kilobytes\fP switch (set by default) displays it in kilobytes;
+the \fB\-m\fP/\fB\-\-megabytes\fP switch displays it in megabytes.
+.PP
+The \fB\-t\fP/\fB\-\-total\fP switch displays a line containing the totals.
+.PP
+The \fB-o\fP switch disables the display of a "buffer adjusted" line.
+If the \fB-o\fP option is not specified, \fBfree\fP subtracts buffer memory
+from the used memory and adds it to the free memory reported.
+.PP
+The \fB\-s\fP/\fB\-\-interval\fP switch activates continuous polling \fIdelay\fP
+seconds apart.
+You may specify any floating point number for \fIdelay\fP, or indeed any valid
+.BR pmParseInterval (3)
+specification, which includes microsecond resolution delay times.
+This can be used in conjunction with the \fB\-c\fP/\fB\-\-samples\fP option
+to terminate the display after \fIcount\fP iterations.
+.PP
+The \fB\-l\fP switch shows detailed low and high memory statistics.
+.PP
+The current version of
+.B pcp-free
+can be queried using the
+.BR \-V /\c
+.B \-\-version
+option.
+.SH NOTES
+.B pcp-free
+is inspired by the
+.BR free (1)
+command and aims to be command line and output compatible with it.
+.PP
+The shared memory column should be ignored; it is obsolete.
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR free(1),
+.BR PCPIntro (1),
+.BR pmParseInterval (1)
+and
+.BR environ (5).

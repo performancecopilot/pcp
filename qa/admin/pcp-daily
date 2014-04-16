@@ -416,7 +416,7 @@ sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
 End-of-File
-	    echo "if MAKE=$MAKE ./Makepkgs >>\$HOME/daily.log 2>&1" >>$tmp.script
+	    echo "if MAKE=$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1" >>$tmp.script
 	    cat >>$tmp.script <<'End-of-File'
 then
     ok=true
@@ -424,7 +424,7 @@ else
     # for Debian/Ubuntu, it may just be the signing of the packages that
     # failed
     #
-    if tail -5 $HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
+    if tail -20 $HOME/daily.log | grep 'dpkg-buildpackage: warning: Failed to sign' >/dev/null
     then
 	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a $HOME/daily.log
     else
@@ -462,7 +462,27 @@ End-of-File
 	fi
 
 	$iflag && cat >>$tmp.script <<'End-of-File'
-src_version=`sed -n <pcp.lsm -e 's/[ 	]*$//' -e '/^Version:/{
+# extract buildversion
+. ./VERSION.pcp
+if [ -z "$PACKAGE_MAJOR" -o -z "$PACKAGE_MINOR" -o -z "$PACKAGE_REVISION" ]
+then
+    ls -l VERSION.pcp | tee -a $HOME/daily.log
+    cat VERSION.pcp | tee -a $HOME/daily.log
+    echo "Error: VERSION.pcp is damaged" | tee -a $HOME/daily.log
+    exit 1
+fi
+buildversion=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
+# find lsm ... in pcp-$buildversion for most build types, but in . for debian
+lsm=''
+[ -f pcp.lsm ] && lsm=pcp.lsm
+[ -f pcp-$buildversion/pcp.lsm ] && lsm=pcp-$buildversion/pcp.lsm
+if [ -z "$lsm" ]
+then
+    ls -l pcp.lsm* pcp-$buildversion/pcp.lsm* | tee -a $HOME/daily.log
+    echo "Error: pcp.lsm not found" | tee -a $HOME/daily.log
+    exit 1
+fi
+src_version=`sed -n <$lsm -e 's/[ 	]*$//' -e '/^Version:/{
 s/Version:[ 	]*//
 p
 q
@@ -490,15 +510,15 @@ in
 	notfound=false
 	;;
 esac
-$notfound && case `echo build/rpm/pcp-[0-9]*.src.rpm`
+$notfound && case `echo pcp-$buildversion/build/rpm/pcp-[0-9]*.src.rpm`
 in
     *\ *)
-	ls -l build/rpm/pcp-[0-9]*.src.rpm
+	ls -l pcp-$buildversion/build/rpm/pcp-[0-9]*.src.rpm | tee -a $HOME/daily.log
 	echo "Error: more than one rpm pkg found" | tee -a $HOME/daily.log
 	exit 1
 	;;
-    'build/rpm/pcp-[0-9]*.src.rpm')
-	# no rpm packages
+    "pcp-$buildversion"'/build/rpm/pcp-[0-9]*.src.rpm')
+	# no rpm source package, assume some other sort of packaging
 	;;
     *)
 	# RPM packaging ...
@@ -507,7 +527,7 @@ in
 	#		e.g. Fedora 15
 	#  --oldpackage	sometimes we do a downgrade on the QA machines
 	#
-	if sudo rpm -U `ls build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+	if sudo rpm -U `ls pcp-$buildversion/build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
 	    echo "Info: rpm install" | tee -a $HOME/daily.log
@@ -525,11 +545,11 @@ in
 	notfound=false
 	;;
 esac
-$notfound && if [ -f build/mac/pcp-[0-9]*[0-9].dmg ]
+$notfound && if [ -f pcp-$buildversion/build/mac/pcp-[0-9]*[0-9].dmg ]
 then
     # Mac OS X "pkg in a disk image" packaging
     here=`pwd`
-    cd build/mac
+    cd pcp-$buildversion/build/mac
     if ./cmdline-install >>$HOME/daily.log 2>&1
     then
 	echo "Info: installer install" | tee -a $HOME/daily.log
@@ -538,11 +558,11 @@ then
 	exit 1
     fi
     cd $here
-elif [ -f build/sun/pcp-$src_version ]
+elif [ -f pcp-$buildversion/build/sun/pcp-$src_version ]
 then
     # System V style pkgadd/pkgrm packaging ...
     here=`pwd`
-    cd build/sun
+    cd pcp-$buildversion/build/sun
     yes Y | sudo /usr/sbin/pkgrm pcp >>$HOME/daily.log 2>&1
     if yes Y | sudo /usr/sbin/pkgadd -d `pwd` pcp all >>$HOME/daily.log 2>&1
     then
@@ -554,13 +574,13 @@ then
     cd $here
     sudo /usr/sbin/svcadm enable -s svc:/application/pcp/pmcd >>$HOME/daily.log 2>&1
     sudo /usr/sbin/svcadm enable -s svc:/application/pcp/pmlogger >>$HOME/daily.log 2>&1
-elif [ -f build/tar/pcp-[0-9]*[0-9].tar.gz ]
+elif [ -f pcp-$buildversion/build/tar/pcp-[0-9]*[0-9].tar.gz ]
 then
     # tarball packaging ... (this has to be last, because some of the
     # other packaging regimes also create tarballs)
     here=`pwd`
-    tarball=$here/build/tar/pcp-[0-9]*[0-9].tar.gz
-    cd build/tar
+    tarball=$here/pcp-$buildversion/build/tar/pcp-[0-9]*[0-9].tar.gz
+    cd pcp-$buildversion/build/tar
     sudo ./preinstall >>$HOME/daily.log 2>&1
     cd /
     if sudo tar -zxpf $tarball >>$HOME/daily.log 2>&1
@@ -571,14 +591,14 @@ then
 	exit 1
     fi
     cd $here
-    cd build/tar
+    cd pcp-$buildversion/build/tar
     sudo ./postinstall >>$HOME/daily.log 2>&1
     cd $here
 else
     echo "Don't know how to install packages" | tee -a $HOME/daily.log
     exit 1
 fi
-if [ -f build/sun/pcp-$src_version ]
+if [ -f pcp-$buildversion/build/sun/pcp-$src_version ]
 then
     : pmcd started above
 else

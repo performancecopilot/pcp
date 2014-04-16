@@ -106,6 +106,8 @@ sub rsyslog_fetch_callback
 
 die "Cannot find a valid rsyslog statistics named pipe\n" unless -p $statsfile;
 
+$pmda->connect_pmcd;
+
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	pmda_units(0,1,0,0,PM_TIME_SEC,0), 'rsyslog.interval',
 	'Time interval observed between samples', '');

@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 929
+# pmlogger_daily optimization for only one archive (pmlogmv not pmlogextract)
+# and -M option (don't rewrite, merge or move)
+#
+# Copyright (c) 2014 Ken McDonell. All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+
+_cleanup()
+{
+    [ -d $tmp.one ] && rm -fr $tmp.one
+    [ -d $tmp.two ] && rm -fr $tmp.two
+    $sudo rm -f $tmp.*
+}
+
+_filter()
+{
+    # strip lines like ...
+    # Roll /var/log/pcp/NOTICES -> /var/log/pcp/NOTICES.old
+    # Start new /var/log/pcp/NOTICES
+    # + mv -f /var/log/pcp/NOTICES /var/log/pcp/NOTICES.old
+    # + touch /var/log/pcp/NOTICES
+    # as we have no control over the trigger for this (the size of the
+    # NOTICES file)
+    #
+    # and do the usual config/pid filtering
+    #
+    sed \
+	-e '/NOTICES/d' \
+	-e "s,$tmp,TMP,g" \
+	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
+	-e "s/$PAST/PAST/g"
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# create test control file
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+#Host           P?  S?  directory       args
+one.somewhere   n   n   $tmp.one        -c config.default
+two.somewhere   n   n   $tmp.two        -c config.default
+End-of-File
+
+
+# archives for a couple of days ago
+#
+PAST=`pmdate -2d %Y%m%d`
+for host in one two
+do
+    mkdir -p $tmp.$host
+    for ext in 0 meta index
+    do
+	cp src/foo.$ext $tmp.$host/$PAST.00.10.$ext
+	touch -t "${PAST}0010" $tmp.$host/$PAST.00.10.$ext
+	if [ "$host" = "two" ]
+	then
+	    cp src/foo.$ext $tmp.$host/$PAST.13.13.$ext
+	    touch -t "${PAST}1313" $tmp.$host/$PAST.13.13.$ext
+	fi
+    done
+done
+
+# real QA test starts here
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control \
+| _filter
+
+echo
+echo "--- -M case ---"
+$sudo $PCP_BINADM_DIR/pmlogger_daily -M -VN -c $tmp.control \
+| _filter
+
+# success, all done
+status=0
+exit

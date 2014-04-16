@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 mkdir $tmp
@@ -23,8 +21,14 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    # there are a lot of bizarre quoting variants for ln(1) error
+    # messages!
     sed \
-	-e '/^[rwx-]* /s/.* /... ls data ... /'
+	-e '/^[rwx.-]* /s/.* /... ls data ... /' \
+	-e 's/`'"/'/g" \
+	-e 's/‘'"/'/g" \
+	-e 's/’'"/'/g" \
+	-e 's/ln: creating hard link/ln: failed to create hard link/'
 }
 
 # real QA test starts here
@@ -57,7 +61,7 @@ echo
 echo "=== non-pcp archives and output files already exist ==="
 cp $here/src/foo.* .
 touch foo.frog
-pmlogmv -v foo bar >$tmp.out 2>&1
+pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -68,7 +72,7 @@ for i in 0 index meta
 do
     echo "--- bar.$i already exists ---"
     cp $here/src/bar.$i .
-    pmlogmv -v foo bar >$tmp.out 2>&1
+    pmlogmv -V foo bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
@@ -80,11 +84,11 @@ rm -f foo.* bar.*
 echo
 echo "=== simplest case ==="
 cp $here/src/foo.* .
-pmlogmv -nv foo bar >$tmp.out 2>&1
+pmlogmv -NV foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-pmlogmv -v foo bar >$tmp.out 2>&1
+pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -107,7 +111,7 @@ for ext in meta 0 index
 do
     echo "--- foo.$ext ---"
     cp $here/src/foo.* .
-    pmlogmv -v foo.$ext bar >$tmp.out 2>&1
+    pmlogmv -V foo.$ext bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
@@ -129,7 +133,7 @@ echo
 echo "=== multi-volume case ==="
 cp $here/src/mv-foo.* .
 cp mv-foo.2 mv-foo.123456789
-pmlogmv -v mv-foo bar >$tmp.out 2>&1
+pmlogmv -V mv-foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -152,7 +156,7 @@ echo
 echo "=== old and new in different directories =="
 mkdir new
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -174,7 +178,7 @@ echo "=== error case for ln failing ==="
 mkdir new
 chmod u-w,g-w,o-w new
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
@@ -186,13 +190,24 @@ echo "=== error case for rm failing ==="
 mkdir new
 chmod u-w,g-w,o-w .
 cp $here/src/mv-foo.* .
-pmlogmv -v mv-foo new/mv-foo >$tmp.out 2>&1
+pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 ls mv-foo* new/*
 chmod u+w,g+w,o+w .
-rm -rf foo.* new
+rm -rf mv-foo.* new
+
+echo
+echo "=== Frank's error case rm failing after first file ==="
+cp $here/src/mv-foo.* .
+ln mv-foo.2 mv-foo.3
+pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+[ $sts -eq 0 ] || echo exit status $sts
+ls mv-foo* mv-bar*
+rm -rf mv-foo.* mv-bar.*
 
 # success, all done
 status=0

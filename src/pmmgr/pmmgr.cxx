@@ -684,6 +684,11 @@ void pmmgr_daemon::poll()
           return;
         }
 
+      // We are going to run the daemon with sh -c, but on some versions of
+      // sh, this doesn't imply an exec, which interferes with signalling.
+      // Enforce exec on even these shells.
+      commandline = string("exec ") + commandline;
+
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "fork/exec sh -c " << commandline << endl;
       pid = fork();

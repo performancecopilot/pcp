@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 763
+# Exercise slow PMDA connect_pmcd() method.
+# [see also qa/843 for the Python version]
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
+    then
+	cd $here/pmdas/slow
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	cd $here
+    fi
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+cd pmdas/slow
+make clean >>$here/$seq.full 2>&1
+
+# real QA test starts here
+for start in 0 4 -4
+do
+    echo | tee -a $here/$seq.full
+    case "$start"
+    in
+	0)
+	    echo "=== no start delay ===" | tee -a $here/$seq.full
+	    ;;
+	-[0-9]*)
+	    echo "=== start delay `expr -1 \* $start` sec, no connect_pmcd() ===" | tee -a $here/$seq.full
+	    ;;
+	[0-9]*)
+	    echo "=== start delay $start sec, using connect_pmcd() ===" | tee -a $here/$seq.full
+	    ;;
+    esac
+    date >>$here/$seq.full
+    cat <<End-of-File | $sudo ./Install
+both
+$start
+End-of-File
+    date >>$here/$seq.full
+    pminfo -f slow | tee -a $here/$seq.full
+    $sudo cat $PCP_LOG_DIR/pmcd/slow.log >>$here/$seq.full
+    $sudo tail -40 $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+done
+
+# success, all done
+status=0
+
+exit

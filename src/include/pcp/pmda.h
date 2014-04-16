@@ -151,8 +151,11 @@ typedef struct {
     pmdaEndContextCallBack	e_endCallBack;	/* callback after client context closed */
 } pmdaExt;
 
-#define PMDA_EXT_FLAG_DIRECT	0x1	/* direct mapped PMID metric table */
-#define PMDA_EXT_FLAG_HASHED	0x2	/* hashed PMID metric table lookup */
+#define PMDA_EXT_FLAG_DIRECT	0x01	/* direct mapped PMID metric table */
+#define PMDA_EXT_FLAG_HASHED	0x02	/* hashed PMID metric table lookup */
+#define PMDA_EXT_SETUPDONE	0x04	/* __pmdaSetup() has been called */
+#define PMDA_EXT_CONNECTED	0x08	/* pmdaConnect() done */
+#define PMDA_EXT_NOTREADY	0x10	/* pmcd connection marked NOTREADY */
 
 /*
  * Optionally restrict symbol visibility for DSO PMDAs

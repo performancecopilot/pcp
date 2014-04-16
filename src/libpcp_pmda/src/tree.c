@@ -184,6 +184,13 @@ __pmdaNodeRelativeChildren(__pmnsNode *base, char ***offspring, int **status)
  
     for (node = base; node != NULL; node = node->next, nmatch++)
 	length += strlen(node->name) + 1;
+    if (nmatch == 0) {
+	/*
+	 * no need to allocate zero sized arrays for offspring[]
+	 * and status[]
+	 */
+	return 0;
+    }
     length += nmatch * sizeof(char *);	/* pointers to names */
     if ((list = (char **)malloc(length)) == NULL)
 	return -oserror();
@@ -289,7 +296,8 @@ __pmdaNodeAbsoluteChildren(__pmnsNode *node, char ***offspring, int **status)
 int
 pmdaTreeChildren(__pmnsTree *pmns, const char *name, int traverse, char ***offspring, int **status)
 {
-    __pmnsNode *node;
+    __pmnsNode	*node;
+    int		sts;
 
     if (!pmns)
 	return PM_ERR_NAME;
@@ -298,6 +306,8 @@ pmdaTreeChildren(__pmnsTree *pmns, const char *name, int traverse, char ***offsp
 	return PM_ERR_NAME;
 
     if (traverse == 0)
-	return __pmdaNodeRelativeChildren(node->first, offspring, status);
-    return __pmdaNodeAbsoluteChildren(node, offspring, status);
+	sts = __pmdaNodeRelativeChildren(node->first, offspring, status);
+    else
+	sts = __pmdaNodeAbsoluteChildren(node, offspring, status);
+    return sts;
 }

@@ -91,8 +91,7 @@ then
     echo
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or, if that fails, add it to config.guess and 
-	     send a copy to pcp@oss.sgi.com.'
+             using --target or ask pcp@mail.performancecopilot.org'
     rm -rf conftest conftest.*
     exit 1
 else
@@ -1783,8 +1782,7 @@ then
 fi
 if test $have_stat_type = false
 then
-    echo 'FATAL ERROR: Cannot determine stuct stat time types.'
-    echo 'Please send a copy of sys/stat.h to pcp@oss.sgi.com.'
+    echo 'FATAL ERROR: Cannot determine struct stat time types.'
     rm -rf conftest conftest.*
     exit 1
 fi
@@ -2322,21 +2320,8 @@ dnl   Build definitions for use in packaging
     build/GNUlocaldefs
 )
 
-dnl all done with configuring, now ensure the Debian control file
-dnl is good to go
-cd debian || exit 1
-rm -f control
-if $MAKE control >/tmp/$$.make.out 2>&1 
-then
-    rm /tmp/$$.make.out
-else
-    echo "Arrgh ..."
-    cat /tmp/$$.make.out
-    rm /tmp/$$.make.out
-    exit 1
-fi
-cd ..
-
-echo config.status: settings dump begin
-grep '^S.".*=' config.status
-echo config.status: settings dump end
+dnl verbose diagnostics
+dnl
+dnl echo config.status: settings dump begin
+dnl grep '^S.".*=' config.status
+dnl echo config.status: settings dump end

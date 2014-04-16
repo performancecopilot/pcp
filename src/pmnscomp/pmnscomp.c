@@ -1,8 +1,7 @@
 /*
- * pmnscomp [-d debug] outfile
- *
  * Construct a compiled PMNS suitable for "fast" loading in pmLoadNameSpace
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2006 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -67,6 +66,7 @@ static void
 dumpmap(void)
 {
     int		n;
+
     for (n = 0; n < nodecnt; n++) {
 	if (n % 8 == 0) {
 	    if (n)
@@ -110,6 +110,7 @@ static void
 chkascii(char *tag, char *p)
 {
     int	i = 0;
+
     while (*p) {
 	if (!isascii((int)*p) || !isprint((int)*p)) {
 	    printf("chkascii: %s: non-printable char 0x%02x in \"%s\"[%d] @ " PRINTF_P_PFX "%p\n",
@@ -167,34 +168,77 @@ pass3(__pmnsNode *p)
     i++;
 }
 
-/* Promote a pointer to a 64 bit interger and do the
- * endianess conversion on a 64 bit integer. Promotion should be 
- * sign extending because we're actually dealing intergers, not real
- * pointers , so if promoting -1 from 32 to 64 bits, we want -1 to
- * appear on the other end as well */
+#ifndef __htonll
+void
+__htonll(char *p)
+{
+    char        c;
+    int         i;
+
+    for (i = 0; i < 4; i++) {
+        c = p[i];
+        p[i] = p[7-i];
+        p[7-i] = c;
+    }
+}
+#endif
+
+#ifdef HAVE_NETWORK_BYTEORDER
+#define __ntohll(a) /* noop */
+#else
+#define __ntohll(v) __htonll(v)
+#endif
+
+/*
+ * Promote a pointer to a 64 bit interger and do the endianess
+ * conversion on a 64 bit integer.  Promotion should be sign
+ * extending because we're actually dealing with integers and
+ * not real pointers, so if promoting -1 from 32 to 64 bits, we
+ * want -1 to appear on the other end as well.
+ */
 static __int64_t
-to64_htonll (void * from)
+to64_htonll(void *from)
 {
     __int64_t to = (__psint_t)from; /* compiler sign extends */
 
     __htonll((char *)&to);
-    return (to);
+    return to;
 }
 
-/* And this is the reverse - take something which purpots to be a pointer
+/*
+ * And this is the reverse - take something which purpots to be a pointer
  * and stuff it into an 32 bit integer. If cannot do it safely, then
- * complain and exit */
+ * complain and exit
+ */
 static __int32_t
 to32_htonl(void *from)
 {
     __int32_t to = (__int32_t)(__psint_t)from; /* compiler truncates */
+
     if (to !=  (__psint_t)from) {
-	    fprintf (stderr, "%s: loss of precision during the conversion\n", 
-		     pmProgname);
-	    exit (1);
+	fprintf(stderr, "%s: loss of precision during the conversion\n", 
+		pmProgname);
+	exit(1);
     }
-    return (htonl(to));
+    return htonl(to);
 }
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "duplicates", 0, 'd', 0, "duplicate PMIDs are allowed" },
+    { "force", 0, 'f', 0, "force overwriting of the output file if it exists" },
+    PMOPT_NAMESPACE,
+    { "version", 1, 'v', "N", "alternate output format version [default 2]" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "dD:fn:v:?",
+    .long_options = longopts,
+    .short_usage = "[options] outfile",
+};
 
 int
 main(int argc, char **argv)
@@ -206,7 +250,6 @@ main(int argc, char **argv)
     int		force = 0;
     int		dupok = 0;
     char	*pmnsfile = PM_NS_DEFAULT;
-    int		errflag = 0;
     char	*endnum;
     FILE	*outf;
     __pmnsNode	*root;
@@ -216,9 +259,7 @@ main(int argc, char **argv)
     __int32_t	sum;
     long	startsum = 0;	/* initialize to pander to gcc */
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "dD:fn:v:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'd':	/* duplicate PMIDs are allowed */
@@ -226,11 +267,11 @@ main(int argc, char **argv)
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
@@ -241,47 +282,41 @@ main(int argc, char **argv)
 	    break;
 
 	case 'n':	/* alternative namespace file */
-	    pmnsfile = optarg;
+	    pmnsfile = opts.optarg;
 	    break;
 
 	case 'v':	/* alternate version */
-	    version = (int)strtol(optarg, &endnum, 10);
+	    version = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -v requires numeric argument\n", pmProgname);
-		errflag++;
+		pmprintf("%s: -v requires numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
 	    if (version < 1 || version > 2) {
-		fprintf(stderr, "%s: output format version %d not supported\n", pmProgname, version);
-		errflag++;
+		pmprintf("%s: output format version %d not supported\n",
+			pmProgname, version);
+		opts.errors++;
 	    }
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind != argc-1) {
-	fprintf(stderr,
-"Usage: %s [options] outfile\n\
-\n\
-Options:\n\
-  -d		duplicate PMIDs are allowed\n\
-  -f		force overwriting of an existing output file if it exists\n\
-  -n pmnsfile 	use an alternative PMNS\n\
-  -v version	alternate output format version [default 2]\n",
-			pmProgname);	
+    if (opts.errors || opts.optind != argc-1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
     if (force) {
 	struct stat	sbuf;
-	if (stat(argv[optind], &sbuf) == -1) {
+
+	if (stat(argv[opts.optind], &sbuf) == -1) {
 	    if (oserror() != ENOENT) {
 		fprintf(stderr, "%s: cannot stat \"%s\": %s\n",
-		    pmProgname, argv[optind], osstrerror());
+		    pmProgname, argv[opts.optind], osstrerror());
 		exit(1);
 	    }
 	}
@@ -289,20 +324,20 @@ Options:\n\
 	    /* stat is OK, so exists ... must be a regular file */
 	    if (!S_ISREG(sbuf.st_mode)) {
 		fprintf(stderr, "%s: \"%s\" is not a regular file\n",
-		    pmProgname, argv[optind]);
+		    pmProgname, argv[opts.optind]);
 		exit(1);
 	    }
-	    if (unlink(argv[optind]) == -1) {
+	    if (unlink(argv[opts.optind]) == -1) {
 		fprintf(stderr, "%s: cannot unlink \"%s\": %s\n",
-		    pmProgname, argv[optind], osstrerror());
+		    pmProgname, argv[opts.optind], osstrerror());
 		exit(1);
 	    }
 	}
     }
 
-    if (access(argv[optind], F_OK) == 0) {
+    if (access(argv[opts.optind], F_OK) == 0) {
 	fprintf(stderr, "%s: \"%s\" already exists!\nYou must either remove it first, or use -f\n",
-		pmProgname, argv[optind]);
+		pmProgname, argv[opts.optind]);
 	exit(1);
     }
 
@@ -371,8 +406,9 @@ Options:\n\
     __pmSetSignalHandler(SIGINT, SIG_IGN);
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
 
-    if ((outf = fopen(argv[optind], "w+")) == NULL) {
-	fprintf(stderr, "%s: cannot create \"%s\": %s\n", pmProgname, argv[optind], osstrerror());
+    if ((outf = fopen(argv[opts.optind], "w+")) == NULL) {
+	fprintf(stderr, "%s: cannot create \"%s\": %s\n",
+		pmProgname, argv[opts.optind], osstrerror());
 	exit(1);
     }
 
@@ -443,7 +479,7 @@ Options:\n\
 	    _nodetab32[j].first = to32_htonl(_nodetab[j].first);
 	    _nodetab32[j].hash = to32_htonl(_nodetab[j].hash);
 	    _nodetab32[j].name = to32_htonl(_nodetab[j].name);
-	    _nodetab32[j].pmid = __htonpmID(_nodetab[j].pmid);
+	    _nodetab32[j].pmid = htonl(_nodetab[j].pmid);
 	}
 	fwrite(_nodetab32, sizeof(_nodetab32[0]), nodecnt, outf);
 
@@ -477,7 +513,7 @@ Options:\n\
 	    _nodetab64[j].hash = to64_htonll(_nodetab[j].hash);
 	    _nodetab64[j].name = to64_htonll(_nodetab[j].name);
 
-	    _nodetab64[j].pmid = __htonpmID(_nodetab[j].pmid);
+	    _nodetab64[j].pmid = htonl(_nodetab[j].pmid);
 	    _nodetab64[j].__pad__ = htonl(0xdeadbeef);
 	}
 	fwrite(_nodetab64, sizeof(_nodetab64[0]), nodecnt, outf);
@@ -506,7 +542,7 @@ Options:\n\
 		       (int)ntohl(_nodetab32[j].hash), 
 		       _symbol+ntohl(_nodetab32[j].name));
 		if (htonl(_nodetab32[j].first) == -1)
-		    printf(" %s", pmIDStr(__htonpmID(_nodetab32[j].pmid)));
+		    printf(" %s", pmIDStr(htonl(_nodetab32[j].pmid)));
 		putchar('\n');
 	    }
 	    printf("\n64-bit Header: htab[%d] x %d bytes, nodetab[%d] x %d bytes\n",
@@ -541,7 +577,7 @@ Options:\n\
 		       " %-16.16s",
 		    j, t.parent, t.next, t.first, t.hash, _symbol+t.name);
 		if (t.first == -1) {
-		    printf(" %s", pmIDStr(__htonpmID(_nodetab64[j].pmid)));
+		    printf(" %s", pmIDStr(htonl(_nodetab64[j].pmid)));
 		}	
 		putchar('\n');
 	    }

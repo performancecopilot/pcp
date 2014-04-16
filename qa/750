@@ -30,7 +30,6 @@ report_package()
 {
     inst="$1-$2"
 
-    pmsleep 1.75 # give some time for pmdarpm to complete a background refresh
     pmval -s 1 rpm.arch -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.buildhost -i $inst	2>&1 | filter_pmval | tee -a $seq.full
     pmval -s 1 rpm.buildtime -i $inst	2>&1 | filter_pmval | tee -a $seq.full
@@ -91,11 +90,12 @@ _rpm_package_prepare
 
 package_totals_before
 _rpm_package_install
+_rpm_package_install_await
 report_package qaplayer 1.0-1.noarch
 package_totals_after
 
-echo "========================================================================"
 _rpm_package_remove
+_rpm_package_remove_await
 report_package qaplayer 1.0-1.noarch
 
 # success, all done

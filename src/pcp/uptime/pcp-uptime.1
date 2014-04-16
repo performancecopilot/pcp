@@ -1,0 +1,44 @@
+.TH PCP-UPTIME 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-uptime\f1 \- tell how long the system has been running
+.SH SYNOPSIS
+\f3pcp-uptime\f1
+[\f3\-V\f1/[\f3\--version\f1]
+.SH DESCRIPTION
+.B pcp-uptime
+gives a one line display of the following information.
+The current time,
+how long the system has been running,
+how many users are currently logged on,
+and the system load averages for the past 1, 5, and 15 minutes.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.PP
+The current version of
+.B pcp-uptime
+can be queried using the
+.BR \-V /\c
+.B \--version
+option.
+.SH NOTES
+.B pcp-uptime
+is inspired by the
+.BR uptime (1)
+command and aims to be command line and output compatible with it.
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR uptime (1),
+.BR PCPIntro (1)
+and
+.BR environ (5).

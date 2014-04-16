@@ -1,0 +1,28 @@
+#!/bin/sh
+# PCP QA Test No. 742
+# Exercise the pcp-uptime(1) command using an archive
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+archive="-a $here/src/pcp-uptime -z"
+
+# real QA test starts here
+echo && echo uptime output, at archive start
+pcp $archive uptime
+
+echo && echo uptime output, at archive end
+pcp $archive -O-0 uptime
+
+# success, all done
+status=0
+exit

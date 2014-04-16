@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -22,7 +22,8 @@ TOPDIR = .
 -include ./GNUlocaldefs
 
 CONFIGURE_GENERATED = pcp.lsm \
-	$(TOPDIR)/src/include/builddefs $(TOPDIR)/src/include/pcp/platform_defs.h
+	$(TOPDIR)/src/include/builddefs \
+	$(TOPDIR)/src/include/pcp/platform_defs.h
 
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
@@ -32,8 +33,7 @@ LSRCFILES = aclocal.m4 configure config.guess config.sub \
 	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	pcp-pro-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	pcp-sgi-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
+	pcp-*-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
 	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
 	autom4te.cache install.manifest install_pro.manifest \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \

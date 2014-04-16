@@ -16,8 +16,7 @@ echo "QA output created by $seq"
 
 . ./common.secure
 
-unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+_get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
 id -g nobody >/dev/null 2>&1 || _notrun "Group nobody unavailable"

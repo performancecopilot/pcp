@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident   metrics sampled once by the atop command
+probe	kernel.uname.sysname ~ Linux ? include : exclude
+	hinv.cpu.clock
+	hinv.ncpu
+	mem.physmem
