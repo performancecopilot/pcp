@@ -429,3 +429,17 @@ PCP_3.3 {
     __pmLogLocalSocketUser;
     __pmMakePath;
 } PCP_3.2;
+
+PCP_3.4 {
+  global:
+    __pmConnectCheckError;
+    __pmGetFileStatusFlags;
+    __pmSetFileStatusFlags;
+    __pmGetFileDescriptorFlags;
+    __pmSetFileDescriptorFlags;
+} PCP_3.3;
+
+PCP_3.5 {
+  global:
+    __pmSocketClosed;
+} PCP_3.4;

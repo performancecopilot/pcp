@@ -1,6 +1,7 @@
 /*
  * trace.c - client-side interface for trace PMDA
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1997-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -445,15 +446,27 @@ pmtraceerrstr(int code)
 static int
 _pmtraceremaperr(int sts)
 {
+    int save_oserror;
+    int socket_closed;
+
+    /*
+     * sts is negative.
+     * Use __pmSocketClosed() to decode it, since it may have come from
+     * __pmSecureSocketsError(). __pmSocketClosed uses oserror() and expects it to
+     * be non-negative.
+     */
+    save_oserror = oserror();
+    setoserror(-sts);
+    socket_closed = __pmSocketClosed();
+    setoserror(save_oserror);
+
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_COMMS)
 	fprintf(stderr, "_pmtraceremaperr: status %d remapped to %d\n", sts,
-		(sts == -EBADF || sts == -EPIPE || sts == -ETIMEDOUT ||
-		 sts == -ECONNRESET || sts == -ECONNREFUSED)?
-		PMTRACE_ERR_IPC : sts);
+		socket_closed ? PMTRACE_ERR_IPC : sts);
 #endif
-    if (sts == -EBADF || sts == -EPIPE || sts == -ETIMEDOUT ||
-		sts == -ECONNRESET || sts == -ECONNREFUSED) {
+
+    if (socket_closed) {
 	_pmtimedout = 1;
 	return PMTRACE_ERR_IPC;
     }
@@ -603,7 +616,7 @@ _pmtracereconnect(void)
     }
     if (__pmfd >= 0) {
 	__pmtracenomoreinput(__pmfd);
-	close(__pmfd);
+	__pmCloseSocket(__pmfd);
 	__pmfd = -1;
     }
     if (_pmtraceconnect(1) < 0) {
@@ -674,17 +687,20 @@ _pmauxtraceconnect(void)
     int			port = TRACE_PORT;
     char		hostname[MAXHOSTNAMELEN];
     struct timeval	timeout = { 3, 0 };     /* default 3 secs */
-    struct sockaddr_in	myaddr;
-    struct hostent	*servinfo;
-    struct linger	nolinger = {1, 0};
+    __pmSockAddr	*myaddr;
+    __pmHostEnt		*servinfo;
+    void		*enumIx;
 #ifndef IS_MINGW
     struct itimerval	_pmolditimer;
     void		(*old_handler)(int foo);
 #endif
-    int			rc, sts = 0;
-    int			flags;
-    int			nodelay=1;
+    int			rc, sts;
+    int			flags = 0;
     char		*sptr, *endptr, *endnum;
+    struct timeval	canwait = { 5, 000000 };
+    struct timeval	stv;
+    struct timeval	*pstv;
+    __pmFdSet		wfds;
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_NOAGENT) {
@@ -725,102 +741,150 @@ _pmauxtraceconnect(void)
     if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
-    if ((servinfo = gethostbyname(hostname)) == NULL) {
+    if ((servinfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(gethostbyname(hostname=%s): "
+	    fprintf(stderr, "_pmtraceconnect(__pmGetAddrInfo(hostname=%s): "
 		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
 		    hoststrerror());
 #endif
 	return -EHOSTUNREACH;
     }
 
-    /* Create socket and attempt to connect to the local PMDA */
-    if ((__pmfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    /* Try each address in turn until one connects. */
+    sts = EHOSTUNREACH;
+    __pmfd = -1;
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
+	 myaddr != NULL;
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myaddr))
+	    __pmfd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myaddr))
+	    __pmfd = __pmCreateIPv6Socket();
+	else {
+	    fprintf(stderr, "_pmtraceconnect(invalid address family): %d\n",
+		    __pmSockAddrGetFamily(myaddr));
+	}
+	if (__pmfd < 0) {
+	    sts = neterror();
+	    __pmSockAddrFree(myaddr);
+	    __pmCloseSocket(__pmfd);
+	    continue; /* Try the next address */
+	}
+
+	/* Set the port. */
+	__pmSockAddrSetPort(myaddr, port);
+
+#ifndef IS_MINGW
+	/* arm interval timer */
+	_pmmyitimer.it_value.tv_sec = timeout.tv_sec;
+	_pmmyitimer.it_value.tv_usec = timeout.tv_usec;
+	_pmmyitimer.it_interval.tv_sec = 0;
+	_pmmyitimer.it_interval.tv_usec = 0;
+	old_handler = signal(SIGALRM, _pmtracealarm);
+	setitimer(ITIMER_REAL, &_pmmyitimer, &_pmolditimer);
+#endif
+
+#ifdef PMTRACE_DEBUG
+	if (__pmstate & PMTRACE_STATE_COMMS) {
+	    char *name = __pmHostEntGetName (servinfo);
+	    fprintf(stderr, "_pmtraceconnect: PMDA host=%s port=%d timeout=%d"
+		    "secs\n", name == NULL ? "unknown" : name, port, (int)timeout.tv_sec);
+	    if (name != NULL)
+		free(name);
+	}
+#endif
+
+	/* Attempt to connect */
+	flags = __pmConnectTo(__pmfd, myaddr, port);
+	__pmSockAddrFree(myaddr);
+
+	if (flags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address. __pmfd has been closed in __pmConnectTo().
+	     */
+	    sts = -flags;
+	    __pmfd = -1;
+	    continue;
+	}
+
+	/* FNDELAY and we're in progress - wait on select */
+	stv = canwait;
+	pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(__pmfd, &wfds);
+	if ((rc = __pmSelectWrite(__pmfd+1, &wfds, pstv)) == 1) {
+	    sts = __pmConnectCheckError(__pmfd);
+	}
+	else if (rc == 0) {
+	    sts = ETIMEDOUT;
+	}
+	else {
+	    sts = (rc < 0) ? neterror() : EINVAL;
+	}
+ 
+#ifndef IS_MINGW
+	/* re-arm interval timer */
+	setitimer(ITIMER_REAL, &off_itimer, &_pmmyitimer);
+	signal(SIGALRM, old_handler);
+	if (_pmolditimer.it_value.tv_sec != 0 && _pmolditimer.it_value.tv_usec != 0) {
+	    _pmolditimer.it_value.tv_usec -= timeout.tv_usec - _pmmyitimer.it_value.tv_usec;
+	    while (_pmolditimer.it_value.tv_usec < 0) {
+		_pmolditimer.it_value.tv_usec += 1000000;
+		_pmolditimer.it_value.tv_sec--;
+	    }
+	    while (_pmolditimer.it_value.tv_usec > 1000000) {
+		_pmolditimer.it_value.tv_usec -= 1000000;
+		_pmolditimer.it_value.tv_sec++;
+	    }
+	    _pmolditimer.it_value.tv_sec -= timeout.tv_sec - _pmmyitimer.it_value.tv_sec;
+	    if (_pmolditimer.it_value.tv_sec < 0) {
+		/* missed the user's itimer, pretend there is 1 msec to go! */
+		_pmolditimer.it_value.tv_sec = 0;
+		_pmolditimer.it_value.tv_usec = 1000;
+	    }
+	    setitimer(ITIMER_REAL, &_pmolditimer, &_pmmyitimer);
+	}
+#endif
+
+	/* Was the connection successful? */
+	if (sts == 0)
+	    break;
+
+	/* Unsuccessful connection. */
+	__pmCloseSocket(__pmfd);
+	__pmfd = -1;
+    } /* loop over addresses */
+
+    __pmHostEntFree(servinfo);
+
+    /* Was the connection successful? */
+    if (__pmfd < 0) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_COMMS)
 	    fprintf(stderr, "_pmtraceconnect(socket failed): %s\n",
 		    netstrerror());
 #endif
-	return -neterror();
+	return -sts;
     }
-
-    /* avoid 200 ms delay */
-    if (setsockopt(__pmfd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
-				    (__pmSockLen)sizeof(nodelay)) < 0) {
-#ifdef PMTRACE_DEBUG
-	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(setsockopt1 failed): %s\n",
-		    netstrerror());
-#endif
-	return -neterror();
-    }
-
-    /* don't linger on close */
-    if (setsockopt(__pmfd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
-				    (__pmSockLen)sizeof(nolinger)) < 0) {
-#ifdef PMTRACE_DEBUG
-	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(setsockopt2 failed): %s\n",
-		    netstrerror());
-#endif
-	return -neterror();
-    }
-
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(port);
-
-#ifndef IS_MINGW
-    /* arm interval timer */
-    _pmmyitimer.it_value.tv_sec = timeout.tv_sec;
-    _pmmyitimer.it_value.tv_usec = timeout.tv_usec;
-    _pmmyitimer.it_interval.tv_sec = 0;
-    _pmmyitimer.it_interval.tv_usec = 0;
-    old_handler = signal(SIGALRM, _pmtracealarm);
-    setitimer(ITIMER_REAL, &_pmmyitimer, &_pmolditimer);
-#endif
-
-#ifdef PMTRACE_DEBUG
-    if (__pmstate & PMTRACE_STATE_COMMS) {
-	fprintf(stderr, "_pmtraceconnect: PMDA host=%s port=%d timeout=%d"
-		"secs\n", servinfo->h_name, port, (int)timeout.tv_sec);
-    }
-#endif
-
-    if ((rc = connect(__pmfd, (struct sockaddr*) &myaddr, sizeof(myaddr))) < 0)
-	return -neterror();
-
-#ifndef IS_MINGW
-    /* re-arm interval timer */
-    setitimer(ITIMER_REAL, &off_itimer, &_pmmyitimer);
-    signal(SIGALRM, old_handler);
-    if (_pmolditimer.it_value.tv_sec != 0 && _pmolditimer.it_value.tv_usec != 0) {
-	_pmolditimer.it_value.tv_usec -= timeout.tv_usec - _pmmyitimer.it_value.tv_usec;
-	while (_pmolditimer.it_value.tv_usec < 0) {
-	    _pmolditimer.it_value.tv_usec += 1000000;
-	    _pmolditimer.it_value.tv_sec--;
-	}
-	while (_pmolditimer.it_value.tv_usec > 1000000) {
-	    _pmolditimer.it_value.tv_usec -= 1000000;
-	    _pmolditimer.it_value.tv_sec++;
-	}
-	_pmolditimer.it_value.tv_sec -= timeout.tv_sec - _pmmyitimer.it_value.tv_sec;
-	if (_pmolditimer.it_value.tv_sec < 0) {
-	    /* missed the user's itimer, pretend there is 1 msec to go! */
-	    _pmolditimer.it_value.tv_sec = 0;
-	    _pmolditimer.it_value.tv_usec = 1000;
-	}
-	setitimer(ITIMER_REAL, &_pmolditimer, &_pmmyitimer);
-    }
-#endif
 
     _pmtimedout = 0;
 
+    /* Restore the original file status flags. */
+    if (__pmSetFileStatusFlags(__pmfd, flags) < 0) {
+#ifdef PMTRACE_DEBUG
+	if (__pmstate & PMTRACE_STATE_COMMS)
+	    fprintf(stderr, ":_pmtraceconnect: cannot restore file status flags\n");
+#endif
+	return -oserror();
+    }
+
     /* make sure this file descriptor is closed if exec() is called */
-    if ((flags = fcntl(__pmfd, F_GETFD)) != -1)
-	sts = fcntl(__pmfd, F_SETFD, flags | FD_CLOEXEC);
+    if ((flags = __pmGetFileDescriptorFlags(__pmfd)) != -1)
+	sts = __pmSetFileDescriptorFlags(__pmfd, flags | FD_CLOEXEC);
     else
 	sts = -1;
     if (sts == -1)
@@ -828,8 +892,8 @@ _pmauxtraceconnect(void)
 
     if (__pmtraceprotocol(TRACE_PROTOCOL_QUERY) == TRACE_PROTOCOL_ASYNC) {
 	/* in the asynchronoous protocol - ensure no delay after close */
-	if ((flags = fcntl(__pmfd, F_GETFL)) != -1)
-	    sts = fcntl(__pmfd, F_SETFL, flags | FNDELAY);
+	if ((flags = __pmGetFileStatusFlags(__pmfd)) != -1)
+	    sts = __pmSetFileStatusFlags(__pmfd, flags | FNDELAY);
 	else
 	    sts = -1;
 	if (sts == -1)
