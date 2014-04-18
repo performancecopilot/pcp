@@ -101,8 +101,13 @@ doscan(struct timeval *end)
 		__pmPDU		from;
 		__pmTimeval	timestamp;
 		int		numpmid;	/* zero PMIDs to follow */
+		__pmPDU		trailer;
 	    } markrec;
-	    markrec.len = sizeof(markrec);
+	    /*
+	     * add space for, but don't bump length for, trailer so
+	     * __pmLogPutResut() has space for trailer in the buffer
+	     */
+	    markrec.len = sizeof(markrec) - sizeof(__pmPDU);
 	    markrec.type = markrec.from = 0;
 	    markrec.timestamp.tv_sec = htonl(rp->timestamp.tv_sec);
 	    markrec.timestamp.tv_usec = htonl(rp->timestamp.tv_usec);

@@ -143,6 +143,7 @@ fi
 echo
 echo "count records in archive (expect 1 for preamble + 2) ..."
 pmdumplog $tmp 2>&1 \
+| tee -a $seq.full \
 | _filter_dumplog \
 | sed -n -e '/TIMESTAMP/s/STAMP.*/STAMP/p'
 
