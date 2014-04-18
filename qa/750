@@ -94,7 +94,6 @@ _rpm_package_install_await
 report_package qaplayer 1.0-1.noarch
 package_totals_after
 
-echo "========================================================================"
 _rpm_package_remove
 _rpm_package_remove_await
 report_package qaplayer 1.0-1.noarch

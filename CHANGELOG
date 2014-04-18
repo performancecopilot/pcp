@@ -1,5 +1,40 @@
-pcp-3.9.2 (16 April 2014)
-    - Under development
+pcp-3.9.2 (15 April 2014)
+    - python api: direct support for creating derived metrics
+    - python api: fix C strings memory leak in pmExtractValue
+    - python api: fix pmConvScale parameterization
+    - python api: pmLookupName API mode allowing partial failure
+    - python api: improvements to the pmErr exceptions class
+    - python api: support auto-command-line-parsing in scripts
+    - python api: switch to thread-safe pmGetContextHostname
+    - pcp: support for scripted pcp(1) child commands, adding in
+      pcp-free(1), pcp-uptime(1) and pcp-numastat(1) to get the
+      ball rolling (python scripts)
+    - pmlogmv: new utility to atomically move/rename archives
+    - pmconfig: improvements to quoting for unusual versions
+    - pmdaproc.sh: allow Install/Remove from any directory
+    - libpcp: pmgetopt_r interface for use by collector tools
+    - libpcp_pmda: slow-start PMDA changes
+    - libpcp_pmda: fix a memory leak dealing in dynamic metrics,
+      with PMDAs using the optional hashed metric table method.
+    - libpcp_pmda: long option command line processing interface
+    - libpcp_pmda: handle POSIXLY_CORRECT arguments internally
+    - pmcd: remove POSIXLY_CORRECT env modifications
+    - dbpmda: remove POSIXLY_CORRECT env modifications
+    - pmlogger_check: add a no-merging-renaming-rewriting option
+    - pmlogger_daily: don't merge archives if it is not needed
+      (optimization)
+    - perl pmda api: add documentation for PCP::PMDA interfaces
+    - pmdalinux: fix a memory leak in cpu:node name resolution
+    - pmmgr: fix daemon invocation quirk for some sh variants
+    - pmdarpm: improvements to concurrent rpmdb access
+    - pmdarpm: rpm.size metric now 64bit, matching rpmdb changes
+    - pmdaproc.sh: add $perl_args and $python_args
+    - long command line options support:
+      pmdamailq, pmns utilities, newhelp, pmcd, pmcd_wait, pmcpp,
+      pmdate, pmdbg, pmerr, pmhostname, pmieconf, collectl2pcp,
+      pmlc, pmmgr, pmproxy, pmwebd.
+    - Makepkgs changes to support source tarball builds via git
+    - HACKING file added, describing PCP development methodology
 
 pcp-3.9.1 (19 March 2014)
     - libpcp: extended date parsing with GNU getdate(3) strings

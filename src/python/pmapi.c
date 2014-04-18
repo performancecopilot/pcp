@@ -512,7 +512,11 @@ options_callback(int opt, pmOptions *opts)
     } else {
 	result = PyEval_CallObject(optionCallback, arglist);
 	Py_DECREF(arglist);
-	Py_DECREF(result);
+        if (!result) {
+            PyErr_Print();
+            return;
+        }
+        Py_DECREF(result);
     }
 }
 
@@ -595,7 +599,16 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     for (i = 0; i < argc; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
-	argv[i] = PyString_AsString(pyarg);
+	char *string = PyString_AsString(pyarg);
+
+	/* argv[0] parameter will be used for pmProgname, so need to
+	 * ensure the memory that backs it will be with us forever.
+         */
+	if (i == 0 && (string = strdup(string)) == NULL) {
+	    Py_DECREF(pyargv);
+	    return PyErr_NoMemory();
+	}
+	argv[i] = string;
     }
 
     if (overridesCallback)
