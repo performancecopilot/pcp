@@ -803,13 +803,10 @@ int makeSocket(const char *host)
 		sock = __pmCreateSocket();
 	    else if (__pmSockAddrIsIPv6(myaddr))
 		sock = __pmCreateIPv6Socket();
-	    else {
-		fprintf(stderr, "_pmtraceconnect(invalid address family): %d\n",
-			__pmSockAddrGetFamily(myaddr));
-	    }
+	    else
+		continue;
 	    if (sock < 0) {
 		__pmSockAddrFree(myaddr);
-		__pmCloseSocket(sock);
 		continue; /* Try the next address */
 	    }
 

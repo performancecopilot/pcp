@@ -770,7 +770,6 @@ _pmauxtraceconnect(void)
 	if (__pmfd < 0) {
 	    sts = neterror();
 	    __pmSockAddrFree(myaddr);
-	    __pmCloseSocket(__pmfd);
 	    continue; /* Try the next address */
 	}
 
