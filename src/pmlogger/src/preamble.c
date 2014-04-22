@@ -64,6 +64,7 @@ do_preamble(void)
     __pmTimeval	tmp;
     char	path[MAXPATHLEN];
     char	host[MAXHOSTNAMELEN];
+    int		free_cp;
 
     /* start to build the pmResult */
     res = (pmResult *)malloc(sizeof(pmResult) + (n_metric - 1) * sizeof(pmValueSet *));
@@ -87,16 +88,22 @@ do_preamble(void)
 	res->vset[i]->pmid = desc[i].pmid;
 	res->vset[i]->numval = 1;
 	/* special case for each value 0 .. n_metric-1 */
+	free_cp = 0;
 	if (desc[i].pmid == PMID(2,3,3)) {
+	    __pmHostEnt *servInfo;
 	    /* my fully qualified hostname, cloned from the pmcd PMDA */
-	    struct hostent	*hep = NULL;
 	    (void)gethostname(host, MAXHOSTNAMELEN);
 	    host[MAXHOSTNAMELEN-1] = '\0';
-	    hep = gethostbyname(host);
-	    if (hep != NULL)
-		atom.cp = hep->h_name;
-	    else
+	    if ((servInfo = __pmGetAddrInfo(host)) == NULL)
 		atom.cp = host;
+	    else {
+		atom.cp = __pmHostEntGetName(servInfo);
+		__pmHostEntFree(servInfo);
+		if (atom.cp == NULL)
+		    atom.cp = host;
+		else
+		    free_cp = 1;
+	    }
 	 }
 	 else if (desc[i].pmid == PMID(2,3,0)) {
 	    /* my control port number, from ports.c */
@@ -121,6 +128,8 @@ do_preamble(void)
 	}
 
 	sts = __pmStuffValue(&atom, &res->vset[i]->vlist[0], desc[i].type);
+	if (free_cp)
+	    free(atom.cp);
 	if (sts < 0)
 	    goto done;
 	res->vset[i]->vlist[0].inst = (int)mypid;
