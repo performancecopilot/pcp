@@ -573,6 +573,7 @@ extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
 extern int __pmCreateUnixSocket(void);
 extern void __pmCloseSocket(int);
+extern FILE *__pmFdOpen(int, const char *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);

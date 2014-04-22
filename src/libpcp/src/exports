@@ -434,6 +434,7 @@ PCP_3.4 {
   global:
     __pmConnectCheckError;
     __pmConnectRestoreFlags;
+    __pmFdOpen;
     __pmGetFileStatusFlags;
     __pmSetFileStatusFlags;
     __pmGetFileDescriptorFlags;
