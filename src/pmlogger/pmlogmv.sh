@@ -58,18 +58,26 @@ then
     # NOTREADCHED
 fi
 
-case "$1"
-in
-    *[0-9])
-	old=`echo "$1" | sed -e 's/\.[0-9][0-9]*$//'`
-	;;
-    *.index|*.meta)
-	old=`echo "$1" | sed -e 's/\.[a-z][a-z]*$//'`
-	;;
-    *)
-	old="$1"
-	;;
-esac
+if [ -f "$1" ]
+then
+    # oldname is an existing file, strip the expected PCP suffix
+    #
+    case "$1"
+    in
+	*[0-9])
+	    old=`echo "$1" | sed -e 's/\.[0-9][0-9]*$//'`
+	    ;;
+	*.index|*.meta)
+	    old=`echo "$1" | sed -e 's/\.[a-z][a-z]*$//'`
+	    ;;
+	*)
+	    echo >&2 "pmlogmv: Error: oldname argument ($1) is not a PCP archive"
+	    exit
+	    ;;
+    esac
+else
+    old="$1"
+fi
 new="$2"
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
@@ -120,10 +128,34 @@ _cleanup()
 
 # get oldnames inventory check required files are present
 #
-ls "$old"* 2>&1 | egrep '\.(index|meta|[0-9][0-9]*)$' >$tmp.old
+ls "$old".* 2>&1 | egrep '\.(index|meta|[0-9][0-9]*)$' >$tmp.old
 if [ -s $tmp.old ]
 then
-    :
+    # $old may be an ambiguous suffix, e.g. 20140417.00 (with more than
+    # one .HH archives) ... pick the suffixes and make sure there are
+    # no duplicates
+    #
+    touch $tmp.ok
+    sed <$tmp.old \
+	-e 's/.*\.index$/index/' \
+	-e 's/.*\.meta$/meta/' \
+	-e 's/.*\.\([0-9][0-9]*\)$/\1/' \
+    | sort \
+    | uniq -c \
+    | while read c x
+    do
+	case $c
+	in
+	    1)
+	    	;;
+	    *)
+	    	echo >&2 "pmlogmv: Error: oldname argument ($old) is a prefix for multiple PCP archive files:"
+		grep "\\.$x\$" $tmp.old | sed -e 's/^/    /' >&2
+		rm -f $tmp.ok
+		;;
+	esac
+    done
+    [ -f $tmp.ok ] || exit
 else
     echo >&2 "pmlogmv: Error: cannot find any files for the input archive ($old)"
     exit
@@ -140,7 +172,7 @@ if grep -q '.meta$' $tmp.old
 then
     :
 else
-    echo >&2 "pmlogmv: Error: cannot find .meta file for the input archive ($old)"
+    echo >&2 "pmlogmv: Error: cannot find .metadata file for the input archive ($old)"
     ls -l "$old"*
     exit
 fi
