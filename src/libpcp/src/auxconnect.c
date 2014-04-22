@@ -169,7 +169,7 @@ __pmConnectCheckError(int fd)
     return so_err;
 }
 
-static int
+int
 __pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;

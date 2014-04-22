@@ -1,6 +1,7 @@
 /* http_fetcher.c - HTTP handling functions
 
 	HTTP Fetcher 
+	Copyright (c) 2014 Red Hat.
 	Copyright (C) 2001, 2003, 2004 Lyle Hanson (lhanson@users.sourceforge.net)
 
 	This library is free software; you can redistribute it and/or
@@ -768,89 +769,92 @@ int _http_read_header(int sock, char *headerPtr)
 int makeSocket(const char *host)
 	{
 	int sock;										/* Socket descriptor */
-	struct sockaddr_in sa;							/* Socket address */
-	struct hostent *hp;								/* Host entity */
 	int ret;
 	int port;
 	char *p;
-	long sock_args;
-	fd_set wfds;
-	int selectRet;
+	__pmFdSet wfds;
 	struct timeval tv;
-	socklen_t lon;
-	int valopt;
+	struct timeval	*ptv;
+	__pmSockAddr *myaddr;
+	__pmHostEnt *servInfo;
+	void *enumIx;
+	int flags = 0;
 	
-    /* Check for port number specified in URL */
-    p = strchr(host, ':');
-    if(p)
-        {
-        port = atoi(p + 1);
-        *p = '\0';
-        }
-    else
-        port = PORT_NUMBER;
-
-	hp = gethostbyname(host);
-	if(hp == NULL) { errorSource = H_ERRNO; return -1; }
-		
-	/* Copy host address from hostent to (server) socket address */
-	memcpy((char *)&sa.sin_addr, (char *)hp->h_addr, hp->h_length);
-	sa.sin_family = hp->h_addrtype;		/* Set service sin_family to PF_INET */
-	sa.sin_port = htons(port);      	/* Put portnum into sockaddr */
-
-	sock = socket(hp->h_addrtype, SOCK_STREAM, 0);
-	if(sock == -1) { errorSource = ERRNO; return -1; }
-
-	/* Get socket options */
-	if ((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
-	    return _makeSocketErr(sock, ERRNO, 0);
-	sock_args |= O_NONBLOCK; /* OR non-blocking with existing options */
-	/* Set non-blocking */
-	if( fcntl(sock, F_SETFL, sock_args) < 0)
-	    return _makeSocketErr(sock, ERRNO, 0);
-	/* Try to connect */
-	ret = connect(sock, (struct sockaddr *)&sa, sizeof(sa));
-	if (ret < 0 ){
-	    if (errno == EINPROGRESS) {
-		do {
-		    tv.tv_sec = timeout;
-		    tv.tv_usec = 0;
-		    FD_ZERO(&wfds);
-		    FD_SET(sock, &wfds);
-
-		    if(timeout >= 0)
-			selectRet = select(sock+1, NULL, &wfds, NULL, &tv);
-		    else
-			selectRet = select(sock+1, NULL, &wfds, NULL, NULL);
-
-		    if (selectRet < 0 && errno != EINTR)
-			return _makeSocketErr(sock, ERRNO, 0);
-		    else if (selectRet > 0){
-			lon = sizeof(int);
-			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0)
-			    return _makeSocketErr(sock, ERRNO, 0);
-			    /* Can't call getsockopt */
-			if (valopt)
-			    return _makeSocketErr(sock, ERRNO, 0);
-			    /* Got a SO_ERROR */
-			break;
-		    }
-		    /* Timed out waiting for socket to become ready */
-		    else
-			return _makeSocketErr(sock, FETCHER_ERROR, HF_CONNECTTIMEOUT);
-		    } while(1);
+	/* Check for port number specified in URL */
+	p = strchr(host, ':');
+	if(p)
+	    {
+		port = atoi(p + 1);
+		*p = '\0';
 	    }
+	else
+	    port = PORT_NUMBER;
+
+	servInfo = __pmGetAddrInfo(host);
+	if(servInfo == NULL) { errorSource = H_ERRNO; return -1; }
+
+	sock = -1;
+	enumIx = NULL;
+	for (myaddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	     myaddr != NULL;
+	     myaddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	    /* Create a socket */
+	    if (__pmSockAddrIsInet(myaddr))
+		sock = __pmCreateSocket();
+	    else if (__pmSockAddrIsIPv6(myaddr))
+		sock = __pmCreateIPv6Socket();
 	    else {
-		/* We were expecting to be in progress but something else happened with the connect */
+		fprintf(stderr, "_pmtraceconnect(invalid address family): %d\n",
+			__pmSockAddrGetFamily(myaddr));
+	    }
+	    if (sock < 0) {
+		__pmSockAddrFree(myaddr);
+		__pmCloseSocket(sock);
+		continue; /* Try the next address */
+	    }
+
+	    /* Attempt to connect */
+	    flags = __pmConnectTo(sock, myaddr, port);
+	    __pmSockAddrFree(myaddr);
+
+	    if (flags < 0) {
+		/*
+		 * Mark failure in case we fall out the end of the loop
+		 * and try next address. sock has been closed in __pmConnectTo().
+		 */
+		sock = -1;
+		continue;
+	    }
+
+	    /* FNDELAY and we're in progress - wait on select */
+	    tv.tv_sec = timeout;
+	    tv.tv_usec = 0;
+	    ptv = (tv.tv_sec || tv.tv_usec) ? &tv : NULL;
+	    __pmFD_ZERO(&wfds);
+	    __pmFD_SET(sock, &wfds);
+	    ret = __pmSelectWrite(sock+1, &wfds, ptv);
+
+	    /* Was the connection successful? */
+	    if (ret < 0) {
+		if (oserror() == EINTR)
+		    return _makeSocketErr(sock, FETCHER_ERROR, HF_CONNECTTIMEOUT);
 		return _makeSocketErr(sock, ERRNO, 0);
 	    }
-	}
-	/* Set socket back to blocking */
-	if((sock_args = fcntl(sock, F_GETFL, NULL)) < 0)
-	    return _makeSocketErr(sock, ERRNO, 0);
-	sock_args &= (~O_NONBLOCK);
-	if(fcntl(sock, F_SETFL, sock_args) < 0)
-	    return _makeSocketErr(sock, ERRNO, 0);
+	    ret = __pmConnectCheckError(sock);
+	    if (ret == 0)
+		break;
+
+	    /* Unsuccessful connection. */
+	    __pmCloseSocket(sock);
+	    sock = -1;
+	} /* loop over addresses */
+
+	__pmHostEntFree(servInfo);
+
+	if(sock == -1) { errorSource = ERRNO; return -1; }
+
+	sock = __pmConnectRestoreFlags(sock, flags);
+	if(sock < 0) { errorSource = ERRNO; return -1; }
 
 	return sock;
 	}
