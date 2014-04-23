@@ -307,11 +307,11 @@ parseargs(int argc, char *argv[])
 		    closedir(dirp);
 	    }
 	    else {
-		fprintf(stderr, "Error: -c config %s is not a file or directory\n", optarg);
+		fprintf(stderr, "%s: Error: -c config %s is not a file or directory\n", pmProgname, optarg);
 		errflag++;
 	    }
 	    if (nconf > 0 && conf == NULL) {
-		fprintf(stderr, "conf[%d] realloc(%d) failed: %s\n", nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
+		fprintf(stderr, "%s: Error: conf[%d] realloc(%d) failed: %s\n", pmProgname, nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -874,6 +874,7 @@ main(int argc, char **argv)
     int		stsmeta = 0;		/* sts from nextmeta() */
     int		i;
     int		ti_idx;			/* next slot for input temporal index */
+    int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		needti = 0;
     int		doneti = 0;
     __pmTimeval	tstamp = { 0 };		/* for last log record */
@@ -929,6 +930,7 @@ main(int argc, char **argv)
 	 * + close the temporary file descriptors and unlink the basename
 	 *   files
 	 * + create the output as per normal in outarch.name
+	 * + fsync() all the output files and the container directory
 	 * + rename the _input_ archive files using the _second_ temporary
 	 *   basename
 	 * + rename the output archive files to the basename of the input
@@ -947,13 +949,18 @@ main(int argc, char **argv)
 	path[sizeof(path)-1] = '\0';
 	strncpy(dname, dirname(path), sizeof(dname));
 	dname[sizeof(dname)-1] = '\0';
+	if ((dir_fd = open(dname, O_RDONLY)) < 0) {
+	    fprintf(stderr, "%s: Error: cannot open directory \"%s\" for reading: %s\n", pmProgname, dname, strerror(errno));
+	    abandon();
+	    /*NOTREACHED*/
+	}
 	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f1 = mkstemp(path);
 	umask(cur_umask);
 	outarch.name = strdup(path);
 	if (outarch.name == NULL) {
-	    fprintf(stderr, "temp file strdup(%s) failed: %s\n", path, strerror(errno));
+	    fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, path, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -973,14 +980,14 @@ main(int argc, char **argv)
 	dname[sizeof(dname)-1] = '\0';
 
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
+	    fprintf(stderr, "%s: Error: first tempnam() failed: %s\n", pmProgname, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	else {
 	    outarch.name = strdup(s);
 	    if (outarch.name == NULL) {
-		fprintf(stderr, "temp file strdup(%s) failed: %s\n", s, strerror(errno));
+		fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, s, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -989,7 +996,7 @@ main(int argc, char **argv)
 	    umask(cur_umask);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "Error: second tempnam() failed: %s\n", strerror(errno));
+	    fprintf(stderr, "%s: Error: second tempnam() failed: %s\n", pmProgname, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1001,12 +1008,12 @@ main(int argc, char **argv)
 	}
 #endif
 	if (tmp_f1 < 0) {
-	    fprintf(stderr, "Error: create first temp (%s) failed: %s\n", outarch.name, strerror(errno));
+	    fprintf(stderr, "%s: Error: create first temp (%s) failed: %s\n", pmProgname, outarch.name, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	if (tmp_f2 < 0) {
-	    fprintf(stderr, "Error: create second temp (%s) failed: %s\n", bak_base, strerror(errno));
+	    fprintf(stderr, "%s: Error: create second temp (%s) failed: %s\n", pmProgname, bak_base, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1245,6 +1252,35 @@ main(int argc, char **argv)
     }
 
     if (iflag) {
+	/*
+	 * fsync() to make sure new archive is safe before we start
+	 * renaming ...
+	 */
+	if (fsync(fileno(outarch.logctl.l_mdfp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_mdfp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(fileno(outarch.logctl.l_mfp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output data file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_mfp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(fileno(outarch.logctl.l_tifp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_tifp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(dir_fd) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output directory: %s\n",
+		pmProgname, dir_fd, strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	close(dir_fd);
 	if (_pmLogRename(inarch.name, bak_base) < 0) {
 	    abandon();
 	    /*NOTREACHED*/
