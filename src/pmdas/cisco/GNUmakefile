@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,12 +18,12 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= cisco
 DOMAIN	= CISCO
-TARGETS	= $(IAM)$(EXECSUFFIX) probe$(EXECSUFFIX) parse$(EXECSUFFIX)
+TARGETS	= $(IAM)$(EXECSUFFIX) probe$(EXECSUFFIX)
 CFILES	= cisco.c pmda.c interface.c telnet.c
 HFILES	= cisco.h 
 DFILES	= README
 LSRCFILES=Install Remove root pmns Cisco.pmchart help Samples Tested $(DFILES) \
-	cisco.in_util.pmie cisco.out_util.pmie probe.c
+	cisco.in_util.pmie cisco.out_util.pmie probe.c parse.sh
 
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
@@ -30,8 +31,7 @@ PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 PMCHART	= $(PCP_VAR_DIR)/config/pmchart
 PMIEDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
-LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out parse.? probe.o \
-	$(TARGETS)
+LDIRT	= domain.h cisco.log *.dir *.pag so_locations a.out probe.o $(TARGETS)
 
 default:	build-me
 
@@ -43,7 +43,8 @@ build-me:	$(TARGETS)
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM) 
-	$(INSTALL) -m 755 probe parse Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 parse.sh $(PMDADIR)/parse
+	$(INSTALL) -m 755 probe Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 Cisco.pmchart $(PMCHART)/Cisco
 	$(INSTALL) -m 755 -d $(PMIEDIR)
@@ -55,15 +56,6 @@ install:
 endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
-
-parse$(EXECSUFFIX):	parse.o cisco.o interface.o telnet.o
-	$(CCF) -o $@ $(LDFLAGS) parse.o cisco.o interface.o telnet.o $(LDLIBS)
-
-parse.c:	pmda.c
-	ln -s pmda.c parse.c
-
-parse.o:	parse.c
-	$(CCF) -c -DPARSE_ONLY parse.c
 
 probe$(EXECSUFFIX):	probe.o interface.o telnet.o
 	$(CCF) -o $@ $(LDFLAGS) probe.o interface.o telnet.o $(LDLIBS)

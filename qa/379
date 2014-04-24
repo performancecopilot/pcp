@@ -27,7 +27,7 @@ _check()
     do
 	args="$args $x"
     done
-    intf=`$PCP_PMDAS_DIR/cisco/probe $args $file 2>/dev/null`
+    intf=`$PCP_PMDAS_DIR/cisco/probe -N $args $file 2>/dev/null`
     if [ -z "$intf" ]
     then
 	echo "$file: Argh ... cannot extract list of interfaces!"
@@ -38,7 +38,7 @@ _check()
 	args="$args $file:$x"
     done
     echo "=== $args ==="
-    $PCP_PMDAS_DIR/cisco/parse $args 2>&1 \
+    $PCP_PMDAS_DIR/cisco/parse -N $args 2>&1 \
     | sed \
 	-e 's/fd=4/fd=3/' \
     	-e '/Sleeping while sproc does the work/d'
