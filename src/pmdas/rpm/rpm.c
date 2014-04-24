@@ -69,7 +69,7 @@ static pmdaMetric metrictab[] = {
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
     { NULL, { PMDA_PMID(1, RELEASE_ID), PM_TYPE_STRING,
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
-    { NULL, { PMDA_PMID(1, SIZE_ID), PM_TYPE_U32,
+    { NULL, { PMDA_PMID(1, SIZE_ID), PM_TYPE_U64,
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
     { NULL, { PMDA_PMID(1, SOURCERPM_ID), PM_TYPE_STRING,
 	RPM_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
@@ -202,7 +202,7 @@ rpm_fetch_package(int item, unsigned int inst, pmAtomValue *atom)
 	atom->cp = dict_lookup(p->values.release);
 	break;
     case SIZE_ID:
-	atom->ul = p->values.size;
+	atom->ull = p->values.longsize;
 	break;
     case SOURCERPM_ID:
 	atom->cp = dict_lookup(p->values.sourcerpm);
@@ -393,10 +393,10 @@ rpm_extract_string(rpmtd td, Header h, int tag)
     return rpmtdGetString(td);
 }
 
-static __uint32_t
+static __uint64_t
 rpm_extract_value(rpmtd td, Header h, int tag)
 {
-    __uint32_t value;
+    __uint64_t value;
 
     headerGet(h, tag, td, HEADERGET_EXT | HEADERGET_MINMEM);
     switch (td->type) {
@@ -436,7 +436,7 @@ rpm_extract_metadata(const char *name, rpmtd td, Header h, metadata *m)
     m->license = dict_insert(rpm_extract_string(td, h, RPMTAG_LICENSE));
     m->packager = dict_insert(rpm_extract_string(td, h, RPMTAG_PACKAGER));
     m->release = dict_insert(rpm_extract_string(td, h, RPMTAG_RELEASE));
-    m->size = rpm_extract_value(td, h, RPMTAG_SIZE);
+    m->longsize = rpm_extract_value(td, h, RPMTAG_LONGSIZE);
     m->sourcerpm = dict_insert(rpm_extract_string(td, h, RPMTAG_SOURCERPM));
     m->summary = dict_insert(rpm_extract_string(td, h, RPMTAG_SUMMARY));
     m->url = dict_insert(rpm_extract_string(td, h, RPMTAG_URL));
@@ -493,7 +493,7 @@ rpm_update_cache(void *ptr)
 	rpm_extract_metadata(name, td, h, &meta);
 
 	/* update cumulative counts */
-	totalsize += meta.size;
+	totalsize += meta.longsize;
 	packages++;
 
 	/* we now have our data and cannot need more I/O; lock and load */

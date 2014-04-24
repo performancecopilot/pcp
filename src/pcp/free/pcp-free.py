@@ -17,7 +17,7 @@
 
 import sys
 from pcp import pmapi
-from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE
+from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
 class Free(object):
     """ Gives a short summary of kernel virtual memory information,
@@ -108,6 +108,8 @@ class Free(object):
 				result.contents.get_valfmt(index),
 				result.contents.get_vlist(index, 0),
 				descs[index].contents.type, PM_TYPE_U64)
+		atom = self.context.pmConvScale(PM_TYPE_U64, atom, descs, index,
+				pmapi.pmUnits(1, 0, 0, PM_SPACE_KBYTE, 0, 0))
 		values.append(long(atom.ull))
 	    else:
 		values.append(0L)

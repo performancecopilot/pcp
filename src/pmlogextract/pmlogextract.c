@@ -923,7 +923,11 @@ _createmark(void)
 {
     mark_t	*markp;
 
-    markp = (mark_t *)malloc(sizeof(mark_t));
+    /*
+     * add space for trailer in case __pmLogPutResut() is called with
+     * this PDU buffer
+     */
+    markp = (mark_t *)malloc(sizeof(mark_t)+sizeof(int));
     if (markp == NULL) {
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
 		pmProgname, osstrerror());

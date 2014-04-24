@@ -81,7 +81,7 @@ from ctypes import c_char, c_int, c_uint, c_long, c_char_p, c_void_p
 from ctypes import c_longlong, c_ulonglong, c_float, c_double
 from ctypes import CDLL, POINTER, CFUNCTYPE, Structure, Union
 from ctypes import addressof, pointer, sizeof, cast, byref
-from ctypes import create_string_buffer
+from ctypes import create_string_buffer, memmove
 from ctypes.util import find_library
 
 ##############################################################################
@@ -449,6 +449,14 @@ LIBPCP.pmTraversePMNS.argtypes = [c_char_p, traverseCB_type]
 LIBPCP.pmUnloadNameSpace.restype = c_int
 LIBPCP.pmUnloadNameSpace.argtypes = []
 
+LIBPCP.pmRegisterDerived.restype = c_int
+LIBPCP.pmRegisterDerived.argtypes = [c_char_p, c_char_p]
+
+LIBPCP.pmLoadDerivedConfig.restype = c_int
+LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
+
+LIBPCP.pmDerivedErrStr.restype = c_char_p
+LIBPCP.pmDerivedErrStr.argtypes = []
 
 ##
 # PMAPI Metrics Description Services
@@ -1126,6 +1134,37 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
 
+    def pmRegisterDerived(self, name, expr):
+        """PMAPI - Register a derived metric name and definition
+        pm.pmRegisterDerived("MetricName", "MetricName Expression")
+        """
+        status = LIBPCP.pmRegisterDerived(name, expr)
+        if status != 0:
+            raise pmErr, status
+        status = LIBPCP.pmReconnectContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+        
+    def pmLoadDerivedConfig(self, f):
+        """PMAPI - Register derived metric names and definitions from a file
+        pm.pmLoadDerivedConfig("FileName")
+        """
+        status = LIBPCP.pmLoadDerivedConfig(f)
+        if status < 0:
+            raise pmErr, status
+        status = LIBPCP.pmReconnectContext(self.ctx)
+        if status < 0:
+            raise pmErr, status
+
+    def pmDerivedErrStr(self):
+        """PMAPI - Return an error message if the pmRegisterDerived metric
+        definition cannot be parsed
+        pm.pmRegisterDerived()
+        """
+        errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
+        errstr = LIBPCP.pmDerivedErrStr()
+        return str(errstr)
+
     ##
     # PMAPI Metrics Description Services
 
@@ -1624,6 +1663,16 @@ class pmContext(object):
                                         byref(outAtom), outtype)
         if status < 0:
             raise pmErr, status
+
+        if outtype == c_api.PM_TYPE_STRING:
+            # Get pointer to C string
+            c_str = c_char_p()
+            memmove(byref(c_str), addressof(outAtom) + pmAtomValue.cp.offset,
+                    sizeof(c_char_p))
+            # Convert to a python string and have result point to it
+            outAtom.cp = outAtom.cp
+            # Free the C string
+            LIBC.free(c_str)
         return outAtom
 
     @staticmethod
@@ -1633,13 +1682,16 @@ class pmContext(object):
         pmAtomValue = pmConvScale(c_api.PM_TYPE_FLOAT, pmAtomValue,
                                             pmDesc*, 3, c_api.PM_SPACE_MBYTE)
         """
+        if type(outUnits) == type(int()):
+            pmunits = pmUnits()
+            pmunits.dimSpace = 1
+            pmunits.scaleSpace = outUnits
+        else:
+            pmunits = outUnits
         outAtom = pmAtomValue()
-        pmunits = pmUnits()
-        pmunits.dimSpace = 1
-        pmunits.scaleSpace = outUnits
         status = LIBPCP.pmConvScale(inType, byref(inAtom),
-                         byref(desc[metric_idx].contents.units), byref(outAtom),
-                         byref(pmunits))
+                                    byref(desc[metric_idx].contents.units),
+                                    byref(outAtom), byref(pmunits))
         if status < 0:
             raise pmErr, status
         return outAtom

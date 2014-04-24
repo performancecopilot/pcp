@@ -519,6 +519,14 @@ __pmLogNewFile(const char *base, int vol)
 	setoserror(save_error);
 	return NULL;
     }
+    /*
+     * Want unbuffered I/O for the data volumes ... the metadata
+     * already has a fflush() after the batch (if any) of changes
+     * from the current pmResult, and temporal index also has
+     * fflush()ing everytime it is written to.
+     */
+    if (vol != PM_LOG_VOL_META && vol != PM_LOG_VOL_TI)
+	setvbuf(f, NULL, _IONBF, 0);
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -1096,16 +1104,16 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
      * This is a bit tricky ...
      *
      *  Input
-     *  :---------:----------:----------:----------------
-     *  | int len | int from | int from | timestamp, .... pmResult
-     *  :---------:----------:----------:----------------
+     *  :---------:----------:----------:---------------- .........:---------:
+     *  | int len | int type | int from | timestamp, .... pmResult | unused  |
+     *  :---------:----------:----------:---------------- .........:---------:
      *  ^
      *  |
      *  pb
      *
      *  Output
      *  :---------:----------:----------:---------------- .........:---------:
-     *  | int len | int from | int len  | timestamp, .... pmResult | int len |
+     *  | unused  | unused   | int len  | timestamp, .... pmResult | int len |
      *  :---------:----------:----------:---------------- .........:---------:
      *                       ^
      *                       |
@@ -1113,7 +1121,8 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
      */
     int			sz;
     int			sts = 0;
-    __pmPDUHdr		*php = (__pmPDUHdr *)pb;
+    int			save_from;
+    __pmPDU		*start = &pb[2];
 
     if (lcp->l_state == PM_LOG_STATE_NEW) {
 	int		i;
@@ -1136,28 +1145,22 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
-	fprintf(stderr, "__pmLogPutResult: pdubuf=" PRINTF_P_PFX "%p len=%d posn=%ld\n", pb, php->len, (long)ftell(lcp->l_mfp));
+	fprintf(stderr, "__pmLogPutResult: pdubuf=" PRINTF_P_PFX "%p len=%d posn=%ld\n", pb, pb[0], (long)ftell(lcp->l_mfp));
     }
 #endif
 
-    php->from = php->len - (int)sizeof(__pmPDUHdr) + 2 * (int)sizeof(int);
-    sz = php->from - (int)sizeof(int);
+    sz = pb[0] - (int)sizeof(__pmPDUHdr) + 2 * (int)sizeof(int);
 
     /* swab */
-    php->len = htonl(php->len);
-    php->type = htonl(php->type);
-    php->from = htonl(php->from);
+    save_from = start[0];
+    start[0] = htonl(sz);
+    start[(sz-1)/sizeof(__pmPDU)] = start[0];
 
-    if ((int)fwrite(&php->from, 1, sz, lcp->l_mfp) != sz)
-	sts = -oserror();
-    else
-    if ((int)fwrite(&php->from, 1, sizeof(int), lcp->l_mfp) != sizeof(int))
+    if ((int)fwrite(start, 1, sz, lcp->l_mfp) != sz)
 	sts = -oserror();
 
-    /* unswab */
-    php->len = ntohl(php->len);
-    php->type = ntohl(php->type);
-    php->from = ntohl(php->from);
+    /* restore and unswab */
+    start[0] = save_from;
 
     return sts;
 }
@@ -1464,9 +1467,9 @@ again:
      *
      *  Decode
      *  <----  __pmPDUHdr  ----------->
-     *  :---------:---------:---------:---------------- .........:
-     *  | length  | pdutype |  anon   | timestamp, .... pmResult |
-     *  :---------:---------:---------:---------------- .........:
+     *  :---------:---------:---------:---------------- .........:---------:
+     *  | length  | pdutype |  anon   | timestamp, .... pmResult | int len |
+     *  :---------:---------:---------:---------------- .........:---------:
      *  ^
      *  |
      *  pb
@@ -1486,7 +1489,11 @@ again:
 #endif
 	    return PM_ERR_LOGREC;
     }
-    if ((pb = __pmFindPDUBuf(rlen + (int)sizeof(__pmPDUHdr))) == NULL) {
+    /*
+     * need to add int at end for trailer in case buffer is used
+     * subsequently by __pmLogPutResult()
+     */
+    if ((pb = __pmFindPDUBuf(rlen + (int)sizeof(__pmPDUHdr) + (int)sizeof(int))) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LOG) {
 	    char	errmsg[PM_MAXERRMSGLEN];

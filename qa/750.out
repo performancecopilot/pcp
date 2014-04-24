@@ -104,10 +104,9 @@ host:      HOST
 semantics: instantaneous value
 units:     byte
 samples:   1
-full label for instance[0]: qaplayer-1.0-1.noarch
 
-qaplayer-1. 
-          0 
+qaplayer-1.0-1.noarch 
+                    0 
 
 metric:    rpm.sourcerpm
 host:      HOST
@@ -165,7 +164,6 @@ qaplayer-1.0-1.noarch
 
 Total bytes check: OK
 Total count check: OK
-========================================================================
 Removing qaplayer
 
 pmval: instance qaplayer-1.0-1.noarch not available

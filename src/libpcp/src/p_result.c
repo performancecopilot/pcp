@@ -67,7 +67,6 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
     result_t	*pp;
     vlist_t	*vlp;
 
-    /* to start with, need space for result_t with no data (__pmPDU) */
     need = sizeof(result_t) - sizeof(__pmPDU);
     vneed = 0;
     /* now add space for each vlist_t (data in result_t) */
@@ -89,7 +88,11 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 	    /* optional value format, if any values present */
 	    need += sizeof(int);
     }
-    if ((_pdubuf = __pmFindPDUBuf((int)(need+vneed))) == NULL)
+    /*
+     * Need to reserve additonal space for trailer (an int) in case the
+     * PDU buffer is used by __pmLogPutResult()
+     */
+    if ((_pdubuf = __pmFindPDUBuf((int)(need+vneed+sizeof(int)))) == NULL)
 	return -oserror();
     pp = (result_t *)_pdubuf;
     pp->hdr.len = (int)(need+vneed);
@@ -233,8 +236,8 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	nvsize += sizeof(pmValueSet);
 	numval = ntohl(vlp->numval);
 	valfmt = ntohl(vlp->valfmt);
-#ifdef DESPERATE
-	{
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    pmID	pmid = __ntohpmID(vlp->pmid);
 	    char	strbuf[20];
 	    fprintf(stderr, "vlist[%d] pmid: %s numval: %d",
@@ -251,9 +254,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		goto corrupt;
 	    vsize += sizeof(vlp->valfmt) + numval * sizeof(__pmValue_PDU);
 	    nvsize += (numval - 1) * sizeof(pmValue);
-#ifdef DESPERATE
-	    fprintf(stderr, " valfmt: %s",
+#ifdef PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		fprintf(stderr, " valfmt: %s",
 			valfmt == PM_VAL_INSITU ? "insitu" : "ptr");
+	    }
 #endif
 	    if (valfmt != PM_VAL_INSITU) {
 		for (j = 0; j < numval; j++) {
@@ -277,19 +282,25 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		    if (pduvbp->vlen > (size_t)(pduend - (char *)pduvbp))
 			goto corrupt;
 		    vbsize += PM_PDU_SIZE_BYTES(pduvbp->vlen);
-#ifdef DESPERATE
-		    fprintf(stderr, " len: %d type: %d",
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			fprintf(stderr, " len: %d type: %d",
 			    pduvbp->vlen - PM_VAL_HDR_SIZE, pduvbp->vtype);
+		    }
 #endif
 		}
 	    }
 	}
-#ifdef DESPERATE
-	fputc('\n', stderr);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fputc('\n', stderr);
+	}
 #endif
     }
-#ifdef DESPERATE
-    fprintf(stderr, "vsize: %d nvsize: %d vbsize: %d\n", vsize, nvsize, vbsize);
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d offset: %d hdr.len: %d pduend: %p vsplit: %p (diff %d) pdubuf: %p (diff %d)\n", need, vsize, nvsize, vbsize, offset, pp->hdr.len, pduend, vsplit, (int)(pduend-vsplit), pdubuf, (int)(pduend-(char *)pdubuf));
+    }
 #endif
 
     need = nvsize + vbsize;
@@ -347,8 +358,8 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	pr->vset[i] = nvsp;
 	nvsp->pmid = __ntohpmID(vlp->pmid);
 	nvsp->numval = ntohl(vlp->numval);
-#ifdef DESPERATE
-	{
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    char	strbuf[20];
 	    fprintf(stderr, "new vlist[%d] pmid: %s numval: %d",
 			i, pmIDStr_r(nvsp->pmid, strbuf, sizeof(strbuf)), nvsp->numval);
@@ -359,9 +370,11 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	nvsize += sizeof(pmValueSet);
 	if (nvsp->numval > 0) {
 	    nvsp->valfmt = ntohl(vlp->valfmt);
-#ifdef DESPERATE
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    fprintf(stderr, " valfmt: %s",
 			    nvsp->valfmt == PM_VAL_INSITU ? "insitu" : "ptr");
+	}
 #endif
 	    vsize += sizeof(nvsp->valfmt) + nvsp->numval * sizeof(__pmValue_PDU);
 	    nvsize += (nvsp->numval - 1) * sizeof(pmValue);
@@ -372,8 +385,10 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		nvp->inst = ntohl(vp->inst);
 		if (nvsp->valfmt == PM_VAL_INSITU) {
 		    nvp->value.lval = ntohl(vp->value.lval);
-#ifdef DESPERATE
-		    fprintf(stderr, " value: %d", nvp->value.lval);
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			fprintf(stderr, " value: %d", nvp->value.lval);
+		    }
 #endif
 		}
 		else {
@@ -383,12 +398,12 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		     */
 		    index = sizeof(__pmPDU) * ntohl(vp->value.pval) + offset;
 		    nvp->value.pval = (pmValueBlock *)&newbuf[index];
-#ifdef DESPERATE
-		    {
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
 			int		k, len;
 			len = nvp->value.pval->vlen - PM_VAL_HDR_SIZE;
-			fprintf(stderr, " len: %d type: %dvalue: 0x", len,
-				nvp->value.pval->vtype;
+			fprintf(stderr, " len: %d type: %d value: 0x", len,
+				nvp->value.pval->vtype);
 			for (k = 0; k < len; k++)
 			    fprintf(stderr, "%02x", nvp->value.pval->vbuf[k]);
 		    }
@@ -396,8 +411,10 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		}
 	    }
 	}
-#ifdef DESPERATE
-	fputc('\n', stderr);
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fputc('\n', stderr);
+	}
 #endif
     }
     if (numpmid == 0)
