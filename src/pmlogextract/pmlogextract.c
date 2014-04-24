@@ -1,6 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,56 +24,30 @@
 #include "logger.h"
 
 #ifdef PCP_DEBUG
-long totalmalloc = 0;
+long totalmalloc;
 #endif
+static pmUnits nullunits;
+static int desperate;
 
-static pmUnits nullunits = { 0,0,0,0,0,0 };
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "config", 1, 'c', "FILE", "file to load configuration from" },
+    { "desperate", 0, 'd', 0, "desperate, save output after fatal error" },
+    { "first", 0, 'f', 0, "use timezone from first archive [default is last]" },
+    PMOPT_START,
+    { "samples", 1, 's', "NUM", "terminate after NUM log records have been written" },
+    PMOPT_FINISH,
+    { "", 1, 'v', "SAMPLES", "switch log volumes after this many samples" },
+    { "", 0, 'w', 0, "ignore day/month/year" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE
+};
 
-static int desperate = 0;
-
-/*
- *  Usage
- */
-static void
-usage (void)
-{
-#ifdef SHARE_WITH_PMLOGMERGE
-    if (!strcmp(pmProgname, "pmlogmerge")) {
-	fprintf(stderr,
-"Usage: %s [options] input-archive output-archive\n\
-\n\
-Options:\n\
-  -f             choose timezone from first archive [default is to use\n\
-                 timezone from last archive]\n\
-  -S starttime   start of the time window\n\
-  -s samples     terminate after this many log records have been written\n\
-  -T endtime     end of the time window\n\
-  -v samples     switch log volumes after this many samples\n\
-  -Z timezone    set reporting timezone\n\
-  -z             set reporting timezone to local time of input-archive\n",
-	pmProgname);
-    }
-    else 
-#endif
-    {
-	fprintf(stderr,
-"Usage: %s [options] input-archive output-archive\n\
-\n\
-Options:\n\
-  -c configfile  file to load configuration from\n\
-  -d             desperate, save output after fatal error\n\
-  -f             choose timezone from first archive [default is to use\n\
-                 timezone from last archive]\n\
-  -S starttime   start of the time window\n\
-  -s samples     terminate after this many log records have been written\n\
-  -T endtime     end of the time window\n\
-  -v samples     switch log volumes after this many samples\n\
-  -w             ignore day/month/year\n\
-  -Z timezone    set reporting timezone\n\
-  -z             set reporting timezone to local time of input-archive\n",
-	pmProgname);
-    }
-}
+static pmOptions opts = {
+    .short_options = "c:D:dfS:s:T:v:wZ:z?",
+    .long_options = longopts,
+    .short_usage = "[options] input-archive output-archive",
+};
 
 const char *
 metricname(pmID pmid)
@@ -1241,29 +1216,26 @@ parseargs(int argc, char *argv[])
 {
     int			c;
     int			sts;
-    int			errflag = 0;
     char		*endnum;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:D:dfS:s:T:v:wZ:z?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
-	    configfile = optarg;
+	    configfile = opts.optarg;
 	    if (stat(configfile, &sbuf) < 0) {
-		fprintf(stderr, "%s: %s - invalid file\n",
-			pmProgname, configfile);
-		errflag++;
+		pmprintf("%s: %s - invalid file\n", pmProgname, configfile);
+		opts.errors++;
 	    }
 	    break;
 
-
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
@@ -1278,28 +1250,26 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 's':	/* number of samples to write out */
-	    sarg = (int)strtol(optarg, &endnum, 10);
+	    sarg = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || sarg < 0) {
-		fprintf(stderr, "%s: -s requires numeric argument\n",
-			pmProgname);
-		errflag++;
+		pmprintf("%s: -s requires numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
 	    break;
 
 	case 'S':	/* start time for extracting */
-	    Sarg = optarg;
+	    Sarg = opts.optarg;
 	    break;
 
 	case 'T':	/* end time for extracting */
-	    Targ = optarg;
+	    Targ = opts.optarg;
 	    break;
 
 	case 'v':	/* number of samples per volume */
-	    varg = (int)strtol(optarg, &endnum, 10);
+	    varg = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || varg < 0) {
-		fprintf(stderr, "%s: -v requires numeric argument\n",
-			pmProgname);
-		errflag++;
+		pmprintf("%s: -v requires numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
 	    break;
 
@@ -1309,26 +1279,25 @@ parseargs(int argc, char *argv[])
 
 	case 'Z':	/* use timezone from command line */
 	    if (zarg) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
+		pmprintf("%s: at most one of -Z and/or -z allowed\n",
 			pmProgname);
-		errflag++;
-
+		opts.errors++;
 	    }
-	    tz = optarg;
+	    tz = opts.optarg;
 	    break;
 
 	case 'z':	/* use timezone from archive */
 	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n",
+		pmprintf("%s: at most one of -Z and/or -z allowed\n",
 			pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    zarg++;
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
@@ -1341,12 +1310,12 @@ parseargs(int argc, char *argv[])
     }
 
 
-    if (errflag == 0 && optind > argc-2) {
-	fprintf(stderr, "%s: Error: insufficient arguments\n", pmProgname);
-	errflag++;
+    if (opts.errors == 0 && opts.optind > argc - 2) {
+	pmprintf("%s: Error: insufficient arguments\n", pmProgname);
+	opts.errors++;
     }
 
-    return(-errflag);
+    return -opts.errors;
 }
 
 int
@@ -1634,9 +1603,6 @@ writemark(inarch_t *iap)
 }
 
 /*--- END FUNCTIONS ---------------------------------------------------------*/
-/*
- * cni == currently not implemented
- */
 
 int
 main(int argc, char **argv)
@@ -1665,23 +1631,21 @@ main(int argc, char **argv)
     rlready = NULL;
 
 
-    __pmSetProgname(argv[0]);
-
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
-	usage();
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
 
-    /* input  archive names are argv[optind] ... argv[argc-2]) */
+    /* input  archive names are argv[opts.optind] ... argv[argc-2]) */
     /* output archive name  is  argv[argc-1]) */
 
     /* output archive */
     outarchname = argv[argc-1];
 
     /* input archive(s) */
-    inarchnum = argc - 1 - optind;
+    inarchnum = argc - 1 - opts.optind;
     inarch = (inarch_t *) malloc(inarchnum * sizeof(inarch_t));
     if (inarch == NULL) {
 	fprintf(stderr, "%s: Error: mallco inarch: %s\n",
@@ -1697,10 +1661,10 @@ main(int argc, char **argv)
 #endif
 
 
-    for (i=0; i<inarchnum; i++, optind++) {
+    for (i=0; i<inarchnum; i++, opts.optind++) {
 	iap = &inarch[i];
 
-	iap->name = argv[optind];
+	iap->name = argv[opts.optind];
 
 	iap->pb[LOG] = iap->pb[META] = NULL;
 	iap->eof[LOG] = iap->eof[META] = 0;
@@ -1765,12 +1729,8 @@ main(int argc, char **argv)
     /* process config file
      *	- this includes a list of metrics and their instances
      */
-    if (configfile != NULL) {
-	if (parseconfig() < 0) {
-	    usage();
-	    exit(1);
-	}
-    }
+    if (configfile && parseconfig() < 0)
+	exit(1);
 
     if (zarg) {
 	/* use TZ from metrics source (input-archive) */

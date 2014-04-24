@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <math.h>
@@ -22,36 +19,42 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static void
-usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options] archive [metricname ...]\n\n"
-"Options:\n"
-"  -a            print all information (equivalent to -blmMy)\n"
-"  -b            print both stochastic and time averages for counter metrics\n"
-"  -B nbins      print value distribution across a number of bins\n"
-"  -f            print using \"spreadsheet\" format (tab delimited fields)\n"
-"  -F            print using \"spreadsheet\" format (comma separated values)\n"
-"  -i            also print timestamp for minimum value\n"
-"  -I            also print timestamp for maximum value\n"
-"  -l            also print the archive label\n"
-"  -m            also print minimum values\n"
-"  -M            also print maximum values\n"
-"  -n pmnsfile   use an alternative PMNS\n"
-"  -N            suppress warnings from individual archive fetches [default]\n"
-"  -p precision  number of digits to display after the decimal point\n"
-"  -S starttime  start of the time window\n"
-"  -T endtime    end of the time window\n"
-"  -v            verbose, enable warnings from individual archive fetches\n"
-"  -x            print only stochastic averages for counter metrics\n"
-"  -y            print sample count for each metric\n"
-"  -z            set reporting timezone to local time of metrics source\n"
-"  -Z timezone   set reporting timezone\n",
-	pmProgname);
-    exit(1);
-}
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "all", 0, 'a', 0, "print all information (equivalent to -blmMy)" },
+    { "", 0, 'b', 0, "print both stochastic and time averages for counter metrics" },
+    { "bins", 1, 'B', "N", "print value distribution across a number of bins" },
+    { "", 0, 'f', 0, "print using \"spreadsheet\" format (tab delimited fields)" },
+    { "", 0, 'F', 0, "print using \"spreadsheet\" format (comma separated values)" },
+    { "header", 0, 'H', 0, "print one-line header at start showing each column" },
+    { "mintime", 0, 'i', 0, "also print timestamp for minimum value" },
+    { "maxtime", 0, 'I', 0, "also print timestamp for maximum value" },
+    { "label", 0, 'l', 0, "also print the archive label" },
+    { "minimum", 0, 'm', 0, "also print minimum value" },
+    { "maximum", 0, 'M', 0, "also print maximum value" },
+    PMOPT_NAMESPACE,
+    { "", 0, 'N', 0, "suppress warnings from individual archive fetches (default)" },
+    { "precision", 0, 'p', 0, "number of digits to display after the decimal point" },
+    PMOPT_START,
+    PMOPT_FINISH,
+    { "verbose", 0, 'v', 0, "verbose, enable warnings from individual archive fetches" },
+    { "", 0, 'x', 0, "print only stochastic averages for counter metrics" },
+    { "samples", 0, 'y', "print sample count for each metric" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
 
+static int override(int, pmOptions *);
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "abB:D:fFHiIlmMNn:p:rsS:T:vxyzZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] archive [metricname ...]",
+    .override = override,
+};
 
 typedef struct {
     int			inst;
@@ -100,13 +103,7 @@ static unsigned int	nbins;		/* number of distribution bins */
 static unsigned int	precision = 3;	/* number of digits after "." */
 
 /* time window stuff */
-static int		sflag;
-static int		tflag;
 static int		dayflag;
-static struct timeval	logstart;
-static struct timeval   logend;
-static struct timeval	windowstart;
-static struct timeval   windowend;
 static char		timebuf[32];		/* for pmCtime result + .xxx */
 
 /* duration of log */
@@ -196,6 +193,44 @@ printstamp(struct timeval *stamp, int delimiter)
 }
 
 static void
+printlabel(void)
+{
+    pmLogLabel  label;
+    char        *ddmm;
+    char        *yr;
+    int         sts;
+
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+		pmProgname, pmErrStr(sts));
+	exit(1);
+    }
+
+    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
+    printf("Performance metrics from host %s\n", label.ll_hostname);
+
+    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm[10] = '\0';
+    yr = &ddmm[20];
+    printf("  commencing %s ", ddmm);
+    __pmPrintStamp(stdout, &label.ll_start);
+    printf(" %4.4s\n", yr);
+
+    if (opts.finish.tv_sec == INT_MAX) {
+	/* pmGetArchiveEnd() failed! */
+	printf("  ending     UNKNOWN\n");
+    }
+    else {
+	ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("  ending     %s ", ddmm);
+	__pmPrintStamp(stdout, &opts.finish);
+	printf(" %4.4s\n", yr);
+    }
+}
+
+static void
 printheaders(void)
 {
     printf("metric");
@@ -253,12 +288,12 @@ printsummary(const char *name)
 		struct timeval	timediff;
 
 		/* extend discrete metrics to the archive end */
-		timediff = logend;
+		timediff = opts.finish;
 		tsub(&timediff, &instdata->lasttime);
 		val = instdata->lastval;
 		instdata->stocave += val;
 		instdata->timeave += val*tosec(timediff);
-		instdata->lasttime = logend;
+		instdata->lasttime = opts.finish;
 		instdata->count++;
 	    }
 	    metrictimespan = instdata->lasttime;
@@ -941,30 +976,26 @@ calcaverage(pmResult *result)
     }
 }
 
+static int
+override(int opt, pmOptions *opts)
+{
+    if (opt == 'a' || opt == 'H' || opt == 'N' || opt == 'p' || opt == 's')
+	return 1;
+    return 0;
+}
 
 int
 main(int argc, char *argv[])
 {
-    int			c, i, sts, trip, exitstatus=0;
-    char		*pmnsfile = PM_NS_DEFAULT;
-    char		*startstr = NULL;
-    char		*endstr = NULL;
-    char		*endnum = NULL;
-    char		*msg = NULL;
-    int			errflag = 0;
+    int			c, i, sts, trip, exitstatus = 0;
     int			lflag = 0;		/* no label by default */
     int			Hflag = 0;		/* no header by default */
     pmResult		*result;
-    pmLogLabel		label;			/* get hostname for archives */
     struct timeval 	timespan = {0, 0};
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
+    char		*endnum;
     char		*archive;
-    char		timebuf[32];		/* for pmCtime result + .xxx */
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "abB:D:fFHiIlmMNn:p:rsS:T:vxyzZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'a':	/* provide all information */
@@ -979,24 +1010,14 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'B':	/* number of distribution bins */
-	    sts = (int)strtol(optarg, &endnum, 10);
+	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || sts < 0) {
-		fprintf(stderr, "%s: -B requires positive numeric argument\n", pmProgname);
-		errflag++;
+		pmprintf("%s: -B requires positive numeric argument\n",
+			pmProgname);
+		opts.errors++;
 	    }
 	    else
 		nbins = (unsigned int)sts;
-	    break;
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'f':	/* spreadsheet format - use tab delimiters */
@@ -1035,31 +1056,17 @@ main(int argc, char *argv[])
 	    warnflag = 0;
 	    break;
 
-	case 'n':	/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
-
 	case 'p':	/* number of digits after decimal point */
-	    precision = (unsigned int)strtol(optarg, &endnum, 10);
+	    precision = (unsigned int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0') {
-		fprintf(stderr, "%s: -p requires numeric argument\n", pmProgname);
-		errflag++;
+		pmprintf("%s: -p requires numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
 	    break;
 
 	case 's':	/* print sums (and only sums) */
 	    stocaveflag = timeaveflag = lflag = countflag = minflag = maxflag = 0;
 	    sumflag = 1;
-	    break;
-
-	case 'S':
-	    startstr = optarg;
-	    sflag = 1;
-	    break;
-
-	case 'T':
-	    endstr = optarg;
-	    tflag = 1;
 	    break;
 
 	case 'v':	/* verbose "fetch" warnings reported */
@@ -1075,144 +1082,48 @@ main(int argc, char *argv[])
 	case 'y':	/* print sample count */
 	    countflag = 1;
 	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
 	}
     }
 
-    if (errflag || optind >= argc)
-	usage();
-
-    archive = argv[optind];
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", pmProgname, archive, pmErrStr(sts));
-	exit(1);
-    }
-    optind++;
-
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, pmnsfile, pmErrStr(sts));
-	    exit(1);
-	}
+    if (opts.optind >= argc) {
+	pmprintf("Error: no archive specified\n\n");
+	opts.errors++;
     }
 
-    if ((sts = pmTrimNameSpace()) < 0) {
-	fprintf(stderr, "%s: pmTrimNamespace failed: %s\n", pmProgname, pmErrStr(sts));
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-	    pmProgname, pmErrStr(sts));
+    archive = argv[opts.optind++];
+    __pmAddOptArchive(&opts, archive);
+    opts.flags &= ~PM_OPTFLAG_DONE;
+    __pmEndOptions(&opts);
+
+    if ((sts = c = pmNewContext(PM_CONTEXT_ARCHIVE, archive)) < 0) {
+	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
+		pmProgname, archive, pmErrStr(sts));
 	exit(1);
     }
-    else
-	logstart = label.ll_start;
 
-    if (zflag) {
-	if ((sts = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-	    label.ll_hostname);
+    if (pmGetContextOptions(c, &opts) < 0) {
+	pmflush();	/* runtime errors only at this stage */
+	exit(EXIT_FAILURE);
     }
-    else if (tz != NULL) {
-	if ((sts = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-
-    if ((sts = pmGetArchiveEnd(&logend)) < 0) {
-	logend.tv_sec = INT_MAX;
-	logend.tv_usec = 0;
-	fflush(stdout);
-	fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-	    pmProgname, pmErrStr(sts));
-	fprintf(stderr, "\nWARNING: This archive is sufficiently damaged that it may not be possible to\n");
-	fprintf(stderr, "         produce complete information.  Continuing and hoping for the best.\n\n");
-	fflush(stderr);
-    }
-
-    if (tflag || sflag) {
-	if (pmParseTimeWindow(startstr, endstr, NULL, NULL, &logstart, &logend,
-		&windowstart, &windowend, &timespan, &msg) < 0) {
-	    fprintf(stderr, "%s: Invalid time window specified:\n%s\n", pmProgname, msg);
-	    exit(1);
-	}
-#ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_APPL2) {
-	    fprintf(stderr, "parseTimeWindow: \n "
-		"Window start=%.0f end=%.0f sec\nArchive start=%.0f end=%.0f sec\n",
-		tosec(windowstart), tosec(windowend), tosec(logstart), tosec(logend));
-	    fprintf(stderr, "\nWindow Start: ");
-	    __pmPrintStamp(stderr, &windowstart);
-	    fprintf(stderr, "\nWindow End:   ");
-	    __pmPrintStamp(stderr, &windowend);
-	    fprintf(stderr, "\n\n");
-	}
-#endif
-    }
-    else {	/* time window covers whole log */
-	windowstart = logstart;
-	windowend = logend;
-    }
-    logspan = tosec(windowend) - tosec(windowstart);
-
-    if ((sts = pmSetMode(PM_MODE_FORW, &windowstart, 0)) < 0) {
+    
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
 	exit(1);
     }
 
-    if (lflag == 1) {
-	char	       *ddmm;
-	char	       *yr;
+    if (lflag)
+	printlabel();
 
-	printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-	printf("Performance metrics from host %s\n", label.ll_hostname);
-
-	ddmm = pmCtime(&windowstart.tv_sec, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("  commencing %s ", ddmm);
-	__pmPrintStamp(stdout, &windowstart);
-	printf(" %4.4s\n", yr);
-
-	ddmm = pmCtime(&windowend.tv_sec, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("  ending     %s ", ddmm);
-	__pmPrintStamp(stdout, &windowend);
-	printf(" %4.4s\n", yr);
-    }
+    logspan = tosec(opts.finish) - tosec(opts.start);
 
     /* check which timestamp print format we should be using */
-    timespan = windowend;
-    tsub(&timespan, &windowstart);
+    timespan = opts.finish;
+    tsub(&timespan, &opts.start);
     if (timespan.tv_sec > 86400) /* seconds per day: 60*60*24 */
 	dayflag = 1;
 
@@ -1221,9 +1132,9 @@ main(int argc, char *argv[])
 	    if ((sts = pmFetchArchive(&result)) < 0)
 		break;
 
-	    if (windowend.tv_sec > result->timestamp.tv_sec ||
-		(windowend.tv_sec == result->timestamp.tv_sec &&
-		 windowend.tv_usec >= result->timestamp.tv_usec)) {
+	    if (opts.finish.tv_sec > result->timestamp.tv_sec ||
+		(opts.finish.tv_sec == result->timestamp.tv_sec &&
+		 opts.finish.tv_usec >= result->timestamp.tv_usec)) {
 		if (trip == 0)
 		    calcaverage(result);
 		else
@@ -1242,7 +1153,7 @@ main(int argc, char *argv[])
 	    if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "resetting for second iteration\n");
 #endif
-	    if ((sts = pmSetMode(PM_MODE_FORW, &windowstart, 0)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
 		fprintf(stderr, "%s: pmSetMode reset failed: %s\n",
 		    pmProgname, pmErrStr(sts));
 		exit(1);
@@ -1260,14 +1171,14 @@ main(int argc, char *argv[])
     if (Hflag)
 	printheaders();
 
-    if (optind >= argc) {	/* print all results */
+    if (opts.optind >= argc) {	/* print all results */
 	if ((sts = pmTraversePMNS("", printsummary)) < 0) {
 	    fprintf(stderr, "%s: PMNS traversal failed: %s\n", pmProgname, pmErrStr(sts));
 	    exit(1);
 	}
     }
     else {		/* print only selected results */
-	for (i = optind; i < argc; i++) {
+	for (i = opts.optind; i < argc; i++) {
 	    char *msg;
 
 	    if (pmParseMetricSpec(argv[i], 1, archive, &msp, &msg) < 0) {

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 1995-2002 Silicon Graphics, Inc.
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2013 Ken McDonell.
- * All Rights Reserved.
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -680,12 +680,36 @@ dometric(const char *name)
     }
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "all", 0, 'a', 0, "dump everything" },
+    { "descs", 0, 'd', 0, "dump metric descriptions" },
+    { "indoms", 0, 'i', 0, "dump instance domain descriptions" },
+    { "", 0, 'L', 0, "more verbose form of label dump" },
+    { "label", 0, 'l', 0, "dump the archive label" },
+    { "", 0, 'm', 0, "dump values of the metrics (default)" },
+    { "reverse", 0, 'r', 0, "process archive in reverse chronological order" },
+    { "size", 0, 's', 0, "report size of data records in archive" },
+    { "", 0, 't', 0, "dump the temporal index" },
+    { "verbose", 0, 'v', 0, "verbose output" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "aD:dilLmst:vZ:z?",
+    .long_options = longopts,
+    .short_usage = "[options] archive [metricname ...]",
+};
+
 int
 main(int argc, char *argv[])
 {
     int			c;
     int			sts;
-    int			errflag = 0;
     int			i;
     int			n;
     int			dflag = 0;
@@ -702,19 +726,18 @@ main(int argc, char *argv[])
     struct timeval	appStart;
     struct timeval	appEnd;
     pmLogLabel		label;			/* get hostname for archives */
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
     char		timebuf[32];		/* for pmCtime result + .xxx */
     struct timeval	done;
     struct dirent	**namelist;
+    char 		*tz = NULL;		/* for -Z timezone */
+    int			zflag = 0;		/* for -z */
     int			nfile;
 
-    __pmSetProgname(argv[0]);
     sep = __pmPathSeparator();
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = getopt(argc, argv, "aD:dilLmst:vZ:z?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'a':	/* dump everything */
@@ -726,11 +749,11 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
@@ -763,49 +786,33 @@ main(int argc, char *argv[])
 
 	case 'z':	/* timezone from host */
 	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
+		pmprintf("%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		opts.errors++;
 	    }
 	    zflag++;
 	    break;
 
 	case 'Z':	/* $TZ timezone */
 	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
+		pmprintf("%s: at most one of -Z and/or -z allowed\n", pmProgname);
+		opts.errors++;
 	    }
-	    tz = optarg;
+	    tz = opts.optarg;
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind > argc-1) {
-	fprintf(stderr,
-"Usage: %s [options] archive [metricname ...]\n"
-"\n"
-"Options:\n"
-"  -a            dump everything\n"
-"  -d            dump metric descriptions\n"
-"  -i            dump instance domain descriptions\n"
-"  -L            more verbose form of -l\n"
-"  -l            dump the archive label\n"
-"  -m            dump values of the metrics (default)\n"
-"  -r            process archive in reverse chronological order\n"
-"  -s            report size of data records in archive\n"
-"  -t            dump the temporal index\n"
-"  -v            verbose output\n"
-"  -Z timezone   set reporting timezone\n"
-"  -z            set reporting timezone to local time for host from -a\n",
-                pmProgname);
+    if (opts.errors || opts.optind > argc - 1) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    archpathname = argv[optind];
+    archpathname = argv[opts.optind];
     archbasename = strdup(basename(strdup(archpathname)));
     /*
      * treat foo, foo.index, foo.meta, foo.NNN as all equivalent
@@ -886,21 +893,21 @@ main(int argc, char *argv[])
     pass1(ctxp);
     exit(1);
 
-    numpmid = argc - optind;
+    numpmid = argc - opts.optind;
     if (numpmid) {
 	numpmid = 0;
 	pmid = NULL;
-	for (i = 0 ; optind < argc; i++, optind++) {
+	for (i = 0 ; opts.optind < argc; i++, opts.optind++) {
 	    numpmid++;
 	    pmid = (pmID *)realloc(pmid, numpmid * sizeof(pmID));
-	    if ((sts = pmLookupName(1, &argv[optind], &pmid[numpmid-1])) < 0) {
+	    if ((sts = pmLookupName(1, &argv[opts.optind], &pmid[numpmid-1])) < 0) {
 		if (sts == PM_ERR_NONLEAF) {
 		    numpmid--;
-		    if ((sts = pmTraversePMNS(argv[optind], dometric)) < 0)
-			fprintf(stderr, "%s: pmTraversePMNS(%s): %s\n", pmProgname, argv[optind], pmErrStr(sts));
+		    if ((sts = pmTraversePMNS(argv[opts.optind], dometric)) < 0)
+			fprintf(stderr, "%s: pmTraversePMNS(%s): %s\n", pmProgname, argv[opts.optind], pmErrStr(sts));
 		}
 		else
-		    fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmProgname, argv[optind], pmErrStr(sts));
+		    fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmProgname, argv[opts.optind], pmErrStr(sts));
 		if (sts < 0)
 		    numpmid--;
 	    }

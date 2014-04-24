@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,32 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <math.h>
 #include <limits.h>
 #include "pmapi.h"
 #include "impl.h"
-
-static void
-usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options] archive\n\n\
-Options:\n\
-  -l            print the archive label\n\
-  -n pmnsfile   use an alternative PMNS\n\
-  -S starttime  start of the time window\n\
-  -T endtime    end of the time window\n\
-  -Z timezone   set reporting timezone\n\
-  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname);
-}
-
 
 typedef struct {
     int			inst;
@@ -50,20 +31,29 @@ typedef struct {
     unsigned int	listsize;
 } checkData;
 
-/*
- * Hash control for statistics about each metric
- */
-static __pmHashCtl	hashlist;
+static __pmHashCtl	hashlist;	/* hash statistics about each metric */
+static int		dayflag;
+static char		timebuf[32];	/* for pmCtime result + .xxx */
 
-/* time stuff */
-static int		sflag = 0;
-static int		tflag = 0;
-static struct timeval	logstart = {0, 0};
-static struct timeval   logend = {0, 0};
-static struct timeval	windowstart = {0, 0};
-static struct timeval   windowend = {0, 0};
-static int		dayflag = 0;
-static char		timebuf[32];		/* for pmCtime result + .xxx */
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "label", 0, 'l', 0, "print the archive label" },
+    PMOPT_NAMESPACE,
+    PMOPT_START,
+    PMOPT_FINISH,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "D:ln:S:T:zZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] archive",
+};
 
 /* time manipulation */
 static int
@@ -79,6 +69,7 @@ tsub(struct timeval *a, struct timeval *b)
     a->tv_sec -= b->tv_sec;
     return 0;
 }
+
 static double
 tosec(struct timeval t)
 {
@@ -402,192 +393,103 @@ docheck(pmResult *result)
     }
 }
 
+static void
+dumpLabel(void)
+{
+    pmLogLabel	label;
+    char	*ddmm;
+    char	*yr;
+    int		sts;
+
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+		pmProgname, pmErrStr(sts));
+	exit(1);
+    }
+
+    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
+    printf("Performance metrics from host %s\n", label.ll_hostname);
+
+    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm[10] = '\0';
+    yr = &ddmm[20];
+    printf("  commencing %s ", ddmm);
+    __pmPrintStamp(stdout, &label.ll_start);
+    printf(" %4.4s\n", yr);
+
+    if (opts.finish.tv_sec == INT_MAX) {
+        /* pmGetArchiveEnd() failed! */
+        printf("  ending     UNKNOWN\n");
+    }
+    else {
+        ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+        ddmm[10] = '\0';
+        yr = &ddmm[20];
+        printf("  ending     %s ", ddmm);
+        __pmPrintStamp(stdout, &opts.finish);
+        printf(" %4.4s\n", yr);
+    }
+}
 
 int
 main(int argc, char *argv[])
 {
-    int			c, sts;
-    char		*pmnsfile = PM_NS_DEFAULT;
-    char		*startstr = NULL;
-    char		*endstr = NULL;
-    char		*msg = NULL;
-    int			errflag = 0;
-    int			lflag = 0;		/* no label by default */
+    int			c, sts, ctx;
+    int			lflag = 0;	/* no label by default */
     pmResult		*result;
-    pmLogLabel		label;
-    struct timeval 	unused = {0, 0};
-    struct timeval	timespan = {0, 0};
+    struct timeval	timespan;
     struct timeval	last_stamp;
     struct timeval	delta_stamp;
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "D:ln:S:T:zZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
-	case 'l':	/* display label */
+	case 'l':	/* display the archive label */
 	    lflag = 1;
 	    break;
-
-	case 'n':	/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
-
-	case 'S':
-	    startstr = optarg;
-	    sflag = 1;
-	    break;
-
-	case 'T':
-	    endstr = optarg;
-	    tflag = 1;
-	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
 	}
     }
 
-    if (errflag || optind >= argc) {
-	usage();
+    if (opts.optind >= argc) {
+	pmprintf("Error: no archive specified\n\n");
+	opts.errors++;
+    }
+
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, argv[optind])) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", pmProgname, argv[optind], pmErrStr(sts));
-	exit(1);
-    }
-    optind++;
+    __pmAddOptArchive(&opts, argv[opts.optind]);
+    opts.flags &= ~PM_OPTFLAG_DONE;
+    __pmEndOptions(&opts);
 
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, pmnsfile, pmErrStr(sts));
-	    exit(1);
-	}
+    if ((sts = ctx = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
+	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
+		pmProgname, opts.archives[0], pmErrStr(sts));
+	exit(EXIT_FAILURE);
     }
 
-    if ((sts = pmTrimNameSpace()) < 0) {
-	fprintf(stderr, "%s: pmTrimNamespace failed: %s\n", pmProgname, pmErrStr(sts));
-	exit(1);
+    if (pmGetContextOptions(ctx, &opts) < 0) {
+        pmflush();      /* runtime errors only at this stage */
+        exit(EXIT_FAILURE);
     }
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-	    pmProgname, pmErrStr(sts));
-	exit(1);
-    }
-    else {
-	logstart = label.ll_start;
-	last_stamp = logstart;
-    }
-
-    if (zflag) {
-	if ((sts = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-	    label.ll_hostname);
-    }
-    else if (tz != NULL) {
-	if ((sts = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-
-    if ((sts = pmGetArchiveEnd(&logend)) < 0) {
-	fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-	    pmProgname, pmErrStr(sts));
-	exit(1);
-    }
-
-    if (tflag || sflag) {
-	if (pmParseTimeWindow(startstr, endstr, NULL, NULL, &logstart, &logend,
-		&windowstart, &windowend, &unused, &msg) < 0) {
-	    fprintf(stderr, "%s: Invalid time window specified: %s\n", pmProgname, msg);
-	    exit(1);
-	}
-#ifdef PCP_DEBUG
-	else if (pmDebug & DBG_TRACE_APPL0) {
-	    printf("parseTimeWindow: \n "
-		"Window start=%.0f end=%.0f sec\nArchive start=%.0f end=%.0f sec\n",
-		tosec(windowstart), tosec(windowend), tosec(logstart), tosec(logend));
-	}
-#endif
-    }
-    else {	/* time window covers whole log */
-	windowstart = logstart;
-	windowend = logend;
-    }
-
-    if ((sts = pmSetMode(PM_MODE_FORW, &windowstart, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
-	exit(1);
+	exit(EXIT_FAILURE);
     }
 
-    if (lflag == 1) {
-	char	       *ddmm;
-	char	       *yr;
+    if (lflag)
+	dumpLabel();
 
-	printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-	printf("Performance metrics from host %s\n", label.ll_hostname);
-
-	ddmm = pmCtime(&logstart.tv_sec, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("  commencing %s ", ddmm);
-	__pmPrintStamp(stdout, &logstart);
-	printf(" %4.4s\n", yr);
-
-	ddmm = pmCtime(&logend.tv_sec, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("  ending     %s ", ddmm);
-	__pmPrintStamp(stdout, &logend);
-	printf(" %4.4s\n", yr);
-    }
-
-    timespan = windowend;
-    tsub(&timespan, &windowstart);
+    /* check which timestamp print format we should be using */
+    timespan = opts.finish;
+    tsub(&timespan, &opts.start);
     if (timespan.tv_sec > 86400) /* seconds per day: 60*60*24 */
 	dayflag = 1;
 
     sts = 0;
+    last_stamp = opts.start;
     for ( ; ; ) {
 	if ((sts = pmFetchArchive(&result)) < 0)
 	    break;
@@ -632,9 +534,9 @@ main(int argc, char *argv[])
 	}
 
 	last_stamp = result->timestamp;
-	if ((windowend.tv_sec > result->timestamp.tv_sec) ||
-	    ((windowend.tv_sec == result->timestamp.tv_sec) &&
-	     (windowend.tv_usec >= result->timestamp.tv_usec))) {
+	if ((opts.finish.tv_sec > result->timestamp.tv_sec) ||
+	    ((opts.finish.tv_sec == result->timestamp.tv_sec) &&
+	     (opts.finish.tv_usec >= result->timestamp.tv_usec))) {
 	    docheck(result);
 	    pmFreeResult(result);
 	}

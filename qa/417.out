@@ -349,7 +349,7 @@ Note: timezone set to local timezone of host "moomba" from archive
               1.10.3 (irix.kernel.all.pswitch): value 4195911
 
 === pmlogsummary ===
-pmlogsummary: Cannot locate end of archive: Corrupted record in a PCP archive log
+pmlogsummary: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
