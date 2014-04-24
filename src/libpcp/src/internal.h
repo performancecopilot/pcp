@@ -35,11 +35,6 @@ extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 
-extern int __pmGetFileStatusFlags(int) _PCP_HIDDEN;
-extern int __pmSetFileStatusFlags(int, int) _PCP_HIDDEN;
-extern int __pmGetFileDescriptorFlags(int) _PCP_HIDDEN;
-extern int __pmSetFileDescriptorFlags(int, int) _PCP_HIDDEN;
-
 extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
 #ifdef HAVE_NETWORK_BYTEORDER
@@ -197,8 +192,6 @@ extern int __pmInitSecureSockets(void) _PCP_HIDDEN;
 extern int __pmInitCertificates(void) _PCP_HIDDEN;
 extern int __pmInitSocket(int, int) _PCP_HIDDEN;
 extern int __pmSocketReady(int, struct timeval *) _PCP_HIDDEN;
-extern int __pmSocketClosed(void) _PCP_HIDDEN;
-extern int __pmConnectCheckError(int) _PCP_HIDDEN;
 extern void *__pmGetSecureSocket(int) _PCP_HIDDEN;
 extern void *__pmGetUserAuthData(int) _PCP_HIDDEN;
 extern int __pmSecureServerIPCFlags(int, int) _PCP_HIDDEN;

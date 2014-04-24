@@ -573,6 +573,7 @@ extern int __pmCreateSocket(void);
 extern int __pmCreateIPv6Socket(void);
 extern int __pmCreateUnixSocket(void);
 extern void __pmCloseSocket(int);
+extern FILE *__pmFdOpen(int, const char *);
 
 extern int __pmSetSockOpt(int, int, int, const void *, __pmSockLen);
 extern int __pmGetSockOpt(int, int, int, void *, __pmSockLen *);
@@ -585,6 +586,13 @@ extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
+extern int __pmConnectCheckError(int);
+extern int __pmConnectRestoreFlags(int, int);
+extern int __pmSocketClosed(void);
+extern int __pmGetFileStatusFlags(int);
+extern int __pmSetFileStatusFlags(int, int);
+extern int __pmGetFileDescriptorFlags(int);
+extern int __pmSetFileDescriptorFlags(int, int);
 
 extern int  __pmFD(int);
 extern void __pmFD_CLR(int, __pmFdSet *);

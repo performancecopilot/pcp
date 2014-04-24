@@ -1487,6 +1487,18 @@ __pmGetSockOpt(int fd, int level, int option_name, void *option_value,
     return getsockopt(fd, level, option_name, option_value, option_len);
 }
  
+FILE *
+__pmFdOpen(int s, const char *mode)
+{
+    __pmSecureSocket socket;
+
+    /* Map the request to the NSPR equivalent, if possible. */
+    if (__pmDataIPC(s, &socket) == 0 && socket.nsprFd)
+	s = PR_FileDesc2NativeHandle(socket.nsprFd);
+
+    return fdopen (s, mode);
+}
+
 /*
  * Initialize a socket address.  The integral address must be INADDR_ANY or
  * INADDR_LOOPBACK in host byte order.

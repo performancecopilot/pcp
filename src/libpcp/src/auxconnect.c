@@ -169,7 +169,7 @@ __pmConnectCheckError(int fd)
     return so_err;
 }
 
-static int
+int
 __pmConnectRestoreFlags(int fd, int fdFlags)
 {
     int sts;
@@ -606,6 +606,12 @@ __pmGetSockOpt(int socket, int level, int option_name, void *option_value,
 	       __pmSockLen *option_len)
 {
     return getsockopt(socket, level, option_name, option_value, option_len);
+}
+
+FILE *
+__pmFdOpen(int s, const char *mode)
+{
+    return fdopen (s, mode);
 }
 
 /* Initialize a socket address. The integral address must be INADDR_ANY or
