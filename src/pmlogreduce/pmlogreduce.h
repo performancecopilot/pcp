@@ -80,8 +80,6 @@ extern void	newvolume(char *, __pmTimeval *);
 extern pmResult *rewrite(pmResult *);
 extern void	rewrite_free(void);
 
+extern void	dometric(const char *);
 extern void	doindom(pmResult *);
-
-extern double	tv2double(struct timeval *);
-
 extern void	doscan(struct timeval *);

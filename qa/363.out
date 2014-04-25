@@ -1,7 +1,6 @@
 QA output created by 363
 
 === Sanity checks ===
-pmlogsummary: fetch failed: Corrupted record in a PCP archive log
 
 disk.dev.read ["dks1d1"] 0.083 0.090 0.000 0.498 6 count / sec
 disk.dev.read ["dks1d2"] 0.000 0.000 0.000 0.000 6 count / sec
@@ -56,16 +55,7 @@ network.interface.out.bytes ["sl0"] 834.937 807.640 0.000 2802.711 6 count / sec
 Note: timezone set to local timezone of host "moomba" from archive
 
 === Down-rev error check ===
-pmlogsummary: sample.bad.nosupport(29.0.55) - failed in archive value fetch: Metric not supported by this version of monitored application
-pmlogsummary: sample.needprofile(29.0.49) - failed in archive value fetch: Explicit instance identifier(s) required
-pmlogsummary: proc.psusage.utime(3.4.2) - failed in archive value fetch: Explicit instance identifier(s) required
-Note: timezone set to local timezone of host "splat" from archive
-
-Log Label (Log Format Version 1)
-Performance metrics from host splat
-  commencing Thu Jul 24 04:48:42.327 1997
-  ending     Thu Jul 24 04:48:46.557 1997
-pmcd.pmlogger.port ["14737"] 4332.000 0.000 4332.000 4332.000 1 none
+pmlogsummary: Cannot open archive "src/err_v1": Illegal label record at start of a PCP archive log file
 
 === Changing inst check ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -137,7 +127,7 @@ sampledso.bucket ["bin-700"] 700.000 none
 sampledso.bucket ["bin-800"] 800.000 none
 sampledso.bucket ["bin-900"] 900.000 none
 pmcd.pmlogger.port [PID] PORT none
-pmlogsummary: Cannot locate end of archive: Corrupted record in a PCP archive log
+pmlogsummary: Cannot locate end of archive src/null: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
