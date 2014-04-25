@@ -1020,6 +1020,7 @@ extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *
 extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
 
 extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
+extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
 extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 extern void __pmLogSetTime(__pmContext *);

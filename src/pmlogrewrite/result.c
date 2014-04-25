@@ -695,8 +695,8 @@ do_result(void)
 	    newvolume(outarch.logctl.l_curvol+1);
 	}
 	out_offset = ftell(outarch.logctl.l_mfp);
-	if ((sts = __pmLogPutResult(&outarch.logctl, inarch.logrec)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+	if ((sts = __pmLogPutResult2(&outarch.logctl, inarch.logrec)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
 	    /*NOTREACHED*/

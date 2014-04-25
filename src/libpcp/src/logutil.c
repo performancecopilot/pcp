@@ -1097,8 +1097,8 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
 
-int
-__pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
+static int
+logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
 {
     /*
      * This is a bit tricky ...
@@ -1118,6 +1118,9 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
      *                       ^
      *                       |
      *                       start
+     *
+     * If version == 1, pb[] does not have room for trailer len.
+     * If version == 2, pb[] does have room for trailer len.
      */
     int			sz;
     int			sts = 0;
@@ -1143,26 +1146,56 @@ __pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
 	lcp->l_state = PM_LOG_STATE_INIT;
     }
 
+    sz = pb[0] - (int)sizeof(__pmPDUHdr) + 2 * (int)sizeof(int);
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
-	fprintf(stderr, "__pmLogPutResult: pdubuf=" PRINTF_P_PFX "%p len=%d posn=%ld\n", pb, pb[0], (long)ftell(lcp->l_mfp));
+	fprintf(stderr, "logputresult: pdubuf=" PRINTF_P_PFX "%p input len=%d output len=%d posn=%ld\n", pb, pb[0], sz, (long)ftell(lcp->l_mfp));
     }
 #endif
 
-    sz = pb[0] - (int)sizeof(__pmPDUHdr) + 2 * (int)sizeof(int);
-
-    /* swab */
     save_from = start[0];
-    start[0] = htonl(sz);
-    start[(sz-1)/sizeof(__pmPDU)] = start[0];
+    start[0] = htonl(sz);	/* swab */
 
-    if ((int)fwrite(start, 1, sz, lcp->l_mfp) != sz)
-	sts = -oserror();
+    if (version == 1) {
+	if ((int)fwrite(start, 1, sz-sizeof(int), lcp->l_mfp) != sz-sizeof(int))
+	    sts = -oserror();
+	else {
+	    if ((int)fwrite(start, 1, sizeof(int), lcp->l_mfp) != sizeof(int))
+		sts = -oserror();
+	}
+    }
+    else {
+	/* assume version == 2 */
+	start[(sz-1)/sizeof(__pmPDU)] = start[0];
+	if ((int)fwrite(start, 1, sz, lcp->l_mfp) != sz)
+	    sts = -oserror();
+    }
 
     /* restore and unswab */
     start[0] = save_from;
 
     return sts;
+}
+
+/*
+ * original routine, pb[] does not have room for trailer, so 2 writes
+ * needed
+ */
+int
+__pmLogPutResult(__pmLogCtl *lcp, __pmPDU *pb)
+{
+    return logputresult(1, lcp, pb);
+}
+
+/*
+ * new routine, pb[] does have room for trailer, so only 1 write
+ * needed
+ */
+int
+__pmLogPutResult2(__pmLogCtl *lcp, __pmPDU *pb)
+{
+    return logputresult(2, lcp, pb);
 }
 
 /*
@@ -1491,7 +1524,7 @@ again:
     }
     /*
      * need to add int at end for trailer in case buffer is used
-     * subsequently by __pmLogPutResult()
+     * subsequently by __pmLogPutResult2()
      */
     if ((pb = __pmFindPDUBuf(rlen + (int)sizeof(__pmPDUHdr) + (int)sizeof(int))) == NULL) {
 #ifdef PCP_DEBUG
@@ -1533,6 +1566,27 @@ again:
 	header->type = PDU_RESULT;
 	header->from = FROM_ANON;
 	/* swab pdu buffer - done later in __pmDecodeResult */
+
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    int	j;
+	    char	*p;
+	    int	jend = PM_PDU_SIZE(header->len);
+
+	    /* for Purify ... */
+	    p = (char *)pb + header->len;
+	    while (p < (char *)pb + jend*sizeof(__pmPDU))
+		*p++ = '~';	/* buffer end */
+
+	    fprintf(stderr, "__pmLogRead: PDU buffer\n");
+	    for (j = 0; j < jend; j++) {
+		if ((j % 8) == 0 && j > 0)
+		    fprintf(stderr, "\n%03d: ", j);
+		fprintf(stderr, "%8x ", pb[j]);
+	    }
+	    putc('\n', stderr);
+	}
+#endif
     }
 
     if (mode == PM_MODE_BACK)
@@ -1583,16 +1637,19 @@ again:
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
 	head -= sizeof(head) + sizeof(trail);
-	fprintf(stderr, "@");
 	if (sts >= 0) {
 	    __pmTimeval	tmp;
+	    fprintf(stderr, "@");
 	    __pmPrintStamp(stderr, &(*result)->timestamp);
 	    tmp.tv_sec = (__int32_t)(*result)->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)(*result)->timestamp.tv_usec;
 	    fprintf(stderr, " (t=%.6f)", __pmTimevalSub(&tmp, &lcp->l_label.ill_start));
 	}
-	else
-	    fprintf(stderr, "unknown time");
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogRead: __pmDecodeResult failed: %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	    fprintf(stderr, "@unknown time");
+	}
 	fprintf(stderr, " len=header+%d+trailer\n", head);
     }
 #endif

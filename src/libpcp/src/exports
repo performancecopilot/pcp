@@ -429,3 +429,9 @@ PCP_3.3 {
     __pmLogLocalSocketUser;
     __pmMakePath;
 } PCP_3.2;
+
+PCP_3.4 {
+    global:
+
+    __pmLogPutResult2;
+} PCP_3.3;
