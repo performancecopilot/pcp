@@ -87,10 +87,10 @@ static int stomp_connect(const char *hostname, int port)
 	ret = __pmSelectWrite(fd+1, &wfds, ptv);
 
 	/* Was the connection successful? */
-	if (ret < 0) {
+	if (ret <= 0) {
 	    if (oserror() == EINTR)
 		return -2;
-	    return -3;
+	    continue;
 	}
 	ret = __pmConnectCheckError(fd);
 	if (ret == 0)
