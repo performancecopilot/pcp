@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -63,6 +63,7 @@ char		*passwd;		/* user-level password */
 char		*prompt = ">";		/* command prompt */
 int		port = 23;
 int		parse_only;
+int		no_lookups;
 
 extern void	cisco_init(pmdaInterface *);
 extern void	cisco_done(void);
@@ -82,19 +83,27 @@ main(int argc, char **argv)
     __pmSetProgname(argv[0]);
     __pmGetUsername(&pmdausername);
 
-#ifdef PARSE_ONLY
-    pmDebug = DBG_TRACE_APPL0;
-    parse_only = 1;
-#endif
-
     snprintf(helptext, sizeof(helptext), "%s%c" "cisco" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, CISCO,
-		"cisco.log", parse_only ? NULL : helptext);
+		"cisco.log", helptext);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:6:" "M:P:r:s:U:x:?", 
+    while ((c = pmdaGetOpt(argc, argv, "D:d:h:i:l:pu:6:" "CM:Nn:P:r:s:U:x:?", 
 			   &dispatch, &err)) != EOF) {
 	switch (c) {
+
+	    case 'C':		/* parser checking mode (debugging) */
+		pmDebug = DBG_TRACE_APPL0;
+		parse_only++;
+		break;
+
+	    case 'N':		/* do not perform name lookups (debugging) */
+		no_lookups = 1;
+		break;
+
+	    case 'n':		/* set program name, for parse (debugging) */
+		pmProgname = optarg;
+		break;
 
 	    case 'P':		/* passwd */
 		passwd = optarg;
@@ -157,12 +166,14 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-#ifdef PARSE_ONLY
-#else
     /* force errors from here on into the log */
-    pmdaOpenLog(&dispatch);
-    __pmSetProcessIdentity(pmdausername);
-#endif
+    if (!parse_only) {
+	pmdaOpenLog(&dispatch);
+	__pmSetProcessIdentity(pmdausername);
+    } else {
+	dispatch.version.two.text = NULL;
+	dispatch.version.two.ext->e_helptext = NULL;
+    }
 
     /*
      * build the instance domain and cisco data structures from the
@@ -244,14 +255,17 @@ main(int argc, char **argv)
 		break;
 	}
 	if (i == n_cisco) {
-	    __pmHostEnt	*hostInfo;
+	    __pmHostEnt	*hostInfo = NULL;
 
-	    if ((hostInfo = __pmGetAddrInfo(p)) == NULL) {
-#ifdef PARSE_ONLY
+	    if (!no_lookups)
+		hostInfo = __pmGetAddrInfo(p);
+
+	    if (!hostInfo && parse_only) {
+		FILE	*f;
+
 		/*
 		 * for debugging, "host" may be a file ...
 		 */
-		FILE	*f;
 		if ((f = fopen(p, "r")) == NULL) {
 		    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 			pmProgname, argv[optind], hoststrerror());
@@ -270,14 +284,12 @@ main(int argc, char **argv)
 		    cisco[i].fout = stdout;
 		    n_cisco++;
 		}
-#else
+	    } else if (!hostInfo) {
 		fprintf(stderr, "%s: unknown hostname %s: %s\n",
 			pmProgname, p, hoststrerror());
 		/* abandon this host (cisco) */
 		continue;
-#endif
-	    }
-	    else {
+	    } else {
 		cisco[i].host = p;
 		cisco[i].username = myusername != NULL ? myusername : username;
 		cisco[i].passwd = mypasswd != NULL ? mypasswd : passwd;
@@ -288,8 +300,8 @@ main(int argc, char **argv)
 		cisco[i].port = port;
 
 		n_cisco++;
-		fprintf (stderr, "Adding new host %s\n", p);
-		fflush (stderr);
+		fprintf(stderr, "Adding new host %s\n", p);
+		fflush(stderr);
 	    }
 	}
 	else {
@@ -353,10 +365,9 @@ main(int argc, char **argv)
 	 */
 	intf[n].bandwidth = -2;
 
-	fprintf (stderr, "Interface %s(%d) is on host %s\n",
+	fprintf(stderr, "Interface %s(%d) is on host %s\n",
 		 intf[n].interface, n, cisco[i].host);
-	fflush (stderr);
-
+	fflush(stderr);
 
         continue;
 
@@ -367,29 +378,23 @@ badintfspec:
         exit(1);
     }
 
-    if (! n_cisco ) {
+    if (n_cisco == 0) {
 	fprintf(stderr, "%s: Nothing to monitor\n", pmProgname);
 	exit(1);
     }
 
-#ifdef PARSE_ONLY
-    dispatch.version.two.text = NULL;
-#endif
-
-    /* initialize */
-    cisco_init(&dispatch);
-
-#ifdef PARSE_ONLY
-    for (i = 0; i < n_intf; i++)
-	intf[i].fetched = 0;
-
-    fprintf(stderr, "Sleeping while sproc does the work ... SIGINT to terminate\n");
-    pause();
-#else
-    /* set up connection to PMCD */
-    pmdaConnect(&dispatch);
-    pmdaMain(&dispatch);
-#endif
+    if (parse_only) {
+	fprintf(stderr, "Sleeping while sproc does the work ... SIGINT to terminate\n");
+        cisco_init(&dispatch);
+	for (i = 0; i < n_intf; i++)
+	    intf[i].fetched = 0;
+	pause();
+    } else {
+	/* set up connection to PMCD */
+	cisco_init(&dispatch);
+	pmdaConnect(&dispatch);
+	pmdaMain(&dispatch);
+    }
 
     cisco_done();
     exit(0);

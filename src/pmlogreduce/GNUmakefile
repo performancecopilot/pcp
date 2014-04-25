@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmlogreduce.c logio.c util.c dometric.c rewrite.c indom.c scan.c
+CFILES	= pmlogreduce.c logio.c dometric.c rewrite.c indom.c scan.c
 HFILES	= pmlogreduce.h
 
 CMDTARGET = pmlogreduce$(EXECSUFFIX)
@@ -32,7 +32,6 @@ install: $(CMDTARGET)
 
 pmlogreduce.o:	pmlogreduce.h
 logio.o:	pmlogreduce.h
-util.o:		pmlogreduce.h
 dometric.o:	pmlogreduce.h
 rewrite.o:	pmlogreduce.h
 indom.o:	pmlogreduce.h

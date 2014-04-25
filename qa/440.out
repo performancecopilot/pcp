@@ -5,19 +5,19 @@ Log size for 4kilobytes and volume size for 10Mbyte is correct
 Log size for 4194B and volume size for 3K is correct
 Log size for 8 and volume size for 3 is correct
 Log time for 5 and volume time for 3.5secs is correct
-pmlogger: illegal size argument '3bozobyte' for -v
+pmlogger: illegal size argument '3bozobyte' for volume size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '3bozobyte' for -s
+pmlogger: illegal size argument '3bozobyte' for exit size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '-1' for -v
+pmlogger: illegal size argument '-1' for volume size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '-1' for -s
+pmlogger: illegal size argument '-1' for exit size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '0.5Mbyte' for -v
+pmlogger: illegal size argument '0.5Mbyte' for volume size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '0.5K' for -s
+pmlogger: illegal size argument '0.5K' for exit size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '0.03' for -v
+pmlogger: illegal size argument '0.03' for volume size
 Usage: pmlogger [options] archive
-pmlogger: illegal size argument '0.03' for -s
+pmlogger: illegal size argument '0.03' for exit size
 Usage: pmlogger [options] archive
