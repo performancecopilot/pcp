@@ -624,9 +624,6 @@ log_callback(int afid, void *data)
 #endif
 	}
 
-	if (needti)
-	    fflush(logctl.l_mdfp);
-
 	if (needti) {
 	    /*
 	     * need to unwind seek pointer to start of most recent
@@ -736,15 +733,6 @@ log_callback(int afid, void *data)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)ftell(logctl.l_mfp));
-#endif
-    }
-
-    if (unbuffered) {
-	/* -u on command line */
-	do_flush();
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
-	    fprintf(stderr, "callback: flush for -u\n");
 #endif
     }
 

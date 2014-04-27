@@ -39,7 +39,6 @@ int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger;			/* linger with no tasks/events */
 int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
-int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
@@ -53,25 +52,6 @@ static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
 static char	*dialog_title = "PCP Archive Recording Session";
-
-/*
- * flush stdio buffers
- */
-int
-do_flush(void)
-{
-    int		sts;
-
-    sts = 0;
-    if (fflush(logctl.l_mdfp) != 0)
-	sts = oserror();
-    if (fflush(logctl.l_mfp) != 0 && sts == 0)
-	sts = oserror();
-    if (fflush(logctl.l_tifp) != 0 && sts == 0)
-	sts = oserror();
-
-    return sts;
-}
 
 void
 run_done(int sts, char *msg)
@@ -321,11 +301,6 @@ do_dialog(char cmd)
     char	tmp[MAXPATHLEN];
 #endif
 
-    /*
-     * flush archive buffers so size is accurate
-     */
-    do_flush();
-
     time(&now);
     now -= rsc_start;
     if (now == 0)
@@ -487,7 +462,7 @@ static pmLongOptions longopts[] = {
     { "size", 1, 's', "SIZE", "terminate after endsize has been accumulated" },
     { "interval", 1, 't', "DELTA", "default logging interval [default 60.0 seconds]" },
     PMOPT_FINISH,
-    { "", 0, 'u', 0, "output is unbuffered" },
+    { "", 0, 'u', 0, "output is unbuffered [default now, so -u is a no-op]" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     { "volsize", 1, 'v', "SIZE", "switch log volumes after size has been accumulated" },
     { "version", 1, 'V', "NUM", "version for archive (default and only version is 2)" },
@@ -628,7 +603,10 @@ main(int argc, char **argv)
 	    break;
 
 	case 'u':		/* flush output buffers after each fetch */
-	    unbuffered = 1;
+	    /*
+	     * all archive write I/O is unbuffered now, so maintain -u
+	     * for backwards compatibility only
+	     */
 	    break;
 
 	case 'v':		/* volume switch after given size */
@@ -938,14 +916,6 @@ main(int argc, char **argv)
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
-	if (wantflush) {
-	    /*
-	     * flush request via SIGUSR1
-	     */
-	    do_flush();
-	    wantflush = 0;
-	}
-
 	if (nready > 0) {
 	    /* block signals to simplify IO handling */
 	    __pmAFblock();
@@ -1146,7 +1116,6 @@ newvolume(int vol_switch_type)
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
 		nextvol, vol_sw_strs[vol_switch_type], ctime(&now));

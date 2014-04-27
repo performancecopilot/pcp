@@ -178,9 +178,7 @@ do_preamble(void)
     }
 
     /* fudge the temporal index */
-    fflush(logctl.l_mfp);
     fseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-    fflush(logctl.l_mdfp);
     fseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
     __pmLogPutIndex(&logctl, &tmp);
     fseek(logctl.l_mfp, 0L, SEEK_END);

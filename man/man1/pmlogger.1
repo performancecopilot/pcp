@@ -362,7 +362,7 @@ See also the
 .B \-v
 option above.
 .PP
-The buffers for the current log may be flushed to disk using the
+Historically the buffers for the current log may be flushed to disk using the
 \f3flush\f1 command of
 .BR pmlc (1),
 or by sending
@@ -370,10 +370,23 @@ or by sending
 a SIGUSR1 signal
 or by using the
 .B \-u
-option (the latter forces every log write to be unbuffered).
-This is useful when the log needs to be read while
-.B pmlogger
-is still running.
+option.
+The current version of
+.I pmlogger
+and the
+.I libpcp
+routines that underpin
+.I pmlogger
+unconditionally use unbuffered writes and a single
+.BR fwrite (3)
+for each logical record written, and so ``flushing'' does not
+force any additional data to be written to the file system.
+The
+.B \-u
+option, the SIGUSR1 handling and the
+.BR pmlc (1)
+.B flush
+command are retained for backwards compatibility.
 .P
 When launched with the 
 .B \-x 

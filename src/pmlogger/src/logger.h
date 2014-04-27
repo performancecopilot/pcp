@@ -94,12 +94,6 @@ typedef struct {
 #define VOL_SW_TIME    4
 #define VOL_SW_MAX     5
 
-/* flush requested via SIGUSR1 */
-extern int	wantflush;
-
-/* unbuffered writes requested via -u */
-extern int	unbuffered;
-
 /* initial time of day from remote PMCD */
 extern struct timeval	epoch;
 
@@ -134,7 +128,6 @@ extern int do_preamble(void);
 extern void run_done(int,char *);
 extern __pmPDU *rewrite_pdu(__pmPDU *, int);
 extern int putmark(void);
-extern int do_flush(void);
 extern void dumpit(void);
 
 #include <sys/param.h>
