@@ -36,10 +36,22 @@ pid=$!
 
 sleep 2	# let stats accumulate via rule firings
 
+# pcp -P output ...
+#     pmie: bozo-vm: /tmp/518-28812.pmie (2 rules)
+#           evaluations true=2 false=2 unknown=0 (actions=2)
+#           expected evaluation rate=2.00 rules/sec
+#           bozo-vm: /var/log/pcp/pmmgr/bozo-vm/config.pmie (12 rules)
+#           evaluations true=0 false=3 unknown=9 (actions=0)
+#           expected evaluation rate=0.10 rules/sec
+#
+# want the our pmie, not any other pmie processes
+#
 pcp -P \
 | tee -a $seq.full \
 | $PCP_AWK_PROG '
-/pmie:/		{ want=1 }
+/pmie:/		{ state=1 }
+state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rules\)/	{ print; want = 1; next }
+state==1 && / rules\)/		{ want = 0 }
 want==1		{ print }' \
 | sed \
     -e "s;$tmp;TMP;" \
