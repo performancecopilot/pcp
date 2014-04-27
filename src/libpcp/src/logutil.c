@@ -520,13 +520,11 @@ __pmLogNewFile(const char *base, int vol)
 	return NULL;
     }
     /*
-     * Want unbuffered I/O for the data volumes ... the metadata
-     * already has a fflush() after the batch (if any) of changes
-     * from the current pmResult, and temporal index also has
-     * fflush()ing everytime it is written to.
+     * Want unbuffered I/O for all files of the archive, so a single
+     * fwrite() maps to one logical record for each of the metadata
+     * records, the index records and the data (pmResult) records.
      */
-    if (vol != PM_LOG_VOL_META && vol != PM_LOG_VOL_TI)
-	setvbuf(f, NULL, _IONBF, 0);
+    setvbuf(f, NULL, _IONBF, 0);
 
     if ((save_error = __pmSetVersionIPC(fileno(f), PDU_VERSION)) < 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -543,28 +541,33 @@ __pmLogNewFile(const char *base, int vol)
 int
 __pmLogWriteLabel(FILE *f, const __pmLogLabel *lp)
 {
-    int		len;
     int		sts = 0;
-    __pmLogLabel outll = *lp;
+    struct {				/* skeletal external record */
+	int		header;
+	__pmLogLabel	label;
+	int		trailer;
+    } out;
 
-    len = sizeof(*lp) + 2 * sizeof(len);
-    len = htonl(len);
+    out.header = out.trailer = htonl((int)sizeof(out));
 
     /* swab */
-    outll.ill_magic = htonl(outll.ill_magic);
-    outll.ill_pid = htonl(outll.ill_pid);
-    outll.ill_start.tv_sec = htonl(outll.ill_start.tv_sec);
-    outll.ill_start.tv_usec = htonl(outll.ill_start.tv_usec);
-    outll.ill_vol = htonl(outll.ill_vol);
+    out.label.ill_magic = htonl(lp->ill_magic);
+    out.label.ill_pid = htonl(lp->ill_pid);
+    out.label.ill_start.tv_sec = htonl(lp->ill_start.tv_sec);
+    out.label.ill_start.tv_usec = htonl(lp->ill_start.tv_usec);
+    out.label.ill_vol = htonl(lp->ill_vol);
+    memmove((void *)out.label.ill_hostname, (void *)lp->ill_hostname, sizeof(lp->ill_hostname));
+    memmove((void *)out.label.ill_tz, (void *)lp->ill_tz, sizeof(lp->ill_tz));
 
-    if ((int)fwrite(&len, 1, sizeof(len), f) != sizeof(len) ||
-	(int)fwrite(&outll, 1, sizeof(outll), f) != sizeof(outll) ||
-        (int)fwrite(&len, 1, sizeof(len), f) != sizeof(len)) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    sts = -oserror();
-	    pmprintf("__pmLogWriteLabel: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	    pmflush();
+    if ((sts = fwrite(&out, 1, sizeof(out), f)) != sizeof(out)) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogWriteLabel: write failed: returns %d expecting %d: %s\n",
+	    sts, (int)sizeof(out), osstrerror_r(errmsg, sizeof(errmsg)));
+	pmflush();
+	sts = -oserror();
     }
+    else
+	sts = 0;
 
     return sts;
 }
@@ -1032,6 +1035,7 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
 {
     __pmLogTI	ti;
     __pmLogTI	oti;
+    int		sts;
 
     if (lcp->l_tifp == NULL || lcp->l_mdfp == NULL || lcp->l_mfp == NULL) {
 	/*
@@ -1091,8 +1095,12 @@ __pmLogPutIndex(const __pmLogCtl *lcp, const __pmTimeval *tp)
     oti.ti_vol = htonl(ti.ti_vol);
     oti.ti_meta = htonl(ti.ti_meta);
     oti.ti_log = htonl(ti.ti_log);
-    if (fwrite(&oti, 1, sizeof(oti), lcp->l_tifp) != sizeof(oti))
-	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index write failed\n");
+    if ((sts = fwrite(&oti, 1, sizeof(oti), lcp->l_tifp)) != sizeof(oti)) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogPutIndex: write failed: returns %d expecting %d: %s\n",
+	    sts, (int)sizeof(oti), osstrerror_r(errmsg, sizeof(errmsg)));
+	pmflush();
+    }
     if (fflush(lcp->l_tifp) != 0)
 	__pmNotifyErr(LOG_ERR, "__pmLogPutIndex: PCP archive temporal index flush failed\n");
 }
@@ -1158,18 +1166,33 @@ logputresult(int version,__pmLogCtl *lcp, __pmPDU *pb)
     start[0] = htonl(sz);	/* swab */
 
     if (version == 1) {
-	if ((int)fwrite(start, 1, sz-sizeof(int), lcp->l_mfp) != sz-sizeof(int))
+	if ((sts = fwrite(start, 1, sz-sizeof(int), lcp->l_mfp)) != sz-sizeof(int)) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    pmprintf("__pmLogPutResult: write failed: returns %d expecting %d: %s\n",
+		sts, (int)(sz-sizeof(int)), osstrerror_r(errmsg, sizeof(errmsg)));
+	    pmflush();
 	    sts = -oserror();
+	}
 	else {
-	    if ((int)fwrite(start, 1, sizeof(int), lcp->l_mfp) != sizeof(int))
+	    if ((sts = fwrite(start, 1, sizeof(int), lcp->l_mfp)) != sizeof(int)) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		pmprintf("__pmLogPutResult: trailer write failed: returns %d expecting %d: %s\n",
+		    sts, (int)sizeof(int), osstrerror_r(errmsg, sizeof(errmsg)));
+		pmflush();
 		sts = -oserror();
+	    }
 	}
     }
     else {
 	/* assume version == 2 */
 	start[(sz-1)/sizeof(__pmPDU)] = start[0];
-	if ((int)fwrite(start, 1, sz, lcp->l_mfp) != sz)
+	if ((sts = fwrite(start, 1, sz, lcp->l_mfp)) != sz) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    pmprintf("__pmLogPutResult2: write failed: returns %d expecting %d: %s\n",
+	    	sts, sz, osstrerror_r(errmsg, sizeof(errmsg)));
+	    pmflush();
 	    sts = -oserror();
+	}
     }
 
     /* restore and unswab */
