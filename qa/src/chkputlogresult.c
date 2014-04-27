@@ -23,6 +23,7 @@ main(int argc, char **argv)
 	"sampledso.float.one",
 	"sampledso.double.one",
 	"sampledso.string.hullo",
+	"sampledso.bin",
     };
     int		nmetric = sizeof(metrics)/sizeof(metrics[0]);
     pmID	*pmids;
@@ -31,6 +32,9 @@ main(int argc, char **argv)
     __pmLogCtl	ctl = { 0 };
     __pmPDU	*pdp;
     __pmTimeval	epoch = { 0, 0 };
+    int		numinst;
+    int		*ilist;
+    char	**nlist;
 
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
@@ -129,6 +133,16 @@ Options:\n\
 	if ((sts = __pmLogPutDesc(&ctl, &desc, 1, &metrics[i])) < 0) {
 	    fprintf(stderr, "%s: __pmLogPutDesc(\"%s\") failed: %s\n", pmProgname, pmIDStr(pmids[i]), pmErrStr(sts));
 	    exit(1);
+	}
+	if (desc.indom != PM_INDOM_NULL) {
+	    if ((numinst = pmGetInDom(desc.indom, &ilist, &nlist)) < 0) {
+		printf("pmGetInDom: %s: %s\n", pmInDomStr(desc.indom), pmErrStr(numinst));
+		exit(1);
+	    }
+	    if ((sts = __pmLogPutInDom(&ctl, desc.indom, &epoch, numinst, ilist, nlist)) < 0) {
+		fprintf(stderr, "%s: __pmLogPutInDom(...,indom=%s,numinst=%d,...) failed: %s\n", pmProgname, pmInDomStr(desc.indom), numinst, pmErrStr(sts));
+		exit(1);
+	    }
 	}
     }
     for (i = 0; i < nmetric; i++) {
