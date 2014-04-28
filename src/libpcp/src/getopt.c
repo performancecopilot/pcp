@@ -759,6 +759,10 @@ pmUsageMessage(pmOptions *opts)
 	    pmprintf("\n%s:\n", option->message);
 	    continue;
         }
+	if (option->short_opt == '|') {	/* descriptive text */
+	    pmprintf("%s\n", option->message);
+	    continue;
+        }
 
 	message = option->argname ? option->argname : "?";
 	if (option->long_opt && option->long_opt[0] != '\0') {

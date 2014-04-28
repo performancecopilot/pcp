@@ -608,6 +608,7 @@ extern char *pmGetConfig(const char *);
 
 #define PMAPI_OPTIONS	"A:a:D:gh:n:O:p:S:s:T:t:VZ:z?"
 #define PMAPI_OPTIONS_HEADER(s)	{ "", 0, '-', 0, (s) }
+#define PMAPI_OPTIONS_TEXT(s)	{ "", 0, '|', 0, (s) }
 #define PMAPI_OPTIONS_END	{ NULL, 0, 0, 0, NULL }
 
 #define PMOPT_ALIGN	{ "align",	1, 'A',	"TIME", \

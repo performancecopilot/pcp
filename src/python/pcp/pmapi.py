@@ -758,6 +758,10 @@ class pmOptions(object):
         """ Add a new section heading into the long option usage message """
         return c_api.pmSetLongOptionHeader(heading)
 
+    def pmSetLongOptionText(self, text):
+        """ Add some descriptive text into the long option usage message """
+        return c_api.pmSetLongOptionText(text)
+
     def pmSetLongOptionAlign(self):
         """ Add support for -A/--align into PMAPI monitor tool """
         return c_api.pmSetLongOptionAlign()
