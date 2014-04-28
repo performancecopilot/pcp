@@ -154,7 +154,7 @@ parseargs(int argc, char *argv[])
 
 	case 't':	/* output sample interval */
 	    if (pmParseInterval(opts.optarg, &interval, &msg) < 0) {
-		pmprintf(msg);
+		pmprintf("%s", msg);
 		free(msg);
 		opts.errors++;
 	    }
