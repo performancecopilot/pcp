@@ -431,7 +431,14 @@ PCP_3.3 {
 } PCP_3.2;
 
 PCP_3.4 {
-    global:
-
+  global:
+    __pmConnectCheckError;
+    __pmConnectRestoreFlags;
+    __pmFdOpen;
+    __pmGetFileStatusFlags;
+    __pmSetFileStatusFlags;
+    __pmGetFileDescriptorFlags;
+    __pmSetFileDescriptorFlags;
+    __pmSocketClosed;
     __pmLogPutResult2;
 } PCP_3.3;

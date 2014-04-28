@@ -255,10 +255,10 @@ main(int argc, char **argv)
 		break;
 	}
 	if (i == n_cisco) {
-	    struct hostent *hostInfo = NULL;
+	    __pmHostEnt	*hostInfo = NULL;
 
 	    if (!no_lookups)
-		hostInfo = gethostbyname(p);
+		hostInfo = __pmGetAddrInfo(p);
 
 	    if (!hostInfo && parse_only) {
 		FILE	*f;
@@ -290,19 +290,14 @@ main(int argc, char **argv)
 		/* abandon this host (cisco) */
 		continue;
 	    } else {
-		struct sockaddr_in *sinp = &cisco[i].ipaddr;
-
 		cisco[i].host = p;
 		cisco[i].username = myusername != NULL ? myusername : username;
 		cisco[i].passwd = mypasswd != NULL ? mypasswd : passwd;
 		cisco[i].prompt = myprompt != NULL ? myprompt : prompt;
 		cisco[i].fin = NULL;
 		cisco[i].fout = NULL;
-
-		memset(sinp, 0, sizeof(cisco[i].ipaddr));
-		sinp->sin_family = AF_INET;
-		memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
-		sinp->sin_port = htons(port);	/* telnet */
+		cisco[i].hostinfo = hostInfo;
+		cisco[i].port = port;
 
 		n_cisco++;
 		fprintf(stderr, "Adding new host %s\n", p);
