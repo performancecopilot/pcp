@@ -365,7 +365,8 @@ rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
-rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
+rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
@@ -387,7 +388,7 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
 sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
-cat base_pmdas.list base_bin.list base_conf.list base_exec.list base_man.list |\
+cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
 egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
 egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
