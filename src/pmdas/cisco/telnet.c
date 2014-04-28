@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -31,27 +32,74 @@ extern int	port;
 int
 conn_cisco(cisco_t * cp)
 {
-    int	fd;
-    int	i;
+    __pmFdSet		wfds;
+    __pmSockAddr	*myaddr;
+    void		*enumIx;
+    int			flags = 0;
+    int			fd;
+    int			ret;
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) {
-	fprintf(stderr, "conn_cisco(%s) socket: %s\n", cp->host, netstrerror());
+    fd = -1;
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(cp->hostinfo, &enumIx);
+	 myaddr != NULL;
+	 myaddr = __pmHostEntGetSockAddr(cp->hostinfo, &enumIx)) {
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myaddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myaddr))
+	    fd = __pmCreateIPv6Socket();
+	else
+	    continue;
+	if (fd < 0) {
+	    __pmSockAddrFree(myaddr);
+	    continue; /* Try the next address */
+	}
+
+	/* Attempt to connect */
+	flags = __pmConnectTo(fd, myaddr, cp->port);
+	__pmSockAddrFree(myaddr);
+
+	if (flags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address. fd has been closed in __pmConnectTo().
+	     */
+	    setoserror(ECONNREFUSED);
+	    fd = -1;
+	    continue;
+	}
+
+	/* FNDELAY and we're in progress - wait on select */
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(fd, &wfds);
+	ret = __pmSelectWrite(fd+1, &wfds, NULL);
+
+	/* Was the connection successful? */
+	if (ret == 0)
+	    setoserror(ETIMEDOUT);
+	else if (ret > 0) {
+	    ret = __pmConnectCheckError(fd);
+	    if (ret == 0)
+		break;
+	    setoserror(ret);
+	}
+	
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
+	fd = -1;
+    } /* loop over addresses */
+
+    if (fd == -1) {
+	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
+		cp->host, netstrerror());
 	return -1;
     }
 
-    i = 1;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &i, (__pmSockLen)sizeof(i)) < 0) {
+    fd = __pmConnectRestoreFlags(fd, flags);
+    if (fd < 0) {
 	fprintf(stderr, "conn_cisco(%s): setsockopt: %s\n",
 		cp->host, netstrerror());
-	close(fd);
-	return -1;
-    }
-
-    if (connect(fd, (struct sockaddr *)&cp->ipaddr, sizeof(cp->ipaddr)) < 0) {
-	fprintf(stderr, "conn_cisco(%s): connect: %s\n",
-	    cp->host, netstrerror());
-	close(fd);
 	return -1;
     }
 

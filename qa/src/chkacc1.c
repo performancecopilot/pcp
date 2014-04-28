@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -17,12 +17,7 @@ main(int argc, char **argv)
     int			ipv6 = -1;
     int			errflag = 0;
     int			c;
-#if PCP_VER >= 3611
     __pmSockAddr	*inaddr;
-#else
-    __pmInAddr		inaddr;
-    __pmIPAddr		ipaddr;
-#endif
 
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
@@ -71,13 +66,6 @@ Options:\n\
     if (ipv4 == -1) ipv4 = 1;
     if (ipv6 == -1) ipv6 = 0;
 
-#if PCP_VER < 3611
-    if (ipv6) {
-	printf("No IPv6 support for this version of PCP\n");
-	return 1;
-    }
-#endif
-
     sts = 0;
     for (op = 0; op < WORD_BIT; op++) {
 	if ((s = __pmAccAddOp(1 << op)) < 0) {
@@ -100,7 +88,6 @@ Options:\n\
 		sts = s;
 	    }
 	}
-#if PCP_VER >= 3611
 	if (ipv6) {
 	    sprintf(name, "fec0::%x:%x:%x:%x:%x:%x",
 		    host * 3, 17+host, host,
@@ -110,39 +97,28 @@ Options:\n\
 		sts = s;
 	    }
 	}
-#endif
     }
     if (sts < 0)
 	return 1;
 
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     if (ipv4) {
 	for (host = 0; host < WORD_BIT; host++) {
 	    char	buf[20];
 
 	    sprintf(buf, "%d.%d.%d.%d", 155, host * 3, 17+host, host);
-#if PCP_VER >= 3611
 	    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
 		printf("insufficient memory\n");
 		continue;
 	    }
 	    sts = __pmAccAddClient(inaddr, &i);
 	    __pmSockAddrFree(inaddr);
-#else
-	    inet_aton(buf, &inaddr);
-	    ipaddr = __pmInAddrToIPAddr(&inaddr);
-	    sts = __pmAccAddClient(ipaddr, &i);
-#endif
 
 	    if (sts < 0) {
 		printf("add inet client from host %d: %s\n", host, pmErrStr(sts));
@@ -154,7 +130,6 @@ Options:\n\
 	}
     }
 
-#if PCP_VER >= 3611
     if (ipv6) {
 	for (host = 0; host < WORD_BIT; host++) {
 	    char	buf[4*8 + 7 + 1]; /* handles full IPv6 address */
@@ -178,18 +153,13 @@ Options:\n\
 		       host, i, 1 << host);
 	}
     }
-#endif
     
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     return 0;
 }

@@ -36,36 +36,79 @@ static char buffer[4096];
 
 static int stomp_connect(const char *hostname, int port)
 {
-    int sts, nodelay = 1;
-    struct linger nolinger = { 1, 0 };
-    struct sockaddr_in myaddr;
-    struct hostent *servinfo;
+    __pmSockAddr *myaddr;
+    __pmHostEnt *servinfo;
+    void *enumIx;
+    struct timeval tv;
+    struct timeval *ptv;
+    __pmFdSet wfds;
+    int ret;
+    int flags = 0;
 
-    if ((servinfo = gethostbyname(hostname)) == NULL)
+    if ((servinfo = __pmGetAddrInfo(hostname)) == NULL)
 	return -1;
 
-    /* socket setup */
-    if ((fd = socket(PF_INET, SOCK_STREAM, 0)) < 0)
-	return -2;
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, /* avoid 200 ms delay */
-		   (char *)&nodelay, (socklen_t)sizeof(nodelay)) < 0) {
-	stomp_disconnect();
-	return -3;
-    }
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, /* don't linger on close */
-		   (char *)&nolinger, (socklen_t)sizeof(nolinger)) < 0) {
-	stomp_disconnect();
-	return -4;
-    }
+    fd = -1;
+    enumIx = NULL;
+    for (myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx);
+	 myaddr != NULL;
+	 myaddr = __pmHostEntGetSockAddr(servinfo, &enumIx)) {
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myaddr))
+	    fd = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myaddr))
+	    fd = __pmCreateIPv6Socket();
+	else
+	    continue;
+	if (fd < 0) {
+	    __pmSockAddrFree(myaddr);
+	    continue; /* Try the next address */
+	}
 
-    memset(&myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    memcpy(&myaddr.sin_addr, servinfo->h_addr, servinfo->h_length);
-    myaddr.sin_port = htons(port);
-    if ((sts = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr))) < 0) {
-	stomp_disconnect();
+	/* Attempt to connect */
+	flags = __pmConnectTo(fd, myaddr, port);
+	__pmSockAddrFree(myaddr);
+
+	if (flags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address. fd has been closed in __pmConnectTo().
+	     */
+	    fd = -1;
+	    continue;
+	}
+
+	/* FNDELAY and we're in progress - wait on select */
+	tv.tv_sec = timeout;
+	tv.tv_usec = 0;
+	ptv = (tv.tv_sec || tv.tv_usec) ? &tv : NULL;
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(fd, &wfds);
+	ret = __pmSelectWrite(fd+1, &wfds, ptv);
+
+	/* Was the connection successful? */
+	if (ret <= 0) {
+	    if (oserror() == EINTR)
+		return -2;
+	    continue;
+	}
+	ret = __pmConnectCheckError(fd);
+	if (ret == 0)
+	    break;
+
+	/* Unsuccessful connection. */
+	__pmCloseSocket(fd);
+	fd = -1;
+    } /* loop over addresses */
+
+    __pmHostEntFree(servinfo);
+
+    if(fd == -1)
+	return -4;
+
+    fd = __pmConnectRestoreFlags(fd, flags);
+    if(fd < 0)
 	return -5;
-    }
 
     return fd;
 }

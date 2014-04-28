@@ -1,6 +1,7 @@
 /*
  * Instance Domain Data Structures, suitable for a PMDA
  *
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +29,8 @@
 
 typedef struct {
     char		*host;		/* CISCO hostname */
-    struct sockaddr_in	ipaddr;		/* IP address for 'host' */
+    __pmHostEnt		*hostinfo;	/* Address info for 'host' */
+    int			port;           /* port */
     char		*username;	/* username */
     char		*passwd;	/* password */
     char		*prompt;	/* command prompt */
