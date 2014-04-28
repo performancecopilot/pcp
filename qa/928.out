@@ -1,0 +1,201 @@
+QA output created by 928
++++ __pmLogPutresult() +++
+sampledso.long.one -> 30.0.10
+sampledso.ulonglong.one -> 30.0.98
+sampledso.float.one -> 30.0.15
+sampledso.double.one -> 30.0.25
+sampledso.string.hullo -> 30.0.31
+sampledso.bin -> 30.0.6
+__pmLogPutResult: 1 metrics ...
+__pmLogPutResult: 2 metrics ...
+__pmLogPutResult: 3 metrics ...
+__pmLogPutResult: 4 metrics ...
+__pmLogPutResult: 5 metrics ...
+__pmLogPutResult: 6 metrics ...
+Log Label (Log Format Version 2)
+Performance metrics from host happycamper
+  commencing Thu Jan  1 10:00:00.000 1970
+  ending     Thu Jan  1 10:00:06.000 1970
+
+Descriptions for Metrics in the Log ...
+PMID: 30.0.6 (sampledso.bin)
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+PMID: 30.0.31 (sampledso.string.hullo)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.25 (sampledso.double.one)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.15 (sampledso.float.one)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.98 (sampledso.ulonglong.one)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.10 (sampledso.long.one)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 30.2
+10:00:00.000 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+10:00:00.000       0          132          132
+10:00:06.000       0          659          904
+
+[40 bytes]
+10:00:01.000  30.0.10 (sampledso.long.one): value 1
+
+[72 bytes]
+10:00:02.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+
+[100 bytes]
+10:00:03.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+
+[132 bytes]
+10:00:04.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+
+[172 bytes]
+10:00:05.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+              30.0.31 (sampledso.string.hullo): value "hullo world!"
+
+[256 bytes]
+10:00:06.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+              30.0.31 (sampledso.string.hullo): value "hullo world!"
+              30.0.6 (sampledso.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
++++ __pmLogPutresult2() +++
+sampledso.long.one -> 30.0.10
+sampledso.ulonglong.one -> 30.0.98
+sampledso.float.one -> 30.0.15
+sampledso.double.one -> 30.0.25
+sampledso.string.hullo -> 30.0.31
+sampledso.bin -> 30.0.6
+__pmLogPutResult2: 1 metrics ...
+__pmLogPutResult2: 2 metrics ...
+__pmLogPutResult2: 3 metrics ...
+__pmLogPutResult2: 4 metrics ...
+__pmLogPutResult2: 5 metrics ...
+__pmLogPutResult2: 6 metrics ...
+Log Label (Log Format Version 2)
+Performance metrics from host happycamper
+  commencing Thu Jan  1 10:00:00.000 1970
+  ending     Thu Jan  1 10:00:06.000 1970
+
+Descriptions for Metrics in the Log ...
+PMID: 30.0.6 (sampledso.bin)
+    Data Type: 32-bit int  InDom: 30.2 0x7800002
+    Semantics: instant  Units: none
+PMID: 30.0.31 (sampledso.string.hullo)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.25 (sampledso.double.one)
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.15 (sampledso.float.one)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.98 (sampledso.ulonglong.one)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 30.0.10 (sampledso.long.one)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+Instance Domains in the Log ...
+InDom: 30.2
+10:00:00.000 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+10:00:00.000       0          132          132
+10:00:06.000       0          659          904
+
+[40 bytes]
+10:00:01.000  30.0.10 (sampledso.long.one): value 1
+
+[72 bytes]
+10:00:02.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+
+[100 bytes]
+10:00:03.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+
+[132 bytes]
+10:00:04.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+
+[172 bytes]
+10:00:05.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+              30.0.31 (sampledso.string.hullo): value "hullo world!"
+
+[256 bytes]
+10:00:06.000  30.0.10 (sampledso.long.one): value 1
+              30.0.98 (sampledso.ulonglong.one): value 1
+              30.0.15 (sampledso.float.one): value 1
+              30.0.25 (sampledso.double.one): value 1
+              30.0.31 (sampledso.string.hullo): value "hullo world!"
+              30.0.6 (sampledso.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
++++ compare files (expect no diffs) +++
+.0 files
+.meta files
+.index files

@@ -1338,8 +1338,8 @@ do_request(__pmPDU *pb)
 	    break;
 
 	case LOG_REQUEST_SYNC:
-	    sts = do_flush();
-	    __pmSendError(clientfd, FROM_ANON, sts);
+	    /* no-op now I/O is unbuffered */
+	    __pmSendError(clientfd, FROM_ANON, 0);
 	    break;
 
 	/*

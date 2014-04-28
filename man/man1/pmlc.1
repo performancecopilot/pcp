@@ -191,6 +191,11 @@ This command works only while a connection to a pmlogger instance is
 established, and requests the pmlogger instance
 to flush to disk all buffers associated with the current archive.
 For old-timers, \f3sync\f1 is a synonym for \f3flush\f1.
+In current versions of
+.BR pmlogger (1)
+all writes are unbuffered and aligned with the logical records in the external
+files, so this command achieves nothing, but is retained for backwards
+compatibility.
 .TP 4
 \f3help\f1
 Displays a summary of the available commands.

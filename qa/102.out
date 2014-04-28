@@ -21,7 +21,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -70,7 +69,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -105,7 +103,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -140,7 +137,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -174,7 +170,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -218,7 +213,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -253,7 +247,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -280,7 +273,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list
@@ -360,7 +352,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
 
   log { mandatory | advisory } on <interval> _metric-list
   log { mandatory | advisory } off _metric-list

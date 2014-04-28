@@ -396,60 +396,73 @@ __pmLogLookupDesc(__pmLogCtl *lcp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
 {
-    __pmLogHdr	h;
     FILE	*f = lcp->l_mdfp;
     pmDesc	*tdp;
-    pmDesc	*odp;		/* pmDesc to write out */
-    int		onumnames;	/* numnames to write out */
     int		olen;		/* length to write out */
     int		i;
+    int		sts;
     int		len;
-    pmDesc	tmp;
+    typedef struct {			/* skeletal external record */
+	__pmLogHdr	hdr;
+	pmDesc		desc;
+	int		numnames;	/* not present if numnames == 0 */
+	char		data[0];	/* will be expanded */
+    } ext_t;
+    ext_t	*out;
 
-    h.type = htonl(TYPE_DESC);
     len = sizeof(__pmLogHdr) + sizeof(pmDesc) + LENSIZE;
-
-    tmp.type = htonl(dp->type);
-    tmp.sem = htonl(dp->sem);
-    tmp.indom = __htonpmInDom(dp->indom);
-    tmp.units = __htonpmUnits(dp->units);
-    tmp.pmid = __htonpmID(dp->pmid);
-    odp = &tmp;
-
     if (numnames > 0) {
         len += sizeof(numnames);
         for (i = 0; i < numnames; i++)
             len += LENSIZE + (int)strlen(names[i]);
+    }
+PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
+    if ((out = (ext_t *)malloc(len)) == NULL)
+	return -oserror();
 
-	h.len = htonl(len);
-	onumnames = htonl(numnames);
-	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
-	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
-            fwrite(&onumnames, 1, sizeof(numnames), f) != sizeof(numnames))
-		return -oserror();
+    out->hdr.len = htonl(len);
+    out->hdr.type = htonl(TYPE_DESC);
+    out->desc.type = htonl(dp->type);
+    out->desc.sem = htonl(dp->sem);
+    out->desc.indom = __htonpmInDom(dp->indom);
+    out->desc.units = __htonpmUnits(dp->units);
+    out->desc.pmid = __htonpmID(dp->pmid);
 
-        /* write out the names */
+    if (numnames > 0) {
+	char	*op = (char *)&out->data;
+
+	out->numnames = htonl(numnames);
+
+        /* copy the names and length prefix */
         for (i = 0; i < numnames; i++) {
 	    int slen = (int)strlen(names[i]);
 	    olen = htonl(slen);
-            if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-                return -oserror();
-            if (fwrite(names[i], 1, slen, f) != slen)
-                return -oserror();
-        }
-
-	olen = htonl(len);
-	if (fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-	    return -oserror();
+	    memmove((void *)op, &olen, sizeof(olen));
+	    op += sizeof(olen);
+	    memmove((void *)op, names[i], slen);
+	    op += slen;
+	}
+	/* trailer length */
+	memmove((void *)op, &out->hdr.len, sizeof(out->hdr.len));
     }
     else {
-	h.len = htonl(len);
-	olen = htonl(len);
-	if (fwrite(&h, 1, sizeof(__pmLogHdr), f) != sizeof(__pmLogHdr) ||
-	    fwrite(odp, 1, sizeof(pmDesc), f) != sizeof(pmDesc) ||
-	    fwrite(&olen, 1, LENSIZE, f) != LENSIZE)
-		return -oserror();
+	/* no names, trailer length lands on numnames in ext_t */
+	out->numnames = out->hdr.len;
     }
+
+    if ((sts = fwrite(out, 1, len, f)) != len) {
+	char	strbuf[20];
+	char	errmsg[PM_MAXERRMSGLEN];
+	pmprintf("__pmLogPutDesc(...,pmid=%s,name=%s): write failed: returned %d expecting %d: %s\n",
+	    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)),
+	    numnames > 0 ? names[0] : "<none>", len, sts,
+	    osstrerror_r(errmsg, sizeof(errmsg)));
+	pmflush();
+	free(out);
+	return -oserror();
+    }
+
+    free(out);
 
     /*
      * need to make a copy of the pmDesc, and add this, since caller
@@ -591,77 +604,66 @@ __pmLogPutInDom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp,
 		int numinst, int *instlist, char **namelist)
 {
     int		sts = 0;
-    __pmLogHdr	h;
     int		i;
-    int		wlen;
-    int		strsize;
+    int		*inst;
     int		*stridx;
-    int		real_numinst;
-    int		onuminst;
-    pmInDom	oindom;
-    __pmTimeval	otp;
+    char	*str;
+    int		len;
+    typedef struct {			/* skeletal external record */
+	__pmLogHdr	hdr;
+	__pmTimeval	stamp;
+	pmInDom		indom;
+	int		numinst;
+	char		data[0];	/* inst[] then stridx[] then strings */
+					/* will be expanded if numinst > 0 */
+    } ext_t;
+    ext_t	*out;
 
-    /*
-     * Note: this routine depends upon the names pointed to by namelist[]
-     *       being packed, and starting at namelist[0] ... this is exactly
-     *       the format returned by pmGetInDom and __pmLogLoadMeta, so it
-     *       should be OK
-     */
-
-    real_numinst = numinst > 0 ? numinst : 0;
-PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
-    if ((stridx = (int *)malloc(real_numinst * sizeof(stridx[0]))) == NULL)
-	return -oserror();
-
-    h.len = (int)sizeof(__pmLogHdr) + (int)sizeof(*tp) + (int)sizeof(indom) +
-	    (int)sizeof(numinst) +
-	    real_numinst * ((int)sizeof(instlist[0]) + (int)sizeof(stridx[0])) +
-	    (int)sizeof(h.len);
-    strsize = 0;
+    len = (int)sizeof(ext_t)
+	    + (numinst > 0 ? numinst : 0) * ((int)sizeof(instlist[0]) + (int)sizeof(stridx[0]))
+	    + LENSIZE;
     for (i = 0; i < numinst; i++) {
-	strsize += (int)strlen(namelist[i]) + 1;
-	/* see Note */
-	stridx[i] = (int)((ptrdiff_t)namelist[i] - (ptrdiff_t)namelist[0]);
-	stridx[i] = htonl(stridx[i]); /* swab */
-	instlist[i] = htonl(instlist[i]); /* swab: this is changed back after writing */
+	len += (int)strlen(namelist[i]) + 1;
     }
-    h.len += strsize;
 
-    /* swab all output buffers */
-    h.len = htonl(h.len);
-    h.type = htonl(TYPE_INDOM);
-    otp.tv_sec = htonl(tp->tv_sec);
-    otp.tv_usec = htonl(tp->tv_usec);
-    oindom = __htonpmInDom(indom);
-    onuminst = htonl(numinst);
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
+    if ((out = (ext_t *)malloc(len)) == NULL)
+	return -oserror();
 
-    wlen = (int)fwrite(&h, 1, sizeof(__pmLogHdr), lcp->l_mdfp);
-    wlen += fwrite(&otp, 1, sizeof(otp), lcp->l_mdfp);
-    wlen += fwrite(&oindom, 1, sizeof(oindom), lcp->l_mdfp);
-    wlen += fwrite(&onuminst, 1, sizeof(onuminst), lcp->l_mdfp);
-    if (numinst > 0) {
-	wlen += fwrite(instlist, 1, real_numinst * sizeof(instlist[0]), lcp->l_mdfp);
-	wlen += fwrite(stridx, 1, real_numinst * sizeof(stridx[0]), lcp->l_mdfp);
-	/* see Note */
-	wlen += fwrite(namelist[0], 1, strsize, lcp->l_mdfp);
+    /* swab all output fields */
+    out->hdr.len = htonl(len);
+    out->hdr.type = htonl(TYPE_INDOM);
+    out->stamp.tv_sec = htonl(tp->tv_sec);
+    out->stamp.tv_usec = htonl(tp->tv_usec);
+    out->indom = __htonpmInDom(indom);
+    out->numinst = htonl(numinst);
+
+    inst = (int *)&out->data;
+    stridx = (int *)&inst[numinst];
+    str = (char *)&stridx[numinst];
+    for (i = 0; i < numinst; i++) {
+	int	slen = strlen(namelist[i])+1;
+	inst[i] = htonl(instlist[i]);
+	memmove((void *)str, (void *)namelist[i], slen);
+	stridx[i] = htonl((int)((ptrdiff_t)str - (ptrdiff_t)&stridx[numinst]));
+	str += slen;
     }
-    wlen += fwrite(&h.len, 1, sizeof(h.len), lcp->l_mdfp);
-    free(stridx);
+    /* trailer length */
+    memmove((void *)str, &out->hdr.len, sizeof(out->hdr.len));
 
-    if (wlen != (int)ntohl(h.len)) {
+    if ((sts = fwrite(out, 1, len, lcp->l_mdfp)) != len) {
+	char	strbuf[20];
 	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutInDom: wrote %d, expected %d: %s\n",
-	    wlen, (int)ntohl(h.len), osstrerror_r(errmsg, sizeof(errmsg)));
+	pmprintf("__pmLogPutInDom(...,indom=%s,numinst=%d): write failed: returned %d expecting %d: %s\n",
+	    pmInDomStr_r(indom, strbuf, sizeof(strbuf)), numinst, len, sts,
+	    osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
+	free(out);
 	return -oserror();
     }
+    free(out);
 
     sts = addindom(lcp, indom, tp, numinst, instlist, namelist, NULL, 0);
-
-    /* swab instance list back again so as to not upset the caller */
-    for (i = 0; i < numinst; i++) {
-	instlist[i] = ntohl(instlist[i]);
-    }
 
     return sts;
 }

@@ -41,7 +41,7 @@ Options:
   -v, --verbose         increased diagnostic verbosity
   -w, --warnings        emit warnings [default is silence]
 
-Error: -c config /dev/tty is not a file or directory
+pmlogrewrite: Error: -c config /dev/tty is not a file or directory
 Usage: pmlogrewrite [options] input-archive [output-archive]
 
 Options:

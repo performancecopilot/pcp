@@ -66,8 +66,9 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 
 	/*
 	 * do the label records (it is too late when __pmLogPutResult
-	 * is called as we've already output some metadata) ... this
-	 * code is stolen from __pmLogPutResult
+	 * or __pmLogPutResult2 is called as we've already output some
+	 * metadata) ... this code is stolen from logputresult() in
+	 * libpcp
 	 */
 	lcp->l_label.ill_start.tv_sec = stamp.tv_sec;
 	lcp->l_label.ill_start.tv_usec = stamp.tv_usec;
@@ -121,7 +122,7 @@ _pmi_put_result(pmi_context *current, pmResult *result)
 	__pmLogPutIndex(lcp, &stamp);
     }
 
-    if ((sts = __pmLogPutResult(lcp, pb)) < 0) {
+    if ((sts = __pmLogPutResult2(lcp, pb)) < 0) {
 	__pmUnpinPDUBuf(pb);
 	return sts;
     }

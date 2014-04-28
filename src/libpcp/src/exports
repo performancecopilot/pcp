@@ -440,4 +440,5 @@ PCP_3.4 {
     __pmGetFileDescriptorFlags;
     __pmSetFileDescriptorFlags;
     __pmSocketClosed;
+    __pmLogPutResult2;
 } PCP_3.3;

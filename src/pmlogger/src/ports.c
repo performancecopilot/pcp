@@ -43,7 +43,6 @@ static const char *linkSocketPath;/* Link to socket for primary logger */
 
 int		ctlfds[CFD_NUM] = {-1, -1, -1};/* fds for control ports: */
 int		ctlport;	/* pmlogger control port number */
-int		wantflush;	/* flush via SIGUSR1 flag */
 
 static void
 cleanup(void)
@@ -108,10 +107,8 @@ static void
 sigusr1_handler(int sig)
 {
     /*
-     * set the flag ... flush occurs in main event loop when we're
-     * quiescent
+     * no-op now that all archive write I/O is unbuffered
      */
-    wantflush = 1;
 #ifndef IS_MINGW
     __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
 #endif

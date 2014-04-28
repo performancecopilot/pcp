@@ -56,7 +56,7 @@ _speak_to_me()
     host=$1
     pid=''
     base=''
-    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>&1
+    cat <<'End-of-File' | ssh -q pcpqa@$host sh >$tmp.tmp 2>$tmp.err
 if [ -r $PCP_DIR/etc/pcp.env ]
 then
     . $PCP_DIR/etc/pcp.env
@@ -65,14 +65,21 @@ else
     exit 1
 fi
 rm -f /tmp/$$.*
+echo "log mandatory on once { hinv.ncpu }" >/tmp/$$.config
+echo >>/tmp/$$.config
+echo "[access]" >>/tmp/$$.config
+echo "allow * : all;" >>/tmp/$$.config
 test -k $PCP_TMP_DIR/pmlogger || sudo chmod o+w $PCP_TMP_DIR/pmlogger
-( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+( pmlogger -L -c /tmp/$$.config -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
 echo pid=$! base=$$
 End-of-File
 
     echo >>$seq.full
-    echo "From ssh to $host ..." >>$seq.full
+    echo "stdout from ssh to $host ..." >>$seq.full
     cat $tmp.tmp >>$seq.full
+    echo >>$seq.full
+    echo "stderr from ssh to $host ..." >>$seq.full
+    cat $tmp.err >>$seq.full
 
     eval `cat $tmp.tmp`
 
@@ -90,13 +97,15 @@ End-of-File
 
     for i in 1 2 3 4 5 6 7 8 9 10
     do
-	if echo quit | pmlc -h $host $pid 2>&1 | grep 'Connected to' >/dev/null
+	( echo ; echo "iteration $i" ) >>$seq.full
+	if echo quit | pmlc -h $host $pid 2>&1 | tee -a $seq.full | grep 'Connected to' >/dev/null
 	then
 	    break
 	else
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		sleep 1000
 		exit 1
 	    fi
 	fi

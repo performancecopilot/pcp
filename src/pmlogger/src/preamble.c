@@ -141,7 +141,7 @@ do_preamble(void)
 
     __pmOverrideLastFd(fileno(logctl.l_mfp));	/* force use of log version */
     /* and start some writing to the archive log files ... */
-    sts = __pmLogPutResult(&logctl, pb);
+    sts = __pmLogPutResult2(&logctl, pb);
     __pmUnpinPDUBuf(pb);
     if (sts < 0)
 	goto done;
@@ -187,9 +187,7 @@ do_preamble(void)
     }
 
     /* fudge the temporal index */
-    fflush(logctl.l_mfp);
     fseek(logctl.l_mfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
-    fflush(logctl.l_mdfp);
     fseek(logctl.l_mdfp, sizeof(__pmLogLabel)+2*sizeof(int), SEEK_SET);
     __pmLogPutIndex(&logctl, &tmp);
     fseek(logctl.l_mfp, 0L, SEEK_END);

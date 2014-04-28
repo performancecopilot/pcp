@@ -899,7 +899,7 @@ _createmark(void)
     mark_t	*markp;
 
     /*
-     * add space for trailer in case __pmLogPutResut() is called with
+     * add space for trailer in case __pmLogPutResult2() is called with
      * this PDU buffer
      */
     markp = (mark_t *)malloc(sizeof(mark_t)+sizeof(int));
@@ -1410,8 +1410,8 @@ checkwinend(__pmTimeval now)
     /* must create "mark" record and write it out */
     /* (need only one mark record) */
     markpdu = _createmark();
-    if ((sts = __pmLogPutResult(&logctl, markpdu)) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+    if ((sts = __pmLogPutResult2(&logctl, markpdu)) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmProgname, pmErrStr(sts));
 	abandon();
     }
@@ -1504,8 +1504,8 @@ fprintf(stderr, " break!\n");
 	/* write out log record */
 	old_log_offset = ftell(logctl.l_mfp);
 	assert(old_log_offset >= 0);
-	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
+	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    abandon();
 	}
@@ -1592,8 +1592,8 @@ writemark(inarch_t *iap)
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
     p->timestamp.tv_usec = htonl(p->timestamp.tv_usec);
 
-    if ((sts = __pmLogPutResult(&logctl, iap->pb[LOG])) < 0) {
-	fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+    if ((sts = __pmLogPutResult2(&logctl, iap->pb[LOG])) < 0) {
+	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmProgname, pmErrStr(sts));
 	abandon();
     }

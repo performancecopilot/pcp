@@ -38,6 +38,7 @@ chk_metric_types
 chknumval
 chkopenlog
 chkoptfetch
+chkputlogresult
 chktrim
 clientid
 compare

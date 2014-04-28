@@ -453,10 +453,10 @@ main(int argc, char **argv)
 	doindom(orp);
 
 	/* write out log record */
-	sts = __pmLogPutResult(&logctl, pb);
+	sts = __pmLogPutResult2(&logctl, pb);
 	__pmUnpinPDUBuf(pb);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    goto cleanup;
 	}
