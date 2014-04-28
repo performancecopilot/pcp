@@ -85,7 +85,7 @@ Basic getting started
     _filter_top_pmns() procedure to strip the top-level name components for
     any new metric names (there are lots of examples already there) ... if
     these are distributed PMDAs, you should send patches back to
-    pcp@oss.sgi.com.
+    pcp@mail.performancecopilot.org.
 
 
 Doing the Real Work
@@ -195,8 +195,8 @@ Make in the src Directory
 
     1. cd src
     2. diff -u trace_dev.h ../../src/include/trace_dev.h
-       and mail the differences to pcp@oss.sgi.com so we can refine the
-       Makefiles to avoid cosmetic differences
+       and mail the differences to pcp@mail.performancecopilot.org so we can
+       refine the Makefiles to avoid cosmetic differences
     3. mv trace_dev.h trace_dev.h.orig
        cp ../../src/include/trace_dev.h trace_dev.h
     4. make
@@ -222,6 +222,6 @@ Make in the src Directory
 Fixes
 -----
     
-    If you find something that does not work, and fix it, or create
-    additional QA tests, please send the details to pcp@oss.sgi.com.
+    If you find something that does not work, and fix it, or create additional
+    QA tests, please send the details to pcp@mail.performancecopilot.org.
 
