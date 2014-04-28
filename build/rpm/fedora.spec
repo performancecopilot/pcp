@@ -19,8 +19,12 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildRequires: systemtap-sdt-devel
+%else
 %ifnarch ppc ppc64
 BuildRequires: systemtap-sdt-devel
+%endif
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -729,6 +733,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 * Wed Mar 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.1-1
 - Update to latest PCP sources.
+
+* Thu Feb 20 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-2
+- Workaround further PowerPC/tapset-related build fallout.
 
 * Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
 - Create new sub-packages for pcp-webapi and pcp-manager
