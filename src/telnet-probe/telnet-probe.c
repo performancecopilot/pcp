@@ -25,12 +25,15 @@ main(int argc, char *argv[])
     char		*endnum;
     int			port = 0;
     int			s;
-    FILE		*fp;
     int			errflag = 0;
     int			cflag = 0;
     int			vflag = 0;
     int			sts = 1;
+    ssize_t		bytes;
     int			ret;
+    struct timeval	canwait = { 5, 000000 };
+    struct timeval	stv;
+    struct timeval	*pstv;
     int			c;
 
     while ((c = getopt(argc, argv, "cv?")) != EOF) {
@@ -96,20 +99,26 @@ main(int argc, char *argv[])
 	     * Mark failure in case we fall out the end of the loop
 	     * and try next address. s has been closed in __pmConnectTo().
 	     */
+	    setoserror(ECONNREFUSED);
 	    s = -1;
 	    continue;
 	}
 
 	/* FNDELAY and we're in progress - wait on select */
+	stv = canwait;
+	pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
 	__pmFD_ZERO(&wfds);
 	__pmFD_SET(s, &wfds);
-	ret = __pmSelectWrite(s+1, &wfds, NULL);
+	ret = __pmSelectWrite(s+1, &wfds, pstv);
 
 	/* Was the connection successful? */
-	if (ret >= 0) {
+	if (ret == 0)
+	    setoserror(ETIMEDOUT);
+	else if (ret > 0) {
 	    ret = __pmConnectCheckError(s);
 	    if (ret == 0)
 		break;
+	    setoserror(ret);
 	}
 
 	/* Unsuccessful connection. */
@@ -133,7 +142,6 @@ main(int argc, char *argv[])
 	goto done;
     }
 
-    fp = __pmFdOpen(s, "r+");
     if (vflag)
 	fprintf(stderr, "send ...\n");
     while ((c = getc(stdin)) != EOF) {
@@ -141,27 +149,30 @@ main(int argc, char *argv[])
 	    fputc(c, stderr);
 	    fflush(stderr);
 	}
-	fputc(c, fp);
-	if (ferror(fp)) {
+	if (__pmWrite(s, &c, sizeof(c)) != sizeof(c)) {
 	    if (vflag)
 		fprintf(stderr, "telnet write: %s\n", osstrerror());
 	    goto done;
 	}
-	fflush(fp);
     }
 
     if (vflag)
 	fprintf(stderr, "recv ...\n");
-    while ((c = getc(fp)) != EOF) {
+    while ((bytes = __pmRead(s, &c, sizeof(c))) == sizeof(c)) {
 	if (vflag) {
 	    fputc(c, stderr);
 	    fflush(stderr);
 	}
     }
-    if (ferror(fp)) {
-	if (vflag)
-	    fprintf(stderr, "telnet read: %s\n", osstrerror());
-	goto done;
+    if (bytes < 0) {
+	/*
+	 * If __pmSocketClosed(), then treat it as EOF.
+	 */
+	if (! __pmSocketClosed()) {
+	    if (vflag)
+		fprintf(stderr, "telnet read: %s\n", osstrerror());
+	    goto done;
+	}
     }
 
     sts = 0;

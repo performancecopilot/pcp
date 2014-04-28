@@ -65,6 +65,7 @@ conn_cisco(cisco_t * cp)
 	     * Mark failure in case we fall out the end of the loop
 	     * and try next address. fd has been closed in __pmConnectTo().
 	     */
+	    setoserror(ECONNREFUSED);
 	    fd = -1;
 	    continue;
 	}
@@ -75,10 +76,13 @@ conn_cisco(cisco_t * cp)
 	ret = __pmSelectWrite(fd+1, &wfds, NULL);
 
 	/* Was the connection successful? */
-	if (ret >= 0) {
+	if (ret == 0)
+	    setoserror(ETIMEDOUT);
+	else if (ret > 0) {
 	    ret = __pmConnectCheckError(fd);
 	    if (ret == 0)
 		break;
+	    setoserror(ret);
 	}
 	
 	/* Unsuccessful connection. */
