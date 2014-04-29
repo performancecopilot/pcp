@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= telnet-probe.c
 CMDTARGET = telnet-probe
-LLDFLAGS = -lpcp
+LLDLIBS = -lpcp
 
 default: $(CMDTARGET)
 
