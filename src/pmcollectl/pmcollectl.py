@@ -103,6 +103,7 @@ class _CollectPrint(object):
             self.print_header1_detail()
         elif self.verbosity == "verbose":
             self.print_header1_verbose()
+	sys.stdout.flush()
     def print_header2(self):
         if self.verbosity == "brief":
             self.print_header2_brief()
@@ -110,6 +111,7 @@ class _CollectPrint(object):
             self.print_header2_detail()
         elif self.verbosity == "verbose":
             self.print_header2_verbose()
+	sys.stdout.flush()
     def print_header1_brief(self):
         True                        # pylint: disable-msg=W0104
     def print_header2_brief(self):
@@ -149,14 +151,14 @@ class _CollectPrint(object):
 
 class _cpuCollectPrint(_CollectPrint):
     def print_header1_brief(self):
-        print '#<--------CPU-------->',
+        sys.stdout.write('#<--------CPU-------->')
     def print_header1_detail(self):
         print '# SINGLE CPU STATISTICS'
     def print_header1_verbose(self):
         print '# CPU SUMMARY (INTR, CTXSW & PROC /sec)'
 
     def print_header2_brief(self):
-        print '#cpu sys inter  ctxsw',
+        sys.stdout.write('#cpu sys inter  ctxsw')
     def print_header2_detail(self):
         print '#   Cpu  User Nice  Sys Wait IRQ  Soft Steal Idle'
     def print_header2_verbose(self):
@@ -316,24 +318,24 @@ class _interruptCollectPrint(_CollectPrint):
 
 class _diskCollectPrint(_CollectPrint):
     def print_header1_brief(self):
-        print '<----------Disks----------->',
+        sys.stdout.write('<----------Disks----------->')
     def print_header1_detail(self):
         print '# DISK STATISTICS (/sec)'
     def print_header1_verbose(self):
         print '\n\n# DISK SUMMARY (/sec)'
     def print_header2_brief(self):
-        print ' KBRead  Reads KBWrit Writes',
+        sys.stdout.write(' KBRead  Reads KBWrit Writes')
     def print_header2_detail(self):
         print '#          <---------reads---------><---------writes---------><--------averages--------> Pct'
         print '#Name       KBytes Merged  IOs Size  KBytes Merged  IOs Size  RWSize  QLen  Wait SvcTim Util'
     def print_header2_verbose(self):
-        print '#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n',
+        sys.stdout.write('#KBRead RMerged  Reads SizeKB  KBWrite WMerged Writes SizeKB\n')
     def print_brief(self):
-        print "%6d %6d %6d %6d" % (
+        sys.stdout.write("%6d %6d %6d %6d" % (
             self.ss.get_metric_value('disk.all.read_bytes'),
             self.ss.get_metric_value('disk.all.read'),
             self.ss.get_metric_value('disk.all.write_bytes'),
-            self.ss.get_metric_value('disk.all.write')),
+            self.ss.get_metric_value('disk.all.write')))
     def print_detail(self):
         for j in xrange(len(self.ss.metric_pmids)):
             try:
@@ -382,7 +384,7 @@ class _diskCollectPrint(_CollectPrint):
 
 class _memoryCollectPrint(_CollectPrint):
     def print_header1_brief(self):
-        print '#<-----------Memory----------->'
+        sys.stdout.write('#<-----------Memory----------->')
     def print_header1_verbose(self):
         print '# MEMORY SUMMARY'
     def print_header2_brief(self):
@@ -428,13 +430,13 @@ class _memoryCollectPrint(_CollectPrint):
 
 class _netCollectPrint(_CollectPrint):
     def print_header1_brief(self):
-        print '<----------Network--------->',
+        sys.stdout.write('<----------Network---------->')
     def print_header1_detail(self):
         print '# NETWORK STATISTICS (/sec)'
     def print_header1_verbose(self):
         print '\n\n# NETWORK SUMMARY (/sec)'
     def print_header2_brief(self):
-        print ' KBIn  PktIn  KBOut  PktOut',
+        sys.stdout.write(' KBIn  PktIn  KBOut  PktOut')
     def print_header2_detail(self):
         print '#Num    Name   KBIn  PktIn SizeIn  MultI   CmpI  ErrsI  KBOut PktOut  SizeO   CmpO ErrsO'
     def print_header2_verbose(self):
