@@ -201,6 +201,27 @@ setLongOptionHeader(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setLongOptionText(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    pmLongOptions text = PMAPI_OPTIONS_TEXT("");
+    char *keyword_list[] = {"text", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetLongOptionText", keyword_list,
+			&text.message))
+	return NULL;
+    if ((text.message = strdup(text.message)) == NULL)
+	return PyErr_NoMemory();
+
+    if (addLongOption(&text, 0) < 0) {
+	free((char *)text.message);
+	return PyErr_NoMemory();
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 addLongOptionObject(pmLongOptions *option)
 {
     if (addLongOption(option, 1) < 0)
@@ -881,6 +902,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionHeader",
 	.ml_meth = (PyCFunction) setLongOptionHeader,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetLongOptionText",
+	.ml_meth = (PyCFunction) setLongOptionText,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetLongOption",
 	.ml_meth = (PyCFunction) setLongOption,

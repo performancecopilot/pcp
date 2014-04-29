@@ -79,6 +79,8 @@ General Options:
 Test Options:
   -f, --force           force some behaviour
   -l FILE, --list=FILE  open a list file
+
+The parameter parameter is not optional.
 overrideCB: got option '?'
 
 check help option and usage message
@@ -112,4 +114,6 @@ General Options:
 Test Options:
   -f, --force           force some behaviour
   -l FILE, --list=FILE  open a list file
+
+The parameter parameter is not optional.
 overrideCB: got option '?'

@@ -158,13 +158,17 @@ described in the ``FLAGS VALUES'' section below.
 .PP
 The array of
 .I long_options
-pmLongOpts structures must be sentinel terminated and the
+pmLongOpts structures must be terminated by a sentinel and the
 PMAPI_OPTIONS_END macro can be used to effect this termination.
 Individual records within the
 .I long_options
 array can be of two types \- options headers, or actual options.
 An options header is constructed using the PMAPI_OPTIONS_HEADER
 macro, and is used for usage message option grouping.
+Free form text can be inserted into the usage message at any
+point using the PMAPI_OPTIONS_TEXT macro \- this is intended
+for additional explanatory text covering detailed usage that
+is beyond the scope of the individual headers or options.
 Otherwise, the array entry specifies an option.
 These should be named (\c
 .IR long_opt )

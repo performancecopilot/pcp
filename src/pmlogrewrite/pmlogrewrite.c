@@ -41,6 +41,8 @@ static pmLongOptions longopts[] = {
     { "scale", 0, 's', 0, "do scale conversion" },
     { "verbose", 0, 'v', 0, "increased diagnostic verbosity" },
     { "warnings", 0, 'w', 0, "emit warnings [default is silence]" },
+    PMAPI_OPTIONS_TEXT(""),
+    PMAPI_OPTIONS_TEXT("output-archive is required unless -i is specified"),
     PMAPI_OPTIONS_END
 };
 
