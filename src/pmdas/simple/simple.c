@@ -127,7 +127,7 @@ static char	mypath[MAXPATHLEN];
 
 /* command line option handling - both short and long options */
 static pmLongOptions longopts[] = {
-    PMAPI_OPTIONS_HEADER("Options"),
+    PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,

@@ -30,7 +30,7 @@ extern int _isDSO;
 
 static pmdaInterface dispatch;
 static pmLongOptions longopts[] = {
-    PMAPI_OPTIONS_HEADER("Options"),
+    PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
