@@ -8,9 +8,9 @@
 <affiliation>
 <orgname>The Performance Co-Pilot Development Team</orgname>
 <address>
-<email>pcp@oss.sgi.com</email>
+<email>pcp@mail.performancecopilot.org</email>
 <otheraddr>
-<ulink url="http://oss.sgi.com/projects/pcp/"/>
+<ulink url="http://www.performancecopilot.org"/>
 <inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
@@ -25,6 +25,7 @@
 
 <copyright>
 <year>2013</year>
+<year>2014</year>
 <holder>Red Hat, Inc.</holder>
 </copyright>
 
@@ -137,7 +138,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term><ulink url="http://oss.sgi.com/projects/pcp/">http://oss.sgi.com/projects/pcp/</ulink></term>
+<term><ulink url="http://www.performancecopilot.org">http://www.performancecopilot.org</ulink></term>
 <listitem><para>PCP is open source software released under
 the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>
