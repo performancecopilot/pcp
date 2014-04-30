@@ -1361,7 +1361,7 @@ For brevity, we have shown only the latest interface version (six) above, but al
     pmdaEndContextCallBack e_endCallBack;  /* callback after client context closed */
 } pmdaExt;</programlisting>
 </example>
-<para><indexterm id="IG31340177202"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177203"><primary>pmdaDSO man page</primary></indexterm><indexterm id="IG31340177204"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177205"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177206"><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command>pmdaDaemon(3)</command>, <command>pmdaDSO(3)</command>, <command>pmdaGetOpt(3)</command>, <command>pmdaInit(3)</command>, and <command>pmdaConnect(3)</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
+<para><indexterm id="IG31340177202"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177203"><primary>pmdaDSO man page</primary></indexterm><indexterm id="IG31340177204"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177205"><primary>pmdaGetOptions man page</primary></indexterm><indexterm id="IG31340177206"><primary>pmdaInit man page</primary></indexterm>The <filename>pmdaExt</filename> structure contains filenames, pointers to tables, and some variables shared by several functions in the <filename>pcp_pmda </filename>library. All fields of the <filename>pmdaInterface</filename> and <filename>pmdaExt</filename> structures can be correctly set by PMDA initialization functions; see the <command>pmdaDaemon(3)</command>, <command>pmdaDSO(3)</command>, <command>pmdaGetOptions(3)</command>, <command>pmdaInit(3)</command>, and <command>pmdaConnect(3)</command> man pages for a full description of how various fields in these structures may be set or used by <filename>pcp_pmda</filename> library functions.</para>
 </section>
 </section>
 <section id="LE19047-PARENT">
@@ -1475,17 +1475,34 @@ void simple_init(pmdaInterface *dp)
 </listitem>
 <listitem><para>Handle incoming PDUs</para>
 </listitem></itemizedlist>
-<para><indexterm id="IG31340177220"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177221"><primary>pmdaGetOpt man page</primary></indexterm><indexterm id="IG31340177222"><primary>pmdaOpenLog man page</primary></indexterm><indexterm id="IG31340177223"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177224"><primary>pmdaMain man page</primary></indexterm>All these requirements can be handled by default initialization functions in the <filename>pcp_pmda</filename> library; see the <command>pmdaDaemon(3)</command>, <command>pmdaGetOpt(3)</command>, <command>pmdaOpenLog(3)</command>, <command>pmdaConnect(3)</command>, and <command>pmdaMain(3)</command> man pages.</para>
+<para><indexterm id="IG31340177220"><primary>pmdaDaemon man page</primary></indexterm><indexterm id="IG31340177221"><primary>pmdaGetOptions man page</primary></indexterm><indexterm id="IG31340177222"><primary>pmdaOpenLog man page</primary></indexterm><indexterm id="IG31340177223"><primary>pmdaConnect man page</primary></indexterm><indexterm id="IG31340177224"><primary>pmdaMain man page</primary></indexterm>All these requirements can be handled by default initialization functions in the <filename>pcp_pmda</filename> library; see the <command>pmdaDaemon(3)</command>, <command>pmdaGetOptions(3)</command>, <command>pmdaOpenLog(3)</command>, <command>pmdaConnect(3)</command>, and <command>pmdaMain(3)</command> man pages.</para>
 <note><para>Optionally, a daemon PMDA may wish to reduce or change its privilege level, as seen in <xref linkend="Z976058585sdc"/> and <xref linkend="Z976058770sdc"/>. Some performance domains <literal>require</literal> the extraction process to run as a specific user in order to access the instrumentation. Many domains require the default <literal>root</literal> level of access for a daemon PMDA.</para></note>
-<para><indexterm id="IG31340177225"><primary>pmdaGetOpt man page</primary></indexterm>The simple PMDA requires only one additional command-line arguments to those handled by <command>pmdaGetOpt</command> as shown in <xref linkend="Z964110483sdc"/>. For additional information, see the <command>pmdaGetOpt(3)</command> man page.</para>
+<para><indexterm id="IG31340177225"><primary>pmdaGetOptions man page</primary></indexterm>The simple PMDA specifies the command-line arguments it accepts using <command>pmdaGetOptions</command>, as shown in <xref linkend="Z964110483sdc"/>. For additional information, see the <command>pmdaGetOptions(3)</command> man page.</para>
 <example id="Z964110483sdc">
 <title><literal>main</literal> in the Simple PMDA</title>
-<programlisting>int
+<programlisting>static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER(&#x201C;Options&#x201D;),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_TEXT(&#x201C;\nExactly one of the following options may appear:&#x201D;),
+    PMDAOPT_INET,
+    PMDAOPT_PIPE,
+    PMDAOPT_UNIX,
+    PMDAOPT_IPV6,
+    PMDA_OPTIONS_END
+};
+static pmdaOptions opts = {
+    .short_options = &#x201C;D:d:i:l:pu:U:6:?&#x201D;,
+    .long_options = longopts,
+};
+
+int
 main(int argc, char **argv)
 {
-    int                 c, err = 0;
     pmdaInterface       dispatch;
-    char                *p;
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -1493,17 +1510,13 @@ main(int argc, char **argv)
     pmdaDaemon(&amp;dispatch, PMDA_INTERFACE_2, pmProgname, SIMPLE,
                &#x201C;simple.log&#x201D;, &#x201C;${PCP_PMDAS_DIR}/simple/help&#x201D;);
 
-    while ((c = pmdaGetOpt(argc, argv, &#x201C;D:d:i:l:pu:6:U:?&#x201D;, &amp;dispatch, &amp;err)) != EOF) {
-        switch(c) {
-        case 'U':
-            username = optarg;
-            break;
-        default:
-            err++;
-        }
+    pmdaGetOptions(argc, argv, &amp;opts, &amp;dispatch);
+    if (opts.errors) {
+        pmdaUsageMessage(&amp;opts);
+        exit(1);
     }
-    if (err)
-        usage();
+    if (opts.username)
+        username = opts.username;
 
     pmdaOpenLog(&amp;dispatch);
     simple_init(&amp;dispatch);
@@ -1536,7 +1549,7 @@ main(int argc, char **argv)
 <para><indexterm id="IG31340177231"><primary>pmdbg man page</primary></indexterm><indexterm id="IG31340177232"><primary>debugging flags</primary><see>flags</see></indexterm><indexterm id="IG31340177233"><primary>flags</primary><secondary>debugging</secondary></indexterm>You can activate  debugging flags in PMCD and most other PCP tools with the <literal>-D</literal> command-line option. Supported flags can be listed with the <command>pmdbg</command> command; see the <command>pmdbg(1)</command> man page. Setting the debug flag for PMCD in <filename>${PCP_PMCDOPTIONS_PATH}</filename> might generate too much information to be useful, especially if there are other clients and PMDAs connected to the PMCD process.</para>
 <para>The PMCD debugging flag can also be changed dynamically by storing a new value into the metric <literal>pmcd.control.debug</literal>:</para>
 <programlisting># <emphasis role="bold">pmstore pmcd.control.debug 5</emphasis></programlisting>
-<para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOpt</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
+<para>Most of the <filename>pcp_pmda</filename> library functions log additional information if the <literal>DBG_TRACE_LIBPMDA</literal> flag is set within the PMDA; see the <command>PMDA(3)</command> man page. The command-line argument <command>-D</command> is trapped by <command>pmdaGetOptions</command> to set the global debugging control variable <literal>pmDebug</literal>. Adding tests within the PMDA for the <literal>DBG_TRACE_APPL0</literal>, <literal>DBG_TRACE_APPL1</literal>, and <literal>DBG_TRACE_APPL2</literal> trace flags permits different levels of information to be logged to the PMDA's log file.</para>
 <para>All diagnostic, debugging, and tracing output from a PMDA should be written to the standard error stream. By convention, all debugging information is enclosed by preprocessor <literal>#ifdef</literal> <command>PCP_DEBUG</command> statements so that they can be compiled out of the program at a later stage, if required, although this is rarely done in practice.</para>
 <para><indexterm id="IG31340177234"><primary>simple_store function</primary></indexterm>Adding this segment of code to the <command>simple_store</command> metric causes a timestamped log message to be sent to the current log file whenever <command>pmstore</command> attempts to change <literal>simple.numfetch</literal> and <command>pmDebug</command> has the <literal>DBG_TRACE_APPL0</literal> flag set as shown in <xref linkend="Z976060060sdc"/>:</para>
 <example id="Z976060060sdc">
@@ -1567,7 +1580,7 @@ main(int argc, char **argv)
 </section>
 <section id="id5195340">
 
-<title>Integration of PMDA</title>
+<title>Integration of a PMDA</title>
 <para><indexterm id="IG31340177237"><primary>PMDA</primary><secondary>integration</secondary></indexterm>Several steps are required to install (or remove) a PMDA from a production PMCD environment without affecting the operation of other PMDAs or related visualization and logging tools.<indexterm id="IG31340177238"><primary>integrating a PMDA</primary></indexterm></para>
 <para>The PMDA typically would have its own directory below <filename>${PCP_PMDAS_DIR}</filename> into which several files would be installed. In the description in <xref linkend="LE55181-PARENT"/>, the PMDA of interest is assumed to be known by the name <filename>newbie</filename>, hence the PMDA directory would be <filename>${PCP_PMDAS_DIR}/newbie</filename>.</para>
 <note><para>Any installation or removal of a PMDA involves updating files and directories that are typically well protected. Hence the procedures described in this section must be executed as the superuser.</para>
@@ -4750,7 +4763,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>integrating a PMDA <link linkend="IG31340177238">Integration of PMDA</link></primaryie>
+   <primaryie>integrating a PMDA <link linkend="IG31340177238">Integration of a PMDA</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -5179,7 +5192,7 @@ trace.transact.rate</literallayout>
       <secondaryie>help text <link linkend="IG31340177157">PMDA Help Text</link></secondaryie>
       <secondaryie>initialization <link linkend="IG31340177207">Initializing a PMDA</link></secondaryie>
       <secondaryie>Install script <link linkend="IG31340177240">Installing a PMDA</link> <link linkend="IG31340177246">Upgrading a PMNS to Include Metrics from a New PMDA</link></secondaryie>
-      <secondaryie>integration <link linkend="IG31340177237">Integration of PMDA</link></secondaryie>
+      <secondaryie>integration <link linkend="IG31340177237">Integration of a PMDA</link></secondaryie>
       <secondaryie>interface <link linkend="IG31340177178">PMDA Interface</link></secondaryie>
       <secondaryie>introduction <link linkend="IG313401773">Programming Performance Co-Pilot</link></secondaryie>
       <secondaryie>man page <link linkend="IG3134017720">Distributed Collection</link></secondaryie>
@@ -5240,7 +5253,7 @@ trace.transact.rate</literallayout>
 </indexentry>
 
 <indexentry>
-   <primaryie>pmdaGetOpt man page <link linkend="IG31340177205">PMDA Structures</link> <link linkend="IG31340177221">Daemon Initialization</link> <link linkend="IG31340177225">Daemon Initialization</link></primaryie>
+   <primaryie>pmdaGetOptions man page <link linkend="IG31340177205">PMDA Structures</link> <link linkend="IG31340177221">Daemon Initialization</link> <link linkend="IG31340177225">Daemon Initialization</link></primaryie>
 </indexentry>
 
 <indexentry>
