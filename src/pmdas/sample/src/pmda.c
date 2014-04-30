@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -10,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
@@ -29,8 +26,27 @@
 extern void sample_init(pmdaInterface *);
 extern int sample_done;
 extern int not_ready;
+extern int _isDSO;
 
-static pmdaInterface	dispatch;
+static pmdaInterface dispatch;
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_TEXT("\nExactly one of the following options may appear:"),
+    PMDAOPT_INET, 
+    PMDAOPT_PIPE,
+    PMDAOPT_UNIX,
+    PMDAOPT_IPV6,
+    PMDA_OPTIONS_END
+};
+static pmdaOptions opts = {
+    .short_options = "D:d:i:l:pu:U:6:?",
+    .long_options = longopts,
+};
 
 /*
  * simulate PMDA busy (not responding to PDUs)
@@ -65,31 +81,12 @@ done(void)
 	exit(0);
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "\nExactly one of the following options may appear:\n"
-	  "  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n"
-	  "  -i port      expect PMCD to connect on given inet port (number or name)\n"
-	  "  -p           expect PMCD to supply stdin/stdout (pipe)\n"
-	  "  -u socket    expect PMCD to connect on given unix domain socket\n"
-	  "  -U username  run under specified user account\n",
-	  stderr);		
-    exit(1);
-}
-
 int
 main(int argc, char **argv)
 {
-    int			c, errflag = 0;
     int			sep = __pmPathSeparator();
     char		helppath[MAXPATHLEN];
     char		*username;
-    extern int		_isDSO;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -100,21 +97,14 @@ main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_LATEST, pmProgname, SAMPLE,
 		"sample.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?",
-				&dispatch, &errflag)) != EOF) {
-	switch (c) {
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    errflag++;
-	    break;
-	}
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
-    if (errflag)
-	usage();
-
     pmdaOpenLog(&dispatch);
+    if (opts.username)
+	username = opts.username;
     __pmSetProcessIdentity(username);
 
     sample_init(&dispatch);
@@ -124,8 +114,8 @@ main(int argc, char **argv)
 
 #ifdef HAVE_SIGHUP
     /*
-     * Non-DSO agents should ignore gratuitous SIGHUPs, e.g. from xwsh
-     * when launched by the PCP Tutorial!
+     * Non-DSO agents should ignore gratuitous SIGHUPs, e.g. from a
+     * terminal when launched by the PCP Tutorial!
      */
     signal(SIGHUP, SIG_IGN);
 #endif
