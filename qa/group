@@ -925,6 +925,7 @@ avahi
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
 876 pmda.xfs local oss
+897 pmlc pmlogger local oss
 900 libpcp sanity local oss
 928 archive local oss
 929 logutil local oss

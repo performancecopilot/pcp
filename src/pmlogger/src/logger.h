@@ -151,7 +151,7 @@ extern void init_ports(void);
 extern int control_req(int ctlfd);
 extern int client_req(void);
 extern __pmHashCtl	hist_hash;
-extern unsigned int	clientops;	/* access control (deny ops) */
+extern unsigned int	denyops;	/* for access control (ops not allowed) */
 extern struct timeval	last_stamp;
 extern int		clientfd;
 #define CFD_INET	0

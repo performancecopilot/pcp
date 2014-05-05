@@ -558,7 +558,7 @@ init_ports(void)
  */
 
 int		clientfd = -1;
-unsigned int	clientops = 0;		/* for access control (deny ops) */
+unsigned int	denyops = 0;		/* for access control (ops not allowed) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
@@ -657,7 +657,7 @@ control_req(int ctlfd)
     if (hostName != NULL)
 	free(hostName);
 
-    sts = __pmAccAddClient(addr, &clientops);
+    sts = __pmAccAddClient(addr, &denyops);
     if (sts < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
