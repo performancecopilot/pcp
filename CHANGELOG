@@ -1,3 +1,25 @@
+pcp-3.9.3 (14 May 2014)
+    - Under development
+    - pmlogger: improved archive I/O features, esp for access to
+      archives while they are actively being written
+    - pmlogger/pmlc: all flushing operations are now no-ops, but
+      they remain available for backward compatibility
+    - pcp-free: use pmConvScale in case metric units ever change
+    - pmlogmv: fix a couple of argument handling corner cases
+    - another round of IPv6 updates throughout PCP, making use
+      of __pm* networking APIs instead of e.g. gethostbyname.
+    - archive utilities updated for long option support:
+      pmdumplog, pmlogcheck, pmlogextract, pmlogger, pmloglabel,
+      pmlogreduce, pmlogrewrite and pmlogsummary
+    - PMDAs with long option support:
+      pmdaapache, pmdabash, pmdagfs2, pmdasample, pmdasimple,
+      pmdatrivial
+    - libpcp: allow addition of free-form text to usage messages
+    - pmgetopt: new cross-platform long option handling utility,
+      allowing pcp shell scripts to acquire long option support
+    - shell scripts updated to support long options:
+      pcp, pmlogmv
+
 pcp-3.9.2 (15 April 2014)
     - python api: direct support for creating derived metrics
     - python api: fix C strings memory leak in pmExtractValue
