@@ -22,7 +22,7 @@ static char	*mechanism;
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Discovery options"),
     PMOPT_DEBUG,
-    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|...|all]" },
+    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
     { "service", 1, 's', "NAME", "discover local services [pmcd|...]" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },

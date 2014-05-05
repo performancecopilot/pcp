@@ -313,6 +313,7 @@ pmns.o
 p_pmns.o
 p_profile.o
 p_result.o
+probe.o
 profile.o
 p_text.o
 rtime.o
