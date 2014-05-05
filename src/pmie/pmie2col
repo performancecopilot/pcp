@@ -22,6 +22,11 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+prog=`basename $0`
+
 # For interactive use, works better with line buffered output from sed(1)
 # and awk(1).
 #
@@ -38,9 +43,18 @@ in
 	;;
 esac
 
+echo > $tmp/usage
+cat >> $tmp/usage <<EOF
+Options:
+  -d=CHAR,--delimiter=CHAR   set the output delimiter character
+  -p=N,--precision=N   set the output floating point precision
+  -w=N,--width=N       set the width of each column of output
+  --help
+EOF
+
 _usage()
 {
-    echo "Usage: pmie2col [-w width] [-d delimiter] [-p precision]"
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
     exit 1
 }
 
@@ -48,30 +62,33 @@ pre=2	# floating point precision
 wid=7	# reporting column width
 delim=' '
 
-while getopts "d:p:w:?" c
-do
-    case "$c"
-    in
-	w)
-	    wid="$OPTARG"
-	    ;;
-	p)
-	    pre="$OPTARG"
-	    ;;
-	d)
-	    delim="$OPTARG"
-	    ;;
-	*)
-	    _usage
-	    ;;
-    esac
-done
-shift `expr $OPTIND - 1`
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
 
-if [ $# -ne 0 ]
-then
-    _usage
-fi
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-w)	wid="$2"
+		shift
+		;;
+	-p)	pre="$2"
+		shift
+		;;
+	-d)	delim="$2"
+		shift
+		;;
+	--)	shift
+		break
+		;;
+	-\?)	_usage
+		;;
+    esac
+    shift
+done
+
+[ $# -eq 0 ] || _usage
 
 # culled output at the start is produced by pmie and/or pmafm
 $SED \
@@ -111,3 +128,6 @@ NF == 3 && stamp == ""		{ stamp = $2 }
 state == 0			{ if (i == 0 && stamp != "") printf "%24s ",""
 				  printf "%s%'$wid'.'$wid's",delim,$1 }
 				{ v[i++] = $NF }'
+
+status=0
+exit

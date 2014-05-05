@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # stop and restart a pmlogger instance
 #
 
@@ -50,21 +47,36 @@ args=""
 sock_me=""
 proxyhost="$PMPROXY_HOST"
 proxyport="$PMPROXY_PORT"
-usage="Usage: $prog [options] archive
 
-options: any combination of pmnewlog and most pmlogger options
+cat > $tmp/usage << EOF
+# Usage: [options] archive
 
 pmnewlog options:
-  -a accessfile   specify access controls for the new pmlogger
-  -C saveconfig   save the configuration of new pmlogger in saveconfig
-  -c configfile   file to load configuration from
-  -N              perform a dry run (like \`make -n')
-  -n pmnsfile     use an alternative PMNS
-  -P              execute as primary logger instance
-  -p pid          restart non-primary logger with pid
-  -s              use pmsocks
-  -V              turn on verbose reporting of pmnewlog progress"
+  -a=FILE,--access=FILE  specify access controls for the new pmlogger
+  -C=FILE,--save=FILE    save the configuration of new pmlogger in FILE
+  -c=FILE,--config=FILE  file to load configuration from
+  -N,--showme            perform a dry run, showing what would be done
+  --namespace
+  -P,--primary           execute as primary logger instance
+  -p=PID,--pid=PID       restart non-primary logger with pid
+  -s,--socks             use pmsocks
+  -V,--verbose           turn on verbose reporting of pmnewlog progress
+  --help
 
+pmlogger options:
+  --debug
+  -c=FILE,--config=FILE  file to load configuration from
+  -l=FILE, --log=FILE    redirect diagnostics and trace output
+  -L, --linger           run even if not primary logger instance and nothing to log
+  -m=MSG, --note=MSG     descriptive note to be added to the port map file
+  --namespace
+  -P, --primary          execute as primary logger instance
+  -r, --report           report record sizes and archive growth rate
+  -t=DELTA, --interval=DELTA  default logging interval
+  -T=TIME, --finish=TIME end of the time window
+  -v=SIZE, --volsize=SIZE  switch log volumes after size has been accumulated
+  -y                     set timezone for times to local time rather than from PMCD host
+EOF
 
 _abandon()
 {
@@ -181,39 +193,46 @@ _do_cmd()
 # part of the pmlogger control file for a long-running pmlogger.
 #
 
-while getopts "a:C:c:D:Ll:Nm:n:Pp:rst:T:Vv:y" c
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
 
 # pmnewlog options and flags
 #
 
-	a)	access="$OPTARG"
-		if [ ! -f $access ]
+	-a)	access="$2"
+		shift
+		if [ ! -f "$access" ]
 		then
 		    echo "$prog: Error: cannot find accessfile ($access)"
 		    _abandon
 		fi
 		;;
 
-	C)	saveconfig="$OPTARG"
+	-C)	saveconfig="$2"
+		shift
 		;;
 
-	N)	SHOWME=true
+	-N)	SHOWME=true
 		CP="echo + cp"
 		MV="echo + mv"
 		RM="echo + rm"
 		KILL="echo + kill"
 		;;
 
-	p)	pid=$OPTARG
+	-p)	pid=$2
+		shift
 		primary=false
 		myname="pmlogger (process $pid)"
 		connect=$pid
 		;;
 
-	s)	if which pmsocks >/dev/null 2>&1
+	-s)	if which pmsocks >/dev/null 2>&1
                 then
                     sock_me="pmsocks "
                 else
@@ -222,16 +241,17 @@ do
                 fi
 		;;
 
-	V)	VERBOSE=true
+	-V)	VERBOSE=true
 		;;
 
 # pmlogger options and flags that need special handling
 #
 
-	c)	config="$OPTARG"
-		if [ ! -f $config ]
+	-c)	config="$2"
+		shift
+		if [ ! -f "$config" ]
 		then
-		    if [ -f $PCP_SYSCONF_DIR/pmlogger/$config ]
+		    if [ -f "$PCP_SYSCONF_DIR/pmlogger/$config" ]
 		    then
 			config="$PCP_SYSCONF_DIR/pmlogger/$config"
 		    else
@@ -241,49 +261,54 @@ do
 		fi
 		;;
 
-	l)	logfile="$OPTARG"
+	-l)	logfile="$2"
+		shift
 		;;
 
-	n)	namespace="-n $OPTARG"
-		args="$args-$c $OPTARG "
+	-n)	namespace="-n $2"
+		args="${args}$1 $2 "
+		shift
 		;;
 
-	P)	primary=true
+	-P)	primary=true
 		myname="primary pmlogger"
 		;;
 
 # pmlogger flags passed through
 #
 
-	L|r|y)
-		args="$args-$c "
+	-L|-r|-y)
+		args="${args}$1 "
 		;;
 
-	D|m|t|T|v)
-		args="$args-$c $OPTARG "
+	-D|-m|-t|-T|-v)
+		args="${args}$1 $2 "
+		shift
 		;;
 
-# oops
-#
-	
-	\?)	echo "$usage"
+	--)	# end of options, start of arguments
+		shift
+		break
+		;;
+
+	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
 		_abandon
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 if [ $# -ne 1 ]
 then
-    echo "$usage"
-    echo
-    echo "Not enough arguments"
+    echo "$prog: Insufficient arguments" >&2
+    echo >&2
+    pmgetopt --usage --progname=$prog --config=$tmp/usage
     _abandon
 fi
 
 # initial sanity checking for new archive name
 #
-archive=$1
+archive="$1"
 
 # check that designated pmlogger is really running
 #

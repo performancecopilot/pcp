@@ -3,14 +3,14 @@ QA output created by 738
 Usage: pmlogmv [options] oldname newname
 
 Options:
-  -N, --showme          make no modifications, show what would be done
+  -N, --showme          perform a dry run, showing what would be done
   -V, --verbose         increase diagnostic verbosity
   -?, --help            show this usage message and exit
 exit status 1
 Usage: pmlogmv [options] oldname newname
 
 Options:
-  -N, --showme          make no modifications, show what would be done
+  -N, --showme          perform a dry run, showing what would be done
   -V, --verbose         increase diagnostic verbosity
   -?, --help            show this usage message and exit
 exit status 1

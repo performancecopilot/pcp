@@ -1,7 +1,7 @@
 #! /bin/sh
 #
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat, Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -97,28 +97,28 @@ fi
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 
+echo > $tmp/usage
+cat >> $tmp/usage <<EOF
+Options:
+  -c=FILE,--control=FILE  pmlogger control file
+  -k=N,--discard=N        remove archives after N days
+  -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
+  -M		          do not rewrite, merge or rename archives
+  -N,--showme             perform a dry run, showing what would be done
+  -o                      merge yesterdays logs only (old form, default is all) 
+  -r,--norewrite          do not process archives with pmlogrewrite(1)
+  -s=SIZE,--rotate=SIZE   rotate NOTICES file after reaching SIZE bytes
+  -t=WANT                 implies -VV, keep verbose output trace for WANT days
+  -V,--verbose            verbose output (multiple times for very verbose)
+  -x=N,--compress-after=N  compress archive data files after N days
+  -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for archive data file compression
+  -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX"]
+  --help
+EOF
+
 _usage()
 {
-    cat - <<EOF
-Usage: $prog [options]
-
-Options:
-  -c control    pmlogger control file
-  -k discard    remove archives after "discard" days
-  -m addresses  send daily NOTICES entries to email addresses
-  -M		do not rewrite, merge or rename archives
-  -N            show-me mode, no operations performed
-  -o            (old style) merge logs only from yesterday
-                [default is to merge all possible logs before today]
-  -r            do not process archives with pmlogrewrite(1)
-  -s size       rotate NOTICES file after reaching size bytes
-  -t want       implies -VV and keep trace of verbose output for "want"
-                days
-  -V            verbose output (-VV for very verbose)
-  -x compress   compress archive data files after "compress" days
-  -X program    use program for archive data file compression
-  -Y regex      egrep filter for files to compress ["$COMPRESSREGEX"]
-EOF
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
     status=1
     exit
 }
@@ -134,13 +134,19 @@ TRACE=0
 RFLAG=false
 MFLAG=false
 
-while getopts c:k:m:MNors:t:Vx:X:Y:? c
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	c)	CONTROL="$OPTARG"
+	-c)	CONTROL="$2"
+		shift
 		;;
-	k)	CULLAFTER="$OPTARG"
+	-k)	CULLAFTER="$2"
+		shift
 		check=`echo "$CULLAFTER" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" -a X"$check" != Xforever ]
 		then
@@ -149,19 +155,21 @@ do
 		    exit
 		fi
 		;;
-	m)	MAILME="$OPTARG"
+	-m)	MAILME="$2"
+		shift
 		;;
-	N)	SHOWME=true
+	-N)	SHOWME=true
 		MYARGS="$MYARGS -N"
 		;;
-	M)	MFLAG=true
+	-M)	MFLAG=true
 		RFLAG=true
   		;;
-	o)	OFLAG=true
+	-o)	OFLAG=true
 		;;
-	r)	RFLAG=true
+	-r)	RFLAG=true
 		;;
-	s)	ROLLNOTICES="$OPTARG"
+	-s)	ROLLNOTICES="$2"
+		shift
 		check=`echo "$ROLLNOTICES" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" ]
 		then
@@ -170,7 +178,8 @@ do
 		    exit
 		fi
 		;;
-	t)	TRACE="$OPTARG"
+	-t)	TRACE="$2"
+		shift
 		# from here on, all stdout and stderr output goes to
 		# $PCP_LOG_DIR/pmlogger/daily.<date>.trace
 		#
@@ -179,7 +188,7 @@ do
 		VERY_VERBOSE=true
 		MYARGS="$MYARGS -V -V"
 		;;
-	V)	if $VERBOSE
+	-V)	if $VERBOSE
 		then
 		    VERY_VERBOSE=true
 		else
@@ -187,7 +196,8 @@ do
 		fi
 		MYARGS="$MYARGS -V"
 		;;
-	x)	COMPRESSAFTER="$OPTARG"
+	-x)	COMPRESSAFTER="$2"
+		shift
 		check=`echo "$COMPRESSAFTER" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" ]
 		then
@@ -196,19 +206,24 @@ do
 		    exit
 		fi
 		;;
-	X)	COMPRESS="$OPTARG"
+	-X)	COMPRESS="$2"
+		shift
 		;;
-	Y)	COMPRESSREGEX="$OPTARG"
+	-Y)	COMPRESSREGEX="$2"
+		shift
 		;;
-	?)	_usage
+	--)	shift
+		break
+		;;
+	-\?)	_usage
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 [ $# -ne 0 ] && _usage
 
-if [ ! -f $CONTROL ]
+if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
     status=1

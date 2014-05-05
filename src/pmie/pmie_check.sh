@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 1998-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -91,43 +91,63 @@ VERBOSE=false
 VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMIE=true
-usage="Usage: $prog [-CNsTV] [-c control]"
-while getopts c:CNsTV? c
+
+echo > $tmp/usage
+cat >> $tmp/usage << EOF
+Options:
+  -c=FILE,--control=FILE  configuration of pmie instances to manage
+  -C                      query system service runlevel information
+  -N,--showme             perform a dry run, showing what would be done
+  -s,--stop               stop pmie processes instead of starting them
+  -T,--terse              produce a terser form of output
+  -V,--verbose            increase diagnostic verbosity
+  --help
+EOF
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	c)	CONTROL="$OPTARG"
+	-c)	CONTROL="$2"
+		shift
 		;;
-	C)	CHECK_RUNLEVEL=true
+	-C)	CHECK_RUNLEVEL=true
 		;;
-	N)	SHOWME=true
+	-N)	SHOWME=true
 		MV="echo + mv"
 		RM="echo + rm"
 		CP="echo + cp"
 		KILL="echo + kill"
 		;;
-	s)	START_PMIE=false
+	-s)	START_PMIE=false
 		;;
-	T)	TERSE=true
+	-T)	TERSE=true
 		;;
-	V)	if $VERBOSE
+	-V)	if $VERBOSE
 		then
 		    VERY_VERBOSE=true
 		else
 		    VERBOSE=true
 		fi
 		;;
-	?)	echo "$usage"
+	--)	shift
+		break
+		;;
+	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
 		status=1
 		exit
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 if [ $# -ne 0 ]
 then
-    echo "$usage"
+    pmgetopt --usage --progname=$prog --config=$tmp/usage
     status=1
     exit
 fi

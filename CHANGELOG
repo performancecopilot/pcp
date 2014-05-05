@@ -18,7 +18,10 @@ pcp-3.9.3 (14 May 2014)
     - pmgetopt: new cross-platform long option handling utility,
       allowing pcp shell scripts to acquire long option support
     - shell scripts updated to support long options:
-      pcp, pmlogmv
+      pcp, pmie2col, pmie_check, pmie_daily, pmlogger_check,
+      pmlogger_daily, pmlogger_merge, pmlogmv, pmnewlog, pmwtf
+    - pmlogger: improve pmlc access controls
+    - man pages: more detailed pmlc/pmlogger access control docs
 
 pcp-3.9.2 (15 April 2014)
     - python api: direct support for creating derived metrics

@@ -1,21 +1,41 @@
 QA output created by 183
 === usage ===
+pmnewlog: Insufficient arguments
+
 Usage: pmnewlog [options] archive
 
-options: any combination of pmnewlog and most pmlogger options
-
 pmnewlog options:
-  -a accessfile   specify access controls for the new pmlogger
-  -C saveconfig   save the configuration of new pmlogger in saveconfig
-  -c configfile   file to load configuration from
-  -N              perform a dry run (like `make -n')
-  -n pmnsfile     use an alternative PMNS
-  -P              execute as primary logger instance
-  -p pid          restart non-primary logger with pid
-  -s              use pmsocks
-  -V              turn on verbose reporting of pmnewlog progress
+  -a FILE, --access=FILE
+                        specify access controls for the new pmlogger
+  -C FILE, --save=FILE  save the configuration of new pmlogger in FILE
+  -c FILE, --config=FILE
+                        file to load configuration from
+  -N, --showme          perform a dry run, showing what would be done
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -P, --primary         execute as primary logger instance
+  -p PID, --pid=PID     restart non-primary logger with pid
+  -s, --socks           use pmsocks
+  -V, --verbose         turn on verbose reporting of pmnewlog progress
+  -?, --help            show this usage message and exit
 
-Not enough arguments
+pmlogger options:
+  -c FILE, --config=FILE
+                        file to load configuration from
+  -l FILE, --log=FILE   redirect diagnostics and trace output
+  -L, --linger          run even if not primary logger instance and nothing to log
+  -m MSG, --note=MSG    descriptive note to be added to the port map file
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -P, --primary         execute as primary logger instance
+  -r, --report          report record sizes and archive growth rate
+  -t DELTA, --interval=DELTA
+                        default logging interval
+  -T TIME, --finish=TIME
+                        end of the time window
+  -v SIZE, --volsize=SIZE
+                        switch log volumes after size has been accumulated
+  -y                    set timezone for times to local time rather than from PMCD host
 
 Sorry, but this is fatal.  No new pmlogger instance has been started.
 
