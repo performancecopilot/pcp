@@ -1355,12 +1355,13 @@ do_request(__pmPDU *pb)
 	    break;
 
 	case LOG_REQUEST_SYNC:
-	    if (denyops & PM_OP_LOG_MAND)
-		sts = __pmSendError(clientfd, FROM_ANON, PM_ERR_PERMISSION);
-	    else {
-		/* no-op now I/O is unbuffered */
-		sts = __pmSendError(clientfd, FROM_ANON, 0);
-	    }
+	    /*
+	     * Don't need to check access controls, as this is now
+	     * a no-op with unbuffered I/O from pmlogger.
+	     *
+	     * Do nothing, simply send status 0 back to pmlc.
+	     */
+	    sts = __pmSendError(clientfd, FROM_ANON, 0);
 	    break;
 
 	/*
