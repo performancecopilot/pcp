@@ -20,16 +20,6 @@ static int apiflag;
 static const char *empty = "";
 static const char *none = "false";
 
-/* detect shell special characters that will need backslash-prefixing */
-static int
-isspecial(int c)
-{
-    if (c == '\n' || c == '\r' || c == '\\' ||
-	c == '"' || c == '`' || c == '$' || c == '!')
-	return 1;
-    return 0;
-}
-
 static void
 direct_report(const char *var, const char *val)
 {
@@ -49,18 +39,23 @@ export_report(const char *var, const char *val)
         val = empty;
     else {
 	/* ensure we do not leak any problematic characters into export */
-	for (p = val; p != '\0' && i < sizeof(buffer)-1; p++) {
-	    if (isspecial((int)*p))
+	for (p = val; *p != '\0' && i < sizeof(buffer)-6; p++) {
+	    if ((int)*p == '\'') {
+		buffer[i++] = '\'';
 		buffer[i++] = '\\';
-	    buffer[i++] = *p;
+		buffer[i++] = '\'';
+		buffer[i++] = '\'';
+	    } else {
+		buffer[i++] = *p;
+	    }
 	}
 	buffer[i] = '\0';
 	val = buffer;
     }
     if (apiflag)	/* API mode: no override allowed */
-	printf("export %s=\"%s\"\n", var, val);
+	printf("export %s='%s'\n", var, val);
     else
-	printf("export %s=${%s:-\"%s\"}\n", var, var, val);
+	printf("export %s=${%s:-'%s'}\n", var, var, val);
 }
 
 static void
