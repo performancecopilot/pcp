@@ -994,18 +994,23 @@ do_control(__pmPDU *pb)
     sts = 0;
     switch (control) {
 	case PM_LOG_MANDATORY:
-	    if (clientops & PM_OP_LOG_MAND)
+	    if (denyops & PM_OP_LOG_MAND)
 		sts = PM_ERR_PERMISSION;
 	    break;
 
 	case PM_LOG_ADVISORY:
-	    if (clientops & PM_OP_LOG_ADV)
+	    if (denyops & PM_OP_LOG_ADV)
 		sts = PM_ERR_PERMISSION;
 	    break;
 
 	case PM_LOG_ENQUIRE:
-	    if (clientops & PM_OP_LOG_ENQ)
-		sts = PM_ERR_PERMISSION;
+	    /*
+	     * Don't need to check [access] as you have to have _some_
+	     * permission (at least one of PM_OP_LOG_ADV or PM_OP_LOG_MAND
+	     * and PM_OP_LOG_ENQ) to make a connection ... and if you
+	     * have either PM_OP_LOG_ADV or PM_OP_LOG_MAND it makes no
+	     * sense to deny PM_OP_LOG_ENQ operations.
+	     */
 	    break;
 
 	default:
@@ -1014,8 +1019,7 @@ do_control(__pmPDU *pb)
 	    break;
     }
     if (sts < 0) {
-	if (control == PM_LOG_MANDATORY || control == PM_LOG_ADVISORY)
-	    fprintf(stderr, "Error: %s\n", pmErrStr(sts));
+	fprintf(stderr, "Error: %s\n", pmErrStr(sts));
 	if ((sts = __pmSendError(clientfd, FROM_ANON, sts)) < 0)
 	    __pmNotifyErr(LOG_ERR,
 			 "do_control: error sending Error PDU to client: %s\n",
@@ -1327,19 +1331,36 @@ do_request(__pmPDU *pb)
 
     switch (type) {
 	case LOG_REQUEST_STATUS:
+	    /*
+	     * Don't need to check [access] as you have to have _some_
+	     * permission (at least one of PM_OP_LOG_ADV or PM_OP_LOG_MAND
+	     * and PM_OP_LOG_ENQ) to make a connection ... and if you
+	     * have either PM_OP_LOG_ADV or PM_OP_LOG_MAND it makes no
+	     * sense to deny LOG_REQUEST_STATUS operations.
+	     * Also, this is need internally by pmlc to discover pmcd's
+	     * hostname.
+	     */
 	    sts = sendstatus();
 	    break;
 
 	case LOG_REQUEST_NEWVOLUME:
-	    sts = newvolume(VOL_SW_PMLC);
-	    if (sts >= 0)
-		sts = logctl.l_label.ill_vol;
-	    __pmSendError(clientfd, FROM_ANON, sts);
+	    if (denyops & PM_OP_LOG_MAND)
+		sts = __pmSendError(clientfd, FROM_ANON, PM_ERR_PERMISSION);
+	    else {
+		sts = newvolume(VOL_SW_PMLC);
+		if (sts >= 0)
+		    sts = logctl.l_label.ill_vol;
+		sts = __pmSendError(clientfd, FROM_ANON, sts);
+	    }
 	    break;
 
 	case LOG_REQUEST_SYNC:
-	    /* no-op now I/O is unbuffered */
-	    __pmSendError(clientfd, FROM_ANON, 0);
+	    if (denyops & PM_OP_LOG_MAND)
+		sts = __pmSendError(clientfd, FROM_ANON, PM_ERR_PERMISSION);
+	    else {
+		/* no-op now I/O is unbuffered */
+		sts = __pmSendError(clientfd, FROM_ANON, 0);
+	    }
 	    break;
 
 	/*
@@ -1356,13 +1377,21 @@ do_request(__pmPDU *pb)
 	 */
 
 	case QA_OFF:
-	    qa_case = 0;
-	    __pmSendError(clientfd, FROM_ANON, 0);
+	    if (denyops & PM_OP_LOG_MAND)
+		sts = __pmSendError(clientfd, FROM_ANON, PM_ERR_PERMISSION);
+	    else {
+		qa_case = 0;
+		sts = __pmSendError(clientfd, FROM_ANON, 0);
+	    }
 	    break;
 
 	case QA_SLEEPY:
-	    qa_case = type;
-	    __pmSendError(clientfd, FROM_ANON, 0);
+	    if (denyops & PM_OP_LOG_MAND)
+		sts = __pmSendError(clientfd, FROM_ANON, PM_ERR_PERMISSION);
+	    else {
+		qa_case = type;
+		sts = __pmSendError(clientfd, FROM_ANON, 0);
+	    }
 	    break;
 
 	default:
