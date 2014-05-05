@@ -960,7 +960,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
     int quiet = (d->flags & PM_OPTFLAG_QUIET);
     int print_errors = d->opterr || !quiet;
 
-    if (argc < 1)
+    if (argc < 1 || !optstring)
 	return -1;
 
     d->optarg = NULL;

@@ -1,7 +1,7 @@
 #!/bin/sh
 # 
 # Copyright (c) 1997,2003 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,9 +19,25 @@
 # Operation is atomic across the multiple files of a PCP archive
 #
 
+. $PCP_DIR/etc/pcp.env
+
+sts=1
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp.*; exit \$sts" 0
+trap "_cleanup; rm -rf $tmp; exit \$sts" 1 2 3 15
+
+cat > $tmp/usage << EOF
+# Usage: [options] oldname newname
+
+Options:
+  -N, --showme    make no modifications, show what would be done
+  -V, --verbose   increase diagnostic verbosity
+  --help
+EOF
+
 _usage()
 {
-    echo >&2 "Usage: pmlogmv [-NV] oldname newname"
+    pmgetopt --progname=pmlogmv --config=$tmp/usage --usage
     exit 1
 }
 
@@ -31,31 +47,39 @@ LN=ln
 RM=rm
 RMF="rm -f"
 
-while getopts "NV?" c
+ARGS=`pmgetopt --progname=pmlogmv --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	N)	# show me
+	-N)	# show me
 	    showme=true
 	    LN='echo >&2 + ln'
 	    RM='echo >&2 + rm'
 	    RMF='echo >&2 + rm -f'
 	    ;;
-	V)	# verbose
+	-V)	# verbose
 	    verbose=true
 	    ;;
-	?)
+	-\?)
 	    _usage
-	    # NOTREADCHED
+	    # NOTREACHED
+	    ;;
+	--)
+	    shift
+	    break
 	    ;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 if [ $# -ne 2 ]
 then
     _usage
-    # NOTREADCHED
+    # NOTREACHED
 fi
 
 if [ -f "$1" ]
@@ -79,11 +103,6 @@ else
     old="$1"
 fi
 new="$2"
-
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-sts=1
-trap "_cleanup; rm -rf $tmp; exit \$sts" 1 2 3 15
-trap "rm -rf $tmp.*; exit \$sts" 0
 
 _cleanup()
 {

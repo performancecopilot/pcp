@@ -1,8 +1,18 @@
 QA output created by 738
 === Usage, no input files, incomplete input archive ===
-Usage: pmlogmv [-NV] oldname newname
+Usage: pmlogmv [options] oldname newname
+
+Options:
+  -N, --showme          make no modifications, show what would be done
+  -V, --verbose         increase diagnostic verbosity
+  -?, --help            show this usage message and exit
 exit status 1
-Usage: pmlogmv [-NV] oldname newname
+Usage: pmlogmv [options] oldname newname
+
+Options:
+  -N, --showme          make no modifications, show what would be done
+  -V, --verbose         increase diagnostic verbosity
+  -?, --help            show this usage message and exit
 exit status 1
 pmlogmv: Error: cannot find any files for the input archive (foo)
 exit status 1
