@@ -662,7 +662,7 @@ main(int argc, char **argv)
 	opts.errors++;
     }
 
-    if (opts.optind != argc - 1) {
+    if (!opts.errors && opts.optind != argc - 1) {
 	pmprintf("%s: insufficient arguments\n", pmProgname);
 	opts.errors++;
     }
