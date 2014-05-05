@@ -1337,7 +1337,7 @@ do_request(__pmPDU *pb)
 	     * and PM_OP_LOG_ENQ) to make a connection ... and if you
 	     * have either PM_OP_LOG_ADV or PM_OP_LOG_MAND it makes no
 	     * sense to deny LOG_REQUEST_STATUS operations.
-	     * Also, this is need internally by pmlc to discover pmcd's
+	     * Also, this is needed internally by pmlc to discover pmcd's
 	     * hostname.
 	     */
 	    sts = sendstatus();
