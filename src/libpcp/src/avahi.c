@@ -548,7 +548,9 @@ resolveCallback(
 		}
 		__pmSockAddrSetPort(serviceInfo.address, port);
 		__pmSockAddrSetScope(serviceInfo.address, interface);
-		context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+		numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+		if (numUrls >= 0)
+		    context->numUrls = numUrls;
 		__pmSockAddrFree(serviceInfo.address);
 	    }
 	    else

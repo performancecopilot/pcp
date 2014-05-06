@@ -118,7 +118,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 	__pmNotifyErr(LOG_ERR,
 		      "__pmAddDiscoveredService: Unsupported service: '%s'",
 		      info->spec);
-	return EOPNOTSUPP;
+	return -EOPNOTSUPP;
     }
 
     /*
