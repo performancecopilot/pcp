@@ -26,7 +26,7 @@ Public License can be found in `/usr/share/common-licenses/LGPL'.
 
 
 A modified version of the Qt QColorPicker class is included in
-this package, in the files src/chart/qcolorpicker.{h,cpp}.
+this package, in the files src/pmchart/qcolorpicker.{h,cpp}.
 
 Copyright (c) 1999-2007 Trolltech AS
 
@@ -37,7 +37,7 @@ License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 
 A modified version of the Qwt library is included in this package
-in the src/libqwt directory.  The Qwt library is free software;
+in the src/libpcp_qt/qwt directory.  The Qwt library is free software;
 you can redistribute it and/or modify it under the terms of the
 Qwt License, Version 1.0.
 

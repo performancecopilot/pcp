@@ -16,10 +16,10 @@ realclean distclean: clean
 	      $(TOPDIR)/src/include/version.h \
 	      $(TOPDIR)/src/libqmc/libqmc.pro \
 	      $(TOPDIR)/src/libqwt/libqwt.pro \
-	      $(TOPDIR)/src/dumptext/pmdumptext.pro \
-	      $(TOPDIR)/src/query/pmquery.pro \
-	      $(TOPDIR)/src/chart/pmchart.pro \
-	      $(TOPDIR)/src/time/pmtime.pro \
+	      $(TOPDIR)/src/pmdumptext/pmdumptext.pro \
+	      $(TOPDIR)/src/pmquery/pmquery.pro \
+	      $(TOPDIR)/src/pmchart/pmchart.pro \
+	      $(TOPDIR)/src/pmtime/pmtime.pro \
 	rm -f $(TOPDIR)/pcp-gui.lsm $(TOPDIR)/configure
 
 

@@ -37,11 +37,11 @@ AC_OUTPUT( \
 	src/include/version.h \
 	src/libqmc/libqmc.pro \
 	src/libqwt/libqwt.pro \
-	src/dumptext/pmdumptext.pro \
-	src/query/pmquery.info \
-	src/query/pmquery.pro \
-	src/chart/pmchart.info \
-	src/chart/pmchart.pro \
-	src/time/pmtime.info \
-	src/time/pmtime.pro \
+	src/pmdumptext/pmdumptext.pro \
+	src/pmquery/pmquery.info \
+	src/pmquery/pmquery.pro \
+	src/pmchart/pmchart.info \
+	src/pmchart/pmchart.pro \
+	src/pmtime/pmtime.info \
+	src/pmtime/pmtime.pro \
 	pcp-gui.lsm )
