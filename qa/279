@@ -119,6 +119,7 @@ _wait_for_pmcd
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
+__can_wait=6
 forced_restart=false
 __pmda_add "bogus	111	pipe	binary 		$killer"
 End-of-File
@@ -144,6 +145,7 @@ echo
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
+__can_wait=6
 __pmda_cull fungus 222
 End-of-File
 

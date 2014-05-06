@@ -3,7 +3,7 @@
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013 Red Hat.
+# Portions Copyright (c) 2013-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -253,7 +253,7 @@ done
 __wait_for_pmcd()
 {
     # 60 seconds default seems like a reasonble max time to get going
-    [ -z "$_can_wait" ] && __can_wait=${1-60}
+    [ -z "$__can_wait" ] && __can_wait=${1-60}
     if pmcd_wait -t $__can_wait
     then
 	:
