@@ -24,11 +24,12 @@ SUBDIRS = include libpcp pmns \
 	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
 	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmevent \
 	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
+	  pmtrace pmstat pmsocks pmdas pmafm procmemstat \
 	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
 	  autofsd-probe telnet-probe bashrc pmiestatus \
 	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
-	  perl python win32ctl pmmgr pmgetopt
+	  perl python win32ctl pmmgr pmgetopt \
+	  collectl2pcp iostat2pcp mrtg2pcp sar2pcp sheet2pcp
 
 default :: default_pcp
 
